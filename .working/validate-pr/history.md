@@ -1,7 +1,5 @@
 # PR-Scoped Validation History
 
-**Version:** 1.2.944\
-**Date:** 2026-07-26\
 **License:** CC BY-SA 4.0
 
 Reverse-chronological table of every `/validate-pr` invocation against this library. New rows on top. Each row summarises the PR-scoped sweep; detail for findings-producing sweeps lives in the per-PR file linked from the **Detail** column.
@@ -11,6 +9,7 @@ See [`README.md`](README.md) for the activity convention and the SKILL specifica
 ## Sweep entries
 
 | Date | PR | Touched files | Findings | Hot-fix PR | Detail | Summary |
+| 2026-07-26 | 1192 | the D9 advisory daily-rollup reminder (wired across 6 surfaces), the 6 restored weekly-summary blocks, the root-never-removed invariant, + the #1191 close-out | **RETURNED: SHIP, CLEAN, 0 blocking findings.** Pinned to merged head `f84e8822`. D9 self-test passes and is wired consistently (gate 35 + gate 64 rc 0), the 6 weekly blocks match the pre-#1177 revision verbatim, #1191 close-out rows present. | none | none | Post-merge per-PR sweep for #1192. Every refutation failed. **SHIP.** |
 | 2026-07-26 | 1191 | the daily CHANGELOG roll-up (07-25-and-earlier per-PR entries to 4 daily summaries; 07-26 kept per-PR), the detailed-mirror #1178-and-earlier sweep to _private, + the #1190 close-out | **RETURNED: SHIP, CLEAN, 0 blocking findings** (1 INFO, out of scope). Pinned to merged head `e09cde89`. Coverage verified (no PR dropped: 07-25=33, 07-24=38, 07-23=38, 07-22=12); mirror oldest in-repo entry is #1179 so gate 59 parity holds; #1190 close-out rows consistent. | none | none | Post-merge per-PR sweep for #1191. **SHIP.** |
 | 2026-07-26 | 1190 | internal tooling + working-record maintenance (anonymized identifiers in the exec-dispatch self-test fixture + several .working records; restored CHANGELOG blank-line separation; the #1189 close-out rows + open-findings W1/W2 -> FIXED) | **RETURNED: SHIP, CLEAN, 0 blocking findings** (1 INFO, out of scope). Pinned to merged head `c5746f32`. Anonymization is naming-only (self-test 17/17); all CHANGELOG entries carry blank-line separation; #1189 close-out rows present + consistent. | none | none | Post-merge per-PR sweep for #1190. No refutation succeeded. **SHIP.** |
 | 2026-07-26 | 1189 | the token-spend parser connector-allowlist + re.S DOTALL fix (TODO 3.128) + the batched #1188 close-out | **RETURNED: SHIP, CLEAN, 0 blocking findings** (1 expected trailing-close-out note, actioned in #1190: the open-findings W1/W2 rows stamped FIXED-in-#1189). Pinned to merged head `c2a1db90`. gap_is_connector allowlist replaces NEGATION, re.S added, self-test 43/43, no dangling reference, fail-closed. | none | none | Post-merge per-PR sweep for #1189 (the 3.128 fix). No refutation succeeded; the trailing note is the normal close-out pattern. **SHIP.** |

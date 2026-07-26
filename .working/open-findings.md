@@ -1,7 +1,5 @@
 # Open Findings Ledger
 
-**Version:** 1.2.9\
-**Date:** 2026-07-26\
 **License:** CC BY-SA 4.0
 
 Every CONFIRMED defect, from the moment it is confirmed until it is fixed or routed. One row each.
