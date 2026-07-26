@@ -8,6 +8,40 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-26, Library Version 2026.07.678, PR #1188 (corrective: stale-ledger + handoff sweep + two follow-ups)
+
+### Fixed
+
+- [`.working/open-findings.md`](../open-findings.md): two rows read OPEN when the issues were already
+  fixed (a stale ledger). The `submit_state`/`composer_region` E1 row is corrected to FIXED in #1180
+  (`e7eea68e`, the runtime-explicit region locator + the E1 reality fixture). The #1179 spec
+  bare-positional-refs row is corrected to FIXED in #1181 (`13861709`); attribution corrected from an
+  earlier "#1176" claim after git-verifying the occurrence counts (present at #1176, gone at #1181).
+- [`.working/session-handoff.md`](../session-handoff.md): swept two now-false directives from the
+  resume record (validate-pr-1186 F-1): the "do not run the sweep `--prune` until 3.129 lands" hold
+  (3.129 landed in #1186) and the "exec-worker system not built" note (built in #1185, extended in
+  #1187).
+
+### Added
+
+- [`TODO.md`](../../TODO.md): two tracked follow-ups. **3.140** (validate-pr-1186 F-2): hoist
+  `_check_body` to module scope and add reality fixtures for the two generated-body prune paths and the
+  non-UTF-8 branch (an observer-testability gap). **3.141**: per-account worker concurrency greater
+  than 1 via config-dir snapshots (design drafted; lower priority now that the `--account` override
+  gives cross-account parallelism). Counter advanced to 3.142.
+
+### Also (the #1187 close-out batch)
+
+- The #1187 bypass, `/validate-pr` (SHIP, 1 INFO out-of-scope), and `/retro` rows, plus the
+  [`.working/validate-pr/2026-07-26-PR-1187.md`](../validate-pr/2026-07-26-PR-1187.md) detail file.
+
+### Verification
+
+- The two ledger corrections were verified at source (the #1180 fix in
+  [`tools/manage-workers.py`](../../tools/manage-workers.py); the #1181 removal via `git grep -F`
+  returning zero for `1.19.1` and `3.56a`). Pre-push guard both runners
+  green; independent skeptical verifier before push.
+
 ## 2026-07-26, Library Version 2026.07.677, PR #1187 (exec-dispatch --account override + #1186 close-out)
 
 ### Changed
