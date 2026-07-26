@@ -8,6 +8,36 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-26, Library Version 2026.07.679, PR #1189 (token-spend parser: connector allowlist + DOTALL, TODO 3.128)
+
+### Fixed
+
+- [`tools/audit-token-spend.py`](../../tools/audit-token-spend.py) (TODO 3.128, validate-pr-1176 W1 +
+  W2): the parser decided attribution by proximity plus a negation BLOCKLIST, so two defects survived.
+  W1: a figure in a `## Token spend` SECTION read UNKNOWN because the gap pattern had no `re.DOTALL`
+  (measured ~14 of 36 tray deliveries). W2: the closed negation enumeration let `withheld`, `declined`,
+  and `unavailable` through, fabricating an adjacent budget number. Both are now closed by an
+  input-authority rule (the finding's own recommendation): the `NEGATION` blocklist is replaced by a
+  gap-CONNECTOR ALLOWLIST (`gap_is_connector`), so the gap between the spend phrase and the number may
+  hold only whitespace, punctuation, and a small set of joining words; any OTHER alphabetic word means
+  the number belongs to a neighbouring clause and the parser refuses (reads UNKNOWN). This fails CLOSED
+  on every future synonym, not just an enumerated set. `re.S` (DOTALL) is added to the three patterns,
+  which is safe precisely because the allowlist rejects prose the newly-reachable span would drag in.
+
+### Verification
+
+- `python3 tools/audit-token-spend.py --self-test` -> 43/43 (9 new `find_reported_spend` reality
+  fixtures: the section-format figure now parses to 8400; `withheld`/`declined`/`unavailable` and the
+  compact `withheld. Budget 8,000` / `declined. Budget 8,000` forms all read None; the #1175
+  not-reported case still reads None; a plain figure and a connector-word gap still parse). The two
+  COMPACT forms are the true guard (the old blocklist returned 8000 on them; the new allowlist returns
+  None), confirmed behaviourally.
+
+### Also (the #1188 close-out batch)
+
+- The #1188 bypass, `/validate-pr` (SHIP, CLEAN 0 findings), and `/retro` rows, plus the
+  [`.working/validate-pr/2026-07-26-PR-1188.md`](../validate-pr/2026-07-26-PR-1188.md) detail file.
+
 ## 2026-07-26, Library Version 2026.07.678, PR #1188 (corrective: stale-ledger + handoff sweep + two follow-ups)
 
 ### Fixed
