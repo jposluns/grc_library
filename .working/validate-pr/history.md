@@ -1,6 +1,6 @@
 # PR-Scoped Validation History
 
-**Version:** 1.2.943\
+**Version:** 1.2.944\
 **Date:** 2026-07-26\
 **License:** CC BY-SA 4.0
 
@@ -11,6 +11,7 @@ See [`README.md`](README.md) for the activity convention and the SKILL specifica
 ## Sweep entries
 
 | Date | PR | Touched files | Findings | Hot-fix PR | Detail | Summary |
+| 2026-07-26 | 1191 | the daily CHANGELOG roll-up (07-25-and-earlier per-PR entries to 4 daily summaries; 07-26 kept per-PR), the detailed-mirror #1178-and-earlier sweep to _private, + the #1190 close-out | **RETURNED: SHIP, CLEAN, 0 blocking findings** (1 INFO, out of scope). Pinned to merged head `e09cde89`. Coverage verified (no PR dropped: 07-25=33, 07-24=38, 07-23=38, 07-22=12); mirror oldest in-repo entry is #1179 so gate 59 parity holds; #1190 close-out rows consistent. | none | none | Post-merge per-PR sweep for #1191. **SHIP.** |
 | 2026-07-26 | 1190 | internal tooling + working-record maintenance (anonymized identifiers in the exec-dispatch self-test fixture + several .working records; restored CHANGELOG blank-line separation; the #1189 close-out rows + open-findings W1/W2 -> FIXED) | **RETURNED: SHIP, CLEAN, 0 blocking findings** (1 INFO, out of scope). Pinned to merged head `c5746f32`. Anonymization is naming-only (self-test 17/17); all CHANGELOG entries carry blank-line separation; #1189 close-out rows present + consistent. | none | none | Post-merge per-PR sweep for #1190. No refutation succeeded. **SHIP.** |
 | 2026-07-26 | 1189 | the token-spend parser connector-allowlist + re.S DOTALL fix (TODO 3.128) + the batched #1188 close-out | **RETURNED: SHIP, CLEAN, 0 blocking findings** (1 expected trailing-close-out note, actioned in #1190: the open-findings W1/W2 rows stamped FIXED-in-#1189). Pinned to merged head `c2a1db90`. gap_is_connector allowlist replaces NEGATION, re.S added, self-test 43/43, no dangling reference, fail-closed. | none | none | Post-merge per-PR sweep for #1189 (the 3.128 fix). No refutation succeeded; the trailing note is the normal close-out pattern. **SHIP.** |
 | 2026-07-26 | 1188 | the two open-findings ledger corrections (submit_state->#1180; #1179->#1181), the session-handoff F-1 sweep + D7 snapshot tokens, TODO 3.140/3.141 + counter 3.142, the #1187 close-out rows, and README/CHANGELOG versions | **RETURNED: SHIP, CLEAN, 0 findings.** Pinned to the merged head `2824db7b`. Every corrective claim confirmed at source (both ledger attributions correct; both now-false handoff directives swept; the surviving "MEASURED and UNFIXED" at TODO line 251 is the unrelated 78-positional-ref queue item, correctly untouched); all four ledgers newest-first with consistent +1 version diffs. | none | none | Post-merge per-PR sweep for #1188 (the corrective PR). No refutation attempt succeeded and no stale doc survives the change. **SHIP.** |
