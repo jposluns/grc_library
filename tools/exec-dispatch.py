@@ -129,6 +129,34 @@ def select_account(config: dict, family: str, model: str, now: _dt.datetime):
     return elig[0] if elig else None
 
 
+def pick_account(config: dict, family: str, model: str, now: _dt.datetime,
+                 account: str | None = None):
+    """Resolve WHICH account to dispatch to. PURE. Returns (acct_dict_or_None, reason).
+
+    Without `account`, the top eligible (select_account's pick). With `account`, that EXACT
+    account IF it is eligible for (family, model) at `now`, else None with a reason that
+    distinguishes an unknown account from a known-but-ineligible one.
+
+    The override is what lets the orchestrator SPREAD concurrent jobs across distinct accounts:
+    the wrapper's per-account flock serializes same-account jobs at 1, so without targeting, N
+    concurrent auto-dispatches all pick the top account and run SERIALLY. Targeting a different
+    eligible account per concurrent job gives real parallelism (each account's flock serializes
+    only its own one job). It does NOT bypass a flock, so it is safe today, before same-account
+    config-dir snapshotting exists."""
+    elig = eligible_accounts(config, family, model, now)
+    if account is None:
+        return (elig[0], "auto: top eligible") if elig else (None, "no eligible account")
+    for a in elig:
+        if a.get("account") == account:
+            return a, f"targeted: {account}"
+    known = any(x.get("account") == account and x.get("family") == family
+                for x in config.get("accounts", []))
+    if known:
+        return None, (f"account '{account}' is known for family '{family}' but NOT eligible for "
+                      f"model '{model}' at this time (unavailable, limited, or model not offered)")
+    return None, f"account '{account}' is not in the config for family '{family}'"
+
+
 # --- usage-limit parsing (best-effort; CLI formats need calibration = WIRE-IN) ------
 import re as _re
 
@@ -177,11 +205,13 @@ def mint_worker_id(account: str, family: str, now: _dt.datetime) -> str:
 
 # --- dispatch (the thin shell) -----------------------------------------------------
 def dispatch(config: dict, family: str, model: str, order_id: str, prompt_file: str,
-             effort: str | None = None, now: _dt.datetime | None = None) -> dict:
+             effort: str | None = None, now: _dt.datetime | None = None,
+             account: str | None = None) -> dict:
     now = now or _dt.datetime.now(_dt.timezone.utc)
-    acct = select_account(config, family, model, now)
+    acct, reason = pick_account(config, family, model, now, account)
     if acct is None:
-        return {"ok": False, "error": "no eligible account", "family": family, "model": model}
+        return {"ok": False, "error": reason, "family": family, "model": model,
+                "requested_account": account}
     wrapper = WRAPPER[family]
     worker_id = mint_worker_id(acct["account"], family, now)
     cmd = ["sudo", "-n", "-u", WORKER_USER, wrapper, prompt_file,
@@ -285,6 +315,25 @@ def _self_test() -> int:
     lim3, _ = parse_usage_limit("the article notes you've reached your monthly limit of free views")
     check("no-false-limit-benign-prose", lim3 is False)
 
+    # 10. Account override: no override picks the top eligible (same as select_account).
+    a_auto, _ = pick_account(_FIXTURE, "claude", "opus", sunday)
+    check("override-none-picks-top", a_auto is not None and a_auto["id"] == "jposluns-work-claude")
+    # 11. Targeting an eligible NON-top account returns exactly it (the parallelism case).
+    a_sec, r_sec = pick_account(_FIXTURE, "claude", "opus", sunday, account="security-work")
+    check("override-targets-eligible", a_sec is not None and a_sec["id"] == "security-work-claude")
+    # 12. Targeting the personal account (eligible but auto-picked LAST) still works when named.
+    a_mz, _ = pick_account(_FIXTURE, "claude", "opus", sunday, account="jeff-mailz")
+    check("override-targets-personal", a_mz is not None and a_mz["id"] == "jeff-mailz-claude")
+    # 13. Targeting a KNOWN-but-ineligible account (limited jeff-posluns) is REJECTED with a reason.
+    a_lim, r_lim = pick_account(_FIXTURE, "claude", "opus", sunday, account="jeff-posluns")
+    check("override-rejects-ineligible", a_lim is None and "NOT eligible" in r_lim)
+    # 14. Targeting an UNKNOWN account is rejected and distinguished from ineligible.
+    a_unk, r_unk = pick_account(_FIXTURE, "claude", "opus", sunday, account="no-such-acct")
+    check("override-rejects-unknown", a_unk is None and "not in the config" in r_unk)
+    # 15. The same account name across families resolves by FAMILY (jeff-mailz has claude AND codex).
+    a_cod, _ = pick_account(_FIXTURE, "codex", "gpt-5.6-terra", sunday, account="jeff-mailz")
+    check("override-resolves-by-family", a_cod is not None and a_cod["id"] == "jeff-mailz-codex")
+
     if fails:
         print("SELF-TEST FAIL:", ", ".join(fails))
         return 1
@@ -305,6 +354,9 @@ def main() -> int:
                     help="claude: --effort; codex: mapped to model_reasoning_effort (wrapper WIRE-IN)")
     ap.add_argument("--order-id")
     ap.add_argument("--prompt-file")
+    ap.add_argument("--account", help="target a SPECIFIC account (must be eligible), instead of the "
+                    "auto-pick; use distinct accounts across concurrent dispatches for real "
+                    "parallelism (same-account jobs serialize on the wrapper flock)")
     args = ap.parse_args()
 
     if args.self_test:
@@ -317,10 +369,17 @@ def main() -> int:
         if not (args.family and args.model):
             ap.error("--dry-run needs --family and --model")
         elig = eligible_accounts(config, args.family, args.model, now)
+        if args.account:
+            acct, reason = pick_account(config, args.family, args.model, now, args.account)
+            print(f"[{now.astimezone().strftime('%H:%M:%S')}] --account {args.account}: "
+                  f"{'PICK ' + acct['id'] if acct else 'REJECTED'} ({reason})")
         print(f"[{now.astimezone().strftime('%H:%M:%S')}] eligible {args.family}/{args.model} "
               f"(now={now.isoformat()}):")
         for i, a in enumerate(elig):
-            tag = "  <-- PICK" if i == 0 else ""
+            # With --account, the PICK marker belongs on the TARGETED row, not the auto-pick top row
+            # (verify-1187 F-1: a hard-coded i==0 marker contradicted an eligible non-top target).
+            is_pick = (a.get("account") == args.account) if args.account else (i == 0)
+            tag = "  <-- PICK" if is_pick else ""
             print(f"  {i+1}. {a['id']:24s} set={a.get('priority_set')} "
                   f"tier={a.get('tier')} personal={a.get('personal')}{tag}")
         # show who was excluded and why
@@ -339,11 +398,17 @@ def main() -> int:
             if not getattr(args, req):
                 ap.error(f"--dispatch needs --{req.replace('_','-')}")
         res = dispatch(config, args.family, args.model, args.order_id, args.prompt_file,
-                       effort=args.effort, now=now)
+                       effort=args.effort, now=now, account=args.account)
+        if not res["ok"] and res.get("worker_id") is None:
+            # account resolution failed before any worker ran: surface the reason loudly.
+            print(f"[{_dt.datetime.now().strftime('%H:%M:%S')}] dispatch order={args.order_id} "
+                  f"NOT DISPATCHED: {res.get('error')}", file=sys.stderr)
+            return 1
         # print a compact status line, then the worker output
         print(f"[{_dt.datetime.now().strftime('%H:%M:%S')}] dispatch order={res.get('order_id')} "
-              f"worker={res.get('worker_id')} model={args.model} effort={args.effort or 'default'} "
-              f"rc={res.get('rc')} dur={res.get('duration_s')}s limited={res.get('usage_limited')}")
+              f"worker={res.get('worker_id')} account={res.get('account')} model={args.model} "
+              f"effort={args.effort or 'default'} rc={res.get('rc')} dur={res.get('duration_s')}s "
+              f"limited={res.get('usage_limited')}")
         if res.get("stdout"):
             sys.stdout.write(res["stdout"])
         if not res["ok"] and res.get("stderr"):
