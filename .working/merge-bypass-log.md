@@ -1,7 +1,5 @@
 # Merge-bypass log
 
-**Version:** 1.0.20\
-**Date:** 2026-07-26\
 **License:** CC BY-SA 4.0
 
 Every merge that used the maintainer's always-bypass path on a protected branch, one row each.
@@ -34,6 +32,7 @@ on a RED PR would skip the mechanical gates as well, which nothing in this proje
 
 | Date (UTC) | PR | CI state at merge | Mechanism | Justification | Change |
 | --- | --- | --- | --- | --- | --- |
+| 2026-07-26 | #1192 | all three checks green, verified via `gh pr checks 1192 --watch` on the merged head `f84e8822` (Lint markdown corpus, Web generator health, Cloudflare Pages) | `gh pr merge --admin --squash --delete-branch` | Plain merge refused under the base-branch approval policy; maintainer-authored PR under the standing no-self-gatekeeping convention; pre-push guard green. Written after the merge from the observed `gh pr checks 1192` output. | the D9 daily-rollup reminder + weekly-summary restoration + the #1191 close-out |
 | 2026-07-26 | #1191 | all three checks green, verified via `gh pr checks 1191 --watch` on the merged head `e09cde89` (Lint markdown corpus 1m57s, Web generator health 21s, Cloudflare Pages) | `gh pr merge --admin --squash --delete-branch` | Plain merge refused under the base-branch approval policy; maintainer-authored PR under the standing no-self-gatekeeping convention; pre-push guard green. Written after the merge from the observed `gh pr checks 1191` output. | the daily CHANGELOG roll-up + mirror sweep to _private + the #1190 close-out |
 | 2026-07-26 | #1190 | all three checks green, verified via `gh pr checks 1190 --watch` on the merged head `c5746f32` (Lint markdown corpus 2m37s, Web generator health 13s, Cloudflare Pages) | `gh pr merge --admin --squash --delete-branch` | Plain merge refused under the base-branch approval policy; maintainer-authored PR under the standing no-self-gatekeeping convention; pre-push guard green. Written after the merge from the observed `gh pr checks 1190` output. | internal tooling + working-record maintenance + the #1189 close-out batch |
 | 2026-07-26 | #1189 | all three checks green, verified via `gh pr checks 1189 --watch` on the merged head `c2a1db90` (Lint markdown corpus 1m43s, Web generator health 12s, Cloudflare Pages) | `gh pr merge --admin --squash --delete-branch` | Plain merge refused under the base-branch approval policy; maintainer-authored PR under the standing no-self-gatekeeping convention; pre-push guard green + verifier SHIP. Written after the merge from the observed `gh pr checks 1189` output. | the token-spend parser fix (TODO 3.128) + the #1188 close-out batch |

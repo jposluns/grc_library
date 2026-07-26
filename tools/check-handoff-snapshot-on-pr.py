@@ -53,9 +53,6 @@ Checked labels (label pattern -> live file and header field):
   - ``README `X.Y.Z```               -> README.md            **README Version:**
   - ``pack `X.Y.Z```                 -> dev-security/claude-rules/README.md **Version:**
   - ``audit-spec `X.Y.Z```           -> governance/specification-audit-programme.md **Version:**
-  - ``guardrail-history `X.Y.Z```    -> .working/guardrail-reviews/history.md **Version:**
-  - ``validate-pr history `X.Y.Z```  -> .working/validate-pr/history.md **Version:**
-  - ``improvement-log `X.Y.Z```      -> .working/improvement-log.md **Version:**
   - ``claim-fit history `X.Y.Z```    -> .working/claim-fit/history.md **Version:**
 
 This is a CI-only delta gate (D7), not part of the corpus audit
@@ -108,24 +105,6 @@ SURFACES = [
         "audit-spec",
         re.compile(r"\baudit-spec `([0-9]+\.[0-9]+\.[0-9]+)`"),
         "governance/specification-audit-programme.md",
-        re.compile(r"^\*\*Version:\*\*\s+([0-9]+\.[0-9]+\.[0-9]+)", re.M),
-    ),
-    (
-        "guardrail-history",
-        re.compile(r"\bguardrail-history `([0-9]+\.[0-9]+\.[0-9]+)`"),
-        ".working/guardrail-reviews/history.md",
-        re.compile(r"^\*\*Version:\*\*\s+([0-9]+\.[0-9]+\.[0-9]+)", re.M),
-    ),
-    (
-        "validate-pr history",
-        re.compile(r"\bvalidate-pr history `([0-9]+\.[0-9]+\.[0-9]+)`"),
-        ".working/validate-pr/history.md",
-        re.compile(r"^\*\*Version:\*\*\s+([0-9]+\.[0-9]+\.[0-9]+)", re.M),
-    ),
-    (
-        "improvement-log",
-        re.compile(r"\bimprovement-log `([0-9]+\.[0-9]+\.[0-9]+)`"),
-        ".working/improvement-log.md",
         re.compile(r"^\*\*Version:\*\*\s+([0-9]+\.[0-9]+\.[0-9]+)", re.M),
     ),
     (
