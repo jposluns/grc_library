@@ -10,7 +10,7 @@
 #      version-bump, D3 CHANGELOG-dash-on-PR, D4 per-PR Version-Date
 #      co-bump, D5 backlog-rotation-on-PR, D6 pack-README
 #      version-history co-bump, D7 handoff-snapshot freshness,
-#      D8 CHANGELOG-length-on-PR). These
+#      D8 CHANGELOG-length-on-PR, D9 daily-changelog-rollup reminder (advisory)). These
 #      compare the PR head to its merge base, so their inputs are not
 #      available in tools/run_all_audits.sh; they run
 #      only here and in quality.yml.
@@ -128,6 +128,14 @@ run_check "D7 Handoff-snapshot freshness check" \
 # (maintainer-directed 2026-07-17; history is exempt, new entries are not).
 run_check "D8 CHANGELOG length-on-PR check" \
     python3 tools/check-changelog-length-on-pr.py "${BASE_REF}" "${HEAD_REF}"
+
+# Delta gate D9 (advisory): scan CHANGELOG.md for any past UTC date that still
+# carries more than one per-PR entry (never collapsed into its daily roll-up).
+# WARNS only (exit 0) so the orchestrator does not skip the daily summarization;
+# the next PR should carry the roll-up and prune the matching mirror rows. Reads
+# working-tree state, so like the corpus gates below it needs no base ref.
+run_check "D9 Daily-changelog-rollup reminder" \
+    python3 tools/check-daily-changelog-rollup.py
 
 # Gate 45: TODO staleness audit. Behaves like a delta gate because its
 # inputs (git log of merged-PR commit subjects, .working/validate-sweeps/
