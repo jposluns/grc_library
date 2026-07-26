@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### PR #1185: exec-worker dispatch tool + loop-break /validate recorded (2026-07-26)
+
+Shipped `tools/exec-dispatch.py`, the orchestrator-side control plane for the on-demand exec'd worker harness the maintainer's post-resume first task built: config-reader + eligibility filter (usage-limit-aware, personal-last, exhaust-a-set-then-next) + policy selection + `sudo`-wrapper dispatch with model/effort, self-test 11 checks. Recorded Sweep 123 (the #1181..#1184 loop-break `/validate`, CLEAN, the harness's first production QA, spot-verified at source), added worker-brief rail 18 (read-only workers cannot run the write-requiring gate 36), and queued TODO 3.138 (worker full-suite via per-job writable checkout). Not a pre-existing numbered backlog item; it is the "wire the orchestrator side" step named in the takeover handoff.
+
 ### §1.22.3 `.working` cycle-out tool-build (2026-07-25 rotation; tool shipped in PR #1070, initial sweep part (a) in #1140)
 
 The `.working` records cycle-out tool shipped as `tools/sweep-working-records-to-private.py` (emit-verify-then-prune, data-safe), with the current-week model for the detailed CHANGELOG mirror. Rotated out of TODO at the maintainer's direction on 2026-07-25, which asked that large combined items keep only their NOT-done components in the forward-looking backlog.

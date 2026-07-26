@@ -8,6 +8,56 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-26, Library Version 2026.07.675, PR #1185 (exec-worker dispatch tool + loop-break /validate)
+
+The orchestrator-side control plane for the on-demand exec'd worker harness that the maintainer's
+post-resume first task built (root-owned validating wrappers + narrow sudoers + per-account config
+dirs under one `worker_agents` Linux user + a read-only worker contract; design of record in
+the `_private` companion repo's design-of-record file, project-only operational machinery, not pack
+material).
+
+### Added
+- [`tools/exec-dispatch.py`](../../tools/exec-dispatch.py): reads the `_private` account-config, filters accounts by family + model +
+  usage-state (`limited_until` excludes an out-of-usage account until its reset), orders them
+  non-personal-first then by priority-set (exhaust-a-set-then-next) then tier weight, mints a fresh
+  per-exec worker id, and launches the family wrapper via `sudo` with `--model` / `--effort`. Pure
+  decision logic (now injected for testability) behind a thin dispatch shell; `--self-test` (11
+  checks, count printed dynamically so it cannot drift), `--dry-run` (shows the eligible-ordered accounts + the pick + who is excluded and why),
+  `--dispatch`. Stdlib-only, in the class of the other project-only worker tools
+  (`manage-workers`, `audit-worker-saturation`, `collect-deliveries`).
+
+### Changed
+- [`.working/worker-brief-template.md`](../worker-brief-template.md): new DO-list **rail 18** codifying that a worker is READ-ONLY on
+  the shared `grc_library` tree and cannot run gates that write into it (canonical case: gate 36, the
+  linter-regression suite, writes fixtures to in-tree `tests/tmp/` by design). A worker reports such a
+  gate as not-runnable-in-sandbox, never a corpus FAIL; it stays orchestrator-side.
+
+### Verification
+- Sweep 123 (this PR): the loop-break `/validate` over #1181..#1184, offloaded to the new exec'd
+  worker (jposluns-work/opus), returned **CLEAN** (0 error / 0 warning / 1 environment note) in 7m26s;
+  all four targeted confirmations CONFIRMED and all six handoff asserted-expectations CORROBORATED,
+  zero contradictions. The orchestrator spot-verified the worker's proof-of-run at source (gate count
+  78, the #1181 Sweep-91 orphan's real ancestor `e94b6923`, counts 15/24/16, §3.129 open), so the
+  clean verdict is not a confabulated pass. `exec-dispatch.py --self-test`: 11 checks OK, including the
+  maintainer's core case (jeff-posluns claude excluded while `limited` until Wed, re-eligible after).
+- A pre-push skeptical verifier (offloaded to an independent exec'd worker, opus/high, briefed to
+  REFUTE) found the core dispatch logic sound and raised three minor findings, ALL fixed pre-push
+  before this PR was pushed: (1) the self-test printed a hardcoded "8 checks" while 10 `check()` calls
+  ran and that figure had propagated into this entry, the exact miscount-a-self-test class the repo
+  fixed at #1147, now made a dynamic `len()` (11 checks after a regression case was added); (2) one
+  self-test assertion was vacuous (re-asserted the family invariant `all([])`-style rather than the
+  model filter), rewritten to exercise the `model not in models` branch; (3) `parse_usage_limit`
+  false-fired on benign prose quoting the word "limit" (it flagged the verifier's OWN report), the
+  loose pattern removed and a regression case added, with the docstring corrected to state its
+  deliberately-conservative bias honestly.
+
+### Discipline observation
+- The tool is the harness's control plane; the harness itself (wrappers, sudoers, per-account configs,
+  read-only settings, safe.directory, the codex `-C` clone) is host/`_private` operational state
+  outside this repo, so this PR ships only the in-repo tool + the worker-brief rail + the bookkeeping.
+- TODO 3.138 queued: worker full-suite `/validate` via a per-job writable checkout (so a worker can
+  run the write-requiring gate 36 in isolation), the principled successor to NOTE-1.
+
 ## 2026-07-26, Library Version 2026.07.674, PR #1184 (orchestrator-takeover session-closing handoff)
 
 The session-closing handoff for the 2026-07-26 orchestrator-takeover session. Per the loop-break
