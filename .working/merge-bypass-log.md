@@ -1,6 +1,6 @@
 # Merge-bypass log
 
-**Version:** 1.0.13\
+**Version:** 1.0.14\
 **Date:** 2026-07-26\
 **License:** CC BY-SA 4.0
 
@@ -34,6 +34,7 @@ on a RED PR would skip the mechanical gates as well, which nothing in this proje
 
 | Date (UTC) | PR | CI state at merge | Mechanism | Justification | Change |
 | --- | --- | --- | --- | --- | --- |
+| 2026-07-26 | #1185 | all three checks green, verified via `gh pr checks 1185` on the merged head `ce3ed5cd` (Lint markdown corpus 1m52s, Web generator health 13s, Cloudflare Pages) | `gh pr merge --admin --squash --delete-branch` | Plain merge refused under the base-branch approval policy; maintainer-authored PR under the standing no-self-gatekeeping convention; pre-push guard green on both runners (78 gates + PR-time checks) after it and an independent verifier caught + fixed 3 tool findings and 3 gate failures. Written after the merge from the observed `gh pr checks 1185` output, never in anticipation. | the exec-worker dispatch tool (`exec-dispatch.py`) + the loop-break `/validate` (Sweep 123) |
 | 2026-07-26 | #1183 | all checks green (Lint markdown corpus 1m48s, Web generator health 13s, Cloudflare Pages) | `gh pr merge --admin --squash` | Plain merge refused with `REVIEW_REQUIRED`; maintainer-authored PR, green CI, daytime attended-autonomous merge authority during the orchestrator takeover. Written after the merge from the observed `gh pr checks` output. | the `/restore-broken` recovery command and guardrail review r16 |
 | 2026-07-26 | #1182 | all checks green (Lint markdown corpus 1m52s, Web generator health 15s, Cloudflare Pages) | `gh pr merge --admin --squash` | Plain merge refused with `REVIEW_REQUIRED`; maintainer-authored PR, green CI, daytime attended-autonomous merge authority during the orchestrator takeover. Written after the merge from the observed `gh pr checks` output. | the takeover reconciliation: the lease, #1181's QA and bypass rows, the restored nudge-log, and the recorded sweep fail-open |
 | 2026-07-26 | #1181 | all checks green (Lint markdown corpus 1m50s, Web generator health 11s, Cloudflare Pages) | `gh pr merge --admin --squash` | Plain merge refused with `REVIEW_REQUIRED`; maintainer-authored PR, green CI, daytime attended-autonomous merge authority during the orchestrator takeover. Written after the merge from the observed `gh pr checks` output. | the seven lost QA-history rows restored (none invented) and the commit-time version-bump hook |
