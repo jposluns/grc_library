@@ -8,6 +8,32 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-26, Library Version 2026.07.683, PR #1193 (drop Version+Date from append-only .working logs, TODO 3.135)
+
+### Changed
+
+- Drops the `Version` and `Date` metadata lines from the five append-only `.working` history logs
+  ([`.working/validate-pr/history.md`](../validate-pr/history.md),
+  [`.working/improvement-log.md`](../improvement-log.md),
+  [`.working/merge-bypass-log.md`](../merge-bypass-log.md),
+  [`.working/guardrail-reviews/history.md`](../guardrail-reviews/history.md),
+  [`.working/open-findings.md`](../open-findings.md)), which bumped every PR for no reader benefit
+  (TODO 3.135, maintainer-approved). These are append-only logs, so a whole-file version carries no
+  information a reader uses; the per-row content is the record.
+- The per-PR version gates exempt these files: D2 ([`tools/check-version-bump-on-pr.py`](../../tools/check-version-bump-on-pr.py))
+  and D4 ([`tools/check-date-cobump-on-pr.py`](../../tools/check-date-cobump-on-pr.py)) add them to
+  `EXEMPT_FILES` (the D4 exemption is load-bearing: without it the removal PR itself fails D4). Gate 40
+  and the [`block-unbumped-version-commit.py`](../../.claude/hooks/block-unbumped-version-commit.py)
+  hook already exclude `.working/`, so they need no edit.
+  D7 ([`tools/check-handoff-snapshot-on-pr.py`](../../tools/check-handoff-snapshot-on-pr.py)) drops the
+  three `SURFACES` rows for the now-unversioned logs.
+- Self-disarming: the version gates key on Version presence, so future appends pass without the
+  exemptions (they are regression insurance).
+
+### Also
+
+- Batches the #1192 close-out, the first close-out written with NO Version bumps on these logs.
+
 ## 2026-07-26, Library Version 2026.07.682, PR #1192 (daily-rollup reminder D9 + restore previous-week summaries)
 
 ### Added

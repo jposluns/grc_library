@@ -1,7 +1,5 @@
 # Guardrail-Review History
 
-**Version:** 1.0.19\
-**Date:** 2026-07-26\
 **License:** CC BY-SA 4.0
 
 Reverse-chronological table of every `/guardrails` (canonical skill name

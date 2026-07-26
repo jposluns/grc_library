@@ -85,6 +85,13 @@ EXEMPT_FILES: frozenset[str] = frozenset(
         "taxonomy.yml",
         "docs/portal.md",
         "docs/maturity-scorecard.md",
+        # Append-only .working logs (TODO 3.135): unversioned, so exempt from the
+        # per-PR Version-bump (D2) and Version-Date co-bump (D4) requirements.
+        ".working/validate-pr/history.md",
+        ".working/improvement-log.md",
+        ".working/merge-bypass-log.md",
+        ".working/guardrail-reviews/history.md",
+        ".working/open-findings.md",
     }
 )
 
