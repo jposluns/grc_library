@@ -31,6 +31,16 @@ The assistant has no internal timer. Re-anchor to this rule at these semantic ch
 At each checkpoint, emit one line, then confirm compliance or halt:
 `AIQT check: (Accuracy = Integrity = Quality = Trust) > Speed > Cost. Non-negotiable.`
 
+**MINIMUM CADENCE: AT LEAST ONCE PER PR, AND PREFERABLY MORE OFTEN (maintainer-directed
+2026-07-26).** The checkpoint list above is semantic, and a semantic list is exactly what a long run
+erodes: on 2026-07-26 the assistant went two entire PRs without emitting the line and re-anchored
+only when the maintainer asked whether it had forgotten. So the cadence now has a FLOOR that does not
+depend on noticing a checkpoint. Every PR carries at least one emission, and the emission is
+SELF-ACKNOWLEDGED rather than recited: state, in one or two clauses, what on this specific change the
+tier is being held against. A bare line with no acknowledgement is the decorative form and does not
+discharge the obligation, for the same reason a passing gate obtained by lowering the bar is not a
+pass.
+
 The project-agnostic distributable form ships as the pack governance rule [`governance/project-integrity.md`](../dev-security/claude-rules/governance/project-integrity.md).
 
 ---
@@ -598,6 +608,17 @@ is external. Two mechanisms:
      first records the pre-bump figures, which D7 then correctly rejects as stale against the PR's own
      head. The snapshot quotes the state the PR PRODUCES, not the state it started from, so any narrative
      line elsewhere in the handoff that repeats those figures moves with it.
+   - **Version-and-Date move together, in the SAME edit** (the D2/D4 pair; three occurrences on
+     2026-07-26 alone, past the codification threshold). Every file with a `Version` field also has a
+     `Date` field, and the two delta gates check the pair from opposite ends: **D2** fails when a
+     file's body changed and its `Version` did not, **D4** fails when a `Version` moved and its `Date`
+     did not match the bump commit's UTC date. So touching either half alone fails one of them, and
+     the two failures look unrelated in the log while being the same mistake. Bump both in the one
+     edit rather than remembering the second afterwards. **Two traps specifically.** A UTC rollover
+     mid-PR silently makes every already-correct `Date` stale, so a long session must re-check the
+     whole set rather than only the files it just touched. And a LATER commit that moves a `Date` to
+     satisfy D4 is itself a body change post-dating the `Version` bump, which then trips gate 40, so
+     the repair for a D4 failure is to move the `Version` forward too, not only the `Date`.
    - **Generated-artefact regen order** (the false-clean guard): after any per-document
      `Version` bump, regenerate `taxonomy.yml` FIRST, then `docs/portal.md` and
      `docs/maturity-scorecard.md` (which derive from the taxonomy); a `build-portal.py
@@ -698,6 +719,23 @@ is external. Two mechanisms:
    - **Keep the last substantive PR of a session SMALL.** The exposure is the product of the
      PR's size and the chance its QA does not return, so a wind-down is the wrong moment for a
      wide, multi-surface, or closure-bearing change. Sequence those earlier in the session.
+
+   **AN UNDELIVERED `/validate-pr` IS BLOCKING, AND A SLOW WORKER IS RE-ISSUED (maintainer-directed
+   2026-07-26).** The rule above says the result must RETURN; this says what to do while it does not.
+   An outstanding `/validate-pr` BLOCKS, so it is not something to note and work around. If the
+   holding worker has not delivered in a reasonable time, **issue the SAME order to a second worker**
+   rather than waiting further, and **accept whichever delivers first** as the authoritative result,
+   dispositioning its findings normally. If the slower one then arrives, it is NOT discarded and NOT
+   re-adjudicated as a competing verdict: it is read as a CROSS-REFERENCE, purely to check that the
+   accepted result missed nothing. A finding present only in the late delivery is triaged on its own
+   merits; agreement between the two is corroboration and is worth recording as such.
+
+   Two properties make this safe rather than wasteful. Duplicating a READ-ONLY QA order costs a
+   worker cycle and nothing else, since neither worker writes to the repository. And it converts a
+   stalled order from an indefinite block into a bounded one, which matters because the whole failure
+   this section exists to prevent is a QA order that quietly never runs. Where the two workers are
+   independent of each other, the second reading is a genuine second lens and the corroboration is
+   worth more than the time it cost.
 
    **The mechanical half is NOT YET BUILT, and the gap is specific.** Gate 50's Check 1 is
    satisfied by row PRESENCE, so an honest `DISPATCHED, RESULT PENDING` row satisfies it and the

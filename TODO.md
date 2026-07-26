@@ -248,7 +248,7 @@ Umbrella for adopting NIST OSCAL as an open, machine-readable projection of the 
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.126.**
+**Next item number: 3.129.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
 
@@ -518,6 +518,61 @@ tests an observer against the world rather than against its author's model, and 
 state was itself wrong. This is the genuine fix behind TODO 3.116, which was
 closed with a stall signal that could not fire on a worker heartbeating normally. Phase 2 (evidence-mandatory
 delivery format, and an adversarial audit cadence over deliveries) follows as its own item.
+
+### 3.126 The open-findings disposition cell needs a STRUCTURAL fix, not a third round of matcher hardening (validate-pr-1178 F-1, M, S)
+
+#1178 replaced the emptiness test in [`block-on-open-findings.py`](.claude/hooks/block-on-open-findings.py) with a
+closed-vocabulary prefix test, and the prefix test reproduces the same class one layer in. It FALSE-BLOCKS real
+dispositions (`now fixed`, `this was fixed in #1178`, `resolved in #1178`, `closed as duplicate`, `WONTFIX`) because
+`startswith` demands the vocabulary word first and the closed set omits ordinary synonyms; and it FALSE-PASSES
+narrations that open with a terminal word and then negate it, the sharpest being `**routed** but nobody took it`,
+which carries correct markup, correct vocabulary, and says in plain words that nothing was decided. **Do not harden
+the predicate again.** A free-prose cell cannot answer "is this finding dispositioned", so the INPUT is what needs
+changing: a machine-readable disposition token in its own column (or a required `TOKEN <reference>` shape, so
+`ROUTED` must name what now owns it and `FIXED` must name where), with the prose kept as a separate rationale cell.
+Hardening the check instead of fixing the input is verbatim the anti-pattern
+[`validate-inference-before-action`](.claude/rules/governance/validate-inference-before-action.md) names, and it was
+done here while citing that very rule, which is worth remembering when the next guard looks like it just needs a
+better regex.
+
+### 3.127 `submit_state` residual paths beyond the fixed one (validate-pr-1176 E1 follow-on, M, S)
+
+The FALSE-SUBMITTED path E1 identified is FIXED in #1180: `composer_region` is now told which runtime it is reading
+instead of inferring it from the rule count, and returns INDETERMINATE where it genuinely cannot tell, pinned by a
+reality fixture built from the actual failing pane shape. What remains is the wider question the fix exposes rather
+than answers. The tool reads a 12-line tail (`COMPOSER_TAIL_LINES`) and probes with the payload's FIRST 40
+characters, which is the part that scrolls away first, so the check is structurally weakest for the longest payloads.
+Consider probing on a TAIL fragment of the payload rather than a head fragment, since the tail is what remains
+visible when the box scrolls, and consider whether the tail depth should be derived from the payload's rendered
+height rather than fixed. Also still open: the earlier observation that the tool reported NOT SUBMITTED for a pane
+whose composer was in fact empty with a completed reply, which the runtime fix may or may not explain and which
+should be re-tested against live panes before it is assumed closed.
+
+### 3.128 The token-spend parser loses real figures and invents others (validate-pr-1176 W1 and W2, M, S)
+
+Two defects in [`tools/audit-token-spend.py`](tools/audit-token-spend.py), measured against the real delivery tray
+rather than constructed inputs. **W1:** `SPEND_PATTERNS` puts `(.{0,20}?)` between the phrase and the number and `.`
+does not match a newline without `re.DOTALL`, so any delivery that places its figure in a `## Token spend` SECTION
+(heading, blank line, paragraph) never matches; that is **12 of 31** real deliveries reading UNKNOWN. The failure
+direction is safe, which is why it is a warning rather than an error, but it silently understates fleet spend across
+roughly two fifths of deliveries. **W2:** the `NEGATION` guard is a closed enumeration that closes exactly the string
+the #1175 sweep fed it, while `withheld`, `declined` and `unavailable` all still yield a fabricated 8000 taken from
+an adjacent budget figure. Enumerating negations cannot be completed, so the structural fix is to require the number
+to be ATTRIBUTABLE to a spend phrase rather than merely near one, which is the same input-authority shape as the rest
+of this week's findings.
+
+**ORCHESTRATOR RE-DERIVATION (2026-07-26), and it is worse than W1 states.** Re-run over the live tray: **14 of 36**
+deliveries report no readable figure (the worker measured 12 of 31 earlier; the tray has grown since, so the two
+agree). The sharper finding is in the PER-WORKER column, which W1 does not mention.
+`opus-20260725T121943Z-78ff` displays **about 1,175 estimated across 12 deliveries**, while ONE of those deliveries,
+`sweep122-resume-validate`, states "approximately 330,000 input tokens and approximately 30,000 output tokens" in a
+`## Token spend` SECTION, exactly the shape the parser cannot cross. So the tool does not merely fall back to UNKNOWN
+for these: it prints a confident per-worker figure understating that worker by roughly 300 times, and the fleet TOTAL
+is consequently dominated by the one worker whose phrasing happens to parse. That is a wrong-number failure sitting
+beside an honest unknown-count, and it is the more dangerous half, because the unknown count carries its own caveat in
+the output while the per-worker figure carries none. The fix must therefore also decide what to DISPLAY for a worker
+whose figures are mostly unreadable: a number derived from a minority of a worker's deliveries is not that worker's
+spend, and presenting it as such is the measured-versus-estimated conflation the pack rule already forbids.
 
 ### 3.74 Standards-reference-format standardization (maintainer-directed 2026-07-14, M)
 
