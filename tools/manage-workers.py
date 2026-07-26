@@ -75,9 +75,19 @@ RUNTIME_FAMILIES = {"claude": ("opus", "fable"), "codex": ("codex",)}
 VERBS = {
     "wake": {
         "claude": ("/credit-offload",),
-        # Maintainer-specified 2026-07-25. Self-deferring by design, so it is safe mid-turn.
-        "codex": ("At your next opportunity, resync your grc_library_scratch clone and check in: "
-                  "claim the next waiting order in your family if you are not already working.",),
+        # Maintainer-specified 2026-07-25, REWORDED to the maintainer's own 2026-07-26 wording after
+        # codex workers were observed misdescribing their state. Three deliberate properties.
+        # SELF-DEFERRING, so it is safe to send mid-turn: the first clause tells a working worker to
+        # discard it, which is why this verb needs no idleness gate. ONE-AT-A-TIME is stated
+        # explicitly because a codex worker was observed holding two orders at once, which nothing
+        # mechanically prevents. And it points at the ONBOARDING CONTRACT rather than restating the
+        # serve loop, so this constant cannot drift out of step with the contract it summarizes.
+        "codex": ("If you are currently working on an order, ignore this message and carry on. "
+                  "If you are not, then at your next opportunity resync your grc_library_scratch "
+                  "clone and check in: claim ONE waiting order in your family, work it to delivery, "
+                  "and only then claim another. Follow the worker onboarding instructions in the "
+                  "exchange repo's AGENTS.md for the full serve loop, rather than working from "
+                  "memory of it.",),
     },
     # PER-RUNTIME CONTRACT PATH. `AGENTS.md` and `CLAUDE.md` are a deliberate PARALLEL PAIR in the
     # exchange repo, not one file with two names: AGENTS.md states it is "the Codex-agent equivalent

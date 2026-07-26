@@ -1,7 +1,7 @@
 # Validation Sweep History
 
-**Version:** 2.0.124\
-**Date:** 2026-07-25\
+**Version:** 2.0.125\
+**Date:** 2026-07-26\
 **License:** CC BY-SA 4.0
 
 Reverse-chronological table of every `/validate` invocation against this library. New rows on top. Each row is a summary; detail for findings-producing iterations lives in the per-iteration file linked from the **Detail** column.
