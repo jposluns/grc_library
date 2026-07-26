@@ -53,23 +53,36 @@ DELIVERY_TRAY_REL = "inbox/deliveries"
 # A worker's self-reported spend. Deliberately several phrasings: the figure is prose in a
 # delivery, not a field, so the brief's wording drifts and a single pattern would silently read
 # zero for a delivery that did report one. Matches "8,400", "8400", "~8.4k", "8.4K".
-# Words that NEGATE a spend statement. If one of these sits between the phrase and the number, the
-# number is not the spend: "Token spend: not reported; the task budget is 8,000 tokens" must yield
-# UNKNOWN, not 8000. Found by the #1175 sweep, which fed exactly that string and got 8000.
-NEGATION = re.compile(r"\b(?:not|no|none|nil|unknown|unreported|n/?a|without)\b", re.I)
+# What may sit between a spend phrase and its number, and nothing else. The gap is a CONNECTOR, not
+# free prose: whitespace, punctuation, and this small ALLOWLIST of joining words. Any OTHER
+# alphabetic word means the number is not attributable to the phrase (it belongs to an adjacent
+# clause, as in "Token spend: withheld. Budget 8,000 tokens"), so the parser REFUSES and reads
+# UNKNOWN. An allowlist on purpose: it fails CLOSED on withheld / declined / unavailable and on any
+# future synonym, where the earlier negation BLOCKLIST could only reject the words it enumerated.
+# The #1176 sweep fed exactly that withheld string and the blocklist returned 8000.
+GAP_CONNECTORS = frozenset({
+    "of", "was", "is", "at", "about", "approx", "approximately",
+    "roughly", "around", "some", "total", "equals",
+})
+# One ALPHABETIC run in the gap. Digits and punctuation are not words here: a digit in the gap would
+# have been captured as the number itself, and punctuation ("~", "=", ":", "-") is always allowed.
+GAP_WORD = re.compile(r"[a-z]+", re.I)
 
 # Word multipliers, so "8.4 thousand tokens" is 8400 rather than 8.
 WORD_MULT = {"thousand": 1_000, "k": 1_000, "million": 1_000_000, "m": 1_000_000}
 
 # A spend statement. The window between the phrase and the number is DELIBERATELY SHORT (20 chars,
-# was 40) and must not contain a negation: the earlier form accepted the first number within 40
-# non-digits, so an unrelated budget figure later in the sentence became the spend.
+# was 40) and its contents are vetted by gap_is_connector: the earlier form accepted the first
+# number within 40 non-digits, so an unrelated budget figure later in the sentence became the spend.
+# re.S (DOTALL) lets the gap cross a newline, so a "## Token spend" heading with the figure on the
+# next line is attributed instead of read as UNKNOWN. That is safe only because the allowlist rejects
+# prose: a newline then connector content is a spend, a newline then a sentence is not.
 SPEND_PATTERNS = (
-    re.compile(r"token[s]?\s+spend\b(.{0,20}?)([0-9][0-9,\.]*)\s*([kKmM]|thousand|million)?", re.I),
+    re.compile(r"token[s]?\s+spend\b(.{0,20}?)([0-9][0-9,\.]*)\s*([kKmM]|thousand|million)?", re.I | re.S),
     re.compile(r"token[s]?\s+(?:spent|used)\b(.{0,20}?)([0-9][0-9,\.]*)\s*([kKmM]|thousand|million)?",
-               re.I),
+               re.I | re.S),
     re.compile(r"(?:spent|used|approximately|approx\.?|about|~)(.{0,12}?)([0-9][0-9,\.]*)"
-               r"\s*([kKmM]|thousand|million)?\s*tokens", re.I),
+               r"\s*([kKmM]|thousand|million)?\s*tokens", re.I | re.S),
 )
 
 
@@ -97,23 +110,36 @@ def parse_spend(token_text: str):
     return int(value * mult)
 
 
+def gap_is_connector(gap: str) -> bool:
+    """PURE. True when the phrase-to-number gap holds only connectors, so the number is the spend.
+
+    Whitespace and punctuation are free; the only ALPHABETIC content allowed is a connector word.
+    Any other word means the number belongs to a different clause and the caller must refuse it. An
+    unrecognized word fails closed, which is the behaviour the tool wants for withheld / declined /
+    unavailable and for words no one has enumerated yet.
+    """
+    return all(word.lower() in GAP_CONNECTORS for word in GAP_WORD.findall(gap))
+
+
 def find_reported_spend(text: str):
     """PURE. The first readable self-reported spend in a delivery, or None.
 
     FIRST match, not largest: a delivery's own "Token spend" section is what the brief asks for, and
     picking the largest number would happily pick up an unrelated corpus figure the delivery quotes.
 
-    REFUSES on a negated statement. The #1175 sweep showed the earlier form turning
-    "Token spend: not reported; the task budget is 8,000 tokens" into 8000, which is worse than
-    returning None: an invented figure enters a report that is read as evidence. The tool's whole
-    premise is that an unreadable figure is UNKNOWN rather than zero or a guess, so the parser must
-    hold to that too.
+    REFUSES unless the number is attributable to the spend phrase. The gap between the phrase and the
+    number may hold only connectors (see gap_is_connector); any other word means the number belongs
+    to a neighbouring clause and reading it would fabricate a figure. The #1176 sweep fed
+    "Token spend: withheld. Budget 8,000 tokens" and the earlier negation blocklist, which knew only
+    an enumerated set of refusal words, returned 8000. An invented figure entering a report read as
+    evidence is worse than None, and the tool's premise is that an unreadable figure is UNKNOWN
+    rather than zero or a guess, so the parser holds to that too.
     """
     for pattern in SPEND_PATTERNS:
         for m in pattern.finditer(text or ""):
             gap, digits, word = m.group(1) or "", m.group(2), (m.group(3) or "")
-            if NEGATION.search(gap):
-                continue  # the statement negates a spend; the number belongs to something else
+            if not gap_is_connector(gap):
+                continue  # a non-connector word in the gap: the number is not this phrase's spend
             # Multiply BEFORE truncating to int. Truncating first turned "8.4 thousand" into
             # 8 * 1000 = 8000 and "3.1k" into 3000, silently losing the fractional part that the
             # multiplier exists to scale.
@@ -332,6 +358,34 @@ def self_test() -> int:
         ("a word multiplier scales BEFORE truncation", "Token spend: 8.4 thousand tokens.", 8400),
         ("a fractional k scales before truncation", "Tokens spent: 3.1k", 3100),
         ("an uppercase M scales", "Token spend: 1.2M", 1200000),
+    ):
+        check(f"find_reported_spend: {name}", find_reported_spend(text), want)
+
+    # The #1176 sweep (W1 + W2), kept verbatim as reality fixtures.
+    # W1: a figure in a "## Token spend" SECTION was read UNKNOWN because the gap pattern had no
+    # DOTALL (measured ~14 of 36 tray deliveries); re.S now lets a newline in the gap through, which
+    # is safe because gap_is_connector allows only connector content there.
+    # W2: the negation BLOCKLIST let non-enumerated refusals (withheld / declined / unavailable)
+    # through and fabricated an adjacent budget number; the connector ALLOWLIST fails closed on all
+    # of them and on any future synonym. The two COMPACT forms are the true guard (the old blocklist
+    # returned 8000 on them); the "..., but the budget was ..." forms push the number past the
+    # 20-char window and return None under both old and new code, so they document intent only.
+    for name, text, want in (
+        ("a section-format figure across a newline is found", "## Token spend\n8,400 tokens", 8400),
+        ("a withheld statement yields None, not the budget figure",
+         "Token spend: withheld, but the budget was 8,000 tokens.", None),
+        ("a declined statement yields None, not the budget figure",
+         "Token spend: declined, but the budget was 8,000 tokens.", None),
+        ("an unavailable statement yields None, not the budget figure",
+         "Token spend: unavailable, but the budget was 8,000 tokens.", None),
+        ("a compact withheld + adjacent budget yields None, not the budget",
+         "Token spend: withheld. Budget 8,000 tokens.", None),
+        ("a compact declined + adjacent budget yields None, not the budget",
+         "Token spend: declined. Budget 8,000 tokens.", None),
+        ("the #1175 not-reported case still yields None under the allowlist",
+         "Token spend: not reported; the task budget is 8,000 tokens.", None),
+        ("a plain attributed figure still parses", "Token spend: 8,400", 8400),
+        ("a connector-word gap ('about') still parses", "spent about 5,900 tokens", 5900),
     ):
         check(f"find_reported_spend: {name}", find_reported_spend(text), want)
 
