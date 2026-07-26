@@ -8,6 +8,49 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-26, Library Version 2026.07.676, PR #1186 (sweep-prune fail-open fix + CLAUDE.md-right-size series)
+
+The fix-first PR of the resumed session: it closes the one open error-class finding (TODO 3.129, the
+working-records sweep `--prune` fail-open) and carries the mandatory batched QA rows for #1185. It also
+records, but does not yet execute, the CLAUDE.md right-sizing series.
+
+### Fixed
+- **TODO 3.129, the destructive-path fail-open in [`tools/sweep-working-records-to-private.py`](../../tools/sweep-working-records-to-private.py).**
+  The verify-before-prune guard checked archive-copy EXISTENCE (`is_file()`), not content, so `--prune`
+  could delete a source whose archive copy was present-but-divergent (stale, truncated, hand-edited):
+  silent data loss on the only destructive path, whose own docstring called the check "the whole
+  data-safety guarantee". Fixed with content comparison on ALL FOUR destructive paths, not only the
+  one named in the finding: the whole-file copies (records, one-off dirs) byte-compare source against
+  archive via a new `_files_identical`; the generated-body archives (weekly changelog-details, roll-up
+  rows) recompute the body from new `weekly_archive_body` / `rollup_archive_body` helpers that are the
+  SINGLE source of truth shared by both `--emit-archive` and the verify (so the two can never drift),
+  and compare. Reality-fixture self-tests added per the guard-input discipline (a present-but-divergent
+  archive MUST refuse; `_files_identical` identical/divergent/absent), suite 8/8. Clears the standing
+  "do not run `--prune` until 3.129 lands" gate. The open-findings row is marked FIXED atomically with
+  the code in this same PR.
+
+### Added
+- **TODO series `3.139` (umbrella goal) + `3.139.1`-`3.139.4`**: right-size the ~1960-line every-turn
+  CLAUDE.md by moving activity-scoped and already-backstopped prose to `references/` and `_private`,
+  keeping only apex rules + behavioral core + a lean playbook index (~800-900 lines target). The
+  discipline-to-backstop map is recorded in the umbrella. This is the RECORD only; the work waits
+  behind the fix phase (3.127, 3.128, #1179-refutation).
+- **Numbering convention**: a multi-phase project takes the next umbrella number as a goal-description
+  heading (not a task); its `.Y` children are the independently-closeable tasks (never bundled).
+
+### Verification
+- `sweep-working-records-to-private.py --self-test`: 8/8 (incl. the divergence reality-fixtures);
+  `py_compile` clean. Batched #1185 QA rows (validate-pr PASS/CLEAN, retro, `--admin` bypass row from
+  observed `gh pr checks 1185`) are accurate to what happened. Version+Date co-bumps on every touched
+  versioned log.
+- A pre-push skeptical verifier (independent exec'd worker, opus/high, briefed to refute) tried and
+  FAILED to break any of the four destructive paths, confirmed the emit output is byte-identical to
+  pre-refactor (so emit and verify cannot drift), and confirmed the guard fails closed on missing and
+  divergent archives. Its one non-blocking, fail-closed observation, that `_check_body`'s `read_text`
+  would raise an uncaught `UnicodeDecodeError` on a corrupt (invalid-UTF-8) archive (a traceback
+  rather than a clean refusal, no data loss), was HARDENED pre-push: a corrupt/undecodable archive now
+  refuses cleanly the same as a divergent one.
+
 ## 2026-07-26, Library Version 2026.07.675, PR #1185 (exec-worker dispatch tool + loop-break /validate)
 
 The orchestrator-side control plane for the on-demand exec'd worker harness that the maintainer's

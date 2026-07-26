@@ -181,6 +181,42 @@ def oneoff_dirs_present(root: Path) -> list[str]:
     return [d for d in ONEOFF_DIRS if (base / d).is_dir()]
 
 
+def _files_identical(src: Path, arch: Path) -> bool:
+    """True iff `arch` exists AND its bytes are byte-identical to `src`.
+
+    The verify-before-prune guard's authority fix (TODO 3.129): an EXISTENCE check
+    cannot answer "is the source safely archived?", because a present-but-divergent
+    archive copy (stale, truncated, hand-edited) passes existence yet loses data when
+    the source is deleted. A byte comparison is the input that CAN answer it."""
+    try:
+        return arch.is_file() and arch.read_bytes() == src.read_bytes()
+    except OSError:
+        return False
+
+
+def weekly_archive_body(monday: "datetime.date", texts: list[str]) -> str:
+    """The exact text written to a weekly changelog-details archive file. ONE source
+    of truth shared by --emit-archive and the --prune content verification, so the
+    two can never drift (drift is exactly why existence-vs-content mattered)."""
+    return (
+        f"# Detailed CHANGELOG archive, week of {monday.isoformat()} (Monday)\n\n"
+        f"Swept from grc_library `.working/changelog-details/` under the "
+        f"current-week model. Newest-first within the week.\n\n"
+        + "".join(texts)
+    )
+
+
+def rollup_archive_body(rel: str, monday: "datetime.date", rows: list[str]) -> str:
+    """The exact text written to a roll-up-rows archive file. Shared by
+    --emit-archive and the --prune content verification (single source of truth)."""
+    return (
+        f"# Roll-up rows archive: {rel}, week of {monday.isoformat()} "
+        f"(Monday)\n\nSwept from grc_library `{rel}` under the "
+        f"current-week model (TODO section 1.19.9). Rows in their "
+        f"original (newest-first) order.\n\n" + "".join(rows)
+    )
+
+
 def oneoff_missing_from_archive(root: Path, arch: Path) -> list[str]:
     """The archive paths of one-off-dir files NOT present under arch/oneoff-dirs/.
 
@@ -198,7 +234,9 @@ def oneoff_missing_from_archive(root: Path, arch: Path) -> list[str]:
                 rel = f.relative_to(src)
                 p = arch / "oneoff-dirs" / name / rel
                 if not p.is_file():
-                    missing.append(str(p))
+                    missing.append(f"{p} (absent)")
+                elif not _files_identical(f, p):
+                    missing.append(f"{p} (present but DIVERGENT from source bytes)")
     return missing
 
 
@@ -538,6 +576,27 @@ def self_test() -> int:
                 (adest / "a.md").write_text("x", encoding="utf-8")
                 (adest / "sub" / "b.md").write_text("y", encoding="utf-8")
                 self.assertEqual(oneoff_missing_from_archive(root, arch), [])
+                # TODO 3.129 reality fixture: a PRESENT-but-DIVERGENT archive copy
+                # (stale/truncated/hand-edited) MUST still refuse the prune. Existence
+                # alone passed the old guard; the byte comparison is what catches it.
+                (adest / "a.md").write_text("x-STALE", encoding="utf-8")
+                res = oneoff_missing_from_archive(root, arch)
+                self.assertEqual(len(res), 1)
+                self.assertIn("DIVERGENT", res[0])
+
+        def test_files_identical(self):
+            # TODO 3.129: the guard-input authority fix. Existence is not enough;
+            # byte-identity is the input that answers "is the source safely archived?".
+            with tempfile.TemporaryDirectory() as td:
+                src = Path(td) / "s"
+                arch = Path(td) / "a"
+                absent = Path(td) / "x"
+                src.write_bytes(b"hello")
+                arch.write_bytes(b"hello")
+                self.assertTrue(_files_identical(src, arch))     # identical -> ok
+                arch.write_bytes(b"HELLO")
+                self.assertFalse(_files_identical(src, arch))    # divergent -> refuse
+                self.assertFalse(_files_identical(src, absent))  # absent -> refuse
 
     runner = unittest.TextTestRunner(verbosity=1)
     result = runner.run(
@@ -626,14 +685,8 @@ def main(argv: list[str]) -> int:
         outdir = Path(args.emit_archive).resolve()
         (outdir / "changelog-details").mkdir(parents=True, exist_ok=True)
         for wk, texts in sorted(by_week.items()):
-            body = (
-                f"# Detailed CHANGELOG archive, week of {wk.isoformat()} (Monday)\n\n"
-                f"Swept from grc_library `.working/changelog-details/` under the "
-                f"current-week model. Newest-first within the week.\n\n"
-                + "".join(texts)
-            )
             (outdir / "changelog-details" / weekly_archive_name(wk)).write_text(
-                body, encoding="utf-8"
+                weekly_archive_body(wk, texts), encoding="utf-8"
             )
         for d, f in records:
             sub = f.parent.name
@@ -645,13 +698,8 @@ def main(argv: list[str]) -> int:
             rdir = outdir / "rollup-rows" / stem
             rdir.mkdir(parents=True, exist_ok=True)
             for wk, rows in sorted(swept.items()):
-                body = (
-                    f"# Roll-up rows archive: {rel}, week of {wk.isoformat()} "
-                    f"(Monday)\n\nSwept from grc_library `{rel}` under the "
-                    f"current-week model (TODO section 1.19.9). Rows in their "
-                    f"original (newest-first) order.\n\n" + "".join(rows)
-                )
-                (rdir / rollup_archive_name(wk)).write_text(body, encoding="utf-8")
+                (rdir / rollup_archive_name(wk)).write_text(
+                    rollup_archive_body(rel, wk, rows), encoding="utf-8")
         # One-off completed directories (TODO section 1.22.3): copy each WHOLE
         # dir tree into archive/oneoff-dirs/<name>/. Does NOT modify grc_library.
         for name in oneoff_dirs_present(root):
@@ -669,27 +717,46 @@ def main(argv: list[str]) -> int:
             return 1
         arch = Path(args.verify_archived).resolve()
         missing: list[str] = []
-        for wk in by_week:
-            p = arch / "changelog-details" / weekly_archive_name(wk)
+
+        def _check_body(p: Path, expected: str) -> None:
+            # Content verify for the generated-body archives (weekly, roll-up): the
+            # archive must exist AND its text must equal the freshly-recomputed body,
+            # so a present-but-stale/divergent copy REFUSES the prune (TODO 3.129).
             if not p.is_file():
-                missing.append(str(p))
+                missing.append(f"{p} (absent)")
+                return
+            try:
+                got = p.read_text(encoding="utf-8")
+            except (OSError, UnicodeDecodeError):
+                # A corrupt/undecodable archive fails CLOSED the same as a divergent
+                # one: refuse cleanly rather than aborting the prune with a traceback
+                # (verify-1186 observation; the byte-copy paths already swallow OSError).
+                missing.append(f"{p} (present but UNREADABLE: cannot decode or read)")
+                return
+            if got != expected:
+                missing.append(f"{p} (present but DIVERGENT from current source content)")
+
+        for wk, texts in by_week.items():
+            _check_body(arch / "changelog-details" / weekly_archive_name(wk),
+                        weekly_archive_body(wk, texts))
         for d, f in records:
             p = arch / "records" / f.parent.name / f.name
             if not p.is_file():
-                missing.append(str(p))
+                missing.append(f"{p} (absent)")
+            elif not _files_identical(f, p):
+                missing.append(f"{p} (present but DIVERGENT from source bytes)")
         for rel, (_, swept) in rollups.items():
             stem = register_stem(rel)
-            for wk in swept:
-                p = arch / "rollup-rows" / stem / rollup_archive_name(wk)
-                if not p.is_file():
-                    missing.append(str(p))
-        # One-off dirs: every in-repo file must exist under archive/oneoff-dirs/
-        # (extracted to the self-tested oneoff_missing_from_archive helper so the
-        # verify-before-prune refusal for this destructive path cannot silently regress).
+            for wk, rows in swept.items():
+                _check_body(arch / "rollup-rows" / stem / rollup_archive_name(wk),
+                            rollup_archive_body(rel, wk, rows))
+        # One-off dirs: every in-repo file must be present AND byte-identical under
+        # archive/oneoff-dirs/ (the self-tested oneoff_missing_from_archive helper now
+        # content-compares, so a present-but-divergent copy cannot pass, TODO 3.129).
         oneoff_present = oneoff_dirs_present(root)
         missing.extend(oneoff_missing_from_archive(root, arch))
         if missing:
-            print("ERROR: refusing to prune; these archive files are missing:",
+            print("ERROR: refusing to prune; these archive files are missing or divergent:",
                   file=sys.stderr)
             for m in missing:
                 print(f"  {m}", file=sys.stderr)
