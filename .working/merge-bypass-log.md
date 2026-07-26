@@ -1,6 +1,6 @@
 # Merge-bypass log
 
-**Version:** 1.0.8\
+**Version:** 1.0.9\
 **Date:** 2026-07-26\
 **License:** CC BY-SA 4.0
 
@@ -34,6 +34,7 @@ on a RED PR would skip the mechanical gates as well, which nothing in this proje
 
 | Date (UTC) | PR | CI state at merge | Mechanism | Justification | Change |
 | --- | --- | --- | --- | --- | --- |
+| 2026-07-26 | #1180 | all checks green (Lint markdown corpus 2m6s, Web generator health 11s, Cloudflare Pages) | `gh pr merge --admin --squash` | Plain merge refused with `REVIEW_REQUIRED`; maintainer-authored PR, green CI, overnight-unattended merge authority. Written after the merge from the observed `gh pr checks` output. | the E1 false-SUBMITTED fix, the re-issue and AIQT-cadence directives, and both positives re-derived at source |
 | 2026-07-26 | #1179 | all checks green (Lint markdown corpus 1m44s, Web generator health 10s, Cloudflare Pages) | `gh pr merge --admin --squash` | Plain merge refused with `REVIEW_REQUIRED`; maintainer-authored PR, green CI, overnight-unattended merge authority set by the maintainer this session. Written after the merge from the observed `gh pr checks` output. | the inbox-drop triage, one finding refuted by re-measurement, and TODO 2.20 egress-gated |
 | 2026-07-25 | #1178 | all checks green (Lint markdown corpus 2m1s, Web generator health 11s, Cloudflare Pages) | `gh pr merge --admin --squash` | Plain merge refused with `REVIEW_REQUIRED`; maintainer-authored PR, green CI, attended merge authority. Written after the merge from the observed `gh pr checks` output, never in anticipation. | Sweep 122 close-out, the must-not-close-unvalidated directive, and two guard-input fixes |
 | 2026-07-25 | #1177 | all checks green (Lint markdown corpus, Web generator health, Cloudflare Pages) | `gh pr merge --admin --squash` | Plain merge refused with `REVIEW_REQUIRED`; maintainer-authored session-closing handoff PR, green CI, attended-autonomous merge authority. Written at merge time from the observed CI state. | the week condensation, wind-down pre-queueing codified, the session-closing handoff |
