@@ -1,6 +1,6 @@
 # PR-Scoped Validation History
 
-**Version:** 1.2.942\
+**Version:** 1.2.943\
 **Date:** 2026-07-26\
 **License:** CC BY-SA 4.0
 
@@ -11,6 +11,7 @@ See [`README.md`](README.md) for the activity convention and the SKILL specifica
 ## Sweep entries
 
 | Date | PR | Touched files | Findings | Hot-fix PR | Detail | Summary |
+| 2026-07-26 | 1190 | internal tooling + working-record maintenance (anonymized identifiers in the exec-dispatch self-test fixture + several .working records; restored CHANGELOG blank-line separation; the #1189 close-out rows + open-findings W1/W2 -> FIXED) | **RETURNED: SHIP, CLEAN, 0 blocking findings** (1 INFO, out of scope). Pinned to merged head `c5746f32`. Anonymization is naming-only (self-test 17/17); all CHANGELOG entries carry blank-line separation; #1189 close-out rows present + consistent. | none | none | Post-merge per-PR sweep for #1190. No refutation succeeded. **SHIP.** |
 | 2026-07-26 | 1189 | the token-spend parser connector-allowlist + re.S DOTALL fix (TODO 3.128) + the batched #1188 close-out | **RETURNED: SHIP, CLEAN, 0 blocking findings** (1 expected trailing-close-out note, actioned in #1190: the open-findings W1/W2 rows stamped FIXED-in-#1189). Pinned to merged head `c2a1db90`. gap_is_connector allowlist replaces NEGATION, re.S added, self-test 43/43, no dangling reference, fail-closed. | none | none | Post-merge per-PR sweep for #1189 (the 3.128 fix). No refutation succeeded; the trailing note is the normal close-out pattern. **SHIP.** |
 | 2026-07-26 | 1188 | the two open-findings ledger corrections (submit_state->#1180; #1179->#1181), the session-handoff F-1 sweep + D7 snapshot tokens, TODO 3.140/3.141 + counter 3.142, the #1187 close-out rows, and README/CHANGELOG versions | **RETURNED: SHIP, CLEAN, 0 findings.** Pinned to the merged head `2824db7b`. Every corrective claim confirmed at source (both ledger attributions correct; both now-false handoff directives swept; the surviving "MEASURED and UNFIXED" at TODO line 251 is the unrelated 78-positional-ref queue item, correctly untouched); all four ledgers newest-first with consistent +1 version diffs. | none | none | Post-merge per-PR sweep for #1188 (the corrective PR). No refutation attempt succeeded and no stale doc survives the change. **SHIP.** |
 | 2026-07-26 | 1187 | the exec-dispatch `--account` override (pick_account resolver, dispatch/CLI wiring, the dry-run PICK-marker fix, 17-check self-test) + the batched #1186 close-out rows | **RETURNED: SHIP, no blocker (1 INFO, pre-existing + already-routed, out of #1187 scope).** Pinned to the merged head `1ac623a9`. No correctness defect introduced by #1187: self-test 17/17, the dry-run PICK-marker fix behaves as documented, resolution failures surface loudly with no silent fallback, and version/CHANGELOG/README parity holds. | none | none | Post-merge per-PR sweep for #1187 (the `--account` cross-account-parallelism unlock). Dispatched to an exec'd worker on work-a; ran in parallel with retro-1187 on work-b via the same `--account` override the PR added. **SHIP.** |
