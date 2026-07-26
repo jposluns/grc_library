@@ -248,7 +248,7 @@ Umbrella for adopting NIST OSCAL as an open, machine-readable projection of the 
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.140.**
+**Next item number: 3.142.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
 
@@ -256,6 +256,14 @@ Cross-document consistency cleanup and routine development / quality tooling: lo
 session found per-PR bookkeeping and wind-down to be ~20-30 minutes of mostly-mechanical work; these six items
 (3.133-3.137, plus the adopted fewer-larger-PRs guideline) remove that overhead. Rationale and ranking in
 `grc_library_private/fresh-eyes-observations-2026-07-26.md`.
+
+### 3.140 Hoist `_check_body` to module scope and add reality fixtures for the two generated-body prune paths and the non-UTF-8 branch (validate-pr-1186 F-2, 2026-07-26, M, S) `[machinery]`
+
+`_check_body` is a closure defined INSIDE `main()`'s `if args.prune:` block ([`tools/sweep-working-records-to-private.py`](tools/sweep-working-records-to-private.py) line 721), so no `--self-test` case can reach it. The #1186 TODO 3.129 fixtures cover only the whole-file BYTE-copy paths (`_files_identical` at line 587 and `oneoff_missing_from_archive` divergent at line 579); the two GENERATED-body paths that `_check_body` guards, the weekly changelog-details archive (`weekly_archive_body`, verified at line 740) and the roll-up rows archive (`rollup_archive_body`, verified at line 751), plus its refuse-closed `UnicodeDecodeError`/`OSError` branch (lines 730-735), have NO reality fixture, so a present-but-divergent GENERATED body or a non-UTF-8 archive could silently regress the refuse behaviour with the suite still green. Hoist `_check_body` to module scope (return a reason-or-None instead of closing over `main`'s `missing` list, or take the accumulator as a parameter) so it is directly testable, then add reality fixtures asserting that a present-but-divergent weekly-archive body REFUSES the prune, a present-but-divergent roll-up body REFUSES, and a present-but-non-UTF-8 (undecodable) archive REFUSES. Same guard-input-authority class as 3.129: a data-safety check that its own self-test cannot reach is not yet a check.
+
+### 3.141 Per-account worker concurrency greater than 1 via config-dir snapshots (design drafted 2026-07-26, M, L) `[machinery]`
+
+The `--account` override (#1187) gives cross-account parallelism (N workers on N distinct accounts, each serialized by its own wrapper flock at 1). Running MORE THAN ONE worker on the SAME account concurrently is a separate, heavier item: the wrapper's blocking flock on a lock file inside the shared config dir (`$CFGBASE/$account/.wrapper.lock`) is BOTH the safety guarantee and the concurrency-1 cap, so loosening it without per-worker state would race the one shared `CLAUDE_CONFIG_DIR` / `CODEX_HOME`. The design candidate (the `design-multiworker-per-account` xhigh delivery, 2026-07-26) covers: a per-worker config-dir snapshot (copy the auth/credential state, isolate session/lock/cache) with cleanup; moving `max_concurrent` enforcement + an in-flight registry/counter into `exec-dispatch.py` (which is stateless today); and the claude-mktemp-workdir vs codex-fixed-shared-workspace asymmetry. First cut: `cp -r` snapshot + a per-account lock counter + `max_concurrent` bumped to 2, verify no auth contention, before the fuller design. Lower priority now that cross-account parallelism covers the immediate need.
 
 ### 3.133 PR close-out scaffolding tool (fresh-eyes 2026-07-26; EXECUTE EARLY, M, M) `[machinery]`
 
