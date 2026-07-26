@@ -8,6 +8,53 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-26, Library Version 2026.07.684, PR #1194 (#1193 close-out completion)
+
+### Changed
+
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md)
+  section 6, the D7 narrative: the enumerated surface list is synced to the surfaces D7 actually tracks
+  after #1193 changed them. It named "the runbook, and the guardrail-review, validate-pr,
+  improvement-log, and claim-fit history registers", but #1193 removed the first three from D7's
+  `SURFACES` and "the runbook" was never a D7 surface, so the sentence now names only the library
+  CalVer and README Version, the pack README Version, this specification's Version, and the claim-fit
+  history register. Version bumped 1.17.31 to 1.17.32. (validate-pr-1193 W1, plus the pre-existing N1
+  "runbook" mis-name, both fixed here.)
+
+### Removed
+
+- TODO section 3.135 is deleted from [`TODO.md`](../../TODO.md) (it was fully closed by #1193) and a
+  matching entry added to [`.working/DONE.md`](../DONE.md), completing the TODO-to-DONE rotation #1193
+  dropped. (validate-pr-1193 W2.)
+
+### Also (the #1193 close-out bookkeeping this PR batches in)
+
+- [`.working/merge-bypass-log.md`](../merge-bypass-log.md): the #1193 `--admin` bypass row (gate 50
+  Check 6), written from the observed pre-merge `gh pr checks 1193` state.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) plus the record file
+  [`2026-07-26-PR-1193.md`](../validate-pr/2026-07-26-PR-1193.md): the validate-pr-1193 row and detail
+  (0 error / 2 warning / 1 note; both warnings fixed in this PR).
+- [`.working/improvement-log.md`](../improvement-log.md): the retro-1193 row.
+- [`.working/open-findings.md`](../open-findings.md): both warnings recorded and dispositioned FIXED
+  in this PR.
+- [`.working/session-state.md`](../session-state.md): this session's concurrency lease acquired.
+
+### Context
+
+#1193 merged during the maintainer-directed emergency wind-down of the prior session, so its close-out
+was truncated; the post-merge validate-pr-1193 (run at this resume) surfaced the two dropped
+paired-surface steps, both hot-fixed here. Both the pre-merge skeptical verifier and validate-pr-1193
+confirmed the #1193 change itself is CLEAN (exemptions exact in D2/D4, D7 removals correct, no orphaned
+reader, version bump correct).
+
+### Verification
+
+- `tools/run_all_audits.sh`: all 78 gates pass (standalone).
+- Generated artefacts ([`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md),
+  [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md)) regenerated after the spec Version
+  bump and confirmed in sync (`--check`).
+- Pre-push guard (both runners) green before push.
+
 ## 2026-07-26, Library Version 2026.07.683, PR #1193 (drop Version+Date from append-only .working logs, TODO 3.135)
 
 ### Changed

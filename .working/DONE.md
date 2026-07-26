@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### 3.135 (#1193): Version+Date dropped from 5 append-only `.working` logs (2026-07-26)
+
+The five append-only logs (`validate-pr/history.md`, `improvement-log.md`, `merge-bypass-log.md`, `guardrail-reviews/history.md`, `open-findings.md`) shed their per-touch `Version`+`Date` metadata, which was pure overhead tripping D2/D4 on every append (git history already versions them and `.working/` is exempt from the corpus version gates). The five paths were added to D2 and D4 EXEMPT_FILES (D4's is load-bearing, the removal PR fails D4 without it) and the three now-unversioned surfaces were dropped from D7; a skeptical verifier confirmed no gate, hook, or parser keys on the removed fields.
+
 ### 3.129 (#1186): destructive-path fail-open in the working-records sweep FIXED (2026-07-26)
 
 The sweep tool's verify-before-prune guard checked archive-copy EXISTENCE (`is_file()`), not content, so `--prune` could delete a source whose archive copy was present-but-divergent (silent data loss on the only destructive path). Fixed by content comparison on ALL FOUR destructive paths: the whole-file copies (records, one-off dirs) byte-compare via `_files_identical`; the generated-body archives (weekly changelog-details, roll-up rows) recompute the body from a shared `--emit`/verify source-of-truth helper and compare. Reality-fixture self-tests added (a present-but-divergent archive MUST refuse). Clears the standing "do not run `--prune` until 3.129 lands" gate. Also created the `3.139` CLAUDE.md-right-sizing series and standardized multi-phase-project `N.M`/`N.M.Y` numbering.
