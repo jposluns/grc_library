@@ -60,6 +60,8 @@ At each checkpoint, emit one line, then either confirm compliance or halt and es
 
 `AIQT check: (Accuracy = Integrity = Quality = Trust) > Speed > Cost. Non-negotiable.`
 
+**Set a MINIMUM CADENCE, not only a list of semantic checkpoints.** A checkpoint list is precisely what a long run erodes, because every checkpoint is one the actor must notice. Observed directly: an assistant went two entire units of work without emitting the line and re-anchored only when the responsible authority asked whether it had forgotten. So pair the semantic list with a floor that does not depend on noticing, for example at least once per change or pull request. And require the emission to be SELF-ACKNOWLEDGED rather than recited: one or two clauses naming what, on this specific change, the tier is being held against. A bare line with no acknowledgement is the decorative form and discharges nothing, for the same reason a pass obtained by lowering the bar is not a pass.
+
 The checkpoints are deliberately the high-signal moments (task boundaries, persistence, completion claims, tension points) rather than mechanical per-operation triggers, which degrade into noise and stop being read. A project adopting this rule calibrates the checkpoint list to its own high-signal moments; the four above are the recommended default.
 
 ---

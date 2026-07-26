@@ -8,6 +8,72 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-26, Library Version 2026.07.669, PR #1180 (the QA that was closed over came back FAIL)
+
+`validate-pr-1176`, the order the 2026-07-25 session closed without waiting for, finally ran. It came back **FAIL with
+one error and two warnings**. That is the maintainer's directive vindicated in the most direct way available: had the
+order stayed unserved, an error-severity defect would have sat on `main` indefinitely with the parity gate green
+throughout.
+
+### Fixed
+
+**A residual FALSE-SUBMITTED path in `submit_state` (E1, error).** The #1175 fix normalized whitespace so a probe
+spanning a tmux line-wrap still matches. That repaired the MATCH and left the REGION wrong.
+[`composer_region`](../../tools/manage-workers.py) took `rules[-2]` when two horizontal rules were present and
+`rules[-1]` otherwise, which cannot distinguish "one rule because this is Codex" from "one rule because the payload is
+tall enough that the composer's TOP border has scrolled out of the captured tail". In the second case `rules[-1] + 1`
+selects the status line BELOW the composer, which can never hold the payload, so the probe is absent and the function
+answers `submitted` for a prompt still sitting in the box.
+
+It is reachable rather than theoretical, and worst exactly where it matters most: the bottom border is almost always
+inside a 12-line tail, the top leaves it once the payload wraps to roughly ten lines, and the probe is the payload's
+FIRST 40 characters, which is precisely the part that scrolls away first. So the check failed most readily for the long
+payloads the original fix was written to handle. Same failure direction as V1175-1, which this project graded error.
+
+The fix tells the locator WHICH runtime it is reading, since the caller already resolved it, and returns INDETERMINATE
+where it genuinely cannot tell: a Claude pane showing one rule now refuses rather than guessing. Pinned by a reality
+fixture built from the actual failing pane shape. Self-test 47 to 53 cases. Two pre-existing Codex cases were corrected
+to pass the runtime the real caller passes, rather than the new refusal being relaxed to accommodate them.
+
+### Changed
+
+**An undelivered per-change QA is BLOCKING, and a slow worker is RE-ISSUED (maintainer-directed).** #1178 established
+that the result must RETURN; this says what to do while it does not. Where the holding worker has not delivered in a
+reasonable time, the SAME order goes to a second worker and whichever returns first is authoritative. A later arrival
+is neither discarded nor re-adjudicated as a competing verdict: it is read as a CROSS-REFERENCE confirming the accepted
+result missed nothing, and a finding present only in the late delivery is triaged on its own merits. Safe because a
+read-only QA order costs a worker cycle and nothing else, and it converts a stalled order from an indefinite block into
+a bounded one. Portable half in the pack's
+[`session-lifecycle.md`](../../dev-security/claude-rules/governance/session-lifecycle.md) section 5.
+
+**The integrity checkpoint gains a minimum cadence (maintainer-directed).** The checkpoint list was semantic, and a
+semantic list is exactly what a long run erodes, because every checkpoint is one the actor must notice. This session
+the assistant went two entire PRs without emitting the AIQT line and re-anchored only when the maintainer asked whether
+it had forgotten. The cadence now has a floor that does not depend on noticing, at least once per PR, and the emission
+must be SELF-ACKNOWLEDGED rather than recited: a clause or two naming what, on that specific change, the tier is being
+held against. A bare recited line is the decorative form and discharges nothing. Portable half in
+[`project-integrity.md`](../../dev-security/claude-rules/governance/project-integrity.md).
+
+### Added
+
+TODO **3.126** (the disposition cell needs a structural fix, not a third round of matcher hardening), **3.127**
+(`submit_state` residuals beyond the fixed one), **3.128** (the token-spend parser loses 12 of 31 real figures and
+invents others). Counter advanced 3.126 to 3.129.
+
+### Discipline observation
+
+**My own #1178 fix reproduced the class it was closing, and a worker caught it.** `validate-pr-1178` found that the new
+disposition-vocabulary matcher fails in BOTH directions: it false-BLOCKS six real dispositions because `startswith`
+demands the vocabulary word first, and it false-PASSES five narrations that open with a terminal word and then negate
+it. The sharpest is `**routed** but nobody took it`: correct markup, correct vocabulary, and it says in plain words
+that nothing was decided. I hardened a predicate instead of fixing its input, which is verbatim the anti-pattern
+[`validate-inference-before-action`](../../.claude/rules/governance/validate-inference-before-action.md) names, and I
+did it in the same edit where I cited that rule. Routed as 3.126 for a structural fix rather than a third pattern.
+
+**Both `/validate-pr` rows that read DISPATCHED now read their returned result.** That is the #1178 directive working on
+its first outing, and the reason the row wording matters: an honest pending row still satisfies gate 50 Check 1, so
+nothing mechanical would have chased either of them.
+
 ## 2026-07-26, Library Version 2026.07.668, PR #1179 (the inbox drops triaged, and what each one turned out to be)
 
 The eight unprocessed inbox drops were read. Four were worker-raised `issue-*` items dispositioned in #1178; the

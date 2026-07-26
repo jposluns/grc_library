@@ -216,7 +216,7 @@ SUBMIT_POLL_S = 8.0
 SUBMIT_POLL_INTERVAL_S = 0.5
 
 
-def composer_region(pane_text: str):
+def composer_region(pane_text: str, runtime: str | None = None):
     """The composer (input box) slice of a captured pane, or None when it cannot be located. PURE.
 
     Both agent TUIs draw the composer inside a horizontal-rule box at the bottom of the pane and
@@ -252,12 +252,36 @@ def composer_region(pane_text: str):
             rules.append(n)
     if not rules:
         return None
-    start = rules[-2] + 1 if len(rules) >= 2 else rules[-1] + 1
+    # WHICH BORDER IS THIS? The rule COUNT cannot answer that, and inferring the runtime from it was
+    # a live FALSE-SUBMITTED path (validate-pr-1176 E1). Claude draws TWO rules around its composer
+    # and Codex draws ONE above it, so a single rule is ambiguous: it is either a Codex top border,
+    # or a Claude BOTTOM border whose top border has scrolled out of the captured tail. In the
+    # second case `rules[-1] + 1` selects the status line BELOW the composer, which can never hold
+    # the payload, so the probe is absent and the caller is told the prompt SUBMITTED when it did
+    # not. That is reachable rather than theoretical: the bottom border is almost always inside a
+    # 12-line tail, the top leaves it once the payload wraps to roughly ten lines, and the probe is
+    # the payload's FIRST 40 characters, precisely the part that scrolls away first. So the check
+    # failed most readily for exactly the long payloads the whitespace fix was written to handle.
+    #
+    # The caller KNOWS the runtime (VERBS is keyed by it), so it is passed in rather than guessed.
+    # Where it is not passed, or where the count contradicts the runtime, this returns None, which
+    # the caller renders as INDETERMINATE. Refusing on ignorance is the discipline this module
+    # already states: a check that cannot fail is not a check.
+    if runtime == "claude":
+        if len(rules) < 2:
+            return None          # top border gone: cannot locate the composer, do not guess
+        start = rules[-2] + 1
+    elif runtime == "codex":
+        start = rules[-1] + 1    # one rule, above the composer, by this TUI's construction
+    elif len(rules) >= 2:
+        start = rules[-2] + 1    # unknown runtime but two rules: the Claude shape is unambiguous
+    else:
+        return None              # unknown runtime and one rule: genuinely indeterminate
     start = max(start, len(lines) - COMPOSER_TAIL_LINES)
     return "\n".join(lines[start:])
 
 
-def submit_state(probe: str, pane_text: str) -> tuple:
+def submit_state(probe: str, pane_text: str, runtime: str | None = None) -> tuple:
     """PURE. Did the payload submit, judged from the composer alone? (state, reason) out.
 
     THREE states, not two, because a two-state answer forced a claim the input could not support:
@@ -286,7 +310,7 @@ def submit_state(probe: str, pane_text: str) -> tuple:
     if not probe or len(probe.strip()) < 8:
         return ("indeterminate",
                 "the probe is empty or too short to discriminate, so no submit claim is made")
-    region = composer_region(pane_text)
+    region = composer_region(pane_text, runtime)
     if region is None:
         return ("indeterminate",
                 "no composer box could be located in the captured pane, so whether the payload is "
@@ -553,7 +577,7 @@ def do_send(repo: Path, root: Path | None, session: str, verb: str, reason: str,
         state, why = ("indeterminate", "not yet read")
         deadline = time.time() + SUBMIT_POLL_S
         while True:
-            state, why = submit_state(probe, pane_tail(session, COMPOSER_TAIL_LINES))
+            state, why = submit_state(probe, pane_tail(session, COMPOSER_TAIL_LINES), runtime)
             if state == "submitted" or time.time() >= deadline:
                 break
             time.sleep(SUBMIT_POLL_INTERVAL_S)
@@ -742,8 +766,8 @@ def self_test() -> int:
                submit_state("At your next opportunity", _claude_stuck)[0], "not-submitted")
     check_attr("submit: a SUBMITTED payload echoed in the scrollback still reads submitted",
                submit_state("At your next opportunity", _claude_echo)[0], "submitted")
-    check_attr("submit: an empty codex composer reads submitted",
-               submit_state("At your next opportunity", _codex_empty)[0], "submitted")
+    check_attr("submit: an empty codex composer reads submitted (runtime passed, as the caller does)",
+               submit_state("At your next opportunity", _codex_empty, "codex")[0], "submitted")
     check_attr("submit: a pane with no composer box reads indeterminate, not submitted",
                submit_state("At your next opportunity", "just some text\nno rules here")[0],
                "indeterminate")
@@ -768,12 +792,38 @@ def self_test() -> int:
     _long_probe = "At your next opportunity, resync your grc_library scratch clone"[:40]
     check_attr("submit: a WRAPPED payload in the composer is not-submitted, not submitted",
                submit_state(_long_probe, _wrapped)[0], "not-submitted")
+
+    # THE E1 REALITY FIXTURE (validate-pr-1176, 2026-07-26). A FALSE-SUBMITTED path that survived
+    # the whitespace fix, because that fix repaired the MATCH and not the REGION. A claude pane
+    # whose payload is tall enough that the composer's TOP border has scrolled out of the captured
+    # tail leaves exactly ONE rule, the BOTTOM border. The old locator read `rules[-1] + 1`, i.e.
+    # the status line BELOW the composer, never found the probe there, and answered "submitted" for
+    # a prompt still sitting in the box. These cases pin BOTH halves: the runtime-aware locator must
+    # now refuse, and the two-rule case must still resolve.
+    _e1_one_rule = "\n".join(["  scrollback line",
+                              "\u276f At your next opportunity, resync your grc_library_scratch clone",
+                              "  and check in: claim ONE waiting order in your family, work it to",
+                              "  delivery, and only then claim another. Follow the worker onboarding",
+                              _rule,
+                              "  auto mode on"])
+    check_attr("E1: a claude pane with only the BOTTOM rule is INDETERMINATE, never submitted",
+               submit_state("At your next opportunity", _e1_one_rule, "claude")[0], "indeterminate")
+    check_attr("E1: the same pane read WITHOUT a runtime is also indeterminate, not guessed",
+               submit_state("At your next opportunity", _e1_one_rule)[0], "indeterminate")
+    check_attr("E1: codex legitimately has one rule ABOVE its composer, so it still resolves",
+               submit_state("At your next opportunity", _codex_empty, "codex")[0], "submitted")
+    check_attr("E1: a claude pane with BOTH rules is unaffected by the runtime argument",
+               submit_state("At your next opportunity", _claude_stuck, "claude")[0], "not-submitted")
+    check_attr("E1: composer_region refuses a one-rule claude pane",
+               composer_region(_e1_one_rule, "claude"), None)
+    check_attr("E1: composer_region still locates a one-rule CODEX composer",
+               composer_region(_e1_one_rule, "codex") is None, False)
     check_attr("submit: the same probe against an EMPTY composer still reads submitted",
                submit_state(_long_probe,
                             "\n".join(["\u2500" * 40, "\u276f ", "\u2500" * 40, "auto mode"]))[0],
                "submitted")
     check_attr("submit: a rule with a truncated wide char is still a rule (codex capture)",
-               submit_state("At your next opportunity", _torn)[0], "submitted")
+               submit_state("At your next opportunity", _torn, "codex")[0], "submitted")
     check_attr("composer_region: a prose line of words is NOT mistaken for a rule",
                composer_region("a line of ordinary prose here\nand another one"), None)
     check_attr("composer_region: returns None when no rule is present",
