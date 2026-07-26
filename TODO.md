@@ -248,7 +248,7 @@ Umbrella for adopting NIST OSCAL as an open, machine-readable projection of the 
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.138.**
+**Next item number: 3.139.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
 
@@ -294,6 +294,9 @@ self-fix. (b) Reconsider the async recursion-avoidance rule (the prior PR's QA r
 serializes PR N on PR N-1's validate-pr worker round-trip; options: run validate-pr synchronously before finalizing,
 or a periodic QA-rows catch-up decoupled from the next feature PR. Structural; a deliberate design look, not a quick
 change. The fewer-larger-PRs guideline (do not fragment one theme into separate PRs) is ADOPTED as a convention.
+
+### 3.138 Worker full-suite `/validate` via a per-job writable checkout (2026-07-26, M, M) `[machinery]`
+A read-only worker cannot run write-requiring gates: **gate 36** (the linter-regression suite) writes fixtures to in-tree `tests/tmp/` **by design** (the linters walk the repo tree and validate a repo-relative `Repository Path`, so the fixtures must live in-tree). Established at the first exec-worker `/validate` (Sweep 123, 2026-07-26; worker-brief rail 18): a worker `/validate` covers the 77 read-only content gates but not gate 36, which stays orchestrator-side. To let a worker run the full 78 WITHOUT a write-hole in the shared tree, give it its OWN writable checkout: a warm worker-owned clone of `grc_library` (it is group-readable, so a LOCAL clone needs no token) plus a per-job `git worktree` at the pinned SHA (isolated working tree, shared object store) that the worker runs the full suite in and discards. NOT a single shared mirror (that only MOVES the shared-fixture contention). Buys complete offload + worker-side gate-36 coverage on linter-changing PRs. Maintainer-surfaced (rsync-copy idea) 2026-07-26.
 
 ### 3.118 Route the #1166 and #1167 sweep residuals (2026-07-25, M, S)
 

@@ -1,6 +1,6 @@
 # Merge-bypass log
 
-**Version:** 1.0.12\
+**Version:** 1.0.13\
 **Date:** 2026-07-26\
 **License:** CC BY-SA 4.0
 
@@ -67,6 +67,7 @@ on a RED PR would skip the mechanical gates as well, which nothing in this proje
 | 2026-07-25 | #1168 | all three checks green at merge time (Lint markdown corpus, Web generator health, Cloudflare Pages) | `gh pr merge --admin --squash` | Plain merge refused with the base-branch policy; maintainer-authored session-closing handoff PR under the standing no-self-gatekeeping convention | session-closing handoff; row added retrospectively at the Sweep 121 close-out, since #1168 was the session's last act and no following PR of that session existed to carry it |
 | 2026-07-25 | #1169 | all three checks green, read from `gh pr checks 1169` on the actual head SHA before merging (Lint markdown corpus 1m46s, Web generator health 13s, Cloudflare Pages) | `gh pr merge --admin --squash --delete-branch` | Plain merge refused with "the base branch policy prohibits the merge"; maintainer-authored PR under the standing no-self-gatekeeping convention; pre-push guard green on both runners, unpiped, after it caught and blocked two real defects (a stale D7 version snapshot and a 117-word root entry over the 100 ceiling) | Sweep 121 close-out: the retrospective asserted-expectations block and the mutation-proved `manage-workers.py` self-test fix |
 | 2026-07-25 | #1167 | all three checks green (Lint markdown corpus, Web generator health, Cloudflare Pages), verified on the actual head SHA | `gh pr merge --admin --squash` | Plain merge refused with `REVIEW_REQUIRED`; maintainer-authored PR under the standing no-self-gatekeeping convention; pre-push guard green both runners, unpiped | two worker-fleet tools: drop reconciliation and the closed-verb prompt injector |
+| 2026-07-26 | #1184 | all three checks green, verified via `gh pr checks 1184` on the merged head `dd50cf4a` (Lint markdown corpus 1m46s, Web generator health 13s, Cloudflare Pages) | `gh pr merge --admin --squash` | Plain merge refused under the base-branch approval policy; maintainer-authored session-closing handoff PR under the standing no-self-gatekeeping convention. Row BACK-FILLED at the #1185 close-out from the OBSERVED post-merge `gh pr checks 1184`, not in anticipation: the prior takeover session merged the handoff and missed logging its bypass, the same retrospective-row case as #1168, surfaced by gate 50 once #1185 demoted #1184 from highest-PR | session-closing handoff for the orchestrator-takeover session (#1181..#1184) |
 
 ## Backfill note, stated plainly
 
