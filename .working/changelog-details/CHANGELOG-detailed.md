@@ -8,7 +8,7 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
-## 2026-07-26, Library Version 2026.07.670, PR #1181 (seven lost QA rows restored, none invented)
+## 2026-07-26, Library Version 2026.07.671, PR #1181 (seven lost QA rows restored, none invented)
 
 Seven rows of the validation-sweep and matrix-fit ledgers had been silently destroyed by editing mistakes. All seven
 are restored, every one recovered from an intact prior revision of its own ledger file, and **nothing is synthesized**.
@@ -57,6 +57,39 @@ Post-repair re-parse: **zero fusions remain** in either ledger, and **zero unexp
 over-width rows still present in [`validate-sweeps/history.md`](../validate-sweeps/history.md) are the known prose-pipe false positives, not fusions. The
 apparent duplicates at Sweeps 9 and 10 are legitimate multi-iteration rows (`9 iter 1/2/3`). Gaps 1 to 8 predate the
 ledger, whose earliest row is Sweep 9 on 2026-06-20.
+
+
+### Added, after the maintainer asked for it directly
+
+**[`block-unbumped-version-commit.py`](../../.claude/hooks/block-unbumped-version-commit.py), a
+PreToolUse hook for the per-commit version discipline.** Five misses in one session, with a close-out
+checklist bullet written between the third and the fifth and two more misses after it. That is the
+signature of a control at the wrong layer: the knowledge was present and the timing was not. Gates 40
+and D2 already catch this, but they speak six minutes later at pre-push, by which point the repair is
+itself a new commit touching the file. That is how one miss becomes a chain, and it did: a D4 repair
+that moved a `Date` became a gate-40 failure, whose repair became a gate-33 failure.
+
+It reads the STAGED diff, so its input can answer the question asked of it, and blocks a staged body
+change to a versioned document with no staged `Version`. It separately WARNS, without blocking, when
+a corpus `Version` moved and no generated artefact is staged, which is the sixth-instance shape;
+warns rather than blocks because a blocked commit cannot be fixed without unstaging.
+
+Three deliberate non-features, each recorded because each is a place a broader hook would have been
+worse. It does NOT check `Date` against the commit date: delta gate D4 owns that, the commit date
+does not exist yet at PreToolUse time, and inventing one would be a check whose input cannot answer
+it. It skips `--amend`, whose diff is not the staged set alone. And it fails OPEN on every error
+path, the same trade [`block-on-open-findings.py`](../../.claude/hooks/block-on-open-findings.py) records, because a guard that blocks all work when
+it breaks is removed within a day.
+
+The escape hatch is a `VersionBump: none <reason>` line in the commit message. A guard with no stated
+exception gets bypassed wholesale with `--no-verify` the first time it is wrong, which is strictly
+worse than a hatch that leaves its reason where a reviewer can see it.
+
+**Verified three ways rather than by fixture alone:** self-test 17/17, wired into the linter
+regression suite, and a LIVE end-to-end probe against a real staged change (blocked without a bump,
+cleared with one, opt-out honoured, probe reverted). The self-test earned its keep immediately by
+catching a real bug: the matcher tested for the substring `git commit`, which never appears, because
+the wrong-repo guard requires `git -C <root> commit` and that is the only form this project runs.
 
 ### Discipline observation
 

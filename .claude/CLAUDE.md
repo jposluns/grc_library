@@ -628,6 +628,17 @@ is external. Two mechanisms:
      commit time costs nothing. Note the one wrinkle: the check reads COMMITTED state, so on a
      staged-but-uncommitted bump it still reports the old failure; run it after the commit to
      confirm, or accept that a clean run before the commit means the PREVIOUS commit was clean.
+     **MECHANICAL BACKSTOP, maintainer-directed after the fifth catch:**
+     [`block-unbumped-version-commit.py`](hooks/block-unbumped-version-commit.py), a PreToolUse hook
+     that refuses a `git commit` whose staged diff changes a versioned document's BODY without
+     staging its `Version`. It reads the staged diff, so its input can answer the question, and it
+     fails OPEN on any error. It also WARNS, without blocking, when a corpus `Version` moved and no
+     generated artefact is staged. It deliberately does NOT check `Date` against the commit date
+     (delta gate D4 owns that, and the commit date does not exist yet at PreToolUse time) and skips
+     `--amend`. The narrow escape hatch is a `VersionBump: none <reason>` line in the commit
+     message, which exists because a guard with no stated exception gets bypassed wholesale the
+     first time it is wrong. The convention above remains the primary control; this is defence in
+     depth, and it was earned by that convention failing five times in one session.
    - **Generated-artefact regen order** (the false-clean guard): after any per-document
      `Version` bump, regenerate `taxonomy.yml` FIRST, then `docs/portal.md` and
      `docs/maturity-scorecard.md` (which derive from the taxonomy); a `build-portal.py
