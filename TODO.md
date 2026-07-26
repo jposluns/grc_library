@@ -248,7 +248,7 @@ Umbrella for adopting NIST OSCAL as an open, machine-readable projection of the 
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.130.**
+**Next item number: 3.133.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
 
@@ -611,6 +611,45 @@ input cannot answer the question). **Fix:** replace the existence check with a b
 archive before any prune; add a reality-fixture self-test (a present-but-divergent archive copy that MUST refuse); mutate
 the observer, not only the decision. Imminence is low because the sweep is a manual close-out step, but the fix GATES it:
 do not run the sweep with `--prune` until this lands.
+
+### 3.130 Portable pack form of the mid-session-death recovery protocol (`/restore-broken` companion, 2026-07-26, M, M) `[pack]`
+
+`/restore-broken` ([`.claude/commands/restore-broken.md`](.claude/commands/restore-broken.md), shipped 2026-07-26) is
+the PROJECT-specific slash command for recovering a project whose orchestrator died or ran out of usage mid-session.
+The recovery DISCIPLINE it encodes (observe read-only before changing anything; verify the interrupted unit as a
+hypothesis, not an inheritance; reconcile the stale lease; the tray-count-is-not-the-unprocessed-count trap; the
+turn-end-safety check for an auto-commit stop hook; wind down to a clean green branch, then a same-session resume as
+the compensating control) is PORTABLE to any project running multi-session AI-assisted work. Per the pack-parity
+coupling, add the portable form: a recovery subsection in the pack
+[`session-lifecycle`](dev-security/claude-rules/governance/session-lifecycle.md) rule (or a dedicated pack rule if it
+grows), so an adopter inherits the mid-session-death recovery path alongside the normal session lifecycle. Recorded as
+a tracked follow-up (the sanctioned pack-parity option) rather than built in the command's own PR, to keep that PR
+focused.
+
+### 3.131 Per-worker headless console/event logging to a searchable log file (maintainer-requested 2026-07-26, M, S) `[machinery]`
+
+Workers run headless, so their runtime console messages (claims, heartbeats, progress, errors) are not searchable after
+the fact; only the final delivery lands in the outbox. Add per-worker logging to `/home/grc/grc_working/logs/` named
+`YYYY-MM-DD_<worker-id>_out.log`, greppable and tailable. Two parts: (a) the exchange helper `credit-offload-filedrop.py`
+(`grc_library_scratch:tools/`) writes a structured event line on each `claim` / `heartbeat` / `deliver` / error (clean
+text, the primary searchable record); (b) for codex, the `codex exec` sudo-wrapper (post-resume codex build, design in
+`grc_library_private`) redirects its stdout, stderr, exit status, and timestamps to the same dated per-worker log at
+about zero extra cost. NOTE: a raw capture of the interactive Claude TUI (`tee` / `tmux pipe-pane`) carries ANSI control
+codes because of the alternate-screen buffer, so the STRUCTURED event log is the clean approach and `tmux pipe-pane` is
+only an optional raw supplement. The helper lives in `grc_library_scratch`, so the primary build is a scratch-side
+change; best done post-resume alongside the codex-exec build so both worker families share one `logs/` layout.
+
+### 3.132 Gate 78 enforces only the recorded-retirement half of the never-recycle rule (r16 guardrails, G-1, L; maintainer-decision) `[machinery]` `[needs-decision]`
+
+Guardrail-review r16 (2026-07-26) GAP finding, re-verified at source. The `TODO.md` never-recycle rule is ABSOLUTE (a
+number maps to exactly one item across the whole history), but gate 78 (`tools/lint-todo-number-permanence.py`) enforces
+only the RECORDED-retirement half: its own docstring discloses that a `.working/DONE.md` entry heading carrying no
+`§N.M` id is invisible to the recycle check (most DONE headings state no id), so a number whose retirement was never
+recorded with its id could be recycled undetected. The docstring names the closure (adopt a DONE.md heading convention
+that always carries the retired id, then extend gate 78 to it), which was UNQUEUED until this item. MAINTAINER DECISION,
+not a defect to fix: either (a) adopt the DONE.md heading-id convention and extend gate 78 to catch unrecorded-retirement
+recycling, OR (b) accept the recorded-retirement half as sufficient and record that decision (the gate is honestly
+guard-first and discloses its own boundary). Routed as a maintainer-decision proposal per the guardrail-review skill.
 
 ### 3.74 Standards-reference-format standardization (maintainer-directed 2026-07-14, M)
 

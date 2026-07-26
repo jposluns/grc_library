@@ -8,6 +8,42 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-26, Library Version 2026.07.673, PR #1183 (/restore-broken recovery command)
+
+Adds a slash command that codifies recovery of a project whose orchestrator died, ran out of usage, or was interrupted
+mid-session. It is the recovery counterpart to `/resume`: where `/resume` rebuilds from a CLEAN session-closing
+handoff, `/restore-broken` handles the case where there is no clean handoff and the lease, handoff, and delivery tray
+are internally inconsistent. This PR ships the command as the reusable form of the takeover this session performed.
+
+### Added
+- [`.claude/commands/restore-broken.md`](../../.claude/commands/restore-broken.md): a five-phase protocol (assess
+  read-only; report and ask for an express GO; recover with independent verification; wind down to a clean green
+  branch; same-session resume as the compensating control). It bakes in the specific traps this takeover hit: the
+  turn-end-safety check for an auto-commit stop hook, the stale-lease unattended-mode that silently blocks interactive
+  questions, the tray-count-is-not-the-unprocessed-count trap, the permission-model health check, and the "verify the
+  interrupted unit as a hypothesis, not an inheritance" discipline. It recommends running recovery on a HIGH reasoning
+  effort, since a broken-orchestrator takeover is exactly the high-stakes work where a missed nuance is expensive.
+- [`TODO.md`](../../TODO.md) item 3.130: a tracked follow-up to add the PORTABLE pack form of the recovery discipline
+  (a recovery subsection in the pack `session-lifecycle` rule), per the pack-parity coupling.
+- [`TODO.md`](../../TODO.md) item 3.131: a maintainer-requested P3 tooling item to log each worker's headless console
+  events (claim / heartbeat / deliver / error) to a searchable dated per-worker file under `grc_working/logs/`, so
+  headless worker and codex-exec output is greppable and tailable after the fact.
+- [`.working/guardrail-reviews/`](../guardrail-reviews/): guardrail-review **r16** (detail file `2026-07-26-r16.md` plus
+  a history row), auto-prompted because the new `/restore-broken` command tipped the machinery-drift cadence (gate 60) to
+  3. Offloaded to a worker and orchestrator-re-verified at source. Verdict COHERENT (inventory 78 gates / 15 rules / 24
+  skills / 16 commands; 0 overlap, 0 drift); one LOW gap (G-1: gate 78 enforces only the recorded-retirement half of the
+  absolute never-recycle rule, its DONE.md-heading-id closure unqueued) routed to [`TODO.md`](../../TODO.md) item 3.132 as
+  a maintainer-decision proposal.
+
+### Changed
+- The prior PR's QA rows batch in per recursion-avoidance: #1182's `/validate-pr` row, `/retro` row, and `--admin`
+  bypass row.
+
+### Verification
+- The new command lints clean (language, unbalanced-fence checks on its explicit path); pre-push guard green
+  (78 audit gates plus all PR-time checks). An independent pre-push refute-briefed verification confirmed the command's
+  referenced files, rules, and phase steps are accurate and that it invents nothing.
+
 ## 2026-07-26, Library Version 2026.07.672, PR #1182 (orchestrator-takeover reconciliation)
 
 Bookkeeping for an orchestrator handover. A new orchestrator session took over after the prior 2026-07-25
@@ -17,7 +53,7 @@ merged clean at `13861709` via `--admin`. This PR reconciles the takeover state.
 
 ### Changed
 - [`.working/session-state.md`](../session-state.md): the concurrency lease reconciled to the takeover session
-  (`Active-session: claude/takeover-reconcile`, `Operating-mode: attended-autonomous (daytime)`, fresh heartbeat),
+  (`Active-session: claude/takeover-reconcile`, `Operating-mode: attended-autonomous`, fresh heartbeat),
   with a current-task narrative of the takeover and the deferred queue.
 - [`.working/next-prs.txt`](../next-prs.txt): refreshed to the post-takeover queue.
 
