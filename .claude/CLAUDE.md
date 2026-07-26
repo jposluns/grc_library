@@ -619,6 +619,15 @@ is external. Two mechanisms:
      whole set rather than only the files it just touched. And a LATER commit that moves a `Date` to
      satisfy D4 is itself a body change post-dating the `Version` bump, which then trips gate 40, so
      the repair for a D4 failure is to move the `Version` forward too, not only the `Date`.
+     **The practical remedy, adopted after a FIFTH catch in one session: run
+     `python3 tools/lint-version-bump-recency.py` immediately BEFORE each commit**, in the same
+     `&&` chain as `preflight-changelog.py`. It is seconds, it reads the same committed history
+     gate 40 does, and it names the file. The checklist bullet alone did not work, because the
+     failure is one of TIMING rather than knowledge: the guard reports it about six minutes into a
+     run, long after the edit, and by then the fix costs a whole extra guard cycle. Catching it at
+     commit time costs nothing. Note the one wrinkle: the check reads COMMITTED state, so on a
+     staged-but-uncommitted bump it still reports the old failure; run it after the commit to
+     confirm, or accept that a clean run before the commit means the PREVIOUS commit was clean.
    - **Generated-artefact regen order** (the false-clean guard): after any per-document
      `Version` bump, regenerate `taxonomy.yml` FIRST, then `docs/portal.md` and
      `docs/maturity-scorecard.md` (which derive from the taxonomy); a `build-portal.py
