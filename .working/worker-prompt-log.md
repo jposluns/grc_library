@@ -35,3 +35,6 @@ can appear in the verb column; nothing here is ever composed from worker output.
 | 2026-07-26T01:02:07Z | worker1 | claude | wake | none | overnight nudge cadence, round 1 | `/credit-offload` |
 | 2026-07-26T01:05:57Z | worker | claude | wake | none | overnight nudge cadence, round 2 | `/credit-offload` |
 | 2026-07-26T01:05:59Z | worker1 | claude | wake | none | overnight nudge cadence, round 2 | `/credit-offload` |
+| 2026-07-26T01:09:38Z | codex | codex | wake | none | overnight nudge cadence, round 3 | `If you are currently working on an order, ignore this message and carry on. If you are not, then at your next opportunity resync your grc_library_scratch clone ` |
+| 2026-07-26T01:09:48Z | worker | claude | wake | none | overnight nudge cadence, round 3 | `/credit-offload` |
+| 2026-07-26T01:09:50Z | worker1 | claude | wake | none | overnight nudge cadence, round 3 | `/credit-offload` |
