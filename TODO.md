@@ -561,6 +561,19 @@ an adjacent budget figure. Enumerating negations cannot be completed, so the str
 to be ATTRIBUTABLE to a spend phrase rather than merely near one, which is the same input-authority shape as the rest
 of this week's findings.
 
+**ORCHESTRATOR RE-DERIVATION (2026-07-26), and it is worse than W1 states.** Re-run over the live tray: **14 of 36**
+deliveries report no readable figure (the worker measured 12 of 31 earlier; the tray has grown since, so the two
+agree). The sharper finding is in the PER-WORKER column, which W1 does not mention.
+`opus-20260725T121943Z-78ff` displays **about 1,175 estimated across 12 deliveries**, while ONE of those deliveries,
+`sweep122-resume-validate`, states "approximately 330,000 input tokens and approximately 30,000 output tokens" in a
+`## Token spend` SECTION, exactly the shape the parser cannot cross. So the tool does not merely fall back to UNKNOWN
+for these: it prints a confident per-worker figure understating that worker by roughly 300 times, and the fleet TOTAL
+is consequently dominated by the one worker whose phrasing happens to parse. That is a wrong-number failure sitting
+beside an honest unknown-count, and it is the more dangerous half, because the unknown count carries its own caveat in
+the output while the per-worker figure carries none. The fix must therefore also decide what to DISPLAY for a worker
+whose figures are mostly unreadable: a number derived from a minority of a worker's deliveries is not that worker's
+spend, and presenting it as such is the measured-versus-estimated conflation the pack rule already forbids.
+
 ### 3.74 Standards-reference-format standardization (maintainer-directed 2026-07-14, M)
 
 **SEQUENCED AFTER the §3.9 edition verifications (decided 2026-07-25).** Adding a release year
