@@ -8,6 +8,46 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-26, Library Version 2026.07.672, PR #1182 (orchestrator-takeover reconciliation)
+
+Bookkeeping for an orchestrator handover. A new orchestrator session took over after the prior 2026-07-25
+overnight-unattended session ran out of usage mid-work on #1181; the takeover ran read-only assessment first, then
+verified and landed the interrupted #1181 (independent adversarial pre-push verify: nothing invented, nothing lost),
+merged clean at `13861709` via `--admin`. This PR reconciles the takeover state.
+
+### Changed
+- [`.working/session-state.md`](../session-state.md): the concurrency lease reconciled to the takeover session
+  (`Active-session: claude/takeover-reconcile`, `Operating-mode: attended-autonomous (daytime)`, fresh heartbeat),
+  with a current-task narrative of the takeover and the deferred queue.
+- [`.working/next-prs.txt`](../next-prs.txt): refreshed to the post-takeover queue.
+
+### Added
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): the #1181 row (RETURNED PASS, 0 findings). Its QA
+  was an independent adversarial PRE-PUSH verify (`verify-1181-ledger-repair`, an Opus 4.8 worker on the file-drop
+  transport), which per-row traced every restored ledger row to real git history and proved de-fusion completeness
+  by word-multiset diff; re-verified by the orchestrator at source before merge.
+- [`.working/improvement-log.md`](../improvement-log.md): the #1181 `/retro` row. Lesson: order-premise accuracy is
+  the orchestrator's job, not the worker's to rescue; a rough structural grep is not a measurement, and the order
+  carried a diff miscount the worker flagged.
+- [`.working/merge-bypass-log.md`](../merge-bypass-log.md): the #1181 `--admin` bypass row, written after the merge
+  from the observed `gh pr checks` output (green CI).
+- [`.working/open-findings.md`](../open-findings.md) plus [`TODO.md`](../../TODO.md) item 3.129: a recorded
+  destructive fail-open in [`tools/sweep-working-records-to-private.py`](../../tools/sweep-working-records-to-private.py).
+  Its verify-before-prune guard checks archive-copy EXISTENCE, not content, so `--prune` could delete a source whose
+  archive copy is present-but-wrong. Surfaced by the takeover tray reconciliation, re-verified at source. Imminence is
+  low (manual close-out step), but the fix gates any `--prune` run.
+- [`.working/worker-prompt-log.md`](../worker-prompt-log.md): the prior session's final worker-nudge rounds, restored
+  (they were uncommitted in the working tree when it ran out of usage).
+
+### Verification
+- Pre-push guard green: 78 audit gates plus all PR-time checks (D1 to D8, gates 45/40/31). The takeover also
+  established and verified the worker-access permission model across the launch root (workers read-only on the corpus,
+  denied the shared scratch and private repos, read-write only on the exchange), with a re-runnable check script.
+
+Discipline observation: this PR is orchestrator-only bookkeeping (authoring the audit-trail rows, the lease, the
+CHANGELOG), which the mandatory-offload rule keeps orchestrator-side; the two live Opus 4.8 workers served only the
+read-only #1181 verification and the tray reconciliation that fed it.
+
 ## 2026-07-26, Library Version 2026.07.671, PR #1181 (seven lost QA rows restored, none invented)
 
 Seven rows of the validation-sweep and matrix-fit ledgers had been silently destroyed by editing mistakes. All seven
