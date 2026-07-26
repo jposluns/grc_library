@@ -150,7 +150,7 @@ Items 15 to 24 are in [`next-prs.txt`](next-prs.txt): 3.113, 2.25.3 (Canada AI c
 
 - **Current truth (verify against live files at `/resume`, which now runs from `/home/grc`)**:
   - **Session / mode:** resumed from #1105; long ATTENDED run; the WORKER-WIRING / same-VM file-drop-transport session; SESSION-CLOSING at #1150. Lease RELEASED; the next `/resume` sets its own mode. **PATH MIGRATION: the next session runs from `/home/grc/grc_library`; all sibling repos are at `/home/grc/` (off `/home/jposluns`, moved to backup); UPDATE ALL `/home/grc` repos at `/resume` FIRST (they may be stale).**
-  - **Version snapshot (D7 validates these tokens):** library `2026.07.676`, README `1.10.37` (as of #1185; the takeover-lineage session has now merged #1181 through #1185); pack `1.65.17` (unchanged this session). Counts re-verified this session (guardrail-review r16, worker-measured plus orchestrator-re-verified): gate **78**, rules **15**, skills **24**, commands **16**, Document-types **18**. The commands figure was **15** and is now 16 (`/restore-broken` landed in #1183).
+  - **Version snapshot (D7 validates these tokens):** library `2026.07.678`, README `1.10.39` (as of #1188; the takeover-lineage session has now merged #1181 through #1187, with #1188 this corrective PR); pack `1.65.17` (unchanged this session). Counts re-verified this session (guardrail-review r16, worker-measured plus orchestrator-re-verified): gate **78**, rules **15**, skills **24**, commands **16**, Document-types **18**. The commands figure was **15** and is now 16 (`/restore-broken` landed in #1183).
   - **Green-at:** the #1149 merge `3ac1f555` (77/77; pre-push guard green). This #1150 handoff is working-state + the F1/F2 fix + CHANGELOG + version only; `main` stays 77/77 at its descendant merge.
   - **Shipped this session (grc_library + siblings):** #1106-#1150 (full list in [`CHANGELOG.md`](../CHANGELOG.md) / [`DONE.md`](DONE.md)), headline the trust-recovery build (#1147 `audit-validation-coverage.py`, #1148 deep-assessment restructure) and the WORKER-WIRING (`_scratch` #174 transport-aware `/credit-offload`, `_scratch` #175 Codex onboarding core, `grc_library` #1149 command-lockstep fix, #1150 this handoff).
   - **File-drop transport EMPIRICALLY LIVE at close:** `credit-offload-filedrop.py list-workers` showed `worker-20260716-a` (opus) + `codex-mailz-a` (codex) heartbeating via `/home/grc/grc_working`; the `init` layout is pre-provisioned; a real order (`fd-verify-1149-deepassess`) was dispatched to codex to demonstrate the end-to-end loop.
@@ -186,10 +186,15 @@ cross-checks these; a finding that contradicts a claim here is a genuine miss to
   the three control scripts are installed in `/home/grc` (root:root 0700; `check_perms.sh` 0500).
 
 **NOT asserted clean, probe these first:**
-- The recorded destructive fail-open in `tools/sweep-working-records-to-private.py` (TODO 3.129) is REAL
-  and UNFIXED: DO NOT run the sweep `--prune` until 3.129 lands.
+- The recorded destructive fail-open in `tools/sweep-working-records-to-private.py` (TODO 3.129) is
+  FIXED in #1186: the existence-only guard (`if not p.is_file()`) became a byte/content comparison on
+  all four destructive paths, with reality-fixture self-tests, so the standing "do not run the sweep
+  `--prune` until 3.129 lands" hold is CLEARED and the prune is safe to run.
 - The Phase-3 tray (20 open items) and the codex deep-assessment (H-01..M-06) are un-triaged.
-- The exec'd-worker system is DESIGNED + prepped but NOT built (the post-resume first task).
+- The exec'd-worker system is BUILT in #1185 (`tools/exec-dispatch.py`, the orchestrator-side control
+  plane) and extended in #1187 (the `--account` override for cross-account parallelism); it is no
+  longer the post-resume first task, and the follow-on worker full-suite `/validate` is tracked as
+  TODO 3.138.
 
 **Green at close:** `tools/pre-push-guard.sh` was green on both runners (78 gates + all PR-time checks)
 at this handoff PR's head before merge; the loop-break `/validate` re-verifies against `main`.
