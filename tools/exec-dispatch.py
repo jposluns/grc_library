@@ -241,23 +241,23 @@ def dispatch(config: dict, family: str, model: str, order_id: str, prompt_file: 
 # --- self-test ---------------------------------------------------------------------
 _FIXTURE = {
     "accounts": [
-        {"id": "jposluns-work-claude", "account": "jposluns-work", "family": "claude",
+        {"id": "work-a-claude", "account": "work-a", "family": "claude",
          "tier": "pro-team", "priority_set": 1, "personal": False,
          "models": ["opus", "sonnet", "haiku"], "usage_state": "available", "limited_until": None},
-        {"id": "security-work-claude", "account": "security-work", "family": "claude",
+        {"id": "work-b-claude", "account": "work-b", "family": "claude",
          "tier": "pro-team", "priority_set": 1, "personal": False,
          "models": ["opus", "sonnet", "haiku"], "usage_state": "available", "limited_until": None},
-        {"id": "jeff-posluns-claude", "account": "jeff-posluns", "family": "claude",
+        {"id": "personal-a-claude", "account": "personal-a", "family": "claude",
          "tier": "personal", "priority_set": 2, "personal": True,
          "models": ["opus", "sonnet", "haiku"], "usage_state": "limited",
          "limited_until": "2026-07-29T04:59:00-04:00"},
-        {"id": "jeff-mailz-claude", "account": "jeff-mailz", "family": "claude",
+        {"id": "personal-b-claude", "account": "personal-b", "family": "claude",
          "tier": "pro-20x", "priority_set": 3, "personal": True,
          "models": ["opus", "sonnet", "haiku"], "usage_state": "available", "limited_until": None},
-        {"id": "jeff-mailz-codex", "account": "jeff-mailz", "family": "codex",
+        {"id": "personal-b-codex", "account": "personal-b", "family": "codex",
          "tier": "pro-20x", "priority_set": 1, "personal": False,
          "models": ["gpt-5.6-terra"], "usage_state": "available", "limited_until": None},
-        {"id": "jeff-posluns-codex", "account": "jeff-posluns", "family": "codex",
+        {"id": "personal-a-codex", "account": "personal-a", "family": "codex",
          "tier": "teams-6.5x", "priority_set": 2, "personal": False,
          "models": ["gpt-5.6-terra"], "usage_state": "available", "limited_until": None},
     ]
@@ -276,22 +276,22 @@ def _self_test() -> int:
     sunday = _parse_iso("2026-07-26T18:00:00+00:00")   # before Wed reset
     thursday = _parse_iso("2026-07-30T18:00:00+00:00")  # after Wed reset
 
-    # 1. jeff-posluns claude is EXCLUDED while limited (the maintainer's core case).
+    # 1. personal-a claude is EXCLUDED while limited (the maintainer's core case).
     elig = eligible_accounts(_FIXTURE, "claude", "opus", sunday)
     ids = [a["id"] for a in elig]
-    check("posluns-excluded-while-limited", "jeff-posluns-claude" not in ids)
+    check("worklimited-excluded-while-limited", "personal-a-claude" not in ids)
 
     # 2. A work (non-personal, set 1) account is picked first, never the orchestrator's own.
     pick = select_account(_FIXTURE, "claude", "opus", sunday)
-    check("work-account-picked-first", pick["id"] in ("jposluns-work-claude", "security-work-claude"))
-    check("orchestrator-not-first", pick["id"] != "jeff-mailz-claude")
+    check("work-account-picked-first", pick["id"] in ("work-a-claude", "work-b-claude"))
+    check("orchestrator-not-first", pick["id"] != "personal-b-claude")
 
     # 3. Orchestrator's own account (personal, set 3) is LAST among eligible.
-    check("orchestrator-last", ids[-1] == "jeff-mailz-claude")
+    check("orchestrator-last", ids[-1] == "personal-b-claude")
 
-    # 4. Past the reset window, jeff-posluns becomes eligible again.
+    # 4. Past the reset window, personal-a becomes eligible again.
     ids_thu = [a["id"] for a in eligible_accounts(_FIXTURE, "claude", "opus", thursday)]
-    check("posluns-eligible-after-reset", "jeff-posluns-claude" in ids_thu)
+    check("worklimited-eligible-after-reset", "personal-a-claude" in ids_thu)
 
     # 5. Model filter actually discriminates: a real model offered only by the OTHER family (a codex
     #    model requested for the claude family) is filtered out because no claude account lists it.
@@ -299,9 +299,9 @@ def _self_test() -> int:
     check("model-filter-excludes-wrong-family-model",
           eligible_accounts(_FIXTURE, "claude", "gpt-5.6-terra", sunday) == [])
 
-    # 6. Codex: primary (jeff-mailz, set 1) before secondary (jeff-posluns, set 2).
+    # 6. Codex: primary (personal-b, set 1) before secondary (personal-a, set 2).
     cod = [a["id"] for a in eligible_accounts(_FIXTURE, "codex", "gpt-5.6-terra", sunday)]
-    check("codex-primary-first", cod == ["jeff-mailz-codex", "jeff-posluns-codex"])
+    check("codex-primary-first", cod == ["personal-b-codex", "personal-a-codex"])
 
     # 7. A model no account offers -> empty.
     check("unknown-model-empty", select_account(_FIXTURE, "claude", "no-such-model", sunday) is None)
@@ -317,22 +317,22 @@ def _self_test() -> int:
 
     # 10. Account override: no override picks the top eligible (same as select_account).
     a_auto, _ = pick_account(_FIXTURE, "claude", "opus", sunday)
-    check("override-none-picks-top", a_auto is not None and a_auto["id"] == "jposluns-work-claude")
+    check("override-none-picks-top", a_auto is not None and a_auto["id"] == "work-a-claude")
     # 11. Targeting an eligible NON-top account returns exactly it (the parallelism case).
-    a_sec, r_sec = pick_account(_FIXTURE, "claude", "opus", sunday, account="security-work")
-    check("override-targets-eligible", a_sec is not None and a_sec["id"] == "security-work-claude")
+    a_sec, r_sec = pick_account(_FIXTURE, "claude", "opus", sunday, account="work-b")
+    check("override-targets-eligible", a_sec is not None and a_sec["id"] == "work-b-claude")
     # 12. Targeting the personal account (eligible but auto-picked LAST) still works when named.
-    a_mz, _ = pick_account(_FIXTURE, "claude", "opus", sunday, account="jeff-mailz")
-    check("override-targets-personal", a_mz is not None and a_mz["id"] == "jeff-mailz-claude")
-    # 13. Targeting a KNOWN-but-ineligible account (limited jeff-posluns) is REJECTED with a reason.
-    a_lim, r_lim = pick_account(_FIXTURE, "claude", "opus", sunday, account="jeff-posluns")
+    a_mz, _ = pick_account(_FIXTURE, "claude", "opus", sunday, account="personal-b")
+    check("override-targets-personal", a_mz is not None and a_mz["id"] == "personal-b-claude")
+    # 13. Targeting a KNOWN-but-ineligible account (limited personal-a) is REJECTED with a reason.
+    a_lim, r_lim = pick_account(_FIXTURE, "claude", "opus", sunday, account="personal-a")
     check("override-rejects-ineligible", a_lim is None and "NOT eligible" in r_lim)
     # 14. Targeting an UNKNOWN account is rejected and distinguished from ineligible.
     a_unk, r_unk = pick_account(_FIXTURE, "claude", "opus", sunday, account="no-such-acct")
     check("override-rejects-unknown", a_unk is None and "not in the config" in r_unk)
-    # 15. The same account name across families resolves by FAMILY (jeff-mailz has claude AND codex).
-    a_cod, _ = pick_account(_FIXTURE, "codex", "gpt-5.6-terra", sunday, account="jeff-mailz")
-    check("override-resolves-by-family", a_cod is not None and a_cod["id"] == "jeff-mailz-codex")
+    # 15. The same account name across families resolves by FAMILY (personal-b has claude AND codex).
+    a_cod, _ = pick_account(_FIXTURE, "codex", "gpt-5.6-terra", sunday, account="personal-b")
+    check("override-resolves-by-family", a_cod is not None and a_cod["id"] == "personal-b-codex")
 
     if fails:
         print("SELF-TEST FAIL:", ", ".join(fails))

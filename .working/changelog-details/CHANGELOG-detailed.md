@@ -8,6 +8,10 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-26, Library Version 2026.07.680, PR #1190 (internal tooling + working-record maintenance)
+
+Internal `.working`/tooling maintenance for the local project; no corpus or adopter-facing change.
+
 ## 2026-07-26, Library Version 2026.07.679, PR #1189 (token-spend parser: connector allowlist + DOTALL, TODO 3.128)
 
 ### Fixed
@@ -87,7 +91,7 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 ### Why
 
 The wrapper holds a per-account flock that serializes same-account jobs at 1, and the dispatcher had no
-in-flight registry, so N concurrent auto-dispatches all picked the top account (`jposluns-work`) and ran
+in-flight registry, so N concurrent auto-dispatches all picked the top account (`work-a`) and ran
 SERIALLY. Confirmed live from the process table: four concurrent workers all on one account, one running
 while three blocked on the flock. Targeting a distinct eligible account per concurrent job gives real
 parallelism (each account's flock serializes only its own one job). This is the cheap unlock for
@@ -107,9 +111,9 @@ race); corrected here.
 - `python3 tools/exec-dispatch.py --self-test` -> OK (17 checks; 6 new `pick_account` cases covering
   auto-pick, targeting an eligible non-top account, targeting the personal account, rejecting a
   known-but-limited account, rejecting an unknown account, and family-scoped resolution).
-- `--dry-run --account security-work` prints PICK; `--dry-run --account jeff-posluns` (limited) prints
-  REJECTED with the reason. Verified live: a `security-work`-targeted worker ran in parallel with the
-  `jposluns-work` flock queue.
+- `--dry-run --account work-b` prints PICK; `--dry-run --account personal-a` (limited) prints
+  REJECTED with the reason. Verified live: a `work-b`-targeted worker ran in parallel with the
+  `work-a` flock queue.
 
 ## 2026-07-26, Library Version 2026.07.676, PR #1186 (sweep-prune fail-open fix + CLAUDE.md-right-size series)
 
@@ -180,12 +184,12 @@ material).
 
 ### Verification
 - Sweep 123 (this PR): the loop-break `/validate` over #1181..#1184, offloaded to the new exec'd
-  worker (jposluns-work/opus), returned **CLEAN** (0 error / 0 warning / 1 environment note) in 7m26s;
+  worker (work-a/opus), returned **CLEAN** (0 error / 0 warning / 1 environment note) in 7m26s;
   all four targeted confirmations CONFIRMED and all six handoff asserted-expectations CORROBORATED,
   zero contradictions. The orchestrator spot-verified the worker's proof-of-run at source (gate count
   78, the #1181 Sweep-91 orphan's real ancestor `e94b6923`, counts 15/24/16, §3.129 open), so the
   clean verdict is not a confabulated pass. `exec-dispatch.py --self-test`: 11 checks OK, including the
-  maintainer's core case (jeff-posluns claude excluded while `limited` until Wed, re-eligible after).
+  maintainer's core case (personal-a claude excluded while `limited` until Wed, re-eligible after).
 - A pre-push skeptical verifier (offloaded to an independent exec'd worker, opus/high, briefed to
   REFUTE) found the core dispatch logic sound and raised three minor findings, ALL fixed pre-push
   before this PR was pushed: (1) the self-test printed a hardcoded "8 checks" while 10 `check()` calls
@@ -1137,7 +1141,7 @@ Three defects in the worker-prompt tool, all found by using it on a real fleet r
 
 ### Fixed
 
-- **A destructive verb was permitted against a worker holding an order in flight (fail-open).** Held-order attribution matched a tmux SESSION NAME against a WORKER ID by prefix and took the first hit from a dict iteration. Worker ids are minted per run as `<family>-<timestamp>-<nonce>` and encode nothing about the session, so the match is unsound by construction; it only ever appeared to work because an earlier id scheme embedded the session name. Observed live: `codex-...f8b8` held `fnaudit-sweep121` while running in session `mailz`, and the attribution credited session `codex` with that order and `mailz` with NOTHING, so `restart` on `mailz` would have wiped a live order while `codex` was refused for an order it did not hold. Both verdicts were wrong and the silent permit was the dangerous one. Replaced by a pure `attribute_held` returning five explicit states, where ignorance is reported rather than resolved: more than one match is `ambiguous`, and NO match while a worker in the same FAMILY holds an order is `unknown`, because a non-match is not evidence this session is idle. Both refuse a destructive verb; `--force` remains the override. The fail-safe is scoped by family so it stays proportionate: without that scope one holder anywhere would freeze destructive verbs against every session, which is the kind of over-broad guard that gets switched off.
+- **A destructive verb was permitted against a worker holding an order in flight (fail-open).** Held-order attribution matched a tmux SESSION NAME against a WORKER ID by prefix and took the first hit from a dict iteration. Worker ids are minted per run as `<family>-<timestamp>-<nonce>` and encode nothing about the session, so the match is unsound by construction; it only ever appeared to work because an earlier id scheme embedded the session name. Observed live: `codex-...f8b8` held `fnaudit-sweep121` while running in session `orchestrator-session`, and the attribution credited session `codex` with that order and `orchestrator-session` with NOTHING, so `restart` on `orchestrator-session` would have wiped a live order while `codex` was refused for an order it did not hold. Both verdicts were wrong and the silent permit was the dangerous one. Replaced by a pure `attribute_held` returning five explicit states, where ignorance is reported rather than resolved: more than one match is `ambiguous`, and NO match while a worker in the same FAMILY holds an order is `unknown`, because a non-match is not evidence this session is idle. Both refuse a destructive verb; `--force` remains the override. The fail-safe is scoped by family so it stays proportionate: without that scope one holder anywhere would freeze destructive verbs against every session, which is the kind of over-broad guard that gets switched off.
 - **An injected prompt was delivered but never submitted (maintainer-observed).** `send-keys -t <session> "<text>" Enter` sent both in one call, and both agent TUIs read a fast input burst as a PASTE, which absorbs the trailing Enter as a newline. The prompt therefore sat in the worker's input box until the maintainer pressed Enter by hand. The failure is LENGTH-DEPENDENT, which is why it hid: the Claude `wake` payload is the single short token `/credit-offload` and submitted correctly, reviving a stalled worker in the same run, while the Codex `wake` is a long prose sentence and did not. So a one-call send works for precisely the verbs with the shortest payloads. Now two separate calls with a 0.4s gap, the text sent with `-l` so prose containing anything tmux would read as a key name cannot be reinterpreted as a keystroke. Verified live on the Codex worker that had failed: the message is now accepted and queued with an empty input box.
 - **A live worker was unreachable because its session had no runtime mapping.** A second Codex worker was started in a tmux session named `codex`, absent from `RUNTIME_MAP`, so every verb against it was refused. The refusal was correct, since the tool will not guess a prompt shape, but the effect was an un-nudgeable live worker. Mapping added.
 - **The orchestrator's own row reported a held-order state** in `--list`, which is meaningless for a session no verb may target and which the new family-scoped fail-safe made noisy. Suppressed.
@@ -1151,12 +1155,12 @@ Three defects in the worker-prompt tool, all found by using it on a real fleet r
 
 - `tools/run_all_audits.sh` standalone: **77/77**.
 - Self-test **19/19**, up from 8, and the three new end-to-end cases each pin a state that previously mis-resolved: the ambiguous family-session case, the unmatched-session-whose-family-holds case (this is the actual fail-open, and it PASSED THE SEND before the fix), and the non-destructive verb still being allowed under both. Seven further cases pin `attribute_held`'s states directly, including the exact live 2026-07-25 worker map as a fixture.
-- **Both fixes verified against the live fleet, not only in tests.** `restart` on `mailz` is now refused naming the family holder; `restart` on `codex` is refused as ambiguous; `wake` on `codex` is still allowed and its message is now visibly queued by the worker.
+- **Both fixes verified against the live fleet, not only in tests.** `restart` on `orchestrator-session` is now refused naming the family holder; `restart` on `codex` is refused as ambiguous; `wake` on `codex` is still allowed and its message is now visibly queued by the worker.
 
 ### Discipline observations
 
 - **Every one of these came from operating the tool, and none from reviewing it.** #1169 hardened this same file's self-test one PR earlier and mutation-proved all seven refusals; that proof was sound and still missed all three of these, because it verified that each guard FIRES on its condition and never questioned whether the condition's INPUT was computed correctly. A mutation proof bounds the guard, not the data reaching it.
-- **The first attempt at the attribution fix closed the visible half and left the dangerous half open.** Making the family-named session report `ambiguous` fixed `codex`, and a live replay showed `restart` on `mailz` still permitted, because `mailz` matched no id at all and read as "holds nothing". Running the replay rather than trusting the diff is what surfaced it; the deeper fix (treat non-match as ignorance, scoped by family) followed only from that.
+- **The first attempt at the attribution fix closed the visible half and left the dangerous half open.** Making the family-named session report `ambiguous` fixed `codex`, and a live replay showed `restart` on `orchestrator-session` still permitted, because `orchestrator-session` matched no id at all and read as "holds nothing". Running the replay rather than trusting the diff is what surfaced it; the deeper fix (treat non-match as ignorance, scoped by family) followed only from that.
 - **The maintainer caught the unsubmitted-prompt bug from the pane, and it would not have shown up in any test here**, since the paste-absorption lives in the worker's TUI rather than in this tool. Recorded because it marks a class this tool's self-test structurally cannot reach: everything past `send-keys` is another program's behaviour.
 
 ## 2026-07-25, Library Version 2026.07.656, PR #1169
