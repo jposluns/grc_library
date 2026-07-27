@@ -8,6 +8,20 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-27, Library Version 2026.07.693, PR #1203 (repair the Week-of-2026-07-13 root-CHANGELOG history loss; token-refresh follow-up)
+
+### Fixed
+
+- [`CHANGELOG.md`](../../CHANGELOG.md): **surgical repair of a root-history loss** (the sanctioned root-edit class: fixing an AI error). The **Week of 2026-07-13** weekly roll-up block had collapsed to only PR #1055, silently dropping about **189 PRs (#866-#1054)** from the root, which the root-never-loses-history invariant forbids. The block now reads **Week of 2026-07-13 (PRs #866-#1055)** with a reconstructed two-paragraph thematic summary (the reference-breadth section-3.57 close-out, three deep-assessment rounds r3/r4/r5 and their FR-200-to-219 remediations, jurisdiction/matrix-fit/crypto accuracy work, the grclibrary.ai website, the section-1.19 privatization and adopter-portability sprint, the credit-offload design, gates 69-72 and the section-1.22 self-guards, and validation sweeps 101-115). The adjacent **Week of 2026-07-06** header is corrected from `#667-#855` to **`#667-#865`** (PRs #856-#865, dated 07-12, belong to it and had been dropped), with a one-line close naming their theme (the CHANGELOG plain-language rework completion and the change-tracking convention flip). Reconstruction was drafted by a worker and **verified at source** by the orchestrator: #866-#1055 confirmed as exactly 190 PRs present with no gaps, and the themes spot-checked against the actual squash-merge subjects (#866 EDPB reference-breadth, #950 the website, #1000 Sweep 111, #1037 the tiered-CHANGELOG migration).
+
+### Added
+
+- [`TODO.md`](../../TODO.md) **3.147**: the worker OAuth token-refresh does not persist. The exec'd-worker wrapper's `--worker-id` path snapshots the account config dir (including the token), runs claude against the throwaway snapshot, and deletes it, so a mid-run token refresh is lost and the base token is never renewed, which is why worker accounts expire about 1-2h after re-auth (observed 2026-07-27 across jposluns-work, security-work, jeff-mailz). The snapshot isolation that makes same-account concurrency safe is what breaks refresh persistence. Options (write-back, periodic base refresh, API keys, or accept manual re-auth) recorded for a maintainer decision. P3 counter 3.147 -> 3.148.
+
+### Verification
+
+- All 78 gates + PR-time checks green (both runners, unpiped). The CHANGELOG-hygiene preflight passes (no dashes, path-shaped references linked). This repair was validated during the same-account-concurrency test that also produced the reconstruction draft as a real worker deliverable (4 workers ran concurrently on jposluns-work with zero output corruption). The #1202 QA rows batch in here per recursion-avoidance.
+
 ## 2026-07-27, Library Version 2026.07.692, PR #1202 (exec-dispatch registry fails closed on a corrupt inflight.json; TODO 3.145)
 
 ### Fixed
