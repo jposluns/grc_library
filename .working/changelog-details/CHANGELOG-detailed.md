@@ -8,6 +8,30 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-27, Library Version 2026.07.686, PR #1196 (origin paragraph + resume/compaction codifications)
+
+Overnight bookkeeping bundle: the corpus-origin narrative, the persistence-of-directives codifications the maintainer asked for this session, two newly-registered backlog items, and #1195's QA rows.
+
+### Added
+
+- [`CHANGELOG.md`](../../CHANGELOG.md) `Week of 2026-05-25`: the maintainer-approved two-paragraph origin story (the corpus's pre-2009 practitioner roots, the hand-tended-to-AI-managed transition with a required Human In The Loop, and the ambition to distil the disciplines into a portable pack), with "replicable pack of rules" linked to the pack README.
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): a high-placed rule (before `## Project`) to RE-READ the `_private` READ-THIS-FIRST list and the private roadmap file after every `/resume` AND especially after every conversation compaction, plus a directive-persistence protocol (when the maintainer gives direction, check if it is logged, assess cross-session persistence, and if it persists log it in the IMPORTANT place before acting). Mirrored by a re-read note at the top of the `_private` READ-FIRST block.
+- [`TODO.md`](../../TODO.md): `3.142` (`/sitrep` situation-report command, recovered after being dropped in the emergency wind-down) and `3.143` (worker-account onboarding process + add-account script, for the accounts arriving tomorrow); P3 counter advanced to 3.144. Both umbrella A.
+
+### Changed
+
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) worker-offload rule lead-in: "two-part hard rule" corrected to "the hard rule ... expanded to six points" (validate-pr-1195 W1, the stale-descriptor-after-body-growth class).
+- [`.working/session-state.md`](../session-state.md): Operating-mode set to `overnight-unattended`; lease and heartbeat refreshed.
+- [`.working/next-prs.txt`](../next-prs.txt): refreshed to the current queue.
+
+### Also (batched #1195 QA)
+
+- The #1195 merge-bypass row, the validate-pr-1195 row + record ([`2026-07-27-PR-1195.md`](../validate-pr/2026-07-27-PR-1195.md), 0 error / 1 warning / 1 note, offloaded to a worker), the retro-1195 row, and the W1 open-findings row (FIXED here).
+
+### Verification
+
+- `tools/run_all_audits.sh`: all 78 gates pass. Pre-push guard green on both runners.
+
 ## 2026-07-27, Library Version 2026.07.685, PR #1195 (post-wind-down resume close-out)
 
 The first-PR close-out of the 2026-07-26 post-emergency-wind-down resume. Batches the Sweep 124
