@@ -11,9 +11,13 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### 3.120 (#1210): gate 50 Check 1 third `pending` state (2026-07-27)
+
+Gate 50's QA-cadence parity Check 1 was satisfied by row PRESENCE, so an honest `DISPATCHED, RESULT PENDING` validate-pr row read GREEN while that PR's QA had never run, the silence-reads-as-health hole that let validate-pr-1173/validate-pr-1180 sit unconsumed. `lint-bookkeeping-parity.py` now classifies a third row state, `pending` (a `DISPATCHED`/`RESULT PENDING` marker with no `RETURNED`), and FAILS Check 1 on it once a later PR exists, while a pending row on the single highest PR stays in-flight-exempt and a row that also carries `RETURNED` is not pending (the word `dispatched` may appear legitimately in a returned row's prose). Reality-fixture regression tests + spec §6 and docstring updated; the convention half shipped earlier in #1178, this closes the mechanical half.
+
 ### 3.126 (#1209): open-findings disposition-token structural fix (2026-07-27)
 
-The open-findings guard's disposition cell was free prose it could not reliably read: an earlier check only asked the cell START with a terminal word, so `ROUTED nowhere yet, near 3.145`, a lone `FIXED`, and `FIXED in #1208` all passed while checkable-nothing, and a literal `|` in a Finding cell mis-columned a valid row (the #1208 false-block). Structural fix (not more matcher hardening): `block-on-open-findings.py` now enforces a GRAMMAR, FIXED/ROUTED need a ref ADJACENT to the word, REFUTED/ACCEPTED need the word + prose (maintainer-decided 2026-07-27), and the parser splits on unescaped pipes with a malformed row failing closed. Self-test 20 -> 31. The 49 accumulated dispositioned Open rows were moved to `## Closed today` (deterministic script, re-parse-verified: 0 findings lost), leaving Open clean.
+The open-findings guard's disposition cell was free prose it could not reliably read: an earlier check only asked the cell START with a terminal word, so `ROUTED nowhere yet, near 3.145`, a lone `FIXED`, and `FIXED in #1208` all passed while checkable-nothing, and a literal `|` in a Finding cell mis-columned a valid row (the #1208 false-block). Structural fix (not more matcher hardening): `block-on-open-findings.py` now enforces a GRAMMAR, FIXED/ROUTED need a ref ADJACENT to the word, REFUTED/ACCEPTED need the word + prose (maintainer-decided 2026-07-27), and the parser splits on unescaped pipes with a malformed row failing closed. Self-test 20 -> 31. The 48 accumulated dispositioned Open rows were moved to `## Closed today` (deterministic script, re-parse-verified: 0 findings lost), leaving Open clean.
 
 ### 3.115 (#1208): four gate-44 fail-open routes closed (2026-07-27)
 

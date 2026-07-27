@@ -45,6 +45,15 @@ the legacy ``## YYYY-MM-DD, Library Version X, PR #N`` form. For each PR N with 
   the ``-ised`` or ``-ized`` spelling) satisfies
   the validate-pr requirement and does NOT require a retro row (#328 is the
   canonical instance: its QA was force-stopped and subsumed by Sweep 42).
+- A THIRD row state, ``pending`` (TODO 3.120): a validate-pr row that is
+  PRESENT but records the QA as ``DISPATCHED`` / ``RESULT PENDING`` and never
+  ``RETURNED``. Row presence alone used to read GREEN on it, the hole that let
+  validate-pr-1173 / validate-pr-1180 sit unconsumed across sessions. A pending
+  row on an in-window PR (below the highest) FAILS Check 1 as a stranded QA
+  order; a pending row on the single highest PR stays in-flight-exempt (its QA
+  batches into the not-yet-existent next PR). A row that ALSO carries
+  ``RETURNED`` is not pending: the word ``dispatched`` may legitimately appear
+  in a returned row's prose, so the classifier requires ``RETURNED`` absent.
 - A handful of pre-INCEPTION-era handoff PRs were merged before the
   exemption-row convention existed, so they carry no validate-pr row at all;
   they are listed in ``KNOWN_HANDOFF_NO_ROW`` so the gate does not
@@ -182,6 +191,17 @@ SUBSUMPTION_FINDINGS = re.compile(
     re.IGNORECASE,
 )
 
+# A row whose QA was DISPATCHED / offloaded but has NOT yet RETURNED, so the row is
+# present-but-UNRESOLVED (TODO 3.120). Check 1 was satisfied by row PRESENCE, so an
+# honest `DISPATCHED, RESULT PENDING` row read GREEN while the PR's QA had in fact never
+# run: this is the stranded-QA hole that let validate-pr-1173 (`PENDING, offloaded`) and
+# validate-pr-1180 (`DISPATCHED`) sit unconsumed across sessions. It is a THIRD state,
+# between resolved-present and absent, and Check 1 FAILS on it once a later PR exists. A
+# row that also carries RETURNED is NOT pending (it returned; the word may appear in its
+# prose, e.g. "the order was dispatched at #1180 and never returned, now RETURNED").
+PENDING_FINDINGS = re.compile(r"\bDISPATCHED\b|\bRESULT\s+PENDING\b|^\**\s*PENDING\b", re.IGNORECASE)
+RETURNED_MARK = re.compile(r"\bRETURNED\b", re.IGNORECASE)
+
 # A markdown table data row: leading pipe, an ISO date cell, then the rest.
 TABLE_ROW = re.compile(r"^\|\s*\d{4}-\d{2}-\d{2}\s*\|")
 
@@ -282,6 +302,8 @@ def parse_validate_pr_status(text: str) -> dict[int, str]:
             row_status = "handoff"
         elif SUBSUMPTION_FINDINGS.search(findings):
             row_status = "subsumption"
+        elif PENDING_FINDINGS.search(findings) and not RETURNED_MARK.search(findings):
+            row_status = "pending"
         else:
             row_status = "normal"
         for pr in (int(x) for x in re.findall(r"\d+", c[2])):
@@ -423,6 +445,20 @@ def qa_cadence_findings(
         if st in ("handoff", "subsumption"):
             # Handoff: both rows legitimately absent. Subsumption: validate-pr
             # satisfied by the note row, no retro required.
+            continue
+        if st == "pending":
+            # Third state (TODO 3.120): the row is PRESENT but marks the QA as
+            # DISPATCHED / RESULT-PENDING and never RETURNED. Row presence alone used
+            # to read GREEN here, so a stranded QA order (validate-pr-1173/1180) passed
+            # while the PR's QA had never run. This PR is in-window (a later PR exists),
+            # so the order is stranded: FAIL until the result RETURNS.
+            findings.append(
+                f"  [qa-cadence] PR #{pr}: its /validate-pr row is PRESENT but marks the "
+                f"QA as DISPATCHED / RESULT-PENDING and it never RETURNED; a later PR "
+                f"exists (window up to #{max_pr}), so the QA order was stranded. Consume "
+                f"the result, update the row to RETURNED with its findings dispositioned, "
+                f"or re-issue the order (per the undelivered-validate-pr-is-blocking rule)."
+            )
             continue
         # Normal substantive PR: validate-pr row present; require the retro row
         # unless it is older than the oldest surviving retro row (swept out).

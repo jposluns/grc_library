@@ -6194,6 +6194,43 @@ class BookkeepingParityTests(LinterTestCase):
         )
         self.assertEqual(findings, [], f"subsumption PR must pass; got {findings}")
 
+    def test_pending_row_fails_when_a_later_pr_exists(self) -> None:
+        # TODO 3.120: PR #11's validate-pr row is PRESENT but marks the QA
+        # DISPATCHED / RESULT-PENDING and never RETURNED. With a later PR (#12) it is a
+        # STRANDED order and must flag, where row-presence alone used to read green (the
+        # hole that let validate-pr-1173/1180 sit unconsumed across sessions).
+        mod = self._load_module()
+        findings = mod.qa_cadence_findings(
+            {10, 11, 12}, {10: "normal", 11: "pending"}, {10, 11},
+            inception=10, known_handoff=frozenset(),
+        )
+        self.assertEqual(len(findings), 1, f"a pending in-window row must flag; got {findings}")
+        self.assertIn("stranded", findings[0])
+
+    def test_pending_highest_pr_is_in_flight_exempt(self) -> None:
+        # The single highest PR (#12) is in-flight-exempt even if pending: its QA
+        # legitimately batches into the not-yet-existent next PR.
+        mod = self._load_module()
+        findings = mod.qa_cadence_findings(
+            {10, 11, 12}, {10: "normal", 11: "normal", 12: "pending"}, {10, 11},
+            inception=10, known_handoff=frozenset(),
+        )
+        self.assertEqual(findings, [], f"highest pending PR is in-flight-exempt; got {findings}")
+
+    def test_pending_classifier_returned_is_not_pending(self) -> None:
+        # The classifier reality fixture (3.120): a `DISPATCHED` Findings cell with no
+        # RETURNED is `pending`; a RETURNED row that merely MENTIONS "dispatched" in its
+        # prose is `normal`, so a consumed row is not mis-flagged as stranded.
+        mod = self._load_module()
+        row = lambda cell: mod.parse_validate_pr_status(
+            f"| 2026-07-27 | 500 | touched | {cell} | none | none | summary |").get(500)
+        self.assertEqual(row("**DISPATCHED** (order x, prio 0, RESULT PENDING)"), "pending")
+        self.assertEqual(row("**PENDING, offloaded as x**"), "pending")
+        self.assertEqual(
+            row("RETURNED (consumed #1206): the order was dispatched at #1180 and never returned"),
+            "normal")
+        self.assertEqual(row("**RETURNED: PASS, 0 findings**"), "normal")
+
     def test_highest_pr_batch_lag_exempt(self) -> None:
         # The single highest-numbered PR (#12) is exempt even with no rows:
         # its rows batch into the next, not-yet-existent PR.
