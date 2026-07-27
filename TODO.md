@@ -270,7 +270,7 @@ Umbrella for adopting NIST OSCAL as an open, machine-readable projection of the 
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.149.**
+**Next item number: 3.151.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
 
@@ -391,6 +391,14 @@ Confirmed absent at scratch HEAD, all three paths: `.codex/config.toml`, `.codex
 ### 3.148 Two gate-44 fail-open routes of the same class remain open (successor to 3.115; 2026-07-27, M, S)
 
 Successor to 3.115 (four routes closed in #1208), tracking the two routes of the gate-44 subsection-representation fail-open class that #1208 did NOT close, per the re-verify's §7. **Make NO completeness claim about this class, only an ordinal one** (every completeness claim about it has been false: #1158 "the last route" and #1159 "the last reference-form route" were both wrong, caught by the very next sweep), and keep the false-positive census as the gate on any widening. The two open routes: **(1)** an INDENTED code block is not stripped ([`tools/lint-paired-skill-step-parity.py`](tools/lint-paired-skill-step-parity.py)'s `iter_non_code_lines` is fence-only by contract, so an identifier inside a four-space-indented block satisfies a subsection match on its own); **(2)** a table cell of ordinary WORDS that is semantically metadata, the residual of #1208's route (b), which closed only identifier-shaped-atom cells. For (2) the delivered recommendation is that it is NOT a strip-rule problem: the honest instruments are the existing `<!-- parity: command-exempt: <reason> -->` marker and an authoring convention, since a heuristic guessing at "metadata-ness" would be a silent fail-closed risk against prose. **(3) The CONVERSE over-strip residual of route (b)** (claude verify-3115, 2026-07-27): `SLUG_ONLY_CELL_RE`'s three-plus-segment branch is a SHAPE heuristic that cannot distinguish a machine-id slug (`parallel-execution-worker-fan-out`) from a multi-segment English compound (`state-of-the-art`, `up-to-date`), so such a compound in a metadata cell is wrongly stripped, a latent gate-44 FALSE POSITIVE (no registered command file carries one today; `command-exempt` is the escape hatch). The clearer slash-compound case (`read/write`) was fixed in #1208 by requiring a path indicator; the multi-hyphen case has no reliable syntactic signal, so it is documented and tracked rather than force-narrowed. When worked, weigh whether the route-(b) strip earns its keep at all against this over-strip risk. A THIRD, separate pre-existing accuracy gap to fold in when this is worked: the §5 grouped-summary at [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) describes gate 44 as "step-identifier parity" only and never mentions check 2 (subsection representation), which #1208 left as-is to stay focused on the four routes. Umbrella A / gate hygiene.
+
+### 3.149 Colon-adjacent disposition ref is false-blocked by the open-findings grammar (successor to 3.126; validate-pr-1209 F-3; 2026-07-27, L, XS)
+
+`block-on-open-findings.py`'s `_DISPOSITION_RE` requires whitespace (optionally markup) between the `FIXED`/`ROUTED` keyword and the ref, and `disposition_valid` strips `*_`\[\]` but NOT `:`, so a colon-adjacent form (`ROUTED: 3.56a`, `FIXED: #1210`) in `## Open` would false-block the PR create. Latent today: the 8 migrated rows carrying a `ROUTED:`/`FIXED:` first token all live in `## Closed today` (not grammar-checked) and `## Open` is currently empty. The 3.126 contract deliberately allows "whitespace OR markup only between" the keyword and the ref, so a colon is arguably out of contract by design; the fix (if taken) is to allow an optional `[:,]` immediately after the keyword before the ref, with a self-test fixture, OR to document the colon exclusion in the ledger legend so authors use the whitespace form. Weigh fix-vs-document when worked; any grammar change to this PR-blocking guard gets dual-family adversarial verify (both false-pass and false-block directions). Umbrella A / gate hygiene.
+
+### 3.150 Gate-50 `pending`-state recall hardening (successor to 3.120; #1210 pre-push verifier findings; 2026-07-27, M, S)
+
+The #1210 pre-push verifier UPHELD the `pending`-state classifier logic but surfaced three latent false-PASS (recall) gaps in `lint-bookkeeping-parity.py`, all in the safe direction (none spuriously fails the gate) and none a defect in the added code, routed here for hardening: **(1) recall brittleness (LOW):** a stranded row phrased outside the three tokens (`DISPATCHED` / `RESULT PENDING` / leading-`PENDING`) escapes as `normal` (`**OFFLOADED as validate-pr-N**`, `order sent, result not back`, `QA offloaded, awaiting delivery`); honest to the CURRENT convention but not paraphrase-robust. **(2) subsumption-arm collision (LOW-MED, pre-existing):** a stranded row worded `**NOT RUN yet, offloaded**` classifies `subsumption` (the `SUBSUMPTION_FINDINGS` `NOT\s+run` matches first and steals it before the pending arm) and reads GREEN; the live #1169 row's "NOT YET RUN" spelling defeats `NOT\s+run` and correctly falls through to `pending`, so the collision bites only the adjacent "NOT RUN" wording. Not introduced by #1210 (subsumption arm unchanged) but it caps the new check's completeness. **(3) stale-overwrite (LOW, latent, not triggered):** `parse_validate_pr_status` does `status[pr] = row_status` per row, so for a MULTI-row PR the last-iterated (oldest) row wins; a newer `RETURNED` row above an older `DISPATCHED` row would classify `pending` (a false-BLOCK), newly weaponized because `pending` is a failing state, but not currently triggered since the consumption convention edits the row IN PLACE (one row per PR). Candidate fixes: widen the pending token set to a recall-oriented marker family with a false-positive census; make the subsumption/pending arms mutually exclusive (require an affirmative subsumption/exemption marker, not a bare `NOT run`); and pick the NEWEST row per PR (or refuse on multi-row divergence). Any change to this active QA gate gets dual-family adversarial verify. Umbrella A / gate hygiene.
 
 ### 3.114 The advisory CHANGELOG-length tool is looser than the gate that enforces it (2026-07-25, L, XS)
 
@@ -552,19 +560,6 @@ GATE**: reconstruct the four dropped rows from git history and the per-run detai
 fusions, and only then land the detector, so the gate is green on arrival and no grandfathered exemption list
 is created. The alternative considered and rejected was landing the gate now with the six exempted, which
 would have baked an exemption set that itself drifts and left the dropped rows lost meanwhile.
-
-### 3.120 Gate 50 Check 1 needs a third `pending` state, so an undelivered QA order cannot read green (Sweep 122 Part 3 + maintainer-directed 2026-07-25c, M, S)
-
-Check 1 is satisfied by row PRESENCE. #1176 is neither the highest-numbered PR nor a handoff, so its honest
-`DISPATCHED, RESULT PENDING` row satisfies the check and **the parity gate reads green while that PR's
-`/validate-pr` has never run**. The honesty lives entirely in prose no gate can see, which is the
-silence-reads-as-health shape. Check 1 already models two exemptions mechanically, one of them by exactly this
-kind of Findings-cell marker (`SKIPPED` together with `handoff`), so a third state follows an existing
-precedent rather than inventing one: recognize a `DISPATCHED, RESULT PENDING` marker as present-but-UNRESOLVED
-and FAIL once a later PR exists (the same demotion trigger the highest-PR exemption already uses). The
-convention half shipped in #1178 (CLAUDE.md close-out item 3 and pack `session-lifecycle.md` section 5) and is
-explicitly the weaker half of the pair. **Sequencing constraint: this gate cannot land green until #1176's own
-QA returns and its row is resolved**, so it follows item 3.122.
 
 ### 3.121 A sweep order that strips `origin` makes the pre-push-guard claim un-re-derivable (Sweep 122 Part 5, L, XS)
 
