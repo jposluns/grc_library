@@ -8,6 +8,19 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-27, Library Version 2026.07.697, PR #1207 (/sitrep planning refinement + #1206 QA batch)
+
+Pure-bookkeeping PR. No corpus or code change.
+
+### Changed
+- [`TODO.md`](../../TODO.md): TODO 3.142 (the future `/sitrep` situation-report command) gains two refinements captured from prototyping its output when the maintainer requested a live sitrep before the tool existed, then directed they be recorded in the planning: (1) the tool must READ LIVE state from the existing instruments ([`audit-worker-saturation.py`](../../tools/audit-worker-saturation.py), [`collect-deliveries.py`](../../tools/collect-deliveries.py), the ledgers, [`next-prs.txt`](../next-prs.txt), [`merge-bypass-log.md`](../merge-bypass-log.md), [`session-handoff.md`](../session-handoff.md)), never the orchestrator's in-context memory, so every line is verifiable; (2) the usage footer must keep MEASURED (durations) and ESTIMATED (self-reported tokens) figures in separate columns, never summed, report a gap as UNKNOWN not zero, and never fabricate a total, which is the concrete dependency on TODO 3.131's per-worker logging (that logging is what turns the token column from UNKNOWN into measured).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md), [`.working/improvement-log.md`](../improvement-log.md), [`.working/merge-bypass-log.md`](../merge-bypass-log.md): #1206's validate-pr row (RETURNED PASS, 0 findings, SHIP; the worker re-read both stranded 1173/1180 deliveries at source) plus its retro and merge-bypass rows.
+- [`.working/next-prs.txt`](../next-prs.txt): refreshed to the current queue (#1208 = the 3.115 gate-44 fail-opens).
+
+### Verification
+- The /sitrep TODO addition is dash-free and its instrument and rule links resolve.
+- The pre-push guard (`run_all_audits.sh` + `run-pr-time-checks.sh`) is green.
+
 ## 2026-07-27, Library Version 2026.07.696, PR #1206 (QA-cadence catch-up)
 
 Pure-bookkeeping PR: brings the per-PR QA cadence and the delivery-tray backlog up to date. No corpus or code change.
