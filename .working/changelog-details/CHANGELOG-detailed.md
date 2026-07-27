@@ -8,6 +8,22 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-27, Library Version 2026.07.696, PR #1206 (QA-cadence catch-up)
+
+Pure-bookkeeping PR: brings the per-PR QA cadence and the delivery-tray backlog up to date. No corpus or code change.
+
+### Changed
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): added #1205's post-merge validate-pr row (RETURNED PASS, 0 findings, SHIP; offloaded to jeff-mailz/claude with `--not-account security-work`, the first production dogfood of impl-3111's independence exclusion). Updated the two stranded rows the tray re-reconciliation surfaced: **1173** (was PENDING) to RETURNED PASS with 2 low notes; **1180** (was DISPATCHED) to RETURNED PASS with F-1 (warning) routed to TODO 3.127. The 1173 row was also completed from 5 cells to the 7-column format.
+- [`.working/improvement-log.md`](../improvement-log.md): #1205 retro row (the dual-family verify caught a fail-closed gap a single lens missed; the guard-inputs pattern, validate input existence/authority not only its shape).
+- [`.working/merge-bypass-log.md`](../merge-bypass-log.md): #1205's `--admin --squash` merge row, from the observed CI state (merge commit `df0e8d82`, all three checks SUCCESS).
+- [`TODO.md`](../../TODO.md): 3.127 gains the concrete below-composer residual route that validate-pr-1180 F-1 confirmed (`manage-workers.py:242` last-two-rules heuristic; the structural fix is to anchor on the border PAIR).
+- [`.working/session-handoff.md`](../session-handoff.md): reconciled the current-truth snapshot (green-at `df0e8d82` #1205, library 2026.07.696 / README 1.10.57) and the next-actions queue (#1207 = the 3.115 gate-44 fail-opens, re-verified apply-ready).
+- [`.working/next-prs.txt`](../next-prs.txt): refreshed to the current queue.
+
+### Verification
+- The two consumed QA results were re-read at source before dispositioning (1173 PASS + 2 notes; 1180 F-1 -> TODO 3.127, which already tracked the submit_state residual). No error-severity finding.
+- The pre-push guard (`run_all_audits.sh` + `run-pr-time-checks.sh`) is green.
+
 ## 2026-07-27, Library Version 2026.07.695, PR #1205 (impl-3111: exec-dispatch verifier-independence dispatch)
 
 ### Added

@@ -682,7 +682,7 @@ Consider probing on a TAIL fragment of the payload rather than a head fragment, 
 visible when the box scrolls, and consider whether the tail depth should be derived from the payload's rendered
 height rather than fixed. Also still open: the earlier observation that the tool reported NOT SUBMITTED for a pane
 whose composer was in fact empty with a completed reply, which the runtime fix may or may not explain and which
-should be re-tested against live panes before it is assumed closed.
+should be re-tested against live panes before it is assumed closed. **A concrete residual route is now confirmed (validate-pr-1180 F-1, consumed #1206):** `manage-workers.py:242` (the `claude` branch, `start = rules[-2] + 1`) assumes the last two rule lines are the composer's two borders, so a rule-like line rendering BELOW the composer's bottom border makes `rules[-2]` the bottom border, the returned region is the status area, the probe is not in it, and `submit_state` answers `submitted` for a payload still in the box; a constructed 3-rule pane driven through the real capture path returns `submitted` against ground-truth `not-submitted`. The structural fix is to anchor the composer region on the border PAIR (top and bottom) rather than the last-two-rules heuristic, so an extra rule below cannot shift the window.
 
 ### 3.128 The token-spend parser: per-worker display conflates measured and estimated (residual of validate-pr-1176 W1/W2, M, S)
 
