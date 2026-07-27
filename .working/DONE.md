@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### 3.115 (#1208): four gate-44 fail-open routes closed (2026-07-27)
+
+Four fail-open routes in gate 44 (`lint-paired-skill-step-parity.py`, subsection-representation check) closed, each a construct that let a token survive `content_tokens` and satisfy a subsection match without the command representing it: (14) a YAML front-matter block, (15) a machine-identifier-only table cell (PARTIAL close), (16) a link/image target truncated at its first `)` (one defect in two patterns, LINK_TARGET_RE + IMAGE_RE), (17) an HTML attribute value after a `>`. Preventive/zero-verdict-change (false-positive census clean on all 13 PAIRS files, gate stays green); 4 mutation-proved fixtures (class 17 -> 21); spec §6 narrative corrected + Version bump. Deterministic apply of the re-verified candidate, dual-family adversarial verify. The two still-open routes of the class (indented code block; semantic-metadata word-cell) opened as successor 3.148 (never-recycle).
+
 ### 3.111 (#1205): exec-dispatch verifier-independence dispatch (exclude/require a worker's account) (2026-07-27)
 
 exec-dispatch gained account-keyed independence exclusion so a skeptical verifier is never routed to the account that authored or already verified the work: `--not-worker`/`--not-account` (exclude) and `--require-worker` (target), keyed on the durable (account, family), fail-closed on an unparseable OR an unregistered exclusion token. Dual-family adversarial verify (codex + claude) converged on one error, a zero-match exclusion silently no-op'd and defeated the control; fixed to fail closed and re-verified clean. Self-test 39 to 56. The 3.111 file-drop framing was moot (that tool is deleted); the enforcement was re-authored onto exec-dispatch. TODO 3.113 (worker-id ownership) is a separate concern and stays open.

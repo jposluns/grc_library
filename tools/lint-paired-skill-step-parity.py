@@ -57,10 +57,10 @@ compressed one, by requiring a heading-vocabulary anchor:
   subsection.
 - A candidate is REPRESENTED when every core token of its heading
   (lowercased alphanumeric runs, minus a short stop-word list and
-  tokens under three characters) appears in the command body. A token
-  matches exactly, or by a shared five-character prefix so ordinary
-  morphological variation counts (skill ``execution`` against command
-  ``Execute``).
+  tokens under three characters) appears in the command body. The match
+  is EXACT. An earlier version also accepted a shared five-character
+  prefix; it was removed because it accepted unrelated words, and
+  ``token_present`` records the measurement that justified the removal.
 - A subsection that legitimately has no command counterpart carries
   ``<!-- parity: command-exempt: <reason> -->`` on its heading line or
   within the two lines below it. The reason is required: an unexplained
@@ -212,9 +212,6 @@ SUBSECTION_STOP_WORDS = frozenset(
     }
 )
 
-# Minimum token length for prefix-equivalent matching, and the prefix
-# length itself. A shorter token must match exactly.
-
 # How many lines below a heading an opt-out marker may sit.
 EXEMPT_WINDOW = 2
 
@@ -238,8 +235,11 @@ URL_RE = re.compile(r"(?:\bhttps?://|\bwww\.)\S+", re.IGNORECASE)
 # as prose while `![alt caption](img.png)` correctly leaked nothing. The `!` is what
 # distinguishes the two cases, and it must be consumed here rather than left to the
 # link-shaped strips, which cannot see it.
-IMAGE_RE = re.compile(r"!\[[^\]]*\](?:\([^)]*\)|\[[^\]]*\])")
-LINK_TARGET_RE = re.compile(r"\]\([^)]*\)")
+IMAGE_RE = re.compile(
+    r"!\[[^\]]*\]"
+    r"(?:\((?:\\.|\([^()\n]*\)|[^()\\\n])*\)|\([^)]*\)|\[[^\]]*\])"
+)
+LINK_TARGET_RE = re.compile(r"\]\((?:\\.|\([^()\n]*\)|[^()\\\n])*\)|\]\([^)]*\)")
 # The inline reference-link LABEL form `[visible text][label]`. The label is a
 # reference key, not prose, but it survived every strip added in #1154 and #1155
 # and could satisfy a subsection token match on its own: a command reading
@@ -251,7 +251,79 @@ LINK_TARGET_RE = re.compile(r"\]\([^)]*\)")
 # NOT matched, because there the label IS the visible text.
 REF_LINK_LABEL_RE = re.compile(r"\]\[[^\]]*\]")
 REF_DEFINITION_RE = re.compile(r"^\s*\[[^\]]+\]:.*$", re.MULTILINE)
-HTML_TAG_RE = re.compile(r"<[^>]+>")
+HTML_TAG_RE = re.compile(
+    r"</?[A-Za-z][^\s>/]*(?:\s+[^\s=>\"']+(?:\s*=\s*(?:\"[^\"]*\"|'[^']*'|[^\s>\"']+))?)*\s*/?>"
+    r"|<[^>]+>"
+)
+# --- fourteenth route (a): YAML front matter -----------------------------
+# Front matter is a metadata header, not prose: a `description:` value can
+# carry every core token of a subsection heading while the command body omits
+# the subsection entirely. Only a block at the VERY START of the document
+# counts, and only when every non-blank line inside it is YAML-shaped. The
+# second condition is what separates front matter from a `---` THEMATIC BREAK
+# opening a document, which the naive `\A---.*?---` form strips through,
+# swallowing the prose between two breaks (measured, this delivery).
+FRONT_MATTER_DELIM_RE = re.compile(r"^(?:---|\.\.\.)[ \t]*$")
+YAML_LINE_RE = re.compile(r"^(?:[ \t]+\S|-[ \t]|[A-Za-z_][\w.\-]*[ \t]*:)")
+
+
+def strip_front_matter(text: str) -> str:
+    """Drop a leading YAML front-matter block, delimiters included."""
+    lines = text.split("\n")
+    if not lines or lines[0].rstrip() != "---":
+        return text
+    for index in range(1, len(lines)):
+        line = lines[index]
+        if FRONT_MATTER_DELIM_RE.match(line):
+            return "\n".join(lines[index + 1:])
+        if line.strip() and not YAML_LINE_RE.match(line):
+            return text
+    return text
+
+
+# --- fifteenth route (b): a machine-identifier-only table cell -----------
+# No table-aware stripping existed, so a metadata cell contributed its tokens.
+# Only a LEADING-PIPE table row is treated as a table, because this repo writes
+# inline pipe-separated lists in ordinary prose (`.claude/commands/validate.md`
+# line 8's `error|warning|note` and line 15's column-name list), and a looser
+# "two or more pipes" rule strips those (measured, this delivery).
+#
+# Within such a row, only a cell whose WHOLE content is one identifier-SHAPED atom
+# is dropped: a path (see the indicator rule below), or a token of three-plus
+# `-_.`-joined segments. This is a SHAPE heuristic, not a semantic one: it cannot
+# tell a machine-id slug (`parallel-execution-worker-fan-out`) from a three-plus-
+# segment English compound (`state-of-the-art`, `up-to-date`), so such a compound
+# in a metadata cell is a KNOWN over-strip residual (claude verify-3115, 2026-07-27),
+# tracked in TODO 3.148; a `command-exempt` marker is the escape hatch, and it is
+# latent (no registered command file carries such a cell today). A SPACE-separated
+# cell of ordinary words stays prose (the atom must be whitespace-free), as does a
+# one-hyphen compound like `fan-out` (two segments, below the three-segment floor).
+TABLE_ROW_RE = re.compile(r"^[ \t]*\|")
+# A machine-identifier atom is a PATH or a three-plus-segment slug. The path branch
+# requires a path INDICATOR (a leading `/`, `./`, or `../`; a second `/`; or a `.` on
+# either side of the slash) rather than accepting any single-slash expression, because
+# an ordinary English slash-compound in a cell (`read/write`, `input/output`,
+# `true/false`) is reading prose, not a path, and a bare `\S*/\S*` blanked it, an
+# over-strip (a gate-44 false positive) the codex adversarial verifier caught on the
+# first cut of this route (verify-3115, 2026-07-27).
+_PATH_ATOM_RE = r"\.{0,2}/\S+|\S*/\S*/\S+|\S*/\S*\.\S+|\S*\.\S*/\S+"
+SLUG_ONLY_CELL_RE = re.compile(
+    r"\A(?:" + _PATH_ATOM_RE + r"|[A-Za-z0-9]+(?:[-_.][A-Za-z0-9]+){2,})\Z"
+)
+
+
+def strip_metadata_table_cells(text: str) -> str:
+    """Blank every machine-identifier-only cell of a leading-pipe table row."""
+    out: list[str] = []
+    for line in text.split("\n"):
+        if not TABLE_ROW_RE.match(line) or line.count("|") < 2:
+            out.append(line)
+            continue
+        out.append("|".join(
+            " " if SLUG_ONLY_CELL_RE.match(cell.strip()) else cell
+            for cell in line.split("|")
+        ))
+    return "\n".join(out)
 
 
 def content_tokens(text: str) -> set[str]:
@@ -259,24 +331,50 @@ def content_tokens(text: str) -> set[str]:
 
     The skill side reads through ``iter_non_code_lines``, so the command
     side must too, or the two halves of the comparison disagree about what
-    counts as content. Three sources are stripped first because a token
+    counts as content. The sources below are stripped first because a token
     appearing in any of them is not a representation of anything:
 
+    - a leading YAML FRONT-MATTER block, delimiters included, which is a
+      metadata header rather than prose (see ``strip_front_matter``),
     - fenced code (via ``iter_non_code_lines``, whose contract is fence-only:
       an INDENTED code block is not stripped, so do not rely on it being),
+    - a table cell whose WHOLE content is one machine-identifier atom, a path
+      or a three-plus-segment slug (see ``strip_metadata_table_cells``),
     - HTML comments, which are invisible to a reader,
     - reference-link definitions, whose whole line is a key and a target,
     - images WHOLE, alt text included, since alt text is not command prose,
     - inline-link TARGETS and inline reference-link LABELS, keeping the visible
       link text in both cases, since the text is prose and the target and the
       label are keys,
-    - HTML tags, and
+    - HTML tags, INCLUDING a quoted attribute value that itself contains a
+      ``>``, and
     - URLs, whose path slugs routinely contain topic words.
 
-    The reference-LABEL strip closed the twelfth such route (2026-07-25), and the
-    image-REFERENCE-form strip above closes the thirteenth (see IMAGE_RE): the
-    eleven closed in #1154 and #1155 left `[visible text][label]` intact, so a
-    label slug could satisfy a subsection match by itself.
+    Route history, as ORDINALS only. No completeness claim attaches to this
+    class: three successive ones have been falsified (#1158 "the last route",
+    #1159 "the last reference-form route", and #1160's own round then found a
+    thirteenth), so each round samples an open class rather than draining a
+    closed one. The reference-LABEL strip closed the twelfth route (2026-07-25)
+    and the image-REFERENCE-form strip closed the thirteenth (see IMAGE_RE).
+    This change closes four more:
+
+    - FOURTEENTH, a YAML front-matter block, whose values are metadata;
+    - FIFTEENTH, a machine-identifier-only table cell (a PARTIAL close, see
+      ``strip_metadata_table_cells`` for the residual this deliberately leaves);
+    - SIXTEENTH, a target truncated at its first ``)``, which was one defect
+      sitting in TWO patterns, ``LINK_TARGET_RE`` and ``IMAGE_RE``, both
+      corrected together because fixing either alone leaves the other open
+      while looking complete;
+    - SEVENTEENTH, an HTML attribute value appearing after a ``>``.
+
+    Two routes of this class are KNOWN AND STILL OPEN, tracked rather than
+    silently carried: an INDENTED code block (the fence-only caveat above), and
+    a table cell of ordinary words that is semantically metadata, which no
+    syntactic rule separates from prose.
+
+    Every widening above was gated on a false-positive census over all
+    registered pairs: the census removes ZERO tokens from all 13 command files
+    and changes no pair's verdict.
 
     Without this, ONE incidental token anywhere in the file satisfied the
     subsection check. A single line of the form
@@ -285,7 +383,10 @@ def content_tokens(text: str) -> set[str]:
     gate pass a command that omitted the whole subsection, because the
     detection rested on the one token ``parallel``.
     """
-    visible = "\n".join(line for _n, line in iter_non_code_lines(text))
+    visible = "\n".join(
+        line for _n, line in iter_non_code_lines(strip_front_matter(text))
+    )
+    visible = strip_metadata_table_cells(visible)
     visible = HTML_COMMENT_RE.sub(" ", visible)
     visible = REF_DEFINITION_RE.sub(" ", visible)
     visible = IMAGE_RE.sub(" ", visible)
