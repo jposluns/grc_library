@@ -8,6 +8,53 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-27, Library Version 2026.07.685, PR #1195 (post-wind-down resume close-out)
+
+The first-PR close-out of the 2026-07-26 post-emergency-wind-down resume. Batches the Sweep 124
+close-out, #1194's QA rows, one backlog re-scope, a new Priority-1 series, and two maintainer-directed
+codifications.
+
+### Added
+
+- **TODO Priority-1 series 1.26** (goal-description umbrella + phases 1.26.1 to 1.26.4): consolidate,
+  harmonize, and distribute the quality machinery across AI toolchains (deduplicate/simplify the
+  machinery; integrate the community's CC BY-SA ShareAlike contributions from team members and adopters
+  on local/custom models; reach true public-pack parity; distribute aligned packs, Codex first, then a
+  generic tool-agnostic form). ON HOLD pending all Priority-3 tooling. Placed at the top of P1; P1
+  counter advanced to 1.27.
+
+### Changed
+
+- **[`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) `## Communication conventions`:** the no-diff rule is
+  strengthened to a mechanical command-level ban (maintainer-directed 2026-07-26, after repeated
+  violations): never run a command whose output is a +/- unified diff (`git diff` / `git show <commit>`
+  without `--stat`/`--name-only`); inspect changes with `--stat`/`--name-only`, `git status --short`,
+  `grep`/`wc`, or a targeted read.
+- **[`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) `## Mandatory worker offload`:** the worker-first
+  doctrine (maintainer-directed 2026-07-26): if a worker CAN do it, a worker DOES it (no self-run);
+  spawn on demand with [`tools/exec-dispatch.py`](../../tools/exec-dispatch.py) and never gate offload
+  on a `list-workers` count of zero; 20-minute reissue to another account; super-sensitive tasks go to
+  BOTH a Codex and a Claude worker; keep the fleet busy (one on QA, the rest pre-loading the next items);
+  and a privacy note that worker ids in the public repo are anonymized aliases only.
+- **[`TODO.md`](../../TODO.md) section 3.128** re-scoped to the per-worker-display residual with a STATUS
+  line marking W1/W2 FIXED in #1189 (Sweep 124 W1; the item's prose had contradicted the shipped code).
+
+### Also (batched close-out bookkeeping)
+
+- Sweep 124 recorded in [`validate-sweeps/history.md`](../validate-sweeps/history.md) (0 error / 1
+  warning / 1 note; the #1185 to #1194 window ships clean; all asserted-clean claims corroborated, zero
+  contradicted) and the handoff Resume cursor advanced to Sweep 124.
+- #1194's QA rows batched: the merge-bypass row, the validate-pr-1194 row (subsumed by Sweep 124), the
+  retro-1194 row, and the two Sweep 124 findings recorded and dispositioned in
+  [`open-findings.md`](../open-findings.md).
+- Handoff Current-truth snapshot version tokens reconciled to the #1195 head; the keep-current-plus-one
+  block prune is deferred to the session-closing handoff.
+
+### Verification
+
+- `tools/run_all_audits.sh`: all 78 gates pass (standalone).
+- Pre-push guard (both runners) green before push.
+
 ## 2026-07-26, Library Version 2026.07.684, PR #1194 (#1193 close-out completion)
 
 ### Changed
