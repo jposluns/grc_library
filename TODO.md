@@ -270,7 +270,7 @@ Umbrella for adopting NIST OSCAL as an open, machine-readable projection of the 
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.145.**
+**Next item number: 3.146.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
 
@@ -298,6 +298,10 @@ The maintainer is adding one or two more Claude Code worker accounts. Build a re
 - **Transport dimension (maintainer lean, 2026-07-27).** The injection CHANNEL is an open question with many options to assess. The maintainer leans toward a UNIX SOCKET feeding directly into the tmux session, or directly into the orchestrator's AI chat session, rather than `tmux send-keys`, because a socket sidesteps the keystroke-injection fragility and the submit-state indeterminacy that make a poke's success hard to confirm (it would also remove Form 1's silent-no-op risk at the transport layer). Relates to the §3.87 local-VM socket-transport thread. Assess socket-into-tmux vs socket-into-chat-session vs `send-keys` vs other IPC before committing.
 
 **Hard parts to spec before building:** (1) a single-writer lease/handover with NO split-brain (the standby must never apply while the primary is mid-refresh; split-brain on the ORCHESTRATOR is far worse than on a worker); (2) the compaction-signal plus clean-handoff protocol on a shared channel (poke only after state is safely on main, or `/clear` loses in-flight work); (3) the poke-verify-retry-escalate loop. Build incrementally (Form 1 to prove the mechanism, then Form 2). Umbrella A (orchestration infrastructure); needs maintainer sign-off on the lease/handover protocol before any unattended run.
+
+### 3.145 exec-dispatch registry read must fail CLOSED on a corrupt inflight.json (GATE before concurrency greater than 1; skeptical-verifier concern 2026-07-27, M, S) `[machinery]`
+
+`_read_inflight` in [`tools/exec-dispatch.py`](tools/exec-dispatch.py) returns `[]` on ANY error (missing, unparseable JSON, OSError, non-list), so a corrupt or unreadable `inflight.json` reads as EMPTY and lets a dispatch UNDER-COUNT in-flight jobs, a bounded fail-open on what is now the SOLE per-account concurrency cap (the #1199 change removed the wrapper flock as the backstop). It is bounded and self-healing (the atomic `os.replace` write makes corruption rare, and the next valid write repairs it), which is why the skeptical verifier graded it non-blocking, but it violates refuse-on-doubt. FIX: distinguish `FileNotFoundError` (-> `[]`, correct: no registry yet means no in-flight jobs) from a corrupt or unreadable file (-> fail CLOSED for RESERVE, refuse the dispatch with a clear operator message naming the file to remove; RELEASE may stay best-effort since pid-liveness reaping cleans up a stale entry). MUST land BEFORE `max_concurrent` greater than 1 is enabled: the fail-open is MOOT at cap 1 (no over-count possible), so it gates the enable step, not the #1199 merge. Umbrella A.
 
 ### 3.140 Hoist `_check_body` to module scope and add reality fixtures for the two generated-body prune paths and the non-UTF-8 branch (validate-pr-1186 F-2, 2026-07-26, M, S) `[machinery]`
 
