@@ -4,9 +4,9 @@
 
 **Status:** active
 
-**Operating-mode:** daytime-unattended
+**Operating-mode:** overnight-unattended
 
-**Last-heartbeat-UTC:** 2026-07-27T22:03:00Z
+**Last-heartbeat-UTC:** 2026-07-27T23:30:02Z
 
 **Current-task:** RESUME from #1212 session-closing handoff (2026-07-27b, maintainer directive: "use workers as much as possible; alert loudly on any worker issue; unattended autonomous, watching on and off"). Acquired the lease at 22:03Z. Mode: daytime-unattended (maintainer watching intermittently, green-CI = merge authority, no blocking questions, graceful degradation). Corpus green at `bc5eb00b` (78/78 gates), non-shallow, detect-env maintainer/all-siblings-ok, egress planalto-br down (known). First tasks: loop-break corpus-wide /validate over #1200..#1211 (base `e554f1b7`=#1199, head `bc5eb00b`=#1211, compensating control for #1212), OFFLOADED to a worker; then roadmap B tooling (3.133 close-out-pr.py, 3.142 /sitrep). No open MAINTAINER_ALERTs, no lapsed agents, 0 unprocessed inbox drops, pending-decisions/verifier-overrides empty.
 
