@@ -1,6 +1,6 @@
 ---
 name: deep-assessment
-description: Maintainer-invoked, rare-cadence whole-project deep assessment. Runs the full layered examination of the library and its own quality machinery from a fresh session, composing the existing semantic instruments (/validate, /full-qa, /fitness, /matrix-fit, /claim-fit, /reference-audit, /screen-publications, /guardrails) by invocation and adding the lenses the routine cadence does not apply to itself, gate-efficacy probing (mutation and blind-spot analysis), ground-truth citation sampling, adoptability and pipeline-integrity review, and a QA-ledger meta-audit. Multi-session and re-entrant: a durable register carries phase state across session boundaries, every confirmed finding is routed tiered with none dropped, and the pass terminates only on explicit maintainer sign-off, never on an empty finding set.
+description: Maintainer-invoked, rare-cadence whole-project deep assessment. Runs the full layered examination of the library and its own quality machinery from a fresh session, composing the existing semantic instruments (/validate, /full-qa, /fitness, /matrix-fit, /claim-fit, /reference-audit, /screen-publications, /guardrails) by invocation and adding the lenses the routine cadence does not apply to itself, gate-efficacy probing (mutation and blind-spot analysis), ground-truth citation sampling, adoptability and pipeline-integrity review, and a QA-ledger meta-audit. Multi-session and re-entrant: a durable register carries phase state across session boundaries, every confirmed finding is routed tiered with none dropped, and the pass terminates on the QA-activity completion standard its component instruments already use (every finding validated and fixed-or-routed), not on a separate maintainer sign-off, and never on a self-declared "done" before the phases have run.
 derives_from: ../../governance/trust-recovery-escalation.md
 ---
 
@@ -56,12 +56,18 @@ of the library by a fresh reader, the integrity of the delivery pipeline, and th
 honesty of the QA ledgers.
 
 Structurally this is the trust-recovery suite run proactively, at maintainer direction,
-without a discipline-failure trigger. It inherits that rule's three load-bearing
+without a discipline-failure trigger. It inherits TWO of that rule's load-bearing
 conventions: findings routing (every confirmed finding routed, tiered by severity, none
-dropped), apply-time verification before routing, and maintainer sign-off as the only
-terminal state. It differs in trigger (maintainer peace of mind, not lapsed confidence)
-and in scope (the whole project including the audit programme itself, not a window of
-work).
+dropped) and apply-time verification before routing. It does NOT inherit the
+maintainer-sign-off terminal state (maintainer-directed 2026-07-27): the sign-off exists
+in the reactive trust-recovery tier to let the maintainer declare confidence RESTORED
+after a discipline lapse, and the proactive deep-assessment has no lapsed confidence to
+restore. Every component instrument it composes (`/validate`, `/full-qa`, `/fitness`,
+`/matrix-fit`, `/claim-fit`, `/reference-audit`, `/guardrails`, the gate-efficacy probes)
+already terminates by validate-and-fix, so the composite terminates on the same
+QA-activity completion standard, not on a redundant sign-off gate. It differs from
+trust-recovery in trigger (maintainer peace of mind, not lapsed confidence) and in scope
+(the whole project including the audit programme itself, not a window of work).
 
 Two design rules keep a rarely-run procedure from rotting. First, the skill is
 COUNT-FREE and INVENTORY-DERIVING: no step names a gate count, skill count, or file
@@ -170,7 +176,7 @@ landing pattern and the CI-workflow presence, not an operation log there is none
 trust. An ungated landing on a repo that should require PRs is a HIGH trust-recovery
 finding (it is the class this lens exists to close); a branch-protection enforcement the
 assistant's token cannot read routes as a maintainer-verify deferral in the phase-8
-sign-off packet, never silently cleared.
+record, never silently cleared.
 
 ### 5. Sample content accuracy against ground truth
 
@@ -218,14 +224,19 @@ the next), tagged to their originating phase, and routed with NONE dropped. In-w
 mechanical fixes may ship as normal PRs under the full per-PR QA cadence; everything
 else routes.
 
-### 8. Record, surface, and hold for maintainer sign-off
+### 8. Record, surface, and route to a terminal disposition
 
 Write the run record (per-phase outcomes, the inventory, the baseline, the findings
 register with verified / refuted / routed status) and update the register row. Surface
-the routed set to the maintainer, tiered. The run terminates ONLY on the maintainer's
-explicit sign-off; an empty finding set is presented for sign-off, never
-self-declared complete. Until sign-off, the register row stays `in-progress` and the
-next `/resume` surfaces it like the other standing registers.
+the routed set to the maintainer, tiered, so they SEE the outcome. The run terminates on
+the QA-activity completion standard (maintainer-directed 2026-07-27): it is complete when
+it ran in the sanctioned formal shape, every finding is triaged to a terminal disposition
+(fixed in-window OR routed to the backlog with a severity tier), positives were re-verified
+at source, the history row is recorded, and any deferred fix is documented. There is NO
+separate maintainer-sign-off gate; a zero-finding run still gets its record and register-row
+closure. The register row stays `in-progress` only while a phase is incomplete or a finding
+is still un-triaged, and the next `/resume` surfaces such a row like the other standing
+registers.
 
 ### Parallel execution (worker fan-out)
 
@@ -242,13 +253,19 @@ review are orchestrator-only units; everything on the corpus, the reference base
 worker exchange is worker-dispatchable. After the phase-2 join, phases 3, 4, 5, and 6 run
 as one parallel fan-out, each semantic instrument, each phase-4 sub-pass, each citation
 batch, and each phase-6 slice a separate unit; phase 7 (synthesis) joins them and is
-orchestrator-only, as is phase 8 (sign-off). A full pass's wall-clock then drops from
-serial to about the slowest unit per phase plus the two barriers.
+orchestrator-only, as is phase 8 (record and route). A full pass's wall-clock then drops
+from serial to about the slowest unit per phase plus the two barriers.
 
 ## Red Flags
 
-- Self-invoking the skill, or self-terminating on an empty finding set. The trigger
-  and the terminal state are both the maintainer's.
+- Self-invoking the skill. The TRIGGER is the maintainer's: it runs only on explicit
+  maintainer invocation, never self-scheduled. (The terminal state, by contrast, is no
+  longer a maintainer sign-off; it is the QA-activity completion standard, reached when
+  every finding is validated and fixed-or-routed.)
+- Self-declaring the run "done" before the phases actually ran, or before every finding
+  is triaged to a terminal disposition. A zero-finding run is legitimately complete once
+  the phases ran and the record and register-row closure are written; skipping the phases
+  is not.
 - Running any phase-3 instrument in an abbreviated shape. The instruments' own
   no-abbreviation rules apply unchanged inside this skill.
 - Hard-coding a gate count, skill list, or file inventory into the run instead of
@@ -277,8 +294,11 @@ A run is complete on a given invocation when:
   this run's record.
 - Every finding in the run record carries a verified / refuted / routed status with
   evidence, and the routed set is deduped against the backlog.
-- The maintainer has signed off on the routed set; the register row is closed with the
-  sign-off date. Absent sign-off, the run is `in-progress`, whatever the finding count.
+- Every finding in the routed set is triaged to a terminal disposition (fixed or routed
+  with a severity tier), positives re-verified at source; the register row is then closed
+  with the completion date. A run with an incomplete phase or an un-triaged finding is
+  `in-progress`, whatever the finding count. (There is no separate maintainer sign-off gate;
+  the run is surfaced to the maintainer, but completion is the QA-activity completion standard.)
 
 ## Common Rationalizations
 
@@ -286,7 +306,7 @@ A run is complete on a given invocation when:
 |---|---|
 | "The gates are green, so the deep pass is redundant." | The gates prove what the gates check. This skill exists for what they structurally cannot check: their own pattern width, their blind spots, semantic accuracy, adoptability, and the ledgers' honesty. |
 | "The regression suite already tests the linters." | It proves one fixture per rule fires. The mutation probe tests pattern WIDTH, which is where the project's own escape history lives. |
-| "Zero findings, so we are done." | Sign-off is the maintainer's, on the empty set as much as a full one. |
+| "Zero findings, so we are done." | Completion is the QA-activity standard met (the phases actually ran, in formal shape, with the record and history row written), not a self-declared "done"; a zero-finding run still gets its record and register-row closure. |
 | "Skip the fitness pass this time; full-qa covered it." | The two lenses are complementary by design (the trust-recovery rule's pen-testing analogy); dropping one is abbreviation. |
 | "The register slows things down; just run it end to end." | The pass spans sessions. Without the register a boundary silently truncates it, and a truncated deep pass reads as a completed one. |
 | "Probe the gates in place; it is faster than a copy." | A mutation in a live checkout risks the exact corruption the pass exists to prevent. Disposable copy only. |
@@ -294,8 +314,10 @@ A run is complete on a given invocation when:
 ## See Also
 
 - Canonical rule [`trust-recovery-escalation`](../../governance/trust-recovery-escalation.md):
-  the suite shape, routing convention, full-clone methodology, and sign-off discipline
-  this skill inherits and applies proactively.
+  the suite shape, routing convention, and full-clone methodology this skill inherits and
+  applies proactively. The sign-off discipline is trust-recovery-specific (it lets the
+  maintainer declare lapsed confidence restored) and is NOT inherited by the proactive
+  deep-assessment, which terminates on the QA-activity completion standard.
 - Canonical rule [`evidence-grounded-completion`](../../governance/evidence-grounded-completion.md):
   the verification protocol behind every phase's claims, including the
   external-version-currency corollary phase 5 applies.
