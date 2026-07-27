@@ -227,17 +227,39 @@ def _pid_alive(pid: int) -> bool:
     return True
 
 
+class InflightCorruptError(Exception):
+    """The registry FILE exists but is unreadable or malformed (unparseable JSON, non-list
+    content, or a non-FileNotFound OSError) -- as distinct from simply ABSENT. Its message names
+    the offending file. RESERVE must FAIL CLOSED on it (refuse the dispatch; a corrupt file read
+    as empty would UNDER-COUNT in-flight jobs, a fail-open on the now-sole per-account concurrency
+    cap -- TODO 3.145). RELEASE may ignore it (best-effort: pid-liveness reaping / operator
+    cleanup handles the stale file, and a finished job must not crash on release)."""
+
+
 def _read_inflight(job_dir: Path) -> list:
-    """Load the registry list, or [] if missing/corrupt. A corrupt file must NOT wedge all
-    dispatch; it is rewritten on the next reserve/release under the lock."""
+    """Load the registry list. A MISSING file -> [] (no registry yet == no in-flight jobs, the
+    correct empty state; the very first dispatch depends on this). A present-but-CORRUPT file
+    raises InflightCorruptError so callers can FAIL CLOSED rather than silently read it as empty
+    and under-count in-flight jobs (TODO 3.145). Only ever called while holding the exclusive
+    flock on INFLIGHT_LOCK_NAME."""
+    path = job_dir / INFLIGHT_NAME
     try:
-        with open(job_dir / INFLIGHT_NAME, "r", encoding="utf-8") as fh:
+        with open(path, "r", encoding="utf-8") as fh:
             data = json.load(fh)
-    except (FileNotFoundError, ValueError):
-        return []
-    except OSError:
-        return []
-    return data if isinstance(data, list) else []
+    except FileNotFoundError:
+        return []                                   # no registry yet -> no in-flight jobs
+    except (ValueError, OSError) as exc:
+        # ValueError covers json.JSONDecodeError (unparseable); OSError covers a non-FileNotFound
+        # read failure (permissions, I/O error). FileNotFoundError is a subclass of OSError, so it
+        # MUST be (and is) caught above first.
+        raise InflightCorruptError(
+            f"in-flight registry {path} is unreadable/corrupt "
+            f"({exc.__class__.__name__}: {exc})") from exc
+    if not isinstance(data, list):
+        raise InflightCorruptError(
+            f"in-flight registry {path} is malformed (expected a JSON list, got "
+            f"{type(data).__name__})")
+    return data
 
 
 def _write_inflight(job_dir: Path, entries: list) -> None:
@@ -274,12 +296,23 @@ def _reserve_slot(job_dir: Path, key: str, max_concurrent: int, worker_id: str,
     check-then-act TOCTOU): reap stale/dead entries -> count live for `key` -> if at/over
     max_concurrent REFUSE (return (False, message)); else append this job's entry, persist,
     and return (True, entry). The lock is held ONLY for this critical section, NEVER across
-    the job's subprocess.run, so concurrent dispatchers do not serialize on the registry."""
+    the job's subprocess.run, so concurrent dispatchers do not serialize on the registry.
+
+    FAILS CLOSED (TODO 3.145): if the registry file is present-but-CORRUPT, refuse the dispatch
+    with an operator message naming the file to remove -- a corrupt file must NEVER read as empty
+    and let a dispatch under-count in-flight jobs. The file is left in place (NOT overwritten) so
+    the operator can inspect it; the next valid reserve recreates it once removed."""
     job_dir.mkdir(parents=True, exist_ok=True)
     with open(job_dir / INFLIGHT_LOCK_NAME, "a+") as lock_fh:
         fcntl.flock(lock_fh, fcntl.LOCK_EX)
         try:
-            entries = _reap(_read_inflight(job_dir), now_epoch)
+            try:
+                raw = _read_inflight(job_dir)
+            except InflightCorruptError as exc:
+                return False, (f"{exc}; refusing dispatch (fail-closed). Inspect and remove "
+                               f"{job_dir / INFLIGHT_NAME} to clear -- a valid reserve recreates "
+                               f"it.")
+            entries = _reap(raw, now_epoch)
             live_for_key = sum(1 for e in entries if e.get("key") == key)
             if live_for_key >= max_concurrent:
                 _write_inflight(job_dir, entries)          # persist the reap
@@ -296,12 +329,20 @@ def _reserve_slot(job_dir: Path, key: str, max_concurrent: int, worker_id: str,
 def _release_slot(job_dir: Path, worker_id: str) -> None:
     """Remove this job's entry (matched by worker_id) under the same exclusive lock, so a
     normal completion frees the slot immediately. Best-effort: a leaked entry (e.g. hard kill
-    before release) is backstopped by pid-liveness reaping on the next reserve."""
+    before release) is backstopped by pid-liveness reaping on the next reserve.
+
+    Tolerates a CORRUPT registry (TODO 3.145): a finished job must not crash on release, and a
+    corrupt file cannot be safely rewritten (we'd clobber live entries we could not parse), so
+    on corruption release is a no-op -- the operator-facing refusal from the next RESERVE, plus
+    pid-liveness reaping once the file is restored, handle cleanup."""
     try:
         with open(job_dir / INFLIGHT_LOCK_NAME, "a+") as lock_fh:
             fcntl.flock(lock_fh, fcntl.LOCK_EX)
             try:
-                entries = _read_inflight(job_dir)
+                try:
+                    entries = _read_inflight(job_dir)
+                except InflightCorruptError:
+                    return                          # best-effort: leave the file for the operator
                 _write_inflight(job_dir, [e for e in entries
                                           if e.get("worker_id") != worker_id])
             finally:
@@ -355,6 +396,7 @@ def dispatch(config: dict, family: str, model: str, order_id: str, prompt_file: 
     # RESERVE a per-key concurrency slot under the in-flight lock BEFORE running (no TOCTOU).
     # A refusal returns WITHOUT a worker_id so the CLI surfaces it via the existing
     # "NOT DISPATCHED" path (loud, non-zero exit) rather than as a completed-job status line.
+    # This path ALSO carries the TODO 3.145 fail-closed refusal on a corrupt registry.
     key = _inflight_key(acct)
     max_conc = _max_concurrent(acct)
     ok, slot = _reserve_slot(job_dir, key, max_conc, worker_id, os.getpid(), now.timestamp())
@@ -543,17 +585,52 @@ def _self_test() -> int:
         okh, msgh = _reserve_slot(jd, "k", 1, "intruder", me, now_epoch)
         check("inflight-healthy-not-reaped", okh is False and "at capacity" in str(msgh))
 
-    # 24. build_dispatch_cmd passes --worker-id with the minted id (the wrapper wire-in).
+    # --- 3.145: registry read fails CLOSED on a CORRUPT file, but a MISSING file still allows ---
+    with _tempfile.TemporaryDirectory() as _td:
+        jd = Path(_td)
+        # 24. A MISSING registry reads as [] (no registry yet == no in-flight jobs) and RESERVE
+        #     ALLOWS -- the first-ever dispatch MUST NOT refuse (regression guard for the fix).
+        check("inflight-missing-reads-empty", _read_inflight(jd) == [])
+        okm, _ = _reserve_slot(jd, "k", 1, "wid-m", me, now_epoch)
+        check("inflight-missing-allows-reserve", okm is True)
+
+    with _tempfile.TemporaryDirectory() as _td:
+        jd = Path(_td)
+        # 25. A present-but-CORRUPT registry (unparseable JSON) makes _read_inflight RAISE
+        #     (fail-closed signal), NOT silently read as empty.
+        (jd / INFLIGHT_NAME).write_text("{not valid json", encoding="utf-8")
+        raised = False
+        try:
+            _read_inflight(jd)
+        except InflightCorruptError:
+            raised = True
+        check("inflight-corrupt-raises", raised is True)
+        # 26. RESERVE FAILS CLOSED on the corrupt file: REFUSE (not allow), message names the file.
+        okc, msgc = _reserve_slot(jd, "k", 1, "wid-c", me, now_epoch)
+        check("inflight-corrupt-refuses-reserve",
+              okc is False and INFLIGHT_NAME in str(msgc))
+        # 27. RELEASE tolerates the corrupt file (best-effort): no crash, file LEFT for the operator.
+        _release_slot(jd, "wid-c")      # must not raise
+        check("inflight-corrupt-release-tolerated", (jd / INFLIGHT_NAME).exists())
+
+    with _tempfile.TemporaryDirectory() as _td:
+        jd = Path(_td)
+        # 28. Non-list content (valid JSON, wrong shape) is ALSO corrupt -> RESERVE refuses.
+        (jd / INFLIGHT_NAME).write_text('{"pid": 1}', encoding="utf-8")
+        okn, msgn = _reserve_slot(jd, "k", 1, "wid-n", me, now_epoch)
+        check("inflight-nonlist-refuses-reserve", okn is False and "malformed" in str(msgn))
+
+    # 29. build_dispatch_cmd passes --worker-id with the minted id (the wrapper wire-in).
     wid = mint_worker_id("work-a", "claude", sunday)
     cmd = build_dispatch_cmd(WRAPPER["claude"], "/tmp/p.txt", "work-a", "opus", wid)
     check("worker-id-in-cmd",
           "--worker-id" in cmd and cmd[cmd.index("--worker-id") + 1] == wid)
-    # 25. --effort is still appended (existing behavior preserved), after --worker-id.
+    # 30. --effort is still appended (existing behavior preserved), after --worker-id.
     cmd2 = build_dispatch_cmd(WRAPPER["claude"], "/tmp/p.txt", "work-a", "opus", wid, effort="high")
     check("effort-still-passed", cmd2[-2:] == ["--effort", "high"])
-    # 26. The minted worker id satisfies the wrapper charset [A-Za-z0-9_-].
+    # 31. The minted worker id satisfies the wrapper charset [A-Za-z0-9_-].
     check("worker-id-charset", _re.fullmatch(r"[A-Za-z0-9_-]+", wid) is not None)
-    # 27. max_concurrent ABSENT -> default 1 (byte-equivalent to today); present value honored.
+    # 32. max_concurrent ABSENT -> default 1 (byte-equivalent to today); present value honored.
     check("max-concurrent-default-1", _max_concurrent({"id": "x"}) == 1)
     check("max-concurrent-explicit", _max_concurrent({"id": "x", "max_concurrent": 3}) == 3)
 
