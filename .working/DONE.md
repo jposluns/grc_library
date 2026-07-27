@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### 3.111 (#1205): exec-dispatch verifier-independence dispatch (exclude/require a worker's account) (2026-07-27)
+
+exec-dispatch gained account-keyed independence exclusion so a skeptical verifier is never routed to the account that authored or already verified the work: `--not-worker`/`--not-account` (exclude) and `--require-worker` (target), keyed on the durable (account, family), fail-closed on an unparseable OR an unregistered exclusion token. Dual-family adversarial verify (codex + claude) converged on one error, a zero-match exclusion silently no-op'd and defeated the control; fixed to fail closed and re-verified clean. Self-test 39 to 56. The 3.111 file-drop framing was moot (that tool is deleted); the enforcement was re-authored onto exec-dispatch. TODO 3.113 (worker-id ownership) is a separate concern and stays open.
+
 ### 3.145 (#1202): exec-dispatch registry fails CLOSED on a corrupt inflight.json (2026-07-27)
 
 Applied the delivered fail-closed candidate (3.145, the GATE before concurrency > 1): `_read_inflight` now distinguishes a MISSING registry (-> `[]`, first dispatch still allowed) from a CORRUPT one (unparseable JSON, non-FileNotFound OSError, a non-list, or a list of non-objects -> `InflightCorruptError`); RESERVE refuses on corruption and leaves the file for the operator (no fail-open zeroing), RELEASE no-ops (no co-tenant wipe). Dual adversarial verifiers on distinct families: Claude SHIP; Codex caught a scalar-list `[1,2,3]` -> `_reap` AttributeError crash, fixed to a clean refuse. Self-test 31 -> 39. (3.146, the umask-0002 recurrence that the fix's own `check_perms` surfaced, is OPENED not closed here, for the maintainer's durable umask fix.)
