@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### 3.145 (#1202): exec-dispatch registry fails CLOSED on a corrupt inflight.json (2026-07-27)
+
+Applied the delivered fail-closed candidate (3.145, the GATE before concurrency > 1): `_read_inflight` now distinguishes a MISSING registry (-> `[]`, first dispatch still allowed) from a CORRUPT one (unparseable JSON, non-FileNotFound OSError, a non-list, or a list of non-objects -> `InflightCorruptError`); RESERVE refuses on corruption and leaves the file for the operator (no fail-open zeroing), RELEASE no-ops (no co-tenant wipe). Dual adversarial verifiers on distinct families: Claude SHIP; Codex caught a scalar-list `[1,2,3]` -> `_reap` AttributeError crash, fixed to a clean refuse. Self-test 31 -> 39. (3.146, the umask-0002 recurrence that the fix's own `check_perms` surfaced, is OPENED not closed here, for the maintainer's durable umask fix.)
+
 ### 3.135 (#1193): Version+Date dropped from 5 append-only `.working` logs (2026-07-26)
 
 The five append-only logs (`validate-pr/history.md`, `improvement-log.md`, `merge-bypass-log.md`, `guardrail-reviews/history.md`, `open-findings.md`) shed their per-touch `Version`+`Date` metadata, which was pure overhead tripping D2/D4 on every append (git history already versions them and `.working/` is exempt from the corpus version gates). The five paths were added to D2 and D4 EXEMPT_FILES (D4's is load-bearing, the removal PR fails D4 without it) and the three now-unversioned surfaces were dropped from D7; a skeptical verifier confirmed no gate, hook, or parser keys on the removed fields.
