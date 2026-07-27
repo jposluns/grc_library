@@ -288,10 +288,16 @@ def strip_front_matter(text: str) -> str:
 # line 8's `error|warning|note` and line 15's column-name list), and a looser
 # "two or more pipes" rule strips those (measured, this delivery).
 #
-# Within such a row, only a cell whose WHOLE content is one machine-identifier
-# atom is dropped: a path, or a slug of three-plus segments. A cell of ordinary
-# words is visible reading text, so it stays prose, and so does a one-hyphen
-# English compound such as `fan-out`. The residual is stated in the docstring.
+# Within such a row, only a cell whose WHOLE content is one identifier-SHAPED atom
+# is dropped: a path (see the indicator rule below), or a token of three-plus
+# `-_.`-joined segments. This is a SHAPE heuristic, not a semantic one: it cannot
+# tell a machine-id slug (`parallel-execution-worker-fan-out`) from a three-plus-
+# segment English compound (`state-of-the-art`, `up-to-date`), so such a compound
+# in a metadata cell is a KNOWN over-strip residual (claude verify-3115, 2026-07-27),
+# tracked in TODO 3.148; a `command-exempt` marker is the escape hatch, and it is
+# latent (no registered command file carries such a cell today). A SPACE-separated
+# cell of ordinary words stays prose (the atom must be whitespace-free), as does a
+# one-hyphen compound like `fan-out` (two segments, below the three-segment floor).
 TABLE_ROW_RE = re.compile(r"^[ \t]*\|")
 # A machine-identifier atom is a PATH or a three-plus-segment slug. The path branch
 # requires a path INDICATOR (a leading `/`, `./`, or `../`; a second `/`; or a `.` on
