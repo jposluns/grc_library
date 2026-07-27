@@ -2806,7 +2806,11 @@ class PairedSkillStepParityTests(LinterTestCase):
             "not represented",
         )
 
-    def test_runs_clean_on_corpus_at_head(self) -> None:
+    def test_collection_enumeration_runs_clean_on_corpus_at_head(self) -> None:
+        # NOTE: renamed from test_runs_clean_on_corpus_at_head (#1208): under the
+        # original name it collided with the parity smoke test earlier in this
+        # class, and Python kept only the later definition, so the parity gate's
+        # own HEAD-smoke test never ran (claude reverify-3115-fix, 2026-07-27).
         # Smoke test against the current corpus: the linter should
         # report consistent enumerations across all declared collections.
         result = run_linter("tools/lint-collection-enumeration-consistency.py")
