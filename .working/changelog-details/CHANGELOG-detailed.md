@@ -8,6 +8,24 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-27, Library Version 2026.07.689, PR #1199 (exec-dispatch per-account concurrency registry + worker-id)
+
+### Changed
+
+- [`tools/exec-dispatch.py`](../../tools/exec-dispatch.py): moves per-account concurrency-cap ENFORCEMENT off the wrapper's per-account flock and into an in-flight registry (TODO 3.141, the orchestrator half). A worker-built candidate (self-test extended from 16 to 31 checks, all passing), applied verbatim and skeptical-verified. The additions: an in-flight JSON registry under `JOB_DIR` guarded by a separate never-rewritten `inflight.lock`; `_reserve_slot` performing reap-count-refuse-or-append in ONE exclusive flock critical section (no check-then-act TOCTOU), holding the lock only for the reserve/release and never across the job's `subprocess.run`; pid-liveness reaping (`os.kill(pid, 0)`, the dispatcher's own pid as the liveness token) with a 24h absolute stale ceiling as the only time-rule; `_release_slot` freeing the slot on the dispatch EXIT path; a per-config-dir registry key (account+family, so a claude and a codex job on one subscription do not share a cap); a default of 1 when `max_concurrent` is absent (byte-equivalent to prior behaviour); and `--worker-id` now passed through to the (already backward-compatible) root wrappers.
+
+### Not yet enabled (deliberate)
+
+- Concurrency stays at `max_concurrent` 1 in the account config. Turning it on is a SEPARATE, careful step (bump one claude + one codex account to 2 per the overnight fallback rule, verify one isolated dispatch, then run the duplicate-real-task validation protocol). This PR lands the capability only.
+
+### Also (batched #1198 QA)
+
+- The #1198 merge-bypass row, the retro-1198 row. The validate-pr-1198 row is added on its return.
+
+### Verification
+
+- `python3 tools/exec-dispatch.py --self-test`: OK (31 checks). Dry-run account selection regression clean. `tools/run_all_audits.sh`: all 78 gates pass; pre-push guard green both runners. A skeptical verifier reviewed the concurrency logic pre-merge.
+
 ## 2026-07-27, Library Version 2026.07.688, PR #1198 (weekly CHANGELOG roll-up + #1197 over-collapse correction)
 
 ### Changed
