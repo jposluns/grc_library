@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### 3.126 (#1209): open-findings disposition-token structural fix (2026-07-27)
+
+The open-findings guard's disposition cell was free prose it could not reliably read: an earlier check only asked the cell START with a terminal word, so `ROUTED nowhere yet, near 3.145`, a lone `FIXED`, and `FIXED in #1208` all passed while checkable-nothing, and a literal `|` in a Finding cell mis-columned a valid row (the #1208 false-block). Structural fix (not more matcher hardening): `block-on-open-findings.py` now enforces a GRAMMAR, FIXED/ROUTED need a ref ADJACENT to the word, REFUTED/ACCEPTED need the word + prose (maintainer-decided 2026-07-27), and the parser splits on unescaped pipes with a malformed row failing closed. Self-test 20 -> 31. The 49 accumulated dispositioned Open rows were moved to `## Closed today` (deterministic script, re-parse-verified: 0 findings lost), leaving Open clean.
+
 ### 3.115 (#1208): four gate-44 fail-open routes closed (2026-07-27)
 
 Four fail-open routes in gate 44 (`lint-paired-skill-step-parity.py`, subsection-representation check) closed, each a construct that let a token survive `content_tokens` and satisfy a subsection match without the command representing it: (14) a YAML front-matter block, (15) a machine-identifier-only table cell (PARTIAL close), (16) a link/image target truncated at its first `)` (one defect in two patterns, LINK_TARGET_RE + IMAGE_RE), (17) an HTML attribute value after a `>`. Preventive/zero-verdict-change (false-positive census clean on all 13 PAIRS files, gate stays green); 4 mutation-proved fixtures (class 17 -> 21); spec §6 narrative corrected + Version bump. Deterministic apply of the re-verified candidate, dual-family adversarial verify. The two still-open routes of the class (indented code block; semantic-metadata word-cell) opened as successor 3.148 (never-recycle).
