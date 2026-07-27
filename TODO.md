@@ -270,7 +270,7 @@ Umbrella for adopting NIST OSCAL as an open, machine-readable projection of the 
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.142.**
+**Next item number: 3.144.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
 
@@ -278,6 +278,14 @@ Cross-document consistency cleanup and routine development / quality tooling: lo
 session found per-PR bookkeeping and wind-down to be ~20-30 minutes of mostly-mechanical work; these six items
 (3.133-3.137, plus the adopted fewer-larger-PRs guideline) remove that overhead. Rationale and ranking in
 `grc_library_private/fresh-eyes-observations-2026-07-26.md`.
+
+### 3.142 `/sitrep` situation-report command (maintainer-requested; dropped-and-recovered 2026-07-27, M, M) `[machinery]`
+
+A maintainer-facing situation-report slash command: the four status sections (work in flight, the queue, QA state, and the worker fleet), a decisions-owed-you section, and a usage footer (instrumented orchestrator spend plus per-worker estimated spend plus the offload-savings figure). Depends on the per-worker logging (3.131) for the per-worker spend numbers. It was bundled with 3.128 in a prior session's next-actions, never got its own number, and was dropped in the 2026-07-26 emergency wind-down; re-registered here so it persists. Umbrella A (worker/observability tooling).
+
+### 3.143 Worker-account onboarding process plus an add-account shell script (maintainer-directed 2026-07-27; new accounts arriving, M, M) `[machinery]`
+
+The maintainer is adding one or two more Claude Code worker accounts. Build a repeatable onboarding PROCESS plus a shell script that efficiently adds a new worker account: create its per-account config dir under the worker user, install the read-only worker settings, register it in the `_private` worker-accounts config (id, account, family, config_dir, max_concurrent, tier), and verify the wrapper accepts it while the negative test still rejects any non-wrapper command. Idempotent, safe to re-run per new account. Umbrella A.
 
 ### 3.140 Hoist `_check_body` to module scope and add reality fixtures for the two generated-body prune paths and the non-UTF-8 branch (validate-pr-1186 F-2, 2026-07-26, M, S) `[machinery]`
 
