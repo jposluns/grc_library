@@ -270,7 +270,7 @@ Umbrella for adopting NIST OSCAL as an open, machine-readable projection of the 
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.144.**
+**Next item number: 3.145.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
 
@@ -286,6 +286,18 @@ A maintainer-facing situation-report slash command: the four status sections (wo
 ### 3.143 Worker-account onboarding process plus an add-account shell script (maintainer-directed 2026-07-27; new accounts arriving, M, M) `[machinery]`
 
 The maintainer is adding one or two more Claude Code worker accounts. Build a repeatable onboarding PROCESS plus a shell script that efficiently adds a new worker account: create its per-account config dir under the worker user, install the read-only worker settings, register it in the `_private` worker-accounts config (id, account, family, config_dir, max_concurrent, tier), and verify the wrapper accepts it while the negative test still rejects any non-wrapper command. Idempotent, safe to re-run per new account. Umbrella A.
+
+### 3.144 Multi-orchestrator / self-refreshing orchestration (SCOPE/SPEC-GATED, needs maintainer discussion; M, XL) `[needs-decision]`
+
+**DEFERRED pending maintainer scope/spec: discuss and agree the approach before any build.** The goal is to defeat long-run orchestrator context degradation WITHOUT a full stop, by refreshing the orchestrator's context at its compaction threshold (the roughly-second-compaction degradation point) rather than winding down until the maintainer returns. Two forms were discussed 2026-07-27 as REFERENCE IDEAS, not yet decided:
+
+- **Form 1, one-shot auto-handoff (the incremental first step).** On an evidence-triggered wind-down, the orchestrator does a proper session-closing handoff (state on main, lease RELEASED), then as its FINAL action injects `/resume` plus Enter into a pre-launched idle claude tmux session (same user/dir/account) via `tmux send-keys`. The fresh session reads Operating-mode from `session-state.md` and resumes in overnight-unattended mode (the AskUserQuestion-unattended hook keeps it from blocking with no maintainer present). Proves the poke mechanism. The caveat it does NOT solve: the poker is winding down, so it cannot verify the poke landed (submit-state indeterminacy), a silent-no-op risk.
+
+- **Form 2, primary plus near-idle standby (the full form).** Exactly ONE orchestrator holds the apply-lease and does all work: the serial-apply invariant is UNCHANGED (never two concurrent appliers, because the shared main-state surfaces, CHANGELOG / TODO / version lines / handoff / QA ledgers, conflict badly). A near-idle standby watches a shared compaction-signal; when the primary signals its second compaction AND a clean handoff-to-main, the standby issues `/clear` plus `/resume` to the primary's tmux, then VERIFIES the resume took (a resumed-at marker) and retries or escalates on failure. The primary refreshes in place with fresh context; the standby stays fresh because idle sessions do not grow context and so do not compact, so no symmetric role-swap is needed. This fixes Form 1's silent-no-op (a live standby verifies). Cost is low: an idle standby burns almost nothing and refreshes are infrequent, so it does not double the scarce orchestrator credits.
+
+- **Transport dimension (maintainer lean, 2026-07-27).** The injection CHANNEL is an open question with many options to assess. The maintainer leans toward a UNIX SOCKET feeding directly into the tmux session, or directly into the orchestrator's AI chat session, rather than `tmux send-keys`, because a socket sidesteps the keystroke-injection fragility and the submit-state indeterminacy that make a poke's success hard to confirm (it would also remove Form 1's silent-no-op risk at the transport layer). Relates to the §3.87 local-VM socket-transport thread. Assess socket-into-tmux vs socket-into-chat-session vs `send-keys` vs other IPC before committing.
+
+**Hard parts to spec before building:** (1) a single-writer lease/handover with NO split-brain (the standby must never apply while the primary is mid-refresh; split-brain on the ORCHESTRATOR is far worse than on a worker); (2) the compaction-signal plus clean-handoff protocol on a shared channel (poke only after state is safely on main, or `/clear` loses in-flight work); (3) the poke-verify-retry-escalate loop. Build incrementally (Form 1 to prove the mechanism, then Form 2). Umbrella A (orchestration infrastructure); needs maintainer sign-off on the lease/handover protocol before any unattended run.
 
 ### 3.140 Hoist `_check_body` to module scope and add reality fixtures for the two generated-body prune paths and the non-UTF-8 branch (validate-pr-1186 F-2, 2026-07-26, M, S) `[machinery]`
 
