@@ -8,6 +8,28 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-27, Library Version 2026.07.691, PR #1201 (2026-07-27 morning resume close-out)
+
+### Added
+
+- **Sweep 125** row in [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md): the loop-break corpus-wide `/validate` over the #1195..#1199 deltas (base `79578c6e`=#1194, head `e554f1b7`=#1199, 18 files) at the 2026-07-27 morning `/resume`, the compensating control for the #1200 session-closing handoff. OFFLOADED via [`tools/exec-dispatch.py`](../../tools/exec-dispatch.py) to jposluns-work/opus (~16m), consumed under ELEVATED QA (first QA-kind delivery from this account+model this session): the orchestrator independently re-derived the mechanical baseline (all 78 gates green on the writable checkout, the worker's 77/78 being the known read-only-`tests/tmp/` gate-36 artefact with 0 AssertionError) and re-verified the one warning at source. **0 error / 1 warning / 7 note. PASS-with-findings; all 4 asserted-clean surfaces CORROBORATED, ZERO contradicted, so the loop-break control for #1200 PASSES.**
+
+### Changed
+
+- [`.working/session-handoff.md`](../session-handoff.md): advanced the Resume cursor to Sweep 125; added a 2026-07-27 morning-resume progress note to the current Next-actions block; **pruned per the keep-current-plus-one-prior discipline** (deleted the oldest PRIOR-session Next-actions block and the #1177 Asserted-expectations block, 121 lines; their narrative is durably recorded in CHANGELOG / DONE / [`pending-decisions.md`](../pending-decisions.md) / git history, migrate-before-delete confirmed).
+- [`.working/session-state.md`](../session-state.md): acquired the concurrency lease for `claude/resume-2026-07-27` and swapped the operating mode `overnight-unattended` -> `attended-autonomous` (maintainer present, daytime).
+- [`TODO.md`](../../TODO.md): folded the triaged inbox-drop insights into existing items, 3.128 (the `audit-token-spend` first-match root cause + heading-anchor fix pointer), 3.111 (exclude a worker by drop-authorship and TODO-source-authorship, the prio-0 self-verify deadlock, plus the old-tool `cmd_claim` stamp-storm), and 3.118 (a rebased manage-workers apply-candidate pointer); and **corrected 3.145 to fold in Sweep 125's W1** (the RELEASE co-tenant-wipe fail-open, distinct from and worse than the tracked RESERVE one; "RELEASE may stay best-effort" was wrong, the fix must no-op RELEASE on corruption, which the delivered candidate does).
+- Cleared the accumulated worker-exchange backlog: **12 unprocessed inbox drops** triaged and moved to the file-drop `done/drops` archive (benign id-churn, verify-independence recurrences from the superseded file-drop fleet, and old-tool defects, all dispositioned); **5 open scratch maintainer-alert-channel alerts cleared** on maintainer authorization (three verify-independence recurrences tracked in TODO 3.111/3.113 with insights folded in; two confirmed resolved); and a Codex-worker cross-runtime orchestration planning framework **routed to the private store** (INDEX row + roadmap-G note) on maintainer direction.
+
+### Fixed
+
+- [`.working/merge-bypass-log.md`](../merge-bypass-log.md): added the #1200 bypass-log row. The prior session's session-closing handoff merged via the `--admin` bypass, but a handoff PR cannot honestly log its own not-yet-completed merge, so per the go-forward practice the row is added in this following change from the OBSERVED `gh pr checks 1200` state (all three checks green: Lint markdown corpus, Web generator health, Cloudflare Pages; merge commit `8094b06d`). This clears gate 50's Check 6 and the paired gate-36 regression test that runs the bookkeeping-parity linter against HEAD.
+- [`.working/open-findings.md`](../open-findings.md): recorded Sweep 125's W1 (the `_release_slot` co-tenant-wipe fail-open, re-verified at source against `main`) as a routed warning, ROUTED to TODO 3.145 (folded in; moot at cap 1, already resolved by the delivered registry-hardening candidate; gates the concurrency-enable, not any merge).
+
+### Verification
+
+- Pre-push guard green (run_all_audits.sh all 78 gates + run-pr-time-checks.sh, both standalone, unpiped). No corpus document or code file changed: only `.working/` records, the backlog, and the README version surfaces, plus the CHANGELOG pair. **Loop-break:** this is the first PR of the resumed session (the `/validate` close-out), not a handoff PR, so it carries its own per-PR QA in the normal way. The Sweep 125 result and its findings are dispositioned above.
+
 ## 2026-07-27, Library Version 2026.07.690, PR #1200 (session-closing handoff at #1199)
 
 ### Changed
