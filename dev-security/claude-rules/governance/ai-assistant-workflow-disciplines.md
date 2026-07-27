@@ -237,7 +237,7 @@ A quality-assurance activity (a validation sweep, a per-change-scoped sweep, a s
 4. The activity's history row is recorded; a zero-finding run still gets its row.
 5. Any deferred (risk, authorial, or irreversible) fix is documented for review, not silently left.
 
-The heaviest tiers (a whole-project assessment, a trust-recovery suite) add one condition: they terminate only on the responsible authority's explicit sign-off, never self-declared done.
+The heaviest REACTIVE tier (a trust-recovery suite) adds one condition: it terminates only on the responsible authority's explicit sign-off, never self-declared done, because its purpose is to rebuild the confidence a discipline lapse put in question, which only the responsible authority can declare restored. A PROACTIVE whole-project assessment has no lapsed confidence to restore and composes only already-established QA processes, so it does NOT add a sign-off condition; it terminates on the five conditions above like any other QA activity, and its outcome is surfaced to the responsible authority without a separate sign-off gate.
 
 Standing priority: fixing known QA issues outranks build, tooling, and content work; complete the then-current task, then fix.
 

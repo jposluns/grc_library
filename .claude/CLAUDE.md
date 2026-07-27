@@ -855,12 +855,17 @@ semantic accuracy of citations against held source texts, the adoptability of th
 fresh reader, the integrity of the delivery pipeline, and the honesty of the QA ledgers. It is
 the proactive counterpart to `/trust-recovery`: the trust-recovery suite run at maintainer
 direction without a discipline-failure trigger, inheriting that rule's findings-routing (every
-confirmed finding routed, tiered by severity, none dropped), apply-time verification, and
-maintainer-sign-off-as-the-only-terminal-state conventions.
+confirmed finding routed, tiered by severity, none dropped) and apply-time verification. It does
+NOT inherit trust-recovery's maintainer-sign-off terminal state (maintainer-directed 2026-07-27):
+every component it composes is an already-established QA process that terminates by
+validate-and-fix, so the composite terminates on the same QA-activity completion standard, not a
+separate sign-off gate (the sign-off is trust-recovery-specific, to let the maintainer declare
+lapsed confidence restored, which the proactive assessment has none of).
 
-It is NOT cadenced and NOT self-invoked: it runs only on the maintainer's explicit invocation,
-and it terminates only on the maintainer's explicit sign-off (an empty finding set is presented
-for sign-off, never self-declared complete).
+It is NOT cadenced and NOT self-invoked: it runs only on the maintainer's explicit invocation.
+It terminates on the QA-activity completion standard its component instruments already use (every
+finding validated and fixed-or-routed); a zero-finding run still gets its record and register-row
+closure. The outcome is surfaced to the maintainer, but no separate sign-off gate applies.
 
 ## Reference-breadth cadence (`/reference-audit`)
 
@@ -1582,9 +1587,13 @@ A QA activity (a `/validate`, `/validate-pr`, `/matrix-fit`, `/claim-fit`,
 5. Any deferred (risk, authorial, or irreversible) fix is documented for review, not
    silently left.
 
-The `/deep-assessment` and `/trust-recovery` tiers add one condition: they terminate only
-on explicit maintainer sign-off (an empty finding set is presented for sign-off, never
-self-declared done).
+The `/trust-recovery` tier adds one condition: it terminates only on explicit maintainer
+sign-off (an empty finding set is presented for sign-off, never self-declared done), because
+its purpose is to rebuild maintainer confidence a discipline lapse put in question.
+`/deep-assessment` NO LONGER carries this condition (maintainer-directed 2026-07-27): it
+composes only already-established QA processes, each terminating by validate-and-fix, so it
+terminates on the five conditions above like any other QA activity, its outcome surfaced to
+the maintainer without a separate sign-off gate.
 
 Standing priority: fixing known QA issues outranks build, tooling, and content work.
 Complete the then-current task, then fix. The project-agnostic form ships in the
