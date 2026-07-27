@@ -8,6 +8,20 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-27, Library Version 2026.07.699, PR #1209 (close TODO 3.126: open-findings disposition-token structural fix)
+
+The [`.working/open-findings.md`](../open-findings.md) guard's Disposition cell was free prose the check could not reliably read: an earlier test only asked that the cell START with a terminal word, so `ROUTED nowhere yet, near 3.145`, a lone `FIXED`, and `FIXED in #1208` (a ref reachable only past prose) all passed while saying nothing checkable; and the #1208 defect showed a literal `|` in a Finding cell shifts the columns so a valid row is mis-read. This is a STRUCTURAL fix (validate-pr-1178 F-1: the input, not a third round of matcher hardening, was the problem), with two grammar decisions the maintainer made 2026-07-27 (recorded in the private design-decisions record).
+
+### Changed
+- [`.claude/hooks/block-on-open-findings.py`](../../.claude/hooks/block-on-open-findings.py): a disposition GRAMMAR (`disposition_valid`). `FIXED`/`ROUTED` must carry a ref (`#\d+`, a `\d+\.\d+[a-z]?` item, or a `TODO`-qualified item) ADJACENT to the terminal word, whitespace or markup only between, so a scanned-for-past-prose ref does not count. `REFUTED`/`ACCEPTED` machine-require only the terminal WORD and keep prose (per the ledger legend). `parse_open_rows` now splits on UNESCAPED pipes so a cell may carry `\|`, and a row whose column count is not five yields `disposition=None`, which `undispositioned` treats as a fail-closed block rather than mis-reading a middle fragment (the #1208 pipe defect). The in-file self-test grew 20 -> 31, including the #1208 pipe reality fixture and both grammar directions.
+- [`.working/open-findings.md`](../open-findings.md): the legend documents the grammar; the 49 accumulated dispositioned rows in `## Open` were MOVED to `## Closed today` (the intended lifecycle, and Closed-today is not grammar-checked, an archive), leaving `## Open` holding only genuinely-open findings (now zero). The `FIXED in #N` rows were nudged to the adjacent `FIXED #N` form in the move.
+
+### Verification
+- The migration was a DETERMINISTIC script with a re-parse check, not a hand edit: 0 findings lost (every pre-migration Open finding present in the post-migration Open + newly-moved Closed-today), 0 undispositioned rows in Open, 55 well-formed 4-column Closed-today rows.
+- Hook self-test 31/31; the full linter regression suite (which runs the hook's `--self-test`) rc=0; the live hook reports 0 undispositioned errors against the migrated ledger.
+- **Dual-family adversarial verify** (this change is the PR-BLOCKING guard, so both the false-PASS and false-BLOCK directions were briefed): findings dispositioned before merge.
+- The pre-push guard (`run_all_audits.sh` + `run-pr-time-checks.sh`) is green.
+
 ## 2026-07-27, Library Version 2026.07.698, PR #1208 (close TODO 3.115: four gate-44 fail-open routes)
 
 Closes four fail-open routes in gate 44's subsection-representation check (TODO 3.115). `content_tokens` strips non-prose so a token surviving only in metadata cannot falsely "represent" a skill subsection the paired command actually omits. The four routes were constructs that survived the strip set. All four fixes are PREVENTIVE (zero-verdict-change: no current PAIRS command file triggers any new strip, so the gate stays green and no live verdict moves).

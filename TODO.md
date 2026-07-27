@@ -659,22 +659,6 @@ state was itself wrong. This is the genuine fix behind TODO 3.116, which was
 closed with a stall signal that could not fire on a worker heartbeating normally. Phase 2 (evidence-mandatory
 delivery format, and an adversarial audit cadence over deliveries) follows as its own item.
 
-### 3.126 The open-findings disposition cell needs a STRUCTURAL fix, not a third round of matcher hardening (validate-pr-1178 F-1, M, S)
-
-#1178 replaced the emptiness test in [`block-on-open-findings.py`](.claude/hooks/block-on-open-findings.py) with a
-closed-vocabulary prefix test, and the prefix test reproduces the same class one layer in. It FALSE-BLOCKS real
-dispositions (`now fixed`, `this was fixed in #1178`, `resolved in #1178`, `closed as duplicate`, `WONTFIX`) because
-`startswith` demands the vocabulary word first and the closed set omits ordinary synonyms; and it FALSE-PASSES
-narrations that open with a terminal word and then negate it, the sharpest being `**routed** but nobody took it`,
-which carries correct markup, correct vocabulary, and says in plain words that nothing was decided. **Do not harden
-the predicate again.** A free-prose cell cannot answer "is this finding dispositioned", so the INPUT is what needs
-changing: a machine-readable disposition token in its own column (or a required `TOKEN <reference>` shape, so
-`ROUTED` must name what now owns it and `FIXED` must name where), with the prose kept as a separate rationale cell.
-Hardening the check instead of fixing the input is verbatim the anti-pattern
-[`validate-inference-before-action`](.claude/rules/governance/validate-inference-before-action.md) names, and it was
-done here while citing that very rule, which is worth remembering when the next guard looks like it just needs a
-better regex.
-
 ### 3.127 `submit_state` residual paths beyond the fixed one (validate-pr-1176 E1 follow-on, M, S)
 
 The FALSE-SUBMITTED path E1 identified is FIXED in #1180: `composer_region` is now told which runtime it is reading
