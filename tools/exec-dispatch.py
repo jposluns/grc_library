@@ -255,9 +255,13 @@ def _read_inflight(job_dir: Path) -> list:
         raise InflightCorruptError(
             f"in-flight registry {path} is unreadable/corrupt "
             f"({exc.__class__.__name__}: {exc})") from exc
-    if not isinstance(data, list):
+    if not isinstance(data, list) or not all(isinstance(e, dict) for e in data):
+        # A JSON scalar/object is not a list; a list whose ELEMENTS are not objects (e.g. [1,2,3])
+        # would pass the list check but then crash _reap with AttributeError on `e.get(...)`. Both
+        # are corrupt: fail CLOSED (clean refuse) rather than crash. A well-formed entry is an object;
+        # an object missing fields (e.g. no pid) still passes here and is dropped by _reap (benign).
         raise InflightCorruptError(
-            f"in-flight registry {path} is malformed (expected a JSON list, got "
+            f"in-flight registry {path} is malformed (expected a JSON list of objects, got "
             f"{type(data).__name__})")
     return data
 
@@ -620,7 +624,18 @@ def _self_test() -> int:
         okn, msgn = _reserve_slot(jd, "k", 1, "wid-n", me, now_epoch)
         check("inflight-nonlist-refuses-reserve", okn is False and "malformed" in str(msgn))
 
-    # 29. build_dispatch_cmd passes --worker-id with the minted id (the wrapper wire-in).
+    with _tempfile.TemporaryDirectory() as _td:
+        jd = Path(_td)
+        # 29. A JSON LIST whose ELEMENTS are not objects ([1,2,3]) is corrupt -> RESERVE refuses,
+        # rather than crashing _reap with AttributeError on `e.get(...)`. Reality fixture for the
+        # scalar-list gap the codex adversarial verifier caught (2026-07-27).
+        (jd / INFLIGHT_NAME).write_text('[1, 2, 3]', encoding="utf-8")
+        oks, msgs = _reserve_slot(jd, "k", 1, "wid-s", me, now_epoch)
+        check("inflight-scalar-list-refuses-reserve", oks is False and "malformed" in str(msgs))
+        _release_slot(jd, "wid-s")      # RELEASE tolerates it too (no crash)
+        check("inflight-scalar-list-release-tolerated", (jd / INFLIGHT_NAME).exists())
+
+    # 30. build_dispatch_cmd passes --worker-id with the minted id (the wrapper wire-in).
     wid = mint_worker_id("work-a", "claude", sunday)
     cmd = build_dispatch_cmd(WRAPPER["claude"], "/tmp/p.txt", "work-a", "opus", wid)
     check("worker-id-in-cmd",
