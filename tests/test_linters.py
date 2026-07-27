@@ -2408,6 +2408,16 @@ class PairedSkillStepParityTests(LinterTestCase):
         "- Something.\n"
     )
 
+    # A single-subsection skill for the four gate-44 fail-open route fixtures
+    # (TODO 3.115): a command that represents the numbered step but omits the
+    # named subsection must be flagged, so each fixture can prove that a token
+    # surviving in metadata (front matter, a slug cell, a truncated link
+    # target, an HTML attribute) does NOT count as representing the subsection.
+    SKILL_ONE_SUBSECTION = (
+        "## Process\n\n### 1. Only step\n\nBody.\n\n"
+        "### Parallel execution (worker fan-out)\n\nBody.\n\n## Red Flags\n"
+    )
+
     # Concise command that carries BOTH numbered steps and a trace of
     # the subsection. Deliberately compressed to one clause, because a
     # command is an entry point and the check must not demand a copy.
@@ -2796,7 +2806,11 @@ class PairedSkillStepParityTests(LinterTestCase):
             "not represented",
         )
 
-    def test_runs_clean_on_corpus_at_head(self) -> None:
+    def test_collection_enumeration_runs_clean_on_corpus_at_head(self) -> None:
+        # NOTE: renamed from test_runs_clean_on_corpus_at_head (#1208): under the
+        # original name it collided with the parity smoke test earlier in this
+        # class, and Python kept only the later definition, so the parity gate's
+        # own HEAD-smoke test never ran (claude reverify-3115-fix, 2026-07-27).
         # Smoke test against the current corpus: the linter should
         # report consistent enumerations across all declared collections.
         result = run_linter("tools/lint-collection-enumeration-consistency.py")
@@ -2838,6 +2852,215 @@ class PairedSkillStepParityTests(LinterTestCase):
         self.assertEqual(
             parsed, source,
             "provenance register does not enumerate exactly the governance/ rule set")
+
+    def test_yaml_front_matter_is_not_representation(self) -> None:
+        # POSITIVE fixture, fail-open regression guard. The FOURTEENTH route:
+        # a YAML front-matter block. Nothing stripped it, and its `---`
+        # delimiters are not fences that `iter_non_code_lines` toggles on, so a
+        # `description:` value was read as command prose and could satisfy a
+        # subsection match on its own. Slash-command files support front matter
+        # (`description`, `argument-hint`, `allowed-tools`), so the route is
+        # reachable by an ordinary authoring choice, not only a contrived one.
+        #
+        # Confirmed by mutation: removing the `strip_front_matter` call from
+        # `content_tokens` makes both assertions below fail.
+        mod = self._load_module()
+        self.assertNotIn(
+            "parallel",
+            mod.content_tokens(
+                "---\n"
+                "name: deep-assessment\n"
+                "description: Runs parallel execution across a worker fan-out.\n"
+                "---\n"
+                "\n"
+                "1. **Only step**: content.\n"
+            ),
+            "a token only inside YAML front matter is not representation",
+        )
+        command = (
+            "---\n"
+            "description: parallel execution worker fan-out\n"
+            "---\n"
+            "\n"
+            "1. **Only step**: content.\n"
+        )
+        findings = mod.unrepresented_subsections(self.SKILL_ONE_SUBSECTION, command)
+        self.assertEqual(
+            len(findings), 1,
+            f"a front-matter-only command must be flagged, got {findings}",
+        )
+        # NEGATIVE control: a document OPENING with a thematic break is not
+        # front matter, and the prose between two breaks must survive. The
+        # naive `\A---.*?---` form fails this control.
+        self.assertIn(
+            "parallel",
+            mod.content_tokens(
+                "---\n\nWe dispatch the phases in parallel.\n\n---\n"
+            ),
+            "a leading thematic break must not swallow the prose after it",
+        )
+
+    def test_metadata_only_table_cell_is_not_representation(self) -> None:
+        # POSITIVE fixture, fail-open regression guard. The FIFTEENTH route: a
+        # table cell of pure metadata. No table-aware stripping existed, so a
+        # cell holding a slug contributed every one of its segments as prose.
+        # Scope is deliberately narrow and the close is PARTIAL: only a cell
+        # whose whole content is one machine-identifier atom is dropped. A cell
+        # of ordinary words is visible reading text, so it stays prose; the
+        # residual is stated in the module docstring.
+        #
+        # Confirmed by mutation: removing the `strip_metadata_table_cells`
+        # call from `content_tokens` makes the first two assertions fail.
+        mod = self._load_module()
+        self.assertNotIn(
+            "parallel",
+            mod.content_tokens(
+                "| Field | Value |\n"
+                "| --- | --- |\n"
+                "| anchor | parallel-execution-worker-fan-out |\n"
+            ),
+            "a token only inside a machine-identifier table cell is not "
+            "representation",
+        )
+        command = (
+            "1. **Only step**: content.\n"
+            "\n"
+            "| Field | Value |\n"
+            "| --- | --- |\n"
+            "| anchor | parallel-execution-worker-fan-out |\n"
+        )
+        findings = mod.unrepresented_subsections(self.SKILL_ONE_SUBSECTION, command)
+        self.assertEqual(
+            len(findings), 1,
+            f"a slug-cell-only command must be flagged, got {findings}",
+        )
+        # NEGATIVE controls. A one-hyphen English compound in a cell is prose,
+        # and so is an inline pipe-separated list in ordinary prose: this repo
+        # writes both (`.claude/commands/validate.md` line 8's `error|warning|
+        # note` and line 15's column-name list), and a "two or more pipes"
+        # rule strips them.
+        self.assertIn(
+            "out", mod.content_tokens("| stage | fan-out |\n"),
+            "a one-hyphen compound in a cell is prose",
+        )
+        self.assertIn(
+            "parallel",
+            mod.content_tokens("columns Date | Parallel | Detail, in prose.\n"),
+            "an inline pipe list in prose is not a table",
+        )
+        # A two-word English slash-compound in a cell is reading prose, not a
+        # path: a bare `\S*/\S*` over-stripped it (a gate-44 false positive the
+        # codex adversarial verifier caught, verify-3115 2026-07-27). Both words
+        # must survive; only a genuine path or a 3+-segment slug is a metadata atom.
+        for word in ("read", "write"):
+            self.assertIn(
+                word, mod.content_tokens("| Operation | read/write |\n"),
+                f"a two-word slash-compound in a cell is prose, not a path ({word})",
+            )
+
+    def test_link_target_truncated_at_the_first_paren_is_not_representation(self) -> None:
+        # POSITIVE fixture, fail-open regression guard. The SIXTEENTH route,
+        # and the only one of this round that is a DEFECT IN AN EXISTING
+        # PATTERN rather than an unhandled construct: `LINK_TARGET_RE`'s
+        # `[^)]*` stops at the FIRST `)`, so for `[d](../a(b)/<token>.md)` it
+        # consumes `](../a(b)` and leaves `/<token>.md)` behind as prose.
+        # `IMAGE_RE` carried the identical `\([^)]*\)` tail, so the SAME defect
+        # sat in a second pattern; both are corrected here, because a fix to
+        # one alone leaves the other open while looking complete.
+        #
+        # The absolute-URL sub-case matters separately: `LINK_TARGET_RE` runs
+        # BEFORE `URL_RE`, so it has already eaten the scheme by the time the
+        # URL strip looks, and the URL strip cannot recover the tail.
+        #
+        # Confirmed by mutation: restoring `LINK_TARGET_RE` to `\]\([^)]*\)`
+        # fails the first two assertions, and restoring `IMAGE_RE` to its
+        # `(?:\([^)]*\)|\[[^\]]*\])` tail fails the third.
+        mod = self._load_module()
+        for label, text in (
+            ("relative", "See [the doc](../notes/a(b)/parallel-execution.md).\n"),
+            ("absolute", "See [the doc](https://example.com/a(b)/parallel-execution.md).\n"),
+            ("escaped paren", "See [the doc](../notes/x\\).parallel-execution.md).\n"),
+        ):
+            self.assertNotIn(
+                "parallel", mod.content_tokens(text),
+                f"{label}: a token only in a link TARGET is not representation",
+            )
+        self.assertNotIn(
+            "parallel",
+            mod.content_tokens("See ![a diagram](../img/a(b)/parallel-execution.png).\n"),
+            "the same defect in IMAGE_RE: an image is stripped whole",
+        )
+        # NEGATIVE controls. Widening the target pattern to balance parentheses
+        # must not reach into adjacent prose, and a link's visible TEXT is
+        # prose in every reference shape.
+        self.assertIn(
+            "parallel",
+            mod.content_tokens("See [the doc](../x.md) and (parallel execution) here.\n"),
+            "a parenthetical AFTER a link is prose, not part of the target",
+        )
+        for shape, text in (
+            ("inline", "We run [parallel execution by worker fan-out](../x.md).\n"),
+            ("full", "We run [parallel execution by worker fan-out][n].\n"),
+            ("collapsed", "We run [parallel execution by worker fan-out][].\n"),
+            ("shortcut", "We run [parallel execution by worker fan-out].\n"),
+        ):
+            tokens = mod.content_tokens(text)
+            for token in ("parallel", "execution", "worker", "fan", "out"):
+                self.assertIn(
+                    token, tokens,
+                    f"{shape}: visible link text must remain prose ({token})",
+                )
+        self.assertNotIn(
+            "parallel",
+            mod.content_tokens("See ![parallel execution diagram][fig-1].\n"),
+            "the reference-form image must remain stripped whole",
+        )
+
+    def test_html_attribute_value_after_a_gt_is_not_representation(self) -> None:
+        # POSITIVE fixture, fail-open regression guard. The SEVENTEENTH route:
+        # `HTML_TAG_RE`'s `<[^>]+>` matched up to the FIRST `>`, so for
+        # `<div title="a>b <token>">` it consumed `<div title="a>` and left
+        # `b <token>">` behind as prose.
+        #
+        # The quote-aware branch is anchored on `=`, so a quote only counts as
+        # an attribute delimiter when it opens an attribute VALUE. Without that
+        # anchor the apostrophe in ordinary prose pairs with a later one and
+        # the strip eats the words between them (measured: `The <worker's note>
+        # and the orchestrator's parallel > pass.` loses `parallel`).
+        #
+        # Confirmed by mutation: restoring `HTML_TAG_RE` to `<[^>]+>` fails the
+        # first assertion.
+        mod = self._load_module()
+        self.assertNotIn(
+            "parallel",
+            mod.content_tokens('Text <div title="a>b parallel">n</div> more.\n'),
+            "a token only inside an HTML attribute value is not representation",
+        )
+        command = (
+            "1. **Only step**: content.\n"
+            "\n"
+            '<div title="a>b parallel execution worker fan-out">n</div>\n'
+        )
+        findings = mod.unrepresented_subsections(self.SKILL_ONE_SUBSECTION, command)
+        self.assertEqual(
+            len(findings), 1,
+            f"an attribute-value-only command must be flagged, got {findings}",
+        )
+        # NEGATIVE controls. The placeholder metavariables these command files
+        # actually use must still be stripped, and prose carrying an apostrophe
+        # beside a placeholder must survive intact.
+        self.assertNotIn(
+            "parallel",
+            mod.content_tokens("Run git show <parallel>:<path> to read it.\n"),
+            "a placeholder metavariable is still stripped",
+        )
+        self.assertIn(
+            "parallel",
+            mod.content_tokens(
+                "The <worker's note> and the orchestrator's parallel > pass.\n"
+            ),
+            "prose beside a placeholder must not be swallowed",
+        )
 
 
 class GateCountConsistencyTests(LinterTestCase):
