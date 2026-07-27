@@ -8,6 +8,21 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-27, Library Version 2026.07.692, PR #1202 (exec-dispatch registry fails closed on a corrupt inflight.json; TODO 3.145)
+
+### Fixed
+
+- [`tools/exec-dispatch.py`](../../tools/exec-dispatch.py): the in-flight concurrency registry read now **fails CLOSED on a corrupt registry file** (TODO 3.145, the GATE before per-account concurrency > 1). `_read_inflight` distinguishes a MISSING file (`FileNotFoundError` -> `[]`, so the first-ever dispatch still allows) from a CORRUPT one (unparseable JSON, a non-FileNotFound `OSError`, a non-list, **or a list whose elements are not objects** -> raise the new `InflightCorruptError`). `_reserve_slot` refuses the dispatch on corruption with an operator message naming the file and **leaves the file in place** (no fail-open zeroing, riding the existing NOT-DISPATCHED path); `_release_slot` **no-ops** on corruption, so a corrupt registry during a release cannot wipe live co-tenant entries. Self-test **31 -> 39**. Applied from the delivered worker candidate (preserved in the private worker-deliveries store) with orchestrator re-verification of the logic at source; the #1199 registry (`_reap`, `_inflight_key`, `_max_concurrent`, `--worker-id`) is byte-identical outside the four touched functions and the self-test.
+
+### Verification
+
+- **Dual independent adversarial verifiers, one per family (defence in depth for a fleet-safety gate):** a Claude verifier (jeff-mailz) UPHELD all six refute-claims (SHIP); a Codex verifier (jeff-mailz) caught a real gap the Claude one only grazed, a JSON list of NON-OBJECTS (`[1,2,3]`) passed the `isinstance(list)` check and then crashed `_reap` with an uncaught `AttributeError` on `e.get(...)` instead of failing closed. The orchestrator **re-verified the Codex finding at source** (reproduced the AttributeError), FIXED it (`_read_inflight` now requires a list of objects), and added reality-fixture self-tests (scalar-list refuses + release tolerated). This resolves both fail-opens tracked in [`.working/open-findings.md`](../open-findings.md) (the RESERVE fail-open and the Sweep-125-W1 RELEASE co-tenant-wipe) plus the scalar-list crash. All 78 gates pass; self-test 39/39. Pre-push guard green both runners.
+- The #1201 QA rows batch in here per recursion-avoidance: `validate-pr-1201` RETURNED PASS (0 error / 0 warning / 1 pre-existing note) in [`.working/validate-pr/history.md`](../validate-pr/history.md); the `/retro` row in [`.working/improvement-log.md`](../improvement-log.md); and #1201's merge-bypass-log row in [`.working/merge-bypass-log.md`](../merge-bypass-log.md).
+
+### Changed
+
+- [`TODO.md`](../../TODO.md): **3.145 rotated to [`DONE.md`](../DONE.md)** (closed by this PR); **3.146 opened** for the umask-`0002` recurrence the fix's own `check_perms` run surfaced (new files in the READ-ONLY repos come out group-writable; needs a durable maintainer umask fix, e.g. `0027`, in the orchestrator's launcher). P3 counter 3.146 -> 3.147.
+
 ## 2026-07-27, Library Version 2026.07.691, PR #1201 (2026-07-27 morning resume close-out)
 
 ### Added
