@@ -99,12 +99,21 @@ def account_available(acct: dict, now: _dt.datetime) -> tuple[bool, str]:
     return True, "available"
 
 
-def eligible_accounts(config: dict, family: str, model: str, now: _dt.datetime) -> list[dict]:
+def eligible_accounts(config: dict, family: str, model: str, now: _dt.datetime,
+                      exclude_accounts: frozenset[str] = frozenset()) -> list[dict]:
     """Accounts that can serve a (family, model) job at `now`, in dispatch-preference order.
 
     Order: non-personal before personal (personal_accounts_last), then priority_set ascending
     (exhaust a set before the next), then tier-weight descending, then account id. Each entry
     is annotated with `_reason` and `_weight` for transparency.
+
+    `exclude_accounts` is the verifier-independence filter (impl-3111): account ids to drop so a
+    skeptical verifier never lands on an account that authored, or already verified, the work under
+    review. It is applied AFTER the family/model/availability funnel (not before), so `--dry-run`'s
+    EXCLUDED reporting can show an independence-excluded account with a distinct reason rather than
+    conflating it with an unavailable one. Keying is on the ACCOUNT (per family), never the
+    ephemeral worker-id: the id is minted per exec and encodes nothing routable, so exclusion must
+    resolve to the durable (account, family) key the trust window and dispatch both use.
     """
     out = []
     for acct in config.get("accounts", []):
@@ -114,6 +123,8 @@ def eligible_accounts(config: dict, family: str, model: str, now: _dt.datetime) 
             continue
         ok, reason = account_available(acct, now)
         if not ok:
+            continue
+        if acct.get("account") in exclude_accounts:
             continue
         a = dict(acct)
         a["_reason"] = reason
@@ -128,20 +139,32 @@ def eligible_accounts(config: dict, family: str, model: str, now: _dt.datetime) 
     return out
 
 
-def select_account(config: dict, family: str, model: str, now: _dt.datetime):
+def select_account(config: dict, family: str, model: str, now: _dt.datetime,
+                   exclude_accounts: frozenset[str] = frozenset()):
     """Top eligible account, or None. (max_concurrent enforcement is WIRE-IN: today the
     per-account flock in the wrapper serializes same-account jobs at 1.)"""
-    elig = eligible_accounts(config, family, model, now)
+    elig = eligible_accounts(config, family, model, now, exclude_accounts)
     return elig[0] if elig else None
 
 
 def pick_account(config: dict, family: str, model: str, now: _dt.datetime,
-                 account: str | None = None):
+                 account: str | None = None, exclude_accounts: frozenset[str] = frozenset()):
     """Resolve WHICH account to dispatch to. PURE. Returns (acct_dict_or_None, reason).
 
     Without `account`, the top eligible (select_account's pick). With `account`, that EXACT
     account IF it is eligible for (family, model) at `now`, else None with a reason that
     distinguishes an unknown account from a known-but-ineligible one.
+
+    `exclude_accounts` is the verifier-independence filter (impl-3111). Two failure shapes are
+    reported DISTINCTLY from an ordinary empty pool, because their remedy differs:
+      - CONTRADICTION: the targeted `account` is itself in `exclude_accounts`. The operator asked
+        to dispatch TO an account they also asked to exclude; that is an order defect, not a
+        capacity problem, so it is surfaced as such rather than as 'account not eligible'.
+      - INDEPENDENCE-DEADLOCK: the pool is non-empty absent exclusions but EMPTY once they apply.
+        Every account that could serve the job is excluded for independence, so the remedy is to
+        widen the pool or relax an exclusion, NOT to wait for capacity. This is distinct from a
+        genuinely empty pool (no account offers the model / all unavailable), whose remedy IS to
+        wait or add capacity.
 
     The override is what lets the orchestrator SPREAD concurrent jobs across distinct accounts:
     the wrapper's per-account flock serializes same-account jobs at 1, so without targeting, N
@@ -149,9 +172,19 @@ def pick_account(config: dict, family: str, model: str, now: _dt.datetime,
     eligible account per concurrent job gives real parallelism (each account's flock serializes
     only its own one job). It does NOT bypass a flock, so it is safe today, before same-account
     config-dir snapshotting exists."""
-    elig = eligible_accounts(config, family, model, now)
+    if account is not None and account in exclude_accounts:
+        return None, (f"contradiction: account '{account}' is both the requested target and an "
+                      f"independence exclusion; cannot dispatch to an excluded account")
+    elig = eligible_accounts(config, family, model, now, exclude_accounts)
     if account is None:
-        return (elig[0], "auto: top eligible") if elig else (None, "no eligible account")
+        if elig:
+            return elig[0], "auto: top eligible"
+        # Distinguish an independence-deadlock (pool emptied by exclusions) from a genuine
+        # empty pool, so the operator knows whether to widen the pool or wait for capacity.
+        if exclude_accounts and eligible_accounts(config, family, model, now):
+            return None, ("independence-deadlock: every eligible account is excluded for "
+                          f"independence (excluded: {', '.join(sorted(exclude_accounts))})")
+        return None, "no eligible account"
     for a in elig:
         if a.get("account") == account:
             return a, f"targeted: {account}"
@@ -207,6 +240,82 @@ def mint_worker_id(account: str, family: str, now: _dt.datetime) -> str:
     NOT this ephemeral id; the trust window keys on (account, model)."""
     stamp = now.astimezone(_dt.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     return f"{family}-{account}-{stamp}-{uuid.uuid4().hex[:4]}"
+
+
+# --- verifier-independence exclusion resolution (impl-3111) -------------------------
+# A worker-id minted by mint_worker_id above is `{family}-{account}-{stamp}-{4hex}`. The account
+# component can itself contain hyphens (e.g. `jposluns-work`), so the regex anchors on the FIXED
+# trailing shape (a 16-char UTC stamp ending in Z, then a 4-hex suffix) and lets `account` absorb
+# everything between the leading family token and that trailing shape. This is the ONLY id form
+# that carries a resolvable account; see the caveat below.
+import re as _re_wid  # noqa: E402  (module-level import kept local to this block for readability)
+_WORKER_ID_RE = _re_wid.compile(
+    r"^(?P<family>claude|codex)-(?P<account>.+)-(?P<stamp>\d{8}T\d{6}Z)-[0-9a-f]{4}$")
+
+
+def worker_id_to_key(worker_id: str):
+    """Resolve a worker-id to its durable (account, family) key, or None if it does not parse.
+
+    Returns None (rather than raising) so the caller can FAIL CLOSED on an unresolvable token: an
+    exclusion the dispatcher cannot resolve must never silently become a no-op, because a vacuous
+    exclusion disables an independence control invisibly. CAVEAT: a `From:`-style short id
+    (`opus-<stamp>-<uuid>`, no account component) does NOT parse here and cannot be resolved to an
+    account; for those the canonical exclusion input is `--not-account` (the account named directly),
+    not `--not-worker`."""
+    m = _WORKER_ID_RE.match((worker_id or "").strip())
+    if not m:
+        return None
+    return (m.group("account"), m.group("family"))
+
+
+def resolve_exclusions(not_workers, not_accounts, family: str, known_accounts):
+    """Turn the raw `--not-worker` / `--not-account` tokens into the set of account ids to exclude
+    for `family`. PURE. Returns (excluded_accounts:set, unresolved:list, unknown:list).
+
+    - A `--not-worker` token resolves via `worker_id_to_key`; it contributes its account ONLY when
+      its family matches the dispatch family (a claude verifier's independence has no bearing on a
+      codex dispatch, and vice versa). It lands in `unresolved` when it does not PARSE at all.
+    - A `--not-account` token is taken verbatim (it already names the account); it is family-agnostic
+      because the caller is already dispatching for one family.
+    - `known_accounts` is the set of account ids CONFIGURED for `family` (availability-independent:
+      a limited account is still a valid exclusion target). Any resolved/named account NOT in this
+      set lands in `unknown`.
+
+    The caller MUST fail closed when EITHER `unresolved` OR `unknown` is non-empty. `unresolved` is
+    the token-could-not-be-parsed case. `unknown` is the SUBTLER and more likely operator error, and
+    it is the fix for the defect BOTH the codex and claude adversarial verifiers independently caught
+    (verify-impl-3111-{codex,claude}, 2026-07-27): a token that parses/names a well-formed account
+    that matches ZERO configured accounts (a mistyped `worka` for `work-a`, or a renamed/removed
+    account) would otherwise be a VACUOUS exclusion that SILENTLY no-ops. That silently defeats the
+    independence control: the operator believes they excluded the authoring account, but the real
+    authoring account (under its correct name) stays eligible and the verifier can land right back on
+    it, the exact outcome impl-3111 exists to prevent. Fail closed, do not silently no-op. A
+    cross-family `--not-worker` id is the ONE thing legitimately ignored (irrelevant by design; use
+    `--not-account` to exclude an account across families)."""
+    excluded = set()
+    unresolved = []
+    unknown = []
+    for tok in (not_workers or []):
+        key = worker_id_to_key(tok)
+        if key is None:
+            unresolved.append(tok)
+            continue
+        acct, fam = key
+        if fam != family:
+            continue        # a different-family worker-id is irrelevant to this dispatch.
+        if acct not in known_accounts:
+            unknown.append(tok)     # parses, but names an account this family does not have.
+            continue
+        excluded.add(acct)
+    for acct in (not_accounts or []):
+        acct = (acct or "").strip()
+        if not acct:
+            continue
+        if acct not in known_accounts:
+            unknown.append(acct)    # names an account not configured for this family.
+            continue
+        excluded.add(acct)
+    return excluded, unresolved, unknown
 
 
 # --- in-flight registry helpers (reserve-under-lock; TODO 3.141) -------------------
@@ -387,9 +496,10 @@ def build_dispatch_cmd(wrapper: str, prompt_file: str, account: str, model: str,
 # --- dispatch (the thin shell) -----------------------------------------------------
 def dispatch(config: dict, family: str, model: str, order_id: str, prompt_file: str,
              effort: str | None = None, now: _dt.datetime | None = None,
-             account: str | None = None, job_dir: Path = JOB_DIR) -> dict:
+             account: str | None = None, job_dir: Path = JOB_DIR,
+             exclude_accounts: frozenset[str] = frozenset()) -> dict:
     now = now or _dt.datetime.now(_dt.timezone.utc)
-    acct, reason = pick_account(config, family, model, now, account)
+    acct, reason = pick_account(config, family, model, now, account, exclude_accounts)
     if acct is None:
         return {"ok": False, "error": reason, "family": family, "model": model,
                 "requested_account": account}
@@ -649,6 +759,76 @@ def _self_test() -> int:
     check("max-concurrent-default-1", _max_concurrent({"id": "x"}) == 1)
     check("max-concurrent-explicit", _max_concurrent({"id": "x", "max_concurrent": 3}) == 3)
 
+    # --- verifier-independence exclusion (impl-3111) --------------------------------
+    # A worker-id minted for a hyphenated account must resolve back to that exact account.
+    wid_wa = mint_worker_id("work-a", "claude", sunday)   # claude-work-a-<stamp>-<4hex>
+    # 33. worker_id_to_key resolves the (account, family) key, hyphenated account intact.
+    check("wid-resolves-hyphenated-account", worker_id_to_key(wid_wa) == ("work-a", "claude"))
+    # 34. A From:-style short id (no account component) does NOT parse -> None (fail-closed signal).
+    check("wid-shortform-unresolvable", worker_id_to_key("opus-20260726T180000Z-abcd1234") is None)
+    check("wid-garbage-unresolvable", worker_id_to_key("not-a-worker-id") is None)
+    KNOWN_C = {"work-a", "work-b", "personal-a", "personal-b"}   # claude accounts in _FIXTURE
+    # 35. resolve_exclusions: a same-family --not-worker for a KNOWN account contributes it; clean.
+    exc, unres, unk = resolve_exclusions([wid_wa], [], "claude", KNOWN_C)
+    check("resolve-notworker-same-family", exc == {"work-a"} and unres == [] and unk == [])
+    # 36. A DIFFERENT-family --not-worker is irrelevant to this dispatch: ignored (not unresolved,
+    #     not unknown). By design: independence keys on (account, family). (claude verifier's nit.)
+    wid_cod = mint_worker_id("personal-b", "codex", sunday)
+    exc2, unres2, unk2 = resolve_exclusions([wid_cod], [], "claude", KNOWN_C)
+    check("resolve-notworker-cross-family-ignored", exc2 == set() and unres2 == [] and unk2 == [])
+    # 37. A non-parsing --not-worker lands in `unresolved` -> caller FAILS CLOSED (never silent).
+    exc3, unres3, unk3 = resolve_exclusions(["opus-20260726T180000Z-abcd1234"], [], "claude", KNOWN_C)
+    check("resolve-unresolvable-flagged",
+          exc3 == set() and unres3 == ["opus-20260726T180000Z-abcd1234"] and unk3 == [])
+    # 38. --not-account for a KNOWN account is taken verbatim; clean.
+    exc4, unres4, unk4 = resolve_exclusions([], ["work-b"], "claude", KNOWN_C)
+    check("resolve-notaccount-verbatim", exc4 == {"work-b"} and unres4 == [] and unk4 == [])
+    # 38a. REALITY FIXTURE (codex verifier): a --not-worker that PARSES to an account NOT in config
+    #      is UNKNOWN -> fail closed, NOT a silent no-op. `claude-ghost-99999999T999999Z-dead` parses
+    #      to account `ghost` (a regex-valid but semantically-garbage stamp still parses).
+    wid_ghost = "claude-ghost-99999999T999999Z-dead"
+    exc5, unres5, unk5 = resolve_exclusions([wid_ghost], [], "claude", KNOWN_C)
+    check("resolve-notworker-unregistered-is-unknown",
+          exc5 == set() and unres5 == [] and unk5 == [wid_ghost])
+    # 38b. REALITY FIXTURE (claude verifier): a --not-account TYPO (`worka` for `work-a`) matches zero
+    #      configured accounts -> UNKNOWN -> fail closed. This is the vacuous-exclusion the operator
+    #      is most likely to make, and silently no-op'ing it routes the verifier back onto the author.
+    exc6, unres6, unk6 = resolve_exclusions([], ["worka"], "claude", KNOWN_C)
+    check("resolve-notaccount-typo-is-unknown",
+          exc6 == set() and unres6 == [] and unk6 == ["worka"])
+    # 38c. A --not-account naming a real account in the OTHER family only is unknown for THIS family
+    #      (known_accounts is family-scoped): `personal-b` IS claude, so it is KNOWN here (control).
+    exc7, unres7, unk7 = resolve_exclusions([], ["personal-b"], "claude", KNOWN_C)
+    check("resolve-notaccount-known-in-family", exc7 == {"personal-b"} and unk7 == [])
+    # 39. eligible_accounts drops an excluded account (after the availability funnel).
+    elig_x = [a["id"] for a in
+              eligible_accounts(_FIXTURE, "claude", "opus", sunday, frozenset({"work-a"}))]
+    check("eligible-drops-excluded", "work-a-claude" not in elig_x and "work-b-claude" in elig_x)
+    # 40. select_account honors the exclusion (top pick shifts to the next eligible).
+    sel_x = select_account(_FIXTURE, "claude", "opus", sunday, frozenset({"work-a"}))
+    check("select-honors-exclusion", sel_x is not None and sel_x["id"] == "work-b-claude")
+    # 41. pick_account auto with the top account excluded picks the NEXT eligible.
+    pa_x, pr_x = pick_account(_FIXTURE, "claude", "opus", sunday,
+                              exclude_accounts=frozenset({"work-a"}))
+    check("pick-auto-skips-excluded", pa_x is not None and pa_x["id"] == "work-b-claude")
+    # 42. INDEPENDENCE-DEADLOCK: every eligible account excluded -> distinct reason (not empty-pool).
+    pa_d, pr_d = pick_account(_FIXTURE, "claude", "opus", sunday,
+                              exclude_accounts=frozenset({"work-a", "work-b", "personal-b"}))
+    check("pick-independence-deadlock", pa_d is None and "independence-deadlock" in pr_d)
+    # 43. GENUINE empty pool (no account offers the model) + an exclusion is NOT a deadlock.
+    pa_e, pr_e = pick_account(_FIXTURE, "claude", "no-such-model", sunday,
+                              exclude_accounts=frozenset({"work-a"}))
+    check("pick-empty-pool-not-deadlock",
+          pa_e is None and "deadlock" not in pr_e and "no eligible account" in pr_e)
+    # 44. CONTRADICTION: the targeted account is ALSO excluded -> distinct order-defect reason.
+    pa_c, pr_c = pick_account(_FIXTURE, "claude", "opus", sunday, account="work-a",
+                              exclude_accounts=frozenset({"work-a"}))
+    check("pick-target-excluded-contradiction", pa_c is None and "contradiction" in pr_c)
+    # 45. A targeted account NOT excluded still resolves normally alongside an unrelated exclusion.
+    pa_ok, _ = pick_account(_FIXTURE, "claude", "opus", sunday, account="work-b",
+                            exclude_accounts=frozenset({"work-a"}))
+    check("pick-target-unrelated-exclusion-ok", pa_ok is not None and pa_ok["id"] == "work-b-claude")
+
     if fails:
         print("SELF-TEST FAIL:", ", ".join(fails))
         return 1
@@ -672,6 +852,18 @@ def main() -> int:
     ap.add_argument("--account", help="target a SPECIFIC account (must be eligible), instead of the "
                     "auto-pick; use distinct accounts across concurrent dispatches for real "
                     "parallelism (same-account jobs serialize on the wrapper flock)")
+    ap.add_argument("--not-worker", action="append", default=[], metavar="WORKER_ID",
+                    help="verifier-independence exclusion (impl-3111): exclude the ACCOUNT that "
+                    "minted this worker-id, so a skeptical verifier never lands on the account that "
+                    "authored/verified the work. Repeatable. A worker-id that does not parse to an "
+                    "account FAILS the dispatch CLOSED (never silently ignored). For a short "
+                    "`From:` id with no account component, use --not-account instead.")
+    ap.add_argument("--not-account", action="append", default=[], metavar="ACCOUNT",
+                    help="verifier-independence exclusion by account id directly (the canonical form "
+                    "when no resolvable worker-id is at hand). Repeatable.")
+    ap.add_argument("--require-worker", metavar="WORKER_ID",
+                    help="dispatch TO the account that minted this worker-id (sugar over --account; "
+                    "the same-account counterpart of --not-worker). A non-parsing id errors.")
     args = ap.parse_args()
 
     if args.self_test:
@@ -680,30 +872,73 @@ def main() -> int:
     config = load_config(Path(args.config))
     now = _dt.datetime.now(_dt.timezone.utc)
 
+    # Resolve verifier-independence inputs (impl-3111) ONCE, shared by --dry-run and --dispatch.
+    # FAIL CLOSED: a --not-worker token that does not resolve to an account aborts the command,
+    # because a silently-dropped exclusion disables an independence control invisibly.
+    effective_account = args.account
+    exclude_accounts: frozenset[str] = frozenset()
+    if args.family:
+        if args.require_worker:
+            rw_key = worker_id_to_key(args.require_worker)
+            if rw_key is None:
+                ap.error(f"--require-worker: cannot parse worker-id '{args.require_worker}' "
+                         "(expected {family}-{account}-{stamp}-{4hex}); name the account with "
+                         "--account instead")
+            rw_acct, rw_fam = rw_key
+            if rw_fam != args.family:
+                ap.error(f"--require-worker names a '{rw_fam}' worker but --family is "
+                         f"'{args.family}'")
+            if args.account and args.account != rw_acct:
+                ap.error(f"--require-worker resolves to account '{rw_acct}' but --account is "
+                         f"'{args.account}' (contradiction)")
+            effective_account = rw_acct
+        known_accounts = {a.get("account") for a in config.get("accounts", [])
+                          if a.get("family") == args.family and a.get("account")}
+        excl, unresolved, unknown = resolve_exclusions(
+            args.not_worker, args.not_account, args.family, known_accounts)
+        if unresolved:
+            ap.error("--not-worker: cannot PARSE these to an account, so the exclusion cannot be "
+                     "honoured (FAILING CLOSED): " + ", ".join(unresolved)
+                     + "  -- for a short From:-style id with no account component, pass "
+                     "--not-account <account>")
+        if unknown:
+            ap.error(f"--not-worker/--not-account: these name an account NOT configured for family "
+                     f"'{args.family}', so the exclusion would match nothing and SILENTLY defeat the "
+                     "independence control (FAILING CLOSED): " + ", ".join(unknown)
+                     + "  -- check for a typo or a renamed/removed account.")
+        exclude_accounts = frozenset(excl)
+
     if args.dry_run:
         if not (args.family and args.model):
             ap.error("--dry-run needs --family and --model")
-        elig = eligible_accounts(config, args.family, args.model, now)
-        if args.account:
-            acct, reason = pick_account(config, args.family, args.model, now, args.account)
-            print(f"[{now.astimezone().strftime('%H:%M:%S')}] --account {args.account}: "
+        elig = eligible_accounts(config, args.family, args.model, now, exclude_accounts)
+        if effective_account:
+            acct, reason = pick_account(config, args.family, args.model, now,
+                                        effective_account, exclude_accounts)
+            print(f"[{now.astimezone().strftime('%H:%M:%S')}] --account {effective_account}: "
                   f"{'PICK ' + acct['id'] if acct else 'REJECTED'} ({reason})")
+        if exclude_accounts:
+            print(f"[{now.astimezone().strftime('%H:%M:%S')}] independence exclusions: "
+                  f"{', '.join(sorted(exclude_accounts))}")
         print(f"[{now.astimezone().strftime('%H:%M:%S')}] eligible {args.family}/{args.model} "
               f"(now={now.isoformat()}):")
         for i, a in enumerate(elig):
             # With --account, the PICK marker belongs on the TARGETED row, not the auto-pick top row
             # (verify-1187 F-1: a hard-coded i==0 marker contradicted an eligible non-top target).
-            is_pick = (a.get("account") == args.account) if args.account else (i == 0)
+            is_pick = (a.get("account") == effective_account) if effective_account else (i == 0)
             tag = "  <-- PICK" if is_pick else ""
             print(f"  {i+1}. {a['id']:24s} set={a.get('priority_set')} "
                   f"tier={a.get('tier')} personal={a.get('personal')}{tag}")
-        # show who was excluded and why
+        # show who was excluded and why (availability first, then independence: an available account
+        # dropped only by an exclusion is reported as EXCLUDED(independence), distinct from unavailable)
         for a in config.get("accounts", []):
             if a.get("family") != args.family or args.model not in a.get("models", []):
                 continue
             ok, reason = account_available(a, now)
             if not ok:
                 print(f"  --  EXCLUDED {a.get('id'):24s} {reason}")
+            elif a.get("account") in exclude_accounts:
+                print(f"  --  EXCLUDED {a.get('id'):24s} independence (verifier-independence exclusion)")
         if not elig:
             print("  (no eligible account)")
         return 0
@@ -713,7 +948,8 @@ def main() -> int:
             if not getattr(args, req):
                 ap.error(f"--dispatch needs --{req.replace('_','-')}")
         res = dispatch(config, args.family, args.model, args.order_id, args.prompt_file,
-                       effort=args.effort, now=now, account=args.account)
+                       effort=args.effort, now=now, account=effective_account,
+                       exclude_accounts=exclude_accounts)
         if not res["ok"] and res.get("worker_id") is None:
             # account resolution failed before any worker ran: surface the reason loudly.
             print(f"[{_dt.datetime.now().strftime('%H:%M:%S')}] dispatch order={args.order_id} "
