@@ -8,6 +8,19 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-27, Library Version 2026.07.704, PR #1214 (harden the no-diff-walls rule to cover the Edit/Write tools)
+
+.claude/ and working-state change (maintainer-directed 2026-07-27, after repeated violations of the softer form). The [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) communication-conventions no-diff-walls rule had a loophole ("the Edit tool already shows what changed") that read the Edit tool's own render as acceptable; but the Edit and Write tools render their `old_string` and `new_string` as a red/green diff, which IS the console wall the rule forbids.
+
+### Changed
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): added a HARD RULE to the no-diff-walls bullet: for any change to an existing file beyond a couple of short lines, do NOT use the Edit or Write tool (use `sed -i` with a targeted pattern, or a `python` read-insert-write via heredoc, neither of which renders a diff); reserve Edit for a genuinely tiny one-line change; and never grep/cat/sed -p a full long line or file body to the console to find an edit anchor (use `grep -n` piped to `cut`, or a bounded `sed -n`). The earlier "re-diffing is redundant" clause is explicitly NOT a licence to use Edit on large payloads.
+- The private grc_library_private INDEX READ-THIS-FIRST block, item 2: the same reminder, so it survives a conversation compaction (that block is re-read every resume and compaction).
+
+### Verification
+- `.claude/` + gate-exempt working-state only; no corpus or code change.
+- Library 2026.07.703 to 2026.07.704, README 1.10.64 to 1.10.65.
+- Batches PR #1213's `/validate-pr` + `/retro` rows (recursion-avoidance).
+
 ## 2026-07-27, Library Version 2026.07.703, PR #1213 (deep-assessment drops the maintainer-sign-off terminal state)
 
 Maintainer-directed 2026-07-27b (verbatim): "Deep assessments shouldn't need sign off. Every component of the deep assessment is some other QA process already established with all of them put together to make deep-assessment. For any awaiting sign off, you should validate the findings and if they are still accurate then fix issues."
