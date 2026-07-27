@@ -46,6 +46,14 @@ def parse_open_rows(text: str) -> list:
 
     Scoped to the `## Open` section so the `## Closed today` table cannot block anything, and so a
     row is retired simply by moving it, which is the cheapest possible disposition action.
+
+    Two robustness properties (TODO 3.126). (1) Columns are split on UNESCAPED pipes, so a cell may
+    carry a literal `|` written as `\\|` without shifting the columns. (2) A row whose column count
+    is NOT the well-formed five yields `disposition = None`, which the caller treats as
+    undispositioned (fail closed), rather than silently reading a middle fragment as the disposition,
+    the #1208 defect where an unescaped `| Operation | read/write |` in a Finding cell shifted the
+    columns and a valid `**FIXED #1208**` row was mis-read as undispositioned (there in the
+    false-BLOCK direction; the general fix makes the parser answer honestly either way).
     """
     rows = []
     in_open = False
@@ -55,32 +63,66 @@ def parse_open_rows(text: str) -> list:
             continue
         if not in_open or not line.startswith("|"):
             continue
-        cells = [c.strip() for c in line.strip().strip("|").split("|")]
-        if len(cells) < 5 or cells[0].lower() in ("found", "---") or set(cells[0]) <= {"-"}:
-            continue
-        rows.append((cells[1].lower(), cells[2], cells[4]))
+        parts = re.split(r"(?<!\\)\|", line.strip())
+        cells = [c.strip() for c in parts]
+        if cells and cells[0] == "":          # drop the empty cell the leading border pipe makes
+            cells = cells[1:]
+        if cells and cells[-1] == "":         # and the trailing one
+            cells = cells[:-1]
+        if not cells or cells[0].lower() == "found" or all(set(c) <= {"-"} for c in cells):
+            continue                          # header row or the `--- | --- | ...` delimiter
+        sev = cells[1].lower() if len(cells) > 1 else ""
+        finding = cells[2] if len(cells) > 2 else ""
+        disp = cells[4] if len(cells) == 5 else None   # None == malformed -> fail closed downstream
+        rows.append((sev, finding, disp))
     return rows
 
 
-# The closed disposition vocabulary. The ledger's own contract is that a row leaves only via one
-# of these four, so anything else in the cell is NOT a disposition however much text it carries.
+# The disposition GRAMMAR (TODO 3.126, maintainer-decided 2026-07-27). The closed vocabulary is
+# still the four words, but a bare terminal WORD is no longer enough: an earlier check only asked
+# that the cell START with one of them, so `ROUTED nowhere yet, it smells like 3.145 territory` and
+# even a lone `FIXED` passed while saying nothing checkable. Two rules close that, and they differ by
+# disposition because the ledger's own legend does:
+#   - FIXED / ROUTED must carry a REF ADJACENT to the word (whitespace or markup only between):
+#     `FIXED #1178`, `ROUTED TODO 3.73`. The ref is what a reader follows to confirm the claim, and
+#     requiring it adjacent (not scanned-for past arbitrary prose) is what makes the cell answer
+#     "where did this go?" rather than merely mention a number somewhere. Prose may follow the ref.
+#   - REFUTED / ACCEPTED carry PROSE (the legend defines `REFUTED <evidence>` / `ACCEPTED <rationale>`),
+#     so only the terminal WORD is machine-required; the evidence/rationale is author judgement.
+# A ref is a PR number (`#1178`), a backlog item (`3.73`, `3.56a`), or a `TODO`-qualified item.
 TERMINAL = ("fixed", "routed", "refuted", "accepted")
+_REF = r"(?:#\d+|TODO\s+\d+\.\d+[a-z]?|\d+\.\d+[a-z]?)"
+_DISPOSITION_RE = re.compile(
+    r"^(?:fixed|routed)\s+" + _REF + r"(?:\b|[.,;:)])"   # FIXED/ROUTED + adjacent ref
+    r"|^(?:refuted|accepted)\b",                           # REFUTED/ACCEPTED + prose (word only)
+    re.IGNORECASE,
+)
+
+
+def disposition_valid(cell: str) -> bool:
+    """PURE. Does the Disposition cell carry a well-formed terminal disposition (3.126 grammar)?
+
+    Leading markup (`**`, `` ` ``, `_`, spaces) is stripped first, so `**FIXED #1208**` still counts.
+    Returns False for an empty cell, a bare terminal word with no adjacent ref (FIXED/ROUTED), a
+    narration that merely mentions a ref later (`FIXED in #1208` fails: `in` sits between), and any
+    non-vocabulary prose (`pending`, `OPEN: ...`)."""
+    return bool(_DISPOSITION_RE.match(cell.strip().lstrip("*_` ")))
 
 
 def undispositioned(rows: list, severity: str) -> list:
-    """PURE. Rows of `severity` carrying no TERMINAL disposition.
+    """PURE. Rows of `severity` whose Disposition cell is not a well-formed terminal disposition.
 
-    Emptiness is not the right test, and testing it was a live gap: the cell is free prose, so
-    `OPEN: still working on it` or `pending` is non-empty and satisfied the old check while saying
-    in plain words that the finding is undispositioned. That is the guard-input-authority class the
-    project already fixed three times elsewhere: the check was correct, and its input could not
-    answer the question asked of it. Requiring one of the four vocabulary words makes the cell able
-    to answer it, and makes ignorance refuse rather than permit.
-    """
+    This is the guard-input-authority class the project fixed three times elsewhere: the check was
+    correct, and its input (a free-prose cell) could not answer the question asked of it. The 3.126
+    grammar makes the cell able to answer it, and makes ignorance (a bare word, a narration, a
+    mentioned-but-not-adjacent ref) REFUSE rather than permit. A row that arrives MALFORMED from the
+    parser (`disposition is None`, e.g. an unescaped `|` shifted its columns) is treated as
+    undispositioned here, so a mis-columned row fails closed rather than silently mis-reading a
+    middle fragment as the disposition (the #1208 pipe-in-cell defect)."""
     return [
         (s, f, d)
         for (s, f, d) in rows
-        if s == severity and not d.strip().lstrip("*_` ").lower().startswith(TERMINAL)
+        if s == severity and not (d is not None and disposition_valid(d))
     ]
 
 
@@ -155,24 +197,63 @@ def self_test() -> int:
     ck("a dispositioned warning does not count", len(undispositioned(rows, "warning")), 1)
     ck("a closed-section error never blocks",
        [f for (_s, f, _d) in undispositioned(rows, "error")], ["a wrong thing"])
-    # The reality fixture for the vocabulary gap: these exact cell shapes are non-empty and were
-    # accepted by the emptiness test while stating in plain words that nothing had been decided.
+
+    # --- 3.126 grammar: the disposition_valid vocabulary + adjacent-ref rule (unit level) -----
+    ck("FIXED + adjacent ref is valid", disposition_valid("FIXED #1178"), True)
+    ck("bold FIXED + adjacent ref is valid", disposition_valid("**FIXED #1208** then prose"), True)
+    ck("ROUTED + adjacent TODO ref is valid", disposition_valid("ROUTED TODO 3.73, P1 tier"), True)
+    ck("ROUTED + adjacent bare item ref is valid", disposition_valid("ROUTED 3.56a (residual)"), True)
+    ck("FIXED with a NON-adjacent ref is INVALID", disposition_valid("FIXED in #1208: the branch"), False)
+    ck("ROUTED narration with a later ref is INVALID",
+       disposition_valid("ROUTED nowhere yet, it smells like 3.145 territory"), False)
+    ck("a bare FIXED with no ref is INVALID", disposition_valid("FIXED"), False)
+    ck("REFUTED + prose is valid (word only, per legend)",
+       disposition_valid("REFUTED by the maintainer, 2026-07-26"), True)
+    ck("ACCEPTED + prose is valid (word only, per legend)",
+       disposition_valid("ACCEPTED: structurally untestable in place"), True)
+    ck("an empty cell is INVALID", disposition_valid(""), False)
+    ck("a bare 'pending' is INVALID", disposition_valid("pending"), False)
+    ck("an 'OPEN:' narration is INVALID", disposition_valid("OPEN: a fresh worker is requested"), False)
+
+    # Same shapes at the row level: exactly the three narrations/bare-words block, the four
+    # well-formed rows do not. This is the reality fixture for the false-pass class 3.126 closes:
+    # `ROUTED nowhere ... 3.145` and `FIXED in #1208` LOOK dispositioned to the old startswith test.
     vocab = ("## Open\n"
              "| Found | Severity | Finding | Source | Disposition |\n"
              "| --- | --- | --- | --- | --- |\n"
              "| 2026-07-25 | error | narrated-open | probe | OPEN: a fresh worker is requested |\n"
-             "| 2026-07-25 | error | pending-word | probe | pending |\n"
-             "| 2026-07-25 | error | really-routed | probe | ROUTED TODO 3.73, P1 tier |\n"
-             "| 2026-07-25 | error | bolded-fixed | probe | **FIXED** in #1178 |\n"
-             "| 2026-07-25 | error | lowercase-accepted | probe | accepted: recorded decision |\n")
-    vrows = parse_open_rows(vocab)
-    vopen = [f for (_s, f, _d) in undispositioned(vrows, "error")]
-    ck("an OPEN: narration is NOT a disposition", "narrated-open" in vopen, True)
-    ck("a bare 'pending' is NOT a disposition", "pending-word" in vopen, True)
-    ck("ROUTED counts as dispositioned", "really-routed" in vopen, False)
-    ck("bold markup around FIXED still counts", "bolded-fixed" in vopen, False)
-    ck("lowercase accepted still counts", "lowercase-accepted" in vopen, False)
-    ck("exactly the two narrations block", len(vopen), 2)
+             "| 2026-07-25 | error | routed-narration | probe | ROUTED nowhere yet, near 3.145 |\n"
+             "| 2026-07-25 | error | fixed-nonadjacent | probe | **FIXED** in #1178 |\n"
+             "| 2026-07-25 | error | fixed-adjacent | probe | FIXED #1178 then prose |\n"
+             "| 2026-07-25 | error | routed-ok | probe | ROUTED TODO 3.73 |\n"
+             "| 2026-07-25 | error | refuted-prose | probe | REFUTED, the maintainer confirmed |\n"
+             "| 2026-07-25 | error | accepted-prose | probe | accepted: recorded decision |\n")
+    vopen = [f for (_s, f, _d) in undispositioned(parse_open_rows(vocab), "error")]
+    ck("OPEN: narration blocks", "narrated-open" in vopen, True)
+    ck("ROUTED narration (non-adjacent ref) blocks", "routed-narration" in vopen, True)
+    ck("FIXED with a non-adjacent ref blocks", "fixed-nonadjacent" in vopen, True)
+    ck("FIXED with an adjacent ref does not block", "fixed-adjacent" in vopen, False)
+    ck("ROUTED with an adjacent ref does not block", "routed-ok" in vopen, False)
+    ck("REFUTED + prose does not block", "refuted-prose" in vopen, False)
+    ck("ACCEPTED + prose does not block", "accepted-prose" in vopen, False)
+    ck("exactly the three narrations block", len(vopen), 3)
+
+    # --- 3.126 pipe-robustness: a literal `|` in a cell (the #1208 reality fixture) -----------
+    # An UNESCAPED pipe in the Finding cell shifts the columns; the row becomes malformed
+    # (disposition None) and fails CLOSED (blocks) rather than mis-reading a middle fragment.
+    piped = ("## Open\n"
+             "| Found | Severity | Finding | Source | Disposition |\n"
+             "| --- | --- | --- | --- | --- |\n"
+             "| 2026-07-25 | error | a cell with a raw | pipe inside | probe | FIXED #9 |\n"
+             "| 2026-07-25 | error | a cell with an escaped \\| pipe | probe | FIXED #9 |\n")
+    prows = parse_open_rows(piped)
+    pmalformed = [d for (_s, _f, d) in prows]
+    ck("an unescaped-pipe row is malformed (disposition None)", pmalformed[0], None)
+    ck("only the unescaped-pipe row fails closed (blocks); the escaped one does not",
+       len(undispositioned(prows, "error")), 1)
+    ck("an escaped-pipe row parses to a valid disposition",
+       pmalformed[1] is not None and disposition_valid(pmalformed[1]), True)
+
     ck("gh pr create blocks", is_blocking_command("cd /x && gh pr create --title y"), True)
     ck("gh pr merge blocks", is_blocking_command("gh pr merge 12 --squash --admin"), True)
     ck("an unrelated command does not block", is_blocking_command("git status --short"), False)
