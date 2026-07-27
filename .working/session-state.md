@@ -1,14 +1,14 @@
 # Session State (concurrency lease)
 
-**Active-session:** claude/1196-origin-weekly-codify
+**Active-session:** none
 
-**Status:** active
+**Status:** released
 
 **Operating-mode:** overnight-unattended
 
-**Last-heartbeat-UTC:** 2026-07-27T01:17:11Z
+**Last-heartbeat-UTC:** 2026-07-27T03:18:01Z
 
-**Current-task:** POST-WIND-DOWN RESUME 2026-07-26. Fresh session resuming after the prior session's maintainer-directed EMERGENCY WIND-DOWN (elevated error rate late in a long compacted session; see `grc_library_private/resume-winddown-2026-07-26.md`, read first per maintainer direction). Verified the clean guard-green OPEN #1193 (all 78 gates + CI green), re-dispatched an independent skeptical verifier pinned to the real committed head `bb7ff1f9` (CLEAN: it stripped D4's exemption to prove the load-bearing claim and hunted every reader of the 5 de-versioned files), then merged #1193 (`--admin --squash`, squash `1f9bfa25`, logged). The post-merge `validate-pr-1193` returned 0 error / 2 warning / 1 note: both warnings are #1193 CLOSE-OUT slips (it merged mid-wind-down, so its close-out was truncated), the spec section-6 D7 narrative left stale after the D7 SURFACES change and the TODO section-3.135-to-DONE rotation dropped. This PR (`claude/1194-close-out-3135`, #1194) is the focused close-out completion: fixes both warnings, adds #1193's merge-bypass / validate-pr / retro rows, records the findings, acquires this lease, bumps versions. Next: the loop-break `/validate` over the un-swept #1185..#1194 window, then the maintainer-approved origin-paragraph + weekly-summary PR, then band 2 (TODO 3.133/3.136/3.134/3.137).
+**Current-task:** SESSION-CLOSING HANDOFF at #1199 (overnight-unattended, evidence-triggered wind-down: A12 threshold met + a named RM-10 slip; see the handoff CURRENT block and degradation-watch-log 2026-07-27). Shipped #1193-#1199 (concurrency registry code half landed at cap 1, NOT enabled; all CHANGELOG roll-up + codifications done). Lease RELEASED. Morning pre-queue: vpr-1199b (#1199 validation, jposluns-work), the 3.145 fail-closed candidate (delivered, unapplied), the 3.133 close-out tool (security-work). The morning /resume runs the loop-break /validate over #1195..#1199 and consumes the pre-queue first.
 
 **Worker-dispatches:** file-drop plane, **0 workers live** at resume (all ids stale/out, oldest heartbeat ~6.7h). QA this session runs as in-session subagents until a worker fleet is spun up: the #1193 pre-merge skeptical verifier (CLEAN) and `validate-pr-1193` (0e/2w/1n, both warnings fixed in #1194) both ran as in-session subagents, per the mandatory-offload no-workers fallback. The four stale worker orders from the wind-down (`verify-1193`, `verify-1193b`, `validate-pr-1193`, `retro-1193`) are INVALID (dispatched against the wrong state) and are NOT consumed.
 

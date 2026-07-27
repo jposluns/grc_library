@@ -841,3 +841,15 @@ session follows directly. No longer pending.
 
 The audit trail lives here, in the [`session-handoff.md`](session-handoff.md) next-actions
 queue, and in the session-closing chat message.
+
+## 2026-07-27 (~03:18Z) SESSION-CLOSING HANDOFF at #1199 - morning-deferred queue (overnight-unattended)
+
+Deferred to the maintainer's morning (attended) resume; none is blocking a safe close. All pinned to `e554f1b7` (#1199 merge).
+
+- **vpr-1199b** (jposluns-work claude, in-flight at close): #1199's PR-scoped validation. #1199 is a substantive `tools/exec-dispatch.py` change, so if this did not return into the handoff PR, dispositioning it is the FIRST morning task (no-large-unvalidated-close rule).
+- **3.145 fail-closed registry** - DELIVERED candidate at `grc_library_private/worker-deliveries/exec-dispatch-3145-failclosed-candidate.py` (self-test to 37). Re-verify at source, apply as its own PR (skeptical-verify). GATES the concurrency ENABLE.
+- **3.133 close-out tool** - DELIVERED draft at `grc_library_private/worker-deliveries/3133-closeout-draft/` (self-test 20; its structure guard would have caught this session's duplicate-header slip). Naming: TODO 3.133 says `tools/pr-closeout.py`, the order said `tools/close-out-pr.py` - pick one at apply.
+- **Concurrency ENABLE (max_concurrent>1)** - maintainer-gated on 3.145 merge + the duplicate-real-task validation (roadmap A). jposluns-work(claude)+jeff-mailz(codex) to 2, keep the other of each at 1 (never-zero fallback). WATCH auth errors; worst case morning re-login. NOT enabled this session.
+- **impl-3111 (independence dispatch) + impl-3131 (per-worker logging)** - re-dispatch fresh post-3.145 (earlier candidates stale).
+- **ECC assessment reconcile** (`grc_library_private/ecc-project-assessment.md`) into TODO where useful.
+- **Worker-brief format fixes**: order prompts must NOT start with `/` (mis-parsed as a slash command); codex dispatch needs `--model`. Add both to the worker brief.

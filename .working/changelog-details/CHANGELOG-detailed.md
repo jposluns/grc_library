@@ -8,11 +8,21 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-27, Library Version 2026.07.690, PR #1200 (session-closing handoff at #1199)
+
+### Changed
+
+- Session-closing handoff at #1199 (overnight-unattended; evidence-triggered wind-down on the legitimate A12 basis, threshold met plus a named RM-10 pipe-mask slip, after an un-instrumented-basis attempt was correctly reversed first; both logged in the private autonomous-decisions-log). Refreshes [`.working/session-handoff.md`](../session-handoff.md) with the current-session Next-actions and Asserted-expectations blocks and the green-at `e554f1b7` snapshot; releases the concurrency lease in [`.working/session-state.md`](../session-state.md); refreshes [`.working/next-prs.txt`](../next-prs.txt) and appends the morning-deferred queue to [`.working/pending-decisions.md`](../pending-decisions.md). Names the morning worker pre-queue: the #1199 PR-scoped validation (vpr-1199b), the delivered 3.145 fail-closed-registry candidate, and the delivered 3.133 close-out-tool draft, all preserved under the private worker-deliveries store.
+
+### Verification
+
+- Pre-push guard green (run_all_audits.sh + run-pr-time-checks.sh, both standalone, unpiped). No corpus document or code file changed: only `.working/` records and the four version surfaces. Loop-break: this handoff PR skips its own trailing validate-pr and retro; the compensating control is the morning corpus-wide validate over the #1195 to #1199 window.
+
 ## 2026-07-27, Library Version 2026.07.689, PR #1199 (exec-dispatch per-account concurrency registry + worker-id)
 
 ### Changed
 
-- [`tools/exec-dispatch.py`](../../tools/exec-dispatch.py): moves per-account concurrency-cap ENFORCEMENT off the wrapper's per-account flock and into an in-flight registry (TODO 3.141, the orchestrator half). A worker-built candidate (self-test extended from 16 to 31 checks, all passing), applied verbatim and skeptical-verified. The additions: an in-flight JSON registry under `JOB_DIR` guarded by a separate never-rewritten `inflight.lock`; `_reserve_slot` performing reap-count-refuse-or-append in ONE exclusive flock critical section (no check-then-act TOCTOU), holding the lock only for the reserve/release and never across the job's `subprocess.run`; pid-liveness reaping (`os.kill(pid, 0)`, the dispatcher's own pid as the liveness token) with a 24h absolute stale ceiling as the only time-rule; `_release_slot` freeing the slot on the dispatch EXIT path; a per-config-dir registry key (account+family, so a claude and a codex job on one subscription do not share a cap); a default of 1 when `max_concurrent` is absent (byte-equivalent to prior behaviour); and `--worker-id` now passed through to the (already backward-compatible) root wrappers.
+- [`tools/exec-dispatch.py`](../../tools/exec-dispatch.py): moves per-account concurrency-cap ENFORCEMENT off the wrapper's per-account flock and into an in-flight registry (TODO 3.141, the orchestrator half). A worker-built candidate (self-test extended from 17 to 31 checks, all passing), applied verbatim and skeptical-verified. The additions: an in-flight JSON registry under `JOB_DIR` guarded by a separate never-rewritten `inflight.lock`; `_reserve_slot` performing reap-count-refuse-or-append in ONE exclusive flock critical section (no check-then-act TOCTOU), holding the lock only for the reserve/release and never across the job's `subprocess.run`; pid-liveness reaping (`os.kill(pid, 0)`, the dispatcher's own pid as the liveness token) with a 24h absolute stale ceiling as the only time-rule; `_release_slot` freeing the slot on the dispatch EXIT path; a per-config-dir registry key (account+family, so a claude and a codex job on one subscription do not share a cap); a default of 1 when `max_concurrent` is absent (byte-equivalent to prior behaviour); and `--worker-id` now passed through to the (already backward-compatible) root wrappers.
 
 ### Not yet enabled (deliberate)
 
