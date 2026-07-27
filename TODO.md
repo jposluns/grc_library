@@ -270,7 +270,7 @@ Umbrella for adopting NIST OSCAL as an open, machine-readable projection of the 
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.147.**
+**Next item number: 3.148.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
 
@@ -298,6 +298,10 @@ The maintainer is adding one or two more Claude Code worker accounts. Build a re
 - **Transport dimension (maintainer lean, 2026-07-27).** The injection CHANNEL is an open question with many options to assess. The maintainer leans toward a UNIX SOCKET feeding directly into the tmux session, or directly into the orchestrator's AI chat session, rather than `tmux send-keys`, because a socket sidesteps the keystroke-injection fragility and the submit-state indeterminacy that make a poke's success hard to confirm (it would also remove Form 1's silent-no-op risk at the transport layer). Relates to the §3.87 local-VM socket-transport thread. Assess socket-into-tmux vs socket-into-chat-session vs `send-keys` vs other IPC before committing.
 
 **Hard parts to spec before building:** (1) a single-writer lease/handover with NO split-brain (the standby must never apply while the primary is mid-refresh; split-brain on the ORCHESTRATOR is far worse than on a worker); (2) the compaction-signal plus clean-handoff protocol on a shared channel (poke only after state is safely on main, or `/clear` loses in-flight work); (3) the poke-verify-retry-escalate loop. Build incrementally (Form 1 to prove the mechanism, then Form 2). Umbrella A (orchestration infrastructure); needs maintainer sign-off on the lease/handover protocol before any unattended run.
+
+### 3.147 Worker OAuth token refresh does not persist (the --worker-id snapshot deletes it), so accounts expire and need manual re-auth (2026-07-27, M, M) `[machinery]`
+
+The exec'd-worker wrapper's `--worker-id` path (the one that enables concurrency) SNAPSHOTS the account config dir (`cp -a $cfg/. $snap/`, including the OAuth token), runs claude against the snapshot, and DELETES the snapshot on exit. So when claude refreshes the OAuth token mid-run, the refresh lands in the throwaway snapshot and is lost; the BASE config dir's token is never renewed by a worker run, so it expires on its normal TTL (about 1-2h observed) and each new snapshot then copies the already-expired base token, failing auth. Observed 2026-07-27: jposluns-work, then security-work and jeff-mailz all lapsed within about 1-2h of use, each needing a manual `/home/grc/maintainer/reauth-lapsed-agents.sh` re-login. The snapshot ISOLATION that makes same-account concurrency safe is precisely what breaks token-refresh persistence. STRONG hypothesis (it is certain from the wrapper code that a refresh cannot persist; the causal link to the exact TTL should be confirmed). Options for a durable fix: (a) after a run, write the refreshed token back from the snapshot to the base config dir (needs care against concurrent write races and a policy for which snapshot's token wins); (b) a periodic light base-token refresh (a cron running claude briefly against the BASE config dir, not a snapshot); (c) API-key credentials for workers instead of OAuth; (d) accept manual re-auth. Needs a maintainer design decision. This is the fleet-longevity counterpart to the concurrency work: concurrency ITSELF is validated safe (4 workers ran concurrently on one account and each produced correct isolated output 2026-07-27). Umbrella A (fleet reliability). Cross-repo: the wrapper is root-owned `/usr/local/sbin/run-{claude,codex}-worker`.
 
 ### 3.146 Orchestrator umask 0002 re-introduces group-writable files in the READ-ONLY repos (check_perms recurrence, 2026-07-27, M, S) `[machinery]`
 
