@@ -1,12 +1,12 @@
 # Session State (concurrency lease)
 
-**Active-session:** claude/resume-2026-07-27
+**Active-session:** none
 
-**Status:** active
+**Status:** released
 
 **Operating-mode:** attended-autonomous
 
-**Last-heartbeat-UTC:** 2026-07-27T11:19:54Z
+**Last-heartbeat-UTC:** 2026-07-27T21:44:08Z
 
 **Current-task:** RESUME from #1200 (2026-07-27 morning, maintainer present, "good morning + swap to daytime mode"). Acquired the lease at 11:19:54Z. Mode swapped overnight-unattended -> attended-autonomous (daytime; maintainer reachable, green-CI = merge authority, decisions surfaced by exception). Corpus green at `8094b06d` (78/78 gates), non-shallow, detect-env maintainer/all-siblings-ok. First tasks: loop-break corpus-wide /validate over #1195..#1199 (compensating control for the #1200 handoff); then the morning pre-queue (vpr-1199b, 3.145 fail-closed candidate, 3.133 close-out tool); process 5 open MAINTAINER_ALERTs + 12 unprocessed inbox drops.
 
