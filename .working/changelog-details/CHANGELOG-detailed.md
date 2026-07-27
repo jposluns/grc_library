@@ -8,6 +8,18 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-27, Library Version 2026.07.694, PR #1204 (record the concurrency-validation decisions; batch #1203 QA)
+
+### Changed
+
+- [`TODO.md`](../../TODO.md) **3.147** (worker OAuth token-refresh): folded in the maintainer-decided fix design (option 1.1, write-back) refined for the multi-worker case. The refinement is MEASURE-FIRST (does a refresh rotate the refresh token; what is the access-token TTL versus a run length), then: if refresh tokens do NOT rotate, plain per-worker write-back under the account lock is safe; if they DO rotate (likely, since a lapsed account needs a full re-login), SERIALIZE the refresh (the orchestrator refreshes the base token once before each concurrent batch so no worker rotates mid-run), with a single-per-account token broker as the heavier fallback for runs that outlive the access token.
+- [`TODO.md`](../../TODO.md) **3.146** (check_perms group-writable recurrence): **corrected the root cause** from umask to the inherited **default POSIX ACL** (verified at source: `grc_library` carries `default:mask::rwx` / `default:group::r-x`, and the kernel ignores umask for files created under a default ACL, so new files get an ACL `mask::rw-` and display group-writable whatever the umask; the EFFECTIVE group permission is `r--`, so the files are already read-only and check_perms over-flags the mask). Maintainer-decided fix (option 2.1): lower the `default:mask` on the two READ-ONLY trees at the source AND make check_perms read the effective ACL group permission via `getfacl` (defence in depth). This corrects the umask-based fix 3.146 originally proposed.
+- Fleet config (in the private worker-accounts store, pushed separately): after the same-account concurrency validated clean at 4 concurrent workers on one account, the maintainer set two max-concurrent-1 fallback accounts (jposluns-work-claude, jeff-posluns-codex) and raised the other four accounts to 4 for a testing window; the roadmap fallback rule was updated to supersede the earlier conservative ramp. Re-evaluate once 3.147 lands.
+
+### Verification
+
+- All 78 gates + PR-time checks green (both runners, unpiped). No corpus document or code changed: only the backlog, the README version surfaces, the CHANGELOG pair, and the batched `.working/` QA records. The three decisions were produced by the same-account concurrency test (4 workers concurrent on one account, zero output corruption) and its real worker-research deliverables (the impl-3111 design, the umask/ACL analysis that refuted the umask hypothesis, and the Week-of-07-13 CHANGELOG reconstruction). The #1203 QA rows (validate-pr, retro, bypass) batch in here per recursion-avoidance.
+
 ## 2026-07-27, Library Version 2026.07.693, PR #1203 (repair the Week-of-2026-07-13 root-CHANGELOG history loss; token-refresh follow-up)
 
 ### Fixed
