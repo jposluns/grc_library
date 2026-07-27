@@ -8,6 +8,24 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-27, Library Version 2026.07.688, PR #1198 (weekly CHANGELOG roll-up + #1197 over-collapse correction)
+
+### Changed
+
+- [`CHANGELOG.md`](../../CHANGELOG.md): the completed week's daily lines (2026-07-22 through 07-26) are rolled into one `**Week of 2026-07-20 (PRs #1056-#1194)**` summary block, per the weekly roll-up discipline. Root history is summarized in place, never removed; the 2026-07-27 entries (#1195, #1196, #1197, #1198) stay per-PR as the current day. No mirror sweep is needed (the week's detailed entries were already swept in #1191 and #1197).
+
+### Fixed
+
+- **#1197 over-collapse (validate-pr-1197 scope + orchestrator-found).** #1197's daily-rollup root collapse used the end-boundary `**Week of 2026-07-13**`, so it replaced not only the sixteen 2026-07-26 per-PR entries (#1179-#1194) but also the 07-22/23/24/25 daily-summary lines between them and the week block, removing four daily summaries rather than summarizing them (a transient never-remove violation; git history retains them). This weekly block RESTORES the 07-22..07-25 content in aggregate, so the corrected end state summarizes the whole week in place. Retro-1197 records the lesson (a range-replace must end at the immediate next entry, not a distant section header).
+
+### Also (batched #1197 QA)
+
+- The #1197 merge-bypass row, the retro-1197 row, and the open-findings warning for the over-collapse (FIXED here). The validate-pr-1197 row is added on its return.
+
+### Verification
+
+- `tools/run_all_audits.sh`: all 78 gates pass (gate 59 mirror-parity green). Pre-push guard green on both runners.
+
 ## 2026-07-27, Library Version 2026.07.687, PR #1197 (2026-07-26 daily CHANGELOG roll-up)
 
 ### Changed
