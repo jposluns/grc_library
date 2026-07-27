@@ -23,6 +23,7 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 ### Fixed
 
+- [`.working/merge-bypass-log.md`](../merge-bypass-log.md): added the #1200 bypass-log row. The prior session's session-closing handoff merged via the `--admin` bypass, but a handoff PR cannot honestly log its own not-yet-completed merge, so per the go-forward practice the row is added in this following change from the OBSERVED `gh pr checks 1200` state (all three checks green: Lint markdown corpus, Web generator health, Cloudflare Pages; merge commit `8094b06d`). This clears gate 50's Check 6 and the paired gate-36 regression test that runs the bookkeeping-parity linter against HEAD.
 - [`.working/open-findings.md`](../open-findings.md): recorded Sweep 125's W1 (the `_release_slot` co-tenant-wipe fail-open, re-verified at source against `main`) as a routed warning, ROUTED to TODO 3.145 (folded in; moot at cap 1, already fixed by the delivered fail-closed candidate; gates the concurrency-enable, not any merge).
 
 ### Verification
