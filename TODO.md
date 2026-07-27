@@ -24,11 +24,33 @@ This file is informational and is not subject to the library's metadata-block, a
 
 ## Priority 1 — Fix errors and prevent recurrence
 
-**Next item number: 1.26.**
+**Next item number: 1.27.**
 
 Correctness fixes and the **error-prevention tooling** that keeps the corpus from regressing.
 
 P1 currently holds two standing machinery/guardrail items (§1.14, the external-source currency detection mechanism; and item 1.19 (closed 2026-07-25), the operational-state privatization + adopter-clone portability multi-phase spec), alongside short-lived point-fix items opened and closed here as errors surface (none open at present; §1.20 and §1.21 both closed 2026-07-18, §1.1, the discussion-vs-execution mode gate, closed 2026-07-24 as the fifteenth pack rule `express-authorization-before-execution`, and §1.18, the change-impact surface map, closed 2026-07-24 with its two core deliverables shipped, the surface map in #1104 and the first FP-safe gate 74 in #1107). Its earlier correctness and reference-currency residuals (§1.5 through §1.11) are all closed (the version-currency register shipped in #505; the `needs-reconfirm` sweep ran in #751; the completion-guard, file-type-width, and ref-side items closed through #818). New P1 items are added here as errors or recurrence-risks surface; the routine cadences above are the ongoing preventive half.
+
+### 1.26 Consolidate, harmonize, and distribute the quality machinery across AI toolchains (goal-description umbrella; multi-phase series; maintainer-directed 2026-07-26; ON HOLD pending all Priority 3 tooling)
+
+**ON HOLD until every Priority 3 tooling item is complete.** This series deliberately follows the P3 cleanup-and-tooling wave rather than racing it: the machinery it consolidates is still actively growing there, so starting sooner would consolidate a moving target and immediately re-fragment. When P3 closes, this is the capstone that makes the accumulated machinery coherent, portable, and shared.
+
+The quality system (the audit gates, the PreToolUse hooks and guardrails, the `tools/` scripts, the pack rules and skills) has grown fast and organically, one control at a time, each earned by a real failure. That growth is the system working, but it has left overlap, near-duplicate checks, conventions layered several generations deep, and structure that no longer reads as designed. And the work is no longer the maintainer's alone: many of the team, and some adopters, now run the library on local and custom models, and under the CC BY-SA ShareAlike licence they have submitted their own improvements and suggestions back. This series is where the machinery is made sound and where those contributions are brought home: consolidate and simplify what has accreted, integrate what the community has sent back, reconcile the in-project practice with the public pack, and distribute the result in the idiom every team member's toolchain speaks. The umbrella here is the goal; its phases below are the work, each independently closeable.
+
+### 1.26.1 Consolidate and simplify the in-project machinery (H, XL)
+
+Deduplicate and simplify the gates, guardrails, and tooling: fold overlapping checks together, retire superseded ones, and tighten the seams so each job is done once and done well. Improve efficiency so the per-PR and per-session machinery costs less time and fewer hand-synchronized edits. Verify the structure is sound, that the controls compose into a coherent whole rather than an accreted pile, with each layer's role clear. This is the foundation the rest of the series builds on, so it lands first.
+
+### 1.26.2 Integrate the community's ShareAlike contributions (H, L)
+
+Many of the team and some adopters have implemented the library on local and custom models and, per the CC BY-SA ShareAlike licence, submitted their improvements and suggestions back. This is where those are all integrated: triage each contribution, validate it against the project's standards, and fold the accepted ones into the machinery and the pack, credited per the licence. The submissions from real-world local-model use are also the sharpest signal for what the tool-agnostic distribution in 1.26.4 must get right.
+
+### 1.26.3 Reconcile with the public pack for true parity (H, M)
+
+With the machinery made sound and the community input folded in, reconcile it with the public `dev-security/claude-rules/` pack so the distributed pack is at true parity with the disciplines the project actually runs, closing any drift the pack-parity coupling has not yet caught. One coherent set of rules, tools, and reference material, identical between what is dogfooded here and what is shipped.
+
+### 1.26.4 Distribute in aligned forms across AI toolchains (H, XL)
+
+Broaden distribution beyond a single tool: ship the harmonized pack in aligned forms for the other AI coding tools the team uses (Codex first, then the rest) and a generic, tool-agnostic form usable by local and custom models, which a growing share of the team now runs. The end state is one deduplicated, efficient, community-informed quality system, dogfooded here and distributable anywhere, so any team or adopter, on any AI toolchain, inherits the same hard-won guardrails in the idiom their tool speaks.
 
 ### 1.23 Trust-recovery build: validation-coverage + deep-assessment coverage of unvalidated operations (maintainer-directed 2026-07-24, H)
 
@@ -634,9 +656,16 @@ height rather than fixed. Also still open: the earlier observation that the tool
 whose composer was in fact empty with a completed reply, which the runtime fix may or may not explain and which
 should be re-tested against live panes before it is assumed closed.
 
-### 3.128 The token-spend parser loses real figures and invents others (validate-pr-1176 W1 and W2, M, S)
+### 3.128 The token-spend parser: per-worker display conflates measured and estimated (residual of validate-pr-1176 W1/W2, M, S)
 
-Two defects in [`tools/audit-token-spend.py`](tools/audit-token-spend.py), measured against the real delivery tray
+**STATUS (updated 2026-07-26, Sweep 124 W1): W1 and W2 are FIXED in #1189** (`re.S`/DOTALL for W1; the
+`gap_is_connector` connector-allowlist that fails closed for W2; self-test 43/43). The item stays OPEN
+only for the **per-worker-display residual** described in the ORCHESTRATOR RE-DERIVATION subsection
+below (a worker whose figures are mostly unreadable is shown a confident number derived from a minority
+of its deliveries, the measured-versus-estimated conflation the pack rule forbids). The original W1/W2
+prose is retained below as the record of what #1189 closed; read it as historical, not open.
+
+Two defects (W1/W2, both FIXED in #1189) in [`tools/audit-token-spend.py`](tools/audit-token-spend.py), measured against the real delivery tray
 rather than constructed inputs. **W1:** `SPEND_PATTERNS` puts `(.{0,20}?)` between the phrase and the number and `.`
 does not match a newline without `re.DOTALL`, so any delivery that places its figure in a `## Token spend` SECTION
 (heading, blank line, paragraph) never matches; that is **12 of 31** real deliveries reading UNKNOWN. The failure

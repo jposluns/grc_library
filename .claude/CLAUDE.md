@@ -1083,15 +1083,38 @@ instead obligated to execute the session-closing handoff PR first.
 The operational form of the orchestration primordial rule near the top of this file. The two-part
 hard rule (maintainer-directed 2026-07-19):
 
-1. **If a worker CAN do it and a worker is available, USE THE WORKER.** Before self-running any
-   offloadable pass, read the scratch `workers/` liveness registry (`python3
-   ../grc_library_scratch/tools/credit-offload-filedrop.py list-workers`, the FILE-DROP plane; the git-scratch `credit-offload-queue.py list-workers` reads a registry empty since the transport moved, and it now fails loud rather than reporting a bare zero that would license self-running). If at least one worker is
-   live, ENQUEUE a credit-offload order pinned to an exact `grc_library` SHA and consume the
-   delivered result; do not self-run.
-2. **If NO worker is available and you are on a VM, ALERT the maintainer that the workers are
-   stalled, or obtain explicit authorization to proceed without workers.** Do not silently
-   self-run as though offload did not exist. Zero live workers is a condition to surface, not to
-   route around in silence.
+1. **If a worker CAN do it, a worker DOES it. No debate, no self-run (maintainer-directed 2026-07-26).**
+   Anything offloadable (see the list below) is GIVEN to a worker the moment it comes up; the
+   orchestrator does not do it itself. The orchestrator's usage credits are the scarce, slow-to-renew
+   resource, and self-running offloadable work is exactly what exhausts them: a prior week's self-run
+   QA burned the orchestrator out mid-Saturday and cost a worker account a multi-day lockout. The
+   default is OFFLOAD; self-running an offloadable task is the exception that needs a stated reason (no
+   worker of any family available AND the maintainer alerted).
+2. **Spawn workers ON DEMAND with [`tools/exec-dispatch.py`](../tools/exec-dispatch.py); do NOT gate
+   offload on `list-workers`.** The exec'd-worker system spawns a FRESH worker per order:
+   `python3 tools/exec-dispatch.py --dispatch --family {claude|codex} --model <m> --effort <e>
+   --account <acct> --order-id <id> --prompt-file <path>` (the prompt file MUST live under
+   `/var/lib/grc-worker-jobs`; the account pool and dispatch policy live in the `_private`
+   worker-accounts config; parallelism is DISTINCT accounts, one purpose per account, until the
+   per-account-concurrency backlog item lands). A `list-workers` reading of zero is the STANDING-POLL
+   fleet sitting idle, NOT "no workers", and is NEVER a licence to self-run: a felt "0 workers" is the
+   signal to SPAWN one with exec-dispatch, not to do the work yourself. (This is the mistake that
+   recurred 2026-07-26.)
+3. **20-minute reissue.** If a worker has not delivered in 20 minutes, issue the SAME order to another
+   worker (a distinct account) and take whichever returns first; the late delivery is read as a
+   cross-reference, never re-adjudicated.
+4. **Super-sensitive tasks get BOTH a Codex and a Claude worker.** Give the identical order to one of
+   each family and assess the two deliveries together: different models surface different
+   perspectives, so the dual read is how nothing is missed. Reconcile them; a finding in only one is
+   triaged on its own merits.
+5. **Keep the fleet busy: one worker on QA, the rest pre-loading the next ~10 items.** Never let an
+   available account sit idle. Reserve one worker for the QA cadence (`/validate-pr`, `verify`,
+   sweeps) and keep the others producing research and draft candidates for the upcoming queue, so the
+   orchestrator always has a delivery to APPLY rather than a dispatch to wait on.
+6. **If NO worker of any family is available (every account limited or out), ALERT the maintainer** or
+   obtain authorization to proceed without workers. Zero available capacity is a condition to surface,
+   not to route around in silence. Worker ids recorded in this public repo are ANONYMIZED aliases; the
+   raw `<family>-<account>-<timestamp>` id and all account names stay in `_private` only.
 
 **Offloadable (dispatch to a worker):** `/validate`, `/validate-pr`, `/matrix-fit`, `/claim-fit`,
 `/reference-audit`, `/screen-publications`, `verify`, `/full-qa`, `/fitness`, the read-only
@@ -1835,7 +1858,7 @@ where it belongs because it is the tier ordering (Cost is lowest) applied to opt
 These govern how the assistant writes to the maintainer in chat (assistant voice), not corpus prose.
 
 - **No decorative honesty-intensifiers.** Do not preface statements with "honestly", "to be honest", "frankly", "candidly", "in truth", or similar. Every statement the assistant makes is held to the `evidence-grounded-completion` standard without exception, so marking some statements as honest falsely implies a contrast class of statements that are less so. State caveats and self-assessments plainly, without the intensifier.
-- **Never render a file diff or long file body in chat (maintainer-directed 2026-07-25).** The console is the maintainer's live window onto the run, and a wall of added/removed lines pushes the things they actually need to read off the screen; it has twice this session scrolled a real issue out of view. Do NOT paste diffs, do not echo the body of a file being written, and do not dump a tool's full output when a line of it carries the signal. A ONE-LINE summary of what changed is the right level ("self-test 8 to 19 cases, all passing"), and a verification's own terminal PASS/FAIL line is always worth showing. **This covers the COMMANDS too, not only their output (maintainer-directed 2026-07-25, extending the same instruction):** the maintainer does not need to read every shell invocation, so prefer FEWER and SHORTER calls, consolidate related steps into one, and lead the prose with the one-line summary of what was done so the readable account is the assistant's sentence rather than the reader reconstructing it from a command body. Honest limit: the harness renders tool calls and the assistant cannot suppress that, so the lever is volume and length, plus always stating in prose what a call accomplished. Where long prose must be written to a file, prefer a shell heredoc redirect over an editor tool call, because the editor call renders its payload into the console while the redirect does not. This is chat mechanics, project-only, and it does NOT license hiding a failure: a failing gate, a refused command, or a defect is surfaced in full, because that is signal rather than noise.
+- **Never render a file diff or long file body in chat (maintainer-directed 2026-07-25).** The console is the maintainer's live window onto the run, and a wall of added/removed lines pushes the things they actually need to read off the screen; it has twice this session scrolled a real issue out of view. Do NOT paste diffs, do not echo the body of a file being written, and do not dump a tool's full output when a line of it carries the signal. A ONE-LINE summary of what changed is the right level ("self-test 8 to 19 cases, all passing"), and a verification's own terminal PASS/FAIL line is always worth showing. **NEVER run a command whose output is a +/- unified diff of file content (maintainer-directed 2026-07-26, after repeated violations): no `git diff` / `git show <commit>` without `--stat` or `--name-only`, no `diff`, no patch dump.** The add/remove lines are exactly the wall the maintainer has said many times to stop printing, and running the diff to "inspect" a change is how they keep reaching the console. To inspect a change, use `git diff --stat` / `--name-only` (file names, no content), `grep`/`wc -l` on the target, or a targeted `Read` / `sed -n '<a>,<b>p'` of the specific lines; the Edit tool already shows what changed, so re-diffing to confirm is both redundant and a violation. A staged-vs-working check uses `git status --short`, never `git diff`. **This covers the COMMANDS too, not only their output (maintainer-directed 2026-07-25, extending the same instruction):** the maintainer does not need to read every shell invocation, so prefer FEWER and SHORTER calls, consolidate related steps into one, and lead the prose with the one-line summary of what was done so the readable account is the assistant's sentence rather than the reader reconstructing it from a command body. Honest limit: the harness renders tool calls and the assistant cannot suppress that, so the lever is volume and length, plus always stating in prose what a call accomplished. Where long prose must be written to a file, prefer a shell heredoc redirect over an editor tool call, because the editor call renders its payload into the console while the redirect does not. This is chat mechanics, project-only, and it does NOT license hiding a failure: a failing gate, a refused command, or a defect is surfaced in full, because that is signal rather than noise.
 - **Use `IMPORTANT:` for emphasis.** When a point is significant enough that the maintainer should not skim past it, prefix that paragraph with `IMPORTANT:`. This is the sanctioned emphasis marker. Reserve it for genuinely high-signal points so it does not degrade into noise.
 - **Proactive assessment is standing, not "suggest"-scoped (maintainer-directed 2026-07-02).** Proactively surface a better, more-efficient, or higher-quality alternative, and disagree when a choice looks against the project's best interests, any time you see one, not only when the maintainer says "suggest" or "advise". Surface the disagreement with its reasoning and give the maintainer an opportunity to change their mind; the maintainer retains override. This is the [`surface-counterproductive-instructions`](rules/governance/surface-counterproductive-instructions.md) discipline as a standing default, governed by the AIQT tier > Speed > Cost; its calibration section still applies (the bar is material impact, surfaced once and concisely, and an informed override is final).
 - **"Suggest" and "advise" invite assessment, not just compliance.** When the maintainer prefaces a request with "I suggest", "I advise", or similar, read it as: the maintainer believes this is the right path but is not fully certain and wants the assistant to assess it and give feedback. The assistant's primary function in that case is to help the maintainer reach the best decision, which includes surfacing a better alternative or a concern and pushing back when warranted, not silently complying. A firm directive with no hedge is followed directly once any standing-assessment concern (the bullet above) has been surfaced or none exists.
