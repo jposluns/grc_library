@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as _dt
+import fcntl
 import json
 import os
 import subprocess
@@ -44,6 +45,11 @@ WRAPPER = {
     "codex": "/usr/local/sbin/run-codex-worker",
 }
 WORKER_USER = "worker_agents"
+
+# --- in-flight registry (per-account concurrency; TODO 3.141) ----------------------
+INFLIGHT_NAME = "inflight.json"
+INFLIGHT_LOCK_NAME = "inflight.lock"       # flock target only; its CONTENT is never rewritten
+STALE_STARTED_AGE_S = 24 * 3600            # absolute backstop against pid reuse (NOT mtime staleness)
 
 # Tier -> distribution weight (higher = takes more within a priority set). The per-account
 # flock currently caps same-account concurrency at 1, so weight is a tie-break today; it
@@ -203,10 +209,140 @@ def mint_worker_id(account: str, family: str, now: _dt.datetime) -> str:
     return f"{family}-{account}-{stamp}-{uuid.uuid4().hex[:4]}"
 
 
+# --- in-flight registry helpers (reserve-under-lock; TODO 3.141) -------------------
+def _pid_alive(pid: int) -> bool:
+    """True if `pid` names a live process. os.kill(pid, 0) is the liveness probe: the
+    dispatcher's OWN pid (os.getpid()) is the liveness token for its entry, since dispatch()
+    blocks on subprocess.run for the whole job (so a live entry == a live dispatcher)."""
+    if pid <= 0:
+        return False
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False            # no such process -> dead
+    except PermissionError:
+        return True             # exists, owned by another uid
+    except OSError:
+        return False
+    return True
+
+
+def _read_inflight(job_dir: Path) -> list:
+    """Load the registry list, or [] if missing/corrupt. A corrupt file must NOT wedge all
+    dispatch; it is rewritten on the next reserve/release under the lock."""
+    try:
+        with open(job_dir / INFLIGHT_NAME, "r", encoding="utf-8") as fh:
+            data = json.load(fh)
+    except (FileNotFoundError, ValueError):
+        return []
+    except OSError:
+        return []
+    return data if isinstance(data, list) else []
+
+
+def _write_inflight(job_dir: Path, entries: list) -> None:
+    """Atomically replace the registry (write tmp + os.replace). Only ever called while
+    holding the exclusive flock on INFLIGHT_LOCK_NAME (which is itself never rewritten)."""
+    tmp = job_dir / (INFLIGHT_NAME + ".tmp")
+    with open(tmp, "w", encoding="utf-8") as fh:
+        json.dump(entries, fh)
+    os.replace(tmp, job_dir / INFLIGHT_NAME)
+
+
+def _reap(entries: list, now_epoch: float) -> list:
+    """Return only the live entries. Liveness = os.kill(pid, 0). The ONLY time-based rule is a
+    24h absolute `started`-age ceiling (backstop against pid reuse) -- deliberately NOT mtime
+    staleness, since a long healthy job never touches the registry and would be falsely reaped."""
+    live = []
+    for e in entries:
+        try:
+            pid = int(e.get("pid"))
+            started = float(e.get("started", 0))
+        except (TypeError, ValueError):
+            continue                        # malformed -> drop
+        if now_epoch - started > STALE_STARTED_AGE_S:
+            continue                        # 24h ceiling backstop (pid-reuse guard)
+        if not _pid_alive(pid):
+            continue                        # dead dispatcher -> reap, freeing its slot
+        live.append(e)
+    return live
+
+
+def _reserve_slot(job_dir: Path, key: str, max_concurrent: int, worker_id: str,
+                  pid: int, now_epoch: float) -> tuple[bool, object]:
+    """RESERVE a per-key concurrency slot in ONE exclusive flock critical section (no
+    check-then-act TOCTOU): reap stale/dead entries -> count live for `key` -> if at/over
+    max_concurrent REFUSE (return (False, message)); else append this job's entry, persist,
+    and return (True, entry). The lock is held ONLY for this critical section, NEVER across
+    the job's subprocess.run, so concurrent dispatchers do not serialize on the registry."""
+    job_dir.mkdir(parents=True, exist_ok=True)
+    with open(job_dir / INFLIGHT_LOCK_NAME, "a+") as lock_fh:
+        fcntl.flock(lock_fh, fcntl.LOCK_EX)
+        try:
+            entries = _reap(_read_inflight(job_dir), now_epoch)
+            live_for_key = sum(1 for e in entries if e.get("key") == key)
+            if live_for_key >= max_concurrent:
+                _write_inflight(job_dir, entries)          # persist the reap
+                return False, (f"at capacity for '{key}': {live_for_key}/{max_concurrent} "
+                               f"in-flight (refusing dispatch)")
+            entry = {"key": key, "pid": pid, "worker_id": worker_id, "started": now_epoch}
+            entries.append(entry)
+            _write_inflight(job_dir, entries)
+            return True, entry
+        finally:
+            fcntl.flock(lock_fh, fcntl.LOCK_UN)
+
+
+def _release_slot(job_dir: Path, worker_id: str) -> None:
+    """Remove this job's entry (matched by worker_id) under the same exclusive lock, so a
+    normal completion frees the slot immediately. Best-effort: a leaked entry (e.g. hard kill
+    before release) is backstopped by pid-liveness reaping on the next reserve."""
+    try:
+        with open(job_dir / INFLIGHT_LOCK_NAME, "a+") as lock_fh:
+            fcntl.flock(lock_fh, fcntl.LOCK_EX)
+            try:
+                entries = _read_inflight(job_dir)
+                _write_inflight(job_dir, [e for e in entries
+                                          if e.get("worker_id") != worker_id])
+            finally:
+                fcntl.flock(lock_fh, fcntl.LOCK_UN)
+    except OSError:
+        pass
+
+
+def _max_concurrent(acct: dict) -> int:
+    """Per-key concurrency cap. ABSENT -> 1 (byte-equivalent to today's single-slot behavior);
+    a present but non-positive/unparseable value also floors at 1."""
+    try:
+        mc = int(acct.get("max_concurrent", 1))
+    except (TypeError, ValueError):
+        mc = 1
+    return mc if mc >= 1 else 1
+
+
+def _inflight_key(acct: dict) -> str:
+    """Registry key = the config-dir unit `id` (unique per account+family, so a claude job and
+    a codex job for the same subscription have DISTINCT keys/caps), NOT the bare account name;
+    fall back to `account` only if `id` is absent."""
+    return acct.get("id") or acct.get("account")
+
+
+def build_dispatch_cmd(wrapper: str, prompt_file: str, account: str, model: str,
+                       worker_id: str, effort: str | None = None) -> list:
+    """Build the sudo wrapper argv. --worker-id is now passed through to the (already
+    backward-compatible) root-owned wrapper, whose charset requirement [A-Za-z0-9_-] the
+    minted worker ids satisfy."""
+    cmd = ["sudo", "-n", "-u", WORKER_USER, wrapper, prompt_file,
+           "--account", account, "--model", model, "--worker-id", worker_id]
+    if effort:
+        cmd += ["--effort", effort]
+    return cmd
+
+
 # --- dispatch (the thin shell) -----------------------------------------------------
 def dispatch(config: dict, family: str, model: str, order_id: str, prompt_file: str,
              effort: str | None = None, now: _dt.datetime | None = None,
-             account: str | None = None) -> dict:
+             account: str | None = None, job_dir: Path = JOB_DIR) -> dict:
     now = now or _dt.datetime.now(_dt.timezone.utc)
     acct, reason = pick_account(config, family, model, now, account)
     if acct is None:
@@ -214,13 +350,25 @@ def dispatch(config: dict, family: str, model: str, order_id: str, prompt_file: 
                 "requested_account": account}
     wrapper = WRAPPER[family]
     worker_id = mint_worker_id(acct["account"], family, now)
-    cmd = ["sudo", "-n", "-u", WORKER_USER, wrapper, prompt_file,
-           "--account", acct["account"], "--model", model]
-    if effort:
-        cmd += ["--effort", effort]
-    started = time.time()
-    proc = subprocess.run(cmd, capture_output=True, text=True)
-    dur = time.time() - started
+    cmd = build_dispatch_cmd(wrapper, prompt_file, acct["account"], model, worker_id, effort)
+
+    # RESERVE a per-key concurrency slot under the in-flight lock BEFORE running (no TOCTOU).
+    # A refusal returns WITHOUT a worker_id so the CLI surfaces it via the existing
+    # "NOT DISPATCHED" path (loud, non-zero exit) rather than as a completed-job status line.
+    key = _inflight_key(acct)
+    max_conc = _max_concurrent(acct)
+    ok, slot = _reserve_slot(job_dir, key, max_conc, worker_id, os.getpid(), now.timestamp())
+    if not ok:
+        return {"ok": False, "error": slot, "family": family, "model": model,
+                "requested_account": account, "refused": True,
+                "key": key, "max_concurrent": max_conc}
+
+    try:
+        started = time.time()
+        proc = subprocess.run(cmd, capture_output=True, text=True)
+        dur = time.time() - started
+    finally:
+        _release_slot(job_dir, worker_id)       # free the slot on the EXIT path
     limited, reset = parse_usage_limit(proc.stdout + proc.stderr)
     return {
         "ok": proc.returncode == 0,
@@ -333,6 +481,81 @@ def _self_test() -> int:
     # 15. The same account name across families resolves by FAMILY (personal-b has claude AND codex).
     a_cod, _ = pick_account(_FIXTURE, "codex", "gpt-5.6-terra", sunday, account="personal-b")
     check("override-resolves-by-family", a_cod is not None and a_cod["id"] == "personal-b-codex")
+
+    # --- in-flight registry (TODO 3.141): reserve-under-lock, reaping, --worker-id ------
+    import tempfile as _tempfile
+
+    def _dead_pid():
+        # A pid guaranteed absent: probe downward from an out-of-range value until os.kill
+        # reports it dead. Deterministic and side-effect-free (never signals a live process).
+        p = 2 ** 22
+        while p > 1:
+            if not _pid_alive(p):
+                return p
+            p -= 1
+        return 999999
+
+    now_epoch = sunday.timestamp()
+    me = os.getpid()
+
+    with _tempfile.TemporaryDirectory() as _td:
+        jd = Path(_td)
+        # 16. Below cap -> ALLOWED (slot reserved), returns the entry dict.
+        ok1, e1 = _reserve_slot(jd, "work-a-claude", 2, "wid-1", me, now_epoch)
+        check("inflight-allow-below-cap", ok1 is True and isinstance(e1, dict))
+        # 17. Second reserve for the SAME key at cap=2 -> still allowed (now 2/2).
+        ok2, _ = _reserve_slot(jd, "work-a-claude", 2, "wid-2", me, now_epoch)
+        check("inflight-allow-to-cap", ok2 is True)
+        # 18. Third reserve for the same key -> REFUSED (2/2 in-flight, cap=2), clear message.
+        ok3, msg3 = _reserve_slot(jd, "work-a-claude", 2, "wid-3", me, now_epoch)
+        check("inflight-refuse-at-cap", ok3 is False and "at capacity" in str(msg3))
+        # 19. A DIFFERENT key (distinct config-dir unit) is unaffected -> allowed.
+        okX, _ = _reserve_slot(jd, "work-b-claude", 1, "wid-x", me, now_epoch)
+        check("inflight-key-isolation", okX is True)
+        # 20. Releasing an entry frees a slot for that key -> a new reserve is allowed.
+        _release_slot(jd, "wid-1")
+        ok4, _ = _reserve_slot(jd, "work-a-claude", 2, "wid-4", me, now_epoch)
+        check("inflight-release-frees-slot", ok4 is True)
+
+    # 21. A dead-pid entry is REAPED, freeing the slot; only the live reservation remains.
+    with _tempfile.TemporaryDirectory() as _td:
+        jd = Path(_td)
+        _write_inflight(jd, [{"key": "k", "pid": _dead_pid(), "worker_id": "old",
+                              "started": now_epoch}])
+        okd, _ = _reserve_slot(jd, "k", 1, "new", me, now_epoch)
+        check("inflight-reaps-dead-pid", okd is True)
+        check("inflight-dead-entry-removed",
+              [e["worker_id"] for e in _read_inflight(jd)] == ["new"])
+
+    # 22. The 24h started-age ceiling reaps even a LIVE-pid entry (pid-reuse backstop).
+    with _tempfile.TemporaryDirectory() as _td:
+        jd = Path(_td)
+        _write_inflight(jd, [{"key": "k", "pid": me, "worker_id": "ancient",
+                              "started": now_epoch - (STALE_STARTED_AGE_S + 60)}])
+        oka, _ = _reserve_slot(jd, "k", 1, "fresh", me, now_epoch)
+        check("inflight-24h-ceiling-reaps", oka is True)
+
+    # 23. A healthy long-running entry (live pid, recent start) is NOT reaped -> still refused.
+    with _tempfile.TemporaryDirectory() as _td:
+        jd = Path(_td)
+        _write_inflight(jd, [{"key": "k", "pid": me, "worker_id": "healthy",
+                              "started": now_epoch}])
+        okh, msgh = _reserve_slot(jd, "k", 1, "intruder", me, now_epoch)
+        check("inflight-healthy-not-reaped", okh is False and "at capacity" in str(msgh))
+
+    # 24. build_dispatch_cmd passes --worker-id with the minted id (the wrapper wire-in).
+    wid = mint_worker_id("work-a", "claude", sunday)
+    cmd = build_dispatch_cmd(WRAPPER["claude"], "/tmp/p.txt", "work-a", "opus", wid)
+    check("worker-id-in-cmd",
+          "--worker-id" in cmd and cmd[cmd.index("--worker-id") + 1] == wid)
+    # 25. --effort is still appended (existing behavior preserved), after --worker-id.
+    cmd2 = build_dispatch_cmd(WRAPPER["claude"], "/tmp/p.txt", "work-a", "opus", wid, effort="high")
+    check("effort-still-passed", cmd2[-2:] == ["--effort", "high"])
+    # 26. The minted worker id satisfies the wrapper charset [A-Za-z0-9_-].
+    check("worker-id-charset", _re.fullmatch(r"[A-Za-z0-9_-]+", wid) is not None)
+    # 27. max_concurrent ABSENT -> default 1 (byte-equivalent to today); present value honored.
+    check("max-concurrent-default-1", _max_concurrent({"id": "x"}) == 1)
+    check("max-concurrent-explicit", _max_concurrent({"id": "x", "max_concurrent": 3}) == 3)
 
     if fails:
         print("SELF-TEST FAIL:", ", ".join(fails))
