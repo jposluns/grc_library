@@ -1,7 +1,7 @@
 # Alert and assessment triage (merged, severity-ordered)
 
-**Version:** 1.0.0\
-**Date:** 2026-07-25\
+**Version:** 1.0.1\
+**Date:** 2026-07-27\
 **License:** CC BY-SA 4.0
 
 One combined, de-duplicated, severity-ordered list across the two sources the maintainer asked to
@@ -36,7 +36,7 @@ remains.
 | 7 | Medium | codex M-02 | Scratch delivery history not fully reconcilable | **PARTLY** |
 | 8 | Low (recurring) | watchdog 2026-07-24-b family (3 blocks) | Order files keep tripping the scratch gate: maintainer home-directory paths in `params` (watermark-PII), then a house-style dimension | **OPEN** |
 | 9 | Low | watchdog 2026-07-24-c | No worker-side order release, so handing an order back takes two manual edits and is easy to leave half-done | **PARTLY** |
-| 10 | n/a (procedural) | codex assessment | Sign-off request: the assessment terminates only on explicit maintainer sign-off, per the deep-assessment discipline | **OPEN** |
+| 10 | n/a (procedural) | codex assessment | Sign-off request. RESOLVED: the maintainer removed the deep-assessment sign-off gate (2026-07-27, PR #1213); the assessment is dispositioned by validate-and-fix like any QA, so the procedural sign-off request is closed. Substantive findings 4/5/8/6/7/9 remain as validate-and-fix follow-ups | **DECIDED+DONE** |
 
 ## Detail and disposition
 
@@ -116,9 +116,14 @@ A worker that correctly declines an order it should not serve had to hand-edit t
 its own registry row, and a later note records that a targeted reclaim landed which partly closes this
 for the file-drop plane. Residual: whether the git-scratch plane still needs it.
 
-### 10. Sign-off request. OPEN
+### 10. Sign-off request. RESOLVED (no sign-off gate; maintainer-directed 2026-07-27)
 
-The codex assessment states it is routed for maintainer/orchestrator decision and carries a sign-off
-request. The deep-assessment discipline terminates only on explicit maintainer sign-off, and an empty
-or fully-dispositioned finding set is presented for sign-off rather than self-declared complete. Items
-4, 5, 8 and the residuals of 6, 7 and 9 are what stand between here and that sign-off.
+The codex assessment states it is routed for maintainer/orchestrator decision and carried a sign-off
+request. **The maintainer removed the sign-off gate on 2026-07-27** (PR #1213): deep-assessment (and,
+by the same reasoning, an external assessment routed under its discipline) no longer terminates on an
+explicit maintainer sign-off, because every component is an already-established QA process that
+terminates by validate-and-fix. So this assessment is dispositioned the same way any QA result is:
+each finding is validated and fixed-or-routed. The substantive findings that remain, items 4, 5, 8
+(OPEN) and the residuals of 6, 7 and 9 (PARTLY), are the validate-and-fix follow-ups, tracked here and
+worked as ordinary QA rather than held for a sign-off ceremony; the procedural sign-off request itself
+is closed.
