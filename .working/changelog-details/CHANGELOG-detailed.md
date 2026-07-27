@@ -8,6 +8,30 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-27, Library Version 2026.07.695, PR #1205 (impl-3111: exec-dispatch verifier-independence dispatch)
+
+### Added
+- [`tools/exec-dispatch.py`](../../tools/exec-dispatch.py) (project-only fleet machinery; not pack material): account-keyed verifier-independence dispatch, closing TODO 3.111. Three CLI flags: `--not-worker <id>` and `--not-account <acct>` (exclude an account from the dispatch pool), and `--require-worker <id>` (target the account that minted an id, sugar over `--account`). The purpose is that a skeptical verifier, a re-verify, or a `/validate-pr` is never routed to the account that authored or already verified the work under review.
+- `worker_id_to_key(worker_id)`: resolves a minted `{family}-{account}-{stamp}-{4hex}` id back to its durable `(account, family)` key (hyphenated accounts intact via a greedy `.+` against a fixed trailing anchor); returns `None` on a non-parsing id. Independence keys on `(account, family)`, never the ephemeral per-run worker-id, which encodes nothing routable.
+- `resolve_exclusions(not_workers, not_accounts, family, known_accounts)`: returns `(excluded, unresolved, unknown)`. A cross-family `--not-worker` id is ignored (irrelevant by design).
+- 17 new self-test cases (39 -> 56): fail-closed on unparseable AND on unregistered tokens, independence-deadlock vs empty-pool vs contradiction, cross-family-ignored, hyphenated/stamp-embedded account resolution.
+
+### Changed
+- `eligible_accounts` / `select_account` / `pick_account` / `dispatch`: thread an `exclude_accounts` filter, applied AFTER the family/model/availability funnel so `--dry-run` reports an independence-excluded account distinctly from an unavailable one. `pick_account` reports CONTRADICTION (target also excluded) and INDEPENDENCE-DEADLOCK (pool emptied by exclusions) distinctly from a genuine empty pool. The no-exclusion path is behaviourally byte-equivalent to the parent.
+- [`TODO.md`](../../TODO.md): 3.146's heading corrected to the inherited-default-ACL cause (was the refuted "umask 0002" cause; `validate-pr-1204` N1, the heading lagged #1204's corrected body).
+
+### Fixed
+- **Fail-closed on a zero-match exclusion (open-findings, error).** As first written, `resolve_exclusions` validated only that a token PARSED, not that its account existed in the config, so a well-formed exclusion matching zero configured accounts (a mistyped `worka` for `work-a`, or a renamed/removed account, or a `--not-worker` id whose account left config) silently no-op'd at rc=0 while reporting the exclusion as applied. That silently defeats the independence control: the operator believes they excluded the authoring account, but the real account (correct name) stays eligible and the verifier lands back on it. Fixed: `resolve_exclusions` now takes `known_accounts` (config accounts for the family, availability-independent so a limited account is still a valid exclusion target) and the CLI FAILS CLOSED (`ap.error`, rc=2) on any zero-match exclusion, for both `--not-worker` and `--not-account`, with messages distinguishing unparseable from unregistered.
+
+### Verification
+- Self-test 56/56. Live CLI smoke tests: both original silent-no-op scenarios now rc=2, the control (a real configured account) still rc=0 and shifts the pick.
+- **Dual-family adversarial verification** (the fleet-safety-critical tier, per the defence-in-depth default). Base commit reviewed by an independent Codex worker (jeff-mailz, refute-briefed) AND an independent Claude worker (security-work, refute-briefed); the two INDEPENDENTLY converged on the same root defect (Codex graded error, Claude graded warn) and prescribed the same fix. A single Claude re-verify on the fixed state (security-work) found no surviving defect and no regression, probing availability-independent membership, missing-field/None accounts, cross-family name collision, false-positive fail-closed, regex round-tripping, and the no-`--family` path.
+- The pre-push guard (`run_all_audits.sh` + `run-pr-time-checks.sh`) is green.
+
+### Discipline observation
+- The dual-family adversarial verify earned its cost again: both families converged on the SAME finding (strong corroboration), and a single-lens verify (Claude alone, which graded it a warn) would still have surfaced it here, but the convergence is the signal that the finding is real rather than a lens artefact. The fix is the exact one both prescribed; recording it against both.
+- **Verifier-independence usage convention (for the new mechanism):** a re-verify or adversarial audit names the account to exclude via `--not-account`, defaulting to the account that produced the verdict under review; and per the TODO 3.111 folded insight, the exclusion is populated from DROP-authorship and TODO-source-authorship, not only delivery-authorship. This is orchestrator usage discipline layered on the mechanism (to be carried into the private orchestrator runbook).
+
 ## 2026-07-27, Library Version 2026.07.694, PR #1204 (record the concurrency-validation decisions; batch #1203 QA)
 
 ### Changed
