@@ -293,8 +293,16 @@ def strip_front_matter(text: str) -> str:
 # words is visible reading text, so it stays prose, and so does a one-hyphen
 # English compound such as `fan-out`. The residual is stated in the docstring.
 TABLE_ROW_RE = re.compile(r"^[ \t]*\|")
+# A machine-identifier atom is a PATH or a three-plus-segment slug. The path branch
+# requires a path INDICATOR (a leading `/`, `./`, or `../`; a second `/`; or a `.` on
+# either side of the slash) rather than accepting any single-slash expression, because
+# an ordinary English slash-compound in a cell (`read/write`, `input/output`,
+# `true/false`) is reading prose, not a path, and a bare `\S*/\S*` blanked it, an
+# over-strip (a gate-44 false positive) the codex adversarial verifier caught on the
+# first cut of this route (verify-3115, 2026-07-27).
+_PATH_ATOM_RE = r"\.{0,2}/\S+|\S*/\S*/\S+|\S*/\S*\.\S+|\S*\.\S*/\S+"
 SLUG_ONLY_CELL_RE = re.compile(
-    r"\A(?:\S*/\S*|[A-Za-z0-9]+(?:[-_.][A-Za-z0-9]+){2,})\Z"
+    r"\A(?:" + _PATH_ATOM_RE + r"|[A-Za-z0-9]+(?:[-_.][A-Za-z0-9]+){2,})\Z"
 )
 
 

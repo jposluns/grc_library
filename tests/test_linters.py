@@ -2944,6 +2944,15 @@ class PairedSkillStepParityTests(LinterTestCase):
             mod.content_tokens("columns Date | Parallel | Detail, in prose.\n"),
             "an inline pipe list in prose is not a table",
         )
+        # A two-word English slash-compound in a cell is reading prose, not a
+        # path: a bare `\S*/\S*` over-stripped it (a gate-44 false positive the
+        # codex adversarial verifier caught, verify-3115 2026-07-27). Both words
+        # must survive; only a genuine path or a 3+-segment slug is a metadata atom.
+        for word in ("read", "write"):
+            self.assertIn(
+                word, mod.content_tokens("| Operation | read/write |\n"),
+                f"a two-word slash-compound in a cell is prose, not a path ({word})",
+            )
 
     def test_link_target_truncated_at_the_first_paren_is_not_representation(self) -> None:
         # POSITIVE fixture, fail-open regression guard. The SIXTEENTH route,
