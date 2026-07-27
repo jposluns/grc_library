@@ -1,16 +1,16 @@
 # Session State (concurrency lease)
 
-**Active-session:** none
+**Active-session:** claude/resume-2026-07-27
 
-**Status:** released
+**Status:** active
 
-**Operating-mode:** overnight-unattended
+**Operating-mode:** attended-autonomous
 
-**Last-heartbeat-UTC:** 2026-07-27T03:18:01Z
+**Last-heartbeat-UTC:** 2026-07-27T11:19:54Z
 
-**Current-task:** SESSION-CLOSING HANDOFF at #1199 (overnight-unattended, evidence-triggered wind-down: A12 threshold met + a named RM-10 slip; see the handoff CURRENT block and degradation-watch-log 2026-07-27). Shipped #1193-#1199 (concurrency registry code half landed at cap 1, NOT enabled; all CHANGELOG roll-up + codifications done). Lease RELEASED. Morning pre-queue: vpr-1199b (#1199 validation, jposluns-work), the 3.145 fail-closed candidate (delivered, unapplied), the 3.133 close-out tool (security-work). The morning /resume runs the loop-break /validate over #1195..#1199 and consumes the pre-queue first.
+**Current-task:** RESUME from #1200 (2026-07-27 morning, maintainer present, "good morning + swap to daytime mode"). Acquired the lease at 11:19:54Z. Mode swapped overnight-unattended -> attended-autonomous (daytime; maintainer reachable, green-CI = merge authority, decisions surfaced by exception). Corpus green at `8094b06d` (78/78 gates), non-shallow, detect-env maintainer/all-siblings-ok. First tasks: loop-break corpus-wide /validate over #1195..#1199 (compensating control for the #1200 handoff); then the morning pre-queue (vpr-1199b, 3.145 fail-closed candidate, 3.133 close-out tool); process 5 open MAINTAINER_ALERTs + 12 unprocessed inbox drops.
 
-**Worker-dispatches:** file-drop plane, **0 workers live** at resume (all ids stale/out, oldest heartbeat ~6.7h). QA this session runs as in-session subagents until a worker fleet is spun up: the #1193 pre-merge skeptical verifier (CLEAN) and `validate-pr-1193` (0e/2w/1n, both warnings fixed in #1194) both ran as in-session subagents, per the mandatory-offload no-workers fallback. The four stale worker orders from the wind-down (`verify-1193`, `verify-1193b`, `validate-pr-1193`, `retro-1193`) are INVALID (dispatched against the wrong state) and are NOT consumed.
+**Worker-dispatches:** file-drop standing-poll plane shows **0 live workers** at resume (all ids stale/out, oldest ~38h). The exec-dispatch harness (`tools/exec-dispatch.py`) spawns a fresh worker per order on demand (accounts in `_private/worker-accounts.json`), so 0 standing-poll workers is NOT "no workers": offloadable passes dispatch via exec-dispatch. Concurrency stays at cap 1 (per-account) until TODO 3.145 (fail-closed registry) lands.
 
 This file is the session-concurrency lease: the declared half of the two-part interlock
 that protects the shared `main` state surfaces (the session handoff, [`../TODO.md`](../TODO.md),
