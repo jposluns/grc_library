@@ -71,10 +71,16 @@ def parse_open_rows(text: str) -> list:
             cells = cells[:-1]
         if not cells or cells[0].lower() == "found" or all(set(c) <= {"-"} for c in cells):
             continue                          # header row or the `--- | --- | ...` delimiter
-        sev = cells[1].lower() if len(cells) > 1 else ""
-        finding = cells[2] if len(cells) > 2 else ""
-        disp = cells[4] if len(cells) == 5 else None   # None == malformed -> fail closed downstream
-        rows.append((sev, finding, disp))
+        if len(cells) == 5:
+            rows.append((cells[1].lower(), cells[2], cells[4]))
+        else:
+            # MALFORMED (wrong column count, e.g. an unescaped `|` shifted the columns). We cannot
+            # trust ANY cell, INCLUDING the severity: an early-column pipe makes the severity read as
+            # something other than `error`, so the row would escape the error check entirely (codex
+            # verify-3126 false-pass). Force it to a blocking error with no disposition so it fails
+            # closed regardless of what the shifted cells happen to say.
+            finding = (cells[2] if len(cells) > 2 else line.strip())[:120]
+            rows.append(("error", finding, None))
     return rows
 
 
@@ -91,10 +97,12 @@ def parse_open_rows(text: str) -> list:
 #     so only the terminal WORD is machine-required; the evidence/rationale is author judgement.
 # A ref is a PR number (`#1178`), a backlog item (`3.73`, `3.56a`), or a `TODO`-qualified item.
 TERMINAL = ("fixed", "routed", "refuted", "accepted")
-_REF = r"(?:#\d+|TODO\s+\d+\.\d+[a-z]?|\d+\.\d+[a-z]?)"
+# A ref is a PR number (`#1`.., never `#0`), a backlog item (`3.73`, `3.56a`, `3.139.1`), or a
+# `TODO`-qualified item. `(` or `[` may sit immediately before it (a parenthesized or link-form ref).
+_REF = r"[(\[]?(?:#[1-9]\d*|TODO\s+\d+(?:\.\d+)+[a-z]?|\d+(?:\.\d+)+[a-z]?)"
 _DISPOSITION_RE = re.compile(
-    r"^(?:fixed|routed)\s+" + _REF + r"(?:\b|[.,;:)])"   # FIXED/ROUTED + adjacent ref
-    r"|^(?:refuted|accepted)\b",                           # REFUTED/ACCEPTED + prose (word only)
+    r"^(?:fixed|routed)\s+" + _REF + r"(?:\b|[.,;:)\]])"   # FIXED/ROUTED + adjacent ref
+    r"|^(?:refuted|accepted)\b",                            # REFUTED/ACCEPTED + prose (word only)
     re.IGNORECASE,
 )
 
@@ -102,11 +110,15 @@ _DISPOSITION_RE = re.compile(
 def disposition_valid(cell: str) -> bool:
     """PURE. Does the Disposition cell carry a well-formed terminal disposition (3.126 grammar)?
 
-    Leading markup (`**`, `` ` ``, `_`, spaces) is stripped first, so `**FIXED #1208**` still counts.
-    Returns False for an empty cell, a bare terminal word with no adjacent ref (FIXED/ROUTED), a
-    narration that merely mentions a ref later (`FIXED in #1208` fails: `in` sits between), and any
-    non-vocabulary prose (`pending`, `OPEN: ...`)."""
-    return bool(_DISPOSITION_RE.match(cell.strip().lstrip("*_` ")))
+    Inline markup (`*`, `_`, `` ` ``, and markdown-link brackets `[` `]`) is removed FIRST, so the
+    documented "whitespace OR markup between the word and the ref" holds: `**FIXED** #1178`,
+    `` FIXED `#1178` ``, `FIXED **#1208**`, `FIXED [#1208](url)`, and `**ROUTED** 3.56a` all validate
+    (claude + codex verify-3126). The ref shapes carry none of those characters, so removing them is
+    lossless for the match. Returns False for an empty cell, a bare terminal word with no adjacent
+    ref, a narration that merely mentions a ref later (`FIXED in #1208`: `in` sits between), a `#0`
+    PR ref, and any non-vocabulary prose (`pending`, `OPEN: ...`)."""
+    plain = re.sub(r"[*_`\[\]]", "", cell).strip()
+    return bool(_DISPOSITION_RE.match(plain))
 
 
 def undispositioned(rows: list, severity: str) -> list:
@@ -214,6 +226,15 @@ def self_test() -> int:
     ck("an empty cell is INVALID", disposition_valid(""), False)
     ck("a bare 'pending' is INVALID", disposition_valid("pending"), False)
     ck("an 'OPEN:' narration is INVALID", disposition_valid("OPEN: a fresh worker is requested"), False)
+    # Markup between the word and the ref is admitted (the contract is "whitespace OR markup"):
+    # claude + codex verify-3126 flagged bold/backtick/paren/link forms as wrongly rejected.
+    ck("bold around just the keyword is valid", disposition_valid("**FIXED** #1178"), True)
+    ck("bold around the ref is valid", disposition_valid("FIXED **#1208**"), True)
+    ck("a backticked ref is valid", disposition_valid("FIXED `#1178`"), True)
+    ck("a parenthesized ref is valid", disposition_valid("FIXED (#1178)"), True)
+    ck("a markdown-link ref is valid", disposition_valid("FIXED [#1208](https://x/pr/1208)"), True)
+    ck("a dotted three-part item ref is valid", disposition_valid("ROUTED 3.139.1"), True)
+    ck("a '#0' PR ref is INVALID (no real PR is #0)", disposition_valid("FIXED #0"), False)
 
     # Same shapes at the row level: exactly the three narrations/bare-words block, the four
     # well-formed rows do not. This is the reality fixture for the false-pass class 3.126 closes:
@@ -253,6 +274,15 @@ def self_test() -> int:
        len(undispositioned(prows, "error")), 1)
     ck("an escaped-pipe row parses to a valid disposition",
        pmalformed[1] is not None and disposition_valid(pmalformed[1]), True)
+    # An EARLY-column unescaped pipe shifts the SEVERITY too, so without forcing a malformed row to
+    # a blocking error it reads as severity `injected` and escapes the error check (codex verify-3126
+    # false-pass reality fixture).
+    early = ("## Open\n"
+             "| Found | Severity | Finding | Source | Disposition |\n"
+             "| --- | --- | --- | --- | --- |\n"
+             "| 2026-07-25 | injected | error | a confirmed defect | probe | |\n")
+    ck("an early-column pipe (mis-read severity) still fails closed",
+       len(undispositioned(parse_open_rows(early), "error")), 1)
 
     ck("gh pr create blocks", is_blocking_command("cd /x && gh pr create --title y"), True)
     ck("gh pr merge blocks", is_blocking_command("gh pr merge 12 --squash --admin"), True)
