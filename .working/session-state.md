@@ -6,9 +6,9 @@
 
 **Operating-mode:** attended-autonomous
 
-**Last-heartbeat-UTC:** 2026-07-28T18:38:02Z
+**Last-heartbeat-UTC:** 2026-07-28T19:17:34Z
 
-**Current-task:** 2026-07-28 attended-autonomous `/resume`. Loop-break /validate (Sweep 128) consumed PASS. Migration PR1 (#1227) MERGED. Next: this close-out PR (#1228), then migration PR2 (`.working/`->`_private` content move; SURFACE before merge).
+**Current-task:** 2026-07-28 attended-autonomous. Migration PR1 (#1227) + close-out (#1228) MERGED. Building PR2a (sever corpus->.working links, done) then PR2b (the .working->_private content move; SURFACE before merge). D-check disposition decided: drop the .working arm from public D1/D5/D7.
 
 **Worker-dispatches:** fleet spawned on-demand via `tools/exec-dispatch.py` (accounts in `_private/worker-accounts.json`). Concurrency-testing config (roadmap 2026-07-27): fallbacks `jposluns-work-claude` + `jeff-posluns-codex` at max 1; `security-work-claude`, `jeff-mailz-claude`, `jeff-posluns-claude`, `jeff-mailz-codex` at max 4 for aggressive testing. Short model names: claude opus/sonnet/haiku/fable; codex gpt-5.6-terra/sol/luna, gpt-5.5, gpt-5.4, gpt-5.4-mini. Order prompt MUST NOT start with `/`; codex dispatch needs `--model`.
 
