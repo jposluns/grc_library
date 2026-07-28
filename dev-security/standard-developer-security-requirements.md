@@ -2,7 +2,7 @@
 
 **Document Title:** Developer Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.10\
+**Version:** 1.1.11\
 **Date:** 2026-07-28\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -347,7 +347,7 @@ All of the following must be validated before any application onboards to a prod
 | --- | --- | --- | --- | --- | --- |
 | Secure SDLC | A.8.25 to 8.26 | AIS-01 to 06 | PW.1 to PW.4 | V15 | N/A |
 | Authentication | A.5.15 to 5.18 | IAM-13 to 15 | N/A | V6 | A01, A07 |
-| Secrets management | A.5.17 | CEK-10 to 21 | PW.8 | V13 | A02 |
+| Secrets management | A.8.24 | CEK-10 to 21 | PW.8 | V13 | A02 |
 | Input validation | A.8.28 | AIS-02 | N/A | V2, V1 | A03 |
 | Cryptography | A.8.24 | CEK-01 to 21 | N/A | V11 | A02 |
 | Error handling and logging | A.8.16 | LOG-01 to 13 | N/A | V16 | A09 |
