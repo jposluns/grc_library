@@ -82,6 +82,13 @@ def _parse_iso(s: str) -> _dt.datetime:
 # --- pure decision logic (now is injected) -----------------------------------------
 def account_available(acct: dict, now: _dt.datetime) -> tuple[bool, str]:
     """Is this account dispatchable at `now`? Returns (ok, reason)."""
+    # Orchestrator-account guard (maintainer-directed 2026-07-28): an account flagged
+    # `is_orchestrator` is the orchestrator's OWN login and is NEVER dispatched as a worker
+    # (independence violation + burns the scarce orchestrator credits the offload design
+    # exists to protect). Only the claude jeff-mailz entry carries the flag, so both codex
+    # accounts stay eligible. Covers auto-pick AND explicit --account (both funnel here).
+    if acct.get("is_orchestrator"):
+        return False, "orchestrator account, reserved (never dispatched as a worker)"
     state = acct.get("usage_state", "available")
     if state == "limited":
         until = acct.get("limited_until")
@@ -564,6 +571,12 @@ _FIXTURE = {
         {"id": "personal-a-codex", "account": "personal-a", "family": "codex",
          "tier": "teams-6.5x", "priority_set": 2, "personal": False,
          "models": ["gpt-5.6-terra"], "usage_state": "available", "limited_until": None},
+        {"id": "orch-claude", "account": "orch", "family": "claude",
+         "tier": "pro-20x", "priority_set": 3, "personal": True, "is_orchestrator": True,
+         "models": ["opus", "sonnet", "haiku"], "usage_state": "available", "limited_until": None},
+        {"id": "orch-codex", "account": "orch", "family": "codex",
+         "tier": "pro-20x", "priority_set": 3, "personal": True,
+         "models": ["gpt-5.6-terra"], "usage_state": "available", "limited_until": None},
     ]
 }
 
@@ -605,7 +618,7 @@ def _self_test() -> int:
 
     # 6. Codex: primary (personal-b, set 1) before secondary (personal-a, set 2).
     cod = [a["id"] for a in eligible_accounts(_FIXTURE, "codex", "gpt-5.6-terra", sunday)]
-    check("codex-primary-first", cod == ["personal-b-codex", "personal-a-codex"])
+    check("codex-primary-first", cod == ["personal-b-codex", "personal-a-codex", "orch-codex"])
 
     # 7. A model no account offers -> empty.
     check("unknown-model-empty", select_account(_FIXTURE, "claude", "no-such-model", sunday) is None)
@@ -828,6 +841,20 @@ def _self_test() -> int:
     pa_ok, _ = pick_account(_FIXTURE, "claude", "opus", sunday, account="work-b",
                             exclude_accounts=frozenset({"work-a"}))
     check("pick-target-unrelated-exclusion-ok", pa_ok is not None and pa_ok["id"] == "work-b-claude")
+
+    # Orchestrator-account guard (maintainer-directed 2026-07-28): is_orchestrator claude is
+    # never eligible and never targetable; the same account's codex entry (unflagged) stays fine.
+    orch_ok, orch_reason = account_available(
+        {"id": "orch-claude", "is_orchestrator": True, "usage_state": "available"}, sunday)
+    check("orchestrator-account-available-refused", orch_ok is False and "orchestrator" in orch_reason)
+    claude_ids = [a["id"] for a in eligible_accounts(_FIXTURE, "claude", "opus", sunday)]
+    check("orchestrator-claude-not-eligible", "orch-claude" not in claude_ids)
+    pa_orch, _ = pick_account(_FIXTURE, "claude", "opus", sunday, account="orch")
+    check("orchestrator-claude-target-refused", pa_orch is None)
+    codex_ids = [a["id"] for a in eligible_accounts(_FIXTURE, "codex", "gpt-5.6-terra", sunday)]
+    check("orchestrator-codex-still-eligible", "orch-codex" in codex_ids)
+    pa_ocx, _ = pick_account(_FIXTURE, "codex", "gpt-5.6-terra", sunday, account="orch")
+    check("orchestrator-codex-target-ok", pa_ocx is not None and pa_ocx["id"] == "orch-codex")
 
     if fails:
         print("SELF-TEST FAIL:", ", ".join(fails))
