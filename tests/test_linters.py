@@ -8448,7 +8448,30 @@ class WorkingResolveNoOpTests(unittest.TestCase):
         self._assert_noop("lint-guardrail-cadence.py", lambda m: m.main([]))
 
     def test_gate43_followup_ageing_noop(self):
-        self._assert_noop("lint-followup-ageing.py", lambda m: m.main())
+        # Gate 43's NORMAL OK line ALSO contains "skipped" ("a target that is
+        # not present is skipped"), so the generic skip-substring check cannot
+        # distinguish the no-op from a scan of a present target. Assert instead
+        # that resolve_working->None makes it scan ZERO targets ("0 of N"); a
+        # removed/broken default-resolver branch would read the present in-repo
+        # `.working/` file and scan 1 of N, failing this. (codex validate-pr-1227.)
+        import io
+        import contextlib
+        mod = self._load("lint-followup-ageing.py")
+        orig_rw, orig_argv = mod.resolve_working, sys.argv
+        buf = io.StringIO()
+        try:
+            mod.resolve_working = lambda rel: None
+            sys.argv = ["lint-followup-ageing.py"]
+            with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):
+                rc = mod.main()
+        finally:
+            mod.resolve_working, sys.argv = orig_rw, orig_argv
+        out = buf.getvalue()
+        self.assertEqual(rc, 0, f"gate 43 must no-op (exit 0) on resolve_working->None.\n{out}")
+        self.assertIn(
+            "0 of", out,
+            "gate 43 no-op must scan ZERO targets (`0 of N`); a broken default "
+            f"resolver reading the present `.working/` file would scan `1 of N`.\n{out}")
 
     def test_gate51_working_prose_hygiene_noop(self):
         self._assert_noop("lint-working-prose-hygiene.py", lambda m: m.main([]))
