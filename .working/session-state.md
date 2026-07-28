@@ -1,14 +1,14 @@
 # Session State (concurrency lease)
 
-**Active-session:** none
+**Active-session:** claude/validate-closeout-1228
 
-**Status:** released
+**Status:** active
 
 **Operating-mode:** attended-autonomous
 
-**Last-heartbeat-UTC:** 2026-07-28T02:35:00Z
+**Last-heartbeat-UTC:** 2026-07-28T18:38:02Z
 
-**Current-task:** overnight deep-assessment dual-family (component-by-component) + /fitness dual-family. Component 1 (/validate) consumed; fixing findings.
+**Current-task:** 2026-07-28 attended-autonomous `/resume`. Loop-break /validate (Sweep 128) consumed PASS. Migration PR1 (#1227) MERGED. Next: this close-out PR (#1228), then migration PR2 (`.working/`->`_private` content move; SURFACE before merge).
 
 **Worker-dispatches:** fleet spawned on-demand via `tools/exec-dispatch.py` (accounts in `_private/worker-accounts.json`). Concurrency-testing config (roadmap 2026-07-27): fallbacks `jposluns-work-claude` + `jeff-posluns-codex` at max 1; `security-work-claude`, `jeff-mailz-claude`, `jeff-posluns-claude`, `jeff-mailz-codex` at max 4 for aggressive testing. Short model names: claude opus/sonnet/haiku/fable; codex gpt-5.6-terra/sol/luna, gpt-5.5, gpt-5.4, gpt-5.4-mini. Order prompt MUST NOT start with `/`; codex dispatch needs `--model`.
 
