@@ -93,7 +93,11 @@ Exit codes:
 
   0   no recycled number and no stale counter.
   1   one or more findings.
-  2   a required file is missing or unparseable.
+  2   a required file is missing or unparseable. `.working/DONE.md` counts as
+      "required" only under an EXPLICIT ``--root``; on the DEFAULT lookup it
+      resolves via ``lint_common.resolve_working`` (private sibling preferred)
+      and an ABSENT ledger downgrades the recycled-number check to a reported
+      skip, exit 0.
 
 Usage:
 
@@ -109,6 +113,8 @@ import argparse
 import re
 import sys
 from pathlib import Path
+
+from lint_common import resolve_working
 
 REPO_ROOT: Path = Path(__file__).resolve().parent.parent
 
@@ -377,14 +383,44 @@ def main(argv: list[str]) -> int:
         REPO_ROOT = args.root.resolve()
 
     todo_path = REPO_ROOT / TODO_REL
-    done_path = REPO_ROOT / DONE_REL
-    for path in (todo_path, done_path):
-        if not path.is_file():
-            print(f"ERROR: required file missing: {path}", file=sys.stderr)
+    if not todo_path.is_file():
+        print(f"ERROR: required file missing: {todo_path}", file=sys.stderr)
+        return 2
+
+    done_path: Path | None
+    if args.root is not None:
+        # EXPLICIT --root stays VERBATIM, including its missing-file exit 2: the
+        # regression fixtures build a synthetic {TODO.md, .working/DONE.md} root
+        # and one asserts a fixture with no DONE.md exits 2. It must NOT soften
+        # to a skip, and must NOT route through resolve_working -- which reads
+        # lint_common's REPO_ROOT, not this module's mutated one, so a --root
+        # fixture would otherwise silently read the LIVE tree's DONE.md.
+        done_path = REPO_ROOT / DONE_REL
+        if not done_path.is_file():
+            print(f"ERROR: required file missing: {done_path}", file=sys.stderr)
             return 2
+    else:
+        done_path = resolve_working("DONE.md")
+        if done_path is None:
+            # `.working/DONE.md` is the maintainer-only retirement ledger. Once
+            # `.working/` moves to grc_library_private it is absent in public CI
+            # and adopter clones, so check A (RECYCLE) no-ops there: with no
+            # recorded retirements there is nothing a live number can collide
+            # WITH. Check B (COUNTER) still runs against the public TODO.md's
+            # live ids and still catches the counter defect; it merely cannot
+            # see a counter colliding with a retired-ONLY number.
+            print(
+                f"OK: {DONE_REL} not present (maintainer-only working state; "
+                f"skipping the recycled-number check in public CI / adopter "
+                f"clone). The TODO.md counter check still ran against the live "
+                f"item ids."
+            )
+
     try:
         todo_text = todo_path.read_text(encoding="utf-8")
-        done_text = done_path.read_text(encoding="utf-8")
+        done_text = (
+            done_path.read_text(encoding="utf-8") if done_path is not None else ""
+        )
     except OSError as exc:
         print(f"ERROR: cannot read a required file: {exc}", file=sys.stderr)
         return 2

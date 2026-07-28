@@ -8386,6 +8386,84 @@ class ResolveSiblingTests(unittest.TestCase):
                 lc.REPO_ROOT = orig
 
 
+class WorkingResolveNoOpTests(unittest.TestCase):
+    """The six .working-reading gates rewired in PR #1227 (50/59/78/60/43/51)
+    must NO-OP with exit 0 and an honest skip line when resolve_working returns
+    None (the .working -> grc_library_private/.working migration end-state: the
+    tree is absent in public CI and in an adopter clone). The other fixtures
+    exercise only the EXPLICIT --root path; this class binds the DEFAULT
+    resolve_working path so a broken default resolver, or a missing no-op
+    branch, cannot pass silently (codex verify of PR #1227, Medium finding).
+    """
+
+    def _load(self, fname: str):
+        import importlib.util
+        tools_dir = str(REPO_ROOT / "tools")
+        if tools_dir not in sys.path:
+            sys.path.insert(0, tools_dir)
+        spec = importlib.util.spec_from_file_location(
+            "noop_" + fname.replace("-", "_").replace(".py", ""),
+            REPO_ROOT / "tools" / fname)
+        assert spec is not None and spec.loader is not None
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    def _assert_noop(self, fname, call):
+        import io
+        import contextlib
+        mod = self._load(fname)
+        orig_rw = mod.resolve_working
+        orig_argv = sys.argv
+        buf = io.StringIO()
+        try:
+            mod.resolve_working = lambda rel: None
+            sys.argv = [fname]
+            with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):
+                rc = call(mod)
+        finally:
+            mod.resolve_working = orig_rw
+            sys.argv = orig_argv
+        out = buf.getvalue()
+        self.assertEqual(
+            rc, 0,
+            f"{fname} must no-op (exit 0) when resolve_working returns None "
+            f"(absent .working/ in public CI / an adopter clone); got {rc}.\n{out}")
+        self.assertTrue(
+            ("not present" in out) or ("skipped" in out) or ("skipping" in out),
+            f"{fname} must print an honest skip line rather than a false-clean "
+            f"result over zero files.\n{out}")
+
+    def test_gate50_bookkeeping_parity_noop(self):
+        self._assert_noop("lint-bookkeeping-parity.py", lambda m: m.main())
+
+    def test_gate59_changelog_mirror_noop(self):
+        self._assert_noop(
+            "lint-changelog-mirror-header-parity.py", lambda m: m.main([]))
+
+    def test_gate78_number_permanence_noop(self):
+        self._assert_noop("lint-todo-number-permanence.py", lambda m: m.main([]))
+
+    def test_gate60_guardrail_cadence_noop(self):
+        self._assert_noop("lint-guardrail-cadence.py", lambda m: m.main([]))
+
+    def test_gate43_followup_ageing_noop(self):
+        self._assert_noop("lint-followup-ageing.py", lambda m: m.main())
+
+    def test_gate51_working_prose_hygiene_noop(self):
+        self._assert_noop("lint-working-prose-hygiene.py", lambda m: m.main([]))
+
+    def test_gate51_display_path_external_is_absolute(self):
+        # display_path renders an ABSOLUTE path for a file OUTSIDE the repo (the
+        # private sibling post-migration), so relative_to(REPO_ROOT) does not
+        # raise ValueError on every finding; a repo-internal path stays relative.
+        mod = self._load("lint-working-prose-hygiene.py")
+        outside = Path("/tmp") / "grc_library_private" / ".working" / "x.md"
+        self.assertEqual(mod.display_path(outside), outside.as_posix())
+        inside = mod.REPO_ROOT / "README.md"
+        self.assertEqual(mod.display_path(inside), "README.md")
+
+
 class DetectEnvIdentityTests(unittest.TestCase):
     """tools/detect-env.py origin-identity probe (TODO section 1.19.5):
     `_origin_is_maintainer` URL matching and `probe_identity` classification.

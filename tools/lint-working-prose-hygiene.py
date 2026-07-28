@@ -34,10 +34,13 @@ Detection logic, per line outside a fenced block (`iter_non_code_lines`):
 Usage:
     python3 tools/lint-working-prose-hygiene.py [paths...]
 
-With no arguments, scans the `.working/` tree. A path argument (file or
-directory) overrides the default, which the regression fixtures rely on to
-point the gate at a single test file. Exits non-zero if any finding is
-reported.
+With no arguments, scans the `.working/` tree, located via
+``lint_common.resolve_working``: ``grc_library_private/.working/`` when the
+private sibling supplies it, else the in-repo ``.working/``. When neither is
+present (public CI / adopter clone) the gate no-ops with an OK line rather than
+reporting a clean scan of zero files. A path argument (file or directory)
+overrides the default, which the regression fixtures rely on to point the gate
+at a single test file. Exits non-zero if any finding is reported.
 """
 
 from __future__ import annotations
@@ -47,10 +50,44 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-from lint_common import iter_markdown_targets, iter_non_code_lines, read_text_safe
+from lint_common import (
+    iter_markdown_targets,
+    iter_non_code_lines,
+    read_text_safe,
+    resolve_working,
+)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_SCAN_PATHS = [str(REPO_ROOT / ".working")]
+
+
+def default_scan_root() -> Path | None:
+    """The `.working/` tree to scan, or None when it is not present.
+
+    Routes the DEFAULT scan root through ``lint_common.resolve_working`` so the
+    gate scans ``grc_library_private/.working/`` once the tree moves there --
+    without this the gate would silently scan nothing and the private prose's
+    em/en-dashes would go undetected, un-ratcheting the #353 conformance. Falls
+    back to the in-repo ``.working/``; returns None when neither is present. An
+    EXPLICIT path argument (the regression fixtures) overrides this entirely.
+
+    ``"."`` denotes the `.working/` ROOT itself rather than a file inside it:
+    pathlib drops a "." component, so the candidate is ``<private>/.working``
+    (resp. ``<repo>/.working``) and ``Path.exists()`` is true for a directory.
+    """
+    return resolve_working(".")
+
+
+def display_path(path: Path) -> str:
+    """Repo-relative display path, absolute when the file is outside the repo.
+
+    Post-migration the scanned files live in the private SIBLING repository, so
+    a bare ``relative_to(REPO_ROOT)`` raises ValueError on every finding -- the
+    same robust-display pattern the other rewired `.working/` readers use.
+    """
+    try:
+        return path.relative_to(REPO_ROOT).as_posix()
+    except ValueError:
+        return path.as_posix()
 
 # The `.working` tree is in DEFAULT_EXEMPT_DIRS for every other linter; this
 # gate deliberately overrides that exemption to scan inside it. The remaining
@@ -83,14 +120,32 @@ def check_file(path: Path) -> list[tuple[int, str]]:
 
 
 def main(argv: list[str]) -> int:
-    paths = argv[1:] or DEFAULT_SCAN_PATHS
+    paths = argv[1:]
+    if not paths:
+        scan_root = default_scan_root()
+        if scan_root is None:
+            # The `.working/` tree is maintainer-only working state. Once it
+            # moves to grc_library_private it is absent in public CI and adopter
+            # clones, so this gate no-ops there; on the maintainer's machine the
+            # private sibling supplies it and the #353 em-dash conformance stays
+            # ratcheted. Said explicitly rather than left to iter_markdown_targets,
+            # which returns [] for a nonexistent path and would print a clean
+            # result for a scan that never happened.
+            print(
+                "OK: the .working/ tree is not present (maintainer-only working "
+                "state; skipping the prose-hygiene audit in public CI / adopter "
+                "clone)."
+            )
+            return 0
+        paths = [str(scan_root)]
+
     files = iter_markdown_targets(paths, exempt_dirs=EXEMPT_DIRS)
 
     grouped: dict[str, list[tuple[int, str]]] = defaultdict(list)
     total = 0
     for f in files:
         for lineno, snippet in check_file(f):
-            grouped[f.relative_to(REPO_ROOT).as_posix()].append((lineno, snippet))
+            grouped[display_path(f)].append((lineno, snippet))
             total += 1
 
     if not grouped:
