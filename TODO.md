@@ -321,15 +321,6 @@ The orchestrator session's umask is `0002`, so every NEW file it creates in `grc
 
 The `--account` override (#1187) gives cross-account parallelism (N workers on N distinct accounts, each serialized by its own wrapper flock at 1). Running MORE THAN ONE worker on the SAME account concurrently is a separate, heavier item: the wrapper's blocking flock on a lock file inside the shared config dir (`$CFGBASE/$account/.wrapper.lock`) is BOTH the safety guarantee and the concurrency-1 cap, so loosening it without per-worker state would race the one shared `CLAUDE_CONFIG_DIR` / `CODEX_HOME`. The design candidate (the `design-multiworker-per-account` xhigh delivery, 2026-07-26) covers: a per-worker config-dir snapshot (copy the auth/credential state, isolate session/lock/cache) with cleanup; moving `max_concurrent` enforcement + an in-flight registry/counter into `exec-dispatch.py` (which is stateless today); and the claude-mktemp-workdir vs codex-fixed-shared-workspace asymmetry. First cut: `cp -r` snapshot + a per-account lock counter + `max_concurrent` bumped to 2, verify no auth contention, before the fuller design. Lower priority now that cross-account parallelism covers the immediate need.
 
-### 3.133 PR close-out scaffolding tool (fresh-eyes 2026-07-26; EXECUTE EARLY, M, M) `[machinery]`
-
-The biggest per-PR efficiency lever. `tools/pr-closeout.py <pr> --summary "..."` does the MECHANICAL close-out half
-in one pass: bump every staged versioned file's Version AND Date to today; advance the touched TODO section counter;
-prepend the CHANGELOG root header + the detailed-mirror heading; refresh `next-prs.txt`; and insert EMPTY
-correctly-columned row skeletons into the validate-pr / retro / bypass / guardrail histories for the orchestrator to
-fill with authored prose. The orchestrator still AUTHORS all content (integrity unchanged); the tool removes the
-error-prone scaffolding and kills the D2/D4/D7 co-bump trap class. Add a `--self-test`.
-
 ### 3.134 Auto-bump-on-commit: extend the version hook from detect to fix (fresh-eyes 2026-07-26; EXECUTE EARLY, M, S) `[machinery]`
 
 Extend [`.claude/hooks/block-unbumped-version-commit.py`](.claude/hooks/block-unbumped-version-commit.py) from DETECT
