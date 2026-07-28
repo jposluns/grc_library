@@ -270,7 +270,7 @@ Umbrella for adopting NIST OSCAL as an open, machine-readable projection of the 
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.185.**
+**Next item number: 3.187.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
 
@@ -496,10 +496,6 @@ Confirmed not-held and load-bearing: ISO 22301:2019 (6+ resilience clause-title 
 
 Component 5's meta-pattern: mis-citations are not invented codes (existence gates + 1916 CSA codes clean) but hand-written LABELS substituted for catalogue titles, wrong ~half the time, which `/matrix-fit` cannot catch (it judges code fit via reference-module titles, never the corpus's OWN printed titles). Build a check that diffs corpus-printed control/clause/standard titles against held catalogue titles.
 
-### 3.177 The `.working/`-delete false-safety: invited deletion breaks 8 gates + 23 corpus links (2026-07-28 deep-assessment c6, both families, H, M)
-
-Four surfaces (`README.md:165`, `.working/README.md`, `CHANGELOG.md:3`, `.claude/CLAUDE.md:146`) tell adopters `.working/` is gate-exempt and deletable, but 8 gates hard-require files in it and 23 corpus links point into it (gate 53 polices corpus->`.project-governance/` but not corpus->`.working/`), so a clean adopter delete fails 9/78 gates. The separation spec that defines the rule violates it in its own metadata (`:9`); `lint-changelog-mirror-header-parity.py:290` fails with a raw `FileNotFoundError` traceback. Add a corpus->`.working` link guard, add the "8 gates require .working" caveat to all 4 surfaces, and diagnose the traceback. The `TODO.md`-delete invitation similarly breaks 12 links.
-
 ### 3.178 Pack drop-in install leaks a private path and yields 18 dead links (2026-07-28 deep-assessment c6, claude, H, S)
 
 `dev-security/claude-rules/CLAUDE.md:58`'s crypto table defers to `security/policy-encryption-and-key-management.md` as canonical mandate, which a pack-only (mode-3) adopter does not have; the `cp claude-rules/CLAUDE.md ./CLAUDE.md` install (README:167-172) yields 18 dead links because the README never says copy the directory. Qualify the crypto reference and fix the install instruction.
@@ -527,6 +523,14 @@ The changelog top entries are maintainer jargon with no adopter banner; the adop
 ### 3.184 Corpus ISO citation currency updates enabled by the 2026-07-28 `_ref` ingest (2026-07-28 ingest follow-up, M, S)
 
 The 2026-07-28 `_ref` egress ingest (PR #105) now holds newer editions the corpus cites at older ones: update `ISO/IEC 27017:2015` citations to `:2026` (second edition supersedes; the corpus cites 2015 across the cloud-security docs and the matrices); update `ISO 19011:2018` citations to `:2026` (fourth edition); and resolve the `ISO/IEC 29134` `:2017`-vs-`:2023` inconsistency to `:2023` (held second edition). Verify each attributed value against the newly-held text (the 27017:2026 control set changed with the ISO/IEC 27002-based restructure, so a mapping review is warranted, not just a version-string bump).
+
+### 3.185 The `TODO.md`-delete invitation similarly breaks ~12 corpus links (2026-07-28 deep-assessment c6, codex verify of #1221, M, S)
+
+Split from 3.177 (closed in #1221, which fixed the `.working/`-delete half). The same false-safety class applies to `TODO.md`: it is a gate-exempt non-deliverable, yet corpus documents link into it, so an adopter who deletes or replaces `TODO.md` breaks ~12 links (verify the exact count at action time). FIX SHAPE: assess whether a delete of `TODO.md` is actually invited anywhere; if so, either add `TODO.md` to gate 53's `GUARDED_TARGET_DIRS` and sever the corpus->`TODO.md` links (the parallel of the #1221 `.working/` fix), or add a truthful caveat. Verify the 12-link figure before acting.
+
+### 3.186 Gate 53 (directional-dependency) misses Markdown reference-style links (2026-07-28 codex verify of #1221, L, S)
+
+`tools/lint-directional-dependency.py`'s `LINK_RE` matches only inline `](target)` links, so a reference-style `[text][ref]` link with a `[ref]: .working/...` (or `.project-governance/...`) definition evades the guard. Pre-existing limitation (predates the #1221 `.working/` widening; not introduced by it) and currently THEORETICAL (a corpus-wide grep found zero live reference-style links into either guarded tree). FIX SHAPE: extend the scan to also resolve reference-style link definitions before classifying, add a regression fixture for the reference-style shape. Low priority while no live evasion exists.
 
 ### 3.114 The advisory CHANGELOG-length tool is looser than the gate that enforces it (2026-07-25, L, XS)
 

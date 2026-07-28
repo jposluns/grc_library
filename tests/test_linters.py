@@ -6697,6 +6697,17 @@ class DirectionalDependencyTests(LinterTestCase):
             result = run_linter("tools/lint-directional-dependency.py", d)
             self.assertLinterFails(result, "corpus-to-project link")
 
+    def test_corpus_to_working_link_flagged(self) -> None:
+        # TODO 3.177: a deliverable-corpus doc must not hard-link into .working/
+        # (maintainer working state adopters may delete) either.
+        with tempfile.TemporaryDirectory() as d:
+            (Path(d) / "note.md").write_text(
+                "# Note\n\nSee [the handoff](.working/session-handoff.md).\n",
+                encoding="utf-8",
+            )
+            result = run_linter("tools/lint-directional-dependency.py", d)
+            self.assertLinterFails(result, "corpus links into .working")
+
     def test_relative_parent_link_flagged(self) -> None:
         # A ``../.project-governance/`` shape resolves into the directory too.
         with tempfile.TemporaryDirectory() as d:

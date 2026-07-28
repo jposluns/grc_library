@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### 3.177 (#1221): `.working/`-delete false-safety corrected (2026-07-28)
+
+Four surfaces invited adopters to delete `.working/` while 8 of 78 gates hard-require files in it and 23 corpus documents linked into it. Extended gate 53 to forbid corpus->`.working/` links, severed the 23, added a truthful caveat (a clean delete fails 8 of 78 gates; bare stubs do not recover the header-content gates) to the four surfaces, fixed the separation-spec's own metadata link and the changelog-mirror gate's raw traceback, and added a regression fixture. The `TODO.md`-delete residual split to 3.185; a reference-style-link gate gap to 3.186.
+
 ### 3.133 (#1215): PR close-out scaffolding tool (2026-07-28)
 
 Built `tools/pr-closeout.py`, the mechanical per-PR close-out scaffolder: it bumps every staged versioned file's Version and Date, emits correctly-columned bypass / validate-pr / retro row templates and the CHANGELOG root + detailed-mirror headers, and refreshes next-prs.txt, retiring the D2/D4/D7 co-bump trap class (the orchestrator still authors all content). Dual-family reviewed (the claude lens caught a must-fix improvement-log bare-vs-#N convention drift, fixed); self-test 47/47 wired into the linter-regression suite.

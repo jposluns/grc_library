@@ -299,8 +299,8 @@ def main(argv: list[str]) -> int:
                 f"ERROR: required file missing: {rel}. This gate compares the root "
                 "CHANGELOG against its detailed mirror, so both must be present. If "
                 "you deleted .working/ as an adopter, note that several audit gates "
-                "require files in it; keep .working/, restore the file in stub form, "
-                "or skip this gate.",
+                "require files in it; keep .working/ or skip this gate (a bare stub "
+                "does not recover this gate, which needs valid header content).",
                 file=sys.stderr,
             )
             return 2

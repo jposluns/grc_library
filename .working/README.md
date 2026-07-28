@@ -12,7 +12,7 @@ This directory holds operational artefacts produced by maintainer-invoked toolin
 
 - **Not library content.** Adopters reading the corpus do not need to read `.working/`. The library's normative content lives in the domain directories (`ai/`, `compliance/`, `governance/`, etc.) and the dev-security claude-rules pack.
 - **Not generated artefacts.** `docs/portal.md`, `docs/maturity-scorecard.md`, and `taxonomy.yml` are mechanically generated from corpus metadata. `.working/` is hand-curated or AI-assisted but human-reviewed; not a build output.
-- **Not for adopter consumption.** Adopters cloning the library should treat `.working/` as the upstream maintainer's local state; delete it, ignore it, or keep it as historical context, their choice. Caveat: several audit gates read files inside `.working/`, so a clean adopter delete fails 9 of 78 gates; if you run the full audit programme (`tools/run_all_audits.sh`), keep it, restore the required files in stub form, or skip those gates.
+- **Not for adopter consumption.** Adopters cloning the library should treat `.working/` as the upstream maintainer's local state; delete it, ignore it, or keep it as historical context, their choice. Caveat: several audit gates read files inside `.working/`, so a clean adopter delete fails 8 of 78 gates; if you run the full audit programme (`tools/run_all_audits.sh`), keep `.working/` or skip those gates (restoring bare stub files does NOT fully recover: some gates need valid field content, not empty stubs).
 
 ## Standard layout for each activity
 
@@ -50,7 +50,7 @@ Single-file artefacts that don't fit the activity-subdirectory shape because the
 
 If you fork or clone this library as a starting point for your own GRC programme:
 
-- **You may safely delete `.working/` for READING the corpus**, nothing in the library's canonical *content* depends on it; but several audit gates read files inside `.working/`, so a clean adopter delete fails 9 of 78 gates; if you run the full audit programme (`tools/run_all_audits.sh`), keep it, restore the required files in stub form, or skip those gates.
+- **You may safely delete `.working/` for READING the corpus**, nothing in the library's canonical *content* depends on it; but several audit gates read files inside `.working/`, so a clean adopter delete fails 8 of 78 gates; if you run the full audit programme (`tools/run_all_audits.sh`), keep `.working/` or skip those gates (restoring bare stub files does NOT fully recover: some gates need valid field content, not empty stubs).
 - **You may keep it as historical reference**, the contents document decisions the upstream maintainer made and may inform your own adaptation.
 - **You should not extend the upstream `.working/` with your own working state**, create a fresh `.working/` for your own outputs; mixing the two histories defeats the audit-trail value on both sides.
 

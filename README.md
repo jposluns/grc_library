@@ -4,8 +4,8 @@
 **Classification:** Public\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
-**Library Version:** 2026.07.711 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.10.72 (semantic per-document version for this file)
+**Library Version:** 2026.07.712 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.10.73 (semantic per-document version for this file)
 
 ---
 
@@ -162,7 +162,7 @@ Repository infrastructure directories (not used for governance artefacts):
                 them as their own governance (see .project-governance/README.md).
 /.working       Maintainer working state (session handoff, QA-history registers, detailed
                 CHANGELOG mirror, improvement log): audit-trail and process records, exempt
-                from the corpus audit gates. Adopters may delete it (see .working/README.md), but note several audit gates read files inside `.working/`, so a clean adopter delete fails 9 of 78 gates; if you run the full audit programme (`tools/run_all_audits.sh`), keep it, restore the required files in stub form, or skip those gates.
+                from the corpus audit gates. Adopters may delete it (see .working/README.md), but note several audit gates read files inside `.working/`, so a clean adopter delete fails 8 of 78 gates; if you run the full audit programme (`tools/run_all_audits.sh`), keep `.working/` or skip those gates (restoring bare stub files does NOT fully recover: some gates need valid field content, not empty stubs).
 /TODO.md        Forward-looking maintainer backlog. Not a governance artefact; adopters may delete.
 /RESUME.md      Maintainer session-resume pointer. Internal; adopters may delete.
 ```
