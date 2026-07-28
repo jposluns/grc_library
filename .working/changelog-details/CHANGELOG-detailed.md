@@ -8,6 +8,10 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-28, Library Version 2026.07.721, PR #1232
+
+Session-closing handoff (2026-07-28b, attended wind-down ~7h, maintainer-directed at 7pm). Working-state only: refreshed [`.working/session-handoff.md`](../session-handoff.md) (session-closing state snapshot with green-at `0db65053`, a new asserted-expectations block, a next-actions block pointing to PR2b-2b reword+copy then PR2b-3 delete), RELEASED the [`.working/session-state.md`](../session-state.md) concurrency lease, batched #1231's (PR2b-2a) `/validate-pr` history row + detail, `/retro` row, and merge-bypass row, fixed a reintroduced duplicated "Pre-push dual-family skeptical verify:" phrase in the #1231 entry, and pre-queued the loop-break `/validate` (`loopbreak-validate-0db65053b`) for the next `/resume`. Exempt from a trailing `/validate-pr` + `/retro` (loop-break); the compensating control is the next `/resume` corpus-wide `/validate`.
+
 ## 2026-07-28, Library Version 2026.07.720, PR #1231
 
 Migration PR2b-2a: the contained fixes surfaced by #1230's (PR2b-1) post-merge dual-family `/validate-pr`. Makes the `.working/`-consuming tooling correct for the post-move state ahead of the content copy (PR2b-2b) and deletion (PR2b-3), and corrects the #1230 CHANGELOG record. Non-breaking pre-move: every changed check keeps its current behaviour while the in-repo `.working/` exists.
@@ -23,7 +27,7 @@ Migration PR2b-2a: the contained fixes surfaced by #1230's (PR2b-1) post-merge d
 ### Verification
 - All 78 gates green; the linter-regression runner rc=0; `run-pr-time-checks.sh` green (the three re-scoped gates unchanged in the current pre-move state); `audit-cross-repo-references --self-test` 5/5.
 - #1230's (PR2b-1) post-merge dual-family `/validate-pr` consumed here (rows + detail batched in); its six findings are FIXED (four LOW CHANGELOG, one MEDIUM link-resolution, three delta-gate) or ACCEPTED-with-residue (resolve_working_for_write).
-- Pre-push dual-family skeptical verify: Pre-push dual-family skeptical verify (claude + codex, distinct accounts): NO blocker/high. Claude raised one MEDIUM record-integrity finding: the `resolve_working_for_write` docstring residue note was claimed in the records but had silently no-matched and NOT landed (an intent-vs-artefact slip); FIXED by actually adding the note (verified present). Claude confirmed no other on-pr gate breaks post-move. Codex built and tested a post-move fixture corroborating the three re-scoped gates; no distinct codex finding against the changed code surfaced.
+- Pre-push dual-family skeptical verify (claude + codex, distinct accounts): NO blocker/high. Claude raised one MEDIUM record-integrity finding: the `resolve_working_for_write` docstring residue note was claimed in the records but had silently no-matched and NOT landed (an intent-vs-artefact slip); FIXED by actually adding the note (verified present). Claude confirmed no other on-pr gate breaks post-move. Codex built and tested a post-move fixture corroborating the three re-scoped gates; no distinct codex finding against the changed code surfaced.
 
 ## 2026-07-28, Library Version 2026.07.719, PR #1230
 
