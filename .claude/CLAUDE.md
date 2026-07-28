@@ -143,7 +143,7 @@ one must be added to all (the gate-parity audit enforces this).
   frozen-state archives (cross-references accurate as-of write-time), exempt from corpus
   audit gates, and not intended for adopter consumption. See
   [`.working/README.md`](../.working/README.md) for the convention and subdirectory
-  inventory. Adopters cloning the library can delete `.working/` outright or keep it.
+  inventory. Adopters cloning the library can delete `.working/` outright or keep it; note several audit gates read files inside `.working/`, so a clean adopter delete fails 9 of 78 gates; if you run the full audit programme (`tools/run_all_audits.sh`), keep it, restore the required files in stub form, or skip those gates.
 
 ## Operational state lives in `grc_library_private` (the one delegation directive)
 

@@ -8,6 +8,18 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-28, Library Version 2026.07.711, PR #1221
+
+Fixes the highest-severity adoptability finding from the deep-assessment (TODO 3.177, dual-family): four surfaces invite adopters to delete `.working/`, but 7 audit gates read files inside it and 23 deliverable-corpus documents hard-link into it, so a clean delete fails 9 of 78 gates.
+
+### Fixed
+- **Gate 53 extended to guard corpus->`.working/` links.** [`tools/lint-directional-dependency.py`](../../tools/lint-directional-dependency.py) now guards both `.project-governance/` and `.working/` as forbidden link targets (a `GUARDED_TARGET_DIRS` tuple + a `guarded_target_dir()` that names which rule matched), extended in place so no gate-count/parity surface changes. The 23 pre-existing corpus->`.working/` links (22 in the audit-programme spec, 1 in the project-governance-separation spec's own `Related Documents` metadata, which defined the rule it violated) were severed to plain backticked text in the same PR so the guard lands green.
+- **Named diagnosis instead of a traceback.** [`tools/lint-changelog-mirror-header-parity.py`](../../tools/lint-changelog-mirror-header-parity.py) guarded both required inputs (`read_text_safe` returns None only on a decode error; a missing file propagated `FileNotFoundError`), so an adopter who deleted `.working/` gets a one-line ERROR + exit 2 rather than a 12-frame traceback.
+- **Caveat on the four delete-invitation surfaces** (the README, the root CHANGELOG, the project CLAUDE.md, and the .working README, twice): "several audit gates read files inside `.working/`, so a clean adopter delete fails 9 of 78 gates; keep it, restore stubs, or skip those gates". Also fixed the incidental dead design-decisions link in the .working README (relocated to the private store).
+
+### Verification
+- Worker-drafted candidate verified end-to-end (all 78 gates pass) and orchestrator-re-verified at source: gate 53 catches all 23 before the sever and passes after; gate 59 gives the named diagnosis with `.working/` absent and is a no-op present; taxonomy/portal regenerated after the metadata sever. Dual-family skeptical verify pending pre-merge.
+
 ## 2026-07-28, Library Version 2026.07.710, PR #1220
 
 Routes the findings of the overnight component-by-component dual-family `/deep-assessment` (all six worker-capable components run, each on both a claude and a codex worker, reconciled with every positive re-verified at source).

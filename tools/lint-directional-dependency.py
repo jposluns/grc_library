@@ -4,7 +4,7 @@
 Enforces the one-way dependency rule of
 ``governance/specification-project-governance-separation.md`` section 4:
 no corpus (deliverable) document may contain a markdown link whose
-resolved target is inside the ``.project-governance/`` directory.
+resolved target is inside the ``.project-governance/`` OR ``.working/`` directory (`.working/` is maintainer working state adopters may delete; TODO 3.177).
 Project governance depends on the corpus, never the reverse; a
 corpus-to-project link would invert that dependency. This gate is the
 mechanical backstop for section 7.3, which previously recorded the gate
@@ -64,9 +64,14 @@ from lint_common import AUDITED_DOMAIN_DIRS, is_fence_line
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
-# The project-governance directory: the target the direction rule forbids
-# corpus documents from linking into.
+# The target directories the direction rule forbids corpus documents from
+# linking into. `.project-governance/` is project governance (separation spec
+# section 4); `.working/` is maintainer working state that adopters are invited
+# to delete, so a deliverable-corpus doc must not hard-link into it either
+# (TODO 3.177: gate 53 policed `.project-governance` but not `.working`).
 PROJECT_GOV_DIR = ".project-governance"
+WORKING_DIR = ".working"
+GUARDED_TARGET_DIRS: tuple[str, ...] = (PROJECT_GOV_DIR, WORKING_DIR)
 
 # Match markdown links ``[text](target)`` where target is not external.
 # Same patterns as the broken-link checker (gate 3).
@@ -129,17 +134,20 @@ def iter_markdown_files(paths: list[str]) -> list[Path]:
     return sorted(set(kept))
 
 
-def links_into_project_gov(source: Path, target: str) -> bool:
-    """True if ``target`` (a link in ``source``) resolves into project governance."""
+def guarded_target_dir(source: Path, target: str) -> str | None:
+    """The guarded dir a link resolves into (`.project-governance`/`.working`), or None."""
     target_no_anchor = target.split("#", 1)[0]
     if not target_no_anchor:
-        return False  # pure-anchor link
+        return None  # pure-anchor link
     resolved = (source.parent / target_no_anchor).resolve()
-    return PROJECT_GOV_DIR in resolved.parts
+    for guarded in GUARDED_TARGET_DIRS:
+        if guarded in resolved.parts:
+            return guarded
+    return None
 
 
-def check_file(path: Path) -> list[tuple[int, str]]:
-    findings: list[tuple[int, str]] = []
+def check_file(path: Path) -> list[tuple[int, str, str]]:
+    findings: list[tuple[int, str, str]] = []
     in_code = False
     with path.open("r", encoding="utf-8") as fh:
         for lineno, raw in enumerate(fh, 1):
@@ -153,8 +161,9 @@ def check_file(path: Path) -> list[tuple[int, str]]:
                 target = m.group(1)
                 if EXTERNAL.match(target):
                     continue
-                if links_into_project_gov(path, target):
-                    findings.append((lineno, target))
+                guarded = guarded_target_dir(path, target)
+                if guarded is not None:
+                    findings.append((lineno, target, guarded))
     return findings
 
 
@@ -162,7 +171,7 @@ def main(argv: list[str]) -> int:
     paths = argv[1:] or DEFAULT_CORPUS_ROOTS
 
     files = iter_markdown_files(paths)
-    grouped: dict[str, list[tuple[int, str]]] = defaultdict(list)
+    grouped: dict[str, list[tuple[int, str, str]]] = defaultdict(list)
     total = 0
     for f in files:
         for finding in check_file(f):
@@ -175,20 +184,21 @@ def main(argv: list[str]) -> int:
 
     if not grouped:
         print(
-            "OK: no corpus-to-project link "
-            f"(no deliverable-corpus document links into {PROJECT_GOV_DIR}/)."
+            "OK: no corpus-to-project link (no deliverable-corpus document "
+            f"links into {PROJECT_GOV_DIR}/ or {WORKING_DIR}/)."
         )
         return 0
 
     print("Corpus-to-project directional-dependency audit FAILED:")
     for relpath in sorted(grouped):
         print(f"=== {relpath} ===")
-        for lineno, target in grouped[relpath]:
-            print(f"  L{lineno} -> {target}  (corpus-to-project link)")
+        for lineno, target, guarded in grouped[relpath]:
+            print(f"  L{lineno} -> {target}  (corpus links into {guarded}/)")
     print(
         f"\nFAIL: {total} corpus-to-project link(s) across {len(grouped)} file(s). "
         f"The one-way dependency rule (separation spec section 4) forbids a "
-        f"deliverable-corpus document from linking into {PROJECT_GOV_DIR}/; "
+        f"deliverable-corpus document from linking into {PROJECT_GOV_DIR}/ or "
+        f"{WORKING_DIR}/ (maintainer working state adopters may delete); "
         "sever the link to a plain-text mention, or move the citing document "
         "to a non-deliverable surface."
     )

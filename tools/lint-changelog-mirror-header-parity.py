@@ -287,6 +287,23 @@ def main(argv: list[str]) -> int:
 
     root_changelog = args.root / ROOT_CHANGELOG_REL
     detailed_mirror = args.root / DETAILED_MIRROR_REL
+    # read_text_safe returns None only on a decode error; a missing file
+    # propagates FileNotFoundError. The mirror lives under .working/, which the
+    # adopter-facing surfaces invite deleting, so absence is a reachable state:
+    # guard both required inputs so an absent one is a named diagnosis, not a
+    # 12-frame traceback (TODO 3.177).
+    for rel, path in ((ROOT_CHANGELOG_REL, root_changelog),
+                      (DETAILED_MIRROR_REL, detailed_mirror)):
+        if not path.is_file():
+            print(
+                f"ERROR: required file missing: {rel}. This gate compares the root "
+                "CHANGELOG against its detailed mirror, so both must be present. If "
+                "you deleted .working/ as an adopter, note that several audit gates "
+                "require files in it; keep .working/, restore the file in stub form, "
+                "or skip this gate.",
+                file=sys.stderr,
+            )
+            return 2
     mirror_text = read_text_safe(detailed_mirror) or ""
     cutoff = effective_cutoff(mirror_text)
     root_records = pr_headers(read_text_safe(root_changelog) or "", cutoff=cutoff)

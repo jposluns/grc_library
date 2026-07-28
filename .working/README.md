@@ -12,7 +12,7 @@ This directory holds operational artefacts produced by maintainer-invoked toolin
 
 - **Not library content.** Adopters reading the corpus do not need to read `.working/`. The library's normative content lives in the domain directories (`ai/`, `compliance/`, `governance/`, etc.) and the dev-security claude-rules pack.
 - **Not generated artefacts.** `docs/portal.md`, `docs/maturity-scorecard.md`, and `taxonomy.yml` are mechanically generated from corpus metadata. `.working/` is hand-curated or AI-assisted but human-reviewed; not a build output.
-- **Not for adopter consumption.** Adopters cloning the library should treat `.working/` as the upstream maintainer's local state; delete it, ignore it, or keep it as historical context, their choice.
+- **Not for adopter consumption.** Adopters cloning the library should treat `.working/` as the upstream maintainer's local state; delete it, ignore it, or keep it as historical context, their choice. Caveat: several audit gates read files inside `.working/`, so a clean adopter delete fails 9 of 78 gates; if you run the full audit programme (`tools/run_all_audits.sh`), keep it, restore the required files in stub form, or skip those gates.
 
 ## Standard layout for each activity
 
@@ -33,7 +33,7 @@ Single-file artefacts that don't fit the activity-subdirectory shape because the
 | File | Purpose | Origin |
 | --- | --- | --- |
 | [`DONE.md`](DONE.md) | Closed-TODO ledger: which backlog items each PR closed, keyed by original ID. Complements the root [`CHANGELOG.md`](../CHANGELOG.md) (which records file-level change detail). | PR #131 |
-| [`design-decisions.md`](design-decisions.md) | Reference log of design decisions: working-state conventions, audit-programme architecture decisions, language conventions, decisions explicitly dropped. Thematically organized. Complements [`DONE.md`](DONE.md) (closed items, not decisions) and [`../CHANGELOG.md`](../CHANGELOG.md) (file-level change detail). | PR #135 |
+| `design-decisions.md` (relocated to the maintainer's private store) | Reference log of design decisions: working-state conventions, audit-programme architecture decisions, language conventions, decisions explicitly dropped. Thematically organized. Complements [`DONE.md`](DONE.md) (closed items, not decisions) and [`../CHANGELOG.md`](../CHANGELOG.md) (file-level change detail). | PR #135 |
 
 ## Activities
 
@@ -50,7 +50,7 @@ Single-file artefacts that don't fit the activity-subdirectory shape because the
 
 If you fork or clone this library as a starting point for your own GRC programme:
 
-- **You may safely delete `.working/`**, nothing in the library's canonical content depends on it.
+- **You may safely delete `.working/` for READING the corpus**, nothing in the library's canonical *content* depends on it; but several audit gates read files inside `.working/`, so a clean adopter delete fails 9 of 78 gates; if you run the full audit programme (`tools/run_all_audits.sh`), keep it, restore the required files in stub form, or skip those gates.
 - **You may keep it as historical reference**, the contents document decisions the upstream maintainer made and may inform your own adaptation.
 - **You should not extend the upstream `.working/` with your own working state**, create a fresh `.working/` for your own outputs; mixing the two histories defeats the audit-trail value on both sides.
 

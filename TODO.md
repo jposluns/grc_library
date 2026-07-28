@@ -400,51 +400,51 @@ On 2026-07-27 the orchestrator probed and dispatched with full model IDs (`claud
 
 Nothing compares [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md)'s `Owner Role` column to the target document's own `**Owner:**` field; both are individually legal roles so `lint-roles.py` cannot see the conflict. The claude lens re-derived **27 live divergences** across 312 rows (e.g. `policy-exception-and-risk-acceptance-management.md` register `Chief Risk Officer` vs doc `Chief Information Security Officer`, orchestrator-verified). Build a gate comparing the two, and reconcile the 27 (each a per-document decision on the authoritative owner).
 
-### 3.153 Forward/reverse crosswalk pair-consistency is unenforced (an A.8.29 outlier is live) (2026-07-28 deep-assessment c2, ERROR, S)
+### 3.153 Forward/reverse crosswalk pair-consistency is unenforced (an A.8.29 outlier is live) (2026-07-28 deep-assessment c2, H, S)
 
 No tool references [`governance/matrix-reverse-framework-control-crosswalk.md`](governance/matrix-reverse-framework-control-crosswalk.md); its own "the two matrices are pair-consistent" assertion is unchecked. Row `:64` maps `A.8.29` to the pen-test doc whose own alignment table carries no `A.8.29`. Build a pair-consistency gate: each reverse-crosswalk row's control appears in the target doc's alignment table.
 
-### 3.154 Matrix `N/A` is an unaudited escape hatch + semantic-mapping blind spot (2026-07-28 deep-assessment c2, W, S)
+### 3.154 Matrix `N/A` is an unaudited escape hatch + semantic-mapping blind spot (2026-07-28 deep-assessment c2, M, S)
 
 `lint-matrix-control-codes.py` accepts `N/A` unconditionally at three sites; `matrix-grc-compliance-alignment.md:385` carries AICM `N/A` while its CCM cell cites `AIS-04/05`, violating the column key. Semantic mapping correctness is the `/matrix-fit` cadence's job, but consider gating a bare `N/A` where a sibling framework column is populated.
 
-### 3.155 Cross-document statutory-date coherence is untracked beyond one term (2026-07-28 deep-assessment c2, W, S)
+### 3.155 Cross-document statutory-date coherence is untracked beyond one term (2026-07-28 deep-assessment c2, M, S)
 
 `lint-cross-doc-numbers.py` tracks only the GDPR 72h window; the Colorado AI Act "30 June 2026" date is restated in 4 files with no gate comparing them. Widen the cross-doc-numbers gate to a curated statutory-date set.
 
-### 3.156 Role-vocabulary closure does not cover body prose (2026-07-28 deep-assessment c2, W, S)
+### 3.156 Role-vocabulary closure does not cover body prose (2026-07-28 deep-assessment c2, M, S)
 
 `lint-roles.py` scopes to the two metadata fields only; `Service Owner` (SLM:74) and `Incident Commander` (used 22x) carry normative authority in body prose but are absent from `register-role-authority.md`. Extend role-closure to body-prose authority roles.
 
-### 3.157 Metadata `Classification`/`Confidentiality` allowed-value sets are unenforced (2026-07-28 deep-assessment c2, W, S)
+### 3.157 Metadata `Classification`/`Confidentiality` allowed-value sets are unenforced (2026-07-28 deep-assessment c2, M, S)
 
 `lint-metadata.py` enforces `ALLOWED_TYPES` for `Document Type` only; `Classification` and `Confidentiality` are presence-only, so changing a doc to `Classification: Restricted` passes all 78 gates while contradicting the CC BY-SA public basis. Add allowed-value sets.
 
-### 3.158 Gate-50 `SUBSUMPTION_FINDINGS` fail-open: incidental "not run" prose mis-classifies a row as exempt (2026-07-28 deep-assessment c3, W, S)
+### 3.158 Gate-50 `SUBSUMPTION_FINDINGS` fail-open: incidental "not run" prose mis-classifies a row as exempt (2026-07-28 deep-assessment c3, M, S)
 
 The regex `SUBSUMED|NOT\s+run|maintainer[-\s]authori...` matches anywhere in a Findings cell, evaluated BEFORE the pending check, so 3 ordinary rows (#1186 "do not run --prune", #1044 "did not run the grep", #1035) are mis-classified as exemption rows. A future genuinely-pending row carrying such prose escapes Check 1, a fail-open in the very check TODO 3.120 built. Scope the marker to an authorization context (a dedicated token/cell), not incidental prose. [`tools/lint-bookkeeping-parity.py`](tools/lint-bookkeeping-parity.py):189-190,301-306.
 
-### 3.159 Gate-50 naive pipe-split misparses ledger rows with inline `| pending |` code (2026-07-28 deep-assessment c3, W, S)
+### 3.159 Gate-50 naive pipe-split misparses ledger rows with inline `| pending |` code (2026-07-28 deep-assessment c3, M, S)
 
 `lint-bookkeeping-parity.py:274-276,300` uses `line.split("|")`; inline `| pending |` code in a cell shifts columns. Census at the pin: 12 malformed rows in `validate-pr/history.md`, 18 in `improvement-log.md`. Benign only because `RETURNED` precedes the first inner pipe; a `DISPATCHED`/`PENDING` token after one reads as `normal` (fail-open). Escape cell pipes and/or make the parser code-span-aware; also restore the 5-cell #1169-#1172 rows to 7 columns.
 
-### 3.160 An abbreviated `/validate-pr` stands as the QA-of-record for a gate-logic change (#1210) (2026-07-28 deep-assessment c3, both families, W, S)
+### 3.160 An abbreviated `/validate-pr` stands as the QA-of-record for a gate-logic change (#1210) (2026-07-28 deep-assessment c3, both families, M, S)
 
 #1210's validate-pr row records `RETURNED: PASS, SHIP` while its own text admits "a LIGHTER pass" self-run with no maintainer authorization, for a PR that changed gate 50's own detection logic; #1179/#1172/#1171/#1170/#1169 were one subagent run at ~66s/PR (vs 159-372s/PR formal), no abbreviation disclosure. Re-run a proper `/validate-pr` on #1210's gate-50 change to confirm the logic is sound; the discipline gap is recorded.
 
-### 3.161 The GFM delimiter row in the QA ledgers sits at file-end, not after the header (2026-07-28 deep-assessment c3, W, XS)
+### 3.161 The GFM delimiter row in the QA ledgers sits at file-end, not after the header (2026-07-28 deep-assessment c3, M, XS)
 
 `validate-pr/history.md` and `improvement-log.md` carry their table delimiter at the FILE END below all data rows (improvement-log has a duplicated delimiter), so the tables technically have no header-delimiter. Gates pass and the web generator renders, so it is latent; #1201's N1 "delimiter below the two newest rows, ACCEPTED" disposition rests on a description wrong by ~356 rows. Decide whether to correct or document the shape.
 
-### 3.162 The deep-assessment register self-contradicts its own phase state (2026-07-28 deep-assessment c3, note, XS)
+### 3.162 The deep-assessment register self-contradicts its own phase state (2026-07-28 deep-assessment c3, L, XS)
 
 `deep-assessment/register.md:31` records r4 `P1..P7 = complete` while the r4 detail file still lists 6 phases `NOT-STARTED`; its `P8` cell holds `signed-off`, outside the documented per-phase vocabulary and post-#1213 sign-off removal; the r2 continuation paragraph sits out of run-order. The register is declared the durable phase-state a bare `/deep-assessment` resumes from, so the contradiction matters.
 
-### 3.163 The #1209 retro row carries a refuted migration count (2026-07-28 deep-assessment c3, note, XS)
+### 3.163 The #1209 retro row carries a refuted migration count (2026-07-28 deep-assessment c3, L, XS)
 
 `improvement-log.md` #1209 row asserts "the 49-row migration was deterministic" while the #1209 validate-pr F-1 corrected it to 48 (DONE.md says 48); the retro was written in the same PR that landed the correction and still carries the refuted count.
 
-### 3.164 QA-ledger stated-rule-vs-content drifts (incl. bypass-log within-date ordering) (2026-07-28 deep-assessment c3, note, XS)
+### 3.164 QA-ledger stated-rule-vs-content drifts (incl. bypass-log within-date ordering) (2026-07-28 deep-assessment c3, L, XS)
 
 `merge-bypass-log.md`: the "15 rows above" retrospective pointer is stale (backfilled set #1151-#1165, later rows appended below); the #1151 floor is not stated as an inception boundary; the "newest first within a date" order is violated (2026-07-28 rows read #1215,#1216,#1217,#1218 ascending). `improvement-log.md` "one row per merged PR" omits the handoff carve-out gate 50 correctly encodes. Reconcile the stated rules to the (correct) content.
 
@@ -468,11 +468,11 @@ Model-mismatch, rate-limit, unavailable, and no-capacity all collapse to one mes
 
 Add an EACCES fixture to the self-tests of `audit-worker-saturation.py`, `collect-deliveries.py`, `audit-delivery-status.py`, and `manage-workers.py`, so the unreadable-plane path (3.165/3.167) is regression-covered.
 
-### 3.170 "Secret scanning" is cited as ISO `A.8.10` in three files (2026-07-28 deep-assessment c1/#1219 verifier, W, S)
+### 3.170 "Secret scanning" is cited as ISO `A.8.10` in three files (2026-07-28 deep-assessment c1/#1219 verifier, M, S)
 
 `.claude/rules/cicd-gates.md:136`, `dev-security/claude-rules/pipeline/cicd-gates.md:127`, and `dev-security/standard-devops-security-requirements.md:207` cite `A.8.10` (Information deletion) for secret scanning. Either A.8.10 is wrong there too or the concept differs from "secrets management" (fixed to A.8.24 in #1219); decide one answer (likely A.8.28 secure coding or A.8.24) and apply consistently.
 
-### 3.171 NIST SP 800-63B cited as Rev. 4 by name while carrying Rev. 3 substance (2026-07-28 deep-assessment c5, claude, ERROR, M)
+### 3.171 NIST SP 800-63B cited as Rev. 4 by name while carrying Rev. 3 substance (2026-07-28 deep-assessment c5, claude, H, M)
 
 Three sites name Rev. 4 but use Rev. 3 section numbers/substance (the highest-severity instance of the label-drift class). Decide the intended revision and reconcile the citation and the content together.
 
@@ -484,11 +484,11 @@ Three sites name Rev. 4 but use Rev. 3 section numbers/substance (the highest-se
 
 `compliance/annex-nis-2-implementation.md:36` cites "Article 3" for the size cap; held Art 2(1) (not Art 3) states no figures, incorporating Recommendation 2003/361/EC by reference, and the flat "or" loses the Recommendation's conjunctive headcount test. Fix the article reference and the phrasing.
 
-### 3.174 Citation-precision phrasing (72h-from-confirmation, PR.AA title, joint-controller allocation) (2026-07-28 deep-assessment c5, codex, W, XS)
+### 3.174 Citation-precision phrasing (72h-from-confirmation, PR.AA title, joint-controller allocation) (2026-07-28 deep-assessment c5, codex, M, XS)
 
 `security/procedure-security-incident-response.md:175` says GDPR "72 hours from confirmation" vs the statutory "after becoming aware"; the PR.AA title is truncated at `matrix-reverse:92`; the joint-controller allocation at `template-joint-controller:109` is informed-not-prescribed. Phrasing corrections (a `/claim-fit`-class batch).
 
-### 3.175 Acquire the load-bearing references the reference base does not hold (2026-07-28 deep-assessment c5, both families, MAINTAINER-GATED)
+### 3.175 Acquire the load-bearing references the reference base does not hold (2026-07-28 deep-assessment c5, both families, H, L; maintainer-gated acquisition)
 
 Confirmed not-held and load-bearing: ISO 22301:2019 (6+ resilience clause-title claims), ISO/IEC 27033 (all parts), ISO/IEC 27007, ISO/IEC 27014, Commission Recommendation 2003/361/EC, and primary privacy law for 16 corpus jurisdictions (china/india/indonesia/kenya/malaysia/new-zealand/nigeria/philippines/saudi-arabia/singapore/south-africa/switzerland/thailand/turkey/uae/vietnam). Every deadline/threshold in those annexes is unadjudicable until acquired. Route to the maintainer source-acquisition queue per the missing-reference SOP; do NOT adjudicate from memory.
 
