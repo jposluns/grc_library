@@ -8,6 +8,18 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-28, Library Version 2026.07.708, PR #1218
+
+Overnight-session resume close-out (the first PR of the 2026-07-28 overnight-unattended session, resumed from the #1217 handoff).
+
+### Changed
+- Recorded **Sweep 127** in [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md): the DUAL-FAMILY loop-break corpus-wide `/validate` over the #1213..#1216 deltas (head `9fd2dd2d`=#1216), PRE-QUEUED at the #1217 wind-down and consumed at this overnight resume. Both families delivered; complementary yield (claude caught 3 ISO/IEC 27001:2022 A.6.2 to A.6.7 citation errors in remote-working/BYOD contexts plus a secrets A.5.17 warning; codex caught the [`tools/lint-audit-gate-parity.py`](../../tools/lint-audit-gate-parity.py) docstring D1-D8 to D1-D9 drift). All 6 #1216 asserted-expectations were CORROBORATED and ZERO contradicted; the citation errors are pre-existing latent defects in documents #1216 did not touch, so ordinary findings rather than misses. Loop-break control for #1217 PASSES. The 6 fixable findings are FIXED in the follow-on fix PR; the remainder ROUTED to TODO.
+- Advanced the Resume cursor to Sweep 127 and PRUNED [`.working/session-handoff.md`](../session-handoff.md) to current-plus-one-prior per per-session stack.
+- Acquired the concurrency lease in [`.working/session-state.md`](../session-state.md) (Status active, overnight-unattended).
+
+### Verification
+- Pre-push guard green (both runners, 78 gates). The codex vpr-1216 HOLD (a read-only worker could not read the maintainer-private changelog archive) was RESOLVED by the orchestrator confirming [`grc_library_private/changelog-archive/2026-07-27-daily.md`] holds all 20 swept #1195-#1214 entries.
+
 ## 2026-07-28, Library Version 2026.07.707, PR #1217 (2026-07-27b session-closing handoff)
 
 Session-closing handoff for the 2026-07-27b session (`/resume` at 22:02Z, attended-autonomous winding to overnight). Working-state only; no corpus or code change.
