@@ -199,6 +199,12 @@ def resolve_working_for_write(relpath: str, *, repo_root: Path | None = None) ->
     is present, else the private sibling's ``.working/<relpath>`` when that sibling exists
     (the post-migration home), else the in-repo ``.working/<relpath>`` (the pre-migration /
     adopter fallback). The caller creates the parent directory as needed. Never ``None``.
+
+    RESIDUE (migration): once BOTH `.working/` trees exist (mid-copy), an existing
+    in-repo-only file's writes stay in-repo (existing wins) while a NEW file goes
+    to the private tree, splitting the two. Safe ONLY when the copy is COMPLETE
+    (every existing file is also private, so writes unify there); the deletion
+    step's no-in-repo-only-file QA is the control. A partial copy splits.
     """
     root = (repo_root or REPO_ROOT).resolve()
     existing = resolve_working(relpath, repo_root=root)

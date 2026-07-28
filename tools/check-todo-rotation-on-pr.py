@@ -93,11 +93,21 @@ import argparse
 import os
 import re
 import subprocess
+from pathlib import Path
 import sys
 
 CHANGELOG_PATHS = ("CHANGELOG.md", ".working/changelog-details/CHANGELOG-detailed.md")
 TODO_PATH = "TODO.md"
 DONE_PATH = ".working/DONE.md"
+
+def _working_in_repo() -> bool:
+    """True while the `.working/` tree still lives in THIS repo. Once the
+    `.working/` -> private-sibling migration moves it out, the in-repo dir is gone
+    and the `.working/` half of this PR-time check becomes a cross-repo concern
+    (updated in the private sibling, invisible to the public diff), so the gate
+    requires only its public half. Absent `.working/` (adopter fork) reads the same."""
+    return (Path(__file__).resolve().parent.parent / ".working").is_dir()
+
 
 # Closure-assertion phrasings, broadened 2026-06-30 (the rotation-prevention
 # backlog item, since closed) beyond the original `TODO §` form to also catch the
@@ -293,11 +303,18 @@ def main(argv: list[str]) -> int:
         print("OK: no TODO-item closure asserted in the added CHANGELOG lines.")
         return 0
 
-    if TODO_PATH in changed and DONE_PATH in changed:
-        print(
-            f"OK: CHANGELOG asserts a TODO-item closure and the diff rotates it "
-            f"(both {TODO_PATH} and {DONE_PATH} are in the diff)."
-        )
+    done_required = _working_in_repo()
+    if TODO_PATH in changed and (DONE_PATH in changed or not done_required):
+        if DONE_PATH in changed:
+            print(
+                f"OK: CHANGELOG asserts a TODO-item closure and the diff rotates it "
+                f"(both {TODO_PATH} and {DONE_PATH} are in the diff)."
+            )
+        else:
+            print(
+                f"OK: CHANGELOG asserts a TODO-item closure and {TODO_PATH} is in the "
+                f"diff; {DONE_PATH} now lives in the private sibling (cross-repo)."
+            )
         return 0
 
     # Closure asserted but a rotation surface is missing: check the opt-out trailer.
