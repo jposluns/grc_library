@@ -69,7 +69,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 # Reuse the shared metadata helpers rather than re-deriving the field regex.
-from lint_common import REPO_ROOT, parse_metadata_block  # noqa: F401  (REPO_ROOT rebindable in --self-test)
+from lint_common import REPO_ROOT, parse_metadata_block, resolve_working_for_write  # noqa: F401  (REPO_ROOT rebindable in --self-test)
 
 # --------------------------------------------------------------------------
 # Surface locations (relative to REPO_ROOT).
@@ -481,7 +481,8 @@ def build_plan(s: CloseoutSpec, *, closeout_only: bool,
     edits: list[Edit] = []
 
     def bump_and_insert(rel: str, header_sig: str, row: str, pr_token: str) -> None:
-        path = REPO_ROOT / rel
+        path = (resolve_working_for_write(rel[len(".working/"):], repo_root=REPO_ROOT)
+                if rel.startswith(".working/") else REPO_ROOT / rel)
         text = path.read_text(encoding="utf-8")
         new, inserted = insert_row(text, header_sig, row, pr_token=pr_token, pr_col=1)
         if inserted:
@@ -504,14 +505,20 @@ def build_plan(s: CloseoutSpec, *, closeout_only: bool,
     bump_and_insert(IMPROVEMENT_LOG, IMPROVEMENT_HEADER, render_retro_row(s), f"#{s.merged_pr}")
 
     if s.has_findings:
-        detail_path = REPO_ROOT / VALIDATE_DETAIL_DIR / f"{s.d}-PR-{s.merged_pr}.md"
+        detail_path = resolve_working_for_write(
+            f"{VALIDATE_DETAIL_DIR[len('.working/'):]}/{s.d}-PR-{s.merged_pr}.md",
+            repo_root=REPO_ROOT)
         before = detail_path.read_text(encoding="utf-8") if detail_path.exists() else ""
         after = before if before else render_detail_file(s)
         note = ("detail file already present (no-op)" if before
                 else "detail file created (SCAFFOLD: confirm against a recent worker file)")
+        try:
+            _desc = str(detail_path.relative_to(REPO_ROOT))
+        except ValueError:
+            _desc = str(detail_path)  # resolved into the private sibling (post-migration)
         edits.append(Edit(detail_path, before, after, note,
                           template=("" if before else after),
-                          insert_desc=str(detail_path.relative_to(REPO_ROOT))))
+                          insert_desc=_desc))
 
     if closeout_only:
         return edits
@@ -542,7 +549,8 @@ def build_plan(s: CloseoutSpec, *, closeout_only: bool,
     for rel, renderer, anchor in (
             (CHANGELOG, render_changelog_root, CHANGELOG_ROOT_ANCHOR),
             (CHANGELOG_DETAILED, render_changelog_detailed, CHANGELOG_DETAILED_ANCHOR)):
-        path = REPO_ROOT / rel
+        path = (resolve_working_for_write(rel[len(".working/"):], repo_root=REPO_ROOT)
+                if rel.startswith(".working/") else REPO_ROOT / rel)
         text = path.read_text(encoding="utf-8")
         block = renderer(s, calver)
         new, inserted = insert_changelog_entry(text, block, anchor=anchor, batch_pr=s.batch_pr)
@@ -562,7 +570,10 @@ def apply_edits(plan: list[Edit]) -> None:
 def render_preview(plan: list[Edit]) -> None:
     print("PREVIEW (dry-run): nothing written. Re-run with --apply to write.\n")
     for e in plan:
-        rel = e.path.relative_to(REPO_ROOT)
+        try:
+            rel = e.path.relative_to(REPO_ROOT)
+        except ValueError:
+            rel = e.path  # resolved into the private sibling (post-migration)
         print(f"=== {rel}: {e.note} ===")
         if e.insert_desc:
             print(f"    insert point: {e.insert_desc}")
@@ -673,7 +684,10 @@ def main(argv: list[str] | None = None) -> int:
     if applying:
         apply_edits(plan)
         for e in plan:
-            rel = e.path.relative_to(REPO_ROOT)
+            try:
+                rel = e.path.relative_to(REPO_ROOT)
+            except ValueError:
+                rel = e.path  # resolved into the private sibling (post-migration)
             print(f"{'WROTE' if e.changed else 'SKIP '} {rel}: {e.note}")
     else:
         render_preview(plan)

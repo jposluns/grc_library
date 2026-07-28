@@ -61,13 +61,15 @@ import re
 import signal
 import subprocess
 import sys
+
+from lint_common import resolve_working_for_write
 from dataclasses import dataclass, field
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_REF_BASE = REPO_ROOT.parent / "grc_library_ref"
 DEFAULT_ALIASES = Path(__file__).resolve().parent / "reference-breadth-aliases.json"
-DEFAULT_STATE = REPO_ROOT / ".working" / "reference-audit" / "doc-state.md"
+DEFAULT_STATE = resolve_working_for_write("reference-audit/doc-state.md", repo_root=REPO_ROOT)
 
 AUTHORITATIVE_BUCKETS = ("standards", "frameworks", "legislation", "programs")
 TIER_BY_BUCKET = {

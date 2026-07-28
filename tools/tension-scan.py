@@ -58,6 +58,11 @@ from __future__ import annotations
 import re
 import subprocess
 import sys
+from pathlib import Path
+_TOOLS_DIR = str(Path(__file__).resolve().parent)
+if _TOOLS_DIR not in sys.path:
+    sys.path.insert(0, _TOOLS_DIR)
+from lint_common import REPO_ROOT, resolve_working  # noqa: E402
 
 # The surfaces whose blocks the GR-P3 class lives in: the backlog and the
 # working ledgers whose rows are rewritten in place.
@@ -69,6 +74,30 @@ SCANNED_FILES = (
     ".working/improvement-log.md",
     ".working/validate-pr/history.md",
 )
+
+_WORKING_TARGETS = tuple(f for f in SCANNED_FILES if f.startswith(".working/"))
+_PUBLIC_TARGETS = tuple(f for f in SCANNED_FILES if not f.startswith(".working/"))
+
+
+def git_diffable_targets() -> tuple[list[str], list[str]]:
+    """(files, skipped): the scanned surfaces `git diff` on the public repo can
+    see, plus the `.working/` surfaces it cannot. A public target always
+    qualifies; a `.working/` target qualifies only while it resolves in-repo
+    (pre-migration). Once it resolves into the private sibling, the public
+    `git diff` cannot reach it, so it is skipped with an honest note (the
+    private ledgers' block-tension scan becomes a private-repo concern)."""
+    files = list(_PUBLIC_TARGETS)
+    skipped: list[str] = []
+    for rel in _WORKING_TARGETS:
+        resolved = resolve_working(rel[len(".working/"):], repo_root=REPO_ROOT)
+        if resolved is not None:
+            try:
+                files.append(str(resolved.relative_to(REPO_ROOT)))
+                continue
+            except ValueError:
+                pass
+        skipped.append(rel)
+    return files, skipped
 
 # Status-claim tokens: the block asserts a settled state.
 STATUS_RE = re.compile(
@@ -122,9 +151,14 @@ def main(argv: list[str]) -> int:
         print("usage: tension-scan.py <base-ref> [head-ref]", file=sys.stderr)
         return 2
     base, head = argv[1], (argv[2] if len(argv) > 2 else "HEAD")
+    scanned, skipped = git_diffable_targets()
+    if skipped:
+        print("tension-scan: NOTE: skipping surfaces not visible to the public "
+              "git diff (resolved into the private sibling): "
+              + ", ".join(skipped), file=sys.stderr)
     try:
         merge_base = git("merge-base", base, head).strip()
-        diff = git("diff", merge_base, head, "--", *SCANNED_FILES)
+        diff = git("diff", merge_base, head, "--", *scanned)
     except (subprocess.CalledProcessError, OSError) as exc:
         print(f"tension-scan: git failed: {exc}", file=sys.stderr)
         return 2

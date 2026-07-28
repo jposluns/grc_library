@@ -33,6 +33,8 @@ import re
 import sys
 from pathlib import Path
 
+from lint_common import resolve_working
+
 STORE_RELPATHS = [
     ".working/pending-decisions.md",
     "../grc_library_private/design-decisions.md",
@@ -57,7 +59,13 @@ def search(keys: list[str]) -> tuple[int, list[str]]:
     base = _project_dir()
     stores: list[tuple[str, str]] = []
     for rel in STORE_RELPATHS:
-        p = (base / rel).resolve()
+        if rel.startswith(".working/"):
+            # maintainer-only working store: resolve via lint_common (private preferred)
+            p = resolve_working(rel[len(".working/"):], repo_root=base)
+            if p is None:
+                continue
+        else:
+            p = (base / rel).resolve()  # a sibling path (the private design-decision record)
         try:
             stores.append((rel, p.read_text(encoding="utf-8", errors="replace")))
         except OSError:
