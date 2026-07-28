@@ -1,14 +1,14 @@
 # Session State (concurrency lease)
 
-**Active-session:** claude/migration-pr2b1-rewire-consumers
+**Active-session:** claude/migration-pr2b2a-tooling-fixes
 
 **Status:** active
 
 **Operating-mode:** attended-autonomous
 
-**Last-heartbeat-UTC:** 2026-07-28T21:48:05Z
+**Last-heartbeat-UTC:** 2026-07-28T22:35:58Z
 
-**Current-task:** 2026-07-28 attended-autonomous. Migration PR1 (#1227) + PR2a (#1229) MERGED. PR2b-1 (#1230, THIS PR): rewired the remaining .working consumers (8 tools, 3 hooks, statusline, 2 lint_common helpers) private-aware + #1229 close-out. Next: PR2b-2 (the .working -> _private CONTENT MOVE + D-check re-scoping + /resume gate + reword prose; SURFACE decisions before merge).
+**Current-task:** 2026-07-28. PR2b-1 (#1230) merged. PR2b-2a (#1231, THIS PR): contained fixes from #1230's post-merge dual-family QA (3 delta-gate re-scopings for post-move, audit-cross-repo link-res, 4 CHANGELOG corrections). Next: PR2b-2b (LARGE, deferred to fresh: reword ALL .working prose + copy to _private), then PR2b-3 (delete public .working after no-pointers QA).
 
 **Worker-dispatches:** fleet spawned on-demand via `tools/exec-dispatch.py` (accounts in `_private/worker-accounts.json`). Concurrency-testing config (roadmap 2026-07-27): fallbacks `jposluns-work-claude` + `jeff-posluns-codex` at max 1; `security-work-claude`, `jeff-mailz-claude`, `jeff-posluns-claude`, `jeff-mailz-codex` at max 4 for aggressive testing. Short model names: claude opus/sonnet/haiku/fable; codex gpt-5.6-terra/sol/luna, gpt-5.5, gpt-5.4, gpt-5.4-mini. Order prompt MUST NOT start with `/`; codex dispatch needs `--model`.
 

@@ -78,6 +78,14 @@ import sys
 
 HANDOFF = ".working/session-handoff.md"
 
+def _working_in_repo() -> bool:
+    """True while `.working/` is still in THIS repo. Once it moves to the private
+    sibling, the handoff is no longer in the public diff, so this public PR-time
+    check cannot validate it and says so explicitly rather than passing silently."""
+    from pathlib import Path
+    return (Path(__file__).resolve().parent.parent / ".working").is_dir()
+
+
 # Label pattern -> (live file, header regex). Order matters only for
 # report readability. Each label regex is anchored on a word boundary and
 # expects the token as the first backtick span after the label; the
@@ -233,6 +241,11 @@ def main():
     if changed.returncode != 0:
         print(f"D7: git diff failed: {changed.stderr.strip()}", file=sys.stderr)
         sys.exit(2)
+    if not _working_in_repo():
+        print("D7 N/A: the session handoff has moved to the private sibling; this "
+              "public PR-time check no longer validates it (cross-repo concern). "
+              "Re-home this check to the private sibling before relying on it again.")
+        return 0
     if HANDOFF not in changed.stdout.splitlines():
         print("D7 OK: session handoff untouched by this PR; not triggered.")
         return 0
