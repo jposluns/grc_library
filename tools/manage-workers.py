@@ -47,6 +47,8 @@ import sys
 import time
 from pathlib import Path
 
+from lint_common import resolve_working_for_write
+
 LOG_REL = ".working/worker-prompt-log.md"
 
 # The orchestrator's OWN session. Sending here would be the orchestrator prompting itself,
@@ -409,7 +411,7 @@ def working_root(explicit: str | None) -> Path | None:
 
 def log_send(repo: Path, session: str, runtime: str, verb: str, keys, reason: str,
              held: str | None) -> None:
-    p = repo / LOG_REL
+    p = resolve_working_for_write(LOG_REL.removeprefix(".working/"), repo_root=repo)
     if not p.exists():
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text(

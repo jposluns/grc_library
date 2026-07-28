@@ -33,8 +33,30 @@ from pathlib import Path
 MODE_RE = re.compile(r"^\*\*Operating-mode:\*\*\s+(\S+)\s*$", re.MULTILINE)
 
 
+# `.working/` -> `_private` migration: resolve the (maintainer-only) working-state file through
+# lint_common.resolve_working (private sibling preferred, in-repo fallback). Fail-SAFE: if the
+# helper cannot be imported, fall back to the historical in-repo path so this hook never breaks.
+_TOOLS_DIR = str(Path(__file__).resolve().parents[2] / "tools")
+if _TOOLS_DIR not in sys.path:
+    sys.path.insert(0, _TOOLS_DIR)
+try:
+    from lint_common import resolve_working as _resolve_working
+except Exception:  # pragma: no cover - fail-safe: never let a helper-load failure break the hook
+    _resolve_working = None
+
+
+def _working_file(rel_below, root):
+    """`.working/<rel_below>` resolved via lint_common (private preferred), or None."""
+    if _resolve_working is not None:
+        return _resolve_working(rel_below, repo_root=root)
+    cand = root / ".working" / rel_below
+    return cand if cand.exists() else None
+
+
 def read_mode(project_dir: str) -> str | None:
-    ss = Path(project_dir) / ".working" / "session-state.md"
+    ss = _working_file("session-state.md", Path(project_dir))
+    if ss is None:
+        return None  # fail-open: no session-state -> no mode -> allow (documented)
     try:
         text = ss.read_text(encoding="utf-8", errors="replace")
     except OSError:

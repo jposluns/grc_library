@@ -147,7 +147,7 @@ def resolve_sibling(name: str) -> Path | None:
 WORKING_SUBDIR = ".working"
 
 
-def resolve_working(relpath: str) -> Path | None:
+def resolve_working(relpath: str, *, repo_root: Path | None = None) -> Path | None:
     """Locate a `.working/`-tree file, preferring `grc_library_private/.working/`.
 
     `relpath` is POSIX-relative to the `.working/` root (e.g.
@@ -159,18 +159,64 @@ def resolve_working(relpath: str) -> Path | None:
          routes through this helper then no-ops, the graceful-degradation contract the
          `.working/`-reading gates adopt when their input leaves the public repo.
 
+    ``repo_root`` overrides the repository root used to locate both the private sibling
+    (``<repo_root>/../grc_library_private``) and the in-repo fallback. It defaults to
+    :data:`REPO_ROOT`, so an existing caller (the 9 rewired gates) is unchanged. Consumers
+    outside ``tools/`` (a hook that knows its ``CLAUDE_PROJECT_DIR``, a tool with its own
+    root) pass their own root rather than relying on this module's constant.
+
     An EXPLICIT path passed to a tool (a ``--flag``) stays the caller's concern, as with
     :func:`resolve_sibling`; this helper governs only the DEFAULT `.working/` lookup.
     """
-    private = resolve_sibling("private")
-    if private is not None:
+    root = (repo_root or REPO_ROOT).resolve()
+    private = root.parent / _SIBLING_REPO_DIRS["private"]
+    if private.is_dir():
         cand = private / WORKING_SUBDIR / relpath
         if cand.exists():
             return cand
-    local = REPO_ROOT / WORKING_SUBDIR / relpath
+    local = root / WORKING_SUBDIR / relpath
     if local.exists():
         return local
     return None
+
+
+def resolve_working_dir(*, repo_root: Path | None = None) -> Path | None:
+    """The `.working/` DIRECTORY (private preferred, in-repo fallback), or None.
+
+    The directory analogue of :func:`resolve_working` for consumers that WALK the
+    `.working/` tree (the residual scan, the cross-repo-reference audit) rather than
+    open one named file. ``"."`` denotes the `.working/` root itself: pathlib drops a
+    trailing ``.``, so the candidate is the directory and ``Path.exists()`` is true for it.
+    """
+    return resolve_working(".", repo_root=repo_root)
+
+
+def resolve_working_for_write(relpath: str, *, repo_root: Path | None = None) -> Path:
+    """A `.working/`-tree file path to WRITE, choosing a destination even when absent.
+
+    Unlike :func:`resolve_working` (existence-based, ``None`` when neither location holds
+    the file), a WRITER needs a destination regardless: the existing resolved file if one
+    is present, else the private sibling's ``.working/<relpath>`` when that sibling exists
+    (the post-migration home), else the in-repo ``.working/<relpath>`` (the pre-migration /
+    adopter fallback). The caller creates the parent directory as needed. Never ``None``.
+    """
+    root = (repo_root or REPO_ROOT).resolve()
+    existing = resolve_working(relpath, repo_root=root)
+    if existing is not None:
+        return existing
+    # Write alongside the CURRENT `.working/` tree so a NEW file lands where its
+    # siblings already live (its relative links to them then resolve). During the
+    # in-repo -> private migration that is the in-repo tree until the content move
+    # completes, and the private tree after: exactly what resolve_working_dir tracks.
+    current = resolve_working_dir(repo_root=root)
+    if current is not None:
+        return current / relpath
+    # No `.working/` tree exists anywhere yet (fresh checkout): prefer the private
+    # sibling as the eventual home when that repo is present, else the in-repo path.
+    private = root.parent / _SIBLING_REPO_DIRS["private"]
+    if private.is_dir():
+        return private / WORKING_SUBDIR / relpath
+    return root / WORKING_SUBDIR / relpath
 
 
 # Canonical list of audited-not-exempt top-level directories: the

@@ -8385,6 +8385,61 @@ class ResolveSiblingTests(unittest.TestCase):
             finally:
                 lc.REPO_ROOT = orig
 
+    def test_resolve_working_dir_prefers_private_then_local_then_none(self) -> None:
+        # resolve_working_dir: the .working DIRECTORY, private preferred, in-repo
+        # fallback, else None (the tree-walker analogue of resolve_working).
+        lc = self._lc()
+        with tempfile.TemporaryDirectory() as td:
+            root = (Path(td) / "grc_library")
+            root.mkdir()
+            root_r = root.resolve()
+            orig = lc.REPO_ROOT
+            try:
+                lc.REPO_ROOT = root
+                self.assertIsNone(lc.resolve_working_dir())
+                (root / ".working").mkdir()
+                self.assertEqual(lc.resolve_working_dir(), root_r / ".working")
+                priv = (Path(td) / "grc_library_private" / ".working")
+                priv.mkdir(parents=True)
+                self.assertEqual(lc.resolve_working_dir(), priv.resolve())
+            finally:
+                lc.REPO_ROOT = orig
+
+    def test_resolve_working_for_write_existing_then_private_then_local(self) -> None:
+        # resolve_working_for_write: an existing file wins; else the private
+        # sibling when that repo dir exists; else the in-repo .working. Never None.
+        lc = self._lc()
+        with tempfile.TemporaryDirectory() as td:
+            root = (Path(td) / "grc_library")
+            root.mkdir()
+            (root / ".working").mkdir()
+            root_r = root.resolve()
+            orig = lc.REPO_ROOT
+            try:
+                lc.REPO_ROOT = root
+                # No private sibling, file absent -> in-repo .working target.
+                self.assertEqual(
+                    lc.resolve_working_for_write("new.md"),
+                    root_r / ".working" / "new.md")
+                # Existing in-repo file wins, even once the private sibling appears.
+                (root / ".working" / "log.md").write_text("x", encoding="utf-8")
+                priv = (Path(td) / "grc_library_private" / ".working")
+                priv.mkdir(parents=True)
+                self.assertEqual(
+                    lc.resolve_working_for_write("log.md"),
+                    root_r / ".working" / "log.md")
+                # Absent in both, private repo dir exists -> private target.
+                self.assertEqual(
+                    lc.resolve_working_for_write("fresh.md"),
+                    priv.resolve() / "fresh.md")
+                # Present in private -> that existing private path.
+                (priv / "p.md").write_text("x", encoding="utf-8")
+                self.assertEqual(
+                    lc.resolve_working_for_write("p.md"),
+                    priv.resolve() / "p.md")
+            finally:
+                lc.REPO_ROOT = orig
+
 
 class WorkingResolveNoOpTests(unittest.TestCase):
     """The six .working-reading gates rewired in PR #1227 (50/59/78/60/43/51)

@@ -75,6 +75,11 @@ import subprocess
 import sys
 from pathlib import Path
 
+_TOOLS_DIR = str(Path(__file__).resolve().parent)
+if _TOOLS_DIR not in sys.path:
+    sys.path.insert(0, _TOOLS_DIR)
+from lint_common import resolve_working  # noqa: E402
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 CHANGELOG_FILES = (
@@ -231,19 +236,31 @@ def unresolved_link_targets(
 DETAILED_MIRROR_REL = ".working/changelog-details/CHANGELOG-detailed.md"
 
 
-def unresolved_links_in_mirror(root: Path = REPO_ROOT) -> list[tuple[int, str, str]]:
+def unresolved_links_in_mirror(root: Path | None = None) -> list[tuple[int, str, str]]:
     """Every in-repo relative markdown-link target in the WHOLE detailed mirror
     that does NOT resolve. Returns ``(line_no, target, line_text)`` per dangling
-    link. Reuses ``unresolved_link_targets`` (same rules); takes ``root`` so it is
-    unit-testable against a temp mirror. Returns [] if the mirror is absent."""
-    mirror = root / DETAILED_MIRROR_REL
-    if not mirror.is_file():
-        return []
+    link. Reuses ``unresolved_link_targets`` (same rules). ``root=None`` (the
+    default) resolves the mirror via ``resolve_working`` (private sibling then
+    in-repo); an explicit ``root`` preserves the temp-fixture behaviour. Link
+    targets resolve against ``REPO_ROOT`` in the default case, since the mirror's
+    references are authored relative to the public corpus. Returns [] if absent."""
+    if root is None:
+        mirror = resolve_working(
+            DETAILED_MIRROR_REL[len(".working/"):], repo_root=REPO_ROOT)
+        if mirror is None or not mirror.is_file():
+            return []
+        resolution_root = REPO_ROOT
+    else:
+        mirror = root / DETAILED_MIRROR_REL
+        if not mirror.is_file():
+            return []
+        resolution_root = root
     findings: list[tuple[int, str, str]] = []
     for lineno, line in enumerate(
         mirror.read_text(encoding="utf-8").splitlines(), start=1
     ):
-        for target in unresolved_link_targets(DETAILED_MIRROR_REL, line, root=root):
+        for target in unresolved_link_targets(
+                DETAILED_MIRROR_REL, line, root=resolution_root):
             findings.append((lineno, target, line.strip()))
     return findings
 

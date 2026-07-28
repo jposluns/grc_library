@@ -68,6 +68,7 @@ from lint_common import (
     read_text_safe,
     resolve_sibling as _default_resolve_sibling,
     sibling_placeholder_present,
+    resolve_working_dir,
 )
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -365,6 +366,18 @@ def main(argv: list[str]) -> int:
 
     root = Path(args.root).resolve()
     findings, counts = audit_tree(root)
+    # Post-migration the `.working/` tree lives in the private sibling (outside
+    # this root); audit it too so the `.working/` coverage this tool exists to
+    # provide survives the move. While `.working/` is still in-repo it is already
+    # covered by the root walk, so this branch does nothing.
+    wd = resolve_working_dir(repo_root=root)
+    if wd is not None:
+        try:
+            wd.relative_to(root)
+        except ValueError:
+            wfind, wcounts = audit_tree(wd)
+            findings.extend(wfind)
+            counts.update(wcounts)
     _print_report(findings, counts, root)
     # Advisory: always exit 0. The counts are informational; this tool never
     # fails a build (it spans gate-exempt trees and is not a CI gate).
