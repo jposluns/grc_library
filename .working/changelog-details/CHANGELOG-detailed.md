@@ -8,6 +8,19 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-28, Library Version 2026.07.707, PR #1217 (2026-07-27b session-closing handoff)
+
+Session-closing handoff for the 2026-07-27b session (`/resume` at 22:02Z, attended-autonomous winding to overnight). Working-state only; no corpus or code change.
+
+### Changed
+- Refreshed [`.working/session-handoff.md`](../session-handoff.md) with new Next-actions / State-snapshot / Asserted-expectations blocks for the 2026-07-27b close, carrying the maintainer-directed overnight plan: deep-assessment component-by-component DUAL-FAMILY (codex + claude) sequential over all worker-capable components, then `/fitness` broken out to the 10 personas each run by both families to compare. The 3.147 token-rotation measurement is flagged MORNING/ATTENDED-only (lockout risk), not overnight.
+- Released the concurrency lease in [`.working/session-state.md`](../session-state.md) (Status: released, Active-session: none).
+- Batched #1216's dual-family validate-pr (PASS) + retro + merge-bypass rows; refreshed [`.working/next-prs.txt`](../next-prs.txt).
+- Pre-queued the overnight component-1 orders (`vda-c1-validate` claude + codex) and the `vpr-1216` dual-family orders.
+
+### Verification
+- Pre-push guard green (both runners, 78 gates) before push. #1216's validate-pr returned PASS (dual-family: claude authoritative 0e/0w/2-benign-notes; codex delivered as cross-reference, no contradicting finding).
+
 ## 2026-07-28, Library Version 2026.07.706, PR #1216 (2026-07-27 daily CHANGELOG roll-up)
 
 D9 daily roll-up, past midnight UTC. Bookkeeping only.

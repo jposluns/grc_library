@@ -1,14 +1,14 @@
 # Session State (concurrency lease)
 
-**Active-session:** claude/resume-2026-07-27b
+**Active-session:** none
 
-**Status:** active
+**Status:** released
 
 **Operating-mode:** overnight-unattended
 
-**Last-heartbeat-UTC:** 2026-07-27T23:30:02Z
+**Last-heartbeat-UTC:** 2026-07-28T01:07:46Z
 
-**Current-task:** RESUME from #1212 session-closing handoff (2026-07-27b, maintainer directive: "use workers as much as possible; alert loudly on any worker issue; unattended autonomous, watching on and off"). Acquired the lease at 22:03Z. Mode: daytime-unattended (maintainer watching intermittently, green-CI = merge authority, no blocking questions, graceful degradation). Corpus green at `bc5eb00b` (78/78 gates), non-shallow, detect-env maintainer/all-siblings-ok, egress planalto-br down (known). First tasks: loop-break corpus-wide /validate over #1200..#1211 (base `e554f1b7`=#1199, head `bc5eb00b`=#1211, compensating control for #1212), OFFLOADED to a worker; then roadmap B tooling (3.133 close-out-pr.py, 3.142 /sitrep). No open MAINTAINER_ALERTs, no lapsed agents, 0 unprocessed inbox drops, pending-decisions/verifier-overrides empty.
+**Current-task:** none (2026-07-27b session CLOSED at #1216; handoff PR #1217 landed; next resume sets its own mode). Overnight orders pre-queued: vda-c1-validate + vpr-1216 (both dual-family).
 
 **Worker-dispatches:** fleet spawned on-demand via `tools/exec-dispatch.py` (accounts in `_private/worker-accounts.json`). Concurrency-testing config (roadmap 2026-07-27): fallbacks `jposluns-work-claude` + `jeff-posluns-codex` at max 1; `security-work-claude`, `jeff-mailz-claude`, `jeff-posluns-claude`, `jeff-mailz-codex` at max 4 for aggressive testing. Short model names: claude opus/sonnet/haiku/fable; codex gpt-5.6-terra/sol/luna, gpt-5.5, gpt-5.4, gpt-5.4-mini. Order prompt MUST NOT start with `/`; codex dispatch needs `--model`.
 
