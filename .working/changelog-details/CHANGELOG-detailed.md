@@ -8,6 +8,16 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-28, Library Version 2026.07.711, PR #1222
+
+Hardened the exec'd worker-dispatch pool so the orchestrator's own account is never used as a worker (maintainer-directed 2026-07-28, after a claude verifier was mistakenly dispatched to the `jeff-mailz` orchestrator account, both an independence violation and a burn of the scarce orchestrator credits the offload design exists to protect).
+
+### Fixed
+- **The exec-dispatch tool refuses `is_orchestrator` accounts.** [`tools/exec-dispatch.py`](../../tools/exec-dispatch.py)'s `account_available()` now returns not-dispatchable for any account carrying `is_orchestrator: true`, with reason `orchestrator account, reserved (never dispatched as a worker)`. Because both dispatch paths (auto-pick via `eligible_accounts`/`pick_account`, and explicit `--account`) funnel through `account_available()`, one guard covers both. Only the claude `jeff-mailz` entry carries the flag, so both codex accounts (`jeff-mailz`, `jeff-posluns`) stay eligible, per the maintainer's directive that both codex are fine for workers.
+
+### Verification
+- `python3 tools/exec-dispatch.py --self-test` OK (61 checks, including 5 new orchestrator-guard cases: available-refused, claude-not-eligible, claude-target-refused, codex-still-eligible, codex-target-ok). Live `--dry-run` confirmed `jeff-mailz-claude` EXCLUDED with the reserved reason and the claude pick falling to `jposluns-work-claude`, while `jeff-mailz-codex` stays the codex pick.
+
 ## 2026-07-28, Library Version 2026.07.710, PR #1220
 
 Routes the findings of the overnight component-by-component dual-family `/deep-assessment` (all six worker-capable components run, each on both a claude and a codex worker, reconciled with every positive re-verified at source).
