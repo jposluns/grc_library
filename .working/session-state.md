@@ -4,9 +4,9 @@
 
 **Status:** active
 
-**Operating-mode:** overnight-unattended
+**Operating-mode:** attended-autonomous
 
-**Last-heartbeat-UTC:** 2026-07-28T01:40:00Z
+**Last-heartbeat-UTC:** 2026-07-28T02:35:00Z
 
 **Current-task:** overnight deep-assessment dual-family (component-by-component) + /fitness dual-family. Component 1 (/validate) consumed; fixing findings.
 

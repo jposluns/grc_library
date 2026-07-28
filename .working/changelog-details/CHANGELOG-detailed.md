@@ -8,17 +8,35 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-28, Library Version 2026.07.709, PR #1219
+
+Applied the confirmed, source-verified fixes from the overnight deep-assessment component-1 dual-family `/validate` (the two families were complementary: claude surfaced the citation errors, codex the docstring drift).
+
+### Fixed
+- **ISO/IEC 27001:2022 control-code corrections (3 remote-working/BYOD citations).** `A.6.2` (Terms and conditions of employment, the stale 2013-era code under which teleworking once sat) was cited for remote-working/BYOD in [`governance/matrix-reverse-framework-control-crosswalk.md`](../../governance/matrix-reverse-framework-control-crosswalk.md) (the `Remote working and BYOD` row) and [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) (the BYOD Policy and Remote Working Security Standard rows). All three changed to `A.6.7` (Remote working), reconciling to the corpus's own authoritative [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md), which already cites `A.6.7, A.8.1` for the same two documents. The fix is surgical: the legitimate employment-terms `A.6.2` uses (onboarding/offboarding, acceptable-use) were preserved, and a corpus-wide grep confirms zero remaining remote-working `A.6.2` carriers.
+- **Secrets-management control correction.** [`dev-security/standard-developer-security-requirements.md`](../../dev-security/standard-developer-security-requirements.md) mapped "Secrets management" to `A.8.10 to 8.11` (Information deletion / Data masking). Changed to `A.8.24` (Use of cryptography), the corpus's canonical control for secrets management (matching go.md/java.md and the row's own A02 column).
+- **Stale delta-gate docstring.** [`tools/lint-audit-gate-parity.py`](../../tools/lint-audit-gate-parity.py) said "PR-only D1-D8 delta gates" and "contiguous D1..D8"; the implementation and the spec table carry D1..D9 (D9, the daily-changelog-rollup reminder, was added later). Docstring corrected to D1-D9, and the same fix applied to the spec gate-35 description (the "D1 to D8" spaced variant a re-verify caught) and the sibling references in pre-push-guard.sh, .claude/CLAUDE.md, and tests/test_linters.py.
+- **Hook-count prose.** [`TODO.md`](../../TODO.md) §3.119 said "ten PreToolUse hooks"; there are 11 distinct PreToolUse block-hook files. Corrected to 11.
+
+- **#1218 dual-family validate-pr corrections.** The post-merge validate-pr on the #1218 resume close-out (claude opus-5 authoritative + codex cross-reference, both HOLD) caught that the Sweep-127 row made ANTICIPATORY completion claims ('6 findings FIXED this session' against a follow-on PR that did not yet exist), a '6'-vs-'4' asserted-expectations miscount copied forward from Sweep 126, and a handoff D7 snapshot line whose prose ('#1217, one patch past 706') contradicted its own reconciled 708/69 tokens. All corrected across the sweep row, resume cursor, handoff snapshot, and detailed mirror; the pre-existing GFM-delimiter-placement and bypass-ordering findings routed to TODO. The #1218 validate-pr, retro, and merge-bypass rows are batched here.
+
+### Changed
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) after the three per-document Version bumps.
+
+### Verification
+- Each citation finding re-verified at source before applying (the register/crosswalk vs the authoritative matrix, and `A.5.17`'s corpus usage). The word-count finding both families raised was REFUTED (the roll-up line is genuinely 76 whitespace-delimited words; the workers counted a narrower scope). Pre-push guard green (both runners, 78 gates); generator `--check` gates in sync.
+
 ## 2026-07-28, Library Version 2026.07.708, PR #1218
 
 Overnight-session resume close-out (the first PR of the 2026-07-28 overnight-unattended session, resumed from the #1217 handoff).
 
 ### Changed
-- Recorded **Sweep 127** in [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md): the DUAL-FAMILY loop-break corpus-wide `/validate` over the #1213..#1216 deltas (head `9fd2dd2d`=#1216), PRE-QUEUED at the #1217 wind-down and consumed at this overnight resume. Both families delivered; complementary yield (claude caught 3 ISO/IEC 27001:2022 A.6.2 to A.6.7 citation errors in remote-working/BYOD contexts plus a secrets A.5.17 warning; codex caught the [`tools/lint-audit-gate-parity.py`](../../tools/lint-audit-gate-parity.py) docstring D1-D8 to D1-D9 drift). All 6 #1216 asserted-expectations were CORROBORATED and ZERO contradicted; the citation errors are pre-existing latent defects in documents #1216 did not touch, so ordinary findings rather than misses. Loop-break control for #1217 PASSES. The 6 fixable findings are FIXED in the follow-on fix PR; the remainder ROUTED to TODO.
+- Recorded **Sweep 127** in [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md): the DUAL-FAMILY loop-break corpus-wide `/validate` over the #1213..#1216 deltas (head `9fd2dd2d`=#1216), PRE-QUEUED at the #1217 wind-down and consumed at this overnight resume. Both families delivered; complementary yield (claude caught 3 ISO/IEC 27001:2022 A.6.2 to A.6.7 citation errors in remote-working/BYOD contexts plus a secrets A.5.17 warning; codex caught the [`tools/lint-audit-gate-parity.py`](../../tools/lint-audit-gate-parity.py) docstring D1-D8 to D1-D9 drift). All 4 #1216 asserted-expectations were CORROBORATED and ZERO contradicted; the citation errors are pre-existing latent defects in documents #1216 did not touch, so ordinary findings rather than misses. Loop-break control for #1217 PASSES. The 6 fixable findings are FIXED in the follow-on PR #1219; the remainder to be ROUTED to TODO in a subsequent routing PR.
 - Advanced the Resume cursor to Sweep 127 and PRUNED [`.working/session-handoff.md`](../session-handoff.md) to current-plus-one-prior per per-session stack.
 - Acquired the concurrency lease in [`.working/session-state.md`](../session-state.md) (Status active, overnight-unattended).
 
 ### Verification
-- Pre-push guard green (both runners, 78 gates). The codex vpr-1216 HOLD (a read-only worker could not read the maintainer-private changelog archive) was RESOLVED by the orchestrator confirming [`grc_library_private/changelog-archive/2026-07-27-daily.md`] holds all 20 swept #1195-#1214 entries.
+- Pre-push guard green (both runners, 78 gates). The codex vpr-1216 HOLD (a read-only worker could not read the maintainer-private changelog archive) was RESOLVED by the orchestrator confirming the private changelog archive for 2026-07-27 holds all 20 swept #1195-#1214 entries.
 
 ## 2026-07-28, Library Version 2026.07.707, PR #1217 (2026-07-27b session-closing handoff)
 
