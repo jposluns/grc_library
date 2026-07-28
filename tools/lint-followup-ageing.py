@@ -23,7 +23,12 @@ explicitly targets the file at its new path despite ``.working/``
 being in ``DEFAULT_EXEMPT_DIRS``, because the deferred-finding ageing
 discipline is what this gate exists to enforce. Other registers
 adopting the convention should be added to ``TARGET_FILES`` or
-supplied via ``--target``.
+supplied via ``--target``. The DEFAULT target resolves through
+``lint_common.resolve_working`` (private sibling
+``grc_library_private/.working/`` preferred, in-repo ``.working/``
+as fallback); when neither supplies it the audit skips that target
+and the closing line reports how many of the targets it actually
+scanned. An explicit ``--target`` / ``--root`` is used verbatim.
 
 Exit codes:
     0 - All deferred-finding blocks are within their re-triage-by
@@ -42,7 +47,7 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import REPO_ROOT, read_text_safe
+from lint_common import REPO_ROOT, read_text_safe, resolve_working
 
 
 TARGET_FILES: list[str] = [
@@ -205,16 +210,29 @@ def main() -> int:
 
     root = Path(args.root).resolve() if args.root else REPO_ROOT
     targets = args.target if args.target else TARGET_FILES
+    explicit = args.target is not None or args.root is not None
 
     expired: list[str] = []
     invalid: list[str] = []
+    scanned = 0
     for rel in targets:
-        path = root / rel
-        if not path.is_file():
+        if not explicit and rel.startswith(".working/"):
+            # DEFAULT `.working/` target: route through resolve_working so the
+            # sweep history is still read after `.working/` moves to
+            # grc_library_private. An explicit --target/--root is verbatim.
+            path = resolve_working(rel.removeprefix(".working/"))
+        else:
+            candidate = root / rel
+            path = candidate if candidate.is_file() else None
+        if path is None or not path.is_file():
+            # Absent target: no-op (as a missing in-repo file already did).
+            # Post-migration the default sweep history is maintainer-only
+            # working state, absent in public CI and adopter clones.
             continue
         text = read_text_safe(path)
         if text is None:
             continue
+        scanned += 1
         for start_line, block in find_blocks(text):
             bad_format, msg = check_block(block, today)
             if bad_format:
@@ -231,8 +249,10 @@ def main() -> int:
             print(f"FAIL: {line}", file=sys.stderr)
         return 1
     print(
-        f"OK: no expired follow-up findings "
-        f"(today {today.isoformat()}, {len(targets)} target(s) scanned)."
+        f"OK: no expired follow-up findings (today {today.isoformat()}, "
+        f"{scanned} of {len(targets)} target(s) scanned; a target that is not "
+        f"present is skipped -- post-migration the default sweep history is "
+        f"maintainer-only working state)."
     )
     return 0
 

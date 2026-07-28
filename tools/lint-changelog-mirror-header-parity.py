@@ -103,7 +103,7 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from lint_common import REPO_ROOT, read_text_safe
+from lint_common import REPO_ROOT, read_text_safe, resolve_working
 
 # Paths of the two surfaces, relative to the repository root.
 ROOT_CHANGELOG_REL = "CHANGELOG.md"
@@ -280,13 +280,34 @@ def main(argv: list[str]) -> int:
     parser.add_argument(
         "--root",
         type=Path,
-        default=REPO_ROOT,
-        help="repository root to scan (default: the audited repository)",
+        default=None,
+        help="repository root to scan (default: the audited repository, whose "
+             "detailed mirror resolves via lint_common.resolve_working)",
     )
     args = parser.parse_args(argv)
 
-    root_changelog = args.root / ROOT_CHANGELOG_REL
-    detailed_mirror = args.root / DETAILED_MIRROR_REL
+    if args.root is not None:
+        # EXPLICIT --root stays verbatim: the regression fixtures build a
+        # synthetic tree with its own .working/changelog-details/, read as given.
+        root_changelog = args.root / ROOT_CHANGELOG_REL
+        detailed_mirror = args.root / DETAILED_MIRROR_REL
+    else:
+        root_changelog = REPO_ROOT / ROOT_CHANGELOG_REL
+        resolved = resolve_working("changelog-details/CHANGELOG-detailed.md")
+        if resolved is None:
+            # The detailed mirror is maintainer-only working state. Once
+            # `.working/` moves to grc_library_private it is absent in public CI
+            # and adopter clones, so the gate no-ops there; on the maintainer's
+            # machine the private sibling supplies it and per-PR header parity,
+            # version agreement, and ordering are all enforced.
+            print(
+                "OK: the detailed CHANGELOG mirror is not present "
+                "(maintainer-only working state; skipping the header-parity "
+                "audit in public CI / adopter clone)."
+            )
+            return 0
+        detailed_mirror = resolved
+
     mirror_text = read_text_safe(detailed_mirror) or ""
     cutoff = effective_cutoff(mirror_text)
     root_records = pr_headers(read_text_safe(root_changelog) or "", cutoff=cutoff)

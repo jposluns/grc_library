@@ -30,10 +30,20 @@ Mechanics:
     (the review is not yet due); drift at or above ``FAIL_DRIFT_THRESHOLD``
     fails: run the guardrail-review skill and record its history row (with the
     fresh inventory token), which resets the baseline.
-  - A missing history file, no parseable data row, or a top row without an
+  - An UNREADABLE history file, no parseable data row, or a top row without an
     inventory token fails closed: the gate exists precisely because the record
     convention was not being honoured, so an unparseable record is a finding,
     not a skip.
+  - An ABSENT history file is different, a deliberate narrowing of the stance
+    above. The history is maintainer-only working state living in
+    ``grc_library_private/.working/``, so the DEFAULT lookup routes through
+    ``lint_common.resolve_working`` and the gate no-ops (exit 0) when neither
+    the private sibling nor the in-repo ``.working/`` supplies it. The
+    fail-closed rationale is about a record that is PRESENT but not maintained;
+    it does not reach a public CI run or an adopter clone that never owed the
+    review. On the maintainer's machine, where the record is kept, every
+    fail-closed branch still applies. An EXPLICIT ``--root`` (the regression
+    fixtures) keeps the verbatim in-tree lookup and its missing-file failure.
 
 The threshold (3, sum of absolute deltas) is the maintainer's calibration:
 the 2026-07-02 return round redirected the build-time proceeded default of 5
@@ -46,7 +56,8 @@ Usage:
     python3 tools/lint-guardrail-cadence.py
 
 Exit codes:
-    0   drift below the threshold (with a warning line when non-zero)
+    0   drift below the threshold (with a warning line when non-zero), or the
+        history is absent under the DEFAULT lookup (no-op; maintainer-only state)
     1   drift at/above the threshold, or the history record is unusable
 """
 
@@ -57,7 +68,7 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import REPO_ROOT, read_text_safe
+from lint_common import REPO_ROOT, read_text_safe, resolve_working
 
 HISTORY = ".working/guardrail-reviews/history.md"
 SPEC = "governance/specification-audit-programme.md"
@@ -140,13 +151,37 @@ def main(argv: list[str]) -> int:
     )
     parser.add_argument(
         "--root",
-        default=str(REPO_ROOT),
+        default=None,
         help="Repository root (defaults to the live repo; overridden in regression tests).",
     )
     args = parser.parse_args(argv[1:])
-    root = Path(args.root)
+    root = Path(args.root) if args.root is not None else REPO_ROOT
 
-    history_path = root / HISTORY
+    if args.root is not None:
+        # EXPLICIT --root stays VERBATIM: a fixture tree carries its own
+        # `.working/guardrail-reviews/history.md` and relies on the fail-closed
+        # branches below, so it must never resolve to the private sibling.
+        history_path = root / HISTORY
+    else:
+        resolved = resolve_working("guardrail-reviews/history.md")
+        if resolved is None:
+            # The guardrail-review history is maintainer-only working state.
+            # Once `.working/` moves to grc_library_private it is absent in
+            # public CI and adopter clones, so the cadence gate no-ops there; on
+            # the maintainer's machine the private sibling supplies it and the
+            # drift threshold is enforced in full. This NARROWS the deliberate
+            # fail-closed stance to the case it was written for -- a record that
+            # is PRESENT but not maintained. An absent private tree is not a
+            # dishonoured convention, and failing on it would fail every adopter
+            # clone for a review they never owed.
+            print(
+                "OK: guardrail-review history not present (maintainer-only "
+                "working state; skipping the machinery-drift cadence check in "
+                "public CI / adopter clone)."
+            )
+            return 0
+        history_path = resolved
+
     history_text = read_text_safe(history_path) if history_path.is_file() else None
     if history_text is None:
         print(f"FAIL: cannot read the guardrail-review history at {HISTORY}.")

@@ -133,10 +133,25 @@ counts by PRESENCE whatever its Mechanism cell says, so a future protection chan
 permits a plain merge is recorded honestly rather than forced to keep reading
 `--admin`. An empty or absent log no-ops rather than flagging the whole history.
 
+The `.working/` inputs and graceful degradation. Five of the six checks read
+maintainer-only working state (the validate-pr and improvement-log registers,
+the merge-bypass log, the detailed CHANGELOG mirror, the deep-assessment
+register). Those reads route through ``lint_common.resolve_working``, which
+prefers ``grc_library_private/.working/`` and returns None when neither the
+private sibling nor the in-repo ``.working/`` supplies the file. Each dependent
+check then no-ops INDIVIDUALLY and the run reports which checks it skipped, so
+the closing OK line never asserts a check passed that never ran. Checks 2
+(TODO/DONE rotation) and 4 (version-history parity) read PUBLIC files and always
+run, so a public-CI or adopter-clone invocation is a partial audit, not a no-op.
+Check 1 is all-or-nothing across its TWO registers: with either absent its
+per-register floor collapses to INCEPTION and every in-window PR reads as
+missing a row, so it skips unless both are present.
+
 Exit codes:
     0 - All present-and-rotated checks pass.
     1 - At least one missing record or rotation-failure marker detected.
-    2 - Invocation or environment error (file read failure).
+    2 - Invocation or environment error (a PUBLIC input, or a private-tree input
+        that is PRESENT but unreadable; a simply-ABSENT private input is a skip).
 """
 
 from __future__ import annotations
@@ -145,7 +160,7 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import DEFAULT_EXEMPT_DIRS, read_text_safe
+from lint_common import DEFAULT_EXEMPT_DIRS, read_text_safe, resolve_working
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -627,12 +642,26 @@ def worker_provenance_findings(detailed_text: str) -> list[str]:
 
 
 def main() -> int:
+    # The five `.working/`-tree inputs route through resolve_working: it prefers
+    # grc_library_private/.working/, falls back to the in-repo `.working/`, and
+    # returns None when neither supplies the file (public CI / adopter clone).
+    # Each private-dependent check then no-ops INDIVIDUALLY, so the two PUBLIC
+    # checks (TODO/DONE rotation, version-history parity) run either way and the
+    # gate keeps its full strength on the maintainer's machine.
+    vp_path = resolve_working("validate-pr/history.md")
+    retro_path = resolve_working("improvement-log.md")
+    detailed_path = resolve_working("changelog-details/CHANGELOG-detailed.md")
+    register_path = resolve_working("deep-assessment/register.md")
+    bypass_path = resolve_working("merge-bypass-log.md")
+
     try:
         changelog = parse_changelog_prs(read(CHANGELOG_PATH))
-        vp_status = parse_validate_pr_status(read(VALIDATE_PR_HISTORY))
-        retros = parse_retro_prs(read(IMPROVEMENT_LOG))
         todo_text = read(TODO_PATH)
-        detailed_text = read(DETAILED_CHANGELOG_PATH)
+        vp_text = vp_path.read_text(encoding="utf-8") if vp_path else None
+        retro_text = retro_path.read_text(encoding="utf-8") if retro_path else None
+        detailed_text = detailed_path.read_text(encoding="utf-8") if detailed_path else None
+        register_text = register_path.read_text(encoding="utf-8") if register_path else None
+        bypass_text = bypass_path.read_text(encoding="utf-8") if bypass_path else None
     except FileNotFoundError as exc:
         print(f"ERROR: required file missing: {exc}", file=sys.stderr)
         return 2
@@ -641,30 +670,64 @@ def main() -> int:
         return 2
 
     all_findings: list[str] = []
-    all_findings.extend(qa_cadence_findings(changelog, vp_status, retros))
+    skipped: list[str] = []
+
+    # Check 1 needs BOTH registers. With either absent, that register's
+    # effective floor collapses to INCEPTION and EVERY in-window PR is flagged
+    # as missing its row, so a half-run is a false-positive storm, not a weaker
+    # check. Skip unless both are present.
+    if vp_text is None or retro_text is None:
+        skipped.append(f"QA-cadence parity (from PR #{INCEPTION})")
+    else:
+        all_findings.extend(
+            qa_cadence_findings(
+                changelog,
+                parse_validate_pr_status(vp_text),
+                parse_retro_prs(retro_text),
+            )
+        )
+
+    # Checks 2 and 4 read PUBLIC files only (TODO.md; the repo-wide
+    # metadata/version-history pair), so they always run.
     all_findings.extend(todo_rotation_findings(todo_text))
     all_findings.extend(version_history_parity_findings(discover_version_history_files()))
-    all_findings.extend(worker_provenance_findings(detailed_text))
-    # Fork-safe: a fork that keeps `.working/` but has never run /deep-assessment
-    # may lack the register. read_text_safe re-raises FileNotFoundError (it catches
-    # only decode errors), and this read is outside main()'s FileNotFoundError
-    # guard, so guard the missing-file case explicitly -> no findings, no crash.
-    register_path = REPO_ROOT / DEEP_ASSESSMENT_REGISTER
-    register_text = read_text_safe(register_path) if register_path.is_file() else ""
-    all_findings.extend(register_row_order_findings(register_text))
-    try:
-        _bypass_text = read(BYPASS_LOG_REL)
-    except OSError:
-        _bypass_text = ""  # adopter fork with `.working/` removed: the check no-ops, see above
-    all_findings.extend(bypass_log_findings(changelog, parse_bypass_prs(_bypass_text)))
+
+    if detailed_text is None:
+        skipped.append("worker-provenance attestation")
+    else:
+        all_findings.extend(worker_provenance_findings(detailed_text))
+
+    if register_text is None:
+        skipped.append("deep-assessment register row-order")
+    else:
+        all_findings.extend(register_row_order_findings(register_text))
+
+    if bypass_text is None:
+        skipped.append("merge-bypass-log parity")
+    else:
+        all_findings.extend(bypass_log_findings(changelog, parse_bypass_prs(bypass_text)))
+
+    if skipped:
+        print(
+            f"OK: {len(skipped)} check(s) skipped, their input being maintainer-only "
+            f"working state not present here ({'; '.join(skipped)}); public CI / "
+            f"adopter clone."
+        )
 
     if not all_findings:
-        print(
-            "OK: bookkeeping-parity audit clean "
-            f"(QA-cadence parity from PR #{INCEPTION}; TODO/DONE rotation; "
-            "version-history parity; worker-provenance attestation; "
-            "deep-assessment register row-order)."
-        )
+        ran = [
+            name
+            for name in (
+                f"QA-cadence parity (from PR #{INCEPTION})",
+                "TODO/DONE rotation",
+                "version-history parity",
+                "worker-provenance attestation",
+                "deep-assessment register row-order",
+                "merge-bypass-log parity",
+            )
+            if name not in skipped
+        ]
+        print(f"OK: bookkeeping-parity audit clean ({'; '.join(ran)}).")
         return 0
 
     print("=== bookkeeping-parity audit ===", file=sys.stderr)
