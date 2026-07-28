@@ -49,6 +49,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from lint_common import resolve_working
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TARGET_FILES: list[str] = [
     "TODO.md",
@@ -118,10 +120,11 @@ def merged_prs() -> set[int]:
     }
 
 
-def latest_sweep_iteration(history_path: Path) -> tuple[int, int] | None:
+def latest_sweep_iteration(history_path: Path | None) -> tuple[int, int] | None:
     """Read sweep history file and return (sweep_n, iter_m) of the most
-    recent row, or None if no rows present."""
-    if not history_path.exists():
+    recent row, or None if no rows present (or the file is absent, e.g.
+    when `.working/` has moved to the private sibling in public CI)."""
+    if history_path is None or not history_path.exists():
         return None
     text = history_path.read_text(encoding="utf-8")
     matches = HISTORY_ROW_PATTERN.findall(text)
@@ -191,7 +194,7 @@ def main() -> int:
     except subprocess.CalledProcessError:
         return 2
 
-    latest = latest_sweep_iteration(REPO_ROOT / SWEEP_HISTORY_PATH)
+    latest = latest_sweep_iteration(resolve_working("validate-sweeps/history.md"))
 
     all_findings: dict[str, list[str]] = {}
     # Queued-PR check scans the forward-looking TODO file(s).
@@ -207,14 +210,20 @@ def main() -> int:
         if findings:
             all_findings[rel] = findings
     # Sweep-cursor check scans the session-handoff file (the resume cursor's home).
-    cursor_path = REPO_ROOT / SWEEP_CURSOR_FILE
-    if not cursor_path.exists():
+    cursor_path = resolve_working("session-handoff.md")
+    if cursor_path is None:
+        # The sweep cursor lives in the maintainer-only session-handoff file.
+        # Once `.working/` moves to the private sibling it is absent in public
+        # CI / an adopter clone, so the sweep-cursor check no-ops there; the
+        # public TODO.md queued-PR check above still ran.
         print(
-            f"ERROR: sweep-cursor file {SWEEP_CURSOR_FILE} does not exist.",
-            file=sys.stderr,
+            f"OK: {SWEEP_CURSOR_FILE} not present (maintainer-only working "
+            f"state; skipping the sweep-cursor check in public CI / adopter "
+            f"clone). The TODO.md queued-PR staleness check still ran."
         )
-        return 2
-    cursor_findings = check_sweep_cursor(cursor_path, latest)
+        cursor_findings = []
+    else:
+        cursor_findings = check_sweep_cursor(cursor_path, latest)
     if cursor_findings:
         all_findings[SWEEP_CURSOR_FILE] = (
             all_findings.get(SWEEP_CURSOR_FILE, []) + cursor_findings

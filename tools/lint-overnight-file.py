@@ -38,8 +38,9 @@ import re
 import sys
 from pathlib import Path
 
+from lint_common import resolve_working
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
-OVERNIGHT_FILE = REPO_ROOT / ".working" / "overnight-pr.md"
 
 STATUS_PATTERN = re.compile(r"^\*\*Status:\*\*\s+(\S+)\s*$", re.MULTILINE)
 
@@ -48,20 +49,28 @@ VALID_FAIL_STATUSES = {"done"}
 
 
 def main() -> int:
-    if not OVERNIGHT_FILE.exists():
+    overnight_file = resolve_working("overnight-pr.md")
+    if overnight_file is None:
+        # The overnight-work file is maintainer-only working state. Once
+        # `.working/` moves to grc_library_private it is absent in public CI and
+        # in an adopter clone, so the gate no-ops there; on the maintainer's
+        # machine the private sibling supplies it and the protocol is enforced.
         print(
-            f"ERROR: {OVERNIGHT_FILE.relative_to(REPO_ROOT)} does not "
-            f"exist. The overnight-work protocol requires this file to "
-            f"exist in stub form.",
-            file=sys.stderr,
+            "OK: overnight-pr.md not present (maintainer-only working state; "
+            "skipping in public CI / adopter clone)."
         )
-        return 2
+        return 0
 
     try:
-        text = OVERNIGHT_FILE.read_text(encoding="utf-8")
+        rel = overnight_file.relative_to(REPO_ROOT).as_posix()
+    except ValueError:
+        rel = overnight_file.as_posix()
+
+    try:
+        text = overnight_file.read_text(encoding="utf-8")
     except OSError as exc:
         print(
-            f"ERROR: cannot read {OVERNIGHT_FILE.relative_to(REPO_ROOT)}: "
+            f"ERROR: cannot read {rel}: "
             f"{exc}",
             file=sys.stderr,
         )
@@ -70,7 +79,7 @@ def main() -> int:
     match = STATUS_PATTERN.search(text)
     if not match:
         print(
-            f"ERROR: {OVERNIGHT_FILE.relative_to(REPO_ROOT)} has no "
+            f"ERROR: {rel} has no "
             f"`**Status:** <value>` line. The overnight-work protocol "
             f"requires this field. Permitted values: stub, in-flight, "
             f"done.",
@@ -82,14 +91,14 @@ def main() -> int:
 
     if status in VALID_PASS_STATUSES:
         print(
-            f"OK: {OVERNIGHT_FILE.relative_to(REPO_ROOT)} Status: "
+            f"OK: {rel} Status: "
             f"{status}. No action required."
         )
         return 0
 
     if status in VALID_FAIL_STATUSES:
         print(
-            f"FAIL: {OVERNIGHT_FILE.relative_to(REPO_ROOT)} Status: "
+            f"FAIL: {rel} Status: "
             f"{status}. The overnight session has ended; the next-"
             f"morning processing PR must route the file's content into "
             f"the appropriate working-state ledgers "
@@ -103,7 +112,7 @@ def main() -> int:
         return 1
 
     print(
-        f"FAIL: {OVERNIGHT_FILE.relative_to(REPO_ROOT)} has invalid "
+        f"FAIL: {rel} has invalid "
         f"Status value `{status}`. Permitted values: stub, in-flight, "
         f"done.",
         file=sys.stderr,
