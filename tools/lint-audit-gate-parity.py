@@ -20,14 +20,14 @@ section 3 principle 5 is broken. This linter detects that drift
 deterministically.
 
 In addition to the four-surface row parity, this gate ADDITIVELY guards the
-three exclusion allow-lists and the PR-only D1-D8 delta gates (TODO 3.99): each
+three exclusion allow-lists and the PR-only D1-D9 delta gates (TODO 3.99): each
 exclusion member is cross-checked against a positive signal that it is genuinely
 not a corpus gate (a setup step invokes no gate script; a delta-gate step's
 script is not a §6-inventory script; a non-gate pre-commit hook carries no
 `--check`), so a real gate mistakenly added to an exclusion set fails rather than
 being masked; and each D-numbered delta gate in the PR-time runner is confirmed
 to map to a workflow delta-gate step of the same script, with the D-numbers
-contiguous D1..D8. See ``verify_exclusion_and_delta_guards``.
+contiguous D1..D9. See ``verify_exclusion_and_delta_guards``.
 
 Comparison: the spec inventory table is the canonical source of truth.
 The other three surfaces are validated against it. For each row of the
@@ -305,7 +305,7 @@ def parse_precommit(path: Path) -> list[tuple[int, str, str]]:
 # Gap (ii): the 8 PR-only delta gates (D1-D8) live only in the workflow with no
 # cross-surface parity. The delta-gate guard confirms each D-numbered gate in the
 # PR-time runner (PRTIME_PATH) maps to a WORKFLOW_DELTA_GATE_STEPS step of the
-# same script, and that the D-numbers are contiguous D1..D8.
+# same script, and that the D-numbers are contiguous D1..D9.
 WF_NAME_RE = re.compile(r"^\s*-\s*name:\s*(.+?)\s*$")
 PC_NAME_RE = re.compile(r"^\s*name:\s*(.+?)\s*$")
 PC_ENTRY_RE = re.compile(r"^\s*entry:\s*(.+?)\s*$")
