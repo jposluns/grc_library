@@ -51,8 +51,9 @@ import re
 import sys
 from pathlib import Path
 
+from lint_common import resolve_working
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
-SESSION_STATE_FILE = REPO_ROOT / ".working" / "session-state.md"
 
 FIELD_PATTERNS = {
     "Active-session": re.compile(
@@ -146,19 +147,26 @@ def check_text(text: str) -> tuple[list[str], list[str]]:
 
 
 def main() -> int:
-    rel = SESSION_STATE_FILE.relative_to(REPO_ROOT)
-
-    if not SESSION_STATE_FILE.exists():
+    session_state = resolve_working("session-state.md")
+    if session_state is None:
+        # The session-concurrency lease is maintainer-only working state. Once
+        # `.working/` moves to grc_library_private, it is absent in public CI and
+        # in an adopter clone, so the gate no-ops there (graceful degradation);
+        # on the maintainer's machine the private sibling supplies it and the
+        # protocol is enforced.
         print(
-            f"ERROR: {rel} does not exist. The session-concurrency lease "
-            f"protocol requires this file to exist (released stub at "
-            f"minimum).",
-            file=sys.stderr,
+            "OK: session-state lease not present (maintainer-only working state; "
+            "skipping in public CI / adopter clone)."
         )
-        return 2
+        return 0
 
     try:
-        text = SESSION_STATE_FILE.read_text(encoding="utf-8")
+        rel = session_state.relative_to(REPO_ROOT).as_posix()
+    except ValueError:
+        rel = session_state.as_posix()
+
+    try:
+        text = session_state.read_text(encoding="utf-8")
     except OSError as exc:
         print(f"ERROR: cannot read {rel}: {exc}", file=sys.stderr)
         return 2

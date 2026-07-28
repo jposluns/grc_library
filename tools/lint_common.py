@@ -137,6 +137,42 @@ def resolve_sibling(name: str) -> Path | None:
     return candidate if candidate.is_dir() else None
 
 
+# The maintainer working-state subtree (`.working/`) is migrating out of the public
+# repo into `grc_library_private/.working/` (privacy: it carried account identifiers
+# and operational records adopters never need). `resolve_working` is the single access
+# point during and after that migration: it prefers the private location, falls back to
+# the in-repo `.working/` (so the pre-migration and mid-migration states both work), and
+# returns None when neither is present (public CI / adopter clone -> the reader no-ops,
+# exactly like an advisory sibling tool). See the migration plan in grc_library_private.
+WORKING_SUBDIR = ".working"
+
+
+def resolve_working(relpath: str) -> Path | None:
+    """Locate a `.working/`-tree file, preferring `grc_library_private/.working/`.
+
+    `relpath` is POSIX-relative to the `.working/` root (e.g.
+    ``"validate-pr/history.md"``). Resolution order:
+      1. ``grc_library_private/.working/<relpath>`` (the migrated location), if the
+         private sibling is present AND the file exists there;
+      2. ``<repo>/.working/<relpath>`` (the pre-migration in-repo location), if present;
+      3. ``None`` -- neither is available (public CI / adopter clone). A reader that
+         routes through this helper then no-ops, the graceful-degradation contract the
+         `.working/`-reading gates adopt when their input leaves the public repo.
+
+    An EXPLICIT path passed to a tool (a ``--flag``) stays the caller's concern, as with
+    :func:`resolve_sibling`; this helper governs only the DEFAULT `.working/` lookup.
+    """
+    private = resolve_sibling("private")
+    if private is not None:
+        cand = private / WORKING_SUBDIR / relpath
+        if cand.exists():
+            return cand
+    local = REPO_ROOT / WORKING_SUBDIR / relpath
+    if local.exists():
+        return local
+    return None
+
+
 # Canonical list of audited-not-exempt top-level directories: the
 # eleven domain directories plus ``.project-governance``. This is the
 # single source of truth for the "explicit allow-list" content linters

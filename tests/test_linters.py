@@ -8292,6 +8292,36 @@ class ResolveSiblingTests(unittest.TestCase):
             finally:
                 lc.REPO_ROOT = orig
 
+    def test_resolve_working_prefers_private_then_local_then_none(self) -> None:
+        # resolve_working: grc_library_private/.working/<rel> preferred, then the
+        # in-repo .working/<rel>, else None (the .working -> _private migration).
+        lc = self._lc()
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td) / "grc_library"
+            root.mkdir()
+            orig = lc.REPO_ROOT
+            try:
+                lc.REPO_ROOT = root
+                # Neither private nor local -> None (public CI / adopter clone).
+                self.assertIsNone(lc.resolve_working("x.md"))
+                # In-repo .working/x.md present -> the local fallback.
+                (root / ".working").mkdir()
+                (root / ".working" / "x.md").write_text("local", encoding="utf-8")
+                self.assertEqual(
+                    lc.resolve_working("x.md"), root / ".working" / "x.md")
+                # Private sibling .working/x.md present -> PREFERRED over local.
+                priv = Path(td) / "grc_library_private" / ".working"
+                priv.mkdir(parents=True)
+                (priv / "x.md").write_text("private", encoding="utf-8")
+                self.assertEqual(lc.resolve_working("x.md"), priv / "x.md")
+                # A rel present only in local (not private) -> local fallback,
+                # even with the private sibling present.
+                (root / ".working" / "y.md").write_text("local-y", encoding="utf-8")
+                self.assertEqual(
+                    lc.resolve_working("y.md"), root / ".working" / "y.md")
+            finally:
+                lc.REPO_ROOT = orig
+
     def test_placeholder_present_and_absent(self) -> None:
         lc = self._lc()
         with tempfile.TemporaryDirectory() as td:

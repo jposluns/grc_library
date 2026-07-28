@@ -8,6 +8,18 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-28, Library Version 2026.07.714, PR #1225
+
+First implementation step of the maintainer-directed `.working/`->`grc_library_private/.working/` migration (privacy: `.working/` carried account identifiers and operational records adopters never need). The full gate-by-gate plan and the mid-implementation scope expansion (a 7th `.working`-reader, gate 60; the corpus->`.working` links gate 3 will flag; the gate-36 fixtures) live in the `grc_library_private` migration plan. This PR lands only the safe, non-breaking foundation; the remaining gates (50/59/78/60/43/51), the content move, and the `/resume` loud-fail gate follow in a fresh session.
+
+### Added
+- **`lint_common.resolve_working(relpath)`** ([`tools/lint_common.py`](../../tools/lint_common.py)): resolves a `.working/`-tree file, preferring `grc_library_private/.working/<relpath>`, falling back to the in-repo `.working/<relpath>`, else `None`. A reader that routes through it no-ops on `None` (the graceful-degradation contract for when `.working/` leaves the public repo: absent in public CI / an adopter clone, present on the maintainer's machine via the private sibling). Locked by a `ResolveSiblingTests.test_resolve_working_...` case.
+### Changed
+- **Three `.working/`-reading gates rewired to `resolve_working` with graceful degradation:** gate 63 [`lint-session-state.py`](../../tools/lint-session-state.py), gate 46 [`lint-overnight-file.py`](../../tools/lint-overnight-file.py), and gate 45 [`lint-todo-staleness.py`](../../tools/lint-todo-staleness.py) (its public [`TODO.md`](../../TODO.md) queued-PR check keeps running; only the sweep-cursor half no-ops). Each formerly ERRORED (exit 2) on the file's absence; that absence is now the expected public-clone state and no-ops (exit 0). All three still enforce today via the in-repo `.working/` fallback.
+
+### Verification
+- All three rewired gates run green against the present in-repo `.working/`; the helper's 3-way resolution is unit-tested. Carries #1224's dual-family validate-pr/retro/bypass close-out rows (recursion-avoidance). Pre-push guard green.
+
 ## 2026-07-28, Library Version 2026.07.713, PR #1224
 
 Maintainer-flagged 2026-07-28: the forward-looking [`TODO.md`](../../TODO.md) contained items and prose stating they were closed, which belong in [`.working/DONE.md`](../../.working/DONE.md). This is the first of a short cleanup series and is SCOPED to the P1-intro and three specific inline closure notes; residual closure prose inside item BODIES (e.g. the item 2.1 body at `TODO.md:88`) is handled by the umbrella splits in the next PR, not this one, each item content-verified against current main by a worker and re-verified at source before applying.
