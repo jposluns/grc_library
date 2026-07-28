@@ -8,6 +8,19 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-28, Library Version 2026.07.712, PR #1223
+
+Maintainer-directed 2026-07-28: codify the dual Claude+Codex QA that has been paying off (codex found the merged #1222 account-name leak, and this PR's own dual-family verify caught six defects across four rounds, each family surfacing what the other missed) so it is a standing default and need not be requested each time.
+
+### Changed
+- **High-assurance stage 3 requires dual-family verification.** [`governance/high-assurance-verification.md`](../../dev-security/claude-rules/governance/high-assurance-verification.md) (and its `.claude/rules/` copy, byte-identical per gate 37) now states the two independent adversarial verifiers ARE drawn from DIFFERENT model families (one Claude-family, one GPT/Codex-family), never two instances of one family: different families have systematically different blind spots, so a cross-family pair is stronger independence than same-family redundancy. Run the identical refute-brief to each and reconcile; a finding in only one family's delivery is triaged on its own merits, agreement is corroboration.
+- **Substantive verifier tier defaults to a cross-family pair for consequential changes.** [`governance/ai-assistant-workflow-disciplines.md`](../../dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md) (both trees) adds that a consequential substantive change requires a cross-family verifier pair (the single-verifier count being the floor for an ordinary substantive change), per the high-assurance dual-family standard, as the default for validation and verification passes.
+- **The executable high-assurance SKILL and its `/high-assurance` slash command, and the pack + project CLAUDE.md rule summaries,** were updated to match (stage/skill parity): the two adversarial verifiers are two separate-family workers, not same-session subagents.
+- **Pack README** bumped to 1.65.19 with a `## Version history` row.
+
+### Verification
+- Both rule trees edited byte-identical above the PROJECT-OVERLAY (gate 37). Pre-push guard green (78 gates + D1-D9).
+
 ## 2026-07-28, Library Version 2026.07.711, PR #1222
 
 Hardened the exec'd worker-dispatch pool so the orchestrator's own account is never used as a worker (maintainer-directed 2026-07-28, after a claude verifier was mistakenly dispatched to the `jeff-mailz` orchestrator account, both an independence violation and a burn of the scarce orchestrator credits the offload design exists to protect).

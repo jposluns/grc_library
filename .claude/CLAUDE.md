@@ -1937,8 +1937,7 @@ CC BY-SA 4.0). The rule files are authoritative; the one-line purpose is an inde
   calibration). The requestor-facing counterpart to `clarify-before-acting`.
 - `.claude/rules/governance/high-assurance-verification.md`: the heavier pre-apply harness
   for *sensitive* changes (gate-blind on correctness, delicate at scale, costly to get
-  wrong): research fan-out, a mechanical signal pass over the negatives, two independent
-  adversarial verifiers (false-negative and false-positive lenses), a programmatic invariant
+  wrong): research fan-out, a mechanical signal pass over the negatives, two independent adversarial verifiers from different model families (false-negative and false-positive lenses), a programmatic invariant
   floor, and a deterministic scripted apply plus re-parse, so apply-correctness does not rest
   on orchestrator in-context precision. The proactive counterpart to
   `trust-recovery-escalation`.
