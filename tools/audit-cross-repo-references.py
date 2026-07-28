@@ -187,7 +187,8 @@ def classify_cross_repo(
 
 
 def audit_tree(
-    root: Path, *, sibling_resolver=_default_resolve_sibling, rel_root: Path | None = None
+    root: Path, *, sibling_resolver=_default_resolve_sibling, rel_root: Path | None = None,
+    link_root: Path | None = None
 ) -> tuple[list[tuple[str, int, str, str, str]], Counter]:
     """Audit every text file under ``root``. Returns (findings, counts).
 
@@ -205,6 +206,11 @@ def audit_tree(
     # the private repo so `rel_parts` still contains `.working`, matching residual-scan's
     # `_rel_for`, so a `.working/` file keeps its intended-minimal cross-repo classification).
     rel_base = rel_root or root
+    # link_base resolves markdown links; for the post-move private walk it is the
+    # PUBLIC repo root, and the source is re-homed to its in-repo-equivalent path,
+    # because a `.working/` file's links are authored relative to its in-repo home
+    # (a `../CHANGELOG.md` points at the public corpus, not the private sibling).
+    link_base = link_root or root
     for path in iter_text_files(root):
         text = read_text_safe(path)
         if text is None:
@@ -240,7 +246,7 @@ def audit_tree(
                         continue
                     if CROSS_REPO_TOKEN.search(target):
                         continue  # already counted as a cross-repo pointer
-                    bucket, detail = classify_link(target, path, root)
+                    bucket, detail = classify_link(target, link_base / rel, link_base)
                     findings.append((rel, lineno, bucket, "", detail))
                     counts[bucket] += 1
     return findings, counts
@@ -380,7 +386,7 @@ def main(argv: list[str]) -> int:
         try:
             wd.relative_to(root)
         except ValueError:
-            wfind, wcounts = audit_tree(wd, rel_root=wd.parent)
+            wfind, wcounts = audit_tree(wd, rel_root=wd.parent, link_root=root)
             findings.extend(wfind)
             counts.update(wcounts)
     _print_report(findings, counts, root)

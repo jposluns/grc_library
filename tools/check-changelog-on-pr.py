@@ -47,10 +47,20 @@ import argparse
 import os
 import re
 import subprocess
+from pathlib import Path
 import sys
 
 CHANGELOG_PATH = "CHANGELOG.md"
 CHANGELOG_DETAILED_PATH = ".working/changelog-details/CHANGELOG-detailed.md"
+
+def _working_in_repo() -> bool:
+    """True while the `.working/` tree still lives in THIS repo. Once the
+    `.working/` -> private-sibling migration moves it out, the in-repo dir is gone
+    and the `.working/` half of this PR-time check becomes a cross-repo concern
+    (updated in the private sibling, invisible to the public diff), so the gate
+    requires only its public half. Absent `.working/` (adopter fork) reads the same."""
+    return (Path(__file__).resolve().parent.parent / ".working").is_dir()
+
 TRAILER_PATTERN = re.compile(
     r"^\s*Changelog:\s*(\S.*?)\s*$",
     re.IGNORECASE | re.MULTILINE,
@@ -125,11 +135,19 @@ def main(argv: list[str]) -> int:
     root_changed = CHANGELOG_PATH in changed
     detailed_changed = CHANGELOG_DETAILED_PATH in changed
 
-    if root_changed and detailed_changed:
-        print(
-            f"OK: both {CHANGELOG_PATH} and {CHANGELOG_DETAILED_PATH} are in the diff "
-            f"({len(changed)} file(s) total)."
-        )
+    detailed_required = _working_in_repo()
+    if root_changed and (detailed_changed or not detailed_required):
+        if detailed_changed:
+            print(
+                f"OK: both {CHANGELOG_PATH} and {CHANGELOG_DETAILED_PATH} are in the diff "
+                f"({len(changed)} file(s) total)."
+            )
+        else:
+            print(
+                f"OK: {CHANGELOG_PATH} is in the diff; the detailed mirror "
+                f"{CHANGELOG_DETAILED_PATH} now lives in the private sibling "
+                f"(cross-repo, not in the public diff)."
+            )
         return 0
 
     # Check for opt-out trailer before reporting any specific failure shape.
