@@ -1,14 +1,14 @@
 # Session State (concurrency lease)
 
-**Active-session:** none
+**Active-session:** claude/resume-closeout-0728
 
-**Status:** released
+**Status:** active
 
 **Operating-mode:** overnight-unattended
 
-**Last-heartbeat-UTC:** 2026-07-28T01:07:46Z
+**Last-heartbeat-UTC:** 2026-07-28T01:40:00Z
 
-**Current-task:** none (2026-07-27b session CLOSED at #1216; handoff PR #1217 landed; next resume sets its own mode). Overnight orders pre-queued: vda-c1-validate + vpr-1216 (both dual-family).
+**Current-task:** overnight deep-assessment dual-family (component-by-component) + /fitness dual-family. Component 1 (/validate) consumed; fixing findings.
 
 **Worker-dispatches:** fleet spawned on-demand via `tools/exec-dispatch.py` (accounts in `_private/worker-accounts.json`). Concurrency-testing config (roadmap 2026-07-27): fallbacks `jposluns-work-claude` + `jeff-posluns-codex` at max 1; `security-work-claude`, `jeff-mailz-claude`, `jeff-posluns-claude`, `jeff-mailz-codex` at max 4 for aggressive testing. Short model names: claude opus/sonnet/haiku/fable; codex gpt-5.6-terra/sol/luna, gpt-5.5, gpt-5.4, gpt-5.4-mini. Order prompt MUST NOT start with `/`; codex dispatch needs `--model`.
 
