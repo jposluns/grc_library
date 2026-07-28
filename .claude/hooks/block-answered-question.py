@@ -107,12 +107,38 @@ def _questions_text(payload: dict) -> str:
     return "\n".join(parts)
 
 
+# `.working/` -> `_private` migration: resolve the (maintainer-only) working-state file through
+# lint_common.resolve_working (private sibling preferred, in-repo fallback). Fail-SAFE: if the
+# helper cannot be imported, fall back to the historical in-repo path so this hook never breaks.
+_TOOLS_DIR = str(Path(__file__).resolve().parents[2] / "tools")
+if _TOOLS_DIR not in sys.path:
+    sys.path.insert(0, _TOOLS_DIR)
+try:
+    from lint_common import resolve_working as _resolve_working
+except Exception:  # pragma: no cover - fail-safe: never let a helper-load failure break the hook
+    _resolve_working = None
+
+
+def _working_file(rel_below, root):
+    """`.working/<rel_below>` resolved via lint_common (private preferred), or None."""
+    if _resolve_working is not None:
+        return _resolve_working(rel_below, repo_root=root)
+    cand = root / ".working" / rel_below
+    return cand if cand.exists() else None
+
+
 def _read_stores(project_dir: str) -> list[tuple[str, str]]:
     """Return [(store_label, text), ...] for each readable store."""
     base = Path(project_dir)
     out: list[tuple[str, str]] = []
     for rel, _sibling in STORE_RELPATHS:
-        p = (base / rel).resolve()
+        if rel.startswith(".working/"):
+            # maintainer-only working store: resolve via lint_common (private preferred)
+            p = _working_file(rel[len(".working/"):], base)
+            if p is None:
+                continue
+        else:
+            p = (base / rel).resolve()  # a sibling path (e.g. the private design-decisions log)
         try:
             out.append((rel, p.read_text(encoding="utf-8", errors="replace")))
         except OSError:

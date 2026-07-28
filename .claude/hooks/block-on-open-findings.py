@@ -35,6 +35,26 @@ LEDGER_REL = ".working/open-findings.md"
 BLOCKING_CMDS = (("gh", "pr", "create"), ("gh", "pr", "merge"))
 
 
+# `.working/` -> `_private` migration: resolve the (maintainer-only) working-state file through
+# lint_common.resolve_working (private sibling preferred, in-repo fallback). Fail-SAFE: if the
+# helper cannot be imported, fall back to the historical in-repo path so this hook never breaks.
+_TOOLS_DIR = str(Path(__file__).resolve().parents[2] / "tools")
+if _TOOLS_DIR not in sys.path:
+    sys.path.insert(0, _TOOLS_DIR)
+try:
+    from lint_common import resolve_working as _resolve_working
+except Exception:  # pragma: no cover - fail-safe: never let a helper-load failure break the hook
+    _resolve_working = None
+
+
+def _working_file(rel_below, root):
+    """`.working/<rel_below>` resolved via lint_common (private preferred), or None."""
+    if _resolve_working is not None:
+        return _resolve_working(rel_below, repo_root=root)
+    cand = root / ".working" / rel_below
+    return cand if cand.exists() else None
+
+
 def project_root() -> Path:
     # Derived from this file's location, never hardcoded, so the guard follows a repo relocation
     # (the row-E lesson from the /home/grc move, where five hooks kept a stale absolute root).
@@ -155,11 +175,11 @@ def main() -> int:
     if not is_blocking_command(cmd):
         return 0
 
-    ledger = project_root() / LEDGER_REL
+    ledger = _working_file("open-findings.md", project_root())
     try:
         rows = parse_open_rows(ledger.read_text(encoding="utf-8"))
     except Exception:
-        return 0  # fail-open, per the docstring
+        return 0  # fail-open (a None/missing/unreadable ledger), per the docstring
 
     errs = undispositioned(rows, "error")
     if not errs:

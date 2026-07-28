@@ -58,6 +58,10 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
+_TOOLS_DIR = str(Path(__file__).resolve().parent)
+if _TOOLS_DIR not in sys.path:
+    sys.path.insert(0, _TOOLS_DIR)
+from lint_common import resolve_working_dir  # noqa: E402
 
 TEXT_SUFFIXES = {".md", ".py", ".sh", ".yml", ".yaml", ".cff", ".toml", ".txt", ".json"}
 
@@ -85,14 +89,44 @@ def classify(rel: str) -> str:
     return "LIVE"
 
 
+def _extra_working_root() -> Path | None:
+    """The resolved `.working/` dir when it lives OUTSIDE the public repo
+    (post-migration, in the private sibling). Returns None when `.working/` is
+    still in-repo (already covered by the REPO_ROOT walk) or absent."""
+    wd = resolve_working_dir(repo_root=REPO_ROOT)
+    if wd is None:
+        return None
+    try:
+        wd.relative_to(REPO_ROOT)
+        return None  # in-repo: the REPO_ROOT walk already covers it
+    except ValueError:
+        return wd  # private sibling: walk it too
+
+
+def _rel_for(path: Path) -> str:
+    """Relpath used for classification. In-repo paths are relative to REPO_ROOT;
+    a private-sibling `.working/` file is re-rooted to a ``.working/...`` rel so
+    ``classify()`` (which keys on ``.working/`` prefixes) still matches."""
+    try:
+        return path.relative_to(REPO_ROOT).as_posix()
+    except ValueError:
+        wd = resolve_working_dir(repo_root=REPO_ROOT)
+        return ".working/" + path.relative_to(wd).as_posix()
+
+
 def iter_files() -> list[Path]:
     files = []
-    for path in sorted(REPO_ROOT.rglob("*")):
-        if not path.is_file() or path.suffix.lower() not in TEXT_SUFFIXES:
-            continue
-        if any(part in EXCLUDED_DIRS for part in path.parts):
-            continue
-        files.append(path)
+    roots = [REPO_ROOT]
+    extra = _extra_working_root()
+    if extra is not None:
+        roots.append(extra)
+    for root in roots:
+        for path in sorted(root.rglob("*")):
+            if not path.is_file() or path.suffix.lower() not in TEXT_SUFFIXES:
+                continue
+            if any(part in EXCLUDED_DIRS for part in path.parts):
+                continue
+            files.append(path)
     return files
 
 
@@ -131,7 +165,7 @@ def main() -> int:
     counts = {"LIVE": 0, "LEDGER": 0, "FROZEN-RECORD": 0}
 
     for path in iter_files():
-        rel = path.relative_to(REPO_ROOT).as_posix()
+        rel = _rel_for(path)
         label = classify(rel)
         try:
             lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
