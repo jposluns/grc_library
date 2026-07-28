@@ -8,6 +8,21 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-28, Library Version 2026.07.713, PR #1224
+
+Maintainer-flagged 2026-07-28: the forward-looking [`TODO.md`](../../TODO.md) contained items and prose stating they were closed, which belong in [`.working/DONE.md`](../../.working/DONE.md). This is the first of a short cleanup series and is SCOPED to the P1-intro and three specific inline closure notes; residual closure prose inside item BODIES (e.g. the item 2.1 body at `TODO.md:88`) is handled by the umbrella splits in the next PR, not this one, each item content-verified against current main by a worker and re-verified at source before applying.
+
+### Changed
+- **Priority-1 section intro rewritten.** The `## Priority 1` intro paragraph named `1.14` (which had moved to Priority 3) and `item 1.19 (closed 2026-07-25)` as *current* P1 holdings, implied none were open, and carried five closing-PR references, a closed-item roll-call `TODO.md:3` forbids. It now lists only open P1 work (the 1.26 quality-machinery series, 1.23, 1.19.13, and the egress-gated 1.22) with zero closing-PR references, verifiable line-by-line against the headings.
+### Removed
+- **Three inline closure notes** whose DONE entries already exist: `(The US HIPAA bullet closed in #733.)`, `(The EU eIDAS bullet closed in #739.)`, and `(Mexico's standalone annex shipped in #750.)` (their parent bullets stay open). DONE.md already records all three, so no rotation was needed.
+
+### Added
+- **TODO 3.185**, a low-priority tracker for the eight MEDIUM prose nuances the #1223 final dual-family verify deferred (maintainer-directed).
+
+### Verification
+- Content-verified apply-list (the original audit's DONE-status assumptions were corrected by a second worker pass); each removal re-verified at source. Carries #1223's validate-pr/retro/bypass close-out rows. Pre-push guard green (78 gates + D1-D9).
+
 ## 2026-07-28, Library Version 2026.07.712, PR #1223
 
 Maintainer-directed 2026-07-28: codify the dual Claude+Codex QA that has been paying off (codex found the merged #1222 account-name leak, and this PR's own dual-family verify caught six defects across four rounds, each family surfacing what the other missed) so it is a standing default and need not be requested each time.
