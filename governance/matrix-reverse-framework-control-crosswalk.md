@@ -2,8 +2,8 @@
 
 **Document Title:** Reverse Framework Control Crosswalk Matrix\
 **Document Type:** Matrix\
-**Version:** 1.0.7\
-**Date:** 2026-07-12\
+**Version:** 1.0.8\
+**Date:** 2026-07-28\
 **Owner:** Control Framework Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../supply-chain/matrix-supply-chain-security-programme-alignment.md), [`NOTICE.md`](../NOTICE.md)\
@@ -50,7 +50,7 @@ This matrix does not reproduce restricted third-party framework text, does not e
 | A.5.30 ICT readiness for business continuity | [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../resilience/standard-business-continuity-and-disaster-recovery.md), [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md) | Architectural recommendation |
 | A.5.33 Protection of records | [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md), [`governance/register-data-retention-schedule.md`](register-data-retention-schedule.md) | Architectural recommendation |
 | A.6.1 to A.6.5 Personnel security including screening, terms, awareness, disciplinary | [`security/standard-personnel-security-screening.md`](../security/standard-personnel-security-screening.md), [`security/standard-security-awareness-and-training.md`](../security/standard-security-awareness-and-training.md), [`security/procedure-onboarding-and-offboarding.md`](../security/procedure-onboarding-and-offboarding.md), [`security/procedure-security-disciplinary-process.md`](../security/procedure-security-disciplinary-process.md) | Architectural recommendation |
-| A.6.2 Remote working and BYOD | [`security/standard-remote-working-security.md`](../security/standard-remote-working-security.md), [`security/policy-byod.md`](../security/policy-byod.md) | Architectural recommendation |
+| A.6.7 Remote working and BYOD | [`security/standard-remote-working-security.md`](../security/standard-remote-working-security.md), [`security/policy-byod.md`](../security/policy-byod.md) | Architectural recommendation |
 | A.7 Physical and environmental security | [`operations/standard-physical-security-of-it-infrastructure.md`](../operations/standard-physical-security-of-it-infrastructure.md) | Architectural recommendation |
 | A.8.5 Secure authentication | [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md) | Architectural recommendation |
 | A.8.6 Capacity management and production controls | [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md) | Architectural recommendation |

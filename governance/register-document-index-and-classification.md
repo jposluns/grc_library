@@ -2,8 +2,8 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.91\
-**Date:** 2026-07-24\
+**Version:** 1.27.92\
+**Date:** 2026-07-28\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md)\
@@ -112,8 +112,8 @@ Documents are classified by their **primary** disposition. The small number that
 | Security | Standard | Penetration Testing and Red Team Standard | [`security/standard-penetration-testing-and-red-team.md`](../security/standard-penetration-testing-and-red-team.md) | Chief Information Security Officer | Annual | PTES, OWASP, CVSS v3.1, CREST, red team RoE, remediation SLA | template |
 | Security | Standard | Threat Modelling Standard | [`security/standard-threat-modelling.md`](../security/standard-threat-modelling.md) | Chief Information Security Officer | Annual and upon material change to the system's trust-boundary inventory or the underlying methodology | STRIDE (Microsoft SDL), LINDDUN (KU Leuven), OWASP ASVS, NIST SSDF, OWASP Threat Modeling Cheat Sheet, ISO/IEC 27001 Annex A.8.25/A.8.27/A.8.28 | template |
 | Security | Policy | Network Communications Security Policy | [`security/policy-network-communications-security.md`](../security/policy-network-communications-security.md) | Chief Information Security Officer | Annual | ISO/IEC 27033, NIST SP 800-207, CSA CCM I&S, BASC v6 §6, WCO SAFE | template |
-| Security | Policy | Bring Your Own Device (BYOD) Policy | [`security/policy-byod.md`](../security/policy-byod.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.6.2/A.8.1, NIST SP 800-124r2, CSA CCM UEM, MAM and MDM controls | template |
-| Security | Standard | Remote Working Security Standard | [`security/standard-remote-working-security.md`](../security/standard-remote-working-security.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.6.2, NIST SP 800-46r2, CSA CCM HRS-09, CIS Controls v8 | template |
+| Security | Policy | Bring Your Own Device (BYOD) Policy | [`security/policy-byod.md`](../security/policy-byod.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.6.7/A.8.1, NIST SP 800-124r2, CSA CCM UEM, MAM and MDM controls | template |
+| Security | Standard | Remote Working Security Standard | [`security/standard-remote-working-security.md`](../security/standard-remote-working-security.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.6.7, NIST SP 800-46r2, CSA CCM HRS-09, CIS Controls v8 | template |
 | Security | Procedure | Onboarding and Offboarding Procedure | [`security/procedure-onboarding-and-offboarding.md`](../security/procedure-onboarding-and-offboarding.md) | Chief Information Officer | Annual | ISO/IEC 27001 Annex A.6.1/A.6.5, NIST SP 800-53 PS, CIS Controls v8 Control 5 | template |
 | Operations | Standard | Production Security Requirements | [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md) | Chief Information Officer | Annual | ISO/IEC 27001 Annex A.8.6, NIST SP 800-53 CM, CIS Benchmarks | template |
 | Operations | Standard | Cloud Security Configuration Baseline | [`operations/standard-cloud-security-configuration-baseline.md`](../operations/standard-cloud-security-configuration-baseline.md) | Chief Information Security Officer | Annual | CSA CCM v4.1, NIST SP 800-53, cloud shared responsibility model | template |
