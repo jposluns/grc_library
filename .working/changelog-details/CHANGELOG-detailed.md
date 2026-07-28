@@ -8,6 +8,17 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-28, Library Version 2026.07.718, PR #1229
+
+Migration PR2a: the safe, pre-move corpus half of the `.working/`->`grc_library_private/.working/` content migration. It severs the corpus->`.working/` markdown links that gate 3 (broken-link) would flag once `.working/` leaves the public repo, done now while `.working/` is still present so the change is behaviour-neutral. The content move itself (PR2b) follows and is surfaced before merge, and carries the broader prose-accuracy updates (CLAUDE.md, pack overlays).
+
+### Changed
+- **Severed 23 corpus->`.working/` links** to plain backticked logical references: [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) (22 links, across the section-5 grouped list and the section-6 gate-50/gate-60 narratives; Version 1.17.39) and [`governance/specification-project-governance-separation.md`](../../governance/specification-project-governance-separation.md) (1 link, the Related Documents field; Version 1.0.7). Each `[` + backticked `.working/X` + `](../.working/X)` became the bare backticked `.working/X` (the logical path `lint_common.resolve_working` maps to `_private/.working/` or the in-repo fallback). Gate 3 stays green now (a backticked path is not a link) and post-move (nothing dangles). The dual-family PR2 inventory confirmed these two files are the only gate-3-scope corpus carriers, and a corpus-wide grep found no other.
+
+### Verification
+- All 78 gates green (pre-push guard, both runners); gate 3 passes; taxonomy/portal/scorecard regenerated after the two spec Version bumps.
+- Dual-family verify of the de-linking (Claude + Codex).
+
 ## 2026-07-28, Library Version 2026.07.717, PR #1228
 
 Resume close-out for the 2026-07-28 attended-autonomous session (the first substantive-QA PR after the migration PR1 #1227 merge). It records the loop-break `/validate` compensating control, consumes #1227's post-merge dual-family validate-pr and fixes its in-window findings, and carries the session-resume bookkeeping.
