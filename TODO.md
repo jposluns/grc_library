@@ -270,7 +270,7 @@ Umbrella for adopting NIST OSCAL as an open, machine-readable projection of the 
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.152.**
+**Next item number: 3.185.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
 
@@ -394,6 +394,139 @@ The #1210 pre-push verifier UPHELD the `pending`-state classifier logic but surf
 ### 3.151 exec-dispatch's dispatch/eligibility error lumps "model not offered" with "account limited", enabling a false "fleet out" read (2026-07-27, M, S)
 
 On 2026-07-27 the orchestrator probed and dispatched with full model IDs (`claude-opus-4-8`, `gpt-5-codex`) while [`tools/exec-dispatch.py`](tools/exec-dispatch.py)'s account config offers models by SHORT name (`opus`, `gpt-5.6-terra`), so `eligible_accounts` correctly returned empty and the dry-run reported `(no eligible account)` while `--dispatch` said `unavailable, limited, or model not offered`. The orchestrator misread this as a fleet-wide cap and self-ran three QA passes (validate-pr-1209, the #1210 pre-push verifier, the #1211 six-PR catch-up) on scarce orchestrator credits that should have been OFFLOADED; a live dispatch with `opus` then succeeded in 10.4s, confirming the fleet was available the whole time. The eligibility LOGIC is correct; the ERROR MESSAGE is the defect (the guard-input-clarity / distinguish-the-states class, same family as the `manage-workers.py` and saturation-observable work). Fixes: **(1)** in `--dry-run`, when 0 accounts pass the model filter, print per-account `model 'X' not in offered set [opus, fable, sonnet, haiku]` rather than a bare `(no eligible account)`, and suggest the nearest offered name; **(2)** in `--dispatch`, split the single `unavailable, limited, or model not offered` message into the ACTUAL cause (model-not-offered-here-[list] vs limited-until-Y vs usage_state != available); **(3)** consider accepting the full model IDs as aliases for the short names, or surfacing the offered names in `--help`. Any change gets a self-test. Orchestrator-side tooling, not pack. (The durable short-name reference is recorded in `.working/session-handoff.md` and `.working/next-prs.txt`.)
+
+
+### 3.152 Register `Owner Role` cell vs each document's own `**Owner:**` metadata is unguarded, with 27 live divergences (2026-07-28 deep-assessment c2, both families, H, M)
+
+Nothing compares [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md)'s `Owner Role` column to the target document's own `**Owner:**` field; both are individually legal roles so `lint-roles.py` cannot see the conflict. The claude lens re-derived **27 live divergences** across 312 rows (e.g. `policy-exception-and-risk-acceptance-management.md` register `Chief Risk Officer` vs doc `Chief Information Security Officer`, orchestrator-verified). Build a gate comparing the two, and reconcile the 27 (each a per-document decision on the authoritative owner).
+
+### 3.153 Forward/reverse crosswalk pair-consistency is unenforced (an A.8.29 outlier is live) (2026-07-28 deep-assessment c2, ERROR, S)
+
+No tool references [`governance/matrix-reverse-framework-control-crosswalk.md`](governance/matrix-reverse-framework-control-crosswalk.md); its own "the two matrices are pair-consistent" assertion is unchecked. Row `:64` maps `A.8.29` to the pen-test doc whose own alignment table carries no `A.8.29`. Build a pair-consistency gate: each reverse-crosswalk row's control appears in the target doc's alignment table.
+
+### 3.154 Matrix `N/A` is an unaudited escape hatch + semantic-mapping blind spot (2026-07-28 deep-assessment c2, W, S)
+
+`lint-matrix-control-codes.py` accepts `N/A` unconditionally at three sites; `matrix-grc-compliance-alignment.md:385` carries AICM `N/A` while its CCM cell cites `AIS-04/05`, violating the column key. Semantic mapping correctness is the `/matrix-fit` cadence's job, but consider gating a bare `N/A` where a sibling framework column is populated.
+
+### 3.155 Cross-document statutory-date coherence is untracked beyond one term (2026-07-28 deep-assessment c2, W, S)
+
+`lint-cross-doc-numbers.py` tracks only the GDPR 72h window; the Colorado AI Act "30 June 2026" date is restated in 4 files with no gate comparing them. Widen the cross-doc-numbers gate to a curated statutory-date set.
+
+### 3.156 Role-vocabulary closure does not cover body prose (2026-07-28 deep-assessment c2, W, S)
+
+`lint-roles.py` scopes to the two metadata fields only; `Service Owner` (SLM:74) and `Incident Commander` (used 22x) carry normative authority in body prose but are absent from `register-role-authority.md`. Extend role-closure to body-prose authority roles.
+
+### 3.157 Metadata `Classification`/`Confidentiality` allowed-value sets are unenforced (2026-07-28 deep-assessment c2, W, S)
+
+`lint-metadata.py` enforces `ALLOWED_TYPES` for `Document Type` only; `Classification` and `Confidentiality` are presence-only, so changing a doc to `Classification: Restricted` passes all 78 gates while contradicting the CC BY-SA public basis. Add allowed-value sets.
+
+### 3.158 Gate-50 `SUBSUMPTION_FINDINGS` fail-open: incidental "not run" prose mis-classifies a row as exempt (2026-07-28 deep-assessment c3, W, S)
+
+The regex `SUBSUMED|NOT\s+run|maintainer[-\s]authori...` matches anywhere in a Findings cell, evaluated BEFORE the pending check, so 3 ordinary rows (#1186 "do not run --prune", #1044 "did not run the grep", #1035) are mis-classified as exemption rows. A future genuinely-pending row carrying such prose escapes Check 1, a fail-open in the very check TODO 3.120 built. Scope the marker to an authorization context (a dedicated token/cell), not incidental prose. [`tools/lint-bookkeeping-parity.py`](tools/lint-bookkeeping-parity.py):189-190,301-306.
+
+### 3.159 Gate-50 naive pipe-split misparses ledger rows with inline `| pending |` code (2026-07-28 deep-assessment c3, W, S)
+
+`lint-bookkeeping-parity.py:274-276,300` uses `line.split("|")`; inline `| pending |` code in a cell shifts columns. Census at the pin: 12 malformed rows in `validate-pr/history.md`, 18 in `improvement-log.md`. Benign only because `RETURNED` precedes the first inner pipe; a `DISPATCHED`/`PENDING` token after one reads as `normal` (fail-open). Escape cell pipes and/or make the parser code-span-aware; also restore the 5-cell #1169-#1172 rows to 7 columns.
+
+### 3.160 An abbreviated `/validate-pr` stands as the QA-of-record for a gate-logic change (#1210) (2026-07-28 deep-assessment c3, both families, W, S)
+
+#1210's validate-pr row records `RETURNED: PASS, SHIP` while its own text admits "a LIGHTER pass" self-run with no maintainer authorization, for a PR that changed gate 50's own detection logic; #1179/#1172/#1171/#1170/#1169 were one subagent run at ~66s/PR (vs 159-372s/PR formal), no abbreviation disclosure. Re-run a proper `/validate-pr` on #1210's gate-50 change to confirm the logic is sound; the discipline gap is recorded.
+
+### 3.161 The GFM delimiter row in the QA ledgers sits at file-end, not after the header (2026-07-28 deep-assessment c3, W, XS)
+
+`validate-pr/history.md` and `improvement-log.md` carry their table delimiter at the FILE END below all data rows (improvement-log has a duplicated delimiter), so the tables technically have no header-delimiter. Gates pass and the web generator renders, so it is latent; #1201's N1 "delimiter below the two newest rows, ACCEPTED" disposition rests on a description wrong by ~356 rows. Decide whether to correct or document the shape.
+
+### 3.162 The deep-assessment register self-contradicts its own phase state (2026-07-28 deep-assessment c3, note, XS)
+
+`deep-assessment/register.md:31` records r4 `P1..P7 = complete` while the r4 detail file still lists 6 phases `NOT-STARTED`; its `P8` cell holds `signed-off`, outside the documented per-phase vocabulary and post-#1213 sign-off removal; the r2 continuation paragraph sits out of run-order. The register is declared the durable phase-state a bare `/deep-assessment` resumes from, so the contradiction matters.
+
+### 3.163 The #1209 retro row carries a refuted migration count (2026-07-28 deep-assessment c3, note, XS)
+
+`improvement-log.md` #1209 row asserts "the 49-row migration was deterministic" while the #1209 validate-pr F-1 corrected it to 48 (DONE.md says 48); the retro was written in the same PR that landed the correction and still carries the refuted count.
+
+### 3.164 QA-ledger stated-rule-vs-content drifts (incl. bypass-log within-date ordering) (2026-07-28 deep-assessment c3, note, XS)
+
+`merge-bypass-log.md`: the "15 rows above" retrospective pointer is stale (backfilled set #1151-#1165, later rows appended below); the #1151 floor is not stated as an inception boundary; the "newest first within a date" order is violated (2026-07-28 rows read #1215,#1216,#1217,#1218 ascending). `improvement-log.md` "one row per merged PR" omits the handoff carve-out gate 50 correctly encodes. Reconcile the stated rules to the (correct) content.
+
+### 3.165 `audit-worker-saturation.py` reads an UNREADABLE plane as absent, yielding a false NO-WORKERS (2026-07-28 deep-assessment c4, both families, H, M)
+
+An EACCES on the scratch inbox iterdir is read as ABSENT, so the plane collapses to an empty set and the verdict is `NO-WORKERS` while a live worker sits in `inflight.json` (the claude lens reproduced it with its OWN worker entry). `NO-WORKERS` is the one verdict that licenses self-running QA, so a false one defeats the mandatory-offload rule; `--oneline` suppresses even the partial-plane caveat. Route unreadability into `verdict()` as a REFUSE-TO-ASSERT and replace `is_dir()` gates with an `_entries()` distinguishing absent/empty/unreadable. Higher priority than the TF-1 review (this is a confirmed live fail-open).
+
+### 3.166 `audit-delivery-status.py` is single-plane, missing live file-drop deliveries (2026-07-28 deep-assessment c4, codex, H, S)
+
+It reads only the scratch inbox manifest; live `collect-deliveries --dry-run` showed 47 file-drop deliveries while delivery-status reported "nothing to report" because scratch was absent, the same single-plane blindness already fixed once in the saturation tool. A "backlog cleared/applied" claim from it can omit live deliveries. Read both planes.
+
+### 3.167 `collect-deliveries.py` fail-opens (TOCTOU, dry-run mislabel, collision race, EACCES traceback) (2026-07-28 deep-assessment c4, both families, M, S)
+
+(a) TOCTOU between the sentinel-read and `os.replace` (an atomic replace between them sweeps an incomplete body); (b) `--dry-run` reports "collected" for WOULD-COLLECT planned moves, understating pending in a sitrep; (c) collision `tray_exists` checked at discovery not before `os.replace`, overwriting a same-name delivery; (d) an EACCES outbox yields a traceback with no stdout. Add an `_entries()` sibling, a dry-run-aware summary, an attribution cross-check vs the body, and move-time re-validation.
+
+### 3.168 `exec-dispatch.py` eligibility diagnosis collapses distinct causes into "no eligible account" (2026-07-28 deep-assessment c4, both families, M, XS)
+
+Model-mismatch, rate-limit, unavailable, and no-capacity all collapse to one message, so an operator can infer fleet exhaustion and self-run (the #1210/#1211 misread). Extends TODO 3.151. Also REOPEN `open-findings.md`'s #1205 zero-match-exclusion closure claim, which the claude lens judged over-stated.
+
+### 3.169 The permission-denied (EACCES) case is in none of the four delivery-tool self-tests (2026-07-28 deep-assessment c4, claude, M, S)
+
+Add an EACCES fixture to the self-tests of `audit-worker-saturation.py`, `collect-deliveries.py`, `audit-delivery-status.py`, and `manage-workers.py`, so the unreadable-plane path (3.165/3.167) is regression-covered.
+
+### 3.170 "Secret scanning" is cited as ISO `A.8.10` in three files (2026-07-28 deep-assessment c1/#1219 verifier, W, S)
+
+`.claude/rules/cicd-gates.md:136`, `dev-security/claude-rules/pipeline/cicd-gates.md:127`, and `dev-security/standard-devops-security-requirements.md:207` cite `A.8.10` (Information deletion) for secret scanning. Either A.8.10 is wrong there too or the concept differs from "secrets management" (fixed to A.8.24 in #1219); decide one answer (likely A.8.28 secure coding or A.8.24) and apply consistently.
+
+### 3.171 NIST SP 800-63B cited as Rev. 4 by name while carrying Rev. 3 substance (2026-07-28 deep-assessment c5, claude, ERROR, M)
+
+Three sites name Rev. 4 but use Rev. 3 section numbers/substance (the highest-severity instance of the label-drift class). Decide the intended revision and reconcile the citation and the content together.
+
+### 3.172 ISO/IEC 27033-1 title internal conflict (2026-07-28 deep-assessment c5, claude, M, S)
+
+`operations/standard-network-security-and-segmentation.md:172` and `security/policy-network-communications-security.md:147` print "Network Security Architecture and Segmentation" while the corpus's own `register-canonical-citations.md:69` records Part 1 as "Overview and concepts". Align the printed title to the register (27033 is not held, so the register arbitrates).
+
+### 3.173 NIS2 size cap cited as Article 3 (held Art 2(1) has no figures) (2026-07-28 deep-assessment c5, claude, M, S)
+
+`compliance/annex-nis-2-implementation.md:36` cites "Article 3" for the size cap; held Art 2(1) (not Art 3) states no figures, incorporating Recommendation 2003/361/EC by reference, and the flat "or" loses the Recommendation's conjunctive headcount test. Fix the article reference and the phrasing.
+
+### 3.174 Citation-precision phrasing (72h-from-confirmation, PR.AA title, joint-controller allocation) (2026-07-28 deep-assessment c5, codex, W, XS)
+
+`security/procedure-security-incident-response.md:175` says GDPR "72 hours from confirmation" vs the statutory "after becoming aware"; the PR.AA title is truncated at `matrix-reverse:92`; the joint-controller allocation at `template-joint-controller:109` is informed-not-prescribed. Phrasing corrections (a `/claim-fit`-class batch).
+
+### 3.175 Acquire the load-bearing references the reference base does not hold (2026-07-28 deep-assessment c5, both families, MAINTAINER-GATED)
+
+Confirmed not-held and load-bearing: ISO 22301:2019 (6+ resilience clause-title claims), ISO/IEC 27033 (all parts), ISO/IEC 27007, ISO/IEC 27014, Commission Recommendation 2003/361/EC, and primary privacy law for 16 corpus jurisdictions (china/india/indonesia/kenya/malaysia/new-zealand/nigeria/philippines/saudi-arabia/singapore/south-africa/switzerland/thailand/turkey/uae/vietnam). Every deadline/threshold in those annexes is unadjudicable until acquired. Route to the maintainer source-acquisition queue per the missing-reference SOP; do NOT adjudicate from memory.
+
+### 3.176 Printed-title-vs-catalogue-title check (mechanize the label-drift meta-pattern) (2026-07-28 deep-assessment c5, claude, M, M)
+
+Component 5's meta-pattern: mis-citations are not invented codes (existence gates + 1916 CSA codes clean) but hand-written LABELS substituted for catalogue titles, wrong ~half the time, which `/matrix-fit` cannot catch (it judges code fit via reference-module titles, never the corpus's OWN printed titles). Build a check that diffs corpus-printed control/clause/standard titles against held catalogue titles.
+
+### 3.177 The `.working/`-delete false-safety: invited deletion breaks 8 gates + 23 corpus links (2026-07-28 deep-assessment c6, both families, H, M)
+
+Four surfaces (`README.md:165`, `.working/README.md`, `CHANGELOG.md:3`, `.claude/CLAUDE.md:146`) tell adopters `.working/` is gate-exempt and deletable, but 8 gates hard-require files in it and 23 corpus links point into it (gate 53 polices corpus->`.project-governance/` but not corpus->`.working/`), so a clean adopter delete fails 9/78 gates. The separation spec that defines the rule violates it in its own metadata (`:9`); `lint-changelog-mirror-header-parity.py:290` fails with a raw `FileNotFoundError` traceback. Add a corpus->`.working` link guard, add the "8 gates require .working" caveat to all 4 surfaces, and diagnose the traceback. The `TODO.md`-delete invitation similarly breaks 12 links.
+
+### 3.178 Pack drop-in install leaks a private path and yields 18 dead links (2026-07-28 deep-assessment c6, claude, H, S)
+
+`dev-security/claude-rules/CLAUDE.md:58`'s crypto table defers to `security/policy-encryption-and-key-management.md` as canonical mandate, which a pack-only (mode-3) adopter does not have; the `cp claude-rules/CLAUDE.md ./CLAUDE.md` install (README:167-172) yields 18 dead links because the README never says copy the directory. Qualify the crypto reference and fix the install instruction.
+
+### 3.179 Adopter vs auditor get opposite instructions about the same documents (2026-07-28 deep-assessment c6, claude, H, S)
+
+The register classifies the Governance Library Charter `library-internal` ("adopters delete these") while the adopter guide says "if you read three, pick the Governance three (Charter + ...)". Plus the register index is overclaimed (README:78 says it lists every document with status and related artefacts; it has neither column and zero `docs/` rows), and the portal is blind to Adoption Disposition. Reconcile the routing.
+
+### 3.180 Adopter-facing skills hard-require the private siblings with no degrade branch (2026-07-28 deep-assessment c6, claude, M, S)
+
+`deep-assessment/SKILL.md` and `reference-audit/SKILL.md` require all three private siblings / the full suite to exit 0 before any semantic phase, with no absent/skip/not-applicable branch, so an adopter stalls at an unsatisfiable phase-1 precondition. Add an adopter degrade path.
+
+### 3.181 The adopter on-ramp never mentions `/adopt`, siblings, or `.working` (2026-07-28 deep-assessment c6, both families, M, S)
+
+No public adopter doc (`docs/adopter-guide.md`, `docs/template-quickstart.md`, `CONTRIBUTING.md`) mentions `/adopt`, `adopt-config`, the siblings, or `.working`, so an adopter can complete the entire documented on-ramp and then work on top of the maintainer's queue/handoff/QA registers. Surface `/adopt` in the on-ramp.
+
+### 3.182 `.claude/` security-rule hollowness and mirror path rot are gate-invisible (2026-07-28 deep-assessment c6, claude, M, S)
+
+`.claude/rules/external/kariedo/vulnerability-prevention.md` is a pure index to 6 never-vendored files; `.claude/rules/governance/trust-recovery-escalation.md` mirrors `../skills/...` paths dead in the `.claude/` tree (= component-1 finding). Both are uncaught because `.claude/` is in `DEFAULT_EXEMPT_DIRS` (no gate link-checks it). Vendor the companions or trim the index; make the mirror links tree-relative-safe.
+
+### 3.183 Adopter-facing polish (changelog audience, fork-hook source edit, alarming clean-run output, closed-set framing) (2026-07-28 deep-assessment c6, claude, L, S)
+
+The changelog top entries are maintainer jargon with no adopter banner; the adopter guide tells the adopter to edit `tools/lint_common.py` `DEFAULT_EXEMPT_DIRS` (a source edit that conflicts on every upstream pull); a clean adopter clone prints `ERROR: could not locate the grc_library_ref index` twice; and "five paths"/"seven areas" are framed as complete against 12 `docs/` files / 11 domain dirs. Low-severity adopter-experience cleanups.
+
+### 3.184 Corpus ISO citation currency updates enabled by the 2026-07-28 `_ref` ingest (2026-07-28 ingest follow-up, M, S)
+
+The 2026-07-28 `_ref` egress ingest (PR #105) now holds newer editions the corpus cites at older ones: update `ISO/IEC 27017:2015` citations to `:2026` (second edition supersedes; the corpus cites 2015 across the cloud-security docs and the matrices); update `ISO 19011:2018` citations to `:2026` (fourth edition); and resolve the `ISO/IEC 29134` `:2017`-vs-`:2023` inconsistency to `:2023` (held second edition). Verify each attributed value against the newly-held text (the 27017:2026 control set changed with the ISO/IEC 27002-based restructure, so a mapping review is warranted, not just a version-string bump).
 
 ### 3.114 The advisory CHANGELOG-length tool is looser than the gate that enforces it (2026-07-25, L, XS)
 
