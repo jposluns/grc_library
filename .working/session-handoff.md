@@ -101,7 +101,7 @@ Overnight-unattended mode was in force; the morning resume is attended (maintain
 ## State snapshot (2026-07-27b SESSION-CLOSING at #1216; overnight handoff)
 
 - **Session / mode:** `/resume` at 2026-07-27T22:02Z (fresh session), attended-autonomous winding to overnight-unattended for the fresh session. Lease RELEASED in this handoff PR (#1217); the next `/resume` sets its own mode. Runs from `/home/grc/grc_library`; siblings at `/home/grc/`.
-- **Version snapshot (D7 validates these tokens):** library `2026.07.707`, README `1.10.68` (this handoff PR #1217, one patch past #1216's `2026.07.706` / `1.10.67`); pack `1.65.18` (unchanged this session). Counts: gate **78**, rules **15**, skills **24**, commands **16**.
+- **Version snapshot (D7 validates these tokens):** library `2026.07.708`, README `1.10.69` (this handoff PR #1217, one patch past #1216's `2026.07.706` / `1.10.67`); pack `1.65.18` (unchanged this session). Counts: gate **78**, rules **15**, skills **24**, commands **16**.
 - **Green-at:** `9fd2dd2d` (#1216 merge; pre-push guard green on both runners, 78 gates). This #1217 handoff is working-state + CHANGELOG + version + the #1216 QA rows only; `main` stays green at its descendant merge.
 - **Shipped this session:** #1213-#1216 (see the Next-actions block above and [`CHANGELOG.md`](../CHANGELOG.md) / [`DONE.md`](DONE.md)); headline the fleet OAuth-de-auth root-cause + fix (3.147 write-back, both families) and #1215's `tools/pr-closeout.py`.
 - **Workers at close:** 4 dispatched for the overnight consume (2x corpus `/validate` component 1 + 2x `vpr-1216`, all dual-family across 4 accounts); candidates for 3.134 + 3.142 saved in `grc_library_private/worker-deliveries/`.
