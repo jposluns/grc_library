@@ -596,7 +596,7 @@ def do_send(repo: Path, root: Path | None, session: str, verb: str, reason: str,
         print(f"  SENT to {session}: {k[:110]}")
     if not dry_run:
         log_send(repo, session, runtime, verb, keys, reason, h)
-        print(f"logged to {LOG_REL}")
+        print(f"logged to {resolve_working_for_write(LOG_REL.removeprefix('.working/'), repo_root=repo)}")
     return 0
 
 

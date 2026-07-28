@@ -72,11 +72,11 @@ in the "Next actions" blocks below and is an as-of-last-refresh snapshot (drift 
 
 ---
 
-## State snapshot (2026-07-28 SESSION-CLOSING at #1225; attended wind-down)
+## State snapshot (2026-07-28, mid-session continuation at PR2b-1 #1230)
 
-- **main HEAD:** `417e94c4` (#1225). **green-at-`417e94c4`** (all 78 gates + D1-D9 pass on the pre-push guard at close).
-- **Version snapshot (D7 validates these tokens):** library `2026.07.717`, README `1.10.78`, pack `1.65.19` (as of the #1228 resume close-out; #1225 landed the migration foundation at `2026.07.714` / `1.10.75`, #1227 the gate-rewiring at `2026.07.716` / `1.10.77`). Counts: gate **78**, rules **15**, skills **24**, commands **16**.
-- **Shipped this session (2026-07-28):** #1222 (exec-dispatch refuses the orchestrator's own account as a worker - `is_orchestrator` guard), #1223 (dual-family Claude+Codex adversarial verification codified into high-assurance stage 3 + the substantive tier), #1224 (TODO cleanup part 1: P1-intro rewrite + closure-note removals + 4 restored `§1.19` refs), #1225 (migration foundation). See `CHANGELOG.md` / `DONE.md`. #1221 was OPENED then CLOSED-obsoleted by the migration (its E1 gate-53 host-path fix is salvage-worthy for `.project-governance`).
+- **main HEAD:** `ad597417` (#1229, PR2a). This session (resumed from the #1225-close handoff) merged #1226 (prior close), #1227 (PR1 gate-rewiring), #1228 (close-out), #1229 (PR2a link-severing); **PR2b-1 (#1230)** in flight (this PR). green-at-`ad597417` (78 gates + D1-D9 green pre-PR2b-1).
+- **Version snapshot (D7 validates these tokens):** library `2026.07.719`, README `1.10.80`, pack `1.65.19` (PR2b-1 head; #1229 PR2a landed at `2026.07.718` / `1.10.79`). Counts: gate **78**, rules **15**, skills **24**, commands **16**.
+- **Shipped this session (2026-07-28):** #1226 (prior-session close), #1227 (migration PR1: 6 more `.working`-reading gates rewired), #1228 (close-out), #1229 (migration PR2a: 23 corpus->.working links severed), and **PR2b-1 (#1230)** IN THIS PR (rewire the remaining `.working` consumers: 8 tools, 3 hooks, statusline, 2 helpers). Earlier: #1222 (`is_orchestrator` guard), #1223 (dual-family Claude+Codex adversarial verification codified into high-assurance stage 3 + the substantive tier), #1224 (TODO cleanup part 1: P1-intro rewrite + closure-note removals + 4 restored `§1.19` refs), #1225 (migration foundation). See `CHANGELOG.md` / `DONE.md`. #1221 was OPENED then CLOSED-obsoleted by the migration (its E1 gate-53 host-path fix is salvage-worthy for `.project-governance`).
 - **Compaction: C1** (logged in `grc_library_private/degradation-watch-log.md`); no degradation indicator asserted this session.
 
 ## State snapshot (2026-07-27b SESSION-CLOSING at #1216; overnight handoff)

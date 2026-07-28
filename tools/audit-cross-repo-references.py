@@ -187,7 +187,7 @@ def classify_cross_repo(
 
 
 def audit_tree(
-    root: Path, *, sibling_resolver=_default_resolve_sibling
+    root: Path, *, sibling_resolver=_default_resolve_sibling, rel_root: Path | None = None
 ) -> tuple[list[tuple[str, int, str, str, str]], Counter]:
     """Audit every text file under ``root``. Returns (findings, counts).
 
@@ -200,12 +200,17 @@ def audit_tree(
     """
     findings: list[tuple[str, int, str, str, str]] = []
     counts: Counter = Counter()
+    # rel_root lets the caller compute rel/rel_parts against a DIFFERENT base than the
+    # walk root (used post-move: walk the private `.working/` dir but re-root paths under
+    # the private repo so `rel_parts` still contains `.working`, matching residual-scan's
+    # `_rel_for`, so a `.working/` file keeps its intended-minimal cross-repo classification).
+    rel_base = rel_root or root
     for path in iter_text_files(root):
         text = read_text_safe(path)
         if text is None:
             continue  # binary or non-UTF-8: skip
-        rel = path.relative_to(root).as_posix()
-        rel_parts = path.relative_to(root).parts
+        rel = path.relative_to(rel_base).as_posix()
+        rel_parts = path.relative_to(rel_base).parts
         is_md = path.suffix == ".md"
         in_code = False
         for lineno, raw in enumerate(text.splitlines(), start=1):
@@ -375,7 +380,7 @@ def main(argv: list[str]) -> int:
         try:
             wd.relative_to(root)
         except ValueError:
-            wfind, wcounts = audit_tree(wd)
+            wfind, wcounts = audit_tree(wd, rel_root=wd.parent)
             findings.extend(wfind)
             counts.update(wcounts)
     _print_report(findings, counts, root)

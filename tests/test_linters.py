@@ -8440,6 +8440,27 @@ class ResolveSiblingTests(unittest.TestCase):
             finally:
                 lc.REPO_ROOT = orig
 
+    def test_resolve_working_for_write_no_split_when_private_working_absent(self) -> None:
+        # The split-tree guard: the private REPO exists but its `.working/` does NOT
+        # (the pre-move state on the maintainer machine). A NEW file must resolve
+        # IN-REPO, never split off into the private sibling ahead of the content move.
+        lc = self._lc()
+        with tempfile.TemporaryDirectory() as td:
+            root = (Path(td) / "grc_library")
+            root.mkdir()
+            (root / ".working").mkdir()
+            (Path(td) / "grc_library_private").mkdir()  # private REPO present, .working ABSENT
+            root_r = root.resolve()
+            orig = lc.REPO_ROOT
+            try:
+                lc.REPO_ROOT = root
+                self.assertEqual(
+                    lc.resolve_working_for_write("np.md"),
+                    root_r / ".working" / "np.md")
+            finally:
+                lc.REPO_ROOT = orig
+
+
 
 class WorkingResolveNoOpTests(unittest.TestCase):
     """The six .working-reading gates rewired in PR #1227 (50/59/78/60/43/51)
