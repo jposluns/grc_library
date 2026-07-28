@@ -8,6 +8,19 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-28, Library Version 2026.07.710, PR #1220
+
+Routes the findings of the overnight component-by-component dual-family `/deep-assessment` (all six worker-capable components run, each on both a claude and a codex worker, reconciled with every positive re-verified at source).
+
+### Added
+- **33 TODO items (3.152 to 3.184)** in [`TODO.md`](../../TODO.md) capturing the deep-assessment yield, none dropped, per the QA-activity completion standard. Clusters: gate blind-spots (c2: register-vs-doc Owner divergences, crosswalk pair-consistency, matrix N/A escape, cross-doc statutory dates, role-vocabulary over body prose, metadata value sets); QA-ledger honesty (c3: gate-50 SUBSUMPTION and pipe-split fail-opens, an abbreviated-QA-of-record on a gate-logic change, ledger structure drifts); delivery-pipeline integrity (c4: the live `audit-worker-saturation` NO-WORKERS-from-unreadable-plane fail-open, `audit-delivery-status` single-plane, `collect-deliveries` TOCTOU/dry-run/collision); citation label-drift (c5: NIST SP 800-63B Rev.4-named-but-Rev.3-content, ISO 27033 title conflict, NIS2 Article-3 mis-reference, source-not-held acquisitions, a printed-title-vs-catalogue-title check); adoptability (c6: the `.working/`-delete false-safety and 23 broken links, pack drop-in leaks, adopter-vs-auditor contradictions); and (3.184) the corpus ISO citation currency updates enabled by the 2026-07-28 `_ref` ingest.
+
+### Changed
+- Batched #1219's post-merge dual-family `/validate-pr` row (HOLD, all findings resolved), `/retro` row, and merge-bypass row; rewrote the #1218 QA row's anticipatory "F7/F10 ROUTED" claim to cite the now-existing 3.161/3.164.
+
+### Verification
+- Every positive finding re-verified at source before routing (e.g. the 27 register-owner divergences spot-verified, the saturation fail-open reproduced live with the worker's own in-flight-registry entry, the A.6.2/A.6.7 and A.8.24 controls confirmed against corpus convention). Gate 50 clean; pre-push guard green (both runners, 78 gates). The recurring anticipatory-reference slip (writing "routed to TODO 3.X" before the item exists) is logged in the retro; this PR resolves the outstanding instances by creating the items first.
+
 ## 2026-07-28, Library Version 2026.07.709, PR #1219
 
 Applied the confirmed, source-verified fixes from the overnight deep-assessment component-1 dual-family `/validate` (the two families were complementary: claude surfaced the citation errors, codex the docstring drift).
