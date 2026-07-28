@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### 3.133 (#1215): PR close-out scaffolding tool (2026-07-28)
+
+Built `tools/pr-closeout.py`, the mechanical per-PR close-out scaffolder: it bumps every staged versioned file's Version and Date, emits correctly-columned bypass / validate-pr / retro row templates and the CHANGELOG root + detailed-mirror headers, and refreshes next-prs.txt, retiring the D2/D4/D7 co-bump trap class (the orchestrator still authors all content). Dual-family reviewed (the claude lens caught a must-fix improvement-log bare-vs-#N convention drift, fixed); self-test 47/47 wired into the linter-regression suite.
+
 ### 3.120 (#1210): gate 50 Check 1 third `pending` state (2026-07-27)
 
 Gate 50's QA-cadence parity Check 1 was satisfied by row PRESENCE, so an honest `DISPATCHED, RESULT PENDING` validate-pr row read GREEN while that PR's QA had never run, the silence-reads-as-health hole that let validate-pr-1173/validate-pr-1180 sit unconsumed. `lint-bookkeeping-parity.py` now classifies a third row state, `pending` (a `DISPATCHED`/`RESULT PENDING` marker with no `RETURNED`), and FAILS Check 1 on it once a later PR exists, while a pending row on the single highest PR stays in-flight-exempt and a row that also carries `RETURNED` is not pending (the word `dispatched` may appear legitimately in a returned row's prose). Reality-fixture regression tests + spec §6 and docstring updated; the convention half shipped earlier in #1178, this closes the mechanical half.

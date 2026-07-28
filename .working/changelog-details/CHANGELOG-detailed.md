@@ -8,6 +8,21 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-28, Library Version 2026.07.705, PR #1215 (pr-closeout.py: the PR close-out scaffolder, TODO 3.133)
+
+Roadmap B efficiency tooling. Closes TODO 3.133 (the biggest per-PR efficiency lever).
+
+### Added
+- [`tools/pr-closeout.py`](../../tools/pr-closeout.py): the mechanical per-PR close-out scaffolder (938 lines, stdlib-only). It computes a merged PR's merge/base SHA and CI state (via git/gh, degrading gracefully), bumps every staged versioned file's Version AND Date, emits correctly-columned row templates for the backward surfaces (merge-bypass-log, validate-pr history + optional detail file, improvement-log) and the forward CHANGELOG root + detailed-mirror headers, and refreshes next-prs.txt. It names the two PR identities explicitly (backward rows describe the just-merged PR N; forward surfaces describe the PR M being assembled, default N+1 with a loud caveat) and ships a `--closeout-only` mode. Default mode is PREVIEW (writes nothing); mutations are dry-run-guarded and idempotent; ledger rows are anchored on the header line (never re-matching the next row, the fused-row mitigation). The orchestrator still AUTHORS all content; the tool removes the error-prone placement and the D2/D4/D7 co-bump trap.
+- A regression test `test_pr_closeout_self_test` in [`tests/test_linters.py`](../../tests/test_linters.py), wiring the tool's 47-check `--self-test` into the linter-regression suite (gate 36) so it cannot rot.
+
+### Verification / discipline observation
+- **Dual-family review** (maintainer's new standing rule: all QA goes to both a claude and a codex worker). The claude lens caught a MUST-fix the self-test masked: `render_retro_row` emitted a BARE PR cell (`1214`) while the live improvement-log uses `#1213`, causing format drift and a double-insert risk (the idempotency token compared bare `1214`, so a house-format `#1214` row would not match). Fixed: `render_retro_row` now emits `#N`, the idempotency token is `f"#{merged_pr}"`, and the fixture was corrected to the `#N` convention so the test validates it. The codex lens wandered into reading skill files (a codex-focus issue, noted); the claude finding was the actionable one.
+- Self-test 47/47 at HEAD; the wired regression test passes; stdlib-only (gate 71 safe); no language findings.
+- Not run on real surfaces this PR; the #1214 close-out rows here were authored by hand, with the tool available for the next close-out.
+- Library 2026.07.704 to 2026.07.705, README 1.10.65 to 1.10.66, Date 2026-07-28 (UTC rollover mid-session: forward surfaces dated 2026-07-28, #1214's backward merge-date rows stay 2026-07-27).
+- Batches PR #1214's `/validate-pr` (PASS) + `/retro` + merge-bypass rows.
+
 ## 2026-07-27, Library Version 2026.07.704, PR #1214 (harden the no-diff-walls rule to cover the Edit/Write tools)
 
 .claude/ and working-state change (maintainer-directed 2026-07-27, after repeated violations of the softer form). The [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) communication-conventions no-diff-walls rule had a loophole ("the Edit tool already shows what changed") that read the Edit tool's own render as acceptable; but the Edit and Write tools render their `old_string` and `new_string` as a red/green diff, which IS the console wall the rule forbids.
