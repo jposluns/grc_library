@@ -9657,6 +9657,35 @@ class NormalizedPositionalArgsTests(LinterTestCase):
                 f"stderr:\n{result.stderr}",
             )
 
+    def test_argparse_additions_scan_every_positional_file(self):
+        # The 3 tools that previously read only argv[1] now use argparse; prove
+        # they scan EVERY positional file by putting a bad fixture SECOND and
+        # asserting it is caught (a regression to argv[1]-only would miss it).
+        clean = self.make_fixture("qg_scan_clean.md", "# Clean\n\nBody.\n")
+        cases = {
+            "tools/lint-document-iso-annex-a.py": (
+                "qg_bad_iso.md",
+                "| Framework | Reference |\n| --- | --- |\n"
+                "| ISO/IEC 27001:2022 | A.8.99 |\n",
+            ),
+            "tools/lint-document-control-codes.py": (
+                "qg_bad_nist.md",
+                "| Framework | Reference |\n| --- | --- |\n"
+                "| NIST CSF 2.0 | GV.ZZ |\n",
+            ),
+            "tools/lint-matrix-control-codes.py": (
+                "qg_bad_matrix.md",
+                "| Control | ISO/IEC 27001:2022 | NIST CSF 2.0 |\n"
+                "| --- | --- | --- |\n| Sample | A.5.1 | GV.ZZ |\n",
+            ),
+        }
+        for script, (name, content) in cases.items():
+            bad = self.make_fixture(name, content)
+            result = run_linter(script, clean, bad)
+            self.assertLinterFails(
+                result,
+            )  # bad SECOND file must be caught => every positional file scanned
+
     def test_legacy_paths_flag_still_accepted(self):
         f1 = self.make_fixture("qg_leg_a.md", "# A\n\nBody.\n")
         for script in ("tools/lint-citations.py",

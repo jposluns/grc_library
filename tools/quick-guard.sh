@@ -18,16 +18,23 @@ cd "$(dirname "$0")/.." || exit 2
 # --- changed-.md detection: union of (committed since merge-base with
 # origin/main) + (working tree vs HEAD) + (untracked), minus deletions. ---
 MB="$(git merge-base HEAD origin/main 2>/dev/null || echo HEAD)"
+# Restrict to CORPUS-CONTENT .md: files under an audited domain directory, minus
+# the dev-security/claude-rules/ pack subtree and README.md files. The fast-ready
+# gates scope to exactly this set in their default (no-argument) run, so passing
+# a non-corpus .md (a root file like TODO.md/CHANGELOG.md, a .claude/ file, docs/,
+# tools/, tests/, .github/, .web/, or a pack file) that the gate would EXEMPT in
+# default mode would make the gate process it explicitly and spuriously FAIL. Such
+# files are checked only by the full tools/pre-push-guard.sh, never by this aid.
 mapfile -t CHANGED < <(
   {
     git diff --name-only --diff-filter=d "$MB" -- '*.md' 2>/dev/null
     git diff --name-only --diff-filter=d HEAD -- '*.md' 2>/dev/null
     git ls-files --others --exclude-standard -- '*.md' 2>/dev/null
-  } | sort -u
+  } | sort -u | grep -E '^(ai|architecture|compliance|dev-security|governance|\.project-governance|operations|privacy|resilience|risk|security|supply-chain)/' | grep -vE '^dev-security/claude-rules/' | grep -vE '(^|/)README\.md$'
 )
 
 if [ "${#CHANGED[@]}" -eq 0 ]; then
-  echo "quick-guard: no changed .md files to fast-check."
+  echo "quick-guard: no changed corpus-content .md files to fast-check."
   echo "(This is an iteration aid; tools/pre-push-guard.sh is still required before push.)"
   exit 0
 fi
