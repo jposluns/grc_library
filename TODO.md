@@ -317,13 +317,6 @@ The orchestrator session's umask is `0002`, so every NEW file it creates in `grc
 
 The `--account` override (#1187) gives cross-account parallelism (N workers on N distinct accounts, each serialized by its own wrapper flock at 1). Running MORE THAN ONE worker on the SAME account concurrently is a separate, heavier item: the wrapper's blocking flock on a lock file inside the shared config dir (`$CFGBASE/$account/.wrapper.lock`) is BOTH the safety guarantee and the concurrency-1 cap, so loosening it without per-worker state would race the one shared `CLAUDE_CONFIG_DIR` / `CODEX_HOME`. The design candidate (the `design-multiworker-per-account` xhigh delivery, 2026-07-26) covers: a per-worker config-dir snapshot (copy the auth/credential state, isolate session/lock/cache) with cleanup; moving `max_concurrent` enforcement + an in-flight registry/counter into `exec-dispatch.py` (which is stateless today); and the claude-mktemp-workdir vs codex-fixed-shared-workspace asymmetry. First cut: `cp -r` snapshot + a per-account lock counter + `max_concurrent` bumped to 2, verify no auth contention, before the fuller design. Lower priority now that cross-account parallelism covers the immediate need.
 
-### 3.134 Auto-bump-on-commit: extend the version hook from detect to fix (fresh-eyes 2026-07-26; EXECUTE EARLY, M, S) `[machinery]`
-
-Extend [`.claude/hooks/block-unbumped-version-commit.py`](.claude/hooks/block-unbumped-version-commit.py) from DETECT
-to FIX: when a staged versioned file's body changed and its Version did not, auto-bump both Version and Date (patch) in
-the staged content instead of blocking. The Version-Date co-bump was the single most recurrent self-caught failure of
-the takeover session; automating it removes it. Keep the block path as a fallback for ambiguous cases.
-
 ### 3.136 Handoff/close-out snapshot generator (fresh-eyes 2026-07-26; EXECUTE EARLY, M, S) `[machinery]`
 
 `tools/handoff-snapshot.py` emits the mechanical facts the handoff needs: library + README versions,
@@ -390,7 +383,6 @@ The #1210 pre-push verifier UPHELD the `pending`-state classifier logic but surf
 ### 3.151 exec-dispatch's dispatch/eligibility error lumps "model not offered" with "account limited", enabling a false "fleet out" read (2026-07-27, M, S)
 
 On 2026-07-27 the orchestrator probed and dispatched with full model IDs (`claude-opus-4-8`, `gpt-5-codex`) while [`tools/exec-dispatch.py`](tools/exec-dispatch.py)'s account config offers models by SHORT name (`opus`, `gpt-5.6-terra`), so `eligible_accounts` correctly returned empty and the dry-run reported `(no eligible account)` while `--dispatch` said `unavailable, limited, or model not offered`. The orchestrator misread this as a fleet-wide cap and self-ran three QA passes (validate-pr-1209, the #1210 pre-push verifier, the #1211 six-PR catch-up) on scarce orchestrator credits that should have been OFFLOADED; a live dispatch with `opus` then succeeded in 10.4s, confirming the fleet was available the whole time. The eligibility LOGIC is correct; the ERROR MESSAGE is the defect (the guard-input-clarity / distinguish-the-states class, same family as the `manage-workers.py` and saturation-observable work). Fixes: **(1)** in `--dry-run`, when 0 accounts pass the model filter, print per-account `model 'X' not in offered set [opus, fable, sonnet, haiku]` rather than a bare `(no eligible account)`, and suggest the nearest offered name; **(2)** in `--dispatch`, split the single `unavailable, limited, or model not offered` message into the ACTUAL cause (model-not-offered-here-[list] vs limited-until-Y vs usage_state != available); **(3)** consider accepting the full model IDs as aliases for the short names, or surfacing the offered names in `--help`. Any change gets a self-test. Orchestrator-side tooling, not pack. (The durable short-name reference is recorded in `.working/session-handoff.md` and `.working/next-prs.txt`.)
-
 
 ### 3.152 Register `Owner Role` cell vs each document's own `**Owner:**` metadata is unguarded, with 27 live divergences (2026-07-28 deep-assessment c2, both families, H, M)
 
@@ -1025,7 +1017,6 @@ Gates 48/49/54/58/61 title-check control-LISTING tables (`| CODE | title |`) but
 ### 3.187 Codify dual-family (Claude + Codex) QA as a permanent project standard for ALL QA tasks (maintainer-directed 2026-07-29, M, M) `[machinery]`
 
 The maintainer directed (2026-07-29) that dual-family QA is now a PERMANENT project standard for EVERY QA task, whenever both families have available tokens, superseding the #1223 default (which scoped dual-family to CONSEQUENTIAL changes only). Codify in: (a) `.claude/CLAUDE.md` (the dual-family / QA-cadence context, replacing the consequential-only framing); (b) the pack `dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md` skeptical-verification tier (the substantive-tier default reads "a cross-family pair for consequential changes"; make dual-family the standard for all QA, with the token-unavailability exception); (c) `dev-security/claude-rules/governance/high-assurance-verification.md` stage 3 (already dual-family; align the framing). The ONE exception: token unavailability on a family (limited or exhausted account), then the available family runs, the gap is noted, and the missing family re-runs when tokens return. Pack change: bump the pack README + version-history row; keep both rule trees byte-identical (gate 37). This is the standing directive currently recorded in the handoff Standing disciplines; this item is its formal-codification tracker. Sequence AFTER the maintainer-directed post-PR2b pause.
-
 
 ### 3.188 Widen delta gate D5 closure-form patterns to recognize the "Closes TODO N.M" word order (PR2b-3 dual-family verify, codex F5 / Fable F-10, 2026-07-29, S, S) `[machinery]`
 
