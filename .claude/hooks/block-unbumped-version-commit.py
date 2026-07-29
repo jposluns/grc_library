@@ -45,6 +45,7 @@ import json
 import re
 import subprocess
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 VERSION_LINE = re.compile(r"^\*\*Version:\*\*", re.M)
@@ -53,6 +54,10 @@ VERSION_LINE = re.compile(r"^\*\*Version:\*\*", re.M)
 METADATA_PREFIX = re.compile(r"^\*\*[A-Za-z][A-Za-z ()/-]*:\*\*")
 OPT_OUT = re.compile(r"VersionBump:\s*none\b", re.I)
 GENERATED = ("taxonomy.yml", "docs/portal.md", "docs/maturity-scorecard.md")
+# A CLEAN `**Version:** X.Y.Z` semver line (auto-bumpable). README's `**Library Version:**` (CalVer)
+# and template `**Version:** <x.y.z ...>` do NOT match, so they fall through to the block fallback.
+SEMVER_VERSION = re.compile(r"^(\*\*Version:\*\*[ \t]*)(\d+)\.(\d+)\.(\d+)(.*)$", re.M)
+DATE_META = re.compile(r"^(\*\*Date:\*\*[ \t]*)(\d{4}-\d{2}-\d{2})(.*)$", re.M)
 
 
 def project_root() -> Path:
@@ -126,6 +131,58 @@ def git(root: Path, *args: str) -> str:
                           capture_output=True, text=True, check=True).stdout
 
 
+def _metadata_region_end(text: str) -> int:
+    """PURE. Char offset where the leading metadata block ends (the first BODY line). A
+    `**Version:**`/`**Date:**` at or after this offset is a body/example occurrence (e.g. a fenced
+    example or a template), NOT the real metadata field, so the auto-bump must not touch it."""
+    off = 0
+    for line in text.splitlines(keepends=True):
+        st = line.strip()
+        if st == "" or st.startswith("#") or METADATA_PREFIX.match(st):
+            off += len(line)
+            continue
+        break
+    return off
+
+
+def bump_semver(text: str) -> str | None:
+    """PURE. `text` with the FIRST clean `**Version:** X.Y.Z` patch-bumped, or None if there is no
+    clean semver Version line (a CalVer or template Version returns None -> caller falls back to block)."""
+    m = SEMVER_VERSION.search(text[:_metadata_region_end(text)])
+    if not m:
+        return None
+    maj, mnr, pat = int(m.group(2)), int(m.group(3)), int(m.group(4))
+    repl = f"{m.group(1)}{maj}.{mnr}.{pat + 1}{m.group(5)}"
+    return text[:m.start()] + repl + text[m.end():]
+
+
+def set_date(text: str, today: str) -> str:
+    """PURE. Set the FIRST `**Date:** YYYY-MM-DD` in the metadata block to `today`; unchanged if none."""
+    m = DATE_META.search(text[:_metadata_region_end(text)])
+    if not m:
+        return text
+    return text[:m.start()] + f"{m.group(1)}{today}{m.group(3)}" + text[m.end():]
+
+
+def try_auto_bump(root: Path, path: str, today: str) -> bool:
+    """Auto-bump a CLEAR offender's Version (patch) + Date and re-stage it. Return True if done,
+    False if AMBIGUOUS (caller blocks): OTHER unstaged changes to the file (auto-staging would grab
+    them), an unreadable file, or no clean semver Version line. Never mis-stages on any error."""
+    try:
+        if git(root, "diff", "--name-only", "--", path).strip():
+            return False
+        f = root / path
+        text = f.read_text()
+        bumped = bump_semver(text)
+        if bumped is None:
+            return False
+        f.write_text(set_date(bumped, today))
+        git(root, "add", "--", path)
+        return True
+    except Exception:
+        return False
+
+
 def main() -> int:
     try:
         payload = json.load(sys.stdin)
@@ -169,12 +226,24 @@ def main() -> int:
                   "Gate 33 catches it otherwise, six minutes from now.", file=sys.stderr)
         return 0
 
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    fixed, remaining = [], []
+    for p in bad:
+        (fixed if try_auto_bump(root, p, today) else remaining).append(p)
+    if fixed:
+        print("NOTE (version-bump guard): auto-bumped **Version:** (patch) + **Date:** to "
+              f"{today} and re-staged: {', '.join(fixed)}. A PATCH bump is assumed; if a minor/major "
+              "is intended, edit **Version:** yourself and re-commit.", file=sys.stderr)
+    if not remaining:
+        return 0
+
     lines = [
         "BLOCKED (version-bump guard): these staged file(s) have a changed BODY and an unchanged "
-        "`**Version:**` line, so the commit would break the per-commit version discipline:",
+        "`**Version:**` line and could NOT be auto-bumped (other unstaged changes are present, or "
+        "the Version is not a clean semver such as README's CalVer):",
         "",
     ]
-    lines += [f"  - {p}" for p in bad]
+    lines += [f"  - {p}" for p in remaining]
     lines += [
         "",
         "Bump `**Version:**` AND `**Date:**` in the SAME edit, then re-stage. Both halves together: "
@@ -259,6 +328,50 @@ def self_test() -> int:
     ck("classify: blank added line is not a body change", classify_hunk(["+   "]), (False, False))
     ck("classify: diff headers are ignored",
        classify_hunk(["diff --git a/x b/x", "--- a/x", "+++ b/x", "@@ -1 +1 @@"]), (False, False))
+
+    # --- 3.134 auto-bump: pure helpers ---
+    ck("bump_semver patches Z", bump_semver("**Version:** 1.2.3\\\nbody"), "**Version:** 1.2.4\\\nbody")
+    ck("bump_semver keeps trailing text", bump_semver("**Version:** 1.10.87 (per-doc)\\"), "**Version:** 1.10.88 (per-doc)\\")
+    ck("bump_semver returns None on a template/CalVer Version", bump_semver("**Version:** <x.y.z: new docs start at 0.0.1>\\"), None)
+    ck("bump_semver returns None with no Version line", bump_semver("just body text"), None)
+    ck("bump_semver ignores a fenced/body Version example (F1 hardening)",
+       bump_semver("**README Version:** 9.9.9\\\n\nbody\n\n```\n**Version:** 1.0.0\n```\n"), None)
+    ck("bump_semver still bumps a real metadata Version above a body example",
+       bump_semver("**Version:** 2.3.4\\\n\nbody\n\n```\n**Version:** 1.0.0\n```\n"),
+       "**Version:** 2.3.5\\\n\nbody\n\n```\n**Version:** 1.0.0\n```\n")
+    ck("set_date rewrites the Date", set_date("**Date:** 2026-07-01\\", "2026-07-29"), "**Date:** 2026-07-29\\")
+    ck("set_date is a no-op with no Date line", set_date("**Version:** 1.0.0\\", "2026-07-29"), "**Version:** 1.0.0\\")
+
+    # --- 3.134 auto-bump: git-fixture behaviour ---
+    import tempfile, os
+    def mkrepo():
+        d = Path(tempfile.mkdtemp())
+        git(d, "init", "-q")
+        git(d, "config", "user.email", "t@t")
+        git(d, "config", "user.name", "t")
+        return d
+    # clear offender -> auto-bumped + re-staged
+    d = mkrepo()
+    (d / "x.md").write_text("**Version:** 1.0.0\\\n**Date:** 2026-07-01\\\n\nold body\n")
+    git(d, "add", "x.md"); git(d, "commit", "-q", "-m", "init")
+    (d / "x.md").write_text("**Version:** 1.0.0\\\n**Date:** 2026-07-01\\\n\nnew body\n")
+    git(d, "add", "x.md")  # stage the body change with NO version bump
+    ck("clear offender auto-bumps", try_auto_bump(d, "x.md", "2026-07-29"), True)
+    ck("auto-bumped Version is staged", "**Version:** 1.0.1" in git(d, "show", ":x.md"), True)
+    ck("auto-bumped Date is staged", "**Date:** 2026-07-29" in git(d, "show", ":x.md"), True)
+    # unstaged changes present -> ambiguous -> not auto-bumped
+    d2 = mkrepo()
+    (d2 / "y.md").write_text("**Version:** 2.0.0\\\n\nbody\n")
+    git(d2, "add", "y.md"); git(d2, "commit", "-q", "-m", "init")
+    (d2 / "y.md").write_text("**Version:** 2.0.0\\\n\nstaged body\n"); git(d2, "add", "y.md")
+    (d2 / "y.md").write_text("**Version:** 2.0.0\\\n\nUNSTAGED further edit\n")  # extra unstaged change
+    ck("offender with other unstaged changes is NOT auto-bumped (block fallback)", try_auto_bump(d2, "y.md", "2026-07-29"), False)
+    # non-semver (CalVer/template) Version -> ambiguous -> not auto-bumped
+    d3 = mkrepo()
+    (d3 / "z.md").write_text("**Library Version:** 2026.07.725\\\n\nbody\n")
+    git(d3, "add", "z.md"); git(d3, "commit", "-q", "-m", "init")
+    (d3 / "z.md").write_text("**Library Version:** 2026.07.725\\\n\nnew body\n"); git(d3, "add", "z.md")
+    ck("a non-semver (CalVer) Version is NOT auto-bumped (block fallback)", try_auto_bump(d3, "z.md", "2026-07-29"), False)
 
     if fails:
         print(f"\nself-test: FAILED ({len(fails)} of {cases})")
