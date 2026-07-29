@@ -17,6 +17,8 @@ Alongside the split, the project's core instruction file (CLAUDE.md) begins a ri
 
 ---
 
+**2026-07-29 | 2026.07.733 | PR #1243** - Resume `/validate` close-out: recorded Sweep 132 (dual-family loop-break over #1241..#1242, PASS with no miss) and fixed the five documentation-precision residues it surfaced, stale or doubled docstrings in [`block-public-working-write.py`](.claude/hooks/block-public-working-write.py), [`lint-changelog-mirror-header-parity.py`](tools/lint-changelog-mirror-header-parity.py), [`preflight-changelog.py`](tools/preflight-changelog.py), and [`check-changelog-length-on-pr.py`](tools/check-changelog-length-on-pr.py). Also reconciled the missing Sweep 131 history row.
+
 **2026-07-29 | 2026.07.732 | PR #1242** - Session close-out: fixed three documentation-precision defects in [`.claude/hooks/block-public-working-write.py`](.claude/hooks/block-public-working-write.py) and its test comment that PR #1241's dual-family `/validate-pr` surfaced (a doubled docstring clause, a stale "frozen" summary line, and a stale test comment). Prose only, no logic (self-test 45/45).
 
 **2026-07-29 | 2026.07.731 | PR #1241** - Migration-tail documentation-precision sweep: closed TODO 3.191 and fixed the Sweep-131 findings by genericizing stale public `.working/` path and pre-#1235 behaviour references in [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) and six tool/hook docstrings to the post-migration private-sibling working-state store (prose only, no logic).
