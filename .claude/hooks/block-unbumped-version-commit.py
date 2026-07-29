@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""PreToolUse: refuse a `git commit` that changes a versioned document's body without bumping it.
+"""PreToolUse: auto-bump (or, failing that, refuse) a `git commit` that changes a versioned document's body without bumping it.
 
 WHY THIS IS A HOOK AND NOT A CONVENTION, STATED WITH THE COUNT. The convention existed, is written
 down in two places, and the orchestrator broke it FIVE times in a single session on 2026-07-26, plus
@@ -19,8 +19,11 @@ so the hook's input can answer the question asked of it. For each staged file ca
 metadata line, it asks whether any NON-METADATA line changed while the `Version` line did not. That is
 the same shape gate 40 checks against committed history, moved one step earlier.
 
-WHAT IT BLOCKS, AND WHAT IT DELIBERATELY DOES NOT.
-  - BLOCKS: a staged body change to a versioned file with no staged `Version` change.
+WHAT IT DOES, AND WHAT IT DELIBERATELY DOES NOT.
+  - AUTO-FIXES FIRST, THEN BLOCKS (auto-fix added #1237): on a staged body change to a versioned
+    file with no staged `Version` change, it attempts an automatic PATCH `**Version:**` + `**Date:**`
+    bump and re-stage (`try_auto_bump`); it BLOCKS only the file(s) it could NOT auto-bump (other
+    unstaged changes present, or a non-semver Version such as README's CalVer).
   - ALSO WARNS (never blocks) when a corpus document's `Version` moved and `taxonomy.yml` is absent
     from the same staged set, which is the sixth-instance shape. It warns rather than blocks because
     the regeneration order matters and a blocked commit cannot be fixed without unstaging.

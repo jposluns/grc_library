@@ -17,6 +17,8 @@ Alongside the split, the project's core instruction file (CLAUDE.md) begins a ri
 
 ---
 
+**2026-07-29 | 2026.07.731 | PR #1241** - Migration-tail documentation-precision sweep: closed TODO 3.191 and fixed the Sweep-131 findings by genericizing stale public `.working/` path and pre-#1235 behaviour references in [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) and six tool/hook docstrings to the post-migration private-sibling working-state store (prose only, no logic).
+
 **2026-07-29 | 2026.07.730 | PR #1240** - Roadmap B: added [`tools/handoff-snapshot.py`](tools/handoff-snapshot.py), a read-only aggregator that emits the handoff's mechanical facts (library and README versions, gate/rule/skill/command counts, HEAD sha, session figures) so the wind-down pastes a verified block instead of hand-deriving each number. Self-test wired into the regression suite. Closes TODO 3.136.
 
 **2026-07-29 | 2026.07.729 | PR #1239** - D8 daily roll-up: collapsed the 17 per-PR 2026-07-28 root entries (#1215-#1232) into one summary line and pruned the matching detailed-mirror entries to the private archive. Also amended the intro to note the persistent `## Milestones` section.

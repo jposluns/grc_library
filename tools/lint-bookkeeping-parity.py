@@ -16,7 +16,7 @@ the D5 PR-time check); the separate pre-push-runner gate (folding gates 40/31 in
 ``run-pr-time-checks.sh``) was built first in PR #333, so this gate extends
 rather than duplicates it. It is modelled on
 ``tools/lint-todo-staleness.py`` (gate 45), the closest analogue: that gate
-also reads ``CHANGELOG.md`` plus the ``.working/`` history files. Unlike
+also reads ``CHANGELOG.md`` plus the working-state history files. Unlike
 gate 45, this gate parses committed file *content* (not the commit graph),
 so it is a regular corpus gate that runs in ``run_all_audits.sh`` and the
 three other audit surfaces; it is deliberately NOT added to the pre-push
@@ -29,8 +29,8 @@ The five checks:
 list from the ``CHANGELOG.md`` per-entry headers, matched in BOTH the compact
 ``**date | version | PR #N**`` form (the TODO 3.16 root-reformat default) and
 the legacy ``## YYYY-MM-DD, Library Version X, PR #N`` form. For each PR N with ``max(INCEPTION, oldest surviving row) <= N < max(PR)``, require a row in
-``.working/validate-pr/history.md`` AND (for substantive PRs) a row in
-``.working/improvement-log.md``, with these exemptions:
+the PR-scoped validation history register AND (for substantive PRs) a row in
+the improvement log, with these exemptions:
 
 - The single highest-numbered PR is exempt: its ``/validate-pr`` + ``/retro``
   rows legitimately batch into the *next* PR per the recursion-avoidance
@@ -85,7 +85,7 @@ repository's ``inbox/<worker-id>/`` with a ``MANIFEST.md``, per the scratch
 convention is: a PR that applies a scratch-inbox delivery carries a
 ``**Worker provenance:**`` line in its detailed-mirror CHANGELOG entry
 naming the delivery path. This check validates every such marker line in
-[`.working/changelog-details/CHANGELOG-detailed.md`](../.working/changelog-details/CHANGELOG-detailed.md):
+the maintainer-grade detailed mirror:
 the line must reference an ``inbox/<worker-id>/`` path (the attestation
 names WHERE the delivery lives so the orchestrator's apply-time
 verification is traceable to it). Presence-not-correctness, per the gate's
@@ -110,8 +110,7 @@ a new numbered gate) follows the gate-48 "two checks to four" precedent: no
 gate-count change, no four-surface re-wiring.
 
 **Check 5, deep-assessment register row-order (the r3 guardrail-review G3
-surface).** The deep-assessment run register
-(``.working/deep-assessment/register.md``) lists its runs in strictly
+surface).** The deep-assessment run register lists its runs in strictly
 ascending run-number order (r1, r2, r3 ...), but had no ordering check while
 its sibling structured-bookkeeping files ARE gated (the detailed mirror by
 gate 59, the concurrency lease by gate 63). This closes that one-of-a-pair
@@ -122,7 +121,7 @@ Added as a fifth internal check of gate 50 (not a new numbered gate), the same
 no-count-ripple precedent as Check 4.
 
 **Check 6, merge-bypass-log parity (added after five same-day recurrences).** Every
-in-window merged PR needs a row in `.working/merge-bypass-log.md`. Branch protection
+in-window merged PR needs a row in the merge-bypass log. Branch protection
 here requires an approval a solo-authored PR never receives, so every merge goes
 through the maintainer's always-on `--admin` bypass, which is invisible when used; the
 log is the only thing that makes it auditable. CLAUDE.md already called an unlogged
@@ -506,7 +505,7 @@ def todo_rotation_findings(todo_text: str) -> list[str]:
             findings.append(
                 f"  [todo-rotation] {TODO_PATH}:{lineno} carries a "
                 f"self-completion marker ({hit}): a closed item must be "
-                f"DELETED from TODO and rotated to .working/DONE.md in the "
+                f"DELETED from TODO and rotated to the DONE ledger in the "
                 f"same PR, not annotated in place. Line: {line.strip()[:100]}"
             )
     return findings

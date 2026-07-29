@@ -3,10 +3,13 @@
 
 The change-tracking discipline keeps two CHANGELOG surfaces in lock-step:
 the adopter-facing root ``CHANGELOG.md`` (compact one-line ``date | version | PR`` entries) and
-the maintainer-grade detailed mirror
-``.working/changelog-details/CHANGELOG-detailed.md`` (full structured
-entries). Delta check D1 enforces, per commit, that a PR touches BOTH
-files; it does NOT check that the two carry the SAME set of per-PR
+the maintainer-grade detailed mirror (full structured entries, now
+resolved from the private-sibling working-state store). Delta check D1
+enforces, per commit, that a PR touches the root ``CHANGELOG.md`` (before
+PR #1235 it required BOTH files; the detailed mirror has since moved to the
+private-sibling working-state store, cross-repo and outside the public
+diff, so D1 no longer requires it); it does NOT check that the two carry
+the SAME set of per-PR
 entry headers (matched in BOTH the compact ``**date | version | PR #N**``
 form and the legacy ``## YYYY-MM-DD, Library Version X, PR #N`` form). That cross-commit
 integrity is gate-blind: a later PR's commit can overwrite an earlier
@@ -382,8 +385,8 @@ def main(argv: list[str]) -> int:
         for v in order_mirror:
             print(f"  {v}")
     print(
-        "\nThe root CHANGELOG.md and its detailed mirror "
-        "(.working/changelog-details/CHANGELOG-detailed.md) must carry the same "
+        "\nThe root CHANGELOG.md and its maintainer-grade detailed mirror "
+        "must carry the same "
         "per-PR header set, with each file's Library Versions strictly "
         "decreasing top-down. Add the missing entry, reconcile the duplicated / "
         "orphaned header, or re-version the out-of-order entry so the two "
