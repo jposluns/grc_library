@@ -221,10 +221,17 @@ def check_file(path: Path) -> tuple[str, set[str], set[str]] | None:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--paths",
-        nargs="+",
-        default=DEFAULT_PATHS,
+        "paths",
+        nargs="*",
+        default=None,
         help="Paths to scan (default: all active library directories)",
+    )
+    parser.add_argument(
+        "--paths",
+        dest="legacy_paths",
+        nargs="+",
+        default=None,
+        help=argparse.SUPPRESS,
     )
     parser.add_argument(
         "--min-overlap",
@@ -236,8 +243,15 @@ def main() -> int:
         ),
     )
     args = parser.parse_args()
+    if args.paths and args.legacy_paths is not None:
+        parser.error("use positional paths or --paths, not both")
+    paths = (
+        args.paths if args.paths
+        else args.legacy_paths if args.legacy_paths is not None
+        else DEFAULT_PATHS
+    )
 
-    files = iter_active_files(args.paths)
+    files = iter_active_files(paths)
     findings: list[tuple[str, str, set[str], set[str]]] = []
 
     for f in files:

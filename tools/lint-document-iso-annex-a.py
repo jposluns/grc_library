@@ -58,6 +58,7 @@ Exit codes: 0 = clean, 1 = findings, 2 = target unreadable.
 from __future__ import annotations
 
 import re
+import argparse
 import sys
 from collections import namedtuple
 from pathlib import Path
@@ -239,10 +240,10 @@ def scan_file(path: Path) -> list[Finding]:
     return findings
 
 
-def collect_targets(argv: list[str]) -> list[Path]:
-    """Resolve the scan targets: a single explicit path, or the audited corpus."""
-    if len(argv) > 1:
-        return [Path(argv[1]).resolve()]
+def collect_targets(paths: list[str] | None) -> list[Path]:
+    """Resolve the scan targets: explicit paths, or the audited corpus."""
+    if paths:
+        return [Path(p).resolve() for p in paths]
     roots = [REPO_ROOT / d for d in AUDITED_DOMAIN_DIRS]
     out: list[Path] = []
     for p in iter_markdown_targets(roots):
@@ -254,18 +255,31 @@ def collect_targets(argv: list[str]) -> list[Path]:
 
 
 def main(argv: list[str]) -> int:
-    explicit = len(argv) > 1
-    targets = collect_targets(argv)
-    if explicit and not targets[0].is_file():
-        print(f"ERROR: target not found: {targets[0]}", file=sys.stderr)
-        return 2
+    parser = argparse.ArgumentParser(
+        description="Audit ISO/IEC 27001:2022 Annex A codes in per-document framework tables."
+    )
+    parser.add_argument(
+        "paths", nargs="*", default=None,
+        help="Documents to scan (default: the audited corpus).",
+    )
+    args = parser.parse_args(argv[1:])
+    explicit = bool(args.paths)
+    targets = collect_targets(args.paths)
+    if explicit:
+        missing = [t for t in targets if not t.is_file()]
+        if missing:
+            print(f"ERROR: target not found: {missing[0]}", file=sys.stderr)
+            return 2
 
     findings: list[Finding] = []
     for path in targets:
         findings.extend(scan_file(path))
 
     if not findings:
-        scope = targets[0].name if explicit else f"{len(targets)} corpus document(s)"
+        scope = (
+            f"{len(targets)} explicit document(s)" if explicit
+            else f"{len(targets)} corpus document(s)"
+        )
         print(
             f"OK: ISO/IEC 27001:2022 Annex A codes in per-document framework tables are valid "
             f"({scope}; Annex A theme/control ranges and clause range; matrix and pack excluded)."

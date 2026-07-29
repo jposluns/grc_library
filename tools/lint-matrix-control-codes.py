@@ -84,6 +84,7 @@ Exit codes: 0 = clean, 1 = findings, 2 = target unreadable.
 from __future__ import annotations
 
 import re
+import argparse
 import sys
 from collections import namedtuple
 from pathlib import Path
@@ -298,8 +299,7 @@ def scan_matrix(path: Path) -> list[Finding]:
     return findings
 
 
-def main(argv: list[str]) -> int:
-    target = Path(argv[1]).resolve() if len(argv) > 1 else MATRIX_PATH
+def lint_target(target: Path) -> int:
     if not target.is_file():
         print(f"ERROR: target not found: {target}", file=sys.stderr)
         return 2
@@ -328,6 +328,24 @@ def main(argv: list[str]) -> int:
         file=sys.stderr,
     )
     return 1
+
+
+def main(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(
+        description="Audit matrix framework-control codes."
+    )
+    parser.add_argument(
+        "paths", nargs="*", default=None,
+        help="Files to scan (default: the compliance matrix).",
+    )
+    args = parser.parse_args(argv[1:])
+    targets = (
+        [Path(p).resolve() for p in args.paths] if args.paths else [MATRIX_PATH]
+    )
+    worst = 0
+    for target in targets:
+        worst = max(worst, lint_target(target))
+    return worst
 
 
 if __name__ == "__main__":
