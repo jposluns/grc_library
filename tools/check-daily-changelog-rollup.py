@@ -61,6 +61,13 @@ ENTRY_RE = re.compile(
 # retained-but-commented per-PR entry never inflates a date's count.
 COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
 
+# A MILESTONE entry (`**YYYY-MM-DD | MILESTONE:** ...`) is a persistent
+# project-milestone record, explicitly EXCLUDED from daily/weekly roll-ups
+# (maintainer-directed 2026-07-29): it floats above the day's per-PR entries
+# and is never condensed. Recognized by the `| MILESTONE` marker in the bold
+# header so a milestone written with any trailing field can never be counted.
+MILESTONE_RE = re.compile(r"^\*\*\d{4}-\d{2}-\d{2}\s*\|\s*MILESTONE\b", re.IGNORECASE)
+
 
 def find_rollups_due(text: str, today: datetime.date) -> list[tuple[str, int]]:
     """Return [(date, per_pr_count), ...] for past dates with > 1 per-PR entry.
@@ -70,7 +77,10 @@ def find_rollups_due(text: str, today: datetime.date) -> list[tuple[str, int]]:
     """
     per_pr_by_date: dict[str, int] = defaultdict(int)
     for raw in COMMENT_RE.sub("", text).splitlines():
-        m = ENTRY_RE.match(raw.strip())
+        stripped = raw.strip()
+        if MILESTONE_RE.match(stripped):
+            continue  # milestone entries are never rolled up (see MILESTONE_RE)
+        m = ENTRY_RE.match(stripped)
         if not m:
             continue
         prfield = m.group("prfield").strip()
@@ -163,6 +173,17 @@ def _self_test() -> int:
                 {d: c for d, c in due},
                 {d: len(prs) for d, prs in fixtures.items()},
             )
+
+        def test_milestone_entry_is_never_counted(self):
+            # A milestone floats above the day's per-PR entries and must never
+            # inflate a date's roll-up count nor be flagged for rollup itself.
+            milestone = "**2026-07-25 | MILESTONE:** A persistent milestone."
+            prs = [1150, 1151, 1152]
+            txt = milestone + "\n" + "\n".join(entry("2026-07-25", p) for p in prs)
+            due = find_rollups_due(txt, TODAY)
+            self.assertEqual(len(due), 1)
+            self.assertEqual(due[0][1], len(prs))  # milestone NOT added to the 3
+            self.assertEqual(len(find_rollups_due(milestone, TODAY)), 0)
 
         def test_empty_corpus(self):
             self.assertEqual(len(find_rollups_due("", TODAY)), 0)
