@@ -10,9 +10,9 @@ derives_from: ../../governance/trust-recovery-escalation.md
 
 Portable procedure, concrete names. In the parent GRC library this skill runs with:
 
-- Phase-state register: `.working/deep-assessment/register.md` (durable, non-dated,
+- Phase-state register: the deep-assessment phase-state register in the consuming project's working state (durable, non-dated,
   in-repo; carries run and phase state across session boundaries).
-- Per-run record pattern: `.working/deep-assessment/YYYY-MM-DD-rN.md` (the dated-file
+- Per-run record pattern: a dated per-run record in the consuming project's working state (the dated-file
   convention the fitness-review records use).
 - Gate-efficacy tools (phase 4's deterministic halves): `tools/audit-gate-blindspots.py`
   and `tools/audit-gate-mutation.py` with its variant library

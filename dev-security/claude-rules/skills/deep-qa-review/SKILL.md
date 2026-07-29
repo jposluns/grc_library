@@ -10,7 +10,7 @@ derives_from: ../../governance/trust-recovery-escalation.md
 
 Portable procedure, concrete names. In the parent GRC library this skill runs with:
 
-- Per-run record: `.working/full-qa/YYYY-MM-DD-iterN.md`, plus a history row; the record directory carries a README codifying the step-0 full-clone rule.
+- Per-run record: a dated per-run record in the consuming project's working state, plus a history row; the record directory carries a README codifying the step-0 full-clone rule.
 - History-aware gates the full-clone methodology protects: gates 31 (document-date-staleness) and 40 (version-bump-recency), both of which reason over `git log --follow` history and emit false positives on a shallow clone.
 - Audit runner (the mechanical baseline): `tools/run_all_audits.sh`, which must exit 0 on the full clone.
 

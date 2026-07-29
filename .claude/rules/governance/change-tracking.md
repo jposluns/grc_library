@@ -335,11 +335,11 @@ The skip trailer is the everyday exception. For larger deviations (an embargoed 
 
 ## Project overlay (grc_library wiring and lineage; local copy only)
 
-- Detailed mirror: `.working/changelog-details/CHANGELOG-detailed.md` (current-week
+- Detailed mirror: `grc_library_private/.working/changelog-details/CHANGELOG-detailed.md` (current-week
   model; completed weeks sweep to the `grc_library_scratch` archive as weekly
   Monday-dated files).
 - Sweep tool: `tools/sweep-working-records-to-private.py` (emit, verify, then prune).
-- Closed-work ledger: `.working/DONE.md`; backlog: `TODO.md`; overnight file:
-  `.working/overnight-pr.md` (gate 46 enforces its Status lifecycle).
+- Closed-work ledger: `grc_library_private/.working/DONE.md`; backlog: `TODO.md`; overnight file:
+  `grc_library_private/.working/overnight-pr.md` (gate 46 enforces its Status lifecycle).
 - The DONE worked example, concretely: PR #172 "FR-4+5+6+7+8: README polish bundle"
   (2026-06-21), five medium README findings closed in one PR.

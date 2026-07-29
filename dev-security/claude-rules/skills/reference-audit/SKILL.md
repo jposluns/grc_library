@@ -20,9 +20,8 @@ Portable procedure, concrete names. In the parent GRC library this skill runs wi
 - Complementary acquisition-gap tool (the cited-but-not-held direction):
   `tools/audit-reference-acquisition-gaps.py` (also advisory, never a gate, always
   exits 0).
-- Per-document state file (the per-touch delta anchor):
-  `.working/reference-audit/doc-state.md`.
-- Run-record directory: `.working/reference-audit/` (dated per-run detail files plus the
+- Per-document state file (the per-touch delta anchor): the per-document reference-audit state file in the consuming project's working state.
+- Run-record directory: the reference-audit run-record directory in the consuming project's working state (dated per-run detail files plus the
   non-dated `history.md`; completed records are swept to the worker-exchange scratch
   archive under the parent's current-week retention model).
 - Reference base: the sibling private `grc_library_ref` repository, located via its

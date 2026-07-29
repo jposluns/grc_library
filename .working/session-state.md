@@ -6,7 +6,7 @@
 
 **Operating-mode:** attended-autonomous
 
-**Last-heartbeat-UTC:** 2026-07-29T00:24:49Z
+**Last-heartbeat-UTC:** 2026-07-29T01:32:30Z
 
 **Current-task:** 2026-07-28c `/resume` (attended-autonomous). Sweep 129 loop-break `/validate` over #1227..#1231 CONSUMED (dual-family, PASS; loop-break for #1232 PASSES; 3 clear-mechanical fixes applied, N1 routed 3.186). THIS PR = the resume `/validate` close-out (Sweep 129 record + handoff prune + these fixes + lease acquire). NEXT: PR2b-2b (`.working`->`_private` reword all prose + complete tree copy; maintainer-GO confirmed this session), then PR2b-3 (delete public `.working`).
 

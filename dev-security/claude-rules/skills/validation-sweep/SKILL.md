@@ -11,14 +11,14 @@ derives_from: ../../governance/evidence-grounded-completion.md
 Portable procedure, concrete names. In the parent GRC library this skill runs with:
 
 - Canonical full-audit command: `tools/run_all_audits.sh`; canonical gate inventory: `governance/specification-audit-programme.md` §6.
-- Sweep-history register: `.working/validate-sweeps/history.md` (one row per iteration).
-- Per-iteration detail directory: `.working/validate-sweeps/` (filenames `YYYY-MM-DD-sweepN-iterM.md`).
-- False-positive memory: the validation-sweep history README, `.working/validate-sweeps/README.md`, § Accept-list discipline (the human-readable surface), mirrored machine-readably by the scanner exemption file `tools/sweep-preflight-exemptions.json`.
+- Sweep-history register: the sweep-history register in the consuming project's working state (one row per iteration).
+- Per-iteration detail directory: the sweep detail directory in the consuming project's working state (filenames `YYYY-MM-DD-sweepN-iterM.md`).
+- False-positive memory: the validation-sweep history README in the consuming project's working state, § Accept-list discipline (the human-readable surface), mirrored machine-readably by the scanner exemption file `tools/sweep-preflight-exemptions.json`.
 - Deterministic pre-flight scanner: `tools/sweep-preflight-scanner.py`, with shipped pattern ids PF-01 / PF-02 / PF-03 for stale collection counts (skills, governance rules, generic `N <collection>`) and PF-04 for stale version literals; its `CANONICAL_COLLECTIONS` constants and seed patterns target this corpus.
 - Document-staleness audit: gate 31 in the canonical inventory.
 - Listing-surface coverage gate: gate 47 (the document-index register and the domain READMEs); the candidate-set helper is `tools/suggest-listing-surfaces.py <doc>`.
 - Linter-exemption mechanism covering the detail directory: `DEFAULT_EXEMPT_DIRS` in `tools/lint_common.py`.
-- Detailed change-log mirror (the surface the chat-surfacing section contrasts with): `.working/changelog-details/CHANGELOG-detailed.md`.
+- Detailed change-log mirror (the surface the chat-surfacing section contrasts with): the detailed change-log mirror in the consuming project's working state.
 
 An adopting project maps each bullet to its own records; the procedure below refers to them generically.
 
