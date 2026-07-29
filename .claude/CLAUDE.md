@@ -229,7 +229,7 @@ drive end-to-end on the maintainer's behalf:
    Before pushing, run both runners as a single pre-push gate:
    `tools/pre-push-guard.sh && git push -u origin <branch>`. The guard chains
    `run_all_audits.sh` (corpus gates from HEAD) then `run-pr-time-checks.sh` (the PR-only
-   delta gates D1-D9 plus the history-aware trio 45/40/31 against the merge base),
+   delta gates D1-D8 plus the history-aware trio 45/40/31 against the merge base),
    stopping non-zero on the first failure, so a gate defect blocks the push instead of
    flipping CI red after the fact. The two runners together cover every gate CI runs.
    Git hooks do not fire in this environment, so the `&&`-chained guard is what actually
@@ -610,12 +610,6 @@ is external. Two mechanisms:
      count, a suite size), bare-token grep the WHOLE entry, all sections in both files,
      for the superseded figure before push (the #620 catch: an entry corrected in one
      clause kept the stale figure in another).
-   - **Handoff-snapshot write order** (the D7 guard; twice in one session, 2026-07-25 #1158 and #1162):
-     when a PR both BUMPS the library/README versions and REFRESHES the handoff's D7-validated snapshot
-     line, do the version bump FIRST and write the snapshot FROM the bumped values. Writing the snapshot
-     first records the pre-bump figures, which D7 then correctly rejects as stale against the PR's own
-     head. The snapshot quotes the state the PR PRODUCES, not the state it started from, so any narrative
-     line elsewhere in the handoff that repeats those figures moves with it.
    - **Version-and-Date move together, in the SAME edit** (the D2/D4 pair; three occurrences on
      2026-07-26 alone, past the codification threshold). Every file with a `Version` field also has a
      `Date` field, and the two delta gates check the pair from opposite ends: **D2** fails when a
@@ -666,7 +660,7 @@ is external. Two mechanisms:
      refresh is in the PR's QA batch. An empty candidate set is recorded as the one-line
      steady-state note, not skipped silently. (Convention-guarded; the mechanical
      staleness backstop is a queued TODO item.)
-   - **The ROOT CHANGELOG never loses history; it is SUMMARIZED, never removed (maintainer-directed 2026-07-26).** [`CHANGELOG.md`](../CHANGELOG.md) is one of the few history/status files that must go back to the PROJECT START and is NEVER swept, pruned, or moved to `_private`: old per-PR entries are only summarized IN PLACE (daily then weekly roll-ups condense them to `**date | version | PRs #A-#B (N PRs)**` and `**Week of ...**` blocks that STAY in the root). Only the DETAILED mirror (`grc_library_private/.working/changelog-details/`) is swept to `_private`; the root roll-up and the mirror sweep are SEPARATE processes, and no move-to-`_private` process touches the root. The ONLY sanctioned removal from the root is a surgical edit fixing an AI error (for example expunging leaked private info). #1177 wrongly REMOVED six weekly summaries from the root; #1192 restored them, and the D9 reminder plus this rule foreclose the recurrence.
+   - **The ROOT CHANGELOG never loses history; it is SUMMARIZED, never removed (maintainer-directed 2026-07-26).** [`CHANGELOG.md`](../CHANGELOG.md) is one of the few history/status files that must go back to the PROJECT START and is NEVER swept, pruned, or moved to `_private`: old per-PR entries are only summarized IN PLACE (daily then weekly roll-ups condense them to `**date | version | PRs #A-#B (N PRs)**` and `**Week of ...**` blocks that STAY in the root). Only the DETAILED mirror (`grc_library_private/.working/changelog-details/`) is swept to `_private`; the root roll-up and the mirror sweep are SEPARATE processes, and no move-to-`_private` process touches the root. The ONLY sanctioned removal from the root is a surgical edit fixing an AI error (for example expunging leaked private info). #1177 wrongly REMOVED six weekly summaries from the root; #1192 restored them, and the D8 reminder plus this rule foreclose the recurrence.
    - **Detailed-mirror current-week sweep** (the changelog-restructure current-week model;
      the pack rule's current-week-model section is the authoritative description): the
      `grc_library_private/.working/changelog-details/CHANGELOG-detailed.md`
@@ -693,7 +687,7 @@ is external. Two mechanisms:
      3b plain-language wave (#855-#862) converted the whole back-catalogue to it, so every new root
      entry uses this one-line form while the detailed mirror keeps the full structured sections.
      TODO 3.16's only remaining residual is the deferred, maintainer-gated git-history collapse.
-   - **Daily-changelog-rollup reminder (D9, midnight-UTC cadence).** If the pre-push guard's D9 check prints `DAILY SUMMARY DUE for <date>`, the next PR carries that date's daily roll-up (collapse its per-PR root entries to one `**date | version | PRs #A-#B (N PRs)**` summary) AND prunes the matching detailed-mirror rows to the `grc_library_private/changelog-archive/`. D9 is advisory (exit 0, never blocks), so the reminder is ACTIONED not skipped; the roll-up draft is a small worker offload (`tools/check-daily-changelog-rollup.py` is the check).
+   - **Daily-changelog-rollup reminder (D8, midnight-UTC cadence).** If the pre-push guard's D8 check prints `DAILY SUMMARY DUE for <date>`, the next PR carries that date's daily roll-up (collapse its per-PR root entries to one `**date | version | PRs #A-#B (N PRs)**` summary) AND prunes the matching detailed-mirror rows to the `grc_library_private/changelog-archive/`. D8 is advisory (exit 0, never blocks), so the reminder is ACTIONED not skipped; the roll-up draft is a small worker offload (`tools/check-daily-changelog-rollup.py` is the check).
    - CHANGELOG (root + detailed) and version bumps are present; the pre-push guard
      (`run_all_audits.sh` + `run-pr-time-checks.sh`) is green.
 

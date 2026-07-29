@@ -56,14 +56,14 @@ grandfather list or a ceiling set so high it never fires. Its role is the
 history-spanning compress-queue aid (which existing entries still need
 shortening).
 
-ENFORCEMENT lives in the sibling PR-time delta gate D8
+ENFORCEMENT lives in the sibling PR-time delta gate D7
 (``tools/check-changelog-length-on-pr.py``, maintainer-directed 2026-07-17),
 which applies the SAME measurement (compact-entry regex + sentence split, kept
 identical by convention) but only to the entries a PR ADDS, forward-only exactly
 like the D3 dash gate: a newly-added entry over the ceiling fails the PR, so new
 entries cannot drift while history is left for the compression pass. The
 advisory-only-was-not-enough lesson (three recurrences: #887-901, #902-914,
-#919-986) is why D8 exists; keep the two definitions in sync. Its self-test
+#919-986) is why D7 exists; keep the two definitions in sync. Its self-test
 lives behind ``--self-test`` (inline unittest on the parser) rather than in
 ``tests/`` so the gate-36 regression runner does not adopt it as a gated test.
 

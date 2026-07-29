@@ -270,7 +270,7 @@ Umbrella for adopting NIST OSCAL as an open, machine-readable projection of the 
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.191.**
+**Next item number: 3.192.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
 
@@ -326,9 +326,9 @@ the takeover session; automating it removes it. Keep the block path as a fallbac
 
 ### 3.136 Handoff/close-out snapshot generator (fresh-eyes 2026-07-26; EXECUTE EARLY, M, S) `[machinery]`
 
-`tools/handoff-snapshot.py` emits the mechanical facts the handoff and D7 need: library + README versions,
+`tools/handoff-snapshot.py` emits the mechanical facts the handoff needs: library + README versions,
 gate/rule/skill/command counts, green-at `<sha>`, and the session-metrics figures. The wind-down pastes a verified
-block and writes only the narrative, instead of hand-deriving each number (where the D7 snapshot trap lives).
+block and writes only the narrative, instead of hand-deriving each number.
 
 ### 3.137 Close-out speed: changed-files quick guard + reconsider async recursion-avoidance (fresh-eyes 2026-07-26; EXECUTE EARLY, M-L, M) `[machinery]`
 
@@ -526,7 +526,7 @@ The #1223 final dual-family verify surfaced 8 MEDIUM prose/precision nuances (M1
 
 ### 3.114 The advisory CHANGELOG-length tool is looser than the gate that enforces it (2026-07-25, L, XS)
 
-[`tools/audit-changelog-entry-length.py`](tools/audit-changelog-entry-length.py) defaults to `--word-warn 130` / `--sentence-warn 65` while the PR-time delta gate [`tools/check-changelog-length-on-pr.py`](tools/check-changelog-length-on-pr.py) FAILS at `--word-max 100` / `--sentence-max 45`. So the advisory tool can report "all entries within the compact-form budget" for an entry the gate then rejects, which is false comfort at exactly the moment the author is trying to avoid a guard failure (it happened in #1157: a 108-word entry passed the advisory tool and failed D8). **Weigh rather than blindly align:** the looseness may be deliberate, because the advisory tool scans EVERY root entry including the long-form historical ones that predate the ceiling, whereas D8 scans only newly-added entries, so simply lowering the defaults could flag a large back-catalogue. Candidate resolutions: (a) have the advisory tool report against BOTH thresholds, naming the gate's ceiling as the binding one for new entries; (b) add a `--new-entries-only` mode that applies the gate's ceiling; (c) keep the defaults and state the divergence plus its reason in the module docstring, so a reader is not misled. Cheapest useful fix is probably (a) or (c).
+[`tools/audit-changelog-entry-length.py`](tools/audit-changelog-entry-length.py) defaults to `--word-warn 130` / `--sentence-warn 65` while the PR-time delta gate [`tools/check-changelog-length-on-pr.py`](tools/check-changelog-length-on-pr.py) FAILS at `--word-max 100` / `--sentence-max 45`. So the advisory tool can report "all entries within the compact-form budget" for an entry the gate then rejects, which is false comfort at exactly the moment the author is trying to avoid a guard failure (it happened in #1157: a 108-word entry passed the advisory tool and failed D7). **Weigh rather than blindly align:** the looseness may be deliberate, because the advisory tool scans EVERY root entry including the long-form historical ones that predate the ceiling, whereas D7 scans only newly-added entries, so simply lowering the defaults could flag a large back-catalogue. Candidate resolutions: (a) have the advisory tool report against BOTH thresholds, naming the gate's ceiling as the binding one for new entries; (b) add a `--new-entries-only` mode that applies the gate's ceiling; (c) keep the defaults and state the divergence plus its reason in the module docstring, so a reader is not misled. Cheapest useful fix is probably (a) or (c).
 
 ### 3.113 Worker-id ownership is unvalidated, so two sessions can wear one id (2026-07-25, M, S)
 
@@ -582,7 +582,7 @@ Map the held ETSI SAI family (EN 304 223 plus the GR/TR set) against the corpus 
 changing only `Version` / `Date` lines is not a body change in the sense the obligation means; demanding
 a reference-breadth run for a typo fix is the noise that gets a check bypassed.
 
-The gate-50-analogue for the per-touch reference-breadth obligation the [`.claude/CLAUDE.md`](.claude/CLAUDE.md) close-out checklist added (a corpus-body-touching PR runs the per-touch tool and refreshes `grc_library_private/.working/reference-audit/doc-state.md`). Nothing detects a body-touching PR that omits the per-touch run or the state refresh (the class gate 50 backstops for `/validate-pr` rows). Proposed: a PR-time delta check (a Dn) failing when a PR's diff touches a corpus-domain `.md` body without a matching `doc-state.md` row update or a recorded empty-set note. **DEFERRED (maintainer 2026-07-08) until AFTER the first FULL `/reference-audit` run** establishes the `doc-state.md` delta-anchor baseline (building the hard D8 gate before the baseline exists would fire on the next corpus-body PR). Sequencing: first FULL `/reference-audit` run (populates `doc-state.md`), THEN build this D8. Convention-guarded meanwhile.
+The gate-50-analogue for the per-touch reference-breadth obligation the [`.claude/CLAUDE.md`](.claude/CLAUDE.md) close-out checklist added (a corpus-body-touching PR runs the per-touch tool and refreshes `grc_library_private/.working/reference-audit/doc-state.md`). Nothing detects a body-touching PR that omits the per-touch run or the state refresh (the class gate 50 backstops for `/validate-pr` rows). Proposed: a PR-time delta check (a Dn) failing when a PR's diff touches a corpus-domain `.md` body without a matching `doc-state.md` row update or a recorded empty-set note. **DEFERRED (maintainer 2026-07-08) until AFTER the first FULL `/reference-audit` run** establishes the `doc-state.md` delta-anchor baseline (building the hard delta gate before the baseline exists would fire on the next corpus-body PR). Sequencing: first FULL `/reference-audit` run (populates `doc-state.md`), THEN build this delta gate. Convention-guarded meanwhile.
 
 ### 3.33 Formalize the (severity, effort) convention across surfaces (S)
 
@@ -1038,6 +1038,10 @@ Fable F-6 (PR2b-3 verify): `tools/pr-closeout.py`'s `has_findings` detail-file b
 ### 3.190 Guard preflight-changelog `_added_lines_from_repo` against a non-git private sibling (PR2b-3 Fable verify F-9, 2026-07-29, S, S) `[machinery]`
 
 Fable F-9 (PR2b-3 verify): `tools/preflight-changelog.py`'s `_added_lines_from_repo` raises an uncaught `CalledProcessError` if the private sibling exists but is not a git repository (or its `git diff` fails). Unreachable for the maintainer's real layout (the private sibling is always a git repo), a robustness edge only. Wrap the diff in a try/except that degrades to the empty added-line set (as the both-absent path already does), and note that `mirror.parents[2]` hardcodes the mirror depth (correct for the current constant, brittle if it moves).
+
+### 3.191 Governance-spec `.working/`-prose precision sweep (post-migration; PR2b-D7 /validate-pr F2, 2026-07-29, S, S) `[machinery]`
+
+`governance/specification-audit-programme.md` gate descriptions still name ~14 specific working-state files by their old public `.working/<file>` paths (session-handoff, validate-sweeps history, overnight-pr, DONE, session-state, deep-assessment register, guardrail-review history, validate-pr history, improvement log, detailed-CHANGELOG mirror), which moved to the maintainer's private working-state store in the PR2b `.working/`-to-private migration. The gates read them via `resolve_working` (private-preferred), so this is documentation-precision, not a functional defect. Genericize each dangling gate-description path (drop the bare public path; name the record generically, no private-repo reference, per the remove-private-repo-refs-where-viable preference), preserving the legitimate exempt-tree / `DEFAULT_EXEMPT_DIRS` mentions and the D5 "formerly" note. Split from PR2b-D7 to protect that PR's verified delta renumber (maintainer-directed 2026-07-29).
 ---
 
 ## Priority 4 — Adopter experience

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Verify a pull request's newly-added root CHANGELOG.md entries stay short (delta gate D8).
+"""Verify a pull request's newly-added root CHANGELOG.md entries stay short (delta gate D7).
 
-This is a CI-only PR-time delta gate (D8), not part of the corpus audit
+This is a CI-only PR-time delta gate (D7), not part of the corpus audit
 programme. The corpus gates check repository state at HEAD; this script compares
 HEAD to the PR's merge-base and inspects only the compact root CHANGELOG.md
 ENTRY lines the PR ADDS, failing if any added entry's summary exceeds a length
@@ -236,7 +236,7 @@ def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
         description=(
             "Check that a pull request's newly-added root CHANGELOG.md entries "
-            "stay within the compact-form length ceiling (D8 delta gate)."
+            "stay within the compact-form length ceiling (D7 delta gate)."
         ),
     )
     parser.add_argument("base", nargs="?", help="Base ref (default: origin/$GITHUB_BASE_REF).")
