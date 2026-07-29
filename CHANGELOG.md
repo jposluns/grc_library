@@ -17,6 +17,8 @@ Alongside the split, the project's core instruction file (CLAUDE.md) begins a ri
 
 ---
 
+**2026-07-29 | 2026.07.730 | PR #1240** - Roadmap B: added [`tools/handoff-snapshot.py`](tools/handoff-snapshot.py), a read-only aggregator that emits the handoff's mechanical facts (library and README versions, gate/rule/skill/command counts, HEAD sha, session figures) so the wind-down pastes a verified block instead of hand-deriving each number. Self-test wired into the regression suite. Closes TODO 3.136.
+
 **2026-07-29 | 2026.07.729 | PR #1239** - D8 daily roll-up: collapsed the 17 per-PR 2026-07-28 root entries (#1215-#1232) into one summary line and pruned the matching detailed-mirror entries to the private archive. Also amended the intro to note the persistent `## Milestones` section.
 
 **2026-07-29 | 2026.07.728 | PR #1238** - Added a persistent `## Milestones` CHANGELOG entry recording the public/private separation for adopters. It covers the working-state and internal-tooling move to the private companion repository, the HITL personal-information protection, and the CLAUDE.md right-sizing direction. Also added `cleanlanguage.ai` to the [`lint-external-link-domains.py`](tools/lint-external-link-domains.py) allow-list for the linked Clean Language reference.
