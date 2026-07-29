@@ -83,7 +83,26 @@ FREQUENCY_MAP = [
 ]
 
 
-def iter_active_docs() -> list[Path]:
+def iter_active_docs(paths: list[Path] | None = None) -> list[Path]:
+    if paths is not None:
+        selected: list[Path] = []
+        for raw in paths:
+            fp = raw if raw.is_absolute() else (REPO_ROOT / raw)
+            if fp.suffix != ".md" or not fp.is_file():
+                continue
+            try:
+                rel = fp.resolve().relative_to(REPO_ROOT).as_posix()
+            except ValueError:
+                continue
+            if fp.name == "README.md":
+                continue
+            if rel in EXEMPT_FROM_INDEX:
+                continue
+            if any(rel.startswith(pre) for pre in EXEMPT_DIRECTORY_PREFIXES):
+                continue
+            if any(rel.startswith(f"{d}/") for d in DOMAINS) or rel in ROOT_DOCS:
+                selected.append(fp)
+        return sorted(set(selected))
     files: list[Path] = []
     for domain in DOMAINS:
         base = REPO_ROOT / domain
@@ -173,6 +192,8 @@ def main(argv: list[str]) -> int:
                         help="Days before due to warn (default 30).")
     parser.add_argument("--all", action="store_true",
                         help="Show all documents, not only overdue and due-soon.")
+    parser.add_argument("paths", nargs="*", default=None,
+                        help="Specific .md files to scan (default: all active documents).")
     args = parser.parse_args(argv[1:])
 
     today = dt.date.today() if not args.as_of else parse_date(args.as_of)
@@ -183,7 +204,8 @@ def main(argv: list[str]) -> int:
     rows: list[tuple[str, str, dt.date, int | None, dt.date | None, str, int, str]] = []
     skipped: list[tuple[str, str]] = []
 
-    for path in iter_active_docs():
+    scan_paths = [Path(p) for p in args.paths] if args.paths else None
+    for path in iter_active_docs(scan_paths):
         rel = path.relative_to(REPO_ROOT).as_posix()
         text = path.read_text(encoding="utf-8")
         meta = extract_metadata(text)

@@ -91,7 +91,14 @@ _PAT_TOOLPATH = re.compile(r"\btools/([A-Za-z0-9_-]+\.(?:py|sh))\b")
 _PAT_REPO = re.compile(r"\bgrc_library_(?:scratch|private|ref)\b|(?<![\w])_private/")
 
 
-def _iter_skill_files() -> list[Path]:
+def _iter_skill_files(paths: list[Path] | None = None) -> list[Path]:
+    if paths is not None:
+        out: list[Path] = []
+        for raw in paths:
+            fp = raw if raw.is_absolute() else (REPO_ROOT / raw)
+            if fp.name == "SKILL.md" and fp.is_file():
+                out.append(fp)
+        return sorted(set(out))
     base = REPO_ROOT / SKILLS_DIR
     if not base.is_dir():
         return []
@@ -162,9 +169,10 @@ def scan_skill(path: Path, tools_dir: Path) -> list[str]:
 def main(argv: list[str]) -> int:
     if len(argv) > 1 and argv[1] == "--self-test":
         return _self_test()
+    paths = [Path(a) for a in argv[1:]] if len(argv) > 1 else None
     tools_dir = REPO_ROOT / "tools"
     all_findings: list[str] = []
-    skills = _iter_skill_files()
+    skills = _iter_skill_files(paths)
     for path in skills:
         all_findings.extend(scan_skill(path, tools_dir))
     print("=== skill-body internal-reference audit ===")

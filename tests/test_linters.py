@@ -9622,5 +9622,79 @@ class TodoNumberPermanenceTests(LinterTestCase):
             import shutil
             shutil.rmtree(root, ignore_errors=True)
 
+class NormalizedPositionalArgsTests(LinterTestCase):
+    """TODO 3.137a: the fast-ready gate tools were normalized to accept a uniform
+    positional multi-file ``.md`` list (the ``tools/quick-guard.sh`` contract).
+    This regression-guards the normalization: each must accept two positional
+    .md paths without an argparse rejection and process them cleanly."""
+
+    NORMALIZED = [
+        "tools/lint-citations.py",
+        "tools/lint-filename-title-alignment.py",
+        "tools/lint-metadata-line-breaks.py",
+        "tools/lint-followup-ageing.py",
+        "tools/lint-matrix-control-codes.py",
+        "tools/lint-document-control-codes.py",
+        "tools/lint-document-iso-annex-a.py",
+        "tools/check-review-cadence.py",
+        "tools/lint-skill-internal-refs.py",
+    ]
+
+    def test_accept_positional_multifile(self):
+        f1 = self.make_fixture("qg_pos_a.md", "# A\n\nBody paragraph.\n")
+        f2 = self.make_fixture("qg_pos_b.md", "# B\n\nBody paragraph.\n")
+        for script in self.NORMALIZED:
+            result = run_linter(script, f1, f2)
+            combined = result.stdout + "\n" + result.stderr
+            self.assertNotIn(
+                "unrecognized arguments", combined,
+                f"{script} rejected positional multi-file args (normalization regressed)",
+            )
+            self.assertEqual(
+                result.returncode, 0,
+                f"{script} did not cleanly accept positional multi-file "
+                f"(rc={result.returncode}).\nstdout:\n{result.stdout}\n"
+                f"stderr:\n{result.stderr}",
+            )
+
+    def test_argparse_additions_scan_every_positional_file(self):
+        # The 3 tools that previously read only argv[1] now use argparse; prove
+        # they scan EVERY positional file by putting a bad fixture SECOND and
+        # asserting it is caught (a regression to argv[1]-only would miss it).
+        clean = self.make_fixture("qg_scan_clean.md", "# Clean\n\nBody.\n")
+        cases = {
+            "tools/lint-document-iso-annex-a.py": (
+                "qg_bad_iso.md",
+                "| Framework | Reference |\n| --- | --- |\n"
+                "| ISO/IEC 27001:2022 | A.8.99 |\n",
+            ),
+            "tools/lint-document-control-codes.py": (
+                "qg_bad_nist.md",
+                "| Framework | Reference |\n| --- | --- |\n"
+                "| NIST CSF 2.0 | GV.ZZ |\n",
+            ),
+            "tools/lint-matrix-control-codes.py": (
+                "qg_bad_matrix.md",
+                "| Control | ISO/IEC 27001:2022 | NIST CSF 2.0 |\n"
+                "| --- | --- | --- |\n| Sample | A.5.1 | GV.ZZ |\n",
+            ),
+        }
+        for script, (name, content) in cases.items():
+            bad = self.make_fixture(name, content)
+            result = run_linter(script, clean, bad)
+            self.assertLinterFails(
+                result,
+            )  # bad SECOND file must be caught => every positional file scanned
+
+    def test_legacy_paths_flag_still_accepted(self):
+        f1 = self.make_fixture("qg_leg_a.md", "# A\n\nBody.\n")
+        for script in ("tools/lint-citations.py",
+                       "tools/lint-filename-title-alignment.py"):
+            result = run_linter(script, "--paths", f1)
+            self.assertNotIn("unrecognized arguments",
+                             result.stdout + "\n" + result.stderr,
+                             f"{script} dropped the legacy --paths alias")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

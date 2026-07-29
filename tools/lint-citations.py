@@ -174,11 +174,24 @@ def check_file(path: Path) -> list[tuple[str, int, str, str, str]]:
 
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description="Lint framework citations against a denylist.")
-    parser.add_argument("--paths", nargs="*", default=DEFAULT_PATHS,
-                        help="Paths to scan (files or directories).")
+    parser.add_argument(
+        "paths", nargs="*", default=None,
+        help="Paths to scan (files or directories).",
+    )
+    parser.add_argument(
+        "--paths", dest="legacy_paths", nargs="*", default=None,
+        help=argparse.SUPPRESS,
+    )
     args = parser.parse_args(argv[1:])
+    if args.paths and args.legacy_paths is not None:
+        parser.error("use positional paths or --paths, not both")
+    paths = (
+        args.paths if args.paths
+        else args.legacy_paths if args.legacy_paths is not None
+        else DEFAULT_PATHS
+    )
 
-    files = iter_markdown_files(args.paths)
+    files = iter_markdown_files(paths)
     grouped: dict[str, list[tuple[str, int, str, str, str]]] = {}
     total = 0
 

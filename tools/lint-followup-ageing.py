@@ -170,6 +170,12 @@ def main() -> int:
         description="Audit deferred-finding entries for expired re-triage-by deadlines."
     )
     parser.add_argument(
+        "paths",
+        nargs="*",
+        default=None,
+        help="Explicit file paths to scan; overrides the default target set.",
+    )
+    parser.add_argument(
         "--target",
         action="append",
         default=None,
@@ -195,6 +201,8 @@ def main() -> int:
         ),
     )
     args = parser.parse_args()
+    if args.paths and args.target:
+        parser.error("use positional paths or --target, not both")
 
     if args.today is not None:
         today = parse_iso_date(args.today)
@@ -209,8 +217,8 @@ def main() -> int:
         today = datetime.date.today()
 
     root = Path(args.root).resolve() if args.root else REPO_ROOT
-    targets = args.target if args.target else TARGET_FILES
-    explicit = args.target is not None or args.root is not None
+    targets = args.paths if args.paths else (args.target if args.target else TARGET_FILES)
+    explicit = bool(args.paths) or args.target is not None or args.root is not None
 
     expired: list[str] = []
     invalid: list[str] = []

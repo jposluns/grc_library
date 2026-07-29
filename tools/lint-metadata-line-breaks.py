@@ -129,18 +129,23 @@ def main(argv: list[str] | None = None) -> int:
         description="Audit metadata-block line breaks across the markdown corpus."
     )
     parser.add_argument(
-        "path",
-        nargs="?",
+        "paths",
+        nargs="*",
         default=None,
-        help="Optional specific .md file to scan (default: all corpus directories).",
+        help="Optional .md files or directories to scan (default: all corpus directories).",
     )
     args = parser.parse_args(argv)
 
-    if args.path is not None:
-        target = Path(args.path)
-        if not target.is_absolute():
-            target = REPO_ROOT / target
-        files = [target] if target.is_file() else []
+    if args.paths:
+        files = []
+        for raw in args.paths:
+            target = Path(raw)
+            if not target.is_absolute():
+                target = REPO_ROOT / target
+            if target.is_file():
+                files.append(target)
+            elif target.is_dir():
+                files.extend(sorted(target.rglob("*.md")))
     else:
         files = iter_target_files(DEFAULT_TARGETS)
 
