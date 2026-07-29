@@ -1,14 +1,14 @@
 # Session State (concurrency lease)
 
-**Active-session:** none
+**Active-session:** claude/resume-0728c-validate
 
-**Status:** released
+**Status:** active
 
 **Operating-mode:** attended-autonomous
 
-**Last-heartbeat-UTC:** 2026-07-28T22:35:58Z
+**Last-heartbeat-UTC:** 2026-07-29T00:24:49Z
 
-**Current-task:** SESSION CLOSED 2026-07-28b at #1231 (attended wind-down ~7h, maintainer-directed 7pm). Next: PR2b-2b (reword ALL .working prose + COMPLETE copy to _private, deferred to FRESH context), then PR2b-3 (delete public .working after no-pointers QA). See session-handoff.md next-actions.
+**Current-task:** 2026-07-28c `/resume` (attended-autonomous). Sweep 129 loop-break `/validate` over #1227..#1231 CONSUMED (dual-family, PASS; loop-break for #1232 PASSES; 3 clear-mechanical fixes applied, N1 routed 3.186). THIS PR = the resume `/validate` close-out (Sweep 129 record + handoff prune + these fixes + lease acquire). NEXT: PR2b-2b (`.working`->`_private` reword all prose + complete tree copy; maintainer-GO confirmed this session), then PR2b-3 (delete public `.working`).
 
 **Worker-dispatches:** fleet spawned on-demand via `tools/exec-dispatch.py` (accounts in `_private/worker-accounts.json`). Concurrency-testing config (roadmap 2026-07-27): fallbacks `jposluns-work-claude` + `jeff-posluns-codex` at max 1; `security-work-claude`, `jeff-mailz-claude`, `jeff-posluns-claude`, `jeff-mailz-codex` at max 4 for aggressive testing. Short model names: claude opus/sonnet/haiku/fable; codex gpt-5.6-terra/sol/luna, gpt-5.5, gpt-5.4, gpt-5.4-mini. Order prompt MUST NOT start with `/`; codex dispatch needs `--model`.
 
