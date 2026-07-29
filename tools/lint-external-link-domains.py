@@ -89,6 +89,9 @@ ALLOW_LIST = {
     # canonical URLs emitted on the per-domain pages by .web/build.py). Not a
     # citation publisher, so the citation-verification spec (§7) is not updated.
     "grclibrary.ai",
+    # Clean Language, the maintainer's AI-writing editorial standard
+    # (jposluns/ai-language); linked from the CHANGELOG milestone entry.
+    "cleanlanguage.ai",
     # Library maintainer documentation
     "claude.ai",
     # Anthropic Claude Code official documentation domain
