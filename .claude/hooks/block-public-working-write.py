@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""PreToolUse hook: block a WRITE to the maintainer's frozen public ``.working/`` tree.
+"""PreToolUse hook: block a WRITE that would RE-CREATE the maintainer's deleted public ``.working/`` tree.
 
 Shipped 2026-07-29 (maintainer-directed, the ``.working`` -> ``_private`` migration writer
 contract). After PR2b-2b copied ``.working/`` into ``grc_library_private/.working/``, the private
 copy is the CANONICAL working-state store (``lint_common.resolve_working*`` resolves there) and
 the public ``grc_library/.working/`` tree was DELETED in PR #1235 (PR2b-3). This hook now guards
-against its RE-CREATION: any WRITE that would re-materialize a path under the public tree is the
+against its RE-CREATION: any WRITE that would re-materialize a path under the
 public tree is the codex-I-4/I-5 wrong-tree/recreate bug: a tool or a bookkeeping step that writes
 public ``.working`` diverges it from the private canonical copy, and a divergence is lost or split
 at the delete. This hook is the mechanical enforcement of the writer contract: for the MAINTAINER

@@ -1841,9 +1841,9 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
 
     def test_block_public_working_write_hook_self_test(self) -> None:
         # The .working writer-contract recreate guard (PR2b-3): blocks a maintainer
-        # WRITE to the frozen public grc_library/.working/ tree while _private/.working/
-        # is the canonical store; allows removals, reads, adopter writes, the escape. Its
-        # 18-case --self-test gates the FP-safety envelope.
+        # WRITE that would RE-CREATE the deleted public grc_library/.working/ tree while
+        # _private/.working/ is the canonical store; allows removals, reads, adopter writes, the
+        # escape. Its --self-test gates the FP-safety envelope.
         result = self._run_selftest(
             [sys.executable,
              str(REPO_ROOT / ".claude" / "hooks" / "block-public-working-write.py"),

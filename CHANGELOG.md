@@ -17,6 +17,8 @@ Alongside the split, the project's core instruction file (CLAUDE.md) begins a ri
 
 ---
 
+**2026-07-29 | 2026.07.732 | PR #1242** - Session close-out: fixed three documentation-precision defects in [`.claude/hooks/block-public-working-write.py`](.claude/hooks/block-public-working-write.py) and its test comment that PR #1241's dual-family `/validate-pr` surfaced (a doubled docstring clause, a stale "frozen" summary line, and a stale test comment). Prose only, no logic (self-test 45/45).
+
 **2026-07-29 | 2026.07.731 | PR #1241** - Migration-tail documentation-precision sweep: closed TODO 3.191 and fixed the Sweep-131 findings by genericizing stale public `.working/` path and pre-#1235 behaviour references in [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) and six tool/hook docstrings to the post-migration private-sibling working-state store (prose only, no logic).
 
 **2026-07-29 | 2026.07.730 | PR #1240** - Roadmap B: added [`tools/handoff-snapshot.py`](tools/handoff-snapshot.py), a read-only aggregator that emits the handoff's mechanical facts (library and README versions, gate/rule/skill/command counts, HEAD sha, session figures) so the wind-down pastes a verified block instead of hand-deriving each number. Self-test wired into the regression suite. Closes TODO 3.136.
