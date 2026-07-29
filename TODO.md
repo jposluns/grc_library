@@ -319,10 +319,7 @@ The `--account` override (#1187) gives cross-account parallelism (N workers on N
 
 ### 3.137 Close-out speed: changed-files quick guard + reconsider async recursion-avoidance (fresh-eyes 2026-07-26; EXECUTE EARLY, M-L, M) `[machinery]`
 
-Two smaller fresh-eyes items. (a) A `--changed-only` fast path for the pre-push guard's fix loop (full 78-gate suite
-once before push; a scoped check for iteration), to stop re-running the ~3-minute full suite after every one-line
-self-fix. (b) Reconsider the async recursion-avoidance rule (the prior PR's QA rows batch into the next PR), which
-serializes PR N on PR N-1's validate-pr worker round-trip; options: run validate-pr synchronously before finalizing,
+Two smaller fresh-eyes items. (a) **DONE (3.137a, PR #1245):** `tools/quick-guard.sh`, a fast local iteration aid that runs the 36 fast-ready gates on only the changed `.md` files (never the push gate; the full 78-gate `pre-push-guard.sh` remains the authority). Shipped with a normalization of 7 gate tools + gates 10/76 to a uniform positional multi-file interface. **(b) REMAINS (= 3.137b):** reconsider the async recursion-avoidance rule. The (b) reconsideration (the prior PR's QA rows batch into the next PR, serializing PR N on PR N-1's validate-pr round-trip); options: run validate-pr synchronously before finalizing,
 or a periodic QA-rows catch-up decoupled from the next feature PR. Structural; a deliberate design look, not a quick
 change. The fewer-larger-PRs guideline (do not fragment one theme into separate PRs) is ADOPTED as a convention.
 

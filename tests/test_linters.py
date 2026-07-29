@@ -9622,5 +9622,50 @@ class TodoNumberPermanenceTests(LinterTestCase):
             import shutil
             shutil.rmtree(root, ignore_errors=True)
 
+class NormalizedPositionalArgsTests(LinterTestCase):
+    """TODO 3.137a: the fast-ready gate tools were normalized to accept a uniform
+    positional multi-file ``.md`` list (the ``tools/quick-guard.sh`` contract).
+    This regression-guards the normalization: each must accept two positional
+    .md paths without an argparse rejection and process them cleanly."""
+
+    NORMALIZED = [
+        "tools/lint-citations.py",
+        "tools/lint-filename-title-alignment.py",
+        "tools/lint-metadata-line-breaks.py",
+        "tools/lint-followup-ageing.py",
+        "tools/lint-matrix-control-codes.py",
+        "tools/lint-document-control-codes.py",
+        "tools/lint-document-iso-annex-a.py",
+        "tools/check-review-cadence.py",
+        "tools/lint-skill-internal-refs.py",
+    ]
+
+    def test_accept_positional_multifile(self):
+        f1 = self.make_fixture("qg_pos_a.md", "# A\n\nBody paragraph.\n")
+        f2 = self.make_fixture("qg_pos_b.md", "# B\n\nBody paragraph.\n")
+        for script in self.NORMALIZED:
+            result = run_linter(script, f1, f2)
+            combined = result.stdout + "\n" + result.stderr
+            self.assertNotIn(
+                "unrecognized arguments", combined,
+                f"{script} rejected positional multi-file args (normalization regressed)",
+            )
+            self.assertEqual(
+                result.returncode, 0,
+                f"{script} did not cleanly accept positional multi-file "
+                f"(rc={result.returncode}).\nstdout:\n{result.stdout}\n"
+                f"stderr:\n{result.stderr}",
+            )
+
+    def test_legacy_paths_flag_still_accepted(self):
+        f1 = self.make_fixture("qg_leg_a.md", "# A\n\nBody.\n")
+        for script in ("tools/lint-citations.py",
+                       "tools/lint-filename-title-alignment.py"):
+            result = run_linter(script, "--paths", f1)
+            self.assertNotIn("unrecognized arguments",
+                             result.stdout + "\n" + result.stderr,
+                             f"{script} dropped the legacy --paths alias")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
