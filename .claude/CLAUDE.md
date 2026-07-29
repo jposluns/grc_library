@@ -306,7 +306,7 @@ drive end-to-end on the maintainer's behalf:
    Pattern and Proposed-improvement entries (if any) surface in chat. The register-row
    commit batches into the next PR per the recursion-avoidance rule.
 5c. Refresh `grc_library_private/.working/session-handoff.md` with the
-   current state snapshot, last-merged list, next-actions queue, and open decisions. At a
+   current state snapshot, last-merged list, next-actions queue, and open decisions. The mechanical facts (versions, gate and rule and skill and command counts, HEAD sha, session figures) come from `python3 tools/handoff-snapshot.py`, a read-only aggregator; paste its verified block rather than hand-deriving the numbers. At a
    **session-closing** handoff PR, also refresh the `## Asserted expectations` section
    (the surfaces this session mechanically verified, scoped to what it touched, plus known
    soft spots NOT asserted clean), the **green-at-`<sha>`** snapshot line, and the
