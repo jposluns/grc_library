@@ -1024,11 +1024,6 @@ Fable F-6 (PR2b-3 verify): `tools/pr-closeout.py`'s `has_findings` detail-file b
 
 Fable F-9 (PR2b-3 verify): `tools/preflight-changelog.py`'s `_added_lines_from_repo` raises an uncaught `CalledProcessError` if the private sibling exists but is not a git repository (or its `git diff` fails). Unreachable for the maintainer's real layout (the private sibling is always a git repo), a robustness edge only. Wrap the diff in a try/except that degrades to the empty added-line set (as the both-absent path already does), and note that `mirror.parents[2]` hardcodes the mirror depth (correct for the current constant, brittle if it moves).
 
-### 3.191 Governance-spec `.working/`-prose precision sweep (post-migration; PR2b-D7 /validate-pr F2, 2026-07-29, S, S) `[machinery]`
-
-`governance/specification-audit-programme.md` gate descriptions still name ~14 specific working-state files by their old public `.working/<file>` paths (session-handoff, validate-sweeps history, overnight-pr, DONE, session-state, deep-assessment register, guardrail-review history, validate-pr history, improvement log, detailed-CHANGELOG mirror), which moved to the maintainer's private working-state store in the PR2b `.working/`-to-private migration. The gates read them via `resolve_working` (private-preferred), so this is documentation-precision, not a functional defect. Genericize each dangling gate-description path (drop the bare public path; name the record generically, no private-repo reference, per the remove-private-repo-refs-where-viable preference), preserving the legitimate exempt-tree / `DEFAULT_EXEMPT_DIRS` mentions and the D5 "formerly" note. Split from PR2b-D7 to protect that PR's verified delta renumber (maintainer-directed 2026-07-29).
----
-
 ## Priority 4 — Adopter experience
 
 **Next item number: 4.32.**

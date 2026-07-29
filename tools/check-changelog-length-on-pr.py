@@ -10,8 +10,7 @@ ceiling.
 WHY THIS GATE EXISTS (maintainer-directed 2026-07-17). The root CHANGELOG.md
 carries one COMPACT one-line summary per change
 (``**YYYY-MM-DD | X.Y.Z | PR #N** - <short summary>``); the full maintainer-grade
-detail lives in the detailed mirror
-(.working/changelog-details/CHANGELOG-detailed.md) and in git history. Root
+detail lives in the maintainer-grade detailed mirror (in the private-sibling working-state store) and in git history. Root
 summaries have drifted back into long, dense, run-on paragraphs THREE times
 (#887-901, #902-914, #919-986), each time reformatted by hand and each time
 recurring, because the readability check that flags the drift
@@ -40,8 +39,7 @@ definitions are kept identical by convention (both measure the same thing, one
 over history advisorily, one over added lines enforcingly). If you change one,
 change the other.
 
-Scope: root CHANGELOG.md only. The detailed mirror
-(.working/changelog-details/CHANGELOG-detailed.md) is maintainer working state,
+Scope: root CHANGELOG.md only. The maintainer-grade detailed mirror is maintainer working state,
 exempt from the corpus gates, and carries the full structured detail, so it is
 not checked here.
 
@@ -184,7 +182,7 @@ def run_git_mode(base: str | None, head: str, word_max: int, sentence_max: int) 
         f"FAIL: {len(offending)} newly-added {CHANGELOG_PATH} entr(y/ies) exceed the "
         f"length ceiling. The root CHANGELOG carries a SHORT one-line summary per "
         f"change; move the detail to the detailed mirror "
-        f"(.working/changelog-details/CHANGELOG-detailed.md) and compress the root "
+        f"(the maintainer-grade detailed mirror) and compress the root "
         f"summary to <= {word_max} words with no sentence over {sentence_max} words:",
         file=sys.stderr,
     )

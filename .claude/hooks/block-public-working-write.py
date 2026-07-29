@@ -4,7 +4,8 @@
 Shipped 2026-07-29 (maintainer-directed, the ``.working`` -> ``_private`` migration writer
 contract). After PR2b-2b copied ``.working/`` into ``grc_library_private/.working/``, the private
 copy is the CANONICAL working-state store (``lint_common.resolve_working*`` resolves there) and
-the public ``grc_library/.working/`` tree is FROZEN, awaiting deletion in PR2b-3. Any WRITE to the
+the public ``grc_library/.working/`` tree was DELETED in PR #1235 (PR2b-3). This hook now guards
+against its RE-CREATION: any WRITE that would re-materialize a path under the public tree is the
 public tree is the codex-I-4/I-5 wrong-tree/recreate bug: a tool or a bookkeeping step that writes
 public ``.working`` diverges it from the private canonical copy, and a divergence is lost or split
 at the delete. This hook is the mechanical enforcement of the writer contract: for the MAINTAINER
@@ -221,11 +222,11 @@ def decide(tool_name: str, tool_input: dict, project_dir: str) -> str | None:
         fp = tool_input.get("file_path") or tool_input.get("notebook_path") or ""
         if fp and _path_under_public_working(project_dir, fp):
             return (
-                f"BLOCKED (public-.working writer-contract guard): {fp} is under the FROZEN public "
-                f"grc_library/.working/ tree. Since PR2b-2b, the canonical working-state store is "
-                f"grc_library_private/.working/ (resolve_working* resolves there); the public tree "
-                f"awaits deletion and must not be written. Write to the private location instead "
-                f"(grc_library_private/.working/<same subpath>), or use resolve_working_for_write."
+                f"BLOCKED (public-.working writer-contract guard): {fp} would RE-CREATE a path under "
+                f"the public grc_library/.working/ tree, which was DELETED in PR #1235 (PR2b-3). The "
+                f"canonical working-state store is the private-sibling working-state tree "
+                f"(resolve_working* resolves there); the public tree must not be re-created. Write to "
+                f"the private location instead, or use resolve_working_for_write."
             )
         return None
     if tool_name == "Bash":
@@ -233,10 +234,10 @@ def decide(tool_name: str, tool_input: dict, project_dir: str) -> str | None:
         if _bash_writes_public_working(cmd, project_dir):
             return (
                 "BLOCKED (public-.working writer-contract guard): this command writes/creates under "
-                "the FROZEN public grc_library/.working/ tree. Since PR2b-2b the canonical store is "
-                "grc_library_private/.working/; the public tree awaits deletion and must not be "
-                "written. Target grc_library_private/.working/ instead. (Removals such as `rm`/`git "
-                "rm` are allowed; add `WorkingWrite: intentional` to the command only for a genuinely "
+                "the public grc_library/.working/ tree, which was DELETED in PR #1235 (PR2b-3); this "
+                "guard now prevents its RE-CREATION. The canonical store is the private-sibling "
+                "working-state tree; target that instead. (Removals such as `rm`/`git rm` are "
+                "allowed; add `WorkingWrite: intentional` to the command only for a genuinely "
                 "authorized public-.working write.)"
             )
         return None
