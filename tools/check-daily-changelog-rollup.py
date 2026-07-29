@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Advisory pre-push reminder (D9): flag past UTC dates whose per-PR CHANGELOG
+"""Advisory pre-push reminder (D8): flag past UTC dates whose per-PR CHANGELOG
 entries have not yet been collapsed into a single daily roll-up.
 
 This is a CI/pre-push advisory check, not a corpus audit gate and not a blocking

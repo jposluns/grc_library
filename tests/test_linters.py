@@ -1674,78 +1674,6 @@ class PackReadmeCobumpOnPrTests(DeltaGateRepoTestCase):
             )
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
-
-
-
-class HandoffSnapshotOnPrTests(DeltaGateRepoTestCase):
-    """tools/check-handoff-snapshot-on-pr.py (delta gate D7).
-
-    Post-.working-move (PR2b-3): the session handoff moved to the private
-    sibling, so D7's in-repo .working/ mode-check reads a now-absent public
-    tree and the gate no-ops with "N/A" exit 0 on any handoff-touching diff.
-    Its firing logic (a Current-truth snapshot whose labelled version tokens
-    must match the live headers; duplicate labelled tokens fail) is retained
-    in the file but unreachable while the public tree is absent; full
-    retirement is a separate follow-up PR. Uses the shared two-commit harness.
-    """
-
-    SCRIPT = "check-handoff-snapshot-on-pr.py"
-    HANDOFF = ".working/session-handoff.md"
-    README = "README.md"
-
-    @staticmethod
-    def _readme(calver, version):
-        return (
-            "# Library\n\n"
-            f"**Library Version:** {calver} (CalVer)\\\n"
-            f"**README Version:** {version} (semantic)\n\n"
-            "Body.\n"
-        )
-
-    @staticmethod
-    def _handoff(line):
-        # Reproduces the real handoff layout (TODO 3.89 / 3.101): a token-less
-        # "Current truth" header line FIRST, then a dedicated, token-bearing
-        # "Version snapshot (D7 validates these tokens)" sub-line. The gate must
-        # SKIP the header (no tokens) and locate the version line; the old marker
-        # "Current truth" located the token-less header and validated nothing.
-        return (
-            "# Session handoff\n\n"
-            "## State snapshot\n\n"
-            "- **Current truth (verify against live files at /resume)**:\n"
-            f"  - **Version snapshot (D7 validates these tokens):** {line}\n"
-        )
-
-    def test_d7_na_post_working_move(self) -> None:
-        # Post-.working-move (PR2b-3 deleted the public .working/ tree): D7's
-        # _working_in_repo() reads the script-adjacent real repo, which no longer has a
-        # .working/ dir, so D7 no-ops with "N/A" exit 0 on ANY handoff-touching diff. A
-        # DELIBERATELY STALE snapshot (which the pre-move firing logic would FAIL) proves
-        # the no-op is unconditional. The firing logic stays in the file; its full
-        # retirement is a separate follow-up PR. This pins the N/A behaviour so a future
-        # reader does not mistake the now-always-green gate for live enforcement.
-        tmp, base_sha, shutil = self._build_repo(
-            {
-                self.README: self._readme("2026.07.1", "1.0.0"),
-                self.HANDOFF: self._handoff("library `2026.07.1`, README `1.0.0`."),
-            },
-            {
-                self.README: self._readme("2026.07.2", "1.0.1"),
-                self.HANDOFF: self._handoff("library `2026.07.1`, README `1.0.0`."),
-            },
-        )
-        try:
-            result = self._run_gate(self.SCRIPT, tmp, base_sha)
-            self.assertEqual(
-                result.returncode, 0,
-                f"D7 must no-op (N/A, exit 0) post-.working-move.\nstdout:\n{result.stdout}"
-                f"\nstderr:\n{result.stderr}",
-            )
-            self.assertIn("N/A", result.stdout)
-        finally:
-            shutil.rmtree(tmp, ignore_errors=True)
-
-
 class VerificationGuardrailSelfTests(unittest.TestCase):
     """The RM-10 enforcers' own self-tests, wired into the suite.
 
@@ -8335,7 +8263,6 @@ class ResolveSiblingTests(unittest.TestCase):
                 lc.REPO_ROOT = orig
 
 
-
 class WorkingResolveNoOpTests(unittest.TestCase):
     """The six .working-reading gates rewired in PR #1227 (50/59/78/60/43/51)
     must NO-OP with exit 0 and an honest skip line when resolve_working returns
@@ -9117,7 +9044,7 @@ class PreflightChangelogMirrorTests(unittest.TestCase):
 
 class AuditGateParityExclusionGuardTests(unittest.TestCase):
     """tools/lint-audit-gate-parity.py (gate 35) additive TODO-3.99 guards over
-    the exclusion allow-lists and the D1-D9 delta gates. The guards read the real
+    the exclusion allow-lists and the D1-D8 delta gates. The guards read the real
     repo surfaces via an explicit ``root`` and take ``spec_scripts`` as a
     parameter, so the tests run against the live config without monkeypatching a
     module global (the Global-state isolation convention)."""

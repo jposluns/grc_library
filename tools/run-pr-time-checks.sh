@@ -9,8 +9,8 @@
 #   1. The PR-only delta gates (D1 CHANGELOG-on-PR, D2 per-PR
 #      version-bump, D3 CHANGELOG-dash-on-PR, D4 per-PR Version-Date
 #      co-bump, D5 backlog-rotation-on-PR, D6 pack-README
-#      version-history co-bump, D7 handoff-snapshot freshness,
-#      D8 CHANGELOG-length-on-PR, D9 daily-changelog-rollup reminder (advisory)). These
+#      version-history co-bump,
+#      D7 CHANGELOG-length-on-PR, D8 daily-changelog-rollup reminder (advisory)). These
 #      compare the PR head to its merge base, so their inputs are not
 #      available in tools/run_all_audits.sh; they run
 #      only here and in quality.yml.
@@ -115,26 +115,19 @@ run_check "D5 Backlog-rotation-on-PR check" \
 run_check "D6 Pack-README version-history co-bump check" \
     python3 tools/check-pack-readme-cobump-on-pr.py "${BASE_REF}" "${HEAD_REF}"
 
-# Delta gate D7: when a PR touches the session handoff, require the
-# Current-truth snapshot line's labelled version tokens to match the
-# live headers at the PR head (the append-not-reconcile class,
-# mechanized at version-token width; duplicate labelled tokens fail).
-run_check "D7 Handoff-snapshot freshness check" \
-    python3 tools/check-handoff-snapshot-on-pr.py "${BASE_REF}" "${HEAD_REF}"
-
-# Delta gate D8: newly-added root CHANGELOG.md entries must stay within
+# Delta gate D7: newly-added root CHANGELOG.md entries must stay within
 # the compact-form length ceiling (<= 100 words, no sentence over 45
 # words), so root summaries cannot drift back into long paragraphs
 # (maintainer-directed 2026-07-17; history is exempt, new entries are not).
-run_check "D8 CHANGELOG length-on-PR check" \
+run_check "D7 CHANGELOG length-on-PR check" \
     python3 tools/check-changelog-length-on-pr.py "${BASE_REF}" "${HEAD_REF}"
 
-# Delta gate D9 (advisory): scan CHANGELOG.md for any past UTC date that still
+# Delta gate D8 (advisory): scan CHANGELOG.md for any past UTC date that still
 # carries more than one per-PR entry (never collapsed into its daily roll-up).
 # WARNS only (exit 0) so the orchestrator does not skip the daily summarization;
 # the next PR should carry the roll-up and prune the matching mirror rows. Reads
 # working-tree state, so like the corpus gates below it needs no base ref.
-run_check "D9 Daily-changelog-rollup reminder" \
+run_check "D8 Daily-changelog-rollup reminder" \
     python3 tools/check-daily-changelog-rollup.py
 
 # Gate 45: TODO staleness audit. Behaves like a delta gate because its

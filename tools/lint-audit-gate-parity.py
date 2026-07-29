@@ -20,14 +20,14 @@ section 3 principle 5 is broken. This linter detects that drift
 deterministically.
 
 In addition to the four-surface row parity, this gate ADDITIVELY guards the
-three exclusion allow-lists and the PR-only D1-D9 delta gates (TODO 3.99): each
+three exclusion allow-lists and the PR-only D1-D8 delta gates (TODO 3.99): each
 exclusion member is cross-checked against a positive signal that it is genuinely
 not a corpus gate (a setup step invokes no gate script; a delta-gate step's
 script is not a §6-inventory script; a non-gate pre-commit hook carries no
 `--check`), so a real gate mistakenly added to an exclusion set fails rather than
 being masked; and each D-numbered delta gate in the PR-time runner is confirmed
 to map to a workflow delta-gate step of the same script, with the D-numbers
-contiguous D1..D9. See ``verify_exclusion_and_delta_guards``.
+contiguous D1..D8. See ``verify_exclusion_and_delta_guards``.
 
 Comparison: the spec inventory table is the canonical source of truth.
 The other three surfaces are validated against it. For each row of the
@@ -71,7 +71,7 @@ SPEC_PATH = "governance/specification-audit-programme.md"
 WORKFLOW_PATH = ".github/workflows/quality.yml"
 RUNNER_PATH = "tools/run_all_audits.sh"
 PRECOMMIT_PATH = ".pre-commit-config.yaml"
-# The PR-time runner where the D1-D9 delta gates are actually invoked (the
+# The PR-time runner where the D1-D8 delta gates are actually invoked (the
 # positive-signal surface for the delta-gate parity guard, TODO 3.99).
 PRTIME_PATH = "tools/run-pr-time-checks.sh"
 
@@ -91,7 +91,6 @@ WORKFLOW_DELTA_GATE_STEPS = {
     "Per-PR Version-Date co-bump check",
     "Backlog-rotation-on-PR check",
     "Pack-README version-history co-bump check",
-    "Handoff-snapshot freshness check",
     "CHANGELOG length-on-PR check",
     "Detect collection candidates on pack PRs (informational)",
     "Daily-changelog-rollup reminder",
@@ -287,7 +286,7 @@ def parse_precommit(path: Path) -> list[tuple[int, str, str]]:
     return entries
 
 
-# --- Additive hardening of the exclusion allow-lists + the D1-D9 delta gates
+# --- Additive hardening of the exclusion allow-lists + the D1-D8 delta gates
 # (TODO 3.99). These guards ADD to the parity audit; they do not weaken the
 # name/script row-parity above. Gap (i): the three exclusion allow-lists are
 # themselves unguarded, so a real §6 gate mistakenly added to an exclusion set
@@ -302,10 +301,10 @@ def parse_precommit(path: Path) -> list[tuple[int, str, str]]:
 #     hook runs `build-taxonomy.py`/`build-portal.py` in write mode; the §6 gates
 #     run the SAME scripts WITH `--check`, so the `--check` flag is the
 #     discriminator, not the script name.)
-# Gap (ii): the 9 PR-only delta gates (D1-D9) live only in the workflow with no
+# Gap (ii): the 8 PR-only delta gates (D1-D8) live only in the workflow with no
 # cross-surface parity. The delta-gate guard confirms each D-numbered gate in the
 # PR-time runner (PRTIME_PATH) maps to a WORKFLOW_DELTA_GATE_STEPS step of the
-# same script, and that the D-numbers are contiguous D1..D9.
+# same script, and that the D-numbers are contiguous D1..D8.
 WF_NAME_RE = re.compile(r"^\s*-\s*name:\s*(.+?)\s*$")
 PC_NAME_RE = re.compile(r"^\s*name:\s*(.+?)\s*$")
 PC_ENTRY_RE = re.compile(r"^\s*entry:\s*(.+?)\s*$")
@@ -331,7 +330,7 @@ def _wf_step_script(wf_lines: list[str], name: str) -> str | None:
 def verify_exclusion_and_delta_guards(
     root: Path, spec_scripts: set[str]
 ) -> list[str]:
-    """Additive TODO-3.99 guards over the exclusion allow-lists and the D1-D9
+    """Additive TODO-3.99 guards over the exclusion allow-lists and the D1-D8
     delta gates. Returns a (possibly empty) list of findings. Never mutates the
     row-parity result; the caller appends these to its findings."""
     findings: list[str] = []
@@ -401,7 +400,7 @@ def verify_exclusion_and_delta_guards(
                 f"verification gate, not a regeneration hook."
             )
 
-    # (ii) D1-D9 delta-gate parity across the workflow and the PR-time runner.
+    # (ii) D1-D8 delta-gate parity across the workflow and the PR-time runner.
     dmap: dict[int, tuple[str, str | None]] = {}
     for i, line in enumerate(prtime_lines):
         m = RUN_CHECK_DN_RE.match(line)
@@ -417,10 +416,10 @@ def verify_exclusion_and_delta_guards(
         dmap[num] = (nm, scr)
     if prtime_lines:  # only if the runner is present (portable-clone tolerant)
         nums = sorted(dmap)
-        if nums != list(range(1, 10)):
+        if nums != list(range(1, 9)):
             findings.append(
                 f"delta-gate guard: D-numbers in {PRTIME_PATH} are {nums}, not the "
-                f"contiguous D1..D9 set (a delta gate was added, removed, or "
+                f"contiguous D1..D8 set (a delta gate was added, removed, or "
                 f"misnumbered without updating the parity surfaces)."
             )
         for num, (nm, scr) in sorted(dmap.items()):
@@ -546,7 +545,7 @@ def main(argv: list[str]) -> int:
             )
 
     # Additive TODO-3.99 guards: cross-check the exclusion allow-lists against a
-    # positive signal, and check the D1-D9 delta gates' cross-surface parity.
+    # positive signal, and check the D1-D8 delta gates' cross-surface parity.
     spec_scripts = {script for (_, _, _, script) in spec}
     findings.extend(verify_exclusion_and_delta_guards(REPO_ROOT, spec_scripts))
 

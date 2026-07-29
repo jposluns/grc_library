@@ -35,12 +35,12 @@ NOT verified by CI: its source (the full per-PR record) moves to
 private sibling (the sibling-independence invariant, ``check-portability.sh``).
 It is a maintainer-side generator run when the tiering is refreshed.
 
-D8 INTERACTION. The PR-time length gate D8 (``check-changelog-length-on-pr.py``)
+D7 INTERACTION. The PR-time length gate D7 (``check-changelog-length-on-pr.py``)
 and its advisory sibling (``audit-changelog-entry-length.py``) match ONLY the
 per-PR compact header ``**YYYY-MM-DD | X.Y.Z | PR #N** - ...``; a daily
 (``**YYYY-MM-DD (PRs ...)**``), weekly (``**Week of ...**``), or monthly
 (``**YYYY-MM ...**``) paragraph header does NOT match, so those tiers are out of
-D8's scope with no gate change. Only the CURRENT-DAY per-PR tier is length-gated,
+D7's scope with no gate change. Only the CURRENT-DAY per-PR tier is length-gated,
 which is the intended behaviour.
 
 Modes (mutually exclusive; default --dry-run):
