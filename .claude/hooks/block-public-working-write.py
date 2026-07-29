@@ -12,7 +12,7 @@ at the delete. This hook is the mechanical enforcement of the writer contract: f
 (with ``_private`` present) a write to public ``.working`` is refused; the write belongs in
 ``_private``.
 
-Fires on Edit, Write, and Bash. BLOCKS (exit 2) only when ALL hold:
+Fires on Edit, Write, MultiEdit, NotebookEdit, and Bash. BLOCKS (exit 2) only when ALL hold:
   (a) operator is the MAINTAINER (origin remote is ``jposluns/grc_library``), AND
   (b) ``grc_library_private/.working/`` EXISTS (the private canonical store is in place), AND
   (c) the operation WRITES/CREATES a path under ``<repo>/.working/`` (an Edit/Write ``file_path``,
@@ -25,8 +25,9 @@ Removals (``rm``, ``git rm``, ``git clean``) are ALLOWED (the PR2b-3 delete is a
 ALLOWED.
 
 Adopter (no ``_private``): ``.working/`` is the adopter's OWN live tree -> ALLOW (never block).
-Fail-open on any uncertainty: a false block bricks the session, a false allow only misses the guard
-(the delete-time freeze+compare still covers it). A hook bug must never be worse than the bug it
+Fail-open on any uncertainty: a false block bricks the session, a false allow only misses this guard for
+that one write (the canonical working-state store is the private sibling, which a public-tree
+write cannot corrupt). A hook bug must never be worse than the bug it
 prevents. Genuinely-dynamic write forms (a shell variable, ``xargs``, a subshell ``cd``) are not
 statically resolvable and are accepted fail-open by design.
 
@@ -50,8 +51,8 @@ ESCAPE = "WorkingWrite: intentional"
 
 # Bash WRITE-shape detection. A lexical scan cannot resolve full shell semantics, so this is a
 # BEST-EFFORT, FAIL-OPEN, FALSE-POSITIVE-AVERSE detector (a false BLOCK bricks the session and
-# drives escape-hatch overuse, worse than a missed write the delete-time freeze+compare and the
-# tools' own require-private resolvers still catch). We TOKENIZE with shlex so quotes are respected
+# drives escape-hatch overuse, worse than a missed write the tools' own require-private resolvers
+# still catch). We TOKENIZE with shlex so quotes are respected
 # (a `.working` path inside a commit message or a grep pattern is an ARGUMENT, never a write
 # target), then read write TARGETS from redirects and a small write-verb set and resolve each
 # against the repo. Statically-resolvable expansions ($PWD, $(pwd), $HOME, leading ~) are expanded;
