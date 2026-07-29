@@ -122,7 +122,13 @@ def iter_text_files(root: Path) -> list[Path]:
     return out
 
 
-def classify_link(target: str, source: Path, root: Path) -> tuple[str, str]:
+def classify_link(
+    target: str,
+    source: Path,
+    root: Path,
+    *,
+    physical_source: Path | None = None,
+) -> tuple[str, str]:
     """Classify a single (non-external, non-cross-repo) markdown link target.
 
     Returns ``(bucket, detail)`` where bucket is ``in-repo-exists``,
@@ -131,15 +137,35 @@ def classify_link(target: str, source: Path, root: Path) -> tuple[str, str]:
     file's directory, then require the result to be inside ``root`` and to exist.
     A pure-anchor link (no path) is treated as in-repo-exists (it targets the
     source file itself, which exists).
+
+    ``source``/``root`` give the LOGICAL location (used to decide whether the
+    target stays inside ``.working/`` or leaves it into the public corpus).
+    ``physical_source`` is the source file's actual on-disk location when it
+    differs (the post-.working-move case: a working-state file read from the
+    private sibling); a target that stays inside logical ``.working/`` then
+    resolves for existence beside the PHYSICAL source, so a private-to-private
+    working-state link is not misread as missing against a deleted public tree.
     """
     target_no_anchor = target.split("#", 1)[0]
     if not target_no_anchor:
         return "in-repo-exists", "(pure anchor)"
-    resolved = (source.parent / target_no_anchor).resolve()
+    public_root = root.resolve()
+    logical_target = (source.parent / target_no_anchor).resolve()
     try:
-        resolved.relative_to(root)
+        logical_target.relative_to(public_root)
     except ValueError:
         return "ambiguous", f"{target} (resolves outside repo)"
+    try:
+        logical_target.relative_to(public_root / ".working")
+    except ValueError:
+        # The target left logical .working but stayed in the public repo.
+        resolved = logical_target
+    else:
+        # The target stayed inside logical .working: resolve beside the physical
+        # source, which may be in the private sibling.
+        resolved = (
+            (physical_source or source).parent / target_no_anchor
+        ).resolve()
     if resolved.exists():
         return "in-repo-exists", target
     return "in-repo-missing", target
@@ -206,10 +232,14 @@ def audit_tree(
     # the private repo so `rel_parts` still contains `.working`, matching residual-scan's
     # `_rel_for`, so a `.working/` file keeps its intended-minimal cross-repo classification).
     rel_base = rel_root or root
-    # link_base resolves markdown links; for the post-move private walk it is the
-    # PUBLIC repo root, and the source is re-homed to its in-repo-equivalent path,
-    # because a `.working/` file's links are authored relative to its in-repo home
-    # (a `../CHANGELOG.md` points at the public corpus, not the private sibling).
+    # link_base is the LOGICAL public source root: classify_link uses it to decide
+    # whether a target stays inside `.working/` or leaves it. A target that stays
+    # inside `.working/` resolves for existence beside the PHYSICAL source (passed
+    # separately), which may be the private sibling; a target that leaves `.working/`
+    # resolves against the public root. So a `.working`->`.working` link (e.g.
+    # `../validate-sweeps/history.md`) follows the private tree and is not misread as
+    # missing once the public `.working/` is deleted, while a `../CHANGELOG.md` still
+    # resolves against the public corpus.
     link_base = link_root or root
     for path in iter_text_files(root):
         text = read_text_safe(path)
@@ -246,7 +276,8 @@ def audit_tree(
                         continue
                     if CROSS_REPO_TOKEN.search(target):
                         continue  # already counted as a cross-repo pointer
-                    bucket, detail = classify_link(target, link_base / rel, link_base)
+                    bucket, detail = classify_link(
+                        target, link_base / rel, link_base, physical_source=path)
                     findings.append((rel, lineno, bucket, "", detail))
                     counts[bucket] += 1
     return findings, counts

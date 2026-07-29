@@ -11,11 +11,12 @@ catch. That is the #466 failure mode (it built gate 56 "closing TODO §4.5 S4"
 but omitted the rotation; the omission surfaced only in the post-merge sweep).
 
 The rule (change-tracking PR-finalization protocol): when a PR closes a TODO
-item, the item is deleted from `TODO.md` and an entry is added to
-`.working/DONE.md` in the SAME diff. This gate enforces that mechanically at PR
-time: if any line ADDED to the CHANGELOG (root or detailed mirror) asserts a
-TODO-item closure, the PR's changed-file set must include BOTH `TODO.md` and
-`.working/DONE.md`.
+item, the item is deleted from `TODO.md` and an entry is added to the DONE ledger in
+the SAME diff. As of PR #1235 (2026-07-29, the working-state move to the private
+sibling), the DONE ledger moved to the private-sibling working-state store (cross-repo,
+outside the public diff), so this gate enforces ONLY the public `TODO.md` rotation
+surface: if any line ADDED to the root CHANGELOG asserts a TODO-item closure, the PR's
+changed-file set must include `TODO.md`.
 
 Trigger (broadened 2026-06-30 to three forms, 2026-07-02 to six,
 2026-07-03 to seven, and 2026-07-06 to eight, each chosen to stay
@@ -81,9 +82,9 @@ Usage:
     python3 tools/check-todo-rotation-on-pr.py origin/main HEAD
 
 Exit codes:
-    0 : no closure assertion in the added CHANGELOG lines, OR both TODO.md and
-        DONE.md are in the diff, OR an opt-out trailer is present, OR empty diff.
-    1 : a closure is asserted but TODO.md and/or .working/DONE.md is missing.
+    0 : no closure assertion in the added CHANGELOG lines, OR TODO.md is in the
+        diff, OR an opt-out trailer is present, OR empty diff.
+    1 : a closure is asserted but TODO.md is missing from the diff.
     2 : invocation or environment error (cannot determine base/head, git failure).
 """
 
@@ -96,17 +97,14 @@ import subprocess
 from pathlib import Path
 import sys
 
-CHANGELOG_PATHS = ("CHANGELOG.md", ".working/changelog-details/CHANGELOG-detailed.md")
+CHANGELOG_PATHS = ("CHANGELOG.md",)
 TODO_PATH = "TODO.md"
-DONE_PATH = ".working/DONE.md"
 
-def _working_in_repo() -> bool:
-    """True while the `.working/` tree still lives in THIS repo. Once the
-    `.working/` -> private-sibling migration moves it out, the in-repo dir is gone
-    and the `.working/` half of this PR-time check becomes a cross-repo concern
-    (updated in the private sibling, invisible to the public diff), so the gate
-    requires only its public half. Absent `.working/` (adopter fork) reads the same."""
-    return (Path(__file__).resolve().parent.parent / ".working").is_dir()
+# The DONE ledger (.working/DONE.md) moved to the private-sibling working-state store in
+# the .working/ -> _private migration, so it is a cross-repo surface invisible to a public
+# PR diff. This gate therefore requires only the PUBLIC rotation surface: the TODO.md edit.
+# (The closure-assertion scan reads only the root CHANGELOG.md; the detailed mirror is
+# likewise private now.)
 
 
 # Closure-assertion phrasings, broadened 2026-06-30 (the rotation-prevention
@@ -257,7 +255,7 @@ def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
         description=(
             "Check that a PR asserting a TODO-item closure also rotates the "
-            "item (touches TODO.md and .working/DONE.md)."
+            "item (touches TODO.md)."
         ),
     )
     parser.add_argument("base", nargs="?", help="Base ref (default: origin/$GITHUB_BASE_REF in CI).")
@@ -303,18 +301,12 @@ def main(argv: list[str]) -> int:
         print("OK: no TODO-item closure asserted in the added CHANGELOG lines.")
         return 0
 
-    done_required = _working_in_repo()
-    if TODO_PATH in changed and (DONE_PATH in changed or not done_required):
-        if DONE_PATH in changed:
-            print(
-                f"OK: CHANGELOG asserts a TODO-item closure and the diff rotates it "
-                f"(both {TODO_PATH} and {DONE_PATH} are in the diff)."
-            )
-        else:
-            print(
-                f"OK: CHANGELOG asserts a TODO-item closure and {TODO_PATH} is in the "
-                f"diff; {DONE_PATH} now lives in the private sibling (cross-repo)."
-            )
+    if TODO_PATH in changed:
+        print(
+            f"OK: CHANGELOG asserts a TODO-item closure and {TODO_PATH} is in the diff; "
+            f"the DONE ledger now lives in the private sibling (cross-repo, not in the "
+            f"public diff)."
+        )
         return 0
 
     # Closure asserted but a rotation surface is missing: check the opt-out trailer.
@@ -332,19 +324,19 @@ def main(argv: list[str]) -> int:
             )
             return 0
 
-    missing = [p for p in (TODO_PATH, DONE_PATH) if p not in changed]
     print(
         f"FAIL: an added CHANGELOG line asserts a TODO-item closure but the diff "
-        f"does not rotate it: {', '.join(missing)} not in the diff.",
+        f"does not rotate it: {TODO_PATH} not in the diff.",
         file=sys.stderr,
     )
     print(f"  asserting line: {closure_line.strip()[:160]}", file=sys.stderr)
     print("", file=sys.stderr)
     print(
-        "When a PR closes a TODO item, delete it from TODO.md and add a row to "
-        ".working/DONE.md in the same diff (the change-tracking rotation discipline). "
-        "If the CHANGELOG line merely narrates a past closure, add a "
-        "'TodoRotation: <reason>' trailer to any commit to opt out.",
+        "When a PR closes a TODO item, delete it from TODO.md in the same diff (the "
+        "change-tracking rotation discipline; the paired DONE ledger row now lands in the "
+        "private-sibling working-state store, cross-repo and not in the public diff). If "
+        "the CHANGELOG line merely narrates a past closure, add a 'TodoRotation: <reason>' "
+        "trailer to any commit to opt out.",
         file=sys.stderr,
     )
     return 1

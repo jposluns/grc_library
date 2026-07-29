@@ -2,11 +2,11 @@
 
 **Document Title:** Project Governance Separation Specification\
 **Document Type:** Specification\
-**Version:** 1.0.7\
-**Date:** 2026-07-28\
+**Version:** 1.0.8\
+**Date:** 2026-07-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`governance/specification-audit-programme.md`](specification-audit-programme.md), [`governance/README.md`](README.md), `.working/README.md`\
+**Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`governance/specification-audit-programme.md`](specification-audit-programme.md), [`governance/README.md`](README.md), the private-sibling working-state store `grc_library_private/.working/`\
 **Classification:** Public\
 **Category:** Core Governance\
 **Review Frequency:** Annual and upon material change to the repository's directory model or the corpus-versus-project boundary\
@@ -41,7 +41,7 @@ The split exists because `governance/` is meant to hold governance *documents an
 ### 2.2 Out of scope
 
 - The `dev-security/claude-rules/` pack and its `.claude/` deployment. That pack is AI-assistant discipline distributed as a reusable product; it is neither corpus governance (it is not GRC content) nor project governance (it is not operational record). It keeps its own location and conventions.
-- The `.working/` directory, which holds frozen-state archives (per-run records from `/validate`, `/fitness`, and similar). `.working/` is unmaintained-after-write and exempt from corpus gates; `.project-governance/` is maintained and audited (§6.3). The two are distinct and neither subsumes the other.
+- The maintainer working-state tree, which holds frozen-state archives (per-run records from `/validate`, `/fitness`, and similar). Formerly the in-repo `.working/` directory, it moved to the private sibling `grc_library_private/.working/` in the working-state migration; it is unmaintained-after-write and exempt from corpus gates (and now outside the public repository entirely), whereas `.project-governance/` is maintained and audited (§6.3). The two are distinct and neither subsumes the other.
 - The substance of any classified artefact. This specification moves artefacts and re-points citations; it does not rewrite their content.
 
 ---

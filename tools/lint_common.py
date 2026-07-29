@@ -56,12 +56,12 @@ REPO_ROOT: Path = Path(__file__).resolve().parent.parent
 # dev-security/claude-rules/ pack); like that pack directory, its
 # contents are AI-context artefacts, not governed corpus documents,
 # so the corpus linters skip it.
-# ``.working`` holds maintainer working state: per-run records from
-# /validate, /fitness, and other maintainer-invoked activities. The
-# contents are frozen-state archives by design (cross-references
-# accurate as-of write-time, not maintained against subsequent corpus
-# changes), so the corpus linters skip them. See ``.working/README.md``
-# for the convention.
+# ``.working`` held maintainer working state (per-run records from
+# /validate, /fitness, and other maintainer-invoked activities): frozen-state
+# archives the corpus linters skip. It has moved out of this public repository
+# into the private sibling ``grc_library_private/.working/``; the exempt-dir
+# entry is retained so an in-repo ``.working`` (a maintainer mid-migration state,
+# or an adopter's own) is still skipped if present.
 DEFAULT_EXEMPT_DIRS: frozenset[str] = frozenset(
     {
         ".git",
@@ -225,6 +225,36 @@ def resolve_working_for_write(relpath: str, *, repo_root: Path | None = None) ->
     if private.is_dir():
         return private / WORKING_SUBDIR / relpath
     return root / WORKING_SUBDIR / relpath
+
+
+def resolve_working_for_write_private(relpath: str, *, repo_root: Path | None = None) -> Path | None:
+    """A private-REQUIRED `.working/`-tree write destination for MAINTAINER-only records.
+
+    The writer-contract counterpart to :func:`resolve_working_for_write` for records that
+    must NEVER be left in a public / adopter checkout (a worker-prompt log, the
+    reference-audit state): the account-identifier and operational content the migration
+    exists to keep private. Resolution:
+      1. the already-resolved existing file (:func:`resolve_working`), if present; else
+      2. ``grc_library_private/.working/<relpath>`` when the private sibling repo is present
+         (the maintainer's canonical store); else
+      3. ``None`` -- so the caller REFUSES the write rather than recreating a public
+         ``<repo>/.working/`` tree.
+
+    This is the codex-I-4/I-5 fix: post-PR2b-3 (public ``.working/`` deleted), a maintainer
+    tool in a clone WITHOUT ``_private`` would otherwise fall back to the public path and
+    silently recreate the frozen public tree. Returning ``None`` makes the caller fail
+    loud instead. Adopter/public tools that legitimately keep an in-repo ``.working/``
+    use :func:`resolve_working_for_write` (never-None) rather than this helper.
+    The caller creates the parent directory as needed.
+    """
+    root = (repo_root or REPO_ROOT).resolve()
+    existing = resolve_working(relpath, repo_root=root)
+    if existing is not None:
+        return existing
+    private = root.parent / _SIBLING_REPO_DIRS["private"]
+    if private.is_dir():
+        return private / WORKING_SUBDIR / relpath
+    return None
 
 
 # Canonical list of audited-not-exempt top-level directories: the

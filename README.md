@@ -4,8 +4,8 @@
 **Classification:** Public\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
-**Library Version:** 2026.07.723 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.10.84 (semantic per-document version for this file)
+**Library Version:** 2026.07.725 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.10.87 (semantic per-document version for this file)
 
 ---
 
@@ -160,9 +160,10 @@ Repository infrastructure directories (not used for governance artefacts):
 /.project-governance  The project's OWN governance artefacts (the citation-verification
                 cluster), separated from the reusable corpus so an adopter does not consume
                 them as their own governance (see .project-governance/README.md).
-/.working       Maintainer working state (session handoff, QA-history registers, detailed
-                CHANGELOG mirror, improvement log): audit-trail and process records, exempt
-                from the corpus audit gates. Adopters may delete it (see .working/README.md).
+(private)       Maintainer working state (session handoff, QA-history registers, detailed
+                CHANGELOG mirror, improvement log): audit-trail and process records, moved out
+                of this public repository into the private sibling grc_library_private/.working/;
+                not part of the corpus and not required to use the library or run the gates.
 /TODO.md        Forward-looking maintainer backlog. Not a governance artefact; adopters may delete.
 /RESUME.md      Maintainer session-resume pointer. Internal; adopters may delete.
 ```
