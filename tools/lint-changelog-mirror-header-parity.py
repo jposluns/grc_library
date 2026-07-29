@@ -60,7 +60,7 @@ FLOOR, not the comparison boundary: the effective cutoff is
 ``max(CUTOFF_PR, oldest PR still present in the in-repo detailed
 mirror)`` (see ``effective_cutoff``). Under the current-week model the
 mirror keeps only the current week's entries in-repo and sweeps
-completed weeks to the ``grc_library_scratch`` archive, while the root
+completed weeks to the ``grc_library_private`` archive, while the root
 ``CHANGELOG.md`` keeps every entry; a swept (now scratch-only) entry is
 therefore correctly out of parity scope rather than flagged as missing.
 Before any sweep the mirror's oldest PR is far below ``CUTOFF_PR`` so the

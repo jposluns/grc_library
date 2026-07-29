@@ -181,8 +181,8 @@ def run_git_mode(base: str | None, head: str, word_max: int, sentence_max: int) 
     print(
         f"FAIL: {len(offending)} newly-added {CHANGELOG_PATH} entr(y/ies) exceed the "
         f"length ceiling. The root CHANGELOG carries a SHORT one-line summary per "
-        f"change; move the detail to the detailed mirror "
-        f"(the maintainer-grade detailed mirror) and compress the root "
+        f"change; move the detail to the maintainer-grade detailed mirror "
+        f"and compress the root "
         f"summary to <= {word_max} words with no sentence over {sentence_max} words:",
         file=sys.stderr,
     )
