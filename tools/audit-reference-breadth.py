@@ -62,14 +62,14 @@ import signal
 import subprocess
 import sys
 
-from lint_common import resolve_working_for_write
+from lint_common import resolve_working, resolve_working_for_write_private
 from dataclasses import dataclass, field
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_REF_BASE = REPO_ROOT.parent / "grc_library_ref"
 DEFAULT_ALIASES = Path(__file__).resolve().parent / "reference-breadth-aliases.json"
-DEFAULT_STATE = resolve_working_for_write("reference-audit/doc-state.md", repo_root=REPO_ROOT)
+STATE_REL = "reference-audit/doc-state.md"
 
 AUTHORITATIVE_BUCKETS = ("standards", "frameworks", "legislation", "programs")
 TIER_BY_BUCKET = {
@@ -283,9 +283,9 @@ def doc_topics(rel: str, text: str) -> set[str]:
     return topics
 
 
-def load_state(path: Path) -> dict[str, str]:
+def load_state(path: Path | None) -> dict[str, str]:
     state: dict[str, str] = {}
-    if not path.is_file():
+    if path is None or not path.is_file():
         return state
     for ln in path.read_text(encoding="utf-8", errors="replace").splitlines():
         m = re.match(r"^\|\s*`?([^|`]+?)`?\s*\|\s*([0-9a-f]{7,40})\s*\|", ln)
@@ -304,9 +304,10 @@ def write_state(path: Path, state: dict[str, str], ref_head: str,
         "",
         "Maps each corpus document to the grc_library_ref commit at its last",
         "per-document reference audit (the /reference-audit --docs mode's delta",
-        "anchor). Live surface: non-dated, stays in-repo under the current-week",
-        "sweep model. Rewritten by tools/audit-reference-breadth.py --update-state;",
-        "commit the refresh with the touching PR's QA batch.",
+        "anchor). Live surface: non-dated, retained in the private sibling at",
+        "`grc_library_private/.working/reference-audit/doc-state.md` under the current-week",
+        "sweep model. Rewritten by `tools/audit-reference-breadth.py --update-state`; include",
+        "the private-sibling refresh in the touching PR's QA batch.",
         "",
         "| Document | Ref SHA at last audit | Updated (UTC) |",
         "| --- | --- | --- |",
@@ -338,7 +339,10 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--ref-base", type=Path, default=DEFAULT_REF_BASE)
     ap.add_argument("--aliases", type=Path, default=DEFAULT_ALIASES)
-    ap.add_argument("--state", type=Path, default=DEFAULT_STATE)
+    ap.add_argument("--state", type=Path, default=None,
+                    help="Explicit state path for intentional adopter-local use. Without it, "
+                         "reads use resolved working state and --update-state requires the "
+                         "private sibling.")
     ap.add_argument("--docs", nargs="+", default=None,
                     help="Per-touch mode: corpus documents to assess.")
     ap.add_argument("--update-state", action="store_true",
@@ -350,6 +354,29 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--include-publications", action="store_true")
     ap.add_argument("--max-candidates-per-doc", type=int, default=10)
     args = ap.parse_args(argv)
+
+    # Working-state (.working/) resolution (post-.working-move): reads resolve via the read
+    # resolver (private sibling then in-repo, None when neither holds it -> empty history);
+    # an implicit maintainer --update-state REQUIRES the private sibling and refuses rather
+    # than recreate a public .working/ tree. An explicit --state is a deliberate adopter-local
+    # override that keeps the caller's path (codex I-5).
+    if args.state is None:
+        args.state = resolve_working(STATE_REL, repo_root=REPO_ROOT)
+        if args.update_state:
+            args.state = resolve_working_for_write_private(STATE_REL, repo_root=REPO_ROOT)
+            private_root = (REPO_ROOT.resolve().parent / "grc_library_private").resolve()
+            is_private = False
+            if args.state is not None and private_root.is_dir():
+                try:
+                    args.state.resolve().relative_to(private_root)
+                    is_private = True
+                except (ValueError, OSError):
+                    is_private = False
+            if not is_private:
+                print("ERROR: --update-state requires private maintainer working state (the "
+                      "grc_library_private sibling); pass an explicit --state only for "
+                      "intentional adopter-local state.", file=sys.stderr)
+                return 2
 
     # Adopter graceful-degradation (TODO 3.91): with no reachable reference base (the
     # DEFAULT ref-base, not an explicit --ref-base override, and no grc_library_ref

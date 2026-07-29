@@ -76,12 +76,12 @@ mirror content alone, "the oldest kept entry was dropped" is
 indistinguishable from "that entry was legitimately swept to scratch",
 so no purely-content check can tell them apart. Parity is therefore
 asserted only for the entries the in-repo mirror still holds; historical
-parity moves to git history and to the sweep tool's own guarantees. The
-compensating controls: the sweep tool
-(``tools/sweep-working-records-to-private.py``) partitions
-deterministically by entry DATE and re-parses the pruned mirror to
-confirm its entry set is EXACTLY the kept current-week set before it
-finishes, and git history retains every entry regardless.
+parity moves to git history and to the private-sibling archive. The
+compensating controls: the detailed mirror now lives in the private
+sibling (``grc_library_private/.working/``), its completed weeks are
+archived within that private repository (``grc_library_private/changelog-archive/``),
+and git history retains every entry regardless. (The former in-public-repo
+sweep script was retired with the working-state move to the private sibling.)
 
 The ordering assertion reuses the same ``CUTOFF_PR`` scope: the only
 non-decreasing pairs in either file's history sit in the 2026-06-21
