@@ -69,7 +69,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 # Reuse the shared metadata helpers rather than re-deriving the field regex.
-from lint_common import REPO_ROOT, parse_metadata_block, resolve_working_for_write  # noqa: F401  (REPO_ROOT rebindable in --self-test)
+from lint_common import REPO_ROOT, parse_metadata_block, resolve_working, resolve_working_for_write  # noqa: F401  (REPO_ROOT rebindable in --self-test)
 
 # --------------------------------------------------------------------------
 # Surface locations (relative to REPO_ROOT).
@@ -107,6 +107,23 @@ UNKNOWN = "UNKNOWN (derive by hand)"
 
 class SurfaceShapeError(Exception):
     """A surface did not carry the expected header / anchor. Fail loud."""
+
+
+class WorkingStateUnavailable(Exception):
+    """A mandatory EXISTING maintainer working-state surface is unavailable
+    (neither the private sibling nor an in-repo .working/ holds it). Fail loud
+    rather than recreate a public .working/ tree or crash on a missing path."""
+
+
+def existing_working_path(rel: str) -> Path:
+    """Resolve a MANDATORY existing .working/-tree surface for READING, via the
+    read resolver (private sibling then in-repo). Raise WorkingStateUnavailable
+    when it is absent, so a caller fails cleanly instead of crashing on a missing
+    public path or recreating public working state via the write resolver."""
+    path = resolve_working(rel[len(".working/"):], repo_root=REPO_ROOT)
+    if path is None or not path.is_file():
+        raise WorkingStateUnavailable(rel)
+    return path
 
 
 class MissingJudgement(Exception):
@@ -481,7 +498,7 @@ def build_plan(s: CloseoutSpec, *, closeout_only: bool,
     edits: list[Edit] = []
 
     def bump_and_insert(rel: str, header_sig: str, row: str, pr_token: str) -> None:
-        path = (resolve_working_for_write(rel[len(".working/"):], repo_root=REPO_ROOT)
+        path = (existing_working_path(rel)
                 if rel.startswith(".working/") else REPO_ROOT / rel)
         text = path.read_text(encoding="utf-8")
         new, inserted = insert_row(text, header_sig, row, pr_token=pr_token, pr_col=1)
@@ -505,9 +522,10 @@ def build_plan(s: CloseoutSpec, *, closeout_only: bool,
     bump_and_insert(IMPROVEMENT_LOG, IMPROVEMENT_HEADER, render_retro_row(s), f"#{s.merged_pr}")
 
     if s.has_findings:
-        detail_path = resolve_working_for_write(
-            f"{VALIDATE_DETAIL_DIR[len('.working/'):]}/{s.d}-PR-{s.merged_pr}.md",
-            repo_root=REPO_ROOT)
+        detail_rel = f"{VALIDATE_DETAIL_DIR[len('.working/'):]}/{s.d}-PR-{s.merged_pr}.md"
+        detail_path = resolve_working(detail_rel, repo_root=REPO_ROOT)
+        if detail_path is None:
+            detail_path = resolve_working_for_write(detail_rel, repo_root=REPO_ROOT)
         before = detail_path.read_text(encoding="utf-8") if detail_path.exists() else ""
         after = before if before else render_detail_file(s)
         note = ("detail file already present (no-op)" if before
@@ -549,7 +567,7 @@ def build_plan(s: CloseoutSpec, *, closeout_only: bool,
     for rel, renderer, anchor in (
             (CHANGELOG, render_changelog_root, CHANGELOG_ROOT_ANCHOR),
             (CHANGELOG_DETAILED, render_changelog_detailed, CHANGELOG_DETAILED_ANCHOR)):
-        path = (resolve_working_for_write(rel[len(".working/"):], repo_root=REPO_ROOT)
+        path = (existing_working_path(rel)
                 if rel.startswith(".working/") else REPO_ROOT / rel)
         text = path.read_text(encoding="utf-8")
         block = renderer(s, calver)
@@ -678,6 +696,14 @@ def main(argv: list[str] | None = None) -> int:
         return 3
     except SurfaceShapeError as exc:
         print(f"error: a surface is in an unexpected shape: {exc}. Nothing written.",
+              file=sys.stderr)
+        return 3
+    except WorkingStateUnavailable as exc:
+        print(f"error: maintainer working state unavailable ({exc}); the private-sibling "
+              f"working-state store is not accessible. Nothing written.", file=sys.stderr)
+        return 3
+    except OSError as exc:
+        print(f"error: could not read a required close-out surface: {exc}. Nothing written.",
               file=sys.stderr)
         return 3
 

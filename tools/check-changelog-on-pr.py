@@ -1,23 +1,21 @@
 #!/usr/bin/env python3
-"""Verify a pull request modifies CHANGELOG.md (and its detailed mirror) or carries a Changelog: opt-out trailer.
+"""Verify a pull request modifies CHANGELOG.md or carries a Changelog: opt-out trailer.
 
 This is a CI-only delta gate, not part of the corpus audit programme. The
 corpus gates check repository state at HEAD; this script compares HEAD to the
-PR's merge-base and asserts the diff includes CHANGELOG.md AND its detailed mirror
-at `.working/changelog-details/CHANGELOG-detailed.md`, unless any commit in the PR
+PR's merge-base and asserts the diff includes CHANGELOG.md, unless any commit in the PR
 range carries a `Changelog: <one-line-reason>` trailer in its message body.
 
-The dual-entry requirement was introduced in PR #125 (2026-06-21): the root
-CHANGELOG.md carries compact one-line entries (a ``date | version | PR`` header plus a
-short summary); the detailed mirror carries the full
-structured-section entries (Added / Changed / Removed / Fixed / Security / Verification).
-Both must move in lock-step. A PR that modifies one without the other is a discipline
-failure caught by this gate.
+The former two-file lock-step (root CHANGELOG.md plus a detailed mirror, introduced in
+PR #125, 2026-06-21) no longer applies to the public diff: as of PR #1235 (2026-07-29,
+the working-state move to the private sibling) the detailed mirror lives in the
+private-sibling working-state store (cross-repo, invisible to a public PR diff), so this
+gate enforces ONLY the root CHANGELOG.md.
 
 The library's CONTRIBUTING.md and audit-programme spec require a CHANGELOG entry
 for substantive batches. This script enforces that requirement mechanically at PR
 time, closing the gap where a maintainer (human or AI) modifies content and forgets
-to update CHANGELOG.md (or its mirror).
+to update CHANGELOG.md.
 
 Opt-out: any commit in the PR can include a line of the form
 
@@ -51,15 +49,11 @@ from pathlib import Path
 import sys
 
 CHANGELOG_PATH = "CHANGELOG.md"
-CHANGELOG_DETAILED_PATH = ".working/changelog-details/CHANGELOG-detailed.md"
 
-def _working_in_repo() -> bool:
-    """True while the `.working/` tree still lives in THIS repo. Once the
-    `.working/` -> private-sibling migration moves it out, the in-repo dir is gone
-    and the `.working/` half of this PR-time check becomes a cross-repo concern
-    (updated in the private sibling, invisible to the public diff), so the gate
-    requires only its public half. Absent `.working/` (adopter fork) reads the same."""
-    return (Path(__file__).resolve().parent.parent / ".working").is_dir()
+# The detailed CHANGELOG mirror moved to the private-sibling working-state store
+# (grc_library_private/.working/changelog-details/) in the .working/ -> _private
+# migration. It is a cross-repo surface, invisible to a public PR diff, so this
+# PR-time gate requires only the PUBLIC root CHANGELOG.md.
 
 TRAILER_PATTERN = re.compile(
     r"^\s*Changelog:\s*(\S.*?)\s*$",
@@ -133,24 +127,13 @@ def main(argv: list[str]) -> int:
         return 0
 
     root_changed = CHANGELOG_PATH in changed
-    detailed_changed = CHANGELOG_DETAILED_PATH in changed
-
-    detailed_required = _working_in_repo()
-    if root_changed and (detailed_changed or not detailed_required):
-        if detailed_changed:
-            print(
-                f"OK: both {CHANGELOG_PATH} and {CHANGELOG_DETAILED_PATH} are in the diff "
-                f"({len(changed)} file(s) total)."
-            )
-        else:
-            print(
-                f"OK: {CHANGELOG_PATH} is in the diff; the detailed mirror "
-                f"{CHANGELOG_DETAILED_PATH} now lives in the private sibling "
-                f"(cross-repo, not in the public diff)."
-            )
+    if root_changed:
+        print(
+            f"OK: {CHANGELOG_PATH} is in the diff ({len(changed)} file(s) total)."
+        )
         return 0
 
-    # Check for opt-out trailer before reporting any specific failure shape.
+    # Root CHANGELOG.md not changed; check for an opt-out trailer before failing.
     try:
         commit_shas = git("log", "--format=%H", f"{merge_base}..{head}").splitlines()
     except subprocess.CalledProcessError as exc:
@@ -168,44 +151,26 @@ def main(argv: list[str]) -> int:
             )
             return 0
 
-    # No trailer; classify the failure mode.
-    if not root_changed and not detailed_changed:
-        print(
-            f"FAIL: {len(changed)} file(s) changed but neither {CHANGELOG_PATH} "
-            f"nor {CHANGELOG_DETAILED_PATH} is in the diff.",
-            file=sys.stderr,
-        )
-    elif root_changed and not detailed_changed:
-        print(
-            f"FAIL: {CHANGELOG_PATH} was modified but its detailed mirror "
-            f"{CHANGELOG_DETAILED_PATH} was not. The dual-entry convention "
-            f"requires both files to move in lock-step.",
-            file=sys.stderr,
-        )
-    else:
-        # detailed_changed and not root_changed
-        print(
-            f"FAIL: {CHANGELOG_DETAILED_PATH} was modified but the root "
-            f"{CHANGELOG_PATH} was not. The dual-entry convention requires "
-            f"both files to move in lock-step.",
-            file=sys.stderr,
-        )
-
+    # No trailer.
+    print(
+        f"FAIL: {len(changed)} file(s) changed but {CHANGELOG_PATH} is not in the diff.",
+        file=sys.stderr,
+    )
     print("", file=sys.stderr)
     print(
-        f"Either add an entry to BOTH {CHANGELOG_PATH} (lead paragraph only) and",
+        f"Add an entry to {CHANGELOG_PATH} (the root changelog; the detailed structured",
         file=sys.stderr,
     )
     print(
-        f"{CHANGELOG_DETAILED_PATH} (full structured entry), or add a",
+        "entry now lives in the private-sibling working-state mirror, cross-repo and not",
         file=sys.stderr,
     )
     print(
-        "'Changelog: <one-line-reason>' trailer to any commit in the PR body to",
+        "part of the public diff), or add a 'Changelog: <one-line-reason>' trailer to any",
         file=sys.stderr,
     )
     print(
-        "opt out (e.g. for trivial corrections that don't warrant an entry).",
+        "commit in the PR body to opt out (e.g. for trivial corrections).",
         file=sys.stderr,
     )
     print("", file=sys.stderr)

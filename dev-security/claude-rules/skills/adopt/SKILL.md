@@ -1,6 +1,6 @@
 ---
 name: adopt
-description: Run-once onboarding for a fork that adopts this governance-corpus-plus-pack project. A maintainer's clone carries accumulated operational working-state (audit-trail registers, session handoff, a next-actions queue, per-document review anchors) that is meaningless to a fresh adopter; this skill resets that machinery-core working-state to clean adopter baselines, settles how the adopter will handle the absent sibling repositories (their own, or self-contained with in-repo stubs `/adopt` creates or functional in-repo siblings), strips maintainer-only operational residue, and records the adopter's choices in a committed adopt-config so the resume step proceeds in adopter-mode without re-asking. It runs ONLY on an adopter clone (a fork origin), never on the maintainer's own repo or a maintainer's fresh-machine clone, and only once (an existing adopt-config short-circuits it).
+description: Run-once onboarding for a fork that adopts this governance-corpus-plus-pack project. A maintainer's clone carries accumulated operational working-state (audit-trail registers, session handoff, a next-actions queue, per-document review anchors) that is meaningless to a fresh adopter; this skill either resets present machinery-core working-state to clean adopter baselines or, when a fresh clone has no working-state tree, treats it as already clean and creates only the adopter-local state a public versioned consumer requires, settles how the adopter will handle the absent sibling repositories (their own, or self-contained with in-repo stubs `/adopt` creates or functional in-repo siblings), strips maintainer-only operational residue, and records the adopter's choices in a committed adopt-config so the resume step proceeds in adopter-mode without re-asking. It runs ONLY on an adopter clone (a fork origin), never on the maintainer's own repo or a maintainer's fresh-machine clone, and only once (an existing adopt-config short-circuits it).
 derives_from: ../../governance/session-lifecycle.md
 ---
 
@@ -101,6 +101,17 @@ This is an authorial decision for the adopter; surface both options with their c
 and do not pick silently.
 
 ### 3. Reset the machinery-core working-state to clean adopter baselines
+
+First determine whether the working-state directory is PRESENT. A fresh public clone
+usually finds it ABSENT: the maintainer's public working-state tree was removed once it
+moved to the maintainer's private sibling. If it is ABSENT, treat working-state as ALREADY
+CLEAN. There is no maintainer history to read, clear, preserve, or reconstruct, and you do
+NOT recreate the removed public working-state tree to reproduce its former inventory. Create
+only the adopter-local working-state your chosen sibling model (step 2) actually needs,
+deriving each file's SHAPE from the public versioned consumer (a gate, a tool, or a slash
+command) that reads it, never from a deleted file; if no public schema or template backs a
+former historical surface, create nothing and invent no history. Then continue to step 4. The
+rest of this step applies only when working-state is PRESENT.
 
 For each machinery-core working-state surface, clear the maintainer's accumulated content
 to an empty or stub baseline the adopter starts fresh from, preserving each file's required

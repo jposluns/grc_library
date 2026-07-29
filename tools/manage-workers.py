@@ -47,7 +47,7 @@ import sys
 import time
 from pathlib import Path
 
-from lint_common import resolve_working_for_write
+from lint_common import resolve_working_for_write, resolve_working_for_write_private
 
 LOG_REL = ".working/worker-prompt-log.md"
 
@@ -409,9 +409,21 @@ def working_root(explicit: str | None) -> Path | None:
     return None
 
 
-def log_send(repo: Path, session: str, runtime: str, verb: str, keys, reason: str,
-             held: str | None) -> None:
-    p = resolve_working_for_write(LOG_REL.removeprefix(".working/"), repo_root=repo)
+def prepare_private_log(repo: Path) -> Path:
+    """Resolve, privacy-validate, and initialize the worker-prompt log BEFORE any
+    keystroke is sent (codex I-4). Returns the PRIVATE log path, or raises so the
+    caller REFUSES the send. A keystroke injected into another user's session is
+    invisible unless recorded, so the accountability record must be a validated,
+    appendable, PRIVATE destination BEFORE the irreversible tmux send, never a
+    recreated public .working/ path resolved after the fact."""
+    p = resolve_working_for_write_private(LOG_REL.removeprefix(".working/"), repo_root=repo)
+    private_root = (repo.resolve().parent / "grc_library_private").resolve()
+    if p is None or not private_root.is_dir():
+        raise RuntimeError("private working-state repository is unavailable")
+    try:
+        p.resolve().relative_to(private_root)
+    except ValueError as exc:
+        raise RuntimeError(f"resolved prompt log is not under the private sibling: {p}") from exc
     if not p.exists():
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text(
@@ -422,6 +434,14 @@ def log_send(repo: Path, session: str, runtime: str, verb: str, keys, reason: st
             "can appear in the verb column; nothing here is ever composed from worker output.\n\n"
             "| UTC | session | runtime | verb | held order | reason | keys sent |\n"
             "| --- | --- | --- | --- | --- | --- | --- |\n")
+    # Validate appendability before any tmux keystroke is sent.
+    with p.open("a", encoding="utf-8"):
+        pass
+    return p
+
+
+def log_send(p: Path, session: str, runtime: str, verb: str, keys, reason: str,
+             held: str | None) -> None:
     stamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     sent = " THEN ".join(k if isinstance(k, str) else f"wait {k}s" for k in keys)
     with p.open("a", encoding="utf-8") as fh:
@@ -516,6 +536,17 @@ def do_send(repo: Path, root: Path | None, session: str, verb: str, reason: str,
         print("REFUSED: --reason is required, because the log is the only record that this "
               "happened at all.")
         return 1
+    # Resolve, privacy-validate, and initialize the accountability log BEFORE any keystroke
+    # (codex I-4): refuse rather than send without a validated PRIVATE record. Dry runs
+    # neither send nor log, so they need no log destination.
+    log_path: Path | None = None
+    if not dry_run:
+        try:
+            log_path = prepare_private_log(repo)
+        except (OSError, RuntimeError) as exc:
+            print("REFUSED: no writable private worker-prompt log is available, and a keystroke "
+                  f"send must be recorded; nothing was sent: {exc}")
+            return 1
     # RE-READ THE GATE IMMEDIATELY BEFORE ACTING (validate-pr-1172 F-2, a check-then-act race).
     # The held-order state above was read once, and claiming is a single rename by an independent
     # process, so a worker matched `free` can be holding live work by the time the keystrokes land.
@@ -595,13 +626,14 @@ def do_send(repo: Path, root: Path | None, session: str, verb: str, reason: str,
             return 0
         print(f"  SENT to {session}: {k[:110]}")
     if not dry_run:
-        log_send(repo, session, runtime, verb, keys, reason, h)
-        print(f"logged to {resolve_working_for_write(LOG_REL.removeprefix('.working/'), repo_root=repo)}")
+        assert log_path is not None  # prepared before the send loop, or we returned above
+        log_send(log_path, session, runtime, verb, keys, reason, h)
+        print(f"logged to {log_path}")
     return 0
 
 
 def self_test() -> int:
-    """Cover all SEVEN refusals in `do_send`, which ARE this tool's entire safety surface.
+    """Cover the refusals in `do_send`, which ARE this tool's entire safety surface.
 
     Added after the #1167 sweep observed that the CHANGELOG asserted these refusals were tested
     while nothing tested them: they had been exercised by hand and never recorded, so nobody

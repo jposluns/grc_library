@@ -338,7 +338,7 @@ The skip trailer is the everyday exception. For larger deviations (an embargoed 
 - Detailed mirror: `grc_library_private/.working/changelog-details/CHANGELOG-detailed.md` (current-week
   model; completed weeks sweep to the `grc_library_scratch` archive as weekly
   Monday-dated files).
-- Sweep tool: `tools/sweep-working-records-to-private.py` (emit, verify, then prune).
+- Detailed mirror and its completed-week archiving are a private-sibling concern post-migration (the mirror lives in `grc_library_private/.working/`; git history and the private archive retain the full trail). The former in-public-repo sweep tool was retired with the working-state move.
 - Closed-work ledger: `grc_library_private/.working/DONE.md`; backlog: `TODO.md`; overnight file:
   `grc_library_private/.working/overnight-pr.md` (gate 46 enforces its Status lifecycle).
 - The DONE worked example, concretely: PR #172 "FR-4+5+6+7+8: README polish bundle"

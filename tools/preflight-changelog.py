@@ -194,27 +194,50 @@ CROSS_REPO_MARKERS = ("grc_library_ref", "grc_library_scratch", "/inbox/")
 
 
 def unresolved_link_targets(
-    source_rel_path: str, line: str, root: Path = REPO_ROOT
+    source_rel_path: str,
+    line: str,
+    root: Path = REPO_ROOT,
+    *,
+    source_path: Path | None = None,
 ) -> list[str]:
     """Return in-repo relative markdown-link targets on ``line`` that do NOT
     resolve to an existing file (see the block comment above for exclusions).
     ``root`` is the repository root (default ``REPO_ROOT``); it is a parameter so
     the full-mirror scan (TODO 3.34) can reuse this identical resolution against
-    a test root without a divergent reimplementation."""
+    a test root without a divergent reimplementation. ``source_path`` is the
+    PHYSICAL on-disk location of the source file when it differs from its logical
+    ``root``/``source_rel_path`` location (the post-.working-move case: the mirror
+    is read from the private sibling). Link CLASSIFICATION stays logical against
+    the public ``root``; link EXISTENCE follows the physical working tree for a
+    target that stays inside logical ``.working/``, and the public ``root`` for a
+    target that leaves ``.working/`` into the public corpus."""
     findings: list[str] = []
     stripped = CODE_SPAN_RE.sub("", line)  # drop code-span-illustrative links
-    source_dir = (root / source_rel_path).parent
+    public_root = root.resolve()
+    logical_source = public_root / source_rel_path
+    physical_source = source_path or logical_source
+    logical_working = public_root / ".working"
     for match in MD_LINK_RE.finditer(stripped):
         base = match.group(1).split("#", 1)[0].strip()
         if not base or base.startswith(("http://", "https://", "mailto:")):
             continue
         if any(marker in base for marker in CROSS_REPO_MARKERS):
             continue
-        resolved = (source_dir / base).resolve()
+        logical_target = (logical_source.parent / base).resolve()
         try:
-            resolved.relative_to(root)
+            logical_target.relative_to(public_root)
         except ValueError:
             continue  # resolves outside this repo: treated as cross-repo
+        try:
+            logical_target.relative_to(logical_working)
+        except ValueError:
+            # The link left logical .working but stayed in the public repo:
+            # resolve existence against the public corpus.
+            resolved = logical_target
+        else:
+            # The link stayed inside logical .working: follow the selected
+            # physical working tree (a private-only mirror included).
+            resolved = (physical_source.parent / base).resolve()
         if not resolved.exists():
             findings.append(base)
     return findings
@@ -260,19 +283,21 @@ def unresolved_links_in_mirror(root: Path | None = None) -> list[tuple[int, str,
         mirror.read_text(encoding="utf-8").splitlines(), start=1
     ):
         for target in unresolved_link_targets(
-                DETAILED_MIRROR_REL, line, root=resolution_root):
+                DETAILED_MIRROR_REL, line, root=resolution_root,
+                source_path=mirror):
             findings.append((lineno, target, line.strip()))
     return findings
 
 
-def added_lines(staged: bool) -> list[tuple[str, str]]:
-    """Return (file, added-line-text) for every line the working tree (or the
-    staged diff) adds to a CHANGELOG file relative to HEAD."""
+def _added_lines_from_repo(
+    repo: Path, paths: tuple[str, ...], staged: bool
+) -> list[tuple[str, str]]:
+    """(file, added-line-text) for every added CHANGELOG line in ONE repo's diff."""
     cmd = ["git", "diff", "--unified=0"]
     if staged:
         cmd.append("--cached")
-    cmd += ["HEAD", "--", *CHANGELOG_FILES]
-    out = subprocess.check_output(cmd, text=True, cwd=str(REPO_ROOT))
+    cmd += ["HEAD", "--", *paths]
+    out = subprocess.check_output(cmd, text=True, cwd=str(repo))
     results: list[tuple[str, str]] = []
     current: str | None = None
     for line in out.splitlines():
@@ -283,6 +308,34 @@ def added_lines(staged: bool) -> list[tuple[str, str]]:
             continue
         if line.startswith("+") and current is not None:
             results.append((current, line[1:]))
+    return results
+
+
+def added_lines(staged: bool, root: Path = REPO_ROOT) -> list[tuple[str, str]]:
+    """Added CHANGELOG lines across the public repo AND the (post-move) private
+    detailed mirror. The public root CHANGELOG.md (and, pre-move, the in-repo
+    mirror) come from this repo's diff; a private-sibling mirror gets its OWN
+    repository-local ``git diff`` so private additions still receive the dash and
+    unlinked-path checks. The ``staged`` choice is applied separately in each
+    repository, preserving staged-only versus full-working-tree semantics."""
+    public_paths = ["CHANGELOG.md"]
+    if (root / DETAILED_MIRROR_REL).is_file():
+        public_paths.append(DETAILED_MIRROR_REL)
+    results = _added_lines_from_repo(root, tuple(public_paths), staged)
+    mirror = resolve_working(
+        DETAILED_MIRROR_REL[len(".working/"):], repo_root=root
+    )
+    if mirror is None or not mirror.is_file():
+        return results
+    try:
+        mirror.relative_to(root.resolve())
+    except ValueError:
+        # The mirror is in the private sibling: .working/changelog-details/<file>
+        # has the repository root at parents[2]. Diff it in its own repo.
+        private_root = mirror.parents[2]
+        results.extend(
+            _added_lines_from_repo(private_root, (DETAILED_MIRROR_REL,), staged)
+        )
     return results
 
 
