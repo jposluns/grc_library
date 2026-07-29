@@ -17,6 +17,10 @@ cd "$(dirname "$0")/.." || exit 2
 
 # --- changed-.md detection: union of (committed since merge-base with
 # origin/main) + (working tree vs HEAD) + (untracked), minus deletions. ---
+# NOTE: if origin/main is absent, MB falls back to HEAD, so this reduces to a
+# working-tree-vs-HEAD diff and misses .md already COMMITTED on the branch. That is
+# a graceful degradation for an iteration aid; the full pre-push-guard.sh (which
+# runs the history-aware gates against the real merge base) is unaffected.
 MB="$(git merge-base HEAD origin/main 2>/dev/null || echo HEAD)"
 # Restrict to CORPUS-CONTENT .md: files under an audited domain directory, minus
 # the dev-security/claude-rules/ pack subtree and README.md files. The fast-ready
