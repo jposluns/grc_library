@@ -1735,6 +1735,23 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         )
         self.assertIn("self-test: ", result.stdout)
 
+    def test_handoff_snapshot_self_test(self) -> None:
+        """The handoff-snapshot aggregator's own self-test, wired in at introduction (roadmap track B, PR #1240).
+
+        The tool exists to STOP the wind-down from hand-deriving stale figures, so its parsers
+        (versions, gate/rule/skill/command counts, session-metrics) are the thing that must not rot;
+        the self-test builds a throwaway fixture repo and asserts each parser reads it correctly.
+        """
+        result = self._run_selftest(
+            [sys.executable, str(REPO_ROOT / "tools" / "handoff-snapshot.py"), "--self-test"]
+        )
+        self.assertEqual(
+            result.returncode, 0,
+            f"handoff-snapshot --self-test failed.\nstdout:\n{result.stdout}"
+            f"\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("self-test: ", result.stdout)
+
     def test_pr_closeout_self_test(self) -> None:
         """The PR close-out scaffolder's own self-test, wired in at introduction.
 
