@@ -8,6 +8,27 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-29, Library Version 2026.07.722, PR #1233
+
+Resume `/validate` close-out for the 2026-07-28c session (`/resume` from the #1231 attended-wind-down handoff). The pre-queued `loopbreak-validate-0db65053b` order was never served, so the loop-break `/validate` was re-dispatched fresh, dual-family, over the #1227..#1231 migration deltas at `main` `50f7e4b1` (#1232, the session-closing handoff, itself QA-exempt).
+
+### Changed
+- Recorded **Sweep 129 iter 1** in [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) (dual-family: claude `jposluns-work`/opus + codex `jeff-posluns`/gpt-5.6-terra; **PASS-with-findings, 1 error / 2 warning / 4 note**). The migration delta is CLEAN and pre-move-identical; four-surface parity 78, counts 78/15/24/16, gate 54 CSF-clean, gate 59 mirror parity, and CHANGELOG root-history intact were all confirmed by both families. **All #1231 asserted-clean surfaces CORROBORATED, zero contradicted, so the loop-break control for the #1232 session-closing handoff PASSES.**
+- Advanced the resume cursor in [`.working/session-handoff.md`](../session-handoff.md) to Sweep 129 and **pruned** the handoff to current plus one prior session (removed the two-back #1216 Next-actions / State-snapshot / Asserted-expectations blocks), per the refresh-and-pruning discipline.
+- Acquired the [`.working/session-state.md`](../session-state.md) concurrency lease for this session (`Status: active`).
+
+### Fixed
+The three clear-mechanical findings the sweep surfaced (all re-verified at source before applying; all pre-existing latent defects in delta-untouched surfaces, so ordinary backlog findings rather than loop-break misses):
+- **E1 (error):** [`security/policy-acceptable-use.md`](../../security/policy-acceptable-use.md):104 cited CSA CCM `HRS-04` (held title "Remote and Home Working") for the acceptable-use control; corrected to `HRS-02` ("Acceptable Use of Technology"), matching the central matrix mapping `HRS-01, HRS-02`. Version 1.3.1 to 1.3.2.
+- **W1 (warning):** [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md):252 cited `GRC-01 Risk Management Framework`, but `GRC-01` is "Governance Program"; relabelled to `GRC-01 Governance Program; GRC-02 Risk Management Program`, matching the matrix mapping. Version 1.8.5 to 1.8.6.
+- **W2 (warning):** [`tools/lint_common.py`](../../tools/lint_common.py):195-201 `resolve_working_for_write` summary docstring described a private-sibling-first destination unconditionally, contradicting the implementation (which writes alongside the current `.working/` tree, in-repo pre-move). Reworded the summary to current-tree-first with the private sibling only as the no-tree-anywhere fallback.
+
+### Routed
+- **N1 (note):** the CCM/ISO/NIST/COBIT citation gates title-check control-listing tables but not framework-alignment tables, so E1 and W1 passed green (their codes are valid). Routed to **TODO 3.186** (extend the title-check to framework-alignment cells; candidate for the gate-blindspot map).
+
+### Verification
+- Orchestrator [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) = **all 78 gates OK**; the worker read-only gate-36 sandbox fixture-write PermissionError is the known artefact, not a corpus defect (both families reported it as such). Pre-push guard (both runners) green; the E1/W1 citation fixes re-verified against the held [`tools/ccm_aicm_reference.py`](../../tools/ccm_aicm_reference.py) titles and the central matrix canonical mappings.
+
 ## 2026-07-28, Library Version 2026.07.721, PR #1232
 
 Session-closing handoff (2026-07-28b, attended wind-down ~7h, maintainer-directed at 7pm). Working-state only: refreshed [`.working/session-handoff.md`](../session-handoff.md) (session-closing state snapshot with green-at `0db65053`, a new asserted-expectations block, a next-actions block pointing to PR2b-2b reword+copy then PR2b-3 delete), RELEASED the [`.working/session-state.md`](../session-state.md) concurrency lease, batched #1231's (PR2b-2a) `/validate-pr` history row + detail, `/retro` row, and merge-bypass row, fixed a reintroduced duplicated "Pre-push dual-family skeptical verify:" phrase in the #1231 entry, and pre-queued the loop-break `/validate` (`loopbreak-validate-0db65053b`) for the next `/resume`. Exempt from a trailing `/validate-pr` + `/retro` (loop-break); the compensating control is the next `/resume` corpus-wide `/validate`.

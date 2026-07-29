@@ -270,7 +270,7 @@ Umbrella for adopting NIST OSCAL as an open, machine-readable projection of the 
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.186.**
+**Next item number: 3.187.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
 
@@ -1025,6 +1025,10 @@ Both currency gates are enumeration-scoped (`lint-standards-currency.py` flags o
 ### 3.42 New-ingest reference-breadth pass: Canadian/international AI-governance sources (post-ref-resync 2026-07-10, M)
 
 The standing post-PR `grc_library_ref` resync (maintainer-directed 2026-07-10) picked up newly-ingested held sources: **ISO/IEC 5259 parts 1 to 6** (Data quality for analytics and machine learning) and new **Canadian + international AI-governance** source captures. **ISO/IEC 5259 sub-part CLOSED (#1118):** [`ai/procedure-training-data-governance.md`](ai/procedure-training-data-governance.md) already cited parts 2/3/4 specifically (verified title-accurate against the held source), and the one warranted claim-accurate addition, part 5259-5:2025 (data quality governance framework), was added to its framework-alignment table; parts 1 (overview) and TR 6 (visualization) were judged off-claim and excluded. **REMAINING:** the Canadian/international AI-governance captures are candidates for the `ai/` domain documents (a looser, separately-scoped set, some egress-gated). Run `tools/audit-reference-breadth.py --ref-since <resync-sha>` to scope, then judge and apply per the reference-audit skill (trust tiers apply: standards citation-grade; screen any publications-bucket items). Surfaced by the post-PR resync 2026-07-10.
+
+### 3.186 Extend the CCM/ISO/NIST/COBIT citation gates to title-check framework-alignment tables (Sweep 129 N1, 2026-07-28, M, S) `[machinery]`
+
+Gates 48/49/54/58/61 title-check control-LISTING tables (`| CODE | title |`) but NOT framework-alignment tables (`| Framework | CODE Title |` or `| Framework | CODE: Title |`), where only code VALIDITY is checked. Sweep 129's E1 (`security/policy-acceptable-use.md` cited `HRS-04` with an acceptable-use label; `HRS-04` is Remote and Home Working, fixed to `HRS-02`) and W1 (`risk/standard-enterprise-risk-management.md` cited `GRC-01` with a Risk Management Framework label; `GRC-01` is Governance Program, fixed to cite `GRC-01` and `GRC-02`) both live in framework-alignment tables where the code is valid, so the gate passes green while the title contradicts the held control title. Extend the title-check (or add a framework-alignment-table-aware variant) to the `| Framework | CODE Title |` cell so an authored title that contradicts the held control title is caught, not only an invalid code. Candidate for `audit-gate-blindspots.py`. Surfaced by Sweep 129 loop-break `/validate` (dual-family).
 
 ---
 
