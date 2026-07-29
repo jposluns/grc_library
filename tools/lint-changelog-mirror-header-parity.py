@@ -61,7 +61,7 @@ FLOOR, not the comparison boundary: the effective cutoff is
 mirror)`` (see ``effective_cutoff``). Under the current-week model the
 mirror keeps only the current week's entries in-repo and sweeps
 completed weeks to the ``grc_library_private`` archive, while the root
-``CHANGELOG.md`` keeps every entry; a swept (now scratch-only) entry is
+``CHANGELOG.md`` keeps every entry; a swept (now private-archive-only) entry is
 therefore correctly out of parity scope rather than flagged as missing.
 Before any sweep the mirror's oldest PR is far below ``CUTOFF_PR`` so the
 effective cutoff is ``CUTOFF_PR`` and behaviour is unchanged. A genuine
@@ -76,7 +76,7 @@ catch it (whereas the earlier form of this gate, with its cutoff pinned
 at the constant 463, would). This is an
 inherent limit of moving history out of the in-repo mirror: from root +
 mirror content alone, "the oldest kept entry was dropped" is
-indistinguishable from "that entry was legitimately swept to scratch",
+indistinguishable from "that entry was legitimately swept to the private archive",
 so no purely-content check can tell them apart. Parity is therefore
 asserted only for the entries the in-repo mirror still holds; historical
 parity moves to git history and to the private-sibling archive. The
@@ -179,10 +179,10 @@ def effective_cutoff(mirror_text: str) -> int:
 
     The current-week model (2026-07-08) keeps only the current week's
     entries in the in-repo detailed mirror; completed weeks are swept to
-    the scratch archive. The root ``CHANGELOG.md`` keeps EVERY entry. So
+    the private-sibling archive. The root ``CHANGELOG.md`` keeps EVERY entry. So
     the set of PRs that still have an in-repo mirror counterpart is
     exactly ``PR #N >= (oldest PR still in the mirror)``. Scoping the
-    parity comparison to that floor means a swept-out (now scratch-only)
+    parity comparison to that floor means a swept-out (now private-archive-only)
     entry is correctly out of scope rather than flagged as missing from
     the mirror, while a genuinely dropped or orphaned in-window header
     still fails.
