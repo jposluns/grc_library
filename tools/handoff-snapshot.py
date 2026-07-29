@@ -3,8 +3,9 @@
 
 Read-only aggregator (roadmap track B "close-out efficiency tooling"; shipped in PR #1240).
 The wind-down pastes a VERIFIED block from this tool instead of hand-deriving each
-number, which is the recurring source of stale handoff figures. This tool NEVER
-writes anything.
+number, which is the recurring source of stale handoff figures. This tool is
+read-only in its reporting path; only `--self-test` writes, and then only to a
+temporary directory.
 
 Sources of truth (each the canonical one, so the emitted number cannot drift from it):
   - Library Version / README Version : the README.md metadata block.

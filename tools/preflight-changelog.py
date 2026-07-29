@@ -8,7 +8,7 @@ CHANGELOG, as:
 
 It exits non-zero (so the ``&&`` chain will not fire) when the working-tree
 additions to the root [`CHANGELOG.md`] or its detailed mirror
-[`.working/changelog-details/CHANGELOG-detailed.md`] contain any of:
+the maintainer-grade detailed mirror contain any of:
 
   - an em-dash or en-dash in prose (the no-dash convention: delta gate D3
     enforces this PR-time on the root file, and gate 51 enforces it on the
