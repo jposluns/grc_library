@@ -397,11 +397,11 @@ def render_changelog_detailed(s: CloseoutSpec, calver: str) -> str:
 
 
 # --------------------------------------------------------------------------
-# D8 length pre-check (warn before the CI gate does).
+# D7 length pre-check (warn before the CI gate does).
 # --------------------------------------------------------------------------
 def changelog_length_warnings(summary: str, word_max: int = 100,
                               sentence_max: int = 45) -> list[str]:
-    """PURE. Mirror check-changelog-length-on-pr.py so a D8 problem shows at
+    """PURE. Mirror check-changelog-length-on-pr.py so a D7 problem shows at
     close-out time, not at push time."""
     warns: list[str] = []
     words = len(summary.split())
@@ -686,7 +686,7 @@ def main(argv: list[str] | None = None) -> int:
         allow_placeholders=(not applying) or a.allow_placeholders)
 
     for w in changelog_length_warnings(a.summary):
-        print(f"warning (D8): {w}")
+        print(f"warning (D7): {w}")
 
     try:
         plan = build_plan(spec, closeout_only=a.closeout_only, today=today)
@@ -890,10 +890,10 @@ def self_test() -> int:
     check("placeholder mode emits a grep-able TODO marker",
           "TODO(orchestrator): fill justification" in render_bypass_row(s_ph), True)
 
-    # ---- D8 length pre-check discriminates sentence vs total ----
-    check("D8 flags an over-long single sentence",
+    # ---- D7 length pre-check discriminates sentence vs total ----
+    check("D7 flags an over-long single sentence",
           any("sentence" in w for w in changelog_length_warnings("word " * 50)), True)
-    check("D8 passes a normal 40-word entry", changelog_length_warnings("word " * 40), [])
+    check("D7 passes a normal 40-word entry", changelog_length_warnings("word " * 40), [])
 
     # ---- end-to-end on constructed surfaces: the KEY correction, that an
     #      append-only ledger is NOT version-bumped while README IS ----
