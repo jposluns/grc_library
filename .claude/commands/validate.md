@@ -12,9 +12,9 @@ Invoke the `validation-sweep` skill defined in this project's pack at [`dev-secu
 
 Termination (replaces the older fixed 3-iteration cap; first matching condition fires): (a) empty-delta primary stop: zero new High/Medium findings AND the synthesized finding-set is identical (by dedupe-key) to the previous iteration; (b) patience-plateau secondary stop: 2 consecutive iterations with no strict shrinkage, surface residual to operator with named decision; (c) hard-ceiling 6 iterations runaway guard, defect signal not completion (report cycle vs scope creep).
 
-Step 8 (every iteration): append a row to [`.working/validate-sweeps/history.md`](../../.working/validate-sweeps/history.md) (this project's path; adopters relocate to a project-appropriate location) with columns `Date | Sweep | Subagents | Findings | Resulting PR | Detail | Summary`. New row on top (reverse-chronological). Zero-finding iterations still get a row; the `Detail` column is `none` and the `Resulting PR` is `none` for those.
+Step 8 (every iteration): append a row to `grc_library_private/.working/validate-sweeps/history.md` (this project's path; adopters relocate to a project-appropriate location) with columns `Date | Sweep | Subagents | Findings | Resulting PR | Detail | Summary`. New row on top (reverse-chronological). Zero-finding iterations still get a row; the `Detail` column is `none` and the `Resulting PR` is `none` for those.
 
-Step 9 (only when findings exist): write a per-iteration detail file to [`.working/validate-sweeps/`](../../.working/validate-sweeps/). Filename `YYYY-MM-DD-sweepN-iterM.md`. Six top-level H2 sections, comma form (per SKILL.md step 9):
+Step 9 (only when findings exist): write a per-iteration detail file to `grc_library_private/.working/validate-sweeps/`. Filename `YYYY-MM-DD-sweepN-iterM.md`. Six top-level H2 sections, comma form (per SKILL.md step 9):
 
 - `## Trigger & state snapshot`: which PR / instruction triggered this iteration; library version, pack version, governance-rule count, gate count, skill count at HEAD; whether this is iteration 1 or a re-baseline.
 - `## Subagent A, Recent-PR deep review`: the verbatim return (SARIF-lite findings + summary).
@@ -29,7 +29,7 @@ Zero-finding iterations leave no detail file; the history row alone is the persi
 
 **Batching into the next PR (recursion-avoidance).** Zero-finding `/validate` history rows are **batched into the next PR, whatever its substantive purpose**. A findings-producing `/validate` may still warrant its own close-out PR when findings are numerous or coherent enough; this is the corpus-wide sweep's distinguishing case from `/validate-pr` (where the bundle is always the default). Otherwise, fixes for individual /validate findings can also be bundled into the next PR alongside the history row.
 
-`.working/validate-sweeps/` is exempt from corpus audit gates (frozen-state archive). Existing `path:line` references in subagent reports are kept verbatim even if the lines later shift; the record is a moment-in-time artefact.
+`grc_library_private/.working/validate-sweeps/` is exempt from corpus audit gates (frozen-state archive). Existing `path:line` references in subagent reports are kept verbatim even if the lines later shift; the record is a moment-in-time artefact.
 
 Reject any subagent finding that lacks an explicit `path:line` quote. A finding without quoted evidence is a hypothesis, not a finding; re-dispatch the subagent with a re-emphasized evidence requirement before synthesizing.
 

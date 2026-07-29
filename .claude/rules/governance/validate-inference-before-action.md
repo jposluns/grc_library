@@ -179,7 +179,7 @@ The discipline implements the same audit-trail-integrity principle the broader p
 ## Project overlay (grc_library wiring and lineage; local copy only)
 
 - The register in which validation-sweep dispatch declarations are recorded
-  (the skill's Rule 5.6): `.working/validate-sweeps/history.md`.
+  (the skill's Rule 5.6): `grc_library_private/.working/validate-sweeps/history.md`.
 - The repeated-failure circuit-breaker is enforced mechanically by the
   [`block-repeated-tool-failure.py`](../../hooks/block-repeated-tool-failure.py)
   PreToolUse hook (GUARD 2: on two or more consecutive same-class blocks it requires a

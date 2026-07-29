@@ -10,8 +10,8 @@ derives_from: ../../governance/change-tracking.md
 
 Portable procedure, concrete names. In the parent GRC library this skill runs with:
 
-- Detailed mirror: `.working/changelog-details/CHANGELOG-detailed.md`, paired with the root `CHANGELOG.md` under the two-file split the canonical rule describes.
-- Terse-entry scope directories: the internal-tooling and assistant-guidance tree is `.claude/`, and the working-state ledgers live under `.working/`; changes confined to those trees are the canonical terse-entry candidates.
+- Detailed mirror: the detailed change-log mirror in the consuming project's working state, paired with the root `CHANGELOG.md` under the two-file split the canonical rule describes.
+- Terse-entry scope directories: the internal-tooling and assistant-guidance tree is `.claude/`, and the working-state ledgers live in the consuming project's working-state tree; changes confined to those trees are the canonical terse-entry candidates.
 - Delta gate: the PR-time CHANGELOG-delta check D1, alongside the link-coverage gate and the version-monotonicity audit.
 
 An adopting project maps each bullet to its own detailed-mirror location, ancillary-scope directories, and enforcing gates; the procedure below refers to them generically.
