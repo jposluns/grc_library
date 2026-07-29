@@ -10,10 +10,10 @@ derives_from: ../../governance/ai-assistant-workflow-disciplines.md
 
 Portable procedure, concrete names. In the parent GRC library this skill runs with:
 
-- Improvement-log register: `.working/improvement-log.md` (the append-only per-PR retrospective register this skill writes; one row per merged PR).
+- Improvement-log register: the improvement-log register in the consuming project's working state (the append-only per-PR retrospective register this skill writes; one row per merged PR).
 - Worker-hallucination metrics register: the worker-hallucination-metrics ledger in the consuming project's working state (the apply-time worker-correction log consumed as retrospective input).
-- Worker-brief template: `.working/worker-brief-template.md` (the worker-side guard-rail carrier that pattern findings may extend).
-- Sibling per-PR validation-sweep history register: `.working/validate-pr/history.md` (whose reverse-chronological row convention the improvement-log register mirrors).
+- Worker-brief template: the worker-brief template in the consuming project's working state (the worker-side guard-rail carrier that pattern findings may extend).
+- Sibling per-PR validation-sweep history register: the register in the consuming project's working state (whose reverse-chronological row convention the improvement-log register mirrors).
 
 - The parent register's concrete table header keeps its original columns (`Date | PR | FR closed | ...`); the generic output format below names that column `Backlog item closed`, and the parent's paired slash-command stub carries the concrete form.
 

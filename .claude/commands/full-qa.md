@@ -10,7 +10,7 @@ Invoke the `deep-qa-review` skill defined in this project's pack at [`dev-securi
 
 4. **Route every confirmed finding to the backlog, tiered by severity** tagged `[full-qa]`: High[critical] and High to P1, Medium and Low to P2 (including findings judged trivial or mechanical; none dropped, severity governs the destination tier not whether the finding is surfaced); the maintainer triages from there. Findings that dedupe against an existing backlog item are cross-referenced, not duplicated. Findings refuted at apply-time are recorded with the refutation, not routed.
 
-5. **Record**: write a per-run record (in this project `.working/full-qa/YYYY-MM-DD-iterN.md`) with one section per subagent (A-F), an orchestrator-synthesis-and-verification section, a findings-routed section, and a trust-recovery-framing section naming the prior run's discipline failures and the elevated rules applied. Append a history row. The record directory's README codifies the step-0 full-clone rule.
+5. **Record**: write a per-run record (in this project `grc_library_private/.working/full-qa/YYYY-MM-DD-iterN.md`) with one section per subagent (A-F), an orchestrator-synthesis-and-verification section, a findings-routed section, and a trust-recovery-framing section naming the prior run's discipline failures and the elevated rules applied. Append a history row. The record directory's README codifies the step-0 full-clone rule.
 
 6. **Termination is maintainer sign-off, not empty-delta**: the pass terminates only when the maintainer reviews the routed additions (from both `/full-qa` and `/fitness`) and explicitly signs off. An empty finding-set does not terminate the pass; maintainer acknowledgement does. This is the trust-rebuilding step.
 
@@ -18,7 +18,7 @@ Invoke the `deep-qa-review` skill defined in this project's pack at [`dev-securi
 
 Reject any subagent finding that lacks an explicit `path:line` quote. A finding without quoted evidence is a hypothesis, not a finding; re-dispatch with a re-emphasized evidence requirement.
 
-`.working/full-qa/` is exempt from corpus audit gates (frozen-state archive); `path:line` references in subagent reports are kept verbatim even if lines later shift.
+`grc_library_private/.working/full-qa/` is exempt from corpus audit gates (frozen-state archive); `path:line` references in subagent reports are kept verbatim even if lines later shift.
 
 **Surface findings prominently in chat, not buried in artefact files.** As each skill in the suite completes, surface its confirmed findings inline in the chat reply (per-finding: ruleId, severity, `path:line`, evidence quote, impact, recommendation) and route them to the backlog; do not wait for both suite skills to finish before routing.
 

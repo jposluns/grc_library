@@ -20,6 +20,6 @@ Invoke the `pr-retrospective` skill defined in this project's pack at [`dev-secu
 
 **No orchestrator-side skip discretion.** Same discipline as `/validate-pr`: every merged PR gets a `/retro` entry, even when the retrospective conclusion is "nothing new to learn." Zero-content entries serve as proof-of-discipline. Skipping is a policy deviation requiring maintainer authorization.
 
-Append the entry to [`.working/improvement-log.md`](../../.working/improvement-log.md) with columns `Date | PR | FR closed | What went well | Friction | Pattern (if any) | Proposed improvement`. New rows on top (reverse-chronological).
+Append the entry to `grc_library_private/.working/improvement-log.md` with columns `Date | PR | FR closed | What went well | Friction | Pattern (if any) | Proposed improvement`. New rows on top (reverse-chronological).
 
 Report back: the entry as written; if a Pattern or Proposed-improvement surfaced, the chat-surface text; the path to the register file.

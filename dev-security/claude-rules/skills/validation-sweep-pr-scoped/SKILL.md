@@ -10,11 +10,11 @@ derives_from: ../../governance/evidence-grounded-completion.md
 
 Portable procedure, concrete names. In the parent GRC library this skill runs with:
 
-- Per-PR record path pattern: `.working/validate-pr/YYYY-MM-DD-PR-<N>.md` (one dated record per merged PR, written when findings exist).
-- PR-scoped history register: `.working/validate-pr/history.md` (one row per merged PR, including zero-finding runs and handoff-PR exemption rows; the exemption marker the parity gate recognizes in a row's Findings cell is `SKIPPED` together with `handoff`, or the phrase `handoff-PR exception`, never a bare `n/a`).
-- Sibling corpus-wide register it mirrors: `.working/validate-sweeps/history.md` (the `validation-sweep` skill's register; the PR-scoped register follows its row shape).
+- Per-PR record path pattern: a dated per-PR record in the consuming project's working state (one dated record per merged PR, written when findings exist).
+- PR-scoped history register: the PR-scoped validation history register in the consuming project's working state (one row per merged PR, including zero-finding runs and handoff-PR exemption rows; the exemption marker the parity gate recognizes in a row's Findings cell is `SKIPPED` together with `handoff`, or the phrase `handoff-PR exception`, never a bare `n/a`).
+- Sibling corpus-wide register it mirrors: the sweep-history register in the consuming project's working state (the `validation-sweep` skill's register; the PR-scoped register follows its row shape).
 - Bookkeeping-parity gate: gate 50, `tools/lint-bookkeeping-parity.py`, the mechanical QA-cadence gate that reads the history rows and fails when an in-window merged PR lacks its `/validate-pr` plus `/retro` rows (with the handoff-PR exemption built in).
-- Mechanical baseline and pre-flight: the full audit-gate runner `tools/run_all_audits.sh`; the deterministic pre-flight scanner `tools/sweep-preflight-scanner.py` with its exemption file `tools/sweep-preflight-exemptions.json`; the detailed change-log mirror `.working/changelog-details/CHANGELOG-detailed.md` (the surface the chat-surfacing section contrasts with).
+- Mechanical baseline and pre-flight: the full audit-gate runner `tools/run_all_audits.sh`; the deterministic pre-flight scanner `tools/sweep-preflight-scanner.py` with its exemption file `tools/sweep-preflight-exemptions.json`; the detailed change-log mirror in the consuming project's working state (the surface the chat-surfacing section contrasts with).
 
 An adopting project maps each bullet to its own record paths, registers, gate, runner, and scanner; the procedure below refers to them generically.
 

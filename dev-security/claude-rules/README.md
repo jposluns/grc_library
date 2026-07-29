@@ -2,8 +2,8 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.65.19\
-**Date:** 2026-07-28\
+**Version:** 1.65.20\
+**Date:** 2026-07-29\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** `dev-security/standard-developer-security-requirements.md`, `dev-security/standard-devops-security-requirements.md`, `dev-security/guideline-ai-coding-assistant-security.md`, `ai/standard-ai-and-agentic-development-security.md`\
@@ -505,6 +505,7 @@ The pack's change history is maintained in the parent grc_library repository CHA
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.65.20 | 2026.07.723 | 2026-07-29 | Genericized the 23 working-state path references across nine pack skills (change-tracking-write-entry, deep-assessment, deep-qa-review, guardrail-review, library-fitness-review, pr-retrospective, reference-audit, validation-sweep, validation-sweep-pr-scoped) to the portable-role phrasing "in the consuming project's working state", completing the 1.62.2/1.63.1 portability migration so the distributable pack names project-varying working-state locations generically rather than hardcoding a concrete working-directory path (patch; no new rule or skill). |
 | 1.65.19 | 2026.07.712 | 2026-07-28 | Dual-family (Claude + Codex/GPT) adversarial verification codified: high-assurance stage 3 requires the two independent verifiers be from different model families, and the substantive verifier tier defaults to a cross-family pair for consequential changes (patch; no new rule or skill). |
 | 1.65.18 | 2026.07.703 | 2026-07-27 | Deep-assessment no longer terminates on maintainer sign-off (patch; no new rule or skill). Removed the sign-off terminal state from the deep-assessment discipline in [`ai-assistant-workflow-disciplines.md`](governance/ai-assistant-workflow-disciplines.md) (the QA-activity completion standard) and [`skills/deep-assessment/SKILL.md`](skills/deep-assessment/SKILL.md): deep-assessment composes only already-established QA processes (validate, full-qa, fitness, matrix-fit, claim-fit, reference-audit, guardrails, the gate-efficacy probes), each of which already terminates by validate-and-fix, so a separate sign-off gate on the composite was redundant ceremony; it now terminates on the QA-activity completion standard like any other QA activity, its outcome surfaced to the responsible authority without a sign-off gate. The sign-off condition is retained for the REACTIVE trust-recovery tier only, whose purpose is to let the maintainer declare confidence restored after a discipline lapse. Maintainer-directed 2026-07-27. |
 | 1.65.17 | 2026.07.669 | 2026-07-26 | The integrity checkpoint needs a minimum cadence, not only a semantic checkpoint list (patch; no new rule or skill). Added to [`project-integrity.md`](governance/project-integrity.md): a checkpoint list is exactly what a long run erodes, because every checkpoint is one the actor must notice, and an assistant was observed going two entire units of work without emitting the line, re-anchoring only when asked whether it had forgotten. Pair the semantic list with a floor that does not depend on noticing (at least once per change), and require the emission to be SELF-ACKNOWLEDGED, naming in a clause or two what the tier is being held against on that specific change; a bare recited line is the decorative form and discharges nothing. |

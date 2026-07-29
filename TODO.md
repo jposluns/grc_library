@@ -270,7 +270,7 @@ Umbrella for adopting NIST OSCAL as an open, machine-readable projection of the 
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.187.**
+**Next item number: 3.188.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
 
@@ -1029,6 +1029,10 @@ The standing post-PR `grc_library_ref` resync (maintainer-directed 2026-07-10) p
 ### 3.186 Extend the CCM/ISO/NIST/COBIT citation gates to title-check framework-alignment tables (Sweep 129 N1, 2026-07-28, M, S) `[machinery]`
 
 Gates 48/49/54/58/61 title-check control-LISTING tables (`| CODE | title |`) but NOT framework-alignment tables (`| Framework | CODE Title |` or `| Framework | CODE: Title |`), where only code VALIDITY is checked. Sweep 129's E1 (`security/policy-acceptable-use.md` cited `HRS-04` with an acceptable-use label; `HRS-04` is Remote and Home Working, fixed to `HRS-02`) and W1 (`risk/standard-enterprise-risk-management.md` cited `GRC-01` with a Risk Management Framework label; `GRC-01` is Governance Program, fixed to cite `GRC-01` and `GRC-02`) both live in framework-alignment tables where the code is valid, so the gate passes green while the title contradicts the held control title. Extend the title-check (or add a framework-alignment-table-aware variant) to the `| Framework | CODE Title |` cell so an authored title that contradicts the held control title is caught, not only an invalid code. Candidate for `audit-gate-blindspots.py`. Surfaced by Sweep 129 loop-break `/validate` (dual-family).
+
+### 3.187 Codify dual-family (Claude + Codex) QA as a permanent project standard for ALL QA tasks (maintainer-directed 2026-07-29, M, M) `[machinery]`
+
+The maintainer directed (2026-07-29) that dual-family QA is now a PERMANENT project standard for EVERY QA task, whenever both families have available tokens, superseding the #1223 default (which scoped dual-family to CONSEQUENTIAL changes only). Codify in: (a) `.claude/CLAUDE.md` (the dual-family / QA-cadence context, replacing the consequential-only framing); (b) the pack `dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md` skeptical-verification tier (the substantive-tier default reads "a cross-family pair for consequential changes"; make dual-family the standard for all QA, with the token-unavailability exception); (c) `dev-security/claude-rules/governance/high-assurance-verification.md` stage 3 (already dual-family; align the framing). The ONE exception: token unavailability on a family (limited or exhausted account), then the available family runs, the gap is noted, and the missing family re-runs when tokens return. Pack change: bump the pack README + version-history row; keep both rule trees byte-identical (gate 37). This is the standing directive currently recorded in the handoff Standing disciplines; this item is its formal-codification tracker. Sequence AFTER the maintainer-directed post-PR2b pause.
 
 ---
 

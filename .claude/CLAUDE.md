@@ -138,12 +138,12 @@ one must be added to all (the gate-parity audit enforces this).
   their own per-tool exempt prefixes on top (e.g. `dev-security/claude-rules/`,
   `tools/`, `docs/` carve-outs): consult each `lint-*.py` for its specific set
   rather than treating the common set as the full list.
-- `.working/`: maintainer working space holding per-run records from `/validate`,
+- `grc_library_private/.working/` (in the `grc_library_private` sibling): the maintainer's private working space holding per-run records from `/validate`,
   `/fitness`, and other maintainer-invoked activities. The contents are
   frozen-state archives (cross-references accurate as-of write-time), exempt from corpus
   audit gates, and not intended for adopter consumption. See
-  [`.working/README.md`](../.working/README.md) for the convention and subdirectory
-  inventory. Adopters cloning the library can delete `.working/` outright or keep it.
+  `grc_library_private/.working/README.md` for the convention and subdirectory
+  inventory. This working space is the maintainer's private operational store, being relocated to the `grc_library_private` sibling; it is not part of the corpus and is not required for an adopter to use the corpus or run the public gates (an adopter cloning the public library can ignore or delete it).
 
 ## Operational state lives in `grc_library_private` (the one delegation directive)
 
@@ -262,7 +262,7 @@ drive end-to-end on the maintainer's behalf:
    precisely because it is invisible when used.
    **So every bypass merge is LOGGED.** The maintainer's decision (2026-07-25) is to
    retain the emergency path and make its use auditable rather than remove it. Append
-   one row to [`.working/merge-bypass-log.md`](../.working/merge-bypass-log.md) for each
+   one row to `grc_library_private/.working/merge-bypass-log.md` for each
    `--admin` merge, recording the PR, the pre-merge CI state, and a one-line
    justification. An unlogged bypass merge is a discipline failure; the log is what
    converts an always-on bypass from an unaudited hole into a recorded exception. If a
@@ -279,7 +279,7 @@ drive end-to-end on the maintainer's behalf:
    remote branch is gone.
 5a. Invoke `/validate-pr` to run the PR-scoped post-merge validation sweep (dispatches
    Subagent A on the just-merged PR's diff plus a cross-reference check on files citing
-   the touched files). Records to [`.working/validate-pr/`](../.working/validate-pr/).
+   the touched files). Records to `grc_library_private/.working/validate-pr/`.
    **Read-only-git subagent rule (shared-tree safety):** any subagent this or `/validate`
    dispatches, and any skeptical-verifier subagent, inspects version history READ-ONLY
    (`git show <sha>:<path>`, `git diff`, `git log`) and MUST NOT `git checkout` / `switch`
@@ -291,7 +291,7 @@ drive end-to-end on the maintainer's behalf:
    (surface to maintainer with named options). **Handoff-PR exception (loop-break):** the
    session-closing handoff PR does NOT run a trailing `/validate-pr` or `/retro`; the
    compensating control is the next session's `/resume` corpus-wide `/validate`. Record
-   the exemption in the handoff PR's `.working/validate-pr/history.md` row **Findings cell**
+   the exemption in the handoff PR's `grc_library_private/.working/validate-pr/history.md` row **Findings cell**
    (the cell `tools/lint-bookkeeping-parity.py` (gate 50) reads to detect the handoff
    exemption): the marker must be `SKIPPED` together with `handoff`, or the phrase
    `handoff-PR exception`, never a bare `n/a`. Putting the marker in the Summary cell only
@@ -302,10 +302,10 @@ drive end-to-end on the maintainer's behalf:
    checklist` item 3.)
 5b. Invoke `/retro` to run the post-merge retrospective per the
    [`pr-retrospective`](../dev-security/claude-rules/skills/pr-retrospective/SKILL.md)
-   skill: append one row to [`.working/improvement-log.md`](../.working/improvement-log.md).
+   skill: append one row to `grc_library_private/.working/improvement-log.md`.
    Pattern and Proposed-improvement entries (if any) surface in chat. The register-row
    commit batches into the next PR per the recursion-avoidance rule.
-5c. Refresh [`.working/session-handoff.md`](../.working/session-handoff.md) with the
+5c. Refresh `grc_library_private/.working/session-handoff.md` with the
    current state snapshot, last-merged list, next-actions queue, and open decisions. At a
    **session-closing** handoff PR, also refresh the `## Asserted expectations` section
    (the surfaces this session mechanically verified, scoped to what it touched, plus known
@@ -320,7 +320,7 @@ drive end-to-end on the maintainer's behalf:
    published (the list comes from TODO, not from memory). This is the project-specific
    instantiation of the PR finalization protocol in
    [`.claude/rules/governance/change-tracking.md`](../.claude/rules/governance/change-tracking.md).
-   **The same next-five list is written to [`.working/next-prs.txt`](../.working/next-prs.txt)
+   **The same next-five list is written to `grc_library_private/.working/next-prs.txt`
    as part of THIS PR's own diff (not a post-merge step), so merging the PR cycles the file,
    and the console `next:` statusline that reads it, forward to the next work item.** Each PR
    drops the item it just closed and reflects the current next-five (drawn from TODO); the
@@ -336,7 +336,7 @@ drive end-to-end on the maintainer's behalf:
    shipped without refreshing it, so every PR touches `next-prs.txt` even when the queue is
    otherwise unchanged.
 7. TODO/DONE rotation discipline: when a PR closes a TODO item, the item is deleted from
-   TODO in the same PR and an entry is added to [`.working/DONE.md`](../.working/DONE.md)
+   TODO in the same PR and an entry is added to `grc_library_private/.working/DONE.md`
    (the closed-TODO ledger, keyed by PR number with the original backlog ID as a
    cross-reference). The DONE entry names the closed item's number and gives a clean
    one-to-two-sentence summary of what the item was and how it was accomplished, and that
@@ -390,7 +390,7 @@ Long sessions degrade (context dilution, lossy compaction, state drift, error
 compounding), and the assistant has no reliable internal gauge of this, so the defence
 is external. Two mechanisms:
 
-1. **Session handoff.** [`.working/session-handoff.md`](../.working/session-handoff.md)
+1. **Session handoff.** `grc_library_private/.working/session-handoff.md`
    is the single resume point for a new session: branch, versions, counts, last-merged
    PRs, trust-recovery state, the next-actions queue, open decisions, the standing
    disciplines, the **green-at-`<sha>`** mechanical baseline, and (at session close) the
@@ -407,7 +407,7 @@ is external. Two mechanisms:
    - The prior merged PR's `/validate-pr` history row AND its `/retro` row are both
      present (they batch into this PR per recursion-avoidance).
    - Every TODO item this PR closes is deleted from TODO and added to
-     [`.working/DONE.md`](../.working/DONE.md) in the same diff. **Backlog-item-keyed, not
+     `grc_library_private/.working/DONE.md` in the same diff. **Backlog-item-keyed, not
      FR/§-keyed**: a prose-named or maintainer-directed item (not just an `FR-N` or a
      numbered `§N.M`) is a TODO item that rotates the same way.
    - If this PR changed an enumerated collection (gates, governance rules, skills), every
@@ -662,14 +662,14 @@ is external. Two mechanisms:
      if this PR changes a corpus document's body, the per-touch run
      (`python3 tools/audit-reference-breadth.py --docs <touched paths>`, judge on any
      non-empty candidate set, then `--update-state`) is done and the
-     [`.working/reference-audit/doc-state.md`](../.working/reference-audit/doc-state.md)
+     `grc_library_private/.working/reference-audit/doc-state.md`
      refresh is in the PR's QA batch. An empty candidate set is recorded as the one-line
      steady-state note, not skipped silently. (Convention-guarded; the mechanical
      staleness backstop is a queued TODO item.)
-   - **The ROOT CHANGELOG never loses history; it is SUMMARIZED, never removed (maintainer-directed 2026-07-26).** [`CHANGELOG.md`](../CHANGELOG.md) is one of the few history/status files that must go back to the PROJECT START and is NEVER swept, pruned, or moved to `_private`: old per-PR entries are only summarized IN PLACE (daily then weekly roll-ups condense them to `**date | version | PRs #A-#B (N PRs)**` and `**Week of ...**` blocks that STAY in the root). Only the DETAILED mirror (`.working/changelog-details/`) is swept to `_private`; the root roll-up and the mirror sweep are SEPARATE processes, and no move-to-`_private` process touches the root. The ONLY sanctioned removal from the root is a surgical edit fixing an AI error (for example expunging leaked private info). #1177 wrongly REMOVED six weekly summaries from the root; #1192 restored them, and the D9 reminder plus this rule foreclose the recurrence.
+   - **The ROOT CHANGELOG never loses history; it is SUMMARIZED, never removed (maintainer-directed 2026-07-26).** [`CHANGELOG.md`](../CHANGELOG.md) is one of the few history/status files that must go back to the PROJECT START and is NEVER swept, pruned, or moved to `_private`: old per-PR entries are only summarized IN PLACE (daily then weekly roll-ups condense them to `**date | version | PRs #A-#B (N PRs)**` and `**Week of ...**` blocks that STAY in the root). Only the DETAILED mirror (`grc_library_private/.working/changelog-details/`) is swept to `_private`; the root roll-up and the mirror sweep are SEPARATE processes, and no move-to-`_private` process touches the root. The ONLY sanctioned removal from the root is a surgical edit fixing an AI error (for example expunging leaked private info). #1177 wrongly REMOVED six weekly summaries from the root; #1192 restored them, and the D9 reminder plus this rule foreclose the recurrence.
    - **Detailed-mirror current-week sweep** (the changelog-restructure current-week model;
      the pack rule's current-week-model section is the authoritative description): the in-repo
-     [`.working/changelog-details/CHANGELOG-detailed.md`](../.working/changelog-details/CHANGELOG-detailed.md)
+     `grc_library_private/.working/changelog-details/CHANGELOG-detailed.md`
      is intended to hold only the CURRENT week's entries, with completed weeks (and, per
      §1.19.9, the aged roll-up ROWS of `validate-pr/history.md` and `improvement-log.md`)
      swept to the `grc_library_private` archive as weekly Monday-dated files by
@@ -715,7 +715,7 @@ is external. Two mechanisms:
    in the handoff's `## Asserted expectations` section, what this session mechanically
    verified (scoped to touched surfaces) plus the green-at-`<sha>` baseline, which the
    receiving `/validate` cross-checks (a contradiction of a claimed-clean touched surface
-   is a genuine miss, escalated). The closing PR's `.working/validate-pr/history.md` row
+   is a genuine miss, escalated). The closing PR's `grc_library_private/.working/validate-pr/history.md` row
    records the exemption with the gate-50-recognized marker (`SKIPPED` with `handoff`, or
    `handoff-PR exception`) in its **Findings cell**, never a bare `n/a`: that cell is what
    `tools/lint-bookkeeping-parity.py` reads to classify the row as handoff-exempt, so a
@@ -980,7 +980,7 @@ dataset such as MITRE ATT&CK / ATLAS, ISO, CSA, NIST) is load-bearing for a task
   egress is blocked), **pause and ask the maintainer.** On no
   response, apply the graceful-degradation default: defer the current item and move on to
   the next independent item (record it in
-  [`pending-decisions.md`](../.working/pending-decisions.md)).
+  `grc_library_private/.working/pending-decisions.md`).
 - **Never write or rely on a superseded version unless the maintainer explicitly
   authorizes** working from the older one. A register row, a citation, or a mapping must
   carry the upstream-confirmed current version, or the item waits.
@@ -1004,7 +1004,7 @@ merely route it as a `source-not-held` finding. The standing procedure is:
      licensed or egress-blocked);
    - **(b)** **defer the current task** until the document is ingested (the DEFAULT in unattended
      mode via the roughly-2-minute graceful-degradation timer: record the deferral in
-     [`pending-decisions.md`](../.working/pending-decisions.md) as deferred-blocked, route around
+     `grc_library_private/.working/pending-decisions.md` as deferred-blocked, route around
      to the next independent item, and hold anything that depends on it);
    - **(c)** something else, for example reword the artefact so it does not depend on the missing
      reference, or cite the source corroboratively-only with an accepted-unverified tracker.
@@ -1046,7 +1046,7 @@ each merge or decision. Its three standing rules:
    guess an authorial decision; take exactly one of two logged paths:
    - **Apply a stricter-safe default** when rule 2 yields a defensible, more-conservative,
      evidence-backed option AND the action is reversible / on-branch. Record it in
-     [`.working/pending-decisions.md`](../.working/pending-decisions.md) as "proceeded with
+     `grc_library_private/.working/pending-decisions.md` as "proceeded with
      X (stricter-safe default); confirm or redirect on resume", and continue.
    - **Defer-and-skip** when the decision is genuinely authorial, irreversible, or
      outward-facing, so there is no safe default. Record it as "deferred-blocked: needs
@@ -1348,7 +1348,7 @@ Pre-queued work inverts that: the resume opens with deliveries already in the tr
 pinned to the closing SHA, so the compensating control for the skipped handoff-PR QA is already
 running rather than waiting to be dispatched. (2) The `/validate-pr` for the last merged PR, which the
 handoff PR itself is exempt from. (3) Research or draft candidates for the next-five queue in
-[`.working/next-prs.txt`](../.working/next-prs.txt), which is what makes the next session's first
+`grc_library_private/.working/next-prs.txt`, which is what makes the next session's first
 substantive PR fast. (4) Any defect-hunt whose target the closing session touched, while the changes
 are recent.
 
@@ -1508,7 +1508,7 @@ thing that produced the defect, the fix is the rest of that task.
 governs QA deliveries specifically, this governs anything wrong from any source) and with the
 decision-classification rubric: "found a defect and continued" is never an ACT, and it is not a valid
 BLOCKED either, since the blocker set is closed and contains no entry for it. The ledger
-[`.working/open-findings.md`](../.working/open-findings.md) and the
+`grc_library_private/.working/open-findings.md` and the
 [`block-on-open-findings.py`](hooks/block-on-open-findings.py) hook are the mechanical half; this
 section is the obligation the mechanics enforce, and it is wider than the hook, because the hook can
 only see a row once it is written.
@@ -1534,7 +1534,7 @@ FELT like progress while the defects stayed open. Summarizing is not disposition
 table is the most persuasive way to walk past a defect.
 
 **The ledger and its mechanical backstop.** Every confirmed defect gets a row in
-[`.working/open-findings.md`](../.working/open-findings.md) the moment it is confirmed, with a severity,
+`grc_library_private/.working/open-findings.md` the moment it is confirmed, with a severity,
 and leaves only via `FIXED` / `ROUTED` / `REFUTED` / `ACCEPTED`. The
 [`block-on-open-findings.py`](hooks/block-on-open-findings.py) PreToolUse hook refuses `gh pr create`
 and `gh pr merge` while an `error`-severity row has no disposition, and surfaces undispositioned
@@ -1579,7 +1579,7 @@ A QA activity (a `/validate`, `/validate-pr`, `/matrix-fit`, `/claim-fit`,
 1. It ran in a sanctioned formal shape (never an abbreviated, spot, or memory-only
    substitute, per `## Throughput pressure does not authorize QA abbreviation`).
 2. Every finding is triaged to a terminal disposition, fixed in-window OR routed to the
-   backlog / [`pending-decisions.md`](../.working/pending-decisions.md) with a severity
+   backlog / `grc_library_private/.working/pending-decisions.md` with a severity
    tier (and a morning-review flag for a risk item); none is dropped.
 3. Worker-delivered POSITIVES are re-verified at source before routing (a clean
    zero-finding result is trusted on its proof-of-run).
@@ -1612,7 +1612,7 @@ mandates, or for a corpus-wide `/validate` when the sweep cadence calls for one.
 "Abbreviated /validate-pr, 0 findings" is NOT a sanctioned shape. The two sanctioned
 shapes are (a) the full formal `/validate-pr` dispatch with Subagent A on the diff and a
 cross-reference check on touched files, recorded in
-[`.working/validate-pr/`](../.working/validate-pr/) and the history row, OR (b) an explicit
+`grc_library_private/.working/validate-pr/` and the history row, OR (b) an explicit
 maintainer-authorized exception recorded inline in the history row's Summary cell with the
 rationale. Anything else is a discipline failure.
 
@@ -1762,8 +1762,8 @@ in `~/.claude/CLAUDE.md` (the user-level memory form).
 compute-first gate applies with force to authorial/policy decisions: before surfacing ANY
 `AskUserQuestion` on a backlog fork or a maintainer-decision, run
 `python3 tools/decisions-search.py <section-or-id-or-phrase>` and READ its output; if a
-decision is recorded (in `.working/pending-decisions.md`, the `_private` design-decisions
-record, or `.working/DONE.md`), ACT on it, never re-ask. Re-asking a decided question
+decision is recorded (in `grc_library_private/.working/pending-decisions.md`, the `_private` design-decisions
+record, or `grc_library_private/.working/DONE.md`), ACT on it, never re-ask. Re-asking a decided question
 wastes the maintainer's time and erodes trust (the 2026-07-19 recurrence: four content
 forks, §3.68/§3.69/§3.70 and the standards-rendering item, re-asked though all were
 recorded in `pending-decisions.md`). This is the executed-not-narrated forcing function,
@@ -1811,7 +1811,7 @@ The maintainer-directed 2026-07-23 decision was to codify this as a new pack rul
 
 The project instantiation of the `evidence-grounded-completion` rule's set-completeness and asymmetric-skepticism principles (added 2026-07-23 after a false "every remaining backlog item is blocked" claim, made from a partial review, was used to justify stopping an unattended run). Concretely:
 
-- **Any characterization of the backlog as blocked, exhausted, or held** (in chat, in [`.working/next-prs.txt`](../.working/next-prs.txt), or in the session handoff) must be the output of [`tools/audit-backlog-actionability.py`](../tools/audit-backlog-actionability.py), a complete enumeration of every open TODO item with a per-item disposition (a blocker class from its closed set, or `PRESUMED-ACTIONABLE`), never a hand-summary generalized from a partial look. A hold or wind-down justified on backlog-exhaustion grounds requires that audit with every open item enumerated and dispositioned; absent it, the default is to continue on the highest-priority open item.
+- **Any characterization of the backlog as blocked, exhausted, or held** (in chat, in `grc_library_private/.working/next-prs.txt`, or in the session handoff) must be the output of [`tools/audit-backlog-actionability.py`](../tools/audit-backlog-actionability.py), a complete enumeration of every open TODO item with a per-item disposition (a blocker class from its closed set, or `PRESUMED-ACTIONABLE`), never a hand-summary generalized from a partial look. A hold or wind-down justified on backlog-exhaustion grounds requires that audit with every open item enumerated and dispositioned; absent it, the default is to continue on the highest-priority open item.
 - **A persistent blocked-enumeration record is operational state and goes in `grc_library_private`, never the public tree.** The public repo carries only the on-demand tool (which prints the enumeration when run), not a standing "here is what is blocked and why" document (some blocker reasons are internal or operational). When a blocked enumeration must be recorded (for example as evidence attached to a hold decision), it is written to `_private` (the decision-log that would carry it already lives there).
 - Enforced mechanically by the [`block-unjustified-decision.py`](hooks/block-unjustified-decision.py) hook (a hold decision-log entry justified by a set-completeness claim is refused unless it embeds a fresh full-audit token matching the live TODO item count) and the audit tool (layer 1); this section and the pack rule are the discipline the mechanics enforce.
 
@@ -1824,7 +1824,7 @@ When the maintainer instructs work over a SET ("ask the open questions", "work t
 The maintainer reads chat in a narrow window and has repeatedly missed answers that scrolled past before they engaged, so a maintainer-facing ANSWER (a decision surfaced, a key status, a question) is paced to be readable AND paced so it never stalls the run (maintainer-directed 2026-07-24, the §1.22.8 disposition; chat-mechanics, project-only, not pack material):
 
 - After a key maintainer-facing answer or an `AskUserQuestion`, PAUSE for the maintainer's acknowledgement and hold the point on screen (the `AskUserQuestion` UI, or an `IMPORTANT:`-marked chunk within the ~30-line limit).
-- Arm the standard graceful-degradation timer (about 5 minutes). If the maintainer answers, act on it. If the timer fires with NO response, do NOT stall: continue on the next independent work AND log the unanswered question to [`.working/pending-decisions.md`](../.working/pending-decisions.md) to re-surface the moment the maintainer is back (detected because they have typed something).
+- Arm the standard graceful-degradation timer (about 5 minutes). If the maintainer answers, act on it. If the timer fires with NO response, do NOT stall: continue on the next independent work AND log the unanswered question to `grc_library_private/.working/pending-decisions.md` to re-surface the moment the maintainer is back (detected because they have typed something).
 - The re-surface is prompt: on the maintainer's next message, present the logged unanswered question(s) before proceeding, so a question raised while they were away is not lost.
 
 This reconciles the two failure modes: an answer scrolling past unread (the read-pause fixes it) and the run stalling while the maintainer is away (the continue-and-log fixes it).

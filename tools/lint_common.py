@@ -199,7 +199,8 @@ def resolve_working_for_write(relpath: str, *, repo_root: Path | None = None) ->
     is present, else alongside the CURRENT `.working/` tree (:func:`resolve_working_dir`:
     the private sibling's ``.working/`` when that TREE exists, else the in-repo tree), else
     the private sibling's ``.working/<relpath>`` as the eventual home when no `.working/`
-    tree exists anywhere. The caller creates the parent directory as needed. Never ``None``.
+    tree exists anywhere (or the in-repo path when no private sibling repo is present). The
+    caller creates the parent directory as needed. Never ``None``.
 
     RESIDUE (migration): once BOTH `.working/` trees exist (mid-copy), an existing
     in-repo-only file's writes stay in-repo (existing wins) while a NEW file goes

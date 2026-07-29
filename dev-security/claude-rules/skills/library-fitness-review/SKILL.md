@@ -10,13 +10,12 @@ derives_from: ../../governance/trust-recovery-escalation.md
 
 Portable procedure, concrete names. In the parent GRC library this skill runs with:
 
-- Persona catalogue and severity model: the activity convention document at
-  `.working/fitness-reviews/README.md` (the persona briefs with per-persona scope and
+- Persona catalogue and severity model: the activity convention document in the consuming project's working state (the persona briefs with per-persona scope and
   exclusions, the severity-model definitions, the per-run file format, and the
   operational guidance; the parent catalogue defines ten personas, labelled `A` through `J`).
-- Run-record path pattern: `.working/fitness-reviews/YYYY-MM-DD-rN.md`, one combined
+- Run-record path pattern: a dated per-run record in the consuming project's working state, one combined
   report per run, with `rN` the run ordinal that day.
-- History register: `.working/fitness-reviews/history.md` (the invocation history table,
+- History register: the fitness-review invocation history register in the consuming project's working state (the invocation history table,
   whose `Personas` column records the personas dispatched, written in the register as `A, B, C, D, E, F, G, H, I, J (all 10)` for a full dispatch, plus the
   open remediation backlog tracking table).
 - Remediation-backlog id scheme: `FR-N` (`FR-1`, `FR-2`, ...), carried into TODO entries

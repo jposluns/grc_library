@@ -8,13 +8,13 @@ Invoke the `guardrail-review` skill defined in this project's pack at [`dev-secu
 
 4. **Route findings to the backlog, severity-tiered** tagged `[guardrails]`: High[critical]/High to the top-priority tier, Medium/Low to the next, none dropped. Structural findings frequently propose a machinery change (merge overlapping rules, add a gate to close a gap, retire a decorative check, reconcile a drifted description); these are maintainer-decision proposals, NOT changes the skill applies autonomously. Findings that dedupe against an existing backlog item are cross-referenced, not duplicated.
 
-5. **Record**: write a per-run record (in this project `.working/guardrail-reviews/YYYY-MM-DD-rN.md`) with one section per lens (overlap, gap, drift), an orchestrator-synthesis-and-verification section, and a findings-routed section. Append a history row. Zero-finding runs still get a history row; the record file is conditional on findings. Before committing the record, verify each fixed-in-window claim against the actual diff (grep for the claim's target text) and downgrade to routed any claim whose edit is absent.
+5. **Record**: write a per-run record (in this project `grc_library_private/.working/guardrail-reviews/YYYY-MM-DD-rN.md`) with one section per lens (overlap, gap, drift), an orchestrator-synthesis-and-verification section, and a findings-routed section. Append a history row. Zero-finding runs still get a history row; the record file is conditional on findings. Before committing the record, verify each fixed-in-window claim against the actual diff (grep for the claim's target text) and downgrade to routed any claim whose edit is absent.
 
 6. **Surface to the maintainer (termination)**: surface confirmed findings inline in chat (per-finding: lens, severity, `path:line`, evidence quote, proposed machinery change). The review is a single pass, not a fix-to-fixed-point loop, because structural findings are maintainer-decision proposals. It terminates when the findings are routed and surfaced. When the maintainer accepts a proposed machinery change, that change is its own PR (which itself re-triggers the auto-prompt cadence).
 
 Reject any lens finding that lacks an explicit `path:line` quote. A finding without quoted evidence is a hypothesis, not a finding; re-run the lens with a re-emphasized evidence requirement before recording.
 
-`.working/guardrail-reviews/` is exempt from corpus audit gates (frozen-state archive); `path:line` references in the record are kept verbatim even if lines later shift.
+`grc_library_private/.working/guardrail-reviews/` is exempt from corpus audit gates (frozen-state archive); `path:line` references in the record are kept verbatim even if lines later shift.
 
 **No orchestrator-side skip or abbreviation discretion** for a maintainer-invoked run: all three lenses are applied, each finding is apply-time-verified, and the record + history row are written even on a zero-finding run (the zero-finding row is the proof-of-discipline). Do not apply a proposed machinery change autonomously; route it as a proposal.
 
