@@ -2,8 +2,8 @@
 
 **Document Title:** Integrity and Trustworthiness Principle\
 **Document Type:** Principle\
-**Version:** 0.0.3\
-**Date:** 2026-07-09\
+**Version:** 0.0.4\
+**Date:** 2026-07-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/claude-rules/governance/project-integrity.md`](../dev-security/claude-rules/governance/project-integrity.md), [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/specification-audit-programme.md`](specification-audit-programme.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This document states the library's foundational production principle in citable, adopter-facing form: the **AIQT Principle**, the priority ordering **(Accuracy = Integrity = Quality = Trust) > Speed > Cost**. It is the corpus counterpart to the governance pack's apex rule ([`governance/project-integrity.md`](../dev-security/claude-rules/governance/project-integrity.md)): where the pack rule governs how the library is produced and maintained, this document explains the principle to a reader of the library and records, in source-verified form, how the four facets align with the trustworthiness vocabularies of the AI-assurance and general-assurance frameworks the corpus draws on.
+This document states the library's foundational production principle in citable, adopter-facing form: the **AIQT Principle**, the priority ordering **(Accuracy = Integrity = Quality = Trust) > Progress > Speed > Cost**. It is the corpus counterpart to the governance pack's apex rule ([`governance/project-integrity.md`](../dev-security/claude-rules/governance/project-integrity.md)): where the pack rule governs how the library is produced and maintained, this document explains the principle to a reader of the library and records, in source-verified form, how the four facets align with the trustworthiness vocabularies of the AI-assurance and general-assurance frameworks the corpus draws on.
 
 The principle governs the integrity of the work product and its production process. It is distinct from, and complementary to, the AI-system trustworthiness the corpus's AI-governance documents address: those govern the behaviour of a deployed AI system; this governs whether the documentation and tooling the library ships are what they claim to be.
 
@@ -28,12 +28,14 @@ Applies to every artefact the library produces (the governed documents, the audi
 
 ## 1. The principle
 
-**(Accuracy = Integrity = Quality = Trust) > Speed > Cost.**
+**(Accuracy = Integrity = Quality = Trust) > Progress > Speed > Cost.**
 
-The four named properties form **one composite top tier** with no internal ranking; the tier is lexicographically above Speed, and Speed above Cost. Two readings are foreclosed:
+The four named properties form **one composite top tier** with no internal ranking; below them, in order, sit two throughput values, Progress then Speed. The tier is lexicographically above Progress, Progress above Speed, and Speed above Cost. Two readings are foreclosed:
 
 - **AIQT is not an internal ranking.** Accuracy does not outrank Integrity, nor Quality Trust. The four are co-equal facets of one non-negotiable tier; a conflict *among* them is a framing defect to surface, not a priority call to make (an "accurate but fabricated" or "high-quality but dishonest" result does not exist; each facet's failure fails the tier).
-- **"Lexicographic" applies between tiers.** A gain in speed never justifies any loss on the AIQT tier, however small the loss or large the gain. Cost is optimized only after both the AIQT tier and speed obligations are met. "Done faster" and "done cheaper" are never reasons for "done worse".
+- **"Lexicographic" applies between tiers.** A gain in progress, speed, or cost never justifies any loss on the AIQT tier, however small the loss or large the gain. Progress is optimized only after the AIQT tier is satisfied; speed only after progress; cost only after speed. "Done faster", "done cheaper", and "done sooner" are never reasons for "done worse".
+
+**Progress and Speed are the throughput tier, not trustworthiness facets.** Below the four-facet AIQT tier sit two throughput values in order, Progress then Speed. Progress is decisive advancement of the work (when the answer is derivable, decide and act; do not over-deliberate, re-litigate settled questions, or grind marginal work when higher-value work or a clean handoff is available); Speed is latency. Both sit below the AIQT tier and neither ever licenses reducing verification: Progress targets the decisiveness axis (do not spin), never the verification axis (thorough verification is never a Progress failure). Because they govern how work is paced rather than whether it is trustworthy, they are deliberately not mapped to the trustworthiness vocabularies in section 4.
 
 ## 2. The four facets
 
@@ -57,7 +59,7 @@ Trust is **warranted by the record and granted by the maintainer**; it is never 
 
 ## 3. Priority ordering and escalation
 
-When the AIQT tier conflicts with speed or cost, the higher tier wins outright: there is no blended score, no "good enough given the time". If any constraint forces a compromise on the AIQT tier, the producer halts and escalates the tradeoff to the maintainer explicitly, naming which facet is at risk and what pressure forces the question, rather than resolving it silently in favour of speed or cost. A one-sentence escalation at the moment of conflict is cheap; an unwound body of work built on a silently-chosen compromise is expensive.
+When the AIQT tier conflicts with progress, speed, or cost, the higher tier wins outright: there is no blended score, no "good enough given the time". If any constraint forces a compromise on the AIQT tier, the producer halts and escalates the tradeoff to the maintainer explicitly, naming which facet is at risk and what pressure forces the question, rather than resolving it silently in favour of progress, speed, or cost. A one-sentence escalation at the moment of conflict is cheap; an unwound body of work built on a silently-chosen compromise is expensive.
 
 ## 4. Trustworthiness-vocabulary alignment
 
@@ -75,6 +77,7 @@ The four facets align, at the concept level, with the trustworthiness vocabulari
 - **Integrity** has **no direct NIST AI RMF characteristic**: the RMF has no work-product-honesty property. The nearest is *Accountable and Transparent* (via disclosure and non-concealment), an analogy, not a match. The precise held-text anchor is ISO/IEC TR 24028 **§5.3** ("respect of sound moral and ethical principles"), NOT the standard's clause-3.21 "integrity" (which is the confidentiality-integrity-availability sense, a false friend for this facet).
 - **Quality** is native to ISO/IEC 42001 (a management-system standard: requirements, design documentation, data quality) but only *listed*, not defined, in ISO/IEC TR 24028; treat 42001 as the primary anchor and TR 24028 as corroborating.
 - The NIST AI RMF characteristics not mapped (Safe; Secure and Resilient; Explainable and Interpretable; Privacy-Enhanced; Fair with Harmful Bias Managed) address AI-system output risk, outside the AIQT facets' scope (the integrity of the work product and its production), and are deliberately not force-fit.
+- **Progress and Speed are not mapped here.** They are the throughput tier below the four AIQT facets (how work is paced), not trustworthiness characteristics of a work product, so they are deliberately excluded from the alignment above, for the same reason the AI-system-output characteristics are (see section 1).
 
 ## 5. Adoption guidance
 

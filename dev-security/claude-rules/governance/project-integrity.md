@@ -1,13 +1,13 @@
-# Project Integrity: the AIQT Principle, (Accuracy = Integrity = Quality = Trust) > Speed > Cost
+# Project Integrity: the AIQT Principle, (Accuracy = Integrity = Quality = Trust) > Progress > Speed > Cost
 
-This is the apex rule of the governance pack. It sits above every other rule in precedence, and it governs a different axis than the other rules do: where each of the other rules constrains a specific behaviour (do not weaken a gate, do not claim completion without evidence, surface ambiguity before acting), this rule fixes the priority ordering that decides which way to resolve a conflict between *optimization dimensions*. When the work's non-negotiable properties pull against speed or cost, this rule says which wins.
+This is the apex rule of the governance pack. It sits above every other rule in precedence, and it governs a different axis than the other rules do: where each of the other rules constrains a specific behaviour (do not weaken a gate, do not claim completion without evidence, surface ambiguity before acting), this rule fixes the priority ordering that decides which way to resolve a conflict between *optimization dimensions*. When the work's non-negotiable properties pull against progress, speed, or cost, this rule says which wins.
 
-**The ordering, named AIQT: (Accuracy = Integrity = Quality = Trust) > Speed > Cost.** The four named properties form ONE composite top tier; the tier is lexicographically above Speed, and Speed is lexicographically above Cost. The ordering overrides all other optimization pressures, including token economy, latency, and an AI assistant's own inclination to finish quickly.
+**The ordering, named AIQT: (Accuracy = Integrity = Quality = Trust) > Progress > Speed > Cost.** The four named properties form ONE composite top tier; the tier is lexicographically above Progress, Progress above Speed, and Speed above Cost. The ordering overrides all other optimization pressures, including token economy, latency, an AI assistant's own inclination to finish quickly, and equally its own inclination to over-deliberate rather than advance.
 
 Two readings are foreclosed up front:
 
 - **AIQT is not an internal ranking.** Accuracy does not outrank integrity, nor quality trust. The four are co-equal facets of the one non-negotiable tier; a conflict AMONG them is not a priority call but a defect in framing (an "accurate but dishonest" or "high-quality but fabricated" result does not exist; each facet failing fails the tier).
-- **"Lexicographic" applies between tiers.** A gain in speed never justifies any loss on the AIQT tier, however small the loss or however large the gain. Cost is optimized only after both the AIQT tier and speed obligations are fully met. "Done faster" and "done cheaper" are never reasons for "done worse".
+- **"Lexicographic" applies between tiers.** A gain in progress, speed, or cost never justifies any loss on the AIQT tier, however small the loss or however large the gain. Progress is optimized only after the AIQT tier is satisfied; speed only after progress; cost only after speed. "Done faster", "done cheaper", and "done sooner" are never reasons for "done worse".
 
 The rule applies to human developers and to AI coding assistants equally. It binds more often in practice on AI assistants, because the dominant failure mode it prevents (trading correctness for the appearance of fast completion) is exactly what an assistant under throughput pressure is inclined to do.
 
@@ -26,10 +26,19 @@ The facets deliberately overlap at their edges (an inaccurate claim is also an i
 
 ## 2. Priority enforcement
 
-- Nothing on the AIQT tier is ever traded for speed; speed is never traded for cost.
+- Nothing on the AIQT tier is ever traded for progress, speed, or cost; progress is never traded for speed; speed is never traded for cost.
 - When tiers conflict, the higher tier wins outright. There is no blended score, no "good enough given the time", no "it is probably fine".
-- Optimize for cost only after the AIQT and speed obligations are fully satisfied. Optimize for speed only after the AIQT obligations are fully satisfied.
-- A faster or cheaper path that lowers any AIQT facet is not a tradeoff to be made; it is a path to be rejected, or, if the actor cannot tell whether the tier is affected, escalated (see section 4).
+- Optimize for cost only after the AIQT, progress, and speed obligations are fully satisfied; for speed only after the AIQT and progress obligations are; for progress only after the AIQT obligations are.
+- A faster, cheaper, or more-immediately-advancing path that lowers any AIQT facet is not a tradeoff to be made; it is a path to be rejected, or, if the actor cannot tell whether the tier is affected, escalated (see section 4).
+
+## 2a. Progress and Speed: the throughput tier below the AIQT tier
+
+Below the AIQT tier, and in order, sit two throughput values: Progress, then Speed. Both are subordinate to the AIQT tier; neither ever licenses a compromise on it.
+
+- **Progress** is decisive advancement of the actual work: the mission moves forward, and effort is spent on what advances it. Its characteristic failure is not haste but its opposite, **analysis-paralysis**: re-deliberating a question the authorized queue and the standing priorities already answer, re-litigating a settled decision, over-surveying or over-classifying a state, or grinding marginal work when higher-value work or a clean handoff is available. Progress is the value that says: when the answer is derivable, decide and act; do not spin. The observed failure it is named against: an assistant that, once the ready work was done, spent the rest of a long run re-deliberating whether to stop, re-classifying an already-dispositioned backlog, and grinding a marginal record-fix, rather than advancing decisively or handing off cleanly.
+- **Speed** is latency: fewer wasted cycles, less wall-clock, fewer tokens per unit of work. Progress ranks above Speed because a fast-but-directionless run (high activity, low mission-advancement) is a worse outcome than a slower-but-decisively-advancing one, and because raw speed bought at the expense of advancement is the very spinning that Progress forbids.
+
+**The guardrail is non-negotiable, and it is the point.** Progress, like Speed, sits BELOW the AIQT tier and never licenses a compromise on it. The predictable way a "Progress" value is abused is "I need to make progress, so skip the verification / ship it unverified", which is exactly the corner-cutting the lexicographic ordering exists to forbid. Progress targets the **decisiveness axis** (do not over-deliberate; do not grind marginal work), never the **verification axis**: thorough verification is not a Progress failure, and Progress never shortens it. "Advance decisively" means decide and act on what is derivable, never verify less.
 
 ## 3. Integrity non-negotiables
 
@@ -54,11 +63,11 @@ An AI assistant has no internal timer, so the discipline is anchored to semantic
 - At the start of every task or plan.
 - Before a `git commit` or any other persistence action that makes work durable.
 - Before declaring any task, step, or backlog item complete.
-- At every point where the AIQT tier, speed, and cost are in tension.
+- At every point where the AIQT tier, progress, speed, and cost are in tension.
 
 At each checkpoint, emit one line, then either confirm compliance or halt and escalate:
 
-`AIQT check: (Accuracy = Integrity = Quality = Trust) > Speed > Cost. Non-negotiable.`
+`AIQT check: (Accuracy = Integrity = Quality = Trust) > Progress > Speed > Cost. Non-negotiable.`
 
 **Set a MINIMUM CADENCE, not only a list of semantic checkpoints.** A checkpoint list is precisely what a long run erodes, because every checkpoint is one the actor must notice. Observed directly: an assistant went two entire units of work without emitting the line and re-anchored only when the responsible authority asked whether it had forgotten. So pair the semantic list with a floor that does not depend on noticing, for example at least once per change or pull request. And require the emission to be SELF-ACKNOWLEDGED rather than recited: one or two clauses naming what, on this specific change, the tier is being held against. A bare line with no acknowledgement is the decorative form and discharges nothing, for the same reason a pass obtained by lowering the bar is not a pass.
 
@@ -110,6 +119,8 @@ The value of the single named tier is that a conflict is resolved by one rule wi
 
 - **Trading the tier for speed under deadline pressure.** "There is not time to do it correctly" is the failure mode this rule exists to prevent. There is time to escalate that there is not time; there is never license to silently ship worse work.
 - **Trading the tier for cost under token or budget pressure.** "Re-reading the file to verify costs tokens" is not a reason to skip the verification; cost is the lowest-priority dimension.
+- **Analysis-paralysis dressed as diligence.** Re-deliberating a question the authorized queue and standing priorities already answer, re-classifying an already-dispositioned backlog, or grinding marginal work when higher-value work or a clean handoff is available, presented as caution. This is the Progress failure: motion and deliberation substituting for advancement.
+- **Reading Progress as a licence to verify less.** "I need to make progress, so I will skip the verification" inverts the ordering: Progress is below the AIQT tier and never shortens verification. Progress is decisiveness about what to do, never a relaxation of whether it is right.
 - **Reading AIQT as an internal ranking.** Arguing "accuracy beats integrity here" (or any pairwise ordering among the four) misreads the tier; the facets are co-equal, and a conflict among them signals a framing defect to surface, not a priority call to make.
 - **Claiming trust instead of warranting it.** "You can trust this" is not a property the assistant can assert; the record (evidence, audit trail, logged overrides, sign-offs) warrants trust, and the maintainer grants it.
 - **Treating "the check passed" as "the work is correct"** when the check was made to pass by suppression, stubbing, or fabrication. A pass obtained by lowering the bar is a tier loss disguised as a tier confirmation.
