@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Post-merge bookkeeping-parity audit (gate 50).
+"""Bookkeeping-parity audit (gate 50).
 
 The honest backstop for the per-PR QA cadence and the TODO/DONE rotation
 discipline. It enforces the PRESENCE of the bookkeeping records the
@@ -32,9 +32,11 @@ the legacy ``## YYYY-MM-DD, Library Version X, PR #N`` form. For each PR N with 
 the PR-scoped validation history register AND (for substantive PRs) a row in
 the improvement log, with these exemptions:
 
-- The single highest-numbered PR is exempt: its ``/validate-pr`` + ``/retro``
-  rows legitimately batch into the *next* PR per the recursion-avoidance
-  rule, which does not exist yet.
+- EVERY merged PR, INCLUDING the single highest-numbered one, needs its own
+  rows (PR #1248, the synchronous-``/validate-pr`` cutover): the QA now
+  runs before the PR is finalized and its rows land in the SAME PR, so the
+  window is inclusive of ``max_pr``. (The former highest-PR-in-flight exemption
+  went with the retired recursion-avoidance batching.)
 - A session-closing handoff PR is exempt from BOTH the validate-pr and the
   retro requirement (the loop-break: a handoff PR skips its own trailing
   QA). Handoff PRs are detected by their explicit validate-pr exemption row
@@ -49,9 +51,9 @@ the improvement log, with these exemptions:
   PRESENT but records the QA as ``DISPATCHED`` / ``RESULT PENDING`` and never
   ``RETURNED``. Row presence alone used to read GREEN on it, the hole that let
   validate-pr-1173 / validate-pr-1180 sit unconsumed across sessions. A pending
-  row on an in-window PR (below the highest) FAILS Check 1 as a stranded QA
-  order; a pending row on the single highest PR stays in-flight-exempt (its QA
-  batches into the not-yet-existent next PR). A row that ALSO carries
+  row on ANY in-window PR (now including the highest, per the sync cutover)
+  FAILS Check 1 as a stranded QA order: the result must have RETURNED before the
+  PR is finalized. A row that ALSO carries
   ``RETURNED`` is not pending: the word ``dispatched`` may legitimately appear
   in a returned row's prose, so the classifier requires ``RETURNED`` absent.
 - A handful of pre-INCEPTION-era handoff PRs were merged before the
@@ -116,7 +118,7 @@ its sibling structured-bookkeeping files ARE gated (the detailed mirror by
 gate 59, the concurrency lease by gate 63). This closes that one-of-a-pair
 gap: flag ONLY a run row whose number is not greater than the previous run
 row's (precision-first / FP-free; #888 mis-ordered a row and it reached main,
-caught post-merge by /validate-pr). A register-less fork yields no findings.
+caught by /validate-pr). A register-less fork yields no findings.
 Added as a fifth internal check of gate 50 (not a new numbered gate), the same
 no-count-ripple precedent as Check 4.
 
@@ -366,8 +368,10 @@ def bypass_log_findings(
     was read for an unrelated reason. Five recurrences in one day is past the point where a
     convention is the right control.
 
-    The window matches Check 1's: the highest-numbered PR is EXCLUDED as in-flight (its row is
-    written after its own merge, so demanding it here would make every PR fail its own gate), and the
+    Check 6 EXCLUDES the highest-numbered PR as in-flight: its bypass-log row records a POST-merge
+    fact (whether the merge used `--admin`), unknowable before merge, so demanding it here would make
+    every PR fail its own gate. This differs from Check 1, which after the 3.137b synchronous cutover
+    INCLUDES the highest PR (its QA rows are written pre-merge in its own PR). And the
     floor is the register's own oldest row, so a log that starts partway through history is not
     retroactively in breach.
 
@@ -439,7 +443,7 @@ def qa_cadence_findings(
     vp_floor = effective_floor(set(vp_status), floor=inception)
     retro_floor = effective_floor(retro_prs, floor=inception)
 
-    for pr in sorted(p for p in changelog_prs if inception <= p < max_pr):
+    for pr in sorted(p for p in changelog_prs if inception <= p <= max_pr):
         if pr in known_handoff:
             continue
         st = vp_status.get(pr)
@@ -450,7 +454,7 @@ def qa_cadence_findings(
                 continue
             findings.append(
                 f"  [qa-cadence] PR #{pr}: no row in {VALIDATE_PR_HISTORY}. "
-                f"Every merged PR in [{inception}, {max_pr}) needs a "
+                f"Every merged PR in [{inception}, {max_pr}] needs a "
                 f"/validate-pr row (or a handoff/subsumption exemption row). "
                 f"If this is a session-closing handoff PR predating the "
                 f"exemption-row convention, add it to KNOWN_HANDOFF_NO_ROW."
@@ -468,8 +472,8 @@ def qa_cadence_findings(
             # so the order is stranded: FAIL until the result RETURNS.
             findings.append(
                 f"  [qa-cadence] PR #{pr}: its /validate-pr row is PRESENT but marks the "
-                f"QA as DISPATCHED / RESULT-PENDING and it never RETURNED; a later PR "
-                f"exists (window up to #{max_pr}), so the QA order was stranded. Consume "
+                f"QA as DISPATCHED / RESULT-PENDING and it never RETURNED (window through "
+                f"#{max_pr}), so the QA order is stranded. Consume "
                 f"the result, update the row to RETURNED with its findings dispositioned, "
                 f"or re-issue the order (per the undelivered-validate-pr-is-blocking rule)."
             )
@@ -479,8 +483,8 @@ def qa_cadence_findings(
         if pr not in retro_prs and pr >= retro_floor:
             findings.append(
                 f"  [qa-cadence] PR #{pr}: has a /validate-pr row but no "
-                f"/retro row in {IMPROVEMENT_LOG}. A substantive PR's "
-                f"post-merge retrospective row batches into the next PR; it "
+                f"/retro row in {IMPROVEMENT_LOG}. A substantive PR records "
+                f"its /retro row in the same PR; it "
                 f"is missing here."
             )
     return findings
@@ -582,7 +586,7 @@ def register_row_order_findings(register_text: str) -> list[str]:
     sibling structured-bookkeeping files ARE gated (the detailed mirror by gate
     59, the lease by gate 63) while it was not; this closes that one-of-a-pair
     gap (the r3 guardrail-review G3 finding; #888 mis-ordered a row and it
-    reached main, caught post-merge by /validate-pr). An empty or register-less
+    reached main, caught by /validate-pr). An empty or register-less
     input yields no findings (a fork without the register is not a defect).
     """
     findings: list[str] = []
