@@ -2,8 +2,8 @@
 
 **Document Title:** Authentication and Password Management Standard\
 **Document Type:** Standard\
-**Version:** 1.1.2\
-**Date:** 2026-07-19\
+**Version:** 1.1.3\
+**Date:** 2026-07-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md)\
@@ -50,7 +50,7 @@ To establish consistent, risk-proportionate authentication controls that reduce 
 | Complexity | Must include characters from at least 3 of: uppercase, lowercase, numerals, special characters. Passphrases are preferred over complex short passwords. |
 | Prohibited passwords | Banned via enterprise password protection service (common passwords, company name variants, sequential patterns). Dictionary words as sole content are prohibited. |
 | Password reuse | The last 12 passwords must not be reused. |
-| Maximum age | No mandatory periodic expiry per NIST SP 800-63B Rev. 4 §5.1.1 Memorized Secrets (the recommendation is not conditioned on MFA presence; Rev. 4 finalized 2025-07 reaffirms this and prohibits arbitrary rotation absent evidence of compromise). Passwords must be changed immediately upon suspected compromise. |
+| Maximum age | No mandatory periodic expiry per NIST SP 800-63B Rev. 4 §3.1.1 Passwords (the recommendation is not conditioned on MFA presence; Rev. 4 finalized 2025-07 reaffirms this and prohibits arbitrary rotation absent evidence of compromise). Passwords must be changed immediately upon suspected compromise. |
 | Storage | Passwords must never be stored in plaintext. All systems must use salted cryptographic hashing; the governing algorithm and parameter floor is the Password-based encryption entry in the Encryption and Key Management Policy (Argon2id preferred at the parameters stated there, with PBKDF2-HMAC as the alternative). Stored secrets are managed by the secrets management service. |
 
 ---
@@ -96,9 +96,9 @@ Exceptions to any requirement in this standard require CISO approval and must be
 
 | Control | NIST SP 800-63B | ISO/IEC 27001:2022 | CSA CCM v4.1 | CIS |
 | --- | --- | --- | --- | --- |
-| Password requirements | SP 800-63B §5.1.1 | A.8.5 | IAM-06 | Control 5 |
-| MFA | SP 800-63B §6.3 | A.8.5 | IAM-08 | Control 6 |
-| Session management | SP 800-63B §7.1 | A.8.5 | IAM-09 | Control 5 |
+| Password requirements | SP 800-63B §3.1.1 | A.8.5 | IAM-06 | Control 5 |
+| MFA | SP 800-63B §2.2 (AAL2) | A.8.5 | IAM-08 | Control 6 |
+| Session management | SP 800-63B §5 | A.8.5 | IAM-09 | Control 5 |
 | Service account auth | N/A | A.8.2 | IAM-02 | Control 5 |
 
 
