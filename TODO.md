@@ -446,10 +446,6 @@ Add an EACCES fixture to the self-tests of `collect-deliveries.py`, `audit-deliv
 
 `.claude/rules/cicd-gates.md:136`, `dev-security/claude-rules/pipeline/cicd-gates.md:127`, and `dev-security/standard-devops-security-requirements.md:207` cite `A.8.10` (Information deletion) for secret scanning. Either A.8.10 is wrong there too or the concept differs from "secrets management" (fixed to A.8.24 in #1219); decide one answer (likely A.8.28 secure coding or A.8.24) and apply consistently.
 
-### 3.171 NIST SP 800-63B cited as Rev. 4 by name while carrying Rev. 3 substance (2026-07-28 deep-assessment c5, claude, ERROR, M)
-
-Three sites name Rev. 4 but use Rev. 3 section numbers/substance (the highest-severity instance of the label-drift class). Decide the intended revision and reconcile the citation and the content together.
-
 ### 3.172 ISO/IEC 27033-1 title internal conflict (2026-07-28 deep-assessment c5, claude, M, S)
 
 `operations/standard-network-security-and-segmentation.md:172` and `security/policy-network-communications-security.md:147` print "Network Security Architecture and Segmentation" while the corpus's own `register-canonical-citations.md:69` records Part 1 as "Overview and concepts". Align the printed title to the register (27033 is not held, so the register arbitrates).
