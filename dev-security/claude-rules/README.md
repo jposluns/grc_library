@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.65.24\
+**Version:** 1.66.1\
 **Date:** 2026-07-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -29,7 +29,7 @@ These are **draggable rule files**: copy any subset into your project's Claude C
 The pack covers two areas:
 
 1. **Security and compliance.** Hardcoded-secrets prevention, input validation, cryptography, authentication, OWASP/ASVS alignment, AI/agent/MCP/RAG security, CI/CD pipeline gates, language-specific security patterns. Lives under `core/`, `ai/`, `pipeline/`, and `languages/`.
-2. **Development-governance discipline.** Rules that govern how an AI coding assistant collaborates on a governed codebase: gate discipline, change-tracking discipline, evidence-grounded completion, clarify-before-acting on ambiguous requests, artefact-and-branch discipline, action-before-explanation-of-inaction, validate-inference-before-action, AI-assistant workflow disciplines (research-assistant, pipeline construction, apply-time correction, always-split, CI-wait productivity), the trust-recovery escalation tier, the project-integrity apex rule (the AIQT Principle, (Accuracy = Integrity = Quality = Trust) > Speed > Cost), surfacing counterproductive instructions before acting on them, high-assurance verification for sensitive changes (independent adversarial verification plus a deterministic apply, persisted across sessions), and the session-lifecycle and operating-modes discipline for multi-session work (durable handoff, explicit operator-set modes, graceful degradation, evidence-gated wind-down, the green-merge close, and a concurrency lease). Lives under `governance/`.
+2. **Development-governance discipline.** Rules that govern how an AI coding assistant collaborates on a governed codebase: gate discipline, change-tracking discipline, evidence-grounded completion, clarify-before-acting on ambiguous requests, artefact-and-branch discipline, action-before-explanation-of-inaction, validate-inference-before-action, AI-assistant workflow disciplines (research-assistant, pipeline construction, apply-time correction, always-split, CI-wait productivity), the trust-recovery escalation tier, the project-integrity apex rule (the AIQT Principle, (Accuracy = Integrity = Quality = Trust) > Progress > Speed > Cost), surfacing counterproductive instructions before acting on them, high-assurance verification for sensitive changes (independent adversarial verification plus a deterministic apply, persisted across sessions), and the session-lifecycle and operating-modes discipline for multi-session work (durable handoff, explicit operator-set modes, graceful degradation, evidence-gated wind-down, the green-merge close, and a concurrency lease). Lives under `governance/`.
 
 The pack also ships **Claude Code Skills** (`SKILL.md` workflow format) under `skills/`, derived from selected governance rules. The canonical rule remains the source of truth for normative content (framework alignment, exception handling, rationale); the skill is the workflow wrapper (when to invoke, what steps in what order, what verification confirms completion). The directory tree below lists the current set; per-version shipping history lives in the `## Version history` section near the bottom of this README and in the parent library's `CHANGELOG.md`.
 
@@ -56,9 +56,12 @@ Adopting nothing else from this pack, a project can still adopt its apex orderin
 ```markdown
 ## The AIQT Principle (apex rule)
 
-**(Accuracy = Integrity = Quality = Trust) > Speed > Cost.** The four facets form one
-non-negotiable top tier with no internal ranking; the tier outranks speed, and speed
-outranks cost. "Done faster" or "done cheaper" is never a reason for "done worse".
+**(Accuracy = Integrity = Quality = Trust) > Progress > Speed > Cost.** The four facets form one
+non-negotiable top tier with no internal ranking; the tier outranks progress, progress
+outranks speed, and speed outranks cost. "Done faster", "done cheaper", or "done sooner"
+is never a reason for "done worse". Progress (decide and act when the answer is derivable;
+do not spin or grind marginal work when a clean handoff is available) and Speed (latency)
+are the throughput tier below the AIQT tier, and neither ever reduces verification.
 
 - **Accuracy**: every claim matches its source; every state assertion rests on an
   observation, not an inference. If a fact is unknown, say so.
@@ -71,10 +74,10 @@ outranks cost. "Done faster" or "done cheaper" is never a reason for "done worse
   evidence; overrides logged; failures reported plainly.
 
 If satisfying this tier conflicts with a deadline or a budget, halt and escalate the
-tradeoff; do not resolve it silently in favour of speed or cost.
+tradeoff; do not resolve it silently in favour of progress, speed, or cost.
 
 Checkpoint (start of task, before commit, before any "done" claim):
-`AIQT check: (Accuracy = Integrity = Quality = Trust) > Speed > Cost. Non-negotiable.`
+`AIQT check: (Accuracy = Integrity = Quality = Trust) > Progress > Speed > Cost. Non-negotiable.`
 ```
 
 The honest caveat, stated so adopters do not mistake a preamble for a control: a principle in an instructions file guides behaviour but does not enforce it. The enforcement is mechanical (CI gates, audit scripts, branch protection) and procedural (the rest of this pack's rules); this baseline is the ordering they all assume. Start with the baseline, then adopt the rules and gates that make it stick.
@@ -107,7 +110,7 @@ claude-rules/
 │   ├── validate-inference-before-action.md      Validate any inferred premise via tool call before the action that depends on it; cascade failures are what the rule prevents
 │   ├── ai-assistant-workflow-disciplines.md     Five disciplines for an AI assistant driving multi-PR work (research-assistant, pipeline construction, apply-time correction, always-split, CI-wait productivity), plus the layered skeptical pre-push verification standard (tiered verifier subagents, three-iteration cap, logged overrides)
 │   ├── trust-recovery-escalation.md             Escalation tier when discipline failures need a white-box re-examination: the /full-qa + /fitness suite, every finding routed tiered by severity, maintainer sign-off terminates
-│   ├── project-integrity.md                     Apex rule: the AIQT Principle, (Accuracy = Integrity = Quality = Trust) > Speed > Cost, non-negotiable; orders the other rules under a single priority on the optimization-dimension axis
+│   ├── project-integrity.md                     Apex rule: the AIQT Principle, (Accuracy = Integrity = Quality = Trust) > Progress > Speed > Cost, non-negotiable; orders the other rules under a single priority on the optimization-dimension axis
 │   ├── surface-counterproductive-instructions.md A clear instruction can still be wrong: surface a counterproductive one (efficiency/quality/work-loss/stale-state) and confirm before acting; never silently take a harmful literal reading or revert committed work
 │   ├── high-assurance-verification.md           Heavier pre-apply harness for sensitive changes (gate-blind/delicate/costly): research fan-out, signal pass over negatives, two independent adversarial verifiers, programmatic floor, deterministic apply plus re-parse; persisted across sessions, proactive counterpart to trust-recovery
 │   ├── session-lifecycle.md                     Session-lifecycle and operating-modes discipline: durable reconciled handoff record, explicit operator-set modes (attended / attended-autonomous / unattended), graceful degradation for blocked decisions with an absolute reversibility gate, evidence-gated wind-down (continue is the default), the green-merge close with its loop-break compensating control, and an advisory concurrency lease
@@ -238,7 +241,7 @@ If your project already has an `AGENTS.md` for other coding agents (Codex, Curso
 | [`governance/validate-inference-before-action.md`](governance/validate-inference-before-action.md) | Any project where an AI coding assistant orchestrates multi-step workflows (sweep cycles, audit cascades, multi-PR series) and may infer a premise (state unchanged since prior run, fix complete after one occurrence, prior approval extends to current scope) to drive an action; the rule fires when inference replaces verification at any decision boundary |
 | [`governance/ai-assistant-workflow-disciplines.md`](governance/ai-assistant-workflow-disciplines.md) | Any project where an AI coding assistant drives substantive multi-PR work over a long session with research-helper subagents and CI gating. The rule covers research-assistant verification, pipeline PR construction, apply-time worker correction, "split when in doubt", and productive CI-wait use, plus the layered skeptical pre-push verification standard (tiered refute-briefed verifier subagents, the three-iteration finding loop, never-silent overrides); surfaces when the orchestrator is dispatching multiple workers in parallel, when changes might be bundled, when idle during CI, or when pasting worker prose unverified |
 | [`governance/trust-recovery-escalation.md`](governance/trust-recovery-escalation.md) | Any project where an AI coding assistant ships work across multiple changes with a maintainer in the loop; the escalation tier invoked when accumulated discipline failures (abbreviated or skipped QA across changes, a skipped verification that reached the shared pipeline, a cascaded unvalidated inference) put a maintainer's confidence in a window of work in question and a heavier white-box re-examination is warranted |
-| [`governance/project-integrity.md`](governance/project-integrity.md) | Any project where an AI coding assistant participates; the apex rule fixing the AIQT Principle, (Accuracy = Integrity = Quality = Trust) > Speed > Cost, invoked at every point where those dimensions are in tension (deadline, token, or throughput pressure tempting a quality or integrity compromise) |
+| [`governance/project-integrity.md`](governance/project-integrity.md) | Any project where an AI coding assistant participates; the apex rule fixing the AIQT Principle, (Accuracy = Integrity = Quality = Trust) > Progress > Speed > Cost, invoked at every point where those dimensions are in tension (deadline, token, or throughput pressure tempting a quality or integrity compromise) |
 | [`governance/surface-counterproductive-instructions.md`](governance/surface-counterproductive-instructions.md) | Any project where an AI coding assistant executes requestor instructions; fires when a clear instruction's execution as given would be net-negative (destroy work already done, lower quality, waste effort, contradict a stated goal, or rest on a stale-state belief), so the assistant surfaces the concrete cost with named options and confirms before acting |
 | [`governance/high-assurance-verification.md`](governance/high-assurance-verification.md) | Any project where an AI coding assistant ships changes whose correctness a mechanical gate cannot fully verify; the heavier pre-apply harness for a sensitive change (gate-blind on correctness, delicate at scale, costly to get wrong), adding independent adversarial verification and a deterministic apply on top of the routine research-and-author flow |
 | [`governance/session-lifecycle.md`](governance/session-lifecycle.md) | Any project running multi-session AI-assisted work; the RESUME / WORK / CLOSE lifecycle apparatus, a durable reconciled handoff record, explicit operator-set operating modes (fully attended / attended-autonomous / unattended), graceful degradation for blocked operator decisions with an absolute reversibility gate, evidence-gated wind-down (continue is the default), the closing green-merge with its loop-break compensating control, and an advisory concurrency lease |
@@ -505,6 +508,7 @@ The pack's change history is maintained in the parent grc_library repository CHA
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.66.1 | 2026.07.751 | 2026-07-30 | Apex rule (**AIQT Principle**) extended with **Progress**: the ordering is now (Accuracy = Integrity = Quality = Trust) > Progress > Speed > Cost. Progress (decisive advancement, the anti-analysis-paralysis value) and Speed (latency) form the throughput tier below the co-equal AIQT tier; Progress ranks above Speed and, like Speed, sits below the AIQT tier and never licenses reduced verification (it targets the decisiveness axis, not the verification axis). New `## 2a` section defines Progress and its non-negotiable guardrail; the checkpoint line, the ordering and lexicographic statements, section 2, and the anti-patterns updated across both trees, with the project `CLAUDE.md` PRIMORDIAL RULE, pack `CLAUDE.md`, this README, the `/resume` command, and the `surface-counterproductive-instructions` cross-reference migrated. Pack `1.65.24` to `1.66.1` (minor; substantive apex-rule amendment, no new rule; the dual-family verify's completeness fixes across the prose dimension-enumerations and the website templates landed in the same PR). |
 | 1.65.24 | 2026.07.748 | 2026-07-30 | Patch (TODO 3.170, caught by the xhigh dual-family verify): the secret-scanning citation in the cicd-gates pipeline mirror pair (and the devops-security standard) corrected from ISO A.8.10 (Information deletion) to A.8.28 (Secure coding). |
 | 1.65.23 | 2026.07.738 | 2026-07-30 | Patch (3.137b residual, caught by the xhigh dual-family verify): corrected the skill-index descriptions for `validation-sweep-pr-scoped` ("post-merge"/"just-merged PR"/"runs after every merge" -> synchronous finalizing step, runs before merge) and `pr-retrospective` ("post-merge retrospective" -> finalizing step) to the synchronous same-PR model. |
 | 1.65.22 | 2026.07.738 | 2026-07-30 | Synchronous-`/validate-pr` cutover (TODO 3.137b): the `ai-assistant-workflow-disciplines` rule's session-closing-handoff QA-skip demoted from the standing exception to a documented loop-termination fallback (byte-identical in both trees), and the `validation-sweep-pr-scoped`, `validation-sweep`, and `pr-retrospective` skills reworded from the post-merge / batch-into-next-PR model to running the QA synchronously as a PR's finalizing step with rows in the same PR. |
