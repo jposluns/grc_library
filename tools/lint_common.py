@@ -96,6 +96,36 @@ DEFAULT_EXEMPT_DIRS: frozenset[str] = frozenset(
 )
 
 
+# --- Historical-surface classification (hoisted from residual-scan.py, TODO 3.139.2) ---
+# Shared by residual-scan.py and the D9 retired-section-orphan gate so the two
+# cannot drift on what counts as a LIVE surface (defence in depth). A hit is
+# LEDGER (append-only history) or FROZEN-RECORD (dated per-run archive) or LIVE;
+# only LIVE hits are actionable, the others are legitimate historical narration.
+
+# Dated per-run archive: any .working/<activity>/<YYYY-...> file, any year.
+FROZEN_RECORD_RE = re.compile(r"^\.working/[^/]+/\d{4}-")
+
+# Per-activity append-only history tables.
+LEDGER_RE = re.compile(r"^\.working/[^/]+/history\.md$")
+
+# Top-level append-only ledgers.
+LEDGER_PATHS = (
+    "CHANGELOG.md",
+    ".working/changelog-details/CHANGELOG-detailed.md",
+    ".working/DONE.md",
+    ".working/improvement-log.md",
+)
+
+
+def classify(rel: str) -> str:
+    """Classify a repo-relative path as LEDGER / FROZEN-RECORD / LIVE."""
+    if LEDGER_RE.match(rel) or rel in LEDGER_PATHS:
+        return "LEDGER"
+    if FROZEN_RECORD_RE.match(rel):
+        return "FROZEN-RECORD"
+    return "LIVE"
+
+
 # Sibling-repo short name -> the real sibling checkout's directory name.
 # The three siblings of the public ``grc_library`` repo. See TODO section
 # 1.19 (operational-state privatization + adopter-clone portability).

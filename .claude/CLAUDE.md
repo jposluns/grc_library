@@ -305,7 +305,7 @@ detail and rationale for everything below live in
    - On a convention/count/term/gate-wiring change: grep the OLD phrasing across the full file AND every sibling surface, at BARE-TOKEN width (not a phrasing-specific string); scope the completion CLAIM to the SLOT, not the string.
    - Corpus-wide completion claim: grep the FULL corpus file set, not the change's own input set.
    - Full-file-grep + parallel-case re-verification for prose corrections, across four axes: pattern-width, scope-width, SEPARATOR tolerance (proximity form, both orders), FILE-TYPE width (`.py`/`.yml`/`.sh`/`.json`/`.claude/`, not `.md` alone).
-   - Section-close cross-FILE §N-orphan cleanup: grep the WHOLE repo for every KEY FORM (`§N`, `PN.M`, bare tokens, RANGE `§A-§B`, `item N`), including gate-exempt files carrying forward pointers.
+   - Section-close cross-FILE §N-orphan cleanup: the anchored key-forms (`§N.M`/`PN.M`/`TODO §N.M`) surviving on OPERATIONAL surfaces are now GATED by D9 (`check-retired-section-orphan-on-pr.py`); the manual grep still covers the residue D9 excludes by design: bare tokens, RANGE `§A-§B`, `item N`, and corpus `.md` surfaces.
    - Grep-claim fidelity: any clause characterizing a grep result is written FROM the pasted output, not memory.
    - Meta-prose state-claim measurement: any clause characterizing an artefact's own state is MEASURED at authoring time (recount enumerations; never transcribe a subagent figure unrecounted).
    - CHANGELOG count-reflex: a figure that drifts mid-PR is bare-token-grepped across the whole entry, both files.
