@@ -69,6 +69,12 @@ DEFAULT_EXEMPT_DIRS: frozenset[str] = frozenset(
         "__pycache__",
         ".claude",
         ".working",
+        # references/ holds operational REFERENCE prose relocated from the
+        # gate-exempt .claude/CLAUDE.md (TODO 3.139.1, roadmap C phase 1): the
+        # per-turn-loaded governance detail read at the PR-close-out boundary.
+        # It is operational machinery, not corpus content, so it is exempt like
+        # .claude/ (the prose was exempt in its prior home; this preserves that).
+        "references",
         # In-repo sibling-repo placeholder slots (TODO section 1.22.2): OPTIONAL
         # stand-ins for the grc_library_ref / grc_library_scratch / grc_library_private
         # siblings. They are NOT shipped by default (the maintainer runs the real
