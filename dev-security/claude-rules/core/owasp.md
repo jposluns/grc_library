@@ -185,16 +185,16 @@ Security risks for systems using the Model Context Protocol (MCP). Full detail i
 
 | Risk | What Goes Wrong | Key Control |
 | --- | --- | --- |
-| MCP01 Tool Poisoning | Malicious tool descriptions manipulate AI decisions | Verify tool registry; validate tool descriptions before use |
-| MCP02 Insecure Authentication | Unauthenticated tool endpoints allow unauthorized access | Require auth on every tool call; OAuth 2.0 scopes |
-| MCP03 Tool-Call Injection | Adversarial data in tool inputs/outputs manipulates execution | Sanitize all content before using as tool arguments; never trust retrieved content as instructions |
-| MCP04 Resource Injection | Malicious URIs or resource identifiers exfiltrate data | Validate all URI inputs against allowlist; no internal path exposure |
-| MCP05 Excessive Tool Scope | Tools expose capabilities beyond their stated purpose | Least-privilege tool definitions; no shell/arbitrary filesystem access |
-| MCP06 Model Misbinding | Wrong model version used silently | Explicit model version pinning; verify model identity at session start |
-| MCP07 Prompt-State Manipulation | Crafted sequences alter model behaviour across turns | Log full conversation context; alert on anomalous instruction patterns |
-| MCP08 Insecure Memory | Persistent memory leaks sensitive state across sessions | Clear sensitive state on session end; apply TTL to memory entries |
-| MCP09 Covert Channel Abuse | Steganographic or timing attacks exfiltrate data | Audit and rate-limit all outbound calls from agent; alert on unusual output patterns |
-| MCP10 Uncontrolled Recursion | Agent loops or excessive tool calls exhaust resources | Max chain-depth limit; token budget; circuit breaker on error loops |
+| MCP01 Token Mismanagement & Secret Exposure | Hard-coded credentials, long-lived tokens, or secrets stored in model memory or protocol logs expose connected systems | Store secrets in a vault; short-lived scoped tokens; keep secrets out of prompts, memory, and logs |
+| MCP02 Privilege Escalation via Scope Creep | Loosely-defined MCP permissions expand over time, granting agents excessive capability | Least-privilege scopes; periodic scope review; deny self-granted or widening permissions |
+| MCP03 Tool Poisoning | An adversary compromises tools, plugins, or their outputs to inject malicious or misleading context | Verify the tool registry; validate tool descriptions and outputs before use; treat tool output as untrusted |
+| MCP04 Software Supply Chain Attacks & Dependency Tampering | A compromised dependency alters agent behaviour or introduces execution-level backdoors | Pin and verify dependencies; require signed artifacts; maintain an SBOM and scan for tampering |
+| MCP05 Command Injection & Execution | The agent constructs and executes commands, shell, API calls, or code from untrusted input without validation | Never build commands from untrusted input; parameterize; no shell or arbitrary filesystem or code execution |
+| MCP06 Intent Flow Subversion | Malicious instructions embedded in retrieved context hijack the agent's intent flow toward an attacker goal | Treat retrieved context as data, never instructions; separate instruction and data channels; verify intent |
+| MCP07 Insufficient Authentication & Authorization | MCP servers, tools, or agents fail to verify identity or enforce access controls | Require authentication on every tool call; OAuth scopes; verify identity for every agent and service |
+| MCP08 Lack of Audit and Telemetry | Limited telemetry from MCP servers and agents impedes investigation and incident response | Immutable audit logs of tool invocations, context changes, and user-agent interactions; alert on anomalies |
+| MCP09 Shadow MCP Servers | Unapproved or unsupervised MCP deployments operate outside formal security governance | Inventory and govern all MCP deployments; block unapproved servers; no default credentials or open configs |
+| MCP10 Context Injection & Over-Sharing | Shared, persistent, or under-scoped context windows leak sensitive information across tasks, users, or agents | Scope and isolate context per task, user, and agent; apply TTL; clear sensitive state on session end |
 
 ---
 
