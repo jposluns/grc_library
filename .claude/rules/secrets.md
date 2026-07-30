@@ -22,7 +22,7 @@ Never place the following in source code, config files tracked in version contro
 - Cloud provider access keys and secret access keys
 - Service account JSON credential files
 - Session tokens
-- Encryption keys and initialization vectors
+- Encryption keys
 
 ---
 

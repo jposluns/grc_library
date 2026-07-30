@@ -75,10 +75,6 @@ R4: TikiTribe framed as an offensive toolkit when it is a defensive secure-codin
 
 The finding all three sources converged on and the most dangerous: the rules simultaneously mandate "log all AI I/O + full tool args/results" and "never log secrets/PII", so a literal executor copies secrets/PII into the SIEM (`CLAUDE.md:77/99`, `ai/ai-security.md:35/62/98`, `ai/mcp-security.md:22`, RAG rules). The RESOLUTION (the canonical logging policy) is the maintainer's authorial decision; this phase surfaces the options and, once decided, reconciles every site to the canonical `ai/logging-and-telemetry.md`.
 
-### 1.27.5 Verify-first standards claims (R5/R6/R17; H, M) `[content]`
-
-Single-source or unverified claims that must be checked at the held source BEFORE routing as confirmed. R5: CCM LOG-10 mis-mapped for audit-trail integrity across ~12 files (should be LOG-09; high-impact, may falsify a changelog "verified vs CCM v4.1" claim). R6: CCM CEK-10..21 mis-pasted onto gate-bypass prose (`gate-discipline.md:132`). R17: IVs classified as confidential secrets (`core/secrets.md:23`; IVs need uniqueness, not confidentiality).
-
 ### 1.27.6 Control-ID-title verifier gate (R25; H, L) `[machinery]`
 
 The durable mechanical backstop for the whole citation-accuracy class (R1/R2/R3/R5/R6/R7/R8): a gate that parses each cited control ID (OWASP A0x/LLM0x/MCP0x, NIST SSDF, CSA CCM, SLSA), looks up the official title, and flags mismatches; plus an OWASP-edition-consistency check. Register with the gate-name parity self-check (gate 35) and the stdlib-only import audit (gate 71). This is the control that would have caught R1/R3/R7 mechanically.
