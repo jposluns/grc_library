@@ -73,7 +73,7 @@ Adversarial documents in the corpus can instruct the model to take unintended ac
 
 - Validate and sanitize user queries before embedding: reject queries that exceed token limits or contain injection payloads
 - Implement rate limiting on retrieval queries per user and globally
-- Do not include the raw user query in audit logs if it may contain sensitive personal data: log a sanitized or hashed version
+- Do not include the raw user query in audit logs if it may contain sensitive personal data: log a sanitized or hashed version (this follows the canonical AI-logging policy in [`ai/ai-security.md`](ai-security.md): log events and metadata always, redact content)
 - Implement query rewriting carefully: model-rewritten queries can be used to exfiltrate information through the retrieval system
 
 ---

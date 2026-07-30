@@ -96,7 +96,7 @@ When writing code that calls LLMs, builds AI applications, or processes AI-gener
 - **Never pass LLM output directly to**: shell commands, SQL queries, file system operations, or other tool calls without validation
 - **Implement prompt injection defenses**: do not concatenate user input directly into system prompts; use separate message roles; validate instructions in retrieved content before acting on them
 - **Rate-limit all AI endpoints**: LLM calls are expensive and can be abused for data exfiltration
-- **Log all AI inputs and outputs** to SIEM for anomaly detection
+- **Log AI interaction events and metadata** (request/session id, model, tool calls, human decisions, errors) to SIEM for anomaly detection; log input/output CONTENT only with secrets and PII redacted, and never raw full prompts in production (consistent with the never-log list above)
 - **Require human confirmation** before writing to operational data based on AI decisions
 - **Do not send Confidential or Restricted data to external AI APIs** without a data processing agreement and explicit approval
 
