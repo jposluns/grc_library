@@ -2,8 +2,8 @@
 
 **Document Title:** DevOps Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.0.8\
-**Date:** 2026-07-10\
+**Version:** 1.0.9\
+**Date:** 2026-07-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`operations/README.md`](../operations/README.md)\
@@ -204,7 +204,7 @@ The EOL classification policy and remediation SLAs are defined in the Security B
 | Control Area | ISO/IEC 27001/27002 | CSA CCM v4.1 | NIST SSDF | NIST SP 800-53 | SLSA |
 | --- | --- | --- | --- | --- | --- |
 | CI/CD pipeline security | A.8.25 to 8.27 | CCC-01 to 09, AIS-04 | PW.8 | SA-10, SA-15 | Level 2 to 3 |
-| Pipeline secret scanning | A.8.10 | CEK-10 to 21 | PW.8.2 | IA-5 | Level 2 |
+| Pipeline secret scanning | A.8.28 | CEK-10 to 21 | PW.8.2 | IA-5 | Level 2 |
 | Artifact signing and integrity | A.8.27 | CCC-04 to 05 | DS.2 | SA-12 | Level 3 |
 | IaC security | A.8.25 | CCC-06 | PW.4 | CM-2, CM-3 | N/A |
 | Environment separation | A.8.31 | I&S-05 | PO.5 | SC-3, SC-7 | N/A |

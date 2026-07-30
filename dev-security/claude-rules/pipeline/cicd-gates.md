@@ -124,7 +124,7 @@ Pipeline definition files (YAML, JSON, HCL) must:
 
 | Gate | CSA CCM | NIST SSDF | ISO 27001 | SLSA |
 | --- | --- | --- | --- | --- |
-| Secret scanning | CEK-10 to 21 | PW.8.2 | A.8.10 | Level 2 |
+| Secret scanning | CEK-10 to 21 | PW.8.2 | A.8.28 | Level 2 |
 | SAST | AIS-04 | VE.1 | A.8.29 | Level 2 |
 | SCA | TVM-06 | PO.5, PW.4 | A.8.8 | Level 2 |
 | Container scan | I&S-04 | VE.1 | A.8.8 | Level 2 |

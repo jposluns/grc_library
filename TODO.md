@@ -442,10 +442,6 @@ Model-mismatch, rate-limit, unavailable, and no-capacity all collapse to one mes
 
 Add an EACCES fixture to the self-tests of `collect-deliveries.py`, `audit-delivery-status.py`, and `manage-workers.py`, so the unreadable-plane path (3.167) is regression-covered.
 
-### 3.170 "Secret scanning" is cited as ISO `A.8.10` in three files (2026-07-28 deep-assessment c1/#1219 verifier, W, S)
-
-`.claude/rules/cicd-gates.md:136`, `dev-security/claude-rules/pipeline/cicd-gates.md:127`, and `dev-security/standard-devops-security-requirements.md:207` cite `A.8.10` (Information deletion) for secret scanning. Either A.8.10 is wrong there too or the concept differs from "secrets management" (fixed to A.8.24 in #1219); decide one answer (likely A.8.28 secure coding or A.8.24) and apply consistently.
-
 ### 3.174 Citation-precision phrasing (72h-from-confirmation, PR.AA title, joint-controller allocation) (2026-07-28 deep-assessment c5, codex, W, XS)
 
 `security/procedure-security-incident-response.md:175` says GDPR "72 hours from confirmation" vs the statutory "after becoming aware"; the PR.AA title is truncated at `matrix-reverse:92`; the joint-controller allocation at `template-joint-controller:109` is informed-not-prescribed. Phrasing corrections (a `/claim-fit`-class batch).
