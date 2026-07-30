@@ -446,10 +446,6 @@ Add an EACCES fixture to the self-tests of `collect-deliveries.py`, `audit-deliv
 
 `.claude/rules/cicd-gates.md:136`, `dev-security/claude-rules/pipeline/cicd-gates.md:127`, and `dev-security/standard-devops-security-requirements.md:207` cite `A.8.10` (Information deletion) for secret scanning. Either A.8.10 is wrong there too or the concept differs from "secrets management" (fixed to A.8.24 in #1219); decide one answer (likely A.8.28 secure coding or A.8.24) and apply consistently.
 
-### 3.172 ISO/IEC 27033-1 title internal conflict (2026-07-28 deep-assessment c5, claude, M, S)
-
-`operations/standard-network-security-and-segmentation.md:172` and `security/policy-network-communications-security.md:147` print "Network Security Architecture and Segmentation" while the corpus's own `register-canonical-citations.md:69` records Part 1 as "Overview and concepts". Align the printed title to the register (27033 is not held, so the register arbitrates).
-
 ### 3.173 NIS2 size cap cited as Article 3 (held Art 2(1) has no figures) (2026-07-28 deep-assessment c5, claude, M, S)
 
 `compliance/annex-nis-2-implementation.md:36` cites "Article 3" for the size cap; held Art 2(1) (not Art 3) states no figures, incorporating Recommendation 2003/361/EC by reference, and the flat "or" loses the Recommendation's conjunctive headcount test. Fix the article reference and the phrasing.
