@@ -2,7 +2,7 @@
 
 **Document Title:** Developer Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.12\
+**Version:** 1.1.13\
 **Date:** 2026-07-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -244,7 +244,7 @@ Before any AI feature enters production, adversarial testing for AI-specific thr
 - Model inversion and membership inference risks
 - Output validation failures
 
-Reference adversarial test frameworks include OWASP LLM Top 10, MITRE ATLAS, and open-source adversarial testing utilities such as TikiTribe (for MCP server security, tool-call injection resistance, and agentic workflow attack surface enumeration).
+Reference adversarial test frameworks include OWASP LLM Top 10 and MITRE ATLAS.
 
 ---
 

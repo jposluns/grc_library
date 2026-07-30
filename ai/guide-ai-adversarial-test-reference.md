@@ -2,8 +2,8 @@
 
 **Document Title:** AI Adversarial Test Reference\
 **Document Type:** Guide\
-**Version:** 1.3.3\
-**Date:** 2026-07-11\
+**Version:** 1.3.4\
+**Date:** 2026-07-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/guideline-adversarial-evaluation-suite-development.md`](guideline-adversarial-evaluation-suite-development.md), [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md), [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md)\
@@ -171,7 +171,7 @@ Red team reports must document: attack narrative; tools used; steps to reproduce
 
 ## B4. TikiTribe integration
 
-The TikiTribe claude-secure-coding-rules repository provides additional test patterns aligned to OWASP LLM Top 10, OWASP MCP Top 10, MITRE ATLAS, and NIST AI RMF. When TikiTribe test cases overlap with categories B1.1 through B1.5, those test cases may satisfy the requirement for the corresponding category, provided the TikiTribe test version is documented.
+The TikiTribe claude-secure-coding-rules repository provides defensive secure-coding rules for AI-assisted development, aligned to OWASP LLM Top 10, OWASP MCP Top 10, MITRE ATLAS, and NIST AI RMF. These rules are a preventive control that reduces the attack surface the categories below test for; TikiTribe is not a source of adversarial test cases, so it complements rather than satisfies the adversarial-test requirements in this reference.
 
 Relevant directories:
 - `rules/_core/ai-security.md`
@@ -193,7 +193,7 @@ Relevant directories:
 | NVIDIA Garak | Open-source LLM vulnerability scanner |
 | PyRIT | Open-source AI red team automation framework |
 | promptfoo | Open-source prompt testing and evaluation |
-| TikiTribe claude-secure-coding-rules | AI security rule files and test patterns |
+| TikiTribe claude-secure-coding-rules | Defensive AI secure-coding rule files (preventive control, not adversarial test cases) |
 | NIST AI RMF | AI risk management framework |
 
 
