@@ -6,7 +6,7 @@ Apply these rules to all code that builds, operates, or consumes MCP servers. MC
 
 ## MCP server authentication and authorization
 
-- **All MCP servers must require authentication**: no unauthenticated tool endpoints
+- **MCP servers exposed over a network transport (HTTP/SSE) must require authentication** (this pack's security floor: the MCP authorization spec makes network authentication a SHOULD for HTTP transports, and this pack mandates it): no unauthenticated network tool endpoints. A local STDIO server derives its trust boundary from the local user and process (the client launches it and passes credentials via the environment), not a network authentication gate.
 - Implement per-tool authorization: not every caller with access to the server should be able to call every tool
 - Use OAuth 2.0 or equivalent for MCP server authentication where the protocol supports it
 - Validate the caller's identity and authorization on **every tool call**, not just at connection time
@@ -62,7 +62,12 @@ MCP resource handlers expose data to the model. Treat them as APIs:
 
 ## Transport security
 
-- MCP servers must use TLS 1.3 (or stronger) for all transport
+- For network transports (HTTP/SSE), MCP servers must use TLS 1.3 (or stronger); TLS does not apply to local STDIO transport, which is a local stdin/stdout pipe with no network channel to encrypt
+
+| Transport | Trust boundary | Authentication | Encryption |
+| --- | --- | --- | --- |
+| STDIO (local) | The local user and process that launched the server | Environment-passed credentials; no network auth gate | N/A (local pipe, no network channel) |
+| HTTP/SSE (network) | The network between client, agent, and server | OAuth 2.0 / token auth required; validate identity on every call | TLS 1.3 (or stronger) required |
 - Validate TLS certificates: do not use `verify=False` or equivalent in MCP clients
 - Do not expose MCP servers on public networks without an authentication gateway in front
 
