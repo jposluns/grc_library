@@ -442,9 +442,9 @@ Model-mismatch, rate-limit, unavailable, and no-capacity all collapse to one mes
 
 Add an EACCES fixture to the self-tests of `collect-deliveries.py`, `audit-delivery-status.py`, and `manage-workers.py`, so the unreadable-plane path (3.167) is regression-covered.
 
-### 3.174 Citation-precision phrasing (72h-from-confirmation, PR.AA title, joint-controller allocation) (2026-07-28 deep-assessment c5, codex, W, XS)
+### 3.174 Joint-controller Art 26(1) informed-not-prescribed reword (Parts 1-2 GDPR-clock + PR.AA-title fixed #1259; Part 3 routed to maintainer) (2026-07-28 deep-assessment c5, codex, W, XS)
 
-`security/procedure-security-incident-response.md:175` says GDPR "72 hours from confirmation" vs the statutory "after becoming aware"; the PR.AA title is truncated at `matrix-reverse:92`; the joint-controller allocation at `template-joint-controller:109` is informed-not-prescribed. Phrasing corrections (a `/claim-fit`-class batch).
+Parts 1-2 FIXED in #1259 (held-source-verified): GDPR clock `:175` "from confirmation"->"after becoming aware" (Art 33(1)); PR.AA title `matrix-reverse:92` untruncated (CSF 2.0). REMAINS (routed to maintainer, pending-decisions): Part 3, `privacy/template-joint-controller-arrangement.md:91` (NOT :109; line drifted) - the allocation heuristic reads as prescribed by Art 26(1) which only requires transparent determination; proposed value-retaining reword awaits maintainer confirm (rewords authored design prose).
 
 ### 3.175 Acquire the load-bearing references the reference base does not hold (2026-07-28 deep-assessment c5, both families, MAINTAINER-GATED)
 
