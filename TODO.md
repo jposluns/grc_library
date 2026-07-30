@@ -63,13 +63,9 @@ Broaden distribution beyond a single tool: ship the harmonized pack in aligned f
 
 The `dev-security/claude-rules/` pack (v1.65.21) was audited by two external AIs (a "Maintenance prompt" F-series and a "GRC Library Claude Rules Pack Audit" P-series) and by the project's own overnight dual-family pass. The three were reconciled, deduped, and each finding's underlying claim VALIDATED against primary sources by two independent verification workers (standards + Claude-Code behaviour), on 2026-07-30. The full routed worklist, with per-finding locations, fixes, validation source, evidence caveats, and the DO-NOT-ASSERT / REFUTED exclusions, lives in `grc_library_private/.working/audit-reconcile-register-2026-07-30.md` (raw batches in `external-audit-batches-2026-07-30.md`; verdicts in `audit-reconcile-2026-07-30.md`). Every phase re-verifies each finding at source per-fix and applies the dual-family harness for citation/standards edits (these are gate-blind correctness on cited artefacts). The three DO-NOT-ASSERT items (`globs:`/`respectGitignore`/`.claude/rules`-compact-drop) are NOT to be routed as confirmed; the three REFUTED items (ASVS-version, `/trust-recovery`-dangling, EC-P-256-split) are closed. Phases are independently closeable.
 
-### 1.27.8 Corpus-wide OWASP edition-consistency (2021 -> 2025 codes in corpus framework tables; from #1273; M, needs-decision) `[content]`
+### 1.27.8 Corpus-wide OWASP edition-consistency (2021 -> 2025 codes in corpus framework tables; from #1273; M, GO: modernize to 2025 per maintainer 2026-07-30) `[content]`
 
-The 1.27.7 sweep found corpus framework-alignment tables cite OWASP categories at 2021 numbering (e.g. `standard-developer-security-requirements.md` A02/A06/A09, `standard-devops-security-requirements.md`) while the pack was modernized to OWASP Top 10:2025 in #1268 (R2). These 2021 codes are VALID (not errors), just an older edition, so this is an edition-consistency propagation, not a defect fix. DECISION NEEDED: renumber the corpus OWASP codes to 2025 (matching the pack) or keep 2021 with an explicit edition note. If renumber: grep all corpus docs for OWASP A0X, remap per the 2021->2025 table (A02 Crypto->A04, A03 Injection->A05, A05 Misconfig->A02, A06 Vuln-Components->A03, A04 Insecure-Design->A06, A10 SSRF->folded-into-A01), per-doc Version/Date + dual-family. Larger corpus-wide change; sequence deliberately.
-
-### 1.27.6 Control-ID-title verifier gate (R25; H, L) `[machinery]`
-
-The durable mechanical backstop for the whole citation-accuracy class (R1/R2/R3/R5/R6/R7/R8): a gate that parses each cited control ID (OWASP A0x/LLM0x/MCP0x, NIST SSDF, CSA CCM, SLSA), looks up the official title, and flags mismatches; plus an OWASP-edition-consistency check. Register with the gate-name parity self-check (gate 35) and the stdlib-only import audit (gate 71). This is the control that would have caught R1/R3/R7 mechanically.
+The 1.27.7 sweep found corpus framework-alignment tables cite OWASP categories at 2021 numbering (e.g. `standard-developer-security-requirements.md` A02/A06/A09, `standard-devops-security-requirements.md`) while the pack was modernized to OWASP Top 10:2025 in #1268 (R2). These 2021 codes are VALID (not errors), just an older edition, so this is an edition-consistency propagation, not a defect fix. DECISION (maintainer 2026-07-30): MODERNIZE to 2025 to match the pack (single current edition; dual-family citation QA). To renumber: grep all corpus docs for OWASP A0X, remap per the 2021->2025 table (A02 Crypto->A04, A03 Injection->A05, A05 Misconfig->A02, A06 Vuln-Components->A03, A04 Insecure-Design->A06, A10 SSRF->folded-into-A01), per-doc Version/Date + dual-family. Larger corpus-wide change; sequence deliberately.
 
 ### 1.23 Trust-recovery build: validation-coverage + deep-assessment coverage of unvalidated operations (maintainer-directed 2026-07-24, H)
 
@@ -289,7 +285,11 @@ Umbrella for adopting NIST OSCAL as an open, machine-readable projection of the 
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.193.**
+### 3.194 Worker-dispatch model-validity guard (fail-loud on unknown model + easy model-list update) (maintainer-directed 2026-07-30; M) `[machinery]`
+
+exec-dispatch silently returns "no eligible account" when `--model X` is absent from every account's `models` list (the 2026-07-30 recurrence: `gpt-5-codex` was passed, filtered every available codex account to zero, and the message was indistinguishable from a real no-capacity state, costing several failed dispatch attempts and orchestrator time). Build: (1) a PreToolUse hook that parses an exec-dispatch `--model` and BLOCKS a model not in the known-model set for the family, printing the valid list + the one-line update method; (2) exec-dispatch itself fails loud on an unknown model (a message distinct from "no eligible account"); (3) a single easy-to-update source of truth for valid models per family (e.g. a top-level `known_models` in `worker-accounts.json`, updated in ONE place when a model releases). Scratch/worker tooling, not pack.
+
+**Next item number: 3.195.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
 
@@ -415,7 +415,7 @@ The live A.8.29 ISO outlier was FIXED in #1257 (maintainer option 3b: pentest do
 
 ### 3.157 Metadata `Classification`/`Confidentiality` allowed-value sets are unenforced (2026-07-28 deep-assessment c2, W, S)
 
-`lint-metadata.py` enforces `ALLOWED_TYPES` for `Document Type` only; `Classification` and `Confidentiality` are presence-only, so changing a doc to `Classification: Restricted` passes all 78 gates while contradicting the CC BY-SA public basis. Add allowed-value sets.
+`lint-metadata.py` enforces `ALLOWED_TYPES` for `Document Type` only; `Classification` and `Confidentiality` are presence-only, so changing a doc to `Classification: Restricted` passes all 79 gates while contradicting the CC BY-SA public basis. Add allowed-value sets.
 
 ### 3.158 Gate-50 `SUBSUMPTION_FINDINGS` fail-open: incidental "not run" prose mis-classifies a row as exempt (2026-07-28 deep-assessment c3, W, S)
 

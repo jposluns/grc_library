@@ -255,6 +255,8 @@ jobs:
         run: python3 tools/lint-gate-citation-inventory.py
       - name: Backlog item-number permanence audit
         run: python3 tools/lint-todo-number-permanence.py
+      - name: NIST SSDF control-id validity audit
+        run: python3 tools/lint-ssdf-control-ids.py
 
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'

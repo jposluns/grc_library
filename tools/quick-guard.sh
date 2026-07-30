@@ -47,7 +47,7 @@ fi
 
 echo "quick-guard: fast-checking ${#CHANGED[@]} changed .md file(s) against the fast-ready gates."
 echo "NOTE: ITERATION AID ONLY, not the push gate. Run tools/pre-push-guard.sh before pushing;"
-echo "it runs all 78 gates incl. the register-guarded and corpus-wide ones this omits."
+echo "it runs all 79 gates incl. the register-guarded and corpus-wide ones this omits."
 echo "------------------------------------------------------------"
 
 # The fast-ready gates, in two groups:

@@ -9721,5 +9721,77 @@ class NormalizedPositionalArgsTests(LinterTestCase):
 
 
 
+class SsdfControlIdTests(LinterTestCase):
+    """tools/lint-ssdf-control-ids.py (NIST SSDF control-identifier validity audit)"""
+
+    def test_runs_clean_on_corpus_at_head(self) -> None:
+        result = run_linter("tools/lint-ssdf-control-ids.py")
+        self.assertEqual(result.returncode, 0, msg=result.stdout + result.stderr)
+
+    def test_valid_ssdf_ids_pass(self) -> None:
+        fixture = self.make_fixture(
+            "ssdf-valid.md",
+            "# Doc\n\nThe programme implements PO.1, PS.1.1, PW.4, and RV.1 to RV.3.\n",
+        )
+        result = run_linter("tools/lint-ssdf-control-ids.py", fixture)
+        self.assertEqual(result.returncode, 0, msg=result.stdout + result.stderr)
+
+    def test_218a_genai_tasks_pass(self) -> None:
+        # Regression: the SP 800-218A GenAI-profile tasks (PW.3 practice and its
+        # PW.3.x tasks, PO.5.3, PS.1.3) are valid; an earlier base-218-only valid
+        # set false-flagged them. The union valid set must accept them.
+        fixture = self.make_fixture(
+            "ssdf-218a.md",
+            "# Doc\n\nThe GenAI profile adds PW.3, PW.3.2, PW.3.3, PO.5.3, and PS.1.3.\n",
+        )
+        result = run_linter("tools/lint-ssdf-control-ids.py", fixture)
+        self.assertEqual(result.returncode, 0, msg=result.stdout + result.stderr)
+
+    def test_invalid_practice_flagged(self) -> None:
+        # Mode A: RV has only RV.1..RV.3; RV.9 is not a real practice.
+        fixture = self.make_fixture(
+            "ssdf-bad-practice.md",
+            "# Doc\n\nThe control maps to RV.9 in the framework.\n",
+        )
+        result = run_linter("tools/lint-ssdf-control-ids.py", fixture)
+        self.assertLinterFails(result, "RV.9")
+
+    def test_invalid_task_flagged(self) -> None:
+        # Mode A: PO.5 has tasks PO.5.1..PO.5.3; PO.5.9 is not a real task.
+        fixture = self.make_fixture(
+            "ssdf-bad-task.md",
+            "# Doc\n\nThe control maps to PO.5.9 in the framework.\n",
+        )
+        result = run_linter("tools/lint-ssdf-control-ids.py", fixture)
+        self.assertLinterFails(result, "PO.5.9")
+
+    def test_pw43_gap_id_flagged(self) -> None:
+        # Regression (PR #1274 verifier finding): PW.4.3 was a v1.0 task moved for
+        # v1.1 whose id was NOT reused (218A gap-numbering note); it is valid in
+        # neither base 218 nor 218A, so a citation must be flagged. An earlier
+        # VALID_TASKS whitelisted it: a false negative in the gate's own class.
+        fixture = self.make_fixture(
+            "ssdf-pw43-gap.md",
+            "# Doc\n\nThe control maps to PW.4.3 in the framework.\n",
+        )
+        result = run_linter("tools/lint-ssdf-control-ids.py", fixture)
+        self.assertLinterFails(result, "PW.4.3")
+
+    def test_fabricated_family_in_ssdf_table_flagged(self) -> None:
+        # Mode B: a code-shaped token with a non-SSDF two-letter family (RS) in a
+        # table whose header names the NIST SSDF column is a fabricated SSDF id.
+        # Mirrors the real RS.1/RS.2 incident-response mis-mapping the gate caught.
+        fixture = self.make_fixture(
+            "ssdf-fabricated-family.md",
+            "# Doc\n\n"
+            "| Control area | ISO 27001 | NIST SSDF |\n"
+            "| --- | --- | --- |\n"
+            "| Incident response | A.5.26 | RS.1 to RS.2 |\n",
+        )
+        result = run_linter("tools/lint-ssdf-control-ids.py", fixture)
+        self.assertLinterFails(result, "RS.1")
+
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
