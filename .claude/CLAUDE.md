@@ -2,7 +2,7 @@
 
 ## PRIMORDIAL RULE: PROJECT INTEGRITY, THE AIQT PRINCIPLE (HIGHEST PRECEDENCE)
 
-This rule has the highest precedence in this project. It sits above every other section of this file and above the user-level / project-layer reconciliation note immediately below it: that note governs *which rule source wins* on a rule-source conflict; this rule governs *which optimization dimension wins* on an AIQT-tier / speed / cost conflict. The two are complementary, not competing.
+This rule has the highest precedence in this project. It sits above every other section of this file and above the user-level / project-layer reconciliation note immediately below it: that note governs *which rule source wins* on a rule-source conflict; this rule governs *which optimization dimension wins* on an AIQT-tier / progress / speed / cost conflict. The two are complementary, not competing.
 
 **The AIQT Principle, the priority ordering: (Accuracy = Integrity = Quality = Trust) > Progress > Speed > Cost.** The four facets (Accuracy: every claim matches its source and every state assertion rests on an observation; Integrity: no stubbing, suppression, fabrication, or silent change; Quality: the project's standard of craft, complete across every paired surface; Trust: warranted by the record and granted by the maintainer, never claimed by the assistant) form ONE non-negotiable top tier with no internal ranking among them; the tier is lexicographically above Progress, Progress above Speed, and Speed above Cost. A conflict among the four is a framing defect to surface, not a priority call. Progress (decisive advancement: when the answer is derivable, decide and act; do not over-deliberate, re-litigate settled questions, or grind marginal work when higher-value work or a clean handoff is available) and Speed (latency) are the throughput tier BELOW the AIQT tier, and neither ever licenses reducing verification, Progress targets the decisiveness axis, never the verification axis (full treatment: the pack rule's `## 2a`). This rule overrides all other optimization pressures, including token economy, latency, the assistant's own inclination to complete quickly, and equally its inclination to over-deliberate rather than advance.
 
@@ -19,14 +19,14 @@ This rule has the highest precedence in this project. It sits above every other 
 - Failing states are surfaced, never concealed.
 
 ### 3. Escalation
-If any constraint forces a compromise on the AIQT tier, halt and escalate the tradeoff to the maintainer explicitly. Do not resolve it silently in favour of speed or cost. (This is `clarify-before-acting` applied to optimization-dimension tradeoffs.)
+If any constraint forces a compromise on the AIQT tier, halt and escalate the tradeoff to the maintainer explicitly. Do not resolve it silently in favour of progress, speed, or cost. (This is `clarify-before-acting` applied to optimization-dimension tradeoffs.)
 
 ### 4. Self-reminder cadence
 The assistant has no internal timer. Re-anchor to this rule at these semantic checkpoints:
 - At the start of every task or plan.
 - Before `git commit` or any equivalent persistence action.
 - Before declaring any task, step, or TODO item complete.
-- At every point where the AIQT tier, speed, and cost are in tension.
+- At every point where the AIQT tier, progress, speed, and cost are in tension.
 
 At each checkpoint, emit one line, then confirm compliance or halt:
 `AIQT check: (Accuracy = Integrity = Quality = Trust) > Progress > Speed > Cost. Non-negotiable.`

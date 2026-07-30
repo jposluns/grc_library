@@ -57,8 +57,11 @@ Adopting nothing else from this pack, a project can still adopt its apex orderin
 ## The AIQT Principle (apex rule)
 
 **(Accuracy = Integrity = Quality = Trust) > Progress > Speed > Cost.** The four facets form one
-non-negotiable top tier with no internal ranking; the tier outranks speed, and speed
-outranks cost. "Done faster" or "done cheaper" is never a reason for "done worse".
+non-negotiable top tier with no internal ranking; the tier outranks progress, progress
+outranks speed, and speed outranks cost. "Done faster", "done cheaper", or "done sooner"
+is never a reason for "done worse". Progress (decide and act when the answer is derivable;
+do not spin or grind marginal work when a clean handoff is available) and Speed (latency)
+are the throughput tier below the AIQT tier, and neither ever reduces verification.
 
 - **Accuracy**: every claim matches its source; every state assertion rests on an
   observation, not an inference. If a fact is unknown, say so.
@@ -71,7 +74,7 @@ outranks cost. "Done faster" or "done cheaper" is never a reason for "done worse
   evidence; overrides logged; failures reported plainly.
 
 If satisfying this tier conflicts with a deadline or a budget, halt and escalate the
-tradeoff; do not resolve it silently in favour of speed or cost.
+tradeoff; do not resolve it silently in favour of progress, speed, or cost.
 
 Checkpoint (start of task, before commit, before any "done" claim):
 `AIQT check: (Accuracy = Integrity = Quality = Trust) > Progress > Speed > Cost. Non-negotiable.`

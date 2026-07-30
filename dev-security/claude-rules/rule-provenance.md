@@ -135,7 +135,7 @@ made history-aware gates emit a mass false positive.
 ### `project-integrity`
 
 The apex rule, stating the ordering every other rule assumes: the non-negotiable tier
-above speed, and speed above cost. It began as a quality-first ordering with integrity
+above progress, progress above speed, and speed above cost. It began as a quality-first ordering with integrity
 non-negotiables and was renamed to the AIQT form (Accuracy, Integrity, Quality, Trust
 as one co-equal top tier) in July 2026, at maintainer direction, so the facets that
 were implicit became named and each maps to its enforcing machinery. Every clause in

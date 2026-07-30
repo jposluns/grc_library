@@ -24,7 +24,7 @@ The principle governs the integrity of the work product and its production proce
 
 ## Scope
 
-Applies to every artefact the library produces (the governed documents, the audit tooling, the working-state records) and to every contributor, human or AI-assistant, who produces or maintains them. It is a principle, not a control: it fixes the priority ordering that resolves a conflict between the work's non-negotiable properties and the pressures of speed and cost, and it names the machinery that enforces each property. The enforcing controls live in the audit programme ([`governance/specification-audit-programme.md`](specification-audit-programme.md)) and the governance pack rules; this document does not restate them.
+Applies to every artefact the library produces (the governed documents, the audit tooling, the working-state records) and to every contributor, human or AI-assistant, who produces or maintains them. It is a principle, not a control: it fixes the priority ordering that resolves a conflict between the work's non-negotiable properties and the pressures of progress, speed, and cost, and it names the machinery that enforces each property. The enforcing controls live in the audit programme ([`governance/specification-audit-programme.md`](specification-audit-programme.md)) and the governance pack rules; this document does not restate them.
 
 ## 1. The principle
 

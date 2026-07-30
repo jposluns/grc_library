@@ -41,7 +41,7 @@ given feels net-negative.
   charitable one.
 - NOT for ambiguity with no harm attached (that is
   [`clarify-before-acting`](../../governance/clarify-before-acting.md) territory),
-  and NOT for the optimization-dimension tradeoff among the AIQT tier, Speed, and Cost
+  and NOT for the optimization-dimension tradeoff among the AIQT tier, Progress, Speed, and Cost
   (the [`project-integrity`](../../governance/project-integrity.md) apex rule
   governs that escalation).
 

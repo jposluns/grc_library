@@ -52,9 +52,9 @@ The concrete floor of the Integrity facet, retained verbatim from this rule's or
 
 ## 4. Escalation
 
-If any constraint forces a compromise on the AIQT tier, halt and escalate the tradeoff to the responsible authority (the maintainer, the reviewer, the operator) explicitly. Do not resolve the conflict silently in favour of speed or cost. (This is the `clarify-before-acting` rule applied to the optimization-dimension axis: a tradeoff the actor is not authorized to make alone is surfaced, not picked.)
+If any constraint forces a compromise on the AIQT tier, halt and escalate the tradeoff to the responsible authority (the maintainer, the reviewer, the operator) explicitly. Do not resolve the conflict silently in favour of progress, speed, or cost. (This is the `clarify-before-acting` rule applied to the optimization-dimension axis: a tradeoff the actor is not authorized to make alone is surfaced, not picked.)
 
-The escalation names the specific conflict: which AIQT facet is at risk, what speed or cost pressure is forcing the question, and what the options are. A one-sentence escalation at the moment of conflict is cheap; an unwound body of work built on a silently-chosen compromise is expensive. The asymmetry is the same one that justifies the `clarify-before-acting` discipline, applied here to the priority ordering rather than to a requirements ambiguity.
+The escalation names the specific conflict: which AIQT facet is at risk, what progress, speed, or cost pressure is forcing the question, and what the options are. A one-sentence escalation at the moment of conflict is cheap; an unwound body of work built on a silently-chosen compromise is expensive. The asymmetry is the same one that justifies the `clarify-before-acting` discipline, applied here to the priority ordering rather than to a requirements ambiguity.
 
 ## 5. Self-reminder cadence
 
