@@ -69,7 +69,7 @@ EXCLUDED_DIRS = {".git", "node_modules", "__pycache__"}
 
 # Historical-surface classification (LEDGER / FROZEN-RECORD / LIVE) is hoisted
 # to lint_common so residual-scan and the D9 orphan gate share one source
-# (TODO 3.139.2). Re-exported here under the original names for back-compat.
+# (roadmap C phase 2, #1250). Re-exported here under the original names for back-compat.
 from lint_common import (  # noqa: E402
     FROZEN_RECORD_RE,
     LEDGER_PATHS,

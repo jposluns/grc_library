@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Delta gate D9: retired-section-orphan check (TODO 3.139.2).
+"""Delta gate D9: retired-section-orphan check (roadmap C phase 2, #1250).
 
 When a PR CLOSES a numbered TODO section (deletes its `### N.M` heading),
 positional references to that section (`§N.M`, `PN.M`, `TODO §N.M`,
@@ -27,8 +27,15 @@ Three FP guards:
 1. RENUMBER/REWORD: an id is retired only if it is NOT a heading in TODO.md at
    HEAD (an in-place reword/split/reorder keeps the id, so references stay valid).
 2. HISTORICAL NARRATION: each hit is classified (shared lint_common.classify);
-   only LIVE hits are violations. A CHANGELOG/DONE/history.md line narrating a
-   past closure is LEDGER and exempt.
+   only LIVE hits are violations. NOTE (dual-family verify, #1250): for D9's
+   current scan set this guard is SCOPE-MOOT defence-in-depth, because
+   operational_files() never yields a LEDGER (CHANGELOG.md / .working/history)
+   or frozen-record path, so classify() always returns LIVE here; the historical
+   ledgers are excluded by SCOPE, not by this filter. It is retained (harmless)
+   so a future scan-set expansion into .working/ inherits the exemption. A
+   genuine historical `§N.M` note that DOES land on an operational surface is
+   handled by the SectionRef opt-out or by rewording it to cite the closing PR
+   (the permanence rule), which is the correct disposition anyway.
 3. IN-PR TEACHING: a `SectionRef: <reason>` commit trailer opts out (for the rare
    PR that legitimately adds a live `§N.M` teaching citation in the same change).
 
@@ -49,7 +56,7 @@ from lint_common import classify  # noqa: E402
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 # A numbered TODO heading: `### N.M`, optionally `### §N.M`. Two+ decimal parts.
-HEADING_RE = re.compile(r"^#{2,6}\s+(?:§\s*)?(\d+(?:\.\d+){1,3})\b")
+HEADING_RE = re.compile(r"^#{3,6}\s+(?:§\s*)?(\d+(?:\.\d+){1,3})\b")
 
 
 def ids_in_headings(todo_text: str) -> set[str]:
@@ -86,20 +93,26 @@ def anchored_patterns(section_id: str) -> re.Pattern:
     collide (`§3.6` vs `§3.60`).
     """
     esc = re.escape(section_id)
+    # Only the FOUR documented, UNAMBIGUOUS forms (each carries a §/P/section
+    # marker). Bare `TODO N.M` (no §) is deliberately EXCLUDED: it is ambiguous
+    # with an ordinary `# TODO 3.1 fix this` code comment, so it stays convention.
+    # The right-guard `(?![\w.])` rejects a following word char OR dot, so `§3.1`
+    # never matches inside `§3.10`, `§3.1.2`, or a suffix id like `P3.1x`.
     return re.compile(
         r"(?:"
-        r"§\s*" + esc + r"|"          # §N.M
-        r"\bP" + esc + r"|"                 # PN.M
-        r"\bTODO\s+§?\s*" + esc + r"|"  # TODO §N.M / TODO N.M
-        r"\bTODO\s+section\s+" + esc +       # TODO section N.M
-        r")(?!\d)(?!\.\d)"                   # not followed by another digit/decimal
+        r"§\s*" + esc + r"|"                    # §N.M
+        r"\bP" + esc + r"|"                     # PN.M
+        r"\bTODO\s+§\s*" + esc + r"|"         # TODO §N.M
+        r"\bTODO\s+section\s+" + esc +        # TODO section N.M
+        r")(?![\w.])"
     )
 
 
 def find_orphans(section_ids: set[str], files: list[tuple[str, str]]) -> list[tuple[str, int, str]]:
     """Return (relpath, lineno, line) for each LIVE surviving anchored reference.
 
-    PURE given (relpath, text) pairs. FP guard #2 (classify) is applied here.
+    PURE given (relpath, text) pairs. FP guard #2 (classify) is applied here
+    (scope-moot for D9's current surfaces; see the module docstring).
     """
     if not section_ids:
         return []
@@ -124,29 +137,51 @@ def git(*args: str) -> str:
     )
 
 
+def in_scope(rel: str) -> bool:
+    """PURE: is repo-relative `rel` one of D9's operational-complement surfaces?
+
+    This is the FP-safety-critical scope decision, isolated so it is directly
+    testable. IN scope: anything under `.claude/` or `references/`; `tools/*.py`
+    and `tools/*.sh`; a root-level `*.sh`; `.github/**/*.yml|*.yaml`; `TODO.md`.
+    OUT of scope (owned by other gates): the corpus `.md` (18/62/65) and the pack
+    subtree `dev-security/claude-rules/` (lint-positional-backlog-tokens); `.git/`.
+    """
+    if rel.startswith(".git/") or rel.startswith("dev-security/claude-rules/"):
+        return False
+    if rel == "TODO.md":
+        return True
+    if rel.startswith(".claude/") or rel.startswith("references/"):
+        return True
+    if rel.startswith("tools/") and (rel.endswith(".py") or rel.endswith(".sh")):
+        return True
+    if "/" not in rel and rel.endswith(".sh"):  # root-level shell script
+        return True
+    if rel.startswith(".github/") and (rel.endswith(".yml") or rel.endswith(".yaml")):
+        return True
+    return False
+
+
 def operational_files() -> list[tuple[str, str]]:
-    """The operational-complement surface set, as (relpath, text) at HEAD."""
-    roots = [".claude", "references", ".github"]
-    paths: list[Path] = []
-    for r in roots:
+    """The operational-complement surface set, as (relpath, text) at HEAD.
+
+    Collects candidates from the in-scope roots, then filters through the pure
+    `in_scope` predicate (the single source of truth for scope).
+    """
+    cand: list[Path] = []
+    for r in (".claude", "references", ".github"):
         d = REPO_ROOT / r
         if d.is_dir():
-            paths += [p for p in d.rglob("*") if p.is_file()]
-    paths += list((REPO_ROOT / "tools").glob("*.py"))
-    paths += list((REPO_ROOT / "tools").glob("*.sh"))
-    paths += list(REPO_ROOT.glob("*.sh"))
+            cand += [p for p in d.rglob("*") if p.is_file()]
+    cand += list((REPO_ROOT / "tools").glob("*"))
+    cand += list(REPO_ROOT.glob("*.sh"))
     todo = REPO_ROOT / "TODO.md"
     if todo.is_file():
-        paths.append(todo)
+        cand.append(todo)
     out: list[tuple[str, str]] = []
     seen: set[str] = set()
-    for p in paths:
+    for p in cand:
         rel = p.relative_to(REPO_ROOT).as_posix()
-        # NOT the pack subtree (owned by lint-positional-backlog-tokens),
-        # NOT .git.
-        if rel.startswith("dev-security/claude-rules/") or rel.startswith(".git/"):
-            continue
-        if rel in seen:
+        if rel in seen or not in_scope(rel):
             continue
         seen.add(rel)
         try:
@@ -162,21 +197,39 @@ def opt_out_present(base: str, head: str) -> bool:
         log = git("log", f"{base}..{head}", "--format=%B")
     except subprocess.CalledProcessError:
         return False
-    return any(
-        line.strip().lower().startswith("sectionref:")
-        for line in log.splitlines()
-    )
+    # Require a non-empty reason: a bare `SectionRef:` (or `SectionRef: `) must
+    # NOT disable the gate wholesale (a guard with a costless bypass is no guard).
+    for line in log.splitlines():
+        s = line.strip()
+        if s.lower().startswith("sectionref:") and s[len("sectionref:"):].strip():
+            return True
+    return False
 
 
 def run(base: str | None, head: str) -> int:
+    # A provided base (the runner passes `${BASE_REF:-origin/main}`, a branch
+    # TIP) is merge-based against head before diffing, exactly as the sibling
+    # delta gates do: diffing a raw tip on a behind-main branch would show
+    # main-added headings as `-` lines and mis-derive them as retired (a real
+    # FP vector, dual-family-caught). Argless default honours GITHUB_BASE_REF
+    # (the PR's target branch) like the other gates, falling back to origin/main.
+    import os
+    if base is None:
+        target = os.environ.get("GITHUB_BASE_REF", "").strip() or "main"
+        base = f"origin/{target}"
     try:
-        if base is None:
-            base = git("merge-base", "origin/main", head).strip()
-        todo_diff = git("diff", base, head, "--", "TODO.md")
+        merge_base = git("merge-base", base, head).strip()
+        todo_diff = git("diff", merge_base, head, "--", "TODO.md")
         head_todo = git("show", f"{head}:TODO.md")
     except subprocess.CalledProcessError as exc:
-        print(f"ERROR: git failed: {exc}", file=sys.stderr)
+        print(f"ERROR: git failed (base={base}, head={head}): {exc}", file=sys.stderr)
         return 2
+    base = merge_base
+    # NOTE: retired ids + TODO.md come from the `head` git object, but the orphan
+    # scan reads the WORKING TREE (operational_files reads files from disk). In
+    # the pre-push guard and CI, HEAD IS the checked-out working tree, so the two
+    # agree; D9 assumes head == working tree and is not meant for an arbitrary
+    # non-checked-out head ref.
     ids = retired_ids(todo_diff, head_todo)
     if not ids:
         print("D9 OK: no TODO section closed in this PR.")
@@ -204,42 +257,70 @@ def _self_test() -> int:
 
     CLAUDE = ".claude/CLAUDE.md"
     LEDGER = ".working/DONE.md"
-    CORPUS = "ai/some-doc.md"
 
     class D9Tests(unittest.TestCase):
+        # --- retired-id derivation (FP guard #1: renumber) ---
         def test_retired_id_derivation(self):
             diff = "-### 3.9 old thing\n+### 3.10 new thing\n"
             self.assertEqual(retired_ids(diff, "### 3.10 new thing\n"), {"3.9"})
 
         def test_renumber_in_place_not_retired(self):
-            # heading still present at HEAD -> not retired (FP guard #1)
             diff = "-### 3.9 reworded\n+### 3.9 reworded better\n"
             self.assertEqual(retired_ids(diff, "### 3.9 reworded better\n"), set())
 
+        def test_heading_needs_three_hashes(self):
+            # a level-2 `## 3.9` is not a TODO item heading
+            self.assertEqual(ids_in_headings("## 3.9 not an item\n"), set())
+            self.assertEqual(ids_in_headings("### 3.9 an item\n"), {"3.9"})
+
+        # --- anchored-pattern precision (FP guards) ---
         def test_live_orphan_flagged(self):
-            hits = find_orphans({"3.9"}, [(CLAUDE, "see queued §3.9 for detail")])
-            self.assertEqual(len(hits), 1)
-
-        def test_ledger_narration_not_flagged(self):
-            hits = find_orphans({"3.9"}, [(LEDGER, "§3.9 closed in #814")])
-            self.assertEqual(hits, [])
-
-        def test_corpus_md_out_of_scope(self):
-            # a corpus .md would never be in operational_files(); find_orphans is
-            # pure, so we simulate by classify: corpus paths are LIVE, so scope is
-            # enforced by operational_files(), not classify. Assert the pattern
-            # itself would match but scope excludes it (documented behaviour).
-            self.assertTrue(anchored_patterns("3.9").search("§3.9"))
+            self.assertEqual(len(find_orphans({"3.9"}, [(CLAUDE, "see §3.9 for detail")])), 1)
 
         def test_substring_not_matched(self):
+            # right-guard: §3.6 must not match inside §3.60
             self.assertIsNone(anchored_patterns("3.6").search("see §3.60 here"))
 
+        def test_child_decimal_not_matched(self):
+            # right-guard rejects a following dot: §3.6 must not match §3.6.1
+            self.assertIsNone(anchored_patterns("3.6").search("see §3.6.1 here"))
+
+        def test_letter_suffix_not_matched(self):
+            # right-guard rejects a following letter: 3.1 must not match P3.1x
+            self.assertIsNone(anchored_patterns("3.1").search("per P3.1x above"))
+
+        def test_bare_todo_not_matched(self):
+            # § is REQUIRED; ambiguous bare `TODO 3.1` (a code comment) is not a match
+            self.assertIsNone(anchored_patterns("3.1").search("# TODO 3.1 fix this later"))
+
         def test_bare_number_not_matched(self):
-            # bare "3.9" with no §/P/TODO anchor is not a match (too FP-prone)
             self.assertIsNone(anchored_patterns("3.9").search("version 3.9 shipped"))
 
-        def test_P_form_matched(self):
+        def test_todo_section_and_P_forms_matched(self):
             self.assertTrue(anchored_patterns("3.9").search("per P3.9 above"))
+            self.assertTrue(anchored_patterns("3.9").search("TODO section 3.9 detail"))
+            self.assertTrue(anchored_patterns("3.9").search("TODO §3.9 detail"))
+
+        # --- scope (the FP-safety-critical in_scope predicate) ---
+        def test_in_scope_excludes_corpus_and_pack(self):
+            self.assertFalse(in_scope("ai/some-doc.md"))          # corpus
+            self.assertFalse(in_scope("compliance/matrix.md"))    # corpus
+            self.assertFalse(in_scope("dev-security/claude-rules/governance/x.md"))  # pack
+            self.assertFalse(in_scope("tools/foo.md"))            # tools but not .py/.sh
+            self.assertFalse(in_scope(".github/x.md"))            # .github but not yaml
+
+        def test_in_scope_includes_operational(self):
+            self.assertTrue(in_scope(".claude/CLAUDE.md"))
+            self.assertTrue(in_scope("references/pr-lifecycle.md"))
+            self.assertTrue(in_scope("tools/check-x.py"))
+            self.assertTrue(in_scope("tools/run.sh"))
+            self.assertTrue(in_scope("run.sh"))
+            self.assertTrue(in_scope(".github/workflows/quality.yml"))
+            self.assertTrue(in_scope("TODO.md"))
+
+        # --- classify (currently scope-moot defence-in-depth; still validate the branch) ---
+        def test_ledger_narration_not_flagged(self):
+            self.assertEqual(find_orphans({"3.9"}, [(LEDGER, "§3.9 closed in #814")]), [])
 
     suite = unittest.TestLoader().loadTestsFromTestCase(D9Tests)
     result = unittest.TextTestRunner(verbosity=2).run(suite)

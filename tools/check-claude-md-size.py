@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Delta gate D10: CLAUDE.md size ratchet (TODO 3.139.2).
+"""Delta gate D10: CLAUDE.md size ratchet (roadmap C phase 2, #1250).
 
 `.claude/CLAUDE.md` is loaded EVERY turn, so its length is a per-turn token +
 performance tax. Phase 1 (3.139.1) cut it from 1971 to 1506 lines by relocating
@@ -20,6 +20,14 @@ large addition until it is trimmed or relocated is exactly the desired behaviour
 Reads the working-tree file by explicit path (the `.claude/` exempt-dir walk does
 not apply to an explicit-path read), so like D8 it needs no merge base.
 
+PROXY NOTE (dual-family verify, #1250): the gate measures LINE COUNT, a proxy for
+the every-turn TOKEN load. Content packed into fewer, longer lines could evade the
+ratchet while preserving token load; in practice added prose adds lines, so the
+proxy tracks the load well enough. The ceiling itself is a CONVENTION the maintainer
+maintains (lowering it as CLAUDE.md shrinks): the gate enforces the current ceiling,
+and a change that RAISES the constant is a visible, reviewed diff, not a gate-enforced
+invariant.
+
 Exit: 0 = at or under ceiling; 1 = over ceiling; 2 = file missing / error.
 """
 from __future__ import annotations
@@ -32,7 +40,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 CLAUDE_MD = REPO_ROOT / ".claude" / "CLAUDE.md"
 
 # Downward ratchet. LOWER this (never raise it) as CLAUDE.md shrinks. Current
-# size at adoption (3.139.2): 1506 lines; ~3% headroom absorbs this PR's own
+# size at adoption (#1250): 1506 lines; ~3% headroom absorbs this PR's own
 # lean-checklist edits and normal small changes while blocking ~50-line regrowth.
 CEILING = 1550
 

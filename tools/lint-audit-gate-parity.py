@@ -20,7 +20,7 @@ section 3 principle 5 is broken. This linter detects that drift
 deterministically.
 
 In addition to the four-surface row parity, this gate ADDITIVELY guards the
-three exclusion allow-lists and the PR-only D1-D10 delta gates (TODO 3.99, extended by 3.139.2): each
+three exclusion allow-lists and the PR-only D1-D10 delta gates (TODO 3.99, extended by #1250): each
 exclusion member is cross-checked against a positive signal that it is genuinely
 not a corpus gate (a setup step invokes no gate script; a delta-gate step's
 script is not a §6-inventory script; a non-gate pre-commit hook carries no

@@ -137,14 +137,14 @@ run_check "D8 Daily-changelog-rollup reminder" \
 # reference (§N.M / PN.M / TODO §N.M / TODO section N.M) that survives on the
 # operational / gate-exempt surfaces no other gate scans (.claude/, references/,
 # tools/*.py, *.sh, .github/*.yml, TODO.md). Deletion-triggered + anchored +
-# LIVE-only, so it is false-positive-safe (TODO 3.139.2).
+# LIVE-only, so it is false-positive-safe (roadmap C phase 2, #1250).
 run_check "D9 Retired-section-orphan check" \
     python3 tools/check-retired-section-orphan-on-pr.py "${BASE_REF}" "${HEAD_REF}"
 
 # Delta gate D10: CLAUDE.md size ratchet. FAILS when .claude/CLAUDE.md exceeds a
 # hand-maintained downward-ratchet ceiling, forcing new content to relocate to
 # references/ rather than swell the every-turn load. Reads working-tree state, so
-# like D8 it needs no base ref (TODO 3.139.2).
+# like D8 it needs no base ref (roadmap C phase 2, #1250).
 run_check "D10 CLAUDE.md-size ratchet" \
     python3 tools/check-claude-md-size.py
 

@@ -96,7 +96,7 @@ DEFAULT_EXEMPT_DIRS: frozenset[str] = frozenset(
 )
 
 
-# --- Historical-surface classification (hoisted from residual-scan.py, TODO 3.139.2) ---
+# --- Historical-surface classification (hoisted from residual-scan.py, #1250) ---
 # Shared by residual-scan.py and the D9 retired-section-orphan gate so the two
 # cannot drift on what counts as a LIVE surface (defence in depth). A hit is
 # LEDGER (append-only history) or FROZEN-RECORD (dated per-run archive) or LIVE;

@@ -5,7 +5,7 @@ lean checklist (each item names its enforcing gate/hook); this file carries the 
 and rationale. Relocated from CLAUDE.md by TODO 3.139.1 / PR #1249 (roadmap C phase 1) to right-size the
 every-turn load; the disciplines are unchanged. Project-only operational machinery (not pack
 material). The un-gated grep-disciplines keep a terse reminder in CLAUDE.md as their live
-control until TODO 3.139.2's delta gate lands.
+control until the roadmap-C phase-2 delta gate (D9, #1250) lands.
 
 ---
 
