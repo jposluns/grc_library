@@ -2,8 +2,8 @@
 
 **Document Title:** Reverse Framework Control Crosswalk Matrix\
 **Document Type:** Matrix\
-**Version:** 1.0.8\
-**Date:** 2026-07-28\
+**Version:** 1.0.9\
+**Date:** 2026-07-30\
 **Owner:** Control Framework Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../supply-chain/matrix-supply-chain-security-programme-alignment.md), [`NOTICE.md`](../NOTICE.md)\
@@ -54,14 +54,14 @@ This matrix does not reproduce restricted third-party framework text, does not e
 | A.7 Physical and environmental security | [`operations/standard-physical-security-of-it-infrastructure.md`](../operations/standard-physical-security-of-it-infrastructure.md) | Architectural recommendation |
 | A.8.5 Secure authentication | [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md) | Architectural recommendation |
 | A.8.6 Capacity management and production controls | [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md) | Architectural recommendation |
-| A.8.8 Vulnerability management and patching | [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md) | Architectural recommendation |
+| A.8.8 Vulnerability management and patching | [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md), [`security/standard-penetration-testing-and-red-team.md`](../security/standard-penetration-testing-and-red-team.md) | Architectural recommendation |
 | A.8.10 Information deletion and media handling | [`operations/procedure-media-handling-and-transport.md`](../operations/procedure-media-handling-and-transport.md) | Architectural recommendation |
 | A.8.11 to A.8.12 Data masking and data leakage prevention | [`security/standard-data-loss-prevention.md`](../security/standard-data-loss-prevention.md) | Architectural recommendation |
 | A.8.15 to A.8.16 Logging and monitoring | [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`operations/procedure-security-monitoring-and-alert-management.md`](../operations/procedure-security-monitoring-and-alert-management.md) | Architectural recommendation |
 | A.8.20 to A.8.21 Network security and segmentation | [`security/policy-network-communications-security.md`](../security/policy-network-communications-security.md), [`operations/standard-network-security-and-segmentation.md`](../operations/standard-network-security-and-segmentation.md) | Architectural recommendation |
 | A.8.24 Use of cryptography | [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/framework-cryptographic-key-lifecycle.md`](../security/framework-cryptographic-key-lifecycle.md), [`security/procedure-cryptographic-key-operations.md`](../security/procedure-cryptographic-key-operations.md), [`security/roadmap-post-quantum-cryptography.md`](../security/roadmap-post-quantum-cryptography.md) | Architectural recommendation |
 | A.8.25 to A.8.34 Secure development lifecycle and engineering | [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/standard-software-composition-analysis.md`](../dev-security/standard-software-composition-analysis.md), [`dev-security/standard-quality-assurance-and-testing.md`](../dev-security/standard-quality-assurance-and-testing.md) | Architectural recommendation |
-| A.8.29 Security testing | [`security/standard-penetration-testing-and-red-team.md`](../security/standard-penetration-testing-and-red-team.md), [`dev-security/standard-quality-assurance-and-testing.md`](../dev-security/standard-quality-assurance-and-testing.md) | Architectural recommendation |
+| A.8.29 Security testing | [`dev-security/standard-quality-assurance-and-testing.md`](../dev-security/standard-quality-assurance-and-testing.md) | Architectural recommendation |
 
 ---
 
