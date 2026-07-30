@@ -2,7 +2,7 @@
 
 **Document Title:** Integrity and Trustworthiness Principle\
 **Document Type:** Principle\
-**Version:** 0.0.4\
+**Version:** 0.0.5\
 **Date:** 2026-07-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\

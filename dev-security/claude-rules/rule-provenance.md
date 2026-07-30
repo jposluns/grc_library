@@ -1,8 +1,8 @@
 # Rule provenance register: the origin of each governance rule
 
 **Document Type:** Provenance register\
-**Version:** 1.2.1\
-**Date:** 2026-07-24\
+**Version:** 1.2.2\
+**Date:** 2026-07-30\
 **Owner:** Governance Library Maintainer\
 **Repository Path:** [`dev-security/claude-rules/rule-provenance.md`](rule-provenance.md)\
 **License:** CC BY-SA 4.0

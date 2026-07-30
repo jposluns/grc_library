@@ -2256,7 +2256,7 @@ documents:
   domain: "governance"
   type: "Principle"
   title: "Integrity and Trustworthiness Principle"
-  version: "0.0.4"
+  version: "0.0.5"
   date: "2026-07-30"
   owner: "Governance Library Maintainer"
   approving_authority: "Governance Library Maintainer"
