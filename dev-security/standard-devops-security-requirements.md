@@ -2,7 +2,7 @@
 
 **Document Title:** DevOps Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.0.9\
+**Version:** 1.0.10\
 **Date:** 2026-07-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -45,7 +45,7 @@ The following gates are mandatory in every pipeline deploying to Test or Product
 
 Gate results are logged and retained as acceptance-into-service gate audit evidence.
 
-*CCM: CCC-01 through CCC-09, AIS-04 / NIST SSDF PW.8 / SLSA Level 2+*
+*CCM: CCC-01 through CCC-09, AIS-04 / NIST SSDF PW.8 / contributes toward SLSA Build L2+*
 
 ### 2.3 Pipeline identity
 
@@ -63,7 +63,7 @@ Production deployments require manual approval from a designated approver who is
 
 All build artefacts deployed to Production must be signed (signing key in the organization's secrets management service) and the signature verified before deployment. An artefact with an invalid or absent signature must not be deployed.
 
-*CCM: CCC-04, CCC-05 / SLSA Level 3*
+*CCM: CCC-04, CCC-05 / contributes toward SLSA Build L3*
 
 ---
 
@@ -205,12 +205,14 @@ The EOL classification policy and remediation SLAs are defined in the Security B
 | --- | --- | --- | --- | --- | --- |
 | CI/CD pipeline security | A.8.25 to 8.27 | CCC-01 to 09, AIS-04 | PW.8 | SA-10, SA-15 | Level 2 to 3 |
 | Pipeline secret scanning | A.8.28 | CEK-10 to 21 | PW.8.2 | IA-5 | Level 2 |
-| Artifact signing and integrity | A.8.27 | CCC-04 to 05 | DS.2 | SA-12 | Level 3 |
+| Artifact signing and integrity | A.8.27 | CCC-04 to 05 | PS.2 | SA-12 | Level 3 |
 | IaC security | A.8.25 | CCC-06 | PW.4 | CM-2, CM-3 | N/A |
 | Environment separation | A.8.31 | I&S-05 | PO.5 | SC-3, SC-7 | N/A |
 | Container security | A.8.25 | I&S-04 | PW.2 | CM-7, SI-3 | N/A |
 | EOL and patch management | A.8.8 | TVM-01 to 10 | PW.4.4 | SI-2 | N/A |
 | Change management | A.8.32 | CCC-01 to 09 | N/A | CM-3 | N/A |
+
+**On the SLSA column.** SLSA (v1.2) Build levels (L0 to L3) describe the trustworthiness of the build platform and the provenance it generates, not a per-control certification. The levels above indicate the SLSA maturity each control area contributes toward or requires (for example, signed build-platform-generated provenance underpins L2 and L3), not that an individual control confers a level.
 
 This standard also aligns with NIST SP 800-204D (Strategies for the Integration of Software Supply Chain Security in DevSecOps CI/CD Pipelines) for the software supply-chain security of the CI/CD pipeline.
 
