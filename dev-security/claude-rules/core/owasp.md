@@ -3,7 +3,7 @@
 These rules map OWASP Top 10 risks to specific coding requirements. For each risk, the concrete prohibition and required pattern are listed.
 
 **Editions covered:**
-- OWASP Top 10:2025 (eighth edition, released November 2025): `https://owasp.org/Top10/2025/`. The prior 2021 edition (now superseded) remains accessible at `https://owasp.org/Top10/2021/` for transition reference.
+- OWASP Top 10:2025 (eighth edition; final release published January 2026): `https://owasp.org/Top10/2025/`. The prior 2021 edition (now superseded) remains accessible at `https://owasp.org/Top10/2021/` for transition reference.
 - OWASP ASVS v5.0.0: `https://owasp.org/www-project-application-security-verification-standard/`
 - OWASP MCP Top 10: `https://owasp.org/www-project-mcp-top-10/`
 
@@ -141,7 +141,7 @@ See [`core/authentication.md`](authentication.md) for full requirements. Renamed
 
 ---
 
-## A09:2025 security logging and alerting failures
+## A09:2025 security logging & alerting failures
 
 Renamed from Security Logging and Monitoring Failures in 2021 to emphasize alerting: logging without alerting rarely induces action on a security event.
 
@@ -234,5 +234,5 @@ The OWASP Risk column follows the 2025 ordering. (The ISO 27001 / NIST SSDF / CS
 | A06 Insecure Design | A.8.25 to 8.27 | PW.1 to PW.4 | AIS-01 |
 | A07 Authentication Failures | A.5.17 | N/A | IAM-13 to 15 |
 | A08 Software or Data Integrity Failures | A.8.27 | DS.2 | CCC-04 to 05 |
-| A09 Security Logging and Alerting Failures | A.8.15 to 8.16 | RV.1 | LOG-01 to 13 |
+| A09 Security Logging & Alerting Failures | A.8.15 to 8.16 | RV.1 | LOG-01 to 13 |
 | A10 Mishandling of Exceptional Conditions | A.8.28 | PW.5 | AIS-04 |
