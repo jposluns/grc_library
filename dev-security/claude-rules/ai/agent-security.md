@@ -65,7 +65,7 @@ Prompt injection is significantly more dangerous in agentic systems because the 
 - **Database records**: fields containing user-supplied text should be clearly delimited and treated as data, not instructions
 - **Email and message content**: treat email bodies, message content, and notes as untrusted; never act on instructions found in message content without user confirmation
 
-**Recommended testing**: Use TikiTribe's indirect prompt injection test suite to validate agent resistance to instruction-carrying document content.
+**Recommended testing**: validate agent resistance to instruction-carrying document content with an indirect-prompt-injection test suite.
 
 ---
 
@@ -102,14 +102,14 @@ Before deploying an agentic system to production, adversarial testing must inclu
 | Test Category | Description | Resource |
 | --- | --- | --- |
 | Direct prompt injection | Attempt to override system instructions via user input | OWASP LLM01 |
-| Indirect injection via documents | Embed adversarial instructions in documents the agent reads | TikiTribe indirect injection suite |
-| Tool-call argument manipulation | Supply malformed or boundary-violating tool arguments | TikiTribe tool-call test cases |
-| Trust escalation | Attempt to have a subagent claim orchestrator-level trust | TikiTribe multi-agent trust tests |
+| Indirect injection via documents | Embed adversarial instructions in documents the agent reads | Indirect-injection test suite |
+| Tool-call argument manipulation | Supply malformed or boundary-violating tool arguments | Tool-call fuzzing / boundary-case tests |
+| Trust escalation | Attempt to have a subagent claim orchestrator-level trust | Multi-agent trust-boundary tests |
 | Privilege escalation | Attempt to get the agent to grant itself additional permissions | MITRE ATLAS AML.T0053 |
 | Loop exploitation | Craft inputs that cause infinite tool-call recursion | N/A |
 | Cross-session exfiltration | Attempt to access another user's session data through agent context | N/A |
 
-**TikiTribe** provides structured attack payloads and test harnesses specifically for agentic workflows, MCP server exploitation, and multi-agent pipeline attacks. Use it as part of pre-production red-teaming.
+Exercise the categories above as part of pre-production red-teaming, using an agentic-workflow adversarial test suite (indirect injection, tool-call fuzzing, and multi-agent trust-boundary tests).
 
 ---
 
