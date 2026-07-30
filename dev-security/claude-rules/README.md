@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.66.1\
+**Version:** 1.66.2\
 **Date:** 2026-07-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -508,6 +508,7 @@ The pack's change history is maintained in the parent grc_library repository CHA
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.66.2 | 2026.07.756 | 2026-07-30 | Patch (TODO 1.27.1 R1/R3, external-audit pack-correctness): the OWASP LLM Top 10 output-handling reference in `ai/ai-security.md` corrected from LLM09 to LLM05 (Improper Output Handling; LLM09:2025 is Misinformation), and the ten fabricated `MCP01-10` codes in the `core/owasp.md` MCP Top 10 quick-reference replaced with the official OWASP MCP Top 10 (2025, v0.1 Beta) titles and descriptions (e.g. MCP01 Token Mismanagement & Secret Exposure; Tool Poisoning is MCP03, not MCP01). Verified against the held OWASP extracts and owasp.org, dual-family. |
 | 1.66.1 | 2026.07.751 | 2026-07-30 | Apex rule (**AIQT Principle**) extended with **Progress**: the ordering is now (Accuracy = Integrity = Quality = Trust) > Progress > Speed > Cost. Progress (decisive advancement, the anti-analysis-paralysis value) and Speed (latency) form the throughput tier below the co-equal AIQT tier; Progress ranks above Speed and, like Speed, sits below the AIQT tier and never licenses reduced verification (it targets the decisiveness axis, not the verification axis). New `## 2a` section defines Progress and its non-negotiable guardrail; the checkpoint line, the ordering and lexicographic statements, section 2, and the anti-patterns updated across both trees, with the project `CLAUDE.md` PRIMORDIAL RULE, pack `CLAUDE.md`, this README, the `/resume` command, and the `surface-counterproductive-instructions` cross-reference migrated. Pack `1.65.24` to `1.66.1` (minor; substantive apex-rule amendment, no new rule; the dual-family verify's completeness fixes across the prose dimension-enumerations and the website templates landed in the same PR). |
 | 1.65.24 | 2026.07.748 | 2026-07-30 | Patch (TODO 3.170, caught by the xhigh dual-family verify): the secret-scanning citation in the cicd-gates pipeline mirror pair (and the devops-security standard) corrected from ISO A.8.10 (Information deletion) to A.8.28 (Secure coding). |
 | 1.65.23 | 2026.07.738 | 2026-07-30 | Patch (3.137b residual, caught by the xhigh dual-family verify): corrected the skill-index descriptions for `validation-sweep-pr-scoped` ("post-merge"/"just-merged PR"/"runs after every merge" -> synchronous finalizing step, runs before merge) and `pr-retrospective` ("post-merge retrospective" -> finalizing step) to the synchronous same-PR model. |

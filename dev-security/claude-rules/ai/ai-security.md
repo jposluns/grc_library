@@ -65,7 +65,7 @@ Treat every LLM response, every model output, and every AI-generated value as if
 
 ---
 
-## Overreliance and output validation (OWASP LLM09)
+## Improper output handling and overreliance (OWASP LLM05, LLM09)
 
 - Validate AI output before using it in downstream operations, especially:
  - Code generation → run SAST and security review
@@ -75,7 +75,7 @@ Treat every LLM response, every model output, and every AI-generated value as if
 - Implement confidence thresholds: reject low-confidence outputs or route them to human review
 - Test for model hallucinations in security-sensitive contexts (e.g., package names, API endpoints, permissions)
 
-**References:** OWASP LLM09
+**References:** OWASP LLM05 (Improper Output Handling), OWASP LLM09 (Misinformation)
 
 ---
 
@@ -127,4 +127,4 @@ Before any AI feature reaches production, adversarial testing must include:
 | Sensitive disclosure | LLM02 | AML.T0057 | DSP-05 | Measure 2.7 |
 | Supply chain | LLM03 | AML.T0010 | STA-05 | Govern 1.7 |
 | Excessive agency | LLM06 | AML.T0053 | IAM-04 | Manage 1.3 |
-| Output validation | LLM09 | N/A | AIS-02 | Measure 2.9 |
+| Improper output handling | LLM05 | N/A | AIS-02 | Measure 2.9 |
