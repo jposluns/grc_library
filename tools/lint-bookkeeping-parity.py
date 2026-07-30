@@ -32,9 +32,11 @@ the legacy ``## YYYY-MM-DD, Library Version X, PR #N`` form. For each PR N with 
 the PR-scoped validation history register AND (for substantive PRs) a row in
 the improvement log, with these exemptions:
 
-- The single highest-numbered PR is exempt: its ``/validate-pr`` + ``/retro``
-  rows legitimately batch into the *next* PR per the recursion-avoidance
-  rule, which does not exist yet.
+- EVERY merged PR, INCLUDING the single highest-numbered one, needs its own
+  rows (TODO 3.137(b), the synchronous-``/validate-pr`` cutover): the QA now
+  runs before the PR is finalized and its rows land in the SAME PR, so the
+  window is inclusive of ``max_pr``. (The former highest-PR-in-flight exemption
+  went with the retired recursion-avoidance batching.)
 - A session-closing handoff PR is exempt from BOTH the validate-pr and the
   retro requirement (the loop-break: a handoff PR skips its own trailing
   QA). Handoff PRs are detected by their explicit validate-pr exemption row
@@ -49,9 +51,9 @@ the improvement log, with these exemptions:
   PRESENT but records the QA as ``DISPATCHED`` / ``RESULT PENDING`` and never
   ``RETURNED``. Row presence alone used to read GREEN on it, the hole that let
   validate-pr-1173 / validate-pr-1180 sit unconsumed across sessions. A pending
-  row on an in-window PR (below the highest) FAILS Check 1 as a stranded QA
-  order; a pending row on the single highest PR stays in-flight-exempt (its QA
-  batches into the not-yet-existent next PR). A row that ALSO carries
+  row on ANY in-window PR (now including the highest, per the sync cutover)
+  FAILS Check 1 as a stranded QA order: the result must have RETURNED before the
+  PR is finalized. A row that ALSO carries
   ``RETURNED`` is not pending: the word ``dispatched`` may legitimately appear
   in a returned row's prose, so the classifier requires ``RETURNED`` absent.
 - A handful of pre-INCEPTION-era handoff PRs were merged before the
@@ -439,7 +441,7 @@ def qa_cadence_findings(
     vp_floor = effective_floor(set(vp_status), floor=inception)
     retro_floor = effective_floor(retro_prs, floor=inception)
 
-    for pr in sorted(p for p in changelog_prs if inception <= p < max_pr):
+    for pr in sorted(p for p in changelog_prs if inception <= p <= max_pr):
         if pr in known_handoff:
             continue
         st = vp_status.get(pr)
@@ -450,7 +452,7 @@ def qa_cadence_findings(
                 continue
             findings.append(
                 f"  [qa-cadence] PR #{pr}: no row in {VALIDATE_PR_HISTORY}. "
-                f"Every merged PR in [{inception}, {max_pr}) needs a "
+                f"Every merged PR in [{inception}, {max_pr}] needs a "
                 f"/validate-pr row (or a handoff/subsumption exemption row). "
                 f"If this is a session-closing handoff PR predating the "
                 f"exemption-row convention, add it to KNOWN_HANDOFF_NO_ROW."
@@ -468,8 +470,8 @@ def qa_cadence_findings(
             # so the order is stranded: FAIL until the result RETURNS.
             findings.append(
                 f"  [qa-cadence] PR #{pr}: its /validate-pr row is PRESENT but marks the "
-                f"QA as DISPATCHED / RESULT-PENDING and it never RETURNED; a later PR "
-                f"exists (window up to #{max_pr}), so the QA order was stranded. Consume "
+                f"QA as DISPATCHED / RESULT-PENDING and it never RETURNED (window through "
+                f"#{max_pr}), so the QA order is stranded. Consume "
                 f"the result, update the row to RETURNED with its findings dispositioned, "
                 f"or re-issue the order (per the undelivered-validate-pr-is-blocking rule)."
             )
