@@ -2,7 +2,7 @@
 
 **Document Title:** Security Quick Reference\
 **Document Type:** Standard\
-**Version:** 1.1.11\
+**Version:** 1.1.12\
 **Date:** 2026-07-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -227,7 +227,7 @@ Before building any AI or ML feature:
 - [ ] Training data classified and documented
 - [ ] If training data contains personal data: Privacy Impact Assessment completed
 - [ ] Model documentation created (model card or equivalent)
-- [ ] Adversarial attack analysis conducted (reference: OWASP LLM Top 10, MITRE ATLAS, TikiTribe for agentic workflows)
+- [ ] Adversarial attack analysis conducted (reference: OWASP LLM Top 10, MITRE ATLAS)
 - [ ] Model artefacts signed and checksummed
 - [ ] Output validation implemented (AI output treated as untrusted input to downstream systems)
 - [ ] Monitoring for model drift and anomalous outputs configured in SIEM
