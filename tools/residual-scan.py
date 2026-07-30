@@ -67,26 +67,15 @@ TEXT_SUFFIXES = {".md", ".py", ".sh", ".yml", ".yaml", ".cff", ".toml", ".txt", 
 
 EXCLUDED_DIRS = {".git", "node_modules", "__pycache__"}
 
-# Dated per-run archive: any .working/<activity>/<YYYY-...> file, any year.
-FROZEN_RECORD_RE = re.compile(r"^\.working/[^/]+/\d{4}-")
-
-# Per-activity append-only history tables, plus the top-level append-only ledgers.
-LEDGER_RE = re.compile(r"^\.working/[^/]+/history\.md$")
-
-LEDGER_PATHS = (
-    "CHANGELOG.md",
-    ".working/changelog-details/CHANGELOG-detailed.md",
-    ".working/DONE.md",
-    ".working/improvement-log.md",
+# Historical-surface classification (LEDGER / FROZEN-RECORD / LIVE) is hoisted
+# to lint_common so residual-scan and the D9 orphan gate share one source
+# (roadmap C phase 2, #1250). Re-exported here under the original names for back-compat.
+from lint_common import (  # noqa: E402
+    FROZEN_RECORD_RE,
+    LEDGER_PATHS,
+    LEDGER_RE,
+    classify,
 )
-
-
-def classify(rel: str) -> str:
-    if LEDGER_RE.match(rel) or rel in LEDGER_PATHS:
-        return "LEDGER"
-    if FROZEN_RECORD_RE.match(rel):
-        return "FROZEN-RECORD"
-    return "LIVE"
 
 
 def _extra_working_root() -> Path | None:

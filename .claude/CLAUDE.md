@@ -285,7 +285,7 @@ detail and rationale for everything below live in
 
 2. **PR close-out checklist.** Before pushing, confirm every paired bookkeeping surface is in
    the diff. The MECHANICAL items each have a gate/hook backstop (named); the GREP-DISCIPLINE
-   items are NOT yet gated (3.139.2 is the future delta gate), so their terse reminder here is
+   items are mostly NOT gated (D9, from #1250, gates only the §N-orphan anchored-refs-on-operational-surfaces sub-case), so their terse reminder here is
    the live control, do not drop it.
 
    **Backstopped (gate/hook named; detail in `references/pr-lifecycle.md`):**
@@ -300,12 +300,12 @@ detail and rationale for everything below live in
    - Detailed-mirror current-week sweep (advisory, cross-repo, NOT gated); gate 59 checks mirror-header parity. Daily roll-up when D8 prints `DAILY SUMMARY DUE`: D8 (advisory). The ROOT `CHANGELOG.md` is summarized-in-place, NEVER removed.
    - CHANGELOG (root + detailed) and version bumps present; pre-push guard green.
 
-   **Grep-discipline reminders (UN-gated, the live control, keep terse-in-place until 3.139.2):**
+   **Grep-discipline reminders (mostly UN-gated, the live control; D9 (#1250) now backstops only the §N-orphan-on-operational-surfaces sub-case, the rest stay convention):**
    - Enumerated-collection prose counts re-checked for staleness (computed AFTER the verifier loop, never mid-draft).
    - On a convention/count/term/gate-wiring change: grep the OLD phrasing across the full file AND every sibling surface, at BARE-TOKEN width (not a phrasing-specific string); scope the completion CLAIM to the SLOT, not the string.
    - Corpus-wide completion claim: grep the FULL corpus file set, not the change's own input set.
    - Full-file-grep + parallel-case re-verification for prose corrections, across four axes: pattern-width, scope-width, SEPARATOR tolerance (proximity form, both orders), FILE-TYPE width (`.py`/`.yml`/`.sh`/`.json`/`.claude/`, not `.md` alone).
-   - Section-close cross-FILE §N-orphan cleanup: grep the WHOLE repo for every KEY FORM (`§N`, `PN.M`, bare tokens, RANGE `§A-§B`, `item N`), including gate-exempt files carrying forward pointers.
+   - Section-close cross-FILE §N-orphan cleanup: the anchored key-forms (`§N.M`/`PN.M`/`TODO §N.M`) surviving on OPERATIONAL surfaces are now GATED by D9 (`check-retired-section-orphan-on-pr.py`); the manual grep still covers the residue D9 excludes by design: bare tokens, RANGE `§A-§B`, `item N`, and corpus `.md` surfaces.
    - Grep-claim fidelity: any clause characterizing a grep result is written FROM the pasted output, not memory.
    - Meta-prose state-claim measurement: any clause characterizing an artefact's own state is MEASURED at authoring time (recount enumerations; never transcribe a subagent figure unrecounted).
    - CHANGELOG count-reflex: a figure that drifts mid-PR is bare-token-grepped across the whole entry, both files.
