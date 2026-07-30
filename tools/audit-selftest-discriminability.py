@@ -391,7 +391,7 @@ def self_test() -> int:
     check("is_self: and its relative form, so a `tools/x` argument is caught too",
           is_self(Path("tools") / Path(__file__).name), True)
     check("is_self: another tool is not itself",
-          is_self(REPO_ROOT / "tools" / "audit-worker-saturation.py"), False)
+          is_self(REPO_ROOT / "tools" / "lint-metadata.py"), False)
     check("is_self: default enumeration excludes the probe",
           any(is_self(q) for q in (REPO_ROOT / "tools").glob("*.py")
               if has_selftest(q) and not is_self(q)), False)

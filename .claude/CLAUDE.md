@@ -1154,40 +1154,6 @@ The design of record is `grc_library_private/credit-offload-design.md`; the orch
 operating discipline is `grc_library_private/orchestrator-claude.md` (`## Credit-offload mode`,
 group A1).
 
-## Worker-saturation checkpoint (keep the elastic workers fed)
-
-The mandatory-offload rule above forecloses SELF-RUNNING offloadable work while workers are live.
-A distinct failure it does not catch is the orchestrator letting the pending queue DRAIN TO ZERO
-while workers sit idle: nobody is being made to self-run, but the elastic worker capacity is
-wasted because no research/QA is queued for it (the 2026-07-23 miss the maintainer caught, a
-worker idle "for a while" between orders). The fix is an OBSERVABLE plus a narrow checkpoint, not
-another blanket rule.
-
-- **The observable (L1).** [`tools/audit-worker-saturation.py`](../tools/audit-worker-saturation.py)
-  reads BOTH exchange planes, the `_scratch` worker registry and queue AND the same-VM file-drop
-  exchange root, reports their de-duplicated union, and returns a verdict:
-  `NO-WORKERS` (nothing to offload to), `SATURATED` (outstanding orders >= live workers), or
-  `IDLE-CAPACITY` (live workers > outstanding orders, so at least one live worker has nothing to
-  claim). It is advisory (every reporting path exits 0; only `--self-test` can exit non-zero, on a self-test failure), stdlib-only, no-op only when BOTH planes are absent,
-  the same cross-repo shape as `audit-delivery-status.py` / `audit-brief-freshness.py`. Its
-  `--oneline` form is surfaced continuously in the console statusline beside `next:`, so idle
-  capacity is always in view. **It reads both planes because reading only `_scratch` was a real
-  defect (fixed 2026-07-25):** once the file-drop transport became primary, the tool reported
-  `NO-WORKERS` while a worker was demonstrably live, and `NO-WORKERS` is the one verdict that
-  licenses self-running work, so a false one defeated the very discipline this observable serves.
-  An unreadable directory is now reported rather than counted as empty, since the file-drop
-  subtrees are group-owned and a permissions failure would reproduce the same silent zero.
-- **The checkpoint (L2).** At each of these boundaries (NOT every micro-step): the start of a
-  task, PR close-out / next-PR selection, and before self-running any substantial pass, read the
-  saturation verdict (run the tool, or read the statusline). If it reports `IDLE-CAPACITY` AND
-  there is offloadable work that can be queued now (research or draft seeds for upcoming backlog
-  items, a QA pass), FAN OUT to fill the idle capacity BEFORE proceeding. A worker-state claim
-  ("workers are busy", "nothing to offload") must be the tool's output, never a felt sense (the
-  `evidence-grounded-completion` measured-not-inferred discipline; the same forcing function as
-  `audit-delivery-status.py` and `ref-holds.py`). This composes with the worker-elasticity
-  corollary above: if the queue-able work exceeds the live pool, ask the maintainer for more
-  workers rather than serializing.
-
 ## Guard inputs: check the input's authority, not just the check
 
 The project instantiation of the [`validate-inference-before-action`](rules/governance/validate-inference-before-action.md)
@@ -1212,8 +1178,6 @@ what I am asking of it? Then apply the rule's discipline: make ignorance a first
 REFUSES rather than permits; keep a reality fixture (the actual state that exposed the defect, verbatim)
 for every observer bug; mutate the observer and not only the decision; state a proxy's residue at the
 point of use; and keep a pure decision function behind a thin observer so both halves stay testable.
-`tools/audit-worker-saturation.py` is the local pattern to copy: its logic is pure, and today's
-discriminability audit found it the one tool here with zero undetectable guard sites.
 
 ## Pin an order to a SHA that CONTAINS what the order references
 
@@ -1278,26 +1242,18 @@ separation is the point (maintainer-directed 2026-07-25):
 Mixing them would destroy what makes the issue channel work, namely that its list is short and every item
 on it matters, so a delivery never lands in bare `inbox/`.
 
-**Run [`tools/collect-deliveries.py`](../tools/collect-deliveries.py) at each task boundary** (the same
-boundaries as the saturation checkpoint): it sweeps completed deliveries into the tray and files each
+**Run [`tools/collect-deliveries.py`](../tools/collect-deliveries.py) at each task boundary**: it sweeps completed deliveries into the tray and files each
 served order under `done/orders/`. Two independent completeness layers gate the move, because they catch
 different failures. `deliver` publishes via an atomic rename from a `.md.tmp` name in the same directory,
 so any `*.md` in an outbox has all its bytes; and the last non-blank line must be
 `<!-- END OF DELIVERY -->`, which is the author's assertion that the work was finished rather than merely
 fully written. A file failing either is LEFT IN PLACE and REPORTED individually, never silently skipped,
 because a file sitting untouched with no explanation is the same silence-reads-as-health failure as a
-stalled worker heartbeating or a saturation verdict naming unusable capacity.
+stalled worker that still heartbeats while no longer doing work.
 
 Its report names BOTH planes (tray count and still-in-outbox count) rather than summing them, because the
 sweep only runs while the orchestrator is alive, so a tray-only reading under-reports between sessions.
-That is the single-plane blindness already fixed once in the saturation observable and still live in the
-scratch `list-workers`. `--dry-run` is the read-only status form and `--oneline` the statusline form.
-
-Scope note: the tool ships with a `--self-test` fixture set (the `block-unjustified-decision.py`
-pattern) wired into the linter-regression suite, asserting it flags `IDLE-CAPACITY` and never
-flags `SATURATED` / `NO-WORKERS` / a healthy queue, so the signal is false-positive-free before it
-is relied on. A heavier L3 (a non-blocking saturation warning inside `block-mandatory-offload.py`)
-is DEFERRED pending a one-month review of L1+L2 (TODO time-bounded follow-up TF-1).
+That is the single-plane blindness still live in the scratch `list-workers`. `--dry-run` is the read-only status form and `--oneline` the statusline form.
 
 ## Pack-parity coupling (adopt a guard rail, keep the pack in sync)
 
@@ -1310,8 +1266,7 @@ plus sharpened-rule shape as the other guard rails:
   discipline, rule, or skill (one an adopter would want), add or update the matching pack
   rule/skill in the SAME PR; if it must be deferred, record a tracked follow-up. When the thing is
   PROJECT-ONLY operational machinery (the credit-offload / `_scratch`-exchange mechanics, the
-  `_private` operational store, session-specific wiring, the worker-saturation tool's scratch
-  coupling), it is NOT pack material: annotate it explicitly as project-only in the change record,
+  `_private` operational store, session-specific wiring), it is NOT pack material: annotate it explicitly as project-only in the change record,
   do not force a pack entry. Portable-vs-project-only is the judgement this convention turns on.
 - **Catch-net (cadence).** A periodic pack-parity review compares the project's adopted
   disciplines, hooks, and rules against pack coverage and routes any drift, the review that would
@@ -1348,8 +1303,7 @@ are recent.
 
 **Discipline, so the pre-queue does not become a liability.** Pin every order to the closing merge SHA
 (never a branch head, which vanishes on squash-merge) and to a SHA that CONTAINS what the order
-references. Fill the live worker pool rather than the queue: read
-[`tools/audit-worker-saturation.py`](../tools/audit-worker-saturation.py) and queue enough to saturate,
+references. Fill the live worker pool rather than the queue: queue enough to keep the live workers busy,
 not an unbounded backlog that goes stale unserved. Name the pre-queued order ids in the handoff record
 so the receiving session knows what to expect and can tell a missing delivery from one never ordered.
 And a pre-queued order is NOT a claim that its work is done: the receiving session still consumes,
