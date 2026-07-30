@@ -378,9 +378,9 @@ On 2026-07-27 the orchestrator probed and dispatched with full model IDs (`claud
 
 Nothing compares [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md)'s `Owner Role` column to the target document's own `**Owner:**` field; both are individually legal roles so `lint-roles.py` cannot see the conflict. The claude lens re-derived **27 live divergences** across 312 rows (e.g. `policy-exception-and-risk-acceptance-management.md` register `Chief Risk Officer` vs doc `Chief Information Security Officer`, orchestrator-verified). Build a gate comparing the two, and reconcile the 27 (each a per-document decision on the authoritative owner).
 
-### 3.153 Forward/reverse crosswalk pair-consistency is unenforced (an A.8.29 outlier is live) (2026-07-28 deep-assessment c2, ERROR, S)
+### 3.153 Build the forward/reverse crosswalk pair-consistency GATE (the A.8.29 data outlier fixed #1257; enforcement remains) (2026-07-28 deep-assessment c2, ERROR->gate, S)
 
-No tool references [`governance/matrix-reverse-framework-control-crosswalk.md`](governance/matrix-reverse-framework-control-crosswalk.md); its own "the two matrices are pair-consistent" assertion is unchecked. Row `:64` maps `A.8.29` to the pen-test doc whose own alignment table carries no `A.8.29`. Build a pair-consistency gate: each reverse-crosswalk row's control appears in the target doc's alignment table.
+The live A.8.29 ISO outlier was FIXED in #1257 (maintainer option 3b: pentest doc moved from A.8.29 to A.8.8, so the A.8.29/A.8.8 rows are now pair-consistent with the docs' own tables). A SEPARATE pre-existing instance the gate must also catch: crosswalk `:199` cites the pentest doc for DORA Pillar 3 while the doc's own table carries no DORA row (thematically TLPT-valid but not explicit). REMAINS: build the pair-consistency gate (each reverse-crosswalk row's control appears in every cited target doc's alignment table). FP hazards to design around (per the 3.153 research): ISO 27001 Annex A === 27002 ID namespace; range/area containment (`A.5.1 to A.5.4`); skip docs with no alignment table for that framework; ALL-cited-docs-with-a-table presence. Maintainer to scope/approve (pending-decisions).
 
 ### 3.154 Matrix `N/A` is an unaudited escape hatch + semantic-mapping blind spot (2026-07-28 deep-assessment c2, W, S)
 
