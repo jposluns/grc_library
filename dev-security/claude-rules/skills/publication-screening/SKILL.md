@@ -76,7 +76,9 @@ is caught, by the corroboration read and the use-time discipline.
 
 - **On every new publications-bucket ingest**, as part of the ingest workflow (the value
   test and selective extraction stay as the reference base's ingest steps; this
-  protocol is the formalized screen-and-record step that follows them).
+  protocol is the formalized screen-and-record step that follows them). The screening
+  register row ships in the SAME change that catalogues the item, so a publication is
+  never catalogued in one change and left unscreened-of-record in another.
 - **On the pending backlog (the screening wave)**: work `pending` register rows
   through the protocol; the wave is partitionable worker research under the normal
   validate-then-apply orchestration.
