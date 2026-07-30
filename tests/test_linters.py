@@ -6047,7 +6047,7 @@ class BookkeepingParityTests(LinterTestCase):
         self.assertIn("stranded", findings[0])
 
     def test_pending_highest_pr_now_flags(self) -> None:
-        # 3.137(b) sync cutover: the single highest PR (#12) is NO LONGER
+        # #1248 (3.137b) sync cutover: the single highest PR (#12) is NO LONGER
         # in-flight-exempt. A pending row on it means its QA never RETURNED
         # before the PR was finalized, so it FAILS Check 1 as stranded.
         mod = self._load_module()
@@ -6074,7 +6074,7 @@ class BookkeepingParityTests(LinterTestCase):
         self.assertEqual(row("**RETURNED: PASS, 0 findings**"), "normal")
 
     def test_highest_pr_now_requires_its_own_rows(self) -> None:
-        # 3.137(b) sync cutover: the single highest-numbered PR (#12) is NO
+        # #1248 (3.137b) sync cutover: the single highest-numbered PR (#12) is NO
         # LONGER exempt; with no validate-pr row it FAILS Check 1 (its QA now
         # runs before the PR is finalized, rows landing in the same PR).
         mod = self._load_module()

@@ -33,7 +33,7 @@ the PR-scoped validation history register AND (for substantive PRs) a row in
 the improvement log, with these exemptions:
 
 - EVERY merged PR, INCLUDING the single highest-numbered one, needs its own
-  rows (TODO 3.137(b), the synchronous-``/validate-pr`` cutover): the QA now
+  rows (PR #1248, the synchronous-``/validate-pr`` cutover): the QA now
   runs before the PR is finalized and its rows land in the SAME PR, so the
   window is inclusive of ``max_pr``. (The former highest-PR-in-flight exemption
   went with the retired recursion-avoidance batching.)

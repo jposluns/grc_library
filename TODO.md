@@ -317,12 +317,6 @@ The orchestrator session's umask is `0002`, so every NEW file it creates in `grc
 
 The `--account` override (#1187) gives cross-account parallelism (N workers on N distinct accounts, each serialized by its own wrapper flock at 1). Running MORE THAN ONE worker on the SAME account concurrently is a separate, heavier item: the wrapper's blocking flock on a lock file inside the shared config dir (`$CFGBASE/$account/.wrapper.lock`) is BOTH the safety guarantee and the concurrency-1 cap, so loosening it without per-worker state would race the one shared `CLAUDE_CONFIG_DIR` / `CODEX_HOME`. The design candidate (the `design-multiworker-per-account` xhigh delivery, 2026-07-26) covers: a per-worker config-dir snapshot (copy the auth/credential state, isolate session/lock/cache) with cleanup; moving `max_concurrent` enforcement + an in-flight registry/counter into `exec-dispatch.py` (which is stateless today); and the claude-mktemp-workdir vs codex-fixed-shared-workspace asymmetry. First cut: `cp -r` snapshot + a per-account lock counter + `max_concurrent` bumped to 2, verify no auth contention, before the fuller design. Lower priority now that cross-account parallelism covers the immediate need.
 
-### 3.137 Close-out speed: changed-files quick guard + reconsider async recursion-avoidance (fresh-eyes 2026-07-26; EXECUTE EARLY, M-L, M) `[machinery]`
-
-Two smaller fresh-eyes items. (a) **DONE (3.137a, PR #1245):** `tools/quick-guard.sh`, a fast local iteration aid that runs the 36 fast-ready gates on only the changed `.md` files (never the push gate; the full 78-gate `pre-push-guard.sh` remains the authority). Shipped with a normalization of 7 gate tools + gates 10/76 to a uniform positional multi-file interface. **(b) REMAINS (= 3.137b):** reconsider the async recursion-avoidance rule. The (b) reconsideration (the prior PR's QA rows batch into the next PR, serializing PR N on PR N-1's validate-pr round-trip); options: run validate-pr synchronously before finalizing,
-or a periodic QA-rows catch-up decoupled from the next feature PR. Structural; a deliberate design look, not a quick
-change. The fewer-larger-PRs guideline (do not fragment one theme into separate PRs) is ADOPTED as a convention.
-
 ### 3.192 Rework or retire `tools/pr-closeout.py` (retired-model residual from 3.137b) (2026-07-30, M, M) `[machinery]` `[MORNING-DECISION]`
 
 `tools/pr-closeout.py` (977 lines, ungated, self-tested via `tests/test_linters.py`) is built entirely on the

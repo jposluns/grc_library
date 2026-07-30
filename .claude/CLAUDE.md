@@ -779,7 +779,7 @@ is external. Two mechanisms:
    independent of each other, the second reading is a genuine second lens and the corroboration is
    worth more than the time it cost.
 
-   **The mechanical half is now BUILT (TODO 3.137(b)).** Gate 50's Check 1 no longer exempts
+   **The mechanical half is now BUILT (PR #1248).** Gate 50's Check 1 no longer exempts
    the highest-numbered PR (its window is inclusive of `max_pr`, since the synchronous QA lands
    each PR's rows in the PR itself) and it classifies a THIRD row state, a validate-pr row that
    is PRESENT but records the QA as `DISPATCHED` / `RESULT PENDING` and never `RETURNED`, as a
