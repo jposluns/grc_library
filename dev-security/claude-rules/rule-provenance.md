@@ -1,8 +1,8 @@
 # Rule provenance register: the origin of each governance rule
 
 **Document Type:** Provenance register\
-**Version:** 1.2.1\
-**Date:** 2026-07-24\
+**Version:** 1.2.2\
+**Date:** 2026-07-30\
 **Owner:** Governance Library Maintainer\
 **Repository Path:** [`dev-security/claude-rules/rule-provenance.md`](rule-provenance.md)\
 **License:** CC BY-SA 4.0
@@ -135,7 +135,7 @@ made history-aware gates emit a mass false positive.
 ### `project-integrity`
 
 The apex rule, stating the ordering every other rule assumes: the non-negotiable tier
-above speed, and speed above cost. It began as a quality-first ordering with integrity
+above progress, progress above speed, and speed above cost. It began as a quality-first ordering with integrity
 non-negotiables and was renamed to the AIQT form (Accuracy, Integrity, Quality, Trust
 as one co-equal top tier) in July 2026, at maintainer direction, so the facets that
 were implicit became named and each maps to its enforcing machinery. Every clause in
