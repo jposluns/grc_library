@@ -420,44 +420,35 @@ Routing a `source-not-held` finding without first attempting the download is the
 
 ## Attended-autonomous operating mode
 
-Between fully-attended and overnight mode there is a third, default-for-active-sessions
-mode: **attended-autonomous**. The maintainer is reachable but not watching every step
-(glanceable every 15-20 minutes), and the assistant keeps moving rather than blocking on
-each merge or decision. Its three standing rules:
+The default-for-active-sessions mode: **attended-autonomous** (the maintainer is reachable but
+not watching every step, glanceable every 15-20 minutes; the assistant keeps moving rather than
+blocking on each merge or decision). Full discipline: the pack rule
+[`session-lifecycle`](rules/governance/session-lifecycle.md) §2 (operating modes) and §3
+(graceful degradation). Project overlay, the concrete wiring:
 
-1. **Green CI = merge authority.** When a PR's `Lint markdown corpus` check is green, the
-   assistant merges it and proceeds to the next task WITHOUT asking the maintainer to
-   authorize the merge; the maintainer redirects by exception. The property that
-   distinguishes it from overnight mode is the conflict path alone: the "skip-to-morning"
-   rule does not apply because the maintainer is reachable and decisions are asked, not
-   deferred. Logging is identical in BOTH modes (per-PR `/validate-pr` + `/retro`,
-   CHANGELOG, handoff; overnight logging is never abbreviated).
+1. **Green CI = merge authority.** When a PR's `Lint markdown corpus` check is green, merge it
+and proceed WITHOUT asking the maintainer to authorize the merge; the maintainer redirects by
+exception. Logging is identical to overnight mode (per-PR `/validate-pr` + `/retro`, CHANGELOG,
+handoff; never abbreviated). It differs from overnight mode on the conflict path alone:
+decisions are ASKED, not deferred, because the maintainer is reachable.
 
-2. **Stricter-is-safer always.** On a cross-value conflict (two documents disagree on a
-   number, a control mapping, a regime status), resolve toward the more conservative value
-   where one is clearly safer, or toward the external-standard- or
-   canonical-internal-source-supported value where one governs; document the choice and
-   its evidence. This holds in every mode, not only overnight.
+2. **Stricter-is-safer always** (every mode): on a cross-value conflict (two documents disagree
+on a number, a control mapping, a regime status), resolve toward the more conservative value
+where one is clearly safer, or the external-standard / canonical-internal-source-supported
+value where one governs; document the choice and its evidence.
 
-3. **The pending-decisions graceful-degradation mechanism.** When the next action depends
-   on a decision that is genuinely the maintainer's (per `clarify-before-acting`), the
-   assistant surfaces it with named options AND arms a short timer (default about 2
-   minutes; mechanically a background `sleep`). If the maintainer answers before the timer
-   fires, act on the answer. If the timer fires with no answer, do NOT stall and do NOT
-   guess an authorial decision; take exactly one of two logged paths:
-   - **Apply a stricter-safe default** when rule 2 yields a defensible, more-conservative,
-     evidence-backed option AND the action is reversible / on-branch. Record it in
-     `grc_library_private/.working/pending-decisions.md` as "proceeded with
-     X (stricter-safe default); confirm or redirect on resume", and continue.
-   - **Defer-and-skip** when the decision is genuinely authorial, irreversible, or
-     outward-facing, so there is no safe default. Record it as "deferred-blocked: needs
-     maintainer", route AROUND it to the next independent task (never guess), and hold any
-     task that depends on the deferred decision.
-   The reversibility gate from `action-before-explanation-of-inaction` governs which path
-   applies: a timeout never auto-proceeds on a destructive or outward-facing action. If
-   every remaining task depends on the one pending decision, wrap a clean handoff rather
-   than guessing (the no-long-interval-check-ins clause in `## PR activity subscription
-   discipline` forecloses idling on a deferred check-in).
+3. **The pending-decisions graceful-degradation mechanism.** When the next action depends on a
+decision genuinely the maintainer's (per `clarify-before-acting`), surface it with named
+options AND arm a short timer (default about 2 minutes; mechanically a background `sleep`).
+Answer before it fires: act on the answer. Fires with no answer: do NOT stall and do NOT guess
+an authorial decision; take exactly one of two LOGGED paths. **Apply a stricter-safe default**
+when rule 2 yields a defensible, more-conservative, evidence-backed option AND the action is
+reversible / on-branch (record in `grc_library_private/.working/pending-decisions.md` as
+"proceeded with X (stricter-safe default); confirm or redirect on resume", and continue).
+**Defer-and-skip** when the decision is genuinely authorial, irreversible, or outward-facing
+(record as "deferred-blocked: needs maintainer", route AROUND it to the next independent task,
+and hold any dependent task). The reversibility gate is absolute: a timeout never auto-proceeds
+on a destructive or outward-facing action.
 
 **No idle-stop in unattended mode.** In overnight or any unattended mode, never stop to ask
 which authorized item to do next, and never hold or idle on the grounds that remaining work
@@ -647,59 +638,38 @@ The full three-layer discipline (convention at PR close-out; a periodic catch-ne
 
 ## Wind-down pre-queues worker research for the next resume (maintainer-directed 2026-07-25)
 
-**Every wind-down queues worker orders that the NEXT session's `/resume` will consume.** The
-maintainer's standing directive, given at the 2026-07-25 resume: "any wind down will queue worker
-tasks to perform QA activities and tasks that can help expedite the resume."
-
-**Why the timing is the whole point.** Worker capacity is ELASTIC and the orchestrator is the scarce
-singleton, so the hours between one session closing and the next opening are the only stretch where
-worker time is free and orchestrator time costs nothing. A wind-down that queues nothing wastes that
-entire window, and the next `/resume` then starts by DISPATCHING and WAITING instead of by consuming.
-Pre-queued work inverts that: the resume opens with deliveries already in the tray.
-
-**What to queue, in this order.** (1) The mandatory loop-break `/validate` for the closing window,
-pinned to the closing SHA, so the compensating control for the skipped handoff-PR QA is already
-running rather than waiting to be dispatched. (2) The `/validate-pr` for the last merged PR, which the
-handoff PR itself is exempt from. (3) Research or draft candidates for the next-five queue in
-`grc_library_private/.working/next-prs.txt`, which is what makes the next session's first
-substantive PR fast. (4) Any defect-hunt whose target the closing session touched, while the changes
-are recent.
-
-**Discipline, so the pre-queue does not become a liability.** Pin every order to the closing merge SHA
-(never a branch head, which vanishes on squash-merge) and to a SHA that CONTAINS what the order
-references. Fill the live worker pool rather than the queue: queue enough to keep the live workers busy,
-not an unbounded backlog that goes stale unserved. Name the pre-queued order ids in the handoff record
-so the receiving session knows what to expect and can tell a missing delivery from one never ordered.
-And a pre-queued order is NOT a claim that its work is done: the receiving session still consumes,
-re-verifies every positive finding at source, and routes findings normally.
+**Every wind-down queues worker orders the NEXT session's `/resume` will consume.** Worker
+capacity is ELASTIC and the orchestrator is the scarce singleton, so the hours between one
+session closing and the next opening are the only stretch where worker time is free and
+orchestrator time costs nothing; a wind-down that queues nothing wastes that window, and the
+next resume then opens by DISPATCHING and WAITING instead of consuming. Discipline: the pack
+rule [`session-lifecycle`](rules/governance/session-lifecycle.md) `## Wind-down pre-queues
+delegated work for the next session`. **Project overlay, queue IN THIS ORDER:** (1) the mandatory loop-break
+`/validate` for the closing window, pinned to the closing SHA; (2) the `/validate-pr` for the
+last merged PR (the handoff PR is exempt); (3) research / draft candidates for the next-five
+queue in `grc_library_private/.working/next-prs.txt`; (4) any defect-hunt whose target the
+closing session touched. **Pin every order to the closing MERGE SHA** (never a branch head,
+which vanishes on squash-merge) and to a SHA that CONTAINS what the order references; fill the
+LIVE worker pool (not an unbounded backlog that goes stale unserved); name the pre-queued order
+ids in the handoff record; and a pre-queued order is NOT a claim its work is done (the
+receiving session consumes, re-verifies every positive finding at source, and routes findings
+normally).
 
 ## Wind-down decision framework (surface the handoff choice, do not take it silently)
 
-**The default is to continue, not to hand off.** Concluding that a session-closing handoff
-is the right next step is USUALLY the wrong call. A handoff is warranted ONLY on evidence of issues (the trigger below). Session
-length, context "heaviness", "this is getting long", and "a large / substantial /
-fresh-context-best series remaining" are NOT, by themselves, valid triggers; the assistant
-keeps working through them, sustaining quality with skeptical verifier subagents (see the
-note in the trigger section) rather than reaching for a handoff. The maintainer is welcome
-to be offered a handoff to consider before a substantial, critical, or long piece of work
-begins, but that is a non-default SUGGESTION for the maintainer's choice, never the
-assistant's default, and absent the maintainer's decision the assistant continues. Session depth is a
-legitimate CONTRIBUTING factor to OFFERING a handoff as a non-default suggestion (that offer
-regime, just above, distinct from the evidence-triggered PROPOSAL the trigger section below
-governs), one of many potential reasons but NEVER the SOLE reason: it is weighed alongside other signals, and warrants OFFERING a handoff for the
-maintainer's choice (never an auto-handoff) in two named cases. (i) A very-long-run of *expected chained large PRs* ahead,
-especially where the project's OWN historical metrics show a measured quality
-decline on comparable prior runs, a NAMED, externally-observable signal, not the
-un-instrumented "I feel degraded". (ii) Excessively-sensitive work whose integrity requires
-fresh context with no accumulated session history to skew it, the canonical case being the
-first `/deep-assessment` run, which must open on a fresh session so prior findings and
-framing do not bias it. Depth ALONE, with no long-run-ahead, no sensitivity reason, and no
-metric behind it, is still NOT a trigger: the assistant keeps working and sustains quality
-with skeptical verifier subagents. On the
-rare occasion a handoff IS warranted (genuine evidence of degradation), taking it silently
-is the same failure the `clarify-before-acting` and `action-before-explanation-of-inaction`
-rules forbid: narrating an inaction (the handoff) as if forced, without surfacing the
-capability assessment that would let the maintainer redirect.
+**The default is to continue, not to hand off.** A handoff is warranted ONLY on evidence of
+issues; session length, context "heaviness", and "a large / substantial / fresh-context-best
+series remaining" are NOT valid triggers by themselves (the assistant keeps working through
+them, sustaining quality with skeptical verifier subagents). Full discipline: the pack rule
+[`session-lifecycle`](rules/governance/session-lifecycle.md) §4 (evidence-gated wind-down;
+continue is the default; the ONLY valid trigger is a NAMED, externally-observable signal;
+surfaced never silent). Session depth is a legitimate CONTRIBUTING factor to OFFERING a handoff
+(the maintainer's choice, never an auto-handoff) in two cases only: (i) a very-long-run of
+expected chained large PRs ahead where the project's OWN historical metrics show a measured
+quality decline on comparable prior runs (a named signal, not "I feel degraded"); (ii)
+excessively-sensitive work needing fresh context with no accumulated session history (the
+canonical case being the first `/deep-assessment` run, which must open on a fresh session
+so prior findings and framing do not bias it). Depth ALONE is never a trigger.
 
 **The compaction-gate on pacing and continue-vs-fresh questions (maintainer-directed
 2026-07-24).** Absent evidence of degradation, the assistant does NOT ask the maintainer
@@ -717,42 +687,17 @@ regardless of the compaction count. (The compaction count is the observed count 
 assistant increments as each session-continuation summary arrives; see the `_private`
 per-session compaction tally in the wind-down/handoff discipline.)
 
-**The trigger.** Whenever the assistant concludes a session-closing handoff is the right
-next step, it does NOT act silently. It surfaces the decision (via `AskUserQuestion`) with
-all three of:
+**The trigger and the surfaced decision.** When the assistant concludes a handoff IS
+evidence-triggered, it surfaces it (via `AskUserQuestion`), never silently, with three things:
+(1) its justification in objective signals (actual drift, hallucination, or QA-missed mistakes;
+an un-instrumented internal state and the size/shape of remaining work are INVALID, the trigger
+must be a NAMED, externally-observable signal that can be quoted); (2) a per-PR
+likelihood-of-success assessment for the pending next-five PRs (from [`TODO.md`](../TODO.md)),
+anchored to tractability factors (partitionable vs single-session; incremental-edit vs
+fresh-context-class; count of cross-surface bookkeeping touchpoints; unresolved authorial
+decisions; whether references are in hand), used to SEQUENCE and verify, never itself a
+trigger; and (3) named options (the `clarify-before-acting` shape, recommended option first):
 
-1. **Its justification** for winding down, stated in objective signals, not a subjective
-   "I feel done": actual drift, hallucination, or mistakes the QA layer did not catch (the
-   ONLY class of valid trigger). **An un-instrumented internal state is NOT a valid
-   justification**, and neither is the *size or shape of the work remaining*. "Context is
-   heavy", "this is getting long", "I feel degraded", "a large / substantial /
-   fresh-context-best series is next", and "a migration / rename / corpus-wide sweep is
-   next" are all INVALID triggers: the first three have no instrument behind them (per the
-   `evidence-grounded-completion` un-observable-state corollary), and the rest are
-   work-shape, not evidence of a problem. A large series ahead is worked through PR-by-PR
-   (each PR is its own focused unit) with skeptical verifier subagents sustaining quality,
-   NOT handed off. The trigger must be a NAMED, externally-observable signal of an actual
-   problem: a failing check, a `/validate` or `/validate-pr` finding, a maintainer
-   correction, or a concrete self-inconsistency that can be quoted. Absent such a signal,
-   the default is to continue. **Calibration:** the bar to even *propose* a handoff is high
-   (see the intro's empirical observation and its offer-as-non-default note, the single
-   source for both); the assistant does not propose a handoff, concluding it warranted and
-   surfacing it as this trigger section describes, absent the named evidence above. The one
-   carve-out is OFFERING a handoff as a non-default suggestion in the two contributing-factor
-   cases the intro names (a very-long-run-ahead with a measured metric decline, or
-   excessively-sensitive fresh-context work): that is the maintainer's call to weigh, not the
-   assistant concluding a handoff is warranted, so it does not require the degradation
-   evidence a PROPOSAL under this section does.
-2. **A per-PR likelihood-of-success assessment** for each of the pending next-five PRs
-   (from `TODO.md`), each anchored to objective tractability factors: partitionable vs
-   single-session; incremental-edit vs fresh-context-class; count of cross-surface
-   bookkeeping touchpoints; unresolved authorial decisions in the way; whether references
-   are in hand. These factors inform how to SEQUENCE the next PRs and how heavily to verify
-   each (a fresh-context-class PR gets a skeptical verifier subagent, not a handoff); they
-   are never themselves a wind-down trigger (the only trigger is the degradation evidence in
-   item 1). This assessment is produced only once a handoff has been evidence-triggered, to
-   help the maintainer weigh continue-vs-handoff, not to manufacture a handoff from work shape.
-3. **Named options** (the `clarify-before-acting` shape, recommended option first):
    - **A. Handoff** (the conservative resolution of this already-evidence-triggered
      decision; NOT the session-level default, which is to continue per the intro above).
    - **B. The assistant's recommended order of additional PRs with high likelihood of
@@ -766,13 +711,14 @@ all three of:
      not to be stupid and hands off immediately (a Ulysses pact).
 
 **The timeout (graceful degradation).** This decision uses the same roughly-2-minute
-background-`sleep` timer as the attended-autonomous mechanism. If the maintainer answers
-before it fires, act on the answer. If it fires with no answer, **proceed with option A
-(handoff)**: the conservative, reversible, no-regret resolution of an already-triggered
-wind-down decision. (This timeout is reached only once a handoff has been legitimately
-triggered by degradation evidence; it is not the session-level default, which is to
-continue.) A no-answer timeout NEVER auto-selects B, C, or D. The one carve-out: in an
-overnight run the overnight conflict rules govern instead.
+background-`sleep` timer as the attended-autonomous mechanism. If the maintainer answers before
+it fires, act on the answer. If it fires with no answer, **proceed with option A (handoff)**:
+the conservative, reversible, no-regret resolution of an already-triggered wind-down. A
+no-answer timeout NEVER auto-selects B, C, or D. The one carve-out: in an overnight run the
+overnight conflict rules govern instead. Choosing B or C relaxes no discipline: each additional
+PR still gets its full `/validate-pr` + `/retro`, and the degradation read re-runs at EACH PR
+boundary, so "do N more" is really "do one more, re-assess, repeat" and self-terminates early
+if quality signals turn.
 
 **Turning overnight mode OFF is never a no-answer default.** Do NOT end
 overnight mode unless the maintainer explicitly says so; if unsure, pause and ask. If the
@@ -781,49 +727,34 @@ next time the maintainer messages. A session-closing handoff silently ends an ov
 run, so the overnight-OFF decision is carved out of the wind-down no-answer-to-handoff
 default above: it requires an explicit maintainer signal, never a timeout.
 
-**The AIQT tier above Speed remains the tiebreaker, and B/C are bounded.** Choosing B or C does NOT
-relax any discipline: each additional PR still gets its full per-PR `/validate-pr` +
-`/retro` (no abbreviation), and the assistant re-runs the degradation read at EACH PR
-boundary, so "do N more" is really "do one more, re-assess, repeat" and self-terminates
-early if quality signals turn. If a degradation signal appears mid-run, the assistant
-winds down regardless of the option chosen, surfacing why.
-
 ## Anything wrong: finish the current task, then FIX IT, and nothing else proceeds first
 
-**Maintainer-directed 2026-07-25, after the pattern recurred all day.** The moment ANYTHING wrong is
-found, the priority is: finish the task in hand, then fix it. Nothing that is not the fix, or part of
-the fix, proceeds ahead of it.
+**The moment ANYTHING wrong is found, finish the unit already in hand, then FIX it; nothing
+that is not the fix, or part of the fix, proceeds ahead of it.** "Anything wrong" is the WIDEST
+wording (an issue, a defect, a wrong figure, a stale instruction, a misleading name, an
+overstated claim, a silently-failed write): it does not matter how small it looks, who found
+it, or whether it has a severity yet, and **the severity assessment comes AFTER the fix
+decision, because grading a defect is one of the ways of not fixing it.** "Finish the current
+task" is NARROW: complete the unit in hand so nothing is left half-applied, then fix; it does
+NOT license a comfortable stretch of adjacent work, the next PR, another analysis pass, or
+writing up what was found. The four walk-pasts this forecloses, each of which feels like
+diligence: AESTHETICISING (render findings as a table/count/comparison and let the tidy summary
+stand in for the fix); NOTICING-AND-CARRYING-ON (describe it accurately, even record it, and
+continue the work in flight); GRADING-INSTEAD-OF-FIXING (characterize severity/blast-radius
+while the defect stays live); ROUTING-WHAT-COULD-BE-FIXED (send a fixable finding to the
+backlog, which is only for what genuinely cannot be fixed now). Against the decision rubric,
+"found a defect and continued" is never an ACT, is not an ASK, and cannot be BLOCKED (the
+blocker set is closed and has no entry for it). Full treatment: the pack rule
+[`decision-classification-before-enacting`](rules/governance/decision-classification-before-enacting.md)
+`## Finding something wrong is not a decision point: finish the task, then fix it`.
 
-**"Anything wrong" is deliberately the widest possible wording.** An issue, a defect, a problem, an
-error, an inaccuracy, a fault, a wrong figure, a stale instruction, a misleading name, an overstated
-claim, a silently-failed write. It does not matter how small it looks, who found it, or whether it has
-a severity yet. The severity assessment comes AFTER the fix decision, not before it, because grading a
-defect is one of the ways of not fixing it.
-
-**What "finish the current task" means, narrowly.** Complete the unit already in hand so it is not left
-half-applied, then fix. It does NOT license finishing a comfortable stretch of adjacent work, opening
-the next PR, running another analysis pass, or writing up what was found. If the current task IS the
-thing that produced the defect, the fix is the rest of that task.
-
-**The specific failures this forecloses, all observed on 2026-07-25.**
-- **Aestheticising.** Two live defects in a file-moving tool were rendered as a table row and followed
-  by a comparative statistic. Not ignored, formatted. Writing a count, table or comparison about
-  findings before each has a disposition is forbidden by the section below for exactly this reason.
-- **Noticing and carrying on.** The `list-workers` blindness that disarmed the mandatory-offload rule
-  was found, described accurately, and left unfixed for hours while other work continued.
-- **Grading instead of fixing.** A wrong worker count was reported as 8 against a true 3; the reflex
-  was to characterize it rather than repair the function that produced it.
-- **Routing what could be fixed.** A finding that can be fixed now is fixed now; the backlog is for
-  what genuinely cannot be, and using it as a queue for the merely inconvenient is the failure mode.
-
-**Interaction with the other disciplines.** This composes with the QA-blocking rule below (that one
-governs QA deliveries specifically, this governs anything wrong from any source) and with the
-decision-classification rubric: "found a defect and continued" is never an ACT, and it is not a valid
-BLOCKED either, since the blocker set is closed and contains no entry for it. The ledger
-`grc_library_private/.working/open-findings.md` and the
-[`block-on-open-findings.py`](hooks/block-on-open-findings.py) hook are the mechanical half; this
-section is the obligation the mechanics enforce, and it is wider than the hook, because the hook can
-only see a row once it is written.
+**Project wiring (the mechanical half).** This composes with the QA-blocking rule below (that
+one governs QA deliveries specifically; this governs anything wrong from any source). Every
+confirmed defect gets a row in `grc_library_private/.working/open-findings.md` the moment it is
+confirmed, with a severity, and leaves only via `FIXED` / `ROUTED` / `REFUTED` / `ACCEPTED`;
+the [`block-on-open-findings.py`](hooks/block-on-open-findings.py) PreToolUse hook refuses `gh
+pr create` and `gh pr merge` while an `error`-severity row has no disposition. The hook can
+only see a row once it is written, so this section is wider than the hook.
 
 ## A delivered QA result BLOCKS progress until it is read and its findings are fixed
 
