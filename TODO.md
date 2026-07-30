@@ -446,10 +446,6 @@ Add an EACCES fixture to the self-tests of `collect-deliveries.py`, `audit-deliv
 
 `.claude/rules/cicd-gates.md:136`, `dev-security/claude-rules/pipeline/cicd-gates.md:127`, and `dev-security/standard-devops-security-requirements.md:207` cite `A.8.10` (Information deletion) for secret scanning. Either A.8.10 is wrong there too or the concept differs from "secrets management" (fixed to A.8.24 in #1219); decide one answer (likely A.8.28 secure coding or A.8.24) and apply consistently.
 
-### 3.173 NIS2 size cap cited as Article 3 (held Art 2(1) has no figures) (2026-07-28 deep-assessment c5, claude, M, S)
-
-`compliance/annex-nis-2-implementation.md:36` cites "Article 3" for the size cap; held Art 2(1) (not Art 3) states no figures, incorporating Recommendation 2003/361/EC by reference, and the flat "or" loses the Recommendation's conjunctive headcount test. Fix the article reference and the phrasing.
-
 ### 3.174 Citation-precision phrasing (72h-from-confirmation, PR.AA title, joint-controller allocation) (2026-07-28 deep-assessment c5, codex, W, XS)
 
 `security/procedure-security-incident-response.md:175` says GDPR "72 hours from confirmation" vs the statutory "after becoming aware"; the PR.AA title is truncated at `matrix-reverse:92`; the joint-controller allocation at `template-joint-controller:109` is informed-not-prescribed. Phrasing corrections (a `/claim-fit`-class batch).
