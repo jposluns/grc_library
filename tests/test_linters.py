@@ -9695,6 +9695,45 @@ class NormalizedPositionalArgsTests(LinterTestCase):
                              result.stdout + "\n" + result.stderr,
                              f"{script} dropped the legacy --paths alias")
 
+    def test_quickguard_changed_file_set_is_per_file_sound(self):
+        """Sweep-133 regression guard: quick-guard's CHANGED-FILE set
+        (FAST_TOOLS) must hold only per-file-sound gates. A FIXED-TARGET gate
+        (the matrix / CHANGELOG gate) placed there mis-validates an arbitrary
+        changed doc AS its one special file and spuriously FAILs. The prior
+        test used content-free fixtures and missed this; here we (a) lock the
+        two known fixed-target gates into the default-mode set, and (b) run
+        every FAST_TOOLS gate on a REAL, suite-passing corpus doc that CARRIES
+        a framework-mapping table (the feature that trips a fixed-target gate)
+        and require rc=0."""
+        import re
+        qg = (REPO_ROOT / "tools/quick-guard.sh").read_text()
+
+        def _arr(name):
+            m = re.search(name + r"=\(\s*(.*?)\)", qg, re.S)
+            self.assertIsNotNone(m, f"{name} array not found in quick-guard.sh")
+            return set(m.group(1).split())
+
+        fast = _arr("FAST_TOOLS")
+        fixed = _arr("FAST_FIXED_TARGET")
+        for g in ("lint-matrix-control-codes.py", "lint-changelog-link-coverage.py"):
+            self.assertIn(g, fixed,
+                          f"{g} must be in FAST_FIXED_TARGET (default-mode; Sweep-133)")
+            self.assertNotIn(g, fast,
+                             f"{g} must NOT be in FAST_TOOLS: it spurious-fails on "
+                             f"changed corpus docs (Sweep-133)")
+        doc = REPO_ROOT / "security/policy-information-security.md"
+        self.assertTrue(doc.is_file(),
+                        f"guard fixture {doc} missing (pick another suite-passing "
+                        f"corpus doc that carries a framework-mapping table)")
+        for tool in sorted(fast):
+            r = run_linter(f"tools/{tool}", doc)
+            self.assertEqual(
+                r.returncode, 0,
+                f"FAST_TOOLS gate {tool} spurious-fails on a real framework-table "
+                f"corpus doc -> a fixed-target gate in the changed-file set?\n"
+                f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
