@@ -339,149 +339,23 @@ pack rule (its §2).
 
 ## Compliance-matrix semantic-fit cadence (`/matrix-fit`)
 
-The compliance matrix ([`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md))
-and per-document framework-alignment tables carry control-code citations whose
-*semantic fit* (is the cited control the right one for the row's document?) the existence
-gates 48/49/54/58/61 cannot check: a code can exist, be in the right catalogue, and still be the
-wrong control. Semantic fit is not mechanically gate-checkable, so the durable instrument
-is a cadenced audit, the [`matrix-fit`](../dev-security/claude-rules/skills/matrix-fit/SKILL.md)
-skill (slash command `/matrix-fit`): it judges each cited code against the source control
-TITLE in the reference base, scoped by the recall-oriented worklist
-[`tools/audit-matrix-semantic-fit.py`](../tools/audit-matrix-semantic-fit.py) produces.
-
-Run `/matrix-fit` on this cadence:
-1. **After each FR-167 matrix-expansion batch**, over that batch's worklist (the primary
-   cadence; the first real firing is FR-167 batch 10, ai).
-2. **Once at matrix completion**, over the whole matrix (the closing check).
-3. **Ad-hoc** when a control-code citation is in doubt.
-
-It is NOT a gate and NOT a substitute for gates 48/49/54/58/61; it is the semantic layer on top
-of them (a row must pass the existence gates first). Findings are fixed in-window or routed
-under the normal triage; a zero-finding run still gets a history row.
+Control-code citations in the compliance matrix ([`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md)) and per-document framework-alignment tables can be VALID yet the WRONG control (exists and in-catalogue but mis-fits the row's document); the existence gates 48/49/54/58/61 cannot see this. `/matrix-fit` (skill [`matrix-fit`](../dev-security/claude-rules/skills/matrix-fit/SKILL.md)) is the cadenced semantic-fit audit that judges each cited code against the source control TITLE, scoped by [`tools/audit-matrix-semantic-fit.py`](../tools/audit-matrix-semantic-fit.py). Run it after each FR-167 matrix-expansion batch (the primary cadence; first real firing FR-167 batch 10, ai), once at matrix completion, and ad-hoc when a citation is in doubt. NOT a gate and NOT a substitute for the existence gates (a row must pass them first); findings fixed in-window or routed, a zero-finding run still gets a history row. The skill's Project wiring, When-to-Use, and Process carry the full procedure.
 
 ## Normative-attribution claim-precision cadence (`/claim-fit`)
 
-Corpus documents attribute specific values (a retention period, a clock, a threshold) to
-named normative sources. Whether the cited source actually PRESCRIBES the attributed value,
-its precision, the citation gates cannot check: the existence, currency, and control-code
-gates confirm a source exists and the citation is well-formed, not that the source states the
-value. That class, "attributed value, silent source" (the FR-120 shape: a fixed 180-day
-baseline attributed to NIST SP 800-53 CA-6 and ISO/IEC 27001 Clause 9.2, neither of which
-prescribes a fixed interval), is gate-blind by construction. The durable instrument is a
-cadenced audit, the [`claim-fit`](../dev-security/claude-rules/skills/claim-fit/SKILL.md) skill
-(slash command `/claim-fit`): it judges each worklisted claim against the held source TEXT in
-the reference base (four verdicts: `prescribed`, `informed-not-prescribed`, `mis-attributed`,
-`source-not-held`), scoped by the recall-oriented worklist
-[`tools/audit-claim-precision.py`](../tools/audit-claim-precision.py) produces.
-
-Run `/claim-fit` on this cadence:
-1. **The one-time full Tier-A pass at adoption** (done in #630, establishing the baseline).
-2. **After any batch that adds or edits normative-value claims** (a P2 content batch, a
-   jurisdiction annex, a KPI or SLA table), judging the new Tier-A rows the batch introduced
-   and sampling its Tier-B rows.
-3. **Ad-hoc** when a claim is in doubt (a maintainer flag, a `/validate` or `/full-qa` note, an
-   apply-time uncertainty about whether a source states a value).
-
-It is NOT a gate and NOT a substitute for the citation gates; it is the precision layer on top
-of them (a claim must pass the existence and currency gates first). An
-`informed-not-prescribed` finding is fixed by the attribution PHRASING, never the value (the
-value is often the corpus's own canonical choice); a `source-not-held` claim routes to the
-maintainer's source-drop queue, never adjudicated from memory. Findings are fixed in-window or
-routed under the normal triage; a zero-finding run still gets a history row.
+Corpus documents attribute specific values (a retention period, a clock, a threshold) to named normative sources; the citation gates confirm the source exists and is well-formed, not that it PRESCRIBES the value (the "attributed value, silent source" class, the FR-120 shape: a fixed 180-day baseline attributed to NIST SP 800-53 CA-6 and ISO/IEC 27001 Clause 9.2, neither of which prescribes a fixed interval). `/claim-fit` (skill [`claim-fit`](../dev-security/claude-rules/skills/claim-fit/SKILL.md)) is the cadenced precision audit that judges each worklisted claim (via [`tools/audit-claim-precision.py`](../tools/audit-claim-precision.py)) against the held source TEXT, with four verdicts (`prescribed` / `informed-not-prescribed` / `mis-attributed` / `source-not-held`). Run the one-time full Tier-A pass at adoption (#630 baseline), after any batch adding normative-value claims (a P2 content batch, a jurisdiction annex, a KPI/SLA table), and ad-hoc. NOT a gate and NOT a substitute for the citation gates (a claim passes the existence + currency gates first); an `informed-not-prescribed` is fixed by the attribution PHRASING never the value, a `source-not-held` routes to the maintainer's source-drop queue. The skill carries the full procedure and per-verdict routing.
 
 ## Whole-project deep assessment (`/deep-assessment`)
 
-The routine cadence examines changes (per-PR sweeps), recent drift (corpus sweeps), and
-named semantic classes (`/matrix-fit`, `/claim-fit`). None of it examines the quality system
-itself from outside: the gates check the corpus, the skills check the corpus and the gates'
-outputs, and the same assistant lineage that authors the content built the machinery. The
-[`deep-assessment`](../dev-security/claude-rules/skills/deep-assessment/SKILL.md) skill (slash
-command `/deep-assessment`) is the rare, maintainer-invoked, multi-session instrument for that
-residual: a deliberate whole-project pass that runs the existing instruments formally AND
-probes what they cannot see, the width of the gates' own detection patterns (via the
-[`tools/audit-gate-mutation.py`](../tools/audit-gate-mutation.py) probe and the
-[`tools/audit-gate-blindspots.py`](../tools/audit-gate-blindspots.py) blind-spot map), the
-semantic accuracy of citations against held source texts, the adoptability of the library by a
-fresh reader, the integrity of the delivery pipeline, and the honesty of the QA ledgers. It is
-the proactive counterpart to `/trust-recovery`: the trust-recovery suite run at maintainer
-direction without a discipline-failure trigger, inheriting that rule's findings-routing (every
-confirmed finding routed, tiered by severity, none dropped) and apply-time verification. It does
-NOT inherit trust-recovery's maintainer-sign-off terminal state (maintainer-directed 2026-07-27):
-every component it composes is an already-established QA process that terminates by
-validate-and-fix, so the composite terminates on the same QA-activity completion standard, not a
-separate sign-off gate (the sign-off is trust-recovery-specific, to let the maintainer declare
-lapsed confidence restored, which the proactive assessment has none of).
-
-It is NOT cadenced and NOT self-invoked: it runs only on the maintainer's explicit invocation.
-It terminates on the QA-activity completion standard its component instruments already use (every
-finding validated and fixed-or-routed); a zero-finding run still gets its record and register-row
-closure. The outcome is surfaced to the maintainer, but no separate sign-off gate applies.
+The rare, maintainer-invoked, multi-session whole-project pass that runs the existing instruments formally AND probes what they cannot see: the width of the gates' own detection patterns (via [`tools/audit-gate-mutation.py`](../tools/audit-gate-mutation.py) and [`tools/audit-gate-blindspots.py`](../tools/audit-gate-blindspots.py)), citation ground-truth, adoptability, pipeline integrity, and QA-ledger honesty. Proactive counterpart to `/trust-recovery`: it inherits that suite's findings-routing (every confirmed finding routed, tiered by severity, none dropped) and apply-time verification, but NOT its maintainer-sign-off terminal state (maintainer-directed 2026-07-27): it composes only already-established QA processes, so it terminates on the QA-activity completion standard, its outcome surfaced to the maintainer without a separate sign-off gate. NOT cadenced and NOT self-invoked: only on the maintainer's explicit invocation; a zero-finding run still gets its record and register-row closure. The skill [`deep-assessment`](../dev-security/claude-rules/skills/deep-assessment/SKILL.md) carries the 8-phase procedure, wiring, and durable register.
 
 ## Reference-breadth cadence (`/reference-audit`)
 
-The corpus cites what it cites; nothing mechanical asks whether it engages the BEST of
-what the project holds. That class, "held but unused" (an authoritative source the
-reference base holds that no corpus document engages, and the reverse, a touched
-document that newly ingested reference material bears on), is gate-blind by
-construction. It was surfaced by the SP 800-154 lesson, where a source relevant to
-corpus content went unengaged and turned out to be unavailable (NIST SP 800-154 was
-never finalized, a relevant-but-unavailable source rather than a held one). The durable instrument is a cadenced audit, the
-[`reference-audit`](../dev-security/claude-rules/skills/reference-audit/SKILL.md) skill
-(slash command `/reference-audit`): it judges candidate document-to-source pairings
-against the held source TEXT and the live document, scoped by the recall-oriented
-worklist [`tools/audit-reference-breadth.py`](../tools/audit-reference-breadth.py)
-produces (per-item usage classification plus topic-ranked candidates; curated aliases
-in [`tools/reference-breadth-aliases.json`](../tools/reference-breadth-aliases.json)).
-
-Run `/reference-audit` on this cadence:
-
-1. **FULL mode as a `/deep-assessment` member** (the exhaustive both-directions pass),
-   and ad-hoc when the maintainer wants the whole picture.
-2. **Per-touch mode on every substantive corpus-document PR**: run the tool in
-   `--docs` mode for the touched documents.
-3. **New-ingest mode after reference-base changes** (`--ref-since <sha>` or
-   `--ref-items <substring>`): judge the corpus documents each changed item topically
-   matches and does not cite.
-
-It is NOT a gate and NOT a
-substitute for the citation gates, `/matrix-fit`, or `/claim-fit`; it is the breadth
-layer beside them. Findings are fixed in-window or routed under the normal triage; a
-zero-finding or empty-candidate run still gets a history row.
+Nothing mechanical asks whether the corpus engages the BEST of what the reference base holds (the "held but unused" class, and its reverse; surfaced by the SP 800-154 lesson, where a source relevant to corpus content went unengaged and turned out to be UNAVAILABLE (NIST SP 800-154 was never finalized) rather than held). `/reference-audit` (skill [`reference-audit`](../dev-security/claude-rules/skills/reference-audit/SKILL.md)) is the cadenced breadth audit that judges candidate document-to-source pairings against the held source TEXT and the live document, scoped by [`tools/audit-reference-breadth.py`](../tools/audit-reference-breadth.py) (aliases in [`tools/reference-breadth-aliases.json`](../tools/reference-breadth-aliases.json)). Run it FULL as a `/deep-assessment` member (and ad-hoc), per-touch on every substantive corpus-document PR (`--docs` mode), and new-ingest after reference-base changes (`--ref-since <sha>` / `--ref-items <substring>`). NOT a gate and NOT a substitute for the citation gates, `/matrix-fit`, or `/claim-fit`; a zero-finding or empty-candidate run still gets a history row. The skill carries the full procedure.
 
 ## Publications screening (`/screen-publications`)
 
-The reference base's `publications/` bucket is untrusted by default, and an untrusted
-document in an AI's reference context is a trust boundary (bias, factual error, or
-prompt-injection content can steer corpus authoring; the OWASP LLM01/LLM05 classes the
-corpus's own AI guidance describes). The formal control is the
-[`publication-screening`](../dev-security/claude-rules/skills/publication-screening/SKILL.md)
-skill (slash command `/screen-publications`): provenance and integrity, the mechanical
-instruction-content scan
-([`tools/scan-publication-instruction-content.py`](../tools/scan-publication-instruction-content.py)),
-corroboration of load-bearing claims against trusted sources, then a per-publication
-verdict recorded in the reference base's `publications/SCREENING.md` register, which
-the reference-base validation gate enforces (a missing row, an unknown status, or an
-orphan row fails it).
-
-Run `/screen-publications` on this cadence:
-
-1. **On every new `publications/` ingest** (the register row ships in the same change
-   that catalogues the item).
-2. **On the pending backlog** (the screening wave over `pending` rows; partitionable
-   worker research applied through validate-then-apply).
-3. **Ad-hoc before reliance** on a publication whose row is `pending`, stale, or in
-   doubt.
-
-The standing rules: a `pending` publication's content never informs corpus work;
-`screened` gates admission to AI context and never upgrades trust (load-bearing claims
-are corroborated at use time, and normative claims cite the trusted source);
-`quarantined` extracts carry a DO-NOT-USE banner and go to the maintainer;
-`discard-candidate` items route to the maintainer, never a silent delete. Honest-backstop framing: the
-process raises the bar against poisoned reference input; it does not by itself guarantee
-detection. It is NOT a gate and NOT a substitute for use-time corroboration; it is the
-admission-control layer for the one untrusted reference bucket. This cadence shipped
-across two PRs: the reference-base register + validate check (`grc_library_ref` PR #29)
-and the pack skill + `/screen-publications` command + scanner + wiring (this PR).
+The reference base's `publications/` bucket is untrusted by default (bias, factual error, prompt-injection: the OWASP LLM01/LLM05 classes), a trust boundary into AI reference context. `/screen-publications` (skill [`publication-screening`](../dev-security/claude-rules/skills/publication-screening/SKILL.md)) is the formal screen: provenance/integrity, the mechanical instruction-content scan ([`tools/scan-publication-instruction-content.py`](../tools/scan-publication-instruction-content.py)), corroboration of load-bearing claims against trusted sources, then a per-publication verdict in the reference base's `publications/SCREENING.md` register (which the reference-base validation gate enforces: a missing row, unknown status, or orphan row fails it). Run on every new `publications/` ingest, on the pending backlog (the screening wave), and ad-hoc before reliance. The standing rules: a `pending` publication never informs corpus work; `screened` gates admission but never upgrades trust (load-bearing claims corroborated at use time); `quarantined` extracts carry a DO-NOT-USE banner to the maintainer; `discard-candidate` routes to the maintainer, never a silent delete. NOT a gate and NOT a substitute for use-time corroboration; the skill carries the full protocol.
 
 ## Reference-version currency (`grc_library_ref` is storage, upstream is the authority)
 

@@ -49,7 +49,10 @@ do not exist yet.
 The class is not hypothetical. The motivating incident in the parent library: an
 authoritative source's guidance bore on corpus content the project already
 maintained, while no corpus document engaged it, and nothing in the audit programme
-could have said so. The reference base is
+could have said so. The lesson had a second edge: the relevant source turned out to be
+UNAVAILABLE (never finalized, or not otherwise acquirable) rather than merely held-but-unused,
+so the finding was an acquisition gap, not only an engagement gap: the audit surfaces both the
+held-but-unused direction and the relevant-but-not-held direction. The reference base is
 a curated, licensed asset; a held source no document uses is shelf inventory, and a
 corpus document that ignores a held source it should engage is thinner than the project
 can afford it to be.
