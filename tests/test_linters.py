@@ -6018,7 +6018,7 @@ class BookkeepingParityTests(LinterTestCase):
         # absent): must NOT flag despite no retro row.
         mod = self._load_module()
         findings = mod.qa_cadence_findings(
-            {10, 11, 12}, {10: "normal", 11: "handoff"}, {10},
+            {10, 11, 12}, {10: "normal", 11: "handoff", 12: "normal"}, {10, 12},
             inception=10, known_handoff=frozenset(),
         )
         self.assertEqual(findings, [], f"handoff PR must be exempt; got {findings}")
@@ -6028,7 +6028,7 @@ class BookkeepingParityTests(LinterTestCase):
         # no retro required: must NOT flag.
         mod = self._load_module()
         findings = mod.qa_cadence_findings(
-            {10, 11, 12}, {10: "normal", 11: "subsumption"}, {10},
+            {10, 11, 12}, {10: "normal", 11: "subsumption", 12: "normal"}, {10, 12},
             inception=10, known_handoff=frozenset(),
         )
         self.assertEqual(findings, [], f"subsumption PR must pass; got {findings}")
@@ -6040,21 +6040,24 @@ class BookkeepingParityTests(LinterTestCase):
         # hole that let validate-pr-1173/1180 sit unconsumed across sessions).
         mod = self._load_module()
         findings = mod.qa_cadence_findings(
-            {10, 11, 12}, {10: "normal", 11: "pending"}, {10, 11},
+            {10, 11, 12}, {10: "normal", 11: "pending", 12: "normal"}, {10, 11, 12},
             inception=10, known_handoff=frozenset(),
         )
         self.assertEqual(len(findings), 1, f"a pending in-window row must flag; got {findings}")
         self.assertIn("stranded", findings[0])
 
-    def test_pending_highest_pr_is_in_flight_exempt(self) -> None:
-        # The single highest PR (#12) is in-flight-exempt even if pending: its QA
-        # legitimately batches into the not-yet-existent next PR.
+    def test_pending_highest_pr_now_flags(self) -> None:
+        # #1248 (3.137b) sync cutover: the single highest PR (#12) is NO LONGER
+        # in-flight-exempt. A pending row on it means its QA never RETURNED
+        # before the PR was finalized, so it FAILS Check 1 as stranded.
         mod = self._load_module()
         findings = mod.qa_cadence_findings(
             {10, 11, 12}, {10: "normal", 11: "normal", 12: "pending"}, {10, 11},
             inception=10, known_handoff=frozenset(),
         )
-        self.assertEqual(findings, [], f"highest pending PR is in-flight-exempt; got {findings}")
+        self.assertEqual(len(findings), 1, f"highest pending PR must now flag; got {findings}")
+        self.assertIn("stranded", findings[0])
+        self.assertIn("#12", findings[0])
 
     def test_pending_classifier_returned_is_not_pending(self) -> None:
         # The classifier reality fixture (3.120): a `DISPATCHED` Findings cell with no
@@ -6070,22 +6073,24 @@ class BookkeepingParityTests(LinterTestCase):
             "normal")
         self.assertEqual(row("**RETURNED: PASS, 0 findings**"), "normal")
 
-    def test_highest_pr_batch_lag_exempt(self) -> None:
-        # The single highest-numbered PR (#12) is exempt even with no rows:
-        # its rows batch into the next, not-yet-existent PR.
+    def test_highest_pr_now_requires_its_own_rows(self) -> None:
+        # #1248 (3.137b) sync cutover: the single highest-numbered PR (#12) is NO
+        # LONGER exempt; with no validate-pr row it FAILS Check 1 (its QA now
+        # runs before the PR is finalized, rows landing in the same PR).
         mod = self._load_module()
         findings = mod.qa_cadence_findings(
             {10, 11, 12}, {10: "normal", 11: "normal"}, {10, 11},
             inception=10, known_handoff=frozenset(),
         )
-        self.assertEqual(findings, [], f"highest PR must be exempt; got {findings}")
+        self.assertTrue(findings, f"highest PR with no row must now flag; got {findings}")
+        self.assertIn("#12", findings[0])
 
     def test_known_handoff_no_row_allowlist_exempt(self) -> None:
         # A pre-convention handoff PR with no row at all is exempt via the
         # allowlist.
         mod = self._load_module()
         findings = mod.qa_cadence_findings(
-            {10, 11, 12}, {10: "normal"}, {10},
+            {10, 11, 12}, {10: "normal", 12: "normal"}, {10, 12},
             inception=10, known_handoff=frozenset({11}),
         )
         self.assertEqual(findings, [], f"allowlisted handoff must pass; got {findings}")
@@ -6114,7 +6119,7 @@ class BookkeepingParityTests(LinterTestCase):
         # neither is flagged. #12 (retro present) and #13 (max) are fine.
         mod = self._load_module()
         findings = mod.qa_cadence_findings(
-            {10, 11, 12, 13}, {11: "normal", 12: "normal"}, {12},
+            {10, 11, 12, 13}, {11: "normal", 12: "normal", 13: "normal"}, {12, 13},
             inception=10, known_handoff=frozenset(),
         )
         self.assertEqual(findings, [],

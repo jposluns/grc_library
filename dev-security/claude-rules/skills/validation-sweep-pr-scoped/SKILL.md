@@ -1,6 +1,6 @@
 ---
 name: validation-sweep-pr-scoped
-description: PR-scoped validation sweep. Runs after every successful PR merge to catch issues the merge introduced before they compound across subsequent PRs. Dispatches Subagent A (recent-PR deep review) scoped to the just-merged PR's diff plus a lightweight cross-reference check for files cited by other documents. Complements the corpus-wide `validation-sweep` skill (`/validate`): `/validate-pr` is fast and runs after every merge; `/validate` is comprehensive and runs every 10 merges or maintainer-triggered. The two skills together cover both per-PR drift (caught fast) and corpus-wide drift (caught broadly).
+description: PR-scoped validation sweep. Runs as a PR's finalizing step, before merge, to catch issues the PR introduced before it lands. Dispatches Subagent A (recent-PR deep review) scoped to the PR's diff plus a lightweight cross-reference check for files cited by other documents. Complements the corpus-wide `validation-sweep` skill (`/validate`): `/validate-pr` is fast and runs on every PR; `/validate` is comprehensive and runs every 10 merges or maintainer-triggered. The two skills together cover both per-PR drift (caught fast) and corpus-wide drift (caught broadly).
 derives_from: ../../governance/evidence-grounded-completion.md
 ---
 
@@ -20,40 +20,40 @@ An adopting project maps each bullet to its own record paths, registers, gate, r
 
 ## Overview
 
-PR-scoped validation runs after every merged PR to catch issues the merge introduced before they compound across subsequent PRs. Two sibling skills together cover the validation surface:
+PR-scoped validation runs as each PR's finalizing step, before merge, to catch issues the PR introduced before they compound across subsequent PRs. Two sibling skills together cover the validation surface:
 
 - **`validation-sweep`** (slash command `/validate`, corpus-wide, every 10 merges or maintainer-triggered): full Subagent A + B + C sweep across the whole corpus. Catches corpus-wide drift (Subagent B's domain), audit-programme integrity issues (Subagent C's domain), and recent-PR issues (Subagent A's domain). Expensive (~150-200k tokens); runs periodically.
-- **`validation-sweep-pr-scoped`** (slash command `/validate-pr`, PR-scoped, every merge): single Subagent A dispatch on the just-merged PR's diff plus a targeted cross-reference check. Cheap (~30-60k tokens); runs immediately after merge so issues are caught within one PR cycle, not nine.
+- **`validation-sweep-pr-scoped`** (slash command `/validate-pr`, PR-scoped, every PR): single Subagent A dispatch on the PR's diff plus a targeted cross-reference check. Cheap (~30-60k tokens); runs before merge so issues are caught within the same PR, not nine PRs later.
 
 The two are complementary, not redundant. The corpus-wide form catches drift the per-PR scope misses (a citation in file Y becomes stale because PR X touched file Z); the per-PR form catches issues the corpus-wide form would miss in its 10-PR interval (per-PR issues that compound between sweeps).
 
 ## When to Use
 
-- **Mandatory** after every successful PR merge (per the project's PR workflow). Runs as part of the post-merge sequence: sync main → delete merged branch → `/validate-pr` → `/retro` → next-PR planning.
+- **Mandatory** as a PR's finalizing step, before merge (per the project's PR workflow). Runs in the finalizing sequence: open PR -> first green CI -> `/validate-pr` -> `/retro` -> write rows in-PR -> commit -> CI -> merge -> sync main -> delete branch -> next-PR planning.
 - Optionally, after a manual investigation needs to confirm a specific PR's impact.
 
 **No orchestrator-side skip discretion AND no abbreviation discretion.** The mandatory invocation has no carve-outs for "meta PRs", "housekeeping PRs", "sweep close-outs", "the PR that introduces this skill", or any other class. The orchestrator does NOT have discretion to skip a `/validate-pr` invocation based on a judgement that the PR is "too small to need it", "circular", or "already validated by another mechanism". Equally, the orchestrator does NOT have discretion to substitute an abbreviated check, a spot-check, a memory-only review, an orchestrator-self-check, a "quick scan", or any other informal substitute for the formal Subagent A dispatch the skill encodes. "Abbreviated /validate-pr" is not a sanctioned shape; the only sanctioned shapes are the full formal run and a maintainer-authorized explicit exception recorded in the history-row Summary cell with rationale. Throughput pressure (a long batch of PRs, a tight session window, an apparent need to make progress) does NOT authorize abbreviation; the per-PR validation IS the pace, and "the next PR will catch it" is the failure mode this rule prevents. Every successful merge triggers a formal `/validate-pr`. If the run returns zero findings, the history-row records that zero-findings state, which is itself the proof-of-discipline. Skipping or abbreviating a quality-assurance step is a policy deviation the orchestrator cannot authorize unilaterally; only the project maintainer can grant a documented exception, recorded explicitly in the history-row Summary cell with the rationale.
 
-**The one standing exception: the session-closing handoff PR.** A session ends by landing its working-state on the protected branch as a green, merged PR (the session-closing handoff PR) so the next session rebuilds state from that branch rather than from an unmerged feature branch. That PR alone skips its own trailing `/validate-pr` (and the paired `/retro`). The reason is loop-termination, not convenience: running `/validate-pr` on the handoff PR would produce a history row (and possibly fixes) that recursion-avoidance batches into a *new* PR, whose own merge would trigger another `/validate-pr`, and so on, with no terminating "next substantive PR" at a session boundary. The compensating control is stronger than the skipped per-PR sweep: the next session's resume routine runs a full corpus-wide `/validate` as its first task, which re-examines the whole corpus rather than only the handoff PR's diff. This is a maintainer-authorized standing rule (not the unilateral skip the paragraph above forbids); it is recorded in the history row's Findings cell with the recognized marker and its rationale. A mechanical QA-cadence gate that enforces per-PR records must build in this handoff-PR exemption so it does not fail on the legitimately-absent row.
+**The session-closing handoff PR: normal path, with a narrow fallback.** A session ends by landing its working-state on the protected branch as a green, merged PR (the session-closing handoff PR). Under the synchronous model that PR normally runs its OWN `/validate-pr` (and the paired `/retro`) before it is finalized, like any other PR: because the rows land in the PR itself rather than batching into a next PR, no recursion arises, so there is no default reason to skip. A documented FALLBACK is retained only for the genuine loop-termination edge, a handoff PR whose own QA cannot be made self-contained within it at the session boundary; in that case only, the handoff PR skips its trailing `/validate-pr` / `/retro`. Independently of the fallback, the next session's resume routine runs a full corpus-wide `/validate` as its first task; that sweep is a fresh-session drift-catch valuable in its own right (whole corpus, no accumulated session context), not merely compensation for a skipped sweep. When the fallback is taken it is recorded in the history row's Findings cell with the recognized marker and its rationale, and a mechanical QA-cadence gate must build in this handoff-PR exemption so it does not fail on the legitimately-absent row.
 
-`/validate-pr` does NOT run before merge (CI is the pre-merge gate). It runs AFTER merge to catch post-merge state issues, exactly the class of issue that cannot be caught by CI on the feature branch alone.
+`/validate-pr` runs as the finalizing step BEFORE merge, on the PR's own branch state (synced to current `main`), after the first CI pass and before the merge that lands it. CI remains the mechanical pre-merge gate; `/validate-pr` is the semantic pre-merge gate, catching stale-prose and cross-document defects the mechanical gates do not. Its row is committed into the same PR and CI re-runs on the row-carrying commit before merge; the residual class of pure post-merge merge-base drift is re-checked by that re-run and by the next session's resume `/validate`.
 
 ## Process
 
 The PR-scoped sweep runs in five steps. Steps 1-2 establish scope; step 3 is the focused subagent dispatch; step 4 is the lightweight cross-reference check; step 5 records.
 
-### 1. Identify the just-merged PR
+### 1. Identify the PR being finalized
 
-Capture the merge state:
+Capture the PR state:
 
-- PR number (from the merge commit message or via `mcp__github__pull_request_read`).
-- Merge commit SHA (`git log --merges -n 1 --pretty=format:"%H %s"`).
-- The PR's diff (`git diff <merge-commit>^..<merge-commit>`).
-- The list of touched files in the diff (`git diff --name-only <merge-commit>^..<merge-commit>`).
+- PR number (from the open PR via `gh pr view` or `mcp__github__pull_request_read`).
+- The base SHA the PR branches from (`git merge-base main HEAD`).
+- The PR's diff against its base (`git diff <base>...HEAD`, branch synced to `main`).
+- The list of touched files in the diff (`git diff --name-only <base>...HEAD`).
 
-### 2. Establish mechanical baseline (post-merge state)
+### 2. Establish mechanical baseline (pre-merge, branch synced to `main`)
 
-Run the project's full audit-gate runner (named in the project wiring above) standalone against the post-merge state. CI ran this on the feature branch; this confirms the post-merge state on main is also clean. Mechanical failures here are rare (they would have failed CI), but post-merge state can differ from feature-branch state due to merge-base drift.
+Run the project's full audit-gate runner (named in the project wiring above) standalone against the branch state (synced to current `main`). CI ran this on the branch; this confirms the gates are clean before the PR is finalized. Mechanical failures here are rare (they would have failed CI), but a stale branch can differ from current `main` due to merge-base drift, which is why the branch is synced to `main` before this run.
 
 If any gate fails, fix the underlying defect first (open a hot-fix PR), then return to step 1 against the corrected state.
 
@@ -63,7 +63,7 @@ Subagent A receives:
 
 - The PR diff (full text).
 - The list of touched files.
-- The full state of each touched file post-merge.
+- The full state of each touched file on the branch being finalized.
 - A pre-flight scanner output filtered to the touched files (run the project's deterministic pre-flight scanner and filter the output to the touched file set; if no scanner output relevant to touched files, proceed unhinted).
 
 Subagent A looks for the same eight failure-mode classes from the corpus-wide `validation-sweep` SKILL, scoped to the touched files:
@@ -94,7 +94,7 @@ done
 
 For each citing file, do a shallow check:
 
-- Does the citation still resolve (the cited section, version, line is still valid post-merge)?
+- Does the citation still resolve (the cited section, version, line is still valid on the branch being finalized)?
 - Has the touched file's header text changed in a way that breaks the citer's quoted text?
 - Has any cross-reference become stale (e.g., the cited PR number is now wrong, the cited Version is now wrong)?
 
@@ -104,7 +104,7 @@ This is a subset of `validation-sweep` Subagent B's scope, restricted to citers 
 
 Triage findings:
 
-- **In-window** (the PR introduced the issue): the fix is the PR's responsibility. If small, queue as a hot-fix PR (or include in the next PR if the next PR naturally touches the same files); if substantive, open a dedicated follow-up PR.
+- **In-window** (the PR introduced the issue): fix it in THIS PR before finalizing. A dedicated hot-fix PR only if the fix genuinely cannot land in-PR (it runs its own sync + `/validate-pr` when merged).
 - **Out-of-window** (the PR exposed a pre-existing issue not introduced by the merge): surface to the operator with named options.
 
 Record:
@@ -116,7 +116,7 @@ Zero-finding PR-scoped sweeps still get a history row (one line); only the per-P
 
 Before committing either surface, verify each fixed-in-window claim against the actual diff (grep for the claim's target text); a claim whose edit is absent is downgraded to routed, never recorded as fixed (the record-asserts-unapplied-fix guard, shared with the guardrail-review and corpus-sweep record steps).
 
-The `/retro` skill (post-merge retrospective) consumes `/validate-pr`'s findings as input for its Issues-encountered section.
+The `/retro` skill (the finalizing retrospective) consumes `/validate-pr`'s findings as input for its Issues-encountered section.
 
 ## Pre-flight scanner
 
@@ -142,19 +142,9 @@ The PR-scoped sweep is a single-iteration cycle: dispatch, check, triage, record
 
 There is no fixed-point loop (unlike `/validate`'s iterative cycle). Per-PR sweeps are short-lived; the corpus-wide sweep handles deeper iteration.
 
-### Batching into the next PR (recursion-avoidance)
+### Synchronous same-PR recording (recursion-avoidance retired)
 
-The no-skip-discretion discipline says every merge gets a `/validate-pr` invocation, and every invocation gets a history row. Applied naively this creates a recursion: PR #N's history row (or fix-PR) needs its own PR #N+1, whose own /validate-pr generates more recording or fix work, and so on. The PR cascade compounds even when each subsequent invocation returns trivial findings or zero findings.
-
-**Resolution**: `/validate-pr` outputs are **batched into the next PR, whatever its substantive purpose**. Two sub-cases:
-
-1. **Zero-finding invocations**: the history row alone is deferred. Append it to the PR-scoped history register as part of the next PR's diff, alongside the next PR's other changes. The /validate-pr invocation itself still runs immediately after the merge it follows; only the row commit waits.
-
-2. **Findings-producing invocations**: the fix(es) for the surfaced findings are bundled into the next PR. Do NOT open a dedicated hot-fix PR for /validate-pr findings; the next PR (whatever its purpose) absorbs the fixes alongside its own work. This keeps the PR-per-finding cascade from compounding. The findings still get a history row immediately (same as zero-finding); the row records "fixed in PR #N+M" once the next PR ships the fix.
-
-A findings-producing `/validate` (the corpus-wide sibling) may still warrant its own close-out PR when the findings are numerous or coherent enough to make a dedicated PR clearer than a bundle, but this is the exception, not the default; for `/validate-pr` the bundle is always the default.
-
-The batching's audit trail is intact: the history row records the originating PR number and the closing PR number, so a future reader traces from the row to both the source and the fix in one hop. The discipline is preserved; only the ship-immediacy is relaxed.
+The no-skip discipline says every PR gets a `/validate-pr` and every invocation gets a history row. The old model deferred that row (and any fix) into a *next* PR to avoid a recording-triggers-a-PR cascade. The synchronous model dissolves the cascade at its root by recording in-PR: the row that records PR N is committed IN PR N, recording PR N's own number, and a finding is fixed in PR N before it merges (a dedicated hot-fix PR only when the fix cannot be co-committed). The sequence is: open PR, run the sweep, disposition findings, write the row, commit, CI re-runs, merge. There is no placeholder row and no back-fill. The audit trail is intact: the row records the PR's own number and, for a finding, that it was fixed in the same PR. Gate 50's Check 1 enforces the model (window inclusive of `max_pr`; a present-but-`RESULT PENDING` row that never `RETURNED` fails).
 
 ## Red Flags
 
@@ -168,7 +158,7 @@ The batching's audit trail is intact: the history row records the originating PR
 
 The PR-scoped sweep is complete when:
 
-- Mechanical baseline confirmed clean on post-merge state.
+- Mechanical baseline confirmed clean on the branch state.
 - Subagent A has been dispatched on the PR's diff and returned findings (or zero-findings).
 - The cross-reference check has been run on the touched files' citers.
 - Findings (if any) are triaged with in-window / out-of-window classification.
@@ -188,7 +178,7 @@ The PR-scoped sweep is complete when:
 ## See Also
 
 - Sibling skill [`validation-sweep`](../validation-sweep/SKILL.md) (slash command `/validate`): corpus-wide periodic sweep.
-- Related skill [`pr-retrospective`](../pr-retrospective/SKILL.md) (slash command `/retro`): consumes `/validate-pr` findings as input for the post-merge retrospective and improvement-log register.
+- Related skill [`pr-retrospective`](../pr-retrospective/SKILL.md) (slash command `/retro`): consumes `/validate-pr` findings as input for the finalizing retrospective and improvement-log register.
 - Canonical rule [`evidence-grounded-completion`](../../governance/evidence-grounded-completion.md): the assertion-side discipline this skill operationalizes.
 - Canonical rule [`ai-assistant-workflow-disciplines`](../../governance/ai-assistant-workflow-disciplines.md): the workflow disciplines this skill supports; PR-scoped validation is the "every merge" discipline that complements the "every 10 merges" full sweep.
 - Pre-flight scanner: the deterministic pre-flight check shared with the corpus-wide skill (the parent library's concrete scanner is named in the project wiring above).
@@ -199,4 +189,4 @@ The corpus-wide `/validate` sweep runs every 10 merges (or maintainer-triggered)
 
 `/validate-pr` closes this gap. Run after every merge, it catches PR-introduced issues at the moment they appear, before they compound. The cost is modest (~30-60k tokens per merge); the benefit is keeping the corpus-wide sweep's iteration count low and the per-PR feedback loop tight.
 
-For AI coding assistants specifically: when you have just merged a PR, your default next step is `/validate-pr`, then `/retro`, then the next PR's planning. The three together close the per-PR loop; the corpus-wide `/validate` closes the wider loop on its own cadence.
+For AI coding assistants specifically: when you are finalizing a PR, before you merge it, your default steps are `/validate-pr`, then `/retro`, then the merge. The three together close the per-PR loop; the corpus-wide `/validate` closes the wider loop on its own cadence.

@@ -270,7 +270,7 @@ Umbrella for adopting NIST OSCAL as an open, machine-readable projection of the 
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.192.**
+**Next item number: 3.193.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
 
@@ -317,11 +317,17 @@ The orchestrator session's umask is `0002`, so every NEW file it creates in `grc
 
 The `--account` override (#1187) gives cross-account parallelism (N workers on N distinct accounts, each serialized by its own wrapper flock at 1). Running MORE THAN ONE worker on the SAME account concurrently is a separate, heavier item: the wrapper's blocking flock on a lock file inside the shared config dir (`$CFGBASE/$account/.wrapper.lock`) is BOTH the safety guarantee and the concurrency-1 cap, so loosening it without per-worker state would race the one shared `CLAUDE_CONFIG_DIR` / `CODEX_HOME`. The design candidate (the `design-multiworker-per-account` xhigh delivery, 2026-07-26) covers: a per-worker config-dir snapshot (copy the auth/credential state, isolate session/lock/cache) with cleanup; moving `max_concurrent` enforcement + an in-flight registry/counter into `exec-dispatch.py` (which is stateless today); and the claude-mktemp-workdir vs codex-fixed-shared-workspace asymmetry. First cut: `cp -r` snapshot + a per-account lock counter + `max_concurrent` bumped to 2, verify no auth contention, before the fuller design. Lower priority now that cross-account parallelism covers the immediate need.
 
-### 3.137 Close-out speed: changed-files quick guard + reconsider async recursion-avoidance (fresh-eyes 2026-07-26; EXECUTE EARLY, M-L, M) `[machinery]`
+### 3.192 Rework or retire `tools/pr-closeout.py` (retired-model residual from 3.137b) (2026-07-30, M, M) `[machinery]` `[MORNING-DECISION]`
 
-Two smaller fresh-eyes items. (a) **DONE (3.137a, PR #1245):** `tools/quick-guard.sh`, a fast local iteration aid that runs the 36 fast-ready gates on only the changed `.md` files (never the push gate; the full 78-gate `pre-push-guard.sh` remains the authority). Shipped with a normalization of 7 gate tools + gates 10/76 to a uniform positional multi-file interface. **(b) REMAINS (= 3.137b):** reconsider the async recursion-avoidance rule. The (b) reconsideration (the prior PR's QA rows batch into the next PR, serializing PR N on PR N-1's validate-pr round-trip); options: run validate-pr synchronously before finalizing,
-or a periodic QA-rows catch-up decoupled from the next feature PR. Structural; a deliberate design look, not a quick
-change. The fewer-larger-PRs guideline (do not fragment one theme into separate PRs) is ADOPTED as a convention.
+`tools/pr-closeout.py` (977 lines, ungated, self-tested via `tests/test_linters.py`) is built entirely on the
+recursion-avoidance forward-batching model that 3.137b (#1248) RETIRED: its two-PR-identity design (positional `N` = the
+just-merged PR whose backward rows are written in the FOLLOWING PR; `--this-pr M` = the batch PR carrying the previous
+PR's `/validate-pr` + `/retro` rows) contradicts the synchronous same-PR model. Under 3.137b every PR records its own
+QA rows, so there is no forward batch. #1248 added a DO-NOT-USE retired-model banner to the tool's docstring as a
+stopgap (neutralizes the hazard of an orchestrator running it and getting wrong scaffolding); this item is the real
+fix. **AUTHORIAL DECISION (surface in the morning):** rework the tool to the synchronous model (redesign the PR-identity
+model + its self-test) OR retire it (like the worker-saturation tool in #1247), since the synchronous model may make its
+forward-batching scaffolding obsolete. Confirmed by the 3.137b xhigh dual-family verify (codex ...e2d0).
 
 ### 3.138 Worker full-suite `/validate` via a per-job writable checkout (2026-07-26, M, M) `[machinery]`
 A read-only worker cannot run write-requiring gates: **gate 36** (the linter-regression suite) writes fixtures to in-tree `tests/tmp/` **by design** (the linters walk the repo tree and validate a repo-relative `Repository Path`, so the fixtures must live in-tree). Established at the first exec-worker `/validate` (Sweep 123, 2026-07-26; worker-brief rail 18): a worker `/validate` covers the 77 read-only content gates but not gate 36, which stays orchestrator-side. To let a worker run the full 78 WITHOUT a write-hole in the shared tree, give it its OWN writable checkout: a warm worker-owned clone of `grc_library` (it is group-readable, so a LOCAL clone needs no token) plus a per-job `git worktree` at the pinned SHA (isolated working tree, shared object store) that the worker runs the full suite in and discards. NOT a single shared mirror (that only MOVES the shared-fixture contention). Buys complete offload + worker-side gate-36 coverage on linter-changing PRs. Maintainer-surfaced (rsync-copy idea) 2026-07-26.

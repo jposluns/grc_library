@@ -27,7 +27,7 @@ Before committing either surface (the history row or the detail file), verify ea
 
 Zero-finding iterations leave no detail file; the history row alone is the persistent trace.
 
-**Batching into the next PR (recursion-avoidance).** Zero-finding `/validate` history rows are **batched into the next PR, whatever its substantive purpose**. A findings-producing `/validate` may still warrant its own close-out PR when findings are numerous or coherent enough; this is the corpus-wide sweep's distinguishing case from `/validate-pr` (where the bundle is always the default). Otherwise, fixes for individual /validate findings can also be bundled into the next PR alongside the history row.
+**Same-PR recording (the recursion-avoidance batching is retired).** A `/validate` run records its history row in the PR that carries its close-out, not deferred forward: a corpus-wide sweep run as a PR's finalizing step writes its row in that PR; a standalone or resume-time sweep whose findings warrant a dedicated close-out PR writes its row in that close-out PR. A findings-producing `/validate` may still warrant its own close-out PR when findings are numerous or coherent enough (the corpus-wide sweep's distinguishing case from `/validate-pr`, whose finding-fixes land in-PR by default); the row and any fixes ride in that PR. The audit trail records the sweep's ordinal and date so a reader traces from the row's PR back to the sweep.
 
 `grc_library_private/.working/validate-sweeps/` is exempt from corpus audit gates (frozen-state archive). Existing `path:line` references in subagent reports are kept verbatim even if the lines later shift; the record is a moment-in-time artefact.
 

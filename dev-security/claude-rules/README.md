@@ -2,8 +2,8 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.65.21\
-**Date:** 2026-07-29\
+**Version:** 1.65.23\
+**Date:** 2026-07-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** `dev-security/standard-developer-security-requirements.md`, `dev-security/standard-devops-security-requirements.md`, `dev-security/guideline-ai-coding-assistant-security.md`, `ai/standard-ai-and-agentic-development-security.md`\
@@ -130,13 +130,13 @@ claude-rules/
 │   ├── surface-instruction-concern/SKILL.md           Stop-consider-confirm protocol before executing a clear but counterproductive instruction
 │   ├── artefact-discipline-check/SKILL.md             Routing workflow that redirects a hand-edit of a generated file (or a protected-branch operation) to the correct path
 │   ├── validation-sweep/SKILL.md                      Corpus-wide regression sweep as a follow-up after any issue identified and corrected; loops until clean
-│   ├── validation-sweep-pr-scoped/SKILL.md            PR-scoped post-merge validation sweep; Subagent A on the just-merged PR's diff plus a cross-reference check; runs after every merge to catch per-PR drift before it compounds
+│   ├── validation-sweep-pr-scoped/SKILL.md            PR-scoped validation sweep run as the PR's finalizing step; Subagent A on the PR's diff plus a cross-reference check; runs before merge to catch per-PR drift before it compounds
 │   ├── citation-quote-verification/SKILL.md           Verify cited quotes match source text at the cited location; catches what citation-format and currency linters cannot
 │   ├── fresh-reader-validation/SKILL.md               Dispatch a fresh subagent to read a new or substantively-revised document and surface tacit-context gaps
 │   ├── skill-authoring-discipline/SKILL.md            Apply the pack's structural template and validate trigger accuracy when adding a new skill
 │   ├── library-fitness-review/SKILL.md                Whole-corpus library-quality review with ten persona reviewers; periodic deliverable, not a per-PR gate
 │   ├── deep-qa-review/SKILL.md                        Trust-recovery deep-QA forensic pass; six AI-failure-pattern subagents over a PR window; pairs with library-fitness-review; findings routed tiered by severity, maintainer sign-off terminates
-│   ├── pr-retrospective/SKILL.md                      Post-merge retrospective on each successful PR; appends to the improvement-log register; recurring patterns surface as candidates for pack-rule updates or worker-brief additions
+│   ├── pr-retrospective/SKILL.md                      Retrospective on each PR as its finalizing step; appends to the improvement-log register; recurring patterns surface as candidates for pack-rule updates or worker-brief additions
 │   ├── guardrail-review/SKILL.md                      Periodic structural-integrity review of the governance machinery (rules, skills, gates, wiring surfaces) for overlap / gap / drift the mechanical parity gates cannot see; maintainer-triggered + auto-prompt on machinery change
 │   ├── matrix-fit/SKILL.md                            Cadenced semantic-fit audit of the compliance matrix and per-document framework tables; catches the gate-blind "valid code, wrong control" class the existence gates cannot; after each matrix-expansion batch + at completion + ad-hoc
 │   ├── claim-fit/SKILL.md                             Cadenced citation-precision audit of normative-attribution claims; catches the gate-blind "attributed value, silent source" class the existence and citation gates cannot; one-time Tier-A pass at adoption + after normative-value batches + ad-hoc
@@ -505,6 +505,8 @@ The pack's change history is maintained in the parent grc_library repository CHA
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.65.23 | 2026.07.738 | 2026-07-30 | Patch (3.137b residual, caught by the xhigh dual-family verify): corrected the skill-index descriptions for `validation-sweep-pr-scoped` ("post-merge"/"just-merged PR"/"runs after every merge" -> synchronous finalizing step, runs before merge) and `pr-retrospective` ("post-merge retrospective" -> finalizing step) to the synchronous same-PR model. |
+| 1.65.22 | 2026.07.738 | 2026-07-30 | Synchronous-`/validate-pr` cutover (TODO 3.137b): the `ai-assistant-workflow-disciplines` rule's session-closing-handoff QA-skip demoted from the standing exception to a documented loop-termination fallback (byte-identical in both trees), and the `validation-sweep-pr-scoped`, `validation-sweep`, and `pr-retrospective` skills reworded from the post-merge / batch-into-next-PR model to running the QA synchronously as a PR's finalizing step with rows in the same PR. |
 | 1.65.21 | 2026.07.725 | 2026-07-29 | `/adopt` gains an explicit absent-working-state branch (part of the parent library's `.working/` -> private-sibling migration, PR2b-3): the [`adopt`](skills/adopt/SKILL.md) skill's step 3 and its paired slash command now branch on working-state PRESENCE, treating an absent tree in a fresh public clone as ALREADY CLEAN (create only the adopter-local state a public versioned consumer requires, each shape from a public schema or template, never recreating a removed public working-state tree), so a post-migration adopter fork is onboarded correctly rather than resetting a directory that no longer exists (patch; no new rule or skill). |
 | 1.65.20 | 2026.07.723 | 2026-07-29 | Genericized the 23 working-state path references across nine pack skills (change-tracking-write-entry, deep-assessment, deep-qa-review, guardrail-review, library-fitness-review, pr-retrospective, reference-audit, validation-sweep, validation-sweep-pr-scoped) to the portable-role phrasing "in the consuming project's working state", completing the 1.62.2/1.63.1 portability migration so the distributable pack names project-varying working-state locations generically rather than hardcoding a concrete working-directory path (patch; no new rule or skill). |
 | 1.65.19 | 2026.07.712 | 2026-07-28 | Dual-family (Claude + Codex/GPT) adversarial verification codified: high-assurance stage 3 requires the two independent verifiers be from different model families, and the substantive verifier tier defaults to a cross-family pair for consequential changes (patch; no new rule or skill). |
