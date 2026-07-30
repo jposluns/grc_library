@@ -410,19 +410,15 @@ The regex `SUBSUMED|NOT\s+run|maintainer[-\s]authori...` matches anywhere in a F
 
 #1210's validate-pr row records `RETURNED: PASS, SHIP` while its own text admits "a LIGHTER pass" self-run with no maintainer authorization, for a PR that changed gate 50's own detection logic; #1179/#1172/#1171/#1170/#1169 were one subagent run at ~66s/PR (vs 159-372s/PR formal), no abbreviation disclosure. Re-run a proper `/validate-pr` on #1210's gate-50 change to confirm the logic is sound; the discipline gap is recorded.
 
-### 3.161 The GFM delimiter row in the QA ledgers sits at file-end, not after the header (2026-07-28 deep-assessment c3, W, XS)
+### 3.161 The GFM delimiter row in the QA ledgers sits at file-end, not after the header (2026-07-28 deep-assessment c3, W, XS)  [ROUTED 2026-07-30: operational-hazard (active-append gate-50-parsed ledgers, non-fleet session) + decide-correct-vs-document; pending-decisions]
 
 `validate-pr/history.md` and `improvement-log.md` carry their table delimiter at the FILE END below all data rows (improvement-log has a duplicated delimiter), so the tables technically have no header-delimiter. Gates pass and the web generator renders, so it is latent; #1201's N1 "delimiter below the two newest rows, ACCEPTED" disposition rests on a description wrong by ~356 rows. Decide whether to correct or document the shape.
 
-### 3.162 The deep-assessment register self-contradicts its own phase state (2026-07-28 deep-assessment c3, note, XS)
+### 3.162 The deep-assessment register self-contradicts its own phase state (2026-07-28 deep-assessment c3, note, XS)  [ROUTED 2026-07-30: needs maintainer knowledge of r4 final state (signed-off vs superseded); pending-decisions]
 
 `deep-assessment/register.md:31` records r4 `P1..P7 = complete` while the r4 detail file still lists 6 phases `NOT-STARTED`; its `P8` cell holds `signed-off`, outside the documented per-phase vocabulary and post-#1213 sign-off removal; the r2 continuation paragraph sits out of run-order. The register is declared the durable phase-state a bare `/deep-assessment` resumes from, so the contradiction matters.
 
-### 3.163 The #1209 retro row carries a refuted migration count (2026-07-28 deep-assessment c3, note, XS)
-
-`improvement-log.md` #1209 row asserts "the 49-row migration was deterministic" while the #1209 validate-pr F-1 corrected it to 48 (DONE.md says 48); the retro was written in the same PR that landed the correction and still carries the refuted count.
-
-### 3.164 QA-ledger stated-rule-vs-content drifts (incl. bypass-log within-date ordering) (2026-07-28 deep-assessment c3, note, XS)
+### 3.164 QA-ledger stated-rule-vs-content drifts (incl. bypass-log within-date ordering) (2026-07-28 deep-assessment c3, note, XS)  [ROUTED 2026-07-30: operational-hazard (active-append gate-50-parsed ledgers), non-fleet session; pending-decisions]
 
 `merge-bypass-log.md`: the "15 rows above" retrospective pointer is stale (backfilled set #1151-#1165, later rows appended below); the #1151 floor is not stated as an inception boundary; the "newest first within a date" order is violated (2026-07-28 rows read #1215,#1216,#1217,#1218 ascending). `improvement-log.md` "one row per merged PR" omits the handoff carve-out gate 50 correctly encodes. Reconcile the stated rules to the (correct) content.
 
