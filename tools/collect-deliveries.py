@@ -39,8 +39,7 @@ TWO INDEPENDENT COMPLETENESS LAYERS, because they catch different failures (main
 
 A FILE HELD BACK IS REPORTED, NEVER SILENTLY SKIPPED. A missing sentinel means the file stays put,
 and staying put with no explanation is precisely the failure shape this project keeps meeting, where
-silence reads as health (a stalled worker heartbeating, a saturation verdict naming unusable
-capacity). Held-back files get their own labelled line in the report and are counted separately.
+silence reads as health (a stalled worker still heartbeating while no longer working). Held-back files get their own labelled line in the report and are counted separately.
 
 ADVISORY, like its sibling reconciliation tools: every reporting path exits 0, and only `--self-test`
 can exit non-zero. Neither repo's CI can see this tree, so it is an orchestrator step and not a gate.
@@ -183,8 +182,8 @@ def report(plan: dict, tray: Path, oneline: bool = False) -> None:
     Reporting only the tray would under-count whenever the sweep has not run, and the sweep only
     runs while the orchestrator is alive, so between sessions results accumulate un-swept. A reader
     that saw only the tray would answer "nothing pending" with deliveries waiting, which is the
-    exact bug class already fixed once in the saturation observable (#1157, which read one of two
-    exchange planes) and still live in the scratch `list-workers`. So the pending figure below is
+    exact single-plane-reading bug class still live in the scratch `list-workers` (it reads one of two
+    exchange planes). So the pending figure below is
     the UNION, and its two components are named separately rather than summed into one number.
     """
     n_move, n_held = len(plan["move"]), len(plan["held_no_sentinel"])
@@ -262,8 +261,8 @@ def self_test() -> int:
     # The empty-part guard, previously BLIND: the cases below covered a non-tray name and a wrong
     # extension, so disabling the guard changed nothing observable and it read as covered. Found by
     # tools/audit-selftest-discriminability.py. Without the guard these return ("", "x") and
-    # ("x", ""), and a caller would then use an empty worker id, which the saturation tool's
-    # phantom-pending retirement now depends on being well-formed.
+    # ("x", ""), and a caller would then use an empty worker id, which downstream
+    # consumers must never receive.
     check("split_name rejects an empty worker id", split_name("__x.md"), (None, None))
     check("split_name rejects an empty order id", split_name("x__.md"), (None, None))
     check("split_name rejects a non-tray filename", split_name("sweep-121.md"), (None, None))
