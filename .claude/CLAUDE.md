@@ -411,35 +411,12 @@ dataset such as MITRE ATT&CK / ATLAS, ISO, CSA, NIST) is load-bearing for a task
 
 ## Missing-reference-document SOP (maintainer-directed 2026-07-12)
 
-When a task needs a reference document that `grc_library_ref` does not hold and that is
-load-bearing for the work (a standard, regulation, RTS/ITS, framework, or dataset that a
-citation or an attributed normative value depends on), do NOT proceed on the gap and do NOT
-merely route it as a `source-not-held` finding. The standing procedure is:
+When a task needs a load-bearing reference (a standard, regulation, RTS/ITS, framework, or dataset a citation or attributed value depends on) that `grc_library_ref` does not hold, follow the pack's missing-load-bearing-reference corollary in [`evidence-grounded-completion`](rules/governance/evidence-grounded-completion.md) (its `## Un-observable state, inventory, and external-version currency` section; TODO 3.53): PAUSE, attempt acquisition, then named options on failure. The project instantiation:
 
-1. **PAUSE** the current task at the point the missing reference is needed.
-2. **Attempt to download it** from its authoritative / primary source and **ingest it into
-   `grc_library_ref`** via the ingest workflow (drop in `ingest/`, dedupe, identify, route to
-   the right bucket, extract to `--full-text.md`, catalogue in `catalogue.yml`, regenerate the
-   indexes, run the ref gate). Then continue the task against the now-held source.
-   (The `grc_library_ref` write is a cross-repo PR per the git-proxy constraint above.)
-3. **If the download fails** (egress-blocked, licensed or paywalled,
-   or otherwise unavailable), surface it to the maintainer with named options:
-   - **(a)** the maintainer downloads or provides the document (the usual resolution when it is
-     licensed or egress-blocked);
-   - **(b)** **defer the current task** until the document is ingested (the DEFAULT in unattended
-     mode via the roughly-2-minute graceful-degradation timer: record the deferral in
-     `grc_library_private/.working/pending-decisions.md` as deferred-blocked, route around
-     to the next independent item, and hold anything that depends on it);
-   - **(c)** something else, for example reword the artefact so it does not depend on the missing
-     reference, or cite the source corroboratively-only with an accepted-unverified tracker.
+1. **Attempt the ingest into `grc_library_ref`** (drop in `ingest/`, dedupe, identify, route to the right bucket, extract to `--full-text.md`, catalogue in `catalogue.yml`, regenerate the indexes, run the ref gate), then continue against the now-held source. The `grc_library_ref` write is a cross-repo PR per the git-proxy constraint above.
+2. **On acquisition failure** (egress-blocked, licensed/paywalled): the unattended DEFAULT is defer-and-skip via the roughly-2-minute graceful-degradation timer, recording the deferral in `grc_library_private/.working/pending-decisions.md` as deferred-blocked, routing around to the next independent item, and holding anything that depends on it. Attended, surface named options: the maintainer provides it; defer; or reword so the artefact does not depend on it, or cite corroboratively-only with an accepted-unverified tracker.
 
-This generalizes the `## Reference-version currency` pause-and-ask clause (which covers the
-version-update case) to ANY missing load-bearing reference: routing a `source-not-held` finding
-without first attempting the download is the shortcut this SOP forecloses. The project-agnostic
-pack distribution of this SOP shipped in the pack's
-[`evidence-grounded-completion`](rules/governance/evidence-grounded-completion.md) rule
-(the missing-load-bearing-reference corollary in its `## Un-observable state, inventory, and
-external-version currency` section; TODO §3.53, 2026-07-12).
+Routing a `source-not-held` finding without first attempting the download is the shortcut this forecloses.
 
 ## Attended-autonomous operating mode
 
@@ -1042,12 +1019,7 @@ the last commit before push (bump library CalVer and the README Version field)?
   form; a bare project `tools/x` example stays valid as written.
 
 ## Behavioral rule: clarify before acting
-When the request has more than one reasonable interpretation, or an external value (date,
-timezone, library version, README version, target branch, whether a change warrants a
-CHANGELOG entry, whether to bump per-document versions) is ambiguous, surface the ambiguity
-in one sentence and ask before proceeding. Don't silently pick. The authoritative form
-lives in `.claude/rules/governance/clarify-before-acting.md` (the pack rule) and as Rule 9
-in `~/.claude/CLAUDE.md` (the user-level memory form).
+Surface ambiguity, or an unpinned external value (date, timezone, library version, README version, target branch, whether a change warrants a CHANGELOG entry, whether to bump per-document versions), in one sentence and ask; don't silently pick. Authoritative form: the pack rule [`clarify-before-acting`](rules/governance/clarify-before-acting.md) (including the compute-first gate) and Rule 9 in `~/.claude/CLAUDE.md` (the user-level memory form). `AskUserQuestion` is the structured primitive here.
 
 **Search decisions before asking (the answered-question guardrail, §1.22.6).** The
 compute-first gate applies with force to authorial/policy decisions: before surfacing ANY
@@ -1089,14 +1061,7 @@ Un-instrumented internal state is NEVER a valid basis for a hold (the `evidence-
 
 ## Execution begins only on an express GO (discussion is not licence)
 
-A recurring failure class: treating a conceptual or planning discussion as licence to begin building ("I'll start building this now"), or treating a conditional or sequenced GO (deliver X, wait, then go) as immediate self-authorization, and executing before the maintainer's explicit go on the work at hand. Execution begins only on an express maintainer GO that NAMES the work; this is the pack rule [`express-authorization-before-execution`](rules/governance/express-authorization-before-execution.md), the pause-before-acting family's entry-condition member and the mirror of the decision-discipline rubric above (that rubric governs the decision to NOT do already-authorized work; this governs the decision to BEGIN work that is not yet authorized).
-
-- **Discussion mode vs execution mode.** Planning, shaping, and drafting are discussion mode: they produce plans, candidate shapes, and questions, never edits, commits, or outward actions. Execution mode begins only on an express maintainer GO that names the work.
-- **A conditional GO is not satisfied until its condition is maintainer-confirmed.** "Deliver X, then we go" authorizes X, not the step after the wait; that step needs its own express go.
-- **When unsure whether a GO covers the work at hand, ask** (a one-sentence "confirm GO on X?") and stay in discussion mode until answered. This is the ACT-branch entry condition of the decision-discipline rubric above: an unauthorized start has no blocker, but it is not an ACT, it is an ASK.
-- **Composes with the operating modes.** An unattended run executes only work authorized BEFORE the run began, never a mid-run self-grant, so the "express GO" there is the pre-run authorization (per [`session-lifecycle`](rules/governance/session-lifecycle.md)).
-
-The maintainer-directed 2026-07-23 decision was to codify this as a new pack rule (convention-first; a mechanical GO-ledger-keyed hook was considered and deferred). The project-agnostic distributable form ships as the pack governance rule [`express-authorization-before-execution.md`](rules/governance/express-authorization-before-execution.md).
+Execution begins only on an express maintainer GO that NAMES the work; a conceptual/planning discussion, an unnamed endorsement, or a conditional/sequenced GO ("deliver X, then we go") is not authorization for the work at hand. When unsure a GO covers the work, ask a one-sentence "confirm GO on X?" and stay in discussion mode until answered. Full discipline (discussion-vs-execution mode, conditional-GO handling, composition with the unattended mode) is the pack rule [`express-authorization-before-execution`](rules/governance/express-authorization-before-execution.md), the mirror of the decision-discipline rubric above. Maintainer-directed 2026-07-23; convention-first, a mechanical GO-ledger-keyed hook was considered and deferred.
 
 ## Backlog-status characterization is the audit tool's output (anti-false-completeness)
 
