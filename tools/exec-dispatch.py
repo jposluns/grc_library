@@ -7,7 +7,7 @@ invokes the root-owned wrapper via sudo to run the job as the single worker_agen
 
 This is PROJECT-ONLY operational machinery (it references the host wrappers at
 /usr/local/sbin and the _private account-config), not portable pack material, in the same
-class as manage-workers.py / audit-worker-saturation.py / collect-deliveries.py.
+class as manage-workers.py / collect-deliveries.py.
 
 Design of record: grc_library_private/codex-exec-serve-loop-decision.md. The account-config
 schema and the dispatch rules (A1 per-account caps, A3 exhaust-a-set-then-next, personal-last,
