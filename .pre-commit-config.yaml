@@ -555,3 +555,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-ssdf-control-ids
+        name: NIST SSDF control-id validity audit
+        entry: python3 tools/lint-ssdf-control-ids.py
+        language: system
+        pass_filenames: false
+        always_run: true
