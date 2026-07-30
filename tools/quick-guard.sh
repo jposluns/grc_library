@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # quick-guard.sh - a FAST local ITERATION aid, NOT the push gate (TODO 3.137a).
 #
-# Runs the "fast-ready" gates (path-arg-aware AND per-file-sound) on ONLY the
-# changed .md files, so a developer gets a quick sound subset-check while
-# iterating. It NEVER prints "safe to push" and MUST NOT be the left side of
+# Runs the "fast-ready" gates while iterating, in two groups: per-file-sound
+# gates on ONLY the changed .md files, plus a few FIXED-TARGET gates (matrix /
+# CHANGELOG) in default mode (they validate one specific file, so feeding them
+# an arbitrary changed doc would spuriously FAIL, Sweep-133), so a developer
+# gets a quick sound subset-check. It NEVER prints "safe to push" and MUST NOT be the left side of
 # `&& git push`. The full 78-gate tools/pre-push-guard.sh remains the AUTHORITY
 # and still runs once before every push; it catches everything this omits.
 #
@@ -48,22 +50,32 @@ echo "NOTE: ITERATION AID ONLY, not the push gate. Run tools/pre-push-guard.sh b
 echo "it runs all 78 gates incl. the register-guarded and corpus-wide ones this omits."
 echo "------------------------------------------------------------"
 
-# The 34 fast-ready gates + the two refactored ones (check-review-cadence = gate
-# 10, lint-skill-internal-refs = gate 76), all normalized to accept a uniform
-# positional list of .md paths (TODO 3.137a).
+# The fast-ready gates, in two groups:
+#  - CHANGED-FILE gates (FAST_TOOLS): per-file-sound, so they run on ONLY the
+#    changed .md files. Includes the two refactored gates (check-review-cadence
+#    = gate 10, lint-skill-internal-refs = gate 76). All accept a uniform
+#    positional list of .md paths (TODO 3.137a).
+#  - FIXED-TARGET gates (FAST_FIXED_TARGET): each validates ONE specific file
+#    (the compliance matrix / CHANGELOG.md). Feeding them an arbitrary changed
+#    doc makes them mis-validate it AS that file and spuriously FAIL (Sweep-133
+#    finding), so they run in DEFAULT (no-arg) mode and always check their own
+#    correct target.
 FAST_TOOLS=(
   lint-metadata.py lint-language.py lint-citations.py lint-filename-title-alignment.py
-  lint-shall-near-uncertainty.py lint-changelog-link-coverage.py lint-placeholder-leakage.py
+  lint-shall-near-uncertainty.py lint-placeholder-leakage.py
   lint-date-format.py lint-license-consistency.py lint-stub-documents.py lint-intra-doc-refs.py
   lint-required-sections.py lint-secrets-in-content.py lint-pii-in-content.py
   lint-internal-references.py lint-external-link-domains.py lint-metadata-line-breaks.py
   lint-document-date-staleness.py lint-section-placement.py lint-version-bump-recency.py
-  lint-followup-ageing.py lint-ccm-aicm-citations.py lint-matrix-control-codes.py
+  lint-followup-ageing.py lint-ccm-aicm-citations.py
   lint-working-prose-hygiene.py lint-directional-dependency.py lint-document-control-codes.py
   lint-bare-normative-shall.py lint-todo-marked-done.py lint-document-iso-annex-a.py
   lint-cobit-iso31000-citations.py lint-unbalanced-fences.py lint-nested-markdown-links.py
   lint-positional-backlog-tokens.py lint-cobit-title-text.py
   check-review-cadence.py lint-skill-internal-refs.py
+)
+FAST_FIXED_TARGET=(
+  lint-changelog-link-coverage.py lint-matrix-control-codes.py
 )
 
 FAILED=()
@@ -75,13 +87,22 @@ for tool in "${FAST_TOOLS[@]}"; do
     echo "$out"
   fi
 done
+# Fixed-target gates run WITHOUT the changed-file args (default single target).
+for tool in "${FAST_FIXED_TARGET[@]}"; do
+  out="$(python3 "tools/$tool" 2>&1)"; rc=$?
+  if [ "$rc" -ne 0 ]; then
+    FAILED+=("$tool")
+    echo "[FAIL rc=$rc] $tool (fixed-target, default-mode run)"
+    echo "$out"
+  fi
+done
 
 echo "------------------------------------------------------------"
 if [ "${#FAILED[@]}" -gt 0 ]; then
-  echo "quick-guard: ${#FAILED[@]} fast-ready gate(s) FAILED on the changed files: ${FAILED[*]}"
+  echo "quick-guard: ${#FAILED[@]} fast-ready gate(s) FAILED: ${FAILED[*]}"
   echo "Fix them, then run the FULL tools/pre-push-guard.sh before pushing."
   exit 1
 fi
-echo "quick-guard: all ${#FAST_TOOLS[@]} fast-ready gates passed on the changed files."
+echo "quick-guard: all $(( ${#FAST_TOOLS[@]} + ${#FAST_FIXED_TARGET[@]} )) fast-ready gates passed (${#FAST_TOOLS[@]} on changed files, ${#FAST_FIXED_TARGET[@]} fixed-target in default mode)."
 echo "This is NOT a green light to push. Run tools/pre-push-guard.sh (the authority) first."
 exit 0
