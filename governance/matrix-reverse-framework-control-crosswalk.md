@@ -2,7 +2,7 @@
 
 **Document Title:** Reverse Framework Control Crosswalk Matrix\
 **Document Type:** Matrix\
-**Version:** 1.0.9\
+**Version:** 1.0.10\
 **Date:** 2026-07-30\
 **Owner:** Control Framework Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -89,7 +89,7 @@ This matrix does not reproduce restricted third-party framework text, does not e
 | GOVERN GV.SC Cybersecurity supply chain risk management | [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md) | Architectural recommendation |
 | IDENTIFY ID.AM Asset management | [`operations/register-asset-inventory.md`](../operations/register-asset-inventory.md), [`ai/template-ai-system-register.md`](../ai/template-ai-system-register.md) | Evidence category |
 | IDENTIFY ID.RA Risk assessment | [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md), [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md), [`risk/register-key-risk-indicators.md`](../risk/register-key-risk-indicators.md) | Architectural recommendation |
-| PROTECT PR.AA Identity management and authentication | [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md) | Architectural recommendation |
+| PROTECT PR.AA Identity Management, Authentication, and Access Control | [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md) | Architectural recommendation |
 | PROTECT PR.DS Data security | [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](../security/standard-data-loss-prevention.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md) | Architectural recommendation |
 | PROTECT PR.IR Information system integrity and resilience | [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`operations/standard-cloud-security-configuration-baseline.md`](../operations/standard-cloud-security-configuration-baseline.md), [`operations/standard-network-security-and-segmentation.md`](../operations/standard-network-security-and-segmentation.md) | Architectural recommendation |
 | DETECT DE.CM Continuous monitoring | [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`operations/procedure-security-monitoring-and-alert-management.md`](../operations/procedure-security-monitoring-and-alert-management.md), [`operations/procedure-threat-intelligence-and-siem-operations.md`](../operations/procedure-threat-intelligence-and-siem-operations.md) | Architectural recommendation |

@@ -2,8 +2,8 @@
 
 **Document Title:** Security Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.21\
-**Date:** 2026-07-10\
+**Version:** 1.3.22\
+**Date:** 2026-07-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md)\
@@ -172,7 +172,7 @@ Once the scope of compromise is confirmed, the SOC and IT Operations must:
 
 | Regulation | Trigger | Notification Deadline | Notifying Authority |
 | --- | --- | --- | --- |
-| **GDPR (EU)** | Confirmed breach of personal data of EU data subjects with likely risk to individuals | 72 hours from confirmation | DPO to relevant supervisory authority (CISO coordinating); individuals where high risk |
+| **GDPR (EU)** | Confirmed breach of personal data of EU data subjects with likely risk to individuals | 72 hours after becoming aware | DPO to relevant supervisory authority (CISO coordinating); individuals where high risk |
 | **PIPEDA (Canada)** | Confirmed breach of personal information with real risk of significant harm | As soon as feasible (no fixed statutory deadline) | DPO to Privacy Commissioner of Canada |
 | **Quebec Law 25** | Confirmed confidentiality incident involving personal information presenting a risk of serious injury | Promptly to the Commission d'accès à l'information (no fixed statutory hour-count) | DPO |
 | **PIPL (China)** | Confirmed breach of personal data of China data subjects | Immediately / without delay | DPO to relevant authority (CISO coordinating) |
