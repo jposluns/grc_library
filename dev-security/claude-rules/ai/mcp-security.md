@@ -19,7 +19,7 @@ Apply these rules to all code that builds, operates, or consumes MCP servers. MC
 - Expose **only the tools necessary** for the specific agent or use case: do not expose a general-purpose tool set
 - Do not expose tools that provide shell access, arbitrary file system access, or arbitrary network access unless specifically required and tightly scoped
 - Review the full tool list from the model's perspective: if the model can use a combination of tools to perform an unintended privileged action, that is a security vulnerability
-- Implement tool-level audit logging: log every tool call with caller identity, arguments, and result
+- Implement tool-level audit logging: log every tool call (caller identity, tool name, timestamp, result status); redact secrets and PII from any logged arguments and results
 
 ---
 

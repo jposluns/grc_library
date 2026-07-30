@@ -59,7 +59,7 @@ Treat every LLM response, every model output, and every AI-generated value as if
 - Do not allow AI systems to grant additional permissions to themselves or to other agents
 - Validate all tool arguments before execution: LLM-generated tool arguments are untrusted
 - Implement hard limits on tool-call chains and recursion depth
-- Log every tool call with full arguments and results
+- Log every tool call (name, caller, timestamp, result status); redact secrets and PII from any logged arguments or results, and do not log full argument or result content in production unless a specific audit purpose requires it
 
 **References:** OWASP LLM06, MITRE ATLAS AML.T0053: AI Agent Tool Invocation
 
@@ -90,12 +90,14 @@ Treat every LLM response, every model output, and every AI-generated value as if
 
 ## AI logging requirements
 
+**Canonical policy: log events and metadata always, redact content.** Log every AI interaction's EVENTS and METADATA to the SIEM always (below); log prompt, tool-argument, and response CONTENT only with secrets and PII redacted, and never log raw full prompts in production (this reconciles the security-monitoring requirement with the never-log-secrets/PII rule).
+
 Every AI-powered endpoint must log:
 - Request ID and session ID (not the full prompt in production)
 - Model name and version
 - Token count (input and output)
 - Response time
-- Tool calls made (name and arguments)
+- Tool calls made (name and metadata; arguments redacted of secrets and PII)
 - Human confirmation decisions (approved or rejected)
 - Error and exception events
 

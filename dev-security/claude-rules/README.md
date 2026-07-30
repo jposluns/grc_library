@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.66.6\
+**Version:** 1.66.7\
 **Date:** 2026-07-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -508,6 +508,7 @@ The pack's change history is maintained in the parent grc_library repository CHA
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.66.7 | 2026.07.762 | 2026-07-30 | Patch (TODO 1.27.4 R11, external-audit pack-correctness): resolved the AI-logging self-contradiction. The pack said 'log all AI inputs and outputs to SIEM' and 'log every tool call with full arguments and results' while also 'never log secrets/PII' and 'do not log full prompt content in production'. Per the maintainer's canonical policy (log EVENTS and metadata always, redact CONTENT), reconciled `CLAUDE.md`, `ai/ai-security.md` (a canonical-policy statement added to the AI-logging-requirements section; the full-arguments tool-call line and the 'name and arguments' bullet made redaction-scoped), and `ai/mcp-security.md`: events and metadata logged always, secrets and PII redacted from content, never raw full prompts in production. |
 | 1.66.6 | 2026.07.761 | 2026-07-30 | Patch (TODO 1.27.3 R4/R19, external-audit pack-correctness): dropped the fabricated "offensive toolkit" TikiTribe testing call-outs from the five call-out sites across four `ai/` rules (TikiTribe is a defensive secure-coding-rules repo; recommendations genericized, no new tool dependency, per maintainer); `languages/python.md` insecure-token example `random.token_hex(32)` (does not exist) -> `random.randbytes(32).hex()`; `languages/csharp.md` obsolete `new AesGcm(key)` (SYSLIB0053) -> tag-size arg; and the core password-hash allowlist widened to Argon2id/scrypt/bcrypt + PBKDF2-for-FIPS-140 per OWASP Password Storage (resolving the csharp PBKDF2 contradiction) at `core/owasp.md`, `core/cryptography.md`, pack `CLAUDE.md`. |
 | 1.66.5 | 2026.07.760 | 2026-07-30 | Patch (TODO 1.27.5 R6/R17, external-audit pack-correctness): the `governance/gate-discipline.md` 'No bypass of security gates' CSA CCM mapping corrected from `CEK-10 to 21` (crypto/key-management) to `CCC-03, CCC-04` (change control / unauthorized-change protection), both trees + the gate-discipline-diagnose skill; and initialization vectors removed from the `core/secrets.md` confidential-secrets prohibition list (IVs require uniqueness/unpredictability, not confidentiality; NIST SP 800-38D), both trees. R5 (LOG-10 -> LOG-09) was REFUTED at held CCM v4.1 and NOT applied. |
 | 1.66.4 | 2026.07.759 | 2026-07-30 | Patch (TODO 1.27.2 R7/R8/R9, external-audit pack-correctness): NIST SSDF invalid identifiers corrected in `pipeline/cicd-gates.md` (SAST/container `VE.1` -> `PW.7.1, PW.7.2` and `PW.4.4`, artefact-signing `DS.2` -> `PS.2.1`) and `core/owasp.md` A08 (`DS.2` -> `PS.2`), grounded at the held SP 800-218 OSCAL catalog; the per-gate SLSA level column replaced with a SLSA v1.2 relationship note (build levels are build-platform/provenance properties, not per-gate controls); and the MCP auth/TLS overclaim in `ai/mcp-security.md` made transport-dependent (HTTP/SSE requires auth + TLS 1.3; local STDIO derives its trust boundary from the local process) with a transport table. |
