@@ -2,8 +2,8 @@
 
 **Document Title:** Developer Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.11\
-**Date:** 2026-07-28\
+**Version:** 1.1.12\
+**Date:** 2026-07-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -149,7 +149,7 @@ Secret rotation must work without a code deployment. Hard-coded secrets that req
 | Asymmetric encryption | RSA-4096, EC P-384 | RSA < 4096 |
 | Key exchange | ECDHE, DHE | Static RSA, DH < 2048 |
 | Hashing (integrity) | SHA-256, SHA-384, SHA-512 | MD5, SHA-1 |
-| Password hashing | Argon2id, bcrypt (cost ≥12) | MD5, SHA-256 (unsalted), plain text |
+| Password hashing | Argon2id (preferred), scrypt, bcrypt (cost ≥12); PBKDF2 (HMAC-SHA-256/512, high iteration count) for FIPS-140 contexts | MD5, SHA-256 (unsalted), plain text |
 | TLS | TLS 1.3 (or stronger), aligned to [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md) §4 (Encryption standards) canonical mandate | SSL, TLS 1.0, TLS 1.1, TLS 1.2 |
 | Certificate signing | SHA-256 RSA or ECDSA | SHA-1 |
 
@@ -192,7 +192,7 @@ An SBOM must be generated for every production release and retained. See penetra
 - AI-suggested dependency names must be verified to exist in approved registries before installation (hallucinated package names are an active supply-chain attack vector).
 - Python: a dependency management tool is required (pinned requirements.txt or equivalent). SCA scanning covers Python packages.
 
-*CCM: TVM-06, AIS-04 / SLSA Level 2+*
+*CCM: TVM-06, AIS-04 / contributes toward SLSA Build L2+*
 
 ---
 
@@ -351,7 +351,7 @@ All of the following must be validated before any application onboards to a prod
 | Input validation | A.8.28 | AIS-02 | N/A | V2, V1 | A03 |
 | Cryptography | A.8.24 | CEK-01 to 21 | N/A | V11 | A02 |
 | Error handling and logging | A.8.16 | LOG-01 to 13 | N/A | V16 | A09 |
-| Security testing | A.8.29 | AIS-05, TVM-07 | VE.1 to VE.3 | All levels | All |
+| Security testing | A.8.29 | AIS-05, TVM-07 | PW.7, PW.8 | All levels | All |
 | Dependency management | A.8.8 | TVM-06, AIS-04 | PO.5 | V15 | A06 |
 | API security | A.8.24 | AIS-08 | N/A | V4 | A01, A02 |
 | AI/ML security | N/A | AICM TVM-12 | N/A | N/A | OWASP LLM Top 10 |
