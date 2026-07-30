@@ -277,34 +277,50 @@ drive end-to-end on the maintainer's behalf:
    OBSERVED CI state, never in anticipation of one.
 5. After merge: sync local `main`, delete the feature branch locally, confirm the
    remote branch is gone.
-5a. Invoke `/validate-pr` to run the PR-scoped post-merge validation sweep (dispatches
-   Subagent A on the just-merged PR's diff plus a cross-reference check on files citing
-   the touched files). Records to `grc_library_private/.working/validate-pr/`.
+5a. As the PR's FINALIZING QA step, BEFORE merge, invoke `/validate-pr` (dispatches
+   Subagent A on THIS PR's own diff plus a cross-reference check on files citing the
+   touched files). Records to `grc_library_private/.working/validate-pr/`, and the history
+   row records THIS PR's OWN number. The synchronous sequence is: open the PR, wait for the
+   first green CI, run `/validate-pr` (then `/retro`, step 5b) against the branch synced to
+   current `main`, disposition every finding in-window, write the rows and records, commit
+   them into the SAME PR, let CI re-run on the row-carrying commit, then merge (step 4/5).
+   No placeholder row and no back-fill into a later PR: the row that records PR N lands IN
+   PR N. The prior recursion-avoidance batching is retired; gate 50's Check 1 now requires
+   each PR's own rows (window inclusive of `max_pr`) and fails a row that records the QA as
+   `DISPATCHED` / `RESULT PENDING` and never `RETURNED`.
    **Read-only-git subagent rule (shared-tree safety):** any subagent this or `/validate`
    dispatches, and any skeptical-verifier subagent, inspects version history READ-ONLY
    (`git show <sha>:<path>`, `git diff`, `git log`) and MUST NOT `git checkout` / `switch`
    / `reset` / `stash` on the shared working tree, because the orchestrator may be on a
    concurrent feature branch. Brief every dispatched subagent
-   accordingly; a transient `tests/tmp/*` regression-suite FAIL or a gate-50 flag for a
-   not-yet-batched later PR's QA row is a concurrent-run artefact, not a defect.
-   Triage findings as in-window (hot-fix PR or include in next PR) or out-of-window
-   (surface to maintainer with named options). **Handoff-PR exception (loop-break):** the
-   session-closing handoff PR does NOT run a trailing `/validate-pr` or `/retro`; the
-   compensating control is the next session's `/resume` corpus-wide `/validate`. Record
+   accordingly; a transient `tests/tmp/*` regression-suite FAIL, or a gate-50 flag for a
+   concurrently-in-flight sibling PR whose synchronous rows have not yet merged, is a
+   concurrent-run artefact, not a defect.
+   Triage findings as in-window (fix in THIS PR before finalizing; a hot-fix PR only if the
+   fix genuinely cannot land in-PR) or out-of-window
+   (surface to maintainer with named options). **Handoff-PR fallback (loop-termination only):**
+   the session-closing handoff PR normally runs its OWN synchronous `/validate-pr` and
+   `/retro` like any other PR (the sync model records the rows in-PR, so no recursion
+   arises). The documented FALLBACK, retained only for the genuine loop-termination edge
+   where the handoff PR's own QA cannot be self-contained within it at the session boundary,
+   is to skip the trailing `/validate-pr` / `/retro`; the independent compensating read is
+   the next session's `/resume` corpus-wide `/validate`. When the fallback is taken, record
    the exemption in the handoff PR's `grc_library_private/.working/validate-pr/history.md` row **Findings cell**
    (the cell `tools/lint-bookkeeping-parity.py` (gate 50) reads to detect the handoff
    exemption): the marker must be `SKIPPED` together with `handoff`, or the phrase
    `handoff-PR exception`, never a bare `n/a`. Putting the marker in the Summary cell only
-   (leaving the Findings cell `n/a`) leaves the row undetected as a handoff: it passes
-   while the PR is the highest-numbered (exempt as in-flight) but gate 50 flags it the
-   moment the next PR demotes it. Fuller
+   (leaving the Findings cell `n/a`) leaves the row undetected as a handoff: it fails gate 50
+   the moment a later PR exists. Fuller
    prose may still go in the Summary cell. (See `## Session migration and PR close-out
    checklist` item 3.)
-5b. Invoke `/retro` to run the post-merge retrospective per the
+5b. Immediately after `/validate-pr` returns and BEFORE merge, invoke `/retro` to run the
+   retrospective per the
    [`pr-retrospective`](../dev-security/claude-rules/skills/pr-retrospective/SKILL.md)
    skill: append one row to `grc_library_private/.working/improvement-log.md`.
-   Pattern and Proposed-improvement entries (if any) surface in chat. The register-row
-   commit batches into the next PR per the recursion-avoidance rule.
+   Pattern and Proposed-improvement entries (if any) surface in chat. The register row lands
+   in THIS PR (recording this PR's own number), committed before the PR is finalized; the
+   synchronous model retired the recursion-avoidance batching, so the row is never deferred
+   to a later PR.
 5c. Refresh `grc_library_private/.working/session-handoff.md` with the
    current state snapshot, last-merged list, next-actions queue, and open decisions. The mechanical facts (versions, gate and rule and skill and command counts, HEAD sha, session figures) come from `python3 tools/handoff-snapshot.py`, a read-only aggregator; paste its verified block rather than hand-deriving the numbers. At a
    **session-closing** handoff PR, also refresh the `## Asserted expectations` section
@@ -312,8 +328,8 @@ drive end-to-end on the maintainer's behalf:
    soft spots NOT asserted clean), the **green-at-`<sha>`** snapshot line, and the
    `session-metrics` row (these are the
    loop-break compensating control's cheap signals the next `/resume` `/validate`
-   cross-checks against). The refresh commit batches into the next PR per
-   recursion-avoidance. See `## Session migration and PR close-out checklist`.
+   cross-checks against). The refresh commit lands in THIS PR, committed before it is
+   finalized (the synchronous model retired the recursion-avoidance batching). See `## Session migration and PR close-out checklist`.
 6. After every merge (durable across sessions): consult [`TODO.md`](../TODO.md)'s
    forward-looking sections and list the upcoming next five planned PRs in the chat. If
    new items surfaced during the just-finished work, add them to TODO BEFORE the list is
@@ -395,8 +411,7 @@ is external. Two mechanisms:
    PRs, trust-recovery state, the next-actions queue, open decisions, the standing
    disciplines, the **green-at-`<sha>`** mechanical baseline, and (at session close) the
    **asserted-expectations** section the receiving `/resume` `/validate` cross-checks
-   against. It is refreshed at every PR close-out (as part of the recursion-avoidance
-   batch). To resume, the maintainer sends only `/resume` (the
+   against. It is refreshed at every PR close-out (committed in the same PR, per the synchronous QA model). To resume, the maintainer sends only `/resume` (the
    [`commands/resume.md`](commands/resume.md) command), which reads the handoff, verifies
    the snapshot against live files, and continues from the queue. Prefer starting a fresh
    session at batch boundaries over running a long one.
@@ -404,8 +419,8 @@ is external. Two mechanisms:
 2. **PR close-out checklist.** Before pushing any PR, confirm every paired bookkeeping
    surface is in the diff (the recurring degradation failure is a correct substantive
    change with a *paired* surface dropped):
-   - The prior merged PR's `/validate-pr` history row AND its `/retro` row are both
-     present (they batch into this PR per recursion-avoidance).
+   - THIS PR's OWN `/validate-pr` history row AND its `/retro` row are both
+     present (they land in THIS PR, recording this PR's own number, per the synchronous QA model, rather than being batched forward from the prior PR).
    - Every TODO item this PR closes is deleted from TODO and added to
      `grc_library_private/.working/DONE.md` in the same diff. **Backlog-item-keyed, not
      FR/§-keyed**: a prose-named or maintainer-directed item (not just an `FR-N` or a
@@ -701,11 +716,14 @@ is external. Two mechanisms:
 3. **Closing-handoff-PR discipline (a session's last act is a green merge).** A session
    ends by landing its working-state on `main` as a green, merged PR (the
    *session-closing handoff PR*) so the next session's `/resume` rebuilds state from
-   `main` rather than from an unmerged feature branch. This closing PR is the one case
-   exempt from the trailing `/validate-pr` + `/retro` (PR-workflow step 5a's handoff-PR
-   exception): running them would start a post-merge validate-then-PR loop with no
-   terminating next PR at the session boundary. The compensating control is stronger:
-   `/resume` runs a full corpus-wide `/validate` as its first task. The closing PR records,
+   `main` rather than from an unmerged feature branch. Under the synchronous QA model this closing PR normally runs its OWN `/validate-pr` +
+   `/retro` before it is finalized, like any other PR, with the rows committed inside it (the
+   sync model records rows in-PR, so no recursion arises). A documented FALLBACK is retained
+   for the one genuine loop-termination edge, a handoff PR whose own QA cannot be
+   self-contained within it at the session boundary: in that case only, it skips the trailing
+   `/validate-pr` + `/retro`. Independently of the fallback, `/resume` runs a full corpus-wide
+   `/validate` as its first task, valuable on its own merits as a fresh-session drift-catch
+   (the whole corpus, not one PR's diff) rather than merely compensation for a skip. The closing PR records,
    in the handoff's `## Asserted expectations` section, what this session mechanically
    verified (scoped to touched surfaces) plus the green-at-`<sha>` baseline, which the
    receiving `/validate` cross-checks (a contradiction of a claimed-clean touched surface
@@ -719,7 +737,7 @@ is external. Two mechanisms:
    **A SESSION MUST NOT CLOSE WITH A LARGE UNVALIDATED PR (maintainer-directed 2026-07-25).**
    The handoff exemption covers exactly ONE PR, the closing handoff, and only because that PR is
    bookkeeping. It does not extend to the PR before it, and it is not a licence to let the QA
-   cadence lapse as a session winds down. **A DISPATCHED ORDER IS WORK ORDERED, NEVER WORK DONE.**
+   cadence lapse as a session winds down. **A DISPATCHED ORDER IS WORK ORDERED, NEVER WORK DONE.** Under the synchronous model this is now structural, not merely conventional: a substantive PR cannot be finalized until its own `/validate-pr` has RETURNED and its row is committed in-PR, so "merged with QA still dispatched" is a contradiction the finalizing sequence forecloses. The historical incident below predates that cutover; the discipline it teaches is retained as the reason the cutover exists.
 
    The 2026-07-25 session closed with #1176 carrying 22 files, 813 insertions, and SIX
    backlog-item closures, its `/validate-pr` merely DISPATCHED: no worker ever claimed the order,
@@ -761,14 +779,17 @@ is external. Two mechanisms:
    independent of each other, the second reading is a genuine second lens and the corroboration is
    worth more than the time it cost.
 
-   **The mechanical half is NOT YET BUILT, and the gap is specific.** Gate 50's Check 1 is
-   satisfied by row PRESENCE, so an honest `DISPATCHED, RESULT PENDING` row satisfies it and the
-   parity gate reads GREEN while the PR's QA has in fact not run (Sweep 122 Part 3 identified
-   this from the gate's own contract, independently of the maintainer's directive; the two
-   exemptions Check 1 already models are both detected mechanically, one of them by exactly this
-   kind of Findings-cell marker, so a third state follows an existing precedent). Until that
-   check exists, THIS CONVENTION IS THE ONLY CONTROL, which is the weaker half of the
-   defence-in-depth pair and is stated as such rather than assumed adequate.
+   **The mechanical half is now BUILT (TODO 3.137(b)).** Gate 50's Check 1 no longer exempts
+   the highest-numbered PR (its window is inclusive of `max_pr`, since the synchronous QA lands
+   each PR's rows in the PR itself) and it classifies a THIRD row state, a validate-pr row that
+   is PRESENT but records the QA as `DISPATCHED` / `RESULT PENDING` and never `RETURNED`, as a
+   FAILURE on any in-window PR. So an honest `DISPATCHED, RESULT PENDING` row no longer reads
+   GREEN: the parity gate fails until the QA has RETURNED and its row records that, which the
+   synchronous model requires before the PR is finalized. (Sweep 122 Part 3 identified the old
+   presence-only hole from the gate's own contract; the pending-row state follows the precedent
+   of the two exemptions Check 1 already detects mechanically, one by exactly this kind of
+   Findings-cell marker.) This convention is now the defence-in-depth PARTNER of a live gate,
+   not the sole control, which is the stronger half of the pair.
 
 ## Multi-session orchestration
 
