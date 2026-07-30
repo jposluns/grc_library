@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.66.7\
+**Version:** 1.66.8\
 **Date:** 2026-07-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -366,7 +366,7 @@ These rule files draw on and are aligned to the following external projects and 
  - `rules/_core/agent-security.md`
  - `rules/_core/mcp-security.md`
  - `rules/_core/rag-security.md`
-- Integration: See `ai/guide-ai-adversarial-test-reference.md` §B4 for test case overlap rules
+- Integration: See `ai/guide-ai-adversarial-test-reference.md` §B4 for how TikiTribe's defensive secure-coding rules relate to adversarial testing (a preventive control, not a source of adversarial test cases)
 
 **Wiz: Secure Rules Files**
 - Repository: `https://github.com/wiz-sec-public/secure-rules-files`
@@ -508,6 +508,7 @@ The pack's change history is maintained in the parent grc_library repository CHA
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.66.8 | 2026.07.765 | 2026-07-30 | Patch (PR #1275 completeness): the pack README integration cross-reference for `ai/guide-ai-adversarial-test-reference.md` §B4 was updated from "test case overlap rules" to TikiTribe's defensive-rules relationship to adversarial testing, matching the corrected §B4 (TikiTribe is a preventive control, not a source of adversarial test cases; the Sweep-135 R4-propagation fix). |
 | 1.66.7 | 2026.07.762 | 2026-07-30 | Patch (TODO 1.27.4 R11, external-audit pack-correctness): resolved the AI-logging self-contradiction. The pack said 'log all AI inputs and outputs to SIEM' and 'log every tool call with full arguments and results' while also 'never log secrets/PII' and 'do not log full prompt content in production'. Per the maintainer's canonical policy (log EVENTS and metadata always, redact CONTENT), reconciled `CLAUDE.md`, `ai/ai-security.md` (a canonical-policy statement added to the AI-logging-requirements section; the full-arguments tool-call line and the 'name and arguments' bullet made redaction-scoped), and `ai/mcp-security.md`: events and metadata logged always, secrets and PII redacted from content, never raw full prompts in production. |
 | 1.66.6 | 2026.07.761 | 2026-07-30 | Patch (TODO 1.27.3 R4/R19, external-audit pack-correctness): dropped the fabricated "offensive toolkit" TikiTribe testing call-outs from the five call-out sites across four `ai/` rules (TikiTribe is a defensive secure-coding-rules repo; recommendations genericized, no new tool dependency, per maintainer); `languages/python.md` insecure-token example `random.token_hex(32)` (does not exist) -> `random.randbytes(32).hex()`; `languages/csharp.md` obsolete `new AesGcm(key)` (SYSLIB0053) -> tag-size arg; and the core password-hash allowlist widened to Argon2id/scrypt/bcrypt + PBKDF2-for-FIPS-140 per OWASP Password Storage (resolving the csharp PBKDF2 contradiction) at `core/owasp.md`, `core/cryptography.md`, pack `CLAUDE.md`. |
 | 1.66.5 | 2026.07.760 | 2026-07-30 | Patch (TODO 1.27.5 R6/R17, external-audit pack-correctness): the `governance/gate-discipline.md` 'No bypass of security gates' CSA CCM mapping corrected from `CEK-10 to 21` (crypto/key-management) to `CCC-03, CCC-04` (change control / unauthorized-change protection), both trees + the gate-discipline-diagnose skill; and initialization vectors removed from the `core/secrets.md` confidential-secrets prohibition list (IVs require uniqueness/unpredictability, not confidentiality; NIST SP 800-38D), both trees. R5 (LOG-10 -> LOG-09) was REFUTED at held CCM v4.1 and NOT applied. |
