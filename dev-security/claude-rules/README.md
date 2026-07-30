@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.65.21\
+**Version:** 1.65.22\
 **Date:** 2026-07-29\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -505,6 +505,7 @@ The pack's change history is maintained in the parent grc_library repository CHA
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.65.22 | 2026.07.738 | 2026-07-30 | Synchronous-`/validate-pr` cutover (TODO 3.137b): the `ai-assistant-workflow-disciplines` rule's session-closing-handoff QA-skip demoted from the standing exception to a documented loop-termination fallback (byte-identical in both trees), and the `validation-sweep-pr-scoped`, `validation-sweep`, and `pr-retrospective` skills reworded from the post-merge / batch-into-next-PR model to running the QA synchronously as a PR's finalizing step with rows in the same PR. |
 | 1.65.21 | 2026.07.725 | 2026-07-29 | `/adopt` gains an explicit absent-working-state branch (part of the parent library's `.working/` -> private-sibling migration, PR2b-3): the [`adopt`](skills/adopt/SKILL.md) skill's step 3 and its paired slash command now branch on working-state PRESENCE, treating an absent tree in a fresh public clone as ALREADY CLEAN (create only the adopter-local state a public versioned consumer requires, each shape from a public schema or template, never recreating a removed public working-state tree), so a post-migration adopter fork is onboarded correctly rather than resetting a directory that no longer exists (patch; no new rule or skill). |
 | 1.65.20 | 2026.07.723 | 2026-07-29 | Genericized the 23 working-state path references across nine pack skills (change-tracking-write-entry, deep-assessment, deep-qa-review, guardrail-review, library-fitness-review, pr-retrospective, reference-audit, validation-sweep, validation-sweep-pr-scoped) to the portable-role phrasing "in the consuming project's working state", completing the 1.62.2/1.63.1 portability migration so the distributable pack names project-varying working-state locations generically rather than hardcoding a concrete working-directory path (patch; no new rule or skill). |
 | 1.65.19 | 2026.07.712 | 2026-07-28 | Dual-family (Claude + Codex/GPT) adversarial verification codified: high-assurance stage 3 requires the two independent verifiers be from different model families, and the substantive verifier tier defaults to a cross-family pair for consequential changes (patch; no new rule or skill). |
