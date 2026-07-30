@@ -11,6 +11,8 @@ The same separation covers human-in-the-loop (HITL) processes that carry persona
 
 Alongside the split, the project's core instruction file (CLAUDE.md) begins a right-sizing. Moving adopter-irrelevant operational detail into the private repository is the first step. The direction is a smaller instruction core that loads fewer tokens on every task, with the material specific to a given process or task loaded when that work is actually underway rather than carried at all times. A leaner core is a faster and cheaper working baseline for every session, and it keeps the public instructions focused on what an adopter reads to understand and extend the library.
 
+**2026-07-30 | 2026.07.753 | PR #1263** - TODO: routed the reconciled and validated external-audit pack-correctness findings into a new P1 series 1.27 (six phases: OWASP citations, standards mappings, language crypto, the AI-logging contradiction, verify-first claims, and a control-ID verifier gate). Worklist and validation in the private register; P1 fixes are post-handoff.
+
 **2026-07-30 | 2026.07.752 | PR #1262** - TODO: added a directional-considerations note to the 1.26 series (rules-pack-to-root, a ChatGPT/Codex-native equivalent, and a possible standalone pack repo), maintainer-flagged for full pros/cons analysis at the reconcile and distribute phases.
 
 **2026-07-30 | 2026.07.751 | PR #1261** - AIQT apex rule extended with Progress: the priority ordering is now (Accuracy = Integrity = Quality = Trust) > Progress > Speed > Cost. Progress (decisive advancement, the anti-analysis-paralysis value) and Speed (latency) are the throughput tier below the co-equal AIQT tier; Progress never licenses reduced verification.

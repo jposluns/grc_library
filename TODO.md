@@ -24,7 +24,7 @@ This file is informational and is not subject to the library's metadata-block, a
 
 ## Priority 1 — Fix errors and prevent recurrence
 
-**Next item number: 1.27.**
+**Next item number: 1.28.**
 
 Correctness fixes and the **error-prevention tooling** that keeps the corpus from regressing.
 
@@ -58,6 +58,34 @@ With the machinery made sound and the community input folded in, reconcile it wi
 ### 1.26.4 Distribute in aligned forms across AI toolchains (H, XL)
 
 Broaden distribution beyond a single tool: ship the harmonized pack in aligned forms for the other AI coding tools the team uses (Codex first, then the rest) and a generic, tool-agnostic form usable by local and custom models, which a growing share of the team now runs. The end state is one deduplicated, efficient, community-informed quality system, dogfooded here and distributable anywhere, so any team or adopter, on any AI toolchain, inherits the same hard-won guardrails in the idiom their tool speaks.
+
+### 1.27 External-audit pack-correctness remediation (goal-description umbrella; multi-phase series; validated 2026-07-30; H[critical])
+
+The `dev-security/claude-rules/` pack (v1.65.21) was audited by two external AIs (a "Maintenance prompt" F-series and a "GRC Library Claude Rules Pack Audit" P-series) and by the project's own overnight dual-family pass. The three were reconciled, deduped, and each finding's underlying claim VALIDATED against primary sources by two independent verification workers (standards + Claude-Code behaviour), on 2026-07-30. The full routed worklist, with per-finding locations, fixes, validation source, evidence caveats, and the DO-NOT-ASSERT / REFUTED exclusions, lives in `grc_library_private/.working/audit-reconcile-register-2026-07-30.md` (raw batches in `external-audit-batches-2026-07-30.md`; verdicts in `audit-reconcile-2026-07-30.md`). Every phase re-verifies each finding at source per-fix and applies the dual-family harness for citation/standards edits (these are gate-blind correctness on cited artefacts). The three DO-NOT-ASSERT items (`globs:`/`respectGitignore`/`.claude/rules`-compact-drop) are NOT to be routed as confirmed; the three REFUTED items (ASVS-version, `/trust-recovery`-dangling, EC-P-256-split) are closed. Phases are independently closeable.
+
+### 1.27.1 OWASP citation + edition corrections (R1/R2/R3; H[critical], M) `[content]`
+
+R1: OWASP LLM09/LLM05 swap (output-handling is LLM05 not LLM09; `ai/ai-security.md:68/78/130`). R2: OWASP Top 10 labelled 2025 but bodied as 2021 + duplicate A03 (`core/owasp.md` + ~6 cross-ref files). R3: fabricated "OWASP MCP Top 10" codes (`core/owasp.md:182-197` + `ai/mcp-security.md`, README, pack CLAUDE.md) that match none of the official titles, the strongest integrity finding (both external audits missed it; caught by the overnight dual-family pass, corroborated at the official source). Reframe R3 as the pack's own non-OWASP taxonomy OR use the official v0.1 titles; do not attribute to OWASP if not matched.
+
+### 1.27.2 Standards-mapping corrections (R7/R8/R9; H, M) `[content]`
+
+R7: NIST SSDF invalid IDs VE.1/DS.2/PW.9 (`pipeline/cicd-gates.md`, `core/owasp.md:229`; cite verbatim from the SP 800-218 PDF). R8: SLSA level mis-mapping of per-gate controls to Build L2/L3 (`pipeline/cicd-gates.md:127-134`). R9: MCP "all servers MUST authenticate" + "TLS 1.3 for all transport" overclaim applied to local STDIO (`ai/mcp-security.md:9/65`); auth is optional/transport-dependent.
+
+### 1.27.3 Language-crypto + fabricated-tool corrections (R4/R19a/R19b/R19c; H, S) `[content]`
+
+R4: TikiTribe framed as an offensive toolkit when it is a defensive secure-coding-rules repo (5 sites in `ai/`); drop the fabricated capability or name a real adversarial tool. R19a: `random.token_hex(32)` does not exist (`languages/python.md:95`). R19b: obsolete `new AesGcm(key)` marked CORRECT (`languages/csharp.md:95`). R19c: password-hash allowlist contradiction (core "Argon2id/bcrypt only" vs csharp PBKDF2); widen the core allowlist per OWASP Password Storage.
+
+### 1.27.4 AI-logging contradiction resolution (R11; MAINTAINER-AUTHORIAL; H[critical], M) `[content]`
+
+The finding all three sources converged on and the most dangerous: the rules simultaneously mandate "log all AI I/O + full tool args/results" and "never log secrets/PII", so a literal executor copies secrets/PII into the SIEM (`CLAUDE.md:77/99`, `ai/ai-security.md:35/62/98`, `ai/mcp-security.md:22`, RAG rules). The RESOLUTION (the canonical logging policy) is the maintainer's authorial decision; this phase surfaces the options and, once decided, reconciles every site to the canonical `ai/logging-and-telemetry.md`.
+
+### 1.27.5 Verify-first standards claims (R5/R6/R17; H, M) `[content]`
+
+Single-source or unverified claims that must be checked at the held source BEFORE routing as confirmed. R5: CCM LOG-10 mis-mapped for audit-trail integrity across ~12 files (should be LOG-09; high-impact, may falsify a changelog "verified vs CCM v4.1" claim). R6: CCM CEK-10..21 mis-pasted onto gate-bypass prose (`gate-discipline.md:132`). R17: IVs classified as confidential secrets (`core/secrets.md:23`; IVs need uniqueness, not confidentiality).
+
+### 1.27.6 Control-ID-title verifier gate (R25; H, L) `[machinery]`
+
+The durable mechanical backstop for the whole citation-accuracy class (R1/R2/R3/R5/R6/R7/R8): a gate that parses each cited control ID (OWASP A0x/LLM0x/MCP0x, NIST SSDF, CSA CCM, SLSA), looks up the official title, and flags mismatches; plus an OWASP-edition-consistency check. Register with the gate-name parity self-check (gate 35) and the stdlib-only import audit (gate 71). This is the control that would have caught R1/R3/R7 mechanically.
 
 ### 1.23 Trust-recovery build: validation-coverage + deep-assessment coverage of unvalidated operations (maintainer-directed 2026-07-24, H)
 
