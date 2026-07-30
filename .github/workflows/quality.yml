@@ -288,6 +288,14 @@ jobs:
         if: github.event_name == 'pull_request'
         run: python3 tools/check-daily-changelog-rollup.py
 
+      - name: Retired-section-orphan check
+        if: github.event_name == 'pull_request'
+        run: python3 tools/check-retired-section-orphan-on-pr.py
+
+      - name: CLAUDE.md-size ratchet
+        if: github.event_name == 'pull_request'
+        run: python3 tools/check-claude-md-size.py
+
       - name: Detect collection candidates on pack PRs (informational)
         if: github.event_name == 'pull_request'
         env:
