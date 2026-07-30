@@ -16,7 +16,7 @@ Invoke the `pr-retrospective` skill defined in this project's pack at [`dev-secu
 
 **Surface Pattern and Proposed-improvement entries in chat** (per the chat-surfacing discipline shared with `/validate` and `/validate-pr`). The maintainer should see proposed improvements at the moment they're identified, not on next deep-dive into the working-state archive. Clean-PR retrospectives (no friction, no pattern) get a one-sentence chat acknowledgement.
 
-**Batching into the next PR**. The register-row append is a content change; per the batching rule, the register-row commit is **batched into the next PR**, whatever its substantive purpose. The retrospective is conducted immediately after `/validate-pr`; only the register-row commit is deferred. A retrospective that surfaces a candidate improvement deserving its own PR DOES trigger that PR — but the substance of that PR is the improvement itself; the register row bundles in alongside.
+**Same-PR recording (recursion-avoidance retired).** The register-row append is committed into THIS PR, recording this PR's own number: the synchronous model runs the retro before merge and writes its row in-PR rather than deferring it. A retrospective that surfaces a candidate improvement deserving its own PR still triggers that PR; the register row rides in whichever PR carries it.
 
 **No orchestrator-side skip discretion.** Same discipline as `/validate-pr`: every merged PR gets a `/retro` entry, even when the retrospective conclusion is "nothing new to learn." Zero-content entries serve as proof-of-discipline. Skipping is a policy deviation requiring maintainer authorization.
 
