@@ -712,28 +712,7 @@ group A1).
 
 ## Guard inputs: check the input's authority, not just the check
 
-The project instantiation of the [`validate-inference-before-action`](rules/governance/validate-inference-before-action.md)
-rule's `## Guard inputs` section. Three defects on 2026-07-25 shared one shape, and the instrument the
-project already trusted did not see any of them: a guard whose logic was correct and mutation-proved, fed
-an input that could not answer the question asked of it. Mutation testing perturbs BRANCHES, so it bounds
-the check given its input and is silent on the input's fidelity.
-
-- **`tools/manage-workers.py`** decided which worker occupied a tmux session by prefix-matching the
-  session NAME against the worker ID. A worker id is minted per run and encodes nothing about its
-  session, so a destructive verb was PERMITTED against a worker holding live work. Fixed in #1170 by an
-  explicit five-state attribution where ambiguity and non-match both refuse.
-- **Delivery completeness** was inferable from a file existing, so a sweep could move a half-written
-  result. Fixed in #1171 by an atomic rename plus an end-of-delivery sentinel, with the residue stated:
-  the sentinel proves a file went through `deliver`, not that its content is semantically complete.
-- **Worker health** is read from a heartbeat, but the heartbeat and the claim loop are separate code
-  paths, so a worker that stopped claiming still reads as healthy capacity. This is TODO 3.116, and it is
-  the SAME class rather than a separate bug, which is why its fix follows this shape.
-
-**At each consequential guard, ask the authority question:** can this source, even in principle, answer
-what I am asking of it? Then apply the rule's discipline: make ignorance a first-class return value that
-REFUSES rather than permits; keep a reality fixture (the actual state that exposed the defect, verbatim)
-for every observer bug; mutate the observer and not only the decision; state a proxy's residue at the
-point of use; and keep a pure decision function behind a thin observer so both halves stay testable.
+The discipline ships in the pack rule [`validate-inference-before-action`](rules/governance/validate-inference-before-action.md) (`## Guard inputs`): a guard whose logic is correct and mutation-proved can still be fed an INPUT that cannot answer the question asked of it (mutation perturbs branches, so it is silent on input fidelity). At each consequential guard ask the authority question (can this source even in principle answer this?); make ignorance a first-class return value that REFUSES rather than permits; keep a reality fixture per observer bug; mutate the observer, not only the decision; state a proxy's residue at the point of use; keep a pure decision function behind a thin observer so both halves stay testable. **Project instances (2026-07-25, one shape):** `tools/manage-workers.py` prefix-matched a session name against a per-run worker id, PERMITTING a destructive verb against a worker holding live work (fixed #1170, a five-state attribution that refuses on ambiguity or non-match); delivery-completeness was inferred from a file merely existing (fixed #1171, atomic rename + end-of-delivery sentinel, with the residue stated: the sentinel proves the file went through `deliver`, not that its content is semantically complete); worker-health is read from a heartbeat on a code path separate from the claim loop, so a worker that stopped claiming still read as healthy capacity (fixed #1174, the SAME class).
 
 ## Pin an order to a SHA that CONTAINS what the order references
 
@@ -813,29 +792,7 @@ That is the single-plane blindness still live in the scratch `list-workers`. `--
 
 ## Pack-parity coupling (adopt a guard rail, keep the pack in sync)
 
-The published `dev-security/claude-rules/` pack is meant to stay at parity with the disciplines
-the project actually adopts for its own use. It drifted (the 2026-07-23 reconciliation found the
-pack behind practice); this coupling prevents the recurrence. Three layers, the same mechanical
-plus sharpened-rule shape as the other guard rails:
-
-- **Convention (now, at PR close-out).** When a PR adds or changes a PORTABLE guard rail,
-  discipline, rule, or skill (one an adopter would want), add or update the matching pack
-  rule/skill in the SAME PR; if it must be deferred, record a tracked follow-up. When the thing is
-  PROJECT-ONLY operational machinery (the credit-offload / `_scratch`-exchange mechanics, the
-  `_private` operational store, session-specific wiring), it is NOT pack material: annotate it explicitly as project-only in the change record,
-  do not force a pack entry. Portable-vs-project-only is the judgement this convention turns on.
-- **Catch-net (cadence).** A periodic pack-parity review compares the project's adopted
-  disciplines, hooks, and rules against pack coverage and routes any drift, the review that would
-  have caught the 2026-07-23 gap earlier.
-- **Deferred (a hard gate).** A mechanical every-guard-rail-has-a-pack-counterpart gate is
-  false-positive-prone (the portable-vs-project-only call needs an allow-list that itself drifts),
-  so it is deferred behind a time-bounded review of whether the convention plus cadence suffice,
-  not built now.
-
-The PORTABLE form of this coupling ships in the pack's
-[`ai-assistant-workflow-disciplines`](rules/governance/ai-assistant-workflow-disciplines.md) rule
-(so an adopter extending the pack inherits the keep-in-sync discipline); that pack-side clause
-lands with the Task-1 pack reconciliation.
+The full three-layer discipline (convention at PR close-out; a periodic catch-net review; a deferred hard gate that stays deferred because the portable-vs-project-only call is false-positive-prone) ships in the pack rule [`ai-assistant-workflow-disciplines`](rules/governance/ai-assistant-workflow-disciplines.md) (`## Pack-parity coupling`): when a PR adds or changes a PORTABLE guard rail / discipline / rule / skill, add or update the matching pack rule/skill in the SAME PR (or record a tracked follow-up). **Project overlay:** the portable-vs-project-only judgement is the crux; PROJECT-ONLY operational machinery (the credit-offload / `_scratch`-exchange mechanics, the `_private` operational store, session-specific wiring) is NOT pack material and is annotated project-only rather than forced into a pack entry. Origin: the 2026-07-23 reconciliation found the pack behind practice.
 
 ## Wind-down pre-queues worker research for the next resume (maintainer-directed 2026-07-25)
 
@@ -1076,57 +1033,13 @@ never the default that follows from not acting.
 
 ## QA-activity completion standard
 
-A QA activity (a `/validate`, `/validate-pr`, `/matrix-fit`, `/claim-fit`,
-`/reference-audit`, `/screen-publications`, `verify`, `/fitness`, `/full-qa`, or
-`/deep-assessment` pass) is COMPLETE only when all five hold:
+The five completion conditions ship in the pack rule [`ai-assistant-workflow-disciplines`](rules/governance/ai-assistant-workflow-disciplines.md) (`## QA-activity completion standard`): a QA activity is COMPLETE only when it ran in a sanctioned formal shape (no abbreviated/spot/memory-only substitute); every finding reached a terminal disposition (fixed in-window OR routed with a severity tier, none dropped); worker-delivered POSITIVES were re-verified at source (a clean zero-finding result trusted on proof-of-run); the history row is recorded (a zero-finding run too); and any deferred fix is documented, not silently left. The pack also carries the reactive-adds-sign-off / proactive-doesn't rule.
 
-1. It ran in a sanctioned formal shape (never an abbreviated, spot, or memory-only
-   substitute, per `## Throughput pressure does not authorize QA abbreviation`).
-2. Every finding is triaged to a terminal disposition, fixed in-window OR routed to the
-   backlog / `grc_library_private/.working/pending-decisions.md` with a severity
-   tier (and a morning-review flag for a risk item); none is dropped.
-3. Worker-delivered POSITIVES are re-verified at source before routing (a clean
-   zero-finding result is trusted on its proof-of-run).
-4. The history row is recorded (a zero-finding run still gets its row).
-5. Any deferred (risk, authorial, or irreversible) fix is documented for review, not
-   silently left.
-
-The `/trust-recovery` tier adds one condition: it terminates only on explicit maintainer
-sign-off (an empty finding set is presented for sign-off, never self-declared done), because
-its purpose is to rebuild maintainer confidence a discipline lapse put in question.
-`/deep-assessment` NO LONGER carries this condition (maintainer-directed 2026-07-27): it
-composes only already-established QA processes, each terminating by validate-and-fix, so it
-terminates on the five conditions above like any other QA activity, its outcome surfaced to
-the maintainer without a separate sign-off gate.
-
-Standing priority: fixing known QA issues outranks build, tooling, and content work.
-Complete the then-current task, then fix. The project-agnostic form ships in the
-[`ai-assistant-workflow-disciplines`](rules/governance/ai-assistant-workflow-disciplines.md)
-pack rule so an adopter inherits it.
+**Project scope + overlay.** The QA activities here are `/validate`, `/validate-pr`, `/matrix-fit`, `/claim-fit`, `/reference-audit`, `/screen-publications`, `verify`, `/fitness`, `/full-qa`, `/deep-assessment`; routing goes to `grc_library_private/.working/pending-decisions.md` with a morning-review flag for a risk item. `/trust-recovery` adds the maintainer-sign-off terminal condition (its purpose is to rebuild the confidence a discipline lapse put in question). `/deep-assessment` does NOT (maintainer-directed 2026-07-27): it composes only already-established QA processes, so it terminates on the five conditions like any other QA activity, its outcome surfaced without a separate sign-off gate. Standing priority: fixing known QA issues outranks build, tooling, and content work; complete the then-current task, then fix.
 
 ## Throughput pressure does not authorize QA abbreviation
 
-When a long batch of PRs is in flight, when the session window feels tight, or when the
-queue of next-PRs is calling for progress, the assistant does NOT have discretion to
-substitute an abbreviated check, a spot-check, a memory-only review, an
-orchestrator-self-check, a "quick scan", or any other informal shape for the formal
-`/validate-pr` invocation that step 5a mandates, for the formal `/retro` that step 5b
-mandates, or for a corpus-wide `/validate` when the sweep cadence calls for one.
-
-"Abbreviated /validate-pr, 0 findings" is NOT a sanctioned shape. The two sanctioned
-shapes are (a) the full formal `/validate-pr` dispatch with Subagent A on the diff and a
-cross-reference check on touched files, recorded in
-`grc_library_private/.working/validate-pr/` and the history row, OR (b) an explicit
-maintainer-authorized exception recorded inline in the history row's Summary cell with the
-rationale. Anything else is a discipline failure.
-
-The per-PR QA cadence IS the pace of the PR workflow. "I'll catch it on the next one" or
-"the validate at the end of the batch will cover this" is the failure mode this rule
-prevents. If the assistant feels pressure to
-abbreviate, the right move is to surface the pressure to the maintainer in one sentence
-rather than act on it unilaterally. This is the
-[`clarify-before-acting`](rules/governance/clarify-before-acting.md) rule's application to
-QA-cadence pressure.
+Throughput pressure (a long PR batch, a tight session window, a next-PR queue calling for progress) is NEVER discretion to substitute an abbreviated / spot / memory-only / orchestrator-self-check / "quick scan" shape for the formal `/validate-pr` (step 5a), the formal `/retro` (step 5b), or a corpus-wide `/validate` when the cadence calls for one. The discipline ships in the pack rules [`ai-assistant-workflow-disciplines`](rules/governance/ai-assistant-workflow-disciplines.md) (the QA-abbreviation anti-pattern) and [`clarify-before-acting`](rules/governance/clarify-before-acting.md) (surface the pressure to the maintainer in one sentence rather than act on it unilaterally). **The two sanctioned shapes here:** (a) the full formal `/validate-pr` dispatch (Subagent A on the diff + a cross-reference check on touched files), recorded in `grc_library_private/.working/validate-pr/` and its history row; OR (b) an explicit maintainer-authorized exception recorded inline in the history row's Summary cell with the rationale. "Abbreviated /validate-pr, 0 findings" is a discipline failure, not a substitute for "formal run, 0 findings"; the per-PR QA cadence IS the pace.
 
 ## PR activity subscription discipline
 
@@ -1352,26 +1265,7 @@ is the mechanical backstop; the portable form is the `change-tracking` pack rule
 
 ## Defence in depth is the default (maintainer-directed 2026-07-25)
 
-**When the cost is not significant, choose the layered control, and present it as the recommended
-option.** The maintainer's standing directive, in their words: the defence-in-depth choice is usually
-the right one, so it is the default preference; only when there is a considerable additional cost
-should other options be considered. The reasoning that prompted it, worth keeping because it
-generalizes: on widening gate 69 to `docs/` despite the generator `--check` gates already covering
-those files, "if the generator should catch issues then this won't find any, defence in depth
-control." An overlapping control that finds nothing is not redundant, it is the evidence the first
-control worked.
-
-Consequences for the assistant. When surfacing an `AskUserQuestion` with a layered option and a
-leaner one, the LAYERED option is listed first and marked recommended, and its marginal cost is
-stated so the maintainer can see it is small. Do NOT present the leaner option as the default on the
-reasoning that some sibling control probably covers the case; that substitutes an expectation for
-evidence. The one genuine counterweight is a control whose noise would get it bypassed: a gate that
-cries wolf protects nothing, so its cost is NOT small and the tradeoff is real. Judge marginal cost
-in both directions, and say which way you judged it.
-
-The project-agnostic form ships as a section in the pack governance rule
-[`governance/project-integrity.md`](../dev-security/claude-rules/governance/project-integrity.md),
-where it belongs because it is the tier ordering (Cost is lowest) applied to option selection.
+The full discipline ships in the pack rule [`governance/project-integrity.md`](../dev-security/claude-rules/governance/project-integrity.md) (`## Defence in depth is the default choice when its marginal cost is low`): prefer the layered control unless the additional cost is considerable; present the layered option FIRST with its marginal cost stated; and treat "another control probably covers it" as an expectation substituted for evidence. **Project origin (the maintainer's words, kept because it generalizes):** on widening gate 69 to `docs/` despite the generator `--check` gates already covering those files, "if the generator should catch issues then this won't find any, defence in depth control." An overlapping control that finds nothing is the evidence the first control worked. The one counterweight: a gate that cries wolf gets bypassed, so its cost is NOT small, and the tradeoff is real.
 
 ## Communication conventions
 
