@@ -2,7 +2,7 @@
 
 **Read this at the PR-close-out boundary, like a skill.** `.claude/CLAUDE.md` carries the
 lean checklist (each item names its enforcing gate/hook); this file carries the full detail
-and rationale. Relocated from CLAUDE.md by TODO 3.139.1 (roadmap C phase 1) to right-size the
+and rationale. Relocated from CLAUDE.md by TODO 3.139.1 / PR #1249 (roadmap C phase 1) to right-size the
 every-turn load; the disciplines are unchanged. Project-only operational machinery (not pack
 material). The un-gated grep-disciplines keep a terse reminder in CLAUDE.md as their live
 control until TODO 3.139.2's delta gate lands.
@@ -40,7 +40,7 @@ drive end-to-end on the maintainer's behalf:
    PASS/FAIL line before relying on any chain. On a green guard, open the PR via
    `mcp__github__create_pull_request`.
 3. Wait for the `Lint markdown corpus` CI check using the subscription discipline in
-   `## PR activity subscription discipline` below; on failure, fix and re-push.
+   `## PR activity subscription discipline` in `.claude/CLAUDE.md`; on failure, fix and re-push.
 4. On green CI, merge via `mcp__github__merge_pull_request` (or `gh pr merge --squash`
    in a no-MCP session). The maintainer does not gate-keep merges of PRs they have
    personally authored.
@@ -310,10 +310,10 @@ is external. Two mechanisms:
      built to close; Sweep 38 found gate 48's §6 narrative stale after its logic changed in
      #308 and #309). A PR-only delta check Dn also needs its step name added to
      `WORKFLOW_DELTA_GATE_STEPS`. This bullet is the type-A row of the `## Change-impact
-     surface map` above; see it for the B/C/D change types and the website surface.
+     surface map` in `.claude/CLAUDE.md`; see it for the B/C/D change types and the website surface.
    - **Change-impact completeness across all surfaces** (originated in §1.18; the generalization of
      the audit-gate bullet above to every change type): for EVERY gate, pack-rule, skill, or
-     count change in the PR, run the `## Change-impact surface map` above for that change type
+     count change in the PR, run the `## Change-impact surface map` in `.claude/CLAUDE.md` for that change type
      and confirm each surface, gated AND free-prose AND website, is in the diff. The WEBSITE
      is a first-class paired surface: identify the `grclibrary.ai` (`.web/templates/`) prose
      to update EARLY and apply it in the SAME PR. A rule or skill is linked TWICE in
@@ -551,4 +551,3 @@ is external. Two mechanisms:
    of the two exemptions Check 1 already detects mechanically, one by exactly this kind of
    Findings-cell marker.) This convention is now the defence-in-depth PARTNER of a live gate,
    not the sole control, which is the stronger half of the pair.
-

@@ -74,6 +74,13 @@ DEFAULT_EXEMPT_DIRS: frozenset[str] = frozenset(
         # per-turn-loaded governance detail read at the PR-close-out boundary.
         # It is operational machinery, not corpus content, so it is exempt like
         # .claude/ (the prose was exempt in its prior home; this preserves that).
+        # NOTE (dual-family verify, PR #1249): "references" is a GENERIC dir name
+        # matched by bare component (is_target checks `part in exempt_dirs`), so a
+        # future nested `references/` under a SCANNED tree would be silently exempt.
+        # No such collision today (only top-level ./references; skill references/
+        # subdirs live under already-exempt .claude/). Top-level-anchoring is a
+        # queued morning-review item; a reviewer adding a nested references/ must
+        # weigh this.
         "references",
         # In-repo sibling-repo placeholder slots (TODO section 1.22.2): OPTIONAL
         # stand-ins for the grc_library_ref / grc_library_scratch / grc_library_private

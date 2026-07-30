@@ -229,13 +229,13 @@ enforcing gate/hook.
 1. **Feature branch only, never `main`** (hook [`block-branch-to-main-edit.py`](hooks/block-branch-to-main-edit.py)); confirm `tools/run_all_audits.sh` after each commit, not only before push.
 2. **Push behind the pre-push guard, UNPIPED**: `tools/pre-push-guard.sh && git push -u origin <branch>` (chains `run_all_audits.sh` + `run-pr-time-checks.sh`). Never pipe a verification to a truncating sink (hook [`block-verification-pipes.py`](hooks/block-verification-pipes.py); use [`tools/tail-safe.sh`](../tools/tail-safe.sh) when output must be tamed).
 3. **Wait for `Lint markdown corpus` CI** per `## PR activity subscription discipline` below (behavioural; no gate).
-4. **On green CI, merge** (`gh pr merge --squash`; a plain merge fails `REVIEW_REQUIRED`, so the maintainer's `--admin` bypass is the working path). **Every `--admin` merge is LOGGED** to `grc_library_private/.working/merge-bypass-log.md` from the OBSERVED CI state (gate 50 Check 6).
+4. **On green CI, merge** (`gh pr merge --squash`; a plain merge fails `REVIEW_REQUIRED`, so the maintainer's `--admin` bypass is the working path). **Every `--admin` merge is LOGGED** to `grc_library_private/.working/merge-bypass-log.md` from the OBSERVED CI state (gate 50 Check 6 gates the row's PRESENCE, not its content).
 5. **After merge**: sync `main`, delete the feature branch, confirm the remote branch is gone (behavioural).
 5a. **`/validate-pr` as the finalizing QA step, BEFORE merge**, recording THIS PR's own rows in THIS PR (gate 50 Check 1, window inclusive of `max_pr`; a `DISPATCHED`/`PENDING`-and-never-`RETURNED` row fails). Any dispatched subagent inspects git READ-ONLY (no checkout/reset on the shared tree). Findings fixed in-PR or surfaced. Handoff-PR fallback: the `SKIPPED`+`handoff` / `handoff-PR exception` marker goes in the **Findings cell** (gate 50 reads it there).
 5b. **`/retro` immediately after, BEFORE merge**, its row in THIS PR (gate 50 Check 1, retro half).
-5c. **Refresh `session-handoff.md`** (paste `python3 tools/handoff-snapshot.py`'s verified block; gate 63 guards the lease shape). At a session-closing PR also refresh `## Asserted expectations`, the green-at-`<sha>` line, and `session-metrics`.
+5c. **Refresh `session-handoff.md`** (paste `python3 tools/handoff-snapshot.py`'s verified block; the handoff refresh is behavioural/un-gated, gate 63 guards the SEPARATE `session-state.md` lease shape). At a session-closing PR also refresh `## Asserted expectations`, the green-at-`<sha>` line, and `session-metrics`.
 6. **After merge, list the next five planned PRs** from [`TODO.md`](../TODO.md) in chat, and write them to `grc_library_private/.working/next-prs.txt` in THIS PR (first line `1) ...; 2) ...; 3) ...`, roughly 120 chars; further queue on a `# then:` line). Behavioural.
-7. **TODO/DONE rotation** (D5 + gate 78 number-permanence): a closed TODO item is deleted from TODO and added to `grc_library_private/.working/DONE.md` in the same PR, keyed by PR number; the completion summary is surfaced in chat. Backlog-item-keyed, not FR/§-keyed.
+7. **TODO/DONE rotation** (convention-guarded: D5 requires `TODO.md` touched on a CHANGELOG closure claim and gate 78 checks number permanence, but NEITHER verifies the specific item's deletion or the DONE entry): a closed TODO item is deleted from TODO and added to `grc_library_private/.working/DONE.md` in the same PR, keyed by PR number; the completion summary is surfaced in chat. Backlog-item-keyed, not FR/§-keyed.
 
 Actions outside this routine (merging a PR the maintainer did not author, force-pushing a
 protected branch, deleting a branch the assistant did not create) require explicit
@@ -289,15 +289,15 @@ detail and rationale for everything below live in
    the live control, do not drop it.
 
    **Backstopped (gate/hook named; detail in `references/pr-lifecycle.md`):**
-   - THIS PR's own `/validate-pr` + `/retro` rows present, and every closed TODO item deleted from TODO + added to DONE, same PR: gate 50 Check 1 + D5 + gate 78.
-   - New pack prose (SKILL/rule/command/pack-README/CLAUDE.md prose) run through `lint-language.py` AND `lint-unbalanced-fences.py` on explicit paths before the first commit: both gates run in CI.
-   - `preflight-changelog.py` before the first commit (`&& git commit`): D1/D3.
+   - THIS PR's own `/validate-pr` + `/retro` rows present (gate 50 Check 1); every closed TODO item deleted from TODO + added to DONE, same PR (convention; D5 + gate 78 cover only parts, see step 7 of `## PR workflow`).
+   - New pack prose (SKILL/rule/command/pack-README/CLAUDE.md prose) run through `lint-language.py` AND `lint-unbalanced-fences.py` on EXPLICIT paths before the first commit (both default to corpus paths, so `.claude/`/pack prose needs explicit paths; both also run in CI).
+   - `preflight-changelog.py` before the first commit (`&& git commit`): an AID mirroring the D3 dash check + link-coverage; the D1 changelog-presence check is the separate `check-changelog-on-pr.py`.
    - Pack-README `Version` bumped with its `## Version history` row: D6.
-   - Gate-cited prose phrased `gates N and M` (P7 trap): gate 39.
+   - In a gate-39-SCANNED surface (`.md`/`.py`/`.sh`, NOT `.claude/` or `references/`), gate-cited prose phrased `gates N and M` (P7 trap): gate 39.
    - Audit-gate add/renumber/logic-change updates all parallel surfaces: gates 35/64/39 (gated half; the §5 grouped-list and per-gate narrative are free-prose, see the grep reminders).
    - `Version` and `Date` co-bumped in the SAME edit (watch UTC rollover): D2/D4 + hook [`block-unbumped-version-commit.py`](hooks/block-unbumped-version-commit.py) + gate 40. Run `python3 tools/lint-version-bump-recency.py` before each commit.
    - After any per-document `Version` bump, regenerate `taxonomy.yml` FIRST then the portal/scorecard: gates 33/34.
-   - Detailed-mirror current-week sweep: gate 59. Daily roll-up when D8 prints `DAILY SUMMARY DUE`: D8 (advisory). The ROOT `CHANGELOG.md` is summarized-in-place, NEVER removed.
+   - Detailed-mirror current-week sweep (advisory, cross-repo, NOT gated); gate 59 checks mirror-header parity. Daily roll-up when D8 prints `DAILY SUMMARY DUE`: D8 (advisory). The ROOT `CHANGELOG.md` is summarized-in-place, NEVER removed.
    - CHANGELOG (root + detailed) and version bumps present; pre-push guard green.
 
    **Grep-discipline reminders (UN-gated, the live control, keep terse-in-place until 3.139.2):**
