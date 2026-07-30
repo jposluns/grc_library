@@ -115,7 +115,6 @@ Before any AI feature reaches production, adversarial testing must include:
 **Recommended testing resources:**
 - OWASP LLM Top 10 test cases
 - MITRE ATLAS adversarial technique catalogue
-- **TikiTribe**: open-source adversarial prompt library and agentic workflow attack surface enumeration; provides structured test suites for tool-call injection, MCP server exploitation, and multi-agent trust boundary attacks
 
 ---
 

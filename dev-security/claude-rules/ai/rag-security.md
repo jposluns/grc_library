@@ -55,7 +55,7 @@ Adversarial documents in the corpus can instruct the model to take unintended ac
 - **Monitor for anomalous outputs** that suggest the model is acting on retrieved instructions rather than user instructions
 - **Test with adversarial documents**: insert documents containing injection payloads into the test corpus and verify the model ignores them
 
-**Recommended**: Use TikiTribe's RAG-specific injection test suite to generate realistic adversarial document payloads and validate retrieval pipeline resilience.
+**Recommended**: validate retrieval-pipeline resilience with a RAG-specific injection test suite that generates realistic adversarial document payloads.
 
 ---
 

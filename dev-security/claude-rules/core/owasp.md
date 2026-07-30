@@ -88,7 +88,7 @@ See [`core/cryptography.md`](cryptography.md) for full requirements. Key rules:
 - No deprecated algorithms (MD5, SHA-1, DES, RC4)
 - No hardcoded keys or IVs
 - TLS 1.2 minimum on all connections transmitting sensitive data (the ASVS baseline; this pack's canonical mandate in [`core/cryptography.md`](cryptography.md) is TLS 1.3, with TLS 1.2 and earlier prohibited)
-- Password hashing: Argon2id or bcrypt only
+- Password hashing: Argon2id (preferred), scrypt, or bcrypt; PBKDF2 (high iteration count) where FIPS-140 compliance is required
 
 ---
 

@@ -44,7 +44,7 @@ Tool-call injection occurs when adversarial content in the environment causes th
 - **Do not allow tool results to modify tool definitions or available tool sets** at runtime
 - Log and alert on unusual tool-call patterns: rapid-fire calls, calls with boundary-case arguments, calls to sensitive tools from unexpected sessions
 
-**Recommended testing**: TikiTribe provides MCP-specific exploit payloads and fuzzing utilities for tool-call injection, privilege escalation through tool composition, and resource handler injection.
+**Recommended testing**: exercise tool-call injection, privilege escalation through tool composition, and resource-handler injection with MCP-specific fuzzing and red-team tests.
 
 ---
 
@@ -114,8 +114,6 @@ Before deploying any MCP server to production, conduct:
 | Authorization bypass | Test whether a caller with tool access can access resources beyond their authorization |
 | Tool composition attacks | Test whether combining multiple tools allows unintended privileged operations |
 | Resource injection | Inject prompt injection payloads into resource content and verify they are not acted on |
-
-**TikiTribe** provides MCP-specific attack payloads and test harnesses. Run TikiTribe's MCP exploit suite as part of pre-production security testing.
 
 ---
 
