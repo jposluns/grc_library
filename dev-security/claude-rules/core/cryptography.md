@@ -9,7 +9,7 @@
 | Symmetric encryption | AES-256-GCM (authenticated) | DES, 3DES, RC4, Blowfish, AES-ECB |
 | Asymmetric encryption | RSA-4096, EC P-384 | RSA < 4096, EC P-256, EC P-192 |
 | Key exchange | ECDHE, DHE (DH group ≥ 2048 bits) | Static RSA, DH < 2048 |
-| Password hashing | Argon2id (preferred), bcrypt (cost ≥ 12) | MD5, SHA-1, SHA-256 (unsalted), SHA-512 (unsalted) |
+| Password hashing | Argon2id (preferred), scrypt, bcrypt (cost ≥ 12); PBKDF2 (HMAC-SHA-256/512, high iteration count) for FIPS-140 contexts | MD5, SHA-1, SHA-256 (unsalted), SHA-512 (unsalted) |
 | Integrity hashing | SHA-256, SHA-384, SHA-512 | MD5, SHA-1 |
 | Digital signatures | ECDSA P-256/P-384, RSA-PSS-4096 | RSA-PKCS1v1.5 < 2048, SHA-1 signatures |
 | TLS version | TLS 1.3 (or stronger) | SSL 2.0, SSL 3.0, TLS 1.0, TLS 1.1, TLS 1.2 |

@@ -101,7 +101,7 @@ hashlib.sha256(password.encode()).hexdigest() # Not suitable for passwords (fast
 
 # PROHIBITED: use secrets module, not random, for security tokens
 import random
-token = random.token_hex(32)  # NOT cryptographically secure
+token = random.randbytes(32).hex()  # NOT cryptographically secure
 
 # CORRECT
 import secrets

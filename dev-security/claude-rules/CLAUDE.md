@@ -54,7 +54,7 @@ If you see a hardcoded secret in existing code, treat it as compromised and flag
 | Asymmetric | RSA-4096, EC P-384 | RSA < 4096 |
 | Key exchange | ECDHE, DHE | Static RSA |
 | Integrity hashing | SHA-256, SHA-384, SHA-512 | MD5, SHA-1 |
-| Password hashing | Argon2id (preferred), bcrypt (cost ≥12) | MD5, SHA-anything (for passwords), plain storage |
+| Password hashing | Argon2id (preferred), scrypt, bcrypt (cost ≥12); PBKDF2 (HMAC-SHA-256/512, high iterations) for FIPS-140 contexts | MD5, SHA-anything unsalted (for passwords), plain storage |
 | TLS | TLS 1.3 (or stronger), aligned to `security/policy-encryption-and-key-management.md` §4 (Encryption standards) canonical mandate | SSL, TLS 1.0, TLS 1.1, TLS 1.2 |
 | Certificates | SHA-256 RSA or ECDSA | SHA-1 |
 

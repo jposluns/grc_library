@@ -92,7 +92,7 @@ var compilation = CSharpCompilation.Create(...)...;  // Never with user-supplied
 
 ```csharp
 // CORRECT: AES-256-GCM
-using var aesGcm = new AesGcm(key);
+using var aesGcm = new AesGcm(key, AesGcm.TagByteSizes.MaxSize);
 byte[] nonce = new byte[AesGcm.NonceByteSizes.MaxSize];
 RandomNumberGenerator.Fill(nonce);
 aesGcm.Encrypt(nonce, plaintext, ciphertext, tag);
