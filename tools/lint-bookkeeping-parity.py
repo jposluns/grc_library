@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Post-merge bookkeeping-parity audit (gate 50).
+"""Bookkeeping-parity audit (gate 50).
 
 The honest backstop for the per-PR QA cadence and the TODO/DONE rotation
 discipline. It enforces the PRESENCE of the bookkeeping records the
@@ -118,7 +118,7 @@ its sibling structured-bookkeeping files ARE gated (the detailed mirror by
 gate 59, the concurrency lease by gate 63). This closes that one-of-a-pair
 gap: flag ONLY a run row whose number is not greater than the previous run
 row's (precision-first / FP-free; #888 mis-ordered a row and it reached main,
-caught post-merge by /validate-pr). A register-less fork yields no findings.
+caught by /validate-pr). A register-less fork yields no findings.
 Added as a fifth internal check of gate 50 (not a new numbered gate), the same
 no-count-ripple precedent as Check 4.
 
@@ -368,8 +368,10 @@ def bypass_log_findings(
     was read for an unrelated reason. Five recurrences in one day is past the point where a
     convention is the right control.
 
-    The window matches Check 1's: the highest-numbered PR is EXCLUDED as in-flight (its row is
-    written after its own merge, so demanding it here would make every PR fail its own gate), and the
+    Check 6 EXCLUDES the highest-numbered PR as in-flight: its bypass-log row records a POST-merge
+    fact (whether the merge used `--admin`), unknowable before merge, so demanding it here would make
+    every PR fail its own gate. This differs from Check 1, which after the 3.137b synchronous cutover
+    INCLUDES the highest PR (its QA rows are written pre-merge in its own PR). And the
     floor is the register's own oldest row, so a log that starts partway through history is not
     retroactively in breach.
 
@@ -481,8 +483,8 @@ def qa_cadence_findings(
         if pr not in retro_prs and pr >= retro_floor:
             findings.append(
                 f"  [qa-cadence] PR #{pr}: has a /validate-pr row but no "
-                f"/retro row in {IMPROVEMENT_LOG}. A substantive PR's "
-                f"post-merge retrospective row batches into the next PR; it "
+                f"/retro row in {IMPROVEMENT_LOG}. A substantive PR records "
+                f"its /retro row in the same PR; it "
                 f"is missing here."
             )
     return findings
@@ -584,7 +586,7 @@ def register_row_order_findings(register_text: str) -> list[str]:
     sibling structured-bookkeeping files ARE gated (the detailed mirror by gate
     59, the lease by gate 63) while it was not; this closes that one-of-a-pair
     gap (the r3 guardrail-review G3 finding; #888 mis-ordered a row and it
-    reached main, caught post-merge by /validate-pr). An empty or register-less
+    reached main, caught by /validate-pr). An empty or register-less
     input yields no findings (a fork without the register is not a defect).
     """
     findings: list[str] = []

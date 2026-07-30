@@ -612,7 +612,7 @@ is external. Two mechanisms:
      resolution; #663 a gap bullet asserted "left bare" without measuring the mixed
      bare-and-joint corpus distribution; #664 a CHANGELOG bullet asserted "bare-form fixtures"
      when the fixtures are joint-form): all three were caught in-window by the pre-push
-     skeptical verifier or the post-merge `/validate-pr`, so the recurrence is in the
+     skeptical verifier or the `/validate-pr`, so the recurrence is in the
      authoring, not the catching. A recurring sub-shape of this guard (the #630/#631/#633
      count-and-label granularity pattern) is a COUNT stated next to an ENUMERATION at a
      different granularity, or a figure TRANSCRIBED from a subagent's output: recount the
@@ -687,7 +687,7 @@ is external. Two mechanisms:
      `grc_library_private/.working/`, its completed weeks are archived within the private repository,
      and git history retains every entry regardless). Any such archiving is an advisory close-out follow-up,
      NOT a gate: it is cross-repo (neither repo's CI can see the other), the same cross-repo
-     shape as the `/validate-pr` post-merge sweep and the `audit-brief-freshness.py` advisory
+     shape as the `/validate-pr` sweep and the `audit-brief-freshness.py` advisory
      tool, and the sweep removes tree content only (this
      repo's git history and the grc_library_private archive both retain the full trail, and the `.working/
      export-ignore` in [`.gitattributes`](../.gitattributes) keeps release tarballs fork-clean

@@ -94,8 +94,8 @@ If no pattern surfaced, leave the proposed-improvement cell empty.
 
 Proposed improvements accumulate un-codified and their classes recur unless each candidate is eventually closed. After appending the row, run the closure scan:
 
-- **Disposition what this PR landed.** If the just-merged PR codified or routed any earlier row's candidate, append the disposition token to that row's Proposed-improvement cell per the register's disposition convention: `CODIFIED in <carrier>` (the durable home shipped), `ROUTED to <destination>` (a backlog bullet or bundle now carries it), `REJECTED (<reason>)`, `EXPIRED (<date>)`, or `WATCH (fires on <n>th occurrence)` (the sanctioned holding state for conditional candidates). A non-empty cell with no token is pending by definition.
-- **Carried-candidates check.** When the just-merged PR performed an authorized protected-file touch, grep the register's pending cells for carrier phrases ("next authorized touch", "row is the carrier", "next CLAUDE.md-touching") and confirm the touch carried them, or record why it did not (the dropped-candidate shape: a carried clause silently missing from the touch it waited for).
+- **Disposition what this PR landed.** If this PR codified or routed any earlier row's candidate, append the disposition token to that row's Proposed-improvement cell per the register's disposition convention: `CODIFIED in <carrier>` (the durable home shipped), `ROUTED to <destination>` (a backlog bullet or bundle now carries it), `REJECTED (<reason>)`, `EXPIRED (<date>)`, or `WATCH (fires on <n>th occurrence)` (the sanctioned holding state for conditional candidates). A non-empty cell with no token is pending by definition.
+- **Carried-candidates check.** When this PR performed an authorized protected-file touch, grep the register's pending cells for carrier phrases ("next authorized touch", "row is the carrier", "next CLAUDE.md-touching") and confirm the touch carried them, or record why it did not (the dropped-candidate shape: a carried clause silently missing from the touch it waited for).
 - **Rejection and expiry are maintainer calls.** The scan proposes a `REJECTED` or `EXPIRED` disposition for an aged candidate; the maintainer dispositions it. The assistant never silently drops a pending candidate (the same no-drop discipline the sweep skills carry).
 
 ## Output format
@@ -142,7 +142,7 @@ A retrospective that surfaces a candidate improvement deserving its own PR (e.g.
 
 The retrospective is complete when:
 
-- One entry appended to the improvement-log register for the just-merged PR.
+- One entry appended to the improvement-log register for the PR being finalized.
 - Pattern and Proposed-improvement entries (if any) surfaced in chat.
 - Register entry includes the date, PR number, backlog item closed (if any), and the short observation cells; any disposition tokens from the step-6 scan are appended to the originating rows.
 

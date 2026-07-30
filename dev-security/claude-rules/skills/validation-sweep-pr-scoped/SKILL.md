@@ -1,6 +1,6 @@
 ---
 name: validation-sweep-pr-scoped
-description: PR-scoped validation sweep. Runs after every successful PR merge to catch issues the merge introduced before they compound across subsequent PRs. Dispatches Subagent A (recent-PR deep review) scoped to the just-merged PR's diff plus a lightweight cross-reference check for files cited by other documents. Complements the corpus-wide `validation-sweep` skill (`/validate`): `/validate-pr` is fast and runs after every merge; `/validate` is comprehensive and runs every 10 merges or maintainer-triggered. The two skills together cover both per-PR drift (caught fast) and corpus-wide drift (caught broadly).
+description: PR-scoped validation sweep. Runs as a PR's finalizing step, before merge, to catch issues the PR introduced before it lands. Dispatches Subagent A (recent-PR deep review) scoped to the PR's diff plus a lightweight cross-reference check for files cited by other documents. Complements the corpus-wide `validation-sweep` skill (`/validate`): `/validate-pr` is fast and runs on every PR; `/validate` is comprehensive and runs every 10 merges or maintainer-triggered. The two skills together cover both per-PR drift (caught fast) and corpus-wide drift (caught broadly).
 derives_from: ../../governance/evidence-grounded-completion.md
 ---
 
@@ -20,10 +20,10 @@ An adopting project maps each bullet to its own record paths, registers, gate, r
 
 ## Overview
 
-PR-scoped validation runs after every merged PR to catch issues the merge introduced before they compound across subsequent PRs. Two sibling skills together cover the validation surface:
+PR-scoped validation runs as each PR's finalizing step, before merge, to catch issues the PR introduced before they compound across subsequent PRs. Two sibling skills together cover the validation surface:
 
 - **`validation-sweep`** (slash command `/validate`, corpus-wide, every 10 merges or maintainer-triggered): full Subagent A + B + C sweep across the whole corpus. Catches corpus-wide drift (Subagent B's domain), audit-programme integrity issues (Subagent C's domain), and recent-PR issues (Subagent A's domain). Expensive (~150-200k tokens); runs periodically.
-- **`validation-sweep-pr-scoped`** (slash command `/validate-pr`, PR-scoped, every merge): single Subagent A dispatch on the just-merged PR's diff plus a targeted cross-reference check. Cheap (~30-60k tokens); runs immediately after merge so issues are caught within one PR cycle, not nine.
+- **`validation-sweep-pr-scoped`** (slash command `/validate-pr`, PR-scoped, every PR): single Subagent A dispatch on the PR's diff plus a targeted cross-reference check. Cheap (~30-60k tokens); runs before merge so issues are caught within the same PR, not nine PRs later.
 
 The two are complementary, not redundant. The corpus-wide form catches drift the per-PR scope misses (a citation in file Y becomes stale because PR X touched file Z); the per-PR form catches issues the corpus-wide form would miss in its 10-PR interval (per-PR issues that compound between sweeps).
 
@@ -42,14 +42,14 @@ The two are complementary, not redundant. The corpus-wide form catches drift the
 
 The PR-scoped sweep runs in five steps. Steps 1-2 establish scope; step 3 is the focused subagent dispatch; step 4 is the lightweight cross-reference check; step 5 records.
 
-### 1. Identify the just-merged PR
+### 1. Identify the PR being finalized
 
-Capture the merge state:
+Capture the PR state:
 
-- PR number (from the merge commit message or via `mcp__github__pull_request_read`).
-- Merge commit SHA (`git log --merges -n 1 --pretty=format:"%H %s"`).
-- The PR's diff (`git diff <merge-commit>^..<merge-commit>`).
-- The list of touched files in the diff (`git diff --name-only <merge-commit>^..<merge-commit>`).
+- PR number (from the open PR via `gh pr view` or `mcp__github__pull_request_read`).
+- The base SHA the PR branches from (`git merge-base main HEAD`).
+- The PR's diff against its base (`git diff <base>...HEAD`, branch synced to `main`).
+- The list of touched files in the diff (`git diff --name-only <base>...HEAD`).
 
 ### 2. Establish mechanical baseline (pre-merge, branch synced to `main`)
 
@@ -104,7 +104,7 @@ This is a subset of `validation-sweep` Subagent B's scope, restricted to citers 
 
 Triage findings:
 
-- **In-window** (the PR introduced the issue): the fix is the PR's responsibility. If small, queue as a hot-fix PR (or include in the next PR if the next PR naturally touches the same files); if substantive, open a dedicated follow-up PR.
+- **In-window** (the PR introduced the issue): fix it in THIS PR before finalizing. A dedicated hot-fix PR only if the fix genuinely cannot land in-PR (it runs its own sync + `/validate-pr` when merged).
 - **Out-of-window** (the PR exposed a pre-existing issue not introduced by the merge): surface to the operator with named options.
 
 Record:

@@ -1,6 +1,15 @@
 #!/usr/bin/env python3
 """PR close-out scaffolding (TODO 3.133).
 
+!!! RETIRED MODEL, DO NOT USE UNTIL REWORKED (TODO 3.192) !!!
+This tool's two-PR-identity design (backward rows written in the FOLLOWING PR;
+a --this-pr batch PR carrying the previous PR's /validate-pr + /retro rows) is
+the recursion-avoidance forward-batching model that 3.137b (#1248) RETIRED. Under
+the synchronous same-PR model every PR records its OWN QA rows before merge, so
+this tool would emit rows keyed to the wrong PR and forward-batch them. Running it
+now produces WRONG close-out scaffolding. Rework-or-retire is TODO 3.192; until
+then do the close-out by hand.
+
 Mechanizes the per-PR bookkeeping half of a close-out so the orchestrator stops
 hand-editing the same set of surfaces after every merge. It computes the merge
 SHA / base SHA / CI state for the just-merged PR, EMITS the newest-first
