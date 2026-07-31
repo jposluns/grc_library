@@ -24,7 +24,7 @@
 #
 # SEED: the roadmap C phase-1 pr-lifecycle move (Stage 0, already landed). Its lean
 # inline core keeps the always-on safety clauses below; the full detail lives in the
-# playbook. This is the only entry until Stage 2+ relocations begin.
+# playbook. Stage 2+ appends one entry per relocated section below.
 
 - playbook: "references/pr-lifecycle.md"
   activity: "PR close-out and session-migration boundary"
@@ -35,3 +35,16 @@
   relocated_anchors:
     - "A DISPATCHED ORDER IS WORK ORDERED, NEVER WORK DONE"
     - "CORRECTED 2026-07-25"
+
+- playbook: "references/reference-currency.md"
+  activity: "An externally-versioned reference (standard, framework, dataset) becomes load-bearing for a task"
+  index_label: "Reference-version currency and missing references"
+  retained_anchors:
+    - "REQUIRED maintainer-orchestrator dependency; its absence fails LOUD"
+    - "believed-current STORAGE, not a version authority"
+    - "Never write or rely on a superseded version unless the maintainer explicitly"
+    - "or the work PAUSES, never silently worked around"
+  relocated_anchors:
+    - "superseded-archival workflow"
+    - "lives under `grc_library_ref/frameworks/`"
+    - "Routing a `source-not-held` finding without first attempting the download"
