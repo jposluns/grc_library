@@ -9227,6 +9227,17 @@ class BacklogActionabilityTests(unittest.TestCase):
             "### 4.5 Reference-base spec\nThe tedious part of standing up a base.\n")
         self.assertEqual(rows[0][4], [])
 
+    def test_blocked_tag_in_body_prose_is_not_authoritative(self):
+        # A [BLOCKED:...] in an item's BODY prose (e.g. an item describing the
+        # blocked-tag feature) must NOT false-match; the tag is authoritative only
+        # on the HEADING line.
+        mod = self._load()
+        rows, blocked, actionable = mod.build_report(
+            "### 1.1 An item describing the tag feature\n"
+            "Items get a `[BLOCKED:reason]` tag on the heading when approved.\n")
+        self.assertIs(rows[0][3], False)  # body mention -> actionable, not blocked
+        self.assertEqual((blocked, actionable), (0, 1))
+
 
 class HookToolItemCountParityTests(unittest.TestCase):
     """The decision-log hook's TODO item-count regex (block-unjustified-decision.py)

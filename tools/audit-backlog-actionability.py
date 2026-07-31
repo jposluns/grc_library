@@ -123,20 +123,19 @@ def parse_items(text: str, source: str) -> list[tuple[str, str, str, str]]:
 
 
 def is_blocked(block_text: str) -> bool:
-    """True iff the item carries an (approved) ``[BLOCKED:...]`` tag."""
-    return bool(BLOCKED_TAG_RE.search(block_text))
+    """True iff the item's HEADING carries an (approved) ``[BLOCKED:...]`` tag.
+
+    Scans ONLY the heading (first line of the block): per the design the tag lives
+    on the item heading, so a ``[BLOCKED:...]`` appearing in an item's BODY prose
+    (e.g. an item describing the blocked-tag feature) must NOT false-match as
+    blocked, which is the unsafe direction (it would hide an actionable item)."""
+    heading = block_text.splitlines()[0] if block_text else ""
+    return bool(BLOCKED_TAG_RE.search(heading))
 
 
 def prose_signals(block_text: str) -> list[str]:
     """Sorted distinct ADVISORY prose blocker-signals (never authoritative)."""
     return sorted({cls for pat, cls in PROSE_SIGNAL_TOKENS if pat.search(block_text)})
-
-
-def read_list(path: Path, source: str) -> tuple[list[tuple[str, str, str, str]], bool]:
-    """Return (items, present). A missing list is a no-op for that list."""
-    if not path.is_file():
-        return [], False
-    return parse_items(path.read_text(encoding="utf-8", errors="replace"), source), True
 
 
 def build_report(public_text: str,
