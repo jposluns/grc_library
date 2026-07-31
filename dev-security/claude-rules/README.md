@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.66.9\
+**Version:** 1.66.10\
 **Date:** 2026-07-31\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -166,13 +166,21 @@ claude-rules/
 
 ## How to use
 
-### Option 1: copy claude.md to your project root
+### Option 1: copy the claude-rules directory to your project
 
-The simplest approach. Copy `CLAUDE.md` into your project root at either `./CLAUDE.md` or `./.claude/CLAUDE.md`. Claude Code reads it in full at session start.
+The simplest approach. Copy the whole `claude-rules/` directory into your project (its `CLAUDE.md` links to sibling files under `ai/` and `governance/`, so copying `CLAUDE.md` alone breaks those links), then reference it from your project's own root `CLAUDE.md`.
 
 ```bash
-cp path/to/claude-rules/CLAUDE.md ./CLAUDE.md
+cp -r path/to/claude-rules ./claude-rules
 ```
+
+Then add this line to your project's root `CLAUDE.md` (creating it if it does not exist):
+
+```markdown
+@claude-rules/CLAUDE.md
+```
+
+Claude Code reads it in full at session start.
 
 ### Option 2: selective rule files
 
@@ -508,6 +516,7 @@ The pack's change history is maintained in the parent grc_library repository CHA
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.66.10 | 2026.07.786 | 2026-07-31 | Patch (TODO 3.178, adopter fix): a pack-only (mode-3) adopter was sent to a corpus-only file and got 18 dead links. Qualified the crypto table's TLS canonical-mandate reference (it lives in the parent corpus; a pack-only adopter has TLS 1.3 as the standalone requirement) and fixed README Option 1 to copy the whole `claude-rules/` directory and `@`-mention it, since copying `CLAUDE.md` alone broke its 18 sibling links under `ai/` and `governance/`. |
 | 1.66.9 | 2026.07.781 | 2026-07-31 | Patch: new change-tracking governance-rule subsection, a backlog's exception status is granted not self-asserted (an exception-status tag is authority-GRANTED never self-applied; PROPOSED is not GRANTED; completeness and audit tooling count only granted tags; the persistent-artefact-tag instance of the evidence-grounded-completion set-completeness and asymmetric-skepticism corollaries). The portable form of the GRC-library two-list BLOCKED-guardrail. |
 | 1.66.8 | 2026.07.765 | 2026-07-30 | Patch (PR #1275 completeness): the pack README integration cross-reference for `ai/guide-ai-adversarial-test-reference.md` §B4 was updated from "test case overlap rules" to TikiTribe's defensive-rules relationship to adversarial testing, matching the corrected §B4 (TikiTribe is a preventive control, not a source of adversarial test cases; the Sweep-135 R4-propagation fix). |
 | 1.66.7 | 2026.07.762 | 2026-07-30 | Patch (TODO 1.27.4 R11, external-audit pack-correctness): resolved the AI-logging self-contradiction. The pack said 'log all AI inputs and outputs to SIEM' and 'log every tool call with full arguments and results' while also 'never log secrets/PII' and 'do not log full prompt content in production'. Per the maintainer's canonical policy (log EVENTS and metadata always, redact CONTENT), reconciled `CLAUDE.md`, `ai/ai-security.md` (a canonical-policy statement added to the AI-logging-requirements section; the full-arguments tool-call line and the 'name and arguments' bullet made redaction-scoped), and `ai/mcp-security.md`: events and metadata logged always, secrets and PII redacted from content, never raw full prompts in production. |
