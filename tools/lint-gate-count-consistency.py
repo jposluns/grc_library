@@ -68,7 +68,10 @@ means the prose was not updated when an item was added or retired.
 
 Scope: ``*.md``, ``*.py``, ``*.sh`` files under the repository root,
 minus the exempt set (CHANGELOG.md, generated artefacts, regression
-fixtures that intentionally embed stale counts).
+fixtures that intentionally embed stale counts). In ``*.py`` / ``*.sh``
+files, ``#``-comment lines are scanned like any other line (they are code
+comments, not markdown headings); the ``## Version history`` skip and
+heading detection apply to ``*.md`` files only (TODO 3.195).
 
 Exit codes: 0 pass, 1 findings, 2 internal error (canonical §6 not
 parseable).
@@ -451,14 +454,26 @@ def scan_file(path: Path, counts: dict[str, int]) -> list[Finding]:
     # word-form gate count). Skip count-matching inside such a section, the
     # in-document analogue of CHANGELOG.md being exempt. The section runs from
     # its heading to the next heading of any level (or EOF).
+    # The `## Version history` skip and heading detection are a MARKDOWN
+    # construct. In a `.py`/`.sh` file a leading ``#`` is a code COMMENT, not a
+    # heading, and comment lines frequently carry gate-count idioms (a shell
+    # ``# ... N gates ...`` banner, a module-docstring-adjacent comment). Treating
+    # a ``#``-comment line as a heading made gate 39 BLIND to a stale count in it
+    # (the gate-80 vpr gF6 finding, TODO 3.195: a stale count idiom in a shell comment in
+    # tools/quick-guard.sh line 9 that this gate skipped as a "heading"). So the
+    # heading / version-history logic is applied to MARKDOWN files only; in a
+    # non-markdown file every line (comments included) is scanned, and the
+    # tightly-anchored patterns (P1-P12) keep that false-positive-safe.
+    is_markdown = path.suffix == ".md"
     in_version_history = False
     for lineno, line in enumerate(text.splitlines(), start=1):
-        heading = re.match(r"^#{1,6}\s+(.*)$", line)
-        if heading:
-            in_version_history = "version history" in heading.group(1).lower()
-            continue
-        if in_version_history:
-            continue
+        if is_markdown:
+            heading = re.match(r"^#{1,6}\s+(.*)$", line)
+            if heading:
+                in_version_history = "version history" in heading.group(1).lower()
+                continue
+            if in_version_history:
+                continue
         for pattern_name, pattern, kind in PATTERNS:
             for match in pattern.finditer(line):
                 resolved = resolve_match(kind, match)
