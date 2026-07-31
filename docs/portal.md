@@ -7,7 +7,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-portal.py`.
 
 **Document Title:** Adopter Portal\
 **Document Type:** Guide\
-**Version:** 1.3.0\
+**Version:** 1.3.1\
 **Date:** 2026-07-31\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -50,7 +50,7 @@ The portal is the canonical front door. The following adopter-facing documents a
 
 The five deeper-dive paths are designed to be used together: the quickstart composes a starting set, the startup roadmap works the long-form module composition, the decision tree sequences the reading, the implementation roadmap calendars the rollout, and the adopter guide governs how the artefacts are forked and customized. Each refers to the others where the workflow crosses between them.
 
-For full document discovery (every governed corpus document, machine-readable metadata: domain / type / owner role / review frequency / alignment families / adoption disposition), the document index at [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md) is the comprehensive register; this portal is the audience-shaped view of the same underlying taxonomy.
+For full document discovery (every governed corpus document, machine-readable metadata: domain / type / title / repository path / owner role / review frequency / primary alignment families / adoption disposition), the document index at [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md) is the comprehensive register; this portal is the audience-shaped view of the same underlying taxonomy.
 
 ---
 

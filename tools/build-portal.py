@@ -40,7 +40,7 @@ SCORECARD = REPO_ROOT / "docs" / "maturity-scorecard.md"
 # the metadata schema itself changes (e.g. a new required field, a
 # rewritten Overview, an audience added or removed) and capture the
 # bump in CHANGELOG.md.
-PORTAL_METADATA_VERSION = "1.3.0"
+PORTAL_METADATA_VERSION = "1.3.1"
 SCORECARD_METADATA_VERSION = "1.0.0"
 
 # Fallback Date if the parsed taxonomy yields no usable date values
@@ -355,7 +355,7 @@ def build_portal(docs: list[dict]) -> str:
     out.append("")
     out.append("The five deeper-dive paths are designed to be used together: the quickstart composes a starting set, the startup roadmap works the long-form module composition, the decision tree sequences the reading, the implementation roadmap calendars the rollout, and the adopter guide governs how the artefacts are forked and customized. Each refers to the others where the workflow crosses between them.")
     out.append("")
-    out.append("For full document discovery (every governed corpus document, machine-readable metadata: domain / type / owner role / review frequency / alignment families / adoption disposition), the document index at [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md) is the comprehensive register; this portal is the audience-shaped view of the same underlying taxonomy.")
+    out.append("For full document discovery (every governed corpus document, machine-readable metadata: domain / type / title / repository path / owner role / review frequency / primary alignment families / adoption disposition), the document index at [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md) is the comprehensive register; this portal is the audience-shaped view of the same underlying taxonomy.")
     out.append("")
     out.append("---")
     out.append("")
