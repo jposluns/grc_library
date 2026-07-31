@@ -259,6 +259,8 @@ jobs:
         run: python3 tools/lint-ssdf-control-ids.py
       - name: Playbook-pointer-integrity audit
         run: python3 tools/lint-playbook-pointer-integrity.py
+      - name: Backlog list-tag audit
+        run: python3 tools/lint-todo-list-tag.py
 
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
