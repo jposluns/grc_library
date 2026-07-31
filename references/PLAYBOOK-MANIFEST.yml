@@ -48,3 +48,20 @@
     - "superseded-archival workflow"
     - "lives under `grc_library_ref/frameworks/`"
     - "Routing a `source-not-held` finding without first attempting the download"
+
+- playbook: "references/worker-offload.md"
+  activity: "Dispatching or managing workers, or deciding whether to self-run offloadable work"
+  index_label: "Mandatory worker offload"
+  retained_anchors:
+    - "If a worker CAN do it, a worker DOES it"
+    - "self-running an offloadable task is the exception that needs a stated reason"
+    - "Offloadable (dispatch to a worker):"
+    - "Stays orchestrator-side (never offloaded):"
+    - "is NEVER a licence to self-run"
+    - "Worker ids recorded in this public repo are ANONYMIZED aliases"
+  relocated_anchors:
+    - "exec-dispatch.py --dispatch --family"
+    - "issue the SAME order to another"
+    - "Super-sensitive tasks get BOTH a Codex and a Claude worker"
+    - "WORKERS ARE ELASTIC"
+    - "credit-offload-design.md"
