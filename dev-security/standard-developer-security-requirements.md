@@ -2,8 +2,8 @@
 
 **Document Title:** Developer Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.13\
-**Date:** 2026-07-30\
+**Version:** 1.1.14\
+**Date:** 2026-07-31\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -343,17 +343,17 @@ All of the following must be validated before any application onboards to a prod
 
 ## 19. Framework alignment
 
-| Control Area | ISO/IEC 27001/27002 | CSA CCM v4.1 | NIST SSDF | OWASP ASVS | OWASP Top 10 |
+| Control Area | ISO/IEC 27001/27002 | CSA CCM v4.1 | NIST SSDF | OWASP ASVS | OWASP Top 10:2025 |
 | --- | --- | --- | --- | --- | --- |
 | Secure SDLC | A.8.25 to 8.26 | AIS-01 to 06 | PW.1 to PW.4 | V15 | N/A |
 | Authentication | A.5.15 to 5.18 | IAM-13 to 15 | N/A | V6 | A01, A07 |
-| Secrets management | A.8.24 | CEK-10 to 21 | PW.8 | V13 | A02 |
-| Input validation | A.8.28 | AIS-02 | N/A | V2, V1 | A03 |
-| Cryptography | A.8.24 | CEK-01 to 21 | N/A | V11 | A02 |
+| Secrets management | A.8.24 | CEK-10 to 21 | PW.8 | V13 | A04 |
+| Input validation | A.8.28 | AIS-02 | N/A | V2, V1 | A05 |
+| Cryptography | A.8.24 | CEK-01 to 21 | N/A | V11 | A04 |
 | Error handling and logging | A.8.16 | LOG-01 to 13 | N/A | V16 | A09 |
 | Security testing | A.8.29 | AIS-05, TVM-07 | PW.7, PW.8 | All levels | All |
-| Dependency management | A.8.8 | TVM-06, AIS-04 | PO.5 | V15 | A06 |
-| API security | A.8.24 | AIS-08 | N/A | V4 | A01, A02 |
+| Dependency management | A.8.8 | TVM-06, AIS-04 | PO.5 | V15 | A03 |
+| API security | A.8.24 | AIS-08 | N/A | V4 | A01, A04 |
 | AI/ML security | N/A | AICM TVM-12 | N/A | N/A | OWASP LLM Top 10 |
 
 ---
