@@ -2,8 +2,8 @@
 
 **Document Title:** AI Coding Assistant Security Guideline\
 **Document Type:** Guideline\
-**Version:** 1.3.6\
-**Date:** 2026-07-15\
+**Version:** 1.3.7\
+**Date:** 2026-07-31\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/claude-rules/README.md`](claude-rules/README.md), [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -55,10 +55,10 @@ All AI coding assistant sessions working on organizational code should have secu
 
 **For Claude Code, in order of decreasing scope:**
 
-1. **Project-root `CLAUDE.md`**: copy [`dev-security/claude-rules/CLAUDE.md`](claude-rules/CLAUDE.md) to either `./CLAUDE.md` or `./.claude/CLAUDE.md` at the consumer project root. Claude Code reads this file in full at session start.
+1. **Project-root `CLAUDE.md`**: install the pack per Option 1 in the [pack README](claude-rules/README.md), copying the whole `claude-rules/` directory into the consumer project and referencing it from the project-root `CLAUDE.md` with `@claude-rules/CLAUDE.md`. Copying `CLAUDE.md` alone breaks its links to the sibling `ai/` and `governance/` rule files, so copy the directory, not the single file. Claude Code reads the referenced files in full at session start.
 2. **Path-scoped rules in `.claude/rules/`**: place additional rule files under `.claude/rules/<topic>.md` with optional `paths:` YAML frontmatter. Without `paths:` they load at launch; with `paths:` they load only when Claude reads files matching the configured glob patterns. Path-scoped rules keep the always-loaded context small while still applying language- or component-specific rules when relevant.
 3. **`AGENTS.md` interop**: if the consumer project already has an `AGENTS.md` for other coding agents, add `@AGENTS.md` at the top of `CLAUDE.md` (or symlink it) so both tools read the same instructions.
-4. **Add language-specific files** from `dev-security/claude-rules/languages/` and AI/agentic files from `dev-security/claude-rules/ai/` for any project using LLMs, agents, RAG, or MCP.
+4. **Confirm the relevant topic rules load**: the whole-directory copy in step 1 already includes the `languages/`, `ai/`, and `governance/` rule sets; for any project using LLMs, agents, RAG, or MCP, confirm the `ai/` (and, where relevant, `languages/`) files are referenced or path-scoped so they load.
 
 A separate generator prompt published under `dev-security/claude-rules/` analyzes a consumer project and proposes a tailored CLAUDE.md plus rule-file selection before any file is written. The generator supports two source modes: **local mode** (reads the pack from disk if `dev-security/` is detected near the consumer's project) and **fetch mode** (reads the pack live from the GRC Library's first-party canonical URL when no local pack is present, or when the consumer elects fetch after a staleness check). See [`dev-security/claude-rules/README.md`](claude-rules/README.md) for usage guidance.
 
