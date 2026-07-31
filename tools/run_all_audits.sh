@@ -175,6 +175,7 @@ run_gate "Skill-body internal-reference audit"            python3 tools/lint-ski
 run_gate "Gate-name-citation inventory audit"             python3 tools/lint-gate-citation-inventory.py
 run_gate "Backlog item-number permanence audit"                 python3 tools/lint-todo-number-permanence.py
 run_gate "NIST SSDF control-id validity audit"                python3 tools/lint-ssdf-control-ids.py
+run_gate "Playbook-pointer-integrity audit"                  python3 tools/lint-playbook-pointer-integrity.py
 
 # ----------------------------------------------------------------------
 # Summary
