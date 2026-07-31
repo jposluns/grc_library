@@ -2,8 +2,8 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.66.8\
-**Date:** 2026-07-30\
+**Version:** 1.66.9\
+**Date:** 2026-07-31\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** `dev-security/standard-developer-security-requirements.md`, `dev-security/standard-devops-security-requirements.md`, `dev-security/guideline-ai-coding-assistant-security.md`, `ai/standard-ai-and-agentic-development-security.md`\
@@ -508,6 +508,7 @@ The pack's change history is maintained in the parent grc_library repository CHA
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.66.9 | 2026.07.781 | 2026-07-31 | Patch: new change-tracking governance-rule subsection, a backlog's exception status is granted not self-asserted (an exception-status tag is authority-GRANTED never self-applied; PROPOSED is not GRANTED; completeness and audit tooling count only granted tags; the persistent-artefact-tag instance of the evidence-grounded-completion set-completeness and asymmetric-skepticism corollaries). The portable form of the GRC-library two-list BLOCKED-guardrail. |
 | 1.66.8 | 2026.07.765 | 2026-07-30 | Patch (PR #1275 completeness): the pack README integration cross-reference for `ai/guide-ai-adversarial-test-reference.md` §B4 was updated from "test case overlap rules" to TikiTribe's defensive-rules relationship to adversarial testing, matching the corrected §B4 (TikiTribe is a preventive control, not a source of adversarial test cases; the Sweep-135 R4-propagation fix). |
 | 1.66.7 | 2026.07.762 | 2026-07-30 | Patch (TODO 1.27.4 R11, external-audit pack-correctness): resolved the AI-logging self-contradiction. The pack said 'log all AI inputs and outputs to SIEM' and 'log every tool call with full arguments and results' while also 'never log secrets/PII' and 'do not log full prompt content in production'. Per the maintainer's canonical policy (log EVENTS and metadata always, redact CONTENT), reconciled `CLAUDE.md`, `ai/ai-security.md` (a canonical-policy statement added to the AI-logging-requirements section; the full-arguments tool-call line and the 'name and arguments' bullet made redaction-scoped), and `ai/mcp-security.md`: events and metadata logged always, secrets and PII redacted from content, never raw full prompts in production. |
 | 1.66.6 | 2026.07.761 | 2026-07-30 | Patch (TODO 1.27.3 R4/R19, external-audit pack-correctness): dropped the fabricated "offensive toolkit" TikiTribe testing call-outs from the five call-out sites across four `ai/` rules (TikiTribe is a defensive secure-coding-rules repo; recommendations genericized, no new tool dependency, per maintainer); `languages/python.md` insecure-token example `random.token_hex(32)` (does not exist) -> `random.randbytes(32).hex()`; `languages/csharp.md` obsolete `new AesGcm(key)` (SYSLIB0053) -> tag-size arg; and the core password-hash allowlist widened to Argon2id/scrypt/bcrypt + PBKDF2-for-FIPS-140 per OWASP Password Storage (resolving the csharp PBKDF2 contradiction) at `core/owasp.md`, `core/cryptography.md`, pack `CLAUDE.md`. |
