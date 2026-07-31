@@ -2,8 +2,8 @@
 
 **Document Title:** Developer Security Domain README\
 **Document Type:** Register\
-**Version:** 1.4.6\
-**Date:** 2026-07-22\
+**Version:** 1.4.7\
+**Date:** 2026-07-31\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -84,7 +84,7 @@ For consumers who want to skip manual setup, an AI-assisted setup generator at [
 ```
 claude-rules/
 ├── README.md                    Usage guide, placement options, and external source URLs
-├── CLAUDE.md                    Root rule file: drag into a project as the always-loaded context
+├── CLAUDE.md                    Root rule file (links to sibling ai/ + governance/; install the whole directory per the README, not this file alone)
 ├── setup-generator-prompt.md    AI-assisted setup generator (paste into a Claude Code session)
 ├── core/
 │   ├── secrets.md               Never hardcode credentials, keys, or tokens
