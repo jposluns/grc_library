@@ -4,8 +4,8 @@
 **Classification:** Public\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
-**Library Version:** 2026.07.786 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.10.148 (semantic per-document version for this file)
+**Library Version:** 2026.07.787 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.10.149 (semantic per-document version for this file)
 
 ---
 
@@ -76,7 +76,7 @@ The third mode is an emergent use that has been adopted by developers in practic
 
 ## How to use
 
-1. **Start at the audience-keyed portal.** [`docs/portal.md`](docs/portal.md) is the primary navigation point: it groups the corpus by reader role (CIO, Board / CEO, CISO, GRC, Security Architecture, Privacy, Compliance, Audit, Resilience, Engineering) and lists the documents most likely to be useful to each audience. If you already know what you are looking for, the full machine-auditable document index is at [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md), which lists every document with its type, domain, status, and related artefacts.
+1. **Start at the audience-keyed portal.** [`docs/portal.md`](docs/portal.md) is the primary navigation point: it groups the corpus by reader role (CIO, Board / CEO, CISO, GRC, Security Architecture, Privacy, Compliance, Audit, Resilience, Engineering) and lists the documents most likely to be useful to each audience. If you already know what you are looking for, the full machine-auditable document index is at [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md), which lists every governed corpus document by domain, type, title, repository path, owner role, review frequency, primary alignment families, and adoption disposition.
 
 2. **Identify the documents relevant to your programme.** Begin with the Day-1 floor and the Tier 1 starter set (see [`docs/template-quickstart.md`](docs/template-quickstart.md) and [`docs/adopter-guide.md`](docs/adopter-guide.md)), then grow toward the Core reference set below and into domain-specific standards and procedures as the programme matures.
 
