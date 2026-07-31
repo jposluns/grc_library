@@ -2,7 +2,7 @@
 
 **Document Title:** Adopter Decision Tree\
 **Document Type:** Guide\
-**Version:** 1.0.20\
+**Version:** 1.0.21\
 **Date:** 2026-07-31\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -119,7 +119,7 @@ These documents apply regardless of size, sector, or jurisdiction. Read in this 
 5. [`governance/charter-governance-library.md`](../governance/charter-governance-library.md): library authority model.
 6. [`governance/register-role-authority.md`](../governance/register-role-authority.md): the roles the library uses; you will map these to people in your organization.
 7. [`governance/framework-document-architecture-and-interrelationship.md`](../governance/framework-document-architecture-and-interrelationship.md): how documents relate.
-8. [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md): comprehensive machine-readable register of every governed corpus document with its domain, type, owner role, review frequency, alignment families, and adoption disposition. For audience-keyed navigation, use [`docs/portal.md`](portal.md) (the canonical entry point); the document index is the deeper-dive register for readers who already know what they are looking for.
+8. [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md): comprehensive machine-readable register of every governed corpus document with its domain, type, title, repository path, owner role, review frequency, primary alignment families, and adoption disposition. For audience-keyed navigation, use [`docs/portal.md`](portal.md) (the canonical entry point); the document index is the deeper-dive register for readers who already know what they are looking for.
 
 ### 2.3 Risk and compliance foundation
 
