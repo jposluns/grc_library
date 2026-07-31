@@ -561,3 +561,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-playbook-pointer-integrity
+        name: Playbook-pointer-integrity audit
+        entry: python3 tools/lint-playbook-pointer-integrity.py
+        language: system
+        pass_filenames: false
+        always_run: true
