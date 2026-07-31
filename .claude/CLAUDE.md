@@ -383,7 +383,7 @@ The default-for-active-sessions mode: **attended-autonomous** (the maintainer is
 not watching every step, glanceable every 15-20 minutes; the assistant keeps moving rather than
 blocking on each merge or decision). Full discipline: the pack rule
 [`session-lifecycle`](rules/governance/session-lifecycle.md) §2 (operating modes) and §3
-(graceful degradation). Project overlay, the concrete wiring:
+(graceful degradation for operator decisions). Project overlay, the concrete wiring:
 
 1. **Green CI = merge authority.** When a PR's `Lint markdown corpus` check is green, merge it
 and proceed WITHOUT asking the maintainer to authorize the merge; the maintainer redirects by
@@ -393,54 +393,41 @@ decisions are ASKED, not deferred, because the maintainer is reachable.
 
 2. **Stricter-is-safer always** (every mode): on a cross-value conflict (two documents disagree
 on a number, a control mapping, a regime status), resolve toward the more conservative value
-where one is clearly safer, or the external-standard / canonical-internal-source-supported
-value where one governs; document the choice and its evidence.
+where one is clearly safer, or the external-standard / canonical-internal-source-supported value
+where one governs; document the choice and its evidence.
 
-3. **The pending-decisions graceful-degradation mechanism.** When the next action depends on a
-decision genuinely the maintainer's (per `clarify-before-acting`), surface it with named
-options AND arm a short timer (default about 2 minutes; mechanically a background `sleep`).
-Answer before it fires: act on the answer. Fires with no answer: do NOT stall and do NOT guess
-an authorial decision; take exactly one of two LOGGED paths. **Apply a stricter-safe default**
+3. **Pending-decisions graceful degradation.** Surface a genuinely maintainer-owned decision (per
+`clarify-before-acting`) with named options and arm a short timer (about 2 minutes; mechanically a
+background `sleep`). Answer before it fires: act on the answer. On timeout take exactly one of two
+LOGGED paths in `grc_library_private/.working/pending-decisions.md`: a **stricter-safe default**
 when rule 2 yields a defensible, more-conservative, evidence-backed option AND the action is
-reversible / on-branch (record in `grc_library_private/.working/pending-decisions.md` as
-"proceeded with X (stricter-safe default); confirm or redirect on resume", and continue).
-**Defer-and-skip** when the decision is genuinely authorial, irreversible, or outward-facing
-(record as "deferred-blocked: needs maintainer", route AROUND it to the next independent task,
-and hold any dependent task). The reversibility gate is absolute: a timeout never auto-proceeds
-on a destructive or outward-facing action.
+reversible / on-branch (record "proceeded with X (stricter-safe default); confirm or redirect on
+resume", and continue), or **defer-and-skip** when the decision is authorial, irreversible, or
+outward-facing (record "deferred-blocked: needs maintainer", route AROUND it to the next
+independent task, hold any dependent task). The reversibility gate is absolute: a timeout never
+auto-proceeds on a destructive or outward-facing action.
 
-**No idle-stop in unattended mode.** In overnight or any unattended mode, never stop to ask
-which authorized item to do next, and never hold or idle on the grounds that remaining work
-is substantial, fiddly, higher-risk-this-deep-in-context, or that the clean low-risk queue is
-exhausted: these are the invalid triggers the wind-down framework already forbids
-(context-heaviness, work-shape, un-instrumented internal state), restated here at the point of
-action, because reading them in the wind-down section did not prevent acting against them. The
-standing priority ordering already answers what is next; proceed on the highest-priority
-authorized independent item with the appropriate skeptical-verifier tier. Stop only for (a) a
-genuine named-degradation trigger, or (b) a genuinely authorial decision no standing directive
-answers, and even then use the graceful-degradation mechanism (a stricter-safe default, or
-defer-and-skip to the next independent item), never a blocking question that idles the run
-until the maintainer wakes. Substantial or best-fresh-context work is done PR-by-PR with
-skeptical verifiers, never deferred to the maintainer in unattended mode. Two caught pre-push
-slips, or any defect the guard or verifier catches before it escapes, are the verification
-layer working, not a degradation signal.
+4. **No idle-stop in unattended mode** (the §4 anti-pattern, restated at the point of action):
+never stop to ask which authorized item is next, and never hold on the invalid triggers §4 forbids
+(work is substantial / fiddly / higher-risk-this-deep / the low-risk queue is exhausted;
+context-heaviness, work-shape, un-instrumented internal state). Proceed on the highest-priority
+authorized independent item with the appropriate skeptical-verifier tier; substantial or
+best-fresh-context work is done PR-by-PR, never deferred to the maintainer in unattended mode. Stop
+only for (a) a genuine named-degradation trigger or (b) a genuinely authorial decision no standing
+directive answers, and even then use the graceful-degradation mechanism, never a blocking idle. Two
+caught pre-push slips, or any defect the guard or verifier catches before it escapes, are the
+verification layer working, not a degradation signal.
 
-**On a genuine named-degradation trigger in unattended mode, WIND DOWN PROPERLY, do not
-"pause" mid-turn (maintainer-directed 2026-07-19).** When the stop condition is (a) above (a
-real, quotable degradation signal: repeated observable errors, a self-inconsistency, a defect
-the QA layer missed), the correct action is a full **session-closing handoff**, not a bare
-"I'll pause here": land the working state on `main` as a green, merged PR AND refresh the
-handoff record (`session-handoff.md` Next-actions + State-snapshot + Asserted-expectations,
-the green-at-`<sha>` line, the lease RELEASE), so the next `/resume` rebuilds cleanly from
-`main`. This requires NO `AskUserQuestion` (which the unattended hook blocks anyway): the
-session-closing handoff IS the conservative, reversible, no-regret action, so it is taken
-directly. The wind-down framework's "surface the choice via `AskUserQuestion`" path is the
-ATTENDED path; the UNATTENDED path on a degradation trigger is this automatic
-session-closing handoff. A bare mid-turn pause (an unmerged feature branch, state only
-half-recorded) is the FAILURE this codifies against: it leaves the maintainer a harder
-resume. Rule of
-thumb: if you are about to write "I'm pausing / stopping here" in an unattended run, you are
-instead obligated to execute the session-closing handoff PR first.
+5. **On a named-degradation trigger in unattended mode, WIND DOWN PROPERLY, not a mid-turn "pause"**
+(§4; maintainer-directed 2026-07-19). On a real, quotable degradation signal (repeated observable
+errors, a self-inconsistency, a defect the QA layer missed), execute a full **green session-closing
+merge to `main`**, not a bare "I'll pause here", and refresh the handoff record (`session-handoff.md`
+Next-actions + State-snapshot + Asserted-expectations, the green-at-`<sha>` line, the lease RELEASE)
+so the next `/resume` rebuilds cleanly from `main`. This requires NO `AskUserQuestion` (the
+unattended hook blocks it anyway): the closing handoff IS the conservative, reversible, no-regret
+action, taken directly, and is the UNATTENDED counterpart to the ATTENDED "surface via
+`AskUserQuestion`" path. A bare mid-turn pause (an unmerged feature branch, state half-recorded) is
+the FAILURE this codifies against.
 
 ## Mandatory worker offload (use available workers; never silently self-run)
 
@@ -473,38 +460,35 @@ The full three-layer discipline (convention at PR close-out; a periodic catch-ne
 
 ## Wind-down pre-queues worker research for the next resume (maintainer-directed 2026-07-25)
 
-**Every wind-down queues worker orders the NEXT session's `/resume` will consume.** Worker
-capacity is ELASTIC and the orchestrator is the scarce singleton, so the hours between one
-session closing and the next opening are the only stretch where worker time is free and
-orchestrator time costs nothing; a wind-down that queues nothing wastes that window, and the
-next resume then opens by DISPATCHING and WAITING instead of consuming. Discipline: the pack
-rule [`session-lifecycle`](rules/governance/session-lifecycle.md) `## Wind-down pre-queues
-delegated work for the next session`. **Project overlay, queue IN THIS ORDER:** (1) the mandatory loop-break
-`/validate` for the closing window, pinned to the closing SHA; (2) the `/validate-pr` for the
-last merged PR (the handoff PR is exempt); (3) research / draft candidates for the next-five
-queue in `grc_library_private/.working/next-prs.txt`; (4) any defect-hunt whose target the
-closing session touched. **Pin every order to the closing MERGE SHA** (never a branch head,
-which vanishes on squash-merge) and to a SHA that CONTAINS what the order references; fill the
-LIVE worker pool (not an unbounded backlog that goes stale unserved); name the pre-queued order
-ids in the handoff record; and a pre-queued order is NOT a claim its work is done (the
-receiving session consumes, re-verifies every positive finding at source, and routes findings
-normally).
+**Every wind-down queues worker orders the NEXT session's `/resume` will consume** (worker
+capacity is ELASTIC, the orchestrator is the scarce singleton, so the hours between sessions are
+the only stretch where worker time is free and orchestrator time costs nothing; a wind-down that
+queues nothing wastes that window). Discipline: the pack rule
+[`session-lifecycle`](rules/governance/session-lifecycle.md) `## Wind-down pre-queues delegated
+work for the next session`. **Project overlay, queue IN THIS ORDER:** (1) the mandatory loop-break
+`/validate` for the closing window, pinned to the closing SHA; (2) the `/validate-pr` for the last
+merged PR (the handoff PR is exempt); (3) research / draft candidates for the next-five queue in
+`grc_library_private/.working/next-prs.txt`; (4) any defect-hunt whose target the closing session
+touched. **Pin every order to the closing MERGE SHA** (never a branch head, which vanishes on
+squash-merge) and to a SHA that CONTAINS what the order references; fill the LIVE worker pool (not
+an unbounded backlog that goes stale unserved); name the pre-queued order ids in the handoff
+record; and a pre-queued order is NOT a claim its work is done (the receiving session consumes,
+re-verifies every positive finding at source, and routes findings normally).
 
 ## Wind-down decision framework (surface the handoff choice, do not take it silently)
 
-**The default is to continue, not to hand off.** A handoff is warranted ONLY on evidence of
-issues; session length, context "heaviness", and "a large / substantial / fresh-context-best
-series remaining" are NOT valid triggers by themselves (the assistant keeps working through
-them, sustaining quality with skeptical verifier subagents). Full discipline: the pack rule
+**The default is to continue, not to hand off.** Full discipline: the pack rule
 [`session-lifecycle`](rules/governance/session-lifecycle.md) §4 (evidence-gated wind-down;
-continue is the default; the ONLY valid trigger is a NAMED, externally-observable signal;
-surfaced never silent). Session depth is a legitimate CONTRIBUTING factor to OFFERING a handoff
-(the maintainer's choice, never an auto-handoff) in two cases only: (i) a very-long-run of
-expected chained large PRs ahead where the project's OWN historical metrics show a measured
-quality decline on comparable prior runs (a named signal, not "I feel degraded"); (ii)
-excessively-sensitive work needing fresh context with no accumulated session history (the
-canonical case being the first `/deep-assessment` run, which must open on a fresh session
-so prior findings and framing do not bias it). Depth ALONE is never a trigger.
+continue is the default; session length, context "heaviness", and "a large / substantial /
+fresh-context-best series remaining" are NOT valid triggers by themselves; the ONLY valid trigger
+is a NAMED, externally-observable signal; surfaced never silent). **Project overlay.** Session
+depth is a legitimate CONTRIBUTING factor to OFFERING a handoff (the maintainer's choice, never an
+auto-handoff) in two cases only: (i) a very-long-run of expected chained large PRs ahead where the
+project's OWN historical metrics show a measured quality decline on comparable prior runs (a named
+signal, not "I feel degraded"); (ii) excessively-sensitive work needing fresh context with no
+accumulated session history (the canonical case being the first `/deep-assessment` run, which must
+open on a fresh session so prior findings and framing do not bias it). Depth ALONE is never a
+trigger.
 
 **The compaction-gate on pacing and continue-vs-fresh questions (maintainer-directed
 2026-07-24).** Absent evidence of degradation, the assistant does NOT ask the maintainer
@@ -546,14 +530,14 @@ trigger; and (3) named options (the `clarify-before-acting` shape, recommended o
      not to be stupid and hands off immediately (a Ulysses pact).
 
 **The timeout (graceful degradation).** This decision uses the same roughly-2-minute
-background-`sleep` timer as the attended-autonomous mechanism. If the maintainer answers before
-it fires, act on the answer. If it fires with no answer, **proceed with option A (handoff)**:
-the conservative, reversible, no-regret resolution of an already-triggered wind-down. A
-no-answer timeout NEVER auto-selects B, C, or D. The one carve-out: in an overnight run the
-overnight conflict rules govern instead. Choosing B or C relaxes no discipline: each additional
-PR still gets its full `/validate-pr` + `/retro`, and the degradation read re-runs at EACH PR
-boundary, so "do N more" is really "do one more, re-assess, repeat" and self-terminates early
-if quality signals turn.
+background-`sleep` timer as the attended-autonomous mechanism (§3). If the maintainer answers
+before it fires, act on the answer. If it fires with no answer, **proceed with option A
+(handoff)**: the conservative, reversible, no-regret resolution of an already-triggered wind-down.
+A no-answer timeout NEVER auto-selects B, C, or D. The one carve-out: in an overnight run the
+overnight conflict rules govern instead. Choosing B or C relaxes no discipline: each additional PR
+still gets its full `/validate-pr` + `/retro`, and the degradation read re-runs at EACH PR
+boundary, so "do N more" is really "do one more, re-assess, repeat" and self-terminates early if
+quality signals turn.
 
 **Turning overnight mode OFF is never a no-answer default.** Do NOT end
 overnight mode unless the maintainer explicitly says so; if unsure, pause and ask. If the
@@ -897,7 +881,7 @@ CC BY-SA 4.0). The rule files are authoritative; the one-line purpose is an inde
 - `.claude/rules/governance/project-integrity.md`: the apex rule: project-agnostic distribution of this file's PRIMORDIAL RULE (the AIQT Principle, (Accuracy = Integrity = Quality = Trust) > Progress > Speed > Cost; the integrity non-negotiables; the self-reminder checkpoints).
 - `.claude/rules/governance/surface-counterproductive-instructions.md`: a clear instruction is not automatically correct; when executing it as given would be net-negative (waste effort, lower quality, destroy done work, contradict a stated goal, or rest on stale state), stop and surface named options first (charitable-interpretation corollary; anti-over-ask calibration). The requestor-facing counterpart to `clarify-before-acting`.
 - `.claude/rules/governance/high-assurance-verification.md`: the heavier pre-apply harness for *sensitive* changes (gate-blind correctness, delicate scale, high escaped-error cost): research fan-out, a signal-pass over the negatives, two independent cross-family adversarial verifiers (false-negative/false-positive lenses), an invariant floor, and a deterministic scripted apply plus re-parse. The proactive counterpart to `trust-recovery-escalation`.
-- `.claude/rules/governance/session-lifecycle.md`: the session-lifecycle and operating-modes discipline for multi-session work: a durable reconciled handoff record, explicit operator-set modes (attended / attended-autonomous with green-CI merge authority / unattended no-idle-stop), graceful degradation with an absolute reversibility gate, evidence-gated wind-down (continue is the default), a closing green-merge with its loop-break compensating control, and an advisory concurrency lease; this file's attended-autonomous, wind-down, session-migration, and lease sections are its project operationalization.
+- `.claude/rules/governance/session-lifecycle.md`: the session-lifecycle and operating-modes discipline for multi-session work: a durable reconciled handoff record, explicit operator-set modes (attended / attended-autonomous with green-CI merge authority / unattended no-idle-stop), graceful degradation with an absolute reversibility gate, evidence-gated wind-down (continue is the default), a closing green-merge with its loop-break compensating control, and an advisory concurrency lease; this file's attended-autonomous, wind-down, session-migration, and lease sections are its project overlay (a pointer to that pack rule plus the project-specific wiring).
 - `.claude/rules/governance/decision-classification-before-enacting.md`: before enacting a significant plan-bending autonomous decision (defer, re-sequence, wind-down, skip, authorial choice), classify it ACT / ASK / BLOCKED and write the classification before enacting; BLOCKED names a blocker from a closed, externally-observable set, and un-instrumented internal state is never a valid hold.
 - `.claude/rules/governance/express-authorization-before-execution.md`: execution of a plan-initiating unit begins only on an express, work-naming go; a planning discussion is not a go, and a conditional/sequenced go authorizes only its first step until its condition is confirmed (the pause-before-acting family's entry-condition member and the mirror of `decision-classification-before-enacting`). Project instantiation: the `## Execution begins only on an express GO (discussion is not licence)` section below; convention-first, with a mechanical GO-ledger-keyed hook deferred (no project-specific machinery beyond that section).
 
