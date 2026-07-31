@@ -547,7 +547,7 @@ def main(argv: list[str]) -> int:
             )
 
     # Additive TODO-3.99 guards: cross-check the exclusion allow-lists against a
-    # positive signal, and check the D1-D8 delta gates' cross-surface parity.
+    # positive signal, and check the D1-D10 delta gates' cross-surface parity.
     spec_scripts = {script for (_, _, _, script) in spec}
     findings.extend(verify_exclusion_and_delta_guards(REPO_ROOT, spec_scripts))
 

@@ -9098,7 +9098,7 @@ class PreflightChangelogMirrorTests(unittest.TestCase):
 
 class AuditGateParityExclusionGuardTests(unittest.TestCase):
     """tools/lint-audit-gate-parity.py (gate 35) additive TODO-3.99 guards over
-    the exclusion allow-lists and the D1-D8 delta gates. The guards read the real
+    the exclusion allow-lists and the D1-D10 delta gates. The guards read the real
     repo surfaces via an explicit ``root`` and take ``spec_scripts`` as a
     parameter, so the tests run against the live config without monkeypatching a
     module global (the Global-state isolation convention)."""
