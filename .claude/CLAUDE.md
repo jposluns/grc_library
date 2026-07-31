@@ -564,32 +564,27 @@ default above: it requires an explicit maintainer signal, never a timeout.
 
 ## Anything wrong: finish the current task, then FIX IT, and nothing else proceeds first
 
-**The moment ANYTHING wrong is found, finish the unit already in hand, then FIX it; nothing
-that is not the fix, or part of the fix, proceeds ahead of it.** "Anything wrong" is the WIDEST
-wording (an issue, a defect, a wrong figure, a stale instruction, a misleading name, an
-overstated claim, a silently-failed write): it does not matter how small it looks, who found
-it, or whether it has a severity yet, and **the severity assessment comes AFTER the fix
-decision, because grading a defect is one of the ways of not fixing it.** "Finish the current
-task" is NARROW: complete the unit in hand so nothing is left half-applied, then fix; it does
-NOT license a comfortable stretch of adjacent work, the next PR, another analysis pass, or
-writing up what was found. The four walk-pasts this forecloses, each of which feels like
-diligence: AESTHETICISING (render findings as a table/count/comparison and let the tidy summary
-stand in for the fix); NOTICING-AND-CARRYING-ON (describe it accurately, even record it, and
-continue the work in flight); GRADING-INSTEAD-OF-FIXING (characterize severity/blast-radius
-while the defect stays live); ROUTING-WHAT-COULD-BE-FIXED (send a fixable finding to the
-backlog, which is only for what genuinely cannot be fixed now). Against the decision rubric,
-"found a defect and continued" is never an ACT, is not an ASK, and cannot be BLOCKED (the
-blocker set is closed and has no entry for it). Full treatment: the pack rule
+**The moment ANYTHING wrong is found (WIDEST wording: a defect, a wrong figure, a stale
+instruction, a misleading name, an overstated claim, a silently-failed write, however small it
+looks, whoever found it, severity ungraded), finish the unit already in hand, then FIX it;
+nothing that is not the fix, or part of the fix, proceeds ahead of it.** Severity is graded
+AFTER the fix decision, never before (grading a defect is one of the ways of not fixing it).
+"Finish the current task" is NARROW: complete the unit in hand so nothing is left half-applied,
+then fix; it does NOT license adjacent work, the next PR, another analysis pass, or writing up
+the finding. Full treatment, including the four walk-pasts this forecloses (AESTHETICISING,
+NOTICING-AND-CARRYING-ON, GRADING-INSTEAD-OF-FIXING, ROUTING-WHAT-COULD-BE-FIXED) and the rubric
+analysis ("found a defect and continued" is never an ACT, is not an ASK, and cannot be BLOCKED):
+the pack rule
 [`decision-classification-before-enacting`](rules/governance/decision-classification-before-enacting.md)
 `## Finding something wrong is not a decision point: finish the task, then fix it`.
 
-**Project wiring (the mechanical half).** This composes with the QA-blocking rule below (that
-one governs QA deliveries specifically; this governs anything wrong from any source). Every
-confirmed defect gets a row in `grc_library_private/.working/open-findings.md` the moment it is
-confirmed, with a severity, and leaves only via `FIXED` / `ROUTED` / `REFUTED` / `ACCEPTED`;
-the [`block-on-open-findings.py`](hooks/block-on-open-findings.py) PreToolUse hook refuses `gh
-pr create` and `gh pr merge` while an `error`-severity row has no disposition. The hook can
-only see a row once it is written, so this section is wider than the hook.
+**Project wiring (the mechanical half, no pack counterpart).** This composes with the QA-blocking
+rule below (that one governs QA deliveries specifically; this governs anything wrong from any
+source). Every confirmed defect gets a row in `grc_library_private/.working/open-findings.md` the
+moment it is confirmed, with a severity, and leaves only via `FIXED` / `ROUTED` / `REFUTED` /
+`ACCEPTED`; the [`block-on-open-findings.py`](hooks/block-on-open-findings.py) PreToolUse hook
+refuses `gh pr create` and `gh pr merge` while an `error`-severity row has no disposition. The
+hook can only see a row once it is written, so this section is wider than the hook.
 
 ## A delivered QA result BLOCKS progress until it is read and its findings are fixed
 
