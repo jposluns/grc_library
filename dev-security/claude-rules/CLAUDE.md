@@ -60,6 +60,8 @@ If you see a hardcoded secret in existing code, treat it as compromised and flag
 
 Never hardcode keys. Keys go in the secrets management service.
 
+The TLS row's canonical mandate (`security/policy-encryption-and-key-management.md`) lives in the parent GRC corpus, not this pack. A pack-only adopter (who copied just `claude-rules/`) does not have that file; there, TLS 1.3 (or stronger) stands as the standalone requirement.
+
 ---
 
 ## Authorization

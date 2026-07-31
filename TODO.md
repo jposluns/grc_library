@@ -281,7 +281,7 @@ Umbrella for adopting NIST OSCAL as an open, machine-readable projection of the 
 
 exec-dispatch silently returns "no eligible account" when `--model X` is absent from every account's `models` list (the 2026-07-30 recurrence: `gpt-5-codex` was passed, filtered every available codex account to zero, and the message was indistinguishable from a real no-capacity state, costing several failed dispatch attempts and orchestrator time). Build: (1) a PreToolUse hook that parses an exec-dispatch `--model` and BLOCKS a model not in the known-model set for the family, printing the valid list + the one-line update method; (2) exec-dispatch itself fails loud on an unknown model (a message distinct from "no eligible account"); (3) a single easy-to-update source of truth for valid models per family (e.g. a top-level `known_models` in `worker-accounts.json`, updated in ONE place when a model releases). Scratch/worker tooling, not pack.
 
-**Next item number: 3.196.**
+**Next item number: 3.197.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
 
@@ -460,10 +460,6 @@ Confirmed not-held and load-bearing: ISO 22301:2019 (6+ resilience clause-title 
 ### 3.176 Printed-title-vs-catalogue-title check (mechanize the label-drift meta-pattern) (2026-07-28 deep-assessment c5, claude, M, M) `[private]`
 
 Component 5's meta-pattern: mis-citations are not invented codes (existence gates + 1916 CSA codes clean) but hand-written LABELS substituted for catalogue titles, wrong ~half the time, which `/matrix-fit` cannot catch (it judges code fit via reference-module titles, never the corpus's OWN printed titles). Build a check that diffs corpus-printed control/clause/standard titles against held catalogue titles.
-
-### 3.178 Pack drop-in install leaks a private path and yields 18 dead links (2026-07-28 deep-assessment c6, claude, H, S) `[public]`
-
-`dev-security/claude-rules/CLAUDE.md:58`'s crypto table defers to `security/policy-encryption-and-key-management.md` as canonical mandate, which a pack-only (mode-3) adopter does not have; the `cp claude-rules/CLAUDE.md ./CLAUDE.md` install (README:167-172) yields 18 dead links because the README never says copy the directory. Qualify the crypto reference and fix the install instruction.
 
 ### 3.179 Adopter vs auditor get opposite instructions about the same documents (2026-07-28 deep-assessment c6, claude, H, S) `[public]`
 
@@ -1001,6 +997,10 @@ Fable F-6 (PR2b-3 verify): `tools/pr-closeout.py`'s `has_findings` detail-file b
 ### 3.190 Guard preflight-changelog `_added_lines_from_repo` against a non-git private sibling (PR2b-3 Fable verify F-9, 2026-07-29, S, S) `[machinery]` `[private]`
 
 Fable F-9 (PR2b-3 verify): `tools/preflight-changelog.py`'s `_added_lines_from_repo` raises an uncaught `CalledProcessError` if the private sibling exists but is not a git repository (or its `git diff` fails). Unreachable for the maintainer's real layout (the private sibling is always a git repo), a robustness edge only. Wrap the diff in a try/except that degrades to the empty added-line set (as the both-absent path already does), and note that `mirror.parents[2]` hardcodes the mirror depth (correct for the current constant, brittle if it moves).
+
+### 3.196 Two corpus docs still give the single-file `CLAUDE.md` install (18-dead-links class not fully closed by #1296) (2026-07-31, deep-assessment c6 follow-up, dual-family vpr #1296, M, S) `[public]`
+
+#1296 (TODO 3.178) fixed the pack README Option-1 install, but the dual-family `/validate-pr` on #1296 (both families converged) found the SAME single-file-copy defect class surviving in two corpus documents: (a) [`dev-security/guideline-ai-coding-assistant-security.md`](dev-security/guideline-ai-coding-assistant-security.md):58 step 1 says copy `dev-security/claude-rules/CLAUDE.md` to `./CLAUDE.md` (single file, so 18 dead links), AND its step 4 lists only `languages/` + `ai/` to add, never `governance/` (15 of the 18 links), so a reader following it in full still misses governance/; (b) [`ai/standard-ai-and-agentic-development-security.md`](ai/standard-ai-and-agentic-development-security.md):211 repeats copy `claude-rules/CLAUDE.md` to the project root. NOT a mechanical one-liner: the guideline uses an INCREMENTAL deployment model (copy CLAUDE.md, then add files selectively) incompatible with the pack README self-contained whole-directory model, so the fix needs a design choice (make step 1 self-contained via the directory copy + `@`-mention; OR complete step 4 with `governance/`; OR point both docs to the pack README Option 1 to remove the triple-duplication that caused the drift). Both are versioned corpus docs (Version/Date bumps). Design lean: point both to the pack README Option 1 (DRY, removes the drift source).
 
 ## Priority 4 — Adopter experience
 
