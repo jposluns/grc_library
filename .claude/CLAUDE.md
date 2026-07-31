@@ -103,6 +103,7 @@ Per-activity disciplines that load "like a skill" at their boundary, not every t
 | PR close-out and session-migration | [PR lifecycle and close-out](../references/pr-lifecycle.md) |
 | An externally-versioned reference (standard, framework, dataset) becomes load-bearing | [Reference-version currency and missing references](../references/reference-currency.md) |
 | Worker dispatch: deciding whether to self-run offloadable work, or managing the fleet | [Mandatory worker offload](../references/worker-offload.md) |
+| Constructing / pinning a worker order, managing a codex worker, or processing the delivery trays | [Worker dispatch mechanics and delivery trays](../references/worker-dispatch.md) |
 
 ## Project
 The GRC Library: a CC BY-SA 4.0 corpus of governance, risk, and compliance
@@ -458,81 +459,13 @@ high-assurance adversarial verifiers.
 
 The discipline ships in the pack rule [`validate-inference-before-action`](rules/governance/validate-inference-before-action.md) (`## Guard inputs`): a guard whose logic is correct and mutation-proved can still be fed an INPUT that cannot answer the question asked of it (mutation perturbs branches, so it is silent on input fidelity). At each consequential guard ask the authority question (can this source even in principle answer this?); make ignorance a first-class return value that REFUSES rather than permits; keep a reality fixture per observer bug; mutate the observer, not only the decision; state a proxy's residue at the point of use; keep a pure decision function behind a thin observer so both halves stay testable. **Project instances (2026-07-25, one shape):** `tools/manage-workers.py` prefix-matched a **tmux** session name against a per-run worker id, PERMITTING a destructive verb against a worker holding live work (fixed #1170, a five-state attribution that refuses on ambiguity or non-match); delivery-completeness was inferred from a file merely existing (fixed #1171, atomic rename + end-of-delivery sentinel, with the residue stated: the sentinel proves the file went through `deliver`, not that its content is semantically complete); worker-health is read from a heartbeat on a code path separate from the claim loop, so a worker that stopped claiming still read as healthy capacity (fixed #1174, the SAME class).
 
-## Pin an order to a SHA that CONTAINS what the order references
+## Worker dispatch: pinning orders, single-shot codex, and the delivery trays
 
-Three orders on 2026-07-25 asserted something untrue at their own pinned SHA, and each cost a worker
-cycle: one named a function that existed only on an unmerged branch, one pinned a merge SHA that
-PREDATED the backlog item the order told the worker to read, and one carried a worker exclusion as
-prose that nothing enforced.
+The order-construction and fleet-tray mechanics load at the worker-dispatch boundary like a skill: **pin an order to a commit that CONTAINS what it references** (for a backlog item N, the commit that CREATED N, not a later one); **codex workers are SINGLE-SHOT** (dispatch, then `--send wake`, then re-check every 10 minutes, and scope each to one self-contained pass); and the **two delivery trays**. The full detail (the pin-SHA REFUSAL/WARNING dispatch backstops, the codex check-in cadence and why a codex chat cannot be resumed, the `inbox/` vs `inbox/deliveries/` layout and naming, and the `collect-deliveries.py` two-plane completeness mechanics) lives in the [Worker dispatch mechanics and delivery trays](../references/worker-dispatch.md) playbook. This is project-only operational machinery, not pack material; the mechanical backstops are the [`exec-dispatch.py`](../tools/exec-dispatch.py) dispatch-time checks and [`collect-deliveries.py`](../tools/collect-deliveries.py)'s two completeness layers.
 
-**The rule is narrower than "pin to a merge SHA", which was already the practice and was not enough.**
-The correction adopted after alert 2026-07-23-a made a pinned SHA REACHABLE (never a PR branch head
-that vanishes on squash-merge). It did not make the SHA CONTAIN what the order references. So: pin to
-a commit that contains every path, item and identifier the order tells the worker to read, which for
-an order derived from backlog item N means the commit that CREATED item N, not merely a later one.
-
-**Two mechanical backstops now exist at dispatch**, and their severities differ on purpose:
-- **A REFUSAL** when `not_worker` names a worker id the exchange has never seen, because that input is
-  exact and a vacuous exclusion silently disables an independence control.
-- **A WARNING** when a referenced path or `TODO N.M` item is absent at the pinned SHA, because that
-  extraction is heuristic and a false refusal on a legitimate dispatch would get the check bypassed.
-
-**Read the dispatch output.** Both backstops are useless if the dispatch line scrolls past unread, and
-a warning is exactly the shape that gets skimmed. The orchestrator's own habit is the primary control;
-these are defence in depth.
-
-## Codex workers are single-shot: dispatch, check in, then re-check every 10 minutes
-
-Maintainer-directed 2026-07-25, after the codex session minted four worker ids in under two hours and
-every one went stale. A Codex chat cannot be resumed by the control plane: once it returns a final
-response its heartbeat daemon can hold a claim but nothing continues the semantic pass, which its own
-continuation brief records as a confirmed limit. So a Codex worker is effectively SINGLE-SHOT PER NUDGE
-rather than a standing worker, and treating it like an Opus worker leaves orders sitting in
-`available-work` beside a fleet that reads as live.
-
-The orchestrator therefore MANAGES codex directly rather than waiting on it:
-
-1. **Dispatch** the order to the codex family as normal.
-2. **Immediately issue a check-in** (`--send wake`), because the order will not otherwise be noticed.
-3. **If nothing has arrived in 10 minutes, issue another check-in.** Repeat. A fresh worker id appearing
-   is normal and expected here: the protocol deliberately refuses to let a replacement session inherit a
-   prior session's claim, so id churn is the mechanism working rather than a fault to chase.
-
-This is project-only operational mechanics (the tmux and file-drop specifics), NOT pack material. It is
-also the reason a codex order should be scoped to ONE self-contained pass: a task needing several turns
-will not survive the boundary, so split it rather than hoping the worker persists.
-
-## Delivery tray: one place to look, and issues jump the queue
-
-The exchange stores a delivery at `<family>/outbox/<worker-id>/<order-id>.md`, so answering "what is
-delivered and unprocessed?" means walking every family crossed with every minted worker id. Doing that
-by hand mis-reported the fleet once on 2026-07-25 (a stale `list-pending` read was described as "7
-stranded orders" when all ten had in fact been delivered). Two trays now separate the traffic, and the
-separation is the point (maintainer-directed 2026-07-25):
-
-- **`inbox/`** carries HIGH-PRIORITY issues a worker raises, read as soon as noticed. A worker writes one
-  the moment it hits a blocker, a malformed order, an out-of-scope defect, or an independence conflict,
-  rather than burying it in a result the orchestrator may not read for hours. This matters more now that
-  workers run HEADLESS, with no pane being watched.
-- **`inbox/deliveries/`** carries routine order results, processed at the next boundary, named
-  `<worker-id>__<order-id>.md` so both ids survive without parsing the body. The orchestrator needs the
-  worker id for the elevated-QA trust window (keyed on worker plus model) and for independence routing.
-
-Mixing them would destroy what makes the issue channel work, namely that its list is short and every item
-on it matters, so a delivery never lands in bare `inbox/`.
-
-**Run [`tools/collect-deliveries.py`](../tools/collect-deliveries.py) at each task boundary**: it sweeps completed deliveries into the tray and files each
-served order under `done/orders/`. Two independent completeness layers gate the move, because they catch
-different failures. `deliver` publishes via an atomic rename from a `.md.tmp` name in the same directory,
-so any `*.md` in an outbox has all its bytes; and the last non-blank line must be
-`<!-- END OF DELIVERY -->`, which is the author's assertion that the work was finished rather than merely
-fully written. A file failing either is LEFT IN PLACE and REPORTED individually, never silently skipped,
-because a file sitting untouched with no explanation is the same silence-reads-as-health failure as a
-stalled worker that still heartbeats while no longer doing work.
-
-Its report names BOTH planes (tray count and still-in-outbox count) rather than summing them, because the
-sweep only runs while the orchestrator is alive, so a tray-only reading under-reports between sessions.
-That is the single-plane blindness still live in the scratch `list-workers`. `--dry-run` is the read-only status form and `--oneline` the statusline form.
+Two clauses stay inline because their blast radius reaches beyond the dispatch activity:
+- **Inbox issues jump the queue.** A worker-raised HIGH-PRIORITY issue in `inbox/` (a blocker, a malformed order, an out-of-scope defect, or an independence conflict) jumps the queue and is read as soon as noticed, never batched to a boundary; routine `inbox/deliveries/` results wait for the next boundary. Workers run HEADLESS, so nothing else surfaces the issue.
+- **Sweep the trays every boundary.** Run [`tools/collect-deliveries.py`](../tools/collect-deliveries.py) at each task boundary and read the trays before selecting work (the QA-priority form of this is `## A delivered QA result BLOCKS progress until it is read and its findings are fixed` above).
 
 ## Pack-parity coupling (adopt a guard rail, keep the pack in sync)
 
