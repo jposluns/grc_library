@@ -281,10 +281,6 @@ Umbrella for adopting NIST OSCAL as an open, machine-readable projection of the 
 
 exec-dispatch silently returns "no eligible account" when `--model X` is absent from every account's `models` list (the 2026-07-30 recurrence: `gpt-5-codex` was passed, filtered every available codex account to zero, and the message was indistinguishable from a real no-capacity state, costing several failed dispatch attempts and orchestrator time). Build: (1) a PreToolUse hook that parses an exec-dispatch `--model` and BLOCKS a model not in the known-model set for the family, printing the valid list + the one-line update method; (2) exec-dispatch itself fails loud on an unknown model (a message distinct from "no eligible account"); (3) a single easy-to-update source of truth for valid models per family (e.g. a top-level `known_models` in `worker-accounts.json`, updated in ONE place when a model releases). Scratch/worker tooling, not pack.
 
-### 3.195 Gate 39 misses stale count idioms in shell-comment lines (gate-80 vpr gF6; 2026-07-31, S, S)
-
-The gate-80 dual-family vpr (codex) found a stale gate-count idiom (reading 78) in [`tools/quick-guard.sh`](tools/quick-guard.sh) line 9 that gate 39 (cross-file gate-count consistency) MISSED, because gate 39's markdown-heading logic treats a shell `# ...` comment line as a heading and skips it, so a gate-count idiom in a `.sh` (or other `#`-comment) file escapes the count-consistency check. The stale count itself was corrected in #1278; this tracks the gate-39 blind spot. Fix: gate 39 should scan shell/py comment lines for the count idioms rather than skipping `#`-prefixed lines as headings. FP-safety: a `.py` / `.sh` comment mentioning a number is common, so scope the count-idiom patterns tightly (the existing `N gates` / `all N gates` idiom set) and add a regression fixture. Umbrella A / gate hygiene.
-
 **Next item number: 3.196.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.

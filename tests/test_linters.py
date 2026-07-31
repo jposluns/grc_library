@@ -2977,6 +2977,38 @@ class GateCountConsistencyTests(LinterTestCase):
         result = run_linter("tools/lint-gate-count-consistency.py", fixture)
         self.assertLinterFails(result)
 
+    def test_stale_count_in_shell_comment_flagged(self) -> None:
+        # TODO 3.195 / gate-80 vpr gF6: gate 39 treated a ``#``-comment line in a
+        # .py/.sh file as a markdown heading and skipped it, so a stale count
+        # idiom in a shell comment escaped. The fix scopes the heading /
+        # version-history skip to .md files, so a ``.sh`` comment is now scanned.
+        # "0 audit gates" (P2) can never match the canonical count.
+        fixture = self.make_fixture(
+            "bad-gate-count-comment.sh",
+            "#!/usr/bin/env bash\n"
+            "# This banner mentions the 0 audit gates in the suite.\n"
+            "echo hi\n",
+        )
+        result = run_linter("tools/lint-gate-count-consistency.py", fixture)
+        self.assertLinterFails(result)
+
+    def test_markdown_version_history_still_skipped(self) -> None:
+        # Regression guard for the .md-only scoping (TODO 3.195): a stale count
+        # inside a ``## Version history`` section of a MARKDOWN file must still be
+        # SKIPPED (the frozen-changelog exemption), so the fix did not over-broaden
+        # into flagging legitimately-superseded counts in a version-history log.
+        fixture = self.make_fixture(
+            "version-history-skip.md",
+            "# Doc\n\n## Version history\n\n- v1: grew to the 0-gate programme.\n",
+        )
+        result = run_linter("tools/lint-gate-count-consistency.py", fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"version-history skip regressed.\nstdout:\n{result.stdout}\n"
+            f"stderr:\n{result.stderr}",
+        )
+
+
     def test_stale_wordform_governance_rules_flagged(self) -> None:
         # P11 (word-form): the qualified "ninety-nine governance rules" can
         # never match the canonical rule count (15), so it is flagged.
