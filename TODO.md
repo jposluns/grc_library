@@ -809,18 +809,17 @@ grows), so an adopter inherits the mid-session-death recovery path alongside the
 a tracked follow-up (the sanctioned pack-parity option) rather than built in the command's own PR, to keep that PR
 focused.
 
-### 3.131 Per-worker headless console/event logging to a searchable log file (maintainer-requested 2026-07-26, M, S) `[machinery]` `[private]`
+### 3.131 Per-worker headless logging, part (b): codex `codex exec` wrapper stdout/stderr redirect (maintainer-requested 2026-07-26, S, S) `[machinery]` `[private]`
 
-Workers run headless, so their runtime console messages (claims, heartbeats, progress, errors) are not searchable after
-the fact; only the final delivery lands in the outbox. Add per-worker logging to `/home/grc/grc_working/logs/` named
-`YYYY-MM-DD_<worker-id>_out.log`, greppable and tailable. Two parts: (a) the exchange helper `credit-offload-filedrop.py`
-(`grc_library_scratch:tools/`) writes a structured event line on each `claim` / `heartbeat` / `deliver` / error (clean
-text, the primary searchable record); (b) for codex, the `codex exec` sudo-wrapper (post-resume codex build, design in
-`grc_library_private`) redirects its stdout, stderr, exit status, and timestamps to the same dated per-worker log at
-about zero extra cost. NOTE: a raw capture of the interactive Claude TUI (`tee` / `tmux pipe-pane`) carries ANSI control
-codes because of the alternate-screen buffer, so the STRUCTURED event log is the clean approach and `tmux pipe-pane` is
-only an optional raw supplement. The helper lives in `grc_library_scratch`, so the primary build is a scratch-side
-change; best done post-resume alongside the codex-exec build so both worker families share one `logs/` layout.
+**PARTIAL: part (a) shipped to `grc_library_scratch` (recorded in grc_library PR #1294).** The exchange helper
+`credit-offload-filedrop.py` now writes a structured event line (`claim` / `heartbeat` / `deliver`) to
+`<root>/logs/YYYY-MM-DD_<worker-id>_out.log` at each hot-path call site, via `_log_event`, exception-guarded so a
+logging failure can never block or fail a real claim/heartbeat/deliver (5 self-test cases; live-handler integration
+confirmed). REMAINS: part (b), for codex, the `codex exec` sudo-wrapper redirects its stdout, stderr, exit status, and
+timestamps to the same dated per-worker log at about zero extra cost, best done alongside the codex-exec build so both
+worker families share one `logs/` layout. NOTE: a raw capture of the interactive Claude TUI carries ANSI control codes
+(alternate-screen buffer), so the structured event log is the clean primary record and `tmux pipe-pane` is only an
+optional raw supplement.
 
 ### 3.132 Gate 78 enforces only the recorded-retirement half of the never-recycle rule (r16 guardrails, G-1; DECIDED, rotate to DONE) `[machinery]` `[private]`
 
