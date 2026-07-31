@@ -40,9 +40,12 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 CLAUDE_MD = REPO_ROOT / ".claude" / "CLAUDE.md"
 
 # Downward ratchet. LOWER this (never raise it) as CLAUDE.md shrinks. Current
-# size at adoption (#1250): 1506 lines; ~3% headroom absorbs this PR's own
-# lean-checklist edits and normal small changes while blocking ~50-line regrowth.
-CEILING = 1550
+# size at #1250 adoption: 1506 lines (CEILING then 1550). Roadmap C parts 2-4
+# (#1278-1284) + the TODO-split #1301 brought CLAUDE.md to 918, but the ceiling
+# was left at its adoption value (~630 lines of slack, so the gains were NOT
+# locked in); #1302 lowers it to 945 (~3% headroom over 918) to ratchet the gain
+# in, per the downward-ratchet discipline the maintainer set.
+CEILING = 945
 
 
 def line_count(path: Path) -> int:
