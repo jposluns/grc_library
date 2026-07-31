@@ -9521,7 +9521,7 @@ class TodoNumberPermanenceTests(LinterTestCase):
     ``--root``, the idiom gate 35 established for multi-surface gates.
     """
 
-    def _run(self, name: str, todo: str, done: str | None):
+    def _run(self, name: str, todo: str, done: str | None, ptodo: str | None = None):
         """Build a synthetic {TODO.md, .working/DONE.md} root and run the gate.
 
         Returns the completed process. The caller cleans up via the returned
@@ -9533,6 +9533,8 @@ class TodoNumberPermanenceTests(LinterTestCase):
         (root / "TODO.md").write_text(todo, encoding="utf-8")
         if done is not None:
             (root / ".working" / "DONE.md").write_text(done, encoding="utf-8")
+        if ptodo is not None:
+            (root / "P-TODO.md").write_text(ptodo, encoding="utf-8")
         result = run_linter(
             "tools/lint-todo-number-permanence.py", "--root", str(root)
         )
@@ -9550,6 +9552,80 @@ class TodoNumberPermanenceTests(LinterTestCase):
         )
         try:
             self.assertLinterFails(result, "3.108")
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_ptodo_id_parsed_as_live(self) -> None:
+        # A P-n.m private-list heading is parsed into the live set (regex change).
+        root, result = self._run(
+            "perm-ptodo-live",
+            "# TODO\n\n## Priority 2\n\n### 2.3 A public item\n\nBody.\n",
+            "# DONE\n\nNo entries.\n",
+            ptodo="# P-TODO\n\n### P-1.1 A born-private tooling item\n\nBody.\n",
+        )
+        try:
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("P-TODO.md", result.stdout)  # both lists counted
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_number_live_in_ptodo_and_retired_in_done_fails(self) -> None:
+        # Load-bearing migration case: a migrated N.M id (kept on move into
+        # P-TODO.md) whose number DONE.md retired must flag, though public
+        # TODO.md no longer carries it. This fixture could not exist pre-change.
+        root, result = self._run(
+            "perm-ptodo-recycle",
+            "# TODO\n\n## Priority 2\n\n### 2.3 A public item\n\nBody.\n",
+            "# DONE\n\n### \u00a73.174 A reword closed (2026-07-28, PR #1259)\n\nBody.\n",
+            ptodo="# P-TODO\n\n### 3.174 A migrated item wearing a retired number\n\nBody.\n",
+        )
+        try:
+            self.assertLinterFails(result, "3.174")
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_number_live_in_both_lists_fails(self) -> None:
+        # A copy-not-move migration bug: the same N.M id live in BOTH lists at
+        # once (the new cross-list-collision check).
+        root, result = self._run(
+            "perm-cross-list",
+            "# TODO\n\n## Priority 3\n\n### 3.174 Still in the public list (stale)\n\nBody.\n",
+            "# DONE\n\nNo entries.\n",
+            ptodo="# P-TODO\n\n### 3.174 Also moved into the private list\n\nBody.\n",
+        )
+        try:
+            self.assertLinterFails(result, "3.174")
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_ptodo_absent_is_noop(self) -> None:
+        # With no P-TODO.md the gate behaves exactly as before (backward compat).
+        root, result = self._run(
+            "perm-ptodo-absent",
+            "# TODO\n\n## Priority 2\n\n### 2.3 A public item\n\nBody.\n",
+            "# DONE\n\nNo entries.\n",
+        )
+        try:
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_p_id_never_collides_with_dotted_id(self) -> None:
+        # P-1.1 and 1.1 are DISTINCT numbers (distinct namespace): both live,
+        # un-retired, must pass.
+        root, result = self._run(
+            "perm-p-vs-dotted",
+            "# TODO\n\n## Priority 1\n\n### 1.1 A public item\n\nBody.\n",
+            "# DONE\n\nNo entries.\n",
+            ptodo="# P-TODO\n\n### P-1.1 A private item\n\nBody.\n",
+        )
+        try:
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         finally:
             import shutil
             shutil.rmtree(root, ignore_errors=True)

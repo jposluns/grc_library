@@ -114,18 +114,22 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import resolve_working
+from lint_common import resolve_working, resolve_sibling
 
 REPO_ROOT: Path = Path(__file__).resolve().parent.parent
 
 TODO_REL = "TODO.md"
 DONE_REL = ".working/DONE.md"
+# The private backlog list lives ONLY in the grc_library_private sibling (no
+# in-repo fallback, unlike .working/); absent for public CI / adopter clones.
+PTODO_REL = "P-TODO.md"
 
 # A live backlog heading: '### 3.109 <title>' or '### 2.25.1 <title>' or
-# '### 1.19.10a <title>' or '### TF-2 <title>'. A leading section marker is
+# '### 1.19.10a <title>', '### TF-2 <title>', or '### P-1.1 <title>' (the private
+# P-TODO.md list). A leading section marker is
 # tolerated ('### §3.109 ...') though TODO does not currently use one.
 LIVE_HEADING_RE = re.compile(
-    r"^###\s+(?:§\s*)?((?:\d+(?:\.\d+)+[a-z]?)|TF-\d+)(?=[\s:]|$)"
+    r"^###\s+(?:§\s*)?((?:P-\d+(?:\.\d+){1,2}[a-z]?)|(?:\d+(?:\.\d+)+[a-z]?)|TF-\d+)(?=[\s:]|$)"
 )
 
 # A retired id inside a DONE.md heading, always section-marked. Rejects a
@@ -366,6 +370,17 @@ def find_stale_counters(
     return findings
 
 
+def find_cross_list_collisions(
+    todo_live: dict[str, list[int]],
+    ptodo_live: dict[str, list[int]],
+) -> list[str]:
+    """A number LIVE in BOTH lists at once: a botched migration that COPIED an
+    item into P-TODO.md instead of MOVING it, leaving a stale duplicate. The two
+    single-source checks (recycle, counter) each assumed exactly one live source,
+    so this is the only check that catches it."""
+    return sorted(set(todo_live) & set(ptodo_live), key=lambda s: (_ordinal(s) or ("", 0)))
+
+
 def main(argv: list[str]) -> int:
     global REPO_ROOT
     parser = argparse.ArgumentParser(
@@ -416,35 +431,63 @@ def main(argv: list[str]) -> int:
                 f"item ids."
             )
 
+    # P-TODO.md is unioned into the live set so backlog numbers stay permanent ACROSS
+    # both lists (a migrated item keeps its N.M id in P-TODO.md; gate 78 must still see
+    # it). Adopter-graceful: absent private sibling / absent P-TODO.md -> "" -> no-op.
+    ptodo_path: Path | None
+    if args.root is not None:
+        cand = REPO_ROOT / PTODO_REL   # verbatim under an explicit synthetic root
+        ptodo_path = cand if cand.is_file() else None
+    else:
+        private = resolve_sibling("private")
+        cand = (private / PTODO_REL) if private is not None else None
+        ptodo_path = cand if (cand is not None and cand.is_file()) else None
+
     try:
         todo_text = todo_path.read_text(encoding="utf-8")
         done_text = (
             done_path.read_text(encoding="utf-8") if done_path is not None else ""
         )
+        ptodo_text = ptodo_path.read_text(encoding="utf-8") if ptodo_path is not None else ""
     except OSError as exc:
         print(f"ERROR: cannot read a required file: {exc}", file=sys.stderr)
         return 2
 
-    live = parse_live(todo_text)
+    todo_live = parse_live(todo_text)
+    ptodo_live = parse_live(ptodo_text)
+    live = {**todo_live, **ptodo_live}   # union of ids across both lists
     retired = parse_retired(done_text)
     counters = parse_counters(todo_text)
 
     recycled = find_recycled(live, retired, done_headings(done_text))
     stale = find_stale_counters(live, retired, counters)
+    cross = find_cross_list_collisions(todo_live, ptodo_live)
 
-    if not recycled and not stale:
+    if not recycled and not stale and not cross:
         print(
-            f"OK: {len(live)} live TODO item(s), {len(retired)} recorded retired "
-            f"number(s), {len(counters)} counter(s); no recycled number, no stale counter."
+            f"OK: {len(live)} live backlog item(s) (TODO.md + P-TODO.md), "
+            f"{len(retired)} recorded retired number(s), {len(counters)} counter(s); "
+            f"no recycled number, no cross-list duplicate, no stale counter."
         )
         return 0
 
     if recycled:
         print("=== recycled item numbers (a number denoting two items) ===")
-        for item_id, todo_lines, done_lines in recycled:
-            tl = ", ".join(f"TODO.md:{n}" for n in todo_lines)
+        for item_id, _live_lines, done_lines in recycled:
+            srcs = []
+            if item_id in todo_live:
+                srcs.append("TODO.md:" + ",".join(str(n) for n in todo_live[item_id]))
+            if item_id in ptodo_live:
+                srcs.append("P-TODO.md:" + ",".join(str(n) for n in ptodo_live[item_id]))
             dl = ", ".join(f".working/DONE.md:{n}" for n in done_lines)
-            print(f"  §{item_id}: live at {tl}; recorded retired at {dl}")
+            print(f"  §{item_id}: live at {'; '.join(srcs)}; recorded retired at {dl}")
+
+    if cross:
+        print("=== numbers live in BOTH lists (a copy-not-move migration bug) ===")
+        for item_id in cross:
+            tl = ",".join(str(n) for n in todo_live[item_id])
+            pl = ",".join(str(n) for n in ptodo_live[item_id])
+            print(f"  §{item_id}: TODO.md:{tl} AND P-TODO.md:{pl}")
 
     if stale:
         print("=== counters pointing at an already-used number ===")
@@ -455,7 +498,7 @@ def main(argv: list[str]) -> int:
                 f"(highest used ordinal {highest}); advance it past {highest}"
             )
 
-    total = len(recycled) + len(stale)
+    total = len(recycled) + len(stale) + len(cross)
     print(f"\nFAIL: {total} item-number permanence finding(s).")
     print("TODO numbers are permanent and never recycled: a closed number retires with")
     print("its item, and every edit advances its section's 'Next item number' counter.")
