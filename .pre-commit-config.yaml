@@ -567,3 +567,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-todo-list-tag
+        name: Backlog list-tag audit
+        entry: python3 tools/lint-todo-list-tag.py
+        language: system
+        pass_filenames: false
+        always_run: true
