@@ -1,0 +1,37 @@
+# PLAYBOOK-MANIFEST.yml — activity-scoped rule-loader manifest (roadmap C part 2).
+#
+# One entry per section relocated from the always-loaded core (.claude/CLAUDE.md)
+# into a references/<playbook>.md read at its activity boundary "like a skill".
+# tools/lint-playbook-pointer-integrity.py (gate 80) is the invariant enforcer over
+# this file. It is NOT PyYAML: it is parsed by the same hand-rolled, quoted-value,
+# indentation-based reader taxonomy.yml uses (see tools/build-portal.py). Keep to
+# the shape below exactly: a block starts at a column-0 `- playbook:` line; scalars
+# are 2-space-indented `key: "value"`; list items are 4-space-indented `- "value"`.
+#
+# Per entry:
+#   playbook          the relocated target, repo-relative (references/<file>.md).
+#   activity          the triggering activity / boundary the playbook is read at.
+#   index_label       the human label for the `## Activity playbooks` INDEX row.
+#   retained_anchors  ALWAYS-ON clause substrings kept INLINE in .claude/CLAUDE.md.
+#                     THE INVARIANT: each MUST still appear inline; a missing one is
+#                     a moved-out always-on directive => RED gate. Pick short, stable,
+#                     distinctive substrings (no markdown decoration) that identify the
+#                     clause without being brittle to rewording of the surrounding prose.
+#   relocated_anchors detail-only substrings that live in the playbook FILE (the moved
+#                     material). Recorded for provenance and checked present-in-playbook
+#                     (bidirectional pointer-rot guard). Duplication of a retained clause
+#                     into BOTH surfaces is deliberate defence-in-depth and never flagged.
+#
+# SEED: the roadmap C phase-1 pr-lifecycle move (Stage 0, already landed). Its lean
+# inline core keeps the always-on safety clauses below; the full detail lives in the
+# playbook. This is the only entry until Stage 2+ relocations begin.
+
+- playbook: "references/pr-lifecycle.md"
+  activity: "PR close-out and session-migration boundary"
+  index_label: "PR lifecycle and close-out"
+  retained_anchors:
+    - "Feature branch only, never"
+    - "Never pipe a verification to a truncating sink"
+  relocated_anchors:
+    - "A DISPATCHED ORDER IS WORK ORDERED, NEVER WORK DONE"
+    - "CORRECTED 2026-07-25"

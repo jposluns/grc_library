@@ -9793,5 +9793,160 @@ class SsdfControlIdTests(LinterTestCase):
 
 
 
+class PlaybookPointerIntegrityTests(LinterTestCase):
+    """tools/lint-playbook-pointer-integrity.py (gate 80)."""
+
+    SCRIPT = "tools/lint-playbook-pointer-integrity.py"
+
+    MANIFEST = (
+        '- playbook: "references/pr-lifecycle.md"\n'
+        '  activity: "PR close-out"\n'
+        '  retained_anchors:\n'
+        '    - "Feature branch only, never"\n'
+        '  relocated_anchors:\n'
+        '    - "DISPATCHED ORDER"\n'
+    )
+    CLAUDE_CLEAN = (
+        "# CLAUDE.md\n\n## PR workflow\n"
+        "See [`references/pr-lifecycle.md`](../references/pr-lifecycle.md).\n"
+        "Feature branch only, never `main`.\n"
+    )
+    PLAYBOOK = "# pr-lifecycle\n\nA DISPATCHED ORDER IS WORK ORDERED.\n"
+
+    def _tree(self, root: Path, claude: str, manifest: str,
+              playbook: str | None = "keep") -> None:
+        (root / ".claude").mkdir(parents=True, exist_ok=True)
+        (root / "references").mkdir(parents=True, exist_ok=True)
+        (root / ".claude" / "CLAUDE.md").write_text(claude, encoding="utf-8")
+        (root / "references" / "PLAYBOOK-MANIFEST.yml").write_text(
+            manifest, encoding="utf-8")
+        if playbook is not None:
+            body = self.PLAYBOOK if playbook == "keep" else playbook
+            (root / "references" / "pr-lifecycle.md").write_text(
+                body, encoding="utf-8")
+
+    def test_clean_tree_passes(self) -> None:
+        # NEGATIVE: pointer resolves, retained anchor inline, relocated anchor in
+        # the playbook, INDEX absent (degrades). Nothing to flag.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._tree(root, self.CLAUDE_CLEAN, self.MANIFEST)
+            result = run_linter(self.SCRIPT, "--root", str(root))
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_moved_out_retained_clause_flagged(self) -> None:
+        # POSITIVE (the invariant enforcer): the retained always-on anchor is
+        # removed from the core while everything else stays valid, so ONLY the
+        # retained-clause check can fire. Mutation-provable: restoring the line
+        # makes this pass.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            claude = self.CLAUDE_CLEAN.replace(
+                "Feature branch only, never `main`.\n", "")
+            self._tree(root, claude, self.MANIFEST)
+            result = run_linter(self.SCRIPT, "--root", str(root))
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("[retained]", result.stdout)
+        self.assertIn("Feature branch only, never", result.stdout)
+
+    def test_dangling_pointer_flagged(self) -> None:
+        # POSITIVE: the manifest target file is absent; the inline pointer dangles
+        # and the playbook is an orphan.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._tree(root, self.CLAUDE_CLEAN, self.MANIFEST, playbook=None)
+            result = run_linter(self.SCRIPT, "--root", str(root))
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("[pointer]", result.stdout)
+
+    def test_index_absent_degrades_not_fails(self) -> None:
+        # NEGATIVE / degradation: no `## Activity playbooks` section -> NOTE, exit 0.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._tree(root, self.CLAUDE_CLEAN, self.MANIFEST)
+            result = run_linter(self.SCRIPT, "--root", str(root))
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("INDEX section not present", result.stdout)
+
+    def test_index_present_missing_playbook_flagged(self) -> None:
+        # POSITIVE: once the INDEX exists, a manifest playbook not listed in it
+        # fails completeness. Built so only the INDEX check can fire (pointer
+        # resolves, retained anchor inline, relocated anchor present).
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            claude = self.CLAUDE_CLEAN + "\n## Activity playbooks\n\n(empty)\n"
+            self._tree(root, claude, self.MANIFEST)
+            result = run_linter(self.SCRIPT, "--root", str(root))
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("[index] MISSING", result.stdout)
+
+    def test_prose_mention_of_future_playbook_not_flagged(self) -> None:
+        # gF1 (FP-safety): a core mention / forward-reference of a not-yet-created
+        # or non-manifest references/ file must NOT cry wolf as DANGLING. Only a
+        # MANIFEST playbook target that is missing is dangling.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            claude = self.CLAUDE_CLEAN + "\nStage 2 will add `references/worker-offload.md` here.\n"
+            self._tree(root, claude, self.MANIFEST)
+            result = run_linter(self.SCRIPT, "--root", str(root))
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_malformed_retained_anchor_fails_loud(self) -> None:
+        # gF2 (fail-loud, not fail-open): an unquoted/malformed retained anchor
+        # must be a LOUD error (exit 2), never a silent skip.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            bad = self.MANIFEST.replace(
+                '    - "Feature branch only, never"\n',
+                '    - Feature branch only, never main\n')
+            self._tree(root, self.CLAUDE_CLEAN, bad)
+            result = run_linter(self.SCRIPT, "--root", str(root))
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("malformed", result.stdout + result.stderr)
+
+    def test_orphan_playbook_flagged(self) -> None:
+        # gF5: a manifest playbook whose FILE exists but has NO inline pointer is
+        # an ORPHAN (isolates the forward parity leg).
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            claude = "# CLAUDE.md\n\n## PR workflow\nFeature branch only, never `main`.\n"
+            self._tree(root, claude, self.MANIFEST)
+            result = run_linter(self.SCRIPT, "--root", str(root))
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("ORPHAN", result.stdout)
+
+    def test_relocated_anchor_missing_from_playbook_flagged(self) -> None:
+        # gF5: a relocated anchor absent from its playbook file is POINTER ROT.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._tree(root, self.CLAUDE_CLEAN, self.MANIFEST,
+                       playbook="# pr-lifecycle\n\n(no relocated content)\n")
+            result = run_linter(self.SCRIPT, "--root", str(root))
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("[relocated]", result.stdout)
+
+    def test_index_present_duplicate_flagged(self) -> None:
+        # gF5: a playbook listed twice in the Activity-playbooks INDEX is a DUPLICATE.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            claude = (self.CLAUDE_CLEAN + "\n## Activity playbooks\n\n"
+                      "- [PR lifecycle](../references/pr-lifecycle.md)\n"
+                      "- [dup](../references/pr-lifecycle.md)\n")
+            self._tree(root, claude, self.MANIFEST)
+            result = run_linter(self.SCRIPT, "--root", str(root))
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("[index] DUPLICATE", result.stdout)
+
+    def test_runs_clean_on_corpus_at_head(self) -> None:
+        # Smoke test: the real tree passes once Artefact 1 (the seed manifest) is
+        # committed alongside the gate in the Stage-1 PR.
+        result = run_linter(self.SCRIPT)
+        self.assertEqual(
+            result.returncode, 0,
+            f"gate 80 exited {result.returncode} on HEAD.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
