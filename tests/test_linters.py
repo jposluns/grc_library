@@ -9751,6 +9751,93 @@ class TodoNumberPermanenceTests(LinterTestCase):
             import shutil
             shutil.rmtree(root, ignore_errors=True)
 
+class TagGateTests(LinterTestCase):
+    """tools/lint-todo-list-tag.py (gate 81): every open TODO.md / P-TODO.md
+    item heading must carry exactly one [public]/[private] list tag. Findings
+    are keyed by physical line, so a 3.92.a/.b/.c lettered sub-heading's shared
+    id-capture prefix cannot mask an untagged sibling."""
+
+    def _run(self, name, todo, ptodo=None):
+        root = FIXTURE_DIR / name
+        root.mkdir(parents=True, exist_ok=True)
+        (root / "TODO.md").write_text(todo, encoding="utf-8")
+        if ptodo is not None:
+            (root / "P-TODO.md").write_text(ptodo, encoding="utf-8")
+        result = run_linter("tools/lint-todo-list-tag.py", "--root", str(root))
+        return root, result
+
+    def test_one_tag_passes(self):
+        root, result = self._run(
+            "tag-one",
+            "# TODO\n\n## Priority 2\n\n### 2.3 A public item `[public]`\n\nBody.\n",
+        )
+        try:
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_zero_tag_fails(self):
+        root, result = self._run(
+            "tag-zero",
+            "# TODO\n\n## Priority 2\n\n### 2.3 An untagged item\n\nBody.\n",
+        )
+        try:
+            self.assertLinterFails(result, "2.3")
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_two_tags_fails(self):
+        root, result = self._run(
+            "tag-two",
+            "# TODO\n\n## Priority 2\n\n### 2.3 Double `[public]` `[private]`\n\nBody.\n",
+        )
+        try:
+            self.assertLinterFails(result, "2.3")
+            self.assertIn("ambiguous", result.stdout)
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_lettered_subheadings_checked_independently(self):
+        root, result = self._run(
+            "tag-lettered",
+            "# TODO\n\n## Priority 3\n\n### 3.92.a Tagged `[public]`\n\nBody.\n\n"
+            "### 3.92.b Untagged sibling\n\nBody.\n",
+        )
+        try:
+            self.assertLinterFails(result, "3.92.b")
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_ptodo_scanned_when_present(self):
+        root, result = self._run(
+            "tag-ptodo",
+            "# TODO\n\n### 2.3 A public item `[public]`\n\nBody.\n",
+            ptodo="# P-TODO\n\n### P-1.1 An untagged private item\n\nBody.\n",
+        )
+        try:
+            self.assertLinterFails(result, "P-1.1")
+            self.assertIn("P-TODO.md", result.stdout)
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_adopter_no_ptodo_is_noop(self):
+        root, result = self._run(
+            "tag-adopter",
+            "# TODO\n\n### 2.3 A public item `[public]`\n\nBody.\n",
+        )
+        try:
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("not present", result.stdout)
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True)
+
+
 class NormalizedPositionalArgsTests(LinterTestCase):
     """TODO 3.137a: the fast-ready gate tools were normalized to accept a uniform
     positional multi-file ``.md`` list (the ``tools/quick-guard.sh`` contract).
