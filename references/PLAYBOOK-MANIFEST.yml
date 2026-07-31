@@ -65,3 +65,17 @@
     - "Super-sensitive tasks get BOTH a Codex and a Claude worker"
     - "WORKERS ARE ELASTIC"
     - "credit-offload-design.md"
+
+- playbook: "references/worker-dispatch.md"
+  activity: "Constructing or pinning a worker order, managing a codex worker, or processing the delivery trays"
+  index_label: "Worker dispatch mechanics and delivery trays"
+  retained_anchors:
+    - "jumps the queue and is read as soon as noticed"
+    - "at each task boundary and read the trays before selecting work"
+  relocated_anchors:
+    - "the commit that CREATED item N"
+    - "names a worker id the exchange has never seen"
+    - "SINGLE-SHOT PER NUDGE"
+    - "issue another check-in. Repeat"
+    - "atomic rename from a `.md.tmp`"
+    - "never lands in bare `inbox/`"
