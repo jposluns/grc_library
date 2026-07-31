@@ -259,6 +259,23 @@ against the closed-work ledger's and failing on any number that appears as both 
 convention alone is not sufficient: this rule is typically written only after a recycled number has
 already mis-routed something.
 
+### A backlog's exception status is granted, not self-asserted
+
+A backlog item's exception-status tag, the tag that removes it from normal handling (blocked, won't-fix, deferred-indefinitely), is a maintainer- or authority-GRANTED status, never a status the assistant applies to its own work. The assistant does not write the tag itself.
+
+When the assistant believes an item warrants such a tag, it PROPOSES the tag and a one-sentence reason into the project's decision log, and continues treating the item as actionable while the proposal is open. Only the responsible authority's approval converts a proposal into a tag.
+
+PROPOSED is not GRANTED. Until the authority approves, the item stays actionable by default: normal priority, normal handling, no different from any other open item. An assistant that treats its own proposal as sufficient to stop working an item has re-asserted the very status this rule exists to withhold from self-assertion.
+
+The reason this needs its own rule, distinct from ordinary judgment calls, is that an exception-status tag is persistent: once written it outlives the change that wrote it, and any later tool or reader that counts items by status trusts the tag rather than re-deriving it. A self-applied tag is therefore not a private shortcut, it is a durable claim other surfaces rely on without re-checking. This is the persistent-artefact-tag instance of the set-completeness and asymmetric-skepticism corollaries in [`evidence-grounded-completion`](evidence-grounded-completion.md): "everything is blocked" is a set-completeness claim over the backlog, and a claim that licenses less work (stopping on an item, or counting the backlog as exhausted) carries a higher evidence bar, not a lower one. Counting a self-proposed tag as though it were granted manufactures exactly the false completeness that corollary forbids.
+
+Two practices follow:
+
+- **Any tool or claim that counts items by exception status counts only GRANTED tags.** A proposal awaiting approval is not counted as blocked, won't-fix, or deferred; it is counted as an ordinary open item. An audit that counts a PROPOSED tag as GRANTED can manufacture a false "everything is handled" or "nothing is actionable" reading of the backlog from proposals no authority has reviewed.
+- **Proposing a status is never a reason to withhold capturing a new item.** An item whose status is in question is captured to the backlog immediately, with its proposed status recorded alongside it; classification is resolved after capture, never before. Withholding the item pending classification drops it from the record exactly as silently as not writing it at all.
+
+Where the toolchain permits, enforce this mechanically: reject a self-applied exception-status tag that has no matching approval record, and have any backlog-actionability audit read the approval record rather than the tag alone.
+
 ### After-merge: list the upcoming next-N planned PRs
 
 When a PR merges, the next thing the assistant (or the maintainer) does is consult TODO's forward-looking section and list the upcoming N planned PRs in the chat. Default N is 5; the exact count is project-configurable.
