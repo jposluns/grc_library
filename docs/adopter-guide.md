@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Guide\
 **Document Type:** Guide\
-**Version:** 1.3.13\
-**Date:** 2026-07-14\
+**Version:** 1.3.14\
+**Date:** 2026-07-31\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/worked-example.md`](worked-example.md), [`docs/worked-example-adoption.md`](worked-example-adoption.md), [`docs/adopter-guide-multi-entity.md`](adopter-guide-multi-entity.md), [`specification-master-project.md`](../specification-master-project.md)\
@@ -116,7 +116,7 @@ Most adopting organizations cannot operate all of the library's controls on day 
 
 If your organization is small (under approximately 200 staff, low regulatory exposure, no high-risk AI in production), start with these 17 documents and operate them well before adding more. This Tier 1 set is a strict superset of the six-artefact Day-1 floor named in [`docs/template-quickstart.md`](template-quickstart.md): it contains all six floor artefacts, including the acceptable-use and identity-and-access-management policies. Tier 1 in turn sits within the larger sector-conditional sets the [`docs/decision-tree.md`](decision-tree.md) builds (for example about 25 documents for an EU-fintech path). The three sizes are progressively-nested, complementary starting points rather than competing ones.
 
-**Approximate reading time**: 5 to 7 hours to read all 17 documents once at a moderate pace; substantially longer to internalize. **If you only read three** to get an immediate orientation, pick the three Governance documents in the table below (Charter + Framework + Role Authority Register); they ground the structure that the rest of Tier 1 operationalizes.
+**Approximate reading time**: 5 to 7 hours to read all 17 documents once at a moderate pace; substantially longer to internalize. **If you only read three** to get an immediate orientation, pick the three Governance documents in the table below (Charter + Framework + Role Authority Register); they ground the structure that the rest of Tier 1 operationalizes. The Charter is `library-internal` per the document-index register ([`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md)): it documents how this library governs itself, not an artefact you fork, so read it for orientation and then keep it as reference or delete it. The Framework and Role Authority Register are the two of the three you adapt as your own deliverables.
 
 | Type | Document |
 | --- | --- |

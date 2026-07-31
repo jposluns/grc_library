@@ -281,7 +281,7 @@ Umbrella for adopting NIST OSCAL as an open, machine-readable projection of the 
 
 exec-dispatch silently returns "no eligible account" when `--model X` is absent from every account's `models` list (the 2026-07-30 recurrence: `gpt-5-codex` was passed, filtered every available codex account to zero, and the message was indistinguishable from a real no-capacity state, costing several failed dispatch attempts and orchestrator time). Build: (1) a PreToolUse hook that parses an exec-dispatch `--model` and BLOCKS a model not in the known-model set for the family, printing the valid list + the one-line update method; (2) exec-dispatch itself fails loud on an unknown model (a message distinct from "no eligible account"); (3) a single easy-to-update source of truth for valid models per family (e.g. a top-level `known_models` in `worker-accounts.json`, updated in ONE place when a model releases). Scratch/worker tooling, not pack.
 
-**Next item number: 3.197.**
+**Next item number: 3.198.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
 
@@ -460,10 +460,6 @@ Confirmed not-held and load-bearing: ISO 22301:2019 (6+ resilience clause-title 
 ### 3.176 Printed-title-vs-catalogue-title check (mechanize the label-drift meta-pattern) (2026-07-28 deep-assessment c5, claude, M, M) `[private]`
 
 Component 5's meta-pattern: mis-citations are not invented codes (existence gates + 1916 CSA codes clean) but hand-written LABELS substituted for catalogue titles, wrong ~half the time, which `/matrix-fit` cannot catch (it judges code fit via reference-module titles, never the corpus's OWN printed titles). Build a check that diffs corpus-printed control/clause/standard titles against held catalogue titles.
-
-### 3.179 Adopter vs auditor get opposite instructions about the same documents (2026-07-28 deep-assessment c6, claude, H, S) `[public]`
-
-The register classifies the Governance Library Charter `library-internal` ("adopters delete these") while the adopter guide says "if you read three, pick the Governance three (Charter + ...)". Plus the register index is overclaimed (README:78 says it lists every document with status and related artefacts; it has neither column and zero `docs/` rows), and the portal is blind to Adoption Disposition. Reconcile the routing.
 
 ### 3.180 Adopter-facing skills hard-require the private siblings with no degrade branch (2026-07-28 deep-assessment c6, claude, M, S) `[public]`
 
@@ -1001,6 +997,10 @@ Fable F-9 (PR2b-3 verify): `tools/preflight-changelog.py`'s `_added_lines_from_r
 ### 3.196 Two corpus docs still give the single-file `CLAUDE.md` install (18-dead-links class not fully closed by #1296) (2026-07-31, deep-assessment c6 follow-up, dual-family vpr #1296, M, S) `[public]`
 
 #1296 (TODO 3.178) fixed the pack README Option-1 install, but the dual-family `/validate-pr` on #1296 (both families converged) found the SAME single-file-copy defect class surviving in two corpus documents: (a) [`dev-security/guideline-ai-coding-assistant-security.md`](dev-security/guideline-ai-coding-assistant-security.md):58 step 1 says copy `dev-security/claude-rules/CLAUDE.md` to `./CLAUDE.md` (single file, so 18 dead links), AND its step 4 lists only `languages/` + `ai/` to add, never `governance/` (15 of the 18 links), so a reader following it in full still misses governance/; (b) [`ai/standard-ai-and-agentic-development-security.md`](ai/standard-ai-and-agentic-development-security.md):211 repeats copy `claude-rules/CLAUDE.md` to the project root. NOT a mechanical one-liner: the guideline uses an INCREMENTAL deployment model (copy CLAUDE.md, then add files selectively) incompatible with the pack README self-contained whole-directory model, so the fix needs a design choice (make step 1 self-contained via the directory copy + `@`-mention; OR complete step 4 with `governance/`; OR point both docs to the pack README Option 1 to remove the triple-duplication that caused the drift). Both are versioned corpus docs (Version/Date bumps). Design lean: point both to the pack README Option 1 (DRY, removes the drift source).
+
+### 3.197 Portal is blind to Adoption Disposition (3.179 part 3 follow-up) (2026-07-31, deep-assessment c6 / 3.179 spin-off, M, M) `[public]`
+
+The generated portal ([`docs/portal.md`](docs/portal.md)) does not surface each document's Adoption Disposition (library-internal / template / adopter-facing), so an adopter cannot see at the portal which documents to fork vs keep-as-reference vs delete. Surfaced by the 3.179 research (#1297). Adoption Disposition is NOT one of the 13 per-document metadata fields; it lives only as a column the register (`governance/register-document-index-and-classification.md`) maintains. Two paths: (a) add a 14th per-document metadata field across ~312 docs + update `build-taxonomy.py`/`build-portal.py`/`lint-metadata.py` (a corpus-wide schema migration that creates a second disposition source-of-truth to keep in sync with the register, the exact drift this class is about); (b, lean) have `build-portal.py` parse the register table directly into a path->disposition lookup and tag each portal entry (lighter, but a new markdown-table parser + join + output-format change). A genuine generator feature, deliberately split out of 3.179 to keep that HIGH/S routing fix small.
 
 ## Priority 4 — Adopter experience
 
