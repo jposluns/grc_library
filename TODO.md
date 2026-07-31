@@ -296,7 +296,7 @@ A maintainer-facing situation-report slash command: the four status sections (wo
 
 **Refinements from prototyping the output (2026-07-27, maintainer requested a live sitrep before the tool existed, then directed these be captured in the planning).**
 1. **Read LIVE state at invocation, never the orchestrator's in-context memory.** Compose the report from the existing instruments so every line is verifiable rather than narrated: [`tools/collect-deliveries.py`](tools/collect-deliveries.py) (`--dry-run`) for the tray and fleet state, `grc_library_private/.working/open-findings.md` + `grc_library_private/.working/validate-pr/history.md` for QA state, `grc_library_private/.working/next-prs.txt` + this file for the queue, and `grc_library_private/.working/merge-bypass-log.md` + `grc_library_private/.working/session-handoff.md` for work-in-flight. The prototype was assembled from memory; the tool must not be, so a wrong figure cannot slip in unverified.
-2. **The usage footer needs REAL instrumentation and must NOT fabricate.** In the prototype the per-worker TOKEN spend was UNKNOWN for six of seven orders, because `exec-dispatch.py` captures worker DURATION (from the dispatch status line) but not token counts; the footer honestly read UNKNOWN rather than a fabricated total. Per the measured-not-inferred discipline in [`evidence-grounded-completion`](.claude/rules/governance/evidence-grounded-completion.md): keep MEASURED figures (durations) and ESTIMATED figures (any self-reported token counts) in SEPARATE columns, never summed, and report a gap as UNKNOWN, never zero. Orchestrator spend was likewise not instrumented in-session; the tool should surface whatever real counter the harness exposes or state it is unavailable, not invent one. This is the concrete dependency on 3.131: the per-worker structured logging is what turns the token column from UNKNOWN into measured. Until 3.131 lands, the footer reports durations (measured) plus the offload-savings framing (which QA/research passes ran on worker vs orchestrator credits) and marks token spend UNKNOWN.
+2. **The usage footer needs REAL instrumentation and must NOT fabricate.** In the prototype the per-worker TOKEN spend was UNKNOWN for six of seven orders, because `exec-dispatch.py` captures worker DURATION (from the dispatch status line) but not token counts; the footer honestly read UNKNOWN rather than a fabricated total. Per the measured-not-inferred discipline in [`evidence-grounded-completion`](.claude/rules/governance/evidence-grounded-completion.md): keep MEASURED figures (durations) and ESTIMATED figures (any self-reported token counts) in SEPARATE columns, never summed, and report a gap as UNKNOWN, never zero. Orchestrator spend was likewise not instrumented in-session; the tool should surface whatever real counter the harness exposes or state it is unavailable, not invent one. This is the concrete dependency on 3.131: the per-worker structured logging is what turns the token column from UNKNOWN into measured. Until 3.131 lands, the footer reports durations (measured) plus the offload-savings framing (which QA/research passes ran on worker vs orchestrator credits) and marks token spend UNKNOWN. NOTE (reconciled #1294): 3.131 part (a), the claim/heartbeat/deliver EVENT log, has shipped but does NOT capture token counts, so this token column depends on capturing per-worker token counts from the raw worker output (3.131 part (b)'s codex stdout capture) or a separate instrument, not on the event log alone; reconcile the exact source when 3.142 is worked.
 
 ### 3.143 Worker-account onboarding process plus an add-account shell script (maintainer-directed 2026-07-27; new accounts arriving, M, M) `[machinery]` `[private]`
 
@@ -809,18 +809,17 @@ grows), so an adopter inherits the mid-session-death recovery path alongside the
 a tracked follow-up (the sanctioned pack-parity option) rather than built in the command's own PR, to keep that PR
 focused.
 
-### 3.131 Per-worker headless console/event logging to a searchable log file (maintainer-requested 2026-07-26, M, S) `[machinery]` `[private]`
+### 3.131 Per-worker headless logging, part (b): codex `codex exec` wrapper stdout/stderr redirect (maintainer-requested 2026-07-26, S, S) `[machinery]` `[private]`
 
-Workers run headless, so their runtime console messages (claims, heartbeats, progress, errors) are not searchable after
-the fact; only the final delivery lands in the outbox. Add per-worker logging to `/home/grc/grc_working/logs/` named
-`YYYY-MM-DD_<worker-id>_out.log`, greppable and tailable. Two parts: (a) the exchange helper `credit-offload-filedrop.py`
-(`grc_library_scratch:tools/`) writes a structured event line on each `claim` / `heartbeat` / `deliver` / error (clean
-text, the primary searchable record); (b) for codex, the `codex exec` sudo-wrapper (post-resume codex build, design in
-`grc_library_private`) redirects its stdout, stderr, exit status, and timestamps to the same dated per-worker log at
-about zero extra cost. NOTE: a raw capture of the interactive Claude TUI (`tee` / `tmux pipe-pane`) carries ANSI control
-codes because of the alternate-screen buffer, so the STRUCTURED event log is the clean approach and `tmux pipe-pane` is
-only an optional raw supplement. The helper lives in `grc_library_scratch`, so the primary build is a scratch-side
-change; best done post-resume alongside the codex-exec build so both worker families share one `logs/` layout.
+**PARTIAL: part (a) shipped to `grc_library_scratch` (recorded in grc_library PR #1294).** The exchange helper
+`credit-offload-filedrop.py` now writes a structured event line (`claim` / `heartbeat` / `deliver`) to
+`<root>/logs/YYYY-MM-DD_<worker-id>_out.log` at each hot-path call site, via `_log_event`, exception-guarded so a
+logging failure can never block or fail a real claim/heartbeat/deliver (5 self-test cases; live-handler integration
+confirmed). REMAINS: part (b), for codex, the `codex exec` sudo-wrapper redirects its stdout, stderr, exit status, and
+timestamps to the same dated per-worker log at about zero extra cost, best done alongside the codex-exec build so both
+worker families share one `logs/` layout. NOTE: a raw capture of the interactive Claude TUI carries ANSI control codes
+(alternate-screen buffer), so the structured event log is the clean primary record and `tmux pipe-pane` is only an
+optional raw supplement.
 
 ### 3.132 Gate 78 enforces only the recorded-retirement half of the never-recycle rule (r16 guardrails, G-1; DECIDED, rotate to DONE) `[machinery]` `[private]`
 
