@@ -9146,8 +9146,9 @@ class AuditGateParityExclusionGuardTests(unittest.TestCase):
 
 
 class BacklogActionabilityTests(unittest.TestCase):
-    """tools/audit-backlog-actionability.py: enumerate every open TODO item and
-    flag the ones with no recognized blocker token as presumed-actionable."""
+    """tools/audit-backlog-actionability.py: enumerate every open item across BOTH
+    lists. An item is BLOCKED only via an approved ``[BLOCKED:<reason>]`` tag; a prose
+    keyword signal is ADVISORY (propose-a-block), never authoritative."""
 
     def _load(self):
         import importlib.util
@@ -9171,37 +9172,71 @@ class BacklogActionabilityTests(unittest.TestCase):
         "| MEG-01 | §1.1 | an index row, NOT an item heading |\n"
     )
 
-    def test_enumeration_and_classification(self):
+    def test_no_tag_means_all_actionable(self):
+        # No [BLOCKED:] tag anywhere -> every item ACTIONABLE, even those whose prose
+        # carries a keyword signal (the strongest anti-false-completeness stance).
         mod = self._load()
         rows, blocked, actionable = mod.build_report(self.FIXTURE)
         ids = [r[0] for r in rows]
-        # 7 item headings; the MEG table row and the ## section headers excluded.
         self.assertEqual(ids, ["1.1", "1.2", "1.3", "3.1", "3.2", "SR-1", "3.9"])
-        self.assertEqual((blocked, actionable), (5, 2))
-        by_id = {r[0]: r[2] for r in rows}
+        self.assertEqual((blocked, actionable), (0, 7))
+        self.assertTrue(all(r[2] == "public" and r[3] is False for r in rows))
+        by_id = {r[0]: r[4] for r in rows}  # r[4] = advisory prose signals
         self.assertEqual(by_id["1.1"], ["egress"])
         self.assertEqual(by_id["1.2"], ["source"])
         self.assertEqual(by_id["3.1"], ["maintainer-decision"])
         self.assertEqual(by_id["3.2"], ["in-progress"])
         self.assertEqual(by_id["SR-1"], ["standing"])
-        # the two token-free items are presumed-actionable (empty class list)
         self.assertEqual(by_id["1.3"], [])
         self.assertEqual(by_id["3.9"], [])
 
-    def test_maintainer_confirmed_is_not_a_blocker(self):
-        # A "maintainer-confirmed <date>" provenance stamp is NOT awaiting a
-        # decision, so it must NOT be classified maintainer-decision.
+    def test_blocked_tag_is_authoritative(self):
+        # An approved [BLOCKED:<reason>] tag -> BLOCKED; a prose signal WITHOUT a tag
+        # -> still ACTIONABLE.
+        mod = self._load()
+        rows, blocked, actionable = mod.build_report(
+            "### 1.1 Tagged item [BLOCKED:maintainer owes a policy call]\nBody.\n"
+            "### 1.2 Prose-only item (maintainer-gated)\nAwaiting.\n")
+        by_id = {r[0]: r[3] for r in rows}
+        self.assertIs(by_id["1.1"], True)
+        self.assertIs(by_id["1.2"], False)
+        self.assertEqual((blocked, actionable), (1, 1))
+
+    def test_two_list_union_and_private_ids(self):
+        # Private-list items (incl. P-n.m ids) are unioned in, labelled source=private.
+        mod = self._load()
+        public = "### 2.3 A public content item\nGo.\n"
+        private = ("### 3.147 A migrated tooling item\nGo.\n"
+                   "### P-1.1 A born-private item [BLOCKED:egress-blocked source]\nX.\n")
+        rows, blocked, actionable = mod.build_report(public, private)
+        src = {r[0]: r[2] for r in rows}
+        self.assertEqual(src, {"2.3": "public", "3.147": "private", "P-1.1": "private"})
+        self.assertEqual((blocked, actionable), (1, 2))  # only P-1.1 is tagged
+
+    def test_maintainer_confirmed_is_not_a_signal(self):
+        # "maintainer-confirmed <date>" is a provenance stamp, not a blocker.
         mod = self._load()
         rows, _, _ = mod.build_report(
             "### 2.15 A confirmed item (maintainer-confirmed 2026-07-15, M)\nGo.\n")
-        self.assertEqual(rows[0][2], [])  # presumed-actionable, not blocked
+        self.assertEqual(rows[0][4], [])
+        self.assertIs(rows[0][3], False)
 
-    def test_bare_standing_prose_is_not_a_blocker(self):
-        # "standing" in incidental prose must not false-block.
+    def test_bare_standing_prose_is_not_a_signal(self):
         mod = self._load()
         rows, _, _ = mod.build_report(
             "### 4.5 Reference-base spec\nThe tedious part of standing up a base.\n")
-        self.assertEqual(rows[0][2], [])
+        self.assertEqual(rows[0][4], [])
+
+    def test_blocked_tag_in_body_prose_is_not_authoritative(self):
+        # A [BLOCKED:...] in an item's BODY prose (e.g. an item describing the
+        # blocked-tag feature) must NOT false-match; the tag is authoritative only
+        # on the HEADING line.
+        mod = self._load()
+        rows, blocked, actionable = mod.build_report(
+            "### 1.1 An item describing the tag feature\n"
+            "Items get a `[BLOCKED:reason]` tag on the heading when approved.\n")
+        self.assertIs(rows[0][3], False)  # body mention -> actionable, not blocked
+        self.assertEqual((blocked, actionable), (0, 1))
 
 
 class HookToolItemCountParityTests(unittest.TestCase):
