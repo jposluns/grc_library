@@ -1012,90 +1012,21 @@ CC BY-SA 4.0). The rule files are authoritative; the one-line purpose is an inde
 - `.claude/rules/python.md`: Python patterns for `tools/` audit scripts.
 - `.claude/rules/input-validation.md`: input handling for the Markdown-parsing tooling.
 - `.claude/rules/cicd-gates.md`: CI/CD pipeline security for `quality.yml`.
-- `.claude/rules/governance/gate-discipline.md`: never weaken a gate to silence a failure;
-  fix the artefact.
-- `.claude/rules/governance/change-tracking.md`: every PR carries a CHANGELOG entry (terse
-  or substantive); no skip path; the paired DONE ledger is the at-a-glance index.
-- `.claude/rules/governance/evidence-grounded-completion.md`: never claim completion, and
-  never assert a property of an artefact you have not read, without running the
-  verification protocol first (enumerate, re-read, quote, contradiction-search, distinguish
-  mechanical from semantic, state unverified items). Three corollaries extend it where the
-  observation is not a single readable file: un-observable state (context depth, a felt sense
-  of doneness) is never assertable and never a wind-down, stop, or defer trigger (that
-  requires a named externally-observable signal); inventory, absence, and held-version claims
-  need the collection's own index, not a partial look; and external-version currency is
-  answered only by the upstream source verified this turn, never a stored note, a cached copy,
-  or a local catalogue.
-- `.claude/rules/governance/clarify-before-acting.md`: surface ambiguity in one sentence
-  and ask before proceeding.
-- `.claude/rules/governance/artefact-and-branch-discipline.md`: generated artefacts are
-  read-only (edit source, regenerate, commit both halves; CI `--check`); protected branches
-  are append-only (no direct push, no force-push, PR-only merges).
-- `.claude/rules/governance/action-before-explanation-of-inaction.md`: never explain why
-  an external action cannot proceed without first attempting it (when safe and reversible)
-  or naming it and asking (when destructive).
-- `.claude/rules/governance/validate-inference-before-action.md`: when the next action
-  depends on an inferred premise (a state claim not observed this turn), validate via tool
-  call before acting (the action-side counterpart of evidence-grounded-completion).
-- `.claude/rules/governance/ai-assistant-workflow-disciplines.md`: five disciplines for
-  multi-PR work: research-assistant (workers research, orchestrator authors); pipeline
-  construction (parallel research, serial apply, CI gating); apply-time worker correction;
-  always split when in doubt; background work during CI waits. It also carries the
-  **skeptical pre-push verification** standard (a tiered standard layered on the disciplines,
-  not a sixth): no standing verifier for quick-fix / bookkeeping changes, one refute-briefed
-  verifier subagent pre-push for substantive changes, the full high-assurance harness for
-  sensitive changes; a verifier finding is validated then fixed-and-re-verified (three-iter
-  cap, then defer to maintainer review); overruling a verifier is never silent.
-- `.claude/rules/governance/trust-recovery-escalation.md`: the escalation tier when
-  discipline failures put a maintainer's confidence in a window of work in question: the
-  two-skill suite (`/full-qa` forensic pass then `/fitness` persona pass, both via
-  `/trust-recovery`), severity-tiered routing (none dropped, apply-time-verified, deduped),
-  full-clone methodology, and termination only on explicit maintainer sign-off.
-- `.claude/rules/governance/project-integrity.md`: the apex rule: project-agnostic
-  distribution of this file's PRIMORDIAL RULE (the AIQT Principle, (Accuracy = Integrity = Quality = Trust) > Progress > Speed > Cost; the
-  integrity non-negotiables; the self-reminder checkpoints).
-- `.claude/rules/governance/surface-counterproductive-instructions.md`: a clear
-  instruction is not automatically a correct one; when executing it as given would reduce
-  efficiency/effectiveness/productivity, lower quality, destroy done work, contradict a
-  stated goal, or rest on a stale-state belief, stop, consider, and surface the concern with
-  named options before executing (the charitable-interpretation corollary; the anti-over-ask
-  calibration). The requestor-facing counterpart to `clarify-before-acting`.
-- `.claude/rules/governance/high-assurance-verification.md`: the heavier pre-apply harness
-  for *sensitive* changes (gate-blind on correctness, delicate at scale, costly to get
-  wrong): research fan-out, a mechanical signal pass over the negatives, two independent adversarial verifiers from different model families (false-negative and false-positive lenses), a programmatic invariant
-  floor, and a deterministic scripted apply plus re-parse, so apply-correctness does not rest
-  on orchestrator in-context precision. The proactive counterpart to
-  `trust-recovery-escalation`.
-- `.claude/rules/governance/session-lifecycle.md`: the session-lifecycle and
-  operating-modes discipline for multi-session work: a durable reconciled handoff record,
-  explicit operator-set operating modes (fully attended / attended-autonomous with green-CI
-  merge authority as the default / unattended with no-idle-stop), graceful degradation for
-  blocked operator decisions (an absolute reversibility gate so a timeout never
-  auto-executes a destructive action), evidence-gated wind-down (continue is the default),
-  the closing green-merge with its loop-break compensating control, and an advisory
-  concurrency lease. The project-agnostic distillation of this file's own attended-autonomous,
-  wind-down, session-migration/close-out, and concurrency-lease sections plus the `/resume`
-  interlock; those sections remain here as the project-specific operationalization (concrete
-  files, the timer value, the mode-exit ordering).
-- `.claude/rules/governance/decision-classification-before-enacting.md`: before enacting a
-  significant autonomous decision (one that disposes of a queued/authorized item or bends the
-  plan: a defer, re-sequence, wind-down, skip, or authorial choice), classify it ACT / ASK /
-  BLOCKED and write the classification before enacting it; a BLOCKED classification names a
-  blocker-type from a closed, externally-observable set, and un-instrumented internal state
-  (heaviness, felt degradation, "do it fresh later") is never a valid hold. Project
-  instantiation: the `## Decision discipline: act, ask, or name a blocker (write-before-enact)`
-  and `## Backlog-status characterization is the audit tool's output` sections, the
-  `block-unjustified-decision.py` hook, and `grc_library_private/autonomous-decisions-log.md`.
-- `.claude/rules/governance/express-authorization-before-execution.md`: execution of a
-  plan-initiating unit of work begins only on an express, work-naming go from the responsible
-  authority; a conceptual or planning discussion is not a go, and a conditional or sequenced go
-  ("do X, then wait, then we proceed") authorizes only its first step until its condition is
-  confirmed. The pause-before-acting family's entry-condition member and the mirror of
-  `decision-classification-before-enacting` (that rule governs not-doing already-authorized
-  work; this governs beginning not-yet-authorized work). Project instantiation: the `## Execution
-  begins only on an express GO (discussion is not licence)` section below; convention-first,
-  with a mechanical GO-ledger-keyed hook deferred (no project-specific machinery beyond that
-  section).
+- `.claude/rules/governance/gate-discipline.md`: never weaken a gate to silence a failure; fix the artefact.
+- `.claude/rules/governance/change-tracking.md`: every PR carries a CHANGELOG entry (terse or substantive); no skip path; the paired DONE ledger is the at-a-glance index.
+- `.claude/rules/governance/evidence-grounded-completion.md`: never claim completion or assert an unread artefact's property without the verification protocol (enumerate, re-read, quote, contradiction-search, mechanical-vs-semantic, state unverified); three corollaries extend it to un-observable state, inventory/absence, and external-version currency.
+- `.claude/rules/governance/clarify-before-acting.md`: surface ambiguity in one sentence and ask before proceeding.
+- `.claude/rules/governance/artefact-and-branch-discipline.md`: generated artefacts are read-only (edit source, regenerate, commit both halves; CI `--check`); protected branches are append-only (no direct push, no force-push, PR-only merges).
+- `.claude/rules/governance/action-before-explanation-of-inaction.md`: never explain why an external action cannot proceed without first attempting it (when safe and reversible) or naming it and asking (when destructive).
+- `.claude/rules/governance/validate-inference-before-action.md`: when the next action depends on an inferred premise (a state claim not observed this turn), validate via tool call before acting (the action-side counterpart of evidence-grounded-completion).
+- `.claude/rules/governance/ai-assistant-workflow-disciplines.md`: five disciplines for multi-PR work (research-assistant, pipeline construction, apply-time correction, split-when-in-doubt, background work during CI waits); also the tiered skeptical pre-push verification standard (none / one refute-briefed verifier / full high-assurance harness by change weight; findings validated, three-iter cap; overruling never silent).
+- `.claude/rules/governance/trust-recovery-escalation.md`: the reactive escalation tier when discipline failures put a maintainer's confidence in a window of work in question: a two-skill forensic-then-persona suite, severity-tiered routing (none dropped, apply-time-verified, deduped), full-clone methodology, terminating only on explicit maintainer sign-off.
+- `.claude/rules/governance/project-integrity.md`: the apex rule: project-agnostic distribution of this file's PRIMORDIAL RULE (the AIQT Principle, (Accuracy = Integrity = Quality = Trust) > Progress > Speed > Cost; the integrity non-negotiables; the self-reminder checkpoints).
+- `.claude/rules/governance/surface-counterproductive-instructions.md`: a clear instruction is not automatically correct; when executing it as given would be net-negative (waste effort, lower quality, destroy done work, contradict a stated goal, or rest on stale state), stop and surface named options first (charitable-interpretation corollary; anti-over-ask calibration). The requestor-facing counterpart to `clarify-before-acting`.
+- `.claude/rules/governance/high-assurance-verification.md`: the heavier pre-apply harness for *sensitive* changes (gate-blind correctness, delicate scale, high escaped-error cost): research fan-out, a signal-pass over the negatives, two independent cross-family adversarial verifiers (false-negative/false-positive lenses), an invariant floor, and a deterministic scripted apply plus re-parse. The proactive counterpart to `trust-recovery-escalation`.
+- `.claude/rules/governance/session-lifecycle.md`: the session-lifecycle and operating-modes discipline for multi-session work: a durable reconciled handoff record, explicit operator-set modes (attended / attended-autonomous with green-CI merge authority / unattended no-idle-stop), graceful degradation with an absolute reversibility gate, evidence-gated wind-down (continue is the default), a closing green-merge with its loop-break compensating control, and an advisory concurrency lease; this file's attended-autonomous, wind-down, session-migration, and lease sections are its project operationalization.
+- `.claude/rules/governance/decision-classification-before-enacting.md`: before enacting a significant plan-bending autonomous decision (defer, re-sequence, wind-down, skip, authorial choice), classify it ACT / ASK / BLOCKED and write the classification before enacting; BLOCKED names a blocker from a closed, externally-observable set, and un-instrumented internal state is never a valid hold.
+- `.claude/rules/governance/express-authorization-before-execution.md`: execution of a plan-initiating unit begins only on an express, work-naming go; a planning discussion is not a go, and a conditional/sequenced go authorizes only its first step until its condition is confirmed (the pause-before-acting family's entry-condition member and the mirror of `decision-classification-before-enacting`). Project instantiation: the `## Execution begins only on an express GO (discussion is not licence)` section below; convention-first, with a mechanical GO-ledger-keyed hook deferred (no project-specific machinery beyond that section).
 
 The `dev-security/claude-rules/README.md` is the authoritative pack version history and
 future-work signalling; pack changes are tracked through the library's CHANGELOG and
