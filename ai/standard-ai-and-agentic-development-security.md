@@ -2,8 +2,8 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.18\
-**Date:** 2026-07-25\
+**Version:** 1.8.19\
+**Date:** 2026-07-31\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-system-card.md`](template-system-card.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md)\
@@ -208,7 +208,7 @@ Use of other AI coding tools, including public web interfaces, to generate code 
 
 ### 9.2 Secure coding rules deployment
 
-The library's CC BY-SA 4.0 secure-coding rules pack at [`dev-security/claude-rules/`](../dev-security/claude-rules/) is the approved Claude Code rules framework. Either copy the relevant rule files into the project's `.claude/rules/` directory (with optional `paths:` YAML frontmatter for path-scoped loading), copy [`dev-security/claude-rules/CLAUDE.md`](../dev-security/claude-rules/CLAUDE.md) to the project root as `./CLAUDE.md` or `./.claude/CLAUDE.md`, or use the AI-assisted setup generator at [`dev-security/claude-rules/setup-generator-prompt.md`](../dev-security/claude-rules/setup-generator-prompt.md). See [`dev-security/guideline-ai-coding-assistant-security.md`](../dev-security/guideline-ai-coding-assistant-security.md) for full deployment options.
+The library's CC BY-SA 4.0 secure-coding rules pack at [`dev-security/claude-rules/`](../dev-security/claude-rules/) is the approved Claude Code rules framework. Install the pack per Option 1 in the [pack README](../dev-security/claude-rules/README.md) (copy the whole `claude-rules/` directory and reference it with `@claude-rules/CLAUDE.md`; copying `CLAUDE.md` alone breaks its links to the sibling `ai/` and `governance/` files), copy selected rule files into the project's `.claude/rules/` directory (with optional `paths:` YAML frontmatter for path-scoped loading), or use the AI-assisted setup generator at [`dev-security/claude-rules/setup-generator-prompt.md`](../dev-security/claude-rules/setup-generator-prompt.md). See [`dev-security/guideline-ai-coding-assistant-security.md`](../dev-security/guideline-ai-coding-assistant-security.md) for full deployment options.
 
 | Project Type | Recommended Rule Files (from `dev-security/claude-rules/`) |
 | --- | --- |
