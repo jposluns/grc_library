@@ -2,8 +2,8 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.93\
-**Date:** 2026-07-30\
+**Version:** 1.27.94\
+**Date:** 2026-07-31\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This register is the authoritative index for active documents in the public GRC Documentation Library. It records document title, type, domain, classification, owner role, approving authority, review frequency, repository path, and primary alignment families.
+This register is the authoritative index for active documents in the public GRC Documentation Library. It records, per active document, its domain, type, title, repository path, owner role, review frequency, primary alignment families, and adoption disposition.
 
 This register intentionally avoids internal document numbers from any source organization. Repository paths and filenames are the canonical identifiers.
 

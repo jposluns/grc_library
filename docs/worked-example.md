@@ -2,8 +2,8 @@
 
 **Document Title:** Worked Example: Converting a Draft into a CC BY-SA 4.0 Artefact\
 **Document Type:** Guide\
-**Version:** 1.0.4\
-**Date:** 2026-07-08\
+**Version:** 1.0.5\
+**Date:** 2026-07-31\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`specification-ingestion.md`](../specification-ingestion.md), [`specification-master-project.md`](../specification-master-project.md), [`CONTRIBUTING.md`](../CONTRIBUTING.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/worked-example-adoption.md`](worked-example-adoption.md)\
@@ -170,7 +170,7 @@ against their own policy and legal requirements.
 
 The new artefact must appear in two places:
 
-1. [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md): add a new row with Domain, Type, Title, Repository Path, Owner Role, Review Frequency, Primary Alignment Families. Bump the register's version (patch).
+1. [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md): add a new row with Domain, Type, Title, Repository Path, Owner Role, Review Frequency, Primary Alignment Families, Adoption Disposition. Bump the register's version (patch).
 2. [`security/README.md`](../security/README.md): add a new row in the Active Documents table.
 
 ## Step 8: run the local audits
