@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-"""Advisory activity-timing report: session wall-clock split into active vs orchestrator idle/wait.
+"""Advisory activity-timing report: measured session wall-clock, with a heuristic active-vs-idle split.
 
 WHY THIS EXISTS. The maintainer asked (2026-07-31) for the DURATION of every activity recorded
 comprehensively and NEVER sampled, because hand-tracking inevitably misses spans. The mechanical,
 never-sample source for the ORCHESTRATOR half is the session transcript: every record carries an
 ISO `timestamp`, so the wall-clock timeline is measured, not estimated. This tool derives from that
-timeline the total session span, the count of assistant turns, and the orchestrator's IDLE/WAIT
-spans (the gaps where it dispatched a worker or a CI run and waited on a notification, doing nothing).
+timeline the total session span, the count of assistant turns, and the long inter-record gaps that
+heuristically stand in for orchestrator IDLE/WAIT: the gap DURATION is measured, but its idle CAUSE is
+INFERRED (a long gap is usually a worker or CI wait, but may instead be a long local command or a long
+reasoning turn).
 
 WHAT THIS DOES and does NOT cover. This is the mechanical BASELINE: total span, per-turn count, and
 idle/wait spans, all measured from timestamps. It deliberately does NOT segment the active time into
@@ -35,9 +37,10 @@ from pathlib import Path
 # a checkout that moves on disk. Same derivation as audit-token-spend.py's transcript_dir_for.
 TRANSCRIPT_HOME = Path.home() / ".claude" / "projects"
 
-# A gap between two consecutive timestamped records longer than this is counted as an orchestrator
-# IDLE/WAIT span (waiting on a worker delivery or a CI run), not active work. 120s is chosen so a
-# normal think-and-act turn is "active" while a worker/CI wait (minutes) is "idle". Tunable.
+# A gap between two consecutive timestamped records longer than this is counted as a LONG inter-record
+# gap and HEURISTICALLY attributed to orchestrator idle/wait (a worker delivery or CI run). The gap
+# DURATION is measured; the idle attribution is a heuristic (a long gap can instead be a long local
+# command or reasoning turn). 120s is chosen so a normal think-and-act turn is under it. Tunable.
 DEFAULT_IDLE_THRESHOLD_S = 120
 
 
@@ -96,9 +99,11 @@ def compute_timing(events, idle_threshold_s: int = DEFAULT_IDLE_THRESHOLD_S) -> 
     """PURE. Session span, turn count, and idle/wait spans from a sorted (datetime, type) timeline.
 
     total_s   = last timestamp minus first (the whole session wall-clock).
-    idle_s    = the summed length of every inter-record gap longer than idle_threshold_s (the
-                orchestrator waiting on a worker or CI, doing nothing).
-    active_s  = total_s minus idle_s (a measured residual, NOT a per-activity sum).
+    idle_s    = the summed length of every inter-record gap longer than idle_threshold_s. The
+                duration is MEASURED; attributing it to idle/wait is a HEURISTIC (a long gap is usually
+                a worker/CI wait, but may be a long local command or reasoning turn).
+    active_s  = total_s minus idle_s: span outside the long gaps. NOT a verified active/idle split
+                (some long gaps are active local work) and NOT a per-activity sum.
     turns     = the number of `assistant` records (one per orchestrator turn).
     idle_spans = the individual long gaps as (seconds, type_of_the_record_that_FOLLOWED_the_gap),
                 sorted longest-first, so the biggest waits are visible.
@@ -157,19 +162,20 @@ def report(repo_root: Path, session: str | None, idle_threshold_s: int, oneline:
     t = compute_timing(read_timeline(text), idle_threshold_s)
 
     if oneline:
-        print(f"timing: total {fmt_dur(t['total_s'])} | active {fmt_dur(t['active_s'])} | "
-              f"idle {fmt_dur(t['idle_s'])} over {t['turns']} turns "
-              f"({len(t['idle_spans'])} waits > {idle_threshold_s}s)")
+        print(f"timing: total {fmt_dur(t['total_s'])} (measured) over {t['turns']} turns | "
+              f"{len(t['idle_spans'])} long gaps > {idle_threshold_s}s summing {fmt_dur(t['idle_s'])} "
+              f"(heuristic idle/wait; cause inferred)")
         return 0
 
-    print("activity-timing report (advisory, MEASURED from transcript timestamps, never sampled)")
+    print("activity-timing report (advisory; wall-clock MEASURED from transcript timestamps, never sampled;")
+    print("  the active-vs-idle SPLIT is a heuristic, see the long-gaps note below)")
     print()
     print(f"  transcript:           {transcripts[0].name}")
     if t["first"]:
         print(f"  session span:         {t['first'].isoformat()} .. {t['last'].isoformat()}")
     print(f"  total wall-clock:     {fmt_dur(t['total_s']):>12}")
-    print(f"  active (residual):    {fmt_dur(t['active_s']):>12}  (total minus idle; NOT a per-activity sum)")
-    print(f"  orchestrator idle:    {fmt_dur(t['idle_s']):>12}  (gaps > {idle_threshold_s}s, i.e. worker/CI waits)")
+    print(f"  span outside long gaps:{fmt_dur(t['active_s']):>11}  (total minus long gaps; NOT a verified active/idle split)")
+    print(f"  long gaps (heuristic idle):{fmt_dur(t['idle_s']):>7}  (gaps > {idle_threshold_s}s; DURATION measured, idle CAUSE inferred: usually a worker/CI wait, may be a long local command/turn)")
     print(f"  assistant turns:      {t['turns']:>12,}")
     print(f"  timestamped records:  {t['records']:>12,}")
     if t["idle_spans"]:
