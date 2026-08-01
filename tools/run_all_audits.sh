@@ -177,6 +177,7 @@ run_gate "Backlog item-number permanence audit"                 python3 tools/li
 run_gate "NIST SSDF control-id validity audit"                python3 tools/lint-ssdf-control-ids.py
 run_gate "Playbook-pointer-integrity audit"                  python3 tools/lint-playbook-pointer-integrity.py
 run_gate "Backlog list-tag audit"                          python3 tools/lint-todo-list-tag.py
+run_gate "Ungated-surface dash audit"                       python3 tools/lint-ungated-dashes.py
 
 # ----------------------------------------------------------------------
 # Summary
