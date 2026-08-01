@@ -9518,6 +9518,34 @@ class OrchestratorAdvisoryToolTests(unittest.TestCase):
         )
         self.assertIn("OK", result.stdout)
 
+    def test_cleanup_tmp_apply_moves_only_worker_output_old_and_unprotected(self) -> None:
+        # P-1.16 (codex vp116 finding 6): an integration regression for the DESTRUCTIVE --apply
+        # path. A monkeypatched /tmp proves --apply moves ONLY an old worker-output entry, and
+        # leaves a system dir, a live session dir, and a recently-touched worker entry in place.
+        import importlib.util, tempfile, time as _t
+        spec = importlib.util.spec_from_file_location(
+            "clean_tmp_mod", str(REPO_ROOT / "tools" / "cleanup-tmp-worker-output.py"))
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            old = _t.time() - 10 * 86400
+            (root / "grc-old-clone").mkdir()          # worker-output, old -> MOVE
+            (root / "systemd-private-x").mkdir()       # NOT worker-output -> keep
+            (root / "claude-9999").mkdir()             # protected session -> keep
+            (root / "grc-fresh").mkdir()               # worker-output but RECENT -> keep
+            for name in ("grc-old-clone", "systemd-private-x", "claude-9999"):
+                os.utime(root / name, (old, old))
+            # grc-fresh keeps its just-created (now) mtime
+            mod.TMP = root
+            rc = mod.main(["prog", "--apply", "--days", "3", "--staging", str(root / "deleteme")])
+            moved = not (root / "grc-old-clone").exists() and (root / "deleteme" / "grc-old-clone").exists()
+            self.assertTrue(moved, "old worker-output should have been moved")
+            self.assertTrue((root / "systemd-private-x").exists(), "system dir must NOT be moved")
+            self.assertTrue((root / "claude-9999").exists(), "live session dir must NOT be moved")
+            self.assertTrue((root / "grc-fresh").exists(), "recently-touched worker dir must NOT be moved")
+            self.assertEqual(rc, 0, "clean guarded apply should return 0")
+
 
 class TokenSpendToolTests(LinterTestCase):
     """The advisory ``tools/audit-token-spend.py`` tool's own ``--self-test``.
