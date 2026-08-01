@@ -67,7 +67,7 @@ Usage:
     python3 tools/preflight-changelog.py --staged   # staged diff only
 
 Exit codes:
-    0   no dash, unlinked-reference, or dangling-link issue in the added CHANGELOG lines
+    0   no dash, unlinked-reference, dangling-link, or D7-over-length issue in the added CHANGELOG lines
     1   one or more issues (do not commit until fixed)
     2   git invocation error
 """
@@ -445,15 +445,21 @@ def main(argv: list[str]) -> int:
         return 0
 
     for path, issue, evidence in findings:
-        print(f"FAIL {path}: {issue}\n    {evidence}", file=sys.stderr)
+        # Only append the evidence line when there is evidence: the D7 length findings
+        # carry no line-evidence (the offence string already names the PR and the count),
+        # so a blank indented line would otherwise print (claude vpr1325 cosmetic note).
+        msg = f"FAIL {path}: {issue}" + (f"\n    {evidence}" if evidence else "")
+        print(msg, file=sys.stderr)
     print(
         f"\n{len(findings)} CHANGELOG-hygiene issue(s) in the added lines. Fix "
         f"before committing: remove em/en dashes from prose (use commas, "
         f"colons, or parentheses), wrap path-shaped references as "
-        f"[`path`](path), and fix any dangling in-repo link target (or exclude "
-        f"a cross-repo / illustrative link). This aid mirrors delta gate D3, "
-        f"gate 51, the link-coverage gate, and the detailed-mirror "
-        f"link-resolution check (TODO 3.34), surfaced before the first commit.",
+        f"[`path`](path), fix any dangling in-repo link target (or exclude "
+        f"a cross-repo / illustrative link), and shorten any root entry over the "
+        f"D7 length ceiling (100 words total, or a single sentence over 45 words). "
+        f"This aid mirrors delta gate D3, the D7 length check, gate 51, the "
+        f"link-coverage gate, and the detailed-mirror link-resolution check "
+        f"(TODO 3.34), surfaced before the first commit.",
         file=sys.stderr,
     )
     return 1
