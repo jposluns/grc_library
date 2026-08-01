@@ -87,6 +87,21 @@ Checks:
     ``AC-2`` in a NIST column or an ISO clause elsewhere is untouched, and
     known-bad domains stay with the code-validity check (no double-flag).
 
+  * **Framework-label-row title** (framework-alignment tables whose rows name
+    the framework in a cell): where a row carries its framework label in one
+    cell and the code+title in the NEXT cell (``| CSA CCM v4.1 | GRC-01 <title>
+    |``), the code+title never reach the title-match check above (which expects
+    the code in the row's FIRST cell). This check flags a cited title that
+    shares NO content word with the catalogue control title (the Sweep-129
+    GRC-01 class: GRC-01 "Governance Program" cited as "Risk Management
+    Framework"). A title that renders the code's DOMAIN name rather than the
+    control title is a legitimate cite-the-domain convention and is EXEMPT when
+    more than half its content words appear in the code's domain name
+    (DOMAIN_NAMES, source-verified against the CCM v4.1.0 / AICM v1.1.0
+    catalogues): CEK-03 "Encryption and Key Management" (3 of 4 words in the CEK
+    domain) is exempt, while GRC-01 "Risk Management Framework" (1 of 3 in the
+    GRC domain) still flags.
+
 Scope: ``*.md`` under the repository root, minus DEFAULT_EXEMPT_DIRS (which
 includes ``.working`` and ``.claude``) and the append-only CHANGELOG files.
 
@@ -113,6 +128,7 @@ try:
         AICM_V11,
         ALL_TITLES,
         CCM_V41,
+        DOMAIN_NAMES,
         KNOWN_BAD_DOMAINS,
         VALID_DOMAINS,
     )
@@ -339,6 +355,57 @@ def scan_file(path: Path) -> list[Finding]:
                             f"(no such domain in the matrices)",
                             line.strip()[:140]))
                 prev_cells = cells
+
+                # Check 6: wrong control TITLE in a framework-LABEL row. In a table
+                # where each row names its framework in a cell (e.g.
+                # "| CSA CCM v4.1 | CEK-03: <title> |"), the code+title sit in the
+                # cell AFTER the framework-label cell, so Check 2's ROW_RE (code in
+                # the FIRST cell) never sees them. This catches the Sweep-129 GRC-01
+                # class: a code whose cited title shares NO content word with the
+                # catalogue control title (GRC-01 "Governance Program" cited as
+                # "Risk Management Framework"). EXEMPTION (domain-name-as-title,
+                # maintainer-decided 2026-08-01): a title that renders the code's
+                # DOMAIN name rather than the control title is a legitimate
+                # cite-the-domain convention, exempt when MORE THAN HALF the title's
+                # content words appear in the code's domain name (DOMAIN_NAMES,
+                # source-verified vs the CCM/AICM catalogues). FP-safe in practice:
+                # GRC-01 "Risk Management Framework" has only "risk" of 3 words in the
+                # GRC domain "Governance, Risk and Compliance" (1/3, not > 1/2) so it
+                # still flags, while CEK-03 "Encryption and Key Management" has 3/4 in
+                # the CEK domain and is exempt. Family/range validity is Check 1/5's
+                # job, so this check skips a non-family or known-bad prefix.
+                for ci, cell in enumerate(cells):
+                    if not CCM_COLUMN_HEADER_RE.search(cell) or ci + 1 >= len(cells):
+                        continue
+                    code_ms = list(CODE_RE.finditer(cells[ci + 1]))
+                    if len(code_ms) != 1:
+                        continue
+                    cm = code_ms[0]
+                    code6, dom6 = cm.group(0), cm.group(1)
+                    if dom6 not in CCM_FAMILY or dom6 in KNOWN_BAD_DOMAINS:
+                        continue
+                    title6 = cells[ci + 1][cm.end():].lstrip(": ").strip()
+                    if not title6:
+                        continue
+                    if section == "ccm":
+                        canon6 = CCM_V41.get(code6, ALL_TITLES.get(code6))
+                    elif section == "aicm":
+                        canon6 = AICM_V11.get(code6, ALL_TITLES.get(code6))
+                    else:
+                        canon6 = ALL_TITLES.get(code6)
+                    if not canon6:
+                        continue
+                    tw6 = _content_words(title6)
+                    if not tw6 or (tw6 & _content_words(canon6)):
+                        continue  # shares a control-title word -> not a mismatch
+                    dw6 = _content_words(DOMAIN_NAMES.get(dom6, ""))
+                    if dw6 and len(tw6 & dw6) * 2 > len(tw6):
+                        continue  # > 50% of the title's words are the domain name -> exempt
+                    findings.append(Finding(
+                        path, i, "ccm-title-mismatch-in-column",
+                        f"'{code6}' titled '{title6}' shares no content word with "
+                        f"the catalogue title '{canon6}' (nor the '{dom6}' domain name)",
+                        line.strip()[:140]))
         else:
             prev_cells = None
             ccm_col = None

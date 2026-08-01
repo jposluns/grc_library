@@ -5530,6 +5530,41 @@ class CcmAicmCitationTests(LinterTestCase):
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 
+    def test_column_wrong_title_flagged(self) -> None:
+        # Check 6: in a framework-LABEL row ("| CSA CCM v4.1 | GRC-01 <title> |")
+        # the code+title sit in the cell AFTER the framework-label cell, so the
+        # first-cell ROW_RE (Check 2) never sees them. GRC-01's cited title "Risk
+        # Management Framework" shares no content word with the catalogue title
+        # ("Governance Program ...") and only "risk" of its 3 words is in the GRC
+        # domain name ("Governance, Risk and Compliance", 1/3, not > 1/2), so the
+        # domain-name-as-title exemption does not save it and it must flag.
+        fixture = self.make_fixture(
+            "fake-ccm-column-wrong-title.md",
+            "# X\n\n| Framework | Control |\n| --- | --- |\n"
+            "| CSA CCM v4.1 | GRC-01 Risk Management Framework |\n",
+        )
+        result = run_linter("tools/lint-ccm-aicm-citations.py", fixture)
+        self.assertLinterFails(result, "ccm-title-mismatch-in-column")
+
+    def test_column_domain_name_title_not_flagged(self) -> None:
+        # Check 6 exemption (domain-name-as-title, maintainer-decided 2026-08-01):
+        # CEK-03's canonical title is "Data Protection", but citing it with its
+        # DOMAIN name ("Encryption and Key Management", 3 of whose 4 words are in
+        # the CEK domain "Cryptography, Encryption & Key Management", > 1/2) is a
+        # legitimate cite-the-domain convention, not a wrong-title error.
+        fixture = self.make_fixture(
+            "fake-ccm-column-domain-title.md",
+            "# X\n\n| Framework | Control |\n| --- | --- |\n"
+            "| CSA CCM v4.1 | CEK-03: Encryption and Key Management: PKI |\n",
+        )
+        result = run_linter("tools/lint-ccm-aicm-citations.py", fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"a domain-name-as-title citation (CEK-03 by the CEK domain name) "
+            f"must not be flagged by Check 6.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
     def test_bare_domain_code_in_ccm_context_flagged(self) -> None:
         # Check 4: a bare superseded/fabricated domain code (no -NN suffix) on a
         # line that names the matrices is flagged (the family-list residual
