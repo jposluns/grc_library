@@ -9314,6 +9314,25 @@ class TokenSpendToolTests(LinterTestCase):
         )
 
 
+class ExecDispatchToolTests(LinterTestCase):
+    """The ``tools/exec-dispatch.py`` worker-dispatch tool's own ``--self-test``.
+
+    Wired here for the same reason as the token-spend tool: it is project-only operational
+    machinery that no corpus gate exercises, yet it guards a consequential path (which account a
+    worker lands on, the fail-closed refusals on a corrupt in-flight registry, the worker-log
+    pointer). Its ``--self-test`` is pure (in-memory fixture plus tempdirs, no config/network), so
+    a regression in its 60-plus decision checks would otherwise reach CI green.
+    """
+
+    def test_exec_dispatch_self_test_passes(self) -> None:
+        result = run_linter("tools/exec-dispatch.py", "--self-test")
+        self.assertEqual(
+            result.returncode, 0,
+            f"exec-dispatch.py --self-test failed.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+
 class ValidationCoverageToolTests(unittest.TestCase):
     """The advisory ``tools/audit-validation-coverage.py`` tool's own ``--self-test``,
     wired into the regression suite so its verdict logic (which repo landings are a
