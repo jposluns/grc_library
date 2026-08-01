@@ -522,7 +522,7 @@ def discover_version_history_files() -> list[tuple[str, str]]:
     The discovery is repo-wide (not the audited-domain run) because the
     files that carry a ``## Version history`` table live in the pack dir,
     outside the corpus domains; it skips ``DEFAULT_EXEMPT_DIRS`` (``.git``,
-    ``node_modules``, ``__pycache__``, ``.claude``, ``.working``) rather than
+    ``node_modules``, ``__pycache__``, ``.claude``, ``.working``, ``references``) rather than
     enumerating the audited domains, so it does not duplicate the
     ``AUDITED_DOMAIN_DIRS`` run (gate 52).
     """

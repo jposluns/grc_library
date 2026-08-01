@@ -20,7 +20,8 @@ Scope notes:
   inherit the same value.
 - ``DEFAULT_EXEMPT_DIRS`` mirrors the set 13+ linters already defined
   inline (``.git``, ``node_modules``, ``__pycache__``, ``.claude``,
-  ``.working``) plus the three in-repo sibling-repo placeholder
+  ``.working``), the top-level ``references`` operational-prose dir (added
+  in #1249), plus the three in-repo sibling-repo placeholder
   directories (``.ref``, ``.scratch``, ``.private``; TODO section
   1.19.3, whose stub-only invariant the sibling-repo stub-guard gate
   enforces). Linters that need further exempt directories beyond this
