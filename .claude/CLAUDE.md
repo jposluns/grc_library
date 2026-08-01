@@ -315,7 +315,7 @@ detail and rationale for everything below live in
 
    **Grep-discipline reminders (mostly UN-gated, the live control; D9 (#1250) now backstops only the §N-orphan-on-operational-surfaces sub-case, the rest stay convention):**
    - Enumerated-collection prose counts re-checked for staleness (computed AFTER the verifier loop, never mid-draft).
-   - On a convention/count/term/gate-wiring change: grep the OLD phrasing across the full file AND every sibling surface, at BARE-TOKEN width (not a phrasing-specific string); scope the completion CLAIM to the SLOT, not the string.
+   - On a convention/count/term/gate-wiring change: grep the OLD phrasing across the full file AND every sibling surface, at BARE-TOKEN width (not a phrasing-specific string); scope the completion CLAIM to the SLOT, not the string. The [`check-class-completeness.py`](../tools/check-class-completeness.py) aid (P-1.5) runs this proactively: give it the distinctive string you fixed and it prints every corpus occurrence, so each is fixed or routed in the SAME PR (the reactive dual-family catch of #1296/#1297 made permanent).
    - Corpus-wide completion claim: grep the FULL corpus file set, not the change's own input set.
    - Full-file-grep + parallel-case re-verification for prose corrections, across four axes: pattern-width, scope-width, SEPARATOR tolerance (proximity form, both orders), FILE-TYPE width (`.py`/`.yml`/`.sh`/`.json`/`.claude/`, not `.md` alone).
    - Section-close cross-FILE §N-orphan cleanup: the anchored key-forms (`§N.M`/`PN.M`/`TODO §N.M`) surviving on OPERATIONAL surfaces are now GATED by D9 (`check-retired-section-orphan-on-pr.py`); the manual grep still covers the residue D9 excludes by design: bare tokens, RANGE `§A-§B`, `item N`, and corpus `.md` surfaces.
