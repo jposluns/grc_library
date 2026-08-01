@@ -9333,6 +9333,24 @@ class ExecDispatchToolTests(LinterTestCase):
         )
 
 
+class ActivityTimingToolTests(LinterTestCase):
+    """The advisory ``tools/audit-activity-timing.py`` tool's own ``--self-test``.
+
+    Wired here like the token-spend and exec-dispatch tools: it is transcript- and
+    environment-dependent so no corpus gate exercises it, yet its pure timeline/idle-span math is
+    what turns raw timestamps into the maintainer's never-sample duration figures, so a regression
+    must not read clean.
+    """
+
+    def test_activity_timing_self_test_passes(self) -> None:
+        result = run_linter("tools/audit-activity-timing.py", "--self-test")
+        self.assertEqual(
+            result.returncode, 0,
+            f"audit-activity-timing.py --self-test failed.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+
 class UnwiredToolSelfTests(LinterTestCase):
     """Wire the remaining tool ``--self-test`` suites into CI.
 
