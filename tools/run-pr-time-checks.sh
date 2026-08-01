@@ -13,8 +13,9 @@
 #      D7 CHANGELOG-length-on-PR, D8 daily-changelog-rollup reminder
 #      (advisory), D9 retired-section-orphan check, D10 CLAUDE.md-size
 #      ratchet). Most compare the PR head to its merge base, so their
-#      inputs are not available in tools/run_all_audits.sh (D10 instead
-#      checks the current .claude/CLAUDE.md line count directly); they run
+#      inputs are not available in tools/run_all_audits.sh (the advisory D8
+#      and the size-only D10 read working-tree state and take no base ref);
+#      they run
 #      only here and in quality.yml.
 #   2. The history-aware gates that examine each file's commit graph
 #      (gate 45 TODO staleness, gate 40 version-bump-recency, gate 31
