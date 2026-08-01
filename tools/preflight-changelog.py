@@ -297,7 +297,17 @@ def _added_lines_from_repo(
     if staged:
         cmd.append("--cached")
     cmd += ["HEAD", "--", *paths]
-    out = subprocess.check_output(cmd, text=True, cwd=str(repo))
+    try:
+        out = subprocess.check_output(cmd, text=True, cwd=str(repo),
+                                      stderr=subprocess.DEVNULL)
+    except (subprocess.CalledProcessError, OSError):
+        # A private sibling that exists but is NOT a git repo (or any git failure): degrade to
+        # the empty added-line set, exactly as the both-absent path does, rather than raise an
+        # uncaught CalledProcessError (3.190). Unreachable for the maintainer's real layout (the
+        # private sibling is always a git repo); a robustness edge, so it fails OPEN (no findings
+        # from an unreadable sibling is safe: this aid never blocks a commit on its own inability
+        # to read a sibling).
+        return []
     results: list[tuple[str, str]] = []
     current: str | None = None
     for line in out.splitlines():
@@ -331,7 +341,9 @@ def added_lines(staged: bool, root: Path = REPO_ROOT) -> list[tuple[str, str]]:
         mirror.relative_to(root.resolve())
     except ValueError:
         # The mirror is in the private sibling: .working/changelog-details/<file>
-        # has the repository root at parents[2]. Diff it in its own repo.
+        # has the repository root at parents[2]. Diff it in its own repo. NOTE (3.190): the
+        # parents[2] depth hardcodes the mirror layout (.working/changelog-details/<file>); it is
+        # correct for the current DETAILED_MIRROR_REL constant but is brittle if that path moves.
         private_root = mirror.parents[2]
         results.extend(
             _added_lines_from_repo(private_root, (DETAILED_MIRROR_REL,), staged)
