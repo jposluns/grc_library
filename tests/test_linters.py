@@ -9469,6 +9469,18 @@ class OrchestratorAdvisoryToolTests(unittest.TestCase):
         )
         self.assertIn("passed", result.stdout)
 
+    def test_check_class_completeness_self_test_passes(self) -> None:
+        # P-1.5: the class-completeness advisory aid's own --self-test (find_occurrences
+        # discovery + case sensitivity + multi-string + empty-needle safety), wired here so
+        # it cannot silently rot (it is an advisory aid, not a gate, so nothing else runs it).
+        result = run_linter("tools/check-class-completeness.py", "--self-test")
+        self.assertEqual(
+            result.returncode, 0,
+            f"check-class-completeness.py --self-test failed.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("OK", result.stdout)
+
 
 class TokenSpendToolTests(LinterTestCase):
     """The advisory ``tools/audit-token-spend.py`` tool's own ``--self-test``.
