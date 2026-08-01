@@ -23,7 +23,7 @@ bypassed and protects nothing):
   reference (a tool docstring does not cite a corpus document by section number),
   which dissolves the corpus-vs-backlog ambiguity.
 
-Three FP guards:
+Four FP guards:
 1. RENUMBER/REWORD: an id is retired only if it is NOT a heading in TODO.md at
    HEAD (an in-place reword/split/reorder keeps the id, so references stay valid).
 2. HISTORICAL NARRATION: each hit is classified (shared lint_common.classify);
@@ -38,6 +38,15 @@ Three FP guards:
    (the permanence rule), which is the correct disposition anyway.
 3. IN-PR TEACHING: a `SectionRef: <reason>` commit trailer opts out (for the rare
    PR that legitimately adds a live `§N.M` teaching citation in the same change).
+4. PUBLIC/PRIVATE MIGRATION: when a PR MOVES a numbered section from the public
+   TODO.md to the private P-TODO.md (keeping its number, so the id stays LIVE but
+   in a list this gate cannot read in public CI), the `SectionRef:` opt-out is the
+   INTENDED mechanism (maintainer decision 2026-08-01, closing the two-list-
+   awareness backlog item won't-fix-the-CI-way). P-TODO.md lives in the private
+   sibling, which is never checked out in public GitHub CI, so this gate running in
+   CI cannot see the migration destination; a `resolve_sibling`-based two-list read
+   is a no-op in CI while working locally (a local-pass/CI-fail split, why that fix
+   was reverted). The opt-out, with a reason naming the migration, is correct.
 
 Exit: 0 = no retired ids / no LIVE survivors / opt-out / empty diff; 1 = LIVE
 survivors found; 2 = git or environment error.
