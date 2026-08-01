@@ -10,19 +10,19 @@ record, "Session-concurrency safety"; the
 The lease declares which orchestrator session, if any, currently holds
 the shared ``main`` state surfaces. Required fields, one per line:
 
-- ``**Active-session:**`` — the active session's branch name, or
+- ``**Active-session:**`` the active session's branch name, or
   ``none`` when no session holds the lease.
-- ``**Status:**`` — ``active`` (a session holds the lease),
+- ``**Status:**`` ``active`` (a session holds the lease),
   ``winding-down`` (a session is landing its closing handoff PR), or
   ``released`` (no session holds the lease; the clean-close state).
-- ``**Operating-mode:**`` — ``fully-attended``, ``attended-autonomous``,
+- ``**Operating-mode:**`` ``fully-attended``, ``attended-autonomous``,
   ``overnight-unattended``, or ``daytime-unattended``. The
   AskUserQuestion-blocking hook reads this and refuses a blocking prompt when
   the mode is unattended, so the value must always be present and current.
-- ``**Last-heartbeat-UTC:**`` — a ``YYYY-MM-DDTHH:MM:SSZ`` stamp
+- ``**Last-heartbeat-UTC:**`` a ``YYYY-MM-DDTHH:MM:SSZ`` stamp
   (``date -u +%Y-%m-%dT%H:%M:%SZ``), refreshed at each PR close-out.
-- ``**Current-task:**`` — one line of free text.
-- ``**Worker-dispatches:**`` — ``none`` or a free-text summary of the
+- ``**Current-task:**`` one line of free text.
+- ``**Worker-dispatches:**`` ``none`` or a free-text summary of the
   in-flight worker fan-out (cross-referencing the scratch
   ``claims-ledger.md`` when parallel work is running).
 
@@ -40,9 +40,9 @@ step-0 procedure, not in CI. A malformed lease would silently disable
 that procedure, which is the failure this gate exists to catch.
 
 Exit codes:
-    0 — all required fields present, valid, and coherent.
-    1 — an invalid field value or a status/branch incoherence.
-    2 — file missing, unreadable, or a required field line absent.
+    0: all required fields present, valid, and coherent.
+    1: an invalid field value or a status/branch incoherence.
+    2: file missing, unreadable, or a required field line absent.
 """
 
 from __future__ import annotations

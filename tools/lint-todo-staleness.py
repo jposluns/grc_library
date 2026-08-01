@@ -68,11 +68,11 @@ SWEEP_CURSOR_FILE = ".working/session-handoff.md"
 # and the sentence later referenced a real merged PR number in a
 # parenthetical historical aside (`...(during PR #133)`). The tighter
 # character class limits the match to the queued-PR target form
-# `Next, PR #128` / `Next — PR #128` / `queued PR #128` and excludes
+# `Next, PR #128` / `Next: PR #128` / `queued PR #128` and excludes
 # any inline word characters between the marker and the digit-bearing
 # PR ref.
 QUEUED_PR_PATTERN = re.compile(
-    r"\b(?:next|queued|pending|upcoming)\b[\s,:—–-]*PR\s*#(\d+)",
+    r"\b(?:next|queued|pending|upcoming)\b[\s,:\u2014\u2013-]*PR\s*#(\d+)",
     re.IGNORECASE,
 )
 

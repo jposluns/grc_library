@@ -42,7 +42,7 @@ How the audit decides what is in scope:
   3. The file's most-recent commit date is obtained via
      ``git log -1 --follow --format=%cI -- <path>`` (committer date,
      ISO-8601 with timezone). Files with no git history (untracked
-     or staged-only) are skipped — the audit cannot reason about
+     or staged-only) are skipped: the audit cannot reason about
      them.
   4. Generated markdown files (the portal page and the maturity
      scorecard) are exempt because their ``Date`` is set by the

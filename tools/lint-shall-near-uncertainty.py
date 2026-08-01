@@ -7,7 +7,7 @@ This linter catches such patterns.
 
 Mandatory markers detected: ``shall``, ``must``, ``is required``,
 ``are required``, ``will be required``. (Bare ``will`` is NOT a
-mandatory marker in this linter — too many false positives in
+mandatory marker in this linter: too many false positives in
 descriptive/future-tense prose such as "the user will see ...".
 Only the multi-word ``will be required`` form is detected.)
 
@@ -86,7 +86,7 @@ EXEMPT_FILES = {
     "instruction-ai-document-ingestion.md",
 }
 # Note: tools/*.py entries were previously listed here but are
-# unreachable — the linter only scans .md targets via
+# unreachable: the linter only scans .md targets via
 # iter_markdown_targets, so Python sources are never seen.
 # Removed in Phase 23.59.
 
@@ -153,7 +153,7 @@ def check_file(path: Path) -> list[tuple[int, str, str]]:
 
     # Second pass: scan a window around each uncertainty marker for
     # mandatory words. Skip mandatory-marker lines that sit inside a
-    # code block — they are example syntax, not prescriptive prose.
+    # code block: they are example syntax, not prescriptive prose.
     for u_line, u_marker in uncertainty_lines.items():
         lo = max(0, u_line - WINDOW_LINES)
         hi = min(len(lines), u_line + WINDOW_LINES + 1)

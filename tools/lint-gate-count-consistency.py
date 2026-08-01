@@ -189,7 +189,7 @@ PATTERNS: list[tuple[str, re.Pattern[str], str]] = [
     ("N audit gates", re.compile(r"\b(\d+)\s+audit\s+gates?\b", re.IGNORECASE), "gate_digit"),
     (
         "gates 1-N",
-        re.compile(r"\bgates?\s+1[-–—]\s*(\d+)\b", re.IGNORECASE),
+        re.compile(r"\bgates?\s+1[-\u2013\u2014]\s*(\d+)\b", re.IGNORECASE),
         "gate_digit",
     ),
     (

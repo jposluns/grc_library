@@ -41,7 +41,7 @@ import subprocess
 import sys
 
 CHANGELOG_PATH = "CHANGELOG.md"
-DASH_PATTERN = re.compile(r"[—–]")  # em dash or en dash
+DASH_PATTERN = re.compile(r"[\u2014\u2013]")  # em dash or en dash
 
 
 def git(*args: str) -> str:

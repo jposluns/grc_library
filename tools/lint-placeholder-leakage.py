@@ -26,13 +26,13 @@ not automatically checked by the other; extend both deliberately.
 
 Exemptions are layered:
 
-  - EXEMPT_FILES: by filename — CHANGELOG.md, TODO.md, the master spec,
+  - EXEMPT_FILES: by filename: CHANGELOG.md, TODO.md, the master spec,
     the ingestion spec, the citation-verification spec, the
     audit-programme spec, the citation-verification worklist template,
     the coverage-gaps register (uses ``TODO backlog: <topic>``
     planned-target references by design), the decision tree, and the linter scripts that enumerate
     these patterns.
-  - EXEMPT_DIR_PARTS: by directory — ``.git``, ``node_modules``,
+  - EXEMPT_DIR_PARTS: by directory: ``.git``, ``node_modules``,
     ``__pycache__``, ``claude-rules`` (its rule files use angle-bracket
     placeholders as documentation of command syntax).
   - Filename-prefix exemptions: files beginning with ``template-`` or
