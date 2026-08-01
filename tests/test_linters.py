@@ -7561,7 +7561,8 @@ class TodoRotationOnPrTests(unittest.TestCase):
     trigger (broadened 2026-06-30 by the since-closed rotation-prevention
     backlog item, again 2026-07-02 after the #563 verifier's tooling
     note, again 2026-07-03 after the #607 miss, and again 2026-07-06 after
-    the #637 miss) must fire on eight
+    the #637 miss, and again 2026-08-01 for the 3.188
+    verb-first shape) must fire on nine
     closure forms, the canonical
     "clos(e|es|ed|ing) [the] TODO §", the coded-id CLOSED major-closure
     marker (FR/GR/SR-style uppercase ids; widened by GR-13), the prose-named
@@ -7571,7 +7572,9 @@ class TodoRotationOnPrTests(unittest.TestCase):
     DONE ledger" form (widened 2026-07-06 with a markdown-linked DONE
     target), the space-separated "TODO section N.M ...
     clos(ed|ure)" form, and the bare "TODO N.M ... clos(ed|ure)" form (no
-    "section" word, added 2026-07-06 for the #637 shape), and NOT on
+    "section" word, added 2026-07-06 for the #637 shape), and the verb-first
+    "clos(e|es|ed|ing) [the] TODO N.M" form (the clos-first mirror of the two
+    token-first forms, added 2026-08-01 for 3.188), and NOT on
     incidental TODO/FR mentions or past-closure narration.
     """
 
@@ -7644,6 +7647,14 @@ class TodoRotationOnPrTests(unittest.TestCase):
             "the build-only half of TODO 3.21 closed at source this PR.",
             "TODO 3.15 #637 F3 closed with the eighth-form ship.",
             "todo 2.13 is closed and the register bumped.",
+            # Form 9 (2026-08-01, TODO 3.188): the verb-first "clos... [the] TODO
+            # N.M" word order, caught by NONE of forms 1-8 (form 1 wants a §,
+            # forms 7/8 want the TODO token to precede the closure verb). These
+            # are the exact "Closes TODO N.M" phrasings that passed D5 vacuously.
+            "Closes TODO 3.177: completeness was verified before the delete.",
+            "Roadmap C phase 3b (CLOSES TODO 3.139.3): the cadence relocation.",
+            "closing TODO 3.15 with the ninth-form ship this PR.",
+            "closed TODO 3.191 and fixed the Sweep-138 residual this PR.",
         ):
             self.assertIsNotNone(
                 m.asserts_todo_closure([line]),
@@ -7693,6 +7704,12 @@ class TodoRotationOnPrTests(unittest.TestCase):
             # excluded (the #594 lead's shape).
             "the audit spec's last live pointer to the closed TODO section 3.14 reworded.",
             "TODO section 1.5 stays deferred pending the egress instance.",
+            # Form 9's incidental-mention guard: a closure verb NOT contiguous with
+            # a "TODO N.M" token is not a closure assertion (the verb's object is a
+            # different noun), so form 9 does not false-fire on nearby-but-separate
+            # mentions.
+            "the closing note references TODO 3.188 for wider context here.",
+            "TODO 3.188 updated to widen the D5 forms per the review.",
         ):
             self.assertIsNone(
                 m.asserts_todo_closure([line]),
