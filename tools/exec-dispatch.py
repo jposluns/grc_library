@@ -159,6 +159,31 @@ def select_account(config: dict, family: str, model: str, now: _dt.datetime,
     return elig[0] if elig else None
 
 
+def known_model_error(config: dict, family: str, model: str) -> "str | None":
+    """None if `model` is a known model for `family`, else a DISTINCT error string.
+
+    Guards the 3.194 failure mode: an unknown --model (a typo, or a renamed/removed model)
+    filters every account to zero in `eligible_accounts`, producing a "no eligible account"
+    message indistinguishable from a genuine no-capacity state (the 2026-07-30 `gpt-5-codex`
+    recurrence). The known-model set is the single source of truth `known_models` in
+    worker-accounts.json (a top-level ``{family: [models]}`` map), updated in ONE place when a
+    model releases. Absent `known_models` in the config the check is a no-op (backward-compatible),
+    so an older config never fails closed spuriously; likewise a family absent from
+    known_models, or a malformed family value, fails OPEN (never blocks on our own bad config).
+    """
+    km = config.get("known_models")
+    if not isinstance(km, dict) or family not in km:
+        return None  # no known_models, or none declared for this family -> fail OPEN
+    valid = km.get(family)
+    if not isinstance(valid, (list, tuple, set)):
+        return None  # malformed family value -> fail OPEN (never block on our own bad config)
+    if model in valid:
+        return None
+    return (f"unknown-model: {model!r} is not a known {family} model. Valid {family} models: "
+            f"{sorted(valid)}. If this is a newly-released model, add it to "
+            f"known_models[{family!r}] in worker-accounts.json (the single source of truth).")
+
+
 def pick_account(config: dict, family: str, model: str, now: _dt.datetime,
                  account: str | None = None, exclude_accounts: frozenset[str] = frozenset()):
     """Resolve WHICH account to dispatch to. PURE. Returns (acct_dict_or_None, reason).
@@ -184,6 +209,9 @@ def pick_account(config: dict, family: str, model: str, now: _dt.datetime,
     eligible account per concurrent job gives real parallelism (each account's flock serializes
     only its own one job). It does NOT bypass a flock, so it is safe today, before same-account
     config-dir snapshotting exists."""
+    kmerr = known_model_error(config, family, model)
+    if kmerr is not None:
+        return None, kmerr
     if account is not None and account in exclude_accounts:
         return None, (f"contradiction: account '{account}' is both the requested target and an "
                       f"independence exclusion; cannot dispatch to an excluded account")
@@ -594,7 +622,8 @@ _FIXTURE = {
         {"id": "orch-codex", "account": "orch", "family": "codex",
          "tier": "pro-20x", "priority_set": 3, "personal": True,
          "models": ["gpt-5.6-terra"], "usage_state": "available", "limited_until": None},
-    ]
+    ],
+    "known_models": {"claude": ["opus", "sonnet", "haiku", "opus-legacy"], "codex": ["gpt-5.6-terra"]},
 }
 
 
@@ -845,11 +874,28 @@ def _self_test() -> int:
     pa_d, pr_d = pick_account(_FIXTURE, "claude", "opus", sunday,
                               exclude_accounts=frozenset({"work-a", "work-b", "personal-b"}))
     check("pick-independence-deadlock", pa_d is None and "independence-deadlock" in pr_d)
-    # 43. GENUINE empty pool (no account offers the model) + an exclusion is NOT a deadlock.
+    # 43. An UNKNOWN model (3.194 guard) fails loud with a DISTINCT reason, before the
+    #     eligibility funnel, so it is neither a deadlock nor a bare "no eligible account".
     pa_e, pr_e = pick_account(_FIXTURE, "claude", "no-such-model", sunday,
                               exclude_accounts=frozenset({"work-a"}))
-    check("pick-empty-pool-not-deadlock",
-          pa_e is None and "deadlock" not in pr_e and "no eligible account" in pr_e)
+    check("pick-unknown-model-not-deadlock",
+          pa_e is None and "deadlock" not in pr_e and "unknown-model" in pr_e
+          and "no eligible account" not in pr_e)
+    # 43a. 3.194 known-model guard, direct. Unknown model -> distinct error; known -> None;
+    #      a config WITHOUT known_models -> None (backward-compatible no-op).
+    check("kme-unknown-codex", known_model_error(_FIXTURE, "codex", "gpt-5-codex") is not None)
+    check("kme-known-codex", known_model_error(_FIXTURE, "codex", "gpt-5.6-terra") is None)
+    check("kme-unknown-claude", "unknown-model" in (known_model_error(_FIXTURE, "claude", "opus-9") or ""))
+    check("kme-noconfig-noop", known_model_error({"accounts": []}, "claude", "anything") is None)
+    check("kme-family-absent-failopen", known_model_error({"known_models": {"codex": ["x"]}}, "claude", "anything") is None)
+    check("kme-malformed-value-failopen", known_model_error({"known_models": {"claude": None}}, "claude", "opus") is None)
+    check("kme-nondict-km-failopen", known_model_error({"known_models": "oops"}, "claude", "opus") is None)
+    # L224 coverage: a KNOWN model that zero accounts offer -> genuine empty pool "no eligible account".
+    pa_ne, pr_ne = pick_account(_FIXTURE, "claude", "opus-legacy", sunday)
+    check("known-unoffered-empty-pool", pa_ne is None and "no eligible account" in pr_ne)
+    # 43b. A KNOWN model still resolves to an account normally (guard does not over-block).
+    pa_kv, _ = pick_account(_FIXTURE, "claude", "opus", sunday)
+    check("known-model-guard-valid-resolves", pa_kv is not None)
     # 44. CONTRADICTION: the targeted account is ALSO excluded -> distinct order-defect reason.
     pa_c, pr_c = pick_account(_FIXTURE, "claude", "opus", sunday, account="work-a",
                               exclude_accounts=frozenset({"work-a"}))
@@ -963,6 +1009,10 @@ def main() -> int:
     if args.dry_run:
         if not (args.family and args.model):
             ap.error("--dry-run needs --family and --model")
+        kmerr = known_model_error(config, args.family, args.model)
+        if kmerr is not None:
+            print(f"[{now.astimezone().strftime('%H:%M:%S')}] {kmerr}")
+            return 2
         elig = eligible_accounts(config, args.family, args.model, now, exclude_accounts)
         if effective_account:
             acct, reason = pick_account(config, args.family, args.model, now,
