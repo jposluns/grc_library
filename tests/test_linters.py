@@ -9493,6 +9493,18 @@ class OrchestratorAdvisoryToolTests(unittest.TestCase):
         )
         self.assertIn("OK", result.stdout)
 
+    def test_check_clean_language_upstream_self_test_passes(self) -> None:
+        # P-1.13: the clean-language upstream-drift check's classify() self-test (drift on a
+        # changed / missing-either-side blob SHA), wired here so the monthly-check logic
+        # cannot silently rot. The self-test is offline (pure classify); no network.
+        result = run_linter("tools/check-clean-language-upstream.py", "--self-test")
+        self.assertEqual(
+            result.returncode, 0,
+            f"check-clean-language-upstream.py --self-test failed.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("OK", result.stdout)
+
 
 class TokenSpendToolTests(LinterTestCase):
     """The advisory ``tools/audit-token-spend.py`` tool's own ``--self-test``.

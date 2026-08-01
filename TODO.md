@@ -404,7 +404,9 @@ Portal reorder not pursued (README stays at decision-tree item 1; dropped-decisi
 
 Non-urgent follow-ups deliberately DEFERRED to a future date, then re-evaluated: a suggested revisit of something already shipped, where acting now would be premature (not enough real-world signal yet). This is NOT the normal forward backlog (those are the Priority sections); an item here is date-gated, not ready-now, and will mostly track "revisit this suggested follow-up after date X". Each entry carries a **Not-before** date (UTC), what to EVALUATE, and the originating PR. `/resume` reads this section and surfaces any entry whose Not-before date has passed, so a due follow-up is not silently forgotten. When a follow-up is acted on (or decided against), rotate it to `grc_library_private/.working/DONE.md` like any other closed item.
 
-**Next item number: TF-3.**
+**Next item number: TF-4.**
+
+- **TF-3 / Not-before: 2026-09-01** (recurring MONTHLY): run `python3 tools/check-clean-language-upstream.py`. If it reports DRIFT, re-vendor the changed `.claude/skills/clean-language/` files from upstream `jposluns/ai-language` (`gh api repos/jposluns/ai-language/contents/clean-language/<file> --jq .content | base64 -d > .claude/skills/clean-language/<file>`) and commit, updating the skill's PROVENANCE.md. Then advance this Not-before by one month (this is a RECURRING check, so it does NOT rotate to DONE; it re-arms). Originating PR: #1328 (P-1.13, the Clean-Language skill install + auto-update check, maintainer-directed 2026-08-01).
 
 ## Standing conventions
 
