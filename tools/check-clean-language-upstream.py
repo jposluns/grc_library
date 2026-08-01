@@ -8,6 +8,12 @@ advances without a heads-up, so a MONTHLY time-bounded follow-up in TODO.md runs
 It compares each vendored file's git blob SHA (``git hash-object``) against the upstream blob SHA
 (``gh api ... contents ... --jq .sha``); a mismatch is DRIFT, meaning re-fetch and re-vendor.
 
+The tracked set is EVERY vendored file, keyed by its LOCAL path with its correct UPSTREAM path
+(they differ: the skill content lives under upstream ``clean-language/``, but ``LICENSE`` and
+``NOTICE.md`` are upstream REPO-ROOT files, and the icon assets live under ``clean-language/assets/``).
+The two binary icon assets and the legal files (LICENSE / NOTICE) are tracked too, so an upstream
+attribution or licence change does not go silent (defence in depth, codex vpr1328 findings 2 and 3).
+
 ADVISORY (not a gate): it REPORTS drift for the maintainer to action, and exits 0 on both in-sync
 and drift so it never blocks; exit 2 only if the local skill dir or ``gh`` is unavailable (so a
 network / auth problem is loud, not silently read as in-sync). GitHub has no egress issue here.
@@ -28,28 +34,36 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SKILL_DIR = REPO_ROOT / ".claude" / "skills" / "clean-language"
-UPSTREAM = "repos/jposluns/ai-language/contents/clean-language"
-# The vendored files, relative to the skill dir (also the upstream path suffix).
-FILES = (
-    "SKILL.md",
-    "references/examples.md",
-    "references/context-modes.md",
-    "references/qa-checklist.md",
-    "references/anti-patterns.md",
-    "agents/openai.yaml",
-)
+UPSTREAM_BASE = "repos/jposluns/ai-language/contents"
+# Every vendored file: LOCAL path (relative to the skill dir) -> UPSTREAM contents path.
+# The upstream paths differ by file: skill content is under ``clean-language/``, the icon assets
+# under ``clean-language/assets/``, but LICENSE and NOTICE.md are upstream REPO-ROOT files.
+FILES = {
+    "SKILL.md": "clean-language/SKILL.md",
+    "references/examples.md": "clean-language/references/examples.md",
+    "references/context-modes.md": "clean-language/references/context-modes.md",
+    "references/qa-checklist.md": "clean-language/references/qa-checklist.md",
+    "references/anti-patterns.md": "clean-language/references/anti-patterns.md",
+    "agents/openai.yaml": "clean-language/agents/openai.yaml",
+    "assets/CL_icon.svg": "clean-language/assets/CL_icon.svg",
+    "assets/CL_icon.png": "clean-language/assets/CL_icon.png",
+    "LICENSE": "LICENSE",
+    "NOTICE.md": "NOTICE.md",
+}
 
 
 def classify(local_shas: dict[str, str | None], upstream_shas: dict[str, str | None]) -> list[str]:
-    """PURE: return the list of files that DRIFT (local != upstream, or either side missing).
-    A missing file on either side is drift (it must be re-vendored / investigated), never silently
-    treated as in-sync."""
+    """PURE: return the sorted list of files that DRIFT (local != upstream, or either side
+    missing). A file missing on EITHER side is drift, whether it is present-with-value-None or
+    ABSENT as a key: the union of both key sets is iterated so an upstream-only or local-only file
+    is never silently treated as in-sync (codex vpr1328 finding 1: iterating only local keys missed
+    a file present upstream but absent locally)."""
     drift = []
-    for f in local_shas:
+    for f in set(local_shas) | set(upstream_shas):
         loc, up = local_shas.get(f), upstream_shas.get(f)
         if loc is None or up is None or loc != up:
             drift.append(f)
-    return drift
+    return sorted(drift)
 
 
 def _local_sha(rel: str) -> str | None:
@@ -62,10 +76,10 @@ def _local_sha(rel: str) -> str | None:
         return None
 
 
-def _upstream_sha(rel: str) -> str | None:
+def _upstream_sha(upstream_path: str) -> str | None:
     try:
         out = subprocess.check_output(
-            ["gh", "api", f"{UPSTREAM}/{rel}", "--jq", ".sha"], text=True).strip()
+            ["gh", "api", f"{UPSTREAM_BASE}/{upstream_path}", "--jq", ".sha"], text=True).strip()
         return out or None
     except (subprocess.CalledProcessError, OSError):
         return None
@@ -77,12 +91,18 @@ def _self_test() -> int:
     checks.append(("in-sync-no-drift", classify({"a": "x", "b": "y"}, {"a": "x", "b": "y"}) == []))
     # changed sha -> drift
     checks.append(("changed-sha-drift", classify({"a": "x"}, {"a": "z"}) == ["a"]))
-    # missing upstream -> drift (not silently in-sync)
-    checks.append(("missing-upstream-drift", classify({"a": "x"}, {"a": None}) == ["a"]))
-    # missing local -> drift
-    checks.append(("missing-local-drift", classify({"a": None}, {"a": "x"}) == ["a"]))
-    # mixed
+    # missing upstream (present-None) -> drift (not silently in-sync)
+    checks.append(("missing-upstream-none-drift", classify({"a": "x"}, {"a": None}) == ["a"]))
+    # missing local (present-None) -> drift
+    checks.append(("missing-local-none-drift", classify({"a": None}, {"a": "x"}) == ["a"]))
+    # ABSENT KEY upstream-only (local key entirely missing) -> drift (finding 1)
+    checks.append(("absent-local-key-drift", classify({}, {"a": "x"}) == ["a"]))
+    # ABSENT KEY local-only (upstream key entirely missing) -> drift (finding 1)
+    checks.append(("absent-upstream-key-drift", classify({"a": "x"}, {}) == ["a"]))
+    # mixed, one changed one same -> only the changed one, sorted
     checks.append(("mixed", classify({"a": "x", "b": "y"}, {"a": "x", "b": "z"}) == ["b"]))
+    # union with disjoint keys -> both drift, sorted
+    checks.append(("disjoint-union", classify({"a": "x"}, {"b": "y"}) == ["a", "b"]))
     bad = [n for n, ok in checks if not ok]
     if bad:
         print(f"check-clean-language-upstream self-test: FAIL {bad}")
@@ -100,8 +120,8 @@ def main(argv: list[str]) -> int:
     if not SKILL_DIR.is_dir():
         print(f"ERROR: vendored skill dir not found at {SKILL_DIR} (nothing to check).", file=sys.stderr)
         return 2
-    local = {f: _local_sha(f) for f in FILES}
-    upstream = {f: _upstream_sha(f) for f in FILES}
+    local = {rel: _local_sha(rel) for rel in FILES}
+    upstream = {rel: _upstream_sha(FILES[rel]) for rel in FILES}
     if all(v is None for v in upstream.values()):
         print("ERROR: could not read ANY upstream blob SHA via `gh api` (auth / network / repo "
               "moved?). Cannot verify drift; not assuming in-sync.", file=sys.stderr)
@@ -114,9 +134,10 @@ def main(argv: list[str]) -> int:
     print(f"DRIFT: {len(drift)} vendored clean-language file(s) differ from upstream "
           f"jposluns/ai-language; re-fetch and re-vendor them:")
     for f in drift:
-        print(f"  {f}: local={ (local[f] or 'MISSING')[:8] } upstream={ (upstream[f] or 'MISSING')[:8] }")
-    print("Re-vendor: `gh api repos/jposluns/ai-language/contents/clean-language/<file> --jq .content "
-          "| base64 -d > .claude/skills/clean-language/<file>`, then commit + update PROVENANCE.md.")
+        print(f"  {f} (upstream {FILES[f]}): "
+              f"local={ (local.get(f) or 'MISSING')[:8] } upstream={ (upstream.get(f) or 'MISSING')[:8] }")
+    print("Re-vendor each: `gh api repos/jposluns/ai-language/contents/<upstream-path> --jq .content "
+          "| base64 -d > .claude/skills/clean-language/<local-path>`, then commit + update PROVENANCE.md.")
     return 0
 
 
