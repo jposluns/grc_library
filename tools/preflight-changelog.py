@@ -25,6 +25,11 @@ mirror contain any of:
     ``http(s)``/``mailto:``/anchor targets, and code-span-illustrative links
     are excluded; resolution is relative to the source file's own directory.
 
+  - a root ``CHANGELOG.md`` compact entry whose summary exceeds the D7 length
+    ceiling (100 words total, or a single sentence over 45 words); this reuses
+    ``check-changelog-length-on-pr.py`` (the D7 delta-gate authority) so the two
+    never drift, catching an over-long entry at authoring rather than at the guard.
+
 In addition to the added-line checks above, a FULL-MIRROR link-resolution pass
 (TODO 3.34 remaining half) scans EVERY in-repo relative markdown link in the
 whole detailed mirror (not only added lines), reusing the identical resolution
@@ -79,6 +84,34 @@ _TOOLS_DIR = str(Path(__file__).resolve().parent)
 if _TOOLS_DIR not in sys.path:
     sys.path.insert(0, _TOOLS_DIR)
 from lint_common import resolve_working  # noqa: E402
+
+# D7 length check reuse (P-1.4): import the authoritative per-PR length checker so the
+# 100-word / 45-word-sentence ceiling on a root-CHANGELOG compact entry is caught at
+# authoring (this aid) rather than only at the pre-push guard. The module name is
+# hyphenated, so load it via importlib; reusing its ENTRY_RE + evaluate keeps the two in
+# lock-step (no duplicated length logic to drift).
+import importlib.util as _ilu  # noqa: E402
+_d7_spec = _ilu.spec_from_file_location(
+    '_changelog_len_d7', Path(__file__).resolve().parent / 'check-changelog-length-on-pr.py')
+_d7 = _ilu.module_from_spec(_d7_spec)
+_d7_spec.loader.exec_module(_d7)
+
+
+def d7_length_findings(lines):
+    """The D7 length-ceiling findings for the ROOT ``CHANGELOG.md`` compact entries in
+    ``lines`` (a list of ``(path, added_text)``), reusing ``check-changelog-length-on-pr``'s
+    ENTRY_RE + evaluate so this aid and the D7 delta gate never drift (P-1.4). Only the root
+    file is length-gated; the detailed mirror is out of the D7 gate's scope."""
+    entries = []
+    for path, text in lines:
+        if path == "CHANGELOG.md":
+            m = _d7.ENTRY_RE.match(text)
+            if m:
+                entries.append((m.group(1), m.group(2)))
+    return [
+        ("CHANGELOG.md", f"D7 length ceiling exceeded ({offence})", "")
+        for offence in _d7.evaluate(entries, _d7.DEFAULT_WORD_MAX, _d7.DEFAULT_SENTENCE_MAX)
+    ]
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -355,8 +388,8 @@ def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
         description=(
             "Pre-commit aid: fail when added CHANGELOG lines carry an em/en "
-            "dash in prose, an unlinked path-shaped reference, or a dangling "
-            "in-repo markdown-link target."
+            "dash in prose, an unlinked path-shaped reference, a dangling "
+            "in-repo markdown-link target, or a root entry over the D7 length ceiling."
         )
     )
     parser.add_argument(
@@ -400,12 +433,14 @@ def main(argv: list[str]) -> int:
             )
         )
 
+    findings.extend(d7_length_findings(lines))
+
     if not findings:
         scope = "staged" if args.staged else "working-tree"
         print(
             f"OK: {len(lines)} added CHANGELOG line(s) ({scope}) are dash-free, "
-            f"every path-shaped reference is a markdown link, and every in-repo "
-            f"link target resolves."
+            f"every path-shaped reference is a markdown link, every in-repo link "
+            f"target resolves, and no root entry exceeds the D7 length ceiling."
         )
         return 0
 
