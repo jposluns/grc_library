@@ -98,9 +98,16 @@ Checks:
     control title is a legitimate cite-the-domain convention and is EXEMPT when
     more than half its content words appear in the code's domain name
     (DOMAIN_NAMES, source-verified against the CCM v4.1.0 / AICM v1.1.0
-    catalogues): CEK-03 "Encryption and Key Management" (3 of 4 words in the CEK
-    domain) is exempt, while GRC-01 "Risk Management Framework" (1 of 3 in the
-    GRC domain) still flags.
+    catalogues), measured on the BASE title (the part before a trailing
+    ``: <qualifier>``, so a verbose qualifier cannot dilute the overlap): CEK-03
+    "Encryption and Key Management: PKI" is exempt on its base "Encryption and Key
+    Management" (all three words in the CEK domain), while GRC-01 "Risk Management
+    Framework" (one of three base words in the GRC domain) still flags. The check
+    is precision-first: a cell carrying two or more codes is skipped (no clean
+    single-title-to-code mapping), and the more-than-half heuristic is deliberately
+    lenient, so a wrong title whose words are mostly domain words is treated as a
+    domain reference (a documented false-negative residual; a per-domain
+    reviewed-alias table is the tighter alternative).
 
 Scope: ``*.md`` under the repository root, minus DEFAULT_EXEMPT_DIRS (which
 includes ``.working`` and ``.claude``) and the append-only CHANGELOG files.
@@ -398,9 +405,16 @@ def scan_file(path: Path) -> list[Finding]:
                     tw6 = _content_words(title6)
                     if not tw6 or (tw6 & _content_words(canon6)):
                         continue  # shares a control-title word -> not a mismatch
+                    # Domain-name exemption uses the BASE title (the part before a trailing
+                    # ": <qualifier>", e.g. "Encryption and Key Management" from
+                    # "Encryption and Key Management: PKI"), so a verbose context qualifier
+                    # cannot dilute the domain-name overlap below the threshold and cry wolf on
+                    # a legitimate cite-the-domain reference (codex vpr3186 E2: the expanded
+                    # "...: Public Key Infrastructure (PKI)" form would otherwise fall to 3/6).
+                    base6 = _content_words(title6.split(":", 1)[0])
                     dw6 = _content_words(DOMAIN_NAMES.get(dom6, ""))
-                    if dw6 and len(tw6 & dw6) * 2 > len(tw6):
-                        continue  # > 50% of the title's words are the domain name -> exempt
+                    if dw6 and base6 and len(base6 & dw6) * 2 > len(base6):
+                        continue  # > half the BASE title's words are the domain name -> exempt
                     findings.append(Finding(
                         path, i, "ccm-title-mismatch-in-column",
                         f"'{code6}' titled '{title6}' shares no content word with "

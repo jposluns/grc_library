@@ -5565,6 +5565,42 @@ class CcmAicmCitationTests(LinterTestCase):
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 
+    def test_column_verbose_qualifier_title_not_flagged(self) -> None:
+        # Check 6 robustness (codex vpr3186 E2): the domain-name exemption measures the
+        # BASE title (before a trailing ": qualifier"), so an expanded qualifier cannot
+        # dilute the overlap and cry wolf. CEK-03 with the verbose "Public Key
+        # Infrastructure (PKI)" qualifier is exempt on its base "Encryption and Key
+        # Management" (all 3 words in the CEK domain); the naive full-title ratio would
+        # have been 3/6 and wrongly flagged.
+        fixture = self.make_fixture(
+            "fake-ccm-column-verbose-qualifier.md",
+            "# X\n\n| Framework | Control |\n| --- | --- |\n"
+            "| CSA CCM v4.1 | CEK-03: Encryption and Key Management: Public Key Infrastructure (PKI) |\n",
+        )
+        result = run_linter("tools/lint-ccm-aicm-citations.py", fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"a verbose ': Public Key Infrastructure (PKI)' qualifier must not dilute the "
+            f"CEK-03 domain-name exemption.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_column_multi_code_cell_skipped(self) -> None:
+        # Check 6 precision-first (codex vpr3186 E3): a framework-label cell carrying two
+        # or more codes has no clean single-title-to-code mapping, so it is skipped
+        # (len(code_ms) != 1). A title paired with a second code does not trigger Check 6;
+        # this is a documented coverage boundary, not a flag.
+        fixture = self.make_fixture(
+            "fake-ccm-column-multi-code.md",
+            "# X\n\n| Framework | Control |\n| --- | --- |\n"
+            "| CSA CCM v4.1 | GRC-01 and GRC-02 Risk Management Framework |\n",
+        )
+        result = run_linter("tools/lint-ccm-aicm-citations.py", fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"a multi-code framework-label cell is precision-first skipped by Check 6.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
     def test_bare_domain_code_in_ccm_context_flagged(self) -> None:
         # Check 4: a bare superseded/fabricated domain code (no -NN suffix) on a
         # line that names the matrices is flagged (the family-list residual
