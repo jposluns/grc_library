@@ -20,6 +20,18 @@ directory, its top-level children's mtimes (codex finding 2: a workspace mutatin
 have a stale dir mtime). For a worker-owned dir whose children are unreadable, the dir mtime is the
 best available signal; the conservative default --days plus the short worker lifecycle bound this.
 
+THREAT MODEL and ACCEPTED RESIDUALS. The threat this tool defends is ACCIDENTAL selection of a live
+workspace by a cooperative-workers cleanup, NOT an adversarial process racing the tool on a shared box.
+Two residuals are accepted within that model (codex vp116b, out of scope to fully close): (1) DEEP nested
+activity, a live file more than one level down under a dir whose top + first-level mtimes are stale, is
+not seen (full recursion is infeasible: worker-owned dirs are unreadable, and a recursive stat over /tmp
+is as slow as `du`); it is bounded because an active worker's worktree is minutes old (<< the >=0.5d,
+default 3d, age gate), so its dir mtime is recent regardless of nesting. (2) The microsecond window
+between the final pre-move re-verify and `shutil.move`'s rename is a check-then-act race; it requires an
+adversarial concurrent process (not the threat model), and `shutil.move` fails-and-reports on a
+non-owned entry anyway. Both are documented rather than closed; the dry-run default and the harness rm
+block mean the worst case today is a reported move-failure, not a deletion.
+
 REMOVAL: `rm -rf` on /tmp is currently HARNESS-blocked (the OS allows sudo). So --apply MOVES eligible
 entries into a private staging dir (default /tmp/deleteme) via `shutil.move`. Immediately before each
 move it RE-VERIFIES the entry (still allow-listed + not protected + still old + not a symlink + same
@@ -55,7 +67,7 @@ PROTECT_EXACT = {"deleteme"}
 # This is the destructive SCOPE. Deliberately tight: the project's worker clones / scratch / codex
 # worktrees are `grc_*`, `grc-*`, `codex-*`; anything else (system, sockets, other users, ad-hoc)
 # is out of scope and left alone.
-WORKER_OUTPUT_RE = re.compile(r"^(grc[_-]|codex-)", re.IGNORECASE)
+WORKER_OUTPUT_RE = re.compile(r"^(grc[_-]|codex-)")  # case-SENSITIVE: the project's worker names are lower-case
 MIN_DAYS = 0.5  # a smaller age would select freshly-touched entries; refuse it
 
 
@@ -161,10 +173,18 @@ def _resolve_staging(raw: str, keep: set[str]) -> tuple[Path, str] | None:
         print(f"ERROR: --staging must be directly under {TMP} (got {resolved}).", file=sys.stderr)
         return None
     name = resolved.name
-    if is_worker_output(name) and name not in keep:
+    if is_worker_output(name):
         print(f"ERROR: --staging basename {name!r} matches the worker-output pattern; pick another "
               f"(it would be a cleanup candidate).", file=sys.stderr)
         return None
+    if is_protected(name, keep):
+        # a staging dir must never BE a protected entry (a `claude-*` session, a dot-dir): moving
+        # cleanup output INTO a live session dir is exactly what the protect-list forbids (codex vp116b
+        # finding 3). `deleteme` is the sanctioned default and is allowed via the carve-out below.
+        if name != "deleteme":
+            print(f"ERROR: --staging basename {name!r} is a protected name (a session/dot/keep entry); "
+                  f"refusing to stage into it.", file=sys.stderr)
+            return None
     return resolved, name
 
 
@@ -178,6 +198,7 @@ def _self_test() -> int:
     checks.append(("deny-socket", not is_worker_output(".X11-unix") and not is_worker_output("ssh-XXXX")))
     checks.append(("deny-adhoc", not is_worker_output("A.cut") and not is_worker_output("stygia-pages-venv")))
     checks.append(("deny-other-user", not is_worker_output("pymp-abcd") and not is_worker_output("tmp1234")))
+    checks.append(("case-sensitive-deny-upper", not is_worker_output("GRC-up") and not is_worker_output("CODEX-up")))
     # protect-list
     checks.append(("dot-protected", is_protected(".X11-unix", keep) and is_protected(".agents", keep)))
     checks.append(("claude-protected", is_protected("claude-1004", keep)))
@@ -284,8 +305,9 @@ def main(argv: list[str]) -> int:
             skipped.append((n, "is now a symlink")); continue
         if (st.st_dev, st.st_ino) != scan_ident.get(n):
             skipped.append((n, "device/inode changed since scan")); continue
-        if _entry_mtime(src) > cutoff:
-            skipped.append((n, "touched since scan (now recent)")); continue
+        emt = _entry_mtime(src)
+        if emt is None or emt > cutoff:
+            skipped.append((n, "vanished or touched since scan")); continue
         dest = staging_path / n
         if os.path.exists(dest) or os.path.islink(dest):
             skipped.append((n, "destination already exists")); continue

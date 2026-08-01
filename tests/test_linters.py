@@ -9534,17 +9534,23 @@ class OrchestratorAdvisoryToolTests(unittest.TestCase):
             (root / "systemd-private-x").mkdir()       # NOT worker-output -> keep
             (root / "claude-9999").mkdir()             # protected session -> keep
             (root / "grc-fresh").mkdir()               # worker-output but RECENT -> keep
-            for name in ("grc-old-clone", "systemd-private-x", "claude-9999"):
+            (root / "grc-kept").mkdir()                # worker-output + old but --keep'd -> is_protected keeps it
+            for name in ("grc-old-clone", "systemd-private-x", "claude-9999", "grc-kept"):
                 os.utime(root / name, (old, old))
             # grc-fresh keeps its just-created (now) mtime
             mod.TMP = root
-            rc = mod.main(["prog", "--apply", "--days", "3", "--staging", str(root / "deleteme")])
+            rc = mod.main(["prog", "--apply", "--days", "3", "--keep", "grc-kept",
+                           "--staging", str(root / "deleteme")])
             moved = not (root / "grc-old-clone").exists() and (root / "deleteme" / "grc-old-clone").exists()
             self.assertTrue(moved, "old worker-output should have been moved")
-            self.assertTrue((root / "systemd-private-x").exists(), "system dir must NOT be moved")
-            self.assertTrue((root / "claude-9999").exists(), "live session dir must NOT be moved")
-            self.assertTrue((root / "grc-fresh").exists(), "recently-touched worker dir must NOT be moved")
+            self.assertTrue((root / "systemd-private-x").exists(), "system dir must NOT be moved (allow-list)")
+            self.assertTrue((root / "claude-9999").exists(), "live session dir must NOT be moved (allow-list)")
+            self.assertTrue((root / "grc-fresh").exists(), "recently-touched worker dir must NOT be moved (age)")
+            self.assertTrue((root / "grc-kept").exists(), "--keep'd worker dir must NOT be moved (is_protected)")
             self.assertEqual(rc, 0, "clean guarded apply should return 0")
+            # a --staging pointing at a protected claude-* is refused (codex vp116b finding 3)
+            rc2 = mod.main(["prog", "--apply", "--days", "3", "--staging", str(root / "claude-8888")])
+            self.assertEqual(rc2, 2, "staging into a protected claude-* name must be refused (exit 2)")
 
 
 class TokenSpendToolTests(LinterTestCase):
