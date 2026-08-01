@@ -26,8 +26,8 @@ This audit enforces three invariants on the external overlay:
 
 Together with gate 15 (which enforces the project's own licence
 discipline on the corpus), these three checks close the
-licence-consistency loop: every file in the repository — project
-content or external overlay — has its licence validated against the
+licence-consistency loop: every file in the repository (project
+content or external overlay) has its licence validated against the
 appropriate expectation.
 
 Exit codes: 0 pass, 1 findings, 2 internal error.

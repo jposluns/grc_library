@@ -191,7 +191,7 @@ def mask_allowed_spans(line: str) -> str:
             line = line.replace(span, " " * len(span))
     return line
 
-EM_DASH_PATTERN = re.compile(r"[—–]")  # em dash or en dash
+EM_DASH_PATTERN = re.compile(r"[\u2014\u2013]")  # em dash or en dash
 ENSURE_PATTERN = re.compile(r"\b(ensure|ensures)\b(?!\s+that\b)", re.IGNORECASE)
 
 # Verbatim external titles carrying a bare imperative "Ensure": masked out of

@@ -91,7 +91,7 @@ ISO_LABEL_RE = re.compile(r"\bISO(?:/IEC)?\s+27001:2022\b")
 # not re-counted as a stand-alone code. Range second endpoint may drop the
 # "A." and the theme ("A.8.20 to 21").
 RANGE_RE = re.compile(
-    r"A\.(\d+)\.(\d+)\s*(?:to|through|-|–|—)\s*(?:A\.)?(?:(\d+)\.)?(\d+)\b"
+    r"A\.(\d+)\.(\d+)\s*(?:to|through|-|\u2013|\u2014)\s*(?:A\.)?(?:(\d+)\.)?(\d+)\b"
 )
 ANNEX_CODE_RE = re.compile(r"A\.(\d+)\.(\d+)")
 # Theme-only reference: "A.5" not immediately followed by ".<digit>" (which

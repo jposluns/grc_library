@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Collection-candidate detector — exploratory tool, not a gate.
+"""Collection-candidate detector, exploratory tool, not a gate.
 
 Companion to gate 41 (Collection-enumeration consistency audit). Gate 41
 enforces drift discipline on a hard-coded list of "collections" (each

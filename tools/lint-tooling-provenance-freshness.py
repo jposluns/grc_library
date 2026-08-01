@@ -149,7 +149,7 @@ def main(argv: list[str]) -> int:
     if not entries:
         print(
             "ERROR: AI Security Tooling Landscape Register parsed no entries. "
-            "The register exists but no Date-assessed rows were extracted — "
+            "The register exists but no Date-assessed rows were extracted: "
             "likely a parsing bug or an accidental wipe. Linter cannot verify "
             "provenance freshness in this state.",
             file=sys.stderr,

@@ -48,7 +48,7 @@ COMPACT_HEADER = re.compile(
 INITIAL_RELEASE = re.compile(
     r"^## Initial public release \((\d{4}-\d{2}-\d{2}), Library Version "
     r"([0-9.]+)\): (.+)$")
-DASH_RE = re.compile("[–—]")
+DASH_RE = re.compile("[\u2013\u2014]")
 
 
 def compact(date: str, version: str, pr: str | None) -> str:

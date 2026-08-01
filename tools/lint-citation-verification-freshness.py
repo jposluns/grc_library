@@ -118,7 +118,7 @@ def main(argv: list[str]) -> int:
     today = args.today
     # Distinguish "register file missing" (environmental failure;
     # exit 2) from "register present but parses zero rows" (the
-    # current documented state — Q-track verifications pending;
+    # current documented state, Q-track verifications pending;
     # exit 0 with note). The two cases are not equivalent: a missing
     # file indicates a broken repository, whereas an empty register
     # is the expected starting state.

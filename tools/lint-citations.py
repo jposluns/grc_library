@@ -104,7 +104,7 @@ DENYLIST: list[tuple[str, str, str]] = [
 # unreachable.
 #
 # Phase 23.63 removed `governance/register-canonical-citations.md` from
-# the exemption set for every term except COBIT 2025 — verified that
+# the exemption set for every term except COBIT 2025, after verifying that
 # only COBIT 2025 actually appears in that file. The defensive
 # exemption on the other 10 terms was dead weight.
 PATH_EXEMPTIONS: dict[str, set[str]] = {
