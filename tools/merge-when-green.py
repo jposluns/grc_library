@@ -41,23 +41,41 @@ def evaluate(rollup: list[dict]) -> tuple[bool, str]:
         return False, "no checks reported for this PR (never merge on no-checks)"
     pending: list[str] = []
     failed: list[str] = []
+    unknown: list[str] = []
     for c in rollup:
+        if not isinstance(c, dict):
+            unknown.append(f"<non-dict entry: {c!r}>")
+            continue
+        typename = c.get("__typename")
         name = c.get("name") or c.get("context") or "<check>"
-        if c.get("__typename") == "CheckRun":
+        if typename == "CheckRun":
             status, concl = c.get("status"), c.get("conclusion")
             if status != "COMPLETED":
                 pending.append(f"{name} [{status or 'no-status'}]")
             elif concl not in _OK_CONCLUSION:
                 failed.append(f"{name} [{concl or 'no-conclusion'}]")
-        else:  # StatusContext or any unknown shape -> require an explicit SUCCESS state
+        elif typename == "StatusContext":
             state = c.get("state")
             if state in (None, "PENDING", "EXPECTED"):
                 pending.append(f"{name} [{state or 'no-state'}]")
             elif state not in _OK_STATE:
                 failed.append(f"{name} [{state}]")
-    if failed:
-        tail = ("; also pending: " + ", ".join(pending)) if pending else ""
-        return False, "failing / non-success check(s): " + ", ".join(failed) + tail
+        else:
+            # UNRECOGNIZED check shape -> REFUSE fail-closed, REGARDLESS of any `state`
+            # field: a new / unknown GitHub check type (or a malformed entry) must never be
+            # waved through green. A green verdict comes ONLY from a recognized CheckRun or
+            # StatusContext (codex vpr1327: the else-via-state branch fail-OPENED on an
+            # unknown typename carrying state=SUCCESS).
+            unknown.append(f"{name} [unrecognized shape: {typename!r}]")
+    if failed or unknown:
+        parts: list[str] = []
+        if failed:
+            parts.append("failing / non-success: " + ", ".join(failed))
+        if unknown:
+            parts.append("UNRECOGNIZED shape (fail-closed refuse): " + ", ".join(unknown))
+        if pending:
+            parts.append("pending: " + ", ".join(pending))
+        return False, "; ".join(parts)
     if pending:
         return False, "pending / incomplete check(s): " + ", ".join(pending)
     return True, f"all {len(rollup)} check(s) completed successfully"
@@ -77,6 +95,15 @@ def _self_test() -> int:
         ("one-pending-refused", [cr("a", "COMPLETED", "SUCCESS"), cr("b", "IN_PROGRESS", None)], False),
         ("queued-refused", [cr("a", "QUEUED", None)], False),
         ("failure-refused", [cr("a", "COMPLETED", "SUCCESS"), cr("b", "COMPLETED", "FAILURE")], False),
+        ("completed-null-conclusion-refused", [cr("a", "COMPLETED", None)], False),
+        ("unknown-shape-with-state-SUCCESS-refused", [{"__typename": "Weird", "name": "x", "state": "SUCCESS"}], False),
+        ("non-dict-entry-refused", ["not-a-dict"], False),
+        ("timed-out-refused", [cr("a", "COMPLETED", "TIMED_OUT")], False),
+        ("action-required-refused", [cr("a", "COMPLETED", "ACTION_REQUIRED")], False),
+        ("stale-refused", [cr("a", "COMPLETED", "STALE")], False),
+        ("waiting-status-refused", [cr("a", "WAITING", None)], False),
+        ("statuscontext-error-refused", [sc("ci", "ERROR")], False),
+        ("statuscontext-null-state-refused", [sc("ci", None)], False),
         ("cancelled-refused", [cr("a", "COMPLETED", "CANCELLED")], False),
         ("statuscontext-success", [sc("ci", "SUCCESS")], True),
         ("statuscontext-pending-refused", [sc("ci", "PENDING")], False),
@@ -119,10 +146,10 @@ def main(argv: list[str]) -> int:
     try:
         raw = gh("pr", "view", args.pr, *repo_args,
                  "--json", "statusCheckRollup,number,title,state")
-    except (subprocess.CalledProcessError, OSError) as exc:
+        view = json.loads(raw)
+    except (subprocess.CalledProcessError, OSError, json.JSONDecodeError) as exc:
         print(f"ERROR: gh pr view failed: {exc}", file=sys.stderr)
         return 2
-    view = json.loads(raw)
     if view.get("state") != "OPEN":
         print(f"REFUSE: PR #{args.pr} is {view.get('state')}, not OPEN.", file=sys.stderr)
         return 1
