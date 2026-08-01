@@ -34,7 +34,9 @@ rule (maintainer-directed 2026-07-19, expanded to six points 2026-07-26):
 4. **Super-sensitive tasks get BOTH a Codex and a Claude worker.** Give the identical order to one of
    each family and assess the two deliveries together: different models surface different
    perspectives, so the dual read is how nothing is missed. Reconcile them; a finding in only one is
-   triaged on its own merits.
+   triaged on its own merits. This is the HEAVIER form of the permanent dual-family QA standard,
+   which applies to EVERY QA pass (the Claude half as an in-session subagent, the Codex half as a
+   worker); a super-sensitive task promotes the Claude half to a full second worker.
 5. **Keep the fleet busy: one worker on QA, the rest pre-loading the next ~10 items.** Never let an
    available account sit idle. Reserve one worker for the QA cadence (`/validate-pr`, `verify`,
    sweeps) and keep the others producing research and draft candidates for the upcoming queue, so the

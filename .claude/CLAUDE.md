@@ -146,7 +146,7 @@ one must be added to all (the gate-parity audit enforces this).
 - A new audit = a `tools/lint-*.py` + wiring in all four surfaces (workflow, runner,
   pre-commit, audit-programme spec) + a regression fixture.
 - Exempt dirs are defined in `tools/lint_common.py` as `DEFAULT_EXEMPT_DIRS`
-  (`.git`, `node_modules`, `__pycache__`, `.claude`, `.working`); individual linters add
+  (`.git`, `node_modules`, `__pycache__`, `.claude`, `.working`, `references`); individual linters add
   their own per-tool exempt prefixes on top (e.g. `dev-security/claude-rules/`,
   `tools/`, `docs/` carve-outs): consult each `lint-*.py` for its specific set
   rather than treating the common set as the full list.
