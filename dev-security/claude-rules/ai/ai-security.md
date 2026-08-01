@@ -90,7 +90,7 @@ Treat every LLM response, every model output, and every AI-generated value as if
 
 ## AI logging requirements
 
-**Canonical policy: log events and metadata always, redact content.** Log every AI interaction's EVENTS and METADATA to the SIEM always (below); log prompt, tool-argument, and response CONTENT only with secrets and PII redacted, and never log raw full prompts in production (this reconciles the security-monitoring requirement with the never-log-secrets/PII rule).
+**Canonical policy: log events and metadata always, redact content.** Log every AI interaction's EVENTS and METADATA to the SIEM always (below); log prompt, tool-argument, and response CONTENT only with secrets and PII redacted, and never log raw full prompts in production (this reconciles the security-monitoring requirement with the never-log-secrets/PII rule). Raw full-prompt logging may be enabled only for an explicitly authorized purpose such as testing or security analysis; even then the never-log-secrets/PII rule stays absolute.
 
 Every AI-powered endpoint must log:
 - Request ID and session ID (not the full prompt in production)

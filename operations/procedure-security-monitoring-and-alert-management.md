@@ -2,8 +2,8 @@
 
 **Document Title:** Security Monitoring and Alert Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.9\
-**Date:** 2026-07-30\
+**Version:** 1.3.10\
+**Date:** 2026-08-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md)\
@@ -295,7 +295,7 @@ All automated AI-generated decisions, including anomaly scores, risk scores, and
 
 ### 10.4 Audit logging of automated decisions
 
-All AI-generated detections, model decisions, and automated enrichment actions are logged with their model version, confidence score, and decision output. Where input data or model content is retained in the log, secrets and personal data are redacted and raw full prompts are never logged in production, so the audit trail records each decision and its metadata without persisting sensitive content. These logs are retained as part of the SIEM audit trail for a minimum of 7 years, the organization's canonical AI-audit-log retention period: ISO/IEC 42001 requires retention and disposition control for documented information without prescribing a period, and the EU AI Act's own log-keeping minimum is shorter, so the 7-year figure is the organization's choice (a longer retention than the general SIEM event tier in [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), justified by AI-decision accountability). AI model version changes that affect detection behaviour require Security Engineering review and documentation before deployment.
+All AI-generated detections, model decisions, and automated enrichment actions are logged with their model version, confidence score, and decision output. Where input data or model content is retained in the log, secrets and personal data are redacted and raw full prompts are not logged in production, the one exception being an explicitly authorized purpose such as testing or security analysis (with secrets and personal data still redacted), so the audit trail otherwise records each decision and its metadata without persisting sensitive content. These logs are retained as part of the SIEM audit trail for a minimum of 7 years, the organization's canonical AI-audit-log retention period: ISO/IEC 42001 requires retention and disposition control for documented information without prescribing a period, and the EU AI Act's own log-keeping minimum is shorter, so the 7-year figure is the organization's choice (a longer retention than the general SIEM event tier in [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), justified by AI-decision accountability). AI model version changes that affect detection behaviour require Security Engineering review and documentation before deployment.
 
 ### 10.5 Model performance review
 
