@@ -9481,6 +9481,18 @@ class OrchestratorAdvisoryToolTests(unittest.TestCase):
         )
         self.assertIn("OK", result.stdout)
 
+    def test_merge_when_green_self_test_passes(self) -> None:
+        # P-1.6: the merge-when-green guard's evaluate() self-test (fails CLOSED on
+        # no-checks / pending / failing / unknown; green only on all-terminal-success),
+        # wired here so the consequential merge-gate logic cannot silently rot.
+        result = run_linter("tools/merge-when-green.py", "--self-test")
+        self.assertEqual(
+            result.returncode, 0,
+            f"merge-when-green.py --self-test failed.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("OK", result.stdout)
+
 
 class TokenSpendToolTests(LinterTestCase):
     """The advisory ``tools/audit-token-spend.py`` tool's own ``--self-test``.
