@@ -9426,6 +9426,19 @@ class UnwiredToolSelfTests(LinterTestCase):
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 
+    def test_check_retired_section_orphan_self_test_passes(self) -> None:
+        """D9's own ``--self-test`` (pure retired-id derivation + anchored-pattern precision),
+        wired into CI so its guards cannot silently rot. The self-test operates on inline strings
+        and exercises only pure functions (``retired_ids``, ``ids_in_headings``, ``anchored_patterns``,
+        ``find_orphans``, ``in_scope``, ``classify``); it never calls ``run()`` / git / a sibling read,
+        so it is CI-safe. Closes the D9 half of the unwired-self-test gap (#1307 pattern)."""
+        result = run_linter("tools/check-retired-section-orphan-on-pr.py", "--self-test")
+        self.assertEqual(
+            result.returncode, 0,
+            f"check-retired-section-orphan-on-pr.py --self-test failed.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
 
 
 class ValidationCoverageToolTests(unittest.TestCase):
