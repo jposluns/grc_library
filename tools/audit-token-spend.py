@@ -236,6 +236,31 @@ def fmt(value) -> str:
     return "not reported" if value is None else f"{value:,}"
 
 
+def worker_spend_line(worker: str, spends: list) -> str:
+    """PURE. One per-worker display line, given that worker's list of spend-or-None values.
+
+    The residual this closes (3.128): the earlier line printed ``~<sum> est.`` over the worker's
+    TOTAL delivery count, so a figure read from a MINORITY of a worker's deliveries was presented as
+    that worker's spend. A worker with twelve deliveries, one readable, would show one delivery's
+    figure as if it covered all twelve, understating the worker by whatever the eleven unreadable
+    ones held. That is the measured-versus-estimated conflation the pack rule forbids (an estimate
+    from a subset worn as the whole). So a PARTIAL reading now states its own denominator inline:
+    how many of the worker's deliveries the figure is actually drawn from, and how many are
+    unreadable and therefore NOT in the sum. A full reading (every delivery readable) keeps the plain
+    form; a zero reading says so.
+    """
+    n_total = len(spends)
+    readable = [s for s in spends if s is not None]
+    n_read = len(readable)
+    head = f"    {worker:<34} {n_total:>2} delivery(ies), "
+    if n_read == 0:
+        return head + "none reported"
+    if n_read < n_total:
+        return (head + f"~{sum(readable):,} est. from {n_read} readable "
+                f"({n_total - n_read} unreadable, NOT in the sum)")
+    return head + f"~{sum(readable):,} est."
+
+
 def report(repo_root: Path, filedrop_root: Path, session: str | None, oneline: bool) -> int:
     tdir = transcript_dir_for(repo_root)
     transcripts = []
@@ -288,10 +313,7 @@ def report(repo_root: Path, filedrop_root: Path, session: str | None, oneline: b
         for worker, _order, spend in rows:
             by_worker.setdefault(worker, []).append(spend)
         for worker in sorted(by_worker):
-            spends = [s for s in by_worker[worker] if s is not None]
-            print(f"    {worker:<34} {len(by_worker[worker]):>2} delivery(ies), "
-                  f"~{sum(spends):,} est." if spends
-                  else f"    {worker:<34} {len(by_worker[worker]):>2} delivery(ies), none reported")
+            print(worker_spend_line(worker, by_worker[worker]))
         print(f"    {'TOTAL':<34} ~{sum(reported):,} est.")
         if len(reported) < len(rows):
             print(f"    {len(rows) - len(reported)} delivery(ies) reported no readable figure; counted")
@@ -435,6 +457,21 @@ def self_test() -> int:
         check("collect_worker_spend: an absent tray is empty, not an error",
               collect_worker_spend(Path(td) / "nothing")[0], [])
         check("collect_worker_spend: unreadable count starts at zero", bad, 0)
+
+    # worker_spend_line (3.128): a figure from a MINORITY of a worker's deliveries must NOT be
+    # presented as that worker's spend. A partial reading states its own denominator inline; a full
+    # reading keeps the plain form; a zero reading says so.
+    _full = worker_spend_line("opus-a", [1000, 2000])
+    check("worker_spend_line: all-readable is the plain est. form",
+          "~3,000 est." in _full and "readable" not in _full, True)
+    _partial = worker_spend_line("opus-a", [1175, None, None])
+    check("worker_spend_line: a partial reading names its readable denominator",
+          "~1,175 est. from 1 readable (2 unreadable, NOT in the sum)" in _partial, True)
+    check("worker_spend_line: a partial reading still shows the worker's TOTAL delivery count",
+          " 3 delivery(ies)" in _partial, True)
+    _none = worker_spend_line("opus-a", [None, None])
+    check("worker_spend_line: a worker with no readable figure says none reported, not est.",
+          "none reported" in _none and "est." not in _none, True)
 
     print()
     print(f"self-test: {total - len(failures)}/{total} passed")
