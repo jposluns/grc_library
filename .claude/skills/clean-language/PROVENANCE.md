@@ -4,8 +4,10 @@ This directory is the Clean Language skill, VENDORED into grc_library from its u
 
 - **Source:** github.com/jposluns/ai-language, `clean-language/` (site: cleanlanguage.ai).
 - **Copyright / licence:** Copyright (c) 2026 Jeff Posluns; see `LICENSE` and `NOTICE.md` beside this
-  file. This skill is NOT relicensed to grc_library's CC BY-SA 4.0; it retains its own licence, the same
-  vendoring stance as the third-party overlay under `.claude/rules/external/`.
+  file. The skill is licensed CC BY-SA 4.0 (the SAME licence grc_library uses), but under Jeff Posluns's
+  OWN copyright and attribution, which are PRESERVED here rather than folded into the grc_library corpus
+  copyright. That distinct-copyright-and-attribution preservation, not a different licence, is the point
+  of vendoring it, the same stance as the third-party overlay under `.claude/rules/external/`.
 - **Installed:** 2026-08-01, from the CURRENT upstream. The ephemeral checkout it was first drawn from
   was already STALE (five of six files had advanced), so every file here was re-fetched from upstream and
   verified in-sync by git blob SHA.
