@@ -16,13 +16,17 @@ and the RELOCATED anchors) and asserts, against ``.claude/CLAUDE.md``:
 
   (a) Bidirectional pointer parity. Every manifest playbook has a live inline
       ``references/<file>.md`` pointer in the core (no ORPHAN playbook), and
-      every inline ``references/*.md`` pointer resolves to an existing file
-      (no DANGLING pointer).
+      every manifest playbook's ``references/<file>.md`` TARGET file exists
+      (no DANGLING manifest target). By design the gate does NOT require every
+      incidental inline ``references/*.md`` MENTION to resolve (a prose mention
+      or a forward-reference to a not-yet-created playbook is legitimate); its
+      scope is manifest/playbook integrity, see ``_check_pointers``.
   (b) Activity-playbooks INDEX completeness. Once the ``## Activity playbooks``
       INDEX section exists in the core, every manifest playbook is listed in it
-      exactly once. DEGRADATION: while that section is ABSENT (Stage 1, current
-      tree), the check emits an informational NOTE and is skipped, so the gate
-      passes with only the seed manifest. The INDEX check EXPECTS each playbook
+      exactly once. DEGRADATION: if that section is ABSENT (a pre-INDEX or
+      adopter tree), the check emits an informational NOTE and is skipped, so a
+      seed-only tree passes; the live core's INDEX is now populated, so it takes
+      the completeness check above. The INDEX check EXPECTS each playbook
       listed by a link whose target contains ``references/<file>.md``, counted
       by that path, exactly once, between the ``## Activity playbooks`` heading
       and the next ``## `` heading.
