@@ -9185,6 +9185,20 @@ class PreflightChangelogMirrorTests(unittest.TestCase):
             (d / "real.md").write_text("x", encoding="utf-8")
             self.assertEqual(mod.unresolved_links_in_mirror(root=root), [])
 
+    def test_d7_length_findings(self):
+        # P-1.4: the D7 length check is reused (not duplicated) via d7_length_findings on the
+        # root CHANGELOG.md added lines: an over-ceiling entry is flagged, a short one is clean,
+        # and a detailed-mirror line is out of scope (only the root file is D7 length-gated).
+        mod = self._load("_pcl_d7")
+        long_line = "**2026-08-01 | 2026.08.21 | PR #1324** - " + ("word " * 110).strip() + "."
+        found = mod.d7_length_findings([("CHANGELOG.md", long_line)])
+        self.assertTrue(found and "D7 length ceiling exceeded" in found[0][1], found)
+        short_line = "**2026-08-01 | 2026.08.21 | PR #1324** - Short summary. Two sentences here."
+        self.assertEqual(mod.d7_length_findings([("CHANGELOG.md", short_line)]), [])
+        # the same over-long text in the detailed mirror is NOT length-gated (out of D7 scope)
+        self.assertEqual(
+            mod.d7_length_findings([(mod.DETAILED_MIRROR_REL, long_line)]), [])
+
 
 class AuditGateParityExclusionGuardTests(unittest.TestCase):
     """tools/lint-audit-gate-parity.py (gate 35) additive TODO-3.99 guards over
