@@ -40,6 +40,11 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]                 # /home/grc/grc_library
 DEFAULT_CONFIG = REPO_ROOT.parent / "grc_library_private" / "worker-accounts.json"
 JOB_DIR = Path("/var/lib/grc-worker-jobs")
+# The wrappers redirect each worker's full stdout/stderr to a dated per-worker log here
+# (run-{codex,claude}-worker LOGDIR). exec-dispatch surfaces the path so the FULL worker report
+# is always recoverable even when the captured stdout is truncated downstream (the Bash-tool
+# background-capture summarises a large output; the wrapper log is the reliable full record).
+WORKER_LOG_DIR = Path("/home/grc/grc_working/logs")
 WRAPPER = {
     "claude": "/usr/local/sbin/run-claude-worker",
     "codex": "/usr/local/sbin/run-codex-worker",
@@ -501,6 +506,18 @@ def build_dispatch_cmd(wrapper: str, prompt_file: str, account: str, model: str,
 
 
 # --- dispatch (the thin shell) -----------------------------------------------------
+def worker_log_glob(family: str, account: str, worker_id: str) -> str:
+    """PURE. The glob that matches a dispatched worker's full-output log.
+
+    Both wrappers name the isolated-path log ``<ts>_<family>_<account>_<worker-id>.log`` under
+    ``WORKER_LOG_DIR``; the worker-id is unique, so this glob resolves to exactly one file. exec-dispatch
+    mints the worker-id but not the wrapper's timestamp, so a glob (not an exact name) is the honest
+    pointer. Surfacing it closes the consume gap where a codex report read as truncated (only a summary
+    tail reached the task-output) while the full report sat in this log all along.
+    """
+    return f"{WORKER_LOG_DIR}/*_{family}_{account}_{worker_id}.log"
+
+
 def dispatch(config: dict, family: str, model: str, order_id: str, prompt_file: str,
              effort: str | None = None, now: _dt.datetime | None = None,
              account: str | None = None, job_dir: Path = JOB_DIR,
@@ -856,6 +873,14 @@ def _self_test() -> int:
     pa_ocx, _ = pick_account(_FIXTURE, "codex", "gpt-5.6-terra", sunday, account="orch")
     check("orchestrator-codex-target-ok", pa_ocx is not None and pa_ocx["id"] == "orch-codex")
 
+    # worker_log_glob: the pointer to a worker's full-output log (unique worker-id -> one file).
+    check("worker-log-glob-codex",
+          worker_log_glob("codex", "jeff-mailz", "codex-jeff-mailz-20260801T033350Z-1129")
+          == "/home/grc/grc_working/logs/*_codex_jeff-mailz_codex-jeff-mailz-20260801T033350Z-1129.log")
+    check("worker-log-glob-claude",
+          worker_log_glob("claude", "work-a", "opus-x")
+          == "/home/grc/grc_working/logs/*_claude_work-a_opus-x.log")
+
     if fails:
         print("SELF-TEST FAIL:", ", ".join(fails))
         return 1
@@ -987,6 +1012,8 @@ def main() -> int:
               f"worker={res.get('worker_id')} account={res.get('account')} model={args.model} "
               f"effort={args.effort or 'default'} rc={res.get('rc')} dur={res.get('duration_s')}s "
               f"limited={res.get('usage_limited')}")
+        print(f"  full worker log (wrapper stdout/stderr): "
+              f"{worker_log_glob(res.get('family'), res.get('account'), res.get('worker_id'))}")
         if res.get("stdout"):
             sys.stdout.write(res["stdout"])
         if not res["ok"] and res.get("stderr"):
