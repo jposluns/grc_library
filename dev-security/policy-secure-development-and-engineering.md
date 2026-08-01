@@ -2,8 +2,8 @@
 
 **Document Title:** Secure Development and Engineering Policy\
 **Document Type:** Policy\
-**Version:** 1.0.11\
-**Date:** 2026-07-24\
+**Version:** 1.0.12\
+**Date:** 2026-08-01\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md)\
@@ -162,7 +162,7 @@ It incorporates forward-looking controls for AI-generated code verification and 
 | OWASP ASVS v5 | Application Security Verification Standard | Secure coding requirements |
 | COBIT 2019 | BAI03: Managed Solutions Identification and Build | Solution design and build |
 | COBIT 2019 | BAI07: Managed IT Change Acceptance and Transitioning | Release and deployment controls |
-| CSA CCM v4.1 | SEF: Software Engineering and Development | Software engineering and security controls |
+| CSA CCM v4.1 | AIS-04: Secure Application Development Lifecycle | Software engineering and security controls |
 | EU AI Act | Annex IV | AI-generated code governance |
 
 ---
