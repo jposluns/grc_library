@@ -122,16 +122,25 @@ ITEM_HEADING_RE = re.compile(
 
 
 def _todo_item_count(project_dir: str | None) -> int | None:
-    """Count open backlog items (ITEM_HEADING_RE) in the live TODO.md under
-    ``project_dir``. Returns None if the root or file cannot be resolved (the new
-    count-equality check then fails open; presence of the audit token is still
-    required). Never raises."""
+    """Count open backlog items (ITEM_HEADING_RE) across BOTH the public ``TODO.md``
+    and the private ``grc_library_private/P-TODO.md`` under ``project_dir`` (the
+    UNION, matching ``tools/audit-backlog-actionability.py``, whose ``backlog-audit:
+    <N> items enumerated`` token this gates: P-1.1). Returns None only if the public
+    ``TODO.md`` cannot be resolved (the count-equality check then fails open;
+    presence of the audit token is still required). A MISSING ``P-TODO.md`` (an
+    adopter clone that has no private sibling) contributes 0, never None, so the
+    union degrades to the public count rather than failing the whole check. Never
+    raises."""
     try:
         root = Path(project_dir) if project_dir else Path(__file__).resolve().parents[2]
         todo = root / "TODO.md"
         if not todo.is_file():
             return None
-        return len(ITEM_HEADING_RE.findall(todo.read_text(encoding="utf-8")))
+        count = len(ITEM_HEADING_RE.findall(todo.read_text(encoding="utf-8")))
+        ptodo = root.parent / "grc_library_private" / "P-TODO.md"
+        if ptodo.is_file():
+            count += len(ITEM_HEADING_RE.findall(ptodo.read_text(encoding="utf-8")))
+        return count
     except Exception:
         return None
 

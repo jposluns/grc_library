@@ -9350,11 +9350,41 @@ class HookToolItemCountParityTests(unittest.TestCase):
         hook = self._load("_hook_parity", ".claude/hooks/block-unjustified-decision.py")
         tool = self._load("_tool_parity", "tools/audit-backlog-actionability.py")
         hook_n = hook._todo_item_count(str(REPO_ROOT))
-        rows, _, _ = tool.build_report(todo.read_text(encoding="utf-8"))
+        # P-1.1: both count the UNION of TODO.md + private P-TODO.md. Feed the tool the
+        # same two-list input (its default PTODO_PATH) so this exercises the union form
+        # the hook now uses, not the public-only single-arg form it used before.
+        ptodo = tool.PTODO_PATH
+        private_text = ptodo.read_text(encoding="utf-8") if ptodo.is_file() else None
+        rows, _, _ = tool.build_report(todo.read_text(encoding="utf-8"), private_text)
         self.assertEqual(
             hook_n, len(rows),
-            f"hook count {hook_n} != tool count {len(rows)}: the two ITEM_HEADING_RE "
-            f"have drifted; re-align them (guardrail layers 1 and 2 are a pair).")
+            f"hook union count {hook_n} != tool union count {len(rows)}: the two "
+            f"ITEM_HEADING_RE or their two-list unioning have drifted; re-align them "
+            f"(guardrail layers 1 and 2 are a pair, both union TODO.md + P-TODO.md).")
+
+    def test_hook_unions_private_ptodo(self):
+        # P-1.1: _todo_item_count sums TODO.md + grc_library_private/P-TODO.md (the union),
+        # and a missing private sibling degrades to the public count (0 added), never None.
+        import tempfile
+        import shutil
+        hook = self._load("_hook_parity2", ".claude/hooks/block-unjustified-decision.py")
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d) / "grc_library"
+            root.mkdir()
+            (root / "TODO.md").write_text(
+                "### 1.1 pub one\n### 2.3 pub two\n", encoding="utf-8")
+            priv = Path(d) / "grc_library_private"
+            priv.mkdir()
+            (priv / "P-TODO.md").write_text(
+                "### P-1.5 priv one\n### 3.9 priv two\n### P-2.1 priv three\n",
+                encoding="utf-8")
+            self.assertEqual(
+                hook._todo_item_count(str(root)), 5,
+                "hook must union 2 public + 3 private (incl. P-n.m ids) = 5")
+            shutil.rmtree(priv)
+            self.assertEqual(
+                hook._todo_item_count(str(root)), 2,
+                "a missing P-TODO.md degrades to the public count, not None")
 
 
 class OrchestratorAdvisoryToolTests(unittest.TestCase):
