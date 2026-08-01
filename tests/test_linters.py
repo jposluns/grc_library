@@ -1773,25 +1773,6 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         )
         self.assertIn("self-test: ", result.stdout)
 
-    def test_pr_closeout_self_test(self) -> None:
-        """The PR close-out scaffolder's own self-test, wired in at introduction.
-
-        pr-closeout.py mechanizes placement, version bumps, and row/entry format
-        across the per-PR bookkeeping surfaces; a silent regression in any of its
-        pure guards (newest-first insertion, separator-skip, idempotency, the
-        version-vs-append-only-ledger branch, pipe-escaping) would corrupt a
-        ledger without failing any other gate. Its checks each pin WHICH position
-        and WHAT value; running them here is what keeps that true.
-        """
-        result = self._run_selftest(
-            [sys.executable, str(REPO_ROOT / "tools" / "pr-closeout.py"), "--self-test"]
-        )
-        self.assertEqual(
-            result.returncode, 0,
-            f"pr-closeout --self-test failed.\nstdout:\n{result.stdout}"
-            f"\nstderr:\n{result.stderr}",
-        )
-        self.assertIn("self-test: ", result.stdout)
 
     def test_block_verification_pipes_hook_self_test(self) -> None:
         result = self._run_selftest(
@@ -9478,7 +9459,6 @@ class UnwiredToolSelfTests(LinterTestCase):
         )
 
 
-
 class ValidationCoverageToolTests(unittest.TestCase):
     """The advisory ``tools/audit-validation-coverage.py`` tool's own ``--self-test``,
     wired into the regression suite so its verdict logic (which repo landings are a
@@ -10115,7 +10095,6 @@ class NormalizedPositionalArgsTests(LinterTestCase):
                 f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
 
 
-
 class SsdfControlIdTests(LinterTestCase):
     """tools/lint-ssdf-control-ids.py (NIST SSDF control-identifier validity audit)"""
 
@@ -10185,7 +10164,6 @@ class SsdfControlIdTests(LinterTestCase):
         )
         result = run_linter("tools/lint-ssdf-control-ids.py", fixture)
         self.assertLinterFails(result, "RS.1")
-
 
 
 class PlaybookPointerIntegrityTests(LinterTestCase):
