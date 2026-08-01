@@ -2,8 +2,8 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.19\
-**Date:** 2026-07-31\
+**Version:** 1.8.20\
+**Date:** 2026-08-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-system-card.md`](template-system-card.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md)\
@@ -510,7 +510,7 @@ Every CI/CD pipeline for AI-enabled systems must include the following gates in 
 | Security block | trace_id, block_type, timestamp | SIEM |
 | Context isolation event | session_id, event_type, timestamp | Application telemetry platform |
 
-**OBS-SEC-01:** Full prompt content must not be logged. Log request hash and token count only.
+**OBS-SEC-01:** Full prompt content must not be logged. Log request hash and token count only. The one exception is an explicitly authorized purpose such as testing or security analysis, under written CIO/CISO approval per section 8: even then SECRET-SEC-01 (no secrets) and OBS-SEC-02 (PII masking) remain absolute, and access follows the authorized-operator selective-unmasking of OBS-SEC-03.
 
 **OBS-SEC-02:** PII detected in prompts or responses must be masked in all log systems before writing.
 
