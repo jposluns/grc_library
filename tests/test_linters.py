@@ -1707,6 +1707,27 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
         self.assertIn("self-test: ", result.stdout)
 
+    def test_lint_ungated_dashes_self_test(self) -> None:
+        """Gate 82's own self-test. A prose gate that must flag re-drift while exempting the
+        illustration and the third-party overlay is exactly the fail-open-vs-flag shape that rots
+        silently, so it is calibrated here."""
+        result = self._run_selftest(
+            [sys.executable, str(REPO_ROOT / "tools" / "lint-ungated-dashes.py"), "--self-test"]
+        )
+        self.assertEqual(result.returncode, 0,
+                         f"gate --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        self.assertIn("self-test: ", result.stdout)
+
+    def test_block_unknown_worker_model_hook_self_test(self) -> None:
+        """The 3.194 model-validity guard's own self-test, wired here (its introduction PR #1319
+        shipped the self-test but not this CI wiring; a fail-open guard that rots is worse than none)."""
+        result = self._run_selftest(
+            [sys.executable, str(REPO_ROOT / ".claude" / "hooks" / "block-unknown-worker-model.py"), "--self-test"]
+        )
+        self.assertEqual(result.returncode, 0,
+                         f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        self.assertIn("self-test: ", result.stdout)
+
     def test_selftest_discriminability_probe_self_test(self) -> None:
         """The discriminability probe's own self-test. It is an instrument, so it is calibrated here."""
         result = self._run_selftest(

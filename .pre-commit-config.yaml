@@ -573,3 +573,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-ungated-dashes
+        name: Ungated-surface dash audit
+        entry: python3 tools/lint-ungated-dashes.py
+        language: system
+        pass_filenames: false
+        always_run: true
