@@ -92,7 +92,7 @@ HEADING_TIER = {
 }
 
 # A last_checked cell that is not a real date: skipped (not stale, not checkable).
-_NON_DATE_TOKENS = {"", "-", "—", "needs-reconfirm", "n/a", "na"}
+_NON_DATE_TOKENS = {"", "-", "\u2014", "needs-reconfirm", "n/a", "na"}
 _DATE_RE = re.compile(r"(\d{4})-(\d{2})-(\d{2})")
 
 

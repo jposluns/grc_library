@@ -183,7 +183,7 @@ def main(argv: list[str]) -> int:
             return 2
         print(
             "ERROR: glossary register parsed no entries. "
-            "The register exists but no rows were extracted — likely a "
+            "The register exists but no rows were extracted: likely a "
             "parsing bug or an accidental wipe. Linter cannot verify "
             "acronym consistency in this state.",
             file=sys.stderr,

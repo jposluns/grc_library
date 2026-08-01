@@ -2,11 +2,11 @@
 """Prose-hygiene audit for the `.working/` maintainer working tree (gate 51).
 
 The corpus-wide language gate (`lint-language.py`, gate 2) forbids em-dashes
-(`—`) and en-dashes (`–`) in prose, but it exempts the `.working/` tree (the
+and en-dashes in prose, but it exempts the `.working/` tree (the
 maintainer working space is in `DEFAULT_EXEMPT_DIRS`). The 2026-06-26 em-dash
 conformance pass (#353) brought `.working/` prose into line with the house
 style, leaving a small set of *intentional* em/en-dash literals inside inline
-code spans (regex character classes such as ``[–—]``, frozen historical
+code spans (regex character classes such as ``[\u2013\u2014]``, frozen historical
 quotes, the house-style rule's own glyph examples). This gate ratchets that
 conformance: it forbids em/en-dashes in `.working/` PROSE while ALLOWING them
 inside inline code spans, so the conformance cannot silently regress.
@@ -98,7 +98,7 @@ EXEMPT_DIRS = frozenset({".git", "node_modules", "__pycache__"})
 # shortest content, then a closing run of exactly N backticks. Stripping these
 # leaves only prose (and any unmatched backtick, which carries no dash).
 CODE_SPAN_PATTERN = re.compile(r"(`+)(.+?)\1")
-EM_DASH_PATTERN = re.compile(r"[—–]")  # em dash or en dash
+EM_DASH_PATTERN = re.compile(r"[\u2014\u2013]")  # em dash or en dash
 
 
 def strip_inline_code(line: str) -> str:

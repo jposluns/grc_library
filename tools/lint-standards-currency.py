@@ -112,7 +112,7 @@ def parse_canonical_register() -> list[dict[str, object]]:
             continue
 
         # Parse superseded
-        if superseded_raw in {"—", "-", ""}:
+        if superseded_raw in {"\u2014", "-", ""}:
             superseded: list[str] = []
         else:
             superseded = [s.strip() for s in superseded_raw.split(",") if s.strip()]
@@ -235,7 +235,7 @@ def main() -> int:
             return 2
         print(
             "ERROR: canonical citations register parsed no entries. "
-            "The register exists but no rows were extracted — likely a "
+            "The register exists but no rows were extracted: likely a "
             "parsing bug or an accidental wipe. Linter cannot verify "
             "standards currency in this state.",
             file=sys.stderr,

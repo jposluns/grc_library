@@ -87,8 +87,8 @@ CHANGELOG_FILES = (
     ".working/changelog-details/CHANGELOG-detailed.md",
 )
 
-EM_DASH = "—"
-EN_DASH = "–"
+EM_DASH = "\u2014"
+EN_DASH = "\u2013"
 
 # Inline code-span stripper: a run of N backticks, the shortest content, then
 # a closing run of N backticks (the standard CommonMark code-span shape). Same

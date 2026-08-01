@@ -9,11 +9,11 @@ The file's ``Status`` field encodes whether an overnight session is
 in flight, active, or has ended without subsequent morning
 processing. Permitted values:
 
-- ``stub`` — no overnight session is in flight (default state and
+- ``stub``: no overnight session is in flight (default state and
   post-processing state). Gate passes.
-- ``in-flight`` — overnight session is active. Gate passes. Overnight
+- ``in-flight``: overnight session is active. Gate passes. Overnight
   PRs commit the file in this state.
-- ``done`` — overnight session has ended; next-morning processing PR
+- ``done``: overnight session has ended; next-morning processing PR
   must route content and reset to ``stub``. **Gate fails.**
 
 Any other ``Status`` value triggers a gate failure (malformed file).
@@ -26,10 +26,10 @@ maintainer or assistant runs the morning processing PR before
 continuing other work.
 
 Exit codes:
-    0 — Status is ``stub`` or ``in-flight``.
-    1 — Status is ``done`` (morning processing required) or any other
+    0: Status is ``stub`` or ``in-flight``.
+    1: Status is ``done`` (morning processing required) or any other
         invalid value.
-    2 — File missing, unreadable, or has no ``Status:`` line.
+    2: File missing, unreadable, or has no ``Status:`` line.
 """
 
 from __future__ import annotations

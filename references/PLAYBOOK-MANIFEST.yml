@@ -1,4 +1,4 @@
-# PLAYBOOK-MANIFEST.yml — activity-scoped rule-loader manifest (roadmap C part 2).
+# PLAYBOOK-MANIFEST.yml, activity-scoped rule-loader manifest (roadmap C part 2).
 #
 # One entry per section relocated from the always-loaded core (.claude/CLAUDE.md)
 # into a references/<playbook>.md read at its activity boundary "like a skill".

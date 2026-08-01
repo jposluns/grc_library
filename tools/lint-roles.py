@@ -43,7 +43,7 @@ ROLE_REGISTER = REPO_ROOT / "governance" / "register-role-authority.md"
 # satisfy this criterion: `Privacy Maintainer` and `Risk Maintainer`
 # had zero corpus occurrences (the bare role names were never used as
 # Owner/Approving Authority), and `Supplier Risk Maintainer` is in fact
-# defined in governance/register-role-authority.md — keeping a copy
+# defined in governance/register-role-authority.md; keeping a copy
 # here was redundant and contradicted the set's purpose.
 # The five maintainer / library-meta roles formerly listed here (Governance
 # Library Maintainer, Compliance Maintainer, Security Architecture Maintainer,

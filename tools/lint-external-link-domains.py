@@ -119,7 +119,7 @@ ALLOW_LIST = {
     "calypsoai.com", "mindgard.ai", "splx.ai",
     # (Phase 23.63 removed checkpoint.com and zscaler.com from the
     # "other commercial security vendors that may be referenced"
-    # block — neither was cited in any document and the library is
+    # block: neither was cited in any document and the library is
     # vendor-neutral; if a future citation needs one, re-add via PR
     # with justification.)
     # Additional publisher canonical domains (Q4 worklist coverage)
