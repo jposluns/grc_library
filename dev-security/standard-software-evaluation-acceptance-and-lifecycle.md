@@ -2,8 +2,8 @@
 
 **Document Title:** Software Evaluation, Acceptance and Lifecycle Management Standard\
 **Document Type:** Standard\
-**Version:** 1.0.8\
-**Date:** 2026-07-24\
+**Version:** 1.0.9\
+**Date:** 2026-08-01\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -68,7 +68,7 @@ Before approval, all software must undergo a security and compliance review vali
 - Logging and audit capabilities.
 - Data residency, sovereignty, and third-party processing arrangements.
 
-CSA CCM AIS, SEF, and TVM domains apply to all evaluations.
+CSA CCM AIS and TVM domains apply to all evaluations.
 
 ---
 
@@ -143,7 +143,7 @@ Obsolete or unsupported software must be retired following the AIS lifecycle ter
 | COBIT 2019 | BAI09: Managed Assets | Software asset management |
 | COBIT 2019 | DSS05 / DSS06 | Security and operational controls |
 | NIST SP 800-53 | SA, CM, SI Control Families | Software assurance controls |
-| CSA CCM v4.1 | AIS, SEF, TVM Domains | Cloud software security evaluation |
+| CSA CCM v4.1 | AIS, TVM Domains | Cloud software security evaluation |
 
 ---
 
