@@ -9333,6 +9333,83 @@ class ExecDispatchToolTests(LinterTestCase):
         )
 
 
+class UnwiredToolSelfTests(LinterTestCase):
+    """Wire the remaining tool ``--self-test`` suites into CI.
+
+    Several project tools ship a ``--self-test`` that guards pure decision/parsing logic but was
+    never exercised in CI (the same gap ``TokenSpendToolTests`` / ``ExecDispatchToolTests`` closed for
+    two of them). Each ``--self-test`` below was verified to run on inline fixtures with no sibling /
+    config / network read at test time, so it is CI-safe; a regression in the guarded logic would
+    otherwise reach CI green. (``audit-cross-repo-references.py`` is deferred: its self-test reads
+    real paths and needs a CI-safety pass first.)
+    """
+
+    def test_audit_changelog_entry_length_self_test_passes(self) -> None:
+        result = run_linter("tools/audit-changelog-entry-length.py", "--self-test")
+        self.assertEqual(
+            result.returncode, 0,
+            f"audit-changelog-entry-length.py --self-test failed.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_audit_matrix_semantic_fit_self_test_passes(self) -> None:
+        result = run_linter("tools/audit-matrix-semantic-fit.py", "--self-test")
+        self.assertEqual(
+            result.returncode, 0,
+            f"audit-matrix-semantic-fit.py --self-test failed.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_statusline_next_pr_self_test_passes(self) -> None:
+        result = run_linter("tools/statusline-next-pr.py", "--self-test")
+        self.assertEqual(
+            result.returncode, 0,
+            f"statusline-next-pr.py --self-test failed.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_audit_claim_precision_self_test_passes(self) -> None:
+        result = run_linter("tools/audit-claim-precision.py", "--self-test")
+        self.assertEqual(
+            result.returncode, 0,
+            f"audit-claim-precision.py --self-test failed.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_audit_register_currency_self_test_passes(self) -> None:
+        result = run_linter("tools/audit-register-currency.py", "--self-test")
+        self.assertEqual(
+            result.returncode, 0,
+            f"audit-register-currency.py --self-test failed.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_build_public_changelog_self_test_passes(self) -> None:
+        result = run_linter("tools/build-public-changelog.py", "--self-test")
+        self.assertEqual(
+            result.returncode, 0,
+            f"build-public-changelog.py --self-test failed.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_audit_delivery_status_self_test_passes(self) -> None:
+        result = run_linter("tools/audit-delivery-status.py", "--self-test")
+        self.assertEqual(
+            result.returncode, 0,
+            f"audit-delivery-status.py --self-test failed.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_audit_brief_freshness_self_test_passes(self) -> None:
+        result = run_linter("tools/audit-brief-freshness.py", "--self-test")
+        self.assertEqual(
+            result.returncode, 0,
+            f"audit-brief-freshness.py --self-test failed.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+
+
 class ValidationCoverageToolTests(unittest.TestCase):
     """The advisory ``tools/audit-validation-coverage.py`` tool's own ``--self-test``,
     wired into the regression suite so its verdict logic (which repo landings are a
