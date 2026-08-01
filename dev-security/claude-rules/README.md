@@ -2,8 +2,8 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.67.1\
-**Date:** 2026-08-01\
+**Version:** 1.67.2\
+**Date:** 2026-08-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** `dev-security/standard-developer-security-requirements.md`, `dev-security/standard-devops-security-requirements.md`, `dev-security/guideline-ai-coding-assistant-security.md`, `ai/standard-ai-and-agentic-development-security.md`\
@@ -516,6 +516,7 @@ The pack's change history is maintained in the parent grc_library repository CHA
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.67.2 | 2026.08.29 | 2026-08-02 | Patch (Sweep 141 F1 completeness): reconciled the OWASP-LLM02 prompt-logging bullet in [`ai/ai-security.md`](ai/ai-security.md) to the canonical AI-logging policy. Reconciled two same-file exception bullets left looser than the 1.67.1 carve-out: the OWASP-LLM02 prompt bullet at `:35` ("unless required for specific audit purposes") and the OWASP-LLM06 tool-call-content bullet at `:62` ("unless a specific audit purpose requires it"). Both now permit content logging only for an explicitly authorized purpose (testing or security analysis), never secrets or PII, per the canonical policy at `:93`. Completes the 1.67.1 change, which updated `:93` but left these two bullets. Pack `1.67.1` to `1.67.2` (patch). |
 | 1.67.1 | 2026.08.15 | 2026-08-01 | Patch (AI-logging carve-out): the canonical AI-logging policy in [`ai/ai-security.md`](ai/ai-security.md) and the pack CLAUDE.md house rule now permit raw full-prompt logging ONLY for an explicitly authorized purpose such as testing or security analysis, with the never-log-secrets/PII floor still absolute. Additive; the default prohibition is unchanged. Pack `1.67.0` to `1.67.1` (patch). |
 | 1.67.0 | 2026.08.13 | 2026-08-01 | Minor (TODO 3.187): dual-family (Claude + Codex) verification is now the STANDARD for every substantive QA pass, not reserved for consequential changes. Rewrote the ai-assistant-workflow-disciplines substantive-tier: a dual-family pair of skeptical verifiers is the default (superseding the single-verifier-floor / consequential-only-pair framing), keyed to the high-assurance stage-3 cross-family definition, with the sole exception being token unavailability on a family (available family runs, gap noted, missing family re-runs on token return). Codifies the maintainer-directed 2026-07-29 permanent standard. |
 | 1.66.10 | 2026.07.786 | 2026-07-31 | Patch (TODO 3.178, adopter fix): a pack-only (mode-3) adopter was sent to a corpus-only file and got 18 dead links. Qualified the crypto table's TLS canonical-mandate reference (it lives in the parent corpus; a pack-only adopter has TLS 1.3 as the standalone requirement) and fixed README Option 1 to copy the whole `claude-rules/` directory and `@`-mention it, since copying `CLAUDE.md` alone broke its 18 sibling links under `ai/` and `governance/`. |

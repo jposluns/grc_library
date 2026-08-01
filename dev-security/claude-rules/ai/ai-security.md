@@ -32,7 +32,7 @@ Treat every LLM response, every model output, and every AI-generated value as if
 
 - Never include secrets, credentials, API keys, or PII in prompts sent to external AI APIs
 - Implement PII detection and redaction before sending user-generated content to AI services
-- Do not log full prompt content in production: log metadata (token count, model, latency) but not the prompt text unless required for specific audit purposes
+- Do not log full prompt content in production: log metadata (token count, model, latency) but not the prompt text. Raw full-prompt logging may be enabled only for an explicitly authorized purpose (such as testing or security analysis), and even then never secrets or PII (see the AI logging requirements section below for the canonical policy)
 - Scrub AI responses for potential training data leakage before returning to users
 - Set up output content scanning to detect when the model reveals system prompt content, training data, or organizational configuration
 
@@ -59,7 +59,7 @@ Treat every LLM response, every model output, and every AI-generated value as if
 - Do not allow AI systems to grant additional permissions to themselves or to other agents
 - Validate all tool arguments before execution: LLM-generated tool arguments are untrusted
 - Implement hard limits on tool-call chains and recursion depth
-- Log every tool call (name, caller, timestamp, result status); redact secrets and PII from any logged arguments or results, and do not log full argument or result content in production unless a specific audit purpose requires it
+- Log every tool call (name, caller, timestamp, result status); redact secrets and PII from any logged arguments or results, and do not log full argument or result content in production except for an explicitly authorized purpose such as testing or security analysis (see the AI logging requirements section below for the canonical policy)
 
 **References:** OWASP LLM06, MITRE ATLAS AML.T0053: AI Agent Tool Invocation
 
