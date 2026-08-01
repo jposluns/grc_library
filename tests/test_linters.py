@@ -9505,6 +9505,53 @@ class OrchestratorAdvisoryToolTests(unittest.TestCase):
         )
         self.assertIn("OK", result.stdout)
 
+    def test_cleanup_tmp_worker_output_self_test_passes(self) -> None:
+        # P-1.16: the /tmp worker-output cleanup aid's self-test (protect-list rules +
+        # age-based eligibility, both PURE), wired here so the SAFETY logic (never select a
+        # live session dir, a system socket, or a recently-touched worker workspace) cannot
+        # silently rot. Offline; no /tmp access (pure is_protected/eligible over fixtures).
+        result = run_linter("tools/cleanup-tmp-worker-output.py", "--self-test")
+        self.assertEqual(
+            result.returncode, 0,
+            f"cleanup-tmp-worker-output.py --self-test failed.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("OK", result.stdout)
+
+    def test_cleanup_tmp_apply_moves_only_worker_output_old_and_unprotected(self) -> None:
+        # P-1.16 (codex vp116 finding 6): an integration regression for the DESTRUCTIVE --apply
+        # path. A monkeypatched /tmp proves --apply moves ONLY an old worker-output entry, and
+        # leaves a system dir, a live session dir, and a recently-touched worker entry in place.
+        import importlib.util, tempfile, time as _t
+        spec = importlib.util.spec_from_file_location(
+            "clean_tmp_mod", str(REPO_ROOT / "tools" / "cleanup-tmp-worker-output.py"))
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            old = _t.time() - 10 * 86400
+            (root / "grc-old-clone").mkdir()          # worker-output, old -> MOVE
+            (root / "systemd-private-x").mkdir()       # NOT worker-output -> keep
+            (root / "claude-9999").mkdir()             # protected session -> keep
+            (root / "grc-fresh").mkdir()               # worker-output but RECENT -> keep
+            (root / "grc-kept").mkdir()                # worker-output + old but --keep'd -> is_protected keeps it
+            for name in ("grc-old-clone", "systemd-private-x", "claude-9999", "grc-kept"):
+                os.utime(root / name, (old, old))
+            # grc-fresh keeps its just-created (now) mtime
+            mod.TMP = root
+            rc = mod.main(["prog", "--apply", "--days", "3", "--keep", "grc-kept",
+                           "--staging", str(root / "deleteme")])
+            moved = not (root / "grc-old-clone").exists() and (root / "deleteme" / "grc-old-clone").exists()
+            self.assertTrue(moved, "old worker-output should have been moved")
+            self.assertTrue((root / "systemd-private-x").exists(), "system dir must NOT be moved (allow-list)")
+            self.assertTrue((root / "claude-9999").exists(), "live session dir must NOT be moved (allow-list)")
+            self.assertTrue((root / "grc-fresh").exists(), "recently-touched worker dir must NOT be moved (age)")
+            self.assertTrue((root / "grc-kept").exists(), "--keep'd worker dir must NOT be moved (is_protected)")
+            self.assertEqual(rc, 0, "clean guarded apply should return 0")
+            # a --staging pointing at a protected claude-* is refused (codex vp116b finding 3)
+            rc2 = mod.main(["prog", "--apply", "--days", "3", "--staging", str(root / "claude-8888")])
+            self.assertEqual(rc2, 2, "staging into a protected claude-* name must be refused (exit 2)")
+
 
 class TokenSpendToolTests(LinterTestCase):
     """The advisory ``tools/audit-token-spend.py`` tool's own ``--self-test``.
