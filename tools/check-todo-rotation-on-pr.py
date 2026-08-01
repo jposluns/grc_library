@@ -19,7 +19,7 @@ surface: if any line ADDED to the root CHANGELOG asserts a TODO-item closure, th
 changed-file set must include `TODO.md`.
 
 Trigger (broadened 2026-06-30 to three forms, 2026-07-02 to six,
-2026-07-03 to seven, and 2026-07-06 to eight, each chosen to stay
+2026-07-03 to seven, 2026-07-06 to eight, and 2026-08-01 to nine, each chosen to stay
 false-positive-free; see
 ``CLOSURE_PATTERNS``): an added CHANGELOG line matching
 any of (1) the canonical section form ``clos(e|es|ed|ing) [the] TODO §`` (e.g.
@@ -50,7 +50,16 @@ out of the census-rejected bare-"section" FP space); or (8) the bare
 TODO-section closure form ``TODO N.M <...> clos(ed|ure)`` (a decimal section
 token with NO "section" word and NO `§`, case-insensitive, forward-only;
 e.g. "TODO 3.21 ... closed", the #637 lead that evaded forms 1 and 7; added
-2026-07-06, full-history census 16 hits all genuine, 0 negation FPs).
+2026-07-06, full-history census 16 hits all genuine, 0 negation FPs); or
+(9) the verb-first bare TODO-section closure form ``clos(e|es|ed|ing) [the]
+TODO N.M`` (the clos-FIRST word order, the mirror of forms 7 and 8 and the
+decimal analogue of form 1; e.g. "Closes TODO 3.177"; added 2026-08-01 for
+TODO 3.188 after the eight prior forms passed this phrasing vacuously,
+full-history census 29 matches, 28 same-PR closures plus one re-added prior
+closure line (a prior PR's closure entry re-touched in a later PR's commit and
+masked by that PR's own rotation, the re-add class every form shares), 0 genuine
+past-narration FPs; the rare
+quoting-a-prior-PR case uses the TodoRotation: opt-out, as form 1 does).
 Forms 4 to 6 were added 2026-07-02 after the #563 pre-push verifier showed
 that #567's section-and-item closure phrasings passed the gate vacuously.
 It does NOT match incidental mentions ("closing the #466 finding",
@@ -113,7 +122,7 @@ TODO_PATH = "TODO.md"
 # (forms 4 to 6, the #563 verifier's tooling note after #567's section-and-item
 # phrasings passed vacuously), again 2026-07-03 (form 7, the #607 miss), and
 # again 2026-07-06 (form 8 and the form-6 markdown-link widening, the #637/#640
-# shapes), while staying false-positive-free. The eight forms
+# shapes), while staying false-positive-free. The nine forms
 # below were chosen empirically: tested
 # against the entire CHANGELOG history (root + detailed mirror, ~14k lines),
 # each matched only genuine current-PR closures with ZERO past-closure-narration
@@ -214,6 +223,24 @@ CLOSURE_PATTERNS = (
         r"\bTODO \d+\.\d+(?:[^.\n]|(?<=\d)\.(?=\d)){0,80}?\bclos(?:ed|ure)\b",
         re.IGNORECASE,
     ),
+    # (9) the verb-first bare TODO-section closure form: a closure verb, optional
+    # "the", then the literal token "TODO N.M" (a decimal section number, NO
+    # "section" word and NO `§`). This is the clos-FIRST word order (e.g.
+    # "Closes TODO 3.177"), the mirror of forms 7/8 (which are token-first) and the
+    # exact decimal analogue of form 1 ("clos... TODO §"). Added 2026-08-01
+    # (TODO 3.188) after a PR2b-3 dual-family verify (codex F5 / Fable F-10) found
+    # the eight prior forms all pass "Closes TODO N.M" phrasing VACUOUSLY (form 1
+    # wants `§`; forms 7/8 want the TODO token to PRECEDE the closure verb).
+    # Full-history census: 29 matches, 28 same-PR closures ("Closes/closed/closing
+    # [the] TODO N.M") plus one re-added prior closure line (a prior PR's closure
+    # entry re-touched in a later PR's commit, masked by that PR's own rotation, the
+    # re-add class EVERY closure form shares and the TodoRotation: opt-out covers), 0
+    # genuine past-narration or incidental false positives (the
+    # project never writes "PR #N closed TODO N.M" narration in this contiguous
+    # form; past-closure narration uses the FR-id shape instead). Like form 1, the
+    # rare quoting-a-prior-PR case is handled by the TodoRotation: opt-out trailer.
+    # Case-insensitive for "Closes"/"CLOSES".
+    re.compile(r"\bclos(?:e|es|ed|ing)\b\s+(?:the\s+)?TODO\s+\d+\.\d+", re.IGNORECASE),
 )
 
 TRAILER_PATTERN = re.compile(
