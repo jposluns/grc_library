@@ -2,8 +2,8 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.66.10\
-**Date:** 2026-07-31\
+**Version:** 1.67.0\
+**Date:** 2026-08-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** `dev-security/standard-developer-security-requirements.md`, `dev-security/standard-devops-security-requirements.md`, `dev-security/guideline-ai-coding-assistant-security.md`, `ai/standard-ai-and-agentic-development-security.md`\
@@ -516,6 +516,7 @@ The pack's change history is maintained in the parent grc_library repository CHA
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.67.0 | 2026.08.13 | 2026-08-01 | Minor (TODO 3.187): dual-family (Claude + Codex) verification is now the STANDARD for every substantive QA pass, not reserved for consequential changes. Rewrote the ai-assistant-workflow-disciplines substantive-tier: a dual-family pair of skeptical verifiers is the default (superseding the single-verifier-floor / consequential-only-pair framing), keyed to the high-assurance stage-3 cross-family definition, with the sole exception being token unavailability on a family (available family runs, gap noted, missing family re-runs on token return). Codifies the maintainer-directed 2026-07-29 permanent standard. |
 | 1.66.10 | 2026.07.786 | 2026-07-31 | Patch (TODO 3.178, adopter fix): a pack-only (mode-3) adopter was sent to a corpus-only file and got 18 dead links. Qualified the crypto table's TLS canonical-mandate reference (it lives in the parent corpus; a pack-only adopter has TLS 1.3 as the standalone requirement) and fixed README Option 1 to copy the whole `claude-rules/` directory and `@`-mention it, since copying `CLAUDE.md` alone broke its 18 sibling links under `ai/` and `governance/`. |
 | 1.66.9 | 2026.07.781 | 2026-07-31 | Patch: new change-tracking governance-rule subsection, a backlog's exception status is granted not self-asserted (an exception-status tag is authority-GRANTED never self-applied; PROPOSED is not GRANTED; completeness and audit tooling count only granted tags; the persistent-artefact-tag instance of the evidence-grounded-completion set-completeness and asymmetric-skepticism corollaries). The portable form of the GRC-library two-list BLOCKED-guardrail. |
 | 1.66.8 | 2026.07.765 | 2026-07-30 | Patch (PR #1275 completeness): the pack README integration cross-reference for `ai/guide-ai-adversarial-test-reference.md` §B4 was updated from "test case overlap rules" to TikiTribe's defensive-rules relationship to adversarial testing, matching the corrected §B4 (TikiTribe is a preventive control, not a source of adversarial test cases; the Sweep-135 R4-propagation fix). |
