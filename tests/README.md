@@ -65,7 +65,7 @@ crashed test were to remain in the directory, the main
 `tools/run_all_audits.sh` sweep would see it. In practice
 `setUpModule` cleans the directory at the start of each test run, so
 the only window for contamination is during a single-test crash
-without `tearDown` — and the next `setUpModule` removes the file.
+without `tearDown`, and the next `setUpModule` removes the file.
 
 ## Global-state isolation
 

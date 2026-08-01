@@ -10,9 +10,11 @@
 #      version-bump, D3 CHANGELOG-dash-on-PR, D4 per-PR Version-Date
 #      co-bump, D5 backlog-rotation-on-PR, D6 pack-README
 #      version-history co-bump,
-#      D7 CHANGELOG-length-on-PR, D8 daily-changelog-rollup reminder (advisory)). These
-#      compare the PR head to its merge base, so their inputs are not
-#      available in tools/run_all_audits.sh; they run
+#      D7 CHANGELOG-length-on-PR, D8 daily-changelog-rollup reminder
+#      (advisory), D9 retired-section-orphan check, D10 CLAUDE.md-size
+#      ratchet). Most compare the PR head to its merge base, so their
+#      inputs are not available in tools/run_all_audits.sh (D10 instead
+#      checks the current .claude/CLAUDE.md line count directly); they run
 #      only here and in quality.yml.
 #   2. The history-aware gates that examine each file's commit graph
 #      (gate 45 TODO staleness, gate 40 version-bump-recency, gate 31
@@ -39,7 +41,7 @@
 # the delta surface.
 #
 # Exit codes: 0 on all pass; first non-zero rc from any gate on
-# failure (aggregation is not the goal here — these checks are fast and
+# failure (aggregation is not the goal here, these checks are fast and
 # the maintainer wants to address them before push).
 
 set -u
