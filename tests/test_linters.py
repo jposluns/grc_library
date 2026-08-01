@@ -9505,6 +9505,19 @@ class OrchestratorAdvisoryToolTests(unittest.TestCase):
         )
         self.assertIn("OK", result.stdout)
 
+    def test_cleanup_tmp_worker_output_self_test_passes(self) -> None:
+        # P-1.16: the /tmp worker-output cleanup aid's self-test (protect-list rules +
+        # age-based eligibility, both PURE), wired here so the SAFETY logic (never select a
+        # live session dir, a system socket, or a recently-touched worker workspace) cannot
+        # silently rot. Offline; no /tmp access (pure is_protected/eligible over fixtures).
+        result = run_linter("tools/cleanup-tmp-worker-output.py", "--self-test")
+        self.assertEqual(
+            result.returncode, 0,
+            f"cleanup-tmp-worker-output.py --self-test failed.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("OK", result.stdout)
+
 
 class TokenSpendToolTests(LinterTestCase):
     """The advisory ``tools/audit-token-spend.py`` tool's own ``--self-test``.
