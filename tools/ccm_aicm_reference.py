@@ -574,6 +574,37 @@ AICM_DOMAINS = _domains_of(AICM_V11)
 VALID_DOMAINS = _domains_of(ALL_TITLES)
 
 
+# Domain code -> official domain NAME (the CCM/AICM "Control Domain" column value).
+# Source-verified 2026-08-01 against grc_library_ref
+# frameworks/CSA/CCM/CSA-CCM-v4.1.0-catalogue__CCM.csv and
+# frameworks/CSA/AICM/CSA-AICM-v1.1.0-catalogue__AICM.csv (the "<name> - <CODE>"
+# domain-header rows). CCM has 17 domains; AICM adds MDS (Model Security), so this
+# union has 18; the two catalogues agree on every shared domain's name. Used by the
+# domain-name-as-title exemption in lint-ccm-aicm-citations.py Check 6: a title that
+# renders the code's DOMAIN name (rather than the control title) is a legitimate
+# cite-the-domain convention, not a wrong-title error.
+DOMAIN_NAMES = {
+    "A&A": "Audit & Assurance",
+    "AIS": "Application & Interface Security",
+    "BCR": "Business Continuity Management and Operational Resilience",
+    "CCC": "Change Control and Configuration Management",
+    "CEK": "Cryptography, Encryption & Key Management",
+    "DCS": "Datacenter Security",
+    "DSP": "Data Security and Privacy Lifecycle Management",
+    "GRC": "Governance, Risk and Compliance",
+    "HRS": "Human Resources",
+    "IAM": "Identity & Access Management",
+    "IPY": "Interoperability & Portability",
+    "I&S": "Infrastructure Security",
+    "LOG": "Logging and Monitoring",
+    "MDS": "Model Security",
+    "SEF": "Security Incident Management, E-Discovery, & Cloud Forensics",
+    "STA": "Supply Chain Management, Transparency, and Accountability",
+    "TVM": "Threat & Vulnerability Management",
+    "UEM": "Universal Endpoint Management",
+}
+
+
 def is_ccm_v41(code: str) -> bool:
     """True if ``code`` is a real CSA CCM v4.1.0 control identifier."""
     return code in CCM_V41
