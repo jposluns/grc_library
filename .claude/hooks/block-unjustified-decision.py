@@ -108,14 +108,19 @@ SET_COMPLETENESS_RE = re.compile(
 # The fresh-audit proof token the entry must carry: `backlog-audit: <N> items enumerated`.
 AUDIT_TOKEN_RE = re.compile(r"backlog-audit:\s*(\d+)\s+items?\s+enumerated", re.IGNORECASE)
 
-# Item-heading regex for counting live TODO.md OPEN backlog items. PARITY POINT:
-# this is ALIGNED to (byte-identical id alternation of) the companion audit tool
-# `tools/audit-backlog-actionability.py` ITEM_HEADING_RE, so the two count the same
-# set: an id is `N.M` / `N.M.K` / an alphanumeric sub-id (`1.19.10a`) or a coded id
-# (`SR-1` / `RB-R6` / `GR-GAP-1`). `## Priority N` section headers and the
-# Maintainer-or-Egress-Gated index table rows are NOT items. A test in
-# tests/test_linters.py asserts this count equals the tool's on the live TODO, so
-# the pair cannot silently drift.
+# Item-heading regex for counting live TODO.md + P-TODO.md OPEN backlog items.
+# PARITY POINT: this is FUNCTIONALLY EQUIVALENT to the companion audit tool
+# `tools/audit-backlog-actionability.py` ITEM_HEADING_RE (it matches the SAME line
+# set), not byte-identical: the tool carries an extra `P-\d+(?:\.\d+){1,2}[a-z]?`
+# alternative that is redundant here because the coded-id alternative below already
+# matches a `P-<digit>` id (`P-1.15` matches on its `P-1` prefix), and the tool
+# applies its regex per line via `.match()` while this one uses `re.MULTILINE`
+# `.findall()`. The two count the same set: an id is `N.M` / `N.M.K` / an
+# alphanumeric sub-id (`1.19.10a`) or a coded id (`SR-1` / `RB-R6` / `GR-GAP-1` /
+# `P-1.15`). `## Priority N` section headers and the Maintainer-or-Egress-Gated
+# index table rows are NOT items. A test in tests/test_linters.py asserts this
+# count equals the tool's on the live UNION (both lists), so the pair cannot
+# silently drift.
 ITEM_HEADING_RE = re.compile(
     r"^### (?:\d+(?:\.\d+){1,2}[a-z]?|[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+)\b", re.MULTILINE
 )
@@ -132,7 +137,7 @@ def _todo_item_count(project_dir: str | None) -> int | None:
     union degrades to the public count rather than failing the whole check. Never
     raises."""
     try:
-        root = Path(project_dir) if project_dir else Path(__file__).resolve().parents[2]
+        root = Path(project_dir).resolve() if project_dir else Path(__file__).resolve().parents[2]
         todo = root / "TODO.md"
         if not todo.is_file():
             return None
@@ -169,7 +174,8 @@ def _targets_log(payload: dict) -> bool:
 
 def decide(added: str, todo_count: "int | None" = None):
     """Return (block, reason) for the text added to the decisions log. Pure
-    (``todo_count`` is the live TODO.md open-item count, or None if unresolved).
+    (``todo_count`` is the live UNION open-item count across TODO.md + P-TODO.md,
+    or None if unresolved).
     """
     if not isinstance(added, str) or not added.strip():
         return False, ""  # empty add: nothing to validate
@@ -230,13 +236,15 @@ def decide(added: str, todo_count: "int | None" = None):
                 "justify a hold, but carries no fresh-audit proof. Run "
                 "`tools/audit-backlog-actionability.py`, enumerate every open item, and "
                 "embed `backlog-audit: <N> items enumerated` where <N> is the live "
-                "TODO.md open-item count. A set-completeness claim without a complete "
+                "combined TODO.md + P-TODO.md open-item count. A set-completeness claim "
+                "without a complete "
                 "fresh enumeration is the failure this guard prevents."
             )
         elif todo_count is not None and int(m.group(1)) != todo_count:
             problems.append(
                 f"the backlog-exhaustion claim cites `backlog-audit: {m.group(1)} items "
-                f"enumerated`, but the live TODO.md has {todo_count} open item(s); the "
+                f"enumerated`, but the live backlog (TODO.md + P-TODO.md) has "
+                f"{todo_count} open item(s); the "
                 f"audit is stale or incomplete. Re-run the full enumeration and match the "
                 f"live count before holding."
             )

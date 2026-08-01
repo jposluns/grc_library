@@ -9386,6 +9386,45 @@ class HookToolItemCountParityTests(unittest.TestCase):
                 hook._todo_item_count(str(root)), 2,
                 "a missing P-TODO.md degrades to the public count, not None")
 
+    def test_hook_count_resolves_relative_and_symlink_project_dir(self):
+        # codex vpr1323 Finding 1: an unresolved relative or symlinked project_dir made
+        # root.parent point at the symlink's container / cwd rather than the real repo
+        # parent, so the private P-TODO lookup silently missed and the hook counted
+        # public-only, rejecting the tool's correct union token. _todo_item_count now
+        # .resolve()s the project_dir first.
+        import tempfile
+        import os
+        hook = self._load("_hook_parity3", ".claude/hooks/block-unjustified-decision.py")
+        with tempfile.TemporaryDirectory() as d:
+            real = Path(d) / "real"
+            real.mkdir()
+            root = real / "grc_library"
+            root.mkdir()
+            (root / "TODO.md").write_text("### 1.1 a\n### 2.2 b\n", encoding="utf-8")
+            priv = real / "grc_library_private"
+            priv.mkdir()
+            (priv / "P-TODO.md").write_text(
+                "### P-1.1 x\n### 3.9 y\n### P-2.1 z\n", encoding="utf-8")
+            # a symlink whose CONTAINER lacks the private sibling: without .resolve() the
+            # private lookup would use the symlink's container and miss (public-only=2).
+            elsewhere = Path(d) / "elsewhere"
+            elsewhere.mkdir()
+            link = elsewhere / "grc_library"
+            os.symlink(root, link)
+            self.assertEqual(
+                hook._todo_item_count(str(link)), 5,
+                "a symlinked project_dir must resolve to the real layout (union=5), "
+                "not fall back to the container's absent private sibling")
+            # a relative project_dir must resolve against cwd, not stay unanchored.
+            cwd = os.getcwd()
+            try:
+                os.chdir(str(real))
+                self.assertEqual(
+                    hook._todo_item_count("grc_library"), 5,
+                    "a relative project_dir must resolve so the sibling P-TODO is found")
+            finally:
+                os.chdir(cwd)
+
 
 class OrchestratorAdvisoryToolTests(unittest.TestCase):
     """The two orchestrator-side advisory tools' own ``--self-test`` runs, wired here so
