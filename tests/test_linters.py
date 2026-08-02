@@ -6387,6 +6387,44 @@ class BookkeepingParityTests(LinterTestCase):
         self.assertEqual(status.get(93), "subsumption",
                          "deliberate all-caps 'NOT RUN (...)' stays exempt")
 
+    def test_codespan_aware_split_reads_findings_past_inline_pipe(self) -> None:
+        # 3.159: a Findings cell containing an inline `| pending |` code span
+        # must not shift columns. The naive split("|") breaks the row into the
+        # wrong cells (reading the Findings cell as just a backtick); the
+        # code-span-aware split_markdown_row keeps the span in cell index 4, so
+        # the row's DISPATCHED token is seen and it classifies 'pending'
+        # (whereas the naive split would fail-open to 'normal').
+        mod = self._load_module()
+        row = (
+            "| 2026-08-01 | PR #2000 | tools/example.py | "
+            "`| pending |` then DISPATCHED | none | none | synthetic |"
+        )
+        self.assertEqual(mod.cells(row)[4], "`| pending |` then DISPATCHED")
+        self.assertEqual(mod.parse_validate_pr_status(row), {2000: "pending"})
+        naive_c4 = [c.strip() for c in row.split("|")][4]
+        self.assertEqual(naive_c4, "`")
+        self.assertFalse(mod.PENDING_FINDINGS.search(naive_c4),
+                         "the naive split loses the DISPATCHED token (the fail-open)")
+
+    def test_codespan_split_handles_double_backtick_span(self) -> None:
+        # 3.159 (dual-family finding): a MULTI-backtick code span containing a
+        # pipe must also stay in one cell. The run-aware split matches the
+        # backtick-run length, so a double-backtick span `` a|b `` does not
+        # shift columns (the earlier single-toggle design mis-split it).
+        mod = self._load_module()
+        row = "| 2026-08-01 | PR #2002 | a.py | ``x|y`` DISPATCHED | none | none | s |"
+        self.assertEqual(mod.cells(row)[4], "``x|y`` DISPATCHED")
+        self.assertEqual(mod.parse_validate_pr_status(row), {2002: "pending"})
+
+    def test_codespan_split_leaves_ordinary_rows_unchanged(self) -> None:
+        # 3.159: a row with no inline code-span pipe splits identically to the
+        # naive split, so the change is a strict superset (no behaviour change
+        # on ordinary rows).
+        mod = self._load_module()
+        row = "| 2026-08-01 | PR #2001 | a.py | RETURNED | none | none | clean |"
+        self.assertEqual(mod.cells(row), [c.strip() for c in row.split("|")])
+        self.assertEqual(mod.parse_validate_pr_status(row), {2001: "normal"})
+
     def test_todo_strikethrough_bullet_flagged(self) -> None:
         # A whole backlog bullet struck through is a rotation failure.
         mod = self._load_module()
