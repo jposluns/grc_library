@@ -1850,7 +1850,7 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
 
     def test_block_wrong_repo_tool_hook_self_test(self) -> None:
         # The repo-target guardrail (widened 2026-07-24 to block cwd-relative tools/<x>
-        # and repo-mutating bare git); its 13-case --self-test gates the widening.
+        # and repo-mutating bare git); its 17-case --self-test gates the widening.
         result = self._run_selftest(
             [sys.executable,
              str(REPO_ROOT / ".claude" / "hooks" / "block-wrong-repo-tool.py"),
