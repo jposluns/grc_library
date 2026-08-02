@@ -138,7 +138,7 @@ The chat surface is non-negotiable when the sweep produces findings: a finding t
 
 ## Termination
 
-The PR-scoped sweep is a single-iteration cycle: dispatch, check, triage, record. If findings produce a hot-fix PR, that hot-fix PR is itself a new merge that triggers its own `/validate-pr` cycle.
+The PR-scoped sweep is a single-iteration cycle: dispatch, check, triage, record. If findings produce a hot-fix PR, that hot-fix PR is itself a new PR that runs its own `/validate-pr` cycle.
 
 There is no fixed-point loop (unlike `/validate`'s iterative cycle). Per-PR sweeps are short-lived; the corpus-wide sweep handles deeper iteration.
 
@@ -187,6 +187,6 @@ The PR-scoped sweep is complete when:
 
 The corpus-wide `/validate` sweep runs on a periodic cadence (the parent library's is every 10 merges, or maintainer-triggered). Between sweeps, issues introduced by individual PRs compound silently: a PR touches file A; subsequent PRs cite the changed file A; the citation may have been stale from the start, but no one checks until the next corpus-wide sweep. By then, the issue has been re-cited in 5+ places.
 
-`/validate-pr` closes this gap. Run after every merge, it catches PR-introduced issues at the moment they appear, before they compound. The cost is modest (~30-60k tokens per merge); the benefit is keeping the corpus-wide sweep's iteration count low and the per-PR feedback loop tight.
+`/validate-pr` closes this gap. Run on every PR before it merges, it catches PR-introduced issues before they land and compound. The cost is modest (~30-60k tokens per PR); the benefit is keeping the corpus-wide sweep's iteration count low and the per-PR feedback loop tight.
 
 For AI coding assistants specifically: when you are finalizing a PR, before you merge it, your default steps are `/validate-pr`, then `/retro`, then the merge. The three together close the per-PR loop; the corpus-wide `/validate` closes the wider loop on its own cadence.

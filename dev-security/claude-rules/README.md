@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.68.4\
+**Version:** 1.68.5\
 **Date:** 2026-08-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -516,6 +516,7 @@ The pack's change history is maintained in the parent grc_library repository CHA
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.68.5 | 2026.08.53 | 2026-08-02 | Patch (defect-hunt): fixed two pre-merge/post-merge self-contradictions the synchronous-model cutover left in adopter-facing skills (pr-retrospective framed post-merge at the description/overview/input while mandating in-PR pre-merge recording; validation-sweep-pr-scoped's 'why this exists' said 'run after every merge' against its pre-merge model). Prose alignment; no discipline change. |
 | 1.68.4 | 2026.08.52 | 2026-08-02 | Patch (3.56 agnosticism cleanup): 14 defects generalizing project-specific assumptions in the portable pack surfaces (pack CLAUDE.md, core/authentication.md, README, the project-integrity apex rule, and seven skills) so the pack reads for a generic adopter; parent-library specifics demoted to labelled provenance; adopt skill excluded (removed from publication). No discipline change. |
 | 1.68.3 | 2026.08.51 | 2026-08-02 | Patch (P-1.18 disclosure scrub): scrubbed private reference/operational repo names from the pack README (the current reference-base guidance line plus four frozen version-history rows, including one internal reference SHA) and generalized two portable skill-body leaks (a QA-gate reference in validation-sweep-pr-scoped, a provenance-watermark reference in publication-screening); no rule, skill, or discipline change. |
 | 1.68.2 | 2026.08.46 | 2026-08-02 | Patch (P-1.18 disclosure prep): generalized the ai-assistant-workflow-disciplines worker-primitive paragraph vocabulary (orchestrator/own-accounts/exchange-channel/claims-ledger to coordinating-session/isolated-contexts/handoff-surface/work-ownership-record) so the published CORE describes the pattern without exposing the private deployment topology. No discipline change. |
