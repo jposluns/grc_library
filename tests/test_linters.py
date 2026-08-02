@@ -6387,6 +6387,40 @@ class BookkeepingParityTests(LinterTestCase):
         self.assertEqual(status.get(93), "subsumption",
                          "deliberate all-caps 'NOT RUN (...)' stays exempt")
 
+    def test_pending_maintainer_authorized_prose_does_not_exempt_row(self) -> None:
+        # Sweep-142 dual-family catch of the 3.158 RESIDUAL: the maintainer-exception
+        # marker must be the DELIBERATE phrase "maintainer-authorized exception", not a
+        # bare "maintainer-authorized <noun>" anywhere in the cell. A genuinely-pending
+        # row that reads "DISPATCHED: maintainer-authorized the reviewer; RESULT PENDING"
+        # must classify as 'pending' (the earlier bare `maintainer[-\s]authori[sz]\w*`
+        # .search matched the phrase anywhere and pre-empted the pending check, the
+        # fail-open); the deliberate "...exception" phrase still exempts.
+        mod = self._load_module()
+        text = (
+            "| Date | PR | Touched | Findings | Hot-fix | Detail | Summary |\n"
+            "|---|---|---|---|---|---|---|\n"
+            "| 2026-08-02 | 94 | x | **DISPATCHED: maintainer-authorized the "
+            "reviewer; RESULT PENDING** | none | - | s |\n"
+            "| 2026-08-02 | 95 | x | **maintainer-authorized exception: carved "
+            "out with rationale** | none | - | s |\n"
+            "| 2026-08-02 | 96 | x | **DISPATCHED: maintainer-authorized the "
+            "reviewer; exception request pending; RESULT PENDING** | none | - | s |\n"
+            "| 2026-08-02 | 97 | x | **maintainer-authorized standing exception: "
+            "carved out** | none | - | s |\n"
+        )
+        status = mod.parse_validate_pr_status(text)
+        self.assertEqual(status.get(94), "pending",
+                         "pending row with incidental 'maintainer-authorized <noun>' "
+                         "must be caught as pending, not exempted (3.158 residual)")
+        self.assertEqual(status.get(95), "subsumption",
+                         "deliberate 'maintainer-authorized exception' stays exempt")
+        self.assertEqual(status.get(96), "pending",
+                         "CROSS-CLAUSE 'maintainer-authorized ...; exception request "
+                         "pending' must NOT exempt a pending row (codex vpr HOLD: the "
+                         "[^.|]{0,40} bridge let a semicolon-separated exception through)")
+        self.assertEqual(status.get(97), "subsumption",
+                         "multi-word 'maintainer-authorized standing exception' stays exempt")
+
     def test_codespan_aware_split_reads_findings_past_inline_pipe(self) -> None:
         # 3.159: a Findings cell containing an inline `| pending |` code span
         # must not shift columns. The naive split("|") breaks the row into the
