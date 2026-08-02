@@ -23,7 +23,7 @@ three other audit surfaces; it is deliberately NOT added to the pre-push
 history-aware runner (which is for delta and commit-graph gates), because
 the post-commit ``run_all_audits.sh`` already runs it before any push.
 
-The five checks:
+The six checks:
 
 **Check 1, QA-cadence parity (the former §4.6 surface).** Derive the merged-PR
 list from the ``CHANGELOG.md`` per-entry headers, matched in BOTH the compact
@@ -213,10 +213,18 @@ HANDOFF_FINDINGS = re.compile(
 #   * ``NOT RUN`` as an all-caps disposition ANCHORED at the cell start (after
 #     optional bold), where a real exemption states it (e.g.
 #     ``**NOT RUN (no independent party available).**``), never mid-prose; and
-#   * ``maintainer-authorised/-authorized exception`` (a deliberate phrase).
+#   * ``maintainer-authorised/-authorized exception`` (a deliberate phrase):
+#     the regex REQUIRES the ``exception`` qualifier as an ADJACENT word (up to
+#     three intervening words, no clause separator), so neither incidental
+#     ``maintainer-authorized the reviewer; RESULT PENDING`` prose NOR a
+#     cross-clause ``...the reviewer; exception request pending`` in a
+#     genuinely-pending row pre-empts the pending check (the 3.158 residual the
+#     Sweep-142 dual-family /validate + its codex /validate-pr caught: the earlier
+#     bare ``.search`` matched anywhere, and a ``[^.|]{0,40}`` bridge still let a
+#     semicolon-separated ``exception`` word through).
 _SUBSUMED_MARK = re.compile(r"\bSUBSUMED\b")
 _NOT_RUN_MARK = re.compile(r"^\s*\*{0,2}\s*NOT\s+RUN\b")
-_MAINT_AUTH_MARK = re.compile(r"maintainer[-\s]authori[sz]\w*", re.IGNORECASE)
+_MAINT_AUTH_MARK = re.compile(r"maintainer[-\s]authori[sz]\w*(?:\s+\w+){0,3}\s+exception\b", re.IGNORECASE)
 
 
 def is_subsumption_findings(findings: str) -> bool:
@@ -356,7 +364,7 @@ def parse_changelog_prs(text: str) -> set[int]:
 def parse_validate_pr_status(text: str) -> dict[int, str]:
     """Map each PR with a validate-pr row to its status.
 
-    Status is one of 'handoff', 'subsumption', or 'normal', classified from
+    Status is one of 'handoff', 'subsumption', 'pending', or 'normal', classified from
     the row's Findings cell (field index 4). A PR cell may name more than one
     PR (a combined row such as `248, 249`); each named PR inherits the row's
     status.
