@@ -260,10 +260,6 @@ The 2026-07-28 `_ref` egress ingest (PR #105) now holds newer editions the corpu
 
 No public adopter doc (`docs/adopter-guide.md`, `docs/template-quickstart.md`, `CONTRIBUTING.md`) mentions `/adopt`, `adopt-config`, the siblings, or `.working`, so an adopter can complete the entire documented on-ramp and then work on top of the maintainer's queue/handoff/QA registers. Surface `/adopt` in the on-ramp.
 
-### 3.182 `.claude/` security-rule hollowness and mirror path rot are gate-invisible (2026-07-28 deep-assessment c6, claude, M, S) `[public]`
-
-`.claude/rules/external/kariedo/vulnerability-prevention.md` is a pure index to 6 never-vendored files; `.claude/rules/governance/trust-recovery-escalation.md` mirrors `../skills/...` paths dead in the `.claude/` tree (= component-1 finding). Both are uncaught because `.claude/` is in `DEFAULT_EXEMPT_DIRS` (no gate link-checks it). Vendor the companions or trim the index; make the mirror links tree-relative-safe.
-
 ### 3.183 Adopter-facing polish (changelog audience, fork-hook source edit, alarming clean-run output, closed-set framing) (2026-07-28 deep-assessment c6, claude, L, S) `[public]`
 
 The changelog top entries are maintainer jargon with no adopter banner; the adopter guide tells the adopter to edit `tools/lint_common.py` `DEFAULT_EXEMPT_DIRS` (a source edit that conflicts on every upstream pull); a clean adopter clone prints `ERROR: could not locate the grc_library_ref index` twice; and "five paths"/"seven areas" are framed as complete against 12 `docs/` files / 11 domain dirs. Low-severity adopter-experience cleanups.
