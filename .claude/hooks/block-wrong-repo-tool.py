@@ -63,6 +63,13 @@ SIBLING_REPO_NAMES = (
     "grc_library_private",
 )
 
+# (P-1.19) Tools for which a `cd <repo> && tools/<x>` is ALLOWED, the narrow cwd-guard
+# exception to the absolute-paths-by-default directive. NOTE (2026-08-02): empirically these
+# both ``os.chdir(ROOT)`` (ROOT from ``__file__``) or use absolute internal paths, so an
+# ABSOLUTE invocation works for them too and the list could shrink to empty; it is kept per
+# the maintainer's stated design as the documented cwd-guard set.
+CWD_GUARD_ALLOWLIST = frozenset({"validate.py", "credit-offload-queue.py"})
+
 # A `tools/<name>.(py|sh)` token invoked at COMMAND POSITION: at command start, or after
 # ; && || | & newline ( {, optionally preceded by env assignments, timeout/env, an
 # interpreter (python3 [-m] / bash / sh), and a `./` prefix. This distinguishes EXECUTING
@@ -105,16 +112,45 @@ def _sibling_roots(project_dir: str) -> dict:
 def decide(command: str, project_dir: str) -> tuple[bool, str]:
     if not isinstance(command, str) or not command.strip():
         return False, ""
-    # An explicit `cd ` anywhere means the author is managing cwd deliberately and the
-    # command is self-contained about its target repo: `cd <repo> && tools/<x>`, or the
-    # cwd-guard-tool subshell `(cd <repo> && python3 tools/validate.py)`. Allow it.
-    if re.search(r"(?:^|[;&\n(]|&&|\|\|)\s*cd\s", command):
-        return False, ""
     proj = Path(project_dir).resolve()
     project_name = proj.name
     parent = proj.parent
     roots = _sibling_roots(project_dir)
     project_tools = roots.get(project_name) if roots else None
+    invoked = list(dict.fromkeys(_INVOKE.findall(command)))
+    has_cd = bool(re.search(r"(?:^|[;&\n(]|&&|\|\|)\s*cd\s", command))
+
+    def _tool_repo(tool: str):
+        # the repo whose tools/ holds this cwd-relative tool (project first, then a sibling)
+        if project_tools is not None and (project_tools / tool).is_file():
+            return project_name
+        for n, td in roots.items():
+            if n != project_name and (td / tool).is_file():
+                return n
+        return None
+
+    # (0, P-1.19) A `cd <repo> && tools/<x>` prefix for a repo tool NOT in the cwd-guard
+    # allow-list: the maintainer directive is ABSOLUTE PATHS BY DEFAULT
+    # (grc_library_private/INDEX.md), so the absolute form is the default and cd is reserved
+    # for a genuine cwd-guard tool. A cd with no repo-tool invocation (`cd x && ls`,
+    # `cd x && git ...`) or only allow-listed tools stays allowed (the prior deliberate-cd
+    # behaviour). This closes the cd-escape that let the absolute-path convention be bypassed.
+    if has_cd:
+        flagged = [(t, _tool_repo(t)) for t in invoked
+                   if t not in CWD_GUARD_ALLOWLIST and _tool_repo(t) is not None]
+        if flagged:
+            lines = [f"  - `tools/{t}`: use `python3 {parent}/{repo}/tools/{t} ...` "
+                     f"(absolute), not `cd {parent}/{repo} && ... tools/{t}`."
+                     for t, repo in flagged]
+            reason = (
+                "BLOCKED (absolute-path guardrail, P-1.19): the standing directive is "
+                "ABSOLUTE PATHS BY DEFAULT (grc_library_private/INDEX.md); a "
+                "`cd <repo> && tools/<x>` runs a repo tool via the ambient cwd instead of an "
+                "absolute path. Use the absolute form:\n" + "\n".join(lines)
+                + "\n(cd is reserved for a genuine cwd-guard tool: "
+                + ", ".join(sorted(CWD_GUARD_ALLOWLIST)) + ".)")
+            return True, reason
+        return False, ""  # deliberate cd with no flagged repo tool: allowed
 
     # (1) A cwd-relative `tools/<x>` that is NOT a project tool but DOES exist in a sibling
     # repo: it would fail file-not-found from the project cwd (the 2026-07-19
@@ -124,7 +160,6 @@ def decide(command: str, project_dir: str) -> tuple[bool, str]:
     # and covered by the absolute-path convention. A tool absent from every repo is allowed
     # (new tool / typo). `_INVOKE` matches only the cwd-relative form, so an absolute path is
     # never a hit.
-    invoked = list(dict.fromkeys(_INVOKE.findall(command)))
     if invoked and roots:
         hits = []
         for tool in invoked:
@@ -210,6 +245,7 @@ def _self_test() -> int:
             scratch = Path(self.parent) / "grc_library_scratch"
             (scratch / "tools").mkdir(parents=True)
             (scratch / "tools" / "credit-offload-queue.py").write_text("")
+            (scratch / "tools" / "validate.py").write_text("")
             self.pd = str(self.proj)
 
         def test_sibling_tool_no_cd_blocks(self):
@@ -233,6 +269,30 @@ def _self_test() -> int:
             block, _ = decide(
                 "cd ../grc_library_scratch && python3 tools/credit-offload-queue.py "
                 "list-workers", self.pd)
+            self.assertFalse(block)
+
+        def test_cd_nonallowlist_tool_blocks(self):
+            # P-1.19: cd + a repo tool NOT in the cwd-guard allow-list is flagged toward
+            # the absolute form (the maintainer absolute-paths-by-default directive).
+            block, reason = decide(
+                "cd ../grc_library && bash tools/run_all_audits.sh", self.pd)
+            self.assertTrue(block)
+            self.assertIn("absolute-path guardrail", reason)
+
+        def test_cd_allowlist_tool_allowed(self):
+            # P-1.19: cd + a cwd-guard allow-list tool stays allowed.
+            block, _ = decide(
+                "cd ../grc_library_scratch && python3 tools/validate.py", self.pd)
+            self.assertFalse(block)
+
+        def test_cd_git_allowed(self):
+            # P-1.19: cd + git (no repo tool invoked) stays allowed (deliberate cd for git).
+            block, _ = decide("cd ../grc_library && git commit -m x", self.pd)
+            self.assertFalse(block)
+
+        def test_cd_no_repo_tool_allowed(self):
+            # P-1.19: cd + a non-repo-tool command stays allowed.
+            block, _ = decide("cd /tmp && ls -la", self.pd)
             self.assertFalse(block)
 
         def test_unknown_cwd_relative_tool_allowed(self):
