@@ -18,7 +18,10 @@ cwd-relative is ALLOWED) so the guard does not contradict the project's own docu
 the absolute-path convention, whereas a wrong-repo ``git`` commit is silent.
 
 What it does: reads the PreToolUse JSON payload on stdin, inspects ``tool_input.command``, and
-BLOCKS (exit 2) either of two cwd-dependent shapes, printing the copy-paste fix:
+BLOCKS (exit 2) any of THREE cwd-dependent shapes, printing the copy-paste fix:
+  (0) a cd-prefixed cwd-relative repo tool NOT in ``CWD_GUARD_ALLOWLIST`` where the ``cd``
+      PRECEDES the tool (P-1.19): the directive is ABSOLUTE PATHS BY DEFAULT, so the absolute
+      form is the default. (A ``tool``-then-``cd``, with the cd AFTER the tool, is NOT this shape.)
   (1) a cwd-relative ``tools/<name>.(py|sh)`` invoked AT COMMAND POSITION that is NOT a project
       tool but DOES exist in a SIBLING repo (``_INVOKE`` matches only the cwd-relative form, not
       an absolute ``/path/tools/x``), when the command has no explicit ``cd``. A PROJECT tool run
@@ -27,13 +30,17 @@ BLOCKS (exit 2) either of two cwd-dependent shapes, printing the copy-paste fix:
       rebase/stash/rm/mv/clean/apply/restore/cherry-pick/revert) without ``-C <path>`` and
       without a ``cd`` (a wrong-repo commit is silent, hence kept in scope).
 Everything else is ALLOWED:
-  - a command containing an explicit ``cd `` (the author manages cwd deliberately, e.g.
-    ``cd <repo> && python3 tools/foo.py``, or the cwd-guard-tool subshell);
-  - a cwd-relative PROJECT tool (softened scope: the documented ``tools/x`` commands stay valid);
+  - a ``cd `` with NO cd-preceded non-allowlist repo tool (a bare ls, a git, a cwd-guard
+    tool, or a tool-then-cd);
+  - a cwd-relative PROJECT tool with no preceding cd (softened scope: the documented
+    ``tools/x`` commands stay valid);
   - an ABSOLUTE tool path (``python3 /home/grc/grc_library/tools/foo.py``);
   - a ``git -C <path> ...`` command (explicit target repo);
   - read-only git (``status``/``log``/``diff``/``show`` are not in the mutating set);
   - a filename mentioned as an argument (``grep -n x tools/foo.py``) (not invoked).
+KNOWN RESIDUALS (accepted; fail-open nudge, not a shell parser): a QUOTED cwd-relative path
+  and exotic cd syntax (an ``if cd``/``command cd`` prefix) slip the regexes; this guard
+  catches the common cd-then-tool shape only (codex QA, P-1.19).
 
 A false block just tells the orchestrator to use an absolute path or ``git -C``, the intended
 discipline. Complements ``tools/repo-guard.sh`` (the write-mutation cross-repo guard, §1.15a)
@@ -135,22 +142,36 @@ def decide(command: str, project_dir: str) -> tuple[bool, str]:
     # for a genuine cwd-guard tool. A cd with no repo-tool invocation (`cd x && ls`,
     # `cd x && git ...`) or only allow-listed tools stays allowed (the prior deliberate-cd
     # behaviour). This closes the cd-escape that let the absolute-path convention be bypassed.
+    # (0, P-1.19) Flag a repo tool NOT in CWD_GUARD_ALLOWLIST only when a `cd ` command-position
+    # token PRECEDES it (the tool then runs via the cd'd cwd); a `tool && cd elsewhere` (cd AFTER
+    # the tool) is NOT flagged (codex QA fixed the whole-command false positive). The directive is
+    # ABSOLUTE PATHS BY DEFAULT (grc_library_private/INDEX.md); cd is reserved for a genuine
+    # cwd-guard tool. A cd with no cd-preceded flagged tool (a bare ls, a git, an allow-listed
+    # tool, or a tool-then-cd) stays allowed. KNOWN RESIDUALS (accepted; fail-open nudge, not a
+    # shell parser): a QUOTED cwd-relative path and exotic cd syntax slip the regexes.
+    cd_pos = [m.start() for m in re.finditer(r"(?:^|[;&\n(]|&&|\|\|)\s*cd\s", command)]
+    flagged = []
+    for m in _INVOKE.finditer(command):
+        t = m.group(1)
+        if t in CWD_GUARD_ALLOWLIST or _tool_repo(t) is None:
+            continue
+        if any(cp < m.start() for cp in cd_pos):
+            flagged.append((t, _tool_repo(t)))
+    flagged = list(dict.fromkeys(flagged))
+    if flagged:
+        lines = [f"  - `tools/{t}`: use `python3 {parent}/{repo}/tools/{t} ...` "
+                 f"(absolute), not a cd-prefixed cwd-relative invocation."
+                 for t, repo in flagged]
+        reason = (
+            "BLOCKED (absolute-path guardrail, P-1.19): the standing directive is "
+            "ABSOLUTE PATHS BY DEFAULT (grc_library_private/INDEX.md); a cd-prefixed "
+            "cwd-relative repo tool runs via the ambient cwd instead of an absolute path. "
+            "Use the absolute form:\n" + "\n".join(lines)
+            + "\n(cd is reserved for a genuine cwd-guard tool: "
+            + ", ".join(sorted(CWD_GUARD_ALLOWLIST)) + ".)")
+        return True, reason
     if has_cd:
-        flagged = [(t, _tool_repo(t)) for t in invoked
-                   if t not in CWD_GUARD_ALLOWLIST and _tool_repo(t) is not None]
-        if flagged:
-            lines = [f"  - `tools/{t}`: use `python3 {parent}/{repo}/tools/{t} ...` "
-                     f"(absolute), not `cd {parent}/{repo} && ... tools/{t}`."
-                     for t, repo in flagged]
-            reason = (
-                "BLOCKED (absolute-path guardrail, P-1.19): the standing directive is "
-                "ABSOLUTE PATHS BY DEFAULT (grc_library_private/INDEX.md); a "
-                "`cd <repo> && tools/<x>` runs a repo tool via the ambient cwd instead of an "
-                "absolute path. Use the absolute form:\n" + "\n".join(lines)
-                + "\n(cd is reserved for a genuine cwd-guard tool: "
-                + ", ".join(sorted(CWD_GUARD_ALLOWLIST)) + ".)")
-            return True, reason
-        return False, ""  # deliberate cd with no flagged repo tool: allowed
+        return False, ""  # deliberate cd, no cd-preceded flagged tool: allowed
 
     # (1) A cwd-relative `tools/<x>` that is NOT a project tool but DOES exist in a sibling
     # repo: it would fail file-not-found from the project cwd (the 2026-07-19
@@ -203,22 +224,21 @@ def main(argv: list[str]) -> int:
         return _self_test()
     try:
         payload = json.load(sys.stdin)
-    except Exception:
-        return 0  # fail-open
-    command = (payload.get("tool_input") or {}).get("command", "")
-    workspace = payload.get("workspace") or {}
-    project_dir = (
-        workspace.get("project_dir")
-        or os.environ.get("CLAUDE_PROJECT_DIR")
-        # Last-resort fallback: resolve the project root from this hook's own location
-        # (<project>/.claude/hooks/this.py -> parents[2]). No hardcoded path, so it stays
-        # correct across a repo move (for example /home/jposluns -> /home/grc).
-        or str(Path(__file__).resolve().parents[2])
-    )
-    try:
+        # A structurally-malformed payload (non-dict, or tool_input not a dict) must fail-OPEN,
+        # not traceback: the extraction is INSIDE the try (codex QA, P-1.19).
+        command = (payload.get("tool_input") or {}).get("command", "")
+        workspace = payload.get("workspace") or {}
+        project_dir = (
+            workspace.get("project_dir")
+            or os.environ.get("CLAUDE_PROJECT_DIR")
+            # Last-resort fallback: resolve the project root from this hook's own location
+            # (<project>/.claude/hooks/this.py -> parents[2]). No hardcoded path, so it stays
+            # correct across a repo move (for example /home/jposluns -> /home/grc).
+            or str(Path(__file__).resolve().parents[2])
+        )
         block, reason = decide(command, project_dir)
     except Exception:
-        return 0  # fail-open
+        return 0  # fail-open (malformed payload, non-dict, or decide error)
     if block:
         try:
             from _hook_state import record_block
@@ -293,6 +313,12 @@ def _self_test() -> int:
         def test_cd_no_repo_tool_allowed(self):
             # P-1.19: cd + a non-repo-tool command stays allowed.
             block, _ = decide("cd /tmp && ls -la", self.pd)
+            self.assertFalse(block)
+
+        def test_cd_after_tool_allowed(self):
+            # P-1.19 (codex QA): a tool-then-cd (cd AFTER the tool) is NOT flagged;
+            # only cd-before-tool is the absolute-path shape.
+            block, _ = decide("python3 tools/run_all_audits.sh && cd /tmp", self.pd)
             self.assertFalse(block)
 
         def test_unknown_cwd_relative_tool_allowed(self):
