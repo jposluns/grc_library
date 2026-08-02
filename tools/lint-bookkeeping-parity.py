@@ -309,9 +309,43 @@ def read(rel: str) -> str:
     return path.read_text(encoding="utf-8")
 
 
+_CODE_SPAN_RE = re.compile(r"(`+)(?:.+?)\1")
+
+
+def split_markdown_row(line: str) -> list[str]:
+    """Split a markdown table row on pipes OUTSIDE inline code spans.
+
+    3.159: a naive ``line.split("|")`` treats a pipe inside an inline code span
+    (e.g. a Findings cell mentioning a backtick-wrapped pipe) as a column
+    delimiter, shifting every cell after it. Because the row classifiers read a
+    FIXED column index (the Findings cell at index 4), a shifted row is read
+    from the wrong column, a fail-open in a QA-cadence gate. This masks each
+    code span, splits on the surviving (unfenced) pipes, then restores the
+    spans, so a pipe inside a span stays within its cell. A code span is a run
+    of one-or-more backticks, content, and a MATCHING run of equal length
+    (CommonMark); the ``\1`` backreference matches the run length, so
+    multi-backtick spans (``a|b`` wrapped in double backticks) are handled, not
+    only single-backtick ones. An UNMATCHED backtick run is literal text, so its
+    pipes split normally; a backslash-escaped pipe outside a span stays a
+    delimiter (out of scope here, it would change the census).
+    """
+    spans: list[str] = []
+
+    def _mask(match: "re.Match[str]") -> str:
+        spans.append(match.group(0))
+        return f"\x00{len(spans) - 1}\x00"
+
+    masked = _CODE_SPAN_RE.sub(_mask, line)
+
+    def _restore(cell: str) -> str:
+        return re.sub(r"\x00(\d+)\x00", lambda m: spans[int(m.group(1))], cell)
+
+    return [_restore(cell) for cell in masked.split("|")]
+
+
 def cells(line: str) -> list[str]:
-    """Split a markdown table row into stripped cells."""
-    return [c.strip() for c in line.split("|")]
+    """Split a markdown table row into stripped cells (code-span-aware, 3.159)."""
+    return [c.strip() for c in split_markdown_row(line)]
 
 
 def parse_changelog_prs(text: str) -> set[int]:
@@ -585,7 +619,7 @@ def version_history_parity_findings(files: list[tuple[str, str]]) -> list[str]:
         for line in section.splitlines():
             if not line.lstrip().startswith("|"):
                 continue
-            for cell in (c.strip() for c in line.split("|")):
+            for cell in (c.strip() for c in split_markdown_row(line)):
                 if VERSION_TOKEN.match(cell):
                     history_versions.add(cell)
         if meta_version not in history_versions:
