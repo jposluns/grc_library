@@ -379,7 +379,11 @@ def parse_validate_pr_status(text: str) -> dict[int, str]:
         else:
             row_status = "normal"
         for pr in (int(x) for x in re.findall(r"\d+", c[2])):
-            status[pr] = row_status
+            # 3.150 item 3: the ledger is newest-first, so the FIRST parsed row for a PR is the
+            # newest; keep it (setdefault) rather than letting a later (older) row overwrite. This
+            # forecloses a latent false-BLOCK where a newer RETURNED row above an older DISPATCHED
+            # row would classify `pending`. (Zero live effect today: one row per PR by convention.)
+            status.setdefault(pr, row_status)
     return status
 
 

@@ -6425,6 +6425,19 @@ class BookkeepingParityTests(LinterTestCase):
         self.assertEqual(mod.cells(row), [c.strip() for c in row.split("|")])
         self.assertEqual(mod.parse_validate_pr_status(row), {2001: "normal"})
 
+    def test_multi_row_pr_newest_row_wins(self) -> None:
+        # 3.150 item 3: the ledger is newest-first; for a PR with more than one row the FIRST
+        # (newest) row wins. A newer RETURNED row above an older DISPATCHED row classifies
+        # `normal`, not `pending` (a latent false-BLOCK the old last-row-wins assignment allowed).
+        mod = self._load_module()
+        text = (
+            "| Date | PR | Touched | Findings | Hot-fix | Detail | Summary |\n"
+            "|---|---|---|---|---|---|---|\n"
+            "| 2026-08-02 | 500 | x | **RETURNED: SHIP, clean** | none | - | s |\n"
+            "| 2026-08-01 | 500 | x | DISPATCHED to worker, pending | none | - | s |\n"
+        )
+        self.assertEqual(mod.parse_validate_pr_status(text).get(500), "normal")
+
     def test_todo_strikethrough_bullet_flagged(self) -> None:
         # A whole backlog bullet struck through is a rotation failure.
         mod = self._load_module()
