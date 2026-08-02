@@ -109,6 +109,18 @@ Checks:
     domain reference (a documented false-negative residual; a per-domain
     reviewed-alias table is the tighter alternative).
 
+  * **Bare domain inline title** (CCM/AICM-context lines and CCM-declared table
+    columns): an inline title appended to a bare valid domain code with no
+    ``-NN`` suffix (``SEF: Software Engineering and Development``) is invisible
+    to the numbered-row title checks. This check flags such a title when it
+    matches neither the domain's canonical name (the Check-6 domain-name-as-title
+    exemption, greater-than-half content-word overlap) nor a single best-matching
+    control title in the domain. Domain lists (``AIS, TVM Domains``), a bare
+    ``<CODE> domain`` reference, and a title placed before the code are skipped.
+    This closes the fabricated ``SEF:`` title class the numbered-row checks
+    cannot see. A deliberately lenient threshold keeps a documented false-negative
+    residual: a one-word-wrong title still passes when the other words match.
+
 Scope: ``*.md`` under the repository root, minus DEFAULT_EXEMPT_DIRS (which
 includes ``.working`` and ``.claude``) and the append-only CHANGELOG files.
 
@@ -213,6 +225,23 @@ CCM_CONTEXT_RE = re.compile(r"(?i)(CCM|CSA|Cloud Controls Matrix|AICM|AI Control
 CCM_COLUMN_HEADER_RE = re.compile(
     r"(?i)^\s*(?:CSA\s+)?(CCM|Cloud\s+Controls\s+Matrix|AICM|AI\s+Controls\s+Matrix)\b")
 
+
+# A valid CCM/AICM DOMAIN as a bare token, not a numbered control. Check 7 uses
+# the first expression for the explicit code-first inline-title forms and the
+# second for a domain+title value in a table column already identified by
+# CCM_COLUMN_HEADER_RE. The latter is anchored at the cell start so a later
+# acronym in prose cannot be mistaken for the cited domain. ``AIS, TVM Domains``
+# does not match: the comma after AIS is not a title introducer and TVM is not at
+# the cell start.
+_BARE_DOMAIN_ALTERNATION = "|".join(
+    re.escape(c) for c in sorted(VALID_DOMAINS, key=len, reverse=True))
+BARE_DOMAIN_INLINE_TITLE_RE = re.compile(
+    r"(?<![A-Za-z0-9.&\-])(" + _BARE_DOMAIN_ALTERNATION
+    + r")(?![A-Za-z0-9\-])(?:\s*:\s*([^|.;]+)|\s*\(([^|()]+)\))")
+BARE_DOMAIN_COLUMN_TITLE_RE = re.compile(
+    r"^\s*(" + _BARE_DOMAIN_ALTERNATION
+    + r")(?![A-Za-z0-9\-])(?:\s*:\s*|\s+)(.+?)\s*$")
+
 # A historical / rename-note / supersession line legitimately names an old code
 # while describing its replacement (it is not a current citation), so Check 4
 # exempts it. The canonical cases are the glossary I&S rename-note ("Renamed from
@@ -231,6 +260,46 @@ _STOPWORDS = frozenset(
 def _content_words(title: str) -> set[str]:
     toks = re.split(r"[^A-Za-z0-9]+", title.lower())
     return {t for t in toks if len(t) >= 2 and t not in _STOPWORDS}
+
+def _bare_domain_title_mismatch(
+        domain: str, title: str, section: str | None) -> bool:
+    """Return True when a Check-7 bare-domain title has no safe resolution.
+
+    The overlap denominator is the cited title, matching Check 6's exemption:
+    more than half of those content words must occur in the canonical domain or
+    a candidate control title. A control-title exemption additionally requires
+    one strictly best overlap within the cited domain; a tie is ambiguous and
+    therefore is not treated as a resolvable control citation.
+    """
+    title_words = _content_words(title)
+    if not title_words or title_words <= {"domain", "domains"}:
+        return False
+
+    domain_words = _content_words(DOMAIN_NAMES.get(domain, ""))
+    if domain_words and len(title_words & domain_words) * 2 > len(title_words):
+        return False
+
+    if section == "ccm":
+        catalogue = CCM_V41
+    elif section == "aicm":
+        catalogue = AICM_V11
+    else:
+        catalogue = ALL_TITLES
+
+    best_overlap = 0
+    best_codes: list[str] = []
+    for code, canonical in catalogue.items():
+        if code.rsplit("-", 1)[0] != domain:
+            continue
+        overlap = len(title_words & _content_words(canonical))
+        if overlap * 2 <= len(title_words):
+            continue
+        if overlap > best_overlap:
+            best_overlap = overlap
+            best_codes = [code]
+        elif overlap == best_overlap:
+            best_codes.append(code)
+    return len(best_codes) != 1
 
 
 def _section_kind(heading_text: str) -> str | None:
@@ -507,6 +576,40 @@ def scan_file(path: Path) -> list[Finding]:
                     path, i, "ccm-bare-domain-code",
                     f"bare '{bad}' in a CCM/CSA context is not a CCM v4.1 / "
                     f"AICM v1.1 domain code; use {KNOWN_BAD_DOMAINS[bad]}",
+                    line.strip()[:140]))
+
+        # Check 7: wrong inline TITLE after a valid BARE domain code. Numbered
+        # control-title checks cannot see ``SEF: Software Engineering and
+        # Development`` because there is no ``SEF-NN`` token. Inspect only
+        # code-first colon/parenthetical forms in explicit CCM/AICM context, or
+        # the leading domain+title value in a table column whose header declares
+        # CSA CCM / AICM. A domain name and a uniquely best matching control
+        # title are both legitimate expansions; the shared helper applies the
+        # same strict greater-than-half content-word threshold as Check 6.
+        domain_titles: list[tuple[str, str]] = []
+        if section in ("ccm", "aicm") or CCM_CONTEXT_RE.search(line):
+            for dm in BARE_DOMAIN_INLINE_TITLE_RE.finditer(line):
+                domain_titles.append((dm.group(1), dm.group(2) or dm.group(3)))
+        if stripped.startswith("|") and ccm_col is not None:
+            check7_cells = split_row(line)
+            if len(check7_cells) > ccm_col:
+                dm = BARE_DOMAIN_COLUMN_TITLE_RE.match(check7_cells[ccm_col])
+                if dm and not CODE_RE.search(check7_cells[ccm_col]):
+                    domain_titles.append((dm.group(1), dm.group(2)))
+
+        seen_domain_titles: set[tuple[str, str]] = set()
+        for domain7, title7 in domain_titles:
+            title7 = title7.strip().strip("()")
+            key7 = (domain7, title7)
+            if key7 in seen_domain_titles:
+                continue
+            seen_domain_titles.add(key7)
+            if _bare_domain_title_mismatch(domain7, title7, section):
+                findings.append(Finding(
+                    path, i, "ccm-bare-domain-title-mismatch",
+                    f"bare domain '{domain7}' titled '{title7}' matches neither "
+                    f"the domain name '{DOMAIN_NAMES[domain7]}' nor a uniquely "
+                    f"resolvable {domain7} control title",
                     line.strip()[:140]))
     return findings
 
