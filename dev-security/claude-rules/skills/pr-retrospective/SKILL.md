@@ -1,6 +1,6 @@
 ---
 name: pr-retrospective
-description: Post-merge retrospective on each successful PR. Surfaces what went well, what caused friction, recurring patterns, and proposed improvements. Output is one entry per PR in the improvement-log register; recurring patterns become candidates for pack-rule updates, worker-brief template additions, or new audit gates. Invoke after `/validate-pr` returns and before the next-PR planning step.
+description: Post-merge retrospective on each successful PR. Surfaces what went well, what caused friction, recurring patterns, and proposed improvements. Output is one entry per PR in the improvement-log register; recurring patterns become candidates for pack-rule updates, worker-brief template additions, or new audit gates. Invoke after the PR-scoped validation sweep (`validation-sweep-pr-scoped`; the parent library's `/validate-pr`) returns and before the next-PR planning step.
 derives_from: ../../governance/ai-assistant-workflow-disciplines.md
 ---
 
@@ -21,7 +21,7 @@ An adopting project maps each bullet to its own records; the procedure below ref
 
 ## Overview
 
-After each successful merge and `/validate-pr` cycle, conduct a brief retrospective on the PR's process. The retrospective is **light-touch** (one entry per PR, 3-5 sentences) rather than a deep analysis; the value emerges over time as patterns surface across many entries.
+After each successful merge and PR-scoped validation cycle, conduct a brief retrospective on the PR's process. (Command names `/retro`, `/validate-pr`, and `/validate` are the parent library's paired commands, used in this document as shorthand; an adopting project reads them as its own equivalents.) The retrospective is **light-touch** (one entry per PR, 3-5 sentences) rather than a deep analysis; the value emerges over time as patterns surface across many entries.
 
 The output is the **improvement-log register** (the project wiring above names the parent library's location; adopters relocate to a project-appropriate location). The register is append-only at the row level, ordered by PR number; the step-6 disposition scan appends tokens to earlier rows' Proposed-improvement cells without rewriting their original text. Each row carries the date, PR number, backlog item closed (if any), what-went-well note, friction note, pattern-surfaced note (if any), and proposed improvement (if any).
 
@@ -33,10 +33,10 @@ The skill is **the orchestrator-side process-improvement loop**. It pairs with t
 
 ## When to Use
 
-- **Mandatory** as a PR's finalizing step, before merge, immediately after `/validate-pr` returns. Runs in the finalizing sequence: `/validate-pr` -> `/retro` -> write rows in-PR -> commit -> CI -> merge -> sync main -> delete branch -> next-PR planning.
+- **Mandatory** as a PR's finalizing step, before merge, immediately after the PR-scoped validation sweep returns. It runs paired with that sweep, with both record rows committed in-PR before the merge. (The parent library's concrete sequence: `/validate-pr` -> `/retro` -> write rows in-PR -> commit -> CI -> merge -> sync main -> delete branch -> next-PR planning.)
 - The retrospective is one entry per PR. If a PR cycle produced findings, the entry carries them as observed friction. If a PR cycle was clean, the entry carries the clean-result observation.
 
-**No orchestrator-side skip discretion.** Same discipline as `/validate-pr`: every merged PR gets a `/retro` entry, even when the retrospective conclusion is "nothing new to learn." Zero-content entries (clean PR, no friction, no pattern surfaced) record that fact and serve as the proof-of-discipline (a uniformly-clean register-entry sequence is itself a signal that the workflow is calibrated). Skipping is a policy deviation requiring maintainer authorization.
+**No orchestrator-side skip discretion.** Same discipline as the PR-scoped validation sweep: every merged PR gets a retrospective entry, even when the retrospective conclusion is "nothing new to learn." Zero-content entries (clean PR, no friction, no pattern surfaced) record that fact and serve as the proof-of-discipline (a uniformly-clean register-entry sequence is itself a signal that the workflow is calibrated). Skipping is a policy deviation requiring maintainer authorization.
 
 ## Process
 

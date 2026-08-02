@@ -1,6 +1,6 @@
 ---
 name: matrix-fit
-description: Cadenced semantic-fit audit of a compliance matrix and per-document framework-alignment tables. Catches the gate-blind "valid code, wrong control" class: a control identifier that EXISTS in its catalogue (so the existence gates pass it) but is the WRONG control for the row's document. Run after each matrix-expansion batch, once at matrix completion, and ad-hoc when a control-code citation is in doubt. It dispatches a semantic judge over the worklist the project's recall-oriented pre-filter produces, adjudicating each cited code against the source control TITLE in the reference base, then routes confirmed mismatches. It catches what the existence-and-membership gates structurally cannot: semantic fit needs a read of the source title, not a catalogue-membership check.
+description: Cadenced semantic-fit audit of a compliance matrix and per-document framework-alignment tables. Catches the gate-blind "valid code, wrong control" class: a control identifier that EXISTS in its catalogue (so the existence gates pass it) but is the WRONG control for the row's document. Run after any batch that adds or edits mapping rows, once when a mapping surface reaches completion, and ad-hoc when a control-code citation is in doubt. It dispatches a semantic judge over the worklist the project's recall-oriented pre-filter produces, adjudicating each cited code against the source control TITLE in the reference base, then routes confirmed mismatches. It catches what the existence-and-membership gates structurally cannot: semantic fit needs a read of the source title, not a catalogue-membership check.
 derives_from: ../../governance/evidence-grounded-completion.md
 ---
 
@@ -35,12 +35,12 @@ The class is not hypothetical. A trust-recovery forensic pass in the parent libr
 
 `matrix-fit` is that audit. It is the semantic-judge half of a two-part instrument whose recall-oriented triage half is the advisory pre-filter named in the project wiring (explicitly NOT a gate). The pre-filter narrows scope: it lists the matrix and source-doc rows that lack any lexical anchor between the document subject and its cited control titles, so the judge can focus there first. The skill judges: for each worklisted row (and any other row the maintainer flags), it reads the cited control's TITLE in the reference base and decides whether the mapping fits. The design lesson from the pre-filter's construction is binding: judge against the source control TITLE, not a lexical proxy, because a correct GRC mapping routinely shares no vocabulary with the document title (the pre-filter's own worklist is recall-oriented precisely because the lexical signal is too weak to certify correctness).
 
-This skill is a single-pass advisory audit, not a fix-to-fixed-point loop and not a trust-recovery escalation. It runs on a cadence (after each matrix-expansion batch, once at matrix completion, and ad-hoc), surfaces confirmed mismatches, and routes or fixes them under the normal in-window / out-of-window triage. It is to control-code *fit* what `/validate` is to corpus drift: a periodic read of a surface the mechanical gates cannot fully cover.
+This skill is a single-pass advisory audit, not a fix-to-fixed-point loop and not a trust-recovery escalation. It runs on a cadence (after each mapping batch, once at completion of a mapping surface, and ad-hoc), surfaces confirmed mismatches, and routes or fixes them under the normal in-window / out-of-window triage. It is to control-code *fit* what `/validate` is to corpus drift: a periodic read of a surface the mechanical gates cannot fully cover.
 
 ## When to Use
 
-- **After each matrix-expansion batch.** A batch authors many new mapping rows; a fit pass over the batch's worklist catches the valid-but-wrong codes before they compound across later batches. This is the primary cadence.
-- **Once at matrix completion.** When the last domain batch lands, a full-matrix fit pass is the closing check on the comprehensive matrix.
+- **After each batch that adds or edits mapping rows** (in the parent library, a matrix-expansion batch). A batch authors many new mapping rows; a fit pass over the batch's worklist catches the valid-but-wrong codes before they compound across later batches. This is the primary cadence.
+- **Once when a mapping surface is completed.** When the last planned batch lands, a full-surface fit pass is the closing check on the completed mapping.
 - **Ad-hoc when a control-code citation is in doubt** (a maintainer flag, a `/validate` or `/full-qa` note about a loose supporting code, an apply-time uncertainty about which control a row should cite).
 - **NOT as a replacement for the existence gates.** The existence gates still run on every change; `matrix-fit` is the semantic layer on top of them, not a substitute. A row must pass the gates first; this skill judges fit among rows that already pass.
 
@@ -48,7 +48,7 @@ This skill is a single-pass advisory audit, not a fix-to-fixed-point loop and no
 
 ### 1. Establish scope and confirm the reference base
 
-Name the scope for this run: a single domain section (the matrix-expansion-batch cadence), the whole matrix (the completion cadence), or a maintainer-flagged set of rows (the ad-hoc cadence). Confirm that the project's full audit-gate suite exits 0 first; a fit pass judges among rows that already pass the existence gates, so a red gate is a defect to fix mechanically before the semantic read. Confirm that the reference base named in the project wiring is available: the gate-validated control codes and titles, and the full source-text extracts for each cited framework family. The judge reads control TITLES from these, never from memory.
+Name the scope for this run: the rows a just-authored batch introduced (the per-batch cadence), the whole mapping surface (the completion cadence), or a maintainer-flagged set of rows (the ad-hoc cadence). Confirm that the project's full audit-gate suite exits 0 first; a fit pass judges among rows that already pass the existence gates, so a red gate is a defect to fix mechanically before the semantic read. Confirm that the reference base named in the project wiring is available: the gate-validated control codes and titles, and the full source-text extracts for each cited framework family. The judge reads control TITLES from these, never from memory.
 
 ### 2. Run the advisory pre-filter to generate the worklist
 
@@ -60,7 +60,7 @@ Dispatch one or more subagents (or perform the read directly for a small worklis
 
 ### 4. Synthesize and apply-time-verify each candidate against the source control title
 
-The orchestrator re-reads each candidate mismatch's source title in the reference base before treating it as a finding, exactly as the research-assistant discipline requires (the judge produces research; the orchestrator confirms). A worker false positive (a correct mapping the lexical signal flagged, the dominant case on a clean corpus) is refuted here, not routed. For each confirmed mismatch, identify the correct control by reading candidate titles in the reference base, so the finding carries both the wrong code and the proposed right code with both titles quoted. When a mismatch is fixed, re-read the paired description cell in the same row for echoes of the old code's meaning (the migration-leaves-stale-prose class, the project's close-out checklist).
+The orchestrator re-reads each candidate mismatch's source title in the reference base before treating it as a finding, exactly as the research-assistant discipline requires (the judge produces research; the orchestrator confirms). A worker false positive (a correct mapping the lexical signal flagged, the dominant case on a clean corpus) is refuted here, not routed. For each confirmed mismatch, identify the correct control by reading candidate titles in the reference base, so the finding carries both the wrong code and the proposed right code with both titles quoted. When a mismatch is fixed, re-read the paired description cell in the same row for echoes of the old code's meaning (the migration-leaves-stale-prose class).
 
 ### 5. Triage and route findings
 
