@@ -5715,6 +5715,104 @@ class CcmAicmCitationTests(LinterTestCase):
         )
 
 
+    def test_bare_domain_inline_title_fabricated_flagged(self) -> None:
+        # Check 7 (P-1.17): a fabricated inline title after a BARE domain code
+        # (no -NN) is invisible to the numbered-row checks. SEF = "Security
+        # Incident Management"; "Software/Security Engineering and Development"
+        # shares no content word with the SEF domain name nor any SEF control
+        # title, so it must flag. This is the Sweep-1329 fabricated-SEF class.
+        for cite in (
+            "| CSA CCM v4.1 | SEF: Software Engineering and Development |",
+            "| CSA CCM v4.1 | SEF: Security Engineering and Development |",
+        ):
+            fixture = self.make_fixture(
+                "fake-ccm-bare-domain-title.md",
+                "# X\n\n| Framework | Reference |\n| --- | --- |\n" + cite + "\n",
+            )
+            result = run_linter("tools/lint-ccm-aicm-citations.py", fixture)
+            self.assertLinterFails(result, "ccm-bare-domain-title-mismatch")
+
+    def test_bare_domain_inline_title_paren_and_column_flagged(self) -> None:
+        # Check 7: the code-first parenthetical form and the domain-column form
+        # of the same fabricated SEF title also flag.
+        paren = self.make_fixture(
+            "fake-ccm-bare-domain-paren.md",
+            "Maps to CSA CCM v4.1 SEF (Software Engineering and Development).\n",
+        )
+        self.assertLinterFails(
+            run_linter("tools/lint-ccm-aicm-citations.py", paren),
+            "ccm-bare-domain-title-mismatch")
+        column = self.make_fixture(
+            "fake-ccm-bare-domain-column.md",
+            "## CSA CCM v4.1 domains\n\n| CCM domain | Documents |\n| --- | --- |\n"
+            "| SEF Software Engineering and Development | doc.md |\n",
+        )
+        self.assertLinterFails(
+            run_linter("tools/lint-ccm-aicm-citations.py", column),
+            "ccm-bare-domain-title-mismatch")
+
+    def test_bare_domain_legitimate_titles_not_flagged(self) -> None:
+        # Check 7 precision (must NOT cry wolf): the domain-name expansion, a
+        # domain-name-as-title in a framework cell, a multi-domain list, a bare
+        # "SEF domain", a title-before-code heading, a non-CCM glossary acronym,
+        # and a uniquely-resolvable control title all pass.
+        for name, content in (
+            ("expansion",
+             "Maps to CSA CCM v4.1 SEF (Security Incident Management) domain.\n"),
+            ("sta-domain-title",
+             "# X\n\n| Framework | Reference |\n| --- | --- |\n"
+             "| CSA CCM v4.1 | STA: Supply Chain Management, Transparency, and Accountability |\n"),
+            ("multi-domain-list",
+             "# X\n\n| Framework | Reference |\n| --- | --- |\n"
+             "| CSA CCM v4.1 | AIS, TVM Domains |\n"),
+            ("bare-domain-no-title",
+             "| Cloud incident management | CSA CCM v4.1 SEF domain |\n"),
+            ("title-before-code",
+             "### Security incident management, e-discovery, and cloud forensics (SEF)\n"),
+            ("glossary-non-ccm",
+             "| ICS | Common types include SCADA, DCS (Distributed Control System), and PLC systems. |\n"),
+            ("resolves-to-control",
+             "Maps to CSA CCM v4.1 SEF: Incident Response Plans.\n"),
+        ):
+            fixture = self.make_fixture(f"fake-ccm-bare-ok-{name}.md", content)
+            result = run_linter("tools/lint-ccm-aicm-citations.py", fixture)
+            self.assertEqual(
+                result.returncode, 0,
+                f"legitimate bare-domain case '{name}' must not flag Check 7.\n"
+                f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+
+    def test_bare_domain_one_word_wrong_title_documented_residual(self) -> None:
+        # Check 7 documented FALSE-NEGATIVE residual (inherited from Check 6's
+        # >1/2 precision-first threshold): a one-word-wrong title still passes
+        # when 2 of 3 words match. "Security Incident Engineering" has 2 of its
+        # 3 words (security, incident) in the SEF domain name ("Security
+        # Incident Management, E-Discovery, & Cloud Forensics") -> >1/2 -> passes.
+        fixture = self.make_fixture(
+            "fake-ccm-bare-residual.md",
+            "Maps to CSA CCM v4.1 SEF: Security Incident Engineering.\n",
+        )
+        result = run_linter("tools/lint-ccm-aicm-citations.py", fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"documented residual: a one-word-wrong title passing >1/2 is a "
+            f"known false-negative.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+
+    def test_bare_domain_inline_title_aicm_section_flagged(self) -> None:
+        # Check 7 exercises the AICM catalogue branch (section == "aicm" ->
+        # AICM_V11), not only CCM. A fabricated title on a bare DSP domain code
+        # under an AICM heading matches neither the DSP domain name ("Data
+        # Security and Privacy Lifecycle Management") nor any AICM DSP control
+        # title, so it flags via the AICM catalogue.
+        fixture = self.make_fixture(
+            "fake-aicm-bare-domain-title.md",
+            "## AICM v1.1 alignment\n\n| Framework | Reference |\n| --- | --- |\n"
+            "| CSA AICM v1.1 | DSP: Wholly Invented Placeholder Wording |\n",
+        )
+        result = run_linter("tools/lint-ccm-aicm-citations.py", fixture)
+        self.assertLinterFails(result, "ccm-bare-domain-title-mismatch")
 class MatrixControlCodeTests(LinterTestCase):
     """tools/lint-matrix-control-codes.py"""
 
