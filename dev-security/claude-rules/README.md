@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.67.4\
+**Version:** 1.67.5\
 **Date:** 2026-08-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -89,7 +89,7 @@ The honest caveat, stated so adopters do not mistake a preamble for a control: a
 ```text
 claude-rules/
 ├── README.md                   This file
-├── CLAUDE.md                   Root file: drag this into a project for full coverage
+├── CLAUDE.md                   Root file: copy the WHOLE claude-rules/ dir (Option 1), not this file alone
 ├── setup-generator-prompt.md   AI-assisted setup generator prompt for downstream consumers
 ├── vetting-log.md              Maintainer vetting log for the external rule sources referenced below
 ├── rule-provenance.md          Per-rule provenance register: each governance rule's origin, incident-earned or up-front-codified, without parent-project internals
@@ -516,6 +516,7 @@ The pack's change history is maintained in the parent grc_library repository CHA
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.67.5 | 2026.08.42 | 2026-08-02 | Patch (3.198): reworded the directory-tree annotation for the root `CLAUDE.md`. It read "drag this into a project for full coverage" (the single-file-install defect that breaks the sibling links under `ai/`/`governance/`); it now points to the whole-directory copy (Option 1). Pack `1.67.4` to `1.67.5` (patch). |
 | 1.67.4 | 2026.08.31 | 2026-08-02 | Patch (Sweep 141 /matrix-fit follow-up): fixed a mis-fit control code in [`ai/ai-security.md`](ai/ai-security.md). The AI "Supply chain" row cited CSA CCM STA-05 ("SSRM Control Ownership") and is now STA-10 ("Supply Chain Risk Management"), source-verified against held CCM v4.1.0. Pack `1.67.3` to `1.67.4` (patch). |
 | 1.67.3 | 2026.08.30 | 2026-08-02 | Patch (Sweep 141 F4): fixed a mis-fit control-code citation in [`ai/rag-security.md`](ai/rag-security.md). The "Data retention" row cited AICM DSP-07 ("Data Protection by Design and Default") and is now DSP-16 ("Data Retention and Deletion"), source-verified against held AICM v1.1.0. Pack `1.67.2` to `1.67.3` (patch). |
 | 1.67.2 | 2026.08.29 | 2026-08-02 | Patch (Sweep 141 F1 completeness): reconciled the OWASP-LLM02 prompt-logging bullet in [`ai/ai-security.md`](ai/ai-security.md) to the canonical AI-logging policy. Reconciled two same-file exception bullets left looser than the 1.67.1 carve-out: the OWASP-LLM02 prompt bullet at `:35` ("unless required for specific audit purposes") and the OWASP-LLM06 tool-call-content bullet at `:62` ("unless a specific audit purpose requires it"). Both now permit content logging only for an explicitly authorized purpose (testing or security analysis), never secrets or PII, per the canonical policy at `:93`. Completes the 1.67.1 change, which updated `:93` but left these two bullets. Pack `1.67.1` to `1.67.2` (patch). |
