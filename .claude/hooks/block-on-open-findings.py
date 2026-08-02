@@ -133,11 +133,17 @@ def disposition_valid(cell: str) -> bool:
     Inline markup (`*`, `_`, `` ` ``, and markdown-link brackets `[` `]`) is removed FIRST, so the
     documented "whitespace OR markup between the word and the ref" holds: `**FIXED** #1178`,
     `` FIXED `#1178` ``, `FIXED **#1208**`, `FIXED [#1208](url)`, and `**ROUTED** 3.56a` all validate
-    (claude + codex verify-3126). The ref shapes carry none of those characters, so removing them is
+    (claude + codex verify-3126). A colon between the word and the ref (`ROUTED: 3.56a`, `FIXED: #1210`)
+    is normalized to whitespace too (3.149), since the ledger writes some dispositions with a colon. The ref shapes carry none of those characters, so removing them is
     lossless for the match. Returns False for an empty cell, a bare terminal word with no adjacent
     ref, a narration that merely mentions a ref later (`FIXED in #1208`: `in` sits between), a `#0`
     PR ref, and any non-vocabulary prose (`pending`, `OPEN: ...`)."""
-    plain = re.sub(r"[*_`\[\]]", "", cell).strip()
+    plain = re.sub(r"[*_`\[\]]", "", cell)
+    # 3.149: a colon separating the keyword from the ref (`ROUTED: 3.56a`, `FIXED: #1210`) is a
+    # SEPARATOR, not markup, and the ref shapes carry no colon, so normalizing it to whitespace is
+    # lossless and lets the adjacent-ref grammar match. The REFUTED/ACCEPTED word-only branch (which
+    # already tolerates a trailing colon via `\b`) is unaffected.
+    plain = plain.replace(":", " ").strip()
     return bool(_DISPOSITION_RE.match(plain))
 
 
@@ -254,6 +260,12 @@ def self_test() -> int:
     ck("a parenthesized ref is valid", disposition_valid("FIXED (#1178)"), True)
     ck("a markdown-link ref is valid", disposition_valid("FIXED [#1208](https://x/pr/1208)"), True)
     ck("a dotted three-part item ref is valid", disposition_valid("ROUTED 3.139.1"), True)
+    ck("colon-adjacent ROUTED ref is valid (3.149)", disposition_valid("ROUTED: 3.56a"), True)
+    ck("colon-adjacent FIXED PR ref is valid (3.149)", disposition_valid("FIXED: #1210"), True)
+    ck("colon-no-space ROUTED ref is valid (3.149)", disposition_valid("ROUTED:3.56a"), True)
+    ck("ACCEPTED with a colon stays valid (word-only branch, 3.149 regression)", disposition_valid("ACCEPTED: untestable"), True)
+    ck("colon does not rescue a non-adjacent ref (3.149)", disposition_valid("FIXED: in #1208 later"), False)
+    ck("a stray leading colon before a genuine disposition is benign-valid (3.149)", disposition_valid(":FIXED #1208"), True)
     ck("a '#0' PR ref is INVALID (no real PR is #0)", disposition_valid("FIXED #0"), False)
 
     # Same shapes at the row level: exactly the three narrations/bare-words block, the four
