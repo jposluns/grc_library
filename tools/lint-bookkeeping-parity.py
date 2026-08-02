@@ -42,8 +42,9 @@ the improvement log, with these exemptions:
   QA). Handoff PRs are detected by their explicit validate-pr exemption row
   (the Findings cell contains ``SKIPPED`` together with ``handoff``, or the
   phrase ``handoff-PR exception``).
-- A subsumption / maintainer-exception row (Findings cell contains
-  ``SUBSUMED``, ``NOT run``, or a maintainer-authorised exception, in either
+- A subsumption / maintainer-exception row (Findings cell carries a deliberate
+  marker: ``SUBSUMED`` as an all-caps token, ``NOT RUN`` as an all-caps
+  disposition at the cell start, or a maintainer-authorised exception in either
   the ``-ised`` or ``-ized`` spelling) satisfies
   the validate-pr requirement and does NOT require a retro row (#328 is the
   canonical instance: its QA was force-stopped and subsumed by Sweep 42).
@@ -202,10 +203,31 @@ HANDOFF_FINDINGS = re.compile(
 # Canadian-spelling harmonization, so old rows carry -ised while new rows
 # follow the house -ized convention). Satisfies the validate-pr requirement;
 # no retro row required.
-SUBSUMPTION_FINDINGS = re.compile(
-    r"SUBSUMED|NOT\s+run|maintainer[-\s]authori[sz]\w*",
-    re.IGNORECASE,
-)
+# Deliberate subsumption / maintainer-exception markers. 3.158: the earlier
+# single case-insensitive pattern matched ``NOT run`` ANYWHERE in a Findings
+# cell, so incidental prose ("did not run the grep", "do not run --prune")
+# mis-classified an ordinary row as exempt, a fail-open (a genuinely-pending
+# row carrying such prose would have escaped Check 1). Each marker must now be
+# an UNAMBIGUOUS, deliberately-authored disposition:
+#   * ``SUBSUMED`` as an all-caps token (case-sensitive), never lowercase prose;
+#   * ``NOT RUN`` as an all-caps disposition ANCHORED at the cell start (after
+#     optional bold), where a real exemption states it (e.g.
+#     ``**NOT RUN (no independent party available).**``), never mid-prose; and
+#   * ``maintainer-authorised/-authorized exception`` (a deliberate phrase).
+_SUBSUMED_MARK = re.compile(r"\bSUBSUMED\b")
+_NOT_RUN_MARK = re.compile(r"^\s*\*{0,2}\s*NOT\s+RUN\b")
+_MAINT_AUTH_MARK = re.compile(r"maintainer[-\s]authori[sz]\w*", re.IGNORECASE)
+
+
+def is_subsumption_findings(findings: str) -> bool:
+    """True when the Findings cell carries a deliberate subsumption /
+    maintainer-exception marker (3.158: incidental "not run" prose in an
+    ordinary row does not qualify)."""
+    return bool(
+        _SUBSUMED_MARK.search(findings)
+        or _NOT_RUN_MARK.match(findings)
+        or _MAINT_AUTH_MARK.search(findings)
+    )
 
 # A row whose QA was DISPATCHED / offloaded but has NOT yet RETURNED, so the row is
 # present-but-UNRESOLVED (TODO 3.120). Check 1 was satisfied by row PRESENCE, so an
@@ -316,7 +338,7 @@ def parse_validate_pr_status(text: str) -> dict[int, str]:
         findings = c[4]
         if HANDOFF_FINDINGS.search(findings):
             row_status = "handoff"
-        elif SUBSUMPTION_FINDINGS.search(findings):
+        elif is_subsumption_findings(findings):
             row_status = "subsumption"
         elif PENDING_FINDINGS.search(findings) and not RETURNED_MARK.search(findings):
             row_status = "pending"

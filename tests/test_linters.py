@@ -6354,6 +6354,39 @@ class BookkeepingParityTests(LinterTestCase):
         self.assertEqual(status.get(96), "subsumption")
         self.assertEqual(status.get(95), "subsumption")
 
+    def test_incidental_not_run_prose_does_not_exempt_row(self) -> None:
+        # 3.158 fail-open: a subsumption/exemption marker must be a DELIBERATE
+        # disposition, not incidental "not run" prose anywhere in the Findings
+        # cell. An ordinary row that mentions "do not run --prune" / "did not
+        # run the grep" is 'normal', not 'subsumption'; a genuinely-pending
+        # row carrying such prose is caught as 'pending' (it would otherwise
+        # escape Check 1, the fail-open). A deliberate all-caps
+        # "**NOT RUN (no independent party)**" disposition at the cell start
+        # still classifies as 'subsumption'.
+        mod = self._load_module()
+        text = (
+            "| Date | PR | Touched | Findings | Hot-fix | Detail | Summary |\n"
+            "|---|---|---|---|---|---|---|\n"
+            "| 2026-08-02 | 90 | x | **RETURNED: SHIP; F-1 do not run --prune "
+            "on it** | none | - | s |\n"
+            "| 2026-08-02 | 91 | x | **SHIP; did not run the grep by hand** | "
+            "none | - | s |\n"
+            "| 2026-08-02 | 92 | x | DISPATCHED to worker; did not run yet, "
+            "pending delivery | none | - | s |\n"
+            "| 2026-08-02 | 93 | x | **NOT RUN (no independent party "
+            "available).** | none | - | s |\n"
+        )
+        status = mod.parse_validate_pr_status(text)
+        self.assertEqual(status.get(90), "normal",
+                         "incidental 'do not run' must not exempt (3.158)")
+        self.assertEqual(status.get(91), "normal",
+                         "incidental 'did not run' must not exempt (3.158)")
+        self.assertEqual(status.get(92), "pending",
+                         "pending row with incidental 'did not run' must be "
+                         "caught as pending, not exempted (3.158 fail-open)")
+        self.assertEqual(status.get(93), "subsumption",
+                         "deliberate all-caps 'NOT RUN (...)' stays exempt")
+
     def test_todo_strikethrough_bullet_flagged(self) -> None:
         # A whole backlog bullet struck through is a rotation failure.
         mod = self._load_module()
