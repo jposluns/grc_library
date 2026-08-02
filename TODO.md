@@ -28,7 +28,7 @@ This file is informational and is not subject to the library's metadata-block, a
 
 Correctness fixes and the **error-prevention tooling** that keeps the corpus from regressing.
 
-P1 currently holds the **1.26** quality-machinery series (a goal-description umbrella plus its public phases 1.26.2 to 1.26.6, UNBLOCKED with the aiqt/guardrails architecture locked to Option B on 2026-08-02); the private phase 1.26.1 and the former P1 items 1.22 / 1.23 / 1.19.13 moved to the private `P-TODO.md` in the 2026-07-31 public/private split. Point-fix items are opened and closed in place as they arise; the closed ones live in `.working/DONE.md`, not here.
+P1 currently holds the **1.26** quality-machinery series (a goal-description umbrella plus its public phases 1.26.2 to 1.26.20, UNBLOCKED with the aiqt/guardrails architecture locked to Option B on 2026-08-02); the private phase 1.26.1 and the former P1 items 1.22 / 1.23 / 1.19.13 moved to the private `P-TODO.md` in the 2026-07-31 public/private split. Point-fix items are opened and closed in place as they arise; the closed ones live in `.working/DONE.md`, not here.
 
 ### 1.26 Consolidate, harmonize, and distribute the quality machinery across AI toolchains (goal-description umbrella; multi-phase series; maintainer-directed 2026-07-26; UNBLOCKED 2026-08-02, focus on aiqt.ai) `[public]`
 
@@ -47,25 +47,83 @@ The quality system (the audit gates, the PreToolUse hooks and guardrails, the `t
 
 Relocating the pack to root and shipping a Codex/ChatGPT-native form are both subsumed by this decision (root `guardrails/` + generated adapters + the universal skill).
 
+**Value-and-proof expansion + early-relocation resequence (maintainer-directed 2026-08-02; three-lens theory-craft review, private synthesis `prep-candidates/theorycraft-SYNTHESIS.md`).** The three assessors converged that the plan was engineering-complete but proof-thin: it defined success as correct PUBLICATION of files, not proven BEHAVIOUR, adoption, or value. Phases 1.26.7 to 1.26.20 add the missing layers: the keystone conformance suite (1.26.7), release governance, the coverage-gap rules (Cost, oversight, incident), the framework-symmetry fix, the provenance-as-proof casebook, the adoption on-ramp, the community flywheel, honest support and certification framing, and the external publication (1.26.20). A durable product proves five things: one canonical discipline, every distributed form traceable to it, its required behaviour testable, its support claims bounded by recorded evidence, and adopters who can start small, verify what they installed, and see outcomes and limits. Sequence: the INTERNAL relocation to root `guardrails/` (1.26.4) is done EARLY, before the new content phases, so everything after is authored at the final location and nothing needs repointing later; 1.26.5 splits into a baseline manifest (early) and a final manifest (pre-publication); the coverage-gap rules (1.26.9, 1.26.11, 1.26.17) and the framework columns (1.26.10) land before the freeze; the conformance suite (1.26.7) and casebook (1.26.12) after the core is classified and authored; the external PUBLICATION (1.26.20) is last, after classify / agnostic / freeze; `3.142` (`/sitrep`) stays a CORE pack skill but is NOT on the release critical path; `3.130` recovery is absorbed into 1.26.6. Not in a rush: do it right the first time. **On COMPLETION of this umbrella (final phase 1.26.20), the CHANGELOG gets a distinguished MILESTONE entry summarizing the whole guardrails achievement, the portable AIQT core, the universal skill, the conformance suite, the adapters, and the publication (maintainer-directed 2026-08-02), not a routine per-PR line.** (The deleted predecessor repository was removed by the maintainer; the sole repo is `jposluns/guardrails`.)
+
 ### 1.26.2 Integrate the community's ShareAlike contributions (H, L) `[public]`
 
-Many of the team and some adopters have implemented the library on local and custom models and, per the CC BY-SA ShareAlike licence, submitted their improvements and suggestions back. This is where those are all integrated: triage each contribution, validate it against the project's standards, and fold the accepted ones into the machinery and the pack, credited per the licence. The submissions from real-world local-model use are also the sharpest signal for what the tool-agnostic distribution in 1.26.4 must get right.
+Many of the team and some adopters have implemented the library on local and custom models and, per the CC BY-SA ShareAlike licence, submitted their improvements and suggestions back. This is where those are all integrated: triage each contribution, validate it against the project's standards, and fold the accepted ones into the machinery and the pack, credited per the licence. The submissions from real-world local-model use are also the sharpest signal for what the tool-agnostic distribution (1.26.6 and the external publication 1.26.20) must get right.
 
 ### 1.26.3 Freeze the true-parity guardrails source snapshot (H, M) `[public]`
 
-After the pack-coupled machinery is consolidated (1.26.1), accepted community input is integrated (1.26.2), the disclosure matrix is signed off (P-1.18), the core is project-agnostic (3.56), the publication source set is classified (1.26.5), and the universal skill is dogfooded (1.26.6), reconcile every core file to true parity with the disciplines the project actually runs and FREEZE the exact pre-migration source snapshot that becomes the first `guardrails` release. This is the last prerequisite before the migration (1.26.4).
+After the pack-coupled machinery is consolidated (1.26.1), accepted community input is integrated (1.26.2), the disclosure matrix is signed off (P-1.18), the core is project-agnostic (3.56), the publication source set is classified (1.26.5), and the universal skill is dogfooded (1.26.6), reconcile every core file to true parity with the disciplines the project actually runs and FREEZE the exact pre-publication source snapshot that becomes the first `guardrails` release. This is the last prerequisite before the external publication (1.26.20).
 
-### 1.26.4 Migrate and publish generated forms across AI toolchains (H, XL) `[public]`
+### 1.26.4 Relocate the pack to root `guardrails/` (EARLY: location and references) (H, XL) `[public]`
 
-THE MIGRATION (executed only after every prerequisite closes, namely 1.26.1, 1.26.2, 3.56, P-1.18, 1.26.5, 1.26.6, and 1.26.3, plus 3.182): move the frozen core into root `guardrails/core/`, add deterministic build tooling under `guardrails/build/`, generate thin coding-agent file-convention adapters under `guardrails/adapters/` (Claude Code + OpenAI Codex first, then the rest), extend gate 37 with the generator `--check` + a publication manifest, repoint the ~493 references to the old `dev-security/claude-rules/` path (see the private migration inventory), and one-way-publish to the `guardrails` repository. Non-partitionable, single atomic migration keeping the gate suite green. The universal skill (chat) needs no adapter.
+**Sequenced EARLY (maintainer-directed 2026-08-02): do the internal relocation BEFORE the new content phases so all subsequent work is authored at the final location and no reference or pointer needs repointing later.** Move `dev-security/claude-rules/` to root `guardrails/` (a canonical `guardrails/core/`, deterministic build tooling under `guardrails/build/`, and generated coding-agent adapters under `guardrails/adapters/`, Claude Code + OpenAI Codex first), extend gate 37 with the generator `--check`, repoint the ~493 references to the old `dev-security/claude-rules/` path (private migration inventory), repoint every hook / CI / runner path, and keep the full gate suite green. INTERNAL relocation only: it does NOT require the publication prerequisites (classify / agnostic / freeze), which gate the external publish (1.26.20). Non-partitionable, single atomic PR. The universal skill (chat) needs no adapter. Migration-design prep: the private `1264-migration` worker delivery.
 
 ### 1.26.5 Classify the guardrails publication source set (H, M) `[public]`
 
-Create an exhaustive, machine-validated publication manifest covering every current pack file: classify each as guardrails core, generated-adapter input, GRC-only, or excluded, with a disclosure status and rationale, so the release set and the anti-drift `--check` have a definitive source of truth. A prerequisite for the freeze (1.26.3) and the migration (1.26.4).
+Create an exhaustive, machine-validated publication manifest covering every current pack file: classify each as guardrails core, generated-adapter input, GRC-only, or excluded, with a disclosure status and rationale, so the release set and the anti-drift `--check` have a definitive source of truth. A prerequisite for the freeze (1.26.3) and the external publication (1.26.20). Sequenced in two stages (2026-08-02): a BASELINE manifest early (to unblock the conformance suite 1.26.7 and the shadow-build) and a FINAL manifest reconciled just before the freeze.
 
 ### 1.26.6 Author and dogfood the canonical universal AIQT skill (H, L) `[public]`
 
-Author one provider-neutral skill from the classified governance core: a short AIQT card, a lean full protocol, explicit capability and no-tool degradation, the portable long-session-recovery discipline, and proportional verification. It is the deliverable chat platforms consume directly and the source the coding-agent adapters are generated from. Absorbs the portable parts of the former 4.1 / 3.130 / 3.187 (do not build a competing skill family).
+Author one provider-neutral skill from the classified governance core: a short AIQT card, a lean full protocol, explicit capability and no-tool degradation, the portable long-session-recovery discipline, and proportional verification. It is the deliverable chat platforms consume directly and the source the coding-agent adapters are generated from. Absorbs the portable parts of the former 4.1 / 3.130 / 3.187 (do not build a competing skill family). The three tiers (card, lean protocol, referenced deep modules) carry a ROUTING line so the situational deep modules (high-assurance, trust-recovery, conformance) are reached rather than left as dead references (2026-08-02).
+
+### 1.26.7 Conformance suite plus a normative AIQT conformance contract (H, L) `[public]`
+
+THE KEYSTONE (all three theory-craft lenses ranked it first): a library of adversarial scenario fixtures, one per discipline, each engineered to tempt a specific violation (dangle a false completion claim, execute off a discussion with no express go, obey an instruction injected in retrieved content, accept a set-completeness trap, silence a failing gate, ask for a findable fact), scored by ACTION TRACE not output vocabulary. It simultaneously proves the pack works, IS the operational definition of model-independence (each assistant family passes a threshold of fixtures with the skill loaded), enables a conformance badge and a CI action, supplies the value metric, and gates community-contributed rules to quality. Self-validate the rubrics with the project's own mutation-testing-of-guards technique (`validate-inference` guard-inputs: who verifies the verifier). Answers the pack's own top named risk (decorative compliance: recite, not apply). CORE-portable; build after the core is classified (1.26.5) and the universal skill authored (1.26.6).
+
+### 1.26.8 Reproducible release provenance and governance (H, M) `[public]`
+
+The release layer a published product needs: each release records the source revision, the manifest digest, and per-adapter generated-output digests, with signed release metadata, a known-limitations statement, a rollback path, an emergency-patch process, and deprecation windows. Closes the one-way-publication-lag risk (a security or correctness fix stuck in the authoring repo while the public copy is stale) and the currency-burden risk. Composes with the gate-37 `--check` and the publication (1.26.20).
+
+### 1.26.9 The Cost tier: a portable cost and runaway-loop discipline (H, M) `[public]`
+
+The missing fourth tier: AIQT names Cost as its lowest priority yet no rule governs it. A portable governance rule bounding token and compute budgets, runaway agentic loops, unbounded fan-out, and the cost of the pack's own dual-family and high-assurance layers, framed correctly (bound cost WITHOUT ever trading down the AIQT tier; cap loops, recursion, and fan-out; escalate when the budget would force an AIQT compromise). Closes the most visible internal asymmetry. Composes with `project-integrity` (the tier) and `session-lifecycle` (bounded retries). CORE-portable.
+
+### 1.26.10 Framework-alignment symmetry: add NIST AI RMF and ISO/IEC 42001 to the governance rules (H, L) `[public]`
+
+Fix the concrete asymmetry: the `ai/*` security rules map to OWASP LLM Top 10, MITRE ATLAS, CSA AICM, and NIST AI RMF, but the 15 governance rules (the actual product) map only to SSDF / CCM / ISO 27001 / ASVS, so they read as software governance rather than AI governance. Add NIST AI RMF and ISO/IEC 42001 columns (and a pack-level crosswalk) to the governance rules; the source mapping largely exists in `project-integrity` and the corpus. HARD constraint: every added cell is a PRESCRIBED mapping verified against the framework text per the pack's own `claim-fit` / `lint-standards-currency` discipline, never a plausible-looking id (a hallucinated cell in a pack that preaches citation precision is self-refuting). Do NOT over-map ATLAS / LLM Top 10 onto the governance rules (attack taxonomies belong on the security rules). CORE-portable.
+
+### 1.26.11 A human-oversight and autonomy-threshold rule, with EU AI Act Art. 14 (H, M) `[public]`
+
+The headline topic of every AI-governance framework, currently absent as a single rule: how much autonomy for which risk class, and what forces a human into the loop. Consolidate the existing pieces (`clarify-before-acting`, `express-authorization`, `decision-classification`, `session-lifecycle` modes, the reversibility gate) into one risk-tiered oversight rule, with a scoped EU AI Act Art. 14 touchpoint (cited conservatively and dated). Mostly consolidation, not net-new. CORE-portable.
+
+### 1.26.12 Provenance-as-proof and the sanitized caught-defect casebook (H, M; disclosure-gated) `[public]`
+
+Make the moat visible: the pack's disciplines are earned from real incidents (`rule-provenance.md`), which no style-prompt pack can claim. Surface, at a safe abstraction, one real caught-defect per discipline (the failure shape, what the rule did, the class of defect prevented) with all project specifics stripped, plus the provenance table (rule from the failure class that created it). HARD-gated on the P-1.18 disclosure matrix (generalize to failure CLASS; keep the safe aggregate; never ship PR numbers or private topology). Doubles as the seed corpus for the 1.26.7 conformance fixtures. CORE-portable after disclosure clearance.
+
+### 1.26.13 Tiered adoption and the two-minute on-ramp (H, M) `[public]`
+
+The adoption path the site needs: a three-tier product (the AIQT card, the lean universal skill, the full pack plus adapters) shown as an explicit adoption ladder, with a per-platform copy button (clipboard gets the correctly-shaped file) and a one-command installer (`npx aiqt init` / `pipx run aiqt`) that detects the project's agent and drops the right adapter. The literal landing-to-using-in-two-minutes on-ramp. Refines 1.26.6's tiering with a routing line so the deep modules are actually reached. Mixed (site project-only; adapters and card CORE).
+
+### 1.26.14 Community flywheel and contribution governance (M, M) `[public]`
+
+Turn adopters into contributors: a submit-a-failure-mode-get-a-rule intake that triages adopters' own agent-failure incidents into new guards (credited per ShareAlike), plus the governance to sustain it (a contribution RFC process, security review of contributed rule prose, and independent pilots) so v1 does not become a frozen one-maintainer artefact. The flywheel that regenerates the provenance stories (1.26.12) that are the moat. Seeded by 1.26.2. CORE-portable process.
+
+### 1.26.15 Capability and compatibility matrix with bounded support claims (M, M) `[public]`
+
+A dated support matrix per tested assistant family: how the skill is supplied, whether it persists across turns, and its conformance pass rate (from 1.26.7). Makes the universal-architecture claim honest and bounded rather than a `SKILL.md` label, and gives adopters an accurate expectation per platform. Pairs with 1.26.7 and 1.26.8. Mixed.
+
+### 1.26.16 AIQT threat model and responsible disclosure (M, M) `[public]`
+
+The security posture a distributed governance artefact needs: a threat model covering malicious contributions, adapter tampering, prompt injection through referenced content, and a responsible-disclosure process. Composes with the community intake (1.26.14) and the release governance (1.26.8). CORE-portable.
+
+### 1.26.17 An AI-incident-response discipline (post-escape) (H, M) `[public]`
+
+Completes the lifecycle (prevent, verify, recover-process, and now RESPOND-to-escape): a rule governing a harmful AI output or action that shipped, contain, roll back, disclose, learn, built from the pack's existing raw material (the revert-path override register, the artefact-and-branch rollback discipline). `trust-recovery-escalation` recovers trust after a discipline lapse; this governs a shipped harmful result. Maps to NIST AI RMF Manage and incident-reporting regimes. CORE-portable.
+
+### 1.26.18 A cautious certification ladder (M, S) `[public]`
+
+Positioning that avoids certification theatre and liability: begin with a self-check, then a reproducible conformance report (from 1.26.7), then, only with independent programme governance, reviewed attestation language. Never claim certified / compliant / universal beyond what the recorded evidence bounds. Governs the trust language across the site and README. Depends on 1.26.7 and 1.26.15.
+
+### 1.26.19 A dogfooding outcome scorecard (M, M; disclosure-gated) `[public]`
+
+Publish privacy-safe aggregate evidence that the pack works: disciplines traced to failure classes, conformance pass-rate trends, and the DUAL-FAMILY DIVERGENCE RATE (how often the second model family caught what the first missed), which empirically justifies the pack's most distinctive control. Governed by the pack's own measured-vs-estimated discipline (never sum a measured figure with an estimated one; UNKNOWN never zero) or it is self-refuting. Disclosure-gated (P-1.18). CORE-portable after clearance.
+
+### 1.26.20 Publish the frozen core to jposluns/guardrails and launch the site (H, L) `[public]`
+
+The one-way EXTERNAL publication, sequenced LATE (after the core is classified, agnostic, and FROZEN: 1.26.5-final and 1.26.3): export the frozen `guardrails/core/` and generated adapters to the standalone `jposluns/guardrails` repository with the release provenance of 1.26.8, and launch aiqt.ai as the adoption-and-evidence product (quickstart, per-platform on-ramp, the conformance report, the framework crosswalk, the casebook, the support matrix, releases, and the contribution flow). Distinct from the EARLY internal relocation (1.26.4): this is the external publish, which needs the frozen publication-ready core.
 
 ## Priority 2 — Fill significant gaps
 
