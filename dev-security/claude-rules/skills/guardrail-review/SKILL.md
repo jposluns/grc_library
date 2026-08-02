@@ -25,7 +25,7 @@ A governed codebase accumulates machinery: governance rules, the skills that ope
 
 `guardrail-review` is that coherence review. It is the periodic structural-integrity pass over the machinery, run with three lenses: **overlap** (redundant or contradictory coverage), **gap** (a discipline, failure mode, or surface that nothing enforces), and **drift** (a meaning that has diverged across wiring surfaces below the resolution of the mechanical parity gates). It is judgment-based, because each of these questions requires reading the machinery as a designer would, not as a string-matcher does.
 
-It is distinct from the content sweeps and the trust-recovery suite, and the distinction is the point. `/validate` and `/validate-pr` review the *corpus content* for regression. `/full-qa` and `/fitness` form the trust-recovery escalation tier, re-examining a *window of work* when an assistant's discipline has lapsed. `guardrail-review` reviews the *machinery itself*: the rules, skills, and gates as a system, asking whether the system is still well-formed. The content sweeps ask "is the corpus right?"; guardrail-review asks "is the apparatus that keeps the corpus right still well-built?".
+It is distinct from the content sweeps and the trust-recovery suite, and the distinction is the point. The validation sweeps (`validation-sweep` / `/validate` and `validation-sweep-pr-scoped` / `/validate-pr` in the parent library) review the *governed content* for regression. `deep-qa-review` / `/full-qa` and `library-fitness-review` / `/fitness` form the trust-recovery escalation tier, re-examining a *window of work* when an assistant's discipline has lapsed. `guardrail-review` reviews the *machinery itself*: the rules, skills, and gates as a system, asking whether the system is still well-formed. The content sweeps ask "is the content right?"; guardrail-review asks "is the apparatus that keeps the content right still well-built?".
 
 ## When to Use
 
@@ -50,7 +50,7 @@ Then enumerate the current machinery as the inventory under review:
 
 Each lens is a systematic pass (or a dispatched subagent); every finding quotes `path:line`.
 
-- **Overlap**: do two rules, two skills, or two gates cover the same ground? Redundant coverage is a maintenance cost (two surfaces to keep in sync) and a contradiction risk (the two can drift apart). For each candidate pair, decide: is the overlap deliberate and documented (different lenses on one surface, like `/full-qa`'s subagents A and F), or is it accidental redundancy that should be merged or one side retired?
+- **Overlap**: do two rules, two skills, or two gates cover the same ground? Redundant coverage is a maintenance cost (two surfaces to keep in sync) and a contradiction risk (the two can drift apart). For each candidate pair, decide: is the overlap deliberate and documented (different lenses on one surface, like the deliberately-paired forensic lenses inside `deep-qa-review`), or is it accidental redundancy that should be merged or one side retired?
 - **Gap**: is there a stated discipline (in a rule, in `CLAUDE.md`, in a SKILL) that no gate enforces? a recurring failure mode (visible in the failure-mode ledgers named in the project wiring) that no rule names and no gate catches? a rule with no operationalizing skill where one is warranted? a gate that covers one surface while a sibling surface is ungated? A gap is where the machinery says it does something the machinery does not actually enforce.
 - **Drift**: has a rule's, skill's, or gate's *meaning* diverged across its wiring surfaces in a way the mechanical parity gates cannot see? The parity gates check that the gate names match, the mirror is byte-identical, the counts agree; they do not check that a rule's pack copy and the one-line `CLAUDE.md` bullet describing it still mean the same thing, that a gate's docstring still matches what its code enforces, or that a skill's `description` still matches its parent rule's intent. Semantic drift below the parity gates' resolution is this lens's quarry. (The recurring real instance in the parent library: a convention revised in the rule but left stale in a one-line enumeration description, caught only later by a routine content sweep.)
 
@@ -60,7 +60,7 @@ Dedupe findings by `(surface, item, lens)`; adjudicate severity (pick the higher
 
 ### 4. Route findings to the backlog, severity-tiered
 
-Route every confirmed finding to the project backlog, tagged with the run-keyed parenthetical the backlog uses (a `(rN guardrails, size, effort)` marker naming the originating run, for example `(r8 guardrails, M, S)`), tiered by severity (High[critical]/High to the top-priority tier, Medium/Low to the next), none dropped. Structural findings frequently *propose a machinery change* (merge two overlapping rules, add a gate to close an enforcement gap, retire a decorative check, reconcile a drifted description). These are proposals for maintainer triage, not changes the skill applies autonomously: changing the machinery is a design decision the maintainer owns. Findings that dedupe against an existing backlog item are cross-referenced, not duplicated.
+Route every confirmed finding to the project backlog, tagged with the run-keyed marker the project's backlog convention uses to name the originating run (the parent library's form is a `(rN guardrails, size, effort)` parenthetical, for example `(r8 guardrails, M, S)`), tiered by severity (High[critical]/High to the top-priority tier, Medium/Low to the next), none dropped. Structural findings frequently *propose a machinery change* (merge two overlapping rules, add a gate to close an enforcement gap, retire a decorative check, reconcile a drifted description). These are proposals for maintainer triage, not changes the skill applies autonomously: changing the machinery is a design decision the maintainer owns. Findings that dedupe against an existing backlog item are cross-referenced, not duplicated.
 
 ### 5. Record
 
@@ -68,7 +68,7 @@ Write a per-run record (at the per-run record path named in the project wiring) 
 
 ### 6. Surface to the maintainer (termination)
 
-Surface the confirmed findings inline in chat (per-finding: lens, severity, `path:line`, evidence quote, the proposed machinery change). The review is a single pass, not a fix-to-fixed-point loop: structural findings are maintainer-decision proposals, so the skill does not re-run itself to convergence the way `/validate` does. It terminates when the findings are routed and surfaced. (When the maintainer accepts a proposed machinery change, that change is its own PR, which itself becomes a trigger under the auto-prompt cadence.)
+Surface the confirmed findings inline in chat (per-finding: lens, severity, `path:line`, evidence quote, the proposed machinery change). The review is a single pass, not a fix-to-fixed-point loop: structural findings are maintainer-decision proposals, so the skill does not re-run itself to convergence the way the validation sweep does. It terminates when the findings are routed and surfaced. (When the maintainer accepts a proposed machinery change, that change is its own PR, which itself becomes a trigger under the auto-prompt cadence.)
 
 ## Red Flags
 
@@ -77,11 +77,11 @@ Surface the confirmed findings inline in chat (per-finding: lens, severity, `pat
 - Routing a lens finding without the orchestrator's own re-read (apply-time verification is the false-positive filter, the same as in the content sweeps).
 - Applying a proposed machinery change autonomously. Overlap-merges, gate additions, and rule retirements are maintainer-owned design decisions; the skill proposes, the maintainer disposes.
 - Treating guardrail-review as a per-PR gate. It is a periodic deliverable; running it on every PR is both wasteful and not what the cadence calls for.
-- Confusing this skill with the content sweeps. If the question is "is the corpus right?", that is `/validate`; if it is "is the machinery well-built?", that is this skill.
+- Confusing this skill with the content sweeps. If the question is "is the content right?", that is the validation sweep; if it is "is the machinery well-built?", that is this skill.
 
 ## Verification
 
-The review is complete on a given run when: the mechanical baseline was confirmed green (the parity gates in particular); the machinery inventory was enumerated across rules, skills, and gates; all three lenses (overlap, gap, drift) were applied with evidence-quoted findings; the orchestrator re-read each cited source and confirmed or refuted it; every confirmed finding was routed to its severity-appropriate backlog tier tagged with the `(rN guardrails, size, effort)` parenthetical, none dropped, with proposed machinery changes flagged as maintainer-decision proposals; and the per-run record and history row were written and the findings surfaced in chat.
+The review is complete on a given run when: the mechanical baseline was confirmed green (the parity gates in particular); the machinery inventory was enumerated across rules, skills, and gates; all three lenses (overlap, gap, drift) were applied with evidence-quoted findings; the orchestrator re-read each cited source and confirmed or refuted it; every confirmed finding was routed to its severity-appropriate backlog tier tagged with the project's run-keyed backlog marker, none dropped, with proposed machinery changes flagged as maintainer-decision proposals; and the per-run record and history row were written and the findings surfaced in chat.
 
 ## Common Rationalizations
 
