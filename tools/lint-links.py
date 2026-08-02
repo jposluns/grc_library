@@ -85,20 +85,31 @@ def check_file(path: Path) -> list[tuple[int, str, str]]:
     return findings
 
 
+# Default scan roots when no paths are given. Exposed as a module-level constant
+# so a regression test can assert membership BEHAVIOURALLY (against the list the
+# code actually scans), not by grepping source text. ``tools`` and ``docs`` are
+# per-linter extras beyond the audited domains; the domain run is splatted from
+# lint_common (the scan-scope parity gate forbids hardcoding it). ``.claude/rules``
+# (TODO 3.182) is a shipped rule surface, the pack mirror plus third-party
+# overlays, whose relative Markdown targets must resolve; it is in
+# DEFAULT_EXEMPT_DIRS so no other gate link-checks it, and scanning it here
+# catches dead links (never-vendored companions, mirror path rot) before they
+# ship in the guardrails pack.
+DEFAULT_SCAN_ROOTS: list[str] = [
+    "README.md",
+    "NOTICE.md",
+    "specification-master-project.md",
+    "specification-ingestion.md",
+    "instruction-ai-document-ingestion.md",
+    *AUDITED_DOMAIN_DIRS,
+    "tools",
+    "docs",
+    ".claude/rules",
+]
+
+
 def main(argv: list[str]) -> int:
-    paths = argv[1:] or [
-        "README.md",
-        "NOTICE.md",
-        "specification-master-project.md",
-        "specification-ingestion.md",
-        "instruction-ai-document-ingestion.md",
-        # Domain run splatted from lint_common (scan-scope parity gate
-        # forbids hardcoding); ``tools`` and ``docs`` are per-linter
-        # extras this linkchecker scans beyond the audited domains.
-        *AUDITED_DOMAIN_DIRS,
-        "tools",
-        "docs",
-    ]
+    paths = argv[1:] or DEFAULT_SCAN_ROOTS
 
     files = iter_markdown_files(paths)
     grouped: dict[str, list[tuple[int, str, str]]] = defaultdict(list)

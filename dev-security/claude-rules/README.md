@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.68.0\
+**Version:** 1.68.1\
 **Date:** 2026-08-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -516,6 +516,7 @@ The pack's change history is maintained in the parent grc_library repository CHA
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.68.1 | 2026.08.44 | 2026-08-02 | Patch (TODO 3.182): removed eight dead links from the shipped rule surface, the Kariedo overlay's six cross-references to un-vendored companion files (replaced with a pointer to the primary pack) and two `trust-recovery-escalation` skill links that were dead in the `.claude/rules` mirror (de-linked to mirror-safe code spans). Gate 3 now scans `.claude/rules` so future dead links fail mechanically. |
 | 1.68.0 | 2026.08.43 | 2026-08-02 | Minor (TF-2 + 1.26 architecture decision): recorded the source-and-adapter parity model, `grc_library` authors and dogfoods the canonical portable core, coding-agent adapters are generated from it and verified by a hard local `--check`, and a standalone `guardrails` repository is a one-way publication target. Replaces the deferred pack-parity hard-gate posture (TF-2 closed). |
 | 1.67.5 | 2026.08.42 | 2026-08-02 | Patch (3.198): reworded the directory-tree annotation for the root `CLAUDE.md`. It read "drag this into a project for full coverage" (the single-file-install defect that breaks the sibling links under `ai/`/`governance/`); it now points to the whole-directory copy (Option 1). Pack `1.67.4` to `1.67.5` (patch). |
 | 1.67.4 | 2026.08.31 | 2026-08-02 | Patch (Sweep 141 /matrix-fit follow-up): fixed a mis-fit control code in [`ai/ai-security.md`](ai/ai-security.md). The AI "Supply chain" row cited CSA CCM STA-05 ("SSRM Control Ownership") and is now STA-10 ("Supply Chain Risk Management"), source-verified against held CCM v4.1.0. Pack `1.67.3` to `1.67.4` (patch). |

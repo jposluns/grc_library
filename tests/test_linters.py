@@ -425,6 +425,28 @@ class LinksLinterTests(LinterTestCase):
         result = run_linter("tools/lint-links.py", fixture)
         self.assertLinterFails(result, "target does not exist")
 
+    def test_default_scan_covers_claude_rules(self) -> None:
+        # TODO 3.182: `.claude/rules` is a shipped rule surface (the pack mirror +
+        # third-party overlays) whose relative Markdown links must resolve, but it
+        # is in DEFAULT_EXEMPT_DIRS so gate 3 is the ONLY link-checker that reaches
+        # it. Guard that it stays in the default scan roots so a future dead link
+        # (a never-vendored companion, mirror path rot) fails mechanically.
+        import importlib.util
+        from pathlib import Path
+        tools = Path(__file__).resolve().parents[1] / "tools"
+        spec = importlib.util.spec_from_file_location("lint_links_mod", tools / "lint-links.py")
+        mod = importlib.util.module_from_spec(spec)
+        sys.path.insert(0, str(tools))
+        try:
+            spec.loader.exec_module(mod)
+        finally:
+            sys.path.remove(str(tools))
+        # BEHAVIOURAL: assert against the actual list the code scans (a mutation
+        # that removes the executable entry but leaves it in a comment fails this,
+        # unlike a source-text grep).
+        self.assertIn(".claude/rules", mod.DEFAULT_SCAN_ROOTS,
+                      "gate 3 must keep .claude/rules in its default scan roots (3.182)")
+
 
 class CitationsLinterTests(LinterTestCase):
     """tools/lint-citations.py"""
