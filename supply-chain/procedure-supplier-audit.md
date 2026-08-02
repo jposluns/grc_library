@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Audit Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.13\
-**Date:** 2026-07-23\
+**Version:** 1.0.14\
+**Date:** 2026-08-02\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -20,7 +20,7 @@
 
 This procedure defines the process for conducting periodic audits of suppliers, vendors, and third-party service providers to verify adherence to contractual obligations, security standards, regulatory requirements, and ethical conduct principles.
 
-It is aligned with ISO/IEC 27036-4:2016, COBIT 2019 APO10.05, CSA CCM v4.1 STA-05, BASC International Standard v6 2022, and ENISA's ongoing AI cybersecurity work (feasibility studies and standardization gap analyses under the EU Cybersecurity Act framework; no dedicated AI cybersecurity certification scheme has been formally published as of 2026).
+It is aligned with ISO/IEC 27036-4:2016, COBIT 2019 APO10.05, CSA CCM v4.1 STA-13, BASC International Standard v6 2022, and ENISA's ongoing AI cybersecurity work (feasibility studies and standardization gap analyses under the EU Cybersecurity Act framework; no dedicated AI cybersecurity certification scheme has been formally published as of 2026).
 
 ---
 
@@ -88,7 +88,7 @@ Prior to conducting the audit, the audit team must:
 3. Prepare an audit checklist aligned to the applicable frameworks and control families, including:
  - ISO/IEC 27036-4 Annex A controls.
  - COBIT 2019 APO10.05 management practices.
- - CSA CCM v4.1 STA-05 supply chain assurance controls.
+ - CSA CCM v4.1 STA-13 supply chain assurance controls.
  - BASC International Standard v6 2022, Sections 1 to 7 (for trade and logistics suppliers).
  - EU AI Act conformity-assessment requirements (Articles 9, 16-29) and ENISA AI cybersecurity guidance where applicable (for AI system suppliers).
 
@@ -172,7 +172,7 @@ Sector-programme compliance metrics must be reported to the sector-conditional r
 
 - ISO/IEC 27036-4:2016: Information security for supplier relationships - Part 4: Guidelines for security of cloud services (first edition, October 2016; the "2013" date previously used in this document was incorrect).
 - COBIT 2019 APO10.05: Monitor vendor performance and compliance.
-- CSA Cloud Controls Matrix v4.1, STA-05: Supply Chain Management, Transparency, and Accountability.
+- CSA Cloud Controls Matrix v4.1, STA-13: Supply Chain Compliance Assessment.
 - ENISA AI cybersecurity work (feasibility studies and standardization gap analyses under the EU Cybersecurity Act framework; no dedicated AI cybersecurity certification scheme has been formally published as of 2026).
 - BASC International Standard v6 2022: Business Alliance for Secure Commerce.
 - WCO SAFE Framework of Standards 2025 edition: World Customs Organization.
