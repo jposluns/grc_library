@@ -86,9 +86,8 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import resolve_sibling, sibling_placeholder_present
+from lint_common import REPO_ROOT, resolve_sibling, sibling_placeholder_present
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
 
 # A section number qualified by TODO / § (e.g. "TODO 3.13", "TODO section 2.2",
 # "TODO §5.1", "grc_library TODO §5.9", or a bare "§5.9"); the optional "P" is the

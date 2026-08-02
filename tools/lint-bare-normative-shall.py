@@ -47,7 +47,14 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT, iter_non_code_lines, read_text_safe
+from lint_common import (
+    AUDITED_DOMAIN_DIRS,
+    REPO_ROOT,
+    SIMPLE_CODE_SPAN_RE,
+    iter_non_code_lines,
+    iter_scan_roots_markdown,
+    read_text_safe,
+)
 
 # A bare normative ``shall``: the word standing free, not part of a
 # hyphenated identifier (e.g. ``lint-shall-near-uncertainty``) and not a
@@ -57,7 +64,7 @@ BARE_SHALL = re.compile(r"(?<![A-Za-z0-9_-])shall(?![A-Za-z0-9_-])", re.IGNORECA
 
 # Inline backtick code spans: stripped before matching so a backticked
 # ``shall`` word-reference (preserved class 2) does not register.
-INLINE_CODE_SPAN = re.compile(r"`[^`]*`")
+INLINE_CODE_SPAN = SIMPLE_CODE_SPAN_RE
 
 # Files that legitimately discuss the convention and its target word.
 # Mirrors gate 9's EXEMPT_FILES.
@@ -78,15 +85,7 @@ DEFAULT_PATHS = [
 
 
 def iter_markdown_files(paths: list[str]) -> list[Path]:
-    files: list[Path] = []
-    for p in paths:
-        path = REPO_ROOT / p
-        if path.is_file() and path.suffix == ".md":
-            files.append(path)
-        elif path.is_dir():
-            for f in path.rglob("*.md"):
-                files.append(f)
-    return sorted(set(files))
+    return iter_scan_roots_markdown(paths, repo_root=REPO_ROOT)
 
 
 def check_file(path: Path) -> list[tuple[int, str]]:

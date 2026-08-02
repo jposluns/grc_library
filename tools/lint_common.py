@@ -43,7 +43,9 @@ Scope notes:
 from __future__ import annotations
 
 import datetime
+import os
 import re
+import subprocess
 from collections.abc import Iterable, Iterator
 from pathlib import Path
 
@@ -471,6 +473,40 @@ def iter_markdown_targets(
     )
 
 
+def iter_scan_roots_markdown(
+    paths: Iterable[str],
+    *,
+    repo_root: Path | None = None,
+) -> list[Path]:
+    """Sorted, deduplicated ``.md`` files under explicit repo-relative scan roots.
+
+    The allow-list walker shared by the explicit-scan-root content linters:
+    they enumerate their scan roots (typically ``AUDITED_DOMAIN_DIRS`` plus
+    root meta files) and subtract per-linter exempt files/prefixes at the
+    call site, rather than walking the repository root and subtracting
+    ``DEFAULT_EXEMPT_DIRS`` the way :func:`iter_markdown_targets` callers
+    do. A dozen linters previously carried this loop verbatim.
+
+    Each entry is taken relative to ``repo_root``: a ``.md`` FILE entry is
+    included as-is; a DIRECTORY entry contributes every ``.md`` beneath it
+    recursively. Deliberately NO exempt-directory subtraction happens here
+    (an allow-list linter's scan roots ARE its scope) and paths are not
+    resolved (matching the historical walkers, so reported paths and
+    ordering are unchanged). ``repo_root`` defaults to :data:`REPO_ROOT`;
+    a linter whose ``--root`` flag rebinds its module-level root passes
+    its own current value explicitly.
+    """
+    root = repo_root if repo_root is not None else REPO_ROOT
+    files: set[Path] = set()
+    for p in paths:
+        path = root / p
+        if path.is_file() and path.suffix == ".md":
+            files.add(path)
+        elif path.is_dir():
+            files.update(path.rglob("*.md"))
+    return sorted(files)
+
+
 def read_text_safe(path: Path) -> str | None:
     """Read ``path`` as UTF-8 text; return ``None`` on a decode error.
 
@@ -608,6 +644,89 @@ def head_version(text: str | None, *, head_lines: int = METADATA_HEAD_LINES) -> 
     return value or None
 
 
+def add_months(d: datetime.date, months: int) -> datetime.date:
+    """Return ``d`` advanced by ``months`` calendar months.
+
+    Handles month-end roll-forward: 31 January + 1 month yields 28/29
+    February. Stdlib-only; avoids a dateutil dependency. Hoisted from the
+    two freshness linters (citation-verification and tooling-provenance),
+    which carried identical copies of this calendar-aware arithmetic
+    (Phase 23.65 parity; 1.26.1 Family-F hoist).
+    """
+    total_month_index = d.month - 1 + months
+    new_year = d.year + total_month_index // 12
+    new_month = total_month_index % 12 + 1
+    # Clamp day to last day of the new month.
+    if new_month == 12:
+        next_month_first = datetime.date(new_year + 1, 1, 1)
+    else:
+        next_month_first = datetime.date(new_year, new_month + 1, 1)
+    last_day_of_new_month = (next_month_first.toordinal() - 1)
+    last_day_of_new_month_date = datetime.date.fromordinal(last_day_of_new_month)
+    new_day = min(d.day, last_day_of_new_month_date.day)
+    return datetime.date(new_year, new_month, new_day)
+
+
+def dynamic_floor(present: Iterable[int], floor: int) -> int:
+    """``max(floor, oldest surviving entry)``, or ``floor`` when none survive.
+
+    The shared kernel of the two sweep-aware windowing floors (the
+    bookkeeping-parity Check-1 ``effective_floor`` and the
+    changelog-mirror-header-parity ``effective_cutoff``): registers whose
+    aged rows are swept to the private archive scope their comparisons to
+    ``max(<fixed inception constant>, min(<surviving entries>))``, so a
+    swept-out entry is correctly out of scope rather than flagged. Each
+    gate keeps its own inception constant and row-extraction; this is only
+    the arithmetic they must not drift on.
+    """
+    entries = list(present)
+    return max(floor, min(entries)) if entries else floor
+
+
+def split_row(line: str) -> list[str]:
+    """Return the stripped cells of a markdown table row (bounding pipes dropped)."""
+    parts = line.split("|")
+    if parts and parts[0].strip() == "":
+        parts = parts[1:]
+    if parts and parts[-1].strip() == "":
+        parts = parts[:-1]
+    return [c.strip() for c in parts]
+
+
+def is_separator_row(cells: list[str]) -> bool:
+    """True for a ``|---|---|`` style separator row (or an empty pipe line).
+
+    ``cells`` is a :func:`split_row` result. An EMPTY cell list is not a
+    separator (returns False). One caller (the matrix control-code gate)
+    deliberately keeps its own empty-is-separator variant; the other
+    table-scanning framework gates share this definition.
+    """
+    return bool(cells) and set("".join(cells)) <= set("-: ")
+
+
+# Inline code spans. Two shapes are in live use and they are NOT
+# interchangeable, so both are named here:
+#
+# - ``CODE_SPAN_RE`` is the multi-backtick-aware form: a run of N
+#   backticks, content, a closing run of N backticks (the CommonMark
+#   code-span shape, so ``...`` spans with embedded single backticks
+#   are handled).
+# - ``SIMPLE_CODE_SPAN_RE`` is the single-backtick form several gates
+#   deliberately use (their corpora only carry single-backtick spans,
+#   and the simpler pattern cannot pair two fence-like runs).
+#
+# What a gate does WITH a matched span (drop it, blank it
+# length-preserving, mask it with a placeholder) is per-gate semantics
+# and stays at the call site; only the span grammar is shared.
+CODE_SPAN_RE = re.compile(r"(`+)(.+?)\1")
+SIMPLE_CODE_SPAN_RE = re.compile(r"`[^`]*`")
+
+
+def strip_code_spans(line: str) -> str:
+    """Return ``line`` with multi-backtick-aware inline code spans removed."""
+    return CODE_SPAN_RE.sub("", line)
+
+
 def is_fence_line(line: str) -> bool:
     """True if ``line`` is a fenced-code-block delimiter.
 
@@ -714,3 +833,69 @@ CROSS_EXTERNAL_CONTEXT_RE = re.compile(
 # Maximum distance (characters) between a reference and its naming link
 # for the adjacent-link class.
 CROSS_ADJACENCY_WINDOW = 40
+
+
+# ---------------------------------------------------------------------------
+# PR-delta git-range helpers (1.26.1 Family-A hoist).
+#
+# The PR-time delta checks (D1-D5, D7) each carried a verbatim copy of the
+# same ~40 lines: a ``git`` subprocess wrapper, the positional-base fallback
+# to ``origin/$GITHUB_BASE_REF``, and merge-base resolution with a shared
+# error message. This is the single definition. The two delta checks whose
+# range resolution deliberately differs (D6's compact sys.argv form with its
+# own message prefix, D9's argless origin/main default) keep their own
+# resolution flow.
+
+
+def git(*args: str) -> str:
+    """Run ``git <args>`` and return stdout, stripped. Raises on non-zero exit."""
+    return subprocess.check_output(["git", *args], text=True).strip()
+
+
+def git_show(ref: str, path: str) -> str | None:
+    """Return file content at ``ref:path`` or ``None`` if the file is absent."""
+    try:
+        return subprocess.check_output(
+            ["git", "show", f"{ref}:{path}"],
+            text=True,
+            stderr=subprocess.DEVNULL,
+        )
+    except subprocess.CalledProcessError:
+        return None
+
+
+class PrRangeError(Exception):
+    """A PR base/head range could not be resolved.
+
+    ``str(exc)`` is the exact operator-facing message the delta checks print
+    to stderr before returning exit code 2; the wording predates the hoist
+    and is shared verbatim by the refactored checks.
+    """
+
+
+def resolve_pr_range(base: str | None, head: str = "HEAD") -> tuple[str, str]:
+    """Resolve the ``(merge_base, head)`` pair a PR-delta check diffs across.
+
+    ``base`` is the check's optional positional base ref; when empty it
+    falls back to ``origin/$GITHUB_BASE_REF`` (the GitHub Actions PR base).
+    Raises :class:`PrRangeError` when neither is available, or when
+    ``git merge-base`` fails (typically a shallow checkout in CI).
+    """
+    if not base:
+        github_base = os.environ.get("GITHUB_BASE_REF")
+        if not github_base:
+            raise PrRangeError(
+                "ERROR: base ref not provided and GITHUB_BASE_REF is unset. "
+                "Pass a base ref as the first positional argument when running "
+                "locally (e.g. origin/main)."
+            )
+        base = f"origin/{github_base}"
+
+    try:
+        merge_base = git("merge-base", base, head)
+    except subprocess.CalledProcessError as exc:
+        raise PrRangeError(
+            f"ERROR: could not determine merge-base of {base}..{head}: {exc}. "
+            f"In GitHub Actions, ensure that actions/checkout uses fetch-depth: 0."
+        ) from exc
+    return merge_base, head

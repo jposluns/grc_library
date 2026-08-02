@@ -45,9 +45,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-from lint_common import DEFAULT_EXEMPT_DIRS, iter_non_code_lines
+from lint_common import DEFAULT_EXEMPT_DIRS, REPO_ROOT, iter_non_code_lines
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
 
 CALVER_RE = re.compile(r"\*\*Library Version:\*\*\s+(\d+)\.(\d+)\.(\d+)")
 SEMVER_RE = re.compile(r"^\*\*Version:\*\*\s+(\d+)\.(\d+)\.(\d+)")

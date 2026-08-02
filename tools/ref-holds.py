@@ -38,10 +38,9 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import resolve_sibling, sibling_placeholder_present
+from lint_common import REPO_ROOT, resolve_sibling, sibling_placeholder_present
 
 # Default: grc_library_ref is a sibling of the repo containing this tool.
-REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_REF_ROOT = REPO_ROOT.parent / "grc_library_ref"
 
 INDEX_FILES = ("INDEX.md", "catalogue.yml", "SECTION-INDEX.md", "COVERAGE-MAP.md")

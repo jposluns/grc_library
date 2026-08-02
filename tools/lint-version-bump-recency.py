@@ -35,11 +35,18 @@ Exit codes: 0 pass, 1 findings, 2 internal error (git failure).
 from __future__ import annotations
 
 import argparse
+import os
 import subprocess
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from lint_common import DEFAULT_EXEMPT_DIRS, REPO_ROOT, head_version, read_text_safe
+
+# Thread-pool width for the per-file git queries. The queries are
+# independent read-only subprocesses, so the pool changes wall-clock
+# time only, never the per-file results the audit compares.
+GIT_POOL_WORKERS = min(16, (os.cpu_count() or 4) * 2)
 
 
 # Files exempt from the recency requirement.
@@ -131,20 +138,34 @@ def main(argv: list[str]) -> int:
     else:
         targets = iter_targets(root)
 
-    findings: list[tuple[str, str, str]] = []
-    scanned = 0
-    skipped_single_commit = 0
+    rels: list[str] = []
     for path in targets:
         try:
             rel = path.relative_to(root).as_posix()
         except ValueError:
             rel = path.as_posix()
+        rels.append(rel)
+
+    # The two git-log queries per file dominated this audit's runtime
+    # (two subprocesses x ~490 versioned files, serial). Issue the SAME
+    # per-file queries on a thread pool: per-file history simplification
+    # (`git log -1 -- <path>`) has no faithful single-call batch form on
+    # a history with merge commits, so the commands themselves stay
+    # unchanged and only their scheduling is concurrent.
+    with ThreadPoolExecutor(max_workers=GIT_POOL_WORKERS) as pool:
+        file_commit_futures = {rel: pool.submit(last_file_commit, rel) for rel in rels}
+        version_commit_futures = {rel: pool.submit(last_version_commit, rel) for rel in rels}
+
+    findings: list[tuple[str, str, str]] = []
+    scanned = 0
+    skipped_single_commit = 0
+    for rel in rels:
         scanned += 1
-        file_commit = last_file_commit(rel)
+        file_commit = file_commit_futures[rel].result()
         if file_commit is None:
             # Path not tracked yet (new file in the working tree); skip.
             continue
-        version_commit = last_version_commit(rel)
+        version_commit = version_commit_futures[rel].result()
         if version_commit is None:
             # File exists in history but no commit touched a Version line.
             # This typically means the file was added once with the Version

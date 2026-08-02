@@ -38,9 +38,8 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import resolve_working
+from lint_common import REPO_ROOT, resolve_working
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
 
 STATUS_PATTERN = re.compile(r"^\*\*Status:\*\*\s+(\S+)\s*$", re.MULTILINE)
 

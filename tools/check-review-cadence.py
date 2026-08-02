@@ -32,9 +32,8 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import AUDITED_DOMAIN_DIRS
+from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
 
 # The review-cadence scan roots are exactly the audited domain
 # directories (no meta files, no ``docs``). Sourced from the single

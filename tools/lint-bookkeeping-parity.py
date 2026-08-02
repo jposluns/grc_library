@@ -162,9 +162,15 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import DEFAULT_EXEMPT_DIRS, read_text_safe, resolve_working
+from lint_common import (
+    DEFAULT_EXEMPT_DIRS,
+    REPO_ROOT,
+    SIMPLE_CODE_SPAN_RE,
+    dynamic_floor,
+    read_text_safe,
+    resolve_working,
+)
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
 
 CHANGELOG_PATH = "CHANGELOG.md"
 DETAILED_CHANGELOG_PATH = ".working/changelog-details/CHANGELOG-detailed.md"
@@ -273,7 +279,7 @@ RETRO_ROW_PR = re.compile(r"^\|\s*\d{4}-\d{2}-\d{2}\s*\|\s*#?(\d+)")
 # suffix / status / uppercase-SHIPPED markers are matched against the line
 # with code-span (backtick) content removed, so the maintenance note that
 # describes the convention ("no `[done]` suffixes") is not flagged.
-CODE_SPAN = re.compile(r"`[^`]*`")
+CODE_SPAN = SIMPLE_CODE_SPAN_RE
 
 # Markers that must begin the bullet content (checked against the raw line).
 TODO_BULLET_START_MARKERS: list[tuple[str, re.Pattern[str]]] = [
@@ -489,7 +495,7 @@ def effective_floor(present_prs: set[int], *, floor: int = INCEPTION) -> int:
     a combined floor would keep the higher-floored register in scope below its
     own oldest row and re-introduce false missing-row findings.
     """
-    return max(floor, min(present_prs)) if present_prs else floor
+    return dynamic_floor(present_prs, floor)
 
 
 def qa_cadence_findings(

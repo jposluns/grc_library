@@ -38,31 +38,13 @@ import sys
 from datetime import date, datetime
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+from lint_common import REPO_ROOT, add_months
+
 REGISTER = REPO_ROOT / "governance" / "register-ai-security-tooling-landscape.md"
 
 ACTIVE_CADENCE_MONTHS = 6   # active OSS / commercial: re-verify every 6 months
 ARCHIVED_CADENCE_MONTHS = 12  # archived / unmaintained: re-verify every 12 months
 
-
-def _add_months(d: date, months: int) -> date:
-    """Return ``d`` advanced by ``months`` calendar months.
-
-    Handles month-end roll-forward: 31 January + 1 month → 28/29 February.
-    Stdlib-only; avoids dateutil dependency.
-    """
-    total_month_index = d.month - 1 + months
-    new_year = d.year + total_month_index // 12
-    new_month = total_month_index % 12 + 1
-    # Clamp day to last day of the new month.
-    if new_month == 12:
-        next_month_first = date(new_year + 1, 1, 1)
-    else:
-        next_month_first = date(new_year, new_month + 1, 1)
-    last_day_of_new_month = (next_month_first.toordinal() - 1)
-    last_day_of_new_month_date = date.fromordinal(last_day_of_new_month)
-    new_day = min(d.day, last_day_of_new_month_date.day)
-    return date(new_year, new_month, new_day)
 
 # Match: #### N.N.N <Project Name>
 ENTRY_HEADER_RE = re.compile(r"^####\s+(\d+\.\d+\.\d+)\s+(.+?)\s*$")
@@ -161,7 +143,7 @@ def main(argv: list[str]) -> int:
         # Calendar-aware cadence: due date is d + cadence_months months,
         # not d + cadence_months * 30 days. Avoids the ~3-day early
         # cliff at the 6-month mark on a 30-day-month approximation.
-        due = _add_months(d, cadence_months)
+        due = add_months(d, cadence_months)
         if today > due:
             age = (today - d).days
             stale.append((sid, name, d, age, cadence_months))

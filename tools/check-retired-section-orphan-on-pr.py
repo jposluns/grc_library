@@ -60,9 +60,8 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from lint_common import classify  # noqa: E402
+from lint_common import REPO_ROOT, classify  # noqa: E402
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
 
 # A numbered TODO heading: `### N.M`, optionally `### §N.M`. Two+ decimal parts.
 HEADING_RE = re.compile(r"^#{3,6}\s+(?:§\s*)?(\d+(?:\.\d+){1,3})\b")

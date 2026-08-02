@@ -64,14 +64,14 @@ from pathlib import Path
 
 from lint_common import (
     DEFAULT_EXEMPT_DIRS,
+    REPO_ROOT,
     is_fence_line,
     read_text_safe,
     resolve_sibling as _default_resolve_sibling,
-    sibling_placeholder_present,
     resolve_working_dir,
+    sibling_placeholder_present,
 )
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
 
 # Directories skipped even by this advisory (noise / non-text / stubs). NOTE this
 # is INTENTIONALLY smaller than lint_common.DEFAULT_EXEMPT_DIRS: the whole point of

@@ -49,9 +49,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-from lint_common import resolve_working
+from lint_common import REPO_ROOT, resolve_working
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
 TARGET_FILES: list[str] = [
     "TODO.md",
 ]

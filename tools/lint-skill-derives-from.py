@@ -53,9 +53,8 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import read_text_safe
+from lint_common import REPO_ROOT, read_text_safe
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
 SKILLS_DIR_REL = "dev-security/claude-rules/skills"
 
 # Matches a YAML frontmatter ``derives_from:`` line. The path captured

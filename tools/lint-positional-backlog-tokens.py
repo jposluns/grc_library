@@ -35,7 +35,14 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT, iter_non_code_lines, read_text_safe
+from lint_common import (
+    AUDITED_DOMAIN_DIRS,
+    REPO_ROOT,
+    SIMPLE_CODE_SPAN_RE,
+    iter_non_code_lines,
+    iter_scan_roots_markdown,
+    read_text_safe,
+)
 
 # A positional backlog reference: TODO / TODO item(s) / backlog item(s), then a
 # section-shaped token (a `§`- or `P`-prefixed number, or a dotted N.M). A bare
@@ -49,7 +56,7 @@ POSITIONAL_REF = re.compile(
     r"(?<![\w-])(?:TODO(?:\s+[Ii]tems?)?|[Bb]acklog items?)\s+(?:(?:§|P)\d+(?:\.\d+)*|\d+\.\d+)\b"
 )
 
-INLINE_CODE_SPAN = re.compile(r"`[^`]*`")
+INLINE_CODE_SPAN = SIMPLE_CODE_SPAN_RE
 
 # Files exempt from this gate (the backlog source, the append-only history).
 EXEMPT_FILES = {
@@ -74,15 +81,7 @@ DEFAULT_PATHS = [
 
 
 def iter_markdown_files(paths: list[str]) -> list[Path]:
-    files: list[Path] = []
-    for p in paths:
-        path = REPO_ROOT / p
-        if path.is_file() and path.suffix == ".md":
-            files.append(path)
-        elif path.is_dir():
-            for f in path.rglob("*.md"):
-                files.append(f)
-    return sorted(set(files))
+    return iter_scan_roots_markdown(paths, repo_root=REPO_ROOT)
 
 
 def check_file(path: Path) -> list[tuple[int, str]]:

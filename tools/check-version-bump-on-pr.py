@@ -38,12 +38,11 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
-import os
 import subprocess
 import sys
 from pathlib import Path
 
-from lint_common import head_version
+from lint_common import PrRangeError, git, git_show, head_version, resolve_pr_range
 
 
 # Files exempt from the version-bump requirement.
@@ -69,23 +68,6 @@ EXEMPT_PREFIXES: tuple[str, ...] = (
     "node_modules/",
     "__pycache__/",
 )
-
-
-def git(*args: str) -> str:
-    """Run ``git <args>`` and return stdout, stripped. Raises on non-zero exit."""
-    return subprocess.check_output(["git", *args], text=True).strip()
-
-
-def git_show(ref: str, path: str) -> str | None:
-    """Return file content at ``ref:path`` or ``None`` if the file is absent."""
-    try:
-        return subprocess.check_output(
-            ["git", "show", f"{ref}:{path}"],
-            text=True,
-            stderr=subprocess.DEVNULL,
-        )
-    except subprocess.CalledProcessError:
-        return None
 
 
 def is_exempt(path: str) -> bool:
@@ -121,29 +103,10 @@ def main(argv: list[str]) -> int:
     )
     args = parser.parse_args(argv[1:])
 
-    base = args.base
-    if not base:
-        github_base = os.environ.get("GITHUB_BASE_REF")
-        if not github_base:
-            print(
-                "ERROR: base ref not provided and GITHUB_BASE_REF is unset. "
-                "Pass a base ref as the first positional argument when running "
-                "locally (e.g. origin/main).",
-                file=sys.stderr,
-            )
-            return 2
-        base = f"origin/{github_base}"
-
-    head = args.head
-
     try:
-        merge_base = git("merge-base", base, head)
-    except subprocess.CalledProcessError as exc:
-        print(
-            f"ERROR: could not determine merge-base of {base}..{head}: {exc}. "
-            f"In GitHub Actions, ensure that actions/checkout uses fetch-depth: 0.",
-            file=sys.stderr,
-        )
+        merge_base, head = resolve_pr_range(args.base, args.head)
+    except PrRangeError as exc:
+        print(str(exc), file=sys.stderr)
         return 2
 
     try:
