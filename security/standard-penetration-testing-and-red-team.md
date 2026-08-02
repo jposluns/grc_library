@@ -2,8 +2,8 @@
 
 **Document Title:** Penetration Testing and Red Team Standard\
 **Document Type:** Standard\
-**Version:** 1.0.3\
-**Date:** 2026-07-23\
+**Version:** 1.0.4\
+**Date:** 2026-08-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/procedure-vulnerability-management.md`](procedure-vulnerability-management.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md)\
@@ -129,7 +129,7 @@ The CISO retains final approval authority over vendor selection for all penetrat
 | Web application security testing | A.8.8 | SA-11(1) | TVM-07 | OWASP Testing Guide v4.2 |
 | Rules of engagement and authorization | A.5.36 | CA-8 | TVM-07 | N/A |
 | Remediation tracking | A.8.8 | SI-2 | TVM-06 | N/A |
-| Vendor qualification | A.5.19 | SA-12 | STA-05 | N/A |
+| Vendor qualification | A.5.19 | SA-12 | STA-01 | N/A |
 
 ---
 

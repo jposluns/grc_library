@@ -126,6 +126,6 @@ Before any AI feature reaches production, adversarial testing must include:
 | --- | --- | --- | --- | --- |
 | Prompt injection | LLM01 | AML.T0051 | TVM-12 | Measure 2.5 |
 | Sensitive disclosure | LLM02 | AML.T0057 | DSP-05 | Measure 2.7 |
-| Supply chain | LLM03 | AML.T0010 | STA-05 | Govern 1.7 |
+| Supply chain | LLM03 | AML.T0010 | STA-10 | Govern 1.7 |
 | Excessive agency | LLM06 | AML.T0053 | IAM-04 | Manage 1.3 |
 | Improper output handling | LLM05 | N/A | AIS-02 | Measure 2.9 |
