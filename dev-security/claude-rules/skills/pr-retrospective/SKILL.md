@@ -1,6 +1,6 @@
 ---
 name: pr-retrospective
-description: Post-merge retrospective on each successful PR. Surfaces what went well, what caused friction, recurring patterns, and proposed improvements. Output is one entry per PR in the improvement-log register; recurring patterns become candidates for pack-rule updates, worker-brief template additions, or new audit gates. Invoke after the PR-scoped validation sweep (`validation-sweep-pr-scoped`; the parent library's `/validate-pr`) returns and before the next-PR planning step.
+description: Per-PR process retrospective, run as a PR's finalizing step before merge. Surfaces what went well, what caused friction, recurring patterns, and proposed improvements. Output is one entry per PR in the improvement-log register; recurring patterns become candidates for pack-rule updates, worker-brief template additions, or new audit gates. Invoke after the PR-scoped validation sweep (`validation-sweep-pr-scoped`; the parent library's `/validate-pr`) returns and before the next-PR planning step.
 derives_from: ../../governance/ai-assistant-workflow-disciplines.md
 ---
 
@@ -21,7 +21,7 @@ An adopting project maps each bullet to its own records; the procedure below ref
 
 ## Overview
 
-After each successful merge and PR-scoped validation cycle, conduct a brief retrospective on the PR's process. (Command names `/retro`, `/validate-pr`, and `/validate` are the parent library's paired commands, used in this document as shorthand; an adopting project reads them as its own equivalents.) The retrospective is **light-touch** (one entry per PR, 3-5 sentences) rather than a deep analysis; the value emerges over time as patterns surface across many entries.
+After the PR-scoped validation sweep and before merge, conduct a brief retrospective on the PR's process. (Command names `/retro`, `/validate-pr`, and `/validate` are the parent library's paired commands, used in this document as shorthand; an adopting project reads them as its own equivalents.) The retrospective is **light-touch** (one entry per PR, 3-5 sentences) rather than a deep analysis; the value emerges over time as patterns surface across many entries.
 
 The output is the **improvement-log register** (the project wiring above names the parent library's location; adopters relocate to a project-appropriate location). The register is append-only at the row level, ordered by PR number; the step-6 disposition scan appends tokens to earlier rows' Proposed-improvement cells without rewriting their original text. Each row carries the date, PR number, backlog item closed (if any), what-went-well note, friction note, pattern-surfaced note (if any), and proposed improvement (if any).
 
@@ -45,7 +45,7 @@ The retrospective runs in six short steps.
 ### 1. Identify the PR and its inputs
 
 Capture:
-- PR number, merge commit SHA, backlog item(s) closed (if any).
+- PR number, the PR's head SHA (the merge SHA is reconciled post-merge if it is needed), backlog item(s) closed (if any).
 - The `/validate-pr` findings just returned (0 findings, N findings with categories, or out-of-window observations).
 - Any apply-time worker corrections logged in the worker-hallucination metrics register during the PR.
 - Recently-shipped PRs in the same cluster (for pattern surfacing).
