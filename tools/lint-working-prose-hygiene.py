@@ -51,13 +51,13 @@ from collections import defaultdict
 from pathlib import Path
 
 from lint_common import (
+    CODE_SPAN_RE,
+    REPO_ROOT,
     iter_markdown_targets,
     iter_non_code_lines,
     read_text_safe,
     resolve_working,
 )
-
-REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
 def default_scan_root() -> Path | None:
@@ -97,7 +97,7 @@ EXEMPT_DIRS = frozenset({".git", "node_modules", "__pycache__"})
 # Standard CommonMark inline code span: an opening run of N backticks, the
 # shortest content, then a closing run of exactly N backticks. Stripping these
 # leaves only prose (and any unmatched backtick, which carries no dash).
-CODE_SPAN_PATTERN = re.compile(r"(`+)(.+?)\1")
+CODE_SPAN_PATTERN = CODE_SPAN_RE
 EM_DASH_PATTERN = re.compile(r"[\u2014\u2013]")  # em dash or en dash
 
 

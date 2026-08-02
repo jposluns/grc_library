@@ -83,7 +83,7 @@ from pathlib import Path
 _TOOLS_DIR = str(Path(__file__).resolve().parent)
 if _TOOLS_DIR not in sys.path:
     sys.path.insert(0, _TOOLS_DIR)
-from lint_common import resolve_working  # noqa: E402
+from lint_common import CODE_SPAN_RE, REPO_ROOT, resolve_working  # noqa: E402
 
 # D7 length check reuse (P-1.4): import the authoritative per-PR length checker so the
 # 100-word / 45-word-sentence ceiling on a root-CHANGELOG compact entry is caught at
@@ -113,7 +113,6 @@ def d7_length_findings(lines):
         for offence in _d7.evaluate(entries, _d7.DEFAULT_WORD_MAX, _d7.DEFAULT_SENTENCE_MAX)
     ]
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
 
 CHANGELOG_FILES = (
     "CHANGELOG.md",
@@ -135,7 +134,6 @@ EN_DASH = "\u2013"
 # walk in unlinked_refs_in_line() mirrors lint-changelog-link-coverage.py's
 # per-line walk byte-for-byte (the link check). Unifying them would break
 # parity with one gate or the other; keep each in step with ITS gate.
-CODE_SPAN_RE = re.compile(r"(`+)(.+?)\1")
 
 # --- File-reference recognition, mirrored from lint-changelog-link-coverage.py ---
 # Kept in step with that gate (the authoritative post-commit check); this aid

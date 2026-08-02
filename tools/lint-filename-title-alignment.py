@@ -51,9 +51,8 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import AUDITED_DOMAIN_DIRS
+from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT, iter_scan_roots_markdown
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
 
 EXEMPT_DIRECTORY_PREFIXES: tuple[str, ...] = (
     "dev-security/claude-rules/",
@@ -124,16 +123,8 @@ TITLE_PATTERN = re.compile(
 
 
 def iter_active_files(paths: list[str]) -> list[Path]:
-    files: list[Path] = []
-    for p in paths:
-        full = REPO_ROOT / p
-        if full.is_file() and full.suffix == ".md":
-            files.append(full)
-        elif full.is_dir():
-            for f in full.rglob("*.md"):
-                files.append(f)
     out: list[Path] = []
-    for f in files:
+    for f in iter_scan_roots_markdown(paths, repo_root=REPO_ROOT):
         rel = f.relative_to(REPO_ROOT).as_posix()
         if any(rel.startswith(p) for p in EXEMPT_DIRECTORY_PREFIXES):
             continue
@@ -142,7 +133,7 @@ def iter_active_files(paths: list[str]) -> list[Path]:
         if f.name in EXEMPT_FILENAMES:
             continue
         out.append(f)
-    return sorted(set(out))
+    return out
 
 
 def parse_title(path: Path) -> str | None:

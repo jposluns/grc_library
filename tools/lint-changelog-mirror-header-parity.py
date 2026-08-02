@@ -106,7 +106,7 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from lint_common import REPO_ROOT, read_text_safe, resolve_working
+from lint_common import REPO_ROOT, dynamic_floor, read_text_safe, resolve_working
 
 # Paths of the two surfaces, relative to the repository root.
 ROOT_CHANGELOG_REL = "CHANGELOG.md"
@@ -194,9 +194,7 @@ def effective_cutoff(mirror_text: str) -> int:
     fixed-constant gate.
     """
     mirror_prs = [pr for _, pr, _, _ in pr_headers(mirror_text, cutoff=0)]
-    if not mirror_prs:
-        return CUTOFF_PR
-    return max(CUTOFF_PR, min(mirror_prs))
+    return dynamic_floor(mirror_prs, CUTOFF_PR)
 
 
 def pr_header_counts(text: str, cutoff: int = CUTOFF_PR) -> Counter:

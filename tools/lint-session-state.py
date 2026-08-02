@@ -51,9 +51,8 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import resolve_working
+from lint_common import REPO_ROOT, resolve_working
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
 
 FIELD_PATTERNS = {
     "Active-session": re.compile(

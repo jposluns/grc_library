@@ -50,11 +50,11 @@ from pathlib import Path
 from lint_common import (
     AUDITED_DOMAIN_DIRS,
     DEFAULT_EXEMPT_DIRS,
+    REPO_ROOT,
     iter_non_code_lines,
     read_text_safe,
 )
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
 
 META_LINE = re.compile(r"^\*\*[A-Za-z][A-Za-z0-9 ]*:\*\*")
 

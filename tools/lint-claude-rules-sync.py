@@ -68,9 +68,8 @@ import argparse
 import sys
 from pathlib import Path
 
-from lint_common import read_text_safe
+from lint_common import REPO_ROOT, read_text_safe
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
 
 # Directory holding the project-local rule copies.
 LOCAL_RULES_DIR_REL = ".claude/rules"

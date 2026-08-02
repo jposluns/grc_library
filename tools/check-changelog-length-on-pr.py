@@ -62,10 +62,11 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
-import os
 import re
 import subprocess
 import sys
+
+from lint_common import PrRangeError, git, resolve_pr_range
 
 CHANGELOG_PATH = "CHANGELOG.md"
 DEFAULT_WORD_MAX = 100
@@ -100,10 +101,6 @@ def measure(summary: str) -> tuple[int, int]:
     return total, (max(counts) if counts else 0)
 
 
-def git(*args: str) -> str:
-    return subprocess.check_output(["git", *args], text=True).strip()
-
-
 def added_entries_from_diff(diff: str) -> list[tuple[str, str]]:
     """Return (pr, summary) for every added compact-entry line in a unified diff."""
     out: list[tuple[str, str]] = []
@@ -133,26 +130,10 @@ def evaluate(
 
 
 def run_git_mode(base: str | None, head: str, word_max: int, sentence_max: int) -> int:
-    if not base:
-        github_base = os.environ.get("GITHUB_BASE_REF")
-        if not github_base:
-            print(
-                "ERROR: base ref not provided and GITHUB_BASE_REF is unset. Pass a "
-                "base ref as the first positional argument when running locally "
-                "(e.g. origin/main).",
-                file=sys.stderr,
-            )
-            return 2
-        base = f"origin/{github_base}"
-
     try:
-        merge_base = git("merge-base", base, head)
-    except subprocess.CalledProcessError as exc:
-        print(
-            f"ERROR: could not determine merge-base of {base}..{head}: {exc}. In "
-            f"GitHub Actions, ensure that actions/checkout uses fetch-depth: 0.",
-            file=sys.stderr,
-        )
+        merge_base, head = resolve_pr_range(base, head)
+    except PrRangeError as exc:
+        print(str(exc), file=sys.stderr)
         return 2
 
     try:

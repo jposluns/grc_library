@@ -35,9 +35,8 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import is_fence_line
+from lint_common import REPO_ROOT, is_fence_line
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_TARGET = REPO_ROOT / "CHANGELOG.md"
 
 FILE_EXTENSIONS = (

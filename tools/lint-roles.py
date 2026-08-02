@@ -29,7 +29,7 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import AUDITED_DOMAIN_DIRS
+from lint_common import AUDITED_DOMAIN_DIRS, iter_scan_roots_markdown
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 ROLE_REGISTER = REPO_ROOT / "governance" / "register-role-authority.md"
@@ -101,15 +101,7 @@ def load_known_roles() -> set[str]:
 
 
 def iter_markdown_files(paths: list[str]) -> list[Path]:
-    files: list[Path] = []
-    for p in paths:
-        path = REPO_ROOT / p
-        if path.is_file() and path.suffix == ".md":
-            files.append(path)
-        elif path.is_dir():
-            for f in path.rglob("*.md"):
-                files.append(f)
-    return sorted(set(files))
+    return iter_scan_roots_markdown(paths, repo_root=REPO_ROOT)
 
 
 def is_placeholder(value: str) -> bool:

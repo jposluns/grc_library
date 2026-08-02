@@ -104,20 +104,28 @@ from __future__ import annotations
 
 import argparse
 import datetime
+import os
 import subprocess
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from lint_common import (
     AUDITED_DOMAIN_DIRS,
     DEFAULT_EXEMPT_DIRS,
+    REPO_ROOT,
     iter_markdown_targets,
     parse_iso_date,
     parse_metadata_block,
     read_text_safe,
 )
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+
+# Thread-pool width for the per-file `git log --follow` queries. The
+# queries are independent read-only subprocesses, so the pool changes
+# wall-clock time only, never the per-file commit dates the audit
+# compares.
+GIT_POOL_WORKERS = min(16, (os.cpu_count() or 4) * 2)
 
 # Inception date of this audit. Files whose most-recent commit predates
 # this date are grandfathered: their stale Dates accumulated before the
@@ -344,6 +352,15 @@ def main(argv: list[str] | None = None) -> int:
     skipped_no_date = 0
     skipped_no_history = 0
 
+    # First pass: read and classify each file's Date field, collecting the
+    # files that reach the commit-date step. The Date-field skips, the
+    # malformed findings, and the future-date check are unchanged; only the
+    # commit-date lookup is deferred so its git subprocesses can run
+    # concurrently below (one serial `git log --follow` per dated file
+    # dominated this audit's runtime; per-file `--follow` rename tracking
+    # has no faithful single-call batch form, so the command itself stays
+    # unchanged and only its scheduling is concurrent).
+    dated: list[tuple[str, Path, datetime.date]] = []
     for f in files:
         try:
             rel = f.relative_to(root).as_posix()
@@ -374,7 +391,16 @@ def main(argv: list[str] | None = None) -> int:
         future_lead = (metadata_date - today_utc).days
         if future_lead > max_future_days:
             future_findings.append((rel, metadata_date, future_lead))
-        commit_date = get_file_commit_date(f, repo_root=root)
+        dated.append((rel, f, metadata_date))
+
+    with ThreadPoolExecutor(max_workers=GIT_POOL_WORKERS) as pool:
+        commit_date_futures = [
+            pool.submit(get_file_commit_date, f, repo_root=root)
+            for _, f, _ in dated
+        ]
+
+    for (rel, f, metadata_date), future in zip(dated, commit_date_futures):
+        commit_date = future.result()
         if commit_date is None:
             skipped_no_history += 1
             continue

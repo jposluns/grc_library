@@ -35,11 +35,18 @@ Exit codes: 0 pass, 1 findings, 2 internal error (git failure).
 from __future__ import annotations
 
 import argparse
+import os
 import subprocess
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from lint_common import DEFAULT_EXEMPT_DIRS, REPO_ROOT, head_version, read_text_safe
+
+# Thread-pool width for the per-file git queries. The queries are
+# independent read-only subprocesses, so the pool changes wall-clock
+# time only, never the per-file results the audit compares.
+GIT_POOL_WORKERS = min(16, (os.cpu_count() or 4) * 2)
 
 
 # Files exempt from the recency requirement.
@@ -131,20 +138,46 @@ def main(argv: list[str]) -> int:
     else:
         targets = iter_targets(root)
 
-    findings: list[tuple[str, str, str]] = []
-    scanned = 0
-    skipped_single_commit = 0
+    rels: list[str] = []
     for path in targets:
         try:
             rel = path.relative_to(root).as_posix()
         except ValueError:
             rel = path.as_posix()
-        scanned += 1
+        rels.append(rel)
+
+    # The two git-log queries per file dominated this audit's runtime
+    # (two subprocesses x ~490 versioned files, serial). Issue the SAME
+    # per-file queries on a thread pool: per-file history simplification
+    # (`git log -1 -- <path>`) has no faithful single-call batch form on
+    # a history with merge commits, so the commands themselves stay
+    # unchanged and only their scheduling is concurrent.
+    # Parallelize ACROSS files while preserving the original per-file
+    # sequencing EXACTLY: last_version_commit is issued only when
+    # last_file_commit succeeded (the serial short-circuit), so the git
+    # subprocesses issued (and thus any git diagnostics) are identical to
+    # the serial form, and duplicate explicit paths are each processed
+    # (map iterates the list; it does not key by rel, which would collapse
+    # duplicates). Only scheduling is concurrent. last_file_commit /
+    # last_version_commit return None (never raise) on a git failure, so
+    # map's eager submission introduces no observable exception-path change.
+    def _per_file_history(rel: str) -> tuple[str | None, str | None]:
         file_commit = last_file_commit(rel)
+        if file_commit is None:
+            return (None, None)
+        return (file_commit, last_version_commit(rel))
+
+    with ThreadPoolExecutor(max_workers=GIT_POOL_WORKERS) as pool:
+        per_file = list(pool.map(_per_file_history, rels))
+
+    findings: list[tuple[str, str, str]] = []
+    scanned = 0
+    skipped_single_commit = 0
+    for rel, (file_commit, version_commit) in zip(rels, per_file):
+        scanned += 1
         if file_commit is None:
             # Path not tracked yet (new file in the working tree); skip.
             continue
-        version_commit = last_version_commit(rel)
         if version_commit is None:
             # File exists in history but no commit touched a Version line.
             # This typically means the file was added once with the Version

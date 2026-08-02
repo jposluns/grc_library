@@ -49,6 +49,7 @@ from pathlib import Path
 from lint_common import (
     DEFAULT_EXEMPT_DIRS,
     REPO_ROOT,
+    iter_scan_roots_markdown,
     read_text_safe,
 )
 
@@ -65,20 +66,14 @@ def fence_lines(text: str) -> list[int]:
 
 
 def iter_targets(paths: list[str]) -> list[Path]:
-    files: list[Path] = []
     if paths:
-        for p in paths:
-            path = REPO_ROOT / p
-            if path.is_file() and path.suffix == ".md":
-                files.append(path)
-            elif path.is_dir():
-                files.extend(path.rglob("*.md"))
-    else:
-        for f in REPO_ROOT.rglob("*.md"):
-            rel_parts = f.relative_to(REPO_ROOT).parts
-            if any(part in DEFAULT_EXEMPT_DIRS for part in rel_parts):
-                continue
-            files.append(f)
+        return iter_scan_roots_markdown(paths, repo_root=REPO_ROOT)
+    files: list[Path] = []
+    for f in REPO_ROOT.rglob("*.md"):
+        rel_parts = f.relative_to(REPO_ROOT).parts
+        if any(part in DEFAULT_EXEMPT_DIRS for part in rel_parts):
+            continue
+        files.append(f)
     return sorted(set(files))
 
 

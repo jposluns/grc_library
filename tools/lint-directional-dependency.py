@@ -60,9 +60,8 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-from lint_common import AUDITED_DOMAIN_DIRS, is_fence_line
+from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT, is_fence_line
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
 
 # The project-governance directory: the target the direction rule forbids
 # corpus documents from linking into.

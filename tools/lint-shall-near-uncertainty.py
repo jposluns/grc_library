@@ -56,7 +56,13 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT, is_fence_line, read_text_safe
+from lint_common import (
+    AUDITED_DOMAIN_DIRS,
+    REPO_ROOT,
+    is_fence_line,
+    iter_scan_roots_markdown,
+    read_text_safe,
+)
 
 # Uncertainty markers that should not appear in mandatory text.
 UNCERTAINTY_PATTERNS = [
@@ -103,15 +109,7 @@ WINDOW_LINES = 2
 
 
 def iter_markdown_files(paths: list[str]) -> list[Path]:
-    files: list[Path] = []
-    for p in paths:
-        path = REPO_ROOT / p
-        if path.is_file() and path.suffix == ".md":
-            files.append(path)
-        elif path.is_dir():
-            for f in path.rglob("*.md"):
-                files.append(f)
-    return sorted(set(files))
+    return iter_scan_roots_markdown(paths, repo_root=REPO_ROOT)
 
 
 def check_file(path: Path) -> list[tuple[int, str, str]]:

@@ -33,30 +33,10 @@ import sys
 from datetime import date, datetime
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+from lint_common import REPO_ROOT, add_months
+
 VERIFICATIONS = REPO_ROOT / ".project-governance" / "register-citation-verifications.md"
 CADENCE_MONTHS = 12  # per Citation Verification Specification §12.1
-
-
-def _add_months(d: date, months: int) -> date:
-    """Return ``d`` advanced by ``months`` calendar months.
-
-    Handles month-end roll-forward: 31 January + 1 month → 28/29 February.
-    Stdlib-only; avoids dateutil dependency. Mirrors the helper in
-    ``tools/lint-tooling-provenance-freshness.py`` so the two freshness
-    linters use identical calendar-aware arithmetic (Phase 23.65 parity).
-    """
-    total_month_index = d.month - 1 + months
-    new_year = d.year + total_month_index // 12
-    new_month = total_month_index % 12 + 1
-    if new_month == 12:
-        next_month_first = date(new_year + 1, 1, 1)
-    else:
-        next_month_first = date(new_year, new_month + 1, 1)
-    last_day_of_new_month = (next_month_first.toordinal() - 1)
-    last_day_of_new_month_date = date.fromordinal(last_day_of_new_month)
-    new_day = min(d.day, last_day_of_new_month_date.day)
-    return date(new_year, new_month, new_day)
 
 
 # Each row begins with `| <Standard ID> | <Verified Field> | ... | <Date checked> | ...`
@@ -137,7 +117,7 @@ def main(argv: list[str]) -> int:
         # Calendar-aware cadence: due date is d + CADENCE_MONTHS months,
         # not d + 365 days. Matches lint-tooling-provenance-freshness.py
         # so the two freshness linters apply consistent semantics.
-        due = _add_months(d, CADENCE_MONTHS)
+        due = add_months(d, CADENCE_MONTHS)
         if today > due:
             age = (today - d).days
             stale.append((sid, d, age))

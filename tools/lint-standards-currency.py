@@ -33,7 +33,12 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import AUDITED_DOMAIN_DIRS, iter_non_code_lines, read_text_safe
+from lint_common import (
+    AUDITED_DOMAIN_DIRS,
+    iter_non_code_lines,
+    iter_scan_roots_markdown,
+    read_text_safe,
+)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 CANONICAL_REGISTER = REPO_ROOT / "governance" / "register-canonical-citations.md"
@@ -129,69 +134,99 @@ def parse_canonical_register() -> list[dict[str, object]]:
 
 
 def iter_files(paths: list[str]) -> list[Path]:
-    files: list[Path] = []
-    for p in paths:
-        full = REPO_ROOT / p
-        if full.is_file() and full.suffix == ".md":
-            files.append(full)
-        elif full.is_dir():
-            for f in full.rglob("*.md"):
-                files.append(f)
     out: list[Path] = []
-    for f in files:
+    for f in iter_scan_roots_markdown(paths, repo_root=REPO_ROOT):
         rel = f.relative_to(REPO_ROOT).as_posix()
         if rel in EXEMPT_FILES:
             continue
         if any(rel.startswith(p) for p in EXEMPT_DIRECTORY_PREFIXES):
             continue
         out.append(f)
-    return sorted(set(out))
+    return out
 
 
-def check_file(path: Path, entries: list[dict[str, object]]) -> list[tuple[int, str]]:
+def compile_entry_patterns(
+    entries: list[dict[str, object]],
+) -> list[tuple[str | None, re.Pattern[str], str]]:
+    """Compile one (prefilter, pattern, finding-message) triple per (entry, superseded version).
+
+    Compiled once per run rather than per scanned line: the patterns depend
+    only on the register entries, and rebuilding them inside the per-line
+    scan loop dominated this linter's runtime. The triple order preserves the
+    register's entry order and each entry's superseded-list order, so the
+    per-line finding order is unchanged.
+
+    ``prefilter`` is the lower-cased standard id when the id is pure ASCII,
+    else ``None``. Every pattern begins with the escaped standard id under
+    ``re.IGNORECASE``. The prefilter substring test is applied ONLY when the
+    LINE is ASCII (see ``check_file``): on an ASCII line ``str.lower`` and
+    ``re.IGNORECASE`` agree exactly, so an ASCII id absent from the
+    lower-cased line cannot match the pattern, making the skip a pure
+    fast-path. A non-ASCII line (where ``str.lower`` and regex case folding
+    can disagree, for example dotless ``ı`` U+0131 folding toward ``i``)
+    bypasses the prefilter and runs the full pattern, as does a non-ASCII id
+    (prefilter ``None``); both preserve exact equivalence with running every
+    pattern on every line.
+    """
+    compiled: list[tuple[str | None, re.Pattern[str], str]] = []
+    for entry in entries:
+        std_id = entry["id"]
+        current = entry["current"]
+        superseded_list = entry["superseded"]  # type: ignore[assignment]
+        if not isinstance(superseded_list, list):
+            continue
+
+        # Build the regex patterns to look for the standard ID followed by
+        # a version. We accept patterns like "ISO/IEC 27001:2013",
+        # "ISO 27001:2013", "ISO/IEC 27001 (2013)", "ISO/IEC 27001 2013",
+        # and the standard ID followed by "(draft)", "(draft 2024)", etc.
+        # Use escape on the id, allow optional ":" or " " or "(".
+        std_id_re = re.escape(str(std_id))
+        for superseded in superseded_list:
+            sup_re = re.escape(superseded)
+            # Two patterns: "<id>:<version>" and "<id> <version>" and
+            # "<id> (<version>)". We combine in a single regex.
+            # The negative lookahead (?![.\-][\d\w]) prevents the match
+            # from triggering inside a longer version string. For example,
+            # "PCI DSS 4.0" must NOT match within "PCI DSS 4.0.1" because
+            # 4.0 is followed by .1 (a version-continuation pattern).
+            # The optional "v?" admits a "v"-prefixed version label
+            # ("PCI DSS v4.0"), a citation style the bare separator group
+            # (":", "(", whitespace) otherwise missed; the continuation
+            # guard still protects the current "v4.0.1".
+            pattern = re.compile(
+                rf"\b{std_id_re}\b\s*(?::|\(|\s+)\s*v?{sup_re}\b(?![.\-][\d\w])",
+                flags=re.IGNORECASE,
+            )
+            id_text = str(std_id)
+            prefilter = id_text.lower() if id_text.isascii() else None
+            compiled.append(
+                (
+                    prefilter,
+                    pattern,
+                    f"stale citation '{std_id} {superseded}' "
+                    f"(current: {current})",
+                )
+            )
+    return compiled
+
+
+def check_file(
+    path: Path, compiled: list[tuple[str | None, re.Pattern[str], str]]
+) -> list[tuple[int, str]]:
     """Return list of (line-number, message) findings for the file."""
     findings: list[tuple[int, str]] = []
     text = read_text_safe(path)
     if text is None:
         return findings
     for ln, line in iter_non_code_lines(text):
-        for entry in entries:
-            std_id = entry["id"]
-            current = entry["current"]
-            superseded_list = entry["superseded"]  # type: ignore[assignment]
-            if not isinstance(superseded_list, list):
+        line_lower = line.lower()
+        line_is_ascii = line.isascii()
+        for prefilter, pattern, message in compiled:
+            if prefilter is not None and line_is_ascii and prefilter not in line_lower:
                 continue
-
-            # Build the regex patterns to look for the standard ID followed by
-            # a version. We accept patterns like "ISO/IEC 27001:2013",
-            # "ISO 27001:2013", "ISO/IEC 27001 (2013)", "ISO/IEC 27001 2013",
-            # and the standard ID followed by "(draft)", "(draft 2024)", etc.
-            # Use escape on the id, allow optional ":" or " " or "(".
-            std_id_re = re.escape(str(std_id))
-            for superseded in superseded_list:
-                sup_re = re.escape(superseded)
-                # Two patterns: "<id>:<version>" and "<id> <version>" and
-                # "<id> (<version>)". We combine in a single regex.
-                # The negative lookahead (?![.\-][\d\w]) prevents the match
-                # from triggering inside a longer version string. For example,
-                # "PCI DSS 4.0" must NOT match within "PCI DSS 4.0.1" because
-                # 4.0 is followed by .1 (a version-continuation pattern).
-                # The optional "v?" admits a "v"-prefixed version label
-                # ("PCI DSS v4.0"), a citation style the bare separator group
-                # (":", "(", whitespace) otherwise missed; the continuation
-                # guard still protects the current "v4.0.1".
-                pattern = re.compile(
-                    rf"\b{std_id_re}\b\s*(?::|\(|\s+)\s*v?{sup_re}\b(?![.\-][\d\w])",
-                    flags=re.IGNORECASE,
-                )
-                if pattern.search(line):
-                    findings.append(
-                        (
-                            ln,
-                            f"stale citation '{std_id} {superseded}' "
-                            f"(current: {current})",
-                        )
-                    )
+            if pattern.search(line):
+                findings.append((ln, message))
 
     return findings
 
@@ -242,13 +277,14 @@ def main() -> int:
         )
         return 1
 
+    compiled = compile_entry_patterns(entries)
     files = iter_files(args.paths)
     total_findings = 0
     by_file: dict[str, list[tuple[int, str]]] = {}
 
     for f in files:
         rel = f.relative_to(REPO_ROOT).as_posix()
-        findings = check_file(f, entries)
+        findings = check_file(f, compiled)
         if findings:
             by_file[rel] = findings
             total_findings += len(findings)
