@@ -241,13 +241,15 @@ The heaviest REACTIVE tier (a trust-recovery suite) adds one condition: it termi
 
 Standing priority: fixing known QA issues outranks build, tooling, and content work; complete the then-current task, then fix.
 
-## Pack-parity coupling (adopt a discipline, keep the pack in sync)
+## Source-and-adapter parity (author once, generate the rest)
 
-A project that both PUBLISHES a governance pack and dogfoods it (adopts the pack's disciplines for its own work) must keep the two in step, or the published pack drifts behind the practice it is meant to distribute. The coupling has three layers:
+A project that AUTHORS a governance pack, dogfoods it, and PUBLISHES it to more than one AI platform keeps a single canonical portable core and derives everything else from it, or the published forms drift apart and behind the practice they are meant to distribute. The dogfooded source is authoritative; platform-specific distributions and any remote publication copy derive from it, never the reverse. The coupling has five layers:
 
-- **Convention (at PR close-out).** When a PR adds or changes a PORTABLE guard rail, discipline, rule, or skill (one an adopter would want), add or update the matching pack rule or skill in the SAME PR; if it must be deferred, record a tracked follow-up. When the thing is PROJECT-ONLY operational machinery (session-specific wiring, a private operational store, exchange-channel mechanics), it is NOT pack material: annotate it explicitly as project-only in the change record rather than forcing a pack entry. Portable-versus-project-only is the judgement this convention turns on.
-- **Catch-net (cadence).** A periodic pack-parity review compares the project's adopted disciplines, hooks, and rules against pack coverage and routes any drift, catching what the per-PR convention missed.
-- **Deferred (a hard gate).** A mechanical every-guard-rail-has-a-pack-counterpart gate is false-positive-prone (the portable-versus-project-only call needs an allow-list that itself drifts), so it is deferred behind a time-bounded review of whether the convention plus cadence suffice, not built reflexively.
+- **Canonical core.** Add or change a portable guard rail, discipline, rule, or the universal skill in the canonical core, in the same PR that adopts the change. Project-only mechanisms (local hooks, a private operational store, exchange-channel or worker machinery, host-specific wiring) are NOT core: annotate them project-only in the change record rather than forcing a core entry. Portable-versus-project-only is the judgement this layer turns on.
+- **Generated coding adapters.** Where a target platform reads a specific file (a coding agent's convention: a root instructions file, an agents file, an editor rules file), the adapter is GENERATED deterministically from the canonical core and translates only placement, filename, frontmatter, or import syntax, never content. Chat platforms need no adapter: the canonical core, dropped in as a skill or system preamble, is the deliverable directly.
+- **Hard local check.** CI runs the adapter generator in `--check` mode and fails on any generated-output drift, any unclassified core file, any unclassified adapter, or any hand-edited generated output. The check is deterministic and network-independent.
+- **One-way publication.** A publication repository receives a versioned export from the authoritative source, recording the source revision, version, file manifest, and content digest. Publication drift is repaired by re-exporting from source, never by editing the published copy.
+- **Semantic catch-net.** A periodic parity review still compares adopted project practice against the classified portable core. The hard check proves source-to-adapter identity mechanically; the review covers the semantic judgement a mechanical check cannot: whether a newly adopted discipline is portable, and whether the core reflects it.
 
 ## Prohibited anti-patterns
 
@@ -284,7 +286,13 @@ The disciplines implement the same audit-trail-integrity principle the broader p
 - Verifier-override register: `grc_library_private/.working/verifier-overrides.md` (surfaced at `/resume`).
 - Exchange channel and runbook: `grc_library_scratch` +
   `multi-session-orchestration`.
-- Pack-parity coupling instantiation: the CLAUDE.md `## Pack-parity coupling`
-  section (convention now at PR close-out; a periodic pack-parity review as the
-  catch-net; the hard every-guard-rail-has-a-pack-counterpart gate deferred to a
-  time-bounded follow-up, TF-2).
+- Guardrails authoring instantiation (TF-2 closed, Option B locked 2026-08-02):
+  `grc_library` is the authoritative authoring and dogfood source; the standalone
+  `guardrails` repository under the maintainer's account is a one-way publication
+  target, never an upstream authoring dependency.
+- Gate-37 instantiation: until the root `guardrails/` cutover, gate 37 preserves
+  byte parity between the portable pack source and the project-local rule bodies
+  (after stripping sanctioned local overlays). The migration EXTENDS that hard
+  local check with the deterministic coding-adapter generator's `--check` mode and
+  a publication manifest; it does not replace it with a network-dependent
+  upstream-drift probe.
