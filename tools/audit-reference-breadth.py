@@ -62,11 +62,10 @@ import signal
 import subprocess
 import sys
 
-from lint_common import resolve_working, resolve_working_for_write_private
+from lint_common import REPO_ROOT, resolve_working, resolve_working_for_write_private
 from dataclasses import dataclass, field
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_REF_BASE = REPO_ROOT.parent / "grc_library_ref"
 DEFAULT_ALIASES = Path(__file__).resolve().parent / "reference-breadth-aliases.json"
 STATE_REL = "reference-audit/doc-state.md"

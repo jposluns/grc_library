@@ -56,14 +56,16 @@ from pathlib import Path
 from lint_common import (
     DEFAULT_EXEMPT_DIRS,
     REPO_ROOT,
+    SIMPLE_CODE_SPAN_RE,
     iter_non_code_lines,
+    iter_scan_roots_markdown,
     read_text_safe,
 )
 
 # An inline code span (backtick-delimited run). Neutralized to a single
 # placeholder so a description of the pattern inside backticks is not
 # flagged, while a real malformation's live brackets survive.
-CODE_SPAN_RE = re.compile(r"`[^`]*`")
+CODE_SPAN_RE = SIMPLE_CODE_SPAN_RE
 
 # A markdown link whose visible text is itself a markdown link:
 #   [ [text](url) ] (url)
@@ -72,20 +74,14 @@ NESTED_LINK_RE = re.compile(r"\[\[[^\]]+\]\([^)]+\)\]\([^)]+\)")
 
 
 def iter_targets(paths: list[str]) -> list[Path]:
-    files: list[Path] = []
     if paths:
-        for p in paths:
-            path = REPO_ROOT / p
-            if path.is_file() and path.suffix == ".md":
-                files.append(path)
-            elif path.is_dir():
-                files.extend(path.rglob("*.md"))
-    else:
-        for f in REPO_ROOT.rglob("*.md"):
-            rel_parts = f.relative_to(REPO_ROOT).parts
-            if any(part in DEFAULT_EXEMPT_DIRS for part in rel_parts):
-                continue
-            files.append(f)
+        return iter_scan_roots_markdown(paths, repo_root=REPO_ROOT)
+    files: list[Path] = []
+    for f in REPO_ROOT.rglob("*.md"):
+        rel_parts = f.relative_to(REPO_ROOT).parts
+        if any(part in DEFAULT_EXEMPT_DIRS for part in rel_parts):
+            continue
+        files.append(f)
     return sorted(set(files))
 
 

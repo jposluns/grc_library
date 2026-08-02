@@ -28,10 +28,11 @@ import re
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+from lint_common import CODE_SPAN_RE, REPO_ROOT
+
 DASH = re.compile("[\u2014\u2013]")
 # Inline-code span: a run of N backticks, shortest content, closing run of N backticks.
-INLINE_CODE = re.compile(r"(`+)(.+?)\1")
+INLINE_CODE = CODE_SPAN_RE
 FENCE = re.compile(r"^\s*(`{3,}|~{3,})")
 
 EXEMPT_DIR_PARTS = {".git", "__pycache__", "node_modules"}

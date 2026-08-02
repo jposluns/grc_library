@@ -25,9 +25,14 @@ import argparse
 import sys
 from pathlib import Path
 
-from lint_common import AUDITED_DOMAIN_DIRS, iter_non_code_lines, read_text_safe
+from lint_common import (
+    AUDITED_DOMAIN_DIRS,
+    REPO_ROOT,
+    iter_non_code_lines,
+    iter_scan_roots_markdown,
+    read_text_safe,
+)
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
 
 # Each entry: (string-to-find, why-it-is-wrong, suggested-replacement).
 # Use plain string matching; if regex is needed, switch to a different field.
@@ -143,15 +148,7 @@ DEFAULT_PATHS = [
 
 
 def iter_markdown_files(paths: list[str]) -> list[Path]:
-    files: list[Path] = []
-    for p in paths:
-        path = REPO_ROOT / p
-        if path.is_file() and path.suffix == ".md":
-            files.append(path)
-        elif path.is_dir():
-            for f in path.rglob("*.md"):
-                files.append(f)
-    return sorted(set(files))
+    return iter_scan_roots_markdown(paths, repo_root=REPO_ROOT)
 
 
 def check_file(path: Path) -> list[tuple[str, int, str, str, str]]:

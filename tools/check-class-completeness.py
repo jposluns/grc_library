@@ -40,9 +40,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from lint_common import is_markdown_target  # noqa: E402
-
-REPO_ROOT = Path(__file__).resolve().parent.parent
+from lint_common import REPO_ROOT, is_markdown_target  # noqa: E402
 
 
 def corpus_files(root: Path = REPO_ROOT) -> list[Path]:

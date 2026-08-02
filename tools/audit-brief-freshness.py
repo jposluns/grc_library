@@ -57,9 +57,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-from lint_common import resolve_sibling, sibling_placeholder_present
+from lint_common import REPO_ROOT, resolve_sibling, sibling_placeholder_present
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
 
 STAMP_RE = re.compile(
     r'^\*\*Verified-against:\*\* grc_library PR #(\d+) \([0-9a-f]{7,40}\), '

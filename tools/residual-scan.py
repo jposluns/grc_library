@@ -57,11 +57,10 @@ import re
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
 _TOOLS_DIR = str(Path(__file__).resolve().parent)
 if _TOOLS_DIR not in sys.path:
     sys.path.insert(0, _TOOLS_DIR)
-from lint_common import resolve_working_dir  # noqa: E402
+from lint_common import REPO_ROOT, resolve_working_dir  # noqa: E402
 
 TEXT_SUFFIXES = {".md", ".py", ".sh", ".yml", ".yaml", ".cff", ".toml", ".txt", ".json"}
 

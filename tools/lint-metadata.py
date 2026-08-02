@@ -66,9 +66,8 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-from lint_common import AUDITED_DOMAIN_DIRS
+from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
 
 ALLOWED_TYPES = {
     "Charter",

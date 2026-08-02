@@ -27,9 +27,8 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-from lint_common import AUDITED_DOMAIN_DIRS, is_fence_line
+from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT, is_fence_line, iter_scan_roots_markdown
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
 
 # Match markdown links: [text](target) where target is not an external URL.
 LINK_RE = re.compile(r"\]\(([^)\s]+)\)")
@@ -37,15 +36,7 @@ EXTERNAL = re.compile(r"^(https?:|mailto:|tel:|ftp:|#)")
 
 
 def iter_markdown_files(paths: list[str]) -> list[Path]:
-    files: list[Path] = []
-    for p in paths:
-        path = REPO_ROOT / p
-        if path.is_file() and path.suffix == ".md":
-            files.append(path)
-        elif path.is_dir():
-            for f in path.rglob("*.md"):
-                files.append(f)
-    return sorted(set(files))
+    return iter_scan_roots_markdown(paths, repo_root=REPO_ROOT)
 
 
 def resolve_link(source: Path, target: str) -> Path:

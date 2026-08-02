@@ -58,7 +58,13 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import REPO_ROOT, iter_non_code_lines, read_text_safe
+from lint_common import (
+    REPO_ROOT,
+    SIMPLE_CODE_SPAN_RE,
+    iter_non_code_lines,
+    iter_scan_roots_markdown,
+    read_text_safe,
+)
 
 # Markdown strikethrough span: an item struck through in place.
 STRIKETHROUGH = re.compile(r"~~[^~]+~~")
@@ -72,21 +78,13 @@ STATUS_DONE = re.compile(r"\bStatus:\s*(?:completed|done)\b", re.IGNORECASE)
 # Inline backtick code spans: stripped before matching so a backticked
 # mention of a marker (e.g. this gate's own design note that names
 # ``~~`` and ``[done]``) does not register.
-INLINE_CODE_SPAN = re.compile(r"`[^`]*`")
+INLINE_CODE_SPAN = SIMPLE_CODE_SPAN_RE
 
 DEFAULT_PATHS = ["TODO.md"]
 
 
 def iter_markdown_files(paths: list[str]) -> list[Path]:
-    files: list[Path] = []
-    for p in paths:
-        path = REPO_ROOT / p
-        if path.is_file() and path.suffix == ".md":
-            files.append(path)
-        elif path.is_dir():
-            for f in path.rglob("*.md"):
-                files.append(f)
-    return sorted(set(files))
+    return iter_scan_roots_markdown(paths, repo_root=REPO_ROOT)
 
 
 def check_file(path: Path) -> list[tuple[int, str, str]]:

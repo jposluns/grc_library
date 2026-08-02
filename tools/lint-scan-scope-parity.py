@@ -60,9 +60,8 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import AUDITED_DOMAIN_DIRS, read_text_safe
+from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT, read_text_safe
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
 TOOLS_DIR = Path(__file__).resolve().parent
 
 # A file with at least this many DISTINCT audited-domain-dir literals

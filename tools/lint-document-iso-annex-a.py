@@ -71,8 +71,10 @@ from lint_common import (
     AUDITED_DOMAIN_DIRS,
     REPO_ROOT,
     is_fence_line,
+    is_separator_row,
     iter_markdown_targets,
     read_text_safe,
+    split_row,
 )
 
 # The central matrix is gate 49's exact target; exclude it here to avoid
@@ -100,21 +102,6 @@ THEME_ONLY_RE = re.compile(r"(?<![\d.])A\.(\d+)(?![.\d])")
 CLAUSE_RE = re.compile(r"§(\d+)(?:\.\d+)*")
 
 Finding = namedtuple("Finding", "path line rule message")
-
-
-def split_row(line: str) -> list[str]:
-    """Return the stripped cells of a markdown table row (bounding pipes dropped)."""
-    parts = line.split("|")
-    if parts and parts[0].strip() == "":
-        parts = parts[1:]
-    if parts and parts[-1].strip() == "":
-        parts = parts[:-1]
-    return [c.strip() for c in parts]
-
-
-def is_separator_row(cells: list[str]) -> bool:
-    """True for a ``|---|---|`` style separator row (or an empty pipe line)."""
-    return bool(cells) and set("".join(cells)) <= set("-: ")
 
 
 def _check_theme(theme: int, tok: str) -> tuple[str, str] | None:

@@ -71,11 +71,18 @@ from __future__ import annotations
 
 import argparse
 import datetime
-import os
 import subprocess
 import sys
 
-from lint_common import head_version, parse_iso_date, parse_metadata_block
+from lint_common import (
+    PrRangeError,
+    git,
+    git_show,
+    head_version,
+    parse_iso_date,
+    parse_metadata_block,
+    resolve_pr_range,
+)
 
 
 # Files exempt from the co-bump requirement (same set as D2).
@@ -116,23 +123,6 @@ EXEMPT_PREFIXES: tuple[str, ...] = (
 # Date on a diff-listed file no range commit touched (a merge artefact)
 # previously hit that silent skip first and passed; it now fails loud
 # on the Date before the skip is reached (the #613 sweep's L-1).
-
-
-def git(*args: str) -> str:
-    """Run ``git <args>`` and return stdout, stripped. Raises on non-zero exit."""
-    return subprocess.check_output(["git", *args], text=True).strip()
-
-
-def git_show(ref: str, path: str) -> str | None:
-    """Return file content at ``ref:path`` or ``None`` if the file is absent."""
-    try:
-        return subprocess.check_output(
-            ["git", "show", f"{ref}:{path}"],
-            text=True,
-            stderr=subprocess.DEVNULL,
-        )
-    except subprocess.CalledProcessError:
-        return None
 
 
 def bump_commit_date_utc(merge_base: str, head: str, path: str) -> datetime.date | None:
@@ -193,29 +183,10 @@ def main(argv: list[str]) -> int:
     )
     args = parser.parse_args(argv[1:])
 
-    base = args.base
-    if not base:
-        github_base = os.environ.get("GITHUB_BASE_REF")
-        if not github_base:
-            print(
-                "ERROR: base ref not provided and GITHUB_BASE_REF is unset. "
-                "Pass a base ref as the first positional argument when running "
-                "locally (e.g. origin/main).",
-                file=sys.stderr,
-            )
-            return 2
-        base = f"origin/{github_base}"
-
-    head = args.head
-
     try:
-        merge_base = git("merge-base", base, head)
-    except subprocess.CalledProcessError as exc:
-        print(
-            f"ERROR: could not determine merge-base of {base}..{head}: {exc}. "
-            f"In GitHub Actions, ensure that actions/checkout uses fetch-depth: 0.",
-            file=sys.stderr,
-        )
+        merge_base, head = resolve_pr_range(args.base, args.head)
+    except PrRangeError as exc:
+        print(str(exc), file=sys.stderr)
         return 2
 
     try:
