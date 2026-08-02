@@ -107,7 +107,7 @@ catalogue `origin` and the extract's provenance header; an official-body documen
 retrieved from the body's own channel scores differently from a self-published
 mapping); confirm the original binary is held and the extract corresponds to it
 (spot-check distinctive passages against the original; a divergence is itself a
-finding); confirm the licence posture and that the maintainer watermark and any PII
+finding); confirm the licence posture and that the ingesting operator's own watermark and any PII
 were scrubbed (the reference-base gate's standing checks). Record anomalies rather
 than judging past them.
 
