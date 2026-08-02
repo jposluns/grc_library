@@ -28,7 +28,7 @@ After a single defect is found and fixed, a sibling defect may still be lurking 
 
 The sweep is fixed-point: if it finds anything, fix it, then re-run the sweep, until the sweep returns clean. The audit gates are the ground truth for mechanical claims; the parallel subagent fan-out is the ground truth for the semantic claims the gates cannot mechanize.
 
-The skill is project-agnostic in shape but invokes project-specific commands; the consuming project's canonical full-audit command and canonical gate inventory are named in the project wiring above.
+The skill is project-agnostic in shape but invokes project-specific commands; the consuming project's canonical full-audit command and canonical gate inventory are named in the project wiring above. Slash-command names in this document (`/validate` for this skill, `/validate-pr` and `/retro` for its siblings) are the parent library's paired command names, used as shorthand; an adopting project reads them as its own equivalents.
 
 ## When to Use
 
@@ -38,7 +38,7 @@ The skill is project-agnostic in shape but invokes project-specific commands; th
 - Before declaring a multi-PR programme phase complete.
 - Periodically, informed by the document-staleness audit (the project wiring names the concrete gate).
 - Whenever a user surfaces an AI-introduced error and asks for assurance that no sibling error remains.
-- When the project's nightly scheduled mechanical sweep (the deterministic half of this discipline, scheduled via CI) reports a failure. The nightly catches time-dependent drift (citation freshness, document-date staleness, version-bump recency) when nobody has touched the corpus; pair the mechanical finding with the semantic triage step 4 fan-out runs.
+- When a scheduled mechanical sweep, where the project runs one (the deterministic half of this discipline, scheduled via CI on a cadence the project sets), reports a failure. A scheduled run catches time-dependent drift (citation freshness, document-date staleness, version-bump recency) when nobody has touched the content; pair the mechanical finding with the semantic triage step 4 fan-out runs.
 
 ## Process
 
@@ -98,7 +98,7 @@ The only sanctioned exception is **maintainer-authorized scope reduction**: the 
 Launch subagents in parallel for the semantic sweep. Each receives a self-contained brief, reads target files in full (not excerpts), and reports findings by severity. The three baseline briefs:
 
 - **Subagent A : recent-PR deep review**. Read every file touched by the recent PRs in full; verify every CHANGELOG entry, commit message, and docstring claim against the actual diff; specifically flag mis-attributed citations and claims that contradict the file's actual contents.
-- **Subagent B : corpus-wide stale-reference sweep**. Grep the corpus for stale gate counts, library versions, pack versions, and dates; cross-check against the canonical sources (the README, the canonical gate inventory). Also check listing-surface coverage drift on the SEMANTIC surfaces that no gate enforces: the framework matrices and crosswalks, the glossary and key-terms registers, and per-document `Related Documents` fields. (The MECHANICAL listing surfaces are enforced by the project's listing-surface coverage gate, so a recently-added document missing from those is a gate failure, not a sweep finding; the sweep's value is the relevance-based surfaces where a new document plausibly belongs but inclusion is a judgment call. The project wiring names the gate and the candidate-set helper that produces the candidate set.)
+- **Subagent B : corpus-wide stale-reference sweep**. Grep the repository for stale gate counts, project and pack versions, and dates; cross-check against the canonical sources (the README, the canonical gate inventory). Also check listing-surface coverage drift on the SEMANTIC surfaces that no gate enforces: the project's own judgment-call listing surfaces (in the parent library: the framework matrices and crosswalks, the glossary and key-terms registers, and per-document `Related Documents` fields). (The MECHANICAL listing surfaces are enforced by the project's listing-surface coverage gate, so a recently-added document missing from those is a gate failure, not a sweep finding; the sweep's value is the relevance-based surfaces where a new document plausibly belongs but inclusion is a judgment call. The project wiring names the gate and the candidate-set helper that produces the candidate set.)
 - **Subagent C : audit-programme integrity check**. Independently re-verify that all parity surfaces agree (workflow, runner, pre-commit, spec inventory); verify mirror-sync between pack sources and local copies; verify any new linter's docstring matches its code; spot-check generated-artefact regeneration.
 
 Each subagent reports under 600 words, grouped by severity:
@@ -211,7 +211,7 @@ When the iteration produced findings, write a per-iteration detail file to the p
 
 Six top-level H2 sections in this order:
 
-1. `## Trigger & state snapshot`, what triggered this iteration; library/pack version/gate-count/skill-count/rule-count at HEAD; iteration ordinal within the sweep.
+1. `## Trigger & state snapshot`, what triggered this iteration; the project's canonical version(s) and machinery counts (for example gate/skill/rule counts) at HEAD; iteration ordinal within the sweep.
 2. `## Subagent A, Recent-PR deep review`, verbatim return from subagent A (full SARIF-lite findings + summary).
 3. `## Subagent B, Corpus-wide stale-reference sweep`, verbatim return from subagent B.
 4. `## Subagent C, Audit-programme integrity reviewer`, verbatim return from subagent C.

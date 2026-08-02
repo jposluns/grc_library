@@ -4,7 +4,7 @@
 
 ## Identity provider
 
-Never implement custom authentication mechanisms or local user stores. All authentication must flow through the organization's enterprise identity provider (IdP). This applies to:
+Never implement custom authentication mechanisms or local user stores. All authentication must flow through the organization's designated identity provider (IdP): an enterprise IdP where one exists, or an established managed identity platform otherwise. This applies to:
 - Web application logins
 - API authentication
 - Mobile application authentication

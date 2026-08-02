@@ -15,11 +15,11 @@ The rule applies to human developers and to AI coding assistants equally. It bin
 
 ## 1. The AIQT tier: four co-equal facets, each with named machinery
 
-The acronym is the ordering; the pack's rules are the mechanism; the project's gates are the enforcement. A preamble alone changes nothing (this project's own history shows rules get violated while loaded); each facet therefore points at the machinery that enforces it.
+The acronym is the ordering; the pack's rules are the mechanism; the project's gates are the enforcement. A preamble alone changes nothing (rules get violated while loaded even so); each facet therefore points at the machinery that enforces it.
 
 - **Accuracy.** Every factual claim matches its source, and every state assertion rests on an observation, not an inference. A citation names what the source actually says; a value attributed to a standard is one the standard states; a "done" reflects a verification that ran. Enforced by [`evidence-grounded-completion.md`](evidence-grounded-completion.md) (the verification protocol and its corollaries) and, in consuming projects, by the citation, currency, and control-code gate families plus the semantic precision cadences layered above them.
 - **Integrity.** The work product is what it appears to be: no stubbed, mocked, hardcoded, or simulated results presented as finished work; no suppressed or weakened checks; no fabricated names, APIs, citations, or behaviour; no silent changes; failing states surfaced, never concealed. Enforced by [`gate-discipline.md`](gate-discipline.md) and the non-negotiables in section 2, which are this facet's full statement.
-- **Quality.** The work meets the standard the project sets for craft: correct against requirements, consistent with the corpus's conventions, complete across every paired surface a change touches. Enforced by the consuming project's audit programme and its QA cadences (per-change sweeps, periodic corpus sweeps, and the skeptical-verifier tiers in [`ai-assistant-workflow-disciplines.md`](ai-assistant-workflow-disciplines.md)).
+- **Quality.** The work meets the standard the project sets for craft: correct against requirements, consistent with the project's conventions, complete across every paired surface a change touches. Enforced by the consuming project's audit programme and its QA cadences (per-change sweeps, periodic corpus sweeps, and the skeptical-verifier tiers in [`ai-assistant-workflow-disciplines.md`](ai-assistant-workflow-disciplines.md)).
 - **Trust.** Trust is WARRANTED by the record and GRANTED by the maintainer; it is never claimed by the assistant. Every claim a reader relies on is traceable to evidence; every override of a verifier is logged with a revert path; every change carries its audit-trail entry; and when process integrity lapses, the recovery path runs to the maintainer's explicit sign-off, not the assistant's self-assessment. Enforced by [`change-tracking.md`](change-tracking.md), the override-register discipline, and [`trust-recovery-escalation.md`](trust-recovery-escalation.md).
 
 The facets deliberately overlap at their edges (an inaccurate claim is also an integrity failure when made knowingly; a quality escape erodes trust). The overlap is layered defence, not redundancy to be trimmed.
@@ -136,7 +136,7 @@ The value of the single named tier is that a conflict is resolved by one rule wi
 | Escalation of authority-bound tradeoffs | PO.5 | GRC-04 | A.5.4 | V15.1 |
 | Failing states surfaced, not concealed | RV.1, RV.2 | LOG-02, GRC-05 | A.8.15, A.5.36 | V16.2 |
 
-The AIQT facets also align, at the concept level, with the trustworthiness vocabularies of the AI-assurance frameworks (the NIST AI Risk Management Framework's trustworthiness characteristics and the ISO/IEC 42001 management-system requirements); the consuming GRC library's corpus principle document carries that mapping in citable, source-verified form, and this rule deliberately does not restate it.
+The AIQT facets also align, at the concept level, with the trustworthiness vocabularies of the AI-assurance frameworks (the NIST AI Risk Management Framework's trustworthiness characteristics and the ISO/IEC 42001 management-system requirements); a consuming project that needs that mapping in citable, source-verified form carries it in its own principles or corpus document (the parent GRC library's corpus principle document is one such carrier), and this rule deliberately does not restate it.
 
 <!-- PROJECT-OVERLAY: not part of the distributable pack -->
 

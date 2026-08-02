@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.68.3\
+**Version:** 1.68.4\
 **Date:** 2026-08-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -33,7 +33,7 @@ The pack covers two areas:
 
 The pack also ships **Claude Code Skills** (`SKILL.md` workflow format) under `skills/`, derived from selected governance rules. The canonical rule remains the source of truth for normative content (framework alignment, exception handling, rationale); the skill is the workflow wrapper (when to invoke, what steps in what order, what verification confirms completion). The directory tree below lists the current set; per-version shipping history lives in the `## Version history` section near the bottom of this README and in the parent library's `CHANGELOG.md`.
 
-The pack and the parent GRC library are two coordinated halves of one project. The parent library is the GRC corpus; the pack is the operational layer that allowed the maintainer to keep the corpus consistent with Claude Code participating in PRs. Every governance rule in the pack was shaped by the parent library's real maintenance practice, some earned directly from incidents and some codified up front against known failure classes (several later grounded by real events); the pack is the library's lessons learned, made portable. Each rule's origin is summarized in the pack's own provenance register, [`rule-provenance.md`](rule-provenance.md), with the detailed lineage preserved in the parent library's records.
+The pack originated inside a parent GRC library as the operational layer that allowed the maintainer to keep that corpus consistent with Claude Code participating in PRs; the pack stands alone without it. Every governance rule in the pack was shaped by the parent library's real maintenance practice, some earned directly from incidents and some codified up front against known failure classes (several later grounded by real events); the pack is the library's lessons learned, made portable. Each rule's origin is summarized in the pack's own provenance register, [`rule-provenance.md`](rule-provenance.md), with the detailed lineage preserved in the parent library's records.
 
 ## Three ways to use this pack
 
@@ -45,7 +45,7 @@ This pack supports three adoption paths, all first-class:
 
 3. **As a standalone Claude Code baseline pack, on any project.** A Claude Code baseline pack, usable on any project regardless of whether it has a GRC corpus, distilled from the disciplines this library required to maintain itself. Take this directory only and drop it into your project's Claude Code context. The setup generator at [`setup-generator-prompt.md`](setup-generator-prompt.md) automates this; the manual paths are documented in the "How to use" section below. The pack ships with its own version sequence so consumers in this mode can track pack updates without needing to track the parent library's version.
 
-The third mode is an emergent use that has been adopted by developers in practice; it is supported alongside the primary fork-the-whole-repo path. Provenance is what makes the pack credible as a standalone artefact: the pack's provenance register, [`rule-provenance.md`](rule-provenance.md), summarizes each rule's origin, a real maintenance event where one exists and an honest up-front codification where that is the truth, without the parent project's internal detail.
+The third mode began as an emergent use adopted by developers in practice and is supported as a first-class path alongside the fork-the-whole-repo path; a standalone adopter needs nothing from the parent library. Provenance is what makes the pack credible as a standalone artefact: the pack's provenance register, [`rule-provenance.md`](rule-provenance.md), summarizes each rule's origin, a real maintenance event where one exists and an honest up-front codification where that is the truth, without the parent project's internal detail.
 
 ---
 
@@ -68,7 +68,7 @@ are the throughput tier below the AIQT tier, and neither ever reduces verificati
 - **Integrity**: no stubbed or simulated results presented as finished work, no
   suppressed or weakened checks, no fabrication, no silent changes; failing states
   are surfaced, never concealed.
-- **Quality**: the work meets this project's own standard of craft and passes its
+- **Quality**: the work meets the project's own standard of craft and passes its
   checks, run on the final state, unpiped.
 - **Trust**: warranted by the record, granted by the human. Every claim traceable to
   evidence; overrides logged; failures reported plainly.
@@ -137,11 +137,11 @@ claude-rules/
 │   ├── citation-quote-verification/SKILL.md           Verify cited quotes match source text at the cited location; catches what citation-format and currency linters cannot
 │   ├── fresh-reader-validation/SKILL.md               Dispatch a fresh subagent to read a new or substantively-revised document and surface tacit-context gaps
 │   ├── skill-authoring-discipline/SKILL.md            Apply the pack's structural template and validate trigger accuracy when adding a new skill
-│   ├── library-fitness-review/SKILL.md                Whole-corpus library-quality review with ten persona reviewers; periodic deliverable, not a per-PR gate
+│   ├── library-fitness-review/SKILL.md                Whole-corpus library-quality review with a project-defined catalogue of persona reviewers; periodic deliverable, not a per-PR gate
 │   ├── deep-qa-review/SKILL.md                        Trust-recovery deep-QA forensic pass; six AI-failure-pattern subagents over a PR window; pairs with library-fitness-review; findings routed tiered by severity, maintainer sign-off terminates
 │   ├── pr-retrospective/SKILL.md                      Retrospective on each PR as its finalizing step; appends to the improvement-log register; recurring patterns surface as candidates for pack-rule updates or worker-brief additions
 │   ├── guardrail-review/SKILL.md                      Periodic structural-integrity review of the governance machinery (rules, skills, gates, wiring surfaces) for overlap / gap / drift the mechanical parity gates cannot see; maintainer-triggered + auto-prompt on machinery change
-│   ├── matrix-fit/SKILL.md                            Cadenced semantic-fit audit of the compliance matrix and per-document framework tables; catches the gate-blind "valid code, wrong control" class the existence gates cannot; after each matrix-expansion batch + at completion + ad-hoc
+│   ├── matrix-fit/SKILL.md                            Cadenced semantic-fit audit of the compliance matrix and per-document framework tables; catches the gate-blind "valid code, wrong control" class the existence gates cannot; after each batch that adds or edits mapping rows, at completion of a mapping surface, and ad-hoc
 │   ├── claim-fit/SKILL.md                             Cadenced citation-precision audit of normative-attribution claims; catches the gate-blind "attributed value, silent source" class the existence and citation gates cannot; one-time Tier-A pass at adoption + after normative-value batches + ad-hoc
 │   ├── high-assurance-verification/SKILL.md           Heavier pre-apply harness for a sensitive change (gate-blind, delicate-at-scale, costly): research fan-out, signal pass over the negatives, two independent adversarial verifiers, an invariant floor, and a deterministic scripted apply plus re-parse; the executable form of the high-assurance-verification rule
 │   ├── deep-assessment/SKILL.md                       Rare, maintainer-invoked whole-project deep assessment; composes the semantic instruments by invocation and adds the lenses the routine cadence does not apply to itself (gate-efficacy probing, blind-spot mapping, ground-truth sampling, adoptability and pipeline integrity, QA-ledger meta-audit); count-free and inventory-deriving, register-backed and re-entrant, completion-standard-terminated (no separate sign-off, since it composes only established validate-and-fix QA processes); derives_from trust-recovery-escalation
@@ -516,6 +516,7 @@ The pack's change history is maintained in the parent grc_library repository CHA
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.68.4 | 2026.08.52 | 2026-08-02 | Patch (3.56 agnosticism cleanup): 14 defects generalizing project-specific assumptions in the portable pack surfaces (pack CLAUDE.md, core/authentication.md, README, the project-integrity apex rule, and seven skills) so the pack reads for a generic adopter; parent-library specifics demoted to labelled provenance; adopt skill excluded (removed from publication). No discipline change. |
 | 1.68.3 | 2026.08.51 | 2026-08-02 | Patch (P-1.18 disclosure scrub): scrubbed private reference/operational repo names from the pack README (the current reference-base guidance line plus four frozen version-history rows, including one internal reference SHA) and generalized two portable skill-body leaks (a QA-gate reference in validation-sweep-pr-scoped, a provenance-watermark reference in publication-screening); no rule, skill, or discipline change. |
 | 1.68.2 | 2026.08.46 | 2026-08-02 | Patch (P-1.18 disclosure prep): generalized the ai-assistant-workflow-disciplines worker-primitive paragraph vocabulary (orchestrator/own-accounts/exchange-channel/claims-ledger to coordinating-session/isolated-contexts/handoff-surface/work-ownership-record) so the published CORE describes the pattern without exposing the private deployment topology. No discipline change. |
 | 1.68.1 | 2026.08.44 | 2026-08-02 | Patch (TODO 3.182): removed eight dead links from the shipped rule surface, the Kariedo overlay's six cross-references to un-vendored companion files (replaced with a pointer to the primary pack) and two `trust-recovery-escalation` skill links that were dead in the `.claude/rules` mirror (de-linked to mirror-safe code spans). Gate 3 now scans `.claude/rules` so future dead links fail mechanically. |
