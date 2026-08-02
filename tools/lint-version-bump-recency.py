@@ -152,20 +152,32 @@ def main(argv: list[str]) -> int:
     # (`git log -1 -- <path>`) has no faithful single-call batch form on
     # a history with merge commits, so the commands themselves stay
     # unchanged and only their scheduling is concurrent.
+    # Parallelize ACROSS files while preserving the original per-file
+    # sequencing EXACTLY: last_version_commit is issued only when
+    # last_file_commit succeeded (the serial short-circuit), so the git
+    # subprocesses issued (and thus any git diagnostics) are identical to
+    # the serial form, and duplicate explicit paths are each processed
+    # (map iterates the list; it does not key by rel, which would collapse
+    # duplicates). Only scheduling is concurrent. last_file_commit /
+    # last_version_commit return None (never raise) on a git failure, so
+    # map's eager submission introduces no observable exception-path change.
+    def _per_file_history(rel: str) -> tuple[str | None, str | None]:
+        file_commit = last_file_commit(rel)
+        if file_commit is None:
+            return (None, None)
+        return (file_commit, last_version_commit(rel))
+
     with ThreadPoolExecutor(max_workers=GIT_POOL_WORKERS) as pool:
-        file_commit_futures = {rel: pool.submit(last_file_commit, rel) for rel in rels}
-        version_commit_futures = {rel: pool.submit(last_version_commit, rel) for rel in rels}
+        per_file = list(pool.map(_per_file_history, rels))
 
     findings: list[tuple[str, str, str]] = []
     scanned = 0
     skipped_single_commit = 0
-    for rel in rels:
+    for rel, (file_commit, version_commit) in zip(rels, per_file):
         scanned += 1
-        file_commit = file_commit_futures[rel].result()
         if file_commit is None:
             # Path not tracked yet (new file in the working tree); skip.
             continue
-        version_commit = version_commit_futures[rel].result()
         if version_commit is None:
             # File exists in history but no commit touched a Version line.
             # This typically means the file was added once with the Version

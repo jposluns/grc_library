@@ -838,13 +838,13 @@ CROSS_ADJACENCY_WINDOW = 40
 # ---------------------------------------------------------------------------
 # PR-delta git-range helpers (1.26.1 Family-A hoist).
 #
-# The PR-time delta checks (D1-D5, D7) each carried a verbatim copy of the
+# The PR-time delta checks D1-D4 and D7 each carried a verbatim copy of the
 # same ~40 lines: a ``git`` subprocess wrapper, the positional-base fallback
 # to ``origin/$GITHUB_BASE_REF``, and merge-base resolution with a shared
-# error message. This is the single definition. The two delta checks whose
-# range resolution deliberately differs (D6's compact sys.argv form with its
-# own message prefix, D9's argless origin/main default) keep their own
-# resolution flow.
+# error message. This is the single definition. The delta checks whose
+# range resolution deliberately differs (D5's own git plus merge-base flow,
+# D6's compact sys.argv form with its own message prefix, D9's argless
+# origin/main default) keep their own resolution flow.
 
 
 def git(*args: str) -> str:
