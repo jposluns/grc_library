@@ -105,4 +105,4 @@ If the RAG system serves multiple tenants or user groups:
 | Sensitive disclosure via retrieval | LLM02 | AML.T0057 | DSP-05 | Measure 2.7 |
 | Retrieval authorization | LLM06, LLM08 | AML.T0053 | IAM-04 | Manage 1.3 |
 | Training/corpus poisoning | LLM03, LLM04 | AML.T0020 | DSP-05 | Govern 1.7 |
-| Data retention | LLM02 | N/A | DSP-07 | Manage 2.2 |
+| Data retention | LLM02 | N/A | DSP-16 | Manage 2.2 |
