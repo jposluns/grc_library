@@ -158,11 +158,15 @@ def compile_entry_patterns(
 
     ``prefilter`` is the lower-cased standard id when the id is pure ASCII,
     else ``None``. Every pattern begins with the escaped standard id under
-    ``re.IGNORECASE``, so for an ASCII id a line that does not contain the id
-    case-insensitively cannot match the pattern; the substring test is a pure
-    fast-path, not a semantic filter. A non-ASCII id (where ``str.lower`` and
-    regex case-insensitivity could in principle disagree) gets no prefilter
-    and always runs the full pattern.
+    ``re.IGNORECASE``. The prefilter substring test is applied ONLY when the
+    LINE is ASCII (see ``check_file``): on an ASCII line ``str.lower`` and
+    ``re.IGNORECASE`` agree exactly, so an ASCII id absent from the
+    lower-cased line cannot match the pattern, making the skip a pure
+    fast-path. A non-ASCII line (where ``str.lower`` and regex case folding
+    can disagree, for example dotless ``ı`` U+0131 folding toward ``i``)
+    bypasses the prefilter and runs the full pattern, as does a non-ASCII id
+    (prefilter ``None``); both preserve exact equivalence with running every
+    pattern on every line.
     """
     compiled: list[tuple[str | None, re.Pattern[str], str]] = []
     for entry in entries:
@@ -217,8 +221,9 @@ def check_file(
         return findings
     for ln, line in iter_non_code_lines(text):
         line_lower = line.lower()
+        line_is_ascii = line.isascii()
         for prefilter, pattern, message in compiled:
-            if prefilter is not None and prefilter not in line_lower:
+            if prefilter is not None and line_is_ascii and prefilter not in line_lower:
                 continue
             if pattern.search(line):
                 findings.append((ln, message))
