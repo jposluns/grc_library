@@ -36,8 +36,8 @@ private sibling (the sibling-independence invariant, ``check-portability.sh``).
 It is a maintainer-side generator run when the tiering is refreshed.
 
 D7 INTERACTION. The PR-time length gate D7 (``check-changelog-length-on-pr.py``)
-and its advisory sibling (``audit-changelog-entry-length.py``) match ONLY the
-per-PR compact header ``**YYYY-MM-DD | X.Y.Z | PR #N** - ...``; a daily
+matches ONLY the per-PR compact header
+``**YYYY-MM-DD | X.Y.Z | PR #N** - ...``; a daily
 (``**YYYY-MM-DD (PRs ...)**``), weekly (``**Week of ...**``), or monthly
 (``**YYYY-MM ...**``) paragraph header does NOT match, so those tiers are out of
 D7's scope with no gate change. Only the CURRENT-DAY per-PR tier is length-gated,
