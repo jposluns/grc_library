@@ -263,6 +263,8 @@ jobs:
         run: python3 tools/lint-todo-list-tag.py
       - name: Ungated-surface dash audit
         run: python3 tools/lint-ungated-dashes.py
+      - name: Publication-manifest sync audit
+        run: python3 tools/lint-publication-manifest.py
 
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
