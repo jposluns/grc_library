@@ -36,7 +36,7 @@ Deliberate deltas from gate 62, each evidence-backed by the survey:
   tables; scanning them found zero false positives corpus-wide.
   ``adjacent_link``'s pipe-breaks-adjacency defence still prevents a
   cell's reference binding to a neighbouring cell's link.
-- ``dev-security/claude-rules/README.md`` is exempt BY RELATIVE PATH
+- ``guardrails/README.md`` is exempt BY RELATIVE PATH
   (its version-history table narrates past reference shapes frozen
   as-of-write, the same rationale as the CHANGELOG exemption; the
   root README.md stays scanned).
@@ -118,7 +118,7 @@ EXEMPT_FILES = frozenset(
 # row was written). Exempting by relpath keeps the root README scanned.
 EXEMPT_RELPATHS = frozenset(
     {
-        "dev-security/claude-rules/README.md",
+        "guardrails/README.md",
     }
 )
 

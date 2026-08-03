@@ -25,10 +25,10 @@ history register accumulates findings):
 
   PF-01 stale-skill-count: "N skills" / "N pack skills" where N is not
         the actual count of subdirectories under
-        dev-security/claude-rules/skills/.
+        guardrails/skills/.
   PF-02 stale-rule-count: "N rules" / "N governance rules" where N is
         not the actual count of *.md files under
-        dev-security/claude-rules/governance/.
+        guardrails/governance/.
   PF-03 stale-collection-mention: any "N <collection-name>" where N is
         a digit and <collection-name> matches a known collection from
         the validation-sweep skill's collection list, and N does not
@@ -72,8 +72,8 @@ from lint_common import DEFAULT_EXEMPT_DIRS, REPO_ROOT, read_text_safe
 # Canonical sources for collection counts. Each entry: (collection-name,
 # directory path relative to REPO_ROOT, item-filter callable).
 CANONICAL_COLLECTIONS: list[tuple[str, str, str]] = [
-    ("skills", "dev-security/claude-rules/skills", "dir"),
-    ("rules", "dev-security/claude-rules/governance", "md"),
+    ("skills", "guardrails/skills", "dir"),
+    ("rules", "guardrails/governance", "md"),
 ]
 
 # Files exempt from this scanner (CHANGELOG history, the scanner itself,
@@ -139,7 +139,7 @@ class Finding(NamedTuple):
 CANONICAL_VERSIONS: list[tuple[str, str, str]] = [
     ("library", "README.md", "Library Version"),
     ("readme", "README.md", "README Version"),
-    ("pack", "dev-security/claude-rules/README.md", "Version"),
+    ("pack", "guardrails/README.md", "Version"),
     ("spec", "governance/specification-audit-programme.md", "Version"),
 ]
 

@@ -70,6 +70,7 @@ DEFAULT_PATHS = [
     # Domain run splatted from lint_common (scan-scope parity gate
     # forbids hardcoding the run).
     *AUDITED_DOMAIN_DIRS,
+    "guardrails",
 ]
 
 OWNER_PATTERN = re.compile(r"^\*\*Owner:\*\*\s+(.+?)\s*$", re.MULTILINE)

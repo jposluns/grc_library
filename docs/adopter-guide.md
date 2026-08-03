@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Guide\
 **Document Type:** Guide\
-**Version:** 1.3.15\
-**Date:** 2026-07-31\
+**Version:** 1.3.16\
+**Date:** 2026-08-03\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/worked-example.md`](worked-example.md), [`docs/worked-example-adoption.md`](worked-example-adoption.md), [`docs/adopter-guide-multi-entity.md`](adopter-guide-multi-entity.md), [`specification-master-project.md`](../specification-master-project.md)\
@@ -41,7 +41,7 @@ You are not required to adopt the entire library. Most organizations will adopt 
 
 ## Three adoption modes
 
-The repository ships both a GRC corpus and a reference implementation for AI-assisted maintenance of that corpus (the audit toolchain in [`tools/`](../tools/) and the operational pack in [`dev-security/claude-rules/`](../dev-security/claude-rules/)). An adopter can engage at any of three levels; pick the mode that matches what you are actually trying to build, not the most ambitious one.
+The repository ships both a GRC corpus and a reference implementation for AI-assisted maintenance of that corpus (the audit toolchain in [`tools/`](../tools/) and the operational pack in [`guardrails/`](../guardrails/)). An adopter can engage at any of three levels; pick the mode that matches what you are actually trying to build, not the most ambitious one.
 
 These modes describe a single organization adopting the library. A group, holding company, or multi-entity structure has a further choice, how to adopt across several legal entities that share governance but differ in jurisdiction and sector; see [`docs/adopter-guide-multi-entity.md`](adopter-guide-multi-entity.md) for the three group topologies and their trade-offs.
 
@@ -61,7 +61,7 @@ These modes describe a single organization adopting the library. A group, holdin
 
 **What you take.** The domain directories you need (`governance/`, `security/`, `privacy/`, `risk/`, etc. as applicable to your scope). The Core reference set called out in the root [`README.md`](../README.md). The [`specification-master-project.md`](../specification-master-project.md) if you want to preserve the controlled document model.
 
-**What you ignore.** [`tools/`](../tools/) (the audit toolchain) and [`dev-security/claude-rules/`](../dev-security/claude-rules/) (the pack) unless you choose to opt into one or both later. Your maintenance workflow may be a word processor plus a collaboration platform, a wiki, a different toolchain, or human-only review; the library's content is portable to any of those.
+**What you ignore.** [`tools/`](../tools/) (the audit toolchain) and [`guardrails/`](../guardrails/) (the pack) unless you choose to opt into one or both later. Your maintenance workflow may be a word processor plus a collaboration platform, a wiki, a different toolchain, or human-only review; the library's content is portable to any of those.
 
 **Next step.** Copy the relevant domain directories. Substitute roles and jurisdiction-specific values per the Quick start. The CC BY-SA 4.0 share-alike clause applies to derivatives you redistribute.
 
@@ -69,13 +69,13 @@ These modes describe a single organization adopting the library. A group, holdin
 
 **Audience.** A developer or team that is not building or adopting a GRC library, but wants a solid Claude Code baseline for any project: security rules, language-specific patterns, governance disciplines, and skills for the recurring failure modes an AI coding assistant exhibits.
 
-**What you take.** [`dev-security/claude-rules/`](../dev-security/claude-rules/) (the pack). Its own [`README.md`](../dev-security/claude-rules/README.md) is the front door and the [`setup-generator-prompt.md`](../dev-security/claude-rules/setup-generator-prompt.md) is the AI-assisted installer. The pack ships with its own version sequence (independent of the library's; see the pack README header for the current value) and is documented to operate standalone.
+**What you take.** [`guardrails/`](../guardrails/) (the pack). Its own [`README.md`](../guardrails/README.md) is the front door and the [`setup-generator-prompt.md`](../guardrails/setup-generator-prompt.md) is the AI-assisted installer. The pack ships with its own version sequence (independent of the library's; see the pack README header for the current value) and is documented to operate standalone.
 
 **What you ignore.** Everything else in this repository. The pack does not require the GRC corpus to be present; the pack rules are written as project-agnostic disciplines that any Claude Code project benefits from.
 
-**Why this is supported.** This mode emerged in practice: developers found the pack useful as a Claude Code baseline pack, usable on any project regardless of whether it has a GRC corpus, distilled from the disciplines this library required to maintain itself. The provenance is what makes the pack credible as a standalone artefact: the pack's own provenance register, [`dev-security/claude-rules/rule-provenance.md`](../dev-security/claude-rules/rule-provenance.md), summarizes each rule's origin (a real maintenance event where one exists, an honest up-front codification where that is the truth), and the detailed lineage lives in this library's records.
+**Why this is supported.** This mode emerged in practice: developers found the pack useful as a Claude Code baseline pack, usable on any project regardless of whether it has a GRC corpus, distilled from the disciplines this library required to maintain itself. The provenance is what makes the pack credible as a standalone artefact: the pack's own provenance register, [`guardrails/rule-provenance.md`](../guardrails/rule-provenance.md), summarizes each rule's origin (a real maintenance event where one exists, an honest up-front codification where that is the truth), and the detailed lineage lives in this library's records.
 
-**Next step.** Either copy [`dev-security/claude-rules/`](../dev-security/claude-rules/) directly into your project (under `dev-security/claude-rules/` or wherever you want it), or use the pack's setup generator to produce a tailored Claude Code configuration for your specific project. The pack's own [`README.md`](../dev-security/claude-rules/README.md) section "How to use" walks both options.
+**Next step.** Either copy [`guardrails/`](../guardrails/) directly into your project (under `guardrails/` or wherever you want it), or use the pack's setup generator to produce a tailored Claude Code configuration for your specific project. The pack's own [`README.md`](../guardrails/README.md) section "How to use" walks both options.
 
 ---
 

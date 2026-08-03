@@ -12,7 +12,7 @@ configuration.
 Approach (heuristic):
 
 1. Walk a configured set of candidate-source roots (subdirectories of
-   ``dev-security/claude-rules/``, ``governance/``, and selected
+   ``guardrails/``, ``governance/``, and selected
    compliance subdirs). Every direct subdirectory of a root with at
    least 3 items is treated as a candidate canonical source.
 
@@ -58,7 +58,7 @@ from lint_common import REPO_ROOT, read_text_safe
 # Candidate canonical source roots. Each direct subdirectory of these
 # roots with ≥ MIN_ITEMS items is a candidate canonical source.
 CANDIDATE_ROOTS: tuple[str, ...] = (
-    "dev-security/claude-rules",
+    "guardrails",
     "governance",
     "compliance",
     "ai",
@@ -85,13 +85,13 @@ COVERAGE_THRESHOLD = 0.60
 # from the output unless the detected enumeration files extend the
 # already-tracked set.
 TRACKED_COLLECTIONS: dict[str, tuple[str, ...]] = {
-    "dev-security/claude-rules/governance": (
-        "dev-security/claude-rules/README.md",
-        "dev-security/claude-rules/CLAUDE.md",
+    "guardrails/governance": (
+        "guardrails/README.md",
+        "guardrails/CLAUDE.md",
         ".claude/CLAUDE.md",
     ),
-    "dev-security/claude-rules/skills": (
-        "dev-security/claude-rules/README.md",
+    "guardrails/skills": (
+        "guardrails/README.md",
     ),
 }
 

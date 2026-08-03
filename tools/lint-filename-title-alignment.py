@@ -55,7 +55,7 @@ from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT, iter_scan_roots_markdown
 
 
 EXEMPT_DIRECTORY_PREFIXES: tuple[str, ...] = (
-    "dev-security/claude-rules/",
+    "guardrails/",
     "tools/",
     "docs/",
 )

@@ -2,8 +2,8 @@
 
 **Document Title:** Project Governance Separation Specification\
 **Document Type:** Specification\
-**Version:** 1.0.8\
-**Date:** 2026-07-29\
+**Version:** 1.0.9\
+**Date:** 2026-08-03\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`governance/specification-audit-programme.md`](specification-audit-programme.md), [`governance/README.md`](README.md), the private-sibling working-state store `grc_library_private/.working/`\
@@ -40,7 +40,7 @@ The split exists because `governance/` is meant to hold governance *documents an
 
 ### 2.2 Out of scope
 
-- The `dev-security/claude-rules/` pack and its `.claude/` deployment. That pack is AI-assistant discipline distributed as a reusable product; it is neither corpus governance (it is not GRC content) nor project governance (it is not operational record). It keeps its own location and conventions.
+- The `guardrails/` pack and its `.claude/` deployment. That pack is AI-assistant discipline distributed as a reusable product; it is neither corpus governance (it is not GRC content) nor project governance (it is not operational record). It keeps its own location and conventions.
 - The maintainer working-state tree, which holds frozen-state archives (per-run records from `/validate`, `/fitness`, and similar). Formerly the in-repo `.working/` directory, it moved to the private sibling `grc_library_private/.working/` in the working-state migration; it is unmaintained-after-write and exempt from corpus gates (and now outside the public repository entirely), whereas `.project-governance/` is maintained and audited (§6.3). The two are distinct and neither subsumes the other.
 - The substance of any classified artefact. This specification moves artefacts and re-points citations; it does not rewrite their content.
 
@@ -196,7 +196,7 @@ The taxonomy, portal, and maturity-scorecard generators derive from the publishe
 
 Two linters reference the campaign artefacts by hardcoded path and must re-point when those artefacts move: `lint-citation-verification-freshness.py` (loads the verifications register) and `lint-citations.py` (lists a batch worklist in a citation-source set). Re-pointing keeps the freshness and citation audits live on the moved artefacts, consistent with §6.3.
 
-The directional-dependency gate that enforces §4 is built as **gate 53** ([`tools/lint-directional-dependency.py`](../tools/lint-directional-dependency.py)): it flags any deliverable-corpus document that contains a markdown link whose resolved target is inside `.project-governance/`, the mechanical enforcement of the one-way dependency rule. The deliverable-corpus scan set is derived from `AUDITED_DOMAIN_DIRS` minus `.project-governance` plus the root deliverable specifications; the non-deliverable surfaces §4 permits to link into the directory (the pack under `dev-security/claude-rules/`, the repository backlog, the root `CHANGELOG.md`, the generated indexes, the `.working/` and `.claude/` trees) are out of scope, and so is `.project-governance/` itself (links within it are allowed). Before the gate existed the rule rested on the migration discipline (§8.2) and the broken-link gate; the gate makes it a standing mechanical check, the §4 counterpart to the §7.4 scan-scope parity gate (gate 52).
+The directional-dependency gate that enforces §4 is built as **gate 53** ([`tools/lint-directional-dependency.py`](../tools/lint-directional-dependency.py)): it flags any deliverable-corpus document that contains a markdown link whose resolved target is inside `.project-governance/`, the mechanical enforcement of the one-way dependency rule. The deliverable-corpus scan set is derived from `AUDITED_DOMAIN_DIRS` minus `.project-governance` plus the root deliverable specifications; the non-deliverable surfaces §4 permits to link into the directory (the pack under `guardrails/`, the repository backlog, the root `CHANGELOG.md`, the generated indexes, the `.working/` and `.claude/` trees) are out of scope, and so is `.project-governance/` itself (links within it are allowed). Before the gate existed the rule rested on the migration discipline (§8.2) and the broken-link gate; the gate makes it a standing mechanical check, the §4 counterpart to the §7.4 scan-scope parity gate (gate 52).
 
 ### 7.4 Explicit-allow-list content linters must add the directory
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Governance Library Charter\
 **Document Type:** Charter\
-**Version:** 1.2.5\
-**Date:** 2026-07-08\
+**Version:** 1.2.6\
+**Date:** 2026-08-03\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md), [`governance/policy-digital-twin-and-simulation-governance.md`](policy-digital-twin-and-simulation-governance.md)\
@@ -22,7 +22,7 @@ This charter establishes the authority model, document hierarchy, lifecycle, qua
 
 The library provides organization-neutral governance artefacts that can be adopted or adapted by any organization. It is not a record of one organization's internal governance programme and must not contain organization-specific names, evidence, systems, incidents, vendors, customers, or personal identifiers.
 
-The library also serves as a reference implementation for AI-assisted maintenance of a governed corpus. The audit toolchain under [`tools/`](../tools/) and the operational pack under [`dev-security/claude-rules/`](../dev-security/claude-rules/) show how a CC BY-SA 4.0 GRC corpus can be maintained with Claude Code participating in PRs without losing internal consistency, metadata integrity, or audit-trail discipline. The pack is also documented as a standalone Claude Code baseline usable on any project, with or without a GRC corpus, distilled from the disciplines this library required to maintain itself. This charter governs the corpus; the operational layer is an artefact of the corpus's own maintenance, not an additional authority claim.
+The library also serves as a reference implementation for AI-assisted maintenance of a governed corpus. The audit toolchain under [`tools/`](../tools/) and the operational pack under [`guardrails/`](../guardrails/) show how a CC BY-SA 4.0 GRC corpus can be maintained with Claude Code participating in PRs without losing internal consistency, metadata integrity, or audit-trail discipline. The pack is also documented as a standalone Claude Code baseline usable on any project, with or without a GRC corpus, distilled from the disciplines this library required to maintain itself. This charter governs the corpus; the operational layer is an artefact of the corpus's own maintenance, not an additional authority claim.
 
 ---
 

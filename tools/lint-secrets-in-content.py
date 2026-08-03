@@ -54,7 +54,7 @@ SCAN_SUFFIXES = {".md", ".py", ".yaml", ".yml", ".json", ".toml", ".txt"}
 # Files exempt because they document secret formats by design.
 EXEMPT_FILES = {
     "lint-secrets-in-content.py",
-    # claude-rules/core/secrets.md is the canonical "never hardcode secrets"
+    # guardrails/core/secrets.md is the canonical "never hardcode secrets"
     # rule file; it documents the patterns to forbid by showing them in
     # code-block examples.
     "secrets.md",

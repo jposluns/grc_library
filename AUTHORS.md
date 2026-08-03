@@ -2,8 +2,8 @@
 
 **Document Title:** Authors and Acknowledgements\
 **Document Type:** Register\
-**Version:** 1.1.3\
-**Date:** 2026-06-25\
+**Version:** 1.1.4\
+**Date:** 2026-08-03\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](README.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), [`NOTICE.md`](NOTICE.md)\
@@ -25,13 +25,13 @@
 - LinkedIn: <https://linkedin.com/in/jposluns>
 - ORCID: <https://orcid.org/0009-0000-7775-2233>
 
-Jeffrey is the original creator and current maintainer of the Governance, Risk, and Compliance Documentation Library and of the [`dev-security/claude-rules/`](dev-security/claude-rules/) pack distilled from the library's own maintenance experience. The library has been authored with substantial AI assistance and curated, reviewed, and edited by Jeffrey.
+Jeffrey is the original creator and current maintainer of the Governance, Risk, and Compliance Documentation Library and of the [`guardrails/`](guardrails/) pack distilled from the library's own maintenance experience. The library has been authored with substantial AI assistance and curated, reviewed, and edited by Jeffrey.
 
 ## Attribution posture
 
 The library is released under [Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)](LICENSE). CC BY-SA 4.0 **requires** attribution when content is redistributed (in original or modified form) and requires that derivatives be released under CC BY-SA 4.0 as well (the "ShareAlike" condition).
 
-The [`dev-security/claude-rules/`](dev-security/claude-rules/) pack is library-original content and ships under the same CC BY-SA 4.0 terms; it does not carry a separate licence. The same attribution requirements apply whether an adopter uses the corpus, the pack, or both.
+The [`guardrails/`](guardrails/) pack is library-original content and ships under the same CC BY-SA 4.0 terms; it does not carry a separate licence. The same attribution requirements apply whether an adopter uses the corpus, the pack, or both.
 
 Required attribution forms (any of these satisfies the licence; the canonical machine-readable form is the [`CITATION.cff`](CITATION.cff) metadata):
 
@@ -62,7 +62,7 @@ Example citation (BibTeX):
 }
 ```
 
-Adopters using only the [`dev-security/claude-rules/`](dev-security/claude-rules/) pack (the standalone Claude Code baseline mode described in [`docs/adopter-guide.md`](docs/adopter-guide.md)) should cite the parent library, since the pack is a derivative artefact of the library's maintenance experience and ships under the same licence. The citation above is the canonical form regardless of which adoption mode an adopter chose.
+Adopters using only the [`guardrails/`](guardrails/) pack (the standalone Claude Code baseline mode described in [`docs/adopter-guide.md`](docs/adopter-guide.md)) should cite the parent library, since the pack is a derivative artefact of the library's maintenance experience and ships under the same licence. The citation above is the canonical form regardless of which adoption mode an adopter chose.
 
 ## AI assistance disclosure
 

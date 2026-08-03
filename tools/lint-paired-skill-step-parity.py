@@ -99,55 +99,55 @@ from lint_common import REPO_ROOT, iter_non_code_lines, read_text_safe
 # skill ships a slash-command counterpart.
 PAIRS: list[tuple[str, str]] = [
     (
-        "dev-security/claude-rules/skills/validation-sweep/SKILL.md",
+        "guardrails/skills/validation-sweep/SKILL.md",
         ".claude/commands/validate.md",
     ),
     (
-        "dev-security/claude-rules/skills/validation-sweep-pr-scoped/SKILL.md",
+        "guardrails/skills/validation-sweep-pr-scoped/SKILL.md",
         ".claude/commands/validate-pr.md",
     ),
     (
-        "dev-security/claude-rules/skills/library-fitness-review/SKILL.md",
+        "guardrails/skills/library-fitness-review/SKILL.md",
         ".claude/commands/fitness.md",
     ),
     (
-        "dev-security/claude-rules/skills/pr-retrospective/SKILL.md",
+        "guardrails/skills/pr-retrospective/SKILL.md",
         ".claude/commands/retro.md",
     ),
     (
-        "dev-security/claude-rules/skills/deep-qa-review/SKILL.md",
+        "guardrails/skills/deep-qa-review/SKILL.md",
         ".claude/commands/full-qa.md",
     ),
     (
-        "dev-security/claude-rules/skills/guardrail-review/SKILL.md",
+        "guardrails/skills/guardrail-review/SKILL.md",
         ".claude/commands/guardrails.md",
     ),
     (
-        "dev-security/claude-rules/skills/matrix-fit/SKILL.md",
+        "guardrails/skills/matrix-fit/SKILL.md",
         ".claude/commands/matrix-fit.md",
     ),
     (
-        "dev-security/claude-rules/skills/claim-fit/SKILL.md",
+        "guardrails/skills/claim-fit/SKILL.md",
         ".claude/commands/claim-fit.md",
     ),
     (
-        "dev-security/claude-rules/skills/high-assurance-verification/SKILL.md",
+        "guardrails/skills/high-assurance-verification/SKILL.md",
         ".claude/commands/high-assurance.md",
     ),
     (
-        "dev-security/claude-rules/skills/deep-assessment/SKILL.md",
+        "guardrails/skills/deep-assessment/SKILL.md",
         ".claude/commands/deep-assessment.md",
     ),
     (
-        "dev-security/claude-rules/skills/reference-audit/SKILL.md",
+        "guardrails/skills/reference-audit/SKILL.md",
         ".claude/commands/reference-audit.md",
     ),
     (
-        "dev-security/claude-rules/skills/publication-screening/SKILL.md",
+        "guardrails/skills/publication-screening/SKILL.md",
         ".claude/commands/screen-publications.md",
     ),
     (
-        "dev-security/claude-rules/skills/adopt/SKILL.md",
+        "guardrails/skills/adopt/SKILL.md",
         ".claude/commands/adopt.md",
     ),
 ]

@@ -33,7 +33,7 @@ Exemptions are layered:
     planned-target references by design), the decision tree, and the linter scripts that enumerate
     these patterns.
   - EXEMPT_DIR_PARTS: by directory: ``.git``, ``node_modules``,
-    ``__pycache__``, ``claude-rules`` (its rule files use angle-bracket
+    ``__pycache__``, ``guardrails`` (its rule files use angle-bracket
     placeholders as documentation of command syntax).
   - Filename-prefix exemptions: files beginning with ``template-`` or
     ``worklist-`` are auto-exempt because their purpose is to carry
@@ -86,10 +86,10 @@ EXEMPT_FILES = {
 # carve-out below.
 
 # Directories whose content is exempt. The default set
-# (``.git``/``node_modules``/``__pycache__``) plus ``claude-rules``,
+# (``.git``/``node_modules``/``__pycache__``) plus ``guardrails``,
 # where rule files use angle-bracket placeholders as documentation of
 # command syntax, not as template-fill markers.
-EXEMPT_DIR_PARTS = DEFAULT_EXEMPT_DIRS | {"claude-rules"}
+EXEMPT_DIR_PARTS = DEFAULT_EXEMPT_DIRS | {"guardrails"}
 
 # Patterns whose presence indicates a placeholder leak. Each pattern uses
 # word boundaries or angle-bracket-syntax to avoid false matches on prose.

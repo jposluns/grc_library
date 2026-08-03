@@ -206,7 +206,7 @@ CURATED_CORPUS_LINKS = [
     ("compliance/matrix-grc-compliance-alignment.md", "Compliance matrix"),
     ("ai/README.md", "AI domain index"),
     ("ai/policy-ai-compliance.md", "AI compliance policy"),
-    ("dev-security/claude-rules/README.md", "Governance rule-pack"),
+    ("guardrails/README.md", "Governance rule-pack"),
     ("governance/register-canonical-citations.md", "Canonical citations register"),
     ("docs/decision-tree.md", "Decision tree"),
     ("docs/adopter-guide.md", "Adopter guide"),
@@ -712,7 +712,7 @@ def render_llms_txt(figures):
 ## AI governance
 - [AI domain index]({gh}ai/README.md): the AI governance, risk, security, and documentation sub-corpus.
 - [AI compliance policy]({gh}ai/policy-ai-compliance.md): risk-tier classification and obligations.
-- [Governance rule-pack]({gh}dev-security/claude-rules/README.md): the disciplines an AI assistant follows when contributing to the corpus.
+- [Governance rule-pack]({gh}guardrails/README.md): the disciplines an AI assistant follows when contributing to the corpus.
 
 ## Optional
 - [Canonical citations register]({gh}governance/register-canonical-citations.md): the corpus's verified external-standard citations.

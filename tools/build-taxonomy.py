@@ -51,13 +51,13 @@ EXEMPT_FROM_INDEX = {
     "privacy/annex-regional-privacy-requirements.md",
 }
 
-# Only the claude-rules subdirectory of dev-security is excluded from
+# Only the guardrails pack directory is excluded from
 # the per-domain walk. (Phase 23.62 removed `tools/` and `docs/` from
 # this tuple because the walk is restricted to the DOMAINS list and
 # never reaches those directories; EXEMPT_FILES was also removed as a
 # whole because it was defined but never read.)
 EXEMPT_DIRECTORY_PREFIXES = (
-    "dev-security/claude-rules/",
+    "guardrails/",
 )
 
 FIELD_PATTERN = re.compile(r"^\*\*([^*]+):\*\*\s*(.*?)\s*$")

@@ -5,7 +5,7 @@ paths:
   - "tools/**"
 ---
 
-<!-- Source: dev-security/claude-rules/pipeline/cicd-gates.md (GRC Library, CC BY-SA 4.0). Copied verbatim for this project; security requirements unchanged. Path-scoped to this repo's CI/CD surfaces. -->
+<!-- Source: guardrails/pipeline/cicd-gates.md (GRC Library, CC BY-SA 4.0). Copied verbatim for this project; security requirements unchanged. Path-scoped to this repo's CI/CD surfaces. -->
 
 # CI/CD Pipeline Security Gates
 

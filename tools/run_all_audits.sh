@@ -125,7 +125,7 @@ run_gate "Linter regression test suite"                  python3 tools/run-linte
 
 # ----------------------------------------------------------------------
 # Claude-rules local-copy sync (1 gate). Verifies that the project-local
-# .claude/rules/ copies still match their dev-security/claude-rules/
+# .claude/rules/ copies still match their guardrails/
 # pack sources. Both trees are exempt from the corpus linters, so this
 # is the only gate that catches drift between a rule's source and the
 # copy a session actually loads. Placed last to avoid renumbering the

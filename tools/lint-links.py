@@ -96,6 +96,7 @@ DEFAULT_SCAN_ROOTS: list[str] = [
     "tools",
     "docs",
     ".claude/rules",
+    "guardrails",
 ]
 
 

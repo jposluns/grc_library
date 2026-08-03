@@ -2,8 +2,8 @@
 
 **Document Title:** Master Project Specification\
 **Document Type:** Specification\
-**Version:** 1.6.11\
-**Date:** 2026-07-08\
+**Version:** 1.6.12\
+**Date:** 2026-08-03\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Risk Officer\
 **Related Documents:** [`specification-ingestion.md`](specification-ingestion.md), [`instruction-ai-document-ingestion.md`](instruction-ai-document-ingestion.md), [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md)\
@@ -141,7 +141,7 @@ Documents subject to this specification are placed only in the governance-artefa
 | `supply-chain/` | Supplier governance, third-party risk, cloud governance, supply-chain security, trade compliance programmes, and service-provider assurance |
 | `compliance/` | Compliance management, legal and regulatory obligations, audit governance, sector-specific annexes, and trade compliance controls |
 | `risk/` | Enterprise risk management, risk registers, KRIs, risk appetite, quantitative analysis, AI risk methodology, and third-party risk standards |
-| `dev-security/` | Secure development standards, DevOps security, software composition analysis, developer quick references, and the `claude-rules/` operational pack distilled from this library's own maintenance disciplines (usable inside the library, in a fork of the library, or as a standalone Claude Code baseline for any project) |
+| `dev-security/` | Secure development standards, DevOps security, software composition analysis, developer quick references |
 | `operations/` | IT operations, asset management, change management, configuration management, and security operations registers |
 | `architecture/` | Enterprise architecture practice: framework, decision records, reference architectures, technology radar, architecture review, API design, data architecture, and integration architecture |
 | `compliance/<sector>/` | Sector-conditional sub-directories within compliance (`logistics/`, `financial-services/`, `healthcare/`, `energy-and-utilities/`, `telecommunications/`, `public-sector/`) hold sector-specific annexes, programme overlays (CTPAT, PIP, AEO, BASC, etc.), and sector-conditional artefacts. Organizations not participating in a covered sector or programme can ignore the corresponding sub-directory. |

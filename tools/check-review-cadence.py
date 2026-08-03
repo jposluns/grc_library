@@ -49,7 +49,7 @@ EXEMPT_FROM_INDEX = {
 # Phase 23.62 removed `tools/` and `docs/` because the per-domain walk
 # is restricted to the DOMAINS list and never reaches those directories.
 EXEMPT_DIRECTORY_PREFIXES = (
-    "dev-security/claude-rules/",
+    "guardrails/",
 )
 
 ROOT_DOCS = (

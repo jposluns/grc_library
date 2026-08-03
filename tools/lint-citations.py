@@ -144,6 +144,7 @@ DEFAULT_PATHS = [
     # Domain run splatted from the single source of truth in
     # ``lint_common``; the scan-scope parity gate forbids hardcoding it.
     *AUDITED_DOMAIN_DIRS,
+    "guardrails",
 ]
 
 

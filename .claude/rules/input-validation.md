@@ -4,7 +4,7 @@ paths:
   - "tests/**/*.py"
 ---
 
-<!-- Source: dev-security/claude-rules/core/input-validation.md (GRC Library, CC BY-SA 4.0). Copied verbatim for this project; security requirements unchanged. Path-scoped to this repo's Markdown-parsing tooling. -->
+<!-- Source: guardrails/core/input-validation.md (GRC Library, CC BY-SA 4.0). Copied verbatim for this project; security requirements unchanged. Path-scoped to this repo's Markdown-parsing tooling. -->
 
 # Input Validation and Output Encoding Rules
 

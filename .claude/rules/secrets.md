@@ -1,4 +1,4 @@
-<!-- Source: dev-security/claude-rules/core/secrets.md (GRC Library, CC BY-SA 4.0). Copied verbatim for this project; security requirements unchanged. -->
+<!-- Source: guardrails/core/secrets.md (GRC Library, CC BY-SA 4.0). Copied verbatim for this project; security requirements unchanged. -->
 
 # Secrets Management Rules
 

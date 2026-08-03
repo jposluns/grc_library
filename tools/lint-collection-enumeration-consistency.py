@@ -101,18 +101,18 @@ NORMALISERS: dict[str, callable] = {
 COLLECTIONS: tuple[Collection, ...] = (
     Collection(
         name="pack-governance-rules",
-        source_dir="dev-security/claude-rules/governance",
+        source_dir="guardrails/governance",
         source_glob="*.md",
         source_normaliser="strip_md",
         enumerations=(
             EnumerationLocation(
-                file="dev-security/claude-rules/README.md",
+                file="guardrails/README.md",
                 section_start_regex=r"^├── governance/",
                 section_end_regex=r"^├── \w+/",
                 item_regex=r"^│\s+[├└]──\s+([\w-]+)\.md",
             ),
             EnumerationLocation(
-                file="dev-security/claude-rules/CLAUDE.md",
+                file="guardrails/CLAUDE.md",
                 section_start_regex=r"^- \[`governance/",
                 section_end_regex=r"^The phased governance rollout|^---|^## ",
                 item_regex=r"^- \[`governance/([\w-]+)\.md`\]",
@@ -120,7 +120,7 @@ COLLECTIONS: tuple[Collection, ...] = (
             EnumerationLocation(
                 file=".claude/CLAUDE.md",
                 section_start_regex=r"^- `\.claude/rules/governance/",
-                section_end_regex=r"^The `dev-security/claude-rules/` pack|^---|^## ",
+                section_end_regex=r"^The `guardrails/` pack|^---|^## ",
                 item_regex=r"^- `\.claude/rules/governance/([\w-]+)\.md`",
             ),
             # Provenance register (§3.56a guard 3): every governance rule must
@@ -129,7 +129,7 @@ COLLECTIONS: tuple[Collection, ...] = (
             # its provenance entry. The register's per-rule headings run from
             # "## Governance rules" until the "## Procedure skills" section.
             EnumerationLocation(
-                file="dev-security/claude-rules/rule-provenance.md",
+                file="guardrails/rule-provenance.md",
                 section_start_regex=r"^## Governance rules",
                 section_end_regex=r"^## Procedure skills|^## Maintaining",
                 item_regex=r"^### `([\w-]+)`",
@@ -138,12 +138,12 @@ COLLECTIONS: tuple[Collection, ...] = (
     ),
     Collection(
         name="pack-skills",
-        source_dir="dev-security/claude-rules/skills",
+        source_dir="guardrails/skills",
         source_glob="*",
         source_normaliser="dirname",
         enumerations=(
             EnumerationLocation(
-                file="dev-security/claude-rules/README.md",
+                file="guardrails/README.md",
                 section_start_regex=r"^├── skills/",
                 section_end_regex=r"^├── \w+|^└── ",
                 item_regex=r"^│\s+[├└]──\s+([\w-]+)/SKILL\.md",

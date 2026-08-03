@@ -2,8 +2,8 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.20\
-**Date:** 2026-08-01\
+**Version:** 1.8.22\
+**Date:** 2026-08-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-system-card.md`](template-system-card.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md)\
@@ -208,23 +208,23 @@ Use of other AI coding tools, including public web interfaces, to generate code 
 
 ### 9.2 Secure coding rules deployment
 
-The library's CC BY-SA 4.0 secure-coding rules pack at [`dev-security/claude-rules/`](../dev-security/claude-rules/) is the approved Claude Code rules framework. Install the pack per Option 1 in the [pack README](../dev-security/claude-rules/README.md) (copy the whole `claude-rules/` directory and reference it with `@claude-rules/CLAUDE.md`; copying `CLAUDE.md` alone breaks its links to the sibling `ai/` and `governance/` files), copy selected rule files into the project's `.claude/rules/` directory (with optional `paths:` YAML frontmatter for path-scoped loading), or use the AI-assisted setup generator at [`dev-security/claude-rules/setup-generator-prompt.md`](../dev-security/claude-rules/setup-generator-prompt.md). See [`dev-security/guideline-ai-coding-assistant-security.md`](../dev-security/guideline-ai-coding-assistant-security.md) for full deployment options.
+The library's CC BY-SA 4.0 secure-coding rules pack at [`guardrails/`](../guardrails/) is the approved Claude Code rules framework. Install the pack per Option 1 in the [pack README](../guardrails/README.md) (copy the whole `guardrails/` directory and reference it with `@guardrails/CLAUDE.md`; copying `CLAUDE.md` alone breaks its links to the sibling `ai/` and `governance/` files), copy selected rule files into the project's `.claude/rules/` directory (with optional `paths:` YAML frontmatter for path-scoped loading), or use the AI-assisted setup generator at [`guardrails/setup-generator-prompt.md`](../guardrails/setup-generator-prompt.md). See [`dev-security/guideline-ai-coding-assistant-security.md`](../dev-security/guideline-ai-coding-assistant-security.md) for full deployment options.
 
-| Project Type | Recommended Rule Files (from `dev-security/claude-rules/`) |
+| Project Type | Recommended Rule Files (from `guardrails/`) |
 | --- | --- |
-| Any project with user-facing interfaces | [`core/owasp.md`](../dev-security/claude-rules/core/owasp.md) |
-| Any project incorporating AI/LLM features | [`ai/ai-security.md`](../dev-security/claude-rules/ai/ai-security.md) |
-| Any project with agentic behaviour | [`ai/agent-security.md`](../dev-security/claude-rules/ai/agent-security.md) |
-| Any project with RAG | [`ai/rag-security.md`](../dev-security/claude-rules/ai/rag-security.md) |
-| Any project using MCP tools | [`ai/mcp-security.md`](../dev-security/claude-rules/ai/mcp-security.md) |
-| Python workloads | [`languages/python.md`](../dev-security/claude-rules/languages/python.md) |
-| TypeScript/Node.js workloads | [`languages/typescript.md`](../dev-security/claude-rules/languages/typescript.md) |
-| .NET workloads | [`languages/csharp.md`](../dev-security/claude-rules/languages/csharp.md) |
-| Java/Spring workloads | [`languages/java.md`](../dev-security/claude-rules/languages/java.md) |
-| Go workloads | [`languages/go.md`](../dev-security/claude-rules/languages/go.md) |
-| CI/CD pipelines | [`pipeline/cicd-gates.md`](../dev-security/claude-rules/pipeline/cicd-gates.md) |
+| Any project with user-facing interfaces | [`core/owasp.md`](../guardrails/core/owasp.md) |
+| Any project incorporating AI/LLM features | [`ai/ai-security.md`](../guardrails/ai/ai-security.md) |
+| Any project with agentic behaviour | [`ai/agent-security.md`](../guardrails/ai/agent-security.md) |
+| Any project with RAG | [`ai/rag-security.md`](../guardrails/ai/rag-security.md) |
+| Any project using MCP tools | [`ai/mcp-security.md`](../guardrails/ai/mcp-security.md) |
+| Python workloads | [`languages/python.md`](../guardrails/languages/python.md) |
+| TypeScript/Node.js workloads | [`languages/typescript.md`](../guardrails/languages/typescript.md) |
+| .NET workloads | [`languages/csharp.md`](../guardrails/languages/csharp.md) |
+| Java/Spring workloads | [`languages/java.md`](../guardrails/languages/java.md) |
+| Go workloads | [`languages/go.md`](../guardrails/languages/go.md) |
+| CI/CD pipelines | [`pipeline/cicd-gates.md`](../guardrails/pipeline/cicd-gates.md) |
 
-External rule repositories (TikiTribe, Kariedo, addyosmani, Wiz) referenced in [`dev-security/claude-rules/README.md`](../dev-security/claude-rules/README.md) are URL pointers only; per the trust-posture decision recorded in Phase 23.66, they are not configured to fetch automatically at session start. Rule deployment is verified in CI per the gate matrix below; builds fail if required rule files are absent when AI-generated code is detected in the commit.
+External rule repositories (TikiTribe, Kariedo, addyosmani, Wiz) referenced in [`guardrails/README.md`](../guardrails/README.md) are URL pointers only; per the trust-posture decision recorded in Phase 23.66, they are not configured to fetch automatically at session start. Rule deployment is verified in CI per the gate matrix below; builds fail if required rule files are absent when AI-generated code is detected in the commit.
 
 ### 9.3 AI-generated code requirements
 
@@ -494,7 +494,7 @@ Every CI/CD pipeline for AI-enabled systems must include the following gates in 
 | Adversarial prompt testing | promptfoo + adversarial test suite | New injection vulnerabilities → fail |
 | Container scanning | Trivy | Critical CVE in base image → fail |
 | IaC scanning | Checkov | Critical AI service misconfiguration → fail |
-| Secure-coding rules deployment verification | Custom CI check that confirms the pack rule files (from `dev-security/claude-rules/` or equivalents copied into `.claude/rules/`) are present in the project for the detected stack | Required rule files absent → fail |
+| Secure-coding rules deployment verification | Custom CI check that confirms the pack rule files (from `guardrails/` or equivalents copied into `.claude/rules/`) are present in the project for the detected stack | Required rule files absent → fail |
 
 ---
 
