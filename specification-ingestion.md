@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Library Ingestion and Transformation Specification\
 **Document Type:** Specification\
-**Version:** 1.7.10\
-**Date:** 2026-07-08\
+**Version:** 1.7.11\
+**Date:** 2026-08-03\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md)\
@@ -118,7 +118,7 @@ risk/          Enterprise risk management, risk registers, key risk indicators, 
                quantitative analysis, AI risk methodology, and third-party risk standards.
 
 dev-security/  Secure development standards, DevOps security, software composition analysis,
-               developer quick references, and AI coding agent rule files.
+               and developer quick references.
 
 operations/    IT operations, asset management, change management, configuration management,
                and security operations registers.
@@ -135,6 +135,7 @@ SECURITY.md           Defect reporting path.
 tools/                Audit scripts and taxonomy / portal generators.
 docs/                 Adopter documentation (not subject to canonical metadata).
 taxonomy.yml          Auto-generated machine-readable registry of artefact metadata.
+guardrails/           Portable Claude Code governance pack (rules, skills, meta); not a governance-artefact domain.
 ```
 
 The structural auditor exempts these paths from the requirement that every markdown file appear in a domain README and in the document index register.
