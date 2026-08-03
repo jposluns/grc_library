@@ -135,7 +135,7 @@ EXEMPT = {
 # so the suffix-less LICENSE file was unreachable in both places.
 
 # Directories whose contents are exempt from the full canonical metadata block.
-# These are draggable AI-context files (claude-rules/) and audit tooling
+# These are draggable AI-context files (guardrails/) and audit tooling
 # (tools/), which serve a different purpose than governance artefacts.
 # docs/ was removed from this tuple in the docs-metadata elevation:
 # every file under docs/ now carries the canonical 13-field block,

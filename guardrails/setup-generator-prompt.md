@@ -1,14 +1,14 @@
-# Setup generator prompt for the GRC Library dev-security pack
+# Setup generator prompt for the GRC Library guardrails pack
 
 Paste this entire file into a Claude Code session opened in your project's root. It analyzes your project, proposes a tailored security-rules setup using the pack, and creates files only after you approve. It does not act blindly.
 
-This prompt is CC BY-SA 4.0. It works in two modes: **local mode** (when the `dev-security/` pack is available on disk) and **fetch mode** (when Claude Code reads pack content live from the library's canonical raw URL at runtime; no on-disk pack required). The mode is selected automatically per the "Source of truth and trust posture" section below.
+This prompt is CC BY-SA 4.0. It works in two modes: **local mode** (when the `guardrails/` pack is available on disk) and **fetch mode** (when Claude Code reads pack content live from the library's canonical raw URL at runtime; no on-disk pack required). The mode is selected automatically per the "Source of truth and trust posture" section below.
 
 ---
 
 ## What this prompt does
 
-You are running in the consumer's own Claude Code session, inside their project. The consumer wants a tailored CLAUDE.md plus selected rule modules for this specific project, drawn from the GRC Library (CC BY-SA 4.0) `dev-security/` pack. The consumer may have the pack on disk already (local mode) or may rely on you fetching it live from the library's canonical raw URL (fetch mode); the mode is selected later in this prompt.
+You are running in the consumer's own Claude Code session, inside their project. The consumer wants a tailored CLAUDE.md plus selected rule modules for this specific project, drawn from the GRC Library (CC BY-SA 4.0) `guardrails/` pack. The consumer may have the pack on disk already (local mode) or may rely on you fetching it live from the library's canonical raw URL (fetch mode); the mode is selected later in this prompt.
 
 You will:
 
@@ -31,7 +31,7 @@ You will not:
 
 This prompt reads the GRC Library security pack from one of two sources:
 
-- **Local mode**: the consumer has the `dev-security/` directory on disk (forked, cloned, or downloaded). Files are read from disk.
+- **Local mode**: the consumer has the `guardrails/` directory on disk (forked, cloned, or downloaded). Files are read from disk.
 - **Fetch mode**: the consumer does not have a local pack, or has a stale local pack and elected to use the canonical version. Files are fetched at runtime from the library's canonical source.
 
 **Default canonical source**:
@@ -349,7 +349,7 @@ Summarize:
 
 ## Start
 
-Begin with Phase 1, sub-step **Pack location and freshness**: probe for a local `dev-security/`, then either compare to canonical (if local found) or surface the canonical URL for the consumer to confirm or substitute (if not found). Do not enter fetch mode silently; the consumer's confirmation of the canonical URL is the trust-acknowledgment that gates the first fetch.
+Begin with Phase 1, sub-step **Pack location and freshness**: probe for a local `guardrails/`, then either compare to canonical (if local found) or surface the canonical URL for the consumer to confirm or substitute (if not found). Do not enter fetch mode silently; the consumer's confirmation of the canonical URL is the trust-acknowledgment that gates the first fetch.
 
 Then continue Phase 1: analyze this project (cite evidence), inventory existing AI-assistant configuration, identify validation gates, and map applicable pack modules from the source selected by the freshness step.
 

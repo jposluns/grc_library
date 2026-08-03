@@ -18,8 +18,8 @@ This linter scans the corpus for prose phrases that mention a collection
 count and verifies the count matches its canonical source. Three
 collections are checked: the gate count (the §6 inventory row count), the
 governance-rule count (markdown files under guardrails/
-governance/), and the skill count (subdirectories of dev-security/
-claude-rules/skills/), mirroring gate 41's collection sources. Any
+governance/), and the skill count (subdirectories of
+guardrails/skills/), mirroring gate 41's collection sources. Any
 mismatch is flagged.
 
 DIGIT patterns (gate count only):

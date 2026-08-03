@@ -2,7 +2,7 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.21\
+**Version:** 1.8.22\
 **Date:** 2026-08-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -208,7 +208,7 @@ Use of other AI coding tools, including public web interfaces, to generate code 
 
 ### 9.2 Secure coding rules deployment
 
-The library's CC BY-SA 4.0 secure-coding rules pack at [`guardrails/`](../guardrails/) is the approved Claude Code rules framework. Install the pack per Option 1 in the [pack README](../guardrails/README.md) (copy the whole `claude-rules/` directory and reference it with `@claude-rules/CLAUDE.md`; copying `CLAUDE.md` alone breaks its links to the sibling `ai/` and `governance/` files), copy selected rule files into the project's `.claude/rules/` directory (with optional `paths:` YAML frontmatter for path-scoped loading), or use the AI-assisted setup generator at [`guardrails/setup-generator-prompt.md`](../guardrails/setup-generator-prompt.md). See [`dev-security/guideline-ai-coding-assistant-security.md`](../dev-security/guideline-ai-coding-assistant-security.md) for full deployment options.
+The library's CC BY-SA 4.0 secure-coding rules pack at [`guardrails/`](../guardrails/) is the approved Claude Code rules framework. Install the pack per Option 1 in the [pack README](../guardrails/README.md) (copy the whole `guardrails/` directory and reference it with `@guardrails/CLAUDE.md`; copying `CLAUDE.md` alone breaks its links to the sibling `ai/` and `governance/` files), copy selected rule files into the project's `.claude/rules/` directory (with optional `paths:` YAML frontmatter for path-scoped loading), or use the AI-assisted setup generator at [`guardrails/setup-generator-prompt.md`](../guardrails/setup-generator-prompt.md). See [`dev-security/guideline-ai-coding-assistant-security.md`](../dev-security/guideline-ai-coding-assistant-security.md) for full deployment options.
 
 | Project Type | Recommended Rule Files (from `guardrails/`) |
 | --- | --- |

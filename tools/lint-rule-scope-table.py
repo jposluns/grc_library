@@ -131,7 +131,7 @@ def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument(
         "--root", default=str(DEFAULT_ROOT),
-        help="claude-rules dir holding README.md and the category subdirs")
+        help="guardrails pack dir holding README.md and the category subdirs")
     args = ap.parse_args(argv[1:])
     root = Path(args.root)
     readme = root / "README.md"

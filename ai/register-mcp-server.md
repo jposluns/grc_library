@@ -2,7 +2,7 @@
 
 **Document Title:** Model Context Protocol Server Register\
 **Document Type:** Register\
-**Version:** 1.0.4\
+**Version:** 1.0.5\
 **Date:** 2026-08-03\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -125,7 +125,7 @@ Every approved server satisfies:
 | Agentic development security standard | Server-implementation security baseline |
 | Cross-domain coordination procedure | MCP-server-implicated incidents route through the AI incident response plan |
 | Supplier security and privacy assurance standard | Third-party MCP server suppliers are governed by the supplier programme |
-| Claude-rules MCP security file | First-party MCP servers use the claude-rules [`mcp-security.md`](../guardrails/ai/mcp-security.md) as the development baseline |
+| Guardrails MCP security file | First-party MCP servers use the guardrails pack's [`mcp-security.md`](../guardrails/ai/mcp-security.md) as the development baseline |
 | Cost governance standard | MCP server invocation cost feeds the AI cost-governance register |
 
 ---

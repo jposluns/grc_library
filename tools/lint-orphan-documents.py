@@ -14,7 +14,7 @@ since the scanner skips non-.md files and they are auto-exempt.
 
 Domain READMEs are exempt because they are reached by directory
 navigation. Worklists are exempt because they are working artefacts.
-The ``claude-rules`` directory is also exempt: rule files there are
+The ``guardrails`` pack directory is also exempt: rule files there are
 loaded by tooling, not referenced by markdown documents.
 
 Usage:
@@ -77,8 +77,8 @@ def is_artefact(path: Path) -> bool:
     # Worklists are working artefacts.
     if path.name.startswith("worklist-"):
         return False
-    # claude-rules files are standalone drag-and-drop artefacts referenced
-    # by the claude-rules README's tree diagram (plain-text, not markdown
+    # guardrails pack files are standalone drag-and-drop artefacts referenced
+    # by the guardrails README's tree diagram (plain-text, not markdown
     # links). Their inbound-link semantics differ from library artefacts.
     if "guardrails" in path.parts:
         return False

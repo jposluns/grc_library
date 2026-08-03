@@ -2,7 +2,7 @@
 
 **Document Title:** Developer Security Domain README\
 **Document Type:** Register\
-**Version:** 1.4.8\
+**Version:** 1.4.9\
 **Date:** 2026-08-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -18,11 +18,9 @@
 
 ## Purpose
 
-This directory has two layers that share a domain but serve different purposes:
+This directory holds the GRC secure-development standards: security standards, quick-reference guides, compliance registers, policies, and procedures for developers and DevOps practitioners. Content addresses secure development baseline requirements, CI/CD pipeline security, developer toolchain security, and compliance controls for software development activities. These are normative GRC artefacts of the same shape as content in [`security/`](../security/), [`risk/`](../risk/), and the other domain directories.
 
-1. **GRC standards for secure development.** Security standards, quick-reference guides, compliance registers, policies, and procedures for developers and DevOps practitioners. Content addresses secure development baseline requirements, CI/CD pipeline security, developer toolchain security, and compliance controls for software development activities. These are normative GRC artefacts of the same shape as content in [`security/`](../security/), [`risk/`](../risk/), and the other domain directories.
-
-2. **The `claude-rules/` operational pack.** A draggable set of CLAUDE.md, rule files, and Claude Code Skills designed to be loaded into a Claude Code session as security and development-governance context. The pack distils disciplines extracted from maintaining this library and is part of the parent library's reference-implementation deliverable. It is also usable as a standalone Claude Code baseline pack, usable on any project regardless of whether it has a GRC corpus, distilled from the disciplines this library required to maintain itself. See [`guardrails/README.md`](../guardrails/README.md) for the pack's own front door and adoption modes.
+A second layer, the draggable operational pack (CLAUDE.md, rule files, and Claude Code Skills), formerly shipped here as a `claude-rules/` subdirectory; it relocated to the repository root as [`guardrails/`](../guardrails/). The pack distils the disciplines this library required to maintain itself, is part of the parent library's reference-implementation deliverable, and is usable as a standalone Claude Code baseline on any project regardless of whether it has a GRC corpus. See [`guardrails/README.md`](../guardrails/README.md) for the pack's own front door and adoption modes.
 
 ---
 
@@ -69,7 +67,7 @@ See the **Claude Code rules pack** section below for the draggable rule files an
 
 ## Claude Code rules pack
 
-The `claude-rules/` subdirectory ships a set of draggable CLAUDE.md and rule files for Claude Code sessions and AI-assisted development environments. The content is held in this repository as library-canonical material and can be consumed either from disk (local mode) or by fetching it live from the library's canonical raw URL (fetch mode); see [`guardrails/README.md`](../guardrails/README.md) for the four manual placement options and the setup generator's two modes. External rule repositories (TikiTribe, Kariedo, addyosmani, Wiz) are referenced from [`guardrails/README.md`](../guardrails/README.md); they are not loaded automatically at Claude Code session start, but the setup generator's external-source overlay step proposes fetching all four as the default action and lets the consumer accept, modify, or decline before any file is written (EXT-01 vetting is applied per fetch). The Wiz licence (CC-BY-NC-ND-4.0; NonCommercial + NoDerivatives) is surfaced at the offer step so commercial adopters can decline Wiz specifically. The library maintainer back-ports vetted improvements from external sources on the standard freshness cadence and records formal EXT-01 vets in [`guardrails/vetting-log.md`](../guardrails/vetting-log.md).
+The Claude Code rules pack, now at the repository root as [`guardrails/`](../guardrails/) (formerly a `claude-rules/` subdirectory here), ships a set of draggable CLAUDE.md and rule files for Claude Code sessions and AI-assisted development environments. The content is held in this repository as library-canonical material and can be consumed either from disk (local mode) or by fetching it live from the library's canonical raw URL (fetch mode); see [`guardrails/README.md`](../guardrails/README.md) for the four manual placement options and the setup generator's two modes. External rule repositories (TikiTribe, Kariedo, addyosmani, Wiz) are referenced from [`guardrails/README.md`](../guardrails/README.md); they are not loaded automatically at Claude Code session start, but the setup generator's external-source overlay step proposes fetching all four as the default action and lets the consumer accept, modify, or decline before any file is written (EXT-01 vetting is applied per fetch). The Wiz licence (CC-BY-NC-ND-4.0; NonCommercial + NoDerivatives) is surfaced at the offer step so commercial adopters can decline Wiz specifically. The library maintainer back-ports vetted improvements from external sources on the standard freshness cadence and records formal EXT-01 vets in [`guardrails/vetting-log.md`](../guardrails/vetting-log.md).
 
 ### Manual setup
 
@@ -82,7 +80,7 @@ For consumers who want to skip manual setup, an AI-assisted setup generator at [
 ### Layout
 
 ```
-claude-rules/
+guardrails/
 ├── README.md                    Usage guide, placement options, and external source URLs
 ├── CLAUDE.md                    Root rule file (links to sibling ai/ + governance/; install the whole directory per the README, not this file alone)
 ├── setup-generator-prompt.md    AI-assisted setup generator (paste into a Claude Code session)

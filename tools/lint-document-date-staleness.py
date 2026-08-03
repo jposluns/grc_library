@@ -135,8 +135,8 @@ DEFAULT_BASELINE_DATE = datetime.date(2026, 6, 19)
 
 # Default scan set: same shape as the metadata audit's default paths,
 # without the per-linter exempt lists that the metadata audit applies
-# to the ``.claude/`` rules pack and the dev-security claude-rules
-# subdirectory (the corpus linters skip those via DEFAULT_EXEMPT_DIRS
+# to the ``.claude/`` rules pack and the guardrails pack
+# tree (the corpus linters skip those via DEFAULT_EXEMPT_DIRS
 # and via dev-security exempt prefixes; this linter relies on the
 # DEFAULT_EXEMPT_DIRS skip for .claude/ and additionally exempts
 # the guardrails/ tree below).

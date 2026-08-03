@@ -4,8 +4,8 @@
 **Classification:** Public\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
-**Library Version:** 2026.08.64 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.10.219 (semantic per-document version for this file)
+**Library Version:** 2026.08.65 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.10.220 (semantic per-document version for this file)
 
 ---
 
@@ -132,7 +132,7 @@ Documents are organized by primary governance domain.
                 and trade continuity programme controls.
 
 /dev-security   Developer and DevOps security: standards, quick reference, compliance gap register,
-                and claude-rules/ subdirectory of draggable CLAUDE.md rule files for AI coding sessions.
+                and secure-development policies and procedures.
 
 /architecture   Enterprise architecture practice: framework, decision records, reference architectures,
                 technology radar, architecture review, API design, data architecture, and integration architecture.
@@ -145,6 +145,9 @@ Sector-specific content (financial-services, healthcare, energy-and-utilities, t
 Repository infrastructure directories (not used for governance artefacts):
 
 ```text
+/guardrails     Draggable Claude Code governance pack (CLAUDE.md, rule files, and Skills) distilled
+                from this library's own maintenance disciplines; usable standalone on any project.
+                See guardrails/README.md. Not an audited corpus domain.
 /tools          Stdlib-only Python audit scripts: metadata, language, links, structural index,
                 taxonomy generator, adopter portal generator.
 /docs           Adopter-facing documentation that is not a governance artefact: adopter guide,

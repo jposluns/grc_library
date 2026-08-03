@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.68.11\
+**Version:** 1.68.12\
 **Date:** 2026-08-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -166,12 +166,12 @@ guardrails/
 
 ## How to use
 
-### Option 1: copy the claude-rules directory to your project
+### Option 1: copy the guardrails directory to your project
 
 The simplest approach. Copy the whole `guardrails/` directory into your project (its `CLAUDE.md` links to sibling files under `ai/` and `governance/`, so copying `CLAUDE.md` alone breaks those links), then reference it from your project's own root `CLAUDE.md`.
 
 ```bash
-cp -r path/to/claude-rules ./claude-rules
+cp -r path/to/guardrails ./guardrails
 ```
 
 Then add this line to your project's root `CLAUDE.md` (creating it if it does not exist):
@@ -516,7 +516,7 @@ The pack's release history appears below. Parent-library changes that produced t
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
-| 1.68.11 | 2026.08.64 | 2026-08-03 | Patch (#1367 TODO 1.26.4 internal relocation): relocated the pack source tree from dev-security/claude-rules/ to root guardrails/ and updated every reference (the gate-37 MIRROR_MAP, the seven allow-list scan roots, Python path segments, and prose links); the .claude/rules/ mirror is unchanged and byte-parity holds. Location and references only, no normative content change. |
+| 1.68.12 | 2026.08.65 | 2026-08-03 | Patch (#1367 TODO 1.26.4 internal relocation, completion): relocated the pack source tree from dev-security/claude-rules/ to root guardrails/ and updated every reference (the gate-37 MIRROR_MAP, the seven allow-list scan roots, Python path segments, and prose links); the completion pass retargeted the remaining adopter-facing install/generator references and the pack self-descriptions (dev-security/README, root README, spec domain table) to guardrails/. The .claude/rules/ mirror is unchanged and byte-parity holds. Location and references only, no normative content change. |
 | 1.68.10 | 2026.08.61 | 2026-08-03 | Patch (#1364 overlay 1.26.2 back-port, part 2): back-ported the remaining distinct security residues from the addyosmani/kariedo supplementary overlays, CSRF plus cookie plus security-header hardening and a no-weakening-of-controls rule into OWASP A02, least-privilege into A01, design-decision-recording and threat-model-as-tests into A06, and a proportionality clause into the project-integrity Quality facet (both trees). |
 | 1.68.9 | 2026.08.60 | 2026-08-03 | Patch (#1363 overlay 1.26.2 back-port, part 1): back-ported the distinct Python security guidance from the tikitribe/kariedo supplementary overlays into the core Python language rule (secure temp files, URL-scheme allowlist, constant-time secret compare, dynamic-import allowlist, strict security-type comparisons; the path-traversal section routed to maintainer review over a TOCTOU subtlety), reducing the primary pack's dependence on the overlay. |
 | 1.68.8 | 2026.08.58 | 2026-08-03 | Patch (#1361 cutover-leftover sweep, P-3.202): stale post-merge / next-PR-batch / handoff-exemption references corrected across session-lifecycle (both trees), pr-retrospective + validation-sweep-pr-scoped skills, and the pack CLAUDE.md, aligning to the synchronous pre-merge in-PR QA model. Documentation-vs-practice reconciliation; no discipline change. |
