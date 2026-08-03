@@ -31,9 +31,10 @@ hardcoding the eleven domain names as standalone literals) also keeps
 this gate clear of the directory-scan-scope parity gate (gate 52), which
 forbids content linters from hardcoding the audited-domain run.
 
-The pack subtree ``guardrails/`` lives inside the
-``dev-security`` domain directory but is a non-deliverable surface per
-section 4, so it is excluded by path prefix.
+The pack subtree ``guardrails/`` is a root-level non-deliverable
+surface per section 4. It is absent from the derived scan roots, so the
+default run never reaches it; the ``EXEMPT_PREFIXES`` entry below is
+retained as defence-in-depth for an explicit-path invocation.
 
 Detection mirrors the broken-link checker (gate 3): fenced code blocks
 are skipped (link-like text inside ``` ``` ``` is documentation, not a
@@ -72,11 +73,12 @@ PROJECT_GOV_DIR = ".project-governance"
 LINK_RE = re.compile(r"\]\(([^)\s]+)\)")
 EXTERNAL = re.compile(r"^(https?:|mailto:|tel:|ftp:|#)")
 
-# Non-deliverable subtrees that live inside a scanned domain directory and
-# MAY link into .project-governance/ per separation-spec section 4. Path
-# prefixes are relative to REPO_ROOT, POSIX form. The pack is the only
-# such subtree nested under a domain dir; TODO.md / CHANGELOG.md / docs/
-# / .working/ / .claude/ are simply absent from the scan roots below.
+# Non-deliverable subtrees that are absent from the derived scan roots, kept
+# as an explicit exemption (defence-in-depth) for an explicit-path invocation;
+# they MAY link into .project-governance/ per separation-spec section 4. Path
+# prefixes are relative to REPO_ROOT, POSIX form. The pack (``guardrails/``) is
+# the root-level non-deliverable subtree; TODO.md / CHANGELOG.md / docs/
+# / .working/ / .claude/ are likewise absent from the scan roots below.
 EXEMPT_PREFIXES: tuple[str, ...] = ("guardrails/",)
 
 # Root-level deliverable documents (the published library specifications
