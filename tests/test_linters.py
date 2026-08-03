@@ -9856,14 +9856,6 @@ class UnwiredToolSelfTests(LinterTestCase):
     real paths and needs a CI-safety pass first.)
     """
 
-    def test_audit_changelog_entry_length_self_test_passes(self) -> None:
-        result = run_linter("tools/audit-changelog-entry-length.py", "--self-test")
-        self.assertEqual(
-            result.returncode, 0,
-            f"audit-changelog-entry-length.py --self-test failed.\n"
-            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
-        )
-
     def test_audit_matrix_semantic_fit_self_test_passes(self) -> None:
         result = run_linter("tools/audit-matrix-semantic-fit.py", "--self-test")
         self.assertEqual(

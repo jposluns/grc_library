@@ -13,15 +13,12 @@ carries one COMPACT one-line summary per change
 detail lives in the maintainer-grade detailed mirror (in the private-sibling working-state store) and in git history. Root
 summaries have drifted back into long, dense, run-on paragraphs THREE times
 (#887-901, #902-914, #919-986), each time reformatted by hand and each time
-recurring, because the readability check that flags the drift
-(tools/audit-changelog-entry-length.py) is ADVISORY ONLY (wired into no gate),
-so nothing fails CI when an entry drifts long and the orchestrator simply forgot
-to run the advisory. This gate is the enforcement that stops the recurrence: a
-NEWLY-ADDED root entry that exceeds the ceiling fails the PR, so a long entry
-cannot merge. History is left untouched (the drift there is remediated by a
-separate compression pass); only added entries are checked, exactly as the D3
-dash gate leaves historical dashes alone and enforces the convention going
-forward.
+recurring while the earlier whole-file readability check was advisory only, so
+nothing failed CI when an entry drifted long. This gate is the enforcement that
+stops the recurrence: a NEWLY-ADDED root entry that exceeds the ceiling fails the
+PR, so a long entry cannot merge. History is left untouched; only added entries
+are checked, exactly as the D3 dash gate leaves historical dashes alone and
+enforces the convention going forward.
 
 WHAT IT CHECKS. For each added line matching the compact-entry header form, it
 measures the summary portion (everything after ``** - ``) two ways and FAILS if
@@ -33,11 +30,9 @@ single-purpose entry runs ~40-50 words; a legitimate multi-item batch entry runs
 ~90-100 with plain short sentences) and fail the paragraph-length / dense-chain
 drift (the historical drift ran 122-262 words with 50-95-word sentences).
 
-The compact-entry regex and the sentence split mirror
-tools/audit-changelog-entry-length.py (the full-file advisory); the two
-definitions are kept identical by convention (both measure the same thing, one
-over history advisorily, one over added lines enforcingly). If you change one,
-change the other.
+The compact-entry regex and sentence split are the authoritative definitions
+for this defect class. The authoring preflight imports them directly rather than
+duplicating the length logic.
 
 Scope: root CHANGELOG.md only. The maintainer-grade detailed mirror is maintainer working state,
 exempt from the corpus gates, and carries the full structured detail, so it is
@@ -72,8 +67,8 @@ CHANGELOG_PATH = "CHANGELOG.md"
 DEFAULT_WORD_MAX = 100
 DEFAULT_SENTENCE_MAX = 45
 
-# Mirrors tools/audit-changelog-entry-length.py ENTRY_RE / _SENTENCE_SPLIT_RE.
-# Keep the two definitions identical (see module docstring).
+# Authoritative compact-entry and sentence-boundary definitions. The authoring
+# preflight imports this module so its earlier signal stays in lock-step with D7.
 ENTRY_RE = re.compile(r"^\*\*\d{4}-\d{2}-\d{2} \| [^|]+ \| PR #(\d+)\*\* - (.+)$")
 _SENTENCE_SPLIT_RE = re.compile(r"(?<=[.?!)\"'])\s+")
 
