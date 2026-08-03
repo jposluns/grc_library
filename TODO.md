@@ -464,7 +464,7 @@ The `ai/jurisdictions/` subdirectory and its first annexes (EU AI Act #743, Colo
 
 ## Priority 6 — Expand: new domains
 
-**Next item number: 6.6.**
+**Next item number: 6.7.**
 
 Entirely new domains, multi-week scope each. The maintainer schedules deliberately. Ordered lowest-effort-first.
 
@@ -487,6 +487,10 @@ Low priority, after the FR backlog. Add a capability-level scheme (0-3 per pract
 ### 6.5 Multi-cloud governance overlay (XL) (was 6.1) `[public]`
 
 Per-cloud hardening baselines for AWS/Azure/GCP exist; the gap is multi-cloud governance (cross-cloud risk taxonomy, cross-cloud incident coordination, portfolio-level controls). Could live in `operations/` or a new `cloud/` domain. Scoping DELIVERED (`inbox/worker-20260703-a/multi-cloud-governance-scoping/`).
+
+### 6.6 Java EE / Jakarta EE security standard (L) `[public]`
+
+Author a dev-security standard for Java EE / Jakarta EE application security, noted as a planned expansion in [`dev-security/README.md`](dev-security/README.md). Scope: platform-specific security requirements, common Jakarta EE vulnerability classes, secure configuration (JAAS, CDI, servlet/filter security, JPA injection), and framework-alignment. Fills the Java platform gap in the dev-security language/platform coverage.
 
 ---
 

@@ -2,7 +2,7 @@
 
 **Document Title:** Developer Security Domain README\
 **Document Type:** Register\
-**Version:** 1.4.10\
+**Version:** 1.4.11\
 **Date:** 2026-08-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -20,7 +20,7 @@
 
 This directory holds the GRC secure-development standards: security standards, quick-reference guides, compliance registers, policies, and procedures for developers and DevOps practitioners. Content addresses secure development baseline requirements, CI/CD pipeline security, developer toolchain security, and compliance controls for software development activities. These are normative GRC artefacts of the same shape as content in [`security/`](../security/), [`risk/`](../risk/), and the other domain directories.
 
-A second layer, the draggable operational pack (CLAUDE.md, rule files, and Claude Code Skills), formerly shipped here as a `claude-rules/` subdirectory; it relocated to the repository root as [`guardrails/`](../guardrails/). The pack distils the disciplines this library required to maintain itself, is part of the parent library's reference-implementation deliverable, and is usable as a standalone Claude Code baseline on any project regardless of whether it has a GRC corpus. See [`guardrails/README.md`](../guardrails/README.md) for the pack's own front door and adoption modes.
+A second layer, the draggable operational pack, formerly shipped here; it now lives at the repository root as [`guardrails/`](../guardrails/). See its README for the pack and its adoption options.
 
 ---
 
@@ -67,19 +67,7 @@ See the **Claude Code rules pack** section below for the draggable rule files an
 
 ## Claude Code rules pack
 
-The Claude Code rules pack, now at the repository root as [`guardrails/`](../guardrails/) (formerly a `claude-rules/` subdirectory here), ships a set of draggable CLAUDE.md and rule files for Claude Code sessions and AI-assisted development environments. The content is held in this repository as library-canonical material and can be consumed either from disk (local mode) or by fetching it live from the library's canonical raw URL (fetch mode); see [`guardrails/README.md`](../guardrails/README.md) for the four manual placement options and the setup generator's two modes. External rule repositories (TikiTribe, Kariedo, addyosmani, Wiz) are referenced from [`guardrails/README.md`](../guardrails/README.md); they are not loaded automatically at Claude Code session start, but the setup generator's external-source overlay step proposes fetching all four as the default action and lets the consumer accept, modify, or decline before any file is written (EXT-01 vetting is applied per fetch). The Wiz licence (CC-BY-NC-ND-4.0; NonCommercial + NoDerivatives) is surfaced at the offer step so commercial adopters can decline Wiz specifically. The library maintainer back-ports vetted improvements from external sources on the standard freshness cadence and records formal EXT-01 vets in [`guardrails/vetting-log.md`](../guardrails/vetting-log.md).
-
-### Manual setup
-
-Adopters can copy the pack files directly. See [`guardrails/README.md`](../guardrails/README.md) for the four placement options (project-root `CLAUDE.md`, selective rule files under `.claude/rules/`, additions to an existing `CLAUDE.md`, path-scoped rules with `paths:` YAML frontmatter) and the AGENTS interop pattern.
-
-### AI-assisted setup (setup generator)
-
-For consumers who want to skip manual setup, an AI-assisted setup generator at [`guardrails/setup-generator-prompt.md`](../guardrails/setup-generator-prompt.md) analyzes a downstream project and proposes a tailored CLAUDE.md plus rule-file selection, with approval gates before any file is written. It works whether the consumer has a local copy of the pack on disk (local mode) or fetches from the library's first-party canonical source (fetch mode). The pack README covers the three invocation forms (manual paste, `curl` one-liner, and URL-to-Claude) and the first-party trust posture.
-
-### Layout
-
-See [`guardrails/README.md`](../guardrails/README.md) for the pack's full directory layout and file inventory (README, CLAUDE.md, the setup generator, and the `core/`, `ai/`, `pipeline/`, `languages/`, `governance/`, and `skills/` subdirectories).
+The Claude Code rules pack that formerly shipped here (as a `claude-rules/` subdirectory) has moved to the repository root as [`guardrails/`](../guardrails/). See [`guardrails/README.md`](../guardrails/README.md) for the pack, its placement options, and the AI-assisted setup generator.
 
 ---
 
@@ -103,11 +91,11 @@ This domain draws on and references the following external projects. These refer
 - **NIST AI RMF**: AI risk management framework covering Govern, Map, Measure, and Manage functions: `https://www.nist.gov/itl/ai-risk-management-framework`
 - **NIST SP 800-218A**: Generative AI Profile augmenting SSDF with AI model development practices: `https://csrc.nist.gov/pubs/sp/800/218/a/final`
 - **Google SAIF**: Secure AI Framework for secure development, deployment, and monitoring: `https://saif.google/`
-- **TikiTribe**: Open-source rule sets for AI coding assistants; covers AI, agent, MCP, and RAG security; aligns to OWASP LLM Top 10, OWASP MCP Top 10, MITRE ATLAS, and NIST AI RMF: `https://github.com/TikiTribe/claude-secure-coding-rules`
 
 ### AI coding assistant rule repositories
 - **Wiz Secure Rules Files**: Baseline security rules compatible with Claude Code, Cursor, and Copilot; organized by language and framework: `https://github.com/wiz-sec-public/secure-rules-files`
 - **Kariedo Claude Code Security Rules**: Modular rules for Claude Code using `@`-syntax import system: `https://github.com/kariedo/claude-code-security-rules`
+- **TikiTribe**: Open-source rule sets for AI coding assistants; covers AI, agent, MCP, and RAG security; aligns to OWASP LLM Top 10, OWASP MCP Top 10, MITRE ATLAS, and NIST AI RMF: `https://github.com/TikiTribe/claude-secure-coding-rules`
 
 ### DevSecOps references
 - **NIST SP 800-218**: Secure Software Development Framework (SSDF); maps to NIST CSF and provides secure development practices: `https://csrc.nist.gov/pubs/sp/800/218/final`
