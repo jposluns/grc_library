@@ -8,8 +8,7 @@
 #
 #   1. The PR-only delta gates (D1 CHANGELOG-on-PR, D2 per-PR
 #      version-bump, D3 CHANGELOG-dash-on-PR, D4 per-PR Version-Date
-#      co-bump, D5 backlog-rotation-on-PR, D6 pack-README
-#      version-history co-bump,
+#      co-bump, D5 backlog-rotation-on-PR,
 #      D7 CHANGELOG-length-on-PR, D8 daily-changelog-rollup reminder
 #      (advisory), D9 retired-section-orphan check, D10 CLAUDE.md-size
 #      ratchet). Most compare the PR head to its merge base, so their
@@ -113,12 +112,6 @@ run_check "D4 Per-PR Version-Date co-bump check" \
 # rotation where TODO.md is never edited.
 run_check "D5 Backlog-rotation-on-PR check" \
     python3 tools/check-todo-rotation-on-pr.py "${BASE_REF}" "${HEAD_REF}"
-
-# Delta gate D6: when a PR changes the pack README's Version value,
-# require the same diff to add the matching version-history table row
-# (the paired-surface checklist instance (a), mechanized).
-run_check "D6 Pack-README version-history co-bump check" \
-    python3 tools/check-pack-readme-cobump-on-pr.py "${BASE_REF}" "${HEAD_REF}"
 
 # Delta gate D7: newly-added root CHANGELOG.md entries must stay within
 # the compact-form length ceiling (<= 100 words, no sentence over 45

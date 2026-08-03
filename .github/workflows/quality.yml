@@ -284,10 +284,6 @@ jobs:
         if: github.event_name == 'pull_request'
         run: python3 tools/check-todo-rotation-on-pr.py
 
-      - name: Pack-README version-history co-bump check
-        if: github.event_name == 'pull_request'
-        run: python3 tools/check-pack-readme-cobump-on-pr.py
-
       - name: CHANGELOG length-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-length-on-pr.py

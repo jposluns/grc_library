@@ -68,7 +68,7 @@ The sweep targets failure modes the mechanical gates do not cover. Each class ha
 | --- | --- |
 | Stale prose references | "N gates" or "gates 1-N" or "the N-gate programme" prose where N is no longer the canonical count; library, spec, or pack version mentioned in prose that has since bumped. |
 | Mis-attributed citations | A citation of "step X" or "section Y" of another file where the cited content does not match the source; phrase-level quotes attributed to one rule but actually living in another. |
-| Multi-surface incompleteness | A change that should update N surfaces but updated N-1: CHANGELOG entry coverage of files touched, README claims, pack version-history table, governance registers, doctype-doctype cross-references. |
+| Multi-surface incompleteness | A change that should update N surfaces but updated N-1: CHANGELOG entry coverage of files touched, README claims, governance registers, doctype-doctype cross-references. |
 | Inferred-as-verified state assertions | A claim about a file's contents written without re-reading the file. |
 | Per-document version-bump omission | A non-exempt document substantively changed but its `Version:` field not bumped. |
 | Generated-artefact lag | A source file edited but its generator not re-run, or vice versa; the gates catch the drift but the underlying lag is the failure. |
