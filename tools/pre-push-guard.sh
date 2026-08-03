@@ -11,7 +11,7 @@
 # push, stopping on the first failure:
 #
 #   1. tools/run_all_audits.sh      - all corpus gates, from HEAD.
-#   2. tools/run-pr-time-checks.sh  - the PR-only delta gates (D1-D10) plus
+#   2. tools/run-pr-time-checks.sh  - the PR-only delta gates (D1-D10, D6 retired) plus
 #                                     the history-aware trio (gates 45/40/31)
 #                                     against the merge base.
 #

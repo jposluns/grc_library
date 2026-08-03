@@ -247,7 +247,7 @@ BARE_DOMAIN_COLUMN_TITLE_RE = re.compile(
 # A historical / rename-note / supersession line legitimately names an old code
 # while describing its replacement (it is not a current citation), so Check 4
 # exempts it. The canonical cases are the glossary I&S rename-note ("Renamed from
-# the v4.0 IVS ... domain") and the pack README version-history rows ("corrected
+# the v4.0 IVS ... domain") and the pack README (historically its version-history rows, now retired) ("corrected
 # the superseded CCM v4.0 domain code IVS to ...").
 HISTORICAL_RE = re.compile(
     r"(?i)(renamed|superseded|formerly|previously|deprecated|corrected|"
