@@ -16,9 +16,9 @@ Invoke the `pr-retrospective` skill defined in this project's pack at [`dev-secu
 
 **Surface Pattern and Proposed-improvement entries in chat** (per the chat-surfacing discipline shared with `/validate` and `/validate-pr`). The maintainer should see proposed improvements at the moment they're identified, not on next deep-dive into the working-state archive. Clean-PR retrospectives (no friction, no pattern) get a one-sentence chat acknowledgement.
 
-**Same-PR recording (recursion-avoidance retired).** The register-row append is committed into THIS PR, recording this PR's own number: the synchronous model runs the retro before merge and writes its row in-PR rather than deferring it. A retrospective that surfaces a candidate improvement deserving its own PR still triggers that PR; the register row rides in whichever PR carries it.
+**Same-PR recording (recursion-avoidance retired).** The register-row append is committed into THIS PR, recording this PR's own number: the synchronous model runs the retro before merge and writes its row in-PR rather than deferring it. A retrospective that surfaces a candidate improvement deserving its own PR still triggers that PR; the register row still rides in THIS PR (recording this PR's own number), and only the improvement itself lands in the future PR, which runs its own `/validate-pr` + `/retro`.
 
-**No orchestrator-side skip discretion.** Same discipline as `/validate-pr`: every merged PR gets a `/retro` entry, even when the retrospective conclusion is "nothing new to learn." Zero-content entries serve as proof-of-discipline. Skipping is a policy deviation requiring maintainer authorization.
+**No orchestrator-side skip discretion.** Same discipline as `/validate-pr`: every PR gets its `/retro` entry before merge (the one documented exception is a session-closing handoff PR that took the QA-fallback skip), even when the retrospective conclusion is "nothing new to learn." Zero-content entries serve as proof-of-discipline. Skipping is a policy deviation requiring maintainer authorization.
 
 Append the entry to `grc_library_private/.working/improvement-log.md` with columns `Date | PR | FR closed | What went well | Friction | Pattern (if any) | Proposed improvement`. New rows on top (reverse-chronological).
 
