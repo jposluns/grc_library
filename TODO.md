@@ -161,7 +161,7 @@ Formalize the session-health discipline the project runs (proven-helpful, mainta
 
 ## Priority 2 — Fill significant gaps
 
-**Next item number: 2.29.**
+**Next item number: 2.30.**
 
 Deepening thin-but-present content to operational sufficiency, and the significant missing capabilities.
 
@@ -309,6 +309,16 @@ Express the existing ISO, NIST, CSA, and COBIT alignment tables as OSCAL profile
 ### 2.28 AI jurisdiction annex + ref ingest: Singapore Model AI Governance Framework for Agentic AI (M, M) `[content]` `[public]`
 
 Surfaced 2026-07-24 during the §2.19 Singapore GenAI annex build: IMDA and the AI Verify Foundation released a separate, newer Model AI Governance Framework for Agentic AI (unveiled January 2026), a DISTINCT framework rather than a new edition of the GenAI Framework, so §2.19's citation stands. Follow-up: ingest the Agentic AI MGF into `grc_library_ref` as a held primary (confirm currency upstream at ingest), then add a companion jurisdiction annex or fold it into [`ai/standard-ai-and-agentic-development-security.md`](ai/standard-ai-and-agentic-development-security.md), per the maintainer's scope call.
+
+### 2.29 Latin-American privacy jurisdiction annexes + corpus alignment for the newly-held primaries (M, M) `[content]` `[public]`
+
+Prompted by the 2026-08-03 `grc_library_ref` ingest batch, which added the data-protection primaries for Chile, Ecuador, Peru, and Colombia (the corpus currently gives these countries only regional coverage in [`privacy/jurisdictions/annex-privacy-latin-america.md`](privacy/jurisdictions/annex-privacy-latin-america.md); Mexico and Brazil already have standalone annexes). Now that the primaries are HELD, the source-gate that kept these among 2.1's remainder is cleared for exactly these four.
+
+**Per-country pages (independently closeable, one per country).** Add a standalone privacy jurisdiction annex `privacy/jurisdictions/annex-privacy-<country>.md` for each, following the held-source `annex-privacy-mexico.md` pattern (which already supersedes the Latin America regional annex for Mexico): **Chile** (Ley 19.628 held; flag Ley 21.719, the new comprehensive DP law effective 2026, as a separate open acquisition gap not in this batch, per the ingest worker), **Ecuador** (LOPDP), **Peru** (Ley 29733 + its reglamento), **Colombia** (Ley 1581). Government-facing accuracy bar (high-assurance harness): no fabricated provisions, cite only the held primary, confirm the in-force version/date upstream at author time.
+
+**Corpus alignment / reference validation.** As each annex lands, validate that the corpus references the held law correctly and completely: run `audit-reference-breadth.py --docs` over the touched set, and align the regional Latin America annex (mark the covered countries superseded-by-standalone, as Mexico is), [`annex-privacy-jurisdiction-index.md`](privacy/annex-privacy-jurisdiction-index.md), [`compliance/register-global-regulatory-applicability.md`](compliance/register-global-regulatory-applicability.md), the compliance matrix, and per-doc framework-alignment tables that reference Latin-American DP regimes. Mexico's annex already reflects the held 2025 LFPDPPP (confirmed 2026-08-03), so Mexico needs only a confirmation pass, not a rebuild.
+
+**Per-country-page framing (design note, not specced here).** These standalone annexes are the per-country pages for the PRIVACY domain. The broader "per-country index page that lists all corpus documents relevant to a country" concept (raised 2026-08-03 alongside the Canada AI Alliance orientation) is a distinct pattern to reconcile with the enterprise-AI-adoption assessment / any Canada umbrella; flagged here, decided there. Cross-references 2.1 (FR-59 privacy jurisdiction deepening; these were its source-gated remainder) and 5.8 (privacy jurisdiction gaps).
 
 ### 2.18 AI jurisdiction annex: South Korea AI Basic Act (H, M) `[public]`
 
