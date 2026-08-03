@@ -31,7 +31,8 @@ Exit codes:
     0: Status is ``stub`` or ``in-flight``.
     1: Status is ``done`` (morning processing required) or any other
         invalid value.
-    2: File missing, unreadable, or has no ``Status:`` line.
+    2: File present but unreadable, or has no ``Status:`` line (a
+        missing file returns 0, the adopter-graceful case).
 """
 
 from __future__ import annotations
