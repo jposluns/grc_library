@@ -28,7 +28,7 @@ The six checks:
 **Check 1, QA-cadence parity (the former §4.6 surface).** Derive the merged-PR
 list from the ``CHANGELOG.md`` per-entry headers, matched in BOTH the compact
 ``**date | version | PR #N**`` form (the TODO 3.16 root-reformat default) and
-the legacy ``## YYYY-MM-DD, Library Version X, PR #N`` form. For each PR N with ``max(INCEPTION, oldest surviving row) <= N < max(PR)``, require a row in
+the legacy ``## YYYY-MM-DD, Library Version X, PR #N`` form. For each PR N with ``max(INCEPTION, oldest surviving row) <= N <= max(PR)``, require a row in
 the PR-scoped validation history register AND (for substantive PRs) a row in
 the improvement log, with these exemptions:
 
@@ -248,7 +248,7 @@ def is_subsumption_findings(findings: str) -> bool:
 # honest `DISPATCHED, RESULT PENDING` row read GREEN while the PR's QA had in fact never
 # run: this is the stranded-QA hole that let validate-pr-1173 (`PENDING, offloaded`) and
 # validate-pr-1180 (`DISPATCHED`) sit unconsumed across sessions. It is a THIRD state,
-# between resolved-present and absent, and Check 1 FAILS on it once a later PR exists. A
+# between resolved-present and absent, and Check 1 FAILS on it in its own PR (the window includes the current highest PR). A
 # row that also carries RETURNED is NOT pending (it returned; the word may appear in its
 # prose, e.g. "the order was dispatched at #1180 and never returned, now RETURNED").
 PENDING_FINDINGS = re.compile(r"\bDISPATCHED\b|\bRESULT\s+PENDING\b|^\**\s*PENDING\b", re.IGNORECASE)
@@ -542,7 +542,7 @@ def qa_cadence_findings(
             # Third state (TODO 3.120): the row is PRESENT but marks the QA as
             # DISPATCHED / RESULT-PENDING and never RETURNED. Row presence alone used
             # to read GREEN here, so a stranded QA order (validate-pr-1173/1180) passed
-            # while the PR's QA had never run. This PR is in-window (a later PR exists),
+            # while the PR's QA had never run. This PR is in-window (the window includes the current highest PR),
             # so the order is stranded: FAIL until the result RETURNS.
             findings.append(
                 f"  [qa-cadence] PR #{pr}: its /validate-pr row is PRESENT but marks the "

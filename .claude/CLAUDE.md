@@ -718,7 +718,7 @@ per surface:
    metadata block): bump once per PR, in the same commit as the CalVer bump (the two move
    together).
 
-**Enforcement.** The pre-push guard (`tools/pre-push-guard.sh`, PR-workflow step 1) runs
+**Enforcement.** The pre-push guard (`tools/pre-push-guard.sh`, PR-workflow step 2) runs
 `run_all_audits.sh` (gate 40, plus gate 36 which exercises gates 31/40 in test form) and
 `run-pr-time-checks.sh` (D2 per-PR version-bump, D4 per-PR Version-Date co-bump) before
 the push, so a missed bump blocks the push instead of flipping CI red. At each commit ask:
@@ -910,7 +910,7 @@ distinct from the third-party external overlay described next.
 The GRC Library pack above is the **primary** source. `.claude/rules/external/` holds a
 **supplementary** overlay from third-party sources (TikiTribe, Kariedo, addyosmani, all
 MIT, see each dir's LICENSE), provenance-stamped. Overlay rules may overlap or conflict
-with the primary layer; the primary GRC pack wins on conflict. The overlay is NOT loaded at runtime (nothing in `.claude/settings.json` imports it and no `external/` file appears in the always-loaded rule index), so it is a dogfood artefact of the setup generator's output: the primary-wins-on-conflict rule governs what the generator ships to adopters, not a runtime conflict resolution. The overlay can be pruned
+with the primary layer; the primary GRC pack wins on conflict. The overlay IS discovered at runtime (Claude Code recursively loads the `.md` rule files under `.claude/rules/`, so the `external/` overlay loads even though `.claude/settings.json` does not explicitly import it and it is not enumerated in the CLAUDE.md rule index), which is exactly why the primary-wins-on-conflict rule above is stated: it governs a genuine runtime overlap. The overlay is also a dogfood artefact of the setup generator's output, demonstrating what the generator ships to adopters. The overlay can be pruned
 or refreshed independently: the pruning stance is that the overlay is reviewed at each
 periodic pack review, a near-duplicate wrapper the primary pack already covers is a prune
 candidate, and a stale upstream file is refreshed from source or dropped rather than left

@@ -17,7 +17,9 @@ processing. Permitted values:
   must route content and reset to ``stub``. **Gate fails.**
 
 Any other ``Status`` value triggers a gate failure (malformed file).
-A missing file or missing ``Status:`` line also triggers a failure.
+A present file with a missing ``Status:`` line also triggers a failure. A
+missing file is the public-CI / adopter case and passes (the overnight file is
+maintainer-only working state; see the no-op in ``main``).
 
 The gate's purpose: ensure that overnight-session content does not
 linger in the file past the morning processing. The ``done`` value is
