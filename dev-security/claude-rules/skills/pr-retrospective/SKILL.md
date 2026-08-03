@@ -55,7 +55,7 @@ Capture:
 One short observation. Examples:
 - "Mechanical alignment to canonical source; no decision needed."
 - "Subagent's deep-read caught the multi-surface inconsistency before the maintainer had to."
-- "Batching rule applied cleanly; PR #N+1 carried the row without recursion."
+- "Row recorded in-PR before merge; no next-PR batching needed."
 - "Pass-1 verification surfaced two real defects the original drafting missed."
 
 If there is genuinely nothing notable, record "Routine; no notable highlight." That's a fine entry.

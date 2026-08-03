@@ -46,7 +46,7 @@ The discipline this skill encodes is **fresh-reader review at scale**: every per
 
 Not when:
 
-- The change is per-PR. That's `validation-sweep` territory.
+- The change is per-PR. That's `validation-sweep-pr-scoped` territory.
 - The change is a typo or single-line fix. The cost (a full persona fan-out) doesn't match the scope.
 - The maintainer wants a security audit specifically. That's a focused security review, not a generalist fitness review.
 - The maintainer wants to verify external standard accuracy. That's the citation-verification process, not a fitness review (per the citation-accuracy boundary named in the project wiring, the library does not verify standard content vs. library interpretation).
@@ -235,7 +235,7 @@ This skill is complete on a given run when:
 ## See Also
 
 - Canonical rule [`governance/evidence-grounded-completion.md`](../../governance/evidence-grounded-completion.md): the verification discipline this skill applies at corpus scope. Each persona's finding requires evidence (quoted excerpt or location reference); the skill operationalizes evidence-grounded-completion across the catalogue's parallel lenses.
-- Related skill [`validation-sweep`](../validation-sweep/SKILL.md): the per-PR regression check. Where `validation-sweep` catches what changed, this skill evaluates what's there. Both can coexist; neither replaces the other. See the catalogue document named in the project wiring, its "Relationship to `validation-sweep`" section, for the comparison table.
+- Related skill [`validation-sweep`](../validation-sweep/SKILL.md): the corpus-wide regression sweep (its per-PR sibling is `validation-sweep-pr-scoped`). Where `validation-sweep` catches what changed, this skill evaluates what's there. Both can coexist; neither replaces the other. See the catalogue document named in the project wiring, its "Relationship to `validation-sweep`" section, for the comparison table.
 - Related skill [`fresh-reader-validation`](../fresh-reader-validation/SKILL.md): per-document fresh-reader check. Where `fresh-reader-validation` runs one persona on one document, `library-fitness-review` runs the full persona catalogue on the whole corpus. The single-document skill is the focused follow-up when a fitness review surfaces a specific page that warrants deeper persona-fresh-reader scrutiny.
 - Related skill [`skill-authoring-discipline`](../skill-authoring-discipline/SKILL.md): the discipline this skill's own authoring follows. The fitness-review skill catches library-level failure modes; the authoring-discipline skill catches skill-level failure modes during the SKILL.md drafting.
 - Related skill [`citation-quote-verification`](../citation-quote-verification/SKILL.md): when a fitness-review finding involves a cited external standard, this is the targeted follow-up that verifies the citation rather than the library's interpretation of it.
