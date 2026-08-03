@@ -163,4 +163,4 @@ These requirements implement controls from:
 - CISA Secure by Design principles
 - SLSA (Supply-chain Levels for Software Artifacts)
 
-The pack is self-contained; adopters need nothing beyond it. Extended requirement detail exists in the pack's parent GRC library (`dev-security/standard-developer-security-requirements.md`), which does not ship with the pack.
+The pack's governance rules and skills are self-contained as behavioural guidance. The audit toolchain (the parent repo's linters and CI) and the extended requirement detail (`dev-security/standard-developer-security-requirements.md`) live in the pack's parent GRC library and do not ship with the pack, so a project that wants mechanical enforcement or that detail supplies it separately.
