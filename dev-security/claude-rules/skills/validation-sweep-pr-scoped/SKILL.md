@@ -55,7 +55,7 @@ Capture the PR state:
 
 Run the project's full audit-gate runner (named in the project wiring above) standalone against the branch state (synced to the current base branch). CI ran this on the branch; this confirms the gates are clean before the PR is finalized. Mechanical failures here are rare (they would have failed CI), but a stale branch can differ from the current base branch due to merge-base drift, which is why the branch is synced to it before this run.
 
-If any gate fails, fix the underlying defect first (open a hot-fix PR), then return to step 1 against the corrected state.
+If any gate fails, fix the underlying defect first (in this PR, or a hot-fix PR if it is pre-existing and out of scope), then return to step 1 against the corrected state.
 
 ### 3. Dispatch Subagent A scoped to the PR's diff
 
@@ -104,7 +104,7 @@ This is a subset of `validation-sweep` Subagent B's scope, restricted to citers 
 
 Triage findings:
 
-- **In-window** (the PR introduced the issue): fix it in THIS PR before finalizing. A dedicated hot-fix PR only if the fix genuinely cannot land in-PR (it runs its own sync + `/validate-pr` when merged).
+- **In-window** (the PR introduced the issue): fix it in THIS PR before finalizing. A dedicated hot-fix PR only if the fix genuinely cannot land in-PR (it runs its own sync + `/validate-pr` before it merges).
 - **Out-of-window** (the PR exposed a pre-existing issue not introduced by the merge): surface to the operator with named options.
 
 Record:
@@ -151,7 +151,7 @@ The no-skip discipline says every PR gets a `/validate-pr` and every invocation 
 - `/validate-pr` skipped because "no findings expected", every merge generates new state worth checking; the per-PR record is the proof-of-check.
 - Findings surfaced but not triaged.
 - Per-PR record file omitted because "no findings", the history row substitutes; both record absence-of-finding so future readers know the check ran.
-- Hot-fix PR opened without its own `/validate-pr` run after merging.
+- A hot-fix PR opened without its own `/validate-pr` run.
 - Cross-reference check skipped because "Subagent A already covered it", Subagent A reviews the touched files; the cross-reference check reviews the FILES THAT CITE the touched files. Different scope; both required.
 
 ## Verification

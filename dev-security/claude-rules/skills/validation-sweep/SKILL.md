@@ -222,7 +222,7 @@ Six top-level H2 sections in this order:
 
 The per-iteration record's directory should be covered by the project's linter-exemption mechanism (the parent library's concrete mechanism is named in the project wiring). Files there are frozen-state archives; the `path:line` references in subagent reports are kept verbatim even if the lines later shift.
 
-**Zero-finding iterations write the record but do NOT create a register entry.** The convention "zero-finding sweeps leave no trace in the register" applies only to the register; the per-iteration record is the persistent trace for those iterations. Iterations with findings write to both the per-iteration record (detail) and the register (summary).
+**Iterations with findings write both a per-iteration detail record and the register-row summary; zero-finding iterations write only the register row** (per the rule above).
 
 ## Surfacing findings in chat
 
