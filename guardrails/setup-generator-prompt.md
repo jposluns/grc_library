@@ -88,7 +88,7 @@ Produce a project profile from on-disk evidence. Cite each conclusion with the f
 
 Before mapping any modules, decide which pack source to read from.
 
-1. **Probe for a local pack** at `guardrails/` in the project root, the parent directory, and other nearby common locations (`../grc_library/dev-security/`, `~/projects/grc_library/dev-security/`). Report what you find or do not find.
+1. **Probe for a local pack** at `guardrails/` in the project root, the parent directory, and other nearby common locations (`../grc_library/guardrails/`, `~/projects/grc_library/guardrails/`). Report what you find or do not find.
 
 2. **If a local pack is found**: fetch only [`guardrails/README.md`](README.md) from the canonical source (announce the canonical URL first; ask the consumer to confirm or substitute as described in "Source of truth and trust posture"). Extract the per-document `Version:` field from both the local and canonical [`guardrails/README.md`](README.md). Compare:
    - **Canonical version equals local version**: announce match; use **local mode**; proceed.

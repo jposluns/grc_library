@@ -2,7 +2,7 @@
 
 **Document Title:** Developer Security Domain README\
 **Document Type:** Register\
-**Version:** 1.4.9\
+**Version:** 1.4.10\
 **Date:** 2026-08-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -79,31 +79,7 @@ For consumers who want to skip manual setup, an AI-assisted setup generator at [
 
 ### Layout
 
-```
-guardrails/
-├── README.md                    Usage guide, placement options, and external source URLs
-├── CLAUDE.md                    Root rule file (links to sibling ai/ + governance/; install the whole directory per the README, not this file alone)
-├── setup-generator-prompt.md    AI-assisted setup generator (paste into a Claude Code session)
-├── core/
-│   ├── secrets.md               Never hardcode credentials, keys, or tokens
-│   ├── authentication.md        Secure auth and session requirements
-│   ├── input-validation.md      Input validation and output encoding
-│   ├── cryptography.md          Approved algorithms and key handling
-│   └── owasp.md                 OWASP Top 10:2025, ASVS v5.0.0, and MCP Top 10 alignment rules
-├── ai/
-│   ├── ai-security.md           LLM and AI application security requirements
-│   ├── agent-security.md        Agentic workflow security and trust boundaries
-│   ├── rag-security.md          Retrieval-augmented generation data controls
-│   └── mcp-security.md          Model Context Protocol server security rules
-├── pipeline/
-│   └── cicd-gates.md            CI/CD security gates and pipeline controls
-└── languages/
-    ├── python.md                Python-specific security patterns and anti-patterns
-    ├── typescript.md            TypeScript / Node.js security patterns
-    ├── csharp.md                C# / .NET security patterns
-    ├── java.md                  Java / Spring Boot security patterns
-    └── go.md                    Go security patterns
-```
+See [`guardrails/README.md`](../guardrails/README.md) for the pack's full directory layout and file inventory (README, CLAUDE.md, the setup generator, and the `core/`, `ai/`, `pipeline/`, `languages/`, `governance/`, and `skills/` subdirectories).
 
 ---
 

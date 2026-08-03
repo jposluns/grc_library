@@ -4,8 +4,8 @@
 **Classification:** Public\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
-**Library Version:** 2026.08.65 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.10.220 (semantic per-document version for this file)
+**Library Version:** 2026.08.66 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.10.221 (semantic per-document version for this file)
 
 ---
 
@@ -364,7 +364,7 @@ AI governance documents in this repository treat data as the primary risk surfac
 
 The AI domain explicitly considers prompt injection, data poisoning, model inversion, membership inference, training data leakage, retrieval leakage, insecure tool use, shadow AI, provenance failure, lineage gaps, retention failure, and unenforceable deletion.
 
-The developer security domain (`/dev-security/`) addresses AI coding assistant security through draggable rule files that enforce security requirements directly in AI-assisted development sessions.
+The developer security domain (`/dev-security/`) sets secure-development standards and policies; the draggable rule files that enforce security requirements directly in AI-assisted development sessions ship as the top-level `/guardrails` pack.
 
 ---
 

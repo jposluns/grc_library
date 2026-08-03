@@ -137,7 +137,7 @@ DEFAULT_BASELINE_DATE = datetime.date(2026, 6, 19)
 # without the per-linter exempt lists that the metadata audit applies
 # to the ``.claude/`` rules pack and the guardrails pack
 # tree (the corpus linters skip those via DEFAULT_EXEMPT_DIRS
-# and via dev-security exempt prefixes; this linter relies on the
+# and via per-linter guardrails/ exempt prefixes; this linter relies on the
 # DEFAULT_EXEMPT_DIRS skip for .claude/ and additionally exempts
 # the guardrails/ tree below).
 # Meta files plus ``docs`` (the generated-artefact directory, a
