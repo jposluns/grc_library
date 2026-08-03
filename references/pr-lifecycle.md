@@ -496,8 +496,7 @@ is external. Two mechanisms:
    demotes it from highest-numbered.
 
    **A SESSION MUST NOT CLOSE WITH A LARGE UNVALIDATED PR (maintainer-directed 2026-07-25).**
-   The handoff exemption covers exactly ONE PR, the closing handoff, and only because that PR is
-   bookkeeping. It does not extend to the PR before it, and it is not a licence to let the QA
+   The fallback exemption covers exactly ONE PR, the closing handoff, and only when its own QA cannot be made self-contained within it. It does not extend to the PR before it, and it is not a licence to let the QA
    cadence lapse as a session winds down. **A DISPATCHED ORDER IS WORK ORDERED, NEVER WORK DONE.** Under the synchronous model this is now structural, not merely conventional: a substantive PR cannot be finalized until its own `/validate-pr` has RETURNED and its row is committed in-PR, so "merged with QA still dispatched" is a contradiction the finalizing sequence forecloses. The historical incident below predates that cutover; the discipline it teaches is retained as the reason the cutover exists.
 
    The 2026-07-25 session closed with #1176 carrying 22 files, 813 insertions, and SIX

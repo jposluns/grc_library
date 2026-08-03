@@ -36,7 +36,7 @@ The skill is **the orchestrator-side process-improvement loop**. It pairs with t
 - **Mandatory** as a PR's finalizing step, before merge, immediately after the PR-scoped validation sweep returns. It runs paired with that sweep, with both record rows committed in-PR before the merge. (The parent library's concrete sequence: `/validate-pr` -> `/retro` -> write rows in-PR -> commit -> CI -> merge -> sync main -> delete branch -> next-PR planning.)
 - The retrospective is one entry per PR. If a PR cycle produced findings, the entry carries them as observed friction. If a PR cycle was clean, the entry carries the clean-result observation.
 
-**No orchestrator-side skip discretion.** Same discipline as the PR-scoped validation sweep: every merged PR gets a retrospective entry, even when the retrospective conclusion is "nothing new to learn." Zero-content entries (clean PR, no friction, no pattern surfaced) record that fact and serve as the proof-of-discipline (a uniformly-clean register-entry sequence is itself a signal that the workflow is calibrated). Skipping is a policy deviation requiring maintainer authorization.
+**No orchestrator-side skip discretion.** Same discipline as the PR-scoped validation sweep: every PR gets its retrospective entry before merge (the one documented exception is a session-closing handoff PR that took the QA-fallback skip), even when the conclusion is "nothing new to learn." Zero-content entries (clean PR, no friction, no pattern surfaced) record that fact and serve as the proof-of-discipline (a uniformly-clean register-entry sequence is itself a signal that the workflow is calibrated). Skipping is a policy deviation requiring maintainer authorization.
 
 ## Process
 
@@ -128,7 +128,7 @@ For clean-PR retrospectives (no friction, no pattern, no proposed improvement), 
 
 The improvement-log entry for a PR appends to the register and is committed into the SAME PR, recording that PR's own number: the retrospective is conducted immediately after `/validate-pr` and before merge, and its register row rides in-PR rather than batching into a next PR (per the synchronous model in [`validation-sweep-pr-scoped`](../validation-sweep-pr-scoped/SKILL.md) and [`validation-sweep`](../validation-sweep/SKILL.md)).
 
-A retrospective that surfaces a candidate improvement deserving its own PR (e.g., a new audit gate, a new pack-rule, a worker-brief template addition) DOES trigger that PR; but the substance of that PR is the improvement itself, not the register row. The register row is bundled into that improvement PR alongside any other queued register rows.
+A retrospective that surfaces a candidate improvement deserving its own PR (e.g., a new audit gate, a new pack-rule, a worker-brief template addition) DOES trigger that PR; but the substance of that PR is the improvement itself, not the register row. The register row still rides in the PR being finalized (recording its own number); the improvement PR carries only the improvement, plus its own `/validate-pr` + `/retro` rows.
 
 ## Red Flags
 
