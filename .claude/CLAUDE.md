@@ -910,7 +910,7 @@ distinct from the third-party external overlay described next.
 The GRC Library pack above is the **primary** source. `.claude/rules/external/` holds a
 **supplementary** overlay from third-party sources (TikiTribe, Kariedo, addyosmani, all
 MIT, see each dir's LICENSE), provenance-stamped. Overlay rules may overlap or conflict
-with the primary layer; the primary GRC pack wins on conflict. The overlay can be pruned
+with the primary layer; the primary GRC pack wins on conflict. The overlay is NOT loaded at runtime (nothing in `.claude/settings.json` imports it and no `external/` file appears in the always-loaded rule index), so it is a dogfood artefact of the setup generator's output: the primary-wins-on-conflict rule governs what the generator ships to adopters, not a runtime conflict resolution. The overlay can be pruned
 or refreshed independently: the pruning stance is that the overlay is reviewed at each
 periodic pack review, a near-duplicate wrapper the primary pack already covers is a prune
 candidate, and a stale upstream file is refreshed from source or dropped rather than left
