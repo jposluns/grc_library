@@ -69,6 +69,43 @@ exec(user_code)         # Code injection
 
 ---
 
+## Temporary files: python specific
+
+Use `tempfile` so that temporary files and directories are created with unpredictable names and safely scoped lifetimes. Never construct a predictable `/tmp` filename or use a check-then-open sequence. (Reopening a `NamedTemporaryFile` by name while it is still open can fail on Windows under the default delete-and-share semantics; where a cross-platform reopen-by-name is required, pass `delete=False` and clean up explicitly, or use the `TemporaryDirectory` form below, which avoids the issue.)
+
+```python
+import tempfile
+from pathlib import Path
+
+with tempfile.NamedTemporaryFile() as tmp:
+    tmp.write(data)
+    tmp.flush()
+    process_file(tmp.name)
+
+with tempfile.TemporaryDirectory() as tmpdir:
+    path = Path(tmpdir) / "data.bin"
+    path.write_bytes(data)
+    process_file(path)
+```
+
+## URL scheme validation: python specific
+
+Allowlist URL schemes before using a user-provided URL. Outbound web requests use HTTPS unless an explicitly reviewed requirement permits another scheme. Scheme validation does not replace the host, resolved-IP, and redirect controls in `core/owasp.md`.
+
+```python
+from urllib.parse import urlsplit
+
+ALLOWED_SCHEMES = {"https"}
+
+def validate_outbound_url(raw: str) -> str:
+    parsed = urlsplit(raw)
+    if parsed.scheme.lower() not in ALLOWED_SCHEMES:
+        raise ValueError("URL scheme is not allowed")
+    if not parsed.hostname:
+        raise ValueError("URL hostname is required")
+    return raw
+```
+
 ## Cryptography: python specific
 
 ```python
@@ -98,6 +135,17 @@ token = random.randbytes(32).hex()  # NOT cryptographically secure
 # CORRECT
 import secrets
 token = secrets.token_hex(32)
+```
+
+### Constant-time secret comparisons
+
+Use `hmac.compare_digest()` for attacker-observable equality checks of MACs (including HMAC-based webhook signatures) and secret tokens. It does NOT verify public-key signatures such as ECDSA or RSA-PSS: those require the algorithm's own verify operation over the message, not a byte comparison. Do not use `==` for the equality checks it does cover. Passwords remain subject to the password-hashing library's verification function.
+
+```python
+import hmac
+
+if not hmac.compare_digest(provided_signature, expected_signature):
+    raise ValueError("invalid signature")
 ```
 
 ---
@@ -138,6 +186,40 @@ data = json.loads(untrusted_string) # Safe: no code execution
 ```
 
 ---
+
+## Dynamic imports: python specific
+
+Never pass a user-controlled value directly to `__import__()` or `importlib.import_module()`. Where runtime plugin selection is required, map an external identifier through a fixed allowlist and import only the mapped module name.
+
+```python
+import importlib
+
+ALLOWED_PARSERS = {
+    "csv": "app.parsers.csv_parser",
+    "json": "app.parsers.json_parser",
+}
+
+module_name = ALLOWED_PARSERS.get(user_choice)
+if module_name is None:
+    raise ValueError("parser is not allowed")
+
+parser = importlib.import_module(module_name)
+```
+
+## Security-sensitive type comparisons: python specific
+
+Do not use truthiness or cross-type equality to make authentication or authorization decisions. Python treats some distinct values as equal, including `False == 0` and `True == 1`. Validate the exact expected type at the boundary and use explicit sentinel comparisons.
+
+```python
+if type(access_granted) is not bool:
+    raise TypeError("access_granted must be a boolean")
+
+if access_granted is not True:
+    deny_access()
+
+if token is None:
+    deny_access()
+```
 
 ## XML parsing (XXE)
 
