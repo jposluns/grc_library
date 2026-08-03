@@ -10699,5 +10699,49 @@ class PlaybookPointerIntegrityTests(LinterTestCase):
         )
 
 
+class PublicationManifestTest(unittest.TestCase):
+    """Gate 83: publication-manifest sync (TODO 1.26.5). The decision is a pure
+    function, so the failure modes are tested directly; the clean case is the
+    real linter over the real manifest and tree."""
+
+    @classmethod
+    def setUpClass(cls):
+        import importlib.util
+        path = REPO_ROOT / "tools" / "lint-publication-manifest.py"
+        spec = importlib.util.spec_from_file_location("pubman_gate83", str(path))
+        cls.mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.mod)
+
+    def test_evaluate_clean_finds_nothing(self):
+        tree = {"a.md", "b.md"}
+        entries = {
+            "a.md": {"bucket": "CORE", "disclosure": "PUBLIC"},
+            "b.md": {"bucket": "GRC-ONLY", "disclosure": "SANITIZE"},
+        }
+        r = self.mod.evaluate(tree, entries)
+        self.assertEqual(r, {"unclassified": [], "orphans": [], "bad_bucket": [], "bad_disclosure": []})
+
+    def test_unclassified_file_flagged(self):
+        r = self.mod.evaluate({"a.md", "new.md"}, {"a.md": {"bucket": "CORE", "disclosure": "PUBLIC"}})
+        self.assertEqual(r["unclassified"], ["new.md"])
+
+    def test_orphan_entry_flagged(self):
+        r = self.mod.evaluate(
+            {"a.md"},
+            {"a.md": {"bucket": "CORE", "disclosure": "PUBLIC"},
+             "gone.md": {"bucket": "CORE", "disclosure": "PUBLIC"}},
+        )
+        self.assertEqual(r["orphans"], ["gone.md"])
+
+    def test_bad_bucket_and_disclosure_flagged(self):
+        r = self.mod.evaluate({"a.md"}, {"a.md": {"bucket": "WRONG", "disclosure": "NOPE"}})
+        self.assertEqual(r["bad_bucket"], ["a.md"])
+        self.assertEqual(r["bad_disclosure"], ["a.md"])
+
+    def test_runs_clean_on_pack_at_head(self):
+        result = run_linter("tools/lint-publication-manifest.py")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
