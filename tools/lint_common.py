@@ -843,7 +843,7 @@ CROSS_ADJACENCY_WINDOW = 40
 # to ``origin/$GITHUB_BASE_REF``, and merge-base resolution with a shared
 # error message. This is the single definition. The delta checks whose
 # range resolution deliberately differs (D5's own git plus merge-base flow,
-# D6's compact sys.argv form with its own message prefix, D9's argless
+# D9's argless
 # origin/main default) keep their own resolution flow.
 
 

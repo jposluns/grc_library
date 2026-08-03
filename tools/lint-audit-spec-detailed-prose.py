@@ -128,6 +128,9 @@ def parse_gate_numbers(text: str) -> list[int]:
     return numbers
 
 
+RETIRED_MARKER_RE = re.compile(r"^\*\(retired\b", re.IGNORECASE)
+
+
 def parse_delta_rows(text: str) -> tuple[dict[int, str], bool]:
     """Return ``({Dn number: gate-name cell}, heading_present)`` for the
     section-6 region's delta-gate table."""
@@ -169,6 +172,25 @@ def load_delta_registry(parity_script: Path) -> set[str] | None:
         return set(registry)
     except Exception:
         return None
+
+
+def load_retired_delta_gates(parity_script: Path) -> set[int]:
+    """Load ``RETIRED_DELTA_GATES`` from the parity linter (empty set if the
+    constant is absent or unloadable). A retired delta-gate number keeps its
+    section-6.1 marker row for permanence but has no ``WORKFLOW_DELTA_GATE_STEPS``
+    entry, so its row is excluded from the registry-parity check below."""
+    try:
+        spec = importlib.util.spec_from_file_location(
+            "lint_audit_gate_parity_retired", parity_script
+        )
+        if spec is None or spec.loader is None:
+            return set()
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        retired = getattr(module, "RETIRED_DELTA_GATES", set())
+        return {int(n) for n in retired} if isinstance(retired, (set, frozenset)) else set()
+    except Exception:
+        return set()
 
 
 def main(argv: list[str]) -> int:
@@ -231,7 +253,35 @@ def main(argv: list[str]) -> int:
             )
             return 2
         expected = {e for e in registry if INFORMATIONAL_MARKER not in e}
-        table_names = set(delta_rows.values())
+        retired = load_retired_delta_gates(Path(args.parity_script))
+        # Positive-signal guard (not a bare name-exemption): a retired delta
+        # number keeps a PERMANENT section-6.1 row, but that row MUST be a
+        # retired-marker (its name cell starts with ``*(retired``), never a
+        # live-looking gate name. This prevents the failure where a live gate
+        # is un-wired, its number added to RETIRED_DELTA_GATES, and its §6.1
+        # row left advertising a gate that runs nowhere. A retired row is
+        # excluded from the live registry-parity ONLY once it proves it is a
+        # marker; otherwise it fails loud.
+        retired_row_names: set[str] = set()
+        for n in sorted(retired):
+            if n not in delta_rows:
+                missing.append(
+                    f"delta table: retired gate D{n} has no section-6.1 row; a "
+                    "retired number must keep a permanent retired-marker row "
+                    "(number permanence, never reused)"
+                )
+                continue
+            name = delta_rows[n]
+            if not RETIRED_MARKER_RE.match(name.strip()):
+                missing.append(
+                    f"delta table: the section-6.1 row for RETIRED D{n} is "
+                    f"'{name}', but a retired number's row must be a retired "
+                    "marker (start with '*(retired'); it must not advertise a "
+                    "live gate name or a runnable script"
+                )
+                continue
+            retired_row_names.add(name)
+        table_names = set(delta_rows.values()) - retired_row_names
         for name in sorted(expected - table_names):
             missing.append(
                 f"delta registry: WORKFLOW_DELTA_GATE_STEPS entry '{name}' "

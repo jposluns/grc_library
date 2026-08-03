@@ -115,4 +115,4 @@ This skill is complete when:
 - Related skill [`change-tracking-write-entry`](../change-tracking-write-entry/SKILL.md): adding a new skill is a tracked change; the CHANGELOG entry follows the change-tracking discipline.
 - Related skill [`artefact-discipline-check`](../artefact-discipline-check/SKILL.md): the new skill creates new artefacts in the pack; the artefact-discipline-check confirms generated-vs-source separation is respected.
 - Related skill [`guardrail-review`](../guardrail-review/SKILL.md) (`/guardrails`): the system-level counterpart to this per-skill template; it reviews the whole machinery (rules, skills, gates) for overlap, gap, and drift, where this skill governs the addition of one skill.
-- The pack README's `## Version history` section (in the pack's `README.md`) records each skill addition with the pack-minor-bump convention; this skill's addition is itself an instance of that pattern.
+- The pack README's `**Version:**` field bumps on each skill addition (the pack-minor-bump convention); the change is recorded in the library's CHANGELOG, this skill's addition being an instance of that pattern.

@@ -20,7 +20,7 @@ drive end-to-end on the maintainer's behalf:
    Before pushing, run both runners as a single pre-push gate:
    `tools/pre-push-guard.sh && git push -u origin <branch>`. The guard chains
    `run_all_audits.sh` (corpus gates from HEAD) then `run-pr-time-checks.sh` (the PR-only
-   delta gates D1-D10 plus the history-aware trio 45/40/31 against the merge base),
+   delta gates D1-D10 (D6 retired) plus the history-aware trio 45/40/31 against the merge base),
    stopping non-zero on the first failure, so a gate defect blocks the push instead of
    flipping CI red after the fact. The two runners together cover every gate CI runs.
    Git hooks do not fire in this environment, so the `&&`-chained guard is what actually
@@ -242,7 +242,7 @@ is external. Two mechanisms:
    - **Paired-surface completeness** (the update-one-of-a-pair guard): when a change
      updates one field of a paired structure, the sibling field was updated in the same
      commit. Two recurring instances: (a) if the PR bumps the pack README metadata
-     `Version`, the paired `## Version history` table row was added in the same commit;
+     `Version` bumped on its body change (D2 + gate 40; the pack version-history table and its D6 gate were retired 2026-08-03);
      (b) when the PR migrates a control code (or any coded value) in a framework-mapping
      or crosswalk table, the paired description cell in the same row was re-read for echoes
      of the OLD code's function or meaning (the prose half is not mechanically gateable,

@@ -27,7 +27,7 @@ script is not a §6-inventory script; a non-gate pre-commit hook carries no
 `--check`), so a real gate mistakenly added to an exclusion set fails rather than
 being masked; and each D-numbered delta gate in the PR-time runner is confirmed
 to map to a workflow delta-gate step of the same script, with the D-numbers
-contiguous D1..D10. See ``verify_exclusion_and_delta_guards``.
+contiguous D1..D10 apart from retired numbers (D6, retired 2026-08-03). See ``verify_exclusion_and_delta_guards``.
 
 Comparison: the spec inventory table is the canonical source of truth.
 The other three surfaces are validated against it. For each row of the
@@ -90,13 +90,22 @@ WORKFLOW_DELTA_GATE_STEPS = {
     "CHANGELOG dash-on-PR check",
     "Per-PR Version-Date co-bump check",
     "Backlog-rotation-on-PR check",
-    "Pack-README version-history co-bump check",
     "CHANGELOG length-on-PR check",
     "Detect collection candidates on pack PRs (informational)",
     "Daily-changelog-rollup reminder",
     "Retired-section-orphan check",
     "CLAUDE.md-size ratchet",
 }
+
+# Delta-gate numbers are PERMANENT and never reused (the same rule as backlog
+# item numbers): a retired delta gate leaves a GAP in the D1..N sequence rather
+# than being renumbered, because the number leaks into CHANGELOG entries and
+# prose where a recycled number would silently mis-resolve. D6 (pack-README
+# version-history co-bump) was retired 2026-08-03 when the pack README's
+# ``## Version history`` section was removed; the contiguity guard below
+# tolerates this gap.
+RETIRED_DELTA_GATES = {6}
+HIGHEST_DELTA_GATE = 10
 
 # Pre-commit hooks that are setup or regeneration steps, not audit
 # gates. These are excluded from the pre-commit-to-spec parity check.
@@ -303,10 +312,10 @@ def parse_precommit(path: Path) -> list[tuple[int, str, str]]:
 #     hook runs `build-taxonomy.py`/`build-portal.py` in write mode; the §6 gates
 #     run the SAME scripts WITH `--check`, so the `--check` flag is the
 #     discriminator, not the script name.)
-# Gap (ii): the 10 PR-only delta gates (D1-D10) live only in the workflow with no
+# Gap (ii): the nine live PR-only delta gates (D1-D10, D6 retired) live only in the workflow with no
 # cross-surface parity. The delta-gate guard confirms each D-numbered gate in the
 # PR-time runner (PRTIME_PATH) maps to a WORKFLOW_DELTA_GATE_STEPS step of the
-# same script, and that the D-numbers are contiguous D1..D10.
+# same script, and that the D-numbers are contiguous D1..D10 apart from retired numbers (D6).
 WF_NAME_RE = re.compile(r"^\s*-\s*name:\s*(.+?)\s*$")
 PC_NAME_RE = re.compile(r"^\s*name:\s*(.+?)\s*$")
 PC_ENTRY_RE = re.compile(r"^\s*entry:\s*(.+?)\s*$")
@@ -418,11 +427,20 @@ def verify_exclusion_and_delta_guards(
         dmap[num] = (nm, scr)
     if prtime_lines:  # only if the runner is present (portable-clone tolerant)
         nums = sorted(dmap)
-        if nums != list(range(1, 11)):
+        expected = sorted(set(range(1, HIGHEST_DELTA_GATE + 1)) - RETIRED_DELTA_GATES)
+        if nums != expected:
             findings.append(
                 f"delta-gate guard: D-numbers in {PRTIME_PATH} are {nums}, not the "
-                f"contiguous D1..D10 set (a delta gate was added, removed, or "
-                f"misnumbered without updating the parity surfaces)."
+                f"expected D1..D{HIGHEST_DELTA_GATE} set minus retired "
+                f"{sorted(RETIRED_DELTA_GATES)} (= {expected}); a delta gate was "
+                f"added, removed, or misnumbered without updating the parity surfaces."
+            )
+        retired_wired = sorted(RETIRED_DELTA_GATES & set(dmap))
+        if retired_wired:
+            findings.append(
+                f"delta-gate guard: retired D-number(s) {retired_wired} are still "
+                f"wired as live delta gates in {PRTIME_PATH}; a retired delta gate "
+                f"must not be invoked, only its retired-marker row may remain."
             )
         for num, (nm, scr) in sorted(dmap.items()):
             if nm not in WORKFLOW_DELTA_GATE_STEPS:

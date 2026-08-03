@@ -767,7 +767,8 @@ def main() -> int:
     # Checks 2 and 4 read PUBLIC files only (TODO.md; the repo-wide
     # metadata/version-history pair), so they always run.
     all_findings.extend(todo_rotation_findings(todo_text))
-    all_findings.extend(version_history_parity_findings(discover_version_history_files()))
+    vh_files = discover_version_history_files()
+    all_findings.extend(version_history_parity_findings(vh_files))
 
     if detailed_text is None:
         skipped.append("worker-provenance attestation")
@@ -803,7 +804,14 @@ def main() -> int:
                 "merge-bypass-log parity",
             )
             if name not in skipped
+            and not (name == "version-history parity" and not vh_files)
         ]
+        if not vh_files:
+            print(
+                "note: version-history parity scanned 0 files (no repo file pairs a "
+                "**Version:** field with a ## Version history table); the check is "
+                "vacuous here and is not asserted as a pass."
+            )
         print(f"OK: bookkeeping-parity audit clean ({'; '.join(ran)}).")
         return 0
 
