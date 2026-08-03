@@ -1,6 +1,6 @@
 ---
 name: validation-sweep
-description: Corpus-wide regression sweep run as a follow-up after any issue is identified and corrected, to confirm no sibling issue remains anywhere in the repository. Invoke after fixes that touch multi-surface artefacts, gate inventories, prose claims about repo state, AI-inferred citations, or generated artefacts. Combines the mechanical audit suite with a structured semantic fan-out, and loops until clean.
+description: Project-wide regression sweep run as a follow-up after any issue is identified and corrected, to confirm no sibling issue remains anywhere in the repository. Invoke after fixes that touch multi-surface artefacts, gate inventories, prose claims about repository state, AI-inferred citations, or generated artefacts. Combines the mechanical audit suite with a structured semantic fan-out, and loops until clean.
 derives_from: ../../governance/evidence-grounded-completion.md
 ---
 
@@ -24,7 +24,7 @@ An adopting project maps each bullet to its own records; the procedure below ref
 
 ## Overview
 
-After a single defect is found and fixed, a sibling defect may still be lurking elsewhere: same author, same session, same inferred mental model, same blind spot. The mechanical audit gates catch their own classes; this skill is the structured corpus-wide sweep that catches what the gates do not. It targets cross-file prose drift, mis-attributed citations, multi-surface incompleteness in places the gate-name parity audit does not police, inferred-as-verified state assertions, and the other failure-mode classes catalogued below.
+After a single defect is found and fixed, a sibling defect may still be lurking elsewhere: same author, same session, same inferred mental model, same blind spot. The mechanical audit gates catch their own classes; this skill is the structured project-wide sweep that catches what the gates do not. It targets cross-file prose drift, mis-attributed citations, multi-surface incompleteness, inferred-as-verified state assertions, and the other failure-mode classes catalogued below.
 
 The sweep is fixed-point: if it finds anything, fix it, then re-run the sweep, until the sweep returns clean. The audit gates are the ground truth for mechanical claims; the parallel subagent fan-out is the ground truth for the semantic claims the gates cannot mechanize.
 
@@ -52,17 +52,17 @@ If the audit reports failures, the sweep cannot proceed semantically until the m
 
 ### 2. Enumerate recent changes
 
-Identify the scope of recently-touched files. The focus window is **the past two calendar days**: wide enough to span overnight handoffs, weekend work, and post-meeting reviews; narrow enough that the in-window set stays reviewable.
+Identify the scope of recently-touched files. The focus window is a bound the project sets; the default is **the past two calendar days**: wide enough to span overnight handoffs, weekend work, and post-meeting reviews; narrow enough that the in-window set stays reviewable. A project on a different rhythm substitutes its own window and its own contextual history depth, and states the bounds it used when it reports the sweep.
 
-- `git log --since="2 days ago" --name-only --pretty=format:""` : files touched in the focus window.
+- `git log --since="2 days ago" --name-only --pretty=format:""` : files touched in the focus window (substitute the project's window).
 - `git status --short` : files in the current working tree.
-- `git log --name-only -10` : files touched in the last ten commits, as additional context.
+- `git log --name-only -10` : files touched in the last ten commits, as additional context (substitute the project's depth).
 
 These files are the highest-priority targets for the semantic sweep. Findings on files outside the focus window (i.e. on pre-existing issues the sweep surfaces incidentally) are still reportable and ARE handled by step 6, not silently discarded.
 
 ### 3. Identify failure-mode classes in scope
 
-The sweep targets failure modes the mechanical gates do not cover. Each class has a known shape; new classes may surface as the corpus and the audit programme evolve.
+The sweep targets failure modes the mechanical gates do not cover. Each class has a known shape; new classes may surface as the project and its audit programme evolve.
 
 | Class | Shape |
 | --- | --- |
@@ -81,7 +81,7 @@ Before subagent fan-out, run the project's deterministic pre-flight scanner (nam
 
 Pass the scanner's output to each subagent as a "known suspect locations to verify or dismiss" list. This lowers each subagent's discovery burden and guarantees candidate shapes the gates miss get semantic triage. Many candidates will be false positives (legitimate historical references, comparative prose, references to other projects' counts); that is expected: the scanner is high-recall, the subagent triage is the precision layer.
 
-The scanner is project-specific (its canonical-collection constants and seed patterns target the consuming corpus); a project adopting the validation-sweep pattern swaps in its own scanner with project-specific patterns.
+The scanner is project-specific (its canonical-collection constants and seed patterns target the consuming project's artefacts); a project adopting the validation-sweep pattern swaps in its own scanner with project-specific patterns.
 
 The scanner's pattern set is extensible. The shipped patterns cover stale collection counts (a stale skill count, a stale governance-rule count, a generic `N <collection>` count) and stale version literals (a prose phrase asserting a current version that no longer matches any canonical version surface); the parent library's concrete pattern ids are listed in the project wiring. The stale-version-literal pattern was added after a sweep finding of exactly that shape, so future sweeps catch it mechanically.
 
@@ -99,7 +99,7 @@ Launch subagents in parallel for the semantic sweep. Each receives a self-contai
 
 - **Subagent A : recent-PR deep review**. Read every file touched by the recent PRs in full; verify every CHANGELOG entry, commit message, and docstring claim against the actual diff; specifically flag mis-attributed citations and claims that contradict the file's actual contents.
 - **Subagent B : corpus-wide stale-reference sweep**. Grep the repository for stale gate counts, project and pack versions, and dates; cross-check against the canonical sources (the README, the canonical gate inventory). Also check listing-surface coverage drift on the SEMANTIC surfaces that no gate enforces: the project's own judgment-call listing surfaces (in the parent library: the framework matrices and crosswalks, the glossary and key-terms registers, and per-document `Related Documents` fields). (The MECHANICAL listing surfaces are enforced by the project's listing-surface coverage gate, so a recently-added document missing from those is a gate failure, not a sweep finding; the sweep's value is the relevance-based surfaces where a new document plausibly belongs but inclusion is a judgment call. The project wiring names the gate and the candidate-set helper that produces the candidate set.)
-- **Subagent C : audit-programme integrity check**. Independently re-verify that all parity surfaces agree (workflow, runner, pre-commit, spec inventory); verify mirror-sync between pack sources and local copies; verify any new linter's docstring matches its code; spot-check generated-artefact regeneration.
+- **Subagent C : audit-programme integrity check**. Independently re-verify that all of the project's parity surfaces agree (in the parent GRC library: workflow, runner, pre-commit, and specification inventory); verify mirror-sync between each mirrored source and its copies (in the parent GRC library, the pack sources and their local copies); verify any new linter's docstring matches its code; spot-check generated-artefact regeneration.
 
 Each subagent reports under 600 words, grouped by severity:
 - **High**: factual error, stale reference in a normative document, mis-attribution.
@@ -156,7 +156,7 @@ Cross-reference each synthesized finding against the **false-positive memory** e
 
 ### 6. Triage
 
-Triage depends on whether the finding is **in the focus window** (the past two calendar days, per step 2) or **outside the focus window** (a pre-existing issue surfaced incidentally).
+Triage depends on whether the finding is **in the configured focus window** (per step 2) or **outside the focus window** (a pre-existing issue surfaced incidentally).
 
 **For findings IN the focus window:**
 
@@ -176,7 +176,7 @@ The pre-flight scanner's exemption file and the register's `false-positive memor
 
 ### 7. Apply fixes, re-baseline, repeat
 
-Apply the fixes. **Re-run step 1 (the full audit standalone) AFTER committing each fix, not on the working tree**. Per the canonical rule's "Relying on prior runs" anti-pattern, the audit must see the final state; per the git-history-aware-gates discipline, the audit's view of "final state" is the committed git history, not the uncommitted working tree. Running the audit on uncommitted changes misses what git-history-aware gates (e.g. a corpus version-bump-recency check) would flag once those changes are committed. If new findings surface, repeat from step 4. The sweep is complete when one full cycle returns no High or Medium findings.
+Apply the fixes. **Re-run step 1 (the full audit standalone) AFTER committing each fix, not on the working tree**. Per the canonical rule's "Relying on prior runs" anti-pattern, the audit must see the final state; per the git-history-aware-gates discipline, the audit's view of "final state" is the committed git history, not the uncommitted working tree. Running the audit on uncommitted changes misses what git-history-aware gates, such as a project version-bump-recency check, would flag once those changes are committed. If new findings surface, repeat from step 4. The sweep is complete when one full cycle returns no High or Medium findings.
 
 **Termination conditions** (replacing the older "stop after three iterations" cap; first matching condition fires):
 
@@ -203,11 +203,11 @@ After the cycle terminates, append a row to the project's validation-sweep histo
 
 New rows on top. Zero-finding iterations still get a row: the history is the audit trail of every invocation, not just the ones that found something. The trend signal (which classes recur, how iteration counts shrink to convergence) lives in the table itself.
 
-**Same-PR recording (recursion-avoidance retired).** Every sweep invocation gets a history row. The old model deferred a zero-finding row into a next PR to avoid a row-addition-triggers-a-sibling-sweep loop. The synchronous model records the row in the PR that carries the sweep's close-out instead: a sweep run as a PR's finalizing step writes its row in that PR; a standalone or resume-time sweep whose findings warrant a dedicated close-out PR writes its row in that close-out PR. A findings-producing `/validate` may still warrant its own close-out PR when findings are numerous or coherent enough (the corpus-wide sweep's distinguishing case from the PR-scoped sibling, whose fixes land in-PR by default). The audit trail is preserved: the row records the sweep's ordinal and date, so a reader traces from the row's PR back to the sweep.
+**Same-PR recording (recursion-avoidance retired).** Every sweep invocation gets a history row. The old model deferred a zero-finding row into a next PR to avoid a row-addition-triggers-a-sibling-sweep loop. The synchronous model records the row in the PR that carries the sweep's close-out instead: a sweep run as a PR's finalizing step writes its row in that PR; a standalone or resume-time sweep whose findings warrant a dedicated close-out PR writes its row in that close-out PR. A findings-producing `/validate` may still warrant its own close-out PR when findings are numerous or coherent enough (the project-wide sweep's distinguishing case from the PR-scoped sibling, whose fixes land in-PR by default). The audit trail is preserved: the row records the sweep's ordinal and date, so a reader traces from the row's PR back to the sweep.
 
 ### 9. Write the per-iteration detail file (only when findings exist)
 
-When the iteration produced findings, write a per-iteration detail file to the project's per-iteration detail directory (named in the project wiring). Filename `YYYY-MM-DD-sweepN-iterM.md` where `N` and `M` match the **Sweep** column in the history row. The file captures detail the history table summary intentionally omits, so a maintainer reading the file weeks later can reconstruct the iteration without the chat transcript. Before committing either surface (the step-8 history row or this detail file), verify each fixed-in-window claim against the actual diff (grep for the claim's target text); a claim whose edit is absent is downgraded to routed, never recorded as fixed (the record-asserts-unapplied-fix guard, shared with the guardrail-review and PR-scoped-sweep record steps).
+When the iteration produced findings, write a per-iteration detail file to the project's per-iteration detail directory, using the naming scheme recorded in the project wiring; the parent GRC library's is `YYYY-MM-DD-sweepN-iterM.md`, where `N` and `M` match the **Sweep** column that step 8 defines for the history row. The file captures detail the history table summary intentionally omits, so a maintainer reading the file weeks later can reconstruct the iteration without the chat transcript. Before committing either surface (the step-8 history row or this detail file), verify each fixed-in-window claim against the actual diff (grep for the claim's target text); a claim whose edit is absent is downgraded to routed, never recorded as fixed (the record-asserts-unapplied-fix guard, shared with the guardrail-review and PR-scoped-sweep record steps).
 
 Six top-level H2 sections in this order:
 
@@ -258,7 +258,7 @@ If any of these is missing, the sweep is incomplete and a clean-bill report is n
 | "The audit gates pass; that's enough." | Gates prove what they check. The semantic sweep targets what they do not. |
 | "I just fixed the one issue; nothing else can be wrong." | Same author, same session, same blind spot. Sibling defects are the typical pattern. |
 | "Subagents are expensive; I'll just grep myself." | Grep finds what you search for. The subagents catch what you would not have thought to search for. |
-| "The sweep returned clean last time; skip it this time." | The corpus changes between sweeps. Last time's clean does not authorize this time's skip. |
+| "The sweep returned clean last time; skip it this time." | The project changes between sweeps. Last time's clean does not authorize this time's skip. |
 | "The fix was small; the sweep is overkill." | The sweep's cost is bounded. The cost of a sibling defect that lands compounds. |
 
 ## See Also

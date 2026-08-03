@@ -1,6 +1,6 @@
 # Swift / iOS (and Objective-C) Security Rules
 
-These rules apply to iOS applications written in Swift or Objective-C. They supplement the core rules in `core/` and implement the controls in `standard-mobile-application-security.md`. Section numbers below refer to that standard.
+These rules apply to iOS applications written in Swift or Objective-C. They supplement the core rules in `core/`. The controls below stand alone; in the parent GRC library they implement `dev-security/standard-mobile-application-security.md`. Section and tier references below are labelled provenance for that parent standard; adopters map them to their own mobile-security standard and risk classification.
 
 Objective-C-specific patterns are noted inline where they differ from Swift; the underlying iOS platform APIs are the same.
 
@@ -116,7 +116,8 @@ Use ASWebAuthenticationSession for OAuth / OIDC flows: it presents the system br
 Domain-scoped exceptions are documented per Section 7; blanket exceptions are prohibited.
 
 ```swift
-// Certificate pinning via URLSessionDelegate (Tier 1, Tier 2 per Section 3)
+// Certificate pinning via URLSessionDelegate for applications whose risk
+// classification requires defence-in-depth controls (Tier 1 / Tier 2 in the parent standard)
 func urlSession(_ session: URLSession,
                 didReceive challenge: URLAuthenticationChallenge,
                 completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
@@ -139,7 +140,7 @@ func urlSession(_ session: URLSession,
 
 ## Backend attestation: App Attest and DeviceCheck (Section 7)
 
-Tier 1 and Tier 2 application backends require App Attest. The client generates an attestation key, attests on first use, and signs subsequent assertions; the backend verifies tokens against Apple's attestation service.
+Application backends whose risk classification requires platform attestation for sensitive operations (Tier 1 / Tier 2 in the parent GRC library's mobile-security standard) require App Attest. The client generates an attestation key, attests on first use, and signs subsequent assertions; the backend verifies tokens against Apple's attestation service.
 
 ```swift
 import DeviceCheck
@@ -277,18 +278,18 @@ if case .success(.verified(let transaction)) = result {
 
 ---
 
-## Reverse-engineering resistance (Section 9, Tier 1 and Tier 2)
+## Reverse-engineering resistance (risk-classification dependent; Section 9, Tier 1 / Tier 2 in the parent standard)
 
 - Jailbreak detection used as a signal, not as the sole defence. Detection signals reported to backend; user experience degraded gracefully (not abrupt crash).
 - String obfuscation for embedded secrets (with the caveat that no embedded secret is truly secret on a jailbroken device).
-- Anti-debug checks (`ptrace(PT_DENY_ATTACH, 0, 0, 0)` and similar) for Tier 1 only; do not rely on these as the security model.
+- Anti-debug checks (`ptrace(PT_DENY_ATTACH, 0, 0, 0)` and similar) for applications in the highest-risk classification (Tier 1 in the parent standard); do not rely on these as the security model.
 - Compiler hardening (PIE, stack canaries, ARC) enabled in release builds. The Xcode defaults are correct; verify they remain enabled in release configurations.
 
 ---
 
 ## Framework alignment
 
-Implements these sections of `standard-mobile-application-security.md`:
+Parent-library provenance: this rule implements these sections of `dev-security/standard-mobile-application-security.md`:
 
 - Section 4 (storage): Keychain accessibility classes; data protection classes; backup exclusion.
 - Section 5 (cryptography): CryptoKit; Secure Enclave; `SecRandomCopyBytes`.

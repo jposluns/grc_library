@@ -97,12 +97,12 @@ The pattern is symmetric between local and CI:
 
 ```
 # Local (developer): regenerate, then commit source plus output.
-python3 tools/build-taxonomy.py
-git add taxonomy.yml ai/ compliance/   # source and output together
+python3 <path-to-generator>
+git add <source-path> <generated-output-path>   # source and output together
 git commit
 
 # CI (verification): regenerate in --check mode; fail on drift.
-python3 tools/build-taxonomy.py --check
+python3 <path-to-generator> --check
 ```
 
 CI must use `--check` (or `--diff`, depending on the generator), not the bare command. If the generator does not support a `--check` mode, add one before relying on it for CI; do not let CI regenerate-in-place.

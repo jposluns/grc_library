@@ -105,7 +105,7 @@ See [`core/input-validation.md`](input-validation.md) for full requirements. Key
 ## A06:2025 insecure design
 
 **Required pattern**:
-- Threat model every new feature that handles Confidential data, authentication, or external integrations. The library's `security/standard-threat-modelling.md` defines the STRIDE-per-trust-boundary methodology and the Mandatory / Approval-Gated / Prohibited disposition model the threat-modelling workshop applies to each identified threat.
+- Threat model every new feature that handles sensitive data, authentication, or external integrations. Follow the adopting project's threat-modelling standard. In the parent GRC library, `security/standard-threat-modelling.md` defines the STRIDE-per-trust-boundary methodology and the Mandatory / Approval-Gated / Prohibited disposition model applied to each identified threat.
 - Apply defense-in-depth: multiple independent security controls, not a single gate
 - Design for failure securely: when a component fails, it should fail closed, not open
 
@@ -146,7 +146,7 @@ See [`core/authentication.md`](authentication.md) for full requirements. Renamed
 Renamed from Security Logging and Monitoring Failures in 2021 to emphasize alerting: logging without alerting rarely induces action on a security event.
 
 **Required pattern**:
-- Log: all authentication events; authorization failures; all access to Confidential/Restricted data; significant configuration changes; all API calls with caller, endpoint, response code, timestamp
+- Log: all authentication events; authorization failures; all access to data classified as sensitive under the adopting project's scheme (Confidential or Restricted in the parent GRC library); significant configuration changes; all API calls with caller, endpoint, response code, timestamp
 - Forward all logs to SIEM: not only to local files
 - Test that alerts fire for critical events
 
@@ -214,7 +214,7 @@ Security risks for systems using the Model Context Protocol (MCP). Full detail i
 | V12 Communication | TLS required | TLS 1.2+, cert validation | TLS 1.3, cert pinning |
 | V4 API | Auth on all endpoints | Full schema validation | Rate limit, API versioning |
 
-Default target: ASVS Level 2 for all applications handling Confidential or Restricted data. The V12 level cells restate the ASVS progression verbatim; the pack's own transport-security floor is TLS 1.3 at every level, per [`core/cryptography.md`](cryptography.md).
+Default target: ASVS Level 2 for all applications handling data classified as sensitive under the adopting project's scheme (Confidential or Restricted in the parent GRC library). The V12 level cells restate the ASVS progression verbatim; the pack's own transport-security floor is TLS 1.3 at every level, per [`core/cryptography.md`](cryptography.md).
 
 ASVS v5.0.0 reference: `https://owasp.org/www-project-application-security-verification-standard/`
 

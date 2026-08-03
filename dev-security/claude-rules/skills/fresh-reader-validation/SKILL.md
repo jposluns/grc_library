@@ -18,7 +18,7 @@ The skill targets a defect class the mechanical gates cannot reach: ambiguity th
 
 - Before declaring a **new governance document** complete (a new policy, standard, framework, procedure, register, annex). The document is most fragile to tacit-context gaps when it has just been authored.
 - Before declaring a **substantive revision** complete when the revision changes the document's meaning (new requirements, new scope, new exceptions, restructured sections). Trivial typo fixes or version bumps do not warrant a fresh-reader pass.
-- Before the document is cited by another document in the corpus (a downstream reader is about to depend on the document's clarity).
+- Before the document is cited by another document in the project's documentation set (a downstream reader is about to depend on the document's clarity).
 - When the [`evidence-grounded-completion`](../evidence-grounded-completion/SKILL.md) skill's protocol is being applied and the document is the primary artefact (this skill complements the protocol's re-read step by adding an outside reader).
 
 ## Process
@@ -59,7 +59,7 @@ This skill is complete when:
 | Rationalization | Reality |
 |---|---|
 | "I just wrote it; I know it's clear." | The "I know it's clear" feeling IS the blind spot. A fresh reader is the test. |
-| "The terms are obvious to anyone in this field." | Define your "anyone". The corpus's audience is broader than your immediate peers. |
+| "The terms are obvious to anyone in this field." | Define your "anyone". The document set's audience may be broader than your immediate peers. |
 | "It will be reviewed by humans anyway; they'll catch it." | Humans share authorial blind spots more often than fresh subagents do. The skill is a cheap pre-review step. |
 | "The subagent doesn't have the context to judge." | That is the point. The reader who will arrive at the document later also lacks your context. |
 | "The audit programme will catch the issues." | The audit programme catches format issues. Tacit-context gaps compile fine. |
@@ -70,4 +70,4 @@ This skill is complete when:
 - Related skill [`evidence-grounded-completion`](../evidence-grounded-completion/SKILL.md): the six-step verification protocol; this skill's fresh-reader pass complements step 2 (re-read each file in full) with an outside reader.
 - Related skill [`clarify-before-acting`](../clarify-before-acting/SKILL.md): when the fresh reader surfaces an ambiguity the document chose not to resolve, surface it via clarify-before-acting before completing.
 - Related skill [`validation-sweep`](../validation-sweep/SKILL.md): when the sweep surfaces a document that has had substantive revisions, this skill is the per-document follow-up.
-- Related skill [`library-fitness-review`](../library-fitness-review/SKILL.md): the whole-corpus, many-persona form of the same fresh-reader discipline; this skill is the per-document unit it scales up from.
+- Related skill [`library-fitness-review`](../library-fitness-review/SKILL.md): the whole-collection, multi-persona form of the same fresh-reader discipline; this skill is the per-document unit it scales up from.

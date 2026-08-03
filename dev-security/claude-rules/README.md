@@ -2,12 +2,12 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.68.5\
-**Date:** 2026-08-02\
+**Version:** 1.68.6\
+**Date:** 2026-08-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** `dev-security/standard-developer-security-requirements.md`, `dev-security/standard-devops-security-requirements.md`, `dev-security/guideline-ai-coding-assistant-security.md`, `ai/standard-ai-and-agentic-development-security.md`\
-**Repository Path:** [`dev-security/claude-rules/README.md`](README.md)\
+**Parent-library related documents:** `dev-security/standard-developer-security-requirements.md`, `dev-security/standard-devops-security-requirements.md`, `dev-security/guideline-ai-coding-assistant-security.md`, `ai/standard-ai-and-agentic-development-security.md`\
+**Canonical parent-repository path:** [`dev-security/claude-rules/README.md`](README.md)\
 **Classification:** Public\
 **Category:** Developer Security\
 **Review Frequency:** 6 to 12 months and upon material threat, tooling, or framework change\
@@ -132,7 +132,7 @@ claude-rules/
 │   ├── validate-inference/SKILL.md                    Premise-validation workflow (name, cost, validate, act, record) before an action depends on an unobserved state claim
 │   ├── surface-instruction-concern/SKILL.md           Stop-consider-confirm protocol before executing a clear but counterproductive instruction
 │   ├── artefact-discipline-check/SKILL.md             Routing workflow that redirects a hand-edit of a generated file (or a protected-branch operation) to the correct path
-│   ├── validation-sweep/SKILL.md                      Corpus-wide regression sweep as a follow-up after any issue identified and corrected; loops until clean
+│   ├── validation-sweep/SKILL.md                      Project-wide regression sweep as a follow-up after any issue identified and corrected; loops until clean
 │   ├── validation-sweep-pr-scoped/SKILL.md            PR-scoped validation sweep run as the PR's finalizing step; Subagent A on the PR's diff plus a cross-reference check; runs before merge to catch per-PR drift before it compounds
 │   ├── citation-quote-verification/SKILL.md           Verify cited quotes match source text at the cited location; catches what citation-format and currency linters cannot
 │   ├── fresh-reader-validation/SKILL.md               Dispatch a fresh subagent to read a new or substantively-revised document and surface tacit-context gaps
@@ -145,9 +145,9 @@ claude-rules/
 │   ├── claim-fit/SKILL.md                             Cadenced citation-precision audit of normative-attribution claims; catches the gate-blind "attributed value, silent source" class the existence and citation gates cannot; one-time Tier-A pass at adoption + after normative-value batches + ad-hoc
 │   ├── high-assurance-verification/SKILL.md           Heavier pre-apply harness for a sensitive change (gate-blind, delicate-at-scale, costly): research fan-out, signal pass over the negatives, two independent adversarial verifiers, an invariant floor, and a deterministic scripted apply plus re-parse; the executable form of the high-assurance-verification rule
 │   ├── deep-assessment/SKILL.md                       Rare, maintainer-invoked whole-project deep assessment; composes the semantic instruments by invocation and adds the lenses the routine cadence does not apply to itself (gate-efficacy probing, blind-spot mapping, ground-truth sampling, adoptability and pipeline integrity, QA-ledger meta-audit); count-free and inventory-deriving, register-backed and re-entrant, completion-standard-terminated (no separate sign-off, since it composes only established validate-and-fix QA processes); derives_from trust-recovery-escalation
-│   ├── reference-audit/SKILL.md                        Cadenced reference-breadth audit between the corpus and the held reference base, both directions; catches the gate-blind "held but unused" class (surfaced by the SP 800-154 lesson); FULL / per-touch / new-ingest modes, tier-by-bucket (books recommendation-only, templates content, others citation-grade); dispatches a semantic judge over the audit-reference-breadth.py worklist; derives_from evidence-grounded-completion
-│   ├── publication-screening/SKILL.md                  Screening protocol for the untrusted publications bucket before its content informs corpus work; provenance + mechanical instruction-content scan + trusted-source corroboration, four-valued verdict (screened/pending/quarantined/discard-candidate) in the reference base's SCREENING.md register the ref gate enforces; admission control, never a trust upgrade; derives_from evidence-grounded-completion
-│   └── adopt/SKILL.md                                  Run-once onboarding for a fork adopting the project; resets present machinery-core .working working-state to clean adopter baselines (or treats an absent tree in a fresh clone as already clean, creating only needed adopter-local state), settles the sibling model (own siblings vs self-contained), strips maintainer-only residue, records the choices in a committed .claude/adopt-config.json the resume step reads; adopter-clone only, once; derives_from session-lifecycle
+│   ├── reference-audit/SKILL.md                        Cadenced reference-breadth audit between project claims and an available reference base, both directions; catches the gate-blind "held but unused" class (surfaced by the parent GRC library's SP 800-154 lesson); full, per-touch, and new-ingest modes with project-defined evidence tiers; dispatches a semantic judge over the configured audit worklist; derives_from evidence-grounded-completion
+│   ├── publication-screening/SKILL.md                  Screening protocol for untrusted publications before their content informs project work; provenance + mechanical instruction-content scan + trusted-source corroboration, four-valued verdict (screened/pending/quarantined/discard-candidate) in the project's configured screening register; admission control, never a trust upgrade; derives_from evidence-grounded-completion
+│   └── adopt/SKILL.md                                  Run-once onboarding for a confirmed fork of a project distributing this pack; resets inherited machinery-core working-state to clean adopter baselines (or treats an absent working-state tree as already clean, creating only the adopter-local state a versioned consumer requires), settles the optional-dependency model (own external dependencies vs self-contained), removes maintainer-only residue, records the choices in the project's committed adoption marker the resume mechanism reads; fork-only, once; derives_from session-lifecycle
 └── languages/
     ├── python.md                Python-specific security patterns and anti-patterns
     ├── typescript.md            TypeScript / Node.js security patterns
@@ -260,12 +260,12 @@ If your project already has an `AGENTS.md` for other coding agents (Codex, Curso
 | [`languages/csharp.md`](languages/csharp.md) | C# / .NET codebases |
 | [`languages/java.md`](languages/java.md) | Java / Spring Boot codebases |
 | [`languages/go.md`](languages/go.md) | Go codebases |
-| [`languages/swift.md`](languages/swift.md) | iOS applications written in Swift or Objective-C; implements the iOS-specific controls of `standard-mobile-application-security.md` |
-| [`languages/kotlin.md`](languages/kotlin.md) | Android applications written in Kotlin or Java; implements the Android-specific controls of `standard-mobile-application-security.md` |
-| [`languages/react-native.md`](languages/react-native.md) | React Native (with or without Expo) cross-platform mobile applications; implements Section 15 of `standard-mobile-application-security.md` and the relevant native-layer sections as applied through the JS bridge |
-| [`languages/flutter.md`](languages/flutter.md) | Flutter / Dart cross-platform mobile applications; implements Section 15 of `standard-mobile-application-security.md` and the relevant native-layer sections as applied through Flutter's platform-channel bridge |
-| [`languages/dotnet-maui.md`](languages/dotnet-maui.md) | .NET MAUI (and Blazor Hybrid) cross-platform mobile applications; implements Section 15 of `standard-mobile-application-security.md` and the relevant native-layer sections as applied through MAUI's handler architecture and the Mono / .NET runtime |
-| [`languages/capacitor-ionic.md`](languages/capacitor-ionic.md) | Capacitor / Ionic (WebView-based hybrid) cross-platform mobile applications; implements Section 15 of `standard-mobile-application-security.md` and the relevant native-layer sections as applied through Capacitor's WebView + plugin architecture; carries forward web-stack rules from [`languages/typescript.md`](languages/typescript.md) and `core/owasp.md` because the WebView is the application UI |
+| [`languages/swift.md`](languages/swift.md) | iOS applications written in Swift or Objective-C; covers platform-specific secure coding and native-layer controls |
+| [`languages/kotlin.md`](languages/kotlin.md) | Android applications written in Kotlin or Java; covers platform-specific secure coding and native-layer controls |
+| [`languages/react-native.md`](languages/react-native.md) | React Native (with or without Expo) cross-platform mobile applications; covers cross-platform and native-layer controls as applied through the JavaScript bridge |
+| [`languages/flutter.md`](languages/flutter.md) | Flutter / Dart cross-platform mobile applications; covers cross-platform and native-layer controls as applied through Flutter's platform-channel bridge |
+| [`languages/dotnet-maui.md`](languages/dotnet-maui.md) | .NET MAUI (and Blazor Hybrid) cross-platform mobile applications; covers cross-platform and native-layer controls as applied through MAUI's handler architecture and the Mono / .NET runtime |
+| [`languages/capacitor-ionic.md`](languages/capacitor-ionic.md) | Capacitor / Ionic (WebView-based hybrid) cross-platform mobile applications; covers cross-platform and native-layer controls as applied through Capacitor's WebView and plugin architecture; carries forward web-stack rules from [`languages/typescript.md`](languages/typescript.md) and `core/owasp.md` because the WebView is the application UI |
 
 ---
 
@@ -275,26 +275,26 @@ External rule repositories listed under "External references" below are **not lo
 
 1. **`CLAUDE.md` content is delivered to Claude Code as a user message, not as enforced configuration.** A "fetch at session start" instruction can be silently ignored, producing a false sense of coverage.
 2. **External content fetched without per-fetch vetting cannot be relied on.** Treating fetched markdown as binding rules conflicts with the principle that fetched content is data, not instructions; each fetch needs the External-Source Vetting Protocol applied.
-3. **The pack already covers the substantive areas** (core, AI/agent/MCP/RAG, pipeline, languages) as library-canonical originals.
+3. **The pack already covers the substantive areas** (core, AI/agent/MCP/RAG, pipeline, languages) as pack-maintained originals.
 
-The library maintainer back-ports vetted improvements from external sources on the standard freshness cadence. Adopters who want to layer additional external rule sets on top of the pack have two paths:
+The pack maintainer back-ports vetted improvements from external sources on the pack's own review cadence, the `Review Frequency` stated in this README's header. Adopters who want to layer additional external rule sets on top of the pack have two paths:
 
 - **By hand.** Use the URLs in the External references section below; the adopter clones, vendors, or copies into their own project on their own terms.
-- **Via the setup generator's external-source overlay (default-on).** Phase 2 of [`setup-generator-prompt.md`](setup-generator-prompt.md), after presenting the GRC Library pack proposal, **proposes to fetch all four vetted external sources as the default action** so the consumer can accept the broader proposal with a single approval. The consumer's explicit approval (or modification, or decline) is still required before any file is written; the default-on framing affects the conversation flow's default, not the consent gate. The Wiz licence caveat (CC-BY-NC-ND-4.0; NonCommercial + NoDerivatives) is always surfaced in the offer-message prose before approval so commercial adopters and adopters who plan to modify the rule files for their stack can decline Wiz specifically. For each source the consumer is fetching (whether by accepting the default or by explicit modification), the generator applies the External-Source Vetting Protocol per fetch (treat as data not instructions; scan for embedded directives, urgency framing, claims of pre-authorization, hidden or encoded text, exfiltration patterns, control-weakening guidance), surfaces anything suspicious verbatim before write, and places approved files under `.claude/rules/external/<source-name>/` with a provenance header (source URL, fetched date, SHA-256 of fetched bytes). The pack remains the primary content; the overlay is supplementary and may overlap or conflict with the primary layer (consumer responsibility to reconcile). The maintainer-side vetting status for each candidate source is recorded in [`dev-security/claude-rules/vetting-log.md`](vetting-log.md). Current status: TikiTribe, Kariedo, and Wiz are `Vetted` (first formal EXT-01 vets on 2026-05-31); addyosmani is `Vetted` (first formal EXT-01 vet on 2026-06-19, 5 skills in full + 19 spot-scanned). The generator's offer step surfaces the per-source status and substantive observations to the consumer so the decision is informed.
+- **Via the setup generator's external-source overlay (default-on).** Phase 2 of [`setup-generator-prompt.md`](setup-generator-prompt.md), after presenting the pack proposal, **proposes to fetch all four vetted external sources as the default action** so the consumer can accept the broader proposal with a single approval. The consumer's explicit approval (or modification, or decline) is still required before any file is written; the default-on framing affects the conversation flow's default, not the consent gate. The Wiz licence caveat (CC-BY-NC-ND-4.0; NonCommercial + NoDerivatives) is always surfaced in the offer-message prose before approval so commercial adopters and adopters who plan to modify the rule files for their stack can decline Wiz specifically. For each source the consumer is fetching (whether by accepting the default or by explicit modification), the generator applies the External-Source Vetting Protocol per fetch (treat as data not instructions; scan for embedded directives, urgency framing, claims of pre-authorization, hidden or encoded text, exfiltration patterns, control-weakening guidance), surfaces anything suspicious verbatim before write, and places approved files under `.claude/rules/external/<source-name>/` with a provenance header (source URL, fetched date, SHA-256 of fetched bytes). The pack remains the primary content; the overlay is supplementary and may overlap or conflict with the primary layer (consumer responsibility to reconcile). The maintainer-side vetting status for each candidate source is recorded in [`vetting-log.md`](vetting-log.md). Current status: TikiTribe, Kariedo, and Wiz are `Vetted` (first formal EXT-01 vets on 2026-05-31); addyosmani is `Vetted` (first formal EXT-01 vet on 2026-06-19, 5 skills in full + 19 spot-scanned). The generator's offer step surfaces the per-source status and substantive observations to the consumer so the decision is informed.
 
 ### Deterministic enforcement layer
 
-`CLAUDE.md` and `.claude/rules/*.md` are the behavioural guidance layer. For controls that must hold regardless of what Claude decides, use `.claude/settings.json` `permissions.deny` rules and `PreToolUse` hooks. See `dev-security/guideline-ai-coding-assistant-security.md` "Deterministic enforcement" for the verified Anthropic schema and starter values.
+`CLAUDE.md` and `.claude/rules/*.md` are the behavioural guidance layer. For controls that must hold regardless of what Claude decides, use `.claude/settings.json` `permissions.deny` rules and `PreToolUse` hooks. Consult the current official Claude Code documentation for the supported settings and hook schemas.
 
 ## Generate your files (AI-assisted setup)
 
-[`dev-security/claude-rules/setup-generator-prompt.md`](setup-generator-prompt.md) is a portable prompt for your own Claude Code session. It analyzes your project, proposes a tailored setup, and creates files only after your approval; it does not act blindly.
+[`setup-generator-prompt.md`](setup-generator-prompt.md) is a portable prompt for your own Claude Code session. It analyzes your project, proposes a tailored setup, and creates files only after your approval; it does not act blindly.
 
 ### Local mode vs fetch mode
 
 The generator works whether or not you have the pack on disk:
 
-- **Local mode** (when the generator detects a `dev-security/` directory near your project): reads pack content from disk. The generator fetches only [`claude-rules/README.md`](README.md) from the canonical source to compare versions and warn you if your local pack is stale.
+- **Local mode** (when the generator's probe finds a local pack on disk, at `dev-security/` in your project root or in one of the nearby locations it checks): reads pack content from disk. The generator fetches only [`claude-rules/README.md`](README.md) from the canonical source to compare versions and warn you if your local pack is stale.
 - **Fetch mode** (when no local pack is detected, or you elect it after a staleness check): reads the pack live from the GRC Library's first-party canonical source on every needed file. No local download required. **Default canonical URL prefix**: `https://raw.githubusercontent.com/jposluns/grc_library/main/dev-security/claude-rules/`. The generator asks you to confirm or substitute this URL before any fetch, so the trust decision is explicit. If you have forked the GRC Library to your own org, substitute your fork's URL at the confirm prompt.
 
 ### Three ways to invoke
@@ -374,12 +374,12 @@ These rule files draw on and are aligned to the following external projects and 
  - `rules/_core/agent-security.md`
  - `rules/_core/mcp-security.md`
  - `rules/_core/rag-security.md`
-- Integration: See `ai/guide-ai-adversarial-test-reference.md` §B4 for how TikiTribe's defensive secure-coding rules relate to adversarial testing (a preventive control, not a source of adversarial test cases)
+- Integration: Treat TikiTribe's defensive secure-coding rules as preventive controls alongside the project's adversarial-testing guidance, not as a source of adversarial test cases
 
 **Wiz: Secure Rules Files**
 - Repository: `https://github.com/wiz-sec-public/secure-rules-files`
 - Coverage: Baseline rules compatible with Claude, Cursor, and Copilot; organized by programming language and framework; open source; AI-generated and human-verified
-- Use: Language-specific rules as a second layer over this library's language files
+- Use: Language-specific rules as a second layer over this pack's language files
 
 **Kariedo: Claude Code Security Rules**
 - Repository: `https://github.com/kariedo/claude-code-security-rules`
@@ -510,12 +510,13 @@ This pack is documentation and operational discipline; three things it reference
 - **The project slash commands.** The review cadences the pack refers to (for example validate, validate-pr, matrix-fit, claim-fit, reference-audit, screen-publications, deep-assessment, high-assurance, adopt, and the workflow commands) are project commands defined in the parent repository's `.claude/commands/`, with the corresponding skill bodies shipping in this pack under `skills/` (the `dev-security/claude-rules/skills/` tree), not Claude Code built-ins. Where a pack skill ships a `SKILL.md`, that skill body already provides the `/name` behaviour; the remaining command stubs are parent-only, and an adopter who wants them installs the parent repository.
 - **The private reference base.** The citation and control-code cadences (matrix-fit, claim-fit, reference-audit, screen-publications, and deep-assessment) check corpus claims against a held reference base that is not redistributable and does not ship with the pack. An adopter either builds a reference base of their own or runs those cadences in a structure-only mode that checks form without adjudicating against held source text.
 
-The pack's change history is maintained in the parent grc_library repository CHANGELOG; a standalone pack does not carry it.
+The pack's release history appears below. Parent-library changes that produced those releases are additionally recorded in the parent GRC library's `CHANGELOG.md`; that parent record is provenance, not a standalone dependency.
 
 ## Version history
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.68.6 | 2026.08.56 | 2026-08-03 | Patch (3.56 agnosticism-completion): generalized 215 remaining project-specific assumptions across the pack bodies (governance rules, security invariants, skills, README) for the guardrails core; 46 gate-37 dual-tree edits, 2 legitimate-generic candidates dropped. |
 | 1.68.5 | 2026.08.53 | 2026-08-02 | Patch (defect-hunt): fixed two pre-merge/post-merge self-contradictions the synchronous-model cutover left in adopter-facing skills (pr-retrospective framed post-merge at the description/overview/input while mandating in-PR pre-merge recording; validation-sweep-pr-scoped's 'why this exists' said 'run after every merge' against its pre-merge model). Prose alignment; no discipline change. |
 | 1.68.4 | 2026.08.52 | 2026-08-02 | Patch (3.56 agnosticism cleanup): 14 defects generalizing project-specific assumptions in the portable pack surfaces (pack CLAUDE.md, core/authentication.md, README, the project-integrity apex rule, and seven skills) so the pack reads for a generic adopter; parent-library specifics demoted to labelled provenance; adopt skill excluded (removed from publication). No discipline change. |
 | 1.68.3 | 2026.08.51 | 2026-08-02 | Patch (P-1.18 disclosure scrub): scrubbed private reference/operational repo names from the pack README (the current reference-base guidance line plus four frozen version-history rows, including one internal reference SHA) and generalized two portable skill-body leaks (a QA-gate reference in validation-sweep-pr-scoped, a provenance-watermark reference in publication-screening); no rule, skill, or discipline change. |

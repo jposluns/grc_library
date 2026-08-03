@@ -66,8 +66,8 @@ The routing workflow from the canonical rule, executed in order:
 - "CI keeps flagging drift; let me regenerate in CI to make the check pass." This defeats the drift check by construction. See the gate-discipline rule: never weaken a gate to silence a failure.
 - "I will strip the generator's `--check` job from CI; it is noisy." Same anti-pattern, blunter. The check exists because the drift it catches is real.
 - "I will hand-fix the parts the generator got wrong." The fix is to the generator, not to the artefact.
-- "Force-push to main is the fast path to undo the bad commit." The CI failure is signal; the force-push hides it. The fast path is the next commit, not the rewrite.
-- "Direct push to main; the PR mechanism is overhead." The PR mechanism is the gate; merging around it is gate bypass.
+- "Force-push to the protected branch is the fast path to undo the bad commit." The CI failure is signal; the force-push hides it. The fast path is the next commit, not the rewrite.
+- "Direct push to the protected branch; the PR mechanism is overhead." The PR mechanism is the gate; merging around it is gate bypass.
 - "I will demote the required check to optional just for this PR." Policy change subject to the same review as any other policy change; not a per-PR knob.
 - "Hand-edited the lockfile to resolve the conflict; the package manager would have taken too long." The package manager is faster than the bug that the hand-edit will produce.
 

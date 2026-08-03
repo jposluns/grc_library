@@ -18,13 +18,13 @@ The five disciplines:
 
 The orchestrator dispatches background workers (subagents) to produce research files for upcoming PRs. The research file is **information**, not **final prose**: it surfaces quoted lines from target files, proposes edit shapes, drafts CHANGELOG/DONE bodies, and notes caveats. The orchestrator reads the research file as input, then **independently re-reads every target file**, verifies every worker claim against the live file state, and authors the final prose.
 
-The orchestrator does not paste worker prose into the corpus unmodified. The orchestrator's job is to verify, correct, and integrate; the worker's job is to surface candidates.
+The orchestrator does not paste worker prose into the consuming project's artefacts unmodified. The orchestrator's job is to verify, correct, and integrate; the worker's job is to surface candidates.
 
 ### Why the discipline exists
 
 A worker that drafts an entire PR's prose creates two failure modes:
 
-1. **Confabulation.** The worker references a file that does not exist, an FR cross-reference that's wrong, a version number that's stale, or a quoted line that the file does not actually contain. The orchestrator pasting worker prose unverified ships the confabulation.
+1. **Confabulation.** The worker references a file that does not exist, a tracked-item cross-reference that's wrong, a version number that's stale, or a quoted line that the file does not actually contain. The orchestrator pasting worker prose unverified ships the confabulation.
 2. **Style drift.** The worker's prose voice differs from the project's voice. Over many PRs, this drift compounds.
 
 The research-assistant discipline closes both. The orchestrator re-reading target files catches confabulations; the orchestrator authoring final prose keeps voice consistent.
@@ -35,15 +35,15 @@ For each worker claim that's about to ship in the final PR:
 
 1. **Quoted lines from target files.** The orchestrator opens the file and confirms the quoted lines match. If the worker drafted against a stale revision, the orchestrator reconciles to current state.
 2. **File paths.** The orchestrator confirms the referenced file actually exists. A `find` or `Glob` is enough.
-3. **Cross-references to other PRs / FRs.** The orchestrator opens the closed-PR ledger or the relevant register and confirms the referenced item. A worker drafting "FR-3 closed in PR #158" is verified by checking the closed-PR ledger; if the actual closing PR is #147, the orchestrator corrects.
-4. **Version numbers.** The orchestrator confirms current per-document and library versions against the live file state. Worker drafts from earlier in the session may carry stale version numbers.
+3. **Cross-references to other changes or tracked items.** The orchestrator opens the project's relevant change record or register and confirms the referenced item. A worker drafting "item X closed in change Y" is verified against that record; if the actual closing change is Z, the orchestrator corrects it.
+4. **Version numbers.** The orchestrator confirms current artefact and release versions required by the project against the live file state. Worker drafts from earlier in the session may carry stale version numbers.
 5. **External-standard citations.** The orchestrator confirms the standard's year, edition, and identifier against the project's canonical-citations register or against external sources via WebFetch / verified MCP tools.
 
 A worker claim that survives this verification is allowed into the final prose; a claim that does not is corrected before commit.
 
 ### Tracking corrections
 
-When the orchestrator catches a worker error at apply-time and corrects it, the correction is documented in the CHANGELOG-detailed entry under a "Discipline observation" or equivalent section. The pattern:
+When the orchestrator catches a worker error at apply-time and corrects it, the correction is documented in the project's detailed change record under a "Discipline observation" or equivalent section. The pattern:
 
 ```
 [Number] corrections to the worker draft were applied at apply-time:
@@ -84,7 +84,7 @@ The parallelism is at the research stage; the seriality is at the apply stage. M
 
 The orchestrator dispatches workers in parallel at session-start and whenever the apply-queue thins below the desired buffer. Workers run in the background and notify on completion; the orchestrator does not block on any one worker.
 
-The buffer size is project-configurable. A typical default: prepare research for the next 7-20 PRs so the apply-queue is rarely empty during a long working session. Larger buffers mean more upfront token cost; smaller buffers mean more idle waiting if applies finish faster than research.
+The buffer size is project-configurable. Derive it from observed research and apply throughput, available worker capacity, and the risk that prepared work becomes stale. Larger buffers mean more upfront token cost and staleness risk; smaller buffers mean more idle waiting if applies finish faster than research.
 
 ### Failure modes the discipline prevents
 
@@ -99,7 +99,7 @@ When a backlog decomposes into a verified-disjoint set of files, the orchestrato
 The default is gated, not automatic. Fan out only when every condition holds:
 
 - The work decomposes into files that are **verified disjoint** (no two workers touch the same file; re-verify per wave, not once, because files move and merge between waves).
-- No **shared surface** is a worker's to touch (the version surfaces, the CHANGELOG, the generated artefacts, the backlog and done ledgers, the session handoff, and the QA records are orchestrator-only).
+- No **shared surface** is a worker's to touch (for example, project-configured version metadata, change records, generated artefacts, work queues, handoff records, and QA records remain orchestrator-only).
 - The work is **not** a corpus-wide sweep, rename, or convention migration, and **not** a single indivisible artefact. Those touch an unbounded or non-partitionable set and stay single-session.
 
 Crucially, the default does **not** disturb the serial-apply and CI-gating invariants of discipline 2, nor the apply-time verification of discipline 3. Each worker diff is validated and QA-checked before it is applied (the orchestrator re-reads every changed line, re-verifies citations and control identifiers, runs the relevant checks), applied in one commit, and gated through the normal pipeline. Worker provenance never reduces the QA a change receives; it only adds a pre-apply screen on top of it. There is no trusted-worker fast path: parallelism lives in the research stage, authority and seriality live in the apply stage.
@@ -114,17 +114,17 @@ The apply-time correction is the moment where the research-assistant discipline 
 
 1. **Open each target file in full.** The worker quoted some lines; the orchestrator confirms them.
 2. **Run contradiction searches.** A `grep` for stale references, parallel occurrences elsewhere, or claims the worker did not surface.
-3. **Reconcile to current state.** Versions, dates, FR cross-references, file paths that may have shifted since the worker drafted.
-4. **Apply the per-file metadata-bump check.** When editing a versioned document's body, the orchestrator bumps **both** the `Version` field and the `Date` field in the same commit. Skipping either is the failure mode CI gates (version-bump-recency for Version; document-date-staleness for Date) are built to catch, but the cost of the catch is a CI-rerun loop; bumping both in the same commit avoids the loop. The corollary at PR level: when the orchestrator is about to commit, the explicit checklist item is "for every versioned file touched in this commit, did I bump Version *and* Date?", not "did I bump Version?" alone.
-5. **Document corrections.** Every catch is recorded in the CHANGELOG-detailed entry per §1's tracking convention.
+3. **Reconcile to current state.** Versions, dates, tracked-item cross-references, and file paths that may have shifted since the worker drafted.
+4. **Apply the project's metadata-bump check.** When a versioned artefact has coupled metadata fields (the parent library couples a Version and a Date field), the orchestrator updates all of them in the same commit that changes the body, always, every such commit, never one field in isolation. Skipping one field creates avoidable CI reruns and leaves internally inconsistent metadata. At commit time, check every touched versioned artefact against the project's complete paired-metadata requirement, not one field in isolation.
+5. **Document corrections.** Every catch is recorded in the project's detailed change record per §1's tracking convention.
 
-The discipline scales: the more PRs the assistant ships, the more pattern-recognition for worker failure modes accumulates. Common patterns: stale version numbers (worker drafted against an earlier revision); confabulated file paths (worker invented a plausible-sounding filename); incorrect PR cross-references (worker confused two PR numbers); orchestrator bumping Version but missing Date (recurring orchestrator-side oversight; CI-caught but worth designing out).
+The discipline scales: the more changes the assistant ships, the more pattern-recognition for worker failure modes accumulates. Common patterns: stale version numbers (worker drafted against an earlier revision); confabulated file paths (worker invented a plausible-sounding filename); incorrect change cross-references (worker confused two change identifiers); or incomplete coupled-metadata updates (recurring orchestrator-side oversight, CI-caught but worth designing out).
 
 ### Why apply-time, not pre-apply
 
 The orchestrator could verify worker claims at the moment the research file arrives (pre-apply). The discipline prefers apply-time because:
 
-- The corpus state continues to drift between research-dispatch and apply (other PRs may merge in between).
+- The target project state continues to drift between research dispatch and apply because other changes may land in between.
 - Apply-time verification is when the orchestrator is about to write to the file system; that's the moment when an unverified claim has the highest cost.
 - Apply-time verification is bounded: it covers the small number of claims that survive to apply-time, not the larger set the worker might have drafted.
 
@@ -132,7 +132,7 @@ The orchestrator could verify worker claims at the moment the research file arri
 
 ## 4. Always split when in doubt
 
-When two changes could plausibly land in the same PR or in separate PRs, default to **separate PRs** unless they are tightly coherent (same conceptual theme, same files, same maintainer-direction line item).
+When two changes could plausibly land in the same review unit or in separate review units, default to **separate units** unless they are tightly coherent (same conceptual theme, same files, same authorized work item).
 
 ### Why default to splitting
 
@@ -145,7 +145,7 @@ When two changes could plausibly land in the same PR or in separate PRs, default
 
 The "tightly coherent" exception covers:
 
-- Multiple findings in the same file from the same maintainer-direction velocity bundle (e.g., five FR fixes in the same README under a "phase 1 polish" directive).
+- Multiple findings in the same file from the same authorized work item (for example, several related fixes in one README under one named cleanup directive).
 - A rule update and the corresponding skill update for the same rule (paired-skill gate enforces parity).
 - A new rule plus a new linter that enforces it.
 
@@ -155,25 +155,25 @@ When in doubt, ask the maintainer. The cost of asking is one round-trip; the cos
 
 ## 5. Background work during CI waits
 
-CI cycles take time. A typical small-corpus lint run is 30 to 90 seconds; substantive PRs may run longer. The orchestrator should not sit idle during these waits.
+CI cycles take time, and their duration varies with project size and checks. The orchestrator should not sit idle during these waits.
 
 ### What's safe to do during a CI wait
 
 **Read-only prep on the next PR's research:**
 
 - Read the next research file in full.
-- `grep` for the worker's quoted lines in current main to pre-verify.
+- Search the current merge-target revision for the worker's quoted lines to pre-verify.
 - Confirm referenced file paths exist via `find` or `Glob`.
-- Check the current per-document and library version numbers against what the worker drafted; pre-identify any version-drift corrections needed.
-- Cross-check PR / FR references against the closed-PR ledger.
+- Check the project's current artefact and release metadata against what the worker drafted; pre-identify any metadata-drift corrections needed.
+- Cross-check change and tracked-item references against the project's configured records.
 
-The discipline: **read-only operations on main (the unchanging branch during the CI wait) for the next PR's target files.** Surface any apply-time corrections that will be needed when the current PR merges, so the next apply can proceed faster.
+The discipline: **read-only operations on the stable merge-target revision during the CI wait for the next change's target files.** Surface any apply-time corrections that will be needed when the current change lands, so the next apply can proceed faster.
 
 ### What's not safe during a CI wait
 
-- **File edits.** The current PR's CI is running against a feature branch; the orchestrator must not edit anything on main or on a new branch that would interfere with the merge-back.
+- **File edits.** The current change's CI is running against a named revision; the orchestrator must not edit the merge target or create competing state that would interfere with integration.
 - **New commits to the current branch.** The CI run is against a specific commit SHA; new commits invalidate the run.
-- **Pre-creating the next branch.** Branch state confusion is a real risk; wait until the current PR merges and main is synced.
+- **Pre-creating the next change context.** State confusion is a real risk; wait until the current change lands and the merge target is synchronized.
 - **Speculative tool calls that change state** (mutating MCP calls, API writes, etc.).
 
 ### What's not safe period
@@ -186,7 +186,7 @@ Polling for CI status in a tight loop. The discipline lives elsewhere (the webho
 
 The apply-time correction of discipline 3 is the orchestrator re-reading its own and the worker's output. For any change beyond a quick fix, a stronger, INDEPENDENT adversarial check runs before push: a skeptical verifier subagent, briefed to REFUTE the change (hunt the defect), not to confirm it. This is a standard layered across disciplines 1 to 3, not a sixth discipline, and it applies to orchestrator-authored changes as much as to worker drafts. It is tiered by change weight, because indiscriminate verification wastes budget and erodes the signal that a change is genuinely substantive (the same calibration [`high-assurance-verification.md`](high-assurance-verification.md) applies to its own trigger):
 
-- **Quick-fix / pure-bookkeeping tier** (version bumps, working-state records, a single-line prose or typo fix, generated-artefact regeneration): NO standing verifier. The mechanical gates, the change-log preflight, and the routine post-merge PR-scoped sweep are sufficient; a verifier here is net-negative (token cost, signal erosion).
+- **Quick-fix / pure-bookkeeping tier** (version bumps, project-state records, a single-line prose or typo fix, generated-artefact regeneration): NO standing verifier. The project's mechanical gates, change-record preflight, and configured routine per-change QA are sufficient; a verifier here is net-negative (token cost, signal erosion).
 - **Substantive tier** (a corpus-document body change, a new or edited gate or linter, a multi-surface change, a control-code / citation / normative-value change): a DUAL-FAMILY pair of skeptical verifier subagents (one Claude-family, one GPT/Codex-family), pre-push, scoped to the diff, each briefed to refute. This pair catches defects before CI and merge (cheaper than a post-merge catch plus a hot-fix) and is the mechanism that sustains quality across a long session, which is why work size or session length is never itself a reason to wind down (see the consuming project's wind-down framework). The two families surface systematically different failure classes, so a single-family verifier shares the orchestrator's own blind spots; running the identical refute-brief to EACH family and reconciling the verdicts is the DEFAULT for every substantive validation and verification pass, not reserved for consequential changes (per the dual-family standard in [`high-assurance-verification.md`](high-assurance-verification.md)'s stage 3). A consuming project may adopt this dual-family pair as the PERMANENT standard for EVERY QA pass, whenever both families have available tokens. The ONE exception is TOKEN UNAVAILABILITY on a family (a limited or exhausted account): then the available family runs alone, the gap is noted, and the missing family re-runs when its tokens return; a single-family pass is the reduced floor only then, never a discretionary downgrade of a substantive QA.
 - **Sensitive tier** (gate-blind correctness AND delicate scale AND high escaped-error cost, all three): the full [`high-assurance-verification.md`](high-assurance-verification.md) harness (two independent adversarial verifiers, deterministic apply). Unchanged; the substantive tier is its lighter sibling, not a replacement.
 
@@ -257,12 +257,12 @@ Across all five disciplines:
 
 - **Pasting worker prose unverified.** The discipline is "verify, correct, integrate", not "trust the worker's draft as-is".
 - **Skipping the orchestrator's re-read.** The orchestrator must open each target file at apply-time. "The worker quoted it correctly last week" is not verification.
-- **Silent corrections.** Worker errors caught at apply-time should be documented, not silently overwritten. The CHANGELOG-detailed "Discipline observation" is the audit trail.
+- **Silent corrections.** Worker errors caught at apply-time should be documented, not silently overwritten. The project's detailed change record is the audit trail.
 - **Parallel applies.** Two PRs being authored at the same time is state confusion waiting to happen. Apply one at a time.
 - **Bundling unrelated work to "save a PR."** The cost saving is illusory; the audit-trail cost is real.
 - **Idle waiting during CI.** If the next PR's research is queued, read it during the wait. If no research is queued, dispatch one.
-- **Editing main during a CI wait.** Main belongs to the current PR's merge target; treat it as read-only during the wait.
-- **Orchestrator-side judgment-call skipping OR abbreviation of mandatory QA / testing steps.** When the project's discipline says a quality-assurance step (per-PR validation sweep, post-merge regression check, paired-skill parity check, etc.) runs on every PR, the orchestrator does NOT have discretion to skip a specific run based on a unilateral judgment that the PR is "circular", "housekeeping", "meta", "too small to need it", "already validated by another mechanism", or any other class. **Equally, the orchestrator does NOT have discretion to substitute an abbreviated check, a spot-check, a memory-only review, an orchestrator-self-check, a "quick scan", or any other informal substitute for the formal QA invocation the discipline encodes.** The two failures share a shape (the formal step the maintainer expects to run did not run) and the same remedy (run the formal step, record the result). The discipline is mandatory; carve-outs require maintainer authorization, recorded explicitly in the relevant history row's Summary cell with rationale. **Throughput pressure does not authorize abbreviation.** A long batch of PRs about to land, a tight session window, or an apparent need to make progress is not a reason to substitute an informal check for the formal one; the per-PR QA cadence IS the pace, and "I'll catch it on the next one" is the failure mode this clause prevents. The failure mode is: orchestrator skips or abbreviates a QA step that the maintainer expects to run, the abbreviation leaves a defect uncaught, and the next maintainer review discovers both the defect AND the discipline gap. The fix is to ship the QA invocation even when the orchestrator believes it will return zero findings; the zero-finding history row IS the proof-of-discipline, and "abbreviated, 0 findings" is not a substitute for "formal run, 0 findings". **The session-closing handoff PR: normal path, with a narrow fallback.** The final PR of a session lands the working-state on the protected branch as a green merge so the next session resumes from that branch. Under a synchronous QA model, where each PR's QA record is written into the PR itself rather than deferred into a following one, that closing PR normally runs its own trailing per-PR QA like any other PR, because writing the record in-PR creates no recursion. A documented FALLBACK is retained for the one genuine loop-termination edge, a closing PR whose own QA cannot be made self-contained within it at the session boundary: in that case only, it skips its trailing per-PR QA. The compensating control is independent of the fallback and stronger than the skipped per-PR sweep: the next session's start runs a full corpus-wide validation sweep as its first task, a fresh-context re-examination of the whole corpus rather than one PR's diff, valuable on its own merits and not merely as compensation for a skip. When the fallback is taken, the exemption is recorded inline in the relevant history row with this rationale, and any mechanical QA-cadence gate must build in the handoff-PR exemption so it does not fail on the legitimately-absent row.
+- **Editing the merge target during a CI wait.** The merge target belongs to the current change's integration path; treat it as read-only during the wait.
+- **Orchestrator-side judgment-call skipping OR abbreviation of mandatory QA / testing steps.** When the project's discipline says a quality-assurance step (a per-change-scoped validation sweep, a post-integration regression check, a paired-skill parity check, and so on) runs on every change, the orchestrator does NOT have discretion to skip a specific run based on a unilateral judgment that the change is "circular", "housekeeping", "meta", "too small to need it", "already validated by another mechanism", or any other class. **Equally, the orchestrator does NOT have discretion to substitute an abbreviated check, a spot-check, a memory-only review, an orchestrator-self-check, a "quick scan", or any other informal substitute for the formal QA invocation the discipline encodes.** The two failures share a shape (the formal step the maintainer expects to run did not run) and the same remedy (run the formal step, record the result). The discipline is mandatory; carve-outs require maintainer authorization, recorded explicitly in the relevant history row's Summary cell with rationale. **Throughput pressure does not authorize abbreviation.** A long batch of changes about to land, a tight session window, or an apparent need to make progress is not a reason to substitute an informal check for the formal one; the per-change QA cadence IS the pace, and "I'll catch it on the next one" is the failure mode this clause prevents. The failure mode is: the orchestrator skips or abbreviates a QA step that the maintainer expects to run, the abbreviation leaves a defect uncaught, and the next maintainer review discovers both the defect AND the discipline gap. The fix is to ship the QA invocation even when the orchestrator believes it will return zero findings; the zero-finding history row IS the proof-of-discipline, and "abbreviated, 0 findings" is not a substitute for "formal run, 0 findings". **The session-closing handoff change: normal path, with a narrow fallback.** The final change of a session lands the working state on the project's protected branch as a green merge so the next session resumes from that branch. Under a synchronous QA model, where each change's QA record is written into the change itself rather than deferred into a following one, that closing change normally runs its own trailing per-change QA like any other change, because writing the record in the same change creates no recursion. A documented FALLBACK is retained for the one genuine loop-termination edge, a closing change whose own QA cannot be made self-contained within it at the session boundary: in that case only, it skips its trailing per-change QA. The compensating control is independent of the fallback and stronger than the skipped per-change sweep: the next session's start runs a full project-wide validation sweep as its first task, a fresh-context re-examination of the whole project rather than one change's diff, valuable on its own merits and not merely as compensation for a skip. When the fallback is taken, the exemption is recorded inline in the relevant history row with this rationale, and any mechanical QA-cadence gate must build in the closing-handoff exemption so it does not fail on the legitimately-absent row.
 
 ---
 

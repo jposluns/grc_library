@@ -35,7 +35,7 @@ The class is not hypothetical. A trust-recovery forensic pass in the parent libr
 
 `matrix-fit` is that audit. It is the semantic-judge half of a two-part instrument whose recall-oriented triage half is the advisory pre-filter named in the project wiring (explicitly NOT a gate). The pre-filter narrows scope: it lists the matrix and source-doc rows that lack any lexical anchor between the document subject and its cited control titles, so the judge can focus there first. The skill judges: for each worklisted row (and any other row the maintainer flags), it reads the cited control's TITLE in the reference base and decides whether the mapping fits. The design lesson from the pre-filter's construction is binding: judge against the source control TITLE, not a lexical proxy, because a correct GRC mapping routinely shares no vocabulary with the document title (the pre-filter's own worklist is recall-oriented precisely because the lexical signal is too weak to certify correctness).
 
-This skill is a single-pass advisory audit, not a fix-to-fixed-point loop and not a trust-recovery escalation. It runs on a cadence (after each mapping batch, once at completion of a mapping surface, and ad-hoc), surfaces confirmed mismatches, and routes or fixes them under the normal in-window / out-of-window triage. It is to control-code *fit* what `/validate` is to corpus drift: a periodic read of a surface the mechanical gates cannot fully cover.
+This skill is a single-pass advisory audit, not a fix-to-fixed-point loop and not a trust-recovery escalation. It runs on a cadence (after each mapping batch, once at completion of a mapping surface, and ad-hoc), surfaces confirmed mismatches, and routes or fixes them under the normal in-window / out-of-window triage. It is to control-code *fit* what `/validate` is to project-wide drift: a periodic read of a surface the mechanical gates cannot fully cover.
 
 ## When to Use
 
@@ -64,7 +64,7 @@ The orchestrator re-reads each candidate mismatch's source title in the referenc
 
 ### 5. Triage and route findings
 
-For confirmed mismatches in the current scope (the batch just authored, or the maintainer-flagged set), fix them in-window: correct the code, bump the matrix or source document's Version and Date, and record the correction in the CHANGELOG-detailed entry. For confirmed mismatches outside the current scope (pre-existing rows surfaced incidentally), surface them to the maintainer with named options (fix-now vs route-to-backlog) rather than auto-deferring. Findings refuted at apply-time are recorded with the refutation, not routed. Findings that dedupe against an existing backlog item are cross-referenced, not duplicated.
+For confirmed mismatches in the current scope (the batch just authored, or the maintainer-flagged set), fix them in-window: correct the code, bump the matrix or source document's Version and Date, and record the correction in the project's detailed change record (the CHANGELOG-detailed entry in the parent GRC library). For confirmed mismatches outside the current scope (pre-existing rows surfaced incidentally), surface them to the maintainer with named options (fix-now vs route-to-backlog) rather than auto-deferring. Findings refuted at apply-time are recorded with the refutation, not routed. Findings that dedupe against an existing backlog item are cross-referenced, not duplicated.
 
 ### 6. Record and surface
 
