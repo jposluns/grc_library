@@ -73,8 +73,8 @@ drive end-to-end on the maintainer's behalf:
    (the cell `tools/lint-bookkeeping-parity.py` (gate 50) reads to detect the handoff
    exemption): the marker must be `SKIPPED` together with `handoff`, or the phrase
    `handoff-PR exception`, never a bare `n/a`. Putting the marker in the Summary cell only
-   (leaving the Findings cell `n/a`) leaves the row undetected as a handoff: it fails gate 50
-   the moment a later PR exists. Fuller
+   (leaving the Findings cell `n/a`) leaves the row undetected as a handoff: it fails gate 50 in this PR
+   (the window now includes the current highest PR). Fuller
    prose may still go in the Summary cell. (See `## Session migration and PR close-out
    checklist` item 3.)
 5. Immediately after `/validate-pr` returns and BEFORE merge, invoke `/retro` to run the
@@ -492,8 +492,8 @@ is external. Two mechanisms:
    records the exemption with the gate-50-recognized marker (`SKIPPED` with `handoff`, or
    `handoff-PR exception`) in its **Findings cell**, never a bare `n/a`: that cell is what
    `tools/lint-bookkeeping-parity.py` reads to classify the row as handoff-exempt, so a
-   marker placed only in the Summary cell leaves the row flagged the moment the next PR
-   demotes it from highest-numbered.
+   marker placed only in the Summary cell leaves the row flagged in its own PR (the window now includes the
+   current highest PR).
 
    **A SESSION MUST NOT CLOSE WITH A LARGE UNVALIDATED PR (maintainer-directed 2026-07-25).**
    The fallback exemption covers exactly ONE PR, the closing handoff, and only when its own QA cannot be made self-contained within it. It does not extend to the PR before it, and it is not a licence to let the QA
