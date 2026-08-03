@@ -2,7 +2,7 @@
 """Overnight-work file audit (gate 46).
 
 Scans [`.working/overnight-pr.md`](.working/overnight-pr.md) and
-enforces the overnight-work protocol documented in
+enforces the unattended-work handoff protocol documented in
 ``dev-security/claude-rules/governance/change-tracking.md``.
 
 The file's ``Status`` field encodes whether an overnight session is

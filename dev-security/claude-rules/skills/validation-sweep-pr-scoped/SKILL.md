@@ -1,6 +1,6 @@
 ---
 name: validation-sweep-pr-scoped
-description: PR-scoped validation sweep. Runs as a PR's finalizing step, before merge, to catch issues the PR introduced before it lands. Dispatches Subagent A (recent-PR deep review) scoped to the PR's diff plus a lightweight cross-reference check for files cited by other documents. Complements the corpus-wide `validation-sweep` skill: the PR-scoped form is fast and runs on every PR; the corpus-wide form is comprehensive and runs on a periodic cadence the project sets (the parent library's is every 10 merges) or maintainer-triggered. The two skills together cover both per-PR drift (caught fast) and corpus-wide drift (caught broadly).
+description: PR-scoped validation sweep. Runs as a PR's finalizing step, before merge, to catch issues the PR introduced before it lands. Dispatches Subagent A (recent-PR deep review) scoped to the PR's diff plus a lightweight cross-reference check for files cited by other documents. Complements the project-wide `validation-sweep` skill: the PR-scoped form is fast and runs on every PR; the project-wide form is comprehensive and runs on a periodic cadence the project sets (the parent GRC library's is every 10 merges) or maintainer-triggered. The two skills together cover both per-PR drift (caught fast) and project-wide drift (caught broadly).
 derives_from: ../../governance/evidence-grounded-completion.md
 ---
 
@@ -22,10 +22,10 @@ An adopting project maps each bullet to its own record paths, registers, gate, r
 
 PR-scoped validation runs as each PR's finalizing step, before merge, to catch issues the PR introduced before they compound across subsequent PRs. (Command names `/validate-pr`, `/validate`, and `/retro` are the parent library's paired commands, used in this document as shorthand; an adopting project reads them as its own equivalents.) Two sibling skills together cover the validation surface:
 
-- **`validation-sweep`** (slash command `/validate`, corpus-wide, periodic on the project's cadence (the parent library's is every 10 merges) or maintainer-triggered): full Subagent A + B + C sweep across the whole corpus. Catches corpus-wide drift (Subagent B's domain), audit-programme integrity issues (Subagent C's domain), and recent-PR issues (Subagent A's domain). Expensive (~150-200k tokens); runs periodically.
-- **`validation-sweep-pr-scoped`** (slash command `/validate-pr`, PR-scoped, every PR): single Subagent A dispatch on the PR's diff plus a targeted cross-reference check. Cheap (~30-60k tokens); runs before merge so issues are caught within the same PR, not nine PRs later.
+- **`validation-sweep`** (slash command `/validate`, project-wide, periodic on the project's cadence (the parent GRC library's is every 10 merges) or maintainer-triggered): full Subagent A + B + C sweep across the whole project scope. Catches project-wide drift (Subagent B's domain), audit-programme integrity issues (Subagent C's domain), and recent-PR issues (Subagent A's domain). Expensive (at the parent GRC library's scale, ~150-200k tokens); runs periodically.
+- **`validation-sweep-pr-scoped`** (slash command `/validate-pr`, PR-scoped, every PR): single Subagent A dispatch on the PR's diff plus a targeted cross-reference check. Cheap (at the parent GRC library's scale, ~30-60k tokens); runs before merge so issues are caught within the same PR, not nine PRs later.
 
-The two are complementary, not redundant. The corpus-wide form catches drift the per-PR scope misses (a citation in file Y becomes stale because PR X touched file Z); the per-PR form catches issues the corpus-wide form would miss between its periodic runs (per-PR issues that compound between sweeps).
+The two are complementary, not redundant. The project-wide form catches drift the per-PR scope misses (a citation in file Y becomes stale because PR X touched file Z); the per-PR form catches issues the project-wide form would miss between its periodic runs (per-PR issues that compound between sweeps).
 
 ## When to Use
 
@@ -34,9 +34,9 @@ The two are complementary, not redundant. The corpus-wide form catches drift the
 
 **No orchestrator-side skip discretion AND no abbreviation discretion.** The mandatory invocation has no carve-outs for "meta PRs", "housekeeping PRs", "sweep close-outs", "the PR that introduces this skill", or any other class. The orchestrator does NOT have discretion to skip a `/validate-pr` invocation based on a judgement that the PR is "too small to need it", "circular", or "already validated by another mechanism". Equally, the orchestrator does NOT have discretion to substitute an abbreviated check, a spot-check, a memory-only review, an orchestrator-self-check, a "quick scan", or any other informal substitute for the formal Subagent A dispatch the skill encodes. "Abbreviated /validate-pr" is not a sanctioned shape; the only sanctioned shapes are the full formal run and a maintainer-authorized explicit exception recorded in the history-row Summary cell with rationale. Throughput pressure (a long batch of PRs, a tight session window, an apparent need to make progress) does NOT authorize abbreviation; the per-PR validation IS the pace, and "the next PR will catch it" is the failure mode this rule prevents. Every successful merge triggers a formal `/validate-pr`. If the run returns zero findings, the history-row records that zero-findings state, which is itself the proof-of-discipline. Skipping or abbreviating a quality-assurance step is a policy deviation the orchestrator cannot authorize unilaterally; only the project maintainer can grant a documented exception, recorded explicitly in the history-row Summary cell with the rationale.
 
-**The session-closing handoff PR: normal path, with a narrow fallback.** A session ends by landing its working-state on the protected branch as a green, merged PR (the session-closing handoff PR). Under the synchronous model that PR normally runs its OWN `/validate-pr` (and the paired `/retro`) before it is finalized, like any other PR: because the rows land in the PR itself rather than batching into a next PR, no recursion arises, so there is no default reason to skip. A documented FALLBACK is retained only for the genuine loop-termination edge, a handoff PR whose own QA cannot be made self-contained within it at the session boundary; in that case only, the handoff PR skips its trailing `/validate-pr` / `/retro`. Independently of the fallback, the next session's resume routine runs a full corpus-wide `/validate` as its first task; that sweep is a fresh-session drift-catch valuable in its own right (whole corpus, no accumulated session context), not merely compensation for a skipped sweep. When the fallback is taken it is recorded in the history row's Findings cell with the recognized marker and its rationale, and a mechanical QA-cadence gate must build in this handoff-PR exemption so it does not fail on the legitimately-absent row.
+**The session-closing handoff PR: normal path, with a narrow fallback.** A session ends by landing its working-state on the protected branch as a green, merged PR (the session-closing handoff PR). Under the synchronous model that PR normally runs its OWN `/validate-pr` (and the paired `/retro`) before it is finalized, like any other PR: because the rows land in the PR itself rather than batching into a next PR, no recursion arises, so there is no default reason to skip. A documented FALLBACK is retained only for the genuine loop-termination edge, a handoff PR whose own QA cannot be made self-contained within it at the session boundary; in that case only, the handoff PR skips its trailing `/validate-pr` / `/retro`. Independently of the fallback, the next session's resume routine runs a full project-wide `/validate` as its first task; that sweep is a fresh-session drift-catch valuable in its own right (the whole project scope, no accumulated session context), not merely compensation for a skipped sweep. When the fallback is taken it is recorded in the history row's Findings cell with the recognized marker and its rationale, and a mechanical QA-cadence gate must build in this handoff-PR exemption so it does not fail on the legitimately-absent row.
 
-`/validate-pr` runs as the finalizing step BEFORE merge, on the PR's own branch state (synced to current `main`), after the first CI pass and before the merge that lands it. CI remains the mechanical pre-merge gate; `/validate-pr` is the semantic pre-merge gate, catching stale-prose and cross-document defects the mechanical gates do not. Its row is committed into the same PR and CI re-runs on the row-carrying commit before merge; the residual class of pure post-merge merge-base drift is re-checked by that re-run and by the next session's resume `/validate`.
+`/validate-pr` runs as the finalizing step BEFORE merge, on the PR's own branch state (synced to the current base branch), after the first CI pass and before the merge that lands it. CI remains the mechanical pre-merge gate; `/validate-pr` is the semantic pre-merge gate, catching stale-prose and cross-document defects the mechanical gates do not. Its row is committed into the same PR and CI re-runs on the row-carrying commit before merge; the residual class of pure post-merge merge-base drift is re-checked by that re-run and by the next session's resume `/validate`.
 
 ## Process
 
@@ -47,13 +47,13 @@ The PR-scoped sweep runs in five steps. Steps 1-2 establish scope; step 3 is the
 Capture the PR state:
 
 - PR number (from the open PR via `gh pr view` or `mcp__github__pull_request_read`).
-- The base SHA the PR branches from (`git merge-base main HEAD`).
-- The PR's diff against its base (`git diff <base>...HEAD`, branch synced to `main`).
+- The base revision the PR branches from (`git merge-base <base-branch> HEAD`, where `<base-branch>` is the project's protected base branch).
+- The PR's diff against its base (`git diff <base>...HEAD`, branch synced to the base branch).
 - The list of touched files in the diff (`git diff --name-only <base>...HEAD`).
 
-### 2. Establish mechanical baseline (pre-merge, branch synced to `main`)
+### 2. Establish mechanical baseline (pre-merge, branch synced to the base branch)
 
-Run the project's full audit-gate runner (named in the project wiring above) standalone against the branch state (synced to current `main`). CI ran this on the branch; this confirms the gates are clean before the PR is finalized. Mechanical failures here are rare (they would have failed CI), but a stale branch can differ from current `main` due to merge-base drift, which is why the branch is synced to `main` before this run.
+Run the project's full audit-gate runner (named in the project wiring above) standalone against the branch state (synced to the current base branch). CI ran this on the branch; this confirms the gates are clean before the PR is finalized. Mechanical failures here are rare (they would have failed CI), but a stale branch can differ from the current base branch due to merge-base drift, which is why the branch is synced to it before this run.
 
 If any gate fails, fix the underlying defect first (open a hot-fix PR), then return to step 1 against the corrected state.
 
@@ -66,7 +66,7 @@ Subagent A receives:
 - The full state of each touched file on the branch being finalized.
 - A pre-flight scanner output filtered to the touched files (run the project's deterministic pre-flight scanner and filter the output to the touched file set; if no scanner output relevant to touched files, proceed unhinted).
 
-Subagent A looks for the same eight failure-mode classes from the corpus-wide `validation-sweep` SKILL, scoped to the touched files:
+Subagent A looks for the same eight failure-mode classes from the project-wide `validation-sweep` skill, scoped to the touched files:
 
 1. Stale prose references introduced by the PR.
 2. Mis-attributed citations introduced by the PR.
@@ -83,7 +83,7 @@ Subagent A reports findings as SARIF-lite blocks (same format as `validation-swe
 
 ### 4. Targeted cross-reference check
 
-For each touched file in the PR, identify which OTHER files in the corpus cite it. Use `grep` to find citations:
+For each touched file in the PR, identify which OTHER files in the project cite it. Use `grep` to find citations:
 
 ```bash
 for f in <touched-files>; do
@@ -109,12 +109,12 @@ Triage findings:
 
 Record:
 
-- A per-PR validation record at the project's dated per-PR record path (the parent library's pattern is named in the project wiring above) with the findings and triage. Six top-level H2 sections: Trigger and state snapshot, Subagent A return, Cross-reference check, Orchestrator triage, Resulting hot-fix PR (if any), Notes.
-- An entry in the PR-scoped history register (the PR-scoped mirror of the corpus-wide sweep's register; both are named in the project wiring above; one row per merged PR).
+- A per-PR validation record at the configured record path, using the adopting project's record schema. The parent GRC library uses six top-level sections: Trigger and state snapshot, Subagent A return, Cross-reference check, Orchestrator triage, Resulting hot-fix PR, and Notes.
+- An entry in the PR-scoped history register (the PR-scoped mirror of the project-wide sweep's register; both are named in the project wiring above; one row per merged PR).
 
 Zero-finding PR-scoped sweeps still get a history row (one line); only the per-PR record file is conditional on findings.
 
-Before committing either surface, verify each fixed-in-window claim against the actual diff (grep for the claim's target text); a claim whose edit is absent is downgraded to routed, never recorded as fixed (the record-asserts-unapplied-fix guard, shared with the guardrail-review and corpus-sweep record steps).
+Before committing either surface, verify each fixed-in-window claim against the actual diff (grep for the claim's target text); a claim whose edit is absent is downgraded to routed, never recorded as fixed (the record-asserts-unapplied-fix guard, shared with the guardrail-review and project-wide-sweep record steps).
 
 The `/retro` skill (the finalizing retrospective) consumes `/validate-pr`'s findings as input for its Issues-encountered section.
 
@@ -140,7 +140,7 @@ The chat surface is non-negotiable when the sweep produces findings: a finding t
 
 The PR-scoped sweep is a single-iteration cycle: dispatch, check, triage, record. If findings produce a hot-fix PR, that hot-fix PR is itself a new PR that runs its own `/validate-pr` cycle.
 
-There is no fixed-point loop (unlike `/validate`'s iterative cycle). Per-PR sweeps are short-lived; the corpus-wide sweep handles deeper iteration.
+There is no fixed-point loop (unlike `/validate`'s iterative cycle). Per-PR sweeps are short-lived; the project-wide sweep handles deeper iteration.
 
 ### Synchronous same-PR recording (recursion-avoidance retired)
 
@@ -171,22 +171,22 @@ The PR-scoped sweep is complete when:
 |---|---|
 | "The PR was small; skip /validate-pr" | Smaller PRs sometimes have cross-references missed because the orchestrator didn't think they were worth checking. Run it every merge. |
 | "The next PR will catch any issues" | Maybe; but compounding is faster. Catch at the merge, not five PRs later. |
-| "This is redundant with the corpus-wide /validate" | They're complementary. The corpus-wide sweep runs on its periodic cadence; /validate-pr catches issues in the PRs between sweeps. |
+| "This is redundant with the project-wide /validate" | They're complementary. The project-wide sweep runs on its periodic cadence; /validate-pr catches issues in the PRs between sweeps. |
 | "Cross-reference check is too expensive" | It's bounded to the citers of the touched files; typically 0-5 files per check. Cheap. |
 | "If CI passed, the PR is clean" | CI catches mechanical defects; /validate-pr catches semantic defects (stale prose, cross-document drift) that mechanical gates do not. |
 
 ## See Also
 
-- Sibling skill [`validation-sweep`](../validation-sweep/SKILL.md) (slash command `/validate`): corpus-wide periodic sweep.
+- Sibling skill [`validation-sweep`](../validation-sweep/SKILL.md) (slash command `/validate`): project-wide periodic sweep.
 - Related skill [`pr-retrospective`](../pr-retrospective/SKILL.md) (slash command `/retro`): consumes `/validate-pr` findings as input for the finalizing retrospective and improvement-log register.
 - Canonical rule [`evidence-grounded-completion`](../../governance/evidence-grounded-completion.md): the assertion-side discipline this skill operationalizes.
 - Canonical rule [`ai-assistant-workflow-disciplines`](../../governance/ai-assistant-workflow-disciplines.md): the workflow disciplines this skill supports; PR-scoped validation is the "every merge" discipline that complements the periodic full sweep (in the parent library, every 10 merges).
-- Pre-flight scanner: the deterministic pre-flight check shared with the corpus-wide skill (the parent library's concrete scanner is named in the project wiring above).
+- Pre-flight scanner: the deterministic pre-flight check shared with the project-wide skill (the parent library's concrete scanner is named in the project wiring above).
 
 ## Why this skill exists
 
-The corpus-wide `/validate` sweep runs on a periodic cadence (the parent library's is every 10 merges, or maintainer-triggered). Between sweeps, issues introduced by individual PRs compound silently: a PR touches file A; subsequent PRs cite the changed file A; the citation may have been stale from the start, but no one checks until the next corpus-wide sweep. By then, the issue has been re-cited in 5+ places.
+The project-wide `/validate` sweep runs on a periodic cadence the project sets (the parent GRC library's is every 10 merges, or maintainer-triggered). Between sweeps, issues introduced by individual PRs compound silently: a PR touches file A; subsequent PRs cite the changed file A; the citation may have been stale from the start, but no one checks until the next project-wide sweep. By then, the issue has been re-cited in 5+ places.
 
-`/validate-pr` closes this gap. Run on every PR before it merges, it catches PR-introduced issues before they land and compound. The cost is modest (~30-60k tokens per PR); the benefit is keeping the corpus-wide sweep's iteration count low and the per-PR feedback loop tight.
+`/validate-pr` closes this gap. Run on every PR before it merges, it catches PR-introduced issues before they land and compound. The cost is modest (at the parent GRC library's scale, ~30-60k tokens per PR); the benefit is keeping the project-wide sweep's iteration count low and the per-PR feedback loop tight.
 
-For AI coding assistants specifically: when you are finalizing a PR, before you merge it, your default steps are `/validate-pr`, then `/retro`, then the merge. The three together close the per-PR loop; the corpus-wide `/validate` closes the wider loop on its own cadence.
+For AI coding assistants specifically: when you are finalizing a PR, before you merge it, your default steps are `/validate-pr`, then `/retro`, then the merge. The three together close the per-PR loop; the project-wide `/validate` closes the wider loop on its own cadence.

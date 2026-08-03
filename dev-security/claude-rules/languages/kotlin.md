@@ -1,6 +1,6 @@
 # Kotlin / Android (and Java for Android) Security Rules
 
-These rules apply to Android applications written in Kotlin or Java. They supplement the core rules in `core/` and implement the controls in `standard-mobile-application-security.md`. Section numbers below refer to that standard.
+These rules apply to Android applications written in Kotlin or Java. They supplement the core rules in `core/`. The controls below stand alone; in the parent GRC library they implement `dev-security/standard-mobile-application-security.md`. Section and tier references below are labelled provenance for that parent standard; adopters map them to their own mobile-security standard and risk classification.
 
 Java-Android idioms are noted inline where they differ from Kotlin; the underlying Android platform APIs are the same. For server-side Java (Spring Boot, Jakarta EE), see [`languages/java.md`](java.md) instead.
 
@@ -65,7 +65,7 @@ val spec = KeyGenParameterSpec.Builder(
     .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
     .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
     .setKeySize(256)
-    .setIsStrongBoxBacked(true)  // Tier 1: require StrongBox where available
+    .setIsStrongBoxBacked(true)  // Highest-risk apps: require StrongBox where available (Tier 1 in the parent standard)
     .setUserAuthenticationRequired(true)
     .build()
 keyGenerator.init(spec)
@@ -150,7 +150,7 @@ OAuth / OIDC: use `Custom Tabs` (`androidx.browser`) for the auth flow; never em
 </network-security-config>
 ```
 
-Certificate pinning (Tier 1, Tier 2 per Section 3) via Network Security Config (`<pin-set>`) or OkHttp `CertificatePinner`:
+Certificate pinning for applications whose risk classification requires defence-in-depth controls (Tier 1 / Tier 2 in the parent GRC library's mobile-security standard), via Network Security Config (`<pin-set>`) or OkHttp `CertificatePinner`:
 
 ```kotlin
 val pinner = CertificatePinner.Builder()
@@ -165,7 +165,7 @@ Backup pins documented; pin-rotation plan exists.
 
 ## Backend attestation: Play Integrity (Section 7)
 
-Tier 1 and Tier 2 application backends require Play Integrity. The client requests a token, sends to the backend, the backend verifies against Google's attestation service.
+Application backends whose risk classification requires platform attestation for sensitive operations (Tier 1 / Tier 2 in the parent GRC library's mobile-security standard) require Play Integrity. The client requests a token, sends to the backend, and the backend verifies against Google's attestation service.
 
 ```kotlin
 import com.google.android.play.core.integrity.IntegrityManagerFactory
@@ -321,18 +321,18 @@ Acknowledge purchases only after backend verification. Real-time Developer Notif
 
 ---
 
-## Reverse-engineering resistance (Section 9, Tier 1 and Tier 2)
+## Reverse-engineering resistance (risk-classification dependent; Section 9, Tier 1 / Tier 2 in the parent standard)
 
 - Root detection used as a signal, not as the sole defence. RootBeer / SafetyNet-Attest-style checks reported to backend; user experience degrades gracefully.
 - String obfuscation for embedded secrets (with the caveat that no embedded secret is truly secret on a rooted device).
 - ProGuard / R8 obfuscation enabled in release builds; not the sole defence.
-- Frida and Xposed hook detection for Tier 1; native code anti-tamper where the threat model warrants it.
+- Frida and Xposed hook detection for applications in the highest-risk classification (Tier 1 in the parent standard); native code anti-tamper where the threat model warrants it.
 
 ---
 
 ## Framework alignment
 
-Implements these sections of `standard-mobile-application-security.md`:
+Parent-library provenance: this rule implements these sections of `dev-security/standard-mobile-application-security.md`:
 
 - Section 4 (storage): EncryptedSharedPreferences, EncryptedFile, manifest backup posture.
 - Section 5 (cryptography): Android Keystore (StrongBox-backed for Tier 1), AES-GCM, SecureRandom.

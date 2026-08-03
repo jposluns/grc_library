@@ -200,7 +200,7 @@ public class SecurityConfig {
                 .requestMatchers("/public/**").permitAll()
                 .anyRequest().authenticated()
             )
-            .oauth2Login(Customizer.withDefaults())  // use enterprise IdP, never custom auth
+            .oauth2Login(Customizer.withDefaults())  // use the organization's designated IdP, never custom auth
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 .maximumSessions(1)

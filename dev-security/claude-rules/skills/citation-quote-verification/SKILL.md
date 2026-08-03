@@ -61,7 +61,7 @@ If any of these is missing, the skill is incomplete and a completion claim that 
 | "I cited a section number, so the quote must be there." | Section numbers change between editions. The quote can drift. |
 | "Paraphrases don't need verification; they're not exact quotes." | Paraphrase drift is the most common citation defect because it looks innocent. |
 | "I read this source years ago; I remember what it says." | Memory drifts faster than the source. Fetch it. |
-| "The corpus has too many citations to verify them all." | Verify the ones in the modified region. The pre-existing ones are the maintainer's call. |
+| "The project has too many citations to verify them all." | Verify the ones in the modified region. The pre-existing ones are the maintainer's call. |
 
 ## See Also
 

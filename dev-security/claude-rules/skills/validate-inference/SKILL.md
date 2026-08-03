@@ -61,7 +61,7 @@ trigger fires.
   status read taken this turn.
 - "Only a comment changed, so the tests will pass" and its relatives: behaviour
   claims inferred from change-size intuitions.
-- Fixing the cited instance and declaring the class fixed without a corpus-wide
+- Fixing the cited instance and declaring the class fixed without a project-wide
   search for parallel occurrences.
 - A validation that is itself an inference, or a validation run AFTER the action
   it was supposed to gate.

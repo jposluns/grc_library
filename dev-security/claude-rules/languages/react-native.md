@@ -1,6 +1,6 @@
 # React Native Security Rules
 
-These rules apply to mobile applications built with React Native (with or without Expo). They supplement the core rules in `core/`, the JavaScript / TypeScript rules in [`languages/typescript.md`](typescript.md), and the underlying-platform rules in [`languages/swift.md`](swift.md) (iOS) and [`languages/kotlin.md`](kotlin.md) (Android). They implement the controls in `standard-mobile-application-security.md`, with particular emphasis on Section 15 (hybrid and cross-platform frameworks). Section numbers below refer to that standard.
+These rules apply to mobile applications built with React Native (with or without Expo). They supplement the core rules in `core/`, the JavaScript / TypeScript rules in [`languages/typescript.md`](typescript.md), and the underlying-platform rules in [`languages/swift.md`](swift.md) (iOS) and [`languages/kotlin.md`](kotlin.md) (Android). The controls below stand alone; in the parent GRC library they implement `dev-security/standard-mobile-application-security.md`, with particular emphasis on Section 15 (hybrid and cross-platform frameworks). Section and tier references below are labelled provenance for that parent standard; adopters map them to their own mobile-security standard and risk classification.
 
 Hybrid framework rule: React Native shifts the layer at which a control is implemented; it does not remove the control. If a Section 4 storage requirement exists for native iOS / Android, the equivalent requirement applies to the React Native app, just delegated to the right plugin or native module.
 
@@ -81,10 +81,11 @@ const response = await pinnedFetch('https://api.example.com/v1/me', {
   sslPinning: { certs: ['sha256/PRIMARY_PIN', 'sha256/BACKUP_PIN'] },
 });
 
-// Tier 1 / Tier 2 per Section 3 require pinning; backup pins documented
+// Applications whose risk classification requires defence-in-depth controls
+// (Tier 1 / Tier 2 in the parent standard) require pinning; backup pins documented
 ```
 
-For Tier 3 / Tier 4 apps without pinning, the native-layer ATS (iOS) and Network Security Config (Android) protections are non-negotiable: no blanket cleartext exception.
+For applications whose risk classification does not require certificate pinning (Tier 3 / Tier 4 in the parent standard), the native-layer ATS (iOS) and Network Security Config (Android) protections are non-negotiable: no blanket cleartext exception.
 
 ---
 
@@ -255,6 +256,6 @@ Sentry.init({
 
 ## Framework alignment
 
-Implements Section 15 (hybrid and cross-platform frameworks) of `standard-mobile-application-security.md` and the relevant native-layer Sections (4, 5, 6, 7, 8, 9, 11, 12, 16) as they apply through the React Native bridge.
+Parent-library provenance: this rule implements Section 15 (hybrid and cross-platform frameworks) of `dev-security/standard-mobile-application-security.md` and the relevant native-layer Sections (4, 5, 6, 7, 8, 9, 11, 12, 16) as they apply through the React Native bridge.
 
 Supplements: OWASP MASVS v2 (L1, L2, R); MASTG hybrid-framework guidance; React Native Security guide; Expo Security documentation.

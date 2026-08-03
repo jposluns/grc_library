@@ -1,6 +1,6 @@
 ---
 name: library-fitness-review
-description: Trigger a comprehensive whole-corpus library-fitness review with a project-defined catalogue of persona reviewers when a documentation library (the parent case is a governance/security documentation library) undergoes a major change (new domain dir, new document type, multiple governance rule additions, major restructure) or quarterly minimum. Each invocation dispatches a fan-out of independent persona subagents (for example an executive reader, a security practitioner, an auditor, a newcomer) who review every page from a fresh-reader perspective without inheriting maintainer mental models. Catches comprehensibility, usability, logical-structure, standardization, governance/security quality, auditability, maintainability, and reader-experience gaps that per-PR validation sweeps and mechanical audit gates do not detect. Surfaces prioritized recommendations and a discrete remediation backlog the maintainer drives through subsequent PRs.
+description: Trigger a comprehensive whole-collection library-fitness review with a project-defined catalogue of persona reviewers when a documentation collection (the parent case is a governance/security documentation library) undergoes a major change or reaches its minimum review cadence, quarterly by default unless the adopting project records a different interval. The parent GRC library's major-change triggers are a new domain directory, a new document type, multiple governance rule additions, and a major restructure. Each invocation dispatches a fan-out of independent persona subagents (for example an executive reader, a security practitioner, an auditor, a newcomer) who review every page from a fresh-reader perspective without inheriting maintainer mental models. Catches comprehensibility, usability, logical-structure, standardization, domain quality, auditability, maintainability, and reader-experience gaps that per-change validation sweeps and mechanical audit gates do not detect. Surfaces prioritized recommendations and a discrete remediation backlog the maintainer drives through subsequent changes.
 derives_from: ../../governance/trust-recovery-escalation.md
 ---
 
@@ -32,14 +32,14 @@ An adopting project maps each bullet to its own records and registers; the proce
 
 A documentation library (the parent case: a governance, risk, and compliance library) accumulates content over months and years. Per-PR validation sweeps catch drift introduced by recent changes; mechanical audit gates catch structural defects (broken links, stale gate counts, missing metadata, version-bump omissions). Neither catches the slower, harder failure modes: a page that *technically* passes every gate but no human can act on; a control objective that an auditor cannot evidence; terminology that has drifted such that different documents use different words for the same concept; a workflow that's documented for the author's mental model but unusable by an operational reader; a pattern of "we wrote this for ourselves" that survives because no fresh reader has tested it.
 
-The fitness review is the periodic, multi-perspective evaluation of *what's there*, complementing the validation-sweep's evaluation of *what changed*. It runs heavyweight (the full persona catalogue dispatched in parallel; whole-corpus scope) and infrequently (after major changes or quarterly), and produces a structured deliverable (8-section combined report) the maintainer can use to prioritize quality work.
+The fitness review is the periodic, multi-perspective evaluation of *what's there*, complementing the validation-sweep's evaluation of *what changed*. It runs heavyweight (the full configured persona catalogue dispatched in parallel; whole-collection scope) and at the adopting project's configured cadence, and produces a report in the configured record format. The parent GRC library uses major-change plus quarterly triggers and an eight-section combined report.
 
 The discipline this skill encodes is **fresh-reader review at scale**: every persona reviews every page without inheriting the maintainer's context. Persona diversity surfaces failure modes that a single reader (or single AI agent without persona instruction) misses systematically. The output is not a pass/fail gate; it is a prioritized remediation backlog with concrete recommendations.
 
 ## When to Use
 
-- **After a major corpus change**: a new domain directory ships, a new document type is introduced, ≥3 governance rules are added, or a major restructure lands. The first fitness review after a major change verifies that the addition is consistent with the rest of the library and reachable for adopters.
-- **Quarterly minimum**: as a default cadence even when no major change triggered it. Slow drift accumulates; a periodic review catches it before adopters notice.
+- **After a major change to the review collection**: the adopting project's change-shape trigger fires. In the parent GRC library that means a new domain directory ships, a new document type is introduced, three or more governance rules are added, or a major restructure lands. The first fitness review after a major change verifies that the addition is consistent with the rest of the collection and reachable for adopters.
+- **Quarterly minimum (the default cadence)**: run a review at least once a quarter even when no major change triggered it. An adopting project may record a justified alternative minimum (with its rationale); absent one, quarterly is the floor. Slow drift accumulates; a periodic review catches it before adopters notice.
 - **Pre-publication / pre-external-share**: before the library is shared with a wider audience, relied on operationally (the parent case: used as the basis for a real GRC programme), or cited externally. Fresh-reader review is the gate.
 - **Pre-audit**: when the library will be used as evidence in an audit, run a fitness review specifically with the auditor persona's lens centred so the maintainer can address audit-readiness gaps before the auditor arrives.
 - **On demand**: when the maintainer's gut says "I'm not sure this is in shape" but doesn't have specific findings to point at. The full persona fan-out surfaces what the maintainer's recall does not.
@@ -55,15 +55,19 @@ Not when:
 
 ### 1. Establish mechanical baseline
 
-Run the project's full mechanical audit suite (the baseline command named in the project wiring) standalone. The fitness review starts from a corpus that passes mechanical audit; if the corpus has uncorrected gate failures, fix those first (they pollute persona judgement and obscure the qualitative findings the fitness review is designed to surface).
+Run the project's full mechanical audit suite standalone. The fitness review starts from a
+review collection that passes its configured mechanical checks; fix uncorrected failures
+first.
 
 ### 2. Identify scope and run ordinal
 
-The scope is **whole corpus** (every page reachable from the library's top-level index). Do not scope down except by explicit maintainer authorization in the run's history-row Summary cell.
+The scope is the **whole configured review collection**, normally every page reachable
+from the project's configured entry or index surfaces. Do not scope down except by explicit
+maintainer authorization recorded in the run history.
 
 The run ordinal is the next `N` after the most recent entry in the history register named in the project wiring. Multiple runs in one calendar day increment `r1 → r2 → r3`.
 
-### 3. Dispatch ten persona subagents in parallel
+### 3. Dispatch the configured persona catalogue in parallel
 
 Each persona is dispatched as an independent subagent. The orchestrator's brief to each subagent must:
 
@@ -109,7 +113,7 @@ Subagent findings are *unverified by default*. Persona subagents return what the
 
 Step 5 therefore runs in four sub-steps before any finding lands in the remediation backlog:
 
-**5.1. Output the report with all findings marked `unverified`**. Every per-page finding row in §3 (Page-by-Page Findings) carries an explicit `verification: unverified` annotation at the time the report is written. The `## Remediation Backlog` §8 entries inherit the same annotation. Severity is still tagged (so prioritization can begin) but no finding is treated as actionable until Pass-1 confirms it.
+**5.1. Output the report with all findings marked `unverified`**. Every per-page finding row in the report's page-by-page findings section (`## Page-by-Page Findings` in the default schema) carries an explicit `verification: unverified` annotation at the time the report is written. The remediation-backlog entries (`## Remediation Backlog` in the default schema) inherit the same annotation. Severity is still tagged (so prioritization can begin) but no finding is treated as actionable until Pass-1 confirms it.
 
 **5.2. Pass-1, orchestrator verification**. The orchestrator (not a subagent) re-reads each cited source location for every finding and applies one of four verdict tags:
 
@@ -139,11 +143,11 @@ The fitness review does not auto-defer findings to FYI. Every confirmed finding 
 
 **5.5. Trust-recovery routing flag.** When this skill (the parent library's `/fitness`) runs as the second pass of the trust-recovery escalation suite (per [`governance/trust-recovery-escalation.md`](../../governance/trust-recovery-escalation.md)), the routine severity-tier triage of step 5.4 is replaced by the tier's routing convention: every Pass-1-confirmed finding routes to the backlog **tiered by severity (High[critical] and High to the top-priority tier, Medium and Low to the next-priority tier)**, tagged `[fitness]`, with the normal Low-to-routine-cleanup and FYI-to-informational deferral suspended so that **nothing the review surfaces is dropped or shelved as FYI-only**. The rationale is the rule's: the tier exists because the assistant's discretion to discount has been shown unreliable in the window under review, so severity governs the destination tier, not whether a finding is surfaced. Pass-1 apply-time verification and dedupe-against-the-existing-backlog still apply, and the tier terminates only on the maintainer's explicit sign-off (not on an empty finding-set). Outside trust-recovery mode (a routine or quarterly fitness run), step 5.4's normal triage applies unchanged.
 
-**Confirmed findings produce TODO entries** carrying the `FR-<n>` ID, the originating run reference (`r1`, `r2`, ...), and the Pass-2 verification date. The TODO entry is the bridge between the fitness-review report and the project's PR queue.
+**Confirmed findings produce tracked remediation entries** carrying the configured remediation identifier, originating run reference, and verification date. The tracked entry is the bridge between the fitness-review report and the project's change queue.
 
 ### 6. Write the combined report
 
-Single combined Markdown file at the run-record path named in the project wiring (date-and-run-ordinal named; adopters relocate to a project-appropriate location). Eight H2 sections in this order (see the catalogue document named in the project wiring for the full content spec):
+Write one combined report file at the run-record path named in the project wiring (the parent GRC library names it by date and run ordinal; adopters relocate to a project-appropriate location and record format). The report carries every section of the run's report schema, in the schema's order. The default schema is these eight H2 sections, which an adopting project may replace with its own recorded schema (see the catalogue document named in the project wiring for the parent's full content spec):
 
 1. `## Executive Summary`, overall fitness, highest-risk issues, priorities, publication-readiness assessment.
 2. `## Review Method`, personas dispatched (with explicit count and identifiers), pages reviewed, evaluation criteria, assumptions or limitations.
@@ -156,9 +160,9 @@ Single combined Markdown file at the run-record path named in the project wiring
 
 Optional `## Final Assessment` if sections 1 and 6-8 leave material to summarize (fit-for-use, fit-for-audit-support, fit-for-executive-consumption, fit-for-operational-execution).
 
-### 7. Append the history-table row
+### 7. Append the history entry
 
-Add a row to the top of the history register named in the project wiring with columns:
+Append an entry to the configured history register using its ordering, identifier, and column schema. The parent GRC library uses the table below, reverse chronology, `rN` run identifiers, and a detail-file link or `none`; adopters substitute their configured record shape:
 
 | Date | Run | Personas | Findings | Resulting PR | Detail | Summary |
 |---|---|---|---|---|---|---|
@@ -178,7 +182,7 @@ Zero-finding runs still write a history row. The history is the audit trail of e
 The fitness review's actionable layer is the chat surface. After writing the combined report, surface in chat:
 
 - **High [critical] findings**: each named with location and one-line action recommendation; ask the maintainer to confirm immediate-action priority.
-- **Top 5 High findings**: named with location and recommendation; suggest grouping into a small focused PR.
+- **Configured High-priority shortlist**: name each shortlisted finding with location and recommendation; the parent GRC library surfaces five.
 - **Cross-library patterns surfaced**: named with the implicated documents and the proposed standardization; ask whether to pursue.
 - **Standardization recommendations**: each with effort estimate; ask the maintainer to triage which to adopt now, defer, or reject.
 - **Remediation backlog**: total count of discrete items; ask which to drive in the next PR cycle.
@@ -190,12 +194,12 @@ The combined report file is the persistent archive; the chat surface is the prio
 Once the maintainer has triaged the recommendations and assigned remediation IDs to PRs:
 
 - Update the **Open remediation backlog** table in the history register named in the project wiring with each item's status (`pending` / `in-progress` / `closed`) and the assigned PR.
-- When a PR closes a remediation item, the PR's CHANGELOG entry references the `FR-<n>` ID so the trail back to the originating fitness review is preserved.
+- When a change closes a remediation item, its configured change record references the remediation identifier so the trail back to the originating fitness review is preserved.
 
 ## Red Flags
 
 - **A finding without a quoted evidence excerpt or a specific location pointer.** The fitness review's discipline is fresh-reader-grounded judgement; a finding the persona cannot point to is a guess.
-- **Reusing the prior run's conclusions to skip current personas.** Each run's findings are evaluated against the current corpus. The prior run's conclusions inform priority, not current findings. "Subagent A returned zero last time, skip this run" is the inference-cascade failure mode the pack's `validate-inference-before-action` rule prevents.
+- **Reusing the prior run's conclusions to skip current personas.** Each run's findings are evaluated against the current review collection. The prior run's conclusions inform priority, not current findings. "Subagent A returned zero last time, skip this run" is the inference-cascade failure mode the pack's `validate-inference-before-action` rule prevents.
 - **Letting maintainer mental models leak into persona briefs.** If the brief telegraphs what the maintainer expects, the subagent confirms expectation rather than testing it. Strip maintainer context from each persona brief.
 - **Treating "all gates pass" as evidence the library is in good shape.** The fitness review exists precisely because mechanical gates don't catch what the personas catch. Conflating mechanical pass with quality is the failure mode.
 - **Skipping personas because "scope is similar to the prior run".** Persona-specific failure modes recur per-persona; the security practitioner may surface findings the GRC practitioner systematically misses, and vice versa. Full-catalogue dispatch is the default; scoped runs require explicit maintainer authorization recorded in the history-row Summary.
@@ -210,7 +214,7 @@ This skill is complete on a given run when:
 - Every persona in the catalogue has been dispatched (or a scoped subset has been authorized by the maintainer with the authorization recorded in the history-row Summary).
 - Each persona has returned findings (or "zero findings" with a one-line rationale).
 - Synthesis has applied all six rubric steps (dedupe, R/I/K tag, severity adjudicate, persona provenance, debate where applicable, dispatch declaration).
-- The combined report (at the run-record path named in the project wiring) has all 8 H2 sections (plus optional `## Final Assessment`) written.
+- The combined report contains every section required by the configured report schema (eight in the parent GRC library, plus its optional `## Final Assessment`).
 - The history-row has been appended to the history register named in the project wiring with all columns populated.
 - The maintainer-facing chat surface has presented the High[critical] findings, the top High findings, the cross-library patterns, the standardization recommendations, and the remediation backlog count for prioritization.
 - The full audit programme passes standalone on the post-fitness-review state (no findings the fitness review introduced into the corpus).
@@ -224,9 +228,9 @@ This skill is complete on a given run when:
 | "The fitness review surfaces too many findings; we can't action them all." | The fitness review does not require actioning all findings. The remediation backlog is a prioritized list; the maintainer triages. Items left at Low or FYI persist in the backlog until a relevant context arises. The discipline is to capture, not to compulsively close. |
 | "Skip the auditor persona; we're not in audit prep." | The auditor persona surfaces audit-readiness defects that bite at audit time, six months before the auditor arrives. Skipping during non-audit periods is exactly when the gaps form. Run the full-catalogue dispatch every time. |
 | "The personas overlap; let me consolidate to fewer." | Personas overlap by design at the symptom layer and differ at the lens layer. The executive sees comprehensibility-from-business-context; the newcomer sees comprehensibility-from-zero-knowledge. Same word, different failure modes. Consolidating loses the per-lens specificity. |
-| "The remediation backlog is just a list; we don't need IDs." | IDs (`FR-1`, `FR-2`, ...) create the trail from finding to remediation PR. Without IDs, a PR that fixes one finding can't be linked back to the originating review; the audit trail breaks. The cost of an ID is trivial; the cost of a broken trail compounds. |
+| "The remediation backlog is just a list; we don't need IDs." | Stable identifiers from the project's configured scheme create the trail from finding to remediation change. Without them, a change that fixes one finding cannot be linked back to the originating review; the audit trail breaks. |
 | "Mechanical gates have improved enough that fitness review is redundant." | Mechanical gates close their specific failure classes (broken links, stale counts, missing metadata). They do not close the persona-shaped classes (executive comprehension, audit-readiness, adoption usability). New mechanical gates can be born from fitness-review findings, but the fitness review itself remains the source of new-failure-class detection. |
-| "Personas should evaluate from outside; we should hide the corpus from them." | Subagents need corpus access to find evidence (the discipline requires `path:line` or quoted-excerpt evidence per finding). What's stripped is the *maintainer's mental model*, not the corpus. The persona reads the corpus fresh and reports what they find. |
+| "Personas should evaluate from outside; we should hide the review collection from them." | Subagents need collection access to find evidence. What's stripped is the *maintainer's mental model*, not the collection. The persona reads the collection fresh and reports what they find. |
 
 ## See Also
 

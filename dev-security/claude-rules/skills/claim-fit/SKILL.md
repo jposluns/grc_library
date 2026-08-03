@@ -29,7 +29,7 @@ The class is not hypothetical. The motivating incident in the parent library: a 
 The verdict vocabulary is four-valued, because the right fix differs by verdict:
 
 - **`prescribed`**: the source states the attributed value; the claim fits as written.
-- **`informed-not-prescribed`**: the source motivates the value but does not state it (the 7-year retention shape illustrated above). The fix is the ATTRIBUTION PHRASING, never the value: reword to name the value as the corpus's or organization's canonical choice informed by the source, so the sentence stops asserting source language that does not exist.
+- **`informed-not-prescribed`**: the source motivates the value but does not state it (the 7-year retention shape illustrated above). The fix is the ATTRIBUTION PHRASING, never the value: reword to name the value as the project's or organization's canonical choice informed by the source, so the sentence stops asserting source language that does not exist.
 - **`mis-attributed`**: the source states a different value, or none, where the sentence asserts one (the motivating-incident and Article 33(2) shapes). The fix is the value or the citation, decided per finding.
 - **`source-not-held`**: the reference base holds no text for the named source, so no judgement is possible. The claim routes to the project's source-acquisition queue (however the project tracks sources to obtain) and is NEVER adjudicated from memory (the evidence-grounded-completion external-version corollary binds here, as does any project egress constraint on fetching new sources).
 
@@ -62,7 +62,7 @@ The orchestrator re-reads each candidate `mis-attributed` and `informed-not-pres
 
 ### 5. Triage and route findings
 
-For confirmed findings in the current scope, fix them in-window: apply the fix, bump the touched document's Version and Date in the same commit, and record the correction in the CHANGELOG-detailed entry. Where the fix requires an authorial decision (which of value-vs-citation is wrong; whether a canonical corpus value should be re-anchored), surface it to the maintainer with named options rather than silently picking. Confirmed findings outside the current scope are surfaced with named options (fix-now vs route-to-backlog), not auto-deferred. Findings refuted at apply-time are recorded with the refutation, not routed. Findings that dedupe against an existing backlog item are cross-referenced, not duplicated.
+For confirmed findings in the current scope, fix them in-window: apply the fix, bump the touched document's version and date metadata in the same commit, and record the correction in the project's detailed change record. Where the fix requires an authorial decision (which of value-vs-citation is wrong; whether a canonical project value should be re-anchored), surface it to the maintainer with named options rather than silently picking. Confirmed findings outside the current scope are surfaced with named options (fix-now vs route-to-backlog), not auto-deferred. Findings refuted at apply-time are recorded with the refutation, not routed. Findings that dedupe against an existing backlog item are cross-referenced, not duplicated.
 
 ### 6. Record and surface
 
@@ -72,10 +72,10 @@ Surface confirmed findings inline in chat (per-finding: claim `path:line`, the a
 
 - Judging a claim from the source's remembered content or general reputation instead of reading the held text. The remembered meaning is the failure mode that produced the misattribution.
 - Adjudicating a `source-not-held` claim anyway "because the answer is well known". No held text, no judgement; the claim routes to the source-acquisition queue.
-- Treating the triage tool's worklist as a defect list. It is recall-oriented; most Tier-A rows on a clean corpus will judge `prescribed`, and Tier-B rows are soft-alignment claims that mostly fit.
-- Fixing an `informed-not-prescribed` finding by changing the VALUE. The value is frequently the corpus's own canonical choice (the canonical-choice class illustrated above); the defect is the attribution phrasing, and silently changing a canonical value is an authorial decision the maintainer owns.
+- Treating the triage tool's worklist as a defect list. It is recall-oriented; most Tier-A rows in clean project content will judge `prescribed`, and Tier-B rows are soft-alignment claims that mostly fit.
+- Fixing an `informed-not-prescribed` finding by changing the VALUE. The value is frequently the project's own canonical choice (the canonical-choice class illustrated above); the defect is the attribution phrasing, and silently changing a canonical value is an authorial decision the maintainer owns.
 - Routing a judge verdict without the orchestrator's own re-read of the source passage. Apply-time verification is the false-positive filter; a judge can miss the prescribing clause elsewhere in a long source.
-- Rephrasing one carrier of a misattributed value while sibling carriers of the same value-plus-source pair survive. Grep at bare-token width across the touched file and the corpus before claiming the class fixed.
+- Rephrasing one carrier of a misattributed value while sibling carriers of the same value-plus-source pair survive. Grep at bare-token width across the touched file and the project's in-scope content before claiming the class fixed.
 - Running this as a substitute for the citation gates, or skipping it because "the gates passed". The gates and this skill cover orthogonal classes; a well-formed citation says nothing about precision.
 
 ## Verification
@@ -86,7 +86,7 @@ The pass is complete on a given run when:
 - The triage tool was run and its worklist (plus any flagged claims) was the judge's input.
 - Every in-scope Tier-A row was judged against the held source text with the passage quoted (or verdicted `source-not-held` on index evidence); the run's Tier-B sample is named.
 - The orchestrator re-read each candidate finding's source passage and refuted or confirmed it; refutations are recorded, not routed.
-- Confirmed in-scope findings were fixed per their verdict class (Version and Date bumped, CHANGELOG entry written) or surfaced with named options where the fix is authorial; `source-not-held` claims are queued for source acquisition.
+- Confirmed in-scope findings were fixed per their verdict class (version and date metadata bumped, change-record entry written) or surfaced with named options where the fix is authorial; `source-not-held` claims are queued for source acquisition.
 - The run was recorded (history row always; detail file when findings exist) and findings were surfaced inline in chat.
 
 ## Common Rationalizations
@@ -96,8 +96,8 @@ The pass is complete on a given run when:
 | "The citation gates pass, so the claim is fine." | The gates check the source exists and the citation is well-formed, not that the source states the attributed value. Only a read of the clause decides. |
 | "Everyone knows GDPR Article 33 says 72 hours." | Article 33(1) does; the flagged carrier among the illustrative shapes cites 33(2), which says "without undue delay". The clause read, not the reputation, is the evidence. |
 | "The source is not held, but I am confident what it says." | An un-held source is never adjudicated from memory (the external-version corollary). Route to the source-acquisition queue. |
-| "The source does not state the value, so the value is wrong." | Often the value is the corpus's own canonical choice the source merely informs. The fix is the attribution phrasing; changing the value is the maintainer's call. |
-| "The worklist is short, so the corpus is precise." | The worklist is recall-oriented triage over lexical shapes; unlisted prose can still misattribute in shapes the extractor does not match. A short worklist narrows the read; it certifies nothing. |
+| "The source does not state the value, so the value is wrong." | Often the value is the project's own canonical choice the source merely informs. The fix is the attribution phrasing; changing the value is the maintainer's call. |
+| "The worklist is short, so the project content is precise." | The worklist is recall-oriented triage over lexical shapes; unlisted prose can still misattribute in shapes the extractor does not match. A short worklist narrows the read; it certifies nothing. |
 | "Claim precision should just be a gate." | It is not mechanically checkable, and the ground truth lives in a held reference base the ordinary mechanical gate cannot see. The cadenced audit is the durable instrument (the same conclusion the matrix-fit design reached). |
 
 ## See Also
@@ -105,7 +105,7 @@ The pass is complete on a given run when:
 - Canonical rule [`evidence-grounded-completion`](../../governance/evidence-grounded-completion.md): the assertion-side discipline this skill applies to normative attributions (a claim that a source states a value requires reading the source, not inferring it), including the external-version-currency corollary that forbids judging un-held or unconfirmed sources from memory.
 - Related skill [`matrix-fit`](../matrix-fit/SKILL.md) (`/matrix-fit`): the sibling semantic audit for control-code fit; this skill applies the same pattern (advisory recall-oriented tool plus cadenced semantic judge) to attributed values. The two-PR shipping precedent and the judge-against-the-source rule both come from it.
 - Related skill [`citation-quote-verification`](../citation-quote-verification/SKILL.md): verifies cited *quotes* match source text verbatim; this skill verifies attributed *values and requirements* are actually prescribed by the source. A quote can be verbatim while the surrounding attribution overstates it.
-- Related skill [`validation-sweep`](../validation-sweep/SKILL.md) (`/validate`): the corpus-wide drift sweep whose notes can flag an attribution doubt for this skill to adjudicate.
-- Related skill [`publication-screening`](../publication-screening/SKILL.md) (`/screen-publications`): the admission-control screen for the untrusted publications bucket; once a screened publication's claim enters the corpus, its precision is this skill's cadence to adjudicate like any other attributed value.
+- Related skill [`validation-sweep`](../validation-sweep/SKILL.md) (`/validate`): the project-wide drift sweep whose notes can flag an attribution doubt for this skill to adjudicate.
+- Related skill [`publication-screening`](../publication-screening/SKILL.md) (`/screen-publications`): the admission-control screen for configured untrusted sources; once a screened source's claim enters project content, its precision is this skill's cadence to adjudicate like any other attributed value.
 - The recall-oriented pre-filter named in the project wiring above: the triage step that feeds this skill's worklist (not a gate; always exits 0; a Tier-A-only mode for the judge-every-row tier; a reference-base flag to report source held-state from the reference-base indexes).
 - The reference base named in the project wiring above: located via its own indexes, with the per-source currency confirmation and trust-bucket rules its own conventions define.

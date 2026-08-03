@@ -1,6 +1,6 @@
 # Capacitor / Ionic Security Rules
 
-These rules apply to mobile applications built with Capacitor (the modern Cordova successor) and Ionic Framework. They supplement the core rules in `core/`, the TypeScript / JavaScript rules in [`languages/typescript.md`](typescript.md), and the underlying-platform rules in [`languages/swift.md`](swift.md) (iOS) and [`languages/kotlin.md`](kotlin.md) (Android). They implement the controls in `standard-mobile-application-security.md`, with emphasis on Section 15 (hybrid and cross-platform frameworks). Section numbers below refer to that standard.
+These rules apply to mobile applications built with Capacitor (the modern Cordova successor) and Ionic Framework. They supplement the core rules in `core/`, the TypeScript / JavaScript rules in [`languages/typescript.md`](typescript.md), and the underlying-platform rules in [`languages/swift.md`](swift.md) (iOS) and [`languages/kotlin.md`](kotlin.md) (Android). The controls below stand alone; in the parent GRC library they implement `dev-security/standard-mobile-application-security.md`, with emphasis on Section 15 (hybrid and cross-platform frameworks). Section and tier references below are labelled provenance for that parent standard; adopters map them to their own mobile-security standard and risk classification.
 
 Hybrid framework rule: Capacitor wraps a WebView and exposes native APIs through plugins; Ionic adds UI components on top of either Capacitor or Cordova. Web-stack security (CSP, XSS, etc.) and mobile-stack security (Sections 4-12) BOTH apply. The WebView IS the application UI, so any control assumed to be enforced at the network or browser layer must be enforced inside the WebView host.
 
@@ -119,7 +119,7 @@ const response = await CapacitorHttp.request({
 });
 ```
 
-For Tier 1 / Tier 2 apps (per Section 3), certificate pinning is required. Capacitor delegates HTTP to the native layer when `CapacitorHttp` is enabled; otherwise the WebView's `fetch` / `XMLHttpRequest` uses the WebView's HTTP stack and pinning is harder.
+For applications whose risk classification requires defence-in-depth controls (Tier 1 / Tier 2 in the parent GRC library's mobile-security standard), certificate pinning is required. Capacitor delegates HTTP to the native layer when `CapacitorHttp` is enabled; otherwise the WebView's `fetch` / `XMLHttpRequest` uses the WebView's HTTP stack and pinning is harder.
 
 ---
 
@@ -276,6 +276,6 @@ The Ionic framework's components are XSS-safe when used with the framework's idi
 
 ## Framework alignment
 
-Implements Section 15 (hybrid and cross-platform frameworks) of `standard-mobile-application-security.md` and the relevant native-layer Sections (4, 7, 8, 12, 16) as they apply through Capacitor's WebView + plugin architecture. Web-stack security from [`languages/typescript.md`](typescript.md) and `core/owasp.md` also applies because the WebView IS the application UI.
+Parent-library provenance: this rule implements Section 15 (hybrid and cross-platform frameworks) of `dev-security/standard-mobile-application-security.md` and the relevant native-layer Sections (4, 7, 8, 12, 16) as they apply through Capacitor's WebView + plugin architecture. Web-stack security from [`languages/typescript.md`](typescript.md) and `core/owasp.md` also applies because the WebView IS the application UI.
 
 Supplements: OWASP MASVS v2 (L1, L2, R); MASTG hybrid-framework guidance; Capacitor security documentation; Ionic security best practices.
