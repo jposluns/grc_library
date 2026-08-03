@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.68.9\
+**Version:** 1.68.10\
 **Date:** 2026-08-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -516,6 +516,7 @@ The pack's release history appears below. Parent-library changes that produced t
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.68.10 | 2026.08.61 | 2026-08-03 | Patch (#1364 overlay 1.26.2 back-port, part 2): back-ported the remaining distinct security residues from the addyosmani/kariedo supplementary overlays, CSRF plus cookie plus security-header hardening and a no-weakening-of-controls rule into OWASP A02, least-privilege into A01, design-decision-recording and threat-model-as-tests into A06, and a proportionality clause into the project-integrity Quality facet (both trees). |
 | 1.68.9 | 2026.08.60 | 2026-08-03 | Patch (#1363 overlay 1.26.2 back-port, part 1): back-ported the distinct Python security guidance from the tikitribe/kariedo supplementary overlays into the core Python language rule (secure temp files, URL-scheme allowlist, constant-time secret compare, dynamic-import allowlist, strict security-type comparisons; the path-traversal section routed to maintainer review over a TOCTOU subtlety), reducing the primary pack's dependence on the overlay. |
 | 1.68.8 | 2026.08.58 | 2026-08-03 | Patch (#1361 cutover-leftover sweep, P-3.202): stale post-merge / next-PR-batch / handoff-exemption references corrected across session-lifecycle (both trees), pr-retrospective + validation-sweep-pr-scoped skills, and the pack CLAUDE.md, aligning to the synchronous pre-merge in-PR QA model. Documentation-vs-practice reconciliation; no discipline change. |
 | 1.68.7 | 2026.08.57 | 2026-08-03 | Patch (#1360 closing /validate fixes): four pre/post-merge cutover leftovers in skills/commands (retro command, pr-retrospective example, validation-sweep-pr-scoped hot-fix/after-merging language, validation-sweep zero-finding register contradiction), a library-fitness-review wrong-sibling-skill reference, and an overbroad pack self-contained claim in the pack CLAUDE.md. No discipline change. |

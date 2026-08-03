@@ -21,6 +21,7 @@ The sections below follow the 2025 ordering. Two 2021 categories were restructur
 - Default deny: deny unless explicitly authorized
 - Implement RBAC at the API layer, not only at the UI layer
 - Insecure direct object references: validate that the ID in the request belongs to the authenticated user before acting on it
+- Apply least privilege to every user, service, and workload identity: grant only the permissions required for its defined operations, and prohibit wildcard or standing elevated permissions unless explicitly justified and reviewed.
 
 **Prohibited patterns**:
 ```
@@ -51,6 +52,10 @@ requests.get(url)  # SSRF risk
 - Remove development features, debug endpoints, and diagnostic interfaces before production
 - Error responses must not reveal software version, stack trace, or system configuration
 - Keep all software and libraries updated: run SCA in CI/CD
+- Protect every state-changing browser request that uses cookie-based or other ambient credentials against CSRF. Use framework CSRF middleware or an unpredictable token bound to the user session; verify `Origin` or `Referer` where appropriate; never use GET for state changes. `SameSite` is defence in depth, not a replacement for CSRF-token validation.
+- Set session cookies with `Secure`, `HttpOnly`, and `SameSite=Lax` or `Strict`. Use `SameSite=None` only when cross-site use is required, and only with `Secure`.
+- Send a restrictive `Content-Security-Policy`, `Strict-Transport-Security` after the service is fully HTTPS, `X-Content-Type-Options: nosniff`, and clickjacking protection through CSP `frame-ancestors` and/or `X-Frame-Options`. Do not disable these headers for convenience.
+- Never disable, bypass, or suppress authentication, authorization, validation, TLS, logging, or another security control for convenience. Any exception requires documented scope, responsible-authority approval, compensating controls, and an expiry or review date.
 
 **Prohibited patterns**:
 - Default administrative credentials left unchanged
@@ -108,6 +113,8 @@ See [`core/input-validation.md`](input-validation.md) for full requirements. Key
 - Threat model every new feature that handles sensitive data, authentication, or external integrations. Follow the adopting project's threat-modelling standard. In the parent GRC library, `security/standard-threat-modelling.md` defines the STRIDE-per-trust-boundary methodology and the Mandatory / Approval-Gated / Prohibited disposition model applied to each identified threat.
 - Apply defense-in-depth: multiple independent security controls, not a single gate
 - Design for failure securely: when a component fails, it should fail closed, not open
+- Record security-relevant design decisions and trade-offs, including the threat, selected control, residual risk, owner, and review point.
+- Turn threat-model abuse cases into tests and exercise each security control with representative known attack patterns before release.
 
 **Prohibited patterns**:
 - "We'll add security later": security controls must be in the design, not retrofitted
