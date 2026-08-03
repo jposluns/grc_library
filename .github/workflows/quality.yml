@@ -310,7 +310,7 @@ jobs:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.sha }}
         run: |
-          if git diff --name-only "$BASE_SHA" "$HEAD_SHA" | grep -q '^dev-security/claude-rules/'; then
+          if git diff --name-only "$BASE_SHA" "$HEAD_SHA" | grep -q '^guardrails/'; then
             echo "Pack changes detected. Running collection-candidate detector..."
             python3 tools/detect-collection-candidates.py
           else

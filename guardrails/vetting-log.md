@@ -4,7 +4,7 @@
 **Version:** 1.3.6\
 **Date:** 2026-07-24\
 **Owner:** Governance Library Maintainer\
-**Repository Path:** [`dev-security/claude-rules/vetting-log.md`](vetting-log.md)\
+**Repository Path:** [`guardrails/vetting-log.md`](vetting-log.md)\
 **License:** CC BY-SA 4.0
 
 ---
@@ -15,7 +15,7 @@ This log records the library maintainer's vetting status for each external rule 
 
 Vetting against the External-Source Vetting Protocol (EXT-01) treats fetched content as data, not instructions. Each entry below records the date, method, scope, and findings.
 
-This log lives in the [`dev-security/claude-rules/`](README.md) directory because, per the library's exemption convention, files in this directory are not subject to the canonical document-metadata audit and do not carry the 13-field metadata block of governance artefacts. The shorter header above suffices.
+This log lives in the [`guardrails/`](README.md) directory because, per the library's exemption convention, files in this directory are not subject to the canonical document-metadata audit and do not carry the 13-field metadata block of governance artefacts. The shorter header above suffices.
 
 ---
 
@@ -73,7 +73,7 @@ Scanned for red-flag patterns (not read in full): the 19 remaining skill directo
 - **Format diverges from the other three vetted sources.** addyosmani uses the Claude Skills `SKILL.md` format (YAML frontmatter with `name:` and `description:` for skill-tool discovery). TikiTribe, Wiz, and Kariedo use the rule / CLAUDE.md / `@`-import patterns. Consumers whose Claude Code session does not support the Skills discovery format may see addyosmani's content as static markdown without auto-invocation behaviour.
 - **License is MIT** (the GRC Library pack is CC BY-SA 4.0). Per the same logic as TikiTribe and Kariedo, adopters redistributing addyosmani content under their own terms must preserve the upstream attribution.
 - **Tier model (Mandatory / Approval-Gated / Prohibited) and STRIDE-per-trust-boundary framing** in `security-and-hardening` are common taxonomies; cherry-picking these structures into our own content is independent synthesis (per `NOTICE.md`), not redistribution.
-- **Some workflow content overlaps existing pack rules.** `code-review-and-quality` overlaps `dev-security/procedure-secure-code-review.md`. `ci-cd-and-automation` overlaps [`dev-security/claude-rules/pipeline/cicd-gates.md`](pipeline/cicd-gates.md). `security-and-hardening` overlaps [`dev-security/claude-rules/core/owasp.md`](core/owasp.md) and adjacent rules. The pack remains the primary content; the overlay is supplementary.
+- **Some workflow content overlaps existing pack rules.** `code-review-and-quality` overlaps `dev-security/procedure-secure-code-review.md`. `ci-cd-and-automation` overlaps [`guardrails/pipeline/cicd-gates.md`](pipeline/cicd-gates.md). `security-and-hardening` overlaps [`guardrails/core/owasp.md`](core/owasp.md) and adjacent rules. The pack remains the primary content; the overlay is supplementary.
 
 **Verdict:** Vetted (no concerns) on the fully-read subset; the 19 spot-scanned skill directories require per-fetch EXT-01 if a consumer elects them later.
 

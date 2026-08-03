@@ -79,7 +79,7 @@ drive end-to-end on the maintainer's behalf:
    checklist` item 3.)
 5. Immediately after `/validate-pr` returns and BEFORE merge, invoke `/retro` to run the
    retrospective per the
-   [`pr-retrospective`](../dev-security/claude-rules/skills/pr-retrospective/SKILL.md)
+   [`pr-retrospective`](../guardrails/skills/pr-retrospective/SKILL.md)
    skill: append one row to `grc_library_private/.working/improvement-log.md`.
    Pattern and Proposed-improvement entries (if any) surface in chat. The register row lands
    in THIS PR (recording this PR's own number), committed before the PR is finalized; the

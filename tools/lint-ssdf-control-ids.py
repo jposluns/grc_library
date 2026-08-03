@@ -84,7 +84,7 @@ _SSDF_HEADER = re.compile(r"\bNIST SSDF\b|\bSSDF\b|\bSP\s*800-218\b", re.IGNOREC
 # Files where SSDF-shaped strings are historical description, not live citations.
 EXEMPT_SUFFIXES = (
     "CHANGELOG.md",
-    "dev-security/claude-rules/README.md",  # pack version-history describes fixed codes
+    "guardrails/README.md",  # pack version-history describes fixed codes
     "governance/specification-audit-programme.md",  # gate-description prose uses example codes
 )
 

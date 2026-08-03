@@ -17,9 +17,9 @@ different set of references).
 This linter scans the corpus for prose phrases that mention a collection
 count and verifies the count matches its canonical source. Three
 collections are checked: the gate count (the §6 inventory row count), the
-governance-rule count (markdown files under dev-security/claude-rules/
-governance/), and the skill count (subdirectories of dev-security/
-claude-rules/skills/), mirroring gate 41's collection sources. Any
+governance-rule count (markdown files under guardrails/
+governance/), and the skill count (subdirectories of
+guardrails/skills/), mirroring gate 41's collection sources. Any
 mismatch is flagged.
 
 DIGIT patterns (gate count only):
@@ -92,8 +92,8 @@ SPEC_PATH = REPO_ROOT / "governance" / "specification-audit-programme.md"
 # Canonical-count source directories for the word-form collection checks
 # (gates come from the §6 inventory row count, parsed separately). These
 # mirror gate 41's collection sources so the two gates agree on what counts.
-RULES_DIR = REPO_ROOT / "dev-security" / "claude-rules" / "governance"
-SKILLS_DIR = REPO_ROOT / "dev-security" / "claude-rules" / "skills"
+RULES_DIR = REPO_ROOT / "guardrails" / "governance"
+SKILLS_DIR = REPO_ROOT / "guardrails" / "skills"
 
 # Word-number map for the word-form count patterns (P9-P12 below), covering
 # 1-99: enough for every current collection size with ample headroom (exact

@@ -1616,7 +1616,7 @@ class PackReadmeCobumpOnPrTests(DeltaGateRepoTestCase):
     """
 
     SCRIPT = "check-pack-readme-cobump-on-pr.py"
-    PACK = "dev-security/claude-rules/README.md"
+    PACK = "guardrails/README.md"
 
     @staticmethod
     def _readme(version, rows):
@@ -4455,7 +4455,7 @@ class SkillDerivesFromTests(LinterTestCase):
     """tools/lint-skill-derives-from.py
 
     The audit verifies that every ``SKILL.md`` under
-    ``dev-security/claude-rules/skills/`` declares a ``derives_from:``
+    ``guardrails/skills/`` declares a ``derives_from:``
     YAML frontmatter field whose value resolves to an existing file.
     Tests use ``--root`` to point the linter at a synthetic minimal
     source set with engineered errors so the detection logic can be
@@ -4468,9 +4468,9 @@ class SkillDerivesFromTests(LinterTestCase):
         synthetic_root = FIXTURE_DIR / "synthetic-skill-derives"
         if synthetic_root.exists():
             shutil.rmtree(synthetic_root)
-        skill_dir = synthetic_root / "dev-security" / "claude-rules" / "skills" / "test-skill"
+        skill_dir = synthetic_root / "guardrails" / "skills" / "test-skill"
         skill_dir.mkdir(parents=True)
-        rules_dir = synthetic_root / "dev-security" / "claude-rules" / "governance"
+        rules_dir = synthetic_root / "guardrails" / "governance"
         rules_dir.mkdir(parents=True)
         if target_exists:
             (rules_dir / "test-rule.md").write_text(
@@ -4878,7 +4878,7 @@ class ClaudeRulesSyncTests(LinterTestCase):
     """tools/lint-claude-rules-sync.py
 
     The audit verifies that each project-local .claude/rules copy's body
-    matches its dev-security/claude-rules pack source (after stripping
+    matches its guardrails pack source (after stripping
     the local copy's frontmatter and provenance comment), and that every
     local rule file is covered by the sync mapping. The live in-sync
     state must pass (subprocess test); drift detection and the
@@ -4917,9 +4917,9 @@ class ClaudeRulesSyncTests(LinterTestCase):
         if root.exists():
             shutil.rmtree(root)
         local_rel = ".claude/rules/secrets.md"
-        source_rel = "dev-security/claude-rules/core/secrets.md"
+        source_rel = "guardrails/core/secrets.md"
         (root / ".claude" / "rules").mkdir(parents=True)
-        (root / "dev-security" / "claude-rules" / "core").mkdir(parents=True)
+        (root / "guardrails" / "core").mkdir(parents=True)
         (root / local_rel).write_text(local_body, encoding="utf-8")
         (root / source_rel).write_text(source_body, encoding="utf-8")
         if extra_local is not None:
@@ -7331,12 +7331,12 @@ class GuardrailCadenceTests(LinterTestCase):
         root = Path(d)
         (root / ".working/guardrail-reviews").mkdir(parents=True, exist_ok=True)
         (root / "governance").mkdir(parents=True, exist_ok=True)
-        (root / "dev-security/claude-rules/governance").mkdir(parents=True, exist_ok=True)
+        (root / "guardrails/governance").mkdir(parents=True, exist_ok=True)
         (root / ".claude/commands").mkdir(parents=True, exist_ok=True)
         for name in ("alpha", "beta"):
-            (root / f"dev-security/claude-rules/skills/{name}").mkdir(parents=True, exist_ok=True)
-            (root / f"dev-security/claude-rules/skills/{name}/SKILL.md").write_text("# s\n", encoding="utf-8")
-            (root / f"dev-security/claude-rules/governance/{name}.md").write_text("# r\n", encoding="utf-8")
+            (root / f"guardrails/skills/{name}").mkdir(parents=True, exist_ok=True)
+            (root / f"guardrails/skills/{name}/SKILL.md").write_text("# s\n", encoding="utf-8")
+            (root / f"guardrails/governance/{name}.md").write_text("# r\n", encoding="utf-8")
         (root / ".claude/commands/one.md").write_text("# c\n", encoding="utf-8")
         spec_rows = "".join(f"| {n} | Gate {n} | x |\n" for n in range(1, gates + 1))
         # The gate count is parsed from the section-6 region only (mirroring

@@ -250,7 +250,7 @@ def main() -> int:
     print(
         "TODO staleness audit (gate 45) catches the recurring drift "
         "shapes the convention amendment in PR #127 reframed at the "
-        "source. See dev-security/claude-rules/governance/"
+        "source. See guardrails/governance/"
         "change-tracking.md for the convention rationale.",
         file=sys.stderr,
     )

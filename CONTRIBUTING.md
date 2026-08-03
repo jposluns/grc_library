@@ -2,8 +2,8 @@
 
 **Document Title:** Contributing to the GRC Documentation Library\
 **Document Type:** Guideline\
-**Version:** 1.2.4\
-**Date:** 2026-07-08\
+**Version:** 1.2.5\
+**Date:** 2026-08-03\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](README.md), [`specification-master-project.md`](specification-master-project.md), [`specification-ingestion.md`](specification-ingestion.md), [`SECURITY.md`](SECURITY.md), [`NOTICE.md`](NOTICE.md), [`AUTHORS.md`](AUTHORS.md), [`CHANGELOG.md`](CHANGELOG.md)\
@@ -38,7 +38,7 @@ This statement is informational; contributors are not required to declare whethe
 - Corrections to existing artefacts (clarity, accuracy, framework alignment, broken links).
 - Translations are not currently accepted; the library is English-only.
 - New tooling, audit scripts, and CI improvements that align with the existing tooling pattern (Python 3 stdlib, no third-party dependencies).
-- New pack rules under [`dev-security/claude-rules/`](dev-security/claude-rules/) and new Claude Code Skills under [`dev-security/claude-rules/skills/`](dev-security/claude-rules/skills/), where the rule or skill is grounded in a real failure mode observed while maintaining a governed codebase. Per the existing pack discipline, each new governance rule must cite the maintenance event that justified it (a dated CHANGELOG entry or a documented session incident); each skill must derive from a canonical pack rule via its `derives_from` frontmatter field, enforced by [`tools/lint-skill-derives-from.py`](tools/lint-skill-derives-from.py). See [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md) for the pack's contribution conventions and version-bump rules.
+- New pack rules under [`guardrails/`](guardrails/) and new Claude Code Skills under [`guardrails/skills/`](guardrails/skills/), where the rule or skill is grounded in a real failure mode observed while maintaining a governed codebase. Per the existing pack discipline, each new governance rule must cite the maintenance event that justified it (a dated CHANGELOG entry or a documented session incident); each skill must derive from a canonical pack rule via its `derives_from` frontmatter field, enforced by [`tools/lint-skill-derives-from.py`](tools/lint-skill-derives-from.py). See [`guardrails/README.md`](guardrails/README.md) for the pack's contribution conventions and version-bump rules.
 
 The most common net-new artefact is an overlay for a sector or jurisdiction the library does not yet cover. Author it by mirroring an existing same-type annex rather than inventing a structure: for a new jurisdiction, follow a privacy jurisdiction annex in [`privacy/jurisdictions/`](privacy/jurisdictions/) (for example [`privacy/jurisdictions/annex-privacy-european-union.md`](privacy/jurisdictions/annex-privacy-european-union.md)); for a new sector, follow an existing sector annex such as [`compliance/telecommunications/annex-telecommunications-sector-requirements.md`](compliance/telecommunications/annex-telecommunications-sector-requirements.md) or [`compliance/public-sector/annex-fedramp-requirements.md`](compliance/public-sector/annex-fedramp-requirements.md). Keep the metadata block, section model, and filename rules below; the audit programme enforces them.
 

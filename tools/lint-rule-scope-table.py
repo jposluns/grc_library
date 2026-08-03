@@ -2,7 +2,7 @@
 """Rule-scope-table completeness audit (gate 74; TODO section 1.18 PR-2).
 
 The pack README's "Rule files and their scope" table
-(``dev-security/claude-rules/README.md``) is exhaustive by design: it lists
+(``guardrails/README.md``) is exhaustive by design: it lists
 every pack rule file (``core`` / ``ai`` / ``pipeline`` / ``governance`` /
 ``languages``) with its when-to-use. It is a rule-enumeration surface gate 41
 does not cover: gate 41 (collection-enumeration consistency) checks the
@@ -50,7 +50,7 @@ Stdlib-only (gate 71). Python 3.11.
 Usage:
     python3 tools/lint-rule-scope-table.py [--root DIR]
 
-``--root`` defaults to ``dev-security/claude-rules`` (the dir holding README.md
+``--root`` defaults to ``guardrails`` (the dir holding README.md
 and the category subdirs); the regression fixtures pass a synthetic root.
 """
 
@@ -64,7 +64,7 @@ from pathlib import Path
 from lint_common import REPO_ROOT
 
 CATEGORY_DIRS = ("core", "ai", "pipeline", "governance", "languages")
-DEFAULT_ROOT = REPO_ROOT / "dev-security" / "claude-rules"
+DEFAULT_ROOT = REPO_ROOT / "guardrails"
 SCOPE_HEADING = "## Rule files and their scope"
 TABLE_HEADER_RE = re.compile(r"^\|\s*File\s*\|\s*When to Use\s*\|\s*$")
 # First-cell backticked link only: matches the File column, never a When-to-Use link.
@@ -131,7 +131,7 @@ def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument(
         "--root", default=str(DEFAULT_ROOT),
-        help="claude-rules dir holding README.md and the category subdirs")
+        help="guardrails pack dir holding README.md and the category subdirs")
     args = ap.parse_args(argv[1:])
     root = Path(args.root)
     readme = root / "README.md"

@@ -71,11 +71,11 @@ _INV_ROW = re.compile(r"^\|\s*(\d+)\s*\|\s*([^|]+?)\s*\|")
 
 # Citation surfaces (NOT the spec).
 _SURFACE_GLOBS = (
-    "dev-security/claude-rules/skills/*/SKILL.md",
+    "guardrails/skills/*/SKILL.md",
     ".claude/commands/*.md",
 )
 _SURFACE_FILES = (
-    "dev-security/claude-rules/CLAUDE.md",
+    "guardrails/CLAUDE.md",
     ".claude/CLAUDE.md",
 )
 

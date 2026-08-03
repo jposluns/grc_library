@@ -13,7 +13,7 @@ broken-link gate (gate 3) until it existed.
 
 Per section 4, the NON-deliverable surfaces MAY link into
 ``.project-governance/`` and are therefore out of scope: the pack under
-``dev-security/claude-rules/``, the repository backlog
+``guardrails/``, the repository backlog
 [`TODO.md`](../TODO.md), the root [`CHANGELOG.md`](../CHANGELOG.md), the
 generated indexes under ``docs/``, and ``.working/`` / ``.claude/``.
 ``.project-governance/`` itself is also out of scope (links *within* it
@@ -31,7 +31,7 @@ hardcoding the eleven domain names as standalone literals) also keeps
 this gate clear of the directory-scan-scope parity gate (gate 52), which
 forbids content linters from hardcoding the audited-domain run.
 
-The pack subtree ``dev-security/claude-rules/`` lives inside the
+The pack subtree ``guardrails/`` lives inside the
 ``dev-security`` domain directory but is a non-deliverable surface per
 section 4, so it is excluded by path prefix.
 
@@ -77,7 +77,7 @@ EXTERNAL = re.compile(r"^(https?:|mailto:|tel:|ftp:|#)")
 # prefixes are relative to REPO_ROOT, POSIX form. The pack is the only
 # such subtree nested under a domain dir; TODO.md / CHANGELOG.md / docs/
 # / .working/ / .claude/ are simply absent from the scan roots below.
-EXEMPT_PREFIXES: tuple[str, ...] = ("dev-security/claude-rules/",)
+EXEMPT_PREFIXES: tuple[str, ...] = ("guardrails/",)
 
 # Root-level deliverable documents (the published library specifications
 # and front matter), matching the broken-link checker's root set minus

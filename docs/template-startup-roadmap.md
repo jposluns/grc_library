@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Startup Roadmap Template\
 **Document Type:** Template\
-**Version:** 2.2.6\
-**Date:** 2026-07-02\
+**Version:** 2.2.7\
+**Date:** 2026-08-03\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/template-quickstart.md`](template-quickstart.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/maturity-scorecard.md`](maturity-scorecard.md), [`docs/template-maturity-self-assessment.md`](template-maturity-self-assessment.md), [`README.md`](../README.md), [`docs/worked-example.md`](worked-example.md)\
@@ -85,7 +85,7 @@ Adopt:
 - [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md): the floor for any internal development.
 - [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md): if the team operates pipelines.
 - [`dev-security/guideline-ai-coding-assistant-security.md`](../dev-security/guideline-ai-coding-assistant-security.md): if developers use Claude Code, Copilot, Cursor, or equivalent.
-- [`dev-security/claude-rules/`](../dev-security/claude-rules/) pack as project-loaded session context: if any AI coding assistant is used.
+- [`guardrails/`](../guardrails/) pack as project-loaded session context: if any AI coding assistant is used.
 
 #### A2: We ship external-facing software (SaaS, downloadable, embedded)
 

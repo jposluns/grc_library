@@ -11,8 +11,8 @@ Sources of truth (each the canonical one, so the emitted number cannot drift fro
   - Library Version / README Version : the README.md metadata block.
   - Gate count                       : `run_gate ` lines in tools/run_all_audits.sh
                                        (the canonical runtime inventory per CLAUDE.md).
-  - Pack rules                       : dev-security/claude-rules/governance/*.md
-  - Pack skills                      : dev-security/claude-rules/skills/*/SKILL.md
+  - Pack rules                       : guardrails/governance/*.md
+  - Pack skills                      : guardrails/skills/*/SKILL.md
   - Commands                         : .claude/commands/*.md
   - HEAD                             : git rev-parse --short HEAD (green-at requires
                                        the pre-push guard to confirm; this tool only
@@ -61,12 +61,12 @@ def gate_count(root: Path) -> int:
 
 
 def rule_count(root: Path) -> int:
-    d = root / "dev-security" / "claude-rules" / "governance"
+    d = root / "guardrails" / "governance"
     return len(list(d.glob("*.md"))) if d.is_dir() else 0
 
 
 def skill_count(root: Path) -> int:
-    d = root / "dev-security" / "claude-rules" / "skills"
+    d = root / "guardrails" / "skills"
     return len(list(d.glob("*/SKILL.md"))) if d.is_dir() else 0
 
 
@@ -155,9 +155,9 @@ def _self_test() -> int:
         root = Path(td) / "grc_library"
         root.mkdir()
         (root / "tools").mkdir()
-        (root / "dev-security" / "claude-rules" / "governance").mkdir(parents=True)
-        (root / "dev-security" / "claude-rules" / "skills" / "alpha").mkdir(parents=True)
-        (root / "dev-security" / "claude-rules" / "skills" / "beta").mkdir(parents=True)
+        (root / "guardrails" / "governance").mkdir(parents=True)
+        (root / "guardrails" / "skills" / "alpha").mkdir(parents=True)
+        (root / "guardrails" / "skills" / "beta").mkdir(parents=True)
         (root / ".claude" / "commands").mkdir(parents=True)
 
         (root / "README.md").write_text(
@@ -171,10 +171,10 @@ def _self_test() -> int:
             '  # run_gate in a comment must not count\n'
             'run_gate "C" python3 tools/c.py\n', encoding="utf-8")
         for n in ("one", "two", "three"):
-            (root / "dev-security" / "claude-rules" / "governance" / f"{n}.md").write_text("r", encoding="utf-8")
-        (root / "dev-security" / "claude-rules" / "skills" / "alpha" / "SKILL.md").write_text("s", encoding="utf-8")
-        (root / "dev-security" / "claude-rules" / "skills" / "beta" / "SKILL.md").write_text("s", encoding="utf-8")
-        (root / "dev-security" / "claude-rules" / "skills" / "beta" / "NOT-a-skill.md").write_text("x", encoding="utf-8")
+            (root / "guardrails" / "governance" / f"{n}.md").write_text("r", encoding="utf-8")
+        (root / "guardrails" / "skills" / "alpha" / "SKILL.md").write_text("s", encoding="utf-8")
+        (root / "guardrails" / "skills" / "beta" / "SKILL.md").write_text("s", encoding="utf-8")
+        (root / "guardrails" / "skills" / "beta" / "NOT-a-skill.md").write_text("x", encoding="utf-8")
         for n in ("resume", "validate", "retro", "fitness"):
             (root / ".claude" / "commands" / f"{n}.md").write_text("c", encoding="utf-8")
 

@@ -2,11 +2,11 @@
 
 **Document Title:** Model Context Protocol Server Register\
 **Document Type:** Register\
-**Version:** 1.0.3\
-**Date:** 2026-07-02\
+**Version:** 1.0.5\
+**Date:** 2026-08-03\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`dev-security/claude-rules/ai/mcp-security.md`](../dev-security/claude-rules/ai/mcp-security.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
+**Related Documents:** [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`guardrails/ai/mcp-security.md`](../guardrails/ai/mcp-security.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
 **Classification:** Public\
 **Category:** AI Governance\
 **Review Frequency:** Quarterly and continuously updated upon server registration, change, or retirement\
@@ -125,7 +125,7 @@ Every approved server satisfies:
 | Agentic development security standard | Server-implementation security baseline |
 | Cross-domain coordination procedure | MCP-server-implicated incidents route through the AI incident response plan |
 | Supplier security and privacy assurance standard | Third-party MCP server suppliers are governed by the supplier programme |
-| Claude-rules MCP security file | First-party MCP servers use the claude-rules [`mcp-security.md`](../dev-security/claude-rules/ai/mcp-security.md) as the development baseline |
+| Guardrails MCP security file | First-party MCP servers use the guardrails pack's [`mcp-security.md`](../guardrails/ai/mcp-security.md) as the development baseline |
 | Cost governance standard | MCP server invocation cost feeds the AI cost-governance register |
 
 ---

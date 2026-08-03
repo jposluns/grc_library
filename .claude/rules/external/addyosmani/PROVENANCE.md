@@ -2,7 +2,7 @@
 
 This directory is a **supplementary** third-party rules overlay, not part of the
 primary GRC governance pack. The primary pack under
-[`dev-security/claude-rules/`](../../../../dev-security/claude-rules/) is the
+[`guardrails/`](../../../../guardrails/) is the
 authoritative source.
 
 - **Precedence:** on any conflict between this overlay and the primary GRC pack, the

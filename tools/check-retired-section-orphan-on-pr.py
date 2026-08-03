@@ -152,9 +152,9 @@ def in_scope(rel: str) -> bool:
     testable. IN scope: anything under `.claude/` or `references/`; `tools/*.py`
     and `tools/*.sh`; a root-level `*.sh`; `.github/**/*.yml|*.yaml`; `TODO.md`.
     OUT of scope (owned by other gates): the corpus `.md` (18/62/65) and the pack
-    subtree `dev-security/claude-rules/` (lint-positional-backlog-tokens); `.git/`.
+    subtree `guardrails/` (lint-positional-backlog-tokens); `.git/`.
     """
-    if rel.startswith(".git/") or rel.startswith("dev-security/claude-rules/"):
+    if rel.startswith(".git/") or rel.startswith("guardrails/"):
         return False
     if rel == "TODO.md":
         return True
@@ -313,7 +313,7 @@ def _self_test() -> int:
         def test_in_scope_excludes_corpus_and_pack(self):
             self.assertFalse(in_scope("ai/some-doc.md"))          # corpus
             self.assertFalse(in_scope("compliance/matrix.md"))    # corpus
-            self.assertFalse(in_scope("dev-security/claude-rules/governance/x.md"))  # pack
+            self.assertFalse(in_scope("guardrails/governance/x.md"))  # pack
             self.assertFalse(in_scope("tools/foo.md"))            # tools but not .py/.sh
             self.assertFalse(in_scope(".github/x.md"))            # .github but not yaml
 

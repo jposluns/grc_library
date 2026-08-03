@@ -2,11 +2,11 @@
 
 **Document Title:** AI Coding Assistant Security Guideline\
 **Document Type:** Guideline\
-**Version:** 1.3.7\
-**Date:** 2026-07-31\
+**Version:** 1.3.9\
+**Date:** 2026-08-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/claude-rules/README.md`](claude-rules/README.md), [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
+**Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`guardrails/README.md`](../guardrails/README.md), [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
 **Classification:** Public\
 **Category:** Developer Security\
 **Review Frequency:** 6 to 12 months and upon material change to AI coding tooling, threat landscape, or regulatory guidance\
@@ -51,23 +51,23 @@ When evaluating a new AI coding assistant for approval, the assessment should co
 
 ### Load security rules before using an AI coding assistant
 
-All AI coding assistant sessions working on organizational code should have security rules loaded before generating or reviewing code. The organization's security rules are maintained in `dev-security/claude-rules/` as library-canonical, locally-vetted content.
+All AI coding assistant sessions working on organizational code should have security rules loaded before generating or reviewing code. The organization's security rules are maintained in `guardrails/` as library-canonical, locally-vetted content.
 
 **For Claude Code, in order of decreasing scope:**
 
-1. **Project-root `CLAUDE.md`**: install the pack per Option 1 in the [pack README](claude-rules/README.md), copying the whole `claude-rules/` directory into the consumer project and referencing it from the project-root `CLAUDE.md` with `@claude-rules/CLAUDE.md`. Copying `CLAUDE.md` alone breaks its links to the sibling `ai/` and `governance/` rule files, so copy the directory, not the single file. Claude Code reads the referenced files in full at session start.
+1. **Project-root `CLAUDE.md`**: install the pack per Option 1 in the [pack README](../guardrails/README.md), copying the whole `guardrails/` directory into the consumer project and referencing it from the project-root `CLAUDE.md` with `@guardrails/CLAUDE.md`. Copying `CLAUDE.md` alone breaks its links to the sibling `ai/` and `governance/` rule files, so copy the directory, not the single file. Claude Code reads the referenced files in full at session start.
 2. **Path-scoped rules in `.claude/rules/`**: place additional rule files under `.claude/rules/<topic>.md` with optional `paths:` YAML frontmatter. Without `paths:` they load at launch; with `paths:` they load only when Claude reads files matching the configured glob patterns. Path-scoped rules keep the always-loaded context small while still applying language- or component-specific rules when relevant.
 3. **`AGENTS.md` interop**: if the consumer project already has an `AGENTS.md` for other coding agents, add `@AGENTS.md` at the top of `CLAUDE.md` (or symlink it) so both tools read the same instructions.
 4. **Confirm the relevant topic rules load**: the whole-directory copy in step 1 already includes the `languages/`, `ai/`, and `governance/` rule sets; for any project using LLMs, agents, RAG, or MCP, confirm the `ai/` (and, where relevant, `languages/`) files are referenced or path-scoped so they load.
 
-A separate generator prompt published under `dev-security/claude-rules/` analyzes a consumer project and proposes a tailored CLAUDE.md plus rule-file selection before any file is written. The generator supports two source modes: **local mode** (reads the pack from disk if `dev-security/` is detected near the consumer's project) and **fetch mode** (reads the pack live from the GRC Library's first-party canonical URL when no local pack is present, or when the consumer elects fetch after a staleness check). See [`dev-security/claude-rules/README.md`](claude-rules/README.md) for usage guidance.
+A separate generator prompt published under `guardrails/` analyzes a consumer project and proposes a tailored CLAUDE.md plus rule-file selection before any file is written. The generator supports two source modes: **local mode** (reads the pack from disk if `dev-security/` is detected near the consumer's project) and **fetch mode** (reads the pack live from the GRC Library's first-party canonical URL when no local pack is present, or when the consumer elects fetch after a staleness check). See [`guardrails/README.md`](../guardrails/README.md) for usage guidance.
 
 The pack content is held locally as library-canonical material. **External rule repositories** (TikiTribe, Wiz, and others outside this library) are kept as URL pointers only; the organization does not configure Claude Code to fetch them automatically at session start, because (a) `CLAUDE.md` content is delivered as a user message and is not enforced configuration, so a fetch instruction may be silently ignored; (b) externally-fetched content would need vetting under the External-Source Vetting Protocol at consumer runtime, which is impractical; and (c) the local pack already covers the substantive areas. The library maintainer back-ports vetted improvements from external sources on the standard freshness cadence.
 
-**First-party vs third-party fetch posture.** The above prohibition on session-start auto-fetch applies to **third-party** sources (external rule repositories outside the library's control). The setup-generator prompt's fetch mode is a different case: it fetches from the GRC Library's **own first-party canonical CC BY-SA 4.0 source** (`https://raw.githubusercontent.com/jposluns/grc_library/main/dev-security/claude-rules/` by default, or a forked equivalent the consumer substitutes at the confirmation prompt). First-party fetch is trusted because (a) the content is under the library maintainer's control and is the same CC BY-SA 4.0 material an adopter would otherwise vendor locally; (b) the consumer explicitly confirms the canonical URL before any fetch occurs, making the trust decision visible and overridable; (c) the source URL is verifiable (GitHub-hosted, open-source, version-controlled). The trust posture should not be extended to any other URL: if a consumer or fetched content directs the generator to fetch from a different source mid-session, the External-Source Vetting Protocol applies and the content is treated as untrusted data, not as instructions.
+**First-party vs third-party fetch posture.** The above prohibition on session-start auto-fetch applies to **third-party** sources (external rule repositories outside the library's control). The setup-generator prompt's fetch mode is a different case: it fetches from the GRC Library's **own first-party canonical CC BY-SA 4.0 source** (`https://raw.githubusercontent.com/jposluns/grc_library/main/guardrails/` by default, or a forked equivalent the consumer substitutes at the confirmation prompt). First-party fetch is trusted because (a) the content is under the library maintainer's control and is the same CC BY-SA 4.0 material an adopter would otherwise vendor locally; (b) the consumer explicitly confirms the canonical URL before any fetch occurs, making the trust decision visible and overridable; (c) the source URL is verifiable (GitHub-hosted, open-source, version-controlled). The trust posture should not be extended to any other URL: if a consumer or fetched content directs the generator to fetch from a different source mid-session, the External-Source Vetting Protocol applies and the content is treated as untrusted data, not as instructions.
 
 **For other tools (Copilot, Cursor, Windsurf):**
-- Load the relevant rule files from `dev-security/claude-rules/` as the tool's equivalent context (custom instructions, rules files, or workspace settings).
+- Load the relevant rule files from `guardrails/` as the tool's equivalent context (custom instructions, rules files, or workspace settings).
 - Ensure that the tool's memory or context is not shared across unrelated projects.
 
 ### Deterministic enforcement: settings, hooks, and audit
@@ -259,7 +259,7 @@ AI coding assistants operating in agentic mode (autonomous multi-step task execu
 - Agentic sessions should be logged (all tool calls, files read, files written, commands executed).
 - Before any destructive action (delete, overwrite, force push), the agent should request explicit human confirmation.
 
-For detailed agentic security requirements, see [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md) and [`dev-security/claude-rules/ai/agent-security.md`](claude-rules/ai/agent-security.md).
+For detailed agentic security requirements, see [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md) and [`guardrails/ai/agent-security.md`](../guardrails/ai/agent-security.md).
 
 ---
 

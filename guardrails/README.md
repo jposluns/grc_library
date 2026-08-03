@@ -2,12 +2,12 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.68.10\
+**Version:** 1.68.12\
 **Date:** 2026-08-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Parent-library related documents:** `dev-security/standard-developer-security-requirements.md`, `dev-security/standard-devops-security-requirements.md`, `dev-security/guideline-ai-coding-assistant-security.md`, `ai/standard-ai-and-agentic-development-security.md`\
-**Canonical parent-repository path:** [`dev-security/claude-rules/README.md`](README.md)\
+**Canonical parent-repository path:** [`guardrails/README.md`](README.md)\
 **Classification:** Public\
 **Category:** Developer Security\
 **Review Frequency:** 6 to 12 months and upon material threat, tooling, or framework change\
@@ -18,7 +18,7 @@
 
 ## What are these files?
 
-The `claude-rules/` directory contains a set of Markdown files designed to be loaded into [Claude Code](https://code.claude.com/docs/en/claude-code) sessions as security and development-governance context. When Claude Code reads these files, either via a `CLAUDE.md` in your project root, via `.claude/rules/*.md` files with optional path-scoped frontmatter, or by referencing a file with an `@` mention (or adding a directory with the `--add-dir` CLI flag), they encode security, compliance, and development-governance requirements as persistent context that the AI coding assistant applies during development.
+The `guardrails/` directory contains a set of Markdown files designed to be loaded into [Claude Code](https://code.claude.com/docs/en/claude-code) sessions as security and development-governance context. When Claude Code reads these files, either via a `CLAUDE.md` in your project root, via `.claude/rules/*.md` files with optional path-scoped frontmatter, or by referencing a file with an `@` mention (or adding a directory with the `--add-dir` CLI flag), they encode security, compliance, and development-governance requirements as persistent context that the AI coding assistant applies during development.
 
 These are **draggable rule files**: copy any subset into your project's Claude Code context and Claude will apply those security and governance requirements to code it writes, reviews, and suggests.
 
@@ -87,9 +87,9 @@ The honest caveat, stated so adopters do not mistake a preamble for a control: a
 ## Directory structure
 
 ```text
-claude-rules/
+guardrails/
 ├── README.md                   This file
-├── CLAUDE.md                   Root file: copy the WHOLE claude-rules/ dir (Option 1), not this file alone
+├── CLAUDE.md                   Root file: copy the WHOLE guardrails/ dir (Option 1), not this file alone
 ├── setup-generator-prompt.md   AI-assisted setup generator prompt for downstream consumers
 ├── vetting-log.md              Maintainer vetting log for the external rule sources referenced below
 ├── rule-provenance.md          Per-rule provenance register: each governance rule's origin, incident-earned or up-front-codified, without parent-project internals
@@ -166,18 +166,18 @@ claude-rules/
 
 ## How to use
 
-### Option 1: copy the claude-rules directory to your project
+### Option 1: copy the guardrails directory to your project
 
-The simplest approach. Copy the whole `claude-rules/` directory into your project (its `CLAUDE.md` links to sibling files under `ai/` and `governance/`, so copying `CLAUDE.md` alone breaks those links), then reference it from your project's own root `CLAUDE.md`.
+The simplest approach. Copy the whole `guardrails/` directory into your project (its `CLAUDE.md` links to sibling files under `ai/` and `governance/`, so copying `CLAUDE.md` alone breaks those links), then reference it from your project's own root `CLAUDE.md`.
 
 ```bash
-cp -r path/to/claude-rules ./claude-rules
+cp -r path/to/guardrails ./guardrails
 ```
 
 Then add this line to your project's root `CLAUDE.md` (creating it if it does not exist):
 
 ```markdown
-@claude-rules/CLAUDE.md
+@guardrails/CLAUDE.md
 ```
 
 Claude Code reads it in full at session start.
@@ -188,10 +188,10 @@ Copy only the rule files relevant to your project into `.claude/rules/`:
 
 ```bash
 # For a Python web API with AI features
-cp path/to/claude-rules/core/secrets.md .claude/rules/
-cp path/to/claude-rules/core/input-validation.md .claude/rules/
-cp path/to/claude-rules/ai/ai-security.md .claude/rules/
-cp path/to/claude-rules/languages/python.md .claude/rules/
+cp path/to/guardrails/core/secrets.md .claude/rules/
+cp path/to/guardrails/core/input-validation.md .claude/rules/
+cp path/to/guardrails/ai/ai-security.md .claude/rules/
+cp path/to/guardrails/languages/python.md .claude/rules/
 ```
 
 Then reference them in your project's `CLAUDE.md`:
@@ -215,7 +215,7 @@ paths:
 ---
 
 # Python security rules
-(content from claude-rules/languages/python.md)
+(content from guardrails/languages/python.md)
 ```
 
 This is the "L4 abstracted" pattern: language-specific or component-specific rules apply only when relevant, keeping the always-loaded `CLAUDE.md` lean.
@@ -294,8 +294,8 @@ The pack maintainer back-ports vetted improvements from external sources on the 
 
 The generator works whether or not you have the pack on disk:
 
-- **Local mode** (when the generator's probe finds a local pack on disk, at `dev-security/` in your project root or in one of the nearby locations it checks): reads pack content from disk. The generator fetches only [`claude-rules/README.md`](README.md) from the canonical source to compare versions and warn you if your local pack is stale.
-- **Fetch mode** (when no local pack is detected, or you elect it after a staleness check): reads the pack live from the GRC Library's first-party canonical source on every needed file. No local download required. **Default canonical URL prefix**: `https://raw.githubusercontent.com/jposluns/grc_library/main/dev-security/claude-rules/`. The generator asks you to confirm or substitute this URL before any fetch, so the trust decision is explicit. If you have forked the GRC Library to your own org, substitute your fork's URL at the confirm prompt.
+- **Local mode** (when the generator's probe finds a local pack on disk, at `guardrails/` in your project root or in one of the nearby locations it checks): reads pack content from disk. The generator fetches only [`guardrails/README.md`](README.md) from the canonical source to compare versions and warn you if your local pack is stale.
+- **Fetch mode** (when no local pack is detected, or you elect it after a staleness check): reads the pack live from the GRC Library's first-party canonical source on every needed file. No local download required. **Default canonical URL prefix**: `https://raw.githubusercontent.com/jposluns/grc_library/main/guardrails/`. The generator asks you to confirm or substitute this URL before any fetch, so the trust decision is explicit. If you have forked the GRC Library to your own org, substitute your fork's URL at the confirm prompt.
 
 ### Three ways to invoke
 
@@ -307,13 +307,13 @@ Pick whichever fits your workflow.
 
 ```bash
 # macOS
-curl -fsSL https://raw.githubusercontent.com/jposluns/grc_library/main/dev-security/claude-rules/setup-generator-prompt.md | pbcopy
+curl -fsSL https://raw.githubusercontent.com/jposluns/grc_library/main/guardrails/setup-generator-prompt.md | pbcopy
 
 # Linux (X11 + xclip)
-curl -fsSL https://raw.githubusercontent.com/jposluns/grc_library/main/dev-security/claude-rules/setup-generator-prompt.md | xclip -selection clipboard
+curl -fsSL https://raw.githubusercontent.com/jposluns/grc_library/main/guardrails/setup-generator-prompt.md | xclip -selection clipboard
 
 # Linux (Wayland + wl-copy)
-curl -fsSL https://raw.githubusercontent.com/jposluns/grc_library/main/dev-security/claude-rules/setup-generator-prompt.md | wl-copy
+curl -fsSL https://raw.githubusercontent.com/jposluns/grc_library/main/guardrails/setup-generator-prompt.md | wl-copy
 ```
 
 You still see the prompt content (you pasted it), with one fewer browser step.
@@ -321,7 +321,7 @@ You still see the prompt content (you pasted it), with one fewer browser step.
 **Form 3: URL-to-Claude (maximum convenience; different trust shape)**. Open Claude Code in your project root and send this single message:
 
 ```text
-Fetch https://raw.githubusercontent.com/jposluns/grc_library/main/dev-security/claude-rules/setup-generator-prompt.md and follow the instructions exactly.
+Fetch https://raw.githubusercontent.com/jposluns/grc_library/main/guardrails/setup-generator-prompt.md and follow the instructions exactly.
 ```
 
 Claude will WebFetch the prompt and start executing it. **Trade-off**: you do not see the prompt content before Claude begins acting on it; you are trusting the canonical URL only. Only use this form if you have made an informed decision to trust the GRC Library canonical URL (which is open-source, CC BY-SA 4.0, and version-controlled on GitHub).
@@ -504,10 +504,10 @@ These rule files draw on and are aligned to the following external projects and 
 
 ## Parent-repo dependencies
 
-This pack is documentation and operational discipline; three things it references live in the parent grc_library repository, not inside `claude-rules/`, and do not travel when the pack is dragged into another project as a standalone bundle. A standalone adopter should know:
+This pack is documentation and operational discipline; three things it references live in the parent grc_library repository, not inside `guardrails/`, and do not travel when the pack is dragged into another project as a standalone bundle. A standalone adopter should know:
 
 - **The audit toolchain.** The gates this pack documents (the `tools/` linters and audits, run by the parent repository's CI and pre-commit config) are parent-repo tooling; they are named here for provenance but are not shipped in the pack. An adopter who wants the mechanical enforcement installs the parent repository or reimplements the gates; the rules themselves apply without them.
-- **The project slash commands.** The review cadences the pack refers to (for example validate, validate-pr, matrix-fit, claim-fit, reference-audit, screen-publications, deep-assessment, high-assurance, adopt, and the workflow commands) are project commands defined in the parent repository's `.claude/commands/`, with the corresponding skill bodies shipping in this pack under `skills/` (the `dev-security/claude-rules/skills/` tree), not Claude Code built-ins. Where a pack skill ships a `SKILL.md`, that skill body already provides the `/name` behaviour; the remaining command stubs are parent-only, and an adopter who wants them installs the parent repository.
+- **The project slash commands.** The review cadences the pack refers to (for example validate, validate-pr, matrix-fit, claim-fit, reference-audit, screen-publications, deep-assessment, high-assurance, adopt, and the workflow commands) are project commands defined in the parent repository's `.claude/commands/`, with the corresponding skill bodies shipping in this pack under `skills/` (the `guardrails/skills/` tree), not Claude Code built-ins. Where a pack skill ships a `SKILL.md`, that skill body already provides the `/name` behaviour; the remaining command stubs are parent-only, and an adopter who wants them installs the parent repository.
 - **The private reference base.** The citation and control-code cadences (matrix-fit, claim-fit, reference-audit, screen-publications, and deep-assessment) check corpus claims against a held reference base that is not redistributable and does not ship with the pack. An adopter either builds a reference base of their own or runs those cadences in a structure-only mode that checks form without adjudicating against held source text.
 
 The pack's release history appears below. Parent-library changes that produced those releases are additionally recorded in the parent GRC library's `CHANGELOG.md`; that parent record is provenance, not a standalone dependency.
@@ -516,6 +516,7 @@ The pack's release history appears below. Parent-library changes that produced t
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.68.12 | 2026.08.65 | 2026-08-03 | Patch (#1367 TODO 1.26.4 internal relocation, completion): relocated the pack source tree from dev-security/claude-rules/ to root guardrails/ and updated every reference (the gate-37 MIRROR_MAP, the seven allow-list scan roots, Python path segments, and prose links); the completion pass retargeted the remaining adopter-facing install/generator references and the pack self-descriptions (dev-security/README, root README, spec domain table) to guardrails/. The .claude/rules/ mirror is unchanged and byte-parity holds. Location and references only, no normative content change. |
 | 1.68.10 | 2026.08.61 | 2026-08-03 | Patch (#1364 overlay 1.26.2 back-port, part 2): back-ported the remaining distinct security residues from the addyosmani/kariedo supplementary overlays, CSRF plus cookie plus security-header hardening and a no-weakening-of-controls rule into OWASP A02, least-privilege into A01, design-decision-recording and threat-model-as-tests into A06, and a proportionality clause into the project-integrity Quality facet (both trees). |
 | 1.68.9 | 2026.08.60 | 2026-08-03 | Patch (#1363 overlay 1.26.2 back-port, part 1): back-ported the distinct Python security guidance from the tikitribe/kariedo supplementary overlays into the core Python language rule (secure temp files, URL-scheme allowlist, constant-time secret compare, dynamic-import allowlist, strict security-type comparisons; the path-traversal section routed to maintainer review over a TOCTOU subtlety), reducing the primary pack's dependence on the overlay. |
 | 1.68.8 | 2026.08.58 | 2026-08-03 | Patch (#1361 cutover-leftover sweep, P-3.202): stale post-merge / next-PR-batch / handoff-exemption references corrected across session-lifecycle (both trees), pr-retrospective + validation-sweep-pr-scoped skills, and the pack CLAUDE.md, aligning to the synchronous pre-merge in-PR QA model. Documentation-vs-practice reconciliation; no discipline change. |
@@ -559,9 +560,9 @@ The pack's release history appears below. Parent-library changes that produced t
 | 1.65.11 | 2026.07.661 | 2026-07-25 | Finding something wrong is not a decision point (patch; no new rule or skill). Added a section to `decision-classification-before-enacting`: the moment anything wrong is found, finish the unit in hand and FIX it, and nothing that is not the fix proceeds ahead of it. Widest wording deliberately (issue, defect, error, inaccuracy, fault, wrong figure, stale instruction, misleading name, overstated claim, a write that silently did nothing), because grading a defect is one of the ways of not fixing it, so severity follows the fix decision rather than gating it. Names the four failure shapes that each feel like diligence: aestheticising findings into a table or statistic, describing accurately and carrying on, grading instead of repairing, and routing what could be fixed. Shows the rubric admits no classification for it, so the silence needed closing. Dual-tree (gate 37 pair). Pack `1.65.10` to `1.65.11` (patch). |
 | 1.65.10 | 2026.07.661 | 2026-07-25 | Mutation-harness calibration (patch; no new rule or skill). Added a `## A mutation harness is itself an instrument` section to `validate-inference-before-action`, after three ad-hoc harnesses produced false findings in one day: a non-mutation read as a coverage gap, a harness logic bug that inverted every verdict, and a degenerate return read as a finding. The discipline: bracket every run with a positive and a negative control and refuse to report if either misbehaves, screen each candidate for semantic effect before interpreting it (a non-mutation is INVALID, never NOT-DETECTED), establish a true positive before believing a negative, prefer the project's own harness to a hand-rolled caller, and build the probe as a tool once the claims recur. Dual-tree (gate 37 pair). Pack `1.65.9` to `1.65.10` (patch). |
 | 1.65.9 | 2026.07.659 | 2026-07-25 | Guard-input soundness (patch; no new rule or skill). Added a `## Guard inputs: a correct check on an unsound input` section to `validate-inference-before-action`, naming the class where a guard's logic is right and mutation-proved while its INPUT cannot answer the question asked of it. Mutation testing perturbs branches, so it bounds the check given its input and is silent on the input's fidelity, which is why three same-class defects on 2026-07-25 all survived a proof that read as reassurance. The discipline: ask whether the source is authoritative even in principle; make ignorance a first-class return that REFUSES rather than permits; keep a verbatim reality fixture per observer defect; mutate the observer and not only the decision; state a proxy's residue at the point of use; and keep a pure decision behind a thin observer. Dual-tree (mirrored into `.claude/rules/`, gate 37 pair). Pack `1.65.8` to `1.65.9` (patch). |
-| 1.65.8 | 2026.07.636 | 2026-07-25 | Packaging-doc factual fix (patch; no new rule or skill). The `## Parent-repo dependencies` section (added in 1.65.6) named a nonexistent `.claude/skills/` directory as where the project slash commands live; corrected to name the pack's own `skills/` tree (`dev-security/claude-rules/skills/`), where the skill bodies actually ship and which the same sentence's next clause already references. Found by the offloaded trust-recovery-window `/validate` corpus sweep. Single-tree (no `.claude/rules/` pair). Pack `1.65.7` to `1.65.8` (patch). |
+| 1.65.8 | 2026.07.636 | 2026-07-25 | Packaging-doc factual fix (patch; no new rule or skill). The `## Parent-repo dependencies` section (added in 1.65.6) named a nonexistent `.claude/skills/` directory as where the project slash commands live; corrected to name the pack's own `skills/` tree (`guardrails/skills/`), where the skill bodies actually ship and which the same sentence's next clause already references. Found by the offloaded trust-recovery-window `/validate` corpus sweep. Single-tree (no `.claude/rules/` pair). Pack `1.65.7` to `1.65.8` (patch). |
 | 1.65.7 | 2026.07.634 | 2026-07-25 | Deep-assessment coverage of unvalidated operations (patch; changed skill body, no new rule or skill; TODO section 1.23 part 2). Brought additional project-local operational surfaces into `/deep-assessment` scope (the sibling set, the phase-1 present check, the phase-2 gate run, and a new phase-6(d) private-store operational-document content review), added a phase-4(e) validation-coverage sub-pass consuming `tools/audit-validation-coverage.py` (the unvalidated-operation class the artefact-and-gate lenses miss by construction, since none examines the assistant's operation log), and added a Parallel-execution subsection with the per-phase worker-split partition so the orchestrator fans a full pass out to workers. Single-tree (the skill is not mirrored into `.claude/rules/`, so no gate-37 pair). Pack `1.65.6` to `1.65.7` (patch). |
-| 1.65.6 | 2026.07.631 | 2026-07-24 | Standalone-pack packaging model (patch; no new rule or skill; TODO section 4.9 item e). Rewrote the 104 pack-tree relative links that escape `dev-security/claude-rules/` (into the parent `tools/`, corpus docs, `.claude/`, and the parent CHANGELOG) to bare code-span mentions per the section 1.19 convention, so a dragged-in standalone pack has no dangling relative links; added a `## Parent-repo dependencies` README section (the audit toolchain, the project slash commands, and the private reference-base dependency); and fixed the `## What are these files?` paragraph to drop the nonexistent `/add-files` command in favour of the `@` mention and the `--add-dir` CLI flag. Single-tree (no edited file is mirrored into `.claude/rules/`, so no gate-37 pair). Pack `1.65.5` to `1.65.6` (patch). |
+| 1.65.6 | 2026.07.631 | 2026-07-24 | Standalone-pack packaging model (patch; no new rule or skill; TODO section 4.9 item e). Rewrote the 104 pack-tree relative links that escape `guardrails/` (into the parent `tools/`, corpus docs, `.claude/`, and the parent CHANGELOG) to bare code-span mentions per the section 1.19 convention, so a dragged-in standalone pack has no dangling relative links; added a `## Parent-repo dependencies` README section (the audit toolchain, the project slash commands, and the private reference-base dependency); and fixed the `## What are these files?` paragraph to drop the nonexistent `/add-files` command in favour of the `@` mention and the `--add-dir` CLI flag. Single-tree (no edited file is mirrored into `.claude/rules/`, so no gate-37 pair). Pack `1.65.5` to `1.65.6` (patch). |
 | 1.65.5 | 2026.07.624 | 2026-07-24 | Skill-body genericization for the §3.56a guard-1 gate (patch; no new rule or skill): the project added gate 76 (`tools/lint-skill-internal-refs.py`), which flags a concrete project-internal reference in a pack skill's PORTABLE body (outside its `## Project wiring` section); to ship it green guard-first, [`skills/citation-quote-verification/SKILL.md`](skills/citation-quote-verification/SKILL.md) genericized its two concrete project-tool-filename references (a citation-format linter, a standards-currency linter) that had leaked into its portable body. Portable: the skill body is now project-agnostic, as an adopter needs. Pack `1.65.4` to `1.65.5` (patch). |
 | 1.65.4 | 2026.07.621 | 2026-07-24 | Guardrail-review skill prose sync for the §3.56a guard-3 change (patch; no new rule or skill): the project-side gate 41 now checks the pack's [`rule-provenance.md`](rule-provenance.md) register as a fourth rule-enumeration surface for the governance rules, so [`skills/guardrail-review/SKILL.md`](skills/guardrail-review/SKILL.md) advances its rule-inventory description from three enumeration surfaces to four (adding the provenance register). Portable: the register is a pack artefact, so an adopter's guardrail review inventories the same four surfaces. Pack `1.65.3` to `1.65.4` (patch). |
 | 1.65.3 | 2026.07.619 | 2026-07-24 | Completeness-over-sampling discipline (patch; no new rule or skill; maintainer-directed). [`governance/ai-assistant-workflow-disciplines.md`](governance/ai-assistant-workflow-disciplines.md) gains a `## Completeness over sampling (exhaust the instructed set)` section: a set-scoped instruction ("ask the open questions", "work the next items") is a contract to process the WHOLE set, not a self-chosen subset; ask ALL the questions (batched), work until the set is exhausted or every remainder carries a named externally-observable blocker or the authority stops the run, and an un-instrumented sense of "enough" is not a valid stop. Both trees byte-identical under gate 37. Pack `1.65.2` to `1.65.3` (patch). |
@@ -672,7 +673,7 @@ The pack's release history appears below. Parent-library changes that produced t
 | 1.45.0 | 2026.06.192 | 2026-06-22 | Added the [`pr-retrospective` skill](skills/pr-retrospective/SKILL.md) (slash command `/retro`) and the paired improvement-log register in the project's working records. The skill is the orchestrator-side process-improvement loop: post-merge retrospective on each successful PR, output is one entry per PR in the register; recurring patterns surface as candidates for pack-rule updates, worker-brief template additions, or new audit gates. Pairs with the worker-side worker-brief template and the apply-time-catch tracking in the project's hallucination-metrics artefact to close the per-PR learning loop. Wired into the PR workflow step 5b in `.claude/CLAUDE.md` (sequence: validate-pr, then retro, then next-PR planning). Pack `1.44.1` to `1.45.0` (minor; new skill addition); `tools/lint-paired-skill-step-parity.py` PAIRS registry extended with the new `pr-retrospective` to `retro.md` pair; pack-skills enumeration in pack README updated. Discipline: chat-surfacing for Pattern/Proposed-improvement entries; recursion-avoidance batching of register-row commits into the next substantive PR; no orchestrator-side skip discretion (every merge gets a `/retro` entry even when conclusion is "nothing to learn") |
 | 1.44.1 | 2026.06.187 | 2026-06-22 | An editorial-alignment sweep touched 5 pack `skills/*/SKILL.md` files (action-before-explanation-of-inaction, artefact-discipline-check, change-tracking-write-entry, evidence-grounded-completion, gate-discipline-diagnose) with `27001 A.X` to `27001 Annex A.X` editorial alignment to the maintainer-approved canonical form. Pack patch bump for the SKILL-file edits |
 | 1.44.0 | 2026.06.185 | 2026-06-22 | Maintainer-approved completeness fixes. [`core/owasp.md`](core/owasp.md):145 SSRF range list completed: IPv4 ranges restated in canonical CIDR notation with RFC citations (10.0.0.0/8, 172.16.0.0/12 with explicit /12-span note, 192.168.0.0/16, 169.254.0.0/16 with cloud-metadata note, 127.0.0.0/8, 100.64.0.0/10 CGNAT); IPv6 ranges added (::1/128 loopback, fc00::/7 ULA, fe80::/10 link-local with cloud-metadata variants). `dev-security/standard-api-security.md`:110 cipher row enumerated TLS 1.3 AEAD suites per NIST SP 800-52 Rev. 2 §3.3.1 (TLS_AES_256_GCM_SHA384 recommended; TLS_AES_128_GCM_SHA256 and TLS_CHACHA20_POLY1305_SHA256 also accepted; rejected suites enumerated). The standard-api-security per-doc Version `0.0.3` to `0.0.4` |
-| 1.43.0 | 2026.06.184 | 2026-06-22 | Maintainer-approved TLS-floor alignment: [`dev-security/claude-rules/CLAUDE.md`](CLAUDE.md):58 TLS row updated from `TLS 1.3 (preferred), TLS 1.2 (minimum)` to `TLS 1.3 (or stronger), aligned to security/policy-encryption-and-key-management.md §1 (Encryption standards) canonical mandate`. TLS 1.2 added to the Prohibited column. Same alignment as the parent library's ZTA-framework and dev-security standards changes. The TLS-floor alignment fully closed |
+| 1.43.0 | 2026.06.184 | 2026-06-22 | Maintainer-approved TLS-floor alignment: [`guardrails/CLAUDE.md`](CLAUDE.md):58 TLS row updated from `TLS 1.3 (preferred), TLS 1.2 (minimum)` to `TLS 1.3 (or stronger), aligned to security/policy-encryption-and-key-management.md §1 (Encryption standards) canonical mandate`. TLS 1.2 added to the Prohibited column. Same alignment as the parent library's ZTA-framework and dev-security standards changes. The TLS-floor alignment fully closed |
 | 1.42.0 | 2026.06.171 | 2026-06-22 | Added a "Batching into the next PR (recursion-avoidance)" sub-section to both [`skills/validation-sweep/SKILL.md`](skills/validation-sweep/SKILL.md) and [`skills/validation-sweep-pr-scoped/SKILL.md`](skills/validation-sweep-pr-scoped/SKILL.md) (mirrored into the matching slash commands at `.claude/commands/validate.md` and `.claude/commands/validate-pr.md`). The naive interpretation of "every merge gets /validate-pr; every invocation gets a history row" creates a PR cascade: each PR's /validate-pr generates a new PR (for the row or for hot-fixes), which itself triggers /validate-pr, ad infinitum. The new sub-section codifies the resolution: /validate-pr outputs are **batched into the next PR, whatever its substantive purpose**. Two sub-cases: (1) zero-finding invocations append the history row to the next PR's diff. (2) findings-producing /validate-pr invocations bundle the fix(es) into the next PR (do NOT open a dedicated hot-fix PR; the next PR absorbs the fixes alongside its own work). A findings-producing `/validate` (corpus-wide sibling) may still warrant its own close-out PR when findings are numerous or coherent enough; for `/validate-pr` the bundle is always the default. This terminates the recursion a same-day multi-change cascade made apparent; only the corpus-wide sweep may warrant its own close-out change. |
 | 1.41.0 | 2026.06.169 | 2026-06-22 | Added a "Surfacing findings in chat" section to both [`skills/validation-sweep/SKILL.md`](skills/validation-sweep/SKILL.md) and [`skills/validation-sweep-pr-scoped/SKILL.md`](skills/validation-sweep-pr-scoped/SKILL.md) (mirrored into the matching slash commands at `.claude/commands/validate.md` and `.claude/commands/validate-pr.md`). The new section makes explicit a discipline that was implicit in the "Report back" instruction: when findings exist, surface them prominently in the chat reply (per-finding ruleId, severity, `path:line`, evidence quote, impact, recommendation, in-window classification) rather than burying them in the per-PR record files or the detailed changelog mirror. The maintainer reads findings in chat for triage; the per-PR / per-iteration record remains the authoritative archive. Maintainer-directed after a merged change's findings were not prominently surfaced in chat; codified for both sweep forms. |
 | 1.40.2 | 2026.06.168 | 2026-06-22 | Hot-fix amending the previous row's catch-attribution claim. The 1.40.1 row's original wording conflated two distinct catch mechanisms (the date-staleness audit and the post-merge sweep's deep-read) and mis-credited the audit, which had not fired (the lag was zero days at merge time and opened only after midnight UTC); the post-merge deep-read caught it. The 1.40.1 row's prose has been corrected accordingly; this 1.40.2 row records the correction |

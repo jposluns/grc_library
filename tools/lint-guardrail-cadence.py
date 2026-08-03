@@ -22,8 +22,8 @@ Mechanics:
     section-6 inventory table of
     `governance/specification-audit-programme.md` (the same table gates 35
     and 39 key on), governance-rule files under
-    `dev-security/claude-rules/governance/`, `SKILL.md` files under
-    `dev-security/claude-rules/skills/`, and command files under
+    `guardrails/governance/`, `SKILL.md` files under
+    `guardrails/skills/`, and command files under
     `.claude/commands/`.
   - Drift is the sum of absolute per-axis deltas. Zero drift passes silently;
     drift below the threshold passes with a warning line naming the deltas
@@ -72,8 +72,8 @@ from lint_common import REPO_ROOT, read_text_safe, resolve_working
 
 HISTORY = ".working/guardrail-reviews/history.md"
 SPEC = "governance/specification-audit-programme.md"
-RULES_DIR = "dev-security/claude-rules/governance"
-SKILLS_DIR = "dev-security/claude-rules/skills"
+RULES_DIR = "guardrails/governance"
+SKILLS_DIR = "guardrails/skills"
 COMMANDS_DIR = ".claude/commands"
 
 # Sum of absolute per-axis deltas at/above which the gate fails. See the
