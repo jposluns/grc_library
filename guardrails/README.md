@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.68.12\
+**Version:** 1.68.13\
 **Date:** 2026-08-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -516,6 +516,7 @@ The pack's release history appears below. Parent-library changes that produced t
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.68.13 | 2026.08.68 | 2026-08-03 | Patch (#1363 continuation): re-added the Python path-handling / path-traversal security section to `languages/python.md` (and its `.claude/rules/` mirror), the 6th back-port section that hit the 3-iteration verify cap in #1363, now with a maintainer-approved precise symlink-TOCTOU statement (openat + `O_NOFOLLOW`). |
 | 1.68.12 | 2026.08.65 | 2026-08-03 | Patch (#1367 TODO 1.26.4 internal relocation, completion): relocated the pack source tree from dev-security/claude-rules/ to root guardrails/ and updated every reference (the gate-37 MIRROR_MAP, the seven allow-list scan roots, Python path segments, and prose links); the completion pass retargeted the remaining adopter-facing install/generator references and the pack self-descriptions (dev-security/README, root README, spec domain table) to guardrails/. The .claude/rules/ mirror is unchanged and byte-parity holds. Location and references only, no normative content change. |
 | 1.68.10 | 2026.08.61 | 2026-08-03 | Patch (#1364 overlay 1.26.2 back-port, part 2): back-ported the remaining distinct security residues from the addyosmani/kariedo supplementary overlays, CSRF plus cookie plus security-header hardening and a no-weakening-of-controls rule into OWASP A02, least-privilege into A01, design-decision-recording and threat-model-as-tests into A06, and a proportionality clause into the project-integrity Quality facet (both trees). |
 | 1.68.9 | 2026.08.60 | 2026-08-03 | Patch (#1363 overlay 1.26.2 back-port, part 1): back-ported the distinct Python security guidance from the tikitribe/kariedo supplementary overlays into the core Python language rule (secure temp files, URL-scheme allowlist, constant-time secret compare, dynamic-import allowlist, strict security-type comparisons; the path-traversal section routed to maintainer review over a TOCTOU subtlety), reducing the primary pack's dependence on the overlay. |

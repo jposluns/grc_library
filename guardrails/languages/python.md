@@ -69,6 +69,20 @@ exec(user_code)         # Code injection
 
 ---
 
+## Path handling: python specific
+
+Resolve an untrusted name against a resolved base directory and verify containment before opening it. A string-prefix check or `os.path.join()` alone does not establish containment. Containment of the resolved path is necessary but not sufficient against symlink attacks: the check-then-open sequence is racy whenever any directory in the path (the base or any ancestor) is attacker-writable, because a component can be swapped for a symlink between the check and the open, and `O_NOFOLLOW` rejects only a symlink in the final pathname component. Where the directory tree is not fully trusted, open each component relative to a trusted directory file descriptor with `O_NOFOLLOW` (openat semantics via `os.open(..., dir_fd=...)`) rather than a single `os.open` on the whole path; otherwise ensure that no directory in the resolved path, including all ancestors, is attacker-writable.
+
+```python
+from pathlib import Path
+
+BASE_DIR = Path("/app/uploads").resolve()
+candidate = (BASE_DIR / untrusted_name).resolve()
+
+if not candidate.is_relative_to(BASE_DIR):  # is_relative_to: Python 3.9+
+    raise ValueError("path escapes the allowed base directory")
+```
+
 ## Temporary files: python specific
 
 Use `tempfile` so that temporary files and directories are created with unpredictable names and safely scoped lifetimes. Never construct a predictable `/tmp` filename or use a check-then-open sequence. (Reopening a `NamedTemporaryFile` by name while it is still open can fail on Windows under the default delete-and-share semantics; where a cross-platform reopen-by-name is required, pass `delete=False` and clean up explicitly, or use the `TemporaryDirectory` form below, which avoids the issue.)
