@@ -438,7 +438,7 @@ is external. Two mechanisms:
      staleness backstop is a queued TODO item.)
    - **The ROOT CHANGELOG never loses history; it is SUMMARIZED, never removed (maintainer-directed 2026-07-26).** [`CHANGELOG.md`](../CHANGELOG.md) is one of the few history/status files that must go back to the PROJECT START and is NEVER swept, pruned, or moved to `_private`: old per-PR entries are only summarized IN PLACE (daily then weekly roll-ups condense them to `**date | version | PRs #A-#B (N PRs)**` and `**Week of ...**` blocks that STAY in the root). Only the DETAILED mirror (`grc_library_private/.working/changelog-details/`) is swept to `_private`; the root roll-up and the mirror sweep are SEPARATE processes, and no move-to-`_private` process touches the root. The ONLY sanctioned removal from the root is a surgical edit fixing an AI error (for example expunging leaked private info). #1177 wrongly REMOVED six weekly summaries from the root; #1192 restored them, and the D8 reminder plus this rule foreclose the recurrence.
    - **Detailed-mirror current-week sweep** (the changelog-restructure current-week model;
-     the pack rule's current-week-model section is the authoritative description): the
+     the pack rule's current-period-model section is the authoritative description): the
      `grc_library_private/.working/changelog-details/CHANGELOG-detailed.md`
      is intended to hold only the CURRENT week's entries, with completed weeks (and, per
      §1.19.9, the aged roll-up ROWS of `validate-pr/history.md` and `improvement-log.md`)

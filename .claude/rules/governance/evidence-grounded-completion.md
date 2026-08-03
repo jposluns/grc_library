@@ -104,7 +104,7 @@ For each completion claim, run a search across the affected files for phrases th
 Examples of contradiction searches:
 
 - For "the README is updated to v1.8.0": grep the README for `1.7` and any earlier version string. If a stale reference appears, the claim is not yet supported.
-- For "the new rule is wired into all four surfaces": grep the four surface files for the rule's name. If any one is missing, the claim is not yet supported.
+- For "the new rule is wired into every required surface": search the project's declared wiring inventory for the rule's name. If any required surface is missing, the claim is not yet supported.
 - For "the version-monotonicity audit passes": run the audit standalone (not piped through `tail` or `head` or `grep`, where a non-zero exit code can be masked) and report the actual exit code.
 
 A contradiction search that returns nothing is evidence. A contradiction search that was not performed is not.

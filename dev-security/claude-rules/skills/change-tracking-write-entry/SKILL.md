@@ -41,7 +41,7 @@ The entry-writing workflow from the canonical rule, executed in order:
 
 2. **Choose the date and version**. Use the project's existing convention (CalVer, SemVer, monotonic integer). The version must strictly increase over the prior entry; merge-conflict resolutions that drop a version bump are the failure mode the version-monotonicity audit catches. The date pins the entry to wall-clock time.
 
-3. **Write the title sentence**. Plain language, summarizing the change in one sentence a future reader can act on. "Phase 2: add gate-discipline rule to dev-security pack" is a title; "Updates" is not.
+3. **Write the title sentence**. Plain language, summarizing the change in one sentence a future reader can act on. "Phase 2: add the gate-discipline rule to the governance pack" is a title; "Updates" is not.
 
 4. **Pick the Keep a Changelog section(s)** that most accurately classify the change: `Added`, `Changed`, `Removed`, `Fixed`, `Security`. A single entry may use multiple sections. Do not bury a removed-public-API event under `Changed`; misclassification is a documentation failure downstream consumers will pay for.
 
@@ -55,7 +55,7 @@ The entry-writing workflow from the canonical rule, executed in order:
 
 9. **Re-read the entry once before committing**. Catch the stale claims now: a file mentioned in the title that the diff did not touch; a version number that does not match the heading; a section heading that misclassifies the change.
 
-When the project runs the detailed mirror under a **current-week model** (completed weeks swept to an archive; see the canonical rule's current-week-model section), the write path here is unchanged: new detailed entries still prepend to the in-repo mirror, and the completed-week sweep is a separate close-out step, not part of writing the entry. The compact root-entry format (`**YYYY-MM-DD | X.Y.Z | PR #N** - one-sentence summary`, a plain hyphen, no em-dash or en-dash) applies only once the project has adopted it in a root-reformat step; until then the root line keeps the header-plus-lead-paragraph form above.
+When the project runs the detailed mirror under a **current-period model** (completed periods swept to an archive; see the canonical rule's current-period-model section), the write path here is unchanged: new detailed entries still prepend to the in-repo mirror, and the completed-period sweep is a separate close-out step, not part of writing the entry. The compact root-entry format (for example `**YYYY-MM-DD | X.Y.Z | PR #N** - one-sentence summary`, a plain hyphen, no em-dash or en-dash) applies only once the project has adopted it in a root-reformat step; until then the root line keeps the header-plus-lead-paragraph form above.
 
 ## Terse Entry Discipline
 
@@ -64,7 +64,7 @@ When the change qualifies for the terse form, the entry is the date-and-version 
 Terse-entry shape:
 
 ```
-## YYYY-MM-DD, Library Version X.Y.Z, PR #N
+## YYYY-MM-DD, Version X.Y.Z, PR #N
 
 [scope] for local project: [one sentence on what was accomplished].
 ```
@@ -73,7 +73,7 @@ Example: ``.claude/ changes for local project: added a `## Version-bump discipli
 
 Reviewers who see a terse entry on a behaviour-changing PR are expected to reject it and require the substantive form. Terse is the floor for ancillary changes, not the ceiling: when a discipline lesson is worth recording, escalate to substantive even when the surface scope is small.
 
-The two-file split applies regardless of shape: a terse entry in the root `CHANGELOG.md` is paired with a terse entry (with optionally a few extra sentences of context) in the detailed mirror. Match the shape on both surfaces.
+Where the adopting project configures paired primary and detailed change records, the split applies regardless of shape: write the terse entry to both configured surfaces and keep their shapes aligned.
 
 ## Red Flags
 
@@ -99,7 +99,7 @@ The entry is ready when:
 - Phase context is attached for multi-PR rollouts.
 - A re-read has found no stale claims.
 
-For terse-entry PRs the verification is shorter: the date-and-version header is present; one sentence describes what was accomplished; the entry is paired in both root `CHANGELOG.md` and the detailed mirror; and the reviewer has confirmed terse is appropriate for the change class.
+For terse-entry PRs the verification is shorter: the date-and-version header is present; one sentence describes what was accomplished; every configured paired change-record surface carries the entry; and the reviewer has confirmed terse is appropriate for the change class.
 
 ## Common Rationalizations
 

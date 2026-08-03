@@ -1,6 +1,6 @@
 # Flutter / Dart Security Rules
 
-These rules apply to mobile applications built with Flutter and written in Dart. They supplement the core rules in `core/` and the underlying-platform rules in [`languages/swift.md`](swift.md) (iOS) and [`languages/kotlin.md`](kotlin.md) (Android). They implement the controls in `standard-mobile-application-security.md`, with emphasis on Section 15 (hybrid and cross-platform frameworks). Section numbers below refer to that standard.
+These rules apply to mobile applications built with Flutter and written in Dart. They supplement the core rules in `core/` and the underlying-platform rules in [`languages/swift.md`](swift.md) (iOS) and [`languages/kotlin.md`](kotlin.md) (Android). The controls below stand alone; in the parent GRC library they implement `dev-security/standard-mobile-application-security.md`, with emphasis on Section 15 (hybrid and cross-platform frameworks). Section and tier references below are labelled provenance for that parent standard; adopters map them to their own mobile-security standard and risk classification.
 
 Hybrid framework rule: Flutter shifts the layer at which a control is implemented; it does not remove the control. Every Section 4-12 requirement that applies to native iOS / Android applies to Flutter apps, delegated to the appropriate package or platform-channel method.
 
@@ -116,7 +116,7 @@ final secureResponse = await HttpCertificatePinning.check(
 );
 ```
 
-For Tier 1 / Tier 2 apps (per Section 3), pinning is required. The native-layer ATS (iOS) and Network Security Config (Android) constraints from Sections 4-5 still apply to Flutter HTTP traffic.
+For applications whose risk classification requires defence-in-depth controls (Tier 1 / Tier 2 in the parent GRC library's mobile-security standard), pinning is required. Native-layer ATS (iOS) and Network Security Config (Android) constraints still apply to Flutter HTTP traffic.
 
 ---
 
@@ -158,7 +158,7 @@ assert(() {
 }());
 ```
 
-Build production binaries with `flutter build apk --release --obfuscate --split-debug-info=symbols/` and equivalent for `--target-platform`. Obfuscation by itself is not a security boundary, but the standard's Section 9 requires it for release builds in Tier 1 / Tier 2.
+Build production binaries with `flutter build apk --release --obfuscate --split-debug-info=symbols/` and equivalent for `--target-platform`. Obfuscation by itself is not a security boundary; the parent GRC library's mobile-security standard also requires it for release builds in its Tier 1 / Tier 2 classifications (Section 9).
 
 Dart DevTools attaches only in debug / profile builds; verify your CI does not ship profile builds to production.
 
@@ -280,6 +280,6 @@ await SentryFlutter.init((options) {
 
 ## Framework alignment
 
-Implements Section 15 (hybrid and cross-platform frameworks) of `standard-mobile-application-security.md` and the relevant native-layer Sections (4, 5, 6, 7, 8, 9, 11, 12, 16) as they apply through Flutter's platform-channel bridge and Dart runtime.
+Parent-library provenance: this rule implements Section 15 (hybrid and cross-platform frameworks) of `dev-security/standard-mobile-application-security.md` and the relevant native-layer Sections (4, 5, 6, 7, 8, 9, 11, 12, 16) as they apply through Flutter's platform-channel bridge and Dart runtime.
 
 Supplements: OWASP MASVS v2 (L1, L2, R); MASTG hybrid-framework guidance; Flutter Security best practices documentation.

@@ -31,7 +31,7 @@ The harness is not for every change. Invoking it everywhere is its own failure: 
 - **Before applying a sensitive change**, one that meets all three trigger conditions (gate-blind correctness, delicate scale, high escaped-error cost). The canonical shape: a bulk mapping of control codes whose fit no existence gate can check (the parent library's motivating case is named in the project wiring above).
 - **When the maintainer directs absolute-integrity rechecking** of a change, regardless of the three conditions (maintainer discretion overrides the default trigger).
 - **When resuming a sensitive item left open** in the persistent register named in the project wiring, with status `pending` or `in-progress`, surfaced at session resume.
-- **NOT for routine changes.** When only one or two of the three conditions hold, the routine layers (research-assistant discipline, the gates, the per-PR and corpus sweeps) are the right tool and this harness is over-engineering.
+- **NOT for routine changes.** When only one or two of the three conditions hold, the routine layers (research-assistant discipline, the gates, the per-change and project-wide sweeps) are the right tool and this harness is over-engineering.
 
 ## Process
 

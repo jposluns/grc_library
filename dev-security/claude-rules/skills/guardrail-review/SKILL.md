@@ -1,6 +1,6 @@
 ---
 name: guardrail-review
-description: When the governance machinery itself (the rules, skills, and audit gates that keep a governed codebase honest, plus their wiring surfaces) needs a structural-integrity review, run this skill. It is the periodic guard-rail review: a judgment-based pass over the machinery for overlap (two rules or gates covering the same ground), gap (a stated discipline no gate enforces, a recurring failure mode no rule names), and drift (a rule, skill, or gate whose intent has diverged across its wiring surfaces in a way the mechanical parity gates cannot detect, because they check identity and count, not meaning). Maintainer-triggered, and auto-prompted after any PR that adds, removes, or renames a rule, skill, or gate. Catches the architectural erosion the per-PR and corpus-content sweeps are not built to see. Slash command `/guardrails`.
+description: When the governance machinery itself (the rules, skills, and audit gates that keep a governed codebase honest, plus their wiring surfaces) needs a structural-integrity review, run this skill. It is the periodic guard-rail review: a judgment-based pass over the machinery for overlap (two rules or gates covering the same ground), gap (a stated discipline no gate enforces, a recurring failure mode no rule names), and drift (a rule, skill, or gate whose intent has diverged across its wiring surfaces in a way the mechanical parity gates cannot detect, because they check identity and count, not meaning). Maintainer-triggered, and auto-prompted after any PR that adds, removes, or renames a rule, skill, or gate. Catches the architectural erosion the per-PR and governed-content sweeps are not built to see. Slash command `/guardrails`.
 derives_from: ../../governance/gate-discipline.md
 ---
 
@@ -42,9 +42,9 @@ Run the project's full audit suite (the mechanical baseline runner named in the 
 
 Then enumerate the current machinery as the inventory under review:
 
-- **Governance rules**: the pack's rule files, their project-local mirror, and every enumeration surface that lists them (the concrete surfaces are named in the project wiring).
-- **Skills**: the pack's skill directories, each with its `derives_from` parent, its slash-command counterpart (if paired), its pairing registration, and its enumeration-tree entry.
-- **Gates**: the audit gates declared across the project's parity surfaces (named in the project wiring), each with its linter and the discipline it enforces.
+- **Governance rules**: the pack's rule files and every configured mirror or enumeration surface that carries them.
+- **Skills**: the pack's skill directories, each with its `derives_from` rule and every configured invocation, pairing, or enumeration surface.
+- **Gates**: the audit gates declared across the project's configured parity surfaces, each with its checker and the discipline it enforces.
 
 ### 2. Review the inventory through three lenses
 

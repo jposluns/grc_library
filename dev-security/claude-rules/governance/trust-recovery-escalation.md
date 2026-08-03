@@ -27,22 +27,22 @@ The tier is a suite of two skills, not one. They differ in lens shape and are ru
 
 1. **The AI-failure-pattern forensic pass** (the pack's `deep-qa-review` skill (`skills/deep-qa-review/SKILL.md` from the pack root)). A small number of deeply-contextualized subagents, each tuned to a class of failure that AI assistants are known to produce (stale references, mis-attributed citations, multi-surface incompleteness, inferred-as-verified assertions, generated-artefact drift, and discipline-compliance gaps), run over the maintainer-named window plus the artefacts that window references. It is run first: smaller, faster, and aimed at the seams where the assistant breaks.
 
-2. **The fresh-reader persona pass** (the pack's `library-fitness-review` skill (`skills/library-fitness-review/SKILL.md` from the pack root)). A larger set of persona subagents, each reviewing the whole corpus with the maintainer's mental model stripped from the brief, surfacing what fresh human readers of different kinds would notice. It is run second: broader, slower, and aimed at quality the AI-pattern lens does not target.
+2. **The fresh-reader persona pass** (the pack's `library-fitness-review` skill (`skills/library-fitness-review/SKILL.md` from the pack root)). A larger set of persona subagents, each reviewing the full project-defined scope with the maintainer's mental model stripped from the brief, surfacing what fresh human readers of different kinds would notice. It is run second: broader, slower, and aimed at quality the AI-pattern lens does not target.
 
 The two are complementary, not redundant. The pen-testing analogy is exact: both are informed (white-box) reviews; they differ in lens shape. The forensic pass is one deeply-contextualized lens specialized for AI-failure-pattern classes; the persona pass is many narrow lenses each blind to the maintainer's expectations. Together they cover orthogonal failure-mode classes. Run the forensic pass first (it catches AI-pattern failures fast), then the persona pass (longer, broader coverage). Surface findings as each completes; do not wait for both to finish before routing.
 
-A binding methodology rule applies to any pass that reasons over version-control history: verify a full (non-shallow) clone before running any history-aware audit. A shallow clone mis-attributes file history and makes history-aware gates emit false positives; a mass history-gate failure on a shallow clone is an environment artefact, not a corpus defect, and must be validated before it is routed.
+A binding methodology rule applies to any pass that reasons over version-control history: verify a full (non-shallow) clone before running any history-aware audit. A shallow clone mis-attributes file history and makes history-aware gates emit false positives; a mass history-gate failure on a shallow clone is an environment artefact, not a project-content defect, and must be validated before it is routed.
 
 ---
 
 ## Findings routing: every confirmed finding routed, tiered by severity
 
-In trust-recovery mode, **every confirmed finding routes to the backlog (none is silently dropped), tiered by severity: High[critical] and High to the backlog's top-priority tier, Medium and Low to the next-priority tier**, each tagged to its originating pass. This still bypasses the persona pass's normal triage-and-defer protocol (where low-severity findings are bucketed for a later cycle and some are dropped): severity governs the destination tier, not whether a finding is surfaced at all, so the assistant retains no discretion to discount (to drop) a finding. The rationale: the tier exists because the assistant's own judgement about what is worth surfacing has been shown to be unreliable in this window, so nothing it judges trivial or mechanical is dropped; it is routed at the severity-appropriate tier, and the maintainer triages from there. (This severity-tiered destination replaces an earlier formulation that routed everything to a single top-priority tier regardless of severity; the invariant that nothing is dropped, and that the maintainer, not the assistant, decides what to defer, is unchanged.)
+In trust-recovery mode, **every confirmed finding routes to the project's remediation record (none is silently dropped), tiered by severity: High[critical] and High to that record's top-priority tier, Medium and Low to the next-priority tier**, each tagged to its originating pass. This still bypasses the persona pass's normal triage-and-defer protocol (where low-severity findings are bucketed for a later cycle and some are dropped): severity governs the destination tier, not whether a finding is surfaced at all, so the assistant retains no discretion to discount (to drop) a finding. The rationale: the tier exists because the assistant's own judgement about what is worth surfacing has been shown to be unreliable in this window, so nothing it judges trivial or mechanical is dropped; it is routed at the severity-appropriate tier, and the maintainer triages from there. (This severity-tiered destination replaces an earlier formulation that routed everything to a single top-priority tier regardless of severity; the invariant that nothing is dropped, and that the maintainer, not the assistant, decides what to defer, is unchanged.)
 
 Two disciplines bound the routing:
 
 - **Apply-time verification before routing.** Subagent findings are research, not findings, until the orchestrator re-reads the cited source and confirms each one. Worker false positives (a shallow-clone history-gate artefact is the canonical example) and over-classifications are caught here, not routed. This is `evidence-grounded-completion` and `validate-inference-before-action` applied at the routing boundary.
-- **Dedupe against the existing backlog.** A finding that matches an existing backlog item is cross-referenced to it, not duplicated. The maintainer should not see the same item twice under two tags.
+- **Dedupe against the existing remediation record.** A finding that matches an item already recorded there is cross-referenced to it, not duplicated. The maintainer should not see the same item twice under two tags.
 
 Findings refuted at apply-time are recorded in the run record with the refutation, not routed. The record is the audit trail of what was examined, refuted, and routed.
 
@@ -58,7 +58,7 @@ Concretely: the assistant runs the suite, routes the findings, surfaces them, an
 
 ## After sign-off: codify the lessons
 
-Once the maintainer signs off, the lessons the tier surfaced about the *process* (as distinct from the corpus findings, which become backlog items) are codified so the failure is harder to repeat:
+Once the maintainer signs off, the lessons the tier surfaced about the *process* (as distinct from the project-content findings, which enter the configured remediation record) are codified so the failure is harder to repeat:
 
 - The forensic pass is formalized as a reusable skill (if it was run ad hoc the first time).
 - This escalation tier is itself documented as a rule (this document).
@@ -74,7 +74,7 @@ The honest limitation, stated plainly: documentation adds friction against repea
 - **Reproducing the abbreviation inside the tier.** Running fewer subagents than the suite specifies, or substituting an informal check for a formal subagent dispatch. Abbreviation is the failure that triggers the tier; reproducing it is self-defeating.
 - **Routing a worker finding without apply-time re-read.** The orchestrator's re-verification is the false-positive filter; skipping it routes hallucinations to the maintainer.
 - **Discounting (dropping) a low-severity finding instead of routing it.** Trust-recovery mode routes everything (tiered by severity) for maintainer triage; the assistant's discretion to drop a finding is precisely what is suspended. Tiering a finding to the next-priority tier is routing it, not dropping it.
-- **Running a history-aware pass on a shallow clone without validating clone depth.** A mass history-gate failure is then mistaken for a corpus emergency.
+- **Running a history-aware pass on a shallow clone without validating clone depth.** A mass history-gate failure is then mistaken for a project-wide emergency.
 - **Proceeding to substantive work before sign-off.** The tier holds until the maintainer acknowledges; jumping ahead defeats the trust-rebuilding purpose.
 
 ---

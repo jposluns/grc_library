@@ -1,6 +1,6 @@
 ---
 name: deep-assessment
-description: Maintainer-invoked, rare-cadence whole-project deep assessment. Runs the full layered examination of the library and its own quality machinery from a fresh session, composing the existing semantic instruments (/validate, /full-qa, /fitness, /matrix-fit, /claim-fit, /reference-audit, /screen-publications, /guardrails) by invocation and adding the lenses the routine cadence does not apply to itself, gate-efficacy probing (mutation and blind-spot analysis), ground-truth citation sampling, adoptability and pipeline-integrity review, and a QA-ledger meta-audit. Multi-session and re-entrant: a durable register carries phase state across session boundaries, every confirmed finding is routed tiered with none dropped, and the pass terminates on the QA-activity completion standard its component instruments already use (every finding validated and fixed-or-routed), not on a separate maintainer sign-off, and never on a self-declared "done" before the phases have run.
+description: Maintainer-invoked, rare-cadence whole-project deep assessment. Runs the full layered examination of the project and its quality machinery from a fresh session, composing the configured semantic instruments by invocation and adding the lenses the routine cadence does not apply to itself: gate-efficacy probing, ground-truth citation sampling, adoptability and pipeline-integrity review, and a QA-ledger meta-audit. Multi-session and re-entrant: a durable register carries phase state across session boundaries, every confirmed finding is routed tiered with none dropped, and the pass terminates on the QA-activity completion standard its component instruments already use, not on a separate maintainer sign-off, and never on a self-declared "done" before the phases have run.
 derives_from: ../../governance/trust-recovery-escalation.md
 ---
 
@@ -44,16 +44,14 @@ procedure below refers to them generically.
 
 ## Overview
 
-The routine cadence examines changes (per-PR sweeps), recent drift (corpus sweeps), and
-named semantic classes (matrix-fit, claim-fit). None of it examines the quality system
-itself from outside: the gates check the corpus, the skills check the corpus and the
-gates' outputs, and the same assistant lineage that authors the content built the
-machinery. This skill is the rare-cadence instrument for that residual: a deliberate,
-whole-project pass that runs the existing instruments formally AND probes what they
-cannot see, the width of the gates' own patterns, the union of their exemption blind
-spots, the semantic accuracy of citations against held source texts, the adoptability
-of the library by a fresh reader, the integrity of the delivery pipeline, and the
-honesty of the QA ledgers.
+The routine cadence examines changes, recent project-wide drift, and named semantic
+classes. None of it examines the quality system itself from outside: the gates check
+project artefacts, the skills check those artefacts and the gates' outputs, and the same
+assistant lineage may have authored both the content and the machinery. This skill is
+the rare-cadence instrument for that residual: a deliberate whole-project pass that
+runs configured instruments formally and probes what they cannot see, including gate
+pattern width, exemption blind spots, citation accuracy against held source texts where
+available, fresh-reader adoptability, delivery-pipeline integrity, and QA-ledger honesty.
 
 Structurally this is the trust-recovery suite run proactively, at maintainer direction,
 without a discipline-failure trigger. It inherits TWO of that rule's load-bearing
@@ -63,7 +61,7 @@ maintainer-sign-off terminal state (maintainer-directed 2026-07-27): the sign-of
 in the reactive trust-recovery tier to let the maintainer declare confidence RESTORED
 after a discipline lapse, and the proactive deep-assessment has no lapsed confidence to
 restore. Every component instrument it composes (`/validate`, `/full-qa`, `/fitness`,
-`/matrix-fit`, `/claim-fit`, `/reference-audit`, `/guardrails`, the gate-efficacy probes)
+`/matrix-fit`, `/claim-fit`, `/reference-audit`, `/screen-publications`, `/guardrails`, the gate-efficacy probes)
 already terminates by validate-and-fix, so the composite terminates on the same
 QA-activity completion standard, not on a redundant sign-off gate. It differs from
 trust-recovery in trigger (maintainer peace of mind, not lapsed confidence) and in scope
@@ -95,9 +93,8 @@ bare re-invocation resumes rather than restarts.
   and is never self-invoked by the assistant.
 - **Resume.** Invoked with no arguments while a run is in flight, the skill continues
   at the next incomplete phase from the register.
-- **NOT a substitute** for the per-PR `/validate-pr` + `/retro` cadence, the corpus
-  `/validate` cadence, or `/trust-recovery` (which remains the reactive tier for
-  lapsed-confidence windows and keeps its own trigger and semantics).
+- **NOT a substitute** for the adopting project's configured per-change, project-wide,
+  or reactive trust-recovery cadences.
 
 ## Process
 
@@ -108,10 +105,9 @@ resume at its next incomplete phase; otherwise open a new run row and a per-run 
 file (the dated per-run record pattern named in the project wiring; the non-dated
 register stays in-repo by design). Environment preconditions, each verified
 mechanically, never assumed: a full clone (`git rev-parse --is-shallow-repository` must
-print `false`; unshallow first otherwise, per the full-clone methodology rule), the
-corpus repo, the reference base, the worker exchange, and the private operational store
-(as named in the project wiring) all present, and the session-concurrency interlock
-satisfied. Derive the live
+print `false`; unshallow first otherwise, per the full-clone methodology rule), every
+repository and operational store named in the project wiring present, and the
+session-concurrency interlock satisfied. Derive the live
 instrument inventory from the repo, not from this skill's text: the gate list from the
 audit runner, the PR-time checks from the delta runner, the skill and command set from
 the command directory and the pack skills directory, the advisory tools from the tools
@@ -120,30 +116,27 @@ wiring). Record the inventory and the HEAD SHA in the run record.
 
 ### 2. Confirm the mechanical baseline
 
-Run, standalone and unpiped: the audit runner and the PR-time delta runner (named in
-the project wiring), the linter regression suite, every generator `--check` invocation,
-and each sibling repo's own validation gate. All must exit 0 before any semantic phase;
-a failure here is itself a finding and is fixed or routed before proceeding. A sibling
-gate that went red while ungated direct-push operations kept landing on that sibling is
-the exact failure this phase now catches, so a non-green sibling gate is a finding of the
-same standing as a red corpus gate, not a silent condition. Record the green-at-SHA
-baseline in the register and cross-check it against the session handoff's asserted
-expectations.
+Run, standalone and unpiped, every configured baseline validator: the full audit runner,
+change-scoped runner, linter regression suite, generator checks, and validation gates for
+each in-scope repository. All must exit 0 before any semantic phase; a failure is itself
+a finding and is fixed or routed before proceeding. A non-green validation surface has
+the same standing regardless of which configured repository owns it. Record the
+green-at-revision baseline and cross-check it against the project's current session or
+handoff record where one exists.
 
 ### 3. Run the project's semantic instruments, formally
 
-Invoke, in their full sanctioned shapes with their own records and history rows: the
-sweep pre-flight scanner then a corpus-wide `/validate`; `/full-qa` over the whole
-corpus; `/fitness`; `/matrix-fit` over the whole matrix; `/claim-fit` over Tier A with
-a Tier-B sample; `/reference-audit` in FULL mode over the whole corpus and the in-scope reference base; `/screen-publications` over the reference base's `pending` publications rows; and `/guardrails`. Run the advisory aids whose outputs feed later
-phases (the phase-3 advisory aids named in the project wiring, including the ledger
-scanners). Each instrument's findings enter this run's
-routing (step 7) in addition to the instrument's own record; no abbreviation of any
-invoked instrument is sanctioned. Where the harness supports per-dispatch model
-selection, run the orchestration and finding-adjudication work on the strongest available
-model tier, the wide fan-out readers on a cheaper tier, and treat the mechanical phases as
-model-indifferent; the invoked instruments' own subagents inherit the invoking session's
-model, so set the session model deliberately at phase boundaries.
+Invoke, in their full sanctioned shapes with their own records and history rows, every
+semantic instrument configured for this adoption. Apply project-wide instruments to the
+whole configured content scope, mapping instruments to the whole configured mapping
+surface, reference-breadth instruments to the configured content and source stores, and
+screening instruments to each configured untrusted-source worklist. The parent GRC
+library's concrete command set and publication status are labelled provenance, not
+portable required topology. Run configured advisory aids whose outputs feed later phases.
+Each instrument's findings enter this run's routing in addition to the instrument's own
+record; no abbreviation of any invoked instrument is sanctioned. Where the harness
+supports per-dispatch model selection, assign work according to the adopting project's
+model policy and set the session model deliberately at phase boundaries.
 
 ### 4. Audit the audit programme itself
 
@@ -159,59 +152,52 @@ widths beyond the regression fixtures (position, separator, encoding, and phrasi
 variants); undetected variants are findings against the gate. The working repos are
 never mutated. (c) **dead-gate and coverage analysis**: from full history, which gates
 have never fired, and which recurring failure classes in the improvement and
-hallucination ledgers still have no gate or convention guard. (d) **independent parity
-re-derivation**: reconcile the workflow, runner, pre-commit, and specification
-inventories by hand, explaining or routing every count discrepancy rather than
-trusting the parity gate's own pass. (e) **validation-coverage**: run the
-validation-coverage tool named in the project wiring, which reports, per repository the
-assistant writes to, whether a validating CI workflow reaches it and whether recent
-commits landed through a PR (with a validating workflow present in the repo) or an
-ungated direct-push. The other lenses of
-this phase examine the ARTEFACTS and the GATES that check them; none examines the
-sequence of pushes that actually landed, so a whole class of unvalidated operation (a
-direct push to `main` that never opened a PR and never triggered CI) is invisible by
-construction: no artefact is wrong and every gate that ran was green, yet a change landed
-unchecked. This sub-pass reads the durable evidence that operation leaves, the git
-landing pattern and the CI-workflow presence, not an operation log there is none to
-trust. An ungated landing on a repo that should require PRs is a HIGH trust-recovery
-finding (it is the class this lens exists to close); a branch-protection enforcement the
-assistant's token cannot read routes as a maintainer-verify deferral in the phase-8
-record, never silently cleared.
+hallucination ledgers still have no gate or convention guard. (d) **independent parity re-derivation**: reconcile every configured declaration and
+execution inventory by hand, explaining or routing every discrepancy rather than
+trusting the parity gate's own pass. (e) **validation-coverage**: run the configured
+coverage tool, which reports, per repository the assistant writes to, whether a
+validating workflow reaches it and whether recent changes landed through the project's
+approved reviewed path or an ungated direct push. The other lenses examine artefacts and
+their gates, not the landing sequence, so an unvalidated operation, such as a direct push
+to a protected branch that never triggered the configured review and validation path, is
+otherwise invisible by construction. This sub-pass reads the durable landing evidence.
+An ungated landing on a repository that should require review is a HIGH trust-recovery
+finding; unreadable branch-protection enforcement routes as a maintainer-verify deferral.
 
 ### 5. Sample content accuracy against ground truth
 
-A stratified sample per framework and domain, judged against the held texts in the
-reference base via its indexes, with the upstream currency rule applied per source this
-turn: does the cited clause state what the corpus attributes to it (beyond what
-`/matrix-fit` and `/claim-fit` already worklist), do quotes correspond, and are
-editions current upstream. Fan out per-domain adversarial readers briefed to REFUTE
-cross-document coherence (values, terminology, roles, scope boundaries) beyond the
-hard-coded consistency gates. Unverifiable items are labelled, never asserted, and
-each accepted-unverified item gets a durable tracker.
+A stratified sample across the adopting project's configured frameworks and domains,
+judged against held source texts through the configured source index, with the upstream
+currency rule applied per source this turn: does the cited clause state what project
+content attributes to it, do quotes correspond, and are editions current upstream. Fan
+out adversarial readers briefed to refute cross-document coherence beyond deterministic
+consistency gates. Label unverifiable items and give each accepted-unverified item a
+durable tracker.
 
 ### 6. Assess adoptability, pipeline integrity, and the QA ledgers
 
 Four sub-passes: (a) **fresh-adopter simulation**: from a bare clone with no project
-context, follow the README, portal, and scorecard to select and tailor one document;
-score discoverability, tailoring friction, toolchain portability (the project's stated toolchain claims; for the parent library, its stdlib-only tooling and Python version envelope), and the documented adopter options. (b) **pipeline
-integrity**: review the CI workflow's hardening (permissions scoping, action pinning)
-against the project's own pack and overlay rules, verify branch protection is enforced
-via the platform API rather than assumed, run a full-history secret and PII scan, and
-verify the guard and hook defences fire in the current environment. (c) **ledger
-meta-audit**: sample QA history rows against their run records for the sham-pass
-shape, trend the hallucination and session metrics, and reconcile the cross-repo
-coverage surfaces. (d) **private-store operational-document consistency**: because the
-private operational store (named in the project wiring) has received direct-push
-operations that no gate content-checks, read its load-bearing operational docs for
-internal consistency and against the corpus and ledgers they coordinate: its decision-log
-(do resolved entries match the corpus closed-item and pending-decisions state), its
-design-decisions record, its operating runbook (does it still describe the live process
-and the repo model), its egress and activity requests (are recorded requests still
-accurate, not stale), and its store index (does it enumerate what the store actually
-holds). A divergence is a finding routed like any in this phase; this is the content half
-of the coverage the phase-2 gate cannot give, since the private store has no content gate.
-Where the private store is not in a worker's read surface, this sub-pass, the private
-store's phase-2 gate, and its phase-4(e) row are run by the orchestrator directly.
+context, follow the project's documented entry path to complete one representative core
+workflow (in the parent library, its README, portal, and scorecard to select and tailor
+one document); score discoverability, adoption friction, toolchain portability (the project's stated toolchain claims; for the parent library, its stdlib-only tooling and Python version envelope), and the documented adopter options. (b) **pipeline
+integrity**: review the delivery workflow's hardening (permissions scoping, action
+pinning) against the project's own pack and local rules, verify protected-branch
+enforcement via the platform API rather than assuming it, run a full-history secret and
+PII scan, and verify the guard and hook defences fire in the current environment.
+(c) **ledger meta-audit**: sample QA history rows against their run records for the
+sham-pass shape, trend the hallucination and session metrics, and reconcile the
+cross-repo coverage surfaces. (d) **operational-store document consistency**: because an
+operational store can receive direct-push operations that no gate content-checks, read
+the load-bearing operational documents of each operational store named in the project
+wiring for internal consistency and against the project content and ledgers they
+coordinate (in the parent library: its decision-log against the closed-item and
+pending-decisions state, its design-decisions record, its operating runbook against the
+live process and the repo model, its egress and activity requests for staleness, and its
+store index against what the store actually holds). A divergence is a finding routed
+like any in this phase; this is the content half of the coverage the phase-2 gate cannot
+give, since such a store has no content gate. Where an operational store is not in a
+worker's read surface, this sub-pass, that store's phase-2 gate, and its phase-4(e) row
+are run by the orchestrator directly.
 
 ### 7. Verify, dedupe, tier, and route every finding
 
@@ -241,20 +227,15 @@ registers.
 ### Parallel execution (worker fan-out)
 
 Every phase decomposes into disjoint units the orchestrator may dispatch to parallel
-workers, coordinated through the phase-state register extended from per-phase to per-unit
-rows: each unit is claimed before work and reported on completion, pinned to the run HEAD
-SHA, the same claims-ledger discipline the project's worker exchange already uses. Two
-constraints bound the fan-out. The mechanical baseline (phase 2) is a BARRIER: every
-baseline unit, including each sibling gate, must be green before any semantic-phase unit
-starts, so phase 2 is dispatched then joined, never overlapped with phases 3 to 6. And the
-private operational store is not in a worker's read surface, so its baseline gate, its row
-of the phase-4(e) validation-coverage sub-pass, and its phase-6(d) operational-document
-review are orchestrator-only units; everything on the corpus, the reference base, and the
-worker exchange is worker-dispatchable. After the phase-2 join, phases 3, 4, 5, and 6 run
-as one parallel fan-out, each semantic instrument, each phase-4 sub-pass, each citation
-batch, and each phase-6 slice a separate unit; phase 7 (synthesis) joins them and is
-orchestrator-only, as is phase 8 (record and route). A full pass's wall-clock then drops
-from serial to about the slowest unit per phase plus the two barriers.
+workers, coordinated through the configured phase-state register or work-claim mechanism.
+Each unit is claimed before work and reported on completion, pinned to the run revision.
+The mechanical baseline is a BARRIER: every configured baseline unit must be green before
+any semantic-phase unit starts. Any repository or operational resource outside worker read
+authority remains orchestrator-only; all other units are dispatchable according to the
+adopting project's worker-exchange and access model. The parent GRC library's private,
+corpus, reference, and worker-exchange split is not a portable requirement. After the
+baseline join, independent semantic units may fan out; synthesis and final recording remain
+orchestrator-only.
 
 ## Red Flags
 

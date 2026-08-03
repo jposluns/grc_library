@@ -1,6 +1,6 @@
 # .NET MAUI Security Rules
 
-These rules apply to mobile applications built with .NET MAUI (Multi-platform App UI). They supplement the core rules in `core/`, the server-side C# rules in [`languages/csharp.md`](csharp.md), and the underlying-platform rules in [`languages/swift.md`](swift.md) (iOS) and [`languages/kotlin.md`](kotlin.md) (Android). They implement the controls in `standard-mobile-application-security.md`, with emphasis on Section 15 (hybrid and cross-platform frameworks). Section numbers below refer to that standard.
+These rules apply to mobile applications built with .NET MAUI (Multi-platform App UI). They supplement the core rules in `core/`, the server-side C# rules in [`languages/csharp.md`](csharp.md), and the underlying-platform rules in [`languages/swift.md`](swift.md) (iOS) and [`languages/kotlin.md`](kotlin.md) (Android). The controls below stand alone; in the parent GRC library they implement `dev-security/standard-mobile-application-security.md`, with emphasis on Section 15 (hybrid and cross-platform frameworks). Section and tier references below are labelled provenance for that parent standard; adopters map them to their own mobile-security standard and risk classification.
 
 Hybrid framework rule: .NET MAUI shifts the layer at which a control is implemented; it does not remove the control. The C# layer runs on top of the native iOS / Android platforms via Mono / .NET runtime; every Section 4-12 requirement that applies to native still applies to a MAUI app, delegated to the appropriate .NET API or native handler.
 
@@ -92,7 +92,7 @@ var handler = new SocketsHttpHandler
 var client = new HttpClient(handler);
 ```
 
-For Tier 1 / Tier 2 (per Section 3), pinning is required. Native iOS ATS and Android Network Security Config still apply at the platform layer below MAUI.
+For applications whose risk classification requires defence-in-depth controls (Tier 1 / Tier 2 in the parent GRC library's mobile-security standard), pinning is required. Native iOS ATS and Android Network Security Config still apply at the platform layer below MAUI.
 
 ---
 
@@ -285,6 +285,6 @@ Logger.LogInformation("Auth event for user {userIdHash}", HashUserId(userId));
 
 ## Framework alignment
 
-Implements Section 15 of `standard-mobile-application-security.md` and the relevant native-layer Sections (4, 5, 6, 7, 8, 9, 11, 12, 16) as they apply through .NET MAUI's handler architecture and Mono / .NET runtime on iOS and Android.
+Parent-library provenance: this rule implements Section 15 of `dev-security/standard-mobile-application-security.md` and the relevant native-layer Sections (4, 5, 6, 7, 8, 9, 11, 12, 16) as they apply through .NET MAUI's handler architecture and Mono / .NET runtime on iOS and Android.
 
 Supplements: OWASP MASVS v2 (L1, L2, R); MASTG hybrid-framework guidance; .NET MAUI documentation security topics.

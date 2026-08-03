@@ -20,30 +20,30 @@ A project's CHANGELOG may be a single file, OR may be split into two files for a
 - **Root `CHANGELOG.md`** carries only the **lead-paragraph summary** of each entry. This is the adopter-facing, public-facing, scan-friendly surface. Adopters and downstream consumers read this.
 - **Detailed mirror** (a project-specific location) carries the **full structured-section entry**: Added / Changed / Removed / Fixed / Security / Verification / discipline observations. This is the maintainer-grade audit trail. Reviewers and auditors read this.
 
-The detailed mirror's location is project-specific; the project chooses where to put it. A working-directory location (exempt from corpus audit gates) is the recommended default. Single-file projects keep all detail in root `CHANGELOG.md`; they are the trivial case of the rule (root file holds everything).
+The detailed mirror's location is project-specific; the project chooses where to put it. A working-directory location that the project deliberately holds outside the scope of its governed-content audit gates is the recommended default; the exemption is by design, not an oversight. Single-file projects keep all detail in root `CHANGELOG.md`; they are the trivial case of the rule (root file holds everything).
 
-### Current-week model for the detailed mirror (optional)
+### Current-period model for the detailed mirror (optional)
 
-A long-lived project accumulates detailed entries indefinitely, and the detailed mirror eventually grows past the point where it is browser-openable or quick to scan. The optional current-week model keeps the in-repo mirror small: it holds only the **current week's** detailed entries, and completed weeks are swept out to a wipeable archive the project designates. No record is lost: the full audit trail is preserved both in the swept archive and in this repository's own git history (the sweep removes tree content, not history).
+A long-lived project accumulates detailed entries indefinitely, and the detailed mirror eventually grows past the point where it is browser-openable or quick to scan. The optional current-period model keeps the in-repo mirror small: it holds only the **current period's** detailed entries (the project sets the period; a week and a month are both common), and completed periods are swept out to a wipeable archive the project designates. No record is lost: the full audit trail is preserved both in the swept archive and in the repository's own version-control history (the sweep removes tree content, not history).
 
 The model has three project-provided parts:
 
-- **A data-safe sweep tool** (not an audit gate; an orchestrator close-out step). It emits the weekly archive files, then refuses to prune anything from the repository unless a verify step confirms every artefact already exists in the archive (emit, verify, then prune).
-- **A dynamic-cutoff parity gate.** The mirror-header-parity gate's cutoff is a dynamic floor, `max(CUTOFF_PR, oldest PR still present in the in-repo mirror)`, so a swept (now archive-only) entry is out of parity scope rather than flagged missing, while a genuine in-window drift still fails.
-- **A release-export exclusion.** The working-state tree carries a `git archive` `export-ignore` attribute, so a release tarball is fork-clean however much detail has accumulated. This affects `git archive` only; a `git clone` still includes the tree and full history, and adopters may simply delete the working-state tree after cloning.
+- **A data-safe sweep tool** (not an audit gate; a close-out step). It emits the completed period's archive files, then refuses to prune anything from the repository unless a verify step confirms every artefact already exists in the archive (emit, verify, then prune).
+- **A dynamic-cutoff parity gate.** The project's mirror-header-parity check uses a dynamic floor, the later of its configured cutoff and the oldest entry still present in the in-repo mirror, so a swept (now archive-only) entry is out of parity scope rather than flagged missing, while a genuine in-window drift still fails.
+- **A release-export exclusion.** The mirror's location is marked so that the project's release-export mechanism omits it, and a release artefact stays clean however much detail has accumulated. This affects the export only; a full clone still includes the tree and its full history, and adopters may simply delete the working-state tree after cloning.
 
-The write path is unchanged under this model: new detailed entries still prepend to the in-repo mirror, and only completed weeks leave it, at the close-out sweep step. The rollout is staged: the machinery lands first, then an initial sweep of the already-completed weeks, then the per-PR sweep becomes a standing close-out action.
+The write path is unchanged under this model: new detailed entries still prepend to the in-repo mirror, and only completed periods leave it, at the close-out sweep step. The rollout is staged: the machinery lands first, then an initial sweep of the already-completed periods, then the per-PR sweep becomes a standing close-out action.
 
-A **compact root-entry format** pairs naturally with this model, a one-line `**YYYY-MM-DD | X.Y.Z | PR #N** - one-sentence summary` per entry (a plain hyphen separator, no em-dash or en-dash, a blank line between entries), so the root file stays scannable as the entry count grows. This one-line form is the recommended go-forward shape for the root file once entry volume makes the lead-paragraph-per-entry form unwieldy to scan; reformatting the existing back-catalogue to it is a distinct one-time step a project runs when it adopts the form.
+A **compact root-entry format** pairs naturally with this model, a one-line entry per change (for example `**YYYY-MM-DD | X.Y.Z | PR #N** - one-sentence summary`), with a plain hyphen separator, no em-dash or en-dash, and a blank line between entries, so the root file stays scannable as the entry count grows. This one-line form is the recommended go-forward shape for the root file once entry volume makes the lead-paragraph-per-entry form unwieldy to scan; reformatting the existing back-catalogue to it is a distinct one-time step a project runs when it adopts the form.
 
-**Root-entry length ceiling.** The root summary of each entry carries a length ceiling (the compact one-line, one-sentence form above; a project sets the concrete bound, for example a word cap per entry and per sentence, and may enforce it with a delta gate). The ceiling is a forcing function, not a formatting nicety: a root summary that will not fit one scannable sentence is a signal that the detail belongs in the detailed mirror (or git history), not the root file. When a summary strains the ceiling, tighten it to the single most consequential effect of the change and let the detailed mirror carry the rest; do not spill the structured detail up into the root file. The ceiling keeps the root file scannable as the entry count grows, the same goal the current-week model serves for the mirror.
+**Root-entry length ceiling.** The root summary of each entry carries a length ceiling (the compact one-line, one-sentence form above; a project sets the concrete bound, for example a word cap per entry and per sentence, and may enforce it with a delta gate). The ceiling is a forcing function, not a formatting nicety: a root summary that will not fit one scannable sentence is a signal that the detail belongs in the detailed mirror (or git history), not the root file. When a summary strains the ceiling, tighten it to the single most consequential effect of the change and let the detailed mirror carry the rest; do not spill the structured detail up into the root file. The ceiling keeps the root file scannable as the entry count grows, the same goal the current-period model serves for the mirror.
 
 ## What a CHANGELOG entry must contain
 
 Every entry must include the following. Items 1, 2, and the lead "why" are recorded in the **root** file; items 3-7 (structured sections, file references, verification, phase context) are recorded in the **detailed** file when the project uses the two-file split, or in the root file when the project does not.
 
 1. **A date-and-version header**. The date pins the entry to wall-clock time; the version pins it to a release. The version monotonically increases across entries.
-2. **A short title sentence** summarizing the change in plain language. "Phase 2: add gate-discipline rule to dev-security pack" is a title; "Updates" is not.
+2. **A short title sentence** summarizing the change in plain language. "Phase 2: add the authorization rule to the baseline pack" is a title; "Updates" is not.
 3. **Structured sections** following the Keep a Changelog convention: `Added`, `Changed`, `Removed`, `Fixed`, `Security`. A single entry may use multiple sections. Use the section that most accurately classifies the change; do not bury a removed-public-API event under `Changed`.
 4. **File references**, with every touched file linked from the entry text. A link-coverage gate (see below) enforces that bare path references in markdown code spans are wrapped in markdown links so readers can navigate to the file from the entry.
 5. **The "why"**, not only the "what". The diff already records what changed; the entry records why. "Bumped the version" is a what; "bumped the version because a downstream consumer needed v1.7 to ship Phase 3" is a why.
@@ -67,7 +67,7 @@ What changes is the *shape* of the entry, not its existence. Two shapes are sanc
 Terse-entry shape:
 
 ```
-## YYYY-MM-DD, Library Version X.Y.Z, PR #N
+## YYYY-MM-DD, Version X.Y.Z, PR #N
 
 [scope] for local project: [one sentence on what was accomplished].
 ```
@@ -126,7 +126,7 @@ A change-tracking discipline needs at least three mechanical gates. Implementati
 
 ### Git trailers
 
-Under the no-skip convention, every commit message carries the substantive narrative directly (the entry itself lives in `CHANGELOG.md` and its detailed mirror, not in the commit message). There is no project-mandated trailer.
+Under the no-skip convention, every change carries the substantive narrative in the project's configured change-tracking surface rather than relying on the commit message alone. There is no pack-mandated trailer.
 
 Projects in the back-compat transition window described above may continue to find `Changelog: skip (reason: ...)` trailers in their git history. The trailer remains parseable via `git interpret-trailers --parse` for retrospective audit, but new PRs should not introduce it; use a terse entry instead.
 
@@ -161,14 +161,14 @@ Document repositories have a stronger discipline than code repositories because 
 When the project uses the two-file split (root file plus a detailed mirror at a project-specific location), a PR author writes both halves in the same commit. Authorship order within the commit is the author's choice; the gate only checks the diff.
 
 - **In the detailed mirror file**: write the full structured entry. Include the date-version-PR header, the lead paragraph, then the full `### Added / ### Changed / ### Removed / ### Fixed / ### Security / ### Verification` sections plus any discipline observations or design-rationale sections.
-- **In the root file**: write the root summary only, under the same date-version-PR header, conveying the same summary as the detailed entry's lead (the two need not be word-for-word identical; in practice the root summary is the scannable one and the detailed mirror's lead may be terser or carry more context). Once entry volume makes the lead-paragraph-per-entry form unwieldy, the compact one-line form is the recommended go-forward shape for this root summary (see the current-week-model section above). Do NOT carry the structured sections into the root file; they belong only in the detailed mirror.
+- **In the root file**: write the root summary only, under the same date-version-PR header, conveying the same summary as the detailed entry's lead (the two need not be word-for-word identical; in practice the root summary is the scannable one and the detailed mirror's lead may be terser or carry more context). Once entry volume makes the lead-paragraph-per-entry form unwieldy, the compact one-line form is the recommended go-forward shape for this root summary (see the current-period-model section above). Do NOT carry the structured sections into the root file; they belong only in the detailed mirror.
 - **Both files land in the same commit.** The PR-time delta gate enforces lock-step (modifying one without the other fails the gate). Terse entries are paired across both files the same as substantive entries; the discipline is "match the shape on both surfaces" rather than "always full detail in the mirror".
 
-Adopter forks may choose any of these shapes:
+Adopting projects may choose any of these shapes:
 
 - **Single-file**: abandon the split; keep everything in root `CHANGELOG.md`. The rule's content requirements (items 1-7) all apply to the root file in this case.
-- **Two-file at a different location**: relocate the detailed mirror to wherever fits the fork's structure. Update the PR-time delta gate's path constant accordingly.
-- **No detailed mirror**: rely on git history for full audit trail and keep root file as lead-paragraph summaries only. Document this choice in the fork's CONTRIBUTING.md.
+- **Two-file at a different location**: relocate the detailed mirror to wherever fits the project's structure. Update the project's delta-gate configuration accordingly.
+- **No detailed mirror**: rely on version-control history for the full audit trail and keep the root file as lead-paragraph summaries only. Document this choice in the project's contributor guidance.
 
 The choice is project-specific; the rule does not mandate one shape. The discipline being enforced is "every substantive PR produces a discoverable entry with the required content placed somewhere", not "every project uses the same file layout".
 
@@ -220,7 +220,7 @@ DONE is typically maintainer-only working state, so it lives wherever the projec
 When a PR closes a TODO item:
 
 1. Delete the item from TODO in the same PR.
-2. Add a DONE entry in the same PR. The entry's primary key is the PR number that closed the item; it names the closed item's TODO number or original backlog ID (`P-X.Y`, `FR-N`, `SR-N`, or a prose-named item) explicitly, and its one-to-two sentences give a clean summary of what the item was and how it was accomplished, not merely a bare outcome (the worked example above is the shape).
+2. Add a DONE entry in the same PR. The entry's primary key is the PR number that closed the item; it names the closed item's TODO number or original backlog ID (whichever identifier family the project uses, for example a phase, feature-request, or security-request prefix, or a prose-named item) explicitly, and its one-to-two sentences give a clean summary of what the item was and how it was accomplished, not merely a bare outcome (the worked example above is the shape).
 3. Both edits live in the same commit so reviewers see the rotation in one place.
 4. The same one-to-two-sentence completion summary is surfaced in chat at the moment of completion, so the reader sees each closed item's summary as it lands, in addition to the DONE ledger and the CHANGELOG entry. The DONE ledger stays the durable at-a-glance index; the chat line is the real-time visibility.
 
@@ -292,35 +292,35 @@ Before listing the upcoming PRs, the assistant first checks whether any new item
 - **Listing the next-N PRs from memory rather than from TODO.** The point of the list is to surface what's actually queued and let the maintainer redirect; surfacing what the assistant happens to remember defeats the discipline. The list comes from TODO; if TODO is stale, refresh TODO first.
 - **Closing an item that was never in TODO and pretending it was.** DONE entries cross-reference real TODO items by their original ID. If the work was unplanned, the DONE entry says so explicitly ("not previously in TODO; surfaced during PR #N as a follow-up"). The fiction of a phantom backlog item is worse than the absence.
 
-### Overnight-work protocol
+### Unattended-work handoff protocol
 
-When the maintainer authorizes an autonomous overnight session (the assistant ships work while the maintainer is asleep or otherwise unavailable), the assistant records the session's state in a designated overnight file (a project-specific location). The file's `Status` field encodes the session's lifecycle:
+When the maintainer authorizes an autonomous unattended session (the assistant ships work while the maintainer is away or otherwise unavailable), the assistant records the session's state in a designated handoff file (a project-specific location). The file's `Status` field encodes the session's lifecycle:
 
-- `stub`: no overnight session is in flight. This is the default state. The file contains only the protocol description, the `Status: stub` line, and (after a routed run) the single latest-run closure note recording where that run's content went.
-- `in-flight`: an overnight session is active. The assistant has filled the file with session content (authorization scope, design decisions made, files being authored / modified, build progress, open ambiguities). Each overnight PR ships with `Status: in-flight`.
-- `done`: the overnight session has ended. The next-morning processing PR then routes the content and resets the file.
+- `stub`: no unattended session is in flight. This is the default state. The file contains only the protocol description, the `Status: stub` line, and (after a routed run) the single latest-run closure note recording where that run's content went.
+- `in-flight`: an unattended session is active. The assistant has filled the file with session content (authorization scope, design decisions made, files being authored / modified, build progress, open ambiguities). Each PR shipped during the session ships with `Status: in-flight`.
+- `done`: the unattended session has ended. The next attended-boundary processing PR then routes the content and resets the file.
 
-The morning-processing PR routes the file's content into the appropriate working-state ledgers (design decisions to the design-decisions ledger, closed work to DONE, queued follow-ups to TODO) and resets the file to `Status: stub`.
+The attended-boundary processing PR routes the file's content into the appropriate working-state ledgers (design decisions to the design-decisions ledger, closed work to DONE, queued follow-ups to TODO) and resets the file to `Status: stub`.
 
-An audit gate enforces this lifecycle: it fails when `Status: done` (overnight session ended but morning processing missing) or when the file is malformed (missing `Status:` line, invalid value). It passes on `stub` and `in-flight`. The three-state field (rather than a binary "stub vs non-stub") preserves the overnight workflow: overnight PRs need to pass CI to land, and they pass the gate while in flight.
+An audit gate enforces this lifecycle: it fails when `Status: done` (unattended session ended but attended-boundary processing missing) or when the file is malformed (missing `Status:` line, invalid value). It passes on `stub` and `in-flight`. The three-state field (rather than a binary "stub vs non-stub") preserves the unattended workflow: PRs shipped during the session need to pass CI to land, and they pass the gate while in flight.
 
-The protocol matters because overnight work generates state that's easy to lose track of: design decisions, surfaced ambiguities, and queued follow-ups all accumulate in the overnight file. Without a structured handoff, the maintainer wakes up to a populated file with no mechanical pressure to process it. The gate's `done`-state failure is that mechanical pressure: CI goes red until the morning processing PR ships.
+The protocol matters because unattended work generates state that's easy to lose track of: design decisions, surfaced ambiguities, and queued follow-ups all accumulate in the handoff file. Without a structured handoff, the maintainer returns to a populated file with no mechanical pressure to process it. The gate's `done`-state failure is that mechanical pressure: CI goes red until the attended-boundary processing PR ships.
 
-**Stub-form contents.** The stub file is not empty; it carries a short description of the protocol (so a future reader landing on the file understands its purpose) plus the `Status: stub` line, and, after a routed run, the single latest-run closure note (older runs' notes live in the file's git history, pruned at each morning processing). A `<!-- OVERNIGHT-PR-STUB -->` marker comment is recommended for grep-based detection but not strictly required by the gate; the gate's only check is the Status value.
+**Stub-form contents.** The stub file is not empty; it carries a short description of the protocol (so a future reader landing on the file understands its purpose) plus the `Status: stub` line, and, after a routed run, the single latest-run closure note (older runs' notes live in the file's version-control history, pruned at each attended-boundary processing). A stub-marker comment the project defines (the parent library's is `<!-- OVERNIGHT-PR-STUB -->`) is recommended for grep-based detection but not strictly required by the gate; the gate's only check is the Status value.
 
-**Initial overnight commit.** The first overnight PR's diff includes the file transitioning from `stub` to `in-flight` plus the initial content. The PR description explains the maintainer's authorization scope.
+**Initial unattended commit.** The session's first PR diff includes the file transitioning from `stub` to `in-flight` plus the initial content. The PR description explains the maintainer's authorization scope.
 
-**Final overnight commit.** The session's last commit (often a dedicated close-out commit, but acceptable as the final overnight PR's last commit) transitions the file from `in-flight` to `done`. The morning-processing PR is now required.
+**Final unattended commit.** The session's last commit (often a dedicated close-out commit, but acceptable as the final session PR's last commit) transitions the file from `in-flight` to `done`. The attended-boundary processing PR is now required.
 
-**Morning-processing PR.** A small focused PR (no other scope) that:
-1. Reads each section of the overnight file.
+**Attended-boundary processing PR.** A small focused PR (no other scope) that:
+1. Reads each section of the handoff file.
 2. Routes content: design decisions → design-decisions ledger; closed work → DONE; queued follow-ups → TODO; any pure-noise content (build-progress checklists, files-touched lists) is discarded.
 3. Resets the file to the stub form with `Status: stub`.
-4. Bumps the library version per the change-tracking discipline; writes CHANGELOG entries.
+4. Bumps the project's version per the change-tracking discipline; writes the CHANGELOG entries.
 
 The gate passes immediately after this PR lands.
 
-**Exception path.** If a session's authorization changes mid-flight (e.g., the maintainer awakens earlier than expected and continues the work directly), the file's `Status` can transition from `in-flight` back to `stub` directly, as long as the file's content has been processed appropriately or was minimal enough to discard. The discipline is: do not leave `Status: done` lingering.
+**Exception path.** If a session's authorization changes mid-flight (e.g., the maintainer returns earlier than expected and continues the work directly), the file's `Status` can transition from `in-flight` back to `stub` directly, as long as the file's content has been processed appropriately or was minimal enough to discard. The discipline is: do not leave `Status: done` lingering.
 
 ---
 
