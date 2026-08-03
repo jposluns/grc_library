@@ -579,3 +579,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-publication-manifest
+        name: Publication-manifest sync audit
+        entry: python3 tools/lint-publication-manifest.py
+        language: system
+        pass_filenames: false
+        always_run: true

@@ -10699,5 +10699,62 @@ class PlaybookPointerIntegrityTests(LinterTestCase):
         )
 
 
+class PublicationManifestTest(unittest.TestCase):
+    """Gate 83: publication-manifest sync (TODO 1.26.5). The decision is a pure
+    function, so the failure modes are tested directly; the clean case is the
+    real linter over the real manifest and tree."""
+
+    @classmethod
+    def setUpClass(cls):
+        import importlib.util
+        path = REPO_ROOT / "tools" / "lint-publication-manifest.py"
+        spec = importlib.util.spec_from_file_location("pubman_gate83", str(path))
+        cls.mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.mod)
+
+    def test_evaluate_clean_finds_nothing(self):
+        tree = {"a.md", "b.md"}
+        entries = {
+            "a.md": {"bucket": "CORE", "disclosure": "PUBLIC", "rationale": "core public"},
+            "b.md": {"bucket": "GRC-ONLY", "disclosure": "WITHHELD", "rationale": "stays in grc_library"},
+        }
+        r = self.mod.evaluate(tree, entries)
+        self.assertEqual(r, {"unclassified": [], "orphans": [], "bad_bucket": [],
+                             "bad_disclosure": [], "bad_combo": [], "empty_rationale": []})
+
+    def test_unclassified_file_flagged(self):
+        r = self.mod.evaluate({"a.md", "new.md"}, {"a.md": {"bucket": "CORE", "disclosure": "PUBLIC"}})
+        self.assertEqual(r["unclassified"], ["new.md"])
+
+    def test_orphan_entry_flagged(self):
+        r = self.mod.evaluate(
+            {"a.md"},
+            {"a.md": {"bucket": "CORE", "disclosure": "PUBLIC"},
+             "gone.md": {"bucket": "CORE", "disclosure": "PUBLIC"}},
+        )
+        self.assertEqual(r["orphans"], ["gone.md"])
+
+    def test_bad_bucket_and_disclosure_flagged(self):
+        r = self.mod.evaluate({"a.md"}, {"a.md": {"bucket": "WRONG", "disclosure": "NOPE"}})
+        self.assertEqual(r["bad_bucket"], ["a.md"])
+        self.assertEqual(r["bad_disclosure"], ["a.md"])
+
+    def test_bad_combination_flagged(self):
+        # GRC-ONLY must be WITHHELD; GRC-ONLY + PUBLIC is the publication-screening class.
+        r = self.mod.evaluate({"a.md"}, {"a.md": {"bucket": "GRC-ONLY", "disclosure": "PUBLIC", "rationale": "x"}})
+        self.assertEqual(r["bad_combo"], ["a.md"])
+        # CORE must not be WITHHELD.
+        r2 = self.mod.evaluate({"b.md"}, {"b.md": {"bucket": "CORE", "disclosure": "WITHHELD", "rationale": "x"}})
+        self.assertEqual(r2["bad_combo"], ["b.md"])
+
+    def test_empty_rationale_flagged(self):
+        r = self.mod.evaluate({"a.md"}, {"a.md": {"bucket": "CORE", "disclosure": "PUBLIC", "rationale": "   "}})
+        self.assertEqual(r["empty_rationale"], ["a.md"])
+
+    def test_runs_clean_on_pack_at_head(self):
+        result = run_linter("tools/lint-publication-manifest.py")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
