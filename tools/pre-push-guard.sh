@@ -7,7 +7,7 @@
 #
 #   tools/pre-push-guard.sh && git push -u origin <branch>
 #
-# It chains the two runners that PR-workflow step 1 mandates before any
+# It chains the two runners that PR-workflow step 2 mandates before any
 # push, stopping on the first failure:
 #
 #   1. tools/run_all_audits.sh      - all corpus gates, from HEAD.
