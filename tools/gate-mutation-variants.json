@@ -184,7 +184,7 @@
       "expect": "detect",
       "action": {
         "type": "append_file",
-        "path": "dev-security/claude-rules/core/secrets.md",
+        "path": "guardrails/core/secrets.md",
         "text": "\n<!-- PROJECT-OVERLAY: not part of the distributable pack -->\n\nLeaked overlay content.\n"
       }
     },
@@ -217,7 +217,7 @@
       "expect": "detect",
       "action": {
         "type": "append_file",
-        "path": "dev-security/claude-rules/core/secrets.md",
+        "path": "guardrails/core/secrets.md",
         "text": "\n  <!-- PROJECT-OVERLAY: not part of the distributable pack -->\n\nIndented leaked overlay.\n"
       }
     }

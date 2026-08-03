@@ -139,7 +139,7 @@ DEFAULT_BASELINE_DATE = datetime.date(2026, 6, 19)
 # subdirectory (the corpus linters skip those via DEFAULT_EXEMPT_DIRS
 # and via dev-security exempt prefixes; this linter relies on the
 # DEFAULT_EXEMPT_DIRS skip for .claude/ and additionally exempts
-# the dev-security/claude-rules/ tree below).
+# the guardrails/ tree below).
 # Meta files plus ``docs`` (the generated-artefact directory, a
 # per-linter extra not in the shared domain set) plus the canonical
 # audited domain directories. The domain run is splatted from
@@ -174,12 +174,12 @@ EXEMPT_FILES: frozenset[str] = frozenset(
 )
 
 # Pack-rule and skill directories carry their own format conventions
-# (the dev-security/claude-rules/ tree uses YAML frontmatter for
+# (the guardrails/ tree uses YAML frontmatter for
 # skills; the rule pack documents use a leaner metadata convention
 # than the corpus's 13-field block). They are not in scope for this
 # linter.
 EXEMPT_DIR_PREFIXES: tuple[str, ...] = (
-    "dev-security/claude-rules/",
+    "guardrails/",
 )
 
 # Date parsing is delegated to the shared metadata parser

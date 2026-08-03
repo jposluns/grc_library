@@ -6,7 +6,7 @@ abstract: >-
   resilience, supplier, and artificial-intelligence governance
   programme. Includes ~300 documents across 11 domains plus
   jurisdiction-specific privacy annexes and sector-specific compliance
-  sub-directories. Also ships the dev-security/claude-rules/ pack, a
+  sub-directories. Also ships the guardrails/ pack, a
   Claude Code rules-and-skills set distilled from the disciplines this
   library required to maintain itself, usable as a standalone Claude
   Code baseline on any project regardless of whether it has a GRC
@@ -16,7 +16,7 @@ message: >-
   licence requires you to attribute the library and to release your
   derivative under CC BY-SA 4.0 as well. This CITATION file provides
   the canonical citation metadata for attribution purposes. Adopters
-  using only the dev-security/claude-rules/ pack should still cite
+  using only the guardrails/ pack should still cite
   the parent library, since the pack is a derivative artefact of the
   library's maintenance experience and ships under the same licence.
 type: dataset

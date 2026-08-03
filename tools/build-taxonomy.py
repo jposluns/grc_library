@@ -57,7 +57,7 @@ EXEMPT_FROM_INDEX = {
 # never reaches those directories; EXEMPT_FILES was also removed as a
 # whole because it was defined but never read.)
 EXEMPT_DIRECTORY_PREFIXES = (
-    "dev-security/claude-rules/",
+    "guardrails/",
 )
 
 FIELD_PATTERN = re.compile(r"^\*\*([^*]+):\*\*\s*(.*?)\s*$")

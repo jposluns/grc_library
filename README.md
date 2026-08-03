@@ -4,8 +4,8 @@
 **Classification:** Public\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
-**Library Version:** 2026.08.63 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.10.218 (semantic per-document version for this file)
+**Library Version:** 2026.08.64 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.10.219 (semantic per-document version for this file)
 
 ---
 
@@ -56,7 +56,7 @@ The seven thematic areas above span 11 governance domain directories, and the li
 
 This repository is, primarily, a **GRC documentation corpus**: organization-neutral, CC BY-SA 4.0 governance artefacts (charters, frameworks, policies, standards, procedures, registers, matrices, plans, guidelines, templates) across the eleven domains listed above. The corpus is the product an adopter takes away.
 
-The corpus is maintained by a small team using Claude Code as an AI coding assistant, under documented governance and discipline. To keep the corpus internally consistent under that maintenance model, the project carries an audit toolchain ([`tools/`](tools/), the multi-gate audit programme under [`tools/run_all_audits.sh`](tools/run_all_audits.sh)) and a Claude Code rules-and-skills pack at [`dev-security/claude-rules/`](dev-security/claude-rules/). The audit toolchain is the maintainer's quality-assurance machinery, not an adopter dependency: adopters who only consume the corpus do not need it. Adopters who want the same maintenance discipline for their own fork can adopt the toolchain (it is permissively licensed and copy-paste portable), but doing so is optional. The pack distils the maintenance disciplines into reusable rules that ship under CC BY-SA 4.0 alongside the corpus: an adopter who is not building a GRC library can still take the pack for use on any project. The pack is a by-product of the corpus's maintenance, not a parallel deliverable.
+The corpus is maintained by a small team using Claude Code as an AI coding assistant, under documented governance and discipline. To keep the corpus internally consistent under that maintenance model, the project carries an audit toolchain ([`tools/`](tools/), the multi-gate audit programme under [`tools/run_all_audits.sh`](tools/run_all_audits.sh)) and a Claude Code rules-and-skills pack at [`guardrails/`](guardrails/). The audit toolchain is the maintainer's quality-assurance machinery, not an adopter dependency: adopters who only consume the corpus do not need it. Adopters who want the same maintenance discipline for their own fork can adopt the toolchain (it is permissively licensed and copy-paste portable), but doing so is optional. The pack distils the maintenance disciplines into reusable rules that ship under CC BY-SA 4.0 alongside the corpus: an adopter who is not building a GRC library can still take the pack for use on any project. The pack is a by-product of the corpus's maintenance, not a parallel deliverable.
 
 The audit gates and the pack rules grew out of the corpus, not the other way around. Audit gates were added in response to specific drift modes observed in the corpus. Pack rules were extracted from real failure modes the maintainer encountered while keeping the corpus consistent (evidence-grounded completion came from a stale-claim incident; clarify-before-acting from "always confirm" feedback; action-before-explanation-of-inaction from a merge-blocked incident). The corpus is the headline; the maintenance discipline is the methodology that keeps the headline honest.
 
@@ -66,9 +66,9 @@ An adopter can engage with this repository at any of three levels:
 
 - **Fork the whole repo.** You want both the GRC corpus and the maintenance toolkit. Your organization forks, substitutes organization-specific values across the artefacts, and inherits the audit programme and the pack as the operational layer your AI coding assistant uses to keep the corpus consistent. See [`docs/adopter-guide.md`](docs/adopter-guide.md) for the full path.
 
-- **Adopt the corpus only.** You want the Markdown artefacts as a starting point and have your own maintenance workflow (or no AI assistance in the loop). Take the domain directories you need; ignore [`tools/`](tools/) and [`dev-security/claude-rules/`](dev-security/claude-rules/). The CC BY-SA 4.0 share-alike clause applies to derivatives you redistribute.
+- **Adopt the corpus only.** You want the Markdown artefacts as a starting point and have your own maintenance workflow (or no AI assistance in the loop). Take the domain directories you need; ignore [`tools/`](tools/) and [`guardrails/`](guardrails/). The CC BY-SA 4.0 share-alike clause applies to derivatives you redistribute.
 
-- **Adopt the pack only.** You are not building a GRC library, but you want a Claude Code baseline pack, usable on any project regardless of whether it has a GRC corpus, distilled from the disciplines this library required to maintain itself. Take [`dev-security/claude-rules/`](dev-security/claude-rules/) (the pack's own [`README.md`](dev-security/claude-rules/README.md) is its front door) and drop it into your project's Claude Code context. For an automated, AI-assisted installation that tailors the pack to your specific project, see the setup generator prompt at [`dev-security/claude-rules/setup-generator-prompt.md`](dev-security/claude-rules/setup-generator-prompt.md). The pack ships with its own version sequence and is documented to operate standalone.
+- **Adopt the pack only.** You are not building a GRC library, but you want a Claude Code baseline pack, usable on any project regardless of whether it has a GRC corpus, distilled from the disciplines this library required to maintain itself. Take [`guardrails/`](guardrails/) (the pack's own [`README.md`](guardrails/README.md) is its front door) and drop it into your project's Claude Code context. For an automated, AI-assisted installation that tailors the pack to your specific project, see the setup generator prompt at [`guardrails/setup-generator-prompt.md`](guardrails/setup-generator-prompt.md). The pack ships with its own version sequence and is documented to operate standalone.
 
 The third mode is an emergent use that has been adopted by developers in practice; it is supported alongside the primary fork-the-whole-repo path.
 
@@ -189,7 +189,7 @@ Examples:
 - [`privacy/policy-privacy-and-data-governance.md`](privacy/policy-privacy-and-data-governance.md)
 - [`supply-chain/framework-supplier-and-cloud-governance.md`](supply-chain/framework-supplier-and-cloud-governance.md)
 - [`dev-security/standard-developer-security-requirements.md`](dev-security/standard-developer-security-requirements.md)
-- [`dev-security/claude-rules/CLAUDE.md`](dev-security/claude-rules/CLAUDE.md)
+- [`guardrails/CLAUDE.md`](guardrails/CLAUDE.md)
 
 ---
 

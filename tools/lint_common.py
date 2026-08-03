@@ -56,7 +56,7 @@ REPO_ROOT: Path = Path(__file__).resolve().parent.parent
 # repository. Frozen so callers cannot mutate the shared default.
 # ``.claude`` holds this project's Claude Code AI-assistant config
 # (project CLAUDE.md and draggable rule files copied from the
-# dev-security/claude-rules/ pack); like that pack directory, its
+# guardrails/ pack); like that pack directory, its
 # contents are AI-context artefacts, not governed corpus documents,
 # so the corpus linters skip it.
 # ``.working`` held maintainer working state (per-run records from

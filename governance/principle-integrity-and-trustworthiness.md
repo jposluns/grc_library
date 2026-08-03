@@ -2,11 +2,11 @@
 
 **Document Title:** Integrity and Trustworthiness Principle\
 **Document Type:** Principle\
-**Version:** 0.0.5\
-**Date:** 2026-07-30\
+**Version:** 0.0.6\
+**Date:** 2026-08-03\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`dev-security/claude-rules/governance/project-integrity.md`](../dev-security/claude-rules/governance/project-integrity.md), [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/specification-audit-programme.md`](specification-audit-programme.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md)\
+**Related Documents:** [`guardrails/governance/project-integrity.md`](../guardrails/governance/project-integrity.md), [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/specification-audit-programme.md`](specification-audit-programme.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md)\
 **Classification:** Public\
 **Category:** Core Governance\
 **Review Frequency:** Annual and upon material governance, AI, or regulatory change\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This document states the library's foundational production principle in citable, adopter-facing form: the **AIQT Principle**, the priority ordering **(Accuracy = Integrity = Quality = Trust) > Progress > Speed > Cost**. It is the corpus counterpart to the governance pack's apex rule ([`governance/project-integrity.md`](../dev-security/claude-rules/governance/project-integrity.md)): where the pack rule governs how the library is produced and maintained, this document explains the principle to a reader of the library and records, in source-verified form, how the four facets align with the trustworthiness vocabularies of the AI-assurance and general-assurance frameworks the corpus draws on.
+This document states the library's foundational production principle in citable, adopter-facing form: the **AIQT Principle**, the priority ordering **(Accuracy = Integrity = Quality = Trust) > Progress > Speed > Cost**. It is the corpus counterpart to the governance pack's apex rule ([`governance/project-integrity.md`](../guardrails/governance/project-integrity.md)): where the pack rule governs how the library is produced and maintained, this document explains the principle to a reader of the library and records, in source-verified form, how the four facets align with the trustworthiness vocabularies of the AI-assurance and general-assurance frameworks the corpus draws on.
 
 The principle governs the integrity of the work product and its production process. It is distinct from, and complementary to, the AI-system trustworthiness the corpus's AI-governance documents address: those govern the behaviour of a deployed AI system; this governs whether the documentation and tooling the library ships are what they claim to be.
 
@@ -81,7 +81,7 @@ The four facets align, at the concept level, with the trustworthiness vocabulari
 
 ## 5. Adoption guidance
 
-An adopter reusing this library inherits the AIQT ordering as the tiebreaker for their own production of governed content. To operationalize it: fix the ordering once, at the highest precedence, so it is not re-litigated under deadline pressure; name, for each facet, the specific machinery (gates, reviews, audit trail) that enforces it in your environment; and make escalation, not silent compromise, the sanctioned response when a constraint pressures the tier. The pack rule [`governance/project-integrity.md`](../dev-security/claude-rules/governance/project-integrity.md) is the project-agnostic distributable form; this document is the corpus's citable statement of the same principle with its framework alignment.
+An adopter reusing this library inherits the AIQT ordering as the tiebreaker for their own production of governed content. To operationalize it: fix the ordering once, at the highest precedence, so it is not re-litigated under deadline pressure; name, for each facet, the specific machinery (gates, reviews, audit trail) that enforces it in your environment; and make escalation, not silent compromise, the sanctioned response when a constraint pressures the tier. The pack rule [`governance/project-integrity.md`](../guardrails/governance/project-integrity.md) is the project-agnostic distributable form; this document is the corpus's citable statement of the same principle with its framework alignment.
 
 ## Framework alignment
 

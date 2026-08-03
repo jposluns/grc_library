@@ -25,7 +25,7 @@ cd "$(dirname "$0")/.." || exit 2
 # runs the history-aware gates against the real merge base) is unaffected.
 MB="$(git merge-base HEAD origin/main 2>/dev/null || echo HEAD)"
 # Restrict to CORPUS-CONTENT .md: files under an audited domain directory, minus
-# the dev-security/claude-rules/ pack subtree and README.md files. The fast-ready
+# the guardrails/ pack subtree and README.md files. The fast-ready
 # gates scope to exactly this set in their default (no-argument) run, so passing
 # a non-corpus .md (a root file like TODO.md/CHANGELOG.md, a .claude/ file, docs/,
 # tools/, tests/, .github/, .web/, or a pack file) that the gate would EXEMPT in
@@ -36,7 +36,7 @@ mapfile -t CHANGED < <(
     git diff --name-only --diff-filter=d "$MB" -- '*.md' 2>/dev/null
     git diff --name-only --diff-filter=d HEAD -- '*.md' 2>/dev/null
     git ls-files --others --exclude-standard -- '*.md' 2>/dev/null
-  } | sort -u | grep -E '^(ai|architecture|compliance|dev-security|governance|\.project-governance|operations|privacy|resilience|risk|security|supply-chain)/' | grep -vE '^dev-security/claude-rules/' | grep -vE '(^|/)README\.md$'
+  } | sort -u | grep -E '^(ai|architecture|compliance|dev-security|governance|\.project-governance|operations|privacy|resilience|risk|security|supply-chain)/' | grep -vE '(^|/)README\.md$'
 )
 
 if [ "${#CHANGED[@]}" -eq 0 ]; then

@@ -56,7 +56,7 @@ codes with a non-CSF function prefix cannot occur (the token regex requires
 one of the six CSF Functions).
 
 Excludes the central matrix (gate 49's exact target) to avoid duplicate
-coverage, and the ``dev-security/claude-rules/`` pack subtree (AI-context
+coverage, and the ``guardrails/`` pack subtree (AI-context
 artefacts, not governed corpus documents, consistent with the other
 content linters).
 
@@ -91,7 +91,7 @@ MATRIX_REL = "compliance/matrix-grc-compliance-alignment.md"
 
 # The pack subtree holds AI-context artefacts (SKILL.md, rule files), not
 # governed corpus documents; the other content linters exempt it too.
-PACK_PREFIX = "dev-security/claude-rules/"
+PACK_PREFIX = "guardrails/"
 
 # NIST CSF label: matches "NIST CSF" / "NIST Cybersecurity Framework"
 # (optionally "2.0"), but NOT "NIST SP 800-...".

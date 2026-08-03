@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """Skill-to-rule reference-integrity audit.
 
-Each `SKILL.md` file under `dev-security/claude-rules/skills/<name>/` is a
+Each `SKILL.md` file under `guardrails/skills/<name>/` is a
 workflow document that DERIVES from a canonical pack rule (typically
-under `dev-security/claude-rules/governance/`). The skill's YAML
+under `guardrails/governance/`). The skill's YAML
 frontmatter must declare the derivation explicitly via a
 ``derives_from:`` field whose value is a relative path from the skill
 file to the canonical rule's markdown file. This audit enforces that:
 
-  1. Every ``SKILL.md`` under ``dev-security/claude-rules/skills/`` has a
+  1. Every ``SKILL.md`` under ``guardrails/skills/`` has a
      ``derives_from:`` field in its YAML frontmatter.
   2. The path named by ``derives_from:`` resolves to an existing file in
      the repository.
@@ -20,7 +20,7 @@ documents' procedural content and comparing); the link-coverage and
 section-anchor audits already catch broken cross-references elsewhere in
 the body.
 
-The audit is deliberately permissive when ``dev-security/claude-rules/``
+The audit is deliberately permissive when ``guardrails/``
 contains no ``skills/`` subdirectory or when ``skills/`` contains no
 ``SKILL.md`` files: zero skills means nothing to audit. The audit returns
 exit code 0 with a "no skills found" note in that case, matching the
@@ -55,7 +55,7 @@ from pathlib import Path
 
 from lint_common import REPO_ROOT, read_text_safe
 
-SKILLS_DIR_REL = "dev-security/claude-rules/skills"
+SKILLS_DIR_REL = "guardrails/skills"
 
 # Matches a YAML frontmatter ``derives_from:`` line. The path captured
 # group spans to end-of-line (after stripping leading whitespace), and
@@ -143,7 +143,7 @@ def check_skill(skill_path: Path, root: Path) -> list[str]:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Audit that every SKILL.md under dev-security/claude-rules/skills/ "
+            "Audit that every SKILL.md under guardrails/skills/ "
             "declares a derives_from: frontmatter field pointing at an existing "
             "pack rule."
         )

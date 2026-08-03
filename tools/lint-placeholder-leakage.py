@@ -89,7 +89,7 @@ EXEMPT_FILES = {
 # (``.git``/``node_modules``/``__pycache__``) plus ``claude-rules``,
 # where rule files use angle-bracket placeholders as documentation of
 # command syntax, not as template-fill markers.
-EXEMPT_DIR_PARTS = DEFAULT_EXEMPT_DIRS | {"claude-rules"}
+EXEMPT_DIR_PARTS = DEFAULT_EXEMPT_DIRS | {"guardrails"}
 
 # Patterns whose presence indicates a placeholder leak. Each pattern uses
 # word boundaries or angle-bracket-syntax to avoid false matches on prose.

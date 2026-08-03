@@ -4,7 +4,7 @@
 **Version:** 1.2.2\
 **Date:** 2026-07-30\
 **Owner:** Governance Library Maintainer\
-**Repository Path:** [`dev-security/claude-rules/rule-provenance.md`](rule-provenance.md)\
+**Repository Path:** [`guardrails/rule-provenance.md`](rule-provenance.md)\
 **License:** CC BY-SA 4.0
 
 ---
@@ -32,7 +32,7 @@ deliberately not restated here.
 Entries are two to five sentences, narrative only. Where a date matters it is given at
 month granularity; most entries need none.
 
-This register lives in the `dev-security/claude-rules/` directory and, per the parent
+This register lives in the `guardrails/` directory and, per the parent
 library's exemption convention for this directory, carries the shorter header above
 rather than the full corpus metadata block.
 

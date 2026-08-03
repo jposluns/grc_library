@@ -374,6 +374,7 @@ def main(argv: list[str]) -> int:
             # Authored adopter-facing guides; the two generated artefacts in
             # docs/ are filtered out in iter_markdown_files (see GENERATED_DOCS).
             "docs",
+            "guardrails",
         ]
         gen_input = list(GENERATOR_SOURCES)
 

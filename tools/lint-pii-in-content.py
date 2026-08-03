@@ -146,7 +146,7 @@ def is_documentation_ip(addr: str) -> bool:
         # IPv4Address.is_private returns True for this range only on
         # Python 3.13+; this explicit network keeps recognition
         # backward-compatible. Documentation citing the SSRF block-list
-        # (e.g., dev-security/claude-rules/core/owasp.md) must be able to
+        # (e.g., guardrails/core/owasp.md) must be able to
         # quote the range without triggering this gate.
         ipaddress.IPv4Network("100.64.0.0/10"),
     ]

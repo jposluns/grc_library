@@ -815,7 +815,7 @@ def main() -> int:
         f"FAIL: {len(all_findings)} bookkeeping-parity finding(s). "
         "The gate enforces the PRESENCE of the per-PR QA records and the "
         "TODO/DONE rotation the process mandates; see "
-        "dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md "
+        "guardrails/governance/ai-assistant-workflow-disciplines.md "
         "and change-tracking.md for the conventions.",
         file=sys.stderr,
     )

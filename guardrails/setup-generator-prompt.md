@@ -13,7 +13,7 @@ You are running in the consumer's own Claude Code session, inside their project.
 You will:
 
 1. Detect this project's stack and existing AI-assistant configuration from on-disk evidence.
-2. Read the pack's "Rule files and their scope" table in [`dev-security/claude-rules/README.md`](README.md) and map applicable modules.
+2. Read the pack's "Rule files and their scope" table in [`guardrails/README.md`](README.md) and map applicable modules.
 3. Propose a file-by-file plan (project CLAUDE.md plus rule-file selection and placement) for the consumer to approve.
 4. Generate the approved files only after explicit consumer approval.
 5. Validate that nothing in the project broke and hand off with audit notes.
@@ -37,7 +37,7 @@ This prompt reads the GRC Library security pack from one of two sources:
 **Default canonical source**:
 
 ```
-https://raw.githubusercontent.com/jposluns/grc_library/main/dev-security/claude-rules/
+https://raw.githubusercontent.com/jposluns/grc_library/main/guardrails/
 ```
 
 This is the GRC Library's first-party CC BY-SA 4.0 source. The library is organization-neutral; adopters who have forked it (for example, an enterprise that vendors the library under its own org) should substitute their fork's canonical URL.
@@ -88,9 +88,9 @@ Produce a project profile from on-disk evidence. Cite each conclusion with the f
 
 Before mapping any modules, decide which pack source to read from.
 
-1. **Probe for a local pack** at `dev-security/` in the project root, the parent directory, and other nearby common locations (`../grc_library/dev-security/`, `~/projects/grc_library/dev-security/`). Report what you find or do not find.
+1. **Probe for a local pack** at `guardrails/` in the project root, the parent directory, and other nearby common locations (`../grc_library/dev-security/`, `~/projects/grc_library/dev-security/`). Report what you find or do not find.
 
-2. **If a local pack is found**: fetch only [`dev-security/claude-rules/README.md`](README.md) from the canonical source (announce the canonical URL first; ask the consumer to confirm or substitute as described in "Source of truth and trust posture"). Extract the per-document `Version:` field from both the local and canonical [`claude-rules/README.md`](README.md). Compare:
+2. **If a local pack is found**: fetch only [`guardrails/README.md`](README.md) from the canonical source (announce the canonical URL first; ask the consumer to confirm or substitute as described in "Source of truth and trust posture"). Extract the per-document `Version:` field from both the local and canonical [`guardrails/README.md`](README.md). Compare:
    - **Canonical version equals local version**: announce match; use **local mode**; proceed.
    - **Canonical version is newer than local**: announce the version gap and ask the consumer to choose one of three options:
      1. Continue using the existing local pack (consumer accepts the staleness).
@@ -103,7 +103,7 @@ Before mapping any modules, decide which pack source to read from.
 
 For every subsequent step in this prompt that reads pack content:
 
-- In local mode, read from disk paths under the detected `dev-security/claude-rules/` directory.
+- In local mode, read from disk paths under the detected `guardrails/` directory.
 - In fetch mode, WebFetch the corresponding file from the confirmed canonical URL prefix (for example, the prefix plus [`core/secrets.md`](core/secrets.md)).
 - If any fetch fails mid-generation, halt and ask the consumer to choose: (1) retry the failed fetch, (2) abort and re-run later, or (3) drop the failed module and continue with the partial set (not recommended; warn the consumer they will lose that module's coverage).
 
@@ -141,7 +141,7 @@ Identify this project's own test, lint, and CI commands so the generated CLAUDE.
 
 ### Pack mapping
 
-Read the [`claude-rules/README.md`](README.md) "Rule files and their scope" table from whichever source the Pack location step selected (local disk in local mode, the canonical URL plus [`README.md`](README.md) in fetch mode; if you fetched it during the freshness check, reuse the result rather than fetching again). For each module, decide whether it applies to this project's detected profile. Examples:
+Read the [`guardrails/README.md`](README.md) "Rule files and their scope" table from whichever source the Pack location step selected (local disk in local mode, the canonical URL plus [`README.md`](README.md) in fetch mode; if you fetched it during the freshness check, reuse the result rather than fetching again). For each module, decide whether it applies to this project's detected profile. Examples:
 
 - [`core/secrets.md`](core/secrets.md): applies to all projects.
 - [`core/authentication.md`](core/authentication.md): applies if the project has user login, service accounts, or APIs.
@@ -227,7 +227,7 @@ Step through the four sources in this order: TikiTribe, Kariedo, addyosmani, Wiz
 
 **addyosmani per-source offer:**
 
-> **addyosmani Agent Skills**: 24 engineering-workflow skills in Claude Code's Skills `SKILL.md` format, organized by development phase (Define, Plan, Build, Verify, Review, Ship). Includes `security-and-hardening` (STRIDE-per-trust-boundary, Mandatory / Approval-Gated / Prohibited tier model, OWASP prevention patterns, LLM-output handling), `code-review-and-quality` (five-axis review), `ci-cd-and-automation` (quality-gate pipeline configuration), plus 21 other workflow skills. Scope is engineering workflow, not GRC governance: adopters expecting additional governance content should note this. **Licence: MIT**; use freely; keep addyosmani's attribution notice when you redistribute. Library maintainer EXT-01 vet on 2026-06-19 (no concerns; 5 skills fully vetted, 19 spot-scanned for red flags). See [`dev-security/claude-rules/vetting-log.md`](vetting-log.md) for the per-skill depth disclosure.
+> **addyosmani Agent Skills**: 24 engineering-workflow skills in Claude Code's Skills `SKILL.md` format, organized by development phase (Define, Plan, Build, Verify, Review, Ship). Includes `security-and-hardening` (STRIDE-per-trust-boundary, Mandatory / Approval-Gated / Prohibited tier model, OWASP prevention patterns, LLM-output handling), `code-review-and-quality` (five-axis review), `ci-cd-and-automation` (quality-gate pipeline configuration), plus 21 other workflow skills. Scope is engineering workflow, not GRC governance: adopters expecting additional governance content should note this. **Licence: MIT**; use freely; keep addyosmani's attribution notice when you redistribute. Library maintainer EXT-01 vet on 2026-06-19 (no concerns; 5 skills fully vetted, 19 spot-scanned for red flags). See [`guardrails/vetting-log.md`](vetting-log.md) for the per-skill depth disclosure.
 >
 > **Default action: fetch.** Reply `skip addyosmani` to exclude, or approve / silence / `fetch addyosmani` to proceed.
 

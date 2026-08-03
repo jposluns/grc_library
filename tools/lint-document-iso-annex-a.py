@@ -47,7 +47,7 @@ Scope (deliberately bounded, precision-first):
     codes (``A.8.20, A.8.21: Network Controls``) is ignored.
 
 Excludes the central matrix (gate 49's exact target) and the
-``dev-security/claude-rules/`` pack subtree, consistent with gate 54.
+``guardrails/`` pack subtree, consistent with gate 54.
 
 Scans the audited corpus directories by default; a path argument (used by
 the regression harness) overrides the target to a single file.
@@ -82,7 +82,7 @@ from lint_common import (
 MATRIX_REL = "compliance/matrix-grc-compliance-alignment.md"
 
 # The pack subtree holds AI-context artefacts, not governed corpus documents.
-PACK_PREFIX = "dev-security/claude-rules/"
+PACK_PREFIX = "guardrails/"
 
 # ISO/IEC 27001:2022 label: matches "ISO/IEC 27001:2022" and "ISO 27001:2022".
 # The :2022 suffix is required so validation is edition-pinned (precision-first).

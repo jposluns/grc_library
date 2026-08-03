@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """Claude-rules local-copy sync audit.
 
-The project consumes a subset of the ``dev-security/claude-rules/``
+The project consumes a subset of the ``guardrails/``
 pack as session-start context by keeping copies under ``.claude/rules/``.
 Those copies are supposed to track their pack source: the pack file is
 the source of truth, and the local copy is what a Claude Code session
 actually loads. When the pack source is edited but the local copy is
 not (or vice versa), the session loads stale guidance and nothing
-catches it, because both ``.claude/`` and ``dev-security/claude-rules/``
+catches it, because both ``.claude/`` and ``guardrails/``
 are on the corpus linters' exemption list.
 
 This audit closes that gap. For each declared (local copy, pack source)
@@ -88,25 +88,25 @@ OVERLAY_MARKER = "<!-- PROJECT-OVERLAY: not part of the distributable pack -->"
 # ``.claude/rules/`` (except the ``external/`` overlay) must appear as a
 # key here; the completeness check enforces that.
 MIRROR_MAP: dict[str, str] = {
-    ".claude/rules/secrets.md": "dev-security/claude-rules/core/secrets.md",
-    ".claude/rules/input-validation.md": "dev-security/claude-rules/core/input-validation.md",
-    ".claude/rules/python.md": "dev-security/claude-rules/languages/python.md",
-    ".claude/rules/cicd-gates.md": "dev-security/claude-rules/pipeline/cicd-gates.md",
-    ".claude/rules/governance/gate-discipline.md": "dev-security/claude-rules/governance/gate-discipline.md",
-    ".claude/rules/governance/change-tracking.md": "dev-security/claude-rules/governance/change-tracking.md",
-    ".claude/rules/governance/evidence-grounded-completion.md": "dev-security/claude-rules/governance/evidence-grounded-completion.md",
-    ".claude/rules/governance/clarify-before-acting.md": "dev-security/claude-rules/governance/clarify-before-acting.md",
-    ".claude/rules/governance/artefact-and-branch-discipline.md": "dev-security/claude-rules/governance/artefact-and-branch-discipline.md",
-    ".claude/rules/governance/action-before-explanation-of-inaction.md": "dev-security/claude-rules/governance/action-before-explanation-of-inaction.md",
-    ".claude/rules/governance/validate-inference-before-action.md": "dev-security/claude-rules/governance/validate-inference-before-action.md",
-    ".claude/rules/governance/ai-assistant-workflow-disciplines.md": "dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md",
-    ".claude/rules/governance/trust-recovery-escalation.md": "dev-security/claude-rules/governance/trust-recovery-escalation.md",
-    ".claude/rules/governance/project-integrity.md": "dev-security/claude-rules/governance/project-integrity.md",
-    ".claude/rules/governance/surface-counterproductive-instructions.md": "dev-security/claude-rules/governance/surface-counterproductive-instructions.md",
-    ".claude/rules/governance/high-assurance-verification.md": "dev-security/claude-rules/governance/high-assurance-verification.md",
-    ".claude/rules/governance/session-lifecycle.md": "dev-security/claude-rules/governance/session-lifecycle.md",
-    ".claude/rules/governance/decision-classification-before-enacting.md": "dev-security/claude-rules/governance/decision-classification-before-enacting.md",
-    ".claude/rules/governance/express-authorization-before-execution.md": "dev-security/claude-rules/governance/express-authorization-before-execution.md",
+    ".claude/rules/secrets.md": "guardrails/core/secrets.md",
+    ".claude/rules/input-validation.md": "guardrails/core/input-validation.md",
+    ".claude/rules/python.md": "guardrails/languages/python.md",
+    ".claude/rules/cicd-gates.md": "guardrails/pipeline/cicd-gates.md",
+    ".claude/rules/governance/gate-discipline.md": "guardrails/governance/gate-discipline.md",
+    ".claude/rules/governance/change-tracking.md": "guardrails/governance/change-tracking.md",
+    ".claude/rules/governance/evidence-grounded-completion.md": "guardrails/governance/evidence-grounded-completion.md",
+    ".claude/rules/governance/clarify-before-acting.md": "guardrails/governance/clarify-before-acting.md",
+    ".claude/rules/governance/artefact-and-branch-discipline.md": "guardrails/governance/artefact-and-branch-discipline.md",
+    ".claude/rules/governance/action-before-explanation-of-inaction.md": "guardrails/governance/action-before-explanation-of-inaction.md",
+    ".claude/rules/governance/validate-inference-before-action.md": "guardrails/governance/validate-inference-before-action.md",
+    ".claude/rules/governance/ai-assistant-workflow-disciplines.md": "guardrails/governance/ai-assistant-workflow-disciplines.md",
+    ".claude/rules/governance/trust-recovery-escalation.md": "guardrails/governance/trust-recovery-escalation.md",
+    ".claude/rules/governance/project-integrity.md": "guardrails/governance/project-integrity.md",
+    ".claude/rules/governance/surface-counterproductive-instructions.md": "guardrails/governance/surface-counterproductive-instructions.md",
+    ".claude/rules/governance/high-assurance-verification.md": "guardrails/governance/high-assurance-verification.md",
+    ".claude/rules/governance/session-lifecycle.md": "guardrails/governance/session-lifecycle.md",
+    ".claude/rules/governance/decision-classification-before-enacting.md": "guardrails/governance/decision-classification-before-enacting.md",
+    ".claude/rules/governance/express-authorization-before-execution.md": "guardrails/governance/express-authorization-before-execution.md",
 }
 
 
@@ -186,7 +186,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=(
             "Audit that every project-local .claude/rules copy's body "
-            "matches its dev-security/claude-rules pack source, and that "
+            "matches its guardrails pack source, and that "
             "every local rule file is covered by the sync mapping."
         )
     )
@@ -280,7 +280,7 @@ def main(argv: list[str] | None = None) -> int:
     print(
         f"\n{len(findings)} finding(s). The .claude/rules/ copies are "
         f"loaded as session context and must track their "
-        f"dev-security/claude-rules/ pack sources."
+        f"guardrails/ pack sources."
     )
     return 1
 

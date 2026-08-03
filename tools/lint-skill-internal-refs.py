@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Skill-body internal-reference audit (gate 76; TODO section 3.56a guard 1).
 
-Pack skills under ``dev-security/claude-rules/skills/<name>/SKILL.md`` are
+Pack skills under ``guardrails/skills/<name>/SKILL.md`` are
 PORTABLE: their body is meant to be project-agnostic so an adopting fork can use
 it unchanged. Each skill may carry ONE project-instantiation block, the
 ``## Project wiring (the parent library's instantiation; adopters substitute
@@ -67,7 +67,7 @@ try:
 except Exception:  # pragma: no cover - allow standalone/self-test import
     REPO_ROOT = Path(__file__).resolve().parent.parent
 
-SKILLS_DIR = "dev-security/claude-rules/skills"
+SKILLS_DIR = "guardrails/skills"
 
 # The single canonical wiring-section heading (census: one marker shape only).
 _WIRING_START = re.compile(r"^##\s+Project wiring\b")

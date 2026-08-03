@@ -44,7 +44,7 @@ mode):
   not artefacts).
 - Domain README files match the loose-mode shape that requires only a
   Document Title and License field.
-- Paths under EXEMPT_PREFIXES (`dev-security/claude-rules/`, `tools/`)
+- Paths under EXEMPT_PREFIXES (`guardrails/`, `tools/`)
   are exempt because those directories hold draggable rule files and
   audit tooling rather than canonical library documents. ``docs/``
   was previously exempt; it was removed in the docs-metadata
@@ -145,7 +145,7 @@ EXEMPT = {
 # FORCE_INCLUDE_PATHS carve-out set was deleted along with the prefix
 # entry.
 EXEMPT_PREFIXES = (
-    "dev-security/claude-rules/",
+    "guardrails/",
     "tools/",
 )
 

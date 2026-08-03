@@ -3,13 +3,13 @@
   "_maintenance": "Add an entry after the validation-sweep history register dismisses a finding as a stable false positive. Remove an entry if the underlying text is rewritten to remove the false-positive shape. The register's false-positive memory section is the human-readable source of truth; this file is the machine-readable mirror.",
   "exemptions": [
     {
-      "path": "dev-security/claude-rules/README.md",
+      "path": "guardrails/README.md",
       "pattern_id": "PF-collection-skills",
       "line_hash": "b66b2387f8abbe5a",
       "reason": "addyosmani external vet count: '5 skills in full + 19 spot-scanned' describes the maintainer's vetting depth, not a pack-skills count."
     },
     {
-      "path": "dev-security/claude-rules/setup-generator-prompt.md",
+      "path": "guardrails/setup-generator-prompt.md",
       "pattern_id": "PF-collection-skills",
       "line_hash": "13314d43cfeabdc5",
       "reason": "addyosmani external description: '24 engineering-workflow skills in Claude Code's Skills format'. The scanner captures a smaller digit from later in the line; the prose is about an external project, not the pack."
@@ -27,13 +27,13 @@
       "reason": "promptmap2 external project (second mention on same page): '69 rules across 6 categories' describes that external scanner's ruleset."
     },
     {
-      "path": "dev-security/claude-rules/skills/validation-sweep/SKILL.md",
+      "path": "guardrails/skills/validation-sweep/SKILL.md",
       "pattern_id": "PF-collection-rules-word",
       "line_hash": "d0e2dce98dc3847d",
       "reason": "SARIF-lite output format introduction: the line is 'Three rules:' introducing the three rules of the SARIF-lite output format (one block per finding, deterministic fingerprint, closed severity enum), not a governance-rule count."
     },
     {
-      "path": "dev-security/claude-rules/skills/validation-sweep/SKILL.md",
+      "path": "guardrails/skills/validation-sweep/SKILL.md",
       "pattern_id": "PF-collection-rules-word",
       "line_hash": "2ae34a0ce24f10c3",
       "reason": "Synthesis rubric sub-rules 5.1-5.6: 'Six rules, no ceremony' refers to rubric sub-rules in adjacent text, not governance-rule count. Replaces the prior 'Four rules' exemption (line_hash eca081c59b46035c) removed in PR #117 when the prose was updated from 'Four rules' to 'Six rules'."

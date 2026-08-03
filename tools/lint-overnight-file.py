@@ -3,7 +3,7 @@
 
 Scans [`.working/overnight-pr.md`](.working/overnight-pr.md) and
 enforces the unattended-work handoff protocol documented in
-``dev-security/claude-rules/governance/change-tracking.md``.
+``guardrails/governance/change-tracking.md``.
 
 The file's ``Status`` field encodes whether an overnight session is
 in flight, active, or has ended without subsequent morning
@@ -107,7 +107,7 @@ def main() -> int:
             f"(the design-decisions record for design decisions, "
             f".working/DONE.md for closed work, TODO.md for queued "
             f"follow-ups) and reset this file to the stub form. See "
-            f"dev-security/claude-rules/governance/change-tracking.md "
+            f"guardrails/governance/change-tracking.md "
             f"PR finalization protocol section for the routing detail.",
             file=sys.stderr,
         )

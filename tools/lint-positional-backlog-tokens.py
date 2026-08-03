@@ -11,7 +11,7 @@ flags the fragile form so authors reword toward the stable one, the same class a
 the CLAUDE.md section-close cross-file cleanup guard, made mechanical for the corpus.
 
 Scope: authored corpus prose only. The pack subtree
-``dev-security/claude-rules/`` is EXEMPT (its README version-history legitimately
+``guardrails/`` is EXEMPT (its README version-history legitimately
 narrates past PRs by their then-current backlog position), as are ``CHANGELOG.md``
 and ``TODO.md`` itself (the backlog is the source of the numbering, not a fragile
 external reference to it), and the ``.working`` / ``.claude`` trees (already outside
@@ -67,7 +67,7 @@ EXEMPT_FILES = {
 # Path prefixes exempt from this gate. The pack subtree carries AI-assistant
 # guidance whose README version-history narrates past PRs positionally.
 EXEMPT_PREFIXES = (
-    "dev-security/claude-rules/",
+    "guardrails/",
 )
 
 DEFAULT_PATHS = [

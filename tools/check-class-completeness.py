@@ -49,7 +49,7 @@ def corpus_files(root: Path = REPO_ROOT) -> list[Path]:
     ``node_modules`` / ``references`` excluded), requiring a real file (``is_file``) so a
     directory that happens to end ``.md`` is not returned. This is deliberately BROADER than
     any single content linter's per-tool scan (it includes the generated ``docs/`` artefacts,
-    the pack under ``dev-security/claude-rules/``, and ``.project-governance/``): broader is
+    the pack under ``guardrails/``, and ``.project-governance/``): broader is
     the SAFE direction for a class-completeness sweep, which wants to surface every occurrence
     it can read."""
     return sorted(p for p in root.rglob("*.md") if p.is_file() and is_markdown_target(p))

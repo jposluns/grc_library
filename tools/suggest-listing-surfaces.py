@@ -87,7 +87,7 @@ def find_matrix_surfaces() -> list[str]:
     for p in sorted(REPO_ROOT.glob("**/*.md")):
         rel = p.relative_to(REPO_ROOT).as_posix()
         # Skip the working dir, the pack, generated docs.
-        if rel.startswith((".working/", "dev-security/claude-rules/", "docs/", ".git/")):
+        if rel.startswith((".working/", "guardrails/", "docs/", ".git/")):
             continue
         base = p.name
         if base.startswith("matrix-") or "crosswalk" in base:

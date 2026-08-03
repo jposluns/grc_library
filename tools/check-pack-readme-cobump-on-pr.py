@@ -2,7 +2,7 @@
 """Per-PR pack-README version-history co-bump delta gate (D6).
 
 When a pull request changes the ``**Version:**`` value of the pack README
-(``dev-security/claude-rules/README.md``), the project's paired-surface
+(``guardrails/README.md``), the project's paired-surface
 discipline requires the same diff to add the matching row to that README's
 ``## Version history`` table (a table line whose first cell is the new
 version). This delta gate mechanizes instance (a) of the close-out
@@ -54,7 +54,7 @@ import re
 import subprocess
 import sys
 
-PACK_README = "dev-security/claude-rules/README.md"
+PACK_README = "guardrails/README.md"
 VERSION_RE = re.compile(r"^\*\*Version:\*\*\s+([0-9]+\.[0-9]+\.[0-9]+)", re.MULTILINE)
 
 

@@ -80,7 +80,7 @@ def is_artefact(path: Path) -> bool:
     # claude-rules files are standalone drag-and-drop artefacts referenced
     # by the claude-rules README's tree diagram (plain-text, not markdown
     # links). Their inbound-link semantics differ from library artefacts.
-    if "claude-rules" in path.parts:
+    if "guardrails" in path.parts:
         return False
     return True
 

@@ -4,7 +4,7 @@ paths:
   - "tests/**/*.py"
 ---
 
-<!-- Source: dev-security/claude-rules/languages/python.md (GRC Library, CC BY-SA 4.0). Copied verbatim for this project; security requirements unchanged. Path-scoped to this repo's Python tooling. -->
+<!-- Source: guardrails/languages/python.md (GRC Library, CC BY-SA 4.0). Copied verbatim for this project; security requirements unchanged. Path-scoped to this repo's Python tooling. -->
 
 # Python Security Rules
 
