@@ -41,40 +41,13 @@ drive end-to-end on the maintainer's behalf:
    `mcp__github__create_pull_request`.
 3. Wait for the `Lint markdown corpus` CI check using the subscription discipline in
    `## PR activity subscription discipline` in `.claude/CLAUDE.md`; on failure, fix and re-push.
-4. On green CI, merge via `mcp__github__merge_pull_request` (or `gh pr merge --squash`
-   in a no-MCP session). The maintainer does not gate-keep merges of PRs they have
-   personally authored.
-   **CORRECTED 2026-07-25 (codex deep-assessment M-04): a plain merge attempt does NOT
-   resolve `mergeable_state: blocked`.** This file previously claimed it did; that was
-   false against the live protection config, which requires one approval, so the plain
-   merge fails with `REVIEW_REQUIRED` / "base branch policy prohibits the merge". The
-   working path is the maintainer's always-bypass (`gh pr merge --admin`, or the
-   equivalent), which the same finding identifies as a governance-enforcement risk
-   precisely because it is invisible when used.
-   **So every bypass merge is LOGGED.** The maintainer's decision (2026-07-25) is to
-   retain the emergency path and make its use auditable rather than remove it. Append
-   one row to `grc_library_private/.working/merge-bypass-log.md` for each
-   `--admin` merge, recording the PR, the pre-merge CI state, and a one-line
-   justification. An unlogged bypass merge is a discipline failure; the log is what
-   converts an always-on bypass from an unaudited hole into a recorded exception. If a
-   future protection change makes a plain merge succeed, prefer it and stop bypassing.
-   **This is now GATED, not merely conventional (gate 50's Check 6, added 2026-07-25).**
-   The convention did not hold: five consecutive merges (#1170 to #1174) shipped with no
-   row on a single day, noticed only when the log was read for an unrelated reason. The
-   check requires a row for every in-window merged PR, exempts the highest-numbered PR as
-   in flight, floors the window at the log's own oldest row, and counts a row by its
-   PRESENCE whatever its Mechanism cell says, so a future plain merge is recorded honestly
-   rather than forced to keep reading `--admin`. Write the row AFTER the merge from the
-   OBSERVED CI state, never in anticipation of one.
-5. After merge: sync local `main`, delete the feature branch locally, confirm the
-   remote branch is gone.
-5a. As the PR's FINALIZING QA step, BEFORE merge, invoke `/validate-pr` (dispatches
+4. As the PR's FINALIZING QA step, BEFORE merge, invoke `/validate-pr` (dispatches
    Subagent A on THIS PR's own diff plus a cross-reference check on files citing the
    touched files). Records to `grc_library_private/.working/validate-pr/`, and the history
    row records THIS PR's OWN number. The synchronous sequence is: open the PR, wait for the
-   first green CI, run `/validate-pr` (then `/retro`, step 5b) against the branch synced to
+   first green CI, run `/validate-pr` (then `/retro`, step 5) against the branch synced to
    current `main`, disposition every finding in-window, write the rows and records, commit
-   them into the SAME PR, let CI re-run on the row-carrying commit, then merge (step 4/5).
+   them into the SAME PR, let CI re-run on the row-carrying commit, then merge (step 7/8).
    No placeholder row and no back-fill into a later PR: the row that records PR N lands IN
    PR N. The prior recursion-avoidance batching is retired; gate 50's Check 1 now requires
    each PR's own rows (window inclusive of `max_pr`) and fails a row that records the QA as
@@ -104,7 +77,7 @@ drive end-to-end on the maintainer's behalf:
    the moment a later PR exists. Fuller
    prose may still go in the Summary cell. (See `## Session migration and PR close-out
    checklist` item 3.)
-5b. Immediately after `/validate-pr` returns and BEFORE merge, invoke `/retro` to run the
+5. Immediately after `/validate-pr` returns and BEFORE merge, invoke `/retro` to run the
    retrospective per the
    [`pr-retrospective`](../dev-security/claude-rules/skills/pr-retrospective/SKILL.md)
    skill: append one row to `grc_library_private/.working/improvement-log.md`.
@@ -112,7 +85,7 @@ drive end-to-end on the maintainer's behalf:
    in THIS PR (recording this PR's own number), committed before the PR is finalized; the
    synchronous model retired the recursion-avoidance batching, so the row is never deferred
    to a later PR.
-5c. Refresh `grc_library_private/.working/session-handoff.md` with the
+6. Refresh `grc_library_private/.working/session-handoff.md` with the
    current state snapshot, last-merged list, next-actions queue, and open decisions. The mechanical facts (versions, gate and rule and skill and command counts, HEAD sha, session figures) come from `python3 tools/handoff-snapshot.py`, a read-only aggregator; paste its verified block rather than hand-deriving the numbers. At a
    **session-closing** handoff PR, also refresh the `## Asserted expectations` section
    (the surfaces this session mechanically verified, scoped to what it touched, plus known
@@ -121,7 +94,34 @@ drive end-to-end on the maintainer's behalf:
    loop-break compensating control's cheap signals the next `/resume` `/validate`
    cross-checks against). The refresh commit lands in THIS PR, committed before it is
    finalized (the synchronous model retired the recursion-avoidance batching). See `## Session migration and PR close-out checklist`.
-6. After every merge (durable across sessions): consult [`TODO.md`](../TODO.md)'s
+7. On green CI, merge via `mcp__github__merge_pull_request` (or `gh pr merge --squash`
+   in a no-MCP session). The maintainer does not gate-keep merges of PRs they have
+   personally authored.
+   **CORRECTED 2026-07-25 (codex deep-assessment M-04): a plain merge attempt does NOT
+   resolve `mergeable_state: blocked`.** This file previously claimed it did; that was
+   false against the live protection config, which requires one approval, so the plain
+   merge fails with `REVIEW_REQUIRED` / "base branch policy prohibits the merge". The
+   working path is the maintainer's always-bypass (`gh pr merge --admin`, or the
+   equivalent), which the same finding identifies as a governance-enforcement risk
+   precisely because it is invisible when used.
+   **So every bypass merge is LOGGED.** The maintainer's decision (2026-07-25) is to
+   retain the emergency path and make its use auditable rather than remove it. Append
+   one row to `grc_library_private/.working/merge-bypass-log.md` for each
+   `--admin` merge, recording the PR, the pre-merge CI state, and a one-line
+   justification. An unlogged bypass merge is a discipline failure; the log is what
+   converts an always-on bypass from an unaudited hole into a recorded exception. If a
+   future protection change makes a plain merge succeed, prefer it and stop bypassing.
+   **This is now GATED, not merely conventional (gate 50's Check 6, added 2026-07-25).**
+   The convention did not hold: five consecutive merges (#1170 to #1174) shipped with no
+   row on a single day, noticed only when the log was read for an unrelated reason. The
+   check requires a row for every in-window merged PR, exempts the highest-numbered PR as
+   in flight, floors the window at the log's own oldest row, and counts a row by its
+   PRESENCE whatever its Mechanism cell says, so a future plain merge is recorded honestly
+   rather than forced to keep reading `--admin`. Write the row AFTER the merge from the
+   OBSERVED CI state, never in anticipation of one.
+8. After merge: sync local `main`, delete the feature branch locally, confirm the
+   remote branch is gone.
+9. After every merge (durable across sessions): consult [`TODO.md`](../TODO.md)'s
    forward-looking sections and list the upcoming next five planned PRs in the chat. If
    new items surfaced during the just-finished work, add them to TODO BEFORE the list is
    published (the list comes from TODO, not from memory). This is the project-specific
@@ -142,7 +142,7 @@ drive end-to-end on the maintainer's behalf:
    (an already-done item still shown as `next:`) is the signal that a PR
    shipped without refreshing it, so every PR touches `next-prs.txt` even when the queue is
    otherwise unchanged.
-7. TODO/DONE rotation discipline: when a PR closes a TODO item, the item is deleted from
+10. TODO/DONE rotation discipline: when a PR closes a TODO item, the item is deleted from
    TODO in the same PR and an entry is added to `grc_library_private/.working/DONE.md`
    (the closed-TODO ledger, keyed by PR number with the original backlog ID as a
    cross-reference). The DONE entry names the closed item's number and gives a clean
