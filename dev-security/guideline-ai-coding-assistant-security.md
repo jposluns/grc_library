@@ -2,7 +2,7 @@
 
 **Document Title:** AI Coding Assistant Security Guideline\
 **Document Type:** Guideline\
-**Version:** 1.3.9\
+**Version:** 1.3.10\
 **Date:** 2026-08-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -60,7 +60,7 @@ All AI coding assistant sessions working on organizational code should have secu
 3. **`AGENTS.md` interop**: if the consumer project already has an `AGENTS.md` for other coding agents, add `@AGENTS.md` at the top of `CLAUDE.md` (or symlink it) so both tools read the same instructions.
 4. **Confirm the relevant topic rules load**: the whole-directory copy in step 1 already includes the `languages/`, `ai/`, and `governance/` rule sets; for any project using LLMs, agents, RAG, or MCP, confirm the `ai/` (and, where relevant, `languages/`) files are referenced or path-scoped so they load.
 
-A separate generator prompt published under `guardrails/` analyzes a consumer project and proposes a tailored CLAUDE.md plus rule-file selection before any file is written. The generator supports two source modes: **local mode** (reads the pack from disk if `dev-security/` is detected near the consumer's project) and **fetch mode** (reads the pack live from the GRC Library's first-party canonical URL when no local pack is present, or when the consumer elects fetch after a staleness check). See [`guardrails/README.md`](../guardrails/README.md) for usage guidance.
+A separate generator prompt published under `guardrails/` analyzes a consumer project and proposes a tailored CLAUDE.md plus rule-file selection before any file is written. The generator supports two source modes: **local mode** (reads the pack from disk if `guardrails/` is detected near the consumer's project) and **fetch mode** (reads the pack live from the GRC Library's first-party canonical URL when no local pack is present, or when the consumer elects fetch after a staleness check). See [`guardrails/README.md`](../guardrails/README.md) for usage guidance.
 
 The pack content is held locally as library-canonical material. **External rule repositories** (TikiTribe, Wiz, and others outside this library) are kept as URL pointers only; the organization does not configure Claude Code to fetch them automatically at session start, because (a) `CLAUDE.md` content is delivered as a user message and is not enforced configuration, so a fetch instruction may be silently ignored; (b) externally-fetched content would need vetting under the External-Source Vetting Protocol at consumer runtime, which is impractical; and (c) the local pack already covers the substantive areas. The library maintainer back-ports vetted improvements from external sources on the standard freshness cadence.
 
