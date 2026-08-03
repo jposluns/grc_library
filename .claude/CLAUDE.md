@@ -334,7 +334,7 @@ detail and rationale for everything below live in
    PR lands working-state on `main` green so `/resume` rebuilds from `main`. It runs its own
    `/validate-pr` + `/retro` like any PR (sync model, rows in-PR); the loop-termination FALLBACK
    (skip the trailing QA) records `SKIPPED`+`handoff` in the Findings cell. **A session must NOT
-   close with a large unvalidated PR**: every merged PR except the handoff has a `/validate-pr`
+   close with a large unvalidated PR**: every merged PR (the handoff included unless its narrow fallback skip was taken) has a `/validate-pr`
    that RETURNED (a `DISPATCHED`/`PENDING` row does not satisfy this, now GATED by gate 50 Check
    1); an undelivered `/validate-pr` BLOCKS and is re-issued to a second worker, first delivery
    authoritative. Keep the last substantive PR SMALL. Detail in `references/pr-lifecycle.md`.
@@ -466,10 +466,8 @@ capacity is ELASTIC, the orchestrator is the scarce singleton, so the hours betw
 the only stretch where worker time is free and orchestrator time costs nothing; a wind-down that
 queues nothing wastes that window). Discipline: the pack rule
 [`session-lifecycle`](rules/governance/session-lifecycle.md) `## Wind-down pre-queues delegated
-work for the next session`. **Project overlay, queue IN THIS ORDER:** (1) the mandatory loop-break
-`/validate` for the closing window, pinned to the closing SHA; (2) the `/validate-pr` for the last
-merged PR (the handoff PR is exempt); (3) research / draft candidates for the next-five queue in
-`grc_library_private/.working/next-prs.txt`; (4) any defect-hunt whose target the closing session
+work for the next session`. **Project overlay, queue IN THIS ORDER:** (1) the mandatory next-resume corpus-wide `/validate` for the closing window (a fresh-context drift-catch in its own right, and the compensating control where the handoff fallback skip was taken), pinned to the closing SHA; (2) research / draft candidates for the next-five queue in
+`grc_library_private/.working/next-prs.txt`; (3) any defect-hunt whose target the closing session
 touched. **Pin every order to the closing MERGE SHA** (never a branch head, which vanishes on
 squash-merge) and to a SHA that CONTAINS what the order references; fill the LIVE worker pool (not
 an unbounded backlog that goes stale unserved); name the pre-queued order ids in the handoff

@@ -42,11 +42,11 @@ In an unattended mode there is no operator to surface the choice to, so an evide
 
 ## 5. The closing handoff: a session's last act is a green merge
 
-A session ends by landing its working state on the protected branch as a green, merged change, so the next session rebuilds from the shared branch rather than from an unmerged local state. The closing change refreshes the handoff record (including what this session mechanically verified, scoped to what it touched, and known soft spots NOT asserted clean) and records its own QA exemption explicitly where the project's cadence grants one.
+A session ends by landing its working state on the protected branch as a green, merged change, so the next session rebuilds from the shared branch rather than from an unmerged local state. The closing change refreshes the handoff record (including what this session mechanically verified, scoped to what it touched, and known soft spots NOT asserted clean) and records its QA-fallback exemption explicitly when, and only when, the narrow fallback skip is taken.
 
-The loop-break: the closing change may skip its own trailing per-change QA sweep (running it would spawn a records-then-merge loop with no terminating next change at a session boundary) ONLY where the project pairs the skip with a stronger compensating control at the next resume, a fresh whole-scope validation whose findings are cross-checked against the closing session's asserted-clean claims. A contradiction of an asserted-clean surface is a miss signal to escalate, not an ordinary finding.
+The closing handoff, normal path with a narrow fallback: under a synchronous QA model the closing change normally runs its own trailing per-change QA like any other change (its record is written into the change itself, so no recursion arises). A documented FALLBACK is retained only for the genuine loop-termination edge, a closing change whose own QA cannot be made self-contained within it at the session boundary: in that case only, it skips its trailing per-change QA, and ONLY where the project pairs the skip with a stronger compensating control at the next resume, a fresh whole-scope validation whose findings are cross-checked against the closing session's asserted-clean claims. A contradiction of an asserted-clean surface is a miss signal to escalate, not an ordinary finding.
 
-**A session must not close with a large unvalidated change.** The loop-break exemption covers exactly ONE change, the closing handoff, and only because that change is bookkeeping. It does not extend to the change before it, and it is not a licence to let the QA cadence lapse as a session winds down. The failure it guards against is specific and was observed: a session's last substantive change merged carrying a wide, multi-surface diff that also CLOSED several backlog items, with its per-change QA merely DISPATCHED to a delegated worker that never claimed the order. A dispatched order is work ORDERED, never work DONE, and a wrongly-closed backlog item is invisible afterwards, so that change needed its sweep more than most rather than less.
+**A session must not close with a large unvalidated change.** The fallback exemption covers exactly ONE change, the closing handoff, and only when its own QA cannot be made self-contained within it. It does not extend to the change before it, and it is not a licence to let the QA cadence lapse as a session winds down. The failure it guards against is specific and was observed: a session's last substantive change merged carrying a wide, multi-surface diff that also CLOSED several backlog items, with its per-change QA merely DISPATCHED to a delegated worker that never claimed the order. A dispatched order is work ORDERED, never work DONE, and a wrongly-closed backlog item is invisible afterwards, so that change needed its sweep more than most rather than less.
 
 Before the closing change is opened:
 
@@ -79,8 +79,7 @@ that queues nothing forfeits that entire interval, and the next resume then begi
 waiting rather than by consuming results.
 
 What to queue, in priority order: the mandatory validation pass for the closing window (so the
-compensating control for any skipped closing-change QA is already running); the per-change sweep for the
-last merged change, which the closing change is itself exempt from; research or draft candidates for the
+compensating control for any skipped closing-change QA is already running); research or draft candidates for the
 next few queued items; and any defect hunt whose target the closing session touched, while the changes
 are recent.
 

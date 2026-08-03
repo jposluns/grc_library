@@ -101,8 +101,7 @@ Report, scannable, no diffs dumped to chat:
 Land the recovered working state as a **session-closing handoff PR** (a green, merged PR), per the
 [`session-lifecycle`](../rules/governance/session-lifecycle.md) closing-handoff discipline: refresh
 the handoff (state snapshot, next-actions and deferred queue, **asserted expectations** scoped to what
-recovery touched, green-at-`<sha>`), RELEASE the lease. The closing PR is exempt from its own trailing
-per-PR QA (loop-break); the compensating control is the next `/resume`'s corpus-wide `/validate`. **Do
+recovery touched, green-at-`<sha>`), RELEASE the lease. The closing PR normally runs its own trailing `/validate-pr` + `/retro` in-PR like any PR; ONLY where that QA cannot be made self-contained at the session boundary does it take the documented fallback skip (recorded with the gate-50 marker), compensated by the next `/resume`'s corpus-wide `/validate`. **Do
 not close over a large UNVALIDATED substantive PR**: the interrupted unit gets its verification (Phase
 C) BEFORE the closing handoff.
 
@@ -112,8 +111,7 @@ The maintainer brings workers up (if not already) and, in the SAME conversation 
 tmux if the recovering session was not in one), sends `/resume`. Resuming in the same session is
 deliberately stronger than a fresh one: it keeps the context the recovery built AND rebuilds state from
 the now-clean `main`. The resume runs its lease step-0, verifies the handoff snapshot against live files
-**for real, never shortcutting from memory just because "I remember"**, and runs the loop-break
-corpus-wide `/validate` (offloaded to the now-live workers) as the compensating control, cross-checking
+**for real, never shortcutting from memory just because "I remember"**, and runs the corpus-wide `/validate` (offloaded to the now-live workers, a fresh-context whole-corpus drift-catch in its own right and the compensating control where the recovery's closing change took the narrow fallback skip), cross-checking
 the recovery's asserted-clean claims. A contradiction of an asserted-clean surface is a genuine recovery
 miss to escalate; ordinary findings route to the backlog. Then continue the deferred queue.
 
