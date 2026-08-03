@@ -18,12 +18,12 @@
     "CLAUDE.md": {
       "bucket": "ADAPTER-INPUT",
       "disclosure": "SANITIZE",
-      "rationale": "The pack's root-instructions payload (mandatory security requirements plus one-line governance summaries); this is the content a deterministic generator renders into `CLAUDE.md` / "
+      "rationale": "The pack's root-instructions payload (mandatory security requirements plus one-line governance summaries); this is the content a deterministic generator renders into `CLAUDE.md` / `AGENTS.md` / `.cursorrules` / `copilot-instructions.md`. Strip the `security/policy-encryption-and-key-management.md` and `dev-security/standard-developer-security-requirements.md` pointers."
     },
     "README.md": {
       "bucket": "CORE",
       "disclosure": "SANITIZE",
-      "rationale": "Adopter-facing front door and the pack's only complete file index, but not publication-aware: strip 5 `jposluns/grc_library` raw URLs, the `Parent-repo dependencies` section, paren"
+      "rationale": "Adopter-facing front door and the pack's only complete file index, but not publication-aware: strip 5 `jposluns/grc_library` raw URLs, the `Parent-repo dependencies` section, parent doc paths in the header, `Mode A`, named parent gates, the version-rollout chronology, and the SP 800-154 lesson."
     },
     "ai/agent-security.md": {
       "bucket": "CORE",
@@ -48,7 +48,7 @@
     "core/authentication.md": {
       "bucket": "CORE",
       "disclosure": "SANITIZE",
-      "rationale": "Generic IdP, MFA, and session rules, but line 21 uses an unattributed internal `Tier 0` vocabulary with no owner and no remap note, inconsistent with the mobile files' Tier 1/Tier "
+      "rationale": "Generic IdP, MFA, and session rules, but line 21 uses an unattributed internal `Tier 0` vocabulary with no owner and no remap note, inconsistent with the mobile files' Tier 1/Tier 2 scheme."
     },
     "core/cryptography.md": {
       "bucket": "CORE",
@@ -63,7 +63,7 @@
     "core/owasp.md": {
       "bucket": "CORE",
       "disclosure": "SANITIZE",
-      "rationale": "Per-risk OWASP Top 10:2025 patterns, portable, but three sites name the parent: `security/standard-threat-modelling.md` and \"Confidential or Restricted in the parent GRC library\" t"
+      "rationale": "Per-risk OWASP Top 10:2025 patterns, portable, but three sites name the parent: `security/standard-threat-modelling.md` and \"Confidential or Restricted in the parent GRC library\" twice."
     },
     "core/secrets.md": {
       "bucket": "CORE",
@@ -78,7 +78,7 @@
     "governance/ai-assistant-workflow-disciplines.md": {
       "bucket": "CORE",
       "disclosure": "SANITIZE",
-      "rationale": "Portable five-discipline multi-change workflow rule; remove the \"the parent library couples a Version and a Date field\" parenthetical and the outward \"consuming project's wind-down"
+      "rationale": "Portable five-discipline multi-change workflow rule; remove the \"the parent library couples a Version and a Date field\" parenthetical and the outward \"consuming project's wind-down framework\" pointer. Its `Source-and-adapter parity` section usefully describes this very one-way publication arrangement."
     },
     "governance/artefact-and-branch-discipline.md": {
       "bucket": "CORE",
@@ -88,7 +88,7 @@
     "governance/change-tracking.md": {
       "bucket": "CORE",
       "disclosure": "SANITIZE",
-      "rationale": "Portable change-record discipline that explicitly declines to mandate a shape; remove the \"the parent library's case\" heading, the `<!-- OVERNIGHT-PR-STUB -->` literal, and the `.c"
+      "rationale": "Portable change-record discipline that explicitly declines to mandate a shape; remove the \"the parent library's case\" heading, the `<!-- OVERNIGHT-PR-STUB -->` literal, and the `.claude/` worked example."
     },
     "governance/clarify-before-acting.md": {
       "bucket": "CORE",
@@ -148,12 +148,12 @@
     "guidance-claude-md-optimization.md": {
       "bucket": "CORE",
       "disclosure": "SANITIZE",
-      "rationale": "Portable keep-and-condense method for any always-loaded rules file; remove the `external/addyosmani/context-engineering.md` overlay path, the parent's 881-to-634-line worked exampl"
+      "rationale": "Portable keep-and-condense method for any always-loaded rules file; remove the `external/addyosmani/context-engineering.md` overlay path, the parent's 881-to-634-line worked example, and the hallucination-metrics cadence reference."
     },
     "languages/capacitor-ionic.md": {
       "bucket": "CORE",
       "disclosure": "SANITIZE",
-      "rationale": "Generic hybrid-WebView secure-coding rules; carries the mobile-family coupling (`dev-security/standard-mobile-application-security.md` twice, 16 `Section N` references, Tier 1/Tier"
+      "rationale": "Generic hybrid-WebView secure-coding rules; carries the mobile-family coupling (`dev-security/standard-mobile-application-security.md` twice, 16 `Section N` references, Tier 1/Tier 2 pinning vocabulary)."
     },
     "languages/csharp.md": {
       "bucket": "CORE",
@@ -183,7 +183,7 @@
     "languages/kotlin.md": {
       "bucket": "CORE",
       "disclosure": "SANITIZE",
-      "rationale": "Generic Android and Kotlin rules, but the heaviest coupling in the pack: 22 `Section N`, 10 Tier references reaching into a section heading and code comments, plus a 9-bullet paren"
+      "rationale": "Generic Android and Kotlin rules, but the heaviest coupling in the pack: 22 `Section N`, 10 Tier references reaching into a section heading and code comments, plus a 9-bullet parent-standard provenance digest."
     },
     "languages/python.md": {
       "bucket": "CORE",
@@ -213,12 +213,12 @@
     "rule-provenance.md": {
       "bucket": "CORE",
       "disclosure": "SANITIZE",
-      "rationale": "Deliberately adopter-facing provenance register written to convey rule weight without inheriting internal records; drop the `parent library's exemption convention` paragraph and th"
+      "rationale": "Deliberately adopter-facing provenance register written to convey rule weight without inheriting internal records; drop the `parent library's exemption convention` paragraph and the entries for skills that do not ship (see AMBIGUOUS)."
     },
     "setup-generator-prompt.md": {
       "bucket": "CORE",
       "disclosure": "SANITIZE",
-      "rationale": "LLM-driven adopter setup path that emits a tailored root instructions file plus rule placement; ships as the AI-assisted alternative, but the canonical raw URL (`jposluns/grc_libra"
+      "rationale": "LLM-driven adopter setup path that emits a tailored root instructions file plus rule placement; ships as the AI-assisted alternative, but the canonical raw URL (`jposluns/grc_library`) must be repointed. Overlaps the deterministic generator (see AMBIGUOUS)."
     },
     "skills/action-before-explanation-of-inaction/SKILL.md": {
       "bucket": "CORE",
@@ -228,7 +228,7 @@
     "skills/adopt/SKILL.md": {
       "bucket": "GRC-ONLY",
       "disclosure": "WITHHELD",
-      "rationale": "Its subject is resetting a maintainer fork of the parent library: names `grc_library_private` and `grc_library_scratch`, the maintainer GitHub account, `tools/detect-env.py`, `.wor"
+      "rationale": "Its subject is resetting a maintainer fork of the parent library: names `grc_library_private` and `grc_library_scratch`, the maintainer GitHub account, `tools/detect-env.py`, `.working/`, and internal TODO 1.19.7. The published repo needs a newly authored install path (see GAPS)."
     },
     "skills/artefact-discipline-check/SKILL.md": {
       "bucket": "CORE",
@@ -248,7 +248,7 @@
     "skills/claim-fit/SKILL.md": {
       "bucket": "GRC-ONLY",
       "disclosure": "WITHHELD",
-      "rationale": "Corpus-coupled compliance-claim attribution audit: names the private `grc_library_ref` reference base and its three indexes, `tools/audit-claim-precision.py`, internal gate numbers"
+      "rationale": "Corpus-coupled compliance-claim attribution audit: names the private `grc_library_ref` reference base and its three indexes, `tools/audit-claim-precision.py`, internal gate numbers, and a `source-not-held` verdict that presumes a held standards corpus."
     },
     "skills/clarify-before-acting/SKILL.md": {
       "bucket": "CORE",
@@ -258,12 +258,12 @@
     "skills/deep-assessment/SKILL.md": {
       "bucket": "GRC-ONLY",
       "disclosure": "WITHHELD",
-      "rationale": "The strongest withhold in the pack: enumerates all four sibling repos including `grc_library_private`, discloses that the private store received direct pushes to `main` bypassing P"
+      "rationale": "The strongest withhold in the pack: enumerates all four sibling repos including `grc_library_private`, discloses that the private store received direct pushes to `main` bypassing PR and CI, content-reviews that store's runbook and decision log, and names roughly ten parent `tools/` scripts."
     },
     "skills/deep-qa-review/SKILL.md": {
       "bucket": "CORE",
       "disclosure": "SANITIZE",
-      "rationale": "Portable six-lens forensic cadence needed by `trust-recovery-escalation`; remove `tools/run_all_audits.sh`, gates 31 and 40, the eleven-change incident narrative, and the \"well ove"
+      "rationale": "Portable six-lens forensic cadence needed by `trust-recovery-escalation`; remove `tools/run_all_audits.sh`, gates 31 and 40, the eleven-change incident narrative, and the \"well over one hundred documents\" corpus framing."
     },
     "skills/evidence-grounded-completion/SKILL.md": {
       "bucket": "CORE",
@@ -283,7 +283,7 @@
     "skills/guardrail-review/SKILL.md": {
       "bucket": "CORE",
       "disclosure": "SANITIZE",
-      "rationale": "Explicitly anticipates this publication (\"in pack-distribution mode the machinery is the product\"), so it belongs in the core; strip six gate numbers, `tools/run_all_audits.sh`, th"
+      "rationale": "Explicitly anticipates this publication (\"in pack-distribution mode the machinery is the product\"), so it belongs in the core; strip six gate numbers, `tools/run_all_audits.sh`, the `.claude/rules/` mirror topology, and the `(r8 guardrails, M, S)` run-id form."
     },
     "skills/high-assurance-verification/SKILL.md": {
       "bucket": "CORE",
@@ -293,12 +293,12 @@
     "skills/library-fitness-review/SKILL.md": {
       "bucket": "CORE",
       "disclosure": "SANITIZE",
-      "rationale": "Half of the escalation suite that CORE `trust-recovery-escalation` requires, so it must travel; replace the ten-persona GRC catalogue (GRC practitioner, auditor, DPO), the pre-audi"
+      "rationale": "Half of the escalation suite that CORE `trust-recovery-escalation` requires, so it must travel; replace the ten-persona GRC catalogue (GRC practitioner, auditor, DPO), the pre-audit trigger, the corpus Citation Verification Specification reference, and `tools/run_all_audits.sh`. Borderline (see AMBIGUOUS)."
     },
     "skills/matrix-fit/SKILL.md": {
       "bucket": "GRC-ONLY",
       "disclosure": "WITHHELD",
-      "rationale": "The clearest corpus-coupled case: judges control-code semantic fit in `compliance/matrix-grc-compliance-alignment.md` against `grc_library_ref` source text, via five parent `tools/"
+      "rationale": "The clearest corpus-coupled case: judges control-code semantic fit in `compliance/matrix-grc-compliance-alignment.md` against `grc_library_ref` source text, via five parent `tools/` modules and five framework-catalogue gate numbers."
     },
     "skills/pr-retrospective/SKILL.md": {
       "bucket": "CORE",
@@ -307,18 +307,18 @@
     },
     "skills/publication-screening/SKILL.md": {
       "bucket": "GRC-ONLY",
-      "disclosure": "SANITIZE",
-      "rationale": "Admission control for the private reference base's untrusted `publications/` bucket, keyed to `grc_library_ref`, `tools/scan-publication-instruction-content.py`, and a compliance-s"
+      "disclosure": "WITHHELD",
+      "rationale": "Admission control for the private reference base's untrusted `publications/` bucket, keyed to `grc_library_ref`, `tools/scan-publication-instruction-content.py`, and a compliance-source trust taxonomy; nothing sensitive, but corpus-coupled. Its portable core duplicates the pack's shipped EXT-01 posture (see AMBIGUOUS)."
     },
     "skills/reference-audit/SKILL.md": {
       "bucket": "GRC-ONLY",
       "disclosure": "WITHHELD",
-      "rationale": "Bidirectional breadth audit over a curated licensed source base: names `grc_library_ref` and its four indexes, three parent `tools/` artefacts, `CHANGELOG-detailed`, and the worker"
+      "rationale": "Bidirectional breadth audit over a curated licensed source base: names `grc_library_ref` and its four indexes, three parent `tools/` artefacts, `CHANGELOG-detailed`, and the worker-exchange scratch retention model."
     },
     "skills/skill-authoring-discipline/SKILL.md": {
       "bucket": "CORE",
       "disclosure": "SANITIZE",
-      "rationale": "Defines the eight-section template and the `## Project wiring` convention this whole manifest keys on, so external contributors need it; strip five gate numbers, three `tools/lint-"
+      "rationale": "Defines the eight-section template and the `## Project wiring` convention this whole manifest keys on, so external contributors need it; strip five gate numbers, three `tools/lint-*` paths, `.claude/commands/` and `.claude/rules/`, and the \"four levels up\" layout claim that is false when the pack is the repo root."
     },
     "skills/surface-instruction-concern/SKILL.md": {
       "bucket": "CORE",
@@ -333,17 +333,17 @@
     "skills/validation-sweep-pr-scoped/SKILL.md": {
       "bucket": "CORE",
       "disclosure": "SANITIZE",
-      "rationale": "Portable per-change sweep companion required by `trust-recovery-escalation`; remove gate 50 and `tools/lint-bookkeeping-parity.py`, the `SKIPPED`/`handoff` marker literals, and the"
+      "rationale": "Portable per-change sweep companion required by `trust-recovery-escalation`; remove gate 50 and `tools/lint-bookkeeping-parity.py`, the `SKIPPED`/`handoff` marker literals, and the parent's cadence and token constants."
     },
     "skills/validation-sweep/SKILL.md": {
       "bucket": "CORE",
       "disclosure": "SANITIZE",
-      "rationale": "Portable fixed-point sweep pattern that itself declares the scanner swappable, but the heaviest rewrite in the CORE set: five `tools/` artefacts, gate numbers, `PF-01` to `PF-04` i"
+      "rationale": "Portable fixed-point sweep pattern that itself declares the scanner swappable, but the heaviest rewrite in the CORE set: five `tools/` artefacts, gate numbers, `PF-01` to `PF-04` ids, corpus-specific scanner heuristics (legal bill prefixes) in the body rather than the wiring, and a bare `governance/specification-audit-programme.md` that would misresolve into the pack's own `governance/` standalone."
     },
     "vetting-log.md": {
       "bucket": "CORE",
       "disclosure": "SANITIZE",
-      "rationale": "Carries licence obligations adopters legally need (Wiz CC-BY-NC-ND caveat, MIT attribution duties) and is linked twice from README plus depended on by the generator's Phase 2; drop"
+      "rationale": "Carries licence obligations adopters legally need (Wiz CC-BY-NC-ND caveat, MIT attribution duties) and is linked twice from README plus depended on by the generator's Phase 2; drop `How to update this log`, the exemption paragraph, and the superseded back-port entries."
     }
   }
 }
