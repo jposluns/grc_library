@@ -2,7 +2,7 @@
 
 **Document Title:** AI Synthetic-Content Provenance Guideline\
 **Document Type:** Guideline\
-**Version:** 0.0.3\
+**Version:** 0.0.4\
 **Date:** 2026-08-04\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -75,7 +75,7 @@ The EU AI Act (Regulation (EU) 2024/1689) Article 50 states the binding transpar
 - **Article 50(2):** providers of AI systems (including general-purpose systems) that generate synthetic audio, image, video, or text mark the outputs in a machine-readable format and make them detectable as artificially generated or manipulated, with technical solutions that are effective, interoperable, robust, and reliable as far as technically feasible; the obligation does not apply where the system performs an assistive function for standard editing or does not substantially alter the input.
 - **Article 50(4):** deployers of a deepfake (generated or manipulated image, audio, or video) disclose that the content is artificially generated or manipulated (with an artistic-work carve-out), and deployers of AI-generated text published to inform the public on matters of public interest disclose it (with a human-editorial-review carve-out).
 - **Article 50(5):** the disclosure is provided clearly and distinguishably at the latest at the time of first interaction or exposure.
-- **Article 50(7):** the AI Office facilitates codes of practice on the detection and labelling of artificially generated or manipulated content.
+- **Article 50(7) (as amended by Regulation (EU) 2026/1744):** the Commission encourages and facilitates codes of practice on the detection, marking, and labelling of artificially generated or manipulated content, assesses their adequacy (taking utmost account of the Board's opinion) under the Article 56(6) procedure, and may adopt an implementing act with common rules where a code is inadequate.
 
 The per-regime status, and the Article 50 changes made by the EU Digital Omnibus (Regulation (EU) 2026/1744, in force 2026-07-27), are maintained in [`ai/jurisdictions/annex-ai-european-union.md`](jurisdictions/annex-ai-european-union.md); this guideline anchors to the in-force EU AI Act Article 50 (Regulation (EU) 2024/1689 as amended) and defers the version-sensitive status to that annex.
 
