@@ -2,7 +2,7 @@
 
 **Document Title:** European Union Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.10\
+**Version:** 1.1.11\
 **Date:** 2026-08-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -53,7 +53,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Cross-border transfer mechanisms
 
-- **Adequacy decisions (Article 45):** Transfers to countries with an EU adequacy decision require no additional safeguards. Current adequacy decisions (as of 2025) include: Andorra, Argentina, Canada (commercial, PIPEDA), Faroe Islands, Guernsey, Israel, Isle of Man, Japan, Jersey, New Zealand, Republic of Korea, Switzerland, United Kingdom, United States (EU-US Data Privacy Framework), and Uruguay.
+- **Adequacy decisions (Article 45):** Transfers to countries or international organizations with an EU adequacy decision require no additional safeguards. Current adequacy decisions (as of 2026) include: Andorra, Argentina, Brazil (Implementing Decision (EU) 2026/179, January 2026), Canada (commercial, PIPEDA), the European Patent Organization (Decision (EU) 2025/1382, July 2025, the first adequacy decision for an international body), Faroe Islands, Guernsey, Israel, Isle of Man, Japan, Jersey, New Zealand, Republic of Korea, Switzerland, United Kingdom, United States (EU-US Data Privacy Framework), and Uruguay.
 - **Standard Contractual Clauses (SCCs) (Article 46(2)(c)):** The 2021 European Commission SCCs are the primary mechanism for transfers to non-adequate third countries. SCCs must be supplemented by a Transfer Impact Assessment (TIA); see the [TIA template](../template-transfer-impact-assessment.md).
 - **Binding Corporate Rules (BCRs) (Articles 46(2)(b) and 47):** Approved by a lead supervisory authority; permit intra-group international transfers. BCR approval is a multi-year process.
 - **Derogations (Article 49):** Narrow exceptions for explicit consent, contract performance, vital interests, public interest, or legal claims. Not suitable as routine transfer mechanisms.
@@ -110,7 +110,7 @@ GDPR Article 8(1) sets the default age at 16 for child consent to information so
 - **EU AI Act: prohibited practices:** Up to €35 million or 7% of worldwide annual turnover.
 - **EU AI Act: high-risk/GPAI violations:** Up to €15 million or 3% of worldwide annual turnover.
 - **EU AI Act: incorrect information:** Up to €7.5 million or 1% of worldwide annual turnover. Lower absolute caps apply to SMEs and start-ups.
-- **Enforcement body (AI Act):** the EU AI Office (within DG CNECT) supervises General-Purpose AI (GPAI) at Union level (Articles 88-90, 92-94); the AI Board coordinates member-state authorities and may issue opinions (Articles 65-66); AI supervisory authorities designated by each EU member state enforce per-system obligations within their territory. The EDPB has a consultative role on the interaction between the AI Act and Union data-protection law (Article 67).
+- **Enforcement body (AI Act):** the EU AI Office (within DG CNECT) supervises General-Purpose AI (GPAI) at Union level (Articles 88-90, 92-94); the AI Board coordinates member-state authorities and may issue opinions (Articles 65-66); AI supervisory authorities designated by each EU member state enforce per-system obligations within their territory, except where Regulation (EU) 2026/1744 (the Digital Omnibus) reserves exclusive competence to the Union level: under the amended Article 75, the AI Office has exclusive competence over AI systems built on general-purpose AI models where the system and the model are developed by the same provider or by providers within the same undertaking (subject to sectoral-supervision exceptions), and the Commission acts as market-surveillance authority for AI systems that qualify as, or are embedded in, a very large online platform or search engine under Regulation (EU) 2022/2065. The EDPB has a consultative role on the interaction between the AI Act and Union data-protection law (it issued, with the EDPS, a joint opinion on the AI Act).
 
 ---
 
