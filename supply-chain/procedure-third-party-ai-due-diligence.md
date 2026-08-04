@@ -2,8 +2,8 @@
 
 **Document Title:** Third-Party AI Due Diligence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.5\
-**Date:** 2026-07-04\
+**Version:** 1.0.6\
+**Date:** 2026-08-04\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -217,7 +217,7 @@ The organization must retain the following AI system documentation for a minimum
 ## 10. References
 
 - NIST AI Risk Management Framework 1.0: Govern 1.1 to 1.7; Map 5.1 to 5.2.
-- ISO/IEC 42001:2023, Artificial intelligence, Management system, §9 (Performance evaluation: Third-party AI governance).
+- ISO/IEC 42001:2023, Artificial intelligence, Management system, §9 (Performance evaluation), applied to third-party AI governance.
 - EU AI Act (Regulation 2024/1689): Articles 9 (Risk management), 13 (Transparency and provision of information), 28 to 29 (Obligations of deployers and importers).
 - OWASP LLM Top 10:2025: LLM03 Supply Chain; LLM04 Data and Model Poisoning; LLM09 Misinformation (the 2025 edition restructured and renumbered the risks; this list uses 2025 numbering).
 - CSA AI Controls Matrix (AICM) v1.1: Cloud Security Alliance.
