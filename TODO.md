@@ -26,14 +26,6 @@ This file is informational and is not subject to the library's metadata-block, a
 
 **Next item number: 1.31.**
 
-### 1.30 resume-/validate accuracy reconciliation: correct the 15 dual-family-confirmed defects on merged main (H, M) `[content]` `[public]`
-
-The mandatory resume `/validate` (2026-08-04) ran dual-family; the codex half surfaced 16 accuracy defects on already-merged main that the claude half missed, and an independent re-verifier confirmed 15/15 at source. Tracked in `grc_library_private/.working/open-findings.md` (2026-08-04 block). Fixed in batches, each dual-family `/validate-pr`-verified from source, government-accuracy bar. **Progress:** batch 1 #1381 (ISO 29134:2023 + Chile Law 21,719); batch 2 #1382 (EU-annex Digital Omnibus: adequacy, Art 75, AI-authority status). **Remaining:** compliance/logistics + register (IMO Rev.3, CIRCIA 72h, SD-Pipeline currency, this batch); the EU AI Act citation cluster (Art 51->49 + Art 43(1) in `ai/framework-ai-system-audit-certification.md`; Art 28-29->26/23 + the ISO 42001 clause-9 gloss in `supply-chain/procedure-third-party-ai-due-diligence.md`); the D2/D4 tooling parity gap + two docstrings; the generated manifest "third->fourth review" (fix the `_ref` catalogue source + regenerate); and **Vietnam** (annex + jurisdiction index + register carriers), PDPL 91/2025 + Decree 356/2025 acquired into `_ref`; annex reconciled + ceiling-verified on branch `claude/1.30-vietnam-annex` (P-3.211 completes restyle + merge); AI Law 134/2025 deferred (research delivered; sensitive-data classification, breach, transfer facts in hand from concurring firm sources; laws added to the acquisition list).
-
-
-Correctness fixes and the **error-prevention tooling** that keeps the corpus from regressing.
-
-P1 currently holds the **1.26** quality-machinery series (a goal-description umbrella plus its public phases 1.26.2 to 1.26.28, UNBLOCKED with the aiqt/guardrails architecture locked to Option B on 2026-08-02); the private phase 1.26.1 and the former P1 items 1.22 / 1.23 / 1.19.13 moved to the private `P-TODO.md` in the 2026-07-31 public/private split. Point-fix items are opened and closed in place as they arise; the closed ones live in `.working/DONE.md`, not here.
 
 ### 1.26 Consolidate, harmonize, and distribute the quality machinery across AI toolchains (goal-description umbrella; multi-phase series; maintainer-directed 2026-07-26; UNBLOCKED 2026-08-02, focus on aiqt.ai) `[public]`
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Canada AI Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.2\
-**Date:** 2026-07-15\
+**Version:** 1.0.3\
+**Date:** 2026-08-04\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md), [`ai/jurisdictions/annex-ai-us-colorado.md`](annex-ai-us-colorado.md), [`ai/jurisdictions/annex-ai-european-union.md`](annex-ai-european-union.md), [`privacy/jurisdictions/annex-privacy-canada.md`](../../privacy/jurisdictions/annex-privacy-canada.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -30,7 +30,7 @@ Canada has no omnibus AI law in force. Federal AI governance rests on a binding 
 
 ## Federal public-sector automated decision-making: the Treasury Board Directive
 
-The **Treasury Board of Canada Secretariat (TBS) Directive on Automated Decision-Making** is binding on federal government institutions that use an automated decision system to make an administrative decision about a client. It is **in force**: it took effect on 1 April 2019, with compliance required by 1 April 2020, and applies to automated decision systems developed or procured after 1 April 2020. Following its fourth review, the Directive was amended; existing automated decision systems developed or procured before 24 June 2025 have until 24 June 2026 to meet the new or updated requirements. (The 24 June 2025 date is a compliance-transition date for the updated requirements, not the Directive's in-force date, which is 2019.) The Directive is reviewed on a defined cycle.
+The **Treasury Board of Canada Secretariat (TBS) Directive on Automated Decision-Making** is binding on federal government institutions that use an automated decision system to make an administrative decision about a client. It is **in force**: it took effect on 1 April 2019, with compliance required by 1 April 2020, and applies to automated decision systems developed or procured after 1 April 2020. Following its fourth review, the Directive was amended; existing automated decision systems developed or procured before 24 June 2025 had until 24 June 2026 to meet the new or updated requirements, a transition period that has since ended. (The 24 June 2025 date is a compliance-transition date for the updated requirements, not the Directive's in-force date, which is 2019.) The Directive is reviewed on a defined cycle.
 
 The Directive requires the following, some obligations scaled to the impact level and others applied as a baseline: an Algorithmic Impact Assessment; transparency (notice before the decision, a meaningful explanation after it, and access to system components); quality assurance (testing, monitoring, data quality and governance, peer review, Gender-Based Analysis Plus, employee training, security, and legal review); recourse; and reporting. At the two highest impact levels the final decision must be made by a human. The TBS Guide on the Scope of the Directive sets out the five elements that bring a system into scope.
 

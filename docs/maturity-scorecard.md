@@ -169,14 +169,14 @@ _169 documents._
 | [ai/framework-ai-system-audit-certification.md](../ai/framework-ai-system-audit-certification.md) | AI System Audit and Certification Framework | Framework | 1.0.8 | 2026-07-11 |
 | [ai/guideline-adversarial-evaluation-suite-development.md](../ai/guideline-adversarial-evaluation-suite-development.md) | Adversarial Evaluation Suite Development Guideline | Guideline | 1.0.2 | 2026-07-11 |
 | [ai/guideline-ethical-ai-use.md](../ai/guideline-ethical-ai-use.md) | Ethical AI Use Guideline | Guideline | 1.0.5 | 2026-07-11 |
-| [ai/jurisdictions/annex-ai-canada.md](../ai/jurisdictions/annex-ai-canada.md) | Canada AI Regulatory Requirements | Annex | 1.0.2 | 2026-07-15 |
+| [ai/jurisdictions/annex-ai-canada.md](../ai/jurisdictions/annex-ai-canada.md) | Canada AI Regulatory Requirements | Annex | 1.0.3 | 2026-08-04 |
 | [ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md](../ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md) | AI Model Risk Control to Lifecycle Mapping Matrix | Matrix | 1.0.2 | 2026-07-11 |
 | [ai/plan-ai-incident-response.md](../ai/plan-ai-incident-response.md) | AI Incident Response Plan | Plan | 1.0.9 | 2026-07-22 |
 | [ai/policy-ai-compliance.md](../ai/policy-ai-compliance.md) | AI Compliance Policy | Policy | 1.0.15 | 2026-07-24 |
 | [ai/procedure-ai-evaluation.md](../ai/procedure-ai-evaluation.md) | AI Evaluation Procedure | Procedure | 1.0.8 | 2026-07-11 |
 | [ai/procedure-ai-model-lifecycle-management.md](../ai/procedure-ai-model-lifecycle-management.md) | AI Model Lifecycle Management Procedure | Procedure | 1.0.5 | 2026-07-23 |
 | [ai/procedure-ai-model-risk-assessment.md](../ai/procedure-ai-model-risk-assessment.md) | AI Model Risk Assessment Procedure | Procedure | 1.0.5 | 2026-07-11 |
-| [ai/procedure-ai-system-impact-assessment.md](../ai/procedure-ai-system-impact-assessment.md) | AI System Impact Assessment Procedure | Procedure | 1.0.7 | 2026-08-04 |
+| [ai/procedure-ai-system-impact-assessment.md](../ai/procedure-ai-system-impact-assessment.md) | AI System Impact Assessment Procedure | Procedure | 1.0.8 | 2026-08-04 |
 | [ai/register-ai-risk.md](../ai/register-ai-risk.md) | AI Risk Register | Register | 1.0.9 | 2026-07-23 |
 | [ai/register-mcp-server.md](../ai/register-mcp-server.md) | Model Context Protocol Server Register | Register | 1.0.5 | 2026-08-03 |
 | [ai/standard-ai-testing-validation-and-documentation.md](../ai/standard-ai-testing-validation-and-documentation.md) | AI Testing, Validation and Documentation Standard | Standard | 1.0.4 | 2026-07-11 |
@@ -323,7 +323,7 @@ _169 documents._
 | [supply-chain/procedure-supplier-exit-and-data-return.md](../supply-chain/procedure-supplier-exit-and-data-return.md) | Supplier Exit and Data Return Procedure | Procedure | 1.0.5 | 2026-07-02 |
 | [supply-chain/procedure-supplier-onboarding-security-review.md](../supply-chain/procedure-supplier-onboarding-security-review.md) | Supplier Onboarding Security Review Procedure | Procedure | 1.0.7 | 2026-07-05 |
 | [supply-chain/procedure-supplier-ongoing-monitoring.md](../supply-chain/procedure-supplier-ongoing-monitoring.md) | Supplier Ongoing Monitoring Procedure | Procedure | 1.0.3 | 2026-07-04 |
-| [supply-chain/procedure-third-party-ai-due-diligence.md](../supply-chain/procedure-third-party-ai-due-diligence.md) | Third-Party AI Due Diligence Procedure | Procedure | 1.0.5 | 2026-07-04 |
+| [supply-chain/procedure-third-party-ai-due-diligence.md](../supply-chain/procedure-third-party-ai-due-diligence.md) | Third-Party AI Due Diligence Procedure | Procedure | 1.0.6 | 2026-08-04 |
 | [supply-chain/register-concentration-risk.md](../supply-chain/register-concentration-risk.md) | Concentration Risk Register | Register | 1.0.6 | 2026-07-02 |
 | [supply-chain/register-sbom.md](../supply-chain/register-sbom.md) | Software Bill of Materials Register | Register | 1.0.3 | 2026-07-02 |
 | [supply-chain/register-subprocessor-template.md](../supply-chain/register-subprocessor-template.md) | Subprocessor Register Template | Register | 1.0.3 | 2026-07-05 |
@@ -351,7 +351,7 @@ _37 documents._
 | [ai/jurisdictions/annex-ai-us-colorado.md](../ai/jurisdictions/annex-ai-us-colorado.md) | Colorado AI and Automated Decision-Making Technology Regulatory Requirements | Annex | 0.0.2 | 2026-07-12 |
 | [ai/jurisdictions/annex-ai-us-new-york-city.md](../ai/jurisdictions/annex-ai-us-new-york-city.md) | New York City Automated Employment Decision Tool Regulatory Requirements | Annex | 0.0.2 | 2026-07-12 |
 | [ai/procedure-foundation-model-lifecycle.md](../ai/procedure-foundation-model-lifecycle.md) | Foundation Model Lifecycle Procedure | Procedure | 0.0.7 | 2026-07-12 |
-| [ai/procedure-integrated-ai-and-privacy-assessment.md](../ai/procedure-integrated-ai-and-privacy-assessment.md) | Integrated AI and Privacy Assessment Procedure | Procedure | 0.1.4 | 2026-08-04 |
+| [ai/procedure-integrated-ai-and-privacy-assessment.md](../ai/procedure-integrated-ai-and-privacy-assessment.md) | Integrated AI and Privacy Assessment Procedure | Procedure | 0.1.5 | 2026-08-04 |
 | [ai/procedure-training-data-governance.md](../ai/procedure-training-data-governance.md) | Training Data Governance Procedure | Procedure | 0.0.11 | 2026-07-24 |
 | [ai/register-model-registry.md](../ai/register-model-registry.md) | Model Registry | Register | 0.0.7 | 2026-07-12 |
 | [ai/standard-ai-access-and-agent-permissions.md](../ai/standard-ai-access-and-agent-permissions.md) | AI Access and Agent Permissions Standard | Standard | 0.0.11 | 2026-07-22 |

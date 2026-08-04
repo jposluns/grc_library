@@ -2,7 +2,7 @@
 
 **Document Title:** Integrated AI and Privacy Assessment Procedure\
 **Document Type:** Procedure\
-**Version:** 0.1.4\
+**Version:** 0.1.5\
 **Date:** 2026-08-04\
 **Owner:** AI Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -73,7 +73,7 @@ Identify which of the trigger events above are present. The determination is per
 
 - **GDPR Article 22 and Article 35** are in force; the ADM register entry and the DPIA apply whenever their triggers are met.
 - **The EU AI Act Article 27 FRIA deployer obligation applies from 2 December 2027** (Regulation (EU) 2024/1689 as amended by Regulation (EU) 2026/1744, Article 113, third paragraph, point (c): the Digital Omnibus restaged Chapter III, Sections 1 to 3, which contains Article 27, so the FRIA obligation for the Annex III and Article 6(2) high-risk systems it covers runs from 2 December 2027 rather than the general 2 August 2026 application date). A deployer in scope performs the FRIA before deploying an in-scope high-risk AI system on or after that date. Confirm the current in-force position of any cited provision against the official consolidated text before relying on it, since a regulation's consolidated version can be amended.
-- **The Canada Treasury Board Directive on Automated Decision-Making** is in force (current version dated 24 June 2025, following the directive's fourth review; automated decision systems developed or procured before that date have until 24 June 2026 to meet the new or updated requirements). A federal institution subject to the Policy on Service and Digital completes and publishes the AIA before an in-scope automated decision system enters production; other organizations apply it as a leading practice.
+- **The Canada Treasury Board Directive on Automated Decision-Making** is in force (current version dated 24 June 2025, following the directive's fourth review; automated decision systems developed or procured before that date had until 24 June 2026 to meet the new or updated requirements, a transition period that has since ended). A federal institution subject to the Policy on Service and Digital completes and publishes the AIA before an in-scope automated decision system enters production; other organizations apply it as a leading practice.
 - **The NIST Privacy Framework** is a voluntary privacy-risk-management framework, not a statute, and carries no commencement date; it applies wherever the organization elects to manage privacy risk under it.
 
 ---
