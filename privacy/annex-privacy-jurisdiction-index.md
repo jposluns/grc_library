@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Jurisdiction Index\
 **Document Type:** Annex\
-**Version:** 1.0.15\
-**Date:** 2026-07-22\
+**Version:** 1.0.16\
+**Date:** 2026-08-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -130,7 +130,7 @@ Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting 
 
 The following material regulatory developments occurred or were anticipated between the initial 2025 issuance and the 2026 review cycle:
 
-- **EU AI Act:** High-risk AI system obligations under Annex III become applicable in August 2026. GPAI model obligations applied from August 2025. National AI supervisory authorities have been designated across EU member states.
+- **EU AI Act:** High-risk AI system obligations under Annex III become applicable in December 2027 (restaged from the original August 2026 by Regulation (EU) 2026/1744, the Digital Omnibus on AI). GPAI model obligations applied from August 2025. National AI supervisory authorities have been designated across EU member states.
 - **China Generative AI Regulations:** Updated regulations anticipated in 2026, extending obligations to additional generative AI service categories with enhanced training data provenance requirements.
 - **Canada Bill C-27 (CPPA/AIDA):** Lapsed at the 2025-01-06 prorogation (died on the order paper); not in force and would require reintroduction in a future Parliament. PIPEDA remains the in-force federal private-sector privacy law; monitor for any reintroduced successor bill.
 - **Brazil LGPD:** ANPD continued to develop sector-specific AI guidance; administrative enforcement matured with increasing fine activity.
