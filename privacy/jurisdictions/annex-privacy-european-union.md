@@ -2,7 +2,7 @@
 
 **Document Title:** European Union Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.8\
+**Version:** 1.1.9\
 **Date:** 2026-08-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -35,7 +35,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 ### GDPR obligations relevant to AI
 
 - **Lawful basis (Article 6):** Personal data used to train or operate AI systems must have a lawful basis (consent, legitimate interests, contract, legal obligation, vital interests, or public task).
-- **Special categories (Article 9):** AI systems processing biometric data, health data, political opinions, racial or ethnic origin, or other special categories require explicit consent or an Article 9(2) exemption. The EU AI Act's new Article 4a (inserted by Regulation (EU) 2026/1744) supplies a narrow Union-law basis, under Article 9(2), point (g), of the GDPR, for the exceptional processing of special categories of personal data where strictly necessary for bias detection and correction in high-risk AI systems, subject to appropriate safeguards and the cumulative Article 4a conditions (the purpose cannot be met with synthetic or anonymized data, technical and access-control limitations apply, no onward transmission is permitted, and the data is deleted once the bias is corrected).
+- **Special categories (Article 9):** AI systems processing biometric data, health data, political opinions, racial or ethnic origin, or other special categories require explicit consent or an Article 9(2) exemption. The EU AI Act's new Article 4a (inserted by Regulation (EU) 2026/1744) supplies a narrow Union-law basis, under Article 9(2), point (g), of the GDPR, for the exceptional processing of special categories of personal data where strictly necessary for bias detection and correction: for providers of high-risk AI systems (Article 4a(1)) and, under Article 4a(2), for providers and deployers of other AI systems and models and deployers of high-risk systems. It is subject to appropriate safeguards and the cumulative Article 4a conditions (the purpose cannot be effectively fulfilled by other data, including synthetic or anonymized data; technical and access-control limitations apply; no onward transmission is permitted; and the data is deleted once the bias is corrected).
 - **Automated decision-making and profiling (Article 22):** Data subjects have the right not to be subject to solely automated decisions producing legal or similarly significant effects. Exceptions apply for contract necessity, legal authorization, or explicit consent: each requiring human review safeguards.
 - **Data Protection Impact Assessment (Article 35):** Mandatory before processing likely to result in high risk, including systematic automated processing, large-scale processing of special categories, or systematic monitoring. AI systems processing personal data at scale will typically require a DPIA.
 - **Data minimization and purpose limitation (Articles 5(1)(b) and 5(1)(c)):** AI training datasets must be limited to data adequate, relevant, and necessary for the specified purpose. Repurposing data for AI training requires a compatible purpose assessment or fresh lawful basis.

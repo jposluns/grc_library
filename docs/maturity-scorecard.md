@@ -105,7 +105,7 @@ _107 documents._
 | [privacy/jurisdictions/annex-privacy-brazil.md](../privacy/jurisdictions/annex-privacy-brazil.md) | Brazil Privacy Regulatory Requirements | Annex | 1.1.7 | 2026-07-22 |
 | [privacy/jurisdictions/annex-privacy-canada.md](../privacy/jurisdictions/annex-privacy-canada.md) | Canada Privacy Regulatory Requirements | Annex | 1.1.4 | 2026-07-18 |
 | [privacy/jurisdictions/annex-privacy-china.md](../privacy/jurisdictions/annex-privacy-china.md) | China Privacy Regulatory Requirements | Annex | 1.1.3 | 2026-07-02 |
-| [privacy/jurisdictions/annex-privacy-european-union.md](../privacy/jurisdictions/annex-privacy-european-union.md) | European Union Privacy Regulatory Requirements | Annex | 1.1.8 | 2026-08-04 |
+| [privacy/jurisdictions/annex-privacy-european-union.md](../privacy/jurisdictions/annex-privacy-european-union.md) | European Union Privacy Regulatory Requirements | Annex | 1.1.9 | 2026-08-04 |
 | [privacy/jurisdictions/annex-privacy-india.md](../privacy/jurisdictions/annex-privacy-india.md) | India Privacy Regulatory Requirements | Annex | 1.1.2 | 2026-07-02 |
 | [privacy/jurisdictions/annex-privacy-japan.md](../privacy/jurisdictions/annex-privacy-japan.md) | Japan Privacy Regulatory Requirements | Annex | 1.1.0 | 2026-07-04 |
 | [privacy/jurisdictions/annex-privacy-malaysia.md](../privacy/jurisdictions/annex-privacy-malaysia.md) | Malaysia Privacy Regulatory Requirements | Annex | 1.1.2 | 2026-07-02 |
@@ -351,7 +351,7 @@ _37 documents._
 | [ai/jurisdictions/annex-ai-us-colorado.md](../ai/jurisdictions/annex-ai-us-colorado.md) | Colorado AI and Automated Decision-Making Technology Regulatory Requirements | Annex | 0.0.2 | 2026-07-12 |
 | [ai/jurisdictions/annex-ai-us-new-york-city.md](../ai/jurisdictions/annex-ai-us-new-york-city.md) | New York City Automated Employment Decision Tool Regulatory Requirements | Annex | 0.0.2 | 2026-07-12 |
 | [ai/procedure-foundation-model-lifecycle.md](../ai/procedure-foundation-model-lifecycle.md) | Foundation Model Lifecycle Procedure | Procedure | 0.0.7 | 2026-07-12 |
-| [ai/procedure-integrated-ai-and-privacy-assessment.md](../ai/procedure-integrated-ai-and-privacy-assessment.md) | Integrated AI and Privacy Assessment Procedure | Procedure | 0.1.3 | 2026-08-04 |
+| [ai/procedure-integrated-ai-and-privacy-assessment.md](../ai/procedure-integrated-ai-and-privacy-assessment.md) | Integrated AI and Privacy Assessment Procedure | Procedure | 0.1.4 | 2026-08-04 |
 | [ai/procedure-training-data-governance.md](../ai/procedure-training-data-governance.md) | Training Data Governance Procedure | Procedure | 0.0.11 | 2026-07-24 |
 | [ai/register-model-registry.md](../ai/register-model-registry.md) | Model Registry | Register | 0.0.7 | 2026-07-12 |
 | [ai/standard-ai-access-and-agent-permissions.md](../ai/standard-ai-access-and-agent-permissions.md) | AI Access and Agent Permissions Standard | Standard | 0.0.11 | 2026-07-22 |
