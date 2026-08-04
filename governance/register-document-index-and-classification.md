@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.97\
+**Version:** 1.27.98\
 **Date:** 2026-08-04\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -171,7 +171,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Privacy | Annex | Thailand Privacy Requirements | [`privacy/jurisdictions/annex-privacy-thailand.md`](../privacy/jurisdictions/annex-privacy-thailand.md) | Data Protection Officer | Annual | PDPA B.E. 2562 (2019) | template |
 | Privacy | Annex | Indonesia Privacy Requirements | [`privacy/jurisdictions/annex-privacy-indonesia.md`](../privacy/jurisdictions/annex-privacy-indonesia.md) | Data Protection Officer | Annual | UU PDP 2022 | template |
 | Privacy | Annex | Philippines Privacy Requirements | [`privacy/jurisdictions/annex-privacy-philippines.md`](../privacy/jurisdictions/annex-privacy-philippines.md) | Data Protection Officer | Annual | Data Privacy Act 2012 | template |
-| Privacy | Annex | Vietnam Privacy Requirements | [`privacy/jurisdictions/annex-privacy-vietnam.md`](../privacy/jurisdictions/annex-privacy-vietnam.md) | Data Protection Officer | Annual | Decree 13/2023 | template |
+| Privacy | Annex | Vietnam Privacy Requirements | [`privacy/jurisdictions/annex-privacy-vietnam.md`](../privacy/jurisdictions/annex-privacy-vietnam.md) | Data Protection Officer | Annual | PDPL 91/2025; Decree 356/2025 | template |
 | Privacy | Annex | Malaysia Privacy Requirements | [`privacy/jurisdictions/annex-privacy-malaysia.md`](../privacy/jurisdictions/annex-privacy-malaysia.md) | Data Protection Officer | Annual | PDPA 2010 (amended 2024) | template |
 | AI | Framework | AI Governance and Risk Framework | [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md) | AI Governance Approver | 6 to 12 months | ISO/IEC 42001, NIST AI RMF, EU AI Act, COBIT | template |
 | AI | Framework | AI Maturity Model Framework | [`ai/framework-ai-maturity-model.md`](../ai/framework-ai-maturity-model.md) | AI Governance Approver | 6 to 12 months | OWASP AIMA, CMU SEI, ISO/IEC 42001, NIST AI RMF | template |
