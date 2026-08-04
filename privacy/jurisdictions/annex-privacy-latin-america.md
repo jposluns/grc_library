@@ -2,8 +2,8 @@
 
 **Document Title:** Latin America Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.5\
-**Date:** 2026-07-22\
+**Version:** 1.0.6\
+**Date:** 2026-08-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/jurisdictions/annex-privacy-brazil.md`](../jurisdictions/annex-privacy-brazil.md), [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -41,8 +41,8 @@ This annex provides an overview of privacy regulatory requirements in key Latin 
 
 ### Chile
 
-- **Law No. 19,628 on the Protection of Private Life (1999).** A substantially modernized replacement bill is under legislative consideration to align with GDPR.
-- **Regulatory authority:** Consejo para la Transparencia (oversight role for public sector).
+- **Law No. 19,628 on the Protection of Private Life (1999)**, in force during the transition until 2026-11-30. **Law No. 21,719 (published 2024-12-13, in force 2026-12-01)** modernizes the framework to align with GDPR and establishes the Agencia de Protección de Datos Personales as the supervisory authority.
+- **Regulatory authority:** Consejo para la Transparencia (public-sector oversight under Law 19,628); the Agencia de Protección de Datos Personales is established by Law 21,719, operative from 2026-12-01.
 
 ### Peru
 
@@ -58,7 +58,7 @@ Most Latin American jurisdictions apply general data protection principles to AI
 - **Argentina:** The AAIP has issued guidance on AI and data protection, applying Law 25,326 to automated processing. Algorithmic transparency is an area of active regulatory development.
 - **Mexico:** Under the 2025 LFPDPPP, the Secretaría Anticorrupción y Buen Gobierno applies the law's principles to automated processing, requiring transparency about automated processing in privacy notices. The LFPDPPP provides rights to access, rectification, cancellation, and objection (ARCO rights). See the dedicated [`Mexico privacy annex`](annex-privacy-mexico.md).
 - **Colombia:** The SIC applies Law 1581 to AI systems. Data subjects may exercise ARCO rights against automated processing.
-- **Chile and Peru:** Both countries apply their existing data protection laws to AI processing. Both are in the process of legislative modernization that is expected to introduce explicit automated decision-making provisions.
+- **Chile and Peru:** Both apply their data protection laws to AI processing. Chile has enacted Law 21,719 (in force 2026-12-01), which introduces explicit automated decision-making provisions; Peru applies its Law 29733.
 - **BASC regional context:** In jurisdictions where BASC certification is relevant, privacy controls should be aligned with BASC security management standards in addition to applicable local data protection laws.
 
 ---
@@ -70,7 +70,7 @@ Most Latin American jurisdictions apply general data protection principles to AI
 | Argentina | Adequacy (EU); contractual obligations; AAIP authorization |
 | Mexico | LFPDPPP (2025) transfer provisions (Articles 35 and 36); privacy-notice disclosure and consent |
 | Colombia | Consent; contractual safeguards; SIC authorization; Binding Corporate Rules (Normas Corporativas Vinculantes, Decreto 1074/2015 art. 2.2.2.25.7) for intra-group transfers outside Colombia |
-| Chile | Current law: general data protection provisions; modernized law expected to adopt GDPR-style mechanisms |
+| Chile | Law 19,628 (until 2026-11-30); Law 21,719 (from 2026-12-01) adopts GDPR-style transfer mechanisms |
 | Peru | Consent; contractual safeguards; ANPD registration requirements |
 
 ---
@@ -82,7 +82,7 @@ Most Latin American jurisdictions apply general data protection principles to AI
 | Argentina | AAIP | Fines under Law 25,326; updated enforcement under anticipated new law |
 | Mexico | Secretaría Anticorrupción y Buen Gobierno | Fines up to 320,000 UMA, up to twofold for sensitive-data infringements |
 | Colombia | SIC | Fines up to 2,000 monthly minimum legal wages (approx. USD 600,000) |
-| Chile | Ministry of Justice / courts | Compensation claims under current law; enhanced fines anticipated under new law |
+| Chile | Ministry of Justice / courts (Law 19,628); Agencia de Protección de Datos Personales (Law 21,719, from 2026-12-01) | Compensation under Law 19,628; administrative fines under Law 21,719 |
 | Peru | ANPD Peru | Fines up to 100 UIT (approx. USD 130,000) for serious violations |
 
 ---

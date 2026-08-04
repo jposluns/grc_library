@@ -2,8 +2,8 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.96\
-**Date:** 2026-08-01\
+**Version:** 1.27.97\
+**Date:** 2026-08-04\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md)\
@@ -134,7 +134,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Privacy | Template | Record of Processing Activities Template | [`privacy/template-record-of-processing-activities.md`](../privacy/template-record-of-processing-activities.md) | Data Protection Officer | Annual | GDPR Art 30, UK GDPR, LGPD Art 37, PIPEDA, PIPL Art 55, ISO/IEC 27701 §7.2.8 / §8.2.6 | template |
 | Privacy | Template | Privacy Notice Template | [`privacy/template-privacy-notice.md`](../privacy/template-privacy-notice.md) | Data Protection Officer | Annual | GDPR Arts 12 to 14, UK GDPR, LGPD Arts 6/9/18, PIPL Arts 17 to 21, CCPA/CPRA, ISO/IEC 29184 | template |
 | Privacy | Template | Data Subject Access Request Workflow Template | [`privacy/template-dsar-workflow.md`](../privacy/template-dsar-workflow.md) | Data Protection Officer | Annual | GDPR Arts 12 to 23, LGPD Arts 17 to 22, PIPL Arts 44 to 50, CCPA/CPRA, ISO/IEC 27701 §7.3 | template |
-| Privacy | Template | Data Protection Impact Assessment Template | [`privacy/template-dpia.md`](../privacy/template-dpia.md) | Data Protection Officer | Annual | GDPR Art 35, EDPB WP248, UK GDPR Art 35, LGPD Art 38, PIPL Art 55, EU AI Act Art 27, ISO/IEC 29134:2017, ISO/IEC 27701:2025 | template |
+| Privacy | Template | Data Protection Impact Assessment Template | [`privacy/template-dpia.md`](../privacy/template-dpia.md) | Data Protection Officer | Annual | GDPR Art 35, EDPB WP248, UK GDPR Art 35, LGPD Art 38, PIPL Art 55, EU AI Act Art 27, ISO/IEC 29134:2023, ISO/IEC 27701:2025 | template |
 | Privacy | Template | Legitimate Interest Assessment (LIA) Template | [`privacy/template-legitimate-interest-assessment.md`](../privacy/template-legitimate-interest-assessment.md) | Data Protection Officer | Annual | GDPR Art 6(1)(f), GDPR Recital 47, UK GDPR Art 6(1)(f), EDPB Opinion 28/2024, ISO/IEC 27701:2025 | template |
 | Privacy | Template | Transfer Impact Assessment (TIA) Template | [`privacy/template-transfer-impact-assessment.md`](../privacy/template-transfer-impact-assessment.md) | Data Protection Officer | Annual | GDPR Arts 44 to 49, EDPB Recommendations 01/2020, UK GDPR Arts 44 to 49, ISO/IEC 27701:2025 | template |
 | Privacy | Template | Breach Notification Regulator Register Template | [`privacy/template-breach-notification-regulator-register.md`](../privacy/template-breach-notification-regulator-register.md) | Data Protection Officer | Annual | GDPR Arts 33 to 34, UK GDPR, PIPEDA, Quebec Law 25, PIPL Art 57, LGPD Arts 48 to 49, breach-notification deadlines | template |
@@ -145,7 +145,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Privacy | Register | Cookie and Tracker Register | [`privacy/register-cookie-and-tracker.md`](../privacy/register-cookie-and-tracker.md) | Data Protection Officer | Quarterly | ePrivacy Directive Art 5(3), UK PECR, GDPR, LGPD, PIPL, CCPA/CPRA | template |
 | Privacy | Standard | Pseudonymization and Anonymization Standard | [`privacy/standard-pseudonymization-and-anonymization.md`](../privacy/standard-pseudonymization-and-anonymization.md) | Data Protection Officer | Annual | GDPR Art 4(5)/25/Recital 26, ISO/IEC 20889, ISO/IEC 27559, NIST SP 800-188, EDPB Opinion 05/2014 | template |
 | Privacy | Framework | Children's Data Framework | [`privacy/framework-childrens-data.md`](../privacy/framework-childrens-data.md) | Data Protection Officer | Annual | GDPR Art 8, UK ICO AADC, COPPA, California AB 1394, LGPD Art 14, PIPL Art 31, EU AI Act Art 5(1)(b), UNCRC GC25 | template |
-| Privacy | Framework | Privacy by Design Framework | [`privacy/framework-privacy-by-design.md`](../privacy/framework-privacy-by-design.md) | Data Protection Officer | Annual | GDPR Art 25/Recital 78/Art 42, UK GDPR Art 25, Privacy by Design (Cavoukian), ISO/IEC 27701:2025, ISO/IEC 29134:2017 | template |
+| Privacy | Framework | Privacy by Design Framework | [`privacy/framework-privacy-by-design.md`](../privacy/framework-privacy-by-design.md) | Data Protection Officer | Annual | GDPR Art 25/Recital 78/Art 42, UK GDPR Art 25, Privacy by Design (Cavoukian), ISO/IEC 27701:2025, ISO/IEC 29134:2023 | template |
 | Privacy | Annex | Privacy Jurisdiction Index | [`privacy/annex-privacy-jurisdiction-index.md`](../privacy/annex-privacy-jurisdiction-index.md) | Data Protection Officer | Annual | GDPR, EU AI Act, UK GDPR, CCPA/CPRA, LGPD, PIPL, PDPA, POPIA, UAE PDPL, DPDPA, APEC CBPR 2.0 | template |
 | Privacy | Annex | EU Privacy Requirements | [`privacy/jurisdictions/annex-privacy-european-union.md`](../privacy/jurisdictions/annex-privacy-european-union.md) | Data Protection Officer | Annual | GDPR, EU AI Act | template |
 | Privacy | Annex | UK Privacy Requirements | [`privacy/jurisdictions/annex-privacy-united-kingdom.md`](../privacy/jurisdictions/annex-privacy-united-kingdom.md) | Data Protection Officer | Annual | UK GDPR, DPA 2018 | template |
@@ -153,7 +153,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Privacy | Annex | Canada Privacy Requirements | [`privacy/jurisdictions/annex-privacy-canada.md`](../privacy/jurisdictions/annex-privacy-canada.md) | Data Protection Officer | Annual | PIPEDA, Quebec Law 25 (CPPA/AIDA lapsed) | template |
 | Privacy | Annex | US Privacy Requirements | [`privacy/jurisdictions/annex-privacy-united-states.md`](../privacy/jurisdictions/annex-privacy-united-states.md) | Data Protection Officer | Annual | FTC Act, CCPA/CPRA, state laws, BIPA | template |
 | Privacy | Annex | Brazil Privacy Requirements | [`privacy/jurisdictions/annex-privacy-brazil.md`](../privacy/jurisdictions/annex-privacy-brazil.md) | Data Protection Officer | Annual | LGPD | template |
-| Privacy | Annex | Latin America Privacy Requirements | [`privacy/jurisdictions/annex-privacy-latin-america.md`](../privacy/jurisdictions/annex-privacy-latin-america.md) | Data Protection Officer | Annual | Law 1581, Law 25326, Law 19628, Law 29733 | template |
+| Privacy | Annex | Latin America Privacy Requirements | [`privacy/jurisdictions/annex-privacy-latin-america.md`](../privacy/jurisdictions/annex-privacy-latin-america.md) | Data Protection Officer | Annual | Law 1581, Law 25326, Law 19628, Law 21719, Law 29733 | template |
 | Privacy | Annex | Mexico Privacy Requirements | [`privacy/jurisdictions/annex-privacy-mexico.md`](../privacy/jurisdictions/annex-privacy-mexico.md) | Data Protection Officer | Annual | LFPDPPP (2025, DOF 20-03-2025) | template |
 | Privacy | Annex | Singapore Privacy Requirements | [`privacy/jurisdictions/annex-privacy-singapore.md`](../privacy/jurisdictions/annex-privacy-singapore.md) | Data Protection Officer | Annual | PDPA 2012 (amended 2020) | template |
 | Privacy | Annex | Australia Privacy Requirements | [`privacy/jurisdictions/annex-privacy-australia.md`](../privacy/jurisdictions/annex-privacy-australia.md) | Data Protection Officer | Annual | Privacy Act 1988, Privacy and Other Legislation Amendment Act 2024 | template |
