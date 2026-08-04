@@ -85,7 +85,10 @@ from lint_common import (
 )
 
 
-# Files exempt from the co-bump requirement (same set as D2).
+# Files exempt from the co-bump requirement. NOT identical to D2's set:
+# D2 additionally exempts the generated docs/reference-acquisition-manifest.md
+# (its body changes on regen without a Version bump); D4 fires ONLY on a Version
+# change, which the static-versioned manifest never undergoes, so it needs no D4 entry.
 EXEMPT_FILES: frozenset[str] = frozenset(
     {
         "CHANGELOG.md",
