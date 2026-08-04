@@ -2,7 +2,7 @@
 
 **Document Title:** Integrated AI and Privacy Assessment Procedure\
 **Document Type:** Procedure\
-**Version:** 0.1.2\
+**Version:** 0.1.3\
 **Date:** 2026-08-04\
 **Owner:** AI Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -67,7 +67,7 @@ Identify which of the trigger events above are present. The determination is per
 
 - **One limb each.** The DPIA owns the data-protection limb, the AI System Impact Assessment owns the AI-specific limb, and the FRIA owns the fundamental-rights limb. This limb split follows the DPIA template's existing statement that, for an AI system, "the DPIA addresses the data protection limb and the AI System Impact Assessment addresses the AI-specific limb" ([`privacy/template-dpia.md`](../privacy/template-dpia.md)).
 - **Shared evidence and mutual reference.** The assessments share evidence and reference each other, rather than re-collecting the same facts. The DPIA template already states this for the DPIA and the AI System Impact Assessment; this procedure extends the same rule to the FRIA.
-- **The FRIA complements the DPIA; it does not substitute for it.** Where an Article 27 obligation is already met through the GDPR Article 35 DPIA, the EU AI Act (Article 27(4)) requires the fundamental rights impact assessment to complement that data protection impact assessment. A FRIA is therefore never a replacement for a required DPIA, and a DPIA is never a replacement for a required FRIA; where both are triggered, both are performed, with the FRIA building on the DPIA's shared evidence.
+- **The FRIA works alongside the DPIA; it does not substitute for it.** Where an Article 27 obligation is already met through the GDPR Article 35 DPIA, the EU AI Act (Article 27(4), as amended by Regulation (EU) 2026/1744) allows the deployer to cross-reference the relevant sections of, or incorporate relevant parts of, that data protection impact assessment in the fundamental rights impact assessment. A FRIA is therefore never a replacement for a required DPIA, and a DPIA is never a replacement for a required FRIA; where both are triggered, both are performed, with the FRIA building on the DPIA's shared evidence.
 
 ### Step 5: Confirm applicability and timing
 
