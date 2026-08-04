@@ -2,8 +2,8 @@
 
 **Document Title:** Logistics Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.6\
-**Date:** 2026-07-10\
+**Version:** 1.0.7\
+**Date:** 2026-08-04\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-basc-programme-overview.md`](annex-basc-programme-overview.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](register-ctpat-united-states-it-controls.md), [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](register-ctpat-united-states-msc-controls.md), [`compliance/logistics/register-pip-canada-controls.md`](register-pip-canada-controls.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/logistics/template-trade-compliance-gap-assessment.md`](template-trade-compliance-gap-assessment.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../../supply-chain/matrix-supply-chain-security-programme-alignment.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](../../supply-chain/annex-trade-and-supply-chain-continuity-controls.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md)\
@@ -38,7 +38,7 @@ This annex applies where an organization:
 
 | Regulation / Directive | Authority | Mode / Scope |
 |---|---|---|
-| **TSA Security Directive SD Pipeline-2021-02F**: Pipeline Cybersecurity | Transportation Security Administration (TSA) | Critical pipeline operators |
+| **TSA Security Directive SD Pipeline-2021-02F**: Pipeline Cybersecurity (listed expiry 2026-05-02 passed; current post-expiry instrument needs reconfirmation) | Transportation Security Administration (TSA) | Critical pipeline operators |
 | **TSA Security Directive SD-1580/82-2022-01**: Surface Transportation Cybersecurity | TSA | Passenger and freight railroad carriers; owner-operators of highways |
 | **TSA Security Directive SD-1582-21-01**: Freight Rail Cybersecurity | TSA | Freight railroad carriers; rail transit; designated categories |
 | **TSA Security Directive: Aviation Cybersecurity** | TSA | Airport operators; aircraft operators; last-mile delivery involving air |
@@ -90,8 +90,8 @@ This annex applies where an organization:
 |---|---|---|
 | **ICAO Annex 17 (Chicago Convention): Aviation Security** | International Civil Aviation Organization | States; aviation operators |
 | **ICAO Doc 10055: Aviation Cybersecurity Strategy** | ICAO | States; airlines; ANSPs; airports |
-| **IMO Resolution MSC-FAL.1/Circ.3**: Maritime Cyber Risk Management | International Maritime Organization | Shipping companies; port operators |
-| **IMO MSC-FAL.1/Circ.3 Rev. 1** | IMO | Incorporated into ISM Code |
+| **IMO MSC-FAL.1/Circ.3**: Maritime Cyber Risk Management (guidelines) | International Maritime Organization | Shipping companies; port operators |
+| **IMO MSC-FAL.1/Circ.3 Rev.3** (4 April 2025) | IMO | Guidelines supporting maritime cyber-risk management within the ISM Code SMS (per IMO Res. MSC.428(98)) |
 | **IATA Cyber Security Guidance** | International Air Transport Association | IATA member airlines; handling agents |
 | **WCO SAFE Framework** | World Customs Organization | All customs operators |
 | **ISO 28000:2022**: Supply chain security | ISO | Supply chain organizations |
@@ -116,7 +116,7 @@ TSA Security Directives for surface transportation (freight rail, highway) and p
 | **Cybersecurity Management Plan** | Implement specific measures including: (1) network segmentation; (2) access controls; (3) continuous monitoring; (4) patch management | [`security/policy-information-security.md`](../../security/policy-information-security.md); [`security/procedure-access-control.md`](../../security/procedure-access-control.md); [`dev-security/standard-developer-security-requirements.md`](../../dev-security/standard-developer-security-requirements.md) |
 | **Annual assessment** | Annual cybersecurity assessment and update | [`compliance/standard-internal-audit.md`](../standard-internal-audit.md) |
 
-**CISA Reporting Timeline:** Cybersecurity incidents affecting transportation critical infrastructure must be reported to CISA within 24 hours of discovery under CIRCIA (Cyber Incident Reporting for Critical Infrastructure Act).
+**CISA Reporting Timeline:** Under CIRCIA (Cyber Incident Reporting for Critical Infrastructure Act), covered cyber incidents must be reported to CISA within 72 hours after the entity reasonably believes a covered incident has occurred, and ransom payments within 24 hours; the CISA implementing final rule remains pending (expected 2026), so the reporting obligation is not yet operative.
 
 ### EU NIS 2: transportation essential entities
 
@@ -149,7 +149,7 @@ Under NIS 2, transportation entities in the following sub-sectors are classified
 
 ### IMO maritime cyber risk management
 
-IMO Resolution MSC-FAL.1/Circ.3 (incorporated into ISM Code as of 2021-01-01) requires shipping companies to incorporate cyber risk management into their Safety Management Systems.
+The IMO maritime cyber risk management guidelines (MSC-FAL.1/Circ.3) support the ISM Code safety-management framework; IMO Resolution MSC.428(98) affirms that maritime cyber risk should be appropriately addressed within existing Safety Management Systems from the first annual Document of Compliance verification after 1 January 2021.
 
 | IMO Requirement | GRC Library Mapping |
 |---|---|
@@ -158,7 +158,7 @@ IMO Resolution MSC-FAL.1/Circ.3 (incorporated into ISM Code as of 2021-01-01) re
 | Protect against identified risks | [`security/policy-information-security.md`](../../security/policy-information-security.md) |
 | Detect cyber events | [`operations/register-it-security-operations.md`](../../operations/register-it-security-operations.md) |
 | Respond and recover from cyber incidents | [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md); [`resilience/plan-it-disaster-recovery.md`](../../resilience/plan-it-disaster-recovery.md) |
-| Incorporate into ISM Code and Document of Compliance | Supplement: ISM Code cyber annex |
+| Address cyber risk within the existing ISM Code Safety Management System (verified at the Document of Compliance audit) | Supplement: ISM Code cyber annex |
 
 **Critical OT systems requiring risk assessment:** ECDIS (navigation); GPS/AIS; GMDSS (communications); cargo management systems; engine monitoring; access control systems.
 
@@ -228,7 +228,7 @@ For organizations operating or managing connected vehicle fleets:
 
 | Gap Area | Applicable Regulation | Action Required |
 |---|---|---|
-| TSA cybersecurity incident reporting to CISA (24-hour) | TSA Security Directives; CIRCIA | Supplement [`security/sop-incident-escalation-matrix.md`](../../security/sop-incident-escalation-matrix.md) with CISA reporting runbook |
+| TSA cybersecurity incident reporting to CISA (24-hour, per TSA Security Directives); the separate CIRCIA 72-hour covered-incident regime is pending | TSA Security Directives (24h); CIRCIA (72h, rule pending) | Supplement [`security/sop-incident-escalation-matrix.md`](../../security/sop-incident-escalation-matrix.md) with CISA reporting runbook |
 | NIS 2 incident notification templates and reporting to national CSIRT | EU NIS 2 Art 23 | Create NIS 2 incident notification templates per Member State |
 | CAF self-assessment procedure | UK CAA CAP 1753 | Create CAF self-assessment procedure aligned to CAP 1753 |
 | IMO ISM Code cyber annex | IMO MSC-FAL.1/Circ.3 | Create ISM Code cyber risk management annex (maritime operators) |
