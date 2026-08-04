@@ -2,8 +2,8 @@
 
 **Document Title:** European Union Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.6\
-**Date:** 2026-07-13\
+**Version:** 1.1.10\
+**Date:** 2026-08-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -25,7 +25,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 ## Applicable laws and regulatory authorities
 
 - **EU General Data Protection Regulation (GDPR)**: Regulation (EU) 2016/679, effective 2018-05-25. The primary EU data protection law governing the processing of personal data of individuals in the EU.
-- **EU AI Act**: Regulation (EU) 2024/1689, entered into force 2024-08-01, with phased application through 2027. The world's first comprehensive horizontal AI regulation, classifying AI systems by risk level (unacceptable, high, limited, minimal).
+- **EU AI Act**: Regulation (EU) 2024/1689, entered into force 2024-08-01, as amended by Regulation (EU) 2026/1744 (the Digital Omnibus on AI, in force 2026-07-27), with phased application; the Digital Omnibus restaged the high-risk timeline to 2 December 2027 (Annex III and Article 6(2) systems) and 2 August 2028 (Article 6(1) and Annex I systems). The world's first comprehensive horizontal AI regulation, classifying AI systems by risk level (unacceptable, high, limited, minimal).
 - **Regulatory authorities:** National supervisory authorities in each EU member state (e.g., CNIL in France, BfDI/LfDI in Germany, AEPD in Spain, DPC in Ireland). The European Data Protection Board (EDPB) provides binding decisions and guidelines. The one-stop-shop mechanism applies to organizations with cross-border processing; lead supervisory authority determined by location of main establishment. The EDPB Guidelines 8/2022 on identifying a controller or processor's lead supervisory authority (Version 2.1, adopted 28 March 2023 with a minor correction of 28 September 2023, a targeted update superseding the Article 29 Working Party guidelines WP244 rev.01) set out the main-establishment test for that determination.
 
 ---
@@ -35,7 +35,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 ### GDPR obligations relevant to AI
 
 - **Lawful basis (Article 6):** Personal data used to train or operate AI systems must have a lawful basis (consent, legitimate interests, contract, legal obligation, vital interests, or public task).
-- **Special categories (Article 9):** AI systems processing biometric data, health data, political opinions, racial or ethnic origin, or other special categories require explicit consent or an Article 9(2) exemption.
+- **Special categories (Article 9):** AI systems processing biometric data, health data, political opinions, racial or ethnic origin, or other special categories require explicit consent or an Article 9(2) exemption. The EU AI Act's new Article 4a (inserted by Regulation (EU) 2026/1744) supplies a narrow Union-law basis, under Article 9(2), point (g), of the GDPR, for the exceptional processing of special categories of personal data where strictly necessary for bias detection and correction in AI systems, subject to the cumulative safeguards and limits Article 4a sets out (including that the purpose cannot be met with other data, that access is controlled and the data not shared onward, and that it is deleted once no longer needed). Article 4a states the full scope and conditions, which differ between its paragraph 1 (providers of high-risk systems) and paragraph 2 (other AI systems, limited to specified bias harms).
 - **Automated decision-making and profiling (Article 22):** Data subjects have the right not to be subject to solely automated decisions producing legal or similarly significant effects. Exceptions apply for contract necessity, legal authorization, or explicit consent: each requiring human review safeguards.
 - **Data Protection Impact Assessment (Article 35):** Mandatory before processing likely to result in high risk, including systematic automated processing, large-scale processing of special categories, or systematic monitoring. AI systems processing personal data at scale will typically require a DPIA.
 - **Data minimization and purpose limitation (Articles 5(1)(b) and 5(1)(c)):** AI training datasets must be limited to data adequate, relevant, and necessary for the specified purpose. Repurposing data for AI training requires a compatible purpose assessment or fresh lawful basis.
@@ -43,11 +43,11 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ### EU AI act obligations (phased)
 
-- **Prohibited practices (Article 5, applicable February 2025):** Prohibited AI applications include subliminal manipulation, exploitation of vulnerable groups, real-time remote biometric identification in public spaces (narrow law enforcement exceptions), social scoring by public authorities, and predictive policing based solely on profiling.
-- **High-risk AI systems (Annex III, applicable August 2026):** AI deployed in employment management, credit scoring, biometric categorization, and critical infrastructure is subject to mandatory conformity assessments, technical documentation, human oversight mechanisms, and EU database registration.
+- **Prohibited practices (Article 5, applicable 2 February 2025; the two practices inserted by Regulation (EU) 2026/1744 at Article 5(1) points (ba) and (bb) apply from 2 December 2026):** Prohibited AI applications include subliminal manipulation, exploitation of vulnerable groups, real-time remote biometric identification in public spaces (narrow law enforcement exceptions), social scoring by public authorities, predictive policing based solely on profiling, and, from 2 December 2026, AI systems that generate or manipulate non-consensual intimate material (image, audio, video, or similar) or child sexual abuse material.
+- **High-risk AI systems (Annex III, applicable 2 December 2027 as restaged by Regulation (EU) 2026/1744):** AI deployed in employment management, credit scoring, biometric categorization, and critical infrastructure is subject to mandatory conformity assessments, technical documentation, human oversight mechanisms, and EU database registration.
 - **General-purpose AI (GPAI) models (Articles 51 to 56, applicable August 2025):** Providers must maintain technical documentation, comply with EU copyright law, and publish training data summaries. Providers of GPAI models with systemic risk have additional obligations including adversarial testing and incident reporting.
 - **Limited-risk systems (Article 50):** Chatbots and deepfake generators must disclose AI interaction or AI-generated content to users.
-- **AI literacy (Article 4):** Deployers and providers must ensure that sufficient AI literacy is achieved among their staff.
+- **AI literacy (Article 4, as amended by Regulation (EU) 2026/1744):** Deployers and providers take measures to support the development of AI literacy among their staff and other persons dealing with the operation and use of AI systems on their behalf; the amended Article 4 does not require guaranteeing any specific level of AI literacy (the Digital Omnibus relaxed the prior sufficient-level obligation into this support-measures duty).
 
 ---
 
