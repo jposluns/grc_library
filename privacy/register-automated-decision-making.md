@@ -2,7 +2,7 @@
 
 **Document Title:** Automated Decision-Making and Profiling Register\
 **Document Type:** Register\
-**Version:** 1.0.8\
+**Version:** 1.0.9\
 **Date:** 2026-08-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -106,7 +106,7 @@ A system is registered when any of the following is true:
 
 ## Coordination with the AI governance programme
 
-Where an ADM system is also an AI system (most modern cases), the AI System Register is the primary inventory and this register cross-references it. The Data Protection Officer and the AI System Inventory Keeper jointly own the consistency between the two registers. The AI System Impact Assessment Procedure governs the impact analysis; the DPIA covers the privacy dimension. Where a registered high-risk AI system also triggers the EU AI Act Article 27 fundamental rights impact assessment (FRIA), the FRIA complements the DPIA rather than substituting for it (Article 27(4)). The [Integrated AI and Privacy Assessment Procedure](../ai/procedure-integrated-ai-and-privacy-assessment.md) is the router that determines which of the DPIA, the AI System Impact Assessment, and the FRIA a given system needs and how they compose.
+Where an ADM system is also an AI system (most modern cases), the AI System Register is the primary inventory and this register cross-references it. The Data Protection Officer and the AI System Inventory Keeper jointly own the consistency between the two registers. The AI System Impact Assessment Procedure governs the impact analysis; the DPIA covers the privacy dimension. Where a registered high-risk AI system also triggers the EU AI Act Article 27 fundamental rights impact assessment (FRIA), the FRIA does not substitute for the DPIA (and, under Article 27(4) as amended, the deployer may cross-reference the DPIA in the FRIA). The [Integrated AI and Privacy Assessment Procedure](../ai/procedure-integrated-ai-and-privacy-assessment.md) is the router that determines which of the DPIA, the AI System Impact Assessment, and the FRIA a given system needs and how they compose.
 
 ---
 
