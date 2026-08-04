@@ -465,7 +465,7 @@ The Data Protection Officer needs the privacy programme charter, policy, procedu
 - [United Arab Emirates Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-uae.md) (maturity: Baseline)
 - [United Kingdom Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-united-kingdom.md) (maturity: Mature)
 - [United States Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-united-states.md) (maturity: Mature)
-- [Vietnam Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-vietnam.md) (maturity: Baseline)
+- [Vietnam Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-vietnam.md) (maturity: Mature)
 
 ### Charter
 
