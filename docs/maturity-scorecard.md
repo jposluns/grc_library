@@ -105,7 +105,7 @@ _107 documents._
 | [privacy/jurisdictions/annex-privacy-brazil.md](../privacy/jurisdictions/annex-privacy-brazil.md) | Brazil Privacy Regulatory Requirements | Annex | 1.1.7 | 2026-07-22 |
 | [privacy/jurisdictions/annex-privacy-canada.md](../privacy/jurisdictions/annex-privacy-canada.md) | Canada Privacy Regulatory Requirements | Annex | 1.1.4 | 2026-07-18 |
 | [privacy/jurisdictions/annex-privacy-china.md](../privacy/jurisdictions/annex-privacy-china.md) | China Privacy Regulatory Requirements | Annex | 1.1.3 | 2026-07-02 |
-| [privacy/jurisdictions/annex-privacy-european-union.md](../privacy/jurisdictions/annex-privacy-european-union.md) | European Union Privacy Regulatory Requirements | Annex | 1.1.10 | 2026-08-04 |
+| [privacy/jurisdictions/annex-privacy-european-union.md](../privacy/jurisdictions/annex-privacy-european-union.md) | European Union Privacy Regulatory Requirements | Annex | 1.1.11 | 2026-08-04 |
 | [privacy/jurisdictions/annex-privacy-india.md](../privacy/jurisdictions/annex-privacy-india.md) | India Privacy Regulatory Requirements | Annex | 1.1.2 | 2026-07-02 |
 | [privacy/jurisdictions/annex-privacy-japan.md](../privacy/jurisdictions/annex-privacy-japan.md) | Japan Privacy Regulatory Requirements | Annex | 1.1.0 | 2026-07-04 |
 | [privacy/jurisdictions/annex-privacy-malaysia.md](../privacy/jurisdictions/annex-privacy-malaysia.md) | Malaysia Privacy Regulatory Requirements | Annex | 1.1.2 | 2026-07-02 |
@@ -243,7 +243,7 @@ _170 documents._
 | [operations/standard-it-financial-management.md](../operations/standard-it-financial-management.md) | IT Financial Management Standard | Standard | 1.0.5 | 2026-07-23 |
 | [operations/standard-service-level-management.md](../operations/standard-service-level-management.md) | Service Level Management Standard | Standard | 1.0.6 | 2026-07-23 |
 | [operations/standard-site-reliability-engineering.md](../operations/standard-site-reliability-engineering.md) | Site Reliability Engineering Standard | Standard | 1.0.3 | 2026-07-02 |
-| [privacy/annex-privacy-jurisdiction-index.md](../privacy/annex-privacy-jurisdiction-index.md) | Privacy Jurisdiction Index | Annex | 1.0.16 | 2026-08-04 |
+| [privacy/annex-privacy-jurisdiction-index.md](../privacy/annex-privacy-jurisdiction-index.md) | Privacy Jurisdiction Index | Annex | 1.0.17 | 2026-08-04 |
 | [privacy/framework-childrens-data.md](../privacy/framework-childrens-data.md) | Children's Data Framework | Framework | 1.0.9 | 2026-07-16 |
 | [privacy/framework-consent-management.md](../privacy/framework-consent-management.md) | Consent Management Framework | Framework | 1.0.10 | 2026-07-16 |
 | [privacy/framework-privacy-by-design.md](../privacy/framework-privacy-by-design.md) | Privacy by Design Framework | Framework | 1.0.4 | 2026-08-04 |
