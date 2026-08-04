@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.49\
+**Version:** 1.5.50\
 **Date:** 2026-08-04\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -262,7 +262,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | NIST SP 1900 series | subseries (Cyber-Physical Systems; individual publications carry their own dates, e.g. SP 1900-206:2022) | various per publication | Smart-building cybersecurity and IoT guidance | - | https://www.nist.gov/nist-research-library/nist-special-publication-subseries-descriptions | verified 2026-07-09 |
 | NFPA 72 | 2025 | 2025 | National Fire Alarm and Signaling Code | 2022, 2019 | https://www.nfpa.org/codes-and-standards/nfpa-72-standard-development/72 | 2026-06-30 |
 | EN 54 | series (CEN/TC 72; 25+ parts, many harmonized under the Construction Products Regulation (EU) 305/2011) | various | Fire detection and fire alarm systems (European standard series) | - | https://standards.cencenelec.eu/ | verified 2026-07-10 (series-level; corpus cites the series generically, no specific part) |
-| TSA Pipeline Security Directive | SD Pipeline-2021-02F (effective 2025-05-03, expires 2026-05-02) | 2025-05-03 | US Transportation Security Administration pipeline cybersecurity requirements | SD02, SD 02C | https://www.tsa.gov/sites/default/files/tsa-security-directive-pipeline-2021-02f-and-memo-508c.pdf | verified 2026-07-09 |
+| TSA Pipeline Security Directive | SD Pipeline-2021-02F (effective 2025-05-03; listed expiry 2026-05-02 has passed. TSA renews these directives annually, but the current post-expiry instrument could not be reconfirmed at the authoritative TSA source this pass) | 2025-05-03 | US Transportation Security Administration pipeline cybersecurity requirements | SD02, SD 02C | https://www.tsa.gov/sites/default/files/tsa-security-directive-pipeline-2021-02f-and-memo-508c.pdf | needs-reconfirm (checked 2026-08-04, TSA source inaccessible) |
 | Basel III | 2017 (with 2023 finalization, in force 2025) | - | Banking regulation framework | Basel II | https://www.bis.org/bcbs/basel3.htm | 2026-06-30 |
 
 ## OECD and global
@@ -279,7 +279,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | --- | --- | --- | --- | --- | --- | --- |
 | ICAO Annex 17 (Chicago Convention) | Edition 12 | 2022 | Security: safeguarding international civil aviation against acts of unlawful interference | Edition 11 | https://store.icao.int/en/annex-17-security | verified 2026-07-10 |
 | ICAO Doc 10055 | 2024 | 2024 | Aviation Cybersecurity Strategy | - | https://www.icao.int/aviation-cybersecurity/strategy | 2026-06-30 |
-| IMO Resolution MSC-FAL.1/Circ.3 | Rev. 3 | 2025-04 | Maritime cyber risk management guidelines | Rev. 2, Rev. 1 | https://www.imo.org/en/OurWork/Security/Pages/Cyber-security.aspx | 2026-06-30 |
+| IMO MSC-FAL.1/Circ.3 | Rev. 3 | 2025-04 | Maritime cyber risk management guidelines | Rev. 2, Rev. 1 | https://www.imo.org/en/OurWork/Security/Pages/Cyber-security.aspx | 2026-06-30 |
 
 ## AI safety evaluation programmes
 
