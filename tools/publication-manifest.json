@@ -110,6 +110,11 @@
       "disclosure": "PUBLIC",
       "rationale": "Portable express-go entry-condition rule; no internal specifics, all links intra-pack."
     },
+    "governance/cost-bounds-and-runaway-control.md": {
+      "bucket": "CORE",
+      "disclosure": "PUBLIC",
+      "rationale": "Portable Cost-tier bounds-and-runaway-control rule; no internal specifics, all links intra-pack."
+    },
     "governance/gate-discipline.md": {
       "bucket": "CORE",
       "disclosure": "SANITIZE",

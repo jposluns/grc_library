@@ -107,6 +107,7 @@ MIRROR_MAP: dict[str, str] = {
     ".claude/rules/governance/session-lifecycle.md": "guardrails/governance/session-lifecycle.md",
     ".claude/rules/governance/decision-classification-before-enacting.md": "guardrails/governance/decision-classification-before-enacting.md",
     ".claude/rules/governance/express-authorization-before-execution.md": "guardrails/governance/express-authorization-before-execution.md",
+    ".claude/rules/governance/cost-bounds-and-runaway-control.md": "guardrails/governance/cost-bounds-and-runaway-control.md",
 }
 
 

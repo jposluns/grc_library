@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.68.14\
+**Version:** 1.68.15\
 **Date:** 2026-08-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -115,7 +115,8 @@ guardrails/
 │   ├── high-assurance-verification.md           Heavier pre-apply harness for sensitive changes (gate-blind/delicate/costly): research fan-out, signal pass over negatives, two independent adversarial verifiers, programmatic floor, deterministic apply plus re-parse; persisted across sessions, proactive counterpart to trust-recovery
 │   ├── session-lifecycle.md                     Session-lifecycle and operating-modes discipline: durable reconciled handoff record, explicit operator-set modes (attended / attended-autonomous / unattended), graceful degradation for blocked decisions with an absolute reversibility gate, evidence-gated wind-down (continue is the default), the green-merge close with its loop-break compensating control, and an advisory concurrency lease
 │   ├── decision-classification-before-enacting.md Classify a significant autonomous decision (one that disposes of a queued item or bends the plan) ACT / ASK / BLOCKED against a closed, externally-observable blocker set, written before enacting; never a hold on un-instrumented internal state
-│   └── express-authorization-before-execution.md Execution of a plan-initiating unit of work begins only on an express, work-naming authorization; a discussion is not a go, and a conditional go authorizes only its first step; the pause-before-acting family's entry-condition member
+│   ├── express-authorization-before-execution.md Execution of a plan-initiating unit of work begins only on an express, work-naming authorization; a discussion is not a go, and a conditional go authorizes only its first step; the pause-before-acting family's entry-condition member
+│   └── cost-bounds-and-runaway-control.md      Cost Bounds and Runaway Control: bounds token/compute budgets, runaway loops, fan-out, recursion, and the cost of the pack's own verification layers WITHOUT trading down the AIQT tier (Cost targets the waste axis, never the assurance axis); the Cost-tier counterpart to project-integrity §2a
 ├── ai/
 │   ├── ai-security.md          LLM and AI application security requirements
 │   ├── agent-security.md       Agentic workflow security and trust boundaries
@@ -255,6 +256,7 @@ If your project already has an `AGENTS.md` for other coding agents (Codex, Curso
 | [`governance/session-lifecycle.md`](governance/session-lifecycle.md) | Any project running multi-session AI-assisted work; the RESUME / WORK / CLOSE lifecycle apparatus, a durable reconciled handoff record, explicit operator-set operating modes (fully attended / attended-autonomous / unattended), graceful degradation for blocked operator decisions with an absolute reversibility gate, evidence-gated wind-down (continue is the default), the closing green-merge with its loop-break compensating control, and an advisory concurrency lease |
 | [`governance/decision-classification-before-enacting.md`](governance/decision-classification-before-enacting.md) | Any project where an AI coding assistant makes autonomous decisions that dispose of queued or authorized work or bend the plan (a defer, re-sequence, wind-down, skip, or an authorial choice made without asking); the rule classifies each such decision as exactly one of ACT / ASK / BLOCKED and requires it to be written before it is enacted, with a BLOCKED decision naming a blocker from a closed, externally-observable set, so an un-instrumented internal-state hold cannot pass as a considered decision |
 | [`governance/express-authorization-before-execution.md`](governance/express-authorization-before-execution.md) | Any project where an AI coding assistant might begin executing work (edits, commits, outward actions) off the back of a planning discussion or a conditional go rather than an express, work-naming authorization; the rule holds the assistant in discussion mode until the responsible authority gives an express go that names the work, and treats a conditional or sequenced go as authorizing only its first step |
+| [`governance/cost-bounds-and-runaway-control.md`](governance/cost-bounds-and-runaway-control.md) | Any project where an AI coding assistant spends a metered resource (tokens, compute, wall-clock) or runs loops, retries, polling, fan-out, or recursion; the rule bounds that spend and those constructs WITHOUT letting Cost touch the assurance axis, costs the verification layers by risk and cuts them last, permits only an externally-forced-recorded-and-made-up cost exception, and escalates a budget-forced tier conflict rather than degrading quality |
 | [`languages/python.md`](languages/python.md) | Python codebases |
 | [`languages/typescript.md`](languages/typescript.md) | TypeScript / Node.js codebases |
 | [`languages/csharp.md`](languages/csharp.md) | C# / .NET codebases |

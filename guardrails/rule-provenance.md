@@ -1,8 +1,8 @@
 # Rule provenance register: the origin of each governance rule
 
 **Document Type:** Provenance register\
-**Version:** 1.2.2\
-**Date:** 2026-07-30\
+**Version:** 1.2.3\
+**Date:** 2026-08-04\
 **Owner:** Governance Library Maintainer\
 **Repository Path:** [`guardrails/rule-provenance.md`](rule-provenance.md)\
 **License:** CC BY-SA 4.0
@@ -251,3 +251,14 @@ When a rule or skill is added to the pack, add its entry here in the same change
 of its surfaces). Keep entries at this
 register's granularity: the story, not the records. If an entry's event is ever needed
 in full detail, the parent library's history and working records hold it.
+
+### `cost-bounds-and-runaway-control`
+
+Up-front-codified to fill the Cost-tier gap: `project-integrity` ranks Cost the lowest optimization
+dimension but no rule governed it, so token and compute budgets, runaway agentic loops, unbounded
+fan-out, and the cost of the pack's own verification layers were ungoverned. The rule bounds all of
+these WITHOUT ever trading down the AIQT tier: it gives Cost the same shape `project-integrity`
+§2a gives Progress, Cost targets the waste axis and never the assurance axis. Its one piece of
+net-new normative content generalizes the dual-family token-unavailability exception into a
+three-property template (externally forced, recorded, and paired with a discharged make-up
+obligation), and it extends `session-lifecycle`'s named wind-down triggers with budget exhaustion.
