@@ -2,8 +2,8 @@
 
 **Document Title:** Coverage Gap Analysis Register\
 **Document Type:** Register\
-**Version:** 1.1.31\
-**Date:** 2026-07-25\
+**Version:** 1.1.32\
+**Date:** 2026-08-04\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/register-glossary.md`](register-glossary.md), [`README.md`](../README.md), [`TODO.md`](../TODO.md)\
@@ -154,6 +154,7 @@ The `ai/jurisdictions/` structure (parallel to `privacy/jurisdictions/`) was fou
 | UK AI regulatory framework | Partial | Planned | TODO backlog: AI jurisdiction overlays | Re-graded None to Partial 2026-07-02: the AI compliance policy carries a dedicated UK subsection (7.3, AI Safety Institute and ICO commitments, UK GDPR and DPA 2018) and a framework-table row; the dedicated jurisdiction annex remains the gap |
 | China generative AI rules | Partial | Planned | TODO backlog: AI jurisdiction overlays | Re-graded None to Partial 2026-07-03 (the #586 sweep's M-2): the China privacy annex carries a described-obligations bullet for the Interim Measures for the Management of Generative AI Services plus dedicated Generative-AI obligations and enforcement subsections (the UK-AI-framework adjacent-dedicated-subsection pattern), and the jurisdiction index carries Generative-AI cells in its file, regime, and developments tables; unlike the Colorado basis there is no canonical-citations row; the dedicated AI jurisdiction annex remains the gap |
 | Korea AI framework | None | Planned | TODO backlog: AI jurisdiction overlays |  |
+| Vietnam AI law | Referenced | Planned | TODO backlog: AI jurisdiction overlays | Added 2026-08-04: secondary sources report Vietnam enacted a standalone AI law (reported as Law 134/2025/QH15); text not held, so [`privacy/jurisdictions/annex-privacy-vietnam.md`](../privacy/jurisdictions/annex-privacy-vietnam.md) names it as adopted but defers it (asserts nothing about its number, dates, scope or provisions), scoped out in its Limitations. Queued in the reference-base acquisition queue as V-01 (not freely retrievable: thuvienphapluat.vn 403, luatvietnam.vn subscriber-gated). |
 
 ## 3. Regulations and frameworks referenced but not detailed
 

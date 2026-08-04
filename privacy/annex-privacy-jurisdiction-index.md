@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Jurisdiction Index\
 **Document Type:** Annex\
-**Version:** 1.0.17\
+**Version:** 1.0.18\
 **Date:** 2026-08-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -88,7 +88,7 @@ Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting 
 | Thailand (PDPA 2019) | [`privacy/jurisdictions/annex-privacy-thailand.md`](jurisdictions/annex-privacy-thailand.md) |
 | Indonesia (UU PDP 2022) | [`privacy/jurisdictions/annex-privacy-indonesia.md`](jurisdictions/annex-privacy-indonesia.md) |
 | Philippines (Data Privacy Act 2012) | [`privacy/jurisdictions/annex-privacy-philippines.md`](jurisdictions/annex-privacy-philippines.md) |
-| Vietnam (Decree 13/2023) | [`privacy/jurisdictions/annex-privacy-vietnam.md`](jurisdictions/annex-privacy-vietnam.md) |
+| Vietnam (PDPL 91/2025, Decree 356/2025) | [`privacy/jurisdictions/annex-privacy-vietnam.md`](jurisdictions/annex-privacy-vietnam.md) |
 | Malaysia (PDPA 2010, 2024 amendment) | [`privacy/jurisdictions/annex-privacy-malaysia.md`](jurisdictions/annex-privacy-malaysia.md) |
 
 ---
@@ -121,7 +121,7 @@ Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting 
 | Thailand | PDPA 2019 | Automated decision human oversight; PDPC guidance | Consent; adequacy (list in development) | THB 5M (~USD 140K) |
 | Indonesia | UU PDP 2022 | Automated profiling transparency; national AI framework in development | Equivalent protection standard | 2% annual Indonesian revenue |
 | Philippines | Data Privacy Act 2012 | Automated profiling PIA encouraged; NPC guidance | Comparable safeguards; consent | PHP 5M + imprisonment |
-| Vietnam | Decree 13/2023 | Automated decision disclosure; data localization for sensitive data | Consent plus conditions; bilateral agreements | Administrative fines; criminal prosecution |
+| Vietnam | PDPL 91/2025; Decree 356/2025 | Automated-decision notice, algorithm explanation and opt-out; no data-localization duty under the PDPL/Decree 356 | 60-day cross-border transfer impact-assessment dossier (no adequacy or approval regime) | Administrative fines (up to 10x violation revenue / 5% prior-year turnover / VND 3bn); criminal prosecution |
 | Malaysia | PDPA 2010 (2024 amendment) | PDPA principles apply to AI; national AI Ethics framework (voluntary) | Minister-approved countries; consent exceptions | MYR 1M per offense |
 
 ---
@@ -137,7 +137,7 @@ The following material regulatory developments occurred or were anticipated betw
 - **Australia Privacy Act:** Privacy and Other Legislation Amendment Act 2024 reforms took effect; statutory tort for serious invasions of privacy became actionable.
 - **APEC CBPR 2.0:** Additional economies joined the Global CBPR Forum; interoperability with GDPR SCCs was under active negotiation.
 - **India DPDPA:** Digital Personal Data Protection Rules 2025 (draft published January 2025) were notified by MeitY on 13 November 2025 with a phased commencement: Data Protection Board of India provisions took effect on notification, consent-manager provisions commence around November 2026, and the remaining substantive obligations commence around May 2027.
-- **Southeast Asia expansion:** Indonesia published implementing regulations under UU PDP; Malaysia's 2024 PDPA amendments entered into force; Vietnam Decree 13/2023 enforcement matured.
+- **Southeast Asia expansion:** Indonesia published implementing regulations under UU PDP; Malaysia's 2024 PDPA amendments entered into force; Vietnam enacted the PDPL (Law 91/2025) and Decree 356/2025 (in force 2026-01-01), repealing Decree 13/2023.
 - **South Korea PIPA:** 2023 amendments operationalized, including automated decision explanation rights and enhanced penalty framework.
 - **Nigeria NDPA:** The Nigeria Data Protection Commission established as an independent body and commenced regulatory activity.
 - **Saudi Arabia:** SDAIA issued sector-specific AI governance guidelines for financial services and healthcare; data localization requirements clarified.
