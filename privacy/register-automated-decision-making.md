@@ -2,8 +2,8 @@
 
 **Document Title:** Automated Decision-Making and Profiling Register\
 **Document Type:** Register\
-**Version:** 1.0.7\
-**Date:** 2026-07-16\
+**Version:** 1.0.8\
+**Date:** 2026-08-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`ai/template-ai-system-register.md`](../ai/template-ai-system-register.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md), [`ai/procedure-integrated-ai-and-privacy-assessment.md`](../ai/procedure-integrated-ai-and-privacy-assessment.md)\
@@ -129,7 +129,7 @@ Where an ADM system is also an AI system (most modern cases), the AI System Regi
 | GDPR | Articles 13(2)(f), 14(2)(g), 15(1)(h), 22, Recital 71 | Information duty, access, ADM rights |
 | UK GDPR | Same articles | Equivalent provisions |
 | EU AI Act | Articles 6, 14, 26, Annex III | High-risk AI, human oversight, transparency |
-| EU AI Act | Article 27 | Fundamental rights impact assessment (FRIA); complements the DPIA per Article 27(4); deployer obligation applicable from 2 August 2026 |
+| EU AI Act | Article 27 | Fundamental rights impact assessment (FRIA); may cross-reference the DPIA per Article 27(4) as amended by Regulation (EU) 2026/1744; deployer obligation applicable from 2 December 2027 (Annex III and Article 6(2) high-risk systems, per the amended Article 113) |
 | LGPD | Article 20 | Right to review of automated decisions |
 | PIPL | Article 24 | Automated decision-making transparency and refusal |
 | CPPA | Section 19 (proposed) | Automated decision system rights |
