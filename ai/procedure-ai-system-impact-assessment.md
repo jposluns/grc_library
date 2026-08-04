@@ -2,8 +2,8 @@
 
 **Document Title:** AI System Impact Assessment Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.6\
-**Date:** 2026-07-11\
+**Version:** 1.0.7\
+**Date:** 2026-08-04\
 **Owner:** AI Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`governance/procedure-continuous-improvement-register.md`](../governance/procedure-continuous-improvement-register.md), [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md), [`privacy/template-dpia.md`](../privacy/template-dpia.md), [`privacy/register-automated-decision-making.md`](../privacy/register-automated-decision-making.md), [`ai/procedure-integrated-ai-and-privacy-assessment.md`](procedure-integrated-ai-and-privacy-assessment.md)\
@@ -112,7 +112,7 @@ Determine whether the system processes personal data, sensitive data, regulated 
 
 Record whether review is required from privacy, legal, compliance, labour, sector regulatory, procurement, or information security roles.
 
-Where personal data is processed, route to the privacy-side instruments through the [Integrated AI and Privacy Assessment Procedure](procedure-integrated-ai-and-privacy-assessment.md): record the activity in the [automated decision-making register](../privacy/register-automated-decision-making.md) where the system makes a solely-automated decision producing legal or similarly significant effects (GDPR Article 22), complete a [DPIA](../privacy/template-dpia.md) where the Article 35 trigger is met, and complete the EU AI Act Article 27 fundamental rights impact assessment (FRIA) where the deployer meets the Article 27(1) test. The FRIA complements the DPIA (Article 27(4)) and does not substitute for it.
+Where personal data is processed, route to the privacy-side instruments through the [Integrated AI and Privacy Assessment Procedure](procedure-integrated-ai-and-privacy-assessment.md): record the activity in the [automated decision-making register](../privacy/register-automated-decision-making.md) where the system makes a solely-automated decision producing legal or similarly significant effects (GDPR Article 22), complete a [DPIA](../privacy/template-dpia.md) where the Article 35 trigger is met, and complete the EU AI Act Article 27 fundamental rights impact assessment (FRIA) where the deployer meets the Article 27(1) test. The FRIA does not substitute for the DPIA, and, under Article 27(4) as amended by Regulation (EU) 2026/1744, the deployer may cross-reference the DPIA in the FRIA.
 
 ### Step 6: Assess supplier and external service dependency
 

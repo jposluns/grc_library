@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-reference-manifest.py`
 **Document Title:** Reference-Acquisition Manifest\
 **Document Type:** Guide\
 **Version:** 1.0.0\
-**Date:** 2026-07-16\
+**Date:** 2026-08-03\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`docs/portal.md`](portal.md)\
@@ -45,7 +45,7 @@ from `grc_library_ref/catalogue.yml`; regenerate on any reference-base change (t
 generator is maintainer-side, never a CI gate, so the public repo stays clonable
 without the private reference sibling).
 
-## Standards (253: 182 free, 71 licensed)
+## Standards (256: 182 free, 74 licensed)
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
@@ -56,7 +56,10 @@ without the private reference sibling).
 | IEC 31010:2019, Risk management, Risk assessment techniques |  | IEC/ISO |  | LICENSED |
 | IEEE Std 2883-2022, IEEE Standard for Sanitizing Storage |  | IEEE |  | LICENSED |
 | IEEE Std 7000-2021, IEEE Standard Model Process for Addressing Ethical Concerns during System Design | IEEE Std 7000-2021 (Active; also issued as IEEE/ISO/IEC 24748-7000:2022) | IEEE |  | LICENSED |
+| ISO 19011:2026, Guidelines for auditing management systems | Fourth edition, 2026-05 | ISO |  | LICENSED |
 | ISO 31000:2018, Risk management, Guidelines |  | ISO |  | LICENSED |
+| ISO 37301:2021, Compliance management systems, Requirements with guidance for use | First edition, 2021-04 | ISO |  | LICENSED |
+| ISO 37301:2021/Amd.1:2024, Compliance management systems, Amendment 1: Climate action | Amendment 1, 2024-02 | ISO |  | LICENSED |
 | ISO/IEC 12792:2025, Information technology, Artificial intelligence (AI), Transparency taxonomy of AI systems |  | ISO/IEC |  | LICENSED |
 | ISO/IEC 20000, Information technology, Service management, A practical guide (Advice from ISO/IEC JTC 1/SC 40) | First edition, 2019 | ISO/IEC |  | LICENSED |
 | ISO/IEC 20000-10:2018, Information technology, Service management, Part 10: Concepts and vocabulary |  | ISO/IEC |  | LICENSED |
@@ -77,7 +80,7 @@ without the private reference sibling).
 | ISO/IEC 27003:2017, Information technology, Security techniques, Information security management systems, Guidance |  | ISO/IEC |  | LICENSED |
 | ISO/IEC 27004:2016, Information technology, Security techniques, Information security management, Monitoring, measurement, analysis and evaluation |  | ISO/IEC |  | LICENSED |
 | ISO/IEC 27005:2022, Information security, cybersecurity and privacy protection, Guidance on managing information security risks |  | ISO/IEC |  | LICENSED |
-| ISO/IEC 27017:2015, Information technology, Security techniques, Code of practice for information security controls based on ISO/IEC 27002 for cloud services |  | ISO/IEC |  | LICENSED |
+| ISO/IEC 27017:2026, Information security, cybersecurity and privacy protection, Information security controls based on ISO/IEC 27002 for cloud services | Second edition, 2026-07 | ISO/IEC |  | LICENSED |
 | ISO/IEC 27018:2025, Information security, cybersecurity and privacy protection, Code of practice for protection of personally identifiable information (PII) in public clouds acting as PII processors |  | ISO/IEC |  | LICENSED |
 | ISO/IEC 27019:2024, Information security, cybersecurity and privacy protection, Information security controls for the energy utility industry |  | ISO/IEC |  | LICENSED |
 | ISO/IEC 27031:2025, Information and communication technology readiness for business continuity |  | ISO/IEC |  | LICENSED |
@@ -303,7 +306,7 @@ without the private reference sibling).
 | NIST SP 800-94, Guide to Intrusion Detection and Prevention Systems (IDPS) |  | NIST |  | FREE |
 | NIST SP 800-95, Guide to Secure Web Services | SP 800-95 (August 2007) | NIST |  | FREE |
 
-## Frameworks (206: 179 free, 27 licensed)
+## Frameworks (222: 195 free, 27 licensed)
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
@@ -325,7 +328,7 @@ without the private reference sibling).
 | Australia's AI Ethics Principles (8 principles; published 7 November 2019, updated 2 December 2025) (Department of Industry, Science and Resources) | 8 principles, updated 2 December 2025 | Australia DISR |  | FREE |
 | Canada CCCS Baseline Security Requirements for Network Security Zones (ITSP.80.022) | version 2.0, effective 2021-01-12 (confirmed current upstream 2026-07-15) | Canadian Centre for Cyber Security |  | FREE |
 | Canada CCCS Developing Your Incident Response Plan (ITSAP.40.003) | ITSAP.40.003, 2026-01 | Canadian Centre for Cyber Security |  | FREE |
-| Canada CCCS ITSP.50.103 Medium Cloud Control Profile (Annex B: Medium Cloud Profile Recommendations) | ITSP.50.103 Annex B, CCCS Medium Cloud Control Profile; effective 2020-05-20 per the held GC Cloud Profile reference note (spreadsheet docProps modified 2019-10-15) | Canadian Centre for Cyber Security |  | FREE |
+| Canada CCCS ITSP.50.103 Medium Cloud Control Profile (Annex B: Medium Cloud Profile Recommendations) | ITSP.50.103 Annex B, CCCS Medium Cloud Control Profile; effective 2020-05-20 per the held GC Cloud Profile reference note (spreadsheet docProps modified 2019-10-15) | Canadian Centre for Cyber Security | https://www.cyber.gc.ca/en/guidance/guidance-security-categorization-cloud-based-services-itsp50103 | FREE |
 | Canada GC Cyber Security Event Management Plan (GC CSEMP) | modified 2026-05-20 | Treasury Board of Canada Secretariat |  | FREE |
 | Canada GC Enterprise Architecture Framework | framework | Treasury Board of Canada Secretariat |  | FREE |
 | Canada GC Security Control Profile for Cloud-based GC Services | 2016; Appendix A selected controls v1.1 dated 2018-03-28 | Canadian Centre for Cyber Security |  | FREE |
@@ -374,6 +377,7 @@ without the private reference sibling).
 | Canada TBS Policy on the Planning and Management of Investments | 2021 | Treasury Board of Canada Secretariat |  | FREE |
 | Canada TBS Security Playbook for Information System Solutions | modified 2025-10-22 | Treasury Board of Canada Secretariat |  | FREE |
 | Canada TBS Values and Ethics Code for the Public Sector | in force 2012-04-02 (confirmed current upstream 2026-07-15) | Treasury Board of Canada Secretariat |  | FREE |
+| CCCS ITSP.50.103 Guidance on the Security Categorization of Cloud-Based Services | ITSP.50.103, Rev.1 (effective 2020-05-20) | Canadian Centre for Cyber Security (CCCS) | https://www.cyber.gc.ca/en/guidance/guidance-security-categorization-cloud-based-services-itsp50103 | FREE |
 | Choosing Secure and Verifiable Technologies (2024) | December 2024 | Australian Signals Directorate Australian Cyber Security Centre (lead), with the Canadian Centre for Cyber Security and other co-sealers |  | FREE |
 | CIS Controls v8 Change Log (v7.1 to v8 mapping) |  | CIS |  | FREE |
 | CIS Critical Security Controls v8 (controls workbook, Controls V8 sheet) |  | CIS |  | FREE |
@@ -441,6 +445,14 @@ without the private reference sibling).
 | FFIEC IT Examination Handbook: Supervision of Technology Service Providers |  | FFIEC |  | FREE |
 | FFIEC IT Examination Handbook: Wholesale Payment Systems |  | FFIEC |  | FREE |
 | Getting Started with Data Governance Using COBIT 5 |  | ISACA |  | LICENSED |
+| Google SAIF: Components of Generative AI Systems (SAIF 2.0) | SAIF 2.0 (saif.google), captured 2026-07-20 | Google |  | FREE |
+| Google SAIF: Security Controls for Generative AI Systems (SAIF 2.0) | SAIF 2.0 (saif.google), captured 2026-07-20 | Google |  | FREE |
+| Google SAIF: Top Risks of Generative AI Systems (SAIF 2.0) | SAIF 2.0 (saif.google), captured 2026-07-20 | Google |  | FREE |
+| Google SAIF: Why SAIF (Google's Framework for Responsible AI) (SAIF 2.0) | SAIF 2.0 (saif.google), captured 2026-07-20 | Google |  | FREE |
+| Google Secure AI Framework (SAIF): A quick guide to implementing SAIF (2023) | SAIF 1.0 era, 2023-11-13 | Google |  | FREE |
+| Google's Secure AI Framework (SAIF) one-page summary (2023) | SAIF 1.0 era, 2023-11-06 | Google |  | FREE |
+| Government of Canada AI Register (Registre de l'IA du GC) open dataset | GC AI Register open dataset, 412 records (2025 vintage) | Government of Canada, Treasury Board Secretariat |  | FREE |
+| Government of Canada Guideline on Vulnerability Management | canada.ca capture 2026-07-20 | Government of Canada, Treasury Board Secretariat (OCIO) |  | FREE |
 | Guidance for AI Adoption: implementation guidance (National AI Centre, October 2025) | implementation guidance, October 2025 (6 essential practices) | Australia NAIC |  | FREE |
 | Hiroshima Process International Code of Conduct for Organizations Developing Advanced AI Systems (30 October 2023) | Hiroshima Process International Code of Conduct for Organizations Developing Advanced AI Systems, adopted by G7 Leaders 30 October 2023 (confirmed the reference text on soumu.go.jp/hiroshimaaiprocess/en 2026-07-10). The 2023 Code of Conduct is the operative voluntary instrument; the OECD reporting framework (2025) monitors its application and does not supersede it. G7 / Government of Japan; held for internal reference. | G7 |  | FREE |
 | Implementing the NIST Cybersecurity Framework Using COBIT 2019 |  | ISACA |  | LICENSED |
@@ -455,7 +467,12 @@ without the private reference sibling).
 | MITRE CAPEC v3.9 (Common Attack Pattern Enumeration and Classification, distilled) | CAPEC List Version 3.9 (confirmed current at capec.mitre.org/data 2026-07-07; latest diff report is 3.8 to 3.9). MITRE royalty-free licence with attribution (terms of use confirmed at capec.mitre.org 2026-07-07). | MITRE |  | FREE |
 | MITRE CWE v4.20 (Common Weakness Enumeration, distilled) | CWE List Version 4.20 (confirmed current at cwe.mitre.org/data 2026-07-07; latest diff report is 4.19.1 to 4.20). MITRE royalty-free licence with attribution. | MITRE |  | FREE |
 | MITRE D3FEND v1.4.0 (defensive techniques, distilled) | D3FEND ontology v1.4.0 (confirmed current at d3fend.mitre.org/resources/ontology 2026-07-07; released 2026-03-31 per prior maintainer confirmation). MITRE royalty-free licence with attribution; Approved for Public Release, Distribution Unlimited. | MITRE |  | FREE |
+| NYDFS Cybersecurity Regulation Exemption Flowchart (Am I Exempt?) | NYDFS job aid, 2024 | New York State Department of Financial Services (NYDFS) |  | FREE |
+| NYDFS Cybersecurity Resource Center (dfs.ny.gov) | dfs.ny.gov capture 2026-07-20 (content current to the November 2023 Part 500 amendment) | New York State Department of Financial Services (NYDFS) |  | FREE |
+| NYDFS Guidance on Multi-Factor Authentication (23 NYCRR Part 500, Section 500.12) | NYDFS, July 2025 | New York State Department of Financial Services (NYDFS) |  | FREE |
+| NYDFS Part 500 Requirement Checklist for DFS-Regulated Entities with Section 500.19(a) Limited Exemptions | NYDFS job aid, 2024 | New York State Department of Financial Services (NYDFS) |  | FREE |
 | OECD Recommendation of the Council on Artificial Intelligence (OECD/LEGAL/0449; adopted 2019, revised 3 May 2024) |  | OECD |  | FREE |
+| OWASP AI Exchange (the world's AI security guide) | OWASP AI Exchange, living document (generated 2026-07-17) | OWASP Foundation |  | FREE |
 | OWASP AI Maturity Assessment (AIMA) v1.0 | OWASP AIMA v1.0 (August 11, 2025); current version and CC BY-SA 4.0 licence confirmed at owasp.org/www-project-ai-maturity-assessment and the repo LICENSE.md on 2026-07-07 | OWASP |  | FREE |
 | OWASP API Security Top 10 2023 | OWASP API Security Top 10 2023 (2nd edition; current, no later edition as of 2026-07-07). CC BY-SA 4.0 (repo OWASP/API-Security). | OWASP |  | FREE |
 | OWASP Application Security Verification Standard (ASVS) 5.0.0 | OWASP ASVS 5.0.0 (released 30 May 2025; current stable release as of 2026-07-07, no later stable release). Assembled from the tagged v5.0.0_release chapters (5.0/en/), NOT the repo master branch, which is the "bleeding edge" working copy and is not a release. CC BY-SA 4.0 (repo OWASP/ASVS). | OWASP |  | FREE |
@@ -468,6 +485,7 @@ without the private reference sibling).
 | OWASP Mobile Application Security Testing Guide (MASTG) v2.0.0 | OWASP MASTG 2.0.0 (released 30 June 2026; current stable release as of 2026-07-07, the first stable non-beta release of the refactored MAS framework, ~271 new components for ~860 total). Assembled from the tagged v2.0.0 release (commit 990472dbcffe126f5556045d60270c4ffdfdde72), NOT the repo master branch (in-development, not a release). CC BY-SA 4.0 (repo OWASP/owasp-mastg). | OWASP |  | FREE |
 | OWASP Mobile Application Security Verification Standard (MASVS) v2.1.0 | OWASP MASVS 2.1.0 (released 18 January 2024; current stable release as of 2026-07-07, no later stable release). v2.1.0 added the MASVS-PRIVACY control group. Assembled from the tagged v2.1.0 release (annotated-tag object 1de2913fe799137ac4695eabaae633da693070cd -> commit 8e133d09f4140518ed04cc254b18be9ff4990ffc), NOT the repo master branch (in-development, not a release). CC BY-SA 4.0 (repo OWASP/owasp-masvs). | OWASP |  | FREE |
 | OWASP Software Assurance Maturity Model (SAMM) v2.2.0 | OWASP SAMM v2.2.0 (release published 6 July 2026; current, supersedes v2.1.0). Live core model repo owaspsamm/core, NOT the archived OWASP/samm (stuck at v2.0). CC BY-SA 4.0. | OWASP |  | FREE |
+| OWASP Top 10 for Agentic Applications 2026 (Version 2026) | Version 2026 (December 2025), OWASP Gen AI Security Project, Agentic Security Initiative; ten risks ASI01-ASI10; CC BY-SA 4.0. | OWASP |  | FREE |
 | OWASP Top 10 for LLM Applications v2.0 (2025) |  | OWASP |  | FREE |
 | OWASP Top 10 Proactive Controls v4.0 (2024) | OWASP Top 10 Proactive Controls v4.0.0 (tagged "Top 10 Proactive Controls 2024", released 20 October 2024; current, no v4.1). CC BY-SA 4.0 (repo OWASP/www-project-proactive-controls). | OWASP |  | FREE |
 | OWASP Top 10:2025 (Web Application Security Risks) | OWASP Top 10:2025 (final; announced November 2025 at Global AppSec, final release January 2026). Not a Release Candidate. CC BY-SA 4.0 (repo OWASP/Top10). | OWASP |  | FREE |
@@ -486,6 +504,7 @@ without the private reference sibling).
 | Prioritized Approach Tool for PCI DSS v4.0.1 (Prioritized Approach Summary sheet) |  | PCI SSC |  | FREE |
 | Process Assessment Model (PAM): Using COBIT 5 |  | ISACA |  | LICENSED |
 | Relating the COSO Internal Control-Integrated Framework and COBIT (white paper) |  | ISACA |  | LICENSED |
+| SANS Critical AI Security Guidelines, v1.4 | v1.4, March 2026 (CC BY 4.0) | SANS Institute |  | FREE |
 | Singapore MAS Technology Risk Management Guidelines (18 January 2021) |  | MAS |  | FREE |
 | Singapore Model AI Governance Framework for Generative AI (IMDA / AI Verify Foundation, 2024) | Model AI Governance Framework for Generative AI (30 May 2024) | Singapore IMDA |  | FREE |
 | Summary of Changes from PCI DSS Version 4.0 to 4.0.1 |  | PCI SSC |  | FREE |
@@ -514,13 +533,14 @@ without the private reference sibling).
 | US Interagency Paper: Sound Practices to Strengthen Operational Resilience (OCC / FRB / FDIC, 2020) |  | US OCC/FRB/FDIC |  | FREE |
 | Vulnerability Scans and Approved Scanning Vendors (ASV): A PCI SSC Resource Guide |  | PCI SSC |  | FREE |
 
-## Legislation (132: 132 free, 0 licensed)
+## Legislation (137: 137 free, 0 licensed)
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
 | American Recovery and Reinvestment Act of 2009 (Pub. L. 111-5), including the HITECH Act (Title XIII) |  | US |  | FREE |
 | Argentina Decreto 1558/2001 (reglamentario de la Ley 25.326 de Protección de los Datos Personales) | Decreto 1558/2001, enacted 29 November 2001 (B.O. 3 December 2001); Anexo I, arts. 1 to 32 reglamentados (arts. 33 to 46 sin reglamentar). Title, date, and implementing-decree status orchestrator-confirmed at argentina.gob.ar 2026-07-16 (texto original shown). | Argentina |  | FREE |
 | Argentina Ley 25.326 de Protección de los Datos Personales (Habeas Data) |  | Argentina |  | FREE |
+| Brazil ANPD Board of Directors Resolution No. 32 of 26 January 2026 (recognition of the European Union as an international organization providing an adequate level of personal data protection under the LGPD, Law No. 13,709 of 2018, for international data transfers) | Resolution CD/ANPD No. 32 of 26 January 2026 (official English translation) | Brazil |  | FREE |
 | Brazil ANPD Resolution CD/ANPD No. 15 of 24 April 2024 (Security Incident Communication Regulation) | Resolution CD/ANPD No. 15/2024 (2024-04-24), primary text confirmed at source; current | Brazil |  | FREE |
 | Brazil ANPD Resolução CD/ANPD nº 1/2021 (Processo de Fiscalização e Processo Administrativo Sancionador; Inspection and Sanctioning Process) | Resolução CD/ANPD nº 1, de 28 de outubro de 2021 (arts. 1 to 71 plus the Anexo Regulamento); gov.br-served text (host confirmed reachable 2026-07-16; worker-acquired 2026-07-16). | Brazil |  | FREE |
 | Brazil ANPD Resolução CD/ANPD nº 18, de 16 de julho de 2024 (Regulamento sobre a atuação do encarregado pelo tratamento de dados pessoais / data protection officer regulation) | Resolução CD/ANPD nº 18/2024, published DOU 17/07/2024 (Edição 136, Seção 1, p. 42); in force since publication; current | Brazil |  | FREE |
@@ -534,9 +554,10 @@ without the private reference sibling).
 | California Data Broker Registration and Accessible Deletion Mechanism (DROP) Regulations, 11 CCR Division 6 Chapter 3 (CPPA, effective January 1, 2026) | CPPA Text of Regulations, Data Broker Registration and Accessible Deletion Mechanism, effective January 1, 2026 (Title 11, Division 6, Chapter 3, sections 7600 to 7622; Articles 1 to 4); 16 pages | US | https://cppa.ca.gov/regulations/pdf/data_broker_drop_reg.pdf | FREE |
 | California Delete Act / Data Broker Registration law, Cal. Civ. Code § 1798.99.80 et seq. (effective January 1, 2026, SB 361 update) | CPPA-published consolidated statute, Data Broker Registry / Delete Act, effective January 1, 2026 (SB 361 update); Cal. Civ. Code sections 1798.99.80 to 1798.99.89; posted cppa.ca.gov December 2025 | US | https://cppa.ca.gov/regulations/pdf/data_broker_reg_delete_act_statute_eff_20260101.pdf | FREE |
 | Canada Breach of Security Safeguards Regulations, SOR/2018-64 (under PIPEDA) | SOR/2018-64, Justice Laws consolidation current to 2026-05-26, last amended 2018-11-01; in force since 2018-11-01 | Canada |  | FREE |
-| Canada Treasury Board Directive on Automated Decision-Making (in force; current text reflects the third-review amendments, with a 24 June 2025 to 24 June 2026 compliance transition) |  | Canada |  | FREE |
+| Canada Treasury Board Directive on Automated Decision-Making (in force; current text reflects the third-review amendments, whose 24 June 2025 to 24 June 2026 compliance transition has ENDED, per the held text sections 1.2.1 and 1.2.2) |  | Canada |  | FREE |
 | CJEU Case C-311/18, Data Protection Commissioner v Facebook Ireland and Schrems (Schrems II), judgment of 16 July 2020 |  | EU |  | FREE |
 | Colombia Decreto 1377 de 2013 (por el cual se reglamenta parcialmente la Ley 1581 de 2012, protección de datos personales) | Decreto 1377 de 2013 (Diario Oficial 48.834, 27 June 2013), Función Pública Gestor Normativo maintained text; partially derogated by Decreto 1081 de 2015; content compiled into the Decreto Único Reglamentario 1074 de 2015 | Colombia |  | FREE |
+| Colombia Decreto Unico Reglamentario 1074 de 2015 (Sector Comercio, Industria y Turismo), Libro 2 Parte 2 Titulo 2 Capitulo 25 - Proteccion de datos personales (reglamentario de la Ley 1581 de 2012, texto que compila el Decreto 1377 de 2013) | DUR 1074 de 2015, compiled text (EVA Gestor Normativo); Capitulo 25 = Decreto 1377 de 2013 compiled | Colombia |  | FREE |
 | Colombia Ley 1581 de 2012 (Protección de Datos Personales) |  | Colombia |  | FREE |
 | Colorado Artificial Intelligence Act, C.R.S. 6-1-1701 et seq. (SB24-205) |  | US |  | FREE |
 | Colorado Automated Decision-Making Technology in Consequential Decisions, C.R.S. 6-1-1701 et seq. (reenacted SB26-189, successor to the Colorado AI Act SB24-205) |  | US |  | FREE |
@@ -564,7 +585,8 @@ without the private reference sibling).
 | EU Data Act, Regulation (EU) 2023/2854 |  | EU |  | FREE |
 | EU Data Governance Act (DGA), Regulation (EU) 2022/868 |  | EU |  | FREE |
 | EU Digital Markets Act (DMA), Regulation (EU) 2022/1925 |  | EU |  | FREE |
-| EU Digital Omnibus on AI: Proposal COM(2025) 836 to amend Regulations (EU) 2024/1689 and (EU) 2018/1139 (PENDING, not adopted) |  | EU |  | FREE |
+| EU Digital Omnibus on AI: Proposal COM(2025) 836 to amend Regulations (EU) 2024/1689 and (EU) 2018/1139 (SUPERSEDED, now enacted as Regulation (EU) 2026/1744) |  | EU |  | FREE |
+| EU Digital Omnibus on AI: Regulation (EU) 2026/1744 amending Regulations (EU) 2024/1689, (EU) 2018/1139 and (EU) 2023/1230 (IN FORCE) |  | EU |  | FREE |
 | EU Digital Services Act (DSA), Regulation (EU) 2022/2065 |  | EU |  | FREE |
 | EU DMA Commission Implementing Regulation (EU) 2023/814 (detailed arrangements for the conduct of certain proceedings) | Commission Implementing Regulation (EU) 2023/814 of 14 April 2023 | EU |  | FREE |
 | EU DSA Commission Delegated Regulation (EU) 2023/1127 (supervisory fees on very large online platforms and search engines) | Commission Delegated Regulation (EU) 2023/1127 of 2 March 2023 | EU |  | FREE |
@@ -625,6 +647,7 @@ without the private reference sibling).
 | HIPAA, 45 CFR Part 160, General Administrative Requirements |  | US |  | FREE |
 | HIPAA, 45 CFR Part 162, Administrative Requirements (Transactions and Code Sets) |  | US |  | FREE |
 | HIPAA, 45 CFR Part 164, Security and Privacy | 45 CFR Part 164 in effect; Security Rule strengthening NPRM (published 2025-01-06) not finalized as of 2026-07 | US | https://www.hhs.gov/hipaa/for-professionals/security/hipaa-security-rule-nprm/index.html | FREE |
+| Illinois Biometric Information Privacy Act (BIPA), 740 ILCS 14 | As amended through P.A. 103-769 (eff. 2024-08-02) | US |  | FREE |
 | Japan Act on the Protection of Personal Information (APPI), Act No. 57 of 2003 (English translation) |  | Japan |  | FREE |
 | Japan APPI Enforcement Rules of the Personal Information Protection Commission (PPC tentative English translation, Ver.1 December 2016; effective 30 May 2017) | Ver.1 December 2016, PPC tentative English translation, effective 30 May 2017 (2015-amendment implementation); SUPERSEDED upstream by the 2021 PPC Enforcement Rules for the amended APPI (in force 1 April 2022) | Japan |  | FREE |
 | Japan Cabinet Order to Enforce the Act on the Protection of Personal Information (PPC tentative English translation, Ver.1 December 2016; effective 30 May 2017) | Ver.1 December 2016, PPC tentative English translation, effective 30 May 2017 (2015-amendment implementation); SUPERSEDED upstream by the 2021 Cabinet Order for the amended APPI (in force 1 April 2022) | Japan |  | FREE |
@@ -647,11 +670,12 @@ without the private reference sibling).
 | United States Texas Responsible Artificial Intelligence Governance Act (TRAIGA), HB 149 (2025) | TRAIGA HB 149, effective 1 Jan 2026 | US |  | FREE |
 | Uruguay Decreto N° 414/009 (Reglamentación de la Ley 18.331, protección de datos personales) | Decreto 414/009 (31 August 2009), IMPO consolidated (Documento Actualizado) text; arts. 7 and 8 repealed by Decreto 64/020 (21 February 2020) | Uruguay |  | FREE |
 | Uruguay Ley N° 18.331 de Protección de Datos Personales y Acción de Habeas Data |  | Uruguay |  | FREE |
+| US NYDFS 3 NYCRR Part 504 - Banking Division Transaction Monitoring and Filtering Program Requirements and Certifications (BSA/AML/OFAC) | 3 NYCRR Part 504, unofficial (Westlaw NY-CRR), current through February 15, 2022; effective January 1, 2017 | United States (New York) | https://www.law.cornell.edu/regulations/new-york/3-NYCRR-504.3 | FREE |
 | US NYDFS Cybersecurity Requirements for Financial Services Companies, 23 NYCRR Part 500 (Second Amendment, effective 1 November 2023) |  | US |  | FREE |
 | US SEC Regulation S-P: Privacy of Consumer Financial Information and Safeguarding Customer Information (Final Rule, Release 34-100155, 16 May 2024) |  | US |  | FREE |
 | Virginia Consumer Data Protection Act (VCDPA), Code of Virginia Title 59.1 Chapter 53 |  | US |  | FREE |
 
-## Programs (41: 41 free, 0 licensed)
+## Programs (42: 42 free, 0 licensed)
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
@@ -671,6 +695,7 @@ without the private reference sibling).
 | Canada Progress on AI in Government | modified 2025-11-28 | Treasury Board of Canada Secretariat |  | FREE |
 | Canada Roadmap to Scale AI Projects in the Public Sector | modified 2026-04-10 | Treasury Board of Canada Secretariat |  | FREE |
 | Canada Voluntary Code of Conduct on the Responsible Development and Management of Advanced Generative AI Systems (ISED, 2023) |  | Innovation, Science and Economic Development Canada |  | FREE |
+| Canada's National Cyber Security Strategy: Securing Canada's Digital Future (2025) | Public Safety Canada, 2025 (Cat. PS4-239/2025E-PDF, ISBN 978-0-660-72268-9) | Public Safety Canada |  | FREE |
 | Canadian Sovereign AI Compute Strategy | modified 2026-06-04 | Innovation, Science and Economic Development Canada |  | FREE |
 | CTPAT Cybersecurity Checklist Sample (CTPAT Job Aid) |  | US Customs and Border Protection |  | FREE |
 | EU Authorised Economic Operator (AEO) Guidelines, TAXUD/B2/047/2011 Rev.6 (2016) |  | European Commission (DG TAXUD) |  | FREE |
@@ -697,5 +722,5 @@ without the private reference sibling).
 | WCO Compendium of Authorized Economic Operator Programmes (2020 edition) |  | World Customs Organization |  | FREE |
 | WCO SAFE Framework of Standards (2025 edition) | 2025 edition (dated June 2025, published September 2025); current upstream, confirmed 2026-07-11; 2021 edition retired to .superseded/ | World Customs Organization | https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/facilitation/instruments-and-tools/tools/safe-package/safe-framework-2025_en.pdf | FREE |
 
-**Total: 632 sources (534 free, 98 licensed).**
+**Total: 657 sources (556 free, 101 licensed).**
 
