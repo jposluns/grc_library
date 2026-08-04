@@ -3892,7 +3892,7 @@ documents:
   domain: "privacy"
   type: "Annex"
   title: "European Union Privacy Regulatory Requirements"
-  version: "1.1.9"
+  version: "1.1.10"
   date: "2026-08-04"
   owner: "Data Protection Officer"
   approving_authority: "Governance Library Maintainer"
