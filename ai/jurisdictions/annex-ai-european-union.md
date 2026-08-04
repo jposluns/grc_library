@@ -2,7 +2,7 @@
 
 **Document Title:** European Union AI Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.5\
+**Version:** 0.0.6\
 **Date:** 2026-08-04\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
