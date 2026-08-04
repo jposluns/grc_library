@@ -934,7 +934,7 @@ documents:
   domain: "ai"
   type: "Annex"
   title: "European Union AI Regulatory Requirements"
-  version: "0.0.6"
+  version: "0.0.7"
   date: "2026-08-04"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"
