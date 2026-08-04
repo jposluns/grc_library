@@ -15,7 +15,8 @@ document has a bumped Version field.
 
 Exempt files: CHANGELOG.md (its body is the version history itself);
 generated artefacts (taxonomy.yml, docs/portal.md,
-docs/maturity-scorecard.md); files without a Version metadata field
+docs/maturity-scorecard.md, docs/reference-acquisition-manifest.md); files
+without a Version metadata field
 (e.g. plain README boilerplate, governance/charter notes that the
 project chose not to version-control via metadata).
 
