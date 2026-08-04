@@ -2,8 +2,8 @@
 
 **Document Title:** AI Synthetic-Content Provenance Guideline\
 **Document Type:** Guideline\
-**Version:** 0.0.2\
-**Date:** 2026-07-12\
+**Version:** 0.0.3\
+**Date:** 2026-08-04\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md), [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md), [`ai/template-ai-vendor-security-questionnaire.md`](template-ai-vendor-security-questionnaire.md), [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/jurisdictions/annex-ai-european-union.md`](jurisdictions/annex-ai-european-union.md), [`ai/procedure-training-data-governance.md`](procedure-training-data-governance.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md)\
@@ -77,7 +77,7 @@ The EU AI Act (Regulation (EU) 2024/1689) Article 50 states the binding transpar
 - **Article 50(5):** the disclosure is provided clearly and distinguishably at the latest at the time of first interaction or exposure.
 - **Article 50(7):** the AI Office facilitates codes of practice on the detection and labelling of artificially generated or manipulated content.
 
-The per-regime status, and any pending amendment to Article 50 (a proposed EU Digital Omnibus is not adopted and does not change the in-force obligation), are maintained in [`ai/jurisdictions/annex-ai-european-union.md`](jurisdictions/annex-ai-european-union.md); this guideline anchors to the in-force Regulation (EU) 2024/1689 and defers the version-sensitive status to that annex.
+The per-regime status, and the Article 50 changes made by the EU Digital Omnibus (Regulation (EU) 2026/1744, in force 2026-07-27), are maintained in [`ai/jurisdictions/annex-ai-european-union.md`](jurisdictions/annex-ai-european-union.md); this guideline anchors to the in-force EU AI Act Article 50 (Regulation (EU) 2024/1689 as amended) and defers the version-sensitive status to that annex.
 
 ## Framework alignment
 
@@ -90,7 +90,7 @@ The per-regime status, and any pending amendment to Article 50 (a proposed EU Di
 
 ## Limitations
 
-This guideline is original CC BY-SA 4.0 content; it is advisory, not a control, and adopting it does not by itself discharge a legal obligation. Its technical content restates the informative overview NIST AI 100-4, which observes that many of these approaches are immature, not fully examined for efficacy, and potentially years from widespread deployment, and that consensus on label design is limited; an implementer treats technique selection as a risk-weighted, re-evaluated decision, not a solved problem. The regulatory content anchors to the in-force EU AI Act Article 50; currency of that obligation and of any pending amendment is confirmed against the EU jurisdiction annex before reliance.
+This guideline is original CC BY-SA 4.0 content; it is advisory, not a control, and adopting it does not by itself discharge a legal obligation. Its technical content restates the informative overview NIST AI 100-4, which observes that many of these approaches are immature, not fully examined for efficacy, and potentially years from widespread deployment, and that consensus on label design is limited; an implementer treats technique selection as a risk-weighted, re-evaluated decision, not a solved problem. The regulatory content anchors to the in-force EU AI Act Article 50; currency of that obligation and of any amendment is confirmed against the EU jurisdiction annex before reliance.
 
 ---
 
