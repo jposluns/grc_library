@@ -2,7 +2,7 @@
 
 **Document Title:** Personnel Security Screening Standard\
 **Document Type:** Standard\
-**Version:** 1.0.5\
+**Version:** 1.0.6\
 **Date:** 2026-08-05\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -104,8 +104,8 @@ Screening records, adverse finding decisions, and conditional access approvals a
 
 | Requirement Area | ISO/IEC 27001:2022 | NIST SP 800-53 | CSA CCM v4.1 | CTPAT / PIP / BASC |
 | --- | --- | --- | --- | --- |
-| Pre-employment screening | A.6.1 | PS-3 | HRS-01, HRS-02 | CTPAT Personnel Security; Canada PIP: Personnel and Staffing; BASC v6 §8.3 |
-| Contractor screening | A.6.6 | PS-7 | HRS-01 | CTPAT Personnel Security |
+| Pre-employment screening | A.6.1 | PS-3 | HRS-01 | CTPAT Personnel Security; Canada PIP: Personnel and Staffing; BASC v6 §8.3 |
+| Contractor screening | A.6.1 | PS-7 | HRS-01 | CTPAT Personnel Security |
 | Role-based access consideration | A.5.15 | AC-2 | IAM-02 | N/A |
 | Records and accountability | A.5.33 | PS-3(1) | HRS-09 | N/A |
 

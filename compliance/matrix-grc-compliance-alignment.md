@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.17\
-**Date:** 2026-08-02\
+**Version:** 1.11.18\
+**Date:** 2026-08-05\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/logistics/register-basc-it-responsibilities.md`](logistics/register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](logistics/annex-aeo-united-kingdom-cybersecurity.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md)\
@@ -167,7 +167,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Security | Standard: Penetration Testing and Red Team | [`security/standard-penetration-testing-and-red-team.md`](../security/standard-penetration-testing-and-red-team.md) | TVM-07, TVM-06, A&A-02 | N/A | A.8.8, A.5.36, A.5.19 | ID.RA, PR.PS | IT security controls | IT security | §8.4, §9.1 | Pillar II (ICT security) | IT security controls review and testing |
 | Security | Standard: Threat Modelling | [`security/standard-threat-modelling.md`](../security/standard-threat-modelling.md) | TVM-04, AIS-04 | MDS-06, DSP-21 | A.8.25, A.8.27, A.8.28 | ID.RA, PR.PS | IT security controls | IT security | §8.4, §9.1 | Pillar II (ICT security) | IT security controls review and testing |
 | Security | Procedure: Security Disciplinary Process | [`security/procedure-security-disciplinary-process.md`](../security/procedure-security-disciplinary-process.md) | HRS-13, HRS-09 | N/A | A.6.4 | GV.RR, PR.AT | Personnel security | Personnel and staffing | §8.3 | N/A | Personnel security |
-| Security | Standard: Personnel Security Screening | [`security/standard-personnel-security-screening.md`](../security/standard-personnel-security-screening.md) | HRS-01, HRS-02, IAM-02 | N/A | A.6.1, A.6.6, A.5.15 | PR.AT, GV.RR | Personnel security | Personnel and staffing | §8.3 | N/A | Personnel security |
+| Security | Standard: Personnel Security Screening | [`security/standard-personnel-security-screening.md`](../security/standard-personnel-security-screening.md) | HRS-01, IAM-02 | N/A | A.6.1, A.5.15 | PR.AT, GV.RR | Personnel security | Personnel and staffing | §8.3 | N/A | Personnel security |
 | Security | Standard: Security Awareness and Training | [`security/standard-security-awareness-and-training.md`](../security/standard-security-awareness-and-training.md) | HRS-11, HRS-12 | N/A | A.6.3, §7.2 | PR.AT, GV.RR | Security training and threat awareness | Personnel and staffing | §7.2 | N/A | Personnel security |
 | Security | Framework: Insider Risk Programme | [`security/framework-insider-risk-programme.md`](../security/framework-insider-risk-programme.md) | HRS-01, IAM-05, LOG-03, SEF-07 | N/A | A.6.1, A.6.4, A.8.16 | DE.CM, DE.AE, RS.MA | IT security monitoring | IT security | §9.1 | Pillar II (ICT security) | IT security incidents |
 | Security | Policy: Acceptance Into Service | [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md) | CCC-01, CCC-02, CCC-05 | GRC-10 | A.8.32, A.5.37 | PR.PS, ID.IM | IT security controls | IT security | §8.4 | Pillar II (ICT security) | Information systems security |
