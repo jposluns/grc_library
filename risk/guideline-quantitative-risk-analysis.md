@@ -2,7 +2,7 @@
 
 **Document Title:** Quantitative Risk Analysis Guideline\
 **Document Type:** Guideline\
-**Version:** 1.0.4\
+**Version:** 1.0.5\
 **Date:** 2026-08-05\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -120,7 +120,7 @@ Start from a qualitatively identified risk in the enterprise risk register. Defi
 | Sub-Step | Action |
 |---|---|
 | 2a | Estimate Threat Event Frequency (TEF) per year (range: min, ML, max) |
-| 2b | Estimate Vulnerability: probability threat succeeds per contact (0 to 1, as %) |
+| 2b | Estimate Vulnerability: probability a threat event results in loss (0 to 1, as %) |
 | 2c | Calculate LEF range = TEF × Vulnerability |
 
 **Example: Ransomware scenario:**
