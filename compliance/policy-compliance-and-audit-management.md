@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance, Audit, and CAPA Management Policy\
 **Document Type:** Policy\
-**Version:** 1.0.15\
-**Date:** 2026-07-11\
+**Version:** 1.0.16\
+**Date:** 2026-08-05\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md)\
@@ -22,7 +22,7 @@ This policy defines the governance framework for compliance assurance, internal 
 
 It consolidates previous compliance, audit, and CAPA policies into one unified governance instrument, ensuring consistent oversight of legal, regulatory, contractual, and ethical obligations; verification of control effectiveness; and continual improvement through audit findings and remediation cycles. 
 
-The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO 19011:2018** (Auditing Guidelines), **COBIT 2019 MEA01** (Managed Performance and Conformance Monitoring), **Cloud Security Alliance (CSA)** frameworks, **NIST SP 800-53 Rev. 5 CA** family, and regulatory expectations under the **EU AI Act**. (Canada's AIDA, proposed as Part 3 of Bill C-27, lapsed at the 2025-01-06 prorogation and is not in force; the current Canadian instruments are the Treasury Board Directive on Automated Decision-Making (binding on federal institutions) and the federal Voluntary Code of Conduct on Generative AI (voluntary). U.S. Executive Order 14110 on Safe, Secure, and Trustworthy AI was rescinded on 20 January 2025 and superseded by "Removing Barriers to American Leadership in Artificial Intelligence".)
+The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO 19011:2026** (Auditing Guidelines), **COBIT 2019 MEA01** (Managed Performance and Conformance Monitoring), **Cloud Security Alliance (CSA)** frameworks, **NIST SP 800-53 Rev. 5 CA** family, and regulatory expectations under the **EU AI Act**. (Canada's AIDA, proposed as Part 3 of Bill C-27, lapsed at the 2025-01-06 prorogation and is not in force; the current Canadian instruments are the Treasury Board Directive on Automated Decision-Making (binding on federal institutions) and the federal Voluntary Code of Conduct on Generative AI (voluntary). U.S. Executive Order 14110 on Safe, Secure, and Trustworthy AI was rescinded on 20 January 2025 and superseded by "Removing Barriers to American Leadership in Artificial Intelligence".)
 
 
 
@@ -100,7 +100,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 4.7.2 Records must be securely stored in compliance with data protection and evidentiary requirements.
 
 ### 4.8 Continual improvement
-4.8.1 Audit methodologies must be reviewed annually per ISO 19011 Clause 10 and COBIT MEA01. 
+4.8.1 Audit methodologies must be reviewed annually per ISO 19011:2026 §5.7 (Reviewing and improving the audit programme) and COBIT MEA01. 
 4.8.2 Lessons learned and regulatory updates must inform training, control enhancement, and risk recalibration. 
 4.8.3 Digital trust and algorithmic assurance metrics must be integrated in accordance with COBIT 2019 MEA01.
 
@@ -109,7 +109,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 ## 5. References and framework alignment
 
 - **ISO 37301:2021** Compliance Management Systems 
-- **ISO 19011:2018** Guidelines for Auditing 
+- **ISO 19011:2026** Guidelines for Auditing 
 - **COBIT 2019 MEA01** Managed Performance and Conformance Monitoring 
 - **Cloud Security Alliance (CSA)** frameworks (GRC, A&A, AICM) 
 - **NIST SP 800-53 Rev. 5 CA** family (Assessment and Authorization) 
