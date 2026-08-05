@@ -63,8 +63,11 @@ Scope:
   excluding the DEFAULT_EXEMPT_DIRS set from ``lint_common`` (which
   covers ``.git``, ``node_modules``, ``__pycache__``, ``.claude``).
   Files marked ``Status: Superseded`` (the lifecycle marker, re-keyed
-  from the former ``Classification: Deprecated`` overload) are skipped. No per-tool
-  exempt path prefixes are applied: the placement rules use exact-match
+  from the former ``Classification: Deprecated`` overload) are skipped. The
+  repo-root ``executive/`` narrative tree is excluded (root-anchored via
+  ``is_narrative_root``; a nested directory named ``executive`` is still
+  scanned), being outside the corpus document model (P-1.25 scan-root split).
+  Otherwise the placement rules use exact-match
   section-name lookups so they do not produce false positives on
   documents in other directories, and explicit fixture paths (used by
   the gate-36 regression test suite) are scanned the same as any other
@@ -86,14 +89,14 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import DEFAULT_EXEMPT_DIRS, REPO_ROOT, iter_non_code_lines, read_text_safe
+from lint_common import DEFAULT_EXEMPT_DIRS, is_narrative_root, REPO_ROOT, iter_non_code_lines, read_text_safe
 
 DEFAULT_PATHS = [str(REPO_ROOT)]
 
 DOCTYPE_RE = re.compile(r"^\*\*Document Type:\*\*\s+(.+?)(?:\\)?\s*$", re.MULTILINE)
 HEADING_RE = re.compile(r"^##\s+(.+?)\s*$")
 
-EXEMPT_DIR_PARTS = DEFAULT_EXEMPT_DIRS
+EXEMPT_DIR_PARTS = DEFAULT_EXEMPT_DIRS  # narrative-root exclusion is root-anchored via is_narrative_root (P-1.25 scan-root split)
 
 # Each rule: (rule_id, description, canonical_heading_names, position, applicable_doctypes_or_none)
 # - canonical_heading_names: case-insensitive exact-match set; a section heading
@@ -156,7 +159,7 @@ PLACEMENT_RULES: list[tuple[str, str, frozenset[str], tuple[str, int], tuple[str
 def is_target(path: Path) -> bool:
     if path.suffix != ".md":
         return False
-    if any(part in EXEMPT_DIR_PARTS for part in path.parts):
+    if any(part in EXEMPT_DIR_PARTS for part in path.parts) or is_narrative_root(path):
         return False
     # Skip documents marked Status: Superseded (the lifecycle marker).
     try:

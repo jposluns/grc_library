@@ -9,7 +9,9 @@ forthcoming", "to be completed in a later phase", or "stub document".
 
 This linter catches such stubs in artefact documents. README files,
 NOTICE, AUTHORS, and CHANGELOG (which describes the linter patterns
-and is therefore self-referential) are exempt by name in EXEMPT_FILES.
+and is therefore self-referential) are exempt by name in EXEMPT_FILES. The
+root-anchored executive/ narrative tree is excluded via is_narrative_root
+(P-1.25 scan-root split); a nested dir named executive is still scanned.
 LICENSE and CITATION.cff were previously listed but removed in Phase
 23.62 since they are not .md files and the scanner only processes .md.
 The audit-programme specification is also exempt because its §6
@@ -42,13 +44,13 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import DEFAULT_EXEMPT_DIRS, REPO_ROOT, iter_non_code_lines, read_text_safe
+from lint_common import DEFAULT_EXEMPT_DIRS, is_narrative_root, REPO_ROOT, iter_non_code_lines, read_text_safe
 
 DEFAULT_PATHS = [str(REPO_ROOT)]
 
 WORD_COUNT_THRESHOLD = 100  # words in document body, excluding metadata block
 
-EXEMPT_DIR_PARTS = DEFAULT_EXEMPT_DIRS
+EXEMPT_DIR_PARTS = DEFAULT_EXEMPT_DIRS  # narrative-root exclusion is root-anchored via is_narrative_root (P-1.25 scan-root split)
 
 # Files exempt because they are indexes / short by design / describe the linter patterns.
 # Phase 23.62 removed `LICENSE` and `CITATION.cff` from this set: the
@@ -85,7 +87,7 @@ STUB_PHRASES = [
 def is_target(path: Path) -> bool:
     if path.suffix != ".md":
         return False
-    if any(part in EXEMPT_DIR_PARTS for part in path.parts):
+    if any(part in EXEMPT_DIR_PARTS for part in path.parts) or is_narrative_root(path):
         return False
     if path.name in EXEMPT_FILES:
         return False

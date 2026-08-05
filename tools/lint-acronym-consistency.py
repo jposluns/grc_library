@@ -56,7 +56,7 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import REPO_ROOT, iter_markdown_targets, iter_non_code_lines, read_text_safe
+from lint_common import DEFAULT_EXEMPT_DIRS, is_narrative_root, REPO_ROOT, iter_markdown_targets, iter_non_code_lines, read_text_safe
 
 DEFAULT_PATHS = [str(REPO_ROOT)]
 
@@ -189,7 +189,15 @@ def main(argv: list[str]) -> int:
             file=sys.stderr,
         )
         return 1
-    targets = iter_markdown_targets(args.paths, exempt_files=EXEMPT_FILES)
+    targets = [
+        t
+        for t in iter_markdown_targets(
+            args.paths,
+            exempt_dirs=DEFAULT_EXEMPT_DIRS,
+            exempt_files=EXEMPT_FILES,
+        )
+        if not is_narrative_root(t)  # house-style gate: root executive/ excluded (P-1.25)
+    ]
     grouped: dict[Path, list[tuple[int, str, str, str]]] = {}
     for t in targets:
         findings = scan(t, glossary)
