@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Worklist: Batch Q4 (Remaining Canonical Citations)\
 **Document Type:** Worklist\
-**Version:** 1.0.12\
-**Date:** 2026-08-04\
+**Version:** 1.0.13\
+**Date:** 2026-08-05\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](../governance/specification-citation-verification.md), [`governance/template-citation-verification-worklist.md`](../governance/template-citation-verification-worklist.md), [`.project-governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](../governance/register-canonical-citations.md), [`.project-governance/register-citation-verification-bundle.md`](register-citation-verification-bundle.md)\
@@ -94,9 +94,9 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 | US CCPA | https://oag.ca.gov/privacy/ccpa | all | 2018 (with CPRA 2020 amendments) |  |  |  |  |  |  |
 | US FedRAMP | https://www.fedramp.gov/rev5-baselines/ | all | Rev. 5, 2023, aligned with NIST SP 800-53 Rev. 5; supersedes Rev. 4 |  |  |  |  |  |  |
 | US CMMC | https://dodcio.defense.gov/CMMC/ | all | 2.0, 2024, Cybersecurity Maturity Model Certification; supersedes 1.0, 1.02 |  |  |  |  |  |  |
-| Canada CPPA | https://www.parl.ca/legisinfo/en/bill/44-1/c-27 | all | 2022 (pending enactment); replaces PIPEDA |  |  |  |  |  |  |
+| Canada CPPA | https://www.parl.ca/legisinfo/en/bill/44-1/c-27 | all | Lapsed 2025-01-06 (Bill C-27 died on prorogation, never enacted); PIPEDA remains in force |  |  |  |  |  |  |
 | Canada PIPEDA | https://laws-lois.justice.gc.ca/eng/acts/P-8.6/ | all | 2000 (with 2015 DBSA amendments) |  |  |  |  |  |  |
-| Canada AIDA | https://www.parl.ca/legisinfo/en/bill/44-1/c-27 | all | 2022 (pending enactment), Artificial Intelligence and Data Act |  |  |  |  |  |  |
+| Canada AIDA | https://www.parl.ca/legisinfo/en/bill/44-1/c-27 | all | Lapsed 2025-01-06 (Bill C-27 died on prorogation); Artificial Intelligence and Data Act never enacted |  |  |  |  |  |  |
 | Quebec Law 25 | https://www.legisquebec.gouv.qc.ca/en/document/cs/p-39.1 | all | 2021 (phased in 2022-2024), An Act to modernize legislative provisions as regards protection of personal information |  |  |  |  |  |  |
 
 ### 3.4 Other privacy regulations (7 entries)
@@ -115,7 +115,7 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 
 | Standard ID | Expected primary URL | Field(s) | Expected value | Captured text | Wayback URL | Result | Captured by | Confidence | Date |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| CSA CCM | https://cloudsecurityalliance.org/research/cloud-controls-matrix | all | v4.1, 2024, Cloud Controls Matrix; supersedes v3.0.1, v4.0 |  |  |  |  |  |  |
+| CSA CCM | https://cloudsecurityalliance.org/research/cloud-controls-matrix | all | v4.1, 2026-01, Cloud Controls Matrix; supersedes v3.0.1, v4.0, v4.0.13 |  |  |  |  |  |  |
 | CSA AICM | https://cloudsecurityalliance.org/research/ai-controls-matrix | all | v1.0.3, 2025, AI Controls Matrix; supersedes v1.0.0, v1.0.1, v1.0.2 |  |  |  |  |  |  |
 | CSA STAR | https://cloudsecurityalliance.org/star | all | Continuous, Security Trust Assurance and Risk programme |  |  |  |  |  |  |
 | COBIT | https://www.isaca.org/resources/cobit | all | 2019, 2018-11 (with Design/Implementation Guide updates 2019, 2020); supersedes COBIT 5, COBIT 4.1; "COBIT 2025" is hallucinated |  |  |  |  |  |  |
