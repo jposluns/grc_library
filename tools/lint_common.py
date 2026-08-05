@@ -98,6 +98,34 @@ DEFAULT_EXEMPT_DIRS: frozenset[str] = frozenset(
     }
 )
 
+# The executive narrative layer (P-1.25, root ``executive/``) is OUTSIDE the
+# corpus document model but INSIDE the repository safety gates. Corpus-MODEL
+# gates that walk the repo root exclude it via the root-anchored
+# ``is_narrative_root`` helper (NOT by unioning this component set, which would
+# over-match a nested directory merely named ``executive``); safety and
+# reference-integrity gates deliberately do NOT exclude it. Never fold this into
+# ``DEFAULT_EXEMPT_DIRS`` itself: that would silently remove the narrative
+# tree from the secrets/PII/link-safety gates too. The authoritative per-gate
+# classification is ``tools/gate-scope-manifest.json`` (regression-checked).
+NARRATIVE_DIRS: frozenset[str] = frozenset({"executive"})
+
+
+def is_narrative_root(path: "str | Path") -> bool:
+    """Root-anchored narrative-layer test: True iff ``path`` lies under the
+    repository-root ``executive/`` tree. Unlike a bare path-component check, a
+    NESTED directory merely named ``executive`` (e.g. ``governance/executive/``)
+    is NOT matched, so corpus-model gates keep scanning it. This is the sound
+    mechanism for the P-1.25 scan-root split; ``NARRATIVE_DIRS`` names the root
+    for reference but must never be unioned into a component-wise exemption."""
+    candidate = Path(path)
+    if not candidate.is_absolute():
+        candidate = REPO_ROOT / candidate
+    try:
+        rel = candidate.resolve().relative_to(REPO_ROOT.resolve())
+    except (ValueError, OSError):
+        return False
+    return len(rel.parts) >= 1 and rel.parts[0] == "executive"
+
 
 # --- Historical-surface classification (hoisted from residual-scan.py, #1250) ---
 # Shared by residual-scan.py and the D9 retired-section-orphan gate so the two

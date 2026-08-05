@@ -4,8 +4,8 @@
 **Classification:** Public\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
-**Library Version:** 2026.08.111 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.10.266 (semantic per-document version for this file)
+**Library Version:** 2026.08.112 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.10.267 (semantic per-document version for this file)
 
 ---
 
@@ -152,6 +152,11 @@ Repository infrastructure directories (not used for governance artefacts):
                 taxonomy generator, adopter portal generator.
 /docs           Adopter-facing documentation that is not a governance artefact: adopter guide,
                 worked example, auto-generated portal, auto-generated maturity scorecard.
+/executive      Executive narrative layer (under construction): non-normative, advisory, and
+                explanatory leadership-facing material ABOUT the corpus. Outside the corpus
+                document model (a dedicated class, registry, and gate family arrive in Phase 1); inside the repository
+                safety gates. Establishes no requirements; the linked corpus governs. See
+                executive/README.md.
 /.github        GitHub Actions workflow that runs the full audit programme (see
                 `governance/specification-audit-programme.md` §6 for the canonical gate
                 inventory; `tools/run_all_audits.sh` is the local equivalent) on push to
