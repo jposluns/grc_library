@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.101\
+**Version:** 1.27.102\
 **Date:** 2026-08-05\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -263,7 +263,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Security | SOP | Security Ticket Reporting Scheme | [`security/sop-security-ticket-reporting-scheme.md`](../security/sop-security-ticket-reporting-scheme.md) | Chief Information Security Officer | Annual | ISO/IEC 27035-2:2023, NIST SP 800-61r3, COBIT DSS02 | template |
 | Security | Roadmap | Post-Quantum Cryptography Readiness Roadmap | [`security/roadmap-post-quantum-cryptography.md`](../security/roadmap-post-quantum-cryptography.md) | Chief Information Security Officer | Annual | NIST SP 800-208, NIST FIPS 203/204/205, NSA CNSA 2.0, ISO/IEC 27001 Annex A.8.24 | template |
 | Security | Framework | Zero Trust Architecture Framework | [`security/framework-zero-trust-architecture.md`](../security/framework-zero-trust-architecture.md) | Chief Information Security Officer | Annual | NIST SP 800-207, NIST SP 800-207A, CISA ZTMM 2.0, OMB M-22-09, DoD ZT RA, ISO/IEC 27001, CSA SDP | template |
-| Security | Standard | Email Security Standard | [`security/standard-email-security.md`](../security/standard-email-security.md) | Chief Information Security Officer | Annual | RFC 7208/6376/7489, BIMI, RFC 8460/8461, NIST SP 800-177r1, ISO/IEC 27001 Annex A.5.14/A.8.21/A.8.23 | template |
+| Security | Standard | Email Security Standard | [`security/standard-email-security.md`](../security/standard-email-security.md) | Chief Information Security Officer | Annual | RFC 7208/6376/9989, BIMI, RFC 8460/8461, NIST SP 800-177r1, ISO/IEC 27001 Annex A.5.14/A.8.21/A.8.23 | template |
 | Security | Standard | Security Operations Centre Operating Model Standard | [`security/standard-soc-operating-model.md`](../security/standard-soc-operating-model.md) | Chief Information Security Officer | Annual | NIST CSF 2.0, NIST SP 800-61r2/800-150/800-92, ISO/IEC 27001 Annex A.5.7/A.5.24-28/A.8.15-16, ISO/IEC 27035, MITRE ATT&CK/D3FEND, SOC-CMM, FIRST | template |
 | Security | Standard | SaaS Security Posture Management Standard | [`security/standard-saas-security-posture-management.md`](../security/standard-saas-security-posture-management.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.5.19-23, CSA CCM v4.1, CSA STAR, NIST CSF 2.0, NIST SP 800-204D, OWASP SaaS Checklist, MITRE ATT&CK Cloud | template |
 | Security | Framework | Insider Risk Programme Framework | [`security/framework-insider-risk-programme.md`](../security/framework-insider-risk-programme.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.6.1-5/A.8.2-5, ISO/IEC 27002, NIST SP 800-53 PS/AT, CERT Insider Threat Center, NITTF, GDPR Arts 5/6/13/14/22/88, ILO, works councils | template |

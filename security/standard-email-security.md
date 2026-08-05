@@ -2,8 +2,8 @@
 
 **Document Title:** Email Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.4\
-**Date:** 2026-07-02\
+**Version:** 1.0.5\
+**Date:** 2026-08-05\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`security/standard-security-awareness-and-training.md`](standard-security-awareness-and-training.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`privacy/template-privacy-notice.md`](../privacy/template-privacy-notice.md)\
@@ -36,7 +36,7 @@ It does not cover messaging platforms other than email (chat, SMS, in-product me
 | --- | --- |
 | SPF | A SPF record published for every domain capable of sending email; the record enumerates authorized senders and ends with `-all` (or `~all` only during a documented transition window) |
 | DKIM | DKIM signing enabled on every sending domain; key length at minimum 2048 bits; keys rotated at minimum annually |
-| DMARC | DMARC record published for every domain with policy at minimum `p=quarantine` for primary domains and `p=reject` as the target state; aggregate and forensic reports collected and reviewed |
+| DMARC | DMARC record published for every domain with policy at minimum `p=quarantine` for primary domains and `p=reject` as the target state; aggregate and failure reports collected and reviewed |
 | BIMI | BIMI deployed where DMARC `p=reject` is in force and brand-protection benefits the deployment |
 | Subdomain policy | Every sending subdomain has its own SPF and DKIM; DMARC inherits or specifies per subdomain |
 | Parked domains | Domains not used for email publish a hardened SPF, an empty DKIM, and DMARC `p=reject` |
@@ -152,7 +152,9 @@ It does not cover messaging platforms other than email (chat, SMS, in-product me
 | --- | --- | --- |
 | RFC 7208 | SPF | Sender authentication |
 | RFC 6376 | DKIM | Message authentication |
-| RFC 7489 | DMARC | Authentication policy |
+| RFC 9989 | DMARC | Authentication policy (obsoletes RFC 7489) |
+| RFC 9990 | DMARC aggregate reporting | Aggregate feedback reports |
+| RFC 9991 | DMARC failure reporting | Per-message failure reports |
 | BIMI | AuthIndicators Working Group | Brand indication |
 | RFC 8460 | TLS-RPT | TLS reporting |
 | RFC 8461 | MTA-STS | TLS enforcement |
