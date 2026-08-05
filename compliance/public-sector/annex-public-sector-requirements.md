@@ -2,8 +2,8 @@
 
 **Document Title:** Public Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.4\
-**Date:** 2026-06-20\
+**Version:** 0.0.5\
+**Date:** 2026-08-05\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
@@ -167,7 +167,7 @@ Where the jurisdiction has multiple official languages, public sector communicat
 | WCAG 2.2 AA | W3C | Digital accessibility |
 | EN 301 549 | ETSI | EU public-sector ICT accessibility |
 | ISO 15489 | International | Records management |
-| ISO 19011:2018 | International | Audit management |
+| ISO 19011:2026 | International | Audit management |
 | OECD Recommendation on Public Service Leadership | OECD | Public-sector ethics |
 | UN Principles on Effective Governance for Sustainable Development | UN | Public-sector governance |
 | OECD Recommendation on Artificial Intelligence | OECD | Public-sector AI |

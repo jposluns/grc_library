@@ -2,8 +2,8 @@
 
 **Document Title:** AI Audit Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.5\
-**Date:** 2026-07-11\
+**Version:** 1.1.6\
+**Date:** 2026-08-05\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -147,7 +147,7 @@ Applies to all AI systems in the AI System Inventory, including production AI mo
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ISO/IEC 42001:2023 | §9.2: Internal Audit | AI management system audit |
-| ISO 19011:2018 | Guidelines for Auditing Management Systems | Audit methodology |
+| ISO 19011:2026 | Guidelines for Auditing Management Systems | Audit methodology |
 | ISO/IEC 42006:2025 | Requirements for bodies certifying an AIMS | External third-party AIMS certification audits (not internal audit) |
 | EU AI Act (2024) | Article 43: Conformity Assessment | High-risk AI audit obligations |
 | NIST AI RMF (2023) | MEASURE function | AI audit and measurement |
