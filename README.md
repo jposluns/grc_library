@@ -4,8 +4,8 @@
 **Classification:** Public\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
-**Library Version:** 2026.08.112 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.10.267 (semantic per-document version for this file)
+**Library Version:** 2026.08.113 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.10.268 (semantic per-document version for this file)
 
 ---
 
@@ -203,12 +203,13 @@ Examples:
 
 ## Specification and authoring files
 
-Three root-level files govern how the library is maintained and extended:
+Four root-level files govern how the library is maintained and extended:
 
 | File | Purpose |
 | --- | --- |
 | [`specification-master-project.md`](specification-master-project.md) | Master project specification: document model, metadata rules, domain structure, quality gates, organization-neutrality requirements, and the library-wide CalVer plus per-document semantic-versioning policy (§4.5). |
 | [`specification-ingestion.md`](specification-ingestion.md) | Document ingestion specification: canonical metadata format, allowed types, version numbering, and quality checklist. |
+| [`specification-executive-narrative.md`](specification-executive-narrative.md) | Executive narrative authoring specification: the contract every executive-narrative page conforms to (one narrative class with seven subtypes, the metadata extension, the authority disclaimer, claim classes, causal vocabulary, source-pinning staleness, and the narrative gate-family intent). |
 | [`instruction-ai-document-ingestion.md`](instruction-ai-document-ingestion.md) | AI-assisted ingestion instructions: step-by-step rules for ingesting documents using an AI coding assistant. |
 
 Contributors and maintainers must read these files before adding or modifying library content.
