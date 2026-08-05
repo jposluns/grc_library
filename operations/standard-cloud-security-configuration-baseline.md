@@ -2,8 +2,8 @@
 
 **Document Title:** Cloud Security Configuration Baseline\
 **Document Type:** Standard\
-**Version:** 1.4.13\
-**Date:** 2026-07-23\
+**Version:** 1.4.14\
+**Date:** 2026-08-05\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md)\
@@ -188,7 +188,7 @@ A workload built on a cloud provider must conform to both: the enterprise-tenant
 | Framework | Reference | Topic |
 |---|---|---|
 | ISO/IEC 27001:2022 | A.8.9, A.8.23, A.8.24 | Configuration management (A.8.9), web filtering (A.8.23), use of cryptography (A.8.24) |
-| ISO/IEC 27017:2015 | Code of practice for cloud-services information security controls | Cloud-service-specific control baseline |
+| ISO/IEC 27017:2026 | Information security controls based on ISO/IEC 27002 for cloud services | Cloud-service-specific control baseline |
 | CIS Cloud Foundations Benchmark | v2.0 | Secure cloud platform configuration |
 | CIS Cloud Productivity Foundations Benchmark | v3.0 | Secure cloud productivity configuration |
 | NIST SP 800-53 | CM-2, CM-6 | Configuration Baseline and Settings |

@@ -2,8 +2,8 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.50\
-**Date:** 2026-08-04\
+**Version:** 1.5.51\
+**Date:** 2026-08-05\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py)\
@@ -63,7 +63,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | ISO/IEC 27001 | 2022 | 2022-10 | Information security management systems: requirements | 2013 | https://www.iso.org/standard/27001 | verified 2026-07-09 |
 | ISO/IEC 27002 | 2022 | 2022-02 | Information security controls | 2013 | https://www.iso.org/standard/75652.html | verified 2026-07-09 |
 | ISO/IEC 27005 | 2022 | 2022-10 | Information security risk management | 2018 | https://www.iso.org/standard/80585.html | verified 2026-07-09 |
-| ISO/IEC 27017 | 2015 | 2015-12 | Cloud-service-specific information security controls | - | https://www.iso.org/standard/43757.html | verified 2026-07-09 |
+| ISO/IEC 27017 | 2026 | 2026-07 | Cloud-service information security controls based on ISO/IEC 27002 | 2015 | https://www.iso.org/standard/27017 | verified 2026-07-28 |
 | ISO/IEC 27018 | 2025 | 2025-08 | Protection of personally identifiable information in public clouds acting as PII processors | 2019 | https://www.iso.org/standard/27018 | verified 2026-07-09 |
 | ISO/IEC 27019 | 2024 | 2024-10 | Information security controls for the energy utility industry (Edition 2; based on ISO/IEC 27002:2022 with 12 additional energy-sector controls) | 2017 | https://www.iso.org/standard/85056.html | verified 2026-07-09 |
 | ISO/IEC 27033-1 | 2015 | 2015 | Network security - Part 1: Overview and concepts (the roadmap part of the multi-part ISO/IEC 27033 series on network security architecture and segmentation; confirmed unchanged 2021) | 2009 | https://www.iso.org/standard/63461.html | verified 2026-06-30 |
