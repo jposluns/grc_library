@@ -1201,7 +1201,7 @@ documents:
   domain: "compliance"
   type: "Standard"
   title: "Internal Audit Standard"
-  version: "1.2.3"
+  version: "1.2.4"
   date: "2026-08-05"
   owner: "Chief Audit Executive"
   approving_authority: "Governance Library Maintainer"

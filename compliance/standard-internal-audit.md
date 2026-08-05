@@ -2,7 +2,7 @@
 
 **Document Title:** Internal Audit Standard\
 **Document Type:** Standard\
-**Version:** 1.2.3\
+**Version:** 1.2.4\
 **Date:** 2026-08-05\
 **Owner:** Chief Audit Executive\
 **Approving Authority:** Governance Library Maintainer\
@@ -103,7 +103,7 @@ d. **External support:** Where internal independence cannot be achieved for a pa
 
 ## 3. Audit principles
 
-The internal audit function operates in accordance with the following principles, derived from ISO 19011:2026 §4:
+The internal audit function operates in accordance with the seven audit principles of ISO 19011:2026 §4 (integrity through the risk-based approach), together with continual improvement of the audit programme (ISO 19011:2026 §5.7 Reviewing and improving the audit programme):
 
 | Principle | Description |
 |-----------|-------------|
