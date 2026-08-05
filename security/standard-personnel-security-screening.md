@@ -2,8 +2,8 @@
 
 **Document Title:** Personnel Security Screening Standard\
 **Document Type:** Standard\
-**Version:** 1.0.3\
-**Date:** 2026-07-02\
+**Version:** 1.0.5\
+**Date:** 2026-08-05\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md)\
@@ -41,7 +41,7 @@ This standard supports the Identity and Access Management Policy, the Informatio
 | **Human Resources** | Initiates and manages the screening process; maintains screening records; notifies the Hiring Manager and CISO of any adverse findings. |
 | **Chief Information Security Officer (CISO)** | Defines screening requirements for security-sensitive roles; reviews adverse findings for roles with privileged access. |
 | **Hiring Manager** | Confirms role classification and security sensitivity before hire; approves any conditional onboarding pending screening completion. |
-| **Legal Counsel** | Advises on applicable privacy law constraints on background check scope by jurisdiction. |
+| **Legal Counsel** | Advises on applicable legal constraints (privacy, police-record-check, and consumer-reporting law) on background check scope by jurisdiction. |
 
 ---
 
@@ -60,7 +60,7 @@ All personnel must be screened to the tier corresponding to their role classific
 
 ## 5. Jurisdiction constraints
 
-Background check scope varies by jurisdiction. Criminal record checks and certain credit-related checks are subject to provincial privacy legislation (Quebec Law 25, Ontario privacy equivalents), US state-level restrictions, and applicable local law in Latin American and European locations. Legal Counsel must confirm the permitted scope for each jurisdiction before screening is conducted. Screening must not exceed what is authorized by applicable law. Where legal constraints prohibit a required screening element, Human Resources must document the limitation and notify the CISO before onboarding proceeds.
+Background check scope varies by jurisdiction. Criminal record checks and certain credit-related checks are subject to applicable provincial law (Quebec Law 25 for privacy; Ontario's Police Record Checks Reform Act, 2015 for police record checks), US state-level restrictions, and applicable local law in Latin American and European locations. Legal Counsel must confirm the permitted scope for each jurisdiction before screening is conducted. Screening must not exceed what is authorized by applicable law. Where legal constraints prohibit a required screening element, Human Resources must document the limitation and notify the CISO before onboarding proceeds.
 
 ---
 
