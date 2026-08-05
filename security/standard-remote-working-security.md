@@ -2,7 +2,7 @@
 
 **Document Title:** Remote Working Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.9\
+**Version:** 1.0.10\
 **Date:** 2026-08-05\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -255,7 +255,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 | NIST Cybersecurity Framework 2.0 | PR.DS (Data Security) | Remote data handling and classification requirements |
 | CSA CCM v4.1 | HRS-04 Remote and Home Working | Direct alignment: remote working security requirements |
 | CSA CCM v4.1 | UEM-01 Endpoint Devices | Managed device and MDM requirements |
-| CIS Controls v8.1 | Control 4 (Secure Configuration of Enterprise Assets) | Device baseline configuration requirements |
+| CIS Controls v8.1 | Control 4 (Secure Configuration of Enterprise Assets and Software) | Device baseline configuration requirements |
 | CIS Controls v8.1 | Control 12 (Network Infrastructure Management) | VPN, split tunnelling, and network security guidance |
 
 ---

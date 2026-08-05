@@ -5415,7 +5415,7 @@ documents:
   domain: "security"
   type: "Standard"
   title: "Remote Working Security Standard"
-  version: "1.0.9"
+  version: "1.0.10"
   date: "2026-08-05"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"
