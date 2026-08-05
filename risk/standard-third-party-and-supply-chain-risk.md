@@ -2,7 +2,7 @@
 
 **Document Title:** Third-Party and Supply Chain Risk Standard\
 **Document Type:** Standard\
-**Version:** 1.1.6\
+**Version:** 1.1.7\
 **Date:** 2026-08-05\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -229,7 +229,7 @@ The full offboarding workflow is described in [`supply-chain/procedure-supplier-
 | NIST SP 800-161 Rev. 1 | Cybersecurity Supply Chain Risk Management Practices for Systems and Organizations |
 | NIST CSF 2.0 | GV.SC Supply Chain Risk Management |
 | COBIT 2019 | APO10 Managed Vendors |
-| CSA CCM v4.1 | STA-02 SSRM Policy and Procedures |
+| CSA CCM v4.1 | STA-01 Supply Chain Risk Management Policies and Procedures |
 | WCO SAFE Framework | Pillar 2: Customs-to-Business partnerships; supply chain security standards |
 | CTPAT | Business Partner Requirements; IT security requirements for partners |
 | AEO-S (UK) | Criterion 1(e): Practical standards of competence including partner management |

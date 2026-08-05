@@ -4761,7 +4761,7 @@ documents:
   domain: "risk"
   type: "Standard"
   title: "Third-Party and Supply Chain Risk Standard"
-  version: "1.1.6"
+  version: "1.1.7"
   date: "2026-08-05"
   owner: "Chief Risk Officer"
   approving_authority: "Governance Library Maintainer"
