@@ -2,7 +2,7 @@
 
 **Document Title:** Exception and Risk Acceptance Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.16\
+**Version:** 1.3.17\
 **Date:** 2026-08-05\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -129,7 +129,7 @@ The renewal number and the approving authority must be recorded on the exception
 - **ISO 31000:2018** Risk Management 
 - **COBIT 2019** APO12.06 Respond to risk; APO12.02 Analyze risk; MEA01 Managed Performance and Conformance Monitoring 
 - **Cloud Security Alliance (CSA)** guidance including CCM v4.1 GRC-04 Policy Exception Process 
-- **NIST SP 800-37 Rev. 2** RMF Authorize step; **NIST SP 800-53 Rev. 5** CA-6 Authorization 
+- **NIST SP 800-37 Rev. 2** RMF Authorize step; **NIST SP 800-53 Rev. 5** CA-6 Authorization
 - **NIST AI RMF 1.0** Govern Function (with the AI 600-1 Generative AI Profile)
 - **OECD AI Principles** Accountability and Transparency 
 - **Trade and Supply Chain Programs:** WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (United States), AEO (European Union), and equivalents
@@ -140,11 +140,11 @@ The renewal number and the approving authority must be recorded on the exception
 
 | Control Area | ISO/IEC 27001:2022 | COBIT 2019 | CSA | NIST | Legal and Regulatory | Trade and Supply Chain Programs |
 |---------------|----------------|-------------|-----|------|----------------------|---------------------------------|
-| Governance and oversight | Annex A.5.36 | APO12.06 | CCM GRC-04 | SP 800-37 Step 6 | SOX, GDPR Article 32 Accountability | WCO SAFE equivalence |
-| Risk assessment and approval | Clause 6 and ISO 31000 | APO12.02 | CCM GRC-02 | SP 800-30, SP 800-37 Step 3 | PIPEDA, AIDA (lapsed) | WCO SAFE equivalence |
-| Time-bound authorization | Annex A.5.36 | APO12.06 | CCM GRC-04 | SP 800-37 Step 6 | Contractual risk governance | WCO SAFE equivalence |
+| Governance and oversight | Annex A.5.36 | APO12.06 | CCM GRC-04 | SP 800-37 Authorize step | SOX, GDPR Article 32 Accountability | WCO SAFE equivalence |
+| Risk assessment and approval | Clause 6 and ISO 31000 | APO12.02 | CCM GRC-02 | SP 800-30, SP 800-37 Assess and Authorize steps | PIPEDA, AIDA (lapsed) | WCO SAFE equivalence |
+| Time-bound authorization | Annex A.5.36 | APO12.06 | CCM GRC-04 | SP 800-37 Authorize step | Contractual risk governance | WCO SAFE equivalence |
 | Exception tracking and reporting | Annex A.5.36 | MEA01 | CCM GRC-04 | SP 800-53 CA-6 | Audit transparency | WCO SAFE equivalence |
-| Closure and validation | Annex A.5.36 | DSS04 | CCM GRC-04 | SP 800-37 Step 6 | Regulatory evidence requirements | WCO SAFE equivalence |
+| Closure and validation | Annex A.5.36 | DSS04 | CCM GRC-04 | SP 800-37 Assess step | Regulatory evidence requirements | WCO SAFE equivalence |
 | Machine-readable registry (recommended) | Annex A.5.36 (extension) | APO12.06 | CCM GRC-04 | SP 800-53 CA-6 (extension) | Future automation compliance | WCO SAFE equivalence |
 
 
