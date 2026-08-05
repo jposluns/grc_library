@@ -585,3 +585,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-narrative-metadata
+        name: Narrative metadata audit
+        entry: python3 tools/lint-narrative-metadata.py
+        language: system
+        pass_filenames: false
+        always_run: true
