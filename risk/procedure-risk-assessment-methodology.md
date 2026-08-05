@@ -2,8 +2,8 @@
 
 **Document Title:** Risk Assessment Methodology Procedure\
 **Document Type:** Procedure\
-**Version:** 1.2.7\
-**Date:** 2026-07-10\
+**Version:** 1.2.8\
+**Date:** 2026-08-05\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`ai/register-ai-risk.md`](../ai/register-ai-risk.md)\
@@ -185,7 +185,7 @@ For a Critical risk, the risk owner together with the CISO (or the relevant doma
 | ISO/IEC 42001:2023 | §6: Planning (AI risk) | AI risk assessment integration |
 | NIST SP 800-30r1 | Guide for Conducting Risk Assessments | Risk assessment methodology |
 | COBIT 2019 | APO12: Managed Risk | Enterprise risk governance |
-| CSA CCM v4.1 | GRC-01 through GRC-11 | Cloud risk management |
+| CSA CCM v4.1 | GRC-01, GRC-02 | Cloud risk management |
 
 ---
 
