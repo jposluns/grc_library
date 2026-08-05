@@ -2,8 +2,8 @@
 
 **Document Title:** Patch Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.7\
-**Date:** 2026-07-23\
+**Version:** 1.0.8\
+**Date:** 2026-08-05\
 **Owner:** IT Operations Lead\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md), [`security/policy-information-security.md`](../security/policy-information-security.md)\
@@ -202,7 +202,7 @@ Retention timelines are subject to the Records Retention and Destruction Standar
 
 ## Framework alignment
 
-| Control Area | NIST SP 800-40 Rev. 4 | ISO/IEC 27001:2022 | CSA CCM v4.1 | CIS Controls v8 | COBIT 2019 |
+| Control Area | NIST SP 800-40 Rev. 4 | ISO/IEC 27001:2022 | CSA CCM v4.1 | CIS Controls v8.1 | COBIT 2019 |
 | --- | --- | --- | --- | --- | --- |
 | Patch planning and classification | §2 (Planning) | A.8.8 | TVM-08 | Control 7.1 | DSS05.07 |
 | Patch testing | §3 (Testing) | A.8.8 | TVM-08 | Control 7.4 | DSS05.07 |
