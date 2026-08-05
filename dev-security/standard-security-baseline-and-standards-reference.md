@@ -2,7 +2,7 @@
 
 **Document Title:** Security Baseline and Standards Reference\
 **Document Type:** Standard\
-**Version:** 1.1.16\
+**Version:** 1.1.17\
 **Date:** 2026-08-05\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -223,7 +223,7 @@ A runtime EOL tracking register is maintained by the DevOps lead and reviewed qu
 | --- | --- | --- | --- | --- | --- |
 | Security governance and principles | A.5 | GRC-01 to 06 | PW.1 to PW.4 | N/A | ISO 37301, COBIT |
 | Data classification | A.5.10 to 5.13 | DSP-01 to 07 | N/A | V14 | PIPEDA, Law 25, GDPR |
-| Identity and access | A.5.15 to 5.18 | IAM-01 to 14 | N/A | V6, V8 | PIPEDA, BASC |
+| Identity and access | A.5.15 to 5.18 | IAM-01 to 15 | N/A | V6, V8 | PIPEDA, BASC |
 | Network security | A.8.20 to 8.23 | I&S-03, I&S-08, I&S-09 | N/A | V12 | CTPAT |
 | Logging and monitoring | A.8.15 to 8.16 | LOG-01 to 13 | RV.1 to RV.2 | V16 | Quebec Law 25 |
 | Cryptography | A.8.24 | CEK-01 to 21 | N/A | V11 | FIPS 140-3 guidance |
