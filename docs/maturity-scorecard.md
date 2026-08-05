@@ -292,7 +292,7 @@ _169 documents._
 | [resilience/template-recovery-runbook.md](../resilience/template-recovery-runbook.md) | Recovery Runbook Template | Template | 1.0.5 | 2026-07-13 |
 | [resilience/template-tabletop-exercise.md](../resilience/template-tabletop-exercise.md) | Tabletop Exercise Template | Template | 1.0.6 | 2026-07-02 |
 | [risk/annex-ai-risk-methodology.md](../risk/annex-ai-risk-methodology.md) | AI-Specific Risk Methodology Annex | Annex | 1.0.6 | 2026-08-05 |
-| [risk/guideline-quantitative-risk-analysis.md](../risk/guideline-quantitative-risk-analysis.md) | Quantitative Risk Analysis Guideline | Guideline | 1.0.5 | 2026-08-05 |
+| [risk/guideline-quantitative-risk-analysis.md](../risk/guideline-quantitative-risk-analysis.md) | Quantitative Risk Analysis Guideline | Guideline | 1.0.7 | 2026-08-05 |
 | [risk/register-scenario-risk-catalogue.md](../risk/register-scenario-risk-catalogue.md) | Scenario Risk Catalogue | Register | 1.0.3 | 2026-08-05 |
 | [risk/template-board-risk-report.md](../risk/template-board-risk-report.md) | Board Risk Report Template | Template | 1.0.3 | 2026-07-02 |
 | [risk/template-operational-risk-register.md](../risk/template-operational-risk-register.md) | Operational Risk Register Template | Template | 1.0.5 | 2026-08-05 |
