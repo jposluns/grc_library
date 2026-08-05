@@ -2,8 +2,8 @@
 
 **Document Title:** Cryptographic Key Lifecycle Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.8\
-**Date:** 2026-08-01\
+**Version:** 1.0.9\
+**Date:** 2026-08-05\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This framework establishes the strategic governance, lifecycle controls, and operational standards for managing cryptographic keys across the organization's IT, OT, cloud, and BASC-certified trade environments. It defines a unified structure for key generation, distribution, storage, rotation, revocation, and destruction, aligned with NIST SP 800-57, ISO/IEC 27002:2022 §8.24 to §8.28, BASC v6, and the WCO SAFE Framework.
+This framework establishes the strategic governance, lifecycle controls, and operational standards for managing cryptographic keys across the organization's IT, OT, cloud, and BASC-certified trade environments. It defines a unified structure for key generation, distribution, storage, rotation, revocation, and destruction, aligned with NIST SP 800-57, ISO/IEC 27002:2022 §8.24, BASC v6, and the WCO SAFE Framework.
 
 ---
 
@@ -121,7 +121,7 @@ ML-KEM (key encapsulation; formerly CRYSTALS-Kyber) and ML-DSA (digital signatur
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 27002:2022 | §8.24 to §8.28: Cryptographic Controls | Key management lifecycle governance |
+| ISO/IEC 27002:2022 | §8.24: Use of cryptography | Key management lifecycle governance |
 | NIST SP 800-57 Parts 1 to 3 | Key Management Guidelines | Key generation, rotation, and destruction |
 | NIST SP 800-208 | Recommendation for Stateful Hash-Based Signature Schemes | Stateful hash-based signature key management (LMS, HSS, XMSS, XMSS^MT) |
 | NIST FIPS 203 / 204 | ML-KEM and ML-DSA Standards | PQC algorithm selection |
