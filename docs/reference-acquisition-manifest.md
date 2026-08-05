@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-reference-manifest.py`
 **Document Title:** Reference-Acquisition Manifest\
 **Document Type:** Guide\
 **Version:** 1.0.0\
-**Date:** 2026-08-03\
+**Date:** 2026-08-04\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`docs/portal.md`](portal.md)\
@@ -533,7 +533,7 @@ without the private reference sibling).
 | US Interagency Paper: Sound Practices to Strengthen Operational Resilience (OCC / FRB / FDIC, 2020) |  | US OCC/FRB/FDIC |  | FREE |
 | Vulnerability Scans and Approved Scanning Vendors (ASV): A PCI SSC Resource Guide |  | PCI SSC |  | FREE |
 
-## Legislation (137: 137 free, 0 licensed)
+## Legislation (139: 139 free, 0 licensed)
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
@@ -673,6 +673,8 @@ without the private reference sibling).
 | US NYDFS 3 NYCRR Part 504 - Banking Division Transaction Monitoring and Filtering Program Requirements and Certifications (BSA/AML/OFAC) | 3 NYCRR Part 504, unofficial (Westlaw NY-CRR), current through February 15, 2022; effective January 1, 2017 | United States (New York) | https://www.law.cornell.edu/regulations/new-york/3-NYCRR-504.3 | FREE |
 | US NYDFS Cybersecurity Requirements for Financial Services Companies, 23 NYCRR Part 500 (Second Amendment, effective 1 November 2023) |  | US |  | FREE |
 | US SEC Regulation S-P: Privacy of Consumer Financial Information and Safeguarding Customer Information (Final Rule, Release 34-100155, 16 May 2024) |  | US |  | FREE |
+| Vietnam Decree No. 356/2025/ND-CP on Personal Data Protection (unofficial English translation) | Decree 356/2025/ND-CP, dated 2025-12-31, in force 2026-01-01 (Art 42(1)); implements PDPL 91/2025; unofficial English translation (QTSC); Vietnamese original authoritative | Vietnam |  | FREE |
+| Vietnam Law on Personal Data Protection No. 91/2025/QH15 (unofficial English translation) | Law 91/2025/QH15, passed 2025-06-26, in force 2026-01-01 (Art 38(1)); unofficial English translation (DPO-India); Vietnamese original authoritative | Vietnam |  | FREE |
 | Virginia Consumer Data Protection Act (VCDPA), Code of Virginia Title 59.1 Chapter 53 |  | US |  | FREE |
 
 ## Programs (42: 42 free, 0 licensed)
@@ -722,5 +724,5 @@ without the private reference sibling).
 | WCO Compendium of Authorized Economic Operator Programmes (2020 edition) |  | World Customs Organization |  | FREE |
 | WCO SAFE Framework of Standards (2025 edition) | 2025 edition (dated June 2025, published September 2025); current upstream, confirmed 2026-07-11; 2021 edition retired to .superseded/ | World Customs Organization | https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/facilitation/instruments-and-tools/tools/safe-package/safe-framework-2025_en.pdf | FREE |
 
-**Total: 657 sources (556 free, 101 licensed).**
+**Total: 659 sources (558 free, 101 licensed).**
 
