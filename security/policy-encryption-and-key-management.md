@@ -2,8 +2,8 @@
 
 **Document Title:** Encryption and Key Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.14\
-**Date:** 2026-07-25\
+**Version:** 1.3.15\
+**Date:** 2026-08-05\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -54,7 +54,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who ve
 | In Transit | Encrypt all external and internal communications. | TLS 1.3 or stronger; SSH 2.0 or stronger. |
 | In Use | Protect data processed in volatile memory through secure enclaves or hardware encryption where supported. | Trusted Execution Environments (TEE), SGX, SEV. |
 | AI and Model Data | Apply encryption for model weights, datasets, and configuration files. | AES-256-GCM (AEAD: confidentiality with built-in integrity tag); HKDF-SHA-256 for key derivation from high-entropy material; Argon2id (or scrypt) for password-derived keys. SHA-512 alone is a hash function, not a key-derivation function. |
-| BASC Customs and Trade Data | Ensure that encryption is applied for all cargo manifests, customs documentation, and trade communications. | AES-256 + PKI certificates validated by BASC chapter or WCO SAFE authority. |
+| BASC Customs and Trade Data | Ensure that encryption is applied for all cargo manifests, customs documentation, and trade communications. | AES-256 + PKI certificates validated by the organization's certificate authority (customs Authorized Economic Operator validation is performed by national customs administrations, not by WCO SAFE). |
 
 ---
 
