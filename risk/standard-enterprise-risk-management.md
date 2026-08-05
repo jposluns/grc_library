@@ -2,8 +2,8 @@
 
 **Document Title:** Enterprise Risk Management Standard\
 **Document Type:** Standard\
-**Version:** 1.8.6\
-**Date:** 2026-07-29\
+**Version:** 1.8.7\
+**Date:** 2026-08-05\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -18,7 +18,7 @@
 
 ## 1. Purpose
 
-This standard defines the enterprise-wide risk management framework, taxonomy, and scoring methodology that guide the identification, evaluation, treatment, and monitoring of risks across all business units and functions. It ensures that risk management practices are consistent, measurable, and traceable, aligned with ISO 31000, COBIT 2019 APO12, and CSA CCM v4.1 GRC-01.
+This standard defines the enterprise-wide risk management framework, taxonomy, and scoring methodology that guide the identification, evaluation, treatment, and monitoring of risks across all business units and functions. It ensures that risk management practices are consistent, measurable, and traceable, aligned with ISO 31000, COBIT 2019 APO12, and CSA CCM v4.1 GRC-01 and GRC-02.
 
 ---
 
