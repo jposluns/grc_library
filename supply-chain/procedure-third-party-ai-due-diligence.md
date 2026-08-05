@@ -2,8 +2,8 @@
 
 **Document Title:** Third-Party AI Due Diligence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.6\
-**Date:** 2026-08-04\
+**Version:** 1.0.7\
+**Date:** 2026-08-05\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -93,7 +93,7 @@ All required checklist items must be assessed before any AI supplier contract is
 | 10 | **Incident Notification Capability** | Confirmation of the supplier's ability and commitment to notify within 24 hours of a security or AI system incident. | All tiers. |
 | 11 | **Data Deletion on Contract Termination** | Written confirmation that all organizational data and derived model artefacts will be deleted upon termination. | All tiers. |
 | 12 | **Subprocessor and Supply Chain Transparency** | Disclosure of subprocessors, data sub-labellers, infrastructure providers, and upstream model dependencies. | High-Risk and GPAI. |
-| 13 | **ISO/IEC 42001 Alignment** | Evidence of AI management system practices aligned to ISO/IEC 42001 §9 (third-party AI governance). | High-Risk and GPAI. |
+| 13 | **ISO/IEC 42001 Alignment** | Evidence of AI management system practices aligned to ISO/IEC 42001 §9 (Performance evaluation). | High-Risk and GPAI. |
 | 14 | **CSA AICM Alignment** | Self-assessment or independent attestation against applicable CSA AI Controls Matrix v1.1 control families. | High-Risk and GPAI. |
 
 Suppliers that fail to provide satisfactory evidence for items applicable to their classification must submit a documented remediation plan before engagement proceeds. High-Risk AI systems where critical checklist items cannot be satisfied must be escalated to the AI Governance Council for an engagement approval decision.

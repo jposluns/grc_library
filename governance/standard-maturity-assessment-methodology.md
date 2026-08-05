@@ -2,8 +2,8 @@
 
 **Document Title:** Maturity Assessment Methodology Standard\
 **Document Type:** Standard\
-**Version:** 1.0.0\
-**Date:** 2026-07-06\
+**Version:** 1.0.1\
+**Date:** 2026-08-05\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/framework-governance-performance-and-improvement.md`](framework-governance-performance-and-improvement.md), [`docs/template-maturity-self-assessment.md`](../docs/template-maturity-self-assessment.md), [`governance/register-digital-trust-and-assurance-metrics.md`](register-digital-trust-and-assurance-metrics.md), [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`docs/maturity-scorecard.md`](../docs/maturity-scorecard.md)\
@@ -144,7 +144,7 @@ This standard is reviewed annually, or on material change to the maturity model 
 | --- | --- | --- |
 | CMMI | Maturity-level model | Lineage of the five-tier maturity ladder |
 | COBIT 2019 | MEA01: Managed Performance and Conformance Monitoring | Governance maturity and performance monitoring |
-| ISO/IEC 42001:2023 | §10: AI Governance Improvement | AI governance maturity indicators feed the AI-domain tier |
+| ISO/IEC 42001:2023 | §10: Improvement | AI governance maturity indicators feed the AI-domain tier |
 | ISO 9001:2015 | §9 to 10: Performance Evaluation and Improvement | Performance evaluation and continual-improvement basis |
 
 ---
