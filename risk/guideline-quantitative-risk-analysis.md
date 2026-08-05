@@ -2,7 +2,7 @@
 
 **Document Title:** Quantitative Risk Analysis Guideline\
 **Document Type:** Guideline\
-**Version:** 1.0.6\
+**Version:** 1.0.7\
 **Date:** 2026-08-05\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -68,16 +68,16 @@ LM estimates the expected financial impact per loss event. It is composed of:
 
 #### Forms of loss
 
-FAIR defines six forms of loss. A form is *primary* when it arises directly from the loss event and *secondary* when it arises from the reactions of secondary stakeholders (regulators, customers, shareholders, business partners). The classification is scenario-dependent: any form can appear as primary or secondary depending on the event, so the placement column below records the common case, not a fixed rule.
+FAIR defines six forms of loss. A form is *primary* when it arises directly from the loss event and *secondary* when it arises from the reactions of secondary stakeholders (regulators, customers, shareholders, business partners). The split is not fixed by the form: FAIR classifies each loss by whether it arose directly or from a secondary-stakeholder reaction, so a form usually falls to one side (the placement column below) but its side depends on the specifics of the scenario.
 
 | Form of loss | Definition | Common placement |
 |---|---|---|
 | **Productivity** | Revenue or operational value lost during disruption | Usually primary |
 | **Response** | Incident response, forensics, containment, remediation, notification | Usually primary |
 | **Replacement** | Repairing or replacing damaged assets, data, or systems | Usually primary |
-| **Competitive advantage** | Loss of intellectual property, trade secrets, or market position | Either |
-| **Fines and judgements** | Regulatory fines (e.g., ICO, CNIL, CBP), legal settlements, judgements, contractual penalties | Usually secondary |
-| **Reputation** | Customer attrition, brand remediation, lost future revenue from stakeholder reaction | Usually secondary |
+| **Competitive advantage** | Loss of intellectual property, trade secrets, or market position | Usually secondary |
+| **Fines and judgements** | Regulatory fines (e.g., ICO, CNIL), legal settlements, judgements, contractual penalties | Usually secondary |
+| **Reputation** | Customer attrition, reduced market share, lost future revenue from stakeholder reaction | Usually secondary |
 
 ---
 
@@ -99,7 +99,7 @@ For teams without simulation tools, use the following approximation:
 Expected Value = (Min + 4 × Most Likely + Max) / 6
 ```
 
-This PERT-mean approximation treats Minimum and Maximum as the distribution's support bounds. Where they are the calibrated 5th and 95th percentiles defined above, it is a rough central estimate only: a Monte Carlo tool fits the distribution to those percentiles for tail-accurate results.
+This PERT-mean approximation treats Minimum and Maximum as the distribution's support bounds. Where they are the calibrated 5th and 95th percentiles defined above, it is a rough central estimate only. A tail-accurate result requires first fitting a distribution to those percentiles (a separate calibration step), which the Monte Carlo simulation then samples.
 
 ---
 
@@ -134,7 +134,7 @@ Estimate the forms of loss that occur directly in this scenario (here: productiv
 | 3a | Estimate productivity loss (hourly revenue × estimated hours of disruption) |
 | 3b | Estimate response and recovery costs |
 | 3c | Estimate replacement and remediation costs |
-| 3d | Sum primary loss components for min, ML, max |
+| 3d | Sum the primary-side loss forms for min, ML, max |
 
 **Example: Ransomware primary loss:**
 - Productivity: 48 to 240 hours disruption × hourly revenue
@@ -146,7 +146,7 @@ Estimate the forms of loss that occur directly in this scenario (here: productiv
 
 | Sub-Step | Action |
 |---|---|
-| 4a | Identify applicable secondary loss forms (regulatory, litigation, reputation) |
+| 4a | Identify applicable secondary loss forms (typically fines and judgements, and reputation) |
 | 4b | Estimate probability and magnitude of each secondary loss |
 | 4c | Apply secondary loss probability to magnitude for expected secondary loss |
 
@@ -189,7 +189,7 @@ For each proposed treatment:
 |---|---|
 | **Internal incident history** | Past breach or disruption costs; incident response records |
 | **Industry benchmarks** | Verizon DBIR; IBM Cost of a Data Breach Report; Ponemon Institute studies |
-| **Regulatory guidance** | GDPR fine precedents; ICO published penalty decisions; CBP enforcement history |
+| **Regulatory guidance** | GDPR fine precedents; ICO published penalty decisions; CNIL enforcement history |
 | **Actuarial data** | Cyber insurance loss experience; industry loss distributions |
 | **Expert elicitation** | Structured interviews with technical experts for TEF and Vulnerability estimates |
 
