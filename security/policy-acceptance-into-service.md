@@ -2,8 +2,8 @@
 
 **Document Title:** Acceptance Into Service Policy\
 **Document Type:** Policy\
-**Version:** 1.0.7\
-**Date:** 2026-07-23\
+**Version:** 1.0.8\
+**Date:** 2026-08-05\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/framework-document-architecture-and-interrelationship.md`](../governance/framework-document-architecture-and-interrelationship.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md)\
@@ -22,7 +22,7 @@ This policy establishes a standardized framework for evaluating, approving, and 
 
 The policy replaces the AIS Lifecycle Process, Readiness Review Procedure, and Post-Implementation Review Procedure, providing a unified acceptance model for IT, cloud, and AI-enabled services.
 
-It aligns with ISO/IEC 42001 §8 Operation, NIST SP 800-37 Risk Management Framework (RMF) Step 6: Authorize the System, COBIT 2019 BAI07 Managed IT Change Acceptance and Transitioning, and CSA CCM v4.1 CCC-01, CCC-02, and CCC-05 (change acceptance and transitioning).
+It aligns with ISO/IEC 42001 §8 Operation, NIST SP 800-37 Risk Management Framework (RMF) Authorize step, COBIT 2019 BAI07 Managed IT Change Acceptance and Transitioning, and CSA CCM v4.1 CCC-01, CCC-02, and CCC-05 (change acceptance and transitioning).
 
 Mandatory AI risk classification and impact validation are required as a prerequisite for production deployment.
 
@@ -83,7 +83,7 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 
 ### 4.3 Risk and compliance validation
 
-4.3.1 AIS submissions must include risk assessment outcomes aligned with NIST SP 800-37 RMF Steps 4 to 6.
+4.3.1 AIS submissions must include risk assessment outcomes aligned with the NIST SP 800-37 RMF Assess and Authorize steps.
 
 4.3.2 Security and privacy validation must include evidence from penetration testing, code reviews, and compliance checks.
 
@@ -141,7 +141,7 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 | --- | --- | --- |
 | ISO/IEC 42001:2023 | §8: AI Management System Operation | AI acceptance and risk classification |
 | ISO/IEC 27001:2022 | Annex A.5.36 to A.5.37 | Change and handover controls |
-| NIST SP 800-37 Rev. 2 | RMF Step 6: Authorize the System | Risk-based production authorization |
+| NIST SP 800-37 Rev. 2 | RMF Authorize step (Tasks R-1 to R-5) | Risk-based production authorization |
 | COBIT 2019 | BAI07: Managed IT Change Acceptance and Transitioning | Controlled transition and handover |
 | COBIT 2019 | DSS01: Managed Operations | Operational readiness validation |
 | CSA CCM v4.1 | CCC-01 Change Management Policy and Procedures; CCC-02 Quality Testing; CCC-05 Change Agreements | Controlled change acceptance, readiness testing, and handover sign-off |

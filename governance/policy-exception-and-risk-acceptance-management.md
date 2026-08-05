@@ -2,8 +2,8 @@
 
 **Document Title:** Exception and Risk Acceptance Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.15\
-**Date:** 2026-07-11\
+**Version:** 1.3.16\
+**Date:** 2026-08-05\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md)\
@@ -20,7 +20,7 @@
 
 This policy defines the organization-wide process for managing security, risk, compliance, and operational exceptions. It consolidates the former Exception Process, Risk Acceptance Memo Procedure, Temporary Waiver Procedure, and Exception Tracking Log into one cohesive governance artefact.
 
-Its purpose is to ensure that all deviations from policy, control, or standard requirements are risk assessed, time bound, approved at the appropriate authority level, and tracked to closure. The policy aligns with **ISO/IEC 27001:2022 Annex A.5.36 Compliance with policies, rules and standards for information security**, **COBIT 2019 APO12.06 Respond to risk**, **Cloud Security Alliance (CSA)** guidance (CCM v4.1 GRC-04 Policy Exception Process), and **NIST SP 800-37 Revision 2 RMF Step 6 Authorize the System**.
+Its purpose is to ensure that all deviations from policy, control, or standard requirements are risk assessed, time bound, approved at the appropriate authority level, and tracked to closure. The policy aligns with **ISO/IEC 27001:2022 Annex A.5.36 Compliance with policies, rules and standards for information security**, **COBIT 2019 APO12.06 Respond to risk**, **Cloud Security Alliance (CSA)** guidance (CCM v4.1 GRC-04 Policy Exception Process), and **NIST SP 800-37 Revision 2 RMF Authorize step**.
 
 ## 2. Scope
 
@@ -129,7 +129,7 @@ The renewal number and the approving authority must be recorded on the exception
 - **ISO 31000:2018** Risk Management 
 - **COBIT 2019** APO12.06 Respond to risk; APO12.02 Analyze risk; MEA01 Managed Performance and Conformance Monitoring 
 - **Cloud Security Alliance (CSA)** guidance including CCM v4.1 GRC-04 Policy Exception Process 
-- **NIST SP 800-37 Rev. 2** RMF Step 6 Authorize the System; **NIST SP 800-53 Rev. 5** CA-6 Authorization 
+- **NIST SP 800-37 Rev. 2** RMF Authorize step; **NIST SP 800-53 Rev. 5** CA-6 Authorization 
 - **NIST AI RMF 1.0** Govern Function (with the AI 600-1 Generative AI Profile)
 - **OECD AI Principles** Accountability and Transparency 
 - **Trade and Supply Chain Programs:** WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (United States), AEO (European Union), and equivalents
