@@ -40,19 +40,21 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import DEFAULT_EXEMPT_DIRS, REPO_ROOT, iter_non_code_lines, read_text_safe
+from lint_common import DEFAULT_EXEMPT_DIRS, is_narrative_root, REPO_ROOT, iter_non_code_lines, read_text_safe
 
 DEFAULT_PATHS = [str(REPO_ROOT)]
 
 DOCTYPE_RE = re.compile(r"^\*\*Document Type:\*\*\s+(.+?)(?:\\)?\s*$", re.MULTILINE)
 HEADING_RE = re.compile(r"^(#{2,6})\s+(.+?)\s*$")
 
-# Directory-walk exemption: shared default set from lint_common. The
+# Directory-walk exemption: shared default set from lint_common (plus the
+# root-anchored executive/ narrative-tree exclusion via is_narrative_root,
+# P-1.25 scan-root split). The
 # is_target function reads each file's metadata to check for the
 # Status: Superseded lifecycle exemption (re-keyed from the former
 # Classification: Deprecated overload, the L-j migration), so this linter
 # cannot use the shared iter_markdown_targets helper as-is.
-EXEMPT_DIR_PARTS = DEFAULT_EXEMPT_DIRS
+EXEMPT_DIR_PARTS = DEFAULT_EXEMPT_DIRS  # narrative-root exclusion is root-anchored via is_narrative_root (P-1.25 scan-root split)
 
 # Per-doctype required sections. Each requirement is a list of acceptable
 # heading names (case-insensitive substring match against the heading
@@ -106,7 +108,7 @@ EXEMPT_FILES: set[str] = {
 def is_target(path: Path) -> bool:
     if path.suffix != ".md":
         return False
-    if any(part in EXEMPT_DIR_PARTS for part in path.parts):
+    if any(part in EXEMPT_DIR_PARTS for part in path.parts) or is_narrative_root(path):
         return False
     if path.name in EXEMPT_FILES:
         return False

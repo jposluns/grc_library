@@ -10756,5 +10756,252 @@ class PublicationManifestTest(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
 
+
+class NarrativeScanScopeTests(LinterTestCase):
+    """P-1.25 scan-root split: executive/ is outside the corpus document
+    model but inside the repository safety gates, and the classification is
+    closed against the WIRED gate programme (a new gate of any name fails
+    here until classified).
+
+    Manifest: ``tools/gate-scope-manifest.json``. Mechanism: each of the five
+    corpus-model root-walkers excludes the repo-root ``executive/`` tree via the
+    root-anchored ``lint_common.is_narrative_root`` (NOT by unioning a component
+    set, which would over-match a nested ``executive`` dir; never folded into
+    ``DEFAULT_EXEMPT_DIRS``). These tests are written to fail under each of the
+    hollow mutations a cross-family verifier identified: an excluded gate that
+    always returns 0, the anchored is_narrative_root call removed while the import
+    remains, ``executive`` left only in a comment, and a gate moved to the wrong
+    manifest class.
+    """
+
+    MANIFEST = REPO_ROOT / "tools" / "gate-scope-manifest.json"
+    EXCLUDED_GATES = (
+        "lint-required-sections.py",
+        "lint-section-placement.py",
+        "lint-stub-documents.py",
+        "lint-orphan-documents.py",
+        "lint-acronym-consistency.py",
+    )
+
+    @staticmethod
+    def _import_gate(name):
+        import importlib.util
+
+        tools_dir = str(REPO_ROOT / "tools")
+        if tools_dir not in sys.path:
+            sys.path.insert(0, tools_dir)
+        spec = importlib.util.spec_from_file_location(
+            "gate_probe_" + name.replace("-", "_").replace(".py", ""),
+            REPO_ROOT / "tools" / name,
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+    def _classes(self):
+        import json
+
+        with open(self.MANIFEST, encoding="utf-8") as handle:
+            return json.load(handle)["classes"]
+
+    @staticmethod
+    def _wired_gate_scripts():
+        """Every tools/<x>.py invoked by the CI gate programme (run_all_audits,
+        the PR-time checks, and quality.yml). Keying the closed-inventory check
+        to this set, not a filename glob, is what makes a new ``build-*`` /
+        ``run-*`` / ``detect-*`` gate fail until it is classified."""
+        import re
+
+        scripts = set()
+        for rel in (
+            "tools/run_all_audits.sh",
+            "tools/run-pr-time-checks.sh",
+            ".github/workflows/quality.yml",
+        ):
+            path = REPO_ROOT / rel
+            if path.exists():
+                scripts.update(
+                    re.findall(r"tools/([a-z0-9-]+\.py)", path.read_text(encoding="utf-8"))
+                )
+        return scripts
+
+    def test_every_wired_gate_classified(self):
+        """A wired gate absent from the manifest FAILS, whatever its filename
+        prefix (closes the build-*/run-*/detect-* hole)."""
+        classified = {name for names in self._classes().values() for name in names}
+        wired = self._wired_gate_scripts()
+        self.assertEqual(
+            wired - classified,
+            set(),
+            "wired gate(s) absent from tools/gate-scope-manifest.json; classify each",
+        )
+
+    def test_every_lint_check_classified_and_exists(self):
+        classified = {name for names in self._classes().values() for name in names}
+        live = {
+            path.name
+            for pattern in ("lint-*.py", "check-*.py")
+            for path in (REPO_ROOT / "tools").glob(pattern)
+        }
+        self.assertEqual(live - classified, set(), "unclassified lint-*/check-* gate(s)")
+        for name in classified:
+            self.assertTrue(
+                (REPO_ROOT / "tools" / name).exists(),
+                f"manifest names a non-existent script: {name}",
+            )
+
+    def test_no_gate_classified_twice(self):
+        classes = self._classes()
+        seen = {}
+        for cls, names in classes.items():
+            for name in names:
+                self.assertNotIn(
+                    name,
+                    seen,
+                    f"{name} classified in both {seen.get(name)} and {cls}",
+                )
+                seen[name] = cls
+
+    def test_excluded_class_matches_excluded_gates(self):
+        """EXCLUDED_GATES must equal the corpus-model-narrative-excluded class
+        exactly (moving a gate to another class fails here)."""
+        cls = set(self._classes()["corpus-model-narrative-excluded"])
+        self.assertEqual(
+            cls,
+            set(self.EXCLUDED_GATES),
+            "the corpus-model-narrative-excluded manifest class drifted from EXCLUDED_GATES",
+        )
+
+    def test_executive_not_in_default_exempt(self):
+        module = self._import_gate("lint_common.py")
+        self.assertNotIn("executive", module.DEFAULT_EXEMPT_DIRS)
+        self.assertIn("executive", module.NARRATIVE_DIRS)
+
+    def test_narrative_root_is_anchored(self):
+        """The exclusion mechanism is ROOT-anchored: ``is_narrative_root`` is
+        True only for the repo-root ``executive/`` tree, and False for a nested
+        directory merely named ``executive`` (unanchoring it to a bare
+        path-component check fails here)."""
+        lc = self._import_gate("lint_common.py")
+        self.assertTrue(lc.is_narrative_root("executive/brief-x.md"))
+        self.assertTrue(lc.is_narrative_root(lc.REPO_ROOT / "executive" / "brief-x.md"))
+        self.assertFalse(
+            lc.is_narrative_root("governance/executive/x.md"),
+            "nested executive/ must NOT be treated as the narrative root",
+        )
+        self.assertFalse(lc.is_narrative_root("docs/x.md"))
+
+    def test_excluded_gates_call_narrative_root(self):
+        """Each excluded gate must actively CALL is_narrative_root (AST check, so
+        import-only, comment-only, or removing the call from the skip line all
+        fail here -- the exact iteration-3 mutation), and must NOT carry
+        executive in a component-wise EXEMPT_DIR_PARTS."""
+        import ast
+
+        for name in self.EXCLUDED_GATES:
+            source = (REPO_ROOT / "tools" / name).read_text(encoding="utf-8")
+            tree = ast.parse(source)
+            calls = [
+                n for n in ast.walk(tree)
+                if isinstance(n, ast.Call)
+                and getattr(n.func, "id", None) == "is_narrative_root"
+            ]
+            self.assertTrue(
+                calls,
+                f"{name}: no CALL to is_narrative_root (its anchored exclusion is inactive)",
+            )
+            module = self._import_gate(name)
+            parts = getattr(module, "EXEMPT_DIR_PARTS", frozenset())
+            self.assertNotIn(
+                "executive",
+                parts,
+                f"{name}: executive in EXEMPT_DIR_PARTS is the unanchored component bug",
+            )
+
+    def test_links_resolved_scan_roots_include_executive(self):
+        """RESOLVED-list check: ``executive`` must be an actual member of
+        lint-links' DEFAULT_SCAN_ROOTS (a comment-only occurrence fails here)."""
+        module = self._import_gate("lint-links.py")
+        self.assertIn("executive", module.DEFAULT_SCAN_ROOTS)
+
+    def test_excluded_gate_behavioural_with_positive_control(self):
+        """Behavioural both-ways WITH a positive control, so a gate that always
+        returns 0 cannot pass: the SAME violating file flagged when passed at a
+        non-excluded path, and NOT flagged under executive/."""
+        violation = (
+            "# Probe\n\n**Document Type:** Standard\\\n**Version:** 0.0.1\n\n"
+            "Body with none of the required sections.\n"
+        )
+        pos_dir = REPO_ROOT / "tests" / "tmp"
+        pos_dir.mkdir(parents=True, exist_ok=True)
+        pos = pos_dir / "narrative-positive-control.md"
+        exc = REPO_ROOT / "executive" / "tmp-scan-scope-probe.md"
+        pos.write_text(violation, encoding="utf-8")
+        exc.write_text(violation, encoding="utf-8")
+        try:
+            # positive control: gate DOES flag the violation at a non-excluded path
+            pos_result = run_linter("tools/lint-required-sections.py", pos)
+            self.assertNotEqual(
+                pos_result.returncode,
+                0,
+                "positive control failed: the gate did not flag a real violation "
+                "at a non-excluded path (an always-pass gate would look 'excluded')",
+            )
+            self.assertIn("narrative-positive-control", pos_result.stdout)
+            # exclusion: the SAME violation under executive/ is NOT flagged even
+            # when its path is passed explicitly (dir-based exemption); and it is
+            # skipped on a default whole-repo run too.
+            exc_result = run_linter("tools/lint-required-sections.py", exc)
+            self.assertEqual(
+                exc_result.returncode,
+                0,
+                "excluded gate flagged an explicit executive/ path:\n" + exc_result.stdout,
+            )
+            default_result = run_linter("tools/lint-required-sections.py")
+            self.assertNotIn("tmp-scan-scope-probe", default_result.stdout)
+            # anchoring positive control: a NESTED dir merely named executive/ is
+            # still scanned (a regression to the unanchored component match fails).
+            nested_dir = REPO_ROOT / "governance" / "executive"
+            nested_dir.mkdir(parents=True, exist_ok=True)
+            nested = nested_dir / "tmp-nested-scope-probe.md"
+            nested.write_text(violation, encoding="utf-8")
+            try:
+                nested_result = run_linter("tools/lint-required-sections.py", nested)
+                self.assertNotEqual(
+                    nested_result.returncode,
+                    0,
+                    "nested governance/executive/ was wrongly excluded (unanchored bug)",
+                )
+                self.assertIn("tmp-nested-scope-probe", nested_result.stdout)
+            finally:
+                nested.unlink()
+                try:
+                    nested_dir.rmdir()
+                except OSError:
+                    pass
+        finally:
+            pos.unlink()
+            exc.unlink()
+
+    def test_safety_gate_catches_executive_by_default(self):
+        """Inclusion direction: a planted credential under executive/ MUST fail
+        the secrets gate on a default-scope run."""
+        probe = REPO_ROOT / "executive" / "tmp-secret-probe.md"
+        probe.write_text(
+            "# Probe\n\nExample key: AKIAIOSFODNN7EXAMPLE.\n",
+            encoding="utf-8",
+        )
+        try:
+            result = run_linter("tools/lint-secrets-in-content.py")
+            self.assertNotEqual(
+                result.returncode,
+                0,
+                "secrets gate did NOT catch a planted credential under executive/",
+            )
+            self.assertIn("tmp-secret-probe", result.stdout + result.stderr)
+        finally:
+            probe.unlink()
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

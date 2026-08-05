@@ -97,6 +97,7 @@ DEFAULT_SCAN_ROOTS: list[str] = [
     "docs",
     ".claude/rules",
     "guardrails",
+    "executive",  # narrative layer: IN link-integrity scope (P-1.25 scan-root split)
 ]
 
 

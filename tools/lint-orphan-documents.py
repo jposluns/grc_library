@@ -12,6 +12,8 @@ filename convention rather than by inbound link. LICENSE and
 CITATION.cff were previously listed but removed in Phase 23.62
 since the scanner skips non-.md files and they are auto-exempt.
 
+The root-anchored executive/ narrative tree is excluded via is_narrative_root
+(P-1.25 scan-root split); a nested dir named executive is still scanned.
 Domain READMEs are exempt because they are reached by directory
 navigation. Worklists are exempt because they are working artefacts.
 The ``guardrails`` pack directory is also exempt: rule files there are
@@ -33,11 +35,11 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-from lint_common import DEFAULT_EXEMPT_DIRS, REPO_ROOT, iter_non_code_lines, read_text_safe
+from lint_common import DEFAULT_EXEMPT_DIRS, is_narrative_root, REPO_ROOT, iter_non_code_lines, read_text_safe
 
 DEFAULT_PATHS = [str(REPO_ROOT)]
 
-EXEMPT_DIR_PARTS = DEFAULT_EXEMPT_DIRS
+EXEMPT_DIR_PARTS = DEFAULT_EXEMPT_DIRS  # narrative-root exclusion is root-anchored via is_narrative_root (P-1.25 scan-root split)
 
 ALWAYS_EXEMPT = {
     # Entry-point documents reached by filename convention.
@@ -67,7 +69,7 @@ LINK_RE = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
 def is_artefact(path: Path) -> bool:
     if path.suffix != ".md":
         return False
-    if any(part in EXEMPT_DIR_PARTS for part in path.parts):
+    if any(part in EXEMPT_DIR_PARTS for part in path.parts) or is_narrative_root(path):
         return False
     if path.name in ALWAYS_EXEMPT:
         return False
@@ -95,7 +97,7 @@ def find_artefacts() -> list[Path]:
 def find_all_markdown() -> list[Path]:
     return [
         p for p in REPO_ROOT.rglob("*.md")
-        if p.suffix == ".md" and not any(part in EXEMPT_DIR_PARTS for part in p.parts)
+        if p.suffix == ".md" and not any(part in EXEMPT_DIR_PARTS for part in p.parts) and not is_narrative_root(p)
     ]
 
 
