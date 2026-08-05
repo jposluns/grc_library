@@ -5230,7 +5230,7 @@ documents:
   domain: "security"
   type: "Framework"
   title: "Zero Trust Architecture Framework"
-  version: "0.0.6"
+  version: "0.0.7"
   date: "2026-08-05"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"

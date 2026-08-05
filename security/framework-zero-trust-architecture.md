@@ -2,7 +2,7 @@
 
 **Document Title:** Zero Trust Architecture Framework\
 **Document Type:** Framework\
-**Version:** 0.0.6\
+**Version:** 0.0.7\
 **Date:** 2026-08-05\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -44,7 +44,7 @@ This framework applies to all corporate, production, partner-integrated, and cus
 
 ## Pillars
 
-The framework adopts seven pillars aligned with the DoD Zero Trust Reference Architecture. Pillars 1 to 5 (Identity, Devices, Networks, Applications and workloads, Data) correspond to the five pillars of the CISA Zero Trust Maturity Model 2.0; pillars 6 and 7 (Visibility and analytics, Automation and orchestration) correspond to two of CISA's three cross-cutting capabilities, which this framework structures as pillars. CISA's third cross-cutting capability, Governance, is not structured as a pillar here; it is reflected in the framework's governance and oversight provisions (approval authority, architecture decision records, and the CISO-maintained maturity roadmap).
+The framework adopts a seven-pillar structure, mirroring the DoD Zero Trust Reference Architecture's seven pillars. Pillars 1 to 5 (Identity, Devices, Networks, Applications and workloads, Data) are named per the CISA Zero Trust Maturity Model 2.0's five pillars; pillars 6 and 7 (Visibility and analytics, Automation and orchestration) correspond to two of CISA's three cross-cutting capabilities, which this framework structures as pillars. CISA's third cross-cutting capability, Governance, is not structured as a pillar here; it is reflected in the framework's governance and oversight provisions (approval authority, architecture decision records, and the CISO-maintained maturity roadmap).
 
 ### Pillar 1: Identity
 
