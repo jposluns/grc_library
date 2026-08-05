@@ -2,8 +2,8 @@
 
 **Document Title:** IT Onboarding and Offboarding Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.4\
-**Date:** 2026-07-02\
+**Version:** 1.0.5\
+**Date:** 2026-08-05\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -20,7 +20,7 @@
 
 This procedure governs the provisioning and deprovisioning of system access and IT assets across the full personnel lifecycle: pre-joining, first-day onboarding, role transfers and changes, voluntary departure, and involuntary termination. It ensures that access rights are granted on a least-privilege basis, are aligned to approved role profiles, and are removed promptly and completely when no longer required.
 
-This procedure supports the Information Security Policy and aligns to ISO/IEC 27001:2022 Annex A controls A.6.1 (Screening), A.6.2 (Terms and conditions of employment), and A.6.5 (Responsibilities after termination or change of employment), NIST SP 800-53 Rev. 5 PS (Personnel Security) control family, and CIS Controls v8 Control 5 (Account Management).
+This procedure supports the Information Security Policy and aligns to ISO/IEC 27001:2022 Annex A controls A.6.1 (Screening), A.6.2 (Terms and conditions of employment), and A.6.5 (Responsibilities after termination or change of employment), NIST SP 800-53 Rev. 5 PS (Personnel Security) control family, and CIS Controls v8.1 Control 5 (Account Management).
 
 ---
 
@@ -290,8 +290,8 @@ The following checklist must be completed for every departure. IT Operations is 
 | NIST SP 800-53 Rev. 5 | PS-5 Personnel Transfer | Access review and excess access removal on role change |
 | NIST SP 800-53 Rev. 5 | PS-6 Access Agreements | Acknowledgement of acceptable use prior to access provisioning |
 | NIST SP 800-53 Rev. 5 | AC-2 Account Management | Account lifecycle management from provisioning to deprovisioning |
-| CIS Controls v8 | Control 5 (Account Management) | Account provisioning, deprovisioning, and access review processes |
-| CIS Controls v8 | Control 6 (Access Control Management) | Least-privilege access, role-based profiles, privileged account management |
+| CIS Controls v8.1 | Control 5 (Account Management) | Account provisioning, deprovisioning, and access review processes |
+| CIS Controls v8.1 | Control 6 (Access Control Management) | Least-privilege access, role-based profiles, privileged account management |
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Secure Code Review Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.4\
-**Date:** 2026-07-14\
+**Version:** 0.0.5\
+**Date:** 2026-08-05\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-software-composition-analysis.md`](standard-software-composition-analysis.md), [`dev-security/standard-api-security.md`](standard-api-security.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`dev-security/guideline-ai-coding-assistant-security.md`](guideline-ai-coding-assistant-security.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -285,7 +285,7 @@ Automated findings inform but do not replace the human review.
 | ISO/IEC 27002:2022 | 8.28, 8.29, 8.30 | Outsourced development; testing |
 | OpenSSF Best Practices | Code review | Open-source baseline |
 | SLSA | Build integrity | Supply-chain assurance |
-| CIS CSC v8 | Control 16 Application Software Security | Critical controls |
+| CIS CSC v8.1 | Control 16 Application Software Security | Critical controls |
 
 ---
 
