@@ -2,8 +2,8 @@
 
 **Document Title:** Zero Trust Architecture Framework\
 **Document Type:** Framework\
-**Version:** 0.0.5\
-**Date:** 2026-07-10\
+**Version:** 0.0.6\
+**Date:** 2026-08-05\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/policy-network-communications-security.md`](policy-network-communications-security.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`operations/standard-network-security-and-segmentation.md`](../operations/standard-network-security-and-segmentation.md), [`operations/standard-cloud-security-configuration-baseline.md`](../operations/standard-cloud-security-configuration-baseline.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`ai/standard-ai-access-and-agent-permissions.md`](../ai/standard-ai-access-and-agent-permissions.md)\
@@ -44,7 +44,7 @@ This framework applies to all corporate, production, partner-integrated, and cus
 
 ## Pillars
 
-The framework adopts seven pillars consistent with the CISA Zero Trust Maturity Model.
+The framework adopts seven pillars aligned with the DoD Zero Trust Reference Architecture. Pillars 1 to 5 (Identity, Devices, Networks, Applications and workloads, Data) correspond to the five pillars of the CISA Zero Trust Maturity Model 2.0; pillars 6 and 7 (Visibility and analytics, Automation and orchestration) correspond to two of CISA's three cross-cutting capabilities, which this framework structures as pillars. CISA's third cross-cutting capability, Governance, is not structured as a pillar here; it is reflected in the framework's governance and oversight provisions (approval authority, architecture decision records, and the CISO-maintained maturity roadmap).
 
 ### Pillar 1: Identity
 
