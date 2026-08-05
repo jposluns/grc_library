@@ -2,8 +2,8 @@
 
 **Document Title:** Quantitative Risk Analysis Guideline\
 **Document Type:** Guideline\
-**Version:** 1.0.3\
-**Date:** 2026-07-10\
+**Version:** 1.0.5\
+**Date:** 2026-08-05\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -53,8 +53,8 @@ LEF estimates how often a loss event is expected to occur per year. It is derive
 
 | Component | Definition |
 |---|---|
-| **Threat Event Frequency (TEF)** | How often a threat actor contacts the asset of interest |
-| **Vulnerability (Vuln)** | Probability that the threat succeeds given contact |
+| **Threat Event Frequency (TEF)** | How often a threat actor acts against the asset of interest |
+| **Vulnerability (Vuln)** | Probability that a threat event results in loss (given the threat acts) |
 | **Loss Event Frequency (LEF)** | TEF × Vuln = expected loss events per year |
 
 ### Loss magnitude (LM)
@@ -94,7 +94,7 @@ Rather than single-point estimates, FAIR uses probabilistic ranges. For each fac
 - **Most Likely (ML):** Most probable single value
 - **Maximum (High):** Value in the 95th percentile of outcomes
 
-These three values define a PERT distribution suitable for Monte Carlo simulation.
+These three values are commonly modelled with a PERT distribution for Monte Carlo simulation; FAIR itself does not mandate any specific statistical distribution.
 
 ### Simplified manual estimation
 
@@ -120,7 +120,7 @@ Start from a qualitatively identified risk in the enterprise risk register. Defi
 | Sub-Step | Action |
 |---|---|
 | 2a | Estimate Threat Event Frequency (TEF) per year (range: min, ML, max) |
-| 2b | Estimate Vulnerability: probability threat succeeds per contact (0 to 1, as %) |
+| 2b | Estimate Vulnerability: probability a threat event results in loss (0 to 1, as %) |
 | 2c | Calculate LEF range = TEF × Vulnerability |
 
 **Example: Ransomware scenario:**
