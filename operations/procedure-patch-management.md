@@ -2,7 +2,7 @@
 
 **Document Title:** Patch Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.8\
+**Version:** 1.0.9\
 **Date:** 2026-08-05\
 **Owner:** IT Operations Lead\
 **Approving Authority:** Governance Library Maintainer\
@@ -207,7 +207,7 @@ Retention timelines are subject to the Records Retention and Destruction Standar
 | Patch planning and classification | §2 (Planning) | A.8.8 | TVM-08 | Control 7.1 | DSS05.07 |
 | Patch testing | §3 (Testing) | A.8.8 | TVM-08 | Control 7.4 | DSS05.07 |
 | Deployment authorization | §3 (Deploying) | A.8.8 | TVM-08 | Control 7.3 | BAI06.01 |
-| Exception governance | §4 (Exceptions) | A.5.20 | TVM-12 | Control 7.2 | APO12.06 |
+| Exception governance | §4 (Exceptions) | A.5.20 | GRC-04 | Control 7.2 | APO12.06 |
 | EOL lifecycle management | §4 (Unsupported software) | A.8.8 | TVM-01, TVM-02 | Control 7.5 | DSS05.07 |
 | Third-party / library patching | §3 (Third-party) | A.8.8 | TVM-08 | Control 7.6 | DSS05.07 |
 | Monitoring and reporting | §2 (Metrics) | A.8.8 | TVM-09 | Control 7.7 | MEA01.04 |
