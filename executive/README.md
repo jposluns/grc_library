@@ -1,6 +1,6 @@
 # Executive narrative layer
 
-**Status:** Under construction (Phase 0 skeleton). No published narrative content yet.
+**Status:** Under construction (skeleton; the authoring specification lands in Phase 1.1, the gate family and content in later phases). No published narrative content yet.
 
 This directory holds the GRC Library's executive narrative layer: non-normative, advisory, and explanatory
 material for a governing body or accountable executive leadership (board, ELT, or senior management, as
@@ -11,7 +11,7 @@ policy, a standard, a control, a source of any obligation, or evidence that a co
 narrative page resolves to the authoritative corpus documents that do govern.
 
 The seven narrative subtypes (each arriving with its reference implementation, in later phases): executive
-briefs, scenarios, decision guides, oversight question sets, implementation stories, control journeys, and
+briefs, scenarios, decision narratives, oversight question sets, stories, journeys, and
 outcome maps.
 
 This directory is deliberately outside the corpus document model (its own document class, registry, and
