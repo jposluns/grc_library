@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.103\
+**Version:** 1.27.104\
 **Date:** 2026-08-05\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -341,7 +341,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Dev Security | Standard | API Security Standard | [`dev-security/standard-api-security.md`](../dev-security/standard-api-security.md) | Chief Information Security Officer | Annual | OWASP API Top 10, OWASP ASVS v5, NIST SP 800-204, RFC 6749/7519/8725/9068, OpenID Connect, FAPI 2.0, CSA CCM v4.1 | template |
 | Dev Security | Standard | Container and Image Security Standard | [`dev-security/standard-container-and-image-security.md`](../dev-security/standard-container-and-image-security.md) | Chief Information Security Officer | Annual | NIST SP 800-190, CIS Benchmarks, CNCF Cloud Native Security Whitepaper, SLSA, Sigstore, CycloneDX/SPDX, OWASP CSVS, Kubernetes Pod Security Standards | template |
 | Dev Security | Standard | Mobile Application Security Standard | [`dev-security/standard-mobile-application-security.md`](../dev-security/standard-mobile-application-security.md) | Chief Information Security Officer | Annual | OWASP MASVS v2, OWASP MASTG, OWASP Mobile Top 10, NIST SP 800-163/800-124, ISO/IEC 27001 Annex A.5.10/A.8.21/A.8.25-34, ATT&CK Mobile | template |
-| Dev Security | Procedure | Secure Code Review Procedure | [`dev-security/procedure-secure-code-review.md`](../dev-security/procedure-secure-code-review.md) | Chief Information Security Officer | Annual | NIST SP 800-218 SSDF PW.7, OWASP SAMM, OWASP ASVS v5, ISO/IEC 27001 Annex A.8.28/A.8.29, OpenSSF Best Practices, SLSA, CIS CSC v8 Control 16 | template |
+| Dev Security | Procedure | Secure Code Review Procedure | [`dev-security/procedure-secure-code-review.md`](../dev-security/procedure-secure-code-review.md) | Chief Information Security Officer | Annual | NIST SP 800-218 SSDF PW.7, OWASP SAMM, OWASP ASVS v5, ISO/IEC 27001 Annex A.8.28/A.8.29, OpenSSF Best Practices, SLSA, CIS CSC v8.1 Control 16 | template |
 | Dev Security | Standard | AWS Cloud Hardening Baseline Standard | [`dev-security/standard-cloud-hardening-baseline-aws.md`](../dev-security/standard-cloud-hardening-baseline-aws.md) | Chief Information Security Officer | Annual | CIS AWS Foundations Benchmark, AWS Well-Architected Security Pillar, NIST SP 800-53, NIST CSF 2.0, ISO/IEC 27001, CSA CCM v4.1 | template |
 | Dev Security | Standard | Azure Cloud Hardening Baseline Standard | [`dev-security/standard-cloud-hardening-baseline-azure.md`](../dev-security/standard-cloud-hardening-baseline-azure.md) | Chief Information Security Officer | Annual | CIS Microsoft Azure Foundations Benchmark, Microsoft Cloud Security Benchmark, Azure Well-Architected Security Pillar, NIST SP 800-53, ISO/IEC 27001, CSA CCM v4.1 | template |
 | Dev Security | Standard | Google Cloud Platform Hardening Baseline Standard | [`dev-security/standard-cloud-hardening-baseline-gcp.md`](../dev-security/standard-cloud-hardening-baseline-gcp.md) | Chief Information Security Officer | Annual | CIS Google Cloud Platform Foundations Benchmark, Google Cloud Architecture Framework Security Pillar, NIST SP 800-53, ISO/IEC 27001, CSA CCM v4.1 | template |
