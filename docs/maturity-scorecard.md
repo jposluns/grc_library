@@ -279,7 +279,7 @@ _169 documents._
 | [resilience/guideline-emergency-response-and-protective-actions.md](../resilience/guideline-emergency-response-and-protective-actions.md) | Emergency Response and Protective Actions Guideline | Guideline | 1.0.2 | 2026-07-14 |
 | [resilience/plan-crisis-communication.md](../resilience/plan-crisis-communication.md) | Crisis Communication Plan | Plan | 1.0.2 | 2026-07-02 |
 | [resilience/plan-pandemic-continuity.md](../resilience/plan-pandemic-continuity.md) | Pandemic Continuity Plan | Plan | 1.0.7 | 2026-07-14 |
-| [resilience/plan-physical-site-continuity.md](../resilience/plan-physical-site-continuity.md) | Physical Site Continuity Plan | Plan | 1.0.4 | 2026-07-14 |
+| [resilience/plan-physical-site-continuity.md](../resilience/plan-physical-site-continuity.md) | Physical Site Continuity Plan | Plan | 1.0.5 | 2026-08-05 |
 | [resilience/policy-business-continuity-and-disaster-recovery.md](../resilience/policy-business-continuity-and-disaster-recovery.md) | Business Continuity and Disaster Recovery Policy | Policy | 1.0.2 | 2026-07-02 |
 | [resilience/procedure-backup-and-recovery.md](../resilience/procedure-backup-and-recovery.md) | Backup and Recovery Procedure | Procedure | 1.0.2 | 2026-07-12 |
 | [resilience/procedure-business-impact-analysis.md](../resilience/procedure-business-impact-analysis.md) | Business Impact Analysis Procedure | Procedure | 1.0.2 | 2026-07-02 |
