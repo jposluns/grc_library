@@ -2,7 +2,7 @@
 
 **Document Title:** Metrics, Monitoring and Performance Reporting Framework\
 **Document Type:** Framework\
-**Version:** 1.1.3\
+**Version:** 1.1.4\
 **Date:** 2026-08-05\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
@@ -30,7 +30,7 @@ This framework defines the governance metrics, Key Risk Indicators (KRIs), Key P
 | **Compliance and Audit** | Percentage of CAPAs closed within SLA, audit finding recurrence rate, per-control effectiveness band (consumed under the three lines of defence) | ISO 37301, COBIT MEA01 |
 | **Information Security** | Vulnerability closure rate, MTTR, MTTD, patch-compliance percentage, incident false-positive ratio | ISO/IEC 27004, NIST CSF |
 | **Business Continuity** | RTO/RPO compliance percentage, BCP testing frequency, continuity audit score | ISO 22301, COBIT DSS04 |
-| **AI Governance** | Model explainability percentage, bias detection rate, retraining frequency, ISO/IEC 42001 maturity score | ISO/IEC 42001 §10, NIST AI RMF |
+| **AI Governance** | Model explainability percentage, bias detection rate, retraining frequency, ISO/IEC 42001 maturity score | ISO/IEC 42001 §9.1, NIST AI RMF |
 | **Digital Trust** | Transparency index, stakeholder confidence rating, service uptime, SLA adherence | COBIT 2019 Digital Trust Indicators |
 | **BASC Trade Security** | Cargo integrity incidents (count), customs data validation accuracy percentage, BASC audit score, time-to-report customs incidents | BASC v6, WCO SAFE, ISO 28000 |
 
@@ -80,7 +80,7 @@ Poorly defined metrics without these fields must not be published in governance 
 | ISO/IEC 27004:2022 | Information Security Measurement and Metrics | Security metric design and reporting |
 | NIST SP 800-55 Vol. 1 | Measurement Guide for Information Security: Identifying and Selecting Measures | Security measure identification and selection |
 | NIST SP 800-55 Vol. 2 | Measurement Guide for Information Security: Developing an Information Security Measurement Program | Security measurement programme design |
-| ISO/IEC 42001:2023 | §10: Improvement | AI governance KPIs |
+| ISO/IEC 42001:2023 | §9.1: Monitoring, measurement, analysis and evaluation | AI governance KPIs |
 | ISO 22301:2019 | Business continuity performance | BCP/DR metrics |
 | COBIT 2019 | MEA01: Managed Performance and Conformance Monitoring | Performance governance |
 | COBIT 2019 | Digital Trust Indicators | Stakeholder confidence and service quality |
