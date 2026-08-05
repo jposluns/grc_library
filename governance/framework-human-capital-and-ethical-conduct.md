@@ -2,8 +2,8 @@
 
 **Document Title:** Human Capital and Ethical Conduct Framework\
 **Document Type:** Framework\
-**Version:** 1.0.8\
-**Date:** 2026-07-23\
+**Version:** 1.0.9\
+**Date:** 2026-08-05\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/standard-personnel-security-screening.md`](../security/standard-personnel-security-screening.md), [`security/procedure-onboarding-and-offboarding.md`](../security/procedure-onboarding-and-offboarding.md), [`governance/procedure-whistleblower-and-incident-reporting.md`](procedure-whistleblower-and-incident-reporting.md), [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md)\
@@ -83,7 +83,7 @@ The organization is committed to inclusive hiring, equitable treatment, and non-
 | --- | --- |
 | Ethics and anti-bribery | Within 60 days of hire; annually thereafter |
 | Information security awareness | Within 30 days of hire; annually thereafter |
-| Data protection / privacy | Within 60 days of hire; annually thereafter |
+| Data protection / privacy | Within 30 days of hire; annually thereafter |
 | Responsible AI | Within 60 days of hire for applicable roles; annually thereafter |
 
 Training completion is tracked and reported annually to the ERC and relevant compliance bodies.
