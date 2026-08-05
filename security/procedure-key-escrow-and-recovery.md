@@ -2,7 +2,7 @@
 
 **Document Title:** Key Escrow and Recovery Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.8\
+**Version:** 1.0.9\
 **Date:** 2026-08-05\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -209,7 +209,7 @@ Where the affected key is in scope of the post-quantum cryptography roadmap:
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 27002:2022 | §8.24 | Use of cryptography |
+| ISO/IEC 27002:2022 | §8.24: Use of cryptography | Cryptographic controls |
 | NIST SP 800-57 Part 1 Rev. 5 | Recommendation for Key Management | Key lifecycle |
 | NIST SP 800-130 | A Framework for Designing Cryptographic Key Management Systems | CKMS design |
 | NIST SP 800-152 | A Profile for U.S. Federal Cryptographic Key Management Systems | Federal profile reference |

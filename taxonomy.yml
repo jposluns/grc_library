@@ -5579,7 +5579,7 @@ documents:
   domain: "security"
   type: "Procedure"
   title: "Key Escrow and Recovery Procedure"
-  version: "1.0.8"
+  version: "1.0.9"
   date: "2026-08-05"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"
