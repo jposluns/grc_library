@@ -2,8 +2,8 @@
 
 **Document Title:** Mergers and Acquisitions Due Diligence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.2\
-**Date:** 2026-07-02\
+**Version:** 1.0.3\
+**Date:** 2026-08-05\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/procedure-grc-programme-management-and-annual-review.md`](../governance/procedure-grc-programme-management-and-annual-review.md), [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`supply-chain/procedure-supplier-due-diligence.md`](../supply-chain/procedure-supplier-due-diligence.md), [`privacy/template-transfer-impact-assessment.md`](../privacy/template-transfer-impact-assessment.md), [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md)\
@@ -135,7 +135,7 @@ The due-diligence checklist outcomes, the red-flag and deal-breaker register, th
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO 31000:2018 | Risk management principles and guidelines | The risk-assessment discipline applied to the transaction. |
+| ISO 31000:2018 | Risk management: Guidelines | The risk-assessment discipline applied to the transaction. |
 | ISO 37301:2021 | Compliance management systems | The compliance-obligation and regulatory dimensions of due diligence. |
 | COBIT 2019 | EDM03 (ensured risk optimization), APO12 (managed risk), BAI05 (managed organizational change) | Governance of transaction risk and the post-close organizational change. |
 | NIST CSF 2.0 | GV (Govern) function | Governance and risk-management outcomes assessed and integrated through the transaction. |

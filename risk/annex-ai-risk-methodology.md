@@ -2,8 +2,8 @@
 
 **Document Title:** AI-Specific Risk Methodology Annex\
 **Document Type:** Annex\
-**Version:** 1.0.5\
-**Date:** 2026-07-11\
+**Version:** 1.0.6\
+**Date:** 2026-08-05\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`ai/register-ai-risk.md`](../ai/register-ai-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](../ai/standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-model-lifecycle-management.md`](../ai/procedure-ai-model-lifecycle-management.md), [`ai/procedure-ai-audit.md`](../ai/procedure-ai-audit.md), [`ai/framework-ai-model-documentation-and-transparency.md`](../ai/framework-ai-model-documentation-and-transparency.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -144,7 +144,7 @@ The following events must trigger an unscheduled AI risk review:
 |---|---|---|
 | **EU AI Act** | Risk-tiered obligations; prohibited systems list; high-risk system requirements; conformity assessment | EU market; global operators with EU users |
 | **Canada (Treasury Board Directive on Automated Decision-Making in force; AIDA lapsed)** | Algorithmic impact assessment and transparency for federal automated decision systems; AIDA's proposed high-impact AI regime lapsed at the 2025-01-06 prorogation and is not in force | Canadian operations; Canadian personal data |
-| **UK AI approach** | Principles-based; sector regulator-led; cross-sector AI Safety Institute oversight | UK operations and markets |
+| **UK AI approach** | Principles-based; sector regulator-led; cross-sector AI Security Institute oversight | UK operations and markets |
 | **GDPR / UK GDPR** | Automated decision-making rights (Article 22); purpose limitation in training data; Data Protection Impact Assessments for AI | Processing EU/UK personal data |
 | **CPPA (Canada, proposed)** | Algorithmic transparency obligations; automated decision explanation rights | Canadian personal data processing |
 | **PIPL (China)** | Automated decision-making transparency; user right to refuse profiling | Processing data of individuals in China |
