@@ -2,7 +2,7 @@
 
 **Document Title:** Personnel Security Screening Standard\
 **Document Type:** Standard\
-**Version:** 1.0.4\
+**Version:** 1.0.5\
 **Date:** 2026-08-05\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -41,7 +41,7 @@ This standard supports the Identity and Access Management Policy, the Informatio
 | **Human Resources** | Initiates and manages the screening process; maintains screening records; notifies the Hiring Manager and CISO of any adverse findings. |
 | **Chief Information Security Officer (CISO)** | Defines screening requirements for security-sensitive roles; reviews adverse findings for roles with privileged access. |
 | **Hiring Manager** | Confirms role classification and security sensitivity before hire; approves any conditional onboarding pending screening completion. |
-| **Legal Counsel** | Advises on applicable privacy law constraints on background check scope by jurisdiction. |
+| **Legal Counsel** | Advises on applicable legal constraints (privacy, police-record-check, and consumer-reporting law) on background check scope by jurisdiction. |
 
 ---
 

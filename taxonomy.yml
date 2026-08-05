@@ -5381,7 +5381,7 @@ documents:
   domain: "security"
   type: "Standard"
   title: "Personnel Security Screening Standard"
-  version: "1.0.4"
+  version: "1.0.5"
   date: "2026-08-05"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"
