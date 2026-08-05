@@ -2,7 +2,7 @@
 
 **Document Title:** Audit Planning Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.6\
+**Version:** 1.0.7\
 **Date:** 2026-08-05\
 **Owner:** Chief Audit Executive\
 **Approving Authority:** Governance Library Maintainer\
@@ -38,7 +38,7 @@
 
 This procedure operationalizes the Internal Audit Standard (compliance/standard-internal-audit.md) by defining the specific steps, responsibilities, templates, and timelines required to plan, prepare, execute, and report on individual internal audits and the overall annual audit programme.
 
-It provides practical guidance to the GRC Programme Manager, audit team members, and auditees on what to do at each stage of the audit lifecycle, ensuring consistency, completeness, and alignment with ISO 19011:2026 §5.4 (Establishing the audit programme) and §6.2 to 6.3 (Initiating and preparing the audit).
+It provides practical guidance to the GRC Programme Manager, audit team members, and auditees on what to do at each stage of the audit lifecycle, ensuring consistency, completeness, and alignment with ISO 19011:2026 Clause 5 (Managing an audit programme, especially §5.4 Establishing the audit programme) and §6.2 to 6.6 (initiating, preparing, conducting, reporting on, and completing the individual audit).
 
 ### 1.2 Scope
 
