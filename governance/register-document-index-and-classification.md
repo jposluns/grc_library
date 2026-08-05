@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.99\
+**Version:** 1.27.100\
 **Date:** 2026-08-05\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -259,8 +259,8 @@ Documents are classified by their **primary** disposition. The small number that
 | Security | Procedure | Cryptographic Key Operations Procedure | [`security/procedure-cryptographic-key-operations.md`](../security/procedure-cryptographic-key-operations.md) | Chief Information Security Officer | Annual | ISO/IEC 27002 §8.24 to 28, NIST SP 800-57, NIST FIPS 140-3, CSA CCM CEK | template |
 | Security | Procedure | Identity Management Procedure | [`security/procedure-identity-management.md`](../security/procedure-identity-management.md) | Chief Information Security Officer | Annual | ISO/IEC 27002 §5.16 to 17, NIST SP 800-53 IA, CSA CCM IAM, NIST SP 800-207 | template |
 | Security | Procedure | Security Disciplinary Process Procedure | [`security/procedure-security-disciplinary-process.md`](../security/procedure-security-disciplinary-process.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.6.4, ISO/IEC 27002 §6.4, NIST SP 800-53 PS-8 | template |
-| Security | SOP | Incident Escalation Matrix | [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md) | Chief Information Security Officer | Annual | ISO/IEC 27035:2023, NIST SP 800-61r3, COBIT DSS02, CSA CCM SEF-07 | template |
-| Security | SOP | Security Ticket Reporting Scheme | [`security/sop-security-ticket-reporting-scheme.md`](../security/sop-security-ticket-reporting-scheme.md) | Chief Information Security Officer | Annual | ISO/IEC 27035:2023, NIST SP 800-61r3, COBIT DSS02 | template |
+| Security | SOP | Incident Escalation Matrix | [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md) | Chief Information Security Officer | Annual | ISO/IEC 27035-1:2023, NIST SP 800-61r3, COBIT DSS02, CSA CCM SEF-07 | template |
+| Security | SOP | Security Ticket Reporting Scheme | [`security/sop-security-ticket-reporting-scheme.md`](../security/sop-security-ticket-reporting-scheme.md) | Chief Information Security Officer | Annual | ISO/IEC 27035-2:2023, NIST SP 800-61r3, COBIT DSS02 | template |
 | Security | Roadmap | Post-Quantum Cryptography Readiness Roadmap | [`security/roadmap-post-quantum-cryptography.md`](../security/roadmap-post-quantum-cryptography.md) | Chief Information Security Officer | Annual | NIST SP 800-208, NIST FIPS 203/204/205, NSA CNSA 2.0, ISO/IEC 27001 Annex A.8.24 | template |
 | Security | Framework | Zero Trust Architecture Framework | [`security/framework-zero-trust-architecture.md`](../security/framework-zero-trust-architecture.md) | Chief Information Security Officer | Annual | NIST SP 800-207, NIST SP 800-207A, CISA ZTMM 2.0, OMB M-22-09, DoD ZT RA, ISO/IEC 27001, CSA SDP | template |
 | Security | Standard | Email Security Standard | [`security/standard-email-security.md`](../security/standard-email-security.md) | Chief Information Security Officer | Annual | RFC 7208/6376/7489, BIMI, RFC 8460/8461, NIST SP 800-177r1, ISO/IEC 27001 Annex A.5.14/A.8.21/A.8.23 | template |
