@@ -2,8 +2,8 @@
 
 **Document Title:** Encryption and Key Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.14\
-**Date:** 2026-07-25\
+**Version:** 1.3.15\
+**Date:** 2026-08-05\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -206,7 +206,7 @@ Lessons learned from incidents or audits feed into the continual improvement cyc
 
 | Framework | Reference |
 |---|---|
-| ISO/IEC 27002:2022 | §§8.24 to 8.28: Cryptographic Controls |
+| ISO/IEC 27002:2022 | §8.24: Use of cryptography |
 | COBIT 2019 | DSS05.03: Protect Against Data Leakage |
 | CSA CCM v4.1 | CEK-01: Encryption and Key Management |
 | NIST SP 800-57 | Key Management Guidelines |

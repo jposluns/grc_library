@@ -290,7 +290,7 @@ result, _ := doSomethingImportant()  // silent failure risk
 | Template injection / XSS | V1.3.7, V1.2.1 | PW.6 | A.8.28 |
 | Command injection | V1.2.5 | PW.6 | A.8.28 |
 | Path traversal | V5.3.2 | PW.6 | A.8.28 |
-| Cryptography | V11 | PW.7 | A.8.24 to 8.25 |
+| Cryptography | V11 | PW.7 | A.8.24 |
 | TLS configuration | V12 | N/A | A.8.24 |
 | Error handling | V16 | RV.1 | A.8.15 |
 | Dependency management | V15.2 | PO.5, PW.4 | A.8.8 |
