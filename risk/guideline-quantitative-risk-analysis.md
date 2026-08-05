@@ -2,7 +2,7 @@
 
 **Document Title:** Quantitative Risk Analysis Guideline\
 **Document Type:** Guideline\
-**Version:** 1.0.5\
+**Version:** 1.0.6\
 **Date:** 2026-08-05\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -61,28 +61,23 @@ LEF estimates how often a loss event is expected to occur per year. It is derive
 
 LM estimates the expected financial impact per loss event. It is composed of:
 
-| Loss Form | Description | Examples |
+| Loss type | Description | Examples |
 |---|---|---|
 | **Primary Loss** | Direct losses experienced by the organization | Response costs; system recovery; downtime; data reconstruction |
 | **Secondary Loss** | Downstream losses from secondary stakeholders | Regulatory fines; litigation; customer compensation; reputational damage |
 
-#### Primary loss components
+#### Forms of loss
 
-| Component | Definition |
-|---|---|
-| **Productivity loss** | Revenue or operational value lost during disruption |
-| **Response costs** | Incident response, forensics, containment, remediation |
-| **Replacement costs** | Hardware, software, or data restoration costs |
-| **Competitive advantage loss** | Loss of intellectual property or market position |
+FAIR defines six forms of loss. A form is *primary* when it arises directly from the loss event and *secondary* when it arises from the reactions of secondary stakeholders (regulators, customers, shareholders, business partners). The classification is scenario-dependent: any form can appear as primary or secondary depending on the event, so the placement column below records the common case, not a fixed rule.
 
-#### Secondary loss components
-
-| Component | Definition |
-|---|---|
-| **Regulatory fines and penalties** | Fines from regulators (e.g., ICO, CNIL, CBP) for non-compliance |
-| **Litigation costs** | Legal defence, settlements, judgements |
-| **Reputation damage** | Customer attrition, brand remediation, PR costs |
-| **Contract penalties** | SLA breach penalties; customer contract terminations |
+| Form of loss | Definition | Common placement |
+|---|---|---|
+| **Productivity** | Revenue or operational value lost during disruption | Usually primary |
+| **Response** | Incident response, forensics, containment, remediation, notification | Usually primary |
+| **Replacement** | Repairing or replacing damaged assets, data, or systems | Usually primary |
+| **Competitive advantage** | Loss of intellectual property, trade secrets, or market position | Either |
+| **Fines and judgements** | Regulatory fines (e.g., ICO, CNIL, CBP), legal settlements, judgements, contractual penalties | Usually secondary |
+| **Reputation** | Customer attrition, brand remediation, lost future revenue from stakeholder reaction | Usually secondary |
 
 ---
 
@@ -103,6 +98,8 @@ For teams without simulation tools, use the following approximation:
 ```
 Expected Value = (Min + 4 × Most Likely + Max) / 6
 ```
+
+This PERT-mean approximation treats Minimum and Maximum as the distribution's support bounds. Where they are the calibrated 5th and 95th percentiles defined above, it is a rough central estimate only: a Monte Carlo tool fits the distribution to those percentiles for tail-accurate results.
 
 ---
 
@@ -129,6 +126,8 @@ Start from a qualitatively identified risk in the enterprise risk register. Defi
 - LEF: 0.04 to 1.8 events per year (ML: 0.36)
 
 ### Step 3: Estimate primary loss magnitude
+
+Estimate the forms of loss that occur directly in this scenario (here: productivity, response, replacement).
 
 | Sub-Step | Action |
 |---|---|

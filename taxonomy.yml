@@ -4840,7 +4840,7 @@ documents:
   domain: "risk"
   type: "Guideline"
   title: "Quantitative Risk Analysis Guideline"
-  version: "1.0.5"
+  version: "1.0.6"
   date: "2026-08-05"
   owner: "Chief Risk Officer"
   approving_authority: "Governance Library Maintainer"
