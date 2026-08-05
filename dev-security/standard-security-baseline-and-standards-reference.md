@@ -2,8 +2,8 @@
 
 **Document Title:** Security Baseline and Standards Reference\
 **Document Type:** Standard\
-**Version:** 1.1.14\
-**Date:** 2026-07-30\
+**Version:** 1.1.15\
+**Date:** 2026-08-05\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md)\
@@ -32,7 +32,7 @@ In the event of conflict, higher layers take precedence.
 
 | Obligation | Jurisdiction | Relevance |
 | --- | --- | --- |
-| PIPEDA / Bill C-27 / Quebec Law 25 | Canada | Personal data processing, breach notification, data residency |
+| PIPEDA / Quebec Law 25 | Canada | Personal data processing, breach notification, data residency |
 | Canada AI governance (Treasury Board Directive on Automated Decision-Making; Voluntary Code of Conduct on Generative AI; AIDA lapsed) | Canada | AI system governance; high-impact AI (AIDA not in force; the Treasury Board Directive on Automated Decision-Making is binding on federal institutions) |
 | Criminal Code of Canada (cybercrime provisions) | Canada | Unauthorized access, data destruction |
 | State and provincial breach notification laws | Multiple | Customer and partner data exposure |
