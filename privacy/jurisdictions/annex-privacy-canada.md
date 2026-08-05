@@ -2,8 +2,8 @@
 
 **Document Title:** Canada Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.4\
-**Date:** 2026-07-18\
+**Version:** 1.1.5\
+**Date:** 2026-08-05\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -86,7 +86,7 @@ This annex defines privacy and AI regulatory requirements applicable to processi
 ### Adequacy
 
 - Canada (private-sector organizations subject to PIPEDA) benefits from an EU adequacy decision.
-- Bill C-27/CPPA would introduce updated transfer mechanisms more closely aligned with GDPR-style adequacy and contractual mechanisms.
+- Bill C-27, which would have introduced updated transfer mechanisms (via the Consumer Privacy Protection Act) more closely aligned with GDPR-style adequacy and contractual mechanisms, lapsed at the 2025-01-06 prorogation and is not in force; PIPEDA's existing mechanisms remain.
 
 ---
 
