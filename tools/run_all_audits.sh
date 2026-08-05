@@ -179,6 +179,7 @@ run_gate "Playbook-pointer-integrity audit"                  python3 tools/lint-
 run_gate "Backlog list-tag audit"                          python3 tools/lint-todo-list-tag.py
 run_gate "Ungated-surface dash audit"                       python3 tools/lint-ungated-dashes.py
 run_gate "Publication-manifest sync audit"                 python3 tools/lint-publication-manifest.py
+run_gate "Narrative metadata audit"                      python3 tools/lint-narrative-metadata.py
 
 # ----------------------------------------------------------------------
 # Summary

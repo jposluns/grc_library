@@ -444,6 +444,7 @@ def main(argv: list[str]) -> int:
         "NOTICE.md",
         "specification-master-project.md",
         "specification-ingestion.md",
+        "specification-executive-narrative.md",
         "instruction-ai-document-ingestion.md",
         "docs",
         # Domain run splatted from lint_common (scan-scope parity gate

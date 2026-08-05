@@ -1651,6 +1651,18 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          f"gate --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
         self.assertIn("self-test: ", result.stdout)
 
+    def test_lint_narrative_metadata_self_test(self) -> None:
+        """Gate 84's own self-test. The narrative metadata gate's eleven-check ``audit_page`` logic
+        runs against ZERO real pages today (the live ``executive/`` tree holds only the exempted
+        entry-point README), so its per-failure-class detection is exercised here (a valid page plus a case per known failure class)
+        (guardrail-review r18 MEDIUM-1: the gate shipped wired but without a fixture)."""
+        result = self._run_selftest(
+            [sys.executable, str(REPO_ROOT / "tools" / "lint-narrative-metadata.py"), "--self-test"]
+        )
+        self.assertEqual(result.returncode, 0,
+                         f"gate --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        self.assertIn("self-test: ", result.stdout)
+
     def test_block_unknown_worker_model_hook_self_test(self) -> None:
         """The 3.194 model-validity guard's own self-test, wired here (its introduction PR #1319
         shipped the self-test but not this CI wiring; a fail-open guard that rots is worse than none)."""
