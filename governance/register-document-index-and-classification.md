@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.104\
+**Version:** 1.27.105\
 **Date:** 2026-08-05\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -235,7 +235,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Supply Chain | Procedure | Supplier Due Diligence Procedure | [`supply-chain/procedure-supplier-due-diligence.md`](../supply-chain/procedure-supplier-due-diligence.md) | Supplier Risk Maintainer | Annual | ISO 28000, BASC v6, PIP, CTPAT, third-party risk assessment | template |
 | Supply Chain | Procedure | Supplier Audit Procedure | [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md) | Supplier Risk Maintainer | Annual | ISO 19011:2026, ISO 28000, BASC §9.2, tiered audit cadence | template |
 | Supply Chain | Procedure | Third-Party AI Due Diligence Procedure | [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md) | Supplier Risk Maintainer | 6 to 12 months | EU AI Act, ISO/IEC 42001, NIST AI RMF, OWASP LLM Top 10, AI supply chain | template |
-| Supply Chain | Standard | Cloud Exit and Data Portability Standard | [`supply-chain/standard-cloud-exit-and-data-portability.md`](../supply-chain/standard-cloud-exit-and-data-portability.md) | Chief Information Security Officer | Annual | CSA CCM v4.1 IPY-01 to 05, ISO/IEC 27001 Annex A.5.20, GDPR Art 20, NIST SP 800-53 SA-9 | template |
+| Supply Chain | Standard | Cloud Exit and Data Portability Standard | [`supply-chain/standard-cloud-exit-and-data-portability.md`](../supply-chain/standard-cloud-exit-and-data-portability.md) | Chief Information Security Officer | Annual | CSA CCM v4.1 IPY-01 to 04, ISO/IEC 27001 Annex A.5.20, GDPR Art 20, NIST SP 800-53 SA-9 | template |
 | Governance | Framework | Human Capital and Ethical Conduct Framework | [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md) | Chief Information Officer | Annual | ISO 37001:2025, ISO 37301, CAN/DGSI 101, OECD AI Principles, COBIT APO07 | template |
 | Governance | Framework | Sustainability and Responsible Technology Framework | [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md) | Chief Information Officer | Annual | ISO 50001, ISO 26000, OECD Digital Security Framework, UN SDGs, CSA AICM v1.1 | template |
 | Governance | Policy | Digital Twin and Simulation Governance Policy | [`governance/policy-digital-twin-and-simulation-governance.md`](policy-digital-twin-and-simulation-governance.md) | Chief Information Officer | Annual | ISO/IEC 42001 §8, ISO/IEC 27001, ISO 23247, NIST SP 800-82r3 | template |
