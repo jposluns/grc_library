@@ -34,7 +34,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from lint_common import METADATA_FIELD_RE, REPO_ROOT, is_narrative_root, read_text_safe
+from lint_common import METADATA_FIELD_RE, REPO_ROOT, is_narrative_root, parse_iso_date, read_text_safe
 
 NARRATIVE_DOCUMENT_TYPE = "Executive Narrative"
 ENTRY_POINT = "executive/README.md"  # the single named non-narrative-page exemption
@@ -91,6 +91,16 @@ CORPUS_DOMAIN_PREFIXES = (
     "ai/", "architecture/", "compliance/", "dev-security/", "governance/",
     "operations/", "privacy/", "resilience/", "risk/", "security/", "supply-chain/",
 )
+# Root-level corpus documents (the corpus metadata gate's by-name root scan set,
+# mirrored here so a body link to a ROOT corpus doc is covered by pin-completeness too;
+# keep in sync with the by-name list in tools/lint-metadata.py main()).
+ROOT_CORPUS_DOCS = frozenset({
+    "README.md", "NOTICE.md", "specification-master-project.md",
+    "specification-ingestion.md", "specification-executive-narrative.md",
+    "instruction-ai-document-ingestion.md",
+})
+# The closed Claim Classes Present vocabulary (spec claim-classes section).
+CLAIM_CLASSES = frozenset({"citation", "sourced", "composite"})
 
 
 def parse_metadata_block(text: str) -> tuple[list[str], dict[str, str]]:
@@ -225,6 +235,18 @@ def audit_page(path: Path) -> list[str]:
     for t in sorted(dupes):
         findings.append(f"{rel}: duplicate Corpus Sources pin on the same target: {t}")
 
+    # Closed-vocabulary / typed value validation for extension fields (defence-in-depth
+    # beyond the presence checks above; the constraints are stated in the spec's metadata
+    # and claim-classes sections though Gates item 4 enumerates only Narrative Type/Status).
+    claim_classes = meta.get("Claim Classes Present")
+    if claim_classes is not None:
+        for tok in (t.strip() for t in claim_classes.split(",")):
+            if tok and tok not in CLAIM_CLASSES:
+                findings.append(f"{rel}: Claim Classes Present value {tok!r} not one of {sorted(CLAIM_CLASSES)}")
+    last_reval = meta.get("Last Revalidated")
+    if last_reval is not None and parse_iso_date(last_reval) is None:
+        findings.append(f"{rel}: Last Revalidated {last_reval!r} is not an ISO 8601 (YYYY-MM-DD) date")
+
     # Body-link/pin completeness: a body corpus link absent from Corpus Sources is a defect.
     # Match on the FULL repo-relative corpus path (not the basename): a same-named
     # file in another domain must not count as pinned.
@@ -235,7 +257,10 @@ def audit_page(path: Path) -> list[str]:
     for m in BODY_LINK_RE.finditer(body):
         target = m.group("target")
         norm = _normalise_corpus_target(target)
-        if any(norm.startswith(p) for p in CORPUS_DOMAIN_PREFIXES):
+        # A corpus document is OUTSIDE executive/, so a corpus body link must traverse up ("../");
+        # a bare basename is a sibling inside executive/ (e.g. the entry-point README), not corpus.
+        goes_up = target.strip().startswith(("../", "..\\"))
+        if goes_up and (any(norm.startswith(p) for p in CORPUS_DOMAIN_PREFIXES) or norm in ROOT_CORPUS_DOCS):
             if norm not in pinned_norm:
                 findings.append(f"{rel}: body links corpus document {target!r} not present in Corpus Sources pins")
 
@@ -314,6 +339,11 @@ Body cites [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodolo
         ("decision-duppin.md", valid.replace("**Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)@1.0.6", "**Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)@1.0.6, [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)@1.0.6"), "duplicate Corpus Sources pin"),
         ("decision-unpinnedbody.md", valid.replace("Body cites [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md).", "Body links [`governance/charter-governance-library.md`](../governance/charter-governance-library.md)."), "not present in Corpus Sources"),
         ("decision-nobreak.md", valid.replace("**Version:** 0.0.1\\", "**Version:** 0.0.1"), "missing trailing backslash"),
+        ("decision-badclaimclass.md", valid.replace("**Claim Classes Present:** citation", "**Claim Classes Present:** citation, bogus"), "Claim Classes Present value"),
+        ("decision-badlastreval.md", valid.replace("**Last Revalidated:** 2026-08-05", "**Last Revalidated:** 2026-13-99"), "not an ISO 8601"),
+        ("decision-rootcorpusbody.md", valid.replace("Body cites [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md).", "Body cites [`specification-master-project.md`](../specification-master-project.md)."), "not present in Corpus Sources"),
+        ("decision-noneclaimclass.md", valid.replace("**Claim Classes Present:** citation", "**Claim Classes Present:** None"), "Claim Classes Present value"),
+        ("decision-siblingreadme.md", valid.replace("Body cites [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md).", "Body cites [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md) and the entry point [README](README.md)."), None),
     ]
     failures: list[str] = []
     with tempfile.TemporaryDirectory() as td:
