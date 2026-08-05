@@ -2,7 +2,7 @@
 
 **Document Title:** Continuous Assurance and Improvement Framework\
 **Document Type:** Framework\
-**Version:** 1.1.1\
+**Version:** 1.1.2\
 **Date:** 2026-08-05\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
@@ -28,7 +28,7 @@ It ensures that ongoing monitoring, evaluation, and improvement activities are c
 
 1. Applies to all enterprise governance domains, including information security, privacy, AI ethics, sustainability, ESG, and BASC trade compliance.
 2. Covers assurance mechanisms for control effectiveness, process maturity, and regulatory compliance.
-3. Includes AI governance maturity monitoring under ISO/IEC 42001 §10 and digital trust indicators per COBIT 2019.
+3. Includes AI governance maturity monitoring under ISO/IEC 42001 §9.1 and digital trust indicators per COBIT 2019.
 4. Encompasses global operations, including BASC-certified trade and logistics activities.
 
 ---
@@ -100,7 +100,7 @@ The organization must track and improve:
 - Security resilience and service availability.
 - Ethical accountability and stakeholder confidence.
 
-### 4.2 AI performance and maturity kpis (ISO/IEC 42001 §10)
+### 4.2 AI performance and maturity kpis (ISO/IEC 42001 §9.1)
 
 - Percentage of AI models passing fairness and robustness thresholds.
 - Explainability compliance rate for deployed AI systems.
@@ -179,7 +179,7 @@ Performance data from all assurance activities feed into the Governance Performa
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ISO 9001:2015 | §10: Continual Improvement | Improvement cycle structure |
-| ISO/IEC 42001:2023 | §10: Improvement | AI governance maturity KPIs |
+| ISO/IEC 42001:2023 | §9.1: Monitoring, measurement, analysis and evaluation | AI governance maturity KPIs |
 | ISO/IEC 27001:2022 | §10: Continual Improvement | Security assurance integration |
 | COBIT 2019 | MEA01: Managed Performance and Conformance Monitoring | Performance governance, digital trust |
 | COBIT 2019 | Digital Trust Indicators | Governance maturity metrics |

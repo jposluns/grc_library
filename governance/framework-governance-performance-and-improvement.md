@@ -2,7 +2,7 @@
 
 **Document Title:** Governance Performance and Improvement Framework\
 **Document Type:** Framework\
-**Version:** 1.0.8\
+**Version:** 1.0.9\
 **Date:** 2026-08-05\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
@@ -46,7 +46,7 @@ Annual maturity assessments are conducted across all governance domains using a 
 | 4: Quantitatively Managed | Processes measured with quantitative objectives; statistical controls applied. |
 | 5: Optimized | Continuous process improvement through incremental and innovative change. |
 
-AI governance maturity includes ISO/IEC 42001 Clause 10 indicators covering explainability, fairness, and accountability.
+AI governance maturity includes ISO/IEC 42001 Clause 9.1 indicators covering explainability, fairness, and accountability.
 
 The methodology behind this ladder, the median-of-medians aggregation, its outlier-masking limitation, and the compensating floor-check the assessor applies, is documented in [`governance/standard-maturity-assessment-methodology.md`](standard-maturity-assessment-methodology.md).
 
@@ -60,7 +60,7 @@ Follows the Plan-Do-Check-Act (PDCA) model. All improvement initiatives are logg
 
 ### 5. AI governance maturity and digital trust metrics
 
-AI governance KPIs per ISO/IEC 42001 Clause 10 include:
+AI governance KPIs per ISO/IEC 42001 Clause 9.1 (Monitoring, measurement, analysis and evaluation) include:
 - Model auditability and documentation completeness.
 - Explainability and user transparency.
 - Bias mitigation and fairness testing frequency.
@@ -100,7 +100,7 @@ COBIT 2019 Digital Trust Indicators are applied across data, process, and techno
 | --- | --- | --- |
 | ISO 9001:2015 | §9 to 10: Performance Evaluation and Improvement | PDCA cycle, management review |
 | ISO/IEC 27001:2022 | §10: Continual Improvement | Security governance improvement |
-| ISO/IEC 42001:2023 | §10: Improvement | AI maturity KPIs |
+| ISO/IEC 42001:2023 | §9.1: Monitoring, measurement, analysis and evaluation | AI maturity KPIs |
 | COBIT 2019 | MEA01: Managed Performance and Conformance Monitoring | Performance governance |
 | COBIT 2019 | Digital Trust Indicators | Maturity and stakeholder confidence |
 

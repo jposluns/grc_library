@@ -2,7 +2,7 @@
 
 **Document Title:** Digital Trust and Assurance Metrics Register\
 **Document Type:** Register\
-**Version:** 1.1.1\
+**Version:** 1.1.2\
 **Date:** 2026-08-05\
 **Owner:** Assurance Metrics Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -147,7 +147,7 @@ The **per-control effectiveness metric** measures the sustained effectiveness of
 | --- | --- | --- |
 | COBIT 2019 | MEA01, MEA02: Performance and conformance monitoring; system of internal control | KPI governance, digital trust indicators |
 | ISO 9001:2015 | §9 to 10: Measurement, analysis, and improvement | Continual improvement metrics |
-| ISO/IEC 42001:2023 | §10: Improvement | AI governance KPIs |
+| ISO/IEC 42001:2023 | §9.1: Monitoring, measurement, analysis and evaluation | AI governance KPIs |
 | ISO/IEC 27014 | Governance of information security | Security governance performance measurement |
 | CSA CCM v4.1 | A&A-02: Independent Assessments | Assurance coverage metrics |
 
