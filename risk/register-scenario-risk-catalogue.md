@@ -2,8 +2,8 @@
 
 **Document Title:** Scenario Risk Catalogue\
 **Document Type:** Register\
-**Version:** 1.0.2\
-**Date:** 2026-07-02\
+**Version:** 1.0.3\
+**Date:** 2026-08-05\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-operational-risk-register.md`](template-operational-risk-register.md), [`risk/guideline-quantitative-risk-analysis.md`](guideline-quantitative-risk-analysis.md), [`resilience/template-tabletop-exercise.md`](../resilience/template-tabletop-exercise.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -265,7 +265,7 @@ For regulated organizations, the severe-but-plausible level aligns with operatio
 | Bank of England / PRA SS1/21 | Operational resilience for financial services | Severe-but-plausible expectations |
 | DORA | Articles 24 to 27 (digital operational resilience testing) | EU financial services |
 | TIBER-EU | Threat intelligence-based ethical red teaming | Cyber resilience testing |
-| NIST CSF 2.0 | Govern, Identify, Detect, Respond, Recover | Risk function alignment |
+| NIST CSF 2.0 | Govern, Identify, Protect, Detect, Respond, Recover | Risk function alignment |
 | ENISA Guidelines | Cyber incident scenarios | EU baseline |
 
 ---

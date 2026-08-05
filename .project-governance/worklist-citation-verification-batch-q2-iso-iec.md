@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Worklist: Batch Q2 (ISO and ISO/IEC)\
 **Document Type:** Worklist\
-**Version:** 1.0.1\
-**Date:** 2026-06-25\
+**Version:** 1.0.2\
+**Date:** 2026-08-05\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](../governance/specification-citation-verification.md), [`governance/template-citation-verification-worklist.md`](../governance/template-citation-verification-worklist.md), [`.project-governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](../governance/register-canonical-citations.md)\
@@ -94,13 +94,13 @@ These flags are AI-verifier orientation, not verification. The human verifier sh
 | ISO/IEC 27001 | ISO | `https://www.iso.org/standard/27001` | `https://www.iso.org/search.html?q=ISO%2FIEC+27001` | all | Current: 2022; published 2022-10; topic: Information security management systems - requirements; supersedes 2013 |  |  |  |  |  |  |  |  |  | Canonical IS standard. |
 | ISO/IEC 27002 | ISO | `https://www.iso.org/standard/75652.html` | `https://www.iso.org/search.html?q=ISO%2FIEC+27002` | all | Current: 2022; published 2022-02; topic: Information security controls; supersedes 2013 |  |  |  |  |  |  |  |  |  | A.5-A.8 control set foundation. |
 | ISO/IEC 27005 | ISO | `https://www.iso.org/standard/80585.html` | `https://www.iso.org/search.html?q=ISO%2FIEC+27005` | all | Current: 2022; published 2022-10; topic: Information security risk management; supersedes 2018 |  |  |  |  |  |  |  |  |  |  |
-| ISO/IEC 27017 | ISO | `https://www.iso.org/standard/43757.html` | `https://www.iso.org/search.html?q=ISO%2FIEC+27017` | all | Current: 2015; published 2015-12; topic: Cloud-service-specific information security controls; no superseded versions recorded |  |  |  |  |  |  |  |  |  | Confirm no later edition has been published. |
+| ISO/IEC 27017 | ISO | `https://www.iso.org/standard/43757.html` | `https://www.iso.org/search.html?q=ISO%2FIEC+27017` | all | Current: 2026; published 2026-07; topic: Information security controls based on ISO/IEC 27002 for cloud services; superseded 2015 |  |  |  |  |  |  |  |  |  | Confirm no later edition has been published. |
 | ISO/IEC 27018 | ISO | `https://www.iso.org/standard/76559.html` | `https://www.iso.org/search.html?q=ISO%2FIEC+27018` | all | Current: 2019; published 2019-01; topic: Protection of PII in public clouds acting as PII processors; no superseded versions recorded |  |  |  |  |  |  |  |  |  | Confirm no later edition. |
 | ISO/IEC 27033 | ISO | `https://www.iso.org/standard/63461.html` | `https://www.iso.org/search.html?q=ISO%2FIEC+27033` | all | Current: 2020; topic: Network security architecture and segmentation; no superseded versions recorded |  |  |  |  |  |  |  |  |  | Multi-part standard; capture which part(s) are at 2020 and which are at later years. |
 | ISO/IEC 27036-2 | ISO | `https://www.iso.org/standard/59680.html` | `https://www.iso.org/search.html?q=ISO%2FIEC+27036-2` | all | Current: 2014; published 2014-08; topic: Information security for supplier relationships; no superseded versions recorded |  |  |  |  |  |  |  |  |  | Verify the 2014 edition is current and that no 2022+ revision has superseded. |
 | ISO/IEC 27701 | ISO | `https://www.iso.org/standard/71670.html` | `https://www.iso.org/search.html?q=ISO%2FIEC+27701` | all | Current: 2019; published 2019-08; topic: Privacy information management extension to ISO/IEC 27001 |  |  |  |  |  |  |  |  |  | Confirm 2025 revision (if any) has not superseded. |
 | ISO 22301 | ISO | `https://www.iso.org/standard/75106.html` | `https://www.iso.org/search.html?q=ISO+22301` | all | Current: 2019; published 2019-10; topic: Business continuity management systems |  |  |  |  |  |  |  |  |  |  |
-| ISO 31000 | ISO | `https://www.iso.org/standard/65694.html` | `https://www.iso.org/search.html?q=ISO+31000` | all | Current: 2018; published 2018-02; topic: Risk management: principles and guidelines |  |  |  |  |  |  |  |  |  |  |
+| ISO 31000 | ISO | `https://www.iso.org/standard/65694.html` | `https://www.iso.org/search.html?q=ISO+31000` | all | Current: 2018; published 2018-02; topic: Risk management: Guidelines |  |  |  |  |  |  |  |  |  |  |
 | ISO/IEC 38500 | ISO | `https://www.iso.org/standard/81684.html` | `https://www.iso.org/search.html?q=ISO%2FIEC+38500` | all | Current: 2024; published 2024; topic: Governance of IT for the organization; supersedes 2015 | _Flagged in §3.6._ |  |  |  |  |  |  |  |  |  |
 | ISO/IEC 23894 | ISO | `https://www.iso.org/standard/77304.html` | `https://www.iso.org/search.html?q=ISO%2FIEC+23894` | all | Current: 2023; published 2023-02; topic: AI risk management guidance |  |  |  |  |  |  |  |  |  |  |
 | ISO/IEC 42001 | ISO | `https://www.iso.org/standard/81230.html` | `https://www.iso.org/search.html?q=ISO%2FIEC+42001` | all | Current: 2023; published 2023-12; topic: AI management systems: requirements |  |  |  |  |  |  |  |  |  |  |
