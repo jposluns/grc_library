@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance, Audit, and CAPA Management Policy\
 **Document Type:** Policy\
-**Version:** 1.0.15\
-**Date:** 2026-07-11\
+**Version:** 1.0.17\
+**Date:** 2026-08-05\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md)\
@@ -22,7 +22,7 @@ This policy defines the governance framework for compliance assurance, internal 
 
 It consolidates previous compliance, audit, and CAPA policies into one unified governance instrument, ensuring consistent oversight of legal, regulatory, contractual, and ethical obligations; verification of control effectiveness; and continual improvement through audit findings and remediation cycles. 
 
-The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO 19011:2018** (Auditing Guidelines), **COBIT 2019 MEA01** (Managed Performance and Conformance Monitoring), **Cloud Security Alliance (CSA)** frameworks, **NIST SP 800-53 Rev. 5 CA** family, and regulatory expectations under the **EU AI Act**. (Canada's AIDA, proposed as Part 3 of Bill C-27, lapsed at the 2025-01-06 prorogation and is not in force; the current Canadian instruments are the Treasury Board Directive on Automated Decision-Making (binding on federal institutions) and the federal Voluntary Code of Conduct on Generative AI (voluntary). U.S. Executive Order 14110 on Safe, Secure, and Trustworthy AI was rescinded on 20 January 2025 and superseded by "Removing Barriers to American Leadership in Artificial Intelligence".)
+The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO 19011:2026** (Auditing Guidelines), **COBIT 2019 MEA01** (Managed Performance and Conformance Monitoring), **Cloud Security Alliance (CSA)** frameworks, **NIST SP 800-53 Rev. 5 CA** family, and regulatory expectations under the **EU AI Act**. (Canada's AIDA, proposed as Part 3 of Bill C-27, lapsed at the 2025-01-06 prorogation and is not in force; the current Canadian instruments are the Treasury Board Directive on Automated Decision-Making (binding on federal institutions) and the federal Voluntary Code of Conduct on Generative AI (voluntary). U.S. Executive Order 14110 on Safe, Secure, and Trustworthy AI was rescinded on 20 January 2025 and superseded by "Removing Barriers to American Leadership in Artificial Intelligence".)
 
 
 
@@ -100,7 +100,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 4.7.2 Records must be securely stored in compliance with data protection and evidentiary requirements.
 
 ### 4.8 Continual improvement
-4.8.1 Audit methodologies must be reviewed annually per ISO 19011 Clause 10 and COBIT MEA01. 
+4.8.1 Audit methodologies must be reviewed annually per ISO 19011:2026 §5.7 (Reviewing and improving the audit programme) and COBIT MEA01. 
 4.8.2 Lessons learned and regulatory updates must inform training, control enhancement, and risk recalibration. 
 4.8.3 Digital trust and algorithmic assurance metrics must be integrated in accordance with COBIT 2019 MEA01.
 
@@ -109,7 +109,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 ## 5. References and framework alignment
 
 - **ISO 37301:2021** Compliance Management Systems 
-- **ISO 19011:2018** Guidelines for Auditing 
+- **ISO 19011:2026** Guidelines for Auditing 
 - **COBIT 2019 MEA01** Managed Performance and Conformance Monitoring 
 - **Cloud Security Alliance (CSA)** frameworks (GRC, A&A, AICM) 
 - **NIST SP 800-53 Rev. 5 CA** family (Assessment and Authorization) 
@@ -125,13 +125,13 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 
 | Control Area | ISO 37301 | ISO 19011 | COBIT 2019 | CSA | NIST | Legal / Regulatory | Trade and Supply Chain Programs |
 |---------------|------------|------------|-------------|------|-------|--------------------|--------------------------------|
-| Compliance governance | Clauses 5 to 6 Leadership | Clause 5 Governance | EDM01 Ensured Governance Framework Setting and Maintenance | GRC 01 to 03 | NIST CSF Govern | GDPR, PIPEDA | WCO SAFE, ISO 28000, BASC, PIP, CTPAT, AEO |
+| Compliance governance | Clauses 5 to 6 Leadership | Clause 5 Managing an audit programme | EDM01 Ensured Governance Framework Setting and Maintenance | GRC 01 to 03 | NIST CSF Govern | GDPR, PIPEDA | WCO SAFE, ISO 28000, BASC, PIP, CTPAT, AEO |
 | Compliance risk and obligations register | Clauses 6 to 7 Planning | N/A | APO12 linkage | GRC 04 | NIST RMF Prepare | Multi-jurisdiction | WCO SAFE equivalence |
-| Audit planning and execution | Clauses 8 to 9 Operation | Clauses 6 to 9 | MEA04 Managed Assurance | A&A 01 to 04 | NIST SP 800-53 CA-2, CA-5 | AI Act, sectoral laws | WCO SAFE equivalence |
-| Findings and CAPA | Clause 10 Improvement | Clause 10 Improvement | MEA01.05 Ensure the implementation of corrective actions | GRC 05, A&A 05 | NIST CA-7, IR-4 | CAPA regulations | WCO SAFE equivalence |
+| Audit planning and execution | Clauses 8 to 9 Operation | Clauses 5 to 6 (audit programme; conducting an audit) | MEA04 Managed Assurance | A&A 01 to 04 | NIST SP 800-53 CA-2, CA-5 | AI Act, sectoral laws | WCO SAFE equivalence |
+| Findings and CAPA | Clause 10 Improvement | §6.4 audit findings; §6.7 audit follow-up | MEA01.05 Ensure the implementation of corrective actions | GRC 05, A&A 05 | NIST CA-7, IR-4 | CAPA regulations | WCO SAFE equivalence |
 | AI audit and algorithmic monitoring | [Adopted in CMS] | [Guidance] | MEA01.03 Collect and process performance and conformance data | AIS 01 to 03 | NIST AI RMF Measure | EU AI Act; Treasury Board Directive (AIDA lapsed) | Not applicable |
-| Reporting and disclosure | Clause 9 Performance evaluation | Clause 6 Reporting | MEA01.04 Analyze and report performance | GRC 06 | NIST CSF Communicate | All jurisdictions | WCO SAFE equivalence |
-| Supplier and trade compliance auditing | Clauses 8 to 9 | Clauses 6 to 9 | APO10.05 Monitor vendor performance and compliance | STA 05 | NIST SP 800-161 Rev. 1 SCRM | Trade and customs laws | WCO SAFE equivalence |
+| Reporting and disclosure | Clause 9 Performance evaluation | §6.5 Preparing and distributing the audit report | MEA01.04 Analyze and report performance | GRC 06 | NIST CSF Communicate | All jurisdictions | WCO SAFE equivalence |
+| Supplier and trade compliance auditing | Clauses 8 to 9 | Clause 6 Conducting an audit | APO10.05 Monitor vendor performance and compliance | STA 05 | NIST SP 800-161 Rev. 1 SCRM | Trade and customs laws | WCO SAFE equivalence |
 
 
 

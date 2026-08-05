@@ -2,8 +2,8 @@
 
 **Document Title:** Audit Planning Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.5\
-**Date:** 2026-07-23\
+**Version:** 1.0.7\
+**Date:** 2026-08-05\
 **Owner:** Chief Audit Executive\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md)\
@@ -38,7 +38,7 @@
 
 This procedure operationalizes the Internal Audit Standard (compliance/standard-internal-audit.md) by defining the specific steps, responsibilities, templates, and timelines required to plan, prepare, execute, and report on individual internal audits and the overall annual audit programme.
 
-It provides practical guidance to the GRC Programme Manager, audit team members, and auditees on what to do at each stage of the audit lifecycle, ensuring consistency, completeness, and alignment with ISO 19011:2018 §6.2 to 6.4.
+It provides practical guidance to the GRC Programme Manager, audit team members, and auditees on what to do at each stage of the audit lifecycle, ensuring consistency, completeness, and alignment with ISO 19011:2026 Clause 5 (Managing an audit programme, especially §5.4 Establishing the audit programme) and §6.2 to 6.6 (initiating, preparing, conducting, reporting on, and completing the individual audit).
 
 ### 1.2 Scope
 
@@ -458,8 +458,8 @@ After the 7-year retention period, records are disposed of in accordance with th
 
 | Framework / Standard | Relevant Clause or Section | Mapping |
 |----------------------|---------------------------|---------|
-| ISO 19011:2018 | §6.2 Establishing the audit programme; §6.3 Managing the audit programme; §6.4 Maintaining and improving the audit programme | Primary procedural reference; this procedure operationalizes these clauses |
-| ISO 19011:2018 | §6.5.2 Initiating the audit; §6.5.3 Preparing audit activities | Individual audit planning steps (Sections 4 and 5) |
+| ISO 19011:2026 | §5.4 Establishing the audit programme; §5.5 Implementing the audit programme; §5.7 Reviewing and improving the audit programme | Primary procedural reference; this procedure operationalizes the audit-programme-management clauses |
+| ISO 19011:2026 | §6.2 Initiating the audit; §6.3 Preparing auditing activities | Individual audit planning steps (Sections 4 and 5) |
 | ISO/IEC 27001:2022 | §9.2 Internal Audit | Annual programme and individual audit requirements |
 | COBIT 2019 | MEA04 (Managed Assurance) | Audit programme planning, resource allocation, and assurance reporting |
 | BASC Standard | §9.2 Internal Audit | Annual audit of BASC programme scope; evidence collection and reporting requirements |
