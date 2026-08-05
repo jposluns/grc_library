@@ -2,8 +2,8 @@
 
 **Document Title:** Control Testing Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.1\
-**Date:** 2026-07-06\
+**Version:** 1.1.2\
+**Date:** 2026-08-05\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md), [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md)\
@@ -226,7 +226,7 @@ The tester records, in the evidence package, the population definition, the samp
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ISO/IEC 27001:2022 | §9.1: Monitoring, Measurement, Analysis and Evaluation | Control effectiveness measurement |
-| ISO 19011:2018 | Guidelines for Auditing Management Systems | Control testing methodology |
+| ISO 19011:2026 | Guidelines for Auditing Management Systems | Control testing methodology |
 | NIST SP 800-53A | Assessing Security and Privacy Controls | Control testing guidance |
 | COBIT 2019 | MEA01: Managed Performance and Conformance Monitoring | Control monitoring and assurance |
 | CSA CCM v4.1 | A&A-02, A&A-05: Independent Assessments; Audit Management Process | Continuous control assurance |
