@@ -2,8 +2,8 @@
 
 **Document Title:** Records Retention and Destruction Standard\
 **Document Type:** Standard\
-**Version:** 1.4.18\
-**Date:** 2026-07-23\
+**Version:** 1.4.19\
+**Date:** 2026-08-05\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -182,7 +182,7 @@ Annual audits verify:
 | COBIT 2019 DSS01 | Managed Operations |
 | CSA CCM v4.1 DSP-16 | Data Retention and Deletion |
 | CSA CCM v4.1 DSP-02 | Secure Disposal |
-| ISO/IEC 42001:2023 §9 | AI Recordkeeping and Traceability |
+| ISO/IEC 42001:2023 §9 | Performance evaluation |
 | EU AI Act Annex IV | AI System Documentation |
 
 Sector-specific framework alignments (for example, BASC International Standard v6 2022 and WCO SAFE Framework 2025 edition for trade and customs records retention) apply where the organization participates in a covered programme; see [`compliance/`](../compliance/).
