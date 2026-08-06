@@ -12,7 +12,7 @@ pages:
   title: "What the governing body should require for AI incident-response readiness before production"
   narrative_type: "Executive Brief"
   narrative_status: "Explanatory"
-  version: "0.0.1"
+  version: "0.0.2"
   date: "2026-08-06"
   corpus_sources:
     - "ai/plan-ai-incident-response.md"

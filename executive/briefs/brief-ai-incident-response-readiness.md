@@ -2,7 +2,7 @@
 
 **Document Title:** What the governing body should require for AI incident-response readiness before production\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.1\
+**Version:** 0.0.2\
 **Date:** 2026-08-06\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -37,10 +37,10 @@ The governing body's role here is oversight, not operation. It does not run the 
 The corpus defines AI incident-response readiness as a set of capabilities that exist before an AI system goes into production.
 
 - **A dedicated AI incident-response path.** The [AI incident response plan](../../ai/plan-ai-incident-response.md) sets out AI-specific incident classes and triggers, severity criteria, a defined lifecycle, and the evidence to preserve, operating alongside the general security and privacy procedures rather than replacing them.
-- **A general incident procedure the AI path runs alongside.** The [security incident response procedure](../../security/procedure-security-incident-response.md) requires evidence preservation and a post-incident review for every incident; the AI path inherits that baseline.
+- **A general incident procedure the AI path runs alongside.** The [security incident response procedure](../../security/procedure-security-incident-response.md) requires evidence preservation and a post-incident review scaled to incident severity; the AI path inherits that baseline.
 - **Cross-domain coordination.** When an AI incident also implicates personal data or general security, the [cross-domain incident coordination procedure](../../resilience/procedure-cross-domain-incident-coordination.md) runs it as a coordinated multi-stream response under a joint command, and it makes cross-stream exercising a standing obligation.
 - **Detection, logging, and incident management as pre-production controls.** The [AI security and risk standard](../../ai/standard-ai-security-and-risk.md) requires monitoring and logging that supports investigation and the classification and escalation of AI incidents through incident management (its sections 4.7 and 4.10); its evidence expectations (its section 5) are stated as what a system should maintain. The [AI logging and traceability requirements](../../security/standard-logging-and-monitoring.md) require AI systems to produce the event logs an investigation depends on, and the [AI development security standard](../../ai/standard-ai-and-agentic-development-security.md) adds concrete AI incident indicators and AI-specific response steps.
-- **Incident response as a required control domain.** The [AI governance and risk framework](../../ai/framework-ai-governance-and-risk.md) treats incident response as one of the control domains a production AI system carries, and the [AI model lifecycle procedure](../../ai/procedure-ai-model-lifecycle-management.md) places it among the capabilities a system is released with.
+- **Incident response as a required control domain.** The [AI governance and risk framework](../../ai/framework-ai-governance-and-risk.md) treats incident response as one of the control domains a production AI system carries and, in its lifecycle model, releases a system with incident response among its operating capabilities; the [AI model lifecycle procedure](../../ai/procedure-ai-model-lifecycle-management.md) sets the pre-deployment gates a system passes before that release.
 - **An escalation path and a reporting line.** The corpus defines a chartered executive AI governance body that receives escalated AI incidents and approves the response to significant AI failures (the [AI governance council charter](../../ai/charter-ai-governance-council.md), its section 4); this brief routes to that body rather than naming it. Above it, the [board oversight guide](../../ai/guide-ai-board-oversight.md) establishes the governing body's non-delegable accountability for AI outcomes and states what it should expect to receive, which includes significant AI incidents and their resolution (its section 7).
 - **A way to exercise the capability.** The [tabletop exercise template](../../resilience/template-tabletop-exercise.md) provides a reusable structure for rehearsing an AI incident before a real one occurs.
 
