@@ -273,6 +273,8 @@ jobs:
         run: python3 tools/lint-narrative-boundary.py
       - name: Narrative authority-boundary audit
         run: python3 tools/lint-narrative-authority-boundary.py
+      - name: Narrative vocabulary audit
+        run: python3 tools/lint-narrative-vocabulary.py
 
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'

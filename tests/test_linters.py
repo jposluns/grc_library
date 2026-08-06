@@ -1721,6 +1721,18 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          f"gate --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
         self.assertIn("self-test: ", result.stdout)
 
+    def test_lint_narrative_vocabulary_self_test(self) -> None:
+        """Gate 88's own self-test. The narrative vocabulary gate runs against a live executive/
+        tree with only a clean README, so its absolutes-denylist / qualified-shall / dash-ban
+        detection (incl. inflections, the no-quotation exemption for absolutes, code-span/fence
+        exemptions, and the file-level fail-loud) is exercised here synthetically."""
+        result = self._run_selftest(
+            [sys.executable, str(REPO_ROOT / "tools" / "lint-narrative-vocabulary.py"), "--self-test"]
+        )
+        self.assertEqual(result.returncode, 0,
+                         f"gate --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        self.assertIn("self-test: ", result.stdout)
+
     def test_block_unknown_worker_model_hook_self_test(self) -> None:
         """The 3.194 model-validity guard's own self-test, wired here (its introduction PR #1319
         shipped the self-test but not this CI wiring; a fail-open guard that rots is worse than none)."""
