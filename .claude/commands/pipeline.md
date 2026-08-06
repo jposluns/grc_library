@@ -13,7 +13,7 @@ Show a scannable, one-line-per-item roadmap: the 5 most-recently-completed items
 
 ## Process
 
-1. **Generate the skeleton** with the tool: `python3 tools/audit-backlog-actionability.py --pipeline --umbrella "<current-or-arg>"`. It enumerates the item SET (never invents/omits), expands `- **P-x.y**` bullet sub-items under an umbrella heading, groups by umbrella, excludes `[BLOCKED:]`-tagged items, and best-effort renders `<id> <checkbox> [PR####] <type-guess> - <10-word title>`. The 5 recent-done come from `DONE.md`.
+1. **Generate the skeleton** with the tool: `python3 tools/audit-backlog-actionability.py --pipeline --umbrella "<current-or-arg>"`. It enumerates from the authoritative item SET (never fabricating an id), expands `- **P-x.y**` bullet sub-items under an umbrella heading, groups by umbrella, and renders a TRUNCATED, blocked-excluded VIEW (not the completeness enumeration the default `audit-backlog-actionability.py` mode produces), best-effort as `<id> <checkbox> [PR####] <type-guess> - <10-word title>`. The 5 recent-done come from `DONE.md`.
 2. **Determine the CURRENT umbrella** (for the no-arg default): the umbrella of the active work, from `grc_library_private/.working/next-prs.txt`'s first item (the tool's file-order default is a fallback, not the "current" judgement). Pass it as `--umbrella`.
 3. **Refine the tool's rough output** (the tool is a deterministic backbone; polish the semantic parts):
    - **Done-marking:** the tool marks a bullet `[ ]` even if it is actually closed (a closed sub-item may still sit in an umbrella's plan list). Cross-check each id against `DONE.md`; a closed item is `[x] PR####`. (Flag stale done-bullets for rotation.)
@@ -24,4 +24,4 @@ Show a scannable, one-line-per-item roadmap: the 5 most-recently-completed items
 
 ## Notes
 
-The format is also codified in the assistant memory `pipeline-view-format`, so the view survives where this command is unavailable. The tool's `--self-test` covers the enumeration/formatting logic.
+The format is also codified in the assistant memory `pipeline-view-format`, so the view survives where this command is unavailable; keep that memory in parity with the step-4 format on any format change (no gate guards a memory surface). The tool's `--self-test` covers the enumeration/formatting logic.

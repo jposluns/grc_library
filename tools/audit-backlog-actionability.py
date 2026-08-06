@@ -264,6 +264,10 @@ def render_pipeline(public_text: str, private_text: str | None,
             umbrellas.append(umb)
     if umbrella_filter:
         start = next((u for u in umbrellas if umbrella_filter.lower() in u.lower()), None)
+        if start is None:
+            # a non-matching filter must SIGNAL, not silently render the default view
+            out.append(f"(no umbrella matched {umbrella_filter!r}; showing default order)")
+            out.append("")
         order = umbrellas[umbrellas.index(start):] if start else umbrellas
     else:
         order = umbrellas  # first umbrella (highest-priority open item) leads
