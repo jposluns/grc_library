@@ -73,6 +73,38 @@ NARRATIVE_ROOT = "executive"
 LINK_RE = re.compile(r"\]\(\s*<?([^\s)>]+)")
 EXTERNAL = re.compile(r"^(https?:|mailto:|tel:|ftp:|#)")
 
+# Reference-style link DEFINITION: ``[label]: dest`` at line start (optionally
+# ``<dest>``). A corpus doc that references executive/ via a ref-def (``[brief][n]``
+# in the body, ``[n]: ../executive/brief-x.md`` below) renders as a corpus-to-narrative
+# link but is NOT an inline ``](dest)`` match, so LINK_RE alone fails open. The
+# line-start ``[label]:`` shape cannot collide with an inline ``[text](url)`` (``](``
+# not ``]:``) or a body reference ``[text][label]``, so there is no double-count.
+# 0-3 leading spaces only (4+ is an indented code block, not a link def), an
+# optional blockquote prefix (a blockquoted ref-def still renders a link), then
+# the label. Marker-aware fence tracking (below) excludes fenced ref-defs.
+REF_DEF_RE = re.compile(r"^ {0,3}(?:>[ \t]?)*\[[^\]]+\]:\s*<?([^\s>]+)")
+
+# Marker-aware fence parser (CommonMark): a fenced block closes only on the same
+# marker char and a run length >= the opener, no info string; the shared
+# ``is_fence_line`` toggle is marker-blind, so a ``` inside a ~~~ example would
+# wrongly flip the scan and mis-read fenced content (a ref-def inside a fenced
+# block is not a rendered link). Local to gate 87, mirroring gate 86.
+_FENCE_RE = re.compile(r"^\s*(`{3,}|~{3,})(.*)$")
+
+
+def _fence_marker(line: str):
+    m = _FENCE_RE.match(line)
+    if not m:
+        return None
+    run = m.group(1)
+    return run[0], len(run), m.group(2).strip()
+
+
+def _closes(marker, opener) -> bool:
+    return (marker is not None and marker[0] == opener[0]
+            and marker[1] >= opener[1] and not marker[2])
+
+
 # A plain-text / inline-code reference to the narrative tree inside a
 # metadata FIELD value: ``executive/`` not preceded by a word character,
 # dot, or hyphen (so ``chief-executive/`` or a hyphenated identifier never
@@ -144,12 +176,15 @@ def check_file(path: Path, root: Path = REPO_ROOT) -> list[tuple[int, str]]:
             )
 
     # LINK check: any markdown link resolving into the root executive/ tree.
-    in_code = False
+    open_fence = None  # marker-aware: (char, run-length); ``` inside ~~~ is content
     for lineno, raw in enumerate(text.splitlines(), 1):
-        if is_fence_line(raw):
-            in_code = not in_code
+        marker = _fence_marker(raw)
+        if open_fence is not None:
+            if _closes(marker, open_fence):
+                open_fence = None
             continue
-        if in_code:
+        if marker is not None:
+            open_fence = (marker[0], marker[1])
             continue
         for m in LINK_RE.finditer(raw):
             target = m.group(1)
@@ -161,6 +196,16 @@ def check_file(path: Path, root: Path = REPO_ROOT) -> list[tuple[int, str]]:
                      f"corpus-to-narrative link {target!r} (derive any "
                      f"corpus-explained-by-narrative view at render time from the "
                      f"narrative registry; never write it into corpus source)")
+                )
+        rd = REF_DEF_RE.match(raw)
+        if rd:
+            target = rd.group(1)
+            if not EXTERNAL.match(target) and _resolves_into_narrative(path, target, root):
+                findings.append(
+                    (lineno,
+                     f"corpus-to-narrative link {target!r} via reference definition "
+                     f"(derive any corpus-explained-by-narrative view at render time "
+                     f"from the narrative registry; never write it into corpus source)")
                 )
     return findings
 
@@ -255,6 +300,22 @@ def _self_test() -> int:
         expect("body-titled-link-flagged", check_file(titled, root), "corpus-to-narrative link")
         angle = write("risk/policy-angle.md", "# A\n\n---\n\nExplained by [brief](<../executive/brief-x.md>).\n")
         expect("body-angle-link-flagged", check_file(angle, root), "corpus-to-narrative link")
+        # F1: a reference-STYLE link into executive/ (body ref use, ref-def below)
+        # renders as a corpus-to-narrative link and must be flagged.
+        ref_style = write("risk/policy-ref.md", "# R\n\n---\n\nExplained by [brief][n].\n\n[n]: ../executive/brief-x.md\n")
+        expect("ref-style-link-flagged", check_file(ref_style, root), "corpus-to-narrative link")
+        # F1 negative: a ref-def into a corpus doc, or an external URL, must pass.
+        ref_clean = write("risk/policy-ref-clean.md", "# R\n\n---\n\nSee [b][n] and [x][h].\n\n[n]: ../risk/annex-b.md\n[h]: https://iso.org/x\n")
+        expect("ref-style-clean-pass", check_file(ref_clean, root), None)
+        # F1: a BLOCKQUOTED ref-def into executive/ still renders a link -> flag.
+        bq_ref = write("risk/policy-bqref.md", "# R\n\n---\n\n> See [b][n].\n> [n]: ../executive/brief-x.md\n")
+        expect("ref-style-blockquote-flagged", check_file(bq_ref, root), "corpus-to-narrative link")
+        # F1 neg: a 4-space-indented ref-def is a CODE block, not a link -> pass.
+        indent_ref = write("risk/policy-indentref.md", "# R\n\n---\n\n    [n]: ../executive/brief-x.md\n")
+        expect("ref-style-indented-code-pass", check_file(indent_ref, root), None)
+        # F1 neg: a ref-def INSIDE a ~~~ fence (with an internal ```) is content -> pass.
+        fenced_ref = write("risk/policy-fencedref.md", "# R\n\n---\n\n~~~\n```\n[n]: ../executive/brief-x.md\n~~~\n")
+        expect("ref-style-fenced-pass", check_file(fenced_ref, root), None)
 
         # Root-doc link shape (no ../ prefix).
         bad_root = write("README.md", "# R\n\nSee [brief](executive/brief-x.md).\n")
