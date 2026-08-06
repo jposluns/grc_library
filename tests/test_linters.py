@@ -1663,6 +1663,18 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          f"gate --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
         self.assertIn("self-test: ", result.stdout)
 
+    def test_build_narrative_registry_self_test(self) -> None:
+        """Gate 85's own self-test. The narrative registry generator runs against ZERO real pages
+        today (the live ``executive/`` tree holds only the exempted entry-point README), so its
+        state machine, fail-loud, empty-tree, bijection-detector, and check-mode-drift logic is
+        exercised here against synthetic pages under a synthetic repo root."""
+        result = self._run_selftest(
+            [sys.executable, str(REPO_ROOT / "tools" / "build-narrative-registry.py"), "--self-test"]
+        )
+        self.assertEqual(result.returncode, 0,
+                         f"gate --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        self.assertIn("self-test: ", result.stdout)
+
     def test_block_unknown_worker_model_hook_self_test(self) -> None:
         """The 3.194 model-validity guard's own self-test, wired here (its introduction PR #1319
         shipped the self-test but not this CI wiring; a fail-open guard that rots is worse than none)."""
