@@ -108,11 +108,38 @@ def _has_citation(segment: str) -> bool:
     return bool(MD_LINK_RE.search(segment) or CROSS_EXTERNAL_CONTEXT_RE.search(segment))
 
 
-def _noncode_lines(text: str) -> list[tuple[int, str]]:
+def _strip_link_targets(line: str) -> str:
+    """Blank markdown link DESTINATIONS/labels, keeping visible link TEXT, so the
+    absolutes denylist scans only VISIBLE prose. A forbidden word inside a URL
+    (``[source](.../guarantee)``) is not visible prose and must not be flagged,
+    while the link TEXT is preserved and still scanned. Handles inline
+    ``[text](dest)`` / ``[text](dest "title")`` / ``[text](<dest>)``, the reference
+    USE ``[text][label]``, and a whole reference-DEFINITION line ``[label]: dest``
+    (its destination is not visible prose)."""
+    # A WELL-FORMED reference DEFINITION is entirely link metadata (label + a single
+    # dest token + an optional quoted/paren title, and NOTHING else), none of it
+    # visible prose, so blank the whole line. A line that merely RESEMBLES a ref-def
+    # but carries trailing bare prose (``[note]: The guarantee applies.``) is NOT a
+    # ref-def and is scanned as prose (only its inline links stripped below). This
+    # covers a title-carried absolute (``[n]: url "guarantee"``) and a label-carried
+    # one (``[guarantee]: url``), both metadata, without hiding real prose.
+    if re.match(r'^\s*\[[^\]]+\]:\s*(?:<[^>]*>|\S+)\s*("[^"]*"|\'[^\']*\'|\([^)]*\))?\s*$', line):
+        return ""
+    line = re.sub(r"\]\([^)]*\)", "]", line)   # ](dest) / ](dest "title") / ](<dest>) -> ]
+    line = re.sub(r"\]\[[^\]]*\]", "]", line)  # ][label] -> ]
+    return line
+
+
+def _noncode_lines(text: str) -> list[tuple[int, str | None]]:
     """Non-code (lineno, raw) lines, fence-MARKER-aware: a fenced block opened by
     ``` closes only on ```, and one opened by ~~~ only on ~~~, so a mismatched
-    marker inside a block (``` inside a ~~~ fence) is content, not a toggle."""
-    out: list[tuple[int, str]] = []
+    marker inside a block (``` inside a ~~~ fence) is content, not a toggle.
+
+    Each elided fenced block is represented by a single sentinel ``(lineno, None)``
+    at its opening line, so an adjacency walk STOPS at the fence boundary instead
+    of treating the non-code lines flanking an elided block as adjacent (the
+    across-the-fence false-qualification of a blockquoted ``shall``)."""
+    out: list[tuple[int, str | None]] = []
     fence: str | None = None  # the 3-char marker (``` or ~~~) that opened the block
     for lineno, raw in enumerate(text.splitlines(), 1):
         stripped = raw.lstrip()
@@ -120,6 +147,7 @@ def _noncode_lines(text: str) -> list[tuple[int, str]]:
         if fence is None:
             if marker is not None:
                 fence = marker
+                out.append((lineno, None))  # fence-boundary sentinel
                 continue
             out.append((lineno, raw))
         else:
@@ -130,7 +158,7 @@ def _noncode_lines(text: str) -> list[tuple[int, str]]:
 
 
 def _shall_is_qualified(line: str, match: re.Match[str], idx: int,
-                        noncode: list[tuple[int, str]]) -> bool:
+                        noncode: list[tuple[int, str | None]]) -> bool:
     """The qualified-shall test (see module docstring). ``line`` is the
     code-span-stripped line; ``idx`` indexes ``noncode`` for blockquote
     adjacency."""
@@ -140,9 +168,12 @@ def _shall_is_qualified(line: str, match: re.Match[str], idx: int,
             return True
         for step in (-1, 1):
             j = idx + step
-            while 0 <= j < len(noncode) and not noncode[j][1].strip():
+            # Skip blank lines, but STOP at a fence boundary (None sentinel): an
+            # elided fenced block between the shall and a citation means they are
+            # NOT visibly adjacent, so the citation does not qualify the shall.
+            while 0 <= j < len(noncode) and noncode[j][1] is not None and not noncode[j][1].strip():
                 j += step
-            if 0 <= j < len(noncode) and _has_citation(noncode[j][1]):
+            if 0 <= j < len(noncode) and noncode[j][1] is not None and _has_citation(noncode[j][1]):
                 return True
         return False
     for qre in QUOTE_SPAN_RES:
@@ -162,13 +193,16 @@ def scan_page_text(text: str) -> list[tuple[int, str, str]]:
     findings: list[tuple[int, str, str]] = []
     noncode = _noncode_lines(text)
     for idx, (lineno, raw) in enumerate(noncode):
+        if raw is None:  # fence-boundary sentinel: a boundary, not a scannable line
+            continue
         stripped = CODE_SPAN_RE.sub("", raw)  # backticked word-references never match
+        prose = _strip_link_targets(stripped)  # absolutes scan VISIBLE prose only (F3)
         if DASH_RE.search(stripped):
             findings.append((lineno, "dash",
                              "em/en dash in narrative prose (the dash ban applies to the "
                              "narrative layer; rewrite with commas, colons, or parentheses)"))
         for name, pat in ABSOLUTES_SINGLE:
-            if pat.search(stripped):
+            if pat.search(prose):
                 findings.append((lineno, "absolute",
                                  f"absolute {name!r} in narrative prose (page-wide denylist; a "
                                  f"narrative page states contribution, dependency, prevention, "
@@ -196,9 +230,12 @@ def scan_page_text(text: str) -> list[tuple[int, str, str]]:
                                  f"narrative page states contribution, dependency, prevention, "
                                  f"or evidence, never an absolute)"))
     for lineno, raw in noncode:
+        if raw is None:  # F2: a fence boundary never joins two paragraphs across it
+            _flush_para(); para = []
+            continue
         stripped = CODE_SPAN_RE.sub("", raw)
         if stripped.strip():
-            para.append((lineno, stripped))
+            para.append((lineno, _strip_link_targets(stripped)))  # F3: multi-word absolutes ignore URLs
         else:
             _flush_para(); para = []
     _flush_para()
@@ -277,6 +314,24 @@ def _self_test() -> int:
     # F3: a mismatched fence marker inside a fenced block must not toggle out, so
     # prose after the block is still scanned.
     expect("absolute-mixed-fence-noescape", "~~~\n```\nexample\n~~~\nThe control guarantees success.\n", ["absolute"])
+
+    # F2: a fenced block physically BETWEEN a blockquoted 'shall' and a later
+    # citation must NOT collapse into false adjacency, so the shall is UNqualified.
+    expect("shall-fence-separated-unqualified",
+           "> The org shall comply.\n```text\nexample fenced line\n```\n[ISO 27001](https://iso.org/iso)\n",
+           ["shall"])
+    # F3: an absolute inside a link DESTINATION (not visible prose) must PASS;
+    # the same absolute in visible link TEXT (or plain prose) still FAILS.
+    expect("absolute-in-link-url-pass", "See the [source](https://iso.org/guarantee) page.\n", [])
+    expect("absolute-in-link-text-flagged", "See the [guarantee](https://iso.org/x) page.\n", ["absolute"])
+    expect("absolute-in-refdef-url-pass", "[n]: https://iso.org/guarantee\n", [])
+    # F3 negative-of-negative: a line that LOOKS like a ref-def but renders as
+    # visible prose keeps its absolute scanned (only the dest token is blanked).
+    expect("fake-refdef-prose-absolute-flagged", "[note]: The guarantee applies.\n", ["absolute"])
+    # A real ref-def whose TITLE or LABEL contains an absolute is link metadata, not
+    # visible prose -> must PASS (no false positive).
+    expect("refdef-title-absolute-pass", '[n]: https://iso.org/x "guarantee"\n', [])
+    expect("refdef-label-absolute-pass", "[guarantee]: https://iso.org/x\n", [])
 
     # File-level fail-loud: an unreadable / non-UTF-8 page is flagged, not skipped.
     import tempfile
