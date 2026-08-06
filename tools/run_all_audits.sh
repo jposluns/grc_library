@@ -181,6 +181,7 @@ run_gate "Ungated-surface dash audit"                       python3 tools/lint-u
 run_gate "Publication-manifest sync audit"                 python3 tools/lint-publication-manifest.py
 run_gate "Narrative metadata audit"                      python3 tools/lint-narrative-metadata.py
 run_gate "Narrative registry sync"                       python3 tools/build-narrative-registry.py --check
+run_gate "Narrative boundary audit"                      python3 tools/lint-narrative-boundary.py
 
 # ----------------------------------------------------------------------
 # Summary
