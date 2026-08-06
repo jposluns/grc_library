@@ -2,7 +2,7 @@
 
 **Document Title:** Executive Narrative Authoring Specification\
 **Document Type:** Specification\
-**Version:** 0.0.7\
+**Version:** 0.0.8\
 **Date:** 2026-08-06\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -47,7 +47,7 @@ It operates under the Master Project Specification and, for language, organizati
 
 ## Placement and audit scope
 
-Narrative pages live in the top-level `executive/` directory. `executive/` is not a corpus domain, and its boundary with the corpus is mechanical, not conventional.
+Narrative pages live under the top-level `executive/` directory, each in the subdirectory for its subtype (`briefs/`, `scenarios/`, `decision-narratives/`, `oversight-question-sets/`, `stories/`, `journeys/`, `outcome-maps/`). `executive/` is not a corpus domain, and its boundary with the corpus is mechanical, not conventional.
 
 1. **Structural exclusion (domain-list and generator surfaces).** `executive` is not a member of the audited-domain run (`AUDITED_DOMAIN_DIRS`) or of the taxonomy generator's `DOMAINS` list. Its exclusion from the taxonomy, the portal, the maturity scorecard, and every splatting content linter is structural: those walks are restricted to their own lists and never reach `executive/`. This follows the `.project-governance` and `docs/` precedents for structural exclusion.
 2. **Active exclusion (corpus-model root-walkers).** Some corpus-model gates walk the repository root rather than a fixed list. Each such gate reaches `executive/` by default and must exclude it explicitly by treating the narrative directory as a root-anchored exclusion. This is a distinct mechanism from item 1: it is an active exclusion the gate performs, not a walk that never arrives. The authoritative, regression-checked classification of which gates exclude structurally, exclude actively, or deliberately include `executive/` is the gate-scope manifest.
@@ -62,19 +62,19 @@ Keeping `Executive Narrative` out of the allowed corpus document types permanent
 
 ## Document class and subtypes
 
-There is exactly one narrative document type: `Executive Narrative`. Subclassification is carried by the `Narrative Type` metadata field, never by the Document Type field. The closed set of subtypes, their mandatory filename prefixes, and their fixed narrative status:
+There is exactly one narrative document type: `Executive Narrative`. Subclassification is carried by the `Narrative Type` metadata field, never by the Document Type field. The closed set of subtypes, their mandatory filename prefixes and subdirectories, and their fixed narrative status:
 
-| Narrative Type | Filename prefix | Narrative Status |
-|---|---|---|
-| Executive Brief | `brief-` | Explanatory |
-| Scenario | `scenario-` | Non-normative |
-| Decision Narrative | `decision-` | Advisory |
-| Oversight Question Set | `oversight-questions-` | Advisory |
-| Story | `story-` | Non-normative |
-| Journey | `journey-` | Explanatory |
-| Outcome Map | `outcome-map-` | Explanatory |
+| Narrative Type | Filename prefix | Subdirectory | Narrative Status |
+|---|---|---|---|
+| Executive Brief | `brief-` | `briefs/` | Explanatory |
+| Scenario | `scenario-` | `scenarios/` | Non-normative |
+| Decision Narrative | `decision-` | `decision-narratives/` | Advisory |
+| Oversight Question Set | `oversight-questions-` | `oversight-question-sets/` | Advisory |
+| Story | `story-` | `stories/` | Non-normative |
+| Journey | `journey-` | `journeys/` | Explanatory |
+| Outcome Map | `outcome-map-` | `outcome-maps/` | Explanatory |
 
-Filename rules follow the ingestion specification (lowercase, single hyphens, no punctuation, no organization-specific names), with the subtype prefix in place of a document-type prefix. The prefix must match the `Narrative Type` field exactly per the table.
+Filename rules follow the ingestion specification (lowercase, single hyphens, no punctuation, no organization-specific names), with the subtype prefix in place of a document-type prefix. Each page lives in its subtype's subdirectory under `executive/` per the table; the prefix and the subdirectory must both match the `Narrative Type` field exactly.
 
 No other subtype may be introduced without a version bump to this specification and corresponding gate changes. A page that fits no subtype is a signal that it does not belong in the narrative layer.
 
@@ -93,17 +93,17 @@ Every narrative page begins with the corpus's 13 canonical metadata fields, in c
 **Date:** YYYY-MM-DD\
 **Owner:** Role Name\
 **Approving Authority:** Role Name\
-**Related Documents:** [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)\
+**Related Documents:** [`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md)\
 **Classification:** Public\
 **Category:** Executive Narrative\
 **Review Frequency:** Annual, and a 6-month advisory executive review\
-**Repository Path:** [`executive/decision-ai-risk-appetite.md`](decision-ai-risk-appetite.md)\
+**Repository Path:** [`executive/decision-narratives/decision-ai-risk-appetite.md`](decision-ai-risk-appetite.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **Narrative Type:** Decision Narrative\
 **Narrative Status:** Advisory\
 **Audience:** Governing body and accountable executive leadership (board, ELT, or senior management, as applicable)\
-**Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md), [`supply-chain/register-concentration-risk.md`](../supply-chain/register-concentration-risk.md)\
+**Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md), [`supply-chain/register-concentration-risk.md`](../../supply-chain/register-concentration-risk.md)\
 **External Sources:** ISO 31000, NIST CSF (or: None)\
 **Claim Classes Present:** citation, sourced, composite\
 **Review Record:** NR-YYYY-NNN\
@@ -319,7 +319,7 @@ This section records the gate intent this specification creates. The narrative g
 1. **Type containment (existing, partial).** `Executive Narrative` stays out of the corpus metadata gate's allowed types permanently. An ordinary unchanged-copy leak into a scanned corpus location fails that gate loudly on the invalid type (a copied page also trips the Repository-Path check). This is PARTIAL: a leak named `README.md` in a corpus subdirectory (caught only by the loose domain-README check) and a leak retyped to a valid corpus type with narrative-extension fields both escape the existing gate. Closing those escapes is the symmetric boundary gate (item 3); the existing residual only guarantees that, for an unchanged non-README copy, the invalid-type failure cannot be silenced except by adding the type. The invariant to protect is that no one adds the type.
 2. **Scan-scope split (existing).** The narrative-directory set and the gate-scope manifest exist and are regression-checked; the safety root-walkers cover `executive/` and the link gate already includes it. The by-name inclusion of `specification-executive-narrative.md` in the corpus metadata gate's root scan set is in place, so this specification is itself governed as a corpus document. No prefix-exemption is needed (the file is `Document Type: Specification` with the matching `specification-` prefix, so it passes the prefix check normally).
 3. **Symmetric narrative-boundary gate (existing, gate 86).** Outside `executive/`: reject narrative document types or narrative-extension fields anywhere, README paths included (the README skip becomes path-scoped, not basename-keyed). Inside `executive/`: require the `Executive Narrative` type and the narrative-extension block on every page, and reject corpus document types. Honest residue: a file stripped of both its type marker and all narrative-only fields is not detectable by repository-state rules and is covered by review only.
-4. **Narrative metadata gate (existing, gate 84).** Validates every file under `executive/` (except the named `executive/README.md` entry point): the 13 canonical fields plus the 8 extension fields, closed vocabularies for Narrative Type and Narrative Status, the type-to-prefix parity from the subtype table, the fixed subtype-to-status mapping, `Document Type: Executive Narrative` exactly, at least one `Corpus Sources` reference, and reference syntax (a plain markdown link with no version suffix). It also enforces body-link completeness: every corpus document linked in the page body must appear in `Corpus Sources` (a body corpus link absent from the list is a defect). The shared line-break gate does NOT scan `executive/`, so this narrative metadata gate owns the backslash hard-break validation for narrative pages (the append itself needs no change to the shared checker, whose generic last-line exemption already tolerates the extended block; the coverage of `executive/` is the new gate's obligation).
+4. **Narrative metadata gate (existing, gate 84).** Validates every file under `executive/` (except the named `executive/README.md` entry point): the 13 canonical fields plus the 8 extension fields, closed vocabularies for Narrative Type and Narrative Status, the type-to-prefix and type-to-subdirectory parity from the subtype table, the fixed subtype-to-status mapping, `Document Type: Executive Narrative` exactly, at least one `Corpus Sources` reference, and reference syntax (a plain markdown link with no version suffix). It also enforces body-link completeness: every corpus document linked in the page body must appear in `Corpus Sources` (a body corpus link absent from the list is a defect). The shared line-break gate does NOT scan `executive/`, so this narrative metadata gate owns the backslash hard-break validation for narrative pages (the append itself needs no change to the shared checker, whose generic last-line exemption already tolerates the extended block; the coverage of `executive/` is the new gate's obligation).
 5. **Disclaimer presence gate (existing, gate 89).** The universal authority disclaimer, verbatim, as the first body content after the metadata block's closing `---` separator and before the first section heading, on every page (the entry-point `executive/README.md` exempt). String-level presence-and-position only; a fenced or indented copy of the disclaimer does not satisfy it (it is body content that is not the rendered disclaimer), and fail-loud on an unreadable page.
 6. **Vocabulary gate (existing, gate 88).** No `guarantee` or the listed absolutes anywhere in narrative prose (page-wide, no causal-statement classification needed); no unqualified `shall` (with the qualified-shall definition as the sole exception); no em or en dashes. The existing bare-shall, language, and dash gates do not cover `executive/`, so narrative coverage needs its own wiring, not an `AUDITED_DOMAIN_DIRS` edit, which would wrongly pull `executive/` into every content gate.
 7. **One-way authority boundary gate (existing source half, gate 87).** Corpus documents must not reference `executive/` in any field; gate 87 enforces this by scanning corpus document fields AND the generated `taxonomy.yml` (so an `executive/` target that reached the taxonomy is caught). Modelled on the existing directional-dependency gate (gate 53). Two obligations of this item are NOT yet built and remain design work for a later phase: making the taxonomy GENERATOR itself reject `executive/` targets at emission time (gate 87 is the post-hoc scan backstop, not a generator change), and the typed-edge endpoint/direction-matrix validation, which is DEFERRED to the render-model phase (item 12, website track): typed edges are derived at render time from the registry (see the Related Documents section), the generated `narrative.yml` carries no edge data, and with no authored pages there are no edge instances, so an endpoint/direction validator belongs with the renderer that emits edges rather than as a standalone corpus gate now.
