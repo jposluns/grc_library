@@ -1,6 +1,6 @@
 # Executive narrative layer
 
-**Status:** Under construction. The authoring specification and the narrative gate family are in place; published narrative content arrives in later phases. There are no published narrative pages yet.
+**Status:** Early. The authoring specification and the narrative gate family are in place, and the first published narrative page is live; further narrative content arrives in later phases.
 
 This directory is the GRC Library's executive narrative layer: non-normative, advisory, and explanatory material for a governing body or accountable executive leadership (board, ELT, or senior management, as applicable). It explains what the corpus governs and why it matters at the leadership level.
 
@@ -16,7 +16,7 @@ Each management concern below frames a leadership question. Under each concern, 
 Who owns which governance decision, and where the corpus fixes the accountable role. Supported routes: none yet (declared coverage gap).
 
 ### 2. AI and autonomous systems
-How the corpus governs AI from intake through oversight, retirement, and incident response. Supported routes: none yet (declared coverage gap).
+How the corpus governs AI from intake through oversight, retirement, and incident response. Supported routes: [What the governing body should require before an AI system goes into production](briefs/brief-what-the-governing-body-should-require-before-ai-production.md) (Executive Brief).
 
 ### 3. Cybersecurity and operational resilience
 How the corpus establishes protective controls and the ability to withstand and recover from disruption. Supported routes: none yet (declared coverage gap).
