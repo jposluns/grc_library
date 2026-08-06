@@ -876,8 +876,14 @@ CROSS_ADJACENCY_WINDOW = 40
 
 
 def git(*args: str) -> str:
-    """Run ``git <args>`` and return stdout, stripped. Raises on non-zero exit."""
-    return subprocess.check_output(["git", *args], text=True).strip()
+    """Run ``git <args>``; return stdout with only trailing newlines removed.
+
+    Uses ``.rstrip(chr(10))`` NOT ``.strip()``: a ``-z`` caller gets NUL-delimited
+    output whose paths may begin or end with whitespace, and stripping the whole
+    string corrupts the first path leading whitespace; removing only trailing
+    newlines still drops the trailing newline that non-``-z`` callers and
+    ``resolve_pr_range`` rely on. Raises on non-zero exit."""
+    return subprocess.check_output(["git", *args], text=True).rstrip("\n")
 
 
 def git_show(ref: str, path: str) -> str | None:

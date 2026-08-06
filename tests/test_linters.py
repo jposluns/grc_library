@@ -7017,6 +7017,15 @@ class DirectionalDependencyTests(LinterTestCase):
                 f"a fenced-block link must not flag.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
             )
 
+    def test_self_test_passes(self) -> None:
+        """Gate 53's own --self-test (P-1.25.25): the hardened LINK_RE (titled/angle),
+        the REF_DEF_RE reference-definition check, and the marker-aware fence parser
+        (ported from gate 87 / #1426) are exercised synthetically so the fail-open
+        hardening cannot silently rot."""
+        result = run_linter("tools/lint-directional-dependency.py", "--self-test")
+        self.assertEqual(result.returncode, 0,
+                         f"gate --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        self.assertIn("self-test: ", result.stdout)
 
 class RetentionConsistencyTests(LinterTestCase):
     """tools/lint-retention-consistency.py (gate 55)
