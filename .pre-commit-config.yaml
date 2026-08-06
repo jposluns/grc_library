@@ -597,3 +597,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-narrative-boundary
+        name: Narrative boundary audit
+        entry: python3 tools/lint-narrative-boundary.py
+        language: system
+        pass_filenames: false
+        always_run: true
