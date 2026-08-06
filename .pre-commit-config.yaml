@@ -609,3 +609,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-narrative-vocabulary
+        name: Narrative vocabulary audit
+        entry: python3 tools/lint-narrative-vocabulary.py
+        language: system
+        pass_filenames: false
+        always_run: true
