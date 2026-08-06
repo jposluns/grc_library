@@ -1843,6 +1843,18 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          f"gate --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
         self.assertIn("self-test: ", result.stdout)
 
+    def test_lint_narrative_disclaimer_self_test(self) -> None:
+        """Gate 89's own self-test. The narrative disclaimer-presence gate runs against a live
+        executive/ tree with only the exempt README, so its verbatim-disclaimer presence-and-position
+        detection (valid, missing, heading-first, prose-first, non-verbatim, no-closing-separator,
+        empty-after-metadata, fenced-example-only) is exercised here synthetically."""
+        result = self._run_selftest(
+            [sys.executable, str(REPO_ROOT / "tools" / "lint-narrative-disclaimer.py"), "--self-test"]
+        )
+        self.assertEqual(result.returncode, 0,
+                         f"gate --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        self.assertIn("self-test: ", result.stdout)
+
     def test_block_unknown_worker_model_hook_self_test(self) -> None:
         """The 3.194 model-validity guard's own self-test, wired here (its introduction PR #1319
         shipped the self-test but not this CI wiring; a fail-open guard that rots is worse than none)."""

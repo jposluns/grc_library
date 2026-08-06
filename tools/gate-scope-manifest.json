@@ -107,7 +107,8 @@
       "build-narrative-registry.py",
       "lint-narrative-boundary.py",
       "lint-narrative-authority-boundary.py",
-      "lint-narrative-vocabulary.py"
+      "lint-narrative-vocabulary.py",
+      "lint-narrative-disclaimer.py"
     ],
     "advisory-not-gate": [
       "check-class-completeness.py",

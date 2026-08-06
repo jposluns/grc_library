@@ -184,6 +184,7 @@ run_gate "Narrative registry sync"                       python3 tools/build-nar
 run_gate "Narrative boundary audit"                      python3 tools/lint-narrative-boundary.py
 run_gate "Narrative authority-boundary audit"            python3 tools/lint-narrative-authority-boundary.py
 run_gate "Narrative vocabulary audit"                    python3 tools/lint-narrative-vocabulary.py
+run_gate "Narrative disclaimer-presence audit"            python3 tools/lint-narrative-disclaimer.py
 
 # ----------------------------------------------------------------------
 # Summary
