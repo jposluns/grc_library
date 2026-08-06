@@ -8,8 +8,8 @@
 schema_version: 1
 generated_by: tools/build-narrative-registry.py
 pages:
-- path: "executive/briefs/brief-what-the-board-should-require-before-ai-production.md"
-  title: "What the board should require before an AI system goes into production"
+- path: "executive/briefs/brief-what-the-governing-body-should-require-before-ai-production.md"
+  title: "What the governing body should require before an AI system goes into production"
   narrative_type: "Executive Brief"
   narrative_status: "Explanatory"
   version: "0.0.1"
@@ -42,6 +42,6 @@ pages:
     - "status:explanatory"
     - "type:executive-brief"
 listing:
-- route: "executive/briefs/brief-what-the-board-should-require-before-ai-production"
-  path: "executive/briefs/brief-what-the-board-should-require-before-ai-production.md"
-  title: "What the board should require before an AI system goes into production"
+- route: "executive/briefs/brief-what-the-governing-body-should-require-before-ai-production"
+  path: "executive/briefs/brief-what-the-governing-body-should-require-before-ai-production.md"
+  title: "What the governing body should require before an AI system goes into production"
