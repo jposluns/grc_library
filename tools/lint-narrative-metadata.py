@@ -18,6 +18,7 @@ Checks per narrative page:
   - ``Narrative Status`` is one of the three closed values AND matches the fixed
     subtype-to-status mapping.
   - The filename prefix matches the ``Narrative Type``'s mandatory prefix.
+  - The page lives in the subtype's mandatory subdirectory under ``executive/``.
   - At least one ``Corpus Sources`` pin, each a plain markdown link to the corpus
     document (a path reference, no version suffix), with a single pin per target
     (no duplicate pin on the same target).
@@ -72,15 +73,17 @@ EXTENSION_FIELDS: list[str] = [
     "Last Reviewed",
 ]
 
-# The seven closed subtypes: Narrative Type -> (filename prefix, fixed Narrative Status).
-SUBTYPES: dict[str, tuple[str, str]] = {
-    "Executive Brief": ("brief-", "Explanatory"),
-    "Scenario": ("scenario-", "Non-normative"),
-    "Decision Narrative": ("decision-", "Advisory"),
-    "Oversight Question Set": ("oversight-questions-", "Advisory"),
-    "Story": ("story-", "Non-normative"),
-    "Journey": ("journey-", "Explanatory"),
-    "Outcome Map": ("outcome-map-", "Explanatory"),
+# The seven closed subtypes: Narrative Type -> (filename prefix, fixed Narrative
+# Status, subtype subdirectory under ``executive/``). Each subtype lives in its own
+# subdirectory so the layer stays organized as content grows.
+SUBTYPES: dict[str, tuple[str, str, str]] = {
+    "Executive Brief": ("brief-", "Explanatory", "briefs"),
+    "Scenario": ("scenario-", "Non-normative", "scenarios"),
+    "Decision Narrative": ("decision-", "Advisory", "decision-narratives"),
+    "Oversight Question Set": ("oversight-questions-", "Advisory", "oversight-question-sets"),
+    "Story": ("story-", "Non-normative", "stories"),
+    "Journey": ("journey-", "Explanatory", "journeys"),
+    "Outcome Map": ("outcome-map-", "Explanatory", "outcome-maps"),
 }
 STATUSES: frozenset[str] = frozenset({"Non-normative", "Advisory", "Explanatory"})
 
@@ -216,11 +219,13 @@ def audit_page(path: Path) -> list[str]:
     if nstatus is not None and nstatus not in STATUSES:
         findings.append(f"{rel}: Narrative Status {nstatus!r} not one of {sorted(STATUSES)}")
     if ntype in SUBTYPES:
-        prefix, fixed_status = SUBTYPES[ntype]
+        prefix, fixed_status, subdir = SUBTYPES[ntype]
         if nstatus is not None and nstatus != fixed_status:
             findings.append(f"{rel}: Narrative Status {nstatus!r} does not match the fixed status {fixed_status!r} for {ntype!r}")
         if not path.name.startswith(prefix):
             findings.append(f"{rel}: filename must start with {prefix!r} for Narrative Type {ntype!r}")
+        if path.parent.name != subdir or path.parent.parent.name != "executive":
+            findings.append(f"{rel}: a {ntype!r} page must live directly in executive/{subdir}/")
 
     # Corpus Sources pins.
     corpus_sources = meta.get("Corpus Sources", "")
@@ -326,17 +331,17 @@ def _self_test() -> int:
 **Date:** 2026-08-05\\
 **Owner:** Governance Library Maintainer\\
 **Approving Authority:** Governance Library Maintainer\\
-**Related Documents:** [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)\\
+**Related Documents:** [`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md)\\
 **Classification:** Public\\
 **Category:** Executive Narrative\\
 **Review Frequency:** Annual\\
-**Repository Path:** [`executive/decision-ai-risk-appetite.md`](decision-ai-risk-appetite.md)\\
+**Repository Path:** [`executive/decision-narratives/decision-ai-risk-appetite.md`](decision-ai-risk-appetite.md)\\
 **Confidentiality:** Public\\
 **License:** CC BY-SA 4.0\\
 **Narrative Type:** Decision Narrative\\
 **Narrative Status:** Advisory\\
 **Audience:** Governing body and accountable executive leadership (board, ELT, or senior management, as applicable)\\
-**Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)\\
+**Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md)\\
 **External Sources:** None\\
 **Claim Classes Present:** citation\\
 **Review Record:** NR-2026-001\\
@@ -344,7 +349,7 @@ def _self_test() -> int:
 
 ---
 
-Body cites [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md).
+Body cites [`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md).
 """
     # (filename, transform, expected substring in a finding, or None to expect PASS)
     cases: list[tuple[str, str, str | None]] = [
@@ -356,29 +361,33 @@ Body cites [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodolo
         ("decision-badstatus.md", valid.replace("**Narrative Status:** Advisory", "**Narrative Status:** Explanatory"), "does not match the fixed status"),
         ("decision-badvocab.md", valid.replace("**Narrative Status:** Advisory", "**Narrative Status:** Bogus"), "not one of"),
         ("decision-outoforder.md", valid.replace("**Version:** 0.0.1\\\n**Date:** 2026-08-05\\\n", "**Date:** 2026-08-05\\\n**Version:** 0.0.1\\\n"), "out of canonical order"),
-        ("decision-malformedpin.md", valid.replace("(../risk/annex-ai-risk-methodology.md)\\", "(../risk/annex-ai-risk-methodology.md)@1.0.6\\"), "malformed Corpus Sources pin"),
-        ("decision-hiddenmalformed.md", valid.replace("[`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)\\", "[`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md) [`governance/charter-governance-library.md`](../governance/charter-governance-library.md)@2.0.0\\"), "malformed Corpus Sources pin"),
-        ("decision-aliasdup.md", valid.replace("**Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)", "**Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md), [`risk/annex-ai-risk-methodology.md`](risk/annex-ai-risk-methodology.md)"), "duplicate Corpus Sources pin"),
+        ("decision-malformedpin.md", valid.replace("(../../risk/annex-ai-risk-methodology.md)\\", "(../../risk/annex-ai-risk-methodology.md)@1.0.6\\"), "malformed Corpus Sources pin"),
+        ("decision-hiddenmalformed.md", valid.replace("[`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md)\\", "[`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md) [`governance/charter-governance-library.md`](../../governance/charter-governance-library.md)@2.0.0\\"), "malformed Corpus Sources pin"),
+        ("decision-aliasdup.md", valid.replace("**Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md)", "**Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md), [`risk/annex-ai-risk-methodology.md`](risk/annex-ai-risk-methodology.md)"), "duplicate Corpus Sources pin"),
         ("decision-lastbackslash.md", valid.replace("**Last Reviewed:** 2026-08-05", "**Last Reviewed:** 2026-08-05\\"), "last metadata line must be bare"),
         ("decision-interposed.md", valid.replace("**License:** CC BY-SA 4.0\\", "**License:** CC BY-SA 4.0\\\n**Bogus Field:** x\\"), "unexpected metadata field"),
         ("wrongprefix.md", valid, "filename must start with"),
         ("decision-nopin.md", re.sub(r"\*\*Corpus Sources:\*\*.*", "**Corpus Sources:** none\\\\", valid), "at least one pin"),
-        ("decision-noncorpuspin.md", valid.replace("[`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)\\\n**External Sources:**", "[`executive/README.md`](README.md)\\\n**External Sources:**"), "is not a corpus document"),
-        ("decision-traversalpin.md", valid.replace("[`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)\\\n**External Sources:**", "[`risk/annex-ai-risk-methodology.md`](../risk/../executive/x.md)\\\n**External Sources:**"), "is not a corpus document"),
-        ("decision-encodedpin.md", valid.replace("[`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)\\\n**External Sources:**", "[`risk/annex-ai-risk-methodology.md`](../risk/%2e%2e/executive/x.md)\\\n**External Sources:**"), "is not a corpus document"),
-        ("decision-duppin.md", valid.replace("**Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)", "**Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md), [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)"), "duplicate Corpus Sources pin"),
-        ("decision-unpinnedbody.md", valid.replace("Body cites [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md).", "Body links [`governance/charter-governance-library.md`](../governance/charter-governance-library.md)."), "not present in Corpus Sources"),
+        ("decision-noncorpuspin.md", valid.replace("[`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md)\\\n**External Sources:**", "[`executive/README.md`](README.md)\\\n**External Sources:**"), "is not a corpus document"),
+        ("decision-traversalpin.md", valid.replace("[`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md)\\\n**External Sources:**", "[`risk/annex-ai-risk-methodology.md`](../../risk/../executive/x.md)\\\n**External Sources:**"), "is not a corpus document"),
+        ("decision-encodedpin.md", valid.replace("[`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md)\\\n**External Sources:**", "[`risk/annex-ai-risk-methodology.md`](../../risk/%2e%2e/executive/x.md)\\\n**External Sources:**"), "is not a corpus document"),
+        ("decision-duppin.md", valid.replace("**Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md)", "**Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md), [`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md)"), "duplicate Corpus Sources pin"),
+        ("decision-unpinnedbody.md", valid.replace("Body cites [`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md).", "Body links [`governance/charter-governance-library.md`](../../governance/charter-governance-library.md)."), "not present in Corpus Sources"),
         ("decision-nobreak.md", valid.replace("**Version:** 0.0.1\\", "**Version:** 0.0.1"), "missing trailing backslash"),
         ("decision-badclaimclass.md", valid.replace("**Claim Classes Present:** citation", "**Claim Classes Present:** citation, bogus"), "Claim Classes Present value"),
         ("decision-badlastreval.md", valid.replace("**Last Reviewed:** 2026-08-05", "**Last Reviewed:** 2026-13-99"), "not an ISO 8601"),
-        ("decision-rootcorpusbody.md", valid.replace("Body cites [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md).", "Body cites [`specification-master-project.md`](../specification-master-project.md)."), "not present in Corpus Sources"),
+        ("decision-rootcorpusbody.md", valid.replace("Body cites [`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md).", "Body cites [`specification-master-project.md`](../../specification-master-project.md)."), "not present in Corpus Sources"),
         ("decision-noneclaimclass.md", valid.replace("**Claim Classes Present:** citation", "**Claim Classes Present:** None"), "Claim Classes Present value"),
-        ("decision-siblingreadme.md", valid.replace("Body cites [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md).", "Body cites [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md) and the entry point [README](README.md)."), None),
+        ("decision-siblingreadme.md", valid.replace("Body cites [`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md).", "Body cites [`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md) and the entry point [README](README.md)."), None),
     ]
     failures: list[str] = []
     with tempfile.TemporaryDirectory() as td:
+        execroot = Path(td) / "executive"
+        # Every case is a Decision Narrative, so it must live directly in executive/decision-narratives/.
+        subdir = execroot / "decision-narratives"
+        subdir.mkdir(parents=True)
         for name, content, expect in cases:
-            p = Path(td) / name
+            p = subdir / name
             p.write_text(content, encoding="utf-8")
             findings = audit_page(p)
             if expect is None:
@@ -387,6 +396,21 @@ Body cites [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodolo
             else:
                 if not any(expect in f for f in findings):
                     failures.append(f"{name}: expected a finding containing {expect!r}; got {findings}")
+        # subtype -> subdirectory enforcement, two ways it can be wrong:
+        # (a) right subtype dir name but wrong subtype: a Decision Narrative in briefs/.
+        wrongdir = execroot / "briefs"
+        wrongdir.mkdir()
+        wp = wrongdir / "decision-wrongsubdir.md"
+        wp.write_text(valid, encoding="utf-8")
+        if not any("must live directly in executive/decision-narratives/" in f for f in audit_page(wp)):
+            failures.append("decision-wrongsubdir.md: expected a subtype-subdir finding")
+        # (b) correct subdir name but NOT a direct child of executive/ (nested).
+        nesteddir = execroot / "archive" / "decision-narratives"
+        nesteddir.mkdir(parents=True)
+        npg = nesteddir / "decision-nested.md"
+        npg.write_text(valid, encoding="utf-8")
+        if not any("must live directly in executive/decision-narratives/" in f for f in audit_page(npg)):
+            failures.append("decision-nested.md: expected a subtype-subdir finding for a nested page")
     if failures:
         for fl in failures:
             print(f"  SELF-TEST FAIL: {fl}")
