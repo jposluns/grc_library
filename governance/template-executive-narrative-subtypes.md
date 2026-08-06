@@ -2,7 +2,7 @@
 
 **Document Title:** Executive Narrative Subtype Templates\
 **Document Type:** Template\
-**Version:** 1.0.0\
+**Version:** 1.0.1\
 **Date:** 2026-08-06\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -23,12 +23,12 @@ The templates live here, in the governance domain, rather than under the `execut
 ## 2. How to use these templates
 
 1. Copy the fenced skeleton for the subtype you are authoring (the content inside the triple-backtick block, not the fence markers).
-2. Create the new file under `executive/`, named with the subtype's filename prefix (for example `executive/brief-<topic>.md` for an Executive Brief).
+2. Create the new file under the subtype's subdirectory in `executive/`, named with the subtype's filename prefix (for example `executive/briefs/brief-<topic>.md` for an Executive Brief). Each subtype's subdirectory is fixed by the subtype table in the specification, and the narrative metadata gate enforces it.
 3. Replace every bracketed placeholder and each example value. In particular: set a real `Corpus Sources` list (each entry a plain markdown link to a corpus document the page relies on, with no version suffix), the correct `Narrative Type` and its fixed `Narrative Status`, the present `Claim Classes Present`, a `Review Record` identifier, and a `Last Reviewed` date.
 4. Keep the authority disclaimer verbatim as the first body content after the metadata block; it is fixed by the specification and identical on every page.
 5. Run the narrative gates against the new page before committing.
 
-The example values in each skeleton are chosen so that a skeleton copied to `executive/`, renamed to its prefix, resolves against the narrative metadata gate with minimal editing. `Corpus Sources` records dependency paths only: an executive page refers to corpus documents but never pins a version, so a corpus version change never invalidates a page. `Last Reviewed` is an advisory editorial-freshness date on a six-month cadence, not a gated requirement.
+The example values in each skeleton are chosen so that a skeleton copied to its subtype's subdirectory under `executive/`, renamed to its prefix, resolves against the narrative metadata gate with minimal editing. `Corpus Sources` records dependency paths only: an executive page refers to corpus documents but never pins a version, so a corpus version change never invalidates a page. `Last Reviewed` is an advisory editorial-freshness date on a six-month cadence, not a gated requirement.
 
 ## 3. The seven subtype skeletons
 
@@ -43,17 +43,17 @@ The example values in each skeleton are chosen so that a skeleton copied to `exe
 **Date:** 2026-08-06\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`ai/guide-ai-board-oversight.md`](../ai/guide-ai-board-oversight.md)\
+**Related Documents:** [`ai/guide-ai-board-oversight.md`](../../ai/guide-ai-board-oversight.md)\
 **Classification:** Public\
 **Category:** Executive Narrative\
 **Review Frequency:** Annual, and a 6-month advisory executive review\
-**Repository Path:** [`executive/brief-example-topic.md`](brief-example-topic.md)\
+**Repository Path:** [`executive/briefs/brief-example-topic.md`](brief-example-topic.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **Narrative Type:** Executive Brief\
 **Narrative Status:** Explanatory\
 **Audience:** Governing body and accountable executive leadership (board, ELT, or senior management, as applicable)\
-**Corpus Sources:** [`ai/guide-ai-board-oversight.md`](../ai/guide-ai-board-oversight.md)\
+**Corpus Sources:** [`ai/guide-ai-board-oversight.md`](../../ai/guide-ai-board-oversight.md)\
 **External Sources:** None\
 **Claim Classes Present:** citation\
 **Review Record:** NR-2026-001\
@@ -97,17 +97,17 @@ At minimum: this page creates no compliance; the adopting organization validates
 **Date:** 2026-08-06\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`risk/register-scenario-risk-catalogue.md`](../risk/register-scenario-risk-catalogue.md)\
+**Related Documents:** [`risk/register-scenario-risk-catalogue.md`](../../risk/register-scenario-risk-catalogue.md)\
 **Classification:** Public\
 **Category:** Executive Narrative\
 **Review Frequency:** Annual, and a 6-month advisory executive review\
-**Repository Path:** [`executive/scenario-example-topic.md`](scenario-example-topic.md)\
+**Repository Path:** [`executive/scenarios/scenario-example-topic.md`](scenario-example-topic.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **Narrative Type:** Scenario\
 **Narrative Status:** Non-normative\
 **Audience:** Governing body and accountable executive leadership (board, ELT, or senior management, as applicable)\
-**Corpus Sources:** [`risk/register-scenario-risk-catalogue.md`](../risk/register-scenario-risk-catalogue.md)\
+**Corpus Sources:** [`risk/register-scenario-risk-catalogue.md`](../../risk/register-scenario-risk-catalogue.md)\
 **External Sources:** None\
 **Claim Classes Present:** composite\
 **Review Record:** NR-2026-001\
@@ -155,17 +155,17 @@ State the illustrative and composite nature: fictional, no likelihood or frequen
 **Date:** 2026-08-06\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)\
+**Related Documents:** [`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md)\
 **Classification:** Public\
 **Category:** Executive Narrative\
 **Review Frequency:** Annual, and a 6-month advisory executive review\
-**Repository Path:** [`executive/decision-example-topic.md`](decision-example-topic.md)\
+**Repository Path:** [`executive/decision-narratives/decision-example-topic.md`](decision-example-topic.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **Narrative Type:** Decision Narrative\
 **Narrative Status:** Advisory\
 **Audience:** Governing body and accountable executive leadership (board, ELT, or senior management, as applicable)\
-**Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)\
+**Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md)\
 **External Sources:** ISO 31000\
 **Claim Classes Present:** citation, sourced, composite\
 **Review Record:** NR-2026-001\
@@ -213,17 +213,17 @@ This page creates no compliance and prescribes no outcome; the adopting organiza
 **Date:** 2026-08-06\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`ai/guide-ai-board-oversight.md`](../ai/guide-ai-board-oversight.md)\
+**Related Documents:** [`ai/guide-ai-board-oversight.md`](../../ai/guide-ai-board-oversight.md)\
 **Classification:** Public\
 **Category:** Executive Narrative\
 **Review Frequency:** Annual, and a 6-month advisory executive review\
-**Repository Path:** [`executive/oversight-questions-example-topic.md`](oversight-questions-example-topic.md)\
+**Repository Path:** [`executive/oversight-question-sets/oversight-questions-example-topic.md`](oversight-questions-example-topic.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **Narrative Type:** Oversight Question Set\
 **Narrative Status:** Advisory\
 **Audience:** Governing body and accountable executive leadership (board, ELT, or senior management, as applicable)\
-**Corpus Sources:** [`ai/guide-ai-board-oversight.md`](../ai/guide-ai-board-oversight.md)\
+**Corpus Sources:** [`ai/guide-ai-board-oversight.md`](../../ai/guide-ai-board-oversight.md)\
 **External Sources:** None\
 **Claim Classes Present:** citation\
 **Review Record:** NR-2026-001\
@@ -271,17 +271,17 @@ This page organizes questioning; it prescribes no answer and creates no complian
 **Date:** 2026-08-06\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`risk/register-scenario-risk-catalogue.md`](../risk/register-scenario-risk-catalogue.md)\
+**Related Documents:** [`risk/register-scenario-risk-catalogue.md`](../../risk/register-scenario-risk-catalogue.md)\
 **Classification:** Public\
 **Category:** Executive Narrative\
 **Review Frequency:** Annual, and a 6-month advisory executive review\
-**Repository Path:** [`executive/story-example-topic.md`](story-example-topic.md)\
+**Repository Path:** [`executive/stories/story-example-topic.md`](story-example-topic.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **Narrative Type:** Story\
 **Narrative Status:** Non-normative\
 **Audience:** Governing body and accountable executive leadership (board, ELT, or senior management, as applicable)\
-**Corpus Sources:** [`risk/register-scenario-risk-catalogue.md`](../risk/register-scenario-risk-catalogue.md)\
+**Corpus Sources:** [`risk/register-scenario-risk-catalogue.md`](../../risk/register-scenario-risk-catalogue.md)\
 **External Sources:** None\
 **Claim Classes Present:** composite\
 **Review Record:** NR-2026-001\
@@ -329,17 +329,17 @@ State the illustrative and composite nature: fictional, no likelihood or frequen
 **Date:** 2026-08-06\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`governance/charter-governance-library.md`](../governance/charter-governance-library.md)\
+**Related Documents:** [`governance/charter-governance-library.md`](../../governance/charter-governance-library.md)\
 **Classification:** Public\
 **Category:** Executive Narrative\
 **Review Frequency:** Annual, and a 6-month advisory executive review\
-**Repository Path:** [`executive/journey-example-topic.md`](journey-example-topic.md)\
+**Repository Path:** [`executive/journeys/journey-example-topic.md`](journey-example-topic.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **Narrative Type:** Journey\
 **Narrative Status:** Explanatory\
 **Audience:** Governing body and accountable executive leadership (board, ELT, or senior management, as applicable)\
-**Corpus Sources:** [`governance/charter-governance-library.md`](../governance/charter-governance-library.md)\
+**Corpus Sources:** [`governance/charter-governance-library.md`](../../governance/charter-governance-library.md)\
 **External Sources:** None\
 **Claim Classes Present:** citation, composite\
 **Review Record:** NR-2026-001\
@@ -391,17 +391,17 @@ This page explains a path; it creates no compliance and prescribes no outcome. C
 **Date:** 2026-08-06\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)\
+**Related Documents:** [`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md)\
 **Classification:** Public\
 **Category:** Executive Narrative\
 **Review Frequency:** Annual, and a 6-month advisory executive review\
-**Repository Path:** [`executive/outcome-map-example-topic.md`](outcome-map-example-topic.md)\
+**Repository Path:** [`executive/outcome-maps/outcome-map-example-topic.md`](outcome-map-example-topic.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **Narrative Type:** Outcome Map\
 **Narrative Status:** Explanatory\
 **Audience:** Governing body and accountable executive leadership (board, ELT, or senior management, as applicable)\
-**Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)\
+**Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md)\
 **External Sources:** None\
 **Claim Classes Present:** citation\
 **Review Record:** NR-2026-001\
