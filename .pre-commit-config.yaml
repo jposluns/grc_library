@@ -615,3 +615,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-narrative-disclaimer
+        name: Narrative disclaimer-presence audit
+        entry: python3 tools/lint-narrative-disclaimer.py
+        language: system
+        pass_filenames: false
+        always_run: true
