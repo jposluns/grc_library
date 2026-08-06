@@ -591,3 +591,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: build-narrative-registry
+        name: Narrative registry sync
+        entry: python3 tools/build-narrative-registry.py --check
+        language: system
+        pass_filenames: false
+        always_run: true
