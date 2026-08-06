@@ -30,6 +30,7 @@ pages:
   external_sources: []
   claim_classes_present:
     - "citation"
+    - "composite"
   review_record: "NR-2026-002"
   last_reviewed: "2026-08-06"
   derived_tags:
