@@ -1518,6 +1518,116 @@ class ChangelogDashOnPrTests(DeltaGateRepoTestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
 
+class NarrativeCorpusMixedDiffOnPrTests(DeltaGateRepoTestCase):
+    """tools/check-narrative-corpus-mixed-diff-on-pr.py (delta gate D11).
+
+    The one-way executive-narrative authority boundary at PR-process level: a
+    PR whose delta touches BOTH a narrative content page and a corpus document
+    is rejected. Complements the script's pure-logic --self-test with a real
+    two-commit range.
+    """
+
+    SCRIPT = "check-narrative-corpus-mixed-diff-on-pr.py"
+
+    def _run(self, base_files, head_files, expect_rc, msg):
+        tmp, base_sha, shutil = self._build_repo(base_files, head_files)
+        try:
+            result = self._run_gate(self.SCRIPT, tmp, base_sha)
+            self.assertEqual(
+                result.returncode, expect_rc,
+                f"{msg}; got {result.returncode}.\n"
+                f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_mixed_narrative_and_corpus_fails(self) -> None:
+        self._run(
+            {"README.md": "# R\n"},
+            {"executive/why-controls-matter.md": "# N\n", "risk/standard-x.md": "# C\n"},
+            1, "D11 should FAIL on a mixed narrative+corpus diff",
+        )
+
+    def test_narrative_only_passes(self) -> None:
+        self._run(
+            {"README.md": "# R\n"},
+            {"executive/why-controls-matter.md": "# N\n"},
+            0, "D11 should PASS on a narrative-only diff",
+        )
+
+    def test_corpus_only_passes(self) -> None:
+        self._run(
+            {"README.md": "# R\n"},
+            {"risk/standard-x.md": "# C\n"},
+            0, "D11 should PASS on a corpus-only diff",
+        )
+
+    def test_narrative_plus_root_readme_passes(self) -> None:
+        # The mandatory per-PR root README CalVer bump must NOT trip D11:
+        # root README.md is not a corpus document.
+        self._run(
+            {"README.md": "# R\n"},
+            {"executive/page.md": "# N\n", "README.md": "# R\n\nCalVer 2026.08.120\n"},
+            0, "D11 should PASS on a narrative page plus the root README bump",
+        )
+
+    def test_readme_entrypoint_plus_corpus_passes(self) -> None:
+        # executive/README.md is the exempt entry point, not narrative content.
+        self._run(
+            {"README.md": "# R\n"},
+            {"executive/README.md": "# Listing\n", "risk/standard-x.md": "# C\n"},
+            0, "D11 should PASS when only the executive README (not content) accompanies a corpus edit",
+        )
+
+    def test_nested_narrative_readme_plus_corpus_fails(self) -> None:
+        # F1: the README exemption is PATH-SCOPED; a NESTED executive README is
+        # authored narrative content, so a nested-README + corpus edit is mixed.
+        self._run(
+            {"README.md": "# R\n"},
+            {"executive/sub/README.md": "# N\n", "risk/standard-x.md": "# C\n"},
+            1, "D11 should FAIL on a nested executive README plus a corpus edit",
+        )
+
+    def test_narrative_plus_root_spec_fails(self) -> None:
+        # F2: a root-level governed corpus doc (specification-*) IS corpus content.
+        self._run(
+            {"README.md": "# R\n"},
+            {"executive/page.md": "# N\n", "specification-master-project.md": "# S\n"},
+            1, "D11 should FAIL on a narrative page plus a root corpus specification",
+        )
+
+    def test_boundary_crossing_rename_fails(self) -> None:
+        # F4: a rename that MOVES a narrative page into a corpus directory crosses
+        # the boundary. With --no-renames the diff reports delete(executive) +
+        # add(corpus), so BOTH sides are seen; default rename detection would
+        # report only the destination and lose the narrative side.
+        import subprocess as sp
+        import tempfile
+        tmp = Path(tempfile.mkdtemp(prefix="lint-delta-rename-"))
+        try:
+            sp.run(["git", "init", "-q", "-b", "main", str(tmp)], check=True)
+            sp.run(["git", "-C", str(tmp), "config", "user.email", "t@t"], check=True)
+            sp.run(["git", "-C", str(tmp), "config", "user.name", "T"], check=True)
+            (tmp / "executive").mkdir()
+            (tmp / "executive" / "page.md").write_text("# N\nbody\n", encoding="utf-8")
+            sp.run(["git", "-C", str(tmp), "add", "-A"], check=True)
+            sp.run(["git", "-C", str(tmp), "commit", "-q", "-m", "base"], check=True)
+            base_sha = sp.run(["git", "-C", str(tmp), "rev-parse", "HEAD"],
+                              capture_output=True, text=True, check=True).stdout.strip()
+            (tmp / "risk").mkdir()
+            sp.run(["git", "-C", str(tmp), "mv", "executive/page.md", "risk/page.md"], check=True)
+            sp.run(["git", "-C", str(tmp), "commit", "-q", "-m", "move across boundary"], check=True)
+            result = self._run_gate(self.SCRIPT, tmp, base_sha)
+            self.assertEqual(
+                result.returncode, 1,
+                f"D11 should FAIL on a narrative->corpus rename; got {result.returncode}.\n"
+                f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+        finally:
+            import shutil
+            shutil.rmtree(tmp, ignore_errors=True)
+
+
 class TodoRotationOnPrDeltaTests(DeltaGateRepoTestCase):
     """tools/check-todo-rotation-on-pr.py (delta gate D5), subprocess tier.
 
