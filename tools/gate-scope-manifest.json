@@ -104,7 +104,8 @@
     "narrative-only": [
       "lint-narrative-metadata.py",
       "build-narrative-registry.py",
-      "lint-narrative-boundary.py"
+      "lint-narrative-boundary.py",
+      "lint-narrative-authority-boundary.py"
     ],
     "advisory-not-gate": [
       "check-class-completeness.py",
