@@ -66,7 +66,6 @@ from pathlib import Path
 from lint_common import (
     METADATA_FIELD_RE,
     REPO_ROOT,
-    is_fence_line,
     read_text_safe,
 )
 
@@ -135,20 +134,47 @@ EXTENSION_FIELD_LINE_RE = re.compile(
 )
 
 
+# Marker-aware fence parser (CommonMark): a fenced block closes only on a line
+# using the SAME marker char and a run length >= the opener, with no info string.
+# The shared ``is_fence_line`` predicate is a bare toggle (by design, for its many
+# consumers), so a ``` line inside a ~~~ fence would wrongly close it; gate 86 needs
+# marker-type tracking so a fenced example's metadata line is not a false leak.
+_FENCE_RE = re.compile(r"^\s*(`{3,}|~{3,})(.*)$")
+
+
+def _fence_marker(line: str) -> tuple[str, int, str] | None:
+    """(char, run-length, info-string) for a fence delimiter line, else None."""
+    m = _FENCE_RE.match(line)
+    if not m:
+        return None
+    run = m.group(1)
+    return run[0], len(run), m.group(2).strip()
+
+
+def _closes(marker: "tuple[str, int, str] | None", opener: "tuple[str, int]") -> bool:
+    """True iff ``marker`` closes a block opened by ``opener`` (same char, length
+    >= opener, no info string)."""
+    return (marker is not None and marker[0] == opener[0]
+            and marker[1] >= opener[1] and not marker[2])
+
+
 def parse_metadata_run(text: str) -> dict[str, str]:
     """First-occurrence field values of the leading metadata run (the block
     ending at the first ``---`` or blank line after at least one field)."""
     fields: dict[str, str] = {}
     seen = False
-    in_code = False
+    open_fence: "tuple[str, int] | None" = None
     for line in text.splitlines():
-        # Fence-aware: a fenced example block is not the metadata run, so a page
-        # whose only field-shaped lines are inside a fence has NO real metadata
-        # (it fails the inside check) rather than a fenced example read as metadata.
-        if is_fence_line(line):
-            in_code = not in_code
+        # Fence-aware (marker-type-tracking): a fenced example block is not the
+        # metadata run. A block closes only on the same marker char and length; a
+        # mismatched fence inside it (``` inside a ~~~ block) is content.
+        marker = _fence_marker(line)
+        if open_fence is not None:
+            if _closes(marker, open_fence):
+                open_fence = None
             continue
-        if in_code:
+        if marker is not None:
+            open_fence = (marker[0], marker[1])
             continue
         stripped = line.strip()
         if seen and (stripped.startswith("---") or not stripped):
@@ -173,12 +199,18 @@ def scan_outside_file(path: Path, rel: str) -> list[str]:
         return [f"{rel}: not readable / not utf-8 (a file outside executive/ that cannot be "
                 f"read cannot be cleared of narrative markers; fail loud, not open)"]
     findings: list[str] = []
-    in_code = False
+    open_fence: "tuple[str, int] | None" = None
     for lineno, line in enumerate(text.splitlines(), 1):
-        if is_fence_line(line):
-            in_code = not in_code
+        marker = _fence_marker(line)
+        if open_fence is not None:
+            # inside a fenced block: closes only on the same marker char and a
+            # length >= the opener with no info string; a mismatched fence
+            # (``` inside a ~~~ block) is content, not a close.
+            if _closes(marker, open_fence):
+                open_fence = None
             continue
-        if in_code:
+        if marker is not None:
+            open_fence = (marker[0], marker[1])
             continue
         if NARRATIVE_TYPE_LINE_RE.match(line):
             findings.append(
@@ -348,6 +380,12 @@ def _self_test() -> int:
         fenced = root / "doc.md"
         fenced.write_text("```\n**Document Type:** Executive Narrative\\\n**Audience:** x\\\n```\n")
         expect("outside-fenced-pass", scan_outside_file(fenced, "docs/doc.md"), None)
+        # F4: a ~~~-fenced block containing a ``` line + metadata must NOT toggle
+        # out of code (the fence closes only on the same marker char), so the
+        # metadata line is content, not a false leak.
+        mixedfence = root / "mixed-fence.md"
+        mixedfence.write_text("# D\n\nExample:\n\n~~~\n```\n**Document Type:** Executive Narrative\\\n**Audience:** x\\\n~~~\n\nProse.\n")
+        expect("outside-mixed-fence-noescape", scan_outside_file(mixedfence, "docs/mixed-fence.md"), None)
         # Prose discussion (not line-anchored): pass.
         prose = root / "prose.md"
         prose.write_text("1. **Narrative Type:** one of the seven subtypes.\nThe **Audience:** value is fixed.\n")
