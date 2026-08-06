@@ -18,19 +18,21 @@ Checks per narrative page:
   - ``Narrative Status`` is one of the three closed values AND matches the fixed
     subtype-to-status mapping.
   - The filename prefix matches the ``Narrative Type``'s mandatory prefix.
-  - At least one ``Corpus Sources`` pin, each of the form ``path@semver`` with a
-    single pin per target (no duplicate pin on the same target).
+  - At least one ``Corpus Sources`` pin, each a plain markdown link to the corpus
+    document (a path reference, no version suffix), with a single pin per target
+    (no duplicate pin on the same target).
   - Body-link/pin completeness: every corpus document linked in the page body
     appears in ``Corpus Sources``.
   - Backslash hard-break markers on every metadata line except the block's last.
   - ``Claim Classes Present`` is a subset of the closed vocabulary (citation,
-    sourced, composite); ``Last Revalidated`` is a valid ISO 8601 date.
+    sourced, composite); ``Last Reviewed`` is a valid ISO 8601 date.
 
 Exit 0 if every narrative page is valid (an executive/ tree holding only the
 entry-point README is valid: zero pages, zero findings). Exit 1 on any finding.
 """
 from __future__ import annotations
 
+import posixpath
 import re
 import sys
 from pathlib import Path
@@ -67,7 +69,7 @@ EXTENSION_FIELDS: list[str] = [
     "External Sources",
     "Claim Classes Present",
     "Review Record",
-    "Last Revalidated",
+    "Last Reviewed",
 ]
 
 # The seven closed subtypes: Narrative Type -> (filename prefix, fixed Narrative Status).
@@ -82,9 +84,10 @@ SUBTYPES: dict[str, tuple[str, str]] = {
 }
 STATUSES: frozenset[str] = frozenset({"Non-normative", "Advisory", "Explanatory"})
 
-# A Corpus Sources pin: a markdown link followed by @semver, e.g.
-# [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)@1.0.6
-PIN_RE = re.compile(r"\[`(?P<disp>[^`]+)`\]\((?P<target>[^)]+)\)@(?P<ver>\d+\.\d+\.\d+)(?=[,\s]|$)")
+# A Corpus Sources pin: a plain markdown link to the corpus document, NO version
+# suffix, e.g.
+# [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)
+PIN_RE = re.compile(r"\[`(?P<disp>[^`]+)`\]\((?P<target>[^)]+)\)(?=[,\s]|$)")
 # A markdown link in the page body (for body-link/pin completeness).
 BODY_LINK_RE = re.compile(r"\[[^\]]+\]\((?P<target>[^)]+)\)")
 # Corpus domain dirs a body link would point into (a link is "to the corpus" if
@@ -163,6 +166,10 @@ def _normalise_corpus_target(target: str) -> str:
     ``risk/foo.md`` compare equal while a same-basename file in a different
     domain (``governance/foo.md``) does NOT. Any anchor/query suffix is dropped."""
     t = target.split("#", 1)[0].split("?", 1)[0]
+    # Collapse INTERNAL traversal first (posixpath.normpath is pure, no filesystem),
+    # so `../risk/../executive/x.md` resolves to `executive/x.md` and cannot pose as a
+    # `risk/` corpus doc; then strip the leading up-segments out of executive/.
+    t = posixpath.normpath(t)
     while t.startswith("../") or t.startswith("./"):
         t = t[3:] if t.startswith("../") else t[2:]
     return t
@@ -220,22 +227,40 @@ def audit_page(path: Path) -> list[str]:
     pins = PIN_RE.findall(corpus_sources)
     pin_targets = [m[1] for m in pins]
     if not pins:
-        findings.append(f"{rel}: Corpus Sources must carry at least one pin of the form [`path`](path)@semver")
-    # Malformed pin: a comma-separated segment carrying an @-version that is not a well-formed pin
-    # (e.g. `@1.0.6junk`, a trailing garbage version). Segments with no `@` are skipped (a bare `None`).
+        findings.append(f"{rel}: Corpus Sources must carry at least one pin of the form [`path`](path)")
+    # Malformed pin: a comma-separated segment that is not a bare markdown link
+    # (e.g. a leftover `@version` suffix, or free text). A segment that is just
+    # `none` is skipped (a bare `None`).
     for seg in corpus_sources.split(","):
         seg = seg.strip()
         if not seg or seg.lower() == "none":
             continue
-        # The WHOLE segment must be exactly one pin (fullmatch), so a malformed pin
-        # cannot hide after a valid one in the same space-separated segment.
+        # The WHOLE segment must be exactly one bare markdown link (fullmatch), so a
+        # malformed pin cannot hide after a valid one in the same space-separated segment.
         if not PIN_RE.fullmatch(seg):
-            findings.append(f"{rel}: malformed Corpus Sources pin (each entry must be exactly [`path`](path)@semver, comma-separated): {seg[:80]!r}")
+            findings.append(f"{rel}: malformed Corpus Sources pin (each entry must be exactly a bare markdown link [`path`](path), comma-separated): {seg[:80]!r}")
     # Duplicate check on the NORMALISED corpus path, so `../risk/x.md` and `risk/x.md` count as one target.
     norm_targets = [_normalise_corpus_target(t) for t in pin_targets]
     dupes = {t for t in norm_targets if norm_targets.count(t) > 1}
     for t in sorted(dupes):
         findings.append(f"{rel}: duplicate Corpus Sources pin on the same target: {t}")
+    # Corpus-membership: each pin must reference a corpus DOCUMENT, which lives
+    # OUTSIDE executive/. A corpus pin therefore traverses up ("../") and lands
+    # under a corpus domain dir or is a root corpus doc. A bare or non-traversing
+    # target points inside executive/ (a sibling page, e.g. the entry-point
+    # README) or out of the corpus, and is not a corpus source. (The redesign
+    # dropped gate 85's taxonomy-based membership test; gate 84 is now the
+    # authority that a pin names a corpus document. Mirrors the body-link rule.)
+    for t in pin_targets:
+        norm = _normalise_corpus_target(t)
+        goes_up = t.strip().startswith(("../", "..\\"))
+        # A CLEAN corpus path only: reject any residual traversal or an encoding
+        # (`%..`, `\\`) that a renderer might later decode into traversal, so an
+        # obfuscated non-corpus target cannot pose as a corpus doc after normpath.
+        clean = bool(norm) and ".." not in norm.split("/") and "%" not in norm and "\\" not in norm
+        is_corpus = goes_up and clean and (any(norm.startswith(pre) for pre in CORPUS_DOMAIN_PREFIXES) or norm in ROOT_CORPUS_DOCS)
+        if not is_corpus:
+            findings.append(f"{rel}: Corpus Sources pin target {t!r} is not a corpus document (a pin must reference a corpus document outside executive/)")
 
     # Closed-vocabulary / typed value validation for extension fields (defence-in-depth
     # beyond the presence checks above; the constraints are stated in the spec's metadata
@@ -245,9 +270,9 @@ def audit_page(path: Path) -> list[str]:
         for tok in (t.strip() for t in claim_classes.split(",")):
             if tok and tok not in CLAIM_CLASSES:
                 findings.append(f"{rel}: Claim Classes Present value {tok!r} not one of {sorted(CLAIM_CLASSES)}")
-    last_reval = meta.get("Last Revalidated")
-    if last_reval is not None and parse_iso_date(last_reval) is None:
-        findings.append(f"{rel}: Last Revalidated {last_reval!r} is not an ISO 8601 (YYYY-MM-DD) date")
+    last_reviewed = meta.get("Last Reviewed")
+    if last_reviewed is not None and parse_iso_date(last_reviewed) is None:
+        findings.append(f"{rel}: Last Reviewed {last_reviewed!r} is not an ISO 8601 (YYYY-MM-DD) date")
 
     # Body-link/pin completeness: a body corpus link absent from Corpus Sources is a defect.
     # Match on the FULL repo-relative corpus path (not the basename): a same-named
@@ -311,11 +336,11 @@ def _self_test() -> int:
 **Narrative Type:** Decision Narrative\\
 **Narrative Status:** Advisory\\
 **Audience:** Governing body and accountable executive leadership (board, ELT, or senior management, as applicable)\\
-**Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)@1.0.6\\
+**Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)\\
 **External Sources:** None\\
 **Claim Classes Present:** citation\\
 **Review Record:** NR-2026-001\\
-**Last Revalidated:** 2026-08-05
+**Last Reviewed:** 2026-08-05
 
 ---
 
@@ -331,18 +356,21 @@ Body cites [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodolo
         ("decision-badstatus.md", valid.replace("**Narrative Status:** Advisory", "**Narrative Status:** Explanatory"), "does not match the fixed status"),
         ("decision-badvocab.md", valid.replace("**Narrative Status:** Advisory", "**Narrative Status:** Bogus"), "not one of"),
         ("decision-outoforder.md", valid.replace("**Version:** 0.0.1\\\n**Date:** 2026-08-05\\\n", "**Date:** 2026-08-05\\\n**Version:** 0.0.1\\\n"), "out of canonical order"),
-        ("decision-malformedpin.md", valid.replace("@1.0.6\\", "@1.0.6junk\\"), "malformed Corpus Sources pin"),
-        ("decision-hiddenmalformed.md", valid.replace("[`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)@1.0.6\\", "[`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)@1.0.6 [`governance/charter-governance-library.md`](../governance/charter-governance-library.md)@2.0.0junk\\"), "malformed Corpus Sources pin"),
-        ("decision-aliasdup.md", valid.replace("**Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)@1.0.6", "**Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)@1.0.6, [`risk/annex-ai-risk-methodology.md`](risk/annex-ai-risk-methodology.md)@1.0.6"), "duplicate Corpus Sources pin"),
-        ("decision-lastbackslash.md", valid.replace("**Last Revalidated:** 2026-08-05", "**Last Revalidated:** 2026-08-05\\"), "last metadata line must be bare"),
+        ("decision-malformedpin.md", valid.replace("(../risk/annex-ai-risk-methodology.md)\\", "(../risk/annex-ai-risk-methodology.md)@1.0.6\\"), "malformed Corpus Sources pin"),
+        ("decision-hiddenmalformed.md", valid.replace("[`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)\\", "[`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md) [`governance/charter-governance-library.md`](../governance/charter-governance-library.md)@2.0.0\\"), "malformed Corpus Sources pin"),
+        ("decision-aliasdup.md", valid.replace("**Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)", "**Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md), [`risk/annex-ai-risk-methodology.md`](risk/annex-ai-risk-methodology.md)"), "duplicate Corpus Sources pin"),
+        ("decision-lastbackslash.md", valid.replace("**Last Reviewed:** 2026-08-05", "**Last Reviewed:** 2026-08-05\\"), "last metadata line must be bare"),
         ("decision-interposed.md", valid.replace("**License:** CC BY-SA 4.0\\", "**License:** CC BY-SA 4.0\\\n**Bogus Field:** x\\"), "unexpected metadata field"),
         ("wrongprefix.md", valid, "filename must start with"),
         ("decision-nopin.md", re.sub(r"\*\*Corpus Sources:\*\*.*", "**Corpus Sources:** none\\\\", valid), "at least one pin"),
-        ("decision-duppin.md", valid.replace("**Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)@1.0.6", "**Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)@1.0.6, [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)@1.0.6"), "duplicate Corpus Sources pin"),
+        ("decision-noncorpuspin.md", valid.replace("[`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)\\\n**External Sources:**", "[`executive/README.md`](README.md)\\\n**External Sources:**"), "is not a corpus document"),
+        ("decision-traversalpin.md", valid.replace("[`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)\\\n**External Sources:**", "[`risk/annex-ai-risk-methodology.md`](../risk/../executive/x.md)\\\n**External Sources:**"), "is not a corpus document"),
+        ("decision-encodedpin.md", valid.replace("[`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)\\\n**External Sources:**", "[`risk/annex-ai-risk-methodology.md`](../risk/%2e%2e/executive/x.md)\\\n**External Sources:**"), "is not a corpus document"),
+        ("decision-duppin.md", valid.replace("**Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)", "**Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md), [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)"), "duplicate Corpus Sources pin"),
         ("decision-unpinnedbody.md", valid.replace("Body cites [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md).", "Body links [`governance/charter-governance-library.md`](../governance/charter-governance-library.md)."), "not present in Corpus Sources"),
         ("decision-nobreak.md", valid.replace("**Version:** 0.0.1\\", "**Version:** 0.0.1"), "missing trailing backslash"),
         ("decision-badclaimclass.md", valid.replace("**Claim Classes Present:** citation", "**Claim Classes Present:** citation, bogus"), "Claim Classes Present value"),
-        ("decision-badlastreval.md", valid.replace("**Last Revalidated:** 2026-08-05", "**Last Revalidated:** 2026-13-99"), "not an ISO 8601"),
+        ("decision-badlastreval.md", valid.replace("**Last Reviewed:** 2026-08-05", "**Last Reviewed:** 2026-13-99"), "not an ISO 8601"),
         ("decision-rootcorpusbody.md", valid.replace("Body cites [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md).", "Body cites [`specification-master-project.md`](../specification-master-project.md)."), "not present in Corpus Sources"),
         ("decision-noneclaimclass.md", valid.replace("**Claim Classes Present:** citation", "**Claim Classes Present:** None"), "Claim Classes Present value"),
         ("decision-siblingreadme.md", valid.replace("Body cites [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md).", "Body cites [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md) and the entry point [README](README.md)."), None),
