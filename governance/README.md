@@ -2,8 +2,8 @@
 
 **Document Title:** Governance Domain README\
 **Document Type:** Register\
-**Version:** 1.10.11\
-**Date:** 2026-07-08\
+**Version:** 1.10.12\
+**Date:** 2026-08-06\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md)\
@@ -60,6 +60,7 @@ This directory contains the enterprise-wide governance foundation of the GRC Doc
 | Procedure | Library Quality and Review Cadence Procedure | [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md) |
 | Procedure | Standard Version Upgrade Procedure | [`governance/procedure-standard-version-upgrade.md`](procedure-standard-version-upgrade.md) |
 | Template | Document Review Record Template | [`governance/template-document-review-record.md`](template-document-review-record.md) |
+| Template | Executive Narrative Subtype Templates | [`governance/template-executive-narrative-subtypes.md`](template-executive-narrative-subtypes.md) |
 | Template | Library Health Report Template | [`governance/template-library-health-report.md`](template-library-health-report.md) |
 | Specification | Project Governance Separation Specification | [`governance/specification-project-governance-separation.md`](specification-project-governance-separation.md) |
 
