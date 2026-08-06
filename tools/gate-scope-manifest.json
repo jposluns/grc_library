@@ -96,6 +96,7 @@
       "check-changelog-on-pr.py",
       "check-claude-md-size.py",
       "check-date-cobump-on-pr.py",
+      "check-narrative-corpus-mixed-diff-on-pr.py",
       "check-retired-section-orphan-on-pr.py",
       "check-todo-rotation-on-pr.py",
       "check-version-bump-on-pr.py",

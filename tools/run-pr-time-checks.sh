@@ -11,7 +11,7 @@
 #      co-bump, D5 backlog-rotation-on-PR,
 #      D7 CHANGELOG-length-on-PR, D8 daily-changelog-rollup reminder
 #      (advisory), D9 retired-section-orphan check, D10 CLAUDE.md-size
-#      ratchet). Most compare the PR head to its merge base, so their
+#      ratchet, D11 narrative-corpus mixed-diff). Most compare the PR head to its merge base, so their
 #      inputs are not available in tools/run_all_audits.sh (the advisory D8
 #      and the size-only D10 read working-tree state and take no base ref);
 #      they run
@@ -143,6 +143,16 @@ run_check "D9 Retired-section-orphan check" \
 # like D8 it needs no base ref (roadmap C phase 2, #1250).
 run_check "D10 CLAUDE.md-size ratchet" \
     python3 tools/check-claude-md-size.py
+
+# Delta gate D11: narrative-corpus mixed-diff check. FAILS when a single PR's
+# delta touches BOTH a narrative content page (executive/*.md minus the README
+# entry point) AND a corpus document (.md under an audited domain dir), crossing
+# the one-way executive-narrative authority boundary (spec item 11, the PR-process
+# half; the at-rest half is gate 87). Fail-closed interim, no override path yet
+# (the accountably-reviewed override is a maintainer-owned governance-design
+# obligation; P-1.25 Phase 1.3d).
+run_check "D11 Narrative-corpus mixed-diff check" \
+    python3 tools/check-narrative-corpus-mixed-diff-on-pr.py "${BASE_REF}" "${HEAD_REF}"
 
 # Gate 45: TODO staleness audit. Behaves like a delta gate because its
 # inputs (git log of merged-PR commit subjects, .working/validate-sweeps/
