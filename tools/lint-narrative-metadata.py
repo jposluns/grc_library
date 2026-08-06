@@ -23,6 +23,8 @@ Checks per narrative page:
   - Body-link/pin completeness: every corpus document linked in the page body
     appears in ``Corpus Sources``.
   - Backslash hard-break markers on every metadata line except the block's last.
+  - ``Claim Classes Present`` is a subset of the closed vocabulary (citation,
+    sourced, composite); ``Last Revalidated`` is a valid ISO 8601 date.
 
 Exit 0 if every narrative page is valid (an executive/ tree holding only the
 entry-point README is valid: zero pages, zero findings). Exit 1 on any finding.
