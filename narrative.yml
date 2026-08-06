@@ -7,5 +7,40 @@
 
 schema_version: 1
 generated_by: tools/build-narrative-registry.py
-pages: []
-listing: []
+pages:
+- path: "executive/briefs/brief-what-the-board-should-require-before-ai-production.md"
+  title: "What the board should require before an AI system goes into production"
+  narrative_type: "Executive Brief"
+  narrative_status: "Explanatory"
+  version: "0.0.1"
+  date: "2026-08-06"
+  corpus_sources:
+    - "ai/guide-ai-board-oversight.md"
+    - "ai/standard-ai-security-and-risk.md"
+    - "ai/procedure-ai-system-impact-assessment.md"
+    - "ai/framework-ai-governance-and-risk.md"
+    - "ai/framework-ai-model-risk.md"
+    - "ai/template-ai-system-register.md"
+    - "ai/plan-ai-incident-response.md"
+    - "security/standard-data-classification-and-handling.md"
+    - "governance/policy-exception-and-risk-acceptance-management.md"
+    - "supply-chain/framework-supplier-and-cloud-governance.md"
+    - "operations/procedure-change-management-and-configuration-control.md"
+    - "supply-chain/template-supplier-offboarding-evidence.md"
+  external_sources: []
+  claim_classes_present:
+    - "citation"
+  review_record: "NR-2026-002"
+  last_reviewed: "2026-08-06"
+  derived_tags:
+    - "domain:ai"
+    - "domain:governance"
+    - "domain:operations"
+    - "domain:security"
+    - "domain:supply-chain"
+    - "status:explanatory"
+    - "type:executive-brief"
+listing:
+- route: "executive/briefs/brief-what-the-board-should-require-before-ai-production"
+  path: "executive/briefs/brief-what-the-board-should-require-before-ai-production.md"
+  title: "What the board should require before an AI system goes into production"
