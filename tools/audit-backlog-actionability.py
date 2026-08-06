@@ -236,6 +236,8 @@ def render_pipeline(public_text: str, private_text: str | None,
     # a ``### `` block with no bullets is itself a leaf (umbrella = its ## parent).
     open_items: list[tuple[str, str, str, str, str]] = []
     for item_id, title, block, source, umb in items:
+        if is_blocked(block):
+            continue  # a [BLOCKED:] parent heading excludes itself AND its bullet leaves
         bullets = []
         for line in block.splitlines():
             bm = BULLET_ITEM_RE.match(line)
@@ -250,6 +252,17 @@ def render_pipeline(public_text: str, private_text: str | None,
             open_items.append((item_id, title, block, source, umb or title))
 
     out: list[str] = []
+    # R20-GAP-1: degradation must be LOUD, not silent -- a maintainer view missing the
+    # private backlog or the DONE ledger is INCOMPLETE and must say so at the top.
+    missing = []
+    if private_text is None:
+        missing.append("private backlog (P-TODO.md)")
+    if not done_text:
+        missing.append("DONE ledger (recent-done section)")
+    if missing:
+        out.append("!!! INCOMPLETE PIPELINE VIEW: missing " + " + ".join(missing)
+                   + " -- upcoming private items and/or done-marking are NOT shown !!!")
+        out.append("")
     # 1. recent-done header
     if done_text:
         for pr, title in parse_done(done_text, 5):
@@ -316,7 +329,7 @@ def _self_test() -> int:
            "## Umbrella Two\n\n### 2.1 A blocked one [BLOCKED:x] should not show\n\n### 2.2 A tool lint task here\n")
     r = render_pipeline(pub, None, "### PR #1429: recent done thing (2026-08-06)\n", None, limit=20)
     lines = r.splitlines()
-    check("render-done-header", lines[0].startswith("#1429 [x] PR1429 ") or lines[0].split()[1] == "[x]")
+    check("render-done-header", any(l.startswith("#1429 [x] PR1429 ") for l in lines))
     check("render-has-1.1", any(l.startswith("1.1 [ ] ") for l in lines))
     check("render-1.2-content", any(l.startswith("1.2 [ ] ") for l in lines))
     check("render-excludes-blocked", not any("2.1 [ ]" in l for l in lines))
@@ -326,7 +339,13 @@ def _self_test() -> int:
 
     # umbrella filter scopes to the matching umbrella first
     r2 = render_pipeline(pub, None, None, "Two", limit=20)
-    check("filter-starts-at-two", r2.splitlines()[0].startswith("2.2 [ ] "))
+    r2_lines = [l for l in r2.splitlines() if l and not l.startswith("!!!")]
+    check("filter-starts-at-two", r2_lines[0].startswith("2.2 [ ] "))
+
+    # R20 fixes: blocked-parent leaf exclusion + loud banner on missing state
+    rb = render_pipeline("## U\n\n### 9.9 Parent [BLOCKED:granted]\n- **9.9.1** child\n\n### 8.8 Open one\n", None, None, None)
+    check("blocked-parent-leaf-excluded", "9.9.1" not in rb and any("8.8 [ ]" in l for l in rb.splitlines()))
+    check("loud-banner-on-missing-state", any(l.startswith("!!! INCOMPLETE PIPELINE VIEW") for l in rb.splitlines()))
 
     if failures:
         for f in failures:
