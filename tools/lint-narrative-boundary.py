@@ -93,7 +93,7 @@ EXTENSION_FIELDS: tuple[str, ...] = (
     "External Sources",
     "Claim Classes Present",
     "Review Record",
-    "Last Revalidated",
+    "Last Reviewed",
 )
 
 # The allowed corpus document types. Mirrors lint-metadata.py ALLOWED_TYPES;
@@ -341,7 +341,7 @@ def _self_test() -> int:
         retyped = root / "policy-retyped.md"
         retyped.write_text(corpus_page.replace(
             "**License:** CC BY-SA 4.0\n",
-            "**License:** CC BY-SA 4.0\\\n**Corpus Sources:** [`risk/x.md`](x.md)@1.0.0\n",
+            "**License:** CC BY-SA 4.0\\\n**Corpus Sources:** [`risk/x.md`](x.md)\n",
         ))
         expect("outside-retyped-leak", scan_outside_file(retyped, "risk/policy-retyped.md"), "'Corpus Sources' outside")
         # Fenced example only: pass.
