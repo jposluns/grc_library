@@ -1675,6 +1675,40 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          f"gate --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
         self.assertIn("self-test: ", result.stdout)
 
+    def test_lint_narrative_boundary_self_test(self) -> None:
+        """Gate 86's own self-test. The symmetric narrative-boundary gate runs against a live tree
+        with zero pages inside executive/, so its OUTSIDE-leak / INSIDE-form detection is exercised
+        here against synthetic files (full leak, README-path leak, retyped leak, fenced/prose
+        non-leaks, corpus-type-inside, missing-type/extension, root-anchoring, path-scoped README)."""
+        result = self._run_selftest(
+            [sys.executable, str(REPO_ROOT / "tools" / "lint-narrative-boundary.py"), "--self-test"]
+        )
+        self.assertEqual(result.returncode, 0,
+                         f"gate --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        self.assertIn("self-test: ", result.stdout)
+
+    def test_narrative_boundary_corpus_types_parity(self) -> None:
+        """Gate 86's CORPUS_DOCUMENT_TYPES must stay byte-equal to the corpus metadata gate's
+        ALLOWED_TYPES (it mirrors it to reject corpus types inside executive/). A drift between the
+        two would let a newly-added corpus document type slip past the boundary gate; this parity
+        test is the drift guard the 1.3 verifier called for (in lieu of a lint_common hoist)."""
+        import importlib.util
+        tools = REPO_ROOT / "tools"
+        def _load(name, fname):
+            spec = importlib.util.spec_from_file_location(name, tools / fname)
+            mod = importlib.util.module_from_spec(spec)
+            sys.path.insert(0, str(tools))
+            try:
+                spec.loader.exec_module(mod)
+            finally:
+                sys.path.remove(str(tools))
+            return mod
+        bnd = _load("bnd_mod", "lint-narrative-boundary.py")
+        meta = _load("meta_mod", "lint-metadata.py")
+        self.assertEqual(set(bnd.CORPUS_DOCUMENT_TYPES), set(meta.ALLOWED_TYPES),
+                         "lint-narrative-boundary CORPUS_DOCUMENT_TYPES has drifted from "
+                         "lint-metadata ALLOWED_TYPES; keep them in parity.")
+
     def test_block_unknown_worker_model_hook_self_test(self) -> None:
         """The 3.194 model-validity guard's own self-test, wired here (its introduction PR #1319
         shipped the self-test but not this CI wiring; a fail-open guard that rots is worse than none)."""
