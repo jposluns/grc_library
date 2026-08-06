@@ -9,10 +9,10 @@ layer: the analogue of `taxonomy.yml` for the root `executive/` tree
 (specification-executive-narrative.md, "The narrative registry"). It is
 regenerated from page metadata, never hand-edited, and carries per page: path,
 title, narrative type, narrative status, version, date, corpus source pins
-(with live-version resolution), external sources, claim classes present, review
-record identifier, last-revalidated date, the derived staleness state, and
-derived tags. Derived classification lives ONLY here: never in page headers and
-never in `taxonomy.yml`, which stays corpus-only by construction.
+(as plain dependency paths, no versions), external sources, claim classes
+present, review record identifier, last-reviewed date, and derived tags.
+Derived classification lives ONLY here: never in page headers and never in
+`taxonomy.yml`, which stays corpus-only by construction.
 
 Discovery is ALWAYS the live `executive/` tree walk. The committed registry is
 never a discovery source, in any mode: in `--check` it is only compared against
@@ -20,19 +20,12 @@ a fresh regeneration (string equality) and against a fresh, independent file
 enumeration (the three-way bijection: executive/ files <-> registry rows <->
 generated listing routes, with the named entry-point and redirect exclusions).
 
-Staleness (spec "Source pinning, staleness, and revalidation", state machine):
-each page occupies exactly one of three states, computed from pins resolved
-against `taxonomy.yml` (the same `Version` value appears there per corpus
-document, so pin checking requires no document parse):
-
-  - current                every pin resolves AND matches its live version
-  - due-for-revalidation   every pin resolves, at least one version drifts
-  - invalid                any pin is missing, moved, duplicate, malformed,
-                           or targets a non-corpus path (incl. zero pins)
-
-The generator computes and RECORDS the state; enforcement posture (hard block
-on invalid, advisory on drift) belongs to the staleness gate (Gates item 8),
-not to this generator. The generator never writes a pin and never edits a page.
+Corpus source pins are recorded as plain dependency PATHS. The narrative layer
+has no dependency on corpus VERSIONS: an executive page refers to corpus
+documents but never pins a version, so a corpus version bump never invalidates
+a page. The only structural invalidation of a pin is a broken corpus link,
+which the existing repository link and reference-integrity gates catch. The
+generator never writes a pin and never edits a page.
 
 Division of labour with the narrative metadata gate (gate 84,
 tools/lint-narrative-metadata.py): gate 84 owns full metadata validation. This
@@ -47,7 +40,7 @@ Usage:
 
 Exit codes: 0 in sync / written / self-test pass; 1 drift or bijection
 failure; 2 unreadable or malformed candidate page (fail loud, nothing
-written), or a missing `taxonomy.yml`.
+written).
 
 An `executive/` tree holding only the exempt entry-point README is valid:
 the registry is generated empty (`pages: []`, `listing: []`) and `--check`
@@ -56,6 +49,7 @@ passes against that empty registry.
 from __future__ import annotations
 
 import argparse
+import posixpath
 import re
 import sys
 from pathlib import Path
@@ -64,7 +58,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from lint_common import METADATA_FIELD_RE, REPO_ROOT, read_text_safe
 
 REGISTRY_NAME = "narrative.yml"
-TAXONOMY_NAME = "taxonomy.yml"
 NARRATIVE_DOCUMENT_TYPE = "Executive Narrative"
 
 # Named exclusions from the three-way bijection (spec Gates item 9). The entry
@@ -76,17 +69,14 @@ NARRATIVE_DOCUMENT_TYPE = "Executive Narrative"
 ENTRY_POINTS: frozenset[str] = frozenset({"executive/README.md"})
 REDIRECT_EXCLUSIONS: frozenset[str] = frozenset()
 
-# A Corpus Sources pin: [`disp`](target)@semver -- same grammar as gate 84
-# (tools/lint-narrative-metadata.py). Kept textually identical; hoisting the
-# shared pin grammar into lint_common is a follow-up dedup for the integrator.
+# A Corpus Sources pin: a plain markdown link to the corpus document, no version
+# suffix -- same grammar as gate 84 (tools/lint-narrative-metadata.py). Kept
+# textually identical; hoisting the shared pin grammar into lint_common is a
+# follow-up dedup for the integrator.
 PIN_RE = re.compile(
-    r"\[`(?P<disp>[^`]+)`\]\((?P<target>[^)]+)\)@(?P<ver>\d+\.\d+\.\d+)(?=[,\s]|$)"
+    r"\[`(?P<disp>[^`]+)`\]\((?P<target>[^)]+)\)(?=[,\s]|$)"
 )
 
-# taxonomy.yml is this project's own generated shape (build-taxonomy.py):
-# stdlib-only line parsing is deliberate; no third-party YAML dependency.
-_TAX_DOC_PATH_RE = re.compile(r'^- path: "(?P<v>(?:[^"\\]|\\.)*)"\s*$')
-_TAX_VERSION_RE = re.compile(r'^  version: "(?P<v>(?:[^"\\]|\\.)*)"\s*$')
 
 
 # ---------------------------------------------------------------------------
@@ -128,6 +118,7 @@ def normalise_corpus_target(target: str) -> str:
     segments and any anchor/query suffix (gate-84 semantics), so
     ``../risk/foo.md`` and ``risk/foo.md`` compare equal."""
     t = target.split("#", 1)[0].split("?", 1)[0]
+    t = posixpath.normpath(t)
     while t.startswith("../") or t.startswith("./"):
         t = t[3:] if t.startswith("../") else t[2:]
     return t
@@ -145,30 +136,8 @@ def _parse_comma_list(value: str) -> list[str]:
 
 
 # ---------------------------------------------------------------------------
-# Inputs: taxonomy versions and the executive/ tree walk
+# Input: the executive/ tree walk
 
-def load_taxonomy_versions(taxonomy_path: Path) -> dict[str, str] | None:
-    """{corpus repo-relative path: Version} from taxonomy.yml, or None if absent.
-
-    Membership in this map IS the "is a corpus document" test for pin
-    resolution: a pin whose normalized target is not a taxonomy row (another
-    narrative page, a moved file, an out-of-corpus path) fails resolution.
-    """
-    text = read_text_safe(taxonomy_path) if taxonomy_path.exists() else None
-    if text is None:
-        return None
-    versions: dict[str, str] = {}
-    current: str | None = None
-    for line in text.splitlines():
-        m = _TAX_DOC_PATH_RE.match(line)
-        if m:
-            current = _yaml_unescape(m.group("v"))
-            continue
-        m = _TAX_VERSION_RE.match(line)
-        if m and current is not None:
-            versions[current] = _yaml_unescape(m.group("v"))
-            current = None
-    return versions
 
 
 def discover_pages(repo_root: Path) -> list[Path]:
@@ -194,77 +163,44 @@ def discover_pages(repo_root: Path) -> list[Path]:
 # ---------------------------------------------------------------------------
 # Row construction
 
-def resolve_pins(corpus_sources_value: str, versions: dict[str, str]) -> list[dict]:
-    """Per-pin resolution records against the live taxonomy versions.
-
-    pin_state per pin: ``current`` | ``drift`` | ``unresolved`` (missing /
-    moved / non-corpus target) | ``duplicate`` | ``malformed``. The page-level
-    staleness state is derived from these in :func:`staleness_state`.
-    """
-    pins: list[dict] = []
-    matched = list(PIN_RE.finditer(corpus_sources_value))
-    norm_targets = [normalise_corpus_target(m.group("target")) for m in matched]
-    for m, norm in zip(matched, norm_targets):
-        pinned = m.group("ver")
-        if norm_targets.count(norm) > 1:
-            state, live = "duplicate", versions.get(norm, "")
-        elif norm not in versions:
-            state, live = "unresolved", ""
-        elif versions[norm] != pinned:
-            state, live = "drift", versions[norm]
-        else:
-            state, live = "current", versions[norm]
-        pins.append({"path": norm, "pinned_version": pinned,
-                     "live_version": live, "pin_state": state})
-    # Malformed segments: any comma segment that is not a well-formed pin
-    # (gate-84's fullmatch shape). A non-@ or tailed segment is malformed, not
-    # silently dropped, so it cannot leave the page reading `current`. Recorded
-    # so the state is loud.
+def extract_pins(corpus_sources_value: str) -> list[str]:
+    """The corpus dependency PATHS a page pins, in document order. Each is the
+    normalized repo-relative corpus path of a well-formed pin (a plain markdown
+    link, no version). A comma segment that is not a well-formed pin is surfaced
+    verbatim (truncated) rather than silently dropped, so a malformed pin is
+    loud in the registry; the metadata gate (gate 84) is the authority that
+    blocks it. No version resolution: the registry has no dependency on corpus
+    versions, so a corpus version bump never changes a page's registry row."""
+    paths: list[str] = []
+    for m in PIN_RE.finditer(corpus_sources_value):
+        paths.append(normalise_corpus_target(m.group("target")))
     for seg in corpus_sources_value.split(","):
         seg = seg.strip()
         if not seg or seg.lower() == "none":
             continue
         if not PIN_RE.fullmatch(seg):
-            pins.append({"path": seg[:60], "pinned_version": "",
-                         "live_version": "", "pin_state": "malformed"})
-    return pins
+            paths.append(seg[:60])
+    return paths
 
 
-_INVALID_PIN_STATES = frozenset({"unresolved", "duplicate", "malformed"})
-
-
-def staleness_state(pins: list[dict]) -> str:
-    """The spec's three-state machine, computed from pins alone.
-
-    Zero pins is `invalid`: at least one pin is mandatory (spec metadata field
-    4), so a pinless page cannot be pin-current. Gate 84 reports the metadata
-    defect; the registry records the state.
-    """
-    if not pins or any(p["pin_state"] in _INVALID_PIN_STATES for p in pins):
-        return "invalid"
-    if any(p["pin_state"] == "drift" for p in pins):
-        return "due-for-revalidation"
-    return "current"
-
-
-def derive_tags(ntype: str, nstatus: str, pins: list[dict]) -> list[str]:
+def derive_tags(ntype: str, nstatus: str, pins: list[str]) -> list[str]:
     """Mechanical derived tags: subtype, status, and domain coverage from the
-    resolved pin targets' top-level domain directories. Deliberately minimal:
-    richer topic / audience-facet tagging is a policy decision deferred to the
-    maintainer (see delivery notes); nothing here is guessed from prose."""
+    pin PATHS' top-level domain directories. Deliberately minimal: richer topic
+    / audience-facet tagging is a policy decision deferred to the maintainer
+    (see delivery notes); nothing here is guessed from prose."""
     tags: set[str] = set()
     if ntype:
         tags.add(f"type:{_slug(ntype)}")
     if nstatus:
         tags.add(f"status:{_slug(nstatus)}")
-    for p in pins:
-        if p["pin_state"] in ("current", "drift", "duplicate") and "/" in p["path"]:
-            tags.add(f"domain:{p['path'].split('/', 1)[0]}")
+    for path in pins:
+        head = path.split("/", 1)[0]
+        if "/" in path and re.fullmatch(r"[a-z0-9-]+", head):
+            tags.add(f"domain:{head}")
     return sorted(tags)
 
 
-def build_rows(pages: list[Path], repo_root: Path,
-               versions: dict[str, str]) -> tuple[list[dict], list[str]]:
+def build_rows(pages: list[Path], repo_root: Path) -> tuple[list[dict], list[str]]:
     """(registry rows sorted by path, hard errors). Any hard error means the
     tree holds an unemittable candidate page: fail loud, write nothing."""
     rows: list[dict] = []
@@ -292,7 +228,7 @@ def build_rows(pages: list[Path], repo_root: Path,
             continue
         ntype = meta.get("Narrative Type", "")
         nstatus = meta.get("Narrative Status", "")
-        pins = resolve_pins(meta.get("Corpus Sources", ""), versions)
+        pins = extract_pins(meta.get("Corpus Sources", ""))
         rows.append({
             "path": rel,
             "title": title,
@@ -304,8 +240,7 @@ def build_rows(pages: list[Path], repo_root: Path,
             "external_sources": _parse_comma_list(meta.get("External Sources", "")),
             "claim_classes_present": _parse_comma_list(meta.get("Claim Classes Present", "")),
             "review_record": meta.get("Review Record", ""),
-            "last_revalidated": meta.get("Last Revalidated", ""),
-            "staleness_state": staleness_state(pins),
+            "last_reviewed": meta.get("Last Reviewed", ""),
             "derived_tags": derive_tags(ntype, nstatus, pins),
         })
     rows.sort(key=lambda r: r["path"])
@@ -337,20 +272,11 @@ def emit_row(row: dict) -> str:
     lines.append(f"  narrative_status: {yaml_escape(row['narrative_status'])}")
     lines.append(f"  version: {yaml_escape(row['version'])}")
     lines.append(f"  date: {yaml_escape(row['date'])}")
-    if row["corpus_sources"]:
-        lines.append("  corpus_sources:")
-        for p in row["corpus_sources"]:
-            lines.append(f"    - path: {yaml_escape(p['path'])}")
-            lines.append(f"      pinned_version: {yaml_escape(p['pinned_version'])}")
-            lines.append(f"      live_version: {yaml_escape(p['live_version'])}")
-            lines.append(f"      pin_state: {yaml_escape(p['pin_state'])}")
-    else:
-        lines.append("  corpus_sources: []")
+    lines.extend(_emit_str_list("corpus_sources", row["corpus_sources"]))
     lines.extend(_emit_str_list("external_sources", row["external_sources"]))
     lines.extend(_emit_str_list("claim_classes_present", row["claim_classes_present"]))
     lines.append(f"  review_record: {yaml_escape(row['review_record'])}")
-    lines.append(f"  last_revalidated: {yaml_escape(row['last_revalidated'])}")
-    lines.append(f"  staleness_state: {yaml_escape(row['staleness_state'])}")
+    lines.append(f"  last_reviewed: {yaml_escape(row['last_reviewed'])}")
     lines.extend(_emit_str_list("derived_tags", row["derived_tags"]))
     return "\n".join(lines)
 
@@ -365,7 +291,7 @@ def build_registry_text(rows: list[dict]) -> str:
     out: list[str] = []
     out.append("# Auto-generated machine-readable narrative registry for the executive narrative layer.")
     out.append("# Source of truth: the metadata block of each narrative page under executive/.")
-    out.append("# Staleness states are computed against taxonomy.yml pin versions.")
+    out.append("# Corpus source pins are recorded as plain dependency paths (no versions).")
     out.append("# Regenerate with `python3 tools/build-narrative-registry.py`.")
     out.append("# Do not edit this file by hand. Derived classification lives ONLY here,")
     out.append("# never in page headers and never in taxonomy.yml (corpus-only by construction).")
@@ -450,14 +376,9 @@ def parse_committed_registry(text: str) -> tuple[list[str], list[str]]:
 
 def run(repo_root: Path, check: bool) -> int:
     registry_path = repo_root / REGISTRY_NAME
-    versions = load_taxonomy_versions(repo_root / TAXONOMY_NAME)
-    if versions is None:
-        print(f"FAIL: {TAXONOMY_NAME} not found or unreadable at the repository root; "
-              f"pin resolution requires it (run tools/build-taxonomy.py first).")
-        return 2
 
     pages = discover_pages(repo_root)
-    rows, errors = build_rows(pages, repo_root, versions)
+    rows, errors = build_rows(pages, repo_root)
     if errors:
         for e in errors:
             print(f"  {e}")
@@ -495,7 +416,7 @@ def run(repo_root: Path, check: bool) -> int:
         findings.extend(bijection_findings(page_rels, committed_rows, committed_routes))
         if current != new_content:
             findings.append(f"{REGISTRY_NAME} content differs from a fresh regeneration "
-                            f"(metadata, pin state, or listing drift)")
+                            f"(metadata, pin, or listing drift)")
         if findings:
             for f in findings:
                 print(f"  {f}")
@@ -536,34 +457,16 @@ _ST_PAGE_TEMPLATE = """# {title}
 **External Sources:** {external}\\
 **Claim Classes Present:** citation\\
 **Review Record:** NR-2026-001\\
-**Last Revalidated:** 2026-08-05
+**Last Reviewed:** 2026-08-05
 
 ---
 
 Body.
 """
 
-_ST_TAXONOMY = """# synthetic
-schema_version: 1
-generated_by: tools/build-taxonomy.py
-documents:
-- path: "risk/annex-ai-risk-methodology.md"
-  domain: "risk"
-  type: "Annex"
-  title: "AI Risk Methodology Annex"
-  version: "1.0.6"
-- path: "governance/charter-governance-library.md"
-  domain: "governance"
-  type: "Charter"
-  title: "Governance Library Charter"
-  version: "2.0.0"
-"""
-
-
 def _st_make_root(td: Path, pages: dict[str, str]) -> Path:
     root = td
     (root / "executive").mkdir(parents=True, exist_ok=True)
-    (root / TAXONOMY_NAME).write_text(_ST_TAXONOMY, encoding="utf-8")
     (root / "executive" / "README.md").write_text("# Executive narratives\n", encoding="utf-8")
     for name, content in pages.items():
         (root / "executive" / name).write_text(content, encoding="utf-8")
@@ -575,17 +478,17 @@ def _st_page(name: str, pins: str, external: str = "None") -> str:
     return _ST_PAGE_TEMPLATE.format(title=title, name=name, pins=pins, external=external)
 
 
-_PIN_OK = "[`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)@1.0.6"
-_PIN_DRIFT = "[`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)@1.0.5"
-_PIN_MISSING = "[`risk/annex-gone.md`](../risk/annex-gone.md)@1.0.0"
-_PIN_GOV = "[`governance/charter-governance-library.md`](../governance/charter-governance-library.md)@2.0.0"
+_PIN_OK = "[`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)"
+_PIN_GOV = "[`governance/charter-governance-library.md`](../governance/charter-governance-library.md)"
+# A leftover @version suffix is no longer a well-formed pin: it is surfaced verbatim.
+_PIN_MALFORMED = "[`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)@1.0.6"
 
 
 def _self_test() -> int:
-    """Prove the state machine, the fail-loud path, the empty-tree case, the
-    bijection detector, and check-mode drift against synthetic pages (the live
-    executive/ tree holds only the exempt README today, zero real pages).
-    Mirrors the self-test discipline of gates 82/84."""
+    """Prove pin-path extraction, derived tags, deterministic emission, the
+    fail-loud path, the empty-tree case, the bijection detector, and check-mode
+    drift against synthetic pages (the live executive/ tree holds only the
+    exempt README today, zero real pages). Mirrors gates 82/84's discipline."""
     import tempfile
 
     failures: list[str] = []
@@ -595,44 +498,43 @@ def _self_test() -> int:
             failures.append(label)
 
     with tempfile.TemporaryDirectory() as td_s:
-        # Case set 1: state machine + rows + listing on a populated tree.
+        # Case set 1: pins-as-paths + rows + listing on a populated tree.
         root = _st_make_root(Path(td_s) / "r1", {
-            "decision-current.md": _st_page("decision-current.md", f"{_PIN_OK}, {_PIN_GOV}", external="ISO 31000"),
-            "decision-drift.md": _st_page("decision-drift.md", _PIN_DRIFT),
-            "decision-missing.md": _st_page("decision-missing.md", _PIN_MISSING),
-            "decision-dup.md": _st_page("decision-dup.md", f"{_PIN_OK}, [`risk/annex-ai-risk-methodology.md`](risk/annex-ai-risk-methodology.md)@1.0.6"),
-            "decision-malformed.md": _st_page("decision-malformed.md", f"{_PIN_OK}, [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)@1.0.6junk"),
-            "decision-noatpin.md": _st_page("decision-noatpin.md", f"{_PIN_OK}, [`governance/charter-governance-library.md`](../governance/charter-governance-library.md)"),
+            "decision-two.md": _st_page("decision-two.md", f"{_PIN_OK}, {_PIN_GOV}", external="ISO 31000"),
+            "decision-one.md": _st_page("decision-one.md", _PIN_OK),
+            "decision-dup.md": _st_page("decision-dup.md", f"{_PIN_OK}, [`risk/annex-ai-risk-methodology.md`](risk/annex-ai-risk-methodology.md)"),
+            "decision-malformed.md": _st_page("decision-malformed.md", f"{_PIN_OK}, {_PIN_MALFORMED}"),
             "decision-nopin.md": _st_page("decision-nopin.md", "None"),
         })
-        versions = load_taxonomy_versions(root / TAXONOMY_NAME)
-        expect(versions == {"risk/annex-ai-risk-methodology.md": "1.0.6",
-                            "governance/charter-governance-library.md": "2.0.0"},
-               f"taxonomy parse: got {versions}")
         pages = discover_pages(root)
-        expect(len(pages) == 7, f"discovery: expected 7 pages (README exempt), got {len(pages)}")
-        rows, errors = build_rows(pages, root, versions)
+        expect(len(pages) == 5, f"discovery: expected 5 pages (README exempt), got {len(pages)}")
+        rows, errors = build_rows(pages, root)
         expect(not errors, f"populated tree: unexpected hard errors {errors}")
-        states = {r["path"].rsplit("/", 1)[-1]: r["staleness_state"] for r in rows}
-        expect(states.get("decision-current.md") == "current", f"state current: {states}")
-        expect(states.get("decision-drift.md") == "due-for-revalidation", f"state drift: {states}")
-        expect(states.get("decision-missing.md") == "invalid", f"state missing-pin: {states}")
-        expect(states.get("decision-dup.md") == "invalid", f"state duplicate-pin: {states}")
-        expect(states.get("decision-malformed.md") == "invalid", f"state malformed-pin: {states}")
-        expect(states.get("decision-noatpin.md") == "invalid", f"state no-at-pin: {states}")
-        expect(states.get("decision-nopin.md") == "invalid", f"state zero-pins: {states}")
-        cur = next(r for r in rows if r["path"].endswith("decision-current.md"))
-        expect(cur["derived_tags"] == ["domain:governance", "domain:risk",
+        by = {r["path"].rsplit("/", 1)[-1]: r for r in rows}
+        expect(by["decision-two.md"]["corpus_sources"] ==
+               ["risk/annex-ai-risk-methodology.md", "governance/charter-governance-library.md"],
+               f"two-pin paths: {by['decision-two.md']['corpus_sources']}")
+        expect(by["decision-nopin.md"]["corpus_sources"] == [],
+               f"no-pin paths: {by['decision-nopin.md']['corpus_sources']}")
+        expect(by["decision-dup.md"]["corpus_sources"] ==
+               ["risk/annex-ai-risk-methodology.md", "risk/annex-ai-risk-methodology.md"],
+               f"dup paths surfaced twice: {by['decision-dup.md']['corpus_sources']}")
+        expect(any(pp.startswith("[") for pp in by["decision-malformed.md"]["corpus_sources"]),
+               f"malformed pin surfaced verbatim: {by['decision-malformed.md']['corpus_sources']}")
+        expect("staleness_state" not in by["decision-two.md"], "no staleness_state field on a row")
+        expect(by["decision-two.md"]["derived_tags"] == ["domain:governance", "domain:risk",
                                        "status:advisory", "type:decision-narrative"],
-               f"derived tags: {cur['derived_tags']}")
-        expect(cur["external_sources"] == ["ISO 31000"], f"external sources: {cur['external_sources']}")
+               f"derived tags: {by['decision-two.md']['derived_tags']}")
+        expect(by["decision-two.md"]["external_sources"] == ["ISO 31000"],
+               f"external sources: {by['decision-two.md']['external_sources']}")
         expect(rows == sorted(rows, key=lambda r: r["path"]), "rows not path-sorted")
         text1 = build_registry_text(rows)
+        expect("staleness" not in text1, "generated registry must not mention staleness")
         expect(build_registry_text(rows) == text1, "emission not deterministic")
         committed_rows, committed_routes = parse_committed_registry(text1)
-        expect(len(committed_rows) == 7 and len(committed_routes) == 7,
+        expect(len(committed_rows) == 5 and len(committed_routes) == 5,
                f"committed-registry parse: {len(committed_rows)} rows, {len(committed_routes)} routes")
-        page_rels = [p.relative_to(root).as_posix() for p in pages]
+        page_rels = [pg.relative_to(root).as_posix() for pg in pages]
         expect(bijection_findings(page_rels, committed_rows, committed_routes) == [],
                "fresh build should biject")
         # Bijection detector: extra row, missing route, orphan file.
@@ -647,11 +549,11 @@ def _self_test() -> int:
                    bijection_findings(page_rels + ["executive/decision-new.md"],
                                       committed_rows, committed_routes)),
                "file without registry row (orphan) not detected")
-        # End-to-end: write, check OK, then drift a page and expect check FAIL.
+        # End-to-end: write, check OK, then edit a page and expect check FAIL.
         expect(run(root, check=False) == 0, "write mode should succeed on populated tree")
         expect(run(root, check=True) == 0, "check should pass right after generation")
-        drift_page = root / "executive" / "decision-current.md"
-        drift_page.write_text(drift_page.read_text(encoding="utf-8").replace("@1.0.6", "@1.0.4"), encoding="utf-8")
+        edited = root / "executive" / "decision-one.md"
+        edited.write_text(edited.read_text(encoding="utf-8").replace("**Version:** 0.0.1", "**Version:** 0.0.2"), encoding="utf-8")
         expect(run(root, check=True) == 1, "check should fail (exit 1) after a page edit")
 
         # Case set 2: fail-loud on a malformed candidate page.
@@ -672,24 +574,20 @@ def _self_test() -> int:
         empty_text = (root3 / REGISTRY_NAME).read_text(encoding="utf-8")
         expect("pages: []" in empty_text and "listing: []" in empty_text,
                "empty tree: registry must carry pages: [] and listing: []")
+        expect("staleness" not in empty_text, "empty registry header must not mention staleness")
         expect(run(root3, check=True) == 0, "empty tree: check must pass")
         # A page added after generation drifts the committed empty registry.
         (root3 / "executive" / "decision-late.md").write_text(
             _st_page("decision-late.md", _PIN_OK), encoding="utf-8")
         expect(run(root3, check=True) == 1, "page added after generation: check must fail")
 
-        # Case set 4: missing taxonomy.yml is a hard error.
-        root4 = _st_make_root(Path(td_s) / "r4", {})
-        (root4 / TAXONOMY_NAME).unlink()
-        expect(run(root4, check=False) == 2, "missing taxonomy.yml: must fail loud (exit 2)")
-
     if failures:
         for f in failures:
             print(f"  SELF-TEST FAIL: {f}")
         print(f"self-test: {len(failures)} assertion(s) failed.")
         return 1
-    print("self-test: all assertions passed (state machine, fail-loud, empty tree, "
-          "bijection detector, check-mode drift, missing-taxonomy hard error).")
+    print("self-test: all assertions passed (pin-path extraction, fail-loud, empty "
+          "tree, bijection detector, check-mode drift).")
     return 0
 
 
