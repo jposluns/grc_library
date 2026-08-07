@@ -275,50 +275,52 @@ def render_pipeline(public_text: str, private_text: str | None,
         # (``**id** ...``); the inline form was previously dropped (P-1.30 bug b). A bullet in
         # the block whose id is NOT a descendant (a sibling item authored inside the block) is
         # promoted to its OWN leaf item rather than mis-attributed as this umbrella's child.
-        children: list[tuple[str, str, str]] = []     # (id, title, line) descendant children
-        foreign: list[tuple[str, str, str]] = []      # non-descendant bullets, promoted
-        seen: set[str] = set()                        # every id claimed (child / foreign / blocked)
-        had_bullets = False                           # did the block carry ANY child/item bullet
+        # Collect every formal-id occurrence in the block and keep the BEST per id: a
+        # non-blocked occurrence beats a blocked one, and a bullet beats an inline mention
+        # (bullets are authoritative). This one structure unifies bullet-over-inline
+        # precedence (r1 finding 1), foreign dedup (r1 finding 5), blocked-then-open recovery
+        # (r2 finding 3), the inline-blocked segment (r2 finding 2), and the parent-resurrection
+        # guard for all-blocked children whether bullet or inline (r1 finding 4 + r2 finding 1).
+        occ: dict[str, dict] = {}
         lines = block.splitlines()
-        # Pass 1 -- bullets are AUTHORITATIVE, collected first so an inline mention never
-        # shadows a bullet of the same id (QA finding 1); a repeated or blocked bullet id is
-        # claimed in `seen` so it is neither duplicated (finding 5) nor resurrected inline.
-        for line in lines:
+
+        def _consider(oid: str, otitle: str, oline: str, is_bullet: bool, blocked: bool) -> None:
+            rank = (0 if blocked else 1, 1 if is_bullet else 0)  # non-blocked, then bullet, wins
+            cur = occ.get(oid)
+            if cur is None or rank > cur["rank"]:
+                occ[oid] = {"title": otitle, "line": oline, "blocked": blocked,
+                            "descendant": _is_descendant(oid, item_id), "rank": rank}
+
+        for line in lines:                 # pass 1: bullets (authoritative)
             bm = BULLET_ITEM_RE.match(line)
-            if not bm:
-                continue
-            had_bullets = True
-            bid = bm.group("id")
-            if bid in seen:
-                continue
-            seen.add(bid)
-            if BLOCKED_TAG_RE.search(line):
-                continue                              # a granted-blocked bullet is not emitted
-            (children if _is_descendant(bid, item_id) else foreign).append(
-                (bid, bm.group("title"), line))
-        # Pass 2 -- inline wave-prose ids (non-bullet lines only, descendants, not blocked).
-        for line in lines:
+            if bm:
+                _consider(bm.group("id"), bm.group("title"), line, True,
+                          bool(BLOCKED_TAG_RE.search(line)))
+        for line in lines:                 # pass 2: inline wave-prose ids (non-bullet lines)
             if BULLET_ITEM_RE.match(line):
                 continue
-            for im in INLINE_ID_RE.finditer(line):
-                iid = im.group("id")
-                if iid in seen or not _is_descendant(iid, item_id):
-                    continue
-                if BLOCKED_TAG_RE.search(im.group(0)):   # inline [BLOCKED] item excluded (finding 3)
-                    seen.add(iid)
-                    continue
+            ms = list(INLINE_ID_RE.finditer(line))
+            for k, im in enumerate(ms):
+                seg_end = ms[k + 1].start() if k + 1 < len(ms) else len(line)
+                segment = line[im.start():seg_end]      # id .. next inline id / line end
                 idesc = im.group("title").strip()
                 # context = the child's OWN desc (the shared wave line mixes sibling items and
                 # track keywords, which would mis-type an inline child).
-                children.append((iid, idesc, idesc)); seen.add(iid)
+                _consider(im.group("id"), idesc, idesc, False,
+                          bool(BLOCKED_TAG_RE.search(segment)))
+
+        children = [(oid, o["title"], o["line"]) for oid, o in occ.items()
+                    if not o["blocked"] and o["descendant"]]
+        foreign = [(oid, o["title"], o["line"]) for oid, o in occ.items()
+                   if not o["blocked"] and not o["descendant"]]
         if children or foreign:
-            for bid, btitle, bline in children:
-                open_items.append((bid, btitle, bline, source, head_umb))
-            for bid, btitle, bline in foreign:
-                open_items.append((bid, btitle, bline, source, umb or ""))
-        elif not had_bullets:
-            # a genuine bulletless leaf is the item itself; if the block HAD bullets that were
-            # ALL blocked, emit nothing (do not resurrect the parent as open -- QA finding 4).
+            for oid, otitle, oline in children:
+                open_items.append((oid, otitle, oline, source, head_umb))
+            for oid, otitle, oline in foreign:
+                open_items.append((oid, otitle, oline, source, umb or ""))
+        elif not occ:
+            # a genuine leaf with NO formal-id items is the item itself; a heading whose only
+            # items are ALL blocked emits nothing (do not resurrect the parent as open).
             open_items.append((item_id, title, block, source, umb or title))
 
     out: list[str] = []
@@ -479,6 +481,26 @@ def _self_test() -> int:
     pub9 = ("## U9\n\n### P-9.5 Umbrella\n- **P-4.1** foreign sibling\n- **P-4.1** foreign sibling dup\n- **P-9.5.1** real child\n")
     r9l = [l for l in render_pipeline(pub9, None, None, None, limit=20).splitlines() if l.startswith("P-4.1 ")]
     check("foreign-bullet-deduped", len(r9l) == 1)
+
+    # P-1.30 QA round 2 finding 1: a block whose ONLY descendants are blocked INLINE ids must
+    # not resurrect the umbrella parent as an open leaf (the had_bullets guard missed inline).
+    pubA = ("## UA\n\n### P-11.1 Umbrella parent\nWave: **P-11.1.1** one [BLOCKED:granted]; **P-11.1.2** two [BLOCKED:granted]\n")
+    rAl = render_pipeline(pubA, None, None, None, limit=20).splitlines()
+    check("all-blocked-inline-no-parent-resurrect",
+          not any(l.startswith("P-11.1 ") for l in rAl) and not any(l.startswith("P-11.1.1") for l in rAl))
+
+    # finding 2: a blocked tag OUTSIDE the desc span (e.g. bold **[BLOCKED]**) still excludes
+    # the inline item, without one sibling's tag blocking the next.
+    pubB = ("## UB\n\n### P-12.1 Umbrella\nWave: **P-12.1.1** open child; **P-12.1.2** child **[BLOCKED:granted]**\n")
+    rBl = render_pipeline(pubB, None, None, None, limit=20).splitlines()
+    check("inline-blocked-bold-span-excluded",
+          any(l.startswith("P-12.1.1 [ ] ") for l in rBl) and not any(l.startswith("P-12.1.2 ") for l in rBl))
+
+    # finding 3: a blocked bullet followed by a NON-blocked bullet of the same id emits the
+    # authoritative open one (blocked-first must not permanently claim the id).
+    pubC = ("## UC\n\n### P-13.1 Umbrella\n- **P-13.1.1** blocked copy [BLOCKED:granted]\n- **P-13.1.1** the real open work here\n")
+    rCl = [l for l in render_pipeline(pubC, None, None, None, limit=20).splitlines() if l.startswith("P-13.1.1")]
+    check("blocked-then-open-recovers", len(rCl) == 1 and "real open work" in rCl[0])
 
     if failures:
         for f in failures:
