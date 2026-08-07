@@ -173,7 +173,7 @@ BULLET_ITEM_RE = re.compile(r"^\s*[-*] \*\*(?P<id>P-\d+(?:\.\d+){1,2}[a-z]?"
 INLINE_ID_RE = re.compile(
     r"\*\*(?P<id>P-\d+(?:\.\d+){1,2}[a-z]?"
     r"|\d+(?:\.\d+){1,2}[a-z]?"
-    r"|[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+)\*\*[ \t]*(?P<title>[^;*]*)")
+    r"|[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+)\*\*[ \t]*(?P<title>(?:[^;*]|\*(?!\*))*)")
 
 
 def _is_descendant(child_id: str, parent_id: str) -> bool:
@@ -200,11 +200,12 @@ _TYPE_RULES: list[tuple[str, tuple[str, ...]]] = [
     ("ops", ("runbook", "changelog", "roll-up", "rollup", "scale wave", "ops ")),
     ("content", ("brief", "scenario", "journey", "exemplar", "story",
                  "narrative page", "outcome map", "control journey")),
-    ("gate", ("new gate", "staleness gate", "audit gate", "freshness gate",
-              "gate ")),   # P-1.30 bug d: a "gate N" item types as gate not tool; "gate "
-                           # (trailing space) catches "gate 87" but NOT plural "gates" on a
-                           # tool item ("... evidence gates ...", which stays tool via .py/lint).
+    ("gate", ("new gate", "staleness gate", "audit gate", "freshness gate")),  # specific gate phrases
     ("tool", ("lint", "scanner", "guard", ".py", "hook", "tool", "generator")),
+    ("gate", ("gate ",)),   # P-1.30 bug d + QA finding 6: generic "gate N" fallback AFTER the tool
+                            # rule, so a tool item that also mentions "gate" (e.g. "add gate-count
+                            # consistency linter", "... evidence gates ...") stays tool; a pure
+                            # "gate 87" item (no tool indicator) still types gate.
     ("rule", (" rule", "extension")),  # last-resort rule catch (after specifics)
 ]
 
@@ -274,37 +275,50 @@ def render_pipeline(public_text: str, private_text: str | None,
         # (``**id** ...``); the inline form was previously dropped (P-1.30 bug b). A bullet in
         # the block whose id is NOT a descendant (a sibling item authored inside the block) is
         # promoted to its OWN leaf item rather than mis-attributed as this umbrella's child.
-        children: list[tuple[str, str, str]] = []     # (id, title, line)
-        foreign: list[tuple[str, str, str]] = []      # non-descendant bullets in the block
-        seen: set[str] = set()
-        for line in block.splitlines():
+        children: list[tuple[str, str, str]] = []     # (id, title, line) descendant children
+        foreign: list[tuple[str, str, str]] = []      # non-descendant bullets, promoted
+        seen: set[str] = set()                        # every id claimed (child / foreign / blocked)
+        had_bullets = False                           # did the block carry ANY child/item bullet
+        lines = block.splitlines()
+        # Pass 1 -- bullets are AUTHORITATIVE, collected first so an inline mention never
+        # shadows a bullet of the same id (QA finding 1); a repeated or blocked bullet id is
+        # claimed in `seen` so it is neither duplicated (finding 5) nor resurrected inline.
+        for line in lines:
             bm = BULLET_ITEM_RE.match(line)
-            if bm:
-                bid = bm.group("id")
-                if BLOCKED_TAG_RE.search(line):
-                    continue
-                if _is_descendant(bid, item_id):
-                    if bid not in seen:
-                        children.append((bid, bm.group("title"), line)); seen.add(bid)
-                else:
-                    foreign.append((bid, bm.group("title"), line))
+            if not bm:
+                continue
+            had_bullets = True
+            bid = bm.group("id")
+            if bid in seen:
+                continue
+            seen.add(bid)
+            if BLOCKED_TAG_RE.search(line):
+                continue                              # a granted-blocked bullet is not emitted
+            (children if _is_descendant(bid, item_id) else foreign).append(
+                (bid, bm.group("title"), line))
+        # Pass 2 -- inline wave-prose ids (non-bullet lines only, descendants, not blocked).
+        for line in lines:
+            if BULLET_ITEM_RE.match(line):
                 continue
             for im in INLINE_ID_RE.finditer(line):
                 iid = im.group("id")
-                if _is_descendant(iid, item_id) and iid not in seen:
-                    idesc = im.group("title").strip()
-                    # context = the child's OWN desc (the shared wave line mixes sibling
-                    # items and track keywords, which would mis-type an inline child)
-                    children.append((iid, idesc, idesc)); seen.add(iid)
-        if children:
+                if iid in seen or not _is_descendant(iid, item_id):
+                    continue
+                if BLOCKED_TAG_RE.search(im.group(0)):   # inline [BLOCKED] item excluded (finding 3)
+                    seen.add(iid)
+                    continue
+                idesc = im.group("title").strip()
+                # context = the child's OWN desc (the shared wave line mixes sibling items and
+                # track keywords, which would mis-type an inline child).
+                children.append((iid, idesc, idesc)); seen.add(iid)
+        if children or foreign:
             for bid, btitle, bline in children:
                 open_items.append((bid, btitle, bline, source, head_umb))
             for bid, btitle, bline in foreign:
                 open_items.append((bid, btitle, bline, source, umb or ""))
-        elif foreign:
-            for bid, btitle, bline in foreign:
-                open_items.append((bid, btitle, bline, source, umb or ""))
-        else:   # bulletless leaf (blocked blocks already 'continue'd above)
+        elif not had_bullets:
+            # a genuine bulletless leaf is the item itself; if the block HAD bullets that were
+            # ALL blocked, emit nothing (do not resurrect the parent as open -- QA finding 4).
             open_items.append((item_id, title, block, source, umb or title))
 
     out: list[str] = []
@@ -435,6 +449,36 @@ def _self_test() -> int:
     check("inline-child-typed-from-own-desc",
           any(l.startswith("P-8.1.1 [ ] content ") for l in r4l)
           and any(l.startswith("P-8.1.2 [ ] website ") for l in r4l))
+
+    # P-1.30 QA finding 1: a bullet is authoritative; an inline mention of the same id
+    # (even earlier in the text) never shadows it -- the bullet's desc wins, one row only.
+    pub5 = ("## U5\n\n### P-5.1 Umbrella\n"
+            "_Wave:_ **P-5.1.1** inline shadow desc\n"
+            "- **P-5.1.1** authoritative bullet desc here\n")
+    r5l = [l for l in render_pipeline(pub5, None, None, None, limit=20).splitlines() if l.startswith("P-5.1.1")]
+    check("bullet-wins-over-inline", len(r5l) == 1 and "authoritative bullet desc" in r5l[0])
+
+    # finding 2: an inline desc with markdown emphasis is not truncated at the lone '*'.
+    pub6 = ("## U6\n\n### P-6.1 Umbrella\nTrack: **P-6.1.1** author *four* briefs here\n")
+    r6l = render_pipeline(pub6, None, None, None, limit=20).splitlines()
+    check("inline-emphasis-not-truncated", any("briefs here" in l for l in r6l if l.startswith("P-6.1.1")))
+
+    # finding 3: an inline child carrying a granted [BLOCKED] tag is excluded, like a bullet.
+    pub7 = ("## U7\n\n### P-7.1 Umbrella\nWave: **P-7.1.1** ok child; **P-7.1.2** blocked [BLOCKED:granted] one\n")
+    r7l = render_pipeline(pub7, None, None, None, limit=20).splitlines()
+    check("inline-blocked-excluded",
+          any(l.startswith("P-7.1.1 [ ] ") for l in r7l) and not any(l.startswith("P-7.1.2 ") for l in r7l))
+
+    # finding 4: when every child bullet is blocked, neither the children NOR the parent emit.
+    pub8 = ("## U8\n\n### P-8.9 Umbrella parent\n- **P-8.9.1** child [BLOCKED:granted]\n- **P-8.9.2** child2 [BLOCKED:granted]\n")
+    r8l = render_pipeline(pub8, None, None, None, limit=20).splitlines()
+    check("all-blocked-children-no-parent-resurrect",
+          not any(l.startswith("P-8.9 ") for l in r8l) and not any(l.startswith("P-8.9.1") for l in r8l))
+
+    # finding 5: a repeated foreign (non-descendant) bullet is deduplicated to one row.
+    pub9 = ("## U9\n\n### P-9.5 Umbrella\n- **P-4.1** foreign sibling\n- **P-4.1** foreign sibling dup\n- **P-9.5.1** real child\n")
+    r9l = [l for l in render_pipeline(pub9, None, None, None, limit=20).splitlines() if l.startswith("P-4.1 ")]
+    check("foreign-bullet-deduped", len(r9l) == 1)
 
     if failures:
         for f in failures:
