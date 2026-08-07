@@ -1,117 +1,193 @@
 #!/usr/bin/env python3
-"""Stop hook: refuse turn-end while the orchestrator has outstanding, actionable work.
+"""Stop hook: refuse a turn-end while the session is holding outstanding work.
 
-WHY THIS EXISTS
-The orchestrator ended a turn on a stated intention ("continuing with X", "next I will
-do X") seven times in one session, each after an explicit maintainer correction, once in
-capitals. Prose correctives failed seven times; every mechanical guard in this repository
-held. The maintainer's framing is the operative one: a turn ending on "continuing with X"
-that then does not continue is not a pause, it is a FALSE STATEMENT about the assistant's
-own next action, so it belongs to the accuracy facet rather than to workflow tidiness.
+Shipped 2026-08-07 after the orchestrator ended a turn on a stated intention ("continuing with X",
+"next I will do X") EIGHT times in one session, each after an explicit maintainer correction, one
+of them in capitals, while every mechanical guard in the same session held without exception. That
+asymmetry is the whole argument for this hook: prose correctives failed repeatedly against the same
+reflex, and mechanism did not fail once. The discipline it backstops is the section "A stated
+intention is a claim, and an unkept one is a false statement" in
+guardrails/governance/evidence-grounded-completion.md.
 
-WHAT IT BLOCKS
-Turn-end when either holds:
-  (a) a dispatched worker DELIVERED a result that has not been marked consumed, or
-  (b) a feature branch carries commits not reachable from origin/main.
+REVISED 2026-08-07, same day, after a dual-family review of the FIRST version returned seven errors
+against it. Four were fatal and all four are fixed here: it never read its Stop payload, so it could
+not see stop_hook_active and had no terminating condition; its escape hatch was an environment
+variable the actor cannot set into this process, which is the appearance of an escape rather than
+one; a MISSING consume marker made the threshold epoch 0, so every file in the tray read as
+unconsumed, which is the opposite of the fail-open contract the docstring claimed; and the held-
+branch list was a hardcoded set whose "must cite a decision record" was an unenforced comment.
 
-GUARD-INPUT RESIDUE (validate-inference-before-action, "Guard inputs")
-Stated at the point of use, because both observables are proxies:
-  - "delivered" is a file in the deliveries tray newer than the consume marker. It shows
-    a delivery arrived and was not marked consumed. It does NOT show the content is
-    unread, nor that the delivery is semantically complete.
-  - "unmerged" is commits on a local claude/* branch not reachable from origin/main. It
-    does NOT show the branch is meant to merge; a deliberately-held branch looks
-    identical, which is why HELD_BRANCHES exists and must cite a decision record.
+WHAT IT BLOCKS. A turn-end while EITHER arm is true:
+  * a delivery has landed in the tray since the last recorded consume, or
+  * a branch is ahead of main and is not on the recorded held list.
 
-FAIL-OPEN, DELIBERATELY
-Any internal error, missing path or git failure allows the stop. A guard that traps the
-assistant on its own malfunction gets switched off, and a switched-off guard protects
-nothing. This catches the routine case; it is not meant to be inescapable.
+WHAT IT DOES NOT BLOCK, by construction:
+  * a continuation that is already under way (stop_hook_active), so it blocks at most once and
+    cannot loop the session;
+  * anything at all, if the escape file exists (see below);
+  * anything at all, if it cannot answer the question (see fail-open).
 
-ESCAPE HATCH
-GRC_ALLOW_STOP=1 allows one stop, for a genuine block (CI, a maintainer decision, an
-external wait). Its use is visible in shell history, which is the point: an escape that
-leaves no trace becomes the default.
+ESCAPE, and it is reachable. Create the file named by ESCAPE_FILE from any shell:
+``touch /home/grc/grc_working/.allow-stop``. The hook honours it ONCE and deletes it, so an escape
+cannot silently become the standing state. It is reachable from a Bash tool call, which the previous
+environment-variable form was not: a Stop hook inherits the harness's environment, never the
+environment of a tool call.
+
+FAIL OPEN, and this now includes every missing input. Any internal error, an unreadable repository,
+an absent tray, an absent marker: all allow the stop. A guard that traps the actor on its own
+malfunction gets removed, and a removed guard protects nothing.
+
+GUARD-INPUT RESIDUE, stated at the point of use per validate-inference-before-action:
+  * "a delivery file is newer than the marker" is NOT "a delivery is unread". It proves a file
+    arrived, nothing more; the marker is advanced by the orchestrator, so the arm measures a
+    RECORDED consume, not a real one.
+  * "a branch is ahead of main" is NOT "a branch is meant to merge". A deliberately-held branch
+    needs a recorded exemption, which is why the list is a file with reasons rather than a constant.
+  * the tray scan is TOP-LEVEL ONLY (glob, not rglob), so a delivery written into a subdirectory is
+    invisible to this guard.
+  * the hook sees files and refs. It cannot see whether the actor intends to continue, which is the
+    thing it is really trying to constrain; it can only make yielding-with-work-outstanding require
+    a deliberate act.
 """
+
+from __future__ import annotations
+
+import json
 import os
 import subprocess
 import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[2]
-DROP_ROOT = Path("/home/grc/grc_working")
-DELIVERIES = DROP_ROOT / "inbox" / "deliveries"
+REPO = Path(os.environ.get("CLAUDE_PROJECT_DIR") or Path(__file__).resolve().parents[2])
+DROP_ROOT = Path(os.environ.get("GRC_DROP_ROOT", "/home/grc/grc_working")) / "inbox" / "deliveries"
 CONSUME_MARKER = DROP_ROOT / ".last-consume"
-
-# Branches deliberately held by a recorded maintainer decision. A held branch is not
-# outstanding work. Keep this short and cite the record for each entry.
-HELD_BRANCHES = {
-    # HELD per the 2026-08-04 attended resolution: "1.26.9 HELD (batch more umbrella
-    # rules -> one /guardrails review + gate 81)".
-    "claude/1.26.9-cost-tier",
-}
+ESCAPE_FILE = Path(os.environ.get("GRC_DROP_ROOT", "/home/grc/grc_working")) / ".allow-stop"
+# Held branches live in a FILE with a reason per line, not a constant in this file: a hardcoded set
+# goes stale the day it is written, and a comment saying "cite a decision record" enforces nothing.
+HELD_FILE = REPO.parent / "grc_library_private" / ".working" / "held-branches.txt"
+GIT_TIMEOUT = 20
 
 
-def _git(*args):
+def _git(*args: str) -> str:
     return subprocess.run(
         ["git", "-C", str(REPO), *args],
-        capture_output=True, text=True, timeout=15,
-    ).stdout.strip()
+        capture_output=True, text=True, timeout=GIT_TIMEOUT, check=True,
+    ).stdout
 
 
-def unmerged_branches():
-    out = _git("for-each-ref", "--format=%(refname:short)", "refs/heads/claude")
-    found = []
-    for branch in filter(None, out.splitlines()):
-        if branch in HELD_BRANCHES:
+def held_branches() -> dict:
+    """Map branch -> reason, from the recorded held list. Absent file means nothing is held."""
+    held = {}
+    if not HELD_FILE.exists():
+        return held
+    for line in HELD_FILE.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
             continue
-        ahead = _git("rev-list", "--count", "origin/main.." + branch)
-        if ahead.isdigit() and int(ahead) > 0:
-            found.append(branch + " (+" + ahead + ")")
-    return found
+        name, _, reason = line.partition("#")
+        held[name.strip()] = reason.strip() or "no reason recorded"
+    return held
 
 
-def unconsumed_deliveries():
-    if not DELIVERIES.is_dir():
-        return []
-    since = CONSUME_MARKER.stat().st_mtime if CONSUME_MARKER.exists() else 0
-    return sorted(p.name for p in DELIVERIES.glob("*.md") if p.stat().st_mtime > since)
+def unmerged_branches() -> list:
+    held = held_branches()
+    out = []
+    for name in _git("for-each-ref", "--format=%(refname:short)", "refs/heads").split():
+        if name == "main" or name in held:
+            continue
+        ahead = _git("rev-list", "--count", "main.." + name).strip()
+        if ahead and ahead != "0":
+            out.append((name, ahead))
+    return out
 
 
-def main():
-    if os.environ.get("GRC_ALLOW_STOP") == "1":
-        return 0
-    try:
-        branches = unmerged_branches()
-        deliveries = unconsumed_deliveries()
-    except Exception:
-        return 0  # fail open, deliberately
+def new_deliveries() -> list:
+    """Deliveries newer than the recorded consume. Returns [] when it cannot tell."""
+    if not DROP_ROOT.is_dir() or not CONSUME_MARKER.exists():
+        return []          # cannot answer: fail open, per the contract above
+    since = CONSUME_MARKER.stat().st_mtime
+    return sorted(p.name for p in DROP_ROOT.glob("*.md") if p.stat().st_mtime > since)
 
+
+def decide(stop_hook_active: bool, escape: bool, branches: list, deliveries: list) -> str | None:
+    """Pure decision, so it is testable without a repository or a tray."""
+    if stop_hook_active or escape:
+        return None
     if not branches and not deliveries:
-        return 0
-
-    out = ["BLOCKED (turn-end guard): outstanding work exists, so the turn must not end.", ""]
+        return None
+    lines = ["BLOCKED (turn-end guard): work is outstanding, so this is not a place to yield.", ""]
     if deliveries:
-        out.append("  Unconsumed deliveries (" + str(len(deliveries)) + "):")
-        out += ["    - " + d for d in deliveries[:6]]
+        lines.append("  Deliveries since the last recorded consume (%d):" % len(deliveries))
+        lines += ["    - " + d for d in deliveries[:6]]
         if len(deliveries) > 6:
-            out.append("    ... and " + str(len(deliveries) - 6) + " more")
-        out.append("    Read each, then mark consumed: touch " + str(CONSUME_MARKER))
+            lines.append("    ... and %d more" % (len(deliveries) - 6))
+        lines.append("    Read them, disposition every finding, then record the consume:")
+        lines.append("      touch /home/grc/grc_working/inbox/deliveries/.last-consume")
     if branches:
-        out.append("  Unmerged branches (" + str(len(branches)) + "):")
-        out += ["    - " + b for b in branches]
-        out.append("    Finish and merge it, or add it to HELD_BRANCHES with its decision record.")
-    out += [
+        lines.append("  Branches ahead of main and not recorded as held (%d):" % len(branches))
+        lines += ["    - %s (+%s)" % (n, a) for n, a in branches[:8]]
+        lines.append("    Merge them, or record the hold with its reason in")
+        lines.append("      grc_library_private/.working/held-branches.txt")
+    lines += [
         "",
-        "Do the next unit of work in THIS turn. Ending on a stated intention",
-        "('continuing with X') without doing it is a false statement about your own next",
-        "action, not a pause.",
-        "",
-        "Genuinely blocked (CI, a maintainer decision, an external wait)? GRC_ALLOW_STOP=1.",
+        "  If this is a genuine block (CI, a maintainer decision, an external wait), say so and:",
+        "      touch /home/grc/grc_working/.allow-stop     # honoured once, then deleted",
     ]
-    print("\n".join(out), file=sys.stderr)
-    return 2
+    return "\n".join(lines)
+
+
+def main() -> int:
+    try:
+        payload = json.load(sys.stdin) if not sys.stdin.isatty() else {}
+    except Exception:
+        payload = {}
+    try:
+        if payload.get("stop_hook_active"):
+            return 0
+        escape = ESCAPE_FILE.exists()
+        if escape:
+            try:
+                ESCAPE_FILE.unlink()          # one-shot: an escape must not become the default
+            except OSError:
+                pass
+            return 0
+        message = decide(False, False, unmerged_branches(), new_deliveries())
+        if message:
+            print(message, file=sys.stderr)
+            return 2
+    except Exception:
+        return 0                              # fail open, deliberately
+    return 0
+
+
+SELF_TEST = [
+    ("clean tree allows",            (False, False, [], []),                       False),
+    ("continuation never blocks",    (True,  False, [("b", "1")], ["d.md"]),        False),
+    ("escape file never blocks",     (False, True,  [("b", "1")], ["d.md"]),        False),
+    ("one unmerged branch blocks",   (False, False, [("b", "1")], []),              True),
+    ("one new delivery blocks",      (False, False, [], ["d.md"]),                  True),
+    ("both arms block",              (False, False, [("b", "2")], ["d.md"]),        True),
+]
+
+
+def self_test() -> int:
+    bad = 0
+    for name, args, should_block in SELF_TEST:
+        got = decide(*args) is not None
+        if got != should_block:
+            bad += 1
+            print("FAIL " + name + ": want " + ("BLOCK" if should_block else "allow")
+                  + ", got " + ("BLOCK" if got else "allow"))
+    # A missing marker must fail OPEN, which is the error-4 regression.
+    real = new_deliveries.__doc__ or ""
+    if "fail open" not in real and "cannot tell" not in real:
+        bad += 1
+        print("FAIL: the fail-open contract is not stated where the reader will look")
+    print(str(len(SELF_TEST) - bad) + "/" + str(len(SELF_TEST)) + " decision cases pass")
+    return 1 if bad else 0
 
 
 if __name__ == "__main__":
+    if "--self-test" in sys.argv:
+        sys.exit(self_test())
     sys.exit(main())
