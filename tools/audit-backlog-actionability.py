@@ -167,7 +167,26 @@ BULLET_ITEM_RE = re.compile(r"^\s*[-*] \*\*(?P<id>P-\d+(?:\.\d+){1,2}[a-z]?"
                             r"|\d+(?:\.\d+){1,2}[a-z]?"
                             r"|[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+)\*\*[ \t]*(?P<title>.*)$")
 
-DONE_ENTRY_RE = re.compile(r"^### PR #(?P<pr>\d+):\s*(?P<title>.*?)\s*\((?P<date>\d{4}-\d\d-\d\d)\)\s*$")
+# An INLINE formal-id mention in umbrella wave-prose (NOT a ``- **id**`` bullet):
+# e.g. ``_Wave 2_: **P-1.25.12** 4 more briefs; **P-1.25.13** 3 scenarios``. The description
+# runs to the next ``;`` or ``**`` (P-1.30 bug b: inline wave items were omitted from the view).
+INLINE_ID_RE = re.compile(
+    r"\*\*(?P<id>P-\d+(?:\.\d+){1,2}[a-z]?"
+    r"|\d+(?:\.\d+){1,2}[a-z]?"
+    r"|[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+)\*\*[ \t]*(?P<title>[^;*]*)")
+
+
+def _is_descendant(child_id: str, parent_id: str) -> bool:
+    """True if ``child_id`` is a proper dotted descendant of ``parent_id`` (e.g.
+    ``P-1.25.12`` under ``P-1.25``). Umbrella children share the umbrella id prefix per
+    the multi-phase-series numbering convention."""
+    return child_id.startswith(parent_id + ".")
+
+# A DONE.md entry heading. Accepts a SINGLE PR (``### PR #1425: ... (2026-08-06)``) or a
+# COMPOUND heading (``### PR #1425 + #1426: ... (date)``); the ``extra`` group captures the
+# ``+ #NNNN`` repeats so a compound entry is not silently skipped (P-1.30 bug a).
+DONE_ENTRY_RE = re.compile(
+    r"^### PR #(?P<pr>\d+)(?P<extra>(?:\s*\+\s*#\d+)*):\s*(?P<title>.*?)\s*\((?P<date>\d{4}-\d\d-\d\d)\)\s*$")
 
 # Priority-ordered (first match wins) TYPE heuristic. Rough by design: the /pipeline
 # command refines a wrong guess. Keyword -> one-word type.
@@ -181,8 +200,9 @@ _TYPE_RULES: list[tuple[str, tuple[str, ...]]] = [
     ("ops", ("runbook", "changelog", "roll-up", "rollup", "scale wave", "ops ")),
     ("content", ("brief", "scenario", "journey", "exemplar", "story",
                  "narrative page", "outcome map", "control journey")),
-    ("gate", ("new gate", "staleness gate", "audit gate", "freshness gate")),
-    ("tool", ("lint", "scanner", "guard", ".py", "hook", " gate", "tool", "generator")),
+    ("gate", ("new gate", "staleness gate", "audit gate", "freshness gate",
+              " gate", "gate ")),   # P-1.30 bug d: a " gate"/"gate N" item types as gate,
+    ("tool", ("lint", "scanner", "guard", ".py", "hook", "tool", "generator")),  # not tool
     ("rule", (" rule", "extension")),  # last-resort rule catch (after specifics)
 ]
 
@@ -203,15 +223,23 @@ def trunc_words(title: str, n: int = 10) -> str:
 
 
 def parse_done(done_text: str, limit: int = 5) -> list[tuple[int, str]]:
-    """The ``limit`` most-recent completed items from DONE.md, highest PR# first.
+    """The ``limit`` most-recent completed items from DONE.md, most-recent first.
+    Ordered by completion DATE (the ledger date), tie-broken by highest PR number, NOT by
+    PR number alone (P-1.30 bug a: merge order and completion-ledger order can diverge). A
+    compound ``### PR #A + #B`` heading counts as ONE entry, represented by its highest PR.
     Returns ``(pr_number, title)``."""
-    entries: list[tuple[int, str]] = []
+    entries: list[tuple[str, int, str]] = []   # (date, representative_pr, title)
     for line in done_text.splitlines():
         m = DONE_ENTRY_RE.match(line)
         if m:
-            entries.append((int(m.group("pr")), m.group("title").strip()))
-    entries.sort(key=lambda e: e[0], reverse=True)
-    return entries[:limit]
+            prs = [int(m.group("pr"))]
+            if m.group("extra"):
+                prs += [int(x) for x in re.findall(r"#(\d+)", m.group("extra"))]
+            entries.append((m.group("date"), max(prs), m.group("title").strip()))
+    # ISO dates sort lexically == chronologically; reverse => most-recent first,
+    # tie-broken by PR number descending.
+    entries.sort(key=lambda e: (e[0], e[1]), reverse=True)
+    return [(pr, title) for _date, pr, title in entries[:limit]]
 
 
 def _short_id(title: str) -> str:
@@ -238,16 +266,42 @@ def render_pipeline(public_text: str, private_text: str | None,
     for item_id, title, block, source, umb in items:
         if is_blocked(block):
             continue  # a [BLOCKED:] parent heading excludes itself AND its bullet leaves
-        bullets = []
+        head_umb = f"{item_id} {title}".strip()
+        # An umbrella's CHILDREN are the formal ids in its block that are dotted DESCENDANTS
+        # of the umbrella id, written either as ``- **id**`` bullets OR inline in wave prose
+        # (``**id** ...``); the inline form was previously dropped (P-1.30 bug b). A bullet in
+        # the block whose id is NOT a descendant (a sibling item authored inside the block) is
+        # promoted to its OWN leaf item rather than mis-attributed as this umbrella's child.
+        children: list[tuple[str, str, str]] = []     # (id, title, line)
+        foreign: list[tuple[str, str, str]] = []      # non-descendant bullets in the block
+        seen: set[str] = set()
         for line in block.splitlines():
             bm = BULLET_ITEM_RE.match(line)
             if bm:
-                bullets.append((bm.group("id"), bm.group("title"), line))
-        if bullets:
-            head_umb = f"{item_id} {title}".strip()
-            for bid, btitle, bline in bullets:
-                if not BLOCKED_TAG_RE.search(bline):
-                    open_items.append((bid, btitle, bline, source, head_umb))
+                bid = bm.group("id")
+                if BLOCKED_TAG_RE.search(line):
+                    continue
+                if _is_descendant(bid, item_id):
+                    if bid not in seen:
+                        children.append((bid, bm.group("title"), line)); seen.add(bid)
+                else:
+                    foreign.append((bid, bm.group("title"), line))
+                continue
+            for im in INLINE_ID_RE.finditer(line):
+                iid = im.group("id")
+                if _is_descendant(iid, item_id) and iid not in seen:
+                    idesc = im.group("title").strip()
+                    # context = the child's OWN desc (the shared wave line mixes sibling
+                    # items and track keywords, which would mis-type an inline child)
+                    children.append((iid, idesc, idesc)); seen.add(iid)
+        if children:
+            for bid, btitle, bline in children:
+                open_items.append((bid, btitle, bline, source, head_umb))
+            for bid, btitle, bline in foreign:
+                open_items.append((bid, btitle, bline, source, umb or ""))
+        elif foreign:
+            for bid, btitle, bline in foreign:
+                open_items.append((bid, btitle, bline, source, umb or ""))
         elif not is_blocked(block):
             open_items.append((item_id, title, block, source, umb or title))
 
@@ -313,6 +367,7 @@ def _self_test() -> int:
     check("type-content", infer_type("author three scenario pages") == "content")
     check("type-validation", infer_type("full validation pass") == "validation")
     check("type-tool", infer_type("shared multi-line link scanner (lint_common)") == "tool")
+    check("type-gate", infer_type("wire the new authority-boundary gate 87") == "gate")  # P-1.30 bug d
 
     # trunc_words: <=10 words, ellipsis when longer
     tw = trunc_words("one two three four five six seven eight nine ten eleven twelve")
@@ -347,13 +402,42 @@ def _self_test() -> int:
     check("blocked-parent-leaf-excluded", "9.9.1" not in rb and any("8.8 [ ]" in l for l in rb.splitlines()))
     check("loud-banner-on-missing-state", any(l.startswith("!!! INCOMPLETE PIPELINE VIEW") for l in rb.splitlines()))
 
+    # P-1.30 bug a: compound DONE headings counted (not skipped) and ordered by DATE, not PR.
+    done2 = ("### PR #1500: newer low-pr (2026-08-07)\n\n"
+             "### PR #1600: older high-pr (2026-08-01)\n\n"
+             "### PR #1425 + #1426: compound entry (2026-08-06)\n")
+    d2 = parse_done(done2, 3)
+    check("done-date-order-not-pr",
+          d2 == [(1500, "newer low-pr"), (1426, "compound entry"), (1600, "older high-pr")])
+    check("done-compound-counted", any(pr == 1426 for pr, _ in d2))
+
+    # P-1.30 bug b: inline wave-prose child ids are enumerated, and a non-descendant bullet
+    # authored inside an umbrella block is PROMOTED to its own item, not mis-attributed.
+    pub2 = ("## U3\n\n### P-9.1 Umbrella heading here\n"
+            "- **P-9.9** sibling item authored inside the block\n"
+            "- **P-9.1.1** real bullet child here\n"
+            "_Wave X:_ **P-9.1.2** inline child two; **P-9.1.3** inline child three\n")
+    r3l = render_pipeline(pub2, None, None, None, limit=20).splitlines()
+    check("inline-child-enumerated",
+          any(l.startswith("P-9.1.2 [ ] ") for l in r3l) and any(l.startswith("P-9.1.3 [ ] ") for l in r3l))
+    check("bullet-child-enumerated", any(l.startswith("P-9.1.1 [ ] ") for l in r3l))
+    check("foreign-bullet-promoted", any(l.startswith("P-9.9 [ ] ") for l in r3l))
+    # an inline content child must type from its own desc, not the shared wave line
+    pub3 = ("## U4\n\n### P-8.1 Umbrella here\n"
+            "Track A (content): **P-8.1.1** author four briefs; Track B (website): **P-8.1.2** homepage re-hero\n")
+    r4l = render_pipeline(pub3, None, None, None, limit=20).splitlines()
+    check("inline-child-typed-from-own-desc",
+          any(l.startswith("P-8.1.1 [ ] content ") for l in r4l)
+          and any(l.startswith("P-8.1.2 [ ] website ") for l in r4l))
+
     if failures:
         for f in failures:
             print(f"  SELF-TEST FAIL: {f}")
         print(f"self-test: {len(failures)} case(s) failed.")
         return 1
-    print("self-test: all pipeline cases passed (type inference, 10-word truncation, "
-          "recent-done ordering, umbrella grouping, blocked exclusion, umbrella filter).")
+    print("self-test: all pipeline cases passed (type inference incl. gate, 10-word truncation, "
+          "recent-done date-ordering + compound headings, umbrella grouping, inline-wave children, "
+          "foreign-bullet promotion, blocked exclusion, umbrella filter).")
     return 0
 
 
