@@ -304,13 +304,20 @@ def render_pipeline(public_text: str, private_text: str | None,
                 continue
             ms = list(INLINE_ID_RE.finditer(line))
             for k, im in enumerate(ms):
+                iid = im.group("id")
+                # ONLY a dotted DESCENDANT inline id is a real child (an umbrella's wave item).
+                # A non-descendant bold token in prose (a status word like **NOT-READY**, a
+                # track header) matches the coded-id regex but is emphasis, NOT a backlog item,
+                # so it is ignored: never promoted to a leaf and never counted toward `occ`
+                # (which would suppress the heading's own leaf). Foreign items are BULLETS.
+                if not _is_descendant(iid, item_id):
+                    continue
                 seg_end = ms[k + 1].start() if k + 1 < len(ms) else len(line)
                 segment = line[im.start():seg_end]      # id .. next inline id / line end
                 idesc = im.group("title").strip()
                 # context = the child's OWN desc (the shared wave line mixes sibling items and
                 # track keywords, which would mis-type an inline child).
-                _consider(im.group("id"), idesc, idesc, False,
-                          bool(BLOCKED_TAG_RE.search(segment)))
+                _consider(iid, idesc, idesc, False, bool(BLOCKED_TAG_RE.search(segment)))
 
         children = [(oid, o["title"], o["line"]) for oid, o in occ.items()
                     if not o["blocked"] and o["descendant"]]
@@ -512,6 +519,15 @@ def _self_test() -> int:
             "Wave: **P-14.1.1** inline open mention\n- **P-14.1.1** the blocked bullet [BLOCKED:granted]\n")
     rDl = render_pipeline(pubD, None, None, None, limit=20).splitlines()
     check("blocked-bullet-not-overridden-by-inline", not any(l.startswith("P-14.1.1") for l in rDl))
+
+    # P-1.30 QA round 5: a bold NON-id-descendant coded/dotted token in a heading's prose (a
+    # status word like **NOT-READY** that matches the coded-id regex) must NOT become a phantom
+    # leaf and must NOT suppress the heading's own leaf emission (round-3 regression on item 3.119).
+    pubE = ("## UE\n\n### 3.500 A real leaf item whose prose bolds a status word\n"
+            "The worker returned **NOT-READY** because nothing was probed.\n")
+    rEl = render_pipeline(pubE, None, None, None, limit=20).splitlines()
+    check("non-descendant-inline-token-ignored",
+          any(l.startswith("3.500 ") for l in rEl) and not any("NOT-READY" in l for l in rEl))
 
     if failures:
         for f in failures:
