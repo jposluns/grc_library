@@ -564,6 +564,19 @@ LEDGER = _pathlib.Path(
     _os.environ.get("GRC_DROP_ROOT", "/home/grc/grc_working")) / "dispatch-ledger.tsv"
 
 
+def _ledgered_error(ap, args, message: str) -> None:
+    """ap.error, but the attempt leaves a FAILED ledger row first (finding H9 of PR #1441:
+    every ap.error validity check exits before the post-dispatch ledger writes, which is the
+    literal wording of the motivating incident, a dispatch dying at a validity check with no
+    artefact). Only meaningful once --dispatch intent and an order id exist."""
+    if getattr(args, "dispatch", False) and getattr(args, "order_id", None):
+        _ledger_append("FAILED", args.order_id, getattr(args, "family", "") or "",
+                       getattr(args, "model", "") or "",
+                       account=str(getattr(args, "account", "") or ""),
+                       detail="validity: " + message)
+    ap.error(message)
+
+
 def _ledger_append(status: str, order_id: str, family: str, model: str,
                    account: str = "", worker_id: str = "", detail: str = "") -> None:
     """Append one attempt row. Never raises: a ledger failure must not fail a dispatch."""
@@ -1011,15 +1024,15 @@ def main() -> int:
         if args.require_worker:
             rw_key = worker_id_to_key(args.require_worker)
             if rw_key is None:
-                ap.error(f"--require-worker: cannot parse worker-id '{args.require_worker}' "
+                _ledgered_error(ap, args, f"--require-worker: cannot parse worker-id '{args.require_worker}' "
                          "(expected {family}-{account}-{stamp}-{4hex}); name the account with "
                          "--account instead")
             rw_acct, rw_fam = rw_key
             if rw_fam != args.family:
-                ap.error(f"--require-worker names a '{rw_fam}' worker but --family is "
+                _ledgered_error(ap, args, f"--require-worker names a '{rw_fam}' worker but --family is "
                          f"'{args.family}'")
             if args.account and args.account != rw_acct:
-                ap.error(f"--require-worker resolves to account '{rw_acct}' but --account is "
+                _ledgered_error(ap, args, f"--require-worker resolves to account '{rw_acct}' but --account is "
                          f"'{args.account}' (contradiction)")
             effective_account = rw_acct
         known_accounts = {a.get("account") for a in config.get("accounts", [])
@@ -1027,12 +1040,12 @@ def main() -> int:
         excl, unresolved, unknown = resolve_exclusions(
             args.not_worker, args.not_account, args.family, known_accounts)
         if unresolved:
-            ap.error("--not-worker: cannot PARSE these to an account, so the exclusion cannot be "
+            _ledgered_error(ap, args, "--not-worker: cannot PARSE these to an account, so the exclusion cannot be "
                      "honoured (FAILING CLOSED): " + ", ".join(unresolved)
                      + "  -- for a short From:-style id with no account component, pass "
                      "--not-account <account>")
         if unknown:
-            ap.error(f"--not-worker/--not-account: these name an account NOT configured for family "
+            _ledgered_error(ap, args, f"--not-worker/--not-account: these name an account NOT configured for family "
                      f"'{args.family}', so the exclusion would match nothing and SILENTLY defeat the "
                      "independence control (FAILING CLOSED): " + ", ".join(unknown)
                      + "  -- check for a typo or a renamed/removed account.")
@@ -1040,7 +1053,7 @@ def main() -> int:
 
     if args.dry_run:
         if not (args.family and args.model):
-            ap.error("--dry-run needs --family and --model")
+            _ledgered_error(ap, args, "--dry-run needs --family and --model")
         kmerr = known_model_error(config, args.family, args.model)
         if kmerr is not None:
             print(f"[{now.astimezone().strftime('%H:%M:%S')}] {kmerr}")
@@ -1080,7 +1093,7 @@ def main() -> int:
     if args.dispatch:
         for req in ("family", "model", "order_id", "prompt_file"):
             if not getattr(args, req):
-                ap.error(f"--dispatch needs --{req.replace('_','-')}")
+                _ledgered_error(ap, args, f"--dispatch needs --{req.replace('_','-')}")
         res = dispatch(config, args.family, args.model, args.order_id, args.prompt_file,
                        effort=args.effort, now=now, account=effective_account,
                        exclude_accounts=exclude_accounts)
@@ -1108,7 +1121,7 @@ def main() -> int:
             sys.stderr.write(res["stderr"])
         return 0 if res["ok"] else 1
 
-    ap.error("choose one of --self-test / --dry-run / --dispatch")
+    _ledgered_error(ap, args, "choose one of --self-test / --dry-run / --dispatch")
     return 2
 
 
