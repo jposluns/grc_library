@@ -1,6 +1,6 @@
 # Executive narrative layer
 
-**Status:** Early. The authoring specification and the narrative gate family are in place, and the first published narrative page is live; further narrative content arrives in later phases.
+**Status:** Early. The authoring specification and the narrative gate family are in place, and published narrative pages are live; further narrative content arrives in later phases.
 
 This directory is the GRC Library's executive narrative layer: non-normative, advisory, and explanatory material for a governing body or accountable executive leadership (board, ELT, or senior management, as applicable). It explains what the corpus governs and why it matters at the leadership level.
 
