@@ -208,6 +208,40 @@ An override made in an overnight or otherwise unattended run is surfaced to the 
 
 The override register and the resume-surfacing step are the project's operationalization; this rule states the discipline, the project wires the file and the resume hook.
 
+### Commit the artefact before dispatching QA on it
+
+A verifier is dispatched against a REVISION. An artefact that is uncommitted does not exist at that
+revision, so the verifier is reviewing either nothing or something the orchestrator cannot later
+point to. Commit the artefact, together with any generated companion the change regenerates, in one
+commit, and pin the order to that commit. Then dispatch.
+
+Three distinct failures follow from skipping this, and only the first is obvious:
+
+- **The verifier cannot see the artefact at all.** Pinned to a revision that predates the file, it
+  reports the artefact absent. That is the honest outcome and it costs a full QA cycle.
+- **The verifier reads the working tree instead, and reviews a moving target.** This is the
+  dangerous case, because it looks like success. The orchestrator may edit the file while the
+  review runs, so the findings describe a state that no longer exists, and a clean verdict
+  certifies text nobody will ship.
+- **The QA record becomes unanchored.** A finding cited as `path:line` is only meaningful against a
+  revision. Recorded against an uncommitted file, it cannot be reproduced, re-checked, or tied to
+  the change that shipped, which defeats the audit trail the QA record exists to create.
+
+**A verifier that refuses an uncommitted basis is correct, and its refusal is a finding about the
+DISPATCH, not an unhelpful worker.** Treat it as such: fix the dispatch, do not re-brief the worker
+to be more accommodating. Where a project runs a dual-family pair, expect the families to differ
+here, since one may read the working tree while the other refuses; the refusal is the better
+behaviour and the disagreement is itself the signal.
+
+Observed directly: an expensive-tier verifier returned HOLD purely because the page under review was
+untracked, while its cross-family sibling independently flagged the same state as a registry entry
+with no corresponding tracked file. A full round of expensive QA bought one process finding and no
+content review, because the artefact had been authored but never committed.
+
+The same rule governs any pinned hand-off, not only QA: a research order, a re-verify, or a
+cross-repository read pinned to a revision needs the content it references to exist at that
+revision. Where an order references a companion repository, pin and commit that side too.
+
 ### Dispatched subagents inspect version control read-only (shared-tree safety)
 
 When the orchestrator dispatches a verifier or a validation subagent that SHARES the orchestrator's working tree, and the orchestrator may be working on a concurrent feature branch, the subagent MUST inspect version-control history READ-ONLY (`git show <ref>:<path>`, `git diff <a> <b>`, `git log`) and MUST NOT run any command that moves the working tree's branch or HEAD (`git checkout` / `switch` / `reset` / `stash`). A subagent that checks out a commit to "judge it at that revision" switches the shared tree off the orchestrator's branch, so the orchestrator's next commit lands on the wrong branch; judge any revision with `git show` / `git diff` against the ref instead. Where the harness gives each subagent its own worktree or clone, this constraint is moot, it binds only when the tree is shared. Relatedly, two mechanical-suite or test runs in the shared tree can collide on shared test fixtures, and a subagent's suite run can observe the orchestrator's not-yet-committed edits, so a transient fixture-race failure, or a completeness-gate flag for a sibling change the orchestrator has not yet committed, is a concurrency artefact to re-check standalone rather than a defect.
