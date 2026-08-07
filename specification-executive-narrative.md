@@ -2,8 +2,8 @@
 
 **Document Title:** Executive Narrative Authoring Specification\
 **Document Type:** Specification\
-**Version:** 0.0.8\
-**Date:** 2026-08-06\
+**Version:** 0.0.9\
+**Date:** 2026-08-07\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`specification-master-project.md`](specification-master-project.md), [`specification-ingestion.md`](specification-ingestion.md), [`README.md`](README.md), [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md)\
@@ -314,7 +314,7 @@ The separation invariant is the design requirement for all of the above and is n
 
 ## Gates
 
-This section records the gate intent this specification creates. The narrative gate family is under construction across the Phase-1 sequence; four members now exist, wired and manifest-classified `narrative-only`: the narrative metadata gate (item 4, gate 84), the registry and completeness gate (item 9, gate 85), the symmetric narrative-boundary gate (item 3, gate 86), and the one-way authority-boundary gate (item 7 source half, gate 87). Every item below still marked new is design work for later phases; the specific wiring (which existing gate is extended versus which new gate is created, gate numbering, parity registration, and the four-surface obligation) is settled when each gate is built. Items marked existing are verified mechanisms this specification relies on.
+This section records the gate intent this specification creates. The narrative gate family is under construction across the Phase-1 sequence; six members now exist, wired and manifest-classified `narrative-only`: the narrative metadata gate (item 4, gate 84), the registry and completeness gate (item 9, gate 85), the symmetric narrative-boundary gate (item 3, gate 86), the one-way authority-boundary gate (item 7 source half, gate 87), the disclaimer-presence gate (item 5, gate 89), and the vocabulary gate (item 6, gate 88). Every item below still marked new is design work for later phases; the specific wiring (which existing gate is extended versus which new gate is created, gate numbering, parity registration, and the four-surface obligation) is settled when each gate is built. Items marked existing are verified mechanisms this specification relies on.
 
 1. **Type containment (existing, partial).** `Executive Narrative` stays out of the corpus metadata gate's allowed types permanently. An ordinary unchanged-copy leak into a scanned corpus location fails that gate loudly on the invalid type (a copied page also trips the Repository-Path check). This is PARTIAL: a leak named `README.md` in a corpus subdirectory (caught only by the loose domain-README check) and a leak retyped to a valid corpus type with narrative-extension fields both escape the existing gate. Closing those escapes is the symmetric boundary gate (item 3); the existing residual only guarantees that, for an unchanged non-README copy, the invalid-type failure cannot be silenced except by adding the type. The invariant to protect is that no one adds the type.
 2. **Scan-scope split (existing).** The narrative-directory set and the gate-scope manifest exist and are regression-checked; the safety root-walkers cover `executive/` and the link gate already includes it. The by-name inclusion of `specification-executive-narrative.md` in the corpus metadata gate's root scan set is in place, so this specification is itself governed as a corpus document. No prefix-exemption is needed (the file is `Document Type: Specification` with the matching `specification-` prefix, so it passes the prefix check normally).

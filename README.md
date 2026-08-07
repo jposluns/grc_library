@@ -1,11 +1,11 @@
 # Governance, Risk, and Compliance Documentation Library
 
-**Date:** 2026-08-06\
+**Date:** 2026-08-07\
 **Classification:** Public\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
-**Library Version:** 2026.08.130 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.10.285 (semantic per-document version for this file)
+**Library Version:** 2026.08.131 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.10.286 (semantic per-document version for this file)
 
 ---
 
@@ -152,9 +152,9 @@ Repository infrastructure directories (not used for governance artefacts):
                 taxonomy generator, adopter portal generator.
 /docs           Adopter-facing documentation that is not a governance artefact: adopter guide,
                 worked example, auto-generated portal, auto-generated maturity scorecard.
-/executive      Executive narrative layer (under construction): non-normative, advisory, and
+/executive      Executive narrative layer (early): non-normative, advisory, and
                 explanatory leadership-facing material ABOUT the corpus. Outside the corpus
-                document model (a dedicated class, registry, and gate family arrive in Phase 1); inside the repository
+                document model (its own document class, registry, and gate family); inside the repository
                 safety gates. Establishes no requirements; the linked corpus governs. See
                 executive/README.md.
 /.github        GitHub Actions workflow that runs the full audit programme (see
@@ -209,7 +209,7 @@ Four root-level files govern how the library is maintained and extended:
 | --- | --- |
 | [`specification-master-project.md`](specification-master-project.md) | Master project specification: document model, metadata rules, domain structure, quality gates, organization-neutrality requirements, and the library-wide CalVer plus per-document semantic-versioning policy (§4.5). |
 | [`specification-ingestion.md`](specification-ingestion.md) | Document ingestion specification: canonical metadata format, allowed types, version numbering, and quality checklist. |
-| [`specification-executive-narrative.md`](specification-executive-narrative.md) | Executive narrative authoring specification: the contract every executive-narrative page conforms to (one narrative class with seven subtypes, the metadata extension, the authority disclaimer, claim classes, causal vocabulary, source-pinning staleness, and the narrative gate-family intent). |
+| [`specification-executive-narrative.md`](specification-executive-narrative.md) | Executive narrative authoring specification: the contract every executive-narrative page conforms to (one narrative class with seven subtypes, the metadata extension, the authority disclaimer, claim classes, causal vocabulary, path-only corpus source pins, and the narrative gate-family intent). |
 | [`instruction-ai-document-ingestion.md`](instruction-ai-document-ingestion.md) | AI-assisted ingestion instructions: step-by-step rules for ingesting documents using an AI coding assistant. |
 
 Contributors and maintainers must read these files before adding or modifying library content.
