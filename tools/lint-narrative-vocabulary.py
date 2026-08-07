@@ -36,7 +36,7 @@ review outcomes the spec explicitly leaves to review):
      a review concern (spec, "The qualified-shall rule").
   3. DASH BAN: no em (U+2014) or en (U+2013) dashes in narrative prose.
      Inline code spans and fenced blocks are exempt (a dash there is a code
-     example or functional form, matching the gate-83 treatment).
+     example or functional form, matching the gate-82 (lint-ungated-dashes.py) treatment).
 
 Scope: EVERY ``.md`` under the root ``executive/`` tree, INCLUDING the
 entry-point ``executive/README.md``. The entry-point exemption is scoped to
