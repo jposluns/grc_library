@@ -105,6 +105,30 @@ _GIT_MUTATE = re.compile(
 )
 
 
+
+# A heredoc BODY is data, not shell: a docstring, a test fixture, or a log entry that QUOTES a
+# repo-mutating command must not be read as invoking one. Added 2026-08-07 after this guard
+# blocked the authoring of a sibling hook whose self-test cases contained such quotes
+# (ORCHESTRATOR-MISTAKES entry 44); it is the same class as the 2026-07-26 case where a block
+# silently discarded a heredoc file write. Stripping bodies loses no coverage, because a body
+# is never executed by the command that writes it.
+_HEREDOC_START = re.compile(r"<<-?\s*(['\"]?)([A-Za-z_][A-Za-z0-9_]*)\1")
+
+
+def strip_heredocs(command: str) -> str:
+    """Return the command with heredoc bodies removed, keeping the introducing lines."""
+    out, lines, i = [], command.split("\n"), 0
+    while i < len(lines):
+        out.append(lines[i])
+        starts = _HEREDOC_START.findall(lines[i])
+        i += 1
+        for _quote, tag in starts:
+            while i < len(lines) and lines[i].strip() != tag:
+                i += 1
+            i += 1
+    return "\n".join(out)
+
+
 def _sibling_roots(project_dir: str) -> dict:
     """Map repo-name -> tools/ Path for each colocated repo that exists."""
     parent = Path(project_dir).resolve().parent
@@ -227,6 +251,7 @@ def main(argv: list[str]) -> int:
         # A structurally-malformed payload (non-dict, or tool_input not a dict) must fail-OPEN,
         # not traceback: the extraction is INSIDE the try (codex QA, P-1.19).
         command = (payload.get("tool_input") or {}).get("command", "")
+        command = strip_heredocs(command)
         workspace = payload.get("workspace") or {}
         project_dir = (
             workspace.get("project_dir")
