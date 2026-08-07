@@ -32,6 +32,8 @@ import json
 import os
 import subprocess
 import sys
+import os as _os
+import pathlib as _pathlib
 import time
 import uuid
 from pathlib import Path
@@ -546,6 +548,36 @@ def worker_log_glob(family: str, account: str, worker_id: str) -> str:
     return f"{WORKER_LOG_DIR}/*_{family}_{account}_{worker_id}.log"
 
 
+
+# --- dispatch ledger -------------------------------------------------------------------------
+# Every ATTEMPT is recorded, successes and failures alike. Added 2026-08-07 after the orchestrator
+# told the maintainer a design order had been dispatched when it never was: the prompt file had
+# been written, the dispatch had failed at a validity check, and the WRITE was read as the send
+# (ORCHESTRATOR-MISTAKES entry 45). A failed dispatch is silent unless someone reads the rc line,
+# and the whole failure mode is not reading it. A ledger makes an unsent order an artefact that
+# outlives the terminal scrollback, so a later check can ask the file rather than the memory.
+#
+# GUARD-INPUT RESIDUE: a SENT row proves the wrapper was invoked and returned, never that the
+# worker produced anything useful; a FAILED row proves this process failed to send, never that no
+# other process sent the same order. It answers "was this order sent from here", nothing wider.
+LEDGER = _pathlib.Path(
+    _os.environ.get("GRC_DROP_ROOT", "/home/grc/grc_working")) / "dispatch-ledger.tsv"
+
+
+def _ledger_append(status: str, order_id: str, family: str, model: str,
+                   account: str = "", worker_id: str = "", detail: str = "") -> None:
+    """Append one attempt row. Never raises: a ledger failure must not fail a dispatch."""
+    try:
+        LEDGER.parent.mkdir(parents=True, exist_ok=True)
+        stamp = _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        row = "\t".join(str(x).replace("\t", " ").replace("\n", " ") for x in
+                        (stamp, status, order_id, family, model, account, worker_id, detail))
+        with LEDGER.open("a", encoding="utf-8") as fh:
+            fh.write(row + "\n")
+    except Exception:
+        pass
+
+
 def dispatch(config: dict, family: str, model: str, order_id: str, prompt_file: str,
              effort: str | None = None, now: _dt.datetime | None = None,
              account: str | None = None, job_dir: Path = JOB_DIR,
@@ -1054,9 +1086,15 @@ def main() -> int:
                        exclude_accounts=exclude_accounts)
         if not res["ok"] and res.get("worker_id") is None:
             # account resolution failed before any worker ran: surface the reason loudly.
+            _ledger_append("FAILED", args.order_id, args.family, args.model,
+                           account=str(effective_account or ""), detail=str(res.get("error")))
             print(f"[{_dt.datetime.now().strftime('%H:%M:%S')}] dispatch order={args.order_id} "
                   f"NOT DISPATCHED: {res.get('error')}", file=sys.stderr)
             return 1
+        _ledger_append("SENT" if res.get("ok") else "RAN-NONZERO", str(res.get("order_id")),
+                       args.family, args.model, account=str(res.get("account") or ""),
+                       worker_id=str(res.get("worker_id") or ""),
+                       detail="rc=" + str(res.get("rc")))
         # print a compact status line, then the worker output
         print(f"[{_dt.datetime.now().strftime('%H:%M:%S')}] dispatch order={res.get('order_id')} "
               f"worker={res.get('worker_id')} account={res.get('account')} model={args.model} "
