@@ -102,6 +102,16 @@
           }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-turn-end-with-outstanding-work.py"
+          }
+        ]
+      }
     ]
   }
 }
