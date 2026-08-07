@@ -8,6 +8,40 @@
 schema_version: 1
 generated_by: tools/build-narrative-registry.py
 pages:
+- path: "executive/briefs/brief-ai-data-governance-and-classification.md"
+  title: "What the governing body should require for AI data governance and classification"
+  narrative_type: "Executive Brief"
+  narrative_status: "Explanatory"
+  version: "0.0.3"
+  date: "2026-08-07"
+  corpus_sources:
+    - "ai/standard-ai-security-and-risk.md"
+    - "security/standard-data-classification-and-handling.md"
+    - "ai/procedure-training-data-governance.md"
+    - "privacy/policy-privacy-and-data-governance.md"
+    - "ai/standard-ai-data-quality-and-readiness-validation.md"
+    - "ai/template-dataset-datasheet.md"
+    - "governance/register-data-retention-schedule.md"
+    - "privacy/register-cross-border-data-flow.md"
+    - "ai/standard-ai-access-and-agent-permissions.md"
+    - "ai/guide-ai-board-oversight.md"
+    - "architecture/standard-data-architecture.md"
+    - "ai/procedure-integrated-ai-and-privacy-assessment.md"
+    - "governance/standard-records-retention-and-destruction.md"
+  external_sources: []
+  claim_classes_present:
+    - "citation"
+    - "composite"
+  review_record: "NR-2026-004"
+  last_reviewed: "2026-08-07"
+  derived_tags:
+    - "domain:ai"
+    - "domain:architecture"
+    - "domain:governance"
+    - "domain:privacy"
+    - "domain:security"
+    - "status:explanatory"
+    - "type:executive-brief"
 - path: "executive/briefs/brief-ai-incident-response-readiness.md"
   title: "What the governing body should require for AI incident-response readiness before production"
   narrative_type: "Executive Brief"
@@ -72,6 +106,9 @@ pages:
     - "status:explanatory"
     - "type:executive-brief"
 listing:
+- route: "executive/briefs/brief-ai-data-governance-and-classification"
+  path: "executive/briefs/brief-ai-data-governance-and-classification.md"
+  title: "What the governing body should require for AI data governance and classification"
 - route: "executive/briefs/brief-ai-incident-response-readiness"
   path: "executive/briefs/brief-ai-incident-response-readiness.md"
   title: "What the governing body should require for AI incident-response readiness before production"
