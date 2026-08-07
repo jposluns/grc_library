@@ -57,6 +57,8 @@ TODO_PATH = REPO_ROOT / "TODO.md"
 # The private backlog lives in the maintainer's private sibling; adopters have no
 # such sibling and simply audit the public list (resolve_sibling no-op).
 PTODO_PATH = REPO_ROOT.parent / "grc_library_private" / "P-TODO.md"
+DONE_PATH = REPO_ROOT.parent / "grc_library_private" / ".working" / "DONE.md"
+NEXTPRS_PATH = REPO_ROOT.parent / "grc_library_private" / ".working" / "next-prs.txt"
 
 # An open backlog item heading: ``### <id> <title>`` where <id> is a section
 # number (``N.M`` / ``N.M.K``, optional trailing letter), a private ``P-n.m`` id,
@@ -90,21 +92,22 @@ PROSE_SIGNAL_TOKENS: list[tuple[re.Pattern[str], str]] = [
 ]
 
 
-def parse_items(text: str, source: str) -> list[tuple[str, str, str, str]]:
-    """Return ``(id, title, block_text, source)`` for every open ``### `` item.
+def parse_items(text: str, source: str) -> list[tuple[str, str, str, str, str]]:
+    """Return ``(id, title, block_text, source, umbrella)`` for every open ``### `` item.
 
     A block runs from its item heading to the next item heading, the next ``## ``
     section header, or end of file, so a signal is detected only within the item's
     own text. ``source`` labels which list the item came from (``public`` /
     ``private``)."""
     lines = text.splitlines()
-    items: list[tuple[str, str, str, str]] = []
+    items: list[tuple[str, str, str, str, str]] = []
     cur: tuple[str, str] | None = None
     body: list[str] = []
+    umbrella = ""  # the most-recent ``## `` section header (the item's umbrella)
 
     def flush() -> None:
         if cur is not None:
-            items.append((cur[0], cur[1].strip(), "\n".join(body), source))
+            items.append((cur[0], cur[1].strip(), "\n".join(body), source, umbrella))
 
     for line in lines:
         m = ITEM_HEADING_RE.match(line)
@@ -116,6 +119,7 @@ def parse_items(text: str, source: str) -> list[tuple[str, str, str, str]]:
             flush()
             cur = None
             body = []
+            umbrella = line[3:].strip()
         elif cur is not None:
             body.append(line)
     flush()
@@ -147,7 +151,7 @@ def build_report(public_text: str,
         items += parse_items(private_text, "private")
     rows = []
     blocked = 0
-    for item_id, title, block, source in items:
+    for item_id, title, block, source, _umbrella in items:
         b = is_blocked(block)
         rows.append((item_id, title, source, b, prose_signals(block)))
         if b:
@@ -155,14 +159,403 @@ def build_report(public_text: str,
     return rows, blocked, len(rows) - blocked
 
 
+
+# ---- --pipeline mode (maintainer-directed 2026-08-06): the scannable roadmap view ----
+
+# A bulleted SUB-ITEM under an umbrella heading: ``- **<id>** <desc>``.
+BULLET_ITEM_RE = re.compile(r"^\s*[-*] \*\*(?P<id>P-\d+(?:\.\d+){1,2}[a-z]?"
+                            r"|\d+(?:\.\d+){1,2}[a-z]?"
+                            r"|[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+)\*\*[ \t]*(?P<title>.*)$")
+
+# An INLINE formal-id mention in umbrella wave-prose (NOT a ``- **id**`` bullet):
+# e.g. ``_Wave 2_: **P-1.25.12** 4 more briefs; **P-1.25.13** 3 scenarios``. The description
+# runs to the next ``;`` or ``**`` (P-1.30 bug b: inline wave items were omitted from the view).
+INLINE_ID_RE = re.compile(
+    r"\*\*(?P<id>P-\d+(?:\.\d+){1,2}[a-z]?"
+    r"|\d+(?:\.\d+){1,2}[a-z]?"
+    r"|[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+)\*\*[ \t]*(?P<title>(?:[^;*]|\*(?!\*))*)")
+
+
+def _is_descendant(child_id: str, parent_id: str) -> bool:
+    """True if ``child_id`` is a proper dotted descendant of ``parent_id`` (e.g.
+    ``P-1.25.12`` under ``P-1.25``). Umbrella children share the umbrella id prefix per
+    the multi-phase-series numbering convention."""
+    return child_id.startswith(parent_id + ".")
+
+# A DONE.md entry heading. Accepts a SINGLE PR (``### PR #1425: ... (2026-08-06)``) or a
+# COMPOUND heading (``### PR #1425 + #1426: ... (date)``); the ``extra`` group captures the
+# ``+ #NNNN`` repeats so a compound entry is not silently skipped (P-1.30 bug a).
+DONE_ENTRY_RE = re.compile(
+    r"^### PR #(?P<pr>\d+)(?P<extra>(?:\s*\+\s*#\d+)*):\s*(?P<title>.*?)\s*\((?P<date>\d{4}-\d\d-\d\d)\)\s*$")
+
+# Priority-ordered (first match wins) TYPE heuristic. Rough by design: the /pipeline
+# command refines a wrong guess. Keyword -> one-word type.
+_TYPE_RULES: list[tuple[str, tuple[str, ...]]] = [
+    ("website", (".web", "site route", "site render", "homepage", "re-hero",
+                 "role page", "role (", "maturity", "local search", "adjacency",
+                 "guided discovery", "portal", "relationship view")),
+    ("rule", ("pack rule", "change-tracking extension", "trust-recovery extension",
+              "conformance contract", "oversight and autonomy", "discipline (")),
+    ("validation", ("validat", "/fitness", "fitness", "reference-increment")),
+    ("ops", ("runbook", "changelog", "roll-up", "rollup", "scale wave", "ops ")),
+    ("content", ("brief", "scenario", "journey", "exemplar", "story",
+                 "narrative page", "outcome map", "control journey")),
+    ("gate", ("new gate", "staleness gate", "audit gate", "freshness gate")),  # specific gate phrases
+    ("tool", ("lint", "scanner", "guard", ".py", "hook", "tool", "generator")),
+    ("gate", ("gate ",)),   # P-1.30 bug d + QA finding 6: generic "gate N" fallback AFTER the tool
+                            # rule, so a tool item that also mentions "gate" (e.g. "add gate-count
+                            # consistency linter", "... evidence gates ...") stays tool; a pure
+                            # "gate 87" item (no tool indicator) still types gate.
+    ("rule", (" rule", "extension")),  # last-resort rule catch (after specifics)
+]
+
+
+def infer_type(text: str) -> str:
+    low = text.lower()
+    for typ, kws in _TYPE_RULES:
+        if any(k in low for k in kws):
+            return typ
+    return "item"
+
+
+def trunc_words(title: str, n: int = 10) -> str:
+    """First ``n`` words of the title, stripped of a leading bold/label run."""
+    title = re.sub(r"\*\*[^*]*\*\*", lambda m: m.group(0).strip("*"), title).strip()
+    words = title.split()
+    return " ".join(words[:n]) + (" ..." if len(words) > n else "")
+
+
+def parse_done(done_text: str, limit: int = 5) -> list[tuple[int, str]]:
+    """The ``limit`` most-recent completed items from DONE.md, most-recent first.
+    Ordered by completion DATE (the ledger date), tie-broken by highest PR number, NOT by
+    PR number alone (P-1.30 bug a: merge order and completion-ledger order can diverge). A
+    compound ``### PR #A + #B`` heading counts as ONE entry, represented by its highest PR.
+    Returns ``(pr_number, title)``."""
+    entries: list[tuple[str, int, str]] = []   # (date, representative_pr, title)
+    for line in done_text.splitlines():
+        m = DONE_ENTRY_RE.match(line)
+        if m:
+            prs = [int(m.group("pr"))]
+            if m.group("extra"):
+                prs += [int(x) for x in re.findall(r"#(\d+)", m.group("extra"))]
+            entries.append((m.group("date"), max(prs), m.group("title").strip()))
+    # ISO dates sort lexically == chronologically; reverse => most-recent first,
+    # tie-broken by PR number descending.
+    entries.sort(key=lambda e: (e[0], e[1]), reverse=True)
+    return [(pr, title) for _date, pr, title in entries[:limit]]
+
+
+def _short_id(title: str) -> str:
+    """Leading backlog-id-like token in a title, else empty."""
+    m = re.match(r"(P-\d+(?:\.\d+){0,2}[a-z]?|\d+(?:\.\d+){1,2}[a-z]?"
+                 r"|[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+)\b", title.strip())
+    return m.group(1) if m else ""
+
+
+def render_pipeline(public_text: str, private_text: str | None,
+                    done_text: str | None, umbrella_filter: str | None,
+                    limit: int = 20) -> str:
+    """Render the pipeline view: the 5 most-recent done at top (``[x]`` + PR####),
+    then the current umbrella's open items up to ``limit``, filling from subsequent
+    umbrellas (file/priority order) when the current one has fewer than ``limit``."""
+    items = parse_items(public_text, "public")
+    if private_text is not None:
+        items += parse_items(private_text, "private")
+
+    # Build LEAF items. A ``### `` block that contains ``- **<id>**`` bullets is an
+    # umbrella whose bullets are the leaves (umbrella = the ### heading id + title);
+    # a ``### `` block with no bullets is itself a leaf (umbrella = its ## parent).
+    open_items: list[tuple[str, str, str, str, str]] = []
+    for item_id, title, block, source, umb in items:
+        if is_blocked(block):
+            continue  # a [BLOCKED:] parent heading excludes itself AND its bullet leaves
+        head_umb = f"{item_id} {title}".strip()
+        # An umbrella's CHILDREN are the formal ids in its block that are dotted DESCENDANTS
+        # of the umbrella id, written either as ``- **id**`` bullets OR inline in wave prose
+        # (``**id** ...``); the inline form was previously dropped (P-1.30 bug b). A bullet in
+        # the block whose id is NOT a descendant (a sibling item authored inside the block) is
+        # promoted to its OWN leaf item rather than mis-attributed as this umbrella's child.
+        # Collect every formal-id occurrence in the block and keep the BEST per id: a
+        # non-blocked occurrence beats a blocked one, and a bullet beats an inline mention
+        # (bullets are authoritative). This one structure unifies bullet-over-inline
+        # precedence (r1 finding 1), foreign dedup (r1 finding 5), blocked-then-open recovery
+        # (r2 finding 3), the inline-blocked segment (r2 finding 2), and the parent-resurrection
+        # guard for all-blocked children whether bullet or inline (r1 finding 4 + r2 finding 1).
+        occ: dict[str, dict] = {}
+        lines = block.splitlines()
+
+        def _consider(oid: str, otitle: str, oline: str, is_bullet: bool, blocked: bool) -> None:
+            # A bullet is the AUTHORITATIVE statement of an item, so source ranks BEFORE
+            # blocked status: a blocked bullet is NOT overridden by a non-blocked inline mention
+            # (QA r3); a later non-blocked bullet still beats a blocked bullet of the same id.
+            rank = (1 if is_bullet else 0, 0 if blocked else 1)
+            cur = occ.get(oid)
+            if cur is None or rank > cur["rank"]:
+                occ[oid] = {"title": otitle, "line": oline, "blocked": blocked,
+                            "descendant": _is_descendant(oid, item_id), "rank": rank}
+
+        for line in lines:                 # pass 1: bullets (authoritative)
+            bm = BULLET_ITEM_RE.match(line)
+            if bm:
+                _consider(bm.group("id"), bm.group("title"), line, True,
+                          bool(BLOCKED_TAG_RE.search(line)))
+        for line in lines:                 # pass 2: inline wave-prose ids (non-bullet lines)
+            if BULLET_ITEM_RE.match(line):
+                continue
+            ms = list(INLINE_ID_RE.finditer(line))
+            for k, im in enumerate(ms):
+                iid = im.group("id")
+                # ONLY a dotted DESCENDANT inline id is a real child (an umbrella's wave item).
+                # A non-descendant bold token in prose (a status word like **NOT-READY**, a
+                # track header) matches the coded-id regex but is emphasis, NOT a backlog item,
+                # so it is ignored: never promoted to a leaf and never counted toward `occ`
+                # (which would suppress the heading's own leaf). Foreign items are BULLETS.
+                if not _is_descendant(iid, item_id):
+                    continue
+                seg_end = ms[k + 1].start() if k + 1 < len(ms) else len(line)
+                segment = line[im.start():seg_end]      # id .. next inline id / line end
+                idesc = im.group("title").strip()
+                # context = the child's OWN desc (the shared wave line mixes sibling items and
+                # track keywords, which would mis-type an inline child).
+                _consider(iid, idesc, idesc, False, bool(BLOCKED_TAG_RE.search(segment)))
+
+        children = [(oid, o["title"], o["line"]) for oid, o in occ.items()
+                    if not o["blocked"] and o["descendant"]]
+        foreign = [(oid, o["title"], o["line"]) for oid, o in occ.items()
+                   if not o["blocked"] and not o["descendant"]]
+        if children or foreign:
+            for oid, otitle, oline in children:
+                open_items.append((oid, otitle, oline, source, head_umb))
+            for oid, otitle, oline in foreign:
+                open_items.append((oid, otitle, oline, source, umb or ""))
+        elif not occ:
+            # a genuine leaf with NO formal-id items is the item itself; a heading whose only
+            # items are ALL blocked emits nothing (do not resurrect the parent as open).
+            open_items.append((item_id, title, block, source, umb or title))
+
+    out: list[str] = []
+    # R20-GAP-1: degradation must be LOUD, not silent -- a maintainer view missing the
+    # private backlog or the DONE ledger is INCOMPLETE and must say so at the top.
+    missing = []
+    if private_text is None:
+        missing.append("private backlog (P-TODO.md)")
+    if not done_text:
+        missing.append("DONE ledger (recent-done section)")
+    if missing:
+        out.append("!!! INCOMPLETE PIPELINE VIEW: missing " + " + ".join(missing)
+                   + " -- upcoming private items and/or done-marking are NOT shown !!!")
+        out.append("")
+    # 1. recent-done header
+    if done_text:
+        for pr, title in parse_done(done_text, 5):
+            sid = _short_id(title) or f"#{pr}"
+            out.append(f"{sid} [x] PR{pr} {infer_type(title)} - {trunc_words(title)}")
+        out.append("")
+
+    # 2. current umbrella up to limit, then fill from subsequent umbrellas
+    umbrellas: list[str] = []
+    for _i, _t, _b, _s, umb in open_items:
+        if umb not in umbrellas:
+            umbrellas.append(umb)
+    if umbrella_filter:
+        start = next((u for u in umbrellas if umbrella_filter.lower() in u.lower()), None)
+        if start is None:
+            # a non-matching filter must SIGNAL, not silently render the default view
+            out.append(f"(no umbrella matched {umbrella_filter!r}; showing default order)")
+            out.append("")
+        order = umbrellas[umbrellas.index(start):] if start else umbrellas
+    else:
+        order = umbrellas  # first umbrella (highest-priority open item) leads
+
+    shown = 0
+    for ui, umb in enumerate(order):
+        if shown >= limit:
+            break
+        grp = [it for it in open_items if it[4] == umb]
+        if ui > 0:
+            out.append("")  # blank line between umbrellas
+        for item_id, title, _b, _s, _u in grp:
+            if shown >= limit:
+                break
+            out.append(f"{item_id} [ ] {infer_type(title + ' ' + _b)} - {trunc_words(title)}")
+            shown += 1
+    return "\n".join(out)
+
+
+def _self_test() -> int:
+    failures: list[str] = []
+
+    def check(name: str, cond: bool) -> None:
+        if not cond:
+            failures.append(name)
+
+    # infer_type
+    check("type-website", infer_type("first live /executive/ site render") == "website")
+    check("type-rule", infer_type("new ai-supply-chain-provenance pack rule") == "rule")
+    check("type-content", infer_type("author three scenario pages") == "content")
+    check("type-validation", infer_type("full validation pass") == "validation")
+    check("type-tool", infer_type("shared multi-line link scanner (lint_common)") == "tool")
+    check("type-gate", infer_type("wire the new authority-boundary gate 87") == "gate")  # P-1.30 bug d
+    check("type-gate-plural-stays-tool", infer_type("lint-executive-metadata.py + section/evidence gates") == "tool")
+    check("type-gate-num-on-tool-stays-tool", infer_type("lint-x.py wiring for gate 87") == "tool")  # QA r3 NOTE-1
+
+    # trunc_words: <=10 words, ellipsis when longer
+    tw = trunc_words("one two three four five six seven eight nine ten eleven twelve")
+    check("trunc-10-plus-ellipsis", tw.split(" ...")[0].split() == ["one","two","three","four","five","six","seven","eight","nine","ten"] and tw.endswith("..."))
+    check("trunc-short-no-ellipsis", trunc_words("short title here") == "short title here")
+
+    # parse_done: highest PR first, limit honoured
+    done = "### PR #1420: item A (2026-08-05)\n\n### PR #1429: item B (2026-08-06)\n\n### PR #1425: item C (2026-08-05)\n"
+    d = parse_done(done, 2)
+    check("done-order-and-limit", d == [(1429, "item B"), (1425, "item C")])
+
+    # render_pipeline: 5 done at top, then umbrella-grouped open items, blank between umbrellas
+    pub = ("## Umbrella One\n\n### 1.1 First website render task here\n\n### 1.2 Second content brief task here\n\n"
+           "## Umbrella Two\n\n### 2.1 A blocked one [BLOCKED:x] should not show\n\n### 2.2 A tool lint task here\n")
+    r = render_pipeline(pub, None, "### PR #1429: recent done thing (2026-08-06)\n", None, limit=20)
+    lines = r.splitlines()
+    check("render-done-header", any(l.startswith("#1429 [x] PR1429 ") for l in lines))
+    check("render-has-1.1", any(l.startswith("1.1 [ ] ") for l in lines))
+    check("render-1.2-content", any(l.startswith("1.2 [ ] ") for l in lines))
+    check("render-excludes-blocked", not any("2.1 [ ]" in l for l in lines))
+    check("render-includes-2.2", any(l.startswith("2.2 [ ] ") for l in lines))
+    # blank line between the two umbrellas (a "" line exists between 1.x and 2.x groups)
+    check("render-blank-between-umbrellas", "" in lines[lines.index(next(l for l in lines if l.startswith("1.1"))):])
+
+    # umbrella filter scopes to the matching umbrella first
+    r2 = render_pipeline(pub, None, None, "Two", limit=20)
+    r2_lines = [l for l in r2.splitlines() if l and not l.startswith("!!!")]
+    check("filter-starts-at-two", r2_lines[0].startswith("2.2 [ ] "))
+
+    # R20 fixes: blocked-parent leaf exclusion + loud banner on missing state
+    rb = render_pipeline("## U\n\n### 9.9 Parent [BLOCKED:granted]\n- **9.9.1** child\n\n### 8.8 Open one\n", None, None, None)
+    check("blocked-parent-leaf-excluded", "9.9.1" not in rb and any("8.8 [ ]" in l for l in rb.splitlines()))
+    check("loud-banner-on-missing-state", any(l.startswith("!!! INCOMPLETE PIPELINE VIEW") for l in rb.splitlines()))
+
+    # P-1.30 bug a: compound DONE headings counted (not skipped) and ordered by DATE, not PR.
+    done2 = ("### PR #1500: newer low-pr (2026-08-07)\n\n"
+             "### PR #1600: older high-pr (2026-08-01)\n\n"
+             "### PR #1425 + #1426: compound entry (2026-08-06)\n")
+    d2 = parse_done(done2, 3)
+    check("done-date-order-not-pr",
+          d2 == [(1500, "newer low-pr"), (1426, "compound entry"), (1600, "older high-pr")])
+    check("done-compound-counted", any(pr == 1426 for pr, _ in d2))
+
+    # P-1.30 bug b: inline wave-prose child ids are enumerated, and a non-descendant bullet
+    # authored inside an umbrella block is PROMOTED to its own item, not mis-attributed.
+    pub2 = ("## U3\n\n### P-9.1 Umbrella heading here\n"
+            "- **P-9.9** sibling item authored inside the block\n"
+            "- **P-9.1.1** real bullet child here\n"
+            "_Wave X:_ **P-9.1.2** inline child two; **P-9.1.3** inline child three\n")
+    r3l = render_pipeline(pub2, None, None, None, limit=20).splitlines()
+    check("inline-child-enumerated",
+          any(l.startswith("P-9.1.2 [ ] ") for l in r3l) and any(l.startswith("P-9.1.3 [ ] ") for l in r3l))
+    check("bullet-child-enumerated", any(l.startswith("P-9.1.1 [ ] ") for l in r3l))
+    check("foreign-bullet-promoted", any(l.startswith("P-9.9 [ ] ") for l in r3l))
+    _ic = next(i for i, l in enumerate(r3l) if l.startswith("P-9.1.1"))
+    _if = next(i for i, l in enumerate(r3l) if l.startswith("P-9.9"))
+    check("foreign-bullet-separate-group", "" in r3l[min(_ic, _if):max(_ic, _if)])
+    # an inline content child must type from its own desc, not the shared wave line
+    pub3 = ("## U4\n\n### P-8.1 Umbrella here\n"
+            "Track A (content): **P-8.1.1** author four briefs; Track B (website): **P-8.1.2** homepage re-hero\n")
+    r4l = render_pipeline(pub3, None, None, None, limit=20).splitlines()
+    check("inline-child-typed-from-own-desc",
+          any(l.startswith("P-8.1.1 [ ] content ") for l in r4l)
+          and any(l.startswith("P-8.1.2 [ ] website ") for l in r4l))
+
+    # P-1.30 QA finding 1: a bullet is authoritative; an inline mention of the same id
+    # (even earlier in the text) never shadows it -- the bullet's desc wins, one row only.
+    pub5 = ("## U5\n\n### P-5.1 Umbrella\n"
+            "_Wave:_ **P-5.1.1** inline shadow desc\n"
+            "- **P-5.1.1** authoritative bullet desc here\n")
+    r5l = [l for l in render_pipeline(pub5, None, None, None, limit=20).splitlines() if l.startswith("P-5.1.1")]
+    check("bullet-wins-over-inline", len(r5l) == 1 and "authoritative bullet desc" in r5l[0])
+
+    # finding 2: an inline desc with markdown emphasis is not truncated at the lone '*'.
+    pub6 = ("## U6\n\n### P-6.1 Umbrella\nTrack: **P-6.1.1** author *four* briefs here\n")
+    r6l = render_pipeline(pub6, None, None, None, limit=20).splitlines()
+    check("inline-emphasis-not-truncated", any("briefs here" in l for l in r6l if l.startswith("P-6.1.1")))
+
+    # finding 3: an inline child carrying a granted [BLOCKED] tag is excluded, like a bullet.
+    pub7 = ("## U7\n\n### P-7.1 Umbrella\nWave: **P-7.1.1** ok child; **P-7.1.2** blocked [BLOCKED:granted] one\n")
+    r7l = render_pipeline(pub7, None, None, None, limit=20).splitlines()
+    check("inline-blocked-excluded",
+          any(l.startswith("P-7.1.1 [ ] ") for l in r7l) and not any(l.startswith("P-7.1.2 ") for l in r7l))
+
+    # finding 4: when every child bullet is blocked, neither the children NOR the parent emit.
+    pub8 = ("## U8\n\n### P-8.9 Umbrella parent\n- **P-8.9.1** child [BLOCKED:granted]\n- **P-8.9.2** child2 [BLOCKED:granted]\n")
+    r8l = render_pipeline(pub8, None, None, None, limit=20).splitlines()
+    check("all-blocked-children-no-parent-resurrect",
+          not any(l.startswith("P-8.9 ") for l in r8l) and not any(l.startswith("P-8.9.1") for l in r8l))
+
+    # finding 5: a repeated foreign (non-descendant) bullet is deduplicated to one row.
+    pub9 = ("## U9\n\n### P-9.5 Umbrella\n- **P-4.1** foreign sibling\n- **P-4.1** foreign sibling dup\n- **P-9.5.1** real child\n")
+    r9l = [l for l in render_pipeline(pub9, None, None, None, limit=20).splitlines() if l.startswith("P-4.1 ")]
+    check("foreign-bullet-deduped", len(r9l) == 1)
+
+    # P-1.30 QA round 2 finding 1: a block whose ONLY descendants are blocked INLINE ids must
+    # not resurrect the umbrella parent as an open leaf (the had_bullets guard missed inline).
+    pubA = ("## UA\n\n### P-11.1 Umbrella parent\nWave: **P-11.1.1** one [BLOCKED:granted]; **P-11.1.2** two [BLOCKED:granted]\n")
+    rAl = render_pipeline(pubA, None, None, None, limit=20).splitlines()
+    check("all-blocked-inline-no-parent-resurrect",
+          not any(l.startswith("P-11.1 ") for l in rAl) and not any(l.startswith("P-11.1.1") for l in rAl))
+
+    # finding 2: a blocked tag OUTSIDE the desc span (e.g. bold **[BLOCKED]**) still excludes
+    # the inline item, without one sibling's tag blocking the next.
+    pubB = ("## UB\n\n### P-12.1 Umbrella\nWave: **P-12.1.1** open child; **P-12.1.2** child **[BLOCKED:granted]**\n")
+    rBl = render_pipeline(pubB, None, None, None, limit=20).splitlines()
+    check("inline-blocked-bold-span-excluded",
+          any(l.startswith("P-12.1.1 [ ] ") for l in rBl) and not any(l.startswith("P-12.1.2 ") for l in rBl))
+
+    # finding 3: a blocked bullet followed by a NON-blocked bullet of the same id emits the
+    # authoritative open one (blocked-first must not permanently claim the id).
+    pubC = ("## UC\n\n### P-13.1 Umbrella\n- **P-13.1.1** blocked copy [BLOCKED:granted]\n- **P-13.1.1** the real open work here\n")
+    rCl = [l for l in render_pipeline(pubC, None, None, None, limit=20).splitlines() if l.startswith("P-13.1.1")]
+    check("blocked-then-open-recovers", len(rCl) == 1 and "real open work" in rCl[0])
+
+    # P-1.30 QA round 3: a granted-blocked BULLET is authoritative and is NOT overridden by a
+    # non-blocked inline mention of the same id (source ranks before blocked status).
+    pubD = ("## UD\n\n### P-14.1 Umbrella\n"
+            "Wave: **P-14.1.1** inline open mention\n- **P-14.1.1** the blocked bullet [BLOCKED:granted]\n")
+    rDl = render_pipeline(pubD, None, None, None, limit=20).splitlines()
+    check("blocked-bullet-not-overridden-by-inline", not any(l.startswith("P-14.1.1") for l in rDl))
+
+    # P-1.30 QA round 5: a bold NON-id-descendant coded/dotted token in a heading's prose (a
+    # status word like **NOT-READY** that matches the coded-id regex) must NOT become a phantom
+    # leaf and must NOT suppress the heading's own leaf emission (round-3 regression on item 3.119).
+    pubE = ("## UE\n\n### 3.500 A real leaf item whose prose bolds a status word\n"
+            "The worker returned **NOT-READY** because nothing was probed.\n")
+    rEl = render_pipeline(pubE, None, None, None, limit=20).splitlines()
+    check("non-descendant-inline-token-ignored",
+          any(l.startswith("3.500 ") for l in rEl) and not any("NOT-READY" in l for l in rEl))
+
+    if failures:
+        for f in failures:
+            print(f"  SELF-TEST FAIL: {f}")
+        print(f"self-test: {len(failures)} case(s) failed.")
+        return 1
+    print("self-test: all pipeline cases passed (type inference incl. gate, 10-word truncation, "
+          "recent-done date-ordering + compound headings, umbrella grouping, inline-wave children, "
+          "foreign-bullet promotion, blocked exclusion, umbrella filter).")
+    return 0
+
+
 def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--actionable-only", action="store_true",
                     help="print only the summary and the ACTIONABLE list")
+    ap.add_argument("--pipeline", action="store_true",
+                    help="render the scannable roadmap pipeline view")
+    ap.add_argument("--umbrella", default=None,
+                    help="--pipeline: scope to the umbrella whose header matches this substring")
+    ap.add_argument("--self-test", action="store_true", help="run internal self-test")
     ap.add_argument("--todo", default=str(TODO_PATH), help="public TODO.md path")
     ap.add_argument("--ptodo", default=str(PTODO_PATH),
                     help="private P-TODO.md path (no-op if absent)")
     args = ap.parse_args(argv)
+
+    if args.self_test:
+        return _self_test()
 
     todo = Path(args.todo)
     if not todo.is_file():
@@ -175,6 +568,12 @@ def main(argv: list[str]) -> int:
         if ptodo.is_file() else None
     private_note = "" if private_text is not None \
         else f" (private list {ptodo} absent; public-only)"
+
+    if args.pipeline:
+        done = Path(DONE_PATH)
+        done_text = done.read_text(encoding="utf-8", errors="replace") if done.is_file() else None
+        print(render_pipeline(public_text, private_text, done_text, args.umbrella))
+        return 0
 
     rows, blocked, actionable = build_report(public_text, private_text)
 
