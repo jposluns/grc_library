@@ -6,7 +6,7 @@ Every open ``### `` item heading in ``TODO.md`` (and, when present, the
 private ``grc_library_private/P-TODO.md``) must carry EXACTLY ONE
 ``[public]`` or ``[private]`` tag, the list-membership axis PR #1293
 applied to all then-open items (design of record:
-``grc_library_private/todo-split-blocked-guardrail-design.md``). Nothing
+``grc_library_private/.working/todo-split-blocked-guardrail-design.md``). Nothing
 mechanical enforced that going forward, so a new item could ship untagged,
 or a copy-edit could accidentally leave both tags on a line. This gate is
 the mechanical backstop.

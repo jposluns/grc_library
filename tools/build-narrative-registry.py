@@ -80,7 +80,7 @@ PIN_RE = re.compile(
 
 
 # ---------------------------------------------------------------------------
-# Small shared shapes (mirrors of gate 84 / build-taxonomy.py; dedup follow-up)
+# Small shared shapes (mirrors of gate 33 / build-taxonomy.py; dedup follow-up)
 
 def yaml_escape(s: str) -> str:
     """Conservative YAML scalar escape: prefer double-quoted strings."""
