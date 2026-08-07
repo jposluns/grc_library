@@ -22,7 +22,7 @@ How the corpus governs AI from intake through oversight, retirement, and inciden
 How the corpus establishes protective controls and the ability to withstand and recover from disruption. Supported routes: none yet (declared coverage gap).
 
 ### 4. Data, privacy, and information lifecycle
-How the corpus governs personal and sensitive information across its lifecycle. Supported routes: none yet (declared coverage gap).
+How the corpus governs personal and sensitive information across its lifecycle. Supported routes: [What the governing body should require for AI data governance and classification](briefs/brief-ai-data-governance-and-classification.md) (Executive Brief).
 
 ### 5. Supplier and cloud dependency
 How the corpus addresses concentration, exit, and assurance over third parties. Supported routes: none yet (declared coverage gap).
