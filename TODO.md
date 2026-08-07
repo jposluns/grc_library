@@ -177,7 +177,7 @@ The EU AI Act (Regulation (EU) 2024/1689) was amended by the Digital Omnibus on 
 
 ## Priority 2 — Fill significant gaps
 
-**Next item number: 2.31.**
+**Next item number: 2.33.**
 
 Deepening thin-but-present content to operational sufficiency, and the significant missing capabilities.
 
@@ -397,6 +397,17 @@ Parts 1-2 FIXED in #1259 (held-source-verified): GDPR clock `:175` "from confirm
 
 ### 3.184 Corpus ISO citation currency updates enabled by the 2026-07-28 `_ref` ingest (2026-07-28 ingest follow-up, M, S) `[public]`
 The 2026-07-28 `_ref` egress ingest (PR #105) now holds newer editions the corpus cites at older ones. **DONE:** `ISO/IEC 27017:2015`->`:2026` (second edition) across the cloud-security baseline + website + the register row + the citation example (#1391, control-set remapped, e.g. CLD.6.3.1->5.38); `ISO 19011:2018`->`:2026` (fourth edition) clause-structure fixes (#1390) + the remaining 12 edition-label carriers (#1392); `ISO/IEC 29134:2017`->`:2023` (#1381, close-/validate confirmed 0 stale 29134:2017 remaining). **RESIDUAL (verify then rotate):** confirm no further ISO 27017 CONTROL citation (CLD.x form) needs the 2026 restructure remap beyond the example fixed in #1391, then rotate this item to DONE.
+
+
+### 2.31 Sweep 149 executive-layer prose corrections (M, S) `[public]`
+
+Two out-of-window findings from Sweep 149 subagent A, both in the published executive layer.
+- **Causal phrasing unswept across the layer.** PR #1435's QA classified "so the corpus remains the single source for every value" as a causal-verb violation and recast it in the new brief, but the pre-correction phrasing survives VERBATIM in both previously-published briefs (`executive/briefs/brief-what-the-governing-body-should-require-before-ai-production.md:73` and `brief-ai-incident-response-readiness.md:73`). Ungated: the spec makes the positive rule a REVIEW outcome, so gate 88 cannot see it. Apply the accepted recast to both siblings, bump each Version and Date, regenerate `narrative.yml`.
+- **`executive/README.md:11`** tells the reader the per-concern route lists are "listed from the generated narrative registry". They are hand-curated and cannot be generated: `narrative.yml` carries no concern dimension, and the generator's own comment calls this file "the hand-curated concern-framing README". Reword to state the curation plainly, or scope the claim to what the registry actually supplies.
+
+### 2.32 BASC register display-path residue (L, S) `[public]`
+
+Sweep 149 subagent B: two reciprocal citations display a path that omits `logistics/` and names a file that does not exist, while the relative link target resolves so gate 3 is blind to it. `compliance/logistics/register-basc-it-responsibilities.md:57` and `compliance/logistics/register-basc-it-compliance-kpis.md:50`. Corpus convention is 10 and 21 correct `compliance/logistics/...` citations respectively against these single stale forms. Fix the display text only; leave the link targets unchanged.
 
 ## Priority 3 — Clean up and tooling
 
