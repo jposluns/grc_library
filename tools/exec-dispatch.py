@@ -32,6 +32,8 @@ import json
 import os
 import subprocess
 import sys
+import os as _os
+import pathlib as _pathlib
 import time
 import uuid
 from pathlib import Path
@@ -546,6 +548,49 @@ def worker_log_glob(family: str, account: str, worker_id: str) -> str:
     return f"{WORKER_LOG_DIR}/*_{family}_{account}_{worker_id}.log"
 
 
+
+# --- dispatch ledger -------------------------------------------------------------------------
+# Every ATTEMPT is recorded, successes and failures alike. Added 2026-08-07 after the orchestrator
+# told the maintainer a design order had been dispatched when it never was: the prompt file had
+# been written, the dispatch had failed at a validity check, and the WRITE was read as the send
+# (ORCHESTRATOR-MISTAKES entry 45). A failed dispatch is silent unless someone reads the rc line,
+# and the whole failure mode is not reading it. A ledger makes an unsent order an artefact that
+# outlives the terminal scrollback, so a later check can ask the file rather than the memory.
+#
+# GUARD-INPUT RESIDUE: a SENT row proves the wrapper was invoked and returned, never that the
+# worker produced anything useful; a FAILED row proves this process failed to send, never that no
+# other process sent the same order. It answers "was this order sent from here", nothing wider.
+LEDGER = _pathlib.Path(
+    _os.environ.get("GRC_DROP_ROOT", "/home/grc/grc_working")) / "dispatch-ledger.tsv"
+
+
+def _ledgered_error(ap, args, message: str) -> None:
+    """ap.error, but the attempt leaves a FAILED ledger row first (finding H9 of PR #1441:
+    every ap.error validity check exits before the post-dispatch ledger writes, which is the
+    literal wording of the motivating incident, a dispatch dying at a validity check with no
+    artefact). Only meaningful once --dispatch intent and an order id exist."""
+    if getattr(args, "dispatch", False) and getattr(args, "order_id", None):
+        _ledger_append("FAILED", args.order_id, getattr(args, "family", "") or "",
+                       getattr(args, "model", "") or "",
+                       account=str(getattr(args, "account", "") or ""),
+                       detail="validity: " + message)
+    ap.error(message)
+
+
+def _ledger_append(status: str, order_id: str, family: str, model: str,
+                   account: str = "", worker_id: str = "", detail: str = "") -> None:
+    """Append one attempt row. Never raises: a ledger failure must not fail a dispatch."""
+    try:
+        LEDGER.parent.mkdir(parents=True, exist_ok=True)
+        stamp = _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        row = "\t".join(str(x).replace("\t", " ").replace("\n", " ") for x in
+                        (stamp, status, order_id, family, model, account, worker_id, detail))
+        with LEDGER.open("a", encoding="utf-8") as fh:
+            fh.write(row + "\n")
+    except Exception:
+        pass
+
+
 def dispatch(config: dict, family: str, model: str, order_id: str, prompt_file: str,
              effort: str | None = None, now: _dt.datetime | None = None,
              account: str | None = None, job_dir: Path = JOB_DIR,
@@ -979,15 +1024,15 @@ def main() -> int:
         if args.require_worker:
             rw_key = worker_id_to_key(args.require_worker)
             if rw_key is None:
-                ap.error(f"--require-worker: cannot parse worker-id '{args.require_worker}' "
+                _ledgered_error(ap, args, f"--require-worker: cannot parse worker-id '{args.require_worker}' "
                          "(expected {family}-{account}-{stamp}-{4hex}); name the account with "
                          "--account instead")
             rw_acct, rw_fam = rw_key
             if rw_fam != args.family:
-                ap.error(f"--require-worker names a '{rw_fam}' worker but --family is "
+                _ledgered_error(ap, args, f"--require-worker names a '{rw_fam}' worker but --family is "
                          f"'{args.family}'")
             if args.account and args.account != rw_acct:
-                ap.error(f"--require-worker resolves to account '{rw_acct}' but --account is "
+                _ledgered_error(ap, args, f"--require-worker resolves to account '{rw_acct}' but --account is "
                          f"'{args.account}' (contradiction)")
             effective_account = rw_acct
         known_accounts = {a.get("account") for a in config.get("accounts", [])
@@ -995,12 +1040,12 @@ def main() -> int:
         excl, unresolved, unknown = resolve_exclusions(
             args.not_worker, args.not_account, args.family, known_accounts)
         if unresolved:
-            ap.error("--not-worker: cannot PARSE these to an account, so the exclusion cannot be "
+            _ledgered_error(ap, args, "--not-worker: cannot PARSE these to an account, so the exclusion cannot be "
                      "honoured (FAILING CLOSED): " + ", ".join(unresolved)
                      + "  -- for a short From:-style id with no account component, pass "
                      "--not-account <account>")
         if unknown:
-            ap.error(f"--not-worker/--not-account: these name an account NOT configured for family "
+            _ledgered_error(ap, args, f"--not-worker/--not-account: these name an account NOT configured for family "
                      f"'{args.family}', so the exclusion would match nothing and SILENTLY defeat the "
                      "independence control (FAILING CLOSED): " + ", ".join(unknown)
                      + "  -- check for a typo or a renamed/removed account.")
@@ -1008,7 +1053,7 @@ def main() -> int:
 
     if args.dry_run:
         if not (args.family and args.model):
-            ap.error("--dry-run needs --family and --model")
+            _ledgered_error(ap, args, "--dry-run needs --family and --model")
         kmerr = known_model_error(config, args.family, args.model)
         if kmerr is not None:
             print(f"[{now.astimezone().strftime('%H:%M:%S')}] {kmerr}")
@@ -1048,15 +1093,21 @@ def main() -> int:
     if args.dispatch:
         for req in ("family", "model", "order_id", "prompt_file"):
             if not getattr(args, req):
-                ap.error(f"--dispatch needs --{req.replace('_','-')}")
+                _ledgered_error(ap, args, f"--dispatch needs --{req.replace('_','-')}")
         res = dispatch(config, args.family, args.model, args.order_id, args.prompt_file,
                        effort=args.effort, now=now, account=effective_account,
                        exclude_accounts=exclude_accounts)
         if not res["ok"] and res.get("worker_id") is None:
             # account resolution failed before any worker ran: surface the reason loudly.
+            _ledger_append("FAILED", args.order_id, args.family, args.model,
+                           account=str(effective_account or ""), detail=str(res.get("error")))
             print(f"[{_dt.datetime.now().strftime('%H:%M:%S')}] dispatch order={args.order_id} "
                   f"NOT DISPATCHED: {res.get('error')}", file=sys.stderr)
             return 1
+        _ledger_append("SENT" if res.get("ok") else "RAN-NONZERO", str(res.get("order_id")),
+                       args.family, args.model, account=str(res.get("account") or ""),
+                       worker_id=str(res.get("worker_id") or ""),
+                       detail="rc=" + str(res.get("rc")))
         # print a compact status line, then the worker output
         print(f"[{_dt.datetime.now().strftime('%H:%M:%S')}] dispatch order={res.get('order_id')} "
               f"worker={res.get('worker_id')} account={res.get('account')} model={args.model} "
@@ -1070,7 +1121,7 @@ def main() -> int:
             sys.stderr.write(res["stderr"])
         return 0 if res["ok"] else 1
 
-    ap.error("choose one of --self-test / --dry-run / --dispatch")
+    _ledgered_error(ap, args, "choose one of --self-test / --dry-run / --dispatch")
     return 2
 
 

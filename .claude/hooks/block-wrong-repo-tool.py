@@ -105,6 +105,17 @@ _GIT_MUTATE = re.compile(
 )
 
 
+
+# Heredoc handling lives in the shared _hookutil helper. The first local copy here stripped
+# interpreter bodies (hiding real commands inside a shell heredoc, finding H7 of the PR #1441
+# review) and swallowed the whole remainder on an unterminated introducer (H8, a universal
+# bypass). One implementation, one fixture set, shared with block-bulk-git-add.py.
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(_Path(__file__).resolve().parent))
+from _hookutil import strip_heredocs  # noqa: E402
+
+
 def _sibling_roots(project_dir: str) -> dict:
     """Map repo-name -> tools/ Path for each colocated repo that exists."""
     parent = Path(project_dir).resolve().parent
@@ -227,6 +238,7 @@ def main(argv: list[str]) -> int:
         # A structurally-malformed payload (non-dict, or tool_input not a dict) must fail-OPEN,
         # not traceback: the extraction is INSIDE the try (codex QA, P-1.19).
         command = (payload.get("tool_input") or {}).get("command", "")
+        command = strip_heredocs(command)
         workspace = payload.get("workspace") or {}
         project_dir = (
             workspace.get("project_dir")
