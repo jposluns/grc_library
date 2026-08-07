@@ -141,7 +141,7 @@ pages:
   title: "What the governing body should require for third-party and AI supply-chain risk oversight"
   narrative_type: "Executive Brief"
   narrative_status: "Explanatory"
-  version: "0.0.1"
+  version: "0.0.2"
   date: "2026-08-07"
   corpus_sources:
     - "risk/standard-third-party-and-supply-chain-risk.md"
