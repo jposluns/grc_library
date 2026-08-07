@@ -201,8 +201,10 @@ _TYPE_RULES: list[tuple[str, tuple[str, ...]]] = [
     ("content", ("brief", "scenario", "journey", "exemplar", "story",
                  "narrative page", "outcome map", "control journey")),
     ("gate", ("new gate", "staleness gate", "audit gate", "freshness gate",
-              " gate", "gate ")),   # P-1.30 bug d: a " gate"/"gate N" item types as gate,
-    ("tool", ("lint", "scanner", "guard", ".py", "hook", "tool", "generator")),  # not tool
+              "gate ")),   # P-1.30 bug d: a "gate N" item types as gate not tool; "gate "
+                           # (trailing space) catches "gate 87" but NOT plural "gates" on a
+                           # tool item ("... evidence gates ...", which stays tool via .py/lint).
+    ("tool", ("lint", "scanner", "guard", ".py", "hook", "tool", "generator")),
     ("rule", (" rule", "extension")),  # last-resort rule catch (after specifics)
 ]
 
@@ -302,7 +304,7 @@ def render_pipeline(public_text: str, private_text: str | None,
         elif foreign:
             for bid, btitle, bline in foreign:
                 open_items.append((bid, btitle, bline, source, umb or ""))
-        elif not is_blocked(block):
+        else:   # bulletless leaf (blocked blocks already 'continue'd above)
             open_items.append((item_id, title, block, source, umb or title))
 
     out: list[str] = []
@@ -368,6 +370,7 @@ def _self_test() -> int:
     check("type-validation", infer_type("full validation pass") == "validation")
     check("type-tool", infer_type("shared multi-line link scanner (lint_common)") == "tool")
     check("type-gate", infer_type("wire the new authority-boundary gate 87") == "gate")  # P-1.30 bug d
+    check("type-gate-plural-stays-tool", infer_type("lint-executive-metadata.py + section/evidence gates") == "tool")
 
     # trunc_words: <=10 words, ellipsis when longer
     tw = trunc_words("one two three four five six seven eight nine ten eleven twelve")
@@ -422,6 +425,9 @@ def _self_test() -> int:
           any(l.startswith("P-9.1.2 [ ] ") for l in r3l) and any(l.startswith("P-9.1.3 [ ] ") for l in r3l))
     check("bullet-child-enumerated", any(l.startswith("P-9.1.1 [ ] ") for l in r3l))
     check("foreign-bullet-promoted", any(l.startswith("P-9.9 [ ] ") for l in r3l))
+    _ic = next(i for i, l in enumerate(r3l) if l.startswith("P-9.1.1"))
+    _if = next(i for i, l in enumerate(r3l) if l.startswith("P-9.9"))
+    check("foreign-bullet-separate-group", "" in r3l[min(_ic, _if):max(_ic, _if)])
     # an inline content child must type from its own desc, not the shared wave line
     pub3 = ("## U4\n\n### P-8.1 Umbrella here\n"
             "Track A (content): **P-8.1.1** author four briefs; Track B (website): **P-8.1.2** homepage re-hero\n")
