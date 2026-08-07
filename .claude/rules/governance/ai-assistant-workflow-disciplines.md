@@ -233,7 +233,7 @@ to be more accommodating. Where a project runs a dual-family pair, expect the fa
 here, since one may read the working tree while the other refuses; the refusal is the better
 behaviour and the disagreement is itself the signal.
 
-Observed directly: an expensive-tier verifier returned HOLD purely because the page under review was
+Observed directly: a substantive-tier verifier returned HOLD purely because the page under review was
 untracked, while its cross-family sibling independently flagged the same state as a registry entry
 with no corresponding tracked file. A full round of expensive QA bought one process finding and no
 content review, because the artefact had been authored but never committed.
