@@ -2,7 +2,7 @@
 
 **Document Title:** What the governing body should require for AI resilience and continuity\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.2\
+**Version:** 0.0.3\
 **Date:** 2026-08-07\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\

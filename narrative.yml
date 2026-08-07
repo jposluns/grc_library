@@ -109,7 +109,7 @@ pages:
   title: "What the governing body should require for AI resilience and continuity"
   narrative_type: "Executive Brief"
   narrative_status: "Explanatory"
-  version: "0.0.2"
+  version: "0.0.3"
   date: "2026-08-07"
   corpus_sources:
     - "resilience/policy-business-continuity-and-disaster-recovery.md"
