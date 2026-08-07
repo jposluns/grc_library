@@ -285,7 +285,10 @@ def render_pipeline(public_text: str, private_text: str | None,
         lines = block.splitlines()
 
         def _consider(oid: str, otitle: str, oline: str, is_bullet: bool, blocked: bool) -> None:
-            rank = (0 if blocked else 1, 1 if is_bullet else 0)  # non-blocked, then bullet, wins
+            # A bullet is the AUTHORITATIVE statement of an item, so source ranks BEFORE
+            # blocked status: a blocked bullet is NOT overridden by a non-blocked inline mention
+            # (QA r3); a later non-blocked bullet still beats a blocked bullet of the same id.
+            rank = (1 if is_bullet else 0, 0 if blocked else 1)
             cur = occ.get(oid)
             if cur is None or rank > cur["rank"]:
                 occ[oid] = {"title": otitle, "line": oline, "blocked": blocked,
@@ -387,6 +390,7 @@ def _self_test() -> int:
     check("type-tool", infer_type("shared multi-line link scanner (lint_common)") == "tool")
     check("type-gate", infer_type("wire the new authority-boundary gate 87") == "gate")  # P-1.30 bug d
     check("type-gate-plural-stays-tool", infer_type("lint-executive-metadata.py + section/evidence gates") == "tool")
+    check("type-gate-num-on-tool-stays-tool", infer_type("lint-x.py wiring for gate 87") == "tool")  # QA r3 NOTE-1
 
     # trunc_words: <=10 words, ellipsis when longer
     tw = trunc_words("one two three four five six seven eight nine ten eleven twelve")
@@ -501,6 +505,13 @@ def _self_test() -> int:
     pubC = ("## UC\n\n### P-13.1 Umbrella\n- **P-13.1.1** blocked copy [BLOCKED:granted]\n- **P-13.1.1** the real open work here\n")
     rCl = [l for l in render_pipeline(pubC, None, None, None, limit=20).splitlines() if l.startswith("P-13.1.1")]
     check("blocked-then-open-recovers", len(rCl) == 1 and "real open work" in rCl[0])
+
+    # P-1.30 QA round 3: a granted-blocked BULLET is authoritative and is NOT overridden by a
+    # non-blocked inline mention of the same id (source ranks before blocked status).
+    pubD = ("## UD\n\n### P-14.1 Umbrella\n"
+            "Wave: **P-14.1.1** inline open mention\n- **P-14.1.1** the blocked bullet [BLOCKED:granted]\n")
+    rDl = render_pipeline(pubD, None, None, None, limit=20).splitlines()
+    check("blocked-bullet-not-overridden-by-inline", not any(l.startswith("P-14.1.1") for l in rDl))
 
     if failures:
         for f in failures:
