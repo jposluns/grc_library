@@ -74,7 +74,9 @@ incident was memorialized as a worked example (now held, with the rest of the
 narrative rationale, in the parent library's removal ledger). The verification protocol
 (enumerate, re-read, quote, contradiction-search) is the rule's core; its
 corollaries on un-observable state, inventory claims, and external-version currency
-were added over the project's run as new assertion classes surfaced.
+were added over the project's run as new assertion classes surfaced, joined on
+2026-08-07 by the stated-intention section: a sentence about the actor's own next
+action is a claim, so an intention stated and not carried out is a false statement.
 
 ### `clarify-before-acting`
 

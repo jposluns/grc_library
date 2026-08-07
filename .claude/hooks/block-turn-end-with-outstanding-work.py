@@ -17,6 +17,13 @@ one; a MISSING consume marker made the threshold epoch 0, so every file in the t
 unconsumed, which is the opposite of the fail-open contract the docstring claimed; and the held-
 branch list was a hardcoded set whose "must cite a decision record" was an unenforced comment.
 
+WHAT IT IS, stated narrowly because a cross-family verifier caught the first version claiming more
+than it can see. This is a DELIVERED-RESULT AND LOCAL-BRANCH SENTINEL, not a general
+outstanding-work detector. It is blind to a dispatched worker that has not yet written a file, to
+an unfinished task list, to uncommitted working-tree changes, and to a detached commit. Those are
+real outstanding work and this hook will let you yield on all of them; the discipline, not the
+guard, covers them.
+
 WHAT IT BLOCKS. A turn-end while EITHER arm is true:
   * a delivery has landed in the tray since the last recorded consume, or
   * a branch is ahead of main and is not on the recorded held list.
@@ -52,8 +59,10 @@ GUARD-INPUT RESIDUE, stated at the point of use per validate-inference-before-ac
 
 from __future__ import annotations
 
+import datetime as _dt
 import json
 import os
+import re as _re
 import subprocess
 import sys
 from pathlib import Path
@@ -66,6 +75,7 @@ ESCAPE_FILE = Path(os.environ.get("GRC_DROP_ROOT", "/home/grc/grc_working")) / "
 # goes stale the day it is written, and a comment saying "cite a decision record" enforces nothing.
 HELD_FILE = REPO.parent / "grc_library_private" / ".working" / "held-branches.txt"
 GIT_TIMEOUT = 20
+_EXPIRY = _re.compile(r"\d{4}-\d{2}-\d{2}")
 
 
 def _git(*args: str) -> str:
@@ -76,28 +86,63 @@ def _git(*args: str) -> str:
 
 
 def held_branches() -> dict:
-    """Map branch -> reason, from the recorded held list. Absent file means nothing is held."""
+    """Map branch -> reason for each UNEXPIRED hold. Absent file means nothing is held.
+
+    Line format: ``<branch>  # <YYYY-MM-DD expiry>  <reason>``. The expiry is required and is
+    checked, because a cross-family verifier pointed out that an exemption keyed on a mutable
+    branch name alone exempts every later commit under that name, forever, with nothing forcing
+    anyone to revisit it. An expired or malformed hold is simply NOT a hold: the branch reappears
+    in the guard's output, which is the prompt to renew it deliberately or let it go.
+
+    RESIDUE, at the predicate: this validates that a hold was recorded and has not lapsed. It does
+    NOT pin the approved tip, so work added to a held branch after the hold was granted is covered
+    by it. Pinning the tip is the stronger form and is deliberately not built yet; a branch is held
+    for weeks and would need its hold rewritten on every commit.
+    """
     held = {}
     if not HELD_FILE.exists():
         return held
+    today = _dt.date.today().isoformat()
     for line in HELD_FILE.read_text(encoding="utf-8").splitlines():
         line = line.strip()
         if not line or line.startswith("#"):
             continue
-        name, _, reason = line.partition("#")
-        held[name.strip()] = reason.strip() or "no reason recorded"
+        name, _, rest = line.partition("#")
+        rest = rest.strip()
+        parts = rest.split(None, 1)
+        if not parts or not _EXPIRY.fullmatch(parts[0]):
+            continue                      # no parsable expiry: not a hold
+        if parts[0] < today:
+            continue                      # lapsed: the branch is visible again, deliberately
+        held[name.strip()] = parts[1] if len(parts) > 1 else "no reason recorded"
     return held
 
 
 def unmerged_branches() -> list:
+    # RESIDUE, at the predicate: "ahead of main" is NOT "not merged". This project squash-merges,
+    # so a branch whose work is fully on main keeps its own distinct commits forever and stays
+    # ahead until it is deleted. A cross-family verifier proved this with a synthetic squash probe:
+    # rev-list said one commit ahead while the trees were identical. Counting alone would make the
+    # guard block permanently on every merged-but-undeleted branch, which is the shape that gets a
+    # guard switched off. So a branch is reported only when it is ahead AND its tree differs from
+    # main. Remaining residue: patch-equivalent-but-not-tree-equal work (a merged change plus an
+    # unrelated later edit) still reads as unmerged, which errs toward blocking, and a stale local
+    # main reads every branch as unmerged, which errs the same way.
     held = held_branches()
     out = []
     for name in _git("for-each-ref", "--format=%(refname:short)", "refs/heads").split():
         if name == "main" or name in held:
             continue
         ahead = _git("rev-list", "--count", "main.." + name).strip()
-        if ahead and ahead != "0":
-            out.append((name, ahead))
+        if not ahead or ahead == "0":
+            continue
+        try:
+            subprocess.run(["git", "-C", str(REPO), "diff", "--quiet", "main", name],
+                           timeout=GIT_TIMEOUT, check=True)
+            continue          # tree-identical to main: the work landed, the branch is just undeleted
+        except subprocess.CalledProcessError:
+            pass              # trees differ: genuinely unmerged work
+        out.append((name, ahead))
     return out
 
 
@@ -105,6 +150,12 @@ def new_deliveries() -> list:
     """Deliveries newer than the recorded consume. Returns [] when it cannot tell."""
     if not DROP_ROOT.is_dir() or not CONSUME_MARKER.exists():
         return []          # cannot answer: fail open, per the contract above
+    # RESIDUE, at the predicate: mtime is not arrival and the marker is not attention. A copied or
+    # restored file carries a new mtime without being new work; a file written slowly may predate
+    # its own completion; and the marker is advanced by the orchestrator asserting the tray is
+    # dispositioned, which nothing verifies. The marker is also GLOBAL, so advancing it for one
+    # delivery clears every other. Location would beat all of this (move a dispositioned file to a
+    # consumed/ directory, as the file-drop inbox already does), and is the queued replacement.
     since = CONSUME_MARKER.stat().st_mtime
     return sorted(p.name for p in DROP_ROOT.glob("*.md") if p.stat().st_mtime > since)
 

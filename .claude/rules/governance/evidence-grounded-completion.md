@@ -111,8 +111,11 @@ identical from outside. That asymmetry is what makes it worse than simply stoppi
    and manufacturing further action to look busy is its own failure.
 
 **Mechanize it, because correction does not hold.** Where the harness allows a turn-end hook, gate
-turn-end on outstanding work: undelivered-and-unconsumed results, unmerged branches, an unfinished
-task list. Three properties keep such a guard useful rather than resented. It must FAIL OPEN, since
+turn-end on whatever outstanding work the harness lets you actually OBSERVE: a delivered result not
+yet recorded as read, a branch still carrying unmerged work. Say plainly what the guard cannot see,
+because a guard named for outstanding work while detecting two narrow proxies for it invites the
+reader to trust it past its reach: a dispatched worker that has written nothing yet, an unfinished
+task list, and uncommitted changes are all real outstanding work that a file-and-ref observer misses. Three properties keep such a guard useful rather than resented. It must FAIL OPEN, since
 a guard that traps the actor on its own malfunction is disabled and then protects nothing. It needs
 an explicit, visible escape for genuine blocks, because an escape leaving no trace becomes the
 default path, AND that escape must be reachable by the actor the guard constrains: an environment
