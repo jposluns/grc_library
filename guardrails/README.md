@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.69.0\
+**Version:** 1.70.0\
 **Date:** 2026-08-08\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -123,8 +123,11 @@ guardrails/
 │   └── mcp-security.md         Model Context Protocol server security rules
 ├── pipeline/
 │   └── cicd-gates.md           CI/CD security gates and pipeline controls
-├── aiqt/                       Cross-family review machinery (contract, schemas, families)
+├── aiqt/                       Cross-family review machinery (contract, schemas, families, setup)
 │   ├── review-contract.md      The cross-family skeptical review contract (v1)
+│   ├── config-format.md        The adopter config.md spec: layout, bounded write set, consent
+│   ├── setup-wizard.md         Re-runnable onboarding wizard (writes only config.md)
+│   ├── doctor.md               Read-only health checks (incl. bounded-write-set verification)
 │   ├── families.json           Reviewer family registry (Claude, Codex; extensible)
 │   └── schemas/                finding.schema.json + verdict.schema.json (SARIF-lite interchange)
 ├── skills/                     Claude Code Skills (SKILL.md format) derived from selected pack rules
