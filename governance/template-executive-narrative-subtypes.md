@@ -2,8 +2,8 @@
 
 **Document Title:** Executive Narrative Subtype Templates\
 **Document Type:** Template\
-**Version:** 1.0.1\
-**Date:** 2026-08-06\
+**Version:** 1.0.2\
+**Date:** 2026-08-08\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`specification-executive-narrative.md`](../specification-executive-narrative.md)\
@@ -23,7 +23,7 @@ The templates live here, in the governance domain, rather than under the `execut
 ## 2. How to use these templates
 
 1. Copy the fenced skeleton for the subtype you are authoring (the content inside the triple-backtick block, not the fence markers).
-2. Create the new file under the subtype's subdirectory in `executive/`, named with the subtype's filename prefix (for example `executive/briefs/brief-<topic>.md` for an Executive Brief). Each subtype's subdirectory is fixed by the subtype table in the specification, and the narrative metadata gate enforces it.
+2. Create the new file under the subtype's subdirectory in `executive/`, named with the subtype's filename prefix (for example `executive/briefs/brief-<topic>.md` for an Executive Brief). Each subtype's subdirectory is fixed by the subtype table in the specification, and the narrative metadata gate enforces it. Keep the file name to the subtype prefix plus three or four further words naming the topic (for example `executive/briefs/brief-ai-supply-chain-oversight.md`); the page title, not the file name, carries the full leadership question.
 3. Replace every bracketed placeholder and each example value. In particular: set a real `Corpus Sources` list (each entry a plain markdown link to a corpus document the page relies on, with no version suffix), the correct `Narrative Type` and its fixed `Narrative Status`, the present `Claim Classes Present`, a `Review Record` identifier, and a `Last Reviewed` date.
 4. Keep the authority disclaimer verbatim as the first body content after the metadata block; it is fixed by the specification and identical on every page.
 5. Run the narrative gates against the new page before committing.
