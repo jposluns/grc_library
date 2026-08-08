@@ -63,9 +63,9 @@ Normative machine form: `schemas/finding.schema.json`. Field contract:
 | `impact` | string | one line (single-line enforced), the concrete consequence |
 | `recommendation` | string | one line (single-line enforced), the concrete fix |
 
-A finding failing schema validation is returned to the reviewer once for repair; a
-second failure downgrades the finding to a hypothesis attachment (it never enters
-the validated set silently).
+A finding failing schema validation is returned to the reviewer for repair, up to
+the same 3-try cap that governs auto-fix; exhausting the cap downgrades the finding
+to a hypothesis attachment (it never enters the validated set silently).
 
 ## 5. Verdict envelope
 
@@ -120,8 +120,9 @@ actually ran.
 ## 10. Evidence and retention
 
 Full artefacts, log-aligned: the SARIF-lite report, the rendered brief, and the
-verdict envelope persist as CI upload archives (GitHub's "workflow artifacts"
-feature) or run records (local), with retention matched to the consuming project's
+verdict envelope persist as the CI platform's run-attached artefact archives
+(GitHub's "workflow artifacts" is one such feature) or as local run records, with
+retention matched to the consuming project's
 AIQT log policy. A PR comment is a VIEW of the record, never the record.
 
 ## 11. Numbering tie-in
