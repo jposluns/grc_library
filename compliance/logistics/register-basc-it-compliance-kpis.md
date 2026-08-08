@@ -2,8 +2,8 @@
 
 **Document Title:** BASC IT Compliance Monitoring and KPIs\
 **Document Type:** Register\
-**Version:** 1.2.2\
-**Date:** 2026-07-02\
+**Version:** 1.2.3\
+**Date:** 2026-08-08\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-basc-programme-overview.md`](annex-basc-programme-overview.md), [`compliance/logistics/policy-basc-information-security.md`](policy-basc-information-security.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md), [`operations/procedure-security-monitoring-and-alert-management.md`](../../operations/procedure-security-monitoring-and-alert-management.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`security/standard-authentication-and-password-management.md`](../../security/standard-authentication-and-password-management.md), [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md)\
@@ -47,7 +47,7 @@ The CISO consolidates IT and cybersecurity KPI results monthly. Quarterly result
 
 ## Related documents
 
-- Register: BASC IT and Information Security Responsibilities: [`compliance/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md)
+- Register: BASC IT and Information Security Responsibilities: [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md)
 
 ---
 

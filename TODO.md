@@ -399,10 +399,6 @@ Parts 1-2 FIXED in #1259 (held-source-verified): GDPR clock `:175` "from confirm
 The 2026-07-28 `_ref` egress ingest (PR #105) now holds newer editions the corpus cites at older ones. **DONE:** `ISO/IEC 27017:2015`->`:2026` (second edition) across the cloud-security baseline + website + the register row + the citation example (#1391, control-set remapped, e.g. CLD.6.3.1->5.38); `ISO 19011:2018`->`:2026` (fourth edition) clause-structure fixes (#1390) + the remaining 12 edition-label carriers (#1392); `ISO/IEC 29134:2017`->`:2023` (#1381, close-/validate confirmed 0 stale 29134:2017 remaining). **RESIDUAL (verify then rotate):** confirm no further ISO 27017 CONTROL citation (CLD.x form) needs the 2026 restructure remap beyond the example fixed in #1391, then rotate this item to DONE.
 
 
-### 2.32 BASC register display-path residue (L, S) `[public]`
-
-Sweep 149 subagent B: two reciprocal citations display a path that omits `logistics/` and names a file that does not exist, while the relative link target resolves so gate 3 is blind to it. `compliance/logistics/register-basc-it-responsibilities.md:57` and `compliance/logistics/register-basc-it-compliance-kpis.md:50`. Corpus convention is 10 and 21 correct `compliance/logistics/...` citations respectively against these single stale forms. Fix the display text only; leave the link targets unchanged.
-
 ## Priority 3 — Clean up and tooling
 
 ### 3.180 Adopter-facing skills hard-require the private siblings with no degrade branch (2026-07-28 deep-assessment c6, claude, M, S) `[public]`
