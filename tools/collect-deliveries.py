@@ -141,7 +141,11 @@ def plan_collection(facts: list, grandfather: bool = False) -> dict:
         #     source's CONTENT: a same-path rewrite after collection is skipped here, so
         #     owner-side hygiene (the P-3.235 class) is the remedy for a marked outbox, never
         #     this sweep.
-        # (0b) A marker-LESS source whose same-name tray file is BYTE-IDENTICAL routes to remark:
+        # (0a) INCOMPLETENESS outranks remark: this tool only ever copies sentinel-complete
+        #     files, so a byte-identical twin of a sentinel-LESS source cannot be this tool's
+        #     work; freezing a still-writing file under a marker would mask its completed form.
+        #     A held file whose writer finishes collects normally on a later sweep.
+        # (0b) A marker-LESS COMPLETE source whose same-name tray file is BYTE-IDENTICAL routes to remark:
         #     an earlier copy landed but its marker write failed (COPIED+UNMARKED), so the only
         #     missing artefact is the marker itself. Residue, stated where remark is honoured:
         #     byte-equality proves the tray copy is the same artifact, so writing the marker is
@@ -152,10 +156,10 @@ def plan_collection(facts: list, grandfather: bool = False) -> dict:
         #     migration can never overwrite a delivery already waiting in the tray.
         if f.get("marker_exists"):
             plan["already_collected"].append(f)
-        elif f.get("tray_exists") and f.get("tray_identical"):
-            plan["remark"].append(f)
         elif not f["complete"] and not grandfather:
             plan["held_no_sentinel"].append(f)
+        elif f.get("tray_exists") and f.get("tray_identical"):
+            plan["remark"].append(f)
         elif f["tray_exists"]:
             plan["collision"].append(f)
         elif not f["complete"]:
@@ -412,7 +416,10 @@ def report(plan: dict, tray: Path, oneline: bool = False, outcomes: list | None 
               + (f" / {n_held} held" if n_held else "")
               + (f" / {len(failed)} FAILED" if failed else ""))
         return
-    print(f"collect-deliveries: {n_move} collected, {n_held} held back, {n_coll} collision(s); "
+    n_done = n_move - len(failed) if outcomes is not None else n_move
+    print(f"collect-deliveries: {n_done} collected"
+          + (f" ({len(failed)} of {n_move} planned FAILED)" if failed else "")
+          + f", {n_held} held back, {n_coll} collision(s); "
           f"{len(pending)} pending in the tray, {unswept} still in worker outboxes "
           f"(union is what is actually outstanding).")
     if failed:
@@ -575,10 +582,10 @@ def self_test() -> int:
           [b for b, fs in plan_collection(
               [dict(fact("r2", tray_exists=True), tray_identical=False)]).items() if fs],
           ["collision"])
-    check("remark outranks incompleteness: the identical twin proves collection happened",
+    check("incompleteness outranks remark: a sentinel-less source is held, never frozen under a marker",
           [b for b, fs in plan_collection(
               [dict(fact("r3", complete=False, tray_exists=True), tray_identical=True)]).items() if fs],
-          ["remark"])
+          ["held_no_sentinel"])
     check("a marker still outranks remark",
           [b for b, fs in plan_collection(
               [dict(fact("r4", tray_exists=True), tray_identical=True,
