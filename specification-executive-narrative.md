@@ -2,8 +2,8 @@
 
 **Document Title:** Executive Narrative Authoring Specification\
 **Document Type:** Specification\
-**Version:** 0.0.11\
-**Date:** 2026-08-08\
+**Version:** 0.0.10\
+**Date:** 2026-08-07\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`specification-master-project.md`](specification-master-project.md), [`specification-ingestion.md`](specification-ingestion.md), [`README.md`](README.md), [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md)\
@@ -33,7 +33,7 @@ This specification establishes rules for:
 - Corpus source references and the advisory executive-review cadence.
 - Release, retirement, and the generated narrative registry.
 
-Six members of the narrative gate family that mechanically enforces the rules below are built and wired; the members still marked `new` in the Gates section are later-phase work, and each gate's intent is recorded there. Where a rule is enforced only by review rather than mechanically, this specification says so.
+The narrative gate family that mechanically enforces the rules below is built in later phases; the gate intent is recorded in the Gates section. Where a rule is enforced only by review rather than mechanically, this specification says so.
 
 ---
 
