@@ -348,22 +348,22 @@
     "aiqt/review-contract.md": {
       "bucket": "CORE",
       "disclosure": "PUBLIC",
-      "rationale": "The cross-family review contract (1.26.29): portable normative spec for AIQT reviewers; no project-local machinery or operational facts."
+      "rationale": "The cross-family review contract (PR #1462): portable normative spec for AIQT reviewers; no project-local machinery or operational facts."
     },
     "aiqt/schemas/finding.schema.json": {
       "bucket": "CORE",
       "disclosure": "PUBLIC",
-      "rationale": "Normative SARIF-lite finding interchange schema (1.26.29); portable, no local facts."
+      "rationale": "Normative SARIF-lite finding interchange schema (PR #1462); portable, no local facts."
     },
     "aiqt/schemas/verdict.schema.json": {
       "bucket": "CORE",
       "disclosure": "PUBLIC",
-      "rationale": "Normative verdict-envelope interchange schema (1.26.29); portable, no local facts."
+      "rationale": "Normative verdict-envelope interchange schema (PR #1462); portable, no local facts."
     },
     "aiqt/families.json": {
       "bucket": "CORE",
       "disclosure": "PUBLIC",
-      "rationale": "Reviewer family registry (Claude, Codex; extensible) for the review contract (1.26.29); portable."
+      "rationale": "Reviewer family registry (Claude, Codex; extensible) for the review contract (PR #1462); portable."
     }
   }
 }

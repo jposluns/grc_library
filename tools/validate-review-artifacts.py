@@ -12,12 +12,12 @@ enums, and regex patterns, kept in parity with them by hand.
 STATED RESIDUE (per validate-inference-before-action, "Guard inputs"): this is
 not a JSON Schema implementation, so a schema edit does not propagate here
 automatically; the parity is maintained by hand and the .json files win on any
-divergence. Two deliberate strictness choices, both in the refusal-loud
-direction: draft 2020-12 "integer" admits any number with a zero fractional
-part (1.0 validates upstream), while this checker accepts only JSON integers
-and rejects booleans; and the anchored patterns are applied with fullmatch,
-matching the ECMA-262 end-of-string semantics the schemas mean, where Python's
-own `$` would tolerate a trailing newline.
+divergence. Integer semantics follow draft 2020-12: a number with a zero
+fractional part (1.0) validates as an integer, a boolean never does. One
+deliberate strictness choice, in the refusal-loud direction: the anchored
+patterns are applied with fullmatch, matching the ECMA-262 end-of-string
+semantics the schemas mean, where Python's own `$` would tolerate a trailing
+newline.
 
 Pure validation core (each returns a list of error strings; empty = valid):
   validate_finding(obj) -> list[str]
@@ -68,18 +68,29 @@ PROOF_REQUIRED = ("files_read", "commands_run", "checks_passed")
 RULE_ID_PATTERN = "^[a-z0-9]+(-[a-z0-9]+)*$"
 LOCATION_PATTERN = "^[^:]+:[0-9]+$"
 FINGERPRINT_PATTERN = "^[a-z0-9-]+:[^:]+:[0-9]+$"
+TOOL_PATTERN = "^[a-z][a-z0-9]*-[A-Za-z0-9._-]+$"
+ONE_LINE_PATTERN = "^[^\n]+$"
+SHA_PATTERN = "^[0-9a-f]{7,40}$"
 _RULE_ID_RE = re.compile(RULE_ID_PATTERN)
 _LOCATION_RE = re.compile(LOCATION_PATTERN)
 _FINGERPRINT_RE = re.compile(FINGERPRINT_PATTERN)
+_TOOL_RE = re.compile(TOOL_PATTERN)
+_ONE_LINE_RE = re.compile(ONE_LINE_PATTERN)
+_SHA_RE = re.compile(SHA_PATTERN)
 
 # minLength floors from the schemas.
 _FINDING_MIN1_STRINGS = ("tool", "evidence", "impact", "recommendation")
-_VERDICT_STRING_MINLEN = (("head", 7), ("base", 7), ("model", 1))
+_VERDICT_STRING_MINLEN = (("model", 1),)
 
 
 def _is_int(value: object) -> bool:
-    """JSON integer: a Python int that is not a bool (bool subclasses int)."""
-    return isinstance(value, int) and not isinstance(value, bool)
+    """Draft 2020-12 integer: an int that is not a bool, or a float with a zero
+    fractional part (1.0 validates as an integer upstream, so it does here)."""
+    if isinstance(value, bool):
+        return False
+    if isinstance(value, int):
+        return True
+    return isinstance(value, float) and value.is_integer()
 
 
 def _check_min_string(obj: dict, field: str, min_length: int,
@@ -116,6 +127,14 @@ def validate_finding(obj) -> list[str]:
             _check_min_string(obj, field, 1, errors)
     if "level" in obj and obj["level"] not in LEVEL_ENUM:
         errors.append(f"level: {obj['level']!r} is not one of {list(LEVEL_ENUM)}")
+    if "tool" in obj and isinstance(obj["tool"], str) and obj["tool"]:
+        if not _TOOL_RE.fullmatch(obj["tool"]):
+            errors.append(f"tool: {obj['tool']!r} does not match pattern {TOOL_PATTERN}")
+    for field in ("impact", "recommendation"):
+        if field in obj and isinstance(obj[field], str) and obj[field]:
+            if not _ONE_LINE_RE.fullmatch(obj[field]):
+                errors.append(f"{field}: must be a single non-empty line "
+                              f"(pattern {ONE_LINE_PATTERN})")
     if "ruleId" in obj:
         _check_pattern(obj, "ruleId", _RULE_ID_RE, RULE_ID_PATTERN, errors)
     if "location" in obj:
@@ -191,6 +210,9 @@ def validate_verdict(obj) -> list[str]:
     for field, min_length in _VERDICT_STRING_MINLEN:
         if field in obj:
             _check_min_string(obj, field, min_length, errors)
+    for field in ("head", "base"):
+        if field in obj:
+            _check_pattern(obj, field, _SHA_RE, SHA_PATTERN, errors)
     return errors
 
 
@@ -371,8 +393,19 @@ def self_test() -> int:
           ["proof_of_run.checks_passed[1]: expected a string, got int"])
     broken = _valid_verdict()
     broken["head"] = "abc123"
-    check("short head refused", validate_verdict(broken),
-          ["head: shorter than minLength 7"])
+    got = validate_verdict(broken)
+    check("short head refused (pattern)",
+          (len(got), got and got[0].startswith("head:")), (1, True))
+    broken = _valid_verdict()
+    broken["head"] = "ABCDEF0123456"
+    got = validate_verdict(broken)
+    check("uppercase head refused (lowercase hex only)",
+          (len(got), got and got[0].startswith("head:")), (1, True))
+    broken = _valid_verdict()
+    broken["base"] = "not-hex-chars-here"
+    got = validate_verdict(broken)
+    check("non-hex base refused",
+          (len(got), got and got[0].startswith("base:")), (1, True))
     broken = _valid_verdict()
     broken["model"] = ""
     check("empty model refused", validate_verdict(broken),
@@ -410,6 +443,49 @@ def self_test() -> int:
     check("invalid-level finding excluded from tally",
           check_counts_match(_valid_verdict(), [_valid_finding(), invalid_level]),
           [])
+
+    # F5 pattern tightenings (round-2): tool shape, single-line prose fields.
+    broken = _valid_finding()
+    broken["tool"] = "Codex-change-0001"
+    got = validate_finding(broken)
+    check("uppercase family in tool refused",
+          (len(got), got and got[0].startswith("tool:")), (1, True))
+    broken = _valid_finding()
+    broken["tool"] = "nodashhere"
+    got = validate_finding(broken)
+    check("tool without family-change hyphen refused",
+          (len(got), got and got[0].startswith("tool:")), (1, True))
+    ok = _valid_finding()
+    ok["tool"] = "claude-pr_14.62-a"
+    check("tool with dots, underscores, and hyphens in change id accepted",
+          validate_finding(ok), [])
+    broken = _valid_finding()
+    broken["impact"] = "line one\nline two"
+    got = validate_finding(broken)
+    check("multiline impact refused",
+          (len(got), got and got[0].startswith("impact:")), (1, True))
+    broken = _valid_finding()
+    broken["recommendation"] = "fix\nthen fix more"
+    got = validate_finding(broken)
+    check("multiline recommendation refused",
+          (len(got), got and got[0].startswith("recommendation:")), (1, True))
+
+    # F6 draft 2020-12 integer parity: integral floats accepted, others refused.
+    ok = _valid_verdict()
+    ok["counts"]["warning"] = 1.0
+    check("integral float count accepted (draft 2020-12 integer)",
+          validate_verdict(ok), [])
+    ok = _valid_verdict()
+    ok["proof_of_run"]["files_read"] = 3.0
+    check("integral float files_read accepted", validate_verdict(ok), [])
+    broken = _valid_verdict()
+    broken["counts"]["warning"] = 1.5
+    check("fractional count refused", validate_verdict(broken),
+          ["counts.warning: expected an integer, got float"])
+    ok = _valid_verdict()
+    ok["counts"]["warning"] = 1.0
+    check("integral float count cross-checks against the tally",
+          check_counts_match(ok, [_valid_finding()]), [])
 
     print(f"self-test: {total[0] - len(failures)}/{total[0]} passed")
     return 1 if failures else 0
