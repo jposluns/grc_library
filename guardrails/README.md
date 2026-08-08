@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.68.19\
+**Version:** 1.69.0\
 **Date:** 2026-08-08\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -123,6 +123,10 @@ guardrails/
 │   └── mcp-security.md         Model Context Protocol server security rules
 ├── pipeline/
 │   └── cicd-gates.md           CI/CD security gates and pipeline controls
+├── aiqt/                       Cross-family review machinery (contract, schemas, families)
+│   ├── review-contract.md      The cross-family skeptical review contract (v1)
+│   ├── families.json           Reviewer family registry (Claude, Codex; extensible)
+│   └── schemas/                finding.schema.json + verdict.schema.json (SARIF-lite interchange)
 ├── skills/                     Claude Code Skills (SKILL.md format) derived from selected pack rules
 │   ├── evidence-grounded-completion/SKILL.md          Six-step verification protocol before any completion claim or unread-artefact state assertion
 │   ├── gate-discipline-diagnose/SKILL.md              Diagnose-then-fix-the-artefact response to a failing gate

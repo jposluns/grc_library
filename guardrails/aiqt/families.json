@@ -1,0 +1,19 @@
+{
+  "families": [
+    {
+      "id": "claude",
+      "display": "Claude (Anthropic)",
+      "adapter": "claude-code-cli",
+      "auth": "subscription-oauth-or-api-key",
+      "notes": "Full coding-agent harness; model id pinned per AIQT release."
+    },
+    {
+      "id": "codex",
+      "display": "Codex (OpenAI)",
+      "adapter": "codex-cli",
+      "auth": "subscription-oauth-or-api-key",
+      "notes": "Full coding-agent harness; model id pinned per AIQT release."
+    }
+  ],
+  "contract": "review-contract.md v1; adding a family adds an entry, never a contract change"
+}

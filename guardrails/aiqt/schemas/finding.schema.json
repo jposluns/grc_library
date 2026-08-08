@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aiqt.ai/schemas/finding.schema.json",
+  "title": "AIQT SARIF-lite finding",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["tool", "ruleId", "level", "location", "fingerprint", "evidence", "impact", "recommendation"],
+  "properties": {
+    "tool": {"type": "string", "minLength": 1},
+    "ruleId": {"type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"},
+    "level": {"enum": ["error", "warning", "note"]},
+    "location": {"type": "string", "pattern": "^[^:]+:[0-9]+$"},
+    "fingerprint": {"type": "string", "pattern": "^[a-z0-9-]+:[^:]+:[0-9]+$"},
+    "evidence": {"type": "string", "minLength": 1},
+    "impact": {"type": "string", "minLength": 1},
+    "recommendation": {"type": "string", "minLength": 1}
+  }
+}
