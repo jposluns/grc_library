@@ -8458,6 +8458,68 @@ class GeneratorSortKeyParityTests(unittest.TestCase):
         )
 
 
+class PortalGeneratorCheckTests(unittest.TestCase):
+    """tools/build-portal.py (gate 34): --check accepts committed outputs and
+    rejects drift in either generated file without mutating the real docs/ tree."""
+
+    def _load(self, unique: str):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            unique, REPO_ROOT / "tools/build-portal.py")
+        assert spec is not None and spec.loader is not None
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    def _run_check(self, mod) -> int:
+        old_argv = sys.argv
+        try:
+            sys.argv = ["build-portal.py", "--check"]
+            return mod.main()
+        finally:
+            sys.argv = old_argv
+
+    def test_committed_outputs_in_sync(self) -> None:
+        mod = self._load("_portal_check_head")
+        self.assertEqual(self._run_check(mod), 0)
+
+    def test_drift_in_either_output_flagged_in_temp_tree(self) -> None:
+        mod = self._load("_portal_check_drift")
+        old_paths = (mod.REPO_ROOT, mod.TAXONOMY, mod.PORTAL, mod.SCORECARD)
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            docs_dir = root / "docs"
+            docs_dir.mkdir()
+            taxonomy = root / "taxonomy.yml"
+            portal = docs_dir / "portal.md"
+            scorecard = docs_dir / "maturity-scorecard.md"
+            taxonomy.write_text(
+                (REPO_ROOT / "taxonomy.yml").read_text(encoding="utf-8"),
+                encoding="utf-8",
+            )
+            try:
+                mod.REPO_ROOT = root
+                mod.TAXONOMY = taxonomy
+                mod.PORTAL = portal
+                mod.SCORECARD = scorecard
+                parsed = mod.parse_taxonomy()
+                expected = {
+                    portal: mod.build_portal(parsed),
+                    scorecard: mod.build_scorecard(parsed),
+                }
+                for drifted in (portal, scorecard):
+                    with self.subTest(drifted=drifted.name):
+                        for path, content in expected.items():
+                            path.write_text(content, encoding="utf-8")
+                        drifted.write_text(
+                            expected[drifted] + "\n<!-- deliberate test drift -->\n",
+                            encoding="utf-8",
+                        )
+                        self.assertEqual(self._run_check(mod), 1)
+            finally:
+                mod.REPO_ROOT, mod.TAXONOMY, mod.PORTAL, mod.SCORECARD = old_paths
+
+
 class SiblingPlaceholderTests(LinterTestCase):
     """tools/lint-sibling-placeholders.py (gate 70), guard-if-present-as-stub.
 
