@@ -15,10 +15,12 @@ in the host wrapper.
 EXTRACTION INTEGRITY: the tool NEVER writes a recovery whose text could be wrong
 or partial; ambiguity REFUSES. The codex exec transcript repeats the final agent
 message twice (as the last `codex` block and again after the tokens-used trailer),
-and that redundancy is the integrity check: when both copies are extractable they
-must agree byte-for-byte, a candidate that quotes transcript structure is TAINTED
-and refuses, and an empty tail after the trailer refuses rather than falling back
-to an earlier block.
+and that redundancy is the integrity check: when a trailer exists, the tail after
+it must agree (whitespace-trimmed) with the FULL region between the last preceding
+`codex` marker and the trailer; there is no single-copy trailer-only mode. A
+candidate that quotes transcript structure is TAINTED and refuses, and an empty
+tail after the trailer refuses rather than falling back to an earlier block. A log
+with no `codex` marker line anywhere is not a recoverable codex transcript at all.
 
 GUARD-INPUT RESIDUE (stated per validate-inference-before-action, "Guard inputs"):
 a recovery proves the log CONTAINED a terminal verdict block, never that the
@@ -46,10 +48,11 @@ Modes:
 
 Refusals (ignorance refuses, never a silent wrong or partial recovery):
   * an id substring matching MORE than one codex log refuses and lists matches
+  * a log with NO bare `codex` marker line anywhere refuses: it is not a
+    recoverable codex transcript (this exits non-zero with a clear message)
   * extraction refuses on ambiguity: a TAINTED candidate (the verdict quotes
-    transcript structure), a primary/fallback disagreement, or an empty tail
-    after the tokens-used trailer; a log with NO verdict block at all exits
-    non-zero with a clear message
+    transcript structure), an empty or disagreeing pre-trailer comparison
+    copy, or an empty tail after the tokens-used trailer
   * a tray already holding an anchored delivery match for the worker refuses,
     listing the matching filename(s); --force recovers anyway (a same-worker
     different-order tray file can legitimately trip the guard)
@@ -100,13 +103,12 @@ BANNER_MARK = "RECOVERED-FROM-LOG"
 _MARKERS = {"codex", "exec", "user", "thinking", "tokens used"}
 _COUNT_RE = re.compile(r"^[\d,]+$")
 
-_NO_BLOCK_REASON = ("no terminal verdict block (no well-formed tokens-used trailer "
-                    "and no codex agent-message block)")
+_NO_BLOCK_REASON = "no agent-message block; not a recoverable codex transcript"
 
 
 # --- pure log analysis ---------------------------------------------------------------
-def _last_trailer_count_index(lines: list[str]) -> int | None:
-    """PURE. Index of the count line of the LAST well-formed tokens-used trailer.
+def _last_trailer_indices(lines: list[str]) -> tuple[int, int] | None:
+    """PURE. (tokens-used index, count index) of the LAST well-formed trailer.
 
     Well-formed = a line whose stripped text is `tokens used` whose next
     non-empty line is a bare token count (whitespace around the count line is
@@ -120,7 +122,7 @@ def _last_trailer_count_index(lines: list[str]) -> int | None:
         while j < len(lines) and not lines[j].strip():
             j += 1
         if j < len(lines) and _COUNT_RE.match(lines[j].strip()):
-            return j
+            return (i, j)
     return None
 
 
@@ -141,23 +143,30 @@ def extract_final_verdict(text: str) -> tuple[str | None, str]:
     """PURE. (verdict, mode) on success; (None, reason) on refusal.
 
     INTEGRITY CONTRACT: never return text that could be wrong or partial;
-    ambiguity refuses. Primary candidate P = the tail after the LAST
-    well-formed tokens-used trailer's count line (the codex exec transcript
-    repeats the final message there). Fallback candidate F = the LAST bare
-    `codex` block's content. When P exists, F is the duplicate copy truncated
-    at the next bare marker line and the two MUST agree byte-for-byte (the
-    duplication is the integrity check). When P is ABSENT (no well-formed
-    trailer anywhere: a truncated log), F must run clean to end-of-log; any
-    bare marker line in that region taints it, because with no trailer the
-    quoted-or-real structure cannot be disambiguated. An empty tail after a
-    well-formed trailer refuses outright, never falling back to an earlier
-    block. Success modes: `trailer+fallback-agree`, `trailer-only`,
-    `fallback-only` (fallback-only marks a truncated log).
+    ambiguity refuses. A transcript with NO bare `codex` marker line anywhere
+    refuses outright: it is not a recoverable codex transcript. When a
+    well-formed tokens-used trailer exists, the primary candidate P is the
+    stripped tail after the trailer's count line (the codex exec transcript
+    repeats the final agent message there), and the comparison copy C is the
+    FULL stripped region from after the LAST bare `codex` marker line that
+    precedes the trailer's `tokens used` line, up to that `tokens used` line
+    (never truncated at intervening marker lines). P and C must BOTH be
+    non-empty and equal after whitespace trimming (a trimmed equality, not a
+    byte-exact one); an empty C or a disagreement refuses. A tainted P (a
+    bare marker line, which subsumes an embedded trailer pair) refuses, and an
+    empty tail after the trailer refuses rather than falling back to an
+    earlier block. When NO well-formed trailer exists (a truncated log), the
+    LAST bare `codex` block runs to end-of-log and any bare marker line in
+    that region refuses. Success modes are exactly `trailer+fallback-agree`
+    and `fallback-only` (fallback-only marks a truncated log).
     """
     lines = text.splitlines()
-    primary: str | None = None
-    cnt = _last_trailer_count_index(lines)
-    if cnt is not None:
+    codex_idx = [i for i, ln in enumerate(lines) if ln.strip() == "codex"]
+    if not codex_idx:
+        return (None, _NO_BLOCK_REASON)
+    trailer = _last_trailer_indices(lines)
+    if trailer is not None:
+        tu, cnt = trailer
         primary = "\n".join(lines[cnt + 1:]).strip()
         if not primary:
             return (None, "empty tail after the tokens-used trailer; refusing "
@@ -166,40 +175,32 @@ def extract_final_verdict(text: str) -> tuple[str | None, str]:
         if taint:
             return (None, f"trailer tail is tainted: it {taint}; the verdict "
                           "quotes transcript structure, extraction unreliable")
-    start = None
-    for i in range(len(lines) - 1, -1, -1):
-        if lines[i].strip() == "codex":
-            start = i + 1
-            break
-    fallback: str | None = None
-    if start is not None:
-        if primary is None:
-            region = "\n".join(lines[start:]).strip()
-            if region:
-                taint = _taint(region)
-                if taint:
-                    return (None, f"fallback codex block is tainted: it {taint}; "
-                                  "with no tokens-used trailer the extraction "
-                                  "cannot be disambiguated")
-                fallback = region
-        else:
-            body: list[str] = []
-            for ln in lines[start:]:
-                if ln.strip() in _MARKERS:
-                    break
-                body.append(ln)
-            fallback = "\n".join(body).strip() or None
-    if primary is not None and fallback is not None:
-        if primary == fallback:
-            return (primary, "trailer+fallback-agree")
-        return (None, "primary/fallback disagree: the trailer tail and the last "
-                      "codex block differ; refusing a possibly wrong or partial "
-                      "recovery")
-    if primary is not None:
-        return (primary, "trailer-only")
-    if fallback is not None:
-        return (fallback, "fallback-only")
-    return (None, _NO_BLOCK_REASON)
+        prior = [i for i in codex_idx if i < tu]
+        if not prior:
+            return (None, "no codex agent-message block precedes the tokens-used "
+                          "trailer; the duplicated-final-message integrity check "
+                          "cannot run, refusing")
+        compare = "\n".join(lines[prior[-1] + 1:tu]).strip()
+        if not compare:
+            return (None, "empty comparison copy between the last codex marker "
+                          "and the tokens-used trailer; the duplicated-final-"
+                          "message integrity check cannot run, refusing")
+        if primary != compare:
+            return (None, "primary/fallback disagree: the trailer tail and the "
+                          "full pre-trailer codex region differ (whitespace-"
+                          "trimmed comparison); refusing a possibly wrong or "
+                          "partial recovery")
+        return (primary, "trailer+fallback-agree")
+    start = codex_idx[-1] + 1
+    region = "\n".join(lines[start:]).strip()
+    if not region:
+        return (None, "empty final codex block and no tokens-used trailer; "
+                      "nothing recoverable")
+    taint = _taint(region)
+    if taint:
+        return (None, f"fallback codex block is tainted: it {taint}; with no "
+                      "tokens-used trailer the extraction cannot be disambiguated")
+    return (region, "fallback-only")
 
 
 def tray_references(text: str, tray_dir: Path) -> list[str]:
@@ -252,7 +253,11 @@ def recovery_name(referenced_missing: list[str], worker_id: str | None, log_name
 
 def compose_recovery(verdict: str, log_name: str, worker_id: str | None,
                      referenced: list[str], now_utc: str, mode: str) -> str:
-    """PURE. The recovery body: banner + extraction mode + residue + verdict."""
+    """PURE. The recovery body: banner + extraction mode + residue + verdict.
+
+    The mode is one of exactly `trailer+fallback-agree` (rendered as-is) and
+    `fallback-only` (rendered as the truncated-log wording below).
+    """
     extraction = ("trailer missing (truncated log): fallback extraction"
                   if mode == "fallback-only" else mode)
     head = [
@@ -328,13 +333,15 @@ def delivered_already(tray_dir: Path, refs: list[str], worker_id: str | None) ->
 
 
 def write_recovery(dest: Path, content: str, dry_run: bool) -> bool:
-    """Write via a temp name, then publish with os.link(tmp, dest) + tmp unlink
-    (the #1171 delivery-completeness pattern, hardened): the hard link itself
-    raises FileExistsError when dest exists, atomically, with no
-    exists()-then-rename window. Never overwrites. Returns True when written."""
+    """Write via a pid-suffixed temp name (`<dest-name>.part.<pid>`, unique per
+    process so two concurrent recoveries never collide on the temp file), then
+    publish with os.link(tmp, dest) + tmp unlink (the #1171 delivery-completeness
+    pattern, hardened): the hard link itself raises FileExistsError when dest
+    exists, atomically, with no exists()-then-rename window. Never overwrites.
+    Returns True when written."""
     if dry_run:
         return False
-    tmp = dest.with_suffix(dest.suffix + ".part")
+    tmp = dest.with_name(dest.name + ".part." + str(os.getpid()))
     tmp.write_text(content, encoding="utf-8")
     try:
         os.link(tmp, dest)
@@ -469,8 +476,29 @@ def self_test() -> int:
           ("# Verdict: SYNTHETIC-PASS\nFinal synthetic verdict body.",
            "trailer+fallback-agree"))
 
-    # SYNTHETIC transcript whose trailer tail DIFFERS from the last codex block:
-    # under the integrity contract this refuses (never a possibly-partial pick).
+    # SYNTHETIC healthy duplicated transcript with a multi-paragraph verdict:
+    # the FULL-WIDTH comparison copy spans the internal blank line intact.
+    syn_dup_blank = "\n".join([
+        "user",
+        "synthetic brief (SYNTHETIC FIXTURE)",
+        "codex",
+        "Paragraph one of the synthetic verdict.",
+        "",
+        "Paragraph two of the synthetic verdict.",
+        "tokens used",
+        "7",
+        "Paragraph one of the synthetic verdict.",
+        "",
+        "Paragraph two of the synthetic verdict.",
+    ])
+    check("healthy multi-paragraph duplicate agrees (full-width comparison)",
+          extract_final_verdict(syn_dup_blank),
+          ("Paragraph one of the synthetic verdict.\n\n"
+           "Paragraph two of the synthetic verdict.",
+           "trailer+fallback-agree"))
+
+    # SYNTHETIC transcript whose trailer tail DIFFERS from the pre-trailer codex
+    # region: under the integrity contract this refuses (never a partial pick).
     syn_mismatch = "\n".join([
         "user",
         "synthetic brief (SYNTHETIC FIXTURE)",
@@ -484,6 +512,33 @@ def self_test() -> int:
     got = extract_final_verdict(syn_mismatch)
     check("primary/fallback disagreement refuses",
           (got[0], "disagree" in got[1]), (None, True))
+
+    # ROUND-2 PROBE D (SYNTHETIC): the duplicate copy opens with a quoted
+    # well-formed trailer pair, so the trailer anchor lands on the quoted pair
+    # and the clean-looking residual tail disagrees with the FULL pre-trailer
+    # region; the full-width comparison refuses instead of returning "V".
+    syn_probe_d = "\n".join([
+        "user",
+        "synthetic brief (SYNTHETIC FIXTURE)",
+        "codex",
+        "tokens used",
+        "1,234",
+        "V",
+        "tokens used",
+        "1,234",
+        "tokens used",
+        "1,234",
+        "V",
+    ])
+    got = extract_final_verdict(syn_probe_d)
+    check("probe D: quoted trailer pair at the verdict head refuses (full-width)",
+          (got[0], "disagree" in got[1]), (None, True))
+
+    # ROUND-2 PROBE E (SYNTHETIC): a byte-symmetric trailer sandwich with no
+    # codex marker anywhere is not a recoverable codex transcript.
+    check("probe E: byte-symmetric log with no codex marker refuses",
+          extract_final_verdict("X\ntokens used\n1\nX"),
+          (None, _NO_BLOCK_REASON))
 
     # SYNTHETIC transcript with NO trailer: the LAST codex block wins (fallback-only).
     syn_multi = "\n".join([
@@ -504,10 +559,29 @@ def self_test() -> int:
     check("single codex block extracts (fallback-only)",
           extract_final_verdict("user\nbrief\ncodex\nonly block"),
           ("only block", "fallback-only"))
-    got = extract_final_verdict("user\nbrief\nexec\n/bin/sh -lc 'true'")
-    check("no verdict block refuses (ignorance refuses upstream)", got[0], None)
+    check("exec-only log refuses (no agent-message block anywhere)",
+          extract_final_verdict("user\nbrief\nexec\n/bin/sh -lc 'true'"),
+          (None, _NO_BLOCK_REASON))
 
-    # CONTRACT CHANGE: an empty tail after a well-formed trailer now REFUSES,
+    # CONTRACT (retired trailer-only mode): a well-formed trailer with NO codex
+    # marker anywhere now refuses instead of returning a trailer-only verdict.
+    check("trailer without any codex marker refuses (trailer-only retired)",
+          extract_final_verdict("tokens used\n   1,234   \nsolo verdict tail"),
+          (None, _NO_BLOCK_REASON))
+
+    # Whitespace around the count line is still tolerated when the duplicated
+    # copies agree.
+    check("whitespace-padded count line accepted (trailer+fallback-agree)",
+          extract_final_verdict("codex\nsolo verdict tail\ntokens used\n   1,234   \nsolo verdict tail"),
+          ("solo verdict tail", "trailer+fallback-agree"))
+
+    # An empty comparison copy (codex marker immediately followed by the
+    # trailer) refuses: the duplicated-final-message check cannot run.
+    got = extract_final_verdict("codex\ntokens used\n5\nV")
+    check("empty comparison copy refuses",
+          (got[0], "comparison copy" in got[1]), (None, True))
+
+    # CONTRACT CHANGE: an empty tail after a well-formed trailer REFUSES,
     # never falling back to an earlier block.
     got = extract_final_verdict("codex\nfallback body\ntokens used\n99\n")
     check("empty trailer tail refuses (no fallback to an earlier block)",
@@ -545,9 +619,6 @@ def self_test() -> int:
     check("tainted fallback refuses (quoted marker, no trailer)",
           (got[0], "tainted" in got[1]), (None, True))
 
-    check("count line with surrounding whitespace accepted (trailer-only)",
-          extract_final_verdict("tokens used\n   1,234   \nsolo verdict tail"),
-          ("solo verdict tail", "trailer-only"))
     check("indented codex label recognized (markers matched after strip)",
           extract_final_verdict("user\nbrief\n  codex  \nonly block"),
           ("only block", "fallback-only"))
@@ -577,11 +648,13 @@ def self_test() -> int:
     check("recovery name falls back to the worker id",
           recovery_name([], "wid-x", "log.log"), "RECOVERED-wid-x.md")
 
-    body = compose_recovery("V", "syn.log", "wid-x", [], "2026-01-01 00:00", "trailer-only")
+    body = compose_recovery("V", "syn.log", "wid-x", [], "2026-01-01 00:00",
+                            "trailer+fallback-agree")
     check("banner mark present", BANNER_MARK in body, True)
     check("residue statement present", "does NOT prove" in body, True)
     check("verdict carried", body.rstrip().endswith("V"), True)
-    check("extraction mode recorded in the banner", "- extraction: trailer-only" in body, True)
+    check("extraction mode recorded in the banner",
+          "- extraction: trailer+fallback-agree" in body, True)
     body_fb = compose_recovery("V", "syn.log", None, [], "2026-01-01 00:00", "fallback-only")
     check("fallback-only banner marks the truncated-log extraction",
           "trailer missing (truncated log): fallback extraction" in body_fb, True)
@@ -644,13 +717,16 @@ def self_test() -> int:
         check("dry-run writes nothing", write_recovery(dest, "x", dry_run=True), False)
         check("dry-run left no file", dest.exists(), False)
         check("real write lands", write_recovery(dest, "x", dry_run=False), True)
+        check("real write left no pid-suffixed temp residue",
+              list(Path(td).glob("RECOVERED-syn.md.part.*")), [])
+        outcome = "no exception"
         try:
             write_recovery(dest, "y", dry_run=False)
-            check("overwrite refused (atomic link path)", "no exception", "FileExistsError")
         except FileExistsError:
-            check("overwrite refused (atomic link path)", "FileExistsError", "FileExistsError")
-        check("refused overwrite left no temp residue",
-              (Path(td) / "RECOVERED-syn.md.part").exists(), False)
+            outcome = "FileExistsError"
+        check("overwrite refused (atomic link path)", outcome, "FileExistsError")
+        check("refused overwrite left no pid-suffixed temp residue",
+              list(Path(td).glob("RECOVERED-syn.md.part.*")), [])
         check("refused overwrite preserved the original content",
               dest.read_text(encoding="utf-8"), "x")
 
