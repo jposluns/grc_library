@@ -15,8 +15,7 @@ rule (maintainer-directed 2026-07-19, expanded to six points 2026-07-26):
    Anything offloadable (see the inline list in CLAUDE.md) is GIVEN to a worker the moment it comes
    up; the orchestrator does not do it itself. The orchestrator's usage credits are the scarce,
    slow-to-renew resource, and self-running offloadable work is exactly what exhausts them: a prior
-   week's self-run QA burned the orchestrator out mid-day and cost a worker account a multi-day
-   lockout. The default is OFFLOAD; self-running an offloadable task is the exception that needs a
+   week's self-run QA burned the orchestrator out mid-day and cost a worker account an extended lockout. The default is OFFLOAD; self-running an offloadable task is the exception that needs a
    stated reason (no worker of any family available AND the maintainer alerted).
 2. **Spawn workers ON DEMAND with [`tools/exec-dispatch.py`](../tools/exec-dispatch.py); do NOT gate
    offload on `list-workers`.** The exec'd-worker system spawns a FRESH worker per order:
@@ -27,7 +26,7 @@ rule (maintainer-directed 2026-07-19, expanded to six points 2026-07-26):
    per-account-concurrency backlog item lands). A `list-workers` reading of zero is the STANDING-POLL
    fleet sitting idle, NOT "no workers", and is NEVER a licence to self-run: a felt "0 workers" is the
    signal to SPAWN one with exec-dispatch, not to do the work yourself. (This is the mistake that
-   recurred 2026-07-26.)
+   has recurred.)
 3. **20-minute reissue.** If a worker has not delivered in 20 minutes, issue the SAME order to another
    worker (a distinct account) and take whichever returns first; the late delivery is read as a
    cross-reference, never re-adjudicated.

@@ -1,6 +1,6 @@
 ---
 name: validation-sweep-pr-scoped
-description: PR-scoped validation sweep. Runs as a PR's finalizing step, before merge, to catch issues the PR introduced before it lands. Dispatches Subagent A (recent-PR deep review) scoped to the PR's diff plus a lightweight cross-reference check for files cited by other documents. Complements the project-wide `validation-sweep` skill: the PR-scoped form is fast and runs on every PR; the project-wide form is comprehensive and runs on a periodic cadence the project sets (the parent GRC library's is every 10 merges) or maintainer-triggered. The two skills together cover both per-PR drift (caught fast) and project-wide drift (caught broadly).
+description: PR-scoped validation sweep. Runs as a PR's finalizing step, before merge, to catch issues the PR introduced before it lands. Dispatches Subagent A (recent-PR deep review) scoped to the PR's diff plus a lightweight cross-reference check for files cited by other documents. Complements the project-wide `validation-sweep` skill: the PR-scoped form is fast and runs on every PR; the project-wide form is comprehensive and runs on a periodic cadence the project sets (a small-team default in the tens of merges; set your own) or maintainer-triggered. The two skills together cover both per-PR drift (caught fast) and project-wide drift (caught broadly).
 derives_from: ../../governance/evidence-grounded-completion.md
 ---
 
@@ -22,8 +22,8 @@ An adopting project maps each bullet to its own record paths, registers, gate, r
 
 PR-scoped validation runs as each PR's finalizing step, before merge, to catch issues the PR introduced before they compound across subsequent PRs. (Command names `/validate-pr`, `/validate`, and `/retro` are the parent library's paired commands, used in this document as shorthand; an adopting project reads them as its own equivalents.) Two sibling skills together cover the validation surface:
 
-- **`validation-sweep`** (slash command `/validate`, project-wide, periodic on the project's cadence (the parent GRC library's is every 10 merges) or maintainer-triggered): full Subagent A + B + C sweep across the whole project scope. Catches project-wide drift (Subagent B's domain), audit-programme integrity issues (Subagent C's domain), and recent-PR issues (Subagent A's domain). Expensive (at the parent GRC library's scale, ~150-200k tokens); runs periodically.
-- **`validation-sweep-pr-scoped`** (slash command `/validate-pr`, PR-scoped, every PR): single Subagent A dispatch on the PR's diff plus a targeted cross-reference check. Cheap (at the parent GRC library's scale, ~30-60k tokens); runs before merge so issues are caught within the same PR, not nine PRs later.
+- **`validation-sweep`** (slash command `/validate`, project-wide, periodic on the project's cadence (a small-team default in the tens of merges; set your own) or maintainer-triggered): full Subagent A + B + C sweep across the whole project scope. Catches project-wide drift (Subagent B's domain), audit-programme integrity issues (Subagent C's domain), and recent-PR issues (Subagent A's domain). Expensive relative to the PR-scoped form, typically several times its cost at any given project scale; runs periodically.
+- **`validation-sweep-pr-scoped`** (slash command `/validate-pr`, PR-scoped, every PR): single Subagent A dispatch on the PR's diff plus a targeted cross-reference check. Cheap relative to the project-wide sweep, a small fraction of its cost; runs before merge so issues are caught within the same PR, not many merges later.
 
 The two are complementary, not redundant. The project-wide form catches drift the per-PR scope misses (a citation in file Y becomes stale because PR X touched file Z); the per-PR form catches issues the project-wide form would miss between its periodic runs (per-PR issues that compound between sweeps).
 
@@ -180,13 +180,13 @@ The PR-scoped sweep is complete when:
 - Sibling skill [`validation-sweep`](../validation-sweep/SKILL.md) (slash command `/validate`): project-wide periodic sweep.
 - Related skill [`pr-retrospective`](../pr-retrospective/SKILL.md) (slash command `/retro`): consumes `/validate-pr` findings as input for the finalizing retrospective and improvement-log register.
 - Canonical rule [`evidence-grounded-completion`](../../governance/evidence-grounded-completion.md): the assertion-side discipline this skill operationalizes.
-- Canonical rule [`ai-assistant-workflow-disciplines`](../../governance/ai-assistant-workflow-disciplines.md): the workflow disciplines this skill supports; PR-scoped validation is the "every merge" discipline that complements the periodic full sweep (in the parent library, every 10 merges).
+- Canonical rule [`ai-assistant-workflow-disciplines`](../../governance/ai-assistant-workflow-disciplines.md): the workflow disciplines this skill supports; PR-scoped validation is the "every merge" discipline that complements the periodic full sweep (cadence per the project's own setting).
 - Pre-flight scanner: the deterministic pre-flight check shared with the project-wide skill (the parent library's concrete scanner is named in the project wiring above).
 
 ## Why this skill exists
 
-The project-wide `/validate` sweep runs on a periodic cadence the project sets (the parent GRC library's is every 10 merges, or maintainer-triggered). Between sweeps, issues introduced by individual PRs compound silently: a PR touches file A; subsequent PRs cite the changed file A; the citation may have been stale from the start, but no one checks until the next project-wide sweep. By then, the issue has been re-cited in 5+ places.
+The project-wide `/validate` sweep runs on a cadence the project sets (periodic by merge count, or maintainer-triggered). Between sweeps, issues introduced by individual PRs compound silently: a PR touches file A; subsequent PRs cite the changed file A; the citation may have been stale from the start, but no one checks until the next project-wide sweep. By then, the issue has been re-cited in 5+ places.
 
-`/validate-pr` closes this gap. Run on every PR before it merges, it catches PR-introduced issues before they land and compound. The cost is modest (at the parent GRC library's scale, ~30-60k tokens per PR); the benefit is keeping the project-wide sweep's iteration count low and the per-PR feedback loop tight.
+`/validate-pr` closes this gap. Run on every PR before it merges, it catches PR-introduced issues before they land and compound. The cost is modest, a small fraction of one project-wide sweep per PR; the benefit is keeping the project-wide sweep's iteration count low and the per-PR feedback loop tight.
 
 For AI coding assistants specifically: when you are finalizing a PR, before you merge it, your default steps are `/validate-pr`, then `/retro`, then the merge. The three together close the per-PR loop; the project-wide `/validate` closes the wider loop on its own cadence.
