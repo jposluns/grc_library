@@ -2,7 +2,7 @@
 
 **Document Title:** What the governing body should require for third-party and AI supply-chain risk oversight\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.8\
+**Version:** 0.0.9\
 **Date:** 2026-08-08\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -73,7 +73,7 @@ Each item below is an evidence class the governing body can call for from manage
 ## Limitations
 
 - This page creates no compliance and imposes no requirement. The linked corpus documents govern; where this page differs from a corpus document, the corpus document prevails.
-- This page carries composite claims. The reading of the governing body's role as programme-level oversight, and the grouping of the corpus's supplier, AI, and software supply-chain documents into one oversight picture, are synthesized across the sources listed above, and the adopting organization validates that reading against its own governance model and committee structure, and the reading that accountability for AI use remains with the organization and is not delegated with the service.
+- This page carries composite claims. The reading of the governing body's role as programme-level oversight, the grouping of the corpus's supplier, AI, and software supply-chain documents into one oversight picture, and the reading that accountability for AI use remains with the organization and is not delegated with the service, are synthesized across the sources listed above, and the adopting organization validates those readings against its own governance model and committee structure.
 - The corpus documents this page points to carry the source-owned values: the tiers, thresholds, notification windows, retention periods, evidence orders, cadences, and named roles and approval bodies. This page routes to those values and does not reproduce them. That routing is a contribution to the corpus's status as the single source for them.
 - Corpus statements described on this page carry the normative strength their source defines. This page does not restate or upgrade that strength, and the corpus wording governs.
 - This page makes no claim about how likely any supplier or supply-chain failure is, and none of its statements should be read as a probability or a frequency.
