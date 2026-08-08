@@ -5,7 +5,7 @@
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **Library Version:** 2026.08.151 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.10.306 (semantic per-document version for this file)
+**README Version:** 1.10.307 (semantic per-document version for this file)
 
 ---
 
@@ -228,7 +228,7 @@ Additional repository hygiene files:
 | [`docs/worked-example-adoption.md`](docs/worked-example-adoption.md) | End-to-end walkthrough of one adopter forking the library and running a staged first-year programme (adoption). |
 | [`docs/portal.md`](docs/portal.md) | Auto-generated audience-keyed navigation page (CIO, Board / CEO, CISO, GRC, Security Architecture, Privacy, Compliance, Audit, Resilience, Engineering). |
 | [`docs/maturity-scorecard.md`](docs/maturity-scorecard.md) | Auto-generated per-document maturity classification (Mature, Baseline, Draft). |
-| [`tools/README.md`](tools/README.md) | Repository quality tooling: metadata, language, link, structural, taxonomy, and portal generators. |
+| [`tools/README.md`](tools/README.md) | Repository quality tooling: metadata, language, link, structural, taxonomy, narrative registry, and portal generators. |
 
 ---
 

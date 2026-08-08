@@ -310,7 +310,7 @@ def parse_precommit(path: Path) -> list[tuple[int, str, str]]:
 #     of the §6-inventory gate scripts (it is a delta / informational script).
 #   - PRECOMMIT_NON_GATE_HOOKS: the named hook exists and its entry is a write /
 #     regeneration invocation (no `--check`), not a verification gate. (The regen
-#     hook runs `build-taxonomy.py`/`build-portal.py` in write mode; the §6 gates
+#     hook runs `build-taxonomy.py`/`build-narrative-registry.py`/`build-portal.py` in write mode; the §6 gates
 #     run the SAME scripts WITH `--check`, so the `--check` flag is the
 #     discriminator, not the script name.)
 # Gap (ii): the ten live PR-only delta gates (D1-D11, D6 retired) live only in the workflow with no
