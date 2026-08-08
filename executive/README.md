@@ -13,25 +13,25 @@ Each management concern below frames a leadership question. Under each concern, 
 ## Management concerns
 
 ### 1. Accountability and decision rights
-Who owns which governance decision, and where the corpus fixes the accountable role. Supported routes: [What the governing body should require before an AI system goes into production](briefs/brief-what-the-governing-body-should-require-before-ai-production.md) (Executive Brief).
+Who owns which governance decision, and where the corpus fixes the accountable role. Supported routes: [What the governing body should require before an AI system goes into production](briefs/brief-ai-production-approval.md) (Executive Brief).
 
 ### 2. AI and autonomous systems
-How the corpus governs AI from intake through oversight, retirement, and incident response. Supported routes: [What the governing body should require before an AI system goes into production](briefs/brief-what-the-governing-body-should-require-before-ai-production.md) (Executive Brief); [What the governing body should require for AI incident-response readiness before production](briefs/brief-ai-incident-response-readiness.md) (Executive Brief).
+How the corpus governs AI from intake through oversight, retirement, and incident response. Supported routes: [What the governing body should require before an AI system goes into production](briefs/brief-ai-production-approval.md) (Executive Brief); [What the governing body should require for AI incident-response readiness before production](briefs/brief-ai-incident-response-readiness.md) (Executive Brief).
 
 ### 3. Cybersecurity and operational resilience
-How the corpus establishes protective controls and the ability to withstand and recover from disruption. Supported routes: [What the governing body should require for AI resilience and continuity](briefs/brief-what-the-governing-body-should-require-for-ai-resilience-and-continuity.md) (Executive Brief).
+How the corpus establishes protective controls and the ability to withstand and recover from disruption. Supported routes: [What the governing body should require for AI resilience and continuity](briefs/brief-ai-resilience-continuity.md) (Executive Brief).
 
 ### 4. Data, privacy, and information lifecycle
-How the corpus governs personal and sensitive information across its lifecycle. Supported routes: [What the governing body should require for AI data governance and classification](briefs/brief-ai-data-governance-and-classification.md) (Executive Brief).
+How the corpus governs personal and sensitive information across its lifecycle. Supported routes: [What the governing body should require for AI data governance and classification](briefs/brief-ai-data-governance.md) (Executive Brief).
 
 ### 5. Supplier and cloud dependency
-How the corpus addresses concentration, exit, and assurance over third parties. Supported routes: [What the governing body should require for third-party and AI supply-chain risk oversight](briefs/brief-what-the-governing-body-should-require-for-third-party-and-ai-supply-chain-oversight.md) (Executive Brief).
+How the corpus addresses concentration, exit, and assurance over third parties. Supported routes: [What the governing body should require for third-party and AI supply-chain risk oversight](briefs/brief-ai-supply-chain-oversight.md) (Executive Brief).
 
 ### 6. Compliance and assurance
 How the corpus maps controls to obligations and produces evidence an assurer can test. Supported routes: none yet (declared coverage gap).
 
 ### 7. Risk acceptance and exceptions
-How the corpus frames defensible risk acceptance and time-bound exceptions. Supported routes: [What the governing body should require before an AI system goes into production](briefs/brief-what-the-governing-body-should-require-before-ai-production.md) (Executive Brief).
+How the corpus frames defensible risk acceptance and time-bound exceptions. Supported routes: [What the governing body should require before an AI system goes into production](briefs/brief-ai-production-approval.md) (Executive Brief).
 
 ### 8. Enterprise architecture and technology debt
 How the corpus relates architecture decisions to governance and to accumulated technology debt. Supported routes: none yet (declared coverage gap).
