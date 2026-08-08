@@ -578,8 +578,8 @@ while the orchestrator started new work.** This is the strongest form of the QA 
 overrides the queue: a QA result is not a document to get to, it is a STOP until actioned.
 
 **SOURCE-INDEPENDENT (widened 2026-07-25, after the narrow version failed).** The rule below was
-first written for QA arriving FROM WORKERS, and that scope had a hole the same day: two live defects in
-a file-moving tool, produced by the orchestrator's OWN instrument minutes earlier, were rendered as a
+first written for QA arriving FROM WORKERS, and that scope had a hole almost immediately: live defects in
+a file-moving tool, produced by the orchestrator's OWN instrument moments earlier, were rendered as a
 table row and walked past in favour of writing a summary statistic about them. The severity of a defect
 does not depend on who noticed it, so this covers ANY confirmed finding from ANY source: a worker
 delivery, a gate run, an instrument the orchestrator just wrote, a maintainer observation, a self-caught
@@ -598,7 +598,7 @@ and leaves only via `FIXED` / `ROUTED` / `REFUTED` / `ACCEPTED`. The
 and `gh pr merge` while an `error`-severity row has no disposition, and surfaces undispositioned
 warnings without blocking an in-flight PR. It fails OPEN on a missing or unparseable ledger, deliberately:
 a guard that blocks all work on its own malfunction gets removed, and a removed guard protects nothing.
-Conventions alone failed twice on this axis in one day, which is why there is a hook.
+Conventions alone failed repeatedly on this axis in quick succession, which is why there is a hook.
 
 **The rule.** The moment a QA delivery lands (`/validate`, `/validate-pr`, `verify`, a
 high-assurance lens, `/matrix-fit`, `/claim-fit`, `/reference-audit`, `/screen-publications`,
