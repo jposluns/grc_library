@@ -2,7 +2,7 @@
 
 **Document Title:** What the governing body should require for third-party and AI supply-chain risk oversight\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.5\
+**Version:** 0.0.6\
 **Date:** 2026-08-08\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -60,7 +60,7 @@ The corpus position, read together, sets the governing body's third-party and AI
 Each item below is an evidence class the governing body can call for from management, and each is evidence for a named control or outcome.
 
 - **The supplier risk classification and due diligence record** for a sample spanning the standard's mandatory scope, as evidence that the due diligence control in the [third-party and supply chain risk standard](../../risk/standard-third-party-and-supply-chain-risk.md) operated at the point the standard defines (its sections 3 and 4.1).
-- **The completed questionnaire package the template defines** for AI suppliers, as evidence of AI-specific supplier assessment at the submission point the [AI vendor security questionnaire template](../../ai/template-ai-vendor-security-questionnaire.md) specifies (its operating expectations).
+- **The completed questionnaire package the template defines** for the AI supplier categories in its scope, as evidence of AI-specific supplier assessment at the submission point the [AI vendor security questionnaire template](../../ai/template-ai-vendor-security-questionnaire.md) specifies (its operating expectations).
 - **The contract control schedule** for a sample of suppliers within each source's scope, as evidence that the minimum clauses in the [supplier security and privacy assurance standard](../../supply-chain/standard-supplier-security-and-privacy-assurance.md) (its section 6) and the AI provisions in the [third-party AI due diligence procedure](../../supply-chain/procedure-third-party-ai-due-diligence.md) (its section 6) are present.
 - **The pre-engagement evaluation record and its recommendation, in the outcome set the procedure defines** for any foundation model in use, as evidence that the gate in the [foundation model lifecycle procedure](../../ai/procedure-foundation-model-lifecycle.md) operated across the required outputs the procedure lists (its step 2).
 - **Monitoring records showing an unscheduled review that actually ran**, as evidence for the unscheduled-review control in the [supplier ongoing monitoring procedure](../../supply-chain/procedure-supplier-ongoing-monitoring.md) (its trigger-based reviews section) and the reassessment conditions in the [third-party AI due diligence procedure](../../supply-chain/procedure-third-party-ai-due-diligence.md) (its section 7.4).
