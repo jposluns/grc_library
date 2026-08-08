@@ -47,7 +47,7 @@ The example values in each skeleton are chosen so that a skeleton copied to its 
 **Classification:** Public\
 **Category:** Executive Narrative\
 **Review Frequency:** Annual, and a 6-month advisory executive review\
-**Repository Path:** [`executive/briefs/brief-example-topic.md`](brief-example-topic.md)\
+**Repository Path:** [`executive/briefs/brief-example-topic-area.md`](brief-example-topic-area.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **Narrative Type:** Executive Brief\
@@ -101,7 +101,7 @@ At minimum: this page creates no compliance; the adopting organization validates
 **Classification:** Public\
 **Category:** Executive Narrative\
 **Review Frequency:** Annual, and a 6-month advisory executive review\
-**Repository Path:** [`executive/scenarios/scenario-example-topic.md`](scenario-example-topic.md)\
+**Repository Path:** [`executive/scenarios/scenario-example-topic-area.md`](scenario-example-topic-area.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **Narrative Type:** Scenario\
@@ -159,7 +159,7 @@ State the illustrative and composite nature: fictional, no likelihood or frequen
 **Classification:** Public\
 **Category:** Executive Narrative\
 **Review Frequency:** Annual, and a 6-month advisory executive review\
-**Repository Path:** [`executive/decision-narratives/decision-example-topic.md`](decision-example-topic.md)\
+**Repository Path:** [`executive/decision-narratives/decision-example-topic-area.md`](decision-example-topic-area.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **Narrative Type:** Decision Narrative\
@@ -217,7 +217,7 @@ This page creates no compliance and prescribes no outcome; the adopting organiza
 **Classification:** Public\
 **Category:** Executive Narrative\
 **Review Frequency:** Annual, and a 6-month advisory executive review\
-**Repository Path:** [`executive/oversight-question-sets/oversight-questions-example-topic.md`](oversight-questions-example-topic.md)\
+**Repository Path:** [`executive/oversight-question-sets/oversight-questions-example-topic-area.md`](oversight-questions-example-topic-area.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **Narrative Type:** Oversight Question Set\
@@ -275,7 +275,7 @@ This page organizes questioning; it prescribes no answer and creates no complian
 **Classification:** Public\
 **Category:** Executive Narrative\
 **Review Frequency:** Annual, and a 6-month advisory executive review\
-**Repository Path:** [`executive/stories/story-example-topic.md`](story-example-topic.md)\
+**Repository Path:** [`executive/stories/story-example-topic-area.md`](story-example-topic-area.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **Narrative Type:** Story\
@@ -333,7 +333,7 @@ State the illustrative and composite nature: fictional, no likelihood or frequen
 **Classification:** Public\
 **Category:** Executive Narrative\
 **Review Frequency:** Annual, and a 6-month advisory executive review\
-**Repository Path:** [`executive/journeys/journey-example-topic.md`](journey-example-topic.md)\
+**Repository Path:** [`executive/journeys/journey-example-topic-area.md`](journey-example-topic-area.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **Narrative Type:** Journey\
@@ -395,7 +395,7 @@ This page explains a path; it creates no compliance and prescribes no outcome. C
 **Classification:** Public\
 **Category:** Executive Narrative\
 **Review Frequency:** Annual, and a 6-month advisory executive review\
-**Repository Path:** [`executive/outcome-maps/outcome-map-example-topic.md`](outcome-map-example-topic.md)\
+**Repository Path:** [`executive/outcome-maps/outcome-map-example-topic-area.md`](outcome-map-example-topic-area.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **Narrative Type:** Outcome Map\
