@@ -98,6 +98,7 @@ GENERATED_DOCS = frozenset({"docs/portal.md", "docs/maturity-scorecard.md",
 # next corpus-wide sweep (Sweep 78 B-1, the low-severity cleanup batch: a Commonwealth
 # `customised` was hard-coded in build-portal.py, blind to the .md scan).
 GENERATOR_SOURCES = (
+    "tools/build-narrative-registry.py",
     "tools/build-portal.py",
     "tools/build-taxonomy.py",
 )

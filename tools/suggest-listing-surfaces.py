@@ -140,7 +140,9 @@ def report_one(doc_path: str) -> None:
     )
     print(
         "    [regenerate] taxonomy.yml, docs/portal.md, docs/maturity-scorecard.md "
-        "-- run: python3 tools/build-taxonomy.py && python3 tools/build-portal.py"
+        "-- run: python3 tools/build-taxonomy.py && python3 tools/build-portal.py "
+        "(an executive/ page instead regenerates narrative.yml via "
+        "tools/build-narrative-registry.py)"
     )
 
     # --- SEMANTIC surfaces (ranked candidates, not gated) ---

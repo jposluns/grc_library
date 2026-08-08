@@ -56,7 +56,12 @@ VERSION_LINE = re.compile(r"^\*\*Version:\*\*", re.M)
 # metadata edit, not a body change, so it must not by itself demand a bump.
 METADATA_PREFIX = re.compile(r"^\*\*[A-Za-z][A-Za-z ()/-]*:\*\*")
 OPT_OUT = re.compile(r"VersionBump:\s*none\b", re.I)
-GENERATED = ("taxonomy.yml", "docs/portal.md", "docs/maturity-scorecard.md")
+# Generated artefacts, split by SOURCE: corpus documents feed the taxonomy chain;
+# executive/ pages feed narrative.yml. Split sets so staging one family cannot
+# suppress the warn for the other (the #1454 codex E1 routing catch).
+TAXONOMY_GENERATED = ("taxonomy.yml", "docs/portal.md", "docs/maturity-scorecard.md")
+NARRATIVE_GENERATED = ("narrative.yml",)
+GENERATED = TAXONOMY_GENERATED + NARRATIVE_GENERATED
 # A CLEAN `**Version:** X.Y.Z` semver line (auto-bumpable). README's `**Library Version:**` (CalVer)
 # and template `**Version:** <x.y.z ...>` do NOT match, so they fall through to the block fallback.
 SEMVER_VERSION = re.compile(r"^(\*\*Version:\*\*[ \t]*)(\d+)\.(\d+)\.(\d+)(.*)$", re.M)
@@ -221,12 +226,18 @@ def main() -> int:
         # The sixth-instance shape: a corpus Version moved but the derived artefacts are absent.
         # A WARNING, not a block, because the regeneration order matters and a blocked commit
         # cannot be fixed without unstaging.
-        corpus = [p for p in versioned if "/" in p and not p.startswith((".working/", ".claude/"))]
-        if corpus and not any(g in staged for g in GENERATED):
+        moved = [p for p in versioned if "/" in p and not p.startswith((".working/", ".claude/"))]
+        exec_pages = [p for p in moved if p.startswith("executive/")]
+        corpus_pages = [p for p in moved if not p.startswith("executive/")]
+        if corpus_pages and not any(g in staged for g in TAXONOMY_GENERATED):
             print("NOTE (version-bump guard): a corpus document's Version moved and none of "
-                  f"{', '.join(GENERATED)} is staged. If this document feeds the taxonomy, run "
-                  "`python3 tools/build-taxonomy.py` FIRST, then build-portal.py, and stage both. "
+                  f"{', '.join(TAXONOMY_GENERATED)} is staged. If this document feeds the taxonomy, "
+                  "run `python3 tools/build-taxonomy.py` FIRST, then build-portal.py, and stage both. "
                   "Gate 33 catches it otherwise, six minutes from now.", file=sys.stderr)
+        if exec_pages and not any(g in staged for g in NARRATIVE_GENERATED):
+            print("NOTE (version-bump guard): an executive/ page's Version moved and narrative.yml "
+                  "is not staged. Run `python3 tools/build-narrative-registry.py` and stage it. "
+                  "Gate 85 catches it otherwise, six minutes from now.", file=sys.stderr)
         return 0
 
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")

@@ -47,8 +47,9 @@ the PR base ref, are not available to ``tools/run_all_audits.sh`` or
 ``.pre-commit-config.yaml``).
 
 Exempt files: CHANGELOG.md (its body is the version history itself);
-generated artefacts (taxonomy.yml, docs/portal.md,
-docs/maturity-scorecard.md); files without a Version metadata field.
+generated artefacts (taxonomy.yml, narrative.yml,
+docs/portal.md, docs/maturity-scorecard.md); files without a Version
+metadata field.
 
 Usage:
     # In CI (uses GITHUB_BASE_REF):
@@ -93,6 +94,7 @@ EXEMPT_FILES: frozenset[str] = frozenset(
     {
         "CHANGELOG.md",
         "taxonomy.yml",
+        "narrative.yml",
         "docs/portal.md",
         "docs/maturity-scorecard.md",
         # Append-only .working logs (TODO 3.135): unversioned, so exempt from the

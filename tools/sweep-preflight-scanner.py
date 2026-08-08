@@ -82,6 +82,7 @@ EXEMPT_FILES: frozenset[str] = frozenset(
     {
         "CHANGELOG.md",
         "taxonomy.yml",
+        "narrative.yml",
         "docs/portal.md",
         "docs/maturity-scorecard.md",
         "tools/sweep-preflight-scanner.py",  # docstring describes patterns
