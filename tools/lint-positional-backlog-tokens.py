@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Flag renumber-fragile positional backlog-token references in corpus prose.
+"""Flag renumber-fragile positional backlog-token references in corpus and pack prose.
 
 A reference like ``TODO §4.10``, ``TODO item 3.4``, or ``backlog item P4.17``
 points at a backlog item by its POSITION in `TODO.md`. A backlog item's number retires when the item
@@ -10,14 +10,12 @@ form is the item's coded id (`FR-N`, `GR-N`, `SR-N`) or its topic name. This gat
 flags the fragile form so authors reword toward the stable one, the same class as
 the CLAUDE.md section-close cross-file cleanup guard, made mechanical for the corpus.
 
-Scope: authored corpus prose only. The pack subtree
-``guardrails/`` is EXEMPT (its README version-history legitimately
-narrates past PRs by their then-current backlog position), as are ``CHANGELOG.md``
-and ``TODO.md`` itself (the backlog is the source of the numbering, not a fragile
-external reference to it), and the ``.working`` / ``.claude`` trees (already outside
-the corpus scan set). Only references QUALIFIED by ``TODO`` (optionally
-``TODO item(s)``) or ``backlog item(s)`` are flagged; a document's own internal
-``§N`` section cross-reference is not.
+Scope: authored corpus and pack prose. ``CHANGELOG.md`` and ``TODO.md`` itself
+are exempt (the backlog is the source of the numbering, not a fragile external
+reference to it), and the ``.working`` / ``.claude`` trees remain outside the
+default scan set. Only references QUALIFIED by ``TODO`` (optionally ``TODO
+item(s)``) or ``backlog item(s)`` are flagged; a document's own internal ``§N``
+section cross-reference is not.
 
 Usage:
     python3 tools/lint-positional-backlog-tokens.py
@@ -64,18 +62,13 @@ EXEMPT_FILES = {
     "TODO.md",
 }
 
-# Path prefixes exempt from this gate. The pack subtree carries AI-assistant
-# guidance whose README version-history narrates past PRs positionally.
-EXEMPT_PREFIXES = (
-    "guardrails/",
-)
-
 DEFAULT_PATHS = [
     "README.md",
     "NOTICE.md",
     "specification-master-project.md",
     "specification-ingestion.md",
     "instruction-ai-document-ingestion.md",
+    "guardrails",
     *AUDITED_DOMAIN_DIRS,
 ]
 
@@ -87,8 +80,6 @@ def iter_markdown_files(paths: list[str]) -> list[Path]:
 def check_file(path: Path) -> list[tuple[int, str]]:
     relative = path.relative_to(REPO_ROOT).as_posix()
     if relative in EXEMPT_FILES:
-        return []
-    if any(relative.startswith(p) for p in EXEMPT_PREFIXES):
         return []
     text = read_text_safe(path)
     if text is None:
@@ -124,7 +115,7 @@ def main(argv: list[str]) -> int:
 
     if not grouped:
         print("OK: no renumber-fragile positional backlog-token references in "
-              "corpus prose.")
+              "corpus and pack prose.")
         return 0
 
     for rel, findings in sorted(grouped.items()):
@@ -132,7 +123,7 @@ def main(argv: list[str]) -> int:
         for lineno, token in findings:
             print(f"  line {lineno}: {token!r} (reword to the stable coded id "
                   f"FR-N / GR-N / SR-N or the topic name)")
-    print(f"\nFAIL: {total} positional backlog reference(s) in corpus prose.")
+    print(f"\nFAIL: {total} positional backlog reference(s) in corpus and pack prose.")
     return 1
 
 

@@ -46,11 +46,12 @@ Scope (deliberately bounded, precision-first):
     separated lists of any of these. Trailing descriptive prose after the
     codes (``A.8.20, A.8.21: Network Controls``) is ignored.
 
-Excludes the central matrix (gate 49's exact target) and the
-``guardrails/`` pack subtree, consistent with gate 54.
+Excludes the central matrix (gate 49's exact target). The ``guardrails/``
+pack subtree remains in scope, consistent with gate 54.
 
-Scans the audited corpus directories by default; a path argument (used by
-the regression harness) overrides the target to a single file.
+Scans the audited corpus directories and ``guardrails/`` by default; a path
+argument (used by the regression harness) overrides the target to a single
+file.
 
 Exit codes: 0 = clean, 1 = findings, 2 = target unreadable.
 """
@@ -80,9 +81,6 @@ from lint_common import (
 # The central matrix is gate 49's exact target; exclude it here to avoid
 # duplicate coverage. Path is relative to REPO_ROOT, posix form.
 MATRIX_REL = "compliance/matrix-grc-compliance-alignment.md"
-
-# The pack subtree holds AI-context artefacts, not governed corpus documents.
-PACK_PREFIX = "guardrails/"
 
 # ISO/IEC 27001:2022 label: matches "ISO/IEC 27001:2022" and "ISO 27001:2022".
 # The :2022 suffix is required so validation is edition-pinned (precision-first).
@@ -231,11 +229,11 @@ def collect_targets(paths: list[str] | None) -> list[Path]:
     """Resolve the scan targets: explicit paths, or the audited corpus."""
     if paths:
         return [Path(p).resolve() for p in paths]
-    roots = [REPO_ROOT / d for d in AUDITED_DOMAIN_DIRS]
+    roots = [REPO_ROOT / d for d in (*AUDITED_DOMAIN_DIRS, "guardrails")]
     out: list[Path] = []
     for p in iter_markdown_targets(roots):
         rel = p.relative_to(REPO_ROOT).as_posix() if p.is_relative_to(REPO_ROOT) else str(p)
-        if rel == MATRIX_REL or rel.startswith(PACK_PREFIX):
+        if rel == MATRIX_REL:
             continue
         out.append(p)
     return out
@@ -269,7 +267,7 @@ def main(argv: list[str]) -> int:
         )
         print(
             f"OK: ISO/IEC 27001:2022 Annex A codes in per-document framework tables are valid "
-            f"({scope}; Annex A theme/control ranges and clause range; matrix and pack excluded)."
+            f"({scope}; Annex A theme/control ranges and clause range; matrix excluded)."
         )
         return 0
 
