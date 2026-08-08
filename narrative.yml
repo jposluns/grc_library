@@ -141,8 +141,8 @@ pages:
   title: "What the governing body should require for third-party and AI supply-chain risk oversight"
   narrative_type: "Executive Brief"
   narrative_status: "Explanatory"
-  version: "0.0.3"
-  date: "2026-08-07"
+  version: "0.0.6"
+  date: "2026-08-08"
   corpus_sources:
     - "risk/standard-third-party-and-supply-chain-risk.md"
     - "supply-chain/framework-supplier-and-cloud-governance.md"
@@ -162,7 +162,7 @@ pages:
     - "citation"
     - "composite"
   review_record: "NR-2026-006"
-  last_reviewed: "2026-08-07"
+  last_reviewed: "2026-08-08"
   derived_tags:
     - "domain:ai"
     - "domain:dev-security"
