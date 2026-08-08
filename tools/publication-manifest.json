@@ -344,6 +344,26 @@
       "bucket": "CORE",
       "disclosure": "SANITIZE",
       "rationale": "Carries licence obligations adopters legally need (Wiz CC-BY-NC-ND caveat, MIT attribution duties) and is linked twice from README plus depended on by the generator's Phase 2; drop `How to update this log`, the exemption paragraph, and the superseded back-port entries."
+    },
+    "aiqt/review-contract.md": {
+      "bucket": "CORE",
+      "disclosure": "PUBLIC",
+      "rationale": "The cross-family review contract (1.26.29): portable normative spec for AIQT reviewers; no project-local machinery or operational facts."
+    },
+    "aiqt/schemas/finding.schema.json": {
+      "bucket": "CORE",
+      "disclosure": "PUBLIC",
+      "rationale": "Normative SARIF-lite finding interchange schema (1.26.29); portable, no local facts."
+    },
+    "aiqt/schemas/verdict.schema.json": {
+      "bucket": "CORE",
+      "disclosure": "PUBLIC",
+      "rationale": "Normative verdict-envelope interchange schema (1.26.29); portable, no local facts."
+    },
+    "aiqt/families.json": {
+      "bucket": "CORE",
+      "disclosure": "PUBLIC",
+      "rationale": "Reviewer family registry (Claude, Codex; extensible) for the review contract (1.26.29); portable."
     }
   }
 }

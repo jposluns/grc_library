@@ -92,6 +92,10 @@ ALLOW_LIST = {
     # Clean Language, the maintainer's AI-writing editorial standard
     # (jposluns/ai-language); linked from the CHANGELOG milestone entry.
     "cleanlanguage.ai",
+    # AIQT, the maintainer's cross-family QA product (the pack's aiqt/ subtree
+    # schema $id namespace and publication orientation). Own domain, not a
+    # citation publisher, so the citation-verification spec (S7) is not updated.
+    "aiqt.ai",
     # Library maintainer documentation
     "claude.ai",
     # Anthropic Claude Code official documentation domain
