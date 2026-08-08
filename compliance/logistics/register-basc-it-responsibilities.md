@@ -2,8 +2,8 @@
 
 **Document Title:** BASC IT and Information Security Responsibilities\
 **Document Type:** Register\
-**Version:** 1.1.1\
-**Date:** 2026-05-28\
+**Version:** 1.1.2\
+**Date:** 2026-08-08\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-basc-programme-overview.md`](annex-basc-programme-overview.md), [`compliance/logistics/policy-basc-information-security.md`](policy-basc-information-security.md), [`compliance/logistics/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md), [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`governance/charter-governance-library.md`](../../governance/charter-governance-library.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../../risk/policy-enterprise-governance-and-risk-management.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md), [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md), [`security/standard-authentication-and-password-management.md`](../../security/standard-authentication-and-password-management.md), [`operations/procedure-change-management-and-configuration-control.md`](../../operations/procedure-change-management-and-configuration-control.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../../supply-chain/framework-supplier-and-cloud-governance.md)\
@@ -54,7 +54,7 @@ IT ownership covers the controls listed above. Physical facility security, cargo
 
 ## Related standards and procedures
 
-1. Register: BASC IT Compliance Monitoring and KPIs: [`compliance/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md)
+1. Register: BASC IT Compliance Monitoring and KPIs: [`compliance/logistics/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md)
 2. Framework: Supplier and Cloud Governance Framework: [`supply-chain/framework-supplier-and-cloud-governance.md`](../../supply-chain/framework-supplier-and-cloud-governance.md)
 
 ---
