@@ -2,8 +2,8 @@
 
 **Document Title:** Executive Narrative Subtype Templates\
 **Document Type:** Template\
-**Version:** 1.0.1\
-**Date:** 2026-08-06\
+**Version:** 1.0.3\
+**Date:** 2026-08-08\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`specification-executive-narrative.md`](../specification-executive-narrative.md)\
@@ -23,7 +23,7 @@ The templates live here, in the governance domain, rather than under the `execut
 ## 2. How to use these templates
 
 1. Copy the fenced skeleton for the subtype you are authoring (the content inside the triple-backtick block, not the fence markers).
-2. Create the new file under the subtype's subdirectory in `executive/`, named with the subtype's filename prefix (for example `executive/briefs/brief-<topic>.md` for an Executive Brief). Each subtype's subdirectory is fixed by the subtype table in the specification, and the narrative metadata gate enforces it.
+2. Create the new file under the subtype's subdirectory in `executive/`, named with the subtype's filename prefix (for example `executive/briefs/brief-<topic>.md` for an Executive Brief). Each subtype's subdirectory is fixed by the subtype table in the specification, and the narrative metadata gate enforces it. Keep the file name to the subtype prefix plus three or four further words naming the topic (for example `executive/briefs/brief-ai-supply-chain-oversight.md`); the page title, not the file name, carries the full leadership question.
 3. Replace every bracketed placeholder and each example value. In particular: set a real `Corpus Sources` list (each entry a plain markdown link to a corpus document the page relies on, with no version suffix), the correct `Narrative Type` and its fixed `Narrative Status`, the present `Claim Classes Present`, a `Review Record` identifier, and a `Last Reviewed` date.
 4. Keep the authority disclaimer verbatim as the first body content after the metadata block; it is fixed by the specification and identical on every page.
 5. Run the narrative gates against the new page before committing.
@@ -47,7 +47,7 @@ The example values in each skeleton are chosen so that a skeleton copied to its 
 **Classification:** Public\
 **Category:** Executive Narrative\
 **Review Frequency:** Annual, and a 6-month advisory executive review\
-**Repository Path:** [`executive/briefs/brief-example-topic.md`](brief-example-topic.md)\
+**Repository Path:** [`executive/briefs/brief-example-topic-area.md`](brief-example-topic-area.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **Narrative Type:** Executive Brief\
@@ -101,7 +101,7 @@ At minimum: this page creates no compliance; the adopting organization validates
 **Classification:** Public\
 **Category:** Executive Narrative\
 **Review Frequency:** Annual, and a 6-month advisory executive review\
-**Repository Path:** [`executive/scenarios/scenario-example-topic.md`](scenario-example-topic.md)\
+**Repository Path:** [`executive/scenarios/scenario-example-topic-area.md`](scenario-example-topic-area.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **Narrative Type:** Scenario\
@@ -159,7 +159,7 @@ State the illustrative and composite nature: fictional, no likelihood or frequen
 **Classification:** Public\
 **Category:** Executive Narrative\
 **Review Frequency:** Annual, and a 6-month advisory executive review\
-**Repository Path:** [`executive/decision-narratives/decision-example-topic.md`](decision-example-topic.md)\
+**Repository Path:** [`executive/decision-narratives/decision-example-topic-area.md`](decision-example-topic-area.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **Narrative Type:** Decision Narrative\
@@ -217,7 +217,7 @@ This page creates no compliance and prescribes no outcome; the adopting organiza
 **Classification:** Public\
 **Category:** Executive Narrative\
 **Review Frequency:** Annual, and a 6-month advisory executive review\
-**Repository Path:** [`executive/oversight-question-sets/oversight-questions-example-topic.md`](oversight-questions-example-topic.md)\
+**Repository Path:** [`executive/oversight-question-sets/oversight-questions-example-topic-area.md`](oversight-questions-example-topic-area.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **Narrative Type:** Oversight Question Set\
@@ -275,7 +275,7 @@ This page organizes questioning; it prescribes no answer and creates no complian
 **Classification:** Public\
 **Category:** Executive Narrative\
 **Review Frequency:** Annual, and a 6-month advisory executive review\
-**Repository Path:** [`executive/stories/story-example-topic.md`](story-example-topic.md)\
+**Repository Path:** [`executive/stories/story-example-topic-area.md`](story-example-topic-area.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **Narrative Type:** Story\
@@ -333,7 +333,7 @@ State the illustrative and composite nature: fictional, no likelihood or frequen
 **Classification:** Public\
 **Category:** Executive Narrative\
 **Review Frequency:** Annual, and a 6-month advisory executive review\
-**Repository Path:** [`executive/journeys/journey-example-topic.md`](journey-example-topic.md)\
+**Repository Path:** [`executive/journeys/journey-example-topic-area.md`](journey-example-topic-area.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **Narrative Type:** Journey\
@@ -395,7 +395,7 @@ This page explains a path; it creates no compliance and prescribes no outcome. C
 **Classification:** Public\
 **Category:** Executive Narrative\
 **Review Frequency:** Annual, and a 6-month advisory executive review\
-**Repository Path:** [`executive/outcome-maps/outcome-map-example-topic.md`](outcome-map-example-topic.md)\
+**Repository Path:** [`executive/outcome-maps/outcome-map-example-topic-area.md`](outcome-map-example-topic-area.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **Narrative Type:** Outcome Map\

@@ -2,7 +2,7 @@
 
 **Document Title:** Executive Narrative Authoring Specification\
 **Document Type:** Specification\
-**Version:** 0.0.11\
+**Version:** 0.0.12\
 **Date:** 2026-08-08\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -74,7 +74,7 @@ There is exactly one narrative document type: `Executive Narrative`. Subclassifi
 | Journey | `journey-` | `journeys/` | Explanatory |
 | Outcome Map | `outcome-map-` | `outcome-maps/` | Explanatory |
 
-Filename rules follow the ingestion specification (lowercase, single hyphens, no punctuation, no organization-specific names), with the subtype prefix in place of a document-type prefix. Each page lives in its subtype's subdirectory under `executive/` per the table; the prefix and the subdirectory must both match the `Narrative Type` field exactly.
+Filename rules follow the ingestion specification (lowercase, single hyphens, no punctuation, no organization-specific names), with the subtype prefix in place of a document-type prefix. Each page lives in its subtype's subdirectory under `executive/` per the table; the prefix and the subdirectory must both match the `Narrative Type` field exactly. A page's file name is deliberately short: the subtype prefix plus three or four further hyphenated words naming the topic (for example `brief-ai-supply-chain-oversight.md`), never a restatement of the page's full leadership question. The Document Title carries the full question; the file name carries only the topic. This keeps repository paths, registry rows, and listing routes compact and stable while titles stay free to be long.
 
 No other subtype may be introduced without a version bump to this specification and corresponding gate changes. A page that fits no subtype is a signal that it does not belong in the narrative layer.
 
