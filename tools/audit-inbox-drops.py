@@ -4,18 +4,18 @@
 WHY THIS EXISTS. A drop is work handed to the orchestrator OUTSIDE the order queue: the
 maintainer places a document, or a worker delivers something the orchestrator never ordered
 (a brief, a diagnosis, design input) and which therefore has no order id and no outbox. On
-2026-07-25 a 13KB external deep assessment sat unread in that directory for an entire
+2026-07-25 a sizeable external deep assessment sat unread in that directory for an entire
 overnight run, and NOTHING could have surfaced it: the drop root is outside every repository
 so no audit gate walks it, ``audit-delivery-status.py`` reconciles worker OUTBOX deliveries
 rather than drops, and the orchestrator's own task list is built from the order queue, which a
-drop is never part of. Two of that assessment's findings concerned the orchestrator's own
+drop is never part of. Some of that assessment's findings concerned the orchestrator's own
 conduct, so the cost of not reading it was real. This tool is the missing instrument.
 
 WHAT COUNTS AS PROCESSED. The LOCATION is the marker, deliberately, so nothing has to be
 inferred: a drop still in ``inbox/`` is unprocessed, and a processed drop is MOVED to
 ``done/drops/<YYYY-MM>/``. That mirrors how a consumed delivery moves to
 ``done/deliveries/<YYYY-MM>/``. Inference was tried and is not sound: a reference-scan over the
-merged records returned false negatives at roughly a 30 percent rate, because the orchestrator
+merged records returned false negatives at a high rate, because the orchestrator
 records a drop's CONTENT without always naming its filename.
 
 TWO TRAPS THIS AVOIDS, both named when the gap was routed (TODO 3.117):
