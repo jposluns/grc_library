@@ -366,7 +366,7 @@ def attribute_held(session: str, held: dict, families: tuple | None = None) -> t
     contains `session-m`); the timestamped scheme does not.
 
     The live 2026-07-25 fail-open, which is pinned as a self-test case. `codex-...anon` held
-    `order-x` while running in session `session-m`, and `codex-...b6ba` held nothing in session
+    `order-x` while running in session `session-m`, and `codex-...anol` held nothing in session
     `codex`. First-match attribution credited session `codex` with the first worker's order and session `session-m`
     with NOTHING, so a destructive verb against `session-m` was ALLOWED while its worker had an order in
     flight, destroying exactly the work the holder gate exists to protect, while `codex` was refused
@@ -945,11 +945,11 @@ def self_test() -> int:
                sorted({f for fs in RUNTIME_FAMILIES.values() for f in fs}), ["codex", "fable", "opus"])
     check_attr("attribute_held: THE live 2026-07-25 fail-open (session unmatched, worker holding)",
                attribute_held("session-m", {"codex-20260725T041432Z-anon": "order-x",
-                                        "codex-20260725T151831Z-b6ba": None}, ("codex",)),
+                                        "codex-20260725T151831Z-anol": None}, ("codex",)),
                ("unknown", None))
     check_attr("attribute_held: its sibling half (family session matches both ids)",
                attribute_held("codex", {"codex-20260725T041432Z-anon": "order-x",
-                                        "codex-20260725T151831Z-b6ba": None}, ("codex",)),
+                                        "codex-20260725T151831Z-anol": None}, ("codex",)),
                ("ambiguous", None))
 
     if failures:
