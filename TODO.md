@@ -27,7 +27,7 @@ This file is informational and is not subject to the library's metadata-block, a
 **Next item number: 1.31.**
 
 
-**AIQT / pack-distribution umbrella RELOCATED (2026-08-08).** The pack-distribution / AIQT-build umbrella (1.26 and every 1.26.x child, numbers permanent per the never-reuse rule) was RELOCATED to the private planning backlog on 2026-08-08 (maintainer decision D-iii, PR #1456): the public TODO is purely the corpus/adopter roadmap, and the adopter-facing AIQT roadmap lives in the AIQT project itself (aiqt.ai). Relocated, not completed; the 1.26.x numbers remain retired-in-place here.
+**AIQT / pack-distribution umbrella RELOCATED (2026-08-08).** The pack-distribution / AIQT-build umbrella (item 1.26 with its child items; numbers permanent per the never-reuse rule; 1.26.1 was private-side already, and later children are created private) was CONSOLIDATED into the private planning backlog on 2026-08-08 (maintainer decision D-iii, PR #1456): the public TODO is purely the corpus/adopter roadmap, and the adopter-facing AIQT roadmap lives in the AIQT project itself (aiqt.ai). Relocated, not completed: the 1.26.x numbers carry over to the private list as LIVE permanently-allocated ids (never reused here or there; the permanence gate reads both lists as one namespace).
 
 ### 1.28 AI EU annex: add the Article 26(2) provision the held primary carries (H, S) `[content]` `[public]`
 
