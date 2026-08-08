@@ -467,8 +467,8 @@ is external. Two mechanisms:
    - CHANGELOG (root + detailed) and version bumps are present; the pre-push guard
      (`run_all_audits.sh` + `run-pr-time-checks.sh`) is green.
 
-   The mechanizable half of QA-cadence enforcement (the former TODO §4.6, closed
-   as satisfied in #471) is gate 50's Check 1, which fails when an in-window merged
+   The mechanizable half of QA-cadence enforcement (the former QA-cadence-mechanization
+   item, closed as satisfied in #471) is gate 50's Check 1, which fails when an in-window merged
    PR has no `/validate-pr` plus `/retro` row. The abbreviated-marker half (a row
    that exists but records a sham QA pass) is not mechanizable on free prose, so for
    that residual this checklist plus the `## Throughput pressure does not authorize

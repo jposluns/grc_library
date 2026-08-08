@@ -256,7 +256,7 @@ confirmation under the confirm-before-destructive-action discipline.
 
 ## Change-impact surface map (when you change X, update all of these)
 
-(Map origin: TODO §1.18, closed 2026-07-24; the map below is now a permanent close-out
+(Map origin: the change-impact-surface-map item closed in PR #1109 on 2026-07-24; the map below is now a permanent close-out
 discipline.) A gate/rule/skill/count change touches more surfaces than the mechanical parity
 gates cover, and the FREE-PROSE and WEBSITE surfaces drift silently (this session: the 14th
 rule shipped without its pack-README rule-scope-table row, ungated by gate 41; #1017's D8
