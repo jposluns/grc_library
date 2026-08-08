@@ -707,8 +707,8 @@ def _self_test() -> int:
         if not cond:
             fails.append(name)
 
-    sunday = _parse_iso("2026-07-26T18:00:00+00:00")   # before Wed reset
-    thursday = _parse_iso("2026-07-30T18:00:00+00:00")  # after Wed reset
+    sunday = _parse_iso("2026-07-26T18:00:00+00:00")   # before the fixture reset
+    thursday = _parse_iso("2026-07-30T18:00:00+00:00")  # after the fixture reset
 
     # 1. charlie claude is EXCLUDED while limited (the maintainer's core case).
     elig = eligible_accounts(_FIXTURE, "claude", "opus", sunday)
@@ -741,7 +741,7 @@ def _self_test() -> int:
     check("unknown-model-empty", select_account(_FIXTURE, "claude", "no-such-model", sunday) is None)
 
     # 8. Usage-limit parser: detects a notice, and no-notice text is clean.
-    lim, _ = parse_usage_limit("Error: usage limit reached, resets at 2026-07-29T04:59:00")
+    lim, _ = parse_usage_limit("Error: usage limit reached, resets at 2026-07-28T12:00:00")
     check("limit-detected", lim is True)
     lim2, _ = parse_usage_limit("PONG")
     check("no-false-limit", lim2 is False)
@@ -1015,8 +1015,8 @@ def _self_test() -> int:
     # Expected globs compose from WORKER_LOG_DIR (config-carried), so the self-test never
     # embeds a literal host path (disclosure fix, PR #1457).
     check("worker-log-glob-codex",
-          worker_log_glob("codex", "acct-x", "codex-acct-x-20260801T033350Z-1129")
-          == f"{WORKER_LOG_DIR}/*_codex_acct-x_codex-acct-x-20260801T033350Z-1129.log")
+          worker_log_glob("codex", "acct-x", "codex-acct-x-20990101T000000Z-anon")
+          == f"{WORKER_LOG_DIR}/*_codex_acct-x_codex-acct-x-20990101T000000Z-anon.log")
     check("worker-log-glob-claude",
           worker_log_glob("claude", "alpha", "opus-x")
           == f"{WORKER_LOG_DIR}/*_claude_alpha_opus-x.log")
