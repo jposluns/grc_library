@@ -46,7 +46,7 @@ pages:
   title: "What the governing body should require for AI incident-response readiness before production"
   narrative_type: "Executive Brief"
   narrative_status: "Explanatory"
-  version: "0.0.4"
+  version: "0.0.5"
   date: "2026-08-08"
   corpus_sources:
     - "ai/plan-ai-incident-response.md"
@@ -76,7 +76,7 @@ pages:
   title: "What the governing body should require before an AI system goes into production"
   narrative_type: "Executive Brief"
   narrative_status: "Explanatory"
-  version: "0.0.3"
+  version: "0.0.4"
   date: "2026-08-08"
   corpus_sources:
     - "ai/guide-ai-board-oversight.md"
@@ -141,7 +141,7 @@ pages:
   title: "What the governing body should require for third-party and AI supply-chain risk oversight"
   narrative_type: "Executive Brief"
   narrative_status: "Explanatory"
-  version: "0.0.10"
+  version: "0.0.11"
   date: "2026-08-08"
   corpus_sources:
     - "risk/standard-third-party-and-supply-chain-risk.md"

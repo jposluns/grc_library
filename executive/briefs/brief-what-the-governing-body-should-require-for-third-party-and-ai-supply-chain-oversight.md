@@ -2,7 +2,7 @@
 
 **Document Title:** What the governing body should require for third-party and AI supply-chain risk oversight\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.10\
+**Version:** 0.0.11\
 **Date:** 2026-08-08\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -51,7 +51,7 @@ The corpus position, read together, sets the governing body's third-party and AI
 
 - **Require one programme, with AI inside it.** The corpus treats AI suppliers as a distinct class within the supplier programme, not a parallel track; the umbrella and AI-specific sources define how the supplier programme applies to AI suppliers, and this brief routes to their respective coverage. Oversight that asks about the supplier programme and the AI supplier extensions together is asking the question the corpus is built to answer.
 - **Expect evidence, not assurances.** Every lifecycle stage in the supplier framework has the evidence class the framework defines, and the assurance standard defines the evidence order. A supplier relationship the organization cannot evidence at each stage is a relationship the corpus controls are not demonstrably operating on. Certification is evidence that a supplier's control environment was assessed; it is not, by itself, evidence that the organization's own lifecycle controls operate.
-- **Treat visibility past the first tier as part of the ask.** The corpus states sub-tier visibility and concentration tracking as programme expectations with defined escalation. Against those programme expectations, an answer of "we have no visibility into our suppliers' own dependencies" requires examination rather than acceptance. The procedure's visibility model scales the expectation to supplier criticality, so the applicable expectation, not an unstated absolute, is what the governing body checks was applied.
+- **Treat visibility past the first tier as part of the ask.** The corpus states sub-tier visibility and concentration tracking as programme expectations with defined escalation. Against those programme expectations, an answer of "we have no visibility into our suppliers' own dependencies" requires examination rather than acceptance. Under the procedure's visibility model the applicable expectation has a dependency on supplier criticality; the governing body checks that the applicable expectation, not an unstated absolute, was applied.
 - **Onboarding-only assurance is a weak answer.** An unscheduled reassessment has a dependency on the condition sets the monitoring and AI due diligence procedures define, and scheduled reassessment runs on the cadences those procedures set. An oversight answer that ends at "they passed due diligence" stops where the corpus keeps going.
 - **Accountability is not outsourced with the service.** The oversight guide treats responsibility for an AI outcome attributed to the system or the vendor rather than an accountable person as a warning sign that AI oversight may be inadequate (its section 6). Accountability remains with the organization in the presence of supply-chain dependency.
 

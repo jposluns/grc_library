@@ -2,7 +2,7 @@
 
 **Document Title:** What the governing body should require for AI incident-response readiness before production\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.4\
+**Version:** 0.0.5\
 **Date:** 2026-08-08\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -48,7 +48,7 @@ The corpus defines AI incident-response readiness as a set of capabilities that 
 
 For the governing body and accountable executive leadership, incident-response readiness translates into a small set of things that are true before an AI system goes live. (This readiness reading is a composite of the sources above.)
 
-- **The capability exists before production, not after the first incident.** The AI incident-response path, the detection and logging that contribute to it, and the escalation route are a dependency of an effective response; standing them up during an incident is standing them up too late.
+- **The capability exists before production, not after the first incident.** The AI incident-response path, its supporting detection and logging, and the escalation route are a dependency of an effective response; standing them up during an incident is standing them up too late.
 - **The response is coordinated, not siloed.** When an AI incident engages more than one response domain, the joint-command arrangement the corpus defines is a dependency of the coordinated multi-stream response, and the streams respond as one rather than in parallel.
 - **Accountability does not transfer to a supplier.** The governing body's accountability for AI outcomes is non-delegable; "the vendor handles incidents" answers a question the corpus places with the organization, not its provider.
 - **The governing body has a reporting line into it.** Readiness includes the expectation, which the corpus states as a should, that the governing body receives significant AI incidents and their resolution on a regular cadence, and that critical AI risks escalate to it through the chartered executive AI governance body.
