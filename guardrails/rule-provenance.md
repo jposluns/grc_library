@@ -123,8 +123,8 @@ waits (background work). The skeptical pre-push verification tiers were layered 
 later, when change volume made an independent adversarial check before each push the
 cheapest place to catch defects. The commit-before-dispatch requirement (a QA verifier
 is pinned to a revision, so the artefact under review must be committed before the
-dispatch) was added on 2026-08-07 after an expensive dual-family pass reviewed an
-uncommitted working tree and bought one process finding and no content review.
+dispatch) was added in August 2026 after an expensive dual-family pass was dispatched
+against an uncommitted artefact and bought one process finding and no content review.
 
 ### `trust-recovery-escalation`
 
