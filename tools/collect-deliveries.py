@@ -18,7 +18,7 @@ item on it matters.
 FILENAME CARRIES BOTH IDS: `<worker-id>__<order-id>.md`. The result body also names its worker, but
 the filename survives without parsing, and the orchestrator needs the worker id for the elevated-QA
 trust window (keyed on worker plus model) and for independence routing, which is what forced the
-re-issue of `validate-pr-1169` when a sweep's own author was asked to validate the fix to its finding.
+re-issue of a per-PR validation order when a sweep's own author was asked to validate the fix to its finding.
 
 TWO INDEPENDENT COMPLETENESS LAYERS, because they catch different failures (maintainer-directed
 2026-07-25, defence in depth).
@@ -250,14 +250,14 @@ def self_test() -> int:
 
     # --- the pure naming contract, and its round trip ---
     check("compose_name carries both ids",
-          compose_name("opus-20260725T122030Z-6443", "sweep-121"),
-          "opus-20260725T122030Z-6443__sweep-121.md")
+          compose_name("opus-20260101T000000Z-anon", "sweep-n"),
+          "opus-20260101T000000Z-anon__sweep-n.md")
     check("split_name recovers both ids",
-          split_name("opus-20260725T122030Z-6443__sweep-121.md"),
-          ("opus-20260725T122030Z-6443", "sweep-121"))
+          split_name("opus-20260101T000000Z-anon__sweep-n.md"),
+          ("opus-20260101T000000Z-anon", "sweep-n"))
     check("split_name round-trips a hyphenated order id",
-          split_name(compose_name("codex-abc", "validate-pr-1169-b")),
-          ("codex-abc", "validate-pr-1169-b"))
+          split_name(compose_name("codex-abc", "validate-pr-n-b")),
+          ("codex-abc", "validate-pr-n-b"))
     # The empty-part guard, previously BLIND: the cases below covered a non-tray name and a wrong
     # extension, so disabling the guard changed nothing observable and it read as covered. Found by
     # tools/audit-selftest-discriminability.py. Without the guard these return ("", "x") and
@@ -265,7 +265,7 @@ def self_test() -> int:
     # consumers must never receive.
     check("split_name rejects an empty worker id", split_name("__x.md"), (None, None))
     check("split_name rejects an empty order id", split_name("x__.md"), (None, None))
-    check("split_name rejects a non-tray filename", split_name("sweep-121.md"), (None, None))
+    check("split_name rejects a non-tray filename", split_name("sweep-n.md"), (None, None))
     check("split_name rejects a non-md file", split_name("w__o.txt"), (None, None))
 
     # --- the sentinel check, on the LAST non-blank line specifically ---

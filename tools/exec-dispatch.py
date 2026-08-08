@@ -3,10 +3,10 @@
 
 Reads the maintainer-maintained account-config (grc_library_private/worker-accounts.json),
 selects an eligible worker account for a job per the dispatch rules, and (optionally)
-invokes the root-owned wrapper via sudo to run the job as the single worker_agents user.
+invokes the root-owned wrapper via sudo to run the job as the dedicated worker unix user (named in the private account config).
 
-This is PROJECT-ONLY operational machinery (it references the host wrappers at
-/usr/local/sbin and the _private account-config), not portable pack material, in the same
+This is PROJECT-ONLY operational machinery (it drives host wrapper scripts and the _private
+account-config), not portable pack material, in the same
 class as manage-workers.py / collect-deliveries.py.
 
 Design of record: grc_library_private/codex-exec-serve-loop-decision.md. The account-config
@@ -41,35 +41,55 @@ from pathlib import Path
 # --- host constants (project-only) -------------------------------------------------
 REPO_ROOT = Path(__file__).resolve().parents[1]                 # /home/grc/grc_library
 DEFAULT_CONFIG = REPO_ROOT.parent / "grc_library_private" / "worker-accounts.json"
-JOB_DIR = Path("/var/lib/grc-worker-jobs")
+# Host-specific values (the job spool, the wrapper log dir, the wrapper paths, and the
+# worker unix user) are OPERATIONAL data: they load from the private account config's
+# `wrapper` block at import time, over neutral placeholders that make any un-configured
+# use fail loud rather than leak a real layout (disclosure fix, PR #1457).
+def _wrapper_cfg() -> dict:
+    try:
+        w = json.loads(DEFAULT_CONFIG.read_text(encoding="utf-8")).get("wrapper", {})
+        return w if isinstance(w, dict) else {}
+    except Exception:
+        return {}
+
+
+_W = _wrapper_cfg()
+JOB_DIR = Path(_W.get("job_dir", "/nonexistent/worker-jobs"))
 # The wrappers redirect each worker's full stdout/stderr to a dated per-worker log here
-# (run-{codex,claude}-worker LOGDIR). exec-dispatch surfaces the path so the FULL worker report
-# is always recoverable even when the captured stdout is truncated downstream (the Bash-tool
+# (the wrapper LOGDIR). exec-dispatch surfaces the path so the FULL worker report is always
+# recoverable even when the captured stdout is truncated downstream (the Bash-tool
 # background-capture summarises a large output; the wrapper log is the reliable full record).
-WORKER_LOG_DIR = Path("/home/grc/grc_working/logs")
+WORKER_LOG_DIR = Path(_W.get("log_dir", "/nonexistent/worker-logs"))
 WRAPPER = {
-    "claude": "/usr/local/sbin/run-claude-worker",
-    "codex": "/usr/local/sbin/run-codex-worker",
+    "claude": _W.get("claude", "/nonexistent/run-claude-worker"),
+    "codex": _W.get("codex", "/nonexistent/run-codex-worker"),
 }
-WORKER_USER = "worker_agents"
+WORKER_USER = _W.get("worker_user", "worker")
+del _W
 
 # --- in-flight registry (per-account concurrency; TODO 3.141) ----------------------
 INFLIGHT_NAME = "inflight.json"
 INFLIGHT_LOCK_NAME = "inflight.lock"       # flock target only; its CONTENT is never rewritten
 STALE_STARTED_AGE_S = 24 * 3600            # absolute backstop against pid reuse (NOT mtime staleness)
 
-# Tier -> distribution weight (higher = takes more within a priority set). The per-account
+# Distribution weight (higher = takes more within a priority set). The per-account
 # flock currently caps same-account concurrency at 1, so weight is a tie-break today; it
 # becomes load-bearing once per-job config-dir snapshots enable concurrency > 1 (WIRE-IN).
-TIER_WEIGHT = {
-    "pro-20x": 20.0,
-    "20x": 20.0,
-    "teams-6.5x": 6.5,
-    "pro-team": 2.0,
-    "pro": 2.0,
-    "normal": 1.0,
-    "personal": 1.0,
-}
+# The weight comes from the PRIVATE account config: an explicit per-account "weight"
+# field, else a generic trailing "<N>x" multiplier in the tier label, else 1.0. No
+# tier-name table lives in this public tool: the operator's plan mix is operational
+# data and stays in the private account config (disclosure fix, PR #1457).
+import re as _re_tier  # noqa: E402 (kept beside its sole consumer, matching this module's local-import idiom)
+
+_TIER_X_RE = _re_tier.compile(r"(\d+(?:\.\d+)?)x\s*$")
+
+
+def tier_weight(acct: dict) -> float:
+    w = acct.get("weight")
+    if isinstance(w, (int, float)) and not isinstance(w, bool):
+        return float(w)
+    m = _TIER_X_RE.search(str(acct.get("tier", "")))
+    return float(m.group(1)) if m else 1.0
 
 
 # --- config ------------------------------------------------------------------------
@@ -92,8 +112,8 @@ def account_available(acct: dict, now: _dt.datetime) -> tuple[bool, str]:
     # Orchestrator-account guard (maintainer-directed 2026-07-28): an account flagged
     # `is_orchestrator` is the orchestrator's OWN login and is NEVER dispatched as a worker
     # (independence violation + burns the scarce orchestrator credits the offload design
-    # exists to protect). Only the claude jeff-mailz entry carries the flag, so both codex
-    # accounts stay eligible. Covers auto-pick AND explicit --account (both funnel here).
+    # exists to protect). Which entries carry the flag is operational data that lives in the
+    # private account config; an unflagged entry on the same account stays eligible. Covers auto-pick AND explicit --account (both funnel here).
     if acct.get("is_orchestrator"):
         return False, "orchestrator account, reserved (never dispatched as a worker)"
     state = acct.get("usage_state", "available")
@@ -142,7 +162,7 @@ def eligible_accounts(config: dict, family: str, model: str, now: _dt.datetime,
             continue
         a = dict(acct)
         a["_reason"] = reason
-        a["_weight"] = TIER_WEIGHT.get(acct.get("tier", ""), 1.0)
+        a["_weight"] = tier_weight(acct)
         out.append(a)
     out.sort(key=lambda a: (
         1 if a.get("personal") else 0,      # non-personal first
@@ -286,7 +306,7 @@ def mint_worker_id(account: str, family: str, now: _dt.datetime) -> str:
 
 # --- verifier-independence exclusion resolution (impl-3111) -------------------------
 # A worker-id minted by mint_worker_id above is `{family}-{account}-{stamp}-{4hex}`. The account
-# component can itself contain hyphens (e.g. `jposluns-work`), so the regex anchors on the FIXED
+# component can itself contain hyphens (e.g. `acct-two`), so the regex anchors on the FIXED
 # trailing shape (a 16-char UTC stamp ending in Z, then a 4-hex suffix) and lets `account` absorb
 # everything between the leading family token and that trailing shape. This is the ONLY id form
 # that carries a resolvable account; see the caveat below.
@@ -327,7 +347,7 @@ def resolve_exclusions(not_workers, not_accounts, family: str, known_accounts):
     the token-could-not-be-parsed case. `unknown` is the SUBTLER and more likely operator error, and
     it is the fix for the defect BOTH the codex and claude adversarial verifiers independently caught
     (verify-impl-3111-{codex,claude}, 2026-07-27): a token that parses/names a well-formed account
-    that matches ZERO configured accounts (a mistyped `worka` for `work-a`, or a renamed/removed
+    that matches ZERO configured accounts (a mistyped `alpah` for `alpha`, or a renamed/removed
     account) would otherwise be a VACUOUS exclusion that SILENTLY no-ops. That silently defeats the
     independence control: the operator believes they excluded the authoring account, but the real
     authoring account (under its correct name) stays eligible and the verifier can land right back on
@@ -640,32 +660,38 @@ def dispatch(config: dict, family: str, model: str, order_id: str, prompt_file: 
 
 
 # --- self-test ---------------------------------------------------------------------
+# SYNTHETIC fixture: an invented topology chosen for logic coverage (priority sets,
+# families, weights, orchestrator exclusion). It deliberately mirrors NO real
+# account pool; account labels, counts, and weights are arbitrary test values.
 _FIXTURE = {
     "accounts": [
-        {"id": "work-a-claude", "account": "work-a", "family": "claude",
-         "tier": "pro-team", "priority_set": 1, "personal": False,
+        {"id": "alpha-claude", "account": "alpha", "family": "claude",
+         "weight": 3.0, "priority_set": 1, "personal": False,
          "models": ["opus", "sonnet", "haiku"], "usage_state": "available", "limited_until": None},
-        {"id": "work-b-claude", "account": "work-b", "family": "claude",
-         "tier": "pro-team", "priority_set": 1, "personal": False,
+        {"id": "bravo-claude", "account": "bravo", "family": "claude",
+         "weight": 3.0, "priority_set": 1, "personal": False,
          "models": ["opus", "sonnet", "haiku"], "usage_state": "available", "limited_until": None},
-        {"id": "personal-a-claude", "account": "personal-a", "family": "claude",
-         "tier": "personal", "priority_set": 2, "personal": True,
+        {"id": "echo-claude", "account": "echo", "family": "claude",
+         "weight": 1.0, "priority_set": 1, "personal": False,
+         "models": ["opus", "sonnet", "haiku"], "usage_state": "available", "limited_until": None},
+        {"id": "charlie-claude", "account": "charlie", "family": "claude",
+         "weight": 1.0, "priority_set": 2, "personal": True,
          "models": ["opus", "sonnet", "haiku"], "usage_state": "limited",
-         "limited_until": "2026-07-29T04:59:00-04:00"},
-        {"id": "personal-b-claude", "account": "personal-b", "family": "claude",
-         "tier": "pro-20x", "priority_set": 3, "personal": True,
+         "limited_until": "2026-07-28T12:00:00+00:00"},
+        {"id": "delta-claude", "account": "delta", "family": "claude",
+         "weight": 8.0, "priority_set": 3, "personal": True,
          "models": ["opus", "sonnet", "haiku"], "usage_state": "available", "limited_until": None},
-        {"id": "personal-b-codex", "account": "personal-b", "family": "codex",
-         "tier": "pro-20x", "priority_set": 1, "personal": False,
+        {"id": "delta-codex", "account": "delta", "family": "codex",
+         "weight": 8.0, "priority_set": 1, "personal": False,
          "models": ["gpt-5.6-terra"], "usage_state": "available", "limited_until": None},
-        {"id": "personal-a-codex", "account": "personal-a", "family": "codex",
-         "tier": "teams-6.5x", "priority_set": 2, "personal": False,
+        {"id": "charlie-codex", "account": "charlie", "family": "codex",
+         "weight": 2.5, "priority_set": 2, "personal": False,
          "models": ["gpt-5.6-terra"], "usage_state": "available", "limited_until": None},
-        {"id": "orch-claude", "account": "orch", "family": "claude",
-         "tier": "pro-20x", "priority_set": 3, "personal": True, "is_orchestrator": True,
+        {"id": "omega-claude", "account": "omega", "family": "claude",
+         "weight": 8.0, "priority_set": 3, "personal": True, "is_orchestrator": True,
          "models": ["opus", "sonnet", "haiku"], "usage_state": "available", "limited_until": None},
-        {"id": "orch-codex", "account": "orch", "family": "codex",
-         "tier": "pro-20x", "priority_set": 3, "personal": True,
+        {"id": "omega-codex", "account": "omega", "family": "codex",
+         "weight": 8.0, "priority_set": 3, "personal": True,
          "models": ["gpt-5.6-terra"], "usage_state": "available", "limited_until": None},
     ],
     "known_models": {"claude": ["opus", "sonnet", "haiku", "opus-legacy"], "codex": ["gpt-5.6-terra"]},
@@ -681,25 +707,25 @@ def _self_test() -> int:
         if not cond:
             fails.append(name)
 
-    sunday = _parse_iso("2026-07-26T18:00:00+00:00")   # before Wed reset
-    thursday = _parse_iso("2026-07-30T18:00:00+00:00")  # after Wed reset
+    sunday = _parse_iso("2026-07-26T18:00:00+00:00")   # before the fixture reset
+    thursday = _parse_iso("2026-07-30T18:00:00+00:00")  # after the fixture reset
 
-    # 1. personal-a claude is EXCLUDED while limited (the maintainer's core case).
+    # 1. charlie claude is EXCLUDED while limited (the maintainer's core case).
     elig = eligible_accounts(_FIXTURE, "claude", "opus", sunday)
     ids = [a["id"] for a in elig]
-    check("worklimited-excluded-while-limited", "personal-a-claude" not in ids)
+    check("worklimited-excluded-while-limited", "charlie-claude" not in ids)
 
     # 2. A work (non-personal, set 1) account is picked first, never the orchestrator's own.
     pick = select_account(_FIXTURE, "claude", "opus", sunday)
-    check("work-account-picked-first", pick["id"] in ("work-a-claude", "work-b-claude"))
-    check("orchestrator-not-first", pick["id"] != "personal-b-claude")
+    check("work-account-picked-first", pick["id"] in ("alpha-claude", "bravo-claude"))
+    check("orchestrator-not-first", pick["id"] != "delta-claude")
 
     # 3. Orchestrator's own account (personal, set 3) is LAST among eligible.
-    check("orchestrator-last", ids[-1] == "personal-b-claude")
+    check("orchestrator-last", ids[-1] == "delta-claude")
 
-    # 4. Past the reset window, personal-a becomes eligible again.
+    # 4. Past the reset window, charlie becomes eligible again.
     ids_thu = [a["id"] for a in eligible_accounts(_FIXTURE, "claude", "opus", thursday)]
-    check("worklimited-eligible-after-reset", "personal-a-claude" in ids_thu)
+    check("worklimited-eligible-after-reset", "charlie-claude" in ids_thu)
 
     # 5. Model filter actually discriminates: a real model offered only by the OTHER family (a codex
     #    model requested for the claude family) is filtered out because no claude account lists it.
@@ -707,15 +733,15 @@ def _self_test() -> int:
     check("model-filter-excludes-wrong-family-model",
           eligible_accounts(_FIXTURE, "claude", "gpt-5.6-terra", sunday) == [])
 
-    # 6. Codex: primary (personal-b, set 1) before secondary (personal-a, set 2).
+    # 6. Codex: primary (delta, set 1) before secondary (charlie, set 2).
     cod = [a["id"] for a in eligible_accounts(_FIXTURE, "codex", "gpt-5.6-terra", sunday)]
-    check("codex-primary-first", cod == ["personal-b-codex", "personal-a-codex", "orch-codex"])
+    check("codex-primary-first", cod == ["delta-codex", "charlie-codex", "omega-codex"])
 
     # 7. A model no account offers -> empty.
     check("unknown-model-empty", select_account(_FIXTURE, "claude", "no-such-model", sunday) is None)
 
     # 8. Usage-limit parser: detects a notice, and no-notice text is clean.
-    lim, _ = parse_usage_limit("Error: usage limit reached, resets at 2026-07-29T04:59:00")
+    lim, _ = parse_usage_limit("Error: usage limit reached, resets at 2026-07-28T12:00:00")
     check("limit-detected", lim is True)
     lim2, _ = parse_usage_limit("PONG")
     check("no-false-limit", lim2 is False)
@@ -725,22 +751,22 @@ def _self_test() -> int:
 
     # 10. Account override: no override picks the top eligible (same as select_account).
     a_auto, _ = pick_account(_FIXTURE, "claude", "opus", sunday)
-    check("override-none-picks-top", a_auto is not None and a_auto["id"] == "work-a-claude")
+    check("override-none-picks-top", a_auto is not None and a_auto["id"] == "alpha-claude")
     # 11. Targeting an eligible NON-top account returns exactly it (the parallelism case).
-    a_sec, r_sec = pick_account(_FIXTURE, "claude", "opus", sunday, account="work-b")
-    check("override-targets-eligible", a_sec is not None and a_sec["id"] == "work-b-claude")
+    a_sec, r_sec = pick_account(_FIXTURE, "claude", "opus", sunday, account="bravo")
+    check("override-targets-eligible", a_sec is not None and a_sec["id"] == "bravo-claude")
     # 12. Targeting the personal account (eligible but auto-picked LAST) still works when named.
-    a_mz, _ = pick_account(_FIXTURE, "claude", "opus", sunday, account="personal-b")
-    check("override-targets-personal", a_mz is not None and a_mz["id"] == "personal-b-claude")
-    # 13. Targeting a KNOWN-but-ineligible account (limited personal-a) is REJECTED with a reason.
-    a_lim, r_lim = pick_account(_FIXTURE, "claude", "opus", sunday, account="personal-a")
+    a_del, _ = pick_account(_FIXTURE, "claude", "opus", sunday, account="delta")
+    check("override-targets-personal", a_del is not None and a_del["id"] == "delta-claude")
+    # 13. Targeting a KNOWN-but-ineligible account (limited charlie) is REJECTED with a reason.
+    a_lim, r_lim = pick_account(_FIXTURE, "claude", "opus", sunday, account="charlie")
     check("override-rejects-ineligible", a_lim is None and "NOT eligible" in r_lim)
     # 14. Targeting an UNKNOWN account is rejected and distinguished from ineligible.
     a_unk, r_unk = pick_account(_FIXTURE, "claude", "opus", sunday, account="no-such-acct")
     check("override-rejects-unknown", a_unk is None and "not in the config" in r_unk)
-    # 15. The same account name across families resolves by FAMILY (personal-b has claude AND codex).
-    a_cod, _ = pick_account(_FIXTURE, "codex", "gpt-5.6-terra", sunday, account="personal-b")
-    check("override-resolves-by-family", a_cod is not None and a_cod["id"] == "personal-b-codex")
+    # 15. The same account name across families resolves by FAMILY (delta has claude AND codex).
+    a_cod, _ = pick_account(_FIXTURE, "codex", "gpt-5.6-terra", sunday, account="delta")
+    check("override-resolves-by-family", a_cod is not None and a_cod["id"] == "delta-codex")
 
     # --- in-flight registry (TODO 3.141): reserve-under-lock, reaping, --worker-id ------
     import tempfile as _tempfile
@@ -761,20 +787,20 @@ def _self_test() -> int:
     with _tempfile.TemporaryDirectory() as _td:
         jd = Path(_td)
         # 16. Below cap -> ALLOWED (slot reserved), returns the entry dict.
-        ok1, e1 = _reserve_slot(jd, "work-a-claude", 2, "wid-1", me, now_epoch)
+        ok1, e1 = _reserve_slot(jd, "alpha-claude", 2, "wid-1", me, now_epoch)
         check("inflight-allow-below-cap", ok1 is True and isinstance(e1, dict))
         # 17. Second reserve for the SAME key at cap=2 -> still allowed (now 2/2).
-        ok2, _ = _reserve_slot(jd, "work-a-claude", 2, "wid-2", me, now_epoch)
+        ok2, _ = _reserve_slot(jd, "alpha-claude", 2, "wid-2", me, now_epoch)
         check("inflight-allow-to-cap", ok2 is True)
         # 18. Third reserve for the same key -> REFUSED (2/2 in-flight, cap=2), clear message.
-        ok3, msg3 = _reserve_slot(jd, "work-a-claude", 2, "wid-3", me, now_epoch)
+        ok3, msg3 = _reserve_slot(jd, "alpha-claude", 2, "wid-3", me, now_epoch)
         check("inflight-refuse-at-cap", ok3 is False and "at capacity" in str(msg3))
         # 19. A DIFFERENT key (distinct config-dir unit) is unaffected -> allowed.
-        okX, _ = _reserve_slot(jd, "work-b-claude", 1, "wid-x", me, now_epoch)
+        okX, _ = _reserve_slot(jd, "bravo-claude", 1, "wid-x", me, now_epoch)
         check("inflight-key-isolation", okX is True)
         # 20. Releasing an entry frees a slot for that key -> a new reserve is allowed.
         _release_slot(jd, "wid-1")
-        ok4, _ = _reserve_slot(jd, "work-a-claude", 2, "wid-4", me, now_epoch)
+        ok4, _ = _reserve_slot(jd, "alpha-claude", 2, "wid-4", me, now_epoch)
         check("inflight-release-frees-slot", ok4 is True)
 
     # 21. A dead-pid entry is REAPED, freeing the slot; only the live reservation remains.
@@ -850,12 +876,12 @@ def _self_test() -> int:
         check("inflight-scalar-list-release-tolerated", (jd / INFLIGHT_NAME).exists())
 
     # 30. build_dispatch_cmd passes --worker-id with the minted id (the wrapper wire-in).
-    wid = mint_worker_id("work-a", "claude", sunday)
-    cmd = build_dispatch_cmd(WRAPPER["claude"], "/tmp/p.txt", "work-a", "opus", wid)
+    wid = mint_worker_id("alpha", "claude", sunday)
+    cmd = build_dispatch_cmd(WRAPPER["claude"], "/tmp/p.txt", "alpha", "opus", wid)
     check("worker-id-in-cmd",
           "--worker-id" in cmd and cmd[cmd.index("--worker-id") + 1] == wid)
-    # 30. --effort is still appended (existing behavior preserved), after --worker-id.
-    cmd2 = build_dispatch_cmd(WRAPPER["claude"], "/tmp/p.txt", "work-a", "opus", wid, effort="high")
+    # 30a. --effort is still appended (existing behavior preserved), after --worker-id.
+    cmd2 = build_dispatch_cmd(WRAPPER["claude"], "/tmp/p.txt", "alpha", "opus", wid, effort="high")
     check("effort-still-passed", cmd2[-2:] == ["--effort", "high"])
     # 31. The minted worker id satisfies the wrapper charset [A-Za-z0-9_-].
     check("worker-id-charset", _re.fullmatch(r"[A-Za-z0-9_-]+", wid) is not None)
@@ -863,21 +889,42 @@ def _self_test() -> int:
     check("max-concurrent-default-1", _max_concurrent({"id": "x"}) == 1)
     check("max-concurrent-explicit", _max_concurrent({"id": "x", "max_concurrent": 3}) == 3)
 
+    # tier_weight branches (vpr-1457 claude F3: the function shipped with zero discriminating
+    # coverage; a constant-0.0 mutation passed every check). Explicit weight wins; a trailing
+    # "<N>x" label parses; the suffix is END-anchored; a bool is not a weight; no signal -> 1.0.
+    check("tierweight-explicit-wins", tier_weight({"weight": 4.5, "tier": "9x"}) == 4.5)
+    check("tierweight-suffix-parses", tier_weight({"tier": "plan-2.5x"}) == 2.5)
+    check("tierweight-suffix-end-anchored", tier_weight({"tier": "2x-plus"}) == 1.0)
+    check("tierweight-bool-not-weight", tier_weight({"weight": True, "tier": "plain"}) == 1.0)
+    check("tierweight-default", tier_weight({"tier": "plain"}) == 1.0)
+    # And weight is genuinely load-bearing in the in-set sort: raising echo's weight above
+    # alpha/bravo moves it to the top pick (a constant tier_weight cannot pass this).
+    import copy as _copy
+    _fx_w = _copy.deepcopy(_FIXTURE)
+    for _a in _fx_w["accounts"]:
+        if _a["id"] == "echo-claude":
+            _a["weight"] = 9.0
+    _top_w = select_account(_fx_w, "claude", "opus", sunday)
+    check("weight-load-bearing-in-set", _top_w is not None and _top_w["id"] == "echo-claude")
+
     # --- verifier-independence exclusion (impl-3111) --------------------------------
     # A worker-id minted for a hyphenated account must resolve back to that exact account.
-    wid_wa = mint_worker_id("work-a", "claude", sunday)   # claude-work-a-<stamp>-<4hex>
-    # 33. worker_id_to_key resolves the (account, family) key, hyphenated account intact.
-    check("wid-resolves-hyphenated-account", worker_id_to_key(wid_wa) == ("work-a", "claude"))
+    wid_plain = mint_worker_id("alpha", "claude", sunday)   # claude-alpha-<stamp>-<4hex>
+    # 33. worker_id_to_key resolves the (account, family) key; a HYPHENATED account name
+    # (config-independent parse) keeps its hyphens intact (the branch the old fixture covered).
+    wid_hyph = mint_worker_id("zulu-two", "claude", sunday)
+    check("wid-resolves-hyphenated-account", worker_id_to_key(wid_hyph) == ("zulu-two", "claude"))
+    check("wid-resolves-plain-account", worker_id_to_key(wid_plain) == ("alpha", "claude"))
     # 34. A From:-style short id (no account component) does NOT parse -> None (fail-closed signal).
     check("wid-shortform-unresolvable", worker_id_to_key("opus-20260726T180000Z-abcd1234") is None)
     check("wid-garbage-unresolvable", worker_id_to_key("not-a-worker-id") is None)
-    KNOWN_C = {"work-a", "work-b", "personal-a", "personal-b"}   # claude accounts in _FIXTURE
+    KNOWN_C = {"alpha", "bravo", "charlie", "delta", "echo"}   # claude accounts in _FIXTURE
     # 35. resolve_exclusions: a same-family --not-worker for a KNOWN account contributes it; clean.
-    exc, unres, unk = resolve_exclusions([wid_wa], [], "claude", KNOWN_C)
-    check("resolve-notworker-same-family", exc == {"work-a"} and unres == [] and unk == [])
+    exc, unres, unk = resolve_exclusions([wid_plain], [], "claude", KNOWN_C)
+    check("resolve-notworker-same-family", exc == {"alpha"} and unres == [] and unk == [])
     # 36. A DIFFERENT-family --not-worker is irrelevant to this dispatch: ignored (not unresolved,
     #     not unknown). By design: independence keys on (account, family). (claude verifier's nit.)
-    wid_cod = mint_worker_id("personal-b", "codex", sunday)
+    wid_cod = mint_worker_id("delta", "codex", sunday)
     exc2, unres2, unk2 = resolve_exclusions([wid_cod], [], "claude", KNOWN_C)
     check("resolve-notworker-cross-family-ignored", exc2 == set() and unres2 == [] and unk2 == [])
     # 37. A non-parsing --not-worker lands in `unresolved` -> caller FAILS CLOSED (never silent).
@@ -885,8 +932,8 @@ def _self_test() -> int:
     check("resolve-unresolvable-flagged",
           exc3 == set() and unres3 == ["opus-20260726T180000Z-abcd1234"] and unk3 == [])
     # 38. --not-account for a KNOWN account is taken verbatim; clean.
-    exc4, unres4, unk4 = resolve_exclusions([], ["work-b"], "claude", KNOWN_C)
-    check("resolve-notaccount-verbatim", exc4 == {"work-b"} and unres4 == [] and unk4 == [])
+    exc4, unres4, unk4 = resolve_exclusions([], ["bravo"], "claude", KNOWN_C)
+    check("resolve-notaccount-verbatim", exc4 == {"bravo"} and unres4 == [] and unk4 == [])
     # 38a. REALITY FIXTURE (codex verifier): a --not-worker that PARSES to an account NOT in config
     #      is UNKNOWN -> fail closed, NOT a silent no-op. `claude-ghost-99999999T999999Z-dead` parses
     #      to account `ghost` (a regex-valid but semantically-garbage stamp still parses).
@@ -894,35 +941,35 @@ def _self_test() -> int:
     exc5, unres5, unk5 = resolve_exclusions([wid_ghost], [], "claude", KNOWN_C)
     check("resolve-notworker-unregistered-is-unknown",
           exc5 == set() and unres5 == [] and unk5 == [wid_ghost])
-    # 38b. REALITY FIXTURE (claude verifier): a --not-account TYPO (`worka` for `work-a`) matches zero
+    # 38b. REALITY FIXTURE (claude verifier): a --not-account TYPO (`worka` for `alpha`) matches zero
     #      configured accounts -> UNKNOWN -> fail closed. This is the vacuous-exclusion the operator
     #      is most likely to make, and silently no-op'ing it routes the verifier back onto the author.
     exc6, unres6, unk6 = resolve_exclusions([], ["worka"], "claude", KNOWN_C)
     check("resolve-notaccount-typo-is-unknown",
           exc6 == set() and unres6 == [] and unk6 == ["worka"])
     # 38c. A --not-account naming a real account in the OTHER family only is unknown for THIS family
-    #      (known_accounts is family-scoped): `personal-b` IS claude, so it is KNOWN here (control).
-    exc7, unres7, unk7 = resolve_exclusions([], ["personal-b"], "claude", KNOWN_C)
-    check("resolve-notaccount-known-in-family", exc7 == {"personal-b"} and unk7 == [])
+    #      (known_accounts is family-scoped): `delta` IS claude, so it is KNOWN here (control).
+    exc7, unres7, unk7 = resolve_exclusions([], ["delta"], "claude", KNOWN_C)
+    check("resolve-notaccount-known-in-family", exc7 == {"delta"} and unk7 == [])
     # 39. eligible_accounts drops an excluded account (after the availability funnel).
     elig_x = [a["id"] for a in
-              eligible_accounts(_FIXTURE, "claude", "opus", sunday, frozenset({"work-a"}))]
-    check("eligible-drops-excluded", "work-a-claude" not in elig_x and "work-b-claude" in elig_x)
+              eligible_accounts(_FIXTURE, "claude", "opus", sunday, frozenset({"alpha"}))]
+    check("eligible-drops-excluded", "alpha-claude" not in elig_x and "bravo-claude" in elig_x)
     # 40. select_account honors the exclusion (top pick shifts to the next eligible).
-    sel_x = select_account(_FIXTURE, "claude", "opus", sunday, frozenset({"work-a"}))
-    check("select-honors-exclusion", sel_x is not None and sel_x["id"] == "work-b-claude")
+    sel_x = select_account(_FIXTURE, "claude", "opus", sunday, frozenset({"alpha"}))
+    check("select-honors-exclusion", sel_x is not None and sel_x["id"] == "bravo-claude")
     # 41. pick_account auto with the top account excluded picks the NEXT eligible.
     pa_x, pr_x = pick_account(_FIXTURE, "claude", "opus", sunday,
-                              exclude_accounts=frozenset({"work-a"}))
-    check("pick-auto-skips-excluded", pa_x is not None and pa_x["id"] == "work-b-claude")
+                              exclude_accounts=frozenset({"alpha"}))
+    check("pick-auto-skips-excluded", pa_x is not None and pa_x["id"] == "bravo-claude")
     # 42. INDEPENDENCE-DEADLOCK: every eligible account excluded -> distinct reason (not empty-pool).
     pa_d, pr_d = pick_account(_FIXTURE, "claude", "opus", sunday,
-                              exclude_accounts=frozenset({"work-a", "work-b", "personal-b"}))
+                              exclude_accounts=frozenset({"alpha", "bravo", "echo", "delta"}))
     check("pick-independence-deadlock", pa_d is None and "independence-deadlock" in pr_d)
     # 43. An UNKNOWN model (3.194 guard) fails loud with a DISTINCT reason, before the
     #     eligibility funnel, so it is neither a deadlock nor a bare "no eligible account".
     pa_e, pr_e = pick_account(_FIXTURE, "claude", "no-such-model", sunday,
-                              exclude_accounts=frozenset({"work-a"}))
+                              exclude_accounts=frozenset({"alpha"}))
     check("pick-unknown-model-not-deadlock",
           pa_e is None and "deadlock" not in pr_e and "unknown-model" in pr_e
           and "no eligible account" not in pr_e)
@@ -942,35 +989,37 @@ def _self_test() -> int:
     pa_kv, _ = pick_account(_FIXTURE, "claude", "opus", sunday)
     check("known-model-guard-valid-resolves", pa_kv is not None)
     # 44. CONTRADICTION: the targeted account is ALSO excluded -> distinct order-defect reason.
-    pa_c, pr_c = pick_account(_FIXTURE, "claude", "opus", sunday, account="work-a",
-                              exclude_accounts=frozenset({"work-a"}))
+    pa_c, pr_c = pick_account(_FIXTURE, "claude", "opus", sunday, account="alpha",
+                              exclude_accounts=frozenset({"alpha"}))
     check("pick-target-excluded-contradiction", pa_c is None and "contradiction" in pr_c)
     # 45. A targeted account NOT excluded still resolves normally alongside an unrelated exclusion.
-    pa_ok, _ = pick_account(_FIXTURE, "claude", "opus", sunday, account="work-b",
-                            exclude_accounts=frozenset({"work-a"}))
-    check("pick-target-unrelated-exclusion-ok", pa_ok is not None and pa_ok["id"] == "work-b-claude")
+    pa_ok, _ = pick_account(_FIXTURE, "claude", "opus", sunday, account="bravo",
+                            exclude_accounts=frozenset({"alpha"}))
+    check("pick-target-unrelated-exclusion-ok", pa_ok is not None and pa_ok["id"] == "bravo-claude")
 
     # Orchestrator-account guard (maintainer-directed 2026-07-28): is_orchestrator claude is
     # never eligible and never targetable; the same account's codex entry (unflagged) stays fine.
     orch_ok, orch_reason = account_available(
-        {"id": "orch-claude", "is_orchestrator": True, "usage_state": "available"}, sunday)
+        {"id": "omega-claude", "is_orchestrator": True, "usage_state": "available"}, sunday)
     check("orchestrator-account-available-refused", orch_ok is False and "orchestrator" in orch_reason)
     claude_ids = [a["id"] for a in eligible_accounts(_FIXTURE, "claude", "opus", sunday)]
-    check("orchestrator-claude-not-eligible", "orch-claude" not in claude_ids)
-    pa_orch, _ = pick_account(_FIXTURE, "claude", "opus", sunday, account="orch")
+    check("orchestrator-claude-not-eligible", "omega-claude" not in claude_ids)
+    pa_orch, _ = pick_account(_FIXTURE, "claude", "opus", sunday, account="omega")
     check("orchestrator-claude-target-refused", pa_orch is None)
     codex_ids = [a["id"] for a in eligible_accounts(_FIXTURE, "codex", "gpt-5.6-terra", sunday)]
-    check("orchestrator-codex-still-eligible", "orch-codex" in codex_ids)
-    pa_ocx, _ = pick_account(_FIXTURE, "codex", "gpt-5.6-terra", sunday, account="orch")
-    check("orchestrator-codex-target-ok", pa_ocx is not None and pa_ocx["id"] == "orch-codex")
+    check("orchestrator-codex-still-eligible", "omega-codex" in codex_ids)
+    pa_ocx, _ = pick_account(_FIXTURE, "codex", "gpt-5.6-terra", sunday, account="omega")
+    check("orchestrator-codex-target-ok", pa_ocx is not None and pa_ocx["id"] == "omega-codex")
 
     # worker_log_glob: the pointer to a worker's full-output log (unique worker-id -> one file).
+    # Expected globs compose from WORKER_LOG_DIR (config-carried), so the self-test never
+    # embeds a literal host path (disclosure fix, PR #1457).
     check("worker-log-glob-codex",
-          worker_log_glob("codex", "jeff-mailz", "codex-jeff-mailz-20260801T033350Z-1129")
-          == "/home/grc/grc_working/logs/*_codex_jeff-mailz_codex-jeff-mailz-20260801T033350Z-1129.log")
+          worker_log_glob("codex", "acct-x", "codex-acct-x-20990101T000000Z-anon")
+          == f"{WORKER_LOG_DIR}/*_codex_acct-x_codex-acct-x-20990101T000000Z-anon.log")
     check("worker-log-glob-claude",
-          worker_log_glob("claude", "work-a", "opus-x")
-          == "/home/grc/grc_working/logs/*_claude_work-a_opus-x.log")
+          worker_log_glob("claude", "alpha", "opus-x")
+          == f"{WORKER_LOG_DIR}/*_claude_alpha_opus-x.log")
 
     if fails:
         print("SELF-TEST FAIL:", ", ".join(fails))

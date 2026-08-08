@@ -4,12 +4,12 @@
 WHAT THIS IS (and is NOT). An advisory orchestrator dev-AID (#724), not a
 gate. It always exits 0 after printing its report (2 only on internal error). The
 project runs across materially-different execution environments (a managed cloud
-sandbox; the maintainer's local NUC) whose transport and tooling assumptions
+sandbox; the maintainer's local machine) whose transport and tooling assumptions
 diverge in ways a session hits live: the PR mechanism (GitHub MCP vs the `gh`
 CLI), the CI-poll and merge transport (GraphQL vs the REST fallback when the
 shared 5,000/hr GraphQL pool is exhausted, observed in #687), the stop-hook
-auto-commit-push (present in cloud, absent on the NUC), the pipe-guard PreToolUse
-hook (fires on the NUC; silent in cloud resumed sessions because
+auto-commit-push (present in cloud, absent on the local machine), the pipe-guard PreToolUse
+hook (fires on the local machine; silent in cloud resumed sessions because
 ``CLAUDE_PROJECT_DIR`` is unset there, the #677 root cause), egress
 reachability per source family, sibling-repo access, and the operator identity
 (maintainer vs adopter fork, by the ``origin`` remote, TODO section 1.19.5). This
@@ -114,7 +114,7 @@ def probe_hooks() -> dict:
         # The hook command resolves the guard script through $CLAUDE_PROJECT_DIR.
         # When that var is unset IN THIS PROCESS the cloud harness fails to resolve
         # it and the hook silently does not fire (the #677 root cause); but the
-        # NUC harness has been OBSERVED to fire the hook anyway (it resolves the path
+        # local harness has been OBSERVED to fire the hook anyway (it resolves the path
         # for hook execution even when the var is absent from the Bash-tool env). So
         # actual firing is NOT reliably script-predictable across environments; it is
         # an ASSISTANT-PROBE (observe whether a piped verification command is
@@ -447,7 +447,7 @@ def main(argv: list[str] | None = None) -> int:
                                  "commit and push manually"),
             "pipe_guard": ("ASSISTANT-PROBE: whether the pipe-guard hook fires is not "
                            "reliably script-detectable (an unset CLAUDE_PROJECT_DIR "
-                           "blocks it on the cloud harness but NOT the NUC harness, "
+                           "blocks it on the cloud harness but NOT the local harness, "
                            "which resolves the hook path anyway); observe whether a "
                            "piped verification command is actually blocked. Rely on "
                            "the unpiped-verification habit (RM-10) either way"),
@@ -499,7 +499,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"- Hooks: pipe-guard configured={h['pipe_guard_configured']}, "
           f"CLAUDE_PROJECT_DIR set={h['CLAUDE_PROJECT_DIR_set']}, child session="
           f"{h['child_session']} (actual firing is an ASSISTANT-PROBE; unset "
-          f"CLAUDE_PROJECT_DIR blocks the hook on the cloud harness but not the NUC "
+          f"CLAUDE_PROJECT_DIR blocks the hook on the cloud harness but not the local "
           f"harness, so observe a piped verification, RM-10 unpiped habit is the "
           f"control either way)")
     for name, entry in profile["siblings"].items():
