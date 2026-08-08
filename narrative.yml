@@ -12,8 +12,8 @@ pages:
   title: "What the governing body should require for AI data governance and classification"
   narrative_type: "Executive Brief"
   narrative_status: "Explanatory"
-  version: "0.0.3"
-  date: "2026-08-07"
+  version: "0.0.4"
+  date: "2026-08-08"
   corpus_sources:
     - "ai/standard-ai-security-and-risk.md"
     - "security/standard-data-classification-and-handling.md"
@@ -46,8 +46,8 @@ pages:
   title: "What the governing body should require for AI incident-response readiness before production"
   narrative_type: "Executive Brief"
   narrative_status: "Explanatory"
-  version: "0.0.3"
-  date: "2026-08-06"
+  version: "0.0.5"
+  date: "2026-08-08"
   corpus_sources:
     - "ai/plan-ai-incident-response.md"
     - "security/procedure-security-incident-response.md"
@@ -76,8 +76,8 @@ pages:
   title: "What the governing body should require before an AI system goes into production"
   narrative_type: "Executive Brief"
   narrative_status: "Explanatory"
-  version: "0.0.2"
-  date: "2026-08-06"
+  version: "0.0.5"
+  date: "2026-08-08"
   corpus_sources:
     - "ai/guide-ai-board-oversight.md"
     - "ai/standard-ai-security-and-risk.md"
@@ -109,8 +109,8 @@ pages:
   title: "What the governing body should require for AI resilience and continuity"
   narrative_type: "Executive Brief"
   narrative_status: "Explanatory"
-  version: "0.0.3"
-  date: "2026-08-07"
+  version: "0.0.5"
+  date: "2026-08-08"
   corpus_sources:
     - "resilience/policy-business-continuity-and-disaster-recovery.md"
     - "resilience/standard-business-continuity-and-disaster-recovery.md"
@@ -141,7 +141,7 @@ pages:
   title: "What the governing body should require for third-party and AI supply-chain risk oversight"
   narrative_type: "Executive Brief"
   narrative_status: "Explanatory"
-  version: "0.0.6"
+  version: "0.0.11"
   date: "2026-08-08"
   corpus_sources:
     - "risk/standard-third-party-and-supply-chain-risk.md"
