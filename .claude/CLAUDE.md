@@ -33,7 +33,7 @@ At each checkpoint, emit one line, then confirm compliance or halt:
 
 **MINIMUM CADENCE: AT LEAST ONCE PER PR, AND PREFERABLY MORE OFTEN (maintainer-directed
 2026-07-26).** The checkpoint list above is semantic, and a semantic list is exactly what a long run
-erodes: on 2026-07-26 the assistant went two entire PRs without emitting the line and re-anchored
+erodes: the assistant once went entire PRs without emitting the line and re-anchored
 only when the maintainer asked whether it had forgotten. So the cadence now has a FLOOR that does not
 depend on noticing a checkpoint. Every PR carries at least one emission, and the emission is
 SELF-ACKNOWLEDGED rather than recited: state, in one or two clauses, what on this specific change the
@@ -573,7 +573,7 @@ hook can only see a row once it is written, so this section is wider than the ho
 
 ## A delivered QA result BLOCKS progress until it is read and its findings are fixed
 
-**Maintainer-directed 2026-07-25, in capitals, after 17 QA deliveries sat unread in worker outboxes
+**Maintainer-directed 2026-07-25, in capitals, after a large batch of QA deliveries sat unread in worker outboxes
 while the orchestrator started new work.** This is the strongest form of the QA priority and it
 overrides the queue: a QA result is not a document to get to, it is a STOP until actioned.
 
