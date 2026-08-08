@@ -1,6 +1,6 @@
 # AIQT doctor
 
-Version: 1.0.2 (plain semver; the AIQT release train assigns release versioning once it
+Version: 1.0.3 (plain semver; the AIQT release train assigns release versioning once it
 exists)
 Status: Phase-1 procedure; READ-ONLY and re-runnable; one summary line per check;
 non-zero exit only on a definite fault (degraded-but-working states report and exit 0).
@@ -46,7 +46,8 @@ it upgrades to, and reports an explicit status rather than staying silent.
 6. **Level wiring.** For each ENABLED level, its OWN trigger surface exists, per the
    level definitions: Level 1 set to `Automatic`, the pre-push hook is installed
    (`OnRequest` has no standing surface, and the check reports valid-config, no
-   standing surface for it, explicitly); Level 2 enabled, the workflow file is present
+   standing surface for it, explicitly; `Off` disables the level, and a disabled
+   level's surfaces are not checked); Level 2 enabled, the workflow file is present
    on the default branch; Level 3 enabled, the org secret is visible to the
    repository. A disabled level's surfaces are not checked. Where review artefacts are
    present, they validate against the shipped contract (`review-contract.md`) and its

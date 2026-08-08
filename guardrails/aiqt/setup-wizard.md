@@ -1,6 +1,6 @@
 # AIQT setup wizard
 
-Version: 1.0.1 (plain semver; the AIQT release train assigns release versioning once it
+Version: 1.0.2 (plain semver; the AIQT release train assigns release versioning once it
 exists)
 Status: Phase-1 procedure; re-runnable; executed by the adopter's assistant. Writes
 ONLY `.working/aiqt/config.md` (the user-owned file). It never writes into
@@ -12,7 +12,8 @@ decided, when, why, and usage since (read from config.md). Then:
 1. **Fast path.** "Use the recommended setup?" One confirmation writes the COMPLETE
    Phase-1 configuration at the documented defaults, every setting with its comment
    block: `AIQTVersion` (stamped from the installed release), `Level0=On`,
-   `Level1=Automatic`, `Level1Steps=pre-push`, `Level2=Off` (offered again when a key
+   `Level1=Automatic` (of the `Off` / `OnRequest` / `Automatic` set; the custom path
+   offers all three), `Level1Steps=pre-push`, `Level2=Off` (offered again when a key
    is loaded), `Level3=Off`, `Level4=Unavailable`, `AutoFix=On`, `PromotionPanel=Off`,
    `SpendNudge=On`, and the guardrail table skeleton (one row per installed core
    component at its installed version). The ONE exception: egress consent is still
