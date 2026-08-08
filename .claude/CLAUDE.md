@@ -587,7 +587,7 @@ slip mid-edit.
 
 **THE ONE ACT THIS FORBIDS SPECIFICALLY: do not write a count, a table, or a comparative statistic
 about findings before every row has a recorded disposition.** That is the precise mechanism of the
-2026-07-25 failure. Three live defects became "3 blind cases against 27 coverage gaps", and the summary
+motivating failure. Live defects became a tidy coverage statistic, and the summary
 FELT like progress while the defects stayed open. Summarizing is not dispositioning, and an elegant
 table is the most persuasive way to walk past a defect.
 
@@ -609,9 +609,9 @@ lands". Reading it IS the next task.
 
 **Why it is a hard block rather than a priority.** A finding nobody has read is strictly worse than
 no QA at all, because the record shows the pass ran and so the surface reads as covered. On
-2026-07-25 that cost was concrete: an ERROR-severity finding on `manage-workers.py` and an
+one observed day that cost was concrete: an ERROR-severity finding on `manage-workers.py` and an
 error-severity HOLD on an EU AI Act retention change that had already MERGED without human review
-both sat unread while three further PRs were built on top of them, and the retention finding
+both sat unread while further PRs were built on top of them, and the retention finding
 described a fact pattern in which records could be destroyed before a statutory keeping period
 expires. The QA had already found it. Nobody had looked.
 
@@ -777,9 +777,8 @@ compute-first gate applies with force to authorial/policy decisions: before surf
 `python3 tools/decisions-search.py <section-or-id-or-phrase>` and READ its output; if a
 decision is recorded (in `grc_library_private/.working/pending-decisions.md`, the `_private` design-decisions
 record, or `grc_library_private/.working/DONE.md`), ACT on it, never re-ask. Re-asking a decided question
-wastes the maintainer's time and erodes trust (the 2026-07-19 recurrence: four content
-forks, §3.68/§3.69/§3.70 and the standards-rendering item, re-asked though all were
-recorded in `pending-decisions.md`). This is the executed-not-narrated forcing function,
+wastes the maintainer's time and erodes trust (an observed recurrence: several content
+forks re-asked though all were recorded in `pending-decisions.md`). This is the executed-not-narrated forcing function,
 the same shape as `audit-delivery-status.py` and `ref-holds.py`. The mechanical backstop is
 the [`block-answered-question.py`](hooks/block-answered-question.py) PreToolUse hook, which
 extracts a question's distinctive keys (§-sections, coded ids like `FR-205`) and BLOCKS the
@@ -825,7 +824,7 @@ The project instantiation of the `evidence-grounded-completion` rule's set-compl
 
 ## Completeness over sampling (exhaust the instructed set)
 
-When the maintainer instructs work over a SET ("ask the open questions", "work the next items", "fix the findings", "clear the backlog"), it is an instruction to process the WHOLE set, not a self-chosen subset. "Ask the open questions" means ask ALL of them (batched into as few `AskUserQuestion` rounds as the four-per-round cap allows), never the few easiest to frame; "work the next items" means work until the set is exhausted, every remainder carries a named externally-observable blocker (each surfaced), or the maintainer stops the run, never a comfortable three-and-stop. An un-instrumented sense of "enough" is not a stop signal (the `evidence-grounded-completion` un-observable-state corollary). Maintainer-directed 2026-07-24 after the assistant repeatedly asked a subset of the open questions (4 of 15) and worked a subset of the queued items and stopped. This is the project instantiation of the pack [`ai-assistant-workflow-disciplines`](rules/governance/ai-assistant-workflow-disciplines.md) rule's `## Completeness over sampling` standard; a mechanical completeness backstop is a queued follow-up, the discipline is the primary control.
+When the maintainer instructs work over a SET ("ask the open questions", "work the next items", "fix the findings", "clear the backlog"), it is an instruction to process the WHOLE set, not a self-chosen subset. "Ask the open questions" means ask ALL of them (batched into as few `AskUserQuestion` rounds as the four-per-round cap allows), never the few easiest to frame; "work the next items" means work until the set is exhausted, every remainder carries a named externally-observable blocker (each surfaced), or the maintainer stops the run, never a comfortable three-and-stop. An un-instrumented sense of "enough" is not a stop signal (the `evidence-grounded-completion` un-observable-state corollary). Maintainer-directed 2026-07-24 after the assistant repeatedly asked a small subset of the open questions and worked a subset of the queued items and stopped. This is the project instantiation of the pack [`ai-assistant-workflow-disciplines`](rules/governance/ai-assistant-workflow-disciplines.md) rule's `## Completeness over sampling` standard; a mechanical completeness backstop is a queued follow-up, the discipline is the primary control.
 
 ## Chat-answer pacing (readable answers, no stall)
 
