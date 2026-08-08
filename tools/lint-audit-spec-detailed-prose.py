@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Audit-spec detailed-prose presence audit.
+"""Audit-spec detailed-prose presence-and-placement audit.
 
 The audit programme's specification
 (``governance/specification-audit-programme.md``) carries, beyond the
@@ -18,7 +18,8 @@ This linter closes that seam with a PRESENCE-AND-PLACEMENT check
 (deliberately not semantic: whether the prose accurately describes the
 gate remains sweep-and-review territory). Placement (P-3.230, from the
 Sweep-151 recurrence of the gate-55 class) requires each required
-sentence to fall INSIDE the section-6 region, so a description spliced
+NUMERIC-gate sentence (description and appended-order) to fall INSIDE
+the section-6 region (delta-gate narratives stay body-wide presence), so a description spliced
 into the section-5 category list fails instead of passing body-wide
 presence:
 
@@ -228,7 +229,7 @@ def load_retired_delta_gates(parity_script: Path) -> set[int]:
 
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
-        description="Presence check for the audit spec's per-gate detailed prose."
+        description="Presence-and-placement check for the audit spec's per-gate detailed prose."
     )
     parser.add_argument("--spec", default=str(REPO_ROOT / SPEC_PATH))
     parser.add_argument(

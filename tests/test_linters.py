@@ -7761,7 +7761,9 @@ class CobitIso31000CitationsTests(LinterTestCase):
 class AuditSpecDetailedProseTests(LinterTestCase):
     """tools/lint-audit-spec-detailed-prose.py (gate 64)
 
-    Presence check for the audit spec's per-gate detailed prose: every
+    Presence-and-placement check for the audit spec's per-gate detailed
+    prose (each required numeric-gate sentence must also sit inside the
+    section-6 region): every
     inventory gate at or above DESCRIPTION_FLOOR (35) needs a
     "Gate N is ..." description sentence and every gate at or above
     APPENDED_FLOOR (47) also a "Gate N is appended ..." sentence.
