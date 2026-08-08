@@ -12,8 +12,8 @@ pages:
   title: "What the governing body should require for AI data governance and classification"
   narrative_type: "Executive Brief"
   narrative_status: "Explanatory"
-  version: "0.0.3"
-  date: "2026-08-07"
+  version: "0.0.4"
+  date: "2026-08-08"
   corpus_sources:
     - "ai/standard-ai-security-and-risk.md"
     - "security/standard-data-classification-and-handling.md"
@@ -76,7 +76,7 @@ pages:
   title: "What the governing body should require before an AI system goes into production"
   narrative_type: "Executive Brief"
   narrative_status: "Explanatory"
-  version: "0.0.4"
+  version: "0.0.5"
   date: "2026-08-08"
   corpus_sources:
     - "ai/guide-ai-board-oversight.md"
@@ -109,7 +109,7 @@ pages:
   title: "What the governing body should require for AI resilience and continuity"
   narrative_type: "Executive Brief"
   narrative_status: "Explanatory"
-  version: "0.0.4"
+  version: "0.0.5"
   date: "2026-08-08"
   corpus_sources:
     - "resilience/policy-business-continuity-and-disaster-recovery.md"

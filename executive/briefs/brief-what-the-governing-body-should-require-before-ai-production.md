@@ -2,7 +2,7 @@
 
 **Document Title:** What the governing body should require before an AI system goes into production\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.4\
+**Version:** 0.0.5\
 **Date:** 2026-08-08\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -49,7 +49,7 @@ For the governing body and accountable executive leadership, the corpus position
 
 - **The governing body does not approve the system into production; it sets the appetite and policy that management's decision operates within.** Its contribution beforehand is an approved AI risk appetite and material policy direction; management's Step 9 decision is then exercised within the limits the governing body has set.
 - **The governing body should expect evidence, not assurances.** The controls the corpus calls for are visible to the governing body only when they can be shown. Its oversight before production is a dependency on management producing the evidence that each control exists and operates, which the next section expresses as evidence classes.
-- **Residual risk beyond appetite does not pass as a routine sign-off.** Where a system would enter production carrying residual risk that exceeds the organization's defined appetite, the corpus escalates that risk-acceptance decision above the routine management approval, to the authority the [exception and risk acceptance policy](../../governance/policy-exception-and-risk-acceptance-management.md) designates (its section 4.2). Treating it as an ordinary production approval bypasses a control the corpus places above the management gate.
+- **Residual risk beyond appetite does not pass as a routine sign-off.** Where a system would enter production carrying residual risk that exceeds the organization's defined appetite, the corpus escalates that risk-acceptance decision above the routine management approval, to the authority the [exception and risk acceptance policy](../../governance/policy-exception-and-risk-acceptance-management.md) designates (its section 4.2). That escalated route is a prevention against beyond-appetite residual risk being accepted through an ordinary production approval.
 - **Some answers are weak answers.** The [board oversight guide](../../ai/guide-ai-board-oversight.md) names governance red flags (its section 6); one bears directly on a production decision, namely responsibility for an AI outcome attributed to the system or the vendor rather than an accountable person. Two further weak answers are worth naming against the [AI security and risk standard](../../ai/standard-ai-security-and-risk.md) rather than the red-flag list. "We will monitor it once it is live" treats monitoring as a replacement for the pre-production controls, when the security standard places monitoring among the controls to have in place before production. And a passing internal test is evidence that a control was exercised once, not evidence that the control operates in production.
 
 ## Evidence to request
