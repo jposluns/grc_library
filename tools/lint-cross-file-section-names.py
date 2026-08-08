@@ -36,10 +36,6 @@ Deliberate deltas from gate 62, each evidence-backed by the survey:
   tables; scanning them found zero false positives corpus-wide.
   ``adjacent_link``'s pipe-breaks-adjacency defence still prevents a
   cell's reference binding to a neighbouring cell's link.
-- ``guardrails/README.md`` is exempt BY RELATIVE PATH
-  (its version-history table narrates past reference shapes frozen
-  as-of-write, the same rationale as the CHANGELOG exemption; the
-  root README.md stays scanned).
 - References whose cited number carries no heading title in the
   target are skipped on NON-TABLE lines (gate 62 owns existence
   there, and an inline clause has no title to verify). On TABLE rows,
@@ -109,16 +105,6 @@ EXEMPT_FILES = frozenset(
     {
         "CHANGELOG.md",
         "TODO.md",
-    }
-)
-
-# Relative-path exemptions: the pack README's version-history table
-# narrates past pack-rule reference shapes frozen as-of-write (rows
-# citing a rule's sections by number and title as they were when the
-# row was written). Exempting by relpath keeps the root README scanned.
-EXEMPT_RELPATHS = frozenset(
-    {
-        "guardrails/README.md",
     }
 )
 
@@ -307,12 +293,6 @@ def main(argv: list[str] | None = None) -> int:
     scanned = 0
     for path in iter_markdown_targets([Path(p) for p in args.paths]):
         if path.name in EXEMPT_FILES:
-            continue
-        try:
-            rel = str(path.relative_to(REPO_ROOT))
-        except ValueError:
-            rel = ""
-        if rel in EXEMPT_RELPATHS:
             continue
         scanned += 1
         findings.extend(check_file(path))

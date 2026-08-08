@@ -46,11 +46,15 @@ The regression suite runs as gate 36 of the audit programme. See
 
 ## Fixture isolation
 
-Each test creates its fixture in a per-test temporary directory under
-[`tests/tmp/`](tmp/) (created on demand). The temporary file is deleted
-after the test. Tests pass explicit file paths to the linter under
-test, so the linter does not scan the rest of the repository during
-the test.
+Most tests create a fixture in a per-test temporary directory under
+[`tests/tmp/`](tmp/) (created on demand) and pass explicit file paths to
+the linter under test, so the linter does not scan the rest of the
+repository during the test. Default-scope coverage fixtures instead build
+a synthetic repository-shaped tree in a temporary directory, point the
+linter's module root at it, and call the linter's collector or `main` in
+process, to prove a path is reached in DEFAULT mode (not merely when an
+explicit path bypasses default target selection). Either way the temporary
+tree is removed after the test.
 
 Isolation is provided by two complementary mechanisms:
 

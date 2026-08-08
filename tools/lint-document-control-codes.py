@@ -56,12 +56,12 @@ codes with a non-CSF function prefix cannot occur (the token regex requires
 one of the six CSF Functions).
 
 Excludes the central matrix (gate 49's exact target) to avoid duplicate
-coverage, and the ``guardrails/`` pack subtree (AI-context
-artefacts, not governed corpus documents, consistent with the other
-content linters).
+coverage. The ``guardrails/`` pack subtree remains in scope so invalid
+framework codes in the library's own rules and skills cannot escape the gate.
 
-Scans the audited corpus directories by default; a path argument (used by
-the regression harness) overrides the target to a single file.
+Scans the audited corpus directories and ``guardrails/`` by default; a path
+argument (used by the regression harness) overrides the target to a single
+file.
 
 Exit codes: 0 = clean, 1 = findings, 2 = target unreadable.
 """
@@ -88,10 +88,6 @@ from nist_csf_reference import is_valid_category, relocation_note
 # The central matrix is gate 49's exact target; exclude it here to avoid
 # duplicate coverage. Path is relative to REPO_ROOT, posix form.
 MATRIX_REL = "compliance/matrix-grc-compliance-alignment.md"
-
-# The pack subtree holds AI-context artefacts (SKILL.md, rule files), not
-# governed corpus documents; the other content linters exempt it too.
-PACK_PREFIX = "guardrails/"
 
 # NIST CSF label: matches "NIST CSF" / "NIST Cybersecurity Framework"
 # (optionally "2.0"), but NOT "NIST SP 800-...".
@@ -199,14 +195,12 @@ def collect_targets(paths: list[str] | None) -> list[Path]:
     """Resolve the scan targets: explicit paths, or the audited corpus."""
     if paths:
         return [Path(p).resolve() for p in paths]
-    roots = [REPO_ROOT / d for d in AUDITED_DOMAIN_DIRS]
+    roots = [REPO_ROOT / d for d in (*AUDITED_DOMAIN_DIRS, "guardrails")]
     targets = iter_markdown_targets(roots)
     out: list[Path] = []
     for p in targets:
         rel = p.relative_to(REPO_ROOT).as_posix() if p.is_relative_to(REPO_ROOT) else str(p)
         if rel == MATRIX_REL:
-            continue
-        if rel.startswith(PACK_PREFIX):
             continue
         out.append(p)
     return out
@@ -240,7 +234,7 @@ def main(argv: list[str]) -> int:
         )
         print(
             f"OK: NIST CSF 2.0 codes in per-document framework tables are valid "
-            f"({scope}; CSF 2.0 Category membership; matrix and pack excluded)."
+            f"({scope}; CSF 2.0 Category membership; matrix excluded)."
         )
         return 0
 
