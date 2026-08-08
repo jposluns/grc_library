@@ -26,7 +26,7 @@ rule (maintainer-directed 2026-07-19, expanded to six points 2026-07-26):
    per-account-concurrency backlog item lands). A `list-workers` reading of zero is the STANDING-POLL
    fleet sitting idle, NOT "no workers", and is NEVER a licence to self-run: a felt "0 workers" is the
    signal to SPAWN one with exec-dispatch, not to do the work yourself. (This is the mistake that
-   recurred 2026-07-26.)
+   has recurred.)
 3. **20-minute reissue.** If a worker has not delivered in 20 minutes, issue the SAME order to another
    worker (a distinct account) and take whichever returns first; the late delivery is read as a
    cross-reference, never re-adjudicated.

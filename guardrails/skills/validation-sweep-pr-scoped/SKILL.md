@@ -23,7 +23,7 @@ An adopting project maps each bullet to its own record paths, registers, gate, r
 PR-scoped validation runs as each PR's finalizing step, before merge, to catch issues the PR introduced before they compound across subsequent PRs. (Command names `/validate-pr`, `/validate`, and `/retro` are the parent library's paired commands, used in this document as shorthand; an adopting project reads them as its own equivalents.) Two sibling skills together cover the validation surface:
 
 - **`validation-sweep`** (slash command `/validate`, project-wide, periodic on the project's cadence (a small-team default in the tens of merges; set your own) or maintainer-triggered): full Subagent A + B + C sweep across the whole project scope. Catches project-wide drift (Subagent B's domain), audit-programme integrity issues (Subagent C's domain), and recent-PR issues (Subagent A's domain). Expensive relative to the PR-scoped form, typically several times its cost at any given project scale; runs periodically.
-- **`validation-sweep-pr-scoped`** (slash command `/validate-pr`, PR-scoped, every PR): single Subagent A dispatch on the PR's diff plus a targeted cross-reference check. Cheap relative to the project-wide sweep, a small fraction of its cost; runs before merge so issues are caught within the same PR, not nine PRs later.
+- **`validation-sweep-pr-scoped`** (slash command `/validate-pr`, PR-scoped, every PR): single Subagent A dispatch on the PR's diff plus a targeted cross-reference check. Cheap relative to the project-wide sweep, a small fraction of its cost; runs before merge so issues are caught within the same PR, not many merges later.
 
 The two are complementary, not redundant. The project-wide form catches drift the per-PR scope misses (a citation in file Y becomes stale because PR X touched file Z); the per-PR form catches issues the project-wide form would miss between its periodic runs (per-PR issues that compound between sweeps).
 
@@ -185,7 +185,7 @@ The PR-scoped sweep is complete when:
 
 ## Why this skill exists
 
-The project-wide `/validate` sweep runs on a periodic cadence the project sets (periodic by merge count, or maintainer-triggered). Between sweeps, issues introduced by individual PRs compound silently: a PR touches file A; subsequent PRs cite the changed file A; the citation may have been stale from the start, but no one checks until the next project-wide sweep. By then, the issue has been re-cited in 5+ places.
+The project-wide `/validate` sweep runs on a cadence the project sets (periodic by merge count, or maintainer-triggered). Between sweeps, issues introduced by individual PRs compound silently: a PR touches file A; subsequent PRs cite the changed file A; the citation may have been stale from the start, but no one checks until the next project-wide sweep. By then, the issue has been re-cited in 5+ places.
 
 `/validate-pr` closes this gap. Run on every PR before it merges, it catches PR-introduced issues before they land and compound. The cost is modest, a small fraction of one project-wide sweep per PR; the benefit is keeping the project-wide sweep's iteration count low and the per-PR feedback loop tight.
 

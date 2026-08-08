@@ -33,7 +33,7 @@ At each checkpoint, emit one line, then confirm compliance or halt:
 
 **MINIMUM CADENCE: AT LEAST ONCE PER PR, AND PREFERABLY MORE OFTEN (maintainer-directed
 2026-07-26).** The checkpoint list above is semantic, and a semantic list is exactly what a long run
-erodes: the assistant once went entire PRs without emitting the line and re-anchored
+erodes: the assistant once went multiple PRs without emitting the line and re-anchored
 only when the maintainer asked whether it had forgotten. So the cadence now has a FLOOR that does not
 depend on noticing a checkpoint. Every PR carries at least one emission, and the emission is
 SELF-ACKNOWLEDGED rather than recited: state, in one or two clauses, what on this specific change the
