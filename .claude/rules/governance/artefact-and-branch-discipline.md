@@ -179,8 +179,9 @@ Both exception paths are slow by design; the friction is proportional to the res
 
 ## Project overlay (grc_library wiring and lineage; local copy only)
 
-- Generated artefacts here: `taxonomy.yml`, `docs/portal.md`,
-  `docs/maturity-scorecard.md` (regenerate via `tools/build-taxonomy.py` and
-  `tools/build-portal.py`; gates 33 and 34 run the `--check` forms).
+- Generated artefacts here: `taxonomy.yml`, `narrative.yml`, `docs/portal.md`,
+  `docs/maturity-scorecard.md` (regenerate via `tools/build-taxonomy.py`,
+  `tools/build-narrative-registry.py`, and `tools/build-portal.py`; gates 33, 85,
+  and 34 run the `--check` forms).
 - Protected-branch force-push procedure and `refs/preservation/` convention: the
   project CLAUDE.md Boundaries section.

@@ -2,8 +2,8 @@
 
 **Document Title:** Library Health Report Template\
 **Document Type:** Template\
-**Version:** 1.0.7\
-**Date:** 2026-07-08\
+**Version:** 1.0.8\
+**Date:** 2026-08-08\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md), [`governance/template-document-review-record.md`](template-document-review-record.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md)\
@@ -73,6 +73,7 @@ Aggregated output of the automated audits (see [`governance/specification-audit-
 | [`lint-shall-near-uncertainty.py`](../tools/lint-shall-near-uncertainty.py) | Pass / Fail | 0 / N | |
 | [`check-review-cadence.py`](../tools/check-review-cadence.py) | Pass / Action / Fail | Current / Due-soon / Overdue / Action-threshold | Summary of overdue documents |
 | `build-taxonomy.py --check` | In sync / Out of sync | n/a | |
+| `build-narrative-registry.py --check` | In sync / Out of sync | n/a | |
 | `build-portal.py --check` | In sync / Out of sync | n/a | |
 
 For each non-pass: brief description, file(s) affected, remediation plan, target date.
