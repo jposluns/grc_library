@@ -405,7 +405,7 @@ def attribute_held(session: str, held: dict, families: tuple | None = None) -> t
     # The check above answers "does a worker in MY families hold an order". A worker id outside every
     # known family prefix cannot be answered by that question, and worker ids are SELF-MINTED by each
     # session, so nothing constrains them to a prefix. The project's own historical ids took exactly
-    # that shape (`worker-20260716-a`, and one minted today), so this is a form in use rather than a
+    # that `worker-<date>-<letter>` shape (id anonymized here), so this is a form in use rather than a
     # hypothetical. Encoding it as `none`, the permissive branch, is the same defect this file has now
     # been fixed for twice: two outcomes for three real states, with ignorance landing on the
     # permissive one. So an unclassifiable holder refuses too.
@@ -936,7 +936,7 @@ def self_test() -> int:
                attribute_held("worker9", {"mystery-a": "live-order"}, RUNTIME_FAMILIES["claude"]),
                ("unknown", None))
     check_attr("attribute_held: the project's own historical id shape refuses too",
-               attribute_held("worker9", {"worker-20260716-a": "live-order"}, RUNTIME_FAMILIES["claude"]),
+               attribute_held("worker9", {"worker-20990101-a": "live-order"}, RUNTIME_FAMILIES["claude"]),
                ("unknown", None))
     check_attr("attribute_held: an unclassifiable worker holding NOTHING still permits",
                attribute_held("worker9", {"mystery-a": None}, RUNTIME_FAMILIES["claude"]),
