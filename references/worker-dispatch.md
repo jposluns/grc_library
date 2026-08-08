@@ -58,7 +58,7 @@ turns will not survive the boundary, so split it rather than hoping the worker p
 A codex review that COMPLETES but never lands in the tray (the stranded-verdict class diagnosed
 2026-08-08) is recovered with [`tools/recover-codex-verdict.py`](../tools/recover-codex-verdict.py):
 `--scan` lists verdict-bearing logs with no matching delivery, and a targeted run writes a
-RECOVERED-FROM-LOG delivery into the tray. A recovery is a LOWER-TRUST artifact (the banner states the
+RECOVERED-FROM-LOG delivery into the tray. A recovery is a LOWER-TRUST artefact (the banner states the
 residue); the orchestrator re-verifies positive findings at source exactly as for a normal delivery.
 
 ## Delivery tray: one place to look, and issues jump the queue

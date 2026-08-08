@@ -12,20 +12,31 @@ RECOVERED-FROM-LOG banner. It is the defence-in-depth backstop queued by that
 diagnosis; the primary fix (disabling the multi_agent features at dispatch) lives
 in the host wrapper.
 
+EXTRACTION INTEGRITY: the tool NEVER writes a recovery whose text could be wrong
+or partial; ambiguity REFUSES. The codex exec transcript repeats the final agent
+message twice (as the last `codex` block and again after the tokens-used trailer),
+and that redundancy is the integrity check: when both copies are extractable they
+must agree byte-for-byte, a candidate that quotes transcript structure is TAINTED
+and refuses, and an empty tail after the trailer refuses rather than falling back
+to an earlier block.
+
 GUARD-INPUT RESIDUE (stated per validate-inference-before-action, "Guard inputs"):
 a recovery proves the log CONTAINED a terminal verdict block, never that the
 review ran to a semantically complete delivery. The recovery file is a LOWER-TRUST
-artifact: the orchestrator re-verifies every positive finding at source, exactly
+artefact: the orchestrator re-verifies every positive finding at source, exactly
 as it would for a normal delivery.
 
 Host constants (the wrapper log dir and the delivery tray dir) are OPERATIONAL
-data: they load from the private account config's `wrapper` block, over neutral
-placeholders that make any un-configured use fail loud rather than leak a real
+data: the private CONFIG is read at import (like exec-dispatch), over neutral
+placeholders, and the exit-2 placeholder guard fires before any LOG or TRAY
+filesystem access, so an un-configured run fails loud rather than leaking a real
 layout (the exec-dispatch disclosure pattern, PR #1457).
 
 Modes:
   <id-substring>            recover the single matching codex log's final verdict
   <id-substring> --dry-run  print what would be written; write nothing
+  <id-substring> --force    recover even when the tray already holds an anchored
+                            delivery match for the worker (see Refusals)
   --scan                    list codex logs holding a verdict but no matching
                             delivery in the tray (recovery candidates); no writes.
                             Bounded to the last 72 hours by default (the strand
@@ -33,11 +44,18 @@ Modes:
                             consumed logs drown the signal); --all lifts the bound
   --self-test               run the synthetic-fixture unit tests
 
-Refusals (ignorance refuses, never a silent empty recovery):
+Refusals (ignorance refuses, never a silent wrong or partial recovery):
   * an id substring matching MORE than one codex log refuses and lists matches
-  * a log with NO terminal verdict block exits non-zero with a clear message
-  * an unconfigured placeholder path exits 2 before touching the filesystem
-  * an already-existing recovery file is never overwritten
+  * extraction refuses on ambiguity: a TAINTED candidate (the verdict quotes
+    transcript structure), a primary/fallback disagreement, or an empty tail
+    after the tokens-used trailer; a log with NO verdict block at all exits
+    non-zero with a clear message
+  * a tray already holding an anchored delivery match for the worker refuses,
+    listing the matching filename(s); --force recovers anyway (a same-worker
+    different-order tray file can legitimately trip the guard)
+  * an unconfigured placeholder path exits 2 before any log or tray access
+  * an already-existing recovery file is never overwritten (atomic hard-link
+    publish; no check-then-write window)
 
 Stdlib-only (project convention). PROJECT-ONLY operational machinery, in the same
 class as exec-dispatch.py / manage-workers.py / collect-deliveries.py.
@@ -47,6 +65,7 @@ from __future__ import annotations
 import argparse
 import datetime as _dt
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -75,50 +94,112 @@ del _W
 
 BANNER_MARK = "RECOVERED-FROM-LOG"
 
-# Lines that begin a labelled item in a codex exec transcript. The extractor treats
-# any of these, alone on a line, as the boundary of a `codex` (agent-message) block.
+# Lines that begin a labelled item in a codex exec transcript. Marker lines are
+# matched AFTER .strip(), everywhere (label recognition, block boundaries, and
+# the taint check), so an indented marker behaves like a flush-left one.
 _MARKERS = {"codex", "exec", "user", "thinking", "tokens used"}
 _COUNT_RE = re.compile(r"^[\d,]+$")
 
+_NO_BLOCK_REASON = ("no terminal verdict block (no well-formed tokens-used trailer "
+                    "and no codex agent-message block)")
+
 
 # --- pure log analysis ---------------------------------------------------------------
-def extract_final_verdict(text: str) -> str | None:
-    """PURE. Return the final verdict block of a codex exec transcript, or None.
+def _last_trailer_count_index(lines: list[str]) -> int | None:
+    """PURE. Index of the count line of the LAST well-formed tokens-used trailer.
 
-    Primary anchor: the LAST `tokens used` marker line whose next non-empty line is
-    a token count; the final agent message is everything after the count line (the
-    codex exec transcript repeats the final message there at end of run). Fallback:
-    the LAST `codex` block (content up to the next labelled marker or EOF), because
-    a log truncated before the tokens-used trailer can still hold the finished
-    verdict as its last agent message. The LAST block wins in both cases.
+    Well-formed = a line whose stripped text is `tokens used` whose next
+    non-empty line is a bare token count (whitespace around the count line is
+    tolerated). A `tokens used` line with no count after it is NOT a trailer;
+    the scan keeps looking earlier.
+    """
+    for i in range(len(lines) - 1, -1, -1):
+        if lines[i].strip() != "tokens used":
+            continue
+        j = i + 1
+        while j < len(lines) and not lines[j].strip():
+            j += 1
+        if j < len(lines) and _COUNT_RE.match(lines[j].strip()):
+            return j
+    return None
+
+
+def _taint(text: str) -> str | None:
+    """PURE. Why a candidate quotes transcript structure, or None when clean.
+
+    Any bare marker line (matched after .strip()) taints. A well-formed trailer
+    pair necessarily starts with a bare `tokens used` marker line, so the marker
+    check subsumes the pair check.
+    """
+    for ln in text.splitlines():
+        if ln.strip() in _MARKERS:
+            return f"contains a bare '{ln.strip()}' marker line"
+    return None
+
+
+def extract_final_verdict(text: str) -> tuple[str | None, str]:
+    """PURE. (verdict, mode) on success; (None, reason) on refusal.
+
+    INTEGRITY CONTRACT: never return text that could be wrong or partial;
+    ambiguity refuses. Primary candidate P = the tail after the LAST
+    well-formed tokens-used trailer's count line (the codex exec transcript
+    repeats the final message there). Fallback candidate F = the LAST bare
+    `codex` block's content. When P exists, F is the duplicate copy truncated
+    at the next bare marker line and the two MUST agree byte-for-byte (the
+    duplication is the integrity check). When P is ABSENT (no well-formed
+    trailer anywhere: a truncated log), F must run clean to end-of-log; any
+    bare marker line in that region taints it, because with no trailer the
+    quoted-or-real structure cannot be disambiguated. An empty tail after a
+    well-formed trailer refuses outright, never falling back to an earlier
+    block. Success modes: `trailer+fallback-agree`, `trailer-only`,
+    `fallback-only` (fallback-only marks a truncated log).
     """
     lines = text.splitlines()
-    # Primary: the tokens-used trailer.
-    for i in range(len(lines) - 1, -1, -1):
-        if lines[i] == "tokens used":
-            j = i + 1
-            while j < len(lines) and not lines[j].strip():
-                j += 1
-            if j < len(lines) and _COUNT_RE.match(lines[j].strip()):
-                tail = "\n".join(lines[j + 1:]).strip()
-                if tail:
-                    return tail
-            break
-    # Fallback: the last `codex` block.
+    primary: str | None = None
+    cnt = _last_trailer_count_index(lines)
+    if cnt is not None:
+        primary = "\n".join(lines[cnt + 1:]).strip()
+        if not primary:
+            return (None, "empty tail after the tokens-used trailer; refusing "
+                          "(never falling back to an earlier block)")
+        taint = _taint(primary)
+        if taint:
+            return (None, f"trailer tail is tainted: it {taint}; the verdict "
+                          "quotes transcript structure, extraction unreliable")
     start = None
     for i in range(len(lines) - 1, -1, -1):
-        if lines[i] == "codex":
+        if lines[i].strip() == "codex":
             start = i + 1
             break
-    if start is None:
-        return None
-    body: list[str] = []
-    for ln in lines[start:]:
-        if ln in _MARKERS:
-            break
-        body.append(ln)
-    block = "\n".join(body).strip()
-    return block or None
+    fallback: str | None = None
+    if start is not None:
+        if primary is None:
+            region = "\n".join(lines[start:]).strip()
+            if region:
+                taint = _taint(region)
+                if taint:
+                    return (None, f"fallback codex block is tainted: it {taint}; "
+                                  "with no tokens-used trailer the extraction "
+                                  "cannot be disambiguated")
+                fallback = region
+        else:
+            body: list[str] = []
+            for ln in lines[start:]:
+                if ln.strip() in _MARKERS:
+                    break
+                body.append(ln)
+            fallback = "\n".join(body).strip() or None
+    if primary is not None and fallback is not None:
+        if primary == fallback:
+            return (primary, "trailer+fallback-agree")
+        return (None, "primary/fallback disagree: the trailer tail and the last "
+                      "codex block differ; refusing a possibly wrong or partial "
+                      "recovery")
+    if primary is not None:
+        return (primary, "trailer-only")
+    if fallback is not None:
+        return (fallback, "fallback-only")
+    return (None, _NO_BLOCK_REASON)
 
 
 def tray_references(text: str, tray_dir: Path) -> list[str]:
@@ -170,19 +251,22 @@ def recovery_name(referenced_missing: list[str], worker_id: str | None, log_name
 
 
 def compose_recovery(verdict: str, log_name: str, worker_id: str | None,
-                     referenced: list[str], now_utc: str) -> str:
-    """PURE. The recovery delivery body: banner + residue statement + verdict."""
+                     referenced: list[str], now_utc: str, mode: str) -> str:
+    """PURE. The recovery body: banner + extraction mode + residue + verdict."""
+    extraction = ("trailer missing (truncated log): fallback extraction"
+                  if mode == "fallback-only" else mode)
     head = [
         f"# {BANNER_MARK}: stranded codex verdict recovery",
         "",
         f"- source log: {log_name}",
         f"- worker id: {worker_id or 'unknown (unparsed log name)'}",
         f"- recovered: {now_utc} UTC by tools/recover-codex-verdict.py",
+        f"- extraction: {extraction}",
         f"- tray file(s) the log references: {', '.join(referenced) if referenced else 'none found'}",
         "",
         "RESIDUE (guard-inputs discipline): this recovery proves the worker LOG",
         "contained a terminal verdict block; it does NOT prove the review ran to a",
-        "semantically complete delivery. Treat this as a LOWER-TRUST artifact: the",
+        "semantically complete delivery. Treat this as a LOWER-TRUST artefact: the",
         "orchestrator re-verifies every positive finding at source before acting,",
         "and a clean verdict here is corroborated, never trusted on recovery alone.",
         "",
@@ -209,36 +293,53 @@ def matching_logs(log_dir: Path, needle: str) -> list[Path]:
     return sorted(p for p in log_dir.glob("*_codex_*.log") if needle in p.name)
 
 
-def delivered_already(tray_dir: Path, refs: list[str], worker_id: str | None) -> bool:
-    """Is there evidence in the tray that this worker's result already landed?
+def delivery_matches(tray_dir: Path, refs: list[str], worker_id: str | None) -> list[str]:
+    """Tray filenames evidencing this worker's result already landed.
 
-    True when a referenced tray file exists, when its RECOVERED- twin exists, or
-    when any tray filename carries the worker id (collect-deliveries names tray
-    files `<worker-id>__<order-id>.md`, and a prior recovery names them
-    `RECOVERED-<worker-id>.md`, so both are covered by the id scan).
+    ANCHORED matching only, never a bare substring scan: an exact match on a
+    referenced filename (or its RECOVERED- twin), or a worker-id anchor of one
+    of the three forms `<worker-id>__*`, `RECOVERED-<worker-id>.md`, or
+    `RECOVERED-<worker-id>__*` (collect-deliveries names tray files
+    `<worker-id>__<order-id>.md`; recoveries prefix RECOVERED-). RESIDUE:
+    anchored matching can false-negative on hand-renamed deliveries; the log's
+    tray references stay the primary evidence.
     """
     if not tray_dir.is_dir():
-        return False
+        return []
+    hits: list[str] = []
     for r in refs:
-        if (tray_dir / r).exists() or (tray_dir / ("RECOVERED-" + r)).exists():
-            return True
+        for cand in (r, "RECOVERED-" + r):
+            if (tray_dir / cand).exists() and cand not in hits:
+                hits.append(cand)
     if worker_id:
-        for f in tray_dir.glob("*.md"):
-            if worker_id in f.name:
-                return True
-    return False
+        for f in sorted(tray_dir.glob("*.md")):
+            n = f.name
+            if ((n.startswith(worker_id + "__")
+                 or n == "RECOVERED-" + worker_id + ".md"
+                 or n.startswith("RECOVERED-" + worker_id + "__"))
+                    and n not in hits):
+                hits.append(n)
+    return hits
+
+
+def delivered_already(tray_dir: Path, refs: list[str], worker_id: str | None) -> bool:
+    """Boolean form of delivery_matches (same check; see its docstring)."""
+    return bool(delivery_matches(tray_dir, refs, worker_id))
 
 
 def write_recovery(dest: Path, content: str, dry_run: bool) -> bool:
-    """Write via a temp name + atomic rename (the #1171 delivery-completeness
-    pattern), refusing to overwrite. Returns True when a file was written."""
+    """Write via a temp name, then publish with os.link(tmp, dest) + tmp unlink
+    (the #1171 delivery-completeness pattern, hardened): the hard link itself
+    raises FileExistsError when dest exists, atomically, with no
+    exists()-then-rename window. Never overwrites. Returns True when written."""
     if dry_run:
         return False
-    if dest.exists():
-        raise FileExistsError(str(dest))
     tmp = dest.with_suffix(dest.suffix + ".part")
     tmp.write_text(content, encoding="utf-8")
-    tmp.rename(dest)
+    try:
+        os.link(tmp, dest)
+    finally:
+        tmp.unlink(missing_ok=True)
     return True
 
 
@@ -257,8 +358,10 @@ def do_scan(log_dir: Path, tray_dir: Path, since_hours: float | None) -> int:
         except OSError as e:
             print(f"  UNREADABLE: {p.name} ({e})")
             continue
-        verdict = extract_final_verdict(text)
-        if not verdict:
+        verdict, mode = extract_final_verdict(text)
+        if verdict is None:
+            if mode != _NO_BLOCK_REASON:
+                print(f"  EXTRACTION REFUSED: {p.name} ({mode})")
             continue
         refs = tray_references(text, tray_dir)
         wid = worker_id_from_log(p.name)
@@ -279,7 +382,8 @@ def do_scan(log_dir: Path, tray_dir: Path, since_hours: float | None) -> int:
     return 0
 
 
-def do_recover(needle: str, log_dir: Path, tray_dir: Path, dry_run: bool) -> int:
+def do_recover(needle: str, log_dir: Path, tray_dir: Path, dry_run: bool,
+               force: bool = False) -> int:
     status, matches = resolve_matches(matching_logs(log_dir, needle))
     if status == "none":
         print(f"ERROR: no codex worker log matches '{needle}' under the configured log dir")
@@ -291,21 +395,23 @@ def do_recover(needle: str, log_dir: Path, tray_dir: Path, dry_run: bool) -> int
         return 1
     log = matches[0]
     text = log.read_text(encoding="utf-8", errors="replace")
-    verdict = extract_final_verdict(text)
-    if not verdict:
-        print(f"ERROR: no terminal verdict block found in {log.name} (no tokens-used "
-              "trailer and no agent-message block); nothing recoverable, refusing a "
-              "silent empty recovery")
+    verdict, mode = extract_final_verdict(text)
+    if verdict is None:
+        print(f"REFUSED: cannot recover from {log.name}: {mode}")
         return 1
     refs = tray_references(text, tray_dir)
     wid = worker_id_from_log(log.name)
-    missing = [r for r in refs if not (tray_dir / r).exists()]
-    if refs and not missing:
-        print(f"NOTHING TO RECOVER: every tray file the log references already exists "
-              f"({', '.join(refs)}); the delivery landed")
+    hits = delivery_matches(tray_dir, refs, wid)
+    if hits and not force:
+        print("REFUSED: the tray already holds a matching delivery for this worker:")
+        for h in hits:
+            print(f"  {h}")
+        print("use --force to recover anyway (a same-worker different-order tray "
+              "file can legitimately trip this guard)")
         return 1
+    missing = [r for r in refs if not (tray_dir / r).exists()]
     now_utc = _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%d %H:%M")
-    content = compose_recovery(verdict, log.name, wid, refs, now_utc)
+    content = compose_recovery(verdict, log.name, wid, refs, now_utc, mode)
     dest = tray_dir / recovery_name(missing, wid, log.name)
     if dry_run:
         print(f"DRY-RUN: would write {dest} ({len(content)} chars); content follows\n")
@@ -317,13 +423,15 @@ def do_recover(needle: str, log_dir: Path, tray_dir: Path, dry_run: bool) -> int
         print(f"REFUSED: {dest} already exists; not overwriting a prior recovery")
         return 1
     print(f"recovered verdict from {log.name}\n  -> {dest}")
-    print("REMINDER: lower-trust artifact; re-verify positive findings at source.")
+    print("REMINDER: lower-trust artefact; re-verify positive findings at source.")
     return 0
 
 
 # --- self-test (synthetic fixtures only; they mirror NO real worker, account, ---------
 # --- order, or host layout) ------------------------------------------------------------
 def self_test() -> int:
+    import contextlib
+    import io
     import tempfile
 
     failures, total = [], [0]
@@ -335,9 +443,9 @@ def self_test() -> int:
         if not ok:
             failures.append(name)
 
-    # SYNTHETIC transcript with a tokens-used trailer and TWO earlier codex blocks:
-    # the trailer-anchored final message must win over both.
-    syn_full = "\n".join([
+    # SYNTHETIC transcript in the healthy duplicated shape: the final message
+    # appears as the last codex block AND again after the tokens-used trailer.
+    syn_dup = "\n".join([
         "Reading additional input from stdin...",
         "Synthetic Codex vX.Y.Z",
         "--------",
@@ -349,17 +457,35 @@ def self_test() -> int:
         "codex",
         "Intermediate synthetic note.",
         "codex",
+        "# Verdict: SYNTHETIC-PASS",
+        "Final synthetic verdict body.",
+        "tokens used",
+        "12,345",
+        "# Verdict: SYNTHETIC-PASS",
+        "Final synthetic verdict body.",
+    ])
+    check("duplicated final message agrees (trailer+fallback-agree)",
+          extract_final_verdict(syn_dup),
+          ("# Verdict: SYNTHETIC-PASS\nFinal synthetic verdict body.",
+           "trailer+fallback-agree"))
+
+    # SYNTHETIC transcript whose trailer tail DIFFERS from the last codex block:
+    # under the integrity contract this refuses (never a possibly-partial pick).
+    syn_mismatch = "\n".join([
+        "user",
+        "synthetic brief (SYNTHETIC FIXTURE)",
+        "codex",
         "Older synthetic verdict, must NOT win.",
         "tokens used",
         "12,345",
         "# Verdict: SYNTHETIC-PASS",
         "Final synthetic verdict body.",
     ])
-    check("tokens-used trailer anchors the final verdict",
-          extract_final_verdict(syn_full),
-          "# Verdict: SYNTHETIC-PASS\nFinal synthetic verdict body.")
+    got = extract_final_verdict(syn_mismatch)
+    check("primary/fallback disagreement refuses",
+          (got[0], "disagree" in got[1]), (None, True))
 
-    # SYNTHETIC transcript with NO trailer: the LAST codex block wins.
+    # SYNTHETIC transcript with NO trailer: the LAST codex block wins (fallback-only).
     syn_multi = "\n".join([
         "user",
         "synthetic brief",
@@ -371,18 +497,63 @@ def self_test() -> int:
         "# Verdict: SYNTHETIC-HOLD",
         "Last synthetic block wins.",
     ])
-    check("last codex block wins without a trailer",
+    check("last codex block wins without a trailer (fallback-only)",
           extract_final_verdict(syn_multi),
-          "# Verdict: SYNTHETIC-HOLD\nLast synthetic block wins.")
+          ("# Verdict: SYNTHETIC-HOLD\nLast synthetic block wins.", "fallback-only"))
 
-    check("single codex block extracts",
+    check("single codex block extracts (fallback-only)",
           extract_final_verdict("user\nbrief\ncodex\nonly block"),
-          "only block")
-    check("no verdict block returns None (ignorance refuses upstream)",
-          extract_final_verdict("user\nbrief\nexec\n/bin/sh -lc 'true'"), None)
-    check("empty trailer tail falls back to last codex block",
-          extract_final_verdict("codex\nfallback body\ntokens used\n99\n"),
-          "fallback body")
+          ("only block", "fallback-only"))
+    got = extract_final_verdict("user\nbrief\nexec\n/bin/sh -lc 'true'")
+    check("no verdict block refuses (ignorance refuses upstream)", got[0], None)
+
+    # CONTRACT CHANGE: an empty tail after a well-formed trailer now REFUSES,
+    # never falling back to an earlier block.
+    got = extract_final_verdict("codex\nfallback body\ntokens used\n99\n")
+    check("empty trailer tail refuses (no fallback to an earlier block)",
+          (got[0], "empty tail" in got[1]), (None, True))
+
+    # SYNTHETIC tainted tail: the verdict body quotes an embedded
+    # "tokens used"+count pair; the anchor lands on the quoted pair and the
+    # residual tail still quotes a bare marker, so extraction refuses as tainted.
+    syn_taint_tail = "\n".join([
+        "codex",
+        "duplicate copy (SYNTHETIC FIXTURE)",
+        "tokens used",
+        "77",
+        "# Verdict quoting transcript structure (SYNTHETIC FIXTURE)",
+        "tokens used",
+        "1,234",
+        "codex",
+        "a quoted agent line.",
+    ])
+    got = extract_final_verdict(syn_taint_tail)
+    check("tainted trailer tail refuses (embedded tokens-used pair in the verdict)",
+          (got[0], "tainted" in got[1]), (None, True))
+
+    # SYNTHETIC tainted fallback: no well-formed trailer anywhere (truncated log)
+    # and the last codex block quotes a bare "tokens used" marker line.
+    syn_taint_fb = "\n".join([
+        "user",
+        "synthetic brief",
+        "codex",
+        "# Verdict quoting structure (SYNTHETIC FIXTURE)",
+        "tokens used",
+        "not a count so no trailer",
+    ])
+    got = extract_final_verdict(syn_taint_fb)
+    check("tainted fallback refuses (quoted marker, no trailer)",
+          (got[0], "tainted" in got[1]), (None, True))
+
+    check("count line with surrounding whitespace accepted (trailer-only)",
+          extract_final_verdict("tokens used\n   1,234   \nsolo verdict tail"),
+          ("solo verdict tail", "trailer-only"))
+    check("indented codex label recognized (markers matched after strip)",
+          extract_final_verdict("user\nbrief\n  codex  \nonly block"),
+          ("only block", "fallback-only"))
+    got = extract_final_verdict("codex\nbody line\n  exec  \nignored")
+    check("indented marker taints a fallback-only block (strip matching)",
+          (got[0], "tainted" in got[1]), (None, True))
 
     tray = Path("/syn/tray")  # SYNTHETIC path, never touched
     syn_refs = ("exec\ncat /syn/tray/syn-delivery.md\n"
@@ -406,10 +577,67 @@ def self_test() -> int:
     check("recovery name falls back to the worker id",
           recovery_name([], "wid-x", "log.log"), "RECOVERED-wid-x.md")
 
-    body = compose_recovery("V", "syn.log", "wid-x", [], "2026-01-01 00:00")
+    body = compose_recovery("V", "syn.log", "wid-x", [], "2026-01-01 00:00", "trailer-only")
     check("banner mark present", BANNER_MARK in body, True)
     check("residue statement present", "does NOT prove" in body, True)
     check("verdict carried", body.rstrip().endswith("V"), True)
+    check("extraction mode recorded in the banner", "- extraction: trailer-only" in body, True)
+    body_fb = compose_recovery("V", "syn.log", None, [], "2026-01-01 00:00", "fallback-only")
+    check("fallback-only banner marks the truncated-log extraction",
+          "trailer missing (truncated log): fallback extraction" in body_fb, True)
+
+    # Anchored delivered_already (SYNTHETIC tray contents; no real worker mirrored).
+    with tempfile.TemporaryDirectory() as td:
+        syn_tray = Path(td)
+        (syn_tray / "zz-widX__o1.md").write_text("x", encoding="utf-8")
+        check("substring near-miss is NOT a delivery match",
+              delivered_already(syn_tray, [], "widX"), False)
+        (syn_tray / "widX__o1.md").write_text("x", encoding="utf-8")
+        check("anchored <worker-id>__ delivery detected",
+              delivered_already(syn_tray, [], "widX"), True)
+        (syn_tray / "RECOVERED-widY.md").write_text("x", encoding="utf-8")
+        check("anchored RECOVERED-<worker-id>.md detected",
+              delivered_already(syn_tray, [], "widY"), True)
+        (syn_tray / "RECOVERED-widZ__extra.md").write_text("x", encoding="utf-8")
+        check("anchored RECOVERED-<worker-id>__ detected",
+              delivered_already(syn_tray, [], "widZ"), True)
+        (syn_tray / "syn-ref.md").write_text("x", encoding="utf-8")
+        check("existing referenced tray file counts as delivered",
+              delivered_already(syn_tray, ["syn-ref.md"], None), True)
+
+    # do_recover delivered-already guard + --force (SYNTHETIC log/tray fixtures).
+    with tempfile.TemporaryDirectory() as td:
+        logd = Path(td) / "logs"
+        trayd = Path(td) / "tray"
+        logd.mkdir()
+        trayd.mkdir()
+        (logd / "2026-01-01_000000_codex_synacct_wid-syn-1.log").write_text("\n".join([
+            "user",
+            "synthetic brief (SYNTHETIC FIXTURE)",
+            "codex",
+            "# Verdict: SYNTHETIC-PASS (recover test)",
+            "tokens used",
+            "12",
+            "# Verdict: SYNTHETIC-PASS (recover test)",
+        ]), encoding="utf-8")
+        (trayd / "wid-syn-1__syn-order.md").write_text("prior delivery", encoding="utf-8")
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc = do_recover("wid-syn-1", logd, trayd, dry_run=False, force=False)
+        check("do_recover refuses on an anchored existing delivery", rc, 1)
+        check("refusal names the matching tray file",
+              "wid-syn-1__syn-order.md" in buf.getvalue(), True)
+        check("refusal wrote nothing",
+              (trayd / "RECOVERED-wid-syn-1.md").exists(), False)
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc = do_recover("wid-syn-1", logd, trayd, dry_run=False, force=True)
+        check("--force overrides the delivered-already guard", rc, 0)
+        check("forced recovery landed",
+              (trayd / "RECOVERED-wid-syn-1.md").exists(), True)
+        check("recovery banner carries the extraction mode",
+              "trailer+fallback-agree" in (trayd / "RECOVERED-wid-syn-1.md").read_text(encoding="utf-8"),
+              True)
 
     with tempfile.TemporaryDirectory() as td:
         dest = Path(td) / "RECOVERED-syn.md"
@@ -418,9 +646,13 @@ def self_test() -> int:
         check("real write lands", write_recovery(dest, "x", dry_run=False), True)
         try:
             write_recovery(dest, "y", dry_run=False)
-            check("overwrite refused", "no exception", "FileExistsError")
+            check("overwrite refused (atomic link path)", "no exception", "FileExistsError")
         except FileExistsError:
-            check("overwrite refused", "FileExistsError", "FileExistsError")
+            check("overwrite refused (atomic link path)", "FileExistsError", "FileExistsError")
+        check("refused overwrite left no temp residue",
+              (Path(td) / "RECOVERED-syn.md.part").exists(), False)
+        check("refused overwrite preserved the original content",
+              dest.read_text(encoding="utf-8"), "x")
 
     check("window: inside passes", within_window(1000.0, 1000.0 + 71 * 3600, 72.0), True)
     check("window: outside refused", within_window(1000.0, 1000.0 + 73 * 3600, 72.0), False)
@@ -448,6 +680,9 @@ def main() -> int:
                     help="lift the scan window (scan every log)")
     ap.add_argument("--dry-run", action="store_true",
                     help="print what would be written; write nothing")
+    ap.add_argument("--force", action="store_true",
+                    help="recover anyway; a same-worker different-order tray file "
+                         "can legitimately trip the guard")
     ap.add_argument("--self-test", action="store_true")
     args = ap.parse_args()
 
@@ -462,7 +697,7 @@ def main() -> int:
         return do_scan(WORKER_LOG_DIR, TRAY_DIR, None if args.all else args.since_hours)
     if not args.needle:
         ap.error("an id substring is required unless --scan or --self-test is given")
-    return do_recover(args.needle, WORKER_LOG_DIR, TRAY_DIR, args.dry_run)
+    return do_recover(args.needle, WORKER_LOG_DIR, TRAY_DIR, args.dry_run, args.force)
 
 
 if __name__ == "__main__":
