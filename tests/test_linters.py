@@ -7829,18 +7829,29 @@ class AuditSpecDetailedProseTests(LinterTestCase):
         # The placement half (P-3.230): body-wide presence with the
         # description spliced into section 5 (the gate-55 / gates-79-89
         # precedent) must fail, naming the placement, not bare absence.
+        # Gate 35: description spliced into section 5. Gate 47: description
+        # correctly inside section 6 but its appended-order sentence outside,
+        # so the appended-placement branch is exercised too (codex vpr-1455
+        # P2: a fixture covering only one branch leaves the other mutable).
         spec = self.make_fixture(
             "spec-prose-splice.md",
             "# Spec fixture\n\n## 5. Categories\n\n"
-            "Gate 35 is a parity audit described in the wrong section.\n\n"
+            "Gate 35 is a parity audit described in the wrong section. "
+            "Gate 47 is appended at the tail, said in the wrong section.\n\n"
             "## 6. Inventory\n\n"
             "| # | Gate | Script |\n|---|---|---|\n"
-            "| 35 | Gate 35 name | `tools/g35.py` |\n\n"
+            "| 35 | Gate 35 name | `tools/g35.py` |\n"
+            "| 47 | Gate 47 name | `tools/g47.py` |\n\n"
+            "Gate 47 is a listing audit described in the right section.\n\n"
             "## 7. Next\n",
         )
         result = run_linter(self.SCRIPT, "--spec", spec)
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
         self.assertIn("outside the section-6 region", result.stdout)
+        self.assertIn("gate 35", result.stdout)
+        self.assertIn(
+            "gate 47: its 'Gate 47 is appended", result.stdout
+        )
 
     def test_missing_appended_sentence_fails(self) -> None:
         spec = self.make_fixture(

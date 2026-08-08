@@ -147,7 +147,9 @@ def section_6_span(text: str) -> tuple[int, int]:
     offset = 0
     for line in text.splitlines(keepends=True):
         if start < 0 and SECTION_6_RE.match(line):
-            start = offset
+            # Span starts AFTER the heading line: a sentence sitting on the
+            # heading itself is not body prose (codex vpr-1455 P1).
+            start = offset + len(line)
         elif start >= 0 and SECTION_END_RE.match(line):
             end = offset
             break
