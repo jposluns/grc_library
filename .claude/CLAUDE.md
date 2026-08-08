@@ -256,24 +256,24 @@ confirmation under the confirm-before-destructive-action discipline.
 
 ## Change-impact surface map (when you change X, update all of these)
 
-(Map origin: TODO §1.18, closed 2026-07-24; the map below is now a permanent close-out
+(Map origin: the change-impact-surface-map item closed in PR #1109 on 2026-07-24; the map below is now a permanent close-out
 discipline.) A gate/rule/skill/count change touches more surfaces than the mechanical parity
 gates cover, and the FREE-PROSE and WEBSITE surfaces drift silently (this session: the 14th
 rule shipped without its pack-README rule-scope-table row, ungated by gate 41; #1017's D8
 shipped without the change-tracking discipline prose). This map is the "when you change X,
 update ALL of these" reference the close-out checklist's change-impact bullet points at. It
 CROSS-REFERENCES the existing gates as the authorities for the gated column (it does not
-re-implement them, per the §1.18 decision Q3=C); it adds the free-prose and website columns those
+re-implement them, per the change-impact-map decision Q3=C); it adds the free-prose and website columns those
 gates do not cover, which is where drift happens. The website (`grclibrary.ai`, the
 `.web/templates/` sources) is a FIRST-CLASS paired surface: its updates are identified early
 and applied in the SAME PR as the change (the site must reflect the corpus/repo as changes
 land, the gap flagged 2026-07-23). FP-safe mechanization of an ungated surface is added
-iteratively (decision Q1); the first, the pack-README rule-scope table, shipped as gate 74 in #1107 (the former §1.18 PR-2).
+iteratively (decision Q1); the first, the pack-README rule-scope table, shipped as gate 74 in #1107 (the change-impact-map PR-2).
 
 | Change type | Gated (covering gate) | Free-prose (drift-prone, ungated) | Website (`grclibrary.ai`) |
 | --- | --- | --- | --- |
 | **A. new/changed gate** | four tooling surfaces (gate 35); spec §6 detailed-prose presence (gate 64); gate-count idioms on add/remove (gate 39) | the spec §5 grouped-list; the per-gate §6 narrative when detection logic changes; the module docstring; the regression fixture; a `Dn` step name in `WORKFLOW_DELTA_GATE_STEPS`; CLAUDE.md gate-count prose | NONE (no template shows a gate count or gate list) |
-| **B. new/changed pack rule** | both trees byte-identical above the PROJECT-OVERLAY (gate 37); the four enumeration surfaces (gate 41: README tree, pack CLAUDE.md, project CLAUDE.md, `rule-provenance.md` register); pack README `Version` bump on a body change (D2 + gate 40) | the pack README "Rule files and their scope" table (§1.18 PR-2 gates this as gate 74); CLAUDE.md rule-index and count prose | `pack.html` Rules sidenav AND the rule's body `<li>` entry (TWO places); on a rule-COUNT change the three count surfaces (`pack.html` meta-description, `pack.html` body count, `landing.html` pack CTA); on a RENAME, `for-ai.html` named-rule prose when it names that rule |
+| **B. new/changed pack rule** | both trees byte-identical above the PROJECT-OVERLAY (gate 37); the four enumeration surfaces (gate 41: README tree, pack CLAUDE.md, project CLAUDE.md, `rule-provenance.md` register); pack README `Version` bump on a body change (D2 + gate 40) | the pack README "Rule files and their scope" table (the change-impact-map PR-2 (#1107) gates this as gate 74); CLAUDE.md rule-index and count prose | `pack.html` Rules sidenav AND the rule's body `<li>` entry (TWO places); on a rule-COUNT change the three count surfaces (`pack.html` meta-description, `pack.html` body count, `landing.html` pack CTA); on a RENAME, `for-ai.html` named-rule prose when it names that rule |
 | **C. new/changed skill** | the pack-README skills enumeration (gate 41 checks ONE surface for skills, the README skills tree, unlike the four it checks for rules); pack README `Version` bump on a body change (D2 + gate 40); paired-skill step-parity (gate 44, when a paired command exists) | any skills-scope prose; CLAUDE.md skill cadence and count prose | `pack.html` Skills sidenav AND the skill's body `<li>` entry (TWO places); on a skill-COUNT change the three count surfaces |
 | **D. count change (rules or skills)** | the count idioms (gate 39); the enumeration surfaces carrying the count (gate 41) | any CLAUDE.md "N rules / M skills" summary line | the three website count surfaces: `pack.html` meta-description, `pack.html` body count, `landing.html` pack CTA |
 | **E. repo-root relocation (the checkout moves on disk)** | NONE (no gate reads an absolute host path, which is exactly why this row exists) | the WIRING, not just the narrative: every `PreToolUse` hook's project-root fallback (use `str(Path(__file__).resolve().parents[2])`, never a hardcoded root, so the value follows the move); the `statusLine` command's `${dir:-<root>}` fallbacks in [`settings.json`](settings.json); [`tools/repo-guard.sh`](../tools/repo-guard.sh)'s header; and THIS file's cross-repo command prescriptions (the absolute-tool-path and `git -C` forms in `## Boundaries` and `## Self-verification`). Frozen `.working/` records are narrative and stay as written | NONE |
