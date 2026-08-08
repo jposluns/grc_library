@@ -22,7 +22,7 @@ rule (maintainer-directed 2026-07-19, expanded to six points 2026-07-26):
    offload on `list-workers`.** The exec'd-worker system spawns a FRESH worker per order:
    `python3 tools/exec-dispatch.py --dispatch --family {claude|codex} --model <m> --effort <e>
    --account <acct> --order-id <id> --prompt-file <path>` (the prompt file MUST live under
-   `/var/lib/grc-worker-jobs`; the account pool and dispatch policy live in the `_private`
+   the job directory named in the `_private` worker-accounts config (`wrapper.job_dir`); the account pool and dispatch policy live in the `_private`
    worker-accounts config; parallelism is DISTINCT accounts, one purpose per account, until the
    per-account-concurrency backlog item lands). A `list-workers` reading of zero is the STANDING-POLL
    fleet sitting idle, NOT "no workers", and is NEVER a licence to self-run: a felt "0 workers" is the

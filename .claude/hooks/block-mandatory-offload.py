@@ -240,7 +240,7 @@ def main(argv: list) -> int:
         or os.environ.get("CLAUDE_PROJECT_DIR")
         # Last-resort fallback: resolve the project root from this hook's own location
         # (<project>/.claude/hooks/this.py -> parents[2]). No hardcoded path, so it stays
-        # correct across a repo move (for example /home/jposluns -> /home/grc).
+        # correct across a repo move (for example an /old/root -> /new/root relocation).
         or str(Path(__file__).resolve().parents[2])
     )
     try:

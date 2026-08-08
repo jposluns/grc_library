@@ -3,10 +3,10 @@
 
 Reads the maintainer-maintained account-config (grc_library_private/worker-accounts.json),
 selects an eligible worker account for a job per the dispatch rules, and (optionally)
-invokes the root-owned wrapper via sudo to run the job as the single worker_agents user.
+invokes the root-owned wrapper via sudo to run the job as the dedicated worker unix user (named in the private account config).
 
-This is PROJECT-ONLY operational machinery (it references the host wrappers at
-/usr/local/sbin and the _private account-config), not portable pack material, in the same
+This is PROJECT-ONLY operational machinery (it drives host wrapper scripts and the _private
+account-config), not portable pack material, in the same
 class as manage-workers.py / collect-deliveries.py.
 
 Design of record: grc_library_private/codex-exec-serve-loop-decision.md. The account-config
@@ -41,17 +41,31 @@ from pathlib import Path
 # --- host constants (project-only) -------------------------------------------------
 REPO_ROOT = Path(__file__).resolve().parents[1]                 # /home/grc/grc_library
 DEFAULT_CONFIG = REPO_ROOT.parent / "grc_library_private" / "worker-accounts.json"
-JOB_DIR = Path("/var/lib/grc-worker-jobs")
+# Host-specific values (the job spool, the wrapper log dir, the wrapper paths, and the
+# worker unix user) are OPERATIONAL data: they load from the private account config's
+# `wrapper` block at import time, over neutral placeholders that make any un-configured
+# use fail loud rather than leak a real layout (disclosure fix, PR #1457).
+def _wrapper_cfg() -> dict:
+    try:
+        w = json.loads(DEFAULT_CONFIG.read_text(encoding="utf-8")).get("wrapper", {})
+        return w if isinstance(w, dict) else {}
+    except Exception:
+        return {}
+
+
+_W = _wrapper_cfg()
+JOB_DIR = Path(_W.get("job_dir", "/nonexistent/worker-jobs"))
 # The wrappers redirect each worker's full stdout/stderr to a dated per-worker log here
-# (run-{codex,claude}-worker LOGDIR). exec-dispatch surfaces the path so the FULL worker report
-# is always recoverable even when the captured stdout is truncated downstream (the Bash-tool
+# (the wrapper LOGDIR). exec-dispatch surfaces the path so the FULL worker report is always
+# recoverable even when the captured stdout is truncated downstream (the Bash-tool
 # background-capture summarises a large output; the wrapper log is the reliable full record).
-WORKER_LOG_DIR = Path("/home/grc/grc_working/logs")
+WORKER_LOG_DIR = Path(_W.get("log_dir", "/nonexistent/worker-logs"))
 WRAPPER = {
-    "claude": "/usr/local/sbin/run-claude-worker",
-    "codex": "/usr/local/sbin/run-codex-worker",
+    "claude": _W.get("claude", "/nonexistent/run-claude-worker"),
+    "codex": _W.get("codex", "/nonexistent/run-codex-worker"),
 }
-WORKER_USER = "worker_agents"
+WORKER_USER = _W.get("worker_user", "worker")
+del _W
 
 # --- in-flight registry (per-account concurrency; TODO 3.141) ----------------------
 INFLIGHT_NAME = "inflight.json"
@@ -663,7 +677,7 @@ _FIXTURE = {
         {"id": "charlie-claude", "account": "charlie", "family": "claude",
          "weight": 1.0, "priority_set": 2, "personal": True,
          "models": ["opus", "sonnet", "haiku"], "usage_state": "limited",
-         "limited_until": "2026-07-29T04:59:00-04:00"},
+         "limited_until": "2026-07-28T12:00:00+00:00"},
         {"id": "delta-claude", "account": "delta", "family": "claude",
          "weight": 8.0, "priority_set": 3, "personal": True,
          "models": ["opus", "sonnet", "haiku"], "usage_state": "available", "limited_until": None},
@@ -998,12 +1012,14 @@ def _self_test() -> int:
     check("orchestrator-codex-target-ok", pa_ocx is not None and pa_ocx["id"] == "omega-codex")
 
     # worker_log_glob: the pointer to a worker's full-output log (unique worker-id -> one file).
+    # Expected globs compose from WORKER_LOG_DIR (config-carried), so the self-test never
+    # embeds a literal host path (disclosure fix, PR #1457).
     check("worker-log-glob-codex",
           worker_log_glob("codex", "acct-x", "codex-acct-x-20260801T033350Z-1129")
-          == "/home/grc/grc_working/logs/*_codex_acct-x_codex-acct-x-20260801T033350Z-1129.log")
+          == f"{WORKER_LOG_DIR}/*_codex_acct-x_codex-acct-x-20260801T033350Z-1129.log")
     check("worker-log-glob-claude",
           worker_log_glob("claude", "alpha", "opus-x")
-          == "/home/grc/grc_working/logs/*_claude_alpha_opus-x.log")
+          == f"{WORKER_LOG_DIR}/*_claude_alpha_opus-x.log")
 
     if fails:
         print("SELF-TEST FAIL:", ", ".join(fails))
