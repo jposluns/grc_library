@@ -2,7 +2,7 @@
 
 **Document Title:** What the governing body should require for third-party and AI supply-chain risk oversight\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.7\
+**Version:** 0.0.8\
 **Date:** 2026-08-08\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -28,7 +28,7 @@
 
 ## Why this matters
 
-An organization's critical operations and AI capabilities can carry a dependency on a chain of services other organizations run: a model provider, a platform, a retrieval or orchestration service, and the suppliers behind those suppliers. The [AI board oversight guide](../../ai/guide-ai-board-oversight.md) defines the accountability allocation for the organization's use of AI (its section 2) and the governance red flags relevant to supplier reliance (its section 6); this brief routes to those values. The guide identifies inadequate accountability as a red flag for AI oversight. A supplier can operate a control on the organization's behalf; it cannot hold the organization's accountability for it.
+An organization's critical operations and AI capabilities can carry a dependency on a chain of services other organizations run: a model provider, a platform, a retrieval or orchestration service, and the suppliers behind those suppliers. The [AI board oversight guide](../../ai/guide-ai-board-oversight.md) defines the accountability allocation for the organization's use of AI (its section 2) and the governance red flags relevant to supplier reliance (its section 6); this brief routes to those values. The guide treats responsibility for an AI outcome attributed to the system or the vendor, rather than an accountable person as a warning sign that AI oversight may be inadequate. A supplier can operate a control on the organization's behalf; it cannot hold the organization's accountability for it.
 
 The governing body does not run supplier assessments and does not sign contracts. Its oversight is of the programme: whether a defined lifecycle governs every supplier relationship, whether AI suppliers receive the additional scrutiny the corpus defines for them, whether the organization can see past its direct suppliers to the dependencies beneath them, and whether all of that is visible in evidence rather than described in assurances. This brief points to where the corpus establishes each of those. The framing of the governing body's role as programme-level oversight is synthesized across the sources named below; see the limitations.
 
@@ -53,7 +53,7 @@ The corpus position, read together, sets the governing body's third-party and AI
 - **Expect evidence, not assurances.** Every lifecycle stage in the supplier framework has the evidence class the framework defines, and the assurance standard defines the evidence order. A supplier relationship the organization cannot evidence at each stage is a relationship the corpus controls are not demonstrably operating on. Certification is evidence that a supplier's control environment was assessed; it is not, by itself, evidence that the organization's own lifecycle controls operate.
 - **Treat visibility past the first tier as part of the ask.** The corpus states sub-tier visibility and concentration tracking as programme expectations with defined escalation. Against those programme expectations, an answer of "we have no visibility into our suppliers' own dependencies" requires examination rather than acceptance. The procedure's visibility model scales the expectation to supplier criticality, so the applicable expectation, not an unstated absolute, is what the governing body checks was applied.
 - **Onboarding-only assurance is a weak answer.** An unscheduled reassessment has a dependency on the condition sets the monitoring and AI due diligence procedures define, and scheduled reassessment runs on the cadences those procedures set. An oversight answer that ends at "they passed due diligence" stops where the corpus keeps going.
-- **Accountability is not outsourced with the service.** The oversight guide identifies outsourced accountability as a red flag for AI oversight (its section 6). Accountability remains with the organization in the presence of supply-chain dependency.
+- **Accountability is not outsourced with the service.** The oversight guide treats responsibility for an AI outcome attributed to the system or the vendor, rather than an accountable person as a warning sign that AI oversight may be inadequate (its section 6). Accountability remains with the organization in the presence of supply-chain dependency.
 
 ## Evidence to request
 

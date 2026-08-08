@@ -2,8 +2,8 @@
 
 **Document Title:** What the governing body should require before an AI system goes into production\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.2\
-**Date:** 2026-08-06\
+**Version:** 0.0.3\
+**Date:** 2026-08-08\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-board-oversight.md`](../../ai/guide-ai-board-oversight.md), [`ai/standard-ai-security-and-risk.md`](../../ai/standard-ai-security-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](../../ai/procedure-ai-system-impact-assessment.md)\
@@ -70,7 +70,7 @@ Each item below is an evidence class the governing body can call for from manage
 
 - This page creates no compliance and imposes no requirement. The linked corpus documents govern; where this page differs from a corpus document, the corpus document prevails.
 - This page carries composite claims. The division of authority it describes (management approves production; the governing body sets appetite and policy; acceptance of residual risk beyond appetite escalates above the management gate) is synthesized across several corpus sources, and the adopting organization validates that reading against its own governance and its own committee structure, which may name the escalation authority differently.
-- The corpus documents this page points to carry the specific control text, thresholds, classifications, and named approval authorities. This page routes to them and does not reproduce them, so the corpus remains the single source for every value.
+- The corpus documents this page points to carry the specific control text, thresholds, classifications, and named approval authorities. This page routes to them and does not reproduce them. That routing is a contribution to the corpus's status as the single source for every value.
 - This page makes no claim about how likely any failure is, and none of its statements should be read as a probability or a frequency.
 
 **End of Document**

@@ -2,8 +2,8 @@
 
 **Document Title:** What the governing body should require for AI incident-response readiness before production\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.3\
-**Date:** 2026-08-06\
+**Version:** 0.0.4\
+**Date:** 2026-08-08\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/plan-ai-incident-response.md`](../../ai/plan-ai-incident-response.md), [`ai/guide-ai-board-oversight.md`](../../ai/guide-ai-board-oversight.md), [`ai/standard-ai-security-and-risk.md`](../../ai/standard-ai-security-and-risk.md)\
@@ -70,7 +70,7 @@ Each item is an evidence class the governing body can call for from management, 
 
 - This page creates no compliance and imposes no requirement. The linked corpus documents govern; where this page differs from a corpus document, the corpus document prevails.
 - This page carries composite claims. The readiness picture it draws is synthesized across several corpus sources, and the adopting organization validates that reading against its own structure and its own incident-response arrangements.
-- The corpus documents this page points to carry the specific severity tiers, timeframes, retention periods, and named bodies. This page routes to them and does not reproduce them, so the corpus remains the single source for every value.
+- The corpus documents this page points to carry the specific severity tiers, timeframes, retention periods, and named bodies. This page routes to them and does not reproduce them. That routing is a contribution to the corpus's status as the single source for every value.
 - This page makes no claim about how likely any incident is, and none of its statements should be read as a probability or a frequency.
 
 **End of Document**

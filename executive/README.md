@@ -31,7 +31,7 @@ How the corpus addresses concentration, exit, and assurance over third parties. 
 How the corpus maps controls to obligations and produces evidence an assurer can test. Supported routes: none yet (declared coverage gap).
 
 ### 7. Risk acceptance and exceptions
-How the corpus frames defensible risk acceptance and time-bound exceptions. Supported routes: none yet (declared coverage gap).
+How the corpus frames defensible risk acceptance and time-bound exceptions. Supported routes: [What the governing body should require before an AI system goes into production](briefs/brief-what-the-governing-body-should-require-before-ai-production.md) (Executive Brief).
 
 ### 8. Enterprise architecture and technology debt
 How the corpus relates architecture decisions to governance and to accumulated technology debt. Supported routes: none yet (declared coverage gap).
