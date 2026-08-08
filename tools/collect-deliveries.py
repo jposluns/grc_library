@@ -41,19 +41,34 @@ A FILE HELD BACK IS REPORTED, NEVER SILENTLY SKIPPED. A missing sentinel means t
 and staying put with no explanation is precisely the failure shape this project keeps meeting, where
 silence reads as health (a stalled worker still heartbeating while no longer working). Held-back files get their own labelled line in the report and are counted separately.
 
-ADVISORY, like its sibling reconciliation tools: every reporting path exits 0, and only `--self-test`
-can exit non-zero. Neither repo's CI can see this tree, so it is an orchestrator step and not a gate.
+STICKY-OUTBOX FALLBACK. An outbox directory can carry the sticky bit with delivery files owned by
+another account; such a directory permits group members to read and create files but forbids
+renaming or unlinking a file they do not own, so the atomic-move collection fails with
+PermissionError even though every byte is readable. On that error the sweep falls back to a durable
+COPY into the tray (written under a non-.md partial name, size-verified, then renamed into place
+within the tray) plus a `<name>.collected` marker beside the source. The marker proves a copy
+landed in the tray, NOT that the source was removed: the outbox retains the original until its
+owner cleans it, and the scanner skips any delivery carrying a sibling marker so nothing is ever
+collected twice.
+
+ADVISORY, like its sibling reconciliation tools: every reporting path exits 0; only `--self-test`
+and a FAILED per-file collection outcome (a planned file that neither moved nor copied) exit
+non-zero. One file's failure never aborts the sweep; the remaining planned files still process.
+Neither repo's CI can see this tree, so it is an orchestrator step and not a gate.
 """
 from __future__ import annotations
 
 import argparse
 import os
+import shutil
 import sys
 from pathlib import Path
 
 FAMILIES = ("opus", "codex", "fable")
 SENTINEL = "<!-- END OF DELIVERY -->"
 TMP_SUFFIX = ".md.tmp"
+MARKER_SUFFIX = ".collected"
+PARTIAL_SUFFIX = ".partial"
 NAME_JOIN = "__"
 SKIP_NAMES = {"README.md"}
 
@@ -99,21 +114,30 @@ def plan_collection(facts: list, grandfather: bool = False) -> dict:
     `facts` is a list of dicts, one per candidate file already discovered:
         {"family", "worker_id", "order_id", "name", "complete": bool, "tray_exists": bool}
 
-    Returns {"move": [...], "held_no_sentinel": [...], "collision": [...]}.
+    Returns {"move": [...], "held_no_sentinel": [...], "collision": [...], "grandfathered": [...],
+    "already_collected": [...]}.
 
     Purity is the point. Today's discriminability audit found that the ONE tool in this repo with
     zero undetectable-guard sites was the one whose decision logic was a pure function driven by
     constructed facts, and that the defective ones were those whose branches were only reachable
     through the filesystem. So the decision lives here and the executor below only obeys.
     """
-    plan = {"move": [], "held_no_sentinel": [], "collision": [], "grandfathered": []}
+    plan = {"move": [], "held_no_sentinel": [], "collision": [], "grandfathered": [],
+            "already_collected": []}
     for f in facts:
-        # Order matters and both properties below are load-bearing.
+        # Order matters and the properties below are load-bearing.
+        # (0) A sibling `.collected` marker takes precedence over EVERYTHING: it is only ever
+        #     written after a size-verified copy landed in the tray, so the delivery is collected
+        #     and must never be re-collected (idempotency). Residue, stated where the marker is
+        #     honoured: the marker proves the copy landed, not that the source was removed; the
+        #     outbox retains the original until its owner cleans it.
         # (a) Without grandfathering, INCOMPLETENESS takes precedence over collision: the actionable
         #     fact is that the writer has not finished, and the file is going nowhere either way.
         # (b) Collision is nonetheless checked BEFORE any move, INCLUDING a grandfathered one, so a
         #     migration can never overwrite a delivery already waiting in the tray.
-        if not f["complete"] and not grandfather:
+        if f.get("marker_exists"):
+            plan["already_collected"].append(f)
+        elif not f["complete"] and not grandfather:
             plan["held_no_sentinel"].append(f)
         elif f["tray_exists"]:
             plan["collision"].append(f)
@@ -152,31 +176,120 @@ def gather_facts(root: Path, tray: Path) -> list:
                     "name": p.name,
                     "complete": has_sentinel(text),
                     "tray_exists": (tray / compose_name(wdir.name, order_id)).exists(),
+                    # A `.collected` name never matches the *.md glob, so a marker is never itself
+                    # gathered as a delivery; this key only records whether THIS delivery has one.
+                    "marker_exists": p.with_name(p.name + MARKER_SUFFIX).exists(),
                 })
     return facts
 
 
-def execute(plan: dict, root: Path, tray: Path, dry_run: bool) -> None:
-    """Obey the plan. os.replace is atomic within a filesystem, and the whole tree is one mount."""
+def copy_and_mark(src: Path, dest: Path) -> None:
+    """Fallback for a rename the source directory forbids: durable copy, then marker.
+
+    The order is load-bearing. The copy lands under a non-.md partial name (invisible to every
+    *.md reader, the same suffix reasoning as TMP_SUFFIX), is size-verified against the source,
+    and is renamed into place WITHIN the tray (same directory, so atomic) BEFORE the marker is
+    written beside the source. The marker therefore never exists without a complete tray copy.
+    If the marker write itself fails, the tray copy already exists, so the next sweep refuses the
+    re-collect as a collision rather than duplicating; nothing is lost either way.
+
+    Residue (guard-inputs discipline, stated at the point of use): a `.collected` marker proves a
+    size-verified copy landed in the tray, NOT that the source was removed. The outbox retains the
+    original until its owner cleans it.
+    """
+    partial = dest.with_name(dest.name + PARTIAL_SUFFIX)
+    try:
+        shutil.copy2(src, partial)
+        if partial.stat().st_size != src.stat().st_size:
+            raise OSError(f"partial copy of {src.name}: size mismatch, copy discarded")
+        os.replace(partial, dest)
+    except OSError:
+        partial.unlink(missing_ok=True)
+        raise
+    marker = src.with_name(src.name + MARKER_SUFFIX)
+    marker.write_text(
+        f"copied to tray as {dest.name}; the source directory forbids rename by a non-owner, so "
+        "the original is retained here until its owner cleans it. This marker proves the copy "
+        "landed in the tray, not that the source was removed.\n", encoding="utf-8")
+
+
+def archive_served_order(root: Path, f: dict) -> None:
+    """Move the order copy the worker served to done/orders, so the outbox empties.
+
+    Best-effort by design: the same sticky-directory class that forbids the delivery rename can
+    forbid this one, and then a plain copy suffices, because the pre-existing-target guard keeps a
+    later sweep from re-copying and the leftover original is the same stated residue as a
+    marker-retained delivery. The delivery itself already reached the tray before this runs.
+    """
+    served = root / f["family"] / "outbox" / f["worker_id"] / "orders" / f"{f['order_id']}.md"
+    if not served.is_file():
+        return
+    done = root / "done" / "orders"
+    done.mkdir(parents=True, exist_ok=True)
+    target = done / f"{f['order_id']}.md"
+    if target.exists():
+        return
+    try:
+        os.replace(served, target)
+    except PermissionError:
+        try:
+            shutil.copy2(served, target)
+        except OSError as exc:
+            print(f"  NOTE: order copy for {f['order_id']} not archived ({exc}); "
+                  "the delivery itself is collected.")
+    except OSError as exc:
+        print(f"  NOTE: order copy for {f['order_id']} not archived ({exc}); "
+              "the delivery itself is collected.")
+
+
+def execute(plan: dict, root: Path, tray: Path, dry_run: bool) -> list:
+    """Obey the plan; return one outcome per planned file: MOVED, COPIED+MARKED, or FAILED.
+
+    os.replace is atomic within a filesystem and the whole tree is one mount, so the atomic move
+    is the default path. A sticky-bit outbox owned by another account forbids renaming that
+    account's files, so PermissionError falls back to copy_and_mark (module docstring). Every
+    per-file failure is caught, reported, and recorded as FAILED so ONE bad file never aborts the
+    rest of the sweep; the caller decides the exit code from the outcomes.
+    """
     tray.mkdir(parents=True, exist_ok=True)
+    outcomes = []
     for f in plan["move"]:
         dest = tray / compose_name(f["worker_id"], f["order_id"])
         if dry_run:
             print(f"  WOULD COLLECT {f['family']}/{f['worker_id']}/{f['name']} -> {dest.name}")
             continue
-        os.replace(f["path"], dest)
-        print(f"  COLLECTED {dest.name}")
+        try:
+            os.replace(f["path"], dest)
+            outcome = "MOVED"
+            print(f"  COLLECTED {dest.name}")
+        except PermissionError:
+            try:
+                copy_and_mark(f["path"], dest)
+                outcome = "COPIED+MARKED"
+                print(f"  COLLECTED {dest.name} (copied; source retained under its "
+                      f"{MARKER_SUFFIX} marker)")
+            except OSError as exc:
+                outcomes.append({"name": f["name"], "family": f["family"],
+                                 "worker_id": f["worker_id"], "outcome": "FAILED",
+                                 "reason": str(exc)})
+                print(f"  FAILED {f['family']}/{f['worker_id']}/{f['name']}: {exc} "
+                      "(left in place; the sweep continues)")
+                continue
+        except OSError as exc:
+            outcomes.append({"name": f["name"], "family": f["family"],
+                             "worker_id": f["worker_id"], "outcome": "FAILED",
+                             "reason": str(exc)})
+            print(f"  FAILED {f['family']}/{f['worker_id']}/{f['name']}: {exc} "
+                  "(left in place; the sweep continues)")
+            continue
+        outcomes.append({"name": dest.name, "family": f["family"],
+                         "worker_id": f["worker_id"], "outcome": outcome, "reason": None})
         # The order copy the worker served moves out with its result, so the outbox empties.
-        served = root / f["family"] / "outbox" / f["worker_id"] / "orders" / f"{f['order_id']}.md"
-        if served.is_file():
-            done = root / "done" / "orders"
-            done.mkdir(parents=True, exist_ok=True)
-            target = done / f"{f['order_id']}.md"
-            if not target.exists():
-                os.replace(served, target)
+        archive_served_order(root, f)
+    return outcomes
 
 
-def report(plan: dict, tray: Path, oneline: bool = False) -> None:
+def report(plan: dict, tray: Path, oneline: bool = False, outcomes: list | None = None) -> None:
     """Report BOTH planes, always: the tray AND what is still sitting in worker outboxes.
 
     Reporting only the tray would under-count whenever the sweep has not run, and the sweep only
@@ -188,15 +301,35 @@ def report(plan: dict, tray: Path, oneline: bool = False) -> None:
     """
     n_move, n_held = len(plan["move"]), len(plan["held_no_sentinel"])
     n_coll = len(plan["collision"])
+    n_marked = len(plan.get("already_collected", []))
+    failed = [o for o in (outcomes or []) if o["outcome"] == "FAILED"]
+    copied = [o for o in (outcomes or []) if o["outcome"] == "COPIED+MARKED"]
     pending = sorted(tray.glob("*.md")) if tray.is_dir() else []
-    unswept = n_held + n_coll
+    unswept = n_held + n_coll + len(failed)
     if oneline:
         print(f"deliveries: {len(pending)} tray / {unswept} unswept"
-              + (f" / {n_held} held" if n_held else ""))
+              + (f" / {n_held} held" if n_held else "")
+              + (f" / {len(failed)} FAILED" if failed else ""))
         return
     print(f"collect-deliveries: {n_move} collected, {n_held} held back, {n_coll} collision(s); "
           f"{len(pending)} pending in the tray, {unswept} still in worker outboxes "
           f"(union is what is actually outstanding).")
+    if failed:
+        print(f"\nFAILED ({len(failed)}), neither moved nor copied; each is left in place and "
+              "will be retried on the next sweep. One failure never aborts the sweep:")
+        for o in failed:
+            print(f"    {o['family']}/{o['worker_id']}/{o['name']}: {o['reason']}")
+    if copied:
+        print(f"\nCOPIED+MARKED ({len(copied)}), the outbox directory forbade the rename, so each "
+              "was durably copied into the tray and marked beside its source. The marker proves "
+              "the copy landed, not that the source was removed; the outbox retains the original "
+              "until its owner cleans it:")
+        for o in copied:
+            print(f"    {o['family']}/{o['worker_id']} -> {o['name']}")
+    if n_marked:
+        print(f"\nALREADY COLLECTED ({n_marked}), retained in an outbox under a "
+              f"`{MARKER_SUFFIX}` marker from an earlier copy-fallback sweep; skipped, never "
+              "re-collected. The retained originals are residue, not pending work.")
     if n_held:
         # Never silent: a file that stays put without explanation is the failure shape where
         # silence reads as health.
@@ -309,15 +442,22 @@ def self_test() -> int:
     check("grandfathering a complete file does not mark it grandfathered",
           plan_collection([fact("g3")], grandfather=True)["grandfathered"], [])
 
+    # the .collected marker outranks every other bucket, including collision and incompleteness:
+    # the marker is only written after a size-verified tray copy, so the delivery IS collected.
+    mfact = dict(fact("m1", complete=False, tray_exists=True), marker_exists=True)
+    mp = plan_collection([mfact])
+    check("a marker routes a file to already_collected and nowhere else",
+          [b for b, fs in mp.items() if fs], ["already_collected"])
+
     # report() was ENTIRELY UNTESTED: all four of its branches were genuine coverage gaps, found by
     # an independent control-bracketed audit (mutation-audit-todays-three-tools). It is the function
     # that tells the operator what was held back and why, so an untested report is how a held-back
     # file becomes a silent skip, which is the exact failure this tool's design forbids. Captured
     # rather than eyeballed, so each branch is pinned by an assertion on its output.
-    def _report_text(plan, tray_path, oneline=False):
+    def _report_text(plan, tray_path, oneline=False, outcomes=None):
         buf = io.StringIO()
         with contextlib.redirect_stdout(buf):
-            report(plan, tray_path, oneline)
+            report(plan, tray_path, oneline, outcomes)
         return buf.getvalue()
 
     with tempfile.TemporaryDirectory() as td2:
@@ -427,6 +567,106 @@ def self_test() -> int:
         check("the pre-existing tray file was NOT overwritten",
               (tray / "opus-w1__done-order.md").read_text(), f"result body\n\n{SENTINEL}\n")
 
+    # --- the sticky-outbox fallback: copy+marker, marker-skip, and one-failure-does-not-abort ---
+    # SYNTHETIC fixtures: every worker id and order id below is invented for this test and
+    # mirrors no real worker, family layout aside.
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        wdir = root / "codex" / "outbox" / "codex-w2"
+        wdir.mkdir(parents=True)
+        tray = root / "inbox" / "deliveries"
+        (wdir / "sticky-one.md").write_text(f"result A\n\n{SENTINEL}\n")
+        (wdir / "sticky-two.md").write_text(f"result B\n\n{SENTINEL}\n")
+
+        real_replace = os.replace
+
+        def deny_outbox_renames(src, dst, *args, **kwargs):
+            # Simulate the sticky-directory class: a rename OUT OF the outbox raises
+            # PermissionError (another account owns the file), while the tray-internal rename
+            # that promotes the .partial copy still works.
+            if str(src).startswith(str(wdir)):
+                raise PermissionError(1, "Operation not permitted")
+            return real_replace(src, dst, *args, **kwargs)
+
+        os.replace = deny_outbox_renames
+        try:
+            plan6 = plan_collection(gather_facts(root, tray))
+            out6 = execute(plan6, root, tray, dry_run=False)
+        finally:
+            os.replace = real_replace
+        check("fallback lands both deliveries in the tray despite the forbidden rename",
+              sorted(q.name for q in tray.glob("*.md")),
+              ["codex-w2__sticky-one.md", "codex-w2__sticky-two.md"])
+        check("fallback outcomes are COPIED+MARKED, not MOVED",
+              sorted(o["outcome"] for o in out6), ["COPIED+MARKED", "COPIED+MARKED"])
+        check("a marker sits beside each retained source",
+              sorted(q.name for q in wdir.glob(f"*{MARKER_SUFFIX}")),
+              ["sticky-one.md.collected", "sticky-two.md.collected"])
+        check("the source is retained: the marker proves the copy, never the removal",
+              (wdir / "sticky-one.md").is_file(), True)
+        check("the tray copy is byte-identical to the source",
+              (tray / "codex-w2__sticky-one.md").read_text(), f"result A\n\n{SENTINEL}\n")
+        check("no .partial residue is left in the tray",
+              sorted(tray.glob(f"*{PARTIAL_SUFFIX}")), [])
+
+        # marker-skip on re-scan: retained sources are never re-collected (idempotency)
+        plan7 = plan_collection(gather_facts(root, tray))
+        check("a marked delivery is skipped on the next sweep, never re-collected",
+              len(plan7["move"]), 0)
+        check("a marked delivery routes to already_collected, not to collision or held",
+              sorted(f["order_id"] for f in plan7["already_collected"]),
+              ["sticky-one", "sticky-two"])
+
+        # a marker is itself never a delivery: wrong suffix, invisible to the *.md glob
+        check("a .collected marker is never gathered as a delivery candidate",
+              [f["name"] for f in gather_facts(root, tray)
+               if f["name"].endswith(MARKER_SUFFIX)], [])
+
+        # the residue is stated in the report, at the point the operator reads it
+        check("report names the already-collected residue as skipped, never pending",
+              "ALREADY COLLECTED" in _report_text(plan7, tray), True)
+        empty_plan = {"move": [], "held_no_sentinel": [], "collision": [],
+                      "grandfathered": [], "already_collected": []}
+        check("report states the copy-fallback residue: copy proved, removal not",
+              "not that the source was removed" in _report_text(empty_plan, tray,
+                                                                outcomes=out6), True)
+
+    # one failure must not abort the sweep, and it alone drives a FAILED outcome
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        wdir = root / "opus" / "outbox" / "opus-w3"
+        wdir.mkdir(parents=True)
+        tray = root / "inbox" / "deliveries"
+        (wdir / "bad-order.md").write_text(f"doomed\n\n{SENTINEL}\n")
+        (wdir / "good-order.md").write_text(f"fine\n\n{SENTINEL}\n")
+
+        real_replace = os.replace
+
+        def fail_one(src, dst, *args, **kwargs):
+            # A NON-permission OSError, so the copy fallback is not invoked: the file simply
+            # fails, and the sweep must carry on to the next planned file regardless.
+            if Path(src).name == "bad-order.md":
+                raise OSError(5, "Input/output error")
+            return real_replace(src, dst, *args, **kwargs)
+
+        os.replace = fail_one
+        try:
+            plan8 = plan_collection(gather_facts(root, tray))
+            out8 = execute(plan8, root, tray, dry_run=False)
+        finally:
+            os.replace = real_replace
+        check("one failing file does not abort the sweep: the other file still collected",
+              (tray / "opus-w3__good-order.md").is_file(), True)
+        check("the failing file is recorded FAILED with its reason",
+              [(o["outcome"], "Input/output error" in (o["reason"] or "")) for o in out8
+               if o["outcome"] == "FAILED"], [("FAILED", True)])
+        check("the failing file stays in place for the next sweep",
+              (wdir / "bad-order.md").is_file(), True)
+        check("a failed file gets no marker (nothing landed in the tray for it)",
+              (wdir / f"bad-order.md{MARKER_SUFFIX}").exists(), False)
+        check("the report names the failure and says the sweep continued",
+              "FAILED (1)" in _report_text(plan8, tray, outcomes=out8), True)
+
     if failures:
         print(f"\nself-test: FAILED ({len(failures)} of {total[0]})")
         return 1
@@ -459,10 +699,13 @@ def main(argv=None) -> int:
     # It previously routed through execute() in dry-run mode, which prints a WOULD COLLECT line per
     # candidate, so the statusline emitted N+1 lines instead of 1. The console is the maintainer's
     # live window and extra lines there are the specific harm the no-diffs-in-chat convention names.
+    outcomes = []
     if not a.oneline:
-        execute(plan, root, tray, a.dry_run)
-    report(plan, tray, a.oneline)
-    return 0
+        outcomes = execute(plan, root, tray, a.dry_run)
+    report(plan, tray, a.oneline, outcomes)
+    # The one non-advisory exit: a planned file that neither moved nor copied is a real loss of
+    # sweep completeness the operator must see, so it alone makes the run exit non-zero.
+    return 1 if any(o["outcome"] == "FAILED" for o in outcomes) else 0
 
 
 if __name__ == "__main__":
