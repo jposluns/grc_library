@@ -61,7 +61,20 @@ ORCHESTRATOR_SESSIONS = {"grc"}
 # every verb against it was refused for having no mapping. The refusal was correct (this tool will
 # not guess a prompt shape), but an unmapped live worker is un-nudgeable, so the map has to keep up
 # with the fleet. Adding a session here stays the deliberate, reviewable act it is meant to be.
-RUNTIME_MAP = {"worker": "claude", "worker1": "claude", "mailz": "codex", "codex": "codex"}
+RUNTIME_MAP = {"worker": "claude", "worker1": "claude", "codex": "codex"}
+# Host-specific session names are OPERATIONAL data and live in the private sibling
+# (grc_library_private/worker-runtime-map.json, a {"session-name": "family"} object),
+# merged over the generic defaults above at import time (disclosure fix, PR #1457).
+try:
+    import json as _json_rm
+    from pathlib import Path as _Path_rm
+    _rm_p = _Path_rm(__file__).resolve().parents[2] / "grc_library_private" / "worker-runtime-map.json"
+    if _rm_p.is_file():
+        _rm = _json_rm.loads(_rm_p.read_text(encoding="utf-8"))
+        if isinstance(_rm, dict):
+            RUNTIME_MAP.update({str(k): str(v) for k, v in _rm.items()})
+except Exception:
+    pass  # fail open: the generic map stands; an unmapped session is refused loudly at verb time
 
 # runtime -> the file-drop FAMILY directories that runtime can serve. A TUPLE, not one name,
 # because the relationship is ONE-TO-MANY and the previous one-to-one map left the fail-open this
@@ -349,13 +362,13 @@ def attribute_held(session: str, held: dict, families: tuple | None = None) -> t
     THIS FUNCTION CANNOT SOUNDLY IDENTIFY THE WORKER, AND SAYS SO RATHER THAN GUESSING. A worker id
     is minted per run as `<family>-<timestamp>-<nonce>` and encodes NOTHING about the tmux session
     it runs in, so matching a session NAME against a worker ID is unsound by construction. It ever
-    appeared to work only because an earlier id scheme embedded the session name (`codex-mailz-a`
-    contains `mailz`); the timestamped scheme does not.
+    appeared to work only because an earlier id scheme embedded the session name (`codex-session-m-a`
+    contains `session-m`); the timestamped scheme does not.
 
-    The live 2026-07-25 fail-open, which is pinned as a self-test case. `codex-...f8b8` held
-    `fnaudit-sweep121` while running in session `mailz`, and `codex-...b6ba` held nothing in session
-    `codex`. First-match attribution credited session `codex` with f8b8's order and session `mailz`
-    with NOTHING, so a destructive verb against `mailz` was ALLOWED while its worker had an order in
+    The live 2026-07-25 fail-open, which is pinned as a self-test case. `codex-...anon` held
+    `order-x` while running in session `session-m`, and `codex-...b6ba` held nothing in session
+    `codex`. First-match attribution credited session `codex` with the first worker's order and session `session-m`
+    with NOTHING, so a destructive verb against `session-m` was ALLOWED while its worker had an order in
     flight, destroying exactly the work the holder gate exists to protect, while `codex` was refused
     for an order it did not hold. Both verdicts were wrong, and the dangerous one was the silent
     permit rather than the visible refusal.
@@ -577,7 +590,7 @@ def do_send(repo: Path, root: Path | None, session: str, verb: str, reason: str,
         # Maintainer-observed 2026-07-25, and the single most important line in this loop: sending
         # `send-keys -t <session> "<text>" Enter` in ONE call delivered the text but NOT the submit,
         # so the prompt sat in the worker's input box as a line break and the maintainer had to press
-        # Enter by hand on the `mailz` pane. Both agent TUIs treat a fast burst of input as a PASTE,
+        # Enter by hand on the worker pane. Both agent TUIs treat a fast burst of input as a PASTE,
         # and a paste absorbs the trailing Enter as a newline instead of submitting.
         #
         # The failure is LENGTH-DEPENDENT, which is why it was not caught earlier: the Claude `wake`
@@ -652,6 +665,9 @@ def self_test() -> int:
     Each refusal is a pure early return, so it is reachable without touching tmux: the session
     list is stubbed and no send is ever attempted.
     """
+    # Synthetic session mapping for the fixtures below: `session-m` stands in for a
+    # host-specific codex session name (real names live in the private runtime map).
+    RUNTIME_MAP.setdefault("session-m", "codex")
     import contextlib
     import io
     import tempfile
@@ -701,7 +717,7 @@ def self_test() -> int:
 
     global tmux_sessions
     real = tmux_sessions
-    tmux_sessions = lambda: ["grc", "worker", "mailz", "codex", "unmapped-session"]  # noqa: E731
+    tmux_sessions = lambda: ["grc", "worker", "session-m", "codex", "unmapped-session"]  # noqa: E731
     try:
         with tempfile.TemporaryDirectory() as td:
             repo = Path(td)
@@ -726,7 +742,7 @@ def self_test() -> int:
             # sequence defined for that session's runtime.
             expect_refusal("refuses a verb with no sequence for the session's runtime",
                            "has no defined sequence for runtime",
-                           repo, root, "mailz", "no-such-verb", "r", False, True)
+                           repo, root, "session-m", "no-such-verb", "r", False, True)
             # destructive verb against a holder: the session name must match the worker id by
             # the same prefix rule do_send uses, so 'worker' matches 'worker-x'
             expect_refusal("refuses a destructive verb against an order holder",
@@ -749,7 +765,7 @@ def self_test() -> int:
                            "--reason is required",
                            repo, root, "worker", "wake", "", False, True)
             expect_allowed("a non-destructive verb on a mapped session is allowed (dry-run)",
-                           repo, root, "mailz", "wake", "r", False, True)
+                           repo, root, "session-m", "wake", "r", False, True)
 
             # The ambiguity gate, end to end: two same-family worker ids both prefix-match the
             # family-named session, so held-state is UNKNOWN and a destructive verb must refuse.
@@ -764,12 +780,12 @@ def self_test() -> int:
                            repo, root, "codex", "restart", "r", False, True)
             expect_allowed("a non-destructive verb is allowed despite ambiguous attribution",
                            repo, root, "codex", "wake", "r", False, True)
-            # THE ACTUAL 2026-07-25 FAIL-OPEN, pinned: session `mailz` matches NO codex worker id,
-            # yet a codex worker holds an order, so `mailz` may be that holder and a restart must
+            # THE ACTUAL 2026-07-25 FAIL-OPEN, pinned (identifiers anonymized): session `session-m` matches NO codex worker id,
+            # yet a codex worker holds an order, so `session-m` may be that holder and a restart must
             # refuse. Before the family-scoped unknown state, this case PASSED THE SEND.
             expect_refusal("refuses a destructive verb on an unmatched session whose family holds",
                            "no worker id matches this session name",
-                           repo, root, "mailz", "restart", "r", False, True)
+                           repo, root, "session-m", "restart", "r", False, True)
     finally:
         tmux_sessions = real
 
@@ -895,9 +911,9 @@ def self_test() -> int:
                attribute_held("codex", {"codex-a": "o", "codex-b": None}, ("codex",)),
                ("ambiguous", None))
     check_attr("attribute_held: no match and NO family holder is a safe none",
-               attribute_held("mailz", {"codex-a": None}, ("codex",)), ("none", None))
+               attribute_held("session-m", {"codex-a": None}, ("codex",)), ("none", None))
     check_attr("attribute_held: no match while the family HOLDS is unknown, not none",
-               attribute_held("mailz", {"codex-a": "o"}, ("codex",)), ("unknown", None))
+               attribute_held("session-m", {"codex-a": "o"}, ("codex",)), ("unknown", None))
     # F4(1): multi-match where EVERY match is idle. This is where F2 lived, which is why F2 shipped.
     check_attr("attribute_held: multi-match with NO holder is free, not a false refusal",
                attribute_held("codex", {"codex-a": None, "codex-b": None}, ("codex",)), ("free", None))
@@ -927,12 +943,12 @@ def self_test() -> int:
                ("none", None))
     check_attr("the runtime-to-family map is one-to-many and covers every family directory",
                sorted({f for fs in RUNTIME_FAMILIES.values() for f in fs}), ["codex", "fable", "opus"])
-    check_attr("attribute_held: THE live 2026-07-25 fail-open (mailz unmatched, f8b8 holding)",
-               attribute_held("mailz", {"codex-20260725T041432Z-f8b8": "fnaudit-sweep121",
+    check_attr("attribute_held: THE live 2026-07-25 fail-open (session unmatched, worker holding)",
+               attribute_held("session-m", {"codex-20260725T041432Z-anon": "order-x",
                                         "codex-20260725T151831Z-b6ba": None}, ("codex",)),
                ("unknown", None))
     check_attr("attribute_held: its sibling half (family session matches both ids)",
-               attribute_held("codex", {"codex-20260725T041432Z-f8b8": "fnaudit-sweep121",
+               attribute_held("codex", {"codex-20260725T041432Z-anon": "order-x",
                                         "codex-20260725T151831Z-b6ba": None}, ("codex",)),
                ("ambiguous", None))
 

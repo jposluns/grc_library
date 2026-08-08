@@ -67,7 +67,7 @@ STALE_STARTED_AGE_S = 24 * 3600            # absolute backstop against pid reuse
 # data and stays in the private account config (disclosure fix, PR #1457).
 import re as _re_tier  # noqa: E402 (kept beside its sole consumer, matching this module's local-import idiom)
 
-_TIER_X_RE = _re_tier.compile(r"(\d+(?:\.\d+)?)x\b")
+_TIER_X_RE = _re_tier.compile(r"(\d+(?:\.\d+)?)x\s*$")
 
 
 def tier_weight(acct: dict) -> float:
@@ -98,8 +98,8 @@ def account_available(acct: dict, now: _dt.datetime) -> tuple[bool, str]:
     # Orchestrator-account guard (maintainer-directed 2026-07-28): an account flagged
     # `is_orchestrator` is the orchestrator's OWN login and is NEVER dispatched as a worker
     # (independence violation + burns the scarce orchestrator credits the offload design
-    # exists to protect). Only the orchestrator's own claude entry carries the flag in the
-    # private account config, so the codex accounts stay eligible. Covers auto-pick AND explicit --account (both funnel here).
+    # exists to protect). Which entries carry the flag is operational data that lives in the
+    # private account config; an unflagged entry on the same account stays eligible. Covers auto-pick AND explicit --account (both funnel here).
     if acct.get("is_orchestrator"):
         return False, "orchestrator account, reserved (never dispatched as a worker)"
     state = acct.get("usage_state", "available")
@@ -292,7 +292,7 @@ def mint_worker_id(account: str, family: str, now: _dt.datetime) -> str:
 
 # --- verifier-independence exclusion resolution (impl-3111) -------------------------
 # A worker-id minted by mint_worker_id above is `{family}-{account}-{stamp}-{4hex}`. The account
-# component can itself contain hyphens (e.g. `jposluns-work`), so the regex anchors on the FIXED
+# component can itself contain hyphens (e.g. `acct-two`), so the regex anchors on the FIXED
 # trailing shape (a 16-char UTC stamp ending in Z, then a 4-hex suffix) and lets `account` absorb
 # everything between the leading family token and that trailing shape. This is the ONLY id form
 # that carries a resolvable account; see the caveat below.
@@ -742,8 +742,8 @@ def _self_test() -> int:
     a_sec, r_sec = pick_account(_FIXTURE, "claude", "opus", sunday, account="bravo")
     check("override-targets-eligible", a_sec is not None and a_sec["id"] == "bravo-claude")
     # 12. Targeting the personal account (eligible but auto-picked LAST) still works when named.
-    a_mz, _ = pick_account(_FIXTURE, "claude", "opus", sunday, account="delta")
-    check("override-targets-personal", a_mz is not None and a_mz["id"] == "delta-claude")
+    a_del, _ = pick_account(_FIXTURE, "claude", "opus", sunday, account="delta")
+    check("override-targets-personal", a_del is not None and a_del["id"] == "delta-claude")
     # 13. Targeting a KNOWN-but-ineligible account (limited charlie) is REJECTED with a reason.
     a_lim, r_lim = pick_account(_FIXTURE, "claude", "opus", sunday, account="charlie")
     check("override-rejects-ineligible", a_lim is None and "NOT eligible" in r_lim)
@@ -866,7 +866,7 @@ def _self_test() -> int:
     cmd = build_dispatch_cmd(WRAPPER["claude"], "/tmp/p.txt", "alpha", "opus", wid)
     check("worker-id-in-cmd",
           "--worker-id" in cmd and cmd[cmd.index("--worker-id") + 1] == wid)
-    # 30. --effort is still appended (existing behavior preserved), after --worker-id.
+    # 30a. --effort is still appended (existing behavior preserved), after --worker-id.
     cmd2 = build_dispatch_cmd(WRAPPER["claude"], "/tmp/p.txt", "alpha", "opus", wid, effort="high")
     check("effort-still-passed", cmd2[-2:] == ["--effort", "high"])
     # 31. The minted worker id satisfies the wrapper charset [A-Za-z0-9_-].
@@ -875,17 +875,38 @@ def _self_test() -> int:
     check("max-concurrent-default-1", _max_concurrent({"id": "x"}) == 1)
     check("max-concurrent-explicit", _max_concurrent({"id": "x", "max_concurrent": 3}) == 3)
 
+    # tier_weight branches (vpr-1457 claude F3: the function shipped with zero discriminating
+    # coverage; a constant-0.0 mutation passed every check). Explicit weight wins; a trailing
+    # "<N>x" label parses; the suffix is END-anchored; a bool is not a weight; no signal -> 1.0.
+    check("tierweight-explicit-wins", tier_weight({"weight": 4.5, "tier": "9x"}) == 4.5)
+    check("tierweight-suffix-parses", tier_weight({"tier": "plan-2.5x"}) == 2.5)
+    check("tierweight-suffix-end-anchored", tier_weight({"tier": "2x-plus"}) == 1.0)
+    check("tierweight-bool-not-weight", tier_weight({"weight": True, "tier": "plain"}) == 1.0)
+    check("tierweight-default", tier_weight({"tier": "plain"}) == 1.0)
+    # And weight is genuinely load-bearing in the in-set sort: raising echo's weight above
+    # alpha/bravo moves it to the top pick (a constant tier_weight cannot pass this).
+    import copy as _copy
+    _fx_w = _copy.deepcopy(_FIXTURE)
+    for _a in _fx_w["accounts"]:
+        if _a["id"] == "echo-claude":
+            _a["weight"] = 9.0
+    _top_w = select_account(_fx_w, "claude", "opus", sunday)
+    check("weight-load-bearing-in-set", _top_w is not None and _top_w["id"] == "echo-claude")
+
     # --- verifier-independence exclusion (impl-3111) --------------------------------
     # A worker-id minted for a hyphenated account must resolve back to that exact account.
-    wid_wa = mint_worker_id("alpha", "claude", sunday)   # claude-alpha-<stamp>-<4hex>
-    # 33. worker_id_to_key resolves the (account, family) key, hyphenated account intact.
-    check("wid-resolves-hyphenated-account", worker_id_to_key(wid_wa) == ("alpha", "claude"))
+    wid_plain = mint_worker_id("alpha", "claude", sunday)   # claude-alpha-<stamp>-<4hex>
+    # 33. worker_id_to_key resolves the (account, family) key; a HYPHENATED account name
+    # (config-independent parse) keeps its hyphens intact (the branch the old fixture covered).
+    wid_hyph = mint_worker_id("zulu-two", "claude", sunday)
+    check("wid-resolves-hyphenated-account", worker_id_to_key(wid_hyph) == ("zulu-two", "claude"))
+    check("wid-resolves-plain-account", worker_id_to_key(wid_plain) == ("alpha", "claude"))
     # 34. A From:-style short id (no account component) does NOT parse -> None (fail-closed signal).
     check("wid-shortform-unresolvable", worker_id_to_key("opus-20260726T180000Z-abcd1234") is None)
     check("wid-garbage-unresolvable", worker_id_to_key("not-a-worker-id") is None)
     KNOWN_C = {"alpha", "bravo", "charlie", "delta", "echo"}   # claude accounts in _FIXTURE
     # 35. resolve_exclusions: a same-family --not-worker for a KNOWN account contributes it; clean.
-    exc, unres, unk = resolve_exclusions([wid_wa], [], "claude", KNOWN_C)
+    exc, unres, unk = resolve_exclusions([wid_plain], [], "claude", KNOWN_C)
     check("resolve-notworker-same-family", exc == {"alpha"} and unres == [] and unk == [])
     # 36. A DIFFERENT-family --not-worker is irrelevant to this dispatch: ignored (not unresolved,
     #     not unknown). By design: independence keys on (account, family). (claude verifier's nit.)
