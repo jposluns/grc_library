@@ -2,7 +2,7 @@
 
 **Document Title:** What the governing body should require for third-party and AI supply-chain risk oversight\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.11\
+**Version:** 0.0.12\
 **Date:** 2026-08-08\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -10,7 +10,7 @@
 **Classification:** Public\
 **Category:** Executive Narrative\
 **Review Frequency:** Annual, and a 6-month advisory executive review\
-**Repository Path:** [`executive/briefs/brief-what-the-governing-body-should-require-for-third-party-and-ai-supply-chain-oversight.md`](brief-what-the-governing-body-should-require-for-third-party-and-ai-supply-chain-oversight.md)\
+**Repository Path:** [`executive/briefs/brief-ai-supply-chain-oversight.md`](brief-ai-supply-chain-oversight.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **Narrative Type:** Executive Brief\
