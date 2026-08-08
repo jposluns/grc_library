@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Ingestion and Transformation Specification\
 **Document Type:** Specification\
-**Version:** 1.7.12\
+**Version:** 1.7.13\
 **Date:** 2026-08-08\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -133,7 +133,7 @@ SECURITY.md           Defect reporting path.
 .pre-commit-config.yaml  Local pre-commit hooks.
 .github/              GitHub Actions workflow.
 tools/                Audit scripts and taxonomy / narrative registry / portal generators.
-docs/                 Adopter documentation (not subject to canonical metadata).
+docs/                 Adopter documentation (not subject to canonical metadata; includes the auto-generated portal and maturity scorecard).
 taxonomy.yml          Auto-generated machine-readable registry of artefact metadata.
 narrative.yml         Auto-generated registry of executive narrative pages from executive/.
 guardrails/           Portable Claude Code governance pack (rules, skills, meta); not a governance-artefact domain.

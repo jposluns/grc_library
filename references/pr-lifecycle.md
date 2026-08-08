@@ -419,7 +419,8 @@ is external. Two mechanisms:
      depth, and it was earned by that convention failing five times in one session.
    - **Generated-artefact regen order** (the false-clean guard): after any per-document
      `Version` bump, regenerate `taxonomy.yml` FIRST, then `docs/portal.md` and
-     `docs/maturity-scorecard.md` (which derive from the taxonomy); a `build-portal.py
+     `docs/maturity-scorecard.md` (which derive from the taxonomy); an
+     `executive/` page bump regenerates `narrative.yml` (gate 85) instead; a `build-portal.py
      --check` taken before the taxonomy regen completes returns a false-clean against the
      stale taxonomy (the #318 and #323 gate-33 and gate-34 amend loops).
    - **Accepted-unverified tracker** (the evidence-grounded-completion corollary): if this PR

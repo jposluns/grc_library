@@ -56,7 +56,7 @@ VERSION_LINE = re.compile(r"^\*\*Version:\*\*", re.M)
 # metadata edit, not a body change, so it must not by itself demand a bump.
 METADATA_PREFIX = re.compile(r"^\*\*[A-Za-z][A-Za-z ()/-]*:\*\*")
 OPT_OUT = re.compile(r"VersionBump:\s*none\b", re.I)
-GENERATED = ("taxonomy.yml", "docs/portal.md", "docs/maturity-scorecard.md")
+GENERATED = ("taxonomy.yml", "narrative.yml", "docs/portal.md", "docs/maturity-scorecard.md")
 # A CLEAN `**Version:** X.Y.Z` semver line (auto-bumpable). README's `**Library Version:**` (CalVer)
 # and template `**Version:** <x.y.z ...>` do NOT match, so they fall through to the block fallback.
 SEMVER_VERSION = re.compile(r"^(\*\*Version:\*\*[ \t]*)(\d+)\.(\d+)\.(\d+)(.*)$", re.M)
@@ -223,10 +223,12 @@ def main() -> int:
         # cannot be fixed without unstaging.
         corpus = [p for p in versioned if "/" in p and not p.startswith((".working/", ".claude/"))]
         if corpus and not any(g in staged for g in GENERATED):
-            print("NOTE (version-bump guard): a corpus document's Version moved and none of "
+            print("NOTE (version-bump guard): a document's Version moved and none of "
                   f"{', '.join(GENERATED)} is staged. If this document feeds the taxonomy, run "
-                  "`python3 tools/build-taxonomy.py` FIRST, then build-portal.py, and stage both. "
-                  "Gate 33 catches it otherwise, six minutes from now.", file=sys.stderr)
+                  "`python3 tools/build-taxonomy.py` FIRST, then build-portal.py, and stage both; "
+                  "an executive/ page feeds narrative.yml instead, run "
+                  "`python3 tools/build-narrative-registry.py`. "
+                  "Gates 33/85 catch it otherwise, six minutes from now.", file=sys.stderr)
         return 0
 
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")

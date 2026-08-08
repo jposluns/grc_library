@@ -107,6 +107,7 @@ WALK_SKIP_FILES: frozenset[str] = frozenset(
     {
         "CHANGELOG.md",
         "taxonomy.yml",
+        "narrative.yml",
         "docs/portal.md",
         "docs/maturity-scorecard.md",
     }

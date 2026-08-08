@@ -26,7 +26,8 @@ scope; files without a Version field are silently skipped.
 
 Exempt: CHANGELOG.md (the file is itself the version history;
 metadata is not bumped per change); generated artefacts (taxonomy.yml,
-docs/portal.md, docs/maturity-scorecard.md, docs/reference-acquisition-manifest.md), which are regenerated
+narrative.yml, docs/portal.md, docs/maturity-scorecard.md,
+docs/reference-acquisition-manifest.md), which are regenerated
 not edited; and the hidden directories under DEFAULT_EXEMPT_DIRS.
 
 Exit codes: 0 pass, 1 findings, 2 internal error (git failure).
@@ -54,6 +55,7 @@ EXEMPT_FILES: frozenset[str] = frozenset(
     {
         "CHANGELOG.md",
         "taxonomy.yml",
+        "narrative.yml",
         "docs/portal.md",
         "docs/maturity-scorecard.md",
         "docs/reference-acquisition-manifest.md",
