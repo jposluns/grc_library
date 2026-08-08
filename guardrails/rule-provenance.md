@@ -1,7 +1,7 @@
 # Rule provenance register: the origin of each governance rule
 
 **Document Type:** Provenance register\
-**Version:** 1.2.4\
+**Version:** 1.2.5\
 **Date:** 2026-08-08\
 **Owner:** Governance Library Maintainer\
 **Repository Path:** [`guardrails/rule-provenance.md`](rule-provenance.md)\
