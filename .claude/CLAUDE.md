@@ -118,9 +118,10 @@ documents and the linters that govern them.
   gates are added; the source of truth for the current set is
   `tools/run_all_audits.sh` and `.github/workflows/quality.yml`.
 - `taxonomy.yml`, `docs/portal.md`, and `docs/maturity-scorecard.md` are generated
-  from document metadata: never hand-edit generated files; regenerate via
-  `tools/build-taxonomy.py` and `tools/build-portal.py` and commit the source plus
-  the regenerated output together.
+  from corpus document metadata; `narrative.yml` is generated independently from
+  `executive/` page metadata. Never hand-edit generated files; regenerate via
+  `tools/build-taxonomy.py`, `tools/build-narrative-registry.py`, and
+  `tools/build-portal.py`, and commit the source plus the regenerated output together.
 
 ## Why
 Every document carries a 13-field metadata block and a fixed section model so the
@@ -135,7 +136,8 @@ content stays citable, cross-linked, and free of drift, secrets, or PII.
 - Linter regression tests: `python3 tools/run-linter-regression.py`
 - Pre-commit (mirrors CI): `pre-commit run --all-files`
 - Regenerate derived artefacts: `python3 tools/build-taxonomy.py`,
-  `python3 tools/build-portal.py` (CI checks sync via `--check`)
+  `python3 tools/build-narrative-registry.py`, `python3 tools/build-portal.py`
+  (CI checks sync via `--check`)
 
 CI source of truth: `.github/workflows/quality.yml`. Keep `quality.yml`,
 `tools/run_all_audits.sh`, and `.pre-commit-config.yaml` in lock-step: a gate added to
@@ -726,7 +728,7 @@ did this commit change a versioned document's body (bump its Version AND Date), 
 the last commit before push (bump library CalVer and the README Version field)?
 
 ## Boundaries
-- Never hand-edit generated files (`taxonomy.yml`, `docs/portal.md`,
+- Never hand-edit generated files (`taxonomy.yml`, `narrative.yml`, `docs/portal.md`,
   `docs/maturity-scorecard.md`); regenerate them: CI `--check` fails on drift.
 - Never weaken or delete an audit gate to make a document pass; fix the document.
 - Never commit secrets or real PII: `lint-secrets-in-content.py` /

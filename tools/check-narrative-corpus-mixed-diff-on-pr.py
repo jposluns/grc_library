@@ -30,7 +30,7 @@ Scope, and why it is drawn this way:
   does NOT count the root bookkeeping/meta surfaces every PR touches (``README.md``
   CalVer line, ``CHANGELOG.md``, ``NOTICE.md``, and the rest, none of which carry
   the governed prefixes) nor the generated registries (``taxonomy.yml``,
-  ``docs/portal.md``, ``docs/maturity-scorecard.md``): a narrative-page PR must
+  ``narrative.yml``, ``docs/portal.md``, ``docs/maturity-scorecard.md``): a narrative-page PR must
   bump the root ``README.md`` CalVer, so counting a bookkeeping surface as a
   corpus document would trip this check on every legitimate narrative PR.
 

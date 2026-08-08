@@ -34,10 +34,12 @@ To regenerate the auto-generated artefacts after editing metadata, run without `
 
 ```
 python3 tools/build-taxonomy.py
+python3 tools/build-narrative-registry.py
 python3 tools/build-portal.py
 ```
 
-The portal generator depends on the taxonomy; always regenerate the taxonomy first.
+The narrative registry derives independently from `executive/` page metadata. The portal
+generator depends on the taxonomy; always regenerate the taxonomy first.
 
 ## Pre-commit integration
 

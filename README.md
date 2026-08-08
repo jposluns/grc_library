@@ -4,8 +4,8 @@
 **Classification:** Public\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
-**Library Version:** 2026.08.150 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.10.305 (semantic per-document version for this file)
+**Library Version:** 2026.08.151 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.10.306 (semantic per-document version for this file)
 
 ---
 
@@ -149,7 +149,7 @@ Repository infrastructure directories (not used for governance artefacts):
                 from this library's own maintenance disciplines; usable standalone on any project.
                 See guardrails/README.md. Not an audited corpus domain.
 /tools          Stdlib-only Python audit scripts: metadata, language, links, structural index,
-                taxonomy generator, adopter portal generator.
+                taxonomy generator, narrative registry generator, adopter portal generator.
 /docs           Adopter-facing documentation that is not a governance artefact: adopter guide,
                 worked example, auto-generated portal, auto-generated maturity scorecard.
 /executive      Executive narrative layer (early): non-normative, advisory, and
@@ -163,6 +163,8 @@ Repository infrastructure directories (not used for governance artefacts):
                 main and on every pull request.
 /taxonomy.yml   Auto-generated machine-readable registry of every active artefact's canonical
                 metadata. Regenerated from document metadata by tools/build-taxonomy.py.
+/narrative.yml  Auto-generated registry of the executive narrative layer's pages.
+                Regenerated from the executive/ pages by tools/build-narrative-registry.py.
 /tests          Linter-regression fixtures for the audit toolchain, exercised by the
                 regression gate (see tools/run-linter-regression.py).
 /.project-governance  The project's OWN governance artefacts (the citation-verification
