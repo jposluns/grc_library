@@ -7825,6 +7825,23 @@ class AuditSpecDetailedProseTests(LinterTestCase):
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
         self.assertIn("gate 35", result.stdout)
 
+    def test_description_outside_section_6_fails(self) -> None:
+        # The placement half (P-3.230): body-wide presence with the
+        # description spliced into section 5 (the gate-55 / gates-79-89
+        # precedent) must fail, naming the placement, not bare absence.
+        spec = self.make_fixture(
+            "spec-prose-splice.md",
+            "# Spec fixture\n\n## 5. Categories\n\n"
+            "Gate 35 is a parity audit described in the wrong section.\n\n"
+            "## 6. Inventory\n\n"
+            "| # | Gate | Script |\n|---|---|---|\n"
+            "| 35 | Gate 35 name | `tools/g35.py` |\n\n"
+            "## 7. Next\n",
+        )
+        result = run_linter(self.SCRIPT, "--spec", spec)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("outside the section-6 region", result.stdout)
+
     def test_missing_appended_sentence_fails(self) -> None:
         spec = self.make_fixture(
             "spec-prose-noapp.md",

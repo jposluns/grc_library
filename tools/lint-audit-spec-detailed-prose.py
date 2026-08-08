@@ -14,9 +14,13 @@ several PRs until Sweep 77 found it; gate 55's description initially
 landed in section 5 instead; gates 43 and 44 carried no detailed prose
 at all until the backfill that shipped with this gate).
 
-This linter closes that seam with a PRESENCE-ONLY check (deliberately
-not semantic: whether the prose accurately describes the gate remains
-sweep-and-review territory):
+This linter closes that seam with a PRESENCE-AND-PLACEMENT check
+(deliberately not semantic: whether the prose accurately describes the
+gate remains sweep-and-review territory). Placement (P-3.230, from the
+Sweep-151 recurrence of the gate-55 class) requires each required
+sentence to fall INSIDE the section-6 region, so a description spliced
+into the section-5 category list fails instead of passing body-wide
+presence:
 
 - It parses the section-6 inventory table for the gate numbers,
   scoped to the section-6 region (a numeric-first-cell table elsewhere
@@ -128,6 +132,33 @@ def parse_gate_numbers(text: str) -> list[int]:
     return numbers
 
 
+def section_6_span(text: str) -> tuple[int, int]:
+    """Character-offset span [start, end) of the section-6 region.
+
+    The placement half (P-3.230, PR #1455): presence alone let a gate's
+    description sit INSIDE the section-5 category list (gate 55 once, then
+    the gates-79-89 block found by Sweep 151), invisible to a body-wide
+    substring check. The span lets the checks require each description to
+    fall inside section 6, where the convention places it. Returns (-1, -1)
+    when no section-6 heading exists (unreachable in practice: the caller
+    has already parsed section-6 inventory rows).
+    """
+    start = end = -1
+    offset = 0
+    for line in text.splitlines(keepends=True):
+        if start < 0 and SECTION_6_RE.match(line):
+            start = offset
+        elif start >= 0 and SECTION_END_RE.match(line):
+            end = offset
+            break
+        offset += len(line)
+    if start < 0:
+        return (-1, -1)
+    if end < 0:
+        end = len(text)
+    return (start, end)
+
+
 RETIRED_MARKER_RE = re.compile(r"^\*\(retired\b", re.IGNORECASE)
 
 
@@ -214,6 +245,9 @@ def main(argv: list[str]) -> int:
         print(f"ERROR: no §6 gate-inventory rows parsed from {spec}")
         return 2
 
+    s6_start, s6_end = section_6_span(text)
+    region = text[s6_start:s6_end] if s6_start >= 0 else text
+
     missing: list[str] = []
     checked_desc = 0
     checked_app = 0
@@ -224,11 +258,22 @@ def main(argv: list[str]) -> int:
                 missing.append(
                     f"gate {n}: no 'Gate {n} is ...' description sentence in the spec prose"
                 )
+            elif f"Gate {n} is " not in region:
+                missing.append(
+                    f"gate {n}: its 'Gate {n} is ...' description sits outside the "
+                    "section-6 region (the gate-55 / gates-79-89 precedent: prose "
+                    "spliced into the section-5 list); move it into section 6"
+                )
         if n >= APPENDED_FLOOR:
             checked_app += 1
             if f"Gate {n} is appended" not in text:
                 missing.append(
                     f"gate {n}: no 'Gate {n} is appended ...' ordering sentence in the spec prose"
+                )
+            elif f"Gate {n} is appended" not in region:
+                missing.append(
+                    f"gate {n}: its 'Gate {n} is appended ...' ordering sentence sits "
+                    "outside the section-6 region; move it into section 6"
                 )
 
     delta_rows, delta_heading = parse_delta_rows(text)
