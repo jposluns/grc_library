@@ -4778,13 +4778,14 @@ class LintCommonHelperTests(unittest.TestCase):
 class DocumentDateStalenessTests(LinterTestCase):
     """tools/lint-document-date-staleness.py
 
-    The audit verifies that every corpus markdown file with a Date
-    metadata field has a Date no more than ``--max-lag-days`` behind
-    the file's most-recent git commit date, with files committed
-    before ``--baseline-date`` grandfathered. Tests build a synthetic
-    minimal git repo under ``--root`` so the linter's detection logic
-    can be exercised with engineered commit dates and metadata Dates,
-    without touching the real corpus or its git history.
+    The audit verifies that every in-scope corpus and guardrails pack
+    markdown file with a Date metadata field has a Date no more than
+    ``--max-lag-days`` behind the file's most-recent git commit date,
+    with files committed before ``--baseline-date`` grandfathered.
+    Tests build a synthetic minimal git repo under ``--root`` so the
+    linter's detection logic can be exercised with engineered commit
+    dates and metadata Dates, without touching the real corpus or its
+    git history.
     """
 
     @staticmethod
@@ -4968,6 +4969,30 @@ class DocumentDateStalenessTests(LinterTestCase):
                 f"linter should grandfather a pre-baseline commit.\n"
                 f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
             )
+        finally:
+            shutil.rmtree(synthetic_root, ignore_errors=True)
+
+    def test_guardrails_in_default_scope_flags_stale_date(self) -> None:
+        # Coverage regression: the pack must be reached without an explicit
+        # path, and its stale Date must not be suppressed by a prefix exemption.
+        import shutil
+
+        synthetic_root = self._build_synthetic_repo(
+            metadata_date="2026-05-28",
+            commit_date="2026-06-19T12:00:00Z",
+            document_type="Maintainer log",
+            document_basename="vetting-log.md",
+            scan_subdir="guardrails",
+        )
+        try:
+            result = run_linter(
+                "tools/lint-document-date-staleness.py",
+                "--root",
+                str(synthetic_root),
+                "--baseline-date",
+                "2026-06-19",
+            )
+            self.assertLinterFails(result, "guardrails/vetting-log.md")
         finally:
             shutil.rmtree(synthetic_root, ignore_errors=True)
 

@@ -1,8 +1,8 @@
 # Maintainer vetting log: external rule sources
 
 **Document Type:** Maintainer log\
-**Version:** 1.3.6\
-**Date:** 2026-07-24\
+**Version:** 1.3.7\
+**Date:** 2026-08-08\
 **Owner:** Governance Library Maintainer\
 **Repository Path:** [`guardrails/vetting-log.md`](vetting-log.md)\
 **License:** CC BY-SA 4.0
