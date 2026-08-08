@@ -1,8 +1,8 @@
 # Rule provenance register: the origin of each governance rule
 
 **Document Type:** Provenance register\
-**Version:** 1.2.3\
-**Date:** 2026-08-07\
+**Version:** 1.2.5\
+**Date:** 2026-08-08\
 **Owner:** Governance Library Maintainer\
 **Repository Path:** [`guardrails/rule-provenance.md`](rule-provenance.md)\
 **License:** CC BY-SA 4.0
@@ -121,7 +121,10 @@ bottlenecks and state confusion (pipeline construction), stale worker claims cau
 apply time (apply-time correction), hard-to-review bundles (always split), and idle CI
 waits (background work). The skeptical pre-push verification tiers were layered on
 later, when change volume made an independent adversarial check before each push the
-cheapest place to catch defects.
+cheapest place to catch defects. The commit-before-dispatch requirement (a QA verifier
+is pinned to a revision, so the artefact under review must be committed before the
+dispatch) was added in August 2026 after an expensive dual-family pass was dispatched
+against an uncommitted artefact and bought one process finding and no content review.
 
 ### `trust-recovery-escalation`
 
