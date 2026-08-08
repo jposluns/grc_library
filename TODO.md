@@ -302,6 +302,16 @@ The generated portal ([`docs/portal.md`](docs/portal.md)) does not surface each 
 
 Package the cumulative documentation-and-corpus discipline as a standalone Claude Code skill anyone managing a documentation corpus with an AI assistant could install. Distillation source: the fifteen `governance/` pack rules (discipline core), `validation-sweep` + `library-fitness-review` (periodic-review surface), the audit-programme architecture (mechanical-enforcement surface). Decided 2026-06-22: skill **family** (not omnibus), **prescriptive-only** (no linter scaffolds), **existing pack 1.x bump**. After the FR backlog closes. UNBLOCKED: the pack adoption-hygiene programme is complete (phases 1-4, closed #846), so the distillation source (the condensed, adoption-clean governance rules) is merged and available.
 
+## Priority 4 — Adopter experience
+
+**Next item number: 4.32.**
+
+Capability and guidance for organizations adopting the library, and the operator-experience tooling for running the project. Scheduled deliberately, after the fix/gap/cleanup tiers.
+
+### 4.1 Corpus-management discipline as a shareable skill (M, XL) `[public]`
+
+Package the cumulative documentation-and-corpus discipline as a standalone Claude Code skill anyone managing a documentation corpus with an AI assistant could install. Distillation source: the fifteen `governance/` pack rules (discipline core), `validation-sweep` + `library-fitness-review` (periodic-review surface), the audit-programme architecture (mechanical-enforcement surface). Decided 2026-06-22: skill **family** (not omnibus), **prescriptive-only** (no linter scaffolds), **existing pack 1.x bump**. After the FR backlog closes. UNBLOCKED: the pack adoption-hygiene programme is complete (phases 1-4, closed #846), so the distillation source (the condensed, adoption-clean governance rules) is merged and available.
+
 ### 4.5 Adopter reference-base specification: build-your-own-ref guide, source lists, and the corpus-to-sources relevance map (L, L) `[public]`
 
 Adopters who clone the library do **not** receive `grc_library_ref` (it holds third-party reference works under their own licences and is not redistributable). Give them something better than a bare "good luck": a **specification an adopter's AI assistant can follow to assemble its own reference base**, right-sized to that organization's budget and licences. Deliverables to scope at build:
@@ -327,6 +337,12 @@ Extend the [`/adopt`](.claude/commands/adopt.md) skill (currently a run-once for
 ### 4.30 Full adopter-experience assessment + `.adopt/` adoption kit (maintainer-directed 2026-07-19, P4 umbrella, M-L, multi-phase) `[public]`
 
 The umbrella for a clean, great adopter experience from a public clone, and for moving maintainer back-end state out of the public repo WITHOUT depriving an adopter who wants it. **Phase 1 (assessment):** from a clean PUBLIC clone, enumerate every adopter-facing process (`/resume`, `/adopt`, the audit gates, the PR workflow, the QA cadences, the skills, the CLAUDE.md rules) and trace what each reads; flag every reference to something that lives in `_private` / `_ref` / `_scratch` (a gap for the adopter); classify each gap as (a) ESSENTIAL machinery-core the adopter's gates or `/resume` need (recreate for them), (b) OPTIONAL back-end capability the adopter might want (offer as per-adopter opt-in; the orchestrator-only files MAY be adopter-useful, maintainer-directed 2026-07-19, so it is the adopter's decision, not ours), or (c) MAINTAINER-PRIVATE (the process degrades gracefully, no adopter reference). **Phase 2 (the `.adopt/` kit):** a root `.adopt/` directory with a README (the decision guide: in-repo `.ref`/`.scratch`/`.private` stubs vs separate sibling repos; how `/adopt` works; how to decide; which back-end capabilities to opt into) and clean TEMPLATES for every essential machinery-core file that moves out (baselines `/adopt` CREATES in the adopter's chosen location, since they no longer ship publicly) PLUS opt-in templates for the back-end capabilities. **Phase 3 (adaptation):** move DONE + improvement-log (confirmed 2026-07-19) and any other assessed-essential file to `_private`; adapt the gates that read them (`check-todo-rotation-on-pr`, `lint-todo-marked-done`, gate 50 bookkeeping-parity, the tension/residual scans) to RESOLVE `_private`-or-adopter-location (the `resolve_sibling` pattern); ensure every adopter-facing process degrades gracefully when an opted-out file is absent; `/adopt` recreates from the `.adopt/` templates. **Coordinates / folds in the existing adoption items** (Phase 1 decides which fully merge vs stay separate): §4.1 (corpus-management shareable skill), §4.5 (adopter reference-base spec + build-your-own-ref guide, likely the `_ref` template piece of the kit), §4.6 (fork update-assessment tooling), §4.9 (pack public-distribution packaging, implemented in #1145: escaping links rewritten, dependencies documented, command names verified), §4.29 (`/adopt` adjustment + non-destructive tooling-update mode, the closest sub-item). **Build notes:** `.adopt/` is a real deliverable, not a gate-70 placeholder stub; check its README against the language + marker-word gates; pairs with the `/home/grc` migration and the `_private` relocation (design in `grc_library_private/design-decisions.md`). **Goal:** clone public, run `/adopt`, get a complete clean working-state set in the chosen location, with per-adopter opt-in to the back-end and zero orchestrator-only clutter.
+
+## Priority 5 — Expand: country / regulator / programme overlays
+
+**Next item number: 5.10.**
+
+Adding new coverage to existing domains. Each subitem is a separate small or medium PR; the maintainer schedules deliberately.
 
 ### 5.2 Logistics country / programme expansion (was 5.1) `[public]`
 
