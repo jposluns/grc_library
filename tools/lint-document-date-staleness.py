@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """Document Date staleness audit.
 
-For every Markdown file under corpus scope that carries a canonical
-``**Date:**`` metadata field, compare the Date value to the file's
-most-recent git commit date (committer date). Fail when the metadata
-Date is more than ``--max-lag-days`` behind the commit date, OR when
-the Date is more than ``--max-future-days`` AHEAD of the current UTC
-date (a "last updated" Date cannot be in the future; the future-date
-check compares to today, not the commit date, so a working-tree Date
-freshly bumped to today is never a false positive).
+For every Markdown file under corpus or ``guardrails/`` pack scope
+that carries a canonical ``**Date:**`` metadata field, compare the
+Date value to the file's most-recent git commit date (committer date).
+Fail when the metadata Date is more than ``--max-lag-days`` behind
+the commit date, OR when the Date is more than ``--max-future-days``
+AHEAD of the current UTC date (a "last updated" Date cannot be in the
+future; the future-date check compares to today, not the commit date,
+so a working-tree Date freshly bumped to today is never a false positive).
 
 This audit catches a class of defect that no other gate catches: a
 file's content was edited in a commit, but the per-document ``Date``
@@ -27,9 +27,9 @@ mechanically blocks the merge.
 
 How the audit decides what is in scope:
 
-  1. The set of paths the linter scans is the same default-paths set
-     the metadata audit uses (corpus directories plus the repo-root
-     meta files). Override via positional arguments.
+  1. The default scan set covers the corpus directories, the
+     ``guardrails/`` pack tree, and the repo-root meta files. Override
+     via positional arguments.
   2. Inside each scanned file, the linter looks for a metadata Date
      field of the form ``**Date:** YYYY-MM-DD`` (trailing ``\\`` line
      break tolerated) via the shared metadata parser in
@@ -44,10 +44,10 @@ How the audit decides what is in scope:
      ISO-8601 with timezone). Files with no git history (untracked
      or staged-only) are skipped: the audit cannot reason about
      them.
-  4. Generated markdown files (the portal page and the maturity
-     scorecard) are exempt because their ``Date`` is set by the
-     generator at regeneration time; their freshness is policed by
-     the generator-output drift gates (33 and 34).
+  4. Generated markdown files (the portal page, maturity scorecard,
+     and reference-acquisition manifest) are exempt because their
+     ``Date`` is set by the generator at regeneration time; their
+     freshness is policed by their generator-output checks.
 
 Tolerance and grandfathering:
 
@@ -133,16 +133,11 @@ GIT_POOL_WORKERS = min(16, (os.cpu_count() or 4) * 2)
 # enforces. See module docstring for the rationale.
 DEFAULT_BASELINE_DATE = datetime.date(2026, 6, 19)
 
-# Default scan set: same shape as the metadata audit's default paths,
-# without the per-linter exempt lists that the metadata audit applies
-# to the ``.claude/`` rules pack and the guardrails pack
-# tree (the corpus linters skip those via DEFAULT_EXEMPT_DIRS
-# and via per-linter guardrails/ exempt prefixes; this linter relies on the
-# DEFAULT_EXEMPT_DIRS skip for .claude/ and additionally exempts
-# the guardrails/ tree below).
-# Meta files plus ``docs`` (the generated-artefact directory, a
-# per-linter extra not in the shared domain set) plus the canonical
-# audited domain directories. The domain run is splatted from
+# Default scan set: corpus and pack paths that carry Date metadata,
+# while the shared DEFAULT_EXEMPT_DIRS continues to skip ``.claude/``
+# and ``.working/``. Meta files plus ``docs`` (the generated-artefact
+# directory, a per-linter extra not in the shared domain set) plus the
+# canonical audited domain directories. The domain run is splatted from
 # ``AUDITED_DOMAIN_DIRS`` (the single source of truth in
 # ``lint_common``) rather than hardcoded, so a future top-level
 # audited directory propagates here automatically; the
@@ -156,13 +151,14 @@ DEFAULT_SCAN_PATHS: tuple[str, ...] = (
     "specification-master-project.md",
     "specification-ingestion.md",
     "docs",
+    "guardrails",
     *AUDITED_DOMAIN_DIRS,
 )
 
 # Generated markdown files: the Date is set by the generator at
-# regeneration time, not by hand. Generator-output drift gates (32
-# and 33) police their consistency with the source metadata. This
-# linter would otherwise false-positive on them at every commit that
+# regeneration time, not by hand. Generator-output checks police
+# their consistency with the source metadata. This linter would
+# otherwise false-positive on them at every commit that
 # updates the source-of-truth metadata but happens to leave the
 # generated output's Date older.
 EXEMPT_FILES: frozenset[str] = frozenset(
@@ -171,15 +167,6 @@ EXEMPT_FILES: frozenset[str] = frozenset(
         "docs/maturity-scorecard.md",
         "docs/reference-acquisition-manifest.md",
     }
-)
-
-# Pack-rule and skill directories carry their own format conventions
-# (the guardrails/ tree uses YAML frontmatter for
-# skills; the rule pack documents use a leaner metadata convention
-# than the corpus's 13-field block). They are not in scope for this
-# linter.
-EXEMPT_DIR_PREFIXES: tuple[str, ...] = (
-    "guardrails/",
 )
 
 # Date parsing is delegated to the shared metadata parser
@@ -193,9 +180,9 @@ EXEMPT_DIR_PREFIXES: tuple[str, ...] = (
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Audit that every corpus markdown file with a metadata Date "
-            "field has a Date no more than --max-lag-days behind its "
-            "most-recent git commit date."
+            "Audit that every in-scope corpus or guardrails pack markdown "
+            "file with a metadata Date field has a Date no more than "
+            "--max-lag-days behind its most-recent git commit date."
         )
     )
     parser.add_argument(
@@ -245,7 +232,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=list(DEFAULT_SCAN_PATHS),
         help=(
             "Paths to scan (relative to --root). Defaults to the "
-            "standard corpus directory and repo-root meta file set."
+            "standard corpus, guardrails pack, and repo-root meta file set."
         ),
     )
     return parser.parse_args(argv)
@@ -368,8 +355,6 @@ def main(argv: list[str] | None = None) -> int:
             # Outside root; defensive skip.
             continue
         if rel in EXEMPT_FILES:
-            continue
-        if any(rel.startswith(pfx) for pfx in EXEMPT_DIR_PREFIXES):
             continue
         text = read_text_safe(f)
         if text is None:
