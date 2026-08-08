@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Flag renumber-fragile positional backlog-token references in corpus prose.
+"""Flag renumber-fragile positional backlog-token references in corpus and pack prose.
 
 A reference like ``TODO §4.10``, ``TODO item 3.4``, or ``backlog item P4.17``
 points at a backlog item by its POSITION in `TODO.md`. A backlog item's number retires when the item
@@ -115,7 +115,7 @@ def main(argv: list[str]) -> int:
 
     if not grouped:
         print("OK: no renumber-fragile positional backlog-token references in "
-              "corpus prose.")
+              "corpus and pack prose.")
         return 0
 
     for rel, findings in sorted(grouped.items()):
@@ -123,7 +123,7 @@ def main(argv: list[str]) -> int:
         for lineno, token in findings:
             print(f"  line {lineno}: {token!r} (reword to the stable coded id "
                   f"FR-N / GR-N / SR-N or the topic name)")
-    print(f"\nFAIL: {total} positional backlog reference(s) in corpus prose.")
+    print(f"\nFAIL: {total} positional backlog reference(s) in corpus and pack prose.")
     return 1
 
 
