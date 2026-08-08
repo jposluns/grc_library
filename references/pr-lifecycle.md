@@ -262,8 +262,8 @@ is external. Two mechanisms:
      reworded (or has its `§` dropped) in the same PR. The intra-doc-ref gate catches a
      surviving `§N` only INSIDE the same `.md` file; a tool docstring's "queued §N" or a
      CLAUDE.md "queued PN gate" is gate-blind and surfaces only at the next PR's
-     `/validate-pr`. (#469's §4.10 close left the `tools/lint-bookkeeping-parity.py`
-     docstring stale; #471's §4.6 close left it and a CLAUDE.md line stale; #472 fixed
+     `/validate-pr`. (#469's close left the `tools/lint-bookkeeping-parity.py`
+     docstring stale; #471's close left it and a CLAUDE.md line stale; #472 fixed
      both. The intra-TODO-only cleanup of #469 is the evidence the grep must span files.)
      This explicitly includes gate-exempt files carrying a FORWARD `§N` / `PN.M` pointer
      (this file and anything under `.claude/`, plus a tool docstring): a TODO renumber or
@@ -311,7 +311,7 @@ is external. Two mechanisms:
      #308 and #309). A PR-only delta check Dn also needs its step name added to
      `WORKFLOW_DELTA_GATE_STEPS`. This bullet is the type-A row of the `## Change-impact
      surface map` in `.claude/CLAUDE.md`; see it for the B/C/D change types and the website surface.
-   - **Change-impact completeness across all surfaces** (originated in §1.18; the generalization of
+   - **Change-impact completeness across all surfaces** (originated in the change-impact-map work, PR #1104; the generalization of
      the audit-gate bullet above to every change type): for EVERY gate, pack-rule, skill, or
      count change in the PR, run the `## Change-impact surface map` in `.claude/CLAUDE.md` for that change type
      and confirm each surface, gated AND free-prose AND website, is in the diff. The WEBSITE
@@ -467,8 +467,8 @@ is external. Two mechanisms:
    - CHANGELOG (root + detailed) and version bumps are present; the pre-push guard
      (`run_all_audits.sh` + `run-pr-time-checks.sh`) is green.
 
-   The mechanizable half of QA-cadence enforcement (the former TODO §4.6, closed
-   as satisfied in #471) is gate 50's Check 1, which fails when an in-window merged
+   The mechanizable half of QA-cadence enforcement (the former QA-cadence-mechanization
+   item, closed as satisfied in #471) is gate 50's Check 1, which fails when an in-window merged
    PR has no `/validate-pr` plus `/retro` row. The abbreviated-marker half (a row
    that exists but records a sham QA pass) is not mechanizable on free prose, so for
    that residual this checklist plus the `## Throughput pressure does not authorize
