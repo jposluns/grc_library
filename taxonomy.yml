@@ -2874,7 +2874,7 @@ documents:
   domain: "governance"
   type: "Template"
   title: "Executive Narrative Subtype Templates"
-  version: "1.0.2"
+  version: "1.0.3"
   date: "2026-08-08"
   owner: "Governance Library Maintainer"
   approving_authority: "Governance Library Maintainer"

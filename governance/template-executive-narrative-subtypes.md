@@ -2,7 +2,7 @@
 
 **Document Title:** Executive Narrative Subtype Templates\
 **Document Type:** Template\
-**Version:** 1.0.2\
+**Version:** 1.0.3\
 **Date:** 2026-08-08\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
