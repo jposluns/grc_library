@@ -30,6 +30,7 @@ Stdlib-only Python 3.11 (unittest, tempfile, subprocess).
 
 from __future__ import annotations
 
+import io
 import os
 import re
 import subprocess
@@ -118,6 +119,20 @@ def run_linter(script: str, *paths: str | Path) -> subprocess.CompletedProcess:
         capture_output=True,
         text=True,
     )
+
+
+def load_linter_module(script: str, unique: str):
+    """Load a hyphenated linter module for an in-process scope fixture."""
+    import importlib.util
+
+    tools_dir = str(REPO_ROOT / "tools")
+    if tools_dir not in sys.path:
+        sys.path.insert(0, tools_dir)
+    spec = importlib.util.spec_from_file_location(unique, REPO_ROOT / script)
+    assert spec is not None and spec.loader is not None
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
 
 
 class LinterTestCase(unittest.TestCase):
@@ -6290,6 +6305,30 @@ class DocumentControlCodeTests(LinterTestCase):
         result = run_linter(self.SCRIPT, fixture)
         self.assertLinterFails(result, "nist-unknown-category")
 
+    def test_guardrails_in_default_scope_flags_unknown_category(self) -> None:
+        # Coverage regression: the pack is a default root, not merely scannable
+        # when an explicit path bypasses default target selection.
+        mod = load_linter_module(self.SCRIPT, "_document_control_pack_scope")
+        old_root = mod.REPO_ROOT
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            bad = root / "guardrails" / "bad-nist.md"
+            bad.parent.mkdir(parents=True)
+            bad.write_text(
+                self._row_doc("NIST CSF 2.0", "GV.ZZ"), encoding="utf-8"
+            )
+            try:
+                mod.REPO_ROOT = root
+                targets = mod.collect_targets(None)
+                findings = [finding for path in targets for finding in mod.scan_file(path)]
+            finally:
+                mod.REPO_ROOT = old_root
+        self.assertIn(bad, targets, "guardrails must be in the default scan roots")
+        self.assertTrue(
+            any(finding.rule == "nist-unknown-category" for finding in findings),
+            findings,
+        )
+
 
 class BookkeepingParityTests(LinterTestCase):
     """tools/lint-bookkeeping-parity.py (gate 50)"""
@@ -7431,6 +7470,29 @@ class DocumentIsoAnnexATests(LinterTestCase):
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 
+    def test_guardrails_in_default_scope_flags_invalid_control(self) -> None:
+        # Coverage regression: a bad pack code must be reached in default mode.
+        mod = load_linter_module(self.SCRIPT, "_document_iso_pack_scope")
+        old_root = mod.REPO_ROOT
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            bad = root / "guardrails" / "bad-iso.md"
+            bad.parent.mkdir(parents=True)
+            bad.write_text(
+                self._row_doc("ISO/IEC 27001:2022", "A.8.99"), encoding="utf-8"
+            )
+            try:
+                mod.REPO_ROOT = root
+                targets = mod.collect_targets(None)
+                findings = [finding for path in targets for finding in mod.scan_file(path)]
+            finally:
+                mod.REPO_ROOT = old_root
+        self.assertIn(bad, targets, "guardrails must be in the default scan roots")
+        self.assertTrue(
+            any(finding.rule == "iso-annex-range" for finding in findings),
+            findings,
+        )
+
 
 class GuardrailCadenceTests(LinterTestCase):
     """tools/lint-guardrail-cadence.py (gate 60)
@@ -7986,6 +8048,33 @@ class CrossFileSectionNamesTests(LinterTestCase):
         result = run_linter(self.SCRIPT, citer)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
+    def test_guardrails_readme_renumber_drift_fails(self) -> None:
+        # Exact former exemption path: main(), not check_file(), must scan it.
+        mod = load_linter_module(self.SCRIPT, "_section_names_pack_readme")
+        old_root = mod.REPO_ROOT
+        old_stdout = sys.stdout
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            pack = root / "guardrails"
+            pack.mkdir()
+            (pack / "target.md").write_text(
+                "## 1. Introduction\n\n## 4. Encryption standards\n", encoding="utf-8"
+            )
+            (pack / "README.md").write_text(
+                "See [the target](target.md) §1 (Encryption standards).\n",
+                encoding="utf-8",
+            )
+            capture = io.StringIO()
+            try:
+                mod.REPO_ROOT = root
+                sys.stdout = capture
+                returncode = mod.main([str(pack)])
+            finally:
+                mod.REPO_ROOT = old_root
+                sys.stdout = old_stdout
+        self.assertEqual(returncode, 1, capture.getvalue())
+        self.assertIn("heading §4, not §1", capture.getvalue())
+
 
 class TodoRotationOnPrTests(unittest.TestCase):
     """tools/check-todo-rotation-on-pr.py (delta gate D5)
@@ -8397,6 +8486,25 @@ class PositionalBacklogTokenLinterTests(LinterTestCase):
             f"'TODO item' prose without a section token must not be flagged.\n"
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
+
+    def test_guardrails_in_default_scope_flags_positional_token(self) -> None:
+        # Coverage regression: the pack must be reached without an explicit path.
+        script = "tools/lint-positional-backlog-tokens.py"
+        mod = load_linter_module(script, "_positional_pack_scope")
+        old_root = mod.REPO_ROOT
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            bad = root / "guardrails" / "rule.md"
+            bad.parent.mkdir(parents=True)
+            bad.write_text("# Rule\n\nSee TODO §4.10.\n", encoding="utf-8")
+            try:
+                mod.REPO_ROOT = root
+                targets = mod.iter_markdown_files(mod.DEFAULT_PATHS)
+                findings = mod.check_file(bad)
+            finally:
+                mod.REPO_ROOT = old_root
+        self.assertIn(bad, targets, "guardrails must be in the default scan roots")
+        self.assertEqual(findings, [(3, "TODO §4.10")])
 
 
 class GeneratorSortKeyParityTests(unittest.TestCase):
@@ -10817,6 +10925,18 @@ class SsdfControlIdTests(LinterTestCase):
         )
         result = run_linter("tools/lint-ssdf-control-ids.py", fixture)
         self.assertLinterFails(result, "RS.1")
+
+    def test_guardrails_readme_invalid_practice_flagged(self) -> None:
+        # Exact former suffix: a flat fixture would not exercise the exemption.
+        with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as d:
+            pack = Path(d) / "guardrails"
+            pack.mkdir()
+            fixture = pack / "README.md"
+            fixture.write_text(
+                "# Guardrails\n\nThe pack maps this rule to RV.9.\n", encoding="utf-8"
+            )
+            result = run_linter("tools/lint-ssdf-control-ids.py", fixture)
+        self.assertLinterFails(result, "RV.9")
 
 
 class PlaybookPointerIntegrityTests(LinterTestCase):
