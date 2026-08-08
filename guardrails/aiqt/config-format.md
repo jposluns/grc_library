@@ -1,6 +1,6 @@
 # AIQT configuration format (`.working/aiqt/config.md`)
 
-Version: 1.0.1 (plain semver; the AIQT release train assigns release versioning once it
+Version: 1.0.2 (plain semver; the AIQT release train assigns release versioning once it
 exists)
 Status: Phase-1 format; the setup wizard writes it, the doctor reads it, the updater
 reads it and never writes it. Changes here are breaking for every consumer and follow
@@ -21,15 +21,20 @@ The AIQT home in an adopter repository is `.working/aiqt/`:
 
 Stated plainly for security-minded adopters: automated AIQT writes are limited to the
 `core/` directory by design. The boundary is one auditable rule (the updater refuses to
-write outside `.working/aiqt/core/`), and the doctor verifies the resulting state
-mechanically (no AIQT-managed file outside `core/`; see the doctor's bounded-write-set
-check). Your files, and your config, are structurally out of the updater's reach.
+write outside `.working/aiqt/core/`), and the doctor's bounded-write-set check verifies
+the resulting state, on the honest ladder its own text states: what it can prove today,
+and the stronger scans it upgrades to as the component marker and managed-component
+manifest ship. Your files, and your config, are structurally out of the updater's reach.
 
 ## 2. Grammar
 
 - One setting per line: `Key=Value`, no spaces around `=`. `#` opens a trailing comment.
-  A key may carry a dotted qualifier (`Family.instance`) where a setting family has one
-  entry per instance; egress consent is the Phase-1 case.
+- A key is a Name optionally followed by ONE dot-qualifier, where a setting family has
+  one entry per instance (egress consent is the Phase-1 case). The parse is
+  deterministic: the FIRST dot separates the name from the qualifier, and every later
+  dot belongs to the qualifier, which is how multi-dot hostnames parse. The qualifier
+  is a lowercase hostname token (`a-z`, `0-9`, with internal dots and hyphens
+  permitted; no spaces; lowered on parse). Exactly one qualifier level exists.
 - A comment BLOCK precedes each setting, in the config file itself, with no exceptions:
 
     <!-- What: <one plain-language sentence>.
