@@ -94,6 +94,12 @@ linter in the audit programme has at least one positive test for its
 primary rule. Additional rule-specific, negative, and environmental
 tests can be added as maintenance reveals the need.
 
+Generator-output drift checks use the same positive-control principle. Gate 34
+(`tools/build-portal.py --check`) is covered by `PortalGeneratorCheckTests`: one
+test requires the checked-out portal and scorecard to be in sync, and one
+redirects the generator to a temporary tree and requires drift in either
+generated output to return non-zero.
+
 When a fixture targets a specific filter path or branch of a linter
 CHANGE (a widened window, a new skip class, a new verdict), verify
 before commit that the fixture FAILS against the pre-change linter
