@@ -2558,7 +2558,7 @@ documents:
   domain: "governance"
   type: "Procedure"
   title: "Library Quality and Review Cadence Procedure"
-  version: "1.0.21"
+  version: "1.0.22"
   date: "2026-08-08"
   owner: "Governance Library Maintainer"
   approving_authority: "Governance Library Maintainer"

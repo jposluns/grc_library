@@ -2,7 +2,7 @@
 
 **Document Title:** Library Quality and Review Cadence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.21\
+**Version:** 1.0.22\
 **Date:** 2026-08-08\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -104,6 +104,7 @@ For each document under review, the responsible owner role conducts the followin
 | Structure | [`tools/lint-structure.py`](../tools/lint-structure.py) | No findings |
 | Review cadence | [`tools/check-review-cadence.py`](../tools/check-review-cadence.py) | Overdue documents below the action threshold |
 | Taxonomy in sync | `tools/build-taxonomy.py --check` | In sync |
+| Narrative registry in sync | `tools/build-narrative-registry.py --check` | In sync |
 | Portal and scorecard in sync | `tools/build-portal.py --check` | In sync |
 
 The full audit programme (see [`governance/specification-audit-programme.md`](specification-audit-programme.md) §6 for the canonical gate inventory and current gate count) runs in CI and pre-commit; any failure blocks merge unless an explicit exception is recorded.

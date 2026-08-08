@@ -111,10 +111,10 @@ HIGHEST_DELTA_GATE = 11
 # Pre-commit hooks that are setup or regeneration steps, not audit
 # gates. These are excluded from the pre-commit-to-spec parity check.
 # The regenerate-derived-artefacts hook runs the build scripts in
-# write mode so taxonomy.yml / docs/portal.md / docs/maturity-scorecard.md
+# write mode so taxonomy.yml / narrative.yml / docs/portal.md / docs/maturity-scorecard.md
 # are refreshed after the corresponding --check gates have verified the committed state (the L-k ordering: checks fail loud on drift first, then the regen auto-fixes the local tree); it is not
 # itself a verification gate.
-PRECOMMIT_NON_GATE_HOOKS = {"Regenerate taxonomy, portal, and maturity scorecard"}
+PRECOMMIT_NON_GATE_HOOKS = {"Regenerate taxonomy, narrative registry, portal, and maturity scorecard"}
 
 # Regex to extract the tools/X.py portion of a `python3 tools/X.py ...`
 # style command. Captures the script's repository-relative path only,
