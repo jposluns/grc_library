@@ -10,7 +10,7 @@ the pairing (2026-07-25) and the honest answer was that only half of it was bein
 WHAT MAKES THE PAIRING WORTH HAVING, and the thing the "credits conserved" framing gets wrong.
 An orchestrator turn does not cost its output tokens. It costs its output PLUS a re-read of the
 whole conversation context, which on a long session is orders of magnitude larger. Measured on
-one real session: 1.35M output tokens against 800M cache-read tokens, a ratio near 600 to 1. So
+observed sessions: cache-read tokens dominate output tokens by two to three orders of magnitude,
 a worker order that the worker estimates at 8k tokens did not save the orchestrator 8k; it saved
 8k of generation plus however many context re-reads the orchestrator would have needed to do that
 work inline. The ledger's conserved figure is therefore a FLOOR, not an estimate, and this tool

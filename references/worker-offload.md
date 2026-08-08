@@ -15,7 +15,7 @@ rule (maintainer-directed 2026-07-19, expanded to six points 2026-07-26):
    Anything offloadable (see the inline list in CLAUDE.md) is GIVEN to a worker the moment it comes
    up; the orchestrator does not do it itself. The orchestrator's usage credits are the scarce,
    slow-to-renew resource, and self-running offloadable work is exactly what exhausts them: a prior
-   week's self-run QA burned the orchestrator out mid-Saturday and cost a worker account a multi-day
+   week's self-run QA burned the orchestrator out mid-day and cost a worker account a multi-day
    lockout. The default is OFFLOAD; self-running an offloadable task is the exception that needs a
    stated reason (no worker of any family available AND the maintainer alerted).
 2. **Spawn workers ON DEMAND with [`tools/exec-dispatch.py`](../tools/exec-dispatch.py); do NOT gate
