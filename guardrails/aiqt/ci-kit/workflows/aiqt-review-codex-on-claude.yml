@@ -14,6 +14,8 @@ concurrency:
 env:
   # Models PIN per AIQT release; bump deliberately and record the bump.
   AIQT_CODEX_MODEL: gpt-5.2-codex
+  # The canonical brief, as installed on the DEFAULT branch (see the kit README).
+  AIQT_BRIEF_PATH: .github/aiqt/aiqt-review.md
 
 jobs:
   codex-second-opinion:
@@ -27,7 +29,28 @@ jobs:
     outputs:
       final_message: ${{ steps.run_codex.outputs.final-message }}
     steps:
-      - uses: actions/checkout@v4
+      # PROMPT-INJECTION GUARD: the brief is staged from the DEFAULT branch,
+      # never read from the pull-request head, so a PR cannot rewrite the
+      # instructions a secret-bearing reviewer step consumes.
+      - name: Fetch the canonical brief from the default branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          path: .aiqt-base
+          sparse-checkout: |
+            .github/aiqt
+
+      - name: Render the brief for this lane
+        run: |
+          {
+            echo 'Lane header: this change was authored with a Claude-family assistant;'
+            echo "you are the Codex-family check. Reviewer model pin: ${AIQT_CODEX_MODEL}."
+            echo ''
+            cat ".aiqt-base/${AIQT_BRIEF_PATH}"
+          } > "${RUNNER_TEMP}/aiqt-codex-prompt.md"
+
+      - name: Check out the pull-request revision
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -36,9 +59,15 @@ jobs:
         uses: openai/codex-action@v1
         with:
           openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          # Scope guard. The vendor marks `sandbox` as Legacy; see the kit
+          # README for the successor note.
           sandbox: read-only
           model: ${{ env.AIQT_CODEX_MODEL }}
-          prompt-file: .github/codex/prompts/aiqt-review.md
+          # The cross-family filter selects claude[bot]-authored PRs, so the
+          # selected bot must be allowed to trigger the action.
+          allow-bots: true
+          allow-bot-users: claude[bot]
+          prompt-file: ${{ runner.temp }}/aiqt-codex-prompt.md
           output-file: ${{ runner.temp }}/aiqt-codex-review.md
 
       - name: Persist evidence artifacts
@@ -47,10 +76,10 @@ jobs:
         with:
           name: aiqt-codex-review-${{ github.event.pull_request.number }}-${{ github.run_id }}
           path: |
-            .github/codex/prompts/aiqt-review.md
+            ${{ runner.temp }}/aiqt-codex-prompt.md
             ${{ runner.temp }}/aiqt-codex-review.md
           retention-days: 90
-          if-no-files-found: warn
+          if-no-files-found: error
 
   post-feedback:
     needs: codex-second-opinion
@@ -67,10 +96,7 @@ jobs:
             const body = [
               '## AIQT second opinion (Codex, advisory)',
               '',
-              process.env.CODEX_MESSAGE || '(no message returned)',
-              '',
-              '_Metered API lane. Advisory only; the decision returns to the',
-              'developer. Pushes re-trigger this lane; superseded runs cancel._'
+              process.env.CODEX_MESSAGE || '(no message returned)'
             ].join('\n');
             await github.rest.issues.createComment({
               owner: context.repo.owner,

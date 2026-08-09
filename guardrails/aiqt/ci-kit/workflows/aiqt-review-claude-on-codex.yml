@@ -8,6 +8,9 @@ permissions:
   contents: read
   pull-requests: write
   issues: write
+  # The vendor setup guide requires id-token: write so the action can fetch a
+  # GitHub OIDC token on its default GitHub App authentication path.
+  id-token: write
 
 concurrency:
   group: aiqt-claude-${{ github.event.pull_request.number }}
@@ -16,6 +19,8 @@ concurrency:
 env:
   # Models PIN per AIQT release; bump deliberately and record the bump.
   AIQT_CLAUDE_MODEL: claude-opus-5
+  # The canonical brief, as installed on the DEFAULT branch (see the kit README).
+  AIQT_BRIEF_PATH: .github/aiqt/aiqt-review.md
 
 jobs:
   claude-second-opinion:
@@ -30,11 +35,40 @@ jobs:
        contains(fromJSON('["chatgpt-codex-connector[bot]"]'), github.event.pull_request.user.login))
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      # PROMPT-INJECTION GUARD: the brief is staged from the DEFAULT branch,
+      # never read from the pull-request head, so a PR cannot rewrite the
+      # instructions a secret-bearing reviewer step consumes.
+      - name: Fetch the canonical brief from the default branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          path: .aiqt-base
+          sparse-checkout: |
+            .github/aiqt
+
+      - name: Stage the brief outside the workspace
+        run: |
+          install -m 0644 ".aiqt-base/${AIQT_BRIEF_PATH}" "${RUNNER_TEMP}/aiqt-brief.md"
+
+      - name: Check out the pull-request revision
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      - name: Render the brief for this lane
+        id: brief
+        run: |
+          {
+            echo 'content<<AIQT_BRIEF_EOF'
+            echo 'Lane header: this change was authored with a Codex-family assistant;'
+            echo "you are the Claude-family check. Reviewer model pin: ${AIQT_CLAUDE_MODEL}."
+            echo ''
+            cat "${RUNNER_TEMP}/aiqt-brief.md"
+            echo 'AIQT_BRIEF_EOF'
+          } >> "$GITHUB_OUTPUT"
+
       - name: Claude advisory review
+        id: review
         uses: anthropics/claude-code-action@v1
         with:
           # Subscription OAuth at Level 2 (plan-included) when present; metered
@@ -43,32 +77,12 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           use_sticky_comment: true
-          # SYNC: this brief mirrors ../prompts/aiqt-review.md; edit both together.
-          prompt: |
-            You are the cross-family second-opinion reviewer in an AIQT advisory
-            lane. This change was authored with a Codex-family assistant; you are
-            the Claude-family check. Run a full-harness review of the PR diff
-            against base (read the repository on demand; verify claims at source)
-            with a refute brief: hunt accuracy defects, integrity shortcuts
-            (suppressed checks, stubbed results), quality gaps, unverified claims,
-            and security touchpoints. ADVISORY: never request changes or block;
-            the decision returns to the developer. Post ONE consolidated comment:
-            1. A one-paragraph advisory verdict.
-            2. A fenced json block labelled sarif-lite: an array of findings per
-               the AIQT finding schema, each with tool ("claude-" plus the PR
-               number), ruleId (kebab-case class), level (note, warning, or
-               error), location ("path:line", fresh at the reviewed SHA),
-               fingerprint ("ruleId:path:line"), evidence (verbatim quote at the
-               reviewed SHA), impact (one line), and recommendation (one line).
-               Empty array if clean.
-            3. A verdict envelope json block per the AIQT verdict schema: verdict
-               (SHIP or HOLD, advisory), counts matching the finding set by level,
-               proof_of_run (files_read, commands_run, checks_passed), head, base
-               (the reviewed SHA pair, lowercase hex), and model (the resolved
-               model id actually used).
-            4. The spend note: "Metered lane unless this repository uses the
-               subscription OAuth path. Pushes re-trigger this lane; superseded
-               runs cancel."
+          # The cross-family filter selects bot-authored PRs, so the selected
+          # bot must be allowed to trigger the action.
+          allowed_bots: chatgpt-codex-connector[bot]
+          # ONE canonical brief (the kit's prompts/aiqt-review.md), staged from
+          # the default branch above; this lane adds only its two header lines.
+          prompt: ${{ steps.brief.outputs.content }}
           claude_args: |
             --max-turns 12 --model ${{ env.AIQT_CLAUDE_MODEL }}
 
@@ -78,6 +92,8 @@ jobs:
         with:
           name: aiqt-claude-review-${{ github.event.pull_request.number }}-${{ github.run_id }}
           path: |
-            ${{ runner.temp }}/claude-code-action/**
+            ${{ steps.review.outputs.execution_file }}
+            ${{ runner.temp }}/claude-prompts/**
+            ${{ runner.temp }}/aiqt-brief.md
           retention-days: 90
-          if-no-files-found: warn
+          if-no-files-found: error
