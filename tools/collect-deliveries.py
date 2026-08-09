@@ -418,14 +418,17 @@ def report(plan: dict, tray: Path, oneline: bool = False, outcomes: list | None 
     # planned move is still sitting unswept; in the executed paths the moves have been acted
     # on, so counting them again would report a successful sweep's own collections as unswept
     # (the vpr-1467 codex catch).
-    unswept = (n_move + n_held + n_coll) if oneline else (n_held + n_coll + len(failed))
+    # Executed (outcomes is not None): moves are done, so the outbox count is held+coll+failed.
+    # Not executed (--oneline or --dry-run): the planned moves are still sitting unswept.
+    executed = outcomes is not None and not oneline
+    unswept = (n_held + n_coll + len(failed)) if executed else (n_move + n_held + n_coll)
     if oneline:
         print(f"deliveries: {len(pending)} tray / {unswept} unswept"
               + (f" / {n_move} ready" if n_move else "")
               + (f" / {n_held} held" if n_held else "")
               + (f" / {len(failed)} FAILED" if failed else ""))
         return
-    n_done = n_move - len(failed) if outcomes is not None else n_move
+    n_done = (n_move - len(failed)) if executed else 0
     print(f"collect-deliveries: {n_done} collected"
           + (f" ({len(failed)} of {n_move} planned FAILED)" if failed else "")
           + f", {n_held} held back, {n_coll} collision(s); "
@@ -678,6 +681,11 @@ def self_test() -> int:
                                               "reason": "permission denied"}])
         check("a FAILED move is retained in the still-in-outboxes count",
               "1 still in worker outboxes" in failed_text, True)
+        # N-B: the un-executed (--dry-run / outcomes=None, non-oneline) path must NOT report the
+        # planned move as collected; it is still unswept.
+        dry_text = _report_text(ready_plan, empty_tray, oneline=False, outcomes=None)
+        check("a non-executed (dry-run) report keeps the planned move unswept",
+              "1 still in worker outboxes" in dry_text and "0 collected" in dry_text, True)
 
     # --- end to end on a real tree, including the .tmp invisibility that layer 1 relies on ---
     with tempfile.TemporaryDirectory() as td:
@@ -1043,9 +1051,16 @@ def main(argv=None) -> int:
     # It previously routed through execute() in dry-run mode, which prints a WOULD COLLECT line per
     # candidate, so the statusline emitted N+1 lines instead of 1. The console is the maintainer's
     # live window and extra lines there are the specific harm the no-diffs-in-chat convention names.
-    outcomes = []
+    # outcomes is None on any NON-executed path (--oneline AND --dry-run), so report()'s
+    # unswept count keeps the planned moves instead of dropping them as collected. --dry-run
+    # still calls execute() for its WOULD-COLLECT lines, but its return never drives the count
+    # (the vpr-1467 r3 claude N-B catch: keying the count on `oneline` alone under-reported the
+    # dry-run status form).
+    outcomes = None
     if not a.oneline:
-        outcomes = execute(plan, root, tray, a.dry_run)
+        ran = execute(plan, root, tray, a.dry_run)
+        if not a.dry_run:
+            outcomes = ran
     report(plan, tray, a.oneline, outcomes)
     # The non-advisory exits, named by the pure needs_attention: a FAILED file (neither moved nor
     # copied, a real loss of sweep completeness) and a COPIED+UNMARKED file (copy landed, marker

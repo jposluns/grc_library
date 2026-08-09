@@ -141,10 +141,21 @@ def _last_trailer_indices(lines: list[str]) -> tuple[int, int] | None:
 # "verdict" LABEL is case-insensitive (VERDICT: HOLD is a real form); only
 # the DECISION token is case-sensitive. The separator is [:=] only, so a
 # malformed "Verdict(HOLD" is refused (the vpr-1467 r3 N1/N2 catches).
-_EOD_RE = re.compile(r"^END OF DELIVERY$")
+# END OF DELIVERY in the bare OR wrapped HTML-comment form (the project sentinel is
+# the wrapped `<!-- END OF DELIVERY -->`, collect-deliveries.py SENTINEL).
+_EOD_RE = re.compile(r"^(?:<!--\s*)?END OF DELIVERY(?:\s*-->)?$")
+# The decision line. Optional heading + emphasis, an optional `PR VERDICT`/`Verdict:`
+# label (the `verdict` label is case-INsensitive; the DECISION token is not), the
+# uppercase decision, an optional `(advisory)` note, and an optional STRUCTURED
+# summary that must follow a punctuation separator (`, : |`), e.g. the real corpus
+# forms `PR VERDICT: HOLD, 5 HIGH, 6 MEDIUM, 0 LOW.` and `**HOLD: 2 ERROR.**`. A
+# space (not a separator) after the decision is prose and refuses, so `HOLD your
+# response while I look` is rejected (the vpr-1467 r3 claude N-A widening: the r3
+# grammar was too tight and rejected the project's dominant real verdict form).
 _TERMINAL_RE = re.compile(
-    r"^(?:#{1,6}\s+)?[*_\s]*(?:(?i:verdict)\b\s*[:=]?\s*)?[*_\s]*"
-    r"(?:SHIP|HOLD)\b(?:\s*\(advisory\))?[.):*_\s]*$")
+    r"^(?:#{1,6}\s+)?[*_\s]*"
+    r"(?:(?:(?i:pr)\s+)?(?i:verdict)\b\s*[:=]?\s*)?[*_\s]*"
+    r"(?:SHIP|HOLD)\b(?:\s*\(advisory\))?(?:\s*[,:|][^\n]*)?[.):*_\s]*$")
 
 
 def _has_terminal_line(text: str) -> bool:
@@ -608,6 +619,24 @@ def self_test() -> int:
     # r3 N2: a malformed "Verdict(HOLD" (unmatched paren separator) is refused.
     r = extract_final_verdict("user\nbrief\ncodex\nVerdict(HOLD")
     check("malformed Verdict(HOLD refuses (closed separator grammar)",
+          (r[0], r[1].startswith("fallback codex block carries no terminal")),
+          (None, True))
+    # r3 N-A: the project's dominant real verdict forms and the WRAPPED sentinel accept.
+    for good in ("PR VERDICT: HOLD", "PR VERDICT: HOLD, 5 HIGH, 6 MEDIUM, 0 LOW.",
+                 "PR VERDICT: SHIP, 0 errors, 0 warnings, 0 notes.",
+                 "**HOLD: 2 ERROR, 0 WARNING.**", "<!-- END OF DELIVERY -->"):
+        r = extract_final_verdict(f"user\nbrief\ncodex\nreview body\n{good}")
+        check(f"real corpus terminal form accepted: {good[:34]!r}",
+              r[1] == "fallback-only", True)
+    # N-A residual guard: a space (not a punctuation separator) after the decision is prose.
+    r = extract_final_verdict("user\nbrief\ncodex\nHOLD your response while I look")
+    check("decision followed by a space+word still refuses (no punct separator)",
+          (r[0], r[1].startswith("fallback codex block carries no terminal")),
+          (None, True))
+    # r3 N-C: the case-sensitivity guard is DISCRIMINATED -- a lowercase decision refuses.
+    # (If _TERMINAL_RE were IGNORECASE this case would wrongly accept, so it detects that mutation.)
+    r = extract_final_verdict("user\nbrief\ncodex\nverdict: hold")
+    check("lowercase decision token refuses (case-sensitivity guard, N-C discriminator)",
           (r[0], r[1].startswith("fallback codex block carries no terminal")),
           (None, True))
 
