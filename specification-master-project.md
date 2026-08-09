@@ -2,8 +2,8 @@
 
 **Document Title:** Master Project Specification\
 **Document Type:** Specification\
-**Version:** 1.6.13\
-**Date:** 2026-08-08\
+**Version:** 1.6.14\
+**Date:** 2026-08-09\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Risk Officer\
 **Related Documents:** [`specification-ingestion.md`](specification-ingestion.md), [`instruction-ai-document-ingestion.md`](instruction-ai-document-ingestion.md), [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md)\
@@ -197,6 +197,15 @@ The library version is `YYYY.MM.patch` where:
 - `patch` is a sequential counter that increments on every merge to `main` within the same `YYYY.MM` window. It resets to `0` when the month rolls over.
 
 Examples: `2026.05.0`, `2026.05.7`, `2026.06.0`, `2026.12.42`.
+
+> **Historical discontinuity (recorded 2026-08-09, Sweep 154).** `patch` is sequential BY INTENT, but
+> the historical record contains a small number of gaps: a patch number is skipped when it was
+> allocated to a merge that was later abandoned or a PR number that never merged. One confirmed
+> example in the `2026.08` window is `2026.08.164` (the merge after PR #1464 went to `2026.08.165`);
+> Sweep 154 identified additional such gaps earlier in the same window. These historical gaps do not
+> violate the go-forward sequential intent. No current gate detects them (gate 59 verifies only that
+> the CHANGELOG-carried Library Versions strictly decrease top-down, which a gap satisfies); a
+> forward-looking continuity check is a planned gate.
 
 #### Why CalVer
 

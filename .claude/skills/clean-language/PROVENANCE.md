@@ -18,7 +18,8 @@ This directory is the Clean Language skill, VENDORED into grc_library from its u
   the drift check's `FILES` map (compared by git blob SHA), so editing it here would diverge it
   from upstream and produce a permanent false DRIFT (claude vpr-1468 finding 1). The 2026-08-09
   upstream-repo rename to `jposluns/cleanlanguage` was applied ONLY to THIS repo's own records
-  (this `PROVENANCE.md` and `tools/check-clean-language-upstream.py`, neither in `FILES`); the
+  (among them this `PROVENANCE.md`, `tools/check-clean-language-upstream.py`, and the `CHANGELOG.md`
+  milestone entry, none in `FILES`); the
   vendored `SKILL.md` continues to track upstream, whose own `SKILL.md` still carries the old
   name until upstream updates it. The GitHub rename redirects the API path, so the checker's
   `cleanlanguage` path resolves.
@@ -33,7 +34,8 @@ This directory is the Clean Language skill, VENDORED into grc_library from its u
   [`tools/check-clean-language-upstream.py`](../../../tools/check-clean-language-upstream.py) to compare
   EVERY vendored file here against upstream (via `gh api` blob SHAs): the skill content, the two icon
   assets under `assets/`, AND the `LICENSE` / `NOTICE.md` legal files, so an upstream attribution or
-  licence change is not silent. It reports any DRIFT. A MONTHLY time-bounded follow-up in `TODO.md`
+  licence change is not silent. It reports any DRIFT. A MONTHLY time-bounded follow-up in the private `P-TODO.md`
+  (relocated from `TODO.md` by #1458; `/resume` reads the time-bounded section of both lists)
   re-surfaces this at `/resume`, so a drift is noticed without the maintainer having to remember. The
   upstream paths differ by file (skill content under `clean-language/`, but `LICENSE` / `NOTICE.md` are
   upstream REPO-ROOT files); the tool holds each file's correct upstream path. On drift, re-fetch the
