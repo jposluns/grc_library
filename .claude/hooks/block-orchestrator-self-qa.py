@@ -7,14 +7,15 @@ Workflow (which fans out many subagents, up to the harness cap), and SendMessage
 resumes one). The set below is the authoritative list; if the harness later adds another
 agent-spawning tool, add it here and to the matcher.
 
-ACTIVE guardrail, wired on the Task|Agent PreToolUse matcher in
+ACTIVE guardrail, wired on the `Task|Agent|Workflow|SendMessage` PreToolUse matcher in
 `.claude/settings.json` by PR #1470.
 
 WHY THIS EXISTS. The orchestrator's own account is the scarce, slow-to-renew
-resource. A subagent dispatched with the Task / Agent tool bills that account:
-an in-session subagent is not an offload, it is the orchestrator spending itself
-twice. Running the QA cadence that way cost a full week of orchestrator usage,
-which is the specific failure this hook is built to prevent.
+resource. A subagent dispatched with any tool in the in-session agent-spawning
+class (Task, Agent, Workflow, SendMessage) bills that account: an in-session
+subagent is not an offload, it is the orchestrator spending itself twice.
+Running the QA cadence that way cost a full week of orchestrator usage, which is
+the specific failure this hook is built to prevent.
 
 WHY IT DOES NOT LOOK AT THE WORKER REGISTRY, unlike its predecessor. The
 retired `block-mandatory-offload.py` gated its block on
@@ -29,16 +30,19 @@ call, no freshness window, and nothing that can read zero and open the gate.
 WHY UNCONDITIONAL. A marker scan is inherently leaky. Paraphrased QA evades it,
 as do real examples such as `/fitness`, `verify`, `validation sweep`, `screen
 publications`, and `poke holes in this diff`. The robust guard blocks the tool
-class instead of trying to classify the prompt. Every Task or Agent dispatch is
-blocked, whether it asks for QA, research, drafting, or exploration. The only
-inputs to the decision are the tool name and the sentinel. Deterministic Bash
-and Read calls remain allowed because they are not Task or Agent calls.
+class instead of trying to classify the prompt. Every Task, Agent, Workflow, or
+SendMessage dispatch is blocked, whether it asks for QA, research, drafting, or
+exploration. The only inputs to the decision are the tool name and the sentinel.
+Deterministic Bash and Read calls remain allowed because they are not members of
+the in-session agent-spawning tool class.
 
 WHAT IT DOES.
-  * A tool other than Task or Agent                 -> ALLOW silently (exit 0).
-  * Task or Agent, no consumable sentinel           -> BLOCK (exit 2).
-  * Task or Agent, sentinel consumed successfully   -> ALLOW once, report the
-                                                       authorized bypass.
+  * A tool outside DISPATCH_TOOLS                     -> ALLOW silently (exit 0).
+  * Task/Agent/Workflow/SendMessage, no consumable
+    sentinel                                          -> BLOCK (exit 2).
+  * Task/Agent/Workflow/SendMessage, sentinel
+    consumed successfully                             -> ALLOW once, report the
+                                                         authorized bypass.
 
 AUTHORIZATION. The sentinel is a deliberate speed bump plus an audit record,
 not a maintainer-only capability. The actor can create it with one shell call:
@@ -51,6 +55,13 @@ dispatch. A successful bypass leaves a filesystem trace through consumption of
 the sentinel and appends a BYPASS-AUTHORIZED row to the register when possible.
 The actor can create the sentinel, so this is a guardrail, not a security
 boundary.
+
+REJECTION IS NON-DESTRUCTIVE. When the guard refuses a claimed object it tries to
+put it back, and that restore is a rename and nothing else. If the rename back
+fails, the object is LEFT at its private claim path; the guard never unlinks and
+never rmdirs it. A stranded claim file is cosmetic, not a bypass, because
+authorization requires a successful claim of the sentinel path followed by a
+successful consume. See `_restore()`.
 
 Exit protocol (Claude Code hooks): exit 0 allows the tool call; exit 2 blocks it
 and feeds stderr back to the model as the reason. Malformed stdin and unexpected
@@ -123,22 +134,29 @@ def _is_dispatch(payload: dict) -> bool:
 
 
 def _restore(claim) -> None:
-    """Move a claimed object back to the sentinel path (best-effort, never raises).
+    """Move a claimed object back to the sentinel path: best-effort and NEVER destructive.
 
-    Used when the claimed object is not a regular file, or when a regular file could
-    not be consumed: the guard blocks and leaves the path as it found it, so a
-    directory or symlink someone placed there is not destroyed by a probe.
+    Called when the claimed object is not a regular file, when its type could not be
+    read, or when a regular file could not be consumed. The guard blocks and tries to
+    leave the path as it found it, so a directory or symlink someone placed there is not
+    destroyed by a probe.
+
+    The ONLY action is `claim.rename(SENTINEL)`. If that raises OSError (a race
+    recreated the sentinel at the path, or the directory is not writable), this function
+    does NOTHING further. It never unlinks and it never rmdirs. Deleting the claimed
+    object was the earlier behaviour and it could destroy the very directory or symlink
+    the guard had just refused to honour, which is a worse outcome than any failure it
+    was cleaning up after.
+
+    The cost of the safe choice is a possible stranded `..allow-orchestrator-qa.claim-*`
+    object in the working root. That is COSMETIC, not a bypass: authorization requires a
+    successful claim of the SENTINEL path followed by a successful consume, and a
+    stranded claim satisfies neither. Sweep such objects by hand if they accumulate.
     """
     try:
         claim.rename(SENTINEL)
     except OSError:
-        try:
-            claim.unlink()
-        except OSError:
-            try:
-                os.rmdir(claim)
-            except OSError:
-                pass
+        pass
 
 
 def _consume_sentinel() -> bool:
@@ -148,11 +166,18 @@ def _consume_sentinel() -> bool:
     directory. Rename is atomic and moves the EXACT object that was at the path, so
     nothing can swap a symlink in between the type check and the removal (the TOCTOU a
     separate lstat-then-unlink would allow). Bypass is granted ONLY when the claimed
-    object is a regular file and its removal succeeds. Absence, a claim failure, a
-    non-regular claimed object, or a removal failure is a failed authorization and
-    returns False; in the last two cases the object is restored so a probe leaves the
-    path unchanged. Concurrent dispatches rename to distinct private names and only one
-    rename of the single sentinel can succeed, so a race grants exactly one bypass.
+    object is a regular file and its removal succeeds.
+
+    Every other outcome is a failed authorization and returns False: an absent sentinel
+    or any other claim (rename) failure; a failure to read the claimed object's type
+    (lstat); a claimed object that is not a regular file; and a removal failure on a
+    regular file. In the last three cases the claim already happened, so `_restore()` is
+    called to put the object back at the sentinel path. That restore is best-effort and
+    NEVER destructive: if it fails the object stays at the private claim path rather
+    than being deleted.
+
+    Concurrent dispatches rename to distinct private names and only one rename of the
+    single sentinel can succeed, so a race grants exactly one bypass.
     """
     claim = SENTINEL.with_name("." + SENTINEL.name + ".claim-" + str(os.getpid()))
     try:
@@ -162,6 +187,7 @@ def _consume_sentinel() -> bool:
     try:
         regular = stat.S_ISREG(claim.lstat().st_mode)
     except OSError:
+        _restore(claim)                     # type unreadable: restore + block (never orphan)
         return False
     if regular:
         try:
@@ -178,9 +204,11 @@ def log_fire(event: str, detail: str) -> bool:
     """Append one register row, returning True if written and False on failure.
 
     Row: <utc-iso-Z> TAB <event> TAB <hook> TAB <detail>. The four-column shape
-    matches existing rows. Column 2 carries the event class, BLOCK or
-    BYPASS-AUTHORIZED. The caller ignores a False result on the block path, but
-    the self-test can assert that the writer works.
+    matches existing rows. Column 2 carries the event class, one of BLOCK,
+    BYPASS-AUTHORIZED, FAIL-OPEN, or WARN-ALLOWED (the last is what a
+    `BLOCK_SEVERITY = False` flip records, because the register logs the OUTCOME
+    rather than the intent). The caller ignores a False result on the block path,
+    but the self-test can assert that the writer works.
     """
     try:
         stamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -207,8 +235,8 @@ def _dispatch_summary(text: str) -> str:
 
 def _block_message(dispatch_text: str) -> str:
     return (
-        "BLOCKED (orchestrator dispatch guardrail): every in-session Task/Agent "
-        "dispatch is prohibited. Dispatch fields: "
+        "BLOCKED (orchestrator dispatch guardrail): every in-session "
+        "Task/Agent/Workflow/SendMessage dispatch is prohibited. Dispatch fields: "
         + repr(_dispatch_summary(dispatch_text))
         + ".\n"
         "\n"
@@ -223,8 +251,8 @@ def _block_message(dispatch_text: str) -> str:
         "--effort <low|medium|high|xhigh> \\\n"
         "        --account <account> --order-id <id> --prompt-file <path>\n"
         "  (for a skeptical verifier, add --not-worker <authoring-worker-id> or "
-        "--not-account so the verifier never lands on the account that authored the "
-        "work).\n"
+        "--not-account <account> so the verifier never lands on the account that "
+        "authored the work).\n"
         "  (the prompt file must live under the job directory named in the "
         "_private worker-accounts config `wrapper.job_dir`; use --dry-run first "
         "to see eligible accounts and the pick).\n"
@@ -255,8 +283,8 @@ def decide(payload: dict):
             "AUTHORIZED IN-SESSION DISPATCH BYPASS CONSUMED: the regular-file "
             "sentinel "
             + str(SENTINEL)
-            + " was removed successfully. The next Task/Agent dispatch blocks "
-            "again. Dispatch fields: "
+            + " was removed successfully. The next Task/Agent/Workflow/SendMessage "
+            "dispatch blocks again. Dispatch fields: "
             + repr(_dispatch_summary(dispatch_text))
             + ". Record why this pass ran in-session."
         )
@@ -267,6 +295,11 @@ def main(argv: list) -> int:
     if len(argv) > 1 and argv[1] == "--self-test":
         return _self_test()
     raw = sys.stdin.read() if not sys.stdin.isatty() else ""
+    if not raw.strip():
+        # No dispatch payload arrived at all (a tty, or an empty pipe from a manual
+        # invocation). Nothing was decided, so this is not a fail-open: writing a
+        # FAIL-OPEN row here would pollute the human calibration record with noise.
+        return 0
     try:
         payload = json.loads(raw)
     except Exception:
@@ -371,6 +404,25 @@ def _self_test() -> int:
             self.assertEqual(action, "block")
             self.assertIn("prompt description specialist", message)
 
+        def test_block_message_names_the_whole_dispatch_tool_class(self):
+            message = decide(dispatch(prompt="research"))[1]
+            self.assertIn("Task/Agent/Workflow/SendMessage", message)
+            for tool in sorted(DISPATCH_TOOLS):
+                with self.subTest(tool=tool):
+                    self.assertIn(tool, message)
+
+        def test_block_message_gives_the_not_account_operand(self):
+            self.assertIn("--not-account <account>", decide(dispatch(prompt="x"))[1])
+
+        def test_bypass_message_names_the_whole_dispatch_tool_class(self):
+            SENTINEL.write_text("", encoding="utf-8")
+            action, message = decide(dispatch(prompt="research"))
+            self.assertEqual(action, "bypass")
+            self.assertIn("Task/Agent/Workflow/SendMessage", message)
+            for tool in sorted(DISPATCH_TOOLS):
+                with self.subTest(tool=tool):
+                    self.assertIn(tool, message)
+
         def test_regular_file_sentinel_bypasses_and_is_consumed(self):
             SENTINEL.write_text("", encoding="utf-8")
             action, message = decide(dispatch(prompt="research"))
@@ -382,6 +434,27 @@ def _self_test() -> int:
             SENTINEL.write_text("", encoding="utf-8")
             self.assertEqual(decide(dispatch(prompt="first"))[0], "bypass")
             self.assertEqual(decide(dispatch(prompt="second"))[0], "block")
+
+        def test_claim_is_a_rename_of_the_sentinel_to_a_private_path(self):
+            # Discriminating: the retired lstat-then-unlink-the-SENTINEL design performed
+            # NO rename at all, so it would fail on the first assertion below.
+            SENTINEL.write_text("", encoding="utf-8")
+            renames = []
+            original_rename = Path.rename
+
+            def recording_rename(source, target):
+                renames.append((Path(source), Path(target)))
+                return original_rename(source, target)
+
+            with mock.patch.object(Path, "rename", recording_rename):
+                self.assertTrue(_consume_sentinel())
+            self.assertTrue(renames, "the sentinel must be claimed by rename")
+            source, target = renames[0]
+            self.assertEqual(source, SENTINEL)
+            self.assertNotEqual(target, SENTINEL)
+            self.assertEqual(target.parent, SENTINEL.parent)
+            self.assertFalse(SENTINEL.exists())
+            self.assertFalse(target.exists())
 
         def test_directory_at_sentinel_path_blocks(self):
             SENTINEL.mkdir()
@@ -395,6 +468,36 @@ def _self_test() -> int:
             self.assertEqual(decide(dispatch(prompt="research"))[0], "block")
             self.assertTrue(SENTINEL.is_symlink())
 
+        def test_restore_failure_never_destroys_the_claimed_directory(self):
+            # An EMPTY directory is the discriminating case: the retired destructive
+            # `_restore` fell back to unlink and then rmdir, which would remove it.
+            SENTINEL.mkdir()
+            original_rename = Path.rename
+
+            def rename_but_never_back(source, target):
+                if Path(target) == SENTINEL:
+                    raise PermissionError("simulated restore failure")
+                return original_rename(source, target)
+
+            with mock.patch.object(Path, "rename", rename_but_never_back):
+                self.assertEqual(decide(dispatch(prompt="research"))[0], "block")
+            survivors = [
+                path.name
+                for path in self._root.iterdir()
+                if path.is_dir() and not path.is_symlink()
+            ]
+            self.assertEqual(len(survivors), 1, "the claimed directory was destroyed")
+            self.assertIn("allow-orchestrator-qa", survivors[0])
+
+        def test_claim_lstat_failure_restores_and_blocks(self):
+            SENTINEL.write_text("payload", encoding="utf-8")
+            with mock.patch.object(
+                Path, "lstat", side_effect=PermissionError("simulated failure")
+            ):
+                self.assertEqual(decide(dispatch(prompt="research"))[0], "block")
+            self.assertTrue(SENTINEL.is_file())
+            self.assertEqual(SENTINEL.read_text(encoding="utf-8"), "payload")
+
         def test_unlink_failure_blocks(self):
             SENTINEL.write_text("", encoding="utf-8")
             with mock.patch.object(
@@ -406,6 +509,14 @@ def _self_test() -> int:
         def test_malformed_payload_fails_open(self):
             with mock.patch.object(sys, "stdin", io.StringIO("{")):
                 self.assertEqual(main(["block-orchestrator-self-qa.py"]), 0)
+            self.assertIn("FAIL-OPEN", FIRE_LOG.read_text(encoding="utf-8"))
+
+        def test_empty_stdin_writes_no_register_row(self):
+            for raw in ("", "\n", "   \n\t "):
+                with self.subTest(raw=repr(raw)):
+                    with mock.patch.object(sys, "stdin", io.StringIO(raw)):
+                        self.assertEqual(main(["block-orchestrator-self-qa.py"]), 0)
+                    self.assertFalse(FIRE_LOG.exists())
 
         def test_log_fire_writes_four_columns(self):
             self.assertTrue(log_fire("BLOCK", "reason  with spaces\nand newline"))

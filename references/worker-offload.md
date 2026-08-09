@@ -57,7 +57,7 @@ maintainer.
 2026-07-19, sequenced with the transport; transition COMPLETE).** The pre-push skeptical verifier was
 the one orchestrator-side QA exception (it is on the critical path, so offloading it adds a blocking
 wait). It, and the high-assurance adversarial verifiers, now run as exec-dispatch WORKERS like every
-other QA pass: `block-orchestrator-self-qa.py` blocks the in-session Agent tool for reasoning offload,
+other QA pass: `block-orchestrator-self-qa.py` blocks the in-session agent-spawning tools (Task/Agent/Workflow/SendMessage) for reasoning offload,
 so there is no remaining orchestrator-side QA exception and no override allowlist (the actor-created once-only
 sentinel is the only escape (a speed bump plus an audit record, not a security boundary)). The exec-dispatch transport (the file-drop plane and the on-demand
 `run-codex-worker` / `exec-dispatch.py` invocation) makes the offloaded verify a bounded wait rather
@@ -67,9 +67,11 @@ than an unbounded block.
 never the fallback condition (spawn one, per CLAUDE.md). The inline fallback is reserved for a genuine
 exec-dispatch FAILURE, every eligible account limited/exhausted (an auth or quota error surfaced from an
 actual exec attempt) or the transport down. In that narrow case only, self-run inline AFTER alerting the
-maintainer, and record the reason. An inline self-run that needs an in-session
-subagent (for example the `/validate-pr` Subagent A) must first consume the once-only sentinel that
-`block-orchestrator-self-qa.py` requires; the reason goes in the QA row. Offload is best-effort for AVAILABILITY, but the CHOICE to use an
+maintainer, and record the reason. If such an inline self-run cannot be completed by the
+orchestrator alone (an inline `/validate-pr` can reach that point), the only in-session route to a
+second agent is an explicitly authorized in-session Task/Agent/Workflow/SendMessage dispatch that
+first consumes the once-only sentinel `block-orchestrator-self-qa.py` requires; the reason goes in
+the QA row. Offload is best-effort for AVAILABILITY, but the CHOICE to use an
 available worker is mandatory, and the mandatory-QA discipline is unchanged (an offloaded run is the full
 formal pass, abbreviation is never authorized).
 
