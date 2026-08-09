@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.71.0\
+**Version:** 1.71.1\
 **Date:** 2026-08-09\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -129,8 +129,16 @@ guardrails/
 │   ├── setup-wizard.md         Re-runnable onboarding wizard (writes only config.md)
 │   ├── doctor.md               Read-only health checks (incl. bounded-write-set verification)
 │   ├── families.json           Reviewer family registry (Claude, Codex; extensible)
-│   ├── ci-kit/                 CI integration kit: runbook, two lane workflows, canonical brief
-│   └── schemas/                finding.schema.json + verdict.schema.json (SARIF-lite interchange)
+│   ├── ci-kit/                 CI integration kit
+│   │   ├── README.md           Kit runbook: secrets, per-vendor auth, evidence policy
+│   │   ├── prompts/
+│   │   │   └── aiqt-review.md  The one canonical review brief both lanes render
+│   │   └── workflows/
+│   │       ├── aiqt-review-claude-on-codex.yml   Claude reviews Codex-authored changes
+│   │       └── aiqt-review-codex-on-claude.yml   Codex reviews Claude-authored changes
+│   └── schemas/                SARIF-lite interchange schemas
+│       ├── finding.schema.json   Per-finding record schema
+│       └── verdict.schema.json   Verdict envelope schema
 ├── skills/                     Claude Code Skills (SKILL.md format) derived from selected pack rules
 │   ├── evidence-grounded-completion/SKILL.md          Six-step verification protocol before any completion claim or unread-artefact state assertion
 │   ├── gate-discipline-diagnose/SKILL.md              Diagnose-then-fix-the-artefact response to a failing gate

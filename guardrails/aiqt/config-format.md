@@ -1,6 +1,6 @@
 # AIQT configuration format (`.working/aiqt/config.md`)
 
-Version: 1.0.2 (plain semver; the AIQT release train assigns release versioning once it
+Version: 1.0.3 (plain semver; the AIQT release train assigns release versioning once it
 exists)
 Status: Phase-1 format; the setup wizard writes it, the doctor reads it, the updater
 reads it and never writes it. Changes here are breaking for every consumer and follow
@@ -53,6 +53,7 @@ file itself, every one of these settings carries its own comment block per the g
 above (the worked example below shows the literal form).
 
 | Setting | Values | Default | Notes |
+| --- | --- | --- | --- |
 | `AIQTVersion` | release version | installed release | a snapshot manifest of component versions |
 | `Level0` | `On` | `On` | built-in review conventions; always On while AIQT is installed |
 | `Level1` | `Off`, `OnRequest`, `Automatic` | `Automatic` | local second opinion (the cross-family CLI); Automatic fires only at `Level1Steps` |

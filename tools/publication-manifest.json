@@ -1,7 +1,7 @@
 {
   "_meta": {
     "about": "AIQT Guardrails publication manifest: per-file classification for the one-way publication of the portable core.",
-    "origin": "TODO 1.26.5; dual-family (Opus-5 + Codex) classification reconciled + Fable-confirmed, maintainer GO 2026-08-03",
+    "origin": "publication classification closed in PR #1374; dual-family (Opus-5 + Codex) classification reconciled + Fable-confirmed, maintainer GO 2026-08-03",
     "buckets": {
       "CORE": "publishes to the guardrails public core",
       "ADAPTER-INPUT": "source the coding-agent adapter generator consumes",

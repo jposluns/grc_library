@@ -42,8 +42,9 @@ Refusals are loud: every validation error prints on its own line and the tool
 exits 1; unreadable or unparseable input exits 2; a valid artefact prints OK
 and exits 0.
 
-Stdlib-only (project convention). Portable pack companion to
-guardrails/aiqt/review-contract.md; consumed by the AIQT CI kit and L1 CLI.
+Stdlib-only (project convention). Parent-repo companion to
+guardrails/aiqt/review-contract.md (the contract names it as the mechanical
+checker; the shipped CI kit and the L1 CLI do not yet invoke it).
 """
 from __future__ import annotations
 
@@ -78,7 +79,8 @@ _TOOL_RE = re.compile(TOOL_PATTERN)
 _ONE_LINE_RE = re.compile(ONE_LINE_PATTERN)
 _SHA_RE = re.compile(SHA_PATTERN)
 
-# minLength floors from the schemas.
+# Non-empty floors: evidence carries minLength 1 in finding.schema.json; the
+# other three are pattern-constrained there and floored here for a clearer error.
 _FINDING_MIN1_STRINGS = ("tool", "evidence", "impact", "recommendation")
 _VERDICT_STRING_MINLEN = (("model", 1),)
 
@@ -141,6 +143,21 @@ def validate_finding(obj) -> list[str]:
         _check_pattern(obj, "location", _LOCATION_RE, LOCATION_PATTERN, errors)
     if "fingerprint" in obj:
         _check_pattern(obj, "fingerprint", _FINGERPRINT_RE, FINGERPRINT_PATTERN, errors)
+        # Correspondence, not just shape: the contract defines fingerprint as
+        # ruleId:path:line, so a pattern-valid fingerprint naming a DIFFERENT
+        # rule or location would mis-key deduplication and is refused.
+        if (isinstance(obj.get("fingerprint"), str)
+                and isinstance(obj.get("ruleId"), str)
+                and isinstance(obj.get("location"), str)
+                and _FINGERPRINT_RE.fullmatch(obj["fingerprint"] or "")
+                and _RULE_ID_RE.fullmatch(obj["ruleId"] or "")
+                and _LOCATION_RE.fullmatch(obj["location"] or "")):
+            expected = f"{obj['ruleId'].lower()}:{obj['location']}"
+            if obj["fingerprint"] != expected:
+                errors.append(
+                    f"fingerprint: {obj['fingerprint']!r} does not equal "
+                    f"ruleId:location ({expected!r}); the contract binds the "
+                    "three fields")
     return errors
 
 
@@ -284,6 +301,12 @@ def self_test() -> int:
 
     # Fully-valid pair.
     check("valid finding passes", validate_finding(_valid_finding()), [])
+    mismatched = _valid_finding()
+    mismatched["fingerprint"] = "different-rule:other/path.py:999"
+    got = validate_finding(mismatched)
+    check("pattern-valid fingerprint that disagrees with ruleId:location refused",
+          (len(got) == 1, got[0].startswith("fingerprint:") if got else False),
+          (True, True))
     check("valid verdict passes", validate_verdict(_valid_verdict()), [])
     check("valid pair counts match",
           check_counts_match(_valid_verdict(), [_valid_finding()]), [])

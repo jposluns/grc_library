@@ -1,6 +1,6 @@
 # AIQT cross-family review contract (v1)
 
-Version: 1.0.0 (plain semver; the AIQT release train assigns release versioning once it
+Version: 1.0.1 (plain semver; the AIQT release train assigns release versioning once it
 exists)
 Status: Phase-1 contract; every AIQT adoption level, from copy-in pack use through the
 local CLI and the CI-integrated tiers, consumes this document and its paired schemas.
@@ -82,8 +82,9 @@ Normative machine form: `schemas/verdict.schema.json`. Field contract:
 A verdict never travels alone: it is PAIRED with its finding set in the same
 delivery, as separate documents by design (the schemas deliberately embed neither
 in the other, so each stays independently validatable). The counts rule binds the
-pair, and the shipped validator enforces it mechanically:
-`tools/validate-review-artifacts.py --kind verdict <envelope> --findings <set>`.
+pair, and a companion validator in the parent GRC Library repository enforces it
+mechanically (`tools/validate-review-artifacts.py --kind verdict <envelope>
+--findings <set>`; the validator is not part of this pack's file set).
 
 ## 6. Consumption
 

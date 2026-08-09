@@ -39,7 +39,7 @@ jobs:
       # never read from the pull-request head, so a PR cannot rewrite the
       # instructions a secret-bearing reviewer step consumes.
       - name: Fetch the canonical brief from the default branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           ref: ${{ github.event.repository.default_branch }}
           path: .aiqt-base
@@ -51,7 +51,7 @@ jobs:
           install -m 0644 ".aiqt-base/${AIQT_BRIEF_PATH}" "${RUNNER_TEMP}/aiqt-brief.md"
 
       - name: Check out the pull-request revision
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
 
@@ -59,17 +59,25 @@ jobs:
         id: brief
         run: |
           {
-            echo 'content<<AIQT_BRIEF_EOF'
             echo 'Lane header: this change was authored with a Codex-family assistant;'
             echo "you are the Claude-family check. Reviewer model pin: ${AIQT_CLAUDE_MODEL}."
+            echo "Change id: pr-${PR_NUMBER}. Reviewed SHA: ${HEAD_SHA} (base ${BASE_SHA})."
             echo ''
             cat "${RUNNER_TEMP}/aiqt-brief.md"
+          } > "${RUNNER_TEMP}/aiqt-claude-prompt.md"
+          {
+            echo 'content<<AIQT_BRIEF_EOF'
+            cat "${RUNNER_TEMP}/aiqt-claude-prompt.md"
             echo 'AIQT_BRIEF_EOF'
           } >> "$GITHUB_OUTPUT"
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
 
       - name: Claude advisory review
         id: review
-        uses: anthropics/claude-code-action@v1
+        uses: anthropics/claude-code-action@6b082c41935b4c8a3b8b0ef85ba4ba4d9eeb8975 # v1
         with:
           # Subscription OAuth at Level 2 (plan-included) when present; metered
           # API key otherwise. Verify precedence in the action's documentation
@@ -81,19 +89,38 @@ jobs:
           # bot must be allowed to trigger the action.
           allowed_bots: chatgpt-codex-connector[bot]
           # ONE canonical brief (the kit's prompts/aiqt-review.md), staged from
-          # the default branch above; this lane adds only its two header lines.
+          # the default branch above; this lane adds only its run-time header lines.
           prompt: ${{ steps.brief.outputs.content }}
           claude_args: |
             --max-turns 12 --model ${{ env.AIQT_CLAUDE_MODEL }}
 
+      # A multi-path upload with if-no-files-found: error only fails when the
+      # WHOLE set is empty, so the staged brief alone could mask an absent review
+      # transcript. This step makes each required evidence file fail loud; the
+      # upload below still runs on failure (if: always()) to persist what exists.
+      - name: Fail loud on a partial evidence set
+        if: always()
+        run: |
+          missing=0
+          [ -s "${RUNNER_TEMP}/aiqt-claude-prompt.md" ] \
+            || { echo "::error::rendered prompt missing from the evidence set"; missing=1; }
+          if [ "${REVIEW_OUTCOME}" = "success" ] && [ ! -s "${EXECUTION_FILE}" ]; then
+            echo "::error::review execution file missing though the review step succeeded"
+            missing=1
+          fi
+          exit "$missing"
+        env:
+          REVIEW_OUTCOME: ${{ steps.review.outcome }}
+          EXECUTION_FILE: ${{ steps.review.outputs.execution_file }}
+
       - name: Persist evidence artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: aiqt-claude-review-${{ github.event.pull_request.number }}-${{ github.run_id }}
           path: |
             ${{ steps.review.outputs.execution_file }}
             ${{ runner.temp }}/claude-prompts/**
-            ${{ runner.temp }}/aiqt-brief.md
+            ${{ runner.temp }}/aiqt-claude-prompt.md
           retention-days: 90
           if-no-files-found: error

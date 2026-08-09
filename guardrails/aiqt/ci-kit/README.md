@@ -1,6 +1,6 @@
 # AIQT cross-family CI kit (Levels 2 and 3)
 
-Version: 1.0.1 (plain semver; the AIQT release train assigns release versioning once
+Version: 1.0.2 (plain semver; the AIQT release train assigns release versioning once
 it exists)
 Status: Phase-1 kit; consumes the AIQT review contract (`../review-contract.md`) and
 its schemas (`../schemas/`).
@@ -16,7 +16,8 @@ blocks, never requests changes, and the decision always returns to the developer
 - `workflows/aiqt-review-claude-on-codex.yml`: Claude reviews Codex-authored changes.
 - `workflows/aiqt-review-codex-on-claude.yml`: Codex reviews Claude-authored changes.
 - `prompts/aiqt-review.md`: the one canonical brief BOTH lanes render; each lane adds
-  only a two-line header (reviewed family, model pin) at run time.
+  only a short run-time header (reviewed family, model pin, change id, reviewed and
+  base SHAs, the contract's dispatching-level slots).
 
 Install: copy the two workflow files into `.github/workflows/`, copy the prompt file
 to `.github/aiqt/aiqt-review.md` on the DEFAULT branch, add the secrets below, and

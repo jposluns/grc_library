@@ -3,7 +3,7 @@
 
 WHY. The exchange lays out a delivery at `<family>/outbox/<worker-id>/<order-id>.md`, so answering
 "what is delivered and unprocessed?" means walking every family crossed with every minted worker id.
-The orchestrator did exactly that by hand repeatedly on 2026-07-25 and still mis-reported the fleet
+The orchestrator once did exactly that by hand repeatedly and still mis-reported the fleet
 once. This tool collapses that to a single directory whose CONTENTS are the pending set, which is the
 same location-IS-the-status property that makes the drop channel reliable: nothing is parsed and
 nothing is inferred.
@@ -141,10 +141,14 @@ def plan_collection(facts: list, grandfather: bool = False) -> dict:
         #     source's CONTENT: a same-path rewrite after collection is skipped here, so
         #     owner-side hygiene (the P-3.235 class) is the remedy for a marked outbox, never
         #     this sweep.
-        # (0a) INCOMPLETENESS outranks remark: this tool only ever copies sentinel-complete
-        #     files, so a byte-identical twin of a sentinel-LESS source cannot be this tool's
-        #     work; freezing a still-writing file under a marker would mask its completed form.
-        #     A held file whose writer finishes collects normally on a later sweep.
+        # (0a) INCOMPLETENESS outranks remark ON ROUTINE RUNS: routinely this tool only copies
+        #     sentinel-complete files, so a byte-identical twin of a sentinel-LESS source cannot
+        #     be this tool's work; freezing a still-writing file under a marker would mask its
+        #     completed form. A held file whose writer finishes collects normally on a later
+        #     sweep. Under --grandfather-existing this precedence deliberately inverts: the flag
+        #     ASSUMES completeness for sentinel-less files (one-time migration, per its help
+        #     text), so an identical twin there reads as a prior grandfathered copy whose marker
+        #     write failed, and remark is the correct self-heal.
         # (0b) A marker-LESS COMPLETE source whose same-name tray file is BYTE-IDENTICAL routes to remark:
         #     an earlier copy landed but its marker write failed (COPIED+UNMARKED), so the only
         #     missing artefact is the marker itself. Residue, stated where remark is honoured:
@@ -410,9 +414,10 @@ def report(plan: dict, tray: Path, oneline: bool = False, outcomes: list | None 
     unmarked = [o for o in (outcomes or []) if o["outcome"] == "COPIED+UNMARKED"]
     remarked = [o for o in (outcomes or []) if o["outcome"] == "REMARKED"]
     pending = sorted(tray.glob("*.md")) if tray.is_dir() else []
-    unswept = n_held + n_coll + len(failed)
+    unswept = n_move + n_held + n_coll + len(failed)
     if oneline:
         print(f"deliveries: {len(pending)} tray / {unswept} unswept"
+              + (f" / {n_move} ready" if n_move else "")
               + (f" / {n_held} held" if n_held else "")
               + (f" / {len(failed)} FAILED" if failed else ""))
         return
@@ -485,7 +490,7 @@ def working_root(explicit: str | None) -> Path | None:
 def self_test() -> int:
     """Pin every decision branch, each on a DISTINCT observable.
 
-    Written against the lesson from the 2026-07-25 discriminability audit, which found 28 self-test
+    Written against the lesson from a prior discriminability audit, which found 28 self-test
     sites across 8 tools in this repo whose cases could not detect the removal of the guard they
     named, because each asserted a value that several branches shared. So no case here asserts a bare
     boolean or a count alone: each asserts WHICH bucket a file landed in and WHERE it ended up, and
@@ -534,9 +539,10 @@ def self_test() -> int:
           has_sentinel(f"body\n{SENTINEL}\n\n\n"), True)
 
     # --- the pure planner: one case per bucket, asserting WHICH bucket ---
-    def fact(order_id, complete=True, tray_exists=False):
+    def fact(order_id, complete=True, tray_exists=False, tray_identical=False):
         return {"family": "opus", "worker_id": "w1", "order_id": order_id,
-                "name": f"{order_id}.md", "complete": complete, "tray_exists": tray_exists}
+                "name": f"{order_id}.md", "complete": complete, "tray_exists": tray_exists,
+                "tray_identical": tray_identical}
 
     p = plan_collection([fact("a"), fact("b", complete=False), fact("c", tray_exists=True)])
     check("planner routes a complete, non-colliding file to move",
@@ -562,6 +568,12 @@ def self_test() -> int:
           [f["order_id"] for f in
            plan_collection([fact("g2", complete=False, tray_exists=True)], grandfather=True)["collision"]],
           ["g2"])
+    check("a grandfathered sentinel-less file with a byte-identical tray twin self-heals via remark "
+          "(the flag assumes completeness; comment 0a's routine precedence deliberately inverts here)",
+          [b for b, fs in
+           plan_collection([fact("g4", complete=False, tray_exists=True, tray_identical=True)],
+                           grandfather=True).items() if fs],
+          ["remark"])
     check("grandfathering a complete file does not mark it grandfathered",
           plan_collection([fact("g3")], grandfather=True)["grandfathered"], [])
 
@@ -643,6 +655,11 @@ def self_test() -> int:
         one = _report_text(held_plan, empty_tray, oneline=True)
         check("oneline emits exactly one line", len(one.strip().splitlines()), 1)
         check("oneline still surfaces the held count", "held" in one, True)
+        ready_plan = {"move": [fact("r1")], "held_no_sentinel": [], "collision": [],
+                      "grandfathered": [], "remark": [], "already_collected": []}
+        one_ready = _report_text(ready_plan, empty_tray, oneline=True)
+        check("oneline counts a ready (planned-move) outbox delivery as unswept",
+              "1 unswept" in one_ready and "1 ready" in one_ready, True)
 
     # --- end to end on a real tree, including the .tmp invisibility that layer 1 relies on ---
     with tempfile.TemporaryDirectory() as td:

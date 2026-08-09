@@ -5,13 +5,13 @@
     {
       "path": "guardrails/README.md",
       "pattern_id": "PF-collection-skills",
-      "line_hash": "b66b2387f8abbe5a",
+      "line_hash": "4c3b8a65d03f401f",
       "reason": "addyosmani external vet count: '5 skills in full + 19 spot-scanned' describes the maintainer's vetting depth, not a pack-skills count."
     },
     {
       "path": "guardrails/setup-generator-prompt.md",
       "pattern_id": "PF-collection-skills",
-      "line_hash": "13314d43cfeabdc5",
+      "line_hash": "981e95d68e791eb1",
       "reason": "addyosmani external description: '24 engineering-workflow skills in Claude Code's Skills format'. The scanner captures a smaller digit from later in the line; the prose is about an external project, not the pack."
     },
     {

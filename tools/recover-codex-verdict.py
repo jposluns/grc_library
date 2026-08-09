@@ -126,6 +126,16 @@ def _last_trailer_indices(lines: list[str]) -> tuple[int, int] | None:
     return None
 
 
+# Terminal-verdict discriminator for FALLBACK-ONLY extraction (NO trailer): a
+# recoverable final block must look terminal, not intermediate. The project's
+# delivery convention ends with END OF DELIVERY; QA verdicts carry a verdict
+# word or a SHIP/HOLD token. An ordinary mid-run codex message carries none, so
+# requiring one keeps a truncated log's last intermediate message out of the
+# tray (refuse-on-ambiguity, the tool's integrity contract).
+_TERMINAL_RE = re.compile(r"END OF DELIVERY|\bverdicts?\b|\bSHIP\b|\bHOLD\b",
+                          re.IGNORECASE)
+
+
 def _taint(text: str) -> str | None:
     """PURE. Why a candidate quotes transcript structure, or None when clean.
 
@@ -200,6 +210,12 @@ def extract_final_verdict(text: str) -> tuple[str | None, str]:
     if taint:
         return (None, f"fallback codex block is tainted: it {taint}; with no "
                       "tokens-used trailer the extraction cannot be disambiguated")
+    if not _TERMINAL_RE.search(region):
+        return (None, "fallback codex block carries no terminal-verdict marker "
+                      "(no END OF DELIVERY / verdict / SHIP / HOLD token); a "
+                      "truncated log can end on an ordinary intermediate "
+                      "message, so an unmarked block refuses rather than "
+                      "publishing a possibly partial recovery")
     return (region, "fallback-only")
 
 
@@ -258,7 +274,8 @@ def compose_recovery(verdict: str, log_name: str, worker_id: str | None,
     The mode is one of exactly `trailer+fallback-agree` (rendered as-is) and
     `fallback-only` (rendered as the truncated-log wording below).
     """
-    extraction = ("trailer missing (truncated log): fallback extraction"
+    extraction = ("trailer missing (truncated log): fallback extraction of a "
+                  "terminal-marked block"
                   if mode == "fallback-only" else mode)
     head = [
         f"# {BANNER_MARK}: stranded codex verdict recovery",
@@ -556,9 +573,15 @@ def self_test() -> int:
           extract_final_verdict(syn_multi),
           ("# Verdict: SYNTHETIC-HOLD\nLast synthetic block wins.", "fallback-only"))
 
-    check("single codex block extracts (fallback-only)",
-          extract_final_verdict("user\nbrief\ncodex\nonly block"),
-          ("only block", "fallback-only"))
+    check("single codex block WITH a terminal marker extracts (fallback-only)",
+          extract_final_verdict("user\nbrief\ncodex\nonly block verdict: HOLD"),
+          ("only block verdict: HOLD", "fallback-only"))
+    got_intermediate = extract_final_verdict(
+        "user\nbrief\ncodex\nIntermediate note, not terminal.")
+    check("an unmarked intermediate final block refuses (terminal grammar)",
+          (got_intermediate[0], got_intermediate[1].startswith(
+              "fallback codex block carries no terminal-verdict marker")),
+          (None, True))
     check("exec-only log refuses (no agent-message block anywhere)",
           extract_final_verdict("user\nbrief\nexec\n/bin/sh -lc 'true'"),
           (None, _NO_BLOCK_REASON))
@@ -620,8 +643,8 @@ def self_test() -> int:
           (got[0], "tainted" in got[1]), (None, True))
 
     check("indented codex label recognized (markers matched after strip)",
-          extract_final_verdict("user\nbrief\n  codex  \nonly block"),
-          ("only block", "fallback-only"))
+          extract_final_verdict("user\nbrief\n  codex  \nonly block verdict: HOLD"),
+          ("only block verdict: HOLD", "fallback-only"))
     got = extract_final_verdict("codex\nbody line\n  exec  \nignored")
     check("indented marker taints a fallback-only block (strip matching)",
           (got[0], "tainted" in got[1]), (None, True))

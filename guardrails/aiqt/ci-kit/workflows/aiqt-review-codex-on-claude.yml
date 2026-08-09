@@ -33,7 +33,7 @@ jobs:
       # never read from the pull-request head, so a PR cannot rewrite the
       # instructions a secret-bearing reviewer step consumes.
       - name: Fetch the canonical brief from the default branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           ref: ${{ github.event.repository.default_branch }}
           path: .aiqt-base
@@ -45,18 +45,23 @@ jobs:
           {
             echo 'Lane header: this change was authored with a Claude-family assistant;'
             echo "you are the Codex-family check. Reviewer model pin: ${AIQT_CODEX_MODEL}."
+            echo "Change id: pr-${PR_NUMBER}. Reviewed SHA: ${HEAD_SHA} (base ${BASE_SHA})."
             echo ''
             cat ".aiqt-base/${AIQT_BRIEF_PATH}"
           } > "${RUNNER_TEMP}/aiqt-codex-prompt.md"
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
 
       - name: Check out the pull-request revision
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
 
       - name: Codex advisory review
         id: run_codex
-        uses: openai/codex-action@v1
+        uses: openai/codex-action@52fe01ec70a42f454c9d2ebd47598f9fd6893d56 # v1
         with:
           openai-api-key: ${{ secrets.OPENAI_API_KEY }}
           # Scope guard. The vendor marks `sandbox` as Legacy; see the kit
@@ -70,9 +75,27 @@ jobs:
           prompt-file: ${{ runner.temp }}/aiqt-codex-prompt.md
           output-file: ${{ runner.temp }}/aiqt-codex-review.md
 
+      # A multi-path upload with if-no-files-found: error only fails when the
+      # WHOLE set is empty, so the prompt file alone could mask an absent review
+      # output. This step makes each required evidence file fail loud; the
+      # upload below still runs on failure (if: always()) to persist what exists.
+      - name: Fail loud on a partial evidence set
+        if: always()
+        run: |
+          missing=0
+          [ -s "${RUNNER_TEMP}/aiqt-codex-prompt.md" ] \
+            || { echo "::error::rendered prompt missing from the evidence set"; missing=1; }
+          if [ "${REVIEW_OUTCOME}" = "success" ] && [ ! -s "${RUNNER_TEMP}/aiqt-codex-review.md" ]; then
+            echo "::error::review output missing though the review step succeeded"
+            missing=1
+          fi
+          exit "$missing"
+        env:
+          REVIEW_OUTCOME: ${{ steps.run_codex.outcome }}
+
       - name: Persist evidence artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: aiqt-codex-review-${{ github.event.pull_request.number }}-${{ github.run_id }}
           path: |
@@ -90,7 +113,7 @@ jobs:
       issues: write
     steps:
       - name: Post advisory comment
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           script: |
             const body = [
