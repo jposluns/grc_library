@@ -32,35 +32,49 @@ WHY IT IS SAFE TO ADD.
   cannot lose the escape it just armed.
 - Fails open: any error (no transcript, unreadable, unexpected shape) returns allow.
   A guard that traps the actor on its own malfunction gets removed. That extends to
-  the sentinel: if the sentinel exists but cannot be unlinked, the turn is ALLOWED
-  anyway (the actor's intent was recorded; a filesystem fault must not become a wall).
+  the sentinel in BOTH directions: if the sentinel cannot be STATTED, or exists but
+  cannot be UNLINKED, the turn is ALLOWED anyway (a filesystem fault must never
+  become a wall).
+
+DESIGN BIAS: ERR TOWARD FIRING (r2, both families). This is a once-only, fail-open,
+escapable NUDGE. A false POSITIVE costs one turn and one ``touch``. A false NEGATIVE
+on a real yield is the shipping defect, because it silently defeats the entire point
+of the guard. Every context guard below is therefore deliberately MINIMAL: it covers
+only cases that are unambiguously not a yield, and it is written so that the explicit
+yield-targets (``dispatch-and-await``, ``offload-and-await``, bare ``waiting on CI``,
+``I'll wait``, ``blocking wait``, ``re-invoke``) fire in ISOLATION, with no co-trigger
+propping them up. The self-test pins each target as the ONLY trigger in its phrase.
 
 TRIGGER SET PROVENANCE. The pattern list is authored here, seeded from the phrasings
 the orchestrator actually used on 2026-08-09 and broadened with the common yield
 dialects (stand by, pending, resume when, check back, over to you, and friends). It
 is not a citation of any external inventory; there is no such document.
 
-NEGATIVE GUARDS. Before matching, the text is sanitised to drop the most common
-LEGITIMATE uses of the vocabulary: fenced code blocks, inline code spans, double- or
-curly-quoted spans, path tokens such as ``foo.py``, ``await`` used as a language
-keyword, hyphen / underscore compounds (``wait-free``, ``busy-wait``, ``wait_for``),
-negated uses (``do not wait``, ``instead of waiting``), historical narration (``caused
-the agent to wait``), and the non-yield ``re-invoke`` forms (``pre-invoke``,
-``reinvoked``, ``re-invoker``). A turn that is DESCRIBING this hook itself is exempt
-outright.
+NEGATIVE GUARDS (minimised in r2). Before matching, the text drops only the clearly
+safe legitimate uses: fenced code blocks and inline code spans; QUOTED spans that hold
+nothing but the bare vocabulary itself (the "await" keyword) and NOT quoted spans that
+carry a real waiting target (Status: "waiting on CI" still fires); path tokens such as
+``foo.py``; ``await`` used as a language keyword; hyphen / underscore compounds
+(``wait-free``, ``busy-wait``, ``wait_for``) EXCEPT the ``-and-await`` / ``-or-await``
+/ ``-then-await`` shape, which is the dressed-up substitute the actor actually used;
+negated uses (``do not wait``, ``instead of waiting``); retrospective narration
+(``caused the agent to wait``); technical wait-nouns (``backoff wait``, ``retry wait``)
+but NOT ``blocking wait``, which IS a description of the yield; and the non-yield
+``re-invoke`` forms (``pre-invoke``, ``reinvoked``, ``re-invoker``). A SENTENCE that is
+describing this hook itself is exempt; the rest of the message is still matched, so a
+real yield sitting beside a mention of the hook still fires.
 
 RESIDUE STATED. The trigger is the WORD, not a verified absence of productive work;
 the hook cannot know whether productive work exists. That is deliberate: the word is
 the observable signal that the orchestrator is yielding to a wait, and the forcing
 question ("what can you do now?") is exactly the revisit that was missing. The
-negative guards are lexical, not semantic, so a residual FALSE-POSITIVE rate remains.
-Measured examples that still fire: "Payment is due on delivery" (the commercial sense
-of ``on delivery``), "the monitor will show the queue depth" (``the monitor will``),
-and an unquoted prose mention of standing by or handing off inside a report. That is
-accepted and NOT worth more lexical machinery: this is a once-only, fail-open, escapable
-nudge, so a cheap false positive costs one turn and one ``touch``. A residual
-FALSE-NEGATIVE rate remains too: any phrasing outside the set passes through, and the
-guard makes no claim to catch every dialect of yielding.
+negative guards are lexical, not semantic, so a residual FALSE-POSITIVE rate remains,
+and r2 deliberately WIDENED it. Measured examples that still fire: "Payment is due on
+delivery" (the commercial sense of ``on delivery``), "the monitor will show the queue
+depth", a quoted historical yield ("the old message read \\"I will wait for CI\\""), and
+prose about a "waiting matcher". That is accepted and NOT worth more lexical
+machinery. A residual FALSE-NEGATIVE rate remains too: any phrasing outside the set
+passes through, and the guard makes no claim to catch every dialect of yielding.
 """
 
 from __future__ import annotations
@@ -118,27 +132,53 @@ WAITING_PATTERNS = [
 ]
 _RX = re.compile("|".join(WAITING_PATTERNS), re.IGNORECASE)
 
+# Code is code: a fenced block or an inline span is never the orchestrator yielding,
+# so these are stripped WHOLESALE. This is the only blanket strip that survives r2.
+_CODE_PATTERNS = [
+    r"```.*?```",                                  # fenced code blocks
+    r"`[^`]*`",                                    # inline code spans
+]
+_CODE_RXS = [re.compile(p, re.IGNORECASE | re.DOTALL) for p in _CODE_PATTERNS]
+
+# Quoted spans are NOT stripped wholesale (codex-F3): `Status: "waiting on CI".` is a
+# real bare waiting status, and blanket quote-stripping swallowed it. A quoted span is
+# dropped ONLY when it holds nothing but the bare vocabulary itself, which is the
+# DISCUSSING-the-word case (the "await" keyword). Anything longer keeps its content in
+# the matched text, so a quoted real yield still fires.
+_QUOTE_SPAN_RXS = [
+    re.compile(r'"([^"]*)"'),
+    re.compile(r"“([^”]*)”"),
+    re.compile(r"‘([^’]*)’"),         # curly single quotes (not apostrophes)
+]
+_VOCAB_QUOTE_RX = re.compile(
+    r"\A\W*(?:a?wait(?:ing|s|ed)?|re-?invoke\w*|async[\s/-]*await)\W*\Z",
+    re.IGNORECASE,
+)
+
 # Spans removed before matching: legitimate uses of the vocabulary that are not a
 # yield. Replaced with a space so surrounding words keep their boundaries.
 _STRIP_PATTERNS = [
-    r"```.*?```",                                  # fenced code blocks
-    r"`[^`]*`",                                    # inline code spans
-    r'"[^"]*"',                                    # double-quoted spans
-    r"“[^”]*”",                     # curly double quotes
-    r"‘[^’]*’",                     # curly single quotes (not apostrophes)
     r"[\w./-]+\.(?:py|js|jsx|ts|tsx|md|sh|json|ya?ml|toml|txt|cfg|ini)\b",  # path tokens
     r"\basync[ /-]?await\b",                       # the language construct
     r"\bawait\b(?=\s*\()",                         # await( ... ) call syntax
     r"\bawait\s+(?:keyword|expression|syntax|point|statement)\b",
     r"\b(?:the|an?)\s+await\b(?=\s+(?:in|of|on)\b)",
-    r"\b\w+[-_](?:a?wait(?:ing|s)?)\b",            # busy-wait, spin_wait, no-wait
+    # busy-wait, spin_wait, no-wait. The negative lookahead is LOAD-BEARING (r2 F1,
+    # both families): without it this ate the "and-await" inside the two explicit
+    # targets dispatch-and-await / offload-and-await and silently ALLOWED them.
+    r"\b(?!and\b|or\b|then\b)\w+[-_](?:a?wait(?:ing|s)?)\b",
     r"\ba?wait[-_]\w+\b",                          # wait-free, wait_for, await-free
     r"\b(?:do not|does not|did not|don['’]t|doesn['’]t|didn['’]t|"
     r"no need to|never|instead of|rather than|without|stop|avoid)\s+"
     r"(?:a?wait(?:ing|s)?)\b",                     # negated uses
     r"\bno longer\s+(?:\w+\s+){0,3}?a?wait(?:ing|s)?\b",   # "no longer needs to wait"
-    r"\b(?:caused|forced|made|led|used)\b[^.;]{0,40}?\bto\s+a?wait\b",  # historical narration
-    r"\b(?:backoff|timeout|retry|polling|poll|sleep|blocking)\s+a?wait\b",
+    # Retrospective narration only. "used" and "led" were dropped in r2 (claude-F3):
+    # they fired on live first-person yields ("I used the monitor to wait for the
+    # delivery", "That led me to wait for CI"), which are exactly what must nudge.
+    r"\b(?:caused|forced|made)\b[^.;]{0,40}?\bto\s+a?wait\b",
+    # Technical wait-nouns. "blocking" was dropped in r2 (claude-F2): a blocking wait
+    # IS the yield, so "This is a blocking wait on the worker." must fire.
+    r"\b(?:backoff|timeout|retry|polling|poll|sleep)\s+a?wait\b",
     r"\ba?wait\s+(?:state|time|times|queue|loop|condition|group|handle)\b",
     r"\bre-?invoked\b",                            # past tense: already happened
     r"\bre-?invokers?\b",                          # the noun (a tool), not the act
@@ -146,8 +186,11 @@ _STRIP_PATTERNS = [
 ]
 _STRIP_RXS = [re.compile(p, re.IGNORECASE | re.DOTALL) for p in _STRIP_PATTERNS]
 
-# A turn that is DESCRIBING this hook is exempt: shipping, reviewing, or documenting
-# the guard would otherwise trip it every time (claude-F2).
+# A SENTENCE that is describing this hook is exempt: shipping, reviewing, or
+# documenting the guard would otherwise trip it every time. Scoped to the sentence,
+# never the whole message (r2 codex-F2 / claude-F4): a whole-message exemption let
+# "I reviewed block-waiting-word-yield.py. I'll wait for CI." pass, and let an echo of
+# the escape command suppress the very turn the escape was armed for.
 _SELF_REF_RX = re.compile(
     r"block-waiting-word-yield"
     r"|waiting-word (?:hook|guard|yield|set|pattern)"
@@ -155,16 +198,21 @@ _SELF_REF_RX = re.compile(
     r"|guardrail 1\.26\.48",
     re.IGNORECASE,
 )
+# Sentence boundary: terminal punctuation plus whitespace, or a line break. The
+# semicolon is included because the observed self-reference-plus-yield turns joined
+# the two clauses with one ("...block-waiting-word-yield.py; awaiting their deliveries").
+_SENTENCE_SPLIT_RX = re.compile(r"(?<=[.!?;])\s+|\n+")
 
 
 def last_assistant_text(transcript_path: str) -> str:
     """The concatenated text of the LAST MAIN-THREAD assistant message.
 
     Sidechain (subagent) rows are skipped. Returns "" on ANY failure or unexpected
-    shape: unreadable path, undecodable line, non-object row, non-string text."""
+    shape: unreadable path, non-string path, undecodable line, over-nested JSON,
+    non-object row, non-string text."""
     try:
         lines = Path(transcript_path).read_text(encoding="utf-8").splitlines()
-    except (OSError, ValueError):
+    except (OSError, ValueError, TypeError):
         return ""
     for line in reversed(lines):
         line = line.strip()
@@ -172,8 +220,8 @@ def last_assistant_text(transcript_path: str) -> str:
             continue
         try:
             obj = json.loads(line)
-        except ValueError:
-            continue
+        except (ValueError, RecursionError):
+            continue      # a deeply nested array overflows the decoder (codex-F4)
         if not isinstance(obj, dict):
             continue          # a bare list / string / number row is not a message
         if obj.get("isSidechain"):
@@ -198,8 +246,29 @@ def last_assistant_text(transcript_path: str) -> str:
     return ""
 
 
+def _strip_vocabulary_quotes(text: str) -> str:
+    """Drop quoted spans that merely NAME the vocabulary; keep every other quote.
+
+    `the "await" keyword` is a discussion of the word. `Status: "waiting on CI"` is a
+    real yield that happens to be quoted, and it must survive to be matched."""
+    def repl(m):
+        return " " if _VOCAB_QUOTE_RX.match(m.group(1)) else m.group(0)
+    for rx in _QUOTE_SPAN_RXS:
+        text = rx.sub(repl, text)
+    return text
+
+
+def _drop_self_ref_sentences(text: str) -> str:
+    """Remove only the SENTENCES that describe this hook, not the whole message."""
+    kept = [s for s in _SENTENCE_SPLIT_RX.split(text) if not _SELF_REF_RX.search(s)]
+    return " ".join(kept)
+
+
 def _sanitize(text: str) -> str:
     """Drop the legitimate-use spans so they cannot trigger the nudge."""
+    for rx in _CODE_RXS:
+        text = rx.sub(" ", text)
+    text = _strip_vocabulary_quotes(text)
     for rx in _STRIP_RXS:
         text = rx.sub(" ", text)
     return text
@@ -209,9 +278,7 @@ def first_trigger(text: str) -> str | None:
     """The first waiting-word/phrase present in the text, else None."""
     if not text:
         return None
-    if _SELF_REF_RX.search(text):
-        return None           # the turn is about this hook, not a yield
-    m = _RX.search(_sanitize(text))
+    m = _RX.search(_sanitize(_drop_self_ref_sentences(text)))
     return m.group(0) if m else None
 
 
@@ -243,17 +310,21 @@ def decide(stop_hook_active: bool, text: str) -> str | None:
 
 
 def _consume_escape() -> bool:
-    """True iff the escape sentinel was present (and so the turn must be ALLOWED).
+    """True iff the turn must be ALLOWED on account of the escape sentinel.
 
     Called ONLY when the hook is about to block, so an ordinary turn never burns it.
-    A present sentinel allows the turn even if it cannot be removed: the actor's
-    stated intent is honoured and a filesystem fault never becomes a spurious block
-    (codex-F4). The cost of that fail-open is that an unremovable sentinel keeps
-    allowing, which is the safe direction for a nudge."""
+    Every filesystem fault resolves to ALLOW, in both directions:
+    - the stat itself failing means the hook cannot determine the escape state, and a
+      guard that cannot read its own escape hatch must not become a wall (codex-F5);
+    - a present sentinel that cannot be unlinked still honours the actor's stated
+      intent (r1 codex-F4).
+    The cost of that fail-open is that an unremovable sentinel keeps allowing, which is
+    the safe direction for a nudge."""
     try:
-        if not ESCAPE_FILE.is_file():
-            return False
+        present = ESCAPE_FILE.is_file()
     except OSError:
+        return True           # cannot stat: fail OPEN, never block on a filesystem fault
+    if not present:
         return False
     try:
         ESCAPE_FILE.unlink()
@@ -313,8 +384,10 @@ def _self_test() -> int:
         finally:
             ESCAPE_FILE = original
 
-    def transcript(rows):
+    def transcript(rows, raw=None):
         with tempfile.NamedTemporaryFile("w", suffix=".jsonl", delete=False) as f:
+            if raw is not None:
+                f.write(raw)
             for r in rows:
                 f.write(json.dumps(r) + "\n")
             return f.name
@@ -337,7 +410,121 @@ def _self_test() -> int:
         def __str__(self):
             return "/unwritable/.allow-waiting-yield"
 
+    class Unstattable:
+        """A sentinel path whose stat itself fails (codex-F5)."""
+        def is_file(self):
+            raise OSError("stat denied")
+
+        def unlink(self):
+            raise AssertionError("unlink must not be reached")
+
+        def __str__(self):
+            return "/unstattable/.allow-waiting-yield"
+
     class T(unittest.TestCase):
+        # ---- ISOLATED explicit targets: each is the ONLY trigger in its phrase ----
+        # r2, both families: every r1 test phrase carried a second trigger that masked
+        # the target under test, so a broken target still passed. These assert the
+        # target alone. Each is also checked to have NO co-trigger by construction.
+        def test_isolated_compound_targets_block(self):
+            for phrase in (
+                "Dispatch-and-await: the worker is running.",
+                "Offload-and-await; two workers are out.",
+                "This is a dispatch-and-await on the r2 reviewers.",
+                "Set up an offload-and-await for the sweep.",
+            ):
+                self.assertIsNotNone(decide(False, phrase), phrase)
+
+        def test_isolated_compound_target_is_the_firing_token(self):
+            # the assertion above must pass ON the compound, not on a neighbour
+            self.assertEqual(
+                first_trigger("Dispatch-and-await: the worker is running.").lower(),
+                "dispatch-and-await")
+            self.assertEqual(
+                first_trigger("Offload-and-await; two workers are out.").lower(),
+                "offload-and-await")
+
+        def test_isolated_bare_waiting_status_blocks(self):
+            self.assertIsNotNone(decide(False, "Waiting on CI."))
+            self.assertEqual(first_trigger("Waiting on CI.").lower(), "waiting")
+
+        def test_isolated_ill_wait_blocks(self):
+            self.assertIsNotNone(decide(False, "I'll wait."))
+            self.assertIsNotNone(decide(False, "I’ll wait."))
+            self.assertIsNotNone(decide(False, "I will wait."))
+
+        def test_isolated_blocking_wait_blocks(self):
+            # claude-F2: a blocking wait IS the yield, so it must not be stripped
+            self.assertIsNotNone(decide(False, "This is a blocking wait on the worker."))
+
+        def test_isolated_live_first_person_narration_blocks(self):
+            # claude-F3: "used" / "led" dropped from the retrospective-narration strip
+            for phrase in (
+                "I used the monitor to wait for the delivery.",
+                "That led me to wait for CI.",
+            ):
+                self.assertIsNotNone(decide(False, phrase), phrase)
+
+        def test_isolated_reinvoke_blocks(self):
+            self.assertIsNotNone(decide(False, "The monitor will re-invoke me."))
+            self.assertIsNotNone(decide(False, "It reinvokes me later."))
+
+        # ---- ISOLATED technical prose: each allow phrase carries no co-allow either ----
+        def test_isolated_technical_prose_allows(self):
+            for phrase in (
+                "Refactored the async/await path.",
+                "Renamed wait_for_completion to wait_until_ready.",
+                "Removed a busy-wait loop.",
+                "The retry uses an exponential backoff wait of 200ms.",
+                'Documented the "await" keyword.',
+                "Documented the wait-free queue algorithm.",
+                "Documented the await-free fast path.",
+            ):
+                self.assertIsNone(decide(False, phrase), phrase)
+
+        # ---- self-reference is SENTENCE-scoped (codex-F2 / claude-F4) ----
+        def test_self_reference_plus_real_yield_blocks(self):
+            for phrase in (
+                "I reviewed block-waiting-word-yield.py. I'll wait for CI.",
+                "Shipped the waiting-word hook. I'll wait for CI to go green.",
+                "Guardrail 1.26.48 is merged. Standing by for the next order.",
+                "Dispatched two reviewers on block-waiting-word-yield.py; "
+                "awaiting their deliveries.",
+                "Take the escape with touch /home/grc/grc_working/.allow-waiting-yield. "
+                "Awaiting the worker.",
+            ):
+                self.assertIsNotNone(decide(False, phrase), phrase)
+
+        def test_self_reference_alone_allows(self):
+            for phrase in (
+                "Guardrail 1.26.48: activate block-waiting-word-yield Stop hook.",
+                "Added the block-waiting-word-yield Stop hook per PR #1471.",
+                "Broadened the waiting-word set; the escape is .allow-waiting-yield.",
+            ):
+                self.assertIsNone(decide(False, phrase), phrase)
+
+        # ---- quoted spans are role-checked, not blanket-stripped (codex-F3) ----
+        def test_quoted_waiting_status_blocks(self):
+            for phrase in (
+                'Status: "waiting on CI".',
+                'Status: “waiting on CI”.',
+            ):
+                self.assertIsNotNone(decide(False, phrase), phrase)
+
+        def test_quoted_bare_vocabulary_allows(self):
+            for phrase in (
+                'Fixed the "await" keyword handling.',
+                'Renamed the “awaiting” label in the status line.',
+                'The ‘wait’ token is now lower-cased.',
+            ):
+                self.assertIsNone(decide(False, phrase), phrase)
+
+        def test_accepted_false_positive_quoted_historical_yield(self):
+            # ACCEPTED residue of codex-F3: a quoted real yield cannot be told apart
+            # from a live one lexically, and the design bias is to fire.
+            self.assertIsNotNone(
+                decide(False, 'The old message read "I will wait for CI" and is now replaced.'))
+
         # ---- positive triggers (original set) ----
         def test_reinvoke_blocks(self):
             self.assertIsNotNone(decide(False, "the monitor will re-invoke me on delivery"))
@@ -408,10 +595,9 @@ def _self_test() -> int:
             ):
                 self.assertIsNone(decide(False, phrase), phrase)
 
-        def test_quoted_and_code_span_uses_allow(self):
+        def test_code_span_uses_allow(self):
             for phrase in (
                 "Fixed the missing `await` keyword in the async helper; tests pass.",
-                'The old message read "I will wait for CI" and is now replaced.',
                 "Shipped the change to hooks/block-turn-end.py; 89 gates green.",
                 "```\nawait worker.result()\n```\nMerged.",
             ):
@@ -423,14 +609,6 @@ def _self_test() -> int:
                 "Instead of waiting, I prepped the next two seeds; both are ready.",
                 "The fix means the agent no longer needs to wait; merged.",
                 "The previous bug caused the agent to wait, and this fix is now complete.",
-            ):
-                self.assertIsNone(decide(False, phrase), phrase)
-
-        def test_self_reference_allows(self):
-            for phrase in (
-                "Guardrail 1.26.48: activate block-waiting-word-yield Stop hook.",
-                "Added the block-waiting-word-yield Stop hook per PR #1471.",
-                "Broadened the waiting-word set; the escape is .allow-waiting-yield.",
             ):
                 self.assertIsNone(decide(False, phrase), phrase)
 
@@ -489,6 +667,18 @@ def _self_test() -> int:
                 finally:
                     os.unlink(path)
 
+        def test_deeply_nested_json_row_returns_empty(self):
+            # codex-F4: RecursionError from the decoder honours the "" contract
+            raw = "[" * 100000 + "0" + "]" * 100000 + "\n"
+            path = transcript([], raw=raw)
+            try:
+                self.assertEqual(last_assistant_text(path), "")
+            finally:
+                os.unlink(path)
+
+        def test_non_string_transcript_path_returns_empty(self):
+            self.assertEqual(last_assistant_text(None), "")
+
         def test_garbage_and_missing_transcript_are_empty(self):
             self.assertEqual(last_assistant_text("/nonexistent/x.jsonl"), "")
             self.assertIsNone(decide(False, last_assistant_text("/nonexistent/x.jsonl")))
@@ -502,7 +692,7 @@ def _self_test() -> int:
 
         # ---- escape lifecycle ----
         def test_escape_not_burned_on_ordinary_stop(self):
-            # codex-F3 / claude-F1: an ordinary turn must leave the sentinel alone
+            # codex-F3 / claude-F1 (r1): an ordinary turn must leave the sentinel alone
             path = transcript([assistant_row("All 89 gates green; merged.")])
             with tempfile.TemporaryDirectory() as d:
                 sentinel = Path(d) / ".allow-waiting-yield"
@@ -536,10 +726,20 @@ def _self_test() -> int:
                     os.unlink(path)
 
         def test_unlink_failure_allows(self):
-            # codex-F4: a present-but-unremovable sentinel must ALLOW, not block
+            # r1 codex-F4: a present-but-unremovable sentinel must ALLOW, not block
             path = transcript([assistant_row("Awaiting the worker result.")])
             try:
                 with escape_at(Unremovable()):
+                    self.assertTrue(_consume_escape())
+                    self.assertEqual(run_main({"transcript_path": path}), 0)
+            finally:
+                os.unlink(path)
+
+        def test_stat_failure_allows(self):
+            # codex-F5: an OSError from is_file() must fail OPEN, not block
+            path = transcript([assistant_row("Waiting on CI.")])
+            try:
+                with escape_at(Unstattable()):
                     self.assertTrue(_consume_escape())
                     self.assertEqual(run_main({"transcript_path": path}), 0)
             finally:
@@ -554,6 +754,26 @@ def _self_test() -> int:
                 finally:
                     os.unlink(path)
 
+        def test_isolated_targets_block_end_to_end(self):
+            # the explicit targets, driven through main() with no sentinel: exit 2
+            for text in (
+                "Dispatch-and-await.",
+                "Offload-and-await.",
+                "Waiting on CI.",
+                "I'll wait.",
+                "This is a blocking wait on the worker.",
+                "I used the monitor to wait for the delivery.",
+                'Status: "waiting on CI".',
+                "I reviewed block-waiting-word-yield.py. I'll wait for CI.",
+            ):
+                path = transcript([assistant_row(text)])
+                with tempfile.TemporaryDirectory() as d:
+                    try:
+                        with escape_at(Path(d) / ".allow-waiting-yield"):
+                            self.assertEqual(run_main({"transcript_path": path}), 2, text)
+                    finally:
+                        os.unlink(path)
+
         # ---- main() fail-open ----
         def test_main_fails_open(self):
             with tempfile.TemporaryDirectory() as d:
@@ -561,6 +781,7 @@ def _self_test() -> int:
                     self.assertEqual(run_main({}), 0)                      # no transcript key
                     self.assertEqual(run_main([1, 2, 3]), 0)               # non-dict payload
                     self.assertEqual(run_main({"transcript_path": "/nope/x.jsonl"}), 0)
+                    self.assertEqual(run_main({"transcript_path": None}), 0)
 
         def test_main_honours_stop_hook_active(self):
             path = transcript([assistant_row("Awaiting the worker result.")])
