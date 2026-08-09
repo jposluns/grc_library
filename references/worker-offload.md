@@ -6,7 +6,7 @@ the lean always-on core (the offload principle, the offloadable list, and the st
 list); this file carries the full dispatch mechanics and rationale. Relocated from CLAUDE.md by
 roadmap C part 2 (the activity-scoped rule loader); the always-on residue kept inline in CLAUDE.md is
 deliberate defence-in-depth and is not a duplication to trim. The mechanical backstop is the
-`block-mandatory-offload.py` PreToolUse hook; this prose is the explanation, the hook is the guard.
+`block-orchestrator-self-qa.py` PreToolUse hook; this prose is the explanation, the hook is the guard.
 
 This is the operational form of the orchestration primordial rule near the top of CLAUDE.md. The hard
 rule (maintainer-directed 2026-07-19, expanded to six points 2026-07-26):
@@ -34,8 +34,8 @@ rule (maintainer-directed 2026-07-19, expanded to six points 2026-07-26):
    each family and assess the two deliveries together: different models surface different
    perspectives, so the dual read is how nothing is missed. Reconcile them; a finding in only one is
    triaged on its own merits. This is the HEAVIER form of the permanent dual-family QA standard,
-   which applies to EVERY QA pass (the Claude half as an in-session subagent, the Codex half as a
-   worker); a super-sensitive task promotes the Claude half to a full second worker.
+   which applies to EVERY QA pass (BOTH halves as exec-dispatch workers, one per family; the Claude half
+   is a claude-family exec-dispatch worker, NEVER the in-session Agent tool, per `block-orchestrator-self-qa.py`).
 5. **Keep the fleet busy: one worker on QA, the rest pre-loading the next ~10 items.** Never let an
    available account sit idle. Reserve one worker for the QA cadence (`/validate-pr`, `verify`,
    sweeps) and keep the others producing research and draft candidates for the upcoming queue, so the
@@ -48,25 +48,32 @@ rule (maintainer-directed 2026-07-19, expanded to six points 2026-07-26):
 The offloadable / stays-orchestrator-side split is the always-on residue kept inline in CLAUDE.md:
 **offloadable** covers `/validate`, `/validate-pr`, `/matrix-fit`, `/claim-fit`, `/reference-audit`,
 `/screen-publications`, `verify`, `/full-qa`, `/fitness`, the read-only `/deep-assessment` probe
-phases, and research / draft seeds; **stays orchestrator-side** covers authoring corpus prose,
-applying diffs, routing findings, writing audit-trail rows, merging, interacting with the maintainer,
-and (transitionally, below) the PRE-PUSH skeptical verifier plus the high-assurance adversarial
-verifiers.
+phases, research / draft seeds, the pre-push skeptical verifier, and the high-assurance adversarial
+verifiers (the QA-to-workers transition is complete); **stays orchestrator-side** covers authoring corpus
+prose, applying diffs, routing findings, writing audit-trail rows, merging, and interacting with the
+maintainer.
 
-**Pre-push verifier moves to workers (maintainer-directed 2026-07-19; DECIDED, sequenced with the
-transport).** The pre-push skeptical verifier was the one orchestrator-side QA exception (it is on the
-critical path, so offloading it adds a blocking wait). The maintainer decided it ALSO moves to a
-worker; the move lands WITH the local-VM file-drop / unix-socket transport ([`TODO.md`](../TODO.md)
-§3.87, bumped to near-term) that makes the offloaded verify sub-second instead of a slow git
-round-trip. Until that transport lands, the pre-push verifier stays orchestrator-side, and the
-`block-mandatory-offload.py` override allowlist treats it (and the high-assurance adversarial
-verifiers) as always-allowed, so the guardrail never blocks a legitimate critical-path verifier.
+**Pre-push verifier and high-assurance adversarial verifiers now run as workers (maintainer-directed
+2026-07-19, sequenced with the transport; transition COMPLETE).** The pre-push skeptical verifier was
+the one orchestrator-side QA exception (it is on the critical path, so offloading it adds a blocking
+wait). It, and the high-assurance adversarial verifiers, now run as exec-dispatch WORKERS like every
+other QA pass: `block-orchestrator-self-qa.py` blocks the in-session agent-spawning tools (Task/Agent/Workflow/SendMessage) for reasoning offload,
+so there is no remaining orchestrator-side QA exception and no override allowlist (the actor-created once-only
+sentinel is the only escape (a speed bump plus an audit record, not a security boundary)). The exec-dispatch transport (the file-drop plane and the on-demand
+`run-codex-worker` / `exec-dispatch.py` invocation) makes the offloaded verify a bounded wait rather
+than an unbounded block.
 
-**No-workers fallback.** With zero live workers (or an order that goes stale unserved), self-run the
-pass inline, AFTER alerting the maintainer or confirming authorization per rule 2. Offload is
-best-effort for AVAILABILITY, but the CHOICE to use an available worker is mandatory; the mandatory-QA
-discipline itself is unchanged (an offloaded run is the full formal pass, abbreviation is never
-authorized).
+**No-workers fallback (narrow).** A worker is SPAWNED ON DEMAND, so a `list-workers` reading of zero is
+never the fallback condition (spawn one, per CLAUDE.md). The inline fallback is reserved for a genuine
+exec-dispatch FAILURE, every eligible account limited/exhausted (an auth or quota error surfaced from an
+actual exec attempt) or the transport down. In that narrow case only, self-run inline AFTER alerting the
+maintainer, and record the reason. If such an inline self-run cannot be completed by the
+orchestrator alone (an inline `/validate-pr` can reach that point), the only in-session route to a
+second agent is an explicitly authorized in-session Task/Agent/Workflow/SendMessage dispatch that
+first consumes the once-only sentinel `block-orchestrator-self-qa.py` requires; the reason goes in
+the QA row. Offload is best-effort for AVAILABILITY, but the CHOICE to use an
+available worker is mandatory, and the mandatory-QA discipline is unchanged (an offloaded run is the full
+formal pass, abbreviation is never authorized).
 
 **Worker-elasticity corollary (maintainer-directed 2026-07-19).** The ORCHESTRATOR is the scarce
 singleton; WORKERS ARE ELASTIC (the maintainer can spin up more). So when parallelizable work exceeds

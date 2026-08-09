@@ -315,6 +315,15 @@ The disciplines implement the same audit-trail-integrity principle the broader p
 
 ## Project overlay (grc_library wiring and lineage; local copy only)
 
+- **In-session subagent fan-out is DISABLED in this project** by the
+  `block-orchestrator-self-qa.py` PreToolUse hook (matcher `Task|Agent|Workflow|SendMessage`): the in-session-subagent
+  primitive in §2 above is a general adopter primitive, but `grc_library` uses ONLY the
+  separate-session (exec-dispatch) primitive, via `tools/exec-dispatch.py`, because an in-session
+  subagent bills the scarce orchestrator account. Consuming the once-only actor-created sentinel is
+  the only in-session PATH to authorize such a dispatch, but the actor can create that sentinel with
+  one `touch`, so it is a deliberate speed bump plus an audit record, not a security boundary.
+  Project wiring only; the pack body keeps in-session fan-out for adopters.
+
 - Worker-hallucination tracking artefact: `hallucination-metrics`.
 - Worker-brief template: `grc_library_private/.working/worker-brief-template.md`.
 - Verifier-override register: `grc_library_private/.working/verifier-overrides.md` (surfaced at `/resume`).

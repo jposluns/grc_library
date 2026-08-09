@@ -89,11 +89,11 @@
         ]
       },
       {
-        "matcher": "Task|Agent",
+        "matcher": "Task|Agent|Workflow|SendMessage",
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-mandatory-offload.py"
+            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-orchestrator-self-qa.py"
           }
         ]
       },
