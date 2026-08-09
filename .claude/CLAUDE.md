@@ -440,10 +440,10 @@ The operational form of the orchestration primordial rule near the top of this f
 
 **Offloadable (dispatch to a worker):** `/validate`, `/validate-pr`, `/matrix-fit`, `/claim-fit`,
 `/reference-audit`, `/screen-publications`, `verify`, `/full-qa`, `/fitness`, the read-only
-`/deep-assessment` probe phases, and research / draft seeds. **Stays orchestrator-side (never offloaded):** authoring
-corpus prose, applying diffs, routing findings, writing audit-trail rows, merging, interacting with
-the maintainer, and (transitionally, see the playbook) the PRE-PUSH skeptical verifier plus the
-high-assurance adversarial verifiers.
+`/deep-assessment` probe phases, research / draft seeds, the pre-push skeptical verifier, and the
+high-assurance adversarial verifiers (the QA-to-workers transition is complete). **Stays orchestrator-side (never offloaded):** authoring
+corpus prose, applying diffs, routing findings, writing audit-trail rows, merging, and interacting with
+the maintainer.
 
 **Worker ids recorded in this public repo are ANONYMIZED aliases**; the raw `<family>-<account>-<timestamp>` id and all account names stay in `_private` only (in force whenever a worker id is written to any public artefact, not only at the dispatch boundary).
 

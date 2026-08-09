@@ -48,10 +48,10 @@ rule (maintainer-directed 2026-07-19, expanded to six points 2026-07-26):
 The offloadable / stays-orchestrator-side split is the always-on residue kept inline in CLAUDE.md:
 **offloadable** covers `/validate`, `/validate-pr`, `/matrix-fit`, `/claim-fit`, `/reference-audit`,
 `/screen-publications`, `verify`, `/full-qa`, `/fitness`, the read-only `/deep-assessment` probe
-phases, and research / draft seeds; **stays orchestrator-side** covers authoring corpus prose,
-applying diffs, routing findings, writing audit-trail rows, merging, interacting with the maintainer,
-and (transitionally, below) the PRE-PUSH skeptical verifier plus the high-assurance adversarial
-verifiers.
+phases, research / draft seeds, the pre-push skeptical verifier, and the high-assurance adversarial
+verifiers (the QA-to-workers transition is complete); **stays orchestrator-side** covers authoring corpus
+prose, applying diffs, routing findings, writing audit-trail rows, merging, and interacting with the
+maintainer.
 
 **Pre-push verifier and high-assurance adversarial verifiers now run as workers (maintainer-directed
 2026-07-19, sequenced with the transport; transition COMPLETE).** The pre-push skeptical verifier was
@@ -63,11 +63,13 @@ sentinel is the only escape). The exec-dispatch transport (the file-drop plane a
 `run-codex-worker` / `exec-dispatch.py` invocation) makes the offloaded verify a bounded wait rather
 than an unbounded block.
 
-**No-workers fallback.** With zero live workers (or an order that goes stale unserved), self-run the
-pass inline, AFTER alerting the maintainer or confirming authorization per rule 2. Offload is
-best-effort for AVAILABILITY, but the CHOICE to use an available worker is mandatory; the mandatory-QA
-discipline itself is unchanged (an offloaded run is the full formal pass, abbreviation is never
-authorized).
+**No-workers fallback (narrow).** A worker is SPAWNED ON DEMAND, so a `list-workers` reading of zero is
+never the fallback condition (spawn one, per CLAUDE.md). The inline fallback is reserved for a genuine
+exec-dispatch FAILURE, every eligible account limited/exhausted (an auth or quota error surfaced from an
+actual exec attempt) or the transport down. In that narrow case only, self-run inline AFTER alerting the
+maintainer, and record the reason. Offload is best-effort for AVAILABILITY, but the CHOICE to use an
+available worker is mandatory, and the mandatory-QA discipline is unchanged (an offloaded run is the full
+formal pass, abbreviation is never authorized).
 
 **Worker-elasticity corollary (maintainer-directed 2026-07-19).** The ORCHESTRATOR is the scarce
 singleton; WORKERS ARE ELASTIC (the maintainer can spin up more). So when parallelizable work exceeds
