@@ -1965,10 +1965,12 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         )
         self.assertIn("OK", result.stderr)
 
-    def test_block_mandatory_offload_hook_self_test(self) -> None:
+    def test_block_orchestrator_self_qa_hook_self_test(self) -> None:
+        # Successor to the retired block-mandatory-offload.py (PR1a): blocks in-session
+        # Task/Agent reasoning offload unless a maintainer sentinel authorizes.
         result = self._run_selftest(
             [sys.executable,
-             str(REPO_ROOT / ".claude" / "hooks" / "block-mandatory-offload.py"),
+             str(REPO_ROOT / ".claude" / "hooks" / "block-orchestrator-self-qa.py"),
              "--self-test"]
         )
         self.assertEqual(

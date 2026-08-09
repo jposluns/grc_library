@@ -93,7 +93,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-mandatory-offload.py"
+            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-orchestrator-self-qa.py"
           }
         ]
       },
