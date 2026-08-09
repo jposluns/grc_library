@@ -399,6 +399,11 @@
       "bucket": "CORE",
       "disclosure": "PUBLIC",
       "rationale": "The canonical cross-family review brief the lanes render (PR #1465)."
+    },
+    "aiqt/findings-loop.md": {
+      "bucket": "CORE",
+      "disclosure": "PUBLIC",
+      "rationale": "The consumer-side findings lifecycle: validate-before-action, auto-fix up to the contract's 3-try cap, the loud escalation, and the .working/aiqt/findings/ queue (PR #1468)."
     }
   }
 }

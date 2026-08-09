@@ -1,6 +1,6 @@
 # AIQT cross-family CI kit (Levels 2 and 3)
 
-Version: 1.0.2 (plain semver; the AIQT release train assigns release versioning once
+Version: 1.0.3 (plain semver; the AIQT release train assigns release versioning once
 it exists)
 Status: Phase-1 kit; consumes the AIQT review contract (`../review-contract.md`) and
 its schemas (`../schemas/`).
@@ -97,6 +97,16 @@ adopting project's AIQT log policy; TODAY (until the AIQT logs-and-metrics docum
 ships) the kit default is 90 days; choose your window deliberately and record the
 choice. The finding and verdict shapes are the AIQT review contract's schemas
 (`../schemas/`).
+
+## Findings after the run (the consumption side)
+
+What the kit posts is the START of the findings loop, not its end: the PR comment is
+the view, the artifact set is the record, and the consumption rules (validate before
+action, auto-fix up to the cap, the loud alert, the queue under
+`.working/aiqt/findings/`) are the findings-loop document's (`../findings-loop.md`).
+TODAY the lanes post no re-surface reminders; that step upgrades into the kit when the
+scheduled trigger class ships, deduplicated one reminder per full `ResurfaceDays`
+window, never one per run.
 
 ## Scope guards, stated
 

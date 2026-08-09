@@ -1,6 +1,6 @@
 # AIQT doctor
 
-Version: 1.0.5 (plain semver; the AIQT release train assigns release versioning once it
+Version: 1.0.6 (plain semver; the AIQT release train assigns release versioning once it
 exists)
 Status: Phase-1 procedure; READ-ONLY and re-runnable; one summary line per check;
 non-zero exit only on a definite fault (degraded-but-working states report and exit 0).
@@ -59,3 +59,8 @@ it upgrades to, and reports an explicit status rather than staying silent.
    verify byte-equality: the unversioned form IS the latest by contract, so inequality
    is a distribution fault to report loudly. Version identity comes from inside the
    artefact, never the filename.
+8. **Findings queue health.** Read `.working/aiqt/findings/QUEUE.md` (the findings-loop
+   document defines it) and report the unconsumed count, the oldest unconsumed age, and
+   the resurface-due count. Read-only; staleness is surfaced here, never auto-consumed.
+   A repository with no queue file reports an explicit NOT-CONFIGURED status (the local
+   runtime creates it at its first review run).

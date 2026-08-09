@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.71.1\
+**Version:** 1.72.0\
 **Date:** 2026-08-09\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -128,6 +128,7 @@ guardrails/
 │   ├── config-format.md        The adopter config.md spec: layout, bounded write set, consent
 │   ├── setup-wizard.md         Re-runnable onboarding wizard (writes only config.md)
 │   ├── doctor.md               Read-only health checks (incl. bounded-write-set verification)
+│   ├── findings-loop.md        Consumer-side findings lifecycle: validate, auto-fix-to-cap, escalate, queue
 │   ├── families.json           Reviewer family registry (Claude, Codex; extensible)
 │   ├── ci-kit/                 CI integration kit
 │   │   ├── README.md           Kit runbook: secrets, per-vendor auth, evidence policy
