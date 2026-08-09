@@ -137,10 +137,13 @@ def _last_trailer_indices(lines: list[str]) -> tuple[int, int] | None:
 # (label but no decision), "HOLD your response while I look" and "SHIP shape is
 # not a verdict" (decision followed by prose). The vpr-1467 r2 codex catch; the
 # decision tokens are case-SENSITIVE (uppercase only) per the r1 F6 note, so
-# lowercase prose like "this should hold" cannot satisfy them.
+# lowercase prose like "this should hold" cannot satisfy them. The
+# "verdict" LABEL is case-insensitive (VERDICT: HOLD is a real form); only
+# the DECISION token is case-sensitive. The separator is [:=] only, so a
+# malformed "Verdict(HOLD" is refused (the vpr-1467 r3 N1/N2 catches).
 _EOD_RE = re.compile(r"^END OF DELIVERY$")
 _TERMINAL_RE = re.compile(
-    r"^(?:#{1,6}\s+)?[*_\s]*(?:[Vv]erdict\b\s*[:=(-]?\s*)?[*_\s]*"
+    r"^(?:#{1,6}\s+)?[*_\s]*(?:(?i:verdict)\b\s*[:=]?\s*)?[*_\s]*"
     r"(?:SHIP|HOLD)\b(?:\s*\(advisory\))?[.):*_\s]*$")
 
 
@@ -597,6 +600,16 @@ def self_test() -> int:
         check(f"non-decision terminal-shaped prose refuses: {bad[:28]!r}",
               (r[0], r[1].startswith("fallback codex block carries no terminal")),
               (None, True))
+    # r3 N1: an all-caps verdict LABEL is a real terminal form and must be accepted.
+    for good in ("VERDICT: HOLD", "# VERDICT: SHIP", "Verdict: HOLD"):
+        r = extract_final_verdict(f"user\nbrief\ncodex\nreview body\n{good}")
+        check(f"uppercase/mixed verdict label accepted: {good!r}",
+              (r[1], f"review body\n{good}" == r[0]), ("fallback-only", True))
+    # r3 N2: a malformed "Verdict(HOLD" (unmatched paren separator) is refused.
+    r = extract_final_verdict("user\nbrief\ncodex\nVerdict(HOLD")
+    check("malformed Verdict(HOLD refuses (closed separator grammar)",
+          (r[0], r[1].startswith("fallback codex block carries no terminal")),
+          (None, True))
 
     check("single codex block WITH a terminal marker extracts (fallback-only)",
           extract_final_verdict("user\nbrief\ncodex\nonly block\nVerdict: HOLD"),
