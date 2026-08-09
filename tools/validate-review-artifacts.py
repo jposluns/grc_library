@@ -152,6 +152,8 @@ def validate_finding(obj) -> list[str]:
                 and _FINGERPRINT_RE.fullmatch(obj["fingerprint"] or "")
                 and _RULE_ID_RE.fullmatch(obj["ruleId"] or "")
                 and _LOCATION_RE.fullmatch(obj["location"] or "")):
+            # ruleId is lowercase-only by pattern today; .lower() is belt-and-braces
+            # for the contract's fingerprint-lowercase rule if the pattern ever widens.
             expected = f"{obj['ruleId'].lower()}:{obj['location']}"
             if obj["fingerprint"] != expected:
                 errors.append(
