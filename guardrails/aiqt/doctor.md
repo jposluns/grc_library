@@ -51,9 +51,9 @@ it upgrades to, and reports an explicit status rather than staying silent.
    standing surface for it, explicitly; `Off` disables the level, and a disabled
    level's surfaces are not checked); Level 2 enabled, the workflow file is present
    on the default branch; Level 3 enabled, the org secret is visible to the
-   repository. Where review artefacts are
-   present, they validate against the shipped contract (`review-contract.md`) and its
-   schemas (`schemas/finding.schema.json`, `schemas/verdict.schema.json`).
+   repository. Where review artefacts are present, they validate against
+   the shipped contract (`review-contract.md`) and its schemas
+   (`schemas/finding.schema.json`, `schemas/verdict.schema.json`).
 7. **Zip byte-equality.** Where both an unversioned and a versioned artefact are
    reachable (`aiqt.zip` vs the latest `aiqt-X.Y.Z.zip`; `cleanlanguage.zip` likewise),
    verify byte-equality: the unversioned form IS the latest by contract, so inequality

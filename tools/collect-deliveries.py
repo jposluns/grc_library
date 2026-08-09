@@ -304,15 +304,21 @@ def archive_served_order(root: Path, f: dict) -> None:
               "the delivery itself is collected.")
 
 
-def needs_attention(outcomes: list) -> bool:
+def needs_attention(outcomes: list | None) -> bool:
     """PURE. Name the outcomes that make the run exit non-zero.
 
     FAILED is a real loss of sweep completeness: a planned file neither moved nor copied.
     COPIED+UNMARKED lost nothing (the copy landed, size-verified) but the idempotency marker is
     missing, so the state needs the operator's eye until the next sweep's remark self-heal
     restores the marker. Everything else (MOVED, COPIED+MARKED, REMARKED) is a clean outcome.
+
+    ``outcomes`` is ``None`` on the non-executed --oneline / --dry-run paths (no outcomes
+    were produced); it is treated as nothing-needs-attention (the sibling report() models the
+    same value as ``list | None``).
     """
-    return any(o["outcome"] in ("FAILED", "COPIED+UNMARKED") for o in outcomes)
+    # None on the non-executed paths (--oneline / --dry-run) means no outcomes were produced,
+    # so nothing needs attention. Iterating None here was the #1467 regression (mistake 95).
+    return any(o["outcome"] in ("FAILED", "COPIED+UNMARKED") for o in (outcomes or []))
 
 
 def execute(plan: dict, root: Path, tray: Path, dry_run: bool) -> list:
@@ -328,7 +334,10 @@ def execute(plan: dict, root: Path, tray: Path, dry_run: bool) -> list:
     failure is caught, reported, and recorded so ONE bad file never aborts the rest of the
     sweep; the caller derives the exit code from the outcomes via needs_attention.
     """
-    tray.mkdir(parents=True, exist_ok=True)
+    # --dry-run / --oneline must change nothing: create the tray only for a real write
+    # (codex vpr-1468 finding 1; the unconditional mkdir mutated a genuinely empty root).
+    if not dry_run:
+        tray.mkdir(parents=True, exist_ok=True)
     outcomes = []
     for f in plan["move"]:
         dest = tray / compose_name(f["worker_id"], f["order_id"])
@@ -1018,6 +1027,33 @@ def self_test() -> int:
               sorted(o["outcome"] for o in outA), ["MOVED", "MOVED"])
         check("the archival mkdir failure is a NOTE naming the order and the cause",
               "NOTE: order copy for arch-one not archived" in outtext, True)
+
+    # --- end-to-end main() CLI: the two non-executed modes must NOT crash (mistake 95, the #1467
+    #     regression: needs_attention(None) raised TypeError AFTER the report printed; the report
+    #     tests above never exercised main()'s exit path). Assert the real exit code, not the output.
+    with tempfile.TemporaryDirectory() as td:
+        def _snap(r):
+            return sorted(x.relative_to(r).as_posix() for x in Path(r).rglob("*"))
+        # GENUINELY empty root: the earlier fixture pre-created inbox/deliveries and masked codex
+        # vpr-1468 finding 1 (--dry-run created the tray, violating "change nothing").
+        empty = _snap(td)
+        for mode in ("--oneline", "--dry-run"):
+            rc = main(["--root", td, mode])
+            check("main() " + mode + " exits 0 without crashing (needs_attention None-safe)", rc, 0)
+            check("main() " + mode + " mutated nothing on an empty root (no tray created)",
+                  _snap(td), empty)
+        # and with a ready delivery present (exercises the n_move path in both modes)
+        ob = Path(td) / "opus" / "outbox" / "w1"
+        ob.mkdir(parents=True)
+        (ob / "o1.md").write_text("body\n" + SENTINEL + "\n")
+        ready = _snap(td)
+        check("main() --oneline exits 0 with a ready delivery present",
+              main(["--root", td, "--oneline"]), 0)
+        check("main() --dry-run exits 0 with a ready delivery present (nothing moved)",
+              main(["--root", td, "--dry-run"]), 0)
+        check("--dry-run left the outbox intact", (ob / "o1.md").is_file(), True)
+        check("--dry-run/--oneline created no tray with a ready delivery present",
+              _snap(td), ready)
 
     if failures:
         print(f"\nself-test: FAILED ({len(failures)} of {total[0]})")

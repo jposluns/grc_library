@@ -2,7 +2,7 @@
 
 This directory is the Clean Language skill, VENDORED into grc_library from its upstream source.
 
-- **Source:** github.com/jposluns/ai-language, `clean-language/` (site: cleanlanguage.ai).
+- **Source:** github.com/jposluns/cleanlanguage, `clean-language/` (site: cleanlanguage.ai).
 - **Copyright / licence:** Copyright (c) 2026 Jeff Posluns; see `LICENSE` and `NOTICE.md` beside this
   file. The skill is licensed CC BY-SA 4.0 (the SAME licence grc_library uses), but under Jeff Posluns's
   OWN copyright and attribution, which are PRESERVED here rather than folded into the grc_library corpus
@@ -13,6 +13,15 @@ This directory is the Clean Language skill, VENDORED into grc_library from its u
   layout and does NOT resolve in this repo; the provenance record for the vendored copy is THIS file
   (`.claude/skills/clean-language/PROVENANCE.md`). The pointer is left as-is rather than edited, because
   editing it would diverge `NOTICE.md` from upstream and defeat the drift check (codex vpr1328 finding 4).
+- **The vendored `SKILL.md` `Github:` pointer is left at the UPSTREAM repo name** (the
+  pre-rename name it carries at line 11) for the SAME reason as `NOTICE.md`: `SKILL.md` is in
+  the drift check's `FILES` map (compared by git blob SHA), so editing it here would diverge it
+  from upstream and produce a permanent false DRIFT (claude vpr-1468 finding 1). The 2026-08-09
+  upstream-repo rename to `jposluns/cleanlanguage` was applied ONLY to THIS repo's own records
+  (this `PROVENANCE.md` and `tools/check-clean-language-upstream.py`, neither in `FILES`); the
+  vendored `SKILL.md` continues to track upstream, whose own `SKILL.md` still carries the old
+  name until upstream updates it. The GitHub rename redirects the API path, so the checker's
+  `cleanlanguage` path resolves.
 - **Installed:** 2026-08-01, from the CURRENT upstream. The ephemeral checkout it was first drawn from
   was already STALE (five of the six skill-content files had advanced), so every file here was re-fetched from upstream and
   verified in-sync by git blob SHA.
@@ -28,5 +37,5 @@ This directory is the Clean Language skill, VENDORED into grc_library from its u
   re-surfaces this at `/resume`, so a drift is noticed without the maintainer having to remember. The
   upstream paths differ by file (skill content under `clean-language/`, but `LICENSE` / `NOTICE.md` are
   upstream REPO-ROOT files); the tool holds each file's correct upstream path. On drift, re-fetch the
-  changed files from upstream (`gh api repos/jposluns/ai-language/contents/<upstream-path> --jq .content
+  changed files from upstream (`gh api repos/jposluns/cleanlanguage/contents/<upstream-path> --jq .content
   | base64 -d > <installed>`) and commit.
