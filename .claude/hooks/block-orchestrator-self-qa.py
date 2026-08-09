@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
-"""PreToolUse hook (Task / Agent): block every in-session Task/Agent dispatch.
+"""PreToolUse hook: block every in-session agent-spawning dispatch.
 
-KNOWN RESIDUE (scope): the settings.json matcher and DISPATCH_TOOLS below cover the
-Task and Agent tools, the maintainer-decided scope. Other harness surfaces that also
-spawn in-session agents billing the orchestrator account (for example a Workflow tool
-that fans out subagents, or a SendMessage that resumes one) are NOT covered here and
-are a candidate widening, tracked separately; do not read "block every dispatch" as
-covering tools outside Task/Agent.
+SCOPE. DISPATCH_TOOLS (and the settings.json matcher) cover every in-session tool that
+spawns or resumes a reasoning agent billing the orchestrator account: Task, Agent,
+Workflow (which fans out many subagents, up to the harness cap), and SendMessage (which
+resumes one). The set below is the authoritative list; if the harness later adds another
+agent-spawning tool, add it here and to the matcher.
 
 ACTIVE guardrail, wired on the Task|Agent PreToolUse matcher in
 `.claude/settings.json` by PR #1470.
@@ -93,7 +92,7 @@ from pathlib import Path
 BLOCK_SEVERITY = True
 
 # The settings matcher scopes the hook, and this set is the internal re-check.
-DISPATCH_TOOLS = {"Task", "Agent"}
+DISPATCH_TOOLS = {"Task", "Agent", "Workflow", "SendMessage"}
 
 WORKING_ROOT = Path(os.environ.get("GRC_DROP_ROOT", "/home/grc/grc_working"))
 
@@ -215,7 +214,8 @@ def _block_message(dispatch_text: str) -> str:
         "\n"
         "An in-session subagent is not an offload. It bills the orchestrator's "
         "account, which is the scarce resource. The guard blocks the entire "
-        "Task/Agent tool class because prompt classification is inherently leaky.\n"
+        "in-session agent-spawning tool class (Task, Agent, Workflow, SendMessage) because prompt "
+        "classification is inherently leaky.\n"
         "\n"
         "  Exec-dispatch a worker instead:\n"
         "    python3 /home/grc/grc_library/tools/exec-dispatch.py --dispatch \\\n"
@@ -337,6 +337,16 @@ def _self_test() -> int:
         def test_agent_blocks(self):
             self.assertEqual(
                 decide(dispatch(tool="Agent", prompt="do anything"))[0], "block"
+            )
+
+        def test_workflow_blocks(self):
+            self.assertEqual(
+                decide(dispatch(tool="Workflow", prompt="fan out a review"))[0], "block"
+            )
+
+        def test_sendmessage_blocks(self):
+            self.assertEqual(
+                decide(dispatch(tool="SendMessage", prompt="resume the agent"))[0], "block"
             )
 
         def test_research_and_drafting_dispatches_block(self):

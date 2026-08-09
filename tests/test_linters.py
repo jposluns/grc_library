@@ -1967,7 +1967,7 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
 
     def test_block_orchestrator_self_qa_hook_self_test(self) -> None:
         # Successor to the retired block-mandatory-offload.py (PR1a): blocks in-session
-        # Task/Agent reasoning offload unless an actor-created once-only sentinel authorizes.
+        # Task/Agent/Workflow/SendMessage reasoning offload unless an actor-created once-only sentinel authorizes.
         result = self._run_selftest(
             [sys.executable,
              str(REPO_ROOT / ".claude" / "hooks" / "block-orchestrator-self-qa.py"),

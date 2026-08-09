@@ -89,7 +89,7 @@
         ]
       },
       {
-        "matcher": "Task|Agent",
+        "matcher": "Task|Agent|Workflow|SendMessage",
         "hooks": [
           {
             "type": "command",
