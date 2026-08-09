@@ -56,9 +56,11 @@ Refusals (ignorance refuses, never a silent wrong or partial recovery):
   * a tray already holding an anchored delivery match for the worker refuses,
     listing the matching filename(s); --force recovers anyway (a same-worker
     different-order tray file can legitimately trip the guard)
-  * a fallback region (truncated log, no well-formed trailer) whose tail
-    carries NO terminal verdict marker refuses rather than recovering a bare
-    non-empty block
+  * a fallback region (truncated log, no well-formed trailer) containing NO
+    terminal verdict marker ANYWHERE refuses rather than recovering a bare
+    non-empty block (a marker on any line of the region satisfies the check;
+    a truncated log that ends on ordinary prose AFTER a verdict line is a
+    documented residual)
   * an unconfigured placeholder path exits 2 before any log or tray access
   * an already-existing recovery file is never overwritten (atomic hard-link
     publish; no check-then-write window)

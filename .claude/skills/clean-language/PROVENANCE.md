@@ -13,6 +13,7 @@ This directory is the Clean Language skill, VENDORED into grc_library from its u
   layout and does NOT resolve in this repo; the provenance record for the vendored copy is THIS file
   (`.claude/skills/clean-language/PROVENANCE.md`). The pointer is left as-is rather than edited, because
   editing it would diverge `NOTICE.md` from upstream and defeat the drift check (codex vpr1328 finding 4).
+- **The vendored `SKILL.md` `Github:` pointer is left at the UPSTREAM repo name** (`github.com/jposluns/ai-language`) for the SAME reason as `NOTICE.md`: `SKILL.md` is in the drift check's `FILES` map (compared by git blob SHA), so editing it here would diverge it from upstream and produce a permanent false DRIFT (claude vpr-1468 finding 1). The 2026-08-09 upstream-repo RENAME (`jposluns/ai-language` to `jposluns/cleanlanguage`) was applied ONLY to THIS repo's own records (this `PROVENANCE.md` and `tools/check-clean-language-upstream.py`, neither in `FILES`); the vendored `SKILL.md` continues to track upstream, whose own `SKILL.md` still carries the old name until upstream updates it. The GitHub rename redirects the API path, so the checker's `cleanlanguage` path resolves.
 - **Installed:** 2026-08-01, from the CURRENT upstream. The ephemeral checkout it was first drawn from
   was already STALE (five of the six skill-content files had advanced), so every file here was re-fetched from upstream and
   verified in-sync by git blob SHA.
