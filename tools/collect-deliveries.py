@@ -312,7 +312,9 @@ def needs_attention(outcomes: list) -> bool:
     missing, so the state needs the operator's eye until the next sweep's remark self-heal
     restores the marker. Everything else (MOVED, COPIED+MARKED, REMARKED) is a clean outcome.
     """
-    return any(o["outcome"] in ("FAILED", "COPIED+UNMARKED") for o in outcomes)
+    # None on the non-executed paths (--oneline / --dry-run) means no outcomes were produced,
+    # so nothing needs attention. Iterating None here was the #1467 regression (mistake 95).
+    return any(o["outcome"] in ("FAILED", "COPIED+UNMARKED") for o in (outcomes or []))
 
 
 def execute(plan: dict, root: Path, tray: Path, dry_run: bool) -> list:
@@ -1018,6 +1020,24 @@ def self_test() -> int:
               sorted(o["outcome"] for o in outA), ["MOVED", "MOVED"])
         check("the archival mkdir failure is a NOTE naming the order and the cause",
               "NOTE: order copy for arch-one not archived" in outtext, True)
+
+    # --- end-to-end main() CLI: the two non-executed modes must NOT crash (mistake 95, the #1467
+    #     regression: needs_attention(None) raised TypeError AFTER the report printed; the report
+    #     tests above never exercised main()'s exit path). Assert the real exit code, not the output.
+    with tempfile.TemporaryDirectory() as td:
+        (Path(td) / "inbox" / "deliveries").mkdir(parents=True)
+        for mode in ("--oneline", "--dry-run"):
+            rc = main(["--root", td, mode])
+            check("main() " + mode + " exits 0 without crashing (needs_attention None-safe)", rc, 0)
+        # and with a ready delivery present (exercises the n_move path in both modes)
+        ob = Path(td) / "opus" / "outbox" / "w1"
+        ob.mkdir(parents=True)
+        (ob / "o1.md").write_text("body\n" + SENTINEL + "\n")
+        check("main() --oneline exits 0 with a ready delivery present",
+              main(["--root", td, "--oneline"]), 0)
+        check("main() --dry-run exits 0 with a ready delivery present (nothing moved)",
+              main(["--root", td, "--dry-run"]), 0)
+        check("--dry-run left the outbox intact", (ob / "o1.md").is_file(), True)
 
     if failures:
         print(f"\nself-test: FAILED ({len(failures)} of {total[0]})")
