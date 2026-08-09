@@ -1980,6 +1980,37 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         )
         self.assertIn("OK", result.stderr)
 
+    def test_block_git_diff_content_dump_hook_self_test(self) -> None:
+        # PR1b (1.26.49): refuses a command that puts a +/- unified diff of file CONTENT on the
+        # console; hardened against order-sensitive suppression, shell-grammar/indirection evasions,
+        # console-vs-quiet redirects, and a heredoc-body false-block.
+        result = self._run_selftest(
+            [sys.executable,
+             str(REPO_ROOT / ".claude" / "hooks" / "block-git-diff-content-dump.py"),
+             "--self-test"]
+        )
+        self.assertEqual(
+            result.returncode, 0,
+            f"hook --self-test failed.\nstdout:\n{result.stdout}"
+            f"\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("self-test OK", result.stdout)
+
+    def test_block_large_editwrite_payload_hook_self_test(self) -> None:
+        # PR1b (1.26.49): warns when an Edit/Write payload is large enough to render a wall of
+        # diff in the console (the chat-hygiene HARD RULE's mechanical backstop).
+        result = self._run_selftest(
+            [sys.executable,
+             str(REPO_ROOT / ".claude" / "hooks" / "block-large-editwrite-payload.py"),
+             "--self-test"]
+        )
+        self.assertEqual(
+            result.returncode, 0,
+            f"hook --self-test failed.\nstdout:\n{result.stdout}"
+            f"\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("OK", result.stderr)
+
     def test_block_wrong_repo_tool_hook_self_test(self) -> None:
         # The repo-target guardrail (widened 2026-07-24 to block cwd-relative tools/<x>
         # and repo-mutating bare git); its 17-case --self-test gates the widening.
