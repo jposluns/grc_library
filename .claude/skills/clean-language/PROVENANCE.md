@@ -2,7 +2,7 @@
 
 This directory is the Clean Language skill, VENDORED into grc_library from its upstream source.
 
-- **Source:** github.com/jposluns/ai-language, `clean-language/` (site: cleanlanguage.ai).
+- **Source:** github.com/jposluns/cleanlanguage, `clean-language/` (site: cleanlanguage.ai).
 - **Copyright / licence:** Copyright (c) 2026 Jeff Posluns; see `LICENSE` and `NOTICE.md` beside this
   file. The skill is licensed CC BY-SA 4.0 (the SAME licence grc_library uses), but under Jeff Posluns's
   OWN copyright and attribution, which are PRESERVED here rather than folded into the grc_library corpus
@@ -28,5 +28,5 @@ This directory is the Clean Language skill, VENDORED into grc_library from its u
   re-surfaces this at `/resume`, so a drift is noticed without the maintainer having to remember. The
   upstream paths differ by file (skill content under `clean-language/`, but `LICENSE` / `NOTICE.md` are
   upstream REPO-ROOT files); the tool holds each file's correct upstream path. On drift, re-fetch the
-  changed files from upstream (`gh api repos/jposluns/ai-language/contents/<upstream-path> --jq .content
+  changed files from upstream (`gh api repos/jposluns/cleanlanguage/contents/<upstream-path> --jq .content
   | base64 -d > <installed>`) and commit.

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Clean-Language skill upstream-drift check (P-1.13): report when the vendored
 `.claude/skills/clean-language/` skill has diverged from its upstream at
-github.com/jposluns/ai-language, so a maintainer-invisible upstream update is surfaced.
+github.com/jposluns/cleanlanguage, so a maintainer-invisible upstream update is surfaced.
 
 The skill is Jeff Posluns's, vendored into this repo (see the skill's PROVENANCE.md). Upstream
 advances without a heads-up, so a MONTHLY time-bounded follow-up in TODO.md runs this at /resume.
@@ -34,7 +34,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SKILL_DIR = REPO_ROOT / ".claude" / "skills" / "clean-language"
-UPSTREAM_BASE = "repos/jposluns/ai-language/contents"
+UPSTREAM_BASE = "repos/jposluns/cleanlanguage/contents"
 # Every vendored file: LOCAL path (relative to the skill dir) -> UPSTREAM contents path.
 # The upstream paths differ by file: skill content is under ``clean-language/``, the icon assets
 # under ``clean-language/assets/``, but LICENSE and NOTICE.md are upstream REPO-ROOT files.
@@ -129,14 +129,14 @@ def main(argv: list[str]) -> int:
     drift = classify(local, upstream)
     if not drift:
         print(f"OK: all {len(FILES)} vendored clean-language file(s) are IN SYNC with upstream "
-              f"jposluns/ai-language.")
+              f"jposluns/cleanlanguage.")
         return 0
     print(f"DRIFT: {len(drift)} vendored clean-language file(s) differ from upstream "
-          f"jposluns/ai-language; re-fetch and re-vendor them:")
+          f"jposluns/cleanlanguage; re-fetch and re-vendor them:")
     for f in drift:
         print(f"  {f} (upstream {FILES[f]}): "
               f"local={ (local.get(f) or 'MISSING')[:8] } upstream={ (upstream.get(f) or 'MISSING')[:8] }")
-    print("Re-vendor each: `gh api repos/jposluns/ai-language/contents/<upstream-path> --jq .content "
+    print("Re-vendor each: `gh api repos/jposluns/cleanlanguage/contents/<upstream-path> --jq .content "
           "| base64 -d > .claude/skills/clean-language/<local-path>`, then commit + update PROVENANCE.md.")
     return 0
 

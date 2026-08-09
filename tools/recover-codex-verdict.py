@@ -56,6 +56,9 @@ Refusals (ignorance refuses, never a silent wrong or partial recovery):
   * a tray already holding an anchored delivery match for the worker refuses,
     listing the matching filename(s); --force recovers anyway (a same-worker
     different-order tray file can legitimately trip the guard)
+  * a fallback region (truncated log, no well-formed trailer) whose tail
+    carries NO terminal verdict marker refuses rather than recovering a bare
+    non-empty block
   * an unconfigured placeholder path exits 2 before any log or tray access
   * an already-existing recovery file is never overwritten (atomic hard-link
     publish; no check-then-write window)
@@ -198,8 +201,11 @@ def extract_final_verdict(text: str) -> tuple[str | None, str]:
     empty tail after the trailer refuses rather than falling back to an
     earlier block. When NO well-formed trailer exists (a truncated log), the
     LAST bare `codex` block runs to end-of-log and any bare marker line in
-    that region refuses. Success modes are exactly `trailer+fallback-agree`
-    and `fallback-only` (fallback-only marks a truncated log).
+    that region refuses; the region must ALSO contain a terminal verdict
+    marker (`_has_terminal_line`), or the fallback refuses (fail-closed on a
+    truncated log whose tail carries no terminal marker). Success modes are
+    exactly `trailer+fallback-agree` and `fallback-only` (fallback-only marks
+    a truncated log).
     """
     lines = text.splitlines()
     codex_idx = [i for i, ln in enumerate(lines) if ln.strip() == "codex"]
