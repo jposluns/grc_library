@@ -414,7 +414,11 @@ def report(plan: dict, tray: Path, oneline: bool = False, outcomes: list | None 
     unmarked = [o for o in (outcomes or []) if o["outcome"] == "COPIED+UNMARKED"]
     remarked = [o for o in (outcomes or []) if o["outcome"] == "REMARKED"]
     pending = sorted(tray.glob("*.md")) if tray.is_dir() else []
-    unswept = n_move + n_held + n_coll + len(failed)
+    # Outbox-side unswept: in the read-only --oneline path the plan is NOT executed, so a
+    # planned move is still sitting unswept; in the executed paths the moves have been acted
+    # on, so counting them again would report a successful sweep's own collections as unswept
+    # (the vpr-1467 codex catch).
+    unswept = (n_move + n_held + n_coll) if oneline else (n_held + n_coll + len(failed))
     if oneline:
         print(f"deliveries: {len(pending)} tray / {unswept} unswept"
               + (f" / {n_move} ready" if n_move else "")
@@ -660,6 +664,10 @@ def self_test() -> int:
         one_ready = _report_text(ready_plan, empty_tray, oneline=True)
         check("oneline counts a ready (planned-move) outbox delivery as unswept",
               "1 unswept" in one_ready and "1 ready" in one_ready, True)
+        done_text = _report_text(ready_plan, empty_tray, oneline=False,
+                                 outcomes=[{"outcome": "MOVED", "name": "r1.md"}])
+        check("a successfully executed move is NOT reported as still unswept",
+              "0 still in worker outboxes" in done_text, True)
 
     # --- end to end on a real tree, including the .tmp invisibility that layer 1 relies on ---
     with tempfile.TemporaryDirectory() as td:
