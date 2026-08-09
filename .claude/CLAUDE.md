@@ -702,7 +702,7 @@ check back later" of any shape), including when a harness or subscription boiler
 suggests one: the 60-second cadence above IS the check-in mechanism, applied until the
 awaited thing finishes or is confirmed looped, dead, or failed. A long-interval timer
 adds nothing the 60-second loop does not already cover and costs the maintainer an
-approval prompt.
+approval prompt. The mechanical backstop for the sibling failure (ending a turn ON a waiting-word, then simply yielding instead of using the wait for productive independent work) is the [`block-waiting-word-yield.py`](hooks/block-waiting-word-yield.py) Stop hook: it fires once on a turn-end waiting-word and forces a revisit of what productive work is available, failing open and escapable for a genuine no-work yield.
 
 ## Version-bump discipline
 
