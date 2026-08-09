@@ -1980,6 +1980,21 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         )
         self.assertIn("OK", result.stderr)
 
+    def test_block_waiting_word_yield_hook_self_test(self) -> None:
+        # Stop hook (1.26.48): nudges a productivity revisit when a turn ends on a
+        # waiting-word; loop-safe, escapable, fails open.
+        result = self._run_selftest(
+            [sys.executable,
+             str(REPO_ROOT / ".claude" / "hooks" / "block-waiting-word-yield.py"),
+             "--self-test"]
+        )
+        self.assertEqual(
+            result.returncode, 0,
+            f"hook --self-test failed.\nstdout:\n{result.stdout}"
+            f"\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("OK", result.stderr)
+
     def test_block_wrong_repo_tool_hook_self_test(self) -> None:
         # The repo-target guardrail (widened 2026-07-24 to block cwd-relative tools/<x>
         # and repo-mutating bare git); its 17-case --self-test gates the widening.
