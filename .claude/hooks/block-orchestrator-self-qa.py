@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
-"""PreToolUse hook (Task / Agent): block every in-session reasoning dispatch.
+"""PreToolUse hook (Task / Agent): block every in-session Task/Agent dispatch.
+
+KNOWN RESIDUE (scope): the settings.json matcher and DISPATCH_TOOLS below cover the
+Task and Agent tools, the maintainer-decided scope. Other harness surfaces that also
+spawn in-session agents billing the orchestrator account (for example a Workflow tool
+that fans out subagents, or a SendMessage that resumes one) are NOT covered here and
+are a candidate widening, tracked separately; do not read "block every dispatch" as
+covering tools outside Task/Agent.
 
 ACTIVE guardrail, wired on the Task|Agent PreToolUse matcher in
 `.claude/settings.json` by PR #1470.
@@ -57,7 +64,7 @@ is the right default here and the argument is empirical, not stylistic: the WARN
 arm of the predecessor is precisely the arm that fired during the week that was
 lost, and it changed nothing.
 
-REGISTER. Each BLOCK and each authorized BYPASS appends a row to
+REGISTER. Each BLOCK, each authorized BYPASS, and each FAIL-OPEN appends a row to
 `/home/grc/grc_working/guard-fires.tsv` when that file's directory is writable.
 Best-effort by order, `log_fire()` returns False rather than raising so a
 logging failure can never cost a block. The register currently has no reader,
@@ -116,24 +123,56 @@ def _is_dispatch(payload: dict) -> bool:
     return name in DISPATCH_TOOLS
 
 
-def _consume_sentinel() -> bool:
-    """Remove a regular-file sentinel once, returning True only on success.
+def _restore(claim) -> None:
+    """Move a claimed object back to the sentinel path (best-effort, never raises).
 
-    `lstat()` rejects symlinks as well as non-regular paths. `unlink()` is the
-    atomic consumption step. Absence, inspection failure, or removal failure is
-    failed authorization and returns False.
+    Used when the claimed object is not a regular file, or when a regular file could
+    not be consumed: the guard blocks and leaves the path as it found it, so a
+    directory or symlink someone placed there is not destroyed by a probe.
     """
     try:
-        sentinel_stat = SENTINEL.lstat()
+        claim.rename(SENTINEL)
     except OSError:
-        return False
-    if not stat.S_ISREG(sentinel_stat.st_mode):
+        try:
+            claim.unlink()
+        except OSError:
+            try:
+                os.rmdir(claim)
+            except OSError:
+                pass
+
+
+def _consume_sentinel() -> bool:
+    """Atomically CLAIM the sentinel, then validate and consume the claimed object.
+
+    The claim is a ``rename`` of the sentinel path to a private name in the same
+    directory. Rename is atomic and moves the EXACT object that was at the path, so
+    nothing can swap a symlink in between the type check and the removal (the TOCTOU a
+    separate lstat-then-unlink would allow). Bypass is granted ONLY when the claimed
+    object is a regular file and its removal succeeds. Absence, a claim failure, a
+    non-regular claimed object, or a removal failure is a failed authorization and
+    returns False; in the last two cases the object is restored so a probe leaves the
+    path unchanged. Concurrent dispatches rename to distinct private names and only one
+    rename of the single sentinel can succeed, so a race grants exactly one bypass.
+    """
+    claim = SENTINEL.with_name("." + SENTINEL.name + ".claim-" + str(os.getpid()))
+    try:
+        SENTINEL.rename(claim)              # atomic claim; fails if the sentinel is absent
+    except OSError:
         return False
     try:
-        SENTINEL.unlink()
+        regular = stat.S_ISREG(claim.lstat().st_mode)
     except OSError:
         return False
-    return True
+    if regular:
+        try:
+            claim.unlink()                  # consume the exact claimed regular file
+            return True
+        except OSError:
+            _restore(claim)                 # could not consume: restore + block (no bypass)
+            return False
+    _restore(claim)                         # non-regular: restore intact + block
+    return False
 
 
 def log_fire(event: str, detail: str) -> bool:
@@ -183,6 +222,9 @@ def _block_message(dispatch_text: str) -> str:
         "        --family {claude|codex} --model <model> "
         "--effort <low|medium|high|xhigh> \\\n"
         "        --account <account> --order-id <id> --prompt-file <path>\n"
+        "  (for a skeptical verifier, add --not-worker <authoring-worker-id> or "
+        "--not-account so the verifier never lands on the account that authored the "
+        "work).\n"
         "  (the prompt file must live under the job directory named in the "
         "_private worker-accounts config `wrapper.job_dir`; use --dry-run first "
         "to see eligible accounts and the pick).\n"
@@ -224,20 +266,27 @@ def decide(payload: dict):
 def main(argv: list) -> int:
     if len(argv) > 1 and argv[1] == "--self-test":
         return _self_test()
+    raw = sys.stdin.read() if not sys.stdin.isatty() else ""
     try:
-        payload = json.load(sys.stdin)
+        payload = json.loads(raw)
     except Exception:
+        # Fail open, but NOT silently: a payload-shape change must not degrade the
+        # guard to allow-all with no trace (the register is the human calibration record).
+        log_fire("FAIL-OPEN", "unparseable payload: " + raw[:200])
         return 0
     try:
         action, message = decide(payload)
-    except Exception:
+    except Exception as exc:
+        log_fire("FAIL-OPEN", type(exc).__name__ + ": " + raw[:200])
         return 0
     if action == "bypass":
         log_fire("BYPASS-AUTHORIZED", message.splitlines()[0])
         print(message, file=sys.stderr)
         return 0
     if action == "block":
-        log_fire("BLOCK", message.splitlines()[0])
+        # The register must record the OUTCOME, not the intent: under a WARN-mode flip
+        # (BLOCK_SEVERITY False) the dispatch is ALLOWED, so the row says so.
+        log_fire("BLOCK" if BLOCK_SEVERITY else "WARN-ALLOWED", message.splitlines()[0])
         print(message, file=sys.stderr)
         return 2 if BLOCK_SEVERITY else 0
     return 0
