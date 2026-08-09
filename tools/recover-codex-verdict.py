@@ -205,7 +205,7 @@ def extract_final_verdict(text: str) -> tuple[str | None, str]:
     LAST bare `codex` block runs to end-of-log and any bare marker line in
     that region refuses; the region must ALSO contain a terminal verdict
     marker (`_has_terminal_line`), or the fallback refuses (fail-closed on a
-    truncated log whose tail carries no terminal marker). Success modes are
+    truncated log carrying no terminal marker on any line). Success modes are
     exactly `trailer+fallback-agree` and `fallback-only` (fallback-only marks
     a truncated log).
     """
