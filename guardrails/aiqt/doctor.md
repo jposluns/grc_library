@@ -12,8 +12,12 @@ it upgrades to, and reports an explicit status rather than staying silent.
    grammar, including the dotted-qualifier production (one qualifier level; the first
    dot separates the setting name from the lowercase hostname qualifier); guardrail
    rows well-formed; unknown keys flagged, never deleted.
-2. **Bounded write set.** The security property: automated AIQT writes are limited to
-   `.working/aiqt/core/`, one auditable rule an adopter can verify at any time. TODAY
+2. **Bounded write set.** The security property: the two automated AIQT writers each
+   stay within their own root, the UPDATER within `.working/aiqt/core/` (behaviour-bearing
+   guardrail content) and the review RUNTIME within `.working/aiqt/findings/` plus the
+   config-file Usage section (operational records that never alter guardrail content),
+   two auditable rules an adopter can verify at any time. The findings records are
+   operational and are explicitly OUT of the managed-file scan's scope below. TODAY
    (no component-header grammar or managed-component manifest has shipped yet): the
    check verifies that `core/` exists wherever the config declares AIQT installed, and
    reports an explicit NOT-YET-ENFORCEABLE status for the outside-core managed-file

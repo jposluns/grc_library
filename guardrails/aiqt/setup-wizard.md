@@ -1,6 +1,6 @@
 # AIQT setup wizard
 
-Version: 1.0.2 (plain semver; the AIQT release train assigns release versioning once it
+Version: 1.0.3 (plain semver; the AIQT release train assigns release versioning once it
 exists)
 Status: Phase-1 procedure; re-runnable; executed by the adopter's assistant. Writes
 ONLY `.working/aiqt/config.md` (the user-owned file). It never writes into
@@ -14,13 +14,16 @@ decided, when, why, and usage since (read from config.md). Then:
    block: `AIQTVersion` (stamped from the installed release), `Level0=On`,
    `Level1=Automatic` (of the `Off` / `OnRequest` / `Automatic` set; the custom path
    offers all three), `Level1Steps=pre-push`, `Level2=Off` (offered again when a key
-   is loaded), `Level3=Off`, `Level4=Unavailable`, `AutoFix=On`, `PromotionPanel=Off`,
+   is loaded), `Level3=Off`, `Level4=Unavailable`, `AutoFix=On`, `ResurfaceDays=7`,
+   `EscalationChannel=pr-comment`, `PromotionPanel=Off`,
    `SpendNudge=On`, and the guardrail table skeleton (one row per installed core
    component at its installed version). The ONE exception: egress consent is still
    ASKED per origin (step 4), never defaulted, because consent is a decision only the
    adopter can make. Before the confirmation the wizard states plainly: "Auto-fix is on
    by default: the first findings from a CI review may arrive already part-fixed by
-   your assistant, capped at three tries before it asks you."
+   your assistant, capped at three tries before it asks you. Auto-fix governs FINDING
+   REMEDIATION only; whether an installed guardrail auto-UPDATES is the separate
+   per-guardrail `AutoUpdate` column, so auto-fix being on never means auto-update is."
 2. **Custom path.** One screen per capability: the two-to-three-sentence capability
    description, then the cost model at the point of choice (local review is
    plan-included; CI review is metered per run, with the spend nudge on by default).

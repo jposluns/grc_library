@@ -20,12 +20,12 @@ here silently blocks a merge.
 One state per finding, annotated in the findings record:
 
     POSTED -> validate -> VALIDATED -> (AutoFix=On) -> FIXING(try n) -> RESOLVED(auto-fixed)
-      |                      |                             |
-      |                      |                             +- fail at n=3 -> ESCALATED(loud alert)
-      |                      +- (AutoFix=Off) -----------------------------> ESCALATED(queued)
-      +- validation refutes -> REFUTED (refutation recorded, never actioned)
-      +- reviewed change gone -> WITHDRAWN (superseded; reason recorded)
-    ESCALATED -> developer decides -> RESOLVED(fixed) | OVERRIDDEN(reason + revert path)
+                             |                             |
+                             |                             +- fail at n=3 -> ESCALATED(loud alert)
+                             +- (AutoFix=Off) -----------------------------> ESCALATED(queued)
+                             +- validation refutes -> REFUTED (refutation recorded, never actioned)
+                             +- reviewed change gone -> WITHDRAWN (superseded; reason recorded)
+    ESCALATED -> developer decides -> RESOLVED(fixed) | OVERRIDDEN(reason + revert path) -> ACKNOWLEDGED
 
 - POSTED: as delivered by the reviewer, schema-valid, unactioned.
 - VALIDATED: re-derived against the CURRENT revision. A cited `path:line` is anchored
@@ -41,24 +41,37 @@ One state per finding, annotated in the findings record:
 - Cross-run finding identity, for the counter: findings match across review runs on
   the same change by `ruleId` + `path`. The fingerprint's line component drifts as
   fixes land, so exact-fingerprint matching would reset counters and the cap alert
-  could never fire. Residue, stated: `ruleId` + `path` can conflate two distinct
-  same-class defects in one file; the validation step confirms same-defect linkage
-  before incrementing, never trusting the key alone.
+  could never fire. Two residues, both stated: (a) `ruleId` + `path` can conflate two
+  distinct same-class defects in one file; (b) `review-contract.md` requires `ruleId`
+  stable only WITHIN a review, so two runs (possibly different pinned models) may label
+  the same defect class differently and reset its counter. The validation step confirms
+  same-defect linkage before incrementing, never trusting the key alone, which bounds
+  both residues; a future contract revision may promote `ruleId` to cross-run stability.
 - ESCALATED at n=3 is the LOUD ALERT: the consumer stops fixing that finding and
   alerts the developer through the configured channel (`EscalationChannel`) with (a)
   the finding, (b) the three attempts and why each failed, and (c) named options:
-  direct a fix / fix it yourself / merge anyway / override with a reason.
+  direct a fix / fix it yourself / merge anyway / override with a reason. The alert
+  ALWAYS lands: when the configured channel has no destination for the run (a
+  `pr-comment` channel on a `local-prepush` or `promotion` source, which has no PR),
+  the consumer FALLS BACK to the console, so a local finding that exhausts its tries
+  is never silently dropped.
 - OVERRIDDEN requires a recorded reason AND a revert path, and is re-surfaced at the
-  next session start until acknowledged.
+  next session start until the developer ACKNOWLEDGES it; acknowledgement is the
+  terminal queue state (`ACKNOWLEDGED`, section 3) that stops the re-surfacing.
 
 ## 3. Where findings wait, and how they are found
 
 - One record per review run, written by the LOCAL runtime (the session assistant or
   the local CLI): `.working/aiqt/findings/findings-<YYYYMMDD-HHMMSSZ>-<source>.md`
-  (`source`: `ci-pr<N>`, `local-prepush`, `promotion`), carrying the run's SARIF-lite
+  (`source`: `ci-pr<N>`, `local-prepush`, `local-review`, `promotion`), carrying the run's SARIF-lite
   findings plus the per-finding `state:` line the consumer updates in place.
-- One index: `.working/aiqt/findings/QUEUE.md`, one line per record file with state
-  UNCONSUMED / CONSUMED / RESURFACE-DUE. Discovery is one read.
+- One index: `.working/aiqt/findings/QUEUE.md`, one line per record file. The PERSISTED
+  state is `UNCONSUMED`, `CONSUMED`, or `ACKNOWLEDGED` (the terminal state for a record
+  whose overrides the developer has acknowledged). `RESURFACE-DUE` is a DERIVED view, an
+  `UNCONSUMED` record older than `ResurfaceDays`, computed at read time and never
+  persisted, so surfacing it requires no write (section 4). A record is `CONSUMED` only
+  when every finding it carries has reached a terminal disposition (RESOLVED / REFUTED /
+  WITHDRAWN / OVERRIDDEN-then-ACKNOWLEDGED). Discovery is one read.
 - Write boundary, stated: the review RUNTIME writes these operational records under
   `.working/aiqt/findings/`; the UPDATER never does (its sole write root stays
   `.working/aiqt/core/`, per the configuration format's write-boundary section).
@@ -68,20 +81,25 @@ One state per finding, annotated in the findings record:
   assistant next engages with the change (import on next local engagement). It
   upgrades to direct queue writes when the local CLI ships its CI-import step.
 - SESSION-START RULE: the consumer reads `QUEUE.md` FIRST at every AIQT session
-  start; an UNCONSUMED entry blocks new work until it is read and every finding is
-  dispositioned. Chat assistants without filesystem access carry the same rule as
-  prose: before new work, ask for the findings queue.
+  start; an UNCONSUMED entry is RAISED to the developer before new work, consistent
+  with the advisory posture (section 1), so the developer disposes of it or explicitly
+  defers, never a silent hard block. Chat assistants without filesystem access carry
+  the same rule as prose: before new work, ask for the findings queue.
 
 ## 4. Scheduled re-surface (no daemon)
 
-Check-on-opportunity: every LOCAL AIQT entry point (session start, the wizard, the
-doctor, a local review run) computes the age of every UNCONSUMED entry; older than
-`ResurfaceDays` flips it to RESURFACE-DUE and the entry is raised to the developer
-before new work. A repository with no activity has, by construction, nothing waiting
-on its findings. The doctor's findings-queue check reports queue health on demand.
-TODAY the CI lanes do not post reminder comments; that step upgrades into the kit
-when the scheduled trigger class ships, with deduplication one reminder per full
-window crossed, never one per run.
+Check-on-opportunity, NO PERSISTED FLIP: every LOCAL AIQT entry point (session start,
+the wizard, the doctor, a local review run) COMPUTES the age of every `UNCONSUMED`
+entry against `ResurfaceDays` and RAISES the ones past it (the derived `RESURFACE-DUE`
+view) to the developer before new work. Because the state is derived and never written,
+the read-only entry points honour their own contracts: the wizard still writes only
+`config.md`, and the doctor still writes nothing (its findings-queue check reports the
+derived counts on demand). A record leaves the derived-due view only when the writable
+runtime persists its transition to `CONSUMED`/`ACKNOWLEDGED`; an already-due record is
+therefore raised at EVERY entry point until that happens, not once. A repository with no
+activity has, by construction, nothing waiting on its findings. TODAY the CI lanes do
+not post reminder comments; that step upgrades into the kit when the scheduled trigger
+class ships, with deduplication one reminder per full window crossed, never one per run.
 
 ## 5. Decision points (advisory; the developer decides)
 
@@ -101,7 +119,8 @@ Three knobs in `.working/aiqt/config.md`, catalogued in the configuration format
 document: `AutoFix` (default On), `ResurfaceDays` (default 7), `EscalationChannel`
 (default pr-comment). `AutoFix` governs FINDING REMEDIATION only; the per-guardrail
 `AutoUpdate` column governs UPDATE CONSENT, a separate axis, so auto-fix-on is never
-read as auto-update-on (the wizard states the distinction).
+read as auto-update-on. The setup wizard states this distinction where it writes the
+two settings.
 
 ## 7. Phase boundaries
 

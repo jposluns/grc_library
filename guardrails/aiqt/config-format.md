@@ -21,13 +21,17 @@ The AIQT home in an adopter repository is `.working/aiqt/`:
 
 Stated plainly for security-minded adopters: the UPDATER's writes, the only automated
 writes that can change behaviour-bearing guardrail content, are limited to the `core/`
-directory by design. The review RUNTIME appends operational records only (the usage
-rows below, and findings records under `.working/aiqt/findings/` per the findings-loop
-document); records never alter guardrail content or your config decisions. The boundary is one auditable rule (the updater refuses to
-write outside `.working/aiqt/core/`), and the doctor's bounded-write-set check verifies
-the resulting state, on the honest ladder its own text states: what it can prove today,
-and the stronger scans it upgrades to as the component marker and managed-component
-manifest ship. Your files, and your config, are structurally out of the updater's reach.
+directory by design. The review RUNTIME appends and maintains operational records only
+(the usage rows below, and the findings records and queue under
+`.working/aiqt/findings/` per the findings-loop document, which it may update in place
+as findings change state); records never alter guardrail content or your config
+decisions. So there are TWO bounded automated writers, each with its own refuse-rule:
+the updater refuses to write outside `.working/aiqt/core/`, and the runtime refuses to
+write outside `.working/aiqt/findings/` (and the config-file Usage section). The
+doctor's bounded-write-set check verifies BOTH bounds, on the honest ladder its own
+text states: what it can prove today, and the stronger scans it upgrades to as the
+component marker and managed-component manifest ship. Your guardrail content and your
+config decisions are structurally out of BOTH writers' reach.
 
 ## 2. Grammar
 
@@ -66,7 +70,7 @@ above (the worked example below shows the literal form).
 | `Level4` | `Unavailable` | `Unavailable` | a future capability; present so the ladder reads completely |
 | `AutoFix` | `Off`, `On` | `On` | validate first, fix up to 3 tries, then a loud alert; finding remediation only, update consent is the per-guardrail `AutoUpdate` column |
 | `ResurfaceDays` | integer days | `7` | unconsumed findings older than this re-surface at every local AIQT entry point (findings-loop document) |
-| `EscalationChannel` | `pr-comment`, `console`, `both` | `pr-comment` | where loud alerts land: on the originating change, in the assistant session, or both |
+| `EscalationChannel` | `pr-comment`, `console`, `both` | `pr-comment` | where loud alerts land: on the originating change, in the assistant session, or both; a `pr-comment` channel falls back to the console when the run has no PR (local-prepush, promotion), so an alert is never lost |
 | `PromotionPanel` | `Off`, `On` | `Off` | full model panel at major and minor bumps (metered, rare by design) |
 | `SpendNudge` | `Off`, `On` | `On` | remind the user to check metered spend when CI review runs |
 | `EgressConsent.<origin>` | `granted`, `denied` | asked, never defaulted | ONE ORIGIN PER ENTRY; see below |
