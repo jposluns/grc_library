@@ -1,6 +1,6 @@
 # AIQT doctor
 
-Version: 1.0.4 (plain semver; the AIQT release train assigns release versioning once it
+Version: 1.0.5 (plain semver; the AIQT release train assigns release versioning once it
 exists)
 Status: Phase-1 procedure; READ-ONLY and re-runnable; one summary line per check;
 non-zero exit only on a definite fault (degraded-but-working states report and exit 0).
@@ -51,7 +51,7 @@ it upgrades to, and reports an explicit status rather than staying silent.
    standing surface for it, explicitly; `Off` disables the level, and a disabled
    level's surfaces are not checked); Level 2 enabled, the workflow file is present
    on the default branch; Level 3 enabled, the org secret is visible to the
-   repository. A disabled level's surfaces are not checked. Where review artefacts are
+   repository. Where review artefacts are
    present, they validate against the shipped contract (`review-contract.md`) and its
    schemas (`schemas/finding.schema.json`, `schemas/verdict.schema.json`).
 7. **Zip byte-equality.** Where both an unversioned and a versioned artefact are

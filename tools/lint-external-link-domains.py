@@ -90,7 +90,7 @@ ALLOW_LIST = {
     # citation publisher, so the citation-verification spec (§7) is not updated.
     "grclibrary.ai",
     # Clean Language, the maintainer's AI-writing editorial standard
-    # (jposluns/ai-language); linked from the CHANGELOG milestone entry.
+    # (jposluns/cleanlanguage); linked from the CHANGELOG milestone entry.
     "cleanlanguage.ai",
     # AIQT, the maintainer's cross-family QA product (the pack's aiqt/ subtree
     # schema $id namespace and publication orientation). Own domain, not a

@@ -5,9 +5,9 @@ The manifest ``tools/publication-manifest.json`` classifies every file under
 ``guardrails/`` for the one-way publication of the portable core: each file is
 CORE (publishes), ADAPTER-INPUT (a coding-agent adapter-generator source),
 GRC-ONLY (stays in grc_library), or EXCLUDED, with a disclosure status
-(PUBLIC / SANITIZE / WITHHELD). Origin: the 1.26.5 publication-classification
-work, a dual-family (Opus-5 + Codex) classification reconciled, Fable-confirmed,
-maintainer GO 2026-08-03.
+(PUBLIC / SANITIZE / WITHHELD). Origin: the publication-classification
+work closed in PR #1374, a dual-family (Opus-5 + Codex) classification
+reconciled, Fable-confirmed, maintainer GO 2026-08-03.
 
 This gate is the machine-validation the manifest exists to earn: it fails when
 

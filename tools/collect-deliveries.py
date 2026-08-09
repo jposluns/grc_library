@@ -3,7 +3,7 @@
 
 WHY. The exchange lays out a delivery at `<family>/outbox/<worker-id>/<order-id>.md`, so answering
 "what is delivered and unprocessed?" means walking every family crossed with every minted worker id.
-The orchestrator did exactly that by hand repeatedly on 2026-07-25 and still mis-reported the fleet
+The orchestrator once did exactly that by hand repeatedly and still mis-reported the fleet
 once. This tool collapses that to a single directory whose CONTENTS are the pending set, which is the
 same location-IS-the-status property that makes the drop channel reliable: nothing is parsed and
 nothing is inferred.
@@ -141,10 +141,14 @@ def plan_collection(facts: list, grandfather: bool = False) -> dict:
         #     source's CONTENT: a same-path rewrite after collection is skipped here, so
         #     owner-side hygiene (the P-3.235 class) is the remedy for a marked outbox, never
         #     this sweep.
-        # (0a) INCOMPLETENESS outranks remark: this tool only ever copies sentinel-complete
-        #     files, so a byte-identical twin of a sentinel-LESS source cannot be this tool's
-        #     work; freezing a still-writing file under a marker would mask its completed form.
-        #     A held file whose writer finishes collects normally on a later sweep.
+        # (0a) INCOMPLETENESS outranks remark ON ROUTINE RUNS: routinely this tool only copies
+        #     sentinel-complete files, so a byte-identical twin of a sentinel-LESS source cannot
+        #     be this tool's work; freezing a still-writing file under a marker would mask its
+        #     completed form. A held file whose writer finishes collects normally on a later
+        #     sweep. Under --grandfather-existing this precedence deliberately inverts: the flag
+        #     ASSUMES completeness for sentinel-less files (one-time migration, per its help
+        #     text), so an identical twin there reads as a prior grandfathered copy whose marker
+        #     write failed, and remark is the correct self-heal.
         # (0b) A marker-LESS COMPLETE source whose same-name tray file is BYTE-IDENTICAL routes to remark:
         #     an earlier copy landed but its marker write failed (COPIED+UNMARKED), so the only
         #     missing artefact is the marker itself. Residue, stated where remark is honoured:
@@ -410,13 +414,21 @@ def report(plan: dict, tray: Path, oneline: bool = False, outcomes: list | None 
     unmarked = [o for o in (outcomes or []) if o["outcome"] == "COPIED+UNMARKED"]
     remarked = [o for o in (outcomes or []) if o["outcome"] == "REMARKED"]
     pending = sorted(tray.glob("*.md")) if tray.is_dir() else []
-    unswept = n_held + n_coll + len(failed)
+    # Outbox-side unswept: in the read-only --oneline path the plan is NOT executed, so a
+    # planned move is still sitting unswept; in the executed paths the moves have been acted
+    # on, so counting them again would report a successful sweep's own collections as unswept
+    # (the vpr-1467 codex catch).
+    # Executed (outcomes is not None): moves are done, so the outbox count is held+coll+failed.
+    # Not executed (--oneline or --dry-run): the planned moves are still sitting unswept.
+    executed = outcomes is not None and not oneline
+    unswept = (n_held + n_coll + len(failed)) if executed else (n_move + n_held + n_coll)
     if oneline:
         print(f"deliveries: {len(pending)} tray / {unswept} unswept"
+              + (f" / {n_move} ready" if n_move else "")
               + (f" / {n_held} held" if n_held else "")
               + (f" / {len(failed)} FAILED" if failed else ""))
         return
-    n_done = n_move - len(failed) if outcomes is not None else n_move
+    n_done = (n_move - len(failed)) if executed else 0
     print(f"collect-deliveries: {n_done} collected"
           + (f" ({len(failed)} of {n_move} planned FAILED)" if failed else "")
           + f", {n_held} held back, {n_coll} collision(s); "
@@ -485,7 +497,7 @@ def working_root(explicit: str | None) -> Path | None:
 def self_test() -> int:
     """Pin every decision branch, each on a DISTINCT observable.
 
-    Written against the lesson from the 2026-07-25 discriminability audit, which found 28 self-test
+    Written against the lesson from a prior discriminability audit, which found 28 self-test
     sites across 8 tools in this repo whose cases could not detect the removal of the guard they
     named, because each asserted a value that several branches shared. So no case here asserts a bare
     boolean or a count alone: each asserts WHICH bucket a file landed in and WHERE it ended up, and
@@ -534,9 +546,10 @@ def self_test() -> int:
           has_sentinel(f"body\n{SENTINEL}\n\n\n"), True)
 
     # --- the pure planner: one case per bucket, asserting WHICH bucket ---
-    def fact(order_id, complete=True, tray_exists=False):
+    def fact(order_id, complete=True, tray_exists=False, tray_identical=False):
         return {"family": "opus", "worker_id": "w1", "order_id": order_id,
-                "name": f"{order_id}.md", "complete": complete, "tray_exists": tray_exists}
+                "name": f"{order_id}.md", "complete": complete, "tray_exists": tray_exists,
+                "tray_identical": tray_identical}
 
     p = plan_collection([fact("a"), fact("b", complete=False), fact("c", tray_exists=True)])
     check("planner routes a complete, non-colliding file to move",
@@ -562,6 +575,12 @@ def self_test() -> int:
           [f["order_id"] for f in
            plan_collection([fact("g2", complete=False, tray_exists=True)], grandfather=True)["collision"]],
           ["g2"])
+    check("a grandfathered sentinel-less file with a byte-identical tray twin self-heals via remark "
+          "(the flag assumes completeness; comment 0a's routine precedence deliberately inverts here)",
+          [b for b, fs in
+           plan_collection([fact("g4", complete=False, tray_exists=True, tray_identical=True)],
+                           grandfather=True).items() if fs],
+          ["remark"])
     check("grandfathering a complete file does not mark it grandfathered",
           plan_collection([fact("g3")], grandfather=True)["grandfathered"], [])
 
@@ -643,6 +662,30 @@ def self_test() -> int:
         one = _report_text(held_plan, empty_tray, oneline=True)
         check("oneline emits exactly one line", len(one.strip().splitlines()), 1)
         check("oneline still surfaces the held count", "held" in one, True)
+        ready_plan = {"move": [fact("r1")], "held_no_sentinel": [], "collision": [],
+                      "grandfathered": [], "remark": [], "already_collected": []}
+        one_ready = _report_text(ready_plan, empty_tray, oneline=True)
+        check("oneline counts a ready (planned-move) outbox delivery as unswept",
+              "1 unswept" in one_ready and "1 ready" in one_ready, True)
+        # The executed-path unswept figure must be EXECUTION-DEPENDENT, not merely
+        # "not oneline" (the vpr-1467 r2 catch: the prior test passed regardless of
+        # outcome). A MOVED item drops out of the outbox count; a FAILED one is
+        # retained via the failed bucket. Pin both directions.
+        moved_text = _report_text(ready_plan, empty_tray, oneline=False,
+                                  outcomes=[{"outcome": "MOVED", "name": "r1.md"}])
+        check("an executed MOVED move drops out of the still-in-outboxes count",
+              "0 still in worker outboxes" in moved_text, True)
+        failed_text = _report_text(ready_plan, empty_tray, oneline=False,
+                                   outcomes=[{"outcome": "FAILED", "name": "r1.md",
+                                              "family": "opus", "worker_id": "w1",
+                                              "reason": "permission denied"}])
+        check("a FAILED move is retained in the still-in-outboxes count",
+              "1 still in worker outboxes" in failed_text, True)
+        # N-B: the un-executed (--dry-run / outcomes=None, non-oneline) path must NOT report the
+        # planned move as collected; it is still unswept.
+        dry_text = _report_text(ready_plan, empty_tray, oneline=False, outcomes=None)
+        check("a non-executed (dry-run) report keeps the planned move unswept",
+              "1 still in worker outboxes" in dry_text and "0 collected" in dry_text, True)
 
     # --- end to end on a real tree, including the .tmp invisibility that layer 1 relies on ---
     with tempfile.TemporaryDirectory() as td:
@@ -1008,9 +1051,16 @@ def main(argv=None) -> int:
     # It previously routed through execute() in dry-run mode, which prints a WOULD COLLECT line per
     # candidate, so the statusline emitted N+1 lines instead of 1. The console is the maintainer's
     # live window and extra lines there are the specific harm the no-diffs-in-chat convention names.
-    outcomes = []
+    # outcomes is None on any NON-executed path (--oneline AND --dry-run), so report()'s
+    # unswept count keeps the planned moves instead of dropping them as collected. --dry-run
+    # still calls execute() for its WOULD-COLLECT lines, but its return never drives the count
+    # (the vpr-1467 r3 claude N-B catch: keying the count on `oneline` alone under-reported the
+    # dry-run status form).
+    outcomes = None
     if not a.oneline:
-        outcomes = execute(plan, root, tray, a.dry_run)
+        ran = execute(plan, root, tray, a.dry_run)
+        if not a.dry_run:
+            outcomes = ran
     report(plan, tray, a.oneline, outcomes)
     # The non-advisory exits, named by the pure needs_attention: a FAILED file (neither moved nor
     # copied, a real loss of sweep completeness) and a COPIED+UNMARKED file (copy landed, marker

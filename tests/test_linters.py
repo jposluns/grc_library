@@ -11150,7 +11150,7 @@ class PlaybookPointerIntegrityTests(LinterTestCase):
 
 
 class PublicationManifestTest(unittest.TestCase):
-    """Gate 83: publication-manifest sync (TODO 1.26.5). The decision is a pure
+    """Gate 83: publication-manifest sync (shipped in PR #1374). The decision is a pure
     function, so the failure modes are tested directly; the clean case is the
     real linter over the real manifest and tree."""
 

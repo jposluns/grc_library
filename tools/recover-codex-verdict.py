@@ -126,6 +126,47 @@ def _last_trailer_indices(lines: list[str]) -> tuple[int, int] | None:
     return None
 
 
+# Closed terminal-verdict grammar for FALLBACK-ONLY extraction (NO trailer). The
+# decision vocabulary is exactly SHIP and HOLD (uppercase, the project verdict
+# form). A line is terminal iff it is exactly END OF DELIVERY, OR, after an
+# optional leading heading marker, markdown emphasis, and an optional
+# `Verdict`/`Verdict:` label, its OPERATIVE remainder is one of those decision
+# tokens (with an optional `(advisory)` note and trailing punctuation/emphasis).
+# Incidental prose is rejected because its remainder is not a bare decision
+# token: "inspect the verdict schema" (no decision), "Verdict: schema notes"
+# (label but no decision), "HOLD your response while I look" and "SHIP shape is
+# not a verdict" (decision followed by prose). The vpr-1467 r2 codex catch; the
+# decision tokens are case-SENSITIVE (uppercase only) per the r1 F6 note, so
+# lowercase prose like "this should hold" cannot satisfy them. The
+# "verdict" LABEL is case-insensitive (VERDICT: HOLD is a real form); only
+# the DECISION token is case-sensitive. The separator is [:=] only, so a
+# malformed "Verdict(HOLD" is refused (the vpr-1467 r3 N1/N2 catches).
+# END OF DELIVERY in the bare OR wrapped HTML-comment form (the project sentinel is
+# the wrapped `<!-- END OF DELIVERY -->`, collect-deliveries.py SENTINEL).
+_EOD_RE = re.compile(r"^(?:END OF DELIVERY|<!--\s*END OF DELIVERY\s*-->)$")
+# The decision line. Optional heading + emphasis, an optional `PR VERDICT`/`Verdict:`
+# label (the `verdict` label is case-INsensitive; the DECISION token is not), the
+# uppercase decision, an optional `(advisory)` note, and an optional count
+# summary that follows a punctuation separator and STARTS WITH A DIGIT (a count),
+# e.g. `PR VERDICT: HOLD, 5 HIGH, 6 MEDIUM, 0 LOW.` and `**HOLD: 2 ERROR.**`. Prose
+# after the decision refuses whether or not it carries a separator, so both `HOLD
+# your response...` and `HOLD, your response...` are rejected (the latter has no
+# leading digit); the END-OF-DELIVERY wrapper halves are coupled, so a half-wrapped
+# `<!-- END OF DELIVERY` refuses (the vpr-1467 r3 claude N-A widening: the r3
+# grammar was too tight and rejected the project's dominant real verdict form).
+_TERMINAL_RE = re.compile(
+    r"^(?:#{1,6}\s+)?[*_\s]*"
+    r"(?:(?:(?i:pr)\s+)?(?i:verdict)\b\s*[:=]?\s*)?[*_\s]*"
+    r"(?:SHIP|HOLD)\b(?:\s*\(advisory\))?(?:\s*[,:|]\s*\d[\d\s,A-Za-z]*)?[.):*_\s]*$")
+
+
+def _has_terminal_line(text: str) -> bool:
+    """PURE. True when any stripped line is END OF DELIVERY or a bare SHIP/HOLD
+    verdict line (the closed terminal grammar); incidental prose is rejected."""
+    return any(_EOD_RE.match(s) or _TERMINAL_RE.match(s)
+               for s in (ln.strip() for ln in text.splitlines()))
+
+
 def _taint(text: str) -> str | None:
     """PURE. Why a candidate quotes transcript structure, or None when clean.
 
@@ -200,6 +241,13 @@ def extract_final_verdict(text: str) -> tuple[str | None, str]:
     if taint:
         return (None, f"fallback codex block is tainted: it {taint}; with no "
                       "tokens-used trailer the extraction cannot be disambiguated")
+    if not _has_terminal_line(region):
+        return (None, "fallback codex block carries no terminal-verdict marker "
+                      "(no structured END OF DELIVERY / verdict-heading / "
+                      "Verdict: / SHIP / HOLD line); a "
+                      "truncated log can end on an ordinary intermediate "
+                      "message, so an unmarked block refuses rather than "
+                      "publishing a possibly partial recovery")
     return (region, "fallback-only")
 
 
@@ -258,7 +306,8 @@ def compose_recovery(verdict: str, log_name: str, worker_id: str | None,
     The mode is one of exactly `trailer+fallback-agree` (rendered as-is) and
     `fallback-only` (rendered as the truncated-log wording below).
     """
-    extraction = ("trailer missing (truncated log): fallback extraction"
+    extraction = ("trailer missing (truncated log): fallback extraction of a "
+                  "terminal-marked block"
                   if mode == "fallback-only" else mode)
     head = [
         f"# {BANNER_MARK}: stranded codex verdict recovery",
@@ -549,16 +598,73 @@ def self_test() -> int:
         "exec",
         "/bin/sh -lc 'true'",
         "codex",
-        "# Verdict: SYNTHETIC-HOLD",
+        "# Verdict: HOLD",
         "Last synthetic block wins.",
     ])
     check("last codex block wins without a trailer (fallback-only)",
           extract_final_verdict(syn_multi),
-          ("# Verdict: SYNTHETIC-HOLD\nLast synthetic block wins.", "fallback-only"))
+          ("# Verdict: HOLD\nLast synthetic block wins.", "fallback-only"))
+    # Closed-vocabulary: a verdict-LABELLED line whose value is not a decision
+    # token, and a heading merely containing 'verdict', both refuse (r2 catch).
+    for bad in ("# How to inspect the verdict schema",
+                "Verdict: schema notes for the next reviewer",
+                "HOLD your response while I inspect the schema"):
+        r = extract_final_verdict(f"user\nbrief\ncodex\n{bad}")
+        check(f"non-decision terminal-shaped prose refuses: {bad[:28]!r}",
+              (r[0], r[1].startswith("fallback codex block carries no terminal")),
+              (None, True))
+    # r3 N1: an all-caps verdict LABEL is a real terminal form and must be accepted.
+    for good in ("VERDICT: HOLD", "# VERDICT: SHIP", "Verdict: HOLD"):
+        r = extract_final_verdict(f"user\nbrief\ncodex\nreview body\n{good}")
+        check(f"uppercase/mixed verdict label accepted: {good!r}",
+              (r[1], f"review body\n{good}" == r[0]), ("fallback-only", True))
+    # r3 N2: a malformed "Verdict(HOLD" (unmatched paren separator) is refused.
+    r = extract_final_verdict("user\nbrief\ncodex\nVerdict(HOLD")
+    check("malformed Verdict(HOLD refuses (closed separator grammar)",
+          (r[0], r[1].startswith("fallback codex block carries no terminal")),
+          (None, True))
+    # r3 N-A: the project's dominant real verdict forms and the WRAPPED sentinel accept.
+    for good in ("PR VERDICT: HOLD", "PR VERDICT: HOLD, 5 HIGH, 6 MEDIUM, 0 LOW.",
+                 "PR VERDICT: SHIP, 0 errors, 0 warnings, 0 notes.",
+                 "**HOLD: 2 ERROR, 0 WARNING.**", "<!-- END OF DELIVERY -->"):
+        r = extract_final_verdict(f"user\nbrief\ncodex\nreview body\n{good}")
+        check(f"real corpus terminal form accepted: {good[:34]!r}",
+              r[1] == "fallback-only", True)
+    # N-A residual guard: a space (not a punctuation separator) after the decision is prose.
+    r = extract_final_verdict("user\nbrief\ncodex\nHOLD your response while I look")
+    check("decision followed by a space+word still refuses (no punct separator)",
+          (r[0], r[1].startswith("fallback codex block carries no terminal")),
+          (None, True))
+    # r3 N-C: the case-sensitivity guard is DISCRIMINATED -- a lowercase decision refuses.
+    # (If _TERMINAL_RE were IGNORECASE this case would wrongly accept, so it detects that mutation.)
+    r = extract_final_verdict("user\nbrief\ncodex\nverdict: hold")
+    check("lowercase decision token refuses (case-sensitivity guard, N-C discriminator)",
+          (r[0], r[1].startswith("fallback codex block carries no terminal")),
+          (None, True))
+    # r4 N-A residuals: prose after a punctuation separator (no leading digit) refuses,
+    # and a half-wrapped sentinel refuses (the wrapper halves are coupled).
+    for bad in ("HOLD, your response while I look", "HOLD|your response while I look",
+                "<!-- END OF DELIVERY", "END OF DELIVERY -->"):
+        r = extract_final_verdict(f"user\nbrief\ncodex\n{bad}")
+        check(f"r4 residual refuses: {bad[:30]!r}",
+              (r[0], r[1].startswith("fallback codex block carries no terminal")),
+              (None, True))
 
-    check("single codex block extracts (fallback-only)",
-          extract_final_verdict("user\nbrief\ncodex\nonly block"),
-          ("only block", "fallback-only"))
+    check("single codex block WITH a terminal marker extracts (fallback-only)",
+          extract_final_verdict("user\nbrief\ncodex\nonly block\nVerdict: HOLD"),
+          ("only block\nVerdict: HOLD", "fallback-only"))
+    got_incidental = extract_final_verdict(
+        "user\nbrief\ncodex\ninspect the verdict schema, and this should hold.")
+    check("incidental mid-line verdict/hold prose refuses (structural grammar)",
+          (got_incidental[0], got_incidental[1].startswith(
+              "fallback codex block carries no terminal-verdict marker")),
+          (None, True))
+    got_intermediate = extract_final_verdict(
+        "user\nbrief\ncodex\nIntermediate note, not terminal.")
+    check("an unmarked intermediate final block refuses (terminal grammar)",
+          (got_intermediate[0], got_intermediate[1].startswith(
+              "fallback codex block carries no terminal-verdict marker")),
+          (None, True))
     check("exec-only log refuses (no agent-message block anywhere)",
           extract_final_verdict("user\nbrief\nexec\n/bin/sh -lc 'true'"),
           (None, _NO_BLOCK_REASON))
@@ -620,8 +726,8 @@ def self_test() -> int:
           (got[0], "tainted" in got[1]), (None, True))
 
     check("indented codex label recognized (markers matched after strip)",
-          extract_final_verdict("user\nbrief\n  codex  \nonly block"),
-          ("only block", "fallback-only"))
+          extract_final_verdict("user\nbrief\n  codex  \nonly block\nVerdict: HOLD"),
+          ("only block\nVerdict: HOLD", "fallback-only"))
     got = extract_final_verdict("codex\nbody line\n  exec  \nignored")
     check("indented marker taints a fallback-only block (strip matching)",
           (got[0], "tainted" in got[1]), (None, True))
