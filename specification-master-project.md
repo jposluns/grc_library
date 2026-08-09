@@ -2,8 +2,8 @@
 
 **Document Title:** Master Project Specification\
 **Document Type:** Specification\
-**Version:** 1.6.13\
-**Date:** 2026-08-08\
+**Version:** 1.6.15\
+**Date:** 2026-08-09\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Risk Officer\
 **Related Documents:** [`specification-ingestion.md`](specification-ingestion.md), [`instruction-ai-document-ingestion.md`](instruction-ai-document-ingestion.md), [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md)\
@@ -197,6 +197,20 @@ The library version is `YYYY.MM.patch` where:
 - `patch` is a sequential counter that increments on every merge to `main` within the same `YYYY.MM` window. It resets to `0` when the month rolls over.
 
 Examples: `2026.05.0`, `2026.05.7`, `2026.06.0`, `2026.12.42`.
+
+> **Historical discontinuity (recorded 2026-08-09, Sweep 154).** `patch` is sequential BY INTENT, but
+> the historical record contains a small number of gaps where a patch number appears on no merge to
+> `main`. A walk of the full `Library Version` history finds ten such gap sites, across the 2026.06,
+> 2026.07, and 2026.08 windows (the earliest is `2026.07.641`, already noted in
+> `tools/lint-changelog-mirror-header-parity.py`). Each sits between two contiguously-numbered,
+> both-merged PRs, so the observed cause is within a merge, not a missing PR: a candidate version
+> superseded before its PR merged (for example `2026.08.164`, assigned on PR #1465's branch then
+> revised to `2026.08.165` before merge), or a `Library Version` bumped by more than one on a single
+> merge. A PR that never merges consumes no patch number, so it cannot produce a gap. These
+> historical gaps do not violate the go-forward sequential intent. No current gate detects them (the
+> library-version monotonicity gate asserts only that the version never decreases, and the CHANGELOG
+> mirror-parity gate's strictly-decreasing check no-ops without the private mirror; a skipped number
+> satisfies both); a forward-looking continuity check is a planned gate (P-3.240).
 
 #### Why CalVer
 
