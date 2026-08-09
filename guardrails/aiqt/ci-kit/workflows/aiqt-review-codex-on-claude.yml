@@ -1,0 +1,108 @@
+name: AIQT second opinion (Codex reviews Claude-authored change)
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aiqt-codex-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  # Models PIN per AIQT release; bump deliberately and record the bump.
+  AIQT_CODEX_MODEL: gpt-5.2-codex
+  # The canonical brief, as installed on the DEFAULT branch (see the kit README).
+  AIQT_BRIEF_PATH: .github/aiqt/aiqt-review.md
+
+jobs:
+  codex-second-opinion:
+    if: >
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.draft == false &&
+      !contains(github.event.pull_request.title, '[skip aiqt]') &&
+      (startsWith(github.event.pull_request.head.ref, 'claude/') ||
+       contains(fromJSON('["claude[bot]"]'), github.event.pull_request.user.login))
+    runs-on: ubuntu-latest
+    outputs:
+      final_message: ${{ steps.run_codex.outputs.final-message }}
+    steps:
+      # PROMPT-INJECTION GUARD: the brief is staged from the DEFAULT branch,
+      # never read from the pull-request head, so a PR cannot rewrite the
+      # instructions a secret-bearing reviewer step consumes.
+      - name: Fetch the canonical brief from the default branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          path: .aiqt-base
+          sparse-checkout: |
+            .github/aiqt
+
+      - name: Render the brief for this lane
+        run: |
+          {
+            echo 'Lane header: this change was authored with a Claude-family assistant;'
+            echo "you are the Codex-family check. Reviewer model pin: ${AIQT_CODEX_MODEL}."
+            echo ''
+            cat ".aiqt-base/${AIQT_BRIEF_PATH}"
+          } > "${RUNNER_TEMP}/aiqt-codex-prompt.md"
+
+      - name: Check out the pull-request revision
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Codex advisory review
+        id: run_codex
+        uses: openai/codex-action@v1
+        with:
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          # Scope guard. The vendor marks `sandbox` as Legacy; see the kit
+          # README for the successor note.
+          sandbox: read-only
+          model: ${{ env.AIQT_CODEX_MODEL }}
+          # The cross-family filter selects claude[bot]-authored PRs, so the
+          # selected bot must be allowed to trigger the action.
+          allow-bots: true
+          allow-bot-users: claude[bot]
+          prompt-file: ${{ runner.temp }}/aiqt-codex-prompt.md
+          output-file: ${{ runner.temp }}/aiqt-codex-review.md
+
+      - name: Persist evidence artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aiqt-codex-review-${{ github.event.pull_request.number }}-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/aiqt-codex-prompt.md
+            ${{ runner.temp }}/aiqt-codex-review.md
+          retention-days: 90
+          if-no-files-found: error
+
+  post-feedback:
+    needs: codex-second-opinion
+    if: needs.codex-second-opinion.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Post advisory comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = [
+              '## AIQT second opinion (Codex, advisory)',
+              '',
+              process.env.CODEX_MESSAGE || '(no message returned)'
+            ].join('\n');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body,
+            });
+        env:
+          CODEX_MESSAGE: ${{ needs.codex-second-opinion.outputs.final_message }}
