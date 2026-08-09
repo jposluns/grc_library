@@ -664,10 +664,20 @@ def self_test() -> int:
         one_ready = _report_text(ready_plan, empty_tray, oneline=True)
         check("oneline counts a ready (planned-move) outbox delivery as unswept",
               "1 unswept" in one_ready and "1 ready" in one_ready, True)
-        done_text = _report_text(ready_plan, empty_tray, oneline=False,
-                                 outcomes=[{"outcome": "MOVED", "name": "r1.md"}])
-        check("a successfully executed move is NOT reported as still unswept",
-              "0 still in worker outboxes" in done_text, True)
+        # The executed-path unswept figure must be EXECUTION-DEPENDENT, not merely
+        # "not oneline" (the vpr-1467 r2 catch: the prior test passed regardless of
+        # outcome). A MOVED item drops out of the outbox count; a FAILED one is
+        # retained via the failed bucket. Pin both directions.
+        moved_text = _report_text(ready_plan, empty_tray, oneline=False,
+                                  outcomes=[{"outcome": "MOVED", "name": "r1.md"}])
+        check("an executed MOVED move drops out of the still-in-outboxes count",
+              "0 still in worker outboxes" in moved_text, True)
+        failed_text = _report_text(ready_plan, empty_tray, oneline=False,
+                                   outcomes=[{"outcome": "FAILED", "name": "r1.md",
+                                              "family": "opus", "worker_id": "w1",
+                                              "reason": "permission denied"}])
+        check("a FAILED move is retained in the still-in-outboxes count",
+              "1 still in worker outboxes" in failed_text, True)
 
     # --- end to end on a real tree, including the .tmp invisibility that layer 1 relies on ---
     with tempfile.TemporaryDirectory() as td:

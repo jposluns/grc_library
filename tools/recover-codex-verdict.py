@@ -126,29 +126,29 @@ def _last_trailer_indices(lines: list[str]) -> tuple[int, int] | None:
     return None
 
 
-# Terminal-verdict discriminator for FALLBACK-ONLY extraction (NO trailer): a
-# recoverable final block must look terminal, not intermediate, and the test is
-# STRUCTURAL, matched per line at line start (the vpr-1467 codex catch: a bare
-# word-boundary match accepted incidental prose such as "inspect the verdict
-# schema" or "this should hold"). Accepted terminal forms, each a line shape:
-# a bare END OF DELIVERY line; a heading naming a verdict; a "Verdict:"-style
-# labelled line; an uppercase SHIP or HOLD opening a line. An ordinary mid-run
-# message carries none of these, so requiring one keeps a truncated log's last
-# intermediate message out of the tray (refuse-on-ambiguity, the tool's
-# integrity contract).
-_TERMINAL_LINE_RES = (
-    re.compile(r"^END OF DELIVERY$"),
-    re.compile(r"^#{1,6}\s.*\bverdicts?\b", re.IGNORECASE),
-    re.compile(r"^verdicts?\s*[:=]", re.IGNORECASE),
-    re.compile(r"^(SHIP|HOLD)\b"),
-)
+# Closed terminal-verdict grammar for FALLBACK-ONLY extraction (NO trailer). The
+# decision vocabulary is exactly SHIP and HOLD (uppercase, the project verdict
+# form). A line is terminal iff it is exactly END OF DELIVERY, OR, after an
+# optional leading heading marker, markdown emphasis, and an optional
+# `Verdict`/`Verdict:` label, its OPERATIVE remainder is one of those decision
+# tokens (with an optional `(advisory)` note and trailing punctuation/emphasis).
+# Incidental prose is rejected because its remainder is not a bare decision
+# token: "inspect the verdict schema" (no decision), "Verdict: schema notes"
+# (label but no decision), "HOLD your response while I look" and "SHIP shape is
+# not a verdict" (decision followed by prose). The vpr-1467 r2 codex catch; the
+# decision tokens are case-SENSITIVE (uppercase only) per the r1 F6 note, so
+# lowercase prose like "this should hold" cannot satisfy them.
+_EOD_RE = re.compile(r"^END OF DELIVERY$")
+_TERMINAL_RE = re.compile(
+    r"^(?:#{1,6}\s+)?[*_\s]*(?:[Vv]erdict\b\s*[:=(-]?\s*)?[*_\s]*"
+    r"(?:SHIP|HOLD)\b(?:\s*\(advisory\))?[.):*_\s]*$")
 
 
 def _has_terminal_line(text: str) -> bool:
-    """PURE. True when any stripped line matches a structured terminal form."""
-    return any(rx.search(ln.strip())
-               for ln in text.splitlines()
-               for rx in _TERMINAL_LINE_RES)
+    """PURE. True when any stripped line is END OF DELIVERY or a bare SHIP/HOLD
+    verdict line (the closed terminal grammar); incidental prose is rejected."""
+    return any(_EOD_RE.match(s) or _TERMINAL_RE.match(s)
+               for s in (ln.strip() for ln in text.splitlines()))
 
 
 def _taint(text: str) -> str | None:
@@ -582,12 +582,21 @@ def self_test() -> int:
         "exec",
         "/bin/sh -lc 'true'",
         "codex",
-        "# Verdict: SYNTHETIC-HOLD",
+        "# Verdict: HOLD",
         "Last synthetic block wins.",
     ])
     check("last codex block wins without a trailer (fallback-only)",
           extract_final_verdict(syn_multi),
-          ("# Verdict: SYNTHETIC-HOLD\nLast synthetic block wins.", "fallback-only"))
+          ("# Verdict: HOLD\nLast synthetic block wins.", "fallback-only"))
+    # Closed-vocabulary: a verdict-LABELLED line whose value is not a decision
+    # token, and a heading merely containing 'verdict', both refuse (r2 catch).
+    for bad in ("# How to inspect the verdict schema",
+                "Verdict: schema notes for the next reviewer",
+                "HOLD your response while I inspect the schema"):
+        r = extract_final_verdict(f"user\nbrief\ncodex\n{bad}")
+        check(f"non-decision terminal-shaped prose refuses: {bad[:28]!r}",
+              (r[0], r[1].startswith("fallback codex block carries no terminal")),
+              (None, True))
 
     check("single codex block WITH a terminal marker extracts (fallback-only)",
           extract_final_verdict("user\nbrief\ncodex\nonly block\nVerdict: HOLD"),
