@@ -2,13 +2,21 @@
 """PreToolUse hook (Edit / Write / MultiEdit): a large tool payload IS the forbidden console wall.
 
 PR1b ACTIVATION CANDIDATE, hardened 2026-08-09 against the seed deep review
-(`inbox/deliveries/seed-review-pr1b-codex.md`). Wiring: install as
-`.claude/hooks/block-large-editwrite-payload.py` under a DEDICATED matcher
-`"Edit|Write|MultiEdit"`, command
+(`inbox/deliveries/seed-review-pr1b-codex.md`) and re-hardened 2026-08-09 against the dual-family
+validation of PR #1472 (`inbox/deliveries/vpr-1472-codex.md` findings 7, 8, 9, 10 and
+`inbox/deliveries/vpr-1472-claude.md` F9 / F10).
+
+WIRING, as SHIPPED and as verified against the file it is wired in. This hook lives at
+`.claude/hooks/block-large-editwrite-payload.py` and `.claude/settings.json` wires it under the
+PreToolUse matcher `"Edit|Write"` (see WIRED_MATCHER below), command
 `python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/block-large-editwrite-payload.py`.
-The pinned settings only has `"Edit|Write"`, so leaving that matcher unchanged makes the MultiEdit
-support here dead code and leaves MultiEdit an open bypass. A dedicated entry also avoids silently
-invoking every existing Edit/Write sibling hook on MultiEdit payloads they were never tested against.
+A hook matcher is an UNANCHORED regex over the tool name, so `"Edit|Write"` also matches
+`MultiEdit`, which is the working assumption the repo already documents for the sibling hook on the
+same matcher (`.claude/hooks/block-public-working-write.py:15`, "Fires on Edit, Write, MultiEdit,
+NotebookEdit, and Bash"). The MultiEdit support below is therefore LIVE, not dead code, and no
+third alternative in the matcher is needed. `settings_matcher()` re-reads that JSON so this
+paragraph is checked MECHANICALLY by the self-test instead of trusted; if the wiring is ever
+changed, the self-test fails until this paragraph is changed with it.
 
 WHY THIS EXISTS. The Edit and Write tools RENDER their payload as a red/green diff in the console.
 That render is not a side effect of the edit, it IS the wall the "never render a file diff in chat"
@@ -38,9 +46,24 @@ WHAT IT MEASURES, and this is the part the seed got wrong twice.
     * TOTALS are summed across every edit in the call, so a MultiEdit is measured as the wall the
       maintainer actually sees. This REVERSES the seed's stated "largest single edit, not the sum"
       decision, on the review's finding that the old rule contradicted the hook's own headline.
+    * REPLACE_ALL is multiplied out. An Edit with `replace_all: true` renders ONE HUNK PER
+      OCCURRENCE, so the per-occurrence delta is counted once for the per-hunk thresholds and
+      TIMES the occurrence count for the totals. The count is read from the target under the same
+      size contract as Write; when it cannot be established the count is UNKNOWN_MULTIPLICITY, a
+      conservative stand-in that WARNS rather than failing open (`kind` is marked `assumed` so the
+      register can exclude those rows from threshold calibration).
     * Write to an EXISTING file diffs the new `content` against the file on disk, so a byte-identical
       rewrite renders nothing and no longer warns.
-    * LINES and CHARACTERS are evaluated INDEPENDENTLY, never selected against each other.
+    * Write to an existing file the hook CANNOT READ for comparison (over MAX_COMPARE_BYTES, or an
+      unreadable path) counts EVERY existing row as removed and every new row as added, because
+      without the old text there is no common context to trim. This is what makes an oversized
+      DELETION visible: `content: ""` against a 1,100,000-line file measured ZERO before, since the
+      fallback measured only the empty new payload.
+    * Write that CREATES a file is measured too, as a pure green block (see design decision 3).
+    * LINES and CHARACTERS are evaluated INDEPENDENTLY, never selected against each other. Both are
+      counted the same way on every path: `rendered_delta` is the single entry point, so characters
+      always EXCLUDE line terminators. The one exception is documented at `_uncomparable_delta`,
+      where the existing side can only be had as a BYTE size, which over-counts by its newlines.
 
   Four thresholds, tripped independently, first hit named in the message:
       LINE_THRESHOLD        per hunk, rendered rows
@@ -72,11 +95,15 @@ THE DESIGN DECISIONS, surfaced deliberately because they are the reviewable subs
      orchestrator to calibrate rather than accept, and the register below now produces the data to
      do it.
 
-  3. A Write that CREATES a file is still allowed at any size (WARN_ON_LARGE_CREATE = False). There
-     is no red/green comparison and no sanctioned `sed -i` alternative for a file that does not
-     exist yet, and the pinned hard-rule sentence is limited to changes to EXISTING files. This is a
-     REAL hole in the "a large tool payload is the wall" headline -- a 5,000-line create does render
-     5,000 green rows -- so it is a constant the orchestrator can flip, not a silent exclusion.
+  3. A Write that CREATES a file is MEASURED and WARNED (WARN_ON_LARGE_CREATE = True). The seed set
+     this False, reasoning that there is no red/green comparison and no sanctioned `sed -i`
+     alternative for a file that does not exist yet, and that the pinned hard-rule sentence is
+     limited to changes to EXISTING files. Validation rejected that reasoning as the largest hole in
+     the hook's own headline: a 5,000-line create renders 5,000 green rows, which is the wall the
+     rule exists to prevent, and the absence of a `sed` remedy does not make the payload small.
+     There IS a rendering-free remedy for a create, and the warning names it: a quoted heredoc
+     (`cat > <file> <<'EOF'`). The constant remains, so the behaviour is a calibration decision the
+     orchestrator can revert exactly, but its default is now True.
 
 REGISTER -- IMPLEMENTED, no longer deferred. The seed said WARN for a week, then calibrate from
 register data, while also saying this hook does not log fires; that combination cannot produce the
@@ -93,7 +120,9 @@ WHAT THE REGISTER MUST SHOW BEFORE THE SEVERITY FLIP:
   * the distribution of rendered rows and characters at the fire, so the thresholds are set at a
     real knee rather than at 6;
   * the share of fires tripped by TOTAL_* rather than the per-hunk thresholds, which decides whether
-    batching is being punished or correctly caught.
+    batching is being punished or correctly caught;
+  * the share of fires whose `kind` carries `assumed` or `uncomparable`, which are ESTIMATES and
+    must be excluded from any threshold arithmetic drawn from the other rows.
 
 ESCAPE, and it is a FILE, not an environment variable. `touch /home/grc/grc_working/.allow-large-edit`
 is honoured ONCE and consumed. An env var was considered and REJECTED for a concrete reason recorded
@@ -107,11 +136,13 @@ symlink, a permission failure or a race could all grant an unconsumable standing
 sentinel is still only tested AFTER a threshold trips, so an ordinary small edit cannot burn it.
 At the WARN default the escape is inert; it exists so the flip to "block" is a one-token change.
 
-PATH CONTRACT for Write. `file_path` is expected to be ABSOLUTE. A relative path is resolved against
-`CLAUDE_PROJECT_DIR` first and the hook process cwd second, because the hook process cwd is not the
-tool call's cwd and an existing project file must not be mistaken for a new file (which would skip
-the guard entirely). If the harness ever guarantees absolute paths, this fallback becomes dead code
-and can be deleted; until it is verified, the fallback is the safe reading.
+PATH CONTRACT for Write, and now for a replace_all Edit as well. `file_path` is expected to be
+ABSOLUTE. A relative path is resolved against `CLAUDE_PROJECT_DIR` first and the hook process cwd
+second, because the hook process cwd is not the tool call's cwd and an existing project file must not
+be mistaken for a new file (which previously skipped the guard entirely, and now downgrades a
+red/green measurement to a green-block one). If the harness ever guarantees absolute paths, this
+fallback becomes dead code and can be deleted; until it is verified, the fallback is the safe
+reading.
 
 Exit protocol (Claude Code hooks): exit 0 allows the tool call; exit 2 blocks it and feeds stderr
 back to the model as the reason. FAIL-OPEN on any parse error or unreadable path.
@@ -119,14 +150,13 @@ back to the model as the reason. FAIL-OPEN on any parse error or unreadable path
 Console format: three headers. The status header states what ACTUALLY happened -- `WARNING` when the
 call proceeds, `BLOCKED` only when it does not -- followed by `WHY:` and `CONSIDER-INSTEAD:`.
 
-RECONCILIATION OWED AT `.claude/CLAUDE.md:868` -- ORCHESTRATOR MUST RESOLVE IN THIS PR:
-  * the prose calls this a hard rule, forbids more than "a couple of short lines", and reserves Edit
-    for one short line. This hook allows 6 rendered rows and only WARNS at 7. Either align the
-    constants and the severity with the prose, or state in the prose that this hook is a permissive
-    telemetry warning and NOT mechanical enforcement of the full hard rule. Do not leave both
-    statements standing.
-  * the same sentence describes Write in terms of `old_string` and `new_string`; Write takes
-    `content`. Correct the payload description and name MultiEdit explicitly.
+HOW THIS HOOK RELATES TO THE PROSE at `.claude/CLAUDE.md:868`, stated rather than deferred. That
+sentence is a HARD rule and reserves the Edit tool for one short line. This hook is NOT full
+mechanical enforcement of it: it allows 6 rendered rows per hunk and 12 across a call, it WARNS
+instead of blocking, and its numbers are the guesses of design decision 2. It is a permissive
+telemetry backstop for the far end of the rule, sized so the register can tell the maintainer where
+the real knee is. The prose remains the rule; this hook is the floor under it, not a restatement of
+it, and nothing here licenses a payload the prose forbids.
 
 Self-test: `python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/block-large-editwrite-payload.py --self-test`
 """
@@ -162,14 +192,35 @@ WRITE_TOOLS = {"Write"}
 # Count removed rows as well as added rows. A large DELETION has a tiny new_string and renders a
 # large RED block, so counting only additions misses half the walls by construction. This is a
 # stated deviation from the order (which specifies new_string); set False to revert it exactly.
+# It also governs the removed side of the uncomparable-existing-file fallback.
 INCLUDE_OLD_STRING = True
 
-# A Write that CREATES a file renders green rows but has no sanctioned sed alternative.
-# See design decision 3. Flip to True to guard creates too.
-WARN_ON_LARGE_CREATE = False
+# A Write that CREATES a file renders a green wall and IS measured. See design decision 3.
+# Flip to False to restore the seed's unbounded-create hole exactly.
+WARN_ON_LARGE_CREATE = True
 
 # Upper bound on how much of an existing file the hook will read to compute the rendered delta.
 MAX_COMPARE_BYTES = 2_000_000
+
+# Upper bound on how much of an over-MAX_COMPARE_BYTES file the hook will STREAM to count its
+# newlines. Streaming counts bytes in bounded chunks and never holds the file in memory, so this is
+# a time bound, not a memory one. Above it the line count is estimated from the byte size.
+MAX_SCAN_BYTES = 64_000_000
+
+# Bytes per line assumed when a file is too large even to stream. Only ever applied above
+# MAX_SCAN_BYTES, where any plausible divisor lands orders of magnitude above every threshold.
+ASSUMED_LINE_BYTES = 40
+
+# Occurrence count assumed for a replace_all Edit whose true multiplicity cannot be read. Any value
+# above TOTAL_LINE_THRESHOLD makes a rendering replace_all warn; this one also survives the totals
+# being raised without revisiting this line. It is an ESTIMATE and is marked as such in `kind`.
+UNKNOWN_MULTIPLICITY = 999
+
+# The matcher this hook is wired under in `.claude/settings.json`. The self-test compares this
+# constant against the docstring AND against the shipped JSON, so the wiring paragraph above cannot
+# drift from the wiring itself the way it did at 22df0be2.
+WIRED_MATCHER = "Edit|Write"
+HOOK_BASENAME = "block-large-editwrite-payload.py"
 
 WORKING_ROOT = Path(os.environ.get("GRC_DROP_ROOT", "/home/grc/grc_working"))
 ESCAPE_FILE = WORKING_ROOT / ".allow-large-edit"
@@ -186,8 +237,9 @@ def _lines(text) -> list:
 def _measure(text) -> tuple:
     """(lines, chars) of a payload. (0, 0) for anything that is not a non-empty string.
 
-    Kept as a public helper because the threshold arithmetic and the fixtures both read it. A
-    terminal newline terminates the last logical line rather than adding a blank one.
+    Kept as a public helper because the fixtures read it. NOTE the unit: `chars` here INCLUDES line
+    terminators, where `rendered_delta` excludes them. No decision path uses this function any more
+    for exactly that reason (claude F10); it is measurement documentation, not measurement.
     """
     rows = _lines(text)
     return (len(rows), len(text)) if rows else (0, 0)
@@ -199,6 +251,9 @@ def rendered_delta(old, new) -> tuple:
     Common leading and trailing lines are trimmed, because the renderer shows them as unchanged
     context rather than as red/green rows. Identical strings therefore measure zero, and a large
     anchor with one changed line measures two rows, not the size of the anchor.
+
+    This is the SINGLE measurement entry point for every path (edit, create, existing-file Write),
+    so characters are counted the same way everywhere: line contents only, terminators excluded.
     """
     o = _lines(old)
     n = _lines(new)
@@ -238,11 +293,106 @@ def _read_existing(path):
         return None
 
 
+def existing_metrics(path):
+    """(bytes, lines) of an existing file that is too large or too broken to diff, or None.
+
+    Needed because a file over MAX_COMPARE_BYTES still has a KNOWN size and a countable number of
+    lines, and codex finding 8 turned on the hook throwing both away: an oversized file overwritten
+    with `content: ""` was measured as zero rendered rows and allowed.
+
+    Newlines are counted by STREAMING the file in bounded chunks, so nothing large is held in
+    memory. Above MAX_SCAN_BYTES the count is ESTIMATED from the byte size, which at that scale is
+    orders of magnitude above every threshold either way. Line semantics match `_lines`: a file that
+    does not end in a newline still has a final logical line, and an empty file has none.
+    """
+    try:
+        size = path.stat().st_size
+    except OSError:
+        return None
+    if size <= 0:
+        return 0, 0
+    if size > MAX_SCAN_BYTES:
+        return size, max(1, size // ASSUMED_LINE_BYTES)
+    newlines = 0
+    last = b""
+    try:
+        with path.open("rb") as fh:
+            while True:
+                chunk = fh.read(1 << 20)
+                if not chunk:
+                    break
+                newlines += chunk.count(b"\n")
+                last = chunk[-1:]
+    except OSError:
+        return size, max(1, size // ASSUMED_LINE_BYTES)
+    return size, newlines + (0 if last == b"\n" else 1)
+
+
+def _uncomparable_delta(path, content) -> tuple:
+    """(rows, chars) for a Write whose existing target could not be read for comparison.
+
+    Every existing row is assumed REMOVED and every new row ADDED, because with no old text there
+    is no common context to trim. That is deliberately the over-warning direction, and it is what
+    makes an oversized DELETION visible at all: the seed measured only the empty new payload here
+    and reported (0, 0) for wiping out a 1,100,000-line file.
+
+    UNIT NOTE: the removed side is the file's BYTE size, which counts the newlines that the added
+    side (`rendered_delta`) excludes. That over-counts characters slightly and never under-counts.
+    The removed side honours INCLUDE_OLD_STRING, like every other removal measurement here.
+    """
+    rows, chars = rendered_delta("", content)
+    metrics = existing_metrics(path)
+    if metrics is None or not INCLUDE_OLD_STRING:
+        return rows, chars
+    size, lines = metrics
+    return rows + lines, chars + size
+
+
+def replacement_count(raw_path, edit) -> tuple:
+    """(count, assumed) for how many times one Edit's replacement is RENDERED.
+
+    (1, False) unless `replace_all` is set. With replace_all the console shows ONE HUNK PER
+    OCCURRENCE, which codex finding 7 caught being measured as a single replacement: `x` -> `y`
+    with replace_all over a 1,000-line file rendered 2,000 rows and was measured as 2.
+
+    The count is read from the target under the same size contract as Write. When it cannot be
+    established -- no path, a missing or unreadable target, a file over MAX_COMPARE_BYTES, or an
+    empty `old_string` -- the count is UNKNOWN_MULTIPLICITY with assumed=True, because an unbounded
+    replace_all must WARN rather than fail open. `assumed` reaches the register through `kind`, so
+    calibration can drop these rows instead of reading 999 as a measurement.
+    """
+    if not isinstance(edit, dict) or not edit.get("replace_all"):
+        return 1, False
+    old = edit.get("old_string")
+    if not isinstance(old, str) or not old or not raw_path:
+        return UNKNOWN_MULTIPLICITY, True
+    try:
+        before = _read_existing(_resolve(raw_path))
+    except Exception:
+        return UNKNOWN_MULTIPLICITY, True
+    if before is None:
+        return UNKNOWN_MULTIPLICITY, True
+    return max(1, before.count(old)), False
+
+
+def _kind(base: str, *flags) -> str:
+    """'Edit', or 'Edit(replace_all,assumed)': the tool kind plus any measurement caveats.
+
+    The caveats travel into BOTH the console message and the register row, because a total that was
+    multiplied by an assumed occurrence count, or built from a file that could not be read, is not
+    the same evidence as a measured one and must not be calibrated against as if it were.
+    """
+    live = [f for f in flags if f]
+    return base + ("(" + ",".join(live) + ")" if live else "")
+
+
 def payload_size(payload: dict) -> tuple:
     """(hunk_lines, hunk_chars, total_lines, total_chars, kind) of the console render.
 
     kind is '' when nothing renders. Lines and characters are carried INDEPENDENTLY: nothing here
-    selects one candidate over another, which is the seed's lexicographic-tuple defect.
+    selects one candidate over another, which is the seed's lexicographic-tuple defect. Per-hunk
+    figures are the largest SINGLE rendered hunk; totals are the whole call, replace_all multiplied
+    out.
     """
     tool = payload.get("tool_name") or payload.get("toolName") or ""
     ti = payload.get("tool_input") or payload.get("toolInput") or {}
@@ -250,20 +400,30 @@ def payload_size(payload: dict) -> tuple:
         return 0, 0, 0, 0, ""
 
     if tool in EDIT_TOOLS:
+        raw = ti.get("file_path") or ti.get("path") or ""
         edits = ti.get("edits")
         if isinstance(edits, list) and edits:
             hunk_lines = hunk_chars = total_lines = total_chars = 0
+            any_all = any_assumed = False
             for e in edits:
                 if not isinstance(e, dict):
                     continue
                 rows, chars = rendered_delta(e.get("old_string"), e.get("new_string"))
+                count, assumed = replacement_count(raw, e)
+                any_all = any_all or bool(e.get("replace_all"))
+                any_assumed = any_assumed or (assumed and rows > 0)
                 hunk_lines = max(hunk_lines, rows)
                 hunk_chars = max(hunk_chars, chars)
-                total_lines += rows
-                total_chars += chars
-            return hunk_lines, hunk_chars, total_lines, total_chars, "MultiEdit"
+                total_lines += rows * count
+                total_chars += chars * count
+            return (hunk_lines, hunk_chars, total_lines, total_chars,
+                    _kind("MultiEdit", "replace_all" if any_all else "",
+                          "assumed" if any_assumed else ""))
         rows, chars = rendered_delta(ti.get("old_string"), ti.get("new_string"))
-        return rows, chars, rows, chars, "Edit"
+        count, assumed = replacement_count(raw, ti)
+        kind = _kind("Edit", "replace_all" if ti.get("replace_all") else "",
+                     "assumed" if (assumed and rows > 0) else "")
+        return rows, chars, rows * count, chars * count, kind
 
     if tool in WRITE_TOOLS:
         raw = ti.get("file_path") or ti.get("path") or ""
@@ -272,19 +432,22 @@ def payload_size(payload: dict) -> tuple:
         try:
             path = _resolve(raw)
             exists = path.is_file()
+            occupied = path.exists() and not exists
         except Exception:
             return 0, 0, 0, 0, ""
+        if occupied:
+            return 0, 0, 0, 0, ""    # a directory or a device: not a create, and nothing renders
         content = ti.get("content")
         if not exists:
             if not WARN_ON_LARGE_CREATE:
-                return 0, 0, 0, 0, ""                    # creating a new file: design decision 3
-            rows, chars = _measure(content)
-            return rows, chars, rows, chars, "Write"
+                return 0, 0, 0, 0, ""                    # seed behaviour, revertible: decision 3
+            rows, chars = rendered_delta("", content)     # a create renders a pure green block
+            return rows, chars, rows, chars, _kind("Write", "new-file")
         before = _read_existing(path)
         if before is None:
-            rows, chars = _measure(content)              # unreadable: measure the payload itself
-        else:
-            rows, chars = rendered_delta(before, content)
+            rows, chars = _uncomparable_delta(path, content)
+            return rows, chars, rows, chars, _kind("Write", "uncomparable")
+        rows, chars = rendered_delta(before, content)
         return rows, chars, rows, chars, "Write"
 
     return 0, 0, 0, 0, ""
@@ -322,6 +485,58 @@ def _limit_text(trip: str, lines: int, chars: int, total_lines: int, total_chars
     }.get(trip, trip)
 
 
+def _why_text(kind: str, blocking: bool) -> str:
+    """The WHY paragraph, which must describe the payload the actor ACTUALLY sent.
+
+    A create has no red side and no `sed` remedy, so the existing-file sentence would be wrong for
+    it, and saying nothing was worse: the seed's message told the actor that creating a file is
+    "always allowed" while the guard is now measuring exactly that.
+    """
+    outcome = "The call has been refused." if blocking else "This is a WARNING; the call proceeds."
+    if "new-file" in kind:
+        return ("WHY: the Write tool RENDERS the whole of a new file as green rows in the console, "
+                "and at this size that render IS the wall the maintainer ruled out on 2026-07-27. "
+                "A create has no red side and no `sed` remedy, which is why it went unmeasured "
+                "before; it does have a remedy that renders nothing, and it is below. " + outcome)
+    if "uncomparable" in kind:
+        return ("WHY: the Edit/Write tools RENDER their payload as a red/green diff in the console, "
+                "and that render IS the wall the maintainer ruled out on 2026-07-27. This target "
+                "was too large to read for a line-by-line comparison, so the figures above assume "
+                "the whole existing file is replaced; a rewrite or a deletion at this size is a "
+                "wall either way. " + outcome)
+    return ("WHY: the Edit/Write tools RENDER their payload as a red/green diff in the console, and "
+            "that render IS the wall the maintainer ruled out on 2026-07-27 after repeated "
+            "violations. For a change to an EXISTING file beyond a couple of short lines the "
+            "sanctioned tools are the ones that render nothing. " + outcome)
+
+
+def _alternatives(kind: str) -> str:
+    """The CONSIDER-INSTEAD block, matched to the payload shape.
+
+    Heredoc delimiters are QUOTED on purpose: the sibling `block-git-diff-content-dump.py` scans an
+    UNQUOTED heredoc body as live shell text, so an unquoted form here would prescribe a command a
+    sibling guard can refuse.
+    """
+    if "new-file" in kind:
+        return (
+            "    cat > <file> <<'EOF'                       # write the NEW file in one shot\n"
+            "    <content>                                  # renders nothing; quote the delimiter\n"
+            "    EOF\n"
+            "    python3 - <<'PY'                           # or build it programmatically\n"
+            "    open('<file>', 'w').write('<content>')\n"
+            "    PY\n"
+        )
+    return (
+        "    sed -i 's/<old>/<new>/' <file>              # targeted single-line substitution\n"
+        "    sed -i '<a>,<b>s/<old>/<new>/' <file>       # line-range-scoped where a token repeats\n"
+        "    python3 - <<'PY'                            # read-insert-write, renders nothing\n"
+        "    p='<file>'; s=open(p).read()\n"
+        "    s = s.replace('<old>', '<new>')\n"
+        "    open(p,'w').write(s)\n"
+        "    PY\n"
+    )
+
+
 def _message(kind: str, lines: int, chars: int, trip: str, blocking: bool,
              total_lines=None, total_chars=None) -> str:
     if total_lines is None:
@@ -330,26 +545,23 @@ def _message(kind: str, lines: int, chars: int, trip: str, blocking: bool,
         total_chars = chars
     head = "BLOCKED" if blocking else "WARNING"
     limit = _limit_text(trip, lines, chars, total_lines, total_chars)
+    note = ""
+    if "replace_all" in kind:
+        note = ("  NOTE: replace_all renders ONE HUNK PER OCCURRENCE, so the call total above is "
+                "the per-occurrence render times the number of occurrences"
+                + (" (not readable here, so a conservative count was assumed).\n"
+                   if "assumed" in kind else ".\n"))
     return (
         head + " (console payload-wall guardrail): this " + kind + " payload is " + limit + ".\n"
         "\n"
-        "WHY: the Edit/Write tools RENDER their payload as a red/green diff in the console, and that "
-        "render IS the wall the maintainer ruled out on 2026-07-27 after repeated violations. For a "
-        "change to an EXISTING file beyond a couple of short lines the sanctioned tools are the ones "
-        "that render nothing. " + ("The call has been refused." if blocking else
-                                   "This is a WARNING; the call proceeds.") + "\n"
+        + _why_text(kind, blocking) + "\n"
         "\n"
         "CONSIDER-INSTEAD:\n"
-        "    sed -i 's/<old>/<new>/' <file>              # targeted single-line substitution\n"
-        "    sed -i '<a>,<b>s/<old>/<new>/' <file>       # line-range-scoped where a token repeats\n"
-        "    python3 - <<'PY'                            # read-insert-write, renders nothing\n"
-        "    p='<file>'; s=open(p).read()\n"
-        "    s = s.replace('<old>', '<new>')\n"
-        "    open(p,'w').write(s)\n"
-        "    PY\n"
-        "\n"
-        "  Reserve Edit/Write for a genuinely tiny change, or for CREATING a new file (always "
-        "allowed).\n"
+        + _alternatives(kind)
+        + "\n"
+        + note
+        + "  Reserve Edit/Write for a genuinely tiny change. A large CREATE is measured too, as a "
+        "green wall (WARN_ON_LARGE_CREATE).\n"
         + ("  If this payload genuinely has to go through the editor tool, that is a MAINTAINER "
            "decision. Ask for it, and they authorize it from a shell:\n"
            "    touch " + str(ESCAPE_FILE) + "     # honoured once, then consumed\n"
@@ -402,18 +614,45 @@ def log_fire(event: str, detail: str) -> bool:
 
 def fire_detail(kind: str, lines: int, chars: int, total_lines: int, total_chars: int,
                 trip: str) -> str:
-    """The bounded, content-free telemetry row body that calibration will read."""
+    """The bounded, content-free telemetry row body that calibration will read.
+
+    `kind` carries the measurement caveats (`replace_all`, `assumed`, `uncomparable`, `new-file`)
+    and never a space, so the row stays parseable as whitespace-separated key=value pairs.
+    """
     return ("kind=%s hunk_lines=%d hunk_chars=%d total_lines=%d total_chars=%d trip=%s "
             "thresholds=%d/%d/%d/%d severity=%s"
             % (kind, lines, chars, total_lines, total_chars, trip, LINE_THRESHOLD, CHAR_THRESHOLD,
                TOTAL_LINE_THRESHOLD, TOTAL_CHAR_THRESHOLD, BLOCK_SEVERITY))
 
 
+def settings_matcher(settings_path=None, needle: str = HOOK_BASENAME) -> str:
+    """The matcher of the `.claude/settings.json` group that wires this hook, or ''.
+
+    Documentation self-checking, NEVER a decision input: the wiring paragraph in the docstring
+    contradicted the shipped JSON at 22df0be2 (claude F9 / codex finding 10) precisely because
+    nothing compared them. The self-test does, through this function. Returns '' on any error,
+    including a settings file that is simply not there (an isolated copy of this hook).
+    """
+    try:
+        path = (Path(settings_path) if settings_path
+                else Path(__file__).resolve().parent.parent / "settings.json")
+        data = json.loads(path.read_text(encoding="utf-8"))
+        for groups in (data.get("hooks") or {}).values():
+            for group in groups or []:
+                for hook in (group.get("hooks") or []):
+                    if needle in str(hook.get("command") or ""):
+                        return str(group.get("matcher") or "")
+    except Exception:
+        return ""
+    return ""
+
+
 def decide(payload: dict):
     """(action, message, detail) with action in {'allow', 'warn', 'block', 'bypass'}.
 
-    Touches the filesystem to stat and read the Write target, and to consume the escape sentinel --
-    the latter only AFTER a threshold has tripped, so an ordinary edit cannot burn it.
+    Touches the filesystem to stat and read the Write target, to count replace_all occurrences, and
+    to consume the escape sentinel -- the last only AFTER a threshold has tripped, so an ordinary
+    edit cannot burn it.
     """
     if BLOCK_SEVERITY == "off":
         return "allow", "", ""
@@ -459,13 +698,14 @@ def _self_test() -> int:
     import tempfile
     import unittest
 
-    def edit(new="", old="", tool="Edit"):
-        return {"tool_name": tool, "tool_input": {"file_path": "/tmp/x.md",
-                                                  "old_string": old, "new_string": new}}
+    def edit(new="", old="", tool="Edit", path="/tmp/x.md", **extra):
+        ti = {"file_path": str(path), "old_string": old, "new_string": new}
+        ti.update(extra)
+        return {"tool_name": tool, "tool_input": ti}
 
-    def multi(edits):
+    def multi(edits, path="/tmp/x.md"):
         return {"tool_name": "MultiEdit",
-                "tool_input": {"file_path": "/tmp/x.md", "edits": edits}}
+                "tool_input": {"file_path": str(path), "edits": edits}}
 
     def write(path, content):
         return {"tool_name": "Write", "tool_input": {"file_path": str(path), "content": content}}
@@ -492,21 +732,21 @@ def _self_test() -> int:
         def setUp(self):
             global ESCAPE_FILE, FIRE_LOG, BLOCK_SEVERITY, LINE_THRESHOLD, CHAR_THRESHOLD, \
                 TOTAL_LINE_THRESHOLD, TOTAL_CHAR_THRESHOLD, INCLUDE_OLD_STRING, \
-                WARN_ON_LARGE_CREATE
+                WARN_ON_LARGE_CREATE, MAX_COMPARE_BYTES, MAX_SCAN_BYTES
             self._root = Path(tempfile.mkdtemp())
             self._saved = (ESCAPE_FILE, FIRE_LOG, BLOCK_SEVERITY, LINE_THRESHOLD, CHAR_THRESHOLD,
                            TOTAL_LINE_THRESHOLD, TOTAL_CHAR_THRESHOLD, INCLUDE_OLD_STRING,
-                           WARN_ON_LARGE_CREATE)
+                           WARN_ON_LARGE_CREATE, MAX_COMPARE_BYTES, MAX_SCAN_BYTES)
             ESCAPE_FILE = self._root / ".allow-large-edit"
             FIRE_LOG = self._root / "guard-fires.tsv"
 
         def tearDown(self):
             global ESCAPE_FILE, FIRE_LOG, BLOCK_SEVERITY, LINE_THRESHOLD, CHAR_THRESHOLD, \
                 TOTAL_LINE_THRESHOLD, TOTAL_CHAR_THRESHOLD, INCLUDE_OLD_STRING, \
-                WARN_ON_LARGE_CREATE
+                WARN_ON_LARGE_CREATE, MAX_COMPARE_BYTES, MAX_SCAN_BYTES
             (ESCAPE_FILE, FIRE_LOG, BLOCK_SEVERITY, LINE_THRESHOLD, CHAR_THRESHOLD,
              TOTAL_LINE_THRESHOLD, TOTAL_CHAR_THRESHOLD, INCLUDE_OLD_STRING,
-             WARN_ON_LARGE_CREATE) = self._saved
+             WARN_ON_LARGE_CREATE, MAX_COMPARE_BYTES, MAX_SCAN_BYTES) = self._saved
 
         # --- scope ---------------------------------------------------------------------------
         def test_unrelated_tool_allowed(self):
@@ -592,6 +832,92 @@ def _self_test() -> int:
             TOTAL_CHAR_THRESHOLD = 0
             self.assertEqual(decide(edit(new="a" * 100000))[0], "allow")
 
+        # --- codex finding 7: replace_all renders one hunk PER OCCURRENCE -----------------------
+        def _thousand_x(self):
+            target = self._root / "1000-x-lines.txt"
+            target.write_text(nlines(1000, width=1), encoding="utf-8")
+            return target
+
+        def test_replace_all_counts_every_occurrence(self):
+            # codex finding 7's exact probe: payload_size() was (2, 2, 2, 2, 'Edit') -> allow.
+            target = self._thousand_x()
+            payload = edit(path=target, old="x", new="y", replace_all=True)
+            lines, chars, total_lines, total_chars, kind = payload_size(payload)
+            self.assertEqual((lines, chars), (2, 2))          # one occurrence still renders 2 rows
+            self.assertEqual(total_lines, 2000)               # 1,000 occurrences, 2 rows each
+            self.assertEqual(total_chars, 2000)
+            self.assertIn("replace_all", kind)
+            self.assertNotIn("assumed", kind)
+            action, msg, _d = decide(payload)
+            self.assertEqual(action, "warn")
+            self.assertIn("TOTAL_LINE_THRESHOLD", msg)
+            self.assertIn("ONE HUNK PER OCCURRENCE", msg)
+
+        def test_the_same_edit_without_replace_all_is_one_replacement(self):
+            target = self._thousand_x()
+            lines, chars, total_lines, total_chars, kind = payload_size(
+                edit(path=target, old="x", new="y"))
+            self.assertEqual((total_lines, total_chars), (2, 2))
+            self.assertEqual(kind, "Edit")
+            self.assertEqual(decide(edit(path=target, old="x", new="y"))[0], "allow")
+
+        def test_replace_all_of_a_few_occurrences_still_allowed(self):
+            target = self._root / "three.txt"
+            target.write_text("x\nkeep\nx\nkeep\nx\n", encoding="utf-8")
+            payload = edit(path=target, old="x", new="y", replace_all=True)
+            self.assertEqual(payload_size(payload)[2], 6)     # 3 occurrences x 2 rendered rows
+            self.assertEqual(decide(payload)[0], "allow")
+
+        def test_replace_all_multiline_occurrence_is_multiplied(self):
+            target = self._root / "blocks.txt"
+            target.write_text("a\nb\n" * 4, encoding="utf-8")
+            payload = edit(path=target, old="a\nb", new="c\nd", replace_all=True)
+            lines, chars, total_lines, _tc, _k = payload_size(payload)
+            self.assertEqual(lines, 4)                        # 2 removed + 2 added per occurrence
+            self.assertEqual(total_lines, 16)                 # times 4 occurrences
+            self.assertEqual(decide(payload)[0], "warn")      # 16 > TOTAL_LINE_THRESHOLD
+
+        def test_replace_all_with_unreadable_target_warns_conservatively(self):
+            # Multiplicity cannot be established: a missing path must WARN, not fail open.
+            payload = edit(path=self._root / "nope.txt", old="x", new="y", replace_all=True)
+            lines, chars, total_lines, _tc, kind = payload_size(payload)
+            self.assertEqual(lines, 2)
+            self.assertEqual(total_lines, 2 * UNKNOWN_MULTIPLICITY)
+            self.assertIn("assumed", kind)
+            action, msg, _d = decide(payload)
+            self.assertEqual(action, "warn")
+            self.assertIn("conservative count was assumed", msg)
+
+        def test_replace_all_over_max_compare_bytes_warns_conservatively(self):
+            global MAX_COMPARE_BYTES
+            MAX_COMPARE_BYTES = 4
+            target = self._thousand_x()
+            self.assertIn("assumed", payload_size(
+                edit(path=target, old="x", new="y", replace_all=True))[4])
+            self.assertEqual(decide(edit(path=target, old="x", new="y", replace_all=True))[0],
+                             "warn")
+
+        def test_replace_all_that_renders_nothing_is_still_allowed(self):
+            # An identical old/new pair renders zero rows, so any multiplicity is zero rows.
+            same = vlines(7)
+            payload = edit(path=self._root / "nope.txt", old=same, new=same, replace_all=True)
+            self.assertEqual(payload_size(payload)[2], 0)
+            self.assertEqual(decide(payload)[0], "allow")
+
+        def test_replacement_count_contract(self):
+            target = self._thousand_x()
+            self.assertEqual(replacement_count(target, {"old_string": "x", "new_string": "y"}),
+                             (1, False))
+            self.assertEqual(replacement_count(target, {"old_string": "x", "new_string": "y",
+                                                        "replace_all": True}), (1000, False))
+            self.assertEqual(replacement_count("", {"old_string": "x", "replace_all": True}),
+                             (UNKNOWN_MULTIPLICITY, True))
+            self.assertEqual(replacement_count(target, {"old_string": "", "replace_all": True}),
+                             (UNKNOWN_MULTIPLICITY, True))
+            self.assertEqual(replacement_count(target, {"old_string": "absent-token",
+                                                        "replace_all": True}), (1, False))
+            self.assertEqual(replacement_count(target, "not-a-dict"), (1, False))
+
         # --- MultiEdit: the TOTAL render, a deliberate reversal of the seed ----------------------
         def test_multiedit_total_render_is_measured_not_the_largest_edit(self):
             # DELIBERATE REVERSAL: the seed allowed this ("largest single edit, not the sum").
@@ -615,6 +941,16 @@ def _self_test() -> int:
             self.assertEqual(action, "warn")
             self.assertIn("LINE_THRESHOLD", msg)
 
+        def test_multiedit_replace_all_entry_is_multiplied_out(self):
+            target = self._thousand_x()
+            edits = [{"old_string": "keep", "new_string": "kept"},
+                     {"old_string": "x", "new_string": "y", "replace_all": True}]
+            lines, chars, total_lines, total_chars, kind = payload_size(multi(edits, path=target))
+            self.assertEqual(lines, 2)
+            self.assertEqual(total_lines, 2 + 2000)
+            self.assertIn("replace_all", kind)
+            self.assertEqual(decide(multi(edits, path=target))[0], "warn")
+
         def test_multiedit_malformed_entries_ignored(self):
             self.assertEqual(decide(multi(["not-a-dict", None]))[0], "allow")
 
@@ -625,17 +961,54 @@ def _self_test() -> int:
             small = [{"old_string": "a", "new_string": "b"} for _ in range(50)]
             self.assertEqual(decide(multi(small))[0], "allow")
 
-        # --- Write ------------------------------------------------------------------------------
-        def test_write_to_new_file_always_allowed(self):
+        # --- codex finding 9: a large CREATE is a green wall and must be measured ----------------
+        def test_large_new_file_write_is_measured_and_warns(self):
+            # codex finding 9's exact probe: exit 0, no warning, payload_size() (0,0,0,0,'').
             target = self._root / "brand-new.md"
-            self.assertEqual(decide(write(target, nlines(5000)))[0], "allow")
+            lines, chars, total_lines, total_chars, kind = payload_size(write(target, nlines(5000)))
+            self.assertEqual(lines, 5000)
+            self.assertEqual(total_lines, 5000)
+            self.assertIn("new-file", kind)
+            action, msg, _d = decide(write(target, nlines(5000)))
+            self.assertEqual(action, "warn")
+            self.assertIn("LINE_THRESHOLD", msg)
+            self.assertFalse(target.exists(), "the guard must not create the target")
 
-        def test_write_create_guard_can_be_enabled(self):
+        def test_large_new_file_write_warns_end_to_end(self):
+            code, err, out = run_main(write(self._root / "brand-new-e2e.md", nlines(5000)))
+            self.assertEqual((code, out), (0, ""))
+            self.assertIn("WARNING", err)
+            self.assertNotIn("BLOCKED", err)
+            row = FIRE_LOG.read_text(encoding="utf-8").rstrip("\n").split("\t")
+            self.assertIn("kind=Write(new-file)", row[3])
+
+        def test_create_default_is_guarded(self):
+            self.assertTrue(WARN_ON_LARGE_CREATE,
+                            "codex finding 9: a large create must not fail open by configuration")
+
+        def test_small_new_file_write_allowed(self):
+            self.assertEqual(decide(write(self._root / "tiny-new.md", "one line\n"))[0], "allow")
+
+        def test_create_guard_can_be_reverted_by_the_constant(self):
             global WARN_ON_LARGE_CREATE
-            WARN_ON_LARGE_CREATE = True
-            target = self._root / "brand-new-2.md"
-            self.assertEqual(decide(write(target, nlines(5000)))[0], "warn")
+            WARN_ON_LARGE_CREATE = False
+            self.assertEqual(decide(write(self._root / "brand-new-3.md", nlines(5000)))[0], "allow")
 
+        def test_create_warning_offers_a_heredoc_and_never_claims_creates_are_allowed(self):
+            _a, msg, _d = decide(write(self._root / "brand-new-4.md", nlines(5000)))
+            self.assertIn("cat > <file> <<'EOF'", msg)
+            self.assertIn("green rows", msg)
+            self.assertNotIn("always allowed", msg)
+            self.assertNotIn("sed -i", msg, "a create has no sed remedy; do not prescribe one")
+
+        def test_create_char_units_match_the_edit_path(self):
+            # claude F10: the create path used _measure(), whose chars INCLUDE newlines.
+            body = "abcd\nefgh\n"
+            self.assertEqual(payload_size(write(self._root / "units.md", body))[1], 8)
+            self.assertEqual(rendered_delta("", body)[1], 8)
+            self.assertEqual(_measure(body)[1], 10)
+
+        # --- Write to an existing file -----------------------------------------------------------
         def test_write_to_existing_file_over_threshold_warns(self):
             target = self._root / "exists.md"
             target.write_text("old\n", encoding="utf-8")
@@ -664,7 +1037,10 @@ def _self_test() -> int:
                                      "tool_input": {"content": nlines(500)}})[0], "allow")
 
         def test_write_directory_target_fails_open(self):
+            # An EXISTING non-file target is not a create: the tool call cannot succeed and nothing
+            # renders, so measuring it as a 500-row green wall would be a false WARN.
             self.assertEqual(decide(write(self._root, nlines(500)))[0], "allow")
+            self.assertEqual(payload_size(write(self._root, nlines(500)))[4], "")
 
         def test_relative_write_path_resolves_against_project_dir(self):
             # review finding 5: resolving against the hook process cwd can mistake an existing
@@ -681,21 +1057,81 @@ def _self_test() -> int:
                 else:
                     os.environ["CLAUDE_PROJECT_DIR"] = saved
 
-        def test_uncomparable_existing_file_falls_back_to_payload_size(self):
-            # Over MAX_COMPARE_BYTES the hook cannot compute a delta, so it measures the payload
-            # itself. That is the conservative direction: it can over-warn, never under-warn.
+        # --- codex finding 8: an oversized DELETION must be measured as the deletion -------------
+        def test_deletion_of_a_comparable_file_warns(self):
+            target = self._root / "deleteme.md"
+            target.write_text(vlines(50), encoding="utf-8")
+            lines, _c, total_lines, _tc, kind = payload_size(write(target, ""))
+            self.assertEqual(lines, 50)
+            self.assertEqual(kind, "Write")
+            self.assertEqual(decide(write(target, ""))[0], "warn")
+
+        def test_oversized_deletion_warns_instead_of_measuring_the_empty_payload(self):
+            # codex finding 8's probe: _read_existing() None -> payload_size() (0,0,0,0,'Write').
             global MAX_COMPARE_BYTES
-            saved = MAX_COMPARE_BYTES
             MAX_COMPARE_BYTES = 4
-            try:
-                target = self._root / "huge.md"
-                body = vlines(50)
-                target.write_text(body, encoding="utf-8")
-                self.assertIsNone(_read_existing(target))
-                # byte-identical content still warns here, because no comparison was possible
-                self.assertEqual(decide(write(target, body))[0], "warn")
-            finally:
-                MAX_COMPARE_BYTES = saved
+            target = self._root / "huge.md"
+            body = vlines(50)
+            target.write_text(body, encoding="utf-8")
+            self.assertIsNone(_read_existing(target))
+            lines, chars, total_lines, total_chars, kind = payload_size(write(target, ""))
+            self.assertEqual(lines, 50, "every removed row must be counted")
+            self.assertEqual(chars, len(body))
+            self.assertIn("uncomparable", kind)
+            action, msg, _d = decide(write(target, ""))
+            self.assertEqual(action, "warn")
+            self.assertIn("too large to read", msg)
+
+        def test_oversized_rewrite_counts_both_sides(self):
+            global MAX_COMPARE_BYTES
+            MAX_COMPARE_BYTES = 4
+            target = self._root / "huge2.md"
+            target.write_text(vlines(50), encoding="utf-8")
+            self.assertEqual(payload_size(write(target, vlines(30)))[0], 80)  # 50 red + 30 green
+
+        def test_uncomparable_existing_file_still_warns_on_identical_content(self):
+            # Unchanged direction of travel: with no comparison possible the fallback over-warns.
+            global MAX_COMPARE_BYTES
+            MAX_COMPARE_BYTES = 4
+            target = self._root / "huge3.md"
+            body = vlines(50)
+            target.write_text(body, encoding="utf-8")
+            self.assertEqual(decide(write(target, body))[0], "warn")
+
+        def test_uncomparable_deletion_respects_include_old_string(self):
+            global MAX_COMPARE_BYTES, INCLUDE_OLD_STRING
+            MAX_COMPARE_BYTES = 4
+            INCLUDE_OLD_STRING = False
+            target = self._root / "huge4.md"
+            target.write_text(vlines(50), encoding="utf-8")
+            self.assertEqual(payload_size(write(target, ""))[0], 0)
+            self.assertEqual(decide(write(target, ""))[0], "allow")
+
+        def test_existing_metrics_line_semantics(self):
+            trailing = self._root / "trailing.txt"
+            trailing.write_text("a\nb\n", encoding="utf-8")
+            self.assertEqual(existing_metrics(trailing), (4, 2))
+            bare = self._root / "bare.txt"
+            bare.write_text("a\nb", encoding="utf-8")
+            self.assertEqual(existing_metrics(bare), (3, 2))
+            empty = self._root / "empty.txt"
+            empty.write_text("", encoding="utf-8")
+            self.assertEqual(existing_metrics(empty), (0, 0))
+            self.assertIsNone(existing_metrics(self._root / "absent.txt"))
+
+        def test_existing_metrics_estimates_above_the_scan_cap(self):
+            global MAX_SCAN_BYTES
+            MAX_SCAN_BYTES = 4
+            target = self._root / "over-scan.txt"
+            target.write_text(vlines(50), encoding="utf-8")
+            size, lines = existing_metrics(target)
+            self.assertEqual(size, target.stat().st_size)
+            self.assertGreaterEqual(lines, 1)
+
+        def test_existing_metrics_streams_a_multi_chunk_file(self):
+            target = self._root / "multi-chunk.txt"
+            target.write_text("y" * (1 << 21) + "\n", encoding="utf-8")
+            self.assertEqual(existing_metrics(target)[1], 1)
 
         # --- severity -----------------------------------------------------------------------------
         def test_block_severity_block(self):
@@ -784,6 +1220,14 @@ def _self_test() -> int:
                           "trip=", "thresholds=", "severity="):
                 self.assertIn(field, row[3])
 
+        def test_estimated_kinds_are_marked_in_the_register(self):
+            # Calibration must be able to drop rows whose totals are assumptions, not measurements.
+            code, err, out = run_main(edit(path=self._root / "nope.txt", old="x", new="y",
+                                           replace_all=True))
+            self.assertEqual(code, 0)
+            detail = FIRE_LOG.read_text(encoding="utf-8").rstrip("\n").split("\t")[3]
+            self.assertIn("kind=Edit(replace_all,assumed)", detail)
+
         def test_fire_detail_carries_no_payload_content_or_path(self):
             secret = "SECRET-PAYLOAD-TEXT"
             code, err, out = run_main(edit(new="\n".join([secret] * 20)))
@@ -832,6 +1276,15 @@ def _self_test() -> int:
             finally:
                 sys.stdin, sys.stdout, sys.stderr = saved
 
+        def test_hostile_paths_never_raise_through_main(self):
+            # Every new filesystem read (occurrence count, byte size, newline scan) must fail open.
+            for payload in (edit(path="\0bad", old="x", new="y", replace_all=True),
+                            write("\0bad", nlines(50)),
+                            write(self._root / "absent-dir" / "f.md", nlines(50))):
+                code, err, out = run_main(payload)
+                self.assertIn(code, (0, 2))
+                self.assertEqual(out, "")
+
         # --- measurement purity ---------------------------------------------------------------------
         def test_measure(self):
             self.assertEqual(_measure(""), (0, 0))
@@ -858,11 +1311,17 @@ def _self_test() -> int:
             self.assertEqual(over_threshold(1, 1, TOTAL_LINE_THRESHOLD + 1, 1), "total-lines")
             self.assertEqual(over_threshold(1, 1, 1, TOTAL_CHAR_THRESHOLD + 1), "total-chars")
 
+        def test_kind_composition(self):
+            self.assertEqual(_kind("Edit"), "Edit")
+            self.assertEqual(_kind("Edit", "", ""), "Edit")
+            self.assertEqual(_kind("Edit", "replace_all", "assumed"), "Edit(replace_all,assumed)")
+            self.assertNotIn(" ", _kind("Write", "new-file"))
+
         # --- the message must be actionable and must not lie about what happened -----------------------
         def test_message_names_the_alternatives_and_the_three_headers(self):
             msg = _message("Edit", 40, 900, "lines", False)
             for needle in ("WARNING", "WHY:", "CONSIDER-INSTEAD:", "sed -i", "python3 - <<",
-                           "CREATING a new file"):
+                           "WARN_ON_LARGE_CREATE"):
                 self.assertIn(needle, msg)
 
         def test_warn_message_never_says_blocked(self):
@@ -879,6 +1338,61 @@ def _self_test() -> int:
                                  ("total-lines", "TOTAL_LINE_THRESHOLD"),
                                  ("total-chars", "TOTAL_CHAR_THRESHOLD")):
                 self.assertIn(needle, _message("Edit", 40, 9000, trip, False, 40, 9000))
+
+        def test_no_message_prescribes_a_command_a_sibling_hook_refuses(self):
+            # Every heredoc this hook recommends must QUOTE its delimiter: the sibling Bash hook
+            # scans an unquoted heredoc body as live shell text and can refuse it.
+            for kind in ("Edit", "Write", "Write(new-file)", "Write(uncomparable)"):
+                msg = _message(kind, 40, 900, "lines", False)
+                for line in msg.splitlines():
+                    if "<<" in line:
+                        self.assertRegex(line, r"<<'[A-Z]+'")
+
+        # --- claude F9 / codex finding 10: the wiring paragraph must match the wiring --------------
+        def test_docstring_states_the_shipped_matcher(self):
+            doc = __doc__ or ""
+            self.assertIn('`"' + WIRED_MATCHER + '"`', doc)
+            self.assertEqual(WIRED_MATCHER, "Edit|Write")
+
+        def test_docstring_carries_no_contradictory_wiring_instruction(self):
+            doc = __doc__ or ""
+            for stale in ("Edit|Write|MultiEdit", "DEDICATED matcher", "dead code and leaves",
+                          "open bypass", "ORCHESTRATOR MUST RESOLVE", "RECONCILIATION OWED"):
+                self.assertNotIn(stale, doc,
+                                 "the file must not instruct a wiring it is not wired with")
+
+        def test_docstring_does_not_claim_creates_are_always_allowed(self):
+            doc = __doc__ or ""
+            self.assertNotIn("still allowed at any size", doc)
+            self.assertNotIn("always allowed", doc)
+            self.assertIn("MEASURED and WARNED", doc)
+
+        def test_docstring_matches_a_settings_file_that_wires_this_hook(self):
+            settings = self._root / "settings.json"
+            settings.write_text(json.dumps({"hooks": {"PreToolUse": [
+                {"matcher": "Bash", "hooks": [{"command": "python3 other.py"}]},
+                {"matcher": WIRED_MATCHER,
+                 "hooks": [{"command": 'python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/'
+                                       + HOOK_BASENAME}]}]}}), encoding="utf-8")
+            self.assertEqual(settings_matcher(settings), WIRED_MATCHER)
+
+        def test_settings_matcher_is_inert_on_anything_unreadable(self):
+            self.assertEqual(settings_matcher(self._root / "no-settings.json"), "")
+            bad = self._root / "bad.json"
+            bad.write_text("{not json", encoding="utf-8")
+            self.assertEqual(settings_matcher(bad), "")
+            empty = self._root / "empty.json"
+            empty.write_text("{}", encoding="utf-8")
+            self.assertEqual(settings_matcher(empty), "")
+
+        def test_shipped_settings_agrees_with_the_docstring_when_present(self):
+            # In the repo this asserts the real wiring. In an isolated copy of the hook there is no
+            # settings.json to read, and the check is skipped rather than faked.
+            wired = settings_matcher()
+            if not wired:
+                self.skipTest("no .claude/settings.json beside this hook")
+            self.assertEqual(wired, WIRED_MATCHER,
+                             "settings.json and the docstring must not disagree again")
 
     result = unittest.TextTestRunner(verbosity=2).run(
         unittest.TestLoader().loadTestsFromTestCase(T))

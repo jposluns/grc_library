@@ -2,7 +2,31 @@
 """PreToolUse Bash hook: refuse a command that puts a +/- unified diff of file CONTENT on the CONSOLE.
 
 PR1b ACTIVATION CANDIDATE, hardened 2026-08-09 against the seed deep review
-(`inbox/deliveries/seed-review-pr1b-codex.md`). Wiring: install as
+(`inbox/deliveries/seed-review-pr1b-codex.md`), then REVISED 2026-08-09 against the dual-family
+validation of commit 22df0be2 (`inbox/deliveries/vpr-1472-codex.md` findings 1-6,
+`inbox/deliveries/vpr-1472-claude.md` F1/F2/F4/F5). What that revision changed, each with a fixture:
+
+    FALSE BLOCKS removed (the hook was refusing a SAFE command)
+      * a heredoc BODY is DATA whether or not its tag is quoted. Only the LIVE EXPANSIONS of an
+        unquoted body are commands; its literal text is not.        -> `_live_expansions`
+      * `> >(wc -l)`: a process-substitution CONSUMER is classified with the same relay-vs-consume
+        test already used for a pipeline stage.                     -> `_procsub_consumer_is_quiet`
+      * a construct that legitimately SPANS a newline (a multi-line quoted string, a backslash
+        line continuation) no longer defeats the tokenizer, and a tokenizer failure now fails open
+        for THAT LINE only rather than for the whole command.       -> `_join_continuations`,
+                                                                       `_logical_lines`, `_segments`
+    EVASIONS closed (the hook was allowing a real console wall)
+      * `--binary` and `--remerge-diff` are patch-enabling, and `--quiet` does NOT suppress a
+        patch for `log` / `show`.                                   -> `_git_prints_content`
+      * console paths spelled with redundant separators (`/dev//tty`, `/dev/./stderr`,
+        `//dev/stdout`, `/proc/self//fd/1`) are normalised before the console test, and the
+        numbered virtual consoles are console targets.  -> `_normalise_path`, `_CONSOLE_FD_RE`
+      * a reserved word or an ordinary English word in the prefix no longer masquerades as a
+        capturing context: the CONSUMER decides.                    -> `_is_capturing_context`
+      * a redirect to an already-open descriptor (`1>&3`) or a csh-style `>& word` is classified
+        as CONSOLE, not quiet.                                      -> `_target_is_quiet`
+
+Wiring: install as
 `.claude/hooks/block-git-diff-content-dump.py`, matcher `"Bash"`, command
 `python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/block-git-diff-content-dump.py`.
 
@@ -31,13 +55,19 @@ library repository (output counted with `wc -l` / `grep -c`, never printed):
 
     output_format starts empty.
       * a PATCH flag  (-p, -u, --patch, -U<n>, --unified=<n>, --patch-with-stat,
-                       --patch-with-raw, --cc, and post-subcommand -c)  -> patch ON  (explicit)
+                       --patch-with-raw, --cc, --binary, and post-subcommand -c) -> patch ON
+      * a WEAK patch flag (--remerge-diff)                              -> patch on ONLY if nothing
+                        else sets the format (verified: --stat, --no-patch, --name-only, --check
+                        and --quiet all beat it, in EITHER order)
       * a SUMMARY flag (--stat, --numstat, --shortstat, --dirstat, --summary,
                         --compact-summary, --raw)                       -> format SET, patch UNCHANGED
       * -s / --no-patch                                                 -> format SET, patch OFF
-      * --name-only, --name-status, --quiet, --check                    -> HARD suppress, order-free
-    content = (not hard_suppress) and (explicit_patch or (format never set and the subcommand
-                                       prints a patch by default))
+      * --name-only, --name-status, --check                             -> HARD suppress, order-free
+      * --quiet -> HARD suppress for the diff-* family; for `log` / `show` it only SETS the format
+                   (it clears a default or weak patch and NOT an explicit one)
+    content = (not hard_suppress) and (explicit_patch or weak_patch_with_no_other_format or
+                                       (format never set and the subcommand prints a patch by
+                                        default))
 
     Verified consequences, all of which the seed got WRONG:
       git diff --stat -p / -p --stat   -> 230 content rows   (summary NEVER beats an explicit -p)
@@ -49,25 +79,50 @@ library repository (output counted with `wc -l` / `grep -c`, never printed):
       git log -c / --cc                -> 230 content rows   (-c implies -p for log)
       git diff --name-only -p          ->   0 content rows   (NAME/NAME-STATUS strip the patch bit)
       git diff --check -p              ->   0 content rows
-      git diff --quiet -p              ->   0 content rows
+      git diff --quiet -p              ->   0 content rows   (diff-* family: --quiet IS hard)
       git log --full-diff              ->   0 content rows   (the seed listed it as a PATCH flag;
                                                               it only WIDENS an existing patch, and
                                                               the seed therefore false-blocked it)
 
+    Re-measured 2026-08-09 on git 2.53.0 for the vpr-1472 revision, counted the same way:
+      git log --binary -1              -> 2380 content rows  (codex#1: --binary implies --patch)
+      git log --no-patch --binary      -> 2380 content rows  (it is order-sensitive like -p)
+      git log --binary --no-patch      ->    0 content rows
+      git log --remerge-diff -1        -> 2380 content rows  (weak: --stat / --no-patch / --quiet /
+      git log --quiet --remerge-diff   ->    0 content rows   --name-only beat it in EITHER order)
+      git log  --quiet -p              -> 2380 content rows  (found while verifying codex#1: the
+      git show --quiet -p HEAD         -> 2380 content rows   22df0be2 model called these 0 and
+                                                              therefore ALLOWED a real wall)
+      git diff --quiet --binary        ->    0 content rows  (the diff-* family is unaffected)
+      git show --quiet HEAD            ->    0 content rows  (it does clear the DEFAULT patch)
+
 CONSOLE REACHABILITY (question 3). A content body is only a violation if the maintainer sees it:
   * stdout redirected to a QUIET destination            -> allowed (see ALLOW_FILE_REDIRECT)
   * stdout redirected to a CONSOLE-FACING destination   -> BLOCKED. /dev/tty, /dev/console,
-    /dev/stdout, /dev/stderr, /dev/fd/1|2, /proc/<pid|self>/fd/1|2, /dev/pts/<n>, `>&1`, `>&2`,
-    and process substitution `> >(cat)` all relay to the screen. The seed treated every `>` as safe.
+    /dev/stdout, /dev/stderr, /dev/fd/1|2, /proc/<pid|self>/fd/1|2, /dev/pts/<n>, /dev/tty<n>,
+    /dev/ttyS<n>, `>&1`, `>&2` and process substitution `> >(cat)` all relay to the screen. The
+    seed treated every `>` as safe. A device path is NORMALISED first, so `/dev//tty`,
+    `/dev/./stderr`, `//dev/stdout` and `/proc/self//fd/1` are the same target as their plain
+    spelling (codex#2); an ordinary output path normalises too and stays quiet.
+  * a redirect to an ALREADY-OPEN descriptor (`1>&3`, `>&4`) is CONSOLE, not quiet: within one
+    segment the hook cannot prove where fd 3 points, and `3>&1 1>&3` is the standard way to spell
+    "back to stdout" (codex#4). `>& word` with a non-numeric word is the csh form that sends BOTH
+    streams to that word, so it is classified as a PATH, which makes `>& /dev/tty` a block and
+    `>& /tmp/d.diff` an allow (claude F2).
   * quiet redirect spellings `&>`, `&>>`, `>|`, `1>` are recognised; `2>` is stderr and does not
     exempt; `2>&1` does not steal the classification from an earlier `> file`; `--output=<file>` is
     a git-native redirect and is classified the same way.
   * a pipeline whose downstream stage CONSUMES rather than relays (`| wc -l`, `| grep -c`,
     `| md5sum`, `| sha256sum`) puts a COUNT on the console, not a wall -> allowed.
     `| head`, `| tail`, `| cat`, `| less`, `| tee`, `| grep <pat>` RELAY -> still blocked.
+    The SAME test decides a process-substitution consumer: `> >(wc -l)` is a count and is allowed,
+    `> >(cat)` relays and is blocked (codex#6).
   * a command substitution captured by an ASSIGNMENT or a test (`x=$(git diff)`,
     `if [ -n "$(git diff)" ]`) prints nothing -> allowed. A substitution whose value flows into a
-    printing command (`echo $(git diff)`, ``echo `git diff` ``) -> BLOCKED.
+    printing command (`echo $(git diff)`, ``echo `git diff` ``) -> BLOCKED. The decision reads the
+    CONSUMER word, not any word in the prefix: `if` and `while` are transparent, so
+    `if echo "$(git diff)"` is a BLOCK (codex#3), and prose is transparent too, so
+    `echo "exit code: $(git diff)"` is a BLOCK rather than an allow (claude F4).
 
 ACTIVATION CLAIM, deliberately NARROW and stated so it can be checked. This hook has a MECHANICAL
 backstop for exactly these reach-forms, each covered by a self-test fixture:
@@ -81,7 +136,8 @@ backstop for exactly these reach-forms, each covered by a self-test fixture:
     shell-interpreter bodies `sh|bash|zsh|dash|ksh|ash -c '<program>'` and `eval '<program>'`;
     command-local git aliases `git -c alias.d=diff d`, including `!shell` alias bodies;
     clustered short options per git's grammar (`-pU1`, `-sp`, `-ps`, `-U1` value consumption);
-    heredoc bodies (`<<EOF`, `<<'EOF'`, `<<-EOF`), resolved DATA-vs-PROGRAM before segmentation.
+    heredoc bodies (`<<EOF`, `<<'EOF'`, `<<-EOF`), resolved DATA-vs-PROGRAM before segmentation;
+    a backslash line continuation, and a quoted string that spans a newline.
 
 RESIDUE -- NO mechanical backstop, prose rule only. This is the narrower, honest claim chosen over a
 wider one the parser cannot keep. Stated here rather than implied:
@@ -97,7 +153,14 @@ wider one the parser cannot keep. Stated here rather than implied:
     threading the heredoc's own destination into the substitution classifier. The conservative side
     was chosen for a guardrail, the cost is one false block, and the remedy is one quote character:
     `<<'EOF'` is inert and is ALLOWED. Asserted as a fixture so the behaviour is visible, not
-    discovered.
+    discovered. NOTE the 2026-08-09 narrowing: this residue is now the LIVE EXPANSION only. The
+    literal TEXT of an unquoted body is data like any other body text, so
+    `cat > note.md <<EOF / git diff / EOF` is ALLOWED, where 22df0be2 refused it (codex#5,
+    claude F5).
+  * CAPTURE-THEN-PRINT. `x=$(git diff)` is allowed by design and the block message actively
+    recommends capturing, so `x=$(git diff); echo "$x"` is the obvious next move and it is NOT
+    blocked: the wall reaches the console through a variable the hook does not track. Stated here
+    because it was found and left, not because it was missed (claude F6).
   * `ssh host git diff`. The remote emits the wall onto this console, but ssh's option grammar plus
     a remote command is a second parser; out of scope by choice.
   * git reached through a variable (`G=git; $G diff`), `eval` of a string built at runtime, or any
@@ -105,9 +168,19 @@ wider one the parser cannot keep. Stated here rather than implied:
   * `cat` of a diff previously redirected to a file with a NON-patch suffix
     (`git diff > /tmp/d.txt; cat /tmp/d.txt`). The `.diff` / `.patch` suffix case IS covered, see
     COVER_PATCH_FILE_DUMP.
-  * a tokenizer failure FAILS OPEN (see the exit protocol). Unbalanced quotes normally fail in the
-    shell too, so this is not a demonstrated live bypass, but every future parser change needs a
-    regression fixture here; seven are present.
+  * a tokenizer failure FAILS OPEN (see the exit protocol), and that is now a PER-LINE fail-open:
+    a line the tokenizer cannot read is skipped, the other lines of the command are still scanned.
+    ACCEPTED MISS, and the accepted part is bounded. The two ordinary spellings claude F1 named are
+    now PARSED, not skipped -- a backslash line continuation is joined the way the shell joins it
+    (`_join_continuations`) and a quoted string that spans a newline is regrouped into one logical
+    line (`_logical_lines`) -- each with a block fixture. What remains is text that is unbalanced
+    from the hook's point of view no matter how the lines are grouped: an exotic shell grammar the
+    tokenizer does not model (`$'...'` with an embedded quote, a `case` pattern list, an unbalanced
+    quote closed by a later construct the lexer does not know). Those are UNBOUNDED, and the
+    maintainer decision of 2026-08-09 is to accept them: this hook is a backstop for a chat-hygiene
+    rule, not an airtight sandbox, and failing OPEN on an exotic construct costs a MISS, never a
+    false block. Seven fail-open fixtures assert the direction, and the two F1 spellings are
+    asserted as BLOCKS so the fix cannot silently regress into the fail-open path.
 
 SCOPE, relative to the `.claude/CLAUDE.md` "no diff, no patch dump" sentence. The seed excluded
 non-git diff tooling entirely, which left the hook narrower than the rule it backstops. This version
@@ -146,8 +219,12 @@ logging failure can never cost a block. The `_hook_state.record_block()` integra
 alongside it; that records recent block-loop state, which is a different observable.
 
 DOCUMENTATION COLLISIONS -- ORCHESTRATOR MUST RESOLVE IN THIS PR (carried forward from the review):
-  1. `.claude/CLAUDE.md:796` still recommends bare `git diff` as a read-back. It collides with
-     `.claude/CLAUDE.md:868` and with this hook.
+  1. CORRECTED 2026-08-09 (claude F7). The 22df0be2 text asserted that `.claude/CLAUDE.md:796`
+     recommends a bare `git diff` read-back. It does not: at 22df0be2 that line is the
+     "intent is not action" bullet, and the file's only `git diff` is the RULE itself at :868.
+     There is no collision inside `.claude/CLAUDE.md`; a MUST-RESOLVE item pointing at the wrong
+     line gets closed as resolved without anything being checked, so it is withdrawn rather than
+     re-aimed. Items 2 and 3 stand.
   2. `references/pr-lifecycle.md:55-59` directs shared-tree verifiers to bare `git diff`; the same
      text is copied into `guardrails/governance/ai-assistant-workflow-disciplines.md:245-247`,
      `guardrails/governance/validate-inference-before-action.md:117-125`,
@@ -164,6 +241,7 @@ from __future__ import annotations
 
 import json
 import os
+import posixpath
 import re
 import shlex
 import sys
@@ -255,16 +333,68 @@ def _fallback_command_word(line: str) -> str:
     return ""
 
 
+def _live_expansions(body: str):
+    """The `$( ... )` / backtick fragments of a heredoc DATA body, in order, as separate lines.
+
+    THE FALSE BLOCK THIS FIXES (vpr-1472 codex#5, claude F5). A heredoc body is TEXT being written
+    somewhere, and the 22df0be2 rule "an unquoted body is KEPT and scanned as a program" therefore
+    refused
+
+        cat > note.md <<EOF
+        git diff is forbidden here
+        EOF
+
+    which prints nothing and runs nothing. The reason the body was kept is still true and is still
+    honoured: an UNQUOTED tag really does expand a substitution written inside the body, so
+    `<<EOF` containing `$(git diff)` really does run the diff. Only the EXPANSIONS are commands.
+    Keeping just those keeps the live case blocked and lets the literal case through.
+
+    The fragment is returned WHOLE, `$( ... )` markers included, so the ordinary substitution layer
+    re-parses it with its own quote-aware matcher rather than a second, divergent one. A fragment
+    the matcher cannot close is dropped: unclosable text is not a provable command, and the
+    fail-open direction is the one this hook takes everywhere else.
+    """
+    out = []
+    i, n = 0, len(body)
+    while i < n:
+        ch = body[i]
+        if ch == "\\" and i + 1 < n:
+            i += 2                                       # `\$(...)` is literal even unquoted
+            continue
+        if body.startswith("$((", i):
+            end = _match_paren(body, i + 1)              # arithmetic: not a command
+            i = end + 2 if end >= 0 else n
+            continue
+        if body.startswith("$(", i):
+            end = _match_paren(body, i + 1)
+            if end < 0:
+                break
+            out.append(body[i:end + 1])
+            i = end + 1
+            continue
+        if ch == "`":
+            end = _match_backtick(body, i + 1)
+            if end < 0:
+                break
+            out.append(body[i:end + 1])
+            i = end + 1
+            continue
+        i += 1
+    return out
+
+
 def _strip_heredocs_local(command: str) -> str:
     """Remove heredoc BODIES that are DATA; keep bodies that are PROGRAMS.
 
     Three properties, each of which a naive strip gets wrong and each of which has a fixture:
 
-    1. A body introduced by an interpreter or a remote shell IS EXECUTED. `bash <<'EOF' /
-       git diff / EOF` really runs the diff, so stripping it would be a live WEAKENING, not a
-       theoretical one. Those bodies are KEPT and scanned.
+    1. A body introduced by an interpreter or a remote shell, or PIPED into one, IS EXECUTED.
+       `bash <<'EOF' / git diff / EOF` really runs the diff, so stripping it would be a live
+       WEAKENING, not a theoretical one. Those bodies are KEPT WHOLE and scanned.
     2. An UNQUOTED tag EXPANDS the body, so `<<EOF` containing `$(git diff)` really runs the
-       substitution. Only a quoted tag (`<<'EOF'`, `<<"EOF"`) is inert. Unquoted bodies are KEPT.
+       substitution. Only a quoted tag (`<<'EOF'`, `<<"EOF"`) is inert. The EXPANSIONS of an
+       unquoted body are therefore kept; its literal TEXT is data like any other body text and is
+       dropped, which is what removes the vpr-1472 codex#5 / claude F5 false block.
     3. A false introducer with NO matching terminator must remove NOTHING. Swallowing the
        remainder of the command would be a universal bypass for every check downstream.
 
@@ -272,6 +402,9 @@ def _strip_heredocs_local(command: str) -> str:
     inside a python program is not a shell command, and scanning it produced a real false catch.
     That is the documented `_hookutil.NON_SHELL_INTERPRETERS` position and it is RESIDUE, stated
     in the module docstring rather than claimed away.
+
+    Property 2 is NARROWER here than in `_hookutil`, deliberately: an unquoted body keeps only its
+    LIVE EXPANSIONS, not its literal text. See `_live_expansions` and DIVERGENCE below.
     """
     lines = command.split("\n")
     out, i = [], 0
@@ -279,7 +412,14 @@ def _strip_heredocs_local(command: str) -> str:
         line = lines[i]
         out.append(line)
         i += 1
-        cw = _fallback_command_word(line)
+        # The body is a PROGRAM when ANY stage of this line is an interpreter, not only the first
+        # word: `cat <<EOF | bash` feeds the body to a shell just as surely as `bash <<EOF` does.
+        # 22df0be2 read the first word only, so the piped form was already stripped for a quoted
+        # tag; narrowing the unquoted case without this would have widened that miss instead of
+        # leaving it where it was.
+        stage_words = {_fallback_command_word(part)
+                       for part in re.split(r"\|\|?|&&|;", line)}
+        body_is_program = bool(stage_words & _HEREDOC_BODY_IS_SHELL)
         for quote, tag in _HEREDOC_RE.findall(line):
             end = None
             for j in range(i, len(lines)):
@@ -288,22 +428,37 @@ def _strip_heredocs_local(command: str) -> str:
                     break
             if end is None:
                 continue                                 # property 3: remove NOTHING
-            if bool(quote) and cw not in _HEREDOC_BODY_IS_SHELL:
-                i = end + 1                              # inert DATA: drop body and terminator
-            else:
-                out.extend(lines[i:end + 1])             # properties 1 and 2: keep and scan
-                i = end + 1
+            body = lines[i:end]
+            i = end + 1
+            if body_is_program:
+                out.extend(body + [lines[end]])          # property 1: a PROGRAM, keep and scan
+            elif not quote:
+                out.extend(_live_expansions("\n".join(body)))   # property 2: expansions only
+            # a QUOTED tag on a non-interpreter is inert DATA: drop the body and the terminator
     return "\n".join(out)
 
 
 try:
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    from _hookutil import WRAPPERS, strip_heredocs
-    _HEREDOC_IMPL = "_hookutil"
+    from _hookutil import WRAPPERS
+    from _hookutil import strip_heredocs as _shared_strip_heredocs
+    _HEREDOC_IMPL = "_hookutil-present"
 except Exception:                                        # pragma: no cover - standalone fallback
     WRAPPERS = set(_FALLBACK_WRAPPERS)
-    strip_heredocs = _strip_heredocs_local
-    _HEREDOC_IMPL = "in-file"
+    _shared_strip_heredocs = None
+    _HEREDOC_IMPL = "standalone"
+
+# DIVERGENCE, deliberate and asserted rather than drift. The shared module keeps an UNQUOTED body
+# WHOLE (PR #1441 property 2) and every hook that reads a body for MUTATING commands needs it that
+# way. This hook's observable is different: it asks whether a +/- body reaches the CONSOLE, and a
+# line of note text that merely BEGINS with `git diff` neither prints nor runs. Keeping the shared
+# call would have re-introduced the false block the moment the import resolved -- which is exactly
+# the condition under review, since 22df0be2 was self-tested standalone and shipped alongside
+# `_hookutil`. So the in-file implementation is AUTHORITATIVE for this hook, and the self-test
+# asserts the two agree everywhere EXCEPT the one documented refinement. The de-duplication this
+# splits is real; the follow-up is to lift `_live_expansions` into `_hookutil` behind a flag, which
+# changes other hooks' behaviour and is therefore not this fix's to make.
+strip_heredocs = _strip_heredocs_local
 
 # Wrapper options that consume a SEPARATE following value. Without this table `env -u FOO git diff`
 # loses the command word at `FOO` and the whole invocation goes unseen (review HIGH-2).
@@ -342,10 +497,25 @@ SUMMARY_LONG = {"--stat", "--numstat", "--shortstat", "--dirstat", "--summary",
                 "--stat-count"}
 
 # Long flags that suppress the body regardless of ORDER (verified: they beat a later -p).
-HARD_SUPPRESS_LONG = {"--name-only", "--name-status", "--quiet", "--check"}
+# `--quiet` is NOT here: it is order-free for the diff-* family only. See _QUIET_SOFT_SUBS.
+HARD_SUPPRESS_LONG = {"--name-only", "--name-status", "--check"}
 
-# Long flags that turn the patch body ON.
-PATCH_LONG = {"--patch", "--patch-with-stat", "--patch-with-raw", "--cc", "--unified"}
+# Subcommands where `--quiet` only SETS the format instead of hard-suppressing. Verified on
+# git 2.53.0: `git log --quiet -p` and `git show --quiet -p HEAD` each print a full patch, while
+# `git show --quiet HEAD` prints none, so it clears the DEFAULT patch and not an explicit one.
+# 22df0be2 treated `--quiet` as order-free everywhere and therefore ALLOWED both walls.
+_QUIET_SOFT_SUBS = {"log", "show", "whatchanged"}
+
+# Long flags that turn the patch body ON. `--binary` implies --patch and is order-sensitive in
+# exactly the way -p is (`--no-patch --binary` prints, `--binary --no-patch` does not): vpr-1472
+# codex#1, verified by count on git 2.53.0.
+PATCH_LONG = {"--patch", "--patch-with-stat", "--patch-with-raw", "--cc", "--unified", "--binary"}
+
+# WEAK patch flags: they print a body on their own, but ANY other format flag beats them in EITHER
+# order (verified: --stat, --no-patch, --name-only, --check and --quiet each take
+# `git log --remerge-diff -1` from 2380 content rows to 0). Modelling them as PATCH_LONG would have
+# false-blocked `--no-patch --remerge-diff`, which prints nothing.
+WEAK_PATCH_LONG = {"--remerge-diff"}
 
 # Order-sensitive suppressor: sets the format (so no default patch) and clears an earlier patch.
 NO_PATCH_LONG = {"--no-patch"}
@@ -366,9 +536,12 @@ _SHORT_VALUE_LETTERS = set("SGOlIUxX")
 REDIR_STDOUT_OPS = {">", ">>", ">|", "&>", "&>>", ">&"}
 
 # Destinations that relay to the maintainer's screen. A redirect to one of these is NOT an exemption.
+# The target is NORMALISED (`_normalise_path`) before either test, so a redundant separator is not a
+# different destination: `/dev//tty`, `/dev/./stderr` and `//dev/stdout` are the console (codex#2).
 CONSOLE_TARGETS = {"/dev/tty", "/dev/console", "/dev/stdout", "/dev/stderr", "/dev/ptmx"}
 _CONSOLE_FD_RE = re.compile(
-    r"^(?:/dev/fd/[12]|/proc/(?:self|thread-self|\d+)/fd/[12]|/dev/pts/\d+)$")
+    r"^(?:/dev/fd/[12]|/proc/(?:self|thread-self|\d+)/fd/[12]|/dev/pts/\d+"
+    r"|/dev/tty\d+|/dev/ttyS\d+)$")
 
 # Pipeline stages that CONSUME rather than relay: their console output is a count or a digest.
 NON_RELAYING = {"wc", "md5sum", "sha1sum", "sha224sum", "sha256sum", "sha384sum", "sha512sum",
@@ -379,9 +552,17 @@ _GREP_COMMANDS = {"grep", "egrep", "fgrep", "rg", "ggrep"}
 _GREP_QUIET_FLAGS = {"-c", "--count", "-q", "--quiet", "--silent", "-l", "-L",
                      "--files-with-matches", "--files-without-match"}
 
-# Words whose enclosing context CAPTURES a command substitution instead of printing it.
+# Words whose enclosing context CAPTURES a command substitution instead of printing it. These are
+# CONSUMERS: the word that actually receives the substitution's value.
 CAPTURING_WORDS = {"[", "[[", "test", "local", "export", "declare", "readonly", "typeset", "let",
-                   "if", "while", "until", "elif", "return", "exit"}
+                   "return", "exit"}
+
+# Reserved words that may sit in front of the consumer without being it. `if` and `while` were in
+# CAPTURING_WORDS at 22df0be2, which made `if echo "$(git diff)"; then :; fi` read as captured
+# (vpr-1472 codex#3). They are TRANSPARENT: skip them and keep looking for the real consumer.
+CAPTURE_TRANSPARENT = {"if", "then", "elif", "else", "while", "until", "do", "done", "fi",
+                       "for", "select", "case", "esac", "in", "function", "!", "{", "}",
+                       "((", "))", "time"}
 
 # Non-git renderers of the same wall (COVER_NON_GIT_DIFF).
 DIFF_COMMANDS = {"diff", "colordiff", "sdiff", "icdiff"}
@@ -392,8 +573,33 @@ DUMP_COMMANDS = {"cat", "bat", "batcat", "less", "more", "most", "view", "tac", 
 PATCH_SUFFIXES = (".diff", ".patch")
 
 _ASSIGN_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*=.*", re.DOTALL)
-_SUBST_PLACEHOLDER = "__GRC_SUBST__"
 _MAX_DEPTH = 5
+
+# A substitution is lifted out of the outer text and replaced by a NUMBERED placeholder, and the
+# body is kept in a registry beside it. The number is what lets a redirect classifier ask what a
+# process substitution actually runs: `git diff > >(wc -l)` needs the consumer word `wc` to decide
+# that a COUNT reaches the console rather than the body (vpr-1472 codex#6), and at 22df0be2 the
+# placeholder was a single opaque string, so the consumer was unrecoverable and every `>(...)` was
+# classified as relaying. The registry is process-local and one hook process handles ONE command;
+# `offending_segment()` clears it so a long-lived caller (the self-test) cannot grow it without
+# bound or read a stale body.
+_SUBST_PREFIX = "__GRC_SUBST_"
+_SUBST_RE = re.compile(r"__GRC_SUBST_\d+__")
+_SUBST_BODIES = []
+
+
+def _new_placeholder(inner: str) -> str:
+    _SUBST_BODIES.append(inner)
+    return "%s%d__" % (_SUBST_PREFIX, len(_SUBST_BODIES) - 1)
+
+
+def _placeholder_body(token: str):
+    """The registered body of a placeholder TOKEN, or None when the token is not one."""
+    token = token.strip()
+    if not _SUBST_RE.fullmatch(token):
+        return None
+    index = int(token[len(_SUBST_PREFIX):-2])
+    return _SUBST_BODIES[index] if index < len(_SUBST_BODIES) else None
 
 
 # --------------------------------------------------------------------------------------------
@@ -450,15 +656,33 @@ def _is_capturing_context(prefix: str) -> bool:
 
     This is the difference between `x=$(git diff)` (prints nothing, allowed) and
     `echo $(git diff)` (prints the wall, blocked). Heuristic by design; see RESIDUE.
+
+    The decision reads the CONSUMER -- the first word of the prefix that is not an assignment, a
+    wrapper or a transparent reserved word -- and not, as at 22df0be2, ANY word anywhere in the
+    prefix. That older scan had two live consequences, both fixed here and both fixtured:
+
+      * `if echo "$(git diff)"; then :; fi` was read as captured because `if` was in the set. It is
+        not: `echo` is the condition command and it prints the wall (vpr-1472 codex#3).
+      * so was `echo "exit code: $(git diff)"`, because the ENGLISH word `exit` was in the set. One
+        extra word in a string defeated the guard (vpr-1472 claude F4).
+
+    A prefix that reduces to reserved words alone (`if $(git diff); then`) returns False, the same
+    answer an EMPTY prefix already gave: the conservative side, and unchanged from 22df0be2.
     """
     words = prefix.split()
     if not words:
         return False
     if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*=[\"']?", words[-1]):
         return True                                      # x=$( ... )
-    for w in words:
-        if os.path.basename(w.strip("\"'")) in CAPTURING_WORDS:
+    for word in words:
+        bare = os.path.basename(word.strip("\"'"))
+        if not bare:
+            continue
+        if bare in CAPTURING_WORDS:
             return True
+        if bare in CAPTURE_TRANSPARENT or _ASSIGN_RE.fullmatch(bare) or bare in WRAPPERS:
+            continue
+        return False                                     # the consumer is a PRINTING command
     return False
 
 
@@ -509,14 +733,14 @@ def _split_substitutions(text: str):
             if end < 0:
                 raise ValueError("unterminated backtick")
             inner.append((text[i + 1:end], _is_capturing_context("".join(out[last_break:]))))
-            out.append(_SUBST_PLACEHOLDER)
+            out.append(_new_placeholder(text[i + 1:end]))
             i = end + 1
             continue
         if text.startswith("$((", i):
             end = _match_paren(text, i + 1)              # arithmetic: opaque, no recursion
             if end < 0:
                 raise ValueError("unterminated arithmetic expansion")
-            out.append(_SUBST_PLACEHOLDER)
+            out.append(_new_placeholder(""))
             i = end + 2                                  # skip the second `)` of `))`
             continue
         if text.startswith("$(", i):
@@ -524,7 +748,7 @@ def _split_substitutions(text: str):
             if end < 0:
                 raise ValueError("unterminated command substitution")
             inner.append((text[i + 2:end], _is_capturing_context("".join(out[last_break:]))))
-            out.append(_SUBST_PLACEHOLDER)
+            out.append(_new_placeholder(text[i + 2:end]))
             i = end + 1
             continue
         if ch in "<>" and not in_double and text.startswith("(", i + 1):
@@ -534,7 +758,7 @@ def _split_substitutions(text: str):
             # A process-substitution body is NOT captured: `cat <(git diff)` and `> >(cat)` both
             # relay. The `>(` marker is preserved so the redirect classifier can see it.
             inner.append((text[i + 2:end], False))
-            out.append(ch + "(" + _SUBST_PLACEHOLDER + ")")
+            out.append(ch + "(" + _new_placeholder(text[i + 2:end]) + ")")
             i = end + 1
             continue
         out.append(ch)
@@ -555,19 +779,97 @@ def _tokenize(line: str):
     return list(lex)
 
 
+def _join_continuations(text: str) -> str:
+    """Remove a backslash-newline OUTSIDE single quotes, which is what the shell does before it
+    parses.
+
+    `git diff --stat \\` + newline + `-p` is ONE command and prints a full patch. Splitting it on
+    the newline handed the tokenizer a trailing backslash, which raised, which failed the WHOLE
+    command open (vpr-1472 claude F1, the sharper of its two spellings). The pair is removed rather
+    than replaced with a space, matching the shell: `--st\\` + newline + `at` is `--stat`.
+
+    Inside SINGLE quotes a backslash is literal and the pair is left alone. Inside double quotes it
+    IS a continuation, which is why only the single-quote state is tracked.
+    """
+    out = []
+    i, n = 0, len(text)
+    in_single = False
+    while i < n:
+        ch = text[i]
+        if in_single:
+            if ch == "'":
+                in_single = False
+            out.append(ch)
+            i += 1
+            continue
+        if ch == "'":
+            in_single = True
+            out.append(ch)
+            i += 1
+            continue
+        if ch == "\\" and i + 1 < n:
+            if text[i + 1] == "\n":
+                i += 2                                   # the shell removes the PAIR
+                continue
+            out.append(text[i:i + 2])                    # `\\` and friends: consume the escape
+            i += 2
+            continue
+        out.append(ch)
+        i += 1
+    return "".join(out)
+
+
+def _logical_lines(text: str):
+    """Physical lines regrouped so a quoted string that SPANS a newline stays ONE logical line.
+
+    The other half of vpr-1472 claude F1. A newline inside a quoted argument is ordinary shell:
+
+        git commit -m "Title
+        <blank line>
+        Body"
+        git diff
+
+    Splitting on the newline first left `git commit -m "Title` for the tokenizer, which raised
+    `No closing quotation`; the raise escaped past the per-segment guard and allowed the WHOLE
+    command, including the `git diff` on the last line. Joining forward until the text tokenizes
+    keeps the commit as one segment and leaves the `git diff` as its own, which is a BLOCK.
+
+    A buffer that never balances is emitted as it stands and `_segments` fails that ONE line open.
+    That is the accepted residue, and it is now a line rather than a whole command.
+    """
+    out, buf = [], None
+    for line in text.split("\n"):
+        candidate = line if buf is None else buf + "\n" + line
+        try:
+            _tokenize(candidate)
+        except ValueError:
+            buf = candidate
+            continue
+        out.append(candidate)
+        buf = None
+    if buf is not None:
+        out.append(buf)
+    return out
+
+
 def _segments(text: str):
     """[(tokens, operator_that_followed), ...].
 
     Newlines are split FIRST, because shlex treats a newline as ordinary whitespace and would
     otherwise fuse two lines into one segment, letting a `--stat` on line 1 exempt a bare
-    `git diff` on line 2.
+    `git diff` on line 2. `_logical_lines` is what stops that split from cutting a quoted string
+    in half.
     """
     out = []
-    for line in text.split("\n"):
+    for line in _logical_lines(text):
         if not line.strip():
             continue
+        try:
+            tokens = _tokenize(line)
+        except ValueError:
+            continue                                     # per-LINE fail-open, never whole-command
         current = []
-        for tok in _tokenize(line):
+        for tok in tokens:
             if tok in SEPARATORS:
                 if current:
                     out.append((current, tok))
@@ -735,7 +1037,7 @@ def _git_prints_content(sub: str, args) -> bool:
         return not any(t in ("-h", "--help", "--tool-help") for t in args)
     if sub not in ALWAYS_CONTENT and sub not in CONTENT_IF_PATCH:
         return False
-    state = {"patch": False, "format_set": False, "hard": False}
+    state = {"patch": False, "format_set": False, "hard": False, "weak": False}
     skip = False
     for tok in args:
         if skip:
@@ -746,7 +1048,18 @@ def _git_prints_content(sub: str, args) -> bool:
         if not tok.startswith("-") or tok == "-":
             continue
         head = tok.split("=", 1)[0]
-        if head in HARD_SUPPRESS_LONG:
+        if head == "--quiet":
+            # Subcommand-dependent, measured rather than assumed: for the diff-* family `--quiet`
+            # beats a patch flag in either order, but `git log --quiet -p` and
+            # `git show --quiet -p HEAD` each print a full patch. 22df0be2 called `--quiet`
+            # order-free everywhere and therefore allowed both of those walls.
+            if sub in _QUIET_SOFT_SUBS:
+                state["format_set"] = True
+            else:
+                state["hard"] = True
+        elif head in WEAK_PATCH_LONG:
+            state["weak"] = True                         # deliberately does NOT set format_set
+        elif head in HARD_SUPPRESS_LONG:
             state["hard"] = True
         elif head in NO_PATCH_LONG:
             state["patch"] = False
@@ -764,7 +1077,11 @@ def _git_prints_content(sub: str, args) -> bool:
             skip = _apply_short_cluster(tok, state)
     if state["hard"]:
         return False
-    return state["patch"] or (not state["format_set"] and sub in ALWAYS_CONTENT)
+    if state["patch"]:
+        return True
+    if state["weak"] and not state["format_set"]:
+        return True                                      # `--remerge-diff` with nothing beating it
+    return not state["format_set"] and sub in ALWAYS_CONTENT
 
 
 def _git_output_file(args):
@@ -781,20 +1098,67 @@ def _git_output_file(args):
 # Layer 4: does the body reach the console
 # --------------------------------------------------------------------------------------------
 
+def _normalise_path(target: str) -> str:
+    """Collapse redundant separators and `.` segments before a destination is compared.
+
+    `/dev//tty`, `/dev/./stderr`, `//dev/stdout` and `/proc/self//fd/1` are the console under any
+    spelling; at 22df0be2 only a TRAILING slash was removed, so each of those evaded the console
+    test and reached the screen through a redirect the hook believed was quiet (vpr-1472 codex#2).
+
+    This is a LEXICAL normalisation of the command text, not a resolution of the file system: no
+    symlink is followed and no path is touched, so it cannot change what an ordinary output file
+    means and it cannot depend on machine state at hook time.
+    """
+    if not target:
+        return target
+    return re.sub(r"^/{2,}", "/", posixpath.normpath(target))
+
+
 def _target_is_quiet(kind: str, target: str) -> bool:
     """True when a redirect destination genuinely keeps the body off the maintainer's screen."""
     if kind == "dup":
-        return target not in ("1", "2")                  # `>&1` / `>&2` relay; `>& file` does not
+        if not target or target.isdigit():
+            # `>&1` / `>&2` obviously relay. An ALREADY-OPEN descriptor (`1>&3` after `3>&1`, the
+            # standard "back to stdout" spelling) cannot be proved quiet from one segment, and
+            # 22df0be2 called every fd other than 1 and 2 quiet, which allowed a real wall
+            # (vpr-1472 codex#4). Unprovable is treated as CONSOLE.
+            return False
+        kind = "file"                                    # csh-style `>& word`: BOTH streams to a
+        #                                                  PATH, so classify the path (claude F2)
     if not target:
         return False
     if target.startswith(">(") or target.startswith("<("):
-        return False                                     # process substitution relays
-    if "$" in target or "`" in target or _SUBST_PLACEHOLDER in target:
+        return False                                     # bare marker: see _stdout_is_quiet
+    if "$" in target or "`" in target or _SUBST_RE.search(target):
         return not REQUIRE_LITERAL_REDIRECT_TARGET
-    norm = target.rstrip("/")
+    norm = _normalise_path(target)
     if norm in CONSOLE_TARGETS or _CONSOLE_FD_RE.match(norm):
         return False
     return True
+
+
+def _procsub_consumer_is_quiet(tokens, start: int) -> bool:
+    """True when a `> >( ... )` CONSUMER prints a count or a digest rather than the body it is fed.
+
+    22df0be2 classified every process-substitution target as relaying, so the sanctioned bounded
+    shape `git diff > >(wc -l)` -- which puts ONE number on the console -- was refused
+    (vpr-1472 codex#6). The consumer is now read with the SAME test a pipeline stage gets, which is
+    also why `> >(cat)` and `> >(tee f)` stay blocked: those relay the wall.
+    """
+    body = None
+    i = start
+    while i < len(tokens) and tokens[i] != ")":
+        registered = _placeholder_body(tokens[i])
+        if registered is not None:
+            body = registered
+        i += 1
+    if body is None:
+        return False
+    try:
+        inner = _tokenize(body)
+    except ValueError:
+        return False                                     # unreadable consumer: assume it relays
+    return _consumes_rather_than_relays(inner) or _stdout_is_quiet(inner)
 
 
 def _stdout_is_quiet(tokens) -> bool:
@@ -811,10 +1175,15 @@ def _stdout_is_quiet(tokens) -> bool:
         if prev.isdigit() and prev != "1":
             continue                                     # 2> / 3> / 2>&1 : not stdout
         target = tokens[i + 1] if i + 1 < len(tokens) else ""
-        found = ("dup" if tok == ">&" else "file", target)
-    if found is None:
+        if target in (">(", "<("):
+            found = ("procsub", i + 2)                   # the consumer decides, not the marker
+        else:
+            found = ("dup" if tok == ">&" else "file", target)
+    if found is None or not ALLOW_FILE_REDIRECT:
         return False
-    return ALLOW_FILE_REDIRECT and _target_is_quiet(found[0], found[1])
+    if found[0] == "procsub":
+        return _procsub_consumer_is_quiet(tokens, found[1])
+    return _target_is_quiet(found[0], found[1])
 
 
 def _consumes_rather_than_relays(tokens) -> bool:
@@ -901,14 +1270,14 @@ def _segment_dumps_content(tokens, segments, index: int, depth: int):
     if not _reaches_console(segments, index):
         return None
     # The internal substitution placeholder must never surface in the maintainer-facing message.
-    return " ".join(tokens).replace(_SUBST_PLACEHOLDER, "...")
+    return _SUBST_RE.sub("...", " ".join(tokens))
 
 
 def _scan_command(text: str, captured: bool = False, depth: int = 0):
     """The first console-reaching content dump in this shell text, as a display string, or None."""
     if depth > _MAX_DEPTH or not isinstance(text, str) or not text.strip():
         return None
-    outer, subs = _split_substitutions(strip_heredocs(text))
+    outer, subs = _split_substitutions(_join_continuations(strip_heredocs(text)))
     if not captured:
         segments = _segments(outer)
         for index in range(len(segments)):
@@ -929,6 +1298,7 @@ def offending_segment(command: str):
     """The first console-reaching content-dumping segment (display string), or None. Never raises."""
     if not isinstance(command, str) or not command.strip():
         return None
+    del _SUBST_BODIES[:]                                 # one process, one command: no stale bodies
     try:
         return _scan_command(command)
     except Exception:
@@ -1121,6 +1491,62 @@ BLOCKED_CASES = [
     "cat > /tmp/note.md <<'NOEND'\ngit diff",                  # no terminator: strip NOTHING
     "grep 'x' <<< 'data'\ngit diff",                           # `<<<` is a herestring, not a heredoc
     "cat > /tmp/note.md <<'EOF'\nnotes\nEOF\ncat /tmp/x.patch",  # non-git dumper after a body
+    # --- vpr-1472 codex#1: patch-enabling flags the 22df0be2 model did not recognise -------------
+    "git log --binary -1 --format=",                           # codex#1's exact failing input
+    "git log --binary",
+    "git diff --binary",
+    "git log --no-patch --binary",                             # order-sensitive, like -p
+    "git log --stat --binary",
+    "git show --binary HEAD",
+    "git log --remerge-diff -1",                               # weak patch, nothing beating it
+    "git diff --remerge-diff",
+    # --- extra, found while verifying codex#1: --quiet is not order-free for log / show -----------
+    "git log --quiet -p",
+    "git log -p --quiet",
+    "git show --quiet -p HEAD",
+    "git log --quiet --binary",
+    # --- vpr-1472 codex#2: a console path spelled with redundant separators ----------------------
+    "git diff > /dev//tty",
+    "git diff > /dev/./stderr",
+    "git diff > //dev/stdout",
+    "git diff > /proc/self//fd/1",
+    "git diff > /dev/pts//3",
+    "git diff > /dev/tty/",
+    "git diff --output=/dev//tty",
+    # --- extra, same class as codex#2: the numbered virtual consoles (claude F8) -----------------
+    "git diff > /dev/tty1",
+    "git diff > /dev/ttyS0",
+    # --- vpr-1472 codex#3: a reserved word must not make a PRINTING consumer look captured -------
+    "if echo \"$(git diff)\"; then :; fi",                     # codex#3's exact failing input
+    "while echo \"$(git diff)\"; do break; done",
+    "until echo $(git show HEAD); do break; done",
+    # --- vpr-1472 codex#4 / claude F2: a console fd and the csh-style `>&` spelling --------------
+    "git diff HEAD^ HEAD -- README.md 3>&1 1>&3",              # codex#4's exact failing input
+    "git diff >&3",
+    "git diff 1>&4",
+    "git diff >& /dev/tty",                                    # claude F2, all three spellings
+    "git diff >&/dev/tty",
+    "git diff >& /dev/pts/2",
+    "git diff >& /dev/stdout",
+    # --- vpr-1472 claude F4: an ENGLISH word in the prefix must not defeat the capture test ------
+    "echo test $(git diff)",
+    'echo "test output: $(git diff)"',
+    'echo "if you look: $(git diff)"',
+    'echo "exit code: $(git diff)"',
+    'printf "%s" "$(git diff)"',
+    # --- vpr-1472 claude F1: a construct that spans a newline is PARSED, not failed open ---------
+    'git commit -m "Title\n\nBody"\ngit diff',                 # F1 spelling 1
+    "git diff --stat \\\n-p",                                  # F1 spelling 2, prints 230 rows
+    "git log \\\n-p",
+    "git commit -m 'one\ntwo'\ngit show HEAD",
+    "git diff \\\n--patch",
+    # --- a heredoc body piped INTO an interpreter is still a PROGRAM ----------------------------
+    "cat <<EOF | bash\ngit diff\nEOF",
+    "cat <<'EOF' | sh\ngit diff\nEOF",
+    # --- a process substitution that RELAYS is still a wall (the codex#6 counterpart) ------------
+    "git diff > >(tee /tmp/d.diff)",
+    "git diff > >(grep '^+')",
+    "git diff > >(head -20)",
 ]
 
 ALLOWED_CASES = [
@@ -1207,9 +1633,53 @@ ALLOWED_CASES = [
     "grep -n '^+++' /tmp/x.patch | cut -c1-120",
     "git difftool --help",
     "patch -p1 < /tmp/x.patch",
+    # --- vpr-1472 codex#5 / claude F5: an UNQUOTED heredoc body is DATA, like a quoted one ---------
+    "cat > /tmp/note.md <<EOF\ngit diff\nEOF",                 # codex#5's exact failing input
+    "cat > /tmp/note.md <<EOF\ngit diff is forbidden here\nEOF",
+    "cat > /tmp/note.md <<EOF\ncat report.patch to read it\nEOF",
+    "cat > /tmp/note.md <<EOF\ngit show HEAD:file.py is refused too\nEOF",
+    "cat > /tmp/note.md <<-EOF\n\tgit diff\n\tEOF",            # tab-stripping, unquoted
+    "tee /tmp/note.md <<EOF\ndiff -u a b renders a wall\nEOF",
+    # --- vpr-1472 codex#6: a process-substitution CONSUMER that counts is not a wall ---------------
+    "git diff > >(wc -l)",                                     # codex#6's exact failing input
+    "git diff > >(md5sum)",
+    "git diff > >(grep -c '^+')",
+    "git diff > >(sha256sum)",
+    "git diff > >(cat > /tmp/d.diff)",                         # the consumer's own stdout is quiet
+    # --- vpr-1472 claude F2 counterpart: `>& path` is the csh form and a file is still quiet -------
+    "git diff >& /tmp/d.diff",
+    "git diff >& /dev/null",
+    "git diff >&/tmp/d.diff",
+    # --- vpr-1472 codex#2 counterpart: normalisation must not turn an ordinary path into a console -
+    "git diff > /tmp//d.diff",
+    "git diff > /tmp/./d.diff",
+    "git diff > /tmp/dev/tty",
+    "git diff > /tmp/d.diff/",
+    # --- vpr-1472 codex#1 counterpart: the weak patch flag really is beaten, in either order -------
+    "git log --remerge-diff --no-patch",
+    "git log --no-patch --remerge-diff",
+    "git log --stat --remerge-diff -1",
+    "git log --quiet --remerge-diff -1",
+    "git log --remerge-diff --name-only",
+    "git log --binary --no-patch",
+    "git diff --quiet --binary",
+    "git show --quiet HEAD",
+    # --- vpr-1472 codex#3 / claude F4 counterpart: a real capturing CONSUMER still captures --------
+    'while [ -n "$(git diff)" ]; do break; done',
+    'if [[ -n "$(git diff)" ]]; then echo dirty; fi',
+    'test -n "$(git diff)"',
+    'if test -n "$(git diff)"; then echo dirty; fi',
+    "export SUMMARY=$(git diff)",
+    "local x=$(git diff)",
+    'if sudo test -n "$(git diff)"; then echo dirty; fi',
+    # --- vpr-1472 claude F1 counterpart: the multi-line command itself is not a diff ---------------
+    'git commit -m "Title\n\nBody"',
+    "git diff --stat \\\n--name-only",
+    'git commit -m "line one\nline two" && git diff --stat',
     # --- STATED RESIDUE, asserted so the gap is visible rather than claimed away --------------------
     "python3 -c 'import os; os.system(\"git diff\")'",
     "G=git; $G diff",
+    "x=$(git diff)\necho \"$x\"",                              # capture-then-print, claude F6
 ]
 
 # Malformed shell. The contract is FAIL-OPEN: allow, exit 0, never raise.
@@ -1221,6 +1691,12 @@ FAIL_OPEN_CASES = [
     "git diff $(",
     "git diff <(",
     "git diff --unmatched-quote'",
+    # ACCEPTED MISS (vpr-1472 claude F1). Text that never balances however the lines are grouped
+    # still fails open. `_logical_lines` joins forward first, so the two ORDINARY spellings F1
+    # named are parsed and blocked; what is left is exotic, and fail-open costs a miss, not a
+    # false block. Asserted here so the direction can never silently invert.
+    "git diff 'unbalanced\ngit show HEAD",
+    'git show "open\ngit diff',
 ]
 
 
@@ -1374,47 +1850,115 @@ def self_test() -> int:
 
     # The internal placeholder must never reach the maintainer-facing message.
     extra += 1
-    if _SUBST_PLACEHOLDER in (offending_segment("git diff > >(cat)") or ""):
+    if _SUBST_RE.search(offending_segment("git diff > >(cat)") or ""):
         bad += 1
         print("FAIL: the substitution placeholder leaked into the reported segment")
 
+    # Layer contracts for the vpr-1472 fixes, asserted directly and not only through a fixture, so
+    # a future refactor breaks HERE with a name attached rather than in a command far downstream.
+    for target, want in (("/dev//tty", "/dev/tty"), ("/dev/./stderr", "/dev/stderr"),
+                         ("//dev/stdout", "/dev/stdout"), ("/proc/self//fd/1", "/proc/self/fd/1"),
+                         ("/dev/tty/", "/dev/tty"), ("/tmp//d.diff", "/tmp/d.diff"),
+                         ("/tmp/dev/tty", "/tmp/dev/tty"), ("", "")):
+        extra += 1
+        if _normalise_path(target) != want:              # codex#2
+            bad += 1
+            print("FAIL normalise: %r -> %r want %r" % (target, _normalise_path(target), want))
+
+    for body, want in (("git diff", []),
+                       ("git diff is forbidden here", []),
+                       ("$(git diff)", ["$(git diff)"]),
+                       ("see $(git diff) below", ["$(git diff)"]),
+                       ("`git diff`", ["`git diff`"]),
+                       ("cost is $((1 + 2)) units", []),
+                       ("\\$(git diff)", []),
+                       ("$(git diff", [])):
+        extra += 1
+        if _live_expansions(body) != want:               # codex#5 / claude F5
+            bad += 1
+            print("FAIL live-expansions: %r -> %r want %r"
+                  % (body, _live_expansions(body), want))
+
+    for prefix, want in (("x=", True), ("echo ", False), ("if ", False), ("if [ -n \"", True),
+                         ("if [[ -n \"", True), ("if echo \"", False), ("echo test ", False),
+                         ("echo \"exit code: ", False), ("test -n \"", True),
+                         ("sudo test -n \"", True), ("export FOO=", True), ("", False)):
+        extra += 1
+        if _is_capturing_context(prefix) != want:        # codex#3 / claude F4
+            bad += 1
+            print("FAIL capture-context: %r -> %s want %s"
+                  % (prefix, _is_capturing_context(prefix), want))
+
+    for text, want in (("a \\\nb", "a b"), ("a\\\nb", "ab"), ("a \\\\\nb", "a \\\\\nb"),
+                       ("'a \\\nb'", "'a \\\nb'"), ("a b", "a b")):
+        extra += 1
+        if _join_continuations(text) != want:            # claude F1
+            bad += 1
+            print("FAIL join-continuations: %r -> %r want %r"
+                  % (text, _join_continuations(text), want))
+
+    extra += 2
+    if len(_logical_lines('git commit -m "a\n\nb"\ngit diff')) != 2:
+        bad += 1
+        print("FAIL logical-lines: a multi-line quoted string must regroup into one line")
+    if len(_logical_lines("git diff --stat\ngit diff")) != 2:
+        bad += 1
+        print("FAIL logical-lines: two balanced lines must stay two lines")
+
     # The heredoc layer, asserted directly rather than only through the command fixtures. Each row
     # is (command, does PAYLOAD survive the strip). A body that survives is scanned as a program.
+    # Rows are (command, does PAYLOAD survive the strip, is this row a DELIBERATE divergence from
+    # `_hookutil.strip_heredocs`). A body that survives is scanned as a program.
     heredoc_cases = [
-        ("cat > f <<'EOF'\nPAYLOAD\nEOF",        False),  # quoted tag: inert DATA
-        ('cat > f <<"EOF"\nPAYLOAD\nEOF',        False),
-        ("cat > f <<-'EOF'\n\tPAYLOAD\n\tEOF",   False),  # tab-stripping form
-        ("cat > f <<EOF\nPAYLOAD\nEOF",          True),   # unquoted tag EXPANDS the body
-        ("bash <<'EOF'\nPAYLOAD\nEOF",           True),   # interpreter body is a PROGRAM
-        ("sh <<'EOF'\nPAYLOAD\nEOF",             True),
-        ("ssh host <<'EOF'\nPAYLOAD\nEOF",       True),
-        ("sudo sh <<'EOF'\nPAYLOAD\nEOF",        True),
-        ("python3 <<'EOF'\nPAYLOAD\nEOF",        False),  # not shell: category error, see RESIDUE
-        ("cat > f <<'NOEND'\nPAYLOAD\n",         True),   # no terminator: strip NOTHING
-        ("echo a <<< 'PAYLOAD'",                 True),   # herestring, not a heredoc
-        ("echo a << b\nPAYLOAD",                 True),   # `<<` with no shell-word tag
+        ("cat > f <<'EOF'\nPAYLOAD\nEOF",        False, False),  # quoted tag: inert DATA
+        ('cat > f <<"EOF"\nPAYLOAD\nEOF',        False, False),
+        ("cat > f <<-'EOF'\n\tPAYLOAD\n\tEOF",   False, False),  # tab-stripping form
+        ("cat > f <<EOF\nPAYLOAD\nEOF",          False, True),   # codex#5: literal text is DATA
+        ("cat > f <<-EOF\n\tPAYLOAD\n\tEOF",     False, True),
+        ("cat > f <<EOF\n$(PAYLOAD)\nEOF",       True,  True),   # a LIVE EXPANSION is a command
+        ("cat > f <<EOF\n`PAYLOAD`\nEOF",        True,  True),
+        ("bash <<'EOF'\nPAYLOAD\nEOF",           True,  False),  # interpreter body is a PROGRAM
+        ("sh <<'EOF'\nPAYLOAD\nEOF",             True,  False),
+        ("ssh host <<'EOF'\nPAYLOAD\nEOF",       True,  False),
+        ("sudo sh <<'EOF'\nPAYLOAD\nEOF",        True,  False),
+        ("bash <<EOF\nPAYLOAD\nEOF",             True,  False),  # unquoted INTERPRETER body: kept
+        ("cat <<'EOF' | bash\nPAYLOAD\nEOF",     True,  True),   # piped INTO a shell: a PROGRAM
+        ("cat <<EOF | bash\nPAYLOAD\nEOF",       True,  False),
+        ("python3 <<'EOF'\nPAYLOAD\nEOF",        False, False),  # not shell: see RESIDUE
+        ("cat > f <<'NOEND'\nPAYLOAD\n",         True,  False),  # no terminator: strip NOTHING
+        ("echo a <<< 'PAYLOAD'",                 True,  False),  # herestring, not a heredoc
+        ("echo a << b\nPAYLOAD",                 True,  False),  # `<<` with no shell-word tag
     ]
-    for impl_name, impl in (("effective", strip_heredocs), ("in-file", _strip_heredocs_local)):
-        for command, must_survive in heredoc_cases:
-            extra += 1
-            if ("PAYLOAD" in impl(command)) != must_survive:
-                bad += 1
-                print("FAIL heredoc (%s impl): %r want survive=%s"
-                      % (impl_name, command, must_survive))
-        # Text after a stripped body must survive: swallowing it is a universal bypass.
+    for command, must_survive, _diverges in heredoc_cases:
         extra += 1
-        if "AFTERWARDS" not in impl("cat > f <<'EOF'\nPAYLOAD\nEOF\nAFTERWARDS"):
+        if ("PAYLOAD" in strip_heredocs(command)) != must_survive:
             bad += 1
-            print("FAIL heredoc (%s impl): text after a stripped body did not survive" % impl_name)
-
-    # PARITY. The in-file copy exists so this hook is standalone; it must not drift from the shared
-    # module when that module is the one actually in use.
+            print("FAIL heredoc: %r want survive=%s" % (command, must_survive))
+    # Text after a stripped body must survive: swallowing it is a universal bypass.
     extra += 1
-    if _HEREDOC_IMPL == "_hookutil":
-        drift = [c for c, _ in heredoc_cases if strip_heredocs(c) != _strip_heredocs_local(c)]
+    if "AFTERWARDS" not in strip_heredocs("cat > f <<'EOF'\nPAYLOAD\nEOF\nAFTERWARDS"):
+        bad += 1
+        print("FAIL heredoc: text after a stripped body did not survive")
+    extra += 1
+    if "AFTERWARDS" not in strip_heredocs("cat > f <<EOF\nPAYLOAD\nEOF\nAFTERWARDS"):
+        bad += 1
+        print("FAIL heredoc: text after an unquoted body did not survive")
+
+    # DIVERGENCE from `_hookutil.strip_heredocs`, asserted so it stays INTENDED and BOUNDED rather
+    # than becoming drift. The shared module keeps an unquoted DATA body whole; this hook keeps
+    # only its live expansions (codex#5 / claude F5). Every other row must still agree byte for
+    # byte, and the shared module must still exhibit the wider behaviour -- if it is ever narrowed
+    # the same way, this whole local implementation should be deleted in favour of it.
+    if _HEREDOC_IMPL == "_hookutil-present":
+        extra += 2
+        drift = [c for c, _s, diverges in heredoc_cases
+                 if not diverges and _shared_strip_heredocs(c) != _strip_heredocs_local(c)]
         if drift:
             bad += 1
-            print("FAIL: in-file strip_heredocs has drifted from _hookutil on " + repr(drift))
+            print("FAIL: unintended divergence from _hookutil on " + repr(drift))
+        if "PAYLOAD" not in _shared_strip_heredocs("cat > f <<EOF\nPAYLOAD\nEOF"):
+            bad += 1
+            print("FAIL: _hookutil no longer keeps an unquoted body; drop the in-file copy")
 
     FIRE_LOG = saved_log
     SELF_TEST_MODE = False
