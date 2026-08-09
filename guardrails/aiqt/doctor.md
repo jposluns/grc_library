@@ -1,6 +1,6 @@
 # AIQT doctor
 
-Version: 1.0.3 (plain semver; the AIQT release train assigns release versioning once it
+Version: 1.0.4 (plain semver; the AIQT release train assigns release versioning once it
 exists)
 Status: Phase-1 procedure; READ-ONLY and re-runnable; one summary line per check;
 non-zero exit only on a definite fault (degraded-but-working states report and exit 0).
@@ -25,8 +25,10 @@ it upgrades to, and reports an explicit status rather than staying silent.
    `core/` is a definite fault (non-zero exit), never a degraded state.
 3. **Secrets exist, unread.** For each enabled metered level, the named secret is
    present (`gh secret list` shape); the value is never fetched or printed. The secret
-   names come from the CI integration kit; until it ships, this check reports an
-   explicit NOT-CONFIGURED status (never silent, never a fault).
+   names are the CI kit's (`ci-kit/README.md`): `CLAUDE_CODE_OAUTH_TOKEN` or
+   `ANTHROPIC_API_KEY` for the Claude lane, `OPENAI_API_KEY` for the Codex lane; a
+   repository with no CI level enabled reports an explicit NOT-CONFIGURED status
+   (never silent, never a fault).
 4. **Origins reachable** (granted-consent origins only, per the `EgressConsent.<origin>`
    settings). The HEAD probe applies only to origins with a NAMED distribution
    artefact: today that is aiqt.ai (the versioned `aiqt-X.Y.Z.zip` and the unversioned

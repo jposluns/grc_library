@@ -1,0 +1,82 @@
+name: AIQT second opinion (Codex reviews Claude-authored change)
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aiqt-codex-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  # Models PIN per AIQT release; bump deliberately and record the bump.
+  AIQT_CODEX_MODEL: gpt-5.2-codex
+
+jobs:
+  codex-second-opinion:
+    if: >
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.draft == false &&
+      !contains(github.event.pull_request.title, '[skip aiqt]') &&
+      (startsWith(github.event.pull_request.head.ref, 'claude/') ||
+       contains(fromJSON('["claude[bot]"]'), github.event.pull_request.user.login))
+    runs-on: ubuntu-latest
+    outputs:
+      final_message: ${{ steps.run_codex.outputs.final-message }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Codex advisory review
+        id: run_codex
+        uses: openai/codex-action@v1
+        with:
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          sandbox: read-only
+          model: ${{ env.AIQT_CODEX_MODEL }}
+          prompt-file: .github/codex/prompts/aiqt-review.md
+          output-file: ${{ runner.temp }}/aiqt-codex-review.md
+
+      - name: Persist evidence artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aiqt-codex-review-${{ github.event.pull_request.number }}-${{ github.run_id }}
+          path: |
+            .github/codex/prompts/aiqt-review.md
+            ${{ runner.temp }}/aiqt-codex-review.md
+          retention-days: 90
+          if-no-files-found: warn
+
+  post-feedback:
+    needs: codex-second-opinion
+    if: needs.codex-second-opinion.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Post advisory comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = [
+              '## AIQT second opinion (Codex, advisory)',
+              '',
+              process.env.CODEX_MESSAGE || '(no message returned)',
+              '',
+              '_Metered API lane. Advisory only; the decision returns to the',
+              'developer. Pushes re-trigger this lane; superseded runs cancel._'
+            ].join('\n');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body,
+            });
+        env:
+          CODEX_MESSAGE: ${{ needs.codex-second-opinion.outputs.final_message }}

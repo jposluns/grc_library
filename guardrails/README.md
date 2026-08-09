@@ -2,8 +2,8 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.70.0\
-**Date:** 2026-08-08\
+**Version:** 1.71.0\
+**Date:** 2026-08-09\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Parent-library related documents:** `dev-security/standard-developer-security-requirements.md`, `dev-security/standard-devops-security-requirements.md`, `dev-security/guideline-ai-coding-assistant-security.md`, `ai/standard-ai-and-agentic-development-security.md`\
@@ -129,6 +129,7 @@ guardrails/
 │   ├── setup-wizard.md         Re-runnable onboarding wizard (writes only config.md)
 │   ├── doctor.md               Read-only health checks (incl. bounded-write-set verification)
 │   ├── families.json           Reviewer family registry (Claude, Codex; extensible)
+│   ├── ci-kit/                 CI integration kit: runbook, two lane workflows, canonical brief
 │   └── schemas/                finding.schema.json + verdict.schema.json (SARIF-lite interchange)
 ├── skills/                     Claude Code Skills (SKILL.md format) derived from selected pack rules
 │   ├── evidence-grounded-completion/SKILL.md          Six-step verification protocol before any completion claim or unread-artefact state assertion

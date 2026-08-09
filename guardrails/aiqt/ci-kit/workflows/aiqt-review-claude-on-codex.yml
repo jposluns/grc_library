@@ -1,0 +1,83 @@
+name: AIQT second opinion (Claude reviews Codex-authored change)
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: aiqt-claude-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  # Models PIN per AIQT release; bump deliberately and record the bump.
+  AIQT_CLAUDE_MODEL: claude-opus-5
+
+jobs:
+  claude-second-opinion:
+    # Fork guard (secrets never in scope for fork-origin code) AND the
+    # cross-family filter (branch prefix or bot login marks a Codex-authored
+    # change) AND the [skip aiqt] opt-out.
+    if: >
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.draft == false &&
+      !contains(github.event.pull_request.title, '[skip aiqt]') &&
+      (startsWith(github.event.pull_request.head.ref, 'codex/') ||
+       contains(fromJSON('["chatgpt-codex-connector[bot]"]'), github.event.pull_request.user.login))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Claude advisory review
+        uses: anthropics/claude-code-action@v1
+        with:
+          # Subscription OAuth at Level 2 (plan-included) when present; metered
+          # API key otherwise. Verify precedence in the action's documentation
+          # if both secrets are set.
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          use_sticky_comment: true
+          # SYNC: this brief mirrors ../prompts/aiqt-review.md; edit both together.
+          prompt: |
+            You are the cross-family second-opinion reviewer in an AIQT advisory
+            lane. This change was authored with a Codex-family assistant; you are
+            the Claude-family check. Run a full-harness review of the PR diff
+            against base (read the repository on demand; verify claims at source)
+            with a refute brief: hunt accuracy defects, integrity shortcuts
+            (suppressed checks, stubbed results), quality gaps, unverified claims,
+            and security touchpoints. ADVISORY: never request changes or block;
+            the decision returns to the developer. Post ONE consolidated comment:
+            1. A one-paragraph advisory verdict.
+            2. A fenced json block labelled sarif-lite: an array of findings per
+               the AIQT finding schema, each with tool ("claude-" plus the PR
+               number), ruleId (kebab-case class), level (note, warning, or
+               error), location ("path:line", fresh at the reviewed SHA),
+               fingerprint ("ruleId:path:line"), evidence (verbatim quote at the
+               reviewed SHA), impact (one line), and recommendation (one line).
+               Empty array if clean.
+            3. A verdict envelope json block per the AIQT verdict schema: verdict
+               (SHIP or HOLD, advisory), counts matching the finding set by level,
+               proof_of_run (files_read, commands_run, checks_passed), head, base
+               (the reviewed SHA pair, lowercase hex), and model (the resolved
+               model id actually used).
+            4. The spend note: "Metered lane unless this repository uses the
+               subscription OAuth path. Pushes re-trigger this lane; superseded
+               runs cancel."
+          claude_args: |
+            --max-turns 12 --model ${{ env.AIQT_CLAUDE_MODEL }}
+
+      - name: Persist evidence artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aiqt-claude-review-${{ github.event.pull_request.number }}-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/claude-code-action/**
+          retention-days: 90
+          if-no-files-found: warn

@@ -379,6 +379,26 @@
       "bucket": "CORE",
       "disclosure": "PUBLIC",
       "rationale": "Read-only health checks including the bounded-write-set verification (PR #1464)."
+    },
+    "aiqt/ci-kit/README.md": {
+      "bucket": "CORE",
+      "disclosure": "PUBLIC",
+      "rationale": "CI integration kit runbook: secrets, per-vendor auth, evidence policy (PR #1465)."
+    },
+    "aiqt/ci-kit/workflows/aiqt-review-claude-on-codex.yml": {
+      "bucket": "CORE",
+      "disclosure": "PUBLIC",
+      "rationale": "Lane workflow: Claude-family reviewer over Codex-family changes (PR #1465)."
+    },
+    "aiqt/ci-kit/workflows/aiqt-review-codex-on-claude.yml": {
+      "bucket": "CORE",
+      "disclosure": "PUBLIC",
+      "rationale": "Lane workflow: Codex-family reviewer over Claude-family changes (PR #1465)."
+    },
+    "aiqt/ci-kit/prompts/aiqt-review.md": {
+      "bucket": "CORE",
+      "disclosure": "PUBLIC",
+      "rationale": "The canonical cross-family review brief the lanes render (PR #1465)."
     }
   }
 }
