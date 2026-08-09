@@ -143,19 +143,21 @@ def _last_trailer_indices(lines: list[str]) -> tuple[int, int] | None:
 # malformed "Verdict(HOLD" is refused (the vpr-1467 r3 N1/N2 catches).
 # END OF DELIVERY in the bare OR wrapped HTML-comment form (the project sentinel is
 # the wrapped `<!-- END OF DELIVERY -->`, collect-deliveries.py SENTINEL).
-_EOD_RE = re.compile(r"^(?:<!--\s*)?END OF DELIVERY(?:\s*-->)?$")
+_EOD_RE = re.compile(r"^(?:END OF DELIVERY|<!--\s*END OF DELIVERY\s*-->)$")
 # The decision line. Optional heading + emphasis, an optional `PR VERDICT`/`Verdict:`
 # label (the `verdict` label is case-INsensitive; the DECISION token is not), the
-# uppercase decision, an optional `(advisory)` note, and an optional STRUCTURED
-# summary that must follow a punctuation separator (`, : |`), e.g. the real corpus
-# forms `PR VERDICT: HOLD, 5 HIGH, 6 MEDIUM, 0 LOW.` and `**HOLD: 2 ERROR.**`. A
-# space (not a separator) after the decision is prose and refuses, so `HOLD your
-# response while I look` is rejected (the vpr-1467 r3 claude N-A widening: the r3
+# uppercase decision, an optional `(advisory)` note, and an optional count
+# summary that follows a punctuation separator and STARTS WITH A DIGIT (a count),
+# e.g. `PR VERDICT: HOLD, 5 HIGH, 6 MEDIUM, 0 LOW.` and `**HOLD: 2 ERROR.**`. Prose
+# after the decision refuses whether or not it carries a separator, so both `HOLD
+# your response...` and `HOLD, your response...` are rejected (the latter has no
+# leading digit); the END-OF-DELIVERY wrapper halves are coupled, so a half-wrapped
+# `<!-- END OF DELIVERY` refuses (the vpr-1467 r3 claude N-A widening: the r3
 # grammar was too tight and rejected the project's dominant real verdict form).
 _TERMINAL_RE = re.compile(
     r"^(?:#{1,6}\s+)?[*_\s]*"
     r"(?:(?:(?i:pr)\s+)?(?i:verdict)\b\s*[:=]?\s*)?[*_\s]*"
-    r"(?:SHIP|HOLD)\b(?:\s*\(advisory\))?(?:\s*[,:|][^\n]*)?[.):*_\s]*$")
+    r"(?:SHIP|HOLD)\b(?:\s*\(advisory\))?(?:\s*[,:|]\s*\d[\d\s,A-Za-z]*)?[.):*_\s]*$")
 
 
 def _has_terminal_line(text: str) -> bool:
@@ -639,6 +641,14 @@ def self_test() -> int:
     check("lowercase decision token refuses (case-sensitivity guard, N-C discriminator)",
           (r[0], r[1].startswith("fallback codex block carries no terminal")),
           (None, True))
+    # r4 N-A residuals: prose after a punctuation separator (no leading digit) refuses,
+    # and a half-wrapped sentinel refuses (the wrapper halves are coupled).
+    for bad in ("HOLD, your response while I look", "HOLD|your response while I look",
+                "<!-- END OF DELIVERY", "END OF DELIVERY -->"):
+        r = extract_final_verdict(f"user\nbrief\ncodex\n{bad}")
+        check(f"r4 residual refuses: {bad[:30]!r}",
+              (r[0], r[1].startswith("fallback codex block carries no terminal")),
+              (None, True))
 
     check("single codex block WITH a terminal marker extracts (fallback-only)",
           extract_final_verdict("user\nbrief\ncodex\nonly block\nVerdict: HOLD"),
