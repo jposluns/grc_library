@@ -23,10 +23,15 @@ rule (maintainer-directed 2026-07-19, expanded to six points 2026-07-26):
    --account <acct> --order-id <id> --prompt-file <path>` (the prompt file MUST live under
    the job directory named in the `_private` worker-accounts config (`wrapper.job_dir`); the account pool and dispatch policy live in the `_private`
    worker-accounts config; parallelism is DISTINCT accounts, one purpose per account, until the
-   per-account-concurrency backlog item lands). A `list-workers` reading of zero is the STANDING-POLL
-   fleet sitting idle, NOT "no workers", and is NEVER a licence to self-run: a felt "0 workers" is the
-   signal to SPAWN one with exec-dispatch, not to do the work yourself. (This is the mistake that
-   has recurred.)
+   per-account-concurrency backlog item lands). **`list-workers` IS RETIRED and there is no fleet to
+   poll** (maintainer-directed 2026-08-10: "list-workers shouldn't exist anymore, we ONLY exec
+   dispatch"). Earlier text here described a "standing-poll fleet sitting idle" whose empty reading
+   was never a licence to self-run. That framing is now wrong in a way that still misleads: there is
+   no standing pool at all, so a liveness reading answers no question worth asking, and treating an
+   empty or stale one as a signal is a guard-input failure. On 2026-08-10 the orchestrator ran the
+   retired check, read two seven-thousand-minute-stale rows, and reported "there is no fleet" as a
+   blocker. **The rule is simply: DISPATCH.** Never check first, never gate on liveness, never
+   self-run because a reading looked empty.
 3. **20-minute reissue.** If a worker has not delivered in 20 minutes, issue the SAME order to another
    worker (a distinct account) and take whichever returns first; the late delivery is read as a
    cross-reference, never re-adjudicated.
@@ -63,8 +68,8 @@ sentinel is the only escape (a speed bump plus an audit record, not a security b
 `run-codex-worker` / `exec-dispatch.py` invocation) makes the offloaded verify a bounded wait rather
 than an unbounded block.
 
-**No-workers fallback (narrow).** A worker is SPAWNED ON DEMAND, so a `list-workers` reading of zero is
-never the fallback condition (spawn one, per CLAUDE.md). The inline fallback is reserved for a genuine
+**No-workers fallback (narrow).** A worker is SPAWNED ON DEMAND, so no liveness reading is ever the
+fallback condition, and `list-workers` is retired outright. The inline fallback is reserved for a genuine
 exec-dispatch FAILURE, every eligible account limited/exhausted (an auth or quota error surfaced from an
 actual exec attempt) or the transport down. In that narrow case only, self-run inline AFTER alerting the
 maintainer, and record the reason. If such an inline self-run cannot be completed by the
