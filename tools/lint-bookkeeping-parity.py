@@ -159,7 +159,6 @@ Exit codes:
 from __future__ import annotations
 
 import re
-import subprocess
 import sys
 from pathlib import Path
 
@@ -196,10 +195,13 @@ INCEPTION = 329
 # are below INCEPTION (harmless either way); #334 is in range and needs this
 # allowlist.
 # #1054 was added 2026-08-10, when the restored CHANGELOG range parsing first made it visible.
-# Its title is "Session-closing handoff #1054: Sweep 115 pre-close /validate (PASS 0/0) ...", so it
-# is the documented loop-break class, and it predates the convention of recording that skip as a
-# marker in the Findings cell. It is exempt for the same reason as the three below, not because it
-# was inconvenient: it was simply never reachable while this check's window was empty.
+# Its first-parent subject is "Session-closing handoff #1054: Sweep 115 pre-close /validate
+# (PASS 0/0 over #1044..#1053) ... + lease RELEASE (#1054)", so it is genuinely the documented
+# loop-break class rather than a failing item dropped into an allowlist. It carries no Findings-cell
+# marker; an earlier version of this comment claimed that was because #1054 predates the marker
+# convention, which the register REFUTES (history.md:509 uses the marker at #886, and :352 at #1043
+# the same day). The honest reason is simply that the row was never written, and the omission stayed
+# invisible while this check's window was empty.
 KNOWN_HANDOFF_NO_ROW: frozenset[int] = frozenset({300, 322, 334, 1054})
 
 # A row whose Findings cell marks the PR as a session-closing handoff
@@ -469,48 +471,6 @@ def parse_bypass_prs(text: str) -> set[int]:
 
 
 
-# Canonical merge-commit subject first, then the squash marker git appends at the END of the
-# subject. Order matters: a canonical merge subject can also carry a trailing parenthetical.
-MERGE_COMMIT_PR = re.compile(r"^Merge pull request #(\d+)\b")
-SQUASH_SUBJECT_PR = re.compile(r"\(#(\d+)\)\s*$")
-
-
-def unmerged_prs(changelog_prs: set[int], floor: int) -> set[int]:
-    """PRs in the window that first-parent history shows have NOT merged.
-
-    Returns an EMPTY set whenever that cannot be established, which leaves the caller's
-    behaviour exactly as it was. This function can only ever REMOVE demands from the audit, and
-    only for a PR it can positively show is absent from a history it has reason to trust.
-
-    Three preconditions, each closing a way an absence could be meaningless:
-      - not a shallow clone (a truncated history makes every older PR look unmerged);
-      - the history parses to a non-empty set;
-      - that set reaches at or below the register floor, so an absence INSIDE the window is
-        evidence of non-merge rather than evidence the history stops short.
-    """
-    try:
-        shallow = subprocess.run(
-            ["git", "-C", str(REPO_ROOT), "rev-parse", "--is-shallow-repository"],
-            capture_output=True, text=True, timeout=15)
-        if shallow.returncode != 0 or shallow.stdout.strip() != "false":
-            return set()
-        log = subprocess.run(
-            ["git", "-C", str(REPO_ROOT), "log", "--first-parent", "origin/main", "--format=%s"],
-            capture_output=True, text=True, timeout=60)
-        if log.returncode != 0 or not log.stdout.strip():
-            return set()
-    except (OSError, subprocess.SubprocessError):
-        return set()
-    merged: set[int] = set()
-    for subject in log.stdout.splitlines():
-        m = MERGE_COMMIT_PR.match(subject) or SQUASH_SUBJECT_PR.search(subject)
-        if m:
-            merged.add(int(m.group(1)))
-    if not merged or min(merged) > floor:
-        return set()
-    return {pr for pr in changelog_prs if pr not in merged}
-
-
 def bypass_log_findings(
     changelog_prs: set[int],
     bypass_prs: set[int],
@@ -551,11 +511,15 @@ def bypass_log_findings(
         return findings
     max_pr = max(changelog_prs)
     floor = effective_floor(bypass_prs, floor=inception)
-    # A PR below max_pr is not necessarily merged: PRs do not merge in number order. #1472 merged
-    # while the lower-numbered #1471 was still open, so #1471 read as merged and was demanded a
-    # row that this check's own text forbids writing before the merge is observed.
-    not_merged = unmerged_prs(changelog_prs, floor)
-    for pr in sorted(p for p in changelog_prs if floor <= p < max_pr and p not in not_merged):
+    # KNOWN LIMITATION, stated rather than half-fixed. A PR below max_pr is assumed merged, and
+    # PRs do not merge in number order: #1472 merged while the lower-numbered #1471 was still
+    # open, so #1471 reads as merged here and is demanded a row that this check's own text forbids
+    # writing before the merge is observed. A guard keyed on `origin/main` was built for this and
+    # REMOVED on 2026-08-10: a stale remote-tracking ref passed every precondition it could check
+    # locally, and silently deleted the row demand for eight recently-merged PRs. Dropping a demand
+    # is the exact failure this check exists to catch, so a loud false positive on an out-of-order
+    # PR is the better trade until an input that can prove CURRENCY, not merely depth, is available.
+    for pr in sorted(p for p in changelog_prs if floor <= p < max_pr):
         if pr not in bypass_prs:
             findings.append(
                 f"  [bypass-log] PR #{pr}: no row in {BYPASS_LOG_REL}. Every merged PR in "
