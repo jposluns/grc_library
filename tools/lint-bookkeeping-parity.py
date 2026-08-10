@@ -269,17 +269,6 @@ RETURNED_MARK = re.compile(r"\bRETURNED\b", re.IGNORECASE)
 # A markdown table data row: leading pipe, an ISO date cell, then the rest.
 TABLE_ROW = re.compile(r"^\|\s*\d{4}-\d{2}-\d{2}\s*\|")
 
-# Legacy singular-only header matcher, retained for callers that want exactly the
-# un-condensed shapes. `CHANGELOG_PR_HEADER` below is the one `parse_changelog_prs`
-# uses, and it also reads the rolled-up forms.
-# CHANGELOG entry header: `## YYYY-MM-DD, Library Version X.Y.Z, PR #N`,
-# plus the compact form the TODO 3.16 root-reformat introduced
-# (``**date | version | PR #N**``, optional ``- summary`` tail).
-CHANGELOG_HEADER = re.compile(
-    r"^##\s+\d{4}-\d{2}-\d{2},\s+Library Version\s+[0-9.]+,\s+PR\s+#(\d+)"
-    r"|^\*\*\d{4}-\d{2}-\d{2} \| [0-9.]+ \| PR #(\d+)\*\*",
-    re.MULTILINE,
-)
 
 # improvement-log PR column tolerates an optional leading `#` (mixed format:
 # some rows `338`, others `#333`).
@@ -532,10 +521,13 @@ def bypass_log_findings(
         return findings
     max_pr = max(changelog_prs)
     floor = effective_floor(bypass_prs, floor=inception)
-    # KNOWN LIMITATION, stated rather than half-fixed. A PR below max_pr is assumed merged, and
-    # PRs do not merge in number order: #1472 merged while the lower-numbered #1471 was still
-    # open, so #1471 reads as merged here and is demanded a row that this check's own text forbids
-    # writing before the merge is observed. A guard keyed on `origin/main` was built for this and
+    # KNOWN LIMITATION, stated rather than half-fixed, and scoped precisely because an earlier
+    # wording overstated where it bites. A PR below max_pr is ASSUMED merged, and PRs do not merge
+    # in number order. On `main` this is inert: an unmerged PR has no CHANGELOG entry there, so it
+    # never enters this universe. It bites on the PR's OWN BRANCH, where its entry does exist: when
+    # #1472 merged while the lower-numbered #1471 was open, #1471's branch carried both entries, so
+    # #1471 fell below max_pr and its own pre-push guard demanded a bypass row that this check's
+    # text forbids writing before the merge is observed. A guard keyed on `origin/main` was built for this and
     # REMOVED on 2026-08-10: a stale remote-tracking ref passed every precondition it could check
     # locally, and silently deleted the row demand for eight recently-merged PRs. Dropping a demand
     # is the exact failure this check exists to catch, so a loud false positive on an out-of-order
