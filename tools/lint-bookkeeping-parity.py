@@ -27,8 +27,12 @@ The six checks:
 
 **Check 1, QA-cadence parity (the former §4.6 surface).** Derive the merged-PR
 list from the ``CHANGELOG.md`` per-entry headers, matched in BOTH the compact
-``**date | version | PR #N**`` form (the TODO 3.16 root-reformat default) and
-the legacy ``## YYYY-MM-DD, Library Version X, PR #N`` form. For each PR N with ``max(INCEPTION, oldest surviving row) <= N <= max(PR)``, require a row in
+``**date | version | PR #N**`` form (the TODO 3.16 root-reformat default), the
+legacy ``## YYYY-MM-DD, Library Version X, PR #N`` form, AND the rolled-up forms
+that condensation produces (``| PRs #A-#B (N PRs) |``, its multi-range variant,
+and three ``**Week of ... (PRs ...)**`` shapes), whose ranges are expanded. Before
+2026-08-10 only the singular forms were read, so once roll-ups landed this universe
+collapsed to the single un-condensed entry and both checks narrowed with it. For each PR N with ``max(INCEPTION, oldest surviving row) <= N <= max(PR)``, require a row in
 the PR-scoped validation history register AND (for substantive PRs) a row in
 the improvement log, with these exemptions:
 
@@ -265,6 +269,9 @@ RETURNED_MARK = re.compile(r"\bRETURNED\b", re.IGNORECASE)
 # A markdown table data row: leading pipe, an ISO date cell, then the rest.
 TABLE_ROW = re.compile(r"^\|\s*\d{4}-\d{2}-\d{2}\s*\|")
 
+# Legacy singular-only header matcher, retained for callers that want exactly the
+# un-condensed shapes. `CHANGELOG_PR_HEADER` below is the one `parse_changelog_prs`
+# uses, and it also reads the rolled-up forms.
 # CHANGELOG entry header: `## YYYY-MM-DD, Library Version X.Y.Z, PR #N`,
 # plus the compact form the TODO 3.16 root-reformat introduced
 # (``**date | version | PR #N**``, optional ``- summary`` tail).
@@ -380,9 +387,11 @@ CHANGELOG_PR_HEADER = re.compile(
     re.MULTILINE,
 )
 PR_RANGE_TOKEN = re.compile(r"#(\d+)(?:\s*-\s*#(\d+))?")
-# A single header cannot legitimately span more than this many PRs. Checked BEFORE expansion
-# because range(...) materializes eagerly, so a mistyped bound would otherwise take the audit
-# down with an uncaught MemoryError rather than a finding.
+# A single header cannot legitimately span more than this many PRs. Enforced across the WHOLE
+# header, not per range token: `#1-#5000 and #5001-#10000 and #10001-#15000` is three in-bound
+# tokens and 15000 PRs, which a per-token check would wave through. Checked BEFORE the set is
+# built, because it is `prs.update(range(...))` that materializes (the `range` itself is lazy), so
+# a mistyped bound would otherwise exhaust memory instead of producing a finding.
 MAX_HEADER_SPAN = 5000
 
 
@@ -403,11 +412,23 @@ def parse_changelog_prs(text: str) -> set[int]:
     prs: set[int] = set()
     for match in CHANGELOG_PR_HEADER.finditer(text):
         body = match.group("a") or match.group("b") or match.group("c") or ""
+        spans: list[tuple[int, int]] = []
         for lo_s, hi_s in PR_RANGE_TOKEN.findall(body):
             lo = int(lo_s)
             hi = int(hi_s) if hi_s else lo
-            if hi < lo or hi - lo > MAX_HEADER_SPAN:
+            if hi < lo:
+                # An inverted range is malformed. Take the two endpoints, which are real PR
+                # numbers the header names, rather than dropping the header's PRs silently.
+                spans.append((lo, lo))
+                spans.append((hi, hi))
                 continue
+            spans.append((lo, hi))
+        if sum(hi - lo + 1 for lo, hi in spans) > MAX_HEADER_SPAN:
+            # Over the whole-header bound: keep only the endpoints each token names, so the audit
+            # narrows rather than losing the header entirely, and never materializes the interior.
+            prs.update(n for lo, hi in spans for n in (lo, hi))
+            continue
+        for lo, hi in spans:
             prs.update(range(lo, hi + 1))
     return prs
 
