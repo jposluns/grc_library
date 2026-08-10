@@ -44,7 +44,7 @@ Emit the AIQT check line, then observe. Do NOT infer state you can read.
    `pending-decisions.md`, `TODO.md` forward sections, and any transition or handoff document a
    departing worker or the maintainer left at the launch root or in the inbox. Note where the lease
    and handoff DISAGREE with live HEAD (that gap is the fingerprint of the interruption).
-4. **The worker and exchange state.** Worker liveness across families; the delivery tray
+4. **The exchange state.** The delivery tray
    (`inbox/deliveries/`) and the issue channel (`inbox/*.md`); orders claimed-but-undelivered. Many
    tray deliveries may already be reflected in merged PRs but never swept to `done/`: assess each; do
    NOT assume the tray count is the unprocessed count.
@@ -69,10 +69,10 @@ Emit the AIQT check line, then observe. Do NOT infer state you can read.
 Report, scannable, no diffs dumped to chat:
 - The interrupted-unit state (branch, unpushed commits, dirty files, is it green?).
 - The safety findings (turn-end safe? identity and permissions OK? which hooks active?).
-- The exchange backlog (tray, issues) and worker liveness.
+- The exchange backlog (tray, issues) and any in-flight or delivered orders from the dead session.
 - Any external assessment left for triage.
 - A **phased recovery plan** and the decisions only the maintainer can make, recommendation first:
-  how to handle the interrupted PR (verify-then-land / review-first / park); worker bring-up timing;
+  how to handle the interrupted PR (verify-then-land / review-first / park);
   ordering. Then **wait for an express GO** naming the phase(s) to start.
 
 ## Phase C: recover (only after GO)
@@ -83,8 +83,9 @@ Report, scannable, no diffs dumped to chat:
    or reconstructed data (a repaired ledger, a restored record), confirm each piece traces to a real
    prior git revision (`git show <sha>:<path>`, pickaxe `-S`), never accepting "restored" on trust.
 2. **Independent adversarial verification.** For a substantive interrupted unit, put an INDEPENDENT
-   refute-briefed lens on it before it lands. If workers are live, offload it (durable in the exchange
-   even if this session is fragile); else self-run inline. Re-verify positive findings at source; fix
+   refute-briefed lens on it before it lands. Exec-dispatch it to a fresh worker (durable in the
+   exchange even if this session is fragile); self-run inline ONLY if the dispatch itself fails (there
+   is no worker-liveness check, every order spawns a worker). Re-verify positive findings at source; fix
    real defects before landing; never land a defect you found.
 3. **Land or park** the unit per the maintainer decision, logging any protected-branch bypass.
 4. **Reconcile identity and lease.** ACQUIRE the lease under THIS session and the CORRECT operating
@@ -107,11 +108,11 @@ C) BEFORE the closing handoff.
 
 ## Phase E: same-session /resume (the catch-net)
 
-The maintainer brings workers up (if not already) and, in the SAME conversation (re-opened in a durable
+The maintainer, in the SAME conversation (re-opened in a durable
 tmux if the recovering session was not in one), sends `/resume`. Resuming in the same session is
 deliberately stronger than a fresh one: it keeps the context the recovery built AND rebuilds state from
 the now-clean `main`. The resume runs its lease step-0, verifies the handoff snapshot against live files
-**for real, never shortcutting from memory just because "I remember"**, and runs the corpus-wide `/validate` (offloaded to the now-live workers, a fresh-context whole-corpus drift-catch in its own right and the compensating control where the recovery's closing change took the narrow fallback skip), cross-checking
+**for real, never shortcutting from memory just because "I remember"**, and runs the corpus-wide `/validate` (exec-dispatched as a dual-family pair, a fresh-context whole-corpus drift-catch in its own right and the compensating control where the recovery's closing change took the narrow fallback skip), cross-checking
 the recovery's asserted-clean claims. A contradiction of an asserted-clean surface is a genuine recovery
 miss to escalate; ordinary findings route to the backlog. Then continue the deferred queue.
 

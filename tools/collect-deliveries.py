@@ -411,7 +411,7 @@ def report(plan: dict, tray: Path, oneline: bool = False, outcomes: list | None 
     Reporting only the tray would under-count whenever the sweep has not run, and the sweep only
     runs while the orchestrator is alive, so between sessions results accumulate un-swept. A reader
     that saw only the tray would answer "nothing pending" with deliveries waiting, which is the
-    exact single-plane-reading bug class still live in the scratch `list-workers` (it reads one of two
+    exact single-plane-reading bug class the retired scratch `list-workers` exhibited (it read one of two
     exchange planes). So the pending figure below is
     the UNION, and its two components are named separately rather than summed into one number.
     """
