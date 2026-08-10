@@ -130,9 +130,10 @@ through the maintainer's always-on `--admin` bypass, which is invisible when use
 log is the only thing that makes it auditable. CLAUDE.md already called an unlogged
 bypass a discipline failure, and it recurred five times in one day (#1170 to #1174),
 which is past the point where a convention is the right control. It reads the merged set
-from the CHANGELOG on `origin/main`, and audits every merged PR from the register's own
-oldest row upward; the highest PR is exempt as in flight only on the ordering FALLBACK
-taken when that read is unavailable. A row
+from FIRST-PARENT GIT HISTORY on `origin/main`, and audits every merged PR from the
+register's own oldest row upward; the highest PR is exempt as in flight only on the
+ordering FALLBACK, which is itself reported as a FINDING because that degraded universe
+audits a fraction of the merged set. A row
 counts by PRESENCE whatever its Mechanism cell says, so a future protection change that
 permits a plain merge is recorded honestly rather than forced to keep reading
 `--admin`. An empty or absent log no-ops rather than flagging the whole history.
@@ -436,18 +437,6 @@ def parse_bypass_prs(text: str) -> set[int]:
 
 
 
-# EVERY header grammar that can carry PR numbers, each capturing the PR-bearing body. The compact
-# daily entry alone is not enough: `tools/build-public-changelog.py` also emits rolled-up daily,
-# WEEKLY and MONTHLY paragraph headers, and the pre-compact corpus carries a legacy `## ` entry
-# form. A grammar missing from this tuple is a header that parses as nothing, which is exactly the
-# silent partial read this whole helper exists to refuse.
-PR_HEADER_GRAMMARS = (
-    re.compile(r"^\*\*\d{4}-\d{2}-\d{2} \| [\d.]+ \| PRs? (?P<body>#.*?)\*\*"),
-    re.compile(r"^\*\*\d{4}-\d{2}-\d{2} \(PRs? (?P<body>#.*?)\)\*\*"),
-    re.compile(r"^\*\*Week of \d{4}-\d{2}-\d{2} \(PRs? (?P<body>#.*?)\)\*\*"),
-    re.compile(r"^\*\*\d{4}-\d{2} \(PRs? (?P<body>#.*?)\)\*\*"),
-    re.compile(r"^##\s+\d{4}-\d{2}-\d{2},\s+Library Version\s+[\d.]+,\s+PR (?P<body>#\d+)"),
-)
 # A squash merge APPENDS "(#N)" to the subject; a merge commit's subject begins
 # "Merge pull request #N". Between them these cover every merge in this repository's history.
 #
@@ -462,6 +451,13 @@ PR_HEADER_GRAMMARS = (
 #    subjects are genuine direct commits with no PR at all.
 SQUASH_SUBJECT_PR = re.compile(r"\(#(\d+)\)")
 MERGE_COMMIT_PR = re.compile(r"^Merge pull request #(\d+)\b")
+# Any subject carrying a PR-shaped token. A subject that bears one but matches NEITHER accepted
+# shape is AMBIGUITY, not absence, and voids the whole read. Without this the completeness claim
+# is merely asserted: unmatched subjects were skipped and the non-empty remainder returned, which
+# is exactly how #552 sat outside the merged set while the function looked authoritative. Both
+# QA families independently recommended this guard; it is what makes "complete" checkable rather
+# than promised.
+PR_BEARING_SUBJECT = re.compile(r"#\d+")
 
 
 def merged_prs_on_main() -> "set[int] | None":
@@ -518,6 +514,9 @@ def merged_prs_on_main() -> "set[int] | None":
         m = MERGE_COMMIT_PR.match(subject)
         if m:
             prs.add(int(m.group(1)))
+            continue
+        if PR_BEARING_SUBJECT.search(subject):
+            return None      # PR-bearing but in no accepted shape: refuse rather than under-report
     return prs or None
 
 
@@ -560,10 +559,11 @@ def bypass_log_findings(
     INCLUDES the highest PR (its QA rows are written pre-merge in its own PR).
 
     THE WINDOW. On the authoritative path every OBSERVED merged PR at or above the floor is
-    audited; the working-tree CHANGELOG does not narrow it. The floor is the register's own oldest
-    row, so a log starting partway through history is not retroactively in breach, raised only if
-    origin/main's CHANGELOG does not reach that far back, and the run STATES that boundary rather
-    than skipping the span silently or claiming someone else covered it.
+    audited; the working-tree CHANGELOG does not narrow it. That narrowing was the defect which
+    once collapsed this check to a single PR while it reported itself authoritative. The floor is
+    the register's own oldest row, so a log starting partway through history is not retroactively
+    in breach; it is raised only if the merge history does not reach that far back, and the run
+    STATES that boundary rather than skipping the span silently.
 
     A row is satisfied by its PRESENCE, whatever its Mechanism cell says. That is deliberate: if a
     future protection change makes a plain merge succeed, the honest record is a row saying so, and
@@ -588,11 +588,20 @@ def bypass_log_findings(
         max_pr = max(changelog_prs)
         in_window = [p for p in changelog_prs if floor <= p < max_pr]
         basis = f"PR-number ordering, the FALLBACK: every PR in [{floor}, {max_pr})"
-        print(
-            "  [bypass-log] NOTE: the merge history on origin/main could not be read, so "
-            "merged-ness fell back to PR-number ordering. That heuristic mis-reads any PR that "
-            "merged out of order, and it exempts the highest-numbered PR even once it has merged. "
-            "Fetch origin and re-run for an authoritative window.")
+        # FAIL LOUD, do not merely narrate. `run_all_audits.sh` CAPTURES a gate's stdout and
+        # prints it only on a non-zero exit, so a printed NOTE on a passing run is discarded and
+        # the operator sees "OK". That matters here more than anywhere: on live data the
+        # authoritative path audits 319 PRs and this fallback audits ONE, because the working-tree
+        # CHANGELOG universe holds two singular headers. A 1-of-319 audit reporting green is a
+        # FALSE GREEN, which is strictly worse than no gate. So the degraded basis is a FINDING.
+        findings.append(
+            "  [bypass-log] DEGRADED: the merge history on origin/main could not be read, so "
+            "merged-ness fell back to PR-number ordering over the working-tree CHANGELOG. That "
+            "universe is a fraction of the merged set once entries are rolled up, so this run "
+            "audits far less than it appears to, and it exempts the highest-numbered PR even once "
+            "merged. This is reported as a FINDING rather than a note because a passing gate's "
+            "stdout is discarded by the runner. Fetch origin and re-run for an authoritative "
+            "window.")
     else:
         # Observed: the PR merged, per first-parent history on origin/main. An open PR is absent
         # from that history whatever its number, so no in-flight PR is ever demanded a row it
@@ -617,7 +626,10 @@ def bypass_log_findings(
         in_window = [p for p in merged_prs if p >= observed_floor]
         basis = (f"observed on origin/main at {main_ref_oid()}: {len(merged_prs)} merged PR(s), "
                  f"authoritative window from #{observed_floor}")
-        print(f"  [bypass-log] basis: {basis}.")
+        # The basis goes to STDERR, which the runner does not capture, so a clean authoritative
+        # run still states what it was computed from. On stdout it would be swallowed by the
+        # capture-and-discard above, which is the defect this pairs with.
+        print(f"  [bypass-log] basis: {basis}.", file=sys.stderr)
     for pr in sorted(in_window):
         if pr not in bypass_prs:
             findings.append(

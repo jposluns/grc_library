@@ -114,16 +114,17 @@ drive end-to-end on the maintainer's behalf:
    **This is now GATED, not merely conventional (gate 50's Check 6, added 2026-07-25).**
    The convention did not hold: five consecutive merges (#1170 to #1174) shipped with no
    row on a single day, noticed only when the log was read for an unrelated reason. The
-   check requires a row for every in-window merged PR. It reads the merged set from the
-   CHANGELOG on `origin/main`, since a merged PR's entry being there is what merging
-   actually changes; on that authoritative path an in-flight PR is absent by construction,
-   so the highest-numbered PR IS required a row once it has merged. Only when that read is
-   unavailable does it fall back to PR-number ordering and exempt the highest PR as in
-   flight, and it says so when it does. Every observed merged PR is audited: the working-tree
-   CHANGELOG never narrows the authoritative window, and a rolled-up entry header is read for the
-   PRs it covers rather than skipped. It floors the window at the log's own oldest row, raising
-   that floor only if `origin/main`'s CHANGELOG does not reach back that far, in which case it
-   prints the boundary and claims nothing about the span below it. It counts a row by its
+   check requires a row for every in-window merged PR. It reads the merged set from
+   FIRST-PARENT GIT HISTORY on `origin/main`, which is the record git keeps OF MERGING:
+   an in-flight PR is absent from it by construction, so the highest-numbered PR IS
+   required a row once it has actually merged. A subject that bears a PR token in no
+   recognized shape VOIDS the read rather than under-reporting it, so completeness is
+   enforced rather than asserted. Every merged PR in the window is audited: the working-tree
+   CHANGELOG never narrows it, which was the defect that once collapsed this check to a single
+   PR while it reported itself authoritative. Only when the history cannot be read does it fall
+   back to PR-number ordering, and that fallback is reported as a FINDING rather than a note,
+   because the degraded universe audits a fraction of the merged set and the runner discards a
+   passing gate's stdout. It floors the window at the log's own oldest row. It counts a row by its
    PRESENCE whatever its Mechanism cell says, so a future plain merge is recorded honestly
    rather than forced to keep reading `--admin`. Write the row AFTER the merge from the
    OBSERVED CI state, never in anticipation of one.

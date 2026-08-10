@@ -6773,14 +6773,16 @@ class BookkeepingParityTests(LinterTestCase):
         # Check 6: every in-window merged PR has a row: no flag.
         mod = self._load_module()
         self.assertEqual(
-            mod.bypass_log_findings({1170, 1171, 1172, 1175}, {1170, 1171, 1172}), [],
+            mod.bypass_log_findings({1170, 1171, 1172, 1175}, {1170, 1171, 1172},
+                                    merged_prs={1170, 1171, 1172}), [],
             "a complete bypass log must not flag",
         )
 
     def test_bypass_log_missing_row_flagged(self) -> None:
         # Check 6: the #1170-#1174 class, five merges that shipped with no row.
         mod = self._load_module()
-        findings = mod.bypass_log_findings({1170, 1171, 1172, 1175}, {1170, 1172})
+        findings = mod.bypass_log_findings({1170, 1171, 1172, 1175}, {1170, 1172},
+                                           merged_prs={1170, 1171, 1172})
         self.assertTrue(findings, "an unlogged in-window merge should flag")
         self.assertIn("bypass-log", findings[0])
         self.assertIn("#1171", findings[0])
@@ -6790,7 +6792,7 @@ class BookkeepingParityTests(LinterTestCase):
         # merge, so demanding it here would make every PR fail its own gate.
         mod = self._load_module()
         self.assertEqual(
-            mod.bypass_log_findings({1170, 1175}, {1170}), [],
+            mod.bypass_log_findings({1170, 1175}, {1170}, merged_prs={1170}), [],
             "the highest-numbered PR must be exempt as in-flight",
         )
 
@@ -6798,7 +6800,8 @@ class BookkeepingParityTests(LinterTestCase):
         # Check 6: a log that starts partway through history is not retroactively in breach.
         mod = self._load_module()
         self.assertEqual(
-            mod.bypass_log_findings({900, 1173, 1174, 1175}, {1173, 1174}), [],
+            mod.bypass_log_findings({900, 1173, 1174, 1175}, {1173, 1174},
+                                    merged_prs={900, 1173, 1174}), [],
             "PRs older than the log's own oldest row are out of scope",
         )
 
@@ -6824,7 +6827,7 @@ class BookkeepingParityTests(LinterTestCase):
 
     @contextlib.contextmanager
     def _fake_git(self, *, stdout: str = "", returncode: int = 0, raises=None):
-        """Drive merged_prs_on_main() without a repo: it shells out to `git show`.
+        """Drive merged_prs_on_main() without a repo: it shells out to `git log --first-parent`.
 
         A reality fixture for an OBSERVER, per the guard-input discipline: the decision half is
         testable by construction, the observation half is only testable by controlling what the
@@ -6873,6 +6876,22 @@ class BookkeepingParityTests(LinterTestCase):
             got = mod.merged_prs_on_main()
         self.assertEqual(got, {552, 1433, 1421})
         self.assertNotIn(551, got, "an unparenthesized number is not a merge marker")
+
+    def test_merged_prs_voids_the_read_on_a_pr_bearing_subject_it_cannot_place(self) -> None:
+        """Completeness must be ENFORCED, not asserted. Both QA families recommended this.
+
+        Before the guard, an unrecognized subject was skipped and the non-empty remainder
+        returned, so the function looked authoritative while a merged PR sat outside the set.
+        That is exactly how #552 was lost. A PR-bearing subject in no accepted shape is
+        AMBIGUITY, and ambiguity must refuse rather than under-report.
+        """
+        mod = self._load_module()
+        with self._fake_git(stdout="normal squash (#1472)\nrefs #999 in some other shape\n"):
+            self.assertIsNone(mod.merged_prs_on_main(),
+                              "a PR-bearing subject in no accepted shape must void the read")
+        # A subject with no PR token at all is a genuine direct commit, not ambiguity.
+        with self._fake_git(stdout="normal squash (#1472)\nUpdate AUTHORS.md\n"):
+            self.assertEqual(mod.merged_prs_on_main(), {1472})
 
     def test_merged_prs_excludes_an_unmerged_pr_by_construction(self) -> None:
         # THE MOTIVATING DEFECT, at the source. An open PR has no first-parent subject, so it
@@ -6954,12 +6973,16 @@ class BookkeepingParityTests(LinterTestCase):
         # the fallback's actual semantics instead: below max_pr and unrowed IS flagged.
         mod = self._load_module()
         findings = mod.bypass_log_findings({1170, 1171, 1175}, {1170}, merged_prs=None)
-        self.assertEqual(len(findings), 1, findings)
-        self.assertIn("#1171", findings[0])
-        self.assertEqual(
-            mod.bypass_log_findings({1170, 1175}, {1170}, merged_prs=None), [],
-            "and the highest PR stays exempt on the fallback path",
-        )
+        # The degraded basis is itself a finding now: a fallback run audits a fraction of the
+        # merged set, and a passing gate's stdout is discarded by the runner, so a NOTE would be
+        # invisible in exactly the case it exists for.
+        self.assertTrue(any("DEGRADED" in f for f in findings), findings)
+        self.assertTrue(any("#1171" in f for f in findings), findings)
+        only_degraded = mod.bypass_log_findings({1170, 1175}, {1170}, merged_prs=None)
+        self.assertEqual(len(only_degraded), 1, only_degraded)
+        self.assertIn("DEGRADED", only_degraded[0],
+                      "the highest PR stays exempt on the fallback path, so the degraded "
+                      "basis is the only finding")
 
     def test_register_row_order_ascending_passes(self) -> None:
         # Check 5: a run-table in strictly ascending run-number order: no flag.
@@ -7091,22 +7114,6 @@ class BookkeepingParityTests(LinterTestCase):
                 f"still be demanded a bypass row",
             )
         self.assertEqual(len(findings), 5, "exactly the five row-less merged PRs should flag")
-
-    def test_merged_prs_on_main_voids_the_read_on_an_unknown_pr_bearing_header(self) -> None:
-        # The fail-closed claim has to bind on headers the grammars do NOT match, or it is only a
-        # claim about the ones they do, which is the partial read wearing a fail-closed label.
-        mod = self._load_module()
-        for unknown in (
-            "**2026-08-09 | 2026.08.170 | Pull Requests #1465**",
-            "**Fortnight of 2026-07-27 (PRs #1195-#1200)**",
-            "## 2026-08-09 rolled up #1465 through #1470",
-        ):
-            changelog = f"**2026-08-10 | 2026.08.171 | PR #1472** - newest.\n\n{unknown}\n"
-            with self._fake_git(stdout=changelog):
-                self.assertIsNone(
-                    mod.merged_prs_on_main(),
-                    f"a PR-bearing header in an unknown grammar must void the whole read: {unknown}",
-                )
 
 class WorkingProseHygieneTests(LinterTestCase):
     """tools/lint-working-prose-hygiene.py (gate 51)"""
