@@ -133,8 +133,10 @@ here requires an approval a solo-authored PR never receives, so every merge goes
 through the maintainer's always-on `--admin` bypass, which is invisible when used; the
 log is the only thing that makes it auditable. CLAUDE.md already called an unlogged
 bypass a discipline failure, and it recurred five times in one day (#1170 to #1174),
-which is past the point where a convention is the right control. Same window as
-Check 1 (highest PR exempt as in flight, floor at the register's own oldest row); a row
+which is past the point where a convention is the right control. Same DYNAMIC-FLOOR model as Check 1
+(floor at the register's own oldest row), but NOT the same window: Check 1 includes the
+highest PR, because after the synchronous cutover its QA rows are written pre-merge in its
+own PR, while Check 6 EXCLUDES it, because a bypass row records a post-merge fact. A row
 counts by PRESENCE whatever its Mechanism cell says, so a future protection change that
 permits a plain merge is recorded honestly rather than forced to keep reading
 `--admin`. An empty or absent log no-ops rather than flagging the whole history.
@@ -164,7 +166,6 @@ from __future__ import annotations
 
 import re
 import sys
-from pathlib import Path
 
 from lint_common import (
     DEFAULT_EXEMPT_DIRS,
@@ -177,7 +178,6 @@ from lint_common import (
 
 
 CHANGELOG_PATH = "CHANGELOG.md"
-DETAILED_CHANGELOG_PATH = ".working/changelog-details/CHANGELOG-detailed.md"
 VALIDATE_PR_HISTORY = ".working/validate-pr/history.md"
 IMPROVEMENT_LOG = ".working/improvement-log.md"
 TODO_PATH = "TODO.md"
@@ -370,7 +370,7 @@ def cells(line: str) -> list[str]:
 # singular `| PR #N |`, the daily roll-up `| PRs #A-#B (N PRs) |`, its multi-range variant, and
 # three `Week of ... (PRs ...)` weekly forms that carry no declared count.
 CHANGELOG_PR_HEADER = re.compile(
-    r"^(?:##\s+\d{4}-\d{2}-\d{2},\s+Library Version\s+[0-9.]+,\s+PRs?\s+(?P<a>#\d.*?)$"
+    r"^(?:##\s+\d{4}-\d{2}-\d{2},\s+Library Version\s+[0-9.]+,\s+PRs?\s+(?P<a>#[\d\s,#and-]*)"
     r"|\*\*\d{4}-\d{2}-\d{2} \| [0-9.]+ \| PRs? (?P<b>#\d[^*]*)\*\*"
     r"|\*\*Week of \d{4}-\d{2}-\d{2} \(PRs? (?P<c>#\d[^)]*)\)\*\*)",
     re.MULTILINE,
@@ -382,6 +382,10 @@ PR_RANGE_TOKEN = re.compile(r"#(\d+)(?:\s*-\s*#(\d+))?")
 # built, because it is `prs.update(range(...))` that materializes (the `range` itself is lazy), so
 # a mistyped bound would otherwise exhaust memory instead of producing a finding.
 MAX_HEADER_SPAN = 5000
+FENCED_BLOCK = re.compile(r"^```.*?^```", re.MULTILINE | re.DOTALL)
+# A commented-out header is not an entry either. Probed: an HTML-commented compact header
+# contributed its PRs to the audit universe before this.
+HTML_COMMENT = re.compile(r"<!--.*?-->", re.DOTALL)
 
 
 def parse_changelog_prs(text: str) -> set[int]:
@@ -392,12 +396,20 @@ def parse_changelog_prs(text: str) -> set[int]:
     the checks built on it silently narrowed to the one remaining singular entry.
 
     A range is expanded inclusively. Where the roll-up authors split a range to skip a PR that
-    never merged, the split is preserved in the header itself, so expansion follows their intent.
-    Where a range still spans a never-merged number, the surplus surfaces as a DEMAND for a
-    bypass row on a PR that has none, which is the loud direction, and `unmerged_prs()` removes
-    it again from first-parent history. The declared `(N PRs)` count, where a form carries one,
-    is not relied on here; the weekly forms carry none.
+    never merged, the split is preserved in the header itself, so expansion follows their intent:
+    #1400 and #1471 are absent from the live universe for exactly that reason, with no filtering
+    needed. Where a range still spans a never-merged number, the surplus surfaces as a DEMAND for
+    a bypass row on a PR that has none. Nothing removes that demand, which is deliberate: it is
+    the LOUD direction, and a guard that removed it was built and deleted on 2026-08-10 because it
+    could not distinguish a never-merged PR from one its input simply had not seen. Measured on the
+    live file, every one of the 319 in-window PRs is confirmed merged, so the surplus is currently
+    empty. The declared `(N PRs)` count, where a form carries one, is not relied on here; the
+    weekly forms carry none.
     """
+    # W5: a fenced example is documentation, not an entry. Before this, a header inside ``` in
+    # the CHANGELOG contributed its PRs to the audit universe, so illustrating the format could
+    # silently widen what the gate demands rows for. Strip fenced blocks before matching.
+    text = FENCED_BLOCK.sub("", HTML_COMMENT.sub("", text))
     prs: set[int] = set()
     for match in CHANGELOG_PR_HEADER.finditer(text):
         body = match.group("a") or match.group("b") or match.group("c") or ""
