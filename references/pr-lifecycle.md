@@ -119,7 +119,11 @@ drive end-to-end on the maintainer's behalf:
    actually changes; on that authoritative path an in-flight PR is absent by construction,
    so the highest-numbered PR IS required a row once it has merged. Only when that read is
    unavailable does it fall back to PR-number ordering and exempt the highest PR as in
-   flight, and it says so when it does. It floors the window at the log's own oldest row, and counts a row by its
+   flight, and it says so when it does. Every observed merged PR is audited: the working-tree
+   CHANGELOG never narrows the authoritative window, and a rolled-up entry header is read for the
+   PRs it covers rather than skipped. It floors the window at the log's own oldest row, raising
+   that floor only if `origin/main`'s CHANGELOG does not reach back that far, in which case it
+   prints the boundary and claims nothing about the span below it. It counts a row by its
    PRESENCE whatever its Mechanism cell says, so a future plain merge is recorded honestly
    rather than forced to keep reading `--admin`. Write the row AFTER the merge from the
    OBSERVED CI state, never in anticipation of one.

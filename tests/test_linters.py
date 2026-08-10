@@ -6847,60 +6847,53 @@ class BookkeepingParityTests(LinterTestCase):
 
     # ---- the 2026-08-10 guard-input fix: merged-ness is OBSERVED, not inferred from ordering ----
 
-    def test_expand_pr_header_parses_every_live_grammar(self) -> None:
-        # The three PR-bearing header grammars actually on main: singular, rolled-up range, and
-        # a multi-range that skips a never-merged number (#1400).
+    def test_merged_prs_reads_squash_and_merge_commit_subjects(self) -> None:
+        # First-parent subjects come in exactly two machine-generated shapes in this repo.
         mod = self._load_module()
-        self.assertEqual(mod.expand_pr_header("#1472"), {1472})
-        self.assertEqual(mod.expand_pr_header("#1465-#1470 (6 PRs)"), set(range(1465, 1471)))
-        self.assertEqual(
-            mod.expand_pr_header("#1387-#1399 and #1401-#1417 (30 PRs)"),
-            set(range(1387, 1400)) | set(range(1401, 1418)))
+        log = ("CHANGELOG: roll-up (#1472)\n"
+               "Merge pull request #617 from jposluns/claude/queue-prioritization\n"
+               "Sweep 154 close-out (#1469)\n"
+               "a subject with no marker at all\n")
+        with self._fake_git(stdout=log):
+            self.assertEqual(mod.merged_prs_on_main(), {1472, 617, 1469})
 
-    def test_expand_pr_header_fails_closed_rather_than_partially(self) -> None:
-        # A PARTIAL parse is worse than none: a merged PR missing from the set is a merged PR
-        # whose bypass row is never demanded, which is a SILENT false negative.
+    def test_merged_prs_excludes_an_unmerged_pr_by_construction(self) -> None:
+        # THE MOTIVATING DEFECT, at the source. An open PR has no first-parent subject, so it
+        # cannot appear, whatever its number. No parsing rule is needed to exclude it.
         mod = self._load_module()
-        for body in (
-            "#1465-#1470 (5 PRs)",      # declared count disagrees with the expansion
-            "#1470-#1465",              # reversed range
-            "#12 frobnicate",           # a grammar this parser does not know
-            "no pr tokens at all",
-        ):
-            self.assertIsNone(mod.expand_pr_header(body), body)
-
-    def test_merged_prs_on_main_reads_the_rollup_grammar(self) -> None:
-        # THE DEFECT THE FIRST CUT SHIPPED. Reusing parse_changelog_prs() (singular headers only)
-        # returned {1472} alone against live data, because the 08-09 daily roll-up had replaced
-        # #1465-#1470 with one ranged header. Six merged PRs silently left the merged set.
-        mod = self._load_module()
-        changelog = (
-            "**2026-08-10 | 2026.08.171 | PR #1472** - a singular entry.\n\n"
-            "**2026-08-09 | 2026.08.170 | PRs #1465-#1470 (6 PRs)** - a rolled-up day.\n")
-        with self._fake_git(stdout=changelog):
+        with self._fake_git(stdout="CHANGELOG: roll-up (#1472)\n"):
             got = mod.merged_prs_on_main()
-        self.assertEqual(got, {1472} | set(range(1465, 1471)))
+        self.assertIn(1472, got)
+        self.assertNotIn(1471, got, "an open PR must be absent by construction")
 
-    def test_merged_prs_on_main_voids_the_read_on_an_unparseable_header(self) -> None:
-        # One header this parser cannot fully understand voids the WHOLE read, rather than
-        # yielding a subset that would read as authoritative.
-        mod = self._load_module()
-        changelog = (
-            "**2026-08-10 | 2026.08.171 | PR #1472** - fine.\n\n"
-            "**2026-08-09 | 2026.08.170 | PRs #1465-#1470 (99 PRs)** - count disagrees.\n")
-        with self._fake_git(stdout=changelog):
-            self.assertIsNone(mod.merged_prs_on_main())
-
-    def test_merged_prs_on_main_returns_none_not_empty_on_every_failure(self) -> None:
+    def test_merged_prs_returns_none_not_empty_on_every_failure(self) -> None:
         # Ignorance must never be encoded as absence: an empty set read as "nothing merged" would
         # silently disable the audit entirely.
         mod = self._load_module()
         for kw in ({"returncode": 1}, {"stdout": ""}, {"stdout": "   \n"},
-                   {"stdout": "a changelog with no PR-bearing header at all\n"},
+                   {"stdout": "subjects with no PR markers whatsoever\n"},
                    {"raises": OSError("git absent")},
-                   {"raises": __import__("subprocess").TimeoutExpired("git", 30)}):
+                   {"raises": __import__("subprocess").TimeoutExpired("git", 60)}):
             with self._fake_git(**kw):
                 self.assertIsNone(mod.merged_prs_on_main(), kw)
+
+    def test_bypass_window_is_derived_FROM_the_merged_set_not_intersected(self) -> None:
+        """The r2 defect: the merged set was correct and then discarded one line later.
+
+        r2 intersected the observed merged set with `changelog_prs`, which is parsed from
+        singular `PR #N` headers only. On live data that universe held TWO PRs, so the gate
+        audited essentially nothing while reporting itself authoritative. The window must be
+        derived FROM the observation.
+        """
+        mod = self._load_module()
+        merged = {1200, 1300, 1400, 1472}
+        thin_changelog = {1472}          # what a rolled-up CHANGELOG actually yields
+        findings = mod.bypass_log_findings(
+            thin_changelog, {1200, 1472}, merged_prs=merged)
+        flagged = {n for n in (1300, 1400) if any(f"#{n}" in f for f in findings)}
+        self.assertEqual(flagged, {1300, 1400},
+                         "both unrowed merged PRs must be flagged even though neither appears "
+                         "in the singular-header changelog universe")
 
     def test_bypass_log_out_of_order_in_flight_pr_is_not_demanded_a_row(self) -> None:
         # THE MOTIVATING DEFECT. #1472 merged while the LOWER-numbered #1471 was still open, so
@@ -7057,6 +7050,102 @@ class BookkeepingParityTests(LinterTestCase):
         )
         findings = mod.worker_provenance_findings(text)
         self.assertTrue(findings, "a value-less marker line should flag")
+
+    # ---- r3: the fix for the guard-input fix, which shipped the defect it was fixing ----
+
+    def test_bypass_log_audits_the_merged_set_not_the_working_tree_changelog(self) -> None:
+        """On the authoritative path the OBSERVED merged set is the universe.
+
+        The regression this pins: the second cut read all 168 merged PRs correctly and then
+        intersected them with the working-tree CHANGELOG's SINGULAR headers, which a roll-up has
+        already condensed away, so the gate audited ONE PR of 168 and exited 0. Every fixture at
+        the time passed a `changelog_prs` that was a SUPERSET of `merged_prs`, which is exactly
+        the condition that stops holding the moment a roll-up lands, so none of them could see it.
+        """
+        mod = self._load_module()
+        changelog = {1472}                          # rolled up: only the newest is still singular
+        merged = set(range(1465, 1471)) | {1472}
+        rows = {1465, 1472}                         # #1466 to #1470 have NO bypass row
+        findings = mod.bypass_log_findings(changelog, rows, merged_prs=merged)
+        for pr in (1466, 1467, 1468, 1469, 1470):
+            self.assertTrue(
+                any(f"PR #{pr}:" in f for f in findings),
+                f"a merged PR absent from the condensed working-tree CHANGELOG (#{pr}) must "
+                f"still be demanded a bypass row",
+            )
+        self.assertEqual(len(findings), 5, "exactly the five row-less merged PRs should flag")
+
+    def test_merged_prs_on_main_reads_weekly_and_monthly_rollup_headers(self) -> None:
+        # build-public-changelog.py emits weekly and monthly paragraph headers too. Matching only
+        # the compact daily grammar left every one of them invisible: not parsed, not refused.
+        mod = self._load_module()
+        changelog = (
+            "# Changelog\n\n"
+            "**2026-08-10 | 2026.08.171 | PR #1472** - newest.\n\n"
+            "**2026-07-14 (PRs #99-#100)**\n\n"
+            "**Week of 2026-07-27 (PRs #1195-#1197 and #1199-#1200)**\n\n"
+            "**2026-06 (PRs #10-#12)**\n"
+        )
+        with self._fake_git(stdout=changelog):
+            self.assertEqual(
+                mod.merged_prs_on_main(),
+                {10, 11, 12, 99, 100, 1195, 1196, 1197, 1199, 1200, 1472},
+                "every rolled-up header grammar must contribute its PRs to the merged set",
+            )
+
+    def test_merged_prs_on_main_voids_the_read_on_an_unknown_pr_bearing_header(self) -> None:
+        # The fail-closed claim has to bind on headers the grammars do NOT match, or it is only a
+        # claim about the ones they do, which is the partial read wearing a fail-closed label.
+        mod = self._load_module()
+        for unknown in (
+            "**2026-08-09 | 2026.08.170 | Pull Requests #1465**",
+            "**Fortnight of 2026-07-27 (PRs #1195-#1200)**",
+            "## 2026-08-09 rolled up #1465 through #1470",
+        ):
+            changelog = f"**2026-08-10 | 2026.08.171 | PR #1472** - newest.\n\n{unknown}\n"
+            with self._fake_git(stdout=changelog):
+                self.assertIsNone(
+                    mod.merged_prs_on_main(),
+                    f"a PR-bearing header in an unknown grammar must void the whole read: {unknown}",
+                )
+
+    def test_merged_prs_on_main_ignores_a_header_inside_a_fenced_example(self) -> None:
+        # A documented example is not an entry, and must neither count nor void.
+        mod = self._load_module()
+        changelog = (
+            "**2026-08-10 | 2026.08.171 | PR #1472** - newest.\n\n"
+            "```\n"
+            "**2026-01-01 | 1.0.0 | Pull Requests #999** - an example, not an entry.\n"
+            "```\n"
+        )
+        with self._fake_git(stdout=changelog):
+            self.assertEqual(
+                mod.merged_prs_on_main(), {1472},
+                "a fenced example header must be neither counted nor treated as unparseable",
+            )
+
+    def test_expand_pr_header_rejects_overlap_zero_and_oversized_ranges(self) -> None:
+        # The declared count checks CARDINALITY only, so it cannot see an overlap that happens to
+        # sum correctly; and it ran AFTER expansion, so it could not stop a typo'd range from
+        # materializing and taking the gate down with an uncaught MemoryError.
+        mod = self._load_module()
+        oversized = mod.MAX_HEADER_SPAN + 2
+        for bad, why in (
+            ("#1-#3 and #2-#4 (4 PRs)", "overlapping ranges collapse silently under set union"),
+            ("#7 and #7 (1 PR)", "a number repeated within one header is not two PRs"),
+            ("#0 (1 PR)", "there is no PR #0"),
+            ("#0-#5 (6 PRs)", "a range cannot start below #1"),
+            ("#1andand#2 (2 PRs)", "a separator built only from the letters of 'and'"),
+            (f"#1-#{oversized} ({oversized} PRs)", "a span no legitimate roll-up can reach"),
+            # A one-character typo in a roll-up header. Honest limit on THIS case: the pre-fix
+            # parser also returned None here, but only after materializing 13 million integers,
+            # which under a constrained address space raised an uncaught MemoryError and denied
+            # the whole audit. The return value cannot distinguish the two; the cap is what makes
+            # the rejection cheap. The oversized case above is the one that pins the cap itself.
+            ("#1303-#13031472 (170 PRs)", "a mistyped range must be refused, not expanded"),
+        ):
+            self.assertIsNone(mod.expand_pr_header(bad), why)
+
 
 
 class WorkingProseHygieneTests(LinterTestCase):
