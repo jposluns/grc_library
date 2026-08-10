@@ -159,6 +159,7 @@ Exit codes:
 from __future__ import annotations
 
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -411,7 +412,11 @@ def parse_retro_prs(text: str) -> set[int]:
     return prs
 
 
-BYPASS_ROW_PR = re.compile(r"^\|[^|]*\|\s*#(\d+)\s*\|")
+BYPASS_ROW_PR = re.compile(r"^\|[^|]*\|\s*(?:PR\s*)?#(\d+)\s*\|")
+# The optional ``PR`` prefix: a hand-written row reading ``| date | PR #1472 | ...`` is
+# unambiguous to any reader, and rejecting it made a REAL row invisible to this gate
+# (observed 2026-08-10 on the #1472 row). Strictness here bought nothing and cost a
+# false MISSING-row finding on a row that was present and correct.
 BYPASS_LOG_REL = ".working/merge-bypass-log.md"
 
 
@@ -425,11 +430,48 @@ def parse_bypass_prs(text: str) -> set[int]:
     return prs
 
 
+
+def merged_prs_on_main() -> "set[int] | None":
+    """The PRs whose CHANGELOG entry is present on ``origin/main``, i.e. ACTUALLY merged.
+
+    THE GUARD-INPUT FIX (2026-08-10). Check 6 previously derived its merged set as
+    ``pr < max_pr`` over the working-tree CHANGELOG, i.e. it inferred merged-ness from PR-NUMBER
+    ORDERING and treated only the highest-numbered PR as in-flight. That input cannot answer the
+    question asked of it: PRs do not merge in number order. PR #1472 merged while the
+    lower-numbered #1471 was still open, so #1471 fell below ``max_pr``, read as merged, and the
+    gate demanded a merge-bypass row for a PR that had not merged, while its own text forbids
+    writing that row before the merge is observed. A correct check on an unsound input.
+
+    Merged-ness IS directly observable offline: a merged PR's CHANGELOG entry is on ``origin/main``.
+
+    IGNORANCE IS A FIRST-CLASS RETURN. ``None`` means "cannot determine", never "nothing merged":
+    callers fall back to the ordering heuristic and SAY SO, rather than silently auditing nothing.
+
+    RESIDUE, stated at the point of use: this reads the LOCAL ``origin/main`` ref. A stale ref
+    under-reports merges, so a PR merged since the last fetch is not yet audited for its row. That
+    is a false NEGATIVE on a merge-bypass audit, so it is the direction that must be visible:
+    ``main_pr_ceiling()`` exposes main's highest PR and the caller reports the basis it used.
+    Fetch before relying on a clean run.
+    """
+    try:
+        proc = subprocess.run(
+            ["git", "-C", str(REPO_ROOT), "show", "origin/main:CHANGELOG.md"],
+            capture_output=True, text=True, timeout=30,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if proc.returncode != 0 or not proc.stdout.strip():
+        return None
+    prs = parse_changelog_prs(proc.stdout)
+    return prs or None
+
+
 def bypass_log_findings(
     changelog_prs: set[int],
     bypass_prs: set[int],
     *,
     inception: int = INCEPTION,
+    merged_prs: "set[int] | None" = None,
 ) -> list[str]:
     """Check 6: every in-window merged PR has a merge-bypass-log row.
 
@@ -465,7 +507,19 @@ def bypass_log_findings(
         return findings
     max_pr = max(changelog_prs)
     floor = effective_floor(bypass_prs, floor=inception)
-    for pr in sorted(p for p in changelog_prs if floor <= p < max_pr):
+    if merged_prs is None:
+        # Ignorance: origin/main was unreadable. Fall back to the ordering heuristic, which is
+        # wrong whenever PRs merge out of order, and say so rather than auditing on it silently.
+        in_window = [p for p in changelog_prs if floor <= p < max_pr]
+        print(
+            "  [bypass-log] NOTE: origin/main was unreadable, so merged-ness fell back to "
+            "PR-number ordering (pr < max_pr). That heuristic mis-reads any PR that merged out "
+            "of order. Fetch origin and re-run for an authoritative window.")
+    else:
+        # Observed: a merged PR's CHANGELOG entry is on origin/main. An open PR's is not, whatever
+        # its number, so no in-flight PR is ever demanded a row it cannot yet honestly write.
+        in_window = [p for p in changelog_prs if floor <= p and p in merged_prs]
+    for pr in sorted(in_window):
         if pr not in bypass_prs:
             findings.append(
                 f"  [bypass-log] PR #{pr}: no row in {BYPASS_LOG_REL}. Every merged PR in "
@@ -783,7 +837,9 @@ def main() -> int:
     if bypass_text is None:
         skipped.append("merge-bypass-log parity")
     else:
-        all_findings.extend(bypass_log_findings(changelog, parse_bypass_prs(bypass_text)))
+        all_findings.extend(bypass_log_findings(
+            changelog, parse_bypass_prs(bypass_text),
+            merged_prs=merged_prs_on_main()))
 
     if skipped:
         print(

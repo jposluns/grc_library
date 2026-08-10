@@ -6821,6 +6821,58 @@ class BookkeepingParityTests(LinterTestCase):
         )
         self.assertEqual(mod.parse_bypass_prs(text), {1174})
 
+    # ---- the 2026-08-10 guard-input fix: merged-ness is OBSERVED, not inferred from ordering ----
+
+    def test_bypass_log_out_of_order_in_flight_pr_is_not_demanded_a_row(self) -> None:
+        # THE MOTIVATING DEFECT. #1472 merged while the LOWER-numbered #1471 was still open, so
+        # #1471 fell below max_pr and the ordering heuristic read it as merged. The gate then
+        # demanded a bypass row its own text forbids writing before the merge is observed.
+        mod = self._load_module()
+        merged = {1470, 1472}            # what origin/main actually carries
+        changelog = {1470, 1471, 1472}   # the working tree also carries the in-flight #1471
+        self.assertEqual(
+            mod.bypass_log_findings(changelog, {1470, 1472}, merged_prs=merged), [],
+            "an open PR below max_pr must not be demanded a merge-bypass row",
+        )
+
+    def test_bypass_log_merged_pr_below_max_is_still_demanded_a_row(self) -> None:
+        # The fix must not become a blanket excuse: a genuinely merged PR still needs its row.
+        mod = self._load_module()
+        # The log must already reach back past #1470, or the dynamic per-register floor
+        # (max(INCEPTION, oldest row)) legitimately excludes it as pre-register history.
+        findings = mod.bypass_log_findings(
+            {1400, 1470, 1471, 1472}, {1400, 1472},
+            merged_prs={1400, 1470, 1472})
+        self.assertEqual(len(findings), 1, findings)
+        self.assertIn("#1470", findings[0])
+
+    def test_bypass_log_demands_a_row_for_the_highest_pr_once_it_is_merged(self) -> None:
+        # The old code exempted max_pr unconditionally as in-flight, which was a FALSE NEGATIVE
+        # the moment that PR merged: the most recent merge was the one never audited.
+        mod = self._load_module()
+        findings = mod.bypass_log_findings({1470, 1472}, {1470}, merged_prs={1470, 1472})
+        self.assertEqual(len(findings), 1, findings)
+        self.assertIn("#1472", findings[0])
+
+    def test_bypass_log_falls_back_to_ordering_when_main_is_unreadable(self) -> None:
+        # Ignorance is a first-class return: None means "cannot determine", and the caller falls
+        # back to the ordering heuristic rather than silently auditing nothing.
+        mod = self._load_module()
+        self.assertEqual(
+            mod.bypass_log_findings({1170, 1175}, {1170}, merged_prs=None), [],
+            "with an unreadable origin/main the pre-fix behaviour is preserved",
+        )
+
+    def test_bypass_log_row_parser_accepts_the_PR_prefixed_form(self) -> None:
+        # A row reading `| date | PR #1472 | ...` is unambiguous to a reader, and rejecting it
+        # made a REAL row invisible to the gate (observed on the live #1472 row).
+        mod = self._load_module()
+        text = (
+            "| 2026-08-10T11:10:03Z | PR #1472 | --admin squash | green | j | c |\n"
+            "| 2026-08-09T18:10:37Z | #1470 | admin squash | green | j | c |\n"
+        )
+        self.assertEqual(mod.parse_bypass_prs(text), {1470, 1472})
+
     def test_register_row_order_ascending_passes(self) -> None:
         # Check 5: a run-table in strictly ascending run-number order: no flag.
         mod = self._load_module()
