@@ -6857,6 +6857,23 @@ class BookkeepingParityTests(LinterTestCase):
         with self._fake_git(stdout=log):
             self.assertEqual(mod.merged_prs_on_main(), {1472, 617, 1469})
 
+    def test_merged_prs_takes_the_LAST_marker_not_the_first_or_an_end_anchor(self) -> None:
+        """Both halves are live defects found by enumerating unmatched subjects.
+
+        An end-anchored pattern loses PR #552, whose real subject carries its marker mid-line.
+        Taking the FIRST marker loses #345, #351 and #1394, because 164 live subjects carry a
+        hand-written marker before the appended one. Either miss is a false NEGATIVE on a
+        merge-bypass audit.
+        """
+        mod = self._load_module()
+        log = ("Session-closing handoff (#552): batch #551 QA rows, refresh handoff\n"
+               "Sweep-148 resume close-out (#1433): 4 doc-precision fixes (#1433)\n"
+               "P-1.25 Phase 1.3c: narrative vocabulary gate (gate 88) (#1421) (#1421)\n")
+        with self._fake_git(stdout=log):
+            got = mod.merged_prs_on_main()
+        self.assertEqual(got, {552, 1433, 1421})
+        self.assertNotIn(551, got, "an unparenthesized number is not a merge marker")
+
     def test_merged_prs_excludes_an_unmerged_pr_by_construction(self) -> None:
         # THE MOTIVATING DEFECT, at the source. An open PR has no first-parent subject, so it
         # cannot appear, whatever its number. No parsing rule is needed to exclude it.

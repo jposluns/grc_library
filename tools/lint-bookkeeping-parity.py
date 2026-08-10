@@ -448,9 +448,19 @@ PR_HEADER_GRAMMARS = (
     re.compile(r"^\*\*\d{4}-\d{2} \(PRs? (?P<body>#.*?)\)\*\*"),
     re.compile(r"^##\s+\d{4}-\d{2}-\d{2},\s+Library Version\s+[\d.]+,\s+PR (?P<body>#\d+)"),
 )
-# A squash merge's subject ends in "(#N)"; a merge commit's subject begins "Merge pull request #N".
-# Between them these cover every merge in this repository's first-parent history.
-SQUASH_SUBJECT_PR = re.compile(r"\(#(\d+)\)\s*$")
+# A squash merge APPENDS "(#N)" to the subject; a merge commit's subject begins
+# "Merge pull request #N". Between them these cover every merge in this repository's history.
+#
+# The LAST parenthesized marker wins, and both halves of that matter:
+#  - Not the FIRST. 164 live subjects carry two markers (a hand-written "(#1433)" plus the
+#    appended one), and taking the first drops #345, #351 and #1394.
+#  - Not an END-ANCHOR either. PR #552's subject is
+#    "Session-closing handoff (#552): batch #551 QA rows, ..." with the marker MID-subject, so an
+#    end-anchored pattern silently loses it. That is a false NEGATIVE on a merge-bypass audit,
+#    the direction that must never be traded for tidiness. Found by enumerating every unmatched
+#    first-parent subject rather than by assuming the convention holds; the other seven unmatched
+#    subjects are genuine direct commits with no PR at all.
+SQUASH_SUBJECT_PR = re.compile(r"\(#(\d+)\)")
 MERGE_COMMIT_PR = re.compile(r"^Merge pull request #(\d+)\b")
 
 
@@ -501,7 +511,11 @@ def merged_prs_on_main() -> "set[int] | None":
         return None
     prs: set[int] = set()
     for subject in proc.stdout.splitlines():
-        m = SQUASH_SUBJECT_PR.search(subject) or MERGE_COMMIT_PR.match(subject)
+        appended = SQUASH_SUBJECT_PR.findall(subject)
+        if appended:
+            prs.add(int(appended[-1]))       # the LAST marker: squash appends it
+            continue
+        m = MERGE_COMMIT_PR.match(subject)
         if m:
             prs.add(int(m.group(1)))
     return prs or None
