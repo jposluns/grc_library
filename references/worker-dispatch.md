@@ -91,5 +91,5 @@ silence-reads-as-health failure as a stalled worker that still heartbeats while 
 
 Its report names BOTH planes (tray count and still-in-outbox count) rather than summing them, because the
 sweep only runs while the orchestrator is alive, so a tray-only reading under-reports between sessions.
-That is the single-plane blindness still live in the scratch `list-workers`. `--dry-run` is the read-only
+That is the single-plane blindness the retired scratch `list-workers` exhibited. `--dry-run` is the read-only
 status form and `--oneline` the statusline form.
