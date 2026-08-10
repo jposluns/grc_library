@@ -114,8 +114,12 @@ drive end-to-end on the maintainer's behalf:
    **This is now GATED, not merely conventional (gate 50's Check 6, added 2026-07-25).**
    The convention did not hold: five consecutive merges (#1170 to #1174) shipped with no
    row on a single day, noticed only when the log was read for an unrelated reason. The
-   check requires a row for every in-window merged PR, exempts the highest-numbered PR as
-   in flight, floors the window at the log's own oldest row, and counts a row by its
+   check requires a row for every in-window merged PR. It reads the merged set from the
+   CHANGELOG on `origin/main`, since a merged PR's entry being there is what merging
+   actually changes; on that authoritative path an in-flight PR is absent by construction,
+   so the highest-numbered PR IS required a row once it has merged. Only when that read is
+   unavailable does it fall back to PR-number ordering and exempt the highest PR as in
+   flight, and it says so when it does. It floors the window at the log's own oldest row, and counts a row by its
    PRESENCE whatever its Mechanism cell says, so a future plain merge is recorded honestly
    rather than forced to keep reading `--admin`. Write the row AFTER the merge from the
    OBSERVED CI state, never in anticipation of one.

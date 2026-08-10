@@ -412,11 +412,14 @@ def parse_retro_prs(text: str) -> set[int]:
     return prs
 
 
-BYPASS_ROW_PR = re.compile(r"^\|[^|]*\|\s*(?:PR\s*)?#(\d+)\s*\|")
-# The optional ``PR`` prefix: a hand-written row reading ``| date | PR #1472 | ...`` is
-# unambiguous to any reader, and rejecting it made a REAL row invisible to this gate
-# (observed 2026-08-10 on the #1472 row). Strictness here bought nothing and cost a
-# false MISSING-row finding on a row that was present and correct.
+BYPASS_ROW_PR = re.compile(r"^\|[^|]*\|\s*#(\d+)\s*\|")
+# Deliberately STRICT, and a 2026-08-10 widening to accept a ``PR #N`` second cell was
+# REVERTED. The widening admitted prose, header rows, and rows inside fenced examples as
+# real ledger rows, any of which could silently discharge a genuinely missing row: a
+# false NEGATIVE on a bypass audit, which is the direction that must never be traded for
+# convenience. The live row that motivated it was simply normalized to the documented
+# form instead. A strict parser rejecting a real row fails LOUD and gets fixed; a loose
+# one accepting a fake row fails SILENT.
 BYPASS_LOG_REL = ".working/merge-bypass-log.md"
 
 
@@ -431,27 +434,75 @@ def parse_bypass_prs(text: str) -> set[int]:
 
 
 
+PR_HEADER_LINE = re.compile(r"^\*\*\d{4}-\d{2}-\d{2} \| [\d.]+ \| PRs? (?P<body>#.*?)\*\*", re.M)
+PR_TOKEN = re.compile(r"#(\d+)(?:\s*-\s*#(\d+))?")
+PR_DECLARED_COUNT = re.compile(r"\((\d+)\s+PRs?\)\s*$")
+
+
+def expand_pr_header(body: str) -> "set[int] | None":
+    """Every PR number a CHANGELOG entry header covers, or None if it cannot be fully parsed.
+
+    The header grammars in live use are singular (``PR #1472``), a rolled-up RANGE
+    (``PRs #1465-#1470 (6 PRs)``), and a rolled-up MULTI-range that skips never-merged numbers
+    (``PRs #1387-#1399 and #1401-#1417 (30 PRs)``).
+
+    FAIL CLOSED is the whole point. Returning a PARTIAL set here is worse than returning nothing:
+    a merged PR missing from the set is a merged PR whose bypass row is never demanded, which is a
+    SILENT false negative on an audit whose entire job is catching an unlogged merge.
+    """
+    declared = None
+    m = PR_DECLARED_COUNT.search(body)
+    if m:
+        declared = int(m.group(1))
+        body = body[: m.start()]
+    prs: set[int] = set()
+    consumed = 0
+    for tok in PR_TOKEN.finditer(body):
+        consumed += len(tok.group(0))
+        lo = int(tok.group(1))
+        hi = int(tok.group(2)) if tok.group(2) else lo
+        if hi < lo:
+            return None
+        prs.update(range(lo, hi + 1))
+    # Anything left over that is not a separator means a grammar this parser does not know.
+    residue = PR_TOKEN.sub("", body)
+    if re.sub(r"[\s,]|and", "", residue):
+        return None
+    if not prs or not consumed:
+        return None
+    # The declared count is a free integrity check on the expansion: a range that silently
+    # swallowed a never-merged number disagrees with the count its author wrote.
+    if declared is not None and declared != len(prs):
+        return None
+    return prs
+
+
 def merged_prs_on_main() -> "set[int] | None":
-    """The PRs whose CHANGELOG entry is present on ``origin/main``, i.e. ACTUALLY merged.
+    """The PRs that have actually MERGED, read from the CHANGELOG on ``origin/main``.
 
     THE GUARD-INPUT FIX (2026-08-10). Check 6 previously derived its merged set as
-    ``pr < max_pr`` over the working-tree CHANGELOG, i.e. it inferred merged-ness from PR-NUMBER
-    ORDERING and treated only the highest-numbered PR as in-flight. That input cannot answer the
-    question asked of it: PRs do not merge in number order. PR #1472 merged while the
-    lower-numbered #1471 was still open, so #1471 fell below ``max_pr``, read as merged, and the
-    gate demanded a merge-bypass row for a PR that had not merged, while its own text forbids
-    writing that row before the merge is observed. A correct check on an unsound input.
+    ``pr < max_pr`` over the working-tree CHANGELOG, inferring merged-ness from PR-NUMBER
+    ORDERING and treating only the highest-numbered PR as in-flight. That input cannot answer the
+    question asked of it: PRs do not merge in number order. #1472 merged while the lower-numbered
+    #1471 was still open, so #1471 fell below ``max_pr``, read as merged, and the gate demanded a
+    row its own text forbids writing before the merge is observed.
 
-    Merged-ness IS directly observable offline: a merged PR's CHANGELOG entry is on ``origin/main``.
+    Merged-ness IS observable offline: a merged PR's entry is on ``origin/main``.
+
+    FAIL CLOSED ON A PARTIAL READ. The first cut of this helper reused ``parse_changelog_prs()``,
+    which recognizes only SINGULAR ``PR #N`` headers, and returned ``prs or None``. On live data
+    that returned ``{1472}`` alone, because the 2026-08-09 daily roll-up had replaced #1465 to
+    #1470 with a single ranged header. Six merged PRs silently left the merged set, so a missing
+    row for any of them would have passed. The fix for an unsound input must not itself ship an
+    unsound input, so every PR-bearing header must parse COMPLETELY or the whole read is void.
 
     IGNORANCE IS A FIRST-CLASS RETURN. ``None`` means "cannot determine", never "nothing merged":
-    callers fall back to the ordering heuristic and SAY SO, rather than silently auditing nothing.
+    callers fall back to the ordering heuristic and SAY SO.
 
-    RESIDUE, stated at the point of use: this reads the LOCAL ``origin/main`` ref. A stale ref
-    under-reports merges, so a PR merged since the last fetch is not yet audited for its row. That
-    is a false NEGATIVE on a merge-bypass audit, so it is the direction that must be visible:
-    ``main_pr_ceiling()`` exposes main's highest PR and the caller reports the basis it used.
-    Fetch before relying on a clean run.
+    RESIDUE, stated at the point of use: this reads the LOCAL ``origin/main`` ref, so a ref that
+    has not been fetched under-reports merges. That is a false NEGATIVE, so the caller prints the
+    ref's resolved OID and the ceiling it parsed on every authoritative run, making the basis
+    auditable rather than assumed. Fetch before relying on a clean run.
     """
     try:
         proc = subprocess.run(
@@ -462,8 +513,27 @@ def merged_prs_on_main() -> "set[int] | None":
         return None
     if proc.returncode != 0 or not proc.stdout.strip():
         return None
-    prs = parse_changelog_prs(proc.stdout)
-    return prs or None
+    merged: set[int] = set()
+    saw_header = False
+    for m in PR_HEADER_LINE.finditer(proc.stdout):
+        saw_header = True
+        expanded = expand_pr_header(m.group("body"))
+        if expanded is None:
+            return None       # an unparseable PR-bearing header voids the whole read
+        merged |= expanded
+    return merged if saw_header else None
+
+
+def main_ref_oid() -> str:
+    """The resolved ``origin/main`` OID, or ``unknown``: the basis an authoritative run reports."""
+    try:
+        proc = subprocess.run(
+            ["git", "-C", str(REPO_ROOT), "rev-parse", "origin/main"],
+            capture_output=True, text=True, timeout=15,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return "unknown"
+    return proc.stdout.strip()[:12] if proc.returncode == 0 else "unknown"
 
 
 def bypass_log_findings(
@@ -484,9 +554,12 @@ def bypass_log_findings(
     was read for an unrelated reason. Five recurrences in one day is past the point where a
     convention is the right control.
 
-    Check 6 EXCLUDES the highest-numbered PR as in-flight: its bypass-log row records a POST-merge
-    fact (whether the merge used `--admin`), unknowable before merge, so demanding it here would make
-    every PR fail its own gate. This differs from Check 1, which after the 3.137b synchronous cutover
+    Check 6 excludes the highest-numbered PR as in-flight ONLY on the ordering FALLBACK path (see
+    ``merged_prs_on_main``): its bypass-log row records a POST-merge fact (whether the merge used
+    `--admin`), unknowable before merge, so demanding it there would make every PR fail its own
+    gate. On the AUTHORITATIVE path that exemption is neither needed nor applied, because an
+    in-flight PR is absent from origin/main by construction; the highest PR IS demanded a row once
+    it has actually merged, which the old blanket exemption silently never did. This differs from Check 1, which after the 3.137b synchronous cutover
     INCLUDES the highest PR (its QA rows are written pre-merge in its own PR). And the
     floor is the register's own oldest row, so a log that starts partway through history is not
     retroactively in breach.
@@ -508,25 +581,45 @@ def bypass_log_findings(
     max_pr = max(changelog_prs)
     floor = effective_floor(bypass_prs, floor=inception)
     if merged_prs is None:
-        # Ignorance: origin/main was unreadable. Fall back to the ordering heuristic, which is
-        # wrong whenever PRs merge out of order, and say so rather than auditing on it silently.
+        # Ignorance: origin/main was unreadable, or a PR-bearing header there did not fully parse.
+        # Fall back to the ordering heuristic, which is wrong whenever PRs merge out of order, and
+        # SAY SO rather than auditing on it silently.
         in_window = [p for p in changelog_prs if floor <= p < max_pr]
+        basis = f"PR-number ordering, the FALLBACK: every PR in [{floor}, {max_pr})"
         print(
-            "  [bypass-log] NOTE: origin/main was unreadable, so merged-ness fell back to "
-            "PR-number ordering (pr < max_pr). That heuristic mis-reads any PR that merged out "
-            "of order. Fetch origin and re-run for an authoritative window.")
+            "  [bypass-log] NOTE: the merged set could not be read from origin/main (unreadable "
+            "ref, or a PR-bearing CHANGELOG header this parser does not fully understand), so "
+            "merged-ness fell back to PR-number ordering. That heuristic mis-reads any PR that "
+            "merged out of order, and it exempts the highest-numbered PR even once it has merged. "
+            "Fetch origin and re-run for an authoritative window.")
     else:
         # Observed: a merged PR's CHANGELOG entry is on origin/main. An open PR's is not, whatever
-        # its number, so no in-flight PR is ever demanded a row it cannot yet honestly write.
-        in_window = [p for p in changelog_prs if floor <= p and p in merged_prs]
+        # its number, so no in-flight PR is ever demanded a row it cannot yet honestly write, and
+        # the most recent merge is no longer structurally exempt.
+        # The CHANGELOG on main only carries PR NUMBERS back to where the roll-up condensation
+        # still names them; older entries were summarized without per-PR numbers. So the
+        # authoritative window STARTS at the oldest PR the observation can actually see. Raising
+        # the floor to it converts what would otherwise be a SILENT skip of everything older into
+        # a STATED coverage boundary. The residue is real either way; only its visibility differs.
+        observed_floor = max(floor, min(merged_prs))
+        if observed_floor > floor:
+            print(
+                f"  [bypass-log] NOTE: the authoritative window starts at #{observed_floor}, not "
+                f"the register floor #{floor}: origin/main's CHANGELOG no longer names PRs older "
+                f"than that individually (roll-up condensation), so this run makes NO claim about "
+                f"[{floor}, {observed_floor}). That span was audited by earlier runs and is not "
+                f"re-checked here.")
+        in_window = [p for p in changelog_prs if observed_floor <= p and p in merged_prs]
+        basis = (f"observed on origin/main at {main_ref_oid()}: {len(merged_prs)} merged PR(s), "
+                 f"authoritative window from #{observed_floor}")
     for pr in sorted(in_window):
         if pr not in bypass_prs:
             findings.append(
-                f"  [bypass-log] PR #{pr}: no row in {BYPASS_LOG_REL}. Every merged PR in "
-                f"[{floor}, {max_pr}) needs one, because protection requires an approval a "
-                f"solo-authored PR never gets, so the merge went through the always-on `--admin` "
-                f"bypass and the row is the only record that it did. Add the row from the OBSERVED "
-                f"pre-merge CI state, never in anticipation of a merge.")
+                f"  [bypass-log] PR #{pr}: no row in {BYPASS_LOG_REL}. It is in the merged set "
+                f"({basis}), and protection requires an approval a solo-authored PR never gets, so "
+                f"the merge went through the always-on `--admin` bypass and the row is the only "
+                f"record that it did. Add the row from the OBSERVED pre-merge CI state, never in "
+                f"anticipation of a merge.")
     return findings
 
 

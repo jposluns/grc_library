@@ -36,6 +36,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import contextlib
 import unittest
 from pathlib import Path
 
@@ -6821,28 +6822,104 @@ class BookkeepingParityTests(LinterTestCase):
         )
         self.assertEqual(mod.parse_bypass_prs(text), {1174})
 
+    @contextlib.contextmanager
+    def _fake_git(self, *, stdout: str = "", returncode: int = 0, raises=None):
+        """Drive merged_prs_on_main() without a repo: it shells out to `git show`.
+
+        A reality fixture for an OBSERVER, per the guard-input discipline: the decision half is
+        testable by construction, the observation half is only testable by controlling what the
+        world hands back.
+        """
+        import subprocess as _sp
+        mod = self._load_module()
+        original = mod.subprocess.run
+
+        def fake_run(cmd, **kwargs):
+            if raises is not None:
+                raise raises
+            return _sp.CompletedProcess(cmd, returncode, stdout=stdout, stderr="")
+
+        mod.subprocess.run = fake_run
+        try:
+            yield
+        finally:
+            mod.subprocess.run = original
+
     # ---- the 2026-08-10 guard-input fix: merged-ness is OBSERVED, not inferred from ordering ----
+
+    def test_expand_pr_header_parses_every_live_grammar(self) -> None:
+        # The three PR-bearing header grammars actually on main: singular, rolled-up range, and
+        # a multi-range that skips a never-merged number (#1400).
+        mod = self._load_module()
+        self.assertEqual(mod.expand_pr_header("#1472"), {1472})
+        self.assertEqual(mod.expand_pr_header("#1465-#1470 (6 PRs)"), set(range(1465, 1471)))
+        self.assertEqual(
+            mod.expand_pr_header("#1387-#1399 and #1401-#1417 (30 PRs)"),
+            set(range(1387, 1400)) | set(range(1401, 1418)))
+
+    def test_expand_pr_header_fails_closed_rather_than_partially(self) -> None:
+        # A PARTIAL parse is worse than none: a merged PR missing from the set is a merged PR
+        # whose bypass row is never demanded, which is a SILENT false negative.
+        mod = self._load_module()
+        for body in (
+            "#1465-#1470 (5 PRs)",      # declared count disagrees with the expansion
+            "#1470-#1465",              # reversed range
+            "#12 frobnicate",           # a grammar this parser does not know
+            "no pr tokens at all",
+        ):
+            self.assertIsNone(mod.expand_pr_header(body), body)
+
+    def test_merged_prs_on_main_reads_the_rollup_grammar(self) -> None:
+        # THE DEFECT THE FIRST CUT SHIPPED. Reusing parse_changelog_prs() (singular headers only)
+        # returned {1472} alone against live data, because the 08-09 daily roll-up had replaced
+        # #1465-#1470 with one ranged header. Six merged PRs silently left the merged set.
+        mod = self._load_module()
+        changelog = (
+            "**2026-08-10 | 2026.08.171 | PR #1472** - a singular entry.\n\n"
+            "**2026-08-09 | 2026.08.170 | PRs #1465-#1470 (6 PRs)** - a rolled-up day.\n")
+        with self._fake_git(stdout=changelog):
+            got = mod.merged_prs_on_main()
+        self.assertEqual(got, {1472} | set(range(1465, 1471)))
+
+    def test_merged_prs_on_main_voids_the_read_on_an_unparseable_header(self) -> None:
+        # One header this parser cannot fully understand voids the WHOLE read, rather than
+        # yielding a subset that would read as authoritative.
+        mod = self._load_module()
+        changelog = (
+            "**2026-08-10 | 2026.08.171 | PR #1472** - fine.\n\n"
+            "**2026-08-09 | 2026.08.170 | PRs #1465-#1470 (99 PRs)** - count disagrees.\n")
+        with self._fake_git(stdout=changelog):
+            self.assertIsNone(mod.merged_prs_on_main())
+
+    def test_merged_prs_on_main_returns_none_not_empty_on_every_failure(self) -> None:
+        # Ignorance must never be encoded as absence: an empty set read as "nothing merged" would
+        # silently disable the audit entirely.
+        mod = self._load_module()
+        for kw in ({"returncode": 1}, {"stdout": ""}, {"stdout": "   \n"},
+                   {"stdout": "a changelog with no PR-bearing header at all\n"},
+                   {"raises": OSError("git absent")},
+                   {"raises": __import__("subprocess").TimeoutExpired("git", 30)}):
+            with self._fake_git(**kw):
+                self.assertIsNone(mod.merged_prs_on_main(), kw)
 
     def test_bypass_log_out_of_order_in_flight_pr_is_not_demanded_a_row(self) -> None:
         # THE MOTIVATING DEFECT. #1472 merged while the LOWER-numbered #1471 was still open, so
         # #1471 fell below max_pr and the ordering heuristic read it as merged. The gate then
         # demanded a bypass row its own text forbids writing before the merge is observed.
         mod = self._load_module()
-        merged = {1470, 1472}            # what origin/main actually carries
-        changelog = {1470, 1471, 1472}   # the working tree also carries the in-flight #1471
         self.assertEqual(
-            mod.bypass_log_findings(changelog, {1470, 1472}, merged_prs=merged), [],
+            mod.bypass_log_findings(
+                {1470, 1471, 1472}, {1470, 1472}, merged_prs={1470, 1472}), [],
             "an open PR below max_pr must not be demanded a merge-bypass row",
         )
 
     def test_bypass_log_merged_pr_below_max_is_still_demanded_a_row(self) -> None:
         # The fix must not become a blanket excuse: a genuinely merged PR still needs its row.
-        mod = self._load_module()
         # The log must already reach back past #1470, or the dynamic per-register floor
-        # (max(INCEPTION, oldest row)) legitimately excludes it as pre-register history.
+        # legitimately excludes it as pre-register history.
+        mod = self._load_module()
         findings = mod.bypass_log_findings(
-            {1400, 1470, 1471, 1472}, {1400, 1472},
-            merged_prs={1400, 1470, 1472})
+            {1400, 1470, 1471, 1472}, {1400, 1472}, merged_prs={1400, 1470, 1472})
         self.assertEqual(len(findings), 1, findings)
         self.assertIn("#1470", findings[0])
 
@@ -6854,24 +6931,25 @@ class BookkeepingParityTests(LinterTestCase):
         self.assertEqual(len(findings), 1, findings)
         self.assertIn("#1472", findings[0])
 
-    def test_bypass_log_falls_back_to_ordering_when_main_is_unreadable(self) -> None:
-        # Ignorance is a first-class return: None means "cannot determine", and the caller falls
-        # back to the ordering heuristic rather than silently auditing nothing.
+    def test_bypass_log_authoritative_finding_does_not_cite_the_ordering_interval(self) -> None:
+        # The half-open [floor, max_pr) interval belongs to the FALLBACK. Printing it on the
+        # authoritative path produced evidence that excluded the very PR it flagged.
         mod = self._load_module()
+        findings = mod.bypass_log_findings({1470, 1472}, {1470}, merged_prs={1470, 1472})
+        self.assertNotIn("1472)", findings[0], findings[0])
+        self.assertIn("merged set", findings[0])
+
+    def test_bypass_log_fallback_still_audits_rather_than_passing_vacuously(self) -> None:
+        # Asserting an empty list here would pass even if the fallback audited NOTHING. Assert
+        # the fallback's actual semantics instead: below max_pr and unrowed IS flagged.
+        mod = self._load_module()
+        findings = mod.bypass_log_findings({1170, 1171, 1175}, {1170}, merged_prs=None)
+        self.assertEqual(len(findings), 1, findings)
+        self.assertIn("#1171", findings[0])
         self.assertEqual(
             mod.bypass_log_findings({1170, 1175}, {1170}, merged_prs=None), [],
-            "with an unreadable origin/main the pre-fix behaviour is preserved",
+            "and the highest PR stays exempt on the fallback path",
         )
-
-    def test_bypass_log_row_parser_accepts_the_PR_prefixed_form(self) -> None:
-        # A row reading `| date | PR #1472 | ...` is unambiguous to a reader, and rejecting it
-        # made a REAL row invisible to the gate (observed on the live #1472 row).
-        mod = self._load_module()
-        text = (
-            "| 2026-08-10T11:10:03Z | PR #1472 | --admin squash | green | j | c |\n"
-            "| 2026-08-09T18:10:37Z | #1470 | admin squash | green | j | c |\n"
-        )
-        self.assertEqual(mod.parse_bypass_prs(text), {1470, 1472})
 
     def test_register_row_order_ascending_passes(self) -> None:
         # Check 5: a run-table in strictly ascending run-number order: no flag.
