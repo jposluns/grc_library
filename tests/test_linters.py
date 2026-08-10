@@ -6768,6 +6768,93 @@ class BookkeepingParityTests(LinterTestCase):
             "a file without a Version history table is out of scope",
         )
 
+    # ---- the 2026-08-10 roll-up parser. Codex WARNING 4: all 44 tests passed while the
+    # parser carried two live errors, because no test exercised any new branch.
+    def test_parse_changelog_prs_reads_every_live_header_shape(self) -> None:
+        """The six PR-bearing shapes enumerated from the live CHANGELOG, plus the legacy long
+        form, which is NOT in the live file and is covered because the parser still accepts it.
+        Seven cases, not six: the count in an earlier version of this docstring was wrong."""
+        mod = self._load_module()
+        cases = [
+            ("**2026-08-10 | 2026.08.171 | PR #1472** - singular", {1472}),
+            ("**2026-08-09 | 2026.08.170 | PRs #1465-#1470 (6 PRs)** - daily roll-up",
+             set(range(1465, 1471))),
+            ("**2026-08-05 | 2026.08.115 | PRs #1387-#1399 and #1401-#1417 (30 PRs)** - multi",
+             set(range(1387, 1400)) | set(range(1401, 1418))),
+            ("**Week of 2026-06-29 (PRs #667-#865)**", set(range(667, 866))),
+            ("**Week of 2026-06-22 (PRs #451-#666 and #900-#902)**",
+             set(range(451, 667)) | {900, 901, 902}),
+            ("**Week of 2026-06-15 (PRs #38-#135, #137-#186 and #200-#201)**",
+             set(range(38, 136)) | set(range(137, 187)) | {200, 201}),
+            ("## 2026-07-02, Library Version 2026.07.40, PR #552", {552}),
+        ]
+        for text, expected in cases:
+            self.assertEqual(mod.parse_changelog_prs(text), expected, text[:60])
+
+    def test_parse_changelog_prs_ignores_non_headers(self) -> None:
+        # Prose mentioning a PR number must not widen the audit universe.
+        mod = self._load_module()
+        # The first two are the only lines in the LIVE file that could plausibly over-match, and
+        # they are what this fixture exists to pin; the invented prose that stood here before
+        # passed against the broken parser too, so it discriminated nothing.
+        for text in ("**2026-07-29 | MILESTONE:** a milestone line with no version cell #1234\n",
+                     "**Week of 2026-06-01 (versions 2026.05.138 to 2026.06.17)**\n",
+                     "This paragraph mentions PR #1234 in passing.\n",
+                     "- a bullet about #1234\n",
+                     "**Bold text #1234** but not an entry header\n"):
+            self.assertEqual(mod.parse_changelog_prs(text), set(), text[:50])
+
+    def test_headers_in_fenced_blocks_comments_and_prose_tails_do_not_count(self) -> None:
+        """Three over-match contexts a verifier probed on the live parser.
+
+        A parser that reads free-form headers must not treat DOCUMENTATION of the format as an
+        entry: illustrating a header in a fence, or commenting one out, would otherwise widen the
+        set of PRs the gate demands bypass rows for. The legacy long form additionally captured to
+        end of line, so a prose tail contributed any PR it mentioned.
+        """
+        mod = self._load_module()
+        self.assertEqual(
+            mod.parse_changelog_prs("```\n**2026-01-01 | 1.0.0 | PRs #9000-#9005 (6 PRs)**\n```\n"),
+            set(), "a fenced example is documentation, not an entry")
+        self.assertEqual(
+            mod.parse_changelog_prs("<!--\n**2026-01-01 | 1.0.0 | PR #9004** - x\n-->\n"),
+            set(), "a commented-out header is not an entry")
+        self.assertEqual(
+            mod.parse_changelog_prs(
+                "## 2026-07-02, Library Version 2026.07.40, PR #552 - follow-up to PR #999\n"),
+            {552}, "the legacy form must not consume PR mentions in its prose tail")
+
+    def test_max_header_span_bounds_the_WHOLE_header_not_each_token(self) -> None:
+        """Codex WARNING 1 / claude WARNING 4: three in-bound tokens, one absurd header."""
+        mod = self._load_module()
+        big = "**2026-01-01 | 1.0.0 | PRs #1-#5000 and #5001-#10000 and #10001-#15000 (x PRs)**"
+        got = mod.parse_changelog_prs(big)
+        # Exact set, not a bound plus two spot checks: an implementation returning only
+        # {1, 15000} would satisfy those and drop four endpoints the header names.
+        self.assertEqual(got, {1, 5000, 5001, 10000, 10001, 15000})
+
+    def test_inverted_range_keeps_endpoints_rather_than_vanishing(self) -> None:
+        # A malformed range must narrow the audit, not silently drop the PRs the header names.
+        mod = self._load_module()
+        self.assertEqual(
+            mod.parse_changelog_prs("**2026-01-01 | 1.0.0 | PRs #500-#400 (x PRs)**"), {400, 500})
+
+    def test_parse_changelog_prs_on_the_live_file_is_not_degenerate(self) -> None:
+        """The defect this repairs: the parser returned ONE PR from the live file.
+
+        Asserts the SHAPE, because a bare count drifts AND is too weak: an endpoint-only parser
+        would pass a loose count while contributing no interior at all. The interior members below
+        come from the live `#1442-#1464` header, so this fails for a singular-only parser and for
+        an endpoint-only one. The count stays as a secondary guard.
+        """
+        mod = self._load_module()
+        live = (REPO_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+        prs = mod.parse_changelog_prs(live)
+        self.assertTrue({1444, 1455, 1460} <= prs,
+                        "a rolled-up range must contribute its INTERIOR, not just endpoints")
+        self.assertGreater(len(prs), 100,
+                           "a singular-only parser returns ~1 here; a range-aware one returns many")
+
     def test_bypass_log_all_rows_present_passes(self) -> None:
         # Check 6: every in-window merged PR has a row: no flag.
         mod = self._load_module()

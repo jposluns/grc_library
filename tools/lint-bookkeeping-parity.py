@@ -27,8 +27,12 @@ The six checks:
 
 **Check 1, QA-cadence parity (the former §4.6 surface).** Derive the merged-PR
 list from the ``CHANGELOG.md`` per-entry headers, matched in BOTH the compact
-``**date | version | PR #N**`` form (the TODO 3.16 root-reformat default) and
-the legacy ``## YYYY-MM-DD, Library Version X, PR #N`` form. For each PR N with ``max(INCEPTION, oldest surviving row) <= N <= max(PR)``, require a row in
+``**date | version | PR #N**`` form (the TODO 3.16 root-reformat default), the
+legacy ``## YYYY-MM-DD, Library Version X, PR #N`` form, AND the rolled-up forms
+that condensation produces (``| PRs #A-#B (N PRs) |``, its multi-range variant,
+and three ``**Week of ... (PRs ...)**`` shapes), whose ranges are expanded. Before
+2026-08-10 only the singular forms were read, so once roll-ups landed this universe
+collapsed to the single un-condensed entry and both checks narrowed with it. For each PR N with ``max(INCEPTION, oldest surviving row) <= N <= max(PR)``, require a row in
 the PR-scoped validation history register AND (for substantive PRs) a row in
 the improvement log, with these exemptions:
 
@@ -129,8 +133,10 @@ here requires an approval a solo-authored PR never receives, so every merge goes
 through the maintainer's always-on `--admin` bypass, which is invisible when used; the
 log is the only thing that makes it auditable. CLAUDE.md already called an unlogged
 bypass a discipline failure, and it recurred five times in one day (#1170 to #1174),
-which is past the point where a convention is the right control. Same window as
-Check 1 (highest PR exempt as in flight, floor at the register's own oldest row); a row
+which is past the point where a convention is the right control. Same DYNAMIC-FLOOR model as Check 1
+(floor at the register's own oldest row), but NOT the same window: Check 1 includes the
+highest PR, because after the synchronous cutover its QA rows are written pre-merge in its
+own PR, while Check 6 EXCLUDES it, because a bypass row records a post-merge fact. A row
 counts by PRESENCE whatever its Mechanism cell says, so a future protection change that
 permits a plain merge is recorded honestly rather than forced to keep reading
 `--admin`. An empty or absent log no-ops rather than flagging the whole history.
@@ -160,7 +166,6 @@ from __future__ import annotations
 
 import re
 import sys
-from pathlib import Path
 
 from lint_common import (
     DEFAULT_EXEMPT_DIRS,
@@ -173,7 +178,6 @@ from lint_common import (
 
 
 CHANGELOG_PATH = "CHANGELOG.md"
-DETAILED_CHANGELOG_PATH = ".working/changelog-details/CHANGELOG-detailed.md"
 VALIDATE_PR_HISTORY = ".working/validate-pr/history.md"
 IMPROVEMENT_LOG = ".working/improvement-log.md"
 TODO_PATH = "TODO.md"
@@ -194,7 +198,15 @@ INCEPTION = 329
 # listed here so the gate recognizes them as handoff-exempt. #300 and #322
 # are below INCEPTION (harmless either way); #334 is in range and needs this
 # allowlist.
-KNOWN_HANDOFF_NO_ROW: frozenset[int] = frozenset({300, 322, 334})
+# #1054 was added 2026-08-10, when the restored CHANGELOG range parsing first made it visible.
+# Its first-parent subject is "Session-closing handoff #1054: Sweep 115 pre-close /validate
+# (PASS 0/0 over #1044..#1053) ... + lease RELEASE (#1054)", so it is genuinely the documented
+# loop-break class rather than a failing item dropped into an allowlist. It carries no Findings-cell
+# marker; an earlier version of this comment claimed that was because #1054 predates the marker
+# convention, which the register REFUTES (history.md:509 uses the marker at #886, and :352 at #1043
+# the same day). The honest reason is simply that the row was never written, and the omission stayed
+# invisible while this check's window was empty.
+KNOWN_HANDOFF_NO_ROW: frozenset[int] = frozenset({300, 322, 334, 1054})
 
 # A row whose Findings cell marks the PR as a session-closing handoff
 # (validate-pr + retro both legitimately skipped, the loop-break).
@@ -257,14 +269,6 @@ RETURNED_MARK = re.compile(r"\bRETURNED\b", re.IGNORECASE)
 # A markdown table data row: leading pipe, an ISO date cell, then the rest.
 TABLE_ROW = re.compile(r"^\|\s*\d{4}-\d{2}-\d{2}\s*\|")
 
-# CHANGELOG entry header: `## YYYY-MM-DD, Library Version X.Y.Z, PR #N`,
-# plus the compact form the TODO 3.16 root-reformat introduced
-# (``**date | version | PR #N**``, optional ``- summary`` tail).
-CHANGELOG_HEADER = re.compile(
-    r"^##\s+\d{4}-\d{2}-\d{2},\s+Library Version\s+[0-9.]+,\s+PR\s+#(\d+)"
-    r"|^\*\*\d{4}-\d{2}-\d{2} \| [0-9.]+ \| PR #(\d+)\*\*",
-    re.MULTILINE,
-)
 
 # improvement-log PR column tolerates an optional leading `#` (mixed format:
 # some rows `338`, others `#333`).
@@ -362,9 +366,72 @@ def cells(line: str) -> list[str]:
     return [c.strip() for c in split_markdown_row(line)]
 
 
+# An entry header that carries a PR token, in any of the six shapes the live file uses: the
+# singular `| PR #N |`, the daily roll-up `| PRs #A-#B (N PRs) |`, its multi-range variant, and
+# three `Week of ... (PRs ...)` weekly forms that carry no declared count.
+CHANGELOG_PR_HEADER = re.compile(
+    r"^(?:##\s+\d{4}-\d{2}-\d{2},\s+Library Version\s+[0-9.]+,\s+PRs?\s+(?P<a>#[\d\s,#and-]*)"
+    r"|\*\*\d{4}-\d{2}-\d{2} \| [0-9.]+ \| PRs? (?P<b>#\d[^*]*)\*\*"
+    r"|\*\*Week of \d{4}-\d{2}-\d{2} \(PRs? (?P<c>#\d[^)]*)\)\*\*)",
+    re.MULTILINE,
+)
+PR_RANGE_TOKEN = re.compile(r"#(\d+)(?:\s*-\s*#(\d+))?")
+# A single header cannot legitimately span more than this many PRs. Enforced across the WHOLE
+# header, not per range token: `#1-#5000 and #5001-#10000 and #10001-#15000` is three in-bound
+# tokens and 15000 PRs, which a per-token check would wave through. Checked BEFORE the set is
+# built, because it is `prs.update(range(...))` that materializes (the `range` itself is lazy), so
+# a mistyped bound would otherwise exhaust memory instead of producing a finding.
+MAX_HEADER_SPAN = 5000
+FENCED_BLOCK = re.compile(r"^```.*?^```", re.MULTILINE | re.DOTALL)
+# A commented-out header is not an entry either. Probed: an HTML-commented compact header
+# contributed its PRs to the audit universe before this.
+HTML_COMMENT = re.compile(r"<!--.*?-->", re.DOTALL)
+
+
 def parse_changelog_prs(text: str) -> set[int]:
-    """The set of PR numbers that have a CHANGELOG entry header."""
-    return {int(a or b) for a, b in CHANGELOG_HEADER.findall(text)}
+    """Every PR number a CHANGELOG entry header covers, ranges expanded.
+
+    The roll-up condensation replaced per-PR headers with ranged ones (`PRs #1465-#1470 (6 PRs)`).
+    The numbers stayed in the file; this parser is what had never been taught the new shape, so
+    the checks built on it silently narrowed to the one remaining singular entry.
+
+    A range is expanded inclusively. Where the roll-up authors split a range to skip a PR that
+    never merged, the split is preserved in the header itself, so expansion follows their intent:
+    #1400 and #1471 are absent from the live universe for exactly that reason, with no filtering
+    needed. Where a range still spans a never-merged number, the surplus surfaces as a DEMAND for
+    a bypass row on a PR that has none. Nothing removes that demand, which is deliberate: it is
+    the LOUD direction, and a guard that removed it was built and deleted on 2026-08-10 because it
+    could not distinguish a never-merged PR from one its input simply had not seen. Measured on the
+    live file, every one of the 319 in-window PRs is confirmed merged, so the surplus is currently
+    empty. The declared `(N PRs)` count, where a form carries one, is not relied on here; the
+    weekly forms carry none.
+    """
+    # W5: a fenced example is documentation, not an entry. Before this, a header inside ``` in
+    # the CHANGELOG contributed its PRs to the audit universe, so illustrating the format could
+    # silently widen what the gate demands rows for. Strip fenced blocks before matching.
+    text = FENCED_BLOCK.sub("", HTML_COMMENT.sub("", text))
+    prs: set[int] = set()
+    for match in CHANGELOG_PR_HEADER.finditer(text):
+        body = match.group("a") or match.group("b") or match.group("c") or ""
+        spans: list[tuple[int, int]] = []
+        for lo_s, hi_s in PR_RANGE_TOKEN.findall(body):
+            lo = int(lo_s)
+            hi = int(hi_s) if hi_s else lo
+            if hi < lo:
+                # An inverted range is malformed. Take the two endpoints, which are real PR
+                # numbers the header names, rather than dropping the header's PRs silently.
+                spans.append((lo, lo))
+                spans.append((hi, hi))
+                continue
+            spans.append((lo, hi))
+        if sum(hi - lo + 1 for lo, hi in spans) > MAX_HEADER_SPAN:
+            # Over the whole-header bound: keep only the endpoints each token names, so the audit
+            # narrows rather than losing the header entirely, and never materializes the interior.
+            prs.update(n for lo, hi in spans for n in (lo, hi))
+            continue
+        for lo, hi in spans:
+            prs.update(range(lo, hi + 1))
+    return prs
 
 
 def parse_validate_pr_status(text: str) -> dict[int, str]:
@@ -425,6 +492,7 @@ def parse_bypass_prs(text: str) -> set[int]:
     return prs
 
 
+
 def bypass_log_findings(
     changelog_prs: set[int],
     bypass_prs: set[int],
@@ -465,6 +533,17 @@ def bypass_log_findings(
         return findings
     max_pr = max(changelog_prs)
     floor = effective_floor(bypass_prs, floor=inception)
+    # KNOWN LIMITATION, stated rather than half-fixed, and scoped precisely because an earlier
+    # wording overstated where it bites. A PR below max_pr is ASSUMED merged, and PRs do not merge
+    # in number order. On `main` this is inert: an unmerged PR has no CHANGELOG entry there, so it
+    # never enters this universe. It bites on the PR's OWN BRANCH, where its entry does exist: when
+    # #1472 merged while the lower-numbered #1471 was open, #1471's branch carried both entries, so
+    # #1471 fell below max_pr and its own pre-push guard demanded a bypass row that this check's
+    # text forbids writing before the merge is observed. A guard keyed on `origin/main` was built for this and
+    # REMOVED on 2026-08-10: a stale remote-tracking ref passed every precondition it could check
+    # locally, and silently deleted the row demand for eight recently-merged PRs. Dropping a demand
+    # is the exact failure this check exists to catch, so a loud false positive on an out-of-order
+    # PR is the better trade until an input that can prove CURRENCY, not merely depth, is available.
     for pr in sorted(p for p in changelog_prs if floor <= p < max_pr):
         if pr not in bypass_prs:
             findings.append(
