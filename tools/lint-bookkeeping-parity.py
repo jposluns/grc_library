@@ -159,6 +159,7 @@ Exit codes:
 from __future__ import annotations
 
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -194,7 +195,12 @@ INCEPTION = 329
 # listed here so the gate recognizes them as handoff-exempt. #300 and #322
 # are below INCEPTION (harmless either way); #334 is in range and needs this
 # allowlist.
-KNOWN_HANDOFF_NO_ROW: frozenset[int] = frozenset({300, 322, 334})
+# #1054 was added 2026-08-10, when the restored CHANGELOG range parsing first made it visible.
+# Its title is "Session-closing handoff #1054: Sweep 115 pre-close /validate (PASS 0/0) ...", so it
+# is the documented loop-break class, and it predates the convention of recording that skip as a
+# marker in the Findings cell. It is exempt for the same reason as the three below, not because it
+# was inconvenient: it was simply never reachable while this check's window was empty.
+KNOWN_HANDOFF_NO_ROW: frozenset[int] = frozenset({300, 322, 334, 1054})
 
 # A row whose Findings cell marks the PR as a session-closing handoff
 # (validate-pr + retro both legitimately skipped, the loop-break).
@@ -362,9 +368,46 @@ def cells(line: str) -> list[str]:
     return [c.strip() for c in split_markdown_row(line)]
 
 
+# An entry header that carries a PR token, in any of the six shapes the live file uses: the
+# singular `| PR #N |`, the daily roll-up `| PRs #A-#B (N PRs) |`, its multi-range variant, and
+# three `Week of ... (PRs ...)` weekly forms that carry no declared count.
+CHANGELOG_PR_HEADER = re.compile(
+    r"^(?:##\s+\d{4}-\d{2}-\d{2},\s+Library Version\s+[0-9.]+,\s+PRs?\s+(?P<a>#\d.*?)$"
+    r"|\*\*\d{4}-\d{2}-\d{2} \| [0-9.]+ \| PRs? (?P<b>#\d[^*]*)\*\*"
+    r"|\*\*Week of \d{4}-\d{2}-\d{2} \(PRs? (?P<c>#\d[^)]*)\)\*\*)",
+    re.MULTILINE,
+)
+PR_RANGE_TOKEN = re.compile(r"#(\d+)(?:\s*-\s*#(\d+))?")
+# A single header cannot legitimately span more than this many PRs. Checked BEFORE expansion
+# because range(...) materializes eagerly, so a mistyped bound would otherwise take the audit
+# down with an uncaught MemoryError rather than a finding.
+MAX_HEADER_SPAN = 5000
+
+
 def parse_changelog_prs(text: str) -> set[int]:
-    """The set of PR numbers that have a CHANGELOG entry header."""
-    return {int(a or b) for a, b in CHANGELOG_HEADER.findall(text)}
+    """Every PR number a CHANGELOG entry header covers, ranges expanded.
+
+    The roll-up condensation replaced per-PR headers with ranged ones (`PRs #1465-#1470 (6 PRs)`).
+    The numbers stayed in the file; this parser is what had never been taught the new shape, so
+    the checks built on it silently narrowed to the one remaining singular entry.
+
+    A range is expanded inclusively. Where the roll-up authors split a range to skip a PR that
+    never merged, the split is preserved in the header itself, so expansion follows their intent.
+    Where a range still spans a never-merged number, the surplus surfaces as a DEMAND for a
+    bypass row on a PR that has none, which is the loud direction, and `unmerged_prs()` removes
+    it again from first-parent history. The declared `(N PRs)` count, where a form carries one,
+    is not relied on here; the weekly forms carry none.
+    """
+    prs: set[int] = set()
+    for match in CHANGELOG_PR_HEADER.finditer(text):
+        body = match.group("a") or match.group("b") or match.group("c") or ""
+        for lo_s, hi_s in PR_RANGE_TOKEN.findall(body):
+            lo = int(lo_s)
+            hi = int(hi_s) if hi_s else lo
+            if hi < lo or hi - lo > MAX_HEADER_SPAN:
+                continue
+            prs.update(range(lo, hi + 1))
+    return prs
 
 
 def parse_validate_pr_status(text: str) -> dict[int, str]:
@@ -425,6 +468,49 @@ def parse_bypass_prs(text: str) -> set[int]:
     return prs
 
 
+
+# Canonical merge-commit subject first, then the squash marker git appends at the END of the
+# subject. Order matters: a canonical merge subject can also carry a trailing parenthetical.
+MERGE_COMMIT_PR = re.compile(r"^Merge pull request #(\d+)\b")
+SQUASH_SUBJECT_PR = re.compile(r"\(#(\d+)\)\s*$")
+
+
+def unmerged_prs(changelog_prs: set[int], floor: int) -> set[int]:
+    """PRs in the window that first-parent history shows have NOT merged.
+
+    Returns an EMPTY set whenever that cannot be established, which leaves the caller's
+    behaviour exactly as it was. This function can only ever REMOVE demands from the audit, and
+    only for a PR it can positively show is absent from a history it has reason to trust.
+
+    Three preconditions, each closing a way an absence could be meaningless:
+      - not a shallow clone (a truncated history makes every older PR look unmerged);
+      - the history parses to a non-empty set;
+      - that set reaches at or below the register floor, so an absence INSIDE the window is
+        evidence of non-merge rather than evidence the history stops short.
+    """
+    try:
+        shallow = subprocess.run(
+            ["git", "-C", str(REPO_ROOT), "rev-parse", "--is-shallow-repository"],
+            capture_output=True, text=True, timeout=15)
+        if shallow.returncode != 0 or shallow.stdout.strip() != "false":
+            return set()
+        log = subprocess.run(
+            ["git", "-C", str(REPO_ROOT), "log", "--first-parent", "origin/main", "--format=%s"],
+            capture_output=True, text=True, timeout=60)
+        if log.returncode != 0 or not log.stdout.strip():
+            return set()
+    except (OSError, subprocess.SubprocessError):
+        return set()
+    merged: set[int] = set()
+    for subject in log.stdout.splitlines():
+        m = MERGE_COMMIT_PR.match(subject) or SQUASH_SUBJECT_PR.search(subject)
+        if m:
+            merged.add(int(m.group(1)))
+    if not merged or min(merged) > floor:
+        return set()
+    return {pr for pr in changelog_prs if pr not in merged}
+
+
 def bypass_log_findings(
     changelog_prs: set[int],
     bypass_prs: set[int],
@@ -465,7 +551,11 @@ def bypass_log_findings(
         return findings
     max_pr = max(changelog_prs)
     floor = effective_floor(bypass_prs, floor=inception)
-    for pr in sorted(p for p in changelog_prs if floor <= p < max_pr):
+    # A PR below max_pr is not necessarily merged: PRs do not merge in number order. #1472 merged
+    # while the lower-numbered #1471 was still open, so #1471 read as merged and was demanded a
+    # row that this check's own text forbids writing before the merge is observed.
+    not_merged = unmerged_prs(changelog_prs, floor)
+    for pr in sorted(p for p in changelog_prs if floor <= p < max_pr and p not in not_merged):
         if pr not in bypass_prs:
             findings.append(
                 f"  [bypass-log] PR #{pr}: no row in {BYPASS_LOG_REL}. Every merged PR in "
