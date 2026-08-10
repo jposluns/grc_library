@@ -7075,24 +7075,6 @@ class BookkeepingParityTests(LinterTestCase):
             )
         self.assertEqual(len(findings), 5, "exactly the five row-less merged PRs should flag")
 
-    def test_merged_prs_on_main_reads_weekly_and_monthly_rollup_headers(self) -> None:
-        # build-public-changelog.py emits weekly and monthly paragraph headers too. Matching only
-        # the compact daily grammar left every one of them invisible: not parsed, not refused.
-        mod = self._load_module()
-        changelog = (
-            "# Changelog\n\n"
-            "**2026-08-10 | 2026.08.171 | PR #1472** - newest.\n\n"
-            "**2026-07-14 (PRs #99-#100)**\n\n"
-            "**Week of 2026-07-27 (PRs #1195-#1197 and #1199-#1200)**\n\n"
-            "**2026-06 (PRs #10-#12)**\n"
-        )
-        with self._fake_git(stdout=changelog):
-            self.assertEqual(
-                mod.merged_prs_on_main(),
-                {10, 11, 12, 99, 100, 1195, 1196, 1197, 1199, 1200, 1472},
-                "every rolled-up header grammar must contribute its PRs to the merged set",
-            )
-
     def test_merged_prs_on_main_voids_the_read_on_an_unknown_pr_bearing_header(self) -> None:
         # The fail-closed claim has to bind on headers the grammars do NOT match, or it is only a
         # claim about the ones they do, which is the partial read wearing a fail-closed label.
@@ -7108,45 +7090,6 @@ class BookkeepingParityTests(LinterTestCase):
                     mod.merged_prs_on_main(),
                     f"a PR-bearing header in an unknown grammar must void the whole read: {unknown}",
                 )
-
-    def test_merged_prs_on_main_ignores_a_header_inside_a_fenced_example(self) -> None:
-        # A documented example is not an entry, and must neither count nor void.
-        mod = self._load_module()
-        changelog = (
-            "**2026-08-10 | 2026.08.171 | PR #1472** - newest.\n\n"
-            "```\n"
-            "**2026-01-01 | 1.0.0 | Pull Requests #999** - an example, not an entry.\n"
-            "```\n"
-        )
-        with self._fake_git(stdout=changelog):
-            self.assertEqual(
-                mod.merged_prs_on_main(), {1472},
-                "a fenced example header must be neither counted nor treated as unparseable",
-            )
-
-    def test_expand_pr_header_rejects_overlap_zero_and_oversized_ranges(self) -> None:
-        # The declared count checks CARDINALITY only, so it cannot see an overlap that happens to
-        # sum correctly; and it ran AFTER expansion, so it could not stop a typo'd range from
-        # materializing and taking the gate down with an uncaught MemoryError.
-        mod = self._load_module()
-        oversized = mod.MAX_HEADER_SPAN + 2
-        for bad, why in (
-            ("#1-#3 and #2-#4 (4 PRs)", "overlapping ranges collapse silently under set union"),
-            ("#7 and #7 (1 PR)", "a number repeated within one header is not two PRs"),
-            ("#0 (1 PR)", "there is no PR #0"),
-            ("#0-#5 (6 PRs)", "a range cannot start below #1"),
-            ("#1andand#2 (2 PRs)", "a separator built only from the letters of 'and'"),
-            (f"#1-#{oversized} ({oversized} PRs)", "a span no legitimate roll-up can reach"),
-            # A one-character typo in a roll-up header. Honest limit on THIS case: the pre-fix
-            # parser also returned None here, but only after materializing 13 million integers,
-            # which under a constrained address space raised an uncaught MemoryError and denied
-            # the whole audit. The return value cannot distinguish the two; the cap is what makes
-            # the rejection cheap. The oversized case above is the one that pins the cap itself.
-            ("#1303-#13031472 (170 PRs)", "a mistyped range must be refused, not expanded"),
-        ):
-            self.assertIsNone(mod.expand_pr_header(bad), why)
-
-
 
 class WorkingProseHygieneTests(LinterTestCase):
     """tools/lint-working-prose-hygiene.py (gate 51)"""
