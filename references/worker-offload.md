@@ -16,7 +16,7 @@ rule (maintainer-directed 2026-07-19, expanded to six points 2026-07-26):
    up; the orchestrator does not do it itself. The orchestrator's usage credits are the scarce,
    slow-to-renew resource, and self-running offloadable work is exactly what exhausts them: a prior
    week's self-run QA burned the orchestrator out mid-day and cost a worker account an extended lockout. The default is OFFLOAD; self-running an offloadable task is the exception that needs a
-   stated reason (no worker of any family available AND the maintainer alerted).
+   stated reason (a genuine exec-dispatch failure from an actual attempt AND the maintainer alerted).
 2. **Spawn workers ON DEMAND with [`tools/exec-dispatch.py`](../tools/exec-dispatch.py); do NOT gate
    offload on `list-workers`.** The exec'd-worker system spawns a FRESH worker per order:
    `python3 tools/exec-dispatch.py --dispatch --family {claude|codex} --model <m> --effort <e>

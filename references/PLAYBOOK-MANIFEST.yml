@@ -75,7 +75,7 @@
   relocated_anchors:
     - "the commit that CREATED item N"
     - "names a worker id the exchange has never seen"
-    - "SINGLE-SHOT PER NUDGE"
-    - "issue another check-in. Repeat"
+    - "one self-contained pass per dispatch"
+    - "10-minute re-check loop"
     - "atomic rename from a `.md.tmp`"
     - "never lands in bare `inbox/`"

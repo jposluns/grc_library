@@ -35,25 +35,23 @@ an order derived from backlog item N means the commit that CREATED item N, not m
 a warning is exactly the shape that gets skimmed. The orchestrator's own habit is the primary control;
 these are defence in depth.
 
-## Codex workers are single-shot: dispatch, check in, then re-check every 10 minutes
+## Codex workers are single-shot: exec-dispatch runs the pass to completion
 
-Maintainer-directed 2026-07-25, after the codex session minted four worker ids in under two hours and
-every one went stale. A Codex chat cannot be resumed by the control plane: once it returns a final
-response its heartbeat daemon can hold a claim but nothing continues the semantic pass, which its own
-continuation brief records as a confirmed limit. So a Codex worker is effectively SINGLE-SHOT PER NUDGE
-rather than a standing worker, and treating it like an Opus worker leaves orders sitting in
-`available-work` beside other workers that read as live.
+A Codex chat cannot be resumed once it returns a final response (its own continuation brief records this
+as a confirmed limit), so a Codex worker is SINGLE-SHOT: one self-contained pass per dispatch. Under the
+exec-dispatch model ([`exec-dispatch.py`](../tools/exec-dispatch.py), which invokes `run-codex-worker`),
+the dispatch RUNS THE JOB TO COMPLETION as a background subprocess and delivers to the tray, so there is
+no wake to issue and no poll to manage: dispatch, then wait for the delivery, checking the worker log and
+the delivery tray on the background-task cadence.
 
-The orchestrator therefore MANAGES codex directly rather than waiting on it:
+Because a codex pass is single-shot, scope each codex order to ONE self-contained pass: a task needing
+several turns will not survive the boundary, so split it rather than hoping the worker persists.
 
-1. **Dispatch** the order to the codex family as normal.
-2. **Immediately issue a check-in** (`--send wake`), because the order will not otherwise be noticed.
-3. **If nothing has arrived in 10 minutes, issue another check-in. Repeat.** A fresh worker id appearing
-   is normal and expected here: the protocol deliberately refuses to let a replacement session inherit a
-   prior session's claim, so id churn is the mechanism working rather than a fault to chase.
-
-It is also the reason a codex order should be scoped to ONE self-contained pass: a task needing several
-turns will not survive the boundary, so split it rather than hoping the worker persists.
+(Historical, the retired standing-codex model: before exec-dispatch, codex ran as a standing tmux session
+that had to be nudged with `--send wake` and re-checked every 10 minutes because a control plane cannot
+wake an idle turn, and a replacement session was refused a prior session's claim so worker-id churn was
+expected. exec-dispatch removed that entirely: run-codex-worker runs the pass and exits, so the nudge, the
+10-minute re-check loop, and the id-churn management no longer apply.)
 
 A codex review that COMPLETES but never lands in the tray (the stranded-verdict class diagnosed
 2026-08-08) is recovered with [`tools/recover-codex-verdict.py`](../tools/recover-codex-verdict.py):
