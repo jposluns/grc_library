@@ -2,8 +2,8 @@
 
 **Document Title:** Master Project Specification\
 **Document Type:** Specification\
-**Version:** 1.6.16\
-**Date:** 2026-08-10\
+**Version:** 1.6.18\
+**Date:** 2026-08-11\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Risk Officer\
 **Related Documents:** [`specification-ingestion.md`](specification-ingestion.md), [`instruction-ai-document-ingestion.md`](instruction-ai-document-ingestion.md), [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md)\
@@ -331,7 +331,7 @@ When referencing standards and frameworks, the AI must only reference publicly r
 - GDPR: General Data Protection Regulation (EU)
 - UK GDPR: United Kingdom General Data Protection Regulation
 - PIPEDA: Canadian privacy legislation
-- AIDA: Artificial Intelligence and Data Act (Canada)
+- AIDA: Artificial Intelligence and Data Act (Canada; proposed in Bill C-27, lapsed 2025-01-06 and never enacted, cited as a proposed instrument)
 - PIPL: Personal Information Protection Law (China)
 - LGPD: Lei Geral de Proteção de Dados (Brazil)
 - Quebec Law 25: Act respecting the protection of personal information

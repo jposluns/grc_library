@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""exec-dispatch.py - orchestrator-side dispatch for the exec'd worker pool.
+"""exec-dispatch.py - orchestrator-side dispatch for exec'd workers.
 
 Reads the maintainer-maintained account-config (grc_library_private/worker-accounts.json),
 selects an eligible worker account for a job per the dispatch rules, and (optionally)

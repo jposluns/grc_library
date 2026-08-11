@@ -42,7 +42,7 @@ every one went stale. A Codex chat cannot be resumed by the control plane: once 
 response its heartbeat daemon can hold a claim but nothing continues the semantic pass, which its own
 continuation brief records as a confirmed limit. So a Codex worker is effectively SINGLE-SHOT PER NUDGE
 rather than a standing worker, and treating it like an Opus worker leaves orders sitting in
-`available-work` beside a fleet that reads as live.
+`available-work` beside other workers that read as live.
 
 The orchestrator therefore MANAGES codex directly rather than waiting on it:
 

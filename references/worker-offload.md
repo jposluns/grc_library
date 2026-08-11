@@ -41,7 +41,7 @@ rule (maintainer-directed 2026-07-19, expanded to six points 2026-07-26):
    triaged on its own merits. This is the HEAVIER form of the permanent dual-family QA standard,
    which applies to EVERY QA pass (BOTH halves as exec-dispatch workers, one per family; the Claude half
    is a claude-family exec-dispatch worker, NEVER the in-session Agent tool, per `block-orchestrator-self-qa.py`).
-5. **Keep the fleet busy: one worker on QA, the rest pre-loading the next ~10 items.** Never let an
+5. **Keep dispatched workers busy: one on QA, the rest pre-loading the next ~10 items.** Never let an
    available account sit idle. Reserve one worker for the QA cadence (`/validate-pr`, `verify`,
    sweeps) and keep the others producing research and draft candidates for the upcoming queue, so the
    orchestrator always has a delivery to APPLY rather than a dispatch to wait on.
@@ -82,7 +82,7 @@ formal pass, abbreviation is never authorized).
 
 **Worker-elasticity corollary (maintainer-directed 2026-07-19).** The ORCHESTRATOR is the scarce
 singleton; WORKERS ARE ELASTIC (the maintainer can spin up more). So when parallelizable work exceeds
-the live worker pool, PROACTIVELY tell the maintainer and request more workers, rather than quietly
+available concurrent worker capacity, PROACTIVELY tell the maintainer and request more workers, rather than quietly
 serializing work through too few. Under-requesting wastes the orchestrator's own scarce time on
 serialization the maintainer would gladly parallelize.
 

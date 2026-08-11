@@ -512,7 +512,7 @@ is external. Two mechanisms:
      does NOT satisfy this, however honestly it is worded. Honest prose recording an absence is
      the right way to record it and is not a substitute for the thing being absent.
    - **If the order is outstanding, WAIT for it.** If no worker will serve it (no eligible
-     claimant, an independence conflict, a stalled fleet), SELF-RUN it inline: on this one
+     claimant, an independence conflict, or a genuine exec-dispatch failure), SELF-RUN it inline: on this one
      conflict the mandatory-QA rule outranks the mandatory-offload rule, never the reverse.
      Alert the maintainer and request another worker at the same time, per the
      worker-elasticity corollary, but do not let the ask become the reason the QA never ran.
