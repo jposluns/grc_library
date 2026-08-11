@@ -33,6 +33,7 @@ from __future__ import annotations
 import io
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -8810,7 +8811,9 @@ class SiblingPlaceholderTests(LinterTestCase):
 
     def _mk(self, files: dict[str, str], name: str = "ref") -> Path:
         """Create a temp '.<name>' dir populated from files (filename->text); return it."""
-        d = Path(tempfile.mkdtemp()) / f".{name}"
+        base = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, base, ignore_errors=True)
+        d = base / f".{name}"
         d.mkdir()
         for fn, text in files.items():
             (d / fn).write_text(text, encoding="utf-8")
@@ -8823,7 +8826,9 @@ class SiblingPlaceholderTests(LinterTestCase):
 
     def test_missing_dir_ok(self) -> None:
         mod = self._load_module()
-        missing = Path(tempfile.mkdtemp()) / ".ref"  # deliberately not created
+        base = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, base, ignore_errors=True)
+        missing = base / ".ref"  # deliberately not created
         # Absent slot is fine (guard-if-present): the dirs are not shipped in the
         # public repo; the maintainer runs real siblings, an adopter opts in via /adopt.
         self.assertEqual(mod.check_placeholder(missing, "ref"), [])
