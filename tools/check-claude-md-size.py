@@ -7,7 +7,9 @@ the PR-lifecycle prose to `references/pr-lifecycle.md`. This gate LOCKS IN that
 gain and prevents regrowth: it FAILS when CLAUDE.md exceeds a hand-maintained
 ceiling constant.
 
-The ceiling is a DOWNWARD RATCHET: the maintainer only ever LOWERS it. Every
+The ceiling is a DOWNWARD RATCHET BY DEFAULT: the maintainer lowers it as CLAUDE.md
+shrinks, and raises it only by explicit authorization for an intentional canonical
+addition (as for the #1482 Five Rules of AIQT). Every
 future relocation PR that shrinks CLAUDE.md also lowers CEILING in the same PR,
 marching toward the ~800-900 goal and making each gain permanent. The gate never
 fails on a decrease; it fails on any increase past the constant, which forces new
@@ -39,7 +41,8 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 CLAUDE_MD = REPO_ROOT / ".claude" / "CLAUDE.md"
 
-# Downward ratchet. LOWER this (never raise it) as CLAUDE.md shrinks. Current
+# Downward ratchet BY DEFAULT. LOWER this as CLAUDE.md shrinks; raise it ONLY by explicit
+# maintainer authorization for an intentional canonical addition (see the #1482 note below). Current
 # size at #1250 adoption: 1506 lines (CEILING then 1550). Roadmap C parts 2-4
 # (#1278-1284) + the TODO-split #1301 brought CLAUDE.md to 918, but the ceiling
 # was left at its adoption value (~630 lines of slack, so the gains were NOT
@@ -64,7 +67,8 @@ def evaluate(count: int, ceiling: int) -> tuple[int, str]:
             f"FAIL: .claude/CLAUDE.md is {count} lines, over the {ceiling}-line "
             f"ceiling (D10 size ratchet). Relocate content to references/ (read at "
             f"its activity boundary) rather than growing the every-turn load; do NOT "
-            f"raise CEILING in tools/check-claude-md-size.py (it only ratchets down).",
+            f"raise CEILING to force a pass (it ratchets DOWN by default; a raise needs "
+            f"explicit maintainer authorization for an intentional canonical addition).",
         )
     return (
         0,
