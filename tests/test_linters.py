@@ -41,7 +41,7 @@ import unittest
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-FIXTURE_DIR = REPO_ROOT / "tests" / "tmp" / f"run-{os.getpid()}"  # per-process (ENV-36): concurrent suite runs in the shared tree must not glob-delete each other's in-flight fixtures
+FIXTURE_DIR = REPO_ROOT / "tests" / "tmp"
 
 
 # Minimal metadata block that satisfies lint-metadata.py's required-fields
@@ -91,14 +91,16 @@ def setUpModule() -> None:
 
 
 def tearDownModule() -> None:
-    """Belt-and-suspenders: remove this process's per-run fixture directory.
+    """Belt-and-suspenders: remove any remaining fixtures after the run.
 
-    Individual tearDown methods already remove their fixtures; this removes the
-    whole per-process ``run-<pid>`` subdir, catching anything a crashed assertion
-    left behind. Only this process's own directory is touched, so a concurrent
-    suite run in the shared tree is never disturbed (ENV-36).
+    Individual tearDown methods already remove their fixtures; this
+    catches anything left behind by a crashed assertion.
     """
-    shutil.rmtree(FIXTURE_DIR, ignore_errors=True)
+    for f in FIXTURE_DIR.glob("*.md"):
+        try:
+            f.unlink()
+        except OSError:
+            pass
 
 
 def run_linter(script: str, *paths: str | Path) -> subprocess.CompletedProcess:
