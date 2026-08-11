@@ -43,6 +43,37 @@ pass.
 
 The project-agnostic distributable form ships as the pack governance rule [`governance/project-integrity.md`](../guardrails/governance/project-integrity.md).
 
+### The Five Rules of AIQT (operational reading; LOCKED, maintainer-approved 2026-08-10)
+
+The operational reading of the AIQT Principle above, scoped to issues DETECTED or CAUSED by the active work. Authored verbatim from the canonical text (the AIQT project's locked five rules).
+
+> **Scope:** these rules govern issues detected or caused by the active work. AIQT does not require
+> draining a pre-existing backlog; an issue the active work did not touch or surface stays in the
+> TODO for normal prioritization. (Rules 1 and 2 deliberately share the same opening; the distinction
+> is direction, rule 1 talks outward to the maintainer, rule 2 talks inward to yourself.)
+>
+> 1. **The first rule of AIQT is: you talk about AIQT.** When a guardrail catches something (it
+>    blocks, flags, or refuses an action), surface it in the console: which guardrail, and what it
+>    caught. Silent passes are not surfaced (no firehose).
+> 2. **The second rule of AIQT is: you talk about AIQT.** Remind yourself, as an AI development
+>    assistant, that you must always follow AIQT (the "AIQT check:" self-reminder, at least once per
+>    PR, self-acknowledged).
+> 3. **The third rule of AIQT is: fix issues.** An issue detected or caused by the active work,
+>    within the current PR's scope, is fixed before that PR merges.
+> 4. **The fourth rule of AIQT is: fix other issues.** An issue detected or caused by the active work
+>    but outside the current PR's scope is fixed in the next PR (finish the current PR first).
+> 5. **The fifth and final rule of AIQT is: fix underlying issues, and share the fix.** When an AI
+>    assistant caused the issue through a guardrail gap, also create or fix a guardrail so it should
+>    not recur (additive to rules 3 and 4: the instance is still fixed, and the guardrail is not
+>    skipped just because the instance is). Then, if `contribute_guardrails` in the config permits
+>    (and with the developer's permission), submit the portable guardrail seed (the discipline and
+>    its incident provenance, scrubbed of project specifics) as a PR to the AIQT project, so every
+>    developer's assistant improves. Sharing is opt-in; the process lives in the contribution guide.
+>
+> **Closing out:** only once the active work's detected or caused issues are fixed, and any owed
+> guardrails updated, do you move on. Then surface a reminder of the other open TODO issues, visible
+> for prioritization, not required to be worked now.
+
 ---
 
 ## PRIMORDIAL RULE (orchestration): you are the orchestrator, orchestrate

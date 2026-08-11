@@ -45,7 +45,11 @@ CLAUDE_MD = REPO_ROOT / ".claude" / "CLAUDE.md"
 # was left at its adoption value (~630 lines of slack, so the gains were NOT
 # locked in); #1302 lowers it to 945 (~3% headroom over 918) to ratchet the gain
 # in, per the downward-ratchet discipline the maintainer set.
-CEILING = 945
+# #1482 raises 945 -> 962 for the maintainer-directed verbatim authoring of the
+# canonical Five Rules of AIQT into the PRIMORDIAL RULE section (2026-08-11); a deliberate
+# one-time upward bump for a locked canonical addition, not drift. The downward-ratchet
+# convention resumes from here.
+CEILING = 962
 
 
 def line_count(path: Path) -> int:
