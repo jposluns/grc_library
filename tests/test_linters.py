@@ -33,6 +33,7 @@ from __future__ import annotations
 import io
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -40,7 +41,7 @@ import unittest
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-FIXTURE_DIR = REPO_ROOT / "tests" / "tmp"
+FIXTURE_DIR = REPO_ROOT / "tests" / "tmp" / f"run-{os.getpid()}"  # per-process (ENV-36): concurrent suite runs in the shared tree must not glob-delete each other's in-flight fixtures
 
 
 # Minimal metadata block that satisfies lint-metadata.py's required-fields
@@ -90,16 +91,14 @@ def setUpModule() -> None:
 
 
 def tearDownModule() -> None:
-    """Belt-and-suspenders: remove any remaining fixtures after the run.
+    """Belt-and-suspenders: remove this process's per-run fixture directory.
 
-    Individual tearDown methods already remove their fixtures; this
-    catches anything left behind by a crashed assertion.
+    Individual tearDown methods already remove their fixtures; this removes the
+    whole per-process ``run-<pid>`` subdir, catching anything a crashed assertion
+    left behind. Only this process's own directory is touched, so a concurrent
+    suite run in the shared tree is never disturbed (ENV-36).
     """
-    for f in FIXTURE_DIR.glob("*.md"):
-        try:
-            f.unlink()
-        except OSError:
-            pass
+    shutil.rmtree(FIXTURE_DIR, ignore_errors=True)
 
 
 def run_linter(script: str, *paths: str | Path) -> subprocess.CompletedProcess:
@@ -8810,7 +8809,9 @@ class SiblingPlaceholderTests(LinterTestCase):
 
     def _mk(self, files: dict[str, str], name: str = "ref") -> Path:
         """Create a temp '.<name>' dir populated from files (filename->text); return it."""
-        d = Path(tempfile.mkdtemp()) / f".{name}"
+        base = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, base, ignore_errors=True)
+        d = base / f".{name}"
         d.mkdir()
         for fn, text in files.items():
             (d / fn).write_text(text, encoding="utf-8")
@@ -8823,7 +8824,9 @@ class SiblingPlaceholderTests(LinterTestCase):
 
     def test_missing_dir_ok(self) -> None:
         mod = self._load_module()
-        missing = Path(tempfile.mkdtemp()) / ".ref"  # deliberately not created
+        base = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, base, ignore_errors=True)
+        missing = base / ".ref"  # deliberately not created
         # Absent slot is fine (guard-if-present): the dirs are not shipped in the
         # public repo; the maintainer runs real siblings, an adopter opts in via /adopt.
         self.assertEqual(mod.check_placeholder(missing, "ref"), [])
