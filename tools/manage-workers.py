@@ -60,7 +60,7 @@ ORCHESTRATOR_SESSIONS = {"grc"}
 # `codex` added 2026-07-25 after a second Codex worker was started in a session of that name and
 # every verb against it was refused for having no mapping. The refusal was correct (this tool will
 # not guess a prompt shape), but an unmapped live worker is un-nudgeable, so the map has to keep up
-# with the fleet. Adding a session here stays the deliberate, reviewable act it is meant to be.
+# with the workers. Adding a session here stays the deliberate, reviewable act it is meant to be.
 RUNTIME_MAP = {"worker": "claude", "worker1": "claude", "codex": "codex"}
 # Host-specific session names are OPERATIONAL data and live in the private sibling
 # (grc_library_private/worker-runtime-map.json, a {"session-name": "family"} object),
@@ -613,7 +613,7 @@ def do_send(repo: Path, root: Path | None, session: str, verb: str, reason: str,
         # Both send-keys calls return 0 whether or not the prompt actually submitted, so a regression
         # in the paste-window timing presented as a worker that was never nudged, which is
         # indistinguishable from a stalled worker: the exact condition this tool exists to fix. The
-        # original defect was caught only by the maintainer watching a pane by hand, and the fleet is
+        # original defect was caught only by the maintainer watching a pane by hand, and the workers are
         # meant to run HEADLESS, so the postcondition is checked rather than assumed. A distinctive
         # slice of the payload still sitting in the pane means it did not submit.
         probe = k.strip()[:40]
