@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Jurisdiction Index\
 **Document Type:** Annex\
-**Version:** 1.0.18\
-**Date:** 2026-08-04\
+**Version:** 1.0.19\
+**Date:** 2026-08-12\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -132,7 +132,7 @@ The following material regulatory developments occurred or were anticipated betw
 
 - **EU AI Act:** High-risk AI system obligations under Annex III become applicable in December 2027 (restaged from the original August 2026 by Regulation (EU) 2026/1744, the Digital Omnibus on AI). GPAI model obligations applied from August 2025. National AI supervisory authorities are being designated across EU member states, with many still pending past the 2 August 2025 notification deadline (only a minority formally notified as of the 2026 review).
 - **China Generative AI Regulations:** Updated regulations anticipated in 2026, extending obligations to additional generative AI service categories with enhanced training data provenance requirements.
-- **Canada Bill C-27 (CPPA/AIDA):** Lapsed at the 2025-01-06 prorogation (died on the order paper); not in force and would require reintroduction in a future Parliament. PIPEDA remains the in-force federal private-sector privacy law; monitor for any reintroduced successor bill.
+- **Canada Bill C-27 (CPPA/AIDA):** Lapsed at the 2025-01-06 prorogation (died on the order paper); not in force. A privacy successor, **Bill C-36 (Protecting Privacy and Consumer Data Act)**, was introduced 2026-06-15 and is at second reading (proposed, not in force); no AI-specific successor to AIDA has been introduced. PIPEDA remains the in-force federal private-sector privacy law.
 - **Brazil LGPD:** ANPD continued to develop sector-specific AI guidance; administrative enforcement matured with increasing fine activity.
 - **Australia Privacy Act:** Privacy and Other Legislation Amendment Act 2024 reforms took effect; statutory tort for serious invasions of privacy became actionable.
 - **APEC CBPR 2.0:** Additional economies joined the Global CBPR Forum; interoperability with GDPR SCCs was under active negotiation.
