@@ -112,7 +112,11 @@ HIGHEST_DELTA_GATE = 11
 # gates. These are excluded from the pre-commit-to-spec parity check.
 # The regenerate-derived-artefacts hook runs the build scripts in
 # write mode so taxonomy.yml / narrative.yml / docs/portal.md / docs/maturity-scorecard.md
-# are refreshed after the corresponding --check gates have verified the committed state (the L-k ordering: checks fail loud on drift first, then the regen auto-fixes the local tree); it is not
+# are refreshed. The ordering differs by artefact: for taxonomy.yml / docs/portal.md /
+# docs/maturity-scorecard.md the --check gates run BEFORE this regen hook (check-then-regen:
+# the gates fail loud on drift first, then the regen auto-fixes the local tree), while the
+# narrative.yml --check runs AFTER this hook, so that artefact is instead protected by
+# pre-commit's modification detection plus the later check; this hook is not
 # itself a verification gate.
 PRECOMMIT_NON_GATE_HOOKS = {"Regenerate taxonomy, narrative registry, portal, and maturity scorecard"}
 
