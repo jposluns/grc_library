@@ -84,10 +84,10 @@ _108 documents._
 | [governance/register-coverage-gaps.md](../governance/register-coverage-gaps.md) | Coverage Gap Analysis Register | Register | 1.1.32 | 2026-08-04 |
 | [governance/register-digital-trust-and-assurance-metrics.md](../governance/register-digital-trust-and-assurance-metrics.md) | Digital Trust and Assurance Metrics Register | Register | 1.1.2 | 2026-08-05 |
 | [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.108 | 2026-08-06 |
-| [governance/register-glossary.md](../governance/register-glossary.md) | Glossary and Acronym Index | Register | 1.4.15 | 2026-08-12 |
+| [governance/register-glossary.md](../governance/register-glossary.md) | Glossary and Acronym Index | Register | 1.4.16 | 2026-08-12 |
 | [governance/register-key-terms-and-definitions.md](../governance/register-key-terms-and-definitions.md) | Key Terms and Definitions Register | Register | 1.1.4 | 2026-07-02 |
 | [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.5.4 | 2026-07-03 |
-| [governance/specification-audit-programme.md](../governance/specification-audit-programme.md) | Audit Programme Specification | Specification | 1.17.88 | 2026-08-11 |
+| [governance/specification-audit-programme.md](../governance/specification-audit-programme.md) | Audit Programme Specification | Specification | 1.17.89 | 2026-08-12 |
 | [governance/specification-citation-verification.md](../governance/specification-citation-verification.md) | Citation Verification Specification | Specification | 1.2.15 | 2026-07-11 |
 | [governance/standard-records-retention-and-destruction.md](../governance/standard-records-retention-and-destruction.md) | Records Retention and Destruction Standard | Standard | 1.4.19 | 2026-08-05 |
 | [operations/procedure-change-management-and-configuration-control.md](../operations/procedure-change-management-and-configuration-control.md) | Change Management and Configuration Control Procedure | Procedure | 1.3.3 | 2026-07-14 |
@@ -260,7 +260,7 @@ _170 documents._
 | [privacy/jurisdictions/annex-privacy-singapore.md](../privacy/jurisdictions/annex-privacy-singapore.md) | Singapore Privacy Regulatory Requirements | Annex | 1.0.4 | 2026-07-02 |
 | [privacy/jurisdictions/annex-privacy-south-africa.md](../privacy/jurisdictions/annex-privacy-south-africa.md) | South Africa Privacy Regulatory Requirements | Annex | 1.0.4 | 2026-07-02 |
 | [privacy/jurisdictions/annex-privacy-south-korea.md](../privacy/jurisdictions/annex-privacy-south-korea.md) | South Korea Privacy Regulatory Requirements | Annex | 1.0.3 | 2026-07-02 |
-| [privacy/jurisdictions/annex-privacy-switzerland.md](../privacy/jurisdictions/annex-privacy-switzerland.md) | Switzerland Privacy Regulatory Requirements | Annex | 1.0.3 | 2026-07-02 |
+| [privacy/jurisdictions/annex-privacy-switzerland.md](../privacy/jurisdictions/annex-privacy-switzerland.md) | Switzerland Privacy Regulatory Requirements | Annex | 1.0.4 | 2026-08-12 |
 | [privacy/jurisdictions/annex-privacy-thailand.md](../privacy/jurisdictions/annex-privacy-thailand.md) | Thailand Privacy Regulatory Requirements | Annex | 1.0.3 | 2026-07-02 |
 | [privacy/jurisdictions/annex-privacy-turkey.md](../privacy/jurisdictions/annex-privacy-turkey.md) | Turkey Privacy Regulatory Requirements | Annex | 1.0.3 | 2026-07-02 |
 | [privacy/jurisdictions/annex-privacy-uae.md](../privacy/jurisdictions/annex-privacy-uae.md) | United Arab Emirates Privacy Regulatory Requirements | Annex | 1.0.3 | 2026-07-02 |
