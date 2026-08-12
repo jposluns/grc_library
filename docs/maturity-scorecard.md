@@ -260,7 +260,7 @@ _170 documents._
 | [privacy/jurisdictions/annex-privacy-singapore.md](../privacy/jurisdictions/annex-privacy-singapore.md) | Singapore Privacy Regulatory Requirements | Annex | 1.0.4 | 2026-07-02 |
 | [privacy/jurisdictions/annex-privacy-south-africa.md](../privacy/jurisdictions/annex-privacy-south-africa.md) | South Africa Privacy Regulatory Requirements | Annex | 1.0.4 | 2026-07-02 |
 | [privacy/jurisdictions/annex-privacy-south-korea.md](../privacy/jurisdictions/annex-privacy-south-korea.md) | South Korea Privacy Regulatory Requirements | Annex | 1.0.3 | 2026-07-02 |
-| [privacy/jurisdictions/annex-privacy-switzerland.md](../privacy/jurisdictions/annex-privacy-switzerland.md) | Switzerland Privacy Regulatory Requirements | Annex | 1.0.4 | 2026-08-12 |
+| [privacy/jurisdictions/annex-privacy-switzerland.md](../privacy/jurisdictions/annex-privacy-switzerland.md) | Switzerland Privacy Regulatory Requirements | Annex | 1.0.5 | 2026-08-12 |
 | [privacy/jurisdictions/annex-privacy-thailand.md](../privacy/jurisdictions/annex-privacy-thailand.md) | Thailand Privacy Regulatory Requirements | Annex | 1.0.3 | 2026-07-02 |
 | [privacy/jurisdictions/annex-privacy-turkey.md](../privacy/jurisdictions/annex-privacy-turkey.md) | Turkey Privacy Regulatory Requirements | Annex | 1.0.3 | 2026-07-02 |
 | [privacy/jurisdictions/annex-privacy-uae.md](../privacy/jurisdictions/annex-privacy-uae.md) | United Arab Emirates Privacy Regulatory Requirements | Annex | 1.0.3 | 2026-07-02 |

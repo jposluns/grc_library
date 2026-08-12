@@ -4181,7 +4181,7 @@ documents:
   domain: "privacy"
   type: "Annex"
   title: "Switzerland Privacy Regulatory Requirements"
-  version: "1.0.4"
+  version: "1.0.5"
   date: "2026-08-12"
   owner: "Data Protection Officer"
   approving_authority: "Governance Library Maintainer"
