@@ -2,8 +2,8 @@
 
 **Document Title:** Canada Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.5\
-**Date:** 2026-08-05\
+**Version:** 1.1.7\
+**Date:** 2026-08-12\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -18,14 +18,14 @@
 
 ## Purpose
 
-This annex defines privacy and AI regulatory requirements applicable to processing of personal data in Canada under PIPEDA (current), the lapsed Consumer Privacy Protection Act and Artificial Intelligence and Data Act (Bill C-27, which died on the 2025-01-06 prorogation and would require reintroduction; see below), and Quebec Law 25. It supplements the Privacy and Data Governance Policy and the Privacy Impact and Cross-Border Transfer Procedure.
+This annex defines privacy and AI regulatory requirements applicable to processing of personal data in Canada under PIPEDA (current), the lapsed Consumer Privacy Protection Act and Artificial Intelligence and Data Act (Bill C-27, which died on the 2025-01-06 prorogation; a privacy successor, Bill C-36 (Protecting Privacy and Consumer Data Act), was introduced 2026-06-15 and is proposed, not in force; see below), and Quebec Law 25. It supplements the Privacy and Data Governance Policy and the Privacy Impact and Cross-Border Transfer Procedure.
 
 ---
 
 ## Applicable laws and regulatory authorities
 
 - **Personal Information Protection and Electronic Documents Act (PIPEDA)**: S.C. 2000, c. 5. Federal private-sector privacy law governing collection, use, and disclosure of personal information in commercial activity. Schedule 1 incorporates the CSA Model Code as fair information principles.
-- **Consumer Privacy Protection Act (CPPA)**: Was Part 1 of Bill C-27 (Digital Charter Implementation Act, 2022), intended to replace PIPEDA. Bill C-27 lapsed when the Canadian Parliament was prorogued on 2025-01-06; the bill died on the order paper. CPPA is not in force and would require reintroduction in a future Parliament. PIPEDA remains the federal private-sector privacy law. Adopting entities should monitor for any reintroduction; the proposed CPPA framework included stronger consent requirements, rights to portability and disposal, privacy management programmes, and an independent Privacy Commissioner with order-making and penalty powers.
+- **Consumer Privacy Protection Act (CPPA)**: Was Part 1 of Bill C-27 (Digital Charter Implementation Act, 2022), intended to replace PIPEDA. Bill C-27 lapsed when the Canadian Parliament was prorogued on 2025-01-06; the bill died on the order paper. CPPA is not in force; the C-27 bill itself was not reintroduced, but a distinct successor privacy bill has since been introduced. PIPEDA remains the federal private-sector privacy law. That successor, **Bill C-36 (Protecting Privacy and Consumer Data Act, PPCDA)**, was introduced 2026-06-15 and is at second reading (proposed, not in force); it would repeal Part 1 of PIPEDA, rename PIPEDA to the *Electronic Documents Act*, shift toward a legitimate-interest model, and create a Privacy and Consumer Data Commissioner. C-36 is a privacy bill and does not reintroduce AIDA. The earlier proposed CPPA framework included stronger consent requirements, rights to portability and disposal, privacy management programmes, and an independent Privacy Commissioner with order-making and penalty powers.
 - **Artificial Intelligence and Data Act (AIDA)**: Was Part 3 of Bill C-27. AIDA also lapsed with Bill C-27 at the January 2025 prorogation and would require reintroduction. The proposed framework would have regulated high-impact AI systems, requiring impact assessments, mitigation measures, transparency, and mandatory harm reporting.
 - **Quebec Law 25**: Significantly amended Quebec's provincial privacy laws. Key provisions: mandatory PIAs for projects to acquire, develop, or overhaul an information system or electronic service delivery system involving personal information (s. 3.3); express consent for sensitive data; right to portability; right to be de-indexed; obligations for automated decision-making transparency; prompt notification to the Commission d'accès à l'information (CAI) of a confidentiality incident presenting a risk of serious injury (the Act's standard is "promptly"; it sets no fixed hour-count). Extraterritorial application to organizations processing information about Quebec residents.
 - **Regulatory authorities:** Office of the Privacy Commissioner of Canada (OPC) under PIPEDA; the order-making Privacy Commissioner that the lapsed CPPA proposed (not in force); Commission d'accès à l'information (CAI) for Quebec Law 25.
