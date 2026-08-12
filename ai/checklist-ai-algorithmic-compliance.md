@@ -2,8 +2,8 @@
 
 **Document Title:** AI Algorithmic Compliance Checklist\
 **Document Type:** Checklist\
-**Version:** 1.0.9\
-**Date:** 2026-08-04\
+**Version:** 1.0.10\
+**Date:** 2026-08-12\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -126,7 +126,7 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 | # | Control Item | Status (Yes / No / Partial / N/A) | Evidence | Owner | Notes |
 |---|---|---|---|---|---|
 | E1 | EU AI Act compliance obligations identified and documented for this specific system: risk tier confirmed; applicable Articles listed; deployer obligations addressed | | | | |
-| E2 | Canada automated-decision-making governance assessed and documented: applicability of the TBS Directive on Automated Decision-Making determined (binding on federal institutions; a leading-practice benchmark otherwise); ISED Voluntary Code commitments considered for generative-AI systems; AIDA tracked as a lapsed planning indicator pending reintroduction | | | | |
+| E2 | Canada automated-decision-making governance assessed and documented: applicability of the TBS Directive on Automated Decision-Making determined (binding on federal institutions; a leading-practice benchmark otherwise); ISED Voluntary Code commitments considered for generative-AI systems; AIDA tracked as a lapsed planning indicator (Bill C-27 died on the 2025-01-06 prorogation; the responsible Minister has stated it will not return in its original form), monitored for any successor AI-governance instrument rather than treated as pending reintroduction | | | | |
 | E3 | UK AI safety priorities reviewed: ICO AI and data protection guidance considered; AI Safety Institute evaluation criteria reviewed for applicable system types | | | | |
 | E4 | ISO/IEC 42001:2023 alignment gaps for this system identified and tracked: gaps are recorded in the CAPA system and assigned to owners | | | | |
 | E5 | Post-market monitoring plan in place for high-risk systems: plan documents metrics, thresholds, frequency, responsible party, and escalation path | | | | |

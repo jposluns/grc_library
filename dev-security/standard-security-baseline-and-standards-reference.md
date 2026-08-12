@@ -2,8 +2,8 @@
 
 **Document Title:** Security Baseline and Standards Reference\
 **Document Type:** Standard\
-**Version:** 1.1.17\
-**Date:** 2026-08-05\
+**Version:** 1.1.18\
+**Date:** 2026-08-12\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md)\
@@ -112,7 +112,7 @@ Requirements include: documented cybersecurity programme; password and access co
 
 ### 5.4 AI regulation
 
-Canada has no in-force federal AI statute. AIDA (proposed as Part 3 of Bill C-27) lapsed at the 2025-01-06 prorogation and is not in force; treat it as a lapsed planning indicator, not a compliance target. The current Canadian instruments are the Treasury Board Directive on Automated Decision-Making (binding on federal institutions) and the federal Voluntary Code of Conduct on Generative AI (voluntary); PIPEDA remains the in-force federal private-sector privacy law. Were AIDA reintroduced and enacted, it would describe risk classification of AI systems, algorithmic impact assessments before deployment, transparency and explainability, and retention of compliance records. Refer to the AI and agentic development security standard for AI security requirements.
+Canada has no in-force federal AI statute. AIDA (proposed as Part 3 of Bill C-27) lapsed at the 2025-01-06 prorogation and is not in force; treat it as a lapsed planning indicator, not a compliance target. The current Canadian instruments are the Treasury Board Directive on Automated Decision-Making (binding on federal institutions) and the federal Voluntary Code of Conduct on Generative AI (voluntary); PIPEDA remains the in-force federal private-sector privacy law. Had AIDA been enacted (it lapsed and, per the responsible Minister's June 2025 statement, will not return in its original form), it would have described risk classification of AI systems, algorithmic impact assessments before deployment, transparency and explainability, and retention of compliance records; monitor for any successor AI-governance instrument. Refer to the AI and agentic development security standard for AI security requirements.
 
 ---
 
