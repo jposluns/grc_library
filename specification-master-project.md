@@ -2,8 +2,8 @@
 
 **Document Title:** Master Project Specification\
 **Document Type:** Specification\
-**Version:** 1.6.18\
-**Date:** 2026-08-11\
+**Version:** 1.6.19\
+**Date:** 2026-08-12\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Risk Officer\
 **Related Documents:** [`specification-ingestion.md`](specification-ingestion.md), [`instruction-ai-document-ingestion.md`](instruction-ai-document-ingestion.md), [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md)\
@@ -198,11 +198,11 @@ The library version is `YYYY.MM.patch` where:
 
 Examples: `2026.05.0`, `2026.05.7`, `2026.06.0`, `2026.12.42`.
 
-> **Historical discontinuity (recorded 2026-08-09, Sweep 154).** `patch` is sequential BY INTENT, but
+> **Historical discontinuity (recorded 2026-08-09, Sweep 154; count updated 2026-08-12, Sweep 159).** `patch` is sequential BY INTENT, but
 > the historical record contains a small number of gaps where a patch number appears on no merge to
-> `main`. A walk of the full `Library Version` history finds ten such gap sites, across the 2026.06,
+> `main`. A walk of the full `Library Version` history finds eleven such gap sites, across the 2026.06,
 > 2026.07, and 2026.08 windows (the earliest is `2026.06.151`; the `2026.07.641` gap is the one noted in
-> `tools/lint-changelog-mirror-header-parity.py`, from the PR #1155 mirror-parity incident, not the earliest). Each sits between two contiguously-numbered,
+> `tools/lint-changelog-mirror-header-parity.py`, from the PR #1155 mirror-parity incident, not the earliest; the most recent is `2026.08.177`, a candidate superseded in the #1477/#1478 window). Each sits between two contiguously-numbered,
 > both-merged PRs, so the observed cause is within a merge, not a missing PR: a candidate version
 > superseded before its PR merged (for example `2026.08.164`, assigned on PR #1465's branch then
 > revised to `2026.08.165` before merge), or a `Library Version` bumped by more than one on a single
