@@ -2,8 +2,8 @@
 
 **Document Title:** Switzerland Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.3\
-**Date:** 2026-07-02\
+**Version:** 1.0.5\
+**Date:** 2026-08-12\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/jurisdictions/annex-privacy-european-union.md`](../jurisdictions/annex-privacy-european-union.md), [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -25,7 +25,7 @@ This annex defines privacy regulatory requirements applicable to the processing 
 ## Applicable laws and regulatory authorities
 
 - **New Federal Act on Data Protection (nFADP / revDSG)**: entered into force 2023-09-01, replacing the 1992 Federal Act on Data Protection (FADP). Switzerland is not an EU member state; the nFADP is closely aligned with GDPR but is a distinct instrument.
-- Key provisions: mandatory records of processing activities; DPIA mandatory for high-risk processing; mandatory data breach notification to the FDPIC within 72 hours where feasible; right to data portability; expanded scope to data processors through accountability obligations; enhanced transparency requirements.
+- Key provisions: mandatory records of processing activities; DPIA mandatory for high-risk processing; mandatory data breach notification to the FDPIC as soon as possible, but only where the breach is likely to result in a high risk to the data subject's personality or fundamental rights (revFADP Art. 24; no fixed hour deadline, unlike the GDPR's 72-hour rule); right to data portability; expanded scope to data processors through accountability obligations; enhanced transparency requirements.
 - **Regulatory authority:** Federal Data Protection and Information Commissioner (FDPIC). The FDPIC issues recommendations and can refer matters to federal authorities for enforcement.
 
 ---
@@ -42,8 +42,8 @@ This annex defines privacy regulatory requirements applicable to the processing 
 ## Cross-border transfer mechanisms
 
 - Switzerland holds EU adequacy status (reconfirmed December 2023).
-- For transfers from Switzerland to third countries: adequacy determination by the FDPIC (approved countries list); FDPIC-approved standard data protection clauses; binding corporate rules; or narrow derogations.
-- **Important:** Switzerland's standard contractual clauses are distinct from EU SCCs. Organizations with operations in both EU and Switzerland must ensure that separate transfer mechanisms are in place for each jurisdiction.
+- For transfers from Switzerland to third countries: adequacy determination by the Federal Council (the list of states with adequate protection in Annex 1 to the Data Protection Ordinance); FDPIC-approved standard data protection clauses; binding corporate rules; or narrow derogations.
+- **Important:** Switzerland does not maintain its own separate standard contractual clauses; the FDPIC recognizes the EU Commission SCCs for transfers from Switzerland when the adaptations required under Swiss law are made (a Swiss addendum: FADP references in place of the GDPR, and the FDPIC named as the competent supervisory authority). A single suitably adapted instrument can therefore serve both regimes.
 
 ---
 

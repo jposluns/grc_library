@@ -2,7 +2,7 @@
 
 **Document Title:** Glossary and Acronym Index\
 **Document Type:** Register\
-**Version:** 1.4.15\
+**Version:** 1.4.16\
 **Date:** 2026-08-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -61,6 +61,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **AIDA** | Artificial Intelligence and Data Act. Canadian federal legislation introduced in Bill C-27 (which lapsed at the January 2025 prorogation; would require reintroduction). Distinct from "AI Data Act" in some other contexts; the library uses AIDA for the Canadian Artificial Intelligence and Data Act only. |
 | **AIGC** | AI Governance Council. Cross-functional governance forum defined in the library's AI charter. |
 | **AIMS** | Artificial Intelligence Management System (per ISO/IEC 42001:2023). |
+| **AIQT** | Accuracy, Integrity, Quality, Trust. The library's foundational production principle: the priority ordering (Accuracy = Integrity = Quality = Trust) > Progress > Speed > Cost. See [`governance/principle-integrity-and-trustworthiness.md`](principle-integrity-and-trustworthiness.md). |
 | **AIS** | AI System. A unit of AI capability tracked in the AI System Register. (CSA CCM also uses AIS as Application and Interface Security, the CCM domain covering application-layer controls; the library cites that domain explicitly where used.) |
 | **ASD** | Australian Signals Directorate. Authority for the Australian Information Security Manual (ISM). |
 | **ATT** | Australian Trusted Trader. Australia's AEO-equivalent trusted-trader programme. |
@@ -106,7 +107,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **CSV** | Comma-Separated Values (file format). |
 | **CTO** | Chief Technology Officer. |
 | **CTPAT** | Customs-Trade Partnership Against Terrorism. U.S. CBP voluntary trusted-trader programme. See [`compliance/logistics/register-ctpat-united-states-it-controls.md`](../compliance/logistics/register-ctpat-united-states-it-controls.md). |
-| **CVE** | Common Vulnerabilities and Exposures. NIST-maintained vulnerability identifier. |
+| **CVE** | Common Vulnerabilities and Exposures. Vulnerability identifier maintained by the MITRE CVE Program; NIST publishes the related National Vulnerability Database (NVD), which builds on CVE. |
 
 ## D
 
@@ -246,7 +247,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **OECD** | Organisation for Economic Co-operation and Development. Publishes the OECD AI Principles. |
 | **OSFI** | Office of the Superintendent of Financial Institutions (Canada). |
 | **OT** | Operational Technology. Hardware and software that detects or causes change through direct monitoring and/or control of physical devices, processes, and events. Distinct from Information Technology (IT) by its real-world physical impact, safety implications, and typically longer asset lifecycles. Includes ICS, SCADA, DCS, PLCs, BMS, and other operational control systems. |
-| **OWASP** | Open Web Application Security Project. Publishes OWASP Top 10, OWASP LLM Top 10. |
+| **OWASP** | Open Worldwide Application Security Project (formerly Open Web Application Security Project). Publishes OWASP Top 10, OWASP LLM Top 10. |
 
 ## P
 
@@ -255,7 +256,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **PAM** | Privileged Access Management. |
 | **PCI DSS** | Payment Card Industry Data Security Standard. |
 | **PDPA** | Personal Data Protection Act. Used by several jurisdictions including Singapore, Thailand, and Argentina. |
-| **PDPL** | Personal Data Protection Law (Saudi Arabia). |
+| **PDPL** | Personal Data Protection Law. Used by several jurisdictions including Saudi Arabia, the United Arab Emirates, and Vietnam. |
 | **PHIPA** | Personal Health Information Protection Act (Ontario, Canada). |
 | **PIA** | Privacy Impact Assessment. |
 | **PII** | Personally Identifiable Information. |
