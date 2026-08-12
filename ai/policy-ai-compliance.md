@@ -2,8 +2,8 @@
 
 **Document Title:** AI Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.15\
-**Date:** 2026-07-24\
+**Version:** 1.0.17\
+**Date:** 2026-08-12\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -22,7 +22,7 @@
 
 This policy establishes the organization's obligations and commitments for AI regulatory compliance. It defines the classification of AI systems, the governance structures accountable for compliance, the obligations that apply to the organization as an AI deployer and, where relevant, as a provider, and the obligations that arise under applicable national and international AI governance frameworks.
 
-The policy is grounded in the EU AI Act 2024, ISO/IEC 42001:2023, NIST AI Risk Management Framework 1.0 (with the AI 600-1 Generative AI Profile), the OECD AI Principles (2019 Recommendation as updated 2024), and UK AI Safety Institute guidance. Canada's proposed Artificial Intelligence and Data Act (AIDA) is retained only as a lapsed planning indicator: AIDA lapsed with Bill C-27 at the January 2025 prorogation and would require reintroduction, so adopting entities treat it as a planning indicator rather than a binding instrument until reintroduced and align in the meantime to the in-force Canadian instruments set out in Section 7.2.
+The policy is grounded in the EU AI Act 2024, ISO/IEC 42001:2023, NIST AI Risk Management Framework 1.0 (with the AI 600-1 Generative AI Profile), the OECD AI Principles (2019 Recommendation as updated 2024), and UK AI Safety Institute guidance. Canada's proposed Artificial Intelligence and Data Act (AIDA) is retained only as a lapsed planning indicator: AIDA lapsed with Bill C-27 at the January 2025 prorogation and, per the responsible Minister's June 2025 statement, will not return in its original form, so adopting entities treat it as a lapsed planning indicator rather than a binding instrument, monitor for any successor AI-governance instrument, and align in the meantime to the in-force Canadian instruments set out in Section 7.2.
 
 ### 1.2 Scope
 
@@ -182,7 +182,7 @@ Key compliance obligations:
 
 ### 7.2 Canada: automated decision-making governance
 
-Canada has no in-force federal AI statute. The Artificial Intelligence and Data Act (AIDA), introduced as Part 3 of Bill C-27, lapsed when that bill died at the January 2025 prorogation and would require reintroduction to take effect (Section 1.1). Pending a successor, where the organization operates in Canada or processes data in connection with Canadian operations it aligns to the in-force Canadian instruments:
+Canada has no in-force federal AI statute. The Artificial Intelligence and Data Act (AIDA), introduced as Part 3 of Bill C-27, lapsed when that bill died at the January 2025 prorogation and, per the June 2025 ministerial statement, will not return in its original form (Section 1.1). Pending a successor, where the organization operates in Canada or processes data in connection with Canadian operations it aligns to the in-force Canadian instruments:
 
 - **Treasury Board Directive on Automated Decision-Making**, the mandatory federal instrument governing automated decision systems. It binds federal government institutions directly; other organizations use it as a leading-practice benchmark. Where the organization is a federal institution or delivers automated decisions on behalf of one, it complies with the Directive's requirements, using the **Algorithmic Impact Assessment (AIA)** tool to classify and document each automated decision system by impact level.
 - **ISED Voluntary Code of Conduct on the Responsible Development and Management of Advanced Generative AI Systems (2023)**, the voluntary code for advanced generative-AI systems. The organization adopts its commitments (accountability; safety; fairness and equity; transparency; human oversight and monitoring; and validity and robustness) for generative-AI systems it develops or manages, pending binding legislation.
