@@ -10067,7 +10067,7 @@ class HookToolItemCountParityTests(unittest.TestCase):
             root = Path(d) / "grc_library"
             root.mkdir()
             (root / "TODO.md").write_text(
-                "### 1.1 pub one\n### 2.3 pub two\n", encoding="utf-8")
+                "| 1.1 | pub one | `[public]` |\n| 2.3 | pub two | `[public]` |\n", encoding="utf-8")
             priv = Path(d) / "grc_library_private"
             priv.mkdir()
             (priv / "P-TODO.md").write_text(
@@ -10095,7 +10095,7 @@ class HookToolItemCountParityTests(unittest.TestCase):
             real.mkdir()
             root = real / "grc_library"
             root.mkdir()
-            (root / "TODO.md").write_text("### 1.1 a\n### 2.2 b\n", encoding="utf-8")
+            (root / "TODO.md").write_text("| 1.1 | a | `[public]` |\n| 2.2 | b | `[public]` |\n", encoding="utf-8")
             priv = real / "grc_library_private"
             priv.mkdir()
             (priv / "P-TODO.md").write_text(

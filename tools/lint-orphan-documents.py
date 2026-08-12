@@ -47,7 +47,7 @@ ALWAYS_EXEMPT = {
     # `is_artefact` returns False for non-`.md` files before reaching
     # the ALWAYS_EXEMPT check, so those two entries were unreachable.
     "README.md", "NOTICE.md", "AUTHORS.md",
-    "CHANGELOG.md", "TODO.md", "CONTRIBUTING.md", "SECURITY.md",
+    "CHANGELOG.md", "TODO.md", "TODO-REFERENCE.md", "CONTRIBUTING.md", "SECURITY.md",
     # RESUME.md is a manual session-resume entry point opened by filename
     # convention (its own header: "manual entry point"), the same category as
     # the other root entry points above. Its only markdown-linked referrer was

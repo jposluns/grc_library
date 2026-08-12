@@ -124,6 +124,13 @@ AUDIT_TOKEN_RE = re.compile(r"backlog-audit:\s*(\d+)\s+items?\s+enumerated", re.
 ITEM_HEADING_RE = re.compile(
     r"^### (?:\d+(?:\.\d+){1,2}[a-z]?|[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+)\b", re.MULTILINE
 )
+# TODO.md is index-format now (| id | ... | rows); count rows there. P-TODO.md
+# keeps the ### heading shape. The two together must equal the tool's enumerated
+# count (audit-backlog-actionability), which the parity test asserts.
+TODO_ROW_RE = re.compile(
+    r"^\|\s*(?:P-\d+(?:\.\d+){1,2}[a-z]?|\d+(?:\.\d+)+(?:\.[a-z]|[a-z])?|TF-\d+)\s*\|",
+    re.MULTILINE,
+)
 
 
 def _todo_item_count(project_dir: str | None) -> int | None:
@@ -141,7 +148,7 @@ def _todo_item_count(project_dir: str | None) -> int | None:
         todo = root / "TODO.md"
         if not todo.is_file():
             return None
-        count = len(ITEM_HEADING_RE.findall(todo.read_text(encoding="utf-8")))
+        count = len(TODO_ROW_RE.findall(todo.read_text(encoding="utf-8")))
         ptodo = root.parent / "grc_library_private" / "P-TODO.md"
         if ptodo.is_file():
             count += len(ITEM_HEADING_RE.findall(ptodo.read_text(encoding="utf-8")))
