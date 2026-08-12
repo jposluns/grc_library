@@ -2,8 +2,8 @@
 
 **Document Title:** Legal and Regulatory Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.15\
-**Date:** 2026-07-11\
+**Version:** 1.0.16\
+**Date:** 2026-08-12\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md)\
@@ -61,7 +61,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer for tr
 
 5.1 Legal, compliance, and regional teams must continuously monitor regulatory updates using verified industry sources, including the EU Official Journal, US Federal Register equivalents, and sector-programme notifications (for example, WCO circulars and BASC chapter communications where the organization participates).
 
-5.2 AI-related regulatory tracking must capture EU AI Act obligations, the status of Canada's AI instruments (the current Treasury Board Directive on Automated Decision-Making (binding) and Voluntary Code of Conduct on Generative AI (voluntary), and any reintroduction of the lapsed AIDA), and supervisory guidance.
+5.2 AI-related regulatory tracking must capture EU AI Act obligations, the status of Canada's AI instruments (the current Treasury Board Directive on Automated Decision-Making (binding) and Voluntary Code of Conduct on Generative AI (voluntary), and any successor to the lapsed AIDA, which per the June 2025 ministerial statement will not return in its original form), and supervisory guidance.
 
 5.3 Sector-programme regulation updates (for example, trade and customs updates under BASC where the organization participates) must be reflected within the relevant sector compliance matrix and communicated per the sector annex; see [`compliance/`](./).
 

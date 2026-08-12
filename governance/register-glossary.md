@@ -2,7 +2,7 @@
 
 **Document Title:** Glossary and Acronym Index\
 **Document Type:** Register\
-**Version:** 1.4.16\
+**Version:** 1.4.17\
 **Date:** 2026-08-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -58,7 +58,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **AI** | Artificial Intelligence. |
 | **AI Act** | The EU Artificial Intelligence Act, Regulation (EU) 2024/1689, laying down harmonized rules on artificial intelligence. See [`ai/jurisdictions/annex-ai-european-union.md`](../ai/jurisdictions/annex-ai-european-union.md). |
 | **AICM** | AI Controls Matrix. Cloud Security Alliance (CSA) framework of AI-specific controls. |
-| **AIDA** | Artificial Intelligence and Data Act. Canadian federal legislation introduced in Bill C-27 (which lapsed at the January 2025 prorogation; would require reintroduction). Distinct from "AI Data Act" in some other contexts; the library uses AIDA for the Canadian Artificial Intelligence and Data Act only. |
+| **AIDA** | Artificial Intelligence and Data Act. Canadian federal legislation introduced in Bill C-27 (which lapsed at the January 2025 prorogation; per the June 2025 ministerial statement, will not return in its original form). Distinct from "AI Data Act" in some other contexts; the library uses AIDA for the Canadian Artificial Intelligence and Data Act only. |
 | **AIGC** | AI Governance Council. Cross-functional governance forum defined in the library's AI charter. |
 | **AIMS** | Artificial Intelligence Management System (per ISO/IEC 42001:2023). |
 | **AIQT** | Accuracy, Integrity, Quality, Trust. The library's foundational production principle: the priority ordering (Accuracy = Integrity = Quality = Trust) > Progress > Speed > Cost. See [`governance/principle-integrity-and-trustworthiness.md`](principle-integrity-and-trustworthiness.md). |
