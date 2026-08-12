@@ -2795,8 +2795,8 @@ documents:
   domain: "governance"
   type: "Register"
   title: "Glossary and Acronym Index"
-  version: "1.4.14"
-  date: "2026-07-25"
+  version: "1.4.15"
+  date: "2026-08-12"
   owner: "Governance Library Maintainer"
   approving_authority: "Governance Library Maintainer"
   classification: "Public"
@@ -2806,6 +2806,7 @@ documents:
   related_documents:
     - "governance/register-document-index-and-classification.md"
     - "governance/charter-governance-library.md"
+    - "governance/register-key-terms-and-definitions.md"
     - "README.md"
 - path: "governance/register-key-terms-and-definitions.md"
   domain: "governance"
