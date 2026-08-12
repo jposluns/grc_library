@@ -171,6 +171,7 @@ EXEMPT_FILES = frozenset({
     "specification-audit-programme.md",
     "specification-citation-verification.md",
     "TODO.md",
+    "TODO-REFERENCE.md",
 })
 
 # CCM/AICM-family domain prefixes worth policing: the valid domains plus the

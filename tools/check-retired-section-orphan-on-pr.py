@@ -156,7 +156,7 @@ def in_scope(rel: str) -> bool:
     """
     if rel.startswith(".git/") or rel.startswith("guardrails/"):
         return False
-    if rel == "TODO.md":
+    if rel == "TODO.md" or rel == "TODO-REFERENCE.md":
         return True
     if rel.startswith(".claude/") or rel.startswith("references/"):
         return True
@@ -182,9 +182,10 @@ def operational_files() -> list[tuple[str, str]]:
             cand += [p for p in d.rglob("*") if p.is_file()]
     cand += list((REPO_ROOT / "tools").glob("*"))
     cand += list(REPO_ROOT.glob("*.sh"))
-    todo = REPO_ROOT / "TODO.md"
-    if todo.is_file():
-        cand.append(todo)
+    for name in ("TODO.md", "TODO-REFERENCE.md"):
+        f = REPO_ROOT / name
+        if f.is_file():
+            cand.append(f)
     out: list[tuple[str, str]] = []
     seen: set[str] = set()
     for p in cand:
@@ -227,8 +228,11 @@ def run(base: str | None, head: str) -> int:
         base = f"origin/{target}"
     try:
         merge_base = git("merge-base", base, head).strip()
-        todo_diff = git("diff", merge_base, head, "--", "TODO.md")
-        head_todo = git("show", f"{head}:TODO.md")
+        ref_diff = git("diff", merge_base, head, "--", "TODO-REFERENCE.md")
+        try:
+            head_ref = git("show", f"{head}:TODO-REFERENCE.md")
+        except subprocess.CalledProcessError:
+            head_ref = ""
     except subprocess.CalledProcessError as exc:
         print(f"ERROR: git failed (base={base}, head={head}): {exc}", file=sys.stderr)
         return 2
@@ -238,7 +242,7 @@ def run(base: str | None, head: str) -> int:
     # the pre-push guard and CI, HEAD IS the checked-out working tree, so the two
     # agree; D9 assumes head == working tree and is not meant for an arbitrary
     # non-checked-out head ref.
-    ids = retired_ids(todo_diff, head_todo)
+    ids = retired_ids(ref_diff, head_ref)
     if not ids:
         print("D9 OK: no TODO section closed in this PR.")
         return 0

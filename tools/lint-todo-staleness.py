@@ -53,6 +53,7 @@ from lint_common import REPO_ROOT, resolve_working
 
 TARGET_FILES: list[str] = [
     "TODO.md",
+    "TODO-REFERENCE.md",
 ]
 SWEEP_HISTORY_PATH = ".working/validate-sweeps/history.md"
 # The sweep cursor lives in the session-handoff file (the canonical resume

@@ -131,6 +131,9 @@ def open_refs():
     """The set of live OPEN backlog tokens in TODO.md: section numbers, SR ids,
     and FR ids named in section headings. Tokens are upper-cased for matching."""
     todo = (REPO_ROOT / "TODO.md").read_text(errors="replace")
+    ref = REPO_ROOT / "TODO-REFERENCE.md"
+    if ref.is_file():
+        todo += "\n" + ref.read_text(errors="replace")
     refs = set(OPEN_SECTION_RE.findall(todo))
     refs |= {s.upper() for s in OPEN_SR_RE.findall(todo)}
     refs |= {f.upper() for f in OPEN_FR_IN_HEADING_RE.findall(todo)}

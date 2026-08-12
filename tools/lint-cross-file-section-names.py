@@ -105,6 +105,7 @@ EXEMPT_FILES = frozenset(
     {
         "CHANGELOG.md",
         "TODO.md",
+        "TODO-REFERENCE.md",
     }
 )
 

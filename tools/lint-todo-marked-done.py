@@ -80,7 +80,7 @@ STATUS_DONE = re.compile(r"\bStatus:\s*(?:completed|done)\b", re.IGNORECASE)
 # ``~~`` and ``[done]``) does not register.
 INLINE_CODE_SPAN = SIMPLE_CODE_SPAN_RE
 
-DEFAULT_PATHS = ["TODO.md"]
+DEFAULT_PATHS = ["TODO.md", "TODO-REFERENCE.md"]
 
 
 def iter_markdown_files(paths: list[str]) -> list[Path]:

@@ -10585,7 +10585,16 @@ class TodoNumberPermanenceTests(LinterTestCase):
         """
         root = FIXTURE_DIR / name
         (root / ".working").mkdir(parents=True, exist_ok=True)
-        (root / "TODO.md").write_text(todo, encoding="utf-8")
+        # TODO.md is index-format now (PR-1 rework): render each abstract
+        # ``### <id> <title>`` fixture line as an index row so the gate (which
+        # reads rows) sees the declared items. Counters/headers pass through.
+        import re as _re
+        _todo = "\n".join(
+            (f"| {_m.group(1)} | {_m.group(2).replace(chr(124), chr(92)+chr(124))} | `[public]` |"
+             if (_m := _re.match(r"^### (\S+)\s+(.*)$", _ln)) else _ln)
+            for _ln in todo.splitlines()
+        ) + "\n"
+        (root / "TODO.md").write_text(_todo, encoding="utf-8")
         if done is not None:
             (root / ".working" / "DONE.md").write_text(done, encoding="utf-8")
         if ptodo is not None:
@@ -10815,6 +10824,18 @@ class TagGateTests(LinterTestCase):
     def _run(self, name, todo, ptodo=None):
         root = FIXTURE_DIR / name
         root.mkdir(parents=True, exist_ok=True)
+        # TODO.md is index-format now (PR-1 rework): render each abstract
+        # ``### <id> <title> [tags]`` fixture line as an index row (tags -> cell 3).
+        import re as _re
+        def _row(_ln):
+            _m = _re.match(r"^### (\S+)\s+(.*)$", _ln)
+            if not _m:
+                return _ln
+            _rest = _m.group(2)
+            _tags = " ".join(_re.findall(r"`\[[^\]]*\]`", _rest))
+            _title = _re.sub(r"`\[[^\]]*\]`", "", _rest).strip().replace(chr(124), chr(92)+chr(124))
+            return f"| {_m.group(1)} | {_title} | {_tags} |"
+        todo = "\n".join(_row(_ln) for _ln in todo.splitlines()) + "\n"
         (root / "TODO.md").write_text(todo, encoding="utf-8")
         if ptodo is not None:
             (root / "P-TODO.md").write_text(ptodo, encoding="utf-8")

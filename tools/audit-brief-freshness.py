@@ -126,8 +126,11 @@ def brief_target_paths(text):
 
 
 def todo_anchors():
-    """Live ``### N.M`` and ``### SR-N`` heading anchors in TODO.md."""
-    todo = (REPO_ROOT / "TODO.md").read_text(errors="replace")
+    """Live ``### N.M`` and ``### SR-N`` heading anchors (in TODO-REFERENCE.md,
+    the per-item detail file; TODO.md is now the index of rows)."""
+    ref = REPO_ROOT / "TODO-REFERENCE.md"
+    todo = ref.read_text(errors="replace") if ref.is_file() else ""
+    todo += "\n" + (REPO_ROOT / "TODO.md").read_text(errors="replace")
     sections = set(re.findall(r'^### (\d+\.\d+)\s', todo, re.M))
     srs = set(re.findall(r'^### (SR-\d+)\s', todo, re.M))
     return sections, srs
