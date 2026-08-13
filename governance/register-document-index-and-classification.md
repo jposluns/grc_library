@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.109\
+**Version:** 1.27.110\
 **Date:** 2026-08-13\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -94,7 +94,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Compliance | Standard | Internal Audit Standard | [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md) | Chief Compliance Officer | Annual | ISO 19011:2026, ISO/IEC 27001 §9.2, audit principles, independence, CAPA | template |
 | Compliance | Standard | Sanctions and Export-Control Screening Standard | [`compliance/standard-sanctions-and-export-control-screening.md`](../compliance/standard-sanctions-and-export-control-screening.md) | Chief Compliance Officer | Annual | OFAC/UN/EU/UK OFSI sanctions, US EAR/ITAR, EU dual-use, ISO 37301:2021, denied-party screening, UBO/50-percent-rule | template |
 | Compliance | Procedure | Audit Planning Procedure | [`compliance/procedure-audit-planning.md`](../compliance/procedure-audit-planning.md) | Chief Compliance Officer | Annual | Risk-based audit plan, annual scheduling, ERC approval, evidence retention | template |
-| Compliance | Procedure | Corrective and Preventive Action (CAPA) Procedure | [`compliance/procedure-capa.md`](../compliance/procedure-capa.md) | Chief Compliance Officer | Annual | ISO 9001 §10.2, ISO/IEC 27001 §10.1, root cause analysis, CAPA lifecycle | template |
+| Compliance | Procedure | Corrective and Preventive Action (CAPA) Procedure | [`compliance/procedure-capa.md`](../compliance/procedure-capa.md) | Chief Compliance Officer | Annual | ISO 9001 §10.2, ISO/IEC 27001 §10.2, root cause analysis, CAPA lifecycle | template |
 | Compliance | Procedure | UK AEO IT Self-Assessment Procedure | [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](../compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md) | Chief Compliance Officer | Annual | HMRC AEO-S, WCO SAFE Framework, ISO/IEC 27001 §9.1, IT self-assessment | template |
 | Security | Policy | Information Security Policy | [`security/policy-information-security.md`](../security/policy-information-security.md) | Chief Information Security Officer | Annual | ISO/IEC 27001, NIST CSF, COBIT DSS, CSA CCM, BASC Section 6 | template |
 | Security | Policy | Identity and Access Management Policy | [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.5.15 to 18, NIST SP 800-63, CSA CCM IAM | template |
@@ -240,7 +240,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Governance | Framework | Sustainability and Responsible Technology Framework | [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md) | Chief Information Officer | Annual | ISO 50001, ISO 26000, OECD Digital Security Framework, UN SDGs, CSA AICM v1.1 | template |
 | Governance | Policy | Digital Twin and Simulation Governance Policy | [`governance/policy-digital-twin-and-simulation-governance.md`](policy-digital-twin-and-simulation-governance.md) | Chief Information Officer | Annual | ISO/IEC 42001 §8, ISO/IEC 27001, ISO 23247, NIST SP 800-82r3 | template |
 | Governance | Register | Data Retention Schedule | [`governance/register-data-retention-schedule.md`](register-data-retention-schedule.md) | Data Protection Officer | Annual | GDPR Arts 5/17/30, PIPEDA, ISO/IEC 27001 Annex A.5.33, BASC v6, ISO 15489 | template |
-| Governance | Procedure | Continuous Improvement Register Procedure | [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md) | GRC Programme Manager | Annual | ISO 9001 §10.3, ISO/IEC 27001 §10.2, ISO/IEC 42001 §10, COBIT MEA01/APO11 | template |
+| Governance | Procedure | Continuous Improvement Register Procedure | [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md) | GRC Programme Manager | Annual | ISO 9001 §10.3, ISO/IEC 27001 §10.1, ISO/IEC 42001 §10, COBIT MEA01/APO11 | template |
 | Governance | Procedure | Whistleblower and Incident Reporting Procedure | [`governance/procedure-whistleblower-and-incident-reporting.md`](procedure-whistleblower-and-incident-reporting.md) | Chief Compliance Officer | Annual | ISO 37001:2025 §8.9, ISO 37301 §8.9, EU Whistleblowing Directive 2019/1937, GDPR Art 33 | template |
 | Governance | Guideline | ESG and AI Ethics Disclosure Guideline | [`governance/guideline-esg-and-ai-ethics-disclosure.md`](guideline-esg-and-ai-ethics-disclosure.md) | Chief Information Officer | Annual | GRI Standards, TCFD, OECD AI Principles, ISO/IEC 42001 §9, EU AI Act Arts 13/50 | template |
 | Governance | Guideline | Minimum Viable Governance Structure Guideline | [`governance/guideline-minimum-viable-governance-structure.md`](../governance/guideline-minimum-viable-governance-structure.md) | Governance Library Maintainer | Annual | ISO 37000:2021, ISO/IEC 27001 Annex A.5.2, ISO/IEC 42001 §5, COBIT 2019 EDM, OECD G20 Corporate Governance, IIA Three Lines Model | template |
