@@ -24,6 +24,7 @@ Items are grouped into four priority bands by work type: **P1** fix errors and p
 
 Item numbers are permanent identity, never recycled, and decoupled from the P1-P4 display bands (an item keeps its number when it rebands). A new item draws the next number in the series matching its band's work type; the counter for that series then advances. Series 5, 6, and 7 are **frozen**: their items rebanded into P2 and P4, and no new 5.x / 6.x / 7.x numbers are drawn (the numbers already allocated in those series stay retired-or-live as permanent ids). Time-bounded follow-ups use the `TF-` series.
 
+<!-- BEGIN-GENERATED number-allocation -->
 - **Next item number: 1.31.** (P1 / fix series)
 - **Next item number: 2.33.** (P2 / content series)
 - **Next item number: 4.32.** (P4 / adopter series)
@@ -31,6 +32,7 @@ Item numbers are permanent identity, never recycled, and decoupled from the P1-P
 - **Next item number: 6.7.** (frozen; series 6 takes no new items)
 - **Next item number: 7.6.** (frozen; series 7 takes no new items)
 - **Next item number: TF-4.** (time-bounded follow-ups)
+<!-- END-GENERATED number-allocation -->
 
 The 3.x series (P3 / tooling) has no active counter; a new P3 item draws the next number above the highest 3.x ever allocated (live here or retired in `DONE.md`).
 

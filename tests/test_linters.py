@@ -1805,6 +1805,19 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          f"gate --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
         self.assertIn("self-test: ", result.stdout)
 
+    def test_build_todo_number_allocation_self_test(self) -> None:
+        """Gate 91's own self-test: the number-allocation generator's public-namespace
+        union scan (bare N.M / TF-n across TODO.md index rows, TODO-REFERENCE.md and
+        P-TODO.md headings, and retired DONE ids; the P-N.M private namespace excluded),
+        the max+1 render, the sentinel splice (and its missing-sentinel raise), and the
+        reality anchor that the live union reproduces the committed allocation block."""
+        result = self._run_selftest(
+            [sys.executable, str(REPO_ROOT / "tools" / "build-todo-number-allocation.py"),
+             "--self-test"]
+        )
+        self.assertEqual(result.returncode, 0,
+                         f"gate --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+
     def test_lint_narrative_boundary_self_test(self) -> None:
         """Gate 86's own self-test. The symmetric narrative-boundary gate runs against a live tree
         with zero pages inside executive/, so its OUTSIDE-leak / INSIDE-form detection is exercised
