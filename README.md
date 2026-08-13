@@ -1,11 +1,11 @@
 # Governance, Risk, and Compliance Documentation Library
 
-**Date:** 2026-08-12\
+**Date:** 2026-08-13\
 **Classification:** Public\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
-**Library Version:** 2026.08.191 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.10.344 (semantic per-document version for this file)
+**Library Version:** 2026.08.192 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.10.345 (semantic per-document version for this file)
 
 ---
 
@@ -174,7 +174,8 @@ Repository infrastructure directories (not used for governance artefacts):
                 CHANGELOG mirror, improvement log): audit-trail and process records, moved out
                 of this public repository into the private sibling grc_library_private/.working/;
                 not part of the corpus and not required to use the library or run the gates.
-/TODO.md        Forward-looking maintainer backlog. Not a governance artefact; adopters may delete.
+/TODO.md        Forward-looking maintainer backlog (index of rows). Not a governance artefact; adopters may delete.
+/TODO-REFERENCE.md  Per-item detail blocks for the TODO.md index. Not a governance artefact; adopters may delete.
 /RESUME.md      Maintainer session-resume pointer. Internal; adopters may delete.
 ```
 

@@ -23,7 +23,8 @@ freshness check", the settled slice-1 design). This tool produces that report:
      re-verify before any worker picks it up.
   3. DEAD TODO ANCHORS: every ``research/COVERAGE.md`` row's section anchor
      (``§N.M``, or an ``SR-N`` id for the scratch-reference rows) is checked
-     against a live ``### N.M `` / ``### SR-N `` heading in ``TODO.md``; a dead
+     against a live ``### N.M `` / ``### SR-N `` heading in ``TODO-REFERENCE.md``
+     (the item-detail file; ``TODO.md`` is the index of rows); a dead
      anchor means a TODO renumber or close landed without the paired coverage
      sync (the close-out pairing line in
      ``grc_library_private/orchestrator-claude.md`` (group A3) is the convention

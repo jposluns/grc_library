@@ -4669,6 +4669,8 @@ class SkillDerivesFromTests(LinterTestCase):
 
 
 class LintCommonHelperTests(unittest.TestCase):
+    """lint_common.py shared helpers: parse_metadata_block, parse_iso_date,
+    and the iter_non_code_lines fence semantics (GR-3 / GR-4)."""
 
     def test_split_row_backslash_before_delimiter(self):
         """NB-2 (round-4 re-QA): a cell ending in a backslash immediately before its
@@ -4679,8 +4681,6 @@ class LintCommonHelperTests(unittest.TestCase):
         cells = lc.split_row(r"| C:\\| PR.IP |")
         self.assertEqual(len(cells), 2, "a backslash-before-delimiter cell must not merge")
         self.assertEqual(cells[-1], "PR.IP", "the framework code must land in its own cell")
-    """lint_common.py shared helpers: parse_metadata_block, parse_iso_date,
-    and the iter_non_code_lines fence semantics (GR-3 / GR-4)."""
 
     def _lint_common(self):
         import importlib.util

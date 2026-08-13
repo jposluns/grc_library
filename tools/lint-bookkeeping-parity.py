@@ -844,7 +844,10 @@ def main() -> int:
         )
 
     # Checks 2 and 4 read PUBLIC files only (TODO.md; the repo-wide
-    # metadata/version-history pair), so they always run.
+    # metadata/version-history pair), so they always run. Check 2 scans the
+    # TODO.md index rows; per-item DETAIL now lives in TODO-REFERENCE.md, whose
+    # same marked-done markers are covered by the defence-in-depth layer gate 57
+    # (lint-todo-marked-done.py scans both files), so this check is not widened.
     all_findings.extend(todo_rotation_findings(todo_text))
     vh_files = discover_version_history_files()
     all_findings.extend(version_history_parity_findings(vh_files))

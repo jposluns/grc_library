@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Delta gate D9: retired-section-orphan check (roadmap C phase 2, #1250).
 
-
 When a PR CLOSES a numbered TODO section (deletes its `### N.M` heading),
 positional references to that section (`§N.M`, `PN.M`, `TODO §N.M`,
 `TODO section N.M`) can survive on the OPERATIONAL / gate-exempt surfaces (the item detail blocks now live in TODO-REFERENCE.md) that
@@ -10,7 +9,8 @@ no other gate scans, silently dangling. This gate flags those survivors.
 Why it is false-positive-safe (the design constraint: a gate that cries wolf gets
 bypassed and protects nothing):
 - DELETION-TRIGGERED. It derives the retired ids from headings this PR REMOVES
-  from TODO.md, so "old" is unambiguous and there is no coexisting "new" value to
+  from TODO-REFERENCE.md (the item-detail file; TODO.md is the index of rows), so
+  "old" is unambiguous and there is no coexisting "new" value to
   disambiguate against (unlike a value-change, which is irreducibly semantic).
 - ANCHORED KEY FORMS ONLY. It matches `§N.M` / `PN.M` / `TODO §N.M` /
   `TODO section N.M` with a left anchor and multi-part decimal + right word

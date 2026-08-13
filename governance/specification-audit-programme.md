@@ -2,7 +2,7 @@
 
 **Document Title:** Audit Programme Specification\
 **Document Type:** Specification\
-**Version:** 1.17.91\
+**Version:** 1.17.92\
 **Date:** 2026-08-13\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -274,7 +274,7 @@ A phase is complete when:
 7. CI's quality.yml workflow confirms green.
 8. The pull request is merged and the local branch is fast-forwarded to the merged main.
 
-Selective subset runs are not a substitute for the full sweep. Phase 23.30's lessons-learned decision in [`TODO.md`](../TODO.md) established this rule after the Phase Q-bundle merge introduced five gate violations that would have been caught by a full local sweep.
+Selective subset runs are not a substitute for the full sweep. This rule was established (per a closed backlog lessons-learned decision) after a phase-bundle merge introduced five gate violations that would have been caught by a full local sweep.
 
 ## 8. Audit programme failure handling
 
