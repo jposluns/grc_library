@@ -5,7 +5,7 @@ highest-used number, and so the check runs on CI and adopter clones (no private 
 
 WHAT IS GENERATED. Only the seven ``- **Next item number: X.**`` counter bullets, between
 ``<!-- BEGIN-GENERATED number-allocation -->`` and ``<!-- END-GENERATED number-allocation -->``.
-The surrounding prose (the permanence note and the 3.x counter-less note) is hand-maintained.
+The surrounding prose (the permanence note) is hand-maintained.
 
 THE PUBLIC FLOOR (``tools/todo-number-floor.json``). The floor records the highest ordinal
 EVER allocated per PUBLIC series (bare ``N.M`` / ``TF-n``; the ``P-N.M`` private namespace is
@@ -18,7 +18,7 @@ the check a maintainer-local no-op). ``gate 78`` reads the same floor for its re
 next(series) = max(floor[series], highest live public id in series) + 1. Live ids come from the
 ``TODO.md`` INDEX ROWS and ``TODO-REFERENCE.md`` bare-id headings (PUBLIC files only; the
 floor covers retired numbers AND migrated bare ids that now live in the private P-TODO.md). Series 5/6/7 are
-FROZEN (render a next line, draw nothing); the 3.x series has NO counter line (a prose note).
+FROZEN (render a next line, draw nothing). Series 3 draws like the other ACTIVE series.
 
 FLOOR SOUNDNESS. ``--check`` also fails if the floor is BELOW any live id (a floor set too low
 would let a counter collide with a live id), so the floor cannot silently under-record.
@@ -40,7 +40,8 @@ BEGIN = "<!-- BEGIN-GENERATED number-allocation -->"
 END = "<!-- END-GENERATED number-allocation -->"
 FLOOR_PATH = "tools/todo-number-floor.json"
 
-ACTIVE = [(1, "P1 / fix series"), (2, "P2 / content series"), (4, "P4 / adopter series")]
+ACTIVE = [(1, "P1 / fix series"), (2, "P2 / content series"),
+          (3, "P3 / tooling series"), (4, "P4 / adopter series")]
 FROZEN = [5, 6, 7]
 
 HEADING_ID = re.compile(r"^### ((?:P-)?\d+(?:\.\d+)+[a-z]?|TF-\d+)\b")
@@ -174,12 +175,12 @@ def self_test():
 
     class T(unittest.TestCase):
         def test_render_shape(self):
-            block = render_block({1: 30, 2: 32, 4: 31, 5: 9, 6: 6, 7: 5}, 3)
+            block = render_block({1: 30, 2: 32, 3: 248, 4: 31, 5: 9, 6: 6, 7: 5}, 3)
             self.assertIn("- **Next item number: 1.31.** (P1 / fix series)", block)
             self.assertIn("- **Next item number: 2.33.** (P2 / content series)", block)
+            self.assertIn("- **Next item number: 3.249.** (P3 / tooling series)", block)
             self.assertIn("- **Next item number: 5.10.** (frozen; series 5 takes no new items)", block)
             self.assertIn("- **Next item number: TF-4.** (time-bounded follow-ups)", block)
-            self.assertNotIn("Next item number: 3.", block)
 
         def test_next_is_max_floor_live(self):
             # counter takes the HIGHER of floor and live, then +1
