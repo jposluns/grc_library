@@ -69,7 +69,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 # CHANGELOG (it quotes claims historically; it does not assert them).
 EXCLUDE_DIRS = {".git", ".working", ".claude", "node_modules", "__pycache__",
                 "tests", "tools"}
-EXCLUDE_FILES = {"CHANGELOG.md", "TODO.md",
+EXCLUDE_FILES = {"CHANGELOG.md", "TODO.md", "TODO-REFERENCE.md",
                  str(Path("docs") / "portal.md"),
                  str(Path("docs") / "maturity-scorecard.md")}
 

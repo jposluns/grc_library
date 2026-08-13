@@ -933,3 +933,54 @@ def resolve_pr_range(base: str | None, head: str = "HEAD") -> tuple[str, str]:
             f"In GitHub Actions, ensure that actions/checkout uses fetch-depth: 0."
         ) from exc
     return merge_base, head
+
+
+# --- TODO index-format parsing (PR-1 rework, 2026-08) -----------------------
+# TODO.md is an INDEX of ``| <id> | <title> | <tags> |`` rows under ``## Priority
+# N`` bands; the per-item detail lives in TODO-REFERENCE.md as ``### <id>
+# <title>`` blocks. The private P-TODO.md keeps the older ``### <id>`` section
+# shape until its own consolidation. These helpers parse the index form so every
+# backlog reader shares one tested parser rather than re-deriving the grammar.
+
+TODO_ID_RE = re.compile(
+    r"^(?:P-\d+(?:\.\d+){1,2}[a-z]?|\d+(?:\.\d+)+(?:\.[a-z]|[a-z])?|TF-\d+)$"
+)
+
+# '**Next item number: 3.110.**', optionally a '- **...** (note)' list item.
+TODO_COUNTER_RE = re.compile(
+    r"^\s*-?\s*\*\*Next item number:\s*((?:\d+\.\d+)|TF-\d+)\.\*\*"
+)
+
+_TODO_TAG_RE = re.compile(r"`\[[^\]]*\]`")
+
+
+def parse_todo_index(text: str) -> list[dict]:
+    """Parse a new-format TODO.md index into a list of item dicts, in file order.
+
+    Each open item is a table row ``| <id> | <title> | <tags> |`` under a
+    ``## Priority N`` band. Returns ``[{"id", "title", "tags" (list of raw
+    ``[..]`` code spans), "line"}]``. Rows whose first cell is not a backlog id
+    (the ``| ID | Item | Tags |`` header, the ``|---|`` separator, any non-item
+    row) are skipped, so the header row cannot be mistaken for an item.
+    """
+    items: list[dict] = []
+    for lineno, line in enumerate(text.splitlines(), start=1):
+        s = line.strip()
+        if not (s.startswith("|") and s.endswith("|")):
+            continue
+        cells = split_row(line)
+        if len(cells) < 3 or is_separator_row(cells):
+            continue
+        item_id = cells[0].strip()
+        if not TODO_ID_RE.match(item_id):
+            continue
+        tags = _TODO_TAG_RE.findall(cells[2])
+        items.append(
+            {"id": item_id, "title": cells[1].strip(), "tags": tags, "line": lineno}
+        )
+    return items
+
+
+def todo_index_ids(text: str) -> set[str]:
+    """The set of live backlog ids declared as index rows in a new-format TODO.md."""
+    return {it["id"] for it in parse_todo_index(text)}

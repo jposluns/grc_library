@@ -68,6 +68,7 @@ from lint_common import REPO_ROOT, resolve_working  # noqa: E402
 # working ledgers whose rows are rewritten in place.
 SCANNED_FILES = (
     "TODO.md",
+    "TODO-REFERENCE.md",
     ".working/pending-decisions.md",
     ".working/session-handoff.md",
     ".working/DONE.md",

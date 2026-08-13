@@ -1656,6 +1656,7 @@ class TodoRotationOnPrDeltaTests(DeltaGateRepoTestCase):
         "CHANGELOG.md": "# Changelog\n\nOld entry.\n",
         ".working/changelog-details/CHANGELOG-detailed.md": "# Detailed\n\nOld entry.\n",
         "TODO.md": "# TODO\n\n- item one\n- item two\n",
+        "TODO-REFERENCE.md": "# TODO reference\n\n### 4.9 cleanup item\n\nbody\n",
         ".working/DONE.md": "# DONE\n\nOld row.\n",
     }
     CLOSURE_LINE = "Closes the TODO §4.9 cleanup item.\n"
@@ -1681,6 +1682,7 @@ class TodoRotationOnPrDeltaTests(DeltaGateRepoTestCase):
             {
                 "CHANGELOG.md": "# Changelog\n\n" + self.CLOSURE_LINE + "\nOld entry.\n",
                 "TODO.md": "# TODO\n\n- item two\n",
+                "TODO-REFERENCE.md": "# TODO reference\n\nbody\n",
                 ".working/DONE.md": "# DONE\n\nNew row.\n\nOld row.\n",
             },
         )
@@ -1688,16 +1690,17 @@ class TodoRotationOnPrDeltaTests(DeltaGateRepoTestCase):
             result = self._run_gate(self.SCRIPT, tmp, base_sha)
             self.assertEqual(
                 result.returncode, 0,
-                f"D5 should PASS when TODO and DONE both rotate; got "
+                f"D5 should PASS when both public backlog files rotate; got "
                 f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
             )
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 
-    def test_closure_with_todo_only_passes(self) -> None:
-        # Post-.working-move: D5 is TODO-only; the DONE ledger lives in the private sibling
-        # (cross-repo). A closure claim rotated by a TODO.md edit ALONE now passes (it would
-        # have FAILED under the old in-repo-.working done-required behaviour).
+    def test_incomplete_two_file_rotation_flagged(self) -> None:
+        # TODO-rework 2026-08 (codex /validate-pr F2): a closure that deletes the index row
+        # from TODO.md but leaves the detail block in TODO-REFERENCE.md is an INCOMPLETE
+        # two-file rotation and must FAIL. (Before the fix, a TODO.md-only touch passed,
+        # leaving a stale detail block.)
         tmp, base_sha, shutil = self._build_repo(
             self.BASE,
             {
@@ -1708,8 +1711,9 @@ class TodoRotationOnPrDeltaTests(DeltaGateRepoTestCase):
         try:
             result = self._run_gate(self.SCRIPT, tmp, base_sha)
             self.assertEqual(
-                result.returncode, 0,
-                f"D5 should PASS on a closure rotated by TODO.md alone (DONE now private); got "
+                result.returncode, 1,
+                f"D5 should FAIL on a closure that touches TODO.md but not "
+                f"TODO-REFERENCE.md (incomplete two-file rotation); got "
                 f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
             )
         finally:
@@ -4665,6 +4669,16 @@ class SkillDerivesFromTests(LinterTestCase):
 
 
 class LintCommonHelperTests(unittest.TestCase):
+
+    def test_split_row_backslash_before_delimiter(self):
+        """NB-2 (round-4 re-QA): a cell ending in a backslash immediately before its
+        column delimiter must NOT merge with the next cell. A round-2 change to
+        split_row broke this and silently hid an invalid framework code from gate 54;
+        the revert restored line.split('|'). Pinned so the regression cannot return."""
+        lc = self._lint_common()
+        cells = lc.split_row(r"| C:\\| PR.IP |")
+        self.assertEqual(len(cells), 2, "a backslash-before-delimiter cell must not merge")
+        self.assertEqual(cells[-1], "PR.IP", "the framework code must land in its own cell")
     """lint_common.py shared helpers: parse_metadata_block, parse_iso_date,
     and the iter_non_code_lines fence semantics (GR-3 / GR-4)."""
 
@@ -10067,7 +10081,7 @@ class HookToolItemCountParityTests(unittest.TestCase):
             root = Path(d) / "grc_library"
             root.mkdir()
             (root / "TODO.md").write_text(
-                "### 1.1 pub one\n### 2.3 pub two\n", encoding="utf-8")
+                "| 1.1 | pub one | `[public]` |\n| 2.3 | pub two | `[public]` |\n", encoding="utf-8")
             priv = Path(d) / "grc_library_private"
             priv.mkdir()
             (priv / "P-TODO.md").write_text(
@@ -10095,7 +10109,7 @@ class HookToolItemCountParityTests(unittest.TestCase):
             real.mkdir()
             root = real / "grc_library"
             root.mkdir()
-            (root / "TODO.md").write_text("### 1.1 a\n### 2.2 b\n", encoding="utf-8")
+            (root / "TODO.md").write_text("| 1.1 | a | `[public]` |\n| 2.2 | b | `[public]` |\n", encoding="utf-8")
             priv = real / "grc_library_private"
             priv.mkdir()
             (priv / "P-TODO.md").write_text(
@@ -10585,7 +10599,16 @@ class TodoNumberPermanenceTests(LinterTestCase):
         """
         root = FIXTURE_DIR / name
         (root / ".working").mkdir(parents=True, exist_ok=True)
-        (root / "TODO.md").write_text(todo, encoding="utf-8")
+        # TODO.md is index-format now (PR-1 rework): render each abstract
+        # ``### <id> <title>`` fixture line as an index row so the gate (which
+        # reads rows) sees the declared items. Counters/headers pass through.
+        import re as _re
+        _todo = "\n".join(
+            (f"| {_m.group(1)} | {_m.group(2).replace(chr(124), chr(92)+chr(124))} | `[public]` |"
+             if (_m := _re.match(r"^### (\S+)\s+(.*)$", _ln)) else _ln)
+            for _ln in todo.splitlines()
+        ) + "\n"
+        (root / "TODO.md").write_text(_todo, encoding="utf-8")
         if done is not None:
             (root / ".working" / "DONE.md").write_text(done, encoding="utf-8")
         if ptodo is not None:
@@ -10806,6 +10829,96 @@ class TodoNumberPermanenceTests(LinterTestCase):
             import shutil
             shutil.rmtree(root, ignore_errors=True)
 
+class TodoIndexReferenceParityTests(LinterTestCase):
+    """tools/lint-todo-index-reference-parity.py (gate 90): the TODO.md index and
+    the TODO-REFERENCE.md detail file must be a one-to-one match (id, title, band,
+    order). Positive controls for each defect class the codex /validate-pr named."""
+
+    IDX = ("# TODO\n## Priority 1 \u2014 Fix\n| ID | Item | Tags |\n| --- | --- | --- |\n"
+           "| 1.1 | alpha (H) | `[public]` |\n| 1.2 | beta (M) | `[public]` |\n")
+    REF = ("# ref\n## Priority 1 \u2014 Fix\n### 1.1 alpha (H)\n\nbody\n"
+           "### 1.2 beta (M)\n\nbody\n")
+
+    def _run(self, name, idx, ref):
+        root = FIXTURE_DIR / name
+        root.mkdir(parents=True, exist_ok=True)
+        (root / "TODO.md").write_text(idx, encoding="utf-8")
+        (root / "TODO-REFERENCE.md").write_text(ref, encoding="utf-8")
+        return run_linter("tools/lint-todo-index-reference-parity.py", "--root", str(root)), root
+
+    def test_clean_bijection_passes(self):
+        r, root = self._run("bij-clean", self.IDX, self.REF)
+        try:
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    def test_missing_block_flagged(self):
+        r, root = self._run("bij-missing", self.IDX + "| 1.3 | gamma (L) | `[public]` |\n", self.REF)
+        try:
+            self.assertLinterFails(r, "MISSING")
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    def test_extra_block_flagged(self):
+        r, root = self._run("bij-extra", self.IDX, self.REF + "### 1.9 orphan (L)\n\nbody\n")
+        try:
+            self.assertLinterFails(r, "EXTRA")
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    def test_title_drift_flagged(self):
+        r, root = self._run("bij-title", self.IDX, self.REF.replace("### 1.2 beta (M)", "### 1.2 beta DRIFTED (M)"))
+        try:
+            self.assertLinterFails(r, "TITLE DRIFT")
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    def test_order_mismatch_flagged(self):
+        swapped = ("# ref\n## Priority 1 \u2014 Fix\n### 1.2 beta (M)\n\nbody\n"
+                   "### 1.1 alpha (H)\n\nbody\n")
+        r, root = self._run("bij-order", self.IDX, swapped)
+        try:
+            self.assertLinterFails(r, "ORDER MISMATCH")
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    def test_band_mismatch_flagged(self):
+        # item 1.2 sits under Priority 1 in the index but a different band in the reference
+        ref_p2 = ("# ref\n## Priority 1 \u2014 Fix\n### 1.1 alpha (H)\n\nbody\n"
+                  "## Priority 2 \u2014 Gaps\n### 1.2 beta (M)\n\nbody\n")
+        r, root = self._run("bij-band", self.IDX, ref_p2)
+        try:
+            self.assertLinterFails(r, "BAND MISMATCH")
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    def test_detail_block_in_index_flagged(self):
+        # a ### detail block that leaked into TODO.md (a partial-revert of the split)
+        r, root = self._run("bij-leak", self.IDX + "### 1.1 alpha detail leaked\n\nbody\n", self.REF)
+        try:
+            self.assertLinterFails(r, "INDEX DETAIL LEAK")
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    def test_duplicate_id_flagged(self):
+        r, root = self._run("bij-dup", self.IDX + "| 1.1 | alpha again (H) | `[public]` |\n", self.REF)
+        try:
+            self.assertLinterFails(r, "DUPLICATE")
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    def test_reference_absent_is_noop(self):
+        root = FIXTURE_DIR / "bij-noref"
+        root.mkdir(parents=True, exist_ok=True)
+        (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
+        r = run_linter("tools/lint-todo-index-reference-parity.py", "--root", str(root))
+        try:
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
+
+
 class TagGateTests(LinterTestCase):
     """tools/lint-todo-list-tag.py (gate 81): every open TODO.md / P-TODO.md
     item heading must carry exactly one [public]/[private] list tag. Findings
@@ -10815,6 +10928,18 @@ class TagGateTests(LinterTestCase):
     def _run(self, name, todo, ptodo=None):
         root = FIXTURE_DIR / name
         root.mkdir(parents=True, exist_ok=True)
+        # TODO.md is index-format now (PR-1 rework): render each abstract
+        # ``### <id> <title> [tags]`` fixture line as an index row (tags -> cell 3).
+        import re as _re
+        def _row(_ln):
+            _m = _re.match(r"^### (\S+)\s+(.*)$", _ln)
+            if not _m:
+                return _ln
+            _rest = _m.group(2)
+            _tags = " ".join(_re.findall(r"`\[[^\]]*\]`", _rest))
+            _title = _re.sub(r"`\[[^\]]*\]`", "", _rest).strip().replace(chr(124), chr(92)+chr(124))
+            return f"| {_m.group(1)} | {_title} | {_tags} |"
+        todo = "\n".join(_row(_ln) for _ln in todo.splitlines()) + "\n"
         (root / "TODO.md").write_text(todo, encoding="utf-8")
         if ptodo is not None:
             (root / "P-TODO.md").write_text(ptodo, encoding="utf-8")

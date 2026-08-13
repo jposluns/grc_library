@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """PreToolUse hook (Edit AND Write): guard the autonomous-decisions log write process.
 
+
 Shipped 2026-07-19 after a recurring failure the maintainer named directly: the assistant
 DEFERS a queued/authorized item (or winds down, re-sequences, skips) on an un-instrumented
 internal-state justification ("heavy context", "long turn", "too risky to do now / do it
@@ -42,7 +43,6 @@ lapse it prevents. Does not fire in a child session whose ``CLAUDE_PROJECT_DIR``
 
 Self-test: ``python3 .claude/hooks/block-unjustified-decision.py --self-test``.
 """
-
 import json
 import os
 import re
@@ -124,11 +124,18 @@ AUDIT_TOKEN_RE = re.compile(r"backlog-audit:\s*(\d+)\s+items?\s+enumerated", re.
 ITEM_HEADING_RE = re.compile(
     r"^### (?:\d+(?:\.\d+){1,2}[a-z]?|[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+)\b", re.MULTILINE
 )
+# TODO.md is index-format now (| id | ... | rows); count rows there. P-TODO.md
+# keeps the ### heading shape. The two together must equal the tool's enumerated
+# count (audit-backlog-actionability), which the parity test asserts.
+TODO_ROW_RE = re.compile(
+    r"^\|\s*(?:P-\d+(?:\.\d+){1,2}[a-z]?|\d+(?:\.\d+)+(?:\.[a-z]|[a-z])?|TF-\d+)\s*\|",
+    re.MULTILINE,
+)
 
 
 def _todo_item_count(project_dir: str | None) -> int | None:
     """Count open backlog items (ITEM_HEADING_RE) across BOTH the public ``TODO.md``
-    and the private ``grc_library_private/P-TODO.md`` under ``project_dir`` (the
+    (from TODO.md INDEX ROWS via ``TODO_ROW_RE``) and the private ``grc_library_private/P-TODO.md`` ``### `` headings under ``project_dir`` (the
     UNION, matching ``tools/audit-backlog-actionability.py``, whose ``backlog-audit:
     <N> items enumerated`` token this gates: P-1.1). Returns None only if the public
     ``TODO.md`` cannot be resolved (the count-equality check then fails open;
@@ -141,7 +148,7 @@ def _todo_item_count(project_dir: str | None) -> int | None:
         todo = root / "TODO.md"
         if not todo.is_file():
             return None
-        count = len(ITEM_HEADING_RE.findall(todo.read_text(encoding="utf-8")))
+        count = len(TODO_ROW_RE.findall(todo.read_text(encoding="utf-8")))
         ptodo = root.parent / "grc_library_private" / "P-TODO.md"
         if ptodo.is_file():
             count += len(ITEM_HEADING_RE.findall(ptodo.read_text(encoding="utf-8")))

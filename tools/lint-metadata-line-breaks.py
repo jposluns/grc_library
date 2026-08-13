@@ -65,6 +65,7 @@ DEFAULT_TARGETS = [
     "SECURITY.md",
     "CHANGELOG.md",
     "TODO.md",
+    "TODO-REFERENCE.md",
     "specification-master-project.md",
     "specification-ingestion.md",
     "instruction-ai-document-ingestion.md",

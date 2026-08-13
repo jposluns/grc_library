@@ -123,8 +123,9 @@ drive end-to-end on the maintainer's behalf:
    remote branch is gone.
 9. After every merge (durable across sessions): consult [`TODO.md`](../TODO.md)'s
    forward-looking sections and list the upcoming next five planned PRs in the chat. If
-   new items surfaced during the just-finished work, add them to TODO BEFORE the list is
-   published (the list comes from TODO, not from memory). This is the project-specific
+   new items surfaced during the just-finished work, add them to the backlog (an index row
+   in [`TODO.md`](../TODO.md) plus a detail block in [`TODO-REFERENCE.md`](../TODO-REFERENCE.md))
+   BEFORE the list is published (the list comes from TODO, not from memory). This is the project-specific
    instantiation of the PR finalization protocol in
    [`.claude/rules/governance/change-tracking.md`](../.claude/rules/governance/change-tracking.md).
    **The same next-five list is written to `grc_library_private/.working/next-prs.txt`
@@ -142,8 +143,10 @@ drive end-to-end on the maintainer's behalf:
    (an already-done item still shown as `next:`) is the signal that a PR
    shipped without refreshing it, so every PR touches `next-prs.txt` even when the queue is
    otherwise unchanged.
-10. TODO/DONE rotation discipline: when a PR closes a TODO item, the item is deleted from
-   TODO in the same PR and an entry is added to `grc_library_private/.working/DONE.md`
+10. TODO/DONE rotation discipline: when a PR closes a TODO item, the item's index row is
+   deleted from [`TODO.md`](../TODO.md) AND its detail block from
+   [`TODO-REFERENCE.md`](../TODO-REFERENCE.md) in the same PR, and an entry is added to
+   `grc_library_private/.working/DONE.md`
    (the closed-TODO ledger, keyed by PR number with the original backlog ID as a
    cross-reference). The DONE entry names the closed item's number and gives a clean
    one-to-two-sentence summary of what the item was and how it was accomplished, and that
@@ -182,8 +185,9 @@ is external. Two mechanisms:
    change with a *paired* surface dropped):
    - THIS PR's OWN `/validate-pr` history row AND its `/retro` row are both
      present (they land in THIS PR, recording this PR's own number, per the synchronous QA model, rather than being batched forward from the prior PR).
-   - Every TODO item this PR closes is deleted from TODO and added to
-     `grc_library_private/.working/DONE.md` in the same diff. **Backlog-item-keyed, not
+   - Every TODO item this PR closes has its index row deleted from `TODO.md` AND its
+     detail block deleted from `TODO-REFERENCE.md`, and is added to
+     `grc_library_private/.working/DONE.md`, in the same diff. **Backlog-item-keyed, not
      FR/§-keyed**: a prose-named or maintainer-directed item (not just an `FR-N` or a
      numbered `§N.M`) is a TODO item that rotates the same way.
    - If this PR changed an enumerated collection (gates, governance rules, skills), every

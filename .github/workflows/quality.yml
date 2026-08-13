@@ -277,6 +277,8 @@ jobs:
         run: python3 tools/lint-narrative-vocabulary.py
       - name: Narrative disclaimer-presence audit
         run: python3 tools/lint-narrative-disclaimer.py
+      - name: Backlog index-reference parity audit
+        run: python3 tools/lint-todo-index-reference-parity.py
 
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'

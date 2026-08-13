@@ -63,6 +63,7 @@ TOP_LEVEL_FILES = {
     "CITATION.cff",
     "AUTHORS.md",
     "TODO.md",
+    "TODO-REFERENCE.md",
     "CONTRIBUTING.md",
     "SECURITY.md",
     "taxonomy.yml",

@@ -65,6 +65,7 @@ DEFAULT_PATHS = [str(REPO_ROOT)]
 EXEMPT_FILES = {
     "CHANGELOG.md",
     "TODO.md",
+    "TODO-REFERENCE.md",
     "specification-master-project.md",
     "specification-ingestion.md",
     "specification-citation-verification.md",

@@ -85,6 +85,7 @@ EXEMPT_FILES = frozenset({
     "specification-audit-programme.md",
     "specification-citation-verification.md",
     "TODO.md",
+    "TODO-REFERENCE.md",
 })
 
 # A COBIT objective code token. Reused verbatim from gate 61 EXCEPT this

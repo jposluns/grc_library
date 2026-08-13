@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Detect an open backlog item heading with zero or 2+ [public]/[private]
+
 list tags (gate 81).
 
-Every open ``### `` item heading in ``TODO.md`` (and, when present, the
-private ``grc_library_private/P-TODO.md``) must carry EXACTLY ONE
+Every open item (a ``| id | ... |`` index row in ``TODO.md``, and a ``### `` heading in the private
+``grc_library_private/P-TODO.md``) must carry EXACTLY ONE
 ``[public]`` or ``[private]`` tag, the list-membership axis PR #1293
 applied to all then-open items (design of record:
 ``grc_library_private/.working/todo-split-blocked-guardrail-design.md``). Nothing
@@ -22,7 +23,6 @@ Adopter-graceful: when the private sibling is absent (public-only clone /
 adopter checkout) the private list is simply not scanned; that is a no-op,
 not an error.
 """
-
 from __future__ import annotations
 
 import argparse
@@ -30,7 +30,7 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import resolve_sibling
+from lint_common import resolve_sibling, parse_todo_index
 
 REPO_ROOT: Path = Path(__file__).resolve().parent.parent
 
@@ -55,6 +55,18 @@ def find_untagged_or_ambiguous(text: str) -> list[tuple[int, str, int]]:
             count = len(LIST_TAG_RE.findall(line))
             if count != 1:
                 findings.append((lineno, line, count))
+    return findings
+
+
+def find_untagged_index(text: str) -> list[tuple[int, str, int]]:
+    """New-format TODO.md: every index row ``| id | title | tags |`` must carry
+    exactly one [public]/[private] tag in its Tags cell. Returns (lineno, row,
+    tag_count) for rows whose count != 1."""
+    findings: list[tuple[int, str, int]] = []
+    for it in parse_todo_index(text):
+        count = sum(1 for t in it["tags"] if LIST_TAG_RE.search(t))
+        if count != 1:
+            findings.append((it["line"], f"{it['id']} {it['title']}", count))
     return findings
 
 
@@ -109,9 +121,16 @@ def main(argv: list[str]) -> int:
     total_items = 0
     all_findings: list[tuple[str, int, str, int]] = []
     for rel, text in sources:
-        total_items += sum(1 for line in text.splitlines() if ITEM_HEADING_RE.match(line))
-        for lineno, line, count in find_untagged_or_ambiguous(text):
-            all_findings.append((rel, lineno, line, count))
+        # TODO.md is index-format (rows); P-TODO.md keeps the ### heading shape.
+        if rel == TODO_REL:
+            items = find_untagged_index(text)
+            total_items += len(parse_todo_index(text))
+            for lineno, line, count in items:
+                all_findings.append((rel, lineno, line, count))
+        else:
+            total_items += sum(1 for line in text.splitlines() if ITEM_HEADING_RE.match(line))
+            for lineno, line, count in find_untagged_or_ambiguous(text):
+                all_findings.append((rel, lineno, line, count))
 
     if not all_findings:
         print(

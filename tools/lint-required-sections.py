@@ -99,6 +99,7 @@ EXEMPT_FILES: set[str] = {
     "AUTHORS.md",
     "CHANGELOG.md",
     "TODO.md",
+    "TODO-REFERENCE.md",
     "CONTRIBUTING.md",
     "SECURITY.md",
     # Worklists and templates use their own shapes.

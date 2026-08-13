@@ -122,6 +122,7 @@ EXEMPT = {
     "README.md",
     "CHANGELOG.md",
     "TODO.md",
+    "TODO-REFERENCE.md",
     "instruction-ai-document-ingestion.md",
 }
 # Phase D.1 (2026-06-02): NOTICE.md, CONTRIBUTING.md, SECURITY.md, and

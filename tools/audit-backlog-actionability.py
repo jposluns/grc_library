@@ -92,6 +92,41 @@ PROSE_SIGNAL_TOKENS: list[tuple[re.Pattern[str], str]] = [
 ]
 
 
+_REF_ID_RE = re.compile(r"^### (?P<id>P-\d+(?:\.\d+){1,2}[a-z]?|\d+(?:\.\d+)+(?:\.[a-z]|[a-z])?|TF-\d+)\s")
+_ROW_RE = re.compile(r"^\|\s*(?P<id>P-\d+(?:\.\d+){1,2}[a-z]?|\d+(?:\.\d+)+(?:\.[a-z]|[a-z])?|TF-\d+)\s*\|(?P<title>[^|]*)\|(?P<tags>[^|]*)\|")
+
+
+def _load_ref_bodies() -> dict[str, str]:
+    """Map item id -> its TODO-REFERENCE.md ### block body (for prose-signal scan).
+
+    TODO.md is now an index of rows; the per-item detail lives in
+    TODO-REFERENCE.md as ``### <id> <title>`` blocks. This reads those blocks so
+    the actionability scan can still see each public item's body prose."""
+    ref = REPO_ROOT / "TODO-REFERENCE.md"
+    if not ref.is_file():
+        return {}
+    bodies: dict[str, str] = {}
+    cur = None
+    buf: list[str] = []
+    for line in ref.read_text(encoding="utf-8", errors="replace").splitlines():
+        m = _REF_ID_RE.match(line)
+        if m:
+            if cur is not None:
+                bodies[cur] = "\n".join(buf)
+            cur = m.group("id")
+            buf = [line]
+        elif cur is not None:
+            if line.startswith("## "):
+                bodies[cur] = "\n".join(buf)
+                cur = None
+                buf = []
+            else:
+                buf.append(line)
+    if cur is not None:
+        bodies[cur] = "\n".join(buf)
+    return bodies
+
+
 def parse_items(text: str, source: str) -> list[tuple[str, str, str, str, str]]:
     """Return ``(id, title, block_text, source, umbrella)`` for every open ``### `` item.
 
@@ -100,6 +135,28 @@ def parse_items(text: str, source: str) -> list[tuple[str, str, str, str, str]]:
     own text. ``source`` labels which list the item came from (``public`` /
     ``private``)."""
     lines = text.splitlines()
+    # TODO.md is index-format now: | id | title | tags | rows under ## bands,
+    # detail in TODO-REFERENCE.md. P-TODO.md keeps the ### section shape.
+    if source == "public" and any(_ROW_RE.match(ln) for ln in lines):
+        # index-format: any index row means TODO.md; a stray ``### `` block that
+        # leaked in is ignored here (gate 90 flags it) rather than flipping this
+        # to the legacy branch and collapsing the enumeration.
+        ref_bodies = _load_ref_bodies()
+        idx_items: list[tuple[str, str, str, str, str]] = []
+        band = ""
+        for ln in lines:
+            if ln.startswith("## "):
+                band = ln[3:].strip()
+                continue
+            m = _ROW_RE.match(ln)
+            if m:
+                iid = m.group("id")
+                title = m.group("title").strip()
+                tags = m.group("tags").strip()
+                body = ref_bodies.get(iid, "")
+                block = f"{iid} {title} {tags}\n{body}"
+                idx_items.append((iid, title, block, source, band))
+        return idx_items
     items: list[tuple[str, str, str, str, str]] = []
     cur: tuple[str, str] | None = None
     body: list[str] = []

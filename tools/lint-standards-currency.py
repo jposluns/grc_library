@@ -48,6 +48,7 @@ CANONICAL_REGISTER = REPO_ROOT / "governance" / "register-canonical-citations.md
 EXEMPT_FILES = {
     "CHANGELOG.md",
     "TODO.md",
+    "TODO-REFERENCE.md",
     "governance/register-canonical-citations.md",
 }
 

@@ -114,7 +114,7 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import resolve_working, resolve_sibling
+from lint_common import resolve_working, resolve_sibling, parse_todo_index
 
 REPO_ROOT: Path = Path(__file__).resolve().parent.parent
 
@@ -138,7 +138,7 @@ RETIRED_ID_RE = re.compile(r"§\s*((?:\d+(?:\.\d+)+[a-z]?)|TF-\d+)(?!-R\d)(?![\d
 
 # '**Next item number: 3.110.**' / '**Next item number: TF-3.**'
 COUNTER_RE = re.compile(
-    r"^\*\*Next item number:\s*((?:\d+\.\d+)|TF-\d+)\.\*\*"
+    r"^\s*-?\s*\*\*Next item number:\s*((?:\d+\.\d+)|TF-\d+)\.\*\*"
 )
 
 PAREN_RE = re.compile(r"\([^()]*\)")
@@ -266,6 +266,18 @@ def _ordinal(item_id: str) -> tuple[str, int] | None:
     if not m:
         return None
     return (parts[0], int(m.group(1)))
+
+
+def parse_live_index(text: str) -> dict[str, list[int]]:
+    """Live item ids in a NEW-format TODO.md (index rows) -> their line numbers.
+
+    TODO.md is now an index of ``| <id> | <title> | <tags> |`` rows; the ids
+    are in cell 1. (P-TODO.md keeps the ``### <id>`` shape parse_live reads.)
+    """
+    live: dict[str, list[int]] = {}
+    for it in parse_todo_index(text):
+        live.setdefault(it["id"], []).append(it["line"])
+    return live
 
 
 def parse_live(text: str) -> dict[str, list[int]]:
@@ -453,7 +465,7 @@ def main(argv: list[str]) -> int:
         print(f"ERROR: cannot read a required file: {exc}", file=sys.stderr)
         return 2
 
-    todo_live = parse_live(todo_text)
+    todo_live = parse_live_index(todo_text)
     ptodo_live = parse_live(ptodo_text)
     live = {**todo_live, **ptodo_live}   # union of ids across both lists
     retired = parse_retired(done_text)

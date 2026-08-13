@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Detect a TODO item that marks ITSELF done in place (gate 57).
 
+
 The TODO/DONE rotation discipline (the change-tracking rule's
 PR-finalization protocol) requires that when a PR closes a backlog item,
-the item is DELETED from ``TODO.md`` and an entry is added to
+the item is DELETED from ``TODO.md`` (index row) and ``TODO-REFERENCE.md`` (detail block) and an entry is added to
 ``.working/DONE.md`` in the same diff, not annotated done-in-place.
 ``TODO.md`` is forward-looking; a self-marked-done item is rotation
 debris that the rule explicitly forbids ("Removal means deletion of the
@@ -39,7 +40,7 @@ Inline backtick spans are stripped and fenced code blocks are skipped
 before matching, so a backticked mention of these markers (as in this
 file's own design note in ``TODO.md``) does not register.
 
-Scope: ``TODO.md`` only. ``.working/DONE.md`` is the done ledger and
+Scope: ``TODO.md`` and ``TODO-REFERENCE.md`` (the item detail moved there). ``.working/DONE.md`` is the done ledger and
 legitimately carries done items, so it is never scanned.
 
 Usage:
@@ -50,7 +51,6 @@ Exit codes:
     0   no findings
     1   one or more findings present
 """
-
 from __future__ import annotations
 
 import argparse
@@ -80,7 +80,7 @@ STATUS_DONE = re.compile(r"\bStatus:\s*(?:completed|done)\b", re.IGNORECASE)
 # ``~~`` and ``[done]``) does not register.
 INLINE_CODE_SPAN = SIMPLE_CODE_SPAN_RE
 
-DEFAULT_PATHS = ["TODO.md"]
+DEFAULT_PATHS = ["TODO.md", "TODO-REFERENCE.md"]
 
 
 def iter_markdown_files(paths: list[str]) -> list[Path]:

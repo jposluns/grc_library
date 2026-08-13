@@ -31,7 +31,7 @@ The gate is a regular corpus audit gate (runs on every audit cycle,
 not just at PR time). This catches drift at audit-time before any
 push, so the maintainer can refresh TODO before merging the next PR.
 
-Scope: the queued-PR check scans TODO.md (TARGET_FILES); the
+Scope: the queued-PR check scans TODO.md AND TODO-REFERENCE.md (TARGET_FILES); the
 sweep-cursor check scans SWEEP_CURSOR_FILE (`.working/session-handoff.md`).
 Other files adopting the queued-PR convention should be added to
 TARGET_FILES.
@@ -53,6 +53,7 @@ from lint_common import REPO_ROOT, resolve_working
 
 TARGET_FILES: list[str] = [
     "TODO.md",
+    "TODO-REFERENCE.md",
 ]
 SWEEP_HISTORY_PATH = ".working/validate-sweeps/history.md"
 # The sweep cursor lives in the session-handoff file (the canonical resume
