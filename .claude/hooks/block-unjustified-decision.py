@@ -43,7 +43,6 @@ lapse it prevents. Does not fire in a child session whose ``CLAUDE_PROJECT_DIR``
 
 Self-test: ``python3 .claude/hooks/block-unjustified-decision.py --self-test``.
 """
-
 import json
 import os
 import re
@@ -136,7 +135,7 @@ TODO_ROW_RE = re.compile(
 
 def _todo_item_count(project_dir: str | None) -> int | None:
     """Count open backlog items (ITEM_HEADING_RE) across BOTH the public ``TODO.md``
-    and the private ``grc_library_private/P-TODO.md`` under ``project_dir`` (the
+    (from TODO.md INDEX ROWS via ``TODO_ROW_RE``) and the private ``grc_library_private/P-TODO.md`` ``### `` headings under ``project_dir`` (the
     UNION, matching ``tools/audit-backlog-actionability.py``, whose ``backlog-audit:
     <N> items enumerated`` token this gates: P-1.1). Returns None only if the public
     ``TODO.md`` cannot be resolved (the count-equality check then fails open;

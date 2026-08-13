@@ -51,7 +51,6 @@ Exit codes:
     0   no findings
     1   one or more findings present
 """
-
 from __future__ import annotations
 
 import argparse

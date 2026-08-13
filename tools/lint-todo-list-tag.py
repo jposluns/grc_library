@@ -23,7 +23,6 @@ Adopter-graceful: when the private sibling is absent (public-only clone /
 adopter checkout) the private list is simply not scanned; that is a no-op,
 not an error.
 """
-
 from __future__ import annotations
 
 import argparse

@@ -78,7 +78,6 @@ USAGE
 The scratch checkout is located by ``--scratch``, else ``GRC_SCRATCH_PATH``, else
 the sibling directory ``../grc_library_scratch`` relative to this repository root.
 """
-
 from __future__ import annotations
 
 import argparse

@@ -31,7 +31,7 @@ The gate is a regular corpus audit gate (runs on every audit cycle,
 not just at PR time). This catches drift at audit-time before any
 push, so the maintainer can refresh TODO before merging the next PR.
 
-Scope: the queued-PR check scans TODO.md (TARGET_FILES); the
+Scope: the queued-PR check scans TODO.md AND TODO-REFERENCE.md (TARGET_FILES); the
 sweep-cursor check scans SWEEP_CURSOR_FILE (`.working/session-handoff.md`).
 Other files adopting the queued-PR convention should be added to
 TARGET_FILES.
