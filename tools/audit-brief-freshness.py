@@ -66,7 +66,7 @@ STAMP_RE = re.compile(
     r'\d{4}-\d{2}-\d{2} UTC\s*$', re.M)
 MERGE_PR_RE = re.compile(r'\(#(\d+)\)')
 PATH_BULLET_RE = re.compile(r'^- `([^`]+\.(?:md|py|sh|yml|yaml|csv))`', re.M)
-SECTION_ANCHOR_RE = re.compile(r'§(\d+\.\d+)')
+SECTION_ANCHOR_RE = re.compile(r'§(\d+(?:\.\d+)+)')  # full depth: §2.25.1 not truncated to 2.25
 SR_ANCHOR_RE = re.compile(r'\bSR-(\d+)\b')
 ADVISORY_PRS_BEHIND = 15
 
@@ -132,7 +132,7 @@ def todo_anchors():
     ref = REPO_ROOT / "TODO-REFERENCE.md"
     todo = ref.read_text(errors="replace") if ref.is_file() else ""
     todo += "\n" + (REPO_ROOT / "TODO.md").read_text(errors="replace")
-    sections = set(re.findall(r'^### (\d+\.\d+)\s', todo, re.M))
+    sections = set(re.findall(r'^### (\d+(?:\.\d+)+)\s', todo, re.M))  # full depth: matches ### 2.25.1
     srs = set(re.findall(r'^### (SR-\d+)\s', todo, re.M))
     return sections, srs
 
@@ -221,6 +221,8 @@ def self_test():
         def test_anchor_regexes(self):
             self.assertEqual(
                 SECTION_ANCHOR_RE.search("Item, §2.10 ").group(1), "2.10")
+            self.assertEqual(
+                SECTION_ANCHOR_RE.search("Item, §2.25.1 ").group(1), "2.25.1")  # three-part preserved
             self.assertEqual(
                 SR_ANCHOR_RE.search("SR-3 validate.py binary-scan gaps").group(1),
                 "3")
