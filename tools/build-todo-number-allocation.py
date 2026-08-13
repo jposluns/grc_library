@@ -164,6 +164,18 @@ def main(argv):
     if args.self_test:
         return self_test()
 
+    # The counter union needs DONE.md (retired public ids, e.g. series 2's highest),
+    # which lives in the private sibling. Absent it (CI, an adopter clone) the union is
+    # incomplete, so --check cannot verify and regenerate must not write a wrong block:
+    # no-op OK on --check (enforcement is maintainer-local, at the pre-push guard),
+    # skip on regenerate. This mirrors the other sibling-reaching tools' graceful no-op.
+    if resolve_sibling("private") is None:
+        if args.check:
+            print("OK: private sibling absent; number-allocation --check is maintainer-local (skipped).")
+            return 0
+        print("SKIP: private sibling absent; cannot regenerate without DONE.md (maintainer-local).")
+        return 0
+
     todo_path = REPO_ROOT / "TODO.md"
     todo = todo_path.read_text(errors="replace")
     tops, tf_max = compute_counters()
@@ -221,7 +233,10 @@ def self_test():
 
         def test_reproduces_committed_block(self):
             """Reality anchor: the live union must regenerate the CURRENTLY committed
-            block byte-for-byte (proven at build time 2026-08-13)."""
+            block byte-for-byte (proven at build time 2026-08-13). Needs the private
+            sibling (DONE.md); skipped where it is absent (CI, an adopter clone)."""
+            if resolve_sibling("private") is None:
+                self.skipTest("private sibling absent; reality-anchor is maintainer-local")
             tops, tf_max = compute_counters()
             block = render_block(tops, tf_max)
             todo = (REPO_ROOT / "TODO.md").read_text()
