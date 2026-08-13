@@ -128,21 +128,16 @@ drive end-to-end on the maintainer's behalf:
    BEFORE the list is published (the list comes from TODO, not from memory). This is the project-specific
    instantiation of the PR finalization protocol in
    [`.claude/rules/governance/change-tracking.md`](../.claude/rules/governance/change-tracking.md).
-   **The same next-five list is written to `grc_library_private/.working/next-prs.txt`
-   as part of THIS PR's own diff (not a post-merge step), so merging the PR cycles the file,
-   and the console `next:` statusline that reads it, forward to the next work item.** Each PR
-   drops the item it just closed and reflects the current next-five (drawn from TODO); the
-   file is a committed, between-session-durable projection of the queue. **Format
-   (maintainer-directed 2026-07-14): the items go on a SINGLE first line
-   (`1) ...; 2) ...; 3) ...`), because the console `next:` statusline surfaces ONLY that
-   first line and truncates it at roughly 120 characters. Keep the first line to roughly
-   120 characters or under, make each item a very brief few-word description (not a full
-   sentence), and fit at least three items so the statusline gives a useful "what's next"
-   glance. Put any longer detail or the further-out queue on a following `# then:` comment
-   line, which the statusline does not surface.** A stale entry there
-   (an already-done item still shown as `next:`) is the signal that a PR
-   shipped without refreshing it, so every PR touches `next-prs.txt` even when the queue is
-   otherwise unchanged.
+   **The same next-five ordering lives in the `## Up next` queue at the top of the private
+   `P-TODO.md` (the single ordered work queue across both backlogs; it replaced the retired
+   `next-prs.txt`), and THIS PR REFRESHES that queue as part of its own diff (not a post-merge
+   step): drop the item just closed, insert any new work in position order. The console
+   `next:` statusline and `/resume` read the top of that queue, so refreshing it cycles the
+   "what's next" forward to the next work item.** Each queue item is one
+   `N) <brief title> [tags]` line in position order (top = do next); the statusline renders
+   the top three as `next: 1) ...; 2) ...; 3) ...`, stripping the `[tags]` and truncating
+   near 120 characters. A stale top item (an already-done item still shown as `next:`) is the
+   signal that a PR closed work without refreshing the queue.
 10. TODO/DONE rotation discipline: when a PR closes a TODO item, the item's index row is
    deleted from [`TODO.md`](../TODO.md) AND its detail block from
    [`TODO-REFERENCE.md`](../TODO-REFERENCE.md) in the same PR, and an entry is added to
