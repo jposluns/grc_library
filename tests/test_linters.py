@@ -10873,6 +10873,24 @@ class TodoIndexReferenceParityTests(LinterTestCase):
         finally:
             import shutil; shutil.rmtree(root, ignore_errors=True)
 
+    def test_band_mismatch_flagged(self):
+        # item 1.2 sits under Priority 1 in the index but a different band in the reference
+        ref_p2 = ("# ref\n## Priority 1 \u2014 Fix\n### 1.1 alpha (H)\n\nbody\n"
+                  "## Priority 2 \u2014 Gaps\n### 1.2 beta (M)\n\nbody\n")
+        r, root = self._run("bij-band", self.IDX, ref_p2)
+        try:
+            self.assertLinterFails(r, "BAND MISMATCH")
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    def test_detail_block_in_index_flagged(self):
+        # a ### detail block that leaked into TODO.md (a partial-revert of the split)
+        r, root = self._run("bij-leak", self.IDX + "### 1.1 alpha detail leaked\n\nbody\n", self.REF)
+        try:
+            self.assertLinterFails(r, "INDEX DETAIL LEAK")
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
+
     def test_duplicate_id_flagged(self):
         r, root = self._run("bij-dup", self.IDX + "| 1.1 | alpha again (H) | `[public]` |\n", self.REF)
         try:

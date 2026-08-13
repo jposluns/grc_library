@@ -3,7 +3,7 @@
 
 The TODO-rework format (2026-08) splits the public backlog into an INDEX
 ([`TODO.md`](../TODO.md): one ``| ID | Item | Tags |`` row per open item, under
-``## Priority N`` bands) and a DETAIL file
+``## `` bands, e.g. Priority N) and a DETAIL file
 ([`TODO-REFERENCE.md`](../TODO-REFERENCE.md): one ``### <id> <title>`` block per
 item, under the same bands). The two surfaces are joined by the stable id, and
 the format's whole contract is that they stay in one-to-one correspondence.
@@ -18,7 +18,7 @@ reference are not a bijection with matching id, title, band, and position order:
   - EXTRA: a detail-block id with no index row.
   - DUPLICATE: an id appearing twice in either file.
   - TITLE DRIFT: a row and its block disagree on the item title.
-  - BAND MISMATCH: a row and its block sit under different ``## Priority`` bands.
+  - BAND MISMATCH: a row and its block sit under different ``## `` bands.
   - ORDER MISMATCH: the id sequence differs between the two files.
 
 Adopter-graceful: if ``TODO-REFERENCE.md`` is absent (a clone that has not
@@ -45,7 +45,7 @@ from lint_common import (  # noqa: E402
 TODO_REL = "TODO.md"
 REFERENCE_REL = "TODO-REFERENCE.md"
 
-BAND_RE = re.compile(r"^## (Priority \d+\b.*)$")
+BAND_RE = re.compile(r"^## (.+?)\s*$")  # any H2 section is a band (Priority N, Time-bounded follow-ups, ...)
 REF_HEADING_RE = re.compile(
     r"^### (?P<id>P-\d+(?:\.\d+){1,2}[a-z]?|\d+(?:\.\d+)+(?:\.[a-z]|[a-z])?|TF-\d+)"
     r"\s+(?P<title>.*)$"
@@ -145,6 +145,19 @@ def find_findings(index: list[tuple[str, str, str]],
     return findings
 
 
+INDEX_DETAIL_LEAK_RE = re.compile(
+    r"^### (?:P-\d+(?:\.\d+){1,2}[a-z]?|\d+(?:\.\d+)+(?:\.[a-z]|[a-z])?|TF-\d+)\b"
+)
+
+
+def find_index_detail_leaks(todo_text: str) -> list[str]:
+    """A ``### <id>`` detail block in the INDEX file (TODO.md) is a format break:
+    detail blocks belong only in TODO-REFERENCE.md. Left unflagged, it silently
+    flips a downstream format heuristic (audit-backlog-actionability) to the
+    legacy branch. Return the offending heading lines."""
+    return [ln for ln in todo_text.splitlines() if INDEX_DETAIL_LEAK_RE.match(ln)]
+
+
 def run(root: Path) -> int:
     todo_path = root / TODO_REL
     ref_path = root / REFERENCE_REL
@@ -154,9 +167,13 @@ def run(root: Path) -> int:
     if not ref_path.is_file():
         print(f"OK: {REFERENCE_REL} not present (two-file backlog format not adopted); no-op.")
         return 0
-    index = parse_index(todo_path.read_text(encoding="utf-8"))
+    todo_text = todo_path.read_text(encoding="utf-8")
+    index = parse_index(todo_text)
     reference = parse_reference(ref_path.read_text(encoding="utf-8"))
     findings = find_findings(index, reference)
+    for leak in find_index_detail_leaks(todo_text):
+        findings.append(f"INDEX DETAIL LEAK: {TODO_REL} contains a detail block heading "
+                        f"({leak.strip()!r}); detail blocks belong only in {REFERENCE_REL}")
     if not findings:
         print(
             f"OK: {len(index)} index row(s) and {len(reference)} detail block(s) are a "

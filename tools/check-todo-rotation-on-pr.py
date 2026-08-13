@@ -11,10 +11,10 @@ catch. That is the #466 failure mode (it built gate 56 "closing TODO §4.5 S4"
 but omitted the rotation; the omission surfaced only in the post-merge sweep).
 
 The rule (change-tracking PR-finalization protocol): when a PR closes a TODO
-item, the item is deleted from `TODO.md` and an entry is added to the DONE ledger in
+item, the item's index row is deleted from `TODO.md` AND its detail block from `TODO-REFERENCE.md`, and an entry is added to the DONE ledger in
 the SAME diff. As of PR #1235 (2026-07-29, the working-state move to the private
 sibling), the DONE ledger moved to the private-sibling working-state store (cross-repo,
-outside the public diff), so this gate enforces ONLY the public `TODO.md` rotation
+outside the public diff), so this gate enforces the public two-file rotation (BOTH `TODO.md` and `TODO-REFERENCE.md` present on a closure)
 surface: if any line ADDED to the root CHANGELOG asserts a TODO-item closure, the PR's
 changed-file set must include `TODO.md`.
 

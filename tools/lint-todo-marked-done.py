@@ -41,7 +41,7 @@ Inline backtick spans are stripped and fenced code blocks are skipped
 before matching, so a backticked mention of these markers (as in this
 file's own design note in ``TODO.md``) does not register.
 
-Scope: ``TODO.md`` only. ``.working/DONE.md`` is the done ledger and
+Scope: ``TODO.md`` and ``TODO-REFERENCE.md`` (the item detail moved there). ``.working/DONE.md`` is the done ledger and
 legitimately carries done items, so it is never scanned.
 
 Usage:

@@ -26,7 +26,7 @@ bypassed and protects nothing):
   which dissolves the corpus-vs-backlog ambiguity.
 
 Four FP guards:
-1. RENUMBER/REWORD: an id is retired only if it is NOT a heading in TODO.md at
+1. RENUMBER/REWORD: an id is retired only if it is NOT a `### <id>` heading in TODO-REFERENCE.md (where the item detail blocks now live) at
    HEAD (an in-place reword/split/reorder keeps the id, so references stay valid).
 2. HISTORICAL NARRATION: each hit is classified (shared lint_common.classify);
    only LIVE hits are violations. NOTE (dual-family verify, #1250): for D9's
