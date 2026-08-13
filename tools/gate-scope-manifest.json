@@ -54,7 +54,8 @@
       "lint-listing-surface-completeness.py",
       "lint-matrix-control-codes.py",
       "build-taxonomy.py",
-      "build-portal.py"
+      "build-portal.py",
+      "build-todo-number-allocation.py"
     ],
     "operational-meta": [
       "lint-audit-gate-parity.py",
@@ -99,6 +100,7 @@
       "check-date-cobump-on-pr.py",
       "check-narrative-corpus-mixed-diff-on-pr.py",
       "check-retired-section-orphan-on-pr.py",
+      "check-todo-floor-monotonic-on-pr.py",
       "check-todo-rotation-on-pr.py",
       "check-version-bump-on-pr.py",
       "run-linter-regression.py"

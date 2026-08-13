@@ -762,7 +762,11 @@ the last commit before push (bump library CalVer and the README Version field)?
 
 ## Boundaries
 - Never hand-edit generated files (`taxonomy.yml`, `narrative.yml`, `docs/portal.md`,
-  `docs/maturity-scorecard.md`); regenerate them: CI `--check` fails on drift.
+  `docs/maturity-scorecard.md`, and the `## Number allocation` counter block in `TODO.md`
+  between its sentinels); regenerate them (`build-todo-number-allocation.py` for the allocation
+  block): CI `--check` fails on drift (gate 91). The block generates from the PUBLIC floor
+  `tools/todo-number-floor.json` (a hand-maintained SOURCE, bumped when a new number is
+  allocated, NOT itself generated) plus the live ids; gate 78 reads the same floor.
 - Never weaken or delete an audit gate to make a document pass; fix the document.
 - Never commit secrets or real PII: `lint-secrets-in-content.py` /
   `lint-pii-in-content.py` gate this, and history rewrites are costly.

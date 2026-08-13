@@ -358,12 +358,29 @@ def find_recycled(
     return findings
 
 
+def _load_number_floor() -> dict[str, int]:
+    """The PUBLIC number floor (``tools/todo-number-floor.json``), keyed by section
+    (``1``/``2``/.../``TF``) -> highest ordinal ever allocated. Absent -> {} (no-op)."""
+    import json
+    fp = REPO_ROOT / "tools" / "todo-number-floor.json"
+    if not fp.is_file():
+        return {}
+    return {k: int(v) for k, v in json.loads(fp.read_text()).items()
+            if not k.startswith("_")}
+
+
 def find_stale_counters(
     live: dict[str, list[int]],
     retired: dict[str, list[int]],
     counters: dict[str, tuple[str, int]],
+    floor: dict[str, int] | None = None,
 ) -> list[tuple[str, str, int, int, list[str]]]:
-    """Counters pointing at an already-used ordinal in their section."""
+    """Counters pointing at an already-used ordinal in their section. ``floor`` (the
+    PUBLIC ``tools/todo-number-floor.json``, keyed by section) supplies the highest
+    ordinal EVER allocated, so the counter-recycle check catches a counter at or below a
+    RETIRED number even where ``DONE.md`` is absent (CI / adopter clone). This is the
+    CI-enforceable recycle backstop the private DONE archive could not provide."""
+    floor = floor or {}
     findings = []
     for section, (raw, lineno) in sorted(counters.items()):
         target = _ordinal(raw)
@@ -375,6 +392,8 @@ def find_stale_counters(
                 o = _ordinal(item_id)
                 if o is not None and o[0] == section:
                     used.setdefault(o[1], []).append(item_id)
+        if section in floor:
+            used.setdefault(floor[section], []).append(f"floor {section}.{floor[section]}")
         blocking = sorted(n for n in used if n >= target[1])
         if blocking:
             names = sorted({name for n in blocking for name in used[n]})
@@ -431,11 +450,14 @@ def main(argv: list[str]) -> int:
         if done_path is None:
             # `.working/DONE.md` is the maintainer-only retirement ledger. Once
             # `.working/` moves to grc_library_private it is absent in public CI
-            # and adopter clones, so check A (RECYCLE) no-ops there: with no
-            # recorded retirements there is nothing a live number can collide
-            # WITH. Check B (COUNTER) still runs against the public TODO.md's
-            # live ids and still catches the counter defect; it merely cannot
-            # see a counter colliding with a retired-ONLY number.
+            # and adopter clones, so check A (RECYCLE, a LIVE id equal to a specific
+            # retired id) no-ops there: without the full retired-id set there is
+            # nothing a live number can be compared against. Check B (COUNTER) is
+            # UNAFFECTED: it reads the PUBLIC floor (tools/todo-number-floor.json,
+            # the highest ordinal EVER allocated per series), so it still catches a
+            # counter at or below a retired-ONLY number even here (the floor coupling
+            # is the CI-enforceable recycle backstop; only the exact-live-id-vs-retired
+            # comparison of check A remains maintainer-local).
             print(
                 f"OK: {DONE_REL} not present (maintainer-only working state; "
                 f"skipping the recycled-number check in public CI / adopter "
@@ -472,7 +494,8 @@ def main(argv: list[str]) -> int:
     counters = parse_counters(todo_text)
 
     recycled = find_recycled(live, retired, done_headings(done_text))
-    stale = find_stale_counters(live, retired, counters)
+    floor = _load_number_floor()
+    stale = find_stale_counters(live, retired, counters, floor)
     cross = find_cross_list_collisions(todo_live, ptodo_live)
 
     if not recycled and not stale and not cross:
