@@ -2,8 +2,8 @@
 
 **Document Title:** Third-Party AI Due Diligence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.7\
-**Date:** 2026-08-05\
+**Version:** 1.0.8\
+**Date:** 2026-08-13\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -22,7 +22,7 @@ This procedure defines the AI-specific due diligence steps required before engag
 
 It complements the Supplier Due Diligence Procedure with controls that address the distinct risks presented by AI systems, including opacity in model behaviour, training data provenance, bias and fairness concerns, adversarial vulnerabilities, and the regulatory obligations imposed on deployers and importers of AI systems.
 
-This procedure is synthesized from NIST AI RMF (Govern 1.1 to 1.7, Map 5.1 to 5.2), ISO/IEC 42001 §9, EU AI Act Articles 9, 13, and 28 to 29, OWASP LLM Top 10, and CSA AI Controls Matrix (AICM) v1.1.
+This procedure is synthesized from NIST AI RMF (Govern 1.1 to 1.7, Map 5.1 to 5.2), ISO/IEC 42001 Annex A.10 and B.10.3 (Third-party and customer relationships, Suppliers), EU AI Act Articles 9, 13, and 28 to 29, OWASP LLM Top 10, and CSA AI Controls Matrix (AICM) v1.1.
 
 ---
 
@@ -93,7 +93,7 @@ All required checklist items must be assessed before any AI supplier contract is
 | 10 | **Incident Notification Capability** | Confirmation of the supplier's ability and commitment to notify within 24 hours of a security or AI system incident. | All tiers. |
 | 11 | **Data Deletion on Contract Termination** | Written confirmation that all organizational data and derived model artefacts will be deleted upon termination. | All tiers. |
 | 12 | **Subprocessor and Supply Chain Transparency** | Disclosure of subprocessors, data sub-labellers, infrastructure providers, and upstream model dependencies. | High-Risk and GPAI. |
-| 13 | **ISO/IEC 42001 Alignment** | Evidence of AI management system practices aligned to ISO/IEC 42001 §9 (Performance evaluation). | High-Risk and GPAI. |
+| 13 | **ISO/IEC 42001 Alignment** | Evidence of AI management system practices aligned to ISO/IEC 42001 Annex A.10 and B.10.3 (Third-party and customer relationships, Suppliers). | High-Risk and GPAI. |
 | 14 | **CSA AICM Alignment** | Self-assessment or independent attestation against applicable CSA AI Controls Matrix v1.1 control families. | High-Risk and GPAI. |
 
 Suppliers that fail to provide satisfactory evidence for items applicable to their classification must submit a documented remediation plan before engagement proceeds. High-Risk AI systems where critical checklist items cannot be satisfied must be escalated to the AI Governance Council for an engagement approval decision.
@@ -217,7 +217,7 @@ The organization must retain the following AI system documentation for a minimum
 ## 10. References
 
 - NIST AI Risk Management Framework 1.0: Govern 1.1 to 1.7; Map 5.1 to 5.2.
-- ISO/IEC 42001:2023, Artificial intelligence, Management system, §9 (Performance evaluation), applied to third-party AI governance.
+- ISO/IEC 42001:2023, Artificial intelligence, Management system, Annex A.10 and B.10.3 (Third-party and customer relationships, Suppliers), applied to third-party AI governance.
 - EU AI Act (Regulation 2024/1689): Articles 9 (Risk management), 13 (Transparency and provision of information), 28 to 29 (Obligations of deployers and importers).
 - OWASP LLM Top 10:2025: LLM03 Supply Chain; LLM04 Data and Model Poisoning; LLM09 Misinformation (the 2025 edition restructured and renumbered the risks; this list uses 2025 numbering).
 - CSA AI Controls Matrix (AICM) v1.1: Cloud Security Alliance.

@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Lifecycle Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.5\
-**Date:** 2026-07-23\
+**Version:** 1.0.6\
+**Date:** 2026-08-13\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -144,7 +144,7 @@ Applies to all AI models and machine learning systems developed internally, proc
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ISO/IEC 42001:2023 | §8: Operation | AI model lifecycle governance |
-| ISO/IEC 42001:2023 | §10: Improvement | Model performance monitoring and improvement |
+| ISO/IEC 42001:2023 | §9.1 (Monitoring, measurement, analysis and evaluation); §10 (Improvement) | Model performance monitoring and improvement |
 | ISO/IEC 5338:2023 | AI system life cycle processes; §6.4.14 continuous validation | AI system lifecycle process model and automated rollback |
 | OSFI Guideline E-23 (2025, effective 2027) | Model risk management: inventory, review triggers, decommission retention, unavailability contingency | Model-risk lifecycle governance, adopted sector-neutrally |
 | EU AI Act (2024) | Article 9: Risk Management System | Ongoing AI risk management |

@@ -2,8 +2,8 @@
 
 **Document Title:** Records Retention and Destruction Standard\
 **Document Type:** Standard\
-**Version:** 1.4.19\
-**Date:** 2026-08-05\
+**Version:** 1.4.20\
+**Date:** 2026-08-13\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -132,7 +132,7 @@ Certificates of Destruction must be retained for a minimum of 7 years.
 
 ## 9. AI dataset and model record retention
 
-All AI training datasets, test results, and model versions must be retained to support audit and reproducibility obligations per ISO/IEC 42001 §9. Required records include:
+All AI training datasets, test results, and model versions must be retained to support audit and reproducibility obligations. ISO/IEC 42001 §7.5.3 requires documented-information controls, including retention and disposition, rather than prescribing this training-data and model-version record set. Required records include:
 
 - Dataset lineage and source validation documentation.
 - Model architecture and configuration files.
@@ -182,7 +182,7 @@ Annual audits verify:
 | COBIT 2019 DSS01 | Managed Operations |
 | CSA CCM v4.1 DSP-16 | Data Retention and Deletion |
 | CSA CCM v4.1 DSP-02 | Secure Disposal |
-| ISO/IEC 42001:2023 §9 | Performance evaluation |
+| ISO/IEC 42001:2023 §7.5.3 | Control of documented information (retention and disposition) |
 | EU AI Act Annex IV | AI System Documentation |
 
 Sector-specific framework alignments (for example, BASC International Standard v6 2022 and WCO SAFE Framework 2025 edition for trade and customs records retention) apply where the organization participates in a covered programme; see [`compliance/`](../compliance/).
