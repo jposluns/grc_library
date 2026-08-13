@@ -2,8 +2,8 @@
 
 **Document Title:** AI System Audit and Certification Framework\
 **Document Type:** Framework\
-**Version:** 1.0.8\
-**Date:** 2026-07-11\
+**Version:** 1.0.9\
+**Date:** 2026-08-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md)\
@@ -201,7 +201,7 @@ The CISO is responsible for ensuring Annex IV documentation is maintained and up
 
 ### 7.3 Registration in the EU database
 
-High-risk AI systems within scope of EU AI Act Art. 51 registration obligations must be registered in the EU database for high-risk AI systems by the provider before the system is placed on the market or put into service. The AI System Owner initiates and maintains the registration, with Legal support.
+High-risk AI systems within scope of EU AI Act Art. 49 registration obligations must be registered in the EU database for high-risk AI systems (Art. 71) by the provider before the system is placed on the market or put into service. The AI System Owner initiates and maintains the registration, with Legal support.
 
 ---
 
