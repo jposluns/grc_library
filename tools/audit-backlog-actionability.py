@@ -137,7 +137,7 @@ def parse_items(text: str, source: str) -> list[tuple[str, str, str, str, str]]:
     lines = text.splitlines()
     # TODO.md is index-format now: | id | title | tags | rows under ## bands,
     # detail in TODO-REFERENCE.md. P-TODO.md keeps the ### section shape.
-    if any(_ROW_RE.match(ln) for ln in lines):
+    if source == "public" and any(_ROW_RE.match(ln) for ln in lines):
         # index-format: any index row means TODO.md; a stray ``### `` block that
         # leaked in is ignored here (gate 90 flags it) rather than flipping this
         # to the legacy branch and collapsing the enumeration.

@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """Delta gate D9: retired-section-orphan check (roadmap C phase 2, #1250).
 
-(TODO-rework 2026-08: TODO.md is now an index of `| id | title | tags |` rows; per-item detail lives in TODO-REFERENCE.md as `### id` blocks. This tool reads the new format; older wording below may describe the pre-rework shape.)
 
 When a PR CLOSES a numbered TODO section (deletes its `### N.M` heading),
 positional references to that section (`§N.M`, `PN.M`, `TODO §N.M`,
-`TODO section N.M`) can survive on the OPERATIONAL / gate-exempt surfaces that
+`TODO section N.M`) can survive on the OPERATIONAL / gate-exempt surfaces (the item detail blocks now live in TODO-REFERENCE.md) that
 no other gate scans, silently dangling. This gate flags those survivors.
 
 Why it is false-positive-safe (the design constraint: a gate that cries wolf gets

@@ -52,16 +52,32 @@ REF_HEADING_RE = re.compile(
 )
 
 
+def _non_fence_lines(text: str):
+    """Yield ``(line)`` skipping fenced-code-block INTERIORS, so a ``### id`` or
+    ``| id |`` example inside a ``` fence is not mistaken for a real item."""
+    in_fence = False
+    for line in text.splitlines():
+        st = line.lstrip()
+        if st.startswith("```") or st.startswith("~~~"):
+            in_fence = not in_fence
+            continue
+        if not in_fence:
+            yield line
+
+
 def _norm_title(t: str) -> str:
-    """Normalize a title for comparison (unescape the index cell's ``\\|``)."""
-    return t.replace("\\|", "|").strip()
+    """Normalize a title for comparison. A literal pipe in a title is NOT
+    supported by the index-row format (the row would over-split); such a title
+    is rejected loudly by gate 81 (missing tag) / gate 90 (title drift), so
+    reword it rather than escaping the pipe."""
+    return t.strip()
 
 
 def parse_index(text: str) -> list[tuple[str, str, str]]:
     """Ordered ``(id, normalized-title, band)`` for each index row in TODO.md."""
     out: list[tuple[str, str, str]] = []
     band = ""
-    for line in text.splitlines():
+    for line in _non_fence_lines(text):
         m = BAND_RE.match(line)
         if m:
             band = m.group(1).strip()
@@ -83,7 +99,7 @@ def parse_reference(text: str) -> list[tuple[str, str, str]]:
     """Ordered ``(id, normalized-title, band)`` for each ``### id`` block."""
     out: list[tuple[str, str, str]] = []
     band = ""
-    for line in text.splitlines():
+    for line in _non_fence_lines(text):
         m = BAND_RE.match(line)
         if m:
             band = m.group(1).strip()
@@ -155,7 +171,7 @@ def find_index_detail_leaks(todo_text: str) -> list[str]:
     detail blocks belong only in TODO-REFERENCE.md. Left unflagged, it silently
     flips a downstream format heuristic (audit-backlog-actionability) to the
     legacy branch. Return the offending heading lines."""
-    return [ln for ln in todo_text.splitlines() if INDEX_DETAIL_LEAK_RE.match(ln)]
+    return [ln for ln in _non_fence_lines(todo_text) if INDEX_DETAIL_LEAK_RE.match(ln)]
 
 
 def run(root: Path) -> int:

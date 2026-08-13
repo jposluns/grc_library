@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """Detect an open backlog item heading with zero or 2+ [public]/[private]
 
-(TODO-rework 2026-08: TODO.md is now an index of `| id | title | tags |` rows; per-item detail lives in TODO-REFERENCE.md as `### id` blocks. This tool reads the new format; older wording below may describe the pre-rework shape.)
 list tags (gate 81).
 
-Every open ``### `` item heading in ``TODO.md`` (and, when present, the
-private ``grc_library_private/P-TODO.md``) must carry EXACTLY ONE
+Every open item (a ``| id | ... |`` index row in ``TODO.md``, and a ``### `` heading in the private
+``grc_library_private/P-TODO.md``) must carry EXACTLY ONE
 ``[public]`` or ``[private]`` tag, the list-membership axis PR #1293
 applied to all then-open items (design of record:
 ``grc_library_private/.working/todo-split-blocked-guardrail-design.md``). Nothing

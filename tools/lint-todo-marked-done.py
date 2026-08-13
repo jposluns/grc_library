@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """Detect a TODO item that marks ITSELF done in place (gate 57).
 
-(TODO-rework 2026-08: TODO.md is now an index of `| id | title | tags |` rows; per-item detail lives in TODO-REFERENCE.md as `### id` blocks. This tool reads the new format; older wording below may describe the pre-rework shape.)
 
 The TODO/DONE rotation discipline (the change-tracking rule's
 PR-finalization protocol) requires that when a PR closes a backlog item,
-the item is DELETED from ``TODO.md`` and an entry is added to
+the item is DELETED from ``TODO.md`` (index row) and ``TODO-REFERENCE.md`` (detail block) and an entry is added to
 ``.working/DONE.md`` in the same diff, not annotated done-in-place.
 ``TODO.md`` is forward-looking; a self-marked-done item is rotation
 debris that the rule explicitly forbids ("Removal means deletion of the

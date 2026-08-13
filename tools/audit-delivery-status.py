@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Delivery-pipeline reconciliation: worker deliveries in the scratch inbox
 
-(TODO-rework 2026-08: TODO.md is now an index of `| id | title | tags |` rows; per-item detail lives in TODO-REFERENCE.md as `### id` blocks. This tool reads the new format; older wording below may describe the pre-rework shape.)
 versus the live backlog, so a "backlog applied / cleared" claim rests on the
 record instead of memory.
 

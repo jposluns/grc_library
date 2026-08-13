@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """PreToolUse hook (Edit AND Write): guard the autonomous-decisions log write process.
 
-(TODO-rework 2026-08: TODO.md is now an index of rows; this hook counts index rows to stay in parity with audit-backlog-actionability. Older wording below may describe the pre-rework `### ` shape.)
 
 Shipped 2026-07-19 after a recurring failure the maintainer named directly: the assistant
 DEFERS a queued/authorized item (or winds down, re-sequences, skips) on an un-instrumented

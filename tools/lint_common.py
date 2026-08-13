@@ -712,12 +712,8 @@ def dynamic_floor(present: Iterable[int], floor: int) -> int:
 
 
 def split_row(line: str) -> list[str]:
-    """Return the stripped cells of a markdown table row (bounding pipes dropped).
-
-    Splits on UNESCAPED pipes only: a markdown-escaped ``\|`` stays inside its
-    cell (so a table cell may legitimately contain a literal pipe), per CommonMark.
-    """
-    parts = re.split(r"(?<!\\)\|", line)
+    """Return the stripped cells of a markdown table row (bounding pipes dropped)."""
+    parts = line.split("|")
     if parts and parts[0].strip() == "":
         parts = parts[1:]
     if parts and parts[-1].strip() == "":
