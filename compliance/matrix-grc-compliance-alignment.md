@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.18\
-**Date:** 2026-08-05\
+**Version:** 1.11.19\
+**Date:** 2026-08-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/logistics/register-basc-it-responsibilities.md`](logistics/register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](logistics/annex-aeo-united-kingdom-cybersecurity.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md)\
@@ -283,7 +283,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Privacy | DPIA (Data Protection Impact Assessment) Template | [`privacy/template-dpia.md`](../privacy/template-dpia.md) | DSP-07, DSP-08, DSP-01 | GRC-10, GRC-11 | A.5.34, §6.1 | ID.RA, GV.PO, PR.DS | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Legitimate Interest Assessment (LIA) Template | [`privacy/template-legitimate-interest-assessment.md`](../privacy/template-legitimate-interest-assessment.md) | DSP-12, DSP-01, GRC-02 | N/A | A.5.34, §6.1 | GV.PO, ID.RA, PR.DS | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Data Subject Access Request Workflow Template | [`privacy/template-dsar-workflow.md`](../privacy/template-dsar-workflow.md) | DSP-11, DSP-01, DSP-06 | N/A | A.5.34, A.5.33 | GV.PO, PR.DS, ID.AM | N/A | N/A | N/A | N/A | N/A |
-| Privacy | Joint Controller Arrangement Template | [`privacy/template-joint-controller-arrangement.md`](../privacy/template-joint-controller-arrangement.md) | DSP-13, DSP-06, DSP-01 | N/A | A.5.34, A.5.19 | GV.OC, GV.PO, PR.DS | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Joint Controller Arrangement Template | [`privacy/template-joint-controller-arrangement.md`](../privacy/template-joint-controller-arrangement.md) | GRC-06, DSP-06, DSP-01 | N/A | A.5.34, A.5.19 | GV.OC, GV.PO, PR.DS | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Privacy Notice Template | [`privacy/template-privacy-notice.md`](../privacy/template-privacy-notice.md) | DSP-01, DSP-08, DSP-05 | N/A | A.5.34, §7.4 | GV.PO, ID.AM | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Record of Processing Activities Template | [`privacy/template-record-of-processing-activities.md`](../privacy/template-record-of-processing-activities.md) | DSP-03, DSP-05, DSP-06 | N/A | A.5.34, A.5.33, §7.5 | ID.AM, GV.PO, PR.DS | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Data Processing Agreement Template (GDPR Article 28) | [`privacy/template-dpa-article-28.md`](../privacy/template-dpa-article-28.md) | DSP-13, DSP-14, DSP-02, DSP-01 | N/A | A.5.34, A.5.20, A.5.19 | GV.SC, PR.DS, GV.OC | N/A | N/A | N/A | N/A | N/A |
