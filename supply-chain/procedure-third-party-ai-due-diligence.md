@@ -2,7 +2,7 @@
 
 **Document Title:** Third-Party AI Due Diligence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.8\
+**Version:** 1.0.9\
 **Date:** 2026-08-13\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
@@ -22,7 +22,7 @@ This procedure defines the AI-specific due diligence steps required before engag
 
 It complements the Supplier Due Diligence Procedure with controls that address the distinct risks presented by AI systems, including opacity in model behaviour, training data provenance, bias and fairness concerns, adversarial vulnerabilities, and the regulatory obligations imposed on deployers and importers of AI systems.
 
-This procedure is synthesized from NIST AI RMF (Govern 1.1 to 1.7, Map 5.1 to 5.2), ISO/IEC 42001 Annex A.10 and B.10.3 (Third-party and customer relationships, Suppliers), EU AI Act Articles 9, 13, and 28 to 29, OWASP LLM Top 10, and CSA AI Controls Matrix (AICM) v1.1.
+This procedure is synthesized from NIST AI RMF (Govern 1.1 to 1.7, Map 5.1 to 5.2), ISO/IEC 42001 Annex A.10 and B.10.3 (Third-party and customer relationships, Suppliers), EU AI Act Articles 9, 13, 26, and 23, OWASP LLM Top 10, and CSA AI Controls Matrix (AICM) v1.1.
 
 ---
 
@@ -61,7 +61,7 @@ Before commencing due diligence, each AI supplier and the AI system being evalua
 
 | Classification | Criteria | Deployer Obligations |
 | --- | --- | --- |
-| High-Risk AI System | Applies to systems listed in EU AI Act Annex III (e.g., biometric identification, critical infrastructure management, employment screening, credit scoring, law enforcement). | Full due diligence required per Articles 9 and 13; deployer obligations per Articles 28 to 29 apply. |
+| High-Risk AI System | Applies to systems listed in EU AI Act Annex III (e.g., biometric identification, critical infrastructure management, employment screening, credit scoring, law enforcement). | Full due diligence required per Articles 9 and 13; deployer obligations per Article 26 (and importer obligations per Article 23) apply. |
 | General Purpose AI (GPAI) | Foundation models or large language models with broad applicability across tasks. | Model card, capability documentation, and systemic risk assessment required. |
 | Limited or Minimal Risk | AI systems with narrow scope and low potential for harm (e.g., spam filters, recommendation engines). | Standard due diligence; transparency disclosure required where the system interacts with individuals. |
 
@@ -218,7 +218,7 @@ The organization must retain the following AI system documentation for a minimum
 
 - NIST AI Risk Management Framework 1.0: Govern 1.1 to 1.7; Map 5.1 to 5.2.
 - ISO/IEC 42001:2023, Artificial intelligence, Management system, Annex A.10 and B.10.3 (Third-party and customer relationships, Suppliers), applied to third-party AI governance.
-- EU AI Act (Regulation 2024/1689): Articles 9 (Risk management), 13 (Transparency and provision of information), 28 to 29 (Obligations of deployers and importers).
+- EU AI Act (Regulation 2024/1689): Articles 9 (Risk management), 13 (Transparency and provision of information), 26 (Obligations of deployers of high-risk AI systems), and 23 (Obligations of importers).
 - OWASP LLM Top 10:2025: LLM03 Supply Chain; LLM04 Data and Model Poisoning; LLM09 Misinformation (the 2025 edition restructured and renumbered the risks; this list uses 2025 numbering).
 - CSA AI Controls Matrix (AICM) v1.1: Cloud Security Alliance.
 - ISO/IEC 27036-3:2023: Cybersecurity - Supplier relationships - Part 3: Guidelines for hardware, software, and services supply chain security (Edition 2; supersedes the 2013 edition titled "Information security for supplier relationships - Guidelines for ICT supply chain security").
