@@ -85,6 +85,7 @@
       "lint-stdlib-only-imports.py",
       "lint-todo-list-tag.py",
       "lint-todo-number-permanence.py",
+      "lint-todo-index-reference-parity.py",
       "lint-todo-staleness.py",
       "lint-tooling-provenance-freshness.py",
       "lint-ungated-dashes.py",

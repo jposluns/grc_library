@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 """Detect an open backlog item heading with zero or 2+ [public]/[private]
+
+(TODO-rework 2026-08: TODO.md is now an index of `| id | title | tags |` rows; per-item detail lives in TODO-REFERENCE.md as `### id` blocks. This tool reads the new format; older wording below may describe the pre-rework shape.)
 list tags (gate 81).
 
 Every open ``### `` item heading in ``TODO.md`` (and, when present, the

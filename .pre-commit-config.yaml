@@ -621,3 +621,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-todo-index-reference-parity
+        name: Backlog index-reference parity audit
+        entry: python3 tools/lint-todo-index-reference-parity.py
+        language: system
+        pass_filenames: false
+        always_run: true

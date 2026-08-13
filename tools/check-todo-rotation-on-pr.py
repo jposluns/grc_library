@@ -91,9 +91,11 @@ Usage:
     python3 tools/check-todo-rotation-on-pr.py origin/main HEAD
 
 Exit codes:
-    0 : no closure assertion in the added CHANGELOG lines, OR TODO.md is in the
-        diff, OR an opt-out trailer is present, OR empty diff.
-    1 : a closure is asserted but TODO.md is missing from the diff.
+    0 : no closure assertion in the added CHANGELOG lines, OR both TODO.md and
+        TODO-REFERENCE.md are in the diff, OR an opt-out trailer is present, OR
+        empty diff.
+    1 : a closure is asserted but TODO.md and/or TODO-REFERENCE.md is missing from
+        the diff (an incomplete two-file rotation).
     2 : invocation or environment error (cannot determine base/head, git failure).
 """
 
@@ -108,6 +110,10 @@ import sys
 
 CHANGELOG_PATHS = ("CHANGELOG.md",)
 TODO_PATH = "TODO.md"
+# TODO-rework 2026-08: a closed item is deleted from BOTH the index (TODO.md row)
+# AND the detail file (TODO-REFERENCE.md block). Requiring both on a closure catches
+# an incomplete two-file rotation (delete the row, leave the block, or vice versa).
+REFERENCE_PATH = "TODO-REFERENCE.md"
 
 # The DONE ledger (.working/DONE.md) moved to the private-sibling working-state store in
 # the .working/ -> _private migration, so it is a cross-repo surface invisible to a public
@@ -328,11 +334,13 @@ def main(argv: list[str]) -> int:
         print("OK: no TODO-item closure asserted in the added CHANGELOG lines.")
         return 0
 
-    if TODO_PATH in changed:
+    missing_rotation = [p for p in (TODO_PATH, REFERENCE_PATH) if p not in changed]
+    if not missing_rotation:
         print(
-            f"OK: CHANGELOG asserts a TODO-item closure and {TODO_PATH} is in the diff; "
-            f"the DONE ledger now lives in the private sibling (cross-repo, not in the "
-            f"public diff)."
+            f"OK: CHANGELOG asserts a TODO-item closure and BOTH {TODO_PATH} and "
+            f"{REFERENCE_PATH} are in the diff (the index row and the detail block rotate "
+            f"together); the DONE ledger now lives in the private sibling (cross-repo, not "
+            f"in the public diff)."
         )
         return 0
 
@@ -353,13 +361,16 @@ def main(argv: list[str]) -> int:
 
     print(
         f"FAIL: an added CHANGELOG line asserts a TODO-item closure but the diff "
-        f"does not rotate it: {TODO_PATH} not in the diff.",
+        f"does not fully rotate it: {' and '.join(missing_rotation)} not in the diff. "
+        f"A closure deletes the item's index row from {TODO_PATH} AND its detail block "
+        f"from {REFERENCE_PATH} in the same diff.",
         file=sys.stderr,
     )
     print(f"  asserting line: {closure_line.strip()[:160]}", file=sys.stderr)
     print("", file=sys.stderr)
     print(
-        "When a PR closes a TODO item, delete it from TODO.md in the same diff (the "
+        "When a PR closes a TODO item, delete its index row from TODO.md AND its detail "
+        "block from TODO-REFERENCE.md in the same diff (the "
         "change-tracking rotation discipline; the paired DONE ledger row now lands in the "
         "private-sibling working-state store, cross-repo and not in the public diff). If "
         "the CHANGELOG line merely narrates a past closure, add a 'TodoRotation: <reason>' "

@@ -1656,6 +1656,7 @@ class TodoRotationOnPrDeltaTests(DeltaGateRepoTestCase):
         "CHANGELOG.md": "# Changelog\n\nOld entry.\n",
         ".working/changelog-details/CHANGELOG-detailed.md": "# Detailed\n\nOld entry.\n",
         "TODO.md": "# TODO\n\n- item one\n- item two\n",
+        "TODO-REFERENCE.md": "# TODO reference\n\n### 4.9 cleanup item\n\nbody\n",
         ".working/DONE.md": "# DONE\n\nOld row.\n",
     }
     CLOSURE_LINE = "Closes the TODO §4.9 cleanup item.\n"
@@ -1681,6 +1682,7 @@ class TodoRotationOnPrDeltaTests(DeltaGateRepoTestCase):
             {
                 "CHANGELOG.md": "# Changelog\n\n" + self.CLOSURE_LINE + "\nOld entry.\n",
                 "TODO.md": "# TODO\n\n- item two\n",
+                "TODO-REFERENCE.md": "# TODO reference\n\nbody\n",
                 ".working/DONE.md": "# DONE\n\nNew row.\n\nOld row.\n",
             },
         )
@@ -1688,16 +1690,17 @@ class TodoRotationOnPrDeltaTests(DeltaGateRepoTestCase):
             result = self._run_gate(self.SCRIPT, tmp, base_sha)
             self.assertEqual(
                 result.returncode, 0,
-                f"D5 should PASS when TODO and DONE both rotate; got "
+                f"D5 should PASS when both public backlog files rotate; got "
                 f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
             )
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 
-    def test_closure_with_todo_only_passes(self) -> None:
-        # Post-.working-move: D5 is TODO-only; the DONE ledger lives in the private sibling
-        # (cross-repo). A closure claim rotated by a TODO.md edit ALONE now passes (it would
-        # have FAILED under the old in-repo-.working done-required behaviour).
+    def test_incomplete_two_file_rotation_flagged(self) -> None:
+        # TODO-rework 2026-08 (codex /validate-pr F2): a closure that deletes the index row
+        # from TODO.md but leaves the detail block in TODO-REFERENCE.md is an INCOMPLETE
+        # two-file rotation and must FAIL. (Before the fix, a TODO.md-only touch passed,
+        # leaving a stale detail block.)
         tmp, base_sha, shutil = self._build_repo(
             self.BASE,
             {
@@ -1708,8 +1711,9 @@ class TodoRotationOnPrDeltaTests(DeltaGateRepoTestCase):
         try:
             result = self._run_gate(self.SCRIPT, tmp, base_sha)
             self.assertEqual(
-                result.returncode, 0,
-                f"D5 should PASS on a closure rotated by TODO.md alone (DONE now private); got "
+                result.returncode, 1,
+                f"D5 should FAIL on a closure that touches TODO.md but not "
+                f"TODO-REFERENCE.md (incomplete two-file rotation); got "
                 f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
             )
         finally:
@@ -10814,6 +10818,78 @@ class TodoNumberPermanenceTests(LinterTestCase):
         finally:
             import shutil
             shutil.rmtree(root, ignore_errors=True)
+
+class TodoIndexReferenceParityTests(LinterTestCase):
+    """tools/lint-todo-index-reference-parity.py (gate 90): the TODO.md index and
+    the TODO-REFERENCE.md detail file must be a one-to-one match (id, title, band,
+    order). Positive controls for each defect class the codex /validate-pr named."""
+
+    IDX = ("# TODO\n## Priority 1 \u2014 Fix\n| ID | Item | Tags |\n| --- | --- | --- |\n"
+           "| 1.1 | alpha (H) | `[public]` |\n| 1.2 | beta (M) | `[public]` |\n")
+    REF = ("# ref\n## Priority 1 \u2014 Fix\n### 1.1 alpha (H)\n\nbody\n"
+           "### 1.2 beta (M)\n\nbody\n")
+
+    def _run(self, name, idx, ref):
+        root = FIXTURE_DIR / name
+        root.mkdir(parents=True, exist_ok=True)
+        (root / "TODO.md").write_text(idx, encoding="utf-8")
+        (root / "TODO-REFERENCE.md").write_text(ref, encoding="utf-8")
+        return run_linter("tools/lint-todo-index-reference-parity.py", "--root", str(root)), root
+
+    def test_clean_bijection_passes(self):
+        r, root = self._run("bij-clean", self.IDX, self.REF)
+        try:
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    def test_missing_block_flagged(self):
+        r, root = self._run("bij-missing", self.IDX + "| 1.3 | gamma (L) | `[public]` |\n", self.REF)
+        try:
+            self.assertLinterFails(r, "MISSING")
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    def test_extra_block_flagged(self):
+        r, root = self._run("bij-extra", self.IDX, self.REF + "### 1.9 orphan (L)\n\nbody\n")
+        try:
+            self.assertLinterFails(r, "EXTRA")
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    def test_title_drift_flagged(self):
+        r, root = self._run("bij-title", self.IDX, self.REF.replace("### 1.2 beta (M)", "### 1.2 beta DRIFTED (M)"))
+        try:
+            self.assertLinterFails(r, "TITLE DRIFT")
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    def test_order_mismatch_flagged(self):
+        swapped = ("# ref\n## Priority 1 \u2014 Fix\n### 1.2 beta (M)\n\nbody\n"
+                   "### 1.1 alpha (H)\n\nbody\n")
+        r, root = self._run("bij-order", self.IDX, swapped)
+        try:
+            self.assertLinterFails(r, "ORDER MISMATCH")
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    def test_duplicate_id_flagged(self):
+        r, root = self._run("bij-dup", self.IDX + "| 1.1 | alpha again (H) | `[public]` |\n", self.REF)
+        try:
+            self.assertLinterFails(r, "DUPLICATE")
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    def test_reference_absent_is_noop(self):
+        root = FIXTURE_DIR / "bij-noref"
+        root.mkdir(parents=True, exist_ok=True)
+        (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
+        r = run_linter("tools/lint-todo-index-reference-parity.py", "--root", str(root))
+        try:
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
+
 
 class TagGateTests(LinterTestCase):
     """tools/lint-todo-list-tag.py (gate 81): every open TODO.md / P-TODO.md

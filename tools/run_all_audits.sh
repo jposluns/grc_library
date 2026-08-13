@@ -185,6 +185,7 @@ run_gate "Narrative boundary audit"                      python3 tools/lint-narr
 run_gate "Narrative authority-boundary audit"            python3 tools/lint-narrative-authority-boundary.py
 run_gate "Narrative vocabulary audit"                    python3 tools/lint-narrative-vocabulary.py
 run_gate "Narrative disclaimer-presence audit"            python3 tools/lint-narrative-disclaimer.py
+run_gate "Backlog index-reference parity audit"                    python3 tools/lint-todo-index-reference-parity.py
 
 # ----------------------------------------------------------------------
 # Summary

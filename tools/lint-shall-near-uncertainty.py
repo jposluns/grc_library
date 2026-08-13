@@ -68,7 +68,7 @@ from lint_common import (
 UNCERTAINTY_PATTERNS = [
     re.compile(r"\[Unverified\]"),
     re.compile(r"\bTBD\b"),
-    re.compile(r"\bTODO\b"),
+    re.compile(r"\bTODO\b(?!(?:-REFERENCE)?\.md\b)"),  # a filename (TODO.md / TODO-REFERENCE.md) is not an uncertainty marker
     re.compile(r"\bFIXME\b"),
     re.compile(r"\bXXX\b"),
     # "Draft" followed by a year or generic noun suggesting an unpublished doc.
