@@ -16,7 +16,8 @@ private ``grc_library_private`` sibling (the flaw of the earlier DONE-archive de
 the check a maintainer-local no-op). ``gate 78`` reads the same floor for its recycle check.
 
 next(series) = max(floor[series], highest live public id in series) + 1. Live ids come from the
-``TODO.md`` INDEX ROWS, ``TODO-REFERENCE.md`` and ``P-TODO.md`` bare-id headings. Series 5/6/7 are
+``TODO.md`` INDEX ROWS and ``TODO-REFERENCE.md`` bare-id headings (PUBLIC files only; the
+floor covers retired numbers AND migrated bare ids that now live in the private P-TODO.md). Series 5/6/7 are
 FROZEN (render a next line, draw nothing); the 3.x series has NO counter line (a prose note).
 
 FLOOR SOUNDNESS. ``--check`` also fails if the floor is BELOW any live id (a floor set too low
@@ -43,7 +44,6 @@ ACTIVE = [(1, "P1 / fix series"), (2, "P2 / content series"), (4, "P4 / adopter 
 FROZEN = [5, 6, 7]
 
 HEADING_ID = re.compile(r"^### ((?:P-)?\d+(?:\.\d+)+[a-z]?|TF-\d+)\b")
-TF_TOKEN = re.compile(r"(?<![\w-])TF-(\d+)\b")
 
 
 def load_floor(root):

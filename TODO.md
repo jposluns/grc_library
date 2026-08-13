@@ -34,7 +34,7 @@ Item numbers are permanent identity, never recycled, and decoupled from the P1-P
 - **Next item number: TF-4.** (time-bounded follow-ups)
 <!-- END-GENERATED number-allocation -->
 
-The 3.x series (P3 / tooling) has no active counter; a new P3 item draws the next number above the highest 3.x ever allocated (live here or retired in `DONE.md`).
+The 3.x series (P3 / tooling) has no active counter; a new P3 item draws the next number above the highest 3.x recorded in the public floor [`tools/todo-number-floor.json`](tools/todo-number-floor.json) (which records the highest ever allocated, including retired numbers, so this works in a public clone without `DONE.md`).
 
 ---
 

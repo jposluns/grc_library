@@ -23,8 +23,25 @@ import sys
 FLOOR_PATH = "tools/todo-number-floor.json"
 
 
+def _ref_resolves(ref):
+    """True iff ``ref`` resolves to a commit. An invalid / unfetched base ref must NOT be
+    read as 'the floor is new' (that would silently waive the monotonicity check): ignorance
+    about the input is a first-class REFUSE, not a permit (guard-input discipline)."""
+    return subprocess.run(
+        ["git", "rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}"],
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
+
+
+def _path_at_ref(ref, path):
+    """True iff ``path`` exists in ``ref``'s tree (base valid AND path present)."""
+    return subprocess.run(
+        ["git", "cat-file", "-e", f"{ref}:{path}"],
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
+
+
 def _git_show(ref, path):
-    return subprocess.check_output(["git", "show", f"{ref}:{path}"], text=True)
+    return subprocess.check_output(["git", "show", f"{ref}:{path}"], text=True,
+                                   stderr=subprocess.DEVNULL)
 
 
 def _parse(text):
@@ -50,12 +67,16 @@ def main(argv):
         gh_base = os.environ.get("GITHUB_BASE_REF")
         base_ref = f"origin/{gh_base}" if gh_base else "origin/main"
     head_ref = argv[2] if len(argv) > 2 else None
-    try:
-        base_text = _git_show(base_ref, FLOOR_PATH)
-    except subprocess.CalledProcessError:
-        # the floor did not exist at the base (first introduction): nothing to compare.
+    if not _ref_resolves(base_ref):
+        sys.stderr.write(f"ERROR: base ref '{base_ref}' does not resolve to a commit; cannot "
+                         "verify floor monotonicity (fetch the base, or pass a valid ref). "
+                         "Refusing rather than waiving the check.\n")
+        return 2
+    if not _path_at_ref(base_ref, FLOOR_PATH):
+        # base is VALID but the floor did not exist there: first introduction, nothing to compare.
         print(f"OK: {FLOOR_PATH} is new at this base ({base_ref}); no prior floor to compare.")
         return 0
+    base_text = _git_show(base_ref, FLOOR_PATH)
     try:
         head_text = _git_show(head_ref, FLOOR_PATH) if head_ref else \
             open(FLOOR_PATH, encoding="utf-8").read()

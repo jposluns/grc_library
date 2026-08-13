@@ -347,7 +347,7 @@ def _wf_step_script(wf_lines: list[str], name: str) -> str | None:
 def verify_exclusion_and_delta_guards(
     root: Path, spec_scripts: set[str]
 ) -> list[str]:
-    """Additive TODO-3.99 guards over the exclusion allow-lists and the D1-D11
+    """Additive TODO-3.99 guards over the exclusion allow-lists and the D1-D12
     delta gates. Returns a (possibly empty) list of findings. Never mutates the
     row-parity result; the caller appends these to its findings."""
     findings: list[str] = []
@@ -417,7 +417,7 @@ def verify_exclusion_and_delta_guards(
                 f"verification gate, not a regeneration hook."
             )
 
-    # (ii) D1-D11 delta-gate parity across the workflow and the PR-time runner.
+    # (ii) D1-D12 delta-gate parity across the workflow and the PR-time runner.
     dmap: dict[int, tuple[str, str | None]] = {}
     for i, line in enumerate(prtime_lines):
         m = RUN_CHECK_DN_RE.match(line)
