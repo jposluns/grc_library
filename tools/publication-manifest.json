@@ -213,12 +213,12 @@
     "rule-provenance.md": {
       "bucket": "CORE",
       "disclosure": "SANITIZE",
-      "rationale": "Deliberately adopter-facing provenance register written to convey rule weight without inheriting internal records; drop the `parent library's exemption convention` paragraph and the entries for skills that do not ship (see AMBIGUOUS)."
+      "rationale": "Deliberately adopter-facing provenance register written to convey rule weight without inheriting internal records; drop the `parent library's exemption convention` paragraph and the entries for skills that do not ship."
     },
     "setup-generator-prompt.md": {
       "bucket": "CORE",
       "disclosure": "SANITIZE",
-      "rationale": "LLM-driven adopter setup path that emits a tailored root instructions file plus rule placement; ships as the AI-assisted alternative, but the canonical raw URL (`jposluns/grc_library`) must be repointed. Overlaps the deterministic generator (see AMBIGUOUS)."
+      "rationale": "LLM-driven adopter setup path that emits a tailored root instructions file plus rule placement; ships as the AI-assisted alternative, but the canonical raw URL (`jposluns/grc_library`) must be repointed. It overlaps the deterministic generator."
     },
     "skills/action-before-explanation-of-inaction/SKILL.md": {
       "bucket": "CORE",
@@ -228,7 +228,7 @@
     "skills/adopt/SKILL.md": {
       "bucket": "GRC-ONLY",
       "disclosure": "WITHHELD",
-      "rationale": "Its subject is resetting a maintainer fork of the parent library: names `grc_library_private` and `grc_library_scratch`, the maintainer GitHub account, `tools/detect-env.py`, `.working/`, and internal TODO 1.19.7. The published repo needs a newly authored install path (see GAPS)."
+      "rationale": "Its subject is resetting a maintainer fork of the parent library: names `grc_library_private` and `grc_library_scratch`, the maintainer GitHub account, `tools/detect-env.py`, `.working/`, and internal TODO 1.19.7. The published repo needs a newly authored install path."
     },
     "skills/artefact-discipline-check/SKILL.md": {
       "bucket": "CORE",
@@ -293,7 +293,7 @@
     "skills/library-fitness-review/SKILL.md": {
       "bucket": "CORE",
       "disclosure": "SANITIZE",
-      "rationale": "Half of the escalation suite that CORE `trust-recovery-escalation` requires, so it must travel; replace the ten-persona GRC catalogue (GRC practitioner, auditor, DPO), the pre-audit trigger, the corpus Citation Verification Specification reference, and `tools/run_all_audits.sh`. Borderline (see AMBIGUOUS)."
+      "rationale": "Half of the escalation suite that CORE `trust-recovery-escalation` requires, so it must travel; replace the ten-persona GRC catalogue (GRC practitioner, auditor, DPO), the pre-audit trigger, the corpus Citation Verification Specification reference, and `tools/run_all_audits.sh`. Its inclusion is borderline."
     },
     "skills/matrix-fit/SKILL.md": {
       "bucket": "GRC-ONLY",
@@ -308,7 +308,7 @@
     "skills/publication-screening/SKILL.md": {
       "bucket": "GRC-ONLY",
       "disclosure": "WITHHELD",
-      "rationale": "Admission control for the private reference base's untrusted `publications/` bucket, keyed to `grc_library_ref`, `tools/scan-publication-instruction-content.py`, and a compliance-source trust taxonomy; nothing sensitive, but corpus-coupled. Its portable core duplicates the pack's shipped EXT-01 posture (see AMBIGUOUS)."
+      "rationale": "Admission control for the private reference base's untrusted `publications/` bucket, keyed to `grc_library_ref`, `tools/scan-publication-instruction-content.py`, and a compliance-source trust taxonomy; nothing sensitive, but corpus-coupled. Its portable core duplicates the pack's shipped EXT-01 posture."
     },
     "skills/reference-audit/SKILL.md": {
       "bucket": "GRC-ONLY",
