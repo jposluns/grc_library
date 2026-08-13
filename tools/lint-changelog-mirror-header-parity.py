@@ -127,10 +127,11 @@ HEADER_RE = re.compile(r"^##\s+\d{4}-\d{2}-\d{2},.*\bPR #(\d+)\b")
 COMPACT_HEADER_RE = re.compile(
     r"^\*\*(\d{4}-\d{2}-\d{2}) \| (\d+)\.(\d+)\.(\d+) \| PR #(\d+)\*\*(?: - .*)?$")
 
-# The Library Version inside a matched per-PR header. Captured as three
+# The version inside a matched per-PR header (bare ``Version`` or the older
+# ``Library Version`` form, both used across the mirror's history). Captured as three
 # integer groups so ordering compares numerically (tuple compare), never
 # lexically.
-VERSION_RE = re.compile(r"\bLibrary Version (\d+)\.(\d+)\.(\d+)\b")
+VERSION_RE = re.compile(r"\b(?:Library )?Version (\d+)\.(\d+)\.(\d+)\b")
 
 
 def pr_headers(

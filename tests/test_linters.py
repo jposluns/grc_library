@@ -3352,6 +3352,37 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             )
         self.assertEqual(result.returncode, 0, result.stdout)
 
+    def test_bare_version_mirror_ordering_now_checked(self) -> None:
+        # POSITIVE fixture, CV-F1 regression guard (PR after #1503). The mirror's
+        # newer per-PR headers write a BARE ``Version`` (``## <date>, Version
+        # X.Y.Z, PR #N``) rather than the older ``Library Version`` form. The
+        # pre-fix VERSION_RE matched only ``Library Version``, so a bare-``Version``
+        # header parsed to version=None and the ordering assertion SKIPPED it: a
+        # genuinely out-of-order run of bare-``Version`` mirror entries read GREEN
+        # (the live #1491/#1495 case). Built so ONLY the mirror ordering check can
+        # fire: identical PR sets, matching per-PR versions (the join passes), the
+        # root strictly descending, and the mirror out of order ONLY among its
+        # bare-``Version`` headers. Mutation: reverting VERSION_RE to the
+        # ``Library Version``-only pattern makes the LINTER go green (exit 0) on the
+        # seeded bare-``Version`` violation (the pre-fix bug), so this test then FAILS
+        # its ``returncode == 1`` assertion.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._write_pair(
+                root,
+                "**2026-07-02 | 2026.07.9 | PR #521** - text\n\n"
+                "**2026-07-01 | 2026.07.8 | PR #520** - text\n",
+                "## 2026-07-01, Version 2026.07.8, PR #520\n\ntext.\n"
+                "## 2026-07-02, Version 2026.07.9, PR #521\n\ntext.\n",
+            )
+            result = run_linter(
+                "tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
+            )
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("#520", result.stdout)
+        self.assertIn("#521", result.stdout)
+        self.assertIn("strictly decrease", result.stdout)
+
     def test_shared_pr_with_different_versions_flagged(self) -> None:
         # POSITIVE fixture, fail-open regression guard (added in PR #1158). The gate
         # checked PR-number set parity and per-file monotonicity but never that
