@@ -1805,6 +1805,19 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          f"gate --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
         self.assertIn("self-test: ", result.stdout)
 
+    def test_build_todo_number_allocation_self_test(self) -> None:
+        """Gate 91's own self-test: the FLOOR-based number-allocation generator's
+        max(floor, live)+1 counter computation, the floor-violation detector (a floor
+        below a live id is unsound), the render / splice / missing-sentinel-raise, and
+        the reality anchor that the PUBLIC floor + live ids reproduce the committed block
+        (public + deterministic, so it verifies on CI with no private-data dependency)."""
+        result = self._run_selftest(
+            [sys.executable, str(REPO_ROOT / "tools" / "build-todo-number-allocation.py"),
+             "--self-test"]
+        )
+        self.assertEqual(result.returncode, 0,
+                         f"gate --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+
     def test_lint_narrative_boundary_self_test(self) -> None:
         """Gate 86's own self-test. The symmetric narrative-boundary gate runs against a live tree
         with zero pages inside executive/, so its OUTSIDE-leak / INSIDE-form detection is exercised
@@ -10589,6 +10602,25 @@ class TodoNumberPermanenceTests(LinterTestCase):
     holding both ``TODO.md`` and ``.working/DONE.md`` and passes
     ``--root``, the idiom gate 35 established for multi-surface gates.
     """
+
+    def test_floor_coupling_catches_counter_at_or_below_floor(self):
+        """The public-floor coupling: find_stale_counters flags a counter at or below the
+        FLOOR (highest ordinal ever allocated) even with EMPTY retired/live, so the recycle
+        backstop is CI-enforceable without the private DONE archive (discharges the false
+        gate-78-backstop that motivated the PR-1.5 floor redesign)."""
+        import importlib.util, sys as _sys
+        _sys.path.insert(0, str(REPO_ROOT / "tools"))
+        spec = importlib.util.spec_from_file_location(
+            "perm_under_test", REPO_ROOT / "tools" / "lint-todo-number-permanence.py")
+        m = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(m)
+        counters = {"2": ("2.32", 10)}   # counter points AT floor 2.32 (a recycle)
+        # no live, no retired, but the FLOOR says 2.32 is already allocated:
+        stale = m.find_stale_counters({}, {}, counters, floor={"2": 32})
+        self.assertTrue(stale, "floor-recycled counter not flagged (CI backstop absent)")
+        # and a counter ABOVE the floor is clean:
+        self.assertFalse(
+            m.find_stale_counters({}, {}, {"2": ("2.33", 10)}, floor={"2": 32}))
 
     def _run(self, name: str, todo: str, done: str | None, ptodo: str | None = None):
         """Build a synthetic {TODO.md, .working/DONE.md} root and run the gate.

@@ -358,12 +358,29 @@ def find_recycled(
     return findings
 
 
+def _load_number_floor() -> dict[str, int]:
+    """The PUBLIC number floor (``tools/todo-number-floor.json``), keyed by section
+    (``1``/``2``/.../``TF``) -> highest ordinal ever allocated. Absent -> {} (no-op)."""
+    import json
+    fp = REPO_ROOT / "tools" / "todo-number-floor.json"
+    if not fp.is_file():
+        return {}
+    return {k: int(v) for k, v in json.loads(fp.read_text()).items()
+            if not k.startswith("_")}
+
+
 def find_stale_counters(
     live: dict[str, list[int]],
     retired: dict[str, list[int]],
     counters: dict[str, tuple[str, int]],
+    floor: dict[str, int] | None = None,
 ) -> list[tuple[str, str, int, int, list[str]]]:
-    """Counters pointing at an already-used ordinal in their section."""
+    """Counters pointing at an already-used ordinal in their section. ``floor`` (the
+    PUBLIC ``tools/todo-number-floor.json``, keyed by section) supplies the highest
+    ordinal EVER allocated, so the counter-recycle check catches a counter at or below a
+    RETIRED number even where ``DONE.md`` is absent (CI / adopter clone). This is the
+    CI-enforceable recycle backstop the private DONE archive could not provide."""
+    floor = floor or {}
     findings = []
     for section, (raw, lineno) in sorted(counters.items()):
         target = _ordinal(raw)
@@ -375,6 +392,8 @@ def find_stale_counters(
                 o = _ordinal(item_id)
                 if o is not None and o[0] == section:
                     used.setdefault(o[1], []).append(item_id)
+        if section in floor:
+            used.setdefault(floor[section], []).append(f"floor {section}.{floor[section]}")
         blocking = sorted(n for n in used if n >= target[1])
         if blocking:
             names = sorted({name for n in blocking for name in used[n]})
@@ -472,7 +491,8 @@ def main(argv: list[str]) -> int:
     counters = parse_counters(todo_text)
 
     recycled = find_recycled(live, retired, done_headings(done_text))
-    stale = find_stale_counters(live, retired, counters)
+    floor = _load_number_floor()
+    stale = find_stale_counters(live, retired, counters, floor)
     cross = find_cross_list_collisions(todo_live, ptodo_live)
 
     if not recycled and not stale and not cross:
