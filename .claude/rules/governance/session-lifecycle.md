@@ -133,7 +133,7 @@ The rule's mechanisms are the exception paths (graceful degradation for blocked 
   operating modes are operationalized in the project CLAUDE.md attended-autonomous,
   wind-down, and session-migration sections.
 - Unattended-degradation auto-handoff (section 4): operationalized in the project
-  CLAUDE.md `## No idle-stop in unattended mode` and wind-down sections. The closing
+  CLAUDE.md's No idle-stop-in-unattended-mode item (item 4 of `## Attended-autonomous operating mode`) and the wind-down sections. The closing
   handoff is executed directly and takes no `AskUserQuestion` (the unattended hook
   blocks it anyway); the concrete close is a green merged PR plus a refreshed
   `grc_library_private/.working/session-handoff.md` (Next-actions, State-snapshot, Asserted-expectations,
