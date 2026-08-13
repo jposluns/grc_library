@@ -2,8 +2,8 @@
 
 **Document Title:** Data Processing Agreement Template (GDPR Article 28)\
 **Document Type:** Template\
-**Version:** 1.0.2\
-**Date:** 2026-07-13\
+**Version:** 1.0.3\
+**Date:** 2026-08-14\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/template-joint-controller-arrangement.md`](template-joint-controller-arrangement.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](procedure-data-protection-and-privacy-breach-response.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`supply-chain/register-subprocessor-template.md`](../supply-chain/register-subprocessor-template.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md)\
@@ -165,7 +165,7 @@ A populated DPA is sensitive contractual data. Adopters do NOT publish the popul
 | LGPD (Brazil) | Articles 39, 42 | Operator obligations and joint or several liability for processing on the controller's behalf. |
 | PIPL (China) | Article 21 | Entrusted-processing agreement obligations. |
 | PIPEDA (Canada) | Principle 4.1.3 | Accountability for personal information transferred to a third party for processing. |
-| ISO/IEC 27001:2022 | A.5.20 (information security in supplier agreements), A.5.19 to A.5.22 (supplier relationships), A.5.34 (privacy and protection of PII) | The DPA as a security-bearing supplier agreement. |
+| ISO/IEC 27001:2022 | A.5.20 (addressing information security within supplier agreements), A.5.19 to A.5.22 (supplier relationships), A.5.34 (privacy and protection of PII) | The DPA as a security-bearing supplier agreement. |
 | ISO/IEC 27701:2025 | PII-processor controls | Privacy information management for the processor role. |
 | CSA CCM v4.1 | DSP-13 (Personal Data Sub-processing), DSP-14 (Disclosure of Data Sub-processors), DSP-02 (Secure Disposal), DSP-01 (Security and Privacy Policy and Procedures) | Sub-processor governance, end-of-processing deletion, and the privacy-procedure basis. |
 | NIST CSF 2.0 | GV.SC (Cybersecurity Supply Chain Risk Management), PR.DS (Data Security), GV.OC (Organizational Context) | The processor as a supply-chain dependency and the security of the data it processes. |
