@@ -17,16 +17,27 @@ live; a pre-push verifier caught both. A class-width check then found a
 further live violation predating #1151 at ``§3.100``. This gate is the
 mechanical backstop (TODO section 3.110).
 
-Two checks, both keyed on the two files the rule spans:
+Three checks, spanning ``TODO.md``, the private ``P-TODO.md``,
+``.working/DONE.md``, and the public ``tools/todo-number-floor.json``:
 
-  A. RECYCLE. A live index-row id in ``TODO.md`` (parsed via ``parse_todo_index``) whose number is
+  A. RECYCLE. A live index-row id from ``TODO.md`` OR the private
+     ``P-TODO.md`` (the two are unioned into the live set) whose number is
      also recorded as retired in a ``.working/DONE.md`` heading. Such a
      number denotes two items, which is exactly what the rule forbids.
 
   B. COUNTER. A ``**Next item number: X.**`` counter pointing at a number
-     already used in its section, live in ``TODO.md`` or retired in
-     ``DONE.md``. A counter at or below the highest used number hands the
-     next author a colliding id.
+     already used in its section, live in ``TODO.md`` or ``P-TODO.md``,
+     retired in ``DONE.md``, or at or below the highest ordinal EVER
+     allocated for the
+     section per the public floor (``tools/todo-number-floor.json``). A
+     counter at or below any of these hands the next author a colliding id.
+
+  C. CROSS-LIST-COLLISION. A number that is LIVE in BOTH ``TODO.md`` and
+     the private ``P-TODO.md`` at once: a botched migration that COPIED an
+     item into ``P-TODO.md`` instead of MOVING it, leaving a stale
+     duplicate. Because A and B read the DEDUPLICATED union (an id in both
+     lists collapses to a single live entry), only this check, comparing
+     the two lists as separate sets, catches a copied-not-moved duplicate.
 
 Design decisions, stated because each has a false-positive or
 false-negative cost:
