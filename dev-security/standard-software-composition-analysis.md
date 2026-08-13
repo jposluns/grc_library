@@ -2,8 +2,8 @@
 
 **Document Title:** Software Composition Analysis Standard\
 **Document Type:** Standard\
-**Version:** 1.1.10\
-**Date:** 2026-08-05\
+**Version:** 1.1.11\
+**Date:** 2026-08-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/README.md`](README.md), [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`dev-security/register-compliance-controls-and-gap-register.md`](register-compliance-controls-and-gap-register.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md)\
@@ -243,7 +243,7 @@ A tool that passes the criteria is documented in the security architecture regis
 | Framework / Requirement | Relevance |
 |---|---|
 | **NIST SSDF (SP 800-218)** | PW.4, Reuse well-secured software; PS.1/PS.2, Protect software supply chain |
-| **NIST SP 800-53 Rev. 5** | SA-12 Memory Protection; SR-3 Supply Chain Controls; SR-4 Provenance; SR-11 Component Authenticity |
+| **NIST SP 800-53 Rev. 5** | SR-3 Supply Chain Controls; SR-4 Provenance; SR-11 Component Authenticity |
 | **US Executive Order 14028** | SBOM minimum elements requirement; software supply chain security for federal use |
 | **EU Cyber Resilience Act (CRA)** | Product cybersecurity requirements including vulnerability handling and SBOM obligations for products with digital elements; applies from 11 December 2027, with earlier phases (conformity-assessment-body notification from 11 June 2026; reporting of actively exploited vulnerabilities and severe incidents from 11 September 2026) |
 | **SLSA Framework** | Build integrity levels L0 to L3 (SLSA v1.2); build-platform and provenance requirements |
