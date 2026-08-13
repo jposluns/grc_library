@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """decisions-search: find a recorded maintainer decision before asking about it.
 
-The forcing-function companion to the ``block-answered-question.py`` PreToolUse hook
-(TODO section 1.22.6). Before surfacing an ``AskUserQuestion`` on an authorial / policy
+The forcing-function discipline for recorded-decision lookup (its former companion
+``block-answered-question.py`` PreToolUse hook was DISABLED 2026-08-13, maintainer-directed,
+for excessive false positives; a better-targeted backstop is deferred to the guardrails pack).
+Before surfacing an ``AskUserQuestion`` on an authorial / policy
 decision, the orchestrator runs this tool on the topic's distinctive key(s) and PASTES the
 output: a recorded decision means act on it, never re-ask (the clarify-before-acting
 compute-first gate, the same executed-not-narrated discipline as ``audit-delivery-status.py``
-and ``ref-holds.py``). The hook is the automatic backstop; this tool is the on-demand
-search the orchestrator drives and quotes.
+and ``ref-holds.py``). With the companion hook disabled (above), this on-demand search the
+    orchestrator drives and quotes is now the sole control against re-asking a decided question.
 
 It searches the decision stores (whichever exist; adopter-safe):
   - ``.working/pending-decisions.md``     (the live + resolved decision queue)

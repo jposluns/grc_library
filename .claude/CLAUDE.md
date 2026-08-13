@@ -816,12 +816,13 @@ decision is recorded (in `grc_library_private/.working/pending-decisions.md`, th
 record, or `grc_library_private/.working/DONE.md`), ACT on it, never re-ask. Re-asking a decided question
 wastes the maintainer's time and erodes trust (an observed recurrence: several content
 forks re-asked though all were recorded in `pending-decisions.md`). This is the executed-not-narrated forcing function,
-the same shape as `audit-delivery-status.py` and `ref-holds.py`. The mechanical backstop is
-the [`block-answered-question.py`](hooks/block-answered-question.py) PreToolUse hook, which
-extracts a question's distinctive keys (§-sections, coded ids like `FR-205`) and BLOCKS the
-question when a key already appears in the decision stores, printing the matched line;
-defence-in-depth, not a substitute for the discipline (it keys on distinctive tokens, so a
-key-free novel decision still needs the manual search).
+the same shape as `audit-delivery-status.py` and `ref-holds.py`. A mechanical backstop, the
+[`block-answered-question.py`](hooks/block-answered-question.py) PreToolUse hook, was DISABLED
+2026-08-13 (maintainer-directed): it keyed on a question's bare distinctive tokens (a lone
+`P-3` matched unrelated recorded decisions), so it false-fired on roughly nine of ten
+questions, the cries-wolf failure a control becomes when it gets bypassed. The discipline
+above (run `decisions-search.py` and act on any recorded decision) is now the sole control;
+a better-targeted backstop is deferred to the guardrails pack for a future revisit.
 
 ## Self-verification: intent is not action
 
