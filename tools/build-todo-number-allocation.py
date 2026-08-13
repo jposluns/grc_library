@@ -3,7 +3,7 @@
 file plus the live public backlog ids, so a human can never hand-set a counter below the
 highest-used number, and so the check runs on CI and adopter clones (no private data).
 
-WHAT IS GENERATED. Only the seven ``- **Next item number: X.**`` counter bullets, between
+WHAT IS GENERATED. Only the eight ``- **Next item number: X.**`` counter bullets, between
 ``<!-- BEGIN-GENERATED number-allocation -->`` and ``<!-- END-GENERATED number-allocation -->``.
 The surrounding prose (the permanence note) is hand-maintained.
 

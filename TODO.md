@@ -35,7 +35,7 @@ Item numbers are permanent identity, never recycled, and decoupled from the P1-P
 - **Next item number: TF-4.** (time-bounded follow-ups)
 <!-- END-GENERATED number-allocation -->
 
-The 3.x (P3 / tooling) counter above is drawn from the public floor [`tools/todo-number-floor.json`](tools/todo-number-floor.json) like the other active series. Series-3 is a single bare-`N.M` namespace shared with the private `P-TODO.md` (the `P-N.M` namespace is separate); the floor records the highest ordinal ever allocated across both (including retired numbers), so a public clone computes the next number without `DONE.md`, and this generated block is the single authority for the next series-3 number.
+The 3.x (P3 / tooling) counter above is drawn from the public floor [`tools/todo-number-floor.json`](tools/todo-number-floor.json) like the other active series. Series-3 is a single bare-`N.M` namespace shared with the private `P-TODO.md` (the `P-N.M` namespace is separate); the floor records the highest bare-`N.M` series-3 ordinal ever allocated across both lists (`TODO.md` and `P-TODO.md`, including retired numbers), so a public clone computes the next number without `DONE.md`, and this generated block is the single authority for the next series-3 number.
 
 ---
 
