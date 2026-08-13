@@ -58,7 +58,6 @@ TODO_PATH = REPO_ROOT / "TODO.md"
 # such sibling and simply audit the public list (resolve_sibling no-op).
 PTODO_PATH = REPO_ROOT.parent / "grc_library_private" / "P-TODO.md"
 DONE_PATH = REPO_ROOT.parent / "grc_library_private" / ".working" / "DONE.md"
-NEXTPRS_PATH = REPO_ROOT.parent / "grc_library_private" / ".working" / "next-prs.txt"
 
 # An open backlog item heading: ``### <id> <title>`` where <id> is a section
 # number (``N.M`` / ``N.M.K``, optional trailing letter), a private ``P-n.m`` id,

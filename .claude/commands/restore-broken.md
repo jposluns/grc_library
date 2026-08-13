@@ -40,7 +40,7 @@ Emit the AIQT check line, then observe. Do NOT infer state you can read.
    Enumerate open PRs (`gh pr list`) and recently merged PRs. Identify the branch and commits the
    dead session was building but never pushed or merged.
 3. **The durable state records.** Read in full: the session handoff, the concurrency lease
-   (`session-state.md`), the overnight-PR status file, `next-prs.txt`, `open-findings.md`,
+   (`session-state.md`), the overnight-PR status file, the `P-TODO.md` `## Up next` queue, `open-findings.md`,
    `pending-decisions.md`, `TODO.md` forward sections, and any transition or handoff document a
    departing worker or the maintainer left at the launch root or in the inbox. Note where the lease
    and handoff DISAGREE with live HEAD (that gap is the fingerprint of the interruption).
