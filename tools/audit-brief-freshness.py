@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""Advisory cross-repo freshness report for the staged worker briefs (TODO
-section 4.4 slice 3; design of record: the design-decisions record
+"""Advisory cross-repo freshness report for the staged worker briefs (design of record: the design-decisions record
 "Worker-ready brief staging" and the multi-session-orchestration runbook
 subsection 5.1).
 
@@ -89,7 +88,7 @@ def find_scratch(cli_path):
                   "nothing to report.")
             sys.exit(0)
     # Default: the real grc_library_scratch sibling, via the shared resolver
-    # (TODO section 1.19.2). None on a portable clone with no scratch sibling.
+    # None on a portable clone with no scratch sibling.
     default = resolve_sibling("scratch")
     if default is not None and (default / "research").is_dir():
         return default
@@ -222,10 +221,16 @@ def self_test():
             self.assertEqual(
                 SECTION_ANCHOR_RE.search("Item, §2.10 ").group(1), "2.10")
             self.assertEqual(
-                SECTION_ANCHOR_RE.search("Item, §2.25.1 ").group(1), "2.25.1")  # three-part preserved
+                SECTION_ANCHOR_RE.search("Item, §9.99.1 ").group(1), "9.99.1")  # three-part preserved (synthetic id, no live-backlog D9 coupling)
             self.assertEqual(
                 SR_ANCHOR_RE.search("SR-3 validate.py binary-scan gaps").group(1),
                 "3")
+            # heading-side full-depth: ### 9.99.1 captured, not truncated to 9.99
+            import re as _re
+            self.assertEqual(
+                _re.findall(r'^### (\d+(?:\.\d+)+)\s',
+                            "### 9.99 x\n### 9.99.1 y\n", _re.M),
+                ["9.99", "9.99.1"])
 
         def test_merge_pr(self):
             self.assertEqual(MERGE_PR_RE.findall("x (#618)\ny (#51)"),
