@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Programme Management and Annual Review Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.9\
-**Date:** 2026-07-23\
+**Version:** 1.0.10\
+**Date:** 2026-08-13\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md), [`dev-security/register-compliance-controls-and-gap-register.md`](../dev-security/register-compliance-controls-and-gap-register.md)\
@@ -329,7 +329,7 @@ Each quarterly report must include the following:
 | ISO 37301:2021 | §9.2 Internal audit | Control testing and gap reporting feeding into programme review |
 | ISO 37301:2021 | §9.3 Management review | Annual ERC review and GRC programme report |
 | ISO/IEC 27001:2022 | §9.3 Management review | Annual review inputs, outputs, and ERC approval process |
-| ISO/IEC 27001:2022 | §10.2 Continual improvement | CAPA process integration; triggered reviews; version control |
+| ISO/IEC 27001:2022 | §10.1 Continual improvement; §10.2 Nonconformity and corrective action | CAPA process integration; triggered reviews; version control |
 | ISO 31000:2018 | §6.6 Monitoring and review | Risk register quarterly review; risk treatment status updates; residual risk acceptance |
 | ISO 31000:2018 | §6.5 Risk treatment | Treatment plan tracking and risk owner accountability |
 | COBIT 2019 | APO01 Managed I&T Management Framework | Programme management governance, roles and responsibilities, document lifecycle |
