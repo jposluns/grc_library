@@ -153,7 +153,7 @@ Durable behavioural guidance from the maintainer. NOT actionable items; referenc
 - **TODO is forward-looking; historical state rotates to DONE.md** — [`change-tracking.md`](guardrails/governance/change-tracking.md).
 - **After completing a merge, list the upcoming next 5 planned PRs from TODO** — [`.claude/CLAUDE.md`](.claude/CLAUDE.md) PR-workflow section.
 - **Validate cadence is 1-8 PRs per batch, not strictly 5.**
-- **DONE format mirrors TODO format** — DONE H3 headings carry `FR-N (severity)`.
+- **DONE keeps its own H3 format** — DONE uses `### PR #N:` headings; it does NOT mirror the TODO index-row format (the two diverged in the TODO-rework).
 - **Compute-don't-ask** — before surfacing a question, apply a "can I compute/verify this myself?" gate; codified into `clarify-before-acting`.
 
 ---

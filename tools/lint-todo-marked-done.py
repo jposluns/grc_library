@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Detect a TODO item that marks ITSELF done in place (gate 57).
 
-
 The TODO/DONE rotation discipline (the change-tracking rule's
 PR-finalization protocol) requires that when a PR closes a backlog item,
 the item is DELETED from ``TODO.md`` (index row) and ``TODO-REFERENCE.md`` (detail block) and an entry is added to

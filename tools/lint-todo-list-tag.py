@@ -148,7 +148,7 @@ def main(argv: list[str]) -> int:
     print(f"\nFAIL: {len(all_findings)} list-tag finding(s).")
     print("Every open TODO.md / P-TODO.md item heading must carry EXACTLY ONE")
     print("[public] or [private] tag (PR #1293). Add the missing tag, or remove")
-    print("the extra one, on the heading line itself.")
+    print("the extra one (a TODO.md index-row Tags cell, or a P-TODO.md ### heading).")
     return 1
 
 

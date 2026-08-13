@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""Advisory cross-repo freshness report for the staged worker briefs (TODO
-section 4.4 slice 3; design of record: the design-decisions record
+"""Advisory cross-repo freshness report for the staged worker briefs (design of record: the design-decisions record
 "Worker-ready brief staging" and the multi-session-orchestration runbook
 subsection 5.1).
 
@@ -23,7 +22,8 @@ freshness check", the settled slice-1 design). This tool produces that report:
      re-verify before any worker picks it up.
   3. DEAD TODO ANCHORS: every ``research/COVERAGE.md`` row's section anchor
      (``§N.M``, or an ``SR-N`` id for the scratch-reference rows) is checked
-     against a live ``### N.M `` / ``### SR-N `` heading in ``TODO.md``; a dead
+     against a live ``### N.M `` / ``### SR-N `` heading in ``TODO-REFERENCE.md``
+     (the item-detail file; ``TODO.md`` is the index of rows); a dead
      anchor means a TODO renumber or close landed without the paired coverage
      sync (the close-out pairing line in
      ``grc_library_private/orchestrator-claude.md`` (group A3) is the convention
@@ -65,7 +65,7 @@ STAMP_RE = re.compile(
     r'\d{4}-\d{2}-\d{2} UTC\s*$', re.M)
 MERGE_PR_RE = re.compile(r'\(#(\d+)\)')
 PATH_BULLET_RE = re.compile(r'^- `([^`]+\.(?:md|py|sh|yml|yaml|csv))`', re.M)
-SECTION_ANCHOR_RE = re.compile(r'§(\d+\.\d+)')
+SECTION_ANCHOR_RE = re.compile(r'§(\d+(?:\.\d+)+)')  # full depth: §2.25.1 not truncated to 2.25
 SR_ANCHOR_RE = re.compile(r'\bSR-(\d+)\b')
 ADVISORY_PRS_BEHIND = 15
 
@@ -88,7 +88,7 @@ def find_scratch(cli_path):
                   "nothing to report.")
             sys.exit(0)
     # Default: the real grc_library_scratch sibling, via the shared resolver
-    # (TODO section 1.19.2). None on a portable clone with no scratch sibling.
+    # None on a portable clone with no scratch sibling.
     default = resolve_sibling("scratch")
     if default is not None and (default / "research").is_dir():
         return default
@@ -131,7 +131,7 @@ def todo_anchors():
     ref = REPO_ROOT / "TODO-REFERENCE.md"
     todo = ref.read_text(errors="replace") if ref.is_file() else ""
     todo += "\n" + (REPO_ROOT / "TODO.md").read_text(errors="replace")
-    sections = set(re.findall(r'^### (\d+\.\d+)\s', todo, re.M))
+    sections = set(re.findall(r'^### (\d+(?:\.\d+)+)\s', todo, re.M))  # full depth: matches ### 2.25.1
     srs = set(re.findall(r'^### (SR-\d+)\s', todo, re.M))
     return sections, srs
 
@@ -221,8 +221,16 @@ def self_test():
             self.assertEqual(
                 SECTION_ANCHOR_RE.search("Item, §2.10 ").group(1), "2.10")
             self.assertEqual(
+                SECTION_ANCHOR_RE.search("Item, §9.99.1 ").group(1), "9.99.1")  # three-part preserved (synthetic id, no live-backlog D9 coupling)
+            self.assertEqual(
                 SR_ANCHOR_RE.search("SR-3 validate.py binary-scan gaps").group(1),
                 "3")
+            # heading-side full-depth: ### 9.99.1 captured, not truncated to 9.99
+            import re as _re
+            self.assertEqual(
+                _re.findall(r'^### (\d+(?:\.\d+)+)\s',
+                            "### 9.99 x\n### 9.99.1 y\n", _re.M),
+                ["9.99", "9.99.1"])
 
         def test_merge_pr(self):
             self.assertEqual(MERGE_PR_RE.findall("x (#618)\ny (#51)"),

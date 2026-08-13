@@ -19,7 +19,7 @@ mechanical backstop (TODO section 3.110).
 
 Two checks, both keyed on the two files the rule spans:
 
-  A. RECYCLE. A live ``### N.M`` heading in ``TODO.md`` whose number is
+  A. RECYCLE. A live index-row id in ``TODO.md`` (parsed via ``parse_todo_index``) whose number is
      also recorded as retired in a ``.working/DONE.md`` heading. Such a
      number denotes two items, which is exactly what the rule forbids.
 

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Delta gate D9: retired-section-orphan check (roadmap C phase 2, #1250).
 
-
 When a PR CLOSES a numbered TODO section (deletes its `### N.M` heading),
 positional references to that section (`§N.M`, `PN.M`, `TODO §N.M`,
 `TODO section N.M`) can survive on the OPERATIONAL / gate-exempt surfaces (the item detail blocks now live in TODO-REFERENCE.md) that
@@ -10,7 +9,8 @@ no other gate scans, silently dangling. This gate flags those survivors.
 Why it is false-positive-safe (the design constraint: a gate that cries wolf gets
 bypassed and protects nothing):
 - DELETION-TRIGGERED. It derives the retired ids from headings this PR REMOVES
-  from TODO.md, so "old" is unambiguous and there is no coexisting "new" value to
+  from TODO-REFERENCE.md (the item-detail file; TODO.md is the index of rows), so
+  "old" is unambiguous and there is no coexisting "new" value to
   disambiguate against (unlike a value-change, which is irreducibly semantic).
 - ANCHORED KEY FORMS ONLY. It matches `§N.M` / `PN.M` / `TODO §N.M` /
   `TODO section N.M` with a left anchor and multi-part decimal + right word
@@ -18,7 +18,7 @@ bypassed and protects nothing):
   structural rather than claim-scoped). Bare `N.M`, `item N`, and ranges are
   deliberately EXCLUDED as too FP-prone; they stay convention.
 - OPERATIONAL-SURFACE-SCOPED. It scans only `.claude/`, `references/`,
-  `tools/*.py`, `*.sh`, `.github/**/*.yml`, and `TODO.md` itself: the complement
+  `tools/*.py`, `*.sh`, `.github/**/*.yml`, and `TODO.md` / `TODO-REFERENCE.md`: the complement
   of the corpus `.md` gates (18/62/65) and of `lint-positional-backlog-tokens`
   (pack subtree). On those surfaces a bare `§N.M` is unambiguously a backlog
   reference (a tool docstring does not cite a corpus document by section number),
@@ -69,7 +69,7 @@ HEADING_RE = re.compile(r"^#{3,6}\s+(?:§\s*)?(\d+(?:\.\d+){1,3})\b")
 
 
 def ids_in_headings(todo_text: str) -> set[str]:
-    """Every numbered id that is currently a heading in TODO.md. PURE."""
+    """Every numbered id that is currently a heading in TODO-REFERENCE.md. PURE."""
     out: set[str] = set()
     for line in todo_text.splitlines():
         m = HEADING_RE.match(line)
@@ -81,7 +81,7 @@ def ids_in_headings(todo_text: str) -> set[str]:
 def retired_ids(todo_diff: str, head_todo_text: str) -> set[str]:
     """Ids whose heading this PR DELETED and which are NOT a heading at HEAD.
 
-    PURE. `todo_diff` is `git diff <base> <head> -- TODO.md`. A removed heading
+    PURE. `todo_diff` is `git diff <base> <head> -- TODO-REFERENCE.md`. A removed heading
     line begins with `-` (but not `---`). FP guard #1 (renumber) is the
     subtraction of the still-present headings.
     """
@@ -151,7 +151,7 @@ def in_scope(rel: str) -> bool:
 
     This is the FP-safety-critical scope decision, isolated so it is directly
     testable. IN scope: anything under `.claude/` or `references/`; `tools/*.py`
-    and `tools/*.sh`; a root-level `*.sh`; `.github/**/*.yml|*.yaml`; `TODO.md`.
+    and `tools/*.sh`; a root-level `*.sh`; `.github/**/*.yml|*.yaml`; `TODO.md` / `TODO-REFERENCE.md`.
     OUT of scope (owned by other gates): the corpus `.md` (18/62/65) and the pack
     subtree `guardrails/` (lint-positional-backlog-tokens); `.git/`.
     """
@@ -238,7 +238,7 @@ def run(base: str | None, head: str) -> int:
         print(f"ERROR: git failed (base={base}, head={head}): {exc}", file=sys.stderr)
         return 2
     base = merge_base
-    # NOTE: retired ids + TODO.md come from the `head` git object, but the orphan
+    # NOTE: retired ids + TODO-REFERENCE.md come from the `head` git object, but the orphan
     # scan reads the WORKING TREE (operational_files reads files from disk). In
     # the pre-push guard and CI, HEAD IS the checked-out working tree, so the two
     # agree; D9 assumes head == working tree and is not meant for an arbitrary

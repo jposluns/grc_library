@@ -132,7 +132,7 @@ run_check "D8 Daily-changelog-rollup reminder" \
 # TODO section (deletes its `### N.M` heading), flag any anchored positional
 # reference (§N.M / PN.M / TODO §N.M / TODO section N.M) that survives on the
 # operational / gate-exempt surfaces no other gate scans (.claude/, references/,
-# tools/*.py, *.sh, .github/*.yml, TODO.md). Deletion-triggered + anchored +
+# tools/*.py, *.sh, .github/*.yml, TODO.md, TODO-REFERENCE.md). Deletion-triggered + anchored +
 # LIVE-only, so it is false-positive-safe (roadmap C phase 2, #1250).
 run_check "D9 Retired-section-orphan check" \
     python3 tools/check-retired-section-orphan-on-pr.py "${BASE_REF}" "${HEAD_REF}"

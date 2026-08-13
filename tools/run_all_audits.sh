@@ -11,7 +11,7 @@
 #   tools/run_all_audits.sh            # run all gates, aggregate failures
 #   FAIL_FAST=1 tools/run_all_audits.sh  # stop on first failure
 #
-# Rationale (see TODO.md Decisions log, Phase 23.30): phase-completion
+# Rationale (per a closed backlog lessons-learned decision): phase-completion
 # gating requires the full audit sweep to pass locally before any push.
 # This script provides a single deterministic invocation for that sweep.
 # The current sweep covers the full corpus inventory; see

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """Delivery-pipeline reconciliation: worker deliveries in the scratch inbox
-
 versus the live backlog, so a "backlog applied / cleared" claim rests on the
 record instead of memory.
 
@@ -94,16 +93,17 @@ from lint_common import REPO_ROOT, resolve_sibling, sibling_placeholder_present
 # positional-token form. Requiring the TODO/§ qualifier avoids matching version
 # numbers or other dotted figures in a manifest.
 SECTION_TOKEN_RE = re.compile(
-    r'(?:TODO\s+(?:section\s+)?|§)\s*P?(\d+\.\d+)', re.I)
+    r'(?:TODO\s+(?:section\s+)?|§)\s*P?(\d+(?:\.\d+)+)', re.I)
 # Coded backlog ids, tolerant of the hyphen-less directory-name form ("fr-60",
 # "sr3"); the trailing boundary stops "GR-P2" (a P-suffixed id, out of scope here)
 # from matching as "GR" + nothing.
 CODED_TOKEN_RE = re.compile(r'\b(FR|SR|GR)-?(\d+)\b', re.I)
 
-# Live open-item anchors in TODO.md.
-OPEN_SECTION_RE = re.compile(r'^### (\d+\.\d+)\b', re.M)
+# Live open-item anchors (``### id`` in TODO-REFERENCE.md; index rows in TODO.md).
+# Section ids are matched at FULL DEPTH: (\d+(?:\.\d+)+) keeps 2.25.1 intact.
+OPEN_SECTION_RE = re.compile(r'^### (\d+(?:\.\d+)+)\b', re.M)
 OPEN_SR_RE = re.compile(r'^### (SR-\d+)\b', re.M)
-OPEN_FR_IN_HEADING_RE = re.compile(r'^### \d+\.\d+[^\n(]*\((FR-\d+)', re.M)
+OPEN_FR_IN_HEADING_RE = re.compile(r'^### \d+(?:\.\d+)+[^\n(]*\((FR-\d+)', re.M)
 
 
 def find_scratch(cli_path):
@@ -128,8 +128,10 @@ def find_scratch(cli_path):
 
 
 def open_refs():
-    """The set of live OPEN backlog tokens in TODO.md: section numbers, SR ids,
-    and FR ids named in section headings. Tokens are upper-cased for matching."""
+    """The set of live OPEN backlog tokens from TODO.md (index rows) and, when
+    present, TODO-REFERENCE.md (``### id`` detail headings): section numbers (full
+    depth, so a three-part id like ``2.25.1`` is preserved, not truncated to
+    ``2.25``), SR ids, and FR ids named in headings. Tokens are upper-cased."""
     todo = (REPO_ROOT / "TODO.md").read_text(errors="replace")
     ref = REPO_ROOT / "TODO-REFERENCE.md"
     if ref.is_file():
@@ -313,6 +315,10 @@ def self_test():
             self.assertEqual(
                 sorted(SECTION_TOKEN_RE.findall("grc_library TODO §5.1 / §5.9")),
                 ["5.1", "5.9"])
+            # three-part id must be preserved, not truncated to 2.25 (PR-1.1 fix):
+            self.assertEqual(
+                sorted(SECTION_TOKEN_RE.findall("delivery for TODO 2.25.1")),
+                ["2.25.1"])
 
         def test_coded_tokens(self):
             # Own-item tokens come from the header region (title / Work-unit /
@@ -358,9 +364,11 @@ def self_test():
 
         def test_open_ref_regexes(self):
             todo = ("### 2.2 HIPAA operational deepening (FR-60, H, L)\n"
+                    "### 2.25.1 Graduate the flow-modelling framework (H, L)\n"
                     "### SR-1 last_checked currency mechanism is inert (item 26)\n"
                     "### 5.1 AI jurisdiction annexes (FR-62, M, S)\n")
-            self.assertEqual(set(OPEN_SECTION_RE.findall(todo)), {"2.2", "5.1"})
+            # three-part id preserved at full depth, not truncated to 2.25 (PR-1.1 fix):
+            self.assertEqual(set(OPEN_SECTION_RE.findall(todo)), {"2.2", "2.25.1", "5.1"})
             self.assertEqual(set(OPEN_SR_RE.findall(todo)), {"SR-1"})
             self.assertEqual(set(OPEN_FR_IN_HEADING_RE.findall(todo)),
                              {"FR-60", "FR-62"})
