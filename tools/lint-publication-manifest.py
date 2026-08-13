@@ -13,13 +13,14 @@ This gate is the machine-validation the manifest exists to earn: it fails when
 
   * a ``guardrails/`` file has no manifest entry, or
   * a manifest entry names a path that is not on disk (a stale entry), or
+  * an entry value is not a JSON object, or
   * an entry carries a bucket or disclosure value outside the allowed set, or
   * an entry pairs a bucket with a disclosure that CONTRADICTS it (a published
     bucket marked WITHHELD, or an unpublished bucket marked PUBLIC/SANITIZE) --
     the class that would mislead the publication tooling, or
   * an entry is missing a non-empty rationale, or
-  * the manifest JSON carries a duplicate file key (silently deduped by a naive
-    parser), or
+  * the manifest JSON carries a duplicate key at any object depth (silently
+    deduped by a naive parser), or
   * the pack tree is empty or missing (fail closed, never fail open).
 
 Stdlib-only; any discrepancy is a non-zero exit. The decision is a pure function
@@ -33,7 +34,8 @@ Usage:
 Exit codes:
     0   manifest and tree are in sync and every value/combination is valid
     1   one or more discrepancies present
-    2   the manifest file is missing, unparseable, or has a duplicate key
+    2   the manifest file is missing, unparseable, has an invalid 'files' object, has a
+        duplicate key, or the pack tree is empty or missing
 """
 from __future__ import annotations
 
@@ -72,19 +74,22 @@ def evaluate(tree: set, entries: dict) -> dict:
     """Pure decision: given the pack tree and the manifest 'files' mapping,
     return the finding lists. No filesystem access."""
     classified = set(entries)
+    object_entries = {p: v for p, v in entries.items() if isinstance(v, dict)}
+    bad_entry = sorted(set(entries) - set(object_entries))
     bad_combo = sorted(
-        p for p, v in entries.items()
+        p for p, v in object_entries.items()
         if v.get("bucket") in VALID_COMBOS
         and v.get("disclosure") not in VALID_COMBOS[v["bucket"]]
     )
     return {
         "unclassified": sorted(tree - classified),
         "orphans": sorted(classified - tree),
-        "bad_bucket": sorted(p for p, v in entries.items() if v.get("bucket") not in BUCKETS),
-        "bad_disclosure": sorted(p for p, v in entries.items() if v.get("disclosure") not in DISCLOSURES),
+        "bad_entry": bad_entry,
+        "bad_bucket": sorted(p for p, v in object_entries.items() if v.get("bucket") not in BUCKETS),
+        "bad_disclosure": sorted(p for p, v in object_entries.items() if v.get("disclosure") not in DISCLOSURES),
         "bad_combo": bad_combo,
         "empty_rationale": sorted(
-            p for p, v in entries.items()
+            p for p, v in object_entries.items()
             if not (isinstance(v.get("rationale"), str) and v["rationale"].strip())
         ),
     }
@@ -94,7 +99,7 @@ def _no_dupes(pairs):
     seen = {}
     for k, v in pairs:
         if k in seen:
-            raise ValueError(f"duplicate file key in manifest: {k!r}")
+            raise ValueError(f"duplicate key in manifest object: {k!r}")
         seen[k] = v
     return seen
 
@@ -110,9 +115,15 @@ def main(argv: list) -> int:
         return 2
     try:
         with open(MANIFEST, encoding="utf-8") as handle:
-            entries = json.load(handle, object_pairs_hook=_no_dupes)["files"]
+            document = json.load(handle, object_pairs_hook=_no_dupes)
+            entries = document["files"]
+            if not isinstance(entries, dict):
+                raise TypeError("'files' must be a JSON object")
     except (json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
-        print(f"ERROR: manifest unparseable, missing 'files', or has a duplicate key: {exc}")
+        print(
+            "ERROR: manifest unparseable, has a missing or invalid 'files' "
+            f"object, or has a duplicate key: {exc}"
+        )
         return 2
 
     tree = pack_files()
@@ -124,6 +135,7 @@ def main(argv: list) -> int:
     labels = {
         "unclassified": ("UNCLASSIFIED", "pack files with no manifest entry", "guardrails/{}"),
         "orphans": ("ORPHAN", "manifest entries whose path is not on disk", "{}"),
+        "bad_entry": ("BAD ENTRY", "entry value is not a JSON object", "{}"),
         "bad_bucket": ("BAD BUCKET", f"value not in {sorted(BUCKETS)}", "{}"),
         "bad_disclosure": ("BAD DISCLOSURE", f"value not in {sorted(DISCLOSURES)}", "{}"),
         "bad_combo": ("BAD COMBINATION", "bucket and disclosure contradict (published-vs-withheld)", "{}"),

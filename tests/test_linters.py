@@ -11516,7 +11516,8 @@ class PublicationManifestTest(unittest.TestCase):
         }
         r = self.mod.evaluate(tree, entries)
         self.assertEqual(r, {"unclassified": [], "orphans": [], "bad_bucket": [],
-                             "bad_disclosure": [], "bad_combo": [], "empty_rationale": []})
+                             "bad_entry": [], "bad_disclosure": [],
+                             "bad_combo": [], "empty_rationale": []})
 
     def test_unclassified_file_flagged(self):
         r = self.mod.evaluate({"a.md", "new.md"}, {"a.md": {"bucket": "CORE", "disclosure": "PUBLIC"}})
@@ -11550,6 +11551,56 @@ class PublicationManifestTest(unittest.TestCase):
     def test_runs_clean_on_pack_at_head(self):
         result = run_linter("tools/lint-publication-manifest.py")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_non_object_entry_is_flagged_without_crashing(self):
+        # M8: a non-dict entry value must be reported as bad_entry, not crash.
+        r = self.mod.evaluate({"a.md"}, {"a.md": None})
+        self.assertEqual(r["bad_entry"], ["a.md"])
+        self.assertEqual(r["bad_bucket"], [])
+        self.assertEqual(r["bad_disclosure"], [])
+        self.assertEqual(r["bad_combo"], [])
+        self.assertEqual(r["empty_rationale"], [])
+
+    def test_nested_duplicate_is_not_labelled_as_a_file_key(self):
+        # M8: a duplicate key inside a nested entry object must not be mislabelled
+        # as a "file key" (the object_pairs_hook fires at every depth).
+        with self.assertRaises(ValueError) as caught:
+            self.mod._no_dupes([("bucket", "CORE"), ("bucket", "GRC-ONLY")])
+        self.assertIn("duplicate key in manifest object", str(caught.exception))
+        self.assertNotIn("file key", str(caught.exception))
+
+    def test_cli_exits_1_on_manifest_discrepancy(self):
+        """M5: CLI guard for the ``if findings: return 1`` exit path.
+
+        The in-process evaluate() tests never cross main(), and the only
+        end-to-end assertion (test_runs_clean_on_pack_at_head) asserts
+        returncode == 0, so deleting ``return 1`` from
+        tools/lint-publication-manifest.py leaves this class green. This seeds
+        one discrepancy (an ORPHAN entry) in an isolated pack tree and pins the
+        exit code to 1 -- distinct from the exit-2 structural/fail-closed paths.
+        """
+        import json
+        import shutil
+
+        src = REPO_ROOT / "tools" / "lint-publication-manifest.py"
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "tools").mkdir()
+            (root / "guardrails").mkdir()
+            shutil.copy(src, root / "tools" / "lint-publication-manifest.py")
+            (root / "guardrails" / "sample.md").write_text("# sample\n", encoding="utf-8")
+            # sample.md classified correctly; ghost.md is an ORPHAN -> one discrepancy -> exit 1.
+            manifest = {"files": {
+                "sample.md": {"bucket": "CORE", "disclosure": "PUBLIC", "rationale": "core public"},
+                "ghost.md": {"bucket": "CORE", "disclosure": "PUBLIC", "rationale": "not on disk"},
+            }}
+            (root / "tools" / "publication-manifest.json").write_text(
+                json.dumps(manifest), encoding="utf-8")
+            result = subprocess.run(
+                [sys.executable, str(root / "tools" / "lint-publication-manifest.py")],
+                capture_output=True, text=True)
+            self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+            self.assertIn("ORPHAN", result.stdout)
 
 
 
