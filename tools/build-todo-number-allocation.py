@@ -61,9 +61,13 @@ def load_floor(root):
 
 
 def live_maxima(root):
-    """Highest live public ordinal per series, and highest live TF, across TODO.md index
-    rows + TODO-REFERENCE.md/P-TODO.md bare-id headings. The P-N.M private namespace is
-    excluded. Retired ids are NOT here (that is what the floor is for)."""
+    """Highest live PUBLIC ordinal per series, and highest live TF, across the PUBLIC
+    files only: TODO.md index rows + TODO-REFERENCE.md ``### `` bare-id headings. The
+    ``P-N.M`` private namespace is excluded. This reads NO private data (no P-TODO.md, no
+    grc_library_private): the public FLOOR is the authority for the highest EVER allocated
+    ordinal (including retired numbers AND migrated bare ids that now live in the private
+    P-TODO.md), so next = max(floor, live) is floor-dominated and fully public-deterministic.
+    Retired ids are NOT here; that is what the floor is for."""
     import lint_common
     tops, tf = {}, 0
 
@@ -82,18 +86,12 @@ def live_maxima(root):
 
     for i in lint_common.todo_index_ids((root / "TODO.md").read_text(errors="replace")):
         add(i)
-    for name in ("TODO-REFERENCE.md", "P-TODO.md"):
-        f = root / name
-        if not f.is_file():
-            f = root.parent / "grc_library_private" / name  # P-TODO lives in the private sibling
-        if f.is_file():
-            for ln in f.read_text(errors="replace").split("\n"):
-                m = HEADING_ID.match(ln)
-                if m:
-                    add(m.group(1))
-                if name == "P-TODO.md":
-                    for n in TF_TOKEN.findall(ln):
-                        tf = max(tf, int(n))
+    ref = root / "TODO-REFERENCE.md"
+    if ref.is_file():
+        for ln in ref.read_text(errors="replace").split("\n"):
+            m = HEADING_ID.match(ln)
+            if m:
+                add(m.group(1))
     return tops, tf
 
 
@@ -153,7 +151,11 @@ def main(argv):
         sys.stderr.write("FAIL: the number floor is BELOW a live id (bump "
                          f"{FLOOR_PATH}): {'; '.join(bad)}\n")
         return 1
-    new_todo = _splice(todo, render_block(tops, tf_max))
+    try:
+        new_todo = _splice(todo, render_block(tops, tf_max))
+    except ValueError as exc:
+        sys.stderr.write(f"FAIL: {exc}. Restore the number-allocation sentinels in TODO.md.\n")
+        return 1
     if args.check:
         if new_todo != todo:
             sys.stderr.write(

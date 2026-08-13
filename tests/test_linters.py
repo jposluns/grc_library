@@ -10587,6 +10587,28 @@ class WebCorpusLinkTests(LinterTestCase):
         self.assertLinterFails(result, "resolves outside repo")
 
 
+class FloorMonotonicityDeltaTests(unittest.TestCase):
+    """Delta gate D12 (tools/check-todo-floor-monotonic-on-pr.py): the public number
+    floor may only rise or stay put across a PR; a decrease or dropped series fails."""
+
+    def _mod(self):
+        import importlib.util, sys as _sys
+        _sys.path.insert(0, str(REPO_ROOT / "tools"))
+        spec = importlib.util.spec_from_file_location(
+            "floormono_under_test", REPO_ROOT / "tools" / "check-todo-floor-monotonic-on-pr.py")
+        m = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(m)
+        return m
+
+    def test_decrease_and_drop_flagged_increase_clean(self):
+        m = self._mod()
+        base = m._parse('{"2": 32, "4": 31, "TF": 3}')
+        self.assertTrue(m.find_violations(base, m._parse('{"2": 31, "4": 31, "TF": 3}')))  # decrease
+        self.assertTrue(m.find_violations(base, m._parse('{"2": 32, "TF": 3}')))            # 4 dropped
+        self.assertFalse(m.find_violations(base, m._parse('{"2": 33, "4": 31, "TF": 3}')))  # increase
+        self.assertFalse(m.find_violations(base, base))                                     # unchanged
+
+
 class TodoNumberPermanenceTests(LinterTestCase):
     """tools/lint-todo-number-permanence.py (gate 78)
 
@@ -10622,7 +10644,8 @@ class TodoNumberPermanenceTests(LinterTestCase):
         self.assertFalse(
             m.find_stale_counters({}, {}, {"2": ("2.33", 10)}, floor={"2": 32}))
 
-    def _run(self, name: str, todo: str, done: str | None, ptodo: str | None = None):
+    def _run(self, name: str, todo: str, done: str | None, ptodo: str | None = None,
+             floor: dict | None = None):
         """Build a synthetic {TODO.md, .working/DONE.md} root and run the gate.
 
         Returns the completed process. The caller cleans up via the returned
@@ -10645,10 +10668,40 @@ class TodoNumberPermanenceTests(LinterTestCase):
             (root / ".working" / "DONE.md").write_text(done, encoding="utf-8")
         if ptodo is not None:
             (root / "P-TODO.md").write_text(ptodo, encoding="utf-8")
+        if floor is not None:
+            import json as _json
+            (root / "tools").mkdir(parents=True, exist_ok=True)
+            (root / "tools" / "todo-number-floor.json").write_text(
+                _json.dumps(floor), encoding="utf-8")
         result = run_linter(
             "tools/lint-todo-number-permanence.py", "--root", str(root)
         )
         return root, result
+
+    def test_floor_wiring_end_to_end_via_root(self) -> None:
+        """F1 (dual-family): the gate-78->floor wiring is exercised END-TO-END through
+        --root (a synthetic tools/todo-number-floor.json), so removing the ``floor`` arg
+        from main()'s find_stale_counters call would make this FAIL. A counter AT the
+        floor (a recycle) is flagged with EMPTY DONE; a counter above the floor is clean."""
+        root, result = self._run(
+            "perm-floor-recycle",
+            "# TODO\n\n## Priority 2\n\n**Next item number: 2.32.**\n",
+            "# DONE\n",  # EMPTY DONE (zero retired) -> only the public floor can catch it
+            floor={"2": 32})
+        try:
+            self.assertEqual(result.returncode, 1,
+                             f"floor-recycled counter not flagged.\n{result.stdout}\n{result.stderr}")
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+        root2, result2 = self._run(
+            "perm-floor-ok",
+            "# TODO\n\n## Priority 2\n\n**Next item number: 2.33.**\n",
+            "# DONE\n", floor={"2": 32})
+        try:
+            self.assertEqual(result2.returncode, 0,
+                             f"counter above floor wrongly flagged.\n{result2.stdout}\n{result2.stderr}")
+        finally:
+            shutil.rmtree(root2, ignore_errors=True)
 
     def test_recycled_number_flagged(self) -> None:
         # the #1151 defect shape: a live item wearing a number DONE.md retired

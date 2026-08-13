@@ -450,11 +450,14 @@ def main(argv: list[str]) -> int:
         if done_path is None:
             # `.working/DONE.md` is the maintainer-only retirement ledger. Once
             # `.working/` moves to grc_library_private it is absent in public CI
-            # and adopter clones, so check A (RECYCLE) no-ops there: with no
-            # recorded retirements there is nothing a live number can collide
-            # WITH. Check B (COUNTER) still runs against the public TODO.md's
-            # live ids and still catches the counter defect; it merely cannot
-            # see a counter colliding with a retired-ONLY number.
+            # and adopter clones, so check A (RECYCLE, a LIVE id equal to a specific
+            # retired id) no-ops there: without the full retired-id set there is
+            # nothing a live number can be compared against. Check B (COUNTER) is
+            # UNAFFECTED: it reads the PUBLIC floor (tools/todo-number-floor.json,
+            # the highest ordinal EVER allocated per series), so it still catches a
+            # counter at or below a retired-ONLY number even here (the floor coupling
+            # is the CI-enforceable recycle backstop; only the exact-live-id-vs-retired
+            # comparison of check A remains maintainer-local).
             print(
                 f"OK: {DONE_REL} not present (maintainer-only working state; "
                 f"skipping the recycled-number check in public CI / adopter "

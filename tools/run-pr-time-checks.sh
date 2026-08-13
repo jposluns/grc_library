@@ -154,6 +154,9 @@ run_check "D10 CLAUDE.md-size ratchet" \
 run_check "D11 Narrative-corpus mixed-diff check" \
     python3 tools/check-narrative-corpus-mixed-diff-on-pr.py "${BASE_REF}" "${HEAD_REF}"
 
+run_check "D12 Number-floor monotonicity check" \
+    python3 tools/check-todo-floor-monotonic-on-pr.py "${BASE_REF}" "${HEAD_REF}"
+
 # Gate 45: TODO staleness audit. Behaves like a delta gate because its
 # inputs (git log of merged-PR commit subjects, .working/validate-sweeps/
 # history.md) include history relative to the working state of TODO.md.
