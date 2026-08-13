@@ -129,7 +129,7 @@ def _load_ref_bodies() -> dict[str, str]:
 
 def parse_items(text: str, source: str) -> list[tuple[str, str, str, str, str]]:
     """Return ``(id, title, block_text, source, umbrella)`` for every open item. PUBLIC
-    ``TODO.md`` items are parsed as INDEX ROWS (``parse_todo_index``), their bodies joined
+    ``TODO.md`` items are parsed as INDEX ROWS (the local ``_ROW_RE``), their bodies joined
     from ``TODO-REFERENCE.md``; only private / legacy items use the ``### `` heading-block
     grammar below.
 

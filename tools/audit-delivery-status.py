@@ -129,17 +129,19 @@ def find_scratch(cli_path):
     return None
 
 
-def open_refs():
-    """The set of live OPEN backlog tokens. Section ids come from the ``TODO.md``
+def open_refs(root=None):
+    """The set of live OPEN backlog tokens (``root`` defaults to REPO_ROOT; a test may
+    pass a synthetic root). Section ids come from the ``TODO.md``
     INDEX ROWS directly (via ``todo_index_ids``, so the tool is non-vacuous even if
     ``TODO-REFERENCE.md`` is absent); the ``### id`` detail headings in
     ``TODO-REFERENCE.md`` (when present) add the same section ids plus SR ids and
     FR ids named in headings. Section numbers are matched at full depth, so a
     three-part id like ``2.25.1`` is preserved, not truncated. Tokens upper-cased."""
-    todo_text = (REPO_ROOT / "TODO.md").read_text(errors="replace")
+    root = root or REPO_ROOT
+    todo_text = (root / "TODO.md").read_text(errors="replace")
     refs = set(todo_index_ids(todo_text))   # index-row ids: non-vacuous on TODO.md alone
     blob = todo_text
-    ref = REPO_ROOT / "TODO-REFERENCE.md"
+    ref = root / "TODO-REFERENCE.md"
     if ref.is_file():
         blob += "\n" + ref.read_text(errors="replace")
     refs |= set(OPEN_SECTION_RE.findall(blob))
@@ -370,13 +372,20 @@ def self_test():
 
         def test_index_rows_are_read_non_vacuously(self):
             # F1 (wind-down /validate): open_refs must read TODO.md INDEX ROWS directly,
-            # so it is non-vacuous even if TODO-REFERENCE.md is absent. Proof: the live
-            # TODO.md index yields ids, and every one appears in open_refs().
-            from lint_common import REPO_ROOT as _RR, todo_index_ids as _tii
-            idx = set(_tii((_RR / "TODO.md").read_text(errors="replace")))
-            self.assertTrue(idx, "TODO.md index rows yielded no ids")
-            self.assertTrue(idx <= open_refs(),
-                            "open_refs() dropped index-row ids (would go vacuous without the detail file)")
+            # so it is non-vacuous even when TODO-REFERENCE.md is ABSENT. A synthetic root
+            # with ONLY TODO.md (no ### detail headings) discriminates the fix from the old
+            # heading-only code: index-row read -> the ids; the old ^### path -> nothing.
+            import tempfile
+            todo = ("# TODO\n## Priority 1\n| ID | Item | Tags |\n| --- | --- | --- |\n"
+                    "| 2.25.1 | child item (H) | `[public]` |\n| 1.5 | fix item (M) | `[public]` |\n")
+            with tempfile.TemporaryDirectory() as d:
+                (Path(d) / "TODO.md").write_text(todo)   # NO TODO-REFERENCE.md
+                got = open_refs(Path(d))
+                self.assertEqual(got, {"2.25.1", "1.5"},
+                                 "open_refs went vacuous on TODO.md alone (index rows not read)")
+            # and prove the OLD heading-only path is empty on this input (the regression it guards)
+            self.assertEqual(set(OPEN_SECTION_RE.findall(todo)), set(),
+                             "index rows carry no ### headings; the old code would return nothing")
 
         def test_open_ref_regexes(self):
             todo = ("### 2.2 HIPAA operational deepening (FR-60, H, L)\n"
