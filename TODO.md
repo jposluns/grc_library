@@ -2,7 +2,7 @@
 
 Forward-looking backlog of planned enhancements for the GRC Documentation Library. This file is the INDEX (one row per open item, in priority bands); the per-item detail lives in [`TODO-REFERENCE.md`](TODO-REFERENCE.md), joined by the stable id. Items are added when identified and rotated out when completed (index row + reference block deleted together). Completed items move to `grc_library_private/.working/DONE.md` (closed-TODO ledger, keyed by original backlog ID); historical change detail lives in [`CHANGELOG.md`](CHANGELOG.md).
 
-This file and [`TODO-REFERENCE.md`](TODO-REFERENCE.md) are informational and are not subject to the library's metadata-block, audit-conformance, or version-tracking conventions, with one narrow exception: [`tools/lint-todo-staleness.py`](tools/lint-todo-staleness.py) (gate 45) scans TODO.md for the queued-PR-already-merged drift shape. The intra-document section-reference gate also scans them. Other audit gates skip both files.
+This file and [`TODO-REFERENCE.md`](TODO-REFERENCE.md) are informational and are not subject to the library's metadata-block, audit-conformance, or version-tracking conventions: the ordinary CONTENT and METADATA gates skip both files. A set of BACKLOG-SPECIFIC gates does intentionally read them, because governing the backlog is their whole job: number-permanence (gate 78), list-tag (gate 81), marked-done (gate 57), and staleness (gate 45) read the index rows and/or the detail blocks; the retired-section-orphan check (D9) reads the detail-file diff; and the intra-document and positional section-reference gates scan them. Those are the exceptions; every other audit gate skips both files.
 
 ---
 
@@ -165,4 +165,3 @@ Durable behavioural guidance from the maintainer. NOT actionable items; referenc
 - Design decisions belong in `grc_library_private/design-decisions.md`, not TODO.
 - This file (with [`TODO-REFERENCE.md`](TODO-REFERENCE.md)) is the source of truth for what's queued; conversation history is not.
 - Fitness-review backlogs remain the authoritative per-finding evidence source; this file is the action-organized view.
-
