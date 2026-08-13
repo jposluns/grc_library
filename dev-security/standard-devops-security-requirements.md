@@ -2,7 +2,7 @@
 
 **Document Title:** DevOps Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.0.11\
+**Version:** 1.0.12\
 **Date:** 2026-08-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -212,7 +212,7 @@ The EOL classification policy and remediation SLAs are defined in the Security B
 | EOL and patch management | A.8.8 | TVM-01 to 10 | PW.4.4 | SI-2 | N/A |
 | Change management | A.8.32 | CCC-01 to 09 | N/A | CM-3 | N/A |
 
-**On the SLSA column.** SLSA (v1.2) Build levels (L0 to L3) describe the trustworthiness of the build platform and the provenance it generates, not a per-control certification. The levels above indicate the SLSA maturity each control area contributes toward or requires (for example, signed build-platform-generated provenance underpins L2 and L3), not that an individual control confers a level.
+**On the SLSA column.** SLSA Build levels (L0 to L3) describe the trustworthiness of the build platform and the provenance it generates, not a per-control certification. The levels above indicate the SLSA maturity each control area contributes toward or requires (for example, signed build-platform-generated provenance underpins L2 and L3), not that an individual control confers a level.
 
 This standard also aligns with NIST SP 800-204D (Strategies for the Integration of Software Supply Chain Security in DevSecOps CI/CD Pipelines) for the software supply-chain security of the CI/CD pipeline.
 
