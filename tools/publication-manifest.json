@@ -138,7 +138,7 @@
     "governance/trust-recovery-escalation.md": {
       "bucket": "CORE",
       "disclosure": "PUBLIC",
-      "rationale": "Portable post-failure escalation tier with no internal specifics, but load-bearing on four skills by path from the pack root, so its two-skill suite must ship with it."
+      "rationale": "Portable post-failure escalation tier with no internal specifics, but load-bearing on two skills by path from the pack root, so its two-skill suite must ship with it."
     },
     "governance/validate-inference-before-action.md": {
       "bucket": "CORE",
@@ -198,7 +198,7 @@
     "languages/swift.md": {
       "bucket": "CORE",
       "disclosure": "SANITIZE",
-      "rationale": "Generic iOS and Swift rules; second-heaviest coupling (26 `Section N`, 9 Tier references in a heading and code comments, an 8-bullet provenance digest)."
+      "rationale": "Generic iOS and Swift rules; second-heaviest coupling (26 `Section N`, 9 Tier references in a heading and code comments, a 9-bullet provenance digest)."
     },
     "languages/typescript.md": {
       "bucket": "CORE",
@@ -298,7 +298,7 @@
     "skills/matrix-fit/SKILL.md": {
       "bucket": "GRC-ONLY",
       "disclosure": "WITHHELD",
-      "rationale": "The clearest corpus-coupled case: judges control-code semantic fit in `compliance/matrix-grc-compliance-alignment.md` against `grc_library_ref` source text, via five parent `tools/` modules and five framework-catalogue gate numbers."
+      "rationale": "The clearest corpus-coupled case: judges control-code semantic fit in `compliance/matrix-grc-compliance-alignment.md` against `grc_library_ref` source text, via four parent `tools/` modules and five framework-catalogue gate numbers."
     },
     "skills/pr-retrospective/SKILL.md": {
       "bucket": "CORE",
@@ -318,7 +318,7 @@
     "skills/skill-authoring-discipline/SKILL.md": {
       "bucket": "CORE",
       "disclosure": "SANITIZE",
-      "rationale": "Defines the eight-section template and the `## Project wiring` convention this whole manifest keys on, so external contributors need it; strip five gate numbers, three `tools/lint-*` paths, `.claude/commands/` and `.claude/rules/`, and the \"four levels up\" layout claim that is false when the pack is the repo root."
+      "rationale": "Defines the eight-section template and the `## Project wiring` convention this whole manifest keys on, so external contributors need it; strip five gate numbers, two `tools/lint-*` paths, `.claude/commands/` and `.claude/rules/`, and the \"four levels up\" layout claim that is false when the pack is the repo root."
     },
     "skills/surface-instruction-concern/SKILL.md": {
       "bucket": "CORE",
@@ -343,7 +343,7 @@
     "vetting-log.md": {
       "bucket": "CORE",
       "disclosure": "SANITIZE",
-      "rationale": "Carries licence obligations adopters legally need (Wiz CC-BY-NC-ND caveat, MIT attribution duties) and is linked twice from README plus depended on by the generator's Phase 2; drop `How to update this log`, the exemption paragraph, and the superseded back-port entries."
+      "rationale": "Carries licence obligations adopters legally need (Wiz CC-BY-NC-ND caveat, MIT attribution duties) and is linked once from README plus depended on by the generator's Phase 2; drop `How to update this log`, the exemption paragraph, and the superseded back-port entries."
     },
     "aiqt/review-contract.md": {
       "bucket": "CORE",
