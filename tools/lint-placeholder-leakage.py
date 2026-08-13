@@ -26,7 +26,7 @@ not automatically checked by the other; extend both deliberately.
 
 Exemptions are layered:
 
-  - EXEMPT_FILES: by filename: CHANGELOG.md, TODO.md, the master spec,
+  - EXEMPT_FILES: by filename: CHANGELOG.md, TODO.md, TODO-REFERENCE.md, the master spec,
     the ingestion spec, the citation-verification spec, the
     audit-programme spec, the citation-verification worklist template,
     the coverage-gaps register (uses ``TODO backlog: <topic>``

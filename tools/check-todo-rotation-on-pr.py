@@ -16,7 +16,7 @@ the SAME diff. As of PR #1235 (2026-07-29, the working-state move to the private
 sibling), the DONE ledger moved to the private-sibling working-state store (cross-repo,
 outside the public diff), so this gate enforces the public two-file rotation (BOTH `TODO.md` and `TODO-REFERENCE.md` present on a closure)
 surface: if any line ADDED to the root CHANGELOG asserts a TODO-item closure, the PR's
-changed-file set must include `TODO.md`.
+changed-file set must include BOTH `TODO.md` (index row) and `TODO-REFERENCE.md` (detail block).
 
 Trigger (broadened 2026-06-30 to three forms, 2026-07-02 to six,
 2026-07-03 to seven, 2026-07-06 to eight, and 2026-08-01 to nine, each chosen to stay
@@ -117,7 +117,8 @@ REFERENCE_PATH = "TODO-REFERENCE.md"
 
 # The DONE ledger (.working/DONE.md) moved to the private-sibling working-state store in
 # the .working/ -> _private migration, so it is a cross-repo surface invisible to a public
-# PR diff. This gate therefore requires only the PUBLIC rotation surface: the TODO.md edit.
+# PR diff. This gate therefore requires the PUBLIC rotation surfaces: the TODO.md index-row
+# edit AND the TODO-REFERENCE.md detail-block edit.
 # (The closure-assertion scan reads only the root CHANGELOG.md; the detailed mirror is
 # likewise private now.)
 
@@ -288,7 +289,7 @@ def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
         description=(
             "Check that a PR asserting a TODO-item closure also rotates the "
-            "item (touches TODO.md)."
+            "item (touches TODO.md and TODO-REFERENCE.md)."
         ),
     )
     parser.add_argument("base", nargs="?", help="Base ref (default: origin/$GITHUB_BASE_REF in CI).")

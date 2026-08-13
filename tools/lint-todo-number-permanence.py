@@ -2,8 +2,8 @@
 """Detect a recycled TODO item number or a stale item-number counter (gate 78).
 
 ``TODO.md`` states the permanent-id rule at the bottom of the file: "TODO
-numbers are permanent and never recycled (2026-07-15) ... each priority
-section carries a ``Next item number:`` counter, maintained on every TODO
+numbers are permanent and never recycled (2026-07-15) ... the ``## Number allocation`` block centralizes the ``Next item number:`` counters
+(series 5/6/7 frozen; the 3.x series has no counter), maintained on every TODO
 edit; new and split-out items each draw the next number and advance the
 counter, closed numbers retire with their item, and existing items are not
 renumbered when the file is reorganized (so a number maps to exactly one
@@ -62,7 +62,7 @@ false-negative cost:
      is the series-consolidation move, where "the content moves to a new
      series child X.Y.Z and a forward redirect stub is left at the
      original number (both close together)". A stub (for example
-     ``### 2.24 ... MOVED to 2.25.1 (Series A)``) is a LIVE heading holding
+     ``### 2.24 ... MOVED to 2.25.1 (Series A)``, now in TODO-REFERENCE.md) is a LIVE heading holding
      its number on purpose, so it is correctly part of the live set: the
      number is alive, not retired. Exempting stubs would be wrong, because
      a number that is simultaneously stub-alive in ``TODO.md`` and retired

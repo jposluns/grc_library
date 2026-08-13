@@ -31,7 +31,7 @@ Privacy jurisdiction annexes are too shallow for operational sufficiency; deepen
 
 ### 2.3 Crypto-asset / blockchain governance domain (FR-70, H[critical], XL)
 
-New domain for crypto-asset / blockchain governance: digital-asset custody, staking, smart-contract risk, blockchain platform vetting. Regulatory references: DORA, MiCA, NYDFS BitLicense (DORA and MiCA (Regulation (EU) 2023/1114) are HELD; only NYDFS BitLicense (23 NYCRR Part 200) is not held, tracked as MEG-01 in the egress queue, WestLaw-gated). (Cross-references P6.x for domain-level shaping.)
+New domain for crypto-asset / blockchain governance: digital-asset custody, staking, smart-contract risk, blockchain platform vetting. Regulatory references: DORA, MiCA, NYDFS BitLicense (DORA and MiCA (Regulation (EU) 2023/1114) are HELD; only NYDFS BitLicense (23 NYCRR Part 200) is not held, tracked as MEG-01 in the egress queue, WestLaw-gated). (Cross-references the 6.x series for domain-level shaping.)
 
 ### 2.15 Landing-page standards list: link each item to its authoritative source, MOVED to 2.25.2 (Series A) (maintainer-confirmed 2026-07-15, M, S-M)
 
@@ -44,7 +44,7 @@ since #801 and the deferral text was written three days AFTER it merged. (ii) **
 gate cleared**: US Texas (TRAIGA HB 149) and US Illinois (HB 3773, PA 103-0804) become ordinary P2
 content work with held sources, no egress. (iii) The remaining jurisdictions stay source-gated, each named so the acquisition ask is concrete.
 
-New AI-jurisdiction annexes, split by what is actually held. **Australia is STRUCK, not deferred:** [`ai/jurisdictions/annex-ai-australia.md`](ai/jurisdictions/annex-ai-australia.md) has existed since #801, so the deferral was wrong on arrival (the section text dates to #932, three days after the annex merged). **Source-gate CLEARED, annex not yet built:** US Texas (TRAIGA HB 149) and US Illinois (HB 3773, PA 103-0804), whose full-text primaries are held in the reference base and which #1116 cited in [`ai/policy-ai-compliance.md`](ai/policy-ai-compliance.md) section 7.5 with canonical-citations rows verified 2026-07-24; decide whether the section-7.5 coverage is sufficient or a dedicated annex is wanted, but do NOT re-run acquisition. **Held source, not yet adopted as a citation:** UK (AI Regulation White Paper 2023), Malaysia (National AI Governance and Ethics Guidelines 2024), and US federal (the OMB M-25-21 / M-25-22 / M-26-04 memoranda and the 2025 AI Action Plan) each have a held full text in the reference base but no canonical-citations row, so the gate for these is citation adoption rather than acquisition. Cross-references the P5.9 AI-jurisdiction-overlays umbrella. Re-homed from the retired AI-domain-delta umbrella (Workstream B.3).
+New AI-jurisdiction annexes, split by what is actually held. **Australia is STRUCK, not deferred:** [`ai/jurisdictions/annex-ai-australia.md`](ai/jurisdictions/annex-ai-australia.md) has existed since #801, so the deferral was wrong on arrival (the section text dates to #932, three days after the annex merged). **Source-gate CLEARED, annex not yet built:** US Texas (TRAIGA HB 149) and US Illinois (HB 3773, PA 103-0804), whose full-text primaries are held in the reference base and which #1116 cited in [`ai/policy-ai-compliance.md`](ai/policy-ai-compliance.md) section 7.5 with canonical-citations rows verified 2026-07-24; decide whether the section-7.5 coverage is sufficient or a dedicated annex is wanted, but do NOT re-run acquisition. **Held source, not yet adopted as a citation:** UK (AI Regulation White Paper 2023), Malaysia (National AI Governance and Ethics Guidelines 2024), and US federal (the OMB M-25-21 / M-25-22 / M-26-04 memoranda and the 2025 AI Action Plan) each have a held full text in the reference base but no canonical-citations row, so the gate for these is citation adoption rather than acquisition. Cross-references the 5.9 AI-jurisdiction-overlays umbrella. Re-homed from the retired AI-domain-delta umbrella (Workstream B.3).
 
 ### 2.23 CCPA statute (eff. 2026-01-01) currency + alignment review (maintainer-flagged 2026-07-16, M, S; cross-repo, blocked on ref ingestion)
 
@@ -344,7 +344,7 @@ The phase-level PQC roadmap exists. #1129 delivered the core content deepening (
 
 ### 6.3 Cross-framework matrix expansion (L) (was 6.4)
 
-Expand [`governance/matrix-cross-framework-alignment.md`](governance/matrix-cross-framework-alignment.md) to additional sectoral and regional frameworks as the P5 content grows.
+Expand [`governance/matrix-cross-framework-alignment.md`](governance/matrix-cross-framework-alignment.md) to additional sectoral and regional frameworks as the 5.x overlay content grows.
 
 ### 6.4 CMMI capability levels alongside maturity levels (L) (was 6.5)
 

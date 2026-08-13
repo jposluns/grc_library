@@ -12,7 +12,8 @@ mechanical enforced that going forward, so a new item could ship untagged,
 or a copy-edit could accidentally leave both tags on a line. This gate is
 the mechanical backstop.
 
-Detection reuses audit-backlog-actionability.py's ITEM_HEADING_RE grammar
+Detection reads PUBLIC ``TODO.md`` items as index rows (``lint_common.parse_todo_index``);
+private ``P-TODO.md`` items reuse audit-backlog-actionability.py's ITEM_HEADING_RE grammar
 (the two tools must never disagree on what counts as an item). Findings are
 keyed by the PHYSICAL LINE, not the captured id: ITEM_HEADING_RE's id group
 captures only a shared prefix for a lettered sub-heading (``### 3.92.a ...``,
@@ -146,7 +147,7 @@ def main(argv: list[str]) -> int:
         print(f"  {rel}:{lineno}: {reason}: {line.strip()}")
 
     print(f"\nFAIL: {len(all_findings)} list-tag finding(s).")
-    print("Every open TODO.md / P-TODO.md item heading must carry EXACTLY ONE")
+    print("Every open item (a TODO.md index row / a P-TODO.md ### heading) must carry EXACTLY ONE")
     print("[public] or [private] tag (PR #1293). Add the missing tag, or remove")
     print("the extra one (a TODO.md index-row Tags cell, or a P-TODO.md ### heading).")
     return 1
