@@ -26,7 +26,8 @@ input).
 WHAT IT CLASSIFIES. For every ``inbox/<worker-id>/<work-unit>/`` directory it
 extracts the backlog reference token(s) it declares (section numbers ``N.M`` and
 coded ids ``FR-N`` / ``SR-N`` / ``GR-N`` from the MANIFEST text and the directory
-name), then classifies against the live ``TODO.md`` open-item set:
+name), then classifies against the live open-item set (``TODO.md`` index rows +
+``TODO-REFERENCE.md`` detail headings):
 
   - PENDING   : a token matches a still-OPEN TODO item (heading section number,
                 ``### SR-N`` id, or an ``(FR-N ...)`` id in a section heading).
@@ -85,7 +86,8 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import REPO_ROOT, resolve_sibling, sibling_placeholder_present
+from lint_common import (REPO_ROOT, resolve_sibling, sibling_placeholder_present,
+                         todo_index_ids)
 
 
 # A section number qualified by TODO / § (e.g. "TODO 3.13", "TODO section 2.2",
@@ -128,17 +130,21 @@ def find_scratch(cli_path):
 
 
 def open_refs():
-    """The set of live OPEN backlog tokens from TODO.md (index rows) and, when
-    present, TODO-REFERENCE.md (``### id`` detail headings): section numbers (full
-    depth, so a three-part id like ``2.25.1`` is preserved, not truncated to
-    ``2.25``), SR ids, and FR ids named in headings. Tokens are upper-cased."""
-    todo = (REPO_ROOT / "TODO.md").read_text(errors="replace")
+    """The set of live OPEN backlog tokens. Section ids come from the ``TODO.md``
+    INDEX ROWS directly (via ``todo_index_ids``, so the tool is non-vacuous even if
+    ``TODO-REFERENCE.md`` is absent); the ``### id`` detail headings in
+    ``TODO-REFERENCE.md`` (when present) add the same section ids plus SR ids and
+    FR ids named in headings. Section numbers are matched at full depth, so a
+    three-part id like ``2.25.1`` is preserved, not truncated. Tokens upper-cased."""
+    todo_text = (REPO_ROOT / "TODO.md").read_text(errors="replace")
+    refs = set(todo_index_ids(todo_text))   # index-row ids: non-vacuous on TODO.md alone
+    blob = todo_text
     ref = REPO_ROOT / "TODO-REFERENCE.md"
     if ref.is_file():
-        todo += "\n" + ref.read_text(errors="replace")
-    refs = set(OPEN_SECTION_RE.findall(todo))
-    refs |= {s.upper() for s in OPEN_SR_RE.findall(todo)}
-    refs |= {f.upper() for f in OPEN_FR_IN_HEADING_RE.findall(todo)}
+        blob += "\n" + ref.read_text(errors="replace")
+    refs |= set(OPEN_SECTION_RE.findall(blob))
+    refs |= {s.upper() for s in OPEN_SR_RE.findall(blob)}
+    refs |= {f.upper() for f in OPEN_FR_IN_HEADING_RE.findall(blob)}
     return refs
 
 
@@ -361,6 +367,16 @@ def self_test():
             self.assertEqual(classify({"2.4"}, live), ("APPLIED", True))
             # a coded id maps APPLIED with high confidence even alongside a section token:
             self.assertEqual(classify({"2.4", "GR-99"}, live), ("APPLIED", False))
+
+        def test_index_rows_are_read_non_vacuously(self):
+            # F1 (wind-down /validate): open_refs must read TODO.md INDEX ROWS directly,
+            # so it is non-vacuous even if TODO-REFERENCE.md is absent. Proof: the live
+            # TODO.md index yields ids, and every one appears in open_refs().
+            from lint_common import REPO_ROOT as _RR, todo_index_ids as _tii
+            idx = set(_tii((_RR / "TODO.md").read_text(errors="replace")))
+            self.assertTrue(idx, "TODO.md index rows yielded no ids")
+            self.assertTrue(idx <= open_refs(),
+                            "open_refs() dropped index-row ids (would go vacuous without the detail file)")
 
         def test_open_ref_regexes(self):
             todo = ("### 2.2 HIPAA operational deepening (FR-60, H, L)\n"

@@ -10,8 +10,7 @@ form is the item's coded id (`FR-N`, `GR-N`, `SR-N`) or its topic name. This gat
 flags the fragile form so authors reword toward the stable one, the same class as
 the CLAUDE.md section-close cross-file cleanup guard, made mechanical for the corpus.
 
-Scope: authored corpus and pack prose. ``CHANGELOG.md`` and ``TODO.md`` itself
-are exempt (the backlog is the source of the numbering, not a fragile external
+Scope: authored corpus and pack prose. ``CHANGELOG.md``, ``TODO.md``, and ``TODO-REFERENCE.md`` are exempt (the backlog is the source of the numbering, not a fragile external
 reference to it), and the ``.working`` / ``.claude`` trees remain outside the
 default scan set. Only references QUALIFIED by ``TODO`` (optionally ``TODO
 item(s)``) or ``backlog item(s)`` are flagged; a document's own internal ``§N``
