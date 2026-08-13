@@ -3,7 +3,7 @@
 
 ``TODO.md`` states the permanent-id rule at the bottom of the file: "TODO
 numbers are permanent and never recycled (2026-07-15) ... the ``## Number allocation`` block centralizes the ``Next item number:`` counters
-(series 5/6/7 frozen; the 3.x series has no counter), maintained on every TODO
+(series 5/6/7 frozen; series 3 draws a counter like the other active series), maintained on every TODO
 edit; new and split-out items each draw the next number and advance the
 counter, closed numbers retire with their item, and existing items are not
 renumbered when the file is reorganized (so a number maps to exactly one
