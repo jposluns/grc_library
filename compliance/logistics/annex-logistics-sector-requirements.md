@@ -2,7 +2,7 @@
 
 **Document Title:** Logistics Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.8\
+**Version:** 1.0.9\
 **Date:** 2026-08-14\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -58,7 +58,7 @@ This annex applies where an organization:
 | **Marine Transportation Security Act / Regulations (MTSR)** | Transport Canada | Vessels; marine facilities; ports |
 | **PIP: Partners in Protection** | CBSA | Freight importers; carriers; customs brokers |
 | **Railway Safety Act** | Transport Canada | Federally regulated railways |
-| **PIPEDA** | OPC | All personal data processing |
+| **PIPEDA** | OPC | Personal information in the course of commercial activities; employee and applicant data of federal works, undertakings, or businesses (s. 4(1)) |
 
 ### United kingdom
 
