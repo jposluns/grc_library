@@ -2,7 +2,7 @@
 
 **Document Title:** Supply Chain Security Programme Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.0.5\
+**Version:** 1.0.7\
 **Date:** 2026-08-14\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -72,9 +72,9 @@ The comparison below indicates whether each programme addresses a control area, 
 | IT Requirement | CTPAT | AEO-S (UK) | AEO (EU) | PIP | BASC |
 |---|---|---|---|---|---|
 | Access control: least privilege | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Multi-factor authentication | ✓ | ✓ | ✓ | ~ | ~ |
+| Multi-factor authentication | ✓ | ✓ | ✓ | N/A | ~ |
 | Password management | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Vulnerability management | ✓ | ✓ | ✓ | ~ | ~ |
+| Vulnerability management | ✓ | ✓ | ✓ | N/A | ~ |
 | Network security (firewall, IDS) | ✓ | ✓ | ✓ | ~ | ~ |
 | Encryption in transit | ✓ | ✓ | ~ | ~ | ~ |
 | Encryption at rest | ~ | ~ | ~ | ~ | N/A |
