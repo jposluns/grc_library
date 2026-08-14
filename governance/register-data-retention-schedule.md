@@ -2,8 +2,8 @@
 
 **Document Title:** Data Retention Schedule\
 **Document Type:** Register\
-**Version:** 1.0.21\
-**Date:** 2026-07-25\
+**Version:** 1.0.22\
+**Date:** 2026-08-14\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md)\
@@ -70,10 +70,10 @@ This register defines the mandatory retention periods for each category of organ
 
 | Record Type | Retention Period | Legal Basis / Rationale |
 | --- | --- | --- |
-| Privacy impact assessments | 7 years, or 5 years after associated system decommission, whichever is longer | GDPR; PIPEDA accountability; matches the Step 6 record-keeping minimum in [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) |
+| Privacy impact assessments | 7 years, or 5 years after associated system decommission, whichever is longer | The organization's canonical assessment-retention floor (GDPR and PIPEDA prescribe no fixed retention period; PIPEDA Principle 5 requires retention only as long as necessary); matches the Step 6 record-keeping minimum in [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) |
 | Data subject access request records | 3 years | GDPR Article 30; accountability |
 | Consent records | Duration of processing + 3 years | GDPR Article 7 |
-| Privacy breach notifications | 7 years | GDPR; PIPEDA; regulatory requirements; matches the breach-evidence minimum in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) Section 9.2 |
+| Privacy breach notifications | 7 years | The organization's canonical breach-record retention floor (PIPEDA's breach-of-security-safeguards regulations set a 24-month minimum, not 7 years; GDPR prescribes no fixed period); matches the breach-evidence minimum in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) Section 9.2 |
 | Processing records (Article 30 ROPA) | Active + 5 years | GDPR Article 30 |
 
 ### 5. Audit and compliance records
