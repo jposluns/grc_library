@@ -2,8 +2,8 @@
 
 **Document Title:** Supply Chain Security Programme Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.0.2\
-**Date:** 2026-07-04\
+**Version:** 1.0.3\
+**Date:** 2026-08-14\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](../compliance/logistics/register-ctpat-united-states-msc-controls.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](../compliance/logistics/register-ctpat-united-states-it-controls.md), [`compliance/logistics/register-pip-canada-controls.md`](../compliance/logistics/register-pip-canada-controls.md), [`compliance/logistics/register-basc-it-responsibilities.md`](../compliance/logistics/register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md), [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](../compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md), [`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md), [`compliance/logistics/template-trade-compliance-gap-assessment.md`](../compliance/logistics/template-trade-compliance-gap-assessment.md)\
@@ -67,6 +67,8 @@ The following matrix maps the common supply chain security domains against each 
 
 ## IT and cybersecurity requirements comparison
 
+The comparison below indicates whether each programme addresses a control area, not that each publishes an identically enumerated technical requirement. Programmes vary in specificity: PIP, for example, states its cybersecurity expectations at a high level within its corporate security area rather than as a numbered IT standard.
+
 | IT Requirement | CTPAT | AEO-S (UK) | AEO (EU) | PIP | BASC |
 |---|---|---|---|---|---|
 | Access control: least privilege | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -100,7 +102,8 @@ Mutual recognition means that qualifying members of one programme receive facili
 |---|---|---|
 | CTPAT ↔ AEO-S (UK) | UK-US Trade and Investment Working Group; post-Brexit bilateral arrangement | Yes: most domains; UK legal supplements required |
 | CTPAT ↔ AEO (EU) | US-EU Mutual Recognition Agreement (2012; updated 2019) | Yes: most domains; EU legal supplements required |
-| CTPAT ↔ PIP | Canada-US CBSA-CBP mutual recognition | Yes: full domain overlap |
+| CTPAT ↔ PIP | Canada-US CBSA-CBP mutual recognition (confirm current scope against the CBSA's published arrangements) | Yes, subject to jurisdiction-specific supplements |
+| PIP ↔ OEA (Mexico) | Canada-Mexico AEO mutual recognition arrangement, signed Cancun 11 May 2016 (CBSA / SAT) | Yes, subject to jurisdiction-specific supplements |
 | AEO-S ↔ AEO (EU) | UK HMRC aligned criteria to EU AEO post-Brexit; separate national authorizations | Substantial overlap; separate applications required |
 | AEO-S ↔ OEA (Brazil) | UK-Brazil Trade Working Group framework | Yes: AEO-S holders may receive facilitation at Brazilian customs |
 | AEO (EU) ↔ OEA (Brazil) | EU-Brazil mutual recognition agreement | Yes |
