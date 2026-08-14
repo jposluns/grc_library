@@ -2,8 +2,8 @@
 
 **Document Title:** India Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.2\
-**Date:** 2026-07-02\
+**Version:** 1.1.3\
+**Date:** 2026-08-14\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -36,7 +36,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 - **Consent:** Most processing of personal data requires free, specific, informed, and unambiguous consent. Consent requests must be in clear, plain language and in the language specified by the Data Principal. The Consent Manager framework provides a regulated intermediary structure.
 - **Purpose limitation:** Personal data may be processed only for the specified lawful purpose for which consent was given. Repurposing for AI training requires fresh consent or another valid legal ground.
-- **Children's data:** Data Fiduciaries must obtain verifiable consent from a parent or guardian before processing personal data of children (under 18 years; regulations may reduce this to 14 for certain services). Tracking, behavioural monitoring, and targeted advertising directed at children are prohibited without exception.
+- **Children's data:** Data Fiduciaries must obtain verifiable consent from a parent or guardian before processing personal data of children (a child is an individual under 18 years; under s. 9(5) the Central Government may notify, for a verifiably-safe Data Fiduciary, an age above which these children's-data duties do not apply). Tracking, behavioural monitoring, and targeted advertising directed at children are prohibited (s. 9(3)), subject to exemptions the Central Government may prescribe under s. 9(4) and 9(5).
 - **Significant Data Fiduciaries (SDF):** Entities designated based on volume of data processed, risk to Data Principal rights, potential national security implications, or societal impact. SDFs are subject to: mandatory DPIAs; mandatory annual data audits by accredited auditors; appointment of a Data Protection Officer; and additional accountability mechanisms. Large AI platforms processing personal data at scale are likely SDF candidates.
 - **Automated decision-making:** Data Fiduciaries must provide transparent information about automated decision-making processes that result in significant decisions affecting Data Principals. Data Principals have the right to seek explanation and to contest such decisions.
 - **Transparency:** Notice must be provided at or before the point of data collection, including: nature of data; purpose of processing; manner of exercising Data Principal rights; and contact details of the grievance officer.
