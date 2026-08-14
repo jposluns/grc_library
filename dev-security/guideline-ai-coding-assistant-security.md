@@ -2,8 +2,8 @@
 
 **Document Title:** AI Coding Assistant Security Guideline\
 **Document Type:** Guideline\
-**Version:** 1.3.10\
-**Date:** 2026-08-03\
+**Version:** 1.3.11\
+**Date:** 2026-08-14\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`guardrails/README.md`](../guardrails/README.md), [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -128,11 +128,11 @@ Adopters refine the `permissions.deny` list to match the project's secret paths,
 
 If credentials or personal data are accidentally included in a prompt, treat the event as a potential breach: rotate the credentials immediately and report to the security team.
 
-### Data residency
+### Data residency and cross-border transfer
 
 When using AI coding assistants that send prompts to external APIs:
 - Verify that the provider's data processing occurs within approved regions.
-- For projects subject to data residency requirements (e.g., GDPR, Quebec Law 25, PIPEDA), confirm the tool provider can satisfy those requirements before use.
+- For projects with cross-border data-transfer obligations (e.g., GDPR Chapter V, Quebec Law 25 transfer assessment, PIPEDA comparable-protection), confirm the tool provider can satisfy those obligations before use.
 - Prefer locally-running models (self-hosted LLMs) for highly sensitive development contexts.
 
 ---
@@ -300,10 +300,10 @@ The following publicly available resources provide additional guidance for AI co
 | AI tool authorization | A.5.36 | PO.1, PO.3 | GRC-09 | Clause 6 (planning) | EU AI Act Art. 9 |
 | Data handling for AI inputs | A.5.12, A.8.10 | PS.1 | DSP-07 | Clause 8 (operation) | GDPR, PIPEDA |
 | Code review of AI output | A.8.27, A.8.29 | PW.7 | AIS-10 | Clause 9 (performance evaluation) | N/A |
-| Prompt injection awareness | A.5.30 | N/A | AIS-15 | Annex A.6 (AI risk treatment) | N/A |
+| Prompt injection awareness | A.6.3 | N/A | AIS-15 | Annex A.6 (AI risk treatment) | N/A |
 | Agentic use controls | A.5.18, A.8.2 | PW.1 | AIS-11 | Clause 8 (operation) | EU AI Act Art. 14 |
 | Deterministic enforcement | A.8.16, A.8.34 | PW.1 | TVM-13 | Annex A.6 (AI risk treatment) | EU AI Act Art. 14 |
-| Incident reporting | A.5.26 | RV.1 | SEF-08 | Clause 10 (improvement) | PIPEDA, GDPR |
+| Incident reporting | A.6.8 | RV.1 | SEF-08 | Clause 10 (improvement) | PIPEDA, GDPR |
 
 ---
 
