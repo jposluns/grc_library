@@ -2,7 +2,7 @@
 
 **Document Title:** Data Subject Access Request Workflow Template\
 **Document Type:** Template\
-**Version:** 1.1.7\
+**Version:** 1.1.8\
 **Date:** 2026-08-14\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -175,7 +175,7 @@ If identity cannot be verified within 10 business days, the request is suspended
 | GDPR | Articles 12 to 23 | Data subject rights |
 | UK GDPR | Articles 12 to 23 | Equivalent rights |
 | LGPD | Articles 17 to 22 | Subject rights |
-| CPPA | Sections 12 to 19 (lapsed with Bill C-27) | Access and other rights |
+| CPPA | Sections 63 and 71 (lapsed with Bill C-27) | Access (s. 63; automated-decision explanation at s. 63(3)-(4)) and amendment (s. 71) |
 | PIPL | Articles 44 to 50 | Personal information subject rights |
 | CCPA / CPRA | Cal. Civ. Code ss. 1798.100-1798.135; CCPA Regs 11 CCR s. 7021 (request-handling timelines), ss. 7221-7222 (ADMT opt-out and access) | Consumer rights, including the request timelines and the automated-decision-making rights |
 | ISO/IEC 27701 | §7.3 | Data subject rights |

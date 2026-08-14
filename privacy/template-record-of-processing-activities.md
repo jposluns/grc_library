@@ -2,7 +2,7 @@
 
 **Document Title:** Record of Processing Activities Template\
 **Document Type:** Template\
-**Version:** 1.0.9\
+**Version:** 1.0.10\
 **Date:** 2026-08-14\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -43,7 +43,7 @@ This template applies to every processing activity carried out by the organizati
 | Business owner role | Role accountable for the activity | Role-based; not a named individual |
 | Privacy contact role | Role responsible for the privacy aspect | Typically the Data Protection Officer (organization-wide) or a domain privacy lead |
 | Purposes of processing | All purposes for which the data is processed | One row may carry multiple purposes; granular description |
-| Lawful basis (per jurisdiction) | Lawful basis under each applicable regime | E.g. GDPR Art 6(1)(b) contract; PIPEDA Schedule 1 Principle 3 consent (CPPA Sec 12 consent, from the lapsed Bill C-27, not in force) |
+| Lawful basis (per jurisdiction) | Lawful basis under each applicable regime | E.g. GDPR Art 6(1)(b) contract; PIPEDA Schedule 1 Principle 3 consent (CPPA s. 15 consent, from the lapsed Bill C-27, not in force) |
 | Categories of data subjects | Customer, employee, supplier, prospect, visitor, child, patient, etc. | Identify children separately where applicable |
 | Categories of personal data | Identifying, contact, demographic, financial, health, biometric, location, behaviour, derived | Identify special-category data separately |
 | Source of data | Subject directly, supplier, public source, derived, sensor | Where data is not collected from the subject, this triggers Article 14 information duty |
@@ -104,7 +104,7 @@ This template applies to every processing activity carried out by the organizati
 | UK GDPR | Article 30 | Equivalent obligation |
 | ISO/IEC 27701:2025 | Records of PII processing (section numbering changed in 2025 standalone revision) | Privacy information management |
 | LGPD | Article 37 | Record of operations |
-| CPPA | Schedule 2 (lapsed with Bill C-27) | Record-keeping |
+| CPPA | Section 60 (lapsed with Bill C-27) | Records of security-safeguard breaches |
 | PIPL | Article 55 | Compliance audit and recording |
 | NIST Privacy Framework | CT.PO-P5 | Identifying and inventorying data |
 

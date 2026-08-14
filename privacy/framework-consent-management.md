@@ -2,7 +2,7 @@
 
 **Document Title:** Consent Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.11\
+**Version:** 1.0.12\
 **Date:** 2026-08-14\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -167,7 +167,7 @@ For cookies and similar tracking technologies, consent is governed by the cookie
 | LGPD | Articles 7(I), 8 | Consent as lawful basis |
 | PIPL | Articles 13, 14 | Consent definition and conditions |
 | COPPA | 16 CFR 312 | Verifiable parental consent |
-| CPPA | Sections 14, 18 (lapsed with Bill C-27) | Express versus implied consent |
+| CPPA | Section 15(5)-(6) (lapsed with Bill C-27) | Express versus implied consent |
 | CCPA / CPRA | Cal. Civ. Code ss. 1798.120-1798.121; CCPA Regs 11 CCR s. 7004 | Opt-out and opt-in; consent-method requirements (symmetry in choice, no dark patterns) |
 | ISO/IEC 29184:2020 | Online notice and consent | Consent capture structure |
 
