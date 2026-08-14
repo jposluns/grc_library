@@ -2,7 +2,7 @@
 
 **Document Title:** India Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.4\
+**Version:** 1.1.5\
 **Date:** 2026-08-14\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -27,7 +27,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 - **Digital Personal Data Protection Act 2023 (DPDPA)**: Enacted by the Parliament of India on 2023-08-11. India's first comprehensive data protection law.
 - **Digital Personal Data Protection Rules 2025**: Draft published by the Ministry of Electronics and Information Technology (MeitY) in January 2025 for public consultation; final Rules notified by MeitY on 13 November 2025. The Rules operationalize the principal Act through a **phased commencement**: provisions establishing the Data Protection Board took immediate effect on notification; provisions governing the registration and functioning of consent managers commence 12 months after notification (approximately November 2026); the remainder of the Rules commence 18 months after notification (approximately May 2027). Adopting organizations should plan compliance programmes against the staged timeline rather than treat all obligations as effective on a single date.
 - Scope: applies to processing of digital personal data of individuals in India; also applies to processing outside India where data of Indian residents is processed for the purpose of offering goods or services to individuals in India.
-- **Key concepts:** Data Principals (data subjects); Data Fiduciaries (data controllers); Consent Managers (accredited entities managing consent on behalf of Data Principals); Significant Data Fiduciaries (SDFs): large-scale or high-risk data fiduciaries designated by the Indian government and subject to enhanced obligations.
+- **Key concepts:** Data Principals (data subjects); Data Fiduciaries (data controllers); Consent Managers (entities registered with the Data Protection Board that manage consent on behalf of Data Principals); Significant Data Fiduciaries (SDFs): large-scale or high-risk data fiduciaries designated by the Indian government and subject to enhanced obligations.
 - **Regulatory authority:** Data Protection Board of India (DPBI): an independent adjudicatory body that receives complaints and imposes financial penalties.
 
 ---
@@ -37,7 +37,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 - **Consent:** Most processing of personal data requires free, specific, informed, and unambiguous consent. Consent requests must be in clear, plain language and in the language specified by the Data Principal. The Consent Manager framework provides a regulated intermediary structure.
 - **Purpose limitation:** Personal data may be processed only for the specified lawful purpose for which consent was given. Repurposing for AI training requires fresh consent or another valid legal ground.
 - **Children's data:** Data Fiduciaries must obtain verifiable consent from a parent or guardian before processing personal data of children (a child is an individual under 18 years; under s. 9(5) the Central Government may notify, for a verifiably-safe Data Fiduciary, an age above which these children's-data duties do not apply). Tracking, behavioural monitoring, and targeted advertising directed at children are prohibited (s. 9(3)), subject to exemptions the Central Government may prescribe under s. 9(4) and 9(5).
-- **Significant Data Fiduciaries (SDF):** Entities designated based on volume of data processed, risk to Data Principal rights, potential national security implications, or societal impact. SDFs are subject to: mandatory DPIAs; mandatory annual data audits by accredited auditors; appointment of a Data Protection Officer; and additional accountability mechanisms. Large AI platforms processing personal data at scale are likely SDF candidates.
+- **Significant Data Fiduciaries (SDF):** Entities designated based on volume of data processed, risk to Data Principal rights, potential national security implications, or societal impact. SDFs are subject to: mandatory DPIAs; mandatory annual data audits by an independent data auditor; appointment of a Data Protection Officer; and additional accountability mechanisms. Large AI platforms processing personal data at scale are likely SDF candidates.
 - **Data used in decisions (s. 8(3)):** Where personal data is likely to be used to make a decision that affects a Data Principal, or to be disclosed to another Data Fiduciary, the Data Fiduciary must maintain the completeness, accuracy, and consistency of that data. The DPDPA and the 2025 Rules do not grant a right to an explanation of, or to contest, automated decisions; any human-review or explanation practice is an organizational choice rather than a statutory right.
 - **Transparency:** Notice must be provided at or before the point of data collection, including: nature of data; purpose of processing; manner of exercising Data Principal rights; and contact details of the grievance officer.
 - **Data retention:** Personal data must be erased once the purpose for which it was collected is fulfilled or consent is withdrawn, unless retention is required by law.
@@ -55,15 +55,15 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Enforcement and fines
 
-The Data Protection Board adjudicates complaints and imposes financial penalties per instance of violation (not per affected individual):
+The Data Protection Board adjudicates complaints and, if on conclusion of an inquiry it determines that a breach is significant, may, after giving the person an opportunity of being heard, impose the applicable Schedule monetary penalty, having regard to the statutory factors in section 33(2) (including the breach's nature, gravity, duration, and repetitive character):
 
 | Violation Category | Maximum Penalty |
 |---|---|
-| Failure to implement adequate security safeguards (personal data breach) | INR 250 crore (~USD 30 million) |
-| Failure to notify DPBI of a personal data breach | INR 200 crore (~USD 24 million) |
-| Breach of children's data obligations | INR 200 crore (~USD 24 million) |
-| Failure to notify affected Data Principals of a breach | INR 200 crore (~USD 24 million) |
-| Other violations of the DPDPA | INR 50 crore (~USD 6 million) |
+| Failure to implement adequate security safeguards (personal data breach, s. 8(5)) | INR 250 crore (~USD 30 million) |
+| Failure to give the Data Protection Board or affected Data Principals notice of a breach (s. 8(6)) | INR 200 crore (~USD 24 million) |
+| Breach of children's data obligations (s. 9) | INR 200 crore (~USD 24 million) |
+| Breach of Significant Data Fiduciary additional obligations (s. 10) | INR 150 crore (~USD 18 million) |
+| Other violations of the DPDPA or its Rules | INR 50 crore (~USD 6 million) |
 
 There are no criminal penalties under the DPDPA; enforcement is administrative through the DPBI.
 
