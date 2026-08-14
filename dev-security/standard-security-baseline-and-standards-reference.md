@@ -2,8 +2,8 @@
 
 **Document Title:** Security Baseline and Standards Reference\
 **Document Type:** Standard\
-**Version:** 1.1.18\
-**Date:** 2026-08-12\
+**Version:** 1.1.19\
+**Date:** 2026-08-14\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md)\
@@ -32,7 +32,7 @@ In the event of conflict, higher layers take precedence.
 
 | Obligation | Jurisdiction | Relevance |
 | --- | --- | --- |
-| PIPEDA / Quebec Law 25 | Canada | Personal data processing, breach notification, data residency |
+| PIPEDA / Quebec Law 25 | Canada | Personal data processing, breach notification, cross-border transfer accountability |
 | Canada AI governance (Treasury Board Directive on Automated Decision-Making; Voluntary Code of Conduct on Generative AI; AIDA lapsed) | Canada | AI system governance; high-impact AI (AIDA not in force; the Treasury Board Directive on Automated Decision-Making is binding on federal institutions) |
 | Criminal Code of Canada (cybercrime provisions) | Canada | Unauthorized access, data destruction |
 | State and provincial breach notification laws | Multiple | Customer and partner data exposure |
@@ -100,7 +100,7 @@ Always classified as Confidential or Restricted regardless of context: personal 
 
 ### 5.1 Canadian privacy law
 
-Quebec Law 25 requires: PIA before any technology deployment involving personal information; data residency justification for storage outside Quebec; prompt breach notification to the provincial privacy regulator for a breach presenting a risk of serious injury (the Act's standard is promptness; it sets no fixed hour-count); designated privacy officer. See the privacy management programme charter for the full privacy governance model.
+Quebec Law 25 requires: a privacy impact assessment before any project to acquire, develop, or overhaul an information system or electronic service delivery system involving the collection, use, communication, keeping, or destruction of personal information (s. 3.3) and before communicating personal information outside Quebec (s. 17); prompt breach notification to the provincial privacy regulator for a breach presenting a risk of serious injury (the Act's standard is promptness; it sets no fixed hour-count); a person in charge of the protection of personal information (s. 3.1, held by the person exercising the highest authority, who may delegate the function in writing). See the privacy management programme charter for the full privacy governance model.
 
 ### 5.2 Trade security compliance (BASC)
 

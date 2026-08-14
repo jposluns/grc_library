@@ -2,8 +2,8 @@
 
 **Document Title:** Security Quick Reference\
 **Document Type:** Standard\
-**Version:** 1.1.12\
-**Date:** 2026-07-30\
+**Version:** 1.1.13\
+**Date:** 2026-08-14\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md)\
@@ -45,11 +45,11 @@ Absolute prohibitions. No exception exists without written CIO or CISO approval,
 | 13 | Create a shadow IT system or unapproved cloud resource | All resources must be under organizational governance and in approved cloud environments. |
 | 14 | Store IaC state locally or in version control | Remote state backend with versioning and access logging only. |
 | 15 | Leave a self-signed certificate in production | CA-issued certificate required. Internal PKI for internal services; an approved external CA for external-facing services. |
-| 16 | Process personal data in a new system without completing a Privacy Impact Assessment | Mandatory under Quebec Law 25. |
+| 16 | Process personal data in a new or overhauled system without completing a Privacy Impact Assessment | Mandatory under Quebec Law 25. |
 | 17 | Put any secret in a workflow configuration file that is tracked in version control | Configuration files in source control are exposed to everyone with repository access. |
 | 18 | Hardcode a personal email address as an error notification or approval recipient | When that person leaves, every alert silently fails. |
 | 19 | Route production automation traffic to a test workflow endpoint or a disabled workflow | Routes to test endpoints serve wrong responses. Routes to disabled workflows cause silent data loss. |
-| 20 | Use unapproved platforms or non-compliant hosted services for production data | Unapproved platforms are ungoverned. Non-compliant hosting may violate data residency requirements. |
+| 20 | Use unapproved platforms or non-compliant hosted services for production data | Unapproved platforms are ungoverned. Non-compliant hosting may violate applicable cross-border transfer or data-residency requirements. |
 | 21 | Run an automation platform host on an EOL runtime | Runtime stability and security patches are not guaranteed after EOL. |
 | 22 | Hardcode an entity identifier (customer ID, account ID, tenant identifier) in workflow code | Hard to maintain, breaks multi-tenancy, and is a source of silent data errors. Use configurable parameters. |
 | 23 | Store authentication tokens in browser local storage in a web application | Local storage is accessible to any JavaScript in the browser context. Vulnerable to XSS-based token exfiltration. |
