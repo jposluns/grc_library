@@ -2,8 +2,8 @@
 
 **Document Title:** Data Loss Prevention Standard\
 **Document Type:** Standard\
-**Version:** 1.3.4\
-**Date:** 2026-07-02\
+**Version:** 1.3.5\
+**Date:** 2026-08-14\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md)\
@@ -118,7 +118,7 @@ The organization applies a 5-level Data Classification Model. DLP controls are c
 |---|---|---|
 | ISO/IEC 27002:2022 | §8.12 | Data Leakage Prevention |
 | ISO/IEC 27701:2025 | Privacy incident management (section numbering changed in 2025 standalone revision) | Privacy Incident Management |
-| COBIT 2019 | DSS05.03 | Protect Against Data Leakage |
+| COBIT 2019 | DSS05.03 | Manage endpoint security |
 | CSA CCM v4.1 | UEM-11 | Data Loss Prevention |
 | NIST SP 800-53 Rev. 5 | SI-4, SC-7 | System Monitoring and Boundary Protection |
 
