@@ -2,8 +2,8 @@
 
 **Document Title:** Supply Chain Security Programme Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.0.2\
-**Date:** 2026-07-04\
+**Version:** 1.0.5\
+**Date:** 2026-08-14\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](../compliance/logistics/register-ctpat-united-states-msc-controls.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](../compliance/logistics/register-ctpat-united-states-it-controls.md), [`compliance/logistics/register-pip-canada-controls.md`](../compliance/logistics/register-pip-canada-controls.md), [`compliance/logistics/register-basc-it-responsibilities.md`](../compliance/logistics/register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md), [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](../compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md), [`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md), [`compliance/logistics/template-trade-compliance-gap-assessment.md`](../compliance/logistics/template-trade-compliance-gap-assessment.md)\
@@ -27,9 +27,9 @@ This matrix provides a consolidated cross-reference of the internationally recog
 | Programme | Authority | Jurisdiction | Programme Type | Benefit | Mutual Recognition |
 |---|---|---|---|---|---|
 | **CTPAT**: Customs-Trade Partnership Against Terrorism | U.S. Customs and Border Protection (CBP) | United States | Voluntary trusted-trader | Expedited customs processing; reduced examinations at US ports | AEO (EU), AEO-S (UK), PIP (Canada), AEO (Japan, Korea, others) |
-| **AEO-S**: Authorized Economic Operator to Security and Safety | HMRC | United Kingdom (post-Brexit) | Voluntary trusted-trader | Reduced customs examinations; priority treatment at UK ports; facilitated imports/exports | CTPAT (US), AEO (EU), PIP (Canada), OEA (Brazil), others |
-| **AEO**: Authorized Economic Operator | National customs authorities; EU Commission | European Union | Voluntary trusted-trader | Simplified procedures; reduced examinations across EU | CTPAT (US), AEO-S (UK), PIP (Canada), OEA (Brazil), others |
-| **PIP**: Partners in Protection | Canada Border Services Agency (CBSA) | Canada | Voluntary trusted-trader | Expedited clearance at Canadian ports; reduced examinations | CTPAT (US), AEO (EU), AEO-S (UK) |
+| **AEO-S**: Authorized Economic Operator to Security and Safety | HMRC | United Kingdom (post-Brexit) | Voluntary trusted-trader | Reduced customs examinations; priority treatment at UK ports; facilitated imports/exports | CTPAT (US), AEO (EU), OEA (Brazil), others |
+| **AEO**: Authorized Economic Operator | National customs authorities; EU Commission | European Union | Voluntary trusted-trader | Simplified procedures; reduced examinations across EU | CTPAT (US), AEO-S (UK), PIP (Canada, under negotiation), OEA (Brazil), others |
+| **PIP**: Partners in Protection | Canada Border Services Agency (CBSA) | Canada | Voluntary trusted-trader | Expedited clearance at Canadian ports; reduced examinations | US (CTPAT, 2008), Japan, Korea, Singapore, Mexico (2016), Australia, Israel (signed); EU under negotiation, no Canada-UK arrangement (WCO AEO Compendium 2020) |
 | **BASC**: Business Alliance for Secure Commerce | BASC Organization (WBO) | Latin America; global membership | Private voluntary certification | Market access signals; supply chain security assurance | WCO SAFE Framework aligned |
 | **NEEC**: New Scheme of Certified Companies | Servicio de Administración Tributaria (SAT) | Mexico | Voluntary trusted-trader | Expedited customs processing in Mexico; facilitation benefits | CTPAT (US); alignment with WCO SAFE |
 | **OEA**: Operador Econômico Autorizado | Receita Federal do Brasil (RFB) | Brazil | Voluntary trusted-trader | Expedited processing at Brazilian customs; reduced examinations | AEO (EU); AEO-S (UK); CTPAT (US) |
@@ -67,14 +67,16 @@ The following matrix maps the common supply chain security domains against each 
 
 ## IT and cybersecurity requirements comparison
 
+The comparison below indicates whether each programme addresses a control area, not that each publishes an identically enumerated technical requirement. Programmes vary in specificity: PIP, for example, states its cybersecurity expectations at a high level within its corporate security area rather than as a numbered IT standard.
+
 | IT Requirement | CTPAT | AEO-S (UK) | AEO (EU) | PIP | BASC |
 |---|---|---|---|---|---|
 | Access control: least privilege | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Multi-factor authentication | ✓ | ✓ | ✓ | ✓ | ~ |
+| Multi-factor authentication | ✓ | ✓ | ✓ | ~ | ~ |
 | Password management | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Vulnerability management | ✓ | ✓ | ✓ | ✓ | ~ |
-| Network security (firewall, IDS) | ✓ | ✓ | ✓ | ✓ | ~ |
-| Encryption in transit | ✓ | ✓ | ~ | ✓ | ~ |
+| Vulnerability management | ✓ | ✓ | ✓ | ~ | ~ |
+| Network security (firewall, IDS) | ✓ | ✓ | ✓ | ~ | ~ |
+| Encryption in transit | ✓ | ✓ | ~ | ~ | ~ |
 | Encryption at rest | ~ | ~ | ~ | ~ | N/A |
 | Incident response plan | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Notification to customs authority | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -100,7 +102,8 @@ Mutual recognition means that qualifying members of one programme receive facili
 |---|---|---|
 | CTPAT ↔ AEO-S (UK) | UK-US Trade and Investment Working Group; post-Brexit bilateral arrangement | Yes: most domains; UK legal supplements required |
 | CTPAT ↔ AEO (EU) | US-EU Mutual Recognition Agreement (2012; updated 2019) | Yes: most domains; EU legal supplements required |
-| CTPAT ↔ PIP | Canada-US CBSA-CBP mutual recognition | Yes: full domain overlap |
+| CTPAT ↔ PIP | Canada-US CBSA-CBP mutual recognition (confirm current scope against the CBSA's published arrangements) | Yes, subject to jurisdiction-specific supplements |
+| PIP ↔ AEO (Mexico) | Canada-Mexico AEO mutual recognition arrangement, signed Cancun 11 May 2016 (CBSA / SAT) | Facilitation benefits (fewer inspections, priority processing); the held source does not state evidence reuse |
 | AEO-S ↔ AEO (EU) | UK HMRC aligned criteria to EU AEO post-Brexit; separate national authorizations | Substantial overlap; separate applications required |
 | AEO-S ↔ OEA (Brazil) | UK-Brazil Trade Working Group framework | Yes: AEO-S holders may receive facilitation at Brazilian customs |
 | AEO (EU) ↔ OEA (Brazil) | EU-Brazil mutual recognition agreement | Yes |
@@ -121,7 +124,7 @@ The following evidence types can be collected once and reused across multiple pr
 | Supplier security assessment records | CTPAT, AEO-S, AEO, PIP, BASC |
 | Incident response plan | CTPAT, AEO-S, AEO, PIP, BASC |
 | IT access control evidence | CTPAT, AEO-S, AEO, PIP, BASC |
-| MFA configuration records | CTPAT, AEO-S, AEO, PIP |
+| MFA configuration records | CTPAT, AEO-S, AEO |
 | Penetration test attestation | CTPAT, AEO-S (supports), AEO (supports) |
 | ISO 28000 certification | Supports CTPAT, AEO-S, AEO, PIP as evidence of systematic approach |
 
