@@ -2,7 +2,7 @@
 
 **Document Title:** Supply Chain Security Programme Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.0.7\
+**Version:** 1.0.8\
 **Date:** 2026-08-14\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -77,14 +77,14 @@ The comparison below indicates whether each programme addresses a control area, 
 | Vulnerability management | ✓ | ✓ | ✓ | N/A | ~ |
 | Network security (firewall, IDS) | ✓ | ✓ | ✓ | ~ | ~ |
 | Encryption in transit | ✓ | ✓ | ~ | ~ | ~ |
-| Encryption at rest | ~ | ~ | ~ | ~ | N/A |
+| Encryption at rest | ~ | ~ | ~ | N/A | N/A |
 | Incident response plan | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Notification to customs authority | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Security awareness training | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Asset inventory | ✓ | ✓ | ~ | ✓ | ~ |
 | Third-party IT security | ✓ | ✓ | ✓ | ✓ | ~ |
 | Business continuity / IT recovery | ~ | ~ | ~ | ~ | N/A |
-| Audit logging | ✓ | ✓ | ~ | ~ | N/A |
+| Audit logging | ✓ | ✓ | ~ | N/A | N/A |
 
 **Detailed IT mapping documents:**
 - CTPAT IT: [`compliance/logistics/register-ctpat-united-states-it-controls.md`](../compliance/logistics/register-ctpat-united-states-it-controls.md)
