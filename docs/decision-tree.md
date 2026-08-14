@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Decision Tree\
 **Document Type:** Guide\
-**Version:** 1.0.21\
-**Date:** 2026-07-31\
+**Version:** 1.0.24\
+**Date:** 2026-08-14\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/adopter-guide.md`](adopter-guide.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`README.md`](../README.md), [`docs/worked-example.md`](worked-example.md)\
@@ -81,7 +81,7 @@ These bands select reading paths in this document. They are a different axis fro
 - Process personal data of EU residents (GDPR)
 - Process personal data of UK residents (UK GDPR)
 - Process personal data of California residents (CCPA/CPRA)
-- Process personal data of Canadian residents (PIPEDA / Quebec Law 25)
+- Process personal data in the course of commercial activity in Canada (PIPEDA), or carry on an enterprise, per the Quebec Civil Code (Quebec Law 25)
 - Operate as a financial-services entity in the EU (DORA in scope)
 - Publicly-traded in the US (SOX in scope)
 - Provide cloud services to US federal agencies (FedRAMP in scope)
@@ -219,7 +219,7 @@ Common Anglosphere selections (representative, not exhaustive):
 - EU residents: [`privacy/jurisdictions/annex-privacy-european-union.md`](../privacy/jurisdictions/annex-privacy-european-union.md)
 - UK residents: [`privacy/jurisdictions/annex-privacy-united-kingdom.md`](../privacy/jurisdictions/annex-privacy-united-kingdom.md)
 - US residents (CCPA): [`privacy/jurisdictions/annex-privacy-united-states.md`](../privacy/jurisdictions/annex-privacy-united-states.md)
-- Canadian residents: [`privacy/jurisdictions/annex-privacy-canada.md`](../privacy/jurisdictions/annex-privacy-canada.md)
+- Canada: [`privacy/jurisdictions/annex-privacy-canada.md`](../privacy/jurisdictions/annex-privacy-canada.md)
 
 For other jurisdictions (Australia, Singapore, India, Brazil, Japan, South Korea, China, and others), consult the [jurisdiction index](../privacy/annex-privacy-jurisdiction-index.md) above for the full list of available annexes.
 
