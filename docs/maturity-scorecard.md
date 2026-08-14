@@ -101,7 +101,7 @@ _108 documents._
 | [operations/standard-network-security-and-segmentation.md](../operations/standard-network-security-and-segmentation.md) | Network Security and Segmentation Standard | Standard | 1.4.8 | 2026-08-05 |
 | [operations/standard-physical-security-of-it-infrastructure.md](../operations/standard-physical-security-of-it-infrastructure.md) | Physical Security of IT Infrastructure Standard | Standard | 1.3.5 | 2026-07-02 |
 | [operations/standard-production-security-requirements.md](../operations/standard-production-security-requirements.md) | Production Security Requirements | Standard | 1.1.10 | 2026-08-05 |
-| [privacy/charter-privacy-management-programme.md](../privacy/charter-privacy-management-programme.md) | Privacy Management Programme Charter | Charter | 1.5.10 | 2026-08-14 |
+| [privacy/charter-privacy-management-programme.md](../privacy/charter-privacy-management-programme.md) | Privacy Management Programme Charter | Charter | 1.5.11 | 2026-08-14 |
 | [privacy/jurisdictions/annex-privacy-brazil.md](../privacy/jurisdictions/annex-privacy-brazil.md) | Brazil Privacy Regulatory Requirements | Annex | 1.1.8 | 2026-08-14 |
 | [privacy/jurisdictions/annex-privacy-canada.md](../privacy/jurisdictions/annex-privacy-canada.md) | Canada Privacy Regulatory Requirements | Annex | 1.1.16 | 2026-08-14 |
 | [privacy/jurisdictions/annex-privacy-china.md](../privacy/jurisdictions/annex-privacy-china.md) | China Privacy Regulatory Requirements | Annex | 1.1.3 | 2026-07-02 |
@@ -271,7 +271,7 @@ _170 documents._
 | [privacy/template-breach-notification-regulator-register.md](../privacy/template-breach-notification-regulator-register.md) | Breach Notification Regulator Register Template | Template | 1.0.1 | 2026-07-02 |
 | [privacy/template-dpa-article-28.md](../privacy/template-dpa-article-28.md) | Data Processing Agreement Template (GDPR Article 28) | Template | 1.0.3 | 2026-08-14 |
 | [privacy/template-dpia.md](../privacy/template-dpia.md) | DPIA (Data Protection Impact Assessment) Template | Template | 1.0.10 | 2026-08-04 |
-| [privacy/template-joint-controller-arrangement.md](../privacy/template-joint-controller-arrangement.md) | Joint Controller Arrangement Template | Template | 1.0.2 | 2026-07-02 |
+| [privacy/template-joint-controller-arrangement.md](../privacy/template-joint-controller-arrangement.md) | Joint Controller Arrangement Template | Template | 1.0.3 | 2026-08-14 |
 | [privacy/template-legitimate-interest-assessment.md](../privacy/template-legitimate-interest-assessment.md) | Legitimate Interest Assessment (LIA) Template | Template | 1.0.3 | 2026-07-03 |
 | [privacy/template-privacy-notice.md](../privacy/template-privacy-notice.md) | Privacy Notice Template | Template | 1.0.8 | 2026-08-14 |
 | [privacy/template-record-of-processing-activities.md](../privacy/template-record-of-processing-activities.md) | Record of Processing Activities Template | Template | 1.0.9 | 2026-08-14 |

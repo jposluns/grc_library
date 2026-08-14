@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Management Programme Charter\
 **Document Type:** Charter\
-**Version:** 1.5.10\
+**Version:** 1.5.11\
 **Date:** 2026-08-14\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -98,7 +98,7 @@ This list is not exhaustive; the test is whether the secondary role results in t
 | **UK GDPR** (UK) | Article 38(3) (same as EU GDPR) | Article 38(6) (same); ICO guidance mirrors EDPB |
 | **LGPD** (Brazil, Article 41) | DPO must have appropriate technical knowledge and act independently; ANPD guidance on conflict |
 | **PIPL** (China, Article 52) | Personal information protection officer must have professional knowledge and management experience; CAC Provisions impose function-separation expectations |
-| **India DPDP 2023** | Data Protection Officer required for Significant Data Fiduciaries; must be independent; Data Protection Board provides oversight |
+| **India DPDP 2023** | Data Protection Officer required for Significant Data Fiduciaries; no statutory independence requirement (the DPO represents the SDF, is based in India, and is responsible to its governing body, s. 10(2)(a)); Data Protection Board provides oversight |
 
 For multi-regime non-EU controllers the strictest applicable independence regime governs.
 
@@ -157,7 +157,7 @@ The DPO documents the Article 27(2) exemption analysis in the organization's Art
 | **UK GDPR** (UK) | UK representative (UK GDPR Article 27) | Required where the controller / processor is outside the UK but subject to UK GDPR; ICO is the supervisory authority |
 | **LGPD** (Brazil) | Legal representative (Article 5(VIII)) | Required for non-Brazilian controllers offering services to Brazilian subjects; ANPD is the supervisory authority |
 | **PIPL** (China, Article 53) | Designated organization or appointed agent in China | Required for non-Chinese personal-information handlers; must be filed with the Cyberspace Administration of China (CAC) |
-| **India DPDP Act 2023** | Local representative where designated as Significant Data Fiduciary | Required at the Significant-Data-Fiduciary designation level; Data Protection Board of India is the supervisory authority |
+| **India DPDP Act 2023** | India-based Data Protection Officer for Significant Data Fiduciaries (no general local-representative requirement) | A Significant Data Fiduciary must appoint a DPO based in India (s. 10(2)(a)); the DPDPA imposes no general local-representative obligation; the Data Protection Board of India is the supervisory authority |
 | **Saudi Arabia PDPL** | Local representative for non-Saudi controllers (subject to executive regulations) | SDAIA is the supervisory authority |
 
 For multi-regime non-EU controllers, the organization may need to designate multiple regional representatives in parallel.
