@@ -2,8 +2,8 @@
 
 **Document Title:** Children's Data Framework\
 **Document Type:** Framework\
-**Version:** 1.0.9\
-**Date:** 2026-07-16\
+**Version:** 1.0.10\
+**Date:** 2026-08-14\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/framework-consent-management.md`](framework-consent-management.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/register-automated-decision-making.md`](register-automated-decision-making.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md)\
@@ -43,7 +43,7 @@ The framework deliberately uses "child" rather than a single age threshold becau
 | United States: COPPA | Under 13 | Verifiable parental consent required |
 | United States: California (CCPA, AB 1394) | Specific opt-in for sale or sharing for under 16; under 13 requires parental opt-in | California-specific |
 | Canada (federal): PIPEDA | No fixed numeric age but heightened obligations where the data subject is a child | Office of the Privacy Commissioner guidance applies |
-| Canada (Quebec): Law 25 | Under 14 requires parental consent | Quebec-specific |
+| Canada (Quebec): Law 25 | Under 14: parental or tutor consent (s. 14); information may not be collected from the minor without that consent unless clearly for the minor's benefit (s. 4.1) | Quebec-specific |
 | Brazil: LGPD | Under 18 considered child or adolescent; under 12 child | Best-interest principle |
 | China: PIPL | Under 14 | Parental or guardian consent required |
 | Japan: APPI | No fixed statutory numeric age; guardian involvement expected for minors under PPC guidance | Personal Information Protection Commission guidance applies |

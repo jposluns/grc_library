@@ -2,8 +2,8 @@
 
 **Document Title:** Worked Example: Converting a Draft into a CC BY-SA 4.0 Artefact\
 **Document Type:** Guide\
-**Version:** 1.0.5\
-**Date:** 2026-07-31\
+**Version:** 1.0.6\
+**Date:** 2026-08-14\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`specification-ingestion.md`](../specification-ingestion.md), [`specification-master-project.md`](../specification-master-project.md), [`CONTRIBUTING.md`](../CONTRIBUTING.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/worked-example-adoption.md`](worked-example-adoption.md)\
@@ -137,9 +137,10 @@ the deactivation log on the collaboration and file storage platform
 under restricted access. Records are retained for the period defined in
 the Records Retention and Destruction Standard.
 
-Quebec records are retained and processed under the additional
-accountability conditions of Quebec Law 25, including the requirement
-to log access by the identity custodian.
+Quebec records are retained and processed under the accountability
+conditions of Quebec Law 25 (the person-in-charge and governance framework,
+sections 3.1 to 3.8); access logging by the identity custodian is an
+organizational safeguard this example adopts, not a Law 25 requirement.
 
 ---
 
@@ -159,7 +160,7 @@ against their own policy and legal requirements.
 | ISO/IEC 27001:2022 | A.5.15 to A.5.18 | Access control and identity lifecycle |
 | NIST SP 800-53 Rev. 5 | AC-2; AC-6 | Account management; least privilege |
 | CSA CCM v4.1 | IAM-05 | Privileged account management |
-| Quebec Law 25 | Articles 8 to 9 | Accountability and access logging |
+| Quebec Law 25 | Sections 3.1 to 3.8 | Accountability (person in charge and governance) |
 
 ---
 
