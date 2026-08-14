@@ -2,7 +2,7 @@
 
 **Document Title:** Singapore Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.5\
+**Version:** 1.0.6\
 **Date:** 2026-08-14\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -49,8 +49,8 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Enforcement and fines
 
-- Financial penalties: Up to SGD 1 million or 10% of the organization's annual turnover in Singapore (whichever is higher) for egregious data breaches (post-2020 amendment).
-- The PDPC may also issue directions to stop collecting, using, or disclosing personal data.
+- Financial penalties (PDPA s.48J): for an intentional or negligent contravention of Parts 3, 4, 5, 6, 6A, or 6B (except a contravention whose breach is itself an offence under the Act, s.48J(2)), the PDPC may impose a financial penalty; the prescribed maximum may not exceed 10% of the organization's annual turnover in Singapore where that turnover exceeds SGD 10 million, or SGD 1 million in any other case (s.48J(3), in force from 1 October 2022 under the 2020 amendment).
+- Under s.48I, where satisfied that an organization has not complied, or is not complying, with those provisions, the PDPC may direct it to comply, and may in particular order it to stop collecting, using, or disclosing personal data in contravention of the Act, or to destroy personal data collected in contravention of the Act.
 
 ---
 

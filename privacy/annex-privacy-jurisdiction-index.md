@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Jurisdiction Index\
 **Document Type:** Annex\
-**Version:** 1.0.19\
-**Date:** 2026-08-12\
+**Version:** 1.0.20\
+**Date:** 2026-08-14\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -105,7 +105,7 @@ Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting 
 | Brazil | LGPD | Automated decision review (Art. 20); ANPD DPIA guidance | ANPD SCCs (Resolution 19/2024); EU/EEA adequacy (Resolution 32/2026) | BRL 50M per violation / 2% Brazil revenue |
 | Mexico | LFPDPPP (2025) | Privacy-notice transparency for automated processing; ARCO rights | Privacy-notice disclosure + consent (Arts. 35 and 36) | 320,000 UMA (up to 2x for sensitive data) |
 | Latin America | Various (see jurisdiction file) | Varies by jurisdiction | Varies by jurisdiction | Varies by jurisdiction |
-| Singapore | PDPA | PDPC AI Model Governance Framework; mandatory breach notification | PDPC contractual clauses, CBPR 2.0 | SGD 1M or 10% annual Singapore turnover |
+| Singapore | PDPA | PDPC AI Model Governance Framework; mandatory breach notification | PDPC contractual clauses, CBPR 2.0 | SGD 1M, or 10% of SG turnover if it exceeds SGD 10M (s.48J) |
 | Australia | Privacy Act 1988 | AI Ethics Framework (voluntary); APP principles; Privacy Act 2024 reforms | APP 8 contractual safeguards | AUD 50M or 30% adjusted turnover |
 | Japan | APPI | PPC AI Guidelines; purpose limitation for AI training | Adequacy (EU, UK); contractual | JPY 100M |
 | South Korea | PIPA 2023 | Right to explanation; automated decision review; PIPC guidance | Adequacy (EU); PIPC SCCs; consent | 3% annual revenue |
