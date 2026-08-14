@@ -2,7 +2,7 @@
 
 **Document Title:** Canada Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.15\
+**Version:** 1.1.16\
 **Date:** 2026-08-14\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -113,7 +113,7 @@ The following summarizes the PPCDA as introduced (Bill C-36, first reading 2026-
 - Administrative monetary penalties: Up to CAD 10 million or 3% of global revenue for general violations; up to CAD 25 million or 5% of global revenue for the most serious violations.
 - Privacy Commissioner would have order-making powers.
 
-### Quebec law 25
+### Quebec Law 25
 
 - CAI administrative monetary penalty (s. 90.12): a single maximum of the greater of CAD 10 million or 2% of worldwide turnover for the preceding fiscal year; up to CAD 50,000 for a natural person.
 - Penal fines (s. 91): organizations CAD 15,000 to 25,000,000 or, if greater, 4% of worldwide turnover for the preceding fiscal year; natural persons CAD 5,000 to 100,000.
