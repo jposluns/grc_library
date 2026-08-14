@@ -83,7 +83,7 @@ _108 documents._
 | [governance/register-canonical-citations.md](../governance/register-canonical-citations.md) | Canonical Citations Register | Register | 1.5.54 | 2026-08-14 |
 | [governance/register-coverage-gaps.md](../governance/register-coverage-gaps.md) | Coverage Gap Analysis Register | Register | 1.1.32 | 2026-08-04 |
 | [governance/register-digital-trust-and-assurance-metrics.md](../governance/register-digital-trust-and-assurance-metrics.md) | Digital Trust and Assurance Metrics Register | Register | 1.1.2 | 2026-08-05 |
-| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.110 | 2026-08-13 |
+| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.111 | 2026-08-14 |
 | [governance/register-glossary.md](../governance/register-glossary.md) | Glossary and Acronym Index | Register | 1.4.17 | 2026-08-12 |
 | [governance/register-key-terms-and-definitions.md](../governance/register-key-terms-and-definitions.md) | Key Terms and Definitions Register | Register | 1.1.4 | 2026-07-02 |
 | [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.5.4 | 2026-07-03 |
@@ -101,7 +101,7 @@ _108 documents._
 | [operations/standard-network-security-and-segmentation.md](../operations/standard-network-security-and-segmentation.md) | Network Security and Segmentation Standard | Standard | 1.4.8 | 2026-08-05 |
 | [operations/standard-physical-security-of-it-infrastructure.md](../operations/standard-physical-security-of-it-infrastructure.md) | Physical Security of IT Infrastructure Standard | Standard | 1.3.5 | 2026-07-02 |
 | [operations/standard-production-security-requirements.md](../operations/standard-production-security-requirements.md) | Production Security Requirements | Standard | 1.1.10 | 2026-08-05 |
-| [privacy/charter-privacy-management-programme.md](../privacy/charter-privacy-management-programme.md) | Privacy Management Programme Charter | Charter | 1.5.8 | 2026-07-04 |
+| [privacy/charter-privacy-management-programme.md](../privacy/charter-privacy-management-programme.md) | Privacy Management Programme Charter | Charter | 1.5.9 | 2026-08-14 |
 | [privacy/jurisdictions/annex-privacy-brazil.md](../privacy/jurisdictions/annex-privacy-brazil.md) | Brazil Privacy Regulatory Requirements | Annex | 1.1.7 | 2026-07-22 |
 | [privacy/jurisdictions/annex-privacy-canada.md](../privacy/jurisdictions/annex-privacy-canada.md) | Canada Privacy Regulatory Requirements | Annex | 1.1.15 | 2026-08-14 |
 | [privacy/jurisdictions/annex-privacy-china.md](../privacy/jurisdictions/annex-privacy-china.md) | China Privacy Regulatory Requirements | Annex | 1.1.3 | 2026-07-02 |
@@ -149,7 +149,7 @@ _108 documents._
 | [security/standard-data-loss-prevention.md](../security/standard-data-loss-prevention.md) | Data Loss Prevention Standard | Standard | 1.3.4 | 2026-07-02 |
 | [security/standard-logging-and-monitoring.md](../security/standard-logging-and-monitoring.md) | Logging and Monitoring Standard | Standard | 1.4.15 | 2026-08-05 |
 | [specification-ingestion.md](../specification-ingestion.md) | GRC Library Ingestion and Transformation Specification | Specification | 1.7.13 | 2026-08-08 |
-| [specification-master-project.md](../specification-master-project.md) | Master Project Specification | Specification | 1.6.19 | 2026-08-12 |
+| [specification-master-project.md](../specification-master-project.md) | Master Project Specification | Specification | 1.6.20 | 2026-08-14 |
 | [supply-chain/procedure-supplier-due-diligence.md](../supply-chain/procedure-supplier-due-diligence.md) | Supplier Due Diligence Procedure | Procedure | 1.1.11 | 2026-07-23 |
 | [supply-chain/standard-cloud-exit-and-data-portability.md](../supply-chain/standard-cloud-exit-and-data-portability.md) | Cloud Exit and Data Portability Standard | Standard | 1.1.4 | 2026-08-14 |
 | [supply-chain/standard-supplier-security-and-privacy-assurance.md](../supply-chain/standard-supplier-security-and-privacy-assurance.md) | Supplier Security and Privacy Assurance Standard | Standard | 1.1.9 | 2026-07-23 |
@@ -222,7 +222,7 @@ _170 documents._
 | [governance/procedure-grc-programme-management-and-annual-review.md](../governance/procedure-grc-programme-management-and-annual-review.md) | GRC Programme Management and Annual Review Procedure | Procedure | 1.0.10 | 2026-08-13 |
 | [governance/procedure-library-quality-and-review-cadence.md](../governance/procedure-library-quality-and-review-cadence.md) | Library Quality and Review Cadence Procedure | Procedure | 1.0.22 | 2026-08-08 |
 | [governance/procedure-standard-version-upgrade.md](../governance/procedure-standard-version-upgrade.md) | Standard Version Upgrade Procedure | Procedure | 1.0.1 | 2026-07-04 |
-| [governance/procedure-whistleblower-and-incident-reporting.md](../governance/procedure-whistleblower-and-incident-reporting.md) | Whistleblower and Incident Reporting Procedure | Procedure | 1.0.5 | 2026-07-09 |
+| [governance/procedure-whistleblower-and-incident-reporting.md](../governance/procedure-whistleblower-and-incident-reporting.md) | Whistleblower and Incident Reporting Procedure | Procedure | 1.0.6 | 2026-08-14 |
 | [governance/register-data-retention-schedule.md](../governance/register-data-retention-schedule.md) | Data Retention Schedule | Register | 1.0.21 | 2026-07-25 |
 | [governance/specification-project-governance-separation.md](../governance/specification-project-governance-separation.md) | Project Governance Separation Specification | Specification | 1.0.9 | 2026-08-03 |
 | [governance/standard-maturity-assessment-methodology.md](../governance/standard-maturity-assessment-methodology.md) | Maturity Assessment Methodology Standard | Standard | 1.0.2 | 2026-08-05 |
@@ -246,7 +246,7 @@ _170 documents._
 | [operations/standard-service-level-management.md](../operations/standard-service-level-management.md) | Service Level Management Standard | Standard | 1.0.6 | 2026-07-23 |
 | [operations/standard-site-reliability-engineering.md](../operations/standard-site-reliability-engineering.md) | Site Reliability Engineering Standard | Standard | 1.0.3 | 2026-07-02 |
 | [privacy/annex-privacy-jurisdiction-index.md](../privacy/annex-privacy-jurisdiction-index.md) | Privacy Jurisdiction Index | Annex | 1.0.21 | 2026-08-14 |
-| [privacy/framework-childrens-data.md](../privacy/framework-childrens-data.md) | Children's Data Framework | Framework | 1.0.9 | 2026-07-16 |
+| [privacy/framework-childrens-data.md](../privacy/framework-childrens-data.md) | Children's Data Framework | Framework | 1.0.10 | 2026-08-14 |
 | [privacy/framework-consent-management.md](../privacy/framework-consent-management.md) | Consent Management Framework | Framework | 1.0.10 | 2026-07-16 |
 | [privacy/framework-privacy-by-design.md](../privacy/framework-privacy-by-design.md) | Privacy by Design Framework | Framework | 1.0.4 | 2026-08-04 |
 | [privacy/jurisdictions/annex-privacy-australia.md](../privacy/jurisdictions/annex-privacy-australia.md) | Australia Privacy Regulatory Requirements | Annex | 1.0.4 | 2026-07-11 |

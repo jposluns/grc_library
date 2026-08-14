@@ -2,8 +2,8 @@
 
 **Document Title:** Whistleblower and Incident Reporting Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.5\
-**Date:** 2026-07-09\
+**Version:** 1.0.6\
+**Date:** 2026-08-14\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md), [`security/procedure-security-disciplinary-process.md`](../security/procedure-security-disciplinary-process.md)\
@@ -118,7 +118,7 @@ Where an investigation confirms a breach that may trigger regulatory notificatio
 | Regulation | Notification Obligation |
 | --- | --- |
 | GDPR | Notify supervisory authority within 72 hours of confirmed personal data breach |
-| PIPEDA / Quebec Law 25 | Notify OPC and affected individuals for significant risk breaches |
+| PIPEDA / Quebec Law 25 | Notify the OPC and affected individuals where a breach creates a real risk of significant harm (PIPEDA); notify the CAI and affected individuals where the incident presents a risk of serious injury (Quebec Law 25) |
 | UK GDPR | Notify ICO within 72 hours |
 | LGPD | Notify ANPD within a reasonable timeframe |
 | EU AI Act | Notify competent authority for serious incidents involving High-risk AI systems |
@@ -141,10 +141,10 @@ The Chief Compliance Officer reviews the whistleblower programme annually and re
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ISO 37001:2025 | §8.9: Reporting, Monitoring, and Investigation (Edition 2 changes are not extensive; section numbering retained from 2016 edition) | Anti-bribery whistleblower requirements |
-| ISO 37301:2021 | §8.9: Reporting Obligations | Compliance reporting channels |
+| ISO 37301:2021 | §8.3: Raising concerns | Compliance reporting channels |
 | EU Whistleblowing Directive (2019/1937) | Protection for whistleblowers | EU member state transposition requirements |
 | GDPR (2018) | Article 33: Notification of Breach | Personal data breach notification |
-| ISO/IEC 27001:2022 | Annex A.6.4 and A.5.28 | Incident reporting and disciplinary process |
+| ISO/IEC 27001:2022 | Annex A.6.8 and A.6.4 | Incident reporting and disciplinary process |
 
 ---
 
