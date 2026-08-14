@@ -2,7 +2,7 @@
 
 **Document Title:** Adopter Decision Tree\
 **Document Type:** Guide\
-**Version:** 1.0.24\
+**Version:** 1.0.25\
 **Date:** 2026-08-14\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -81,7 +81,7 @@ These bands select reading paths in this document. They are a different axis fro
 - Process personal data of EU residents (GDPR)
 - Process personal data of UK residents (UK GDPR)
 - Process personal data of California residents (CCPA/CPRA)
-- Process personal data in the course of commercial activity in Canada (PIPEDA), or carry on an enterprise, per the Quebec Civil Code (Quebec Law 25)
+- Process personal data in the course of commercial activity in Canada (PIPEDA), or in the course of carrying on an enterprise (Quebec Law 25)
 - Operate as a financial-services entity in the EU (DORA in scope)
 - Publicly-traded in the US (SOX in scope)
 - Provide cloud services to US federal agencies (FedRAMP in scope)
