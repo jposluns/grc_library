@@ -2,8 +2,8 @@
 
 **Document Title:** Encryption and Key Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.15\
-**Date:** 2026-08-05\
+**Version:** 1.3.16\
+**Date:** 2026-08-14\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -207,11 +207,11 @@ Lessons learned from incidents or audits feed into the continual improvement cyc
 | Framework | Reference |
 |---|---|
 | ISO/IEC 27002:2022 | §8.24: Use of cryptography |
-| COBIT 2019 | DSS05.03: Protect Against Data Leakage |
+| COBIT 2019 | DSS05.03: Manage endpoint security |
 | CSA CCM v4.1 | CEK-01: Encryption and Key Management |
 | NIST SP 800-57 | Key Management Guidelines |
 | NIST SP 800-208 | Recommendation for Stateful Hash-Based Signature Schemes |
-| PCI DSS v4.0.1 | Requirement 3: Encryption and Key Management |
+| PCI DSS v4.0.1 | Requirement 3: Protect Stored Account Data |
 | BASC International Standard (v6 2022) | Trade and Customs Data Security |
 | WCO SAFE Framework (2025 edition) | Supply Chain Security |
 | ISO 28000:2022 | Supply-Chain Security and Resilience |
