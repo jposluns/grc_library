@@ -2,8 +2,8 @@
 
 **Document Title:** Joint Controller Arrangement Template\
 **Document Type:** Template\
-**Version:** 1.0.2\
-**Date:** 2026-07-02\
+**Version:** 1.0.3\
+**Date:** 2026-08-14\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](procedure-data-protection-and-privacy-breach-response.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/template-dpia.md`](template-dpia.md), [`privacy/register-cross-border-data-flow.md`](register-cross-border-data-flow.md)\
@@ -22,7 +22,7 @@
 
 ## Purpose
 
-This template defines the structure of a **joint controller arrangement** sufficient to satisfy **GDPR Article 26** and equivalent obligations under UK GDPR. It also accommodates the analogous joint-controller or co-controller concepts in LGPD (Brazil, Article 5(VI) operadores conjuntos), India DPDP Act 2023, and PIPL (China, Article 20 joint personal information handlers). Adopting organizations populate one arrangement per joint-processing context.
+This template defines the structure of a **joint controller arrangement** sufficient to satisfy **GDPR Article 26** and equivalent obligations under UK GDPR. It also accommodates the analogous joint-controller or co-controller concepts in LGPD (Brazil, Article 5(VI) operadores conjuntos) and PIPL (China, Article 20 joint personal information handlers); India's DPDPA recognizes joint determination only definitionally (Data Fiduciaries acting in conjunction with others, section 2(i)) and creates no statutory joint-controller arrangement. Adopting organizations populate one arrangement per joint-processing context.
 
 A populated arrangement is a binding contractual instrument between joint controllers. It must be signed by authorized representatives of each party, retained as a legal record, and made available to data subjects in essence (see Section 9 below). The populated arrangement is sensitive operational data and must not be published in this public CC BY-SA 4.0 repository; use this template structurally and store the executed instrument internally.
 
@@ -162,7 +162,7 @@ Joint controllership exists under several regimes with substantively similar req
 | **UK GDPR** (UK) | Joint controllers (same as EU GDPR) | Information Commissioner's Office (ICO) is the lead supervisory authority |
 | **LGPD** (Brazil) | Co-controllers / operadores conjuntos (Article 5(VI)) | ANPD is the supervisory authority; written arrangement required |
 | **PIPL** (China) | Joint personal information handlers (Article 20) | Public notice of arrangement required; CAC is the supervisory authority |
-| **India DPDP Act 2023** | Joint data fiduciaries | Data Protection Board of India is the supervisory authority |
+| **India DPDP Act 2023** | No statutory joint-controller category; Data Fiduciaries may determine purposes and means in conjunction with others (section 2(i)) | Data Protection Board of India is the supervisory authority |
 | **PIPEDA** (Canada) | No formal "joint controller" concept; contractual allocation between controllers; OPC is the supervisory authority | Contractual best-practice mirrors GDPR Article 26 |
 | **CCPA / CPRA** (California) | "Business-to-business" or "joint operators" patterns; agreement required for shared purposes | California Privacy Protection Agency (CPPA) is the regulator |
 
@@ -208,7 +208,7 @@ A populated arrangement is sensitive contractual data. Adopters do NOT publish t
 | Requirement | GDPR | UK GDPR | LGPD | PIPL | India DPDP 2023 |
 |---|---|---|---|---|---|
 | Joint determination of purposes and means | Article 26(1) | Article 26(1) | Article 5(VI) | Article 20 | Section 2(i) "Data Fiduciary" with joint construction |
-| Transparent allocation of responsibilities | Article 26(1) | Article 26(1) | Article 39 | Article 20(2) | Section 4 (general accountability) |
-| Essence-of-arrangement availability to subjects | Article 26(2) | Article 26(2) | Article 18 transparency principle | Article 17 information rights | Section 6 notice obligations |
-| Joint and several liability toward subjects | Article 26(3) | Article 26(3) | Article 42 | Article 20(2) (joint liability) | Section 17 grievance mechanism |
-| Contact point designation | Article 26(1) | Article 26(1) | Article 41 (DPO contact) | Article 52 (DPO contact) | Section 10 (Data Protection Officer for Significant Data Fiduciaries) |
+| Transparent allocation of responsibilities | Article 26(1) | Article 26(1) | Article 39 | Article 20(2) | No DPDPA joint-controller allocation duty; each Data Fiduciary bears the Act's obligations directly |
+| Essence-of-arrangement availability to subjects | Article 26(2) | Article 26(2) | Article 18 transparency principle | Article 17 information rights | No DPDPA essence-of-arrangement publication duty (s. 5 notice is the individual-notice duty, not arrangement publication) |
+| Joint and several liability toward subjects | Article 26(3) | Article 26(3) | Article 42 | Article 20(2) (joint liability) | No DPDPA joint-and-several-liability scheme (grievance redressal is s. 13) |
+| Contact point designation | Article 26(1) | Article 26(1) | Article 41 (DPO contact) | Article 52 (DPO contact) | Section 8(9) (all Data Fiduciaries publish a DPO or responsible-person contact) and section 10(2)(a) (Significant Data Fiduciaries appoint a DPO as grievance contact); not a general joint-controller contact duty |
