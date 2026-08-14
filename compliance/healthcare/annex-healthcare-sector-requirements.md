@@ -2,7 +2,7 @@
 
 **Document Title:** Healthcare Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.1.7\
+**Version:** 1.1.8\
 **Date:** 2026-08-14\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -50,7 +50,7 @@ This annex applies where an organization:
 
 | Regulation / Standard | Authority | Scope |
 |---|---|---|
-| **PIPEDA** (personal health information provisions) | OPC | Health information about identifiable individuals |
+| **PIPEDA** | OPC | Personal information (including health information) collected, used, or disclosed in the course of commercial activities, and employee and applicant data of federal works, undertakings, or businesses (s. 4(1)); subject to a Governor in Council order under s. 26(2)(b) exempting in-province handling where substantially similar provincial legislation applies |
 | **PHIPA**: Personal Health Information Protection Act | Ontario IPC | Ontario health information custodians |
 | **PIPA** (Alberta) | OIPC Alberta | Alberta private-sector organizations generally; health information as defined in the Health Information Act, to which that Act applies, is excluded (s. 4(3)(f)) and governed by the HIA below |
 | **HIA**: Health Information Act | Alberta | Alberta custodians of health information |
