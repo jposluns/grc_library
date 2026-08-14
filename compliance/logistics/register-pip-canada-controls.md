@@ -2,7 +2,7 @@
 
 **Document Title:** Canada PIP IT and Cybersecurity Compliance Controls Register\
 **Document Type:** Register\
-**Version:** 1.0.5\
+**Version:** 1.0.6\
 **Date:** 2026-08-14\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -31,7 +31,7 @@ This register documents the organization's IT and cybersecurity controls and map
 
 PIP is a voluntary partnership programme in which businesses commit to enhancing border security in exchange for expedited cargo processing at Canadian ports of entry. The programme is administered by CBSA and aligns with the World Customs Organization (WCO) SAFE Framework of Standards. The PIP security profile is organized into four security areas: corporate security, cargo and conveyance security, physical security, and supply chain partner security. Cybersecurity is addressed within the corporate security area; PIP does not publish a separate, numbered information-technology requirement set. The control references below are the organization's own, mapped to those PIP cybersecurity expectations.
 
-PIP membership process: an applicant completes the security-profile questionnaire in the CBSA Trusted Trader Portal and submits supporting evidence (documents and photographs). The CBSA reviews the profile and may conduct an on-site validation. Members review and update their security profile in the Trusted Trader Portal at least annually. The CBSA does not publish a tiered-membership ladder for PIP.
+PIP membership process: an applicant completes the security-profile questionnaire in the CBSA Trusted Trader Portal and submits supporting evidence (documents and photographs). Members review and update their security profile in the Trusted Trader Portal at least annually. The CBSA does not publish a tiered-membership ladder for PIP.
 
 ---
 
@@ -56,9 +56,9 @@ PIP does not publish a numbered IT requirement set; the control references (CYB-
 
 ## PIP-AEO-s alignment
 
-Canada's PIP and the UK's AEO-S both derive from the WCO SAFE Framework, resulting in significant overlap in security requirements. Organizations certified under AEO-S can reference this certification when applying for PIP or demonstrating equivalent security standards to CBSA.
+Canada's PIP and the UK's AEO-S both derive from the WCO SAFE Framework, resulting in significant overlap in security requirements. The WCO AEO Compendium (2020) records no Canada-UK mutual recognition arrangement, so an AEO-S certification can inform a PIP application (as evidence of comparable WCO SAFE controls) but is not a formal shortcut to CBSA acceptance.
 
-| PIP Requirement | UK AEO-S Equivalent | Evidence Sharing |
+| Control (org) | UK AEO-S Equivalent | Evidence Sharing |
 |---|---|---|
 | CYB-1 Access Control | AEO-S: Appropriate access controls for trade systems | Yes |
 | CYB-2 Password Management | AEO-S: Password and authentication management | Yes |
@@ -79,7 +79,7 @@ See [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo
 
 The CBSA and US Customs and Border Protection operate trusted-trader programmes (PIP and CTPAT) that participate in mutual recognition. Organizations should confirm the current scope of the CBSA-CBP arrangement against the CBSA's published mutual recognition arrangements before reusing evidence. Where an arrangement applies, evidence collected for CTPAT IT criteria may support the corresponding PIP cybersecurity expectations, subject to jurisdiction-specific supplements. See [`compliance/logistics/register-ctpat-united-states-it-controls.md`](register-ctpat-united-states-it-controls.md) for the CTPAT mapping.
 
-| PIP Requirement | CTPAT Equivalent | Shared Evidence |
+| Control (org) | CTPAT Equivalent | Shared Evidence |
 |---|---|---|
 | CYB-1 to CYB-10 | CTPAT IT-1 to IT-10 (broadly equivalent) | Yes: with jurisdiction-specific supplements for CBSA notification obligations |
 

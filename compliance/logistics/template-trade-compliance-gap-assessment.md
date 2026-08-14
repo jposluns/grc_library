@@ -2,8 +2,8 @@
 
 **Document Title:** Trade Compliance Programme Gap Assessment Template\
 **Document Type:** Template\
-**Version:** 1.0.2\
-**Date:** 2026-07-02\
+**Version:** 1.0.4\
+**Date:** 2026-08-14\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](annex-logistics-sector-requirements.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](register-ctpat-united-states-it-controls.md), [`compliance/logistics/register-pip-canada-controls.md`](register-pip-canada-controls.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md), [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](procedure-aeo-united-kingdom-self-assessment.md), [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md), [`compliance/procedure-capa.md`](../procedure-capa.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../../supply-chain/matrix-supply-chain-security-programme-alignment.md)\
@@ -115,15 +115,15 @@ Complete the following fields for each gap assessment.
 
 | Requirement Area | Programme Source | Current Control or Evidence | Gap Description | Gap Severity | Remediation Action | Target Date | Owner |
 |---|---|---|---|---|---|---|---|
-| Access control: least privilege, account management | CTPAT IT-1; PIP-IT-1; AEO-S | [`security/procedure-access-control.md`](../../security/procedure-access-control.md) | | | | | |
-| Multi-factor authentication for remote and privileged access | CTPAT IT-2; PIP-IT-1; AEO-S | [`security/procedure-identity-management.md`](../../security/procedure-identity-management.md) | | | | | |
-| Vulnerability management and patch cycle | CTPAT IT-3; PIP-IT-5; AEO-S | [`operations/register-it-security-operations.md`](../../operations/register-it-security-operations.md) | | | | | |
-| Network segmentation and firewall controls | CTPAT IT-4; PIP-IT-4; AEO-S | | | | | | |
-| Cyber incident response procedures | CTPAT IT-5; PIP-IT-6; AEO-S | [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md) | | | | | |
-| Cybersecurity awareness training | CTPAT IT-6; PIP-IT-7; AEO-S | [`governance/framework-human-capital-and-ethical-conduct.md`](../../governance/framework-human-capital-and-ethical-conduct.md) | | | | | |
-| IT asset inventory | CTPAT IT-7; PIP-IT-8; AEO-S | [`operations/register-asset-inventory.md`](../../operations/register-asset-inventory.md) | | | | | |
-| Third-party IT security controls | CTPAT IT-8; PIP-IT-9; AEO-S | [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md) | | | | | |
-| Business continuity and IT recovery | CTPAT IT-9; PIP-IT-10; AEO-S | [`resilience/plan-it-disaster-recovery.md`](../../resilience/plan-it-disaster-recovery.md) | | | | | |
+| Access control: least privilege, account management | CTPAT IT-1; PIP; AEO-S | [`security/procedure-access-control.md`](../../security/procedure-access-control.md) | | | | | |
+| Multi-factor authentication for remote and privileged access | CTPAT IT-2; AEO-S | [`security/procedure-identity-management.md`](../../security/procedure-identity-management.md) | | | | | |
+| Vulnerability management and patch cycle | CTPAT IT-3; AEO-S | [`operations/register-it-security-operations.md`](../../operations/register-it-security-operations.md) | | | | | |
+| Network segmentation and firewall controls | CTPAT IT-4; AEO-S | | | | | | |
+| Cyber incident response procedures | CTPAT IT-5; PIP; AEO-S | [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md) | | | | | |
+| Cybersecurity awareness training | CTPAT IT-6; PIP; AEO-S | [`governance/framework-human-capital-and-ethical-conduct.md`](../../governance/framework-human-capital-and-ethical-conduct.md) | | | | | |
+| IT asset inventory | CTPAT IT-7; PIP; AEO-S | [`operations/register-asset-inventory.md`](../../operations/register-asset-inventory.md) | | | | | |
+| Third-party IT security controls | CTPAT IT-8; PIP; AEO-S | [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md) | | | | | |
+| Business continuity and IT recovery | CTPAT IT-9; PIP; AEO-S | [`resilience/plan-it-disaster-recovery.md`](../../resilience/plan-it-disaster-recovery.md) | | | | | |
 | Audit logging and monitoring | CTPAT IT-10; AEO-S | [`operations/register-it-security-operations.md`](../../operations/register-it-security-operations.md) | | | | | |
 
 **Detailed IT controls mapping:** See [`compliance/logistics/register-ctpat-united-states-it-controls.md`](register-ctpat-united-states-it-controls.md), [`compliance/logistics/register-pip-canada-controls.md`](register-pip-canada-controls.md), and [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md).
