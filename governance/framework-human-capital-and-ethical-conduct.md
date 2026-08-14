@@ -2,8 +2,8 @@
 
 **Document Title:** Human Capital and Ethical Conduct Framework\
 **Document Type:** Framework\
-**Version:** 1.0.9\
-**Date:** 2026-08-05\
+**Version:** 1.0.10\
+**Date:** 2026-08-14\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/standard-personnel-security-screening.md`](../security/standard-personnel-security-screening.md), [`security/procedure-onboarding-and-offboarding.md`](../security/procedure-onboarding-and-offboarding.md), [`governance/procedure-whistleblower-and-incident-reporting.md`](procedure-whistleblower-and-incident-reporting.md), [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md)\
@@ -107,7 +107,7 @@ Training completion is tracked and reported annually to the ERC and relevant com
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ISO 37001:2025 | Anti-Bribery Management Systems (Edition 2; transition deadline February 2027) | Anti-bribery controls |
-| ISO 37301:2021 | §7.4: Competence and Awareness | Compliance training and competency |
+| ISO 37301:2021 | §7.2 Competence and §7.3 Awareness | Compliance training and competency |
 | CAN/DGSI 101:2025 | Ethical design and use of artificial intelligence by small and medium organizations (2nd edition) | Ethical AI and responsible innovation |
 | OECD AI Principles (2019, updated 2024) | Human-centric, fair, accountable AI | Responsible AI training |
 | COBIT 2019 | APO07: Managed Human Resources | HR governance and competency |
