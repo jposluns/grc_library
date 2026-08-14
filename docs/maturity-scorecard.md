@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-portal.py`.
 **Document Title:** Document Maturity Scorecard\
 **Document Type:** Register\
 **Version:** 1.0.0\
-**Date:** 2026-08-13\
+**Date:** 2026-08-14\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/portal.md`](portal.md), [`docs/adopter-guide.md`](adopter-guide.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`specification-master-project.md`](../specification-master-project.md)\
@@ -151,7 +151,7 @@ _108 documents._
 | [specification-ingestion.md](../specification-ingestion.md) | GRC Library Ingestion and Transformation Specification | Specification | 1.7.13 | 2026-08-08 |
 | [specification-master-project.md](../specification-master-project.md) | Master Project Specification | Specification | 1.6.19 | 2026-08-12 |
 | [supply-chain/procedure-supplier-due-diligence.md](../supply-chain/procedure-supplier-due-diligence.md) | Supplier Due Diligence Procedure | Procedure | 1.1.11 | 2026-07-23 |
-| [supply-chain/standard-cloud-exit-and-data-portability.md](../supply-chain/standard-cloud-exit-and-data-portability.md) | Cloud Exit and Data Portability Standard | Standard | 1.1.3 | 2026-07-02 |
+| [supply-chain/standard-cloud-exit-and-data-portability.md](../supply-chain/standard-cloud-exit-and-data-portability.md) | Cloud Exit and Data Portability Standard | Standard | 1.1.4 | 2026-08-14 |
 | [supply-chain/standard-supplier-security-and-privacy-assurance.md](../supply-chain/standard-supplier-security-and-privacy-assurance.md) | Supplier Security and Privacy Assurance Standard | Standard | 1.1.9 | 2026-07-23 |
 
 ---
@@ -189,7 +189,7 @@ _170 documents._
 | [architecture/standard-architecture-decision-records.md](../architecture/standard-architecture-decision-records.md) | Architecture Decision Records Standard | Standard | 1.0.3 | 2026-07-02 |
 | [architecture/standard-data-architecture.md](../architecture/standard-data-architecture.md) | Data Architecture Standard | Standard | 1.0.3 | 2026-07-02 |
 | [architecture/standard-reference-architecture.md](../architecture/standard-reference-architecture.md) | Reference Architecture Standard | Standard | 1.0.3 | 2026-07-02 |
-| [architecture/standard-technology-radar.md](../architecture/standard-technology-radar.md) | Technology Radar Standard | Standard | 1.0.4 | 2026-07-02 |
+| [architecture/standard-technology-radar.md](../architecture/standard-technology-radar.md) | Technology Radar Standard | Standard | 1.0.5 | 2026-08-14 |
 | [compliance/financial-services/annex-financial-services-sector-requirements.md](../compliance/financial-services/annex-financial-services-sector-requirements.md) | Financial Services Sector GRC Requirements Annex | Annex | 1.0.11 | 2026-07-22 |
 | [compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md) | UK AEO-S IT and Cybersecurity Requirements | Annex | 1.0.3 | 2026-07-02 |
 | [compliance/logistics/annex-logistics-sector-requirements.md](../compliance/logistics/annex-logistics-sector-requirements.md) | Logistics Sector GRC Requirements Annex | Annex | 1.0.7 | 2026-08-04 |
@@ -257,7 +257,7 @@ _170 documents._
 | [privacy/jurisdictions/annex-privacy-nigeria.md](../privacy/jurisdictions/annex-privacy-nigeria.md) | Nigeria Privacy Regulatory Requirements | Annex | 1.0.3 | 2026-07-02 |
 | [privacy/jurisdictions/annex-privacy-philippines.md](../privacy/jurisdictions/annex-privacy-philippines.md) | Philippines Privacy Regulatory Requirements | Annex | 1.0.3 | 2026-07-02 |
 | [privacy/jurisdictions/annex-privacy-saudi-arabia.md](../privacy/jurisdictions/annex-privacy-saudi-arabia.md) | Saudi Arabia Privacy Regulatory Requirements | Annex | 1.0.3 | 2026-07-02 |
-| [privacy/jurisdictions/annex-privacy-singapore.md](../privacy/jurisdictions/annex-privacy-singapore.md) | Singapore Privacy Regulatory Requirements | Annex | 1.0.4 | 2026-07-02 |
+| [privacy/jurisdictions/annex-privacy-singapore.md](../privacy/jurisdictions/annex-privacy-singapore.md) | Singapore Privacy Regulatory Requirements | Annex | 1.0.5 | 2026-08-14 |
 | [privacy/jurisdictions/annex-privacy-south-africa.md](../privacy/jurisdictions/annex-privacy-south-africa.md) | South Africa Privacy Regulatory Requirements | Annex | 1.0.4 | 2026-07-02 |
 | [privacy/jurisdictions/annex-privacy-south-korea.md](../privacy/jurisdictions/annex-privacy-south-korea.md) | South Korea Privacy Regulatory Requirements | Annex | 1.0.3 | 2026-07-02 |
 | [privacy/jurisdictions/annex-privacy-switzerland.md](../privacy/jurisdictions/annex-privacy-switzerland.md) | Switzerland Privacy Regulatory Requirements | Annex | 1.0.5 | 2026-08-12 |
@@ -269,7 +269,7 @@ _170 documents._
 | [privacy/register-cross-border-data-flow.md](../privacy/register-cross-border-data-flow.md) | Cross-Border Data Flow Register | Register | 1.0.7 | 2026-07-22 |
 | [privacy/standard-pseudonymization-and-anonymization.md](../privacy/standard-pseudonymization-and-anonymization.md) | Pseudonymization and Anonymization Standard | Standard | 1.0.7 | 2026-07-10 |
 | [privacy/template-breach-notification-regulator-register.md](../privacy/template-breach-notification-regulator-register.md) | Breach Notification Regulator Register Template | Template | 1.0.1 | 2026-07-02 |
-| [privacy/template-dpa-article-28.md](../privacy/template-dpa-article-28.md) | Data Processing Agreement Template (GDPR Article 28) | Template | 1.0.2 | 2026-07-13 |
+| [privacy/template-dpa-article-28.md](../privacy/template-dpa-article-28.md) | Data Processing Agreement Template (GDPR Article 28) | Template | 1.0.3 | 2026-08-14 |
 | [privacy/template-dpia.md](../privacy/template-dpia.md) | DPIA (Data Protection Impact Assessment) Template | Template | 1.0.10 | 2026-08-04 |
 | [privacy/template-joint-controller-arrangement.md](../privacy/template-joint-controller-arrangement.md) | Joint Controller Arrangement Template | Template | 1.0.2 | 2026-07-02 |
 | [privacy/template-legitimate-interest-assessment.md](../privacy/template-legitimate-interest-assessment.md) | Legitimate Interest Assessment (LIA) Template | Template | 1.0.3 | 2026-07-03 |
@@ -308,7 +308,7 @@ _170 documents._
 | [security/procedure-security-disciplinary-process.md](../security/procedure-security-disciplinary-process.md) | Security Disciplinary Process Procedure | Procedure | 1.0.3 | 2026-07-23 |
 | [security/standard-email-security.md](../security/standard-email-security.md) | Email Security Standard | Standard | 1.0.5 | 2026-08-05 |
 | [security/standard-endpoint-hardening.md](../security/standard-endpoint-hardening.md) | Endpoint Hardening Standard | Standard | 1.0.4 | 2026-07-02 |
-| [security/standard-penetration-testing-and-red-team.md](../security/standard-penetration-testing-and-red-team.md) | Penetration Testing and Red Team Standard | Standard | 1.0.5 | 2026-08-13 |
+| [security/standard-penetration-testing-and-red-team.md](../security/standard-penetration-testing-and-red-team.md) | Penetration Testing and Red Team Standard | Standard | 1.0.6 | 2026-08-14 |
 | [security/standard-personnel-security-screening.md](../security/standard-personnel-security-screening.md) | Personnel Security Screening Standard | Standard | 1.0.6 | 2026-08-05 |
 | [security/standard-privileged-access-management.md](../security/standard-privileged-access-management.md) | Privileged Access Management Standard | Standard | 1.0.2 | 2026-07-04 |
 | [security/standard-remote-working-security.md](../security/standard-remote-working-security.md) | Remote Working Security Standard | Standard | 1.0.10 | 2026-08-05 |

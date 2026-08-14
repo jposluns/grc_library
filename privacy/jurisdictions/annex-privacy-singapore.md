@@ -2,8 +2,8 @@
 
 **Document Title:** Singapore Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.4\
-**Date:** 2026-07-02\
+**Version:** 1.0.5\
+**Date:** 2026-08-14\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -34,7 +34,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 - Organizations using AI to make or assist decisions about individuals must ensure that decisions based on personal data are made fairly and with appropriate human oversight.
 - The PDPC's Model Governance Framework for AI (2019, second edition 2020) provides a voluntary framework for responsible AI governance (broadly adopted in Singapore enterprise practice as of 2026), covering risk-proportionate governance, internal governance, operations management for AI models, and stakeholder interaction.
-- **Mandatory data breach notification:** Organizations must notify the PDPC and affected individuals of breaches likely to result in significant harm within 3 business days of assessment.
+- **Mandatory data breach notification:** Organizations must notify the PDPC of a notifiable data breach (one that is, or is likely to be, of significant scale, or that results in or is likely to result in significant harm to an individual) as soon as practicable and no later than 3 calendar days after assessment (s.26D(1)). For breaches that result in or are likely to result in significant harm, affected individuals must also be notified thereafter, in a manner reasonable in the circumstances and subject to the statutory conditions and exceptions in ss.26B and 26D; the statute sets no fixed deadline for individual notification.
 - **Consent exceptions for AI (2020 amendments):** Organizations may use personal data without consent for business improvement and research purposes, subject to conditions including anonymization requirements.
 
 ---
