@@ -2,8 +2,8 @@
 
 **Document Title:** Canada AI Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.3\
-**Date:** 2026-08-04\
+**Version:** 1.0.4\
+**Date:** 2026-08-14\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md), [`ai/jurisdictions/annex-ai-us-colorado.md`](annex-ai-us-colorado.md), [`ai/jurisdictions/annex-ai-european-union.md`](annex-ai-european-union.md), [`privacy/jurisdictions/annex-privacy-canada.md`](../../privacy/jurisdictions/annex-privacy-canada.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This annex gives the adopter a single per-regime view of Canada's approach to artificial-intelligence governance. Unlike the European Union or Colorado, Canada has **no in-force comprehensive AI statute**: the proposed federal Artificial Intelligence and Data Act (AIDA) lapsed (see below), so Canadian AI governance is a **patchwork** of a binding federal public-sector directive, federal soft-law for industry, a sector-specific financial-services guideline, a provincial public-sector statute, and a voluntary national standard. This annex presents each instrument, states its status accurately (what is in force, what is enacted but not yet in force, and what is voluntary), and frames which obligations land on the adopter. It cites the instruments by reference and cross-references the privacy layer rather than restating it.
+This annex gives the adopter a single per-regime view of Canada's approach to artificial-intelligence governance. Unlike the European Union or Colorado, Canada has **no in-force comprehensive AI statute**: the proposed federal Artificial Intelligence and Data Act (AIDA) lapsed (see below), so Canadian AI governance is a **patchwork** of a binding federal public-sector directive, federal soft-law for industry, a sector-specific financial-services guideline, a provincial public-sector statute, and a voluntary national standard. This annex presents each instrument, states its status accurately (what is in force, what is future-effective, and what is voluntary), and frames which obligations land on the adopter. It cites the instruments by reference and cross-references the privacy layer rather than restating it.
 
 Alongside [`ai/jurisdictions/annex-ai-european-union.md`](annex-ai-european-union.md) and [`ai/jurisdictions/annex-ai-us-colorado.md`](annex-ai-us-colorado.md), this annex is a member of the `ai/jurisdictions/` subdirectory.
 
@@ -56,7 +56,7 @@ The **Voluntary Code of Conduct on the Responsible Development and Management of
 
 ## Provincial: Ontario (the Enhancing Digital Security and Trust Act)
 
-Ontario's Bill 194, the Strengthening Cyber Security and Building Trust in the Public Sector Act, 2024 (S.O. 2024, c. 24), received Royal Assent in November 2024. Its Schedule enacts the **Enhancing Digital Security and Trust Act (EDSTA), 2024**, which addresses the use of artificial intelligence by Ontario public-sector entities (public information, an accountability framework, risk-management steps, prescribed requirements, and a prohibition on certain uses, with specific disclosure and human-oversight duties). The **EDSTA is enacted but its AI provisions are not yet in force**: it comes into force on a day to be named by proclamation of the Lieutenant Governor, and its operative AI duties depend on regulations to be prescribed. An adopter operating as an Ontario public-sector entity monitors the proclamation and the regulations before treating the EDSTA AI duties as operative.
+Ontario's Bill 194, the Strengthening Cyber Security and Building Trust in the Public Sector Act, 2024 (S.O. 2024, c. 24), received Royal Assent in November 2024. Its Schedule enacts the **Enhancing Digital Security and Trust Act (EDSTA), 2024**, which addresses the use of artificial intelligence by Ontario public-sector entities (public information, an accountability framework, risk-management steps, prescribed requirements, and a prohibition on certain uses, with specific disclosure and human-oversight duties). The **EDSTA AI provisions were proclaimed in force on 29 January 2025** (Ontario Order in Council 361/2025, which named Schedule 1, sections 1 to 16). Their operative effect is defined by regulation: each duty applies only to the public-sector entities and in the circumstances the regulations prescribe, and operates in accordance with those regulations. An adopter operating as an Ontario public-sector entity confirms the current regulations before treating the EDSTA AI duties as operative.
 
 ## Sector-specific: OSFI Guideline E-23 (financial institutions)
 
@@ -72,7 +72,7 @@ The **Office of the Superintendent of Financial Institutions (OSFI) Guideline E-
 - An organization **developing or managing advanced generative AI** may commit to the ISED Voluntary Code (voluntary).
 - A **federal government institution** adopting AI for its own operations follows the AI Strategy for the Federal Public Service 2025-2027 (a strategy and policy direction, not an obligation on an external adopter); its AI systems appear in the Government of Canada AI Register.
 - A **federally regulated financial institution** prepares for OSFI Guideline E-23 (effective 1 May 2027).
-- An **Ontario public-sector entity** monitors the EDSTA AI provisions (enacted, not yet in force).
+- An **Ontario public-sector entity** monitors the EDSTA AI provisions (in force since 29 January 2025; their AI duties apply and operate as the regulations prescribe).
 - Any organization may adopt **CAN/DGSI 101:2025** for conformity assessment (voluntary).
 - No adopter is bound by AIDA (lapsed) or by AI for All (strategy).
 
@@ -83,7 +83,7 @@ Canadian AI governance intersects with federal and provincial privacy law (the P
 ## Limitations
 
 - This annex is a consolidating per-regime view, not a substitute for the instruments themselves or for legal advice; the controlling texts are the Treasury Board Directive, the OSFI Guideline, the Ontario statute, and the standards and guidance cited.
-- **Not in force / not law:** the **Artificial Intelligence and Data Act (AIDA)** lapsed and is not law; the **Ontario EDSTA AI provisions** are enacted but not yet in force (proclamation and regulations pending). **OSFI Guideline E-23** is published but not effective until 1 May 2027. These statuses are current-events facts; the adopter confirms them upstream before committing to a compliance milestone.
+- **Status to confirm upstream:** the **Artificial Intelligence and Data Act (AIDA)** lapsed and is not law; the **Ontario EDSTA AI provisions** are in force (proclaimed 29 January 2025 by Ontario OIC 361/2025), with AI duties that apply and operate as the prescribing regulations provide. **OSFI Guideline E-23** is published but not effective until 1 May 2027. These statuses are current-events facts; the adopter confirms them upstream before committing to a compliance milestone.
 - The Treasury Board Directive dates are the Directive's own: effective 2019, compliance 2020, and a 24 June 2025 to 24 June 2026 compliance transition for the updated requirements. 24 June 2025 is not the Directive's in-force date.
 - Detail that the Directive and the EDSTA delegate to guidance or regulations (the scope elements and the EDSTA prescribed requirements) is not fixed in the primary text; the adopter confirms the current position against the guidance and regulations as issued. (The impact-level requirement scaling itself is fixed in the Directive's Appendix C.)
 - The corpus operational substance this annex references (the AI classification, impact-assessment, and model-risk workflow) is maintained in [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md) and the AI procedures and model-risk documents; on any divergence, those documents govern the operational procedure and this annex governs the per-regime framing.
@@ -97,7 +97,7 @@ Canadian AI governance intersects with federal and provincial privacy law (the P
 | Federal public-service AI adoption (strategy and system inventory) | AI Strategy for the Federal Public Service 2025-2027; Government of Canada AI Register | Govern | Clause 5 |
 | Responsible generative-AI development (industry) | ISED Voluntary Code of Conduct | Govern, Manage | Clause 8 |
 | Financial-services model risk management | OSFI Guideline E-23 | Manage | Clause 8.3 |
-| Provincial public-sector AI accountability | Ontario EDSTA, 2024 (not yet in force) | Govern | Annex A.8 |
+| Provincial public-sector AI accountability | Ontario EDSTA, 2024 (in force 2025-01-29; AI duties per prescribing regulations) | Govern | Annex A.8 |
 | Ethical design and use of artificial intelligence | CAN/DGSI 101:2025 | Govern, Map, Measure, Manage | Clause 8 |
 
 ---
