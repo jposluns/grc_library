@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.54\
+**Version:** 1.5.55\
 **Date:** 2026-08-14\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -152,7 +152,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | US FedRAMP | Rev. 5 | 2023 | Federal Risk and Authorization Management Program (rev 5 alignment with NIST SP 800-53 Rev. 5) | Rev. 4 | https://www.fedramp.gov/ | 2026-06-30 |
 | US CMMC | 2.0 (model); the 48 CFR / DFARS acquisition rule took effect 2025-11-10 (Phase 1 live) | 2024 (model); 2025-11-10 (acquisition rule) | Cybersecurity Maturity Model Certification | 1.0, 1.02 | https://www.ecfr.gov/current/title-32/subtitle-A/chapter-I/subchapter-G/part-170 | verified 2026-07-09 |
 | Canada CPPA / successor C-36 (PPCDA) | CPPA lapsed 2025-01-06 (Bill C-27 died on prorogation); successor Bill C-36 (Protecting Privacy and Consumer Data Act) introduced 2026-06-15, at second reading (proposed, NOT in force) | 2022 (CPPA proposed); 2026 (C-36 proposed) | Consumer Privacy Protection Act (C-27, never enacted); Protecting Privacy and Consumer Data Act (C-36, proposed) | n/a; PIPEDA remains in force. C-36 would repeal PIPEDA Part 1, rename PIPEDA to the "Electronic Documents Act", and create a Privacy and Consumer Data Commissioner | https://www.parl.ca/legisinfo/en/bill/45-1/c-36 | 2026-08-12 |
-| Canada PIPEDA | 2000 (with 2015 DBSA amendments) | 2000 | Personal Information Protection and Electronic Documents Act | - | https://laws-lois.justice.gc.ca/eng/acts/p-8.6/ | 2026-06-30 |
+| Canada PIPEDA | 2000, as amended by the Digital Privacy Act, S.C. 2015, c. 32 (last amended 2025-03-04, current to 2026-05-26) | 2000 | Personal Information Protection and Electronic Documents Act | - | https://laws-lois.justice.gc.ca/eng/acts/p-8.6/ | 2026-08-14 |
 | Canada Breach of Security Safeguards Regulations | SOR/2018-64 | 2018-11 | PIPEDA breach-of-security-safeguards regulations: prescribed content of OPC reports and individual notifications, and the 24-month breach-record retention obligation (in force 1 November 2018) | - | https://laws-lois.justice.gc.ca/eng/regulations/SOR-2018-64/index.html | verified 2026-07-13 |
 | Canada AIDA | Lapsed 2025-01-06 (Bill C-27 died on prorogation; per June 2025 ministerial statement, AIDA will not return in its original form) | 2022 (proposed) | Artificial Intelligence and Data Act (never enacted) | n/a; no federal AI law enacted | https://www.parl.ca/legisinfo/en/bill/44-1/c-27 | 2026-06-30 |
 | Quebec Law 25 | 2021 (phased in 2022-2024) | 2021 | An Act to modernize legislative provisions as regards the protection of personal information | - | https://www.legisquebec.gouv.qc.ca/fr/document/lc/p-39.1 | verified 2026-07-09 |
