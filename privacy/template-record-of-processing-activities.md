@@ -2,8 +2,8 @@
 
 **Document Title:** Record of Processing Activities Template\
 **Document Type:** Template\
-**Version:** 1.0.8\
-**Date:** 2026-07-02\
+**Version:** 1.0.9\
+**Date:** 2026-08-14\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/register-cross-border-data-flow.md`](register-cross-border-data-flow.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`supply-chain/register-subprocessor-template.md`](../supply-chain/register-subprocessor-template.md)\
@@ -22,7 +22,7 @@
 
 ## Purpose
 
-This template defines the structure of a Record of Processing Activities (ROPA) sufficient to satisfy GDPR Article 30 and equivalent record-keeping obligations under UK GDPR, LGPD, PIPEDA, PIPL, and similar privacy regimes. It provides separate field sets for the controller view and the processor view. Adopting organizations populate one row per processing activity per controller or processor role.
+This template defines the structure of a Record of Processing Activities (ROPA) sufficient to satisfy GDPR Article 30 and equivalent record-keeping obligations under UK GDPR, LGPD, PIPL, and similar privacy regimes. Under PIPEDA, a ROPA is not a mandated statutory record but serves as accountability evidence supporting the Act's openness and accountability principles. It provides separate field sets for the controller view and the processor view. Adopting organizations populate one row per processing activity per controller or processor role.
 
 A populated ROPA is sensitive operational data and must not be published in this public CC BY-SA 4.0 repository. Use this template structurally; populate, classify, and store internally.
 
@@ -43,7 +43,7 @@ This template applies to every processing activity carried out by the organizati
 | Business owner role | Role accountable for the activity | Role-based; not a named individual |
 | Privacy contact role | Role responsible for the privacy aspect | Typically the Data Protection Officer (organization-wide) or a domain privacy lead |
 | Purposes of processing | All purposes for which the data is processed | One row may carry multiple purposes; granular description |
-| Lawful basis (per jurisdiction) | Lawful basis under each applicable regime | E.g. GDPR Art 6(1)(b) contract; PIPEDA Schedule 1 Principle 3 consent (CPPA Sec 12 consent is proposed, not in force) |
+| Lawful basis (per jurisdiction) | Lawful basis under each applicable regime | E.g. GDPR Art 6(1)(b) contract; PIPEDA Schedule 1 Principle 3 consent (CPPA Sec 12 consent, from the lapsed Bill C-27, not in force) |
 | Categories of data subjects | Customer, employee, supplier, prospect, visitor, child, patient, etc. | Identify children separately where applicable |
 | Categories of personal data | Identifying, contact, demographic, financial, health, biometric, location, behaviour, derived | Identify special-category data separately |
 | Source of data | Subject directly, supplier, public source, derived, sensor | Where data is not collected from the subject, this triggers Article 14 information duty |
@@ -104,7 +104,7 @@ This template applies to every processing activity carried out by the organizati
 | UK GDPR | Article 30 | Equivalent obligation |
 | ISO/IEC 27701:2025 | Records of PII processing (section numbering changed in 2025 standalone revision) | Privacy information management |
 | LGPD | Article 37 | Record of operations |
-| CPPA | Schedule 2 (proposed) | Record-keeping |
+| CPPA | Schedule 2 (lapsed with Bill C-27) | Record-keeping |
 | PIPL | Article 55 | Compliance audit and recording |
 | NIST Privacy Framework | CT.PO-P5 | Identifying and inventorying data |
 
