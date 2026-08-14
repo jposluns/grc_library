@@ -2,8 +2,8 @@
 
 **Document Title:** Healthcare Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.1.6\
-**Date:** 2026-08-13\
+**Version:** 1.1.7\
+**Date:** 2026-08-14\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/healthcare/procedure-hipaa-operational-compliance.md`](procedure-hipaa-operational-compliance.md), [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`compliance/register-compliance-obligations-template.md`](../register-compliance-obligations-template.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`privacy/annex-privacy-jurisdiction-index.md`](../../privacy/annex-privacy-jurisdiction-index.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md)\
@@ -52,10 +52,9 @@ This annex applies where an organization:
 |---|---|---|
 | **PIPEDA** (personal health information provisions) | OPC | Health information about identifiable individuals |
 | **PHIPA**: Personal Health Information Protection Act | Ontario IPC | Ontario health information custodians |
-| **PIPA** (Alberta) | OIPC Alberta | Alberta health organizations |
+| **PIPA** (Alberta) | OIPC Alberta | Alberta private-sector organizations generally; health information as defined in the Health Information Act, to which that Act applies, is excluded (s. 4(3)(f)) and governed by the HIA below |
 | **HIA**: Health Information Act | Alberta | Alberta custodians of health information |
 | **PHIA** (Manitoba, Nova Scotia, etc.) | Provincial | Province-specific health information custodians |
-| **FINTRAC** | FINTRAC | Pharmacies (AML obligations in some provinces) |
 
 ### United kingdom
 

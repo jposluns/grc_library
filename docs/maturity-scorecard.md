@@ -56,7 +56,7 @@ _108 documents._
 | [ai/template-ai-system-register.md](../ai/template-ai-system-register.md) | AI System Register Template | Template | 1.1.3 | 2026-07-11 |
 | [ai/template-system-card.md](../ai/template-system-card.md) | System Card Template | Template | 1.1.3 | 2026-07-11 |
 | [compliance/annex-nis-2-implementation.md](../compliance/annex-nis-2-implementation.md) | NIS 2 Implementation Annex | Annex | 1.2.2 | 2026-07-30 |
-| [compliance/healthcare/annex-healthcare-sector-requirements.md](../compliance/healthcare/annex-healthcare-sector-requirements.md) | Healthcare Sector GRC Requirements Annex | Annex | 1.1.6 | 2026-08-13 |
+| [compliance/healthcare/annex-healthcare-sector-requirements.md](../compliance/healthcare/annex-healthcare-sector-requirements.md) | Healthcare Sector GRC Requirements Annex | Annex | 1.1.7 | 2026-08-14 |
 | [compliance/logistics/annex-basc-programme-overview.md](../compliance/logistics/annex-basc-programme-overview.md) | BASC Programme Overview Annex | Annex | 1.1.1 | 2026-07-02 |
 | [compliance/logistics/policy-basc-information-security.md](../compliance/logistics/policy-basc-information-security.md) | BASC Information Security Policy | Policy | 1.2.5 | 2026-07-10 |
 | [compliance/logistics/register-basc-it-compliance-kpis.md](../compliance/logistics/register-basc-it-compliance-kpis.md) | BASC IT Compliance Monitoring and KPIs | Register | 1.2.3 | 2026-08-08 |
@@ -80,7 +80,7 @@ _108 documents._
 | [governance/matrix-cross-framework-alignment.md](../governance/matrix-cross-framework-alignment.md) | Cross-Framework Alignment Matrix | Matrix | 1.1.14 | 2026-08-13 |
 | [governance/policy-exception-and-risk-acceptance-management.md](../governance/policy-exception-and-risk-acceptance-management.md) | Exception and Risk Acceptance Management Policy | Policy | 1.3.17 | 2026-08-05 |
 | [governance/register-ai-security-tooling-landscape.md](../governance/register-ai-security-tooling-landscape.md) | AI Security Tooling Landscape Register | Register | 1.1.6 | 2026-07-05 |
-| [governance/register-canonical-citations.md](../governance/register-canonical-citations.md) | Canonical Citations Register | Register | 1.5.53 | 2026-08-12 |
+| [governance/register-canonical-citations.md](../governance/register-canonical-citations.md) | Canonical Citations Register | Register | 1.5.54 | 2026-08-14 |
 | [governance/register-coverage-gaps.md](../governance/register-coverage-gaps.md) | Coverage Gap Analysis Register | Register | 1.1.32 | 2026-08-04 |
 | [governance/register-digital-trust-and-assurance-metrics.md](../governance/register-digital-trust-and-assurance-metrics.md) | Digital Trust and Assurance Metrics Register | Register | 1.1.2 | 2026-08-05 |
 | [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.110 | 2026-08-13 |
@@ -169,7 +169,7 @@ _170 documents._
 | [ai/framework-ai-system-audit-certification.md](../ai/framework-ai-system-audit-certification.md) | AI System Audit and Certification Framework | Framework | 1.0.9 | 2026-08-13 |
 | [ai/guideline-adversarial-evaluation-suite-development.md](../ai/guideline-adversarial-evaluation-suite-development.md) | Adversarial Evaluation Suite Development Guideline | Guideline | 1.0.2 | 2026-07-11 |
 | [ai/guideline-ethical-ai-use.md](../ai/guideline-ethical-ai-use.md) | Ethical AI Use Guideline | Guideline | 1.0.5 | 2026-07-11 |
-| [ai/jurisdictions/annex-ai-canada.md](../ai/jurisdictions/annex-ai-canada.md) | Canada AI Regulatory Requirements | Annex | 1.0.3 | 2026-08-04 |
+| [ai/jurisdictions/annex-ai-canada.md](../ai/jurisdictions/annex-ai-canada.md) | Canada AI Regulatory Requirements | Annex | 1.0.4 | 2026-08-14 |
 | [ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md](../ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md) | AI Model Risk Control to Lifecycle Mapping Matrix | Matrix | 1.0.2 | 2026-07-11 |
 | [ai/plan-ai-incident-response.md](../ai/plan-ai-incident-response.md) | AI Incident Response Plan | Plan | 1.0.9 | 2026-07-22 |
 | [ai/policy-ai-compliance.md](../ai/policy-ai-compliance.md) | AI Compliance Policy | Policy | 1.0.17 | 2026-08-12 |
