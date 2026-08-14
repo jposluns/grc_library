@@ -2,7 +2,7 @@
 
 **Document Title:** India Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.3\
+**Version:** 1.1.4\
 **Date:** 2026-08-14\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -38,7 +38,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 - **Purpose limitation:** Personal data may be processed only for the specified lawful purpose for which consent was given. Repurposing for AI training requires fresh consent or another valid legal ground.
 - **Children's data:** Data Fiduciaries must obtain verifiable consent from a parent or guardian before processing personal data of children (a child is an individual under 18 years; under s. 9(5) the Central Government may notify, for a verifiably-safe Data Fiduciary, an age above which these children's-data duties do not apply). Tracking, behavioural monitoring, and targeted advertising directed at children are prohibited (s. 9(3)), subject to exemptions the Central Government may prescribe under s. 9(4) and 9(5).
 - **Significant Data Fiduciaries (SDF):** Entities designated based on volume of data processed, risk to Data Principal rights, potential national security implications, or societal impact. SDFs are subject to: mandatory DPIAs; mandatory annual data audits by accredited auditors; appointment of a Data Protection Officer; and additional accountability mechanisms. Large AI platforms processing personal data at scale are likely SDF candidates.
-- **Automated decision-making:** Data Fiduciaries must provide transparent information about automated decision-making processes that result in significant decisions affecting Data Principals. Data Principals have the right to seek explanation and to contest such decisions.
+- **Data used in decisions (s. 8(3)):** Where personal data is likely to be used to make a decision that affects a Data Principal, or to be disclosed to another Data Fiduciary, the Data Fiduciary must maintain the completeness, accuracy, and consistency of that data. The DPDPA and the 2025 Rules do not grant a right to an explanation of, or to contest, automated decisions; any human-review or explanation practice is an organizational choice rather than a statutory right.
 - **Transparency:** Notice must be provided at or before the point of data collection, including: nature of data; purpose of processing; manner of exercising Data Principal rights; and contact details of the grievance officer.
 - **Data retention:** Personal data must be erased once the purpose for which it was collected is fulfilled or consent is withdrawn, unless retention is required by law.
 
@@ -46,10 +46,10 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Cross-border transfer mechanisms
 
-- The DPDPA employs a **whitelist approach**: cross-border transfers of personal data are permitted only to countries and territories notified by the Indian government as permissible destinations.
-- The government may restrict transfers to countries posing a risk to national security or public order.
-- The 2025 Rules initiated the process for publishing the approved transfer destination list. Organizations must monitor official government notifications as the whitelist framework is progressively operationalized.
-- Practical note: until the whitelist is fully published, organizations should engage early with MeitY guidance and consider contractual safeguards as interim measures.
+- The DPDPA does **not** use an approved-destination whitelist. Under section 16(1), the Central Government may, by notification, **restrict** the transfer of personal data to a country or territory outside India (a negative-list power); transfers are otherwise permitted, subject to the requirements below.
+- Under the DPDP Rules, 2025 (Rule 15), personal data may be transferred outside India subject to any requirements the Central Government specifies, by general or special order, in respect of making that data available to a foreign State, or to a person or entity under the control of, or any agency of, such a State.
+- Section 16(2) preserves the application of any Indian law that provides a higher degree of protection for, or a stricter restriction on, the transfer of personal data (for example sector-specific data-localization rules).
+- Practical note: monitor Central Government notifications for any restricted destinations and any specified transfer requirements, and apply any stricter sectoral localization rules that govern the data in question.
 
 ---
 
