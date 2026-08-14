@@ -2,8 +2,8 @@
 
 **Document Title:** Financial Services Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.11\
-**Date:** 2026-07-22\
+**Version:** 1.0.12\
+**Date:** 2026-08-14\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`compliance/register-compliance-obligations-template.md`](../register-compliance-obligations-template.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md)\
@@ -62,8 +62,8 @@ This annex applies where an organization:
 | **OSFI Guideline B-10: Third-Party Risk Management** | OSFI | FRFIs |
 | **OSFI Guideline B-7: Derivatives** | OSFI | FRFIs |
 | **FINTRAC**: Proceeds of Crime (Money Laundering) and Terrorist Financing Act | FINTRAC | All reporting entities under the Act |
-| **PIPEDA** | OPC / Privacy Commissioner | All organizations processing Canadians' personal data |
-| **CSA (investment) obligations** | Canadian Securities Administrators | Federally registered investment dealers |
+| **PIPEDA** | OPC / Privacy Commissioner | Organizations that collect, use, or disclose personal information in the course of commercial activity |
+| **CSA (investment) obligations** | Canadian Securities Administrators | Provincially and territorially registered investment dealers (harmonized CSA framework; CIRO as the self-regulatory organization) |
 
 ### United states
 
@@ -137,17 +137,15 @@ DORA applies to approximately 22 categories of EU financial entities and to ICT 
 | **Mapping and testing** | Map people, processes, technology, facilities, and information supporting each service; stress test against disruption scenarios | [`resilience/procedure-continuity-and-recovery-testing.md`](../../resilience/procedure-continuity-and-recovery-testing.md); [`resilience/procedure-business-impact-analysis.md`](../../resilience/procedure-business-impact-analysis.md) |
 | **Self-assessment** | Annual self-assessment of operational resilience capability against impact tolerances | [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](../logistics/procedure-aeo-united-kingdom-self-assessment.md): adapt template |
 
-### OSFI b-13 (canada: frfis)
+### OSFI B-13 (Canada: FRFIs)
 
 OSFI B-13 applies to all federally regulated financial institutions in Canada. Key outcomes:
 
 | B-13 Domain | Outcome Required | GRC Library Mapping |
 |---|---|---|
-| **Governance** | Technology and cyber risk oversight at Board level; CRO accountability; technology risk appetite | [`risk/policy-enterprise-governance-and-risk-management.md`](../../risk/policy-enterprise-governance-and-risk-management.md); [`risk/template-risk-appetite-statement.md`](../../risk/template-risk-appetite-statement.md) |
-| **Technology Asset Management** | Complete, accurate technology asset inventory | [`operations/register-asset-inventory.md`](../../operations/register-asset-inventory.md) |
-| **Technology and Cyber Risk Management** | Risk identification, assessment, treatment aligned to enterprise framework | [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md); [`risk/procedure-risk-assessment-methodology.md`](../../risk/procedure-risk-assessment-methodology.md) |
-| **Cyber Resilience** | Cyber resilience strategy; incident response; threat intelligence; recovery capability | [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md); [`resilience/plan-it-disaster-recovery.md`](../../resilience/plan-it-disaster-recovery.md) |
-| **Third-Party Technology Risk** | Technology risk management for all third-party technology arrangements | [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md); [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md) |
+| **Governance and risk management** | Senior-Management accountability, with responsibility for technology and cyber risk assigned to senior officers; a technology and cyber risk management framework; technology risk appetite | [`risk/policy-enterprise-governance-and-risk-management.md`](../../risk/policy-enterprise-governance-and-risk-management.md); [`risk/template-risk-appetite-statement.md`](../../risk/template-risk-appetite-statement.md); [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md); [`risk/procedure-risk-assessment-methodology.md`](../../risk/procedure-risk-assessment-methodology.md) |
+| **Technology operations and resilience** | Complete, accurate technology asset inventory; sound technology operations; disaster recovery and resilience capability | [`operations/register-asset-inventory.md`](../../operations/register-asset-inventory.md); [`resilience/plan-it-disaster-recovery.md`](../../resilience/plan-it-disaster-recovery.md) |
+| **Cyber security** | Cyber defence, incident response, threat intelligence, and recovery capability | [`security/standard-soc-operating-model.md`](../../security/standard-soc-operating-model.md); [`operations/procedure-threat-intelligence-and-siem-operations.md`](../../operations/procedure-threat-intelligence-and-siem-operations.md); [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md); [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md) |
 
 ### NY DFS 23 NYCRR 500 (US)
 
@@ -209,11 +207,11 @@ The following controls are required by financial services regulations but are no
 | Important Business Services register | UK FCA/PRA PS21/3 | Create Important Business Services register and impact tolerance documentation |
 | TLPT (Threat-Led Penetration Testing) protocol | DORA Art 26; CBEST (UK) | Create TLPT governance procedure |
 | DORA third-party ICT provider contract register | DORA Art 28 | Supplement supplier register with DORA-specific fields |
-| AML / CFT policy, CDD, EDD, SAR procedures | FATF; BSA; AMLD6; MLRs 2017; NY DFS 3 NYCRR Part 504 (504.3 transaction-monitoring and OFAC-filtering program; 504.4 annual board resolution or senior-officer compliance finding by April 15) | Create AML programme documents |
+| AML / CFT policy, CDD, EDD, SAR procedures | FATF; BSA; AMLD6; MLRs 2017; PCMLTFA (Canada) and its regulations; NY DFS 3 NYCRR Part 504 (504.3 transaction-monitoring and OFAC-filtering program; 504.4 annual board resolution or senior-officer compliance finding by April 15) | Create AML programme documents |
 | GLBA Safeguards Rule annual report | GLBA | Create annual GLBA compliance attestation procedure |
 | PCI DSS targeted risk analysis procedure | PCI DSS v4.0.1 Req 12.3 | Create PCI DSS risk analysis procedure |
 | SOX IT General Controls documentation | SOX Section 404; PCAOB AS 2201 | Create ITGC documentation framework |
-| OSFI B-13 Board-level technology risk reporting | OSFI B-13 | Create technology risk Board report template |
+| OSFI B-13 Senior-Management technology risk reporting | OSFI B-13 | Create technology and cyber risk reporting to Senior Management |
 | SWIFT CSP annual attestation | SWIFT CSP | Create SWIFT CSP attestation procedure |
 
 ---
