@@ -2,7 +2,7 @@
 
 **Document Title:** Canada Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.14\
+**Version:** 1.1.15\
 **Date:** 2026-08-14\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -70,7 +70,7 @@ The following summarizes the PPCDA as introduced (Bill C-36, first reading 2026-
 ### Under Quebec Law 25
 
 - **Privacy Impact Assessments (PIAs):** Required (Quebec Law 25 s. 3.3) for any project to acquire, develop, or overhaul an information system or electronic service delivery system involving the collection, use, communication, keeping, or destruction of personal information, before implementation. A separate PIA is required before communicating personal information outside Quebec (s. 17).
-- **Automated decisions:** Organizations must inform individuals before or at the time of automated decisions and provide the right to request human review.
+- **Automated decisions (s. 12.1):** For a decision based exclusively on automated processing of personal information, organizations must inform the individual of that basis no later than the time the individual is informed of the decision, and, at the individual's request, of the personal information used, the reasons and the principal factors and parameters, and the right to correction; the individual must be given the opportunity to submit observations to a member of the enterprise's personnel who is in a position to review the decision.
 - **Biometric data:** Organizations creating a biometric database must notify the CAI at least 60 days in advance.
 
 ---
