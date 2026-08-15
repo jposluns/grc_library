@@ -2,7 +2,7 @@
 
 **Document Title:** Data Retention Schedule\
 **Document Type:** Register\
-**Version:** 1.0.23\
+**Version:** 1.0.24\
 **Date:** 2026-08-15\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Chief Information Officer\
@@ -111,7 +111,7 @@ This register defines the mandatory retention periods for each category of organ
 
 | Record Type | Retention Period | Legal Basis / Rationale |
 | --- | --- | --- |
-| Customs declarations and entries | 7 years | Organization retention baseline for customs records, set to meet or exceed each jurisdiction's customs record-keeping minimum (confirm at source, for example CBSA or HMRC). |
+| Customs declarations and entries | 7 years | Organization retention baseline for customs records. Confirm the applicable jurisdiction's customs record-keeping minimum at source and apply the longer period. |
 | BASC audit records and certifications | Certification period + 7 years | BASC International Standard v6 |
 | Cargo manifest and chain of custody | 7 years | CTPAT; NEEC; AEO compliance |
 | Personnel security screening (trade) | Duration of employment + 5 years | BASC v6 Chapter 6 |
