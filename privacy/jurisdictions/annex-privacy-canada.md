@@ -2,7 +2,7 @@
 
 **Document Title:** Canada Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.17\
+**Version:** 1.1.18\
 **Date:** 2026-08-15\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -25,8 +25,8 @@ This annex defines privacy and AI regulatory requirements applicable to processi
 ## Applicable laws and regulatory authorities
 
 - **Personal Information Protection and Electronic Documents Act (PIPEDA)**: S.C. 2000, c. 5. Federal private-sector privacy law governing collection, use, and disclosure of personal information in commercial activity. Schedule 1 incorporates the CSA Model Code as fair information principles.
-- **Consumer Privacy Protection Act (CPPA)**: Was Part 1 of Bill C-27 (Digital Charter Implementation Act, 2022), intended to replace PIPEDA. Bill C-27 lapsed when the Canadian Parliament was prorogued on 2025-01-06; the bill died on the order paper. CPPA is not in force; the C-27 bill itself was not reintroduced, but a distinct successor privacy bill has since been introduced. PIPEDA remains the federal private-sector privacy law. That successor, **Bill C-36 (Protecting Privacy and Consumer Data Act, PPCDA)**, was introduced 2026-06-15 and is at second reading (proposed, not in force); it would repeal Part 1 of PIPEDA, rename PIPEDA to the *Electronic Documents Act*, shift toward a legitimate-interest model, and create a Privacy and Consumer Data Commissioner. C-36 is a privacy bill and does not reintroduce AIDA. The earlier proposed CPPA framework included stronger consent requirements, rights to portability and disposal, privacy management programmes, and an independent Privacy Commissioner with order-making and penalty powers.
-- **Artificial Intelligence and Data Act (AIDA)**: Was Part 3 of Bill C-27. AIDA also lapsed with Bill C-27 at the January 2025 prorogation and, per the June 2025 ministerial statement, will not return in its original form. The proposed framework would have regulated high-impact AI systems, requiring impact assessments, mitigation measures, transparency, and mandatory harm reporting.
+- **Consumer Privacy Protection Act (CPPA)**: Was Part 1 of Bill C-27 (Digital Charter Implementation Act, 2022), intended to replace PIPEDA. Bill C-27 lapsed when the Canadian Parliament was prorogued on 2025-01-06; the bill died on the order paper. CPPA is not in force; the C-27 bill itself was not reintroduced, but a distinct successor privacy bill has since been introduced. PIPEDA remains the federal private-sector privacy law. That successor, **Bill C-36 (Protecting Privacy and Consumer Data Act, PPCDA)**, was introduced 2026-06-15 and is at second reading (proposed, not in force); it would repeal Part 1 of PIPEDA, rename PIPEDA to the *Electronic Documents Act*, shift toward a legitimate-interest model, and create a Privacy and Consumer Data Commissioner. C-36 is a privacy bill and does not reintroduce AIDA. The earlier proposed CPPA framework included stronger consent requirements, rights to portability and disposal, privacy management programmes, and an independent Privacy Commissioner with order-making powers, with penalties to be imposed by the proposed Personal Information and Data Protection Tribunal on the Commissioner's recommendation.
+- **Artificial Intelligence and Data Act (AIDA)**: Was Part 3 of Bill C-27. AIDA also lapsed with Bill C-27 at the January 2025 prorogation and, per the June 2025 ministerial statement, will not return in its original form. The proposed framework would have regulated high-impact AI systems, requiring an assessment of whether a system was high-impact, risk mitigation measures, transparency, and mandatory harm reporting.
 - **Quebec Law 25**: Significantly amended Quebec's provincial privacy laws. Key provisions: mandatory PIAs for projects to acquire, develop, or overhaul an information system or electronic service delivery system involving personal information (s. 3.3); express consent for sensitive data; right to portability; conditional right to de-indexing (s. 28.1, for dissemination that contravenes the law or a court order, or that causes serious reputational or privacy injury, subject to the balancing conditions the section sets out); obligations for automated decision-making transparency; prompt notification to the Commission d'accès à l'information (CAI) of a confidentiality incident presenting a risk of serious injury (the Act's standard is "promptly"; it sets no fixed hour-count). Its scope is framed by the carrying-on of an enterprise (s. 1, per article 1525 of the Civil Code of Quebec) rather than an express extraterritoriality provision.
 - **Regulatory authorities:** Office of the Privacy Commissioner of Canada (OPC) under PIPEDA; the order-making Privacy Commissioner that the lapsed CPPA proposed (not in force); Commission d'accès à l'information (CAI) for Quebec Law 25.
 
@@ -54,18 +54,18 @@ The following summarizes the PPCDA as introduced (Bill C-36, first reading 2026-
 
 ### Under the CPPA (lapsed; proposed, not in force)
 
-- **Algorithmic transparency (s. 63 CPPA):** Individuals would have the right to request explanation of predictions, recommendations, or decisions by automated decision systems that significantly affect them, and to challenge those decisions.
-- **Sensitive personal information:** Enhanced consent requirements.
-- **Children's privacy:** Specific protections for minors.
-- **De-identification:** Permitted for internal research and AI training without consent, subject to de-identification requirements and prohibitions on re-identification.
+- **Algorithmic transparency (proposed CPPA s. 63):** Where an automated decision system made a prediction, recommendation, or decision that could have a significant impact on an individual, the individual would have been able to request an explanation, which would have indicated the type and source of personal information used and the reasons or principal factors that led to the result.
+- **Sensitive personal information:** Enhanced consent requirements would have applied.
+- **Children's privacy:** Specific protections for minors would have applied.
+- **De-identification (proposed CPPA s. 21):** Would have permitted use for internal research, analysis, and development without consent, subject to de-identification requirements and prohibitions on re-identification.
 
 ### Under the AIDA (lapsed; proposed, not in force)
 
-- **High-impact AI systems:** Defined by regulation; expected to include AI in employment, credit, healthcare, and law enforcement contexts.
-- **Impact assessments:** Mandatory before deployment.
-- **Mitigation measures:** Documentation of harm and bias mitigation.
-- **Transparency:** Public disclosure that a high-impact AI system is in use.
-- **Audits:** The AI and Data Commissioner would have audit powers.
+- **High-impact AI systems:** Would have been those meeting criteria established in regulations; the bill text did not prescribe a list of sectors.
+- **High-impact assessment (proposed AIDA s. 7):** A person responsible for an AI system would have had to assess, in accordance with the regulations, whether it was a high-impact system.
+- **Mitigation measures (proposed AIDA s. 8):** Would have required a person responsible for a high-impact system to establish, in accordance with the regulations, measures to identify, assess, and mitigate the risks of harm or biased output that could result from the use of the system.
+- **Transparency (proposed AIDA s. 11):** Would have required a published plain-language description of a high-impact system, including its intended use and the mitigation measures established for it.
+- **Audits (proposed AIDA s. 15):** If the Minister had reasonable grounds to believe a person had contravened proposed ss. 6 to 12 or a related order, the Minister would have been able to order the person to conduct an audit or to engage an independent auditor. The Minister could designate an Artificial Intelligence and Data Commissioner to assist, and could delegate functions to the Commissioner other than regulation-making (s. 33).
 
 ### Under Quebec Law 25
 
@@ -98,7 +98,7 @@ The following summarizes the PPCDA as introduced (Bill C-36, first reading 2026-
 ### Adequacy
 
 - Canada (private-sector organizations subject to PIPEDA) benefits from an EU adequacy decision.
-- Bill C-27, which would have introduced updated transfer mechanisms (via the Consumer Privacy Protection Act) more closely aligned with GDPR-style adequacy and contractual mechanisms, lapsed at the 2025-01-06 prorogation and is not in force; PIPEDA's existing mechanisms remain.
+- Bill C-27's proposed CPPA would have required an organization transferring personal information to a service provider to ensure that the service provider, by contract or otherwise, provided a level of protection equivalent to that required of the organization (s. 11); it did not establish an adequacy-decision mechanism. Bill C-27 lapsed at the 2025-01-06 prorogation and is not in force; PIPEDA's existing mechanisms remain.
 
 ---
 
@@ -110,8 +110,9 @@ The following summarizes the PPCDA as introduced (Bill C-36, first reading 2026-
 
 ### CPPA (lapsed; proposed penalties, not in force)
 
-- Administrative monetary penalties: Up to CAD 10 million or 3% of global revenue for general violations; up to CAD 25 million or 5% of global revenue for the most serious violations.
-- Privacy Commissioner would have order-making powers.
+- Administrative monetary penalty (proposed CPPA s. 95(4)): on the Commissioner's recommendation (s. 94), the Personal Information and Data Protection Tribunal could have imposed a penalty; the maximum for all contraventions in a recommendation taken together would have been the greater of CAD 10 million and 3% of the organization's gross global revenue in the financial year before the one in which the penalty was imposed.
+- Offences (proposed CPPA s. 128): for knowingly contravening specified provisions, or for obstructing the Commissioner or their delegate in an investigation, inquiry, or audit, an organization would have been liable on indictment to a fine up to the greater of CAD 25 million and 5% of gross global revenue, or on summary conviction up to the greater of CAD 20 million and 4%.
+- The Privacy Commissioner would have had order-making powers.
 
 ### Quebec Law 25
 
@@ -120,8 +121,8 @@ The following summarizes the PPCDA as introduced (Bill C-36, first reading 2026-
 
 ### AIDA (lapsed; proposed penalties, not in force)
 
-- Penalties up to CAD 10 million or 3% of global revenues (general); up to CAD 25 million or 5% (most serious violations).
-- Criminal penalties for intentional violations causing harm.
+- Administrative monetary penalties (proposed AIDA s. 29): a person found under the regulations to have committed a designated violation would have been liable to an administrative monetary penalty established by those regulations; the bill text itself set no AMP maximum.
+- Offences (proposed AIDA): contravening proposed ss. 6 to 12, or obstructing the Minister or an auditor (s. 30), would have carried a corporate fine on indictment up to the greater of CAD 10 million and 3% of gross global revenues (summary conviction: the greater of CAD 5 million and 2%). Two further offences, possessing or using personal information while knowing or believing it was obtained through an offence, for the purpose of an AI system (s. 38), and making an AI system available in either of two circumstances: without lawful excuse, knowing or reckless as to whether its use was likely to cause serious physical or psychological harm to a person or substantial damage to their property, where its use then caused that harm or damage; or with intent to defraud the public and cause substantial economic loss to an individual, where its use then caused that loss (s. 39), would have carried, on their shared punishment provision (s. 40), a corporate fine on indictment up to the greater of CAD 25 million and 5% (summary conviction: the greater of CAD 20 million and 4%).
 
 ---
 
