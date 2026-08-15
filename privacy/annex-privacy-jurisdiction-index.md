@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Jurisdiction Index\
 **Document Type:** Annex\
-**Version:** 1.0.23\
+**Version:** 1.0.24\
 **Date:** 2026-08-15\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -117,7 +117,7 @@ Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting 
 | Nigeria | NDPA 2023 | Automated profiling objection; NDPC accountability guidance | Adequacy (NDPC-determined); contractual safeguards | 2% annual gross revenue / USD 10M |
 | Kenya | Data Protection Act 2019 | Automated decision objection right; ODPC guidance | Adequacy standard; contractual safeguards | KES 3M per violation |
 | China | PIPL, CSL, DSL, Generative AI Regulations | PIPL automated decision rights (Art. 24); pre-deployment security assessment; CAC labelling | CAC security assessment, PIPL SCCs, certification | RMB 50M / 5% revenue (PIPL) |
-| India | DPDPA 2023 / Rules 2025 | Children's-data safeguards (s. 9): verifiable parental consent and no tracking, behavioural monitoring, or targeted advertising (subject to s. 9(4)-(5) exemptions); no processing detrimental to a child's well-being; SDF DPIA requirement | Negative-list restriction power (s.16(1)); Rule 15 requirements | INR 250 crore (~USD 30M) |
+| India | DPDPA 2023 / Rules 2025 | Children's-data safeguards (s. 9): verifiable parental consent and no tracking, behavioural monitoring, or targeted advertising (subject to s. 9(4)-(5) exemptions); no processing detrimental to a child's well-being; SDF DPIA requirement | Negative-list restriction power (s.16(1)); Rule 15 requirements; Rule 13(4) SDF localization (personal data specified by the Central Government, together with traffic data pertaining to its flow, not transferred outside India) | INR 250 crore (~USD 30M) |
 | Thailand | PDPA 2019 | Automated decision human oversight; PDPC guidance | Consent; adequacy (list in development) | THB 5M (~USD 140K) |
 | Indonesia | UU PDP 2022 | Automated profiling transparency; national AI framework in development | Equivalent protection standard | 2% annual Indonesian revenue |
 | Philippines | Data Privacy Act 2012 | Automated profiling PIA encouraged; NPC guidance | Comparable safeguards; consent | PHP 5M + imprisonment |
