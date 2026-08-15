@@ -2,8 +2,8 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.55\
-**Date:** 2026-08-14\
+**Version:** 1.5.56\
+**Date:** 2026-08-15\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py)\
@@ -186,7 +186,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | Saudi Arabia PDPL | 2023 | 2023-09 | Personal Data Protection Law | - | https://sdaia.gov.sa/en/SDAIA/about/Pages/RegulationsAndPolicies.aspx | verified 2026-07-09 |
 | Singapore PDPA | 2012 (with 2020 amendments) | 2012 | Personal Data Protection Act | - | https://www.pdpc.gov.sg/ | verified 2026-07-09 |
 | Australia Privacy Act | 1988, as amended by the Privacy and Other Legislation Amendment Act 2024 (Cth) No. 128, 2024 (Royal Assent 10 December 2024); the automated-decision transparency obligation (Australian Privacy Principles 1.7 to 1.9, Schedule 1 Part 15) commences 10 December 2026 | 1988 | Privacy Act (including the automated-decision-making privacy-policy transparency obligation) | - | https://www.legislation.gov.au/C2004A03712/latest | verified 2026-07-11 |
-| India DPDPA | 2023 (Act enacted 2023-08-11); Digital Personal Data Protection Rules 2025 notified 13 November 2025 by MeitY with phased commencement (Data Protection Board provisions immediate; consent-manager registration after 12 months; remainder after 18 months) | 2023-08-11 | Digital Personal Data Protection Act 2023 plus the Digital Personal Data Protection Rules 2025 | - | https://static.pib.gov.in/WriteReadData/specificdocs/documents/2025/nov/doc20251117695301.pdf | verified 2026-07-09 |
+| India DPDPA | 2023 (Act enacted 2023-08-11); Act brought into force by G.S.R. 843(E) of 13 November 2025 on a staged schedule under s. 1(2) (definitions and Board establishment immediate; consent-manager registration s. 6(9) at 12 months; core substantive regime and the Board's principal inquiry-and-penalty functions at 18 months, around 13 May 2027); Digital Personal Data Protection Rules 2025 (G.S.R. 846(E)) notified the same day commence on a matching rule 1(2)-(4) schedule | 2023-08-11 | Digital Personal Data Protection Act 2023 plus the Digital Personal Data Protection Rules 2025 | - | https://static.pib.gov.in/WriteReadData/specificdocs/documents/2025/nov/doc20251117695301.pdf | verified 2026-07-09 |
 | Malaysia PDPA | 2010 (Act 709) as amended by Personal Data Protection (Amendment) Act 2024 (Act A1727); phased commencement: tranche 1 from 1 January 2025, tranche 2 from 1 April 2025, tranche 3 (including the mandatory DPO appointment and 72-hour breach notification) from 1 June 2025. DPO and breach-notification Guidelines issued 25 February 2025 | 2010 | Personal Data Protection Act (Malaysia) | - | https://www.pdp.gov.my/ppdpv1/en/akta/pdp-act-2010-en/ | 2026-06-30 |
 
 ## CSA frameworks
