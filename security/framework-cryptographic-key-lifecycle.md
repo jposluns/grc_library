@@ -2,8 +2,8 @@
 
 **Document Title:** Cryptographic Key Lifecycle Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.9\
-**Date:** 2026-08-05\
+**Version:** 1.0.10\
+**Date:** 2026-08-15\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md)\
@@ -92,7 +92,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who ma
 
 ## 5. Sector-programme cryptographic integration
 
-Where the organization participates in a sector programme that imposes additional cryptographic requirements (for example, BASC and WCO SAFE for trade and customs systems requiring AES-256 with PQC hybrid encryption by 2027), the keys used for sector-programme communications must:
+Where the organization participates in a sector programme for trade and customs systems (for example, BASC or WCO SAFE AEO participation), the organization applies its own cryptographic baseline to those systems (AES-256, with a post-quantum hybrid-encryption migration on the roadmap; WCO SAFE prescribes no cryptographic algorithm or migration deadline, and any BASC-specific requirement is stated in the relevant sector annex), and the keys used for sector-programme communications must:
 
 - Be uniquely identifiable in the Key Lifecycle Register.
 - Have documented ownership by the sector-conditional role defined by the relevant sector annex (for example, a BASC Regional Compliance Officer for the BASC programme).

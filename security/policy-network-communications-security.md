@@ -2,8 +2,8 @@
 
 **Document Title:** Network Communications Security Policy\
 **Document Type:** Policy\
-**Version:** 1.1.8\
-**Date:** 2026-07-30\
+**Version:** 1.1.9\
+**Date:** 2026-08-15\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md), [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md)\
@@ -108,7 +108,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who en
 
 8.2 Cryptographic controls must follow the Encryption and Key Management Policy.
 
-8.3 Where the organization participates in a sector programme that mandates additional cryptographic controls (for example, BASC-approved PKI or WCO SAFE-compliant authority for customs communications), the corresponding sector annex states the additional requirements, key custody, and routing controls; see [`compliance/`](../compliance/).
+8.3 Where the organization participates in a sector programme that mandates additional cryptographic controls for customs communications (for example, programme-specific PKI or digital-certificate requirements), the corresponding sector annex states the additional requirements, key custody, and routing controls; see [`compliance/`](../compliance/).
 
 ---
 
@@ -124,7 +124,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who en
 
 ## 10. Sector-programme network security overlays
 
-Where the organization participates in a sector programme that imposes additional network-security controls (for example, BASC and WCO SAFE for trade and logistics networks requiring perimeter monitoring, cargo and seal-tracking telemetry, customs-document integrity verification, and PKI controls for customs communications), the corresponding sector annex defines the additional control requirements, audit cadence, and incident-response timeframes. See [`compliance/`](../compliance/) for the sector annex applicable to the organization's covered programmes.
+Where the organization participates in a sector programme that imposes additional network-security controls for trade and logistics networks (for example, perimeter monitoring, cargo and seal-integrity controls, customs-document integrity verification, and digital-certificate controls for customs communications), the corresponding sector annex defines the additional control requirements, audit cadence, and incident-response timeframes. See [`compliance/`](../compliance/) for the sector annex applicable to the organization's covered programmes.
 
 ---
 
