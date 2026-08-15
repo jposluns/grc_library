@@ -2,8 +2,8 @@
 
 **Document Title:** Canada Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.16\
-**Date:** 2026-08-14\
+**Version:** 1.1.17\
+**Date:** 2026-08-15\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -48,7 +48,7 @@ The following summarizes the PPCDA as introduced (Bill C-36, first reading 2026-
 
 ### Under PIPEDA (current)
 
-- **Consent:** Meaningful consent required for collection, use, or disclosure. Implied consent for non-sensitive; express consent for sensitive information.
+- **Consent:** Meaningful consent required for collection, use, or disclosure. The form of consent may vary with the circumstances and sensitivity of the information; an organization should generally seek express consent for information likely to be sensitive, and implied consent is generally appropriate for less-sensitive information (PIPEDA Schedule 1, Principle 4.3).
 - **Automated decision-making:** PIPEDA has no explicit equivalent to GDPR Article 22. The OPC has issued guidance that individuals should be informed when significant decisions are made using automated systems and that human review should be available.
 - **Accountability:** Organizations must designate an individual responsible for compliance, develop privacy policies and procedures, and respond to individual complaints.
 
@@ -93,7 +93,7 @@ The following summarizes the PPCDA as introduced (Bill C-36, first reading 2026-
 
 - Transfers outside Quebec require a Privacy Impact Assessment.
 - A transfer outside Quebec may proceed only where a privacy impact assessment establishes that the information would receive adequate protection (s. 17); the transfer must then be the subject of a written agreement that takes the assessment into account and, where applicable, the measures agreed to mitigate the risks identified. Mitigation forms part of that agreement rather than an alternative to the adequate-protection conclusion. Section 17 does not apply to a communication under s. 18, first paragraph, subparagraph 7.
-- Privacy policy must disclose that personal information may be communicated outside Quebec.
+- At collection and on request, the individual must be informed of the possibility that their personal information could be communicated outside Quebec (s. 8).
 
 ### Adequacy
 
