@@ -2,7 +2,7 @@
 
 **Document Title:** Joint Controller Arrangement Template\
 **Document Type:** Template\
-**Version:** 1.0.5\
+**Version:** 1.0.6\
 **Date:** 2026-08-15\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -22,7 +22,7 @@
 
 ## Purpose
 
-This template defines the structure of a **joint controller arrangement** sufficient to satisfy **GDPR Article 26** and equivalent obligations under UK GDPR. It also accommodates PIPL's joint-personal-information-handler concept (China, Article 20 joint personal information handlers). LGPD (Brazil) has no statutory co-controller category: Article 5(VI) defines the controller, and multiple controllers are addressed only through shared civil liability where they are directly involved in the same processing (Article 42), not a GDPR-Article-26-style arrangement duty. India's DPDPA recognizes joint determination only definitionally (Data Fiduciaries acting in conjunction with others, section 2(i)) and creates no statutory joint-controller arrangement. Adopting organizations populate one arrangement per joint-processing context.
+This template defines the structure of a **joint controller arrangement** sufficient to satisfy **GDPR Article 26** and equivalent obligations under UK GDPR. It also accommodates PIPL's joint-personal-information-handler concept (China, Article 20 joint personal information handlers). LGPD (Brazil) has no statutory GDPR-Article-26-style co-controller category or arrangement duty: Article 5(VI) defines the controller, and Article 42 section 1(II) instead makes controllers jointly and severally liable where they are directly involved in the processing from which the data subject's damage resulted, subject to the Article 43 exclusions. India's DPDPA recognizes joint determination only definitionally (Data Fiduciaries acting in conjunction with others, section 2(i)) and creates no statutory joint-controller arrangement. Adopting organizations populate one arrangement per joint-processing context.
 
 A populated arrangement is a binding contractual instrument between joint controllers. It must be signed by authorized representatives of each party, retained as a legal record, and made available to data subjects in essence (see Section 9 below). The populated arrangement is sensitive operational data and must not be published in this public CC BY-SA 4.0 repository; use this template structurally and store the executed instrument internally.
 
@@ -160,7 +160,7 @@ Joint controllership exists under several regimes with substantively similar req
 | Regime | Equivalent concept | Notable variations |
 |---|---|---|
 | **UK GDPR** (UK) | Joint controllers (same as EU GDPR) | Information Commissioner's Office (ICO) is the lead supervisory authority |
-| **LGPD** (Brazil) | No statutory co-controller category; Article 5(VI) defines the controller. Multiple controllers directly involved in the same processing share civil liability (Article 42) | ANPD is the supervisory authority; no statutory written co-controller arrangement duty |
+| **LGPD** (Brazil) | No statutory co-controller category; Article 5(VI) defines the controller. Article 42 s.1(II) makes controllers jointly and severally liable when directly involved in the processing from which the damage resulted, subject to Article 43 exclusions | ANPD is the supervisory authority; no statutory written co-controller arrangement duty |
 | **PIPL** (China) | Joint personal information handlers (Article 20) | Public notice of arrangement required; CAC is the supervisory authority |
 | **India DPDP Act 2023** | No statutory joint-controller category; Data Fiduciaries may determine purposes and means in conjunction with others (section 2(i)) | Data Protection Board of India is the supervisory authority |
 | **PIPEDA** (Canada) | No formal "joint controller" concept; contractual allocation between controllers; OPC is the supervisory authority | Contractual best-practice mirrors GDPR Article 26 |
