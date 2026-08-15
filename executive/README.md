@@ -16,7 +16,7 @@ Each management concern below frames a leadership question. Under each concern, 
 Who owns which governance decision, and where the corpus fixes the accountable role. Supported routes: [What the governing body should require before an AI system goes into production](briefs/brief-ai-production-approval.md) (Executive Brief).
 
 ### 2. AI and autonomous systems
-How the corpus governs AI from intake through oversight, retirement, and incident response. Supported routes: [What the governing body should require before an AI system goes into production](briefs/brief-ai-production-approval.md) (Executive Brief); [What the governing body should require for AI incident-response readiness before production](briefs/brief-ai-incident-response-readiness.md) (Executive Brief).
+How the corpus governs AI from intake through oversight, retirement, and incident response. Supported routes: [What the governing body should require before an AI system goes into production](briefs/brief-ai-production-approval.md) (Executive Brief); [What the governing body should require for AI incident-response readiness before production](briefs/brief-ai-incident-response-readiness.md) (Executive Brief). [The governed life of an AI system, from idea to retirement](journeys/journey-ai-idea-to-retirement.md) (Journey).
 
 ### 3. Cybersecurity and operational resilience
 How the corpus establishes protective controls and the ability to withstand and recover from disruption. Supported routes: [What the governing body should require for AI resilience and continuity](briefs/brief-ai-resilience-continuity.md) (Executive Brief).
@@ -28,7 +28,7 @@ How the corpus governs personal and sensitive information across its lifecycle. 
 How the corpus addresses concentration, exit, and assurance over third parties. Supported routes: [What the governing body should require for third-party and AI supply-chain risk oversight](briefs/brief-ai-supply-chain-oversight.md) (Executive Brief).
 
 ### 6. Compliance and assurance
-How the corpus maps controls to obligations and produces evidence an assurer can test. Supported routes: none yet (declared coverage gap).
+How the corpus maps controls to obligations and produces evidence an assurer can test. Supported routes: [How leadership can know, with evidence, whether the controls it relies on are operating](outcome-maps/outcome-map-control-effectiveness.md) (Outcome Map).
 
 ### 7. Risk acceptance and exceptions
 How the corpus frames defensible risk acceptance and time-bound exceptions. Supported routes: [What the governing body should require before an AI system goes into production](briefs/brief-ai-production-approval.md) (Executive Brief).
