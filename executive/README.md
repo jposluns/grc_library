@@ -37,7 +37,7 @@ How the corpus frames defensible risk acceptance and time-bound exceptions. Supp
 How the corpus relates architecture decisions to governance and to accumulated technology debt. Supported routes: the [architecture and technology-debt oversight question set](oversight-question-sets/oversight-questions-architecture-technology-debt.md).
 
 ### 9. Workforce, conduct, and operating model
-How the corpus addresses people, roles, and the operating model that runs the controls. Supported routes: none yet (declared coverage gap).
+How the corpus addresses people, roles, and the operating model that runs the controls. Supported routes: [What the governing body should require for workforce, conduct, and operating-model oversight](briefs/brief-workforce-conduct-oversight.md) (Executive Brief).
 
 ### 10. Programme establishment and maturity
 How the corpus supports standing up a governance programme and measuring its maturity. Supported routes: none yet (declared coverage gap).
