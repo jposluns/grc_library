@@ -2,7 +2,7 @@
 
 **Document Title:** How leadership can know, with evidence, whether the controls it relies on are operating\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.1\
+**Version:** 0.0.2\
 **Date:** 2026-08-15\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -28,7 +28,7 @@
 
 ## Outcome statement
 
-The corpus defines the path that evidence about controls travels. Its [document architecture framework](../../governance/framework-document-architecture-and-interrelationship.md) sets out an evidence flow running upward from operational execution to governance reporting, in five steps: procedures and templates create records; registers consolidate records into authoritative inventories or logs; matrices map records to controls, obligations, risks, and lifecycle stages; metrics registers evaluate coverage, effectiveness, timeliness, and residual exposure; and frameworks use those outputs for governance review and improvement (its Evidence flow section). This page maps the corpus documents along that flow to a single outcome:
+The corpus defines the path that evidence about controls travels. Its [document architecture framework](../../governance/framework-document-architecture-and-interrelationship.md) sets out a five-step evidence flow running upward from operational execution to governance reporting (its Evidence flow section owns the ordered steps and their contents). This page maps the corpus documents along that flow to a single outcome:
 
 **Leadership can state, with evidence, whether the controls it relies on are operating, and can see where assurance itself has gaps.**
 
@@ -40,7 +40,7 @@ Each row relates one corpus control to the outcome using exactly one of the narr
 
 | Corpus control | Relationship | What it does for the outcome |
 |---|---|---|
-| Operating records, per the corpus [evidence flow](../../governance/framework-document-architecture-and-interrelationship.md) | dependency | The evidence flow begins with records: procedures and templates create them, and the flow's later steps work with what is already produced (registers consolidate records into authoritative inventories or logs, matrices map records to controls, obligations, risks, and lifecycle stages, and frameworks use the flow's outputs for governance review). The framework's own evidence examples include control assessment results, access reviews, incident records, exception approvals, and deletion attestations. |
+| Operating records, per the corpus [evidence flow](../../governance/framework-document-architecture-and-interrelationship.md) | dependency | The framework-owned evidence flow begins with records: procedures and templates create them, and its later steps work with what is already produced (see its Evidence flow section for the ordered steps). The framework's own evidence examples include control assessment results, access reviews, incident records, exception approvals, and deletion attestations. |
 | Control testing, per the [control testing procedure](../../compliance/procedure-control-testing.md) | evidence | The procedure's stated purpose is that control testing provides objective evidence that controls are functioning as intended. It tests design effectiveness (its section 2.1: whether the control, if operating as designed, would prevent or detect the associated risk) separately from operating effectiveness (its section 2.2: whether the control has operated consistently during the test period), places testing with a tester who is never the owner or operator of the control, so that the conclusion does not rest on a self-assessment (its roles section), and records each test with its tester and its independent reviewer in the Control Testing Register (its section 7). |
 | The per-control effectiveness metric, defined in the [assurance metrics register](../../governance/register-digital-trust-and-assurance-metrics.md) | prevention | The metric assigns each in-scope control an effectiveness band from three inputs: its latest operating-effectiveness test result, its deficiency recurrence signal, and its open corrective-action state, reported at the control's residual-risk testing frequency (the register's Per-control effectiveness metric section). The register's stated objective names a failure mode: a control that passed its latest test but shows a recurring deficiency or an open corrective action being read as effective on the strength of a single point-in-time result. |
 | Consumption of the metric across the lines of defence, per the [continuous assurance framework](../../governance/framework-continuous-assurance-and-improvement.md) | contribution | The framework tracks the metric as a performance-evaluation input so that sustained control effectiveness, not only point-in-time test outcomes, feeds the continuous-assurance cycle (its section 4.4), on the lines-of-defence model the [assurance map register](../../risk/register-assurance-map.md) defines (its Section 1): the control owner self-monitors the band and acts on a declining band, the second-line oversight functions aggregate the bands across the portfolio, challenge them, and surface systemic weakness, and internal audit independently validates the metric's basis and the reliability of its inputs. |

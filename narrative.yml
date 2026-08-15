@@ -273,7 +273,7 @@ pages:
   title: "How leadership can know, with evidence, whether the controls it relies on are operating"
   narrative_type: "Outcome Map"
   narrative_status: "Explanatory"
-  version: "0.0.1"
+  version: "0.0.2"
   date: "2026-08-15"
   corpus_sources:
     - "governance/framework-document-architecture-and-interrelationship.md"
@@ -374,7 +374,7 @@ pages:
   title: "When an AI agent acts beyond its granted authority"
   narrative_type: "Scenario"
   narrative_status: "Non-normative"
-  version: "0.0.1"
+  version: "0.0.2"
   date: "2026-08-15"
   corpus_sources:
     - "ai/standard-ai-access-and-agent-permissions.md"
