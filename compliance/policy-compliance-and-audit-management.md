@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance, Audit, and CAPA Management Policy\
 **Document Type:** Policy\
-**Version:** 1.0.17\
-**Date:** 2026-08-05\
+**Version:** 1.0.18\
+**Date:** 2026-08-15\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md)\
@@ -55,7 +55,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 
 ### 3.5 AI and trade compliance oversight
 3.5.1 The AI Governance Council oversees compliance with AI-related laws, standards, and ethical principles. 
-3.5.2 Documentation and audit trails must demonstrate conformity to frameworks such as the EU AI Act and the OECD AI Principles, and, for Canadian operations, the current Canadian AI instruments (the binding Treasury Board Directive on Automated Decision-Making and the voluntary federal Code of Conduct on Generative AI; AIDA lapsed and is not in force). 
+3.5.2 Documentation and audit trails must demonstrate conformity to frameworks such as the EU AI Act and the OECD AI Principles, and, for Canadian operations, the current Canadian AI instruments (the Treasury Board Directive on Automated Decision-Making, binding on Government of Canada institutions subject to the Policy on Service and Digital (Directive section 8.1), and the voluntary federal Code of Conduct on Generative AI; AIDA lapsed and is not in force).\
 3.5.3 Regional trade compliance officers coordinate with the CCO and Internal Audit to ensure that adherence to recognized global supply-chain programs, including **WCO SAFE**, **ISO 28000**, **BASC**, **PIP (Canada)**, **CTPAT (United States)**, **AEO (European Union)**, and equivalent frameworks, is maintained. 
 3.5.4 Audit scope for trade compliance includes verification of cargo integrity, personnel screening, and customs documentation accuracy. 
 3.5.5 Findings related to trade compliance are reported quarterly to the **Enterprise Risk Committee** and **Board Audit and Risk Committee**.
