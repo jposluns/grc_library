@@ -34,7 +34,7 @@ How the corpus maps controls to obligations and produces evidence an assurer can
 How the corpus frames defensible risk acceptance and time-bound exceptions. Supported routes: [What the governing body should require before an AI system goes into production](briefs/brief-ai-production-approval.md) (Executive Brief).
 
 ### 8. Enterprise architecture and technology debt
-How the corpus relates architecture decisions to governance and to accumulated technology debt. Supported routes: none yet (declared coverage gap).
+How the corpus relates architecture decisions to governance and to accumulated technology debt. Supported routes: the [architecture and technology-debt oversight question set](oversight-question-sets/oversight-questions-architecture-technology-debt.md).
 
 ### 9. Workforce, conduct, and operating model
 How the corpus addresses people, roles, and the operating model that runs the controls. Supported routes: none yet (declared coverage gap).
