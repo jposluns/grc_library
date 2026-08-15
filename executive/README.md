@@ -13,7 +13,7 @@ Each management concern below frames a leadership question. Under each concern, 
 ## Management concerns
 
 ### 1. Accountability and decision rights
-Who owns which governance decision, and where the corpus fixes the accountable role. Supported routes: [What the governing body should require before an AI system goes into production](briefs/brief-ai-production-approval.md) (Executive Brief).
+Who owns which governance decision, and where the corpus fixes the accountable role. Supported routes: [What the governing body should require before an AI system goes into production](briefs/brief-ai-production-approval.md) (Executive Brief). [Choosing between human review, human oversight, and autonomous authority for AI-assisted work](decision-narratives/decision-human-review-oversight.md) (Decision Narrative).
 
 ### 2. AI and autonomous systems
 How the corpus governs AI from intake through oversight, retirement, and incident response. Supported routes: [What the governing body should require before an AI system goes into production](briefs/brief-ai-production-approval.md) (Executive Brief); [What the governing body should require for AI incident-response readiness before production](briefs/brief-ai-incident-response-readiness.md) (Executive Brief). [The governed life of an AI system, from idea to retirement](journeys/journey-ai-idea-to-retirement.md) (Journey). [When an AI agent acts beyond its granted authority](scenarios/scenario-ai-agent-exceeds-authority.md) (Scenario). [What the governing body should ask about the organization's AI inventory, risks, incidents, suppliers, and change](oversight-question-sets/oversight-questions-ai-inventory-risk.md) (Oversight Question Set).
