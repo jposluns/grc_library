@@ -2,8 +2,8 @@
 
 **Document Title:** Cross-Border Data Flow Register\
 **Document Type:** Register\
-**Version:** 1.0.7\
-**Date:** 2026-07-22\
+**Version:** 1.0.8\
+**Date:** 2026-08-15\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/README.md`](README.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`supply-chain/register-subprocessor-template.md`](../supply-chain/register-subprocessor-template.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md)\
@@ -35,7 +35,7 @@ Cross-border data transfer restrictions apply when personal data is transmitted,
 | **GDPR (EU)** | Transfer outside EEA | Adequacy decision; Standard Contractual Clauses (SCCs 2021); Binding Corporate Rules (BCRs); Derogations (Article 49) |
 | **UK GDPR** | Transfer outside UK | UK adequacy regulations; International Data Transfer Agreement (IDTA); UK Addendum to EU SCCs; BCRs; Derogations |
 | **PIPEDA (Canada)** | Transfer outside Canada | Contractual protection; consent where appropriate |
-| **Quebec Law 25** | Transfer outside Quebec | Privacy Impact Assessment (PIA); contractual protection |
+| **Quebec Law 25** | Transfer outside Quebec | Privacy Impact Assessment (PIA) that must establish the information would receive adequate protection, then a written agreement reflecting the assessment (s. 17) |
 | **LGPD (Brazil)** | Transfer outside Brazil | Adequacy decision by ANPD; contractual clauses; BCRs; specific consent; international convention |
 | **PIPL (China)** | Transfer outside China | Cyberspace Administration of China (CAC) security assessment; standard contract filed with CAC; personal information protection certification; applicable treaty |
 
@@ -102,7 +102,7 @@ Cross-border data transfer restrictions apply when personal data is transmitted,
 | UK GDPR | UK Addendum | Addendum to EU SCCs published by ICO (version B1.0) |
 | UK GDPR | Adequacy | UK Government adequacy regulations: verify annually |
 | Canada PIPEDA | Contractual protection | DPA with contractual privacy obligations |
-| Quebec Law 25 | PIA + contract | Completed AFIPD (Privacy Impact Assessment for Cross-Border Transfer) |
+| Quebec Law 25 | PIA establishing adequate protection, then written agreement (s. 17) | Completed AFIPD (Privacy Impact Assessment for Cross-Border Transfer) |
 | LGPD (Brazil) | SCCs or contractual clauses | ANPD-recognized clauses (Resolution CD/ANPD No. 19/2024) or ANPD adequacy decision (first issued in Resolution CD/ANPD No. 32/2026, recognizing the EU/EEA) |
 | PIPL (China) | Standard Contract | CAC Standard Contract for Cross-Border Transfer of Personal Information (filed) |
 
@@ -142,7 +142,7 @@ Cross-border data transfer restrictions apply when personal data is transmitted,
 
 | TRF ID | Transfer Name | Data Categories | Origin → Destination | Mechanism | Status | Next Review |
 |---|---|---|---|---|---|---|
-| TRF-2026-001 | Payroll processing | Employee personal and financial data | CA → US | Contractual (PIPEDA); Quebec Law 25 PIA | Active | |
+| TRF-2026-001 | Payroll processing | Employee personal and financial data | CA → US | Contractual protection (PIPEDA); Quebec Law 25 s. 17 PIA establishing adequate protection + written agreement | Active | |
 | TRF-2026-002 | HR management system | Employee records | CA, US → Data centre location | Contractual protection; SCCs (EU employees) | Active | |
 | TRF-2026-003 | Cloud productivity platform (email, collaboration) | Internal communications; employee contact data | CA, US, EU, UK → Cloud provider regions | EU SCCs; UK IDTA; US adequacy (EU-US DPF) | Active | |
 | TRF-2026-004 | Customer data analytics | Shipping and logistics data; business contact data | EU → US | EU SCCs Module 2 | Active | |
