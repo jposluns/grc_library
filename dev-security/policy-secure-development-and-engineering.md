@@ -2,7 +2,7 @@
 
 **Document Title:** Secure Development and Engineering Policy\
 **Document Type:** Policy\
-**Version:** 1.0.14\
+**Version:** 1.0.15\
 **Date:** 2026-08-15\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -84,7 +84,7 @@ It incorporates forward-looking controls for AI-generated code verification.
 
 4.3.2 Code must be free of hardcoded secrets, credentials, or API keys.
 
-4.3.3 All cryptographic implementations must use approved libraries and comply with ISO/IEC 19790 FIPS 140-3 standards.
+4.3.3 All cryptographic implementations must use approved libraries and comply with FIPS 140-3 (based on ISO/IEC 19790:2012).
 
 4.3.4 Input validation, output encoding, and proper error handling must be enforced for all applications.
 
@@ -157,13 +157,13 @@ It incorporates forward-looking controls for AI-generated code verification.
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ISO/IEC 27034 (all parts) | Information technology, Application security | Secure SDLC governance and assurance |
-| ISO/IEC 27002:2022 | Application security controls | Secure coding and testing controls |
+| ISO/IEC 27002:2022 | Information security controls | Secure coding and testing controls |
 | NIST SSDF | Secure Software Development Framework | Secure development lifecycle |
 | OWASP ASVS v5 | Application Security Verification Standard | Secure coding requirements |
 | COBIT 2019 | BAI03: Managed Solutions Identification and Build | Solution design and build |
 | COBIT 2019 | BAI07: Managed IT Change Acceptance and Transitioning | Release and deployment controls |
 | CSA CCM v4.1 | AIS-04: Secure Application Development Lifecycle | Software engineering and security controls |
-| EU AI Act | Annex IV | AI-generated code governance |
+| EU AI Act | Art 11 / Annex IV | Technical documentation for a high-risk AI system |
 
 ---
 
