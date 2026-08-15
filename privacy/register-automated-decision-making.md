@@ -2,8 +2,8 @@
 
 **Document Title:** Automated Decision-Making and Profiling Register\
 **Document Type:** Register\
-**Version:** 1.0.10\
-**Date:** 2026-08-14\
+**Version:** 1.0.11\
+**Date:** 2026-08-15\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`ai/template-ai-system-register.md`](../ai/template-ai-system-register.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md), [`ai/procedure-integrated-ai-and-privacy-assessment.md`](../ai/procedure-integrated-ai-and-privacy-assessment.md)\
@@ -22,7 +22,7 @@
 
 ## Purpose
 
-This register inventories automated decision-making and profiling activities subject to GDPR Article 22, UK GDPR Article 22, EU AI Act Articles 6 and 14, LGPD Article 20, PIPL Article 24, CPPA Section 19 (lapsed with Bill C-27), CCPA / CPRA automated decision-making rules, and equivalent provisions. It supports the transparency, human-review, and explanation rights data subjects can exercise.
+This register inventories automated decision-making and profiling activities subject to GDPR Article 22, UK GDPR Article 22, EU AI Act Articles 6 and 14, LGPD Article 20, PIPL Article 24, CPPA Section 63(3) (lapsed with Bill C-27), CCPA / CPRA automated decision-making rules, and equivalent provisions. It supports the transparency, human-review, and explanation rights data subjects can exercise.
 
 A populated ADM register identifies real systems and is sensitive operational data. This template is the structural baseline; populate, classify, and store internally.
 
@@ -132,7 +132,7 @@ Where an ADM system is also an AI system (most modern cases), the AI System Regi
 | EU AI Act | Article 27 | Fundamental rights impact assessment (FRIA); may cross-reference the DPIA per Article 27(4) as amended by Regulation (EU) 2026/1744; deployer obligation applicable from 2 December 2027 (Annex III and Article 6(2) high-risk systems, per the amended Article 113) |
 | LGPD | Article 20 | Right to review of automated decisions |
 | PIPL | Article 24 | Automated decision-making transparency and refusal |
-| CPPA | Section 19 (lapsed with Bill C-27) | Automated decision system rights |
+| CPPA | Section 63(3)-(4); Section 62(2)(c) (lapsed with Bill C-27) | Automated decision system explanation right; proactive transparency account |
 | CCPA / CPRA | Cal. Civ. Code s. 1798.185(a)(15); CCPA Regulations 11 CCR Article 11 (ss. 7200-7222) | ADMT pre-use notice, opt-out, and access rights (final regulations effective 2026-01-01; compliance by 2027-01-01) |
 | NIST AI RMF | MAP, MEASURE, MANAGE | AI risk management functions |
 

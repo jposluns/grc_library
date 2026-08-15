@@ -2,8 +2,8 @@
 
 **Document Title:** Logistics Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.9\
-**Date:** 2026-08-14\
+**Version:** 1.0.10\
+**Date:** 2026-08-15\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-basc-programme-overview.md`](annex-basc-programme-overview.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](register-ctpat-united-states-it-controls.md), [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](register-ctpat-united-states-msc-controls.md), [`compliance/logistics/register-pip-canada-controls.md`](register-pip-canada-controls.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/logistics/template-trade-compliance-gap-assessment.md`](template-trade-compliance-gap-assessment.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../../supply-chain/matrix-supply-chain-security-programme-alignment.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](../../supply-chain/annex-trade-and-supply-chain-continuity-controls.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md)\
@@ -120,13 +120,14 @@ TSA Security Directives for surface transportation (freight rail, highway) and p
 
 ### EU NIS 2: transportation essential entities
 
-Under NIS 2, transportation entities in the following sub-sectors are classified as **essential entities** and subject to the highest tier of obligations:
+Under NIS 2, transportation entities in the following Annex I sub-sectors that fall within NIS 2 scope (medium-sized or larger, Article 2) are **essential entities** where they exceed the medium-sized-enterprise ceilings (Article 3(1)(a)) and otherwise **important entities** (Article 3(2)); essential entities are subject to the highest tier of obligations:
 
 - Air transport (airlines, airports, air traffic management)
 - Rail transport (railway infrastructure managers; railway undertakings)
 - Water transport (inland waterway transport; sea and coastal water transport; ports; vessels)
 - Road transport (road authorities; operators of intelligent transport systems)
-- Post and courier services (where meeting size thresholds)
+
+Post and courier services are **not** in NIS 2 Annex I. Postal and courier providers sit in Annex II (Other critical sectors); because Article 3(1)(a) confers essential status only on Annex I entities that exceed the medium-sized-enterprise ceilings, an in-scope postal or courier operator is an **important entity** under Article 3(2), subject to the lighter ex-post supervisory regime and the lower fine ceiling. It is treated as essential only where a Member State designates it so under Article 2(2), points (b) to (e), where it is identified as a critical entity under Directive (EU) 2022/2557, or where a Member State so provides for an entity it identified before 16 January 2023 as an operator of essential services under NIS 1 or national law (Article 3(1)(g)).
 
 **Key NIS 2 cybersecurity obligations for essential entities:**
 
@@ -145,7 +146,7 @@ Under NIS 2, transportation entities in the following sub-sectors are classified
 | Art 21(2)(j): Multi-factor authentication | MFA / continuous authentication where appropriate | [`security/procedure-identity-management.md`](../../security/procedure-identity-management.md) |
 | Art 23, Incident notification | Report significant incidents to national CSIRT within 24 hours (initial); 72 hours (assessment); 1 month (final report) | [`resilience/procedure-security-incident-reporting-and-escalation.md`](../../resilience/procedure-security-incident-reporting-and-escalation.md), supplement with NIS 2 notification templates |
 
-**NIS 2 Penalties:** Essential entities: up to €10M or 2% of global annual turnover (whichever is higher).
+**NIS 2 Penalties:** Article 34 sets directive-level floors that national transposition must at least meet: essential entities, a maximum of at least €10M or at least 2% of total worldwide annual turnover, whichever is higher (Article 34(4)); important entities, a maximum of at least €7M or at least 1.4%, whichever is higher (Article 34(5)). The applied maxima are set by national law.
 
 ### IMO maritime cyber risk management
 

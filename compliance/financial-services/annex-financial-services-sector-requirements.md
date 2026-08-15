@@ -2,8 +2,8 @@
 
 **Document Title:** Financial Services Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.12\
-**Date:** 2026-08-14\
+**Version:** 1.0.13\
+**Date:** 2026-08-15\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`compliance/register-compliance-obligations-template.md`](../register-compliance-obligations-template.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md)\
@@ -62,7 +62,7 @@ This annex applies where an organization:
 | **OSFI Guideline B-10: Third-Party Risk Management** | OSFI | FRFIs |
 | **OSFI Guideline B-7: Derivatives** | OSFI | FRFIs |
 | **FINTRAC**: Proceeds of Crime (Money Laundering) and Terrorist Financing Act | FINTRAC | All reporting entities under the Act |
-| **PIPEDA** | OPC / Privacy Commissioner | Organizations that collect, use, or disclose personal information in the course of commercial activity |
+| **PIPEDA** | OPC | Personal information collected, used, or disclosed in the course of commercial activities, and employee and applicant data of federal works, undertakings, or businesses (s. 4(1)) |
 | **CSA (investment) obligations** | Canadian Securities Administrators | Provincially and territorially registered investment dealers (harmonized CSA framework; CIRO as the self-regulatory organization) |
 
 ### United states

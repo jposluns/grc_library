@@ -2,8 +2,8 @@
 
 **Document Title:** Worked Example: Converting a Draft into a CC BY-SA 4.0 Artefact\
 **Document Type:** Guide\
-**Version:** 1.0.6\
-**Date:** 2026-08-14\
+**Version:** 1.0.7\
+**Date:** 2026-08-15\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`specification-ingestion.md`](../specification-ingestion.md), [`specification-master-project.md`](../specification-master-project.md), [`CONTRIBUTING.md`](../CONTRIBUTING.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/worked-example-adoption.md`](worked-example-adoption.md)\
@@ -66,7 +66,7 @@ Quebec is a legitimate jurisdictional reference, not organization-specific detai
 
 **Document Title:** Quarterly Privileged Access Review Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.1\
+**Version:** 0.0.1\
 **Date:** 2026-06-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Security Officer\
