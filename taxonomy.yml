@@ -3741,7 +3741,7 @@ documents:
   domain: "privacy"
   type: "Template"
   title: "Joint Controller Arrangement Template"
-  version: "1.0.4"
+  version: "1.0.5"
   date: "2026-08-15"
   owner: "Data Protection Officer"
   approving_authority: "Governance Library Maintainer"
