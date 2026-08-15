@@ -2,8 +2,8 @@
 
 **Document Title:** AI Algorithmic Compliance Checklist\
 **Document Type:** Checklist\
-**Version:** 1.0.10\
-**Date:** 2026-08-12\
+**Version:** 1.0.11\
+**Date:** 2026-08-15\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -88,13 +88,13 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 
 ## Section c: security controls
 
-*Synthesized from: OWASP LLM Top 10 (2025); MITRE ATLAS adversarial ML evaluation; EU AI Act Art. 15; NIST AI RMF Measure 2.6; ISO/IEC 42001:2023 §8.4*
+*Synthesized from: OWASP LLM Top 10 (2025); MITRE ATLAS adversarial ML evaluation; EU AI Act Art. 15; NIST AI RMF Measure 2.7; ISO/IEC 42001:2023 §8.3*
 
 | # | Control Item | Status (Yes / No / Partial / N/A) | Evidence | Owner | Notes |
 |---|---|---|---|---|---|
 | C1 | Prompt injection attack resistance tested (OWASP LLM01): system has been assessed for direct and indirect prompt injection; findings documented and remediated | | | | |
 | C2 | Training data poisoning controls in place (OWASP LLM04 Data and Model Poisoning in the 2025 edition): data provenance validated; integrity controls applied; adversarial data injection tested | | | | |
-| C3 | Model inversion and membership inference risks assessed (NIST AI RMF MAP 2.3; not a distinct OWASP LLM Top 10:2025 category but related to LLM02 Sensitive Information Disclosure): risk assessment documented; mitigations implemented where risk is material | | | | |
+| C3 | Model inversion and membership inference risks assessed (NIST AI RMF Measure 2.7; not a distinct OWASP LLM Top 10:2025 category but related to LLM02 Sensitive Information Disclosure): risk assessment documented; mitigations implemented where risk is material | | | | |
 | C4 | Output validation implemented before AI outputs are used in downstream decisions or communicated to users: validation logic documented and tested | | | | |
 | C5 | AI system access controls verified: principle of least privilege applied; service accounts are isolated; privileged access is logged and reviewed | | | | |
 | C6 | AI system logs (inputs, outputs, decisions, anomalies) forwarded to the SIEM platform and retained for a minimum of 7 years per the AI decision and detection logs row in [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md) | | | | |
