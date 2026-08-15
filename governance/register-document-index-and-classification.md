@@ -2,8 +2,8 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.111\
-**Date:** 2026-08-14\
+**Version:** 1.27.112\
+**Date:** 2026-08-15\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md)\
@@ -138,7 +138,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Privacy | Template | Legitimate Interest Assessment (LIA) Template | [`privacy/template-legitimate-interest-assessment.md`](../privacy/template-legitimate-interest-assessment.md) | Data Protection Officer | Annual | GDPR Art 6(1)(f), GDPR Recital 47, UK GDPR Art 6(1)(f), EDPB Opinion 28/2024, ISO/IEC 27701:2025 | template |
 | Privacy | Template | Transfer Impact Assessment (TIA) Template | [`privacy/template-transfer-impact-assessment.md`](../privacy/template-transfer-impact-assessment.md) | Data Protection Officer | Annual | GDPR Arts 44 to 49, EDPB Recommendations 01/2020, UK GDPR Arts 44 to 49, ISO/IEC 27701:2025 | template |
 | Privacy | Template | Breach Notification Regulator Register Template | [`privacy/template-breach-notification-regulator-register.md`](../privacy/template-breach-notification-regulator-register.md) | Data Protection Officer | Annual | GDPR Arts 33 to 34, UK GDPR, PIPEDA, Quebec Law 25, PIPL Art 57, LGPD Arts 48 to 49, breach-notification deadlines | template |
-| Privacy | Template | Joint Controller Arrangement Template | [`privacy/template-joint-controller-arrangement.md`](../privacy/template-joint-controller-arrangement.md) | Data Protection Officer | Annual | GDPR Art 26, UK GDPR Art 26, LGPD Art 5(VI), PIPL Art 20, India DPDP 2023 §2(i), EDPB Guidelines 07/2020 | template |
+| Privacy | Template | Joint Controller Arrangement Template | [`privacy/template-joint-controller-arrangement.md`](../privacy/template-joint-controller-arrangement.md) | Data Protection Officer | Annual | GDPR Art 26, UK GDPR Art 26, LGPD Art 42, PIPL Art 20, India DPDP 2023 §2(i), EDPB Guidelines 07/2020 | template |
 | Privacy | Template | Data Processing Agreement Template (GDPR Article 28) | [`privacy/template-dpa-article-28.md`](../privacy/template-dpa-article-28.md) | Data Protection Officer | Annual | GDPR Art 28, UK GDPR Art 28, LGPD Arts 39/42, PIPL Art 21, PIPEDA Principle 4.1.3, ISO/IEC 27001 A.5.20, ISO/IEC 27701:2025 | template |
 | Privacy | Framework | Consent Management Framework | [`privacy/framework-consent-management.md`](../privacy/framework-consent-management.md) | Data Protection Officer | Annual | GDPR Arts 4(11)/6/7/8/9, ePrivacy Directive, LGPD Arts 7/8, PIPL Arts 13/14, COPPA, ISO/IEC 29184 | template |
 | Privacy | Register | Automated Decision-Making and Profiling Register | [`privacy/register-automated-decision-making.md`](../privacy/register-automated-decision-making.md) | Data Protection Officer | Quarterly | GDPR Art 22, EU AI Act Arts 6/14/26, LGPD Art 20, PIPL Art 24, NIST AI RMF | template |
