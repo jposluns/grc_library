@@ -2,7 +2,7 @@
 
 **Document Title:** Canada Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.18\
+**Version:** 1.1.19\
 **Date:** 2026-08-15\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -24,7 +24,7 @@ This annex defines privacy and AI regulatory requirements applicable to processi
 
 ## Applicable laws and regulatory authorities
 
-- **Personal Information Protection and Electronic Documents Act (PIPEDA)**: S.C. 2000, c. 5. Federal private-sector privacy law governing collection, use, and disclosure of personal information in commercial activity. Schedule 1 incorporates the CSA Model Code as fair information principles.
+- **Personal Information Protection and Electronic Documents Act (PIPEDA)**: S.C. 2000, c. 5. Federal private-sector privacy law governing personal information that an organization collects, uses, or discloses in the course of commercial activities, or that is about an employee or applicant of the organization and is handled in connection with the operation of a federal work, undertaking, or business (s. 4(1)). Schedule 1 incorporates the CSA Model Code as fair information principles.
 - **Consumer Privacy Protection Act (CPPA)**: Was Part 1 of Bill C-27 (Digital Charter Implementation Act, 2022), intended to replace PIPEDA. Bill C-27 lapsed when the Canadian Parliament was prorogued on 2025-01-06; the bill died on the order paper. CPPA is not in force; the C-27 bill itself was not reintroduced, but a distinct successor privacy bill has since been introduced. PIPEDA remains the federal private-sector privacy law. That successor, **Bill C-36 (Protecting Privacy and Consumer Data Act, PPCDA)**, was introduced 2026-06-15 and is at second reading (proposed, not in force); it would repeal Part 1 of PIPEDA, rename PIPEDA to the *Electronic Documents Act*, shift toward a legitimate-interest model, and create a Privacy and Consumer Data Commissioner. C-36 is a privacy bill and does not reintroduce AIDA. The earlier proposed CPPA framework included stronger consent requirements, rights to portability and disposal, privacy management programmes, and an independent Privacy Commissioner with order-making powers, with penalties to be imposed by the proposed Personal Information and Data Protection Tribunal on the Commissioner's recommendation.
 - **Artificial Intelligence and Data Act (AIDA)**: Was Part 3 of Bill C-27. AIDA also lapsed with Bill C-27 at the January 2025 prorogation and, per the June 2025 ministerial statement, will not return in its original form. The proposed framework would have regulated high-impact AI systems, requiring an assessment of whether a system was high-impact, risk mitigation measures, transparency, and mandatory harm reporting.
 - **Quebec Law 25**: Significantly amended Quebec's provincial privacy laws. Key provisions: mandatory PIAs for projects to acquire, develop, or overhaul an information system or electronic service delivery system involving personal information (s. 3.3); express consent for sensitive data; right to portability; conditional right to de-indexing (s. 28.1, for dissemination that contravenes the law or a court order, or that causes serious reputational or privacy injury, subject to the balancing conditions the section sets out); obligations for automated decision-making transparency; prompt notification to the Commission d'accès à l'information (CAI) of a confidentiality incident presenting a risk of serious injury (the Act's standard is "promptly"; it sets no fixed hour-count). Its scope is framed by the carrying-on of an enterprise (s. 1, per article 1525 of the Civil Code of Quebec) rather than an express extraterritoriality provision.
@@ -91,7 +91,6 @@ The following summarizes the PPCDA as introduced (Bill C-36, first reading 2026-
 
 ### Under Quebec Law 25
 
-- Transfers outside Quebec require a Privacy Impact Assessment.
 - A transfer outside Quebec may proceed only where a privacy impact assessment establishes that the information would receive adequate protection (s. 17); the transfer must then be the subject of a written agreement that takes the assessment into account and, where applicable, the measures agreed to mitigate the risks identified. Mitigation forms part of that agreement rather than an alternative to the adequate-protection conclusion. Section 17 does not apply to a communication under s. 18, first paragraph, subparagraph 7.
 - At collection and on request, the individual must be informed of the possibility that their personal information could be communicated outside Quebec (s. 8).
 
