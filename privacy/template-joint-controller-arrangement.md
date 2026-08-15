@@ -2,8 +2,8 @@
 
 **Document Title:** Joint Controller Arrangement Template\
 **Document Type:** Template\
-**Version:** 1.0.3\
-**Date:** 2026-08-14\
+**Version:** 1.0.4\
+**Date:** 2026-08-15\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](procedure-data-protection-and-privacy-breach-response.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/template-dpia.md`](template-dpia.md), [`privacy/register-cross-border-data-flow.md`](register-cross-border-data-flow.md)\
@@ -113,7 +113,7 @@ This section is the heart of the arrangement under Article 26(1): the parties **
 | DPO designation | Articles 37-39 | Each party designates its own DPO; this arrangement names both | Where the joint processing scope changes the threshold under Article 37(1), re-assess |
 | Cross-border transfer safeguards | Articles 44-49 | Per party (each safeguards its own onward transfers); jointly responsible for transfers between the joint controllers where one is outside the EEA | List SCCs, BCRs, adequacy decisions, or Article 49 derogations applicable to each transfer |
 | Contact point for data subjects | Article 26(1) | <named contact point> | Single contact point may be either party, or a shared inbox; published in the essence-of-arrangement notice (Section 9) |
-| Joint and several liability awareness | Article 26(3) | Both acknowledge | Internal liability allocation (e.g., indemnity provisions) is contract law; toward the subject the parties are jointly and severally liable |
+| Joint and several liability awareness | Article 82(4) | Both acknowledge | Internal liability allocation (e.g., indemnity provisions) is contract law; toward the subject, each party responsible for the damage under Article 82(2)-(3) is liable for the entire damage (joint and several liability) |
 
 ### Section 4: Operational coordination
 
@@ -128,7 +128,7 @@ This section is the heart of the arrangement under Article 26(1): the parties **
 
 ### Section 5: Liability and indemnification
 
-Per Article 26(3), regardless of the internal allocation in Section 3, data subjects may exercise their rights against any one of the joint controllers. This means the joint controllers are jointly and severally liable toward the subject.
+Per Article 26(3), regardless of the internal allocation in Section 3, data subjects may exercise their rights against any one of the joint controllers. Separately, under Article 82(4), where the joint controllers are responsible under Article 82(2) and (3) for damage caused by the processing, each is liable for the entire damage, so that the data subject receives effective compensation (joint and several liability).
 
 Internally, the parties may allocate liability via indemnity provisions:
 
@@ -210,5 +210,5 @@ A populated arrangement is sensitive contractual data. Adopters do NOT publish t
 | Joint determination of purposes and means | Article 26(1) | Article 26(1) | Article 5(VI) | Article 20 | Section 2(i) "Data Fiduciary" with joint construction |
 | Transparent allocation of responsibilities | Article 26(1) | Article 26(1) | Article 39 | Article 20(2) | No DPDPA joint-controller allocation duty; each Data Fiduciary bears the Act's obligations directly |
 | Essence-of-arrangement availability to subjects | Article 26(2) | Article 26(2) | Article 18 transparency principle | Article 17 information rights | No DPDPA essence-of-arrangement publication duty (s. 5 notice is the individual-notice duty, not arrangement publication) |
-| Joint and several liability toward subjects | Article 26(3) | Article 26(3) | Article 42 | Article 20(2) (joint liability) | No DPDPA joint-and-several-liability scheme (grievance redressal is s. 13) |
+| Joint and several liability toward subjects | Article 82(4) | Article 82(4) | Article 42 | Article 20(2) (joint liability) | No DPDPA joint-and-several-liability scheme (grievance redressal is s. 13) |
 | Contact point designation | Article 26(1) | Article 26(1) | Article 41 (DPO contact) | Article 52 (DPO contact) | Section 8(9) (all Data Fiduciaries publish a DPO or responsible-person contact) and section 10(2)(a) (Significant Data Fiduciaries appoint a DPO as grievance contact); not a general joint-controller contact duty |
