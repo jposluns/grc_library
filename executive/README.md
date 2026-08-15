@@ -25,7 +25,7 @@ How the corpus establishes protective controls and the ability to withstand and 
 How the corpus governs personal and sensitive information across its lifecycle. Supported routes: [What the governing body should require for AI data governance and classification](briefs/brief-ai-data-governance.md) (Executive Brief).
 
 ### 5. Supplier and cloud dependency
-How the corpus addresses concentration, exit, and assurance over third parties. Supported routes: [What the governing body should require for third-party and AI supply-chain risk oversight](briefs/brief-ai-supply-chain-oversight.md) (Executive Brief).
+How the corpus addresses concentration, exit, and assurance over third parties. Supported routes: [What the governing body should require for third-party and AI supply-chain risk oversight](briefs/brief-ai-supply-chain-oversight.md) (Executive Brief). [What happens when a critical AI supplier fails](scenarios/scenario-critical-supplier-outage.md) (Scenario).
 
 ### 6. Compliance and assurance
 How the corpus maps controls to obligations and produces evidence an assurer can test. Supported routes: [How leadership can know, with evidence, whether the controls it relies on are operating](outcome-maps/outcome-map-control-effectiveness.md) (Outcome Map).
