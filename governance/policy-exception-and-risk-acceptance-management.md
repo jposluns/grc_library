@@ -2,8 +2,8 @@
 
 **Document Title:** Exception and Risk Acceptance Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.17\
-**Date:** 2026-08-05\
+**Version:** 1.3.18\
+**Date:** 2026-08-15\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md)\
@@ -45,8 +45,8 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 | **Requestor** | Initiates the exception request with justification, scope of deviation, proposed compensating controls, and target remediation date. |
 | **Risk Owner** | Validates the risk assessment supporting the exception, confirms residual exposure, and confirms alignment with the enterprise risk appetite. Same role as the Risk Owner defined in [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md) §3 (sixth accountability action: validates risk assessments for exception requests). |
 | **Control Owner** | Confirms impacted control applicability, remediation feasibility, and adequacy of compensating measures. |
-| **Chief Information Officer (CIO)** | Approves medium and high-risk exceptions and ensures that exceptions are tracked, reviewed, and reported to executive leadership. |
-| **Chief Information Security Officer (CISO)** | Co-approves security-related exceptions, validates risk classification, ensures that technical compensating controls are implemented, and oversees remediation closure. |
+| **Chief Information Officer (CIO)** | Approves medium-risk exceptions (or delegate, per §4.2) and ensures that exceptions are tracked, reviewed, and reported to executive leadership. High- and critical-risk exceptions are approved by the Executive Committee or Board Risk Committee (§4.2). |
+| **Chief Information Security Officer (CISO)** | Co-approves security-related exceptions (§4.2), validates risk classification, ensures that technical compensating controls are implemented, and oversees remediation closure. |
 | **Chief Compliance Officer (CCO)** | Reviews exceptions impacting regulatory compliance or governance policies, ensuring alignment with ISO 37301 and applicable legal requirements. |
 | **Chief Legal Officer / General Counsel (CLO/GC)** | Validates exceptions that could result in regulatory or contractual exposure; provides legal guidance on acceptance documentation. |
 | **Enterprise Risk Committee (ERC)** | Reviews aggregated exception metrics, expiry compliance, and exceptions exceeding defined risk appetite. Provides escalation guidance and oversight. |
@@ -69,8 +69,9 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 - **Medium risk:** CIO or delegate. 
 - **High or critical risk:** Executive Committee or Board Risk Committee. 
 - **Trade and customs-related exceptions:** applicable compliance officer co-approval and ERC notification. 
+- **Security-related exceptions:** Chief Information Security Officer (CISO) co-approval, in addition to (not in place of) the risk-tier approver above for the exception's risk level. 
 4.2.3 Exceptions exceeding the organization's defined risk appetite or those impacting trade or customs operations require explicit acceptance by executive authority and validation against trade and supply-chain programs.
-4.2.4 The approval pathway in §4.2.2 is the source of truth for the "Approve exception" row of the Role Authority Register RACI ([`governance/register-role-authority.md`](register-role-authority.md)); the register's row points back at this section so the two documents declare a single chain. The renewal-ceiling pathway in §4.3.5 extends this chain (original approver, then ERC, then Board Risk Committee) and is the source of truth for renewal authority. Adopting organizations may tune the tier thresholds in §4.2.2 (and the named bodies in §4.3.5 where they have no equivalent committee, per the §4.3.4 / §4.3.5 substitution clauses) to local governance structure without amending the RACI; the RACI row's reference to this section is what makes that local tuning propagate.
+4.2.4 The approval pathway in §4.2.2 is the source of truth for the "Approve exception" row of the Role Authority Register RACI ([`governance/register-role-authority.md`](register-role-authority.md)); the register's row points back at this section so the two documents declare a single chain. The renewal-ceiling pathway in §4.3.5 extends this chain (original approver, then ERC, then Board Risk Committee) and is the source of truth for renewal authority. Adopting organizations may tune the tier thresholds in §4.2.2 (and the named bodies in §4.3.5 where they have no equivalent committee, per the §4.3.4 / §4.3.5 substitution clauses) to local governance structure without amending the RACI; the RACI row's reference to this section is what makes that local tuning propagate. The §4.2.2 security-related-exception limb maps to the CISO co-approval named in the RACI Accountable cell, so the CISO's security-exception co-approval is part of the same single chain.
 
 ### 4.3 Duration and renewal
 4.3.1 Exceptions must be time-bound. The initial term must not exceed 180 days. 
