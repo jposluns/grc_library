@@ -2,8 +2,8 @@
 
 **Document Title:** Secure Development and Engineering Policy\
 **Document Type:** Policy\
-**Version:** 1.0.13\
-**Date:** 2026-08-01\
+**Version:** 1.0.14\
+**Date:** 2026-08-15\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md)\
@@ -22,9 +22,9 @@ This policy establishes mandatory requirements for secure software development, 
 
 It merges and replaces the Secure Software Development Lifecycle (SDLC) Policy, Code Management Policy, Open-Source Policy, Testing Standard, and Peer-Review Guideline into a unified framework for secure design, development, testing, and maintenance.
 
-The policy aligns with ISO/IEC 27034 Application Security, ISO/IEC 27002:2022 controls, NIST Secure Software Development Framework (SSDF), COBIT 2019 BAI03 and BAI07, CSA CCM v4.1 AIS domain, and OWASP ASVS v5.
+The policy aligns with ISO/IEC 27034 (all parts), ISO/IEC 27002:2022 controls, NIST Secure Software Development Framework (SSDF), COBIT 2019 BAI03 and BAI07, CSA CCM v4.1 AIS domain, and OWASP ASVS v5.
 
-It incorporates forward-looking controls for AI-generated code verification and ISO/IEC 27002 clause 5 AI security control mapping.
+It incorporates forward-looking controls for AI-generated code verification.
 
 ---
 
@@ -156,7 +156,7 @@ It incorporates forward-looking controls for AI-generated code verification and 
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 27034:2011 | Application Security Framework | Secure SDLC governance and assurance |
+| ISO/IEC 27034 (all parts) | Information technology, Application security | Secure SDLC governance and assurance |
 | ISO/IEC 27002:2022 | Application security controls | Secure coding and testing controls |
 | NIST SSDF | Secure Software Development Framework | Secure development lifecycle |
 | OWASP ASVS v5 | Application Security Verification Standard | Secure coding requirements |
