@@ -83,13 +83,13 @@ _108 documents._
 | [governance/register-canonical-citations.md](../governance/register-canonical-citations.md) | Canonical Citations Register | Register | 1.5.58 | 2026-08-16 |
 | [governance/register-coverage-gaps.md](../governance/register-coverage-gaps.md) | Coverage Gap Analysis Register | Register | 1.1.32 | 2026-08-04 |
 | [governance/register-digital-trust-and-assurance-metrics.md](../governance/register-digital-trust-and-assurance-metrics.md) | Digital Trust and Assurance Metrics Register | Register | 1.1.2 | 2026-08-05 |
-| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.114 | 2026-08-16 |
+| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.115 | 2026-08-16 |
 | [governance/register-glossary.md](../governance/register-glossary.md) | Glossary and Acronym Index | Register | 1.4.17 | 2026-08-12 |
 | [governance/register-key-terms-and-definitions.md](../governance/register-key-terms-and-definitions.md) | Key Terms and Definitions Register | Register | 1.1.4 | 2026-07-02 |
 | [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.5.5 | 2026-08-15 |
 | [governance/specification-audit-programme.md](../governance/specification-audit-programme.md) | Audit Programme Specification | Specification | 1.17.100 | 2026-08-13 |
 | [governance/specification-citation-verification.md](../governance/specification-citation-verification.md) | Citation Verification Specification | Specification | 1.2.15 | 2026-07-11 |
-| [governance/standard-records-retention-and-destruction.md](../governance/standard-records-retention-and-destruction.md) | Records Retention and Destruction Standard | Standard | 1.4.20 | 2026-08-13 |
+| [governance/standard-records-retention-and-destruction.md](../governance/standard-records-retention-and-destruction.md) | Records Retention and Destruction Standard | Standard | 1.4.21 | 2026-08-16 |
 | [operations/procedure-change-management-and-configuration-control.md](../operations/procedure-change-management-and-configuration-control.md) | Change Management and Configuration Control Procedure | Procedure | 1.3.3 | 2026-07-14 |
 | [operations/procedure-endpoint-management-and-device-compliance.md](../operations/procedure-endpoint-management-and-device-compliance.md) | Endpoint Management and Device Compliance Procedure | Procedure | 1.3.7 | 2026-07-10 |
 | [operations/procedure-media-handling-and-transport.md](../operations/procedure-media-handling-and-transport.md) | Media Handling and Transport Procedure | Procedure | 1.3.8 | 2026-07-14 |
@@ -198,7 +198,7 @@ _170 documents._
 | [compliance/logistics/register-ctpat-united-states-msc-controls.md](../compliance/logistics/register-ctpat-united-states-msc-controls.md) | US CTPAT Full Minimum Security Criteria Controls Register | Register | 1.0.5 | 2026-07-02 |
 | [compliance/logistics/register-pip-canada-controls.md](../compliance/logistics/register-pip-canada-controls.md) | Canada PIP IT and Cybersecurity Compliance Controls Register | Register | 1.0.6 | 2026-08-14 |
 | [compliance/logistics/template-trade-compliance-gap-assessment.md](../compliance/logistics/template-trade-compliance-gap-assessment.md) | Trade Compliance Programme Gap Assessment Template | Template | 1.0.4 | 2026-08-14 |
-| [compliance/policy-compliance-and-audit-management.md](../compliance/policy-compliance-and-audit-management.md) | Compliance, Audit, and CAPA Management Policy | Policy | 1.0.18 | 2026-08-15 |
+| [compliance/policy-compliance-and-audit-management.md](../compliance/policy-compliance-and-audit-management.md) | Compliance, Audit, and CAPA Management Policy | Policy | 1.0.19 | 2026-08-16 |
 | [compliance/policy-legal-and-regulatory-compliance.md](../compliance/policy-legal-and-regulatory-compliance.md) | Legal and Regulatory Compliance Policy | Policy | 1.0.16 | 2026-08-12 |
 | [compliance/procedure-audit-planning.md](../compliance/procedure-audit-planning.md) | Audit Planning Procedure | Procedure | 1.0.7 | 2026-08-05 |
 | [compliance/procedure-capa.md](../compliance/procedure-capa.md) | Corrective and Preventive Action (CAPA) Procedure | Procedure | 1.0.11 | 2026-07-23 |
