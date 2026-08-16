@@ -554,7 +554,11 @@ def build_dispatch_cmd(wrapper: str, prompt_file: str, account: str, model: str,
     not only the CLI (vpr-1597 codex re-QA #1/#2: structural enforcement, not a CLI-layer guard)."""
     cmd = ["sudo", "-n", "-u", WORKER_USER, wrapper, prompt_file,
            "--account", account, "--model", model, "--worker-id", worker_id]
-    if effort and family != "gemini":
+    # Suppress --effort for gemini, keyed on the WRAPPER (always passed) as well as the optional
+    # family, so a direct call that OMITS family is covered too (vpr-1597 codex iter3: the
+    # family-only guard was opt-in / bypassable).
+    is_gemini = family == "gemini" or wrapper == WRAPPER.get("gemini")
+    if effort and not is_gemini:
         cmd += ["--effort", effort]
     return cmd
 
@@ -902,6 +906,11 @@ def _self_test() -> int:
     cmd_gem_eff = build_dispatch_cmd(WRAPPER["gemini"], "/tmp/p.txt", "alpha", "gemini-3.7-flash",
                                      wid_gem, effort="high", family="gemini")
     check("gemini-effort-suppressed-structurally", "--effort" not in cmd_gem_eff)
+    # 30d. Suppression is wrapper-derived, so a call that OMITS family is ALSO covered
+    #      (vpr-1597 codex iter3: close the opt-in bypass).
+    cmd_gem_nofam = build_dispatch_cmd(WRAPPER["gemini"], "/tmp/p.txt", "alpha", "gemini-3.7-flash",
+                                       wid_gem, effort="high")
+    check("gemini-effort-suppressed-by-wrapper", "--effort" not in cmd_gem_nofam)
     # 31. The minted worker id satisfies the wrapper charset [A-Za-z0-9_-].
     check("worker-id-charset", _re.fullmatch(r"[A-Za-z0-9_-]+", wid) is not None)
     # 32. max_concurrent ABSENT -> default 1 (byte-equivalent to today); present value honored.
