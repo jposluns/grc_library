@@ -302,8 +302,8 @@ pages:
   title: "What the governing body should ask about the organization's AI inventory, risks, incidents, suppliers, and change"
   narrative_type: "Oversight Question Set"
   narrative_status: "Advisory"
-  version: "0.0.1"
-  date: "2026-08-15"
+  version: "0.0.2"
+  date: "2026-08-16"
   corpus_sources:
     - "ai/guide-ai-board-oversight.md"
     - "governance/guideline-minimum-viable-governance-structure.md"
@@ -342,8 +342,8 @@ pages:
   title: "What the governing body should ask about enterprise architecture and accumulated technology debt"
   narrative_type: "Oversight Question Set"
   narrative_status: "Advisory"
-  version: "0.0.1"
-  date: "2026-08-15"
+  version: "0.0.2"
+  date: "2026-08-16"
   corpus_sources:
     - "architecture/framework-enterprise-architecture.md"
     - "architecture/standard-architecture-decision-records.md"

@@ -2,8 +2,8 @@
 
 **Document Title:** What the governing body should ask about enterprise architecture and accumulated technology debt\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.1\
-**Date:** 2026-08-15\
+**Version:** 0.0.2\
+**Date:** 2026-08-16\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`architecture/framework-enterprise-architecture.md`](../../architecture/framework-enterprise-architecture.md), [`architecture/standard-architecture-decision-records.md`](../../architecture/standard-architecture-decision-records.md), [`architecture/standard-technology-radar.md`](../../architecture/standard-technology-radar.md)\
@@ -55,7 +55,7 @@ End of vendor support means security fixes stop arriving while exposure continue
 The [architecture decision records standard](../../architecture/standard-architecture-decision-records.md) places decisions accepting material technical debt inside its scope (its section 2) and expects the record to include the expected cost of repayment (its section 4). A strong answer produces the records. The standard also states that the absence of a record for a contested decision is itself a finding (its section 13), so "we had no time to write it down" concedes the finding rather than excusing it.
 
 **5. Which significant architecture decisions went ahead without review, and how would we know?**
-The [architecture review procedure](../../architecture/procedure-architecture-review.md) defines which changes are review-worthy (its Step 1), requires accepted risks from a review to be recorded on the relevant risk register (its Step 6), and requires implementation drift to be routed back through review (its Step 7). A strong answer shows these paths operating: review-worthy changes are triaged, accepted risks reach the risk register, and implementation drift is routed back through review.
+The [architecture review procedure](../../architecture/procedure-architecture-review.md) owns an eight-step review process; use its members labelled **Identify a review-worthy change** (Step 1), **Recording the decision** (Step 6), and **Implementation oversight** (Step 7) for their contents. A strong answer shows the process operated and links to the resulting records, including accepted risks recorded on the risk register.
 
 **6. What exceptions to our technology standards are open right now, and what keeps them from becoming permanent?**
 Exceptions bear on debt when they outlive their rationale. The [exception and risk acceptance policy](../../governance/policy-exception-and-risk-acceptance-management.md) requires exceptions to be time-bound with defined duration and renewal limits (its section 4.3) and tracked in a central register (its section 4.5). Time-bounding is a prevention against silent permanence. A strong answer reports the aggregate picture from that register, including exceptions nearing their limits, not a case-by-case recollection.
