@@ -2,8 +2,8 @@
 
 **Document Title:** Whistleblower and Incident Reporting Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.6\
-**Date:** 2026-08-14\
+**Version:** 1.0.7\
+**Date:** 2026-08-16\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md), [`security/procedure-security-disciplinary-process.md`](../security/procedure-security-disciplinary-process.md)\
@@ -122,7 +122,7 @@ Where an investigation confirms a breach that may trigger regulatory notificatio
 | UK GDPR | Notify ICO within 72 hours |
 | LGPD | Notify ANPD within a reasonable timeframe |
 | EU AI Act | Notify competent authority for serious incidents involving High-risk AI systems |
-| NIS 2 Directive | Notify competent authority within 24 hours for significant incidents |
+| NIS 2 Directive | Report significant incidents to the CSIRT or competent authority in stages (Article 23(4)), timed from becoming aware: early warning within 24 hours, incident notification with an initial assessment within 72 hours, an intermediate report on request, final report within one month of that notification |
 
 ---
 
