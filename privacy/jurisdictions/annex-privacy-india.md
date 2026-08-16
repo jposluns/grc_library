@@ -2,8 +2,8 @@
 
 **Document Title:** India Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.7\
-**Date:** 2026-08-15\
+**Version:** 1.1.8\
+**Date:** 2026-08-16\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -34,8 +34,8 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## AI and privacy obligations
 
-- **Consent:** Most processing of personal data requires consent that is free, specific, informed, unconditional, and unambiguous, given through a clear affirmative action, and limited to the personal data necessary for the specified purpose (s. 6(1)). A consent request must be in clear, plain language, with the option to access it in English or any language specified in the Eighth Schedule to the Constitution (s. 6(3)). The Consent Manager framework provides a regulated intermediary structure.
-- **Purpose limitation:** Personal data may be processed only for the specified lawful purpose for which consent was given. Repurposing for AI training requires fresh consent or another valid legal ground.
+- **Consent:** Under the DPDPA a Data Fiduciary may process personal data only for a lawful purpose and only on one of two grounds: the Data Principal's consent, or a certain legitimate use listed in section 7 (s. 4). Where consent is the ground, it must be free, specific, informed, unconditional, and unambiguous, given through a clear affirmative action, and limited to the personal data necessary for the specified purpose (s. 6(1)). A consent request must be in clear, plain language, with the option to access it in English or any language specified in the Eighth Schedule to the Constitution (s. 6(3)). The Consent Manager framework provides a regulated intermediary structure.
+- **Purpose limitation:** Personal data may be processed only for the specified lawful purpose for which it was provided, whether that purpose was consented to (s. 6(1)) or is the specified purpose of an applicable section 7 legitimate use (s. 7(a)). Repurposing for AI training requires fresh consent or another valid legal ground.
 - **Children's data:** Data Fiduciaries must obtain verifiable consent from a parent or guardian before processing personal data of children (a child is an individual under 18 years; under s. 9(5) the Central Government may notify, for a verifiably-safe Data Fiduciary, an age above which these children's-data duties do not apply). Tracking, behavioural monitoring, and targeted advertising directed at children are prohibited (s. 9(3)), subject to exemptions the Central Government may prescribe under s. 9(4) and 9(5).
 - **Significant Data Fiduciaries (SDF):** The Central Government may notify a Data Fiduciary or class as an SDF on an assessment of factors including the volume and sensitivity of personal data processed, risk to Data Principal rights, potential impact on the sovereignty and integrity of India, risk to electoral democracy, security of the State, and public order (s. 10(1)). SDFs are subject to: mandatory DPIAs; mandatory annual data audits by an independent data auditor; appointment of a Data Protection Officer; and additional accountability mechanisms. Large AI platforms processing personal data at scale are likely SDF candidates.
 - **Data used in decisions (s. 8(3)):** Where personal data is likely to be used to make a decision that affects a Data Principal, or to be disclosed to another Data Fiduciary, the Data Fiduciary must maintain the completeness, accuracy, and consistency of that data. The DPDPA and the 2025 Rules do not grant a right to an explanation of, or to contest, automated decisions; any human-review or explanation practice is an organizational choice rather than a statutory right.
