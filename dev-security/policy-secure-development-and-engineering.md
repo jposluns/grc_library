@@ -2,8 +2,8 @@
 
 **Document Title:** Secure Development and Engineering Policy\
 **Document Type:** Policy\
-**Version:** 1.0.15\
-**Date:** 2026-08-15\
+**Version:** 1.0.16\
+**Date:** 2026-08-16\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md)\
@@ -84,7 +84,7 @@ It incorporates forward-looking controls for AI-generated code verification.
 
 4.3.2 Code must be free of hardcoded secrets, credentials, or API keys.
 
-4.3.3 All cryptographic implementations must use approved libraries and comply with FIPS 140-3 (based on ISO/IEC 19790:2012).
+4.3.3 All cryptographic implementations must use approved libraries and comply with FIPS 140-3 (aligned with ISO/IEC 19790:2012).
 
 4.3.4 Input validation, output encoding, and proper error handling must be enforced for all applications.
 
@@ -106,7 +106,7 @@ It incorporates forward-looking controls for AI-generated code verification.
 
 4.5.3 Vulnerable components must be patched or replaced within the severity-based remediation SLAs in [`../security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md) section 2 (the single source of truth).
 
-4.5.4 A Software Bill of Materials (SBOM) must be maintained for all applications per NIST Executive Order 14028 guidance.
+4.5.4 A Software Bill of Materials (SBOM) must be maintained for all applications per US Executive Order 14028 guidance.
 
 ### 4.6 Testing and validation
 
