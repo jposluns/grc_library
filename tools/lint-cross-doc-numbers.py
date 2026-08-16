@@ -40,9 +40,10 @@ legitimate sub-deadlines that need per-deadline patterns (NIS 2 has
 few times in the corpus to justify a curated pattern (DORA 4-hour
 appears in one document).
 
-The unit normalizer (UNIT_TO_MINUTES) converts minutes, hours, days, and
-business days to minutes for comparison, so a document saying "60
-minutes" and another saying "1 hour" do not produce a false positive.
+TERM_PATTERNS currently has one live entry (GDPR-breach-notification-hours),
+whose unit capture group is always "hour"; the minute/day/business-day rows of
+UNIT_TO_MINUTES are forward scaffolding for a future multi-unit term, not an
+active cross-unit comparison today.
 
 Usage:
     python3 tools/lint-cross-doc-numbers.py

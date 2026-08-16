@@ -49,11 +49,14 @@ Checks for:
 
 Fenced code blocks are skipped for every check above.
 
-The `tools/build-*.py` generators (GENERATOR_SOURCES) emit adopter-facing
+The three generators listed in GENERATOR_SOURCES emit adopter-facing
 prose (audience blurbs, overview paragraphs, table cells) into the
 GENERATED_DOCS artefacts, which are doubly blind to the markdown scan above:
 the `.py` source is not a `.md` file, and the rendered output is excluded.
-The generator-source scan closes that gap by running the prose
+Residue: docs/reference-acquisition-manifest.md is in GENERATED_DOCS but its
+generator (tools/build-reference-manifest.py) is not in GENERATOR_SOURCES, so
+its emitted prose is scanned by neither half.
+The generator-source scan closes that gap for those three by running the prose
 house-style rules (dash, the Commonwealth-spelling checks, `ensure that`)
 over each generator's
 non-docstring string literals (parsed via `ast`); docstrings are developer
