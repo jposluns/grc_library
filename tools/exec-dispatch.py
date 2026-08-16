@@ -63,6 +63,7 @@ WORKER_LOG_DIR = Path(_W.get("log_dir", "/nonexistent/worker-logs"))
 WRAPPER = {
     "claude": _W.get("claude", "/nonexistent/run-claude-worker"),
     "codex": _W.get("codex", "/nonexistent/run-codex-worker"),
+    "gemini": _W.get("gemini", "/nonexistent/run-gemini-worker"),
 }
 WORKER_USER = _W.get("worker_user", "worker")
 del _W
@@ -312,7 +313,7 @@ def mint_worker_id(account: str, family: str, now: _dt.datetime) -> str:
 # that carries a resolvable account; see the caveat below.
 import re as _re_wid  # noqa: E402  (module-level import kept local to this block for readability)
 _WORKER_ID_RE = _re_wid.compile(
-    r"^(?P<family>claude|codex)-(?P<account>.+)-(?P<stamp>\d{8}T\d{6}Z)-[0-9a-f]{4}$")
+    r"^(?P<family>claude|codex|gemini)-(?P<account>.+)-(?P<stamp>\d{8}T\d{6}Z)-[0-9a-f]{4}$")
 
 
 def worker_id_to_key(worker_id: str):
@@ -544,13 +545,20 @@ def _inflight_key(acct: dict) -> str:
 
 
 def build_dispatch_cmd(wrapper: str, prompt_file: str, account: str, model: str,
-                       worker_id: str, effort: str | None = None) -> list:
+                       worker_id: str, effort: str | None = None,
+                       family: str | None = None) -> list:
     """Build the sudo wrapper argv. --worker-id is now passed through to the (already
     backward-compatible) root-owned wrapper, whose charset requirement [A-Za-z0-9_-] the
-    minted worker ids satisfy."""
+    minted worker ids satisfy. --effort is suppressed for gemini (which has no reasoning-effort
+    flag) HERE, at the command builder, so the invariant holds for EVERY caller of dispatch(),
+    not only the CLI (vpr-1597 codex re-QA #1/#2: structural enforcement, not a CLI-layer guard)."""
     cmd = ["sudo", "-n", "-u", WORKER_USER, wrapper, prompt_file,
            "--account", account, "--model", model, "--worker-id", worker_id]
-    if effort:
+    # Suppress --effort for gemini, keyed on the WRAPPER (always passed) as well as the optional
+    # family, so a direct call that OMITS family is covered too (vpr-1597 codex iter3: the
+    # family-only guard was opt-in / bypassable).
+    is_gemini = family == "gemini" or wrapper == WRAPPER.get("gemini")
+    if effort and not is_gemini:
         cmd += ["--effort", effort]
     return cmd
 
@@ -559,7 +567,7 @@ def build_dispatch_cmd(wrapper: str, prompt_file: str, account: str, model: str,
 def worker_log_glob(family: str, account: str, worker_id: str) -> str:
     """PURE. The glob that matches a dispatched worker's full-output log.
 
-    Both wrappers name the isolated-path log ``<ts>_<family>_<account>_<worker-id>.log`` under
+    Each family's wrapper names the isolated-path log ``<ts>_<family>_<account>_<worker-id>.log`` under
     ``WORKER_LOG_DIR``; the worker-id is unique, so this glob resolves to exactly one file. exec-dispatch
     mints the worker-id but not the wrapper's timestamp, so a glob (not an exact name) is the honest
     pointer. Surfacing it closes the consume gap where a codex report read as truncated (only a summary
@@ -622,7 +630,7 @@ def dispatch(config: dict, family: str, model: str, order_id: str, prompt_file: 
                 "requested_account": account}
     wrapper = WRAPPER[family]
     worker_id = mint_worker_id(acct["account"], family, now)
-    cmd = build_dispatch_cmd(wrapper, prompt_file, acct["account"], model, worker_id, effort)
+    cmd = build_dispatch_cmd(wrapper, prompt_file, acct["account"], model, worker_id, effort, family=family)
 
     # RESERVE a per-key concurrency slot under the in-flight lock BEFORE running (no TOCTOU).
     # A refusal returns WITHOUT a worker_id so the CLI surfaces it via the existing
@@ -881,8 +889,28 @@ def _self_test() -> int:
     check("worker-id-in-cmd",
           "--worker-id" in cmd and cmd[cmd.index("--worker-id") + 1] == wid)
     # 30a. --effort is still appended (existing behavior preserved), after --worker-id.
-    cmd2 = build_dispatch_cmd(WRAPPER["claude"], "/tmp/p.txt", "alpha", "opus", wid, effort="high")
+    cmd2 = build_dispatch_cmd(WRAPPER["claude"], "/tmp/p.txt", "alpha", "opus", wid, effort="high", family="claude")
     check("effort-still-passed", cmd2[-2:] == ["--effort", "high"])
+    # 30b. gemini wiring (vpr-1597 codex #2): the WRAPPER map, worker-id mint/resolve, and
+    #      dispatch-cmd construction all cover gemini, not only claude/codex.
+    check("gemini-wrapper-mapped", "gemini" in WRAPPER and bool(WRAPPER["gemini"]))
+    wid_gem = mint_worker_id("alpha", "gemini", sunday)
+    check("gemini-worker-id-resolves", worker_id_to_key(wid_gem) == ("alpha", "gemini"))
+    cmd_gem = build_dispatch_cmd(WRAPPER["gemini"], "/tmp/p.txt", "alpha", "gemini-3.7-flash", wid_gem)
+    check("gemini-dispatch-cmd-shape",
+          cmd_gem[0:4] == ["sudo", "-n", "-u", WORKER_USER]
+          and WRAPPER["gemini"] in cmd_gem and cmd_gem[cmd_gem.index("--worker-id")+1] == wid_gem)
+    # 30c. STRUCTURAL effort suppression (vpr-1597 codex re-QA #1/#2): build_dispatch_cmd drops
+    #      --effort for gemini EVEN WHEN a caller passes it, so the invariant does not depend on the
+    #      CLI layer. A regression that removed the suppression WOULD fail this check.
+    cmd_gem_eff = build_dispatch_cmd(WRAPPER["gemini"], "/tmp/p.txt", "alpha", "gemini-3.7-flash",
+                                     wid_gem, effort="high", family="gemini")
+    check("gemini-effort-suppressed-structurally", "--effort" not in cmd_gem_eff)
+    # 30d. Suppression is wrapper-derived, so a call that OMITS family is ALSO covered
+    #      (vpr-1597 codex iter3: close the opt-in bypass).
+    cmd_gem_nofam = build_dispatch_cmd(WRAPPER["gemini"], "/tmp/p.txt", "alpha", "gemini-3.7-flash",
+                                       wid_gem, effort="high")
+    check("gemini-effort-suppressed-by-wrapper", "--effort" not in cmd_gem_nofam)
     # 31. The minted worker id satisfies the wrapper charset [A-Za-z0-9_-].
     check("worker-id-charset", _re.fullmatch(r"[A-Za-z0-9_-]+", wid) is not None)
     # 32. max_concurrent ABSENT -> default 1 (byte-equivalent to today); present value honored.
@@ -1035,10 +1063,10 @@ def main() -> int:
     ap.add_argument("--self-test", action="store_true")
     ap.add_argument("--dry-run", action="store_true", help="show eligible accounts + pick, no dispatch")
     ap.add_argument("--dispatch", action="store_true", help="actually run the job via the wrapper")
-    ap.add_argument("--family", choices=["claude", "codex"])
+    ap.add_argument("--family", choices=["claude", "codex", "gemini"])
     ap.add_argument("--model")
     ap.add_argument("--effort", choices=["low", "medium", "high", "xhigh"],
-                    help="claude: --effort; codex: mapped to model_reasoning_effort (wrapper WIRE-IN)")
+                    help="claude: --effort; codex: mapped to model_reasoning_effort (wrapper WIRE-IN); gemini: ignored (no effort flag)")
     ap.add_argument("--order-id")
     ap.add_argument("--prompt-file")
     ap.add_argument("--account", help="target a SPECIFIC account (must be eligible), instead of the "
@@ -1143,6 +1171,8 @@ def main() -> int:
         for req in ("family", "model", "order_id", "prompt_file"):
             if not getattr(args, req):
                 _ledgered_error(ap, args, f"--dispatch needs --{req.replace('_','-')}")
+        # --effort suppression for gemini is enforced in build_dispatch_cmd (structural), so the
+        # CLI passes args.effort straight through; the report below prints n/a for gemini.
         res = dispatch(config, args.family, args.model, args.order_id, args.prompt_file,
                        effort=args.effort, now=now, account=effective_account,
                        exclude_accounts=exclude_accounts)
@@ -1160,7 +1190,8 @@ def main() -> int:
         # print a compact status line, then the worker output
         print(f"[{_dt.datetime.now().strftime('%H:%M:%S')}] dispatch order={res.get('order_id')} "
               f"worker={res.get('worker_id')} account={res.get('account')} model={args.model} "
-              f"effort={args.effort or 'default'} rc={res.get('rc')} dur={res.get('duration_s')}s "
+              f"effort={'n/a' if args.family == 'gemini' else (args.effort or 'default')} "
+              f"rc={res.get('rc')} dur={res.get('duration_s')}s "
               f"limited={res.get('usage_limited')}")
         print(f"  full worker log (wrapper stdout/stderr): "
               f"{worker_log_glob(res.get('family'), res.get('account'), res.get('worker_id'))}")
