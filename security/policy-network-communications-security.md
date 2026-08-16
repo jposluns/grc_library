@@ -2,8 +2,8 @@
 
 **Document Title:** Network Communications Security Policy\
 **Document Type:** Policy\
-**Version:** 1.1.9\
-**Date:** 2026-08-15\
+**Version:** 1.1.10\
+**Date:** 2026-08-16\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md), [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md)\
@@ -148,7 +148,7 @@ Where the organization participates in a sector programme that imposes additiona
 | ISO/IEC 27001:2022 | A.8.20 to 21: Network security, network segmentation | Network security policy obligations |
 | COBIT 2019 | DSS05: Managed Security Services | Network security governance and service management |
 | NIST SP 800-207 | Zero Trust Architecture | ZTNA principles, continuous validation |
-| CSA CCM v4.1 | I&S-01: Network Security and Virtualization Controls | Cloud and virtualized network security |
+| CSA CCM v4.1 | I&S-03: Network Security | Monitoring, encryption, and restriction of communications between environments |
 | EU NIS 2 Directive (Directive (EU) 2022/2555) | Critical Network Security Requirements | Critical infrastructure network obligations |
 
 Sector-specific framework alignments (for example, BASC v6 (2022) Section 6, WCO SAFE Framework (2025 edition), and ISO 28000:2022 for trade and customs network security) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
