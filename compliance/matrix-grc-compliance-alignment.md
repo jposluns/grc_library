@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.23\
-**Date:** 2026-08-13\
+**Version:** 1.11.24\
+**Date:** 2026-08-16\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/logistics/register-basc-it-responsibilities.md`](logistics/register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](logistics/annex-aeo-united-kingdom-cybersecurity.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md)\
@@ -191,7 +191,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Operations | Framework: IT Service Management | [`operations/framework-it-service-management.md`](../operations/framework-it-service-management.md) | SEF-02, SEF-01, CCC-01 | N/A | A.5.24, A.5.26, A.8.32 | RS.MA, ID.IM, PR.PS | N/A | N/A | N/A | N/A | N/A |
 | Operations | Standard: Service Level Management | [`operations/standard-service-level-management.md`](../operations/standard-service-level-management.md) | SEF-02, STA-11 | N/A | §9.1, A.5.22 | ID.IM, GV.OV, ID.RA | N/A | N/A | N/A | N/A | N/A |
 | Operations | Standard: Site Reliability Engineering | [`operations/standard-site-reliability-engineering.md`](../operations/standard-site-reliability-engineering.md) | SEF-03, CCC-01 | N/A | A.5.29, A.5.26, A.8.32 | DE.CM, RS.MA, RC.RP | N/A | N/A | N/A | N/A | N/A |
-| Operations | Procedure: Patch Management | [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md) | TVM-08, TVM-01, CCC-01 | N/A | A.8.8, A.8.32, A.5.20 | PR.PS, ID.RA, DE.CM | IT security controls | IT security | §8.1, §8.4 | Pillar II (ICT security) | IT systems protection |
+| Operations | Procedure: Patch Management | [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md) | TVM-08, TVM-01, CCC-01 | N/A | A.8.8, A.8.32, A.5.36 | PR.PS, ID.RA, DE.CM | IT security controls | IT security | §8.1, §8.4 | Pillar II (ICT security) | IT systems protection |
 | Operations | Procedure: Release Management | [`operations/procedure-release-management.md`](../operations/procedure-release-management.md) | CCC-01, CCC-02, CCC-09 | N/A | A.8.32 | PR.PS, ID.IM | IT security controls | IT security | §8.1 | Pillar II (ICT security) | IT systems protection |
 | Operations | Standard: Capacity and Performance Management | [`operations/standard-capacity-and-performance-management.md`](../operations/standard-capacity-and-performance-management.md) | I&S-02, BCR-03 | N/A | A.8.6 | ID.AM, PR.IR | N/A | N/A | N/A | N/A | N/A |
 | Operations | Standard: Observability and Telemetry | [`operations/standard-observability-and-telemetry.md`](../operations/standard-observability-and-telemetry.md) | LOG-01, LOG-03, LOG-07 | LOG-15, LOG-16 | A.8.15, A.8.16 | DE.CM, DE.AE | N/A | N/A | N/A | N/A | N/A |
