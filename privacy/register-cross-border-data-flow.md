@@ -2,7 +2,7 @@
 
 **Document Title:** Cross-Border Data Flow Register\
 **Document Type:** Register\
-**Version:** 1.0.9\
+**Version:** 1.0.10\
 **Date:** 2026-08-16\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -38,6 +38,7 @@ Cross-border data transfer restrictions apply when personal data is transmitted,
 | **Quebec Law 25** | Transfer outside Quebec | Privacy Impact Assessment (PIA) that must establish the information would receive adequate protection, then a written agreement reflecting the assessment (s. 17) |
 | **LGPD (Brazil)** | Transfer outside Brazil | Adequacy decision by ANPD; contractual clauses; BCRs; specific consent; international convention |
 | **PIPL (China)** | Transfer outside China | Cyberspace Administration of China (CAC) security assessment; standard contract filed with CAC; personal information protection certification; applicable treaty |
+| **India DPDPA** | Transfer outside India | Transfer permitted subject to requirements the Central Government may specify on making personal data available to a foreign State or its agencies (2025 Rules, rule 15); a Significant Data Fiduciary must keep Central-Government-specified personal data and its traffic data within India (2025 Rules, rule 13(4)); the Central Government may restrict transfer to a notified country or territory (s. 16) |
 
 ---
 
@@ -105,6 +106,7 @@ Cross-border data transfer restrictions apply when personal data is transmitted,
 | Quebec Law 25 | PIA establishing adequate protection, then written agreement (s. 17) | Completed AFIPD (Privacy Impact Assessment for Cross-Border Transfer) |
 | LGPD (Brazil) | SCCs or contractual clauses | ANPD-recognized clauses (Resolution CD/ANPD No. 19/2024) or ANPD adequacy decision (first issued in Resolution CD/ANPD No. 32/2026, recognizing the EU/EEA) |
 | PIPL (China) | Standard Contract | CAC Standard Contract for Cross-Border Transfer of Personal Information (filed) |
+| India DPDPA | Central-Government-conditioned transfer; Significant Data Fiduciary localization | DPDP Rules 2025 rule 15 (conditions on making data available to a foreign State or its agencies) and rule 13(4) (SDF localization of Central-Government-specified personal data and traffic data); DPDPA s. 16 (power to restrict transfer to a notified country) |
 
 ### Risk assessment
 
