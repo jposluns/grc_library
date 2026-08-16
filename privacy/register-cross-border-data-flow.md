@@ -2,8 +2,8 @@
 
 **Document Title:** Cross-Border Data Flow Register\
 **Document Type:** Register\
-**Version:** 1.0.8\
-**Date:** 2026-08-15\
+**Version:** 1.0.9\
+**Date:** 2026-08-16\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/README.md`](README.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`supply-chain/register-subprocessor-template.md`](../supply-chain/register-subprocessor-template.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md)\
@@ -22,7 +22,7 @@
 
 ## Purpose
 
-This register documents all cross-border transfers of personal data from the organization's operating jurisdictions to third countries. It provides the basis for demonstrating compliance with Chapter V of the GDPR, Schedule 21 of the UK GDPR, and equivalent requirements under applicable privacy laws in Canada (PIPEDA), Quebec (Law 25), Brazil (LGPD), China (PIPL), and other applicable regimes.
+This register documents all cross-border transfers of personal data from the organization's operating jurisdictions to third countries. It provides the basis for demonstrating compliance with Chapter V of the GDPR, Chapter V of the UK GDPR, and equivalent requirements under applicable privacy laws in Canada (PIPEDA), Quebec (Law 25), Brazil (LGPD), China (PIPL), and other applicable regimes.
 
 ---
 
