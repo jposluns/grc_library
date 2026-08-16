@@ -4,8 +4,9 @@
 **Classification:** Public\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
-**Library Version:** 2026.08.296 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.10.449 (semantic per-document version for this file)
+**SPDX-License-Identifier:** CC-BY-SA-4.0\
+**Library Version:** 2026.08.298 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.10.451 (semantic per-document version for this file)
 
 ---
 
@@ -34,7 +35,7 @@ In modern programmes the boundaries between the three overlap with **security** 
 
 ## Purpose
 
-The Governance, Risk, and Compliance Documentation Library is a Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0) reference set for building an organization-neutral governance, risk, compliance, security, privacy, resilience, supplier, and artificial intelligence governance programme.
+The Governance, Risk, and Compliance Documentation Library is a Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0; full licence text in [LICENSE](LICENSE)) reference set for building an organization-neutral governance, risk, compliance, security, privacy, resilience, supplier, and artificial intelligence governance programme.
 
 The library is designed to be adopted, adapted, or extended by any organization without retaining references to a specific company, individual, internal system, customer, vendor, geography, or operating environment.
 
