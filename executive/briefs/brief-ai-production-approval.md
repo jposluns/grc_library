@@ -2,8 +2,8 @@
 
 **Document Title:** What the governing body should require before an AI system goes into production\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.6\
-**Date:** 2026-08-08\
+**Version:** 0.0.7\
+**Date:** 2026-08-16\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-board-oversight.md`](../../ai/guide-ai-board-oversight.md), [`ai/standard-ai-security-and-risk.md`](../../ai/standard-ai-security-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](../../ai/procedure-ai-system-impact-assessment.md)\
@@ -57,7 +57,7 @@ For the governing body and accountable executive leadership, the corpus position
 Each item below is an evidence class the governing body can call for from management, and each is evidence for a named control or outcome. The [board oversight guide](../../ai/guide-ai-board-oversight.md) provides the director question set (its section 5) that frames the questions to ask; this list frames what a strong answer produces.
 
 - **An entry in the AI system register** for the system, as evidence of inventory and ownership. The [AI system register template](../../ai/template-ai-system-register.md) shows the structure; the requirement to record each AI system in the register before production lives in the [AI security and risk standard](../../ai/standard-ai-security-and-risk.md).
-- **The completed impact assessment and its Step 9 approval record**, as evidence that the production gate operated, including the residual risk, conditions, and control owner the [AI system impact assessment procedure](../../ai/procedure-ai-system-impact-assessment.md) requires the approval to record.
+- **The completed impact assessment and its Step 9 approval record**, as evidence that the **Approve or reject** member of the [ten-step AI system impact assessment procedure](../../ai/procedure-ai-system-impact-assessment.md) operated; use Step 9 for the record's required contents.
 - **A model card or evaluation record**, as evidence that model-risk governance was applied, per the [AI model risk framework](../../ai/framework-ai-model-risk.md).
 - **The monitoring and logging design**, as evidence for the monitoring and logging control in the [AI security and risk standard](../../ai/standard-ai-security-and-risk.md).
 - **The incident-response linkage**, as evidence that the AI incident classes in the [AI incident response plan](../../ai/plan-ai-incident-response.md) are covered and that the plan's evidence-preservation requirements are provided for (the plan sets the incident scope to which they apply).
