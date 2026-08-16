@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Detect internal-deployment references that should not appear in a CC0 library.
+"""Detect internal-deployment references that should not appear in an openly-published (CC BY-SA 4.0) library.
 
 A vendor-neutral, organization-neutral public library should not contain
 references to specific deployments: internal hostnames, cloud-region
@@ -9,12 +9,15 @@ rather than a hand-curated list of specific product or company names.
 Patterns detected:
 
   - Hostnames ending in `.local`, `.internal`, `.corp`, `.lan`,
-    `.intranet` (INTERNAL_TLD_RE).
+    `.intranet`, `home.arpa` (INTERNAL_TLD_RE).
   - Cloud-region identifiers (AWS `us-east-1`-shape, Azure
     `westeurope`-shape, GCP `us-central1`-shape) appearing in
     production / configuration prose (per-provider region regexes).
-  - Specific subnet CIDR notations outside RFC 1918 / RFC 5737 example
-    ranges (CIDR_RE).
+  - Specific subnet CIDR notations outside RFC 1918 (private) /
+    RFC 5737 (documentation) ranges, plus loopback, link-local,
+    multicast, reserved, unspecified, 0.0.0.0/8, 255.255.255.0/24, and
+    CGNAT 100.64.0.0/10 (CIDR_RE); an unparseable CIDR is treated as
+    documentation (fail-open).
 
 The linter is deliberately conservative. FQDN-shape detection is NOT
 implemented; the false-positive risk on legitimate vendor / publisher
@@ -163,7 +166,7 @@ def main(argv: list[str]) -> int:
         total += len(findings)
     print(f"\nFAIL: {total} internal-reference finding(s) across {len(grouped)} file(s).")
     print(
-        "Internal-deployment patterns detected. A CC0 library should be "
+        "Internal-deployment patterns detected. An openly-published (CC BY-SA 4.0) library should be "
         "vendor-neutral and organization-neutral; replace specific cloud "
         "regions, internal hostnames, or non-documentation subnets with "
         "placeholders or generic references."

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Detect accidentally-committed secrets in library content.
 
-A CC0 public-domain library leaking real credentials would be a serious
+An openly-published (CC BY-SA 4.0) library leaking real credentials would be a serious
 failure. This linter scans markdown content for high-confidence secret
 patterns. The pattern families currently implemented (SECRET_PATTERNS):
 

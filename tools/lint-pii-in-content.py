@@ -2,7 +2,7 @@
 """Detect personal identifiable information (PII) patterns in library content.
 
 The library is meant to be organization-neutral and individual-neutral.
-Personal data in CC0-published content is a privacy issue: anyone
+Personal data in openly-published (CC BY-SA 4.0) content is a privacy issue: anyone
 adopting the library inherits whatever names, emails, phone numbers,
 or addresses appear in the source. This linter defends against
 sanitization gaps.
@@ -15,16 +15,23 @@ Patterns detected:
 - Plausible postal-address fragments (street number + street name).
 - IPv4 addresses outside RFC 1918 / documentation ranges (10/8,
   172.16/12, 192.168/16, 127/8, 169.254/16, 192.0.2/24, 198.51.100/24,
-  203.0.113/24).
+  203.0.113/24); also multicast, reserved, unspecified, 0.0.0.0/8,
+  255.255.255.0/24, and CGNAT 100.64.0.0/10 addresses, and an
+  unparseable address (treated as documentation).
 
 The linter is deliberately conservative on email and addresses to
 avoid false positives on documentation examples.
 
 Exemption layers:
 
-  - EXAMPLE_DOMAINS: emails on ``example.com``, ``example.org``,
-    ``example.net``, and ``posluns.ca`` (the maintainer's contact
-    address, kept available for adopter contact) are not flagged.
+  - EXAMPLE_DOMAINS: reserved/documentation domains (``example.com``,
+    ``example.org``, ``example.net``, ``test``, ``localhost``,
+    ``invalid``), adopter placeholders (``yourcompany.com``,
+    ``your-org.com``, ``your-org.example.com``), threat-scenario
+    placeholders (``competitor.com``, ``attacker.com``, ``evil.com``,
+    ``phishing.example``, ``malicious.example``), and ``posluns.ca``
+    (the maintainer's contact address, kept available for adopter
+    contact) are not flagged.
   - Version-string heuristic: IPv4-shaped strings that look like
     software versions (e.g., ``4.0.1.2`` adjacent to "v" or "version"
     or "Rev") are treated as version numbers, not addresses.
@@ -230,7 +237,7 @@ def main(argv: list[str]) -> int:
     print(f"\nFAIL: {total} suspected PII finding(s) across {len(grouped)} file(s).")
     print(
         "Personal data patterns detected in library content. Library is "
-        "CC0 and meant to be individual-neutral; replace any real PII with "
+        "openly published under CC BY-SA 4.0 and meant to be individual-neutral; replace any real PII with "
         "documentation-example placeholders or move maintainer contact to "
         "AUTHORS.md / CITATION.cff."
     )
