@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.113\
+**Version:** 1.27.114\
 **Date:** 2026-08-16\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -226,7 +226,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Resilience | Register | Resilience Terms and Definitions Register | [`resilience/register-resilience-terms-and-definitions.md`](../resilience/register-resilience-terms-and-definitions.md) | Resilience Owner | Annual | Resilience terminology and definitions | template |
 | Resilience | Register | Emergency Operations Contact Directory Register | [`resilience/register-eoc-contact-directory.md`](../resilience/register-eoc-contact-directory.md) | Resilience Owner | Annual | Emergency contact structure, restricted completed records | template |
 | Resilience | Template | Tabletop Exercise Template | [`resilience/template-tabletop-exercise.md`](../resilience/template-tabletop-exercise.md) | Resilience Owner | Annual | ISO 22301 §8.5, ISO/IEC 27001 Annex A.5.30, NIST SP 800-84, DORA Arts 24 to 27, NIS 2 Art 21(2)(f), TIBER-EU | template |
-| Resilience | Template | Recovery Runbook Template | [`resilience/template-recovery-runbook.md`](../resilience/template-recovery-runbook.md) | Resilience Owner | Annual | ISO 22301 §8.4, ISO/IEC 27031, NIST SP 800-34r1, DORA Art 12, NIS 2 Art 21(2)(c), ITIL 4 | template |
+| Resilience | Template | Recovery Runbook Template | [`resilience/template-recovery-runbook.md`](../resilience/template-recovery-runbook.md) | Resilience Owner | Annual | ISO 22301 §8.4, ISO/IEC 27031:2025, NIST SP 800-34r1, DORA Art 12, NIS 2 Art 21(2)(c), ITIL 4 | template |
 | Resilience | Template | Lessons Learned Template | [`resilience/template-lessons-learned.md`](../resilience/template-lessons-learned.md) | Resilience Owner | Annual | ISO/IEC 27035-3, ISO 22301 §10, NIST SP 800-61r3, DORA Art 13, NIS 2 Art 21(2)(f), ISO 9001 §10.2 | template |
 | Resilience | Plan | Pandemic Continuity Plan | [`resilience/plan-pandemic-continuity.md`](../resilience/plan-pandemic-continuity.md) | Resilience Owner | Annual | ISO 22301, ISO 22332, WHO Pandemic Influenza Risk Management, OSHA, HSE, NIS 2 Art 21(2)(c), DORA Art 12 | template |
 | Resilience | Plan | Physical Site Continuity Plan | [`resilience/plan-physical-site-continuity.md`](../resilience/plan-physical-site-continuity.md) | Resilience Owner | Annual | ISO 22301 §8.4, ISO 22322, ISO 22320, local fire and building codes, OHS law, insurance | template |
