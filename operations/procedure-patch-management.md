@@ -2,8 +2,8 @@
 
 **Document Title:** Patch Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.9\
-**Date:** 2026-08-05\
+**Version:** 1.0.10\
+**Date:** 2026-08-16\
 **Owner:** IT Operations Lead\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md), [`security/policy-information-security.md`](../security/policy-information-security.md)\
@@ -202,15 +202,15 @@ Retention timelines are subject to the Records Retention and Destruction Standar
 
 ## Framework alignment
 
-| Control Area | NIST SP 800-40 Rev. 4 | ISO/IEC 27001:2022 | CSA CCM v4.1 | CIS Controls v8.1 | COBIT 2019 |
+| Control Area | NIST SP 800-40r4 | ISO/IEC 27001:2022 | CSA CCM v4.1 | CIS Controls v8.1 | COBIT 2019 |
 | --- | --- | --- | --- | --- | --- |
-| Patch planning and classification | §2 (Planning) | A.8.8 | TVM-08 | Control 7.1 | DSS05.07 |
-| Patch testing | §3 (Testing) | A.8.8 | TVM-08 | Control 7.4 | DSS05.07 |
-| Deployment authorization | §3 (Deploying) | A.8.8 | TVM-08 | Control 7.3 | BAI06.01 |
-| Exception governance | §4 (Exceptions) | A.5.20 | GRC-04 | Control 7.2 | APO12.06 |
-| EOL lifecycle management | §4 (Unsupported software) | A.8.8 | TVM-01, TVM-02 | Control 7.5 | DSS05.07 |
-| Third-party / library patching | §3 (Third-party) | A.8.8 | TVM-08 | Control 7.6 | DSS05.07 |
-| Monitoring and reporting | §2 (Metrics) | A.8.8 | TVM-09 | Control 7.7 | MEA01.04 |
+| Patch planning and classification | SP 800-40r4 §2.3.1, §3.2 to 3.4 (prioritization; inventory; risk-response scenarios; maintenance groups) | A.8.8 | TVM-08 | Control 7.1 | DSS05.07 |
+| Patch testing | SP 800-40r4 §2.3.1 (Prepare to deploy the patch) | A.8.8 | TVM-08 | Control 7.4 | DSS05.07 |
+| Deployment authorization | SP 800-40r4 §2.3.1, §2.3.2 (scheduling through enterprise change management; deploy the patch) | A.8.8 | TVM-08 | Control 7.3 | BAI06.01 |
+| Exception governance | SP 800-40r4 §3.5.5 (Exceptions to maintenance plans) | A.5.36 | GRC-04 | Control 7.2 | APO12.06 |
+| EOL lifecycle management | SP 800-40r4 §3.5.4 (Maintenance plans for Scenario 4, unpatchable assets) | A.8.8 | TVM-01, TVM-02 | Control 7.5 | DSS05.07 |
+| Third-party / library patching | SP 800-40r4 §3.7 (Consider software maintenance in procurement) | A.8.8 | TVM-08 | Control 7.6 | DSS05.07 |
+| Monitoring and reporting | SP 800-40r4 §2.3.4, §3.6 (Monitor deployed patches; actionable enterprise-level patching metrics) | A.8.8 | TVM-09 | Control 7.7 | MEA01.04 |
 
 ---
 
