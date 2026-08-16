@@ -63,6 +63,7 @@ WORKER_LOG_DIR = Path(_W.get("log_dir", "/nonexistent/worker-logs"))
 WRAPPER = {
     "claude": _W.get("claude", "/nonexistent/run-claude-worker"),
     "codex": _W.get("codex", "/nonexistent/run-codex-worker"),
+    "gemini": _W.get("gemini", "/nonexistent/run-gemini-worker"),
 }
 WORKER_USER = _W.get("worker_user", "worker")
 del _W
@@ -312,7 +313,7 @@ def mint_worker_id(account: str, family: str, now: _dt.datetime) -> str:
 # that carries a resolvable account; see the caveat below.
 import re as _re_wid  # noqa: E402  (module-level import kept local to this block for readability)
 _WORKER_ID_RE = _re_wid.compile(
-    r"^(?P<family>claude|codex)-(?P<account>.+)-(?P<stamp>\d{8}T\d{6}Z)-[0-9a-f]{4}$")
+    r"^(?P<family>claude|codex|gemini)-(?P<account>.+)-(?P<stamp>\d{8}T\d{6}Z)-[0-9a-f]{4}$")
 
 
 def worker_id_to_key(worker_id: str):
@@ -1035,7 +1036,7 @@ def main() -> int:
     ap.add_argument("--self-test", action="store_true")
     ap.add_argument("--dry-run", action="store_true", help="show eligible accounts + pick, no dispatch")
     ap.add_argument("--dispatch", action="store_true", help="actually run the job via the wrapper")
-    ap.add_argument("--family", choices=["claude", "codex"])
+    ap.add_argument("--family", choices=["claude", "codex", "gemini"])
     ap.add_argument("--model")
     ap.add_argument("--effort", choices=["low", "medium", "high", "xhigh"],
                     help="claude: --effort; codex: mapped to model_reasoning_effort (wrapper WIRE-IN)")
