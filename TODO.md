@@ -154,7 +154,7 @@ Durable behavioural guidance from the maintainer. NOT actionable items; referenc
 - **Zero-finding sweeps still need history rows but no detail files** — validation-sweep [`SKILL.md`](guardrails/skills/validation-sweep/SKILL.md) step 9.
 - **Sweep history is project-application, not template content** — operationalized by keeping the history file in `.working/`.
 - **TODO is forward-looking; historical state rotates to DONE.md** — [`change-tracking.md`](guardrails/governance/change-tracking.md).
-- **After completing a merge, list the upcoming next 5 planned PRs from TODO** — [`.claude/CLAUDE.md`](.claude/CLAUDE.md) PR-workflow section.
+- **After completing a merge, list the next 5 planned PRs from the `## Up next` queue at the top of the private `P-TODO.md`** (the single ordered work queue across both backlogs; `/resume` itself continues from the handoff Next-actions, not this queue) — [`.claude/CLAUDE.md`](.claude/CLAUDE.md) PR-workflow section.
 - **Validate cadence is 1-8 PRs per batch, not strictly 5.**
 - **DONE keeps its own H3 format** — DONE uses `### PR #N:` headings; it does NOT mirror the TODO index-row format (the two diverged in the TODO-rework).
 - **Compute-don't-ask** — before surfacing a question, apply a "can I compute/verify this myself?" gate; codified into `clarify-before-acting`.
