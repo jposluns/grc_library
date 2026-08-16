@@ -2,8 +2,8 @@
 
 **Document Title:** Encryption and Key Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.17\
-**Date:** 2026-08-15\
+**Version:** 1.3.18\
+**Date:** 2026-08-16\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -74,7 +74,7 @@ Keys stored in dedicated Hardware Security Modules (HSMs) or a cloud key managem
 
 ### 5.4 Key rotation
 
-Encryption keys rotated at least every 90 days for Restricted data and annually for other categories. Immediate rotation required after personnel changes or suspected compromise. This classification-based cadence corresponds to the key-type cadence in the Cryptographic Key Lifecycle Management Framework: the 90-day Restricted cycle aligns with symmetric keys, and the annual other-category cycle with asymmetric keys.
+Encryption keys rotated at least every 90 days for Restricted data and annually for other categories. Immediate rotation required after personnel changes or suspected compromise. This classification baseline and the key-type cadence in the Cryptographic Key Lifecycle Management Framework are independent axes; where both apply to a key, use the shorter applicable interval. NIST SP 800-57 Part 1 (section 5.3.6) derives a key's cryptoperiod from its type, usage environment, and data characteristics jointly, as rough guidance rather than a fixed one-to-one mapping.
 
 ### 5.5 Key destruction
 
