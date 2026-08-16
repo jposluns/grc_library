@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Impact and Cross-Border Transfer Procedure\
 **Document Type:** Procedure\
-**Version:** 1.6.1\
-**Date:** 2026-07-11\
+**Version:** 1.6.2\
+**Date:** 2026-08-16\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-dpia.md`](template-dpia.md), [`privacy/template-transfer-impact-assessment.md`](template-transfer-impact-assessment.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
@@ -96,7 +96,7 @@ Define and implement:
 
 - Data minimization, pseudonymization, encryption, RBAC, and privacy-by-design features.
 
-For cross-border transfers, select and run the destination regime's operational sequence. The European Union (GDPR Chapter V and Schrems II) and China (PIPL) sequences are detailed below. For a destination without a dedicated sequence, use an EU adequacy framework where one applies, or Standard Contractual Clauses (SCCs) or APEC CBPR 2.0 as the baseline, supplemented by a transfer risk assessment.
+For cross-border transfers, first apply the originating jurisdiction's own pre-transfer requirements, then select and run the destination regime's operational sequence. Transfer legality is governed by the originating jurisdiction as well as the destination, and an originating jurisdiction can impose mandatory pre-transfer gates that are independent of the destination mechanism: for example, Quebec Law 25 (s. 17) requires, before any communication of personal information outside Quebec, a privacy impact assessment establishing that the information would receive adequate protection and a written agreement reflecting that assessment; and India's Digital Personal Data Protection Act (s. 16) with the 2025 Rules requires that any transfer meet the conditions the Central Government may specify on making personal data available to a foreign State or its agencies (rule 15), and that a Significant Data Fiduciary keep Central-Government-specified personal data and its traffic data within India (rule 13(4)). Identify every originating jurisdiction, apply its transfer gates through the applicable [jurisdiction annex](annex-privacy-jurisdiction-index.md) and the [cross-border transfer register](register-cross-border-data-flow.md), and only then select and run the destination regime's operational sequence. The European Union (GDPR Chapter V and Schrems II) and China (PIPL) sequences are detailed below. For a destination without a dedicated sequence, use an EU adequacy framework where one applies, or Standard Contractual Clauses (SCCs) or APEC CBPR 2.0 as the baseline, supplemented by a transfer risk assessment.
 
 **For transfers from China (PIPL Articles 38 to 40).**
 
