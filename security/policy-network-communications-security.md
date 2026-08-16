@@ -2,7 +2,7 @@
 
 **Document Title:** Network Communications Security Policy\
 **Document Type:** Policy\
-**Version:** 1.1.10\
+**Version:** 1.1.11\
 **Date:** 2026-08-16\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -145,7 +145,7 @@ Where the organization participates in a sector programme that imposes additiona
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ISO/IEC 27033-1:2015 | Overview and concepts | Network architecture, segmentation, secure connectivity |
-| ISO/IEC 27001:2022 | A.8.20 to 21: Network security, network segmentation | Network security policy obligations |
+| ISO/IEC 27001:2022 | A.8.20 to 22: Networks security, security of network services, segregation of networks | Network security policy obligations |
 | COBIT 2019 | DSS05: Managed Security Services | Network security governance and service management |
 | NIST SP 800-207 | Zero Trust Architecture | ZTNA principles, continuous validation |
 | CSA CCM v4.1 | I&S-03: Network Security | Monitoring, encryption, and restriction of communications between environments |
