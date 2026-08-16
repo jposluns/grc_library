@@ -236,10 +236,6 @@ Umbrella for adopting NIST OSCAL as an open, machine-readable projection of the 
 
 **[VERIFY]** the current OSCAL release line and model set at NIST before 2.26.1 (egress-gated); do not pin a version in prose until confirmed and recorded in the canonical citations register.
 
-### 3.174 Joint-controller Art 26(1) informed-not-prescribed reword (Parts 1-2 GDPR-clock + PR.AA-title fixed #1259; Part 3 routed to maintainer) (2026-07-28 deep-assessment c5, codex, W, XS)
-
-Parts 1-2 FIXED in #1259 (held-source-verified): GDPR clock `:175` "from confirmation"->"after becoming aware" (Art 33(1)); PR.AA title `matrix-reverse:92` untruncated (CSF 2.0). REMAINS (routed to maintainer, pending-decisions): Part 3, `privacy/template-joint-controller-arrangement.md:91` (NOT :109; line drifted) - the allocation heuristic reads as prescribed by Art 26(1) which only requires transparent determination; proposed value-retaining reword awaits maintainer confirm (rewords authored design prose).
-
 ### 3.184 Corpus ISO citation currency updates enabled by the 2026-07-28 `_ref` ingest (2026-07-28 ingest follow-up, M, S)
 
 The 2026-07-28 `_ref` egress ingest (PR #105) now holds newer editions the corpus cites at older ones. **DONE:** `ISO/IEC 27017:2015`->`:2026` (second edition) across the cloud-security baseline + website + the register row + the citation example (#1391, control-set remapped, e.g. CLD.6.3.1->5.38); `ISO 19011:2018`->`:2026` (fourth edition) clause-structure fixes (#1390) + the remaining 12 edition-label carriers (#1392); `ISO/IEC 29134:2017`->`:2023` (#1381, close-/validate confirmed 0 stale 29134:2017 remaining). **RESIDUAL (verify then rotate):** confirm no further ISO 27017 CONTROL citation (CLD.x form) needs the 2026 restructure remap beyond the example fixed in #1391, then rotate this item to DONE.

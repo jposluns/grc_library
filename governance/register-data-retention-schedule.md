@@ -2,7 +2,7 @@
 
 **Document Title:** Data Retention Schedule\
 **Document Type:** Register\
-**Version:** 1.0.25\
+**Version:** 1.0.26\
 **Date:** 2026-08-16\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Chief Information Officer\
@@ -60,6 +60,7 @@ This register defines the mandatory retention periods for each category of organ
 | --- | --- | --- |
 | Access logs (user authentication) | 1 year | Security monitoring; incident investigation |
 | Privileged access session logs | 2 years | Audit and forensic requirements |
+| Physical-access event logs | 2 years | Physical security and facility-access monitoring; incident investigation |
 | Security incident records | 7 years | Regulatory and legal requirements; aligned to the forensic-evidence minimum in [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) Section 8 and the privacy-breach row's floor (a privacy breach is a security-incident subclass) |
 | Penetration test reports | 5 years | Compliance evidence |
 | Vulnerability scan results | 3 years | Compliance and audit evidence |
