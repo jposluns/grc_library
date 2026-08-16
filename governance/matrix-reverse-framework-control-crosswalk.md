@@ -2,8 +2,8 @@
 
 **Document Title:** Reverse Framework Control Crosswalk Matrix\
 **Document Type:** Matrix\
-**Version:** 1.0.10\
-**Date:** 2026-07-30\
+**Version:** 1.0.11\
+**Date:** 2026-08-16\
 **Owner:** Control Framework Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../supply-chain/matrix-supply-chain-security-programme-alignment.md), [`NOTICE.md`](../NOTICE.md)\
@@ -58,7 +58,7 @@ This matrix does not reproduce restricted third-party framework text, does not e
 | A.8.10 Information deletion and media handling | [`operations/procedure-media-handling-and-transport.md`](../operations/procedure-media-handling-and-transport.md) | Architectural recommendation |
 | A.8.11 to A.8.12 Data masking and data leakage prevention | [`security/standard-data-loss-prevention.md`](../security/standard-data-loss-prevention.md) | Architectural recommendation |
 | A.8.15 to A.8.16 Logging and monitoring | [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`operations/procedure-security-monitoring-and-alert-management.md`](../operations/procedure-security-monitoring-and-alert-management.md) | Architectural recommendation |
-| A.8.20 to A.8.21 Network security and segmentation | [`security/policy-network-communications-security.md`](../security/policy-network-communications-security.md), [`operations/standard-network-security-and-segmentation.md`](../operations/standard-network-security-and-segmentation.md) | Architectural recommendation |
+| A.8.20 to A.8.22 Networks security, security of network services, and segregation of networks | [`security/policy-network-communications-security.md`](../security/policy-network-communications-security.md), [`operations/standard-network-security-and-segmentation.md`](../operations/standard-network-security-and-segmentation.md) | Architectural recommendation |
 | A.8.24 Use of cryptography | [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/framework-cryptographic-key-lifecycle.md`](../security/framework-cryptographic-key-lifecycle.md), [`security/procedure-cryptographic-key-operations.md`](../security/procedure-cryptographic-key-operations.md), [`security/roadmap-post-quantum-cryptography.md`](../security/roadmap-post-quantum-cryptography.md) | Architectural recommendation |
 | A.8.25 to A.8.34 Secure development lifecycle and engineering | [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/standard-software-composition-analysis.md`](../dev-security/standard-software-composition-analysis.md), [`dev-security/standard-quality-assurance-and-testing.md`](../dev-security/standard-quality-assurance-and-testing.md) | Architectural recommendation |
 | A.8.29 Security testing | [`dev-security/standard-quality-assurance-and-testing.md`](../dev-security/standard-quality-assurance-and-testing.md) | Architectural recommendation |
