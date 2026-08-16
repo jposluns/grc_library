@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Security and Privacy Assurance Standard\
 **Document Type:** Standard\
-**Version:** 1.1.9\
-**Date:** 2026-07-23\
+**Version:** 1.1.10\
+**Date:** 2026-08-16\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`supply-chain/procedure-supplier-onboarding-security-review.md`](procedure-supplier-onboarding-security-review.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/template-supplier-security-questionnaire.md`](template-supplier-security-questionnaire.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md)\
@@ -98,7 +98,7 @@ Where the supplier transfers personal data outside the EEA or UK:
 
 | Requirement | Legal Basis | Evidence |
 |---|---|---|
-| Adequacy decision or valid transfer mechanism in place | GDPR Chapter V; UK GDPR Schedule 21 | SCCs, IDTA, or BCRs on file; or adequacy confirmation |
+| Adequacy decision or valid transfer mechanism in place | GDPR Chapter V; UK GDPR Chapter V | SCCs, IDTA, or BCRs on file; or adequacy confirmation |
 | Transfer impact assessment completed where required | Post-Schrems II / UK TRA obligations | TIA documentation |
 | Data residency and transfer restrictions honoured | Contractual commitment | DPA data location clause; configuration records |
 
