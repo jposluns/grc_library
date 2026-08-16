@@ -39,9 +39,12 @@ Additional checks:
 Excluded from the full metadata block requirement (EXEMPT set + loose
 mode):
 
-- The repository root README, NOTICE, LICENSE, CHANGELOG, CONTRIBUTING,
-  SECURITY, TODO and AUTHORS files (these are governance / meta files,
-  not artefacts).
+- The five EXEMPT files (README.md, CHANGELOG.md, TODO.md,
+  TODO-REFERENCE.md, and instruction-ai-document-ingestion.md), which
+  have a documented no-per-file-versioning carve-out. NOTICE, LICENSE,
+  CONTRIBUTING, SECURITY, and AUTHORS are NOT in this set: they each
+  acquired a full 13-field header in Phase D.1 (LICENSE is suffix-less
+  and unreachable by the .md-only scan). See the EXEMPT constant below.
 - Domain README files match the loose-mode shape that requires only a
   Document Title and License field.
 - Paths under EXEMPT_PREFIXES (`guardrails/`, `tools/`)
