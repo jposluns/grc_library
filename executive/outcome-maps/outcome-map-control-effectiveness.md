@@ -61,12 +61,12 @@ Each item below is an evidence class leadership can ask management for, for a sa
 
 - **A period's operating records for the sampled control**, as evidence for the record-producing layer the [evidence flow](../../governance/framework-document-architecture-and-interrelationship.md) describes.
 - **The control's latest operating-effectiveness test result**, with its tester and independent reviewer, from the Control Testing Register, as evidence for the testing layer in the [control testing procedure](../../compliance/procedure-control-testing.md).
-- **The control's current effectiveness band with its three inputs** (latest test result, recurrence signal, open corrective-action state), as evidence for the metric layer in the [assurance metrics register](../../governance/register-digital-trust-and-assurance-metrics.md).
-- **Evidence of the second line's portfolio-level aggregation and challenge of the effectiveness bands, and of internal audit's independent validation of the metric's basis**, as evidence for the lines-of-defence layer in the [continuous assurance framework](../../governance/framework-continuous-assurance-and-improvement.md).
+- **The control's current effectiveness band and its inputs**, as evidence for the metric layer in the [assurance metrics register](../../governance/register-digital-trust-and-assurance-metrics.md).
+- **Evidence of how the second and third lines consume the effectiveness bands**, as evidence for the lines-of-defence layer in the [continuous assurance framework](../../governance/framework-continuous-assurance-and-improvement.md).
 - **The current assurance-map rating for the relevant risk area**, with its last and next assurance events, as evidence for the assurance-visibility layer in the [assurance map register](../../risk/register-assurance-map.md).
 - **The assurance section of the latest board risk report, and any threshold-breach escalations in the period**, as evidence for the reporting layer in the [board risk report template](../../risk/template-board-risk-report.md) and the [key risk indicator catalogue](../../risk/register-key-risk-indicators.md).
 - **The latest assembled evidence package for an in-scope framework, with its internal sign-off**, as evidence for the external-assurance layer in the [audit evidence package template](../../compliance/template-audit-evidence-package.md).
-- **Any open exception touching the sampled control**, with its owner, expiry, risk rating, and current renewal count, as evidence for the accepted-deviation route in the [exception and risk acceptance management policy](../../governance/policy-exception-and-risk-acceptance-management.md).
+- **Any open exception touching the sampled control**, with its register fields per the policy's section 4.5, as evidence for the accepted-deviation route in the [exception and risk acceptance management policy](../../governance/policy-exception-and-risk-acceptance-management.md).
 
 ## Limitations
 
