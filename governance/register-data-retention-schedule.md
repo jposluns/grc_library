@@ -2,8 +2,8 @@
 
 **Document Title:** Data Retention Schedule\
 **Document Type:** Register\
-**Version:** 1.0.24\
-**Date:** 2026-08-15\
+**Version:** 1.0.25\
+**Date:** 2026-08-16\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md)\
@@ -71,10 +71,10 @@ This register defines the mandatory retention periods for each category of organ
 | Record Type | Retention Period | Legal Basis / Rationale |
 | --- | --- | --- |
 | Privacy impact assessments | 7 years, or 5 years after associated system decommission, whichever is longer | The organization's canonical assessment-retention floor (GDPR and PIPEDA prescribe no fixed retention period; PIPEDA Principle 5 requires retention only as long as necessary); matches the Step 6 record-keeping minimum in [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) |
-| Data subject access request records | 3 years | GDPR Article 30; accountability |
-| Consent records | Duration of processing + 3 years | GDPR Article 7 |
+| Data subject access request records | 3 years | Organization retention baseline (GDPR prescribes no fixed retention period; Article 15 governs the right of access, not a retention term) |
+| Consent records | Duration of processing + 3 years | Organization retention baseline (GDPR Article 7 sets consent conditions and demonstrability, not a retention term) |
 | Privacy breach notifications | 7 years | The organization's canonical breach-record retention floor (PIPEDA's breach-of-security-safeguards regulations set a 24-month minimum, not 7 years; GDPR prescribes no fixed period); matches the breach-evidence minimum in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) Section 9.2 |
-| Processing records (Article 30 ROPA) | Active + 5 years | GDPR Article 30 |
+| Processing records (Article 30 ROPA) | Active + 5 years | Organization retention baseline (GDPR Article 30 defines the ROPA's content and availability, not a retention term) |
 
 ### 5. Audit and compliance records
 
@@ -113,7 +113,7 @@ This register defines the mandatory retention periods for each category of organ
 | --- | --- | --- |
 | Customs declarations and entries | 7 years | Organization retention baseline for customs records. Confirm the applicable jurisdiction's customs record-keeping minimum at source and apply the longer period. |
 | BASC audit records and certifications | Certification period + 7 years | BASC International Standard v6 |
-| Cargo manifest and chain of custody | 7 years | CTPAT; NEEC; AEO compliance |
+| Cargo manifest and chain of custody | 7 years | Organization retention baseline for trade records; confirm the applicable jurisdiction's customs record-keeping minimum at source (no generic CTPAT, NEEC, or WCO-AEO retention term is held; the held WCO-AEO 7-year statement is Myanmar-specific, for financial and operational documents) |
 | Personnel security screening (trade) | Duration of employment + 5 years | BASC v6 Chapter 6 |
 | Cryptographic key audit records (trade) | 7 years | Organization retention baseline, aligned with the cryptographic-audit-record floor in the key lifecycle framework. |
 
@@ -158,7 +158,6 @@ Records reaching the end of their retention period are destroyed per the Records
 | UK GDPR | Articles 5, 17 | UK retention requirements |
 | ISO/IEC 27001:2022 | Annex A.5.33: Protection of Records | Records protection and retention |
 | ISO/IEC 27002:2022 | §5.33 to 5.34 | Records management controls |
-| BASC International Standard v6 | Chapter 3: Document Retention | Trade record retention |
 | COBIT 2019 | APO14: Managed Data | Data governance and retention |
 
 ---
