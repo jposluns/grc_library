@@ -2,8 +2,8 @@
 
 **Document Title:** Executive Narrative Authoring Specification\
 **Document Type:** Specification\
-**Version:** 0.0.13\
-**Date:** 2026-08-15\
+**Version:** 0.0.14\
+**Date:** 2026-08-16\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`specification-master-project.md`](specification-master-project.md), [`specification-ingestion.md`](specification-ingestion.md), [`README.md`](README.md), [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md)\
@@ -273,7 +273,7 @@ An executive narrative page REFERS to corpus documents but does not depend on th
 
 2. **Structural invalidation is a broken link only.** The single structural failure of a corpus reference is a link that no longer resolves to a live corpus document (a moved or retired source). That is caught by the existing repository link and reference-integrity gates, which already scan `executive/`; the narrative layer adds no separate pin-resolution state machine.
 
-3. **Content rule (point, never reproduce).** A narrative page POINTS TO corpus values and corpus-owned closed-set process content; it never REPRODUCES either. A retention period, a threshold, or any specific value stays in the corpus document the page links, and the page directs the reader there rather than restating the value, so a corpus change never silently strands a stale copy in the narrative layer. The same rule applies to a closed-set process model, ordered lineage, or step sequence that a corpus document owns: a narrative page may name it, state its member count, use its member labels, and link to it, but it never restates the substantive contents of multiple members, reconstructs an unlabelled lineage, or reproduces a member's closed sub-list. Those contents stay in the owning corpus document, and the page directs the reader there. This is a review outcome, not a mechanical guarantee.
+3. **Content rule (point, never reproduce).** A narrative page POINTS TO corpus values and corpus-owned closed-set process content; it never REPRODUCES either. A retention period, a threshold, or any specific value stays in the corpus document the page links, and the page directs the reader there rather than restating the value, so a corpus change never silently strands a stale copy in the narrative layer. The same rule applies to a closed-set process model, ordered lineage, or step sequence that a corpus document owns: a narrative page may name it, state its member count, use its member labels, and link to it, but it never restates the substantive contents of multiple members, reconstructs an unlabelled lineage, or reproduces a member's closed sub-list. Those contents stay in the owning corpus document, and the page directs the reader there. The "Evidence to request" section (defined above as the evidence classes a reader should ask management for) and the "signals of progress" component of a Journey stage may name evidence artefacts by type (an architecture record, a control design, a threat model): naming an artefact a reader should seek is the permitted labelling operation above, not a reproduction of a source's evidence-class contents, so long as it names the artefact rather than restating that artefact's or the source's substantive closed-set contents. This is a review outcome, not a mechanical guarantee.
 
 4. **Review cadence (advisory).** A 6-month executive-review cadence is an advisory editorial freshness signal recorded in the `Last Reviewed` date. It is NOT a gated CI requirement: a lapsed review date surfaces in the scheduled review and never blocks a pull request. No generator or tool ever writes a `Corpus Sources` reference or edits page prose; keeping a page current is a human act.
 
