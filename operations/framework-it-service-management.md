@@ -2,8 +2,8 @@
 
 **Document Title:** IT Service Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.7\
-**Date:** 2026-07-23\
+**Version:** 1.0.8\
+**Date:** 2026-08-16\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`operations/standard-service-level-management.md`](standard-service-level-management.md), [`operations/register-it-operations-kpis.md`](register-it-operations-kpis.md), [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md)\
@@ -46,7 +46,7 @@ Applies to all IT services, infrastructure, applications, cloud environments, an
 
 ### 1. Incident management
 
-All incidents are logged, categorized, prioritized, and tracked to resolution within defined SLAs. Major incidents trigger immediate escalation to the CIO, CISO, and Crisis Management Team. Significant cybersecurity incidents meet EU NIS 2 reporting timelines (24 hours for early warning; 72 hours for full notification).
+All incidents are logged, categorized, prioritized, and tracked to resolution within defined SLAs. Major incidents trigger immediate escalation to the CIO, CISO, and Crisis Management Team. Significant cybersecurity incidents meet EU NIS 2 reporting timelines: an early warning within 24 hours of becoming aware, an incident notification with an initial assessment within 72 hours, and a final report within one month of that notification.
 
 ### 2. Problem management
 
