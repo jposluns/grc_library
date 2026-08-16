@@ -2,8 +2,8 @@
 
 **Document Title:** AI Evaluation Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.9\
-**Date:** 2026-08-15\
+**Version:** 1.0.10\
+**Date:** 2026-08-16\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md)\
@@ -143,7 +143,7 @@ Report includes:
 
 ## 4. Evaluation report retention
 
-Evaluation reports are retained in the compliance repository for the lifecycle of the AI system plus 5 years.
+Evaluation reports are retained in the compliance repository per the [Records Data Retention Schedule](../governance/register-data-retention-schedule.md), which is the single source of truth for the applicable retention floor (including the EU AI Act keeping period, where it applies, for a report that forms part of a high-risk AI system's Article 11 and Annex IV technical documentation).
 
 ---
 
