@@ -2,7 +2,7 @@
 
 **Document Title:** Joint Controller Arrangement Template\
 **Document Type:** Template\
-**Version:** 1.0.7\
+**Version:** 1.0.8\
 **Date:** 2026-08-16\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -88,7 +88,7 @@ Where more than two joint controllers exist, repeat the per-party field set.
 
 ### Section 3: Allocation of GDPR responsibilities
 
-This section is the heart of the arrangement under Article 26(1): the parties **transparently determine** their respective responsibilities. The default allocation principle is: **the party closest to the data subject or to the trigger event is allocated the responsibility**, except where one party has materially better operational capacity.
+This section is the heart of the arrangement under Article 26(1): the parties **transparently determine** their respective responsibilities. Article 26(1) does not prescribe how they allocate them; this template's default allocation principle, an organizational choice rather than an Article 26(1) requirement, is that **the party closest to the data subject or to the trigger event is allocated the responsibility**, except where one party has materially better operational capacity.
 
 | GDPR obligation | Article(s) | Responsible party (A / B / both / leader-then-coordinated) | Notes |
 |---|---|---|---|

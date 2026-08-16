@@ -2,8 +2,8 @@
 
 **Document Title:** Physical Security of IT Infrastructure Standard\
 **Document Type:** Standard\
-**Version:** 1.3.5\
-**Date:** 2026-07-02\
+**Version:** 1.3.6\
+**Date:** 2026-08-16\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-network-security-and-segmentation.md`](standard-network-security-and-segmentation.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md)\
@@ -56,7 +56,7 @@ Access to the primary data centre server room and all IT equipment rooms is rest
 | Access authorization | Access granted by CISO or designated IT Operations lead. Access list reviewed quarterly and immediately upon departure of any authorized individual. |
 | Access mechanism | Physical access requires a credential (key card, PIN, or key) separate from general office access. Multi-factor physical access (card plus PIN) required for the primary data centre server room. |
 | Visitor and contractor access | Vendors, contractors, and visitors must be accompanied by an authorized IT Operations staff member at all times inside IT infrastructure areas. Unescorted access not permitted. Visitor access logged. |
-| Access logging | All physical access events logged electronically or manually. Logs retained for 2 years per the Records Retention Schedule and reviewed monthly by IT Operations. |
+| Access logging | All physical access events logged electronically or manually. Logs retained for 2 years per the Records Retention Schedule (its physical-access event logs row) and reviewed monthly by IT Operations. |
 | Tailgating prevention | Personnel must not permit others to follow them through access-controlled doors. Anti-tailgating procedures covered in the Security Awareness and Training Standard. |
 
 ---

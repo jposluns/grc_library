@@ -89,7 +89,6 @@ Fill significant gaps: deepen thin-but-present content to operational sufficienc
 | 2.18 | AI jurisdiction annex: South Korea AI Basic Act (H, M) | `[public]` |
 | 2.25.2 | Control-to-policy-instrument coverage: international AI-governance authorities (consolidated with 2.15; M, M) | `[content]` `[public]` |
 | 2.26 | OSCAL machine-readable representation (umbrella; maintainer-directed 2026-07-23, H, XL) | `[machinery]` `[public]` |
-| 3.174 | Joint-controller Art 26(1) informed-not-prescribed reword (Parts 1-2 GDPR-clock + PR.AA-title fixed #1259; Part 3 routed to maintainer) (2026-07-28 deep-assessment c5, codex, W, XS) | `[public]` |
 | 3.184 | Corpus ISO citation currency updates enabled by the 2026-07-28 `_ref` ingest (2026-07-28 ingest follow-up, M, S) | `[public]` |
 | 3.14 | ETSI Securing-AI alignment map (L, M) (was 3.16) | `[public]` |
 
