@@ -121,16 +121,16 @@ drive end-to-end on the maintainer's behalf:
    OBSERVED CI state, never in anticipation of one.
 8. After merge: sync local `main`, delete the feature branch locally, confirm the
    remote branch is gone.
-9. After every merge (durable across sessions): consult [`TODO.md`](../TODO.md)'s
-   forward-looking sections and list the upcoming next five planned PRs in the chat. If
-   new items surfaced during the just-finished work, add them to the backlog (an index row
-   in [`TODO.md`](../TODO.md) plus a detail block in [`TODO-REFERENCE.md`](../TODO-REFERENCE.md))
-   BEFORE the list is published (the list comes from TODO, not from memory). This is the project-specific
-   instantiation of the PR finalization protocol in
+9. After every merge (durable across sessions): consult the `## Up next` queue at the top of the
+   private `P-TODO.md` (the single ordered work queue across
+   both backlogs, `TODO.md` and `P-TODO.md`; it replaced the retired `next-prs.txt`) and list the
+   upcoming next five planned PRs in the chat. If new items surfaced during the just-finished work,
+   add them to the appropriate backlog (an index row in [`TODO.md`](../TODO.md) plus a detail block
+   in [`TODO-REFERENCE.md`](../TODO-REFERENCE.md), or a private `P-TODO.md` item) and into the
+   `## Up next` order BEFORE the list is published (the list comes from the queue, not from memory).
+   This is the project-specific instantiation of the PR finalization protocol in
    [`.claude/rules/governance/change-tracking.md`](../.claude/rules/governance/change-tracking.md).
-   **The same next-five ordering lives in the `## Up next` queue at the top of the private
-   `P-TODO.md` (the single ordered work queue across both backlogs; it replaced the retired
-   `next-prs.txt`), and THIS PR REFRESHES that queue as part of its own diff (not a post-merge
+   **THIS PR ALSO REFRESHES the `## Up next` queue as part of its own diff (not a post-merge
    step): drop the item just closed, insert any new work in position order, keeping
    the ordered "what's next" current.** (This after-merge listing reads the queue's top; `/resume`
    itself continues from the handoff's Next-actions.) Each queue item is one
