@@ -114,7 +114,9 @@ def main(argv: list[str]) -> int:
     except Exception:
         data = {}
     root = _repo_root(data if isinstance(data, dict) else {})
-    sys.stdout.write(_segment(_resolve_queue(root)))
+    # next-PR statusline segment removed at maintainer request (2026-08-15): the
+    # upcoming-PR list no longer occupies a statusline row. Emit nothing.
+    _ = root
     return 0
 
 
