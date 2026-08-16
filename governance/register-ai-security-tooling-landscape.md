@@ -2,8 +2,8 @@
 
 **Document Title:** AI Security Tooling Landscape Register\
 **Document Type:** Register\
-**Version:** 1.1.6\
-**Date:** 2026-07-05\
+**Version:** 1.1.7\
+**Date:** 2026-08-16\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`ai/standard-ai-model-risk.md`](../ai/standard-ai-model-risk.md), [`ai/guide-ai-adversarial-test-reference.md`](../ai/guide-ai-adversarial-test-reference.md), [`dev-security/guideline-ai-coding-assistant-security.md`](../dev-security/guideline-ai-coding-assistant-security.md)\
@@ -1165,7 +1165,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 #### 5.9.1 Awesome AI Security (brinhosa)
 
 - **Scope**: Curated index of AI security, LLM security, prompt injection, red teaming, guardrail, and ML supply chain resources.
-- **License**: CC0-1.0.
+- **License (of this external index)**: CC0-1.0.
 - **Library reference status**: Cited in Phase 23.6 register; suitable for direct library reuse.
 - **Categories (21)**: About, AI Security Testing Tools, Prompt Injection Resources, Jailbreak Detection & Red Teaming, Deliberately Vulnerable AI Applications, Training/Labs/CTF Challenges, Books & Publications, Cheatsheets & Guides, Frameworks & Standards, Defense & Guardrails, Certifications & Courses, Conferences & Events, Research Papers & Datasets, Observability & Monitoring, Penetration Testing Tools, MCP Security, Awesome Lists, Podcasts & Newsletters, YouTube Channels, Other Resources, Thought Leaders.
 - **GRC concern surfaced**: The awesome-ai-security index is released under CC0 (public domain). CC0 content can be freely incorporated into the GRC library's CC BY-SA 4.0 work (CC0 is the most permissive Creative Commons option, so it composes with any downstream licence). Drove the Phase 23.6 awesome-ai-security entry. Notable omissions identified during Wave 2 research: PROMPTPurify, deepteam, fickling.
