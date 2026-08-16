@@ -2709,7 +2709,7 @@ documents:
   domain: "governance"
   type: "Register"
   title: "Canonical Citations Register"
-  version: "1.5.57"
+  version: "1.5.58"
   date: "2026-08-16"
   owner: "Governance Library Maintainer"
   approving_authority: "Governance Library Maintainer"

@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.57\
+**Version:** 1.5.58\
 **Date:** 2026-08-16\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -68,6 +68,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | ISO/IEC 27019 | 2024 | 2024-10 | Information security controls for the energy utility industry (Edition 2; based on ISO/IEC 27002:2022 with 12 additional energy-sector controls) | 2017 | https://www.iso.org/standard/85056.html | verified 2026-07-09 |
 | ISO/IEC 27031 | 2025 | 2025-05 | Cybersecurity, information and communication technology readiness for business continuity (Second edition; supersedes the 2011 first edition) | 2011 | https://www.iso.org/standard/27031 | verified 2026-08-16 |
 | ISO/IEC 27033-1 | 2015 | 2015 | Network security - Part 1: Overview and concepts (the roadmap part of the multi-part ISO/IEC 27033 series on network security architecture and segmentation; confirmed unchanged 2021) | 2009 | https://www.iso.org/standard/63461.html | verified 2026-06-30 |
+| ISO/IEC 27034 | Part 1:2011 (+ Cor 1:2014), Part 2:2015, Part 3:2018, Part 5:2017 (+ TS 27034-5-1:2018), Part 6:2016, Part 7:2018 (no Part 4 published) | 2011 to 2018 | Application security (multi-part series on secure SDLC governance and assurance) | - | https://www.iso.org/standard/44378.html | verified 2026-08-16 |
 | ISO/IEC 27036-2 | 2022 | 2022-06 | Cybersecurity - Supplier relationships - Part 2: Requirements (Edition 2; cancels and replaces the 2014 first edition) | 2014 | https://www.iso.org/standard/82060.html | verified 2026-06-30 |
 | ISO/IEC 27036-3 | 2023 | 2023-06 | Cybersecurity - Supplier relationships - Part 3: Guidelines for hardware, software, and services supply chain security | 2013 | https://www.iso.org/standard/82890.html | verified 2026-07-09 |
 | ISO/IEC 27036-4 | 2016 | 2016-10 | Information security for supplier relationships - Part 4: Guidelines for security of cloud services | - | https://www.iso.org/standard/59689.html | verified 2026-07-09 |
