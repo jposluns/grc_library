@@ -28,13 +28,13 @@ Exemptions are layered:
 
   - EXEMPT_FILES: by filename: CHANGELOG.md, TODO.md, TODO-REFERENCE.md, the master spec,
     the ingestion spec, the citation-verification spec, the
-    audit-programme spec, the citation-verification worklist template,
-    the coverage-gaps register (uses ``TODO backlog: <topic>``
-    planned-target references by design), the decision tree, and the linter scripts that enumerate
-    these patterns.
-  - EXEMPT_DIR_PARTS: by directory: ``.git``, ``node_modules``,
-    ``__pycache__``, ``guardrails`` (its rule files use angle-bracket
-    placeholders as documentation of command syntax).
+    audit-programme spec, the coverage-gaps register (uses ``TODO backlog:
+    <topic>`` planned-target references by design), and the decision tree.
+    Non-``.md`` files are out of scope by construction (the scan rglobs ``*.md``).
+  - EXEMPT_DIR_PARTS: the shared ``DEFAULT_EXEMPT_DIRS`` set from
+    ``lint_common`` (see its definition for current members) plus
+    ``guardrails`` (its rule files use angle-bracket placeholders as
+    documentation of command syntax).
   - Filename-prefix exemptions: files beginning with ``template-`` or
     ``worklist-`` are auto-exempt because their purpose is to carry
     fill-in markers.

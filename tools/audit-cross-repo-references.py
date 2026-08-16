@@ -33,7 +33,7 @@ This tool is ADVISORY, NOT a CI gate. It spans gate-exempt trees, always exits 0
 worker-run or run on demand, like ``/validate-pr``, not wired into the per-PR lint
 CI. It reuses the existing machinery rather than reinventing it: the gate-3
 link-extraction and path-resolution shapes from ``lint-links.py``, and
-``lint_common``'s repository root, directory-exemption set, fenced-code-aware line
+``lint_common``'s repository root, fenced-code-aware line
 iterator, UTF-8-safe reader, and the section-1.19.2 sibling resolver
 (``resolve_sibling`` / ``sibling_placeholder_present``).
 

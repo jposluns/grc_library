@@ -60,8 +60,8 @@ this audit does not enforce:
 Scope:
 
   Markdown files reachable from the default repository scan paths,
-  excluding the DEFAULT_EXEMPT_DIRS set from ``lint_common`` (which
-  covers ``.git``, ``node_modules``, ``__pycache__``, ``.claude``).
+  excluding the DEFAULT_EXEMPT_DIRS set from ``lint_common`` (the shared
+  exempt-directory set; see its definition for the current members).
   Files marked ``Status: Superseded`` (the lifecycle marker, re-keyed
   from the former ``Classification: Deprecated`` overload) are skipped. The
   repo-root ``executive/`` narrative tree is excluded (root-anchored via
