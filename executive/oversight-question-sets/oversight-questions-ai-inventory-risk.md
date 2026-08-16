@@ -2,8 +2,8 @@
 
 **Document Title:** What the governing body should ask about the organization's AI inventory, risks, incidents, suppliers, and change\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.1\
-**Date:** 2026-08-15\
+**Version:** 0.0.2\
+**Date:** 2026-08-16\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-board-oversight.md`](../../ai/guide-ai-board-oversight.md), [`ai/template-ai-system-register.md`](../../ai/template-ai-system-register.md), [`ai/register-ai-risk.md`](../../ai/register-ai-risk.md), [`ai/plan-ai-incident-response.md`](../../ai/plan-ai-incident-response.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../../supply-chain/procedure-third-party-ai-due-diligence.md), [`risk/template-board-risk-report.md`](../../risk/template-board-risk-report.md)\
@@ -48,7 +48,7 @@ The questions are entity-neutral. They presume nothing about whether the asking 
 **Theme: material risk. Are we inside the appetite this body approved?**
 
 - *What are our material AI risks, and are they within appetite?* A strong answer reads the [AI risk register](../../ai/register-ai-risk.md) against the approved [risk appetite statement](../../risk/template-risk-appetite-statement.md), whose Parts 2 and 3 carry the appetite categories and the tolerance boundaries. The register's schema records each risk's rating, owner, treatment, and review date.
-- *For the systems in the highest risk tiers, what did their impact assessments conclude?* A strong answer produces the assessment records, with the tier assigned at the [impact assessment procedure](../../ai/procedure-ai-system-impact-assessment.md)'s Step 7 and the decision recorded at its Step 9, including the residual risk, conditions, and control owner the approval must record.
+- *For the systems in the highest risk tiers, what did their impact assessments conclude?* A strong answer produces the assessment records from the [ten-step impact assessment procedure](../../ai/procedure-ai-system-impact-assessment.md), the tier set at its **Assign risk tier** member (Step 7) and the decision recorded at its **Approve or reject** member (Step 9); use Step 9 for the record's required contents.
 - *What residual AI risk have we formally accepted, who approved each acceptance, and when does it expire?* A strong answer produces acceptance records carrying the fields the [risk acceptance procedure](../../risk/procedure-risk-acceptance.md) requires, including owner, compensating controls, and expiry, approved at the authority the [exception and risk acceptance policy](../../governance/policy-exception-and-risk-acceptance-management.md) sets for the risk level (its section 4.2). An acceptance with no expiry, or an expiry that keeps rolling forward without reassessment, is itself a finding.
 - *How does AI risk reach this body on a cadence, rather than only after something breaks?* A strong answer is the AI and emerging-technology section of the periodic risk report (the [board risk report template](../../risk/template-board-risk-report.md), its Section 9), delivered on the cadence the template sets.
 
@@ -57,7 +57,7 @@ The questions are entity-neutral. They presume nothing about whether the asking 
 **Theme: incidents. Would we recognize one, and could we reconstruct it?**
 
 - *What counts as an AI incident here?* A strong answer produces the defined AI incident classes with their detection triggers and the severity criteria, as the [AI incident response plan](../../ai/plan-ai-incident-response.md) sets them out. An organization that has not defined the classes cannot report against them.
-- *What AI incidents and near misses occurred in the period, and what did they change?* A strong answer combines the incidents section of the periodic risk report (the [board risk report template](../../risk/template-board-risk-report.md), its Section 6) with post-incident review outputs. The plan's post-incident review asks whether the evaluation suite would have detected the regression, whether the register was complete and current, and whether the supplier's contractual obligations were met, so each incident becomes a test of the other controls on this page.
+- *What AI incidents and near misses occurred in the period, and what did they change?* A strong answer combines the incidents section of the periodic risk report (the [board risk report template](../../risk/template-board-risk-report.md), its Section 6) with the post-incident review the [AI incident response plan](../../ai/plan-ai-incident-response.md) defines; use that plan's post-incident review member for its review points, so each incident becomes a test of the other controls on this page.
 - *For a serious incident, could we reconstruct what the system did?* A strong answer shows the evidence the [AI incident response plan](../../ai/plan-ai-incident-response.md) requires preserved for the incident severities it names, in classes including prompt logs, tool invocation logs, action lineage, and model version metadata (its evidence requirements section).
 - *Are AI incidents escalated through the same incident discipline as everything else?* A strong answer shows AI incidents classified and escalated through incident management, covering the AI-specific incident types the [AI security and risk standard](../../ai/standard-ai-security-and-risk.md) lists (its section 4.10).
 
