@@ -1,21 +1,17 @@
 #!/usr/bin/env python3
-"""Statusline `next:` segment (private-aware).
+"""Statusline `next:` segment: RETIRED (emits nothing).
 
-Reads the Claude Code statusline JSON on stdin, locates the private
-``grc_library_private/P-TODO.md`` via ``resolve_sibling``, parses its
-``## Up next`` ordered work queue (the single source of truth for what the
-orchestrator works on next; see that section's own header), and prints
-``next: 1) <title>; 2) <title>; 3) <title>`` for the top three items,
-truncated near 120 characters.
+The console ``next:`` upcoming-PRs statusline segment was removed at the
+maintainer's request (PR #1565, 2026-08-15) to recover a status row.
+``main()`` now emits nothing; the statusLine command in ``.claude/settings.json``
+no longer invokes this script. The file is kept as a no-output compatibility
+stub so a cached statusLine command errors nothing, and the ``--self-test``
+path (with the dormant ``_segment`` / ``_resolve_queue`` / ``_top_items``
+helpers) stays green; a follow-up deletes the script and its self-test.
 
-This replaced the retired ``next-prs.txt`` queue file: the ``## Up next``
-section at the top of ``P-TODO.md`` is now the durable control surface, so
-the statusline reads it directly rather than a separate mirror file. The
-trailing ``[tags]`` on each queue line are stripped for the console.
-
-Fails soft: any error (no private sibling on an adopter clone, no queue
-section, a parse problem) prints a plain ``next:`` note and exits 0, so the
-statusline never breaks the prompt.
+Historically it read the ``## Up next`` ordered work queue at the top of the
+private ``grc_library_private/P-TODO.md`` and printed
+``next: 1) <title>; 2) <title>; 3) <title>`` for the top three items.
 """
 from __future__ import annotations
 
