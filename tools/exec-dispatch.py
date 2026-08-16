@@ -884,6 +884,15 @@ def _self_test() -> int:
     # 30a. --effort is still appended (existing behavior preserved), after --worker-id.
     cmd2 = build_dispatch_cmd(WRAPPER["claude"], "/tmp/p.txt", "alpha", "opus", wid, effort="high")
     check("effort-still-passed", cmd2[-2:] == ["--effort", "high"])
+    # 30b. gemini wiring (vpr-1597 codex #2): the WRAPPER map, worker-id mint/resolve, and
+    #      dispatch-cmd construction all cover gemini, not only claude/codex.
+    check("gemini-wrapper-mapped", "gemini" in WRAPPER and bool(WRAPPER["gemini"]))
+    wid_gem = mint_worker_id("alpha", "gemini", sunday)
+    check("gemini-worker-id-resolves", worker_id_to_key(wid_gem) == ("alpha", "gemini"))
+    cmd_gem = build_dispatch_cmd(WRAPPER["gemini"], "/tmp/p.txt", "alpha", "gemini-3.7-flash", wid_gem)
+    check("gemini-dispatch-cmd-shape",
+          cmd_gem[0:4] == ["sudo", "-n", "-u", WORKER_USER]
+          and WRAPPER["gemini"] in cmd_gem and cmd_gem[cmd_gem.index("--worker-id")+1] == wid_gem)
     # 31. The minted worker id satisfies the wrapper charset [A-Za-z0-9_-].
     check("worker-id-charset", _re.fullmatch(r"[A-Za-z0-9_-]+", wid) is not None)
     # 32. max_concurrent ABSENT -> default 1 (byte-equivalent to today); present value honored.
@@ -1039,7 +1048,7 @@ def main() -> int:
     ap.add_argument("--family", choices=["claude", "codex", "gemini"])
     ap.add_argument("--model")
     ap.add_argument("--effort", choices=["low", "medium", "high", "xhigh"],
-                    help="claude: --effort; codex: mapped to model_reasoning_effort (wrapper WIRE-IN)")
+                    help="claude: --effort; codex: mapped to model_reasoning_effort (wrapper WIRE-IN); gemini: ignored (no effort flag)")
     ap.add_argument("--order-id")
     ap.add_argument("--prompt-file")
     ap.add_argument("--account", help="target a SPECIFIC account (must be eligible), instead of the "
@@ -1144,8 +1153,10 @@ def main() -> int:
         for req in ("family", "model", "order_id", "prompt_file"):
             if not getattr(args, req):
                 _ledgered_error(ap, args, f"--dispatch needs --{req.replace('_','-')}")
+        # gemini has no reasoning-effort flag; do not forward --effort to it (vpr-1597 codex #1).
+        _eff = None if args.family == "gemini" else args.effort
         res = dispatch(config, args.family, args.model, args.order_id, args.prompt_file,
-                       effort=args.effort, now=now, account=effective_account,
+                       effort=_eff, now=now, account=effective_account,
                        exclude_accounts=exclude_accounts)
         if not res["ok"] and res.get("worker_id") is None:
             # account resolution failed before any worker ran: surface the reason loudly.
@@ -1161,7 +1172,8 @@ def main() -> int:
         # print a compact status line, then the worker output
         print(f"[{_dt.datetime.now().strftime('%H:%M:%S')}] dispatch order={res.get('order_id')} "
               f"worker={res.get('worker_id')} account={res.get('account')} model={args.model} "
-              f"effort={args.effort or 'default'} rc={res.get('rc')} dur={res.get('duration_s')}s "
+              f"effort={'n/a' if args.family == 'gemini' else (args.effort or 'default')} "
+              f"rc={res.get('rc')} dur={res.get('duration_s')}s "
               f"limited={res.get('usage_limited')}")
         print(f"  full worker log (wrapper stdout/stderr): "
               f"{worker_log_glob(res.get('family'), res.get('account'), res.get('worker_id'))}")
