@@ -2,7 +2,7 @@
 
 **Document Title:** How leadership can know, with evidence, whether the controls it relies on are operating\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.3\
+**Version:** 0.0.4\
 **Date:** 2026-08-16\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -51,7 +51,7 @@ Each row relates one corpus control to the outcome using exactly one of the narr
 
 ## Gaps and dependencies
 
-- The corpus states the chain's couplings document by document: the [continuous assurance framework](../../governance/framework-continuous-assurance-and-improvement.md) describes the per-control effectiveness metric as populated from the Control Testing Register (its section 4.4); the [assurance metrics register](../../governance/register-digital-trust-and-assurance-metrics.md) names the Control Testing Register and the corrective-action log as the metric's data sources (its Per-control effectiveness metric section); and the [board risk report template](../../risk/template-board-risk-report.md) summarizes audit coverage per the assurance map and links the assurance map and the KRI dashboard as appendices (its Sections 11 and 14). The reading of all eight rows as one ordered chain is this page's synthesis, not any single document's statement; the limitations flag it as composite.
+- The corpus states the chain's couplings document by document: the [continuous assurance framework](../../governance/framework-continuous-assurance-and-improvement.md) describes the per-control effectiveness metric as populated from the Control Testing Register (its section 4.4); the [assurance metrics register](../../governance/register-digital-trust-and-assurance-metrics.md) names the metric's data sources (its Per-control effectiveness metric section); and the [board risk report template](../../risk/template-board-risk-report.md) summarizes audit coverage per the assurance map and links the assurance map and the KRI dashboard as appendices (its Sections 11 and 14). The reading of all eight rows as one ordered chain is this page's synthesis, not any single document's statement; the limitations flag it as composite.
 - The corpus separates a control's design from its operation: the [control testing procedure](../../compliance/procedure-control-testing.md) tests the two separately (its sections 2.1 and 2.2), and the [audit evidence package template](../../compliance/template-audit-evidence-package.md) records implementation status and operating effectiveness as separate axes of its control inventory index.
 - The [assurance map register](../../risk/register-assurance-map.md) operates at the risk-area level: its scope states that it does not cover every individual control and that it is supported by the control register. Its linked-controls field expects control identifiers from the adopter's own control register, which the library deliberately does not ship (its Section 2); an adopting organization supplies its own control register for that linkage to operate.
 
