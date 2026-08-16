@@ -1,10 +1,12 @@
 """NIST Cybersecurity Framework 2.0 Category reference.
 
 A citation index of the CSF 2.0 Core's Function and Category identifiers,
-used by ``lint-matrix-control-codes.py`` to validate the NIST CSF 2.0
-column of the GRC compliance-alignment matrix at the category level (does
-each cited ``FUNCTION.CATEGORY`` token name a real CSF 2.0 Category, not a
-CSF 1.1 category removed or moved in 2.0).
+imported by four modules: ``lint-matrix-control-codes.py`` (the central
+matrix's CSF column) and ``lint-document-control-codes.py`` (the corpus-wide
+per-document CSF codes), so the two gates cannot drift apart, plus
+``audit-matrix-semantic-fit.py`` and ``verify-reference-modules.py``. It
+validates that each cited ``FUNCTION.CATEGORY`` token names a real CSF 2.0
+Category, not a CSF 1.1 category removed or moved in 2.0.
 
 Provenance: the Function and Category identifiers and names are transcribed
 from Table 1 of NIST CSWP 29, *The NIST Cybersecurity Framework (CSF) 2.0*

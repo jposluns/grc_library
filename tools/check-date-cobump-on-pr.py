@@ -41,15 +41,17 @@ stays silent.
 
 This is a CI-only delta gate, not part of the corpus audit programme in
 governance/specification-audit-programme.md section 6; it is documented
-there in section 6.1 (PR-only delta gates) alongside D1/D2/D3 and is
+there in section 6.1 (PR-only delta gates) alongside the other D-numbered delta gates and is
 exempt from gate 35's parity audit (its inputs, a git history range and
 the PR base ref, are not available to ``tools/run_all_audits.sh`` or
 ``.pre-commit-config.yaml``).
 
 Exempt files: CHANGELOG.md (its body is the version history itself);
 generated artefacts (taxonomy.yml, narrative.yml,
-docs/portal.md, docs/maturity-scorecard.md); files without a Version
-metadata field.
+docs/portal.md, docs/maturity-scorecard.md); the five append-only .working/
+logs (validate-pr/history.md, improvement-log.md, merge-bypass-log.md,
+guardrail-reviews/history.md, open-findings.md; unversioned by design);
+files without a Version metadata field.
 
 Usage:
     # In CI (uses GITHUB_BASE_REF):
