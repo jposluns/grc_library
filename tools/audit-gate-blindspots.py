@@ -23,7 +23,9 @@ as a measured one:
   as path prefixes or exact relative paths).
 - ``target-scoped``: no common-discovery signal, but the module carries
   module-level path-shaped constants (names containing ``TARGET`` / ``FILE`` /
-  ``PATH`` / ``SURFACE``); its scope is those explicit paths.
+  ``PATH`` / ``SURFACE`` / ``DIR`` / ``ROOT`` / ``SCAN``); its scope is those
+  explicit paths, further filtered to path-shaped values (containing ``/`` or
+  ending ``.md`` / ``.yml`` / ``.yaml`` / ``.py`` / ``.sh``).
 - ``not-derivable``: neither signal. The gate is listed and excluded from the
   coverage inversion, and the report says so.
 

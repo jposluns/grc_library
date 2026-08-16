@@ -7,8 +7,9 @@ adopters. This linter builds the reverse-reference graph and flags
 artefacts with no inbound links.
 
 Entry-point documents (the main README, NOTICE, AUTHORS, CHANGELOG,
-TODO, CONTRIBUTING, SECURITY) are exempt because they are reached by
-filename convention rather than by inbound link. LICENSE and
+TODO, TODO-REFERENCE, CONTRIBUTING, SECURITY, RESUME) are exempt because they are
+reached by filename convention rather than by inbound link; the generated
+reference-acquisition-manifest.md is separately exempt as a derived artefact. LICENSE and
 CITATION.cff were previously listed but removed in Phase 23.62
 since the scanner skips non-.md files and they are auto-exempt.
 

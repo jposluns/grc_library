@@ -41,6 +41,12 @@ USAGE
       Print only the summary and the ACTIONABLE list.
   python3 tools/audit-backlog-actionability.py --todo PATH --ptodo PATH
       Override either list path (testing / non-default layout).
+  python3 tools/audit-backlog-actionability.py --pipeline
+      Render the pipeline view: recent completions (read from DONE.md, a third
+      data source alongside the two backlog lists) next to the open queue.
+      Add --umbrella to group the queue by umbrella.
+  python3 tools/audit-backlog-actionability.py --self-test
+      Run the built-in self-test.
 
 Stdlib-only (gate 71). Python 3.11.
 """
