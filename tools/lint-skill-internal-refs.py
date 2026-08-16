@@ -19,8 +19,8 @@ section) and flags a line carrying one of these project-internal token classes:
     placeholders are NOT flagged, and neither is ``gates`` without a following
     digit);
   * a ``.working/`` path (a maintainer-working-tree file no adopter has);
-  * a PR-number reference ``#NNN`` (three-plus digits);
-  * a backlog-section reference ``§N`` / ``§N.M`` / ``PN.M``;
+  * a PR-number reference ``#NNN`` (three-to-five digits);
+  * a backlog-section reference ``§N.M`` / ``PN.M`` (a bare single-level ``§N`` is a document's own section reference and is deliberately not flagged);
   * a PROJECT tool path ``tools/<name>.(py|sh)`` where ``<name>`` is a REAL tool
     in this repo's ``tools/`` dir (a placeholder like ``tools/build-foo.py`` that
     names no real tool is NOT flagged; the ``.claude/`` tree, the standard Claude

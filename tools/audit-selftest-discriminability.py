@@ -36,7 +36,7 @@ is an `if` whose body returns: disabling its condition is the mutation that mode
 
 WHAT NOT-DETECTED DOES AND DOES NOT MEAN, stated because the number overstates the defect otherwise.
 It means only: the self-test does not fail when this guard is disabled. That covers TWO different
-situations with different fixes, and this probe cannot yet tell them apart:
+situations with different fixes, and this probe tells them apart via statement-level tracing:
 
   EXERCISED BUT BLIND. The self-test runs this code and cannot see the guard vanish, because its
     assertion reads something several branches share (a return code every refusal returns, a boolean
@@ -47,11 +47,19 @@ situations with different fixes, and this probe cannot yet tell them apart:
     fix is to write a case, or to accept the path as out of scope and say so.
 
 Applying the first fix to the second situation does nothing, and adding a case for the first without
-strengthening its assertion reproduces the defect, so the split matters. Separating them needs
-reachability analysis from the self-test body, and a function-granularity closure over-counts (a guard
-on an unreached branch INSIDE a reached function looks exercised), so it is deliberately left for a
-follow-up rather than guessed at here. Read a NOT-DETECTED row as "worth a look", not as a confirmed
-defect, and confirm which situation it is before fixing.
+strengthening its assertion reproduces the defect, so the split matters. This probe SEPARATES them:
+covered_lines() runs the self-test under the stdlib trace module and returns the executed line
+numbers (a statement-granularity read, not a function-granularity closure, which would over-count a
+guard on an unreached branch INSIDE a reached function), and split_verdict() refines every
+NOT-DETECTED verdict into one of four suffixes: /BLIND-CASE (the guard line executed yet the self-test
+still passed, the EXERCISED BUT BLIND defect above, fix the assertion), /NO-CASE (the guard line never
+executed, the NEVER EXERCISED coverage gap, write a case or record it out of scope),
+/INHERENT-EXTERNALLY-COVERED (the guard is the self-test's OWN failure-reporting branch, which cannot
+assert its own failure without recursion, so it is covered externally by this probe's positive
+control rather than reported as a fixable defect), and /UNKNOWN-SPLIT (tracing did not run, so the
+split is genuinely unknown). Read a /UNKNOWN-SPLIT or /INHERENT-EXTERNALLY-COVERED row as "worth a
+look" and confirm the situation before fixing; a /BLIND-CASE or /NO-CASE row already names which fix
+applies.
 """
 from __future__ import annotations
 
