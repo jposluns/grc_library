@@ -273,8 +273,8 @@ pages:
   title: "How leadership can know, with evidence, whether the controls it relies on are operating"
   narrative_type: "Outcome Map"
   narrative_status: "Explanatory"
-  version: "0.0.2"
-  date: "2026-08-15"
+  version: "0.0.4"
+  date: "2026-08-16"
   corpus_sources:
     - "governance/framework-document-architecture-and-interrelationship.md"
     - "compliance/procedure-control-testing.md"
