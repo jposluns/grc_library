@@ -2,8 +2,8 @@
 
 **Document Title:** Authentication and Password Management Standard\
 **Document Type:** Standard\
-**Version:** 1.1.5\
-**Date:** 2026-08-05\
+**Version:** 1.1.6\
+**Date:** 2026-08-16\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md)\
@@ -47,7 +47,7 @@ To establish consistent, risk-proportionate authentication controls that reduce 
 | Parameter | Requirement |
 | --- | --- |
 | Minimum length | 14 characters for standard accounts; 20 characters for privileged accounts |
-| Complexity | Must include characters from at least 3 of: uppercase, lowercase, numerals, special characters. Passphrases are preferred over complex short passwords. |
+| Complexity | Must include characters from at least 3 of: uppercase, lowercase, numerals, special characters (an organizational requirement beyond NIST SP 800-63B, which does not impose character-composition rules). Passphrases are preferred over complex short passwords. |
 | Prohibited passwords | Banned via enterprise password protection service (common passwords, company name variants, sequential patterns). Dictionary words as sole content are prohibited. |
 | Password reuse | The last 12 passwords must not be reused. |
 | Maximum age | No mandatory periodic expiry per NIST SP 800-63B Rev. 4 §3.1.1 Passwords (the recommendation is not conditioned on MFA presence; Rev. 4 finalized 2025-07 reaffirms this and prohibits arbitrary rotation absent evidence of compromise). Passwords must be changed immediately upon suspected compromise. |
@@ -96,7 +96,7 @@ Exceptions to any requirement in this standard require CISO approval and must be
 
 | Control | NIST SP 800-63B | ISO/IEC 27001:2022 | CSA CCM v4.1 | CIS |
 | --- | --- | --- | --- | --- |
-| Password requirements | SP 800-63B §3.1.1 | A.8.5 | IAM-14 | Control 5 |
+| Password requirements | SP 800-63B §3.1.1 (except the organizational character-composition requirement) | A.8.5 | IAM-14 | Control 5 |
 | MFA | SP 800-63B §2.2 (AAL2) | A.8.5 | IAM-13 | Control 6 |
 | Session management | SP 800-63B §5 | A.8.5 | IAM-09 | Control 5 |
 | Service account auth | N/A | A.8.2 | IAM-02 | Control 5 |
