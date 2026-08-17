@@ -2,8 +2,8 @@
 
 **Document Title:** Healthcare Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.1.8\
-**Date:** 2026-08-14\
+**Version:** 1.1.9\
+**Date:** 2026-08-17\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/healthcare/procedure-hipaa-operational-compliance.md`](procedure-hipaa-operational-compliance.md), [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`compliance/register-compliance-obligations-template.md`](../register-compliance-obligations-template.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`privacy/annex-privacy-jurisdiction-index.md`](../../privacy/annex-privacy-jurisdiction-index.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md)\
@@ -71,7 +71,7 @@ This annex applies where an organization:
 | Regulation | Authority | Scope |
 |---|---|---|
 | **GDPR Article 9** | National DPAs | Processing special category data including health data |
-| **EU AI Act: High Risk (Annex III)** | EU AI Office | AI systems used in healthcare diagnosis, treatment, monitoring |
+| **EU AI Act: High Risk (Article 6(1) + Annex I)** | EU AI Office | AI that is, or is a safety component of, a medical device or IVD (Annex I points 11-12) where that product must undergo third-party conformity assessment (Article 6(1)); emergency call-evaluation, dispatch, and patient-triage AI is separately high-risk under Annex III point 5(d) |
 | **Medical Device Regulation (MDR) 2017/745** | European Commission / national authorities | Medical device manufacturers and importers in EU |
 | **In Vitro Diagnostic Regulation (IVDR) 2017/746** | European Commission | In vitro diagnostic device manufacturers |
 | **EU NIS 2 Directive** | National competent authorities | Healthcare essential entities |
@@ -156,8 +156,8 @@ When the NPRM is finalized, the published Final Rule will take effect 60 days af
 |---|---|---|
 | Notification to affected individuals | Any breach of unsecured PHI | Without unreasonable delay; no later than 60 calendar days |
 | Notification to HHS | Breaches affecting fewer than 500 individuals | Within 60 days of year end |
-| Notification to HHS | Breaches affecting 500+ individuals in a state or jurisdiction | Within 60 days of breach discovery |
-| Notification to prominent media | Breaches affecting 500+ individuals in a state | Without unreasonable delay; within 60 days |
+| Notification to HHS | Breaches affecting 500 or more individuals in total, with no per-state split (45 CFR 164.408(b)) | Contemporaneously with the individual notice, so without unreasonable delay and no later than 60 calendar days after discovery |
+| Notification to prominent media serving the state or jurisdiction | Breaches affecting more than 500 residents of a state or jurisdiction (45 CFR 164.406(a)) | Without unreasonable delay; no later than 60 calendar days after discovery |
 | Business associate breach notification to covered entity | Any breach affecting the covered entity's PHI | Within 60 days of discovery |
 
 **HHS OCR investigation triggers:** Any breach affecting 500+ individuals will be investigated by OCR. Penalties up to US$1.9M per violation category per year.
@@ -233,13 +233,13 @@ Governance processes should document how each Caldicott Principle is applied to 
 |---|---|---|
 | Business Associate Agreement (BAA) template | HIPAA §164.314 | Create BAA template for use with all processors of ePHI |
 | HIPAA risk analysis methodology | HIPAA §164.308(a)(1) | Document HHS OCR-compliant risk analysis approach using core risk methodology |
-| HIPAA breach notification procedure | HIPAA §164.400 to 414 | Create HIPAA-specific breach notification procedure including media notification for 500+ records |
+| HIPAA breach notification procedure | HIPAA §164.400 to 414 | Create HIPAA-specific breach notification procedure including media notification for breaches affecting more than 500 residents of a state or jurisdiction |
 | NHS DSPT annual submission procedure | DSPT | Create DSPT submission procedure and evidence library |
 | Caldicott principle compliance documentation | Caldicott / NDG | Document Caldicott principle application to each processing activity |
 | Medical device SBOM and cybersecurity plan | FDA 2023 Guidance; MDR/IVDR | Supplement SCA standard with device-specific SBOM and patch management obligations |
 | Clinical research data governance | Research ethics frameworks; ICH GCP | Create research data governance procedure |
 | ICD / SNOMED / HL7 FHIR data standards compliance | 21st Century Cures; EHDS | Supplement data architecture standards with health data interoperability requirements |
-| AI in healthcare high-risk classification | EU AI Act Annex III; FDA SaMD guidance | Supplement AI risk methodology with healthcare-specific AI risk considerations |
+| AI in healthcare high-risk classification | EU AI Act Article 6(1) with Annex I points 11-12 (a medical device or IVD requiring third-party conformity assessment) and Annex III point 5(d) (emergency call-evaluation, dispatch, and patient triage); FDA SaMD guidance | Supplement AI risk methodology with healthcare-specific AI risk considerations |
 
 ---
 
