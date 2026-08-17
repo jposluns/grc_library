@@ -68,7 +68,7 @@ dir (``standards``) is accepted for back-compat and resolved to its parent:
 
   1. a path given as the first CLI argument (an explicit path that does not
      resolve is an ERROR, exit 2, never a fallthrough to the defaults),
-  2. the ``GRC_REF_ROOT`` environment variable (same error contract as
+  2. the ``GRC_REF_PATH`` environment variable (same error contract as
      the CLI path: a set-but-nonexistent value exits 2),
   3. ``../grc_library_ref`` relative to this repo (the sibling-checkout case).
 
@@ -83,7 +83,7 @@ present but a required file is missing or unreadable.
 Usage:
     python3 tools/verify-reference-modules.py
     python3 tools/verify-reference-modules.py /path/to/grc_library_ref
-    GRC_REF_ROOT=/path/to/grc_library_ref python3 tools/verify-reference-modules.py
+    GRC_REF_PATH=/path/to/grc_library_ref python3 tools/verify-reference-modules.py
 """
 
 from __future__ import annotations
@@ -140,12 +140,12 @@ def locate_source(argv: list[str]) -> Path | None:
             )
             raise SystemExit(2)
         candidates.append(given)
-    env = os.environ.get("GRC_REF_ROOT")
+    env = os.environ.get("GRC_REF_PATH")
     if env:
         env_path = Path(env)
         if not env_path.is_dir():
             print(
-                f"ERROR: GRC_REF_ROOT is set but is not a directory: {env_path}",
+                f"ERROR: GRC_REF_PATH is set but is not a directory: {env_path}",
                 file=sys.stderr,
             )
             raise SystemExit(2)
@@ -254,7 +254,7 @@ def main(argv: list[str]) -> int:
     if source is None:
         print(
             "SKIP: grc_library_ref base not found (looked at CLI arg, "
-            "GRC_REF_ROOT, ../grc_library_ref). This is a dev-aid, "
+            "GRC_REF_PATH, ../grc_library_ref). This is a dev-aid, "
             "not a gate; absence of the reference base is not an error."
         )
         return 0
