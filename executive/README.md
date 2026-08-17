@@ -28,7 +28,7 @@ How the corpus governs personal and sensitive information across its lifecycle. 
 How the corpus addresses concentration, exit, and assurance over third parties. Supported routes: [What the governing body should require for third-party and AI supply-chain risk oversight](briefs/brief-ai-supply-chain-oversight.md) (Executive Brief). [What happens when a critical AI supplier fails](scenarios/scenario-critical-supplier-outage.md) (Scenario).
 
 ### 6. Compliance and assurance
-How the corpus maps controls to obligations and produces evidence an assurer can test. Supported routes: [How leadership can know, with evidence, whether the controls it relies on are operating](outcome-maps/outcome-map-control-effectiveness.md) (Outcome Map).
+How the corpus maps controls to obligations and produces evidence an assurer can test. Supported routes: [How leadership can know, with evidence, whether the controls it relies on are operating](outcome-maps/outcome-map-control-effectiveness.md) (Outcome Map). [From policy intent to independent assurance: the journey of a privileged-access control](journeys/journey-privileged-access-assurance.md) (Journey).
 
 ### 7. Risk acceptance and exceptions
 How the corpus frames defensible risk acceptance and time-bound exceptions. Supported routes: [What the governing body should require before an AI system goes into production](briefs/brief-ai-production-approval.md) (Executive Brief).
