@@ -2,8 +2,8 @@
 
 **Document Title:** Regulator Interaction Templates\
 **Document Type:** Template\
-**Version:** 1.0.3\
-**Date:** 2026-07-05\
+**Version:** 1.0.4\
+**Date:** 2026-08-17\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/register-compliance-obligations-template.md`](register-compliance-obligations-template.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -59,7 +59,7 @@ Determined by the framework. Common patterns:
 - **GDPR Article 33**: not later than 72 hours after becoming aware.
 - **SEC Form 8-K cybersecurity item**: four business days after determination of materiality.
 - **HIPAA Breach Notification Rule**: 60 days from discovery (Secretary notification thresholds vary).
-- **NIS 2 (EU)**: 24 hours early warning, 72 hours incident notification, one month final report.
+- **NIS 2 (EU)**: 24 hours early warning, 72 hours incident notification, one month final report; where the incident is still ongoing at that point, a progress report then and the final report one month after handling of the incident (Article 23(4)(e)).
 - **DORA (EU financial)**: tiered reporting timelines depending on incident classification.
 
 Determine the applicable timing from the relevant annex or sector folder before drafting.

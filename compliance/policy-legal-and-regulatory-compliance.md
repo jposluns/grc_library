@@ -2,8 +2,8 @@
 
 **Document Title:** Legal and Regulatory Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.17\
-**Date:** 2026-08-16\
+**Version:** 1.0.18\
+**Date:** 2026-08-17\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md)\
@@ -97,7 +97,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer for tr
 
 8.2 Sector-programme incidents (for example, BASC and customs incidents where the organization participates in BASC) must be reported to the sector-conditional role defined by the relevant sector annex within the annex's stated timeframe, with onward notifications to the sector body following the annex's escalation path; see [`compliance/`](./).
 
-8.3 Personal-data breaches must be reported to the relevant supervisory authority within the GDPR period (Article 33: without undue delay and, where feasible, within 72 hours of becoming aware, unless the breach is unlikely to result in a risk to individuals). Significant incidents under NIS 2 follow a separate staged reporting sequence to the CSIRT or competent authority, timed from becoming aware of the incident (Article 23(4)): an early warning within 24 hours, an incident notification with an initial assessment within 72 hours, an intermediate report if the CSIRT or competent authority requests one, and a final report within one month of that notification.
+8.3 Personal-data breaches must be reported to the relevant supervisory authority within the GDPR period (Article 33: without undue delay and, where feasible, within 72 hours of becoming aware, unless the breach is unlikely to result in a risk to individuals). Significant incidents under NIS 2 follow a separate staged reporting sequence to the CSIRT or competent authority, timed from becoming aware of the incident (Article 23(4)): an early warning within 24 hours, an incident notification with an initial assessment within 72 hours, an intermediate report if the CSIRT or competent authority requests one, and a final report within one month of that notification; where the incident is still ongoing when that final report falls due, a progress report at that point and the final report within one month of the entity's handling of the incident (Article 23(4)(e)).
 
 8.4 AI serious incidents or malfunctions must be reported per the EU AI Act serious-incident reporting obligation (Article 73; the deployer duty at Article 26(5)).
 
@@ -145,7 +145,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer for tr
 | BASC v6 (2022) | Trade and Customs Compliance | BASC obligations, Chapter reporting |
 | WCO SAFE Framework (2025 edition) | AEO Security | Customs compliance and AEO obligations |
 | EU GDPR | Arts 33 to 34, Data protection | Breach notification, DPA reporting |
-| EU NIS 2 Directive (Directive (EU) 2022/2555) | Critical infrastructure resilience | Staged significant-incident reporting (Art 23(4): 24h early warning; 72h notification; 1-month final report) |
+| EU NIS 2 Directive (Directive (EU) 2022/2555) | Critical infrastructure resilience | Staged significant-incident reporting (Art 23(4): 24h early warning; 72h notification; 1-month final report, or a progress report then and the final report 1 month after handling where the incident is still ongoing) |
 | EU AI Act (2024) | Art 73 | AI serious incident reporting |
 | Canada PIPEDA; Treasury Board Directive on Automated Decision-Making / Voluntary Code of Conduct on Generative AI (AIDA lapsed) | Privacy and AI compliance | Canadian regulatory obligations |
 | NIST AI RMF 1.0 | Govern function | AI compliance governance |
