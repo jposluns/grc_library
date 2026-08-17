@@ -8769,6 +8769,38 @@ class GeneratorSortKeyParityTests(unittest.TestCase):
         )
 
 
+class WebGeneratorLiteralFigureDetectorTests(unittest.TestCase):
+    """P-1.25.26 / S2: the conservative CalVer-literal detector in .web/build.py.
+
+    Corpus figures must come from generator tokens; a hardcoded CalVer literal
+    (YYYY.MM.NNN) in a template is an unambiguous regression from {{CALVER}}.
+    The detector is deliberately CONSERVATIVE (CalVer only, not bare counts) to
+    stay false-positive-free; this test pins both properties."""
+
+    @classmethod
+    def setUpClass(cls):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "web_build_s2_mod", REPO_ROOT / ".web" / "build.py"
+        )
+        cls.mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.mod)
+
+    def test_real_templates_have_no_hardcoded_calver(self):
+        self.assertEqual(
+            self.mod.hardcoded_calver_literals(), [],
+            "a .web template hardcodes a CalVer literal; use the {{CALVER}} token",
+        )
+
+    def test_regex_matches_calver_but_not_other_numbers(self):
+        rx = self.mod._CALVER_LITERAL_RE
+        self.assertIsNotNone(rx.search("library 2026.08.318 released"))
+        self.assertIsNotNone(rx.search("2026.12.5"))
+        for neg in ["CC BY-SA 4.0", "315 documents", "1080px", "2026-08-17",
+                    "#1234", "17 types", "v1.10.466", "line-height: 1.5"]:
+            self.assertIsNone(rx.search(neg), f"conservative detector false-positived on {neg!r}")
+
+
 class PortalGeneratorCheckTests(unittest.TestCase):
     """tools/build-portal.py (gate 34): --check accepts committed outputs and
     rejects drift in either generated file without mutating the real docs/ tree."""

@@ -847,6 +847,25 @@ def render_site(figures):
     return pages
 
 
+# Conservative literal-figure detector (P-1.25.26 / S2). The CalVer (YYYY.MM.NNN)
+# is the most distinctive corpus figure (it changes every PR), so a hardcoded
+# CalVer literal in a template is an unambiguous regression from the {{CALVER}}
+# token. Bare counts are deliberately NOT flagged (too false-positive-prone for a
+# conservative check; the token-driven render plus the manifest-drift check cover
+# count drift).
+_CALVER_LITERAL_RE = re.compile(r"\b20\d\d\.\d\d\.\d+\b")
+
+
+def hardcoded_calver_literals():
+    """Return ["<relpath>:<lineno>", ...] for hardcoded CalVer literals in templates (empty = clean)."""
+    hits = []
+    for tpl in sorted(TEMPLATES_DIR.rglob("*.html")):
+        for lineno, line in enumerate(tpl.read_text(encoding="utf-8").splitlines(), 1):
+            if _CALVER_LITERAL_RE.search(line):
+                hits.append(f"{tpl.relative_to(REPO_ROOT)}:{lineno}")
+    return hits
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(
         description="Render the grclibrary.ai public site (landing, about, pack, per-domain, and per-type pages) from the live corpus.",
@@ -898,6 +917,18 @@ def main(argv=None):
             print(
                 f"web-generator --check FAIL: {CORPUS_LINK_MANIFEST.relative_to(REPO_ROOT)} "
                 f"is {reason}; regenerate with `python3 .web/build.py`.",
+                file=sys.stderr,
+            )
+            return 1
+        # Conservative literal-figure detector (P-1.25.26 / S2): corpus figures
+        # must come from generator tokens, never be hardcoded in a template.
+        literal_hits = hardcoded_calver_literals()
+        if literal_hits:
+            token = "{{" + "CALVER" + "}}"
+            print(
+                f"web-generator --check FAIL: hardcoded CalVer literal(s) in "
+                f"template(s) (use the {token} token, never a literal): "
+                f"{', '.join(literal_hits)}.",
                 file=sys.stderr,
             )
             return 1
