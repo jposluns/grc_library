@@ -29,6 +29,8 @@ Usage:
     python3 tools/detect-env.py                 # full probe (network included)
     python3 tools/detect-env.py --no-egress     # skip network probes
     python3 tools/detect-env.py --json          # machine-readable profile only
+    python3 tools/detect-env.py --emit-repo-env  # detect grc_* layout, print env + export block
+    python3 tools/detect-env.py --write-repo-env # write <parent>/grc-env.sh for the layout
 
 Stdlib-only Python 3.11.
 """
@@ -36,6 +38,7 @@ Stdlib-only Python 3.11.
 from __future__ import annotations
 
 import argparse
+import shlex
 import json
 import os
 import shutil
@@ -125,6 +128,17 @@ def probe_hooks() -> dict:
     }
 
 
+def _usable_sibling(path: "Path") -> bool:
+    """A sibling repo is usable only if it is a NON-EMPTY directory: an empty
+    ../grc_library_<name> (a partial/failed clone or a bare mkdir stub) is not usable.
+    OSError on stat/iterdir is fail-safe (treated as absent). Shared by probe_siblings
+    and repo_env_map so existence never diverges from usability (deep-assessment N2)."""
+    try:
+        return path.is_dir() and any(path.iterdir())
+    except OSError:
+        return False
+
+
 def probe_siblings() -> dict:
     out = {}
     for name in SIBLINGS:
@@ -133,10 +147,7 @@ def probe_siblings() -> dict:
         # failed clone, or a bare mkdir stub) is not usable, and treating it as present would
         # diverge from the PreToolUse hook and the pre-push guard, which both require non-empty
         # (deep-assessment N2). OSError on a stat/iterdir treats it as absent (fail-safe).
-        try:
-            present = path.is_dir() and any(path.iterdir())
-        except OSError:
-            present = False
+        present = _usable_sibling(path)
         entry: dict = {"readable": present}
         if entry["readable"]:
             rc, _ = run(["git", "-C", str(path), "rev-parse", "HEAD"])
@@ -373,7 +384,8 @@ def probe_egress() -> dict:
 
 
 def _self_test() -> int:
-    """Unit tests for the sibling-availability decision functions."""
+    """Unit tests for the sibling-availability decisions and the repo-env resolution
+    (repo_env_map / repo_env_export_block: relocation, empty-sibling, omission, shell-safety)."""
     import unittest
 
     class T(unittest.TestCase):
@@ -396,10 +408,115 @@ def _self_test() -> int:
             self.assertIn("HALT (LOUD)", ref_availability_decision("maintainer", False))
             self.assertTrue(ref_availability_decision("adopter", False).startswith("ok"))
 
+        def test_repo_env_resolves_siblings(self):
+            import tempfile
+            with tempfile.TemporaryDirectory() as d:
+                base = Path(d)
+                for name in ("grc_library", "grc_library_ref", "grc_library_scratch",
+                             "grc_library_private"):
+                    (base / name).mkdir()
+                    (base / name / ".keep").write_text("x")  # non-empty = usable
+                info = repo_env_map(base / "grc_library")
+                self.assertEqual(info["env"]["GRC_REPO"], str(base / "grc_library"))
+                self.assertEqual(info["env"]["GRC_REF_PATH"], str(base / "grc_library_ref"))
+                self.assertEqual(info["env"]["GRC_SCRATCH_PATH"], str(base / "grc_library_scratch"))
+                self.assertEqual(info["env"]["GRC_PRIVATE_PATH"], str(base / "grc_library_private"))
+                self.assertEqual(info["missing"], [])
+
+        def test_repo_env_relocates_with_parent(self):
+            import tempfile
+            with tempfile.TemporaryDirectory() as d:
+                base = Path(d) / "opt" / "grc"
+                base.mkdir(parents=True)
+                for name in ("grc_library", "grc_library_ref"):
+                    (base / name).mkdir()
+                    (base / name / ".keep").write_text("x")
+                info = repo_env_map(base / "grc_library")
+                # env follows the parent, no hardcoded /home/grc
+                self.assertTrue(info["env"]["GRC_REF_PATH"].startswith(str(base)))
+                self.assertNotIn("/home/grc", info["env"]["GRC_REPO"])
+
+        def test_repo_env_omits_absent_sibling(self):
+            import tempfile
+            with tempfile.TemporaryDirectory() as d:
+                base = Path(d)
+                (base / "grc_library").mkdir()
+                (base / "grc_library" / ".keep").write_text("x")
+                info = repo_env_map(base / "grc_library")
+                self.assertNotIn("GRC_REF_PATH", info["env"])
+                self.assertNotIn("GRC_SCRATCH_PATH", info["env"])
+                self.assertNotIn("GRC_PRIVATE_PATH", info["env"])
+                self.assertIn("GRC_REPO", info["env"])
+
+        def test_empty_sibling_treated_as_absent(self):
+            import tempfile
+            with tempfile.TemporaryDirectory() as d:
+                base = Path(d)
+                (base / "grc_library").mkdir()
+                (base / "grc_library" / ".keep").write_text("x")
+                (base / "grc_library_ref").mkdir()  # EMPTY = bare mkdir / failed clone
+                info = repo_env_map(base / "grc_library")
+                self.assertNotIn("GRC_REF_PATH", info["env"])
+                self.assertIn("grc_library_ref", info["missing"])
+
+        def test_export_block_is_shell_safe(self):
+            import shlex as _shlex
+            evil = "/tmp/$(printf PWNED)/grc_library"
+            block = repo_env_export_block({"GRC_REPO": evil})
+            # the value must be shell-quoted so sourcing yields the literal path, not an expansion
+            self.assertIn("export GRC_REPO=" + _shlex.quote(evil), block)
+            # the raw unquoted metacharacter form must NOT appear
+            self.assertNotIn("export GRC_REPO=" + evil + "\n", block)
+
     result = unittest.TextTestRunner(verbosity=2).run(
         unittest.TestLoader().loadTestsFromTestCase(T)
     )
     return 0 if result.wasSuccessful() else 1
+
+
+# --- Repo-structure env resolution (the /resume structure-detection step; maintainer-directed
+# 2026-08-17). The grc_* repos are siblings under ONE parent (the model for all VMs:
+# /opt/<project>/grc_*, e.g. /opt/grc; historically /home/grc). Seven tools read GRC_REPO /
+# GRC_REF_PATH / GRC_SCRATCH_PATH, so setting these to the DETECTED layout makes a
+# repo-root relocation need no file edits. The worker-exchange root (GRC_WORKING / GRC_DROP_ROOT)
+# is deliberately NOT set here: it belongs to the worker-pool setup (lab_infra), not repo structure.
+def repo_env_map(root: "Path") -> dict:
+    """Pure: given the grc_library root, resolve the sibling grc_* repos under its parent and
+    return {parent, env, structure, missing}. Takes root explicitly so it is unit-testable."""
+    root = Path(root).resolve()
+    parent = root.parent
+    ref = parent / "grc_library_ref"
+    scratch = parent / "grc_library_scratch"
+    private = parent / "grc_library_private"
+    env = {"GRC_REPO": str(root)}
+    if _usable_sibling(ref):
+        env["GRC_REF_PATH"] = str(ref)
+    if _usable_sibling(scratch):
+        env["GRC_SCRATCH_PATH"] = str(scratch)
+    # GRC_PRIVATE_PATH: emitted for consistency + future tools. NO current tool/hook reads it;
+    # _private is resolved independently by the hooks deriving CLAUDE_PROJECT_DIR.parent /
+    # grc_library_private (that derivation stays authoritative). Included so grc-env.sh is the
+    # single canonical repo-location declaration.
+    if _usable_sibling(private):
+        env["GRC_PRIVATE_PATH"] = str(private)
+    structure = {"grc_library": {"path": str(root), "present": _usable_sibling(root)}}
+    for name, p in (("grc_library_ref", ref), ("grc_library_scratch", scratch),
+                    ("grc_library_private", private)):
+        structure[name] = {"path": str(p), "present": _usable_sibling(p)}
+    missing = [n for n in ("grc_library_ref", "grc_library_scratch", "grc_library_private")
+               if not structure[n]["present"]]
+    return {"parent": str(parent), "env": env, "structure": structure, "missing": missing}
+
+
+def repo_env_export_block(env: dict) -> str:
+    """Shell-sourceable export block (stable key order), for `<parent>/grc-env.sh`."""
+    lines = ["# grc_* repo env (generated by detect-env.py --write-repo-env).",
+             "# Source this from the grc user profile so every shell/tool call has the repo paths.",
+             "# The worker-exchange root is set separately by the worker-pool setup, not here."]
+    for k in ("GRC_REPO", "GRC_REF_PATH", "GRC_SCRATCH_PATH", "GRC_PRIVATE_PATH"):
+        if k in env:
+            lines.append(f"export {k}={shlex.quote(env[k])}")
+    return "\n".join(lines) + "\n"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -409,10 +526,33 @@ def main(argv: list[str] | None = None) -> int:
                     help="Print the machine-readable profile only.")
     ap.add_argument("--self-test", action="store_true",
                     help="Run the availability-decision unit tests and exit.")
+    ap.add_argument("--emit-repo-env", action="store_true",
+                    help="Detect the grc_* repo layout and print {parent, env, structure, "
+                         "missing} as JSON plus the shell export block; the /resume "
+                         "structure-detection step.")
+    ap.add_argument("--write-repo-env", nargs="?", const="", metavar="PATH",
+                    help="Write the export block to PATH (default <parent>/grc-env.sh) and "
+                         "print the one-line profile-source instruction.")
     args = ap.parse_args(argv)
 
     if args.self_test:
         return _self_test()
+
+    if args.emit_repo_env or args.write_repo_env is not None:
+        info = repo_env_map(REPO_ROOT)
+        block = repo_env_export_block(info["env"])
+        if args.write_repo_env is not None:
+            dest = Path(args.write_repo_env) if args.write_repo_env else (Path(info["parent"]) / "grc-env.sh")
+            dest.write_text(block, encoding="utf-8")
+            print(f"wrote repo env -> {dest}")
+            print(f"add to the grc user profile so every shell has it:  source {dest}")
+        else:
+            print(json.dumps({k: info[k] for k in ("parent", "env", "structure", "missing")}, indent=2))
+            print("\n# shell export block:\n" + block, end="")
+        if info["missing"]:
+            print(f"# NOTE: missing sibling(s): {', '.join(info['missing'])} "
+                  f"(GRC_* for absent repos are omitted)", file=sys.stderr)
+        return 0
 
     try:
         profile: dict = {
