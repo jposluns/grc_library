@@ -2,7 +2,7 @@
 
 **Document Title:** Healthcare Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.1.9\
+**Version:** 1.1.10\
 **Date:** 2026-08-17\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -71,7 +71,7 @@ This annex applies where an organization:
 | Regulation | Authority | Scope |
 |---|---|---|
 | **GDPR Article 9** | National DPAs | Processing special category data including health data |
-| **EU AI Act: High Risk (Article 6(1) + Annex I)** | EU AI Office | AI that is, or is a safety component of, a medical device or IVD (Annex I points 11-12) where that product must undergo third-party conformity assessment (Article 6(1)); emergency call-evaluation, dispatch, and patient-triage AI is separately high-risk under Annex III point 5(d) |
+| **EU AI Act: High Risk (Article 6(1) + Annex I)** | National competent / market-surveillance authorities (Article 70; for the Section A Annex I medical-device route, the authority designated under the MDR/IVDR, or, in appropriate circumstances and with sectoral coordination, another authority a Member State designates (Article 74(3)); an Annex III point 5(d) system built on a general-purpose AI model by the same provider instead falls under the AI Office's Article 75(1) exclusive competence) | AI that is, or is a safety component of, a medical device or IVD (Annex I points 11-12) where that product must undergo third-party conformity assessment (Article 6(1)); AI used solely for non-safety-related aspects such as performance optimization, service efficiency, or quality control is not a safety component (Article 6(1a)), though AI whose failure or malfunctioning would endanger health and safety is (Article 6(1b)), as inserted by Regulation (EU) 2026/1744; emergency call-evaluation, dispatch, and patient-triage AI is separately listed under Annex III point 5(d), where a qualifying system may still be assessed as non-high-risk under Article 6(3) but is always high-risk where it profiles |
 | **Medical Device Regulation (MDR) 2017/745** | European Commission / national authorities | Medical device manufacturers and importers in EU |
 | **In Vitro Diagnostic Regulation (IVDR) 2017/746** | European Commission | In vitro diagnostic device manufacturers |
 | **EU NIS 2 Directive** | National competent authorities | Healthcare essential entities |
@@ -239,7 +239,7 @@ Governance processes should document how each Caldicott Principle is applied to 
 | Medical device SBOM and cybersecurity plan | FDA 2023 Guidance; MDR/IVDR | Supplement SCA standard with device-specific SBOM and patch management obligations |
 | Clinical research data governance | Research ethics frameworks; ICH GCP | Create research data governance procedure |
 | ICD / SNOMED / HL7 FHIR data standards compliance | 21st Century Cures; EHDS | Supplement data architecture standards with health data interoperability requirements |
-| AI in healthcare high-risk classification | EU AI Act Article 6(1) with Annex I points 11-12 (a medical device or IVD requiring third-party conformity assessment) and Annex III point 5(d) (emergency call-evaluation, dispatch, and patient triage); FDA SaMD guidance | Supplement AI risk methodology with healthcare-specific AI risk considerations |
+| AI in healthcare high-risk classification | EU AI Act Article 6(1) with Annex I points 11-12 (a medical device or IVD requiring third-party conformity assessment; AI used solely for non-safety-related aspects is not a safety component (Article 6(1a)), though AI whose failure or malfunctioning would endanger health and safety is (Article 6(1b)), inserted by Regulation (EU) 2026/1744) and Annex III point 5(d) (emergency call-evaluation, dispatch, and patient triage, where a qualifying system may still be assessed as non-high-risk under Article 6(3) but is always high-risk where it profiles); FDA SaMD guidance | Supplement AI risk methodology with healthcare-specific AI risk considerations |
 
 ---
 
