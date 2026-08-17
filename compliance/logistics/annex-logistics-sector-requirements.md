@@ -2,7 +2,7 @@
 
 **Document Title:** Logistics Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.13\
+**Version:** 1.0.14\
 **Date:** 2026-08-17\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -81,7 +81,7 @@ This annex applies where an organization:
 | **EASA AMC 20-42: Aviation Cybersecurity** | EASA | Aviation organizations; airspace users |
 | **EU Maritime Security (Regulation 725/2004)** | EMSA / national authorities | Ships; port facilities |
 | **ITS Regulation 2021/575** | European Commission | Intelligent transport systems |
-| **EU AI Act (High Risk: Annex III point 2)** | EU AI Office | AI used as a safety component in the management and operation of critical digital infrastructure, road traffic, or the supply of water, gas, heating, or electricity (Annex III point 2; road traffic is the logistics-relevant use); a qualifying Annex III system may still be assessed as non-high-risk under Article 6(3) |
+| **EU AI Act (High Risk: Annex III point 2)** | National competent / market-surveillance authorities (Article 70; Annex III point 2 is excepted from the AI Office's Article 75(1)(a) exclusive competence) | AI used as a safety component in the management and operation of critical digital infrastructure, road traffic, or the supply of water, gas, heating, or electricity (Annex III point 2; road traffic is the logistics-relevant use); a qualifying Annex III system may still be assessed as non-high-risk under Article 6(3) |
 | **AEO (EU UCC Art 38)** | National customs authorities | Customs operators |
 
 ### Global / international
