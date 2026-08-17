@@ -185,6 +185,10 @@ _TITLE_RE = re.compile(r'^  title:\s*"(.*)"\s*$')
 _CALVER_RE = re.compile(r"^\*\*Library Version:\*\*\s+([0-9]{4}\.[0-9]{2}\.[0-9]+)", re.M)
 _PLACEHOLDER_RE = re.compile(r"\{\{([A-Z0-9_]+)\}\}")
 _MD_LINK_RE = re.compile(r"\[([^\]]+)\]\([^)]*\)")
+# Matches an href value which begins at the site root. The pattern is built in
+# two pieces so this source line is not itself a false positive when the
+# check scans the generator source below.
+_ROOT_HREF_RE = re.compile(r'(?i)href' + r'\s*=\s*["\']/')
 
 # Per-domain pages link each document out to its source on GitHub (the corpus
 # lives there; the site does not recreate rendered document content), and carry a
@@ -467,7 +471,7 @@ def render_domain_rows(figures):
         scope = _esc(DOMAIN_SCOPE[domain])
         rows.append(
             f'            <tr><td class="rg-idx tnum">{idx:02d}</td>'
-            f'<td class="rg-name"><a href="/{_esc(domain)}/">{_esc(domain)}</a></td>'
+            f'<td class="rg-name"><a href="{{{{BASE}}}}/{_esc(domain)}/">{_esc(domain)}</a></td>'
             f'<td class="rg-scope">{scope}</td>'
             f'<td class="rg-count"><span class="bar-wrap">'
             f'<span class="bar" style="width:{pct}%"></span>'
@@ -482,7 +486,7 @@ def render_sidenav_domains(figures):
     (``class="sub"``) nested under the "By domain" section link, so the nav is a
     two-level quick-nav rather than a separate flat Domains group (#941)."""
     return "\n".join(
-        f'      <a class="sub" href="/{_esc(domain)}/">{_esc(domain)}</a>'
+        f'      <a class="sub" href="{{{{BASE}}}}/{_esc(domain)}/">{_esc(domain)}</a>'
         for domain, _ in figures["domains"]
     )
 
@@ -494,7 +498,7 @@ def render_type_chips(figures):
     for type_name, count in figures["types"]:
         slug = type_slug(type_name)
         chips.append(
-            f'          <a class="type-chip" href="/types/{slug}/">'
+            f'          <a class="type-chip" href="{{{{BASE}}}}/types/{slug}/">'
             f'<span class="tn">{count}</span>'
             f'<span class="tk">{_esc(type_name)}</span></a>'
         )
@@ -599,6 +603,7 @@ def figure_values(figures):
         "DOMAIN_COUNT": str(figures["domain_count"]),
         "DOMAIN_DOC_TOTAL": str(figures["domain_docs"]),
         "ROOT_COUNT": str(figures["root_count"]),
+        "BASE": "",
         "DOMAIN_ROWS": render_domain_rows(figures),
         "TYPE_CHIPS": render_type_chips(figures),
         "SIDENAV_DOMAINS": render_sidenav_domains(figures),
@@ -866,6 +871,23 @@ def hardcoded_calver_literals():
     return hits
 
 
+def bare_root_relative_hrefs():
+    """Return source locations of root-relative hrefs missing the BASE token.
+
+    Templates and the generator's emitted-link expressions are both scanned:
+    either source can otherwise reintroduce a link that escapes a future site
+    prefix. A BASE-prefixed value begins with the token rather than a slash and
+    therefore cannot match _ROOT_HREF_RE.
+    """
+    hits = []
+    sources = sorted(TEMPLATES_DIR.rglob("*.html")) + [Path(__file__)]
+    for source in sources:
+        for lineno, line in enumerate(source.read_text(encoding="utf-8").splitlines(), 1):
+            if _ROOT_HREF_RE.search(line):
+                hits.append(f"{source.relative_to(REPO_ROOT)}:{lineno}")
+    return hits
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(
         description="Render the grclibrary.ai public site (landing, about, pack, per-domain, and per-type pages) from the live corpus.",
@@ -929,6 +951,15 @@ def main(argv=None):
                 f"web-generator --check FAIL: hardcoded CalVer literal(s) in "
                 f"template(s) (use the {token} token, never a literal): "
                 f"{', '.join(literal_hits)}.",
+                file=sys.stderr,
+            )
+            return 1
+        root_href_hits = bare_root_relative_hrefs()
+        if root_href_hits:
+            token = "{{" + "BASE" + "}}"
+            print(
+                f"web-generator --check FAIL: root-relative href(s) missing "
+                f"the {token} prefix: {', '.join(root_href_hits)}.",
                 file=sys.stderr,
             )
             return 1

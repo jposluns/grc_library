@@ -8801,6 +8801,138 @@ class WebGeneratorLiteralFigureDetectorTests(unittest.TestCase):
             self.assertIsNone(rx.search(neg), f"conservative detector false-positived on {neg!r}")
 
 
+class WebGeneratorBaseTokenTests(unittest.TestCase):
+    """S4: site-root links render through {{BASE}} without changing root output."""
+
+    @classmethod
+    def setUpClass(cls):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "web_build_s4_mod", REPO_ROOT / ".web" / "build.py"
+        )
+        cls.mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.mod)
+
+    @staticmethod
+    def _write_site(pages, out_dir):
+        for rel, text in pages:
+            path = out_dir / rel
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(text, encoding="utf-8")
+
+    def _render_with_base(self, figures, base):
+        original_figure_values = self.mod.figure_values
+
+        def figure_values_with_base(current_figures):
+            values = original_figure_values(current_figures)
+            values["BASE"] = base
+            return values
+
+        self.mod.figure_values = figure_values_with_base
+        try:
+            return self.mod.render_site(figures)
+        finally:
+            self.mod.figure_values = original_figure_values
+
+    def test_base_empty_render_stable_and_targets_bare(self):
+        """Forward regression guard for BASE='' rendering.
+
+        Asserts (a) the BASE='' render equals the same templates and generated
+        values with the {{BASE}} token stripped (so BASE='' can never expand to
+        anything but empty, and no {{BASE}} can leak), and (b) the real site-root
+        targets render as bare /paths, an independent check that the conversion
+        keeps root output unprefixed. This is a forward invariant, NOT a proof of
+        byte-identity against the pre-S4 tree: that was established out-of-band by
+        an independent two-revision rebuild diff at apply time and in validation.
+        """
+        figures = self.mod.compute_figures()
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            baseline = tmp_path / "baseline"
+            after = tmp_path / "after"
+            legacy_templates = tmp_path / "legacy-templates"
+            shutil.copytree(self.mod.TEMPLATES_DIR, legacy_templates)
+            for template in legacy_templates.rglob("*.html"):
+                template.write_text(
+                    template.read_text(encoding="utf-8").replace("{{BASE}}", ""),
+                    encoding="utf-8",
+                )
+
+            original_templates = self.mod.TEMPLATES_DIR
+            original_partials = self.mod.PARTIALS_DIR
+            original_figure_values = self.mod.figure_values
+
+            def legacy_figure_values(current_figures):
+                values = original_figure_values(current_figures)
+                values = {
+                    key: value.replace("{{BASE}}", "") if isinstance(value, str) else value
+                    for key, value in values.items()
+                }
+                values.pop("BASE")
+                return values
+
+            try:
+                self.mod.TEMPLATES_DIR = legacy_templates
+                self.mod.PARTIALS_DIR = legacy_templates / "partials"
+                self.mod.figure_values = legacy_figure_values
+                self._write_site(self.mod.render_site(figures), baseline)
+            finally:
+                self.mod.TEMPLATES_DIR = original_templates
+                self.mod.PARTIALS_DIR = original_partials
+                self.mod.figure_values = original_figure_values
+
+            self._write_site(self.mod.render_site(figures), after)
+            baseline_files = sorted(p.relative_to(baseline) for p in baseline.rglob("*") if p.is_file())
+            after_files = sorted(p.relative_to(after) for p in after.rglob("*") if p.is_file())
+            self.assertEqual(baseline_files, after_files)
+            for rel in baseline_files:
+                self.assertEqual(
+                    (baseline / rel).read_bytes(),
+                    (after / rel).read_bytes(),
+                    f"BASE='' changed {rel}",
+                )
+
+            # Independent invariant (not self-referential): at BASE='' the real
+            # site-root targets render as bare /paths, never /v2-prefixed, no leak.
+            landing = (after / "index.html").read_text(encoding="utf-8")
+            for href in [
+                'href="/"',
+                'href="/#what"',
+                'href="/pack"',
+                'href="/privacy/"',
+                'href="/types/standard/"',
+            ]:
+                self.assertIn(href, landing)
+            self.assertNotIn("{{BASE}}", landing)
+            self.assertNotIn('href="/v2/', landing)
+
+    def test_base_v2_prefixes_template_and_generated_hrefs(self):
+        figures = self.mod.compute_figures()
+        landing = dict(self._render_with_base(figures, "/v2"))["index.html"]
+        for href in [
+            'href="/v2/"',
+            'href="/v2/#what"',
+            'href="/v2/pack"',
+            'href="/v2/privacy/"',
+            'href="/v2/types/standard/"',
+        ]:
+            self.assertIn(href, landing)
+        self.assertNotIn('href="/privacy/"', landing)
+        self.assertNotIn('href="/types/standard/"', landing)
+        self.assertNotIn("{{BASE}}", landing)
+
+    def test_root_href_guard_is_clean_and_discriminating(self):
+        self.assertEqual(self.mod.bare_root_relative_hrefs(), [])
+        self.assertIsNotNone(self.mod._ROOT_HREF_RE.search('href="/future"'))
+        self.assertIsNone(self.mod._ROOT_HREF_RE.search('href="{{BASE}}/future"'))
+        # Bypass forms the stricter regex must now catch (vpr-1620 cross-family: codex MED-1 == claude NIT-2).
+        self.assertIsNotNone(self.mod._ROOT_HREF_RE.search("href='/future'"))
+        self.assertIsNotNone(self.mod._ROOT_HREF_RE.search('href = "/future"'))
+        self.assertIsNotNone(self.mod._ROOT_HREF_RE.search('HREF="/future"'))
+        # ...while a BASE-prefixed value stays clean regardless of quote style.
+        self.assertIsNone(self.mod._ROOT_HREF_RE.search("href='{{BASE}}/future'"))
+
+
 class PortalGeneratorCheckTests(unittest.TestCase):
     """tools/build-portal.py (gate 34): --check accepts committed outputs and
     rejects drift in either generated file without mutating the real docs/ tree."""
