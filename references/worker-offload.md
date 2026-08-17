@@ -19,7 +19,7 @@ rule (maintainer-directed 2026-07-19, expanded to six points 2026-07-26):
    stated reason (a genuine exec-dispatch failure from an actual attempt AND the maintainer alerted).
 2. **Spawn workers ON DEMAND with [`tools/exec-dispatch.py`](../tools/exec-dispatch.py); do NOT gate
    offload on `list-workers`.** The exec'd-worker system spawns a FRESH worker per order:
-   `python3 tools/exec-dispatch.py --dispatch --family {claude|codex} --model <m> --effort <e>
+   `python3 tools/exec-dispatch.py --dispatch --family {claude|codex|gemini} --model <m> --effort <e>
    --account <acct> --order-id <id> --prompt-file <path>` (the prompt file MUST live under
    the job directory named in the `_private` worker-accounts config (`wrapper.job_dir`); the account pool and dispatch policy live in the `_private`
    worker-accounts config; parallelism is DISTINCT accounts, one purpose per account, until the
@@ -35,12 +35,14 @@ rule (maintainer-directed 2026-07-19, expanded to six points 2026-07-26):
 3. **20-minute reissue.** If a worker has not delivered in 20 minutes, issue the SAME order to another
    worker (a distinct account) and take whichever returns first; the late delivery is read as a
    cross-reference, never re-adjudicated.
-4. **Super-sensitive tasks get BOTH a Codex and a Claude worker.** Give the identical order to one of
-   each family and assess the two deliveries together: different models surface different
-   perspectives, so the dual read is how nothing is missed. Reconcile them; a finding in only one is
-   triaged on its own merits. This is the HEAVIER form of the permanent triple-family QA standard,
-   which applies to EVERY QA pass (BOTH halves as exec-dispatch workers, one per family; the Claude half
-   is a claude-family exec-dispatch worker, NEVER the in-session Agent tool, per `block-orchestrator-self-qa.py`).
+4. **Every QA pass gets one worker per available family (claude, codex, and gemini).** Give the identical
+   order to one worker of each family and assess the deliveries together: different models surface
+   different perspectives, so the cross-family read is how nothing is missed. Reconcile them; a finding
+   in only one family's delivery is triaged on its own merits. This is the operational form of the
+   permanent triple-family QA standard, which applies to EVERY QA pass (each half an exec-dispatch
+   worker, one per family; the Claude half is a claude-family exec-dispatch worker, NEVER the in-session
+   Agent tool, per `block-orchestrator-self-qa.py`). On token or tooling unavailability the panel drops
+   to the families that can run (triple to dual to single), never a discretionary downgrade.
 5. **Keep dispatched workers busy: one on QA, the rest pre-loading the next ~10 items.** Never let an
    available account sit idle. Reserve one worker for the QA cadence (`/validate-pr`, `verify`,
    sweeps) and keep the others producing research and draft candidates for the upcoming queue, so the
