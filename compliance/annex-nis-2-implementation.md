@@ -2,8 +2,8 @@
 
 **Document Title:** NIS 2 Implementation Annex\
 **Document Type:** Annex\
-**Version:** 1.2.2\
-**Date:** 2026-07-30\
+**Version:** 1.2.3\
+**Date:** 2026-08-17\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](matrix-grc-compliance-alignment.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md)\
@@ -86,9 +86,10 @@ NIS 2 mandates a tiered incident-notification regime to the competent authority 
 | Phase | Window | Content |
 | --- | --- | --- |
 | Early warning | Within 24 hours of awareness of a significant incident | Indication of whether the incident is suspected to be caused by unlawful or malicious acts and whether it could have cross-border impact |
-| Incident notification | Within 72 hours of awareness | Initial assessment of severity, impact, indicators of compromise where available |
+| Incident notification | Within 72 hours of awareness; by derogation, without undue delay and in any event within 24 hours of awareness for a trust service provider, for significant incidents that have an impact on the provision of its trust services (Article 23(4), second subparagraph) | Initial assessment of severity, impact, indicators of compromise where available |
 | Intermediate report | Upon request of the competent authority or CSIRT | Update on the situation |
 | Final report | Within one month of submitting the incident notification | Detailed description, type of threat or root cause, applied and ongoing mitigation, where applicable cross-border impact |
+| Progress report, then deferred final report (Article 23(4)(e)) | Where the incident is still ongoing when the final report falls due: a progress report at that point, and the final report within one month of the entity's handling of the incident | Progress report on the state of the incident; the final report then carries the Article 23(4)(d) content above |
 
 Significance threshold (Article 23(3)): the incident has caused or is capable of causing severe operational disruption of the services or financial loss for the entity concerned; the incident has affected or is capable of affecting other natural or legal persons by causing considerable material or non-material damage. For the entity types within its scope, Commission Implementing Regulation (EU) 2024/2690 (adopted under Article 23(11)) specifies the concrete significant-incident parameters, so for those entities the directive's general criterion above is not the only rule.
 
