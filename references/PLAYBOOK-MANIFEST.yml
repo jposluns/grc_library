@@ -62,7 +62,7 @@
   relocated_anchors:
     - "exec-dispatch.py --dispatch --family"
     - "issue the SAME order to another"
-    - "Super-sensitive tasks get BOTH a Codex and a Claude worker"
+    - "Every QA pass gets one worker per available family"
     - "WORKERS ARE ELASTIC"
     - "credit-offload-design.md"
 

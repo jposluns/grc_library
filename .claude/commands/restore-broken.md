@@ -112,7 +112,7 @@ The maintainer, in the SAME conversation (re-opened in a durable
 tmux if the recovering session was not in one), sends `/resume`. Resuming in the same session is
 deliberately stronger than a fresh one: it keeps the context the recovery built AND rebuilds state from
 the now-clean `main`. The resume runs its lease step-0, verifies the handoff snapshot against live files
-**for real, never shortcutting from memory just because "I remember"**, and runs the corpus-wide `/validate` (exec-dispatched as a dual-family pair, a fresh-context whole-corpus drift-catch in its own right and the compensating control where the recovery's closing change took the narrow fallback skip), cross-checking
+**for real, never shortcutting from memory just because "I remember"**, and runs the corpus-wide `/validate` (exec-dispatched as a triple-family panel, a fresh-context whole-corpus drift-catch in its own right and the compensating control where the recovery's closing change took the narrow fallback skip), cross-checking
 the recovery's asserted-clean claims. A contradiction of an asserted-clean surface is a genuine recovery
 miss to escalate; ordinary findings route to the backlog. Then continue the deferred queue.
 

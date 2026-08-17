@@ -247,7 +247,7 @@ def _block_message(dispatch_text: str) -> str:
         "\n"
         "  Exec-dispatch a worker instead:\n"
         "    python3 /home/grc/grc_library/tools/exec-dispatch.py --dispatch \\\n"
-        "        --family {claude|codex} --model <model> "
+        "        --family {claude|codex|gemini} --model <model> "
         "--effort <low|medium|high|xhigh> \\\n"
         "        --account <account> --order-id <id> --prompt-file <path>\n"
         "  (for a skeptical verifier, add --not-worker <authoring-worker-id> or "
