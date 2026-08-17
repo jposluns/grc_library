@@ -234,8 +234,8 @@ pages:
   title: "From AI idea to retirement: the governed life of an AI system"
   narrative_type: "Journey"
   narrative_status: "Explanatory"
-  version: "0.0.2"
-  date: "2026-08-16"
+  version: "0.0.3"
+  date: "2026-08-17"
   corpus_sources:
     - "ai/guide-ai-board-oversight.md"
     - "ai/framework-ai-governance-and-risk.md"
