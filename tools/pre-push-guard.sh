@@ -12,6 +12,7 @@
 #
 #   1. tools/run_all_audits.sh      - all corpus gates, from HEAD.
 #   2. tools/run-pr-time-checks.sh  - the PR-only delta gates (D1-D12, D6 retired) plus
+#   3. .web/build.py --check         - web-generator health (parse + render, no write);
 #                                     the history-aware trio (gates 45/40/31)
 #                                     against the merge base.
 #
@@ -102,7 +103,7 @@ git fetch origin --quiet 2>/dev/null || true
 # the original `if ! cmd; then rc=$?` form exited 0 on a failing runner and
 # let `&& git push` proceed. set -u is on, set -e is NOT, so a non-zero rc
 # does not abort the script before we handle it.)
-echo "=== pre-push guard 1/2: run_all_audits.sh (corpus gates, from HEAD) ==="
+echo "=== pre-push guard 1/3: run_all_audits.sh (corpus gates, from HEAD) ==="
 tools/run_all_audits.sh
 rc=$?
 if [ "${rc}" -ne 0 ]; then
@@ -112,7 +113,7 @@ if [ "${rc}" -ne 0 ]; then
 fi
 
 echo ""
-echo "=== pre-push guard 2/2: run-pr-time-checks.sh (delta + history-aware gates) ==="
+echo "=== pre-push guard 2/3: run-pr-time-checks.sh (delta + history-aware gates) ==="
 tools/run-pr-time-checks.sh
 rc=$?
 if [ "${rc}" -ne 0 ]; then
@@ -121,6 +122,21 @@ if [ "${rc}" -ne 0 ]; then
     exit "${rc}"
 fi
 
+if [ -f .web/build.py ]; then
+    echo ""
+    echo "=== pre-push guard 3/3: .web/build.py --check (web-generator health, from HEAD) ==="
+    python3 .web/build.py --check
+    rc=$?
+    if [ "${rc}" -ne 0 ]; then
+        echo ""
+        echo "pre-push guard FAILED at .web/build.py --check (rc=${rc}). Fix the generator or templates; do not push."
+        exit "${rc}"
+    fi
+else
+    echo ""
+    echo "=== pre-push guard 3/3: .web/build.py --check SKIPPED (.web/build.py absent; not applicable here) ==="
+fi
+
 echo ""
-echo "=== pre-push guard PASS: both runners green. Safe to push. ==="
+echo "=== pre-push guard PASS: all checks green. Safe to push. ==="
 exit 0
