@@ -88,8 +88,7 @@ VARIANTS = (Variant("v1", "templates", "", indexable=True),)
 
 # Shared chrome injected into every page from a single source, so the pages
 # cannot drift. Placeholder name -> partial filename under a variant's template
-# tree. A
-# partial may itself carry figure placeholders (CALVER in the topbar,
+# tree. A partial may itself carry figure placeholders (CALVER in the topbar,
 # DOC_TOTAL / DOMAIN_COUNT in the footer), resolved in render_page()'s 2nd pass.
 PARTIALS = {
     "HEAD_STYLE": "head-style.html",

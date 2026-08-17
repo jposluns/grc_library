@@ -8948,8 +8948,15 @@ class WebGeneratorVariantTableTests(unittest.TestCase):
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(text, encoding="utf-8")
 
-    def test_variant_table_matches_reconstructed_single_tree(self):
-        """The single table row emits the pre-table one-tree output exactly."""
+    def test_variant_table_render_matches_direct_helper_composition(self):
+        """Orchestration invariant: render_site()'s table-driven output for the
+        single v1 row equals composing the helpers directly (render_variant plus
+        the crawler helpers). This guards the refactor's wiring, it is NOT a
+        byte-identity proof against the pre-S5 tree: both sides use the refactored
+        helpers, so it cannot catch a shared-helper regression. True byte-identity
+        vs 4232e8ca was established out-of-band by an independent two-revision
+        rebuild diff (at apply time and in validation).
+        """
         figures = self.mod.compute_figures()
         v1 = self.mod.VARIANTS[0]
         with tempfile.TemporaryDirectory() as tmp:
@@ -8993,6 +9000,8 @@ class WebGeneratorVariantTableTests(unittest.TestCase):
                 self.mod.Variant("v2", "templates", "/v2", indexable=True),
             ),
             (self.mod.Variant("v2", "templates", "/v2", indexable=True),),
+            # zero indexable: "exactly one" also rejects none (vpr-1621 NIT1).
+            (self.mod.Variant("v1", "templates", "", indexable=False),),
         )
         try:
             for variants in invalid_tables:
@@ -9000,6 +9009,10 @@ class WebGeneratorVariantTableTests(unittest.TestCase):
                     self.mod.VARIANTS = variants
                     with self.assertRaises(self.mod.BuildError):
                         self.mod.render_site(figures)
+            # The invariant is reachable from the CLI health check: an invalid
+            # table makes --check fail (return 1), not pass (vpr-1621 NIT1).
+            self.mod.VARIANTS = invalid_tables[0]
+            self.assertEqual(self.mod.main(["--check"]), 1)
         finally:
             self.mod.VARIANTS = original
 
