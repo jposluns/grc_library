@@ -204,8 +204,8 @@ pages:
   title: "Choosing between human review, human oversight, and autonomous authority for AI-assisted work"
   narrative_type: "Decision Narrative"
   narrative_status: "Advisory"
-  version: "0.0.2"
-  date: "2026-08-16"
+  version: "0.0.3"
+  date: "2026-08-17"
   corpus_sources:
     - "ai/standard-ai-security-and-risk.md"
     - "ai/standard-ai-model-risk.md"
