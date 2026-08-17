@@ -188,7 +188,7 @@ _MD_LINK_RE = re.compile(r"\[([^\]]+)\]\([^)]*\)")
 # Matches an href value which begins at the site root. The pattern is built in
 # two pieces so this source line is not itself a false positive when the
 # check scans the generator source below.
-_ROOT_HREF_RE = re.compile(r'href="' + r'/[^"]*"')
+_ROOT_HREF_RE = re.compile(r'(?i)href' + r'\s*=\s*["\']/')
 
 # Per-domain pages link each document out to its source on GitHub (the corpus
 # lives there; the site does not recreate rendered document content), and carry a

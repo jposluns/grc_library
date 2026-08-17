@@ -8834,8 +8834,17 @@ class WebGeneratorBaseTokenTests(unittest.TestCase):
         finally:
             self.mod.figure_values = original_figure_values
 
-    def test_base_empty_is_byte_identical_to_legacy_root_build(self):
-        """Removing BASE tokens recreates the pre-S4 template and generated output."""
+    def test_base_empty_render_stable_and_targets_bare(self):
+        """Forward regression guard for BASE='' rendering.
+
+        Asserts (a) the BASE='' render equals the same templates and generated
+        values with the {{BASE}} token stripped (so BASE='' can never expand to
+        anything but empty, and no {{BASE}} can leak), and (b) the real site-root
+        targets render as bare /paths, an independent check that the conversion
+        keeps root output unprefixed. This is a forward invariant, NOT a proof of
+        byte-identity against the pre-S4 tree: that was established out-of-band by
+        an independent two-revision rebuild diff at apply time and in validation.
+        """
         figures = self.mod.compute_figures()
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
@@ -8883,6 +8892,20 @@ class WebGeneratorBaseTokenTests(unittest.TestCase):
                     f"BASE='' changed {rel}",
                 )
 
+            # Independent invariant (not self-referential): at BASE='' the real
+            # site-root targets render as bare /paths, never /v2-prefixed, no leak.
+            landing = (after / "index.html").read_text(encoding="utf-8")
+            for href in [
+                'href="/"',
+                'href="/#what"',
+                'href="/pack"',
+                'href="/privacy/"',
+                'href="/types/standard/"',
+            ]:
+                self.assertIn(href, landing)
+            self.assertNotIn("{{BASE}}", landing)
+            self.assertNotIn('href="/v2/', landing)
+
     def test_base_v2_prefixes_template_and_generated_hrefs(self):
         figures = self.mod.compute_figures()
         landing = dict(self._render_with_base(figures, "/v2"))["index.html"]
@@ -8902,6 +8925,12 @@ class WebGeneratorBaseTokenTests(unittest.TestCase):
         self.assertEqual(self.mod.bare_root_relative_hrefs(), [])
         self.assertIsNotNone(self.mod._ROOT_HREF_RE.search('href="/future"'))
         self.assertIsNone(self.mod._ROOT_HREF_RE.search('href="{{BASE}}/future"'))
+        # Bypass forms the stricter regex must now catch (vpr-1620 cross-family: codex MED-1 == claude NIT-2).
+        self.assertIsNotNone(self.mod._ROOT_HREF_RE.search("href='/future'"))
+        self.assertIsNotNone(self.mod._ROOT_HREF_RE.search('href = "/future"'))
+        self.assertIsNotNone(self.mod._ROOT_HREF_RE.search('HREF="/future"'))
+        # ...while a BASE-prefixed value stays clean regardless of quote style.
+        self.assertIsNone(self.mod._ROOT_HREF_RE.search("href='{{BASE}}/future'"))
 
 
 class PortalGeneratorCheckTests(unittest.TestCase):
