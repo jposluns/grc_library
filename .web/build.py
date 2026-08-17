@@ -59,11 +59,10 @@ import re
 import sys
 from collections import Counter
 from pathlib import Path
+from typing import NamedTuple
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 WEB_DIR = REPO_ROOT / ".web"
-TEMPLATES_DIR = WEB_DIR / "templates"
-PARTIALS_DIR = TEMPLATES_DIR / "partials"
 TAXONOMY = REPO_ROOT / "taxonomy.yml"
 README = REPO_ROOT / "README.md"
 DEFAULT_OUT = WEB_DIR / "dist"
@@ -73,8 +72,23 @@ DEFAULT_OUT = WEB_DIR / "dist"
 # Gate 75 (tools/lint-web-corpus-links.py) resolves its targets against the repo.
 CORPUS_LINK_MANIFEST = WEB_DIR / "corpus-link-manifest.md"
 
+
+class Variant(NamedTuple):
+    """One independently rendered public-site tree."""
+
+    name: str
+    template_source_dir: str
+    url_prefix: str
+    indexable: bool = False
+
+
+# The published site variant. Future staging variants belong in this table, so
+# the template source, URL prefix, and indexability policy stay coupled.
+VARIANTS = (Variant("v1", "templates", "", indexable=True),)
+
 # Shared chrome injected into every page from a single source, so the pages
-# cannot drift. Placeholder name -> partial filename under PARTIALS_DIR. A
+# cannot drift. Placeholder name -> partial filename under a variant's template
+# tree. A
 # partial may itself carry figure placeholders (CALVER in the topbar,
 # DOC_TOTAL / DOMAIN_COUNT in the footer), resolved in render_page()'s 2nd pass.
 PARTIALS = {
@@ -84,8 +98,8 @@ PARTIALS = {
     "SCRIPT": "script.html",
 }
 
-# The site's pages: (template filename under TEMPLATES_DIR, output path relative
-# to the out directory).
+# The site's pages: (template filename under a variant's template tree, output
+# path relative to that variant's output directory).
 PAGES = [
     ("landing.html", "index.html"),
     ("about.html", "about/index.html"),
@@ -505,12 +519,17 @@ def render_type_chips(figures):
     return "\n".join(chips)
 
 
-def load_partials():
+def template_dir_for(variant):
+    """Return the template tree selected by one variant-table row."""
+    return WEB_DIR / variant.template_source_dir
+
+
+def load_partials(template_dir):
     """Read the shared-chrome partials once. Trailing newlines are stripped so a
     partial drops cleanly onto its own placeholder line."""
     partials = {}
     for key, fname in PARTIALS.items():
-        p = PARTIALS_DIR / fname
+        p = template_dir / "partials" / fname
         if not p.is_file():
             raise BuildError(f"partial not found at {p}")
         partials[key] = p.read_text(encoding="utf-8").rstrip("\n")
@@ -535,7 +554,7 @@ def render_domain_doc_rows(dp):
     return "\n".join(rows)
 
 
-def domain_page_values(dp):
+def domain_page_values(dp, variant):
     """The per-page values for one domain page (merged on top of the shared
     values in render_page). SEO/attribute values are built from controlled
     strings (the domain name, the curated scope, the count), never from the
@@ -552,7 +571,7 @@ def domain_page_values(dp):
             f"{dp['scope']}. {dp['count']} governance documents in the {name} "
             "domain of the open, CC BY-SA 4.0 GRC Library."
         ),
-        "DOMAIN_CANONICAL": f"{SITE_BASE}/{name}/",
+        "DOMAIN_CANONICAL": _site_url_for(variant, f"{name}/index.html"),
     }
 
 
@@ -576,7 +595,7 @@ def render_type_doc_rows(tp):
     return "\n".join(rows)
 
 
-def type_page_values(tp):
+def type_page_values(tp, variant):
     """The per-page values for one per-type listing page (merged on top of the
     shared values in render_page). All are built from controlled strings (the type
     name, curated scope, count), never from document prose."""
@@ -591,11 +610,11 @@ def type_page_values(tp):
             f"{tp['scope']}. {tp['count']} {name}-type documents in the open, "
             "CC BY-SA 4.0 GRC Library."
         ),
-        "TYPE_CANONICAL": f"{SITE_BASE}/types/{tp['slug']}/",
+        "TYPE_CANONICAL": _site_url_for(variant, f"types/{tp['slug']}/index.html"),
     }
 
 
-def figure_values(figures):
+def figure_values(figures, variant):
     """The corpus-derived values interpolated into every page."""
     return {
         "CALVER": figures["calver"],
@@ -603,14 +622,14 @@ def figure_values(figures):
         "DOMAIN_COUNT": str(figures["domain_count"]),
         "DOMAIN_DOC_TOTAL": str(figures["domain_docs"]),
         "ROOT_COUNT": str(figures["root_count"]),
-        "BASE": "",
+        "BASE": variant.url_prefix,
         "DOMAIN_ROWS": render_domain_rows(figures),
         "TYPE_CHIPS": render_type_chips(figures),
         "SIDENAV_DOMAINS": render_sidenav_domains(figures),
     }
 
 
-def render_page(template_name, figures, partials, extra=None):
+def render_page(template_name, figures, variant, template_dir, partials, extra=None):
     """Render one page: inject the shared partials, then the corpus figures.
 
     Two substitution passes, because the partials carry figure placeholders of
@@ -619,12 +638,12 @@ def render_page(template_name, figures, partials, extra=None):
     into the page and resolves any figures written directly in the page body; the
     second resolves the figures that arrived via a partial. Returns
     ``(html, used_keys)``."""
-    template_path = TEMPLATES_DIR / template_name
+    template_path = template_dir / template_name
     if not template_path.is_file():
         raise BuildError(f"template not found at {template_path}")
     template = template_path.read_text(encoding="utf-8")
 
-    values = {**partials, **figure_values(figures)}
+    values = {**partials, **figure_values(figures, variant)}
     if extra:
         values.update(extra)
     used = set()
@@ -671,20 +690,37 @@ def render_robots_txt():
     return "\n".join(lines)
 
 
-def _site_url_for(out_rel):
-    """Map a rendered page's output path to its canonical site URL."""
+def _site_url_for(variant, out_rel):
+    """Map one variant's rendered page path to its canonical site URL."""
+    prefix = variant.url_prefix.rstrip("/")
     if out_rel == "index.html":
-        return f"{SITE_BASE}/"
+        return f"{SITE_BASE}{prefix}/"
     if out_rel.endswith("/index.html"):
-        return f"{SITE_BASE}/{out_rel[: -len('index.html')]}"
-    return f"{SITE_BASE}/{out_rel}"
+        return f"{SITE_BASE}{prefix}/{out_rel[: -len('index.html')]}"
+    return f"{SITE_BASE}{prefix}/{out_rel}"
 
 
-def render_sitemap(html_page_rels):
+def _site_path_for(variant, out_rel):
+    """Map one variant's rendered page path to its site-relative URL path."""
+    prefix = variant.url_prefix.rstrip("/")
+    if out_rel == "index.html":
+        return f"{prefix}/"
+    if out_rel.endswith("/index.html"):
+        return f"{prefix}/{out_rel[: -len('index.html')]}"
+    return f"{prefix}/{out_rel}"
+
+
+def output_rel_for(variant, out_rel):
+    """Map one variant's site-relative output to its dist-relative path."""
+    prefix = variant.url_prefix.strip("/")
+    return f"{prefix}/{out_rel}" if prefix else out_rel
+
+
+def render_sitemap(variant, html_page_rels):
     """sitemap.xml listing every rendered site page as a directory-style URL,
     built from the HTML page set so a newly-added page is listed automatically."""
     locs = "\n".join(
-        f"  <url><loc>{_site_url_for(rel)}</loc></url>" for rel in html_page_rels
+        f"  <url><loc>{_site_url_for(variant, rel)}</loc></url>" for rel in html_page_rels
     )
     return (
         '<?xml version="1.0" encoding="UTF-8"?>\n'
@@ -694,7 +730,7 @@ def render_sitemap(html_page_rels):
     )
 
 
-def render_llms_txt(figures):
+def render_llms_txt(figures, variant):
     """llms.txt (the llmstxt.org convention): a curated Markdown map of the site
     and corpus for LLMs. Descriptive register only (a link list with short
     notes). Corpus artefacts link to GitHub (the source material); site pages
@@ -712,7 +748,7 @@ def render_llms_txt(figures):
 - [taxonomy.yml]({gh}taxonomy.yml): machine-readable inventory of every document.
 - [Adopter portal]({gh}docs/portal.md): audience-keyed navigation front door.
 - [Compliance matrix]({gh}compliance/matrix-grc-compliance-alignment.md): control-to-framework mappings.
-- [For AI]({SITE_BASE}/for-ai/): how AI systems can learn from the corpus, plus a resource index.
+- [For AI]({_site_url_for(variant, "for-ai/index.html")}): how AI systems can learn from the corpus, plus a resource index.
 
 ## AI governance
 - [AI domain index]({gh}ai/README.md): the AI governance, risk, security, and documentation sub-corpus.
@@ -735,7 +771,7 @@ TEMPLATE_CORPUS_LINK_RE = re.compile(
 )
 
 
-def render_static_template_links():
+def render_static_template_links(variant):
     """Yield ``(target, location, link_text)`` for every corpus link hardcoded in
     a static page template.
 
@@ -744,13 +780,13 @@ def render_static_template_links():
     corpus links, so PAGES is the complete set of static-link sources. The link
     text is the anchor's own text when it can be read, else the target's basename,
     since a template anchor's text is prose rather than a document title."""
+    template_dir = template_dir_for(variant)
     for template_name, out_rel in PAGES:
-        path = TEMPLATES_DIR / template_name
+        path = template_dir / template_name
         if not path.is_file():
             continue
         text = path.read_text(encoding="utf-8")
-        location = "/" + out_rel[: -len("index.html")] if out_rel.endswith(
-            "index.html") else "/" + out_rel
+        location = _site_path_for(variant, out_rel)
         for match in TEMPLATE_CORPUS_LINK_RE.finditer(text):
             target = match.group(1)
             anchor = re.match(
@@ -761,7 +797,7 @@ def render_static_template_links():
             yield target, location, label
 
 
-def render_corpus_link_manifest(figures):
+def render_corpus_link_manifest(figures, variant):
     """The committed web-to-corpus link manifest: one row per corpus/GitHub
     target the site links (its repo-relative path, its website location, and its
     link text). Re-derived from the SAME sources the pages emit from, so the
@@ -774,13 +810,13 @@ def render_corpus_link_manifest(figures):
     rows = {}  # (target, location) -> link_text, dedup-safe and deterministic
     for dp in figures["domain_pages"]:
         for d in dp["docs"]:
-            rows[(d["path"], f"/{dp['domain']}/")] = d["title"]
+            rows[(d["path"], _site_path_for(variant, f"{dp['domain']}/index.html"))] = d["title"]
     for tp in figures["type_pages"]:
         for d in tp["docs"]:
-            rows[(d["path"], f"/types/{tp['slug']}/")] = d["title"]
+            rows[(d["path"], _site_path_for(variant, f"types/{tp['slug']}/index.html"))] = d["title"]
     for path, label in CURATED_CORPUS_LINKS:
         rows[(path, "llms.txt")] = label
-    for target, location, label in render_static_template_links():
+    for target, location, label in render_static_template_links(variant):
         rows[(target, location)] = label
     lines = [
         "# Web-to-corpus link manifest",
@@ -799,20 +835,25 @@ def render_corpus_link_manifest(figures):
     return "\n".join(lines) + "\n"
 
 
-def render_site(figures):
-    """Render every page. Returns a list of ``(out_rel, html)``. Enforces that
-    every computed value is used by at least one page: a value used by no page is
-    a dead computation (or a dropped placeholder), which is a build error.
+def indexable_variant():
+    """Return the sole published variant, rejecting an incomplete promotion."""
+    indexable = [variant for variant in VARIANTS if variant.indexable]
+    if len(indexable) != 1 or indexable[0].url_prefix != "":
+        raise BuildError(
+            "variant table must contain exactly one indexable variant with an empty prefix"
+        )
+    return indexable[0]
 
-    After the HTML pages, three generated non-template outputs are appended:
-    ``robots.txt``, ``sitemap.xml``, and ``llms.txt`` (they bypass the template
-    placeholder machinery, so they are added after the dead-value check)."""
-    partials = load_partials()
-    all_values = set(PARTIALS) | set(figure_values(figures))
+
+def render_variant(figures, variant):
+    """Render one variant's HTML template tree and return relative outputs."""
+    template_dir = template_dir_for(variant)
+    partials = load_partials(template_dir)
+    all_values = set(PARTIALS) | set(figure_values(figures, variant))
     pages = []
     used_across = set()
     for template_name, out_rel in PAGES:
-        html, used = render_page(template_name, figures, partials)
+        html, used = render_page(template_name, figures, variant, template_dir, partials)
         pages.append((out_rel, html))
         used_across |= used
 
@@ -822,7 +863,8 @@ def render_site(figures):
     # render_page guarantees its DOMAIN_* placeholders all resolved.
     for dp in figures["domain_pages"]:
         html, _ = render_page(
-            "domain.html", figures, partials, extra=domain_page_values(dp)
+            "domain.html", figures, variant, template_dir, partials,
+            extra=domain_page_values(dp, variant)
         )
         pages.append((f"{dp['domain']}/index.html", html))
 
@@ -832,7 +874,8 @@ def render_site(figures):
     # type" chips on the landing page link here (/types/<slug>/).
     for tp in figures["type_pages"]:
         html, _ = render_page(
-            "type.html", figures, partials, extra=type_page_values(tp)
+            "type.html", figures, variant, template_dir, partials,
+            extra=type_page_values(tp, variant)
         )
         pages.append((f"types/{tp['slug']}/index.html", html))
 
@@ -843,12 +886,34 @@ def render_site(figures):
             f"{', '.join('{{' + k + '}}' for k in unused)}"
         )
 
-    # Generated non-template outputs. The sitemap lists the HTML pages rendered
-    # above; append the three after the dead-value check.
-    html_page_rels = [rel for rel, _ in pages]
-    pages.append(("robots.txt", render_robots_txt()))
-    pages.append(("sitemap.xml", render_sitemap(html_page_rels)))
-    pages.append(("llms.txt", render_llms_txt(figures)))
+    return pages
+
+
+def render_site(figures):
+    """Render every variant tree and return ``(dist-relative path, content)``.
+
+    Each table row renders its own template tree. The published indexable tree
+    alone emits crawler and discovery files, so a future staging tree cannot
+    publish a competing root.
+    """
+    indexable_variant()
+    pages = []
+    for variant in VARIANTS:
+        variant_pages = render_variant(figures, variant)
+        pages.extend(
+            (output_rel_for(variant, out_rel), html)
+            for out_rel, html in variant_pages
+        )
+        if variant.indexable:
+            html_page_rels = [out_rel for out_rel, _ in variant_pages]
+            pages.append((output_rel_for(variant, "robots.txt"), render_robots_txt()))
+            pages.append((
+                output_rel_for(variant, "sitemap.xml"),
+                render_sitemap(variant, html_page_rels),
+            ))
+            pages.append((
+                output_rel_for(variant, "llms.txt"), render_llms_txt(figures, variant),
+            ))
     return pages
 
 
@@ -864,10 +929,11 @@ _CALVER_LITERAL_RE = re.compile(r"\b20\d\d\.\d\d\.\d+\b")
 def hardcoded_calver_literals():
     """Return ["<relpath>:<lineno>", ...] for hardcoded CalVer literals in templates (empty = clean)."""
     hits = []
-    for tpl in sorted(TEMPLATES_DIR.rglob("*.html")):
-        for lineno, line in enumerate(tpl.read_text(encoding="utf-8").splitlines(), 1):
-            if _CALVER_LITERAL_RE.search(line):
-                hits.append(f"{tpl.relative_to(REPO_ROOT)}:{lineno}")
+    for variant in VARIANTS:
+        for tpl in sorted(template_dir_for(variant).rglob("*.html")):
+            for lineno, line in enumerate(tpl.read_text(encoding="utf-8").splitlines(), 1):
+                if _CALVER_LITERAL_RE.search(line):
+                    hits.append(f"{tpl.relative_to(REPO_ROOT)}:{lineno}")
     return hits
 
 
@@ -880,7 +946,13 @@ def bare_root_relative_hrefs():
     therefore cannot match _ROOT_HREF_RE.
     """
     hits = []
-    sources = sorted(TEMPLATES_DIR.rglob("*.html")) + [Path(__file__)]
+    sources = [
+        *(
+            tpl for variant in VARIANTS
+            for tpl in sorted(template_dir_for(variant).rglob("*.html"))
+        ),
+        Path(__file__),
+    ]
     for source in sources:
         for lineno, line in enumerate(source.read_text(encoding="utf-8").splitlines(), 1):
             if _ROOT_HREF_RE.search(line):
@@ -911,7 +983,7 @@ def main(argv=None):
         # Rendering is part of the health check: it proves every page template
         # still matches the generator's partial and placeholder set.
         pages = render_site(figures)
-        manifest_text = render_corpus_link_manifest(figures)
+        manifest_text = render_corpus_link_manifest(figures, indexable_variant())
     except BuildError as e:
         print(f"web-generator FAIL: {e}", file=sys.stderr)
         return 1

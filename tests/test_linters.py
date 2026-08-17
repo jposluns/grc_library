@@ -8821,18 +8821,8 @@ class WebGeneratorBaseTokenTests(unittest.TestCase):
             path.write_text(text, encoding="utf-8")
 
     def _render_with_base(self, figures, base):
-        original_figure_values = self.mod.figure_values
-
-        def figure_values_with_base(current_figures):
-            values = original_figure_values(current_figures)
-            values["BASE"] = base
-            return values
-
-        self.mod.figure_values = figure_values_with_base
-        try:
-            return self.mod.render_site(figures)
-        finally:
-            self.mod.figure_values = original_figure_values
+        variant = self.mod.Variant("test", "templates", base, indexable=False)
+        return self.mod.render_variant(figures, variant)
 
     def test_base_empty_render_stable_and_targets_bare(self):
         """Forward regression guard for BASE='' rendering.
@@ -8851,19 +8841,17 @@ class WebGeneratorBaseTokenTests(unittest.TestCase):
             baseline = tmp_path / "baseline"
             after = tmp_path / "after"
             legacy_templates = tmp_path / "legacy-templates"
-            shutil.copytree(self.mod.TEMPLATES_DIR, legacy_templates)
+            shutil.copytree(self.mod.template_dir_for(self.mod.VARIANTS[0]), legacy_templates)
             for template in legacy_templates.rglob("*.html"):
                 template.write_text(
                     template.read_text(encoding="utf-8").replace("{{BASE}}", ""),
                     encoding="utf-8",
                 )
 
-            original_templates = self.mod.TEMPLATES_DIR
-            original_partials = self.mod.PARTIALS_DIR
             original_figure_values = self.mod.figure_values
 
-            def legacy_figure_values(current_figures):
-                values = original_figure_values(current_figures)
+            def legacy_figure_values(current_figures, variant):
+                values = original_figure_values(current_figures, variant)
                 values = {
                     key: value.replace("{{BASE}}", "") if isinstance(value, str) else value
                     for key, value in values.items()
@@ -8872,13 +8860,21 @@ class WebGeneratorBaseTokenTests(unittest.TestCase):
                 return values
 
             try:
-                self.mod.TEMPLATES_DIR = legacy_templates
-                self.mod.PARTIALS_DIR = legacy_templates / "partials"
                 self.mod.figure_values = legacy_figure_values
-                self._write_site(self.mod.render_site(figures), baseline)
+                legacy = self.mod.Variant(
+                    "legacy", str(legacy_templates), "", indexable=False
+                )
+                legacy_pages = self.mod.render_variant(figures, legacy)
+                legacy_pages.extend([
+                    ("robots.txt", self.mod.render_robots_txt()),
+                    (
+                        "sitemap.xml",
+                        self.mod.render_sitemap(legacy, [rel for rel, _ in legacy_pages]),
+                    ),
+                    ("llms.txt", self.mod.render_llms_txt(figures, legacy)),
+                ])
+                self._write_site(legacy_pages, baseline)
             finally:
-                self.mod.TEMPLATES_DIR = original_templates
-                self.mod.PARTIALS_DIR = original_partials
                 self.mod.figure_values = original_figure_values
 
             self._write_site(self.mod.render_site(figures), after)
@@ -8931,6 +8927,81 @@ class WebGeneratorBaseTokenTests(unittest.TestCase):
         self.assertIsNotNone(self.mod._ROOT_HREF_RE.search('HREF="/future"'))
         # ...while a BASE-prefixed value stays clean regardless of quote style.
         self.assertIsNone(self.mod._ROOT_HREF_RE.search("href='{{BASE}}/future'"))
+
+
+class WebGeneratorVariantTableTests(unittest.TestCase):
+    """S5: the variant table preserves v1 and rejects incomplete promotion."""
+
+    @classmethod
+    def setUpClass(cls):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "web_build_s5_mod", REPO_ROOT / ".web" / "build.py"
+        )
+        cls.mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.mod)
+
+    @staticmethod
+    def _write_site(pages, out_dir):
+        for rel, text in pages:
+            path = out_dir / rel
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(text, encoding="utf-8")
+
+    def test_variant_table_matches_reconstructed_single_tree(self):
+        """The single table row emits the pre-table one-tree output exactly."""
+        figures = self.mod.compute_figures()
+        v1 = self.mod.VARIANTS[0]
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            table_out = tmp_path / "table"
+            reconstructed_out = tmp_path / "reconstructed"
+            self._write_site(self.mod.render_site(figures), table_out)
+
+            reconstructed = self.mod.render_variant(figures, v1)
+            reconstructed.extend([
+                ("robots.txt", self.mod.render_robots_txt()),
+                (
+                    "sitemap.xml",
+                    self.mod.render_sitemap(v1, [rel for rel, _ in reconstructed]),
+                ),
+                ("llms.txt", self.mod.render_llms_txt(figures, v1)),
+            ])
+            self._write_site(reconstructed, reconstructed_out)
+
+            table_files = sorted(
+                p.relative_to(table_out) for p in table_out.rglob("*") if p.is_file()
+            )
+            reconstructed_files = sorted(
+                p.relative_to(reconstructed_out)
+                for p in reconstructed_out.rglob("*") if p.is_file()
+            )
+            self.assertEqual(table_files, reconstructed_files)
+            for rel in table_files:
+                self.assertEqual(
+                    (table_out / rel).read_bytes(),
+                    (reconstructed_out / rel).read_bytes(),
+                    f"variant table changed {rel}",
+                )
+
+    def test_indexable_variant_must_be_unique_and_at_root(self):
+        figures = self.mod.compute_figures()
+        original = self.mod.VARIANTS
+        invalid_tables = (
+            (
+                self.mod.Variant("v1", "templates", "", indexable=True),
+                self.mod.Variant("v2", "templates", "/v2", indexable=True),
+            ),
+            (self.mod.Variant("v2", "templates", "/v2", indexable=True),),
+        )
+        try:
+            for variants in invalid_tables:
+                with self.subTest(variants=variants):
+                    self.mod.VARIANTS = variants
+                    with self.assertRaises(self.mod.BuildError):
+                        self.mod.render_site(figures)
+        finally:
+            self.mod.VARIANTS = original
 
 
 class PortalGeneratorCheckTests(unittest.TestCase):
