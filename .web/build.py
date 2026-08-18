@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Static-site generator for the grclibrary.ai public site: the landing, about, pack, per-domain, and per-type pages.
+"""Static-site generator for the grclibrary.ai public site: the landing, about, pack, per-domain, and per-type pages, plus the non-indexable /v2 staging tree's extra executive routes.
 
 WHAT THIS IS. A stdlib-only generator that renders the public site (the landing page,
 the about page, the governance-pack page, one page per corpus domain, and one listing
@@ -25,7 +25,9 @@ the safeguard checks; neither feeds published content.) By default its rendered 
 ``types/<slug>/index.html`` per document type, and the three generated files
 ``robots.txt``, ``sitemap.xml``, and ``llms.txt``); it also writes the committed ``.web/corpus-link-manifest.md`` (a generated artefact outside the ephemeral ``dist/`` tree). So the
 published surface is those root pages and files, plus the non-indexable ``v2`` staging
-variant's tree under ``.web/dist/v2/`` (noindex); a repo file cannot
+variant's tree under ``.web/dist/v2/`` (noindex), which additionally carries the
+executive-shell routes declared in ``V2_EXTRA_PAGES`` (decisions, start, trust,
+coverage, library, how-its-built); a repo file cannot
 leak onto the public site through this generator. The about page and the For-AI
 page are static template prose (the maintainer bio and acknowledged contributors;
 and, for For-AI, descriptive guidance plus a resource index whose links point at
@@ -1025,7 +1027,7 @@ def bare_root_relative_hrefs():
 
 def main(argv=None):
     ap = argparse.ArgumentParser(
-        description="Render the grclibrary.ai public site (landing, about, pack, per-domain, and per-type pages) from the live corpus.",
+        description="Render the grclibrary.ai public site (landing, about, pack, per-domain, and per-type pages, plus the non-indexable /v2 staging tree's extra executive routes) from the live corpus.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     ap.add_argument(

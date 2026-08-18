@@ -53,13 +53,14 @@
       <p class="eyebrow">The corpus is the system</p>
       <div class="sec-head"><span class="sec-num">&sect;01</span><h2>One source of truth; the site is a projection.</h2></div>
       <p class="lede">
-        There is one corpus, and everything else is derived from it. This site&rsquo;s
-        generator reads an explicit allow-list of corpus inputs and recomputes every
-        figure &mdash; document counts, area listings, the version &mdash; at build
-        time; nothing on the site is hand-maintained, and a repository file outside the
-        allow-list cannot leak onto the public site. The site you are reading renders
-        library version {{CALVER}}, and that number came from the corpus, not from an
-        editor.
+        There is one corpus, and the site&rsquo;s data is derived from it. This
+        site&rsquo;s generator reads an explicit allow-list of corpus inputs and
+        recomputes every figure (document counts, area listings, the version) at build
+        time, so no figure is hand-typed and a repository file outside the allow-list
+        cannot leak onto the public site. The editorial prose and the curated executive
+        framing are authored and reviewed by the maintainer. The site you are reading
+        renders library version {{CALVER}}, and that number came from the corpus, not
+        from an editor.
       </p>
     </div>
   </section>
@@ -72,11 +73,11 @@
       <p class="lede">
         Every change runs a suite of automated Python gates before it can land. Among
         the families: link integrity across the corpus; citation currency against the
-        canonical register, so a reference to a superseded standard edition is flagged;
-        taxonomy drift, so the machine-readable inventory cannot fall out of step with
-        the documents; web-to-corpus link resolution, so this site cannot link a corpus
-        artefact that does not exist; and safety screening for secrets and personal
-        data.
+        canonical register, so a reference to an edition the register already marks
+        superseded is flagged; taxonomy drift, so the machine-readable inventory cannot
+        fall out of step with the documents; web-to-corpus link resolution against a
+        committed manifest, so a corpus file renamed or deleted without regenerating the
+        site is caught; and safety screening for secrets and personal data.
       </p>
       <p class="lede">
         You will find no gate count on this page, deliberately: the suite grows
@@ -96,12 +97,12 @@
       <div class="sec-head"><span class="sec-num">&sect;03</span><h2>Continuous integration, three layers.</h2></div>
       <p class="lede">
         The gates run in CI on every proposed change, so nothing merges ungated. A
-        scheduled nightly sweep re-runs quality checks against the whole corpus, so a
-        problem that emerges between changes &mdash; an external link gone stale, a
-        standard edition superseded upstream &mdash; is caught without waiting for the
-        next edit. And the site generator has its own health check, which fails loudly
-        if the corpus coupling it depends on ever breaks, rather than publishing wrong
-        figures quietly.
+        scheduled nightly sweep re-runs the full gate suite against the whole corpus, so
+        time-dependent drift that no single change would trip (a citation whose recorded
+        re-verification has fallen due, a reference to an edition the register already
+        marks superseded) surfaces without waiting for the next edit. And the site
+        generator has its own health check, which fails loudly if the corpus coupling it
+        depends on ever breaks, rather than publishing wrong figures quietly.
       </p>
     </div>
   </section>
@@ -129,14 +130,14 @@
   <section id="generated">
     <div class="wrap">
       <p class="eyebrow">Never hand-maintained</p>
-      <div class="sec-head"><span class="sec-num">&sect;05</span><h2>Indexes are generated, so they cannot lie.</h2></div>
+      <div class="sec-head"><span class="sec-num">&sect;05</span><h2>Indexes are generated, so they cannot silently drift.</h2></div>
       <p class="lede">
         The document inventory (<a href="https://github.com/jposluns/grc_library/blob/main/taxonomy.yml" target="_blank" rel="noopener">taxonomy.yml<span class="ext">&#8599;</span></a>),
         the <a href="https://github.com/jposluns/grc_library/blob/main/docs/portal.md" target="_blank" rel="noopener">adopter portal<span class="ext">&#8599;</span></a>,
         the executive narrative registry, and this site&rsquo;s own web-to-corpus link
         manifest are all generated artefacts, regenerated from the corpus and gated for
         drift. An index that is computed cannot quietly disagree with the documents it
-        indexes &mdash; and when the corpus changes, the indexes change in the same
+        indexes: when the corpus changes, the indexes change in the same
         commit or the build fails.
       </p>
     </div>
