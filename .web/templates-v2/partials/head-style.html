@@ -256,6 +256,13 @@
   /* ---------- Differentiator cards ---------- */
   .feat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
   .feat { background: var(--surface); padding: 1.6rem 1.5rem; }
+  /* Concern grid: exactly three per row (9 concerns = 3x3); the coverage-gap card spans the full width. */
+  .feat-grid.concerns { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .feat-grid.concerns .feat.gap { grid-column: 1 / -1; }
+  @media (max-width: 640px) { .feat-grid.concerns { grid-template-columns: 1fr; } }
+  /* Four-card grids: 2x2 (four-across is unreadably narrow). */
+  .feat-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @media (max-width: 640px) { .feat-grid.two { grid-template-columns: 1fr; } }
   .feat .k {
     font-family: var(--font-mono);
     font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase;
@@ -318,7 +325,7 @@
   .doc-row:last-child { border-bottom: none; }
   .doc-type {
     font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.1em;
-    text-transform: uppercase; color: var(--brass); min-width: 7.5rem;
+    text-transform: uppercase; color: var(--brass); flex: 0 0 11.5rem; white-space: nowrap;
   }
   .doc-title { flex: 1 1 14rem; color: var(--ink); text-decoration: none; }
   .doc-title:hover { color: var(--brass); text-decoration: underline; text-underline-offset: 3px; }
@@ -451,17 +458,17 @@
   .feat h3 a { color: inherit; }
   .feat h3 a:hover { color: var(--brass); }
   .feat.gap { background: var(--surface-2); }
-  .feat.gap .k { color: var(--ink-faint); }
 
   .trust-strip {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1px; background: var(--line); border: 1px solid var(--line);
     border-radius: var(--radius); overflow: hidden;
   }
+  @media (max-width: 640px) { .trust-strip { grid-template-columns: 1fr; } }
   .trust-strip .t { background: var(--surface); padding: 1.1rem 1.2rem; }
   .trust-strip .t h3 {
     font-family: var(--font-mono); font-size: 0.76rem; letter-spacing: 0.07em;
-    text-transform: uppercase; color: var(--ink); margin: 0 0 0.35rem;
+    text-transform: uppercase; color: var(--brass); margin: 0 0 0.35rem;
   }
   .trust-strip .t p { margin: 0; font-size: 0.86rem; color: var(--ink-soft); line-height: 1.5; }
 
