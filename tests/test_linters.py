@@ -9150,13 +9150,36 @@ class WebGeneratorV2StagingTests(unittest.TestCase):
         )
         self.assertEqual(
             next(variant for variant in self.mod.VARIANTS if variant.name == "v2"),
-            self.mod.Variant("v2", "templates-v2", "v2/", indexable=False),
+            self.mod.Variant(
+                "v2", "templates-v2", "v2/", indexable=False,
+                extra_pages=self.mod.V2_EXTRA_PAGES,
+            ),
         )
         robots = self.mod.render_robots_txt()
         groups = [group for group in robots.split("\n\n") if group.startswith("User-agent:")]
         self.assertEqual(len(groups), len(self.mod.AI_CRAWLER_USER_AGENTS) + 1)
         self.assertTrue(all("Disallow: /v2/" in group.splitlines() for group in groups))
         self.assertNotIn("/v2/", self.mod.render_sitemap(indexable, ["index.html"]))
+
+    def test_v2_extra_pages_render_only_under_v2(self):
+        """The extra_pages mechanism: v2's executive routes render under /v2 and
+        NOT at root, so the frozen root tree is unaffected by them."""
+        figures = self.mod.compute_figures()
+        self.assertTrue(self.mod.V2_EXTRA_PAGES, "v2 must declare extra routes")
+        v1 = self.mod.indexable_variant()
+        self.assertEqual(v1.extra_pages, (), "root variant must carry no extra pages")
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            self._write_site(self.mod.render_site(figures), out)
+            for template_name, out_rel in self.mod.V2_EXTRA_PAGES:
+                self.assertTrue(
+                    (out / "v2" / out_rel).is_file(),
+                    f"/v2 is missing extra route {out_rel}",
+                )
+                self.assertFalse(
+                    (out / out_rel).is_file(),
+                    f"root must NOT carry the v2-only route {out_rel}",
+                )
 
 
 class PortalGeneratorCheckTests(unittest.TestCase):

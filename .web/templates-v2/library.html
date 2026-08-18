@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Browse the GRC Library's full corpus of reference documents four ways: by leadership concern, by area of business exposure, by document type, or by role — CISO, compliance, and technology entry points. Every document links to its source.">
+<title>The library: browse the full corpus: GRC Library</title>
+{{HEAD_STYLE}}
+</head>
+
+<body>
+<header class="mast">
+  <div class="wrap">
+{{TOPBAR}}
+  </div>
+
+  <div class="wrap hero">
+    <p class="eyebrow reveal d1">The library</p>
+    <h1 class="reveal d2">One library, <span class="accent">four ways in.</span></h1>
+    <p class="dek reveal d3">
+      {{DOC_TOTAL}} reference documents, browsable by leadership concern, by area of
+      business exposure, by document type, or by role. Every document links to its
+      source, so what you read is what you can take.
+    </p>
+    <div class="cta-row reveal d4">
+      <a class="btn btn-ghost" href="{{BASE}}/">&larr; Back to the library home</a>
+      <a class="btn btn-ghost" href="{{BASE}}/start/">Not sure where to begin?</a>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="sidenav" aria-label="Page contents">
+    <div class="sidenav-inner">
+      <p class="sidenav-h">Ways in</p>
+      <a href="#by-concern">By concern</a>
+      <a href="#by-area">By area</a>
+{{SIDENAV_DOMAINS}}
+      <a href="#by-type">By type</a>
+      <a href="#by-role">By role</a>
+      <a href="#source">The source</a>
+      <p class="sidenav-h">Elsewhere</p>
+      <a href="{{BASE}}/coverage/">Coverage</a>
+      <a href="{{BASE}}/for-ai/">For AI</a>
+    </div>
+  </nav>
+
+<main>
+  <!-- ===== 01 By leadership concern ===== -->
+  <section id="by-concern">
+    <div class="wrap">
+      <p class="eyebrow">Start from the question</p>
+      <div class="sec-head"><span class="sec-num">&sect;01</span><h2>By leadership concern.</h2></div>
+      <p class="lede">
+        If you are working backwards from a question leadership owns &mdash; suppliers,
+        resilience, data, AI, evidence &mdash; enter through the ten concerns. Each
+        resolves to the leadership pages and governing documents behind it.
+      </p>
+      <a class="pack-cta" href="{{BASE}}/decisions/">The ten leadership concerns &rarr;</a>
+    </div>
+  </section>
+
+  <!-- ===== 02 By area of exposure ===== -->
+  <section id="by-area">
+    <div class="wrap">
+      <p class="eyebrow">Start from the exposure</p>
+      <div class="sec-head"><span class="sec-num">&sect;02</span><h2>By area of business exposure.</h2></div>
+      <p class="lede">
+        Each of the {{DOMAIN_COUNT}} areas has its own page: what the area covers, and
+        its full document list in reading order &mdash; most foundational first.
+      </p>
+      <div class="table-scroll">
+        <table class="register">
+          <thead>
+            <tr>
+              <th class="rg-idx-h">&sect;</th>
+              <th>Area</th>
+              <th>Scope</th>
+              <th class="right">Documents</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{DOMAIN_ROWS}}
+          </tbody>
+        </table>
+      </div>
+      <p class="register-note">The per-area counts sum to {{DOMAIN_DOC_TOTAL}}; the remaining {{ROOT_COUNT}} of the {{DOC_TOTAL}} documents are programme-level specifications at the corpus root, browsable through the type listings below.</p>
+    </div>
+  </section>
+
+  <!-- ===== 03 By document type ===== -->
+  <section id="by-type">
+    <div class="wrap">
+      <p class="eyebrow">Start from the shape</p>
+      <div class="sec-head"><span class="sec-num">&sect;03</span><h2>By document type.</h2></div>
+      <p class="lede">
+        Need a policy, a register, a template, an annex? Each chip is a listing of
+        every document of that type across all areas.
+      </p>
+      <div class="types">
+        {{TYPE_CHIPS}}
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 04 By role: the three lenses ===== -->
+  <section id="by-role">
+    <div class="wrap">
+      <p class="eyebrow">Start from your chair</p>
+      <div class="sec-head"><span class="sec-num">&sect;04</span><h2>By role: three lenses into the corpus.</h2></div>
+      <div class="rail">
+        <div class="lens">
+          <h3>Security &amp; risk (CISO)</h3>
+          <a href="{{BASE}}/security/">Security controls &amp; operations</a>
+          <a href="{{BASE}}/risk/">Risk methodology &amp; registers</a>
+          <a href="{{BASE}}/resilience/">Continuity, recovery &amp; incidents</a>
+        </div>
+        <div class="lens">
+          <h3>Compliance &amp; evidence</h3>
+          <a href="{{BASE}}/compliance/">Regulatory mapping &amp; audit readiness</a>
+          <a href="{{BASE}}/privacy/">Privacy &amp; data-protection obligations</a>
+          <a href="{{BASE}}/governance/">Charters, policies &amp; registers</a>
+        </div>
+        <div class="lens">
+          <h3>Technology</h3>
+          <a href="{{BASE}}/how-its-built/">How the library is built &amp; gated</a>
+          <a href="{{BASE}}/architecture/">Reference architectures</a>
+          <a href="{{BASE}}/dev-security/">Secure development &amp; pipelines</a>
+          <a href="{{BASE}}/for-ai/">For AI systems</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 05 The source itself ===== -->
+  <section id="source">
+    <div class="wrap">
+      <p class="eyebrow">No wrapper, no gate</p>
+      <div class="sec-head"><span class="sec-num">&sect;05</span><h2>Or take the source itself.</h2></div>
+      <p class="lede">
+        The corpus lives in the open as plain Markdown; this site is a browsing surface
+        over it, and every document title on the area and type pages links straight to
+        its source. For bulk work, start from the repository, the machine-readable
+        inventory, or the adopter portal:
+      </p>
+      <ul class="doc-index">
+        <li class="doc-row"><span class="doc-type">source</span><a class="doc-title" href="https://github.com/jposluns/grc_library" target="_blank" rel="noopener">The GitHub repository &mdash; the raw Markdown corpus<span class="ext">&#8599;</span></a></li>
+        <li class="doc-row"><span class="doc-type">inventory</span><a class="doc-title" href="https://github.com/jposluns/grc_library/blob/main/taxonomy.yml" target="_blank" rel="noopener">taxonomy.yml &mdash; machine-readable inventory of every document<span class="ext">&#8599;</span></a></li>
+        <li class="doc-row"><span class="doc-type">docs</span><a class="doc-title" href="https://github.com/jposluns/grc_library/blob/main/docs/portal.md" target="_blank" rel="noopener">The adopter portal &mdash; audience-keyed navigation front door<span class="ext">&#8599;</span></a></li>
+      </ul>
+    </div>
+  </section>
+</main>
+</div>
+
+{{FOOTER}}
+
+{{SCRIPT}}
+</body>
+</html>
