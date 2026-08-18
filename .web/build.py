@@ -831,7 +831,10 @@ def render_static_template_links(variant):
 
     Only the templates in PAGES are scanned: `domain.html` and `type.html` render
     from the taxonomy (already covered above) and the shared partials carry no
-    corpus links, so PAGES is the complete set of static-link sources. The link
+    corpus links, so PAGES is the complete set of static-link sources for the indexable
+    root manifest. A staging variant's extra_pages templates carry their own hardcoded
+    corpus links, intentionally excluded from the committed root manifest (verified at
+    authoring time, folded in at promotion). The link
     text is the anchor's own text when it can be read, else the target's basename,
     since a template anchor's text is prose rather than a document title."""
     template_dir = template_dir_for(variant)
