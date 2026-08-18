@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Where the GRC Library covers your exposure: the areas of business exposure it spans, the standards, regulations, and frameworks it aligns to: ISO, NIST, EU regulation, global data-protection law, and the gaps it declares. Aligned to, not certified against.">
+<title>Coverage: areas, frameworks &amp; declared gaps: GRC Library</title>
+{{HEAD_STYLE}}
+</head>
+
+<body>
+<header class="mast">
+  <div class="wrap">
+{{TOPBAR}}
+  </div>
+
+  <div class="wrap hero">
+    <p class="eyebrow reveal d1">Coverage</p>
+    <h1 class="reveal d2">Where your exposure is covered, <span class="accent">and where it isn&rsquo;t.</span></h1>
+    <p class="dek reveal d3">
+      {{DOC_TOTAL}} reference documents across {{DOMAIN_COUNT}} areas of business
+      exposure, aligned to the recognized standards, regulations, and frameworks below.
+    </p>
+    <div class="cta-row reveal d4">
+      <a class="btn btn-ghost" href="{{BASE}}/">&larr; Back to the library</a>
+      <a class="btn btn-ghost" href="{{BASE}}/library/">Browse the library</a>
+    </div>
+    <p class="qualifier reveal d4">
+      <b>Aligned to, not certified against:</b> the mappings on this page support your
+      own gap analysis and audit preparation. They are not a certification (of
+      this library, or of any organization that adopts it) and alignment with a
+      framework is not evidence that your controls operate.
+    </p>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="sidenav" aria-label="Page contents">
+    <div class="sidenav-inner">
+      <p class="sidenav-h">Contents</p>
+      <a href="#areas">Areas of exposure</a>
+      <a href="#frameworks">Standards &amp; frameworks</a>
+      <a href="#gaps">Declared gaps</a>
+      <p class="sidenav-h">Elsewhere</p>
+      <a href="{{BASE}}/trust/">Why rely on it</a>
+      <a href="{{BASE}}/decisions/">Leadership decisions</a>
+    </div>
+  </nav>
+
+<main>
+  <!-- ===== 01 Areas of business exposure ===== -->
+  <section id="areas">
+    <div class="wrap">
+      <p class="eyebrow">Exposure, not folders</p>
+      <div class="sec-head"><span class="sec-num">&sect;01</span><h2>The {{DOMAIN_COUNT}} areas of business exposure.</h2></div>
+      <p class="lede">
+        Each area below is a place your organization can be hurt (through data,
+        suppliers, systems, people, or obligations) and each links to its full
+        document set. Every count is recomputed from the corpus on every change.
+      </p>
+      <div class="table-scroll">
+        <table class="register">
+          <thead>
+            <tr>
+              <th class="rg-idx-h">&sect;</th>
+              <th>Area</th>
+              <th>Scope</th>
+              <th class="right">Documents</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{DOMAIN_ROWS}}
+          </tbody>
+        </table>
+      </div>
+      <p class="register-note">The per-area counts sum to {{DOMAIN_DOC_TOTAL}}; the remaining {{ROOT_COUNT}} of the {{DOC_TOTAL}} documents are programme-level specifications at the corpus root.</p>
+    </div>
+  </section>
+
+  <!-- ===== 02 Standards & frameworks (moved from the old homepage) ===== -->
+  <section id="frameworks">
+    <div class="wrap">
+      <p class="eyebrow">Grounded in the standards</p>
+      <div class="sec-head"><span class="sec-num">&sect;02</span><h2>Standards, regulations &amp; frameworks it aligns to.</h2></div>
+      <p class="lede">
+        The library maps its controls and citations to the recognized standards,
+        regulations, and frameworks below. Each is recorded, with its current edition,
+        in the
+        <a href="https://github.com/jposluns/grc_library/blob/main/governance/register-canonical-citations.md" target="_blank" rel="noopener">Canonical Citations Register<span class="ext">&#8599;</span></a>,
+        which the toolchain checks so a corpus citation cannot silently name an edition
+        the register marks superseded. <b>Alignment supports your compliance work; it certifies
+        nothing.</b>
+      </p>
+      <div class="biblio">
+        <div class="biblio-col">
+          <h3 id="std-infosec">Information security &amp; management systems</h3>
+          <ul>
+            <li><span class="id">ISO/IEC 27001:2022</span><span class="topic">Information security management</span></li>
+            <li><span class="id">ISO/IEC 27002:2022</span><span class="topic">Information security controls</span></li>
+            <li><span class="id">ISO/IEC 27005:2022</span><span class="topic">Information security risk management</span></li>
+            <li><span class="id">ISO/IEC 27017:2026</span><span class="topic">Cloud service security controls</span></li>
+            <li><span class="id">ISO/IEC 27018:2025</span><span class="topic">PII protection in public clouds</span></li>
+            <li><span class="id">ISO/IEC 27701:2025</span><span class="topic">Privacy information management</span></li>
+            <li><span class="id">ISO 22301:2019</span><span class="topic">Business continuity management</span></li>
+            <li><span class="id">ISO 31000:2018</span><span class="topic">Risk management</span></li>
+            <li><span class="id">ISO/IEC 38500:2024</span><span class="topic">Governance of IT</span></li>
+            <li><span class="id">ISO 37301:2021</span><span class="topic">Compliance management</span></li>
+            <li><span class="id">ISO 28000:2022</span><span class="topic">Supply-chain security management</span></li>
+          </ul>
+        </div>
+        <div class="biblio-col">
+          <h3 id="std-ai">AI governance &amp; assurance</h3>
+          <ul>
+            <li><span class="id">ISO/IEC 42001:2023</span><span class="topic">AI management systems</span></li>
+            <li><span class="id">ISO/IEC 42005:2025</span><span class="topic">AI system impact assessment</span></li>
+            <li><span class="id">ISO/IEC 23894:2023</span><span class="topic">AI risk management</span></li>
+            <li><span class="id">ISO/IEC 5259:2024</span><span class="topic">Data quality for AI / ML</span></li>
+            <li><span class="id">NIST AI RMF 1.0</span><span class="topic">AI Risk Management Framework</span></li>
+            <li><span class="id">NIST AI 600-1</span><span class="topic">Generative AI profile</span></li>
+            <li><span class="id">EU AI Act</span><span class="topic">Regulation (EU) 2024/1689, as amended by (EU) 2026/1744</span></li>
+            <li><span class="id">OECD AI Principles</span><span class="topic">2019, updated 2024</span></li>
+            <li><span class="id">CSA AICM v1.1</span><span class="topic">AI Controls Matrix</span></li>
+            <li><span class="id">OWASP LLM Top 10 (2025)</span><span class="topic">LLM application risks</span></li>
+            <li><span class="id">MITRE ATLAS v2026.06</span><span class="topic">Adversarial threats to AI</span></li>
+          </ul>
+        </div>
+        <div class="biblio-col">
+          <h3 id="std-nist">NIST cybersecurity</h3>
+          <ul>
+            <li><span class="id">NIST CSF 2.0</span><span class="topic">Cybersecurity Framework</span></li>
+            <li><span class="id">NIST SP 800-53 Rev. 5</span><span class="topic">Security &amp; privacy controls</span></li>
+            <li><span class="id">NIST SP 800-63B Rev. 4</span><span class="topic">Digital identity / authentication</span></li>
+            <li><span class="id">NIST SP 800-61 Rev. 3</span><span class="topic">Incident response</span></li>
+            <li><span class="id">NIST SP 800-207</span><span class="topic">Zero Trust Architecture</span></li>
+            <li><span class="id">NIST SP 800-218 1.1</span><span class="topic">Secure software development (SSDF)</span></li>
+            <li><span class="id">NIST SP 800-161 Rev. 1</span><span class="topic">Supply-chain risk management</span></li>
+            <li><span class="id">NIST SP 800-82 Rev. 3</span><span class="topic">Operational technology (OT) security</span></li>
+            <li><span class="id">NIST SP 800-88 Rev. 2</span><span class="topic">Media sanitization</span></li>
+          </ul>
+        </div>
+        <div class="biblio-col">
+          <h3 id="std-dataprot">Global data-protection law</h3>
+          <ul>
+            <li><span class="id">EU GDPR</span><span class="topic">Regulation (EU) 2016/679</span></li>
+            <li><span class="id">UK GDPR / DPA 2018</span><span class="topic">UK data protection</span></li>
+            <li><span class="id">US CCPA / CPRA</span><span class="topic">California consumer privacy</span></li>
+            <li><span class="id">Brazil LGPD</span><span class="topic">Lei Geral de Prote&ccedil;&atilde;o de Dados</span></li>
+            <li><span class="id">Canada PIPEDA</span><span class="topic">Federal privacy law</span></li>
+            <li><span class="id">Australia Privacy Act 1988</span><span class="topic">as amended 2024</span></li>
+            <li><span class="id">Singapore PDPA</span><span class="topic">Personal Data Protection Act</span></li>
+            <li><span class="id">India DPDPA 2023</span><span class="topic">Digital Personal Data Protection Act</span></li>
+            <li><span class="id">China PIPL</span><span class="topic">Personal Information Protection Law</span></li>
+            <li><span class="id">Switzerland nFADP</span><span class="topic">revised Federal Act on Data Protection</span></li>
+          </ul>
+        </div>
+        <div class="biblio-col">
+          <h3 id="std-eu">EU digital &amp; sector regulation</h3>
+          <ul>
+            <li><span class="id">EU NIS2</span><span class="topic">Directive (EU) 2022/2555</span></li>
+            <li><span class="id">EU DORA</span><span class="topic">Regulation (EU) 2022/2554</span></li>
+            <li><span class="id">EU Data Act</span><span class="topic">Regulation (EU) 2023/2854</span></li>
+            <li><span class="id">EU eIDAS 2</span><span class="topic">Regulation (EU) 2024/1183</span></li>
+            <li><span class="id">US HIPAA</span><span class="topic">Health information privacy &amp; security</span></li>
+            <li><span class="id">US SOX</span><span class="topic">Sarbanes-Oxley Act</span></li>
+            <li><span class="id">PCI DSS 4.0.1</span><span class="topic">Payment card data security</span></li>
+            <li><span class="id">Basel III</span><span class="topic">Banking regulation framework</span></li>
+          </ul>
+        </div>
+        <div class="biblio-col">
+          <h3 id="std-frameworks">Security frameworks &amp; threat models</h3>
+          <ul>
+            <li><span class="id">OWASP Top 10 (2025)</span><span class="topic">Web application risks</span></li>
+            <li><span class="id">OWASP ASVS 5.0.0</span><span class="topic">App security verification</span></li>
+            <li><span class="id">OWASP SAMM 2.0</span><span class="topic">Software assurance maturity</span></li>
+            <li><span class="id">CSA CCM v4.1</span><span class="topic">Cloud Controls Matrix</span></li>
+            <li><span class="id">COBIT 2019</span><span class="topic">IT governance &amp; management</span></li>
+            <li><span class="id">MITRE ATT&amp;CK v19.1</span><span class="topic">Adversary tactics &amp; techniques</span></li>
+            <li><span class="id">STRIDE</span><span class="topic">Threat-modeling taxonomy</span></li>
+            <li><span class="id">LINDDUN v3.0</span><span class="topic">Privacy threat modeling</span></li>
+            <li><span class="id">IEC 62443</span><span class="topic">Industrial / OT security series</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 03 Declared gaps ===== -->
+  <section id="gaps">
+    <div class="wrap">
+      <p class="eyebrow">Said out loud</p>
+      <div class="sec-head"><span class="sec-num">&sect;03</span><h2>What we declare we don&rsquo;t cover yet.</h2></div>
+      <p class="lede">
+        Coverage claims are only as honest as their gaps. Where a leadership concern
+        has no published executive pages yet, it is shown as a declared gap on the
+        <a href="{{BASE}}/decisions/">decisions index</a>: today that is
+        <a href="{{BASE}}/decisions/#programme-maturity">programme establishment &amp;
+        maturity</a>. And alignment to a framework on this page never means every
+        requirement of that framework is addressed: use the
+        <a href="https://github.com/jposluns/grc_library/blob/main/compliance/matrix-grc-compliance-alignment.md" target="_blank" rel="noopener">compliance alignment matrix<span class="ext">&#8599;</span></a>
+        to see, requirement by requirement, what is supported, and what your own
+        gap analysis must still cover. How we decide what to say and check is on
+        <a href="{{BASE}}/trust/">the trust page</a>.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== Detail rail ===== -->
+  <section id="depth">
+    <div class="wrap">
+      <p class="eyebrow">Go deeper</p>
+      <div class="sec-head"><h2 class="nobalance">Three lenses past the executive layer.</h2></div>
+      <div class="rail">
+        <div class="lens">
+          <h3>Security &amp; risk (CISO)</h3>
+          <a href="{{BASE}}/security/">Security controls &amp; operations</a>
+          <a href="{{BASE}}/risk/">Risk methodology &amp; registers</a>
+          <a href="{{BASE}}/resilience/">Continuity, recovery &amp; incidents</a>
+        </div>
+        <div class="lens">
+          <h3>Compliance &amp; evidence</h3>
+          <a href="{{BASE}}/compliance/">Regulatory mapping &amp; audit readiness</a>
+          <a href="{{BASE}}/privacy/">Privacy &amp; data-protection obligations</a>
+          <a href="{{BASE}}/governance/">Charters, policies &amp; registers</a>
+        </div>
+        <div class="lens">
+          <h3>Technology</h3>
+          <a href="{{BASE}}/how-its-built/">How the library is built &amp; gated</a>
+          <a href="{{BASE}}/architecture/">Reference architectures</a>
+          <a href="{{BASE}}/dev-security/">Secure development &amp; pipelines</a>
+          <a href="{{BASE}}/for-ai/">For AI systems</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+</div>
+
+{{FOOTER}}
+
+{{SCRIPT}}
+</body>
+</html>

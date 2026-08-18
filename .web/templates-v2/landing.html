@@ -3,22 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="An open, organization-neutral GRC documentation corpus under CC BY-SA 4.0: version-controlled, cross-linked governance, risk, compliance, security, privacy, AI-governance, and resilience documents, held to a continuous automated gating system.">
-<title>GRC Library: an open, machine-auditable governance corpus</title>
+<meta name="description" content="An open, executive-first governance, risk, and compliance library: leadership decisions, oversight question sets, and reference documents spanning privacy, security, resilience, supplier, architecture, and AI exposure. Free under CC BY-SA 4.0. Supports governance work; does not certify compliance.">
+<title>GRC Library: leadership decisions, backed by an open governance corpus</title>
 <link rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "Dataset",
   "name": "GRC Library",
-  "description": "An open, organization-neutral corpus of governance, risk, and compliance documentation in Markdown, spanning governance, risk, compliance, security, privacy, AI-governance, resilience, and supply-chain domains. Released for reuse, adaptation, and AI training under CC BY-SA 4.0.",
+  "description": "An open, organization-neutral corpus of governance, risk, and compliance documentation with an executive narrative layer: leadership briefs, scenarios, journeys, and oversight question sets resolving to governing reference documents across governance, risk, compliance, security, privacy, operations, resilience, supply-chain, architecture, development-security, and AI domains. Released for reuse and adaptation under CC BY-SA 4.0.",
   "url": "https://grclibrary.ai{{BASE}}/",
   "sameAs": "https://github.com/jposluns/grc_library",
   "license": "https://creativecommons.org/licenses/by-sa/4.0/",
   "isAccessibleForFree": true,
   "version": "{{CALVER}}",
   "creator": {"@type": "Person", "name": "Jeff Posluns"},
-  "keywords": ["governance", "risk", "compliance", "GRC", "AI governance", "AI security", "information security", "privacy", "CC BY-SA 4.0"]
+  "keywords": ["governance", "risk", "compliance", "GRC", "board oversight", "information security", "privacy", "resilience", "supply chain", "AI governance", "CC BY-SA 4.0"]
 }
 </script>
 
@@ -33,28 +33,34 @@
 
   <div class="wrap hero">
     <p class="eyebrow reveal d1">Governance &middot; Risk &middot; Compliance</p>
-    <h1 class="reveal d2">Governance&nbsp;documentation,<br><span class="accent">engineered&nbsp;like&nbsp;software.</span></h1>
+    <h1 class="reveal d2">&ldquo;Are we in control?&rdquo;<br><span class="accent">Answer with evidence.</span></h1>
     <p class="dek reveal d3">
-      An open, organization-neutral GRC corpus: <b>{{DOC_TOTAL}} documents across {{DOMAIN_COUNT}} domains</b>,
-      every one version-controlled, cross-linked to primary sources, and held to a
-      <b>comprehensive, continuously-improving automated gating system</b> on every
-      change. Free to adopt, adapt, and cite under CC&nbsp;BY-SA&nbsp;4.0.
+      The GRC Library turns the questions leadership is accountable for (over data,
+      suppliers, systems, people, obligations, and AI) into <b>decisions you can read,
+      question sets you can ask, and {{DOC_TOTAL}} reference documents you can adopt</b>.
+      Open, organization-neutral, and free to adapt under CC&nbsp;BY-SA&nbsp;4.0.
     </p>
     <div class="cta-row reveal d4">
-      <a class="btn btn-primary" href="#start">Get started</a>
-      <a class="btn btn-ghost" href="#build">How it&rsquo;s built</a>
-      <a class="btn btn-ghost" href="{{BASE}}/pack">The governance pack</a>
-      <a class="btn btn-ghost" href="#register">Browse the domains</a>
-      <a class="btn btn-ghost" href="#standards">Standards</a>
+      <a class="btn btn-primary" href="{{BASE}}/decisions/">Explore leadership decisions</a>
+      <a class="btn btn-ghost" href="{{BASE}}/library/">Browse the library</a>
     </div>
+    <p class="qualifier reveal d4">
+      <b>Who it&rsquo;s for:</b> boards, executive teams, and the risk, security, compliance,
+      and technology leaders who brief them.
+      <b>What it helps you do:</b> frame governance decisions, document a programme, and
+      prepare for scrutiny.
+      <b>What it does not prove:</b> reading or adopting these documents does not certify
+      compliance with any framework or law, and does not by itself show that your
+      controls operate.
+    </p>
   </div>
 
   <div class="wrap">
     <div class="control-band">
-      <div class="stat"><div class="num tnum">{{DOC_TOTAL}}</div><div class="lbl">Documents</div></div>
-      <div class="stat"><div class="num tnum">{{DOMAIN_COUNT}}</div><div class="lbl">Governance domains</div></div>
-      <div class="stat"><div class="num">Continuous</div><div class="lbl">Automated quality gating</div></div>
-      <div class="stat"><div class="num">CC&nbsp;BY-SA</div><div class="lbl">Open license &middot; 4.0</div></div>
+      <div class="stat"><div class="num tnum">{{DOC_TOTAL}}</div><div class="lbl">Reference documents</div></div>
+      <div class="stat"><div class="num tnum">{{DOMAIN_COUNT}}</div><div class="lbl">Areas of business exposure</div></div>
+      <div class="stat"><div class="num">CC&nbsp;BY-SA</div><div class="lbl">Free to adopt &middot; 4.0</div></div>
+      <div class="stat"><div class="num">Human</div><div class="lbl">Accountable stewardship</div></div>
     </div>
   </div>
 </header>
@@ -63,350 +69,277 @@
   <nav class="sidenav" aria-label="Page contents">
     <div class="sidenav-inner">
       <p class="sidenav-h">Contents</p>
-      <a href="#what">What it is</a>
-      <a href="#start">Get started</a>
-      <a class="sub" href="#gs-decision-tree">Decision tree</a>
-      <a class="sub" href="#gs-worked-example">Worked example</a>
-      <a class="sub" href="#gs-templates">Templates</a>
-      <a class="sub" href="#gs-compliance-matrix">Compliance matrix</a>
-      <a class="sub" href="#gs-adopter-guide">Adopter guide</a>
-      <a class="sub" href="#gs-maturity">Maturity self-assessment</a>
-      <a href="#build">How it&rsquo;s built</a>
-      <a href="#pack">Governance pack</a>
-      <a href="#register">By domain</a>
+      <a href="#decisions">Leadership decisions</a>
+      <a href="#value">Value &amp; limits</a>
+      <a href="#start">Where to start</a>
+      <a href="#trust">Why rely on it</a>
+      <a href="#coverage">Coverage</a>
 {{SIDENAV_DOMAINS}}
-      <a href="#standards">Standards</a>
-      <a class="sub" href="#std-infosec">Information security</a>
-      <a class="sub" href="#std-ai">AI governance</a>
-      <a class="sub" href="#std-nist">NIST cybersecurity</a>
-      <a class="sub" href="#std-dataprot">Data-protection law</a>
-      <a class="sub" href="#std-eu">EU regulation</a>
-      <a class="sub" href="#std-frameworks">Security frameworks</a>
-      <a href="#licence">License</a>
+      <a href="#library">The library</a>
+      <a href="#how">How it&rsquo;s built</a>
+      <a href="#depth">Go deeper</a>
+      <p class="sidenav-h">Elsewhere</p>
       <a href="{{BASE}}/for-ai/">For AI</a>
-      <a href="{{BASE}}/about">Contributors</a>
+      <a href="{{BASE}}/about">About</a>
     </div>
   </nav>
 
 <main>
-  <!-- ===== 01 What it is ===== -->
-  <section id="what">
+  <!-- ===== 01 Leadership decisions / concern grid ===== -->
+  <section id="decisions">
     <div class="wrap">
-      <p class="eyebrow">Reference-grade</p>
-      <div class="sec-head"><span class="sec-num">&sect;01</span><h2 class="nobalance">A reference library you can cite, not just read.</h2></div>
+      <p class="eyebrow">Concerns, not document types</p>
+      <div class="sec-head"><span class="sec-num">&sect;01</span><h2>The decisions a governing body owns.</h2></div>
       <p class="lede">
-        The GRC Library is a complete, cross-referenced set of governance, risk, and
-        compliance documentation, charters, policies, procedures, standards, registers,
-        and templates, written to be <b>adopted and adapted</b> by any organization.
-        It is a public corpus of openly-licensed reference documentation, released under
-        CC&nbsp;BY-SA&nbsp;4.0, that enterprises, Crown and public-sector bodies,
-        regulated institutions, security and compliance teams, auditors, and startups
-        can freely read, cite, adopt, and tailor to their own context.
+        Each card below is a decision or exposure leadership is accountable for, not a
+        folder of files. Behind most of them sit published leadership pages
+        (briefs, scenarios, journeys, decision narratives, and
+        oversight question sets), and every claim in them resolves to the governing
+        documents in the corpus. <b>Where coverage does not exist yet, we say so.</b>
       </p>
       <div class="feat-grid">
         <div class="feat">
-          <div class="k"><a href="https://github.com/jposluns/grc_library/blob/main/specification-master-project.md" target="_blank" rel="noopener">Structured</a></div>
-          <h3>Every document is a controlled artefact</h3>
-          <p>Each one carries the same 13-field metadata block, version, owner, approving authority, classification, review cadence, and a fixed section model, so it reads and audits consistently.</p>
+          <div class="k">Accountability &amp; decision rights</div>
+          <h3><a href="{{BASE}}/decisions/#accountability">Who owns this decision, and where is that written?</a></h3>
+          <p>Every governance decision has an accountable owner. The corpus fixes where each authority sits, so a decision cannot fall between roles.</p>
         </div>
         <div class="feat">
-          <div class="k"><a href="https://github.com/jposluns/grc_library/blob/main/docs/portal.md" target="_blank" rel="noopener">Cross-linked</a></div>
-          <h3>Nothing stands alone</h3>
-          <p>Documents reference each other and map to external frameworks, so a control in one domain traces to its obligations, registers, and standards in the others.</p>
+          <div class="k">Cybersecurity &amp; operational resilience</div>
+          <h3><a href="{{BASE}}/decisions/#resilience">Could we take the hit and keep operating?</a></h3>
+          <p>Protective controls plus the ability to withstand and recover from disruption: an identity-provider compromise, a compromised signing key, a failed critical service.</p>
         </div>
         <div class="feat">
-          <div class="k"><a href="https://github.com/jposluns/grc_library/blob/main/docs/adopter-guide.md" target="_blank" rel="noopener">Practical</a></div>
-          <h3>Built to be adopted</h3>
-          <p>Adopter guides, decision trees, quick-start and maturity-roadmap templates, and a worked example turn the corpus into a programme you can stand up, not a shelf reference.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== 02 Get started ===== -->
-  <section id="start">
-    <div class="wrap">
-      <p class="eyebrow">Your entry points</p>
-      <div class="sec-head"><span class="sec-num">&sect;02</span><h2>Get started.</h2></div>
-      <p class="lede">
-        New here? Adopt the library in a few steps. Everything below is already in the corpus,
-        ready to lift and adapt to your own organization, nothing to install.
-      </p>
-      <div class="feat-grid">
-        <div class="feat" id="gs-decision-tree">
-          <div class="k"><a href="https://github.com/jposluns/grc_library/blob/main/docs/decision-tree.md" target="_blank" rel="noopener">Decision tree</a></div>
-          <h3>Find the path that fits you</h3>
-          <p>A short decision tree points you to the documents and templates that fit your organization&rsquo;s size, sector, and maturity.</p>
-        </div>
-        <div class="feat" id="gs-worked-example">
-          <div class="k"><a href="https://github.com/jposluns/grc_library/blob/main/docs/worked-example-adoption.md" target="_blank" rel="noopener">Worked example</a></div>
-          <h3>See it done end to end</h3>
-          <p>A worked example shows the library adopted into a running programme, so you can see the shape of it before you start.</p>
-        </div>
-        <div class="feat" id="gs-templates">
-          <div class="k"><a href="https://github.com/jposluns/grc_library/blob/main/docs/template-quickstart.md" target="_blank" rel="noopener">Templates</a></div>
-          <h3>Start from a template</h3>
-          <p>Take the quick-start template, or the startup, implementation-roadmap, or maturity self-assessment templates, and tailor one to your context.</p>
-        </div>
-        <div class="feat" id="gs-compliance-matrix">
-          <div class="k"><a href="https://github.com/jposluns/grc_library/blob/main/compliance/matrix-grc-compliance-alignment.md" target="_blank" rel="noopener">Compliance matrix</a></div>
-          <h3>Map your obligations</h3>
-          <p>Trace a control to the standards and regulations it satisfies through the compliance matrix and framework alignments.</p>
-        </div>
-        <div class="feat" id="gs-adopter-guide">
-          <div class="k"><a href="https://github.com/jposluns/grc_library/blob/main/docs/adopter-guide.md" target="_blank" rel="noopener">Adopter guide</a></div>
-          <h3>Adopt the whole programme</h3>
-          <p>The adopter guide stands up a coherent programme across every domain; a multi-entity guide covers groups and subsidiaries.</p>
-        </div>
-        <div class="feat" id="gs-maturity">
-          <div class="k"><a href="https://github.com/jposluns/grc_library/blob/main/docs/template-maturity-self-assessment.md" target="_blank" rel="noopener">Maturity self-assessment</a></div>
-          <h3>Assess where you are</h3>
-          <p>Baseline your current maturity with the self-assessment template and track progress as you adopt.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== 03 How it's built ===== -->
-  <section id="build">
-    <div class="wrap">
-      <p class="eyebrow">Governed like code</p>
-      <div class="sec-head"><span class="sec-num">&sect;03</span><h2>Machine-auditable by construction.</h2></div>
-      <p class="lede">
-        What makes the library different is the toolchain behind it. The corpus is
-        governed by a stdlib-only Python audit programme: a <b>detailed,
-        continuously-expanding suite of automated quality gates</b> that run in CI on
-        every change and keep the documentation internally consistent, citable, and
-        free of drift.
-      </p>
-      <div class="feat-grid">
-        <div class="feat">
-          <div class="k"><a href="https://github.com/jposluns/grc_library/blob/main/governance/specification-audit-programme.md" target="_blank" rel="noopener">Integrity</a></div>
-          <h3>Nothing ships unchecked</h3>
-          <p>Broken-link checks, cross-reference integrity, version monotonicity, and secret- and PII-scanning gates block a change before it can merge.</p>
+          <div class="k">Data, privacy &amp; the information lifecycle</div>
+          <h3><a href="{{BASE}}/decisions/#data-privacy">Do we control our information from creation to destruction?</a></h3>
+          <p>Personal and sensitive information governed across its whole life: classification, cross-border movement, retention, and evidenced destruction.</p>
         </div>
         <div class="feat">
-          <div class="k"><a href="https://github.com/jposluns/grc_library/blob/main/governance/register-canonical-citations.md" target="_blank" rel="noopener">Citations</a></div>
-          <h3>Verified, not asserted</h3>
-          <p>External-standard references are checked against a canonical citations register and flagged when a cited standard goes stale or names a superseded edition.</p>
+          <div class="k">Supplier &amp; cloud dependency</div>
+          <h3><a href="{{BASE}}/decisions/#supplier-cloud">How exposed are we through the parties we depend on?</a></h3>
+          <p>Concentration, exit, and assurance over third parties, including what happens the day a critical supplier fails.</p>
         </div>
         <div class="feat">
-          <div class="k"><a href="https://github.com/jposluns/grc_library/blob/main/compliance/matrix-grc-compliance-alignment.md" target="_blank" rel="noopener">Alignment</a></div>
-          <h3>Mapped to the frameworks</h3>
-          <p>Controls and citations cross-walk to the recognized standards, ISO, NIST, CSA, and OWASP among them, and a gate checks that every control code an alignment table cites is a real identifier in the framework it names.</p>
+          <div class="k">Compliance &amp; assurance</div>
+          <h3><a href="{{BASE}}/decisions/#compliance-assurance">Can we show, with evidence, that our controls operate?</a></h3>
+          <p>Controls mapped to obligations and tested so an assurer can rely on them: evidenced, not asserted.</p>
         </div>
         <div class="feat">
-          <div class="k"><a href="https://github.com/jposluns/grc_library/blob/main/docs/maturity-scorecard.md" target="_blank" rel="noopener">Generated</a></div>
-          <h3>Indexes derive from the source</h3>
-          <p>The taxonomy, the document portal, and the maturity scorecard are generated from each document&rsquo;s own metadata, never hand-maintained, so they cannot silently drift.</p>
+          <div class="k">Risk acceptance &amp; exceptions</div>
+          <h3><a href="{{BASE}}/decisions/#risk-acceptance">Which risks have we knowingly accepted, and who signed?</a></h3>
+          <p>Defensible, time-bound risk acceptance with named owners, instead of silent exceptions that surface in the post-incident review.</p>
         </div>
         <div class="feat">
-          <div class="k"><a href="https://github.com/jposluns/grc_library/blob/main/specification-master-project.md" target="_blank" rel="noopener">Style</a></div>
-          <h3>One consistent voice</h3>
-          <p>A prose linter enforces house style across the whole corpus, so hundreds of documents from many sittings read as one coherent body of work.</p>
+          <div class="k">Enterprise architecture &amp; technology debt</div>
+          <h3><a href="{{BASE}}/decisions/#architecture-debt">What is our accumulated technology debt costing us?</a></h3>
+          <p>Architecture decisions tied to governance, so deferred modernization is a visible, owned exposure rather than a surprise.</p>
         </div>
         <div class="feat">
-          <div class="k"><a href="https://github.com/jposluns/grc_library/blob/main/tests/README.md" target="_blank" rel="noopener">Tested</a></div>
-          <h3>The gates are tested too</h3>
-          <p>Every gate ships with regression fixtures, worked examples of what should pass and what should fail, so the checks that guard the corpus are themselves held to a test suite.</p>
-        </div>
-      </div>
-      <a class="pack-cta" href="https://github.com/jposluns/grc_library/blob/main/governance/specification-audit-programme.md" target="_blank" rel="noopener">See the audit programme: every gate, every PR &rarr;</a>
-    </div>
-  </section>
-
-  <!-- ===== 04 The governance pack ===== -->
-  <section id="pack">
-    <div class="wrap">
-      <p class="eyebrow">For AI-assisted teams</p>
-      <div class="sec-head"><span class="sec-num">&sect;04</span><h2>The governance pack behind it, open for reuse.</h2></div>
-      <p class="lede">
-        This corpus is maintained largely by an AI assistant, working under a compact, open
-        pack of governance rules and skills that keep it honest: evidence before assertion, no quality
-        gate weakened to force a pass, ambiguity surfaced before action, and integrity
-        ahead of speed. Those rules are library-original content, ship under the same
-        CC&nbsp;BY-SA&nbsp;4.0 license as the corpus, and are written to be lifted straight
-        into any AI-assisted project, not only this one.
-      </p>
-      <div class="feat-grid">
-        <div class="feat">
-          <div class="k ruleid"><a href="https://github.com/jposluns/grc_library/blob/main/guardrails/governance/project-integrity.md" target="_blank" rel="noopener">project-integrity</a></div>
-          <h3>Quality outranks progress, speed, and cost</h3>
-          <p>A fixed, lexicographic priority the assistant cannot trade away: correctness first, then decisive progress, then speed, then cost. Nothing ships worse to ship it faster or cheaper.</p>
+          <div class="k">Workforce, conduct &amp; operating model</div>
+          <h3><a href="{{BASE}}/decisions/#workforce">Do the people running the controls have the mandate to run them?</a></h3>
+          <p>People, roles, screening, conduct, and the operating model that actually runs the controls day to day.</p>
         </div>
         <div class="feat">
-          <div class="k ruleid"><a href="https://github.com/jposluns/grc_library/blob/main/guardrails/governance/gate-discipline.md" target="_blank" rel="noopener">gate-discipline</a></div>
-          <h3>A failing check is fixed, never silenced</h3>
-          <p>When a quality gate fails, the artefact that tripped it is fixed. Disabling, downgrading, or bypassing a check to force a pass is off the table.</p>
+          <div class="k">AI &amp; autonomous systems</div>
+          <h3><a href="{{BASE}}/decisions/#ai-systems">What is AI doing on our behalf, and who approved it?</a></h3>
+          <p>AI governed from intake through production approval, oversight, incidents, and retirement: one exposure among the ten, governed like the rest.</p>
         </div>
-        <div class="feat">
-          <div class="k ruleid"><a href="https://github.com/jposluns/grc_library/blob/main/guardrails/governance/evidence-grounded-completion.md" target="_blank" rel="noopener">evidence-grounded-completion</a></div>
-          <h3>Nothing is called done without proof</h3>
-          <p>Every completion or state claim rests on a re-read and a check, not on assumption. What has not been verified is labelled unverified, not asserted as fact.</p>
+        <div class="feat gap">
+          <div class="k">Programme establishment &amp; maturity</div>
+          <h3><a href="{{BASE}}/decisions/#programme-maturity">Where does our programme stand, and what would better look like?</a></h3>
+          <p>Leadership pages for this concern are not yet published: a declared coverage gap, not a hidden one. Coverage here is measured by concerns with supported routes, never padded by page count.</p>
         </div>
       </div>
       <div style="margin-top:2rem;">
-        <a class="pack-cta" href="{{BASE}}/pack">See the full pack: 15 rules and 24 skills &rarr;</a>
+        <a class="pack-cta" href="{{BASE}}/decisions/">All leadership decisions &amp; concerns &rarr;</a>
       </div>
     </div>
   </section>
 
-  <!-- ===== 05 Domains register ===== -->
-  <section id="register">
+  <!-- ===== 02 Business value + limits ===== -->
+  <section id="value">
+    <div class="wrap">
+      <p class="eyebrow">Qualified, deliberately</p>
+      <div class="sec-head"><span class="sec-num">&sect;02</span><h2>What it does for you, and what it doesn&rsquo;t.</h2></div>
+      <div class="feat-grid">
+        <div class="feat">
+          <div class="k">Oversight</div>
+          <h3>Walk into the board meeting with the questions, and the follow-ups</h3>
+          <p>Oversight question sets and executive briefs give a governing body substance to probe with, each claim resolving to a governing document. <b>Supports</b> informed oversight; <b>does not</b> replace judgement or prove any control operates in your organization.</p>
+        </div>
+        <div class="feat">
+          <div class="k">Programme</div>
+          <h3>Document a programme in weeks, not quarters</h3>
+          <p>Charters, policies, standards, registers, and templates, written to be adopted and adapted. <b>Supports</b> faster drafting and a coherent structure; adopting documents alone is <b>not</b> a functioning programme: implementation and approval remain yours.</p>
+        </div>
+        <div class="feat">
+          <div class="k">Obligations</div>
+          <h3>See where your obligations are covered, and where they aren&rsquo;t</h3>
+          <p>Crosswalks map controls to recognized frameworks and laws. <b>Supports</b> gap analysis and audit preparation; <b>does not</b> certify compliance with any framework, standard, or regulation.</p>
+        </div>
+        <div class="feat">
+          <div class="k">Reuse</div>
+          <h3>Adopt it freely, including commercially</h3>
+          <p>Everything is CC&nbsp;BY-SA&nbsp;4.0: read, adopt, adapt, and use internally or commercially, with attribution. <b>Supports</b> adoption at no licence cost; it is reference material, <b>not</b> legal, security, or compliance advice.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 03 Starting situations ===== -->
+  <section id="start">
+    <div class="wrap">
+      <p class="eyebrow">Meet you where you are</p>
+      <div class="sec-head"><span class="sec-num">&sect;03</span><h2>Choose your starting situation.</h2></div>
+      <div class="feat-grid">
+        <div class="feat">
+          <div class="k">New programme</div>
+          <h3><a href="{{BASE}}/start/#new-programme">Starting from nothing</a></h3>
+          <p>No documented programme yet. Begin from the startup roadmap and quick-start templates and stand up the minimum viable structure first.</p>
+        </div>
+        <div class="feat">
+          <div class="k">Undocumented programme</div>
+          <h3><a href="{{BASE}}/start/#undocumented">Running, but undocumented</a></h3>
+          <p>Controls exist in practice but not on paper. Baseline what you already do against the reference set and close the gaps in priority order.</p>
+        </div>
+        <div class="feat">
+          <div class="k">Regulated obligation</div>
+          <h3><a href="{{BASE}}/start/#regulated">Facing a regulated obligation</a></h3>
+          <p>An audit, a regulator, or a certification target with a date on it. Work backwards from the obligation through the compliance mappings to the documents that support it.</p>
+        </div>
+        <div class="feat">
+          <div class="k">Multi-entity</div>
+          <h3><a href="{{BASE}}/start/#multi-entity">Governing a group of entities</a></h3>
+          <p>Subsidiaries, shared services, mixed jurisdictions. One coherent governance model, tailored at entity level without forking the programme.</p>
+        </div>
+      </div>
+      <div style="margin-top:2rem;">
+        <a class="pack-cta" href="{{BASE}}/start/">All starting points &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 04 Trust strip ===== -->
+  <section id="trust">
+    <div class="wrap">
+      <p class="eyebrow">Trust, stated plainly</p>
+      <div class="sec-head"><span class="sec-num">&sect;04</span><h2>Why you could rely on it, and how to check.</h2></div>
+      <div class="trust-strip">
+        <div class="t"><h3>Accountable stewardship</h3><p>A named human maintainer approves and answers for every change. Nothing is published anonymously.</p></div>
+        <div class="t"><h3>Transparent gaps</h3><p>What is not covered is declared on the page it affects, never hidden behind page counts.</p></div>
+        <div class="t"><h3>Primary-source alignment</h3><p>External standards are cited against a canonical citations register and flagged when an edition is superseded.</p></div>
+        <div class="t"><h3>Open licence</h3><p>CC&nbsp;BY-SA&nbsp;4.0 throughout: adopt, adapt, and reuse with attribution, commercially included.</p></div>
+        <div class="t"><h3>Current &amp; versioned</h3><p>This is library version {{CALVER}}; every figure on this site is recomputed from the corpus on every change.</p></div>
+        <div class="t"><h3>Automation checks, humans decide</h3><p>Automated gates enforce integrity: links, citations, consistency. Content and judgement stay with the accountable maintainer.</p></div>
+      </div>
+      <div style="margin-top:2rem;">
+        <a class="pack-cta" href="{{BASE}}/trust/">How to judge whether to rely on it &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 05 Coverage preview ===== -->
+  <section id="coverage">
+    <div class="wrap">
+      <p class="eyebrow">Exposure, not folders</p>
+      <div class="sec-head"><span class="sec-num">&sect;05</span><h2>Where your exposure is covered.</h2></div>
+      <p class="lede">
+        {{DOC_TOTAL}} reference documents across <b>{{DOMAIN_COUNT}} areas of business
+        exposure</b> (from privacy and supplier dependency to resilience, architecture,
+        and AI) aligned to recognized frameworks and laws (ISO/IEC&nbsp;27001, NIST
+        CSF, the GDPR, and the EU&nbsp;AI&nbsp;Act among them).
+        <b>Aligned to, not certified against:</b> the mappings support your own
+        compliance work; they are not a certification of yours or ours.
+      </p>
+      <details class="disclosure">
+        <summary>The {{DOMAIN_COUNT}} areas, with document counts</summary>
+        <div class="disclosure-body">
+          <div class="table-scroll">
+            <table class="register">
+              <thead>
+                <tr>
+                  <th class="rg-idx-h">&sect;</th>
+                  <th>Area</th>
+                  <th>Scope</th>
+                  <th class="right">Documents</th>
+                </tr>
+              </thead>
+              <tbody>
+                {{DOMAIN_ROWS}}
+              </tbody>
+            </table>
+          </div>
+          <p class="register-note">The per-area counts sum to {{DOMAIN_DOC_TOTAL}}; the remaining {{ROOT_COUNT}} of the {{DOC_TOTAL}} documents are programme-level specifications at the corpus root.</p>
+        </div>
+      </details>
+      <div style="margin-top:2rem;">
+        <a class="pack-cta" href="{{BASE}}/coverage/">Coverage in full: areas, frameworks &amp; declared gaps &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 06 Library doorway ===== -->
+  <section id="library">
     <div class="wrap">
       <p class="eyebrow">The full corpus</p>
-      <div class="sec-head"><span class="sec-num">&sect;05</span><h2>The corpus, by domain.</h2></div>
-      <p class="lede">The corpus spans {{DOC_TOTAL}} documents across {{DOMAIN_COUNT}} governance domains. Every count here is recomputed from the generated taxonomy on each change, so the numbers stay current.</p>
-      <div class="table-scroll">
-        <table class="register">
-          <thead>
-            <tr>
-              <th class="rg-idx-h">&sect;</th>
-              <th>Domain</th>
-              <th>Scope</th>
-              <th class="right">Documents</th>
-            </tr>
-          </thead>
-          <tbody>
-            {{DOMAIN_ROWS}}
-          </tbody>
-        </table>
-      </div>
-      <p class="lede">The per-domain counts in the table sum to {{DOMAIN_DOC_TOTAL}}; the remaining {{ROOT_COUNT}} of the {{DOC_TOTAL}} total documents are programme-level specifications that sit at the corpus root rather than inside any one domain.</p>
-
-      <div style="margin-top:2.6rem;">
+      <div class="sec-head"><span class="sec-num">&sect;06</span><h2>One library, four ways in.</h2></div>
+      <p class="lede">
+        Browse by leadership concern, by business area, by document type, or by role. Every document links to its source, so what you
+        read is what you can take.
+      </p>
+      <div style="margin-bottom:2rem;">
         <p class="eyebrow" style="color:var(--brass);">By document type</p>
         <div class="types">
           {{TYPE_CHIPS}}
         </div>
       </div>
+      <a class="pack-cta" href="{{BASE}}/library/">Enter the library: browse &rarr;</a>
     </div>
   </section>
 
-  <!-- ===== 06 Standards referenced ===== -->
-  <section id="standards">
+  <!-- ===== 07 Technical proof strip + governance pack ===== -->
+  <section id="how">
     <div class="wrap">
-      <p class="eyebrow">Grounded in the standards</p>
-      <div class="sec-head"><span class="sec-num">&sect;06</span><h2>Standards &amp; frameworks it maps to.</h2></div>
-      <p class="lede">
-        The library maps its controls and citations to the recognized standards,
-        regulations, and frameworks below. Each is recorded, with its current edition,
-        in a canonical citations register that the toolchain checks for currency, so a
-        citation cannot silently name a superseded edition.
-      </p>
-      <div class="biblio">
-        <div class="biblio-col">
-          <h3 id="std-infosec">Information security &amp; management systems</h3>
-          <ul>
-            <li><span class="id">ISO/IEC 27001:2022</span><span class="topic">Information security management</span></li>
-            <li><span class="id">ISO/IEC 27002:2022</span><span class="topic">Information security controls</span></li>
-            <li><span class="id">ISO/IEC 27005:2022</span><span class="topic">Information security risk management</span></li>
-            <li><span class="id">ISO/IEC 27017:2026</span><span class="topic">Cloud service security controls</span></li>
-            <li><span class="id">ISO/IEC 27018:2025</span><span class="topic">PII protection in public clouds</span></li>
-            <li><span class="id">ISO/IEC 27701:2025</span><span class="topic">Privacy information management</span></li>
-            <li><span class="id">ISO 22301:2019</span><span class="topic">Business continuity management</span></li>
-            <li><span class="id">ISO 31000:2018</span><span class="topic">Risk management</span></li>
-            <li><span class="id">ISO/IEC 38500:2024</span><span class="topic">Governance of IT</span></li>
-            <li><span class="id">ISO 37301:2021</span><span class="topic">Compliance management</span></li>
-            <li><span class="id">ISO 28000:2022</span><span class="topic">Supply-chain security management</span></li>
-          </ul>
-        </div>
-        <div class="biblio-col">
-          <h3 id="std-ai">AI governance &amp; assurance</h3>
-          <ul>
-            <li><span class="id">ISO/IEC 42001:2023</span><span class="topic">AI management systems</span></li>
-            <li><span class="id">ISO/IEC 42005:2025</span><span class="topic">AI system impact assessment</span></li>
-            <li><span class="id">ISO/IEC 23894:2023</span><span class="topic">AI risk management</span></li>
-            <li><span class="id">ISO/IEC 5259:2024</span><span class="topic">Data quality for AI / ML</span></li>
-            <li><span class="id">NIST AI RMF 1.0</span><span class="topic">AI Risk Management Framework</span></li>
-            <li><span class="id">NIST AI 600-1</span><span class="topic">Generative AI profile</span></li>
-            <li><span class="id">EU AI Act</span><span class="topic">Regulation (EU) 2024/1689</span></li>
-            <li><span class="id">OECD AI Principles</span><span class="topic">2019, updated 2024</span></li>
-            <li><span class="id">CSA AICM v1.1</span><span class="topic">AI Controls Matrix</span></li>
-            <li><span class="id">OWASP LLM Top 10 (2025)</span><span class="topic">LLM application risks</span></li>
-            <li><span class="id">MITRE ATLAS</span><span class="topic">Adversarial threats to AI</span></li>
-          </ul>
-        </div>
-        <div class="biblio-col">
-          <h3 id="std-nist">NIST cybersecurity</h3>
-          <ul>
-            <li><span class="id">NIST CSF 2.0</span><span class="topic">Cybersecurity Framework</span></li>
-            <li><span class="id">NIST SP 800-53 Rev. 5</span><span class="topic">Security &amp; privacy controls</span></li>
-            <li><span class="id">NIST SP 800-63B Rev. 4</span><span class="topic">Digital identity / authentication</span></li>
-            <li><span class="id">NIST SP 800-61 Rev. 3</span><span class="topic">Incident response</span></li>
-            <li><span class="id">NIST SP 800-207</span><span class="topic">Zero Trust Architecture</span></li>
-            <li><span class="id">NIST SP 800-218</span><span class="topic">Secure software development (SSDF)</span></li>
-            <li><span class="id">NIST SP 800-161 Rev. 1</span><span class="topic">Supply-chain risk management</span></li>
-            <li><span class="id">NIST SP 800-82 Rev. 3</span><span class="topic">Operational technology (OT) security</span></li>
-            <li><span class="id">NIST SP 800-88 Rev. 2</span><span class="topic">Media sanitization</span></li>
-          </ul>
-        </div>
-        <div class="biblio-col">
-          <h3 id="std-dataprot">Global data-protection law</h3>
-          <ul>
-            <li><span class="id">EU GDPR</span><span class="topic">Regulation (EU) 2016/679</span></li>
-            <li><span class="id">UK GDPR / DPA 2018</span><span class="topic">UK data protection</span></li>
-            <li><span class="id">US CCPA / CPRA</span><span class="topic">California consumer privacy</span></li>
-            <li><span class="id">Brazil LGPD</span><span class="topic">Lei Geral de Proteção de Dados</span></li>
-            <li><span class="id">Canada PIPEDA</span><span class="topic">Federal privacy law</span></li>
-            <li><span class="id">Australia Privacy Act 1988</span><span class="topic">as amended 2024</span></li>
-            <li><span class="id">Singapore PDPA</span><span class="topic">Personal Data Protection Act</span></li>
-            <li><span class="id">India DPDPA 2023</span><span class="topic">Digital Personal Data Protection Act</span></li>
-            <li><span class="id">China PIPL</span><span class="topic">Personal Information Protection Law</span></li>
-            <li><span class="id">Switzerland nFADP</span><span class="topic">revised Federal Act on Data Protection</span></li>
-          </ul>
-        </div>
-        <div class="biblio-col">
-          <h3 id="std-eu">EU digital &amp; sector regulation</h3>
-          <ul>
-            <li><span class="id">EU NIS2</span><span class="topic">Directive (EU) 2022/2555</span></li>
-            <li><span class="id">EU DORA</span><span class="topic">Regulation (EU) 2022/2554</span></li>
-            <li><span class="id">EU Data Act</span><span class="topic">Regulation (EU) 2023/2854</span></li>
-            <li><span class="id">EU eIDAS 2</span><span class="topic">Regulation (EU) 2024/1183</span></li>
-            <li><span class="id">US HIPAA</span><span class="topic">Health information privacy &amp; security</span></li>
-            <li><span class="id">US SOX</span><span class="topic">Sarbanes-Oxley Act</span></li>
-            <li><span class="id">PCI DSS 4.0.1</span><span class="topic">Payment card data security</span></li>
-            <li><span class="id">Basel III</span><span class="topic">Banking regulation framework</span></li>
-          </ul>
-        </div>
-        <div class="biblio-col">
-          <h3 id="std-frameworks">Security frameworks &amp; threat models</h3>
-          <ul>
-            <li><span class="id">OWASP Top 10 (2025)</span><span class="topic">Web application risks</span></li>
-            <li><span class="id">OWASP ASVS 5.0</span><span class="topic">App security verification</span></li>
-            <li><span class="id">OWASP SAMM 2.0</span><span class="topic">Software assurance maturity</span></li>
-            <li><span class="id">CSA CCM v4.1</span><span class="topic">Cloud Controls Matrix</span></li>
-            <li><span class="id">COBIT 2019</span><span class="topic">IT governance &amp; management</span></li>
-            <li><span class="id">MITRE ATT&amp;CK</span><span class="topic">Adversary tactics &amp; techniques</span></li>
-            <li><span class="id">STRIDE</span><span class="topic">Threat-modeling taxonomy</span></li>
-            <li><span class="id">LINDDUN v3.0</span><span class="topic">Privacy threat modeling</span></li>
-            <li><span class="id">IEC 62443</span><span class="topic">Industrial / OT security series</span></li>
-          </ul>
+      <p class="eyebrow">If you want the machinery</p>
+      <div class="sec-head"><span class="sec-num">&sect;07</span><h2>Engineered like software.</h2></div>
+      <div class="proof-strip">
+        <p>The corpus is version-controlled, every change runs a continuously expanding suite of automated quality gates in CI, and every generated figure (document counts, area listings, the library version) is computed from the corpus itself, not hand-typed.</p>
+        <a class="pack-cta" href="{{BASE}}/how-its-built/">How it&rsquo;s built &rarr;</a>
+      </div>
+      <div class="feat-grid" style="margin-top:1.5rem; grid-template-columns:minmax(240px,1fr);">
+        <div class="feat">
+          <div class="k">For AI-assisted teams</div>
+          <h3><a href="{{BASE}}/pack">The governance pack behind this library, open for reuse</a></h3>
+          <p>The corpus is maintained largely by an AI assistant working under an open pack of governance rules and skills: evidence before assertion, no gate weakened to force a pass. It ships under the same CC&nbsp;BY-SA&nbsp;4.0 licence, written to be lifted into any AI-assisted project.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ===== 07 License and reuse ===== -->
-  <section id="licence">
+  <!-- ===== Per-surface detail rail ===== -->
+  <section id="depth">
     <div class="wrap">
-      <p class="eyebrow">Open for reuse</p>
-      <div class="sec-head"><span class="sec-num">&sect;07</span><h2>License &amp; reuse.</h2></div>
-      <p class="lede">
-        Everything here is released under <b>Creative Commons Attribution-ShareAlike
-        4.0</b> (CC&nbsp;BY-SA&nbsp;4.0). Enterprises, Crown and public-sector bodies,
-        regulated institutions, and smaller teams alike can adopt any part of it, adapt
-        it to their own context, and put it to work internally and commercially. When
-        you redistribute the material or an adaptation of it, you attribute the
-        <a href="https://github.com/jposluns/grc_library/blob/main/AUTHORS.md" target="_blank" rel="noopener">GRC Library</a>
-        as the source.
-      </p>
-      <div class="licence-note">
-        <h3>What ShareAlike means for you</h3>
-        <p>The ShareAlike term applies when you publicly redistribute an adapted version of the corpus itself: that redistributed adaptation carries the same CC&nbsp;BY-SA&nbsp;4.0 license, so the shared commons stays open for everyone. It does not reach the internal, proprietary policies, systems, or content your organization derives from the corpus for its own use and does not publish. Those remain entirely yours.</p>
-        <h3>The intent</h3>
-        <p>ShareAlike exists here for one reason: so that broadly-useful improvements to this neutral, organization-agnostic corpus can flow back and benefit everyone who adopts it. If you develop general enhancements to the library itself, contributing them back is warmly encouraged. The organization-specific work you build on top, for your own operations, is yours to keep.</p>
-        <p class="licence-fine">A plain-language summary, not a substitute for the <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">license</a>, which governs.</p>
+      <p class="eyebrow">Go deeper</p>
+      <div class="sec-head"><h2 class="nobalance">Three lenses past the executive layer.</h2></div>
+      <div class="rail">
+        <div class="lens">
+          <h3>Security &amp; risk (CISO)</h3>
+          <a href="{{BASE}}/security/">Security controls &amp; operations</a>
+          <a href="{{BASE}}/risk/">Risk methodology &amp; registers</a>
+          <a href="{{BASE}}/resilience/">Continuity, recovery &amp; incidents</a>
+        </div>
+        <div class="lens">
+          <h3>Compliance &amp; evidence</h3>
+          <a href="{{BASE}}/compliance/">Regulatory mapping &amp; audit readiness</a>
+          <a href="{{BASE}}/privacy/">Privacy &amp; data-protection obligations</a>
+          <a href="{{BASE}}/governance/">Charters, policies &amp; registers</a>
+        </div>
+        <div class="lens">
+          <h3>Technology</h3>
+          <a href="{{BASE}}/how-its-built/">How the library is built &amp; gated</a>
+          <a href="{{BASE}}/architecture/">Reference architectures</a>
+          <a href="{{BASE}}/dev-security/">Secure development &amp; pipelines</a>
+          <a href="{{BASE}}/for-ai/">For AI systems</a>
+        </div>
       </div>
     </div>
   </section>

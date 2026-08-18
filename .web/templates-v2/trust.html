@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="How to judge whether to rely on the GRC Library: accountable human stewardship, the boundary between automated checks and human judgement, declared gaps and the correction route, primary-source citation alignment, the open CC BY-SA 4.0 licence, and content recency.">
+<title>Trust: how to judge whether to rely on it: GRC Library</title>
+{{HEAD_STYLE}}
+</head>
+
+<body>
+<header class="mast">
+  <div class="wrap">
+{{TOPBAR}}
+  </div>
+
+  <div class="wrap hero">
+    <p class="eyebrow reveal d1">Trust</p>
+    <h1 class="reveal d2">Decide for yourself whether to <span class="accent">rely on it.</span></h1>
+    <p class="dek reveal d3">
+      A reference library asks for your trust; this page tells you how to check
+      instead. Six claims, each stated with its limits and the way to verify it.
+    </p>
+    <div class="cta-row reveal d4">
+      <a class="btn btn-ghost" href="{{BASE}}/">&larr; Back to the library</a>
+      <a class="btn btn-ghost" href="{{BASE}}/coverage/">What it covers, and doesn&rsquo;t</a>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="sidenav" aria-label="Page contents">
+    <div class="sidenav-inner">
+      <p class="sidenav-h">Contents</p>
+      <a href="#stewardship">Human stewardship</a>
+      <a href="#automation-boundary">Automation vs judgement</a>
+      <a href="#gaps">Declared gaps &amp; corrections</a>
+      <a href="#primary-sources">Primary-source alignment</a>
+      <a href="#licence">Open licence</a>
+      <a href="#recency">Recency &amp; versioning</a>
+      <p class="sidenav-h">Elsewhere</p>
+      <a href="{{BASE}}/how-its-built/">How it&rsquo;s built</a>
+      <a href="{{BASE}}/about">About</a>
+    </div>
+  </nav>
+
+<main>
+  <!-- ===== 01 Accountable human stewardship ===== -->
+  <section id="stewardship">
+    <div class="wrap">
+      <p class="eyebrow">Who answers for it</p>
+      <div class="sec-head"><span class="sec-num">&sect;01</span><h2>Accountable human stewardship.</h2></div>
+      <p class="lede">
+        The library has a named maintainer of record (Jeff Posluns, CGEIT, CISSP) who approves and answers for every change. The corpus is authored with
+        substantial AI assistance and is curated, reviewed, and edited by the
+        maintainer; nothing is published anonymously and nothing is published without a
+        human decision. Who he is, and the practitioners acknowledged for shaping the
+        corpus, are on the <a href="{{BASE}}/about">about page</a>.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== 02 The automated-vs-judgement boundary ===== -->
+  <section id="automation-boundary">
+    <div class="wrap">
+      <p class="eyebrow">Machines check, humans decide</p>
+      <div class="sec-head"><span class="sec-num">&sect;02</span><h2>What automation checks, and what it never decides.</h2></div>
+      <p class="lede">
+        Every change runs a continuously expanding suite of automated quality gates:
+        link integrity, citation currency, taxonomy consistency, secret and personal-data
+        screening, and structural checks among them. We describe that suite
+        qualitatively, deliberately: it grows continuously, and a hardcoded gate
+        count would understate it and go stale.
+      </p>
+      <p class="lede">
+        The boundary matters more than the count: <b>automation enforces integrity;
+        it does not author judgement.</b> What a control should require, how a risk
+        should be framed, whether a document is ready: those calls are made by
+        the accountable maintainer, never by a gate. The machinery is on
+        <a href="{{BASE}}/how-its-built/">How it&rsquo;s built</a>.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== 03 Declared gaps + correction route ===== -->
+  <section id="gaps">
+    <div class="wrap">
+      <p class="eyebrow">Honesty about the edges</p>
+      <div class="sec-head"><span class="sec-num">&sect;03</span><h2>Declared gaps, and the route to correct us.</h2></div>
+      <p class="lede">
+        What is not covered is declared on the page it affects, never hidden behind
+        page counts. The executive layer states it as policy: a concern with no
+        supported pages yet is shown as a declared coverage gap, and coverage is
+        measured by concerns with supported routes. You can see this practice
+        live on the <a href="{{BASE}}/decisions/#programme-maturity">programme-maturity
+        concern</a>, which is currently such a gap.
+      </p>
+      <p class="lede">
+        Found an error, a stale claim, or a gap we have not declared? The correction
+        route is public: open an issue or pull request per
+        <a href="https://github.com/jposluns/grc_library/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">CONTRIBUTING.md<span class="ext">&#8599;</span></a>,
+        or report a security concern per
+        <a href="https://github.com/jposluns/grc_library/blob/main/SECURITY.md" target="_blank" rel="noopener">SECURITY.md<span class="ext">&#8599;</span></a>.
+        Corrections land through the same reviewed, gated process as every other change.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== 04 Primary-source alignment ===== -->
+  <section id="primary-sources">
+    <div class="wrap">
+      <p class="eyebrow">Cited against the source</p>
+      <div class="sec-head"><span class="sec-num">&sect;04</span><h2>Primary-source alignment you can audit.</h2></div>
+      <p class="lede">
+        Every standard, regulation, and framework the library cites is recorded in the
+        <a href="https://github.com/jposluns/grc_library/blob/main/governance/register-canonical-citations.md" target="_blank" rel="noopener">Canonical Citations Register<span class="ext">&#8599;</span></a>
+        with its current published edition, publication date, known superseded
+        versions, and the authoritative upstream page where currency is re-checked. A
+        companion linter parses the register and flags any reference to a superseded
+        edition or a since-published draft across the whole corpus.
+      </p>
+      <p class="lede">
+        The register is honest about its own limits: each row carries a last-verified
+        date, and a row that has not been re-confirmed against its upstream this cycle
+        says so explicitly rather than implying verification that has not happened.
+        That is the standard the whole library aims for: the claim, its source,
+        and the state of its checking, all inspectable.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== 05 Open licence ===== -->
+  <section id="licence">
+    <div class="wrap">
+      <p class="eyebrow">Open by design</p>
+      <div class="sec-head"><span class="sec-num">&sect;05</span><h2>Openly licensed, plainly limited.</h2></div>
+      <p class="lede">
+        Everything is released under
+        <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC&nbsp;BY-SA&nbsp;4.0</a>:
+        read it, adopt it, adapt it, and use it internally or commercially, with
+        attribution and share-alike. There is no paywall and no gated tier, so what you
+        evaluate is exactly what you get.
+      </p>
+      <p class="lede">
+        The limits, equally plainly: this is organization-neutral reference material,
+        <b>not</b> legal, security, or compliance advice. Reading or adopting it does
+        not certify compliance with any framework or law, and does not by itself show
+        that any control operates in your organization. Adapt it to your own
+        obligations before relying on it.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== 06 Recency & versioning ===== -->
+  <section id="recency">
+    <div class="wrap">
+      <p class="eyebrow">Current, and provably so</p>
+      <div class="sec-head"><span class="sec-num">&sect;06</span><h2>You can tell how fresh it is.</h2></div>
+      <p class="lede">
+        This site renders library version {{CALVER}}. Its generated figures (document
+        counts, area counts, the listings) are recomputed from the corpus on every
+        change, so those figures cannot silently go stale. Documents and executive pages
+        carry their own versions and review records, and the executive pages record when
+        they were last reviewed.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== Detail rail ===== -->
+  <section id="depth">
+    <div class="wrap">
+      <p class="eyebrow">Go deeper</p>
+      <div class="sec-head"><h2 class="nobalance">Three lenses past the executive layer.</h2></div>
+      <div class="rail">
+        <div class="lens">
+          <h3>Security &amp; risk (CISO)</h3>
+          <a href="{{BASE}}/security/">Security controls &amp; operations</a>
+          <a href="{{BASE}}/risk/">Risk methodology &amp; registers</a>
+          <a href="{{BASE}}/resilience/">Continuity, recovery &amp; incidents</a>
+        </div>
+        <div class="lens">
+          <h3>Compliance &amp; evidence</h3>
+          <a href="{{BASE}}/compliance/">Regulatory mapping &amp; audit readiness</a>
+          <a href="{{BASE}}/privacy/">Privacy &amp; data-protection obligations</a>
+          <a href="{{BASE}}/governance/">Charters, policies &amp; registers</a>
+        </div>
+        <div class="lens">
+          <h3>Technology</h3>
+          <a href="{{BASE}}/how-its-built/">How the library is built &amp; gated</a>
+          <a href="{{BASE}}/architecture/">Reference architectures</a>
+          <a href="{{BASE}}/dev-security/">Secure development &amp; pipelines</a>
+          <a href="{{BASE}}/for-ai/">For AI systems</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+</div>
+
+{{FOOTER}}
+
+{{SCRIPT}}
+</body>
+</html>

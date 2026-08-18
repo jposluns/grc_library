@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="How the GRC Library is built: one corpus as the single source of truth, a continuously expanding suite of automated quality gates run in CI on every change, citation registers with per-entry verification state, generated indexes, a tested toolchain, and an open governance pack for AI-assisted maintenance.">
+<title>How it&rsquo;s built: gates, CI &amp; provenance: GRC Library</title>
+{{HEAD_STYLE}}
+</head>
+
+<body>
+<header class="mast">
+  <div class="wrap">
+{{TOPBAR}}
+  </div>
+
+  <div class="wrap hero">
+    <p class="eyebrow reveal d1">How it&rsquo;s built</p>
+    <h1 class="reveal d2">Engineered <span class="accent">like software.</span></h1>
+    <p class="dek reveal d3">
+      The corpus is version-controlled, continuously gated, and projected onto this
+      site by a generator that recomputes every figure from the source on every change.
+      This page is the machinery, described honestly.
+    </p>
+    <div class="cta-row reveal d4">
+      <a class="btn btn-ghost" href="{{BASE}}/">&larr; Back to the library</a>
+      <a class="btn btn-ghost" href="{{BASE}}/trust/">Why that matters for trust</a>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="sidenav" aria-label="Page contents">
+    <div class="sidenav-inner">
+      <p class="sidenav-h">Contents</p>
+      <a href="#source-of-truth">One source of truth</a>
+      <a href="#gates">The quality gates</a>
+      <a href="#ci">Continuous integration</a>
+      <a href="#registers">Citation registers</a>
+      <a href="#generated">Generated indexes</a>
+      <a href="#tested">A tested toolchain</a>
+      <a href="#pack">The governance pack</a>
+      <p class="sidenav-h">Elsewhere</p>
+      <a href="{{BASE}}/pack">Governance pack</a>
+      <a href="{{BASE}}/for-ai/">For AI</a>
+    </div>
+  </nav>
+
+<main>
+  <!-- ===== 01 One source of truth ===== -->
+  <section id="source-of-truth">
+    <div class="wrap">
+      <p class="eyebrow">The corpus is the system</p>
+      <div class="sec-head"><span class="sec-num">&sect;01</span><h2>One source of truth; the site is a projection.</h2></div>
+      <p class="lede">
+        There is one corpus, and the site&rsquo;s data is derived from it. This
+        site&rsquo;s generator reads an explicit allow-list of corpus inputs and
+        recomputes every figure (document counts, area listings, the version) at build
+        time, so no figure is hand-typed and a repository file outside the allow-list
+        cannot leak onto the public site. The editorial prose and the curated executive
+        framing are authored and reviewed by the maintainer. The site you are reading
+        renders library version {{CALVER}}, and that number came from the corpus, not
+        from an editor.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== 02 The gates ===== -->
+  <section id="gates">
+    <div class="wrap">
+      <p class="eyebrow">Quality, enforced</p>
+      <div class="sec-head"><span class="sec-num">&sect;02</span><h2>A continuously expanding suite of quality gates.</h2></div>
+      <p class="lede">
+        Every change runs a suite of automated Python gates before it can land. Among
+        the families: link integrity across the corpus; citation currency against the
+        canonical register, so a reference to an edition the register already marks
+        superseded is flagged; taxonomy drift, so the machine-readable inventory cannot
+        fall out of step with the documents; web-to-corpus link resolution against a
+        committed manifest, so a corpus file renamed or deleted without regenerating the
+        site is caught; and safety screening for secrets and personal data.
+      </p>
+      <p class="lede">
+        You will find no gate count on this page, deliberately: the suite grows
+        continuously, and any number printed here would understate it and go stale.
+        The generator behind this site computes no such count for the same reason.
+        What automation never does is decide content: gates enforce integrity;
+        the accountable maintainer decides what the library says. That boundary is
+        stated plainly on <a href="{{BASE}}/trust/">the trust page</a>.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== 03 CI ===== -->
+  <section id="ci">
+    <div class="wrap">
+      <p class="eyebrow">On every change, and every night</p>
+      <div class="sec-head"><span class="sec-num">&sect;03</span><h2>Continuous integration, three layers.</h2></div>
+      <p class="lede">
+        The gates run in CI on every proposed change, so nothing merges ungated. A
+        scheduled nightly sweep re-runs the full gate suite against the whole corpus, so
+        time-dependent drift that no single change would trip (a citation whose recorded
+        re-verification has fallen due, a reference to an edition the register already
+        marks superseded) surfaces without waiting for the next edit. And the site
+        generator has its own health check, which fails loudly if the corpus coupling it
+        depends on ever breaks, rather than publishing wrong figures quietly.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== 04 Citation registers ===== -->
+  <section id="registers">
+    <div class="wrap">
+      <p class="eyebrow">Provenance on the record</p>
+      <div class="sec-head"><span class="sec-num">&sect;04</span><h2>Citation registers, with inspectable upstream status.</h2></div>
+      <p class="lede">
+        External claims are anchored in registers, not in prose. The
+        <a href="https://github.com/jposluns/grc_library/blob/main/governance/register-canonical-citations.md" target="_blank" rel="noopener">Canonical Citations Register<span class="ext">&#8599;</span></a>
+        records every cited standard and regulation with its current edition, known
+        superseded versions, the authoritative upstream page where currency is
+        re-checked, and the date it was last verified, and a companion linter
+        uses it to flag stale references across the corpus. Entries are additionally
+        subject to publisher-source verification, recorded row by row; until an entry
+        is verified, the register says so rather than implying provenance it does not
+        have.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== 05 Generated indexes ===== -->
+  <section id="generated">
+    <div class="wrap">
+      <p class="eyebrow">Never hand-maintained</p>
+      <div class="sec-head"><span class="sec-num">&sect;05</span><h2>Indexes are generated, so they cannot silently drift.</h2></div>
+      <p class="lede">
+        The document inventory (<a href="https://github.com/jposluns/grc_library/blob/main/taxonomy.yml" target="_blank" rel="noopener">taxonomy.yml<span class="ext">&#8599;</span></a>),
+        the <a href="https://github.com/jposluns/grc_library/blob/main/docs/portal.md" target="_blank" rel="noopener">adopter portal<span class="ext">&#8599;</span></a>,
+        the executive narrative registry, and this site&rsquo;s own web-to-corpus link
+        manifest are all generated artefacts, regenerated from the corpus and gated for
+        drift. An index that is computed cannot quietly disagree with the documents it
+        indexes: when the corpus changes, the indexes change in the same
+        commit or the build fails.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== 06 Tested toolchain ===== -->
+  <section id="tested">
+    <div class="wrap">
+      <p class="eyebrow">Who gates the gates</p>
+      <div class="sec-head"><span class="sec-num">&sect;06</span><h2>The toolchain is itself tested.</h2></div>
+      <p class="lede">
+        The linters and generators that enforce all of the above are covered by their
+        own test suite in the repository, run in the same CI. A quality gate you cannot
+        trust is worse than none; testing the tooling is how the gates earn the
+        authority they exercise.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== 07 Governance pack pointer ===== -->
+  <section id="pack">
+    <div class="wrap">
+      <p class="eyebrow">For AI-assisted teams</p>
+      <div class="sec-head"><span class="sec-num">&sect;07</span><h2>The discipline behind the machine, open for reuse.</h2></div>
+      <div class="proof-strip">
+        <p>
+          The corpus is maintained largely by an AI assistant working under an open
+          pack of governance rules and skills (evidence before assertion, no
+          gate weakened to force a pass) with every change approved by the
+          accountable maintainer. The pack ships under the same CC&nbsp;BY-SA&nbsp;4.0
+          licence, written to be lifted into any AI-assisted project.
+        </p>
+        <a class="pack-cta" href="{{BASE}}/pack">The governance pack &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Detail rail ===== -->
+  <section id="depth">
+    <div class="wrap">
+      <p class="eyebrow">Go deeper</p>
+      <div class="sec-head"><h2 class="nobalance">Three lenses past the executive layer.</h2></div>
+      <div class="rail">
+        <div class="lens">
+          <h3>Security &amp; risk (CISO)</h3>
+          <a href="{{BASE}}/security/">Security controls &amp; operations</a>
+          <a href="{{BASE}}/risk/">Risk methodology &amp; registers</a>
+          <a href="{{BASE}}/resilience/">Continuity, recovery &amp; incidents</a>
+        </div>
+        <div class="lens">
+          <h3>Compliance &amp; evidence</h3>
+          <a href="{{BASE}}/compliance/">Regulatory mapping &amp; audit readiness</a>
+          <a href="{{BASE}}/privacy/">Privacy &amp; data-protection obligations</a>
+          <a href="{{BASE}}/governance/">Charters, policies &amp; registers</a>
+        </div>
+        <div class="lens">
+          <h3>Technology</h3>
+          <a href="{{BASE}}/architecture/">Reference architectures</a>
+          <a href="{{BASE}}/dev-security/">Secure development &amp; pipelines</a>
+          <a href="{{BASE}}/for-ai/">For AI systems</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+</div>
+
+{{FOOTER}}
+
+{{SCRIPT}}
+</body>
+</html>

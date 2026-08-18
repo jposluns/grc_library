@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Static-site generator for the grclibrary.ai public site: the landing, about, pack, per-domain, and per-type pages.
+"""Static-site generator for the grclibrary.ai public site: the landing, about, pack, per-domain, and per-type pages, plus the non-indexable /v2 staging tree's extra executive routes.
 
 WHAT THIS IS. A stdlib-only generator that renders the public site (the landing page,
 the about page, the governance-pack page, one page per corpus domain, and one listing
@@ -25,7 +25,9 @@ the safeguard checks; neither feeds published content.) By default its rendered 
 ``types/<slug>/index.html`` per document type, and the three generated files
 ``robots.txt``, ``sitemap.xml``, and ``llms.txt``); it also writes the committed ``.web/corpus-link-manifest.md`` (a generated artefact outside the ephemeral ``dist/`` tree). So the
 published surface is those root pages and files, plus the non-indexable ``v2`` staging
-variant's tree under ``.web/dist/v2/`` (noindex); a repo file cannot
+variant's tree under ``.web/dist/v2/`` (noindex), which additionally carries the
+executive-shell routes declared in ``V2_EXTRA_PAGES`` (decisions, start, trust,
+coverage, library, how-its-built); a repo file cannot
 leak onto the public site through this generator. The about page and the For-AI
 page are static template prose (the maintainer bio and acknowledged contributors;
 and, for For-AI, descriptive guidance plus a resource index whose links point at
@@ -84,14 +86,34 @@ class Variant(NamedTuple):
     template_source_dir: str
     url_prefix: str
     indexable: bool = False
+    # Extra (template, out_rel) pages this variant renders on TOP of the shared
+    # PAGES set. A non-indexable staging variant uses this to carry routes the
+    # frozen root does not yet have, without touching PAGES (which is shared, so
+    # a root render stays byte-for-byte unchanged). Empty for the root variant.
+    extra_pages: tuple = ()
 
+
+# Executive routes that exist ONLY on the non-indexable /v2 staging tree (wave 1
+# of the executive-site rework). These render in addition to PAGES for v2 alone,
+# so the frozen root (v1) is unaffected and stays byte-identical to its baseline.
+# They inherit the noindex + self-canonical + /v2/-prefixed treatment every v2
+# page gets. Discovery files (robots/sitemap/llms.txt) are emitted for the
+# indexable variant only, so these routes stay out of them automatically.
+V2_EXTRA_PAGES = (
+    ("decisions.html", "decisions/index.html"),
+    ("start.html", "start/index.html"),
+    ("trust.html", "trust/index.html"),
+    ("coverage.html", "coverage/index.html"),
+    ("library.html", "library/index.html"),
+    ("how-its-built.html", "how-its-built/index.html"),
+)
 
 # The site variant table: one indexable root variant (v1) plus any non-indexable
 # staging variants (v2). New staging variants belong in this table, so
 # the template source, URL prefix, and indexability policy stay coupled.
 VARIANTS = (
     Variant("v1", "templates", "", indexable=True),
-    Variant("v2", "templates-v2", "v2/", indexable=False),
+    Variant("v2", "templates-v2", "v2/", indexable=False, extra_pages=V2_EXTRA_PAGES),
 )
 
 # Shared chrome injected into every page from a single source, so the pages
@@ -809,7 +831,10 @@ def render_static_template_links(variant):
 
     Only the templates in PAGES are scanned: `domain.html` and `type.html` render
     from the taxonomy (already covered above) and the shared partials carry no
-    corpus links, so PAGES is the complete set of static-link sources. The link
+    corpus links, so PAGES is the complete set of static-link sources for the indexable
+    root manifest. A staging variant's extra_pages templates carry their own hardcoded
+    corpus links, intentionally excluded from the committed root manifest (verified at
+    authoring time, folded in at promotion). The link
     text is the anchor's own text when it can be read, else the target's basename,
     since a template anchor's text is prose rather than a document title."""
     template_dir = template_dir_for(variant)
@@ -832,8 +857,10 @@ def render_static_template_links(variant):
 def render_corpus_link_manifest(figures, variant):
     """The committed web-to-corpus link manifest: one row per corpus/GitHub
     target the indexable root variant's pages link (its repo-relative path, its
-    website location, and its link text; staging variants are verbatim template
-    copies that link identical targets, so the root variant's rows cover them). Re-derived from the SAME sources the pages emit from, so the
+    website location, and its link text). A non-indexable staging variant may carry
+    extra routes (variant.extra_pages) that link further corpus targets; those
+    staging-only links are verified at authoring time but are not enumerated in
+    this root manifest, and enter it when a staging tree is promoted to root. Re-derived from the SAME sources the pages emit from, so the
     manifest cannot drift from the emitted links: the taxonomy docs behind the
     per-domain pages (render_domain_doc_rows) and the per-type pages
     (render_type_doc_rows), the curated llms.txt corpus links
@@ -859,8 +886,10 @@ def render_corpus_link_manifest(figures, variant):
         "taxonomy-derived domain and type pages, the curated `llms.txt` map, and "
         "the corpus links hardcoded in the static page templates. Gate 75 "
         "(`tools/lint-web-corpus-links.py`) resolves each target against the repo. "
-        "Non-indexable staging variants (v2) are verbatim template copies linking "
-        "identical targets, so these root-variant rows cover them.",
+        "Non-indexable staging variants (v2) may carry extra executive routes that "
+        "link further corpus targets; those staging-only links are verified at "
+        "authoring time, are not enumerated here, and enter this manifest when a "
+        "staging tree is promoted to root.",
         "",
         "| Corpus target | Website location | Link text |",
         "| --- | --- | --- |",
@@ -887,7 +916,7 @@ def render_variant(figures, variant):
     all_values = set(PARTIALS) | set(figure_values(figures, variant))
     pages = []
     used_across = set()
-    for template_name, out_rel in PAGES:
+    for template_name, out_rel in tuple(PAGES) + tuple(variant.extra_pages):
         html, used = render_page(
             template_name, figures, variant, template_dir, partials, out_rel=out_rel
         )
@@ -1001,7 +1030,7 @@ def bare_root_relative_hrefs():
 
 def main(argv=None):
     ap = argparse.ArgumentParser(
-        description="Render the grclibrary.ai public site (landing, about, pack, per-domain, and per-type pages) from the live corpus.",
+        description="Render the grclibrary.ai public site (landing, about, pack, per-domain, and per-type pages, plus the non-indexable /v2 staging tree's executive routes: decisions/start/trust/coverage/library/how-its-built) from the live corpus.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     ap.add_argument(

@@ -9150,13 +9150,89 @@ class WebGeneratorV2StagingTests(unittest.TestCase):
         )
         self.assertEqual(
             next(variant for variant in self.mod.VARIANTS if variant.name == "v2"),
-            self.mod.Variant("v2", "templates-v2", "v2/", indexable=False),
+            self.mod.Variant(
+                "v2", "templates-v2", "v2/", indexable=False,
+                extra_pages=self.mod.V2_EXTRA_PAGES,
+            ),
         )
         robots = self.mod.render_robots_txt()
         groups = [group for group in robots.split("\n\n") if group.startswith("User-agent:")]
         self.assertEqual(len(groups), len(self.mod.AI_CRAWLER_USER_AGENTS) + 1)
         self.assertTrue(all("Disallow: /v2/" in group.splitlines() for group in groups))
         self.assertNotIn("/v2/", self.mod.render_sitemap(indexable, ["index.html"]))
+
+    def test_v2_extra_pages_render_only_under_v2(self):
+        """The extra_pages mechanism: v2's executive routes render under /v2 and
+        NOT at root, so the frozen root tree is unaffected by them. Locks the exact
+        six-route contract so a silent add/drop is caught (PR #1627 L1)."""
+        figures = self.mod.compute_figures()
+        expected = {
+            ("decisions.html", "decisions/index.html"),
+            ("start.html", "start/index.html"),
+            ("trust.html", "trust/index.html"),
+            ("coverage.html", "coverage/index.html"),
+            ("library.html", "library/index.html"),
+            ("how-its-built.html", "how-its-built/index.html"),
+        }
+        self.assertEqual(len(self.mod.V2_EXTRA_PAGES), 6)
+        self.assertEqual(set(self.mod.V2_EXTRA_PAGES), expected)
+        v1 = self.mod.indexable_variant()
+        self.assertEqual(v1.extra_pages, (), "root variant must carry no extra pages")
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            self._write_site(self.mod.render_site(figures), out)
+            for template_name, out_rel in self.mod.V2_EXTRA_PAGES:
+                self.assertTrue(
+                    (out / "v2" / out_rel).is_file(),
+                    f"/v2 is missing extra route {out_rel}",
+                )
+                self.assertFalse(
+                    (out / out_rel).is_file(),
+                    f"root must NOT carry the v2-only route {out_rel}",
+                )
+
+    def test_v2_internal_fragment_links_resolve(self):
+        """Every internal /v2 link that carries a #fragment resolves to an id on
+        the target page. Regression guard for PR #1627 H1, where a homepage rewrite
+        removed the #register anchor and orphaned 56 return links across the v2
+        domain/type pages (which no gate caught)."""
+        import re
+        figures = self.mod.compute_figures()
+        id_re = re.compile(r'id="([^"]+)"')
+        href_re = re.compile(r'href="([^"]+)"')
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            self._write_site(self.mod.render_site(figures), out)
+            v2root = out / "v2"
+            pages = sorted(v2root.rglob("*.html"))
+            self.assertTrue(pages, "no v2 pages rendered")
+            ids_cache = {}
+            def ids_of(path):
+                if path not in ids_cache:
+                    ids_cache[path] = (set(id_re.findall(path.read_text(encoding="utf-8")))
+                                       if path.is_file() else None)
+                return ids_cache[path]
+            def page_for(base):
+                rel = base[len("/v2"):].strip("/")
+                return (v2root / rel / "index.html") if rel else (v2root / "index.html")
+            broken = []
+            for page in pages:
+                html = page.read_text(encoding="utf-8")
+                page_ids = set(id_re.findall(html))
+                for href in href_re.findall(html):
+                    if "#" not in href:
+                        continue
+                    base, frag = href.split("#", 1)
+                    if not frag:
+                        continue
+                    if href.startswith("#"):
+                        if frag not in page_ids:
+                            broken.append((str(page.relative_to(out)), href))
+                    elif base == "/v2" or base.startswith("/v2/"):
+                        target_ids = ids_of(page_for(base))
+                        if target_ids is None or frag not in target_ids:
+                            broken.append((str(page.relative_to(out)), href))
+            self.assertEqual(broken, [], f"unresolved /v2 fragment links: {broken}")
 
 
 class PortalGeneratorCheckTests(unittest.TestCase):
