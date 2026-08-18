@@ -288,7 +288,7 @@
     "skills/high-assurance-verification/SKILL.md": {
       "bucket": "CORE",
       "disclosure": "SANITIZE",
-      "rationale": "Cleanest instance of the wiring convention; re-instantiate the compliance-matrix motivating case and the `/resume` command reference for a standalone repo."
+      "rationale": "Cleanest instance of the wiring convention; re-instantiate the compliance-matrix motivating case and the `/orch` command reference for a standalone repo."
     },
     "skills/library-fitness-review/SKILL.md": {
       "bucket": "CORE",

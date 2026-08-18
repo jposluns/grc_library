@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Execution-environment detection for session start (/resume step aid).
+"""Execution-environment detection for session start (/orch step aid).
 
 WHAT THIS IS (and is NOT). An advisory orchestrator dev-AID (#724), not a
 gate. It always exits 0 after printing its report (2 only on internal error). The
@@ -56,7 +56,7 @@ SIBLINGS = ("grc_library_ref", "grc_library_scratch", "grc_library_private")
 MAINTAINER_ORIGIN_OWNER_REPO = "jposluns/grc_library"
 
 # The committed adopt-config marker (TODO section 3.92a). The /adopt run-once
-# onboarding writes it; the /resume adopter-path reads it to skip re-onboarding.
+# onboarding writes it; the /orch adopter-path reads it to skip re-onboarding.
 # Its minimal schema (per the adopt SKILL step 6): mode == "adopter",
 # adopted_at (UTC date), sibling_choice in the set below, adopt_config_version.
 ADOPT_CONFIG = REPO_ROOT / ".claude" / "adopt-config.json"
@@ -180,9 +180,9 @@ def _origin_is_maintainer(url: str | None) -> bool:
     repo, or a malformed multi-segment path does NOT match. The host-pin closes
     the theoretical false-maintainer classifications noted in TODO section 1.19.5;
     since section 1.19.6 makes the classification load-bearing (it drives the
-    ``/resume`` maintainer-vs-adopter path), a false MAINTAINER is the dangerous
+    ``/orch`` maintainer-vs-adopter path), a false MAINTAINER is the dangerous
     direction and is foreclosed, while a maintainer using an unusual SSH host
-    alias degrades to the recoverable false-ADOPTER (``/resume`` proposes
+    alias degrades to the recoverable false-ADOPTER (``/orch`` proposes
     ``/adopt``, which they decline).
     """
     if not url:
@@ -225,7 +225,7 @@ def _adopt_config_status() -> tuple[bool, "bool | None"]:
     True only for parseable JSON with ``mode == "adopter"`` AND a recognized
     ``sibling_choice`` (the schema the adopt SKILL step 6 writes); an unparseable
     file, a non-object, a wrong/absent ``mode``, or an out-of-set ``sibling_choice``
-    is present-but-invalid. This is the mechanical backstop for the /resume
+    is present-but-invalid. This is the mechanical backstop for the /orch
     adopter-path's malformed-config handling (previously assistant-prose only).
     """
     if not ADOPT_CONFIG.exists():
@@ -253,7 +253,7 @@ def probe_identity(siblings: dict) -> dict:
       is NOT an adopter).
     - ``adopter``: origin is a fork (any other owner) or absent.
 
-    Detection only: the ``/resume`` maintainer-vs-adopter path acts on this and,
+    Detection only: the ``/orch`` maintainer-vs-adopter path acts on this and,
     on an un-onboarded adopter clone, proposes the ``/adopt`` run-once onboarding
     skill (built in the same section-1.19.6 change as this probe's load-bearing
     use).
@@ -474,7 +474,7 @@ def _self_test() -> int:
     return 0 if result.wasSuccessful() else 1
 
 
-# --- Repo-structure env resolution (the /resume structure-detection step; maintainer-directed
+# --- Repo-structure env resolution (the /orch structure-detection step; maintainer-directed
 # 2026-08-17). The grc_* repos are siblings under ONE parent (the model for all VMs:
 # /opt/<project>/grc_*, e.g. /opt/grc; historically /home/grc). Seven tools read GRC_REPO /
 # GRC_REF_PATH / GRC_SCRATCH_PATH, so setting these to the DETECTED layout makes a
@@ -528,7 +528,7 @@ def main(argv: list[str] | None = None) -> int:
                     help="Run the availability-decision unit tests and exit.")
     ap.add_argument("--emit-repo-env", action="store_true",
                     help="Detect the grc_* repo layout and print {parent, env, structure, "
-                         "missing} as JSON plus the shell export block; the /resume "
+                         "missing} as JSON plus the shell export block; the /orch "
                          "structure-detection step.")
     ap.add_argument("--write-repo-env", nargs="?", const="", metavar="PATH",
                     help="Write the export block to PATH (default <parent>/grc-env.sh) and "
@@ -604,7 +604,7 @@ def main(argv: list[str] | None = None) -> int:
                     "a fresh maintainer clone; clone the private siblings, then "
                     "proceed as maintainer (NOT adopter)."),
                 "adopter": (
-                    "an adopter fork; if no .claude/adopt-config.json exists, /resume "
+                    "an adopter fork; if no .claude/adopt-config.json exists, /orch "
                     "proposes the /adopt run-once onboarding skill (else proceed in "
                     "adopter-mode per the recorded config)."),
             }[idn["classification"]]

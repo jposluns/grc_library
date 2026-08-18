@@ -221,7 +221,7 @@ it ran in the sanctioned formal shape, every finding is triaged to a terminal di
 at source, the history row is recorded, and any deferred fix is documented. There is NO
 separate maintainer-sign-off gate; a zero-finding run still gets its record and register-row
 closure. The register row stays `in-progress` only while a phase is incomplete or a finding
-is still un-triaged, and the next `/resume` surfaces such a row like the other standing
+is still un-triaged, and the next `/orch` surfaces such a row like the other standing
 registers.
 
 ### Parallel execution (worker fan-out)

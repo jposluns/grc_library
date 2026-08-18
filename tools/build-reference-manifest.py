@@ -17,7 +17,7 @@ never reproduces source prose. The manifest is a bibliography, never the texts.
 `grc_library_ref` sibling via `lint_common.resolve_sibling("ref")` and NO-OPS (exit 0) when
 that sibling is absent (an adopter's portable clone), so it is NEVER a CI gate and
 `check-portability.sh` stays green. The maintainer-side `_ref`-required loud gate lives at
-`/resume` (detect-env `ref_availability`), not here. The committed manifest ships statically,
+`/orch` (detect-env `ref_availability`), not here. The committed manifest ships statically,
 so an adopter gets it without any sibling.
 
 Usage:
@@ -248,7 +248,7 @@ def main() -> int:
     ref = lint_common.resolve_sibling("ref")
     if ref is None:
         # Adopter / portable clone: no reference sibling. No-op (exit 0); the committed
-        # manifest is used as-is. (Maintainer-side absence is caught loud at /resume.)
+        # manifest is used as-is. (Maintainer-side absence is caught loud at /orch.)
         note = ("build-reference-manifest: grc_library_ref not present; "
                 "no-op (the committed manifest ships statically for adopters).")
         print(note)

@@ -5,7 +5,7 @@ Scans [`.working/session-state.md`](.working/session-state.md) and
 enforces the WELL-FORMEDNESS of the session-concurrency lease that the
 multi-session interlock relies on (design record: the design-decisions
 record, "Session-concurrency safety"; the
-`/resume` command's step 0 reads this file before anything else).
+`/orch` command's step 0 reads this file before anything else).
 
 The lease declares which orchestrator session, if any, currently holds
 the shared ``main`` state surfaces. Required fields, one per line:
@@ -35,7 +35,7 @@ checks, so coexisting defects are all reported in one run.
 This gate guards the file's SHAPE only. It deliberately passes on all
 three status values: CI runs per-branch and cannot see across
 concurrent sessions, so the interlock itself (HOLD-and-surface on a
-live lease or a recent unmerged sibling branch) lives in the `/resume`
+live lease or a recent unmerged sibling branch) lives in the `/orch`
 step-0 procedure, not in CI. A malformed lease would silently disable
 that procedure, which is the failure this gate exists to catch.
 

@@ -382,7 +382,7 @@ def main(argv: list[str] | None = None) -> int:
     # sibling holding a catalogue), no-op exit 0 rather than crash, so a bare adopter
     # clone runs this maintainer-only advisory green. An EXPLICIT --ref-base that is bad
     # still falls through to parse_catalogue's error (typo guard). For the maintainer, a
-    # missing _ref is caught loud at /resume (the §1.19.7 loud gate), not silently here.
+    # missing _ref is caught loud at /orch (the §1.19.7 loud gate), not silently here.
     if args.ref_base == DEFAULT_REF_BASE and not (args.ref_base / "catalogue.yml").is_file():
         print("audit-reference-breadth: grc_library_ref not present; no-op "
               "(reference-breadth is a maintainer-only advisory, nothing to report).")

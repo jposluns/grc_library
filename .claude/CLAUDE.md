@@ -122,7 +122,7 @@ pick which layer to honour.
 
 Two coupled obligations, placed high because a lost directive erodes the maintainer's trust faster than a defect:
 
-1. **Re-read the standing list on entry.** After every `/resume`, AND ESPECIALLY after every conversation compaction, RE-READ the `grc_library_private/INDEX.md` READ-THIS-FIRST block and `grc_library_private/.working/session-handoff.md` (the Resume-cursor block) before the next action. Compaction silently drops maintainer directives from working context; those two files are the durable record, so re-reading them is how the directives survive a compaction. Treat a compaction event as a mini-resume for this purpose. **You DETECT a compaction by the arrival of a session-continuation summary** (the hand-off delivered when context is compacted): on that event, increment the compaction tally in `grc_library_private/degradation-watch-log.md` (it feeds the A12 second-compaction pacing threshold) AND re-read the standing list. No maintainer-override wiring is needed, the maintainer always has override and can direct a missed tally entry to be added (maintainer-directed 2026-08-01). (Adopters have no `_private`; this obligation is maintainer-orchestrator-only, and it degrades gracefully to re-reading whatever standing-reminders surface the adopter keeps.)
+1. **Re-read the standing list on entry.** After every `/orch`, AND ESPECIALLY after every conversation compaction, RE-READ the `grc_library_private/INDEX.md` READ-THIS-FIRST block and `grc_library_private/.working/session-handoff.md` (the Resume-cursor block) before the next action. Compaction silently drops maintainer directives from working context; those two files are the durable record, so re-reading them is how the directives survive a compaction. Treat a compaction event as a mini-resume for this purpose. **You DETECT a compaction by the arrival of a session-continuation summary** (the hand-off delivered when context is compacted): on that event, increment the compaction tally in `grc_library_private/degradation-watch-log.md` (it feeds the A12 second-compaction pacing threshold) AND re-read the standing list. No maintainer-override wiring is needed, the maintainer always has override and can direct a missed tally entry to be added (maintainer-directed 2026-08-01). (Adopters have no `_private`; this obligation is maintainer-orchestrator-only, and it degrades gracefully to re-reading whatever standing-reminders surface the adopter keeps.)
 
 2. **Persist every maintainer directive the moment it is given.** Whenever the maintainer gives direction or orientation: (a) confirm whether it is already registered somewhere durable (the READ-FIRST block, the handoff Resume-cursor block, a decision log, or TODO); (b) assess whether it must be maintained across sessions or past a compaction; (c) if yes, LOG it in the IMPORTANT place BEFORE acting on it, so it cannot evaporate: the READ-FIRST block for a behavioural standing rule, the `P-TODO.md` `## Up next` queue for sequencing, `TODO.md` for numbered work, the decision log for a design decision. A directive acted on but never logged is one compaction away from lost, which is the exact failure this section exists to prevent.
 
@@ -215,7 +215,7 @@ orchestration runbook") and defers to the INDEX for the file.
   ../grc_library_private`) or grant access (`--add-dir ../grc_library_private`), then continue. A
   missing `_private` for the maintainer is a broken setup to FIX, never to silently work around.
   This is enforced mechanically, not left to intent: `detect-env` emits a `private_availability`
-  HALT, `/resume` acts on it, the [`block-operational-without-private.py`](hooks/block-operational-without-private.py)
+  HALT, `/orch` acts on it, the [`block-operational-without-private.py`](hooks/block-operational-without-private.py)
   PreToolUse hook blocks Edit/Write on a maintainer clone with `_private` absent (Read and Bash
   stay available so the clone remediation works), and `tools/pre-push-guard.sh` refuses the push.
 - **Adopter** (`detect-env` identity `adopter`): `_private` is legitimately absent (it is the
@@ -282,7 +282,7 @@ enforcing gate/hook.
 6. **Refresh `session-handoff.md`** (paste `python3 tools/handoff-snapshot.py`'s verified block; the handoff refresh is behavioural/un-gated, gate 63 guards the SEPARATE `session-state.md` lease shape). At a session-closing PR also refresh `## Asserted expectations`, the green-at-`<sha>` line, and `session-metrics`.
 7. **On green CI, merge** (`gh pr merge --squash`; a plain merge fails `REVIEW_REQUIRED`, so the maintainer's `--admin` bypass is the working path). **Every `--admin` merge is LOGGED** to `grc_library_private/.working/merge-bypass-log.md` from the OBSERVED CI state (gate 50 Check 6 gates the row's PRESENCE, not its content). **Gate the merge on confirmed-green** with [`tools/merge-when-green.py`](../tools/merge-when-green.py) `<N> --repo jposluns/grc_library --admin` (P-1.6): it reads the PR's `statusCheckRollup` and REFUSES unless every check is terminal-success with zero pending, so merge-on-pending (the #1297 slip) cannot recur. Run the CI watch first; this is the final merge gate, fail-closed.
 8. **After merge**: sync `main`, delete the feature branch, confirm the remote branch is gone (behavioural).
-9. **After merge, list the next five planned PRs** from the `## Up next` queue at the top of the private `P-TODO.md` (the single ordered work queue across both backlogs, `TODO.md` and `P-TODO.md`) in chat, and REFRESH that queue in THIS PR: drop the just-closed item and insert any new work in position order. This after-merge listing reads the top of that queue, which replaced the retired `next-prs.txt` (the console `next:` statusline was removed 2026-08-15 to recover a status row; `/resume` itself continues from the handoff's Next-actions, not this queue). Behavioural.
+9. **After merge, list the next five planned PRs** from the `## Up next` queue at the top of the private `P-TODO.md` (the single ordered work queue across both backlogs, `TODO.md` and `P-TODO.md`) in chat, and REFRESH that queue in THIS PR: drop the just-closed item and insert any new work in position order. This after-merge listing reads the top of that queue, which replaced the retired `next-prs.txt` (the console `next:` statusline was removed 2026-08-15 to recover a status row; `/orch` itself continues from the handoff's Next-actions, not this queue). Behavioural.
 10. **TODO/DONE rotation** (convention-guarded: D5 requires `TODO.md` touched on a CHANGELOG closure claim and gate 78 checks number permanence, but NEITHER verifies the specific item's deletion or the DONE entry): a closed item is deleted from whichever list holds it (`TODO.md` index row AND its `TODO-REFERENCE.md` detail block, or `P-TODO.md`) and added to `grc_library_private/.working/DONE.md` in the same PR, keyed by PR number; the completion summary is surfaced in chat. Backlog-item-keyed, not FR/§-keyed.
 
 Actions outside this routine (merging a PR the maintainer did not author, force-pushing a
@@ -329,7 +329,7 @@ detail and rationale for everything below live in
 1. **Session handoff.** `grc_library_private/.working/session-handoff.md` is the single resume
    point (branch, versions, counts, last-merged, next-actions, open decisions, green-at-`<sha>`,
    and at close the asserted-expectations). Refreshed at every close-out, in the same PR. Resume
-   with `/resume`.
+   with `/orch`.
 
 2. **PR close-out checklist.** Before pushing, confirm every paired bookkeeping surface is in
    the diff. The MECHANICAL items each have a gate/hook backstop (named); the GREP-DISCIPLINE
@@ -366,7 +366,7 @@ detail and rationale for everything below live in
    - Read-only-git subagent brief: every dispatched subagent inspects history read-only (no checkout/reset on the shared tree).
 
 3. **Closing-handoff-PR discipline (a session's last act is a green merge).** The session-closing
-   PR lands working-state on `main` green so `/resume` rebuilds from `main`. It runs its own
+   PR lands working-state on `main` green so `/orch` rebuilds from `main`. It runs its own
    `/validate-pr` + `/retro` like any PR (sync model, rows in-PR); the loop-termination FALLBACK
    (skip the trailing QA) records `SKIPPED`+`handoff` in the Findings cell. **A session must NOT
    close with a large unvalidated PR**: every merged PR (the handoff included unless its narrow fallback skip was taken) has a `/validate-pr`
@@ -407,7 +407,7 @@ The reference base's `publications/` bucket is untrusted by default (bias, factu
 
 ## Reference-version currency and missing references
 
-`grc_library_ref` (`_ref`) is a REQUIRED maintainer-orchestrator dependency; its absence fails LOUD (§1.19.7 `_ref`-required gate): reference-checking against the held ground truth is critical to content correctness, so for the maintainer a missing `grc_library_ref` is a broken setup to FIX, never a state to silently work around. The halt is enforced mechanically regardless of loaded prose, by `detect-env`'s `ref_availability` decision and `/resume` step 3 acting on it (on `maintainer` identity with `_ref` unreadable it HALTs and surfaces the `--add-dir` fix); the sibling-reaching tools' graceful `resolve_sibling` no-op is ADOPTER-ONLY. `grc_library_ref` is believed-current STORAGE, not a version authority; upstream is the authority.
+`grc_library_ref` (`_ref`) is a REQUIRED maintainer-orchestrator dependency; its absence fails LOUD (§1.19.7 `_ref`-required gate): reference-checking against the held ground truth is critical to content correctness, so for the maintainer a missing `grc_library_ref` is a broken setup to FIX, never a state to silently work around. The halt is enforced mechanically regardless of loaded prose, by `detect-env`'s `ref_availability` decision and `/orch` step 3 acting on it (on `maintainer` identity with `_ref` unreadable it HALTs and surfaces the `--add-dir` fix); the sibling-reaching tools' graceful `resolve_sibling` no-op is ADOPTER-ONLY. `grc_library_ref` is believed-current STORAGE, not a version authority; upstream is the authority.
 
 **Whenever an externally-versioned reference (a standard, framework, or dataset) is load-bearing for a task:** consult what `grc_library_ref` holds via its index (EXECUTE `python3 tools/ref-holds.py <query>` and quote its output, never a guess or a partial grep), validate the current version upstream THIS turn, and act only after BOTH. **Never write or rely on a superseded version unless the maintainer explicitly authorizes** it; and a load-bearing reference `grc_library_ref` does not hold at all is ACQUIRED (attempt the ingest) or the work PAUSES, never silently worked around. A register row, citation, or mapping carries the upstream-confirmed current version, or the item waits.
 
@@ -459,7 +459,7 @@ verification layer working, not a degradation signal.
 errors, a self-inconsistency, a defect the QA layer missed), execute a full **green session-closing
 merge to `main`**, not a bare "I'll pause here", and refresh the handoff record (`session-handoff.md`
 Next-actions + State-snapshot + Asserted-expectations, the green-at-`<sha>` line, the lease RELEASE)
-so the next `/resume` rebuilds cleanly from `main`. This requires NO `AskUserQuestion` (the
+so the next `/orch` rebuilds cleanly from `main`. This requires NO `AskUserQuestion` (the
 unattended hook blocks it anyway): the closing handoff IS the conservative, reversible, no-regret
 action, taken directly, and is the UNATTENDED counterpart to the ATTENDED "surface via
 `AskUserQuestion`" path. A bare mid-turn pause (an unmerged feature branch, state half-recorded) is
@@ -496,7 +496,7 @@ The full source-and-adapter parity discipline (a single canonical portable core;
 
 ## Wind-down pre-queues worker research for the next resume (maintainer-directed 2026-07-25)
 
-**Every wind-down queues worker orders the NEXT session's `/resume` will consume** (worker
+**Every wind-down queues worker orders the NEXT session's `/orch` will consume** (worker
 capacity is ELASTIC, the orchestrator is the scarce singleton, so the hours between sessions are
 the only stretch where worker time is free and orchestrator time costs nothing; a wind-down that
 queues nothing wastes that window). Discipline: the pack rule

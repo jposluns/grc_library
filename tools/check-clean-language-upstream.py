@@ -5,7 +5,7 @@ github.com/jposluns/cleanlanguage, so a maintainer-invisible upstream update is 
 
 The skill is Jeff Posluns's, vendored into this repo (see the skill's PROVENANCE.md). Upstream
 advances without a heads-up, so a MONTHLY time-bounded follow-up in the private P-TODO.md
-(relocated from TODO.md by #1458; /resume reads both lists' time-bounded sections) runs this at /resume.
+(relocated from TODO.md by #1458; /orch reads both lists' time-bounded sections) runs this at /orch.
 It compares each vendored file's git blob SHA (``git hash-object``) against the upstream blob SHA
 (``gh api ... contents ... --jq .sha``); a mismatch is DRIFT, meaning re-fetch and re-vendor.
 
