@@ -9152,7 +9152,7 @@ class WebGeneratorV2StagingTests(unittest.TestCase):
             next(variant for variant in self.mod.VARIANTS if variant.name == "v2"),
             self.mod.Variant(
                 "v2", "templates-v2", "v2/", indexable=False,
-                extra_pages=self.mod.V2_EXTRA_PAGES,
+                extra_pages=self.mod.V2_EXTRA_PAGES, narrative_routes=True,
             ),
         )
         robots = self.mod.render_robots_txt()
@@ -11287,6 +11287,566 @@ class WebGeneratorNarrativeJoinTests(unittest.TestCase):
         }
         self.assertEqual(by_domain["risk"], 11)
         self.assertEqual(by_domain["architecture"], 3)
+
+
+class WebGeneratorReadingRoomTests(unittest.TestCase):
+    """Wave-2 PR-2a: the /v2 executive reading room.
+
+    Covers the constrained Markdown renderer (each supported construct maps to
+    its expected HTML; every unsupported construct is a loud BuildError, so a
+    future narrative cannot render wrong silently), the renderer-confinement
+    validator (absolute path, parent-directory traversal, outside-executive/,
+    symlink, duplicate, untracked, and missing-file rejections, driven as pure
+    decision logic over constructed roots and tracked sets), the route mapping
+    (registry executive/<subtype>/<slug> routes to on-site
+    decisions/<subtype>/<slug>/), the v2-only route generation (the six
+    Executive Briefs render at the right paths with the inherited noindex +
+    self-canonical treatment, the source-on-GitHub link, and the closing
+    three-lens rail), and the v1-root-page-set-unchanged invariant (the
+    byte-identical-root release criterion's structural half)."""
+
+    @classmethod
+    def setUpClass(cls):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "web_build_room_mod", REPO_ROOT / ".web" / "build.py"
+        )
+        cls.mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.mod)
+
+    # A minimal narrative source exercising every SUPPORTED construct. The
+    # link target must resolve against the real repo (ai/README.md exists).
+    _SOURCE_REL = "executive/briefs/fixture-brief.md"
+
+    @staticmethod
+    def _doc(body):
+        return (
+            "# Fixture title\n\n"
+            "**Document Title:** Fixture\n\n"
+            "---\n\n"
+            + body +
+            "\n\n**End of Document**\n"
+        )
+
+    _SUPPORTED_BODY = (
+        "> **Authority disclaimer.** Single-line quote with **bold**.\n\n"
+        "## Why this matters\n\n"
+        "A paragraph with **bold**, a [linked standard](../../ai/README.md), "
+        "a literal 1 < 2 & fact,\n"
+        "and a second physical line of the same paragraph.\n\n"
+        "- **Item one.** With a [link](../../ai/README.md).\n"
+        "- Item two.\n\n"
+        "## Limitations\n\n"
+        "Plain closing paragraph."
+    )
+
+    # --- the constrained renderer: supported constructs ---
+
+    def test_supported_constructs_render_expected_html(self):
+        html, toc = self.mod.render_narrative_body(
+            self._doc(self._SUPPORTED_BODY), self._SOURCE_REL
+        )
+        # The disclaimer renders as an unnumbered intro blockquote.
+        self.assertIn('<section class="narr" id="narr-intro">', html)
+        self.assertIn(
+            "<blockquote><p><strong>Authority disclaimer.</strong> "
+            "Single-line quote with <strong>bold</strong>.</p></blockquote>",
+            html,
+        )
+        # H2 headings open numbered exec-shell sections with computed numbers.
+        self.assertIn('<section class="narr" id="why-this-matters">', html)
+        self.assertIn(
+            '<span class="sec-num">&sect;01</span><h2>Why this matters</h2>', html
+        )
+        self.assertIn('<span class="sec-num">&sect;02</span><h2>Limitations</h2>', html)
+        self.assertEqual(
+            toc, [("why-this-matters", "Why this matters"), ("limitations", "Limitations")]
+        )
+        # Corpus-relative links resolve to the GitHub blob URL, new-tab.
+        self.assertIn(
+            '<a href="https://github.com/jposluns/grc_library/blob/main/ai/README.md" '
+            'target="_blank" rel="noopener">linked standard</a>',
+            html,
+        )
+        # Wrapped paragraph lines join; literal < and & are HTML-escaped.
+        self.assertIn("a literal 1 &lt; 2 &amp; fact, and a second physical line", html)
+        # Flat unordered lists render as <ul><li> with inline constructs.
+        self.assertIn("<ul>", html)
+        self.assertIn("<li><strong>Item one.</strong> With a", html)
+        self.assertIn("<li>Item two.</li>", html)
+        # The H1, the metadata block, and the terminator are NOT rendered.
+        self.assertNotIn("Fixture title", html)
+        self.assertNotIn("Document Title", html)
+        self.assertNotIn("End of Document", html)
+
+    # --- the constrained renderer: every unsupported construct fails loud ---
+
+    def test_unsupported_constructs_fail_loudly(self):
+        cases = [
+            ("### Deep heading", "only '## ' section headings"),
+            ("# Body H1", "only '## ' section headings"),
+            ("## With **bold** inside", "inline markup in a section heading"),
+            ("1. ordered item", "only flat '- ' unordered lists"),
+            ("* star item", "only flat '- ' unordered lists"),
+            ("| a | b |", "tables unsupported"),
+            ("```python", "fenced code unsupported"),
+            ("    indented line", "indented line unsupported"),
+            ("***", "horizontal rules unsupported"),
+            ("A `code span` here.", "code spans"),
+            ("An image ![alt](../../ai/README.md) here.", "images unsupported"),
+            ("A *starred* word.", "star emphasis"),
+            ("An _underscored_ word.", "underscore emphasis"),
+            ("A ~~struck~~ word.", "strikethrough"),
+            ("An autolink <https://example.com> here.", "autolink"),
+            ("Unbalanced **bold here.", "unbalanced bold"),
+            ("A stray ] bracket.", "link syntax"),
+            ("> quote line one\n> quote line two", "multi-line blockquotes"),
+            ("- item\nlazy continuation", "lazy list-item continuation"),
+            ("> quote\nlazy quote continuation", "multi-line blockquotes"),
+            ("A hard break line  \nnext", "hard line breaks"),
+            ("A [fragment link](../../ai/README.md#anchor).", "fragments and queries"),
+            ("An [absolute link](/etc/passwd).", "absolute link target"),
+            ("An [external link](https://example.com/).", "corpus-relative link targets"),
+            ("An [escaping link](../../../etc/passwd).", "escapes the repository"),
+            ("A [dead link](../../ai/no-such-file-xyz.md).", "does not resolve"),
+        ]
+        for body, expected in cases:
+            with self.subTest(body=body):
+                with self.assertRaisesRegex(self.mod.BuildError, re.escape(expected)):
+                    self.mod.render_narrative_body(
+                        self._doc("## Section\n\n" + body), self._SOURCE_REL
+                    )
+
+    def test_document_model_drift_fails_loudly(self):
+        with self.assertRaisesRegex(self.mod.BuildError, "no leading '# ' title"):
+            self.mod.render_narrative_body("no title\n\n---\n\nx", self._SOURCE_REL)
+        with self.assertRaisesRegex(self.mod.BuildError, "metadata terminator"):
+            self.mod.render_narrative_body("# T\n\nbody only", self._SOURCE_REL)
+        with self.assertRaisesRegex(self.mod.BuildError, "End of Document"):
+            self.mod.render_narrative_body(
+                "# T\n\n---\n\n## S\n\nBody.", self._SOURCE_REL
+            )
+        with self.assertRaisesRegex(self.mod.BuildError, "no '## ' sections"):
+            self.mod.render_narrative_body(
+                self._doc("Just a paragraph."), self._SOURCE_REL
+            )
+        with self.assertRaisesRegex(self.mod.BuildError, "duplicate or template-reserved"):
+            self.mod.render_narrative_body(
+                self._doc("## Same\n\nA.\n\n## Same\n\nB."), self._SOURCE_REL
+            )
+
+    # --- the renderer-confinement validator ---
+
+    def _confinement_root(self, tmp):
+        root = Path(tmp)
+        (root / "executive" / "briefs").mkdir(parents=True)
+        real = root / "executive" / "briefs" / "real.md"
+        real.write_text("# T\n\n---\n\n## S\n\nBody.\n\n**End of Document**\n")
+        return root
+
+    def test_confinement_admits_a_valid_tracked_source(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self._confinement_root(tmp)
+            seen = set()
+            path = self.mod.narrative_source_file(
+                "executive/briefs/real.md", {"executive/briefs/real.md"}, seen, root=root
+            )
+            self.assertTrue(path.is_file())
+            self.assertEqual(seen, {"executive/briefs/real.md"})
+
+    def test_confinement_rejections(self):
+        tracked = {"executive/briefs/real.md", "executive/briefs/gone.md"}
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self._confinement_root(tmp)
+            cases = [
+                ("/etc/passwd", "absolute or empty"),
+                ("", "absolute or empty"),
+                ("executive/../executive/briefs/real.md", "not a normalized"),
+                ("executive/briefs/../../../etc/passwd", "not a normalized"),
+                ("executive/./briefs/real.md", "not a normalized"),
+                ("ai/README.md", "outside executive/"),
+                ("executive/briefs/untracked.md", "not a git-tracked file"),
+                ("executive/briefs/gone.md", "not a regular file"),
+            ]
+            for rel, expected in cases:
+                with self.subTest(rel=rel):
+                    with self.assertRaisesRegex(self.mod.BuildError, re.escape(expected)):
+                        self.mod.narrative_source_file(rel, tracked, set(), root=root)
+            # Duplicate: the same path admitted twice is rejected the second time.
+            seen = set()
+            self.mod.narrative_source_file(
+                "executive/briefs/real.md", tracked, seen, root=root
+            )
+            with self.assertRaisesRegex(self.mod.BuildError, "duplicate narrative source"):
+                self.mod.narrative_source_file(
+                    "executive/briefs/real.md", tracked, seen, root=root
+                )
+
+    def test_confinement_rejects_a_symlink_source(self):
+        tracked = {"executive/briefs/link.md"}
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self._confinement_root(tmp)
+            link = root / "executive" / "briefs" / "link.md"
+            os.symlink(root / "executive" / "briefs" / "real.md", link)
+            with self.assertRaisesRegex(self.mod.BuildError, "symlink"):
+                self.mod.narrative_source_file(
+                    "executive/briefs/link.md", tracked, set(), root=root
+                )
+
+    def test_tracked_observer_covers_the_briefs_and_only_executive(self):
+        tracked = self.mod._tracked_executive_paths()
+        for page in self.mod.load_narratives():
+            self.assertIn(page["path"], tracked)
+        self.assertTrue(all(p.startswith("executive/") for p in tracked))
+
+    # --- the route mapping ---
+
+    def test_route_maps_to_decisions_prefix(self):
+        self.assertEqual(
+            self.mod.narrative_out_rel({"route": "executive/briefs/brief-x"}),
+            "decisions/briefs/brief-x/index.html",
+        )
+
+    def test_bad_routes_fail_loudly(self):
+        for route, expected in [
+            ("briefs/brief-x", "without the executive/ prefix"),
+            ("executive/briefs", "not executive/<subtype>/<slug>"),
+            ("executive/briefs/a/b", "not executive/<subtype>/<slug>"),
+            ("executive/briefs/../x", "not executive/<subtype>/<slug>"),
+            ("executive/briefs/UPPER", "not executive/<subtype>/<slug>"),
+        ]:
+            with self.subTest(route=route):
+                with self.assertRaisesRegex(self.mod.BuildError, re.escape(expected)):
+                    self.mod.narrative_out_rel({"route": route})
+
+    # --- the v2-only route generation and the frozen-root invariant ---
+
+    def _variant(self, name):
+        return next(v for v in self.mod.VARIANTS if v.name == name)
+
+    def test_v1_page_set_is_unchanged_and_narrative_free(self):
+        figures = self.mod.compute_figures()
+        v1 = self._variant("v1")
+        self.assertFalse(v1.narrative_routes)
+        rels = [out_rel for out_rel, _ in self.mod.render_variant(figures, v1)]
+        expected = (
+            {"index.html", "about/index.html", "pack/index.html", "for-ai/index.html"}
+            | {f"{dp['domain']}/index.html" for dp in figures["domain_pages"]}
+            | {f"types/{tp['slug']}/index.html" for tp in figures["type_pages"]}
+        )
+        self.assertEqual(set(rels), expected)
+        self.assertEqual(len(rels), len(expected))
+        self.assertFalse([r for r in rels if r.startswith("decisions/")])
+
+    def test_v2_renders_the_six_brief_routes(self):
+        figures = self.mod.compute_figures()
+        v2 = self._variant("v2")
+        self.assertTrue(v2.narrative_routes)
+        pages = dict(self.mod.render_variant(figures, v2))
+        briefs = [
+            p for p in figures["narratives"]
+            if p["narrative_type"] in self.mod.NARRATIVE_ROUTE_TYPES
+        ]
+        self.assertEqual(len(briefs), 6)
+        for page in briefs:
+            out_rel = "decisions/" + page["route"][len("executive/"):] + "/index.html"
+            self.assertIn(out_rel, pages)
+        # Exactly the briefs are added on top of the v1 set + V2_EXTRA_PAGES.
+        v1_count = len(self.mod.render_variant(figures, self._variant("v1")))
+        self.assertEqual(len(pages), v1_count + len(self.mod.V2_EXTRA_PAGES) + len(briefs))
+
+    def test_rendered_brief_page_carries_the_required_surfaces(self):
+        figures = self.mod.compute_figures()
+        v2 = self._variant("v2")
+        pages = dict(self.mod.render_variant(figures, v2))
+        page = next(
+            p for p in figures["narratives"]
+            if p["path"] == "executive/briefs/brief-ai-data-governance.md"
+        )
+        html = pages["decisions/briefs/brief-ai-data-governance/index.html"]
+        # Inherited noindex + self-canonical (render_page, not hand-built).
+        self.assertIn('<meta name="robots" content="noindex,nofollow">', html)
+        self.assertIn(
+            '<link rel="canonical" href="https://grclibrary.ai/v2/decisions/'
+            'briefs/brief-ai-data-governance/">',
+            html,
+        )
+        # The chrome-supplied title and the prominent source link.
+        self.assertIn(self.mod._esc(page["title"]), html)
+        self.assertIn("Read the source on GitHub", html)
+        self.assertIn(self.mod.narrative_source_blob_url(page), html)
+        # The closing three-lens rail, as on the shipped route pages.
+        self.assertIn("Three lenses past the executive layer.", html)
+        # The rendered body: numbered sections, no terminator leakage.
+        self.assertIn('<span class="sec-num">&sect;01</span>', html)
+        self.assertNotIn("End of Document", html)
+
+    def test_source_blob_helper_is_the_stable_flip_point(self):
+        page = {"path": "executive/briefs/x.md", "route": "executive/briefs/x"}
+        blob = self.mod.GITHUB_BLOB_BASE + "executive/briefs/x.md"
+        self.assertEqual(self.mod.narrative_source_blob_url(page), blob)
+        # PR-2a: the row URL is still the blob (the on-site flip is PR-2b).
+        self.assertEqual(self.mod.narrative_page_url(page), blob)
+
+    # --- QA fix 1 regression: {{TOKEN}} in prose stays inert END-TO-END ---
+
+    def test_prose_placeholder_tokens_are_inert_through_render_page(self):
+        """QA fix 1 (codex ERROR / claude W1): a ``{{TOKEN}}`` literal in
+        narrative prose must NOT be expanded by render_page's SECOND
+        substitution pass. The prior test checked only the direct
+        body-renderer output; this one drives the FULL render_page path (the
+        narrative body injected in pass 1, the whole document re-scanned in
+        pass 2) and asserts on the final page: no live <script>/<style>
+        beyond the template's own chrome, no CalVer or BASE substitution of
+        the prose tokens, the tokens present as literal escaped text, and an
+        unknown token neither expanded nor build-breaking."""
+        figures = self.mod.compute_figures()
+        v2 = self._variant("v2")
+        template_dir = self.mod.template_dir_for(v2)
+        partials = self.mod.load_partials(template_dir)
+        page = {
+            "path": "executive/briefs/fixture-brief.md",
+            "route": "executive/briefs/fixture-brief",
+            "title": "Fixture brief",
+            "narrative_type": "Executive Brief",
+        }
+        out_rel = "decisions/briefs/fixture-brief/index.html"
+
+        def render(body):
+            body_html, toc = self.mod.render_narrative_body(
+                self._doc(body), self._SOURCE_REL
+            )
+            html, _ = self.mod.render_page(
+                "narrative.html", figures, v2, template_dir, partials,
+                extra=self.mod.narrative_page_values(page, v2, out_rel, body_html, toc),
+                out_rel=out_rel,
+            )
+            return html
+
+        control = render("## Section\n\nBenign control paragraph.")
+        attacked = render(
+            "## Section\n\n"
+            "Injected {{SCRIPT}} and {{HEAD_STYLE}} and {{CALVER}} and "
+            "{{BASE}} and {{ZZZ}} tokens in prose."
+        )
+        # No live <script>/<style> beyond the template's own chrome: the
+        # prose {{SCRIPT}}/{{HEAD_STYLE}} tokens did not become partials.
+        self.assertEqual(attacked.count("<script"), control.count("<script"))
+        self.assertEqual(attacked.count("<style"), control.count("<style"))
+        # No CalVer/BASE substitution of the prose tokens: the figure counts
+        # match the control page exactly.
+        self.assertEqual(
+            attacked.count(figures["calver"]), control.count(figures["calver"])
+        )
+        base = self.mod.site_prefix_for(v2)
+        self.assertEqual(attacked.count(base), control.count(base))
+        # The tokens render as literal escaped text ('{' -> &#123;), the
+        # unknown {{ZZZ}} included (pre-fix it raised in pass 2; the known
+        # tokens expanded silently, which was the live-script defect).
+        for token in ("SCRIPT", "HEAD_STYLE", "CALVER", "BASE", "ZZZ"):
+            self.assertIn("&#123;&#123;" + token + "}}", attacked)
+        # And no un-expanded raw placeholder pattern survives anywhere.
+        self.assertIsNone(self.mod._PLACEHOLDER_RE.search(attacked))
+
+    # --- QA fix 2 regressions: silently-rendering constructs now fail loud ---
+
+    def test_silently_rendering_constructs_now_fail_loudly(self):
+        """QA fix 2 (codex ERROR / claude W2): the constructs both QA
+        families showed rendering SILENTLY (setext headings, pipe-less GFM
+        tables, spaced thematic breaks, raw HTML tags/blocks, HTML entities)
+        each raise a loud BuildError before the paragraph fallback, so the
+        'loud on every unsupported construct' claim is true again."""
+        cases = [
+            ("Setext H1 heading\n===", "setext heading underlines unsupported"),
+            ("Setext H2 heading\n--", "setext heading underlines unsupported"),
+            # a bare '---' body line hits the HR rejection (the metadata
+            # terminator consumed the FIRST '---', so this one is body text)
+            ("Setext H2 heading\n---", "horizontal rules unsupported"),
+            ("| a | b |\n| --- | --- |", "tables unsupported"),
+            ("Head A | Head B\n--- | ---", "tables unsupported"),
+            ("- - -", "spaced thematic breaks unsupported"),
+            ("* * *", "spaced thematic breaks unsupported"),
+            ("= = =", "spaced thematic breaks unsupported"),
+            ("___", "horizontal rules unsupported"),
+            ("<div>\nBlock content.\n</div>", "raw HTML"),
+            ("An inline <span>tag</span> here.", "raw HTML"),
+            ("A closing </div> alone in prose.", "raw HTML"),
+            ("AT&amp;T in prose.", "HTML entities unsupported"),
+            ("A numeric &#123; entity in prose.", "HTML entities unsupported"),
+        ]
+        for body, expected in cases:
+            with self.subTest(body=body):
+                with self.assertRaisesRegex(self.mod.BuildError, re.escape(expected)):
+                    self.mod.render_narrative_body(
+                        self._doc("## Section\n\n" + body), self._SOURCE_REL
+                    )
+        # The strengthened detector must NOT reject genuine prose: the full
+        # supported-construct fixture (which includes a literal '1 < 2 &
+        # fact' comparison) still renders, per
+        # test_supported_constructs_render_expected_html above.
+        html, _ = self.mod.render_narrative_body(
+            self._doc(self._SUPPORTED_BODY), self._SOURCE_REL
+        )
+        self.assertIn("a literal 1 &lt; 2 &amp; fact", html)
+
+    # --- QA round-2 E1 regressions: the line-start detector's bypass class ---
+
+    def test_closing_hash_and_container_nested_blocks_fail_loudly(self):
+        """QA round 2 E1 (codex ERROR): the line-start detector classified a
+        line by its MARKER and never re-checked the marker's content, so a
+        closing-hash ATX heading leaked its hashes into the rendered heading
+        text ('## Heading ##' -> '<h2>Heading ##</h2>') and a block
+        construct nested behind a '> ' or '- ' container marker rendered
+        silently as inline prose ('> ### Nested' -> a blockquote containing
+        the literal text '### Nested'). Both now raise a loud BuildError:
+        closing-hash headings are rejected outright (the supported form is
+        '## Text' with no trailing hashes), and container content is
+        re-classified and must be inline-only. Backslash escapes (the same
+        review's inline-level find) are rejected too."""
+        cases = [
+            # (a) closing-hash ATX headings
+            ("## Head ##", "closing-hash ATX headings unsupported"),
+            ("## Head #", "closing-hash ATX headings unsupported"),
+            ("## ###", "closing-hash ATX headings unsupported"),
+            ("### Head ###", "only '## ' section headings"),
+            # (b) nested block constructs behind a blockquote marker
+            ("> ### nested heading", "nested block construct in a blockquote"),
+            ("> ## nested heading", "nested block construct in a blockquote"),
+            ("> - nested list", "nested block construct in a blockquote"),
+            ("> > nested quote", "nested block construct in a blockquote"),
+            ("> 1. nested ordered", "nested block construct in a blockquote"),
+            ("> ---", "nested block construct in a blockquote"),
+            ("> - - -", "spaced thematic breaks unsupported"),
+            ("> ```python", "nested block construct in a blockquote"),
+            (">  indented content", "nested block construct in a blockquote"),
+            ("> <div>", "nested block construct in a blockquote"),
+            ("> Head A | Head B", "tables unsupported"),
+            ("> | a | b |", "tables unsupported"),
+            # (b) nested block constructs behind a list marker
+            ("- ## nested heading", "nested block construct in a list item"),
+            ("- ### nested heading", "nested block construct in a list item"),
+            ("- > nested quote", "nested block construct in a list item"),
+            ("- - nested list", "nested block construct in a list item"),
+            ("- 1. nested ordered", "nested block construct in a list item"),
+            ("- ***", "nested block construct in a list item"),
+            ("- ```", "nested block construct in a list item"),
+            ("-  indented content", "nested block construct in a list item"),
+            ("- <div>", "nested block construct in a list item"),
+            ("- a | b", "tables unsupported"),
+            # (c) backslash escapes (would print the backslash a standard
+            # renderer drops: a silent divergence)
+            ("A \\# escaped hash.", "backslash escapes unsupported"),
+            ("\\> escaped marker line.", "backslash escapes unsupported"),
+            ("- item with \\- escape.", "backslash escapes unsupported"),
+        ]
+        for body, expected in cases:
+            with self.subTest(body=body):
+                with self.assertRaisesRegex(self.mod.BuildError, re.escape(expected)):
+                    self.mod.render_narrative_body(
+                        self._doc("## Section\n\n" + body), self._SOURCE_REL
+                    )
+        # The boundary stays exact: a hash ATTACHED to heading content is
+        # content (not a closing sequence), a container carrying only inline
+        # content still renders, and a Windows-path backslash before an
+        # alphanumeric is plain prose, not an escape.
+        html, _ = self.mod.render_narrative_body(
+            self._doc(
+                "## Section C#\n\n"
+                "> A quote with **bold** and plain prose.\n\n"
+                "- An item with a path like C:\\Users in prose."
+            ),
+            self._SOURCE_REL,
+        )
+        self.assertIn("<h2>Section C#</h2>", html)
+        self.assertIn("<strong>bold</strong>", html)
+        self.assertIn("C:\\Users", html)
+
+    # --- QA round-2 E2: git-unavailable fails CLOSED (orchestrator reversal) ---
+
+    def test_git_absent_fails_closed_loudly(self):
+        """QA round 2 E2 (codex ERROR, orchestrator REVERSAL to
+        fail-closed): when git is unavailable (not installed, not a work
+        tree, or erroring) or answers with an empty tracked set, the
+        observer raises a loud BuildError instead of degrading. The
+        registry lists PATHS, not provenance, so an untracked
+        file at a registry-listed path is only caught by the tracked-set
+        check; a git-less build is an unsupported deploy and must fail
+        loud rather than render unverified sources."""
+        real_run = self.mod.subprocess.run
+        for exc in (
+            OSError("git not found"),
+            self.mod.subprocess.CalledProcessError(
+                128, ["git"], stderr=b"fatal: not a git repository"
+            ),
+        ):
+            with self.subTest(exc=type(exc).__name__):
+                def failing_run(*args, _exc=exc, **kwargs):
+                    raise _exc
+                self.mod.subprocess.run = failing_run
+                try:
+                    with self.assertRaisesRegex(
+                        self.mod.BuildError, "refusing to render"
+                    ):
+                        self.mod._tracked_executive_paths()
+                finally:
+                    self.mod.subprocess.run = real_run
+        # An empty tracked set (fresh init, no executive/ tree) also raises.
+        def empty_run(*args, **kwargs):
+            return self.mod.subprocess.CompletedProcess(
+                args=args, returncode=0, stdout=b"", stderr=b""
+            )
+        self.mod.subprocess.run = empty_run
+        try:
+            with self.assertRaisesRegex(
+                self.mod.BuildError, "no tracked executive/ paths"
+            ):
+                self.mod._tracked_executive_paths()
+        finally:
+            self.mod.subprocess.run = real_run
+
+    def test_git_invocation_scopes_safe_directory_to_the_repo(self):
+        """QA round 2 E2, the resilience half: the one realistic
+        in-git-environment failure (the container dubious-ownership
+        refusal) is bypassed by passing ``-c safe.directory=<REPO_ROOT>``
+        on the ls-files invocation itself, scoped to THIS repo with no
+        global config change. A genuine dubious-ownership environment
+        needs a differently-owned checkout (root) to reproduce, so this
+        test asserts the invocation shape and that the observer still
+        consumes the answer; the with-git strict path itself is proven
+        end-to-end by test_tracked_observer_covers_the_briefs_and_only_executive."""
+        real_run = self.mod.subprocess.run
+        captured = {}
+        def capturing_run(cmd, *args, **kwargs):
+            captured["cmd"] = cmd
+            return self.mod.subprocess.CompletedProcess(
+                args=cmd, returncode=0,
+                stdout=b"executive/briefs/x.md\x00", stderr=b"",
+            )
+        self.mod.subprocess.run = capturing_run
+        try:
+            tracked = self.mod._tracked_executive_paths()
+        finally:
+            self.mod.subprocess.run = real_run
+        self.assertEqual(tracked, {"executive/briefs/x.md"})
+        cmd = captured["cmd"]
+        repo_root = str(self.mod.REPO_ROOT)
+        self.assertEqual(cmd[0], "git")
+        # The safe.directory bypass rides the invocation, before the
+        # subcommand, and names this repository exactly.
+        self.assertIn("-c", cmd)
+        self.assertIn(f"safe.directory={repo_root}", cmd)
+        self.assertLess(cmd.index(f"safe.directory={repo_root}"), cmd.index("ls-files"))
+        self.assertEqual(cmd[cmd.index("-C") + 1], repo_root)
+
+
+    def test_tab_separated_list_marker_fails_loudly(self):
+        # QA r3 (both families): a '-<tab>' list marker (and a nested block
+        # behind it) must NOT render silently as a paragraph; only '- ' with a
+        # single space is supported, so the tab form raises a loud BuildError.
+        with self.assertRaises(self.mod.BuildError):
+            self.mod._classify_narrative_line("-\titem", "executive/briefs/x.md")
+        with self.assertRaises(self.mod.BuildError):
+            self.mod._classify_narrative_line("-\t> nested", "executive/briefs/x.md")
 
 
 class WebCorpusLinkTests(LinterTestCase):

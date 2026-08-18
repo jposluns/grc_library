@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="{{NARRATIVE_SEO_DESC}}">
+<link rel="canonical" href="{{NARRATIVE_CANONICAL}}">
+<title>{{NARRATIVE_TITLE}}</title>
+{{HEAD_STYLE}}
+<style>
+  /* Reading-room page (narrative-only styles). These pages are prose-led:
+     tighten the shared section rhythm, size the hero for a long sentence-case
+     title, and style the constrained renderer's output (.narr sections) with
+     the shell's own tokens. The .sec-head / .sec-num shapes are shared and
+     live in the head-style partial. */
+  section { padding-block: clamp(1.1rem, 2.4vw, 1.9rem); }
+  .hero { padding-block: clamp(1.8rem, 4vw, 3rem); }
+  .hero h1 { font-size: clamp(1.5rem, 3.2vw, 2.4rem); line-height: 1.25; max-width: 34ch; }
+  .sec-head { margin-bottom: 1rem; }
+  .narr p, .narr li { max-width: 74ch; color: var(--ink-soft); }
+  .narr p { margin: 0 0 1.05rem; }
+  .narr p:last-child { margin-bottom: 0; }
+  .narr strong { color: var(--ink); font-weight: 600; }
+  .narr ul { margin: 0 0 1.05rem; padding-left: 1.15rem; }
+  .narr li { margin: 0 0 0.55rem; }
+  .narr li::marker { color: var(--brass); }
+  .narr blockquote {
+    margin: 0 0 1.05rem; padding: 0.9rem 1.1rem;
+    border-left: 3px solid var(--brass); background: var(--surface);
+    border-radius: var(--radius);
+  }
+  .narr blockquote p { margin: 0; max-width: none; font-size: 0.95rem; }
+</style>
+</head>
+
+<body>
+<header class="mast">
+  <div class="wrap">
+{{TOPBAR}}
+  </div>
+
+  <div class="wrap hero">
+    <p class="eyebrow reveal d1">{{NARRATIVE_TYPE}}</p>
+    <h1 class="reveal d2">{{NARRATIVE_H1}}</h1>
+    <p class="dek reveal d3">
+      A leadership page from the corpus&rsquo;s executive narrative layer:
+      it explains; the reference documents it links to govern.
+    </p>
+    <div class="cta-row reveal d4">
+      <a class="btn btn-primary" href="{{NARRATIVE_SOURCE_URL}}" target="_blank" rel="noopener">Read the source on GitHub&nbsp;&#8599;</a>
+      <a class="btn btn-ghost" href="{{BASE}}/decisions/">&larr; Leadership decisions</a>
+    </div>
+    <p class="qualifier reveal d4">
+      <b>How to read this page:</b> it is explanatory and advisory; it establishes
+      no requirement and proves nothing about your organization. Every claim
+      resolves to the governing reference documents in the corpus, and it is
+      those documents that govern.
+    </p>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="sidenav" aria-label="Page contents">
+    <div class="sidenav-inner">
+      <p class="sidenav-h">On this page</p>
+{{NARRATIVE_SIDENAV}}
+      <p class="sidenav-h">Elsewhere</p>
+      <a href="{{NARRATIVE_SOURCE_URL}}" target="_blank" rel="noopener">The source on GitHub</a>
+      <a href="{{BASE}}/decisions/">&larr; Leadership decisions</a>
+      <a href="{{BASE}}/">Home</a>
+    </div>
+  </nav>
+
+<main>
+{{NARRATIVE_BODY}}
+
+  <!-- ===== The source ===== -->
+  <section id="source">
+    <div class="wrap">
+      <p class="eyebrow">The source</p>
+      <div class="sec-head"><h2 class="nobalance">This page is a projection; the Markdown is the source.</h2></div>
+      <p class="lede">
+        This page is rendered from the version-controlled Markdown source in the
+        corpus repository, where its metadata, review record, and full history live.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="{{NARRATIVE_SOURCE_URL}}" target="_blank" rel="noopener">Read the source on GitHub&nbsp;&#8599;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Detail rail ===== -->
+  <section id="depth">
+    <div class="wrap">
+      <p class="eyebrow">Go deeper</p>
+      <div class="sec-head"><h2 class="nobalance">Three lenses past the executive layer.</h2></div>
+      <div class="rail">
+        <div class="lens">
+          <h3>Security &amp; risk (CISO)</h3>
+          <a href="{{BASE}}/security/">Security controls &amp; operations</a>
+          <a href="{{BASE}}/risk/">Risk methodology &amp; registers</a>
+          <a href="{{BASE}}/resilience/">Continuity, recovery &amp; incidents</a>
+        </div>
+        <div class="lens">
+          <h3>Compliance &amp; evidence</h3>
+          <a href="{{BASE}}/compliance/">Regulatory mapping &amp; audit readiness</a>
+          <a href="{{BASE}}/privacy/">Privacy &amp; data-protection obligations</a>
+          <a href="{{BASE}}/governance/">Charters, policies &amp; registers</a>
+        </div>
+        <div class="lens">
+          <h3>Technology</h3>
+          <a href="{{BASE}}/how-its-built/">How the library is built &amp; gated</a>
+          <a href="{{BASE}}/architecture/">Reference architectures</a>
+          <a href="{{BASE}}/dev-security/">Secure development &amp; pipelines</a>
+          <a href="{{BASE}}/for-ai/">For AI systems</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+</div>
+
+{{FOOTER}}
+
+{{SCRIPT}}
+</body>
+</html>
