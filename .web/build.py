@@ -13,8 +13,9 @@ point-in-time snapshot that this generator overwrites.
 
 CONTENT BOUNDARY (why this is safe to publish). The generator reads EXACTLY an
 explicit allow-list: ``taxonomy.yml``, ``README.md``, each corpus domain's own
-``<domain>/README.md`` (for the per-domain page intro), and the page templates
-and shared partials under ``.web/templates/``. It never walks the repository and
+``<domain>/README.md`` (for the per-domain page intro), and the page templates and
+shared partials under each variant's template tree (``.web/templates/`` and the
+non-indexable ``.web/templates-v2/`` staging copy). It never walks the repository and
 never reads ``.working/``, ``.claude/``, ``tools/``, ``tests/``, ``.github/``, or
 the private sibling repositories. (Under ``--check`` it additionally reads the
 committed ``.web/corpus-link-manifest.md`` and self-scans this generator source for
@@ -23,12 +24,13 @@ the safeguard checks; neither feeds published content.) By default its rendered 
 ``for-ai/index.html``, one ``<domain>/index.html`` per corpus domain, one
 ``types/<slug>/index.html`` per document type, and the three generated files
 ``robots.txt``, ``sitemap.xml``, and ``llms.txt``); it also writes the committed ``.web/corpus-link-manifest.md`` (a generated artefact outside the ephemeral ``dist/`` tree). So the
-published surface is those pages and files and nothing else; a repo file cannot
+published surface is those root pages and files, plus the non-indexable ``v2`` staging
+variant's tree under ``.web/dist/v2/`` (noindex); a repo file cannot
 leak onto the public site through this generator. The about page and the For-AI
 page are static template prose (the maintainer bio and acknowledged contributors;
 and, for For-AI, descriptive guidance plus a resource index whose links point at
 public corpus artefacts on GitHub), not corpus-derived. ``robots.txt`` welcomes
-AI/search crawlers, ``sitemap.xml`` lists the rendered pages, and ``llms.txt`` is
+AI/search crawlers, ``sitemap.xml`` lists the indexable root variant's rendered pages, and ``llms.txt`` is
 a curated Markdown map of public corpus artefacts. Each domain page draws only its
 intro (the domain README's ``## Purpose`` paragraph, public corpus content) and
 its document list (title / type / path from ``taxonomy.yml``, each linking out to
@@ -70,7 +72,7 @@ README = REPO_ROOT / "README.md"
 DEFAULT_OUT = WEB_DIR / "dist"
 # The committed web-to-corpus link manifest (a generated artefact like
 # taxonomy.yml / docs/portal.md, NOT part of the ephemeral dist/ tree): every
-# corpus/GitHub target the site links, with its website location and link text.
+# corpus/GitHub target the indexable root variant's pages link, with its website location and link text.
 # Gate 75 (tools/lint-web-corpus-links.py) resolves its targets against the repo.
 CORPUS_LINK_MANIFEST = WEB_DIR / "corpus-link-manifest.md"
 
@@ -84,9 +86,13 @@ class Variant(NamedTuple):
     indexable: bool = False
 
 
-# The published site variant. Future staging variants belong in this table, so
+# The site variant table: one indexable root variant (v1) plus any non-indexable
+# staging variants (v2). New staging variants belong in this table, so
 # the template source, URL prefix, and indexability policy stay coupled.
-VARIANTS = (Variant("v1", "templates", "", indexable=True),)
+VARIANTS = (
+    Variant("v1", "templates", "", indexable=True),
+    Variant("v2", "templates-v2", "v2/", indexable=False),
+)
 
 # Shared chrome injected into every page from a single source, so the pages
 # cannot drift. Placeholder name -> partial filename under a variant's template
@@ -199,6 +205,7 @@ _TYPE_RE = re.compile(r'^  type:\s*"(.*)"\s*$')
 _TITLE_RE = re.compile(r'^  title:\s*"(.*)"\s*$')
 _CALVER_RE = re.compile(r"^\*\*Library Version:\*\*\s+([0-9]{4}\.[0-9]{2}\.[0-9]+)", re.M)
 _PLACEHOLDER_RE = re.compile(r"\{\{([A-Z0-9_]+)\}\}")
+_CANONICAL_TAG_RE = re.compile(r'<link rel="canonical" href="[^"]*">')
 _MD_LINK_RE = re.compile(r"\[([^\]]+)\]\([^)]*\)")
 # Matches a root-relative href (quoted or unquoted) on a single line. The optional
 # quote also catches the unquoted form (an href attribute assigned a bare site-root
@@ -626,14 +633,14 @@ def figure_values(figures, variant):
         "DOMAIN_COUNT": str(figures["domain_count"]),
         "DOMAIN_DOC_TOTAL": str(figures["domain_docs"]),
         "ROOT_COUNT": str(figures["root_count"]),
-        "BASE": variant.url_prefix,
+        "BASE": site_prefix_for(variant),
         "DOMAIN_ROWS": render_domain_rows(figures),
         "TYPE_CHIPS": render_type_chips(figures),
         "SIDENAV_DOMAINS": render_sidenav_domains(figures),
     }
 
 
-def render_page(template_name, figures, variant, template_dir, partials, extra=None):
+def render_page(template_name, figures, variant, template_dir, partials, extra=None, out_rel=None):
     """Render one page: inject the shared partials, then the corpus figures.
 
     Two substitution passes, because the partials carry figure placeholders of
@@ -671,6 +678,17 @@ def render_page(template_name, figures, variant, template_dir, partials, extra=N
             f"unrendered placeholder(s) remain in {template_name}: "
             f"{', '.join(sorted(set(leftover)))}"
         )
+    if not variant.indexable:
+        if out_rel is None:
+            raise BuildError(f"non-indexable variant page {template_name} has no output path")
+        metadata = (
+            '<meta name="robots" content="noindex,nofollow">\n'
+            f'<link rel="canonical" href="{_site_url_for(variant, out_rel)}">'
+        )
+        if _CANONICAL_TAG_RE.search(rendered):
+            rendered = _CANONICAL_TAG_RE.sub(metadata, rendered)
+        else:
+            rendered = rendered.replace("</head>", f"{metadata}\n</head>", 1)
     return rendered, used
 
 
@@ -678,25 +696,35 @@ def render_robots_txt():
     """robots.txt welcoming AI and search crawlers. This corpus is CC BY-SA 4.0
     and intended to be widely read, cited, and learned from (including as AI
     training data), so the file names the known AI/training crawlers explicitly
-    with ``Allow: /`` and then allows everyone via a trailing wildcard group,
+    with ``Allow: /`` and then allows everyone via a trailing wildcard group while disallowing the ``/v2``
+    staging tree,
     and advertises the sitemap. It is deliberately permissive and replaces any
     platform-managed default that would restrict AI crawlers."""
     lines = [
         "# grclibrary.ai",
         "# This is an open, CC BY-SA 4.0 governance, risk, and compliance corpus,",
         "# intended to be widely read, cited, and learned from, including as",
-        "# training data for AI systems. All crawlers are welcome on every path.",
+        "# training data for AI systems. All crawlers are welcome on every public path (the /v2 staging tree is disallowed).",
         "",
     ]
     for ua in AI_CRAWLER_USER_AGENTS:
-        lines += [f"User-agent: {ua}", "Allow: /", ""]
-    lines += ["User-agent: *", "Allow: /", "", f"Sitemap: {SITE_BASE}/sitemap.xml", ""]
+        lines += [f"User-agent: {ua}", "Allow: /", "Disallow: /v2/", ""]
+    lines += [
+        "User-agent: *", "Allow: /", "Disallow: /v2/", "",
+        f"Sitemap: {SITE_BASE}/sitemap.xml", "",
+    ]
     return "\n".join(lines)
+
+
+def site_prefix_for(variant):
+    """Return one variant's slash-led site URL prefix for HTML and canonicals."""
+    prefix = variant.url_prefix.strip("/")
+    return f"/{prefix}" if prefix else ""
 
 
 def _site_url_for(variant, out_rel):
     """Map one variant's rendered page path to its canonical site URL."""
-    prefix = variant.url_prefix.rstrip("/")
+    prefix = site_prefix_for(variant)
     if out_rel == "index.html":
         return f"{SITE_BASE}{prefix}/"
     if out_rel.endswith("/index.html"):
@@ -706,7 +734,7 @@ def _site_url_for(variant, out_rel):
 
 def _site_path_for(variant, out_rel):
     """Map one variant's rendered page path to its site-relative URL path."""
-    prefix = variant.url_prefix.rstrip("/")
+    prefix = site_prefix_for(variant)
     if out_rel == "index.html":
         return f"{prefix}/"
     if out_rel.endswith("/index.html"):
@@ -721,7 +749,7 @@ def output_rel_for(variant, out_rel):
 
 
 def render_sitemap(variant, html_page_rels):
-    """sitemap.xml listing every rendered site page as a directory-style URL,
+    """sitemap.xml listing every rendered page of the sole indexable root variant as a directory-style URL,
     built from the HTML page set so a newly-added page is listed automatically."""
     locs = "\n".join(
         f"  <url><loc>{_site_url_for(variant, rel)}</loc></url>" for rel in html_page_rels
@@ -803,8 +831,9 @@ def render_static_template_links(variant):
 
 def render_corpus_link_manifest(figures, variant):
     """The committed web-to-corpus link manifest: one row per corpus/GitHub
-    target the site links (its repo-relative path, its website location, and its
-    link text). Re-derived from the SAME sources the pages emit from, so the
+    target the indexable root variant's pages link (its repo-relative path, its
+    website location, and its link text; staging variants are verbatim template
+    copies that link identical targets, so the root variant's rows cover them). Re-derived from the SAME sources the pages emit from, so the
     manifest cannot drift from the emitted links: the taxonomy docs behind the
     per-domain pages (render_domain_doc_rows) and the per-type pages
     (render_type_doc_rows), the curated llms.txt corpus links
@@ -826,10 +855,12 @@ def render_corpus_link_manifest(figures, variant):
         "# Web-to-corpus link manifest",
         "",
         "Generated by `.web/build.py`; do not edit by hand. Every corpus/GitHub "
-        "target the site links, with its website location and link text: the "
+        "target the indexable root variant's pages link, with its website location and link text: the "
         "taxonomy-derived domain and type pages, the curated `llms.txt` map, and "
         "the corpus links hardcoded in the static page templates. Gate 75 "
-        "(`tools/lint-web-corpus-links.py`) resolves each target against the repo.",
+        "(`tools/lint-web-corpus-links.py`) resolves each target against the repo. "
+        "Non-indexable staging variants (v2) are verbatim template copies linking "
+        "identical targets, so these root-variant rows cover them.",
         "",
         "| Corpus target | Website location | Link text |",
         "| --- | --- | --- |",
@@ -840,7 +871,7 @@ def render_corpus_link_manifest(figures, variant):
 
 
 def indexable_variant():
-    """Return the sole published variant, rejecting an incomplete promotion."""
+    """Return the sole indexable root variant, rejecting an incomplete promotion."""
     indexable = [variant for variant in VARIANTS if variant.indexable]
     if len(indexable) != 1 or indexable[0].url_prefix != "":
         raise BuildError(
@@ -857,7 +888,9 @@ def render_variant(figures, variant):
     pages = []
     used_across = set()
     for template_name, out_rel in PAGES:
-        html, used = render_page(template_name, figures, variant, template_dir, partials)
+        html, used = render_page(
+            template_name, figures, variant, template_dir, partials, out_rel=out_rel
+        )
         pages.append((out_rel, html))
         used_across |= used
 
@@ -868,7 +901,7 @@ def render_variant(figures, variant):
     for dp in figures["domain_pages"]:
         html, _ = render_page(
             "domain.html", figures, variant, template_dir, partials,
-            extra=domain_page_values(dp, variant)
+            extra=domain_page_values(dp, variant), out_rel=f"{dp['domain']}/index.html"
         )
         pages.append((f"{dp['domain']}/index.html", html))
 
@@ -879,7 +912,7 @@ def render_variant(figures, variant):
     for tp in figures["type_pages"]:
         html, _ = render_page(
             "type.html", figures, variant, template_dir, partials,
-            extra=type_page_values(tp, variant)
+            extra=type_page_values(tp, variant), out_rel=f"types/{tp['slug']}/index.html"
         )
         pages.append((f"types/{tp['slug']}/index.html", html))
 
@@ -896,9 +929,9 @@ def render_variant(figures, variant):
 def render_site(figures):
     """Render every variant tree and return ``(dist-relative path, content)``.
 
-    Each table row renders its own template tree. The published indexable tree
-    alone emits crawler and discovery files, so a future staging tree cannot
-    publish a competing root.
+    Each table row renders its own template tree. The indexable root tree
+    alone emits crawler and discovery files, so a non-indexable staging tree
+    cannot publish a competing root.
     """
     indexable_variant()
     pages = []
@@ -947,8 +980,8 @@ def bare_root_relative_hrefs():
     """Return source locations of root-relative hrefs missing the BASE token.
 
     Templates and the generator's emitted-link expressions are both scanned:
-    either source can otherwise reintroduce a link that escapes a future site
-    prefix. A BASE-prefixed value begins with the token rather than a slash and
+    either source can otherwise reintroduce a link that escapes a prefixed site
+    variant. A BASE-prefixed value begins with the token rather than a slash and
     therefore cannot match _ROOT_HREF_RE.
     """
     hits = []

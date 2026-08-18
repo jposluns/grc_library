@@ -314,7 +314,7 @@ is external. Two mechanisms:
      the audit-gate bullet above to every change type): for EVERY gate, pack-rule, skill, or
      count change in the PR, run the `## Change-impact surface map` in `.claude/CLAUDE.md` for that change type
      and confirm each surface, gated AND free-prose AND website, is in the diff. The WEBSITE
-     is a first-class paired surface: identify the `grclibrary.ai` (`.web/templates/`) prose
+     is a first-class paired surface: identify the `grclibrary.ai` (`.web/templates/` and `.web/templates-v2/`) prose
      to update EARLY and apply it in the SAME PR. A rule or skill is linked TWICE in
      `pack.html` (the sidenav AND a body `<li>`), so confirm BOTH; a rule- or skill-COUNT
      change touches the three count surfaces (`pack.html` meta-description, `pack.html` body
