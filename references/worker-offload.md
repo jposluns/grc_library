@@ -39,8 +39,8 @@ rule (maintainer-directed 2026-07-19, expanded to six points 2026-07-26):
    order to one worker of each family and assess the deliveries together: different models surface
    different perspectives, so the cross-family read is how nothing is missed. Reconcile them; a finding
    in only one family's delivery is triaged on its own merits. This is the operational form of the
-   permanent triple-family QA standard, which applies to EVERY QA pass (each half an exec-dispatch
-   worker, one per family; the Claude half is a claude-family exec-dispatch worker, NEVER the in-session
+   permanent triple-family QA standard, which applies to EVERY QA pass (each member an exec-dispatch
+   worker, one per family; the Claude member is a claude-family exec-dispatch worker, NEVER the in-session
    Agent tool, per `block-orchestrator-self-qa.py`). On token or tooling unavailability the panel drops
    to the families that can run (triple to dual to single), never a discretionary downgrade.
 5. **Keep dispatched workers busy: one on QA, the rest pre-loading the next ~10 items.** Never let an

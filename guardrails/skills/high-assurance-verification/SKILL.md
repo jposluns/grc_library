@@ -1,6 +1,6 @@
 ---
 name: high-assurance-verification
-description: Run the heavier pre-apply verification harness for a SENSITIVE change, one that is gate-blind on correctness (a fit or semantic property no existence gate can check), delicate at scale (a wide reshape or bulk mapping where a hand-edit is itself a defect risk), and costly to get wrong (a cited or downstream-relied-on artefact). Use before applying such a change, when the maintainer directs absolute-integrity rechecking, or when resuming a sensitive item left open in the register. It composes research fan-out, a mechanical signal pass over the negatives, two independent adversarial verifiers from different model families (false-negative and false-positive lenses, blind to each other and to the research), a programmatic invariant floor, and a deterministic scripted apply plus re-parse, so apply-correctness does not rest on the orchestrator's in-context precision. It catches the plausible-but-wrong value that survives every existence gate because the gate confirms the value is well-formed, not that it is right.
+description: Run the heavier pre-apply verification harness for a SENSITIVE change, one that is gate-blind on correctness (a fit or semantic property no existence gate can check), delicate at scale (a wide reshape or bulk mapping where a hand-edit is itself a defect risk), and costly to get wrong (a cited or downstream-relied-on artefact). Use before applying such a change, when the maintainer directs absolute-integrity rechecking, or when resuming a sensitive item left open in the register. It composes research fan-out, a mechanical signal pass over the negatives, independent adversarial verifiers from two or more model families (false-negative and false-positive lenses, blind to each other and to the research), a programmatic invariant floor, and a deterministic scripted apply plus re-parse, so apply-correctness does not rest on the orchestrator's in-context precision. It catches the plausible-but-wrong value that survives every existence gate because the gate confirms the value is well-formed, not that it is right.
 derives_from: ../../governance/high-assurance-verification.md
 ---
 
@@ -80,7 +80,7 @@ The harness is complete when:
 
 - All three trigger conditions were confirmed (or the maintainer directed the harness), and a register row was opened.
 - The research fan-out ran and the negatives were signal-passed (open-on-negative-with-signal applied).
-- Two independent adversarial verifiers, drawn from two DIFFERENT model families (false-negative and false-positive lenses, blind), ran, each quoting ground truth; every miss they found was corrected and re-verified before the apply.
+- Independent adversarial verifiers, one per available model family (two or more; the graduated floor of two applies only on token or tooling unavailability), from DIFFERENT families (false-negative and false-positive lenses, blind), ran, each quoting ground truth; every miss they found was corrected and re-verified before the apply.
 - The programmatic invariant floor passed.
 - The apply was scripted (not hand-edited) and the rendered artefact was re-parsed against the verified map with zero mismatches.
 - The register row records the stages and outcomes and is set to `verified` (or left `pending` / `in-progress` / `deferred` with the blocker named), and the findings were surfaced.
@@ -90,7 +90,7 @@ The harness is complete when:
 | Rationalization | Reality |
 |---|---|
 | "The existence gate passed, so the value is right." | The gate confirms the value is well-formed and in-catalogue, not that it is the right value for its context. Fit is gate-blind by construction. |
-| "One verifier is enough." | One verifier briefed to confirm rubber-stamps. Two independent verifiers with complementary lenses (refute-the-negatives, refute-the-positives) catch orthogonal failure modes. |
+| "One verifier is enough." | One verifier briefed to confirm rubber-stamps. Two or more independent verifiers with complementary lenses (refute-the-negatives, refute-the-positives), one per available family, catch orthogonal failure modes. |
 | "I read the negatives carefully; a verifier pass is redundant." | The dominant first-pass miss is a negative inferred from a title without opening the source. An independent re-read of the negatives is exactly what catches it. |
 | "I will apply the edit carefully by hand." | A wide hand-edit makes correctness depend on not slipping across a long edit. A scripted apply plus re-parse removes that dependency. |
 | "The apply script ran, so the artefact is correct." | The script running is not evidence the rendered artefact matches the verified map. The re-parse is. |
