@@ -11073,7 +11073,7 @@ class WebCorpusLinkTests(LinterTestCase):
             self._HEADER + "| ai/does-not-exist-xyz.md | /ai/ | Missing |\n",
         )
         result = run_linter("tools/lint-web-corpus-links.py", "--manifest", fixture)
-        self.assertLinterFails(result, "does not exist")
+        self.assertLinterFails(result, "not a file")
 
     def test_escaped_target_flagged(self) -> None:
         fixture = self.make_fixture(
@@ -11082,6 +11082,16 @@ class WebCorpusLinkTests(LinterTestCase):
         )
         result = run_linter("tools/lint-web-corpus-links.py", "--manifest", fixture)
         self.assertLinterFails(result, "resolves outside repo")
+
+    def test_directory_target_flagged(self) -> None:
+        # A target that resolves to a directory (exists but is not a file) must fail:
+        # the manifest contract is a link to a corpus FILE, not a directory.
+        fixture = self.make_fixture(
+            "web-corpus-manifest-dir.md",
+            self._HEADER + "| ai | /ai/ | Directory |\n",
+        )
+        result = run_linter("tools/lint-web-corpus-links.py", "--manifest", fixture)
+        self.assertLinterFails(result, "not a file")
 
 
 class FloorMonotonicityDeltaTests(unittest.TestCase):
