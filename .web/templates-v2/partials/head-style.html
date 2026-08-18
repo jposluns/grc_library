@@ -256,6 +256,13 @@
   /* ---------- Differentiator cards ---------- */
   .feat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
   .feat { background: var(--surface); padding: 1.6rem 1.5rem; }
+  /* Concern grid: exactly three per row (9 concerns = 3x3); the coverage-gap card spans the full width. */
+  .feat-grid.concerns { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .feat-grid.concerns .feat.gap { grid-column: 1 / -1; }
+  @media (max-width: 640px) { .feat-grid.concerns { grid-template-columns: 1fr; } }
+  /* Four-card grids: 2x2 (four-across is unreadably narrow). */
+  .feat-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @media (max-width: 640px) { .feat-grid.two { grid-template-columns: 1fr; } }
   .feat .k {
     font-family: var(--font-mono);
     font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase;
@@ -451,7 +458,6 @@
   .feat h3 a { color: inherit; }
   .feat h3 a:hover { color: var(--brass); }
   .feat.gap { background: var(--surface-2); }
-  .feat.gap .k { color: var(--ink-faint); }
 
   .trust-strip {
     display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
