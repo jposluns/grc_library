@@ -11050,6 +11050,245 @@ class GateCitationInventoryTests(LinterTestCase):
         self.assertIn("OK", result.stderr)
 
 
+class WebGeneratorNarrativeJoinTests(unittest.TestCase):
+    """Wave-2 PR-1: the narrative-registry (narrative.yml) render-time join.
+
+    Covers the load_narratives() parser (valid parse against the committed
+    registry and a minimal fixture; loud BuildError on a missing registry, a
+    zero-page parse, a missing required field, and a page with no listing
+    route), the compute_figures health check (every domain: derived tag names a
+    real DOMAIN_SCOPE domain), the per-domain leadership-page tokens on the v2
+    domain template (rows in the shared .doc-row shape; a COMPUTED count; the
+    N=0 declared-gap branch), the single-helper row URL (wave-2 PR-2's
+    blob-to-on-site flip point), and the v1 inertness invariant (the root
+    template references neither token, the mechanism that keeps the frozen
+    root byte-identical)."""
+
+    @classmethod
+    def setUpClass(cls):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "web_build_narr_mod", REPO_ROOT / ".web" / "build.py"
+        )
+        cls.mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.mod)
+
+    def _load_from_text(self, text):
+        """Run load_narratives() against a temp registry, restoring the path."""
+        original = self.mod.NARRATIVE_REGISTRY
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                reg = Path(tmp) / "narrative.yml"
+                reg.write_text(text, encoding="utf-8")
+                self.mod.NARRATIVE_REGISTRY = reg
+                return self.mod.load_narratives()
+        finally:
+            self.mod.NARRATIVE_REGISTRY = original
+
+    # --- the parser, against the real committed registry ---
+
+    def test_real_registry_parses_with_required_fields(self):
+        pages = self.mod.load_narratives()
+        self.assertTrue(pages, "committed registry parsed to zero pages")
+        for page in pages:
+            for field in ("path", "title", "narrative_type", "route"):
+                self.assertTrue(page[field], f"{page['path']!r}: empty {field}")
+            self.assertTrue(
+                page["path"].startswith("executive/"),
+                f"narrative page outside executive/: {page['path']}",
+            )
+            self.assertTrue(
+                page["domains"], f"{page['path']}: no domain: derived tags"
+            )
+        tags = {d for page in pages for d in page["domains"]}
+        self.assertTrue(
+            tags <= set(self.mod.DOMAIN_SCOPE),
+            f"registry domain tag(s) outside DOMAIN_SCOPE: {sorted(tags - set(self.mod.DOMAIN_SCOPE))}",
+        )
+
+    def test_minimal_fixture_parses_and_scopes_tag_lists(self):
+        # corpus_sources items must NOT be swept into the derived_tags list, and
+        # non-domain facets (status:/type:) are excluded from the domain join.
+        pages = self._load_from_text(
+            'pages:\n'
+            '- path: "executive/briefs/x.md"\n'
+            '  title: "T"\n'
+            '  narrative_type: "Executive Brief"\n'
+            '  corpus_sources:\n'
+            '    - "domain:not-a-tag.md"\n'
+            '  derived_tags:\n'
+            '    - "domain:ai"\n'
+            '    - "status:explanatory"\n'
+            '    - "type:executive-brief"\n'
+            'listing:\n'
+            '- route: "executive/briefs/x"\n'
+            '  path: "executive/briefs/x.md"\n'
+            '  title: "T"\n'
+        )
+        self.assertEqual(len(pages), 1)
+        self.assertEqual(pages[0]["domains"], ["ai"])
+        self.assertEqual(pages[0]["route"], "executive/briefs/x")
+
+    def test_missing_registry_fails_loudly(self):
+        original = self.mod.NARRATIVE_REGISTRY
+        try:
+            self.mod.NARRATIVE_REGISTRY = (
+                Path(tempfile.gettempdir()) / "no-such-narrative-registry.yml"
+            )
+            with self.assertRaisesRegex(self.mod.BuildError, "not found"):
+                self.mod.load_narratives()
+        finally:
+            self.mod.NARRATIVE_REGISTRY = original
+
+    def test_zero_pages_fails_loudly(self):
+        with self.assertRaisesRegex(self.mod.BuildError, "zero pages"):
+            self._load_from_text("pages:\nlisting:\n")
+
+    def test_missing_required_field_fails_loudly(self):
+        with self.assertRaisesRegex(self.mod.BuildError, "title or\\s+narrative_type|title or narrative_type"):
+            self._load_from_text(
+                'pages:\n'
+                '- path: "executive/briefs/x.md"\n'
+                '  title: "T"\n'
+                'listing:\n'
+                '- route: "executive/briefs/x"\n'
+                '  path: "executive/briefs/x.md"\n'
+            )
+
+    def test_missing_listing_route_fails_loudly(self):
+        with self.assertRaisesRegex(self.mod.BuildError, "no listing: route"):
+            self._load_from_text(
+                'pages:\n'
+                '- path: "executive/briefs/x.md"\n'
+                '  title: "T"\n'
+                '  narrative_type: "Executive Brief"\n'
+                '  derived_tags:\n'
+                '    - "domain:ai"\n'
+                'listing:\n'
+            )
+
+    def test_domainless_page_fails_loudly(self):
+        # A page with zero domain: derived tags would silently drop off every
+        # domain listing (the emit-shape-drift risk claude N1 flagged), so the
+        # parser rejects it loudly rather than dropping it.
+        with self.assertRaisesRegex(self.mod.BuildError, "no domain: derived"):
+            self._load_from_text(
+                'pages:\n'
+                '- path: "executive/briefs/x.md"\n'
+                '  title: "T"\n'
+                '  narrative_type: "Executive Brief"\n'
+                '  derived_tags:\n'
+                '    - "status:explanatory"\n'
+                'listing:\n'
+                '- route: "executive/briefs/x"\n'
+                '  path: "executive/briefs/x.md"\n'
+            )
+
+    def test_unknown_domain_tag_fails_health_check(self):
+        original = self.mod.load_narratives
+        try:
+            self.mod.load_narratives = lambda: [{
+                "path": "executive/briefs/x.md", "title": "T",
+                "narrative_type": "Executive Brief",
+                "route": "executive/briefs/x", "domains": ["not-a-domain"],
+            }]
+            with self.assertRaisesRegex(self.mod.BuildError, "not-a-domain"):
+                self.mod.compute_figures()
+        finally:
+            self.mod.load_narratives = original
+
+    # --- the domain-page rendering ---
+
+    def test_domain_page_values_carry_computed_narrative_tokens(self):
+        figures = self.mod.compute_figures()
+        v2 = next(v for v in self.mod.VARIANTS if v.name == "v2")
+        for dp in figures["domain_pages"]:
+            values = self.mod.domain_page_values(dp, v2)
+            self.assertEqual(
+                values["DOMAIN_NARRATIVE_COUNT"], str(len(dp["narratives"])),
+                f"{dp['domain']}: count token is not the computed join size",
+            )
+            rows = values["DOMAIN_NARRATIVE_ROWS"]
+            self.assertEqual(
+                rows.count('<li class="doc-row">'),
+                max(len(dp["narratives"]), 1),
+                f"{dp['domain']}: row count drifted from the join",
+            )
+            for page in dp["narratives"]:
+                self.assertIn(
+                    f'<span class="doc-type">{self.mod._esc(page["narrative_type"])}</span>',
+                    rows,
+                )
+
+    def test_v2_domain_page_renders_leadership_section(self):
+        figures = self.mod.compute_figures()
+        v2 = next(v for v in self.mod.VARIANTS if v.name == "v2")
+        template_dir = self.mod.template_dir_for(v2)
+        partials = self.mod.load_partials(template_dir)
+        dp = figures["domain_pages"][0]
+        html, _ = self.mod.render_page(
+            "domain.html", figures, v2, template_dir, partials,
+            extra=self.mod.domain_page_values(dp, v2),
+            out_rel=f"{dp['domain']}/index.html",
+        )
+        self.assertIn("Leadership pages that touch this area.", html)
+        self.assertIn(
+            f"{len(dp['narratives'])} published leadership pages", html,
+            "the lede count must be the computed join size",
+        )
+        first = dp["narratives"][0]
+        self.assertIn(self.mod._esc(first["title"]), html)
+        self.assertIn(self.mod.GITHUB_BLOB_BASE + first["path"], html)
+
+    def test_zero_narratives_render_declared_gap_row(self):
+        rows = self.mod.render_domain_narrative_rows({"narratives": []})
+        self.assertIn("a declared coverage gap, not a hidden one", rows)
+        self.assertIn('<li class="doc-row">', rows)
+        self.assertNotIn("<a ", rows, "the declared-gap row links nowhere")
+
+    def test_row_urls_go_through_single_helper(self):
+        page = {
+            "path": "executive/briefs/x.md", "route": "executive/briefs/x",
+            "title": "T", "narrative_type": "Executive Brief", "domains": ["ai"],
+        }
+        self.assertEqual(
+            self.mod.narrative_page_url(page),
+            self.mod.GITHUB_BLOB_BASE + "executive/briefs/x.md",
+        )
+        rows = self.mod.render_domain_narrative_rows({"narratives": [page]})
+        self.assertIn(
+            self.mod.narrative_page_url(page), rows,
+            "rows must emit their URL through narrative_page_url (the PR-2 flip point)",
+        )
+
+    def test_v1_domain_template_is_inert_to_narrative_tokens(self):
+        v1_template = (
+            REPO_ROOT / ".web" / "templates" / "domain.html"
+        ).read_text(encoding="utf-8")
+        self.assertNotIn(
+            "DOMAIN_NARRATIVE", v1_template,
+            "the frozen v1 template must not reference the narrative tokens "
+            "(the byte-identical-root mechanism)",
+        )
+        v2_template = (
+            REPO_ROOT / ".web" / "templates-v2" / "domain.html"
+        ).read_text(encoding="utf-8")
+        self.assertIn("{{DOMAIN_NARRATIVE_COUNT}}", v2_template)
+        self.assertIn("{{DOMAIN_NARRATIVE_ROWS}}", v2_template)
+
+    def test_real_registry_pins_known_join_values(self):
+        # Pin concrete registry values so an emit-shape drift (e.g. a dropped or
+        # unquoted domain: tag) is caught here, not silently absorbed by the
+        # self-referential success-path assertions above.
+        figures = self.mod.compute_figures()
+        self.assertEqual(len(figures["narratives"]), 18)
+        by_domain = {
+            dp["domain"]: len(dp["narratives"]) for dp in figures["domain_pages"]
+        }
+        self.assertEqual(by_domain["risk"], 11)
+        self.assertEqual(by_domain["architecture"], 3)
+
+
 class WebCorpusLinkTests(LinterTestCase):
     """tools/lint-web-corpus-links.py (gate 75)"""
 
