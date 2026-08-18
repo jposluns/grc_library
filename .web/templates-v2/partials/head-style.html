@@ -163,9 +163,9 @@
     font-size: clamp(1.7rem, 4.3vw, 4rem);
     line-height: 1.06;
     letter-spacing: -0.015em;
-    text-wrap: balance;
+    text-wrap: pretty;
     margin: 0 0 1.4rem;
-    max-width: 18ch;
+    max-width: 30ch;
   }
   .hero h1 .accent { color: var(--mast-brass); }
   .hero .dek {
@@ -337,6 +337,10 @@
   .biblio-col li:last-child { border-bottom: none; }
   .biblio-col .id { font-family: var(--font-mono); font-size: 0.86rem; font-weight: 700; color: var(--ink); display: block; }
   .biblio-col .topic { font-size: 0.82rem; color: var(--ink-faint); }
+  .biblio-col .id a { color: inherit; text-decoration: none; }
+  .biblio-col .id a:hover { color: var(--brass); text-decoration: underline; text-underline-offset: 3px; }
+  .biblio-col .id .ext { font-weight: 400; font-size: 0.72rem; color: var(--ink-faint); margin-left: 0.35rem; }
+  .biblio-col .id a:hover .ext { color: var(--brass); }
 
   /* ---------- License ---------- */
   .licence-note { background: var(--surface-2); border: 1px solid var(--line); border-left: 3px solid var(--brass); border-radius: var(--radius); padding: clamp(1.4rem, 3.5vw, 2rem); margin-bottom: 2.4rem; max-width: 780px; }
@@ -492,13 +496,6 @@
   .rail .lens a { display: block; font-size: 0.9rem; color: var(--ink-soft); padding: 0.18rem 0; }
   .rail .lens a:hover { color: var(--brass); }
   /* ---------- v2 route-page additions ---------- */
-  .lens-links {
-    display: flex; flex-wrap: wrap; gap: 0.4rem 1.6rem;
-    margin-top: 1.4rem; padding-top: 0.9rem; border-top: 1px solid var(--line);
-  }
-  .lens-links a { font-size: 0.85rem; color: var(--ink-soft); }
-  .lens-links a b { font-weight: 600; color: var(--ink); }
-  .lens-links a:hover, .lens-links a:hover b { color: var(--brass); text-decoration: none; }
 
   ol.steps { margin: 0; padding-left: 1.4rem; max-width: 76ch; }
   ol.steps li { margin: 0 0 1.1rem; color: var(--ink-soft); line-height: 1.65; }
