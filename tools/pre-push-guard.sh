@@ -7,14 +7,14 @@
 #
 #   tools/pre-push-guard.sh && git push -u origin <branch>
 #
-# It chains the two runners that PR-workflow step 2 mandates before any
-# push, stopping on the first failure:
+# It chains the two runners that PR-workflow step 2 mandates, plus a web-generator
+# health check, before any push, stopping on the first failure:
 #
 #   1. tools/run_all_audits.sh      - all corpus gates, from HEAD.
 #   2. tools/run-pr-time-checks.sh  - the PR-only delta gates (D1-D12, D6 retired) plus
-#   3. .web/build.py --check         - web-generator health (parse + render, no write);
-#                                     the history-aware trio (gates 45/40/31)
-#                                     against the merge base.
+#                                     the history-aware trio (gates 45/40/31) against
+#                                     the merge base.
+#   3. .web/build.py --check         - web-generator health (parse + render, no write).
 #
 # Together those two runners cover every gate the CI workflow runs, so a
 # green guard means the push will not flip CI red on a gate failure.
@@ -28,7 +28,7 @@
 # a delta gate flipped CI red after the fact (improvement-log #438).
 #
 # Scope boundary: this guard gates PUSHES (the two post-commit / pre-push
-# runners). The commit-time hygiene gate, `preflight-changelog.py`, stays
+# runners plus the conditional `.web/build.py --check`). The commit-time hygiene gate, `preflight-changelog.py`, stays
 # the `&&`-gate on COMMITS (`python3 tools/preflight-changelog.py && git
 # commit ...`), because it inspects newly-added working-tree lines that
 # are already committed by push time. The two helpers are complementary,
@@ -38,9 +38,9 @@
 #   tools/pre-push-guard.sh && git push -u origin <branch>
 #   BASE_REF=origin/develop tools/pre-push-guard.sh   # non-default base
 #
-# Exit codes: 0 only if BOTH runners pass; 3 if the guard REFUSES to run
+# Exit codes: 0 only if both runners and the web check (when .web/build.py is present) pass; 3 if the guard REFUSES to run
 # because stdout is piped (the RM-10 self-defence below, before any runner
-# starts); otherwise the first failing runner's non-zero rc (that runner's
+# starts); otherwise the first failing check's non-zero rc (that check's
 # own diagnostics are printed above).
 
 set -u
@@ -138,5 +138,5 @@ else
 fi
 
 echo ""
-echo "=== pre-push guard PASS: all checks green. Safe to push. ==="
+echo "=== pre-push guard PASS: all applicable checks green. Safe to push. ==="
 exit 0

@@ -2068,7 +2068,7 @@ class PrePushGuardTests(unittest.TestCase):
     tree beside stub runners.
     """
 
-    def _build_guard_dir(self, first_rc: int, second_rc: int):
+    def _build_guard_dir(self, first_rc: int, second_rc: int, web_rc=None):
         import shutil
         import stat
         import tempfile
@@ -2085,6 +2085,12 @@ class PrePushGuardTests(unittest.TestCase):
             f"exit {second_rc}\n",
             encoding="utf-8",
         )
+        if web_rc is not None:
+            web = tmp / ".web"
+            web.mkdir()
+            (web / "build.py").write_text(
+                f"import sys\nsys.exit({web_rc})\n", encoding="utf-8"
+            )
         for name in ("pre-push-guard.sh", "run_all_audits.sh", "run-pr-time-checks.sh"):
             path = tools / name
             path.chmod(path.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
@@ -2149,6 +2155,30 @@ class PrePushGuardTests(unittest.TestCase):
                 f"guard should exit 0 when both runners pass; got "
                 f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
             )
+            self.assertIn("Safe to push", result.stdout)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_web_check_failure_blocks(self) -> None:
+        # CLW-2/3/4/5/7 r2 (codex MED-NEW-1): the conditional third check propagates its
+        # own non-zero exit; the two runners passing is not sufficient.
+        tmp, shutil = self._build_guard_dir(first_rc=0, second_rc=0, web_rc=9)
+        try:
+            result = self._run_guard(tmp)
+            self.assertEqual(
+                result.returncode, 9,
+                f"guard should exit with the web check's code; got "
+                f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+            self.assertIn("FAILED at .web/build.py --check", result.stdout)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_all_three_checks_green_passes(self) -> None:
+        tmp, shutil = self._build_guard_dir(first_rc=0, second_rc=0, web_rc=0)
+        try:
+            result = self._run_guard(tmp)
+            self.assertEqual(result.returncode, 0, result.stdout)
             self.assertIn("Safe to push", result.stdout)
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
@@ -8925,6 +8955,10 @@ class WebGeneratorBaseTokenTests(unittest.TestCase):
         self.assertIsNotNone(self.mod._ROOT_HREF_RE.search("href='/future'"))
         self.assertIsNotNone(self.mod._ROOT_HREF_RE.search('href = "/future"'))
         self.assertIsNotNone(self.mod._ROOT_HREF_RE.search('HREF="/future"'))
+        # CLW-4 (resume-0818 closing /validate): the optional-quote broadening also catches
+        # the UNQUOTED root form, while an unquoted non-root path stays clean.
+        self.assertIsNotNone(self.mod._ROOT_HREF_RE.search('href=/future'))
+        self.assertIsNone(self.mod._ROOT_HREF_RE.search('href=about/future'))
         # ...while a BASE-prefixed value stays clean regardless of quote style.
         self.assertIsNone(self.mod._ROOT_HREF_RE.search("href='{{BASE}}/future'"))
 

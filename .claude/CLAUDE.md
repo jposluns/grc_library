@@ -275,7 +275,7 @@ boundary, like a skill); this is the lean checklist, each mechanical step naming
 enforcing gate/hook.
 
 1. **Feature branch only, never `main`** (hook [`block-branch-to-main-edit.py`](hooks/block-branch-to-main-edit.py)); confirm `tools/run_all_audits.sh` after each commit, not only before push.
-2. **Push behind the pre-push guard, UNPIPED**: `tools/pre-push-guard.sh && git push -u origin <branch>` (chains `run_all_audits.sh` + `run-pr-time-checks.sh`). Never pipe a verification to a truncating sink (hook [`block-verification-pipes.py`](hooks/block-verification-pipes.py); use [`tools/tail-safe.sh`](../tools/tail-safe.sh) when output must be tamed).
+2. **Push behind the pre-push guard, UNPIPED**: `tools/pre-push-guard.sh && git push -u origin <branch>` (chains `run_all_audits.sh` + `run-pr-time-checks.sh` + `.web/build.py --check`). Never pipe a verification to a truncating sink (hook [`block-verification-pipes.py`](hooks/block-verification-pipes.py); use [`tools/tail-safe.sh`](../tools/tail-safe.sh) when output must be tamed).
 3. **Wait for `Lint markdown corpus` CI** per `## PR activity subscription discipline` below (behavioural; no gate).
 4. **`/validate-pr` as the finalizing QA step, BEFORE merge**, recording THIS PR's own rows in THIS PR (gate 50 Check 1, window inclusive of `max_pr`; a `DISPATCHED`/`PENDING`-and-never-`RETURNED` row fails). Any dispatched subagent inspects git READ-ONLY (no checkout/reset on the shared tree). Findings fixed in-PR or surfaced. Handoff-PR fallback: the `SKIPPED`+`handoff` / `handoff-PR exception` marker goes in the **Findings cell** (gate 50 reads it there).
 5. **`/retro` immediately after, BEFORE merge**, its row in THIS PR (gate 50 Check 1, retro half).
