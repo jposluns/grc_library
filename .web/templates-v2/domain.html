@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="{{DOMAIN_SEO_DESC}}">
+<link rel="canonical" href="{{DOMAIN_CANONICAL}}">
+<title>{{DOMAIN_TITLE}}</title>
+{{HEAD_STYLE}}
+<style>
+  /* Domain page (domain-only styles). These pages are short, so the shared
+     section rhythm leaves too much empty space before the document list (it
+     falls below the fold on an iPad). Tighten the section / hero padding and the
+     inter-element margins here, without touching the content-rich landing page. */
+  section { padding-block: clamp(1.4rem, 3vw, 2.2rem); }
+  .hero { padding-block: clamp(1.8rem, 4vw, 3rem); }
+  .sec-head { margin-bottom: 1.1rem; }
+  .lede { margin-bottom: 1.4rem; }
+  .domain-h1 { text-transform: uppercase; letter-spacing: 0.02em; }
+  /* The .doc-index / .doc-row / .doc-type / .doc-title document-list styles are
+     shared with the per-type pages and live in the head-style partial. */
+</style>
+</head>
+
+<body>
+<header class="mast">
+  <div class="wrap">
+{{TOPBAR}}
+  </div>
+
+  <div class="wrap hero">
+    <p class="eyebrow reveal d1">Domain</p>
+    <h1 class="domain-h1 reveal d2">{{DOMAIN_NAME}}</h1>
+    <p class="dek reveal d3">{{DOMAIN_SCOPE_TEXT}}</p>
+    <div class="cta-row reveal d4">
+      <a class="btn btn-ghost" href="{{BASE}}/#register">&larr; All domains</a>
+      <a class="btn btn-ghost" href="{{BASE}}/">Home</a>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="sidenav" aria-label="Page contents">
+    <div class="sidenav-inner">
+      <p class="sidenav-h">Contents</p>
+      <a href="#about">About this domain</a>
+      <a href="#documents">Documents</a>
+      <a href="{{BASE}}/#register">&larr; All domains</a>
+      <a href="{{BASE}}/">Home</a>
+    </div>
+  </nav>
+
+<main>
+  <!-- ===== 01 About this domain ===== -->
+  <section id="about">
+    <div class="wrap">
+      <div class="sec-head"><span class="sec-num">&sect;01</span><h2>About this domain.</h2></div>
+      <p class="lede">{{DOMAIN_PURPOSE}}</p>
+    </div>
+  </section>
+
+  <!-- ===== 02 Documents ===== -->
+  <section id="documents">
+    <div class="wrap">
+      <div class="sec-head"><span class="sec-num">&sect;02</span><h2>Documents.</h2></div>
+      <p class="lede">{{DOMAIN_DOC_COUNT}} documents in this domain. Each links to its source on GitHub, where the corpus is version-controlled and continuously gated.</p>
+      <ul class="doc-index">
+{{DOMAIN_DOC_ROWS}}
+      </ul>
+    </div>
+  </section>
+</main>
+</div>
+
+{{FOOTER}}
+
+{{SCRIPT}}
+</body>
+</html>

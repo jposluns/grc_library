@@ -8892,7 +8892,7 @@ class WebGeneratorBaseTokenTests(unittest.TestCase):
             try:
                 self.mod.figure_values = legacy_figure_values
                 legacy = self.mod.Variant(
-                    "legacy", str(legacy_templates), "", indexable=False
+                    "legacy", str(legacy_templates), "", indexable=True
                 )
                 legacy_pages = self.mod.render_variant(figures, legacy)
                 legacy_pages.extend([
@@ -8907,7 +8907,10 @@ class WebGeneratorBaseTokenTests(unittest.TestCase):
             finally:
                 self.mod.figure_values = original_figure_values
 
-            self._write_site(self.mod.render_site(figures), after)
+            self._write_site(
+                [page for page in self.mod.render_site(figures) if not page[0].startswith("v2/")],
+                after,
+            )
             baseline_files = sorted(p.relative_to(baseline) for p in baseline.rglob("*") if p.is_file())
             after_files = sorted(p.relative_to(after) for p in after.rglob("*") if p.is_file())
             self.assertEqual(baseline_files, after_files)
@@ -8964,7 +8967,7 @@ class WebGeneratorBaseTokenTests(unittest.TestCase):
 
 
 class WebGeneratorVariantTableTests(unittest.TestCase):
-    """S5: the variant table preserves v1 and rejects incomplete promotion."""
+    """S5/S6: the variant table renders every tree and protects promotion."""
 
     @classmethod
     def setUpClass(cls):
@@ -8983,14 +8986,7 @@ class WebGeneratorVariantTableTests(unittest.TestCase):
             path.write_text(text, encoding="utf-8")
 
     def test_variant_table_render_matches_direct_helper_composition(self):
-        """Orchestration invariant: render_site()'s table-driven output for the
-        single v1 row equals composing the helpers directly (render_variant plus
-        the crawler helpers). This guards the refactor's wiring, it is NOT a
-        byte-identity proof against the pre-S5 tree: both sides use the refactored
-        helpers, so it cannot catch a shared-helper regression. True byte-identity
-        vs 4232e8ca was established out-of-band by an independent two-revision
-        rebuild diff (at apply time and in validation).
-        """
+        """Orchestration invariant: render_site() equals direct table composition."""
         figures = self.mod.compute_figures()
         v1 = self.mod.VARIANTS[0]
         with tempfile.TemporaryDirectory() as tmp:
@@ -8999,15 +8995,26 @@ class WebGeneratorVariantTableTests(unittest.TestCase):
             reconstructed_out = tmp_path / "reconstructed"
             self._write_site(self.mod.render_site(figures), table_out)
 
-            reconstructed = self.mod.render_variant(figures, v1)
-            reconstructed.extend([
-                ("robots.txt", self.mod.render_robots_txt()),
-                (
-                    "sitemap.xml",
-                    self.mod.render_sitemap(v1, [rel for rel, _ in reconstructed]),
-                ),
-                ("llms.txt", self.mod.render_llms_txt(figures, v1)),
-            ])
+            reconstructed = []
+            for variant in self.mod.VARIANTS:
+                variant_pages = self.mod.render_variant(figures, variant)
+                reconstructed.extend(
+                    (self.mod.output_rel_for(variant, rel), html)
+                    for rel, html in variant_pages
+                )
+                if variant.indexable:
+                    html_page_rels = [rel for rel, _ in variant_pages]
+                    reconstructed.extend([
+                        (self.mod.output_rel_for(variant, "robots.txt"), self.mod.render_robots_txt()),
+                        (
+                            self.mod.output_rel_for(variant, "sitemap.xml"),
+                            self.mod.render_sitemap(variant, html_page_rels),
+                        ),
+                        (
+                            self.mod.output_rel_for(variant, "llms.txt"),
+                            self.mod.render_llms_txt(figures, variant),
+                        ),
+                    ])
             self._write_site(reconstructed, reconstructed_out)
 
             table_files = sorted(
@@ -9049,6 +9056,107 @@ class WebGeneratorVariantTableTests(unittest.TestCase):
             self.assertEqual(self.mod.main(["--check"]), 1)
         finally:
             self.mod.VARIANTS = original
+
+
+class WebGeneratorV2StagingTests(unittest.TestCase):
+    """S6: the non-indexable v2 tree is a safe, root-preserving staging site."""
+
+    @classmethod
+    def setUpClass(cls):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "web_build_s6_mod", REPO_ROOT / ".web" / "build.py"
+        )
+        cls.mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.mod)
+
+    @staticmethod
+    def _write_site(pages, out_dir):
+        for rel, text in pages:
+            path = out_dir / rel
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(text, encoding="utf-8")
+
+    def _single_v1_pages(self, figures):
+        original = self.mod.VARIANTS
+        try:
+            self.mod.VARIANTS = (original[0],)
+            return self.mod.render_site(figures)
+        finally:
+            self.mod.VARIANTS = original
+
+    def test_root_matches_single_variant_except_robots_txt(self):
+        figures = self.mod.compute_figures()
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            baseline = tmp_path / "baseline"
+            staged = tmp_path / "staged"
+            baseline_pages = [
+                (rel, text.replace("Disallow: /v2/\n", "") if rel == "robots.txt" else text)
+                for rel, text in self._single_v1_pages(figures)
+            ]
+            self._write_site(baseline_pages, baseline)
+            self._write_site(self.mod.render_site(figures), staged)
+
+            baseline_files = sorted(
+                p.relative_to(baseline) for p in baseline.rglob("*") if p.is_file()
+            )
+            root_files = sorted(
+                p.relative_to(staged)
+                for p in staged.rglob("*")
+                if p.is_file() and p.relative_to(staged).parts[0] != "v2"
+            )
+            self.assertEqual(baseline_files, root_files)
+            for rel in baseline_files:
+                if rel == Path("robots.txt"):
+                    self.assertEqual(
+                        (staged / rel).read_bytes().replace(b"Disallow: /v2/\n", b""),
+                        (baseline / rel).read_bytes(),
+                    )
+                else:
+                    self.assertEqual((staged / rel).read_bytes(), (baseline / rel).read_bytes())
+
+    def test_v2_pages_are_prefixed_noindex_and_self_canonical(self):
+        figures = self.mod.compute_figures()
+        v2 = next(variant for variant in self.mod.VARIANTS if variant.name == "v2")
+        with tempfile.TemporaryDirectory() as tmp:
+            out_dir = Path(tmp)
+            self._write_site(self.mod.render_site(figures), out_dir)
+            v2_html = sorted((out_dir / "v2").rglob("*.html"))
+            self.assertTrue(v2_html)
+            for page in v2_html:
+                rel = page.relative_to(out_dir / "v2").as_posix()
+                html = page.read_text(encoding="utf-8")
+                self.assertIn('<meta name="robots" content="noindex,nofollow">', html)
+                self.assertIn(
+                    f'<link rel="canonical" href="{self.mod._site_url_for(v2, rel)}">', html
+                )
+                self.assertNotIn("{{BASE}}", html)
+                self.assertNotIn('href="/v2//', html)
+                for href in re.findall(r'href="([^"]+)"', html):
+                    if href.startswith("/"):
+                        self.assertTrue(href.startswith("/v2/"), f"{page}: {href}")
+            self.assertNotIn(
+                '<meta name="robots" content="noindex,nofollow">',
+                (out_dir / "index.html").read_text(encoding="utf-8"),
+            )
+
+    def test_discovery_files_exclude_v2_and_indexable_invariant_holds(self):
+        figures = self.mod.compute_figures()
+        indexable = self.mod.indexable_variant()
+        self.assertEqual(
+            indexable,
+            self.mod.Variant("v1", "templates", "", indexable=True),
+        )
+        self.assertEqual(
+            next(variant for variant in self.mod.VARIANTS if variant.name == "v2"),
+            self.mod.Variant("v2", "templates-v2", "v2/", indexable=False),
+        )
+        robots = self.mod.render_robots_txt()
+        groups = [group for group in robots.split("\n\n") if group.startswith("User-agent:")]
+        self.assertEqual(len(groups), len(self.mod.AI_CRAWLER_USER_AGENTS) + 1)
+        self.assertTrue(all("Disallow: /v2/" in group.splitlines() for group in groups))
+        self.assertNotIn("/v2/", self.mod.render_sitemap(indexable, ["index.html"]))
 
 
 class PortalGeneratorCheckTests(unittest.TestCase):

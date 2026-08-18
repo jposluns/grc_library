@@ -1,0 +1,88 @@
+<script>
+  (function () {
+    "use strict";
+    var root = document.documentElement;
+    var btn = document.getElementById("themeToggle");
+    var KEY = "grclib-theme";
+
+    // Restore an explicit prior choice; otherwise follow the OS preference.
+    try {
+      var saved = localStorage.getItem(KEY);
+      if (saved === "light" || saved === "dark") { root.setAttribute("data-theme", saved); }
+    } catch (e) { /* storage unavailable: fall back to prefers-color-scheme */ }
+
+    function currentTheme() {
+      var explicit = root.getAttribute("data-theme");
+      if (explicit) { return explicit; }
+      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+
+    if (btn) {
+      btn.addEventListener("click", function () {
+        var next = currentTheme() === "dark" ? "light" : "dark";
+        root.setAttribute("data-theme", next);
+        try { localStorage.setItem(KEY, next); } catch (e) { /* ignore */ }
+      });
+    }
+
+    // Scrollspy: highlight the sidebar quick-nav link whose section or sub-item is in
+    // view. Runs on any page with a `.sidenav-inner` carrying on-page (#) anchors (the
+    // landing, pack, For-AI, About, and domain pages); it is harmless where there is
+    // no active-state CSS. Static links stay fully functional if this does not run.
+    var navLinks = Array.prototype.slice.call(
+      document.querySelectorAll('.sidenav-inner a[href^="#"]')
+    );
+    if (navLinks.length && "IntersectionObserver" in window) {
+      var linkById = {};
+      var targets = [];
+      var subParent = {};   // sub-link target id -> its parent (non-sub) link's target id
+      var lastTop = null;   // derived from DOM order (sub-links follow their parent), so
+                            // it stays correct if the sidebar structure changes
+      navLinks.forEach(function (a) {
+        var id = a.getAttribute("href").slice(1);
+        if (a.classList.contains("sub")) { if (lastTop) { subParent[id] = lastTop; } }
+        else { lastTop = id; }
+        var el = id ? document.getElementById(id) : null;
+        if (el) { linkById[id] = a; targets.push(el); }
+      });
+      var visible = {};
+      function lightUp(id) {
+        if (linkById[id]) { linkById[id].classList.add("active"); }
+        var parent = subParent[id];   // also light the parent section for a sub-item
+        if (parent && linkById[parent]) { linkById[parent].classList.add("active"); }
+      }
+      function setActive() {
+        // Read live positions of the currently-intersecting targets. The one lowest on
+        // screen (greatest top) is the most specific current item, so a nested sub-item
+        // wins over its tall parent section rather than being shadowed by it.
+        var tops = {}, best = -Infinity, any = false;
+        for (var id in visible) {
+          var el = document.getElementById(id);
+          if (!el) { continue; }
+          var top = el.getBoundingClientRect().top;
+          tops[id] = top; any = true;
+          if (top > best) { best = top; }
+        }
+        if (!any) { return; }   // keep the prior active during scroll gaps
+        navLinks.forEach(function (a) { a.classList.remove("active"); });
+        // Light every target sharing the winning scroll position, not just one, so
+        // grid-row peers highlight together (the three Standards sub-groups laid out in
+        // one row share a scroll point; the maintainer expects all three lit at once).
+        // On a narrow layout where the grid collapses to one column the tops diverge and
+        // this degrades to a single active link, which is the desired behaviour there.
+        var EPS = 4;   // px tolerance for "same scroll position"
+        for (var vid in tops) {
+          if (Math.abs(tops[vid] - best) <= EPS) { lightUp(vid); }
+        }
+      }
+      var obs = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) { visible[e.target.id] = true; }
+          else { delete visible[e.target.id]; }
+        });
+        setActive();
+      }, { rootMargin: "0px 0px -70% 0px", threshold: 0 });
+      targets.forEach(function (t) { obs.observe(t); });
+    }
+  })();
+</script>

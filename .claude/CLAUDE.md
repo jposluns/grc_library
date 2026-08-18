@@ -300,7 +300,7 @@ update ALL of these" reference the close-out checklist's change-impact bullet po
 CROSS-REFERENCES the existing gates as the authorities for the gated column (it does not
 re-implement them, per the change-impact-map decision Q3=C); it adds the free-prose and website columns those
 gates do not cover, which is where drift happens. The website (`grclibrary.ai`, the
-`.web/templates/` sources) is a FIRST-CLASS paired surface: its updates are identified early
+`.web/templates/` and `.web/templates-v2/` sources) is a FIRST-CLASS paired surface: its updates are identified early
 and applied in the SAME PR as the change (the site must reflect the corpus/repo as changes
 land, the gap flagged 2026-07-23). FP-safe mechanization of an ungated surface is added
 iteratively (decision Q1); the first, the pack-README rule-scope table, shipped as gate 74 in #1107 (the change-impact-map PR-2).
