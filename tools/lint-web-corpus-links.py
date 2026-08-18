@@ -13,7 +13,7 @@ regenerated, the class the taxonomy-derived page links and the curated
 Manifest freshness (the committed manifest matching a fresh build) is a
 separate concern, covered by ``.web/build.py --check`` and the website
 paired-surface discipline; this gate only checks that what the manifest lists
-still exists in the repo.
+still resolves to a file in the repo.
 
 Usage:
     python3 tools/lint-web-corpus-links.py [--manifest PATH] [--self-test]
@@ -71,14 +71,14 @@ def check(manifest_path: Path) -> list[tuple[int, str, str]]:
         except ValueError:
             findings.append((row_no, target, "resolves outside repo"))
             continue
-        if not resolved.exists():
-            findings.append((row_no, target, f"target does not exist (web location {location})"))
+        if not resolved.is_file():
+            findings.append((row_no, target, f"target is not a file (web location {location})"))
     return findings
 
 
 def _self_test() -> int:
-    """Inline cases: a resolving target passes, a missing target fails, and a
-    ``../``-escape target fails. Uses real repo paths so no fixture files are
+    """Inline cases: a resolving file passes, a missing target fails, a
+    ``../``-escape target fails, and a directory target fails. Uses real repo paths so no fixture files are
     written; the manifest text is built in memory and written to a temp file."""
     import tempfile
 
@@ -88,6 +88,7 @@ def _self_test() -> int:
         "| taxonomy.yml | llms.txt | taxonomy.yml |\n"
         "| ai/does-not-exist-xyz.md | /ai/ | Missing doc |\n"
         "| ../../../etc/passwd | /ai/ | Escaped |\n"
+        "| ai | /ai/ | Directory |\n"
     )
     with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False) as fh:
         fh.write(manifest)
@@ -102,8 +103,10 @@ def _self_test() -> int:
             print("FAIL self-test: a missing target was not flagged"); ok = False
         if "../../../etc/passwd" not in reasons:
             print("FAIL self-test: an escaped target was not flagged"); ok = False
+        if "ai" not in reasons:
+            print("FAIL self-test: a directory target was not flagged"); ok = False
         if ok:
-            print("self-test OK (3 cases: resolve passes, missing fails, escape fails)")
+            print("self-test OK (4 cases: resolve passes, missing fails, escape fails, directory fails)")
             return 0
         return 1
     finally:
