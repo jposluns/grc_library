@@ -2,11 +2,11 @@
 
 **Document Title:** Supplier Ongoing Monitoring Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.3\
-**Date:** 2026-07-04\
+**Version:** 1.0.4\
+**Date:** 2026-08-18\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`risk/register-key-risk-indicators.md`](../risk/register-key-risk-indicators.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`supply-chain/procedure-supplier-exit-and-data-return.md`](procedure-supplier-exit-and-data-return.md)\
+**Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`risk/register-key-risk-indicators.md`](../risk/register-key-risk-indicators.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`supply-chain/procedure-supplier-exit-and-data-return.md`](procedure-supplier-exit-and-data-return.md)\
 **Classification:** Public\
 **Category:** Supply Chain Governance: Ongoing Monitoring\
 **Review Frequency:** Annual and upon significant monitoring finding or regulatory update\
