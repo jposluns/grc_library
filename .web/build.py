@@ -1027,7 +1027,7 @@ def bare_root_relative_hrefs():
 
 def main(argv=None):
     ap = argparse.ArgumentParser(
-        description="Render the grclibrary.ai public site (landing, about, pack, per-domain, and per-type pages, plus the non-indexable /v2 staging tree's extra executive routes) from the live corpus.",
+        description="Render the grclibrary.ai public site (landing, about, pack, per-domain, and per-type pages, plus the non-indexable /v2 staging tree's executive routes: decisions/start/trust/coverage/library/how-its-built) from the live corpus.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     ap.add_argument(
