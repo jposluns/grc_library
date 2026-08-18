@@ -5535,7 +5535,7 @@ class SessionStateTests(LinterTestCase):
     field lines (incl. Operating-mode), a valid Status value, a valid
     Operating-mode value, a parseable UTC heartbeat, and status/branch
     coherence. All three status values pass when coherent (the interlock
-    decision lives in the /resume step-0 procedure, not in CI).
+    decision lives in the /orch step-0 procedure, not in CI).
     """
 
     VALID_LEASE = (

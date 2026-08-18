@@ -9,7 +9,7 @@ to its INDEX), so for the maintainer a missing _private is a broken setup to FIX
 never to silently work around.
 
 This hook is the MECHANICAL core of the layered assurance (the others: detect-env's
-private_availability decision + the /resume HALT, and the read-evidence discipline). It fires on
+private_availability decision + the /orch HALT, and the read-evidence discipline). It fires on
 the operational-work tools (Edit, Write) and BLOCKS them (exit 2, reason on stderr) ONLY when
 BOTH are confirmed: (a) the operator is the maintainer (origin remote is jposluns/grc_library),
 and (b) grc_library_private is genuinely absent (no readable, non-empty sibling directory). Read

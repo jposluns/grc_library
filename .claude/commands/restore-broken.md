@@ -1,10 +1,10 @@
 ---
-description: Recover a project whose orchestrator died or ran out of usage mid-session. A new session (often a new identity) assesses read-only, reports and asks, then recovers the interrupted work, winds down to a clean green `main`, and hands off to a same-session `/resume`. Change NOTHING until the maintainer gives an express, work-naming GO.
+description: Recover a project whose orchestrator died or ran out of usage mid-session. A new session (often a new identity) assesses read-only, reports and asks, then recovers the interrupted work, winds down to a clean green `main`, and hands off to a same-session `/orch`. Change NOTHING until the maintainer gives an express, work-naming GO.
 ---
 
 # /restore-broken
 
-The recovery counterpart to [`/resume`](resume.md). `/resume` rebuilds from a CLEAN
+The recovery counterpart to [`/orch`](orch.md). `/orch` rebuilds from a CLEAN
 session-closing handoff. `/restore-broken` is for the case where there is NO clean handoff: the
 previous orchestrator **died, ran out of usage, or was interrupted mid-session**, so `main`, the
 lease, the handoff, and the delivery tray are in a partly-applied, internally-inconsistent state,
@@ -13,7 +13,7 @@ and often the recovering session is a DIFFERENT identity than the one that died.
 The goal is not to guess what the dead session intended. It is to (1) observe the true state
 without changing it, (2) surface it to the maintainer with a plan and the decisions only they can
 make, (3) recover the interrupted unit of work with independent verification, (4) land a clean,
-green, reconciled `main`, and (5) hand off to a same-session `/resume` whose corpus-wide `/validate`
+green, reconciled `main`, and (5) hand off to a same-session `/orch` whose corpus-wide `/validate`
 is the compensating control that catches anything the recovery missed.
 
 **Run this recovery on a HIGH reasoning effort.** A broken-orchestrator takeover is exactly the
@@ -102,14 +102,14 @@ Report, scannable, no diffs dumped to chat:
 Land the recovered working state as a **session-closing handoff PR** (a green, merged PR), per the
 [`session-lifecycle`](../rules/governance/session-lifecycle.md) closing-handoff discipline: refresh
 the handoff (state snapshot, next-actions and deferred queue, **asserted expectations** scoped to what
-recovery touched, green-at-`<sha>`), RELEASE the lease. The closing PR normally runs its own trailing `/validate-pr` + `/retro` in-PR like any PR; ONLY where that QA cannot be made self-contained at the session boundary does it take the documented fallback skip (recorded with the gate-50 marker), compensated by the next `/resume`'s corpus-wide `/validate`. **Do
+recovery touched, green-at-`<sha>`), RELEASE the lease. The closing PR normally runs its own trailing `/validate-pr` + `/retro` in-PR like any PR; ONLY where that QA cannot be made self-contained at the session boundary does it take the documented fallback skip (recorded with the gate-50 marker), compensated by the next `/orch`'s corpus-wide `/validate`. **Do
 not close over a large UNVALIDATED substantive PR**: the interrupted unit gets its verification (Phase
 C) BEFORE the closing handoff.
 
-## Phase E: same-session /resume (the catch-net)
+## Phase E: same-session /orch (the catch-net)
 
 The maintainer, in the SAME conversation (re-opened in a durable
-tmux if the recovering session was not in one), sends `/resume`. Resuming in the same session is
+tmux if the recovering session was not in one), sends `/orch`. Resuming in the same session is
 deliberately stronger than a fresh one: it keeps the context the recovery built AND rebuilds state from
 the now-clean `main`. The resume runs its lease step-0, verifies the handoff snapshot against live files
 **for real, never shortcutting from memory just because "I remember"**, and runs the corpus-wide `/validate` (exec-dispatched as a triple-family panel, a fresh-context whole-corpus drift-catch in its own right and the compensating control where the recovery's closing change took the narrow fallback skip), cross-checking

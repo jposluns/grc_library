@@ -3,21 +3,21 @@
 *Maintainer-internal. Adopters consuming the corpus can ignore or delete this file: it points into [`.claude/`](.claude/) and `grc_library_private/.working/`, trees the corpus does not depend on.*
 
 This is the manual entry point for resuming a Claude Code session in an environment
-where the `/resume` slash command is not available (for example, a machine whose Claude
+where the `/orch` slash command is not available (for example, a machine whose Claude
 Code does not discover this project's [`.claude/commands/`](.claude/commands/)). It
 carries no protocol and no per-session state of its own by design, so it cannot drift
 from the real resume behaviour.
 
 To resume, execute the resume protocol in
-[`.claude/commands/resume.md`](.claude/commands/resume.md) verbatim, exactly as if
-`/resume` had been invoked. That protocol reads
+[`.claude/commands/orch.md`](.claude/commands/orch.md) verbatim, exactly as if
+`/orch` had been invoked. That protocol reads
 `grc_library_private/.working/session-handoff.md` for the live per-session
 state and the next-actions queue, and its first step points at that handoff's "Known
 environment behaviours" section for machine-specific notes (for example a `gh`-CLI PR
 mechanism, or a machine that requires a manual commit and push).
 
 Do not copy the protocol or the queue into this file. The single sources of truth are
-[`.claude/commands/resume.md`](.claude/commands/resume.md) (the protocol) and
+[`.claude/commands/orch.md`](.claude/commands/orch.md) (the protocol) and
 `grc_library_private/.working/session-handoff.md` (the state). Keeping this
 file a pointer is what ensures that a resume started here runs the same current protocol
-as `/resume`, and reads the same live queue.
+as `/orch`, and reads the same live queue.

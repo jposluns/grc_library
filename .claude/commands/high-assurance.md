@@ -14,7 +14,7 @@ Invoke the `high-assurance-verification` skill defined in this project's pack at
 
 6. **Deterministic scripted apply, then re-parse**: do NOT hand-edit the sensitive artefact. Drive the apply with a dry-run-validated, idempotent-guarded script keyed on an explicit source-to-value map, then re-parse the rendered artefact and confirm every applied value matches the map (zero mismatches). The script running is not evidence of correctness; the re-parse is. The script and its dry-run output are part of the record.
 
-7. **Close the register row and surface**: record the stages and outcomes in the register row (workers, verifier findings, invariant results, apply script and re-parse result) and set status `verified`; surface the findings in chat. Do not silently drop a `pending` / `in-progress` row; if the item cannot complete this session, leave it `pending` / `in-progress` (or `deferred` with the blocker named) so the next `/resume` re-surfaces it.
+7. **Close the register row and surface**: record the stages and outcomes in the register row (workers, verifier findings, invariant results, apply script and re-parse result) and set status `verified`; surface the findings in chat. Do not silently drop a `pending` / `in-progress` row; if the item cannot complete this session, leave it `pending` / `in-progress` (or `deferred` with the blocker named) so the next `/orch` re-surfaces it.
 
 The harness is NOT a gate and NOT for routine changes: the three-condition trigger is a gate, not a default-on, and indiscriminate use erodes the signal that an item is genuinely sensitive. It does not relax the routine apply-time verification; it adds independent adversarial verification and a deterministic apply on top.
 

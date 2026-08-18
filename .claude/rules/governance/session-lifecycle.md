@@ -128,7 +128,7 @@ The rule's mechanisms are the exception paths (graceful degradation for blocked 
 ## Project overlay (grc_library wiring and lineage; local copy only)
 
 - Handoff record: `grc_library_private/.working/session-handoff.md`; concurrency lease:
-  `grc_library_private/.working/session-state.md` (gate 63 guards its shape); resume command: `/resume`.
+  `grc_library_private/.working/session-state.md` (gate 63 guards its shape); resume command: `/orch`.
 - Pending decisions: `grc_library_private/.working/pending-decisions.md`; the timer default and the
   operating modes are operationalized in the project CLAUDE.md attended-autonomous,
   wind-down, and session-migration sections.

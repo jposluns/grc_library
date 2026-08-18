@@ -326,7 +326,7 @@ The disciplines implement the same audit-trail-integrity principle the broader p
 
 - Worker-hallucination tracking artefact: `hallucination-metrics`.
 - Worker-brief template: `grc_library_private/.working/worker-brief-template.md`.
-- Verifier-override register: `grc_library_private/.working/verifier-overrides.md` (surfaced at `/resume`).
+- Verifier-override register: `grc_library_private/.working/verifier-overrides.md` (surfaced at `/orch`).
 - Exchange channel and runbook: `grc_library_scratch` +
   `multi-session-orchestration`.
 - Guardrails authoring instantiation (TF-2 closed, Option B locked 2026-08-02):

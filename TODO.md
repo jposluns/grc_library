@@ -42,7 +42,7 @@ The 3.x (P3 / tooling) counter above is drawn from the public floor [`tools/todo
 ## Queueing rules
 
 - Orchestrator picks the next batch from **Priority 1 first, then Priority 2**, in highest-severity order; within a chosen band the row order helps assemble like-effort batches.
-- **Start-side worker-collision check (before starting any item).** Before starting to build any item, check the scratch `claims-ledger.md` and `research/COVERAGE.md` for an in-flight claim or a pending inbox delivery covering it; a claimed or delivered item is apply-work (validate-then-apply on the delivery), not build-work. This fires whenever the queue is resumed mid-session, not only at `/resume`.
+- **Start-side worker-collision check (before starting any item).** Before starting to build any item, check the scratch `claims-ledger.md` and `research/COVERAGE.md` for an in-flight claim or a pending inbox delivery covering it; a claimed or delivered item is apply-work (validate-then-apply on the delivery), not build-work. This fires whenever the queue is resumed mid-session, not only at `/orch`.
 - **1-8 PRs per batch** (logical grouping); `/validate` after each batch.
 - Maintainer direction supersedes the orchestrator's pick at any time.
 - Lower-band items (P3-P4 expansion / future) are picked deliberately, not from the routine batch queue, unless the maintainer triggers them.
@@ -135,7 +135,7 @@ Adopter experience and future work: capability and guidance for organizations ad
 
 ## Time-bounded follow-ups
 
-Non-urgent follow-ups deliberately DEFERRED to a future date, then re-evaluated: a suggested revisit of something already shipped, where acting now would be premature (not enough real-world signal yet). This is NOT the normal forward backlog (those are the priority bands); an item here is date-gated, not ready-now, and will mostly track "revisit this suggested follow-up after date X". Each entry carries a **Not-before** date (UTC), what to EVALUATE, and the originating PR. `/resume` reads this section and surfaces any entry whose Not-before date has passed. When a follow-up is acted on (or decided against), rotate it to `grc_library_private/.working/DONE.md` like any other closed item. (The `TF-` counter is in the `## Number allocation` block.)
+Non-urgent follow-ups deliberately DEFERRED to a future date, then re-evaluated: a suggested revisit of something already shipped, where acting now would be premature (not enough real-world signal yet). This is NOT the normal forward backlog (those are the priority bands); an item here is date-gated, not ready-now, and will mostly track "revisit this suggested follow-up after date X". Each entry carries a **Not-before** date (UTC), what to EVALUATE, and the originating PR. `/orch` reads this section and surfaces any entry whose Not-before date has passed. When a follow-up is acted on (or decided against), rotate it to `grc_library_private/.working/DONE.md` like any other closed item. (The `TF-` counter is in the `## Number allocation` block.)
 
 ---
 
@@ -153,7 +153,7 @@ Durable behavioural guidance from the maintainer. NOT actionable items; referenc
 - **Zero-finding sweeps still need history rows but no detail files** — validation-sweep [`SKILL.md`](guardrails/skills/validation-sweep/SKILL.md) step 9.
 - **Sweep history is project-application, not template content** — operationalized by keeping the history file in `.working/`.
 - **TODO is forward-looking; historical state rotates to DONE.md** — [`change-tracking.md`](guardrails/governance/change-tracking.md).
-- **After completing a merge, list the next 5 planned PRs from the `## Up next` queue at the top of the private `P-TODO.md`** (the single ordered work queue across both backlogs; `/resume` itself continues from the handoff Next-actions, not this queue) — [`.claude/CLAUDE.md`](.claude/CLAUDE.md) PR-workflow section.
+- **After completing a merge, list the next 5 planned PRs from the `## Up next` queue at the top of the private `P-TODO.md`** (the single ordered work queue across both backlogs; `/orch` itself continues from the handoff Next-actions, not this queue) — [`.claude/CLAUDE.md`](.claude/CLAUDE.md) PR-workflow section.
 - **Validate cadence is 1-8 PRs per batch, not strictly 5.**
 - **DONE keeps its own H3 format** — DONE uses `### PR #N:` headings; it does NOT mirror the TODO index-row format (the two diverged in the TODO-rework).
 - **Compute-don't-ask** — before surfacing a question, apply a "can I compute/verify this myself?" gate; codified into `clarify-before-acting`.

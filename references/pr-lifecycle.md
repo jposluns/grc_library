@@ -68,7 +68,7 @@ drive end-to-end on the maintainer's behalf:
    arises). The documented FALLBACK, retained only for the genuine loop-termination edge
    where the handoff PR's own QA cannot be self-contained within it at the session boundary,
    is to skip the trailing `/validate-pr` / `/retro`; the independent compensating read is
-   the next session's `/resume` corpus-wide `/validate`. When the fallback is taken, record
+   the next session's `/orch` corpus-wide `/validate`. When the fallback is taken, record
    the exemption in the handoff PR's `grc_library_private/.working/validate-pr/history.md` row **Findings cell**
    (the cell `tools/lint-bookkeeping-parity.py` (gate 50) reads to detect the handoff
    exemption): the marker must be `SKIPPED` together with `handoff`, or the phrase
@@ -91,7 +91,7 @@ drive end-to-end on the maintainer's behalf:
    (the surfaces this session mechanically verified, scoped to what it touched, plus known
    soft spots NOT asserted clean), the **green-at-`<sha>`** snapshot line, and the
    `session-metrics` row (these are the
-   loop-break compensating control's cheap signals the next `/resume` `/validate`
+   loop-break compensating control's cheap signals the next `/orch` `/validate`
    cross-checks against). The refresh commit lands in THIS PR, committed before it is
    finalized (the synchronous model retired the recursion-avoidance batching). See `## Session migration and PR close-out checklist`.
 7. On green CI, merge via `mcp__github__merge_pull_request` (or `gh pr merge --squash`
@@ -132,7 +132,7 @@ drive end-to-end on the maintainer's behalf:
    [`.claude/rules/governance/change-tracking.md`](../.claude/rules/governance/change-tracking.md).
    **THIS PR ALSO REFRESHES the `## Up next` queue as part of its own diff (not a post-merge
    step): drop the item just closed, insert any new work in position order, keeping
-   the ordered "what's next" current.** (This after-merge listing reads the queue's top; `/resume`
+   the ordered "what's next" current.** (This after-merge listing reads the queue's top; `/orch`
    itself continues from the handoff's Next-actions.) Each queue item is one
    `N) <brief title> [tags]` line in position order (top = do next). A stale top item (an
    already-done item still at the top of the queue) is the
@@ -169,9 +169,9 @@ is external. Two mechanisms:
    is the single resume point for a new session: branch, versions, counts, last-merged
    PRs, trust-recovery state, the next-actions queue, open decisions, the standing
    disciplines, the **green-at-`<sha>`** mechanical baseline, and (at session close) the
-   **asserted-expectations** section the receiving `/resume` `/validate` cross-checks
-   against. It is refreshed at every PR close-out (committed in the same PR, per the synchronous QA model). To resume, the maintainer sends only `/resume` (the
-   [`commands/resume.md`](../.claude/commands/resume.md) command), which reads the handoff, verifies
+   **asserted-expectations** section the receiving `/orch` `/validate` cross-checks
+   against. It is refreshed at every PR close-out (committed in the same PR, per the synchronous QA model). To resume, the maintainer sends only `/orch` (the
+   [`commands/orch.md`](../.claude/commands/orch.md) command), which reads the handoff, verifies
    the snapshot against live files, and continues from the queue. Prefer starting a fresh
    session at batch boundaries over running a long one.
 
@@ -190,11 +190,11 @@ is external. Two mechanisms:
      gated). Counts are computed AFTER the verifier loop closes, from the suite run or
      the diff, never during drafting: a count written mid-draft goes stale inside its own
      PR when a later verifier round changes the figure.
-   - **If this is the first PR of a resumed session** (the `/resume` `/validate`
+   - **If this is the first PR of a resumed session** (the `/orch` `/validate`
      close-out), the handoff was **pruned** per its `## Refresh and pruning discipline`:
      keep current + 1 prior in each per-session stack, delete older blocks and superseded
      one-off sections, keep the standing sections in full, and migrate-before-delete any
-     un-recorded load-bearing item. See `/resume` command step 6a.
+     un-recorded load-bearing item. See `/orch` command step 6a.
    - If the PR adds or edits **new pack prose** (a SKILL, a rule, a slash command, or new
      prose in the pack README/CLAUDE.md), `tools/lint-language.py` was run on it **before
      the first commit** (new-pack-prose drafting recurrently reintroduces em-dashes and
@@ -476,13 +476,13 @@ is external. Two mechanisms:
 
 3. **Closing-handoff-PR discipline (a session's last act is a green merge).** A session
    ends by landing its working-state on `main` as a green, merged PR (the
-   *session-closing handoff PR*) so the next session's `/resume` rebuilds state from
+   *session-closing handoff PR*) so the next session's `/orch` rebuilds state from
    `main` rather than from an unmerged feature branch. Under the synchronous QA model this closing PR normally runs its OWN `/validate-pr` +
    `/retro` before it is finalized, like any other PR, with the rows committed inside it (the
    sync model records rows in-PR, so no recursion arises). A documented FALLBACK is retained
    for the one genuine loop-termination edge, a handoff PR whose own QA cannot be
    self-contained within it at the session boundary: in that case only, it skips the trailing
-   `/validate-pr` + `/retro`. Independently of the fallback, `/resume` runs a full corpus-wide
+   `/validate-pr` + `/retro`. Independently of the fallback, `/orch` runs a full corpus-wide
    `/validate` as its first task, valuable on its own merits as a fresh-session drift-catch
    (the whole corpus, not one PR's diff) rather than merely compensation for a skip. The closing PR records,
    in the handoff's `## Asserted expectations` section, what this session mechanically

@@ -35,8 +35,8 @@ This directory is the Clean Language skill, VENDORED into grc_library from its u
   EVERY vendored file here against upstream (via `gh api` blob SHAs): the skill content, the two icon
   assets under `assets/`, AND the `LICENSE` / `NOTICE.md` legal files, so an upstream attribution or
   licence change is not silent. It reports any DRIFT. A MONTHLY time-bounded follow-up in the private
-  `P-TODO.md` (relocated from `TODO.md` by #1458; `/resume` reads the time-bounded section of both
-  lists) re-surfaces this at `/resume`, so a drift is noticed without the maintainer having to
+  `P-TODO.md` (relocated from `TODO.md` by #1458; `/orch` reads the time-bounded section of both
+  lists) re-surfaces this at `/orch`, so a drift is noticed without the maintainer having to
   remember. The
   upstream paths differ by file (skill content under `clean-language/`, but `LICENSE` / `NOTICE.md` are
   upstream REPO-ROOT files); the tool holds each file's correct upstream path. On drift, re-fetch the
