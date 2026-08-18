@@ -16,11 +16,13 @@ explicit allow-list: ``taxonomy.yml``, ``README.md``, each corpus domain's own
 ``<domain>/README.md`` (for the per-domain page intro), and the page templates
 and shared partials under ``.web/templates/``. It never walks the repository and
 never reads ``.working/``, ``.claude/``, ``tools/``, ``tests/``, ``.github/``, or
-the private sibling repositories. Its only output is the rendered site under
-``.web/dist/`` (``index.html``, ``about/index.html``, ``pack/index.html``,
+the private sibling repositories. (Under ``--check`` it additionally reads the
+committed ``.web/corpus-link-manifest.md`` and self-scans this generator source for
+the safeguard checks; neither feeds published content.) By default its rendered output is the site under
+``.web/dist/`` (``--out DIR`` redirects it) (``index.html``, ``about/index.html``, ``pack/index.html``,
 ``for-ai/index.html``, one ``<domain>/index.html`` per corpus domain, one
 ``types/<slug>/index.html`` per document type, and the three generated files
-``robots.txt``, ``sitemap.xml``, and ``llms.txt``). So the
+``robots.txt``, ``sitemap.xml``, and ``llms.txt``); it also writes the committed ``.web/corpus-link-manifest.md`` (a generated artefact outside the ephemeral ``dist/`` tree). So the
 published surface is those pages and files and nothing else; a repo file cannot
 leak onto the public site through this generator. The about page and the For-AI
 page are static template prose (the maintainer bio and acknowledged contributors;
@@ -39,7 +41,7 @@ gate count: the suite grows continuously and a hardcoded number would understate
 it and go stale. This generator therefore computes NO gate count.
 
 OUTPUT IS EPHEMERAL. The rendered ``.web/dist/`` tree is a build artefact, not
-committed (it is git-ignored). Only this generator and the templates are committed.
+committed (it is git-ignored). The generator, the templates, and the generated ``.web/corpus-link-manifest.md`` are committed (the manifest is a generated artefact like ``taxonomy.yml``, refreshed on every normal build).
 
 USAGE
   python3 .web/build.py            render the site into .web/dist/
@@ -48,7 +50,7 @@ USAGE
                                    parsed (a renamed field, a moved file, a
                                    taxonomy schema change). This is the
                                    generator-health check wired into CI; it is a
-                                   coupling-breakage detector, NOT a corpus gate.
+                                   coupling-breakage detector, NOT a corpus gate. It ALSO fails on a stale committed ``corpus-link-manifest.md``, a hardcoded CalVer literal in a template, or a root-relative href that skips the ``{{BASE}}`` token.
   python3 .web/build.py --out DIR  render into DIR instead of .web/dist/
 """
 
@@ -198,10 +200,13 @@ _TITLE_RE = re.compile(r'^  title:\s*"(.*)"\s*$')
 _CALVER_RE = re.compile(r"^\*\*Library Version:\*\*\s+([0-9]{4}\.[0-9]{2}\.[0-9]+)", re.M)
 _PLACEHOLDER_RE = re.compile(r"\{\{([A-Z0-9_]+)\}\}")
 _MD_LINK_RE = re.compile(r"\[([^\]]+)\]\([^)]*\)")
-# Matches an href value which begins at the site root. The pattern is built in
-# two pieces so this source line is not itself a false positive when the
+# Matches a root-relative href (quoted or unquoted) on a single line. The optional
+# quote also catches the unquoted form (an href attribute assigned a bare site-root
+# path), not only the quoted variants; the match is case-insensitive. A newline-split
+# attribute is a known residual the line-by-line scan does not cover. The pattern is
+# built in two pieces so this source line is not itself a false positive when the
 # check scans the generator source below.
-_ROOT_HREF_RE = re.compile(r'(?i)href' + r'\s*=\s*["\']/')
+_ROOT_HREF_RE = re.compile(r'(?i)href' + r'\s*=\s*["\']?/')
 
 # Per-domain pages link each document out to its source on GitHub (the corpus
 # lives there; the site does not recreate rendered document content), and carry a
@@ -920,8 +925,10 @@ def render_site(figures):
 # is the most distinctive corpus figure (it changes every PR), so a hardcoded
 # CalVer literal in a template is an unambiguous regression from the {{CALVER}}
 # token. Bare counts are deliberately NOT flagged (too false-positive-prone for a
-# conservative check; the token-driven render plus the manifest-drift check cover
-# count drift).
+# conservative check). This detector is CalVer-only; displayed corpus counts
+# (documents, domains, types) are token-driven but are NOT covered here or by the
+# manifest-drift check (the manifest carries link targets, not counts), so a
+# hardcoded count literal is a separate, currently-unguarded class.
 _CALVER_LITERAL_RE = re.compile(r"\b20\d\d\.\d\d\.\d+\b")
 
 

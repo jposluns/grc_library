@@ -2,11 +2,12 @@ name: Web generator health
 
 # NOT an audit gate. This is a coupling-breakage detector for the .web/ static-site
 # generator (the public grclibrary.ai landing page). Because the site
-# reads corpus content live at build time and keeps no committed copies, there is nothing
-# to keep in sync, so there is no sync gate; instead this check runs the generator in
-# --check mode, which parses taxonomy.yml + README.md and renders the template WITHOUT
-# writing output, and fails only if the generator can no longer parse the corpus it
-# projects (a renamed metadata field, a moved file, a taxonomy schema change). That
+# reads corpus content live at build time, this check runs the generator in --check
+# mode, which parses taxonomy.yml + README.md and renders the templates WITHOUT writing
+# the site, and fails on generator-to-corpus breakage (a renamed metadata field, a moved
+# file, a taxonomy schema change), a stale committed .web/corpus-link-manifest.md, a
+# hardcoded CalVer literal in a template, or a root-relative href that skips the {{BASE}}
+# token. That
 # catches generator-to-corpus breakage at PR time, before a red production deploy on
 # Cloudflare Pages. It is deliberately SEPARATE from quality.yml and is NOT one of the
 # audit-programme gates (the four-surface parity gate counts only the quality.yml gates).

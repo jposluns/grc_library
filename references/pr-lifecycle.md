@@ -20,9 +20,9 @@ drive end-to-end on the maintainer's behalf:
    Before pushing, run both runners as a single pre-push gate:
    `tools/pre-push-guard.sh && git push -u origin <branch>`. The guard chains
    `run_all_audits.sh` (corpus gates from HEAD) then `run-pr-time-checks.sh` (the PR-only
-   delta gates D1-D12 (D6 retired) plus the history-aware trio 45/40/31 against the merge base),
+   delta gates D1-D12 (D6 retired) plus the history-aware trio 45/40/31 against the merge base), then `.web/build.py --check` (web-generator health),
    stopping non-zero on the first failure, so a gate defect blocks the push instead of
-   flipping CI red after the fact. The two runners together cover every gate CI runs.
+   flipping CI red after the fact. The two runners plus the web-generator check together cover every gate CI runs.
    Git hooks do not fire in this environment, so the `&&`-chained guard is what actually
    enforces the pre-push runner (the same pattern as `preflight-changelog.py && git
    commit`).
@@ -465,7 +465,7 @@ is external. Two mechanisms:
      TODO 3.16's only remaining residual is the deferred, maintainer-gated git-history collapse.
    - **Daily-changelog-rollup reminder (D8, midnight-UTC cadence).** If the pre-push guard's D8 check prints `DAILY SUMMARY DUE for <date>`, the next PR carries that date's daily roll-up (collapse its per-PR root entries to one `**date | version | PRs #A-#B (N PRs)**` summary) AND prunes the matching detailed-mirror rows to the `grc_library_private/changelog-archive/`. D8 is advisory (exit 0, never blocks), so the reminder is ACTIONED not skipped; the roll-up draft is a small worker offload (`tools/check-daily-changelog-rollup.py` is the check).
    - CHANGELOG (root + detailed) and version bumps are present; the pre-push guard
-     (`run_all_audits.sh` + `run-pr-time-checks.sh`) is green.
+     (`run_all_audits.sh` + `run-pr-time-checks.sh` + `.web/build.py --check`) is green.
 
    The mechanizable half of QA-cadence enforcement (the former QA-cadence-mechanization
    item, closed as satisfied in #471) is gate 50's Check 1, which fails when an in-window merged
