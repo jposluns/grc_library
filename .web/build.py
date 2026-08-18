@@ -31,8 +31,16 @@ the safeguard checks; neither feeds published content.) By default its rendered 
 published surface is those root pages and files, plus the non-indexable ``v2`` staging
 variant's tree under ``.web/dist/v2/`` (noindex), which additionally carries the
 executive-shell routes declared in ``V2_EXTRA_PAGES`` (decisions, start, trust,
-coverage, library, how-its-built); a repo file cannot
-leak onto the public site through this generator. The about page and the For-AI
+coverage, library, how-its-built) and the executive reading room (one on-site page
+per registry-listed narrative page of a routed narrative type, at
+``decisions/<subtype>/<slug>/``, rendered from the page's Markdown source by the
+constrained stdlib renderer below); a repo file cannot
+leak onto the public site through this generator: the reading room reads ONLY
+registry-listed sources admitted by the renderer-confinement validator
+(``narrative_source_file``: a normalized repo-relative regular file under
+``executive/`` only, git-tracked; absolute paths, parent-directory traversal,
+symlinks, duplicates, and untracked sources are all rejected loudly; the
+tracked-path authority is one ``git ls-files`` call returning paths, never content). The about page and the For-AI
 page are static template prose (the maintainer bio and acknowledged contributors;
 and, for For-AI, descriptive guidance plus a resource index whose links point at
 public corpus artefacts on GitHub), not corpus-derived. ``robots.txt`` welcomes
@@ -43,7 +51,9 @@ its document list (title / type / path from ``taxonomy.yml``, each linking out t
 the document's GitHub blob); the v2 staging domain page additionally lists the
 published leadership (executive-narrative) pages that touch the area, joined at
 render time from ``narrative.yml``. The allow-list additions are the eleven
-domain READMEs and ``narrative.yml``.
+domain READMEs, ``narrative.yml``, and, for the v2 reading room, the
+registry-listed ``executive/`` narrative sources (each admitted only through the
+renderer-confinement validator above).
 
 QUALITATIVE, NOT COUNTED. The automated gating system is described qualitatively
 on the page ("comprehensive, continuously-improving", "Continuous"), never as a
@@ -67,7 +77,9 @@ USAGE
 from __future__ import annotations
 
 import argparse
+import posixpath
 import re
+import subprocess
 import sys
 from collections import Counter
 from pathlib import Path
@@ -103,6 +115,12 @@ class Variant(NamedTuple):
     # frozen root does not yet have, without touching PAGES (which is shared, so
     # a root render stays byte-for-byte unchanged). Empty for the root variant.
     extra_pages: tuple = ()
+    # Whether this variant renders the executive reading room (the on-site
+    # narrative routes generated from the registry). VARIANT-SCOPED by this
+    # table flag, so the frozen root's page loop is untouched (the
+    # byte-identical-root mechanism for the new route class): the root variant
+    # keeps the default False and renders exactly the page set it always has.
+    narrative_routes: bool = False
 
 
 # Executive routes that exist ONLY on the non-indexable /v2 staging tree (wave 1
@@ -125,7 +143,8 @@ V2_EXTRA_PAGES = (
 # the template source, URL prefix, and indexability policy stay coupled.
 VARIANTS = (
     Variant("v1", "templates", "", indexable=True),
-    Variant("v2", "templates-v2", "v2/", indexable=False, extra_pages=V2_EXTRA_PAGES),
+    Variant("v2", "templates-v2", "v2/", indexable=False, extra_pages=V2_EXTRA_PAGES,
+            narrative_routes=True),
 )
 
 # Shared chrome injected into every page from a single source, so the pages
@@ -735,13 +754,22 @@ def render_domain_doc_rows(dp):
     return "\n".join(rows)
 
 
+def narrative_source_blob_url(page):
+    """ONE narrative page's raw Markdown source on GitHub (the blob URL). The
+    reading-room pages' "Read the source on GitHub" link uses THIS helper
+    directly, so it keeps pointing at the source even after wave-2 PR-2b flips
+    ``narrative_page_url`` below from the blob to the on-site route."""
+    return GITHUB_BLOB_BASE + page["path"]
+
+
 def narrative_page_url(page):
     """The link target for ONE narrative-page row: the page's source on GitHub,
     the same treatment the corpus doc rows get today. Every narrative row URL is
     emitted through this single helper, so wave-2 PR-2's blob-to-on-site flip
     (the reading-room routes, via the registry's ``route`` slug) is a one-line
-    change here rather than a hunt across renderers."""
-    return GITHUB_BLOB_BASE + page["path"]
+    change here rather than a hunt across renderers. PR-2a keeps the blob
+    target (the site-wide flip is PR-2b scope)."""
+    return narrative_source_blob_url(page)
 
 
 def render_domain_narrative_rows(dp):
@@ -838,6 +866,572 @@ def type_page_values(tp, variant):
             "CC BY-SA 4.0 GRC Library."
         ),
         "TYPE_CANONICAL": _site_url_for(variant, f"types/{tp['slug']}/index.html"),
+    }
+
+
+# ---------------------------------------------------------------------------
+# The /v2 executive reading room (wave-2 PR-2a): registry-listed narrative
+# pages rendered ON-SITE by a constrained, stdlib-only Markdown renderer,
+# under the narrative spec's renderer-confinement contract
+# (specification-executive-narrative.md, the reserved website-track gate).
+# ---------------------------------------------------------------------------
+
+# Narrative types that render on-site. Wave-2 PR-2a scope: the Executive
+# Briefs only; PR-2b widens this tuple to every published narrative type and
+# flips narrative_page_url to the on-site routes.
+NARRATIVE_ROUTE_TYPES = ("Executive Brief",)
+
+# On-site route prefix for the reading room (wave-2 decision Q2: one exec
+# vocabulary on-site, /decisions/<subtype>/<slug>/; this deliberately diverges
+# from the registry's executive/... route slugs, a recorded promotion-time
+# note in the wave-2 decision record).
+NARRATIVE_ROUTE_PREFIX = "decisions/"
+
+# The narrative-source Markdown shapes the constrained renderer accepts. The
+# supported set is EXACTLY the construct set surveyed across all six published
+# Executive Briefs (2026-08-18): '## ' section headings, flush-left paragraph
+# prose, flat '- ' unordered lists, single-line '> ' blockquotes, **bold**,
+# and corpus-relative [label](path.md) links. Anything else is a loud
+# BuildError, so a future narrative using an unsupported construct FAILS the
+# build rather than rendering wrong: that includes setext heading underlines,
+# spaced thematic breaks, pipe tables (leading-pipe or pipe-less), raw HTML
+# tags and blocks, HTML entities, closing-hash ATX headings ('## Text ##'),
+# backslash escapes, and any block construct nested behind a '> ' or '- '
+# container marker (container content is inline-only), each rejected
+# explicitly. A literal
+# ``{`` in prose is escaped to ``&#123;`` so no ``{{NAME}}`` placeholder
+# pattern can survive into the rendered page (render_page's second
+# substitution pass re-scans the whole document).
+_NARR_ROUTE_SEGMENT_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
+_NARR_MD_LINK_RE = re.compile(r"\[([^\[\]]+)\]\(([^()\s]+)\)")
+_NARR_MD_BOLD_RE = re.compile(r"\*\*([^*]+)\*\*")
+_NARR_MD_UNDERSCORE_EM_RE = re.compile(r"(?<![A-Za-z0-9])_[^_\s][^_]*_(?![A-Za-z0-9])")
+_NARR_MD_AUTOLINK_RE = re.compile(r"<[a-z][a-z0-9+.-]*:")
+_NARR_MD_SCHEME_RE = re.compile(r"^[a-z][a-z0-9+.-]*:", re.I)
+_NARR_MD_HR_RE = re.compile(r"^(-{3,}|\*{3,}|_{3,})$")
+_NARR_MD_SETEXT_UNDERLINE_RE = re.compile(r"^(=+|-{2})[ \t]*$")
+_NARR_MD_SPACED_BREAK_RE = re.compile(r"^([-*_=])(?:[ \t]+\1)+[ \t]*$")
+_NARR_MD_RAW_HTML_RE = re.compile(r"<[A-Za-z/!?]")
+_NARR_MD_ENTITY_RE = re.compile(r"&(?:#\d+|#[xX][0-9a-fA-F]+|[A-Za-z][A-Za-z0-9]*);")
+_NARR_MD_OTHER_LIST_RE = re.compile(r"^(\d+[.)]|[*+])\s")
+_NARR_TERMINATOR = "**End of Document**"
+
+
+def _tracked_executive_paths():
+    """The set of git-tracked repo-relative paths under ``executive/`` (paths
+    only, never file content), the authority for the renderer-confinement
+    "untracked source" rejection: trackedness is a property only git can
+    answer, so the check asks git rather than inferring it from the file
+    existing on disk. Fails LOUD (BuildError) when git is unavailable or the
+    repo is not a work tree: the confinement refuses on ignorance rather than
+    permitting, and rendering narrative sources without the tracked set is
+    exactly the unverified state it must not proceed on (the narrative
+    spec's renderer-confinement contract rejects untracked sources; the
+    registry lists PATHS, not provenance, so an untracked file at a
+    registry-listed path is only caught here (a content-modified tracked
+    file stays listed and is not detected). A git-less build is an
+    unsupported deploy and fails loud rather than weakening provenance.
+    The ONE in-git-environment failure the call is hardened against is the
+    container dubious-ownership refusal: ``-c safe.directory=<REPO_ROOT>``
+    trusts THIS repository for this one invocation only (no global config
+    change), so a differently-owned checkout in CI still answers; a
+    genuinely absent or erroring git still raises."""
+    try:
+        proc = subprocess.run(
+            [
+                "git", "-c", f"safe.directory={REPO_ROOT}",
+                "-C", str(REPO_ROOT), "ls-files", "-z", "--", "executive",
+            ],
+            capture_output=True, check=True,
+        )
+    except (OSError, subprocess.CalledProcessError) as e:
+        raise BuildError(
+            "renderer confinement cannot establish the git-tracked executive/ "
+            f"source set (git ls-files failed: {e}); refusing to render "
+            "narrative sources without the trackedness authority"
+        )
+    tracked = {s for s in proc.stdout.decode("utf-8").split("\0") if s}
+    if not tracked:
+        raise BuildError(
+            "git ls-files returned no tracked executive/ paths (not a git "
+            "work tree, or the executive/ tree is missing?); refusing to "
+            "render narrative sources"
+        )
+    return tracked
+
+
+def narrative_source_file(rel_path, tracked, seen, root=None):
+    """Admit ONE registry-listed narrative source path under the
+    renderer-confinement contract and return its absolute path. The contract
+    (specification-executive-narrative.md, website-track gate): the path is
+    normalized, repository-relative, a regular file, resolved under
+    ``executive/`` only; an absolute path, a parent-directory traversal, a
+    symlink, a duplicate, or an untracked source is REJECTED with a loud
+    BuildError. ``tracked`` is the git-tracked path set (from
+    ``_tracked_executive_paths``), ``seen`` the mutable set of
+    already-admitted paths (duplicate rejection; this call adds the admitted
+    path), and ``root`` overrides the repo root for tests. Pure decision
+    logic over supplied facts behind the thin git observer, so tests can
+    drive every rejection with constructed roots and tracked sets."""
+    root = REPO_ROOT if root is None else root
+    if (not rel_path or rel_path.startswith(("/", "\\"))
+            or re.match(r"^[A-Za-z]:", rel_path)):
+        raise BuildError(f"narrative source path is absolute or empty: {rel_path!r}")
+    if posixpath.normpath(rel_path) != rel_path or any(
+        seg in ("", ".", "..") for seg in rel_path.split("/")
+    ):
+        raise BuildError(
+            "narrative source path is not a normalized repo-relative path "
+            f"(parent-directory traversal?): {rel_path!r}"
+        )
+    if not rel_path.startswith("executive/"):
+        raise BuildError(f"narrative source outside executive/: {rel_path!r}")
+    if rel_path in seen:
+        raise BuildError(f"duplicate narrative source: {rel_path!r}")
+    if rel_path not in tracked:
+        raise BuildError(f"narrative source is not a git-tracked file: {rel_path!r}")
+    path = root / rel_path
+    if path.is_symlink() or path.resolve() != root.resolve() / rel_path:
+        raise BuildError(f"narrative source resolves through a symlink: {rel_path!r}")
+    if not path.is_file():
+        raise BuildError(f"narrative source is not a regular file: {rel_path!r}")
+    seen.add(rel_path)
+    return path
+
+
+def _narrative_body_lines(text, source_rel):
+    """Return the BODY lines of one narrative source: everything after the
+    first ``---`` metadata terminator, with the trailing corpus
+    ``**End of Document**`` terminator required and dropped (the page chrome
+    supplies the title and the closing sections, so neither the H1, the
+    metadata block, nor the terminator is rendered). Loud on document-model
+    drift: a missing leading H1, a missing metadata terminator, or a missing
+    document terminator each raise BuildError."""
+    lines = text.splitlines()
+    first_content = next((ln for ln in lines if ln.strip()), "")
+    if not first_content.startswith("# "):
+        raise BuildError(f"{source_rel}: narrative source has no leading '# ' title line")
+    for i, ln in enumerate(lines):
+        if ln.strip() == "---":
+            body = lines[i + 1:]
+            break
+    else:
+        raise BuildError(f"{source_rel}: no '---' metadata terminator found")
+    non_blank = [j for j, ln in enumerate(body) if ln.strip()]
+    if not non_blank or body[non_blank[-1]].strip() != _NARR_TERMINATOR:
+        raise BuildError(
+            f"{source_rel}: body does not end with the '{_NARR_TERMINATOR}' "
+            "terminator (document-model drift?)"
+        )
+    return body[: non_blank[-1]]
+
+
+def _reject_nested_block(content, source_rel, container):
+    """Reject a nested BLOCK construct hiding behind a container marker
+    (E1, QA round 2): a blockquote's or list item's INNER content flows
+    only through the inline renderer, so a block construct after the
+    marker ('> ### heading', '- - nested list', '> > quote', '- ---',
+    '>  indented', '> ```', '> <div>') would otherwise render silently as
+    prose. The inner content is re-classified with the SAME line
+    classifier and must come back a plain paragraph; any other
+    classification, and any rejection the classifier itself raises, is a
+    loud BuildError, so container content is inline-only by construction."""
+    try:
+        kind = _classify_narrative_line(content, source_rel)
+    except BuildError as e:
+        raise BuildError(
+            f"{source_rel}: nested block construct in a {container} "
+            f"unsupported (container content must be inline-only): "
+            f"{content[:60]!r} ({e})"
+        ) from e
+    if kind != "p":
+        raise BuildError(
+            f"{source_rel}: nested block construct in a {container} "
+            f"unsupported (container content must be inline-only): "
+            f"{content[:60]!r}"
+        )
+
+
+def _classify_narrative_line(line, source_rel):
+    """Classify ONE flush-left body line as h2 / quote / li / p, raising a
+    loud BuildError on every construct outside the supported set (any other
+    heading level, closing-hash ATX headings, ordered or star/plus lists,
+    tables with or without a leading pipe, fenced or indented code,
+    horizontal rules, setext heading underlines, spaced thematic breaks,
+    raw HTML tags and blocks, malformed markers, and any block construct
+    nested behind a blockquote or list marker). Every rejection here fires
+    BEFORE the paragraph fallback, so none of these shapes can silently
+    render as prose."""
+    if line != line.lstrip():
+        raise BuildError(
+            f"{source_rel}: indented line unsupported by the constrained "
+            f"renderer: {line[:60]!r}"
+        )
+    # A pipe ANYWHERE rejects: it catches the leading-pipe GFM row, the
+    # pipe-less header row ('A | B'), and the pipe-less separator
+    # ('--- | ---') alike, none of which the line-start check could see.
+    if "|" in line:
+        raise BuildError(f"{source_rel}: tables unsupported: {line[:60]!r}")
+    if line.startswith("#"):
+        if line.startswith("## ") and line[3:].strip():
+            # A CommonMark CLOSING-hash sequence (a trailing '#' run alone or
+            # preceded by whitespace, '## Text ##' / '## Text #' / '## ###')
+            # would leak the hashes into the rendered heading text; the
+            # supported form is '## Text' with NO trailing hashes. A hash
+            # attached to content ('## C#') is content, not a closing
+            # sequence, and stays supported.
+            if re.search(r"(?:^|[ \t])#+$", line[3:].strip()):
+                raise BuildError(
+                    f"{source_rel}: closing-hash ATX headings unsupported (the "
+                    f"supported form is '## Text' with no trailing hashes): "
+                    f"{line[:60]!r}"
+                )
+            return "h2"
+        raise BuildError(
+            f"{source_rel}: only '## ' section headings are supported in the "
+            f"body: {line[:60]!r}"
+        )
+    if line.startswith(">"):
+        if line.startswith("> ") and line[2:].strip():
+            _reject_nested_block(line[2:], source_rel, "blockquote")
+            return "quote"
+        raise BuildError(f"{source_rel}: malformed blockquote line: {line[:60]!r}")
+    # Setext underlines ('===' under an H1 candidate, '--' under an H2
+    # candidate; a bare '---' body line already hits the HR rejection below)
+    # and SPACED thematic breaks ('- - -', '* * *', '= = ='), both of which
+    # would otherwise fall through to the paragraph or list branches and
+    # render silently wrong.
+    if _NARR_MD_SETEXT_UNDERLINE_RE.match(line):
+        raise BuildError(
+            f"{source_rel}: setext heading underlines unsupported: {line[:60]!r}"
+        )
+    if _NARR_MD_SPACED_BREAK_RE.match(line):
+        raise BuildError(
+            f"{source_rel}: spaced thematic breaks unsupported: {line[:60]!r}"
+        )
+    if _NARR_MD_HR_RE.match(line):
+        raise BuildError(f"{source_rel}: horizontal rules unsupported: {line[:60]!r}")
+    if line == "-" or (line.startswith("- ") and not line[2:].strip()):
+        raise BuildError(f"{source_rel}: empty list item: {line[:60]!r}")
+    if line.startswith("- "):
+        _reject_nested_block(line[2:], source_rel, "list item")
+        return "li"
+    if line[:1] == "-" and len(line) >= 2 and line[1] in "\t\v\f\r":
+        raise BuildError(
+            f"{source_rel}: unsupported whitespace after the '-' list marker "
+            f"(use '- ' with a single space): {line[:60]!r}"
+        )
+    if _NARR_MD_OTHER_LIST_RE.match(line):
+        raise BuildError(
+            f"{source_rel}: only flat '- ' unordered lists are supported: "
+            f"{line[:60]!r}"
+        )
+    if line.startswith(("```", "~~~")):
+        raise BuildError(f"{source_rel}: fenced code unsupported: {line[:60]!r}")
+    # A raw HTML tag or block opener at line start ('<div>', '</div>',
+    # '<!-- -->', '<!DOCTYPE', '<?'): rejected here as a block-level
+    # construct; the inline escaper independently rejects the same shape
+    # mid-paragraph. A lone '<' in prose (a spaced comparison sign) does not
+    # match and still escapes cleanly downstream.
+    if _NARR_MD_RAW_HTML_RE.match(line):
+        raise BuildError(
+            f"{source_rel}: raw HTML unsupported by the constrained "
+            f"renderer: {line[:60]!r}"
+        )
+    return "p"
+
+
+def _narrative_blocks(body_lines, source_rel):
+    """Group body lines into (kind, contents) blocks: h2 and quote blocks are
+    single-line; consecutive plain lines join into one paragraph; consecutive
+    '- ' lines join into one list. Markdown's lazy continuations (a plain
+    line directly under a list item or a quote) and multi-line blockquotes
+    are AMBIGUOUS in a constrained renderer and none are used by the
+    published pages, so they raise rather than guessing."""
+    blocks = []
+    cur_kind = None
+    for raw in body_lines:
+        if not raw.strip():
+            cur_kind = None
+            continue
+        if raw.rstrip("\r\n").endswith("\\") or raw.endswith("  "):
+            raise BuildError(f"{source_rel}: hard line breaks unsupported: {raw[:60]!r}")
+        line = raw.rstrip()
+        kind = _classify_narrative_line(line, source_rel)
+        if cur_kind == "li" and kind == "p":
+            raise BuildError(
+                f"{source_rel}: lazy list-item continuation unsupported: {line[:60]!r}"
+            )
+        if cur_kind == "quote" and kind in ("p", "quote"):
+            raise BuildError(
+                f"{source_rel}: multi-line blockquotes unsupported: {line[:60]!r}"
+            )
+        if kind == "p" and cur_kind == "p":
+            blocks[-1][1].append(line)
+        elif kind == "li" and cur_kind == "li":
+            blocks[-1][1].append(line[2:])
+        else:
+            if kind == "h2":
+                content = line[3:]
+            elif kind in ("quote", "li"):
+                content = line[2:]
+            else:
+                content = line
+            blocks.append((kind, [content]))
+        cur_kind = kind
+    return blocks
+
+
+def _esc_narrative_text(text, source_rel):
+    """HTML-escape ONE plain-text segment (links and bold already extracted),
+    loud on any residual markup: unbalanced bold, code spans, stray link
+    brackets, star emphasis, strikethrough, underscore emphasis, backslash
+    escapes, autolink/raw-HTML scheme text, raw HTML tags, and HTML
+    entities all raise. Literal ``<``, ``>``, ``&``, and ``{`` in prose are ESCAPED
+    (never passed through as HTML). The ``{`` escape (to ``&#123;``) exists
+    because render_page's SECOND substitution pass re-scans the whole
+    document, narrative body included, so an unescaped ``{{SCRIPT}}``
+    literal in prose would expand into the site's live script partial on
+    that pass. Escaping ``{`` alone breaks the pattern (the placeholder
+    regex requires a literal ``{{`` opener), so ``}`` needs no escaping;
+    the escape is scoped to narrative TEXT only and never touches the
+    template's own placeholders. A lone ``<`` in genuine prose (``1 < 2``)
+    still escapes cleanly: the raw-HTML rejection fires only on ``<``
+    immediately followed by a tag-shaped character (a letter, ``/``, ``!``,
+    or ``?``), never on a spaced comparison sign. HTML entities
+    (``&amp;``, ``&#123;``) are rejected rather than passed through: the
+    escaper would double-escape them into visibly wrong text, so the loud
+    failure replaces a silent mis-render."""
+    for marker, name in (
+        ("**", "unbalanced bold"),
+        ("`", "code spans"),
+        ("[", "unsupported or malformed link syntax"),
+        ("]", "unsupported or malformed link syntax"),
+        ("*", "star emphasis"),
+        ("~~", "strikethrough"),
+    ):
+        if marker in text:
+            raise BuildError(
+                f"{source_rel}: {name} unsupported by the constrained "
+                f"renderer: {text[:60]!r}"
+            )
+    # A backslash before ASCII punctuation is a Markdown escape ('\#', '\>',
+    # '\-'): a standard renderer drops the backslash, this one would print
+    # it, a silent divergence, so it is rejected. A backslash before an
+    # alphanumeric ('C:\Users') is NOT a Markdown escape and stays plain
+    # escaped prose.
+    if re.search(r"\\[!-/:-@\[-`{-~]", text):
+        raise BuildError(
+            f"{source_rel}: backslash escapes unsupported by the constrained "
+            f"renderer: {text[:60]!r}"
+        )
+    if _NARR_MD_UNDERSCORE_EM_RE.search(text):
+        raise BuildError(f"{source_rel}: underscore emphasis unsupported: {text[:60]!r}")
+    if _NARR_MD_AUTOLINK_RE.search(text):
+        raise BuildError(
+            f"{source_rel}: autolink or raw-HTML scheme text unsupported: {text[:60]!r}"
+        )
+    if _NARR_MD_RAW_HTML_RE.search(text):
+        raise BuildError(
+            f"{source_rel}: raw HTML tags unsupported by the constrained "
+            f"renderer: {text[:60]!r}"
+        )
+    if _NARR_MD_ENTITY_RE.search(text):
+        raise BuildError(
+            f"{source_rel}: HTML entities unsupported (write the literal "
+            f"character; prose is escaped at render time): {text[:60]!r}"
+        )
+    return _esc(text).replace("{", "&#123;")
+
+
+def _render_narrative_bold(text, source_rel):
+    """Render ``**bold**`` spans in one segment, escaping everything else."""
+    parts = []
+    pos = 0
+    for m in _NARR_MD_BOLD_RE.finditer(text):
+        parts.append(_esc_narrative_text(text[pos:m.start()], source_rel))
+        parts.append("<strong>" + _esc_narrative_text(m.group(1), source_rel) + "</strong>")
+        pos = m.end()
+    parts.append(_esc_narrative_text(text[pos:], source_rel))
+    return "".join(parts)
+
+
+def _narrative_link_url(target, source_rel):
+    """Convert ONE corpus-relative link target to its GitHub blob URL (the
+    corpus-link convention the doc rows use). Only a plain relative path that
+    resolves to an existing repo file is supported: scheme/protocol links,
+    absolute paths, fragments and queries, and targets that escape the
+    repository all raise."""
+    if _NARR_MD_SCHEME_RE.match(target) or target.startswith("//"):
+        raise BuildError(
+            f"{source_rel}: only corpus-relative link targets are supported: {target!r}"
+        )
+    if target.startswith("/"):
+        raise BuildError(f"{source_rel}: absolute link target unsupported: {target!r}")
+    if "#" in target or "?" in target:
+        raise BuildError(
+            f"{source_rel}: link fragments and queries unsupported: {target!r}"
+        )
+    resolved = posixpath.normpath(posixpath.join(posixpath.dirname(source_rel), target))
+    if resolved.split("/", 1)[0] == "..":
+        raise BuildError(f"{source_rel}: link target escapes the repository: {target!r}")
+    if not (REPO_ROOT / resolved).is_file():
+        raise BuildError(
+            f"{source_rel}: link target does not resolve to a repo file: "
+            f"{target!r} -> {resolved}"
+        )
+    return GITHUB_BLOB_BASE + resolved
+
+
+def _render_narrative_inline(text, source_rel):
+    """Render one text unit's inline constructs: corpus-relative links (to
+    their GitHub blob URLs, new-tab like every corpus link) and bold; every
+    other inline construct raises via the segment escaper."""
+    if "![" in text:
+        raise BuildError(f"{source_rel}: images unsupported: {text[:60]!r}")
+    parts = []
+    pos = 0
+    for m in _NARR_MD_LINK_RE.finditer(text):
+        parts.append(_render_narrative_bold(text[pos:m.start()], source_rel))
+        url = _narrative_link_url(m.group(2), source_rel)
+        parts.append(
+            f'<a href="{_esc(url)}" target="_blank" rel="noopener">'
+            + _render_narrative_bold(m.group(1), source_rel) + "</a>"
+        )
+        pos = m.end()
+    parts.append(_render_narrative_bold(text[pos:], source_rel))
+    return "".join(parts)
+
+
+def _narrative_heading_slug(text, seen_slugs, source_rel):
+    """Anchor slug for one '## ' heading; loud on an empty, duplicate, or
+    template-reserved slug (the shell reserves narr-intro/depth/source)."""
+    slug = re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
+    if not slug:
+        raise BuildError(f"{source_rel}: heading yields an empty anchor: {text!r}")
+    if slug in seen_slugs:
+        raise BuildError(
+            f"{source_rel}: duplicate or template-reserved section anchor: {slug!r}"
+        )
+    seen_slugs.add(slug)
+    return slug
+
+
+def render_narrative_body(text, source_rel):
+    """Constrained Markdown-to-HTML for ONE narrative page body. Returns
+    ``(sections_html, toc)`` where ``toc`` is ``[(anchor, heading), ...]``
+    for the sidenav.
+
+    The supported set is EXACTLY the construct set surveyed across the six
+    published Executive Briefs: '## ' headings (each opening a numbered
+    exec-shell section, the section number COMPUTED), flush-left paragraphs,
+    flat '- ' unordered lists, single-line '> ' blockquotes, **bold**, and
+    corpus-relative links (converted to GitHub blob URLs). Any unsupported
+    construct raises a loud BuildError so a future narrative fails the build
+    rather than rendering wrong; all text is HTML-escaped with no raw-HTML
+    passthrough, and a literal ``{`` escapes to ``&#123;`` so no ``{{NAME}}``
+    placeholder pattern survives into render_page's second substitution
+    pass. Blocks before the first heading (the authority disclaimer)
+    render in an unnumbered intro section."""
+    blocks = _narrative_blocks(_narrative_body_lines(text, source_rel), source_rel)
+    seen_slugs = {"narr-intro", "depth", "source"}  # reserved by the template shell
+    toc = []
+    sections = []
+    cur = {"anchor": "narr-intro", "head": None, "blocks": []}
+    for kind, content in blocks:
+        if kind == "h2":
+            head_text = content[0]
+            if _render_narrative_inline(head_text, source_rel) != _esc(head_text):
+                raise BuildError(
+                    f"{source_rel}: inline markup in a section heading "
+                    f"unsupported: {head_text[:60]!r}"
+                )
+            if cur["head"] is not None or cur["blocks"]:
+                sections.append(cur)
+            slug = _narrative_heading_slug(head_text, seen_slugs, source_rel)
+            toc.append((slug, head_text))
+            cur = {"anchor": slug, "head": head_text, "blocks": []}
+        elif kind == "p":
+            cur["blocks"].append(
+                "      <p>" + _render_narrative_inline(" ".join(content), source_rel) + "</p>"
+            )
+        elif kind == "quote":
+            cur["blocks"].append(
+                "      <blockquote><p>"
+                + _render_narrative_inline(content[0], source_rel)
+                + "</p></blockquote>"
+            )
+        else:  # li
+            items = "\n".join(
+                "        <li>" + _render_narrative_inline(item, source_rel) + "</li>"
+                for item in content
+            )
+            cur["blocks"].append("      <ul>\n" + items + "\n      </ul>")
+    if cur["head"] is not None or cur["blocks"]:
+        sections.append(cur)
+    if not toc:
+        raise BuildError(f"{source_rel}: body has no '## ' sections (document-model drift?)")
+    out = []
+    number = 0
+    for sec in sections:
+        head_html = ""
+        if sec["head"] is not None:
+            number += 1
+            head_html = (
+                f'      <div class="sec-head"><span class="sec-num">&sect;{number:02d}</span>'
+                f"<h2>{_esc(sec['head'])}</h2></div>\n"
+            )
+        out.append(
+            f'  <section class="narr" id="{sec["anchor"]}">\n'
+            '    <div class="wrap">\n'
+            + head_html + "\n".join(sec["blocks"]) + "\n"
+            "    </div>\n"
+            "  </section>"
+        )
+    return "\n\n".join(out), toc
+
+
+def narrative_out_rel(page):
+    """Map ONE narrative page's registry route to its on-site output path:
+    ``decisions/<subtype>/<slug>/index.html`` (wave-2 decision Q2, one exec
+    vocabulary on-site; the registry's route slugs keep their ``executive/``
+    prefix, a recorded divergence). The route drives a filesystem write, so
+    a shape outside ``executive/<subtype>/<slug>`` in the plain slug charset
+    raises rather than being written."""
+    route = page["route"]
+    prefix = "executive/"
+    if not route.startswith(prefix):
+        raise BuildError(f"narrative route without the executive/ prefix: {route!r}")
+    tail = route[len(prefix):]
+    segments = tail.split("/")
+    if len(segments) != 2 or not all(_NARR_ROUTE_SEGMENT_RE.match(s) for s in segments):
+        raise BuildError(f"narrative route is not executive/<subtype>/<slug>: {route!r}")
+    return f"{NARRATIVE_ROUTE_PREFIX}{tail}/index.html"
+
+
+def narrative_page_values(page, variant, out_rel, body_html, toc):
+    """The per-page values for one reading-room page (merged on top of the
+    shared values in render_page, riding the same ``extra=`` path as the
+    domain and type pages, so they are inert everywhere else). SEO/attribute
+    values are built from registry strings (title, narrative_type), all
+    escaped; the body arrives pre-rendered by the constrained renderer."""
+    title = page["title"]
+    sidenav = "\n".join(
+        f'      <a href="#{anchor}">{_esc(heading)}</a>' for anchor, heading in toc
+    )
+    return {
+        "NARRATIVE_TYPE": _esc(page["narrative_type"]),
+        "NARRATIVE_H1": _esc(title),
+        "NARRATIVE_BODY": body_html,
+        "NARRATIVE_SIDENAV": sidenav,
+        "NARRATIVE_SOURCE_URL": _esc(narrative_source_blob_url(page)),
+        "NARRATIVE_TITLE": f"{_esc(title)}: GRC Library",
+        "NARRATIVE_SEO_DESC": _esc(
+            f"{page['narrative_type']}: {title}. A leadership page of the open, "
+            "CC BY-SA 4.0 GRC Library; every claim resolves to the governing "
+            "corpus documents."
+        ),
+        "NARRATIVE_CANONICAL": _site_url_for(variant, out_rel),
     }
 
 
@@ -1139,6 +1733,38 @@ def render_variant(figures, variant):
         )
         pages.append((f"types/{tp['slug']}/index.html", html))
 
+    # The /v2 executive reading room (wave-2 PR-2a): one on-site page per
+    # registry-listed narrative page of a routed type, VARIANT-SCOPED by the
+    # variant-table flag so the frozen root's page loops above are untouched
+    # (the byte-identical-root mechanism for this new route class). Sources
+    # are read ONLY after the renderer-confinement validator admits them
+    # (registry-listed, normalized, git-tracked, under executive/ only), so
+    # this loop extends the generator's read allow-list to the registry-listed
+    # executive/ pages without the generator ever walking the repository.
+    if variant.narrative_routes:
+        tracked = _tracked_executive_paths()
+        seen_sources = set()
+        seen_out_rels = {out_rel for out_rel, _ in pages}
+        for page in figures["narratives"]:
+            if page["narrative_type"] not in NARRATIVE_ROUTE_TYPES:
+                continue
+            source = narrative_source_file(page["path"], tracked, seen_sources)
+            out_rel = narrative_out_rel(page)
+            if out_rel in seen_out_rels:
+                raise BuildError(
+                    f"narrative route collides with an existing page: {out_rel}"
+                )
+            seen_out_rels.add(out_rel)
+            body_html, toc = render_narrative_body(
+                source.read_text(encoding="utf-8"), page["path"]
+            )
+            html, _ = render_page(
+                "narrative.html", figures, variant, template_dir, partials,
+                extra=narrative_page_values(page, variant, out_rel, body_html, toc),
+                out_rel=out_rel,
+            )
+            pages.append((out_rel, html))
+
     unused = sorted(all_values - used_across)
     if unused:
         raise BuildError(
@@ -1224,7 +1850,7 @@ def bare_root_relative_hrefs():
 
 def main(argv=None):
     ap = argparse.ArgumentParser(
-        description="Render the grclibrary.ai public site (landing, about, pack, per-domain, and per-type pages, plus the non-indexable /v2 staging tree's executive routes: decisions/start/trust/coverage/library/how-its-built) from the live corpus.",
+        description="Render the grclibrary.ai public site (landing, about, pack, per-domain, and per-type pages, plus the non-indexable /v2 staging tree's executive routes: decisions/start/trust/coverage/library/how-its-built and the decisions/briefs/<slug>/ executive reading-room pages, one per routed registry narrative) from the live corpus.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     ap.add_argument(
