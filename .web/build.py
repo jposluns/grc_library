@@ -33,7 +33,7 @@ variants' trees under ``.web/dist/v2/`` and ``.web/dist/v3/`` (both noindex); v2
 executive-shell routes declared in ``V2_EXTRA_PAGES`` (decisions, start, trust,
 coverage, library, how-its-built), v3 additionally carries the need-based path
 routes declared in ``V3_EXTRA_PAGES`` (decide, govern, comply, solutions,
-policies, plus the search placeholder), while v2 carries the executive reading room (one on-site page
+policies, plus the client-side search page), while v2 carries the executive reading room (one on-site page
 per registry-listed narrative page: ALL 18 published narrative pages across the
 six narrative types render at ``decisions/<subtype>/<slug>/``, each from the
 page's Markdown source by the constrained stdlib renderer below, and the v2
@@ -146,7 +146,7 @@ V2_EXTRA_PAGES = (
     ("how-its-built.html", "how-its-built/index.html"),
 )
 
-# The five need-based path routes (plus the search placeholder) that exist ONLY
+# The five need-based path routes (plus the client-side search page) that exist ONLY
 # on the non-indexable /v3 staging tree (PR-B of the ground-up redesign). The
 # landing's path cards and the v3 topnav link these routes; each opens on one
 # plain question and routes to content that already renders in v3 (the
@@ -2283,6 +2283,31 @@ def document_page_values(doc, docs_by_path, variant):
     }
 
 
+def render_search_index(variant):
+    """A compact JSON index for the client-side /v3 search: one entry per corpus
+    DOMAIN document (title, type, area, a truncated purpose, frameworks, and its
+    on-site URL), built from the enriched taxonomy (the generator still never
+    walks the repository). Emitted only for a variant with document_routes."""
+    import json
+    base = variant.url_prefix.rstrip("/")
+    prefix = f"/{base}" if base else ""
+    full = parse_taxonomy_full(TAXONOMY.read_text(encoding="utf-8"))
+    entries = []
+    for d in full:
+        if d.get("domain") == ROOT_DOMAIN:
+            continue
+        stem = d["path"][:-3] if d["path"].endswith(".md") else d["path"]
+        entries.append({
+            "t": d.get("title", ""),
+            "y": d.get("type", ""),
+            "a": d.get("domain", ""),
+            "p": (d.get("purpose", "") or "")[:200],
+            "f": d.get("frameworks", []),
+            "u": f"{prefix}/documents/{stem}/",
+        })
+    return json.dumps(entries, ensure_ascii=False, separators=(",", ":"))
+
+
 def render_variant(figures, variant):
     """Render one variant's HTML template tree and return relative outputs."""
     template_dir = template_dir_for(variant)
@@ -2338,6 +2363,7 @@ def render_variant(figures, variant):
                 out_rel=out_rel,
             )
             pages.append((out_rel, html))
+        pages.append(("search-index.json", render_search_index(variant)))
 
     # The /v2 executive reading room (wave-2 PR-2a): one on-site page per
     # registry-listed narrative page of a routed type, VARIANT-SCOPED by the

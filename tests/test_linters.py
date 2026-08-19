@@ -9283,6 +9283,29 @@ class WebGeneratorV2StagingTests(unittest.TestCase):
                 self.assertFalse((out / "v3" / rel).is_file(),
                                  f"root spec {d['path']} should have no L2 page")
 
+    def test_v3_search_index_only_under_v3(self):
+        """The client-side search index renders as /v3/search-index.json ONLY
+        (never at root or /v2), is valid JSON, and has one entry per corpus
+        domain document with the search fields."""
+        import json
+        figures = self.mod.compute_figures()
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            self._write_site(self.mod.render_site(figures), out)
+            self.assertTrue((out / "v3" / "search-index.json").is_file(),
+                            "/v3/search-index.json missing")
+            self.assertFalse((out / "search-index.json").is_file(),
+                             "search index must NOT be at root")
+            self.assertFalse((out / "v2" / "search-index.json").is_file(),
+                             "search index must NOT be in /v2")
+            data = json.loads((out / "v3" / "search-index.json").read_text(encoding="utf-8"))
+            full = self.mod.parse_taxonomy_full(self.mod.TAXONOMY.read_text(encoding="utf-8"))
+            expected = [d for d in full if d.get("domain") != self.mod.ROOT_DOMAIN]
+            self.assertEqual(len(data), len(expected))
+            for e in data[:5]:
+                self.assertEqual(set(e), {"t", "y", "a", "p", "f", "u"})
+                self.assertTrue(e["u"].startswith("/v3/documents/"))
+
     def test_v3_document_page_values_from_taxonomy(self):
         """document_page_values surfaces the enriched taxonomy fields (purpose,
         section outline, frameworks, spec strip) and the on-site + source links,
