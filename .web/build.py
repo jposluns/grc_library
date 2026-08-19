@@ -434,13 +434,16 @@ def load_narratives():
             f"{len(missing)} narrative registry page(s) missing a title or "
             f"narrative_type (schema change?); first: {missing[0]}"
         )
-    braced = [p["path"] for p in pages if "{" in p["title"] or "}" in p["title"]]
+    braced = [
+        p["path"] for p in pages
+        if any(c in p["title"] or c in p["path"] for c in "{}")
+    ]
     if braced:
         raise BuildError(
             f"{len(braced)} narrative registry page(s) with a brace in the "
-            "title: a brace would survive as a template token in NARRATIVE_H1 "
-            "and the discovery-row title (both _esc-only, not brace-escaped); "
-            f"first: {braced[0]}"
+            "title or path: a brace would survive as a template token in "
+            "NARRATIVE_H1, the discovery-row title, or the source-URL href "
+            f"(all _esc-only, not brace-escaped); first: {braced[0]}"
         )
     no_domains = [p["path"] for p in pages if not p["domains"]]
     if no_domains:
@@ -965,7 +968,7 @@ _NARR_MD_OTHER_LIST_RE = re.compile(r"^(\d+[.)]|[*+])\s")
 # run ('0000000001. ') is NOT a list marker and falls through to the
 # _NARR_MD_OTHER_LIST_RE reject, so it cannot silently become an <ol> via an
 # unbounded \d+ where int('0000000001') == 1.
-_NARR_MD_OL_ITEM_RE = re.compile(r"^(\d{1,9})\. ")
+_NARR_MD_OL_ITEM_RE = re.compile(r"^([0-9]{1,9})\. ")
 # A GFM separator-row cell: three-or-more hyphens (the surveyed uniform '---'
 # form), with the colon-alignment forms admitted here ONLY so a colon-bearing
 # ':---:' separator is detected as separator-shaped and then rejected
@@ -1652,7 +1655,15 @@ def render_narrative_body(text, source_rel):
     for kind, content in blocks:
         if kind == "h2":
             head_text = content[0]
-            if _render_narrative_inline(head_text, source_rel) != _esc(head_text):
+            if (
+                "{" in head_text
+                or "}" in head_text
+                or _render_narrative_inline(head_text, source_rel) != _esc(head_text)
+            ):
+                # A literal '{' differs after the inline pass ('{'->'&#123;')
+                # but a lone '}' is identical on both sides, so both braces are
+                # rejected EXPLICITLY here rather than relying on the escape
+                # asymmetry (F2, round-2 QA).
                 raise BuildError(
                     f"{source_rel}: inline markup or a literal brace in a "
                     f"section heading unsupported (a heading is plain text, "
@@ -1672,7 +1683,15 @@ def render_narrative_body(text, source_rel):
             # Deliberately NOT in the ToC: the sidenav lists the numbered
             # '## ' sections alone.
             head_text = content[0]
-            if _render_narrative_inline(head_text, source_rel) != _esc(head_text):
+            if (
+                "{" in head_text
+                or "}" in head_text
+                or _render_narrative_inline(head_text, source_rel) != _esc(head_text)
+            ):
+                # A literal '{' differs after the inline pass ('{'->'&#123;')
+                # but a lone '}' is identical on both sides, so both braces are
+                # rejected EXPLICITLY here rather than relying on the escape
+                # asymmetry (F2, round-2 QA).
                 raise BuildError(
                     f"{source_rel}: inline markup or a literal brace in a "
                     f"section heading unsupported (a heading is plain text, "
@@ -1761,7 +1780,11 @@ def narrative_page_values(page, variant, out_rel, body_html, toc):
         "NARRATIVE_H1": _esc(title),
         "NARRATIVE_BODY": body_html,
         "NARRATIVE_SIDENAV": sidenav,
-        "NARRATIVE_SOURCE_URL": _esc(narrative_source_blob_url(page)),
+        # Brace-escaped as defence-in-depth (F1, round-2 QA): the registry
+        # path is already brace-rejected in load_narratives, but the source
+        # URL flows into an href, so mirror the in-body href treatment so a
+        # brace could never survive into render_page's second pass here either.
+        "NARRATIVE_SOURCE_URL": _esc(narrative_source_blob_url(page)).replace("{", "&#123;"),
         "NARRATIVE_TITLE": f"{_esc(title)}: GRC Library",
         "NARRATIVE_SEO_DESC": _esc(
             f"{page['narrative_type']}: {title}. A leadership page of the open, "

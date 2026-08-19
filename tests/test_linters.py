@@ -11460,6 +11460,13 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
             # W1 (codex) / N2 (claude): a literal brace in a heading is rejected
             # with an accurate message (headings are plain text, braces reserved).
             ("## The {rule} set\n\nbody", "in a section heading unsupported"),
+            # F2 (round-2 codex): a CLOSING brace in a heading is rejected too
+            # (the escape asymmetry left `}` slipping through the comparison).
+            ("## The }rule set\n\nbody", "in a section heading unsupported"),
+            ("### The }sub set\n\nbody", "in a section heading unsupported"),
+            # F3 (round-2 codex): a Unicode-digit ordered marker is not ASCII 1-9.
+            ("\u0661. item", "unordered and 'N. ' ordered lists"),
+            ("\uff11. item", "unordered and 'N. ' ordered lists"),
         ]
         for body, expected in raise_cases:
             with self.subTest(body=body):
@@ -11484,6 +11491,41 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
         self.assertIn("<code>a**b</code>", html)
         self.assertIn("<code>&#123;&#123;SCRIPT}}</code>", html)
         self.assertNotIn("{{SCRIPT}}", html)
+
+    def test_registry_brace_rejected_by_load_narratives(self):
+        # NEW-1 (round-2 QA): a brace in a registry title OR path would survive
+        # as a {{NAME}} template token in an _esc-only sink (NARRATIVE_H1, the
+        # discovery-row title, or the "Read the source on GitHub" href), so
+        # load_narratives rejects it at build time.
+        import tempfile
+        import pathlib
+        for label, title, path in (
+            ("braced title", "A {rule} title", "executive/briefs/brief-fixture.md"),
+            ("braced path", "A clean title", "executive/briefs/brief-{{X}}.md"),
+        ):
+            with self.subTest(label=label):
+                content = (
+                    "schema_version: 1\n"
+                    "pages:\n"
+                    f'- path: "{path}"\n'
+                    f'  title: "{title}"\n'
+                    '  narrative_type: "Executive Brief"\n'
+                )
+                with tempfile.NamedTemporaryFile(
+                    "w", suffix=".yml", delete=False, encoding="utf-8"
+                ) as tf:
+                    tf.write(content)
+                    tmp = pathlib.Path(tf.name)
+                saved = self.mod.NARRATIVE_REGISTRY
+                try:
+                    self.mod.NARRATIVE_REGISTRY = tmp
+                    with self.assertRaisesRegex(
+                        self.mod.BuildError, "brace in the title or path"
+                    ):
+                        self.mod.load_narratives()
+                finally:
+                    self.mod.NARRATIVE_REGISTRY = saved
+                    tmp.unlink()
 
     def test_document_model_drift_fails_loudly(self):
         with self.assertRaisesRegex(self.mod.BuildError, "no leading '# ' title"):
