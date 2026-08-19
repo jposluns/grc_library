@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Start from a problem or a lifecycle event and follow it to the GRC Library documents that resolve it: privileged access, incidents, AI systems, suppliers, records, and the architecture and operations areas behind them.">
+<title>Find a solution: GRC Library</title>
+{{HEAD_STYLE}}
+</head>
+
+<body>
+<header class="mast">
+  <div class="wrap">
+{{TOPBAR}}
+  </div>
+</header>
+
+<main>
+  <div class="wrap page-head">
+    <p class="eyebrow">Find a solution</p>
+    <h1>What do I need for the problem in front of me?</h1>
+    <p class="lede">Start from the problem or the lifecycle event, not the paperwork. Each one below routes to the areas and document types that resolve it.</p>
+  </div>
+
+  <section id="problems">
+    <div class="wrap">
+      <h2>Common problems and events</h2>
+      <div class="disclosures">
+        <details class="disclosure">
+          <summary>Secure privileged access</summary>
+          <div class="disclosure-body">
+            <p>Admin accounts, service accounts, and the people who can change everything. The controls live in the <a href="{{BASE}}/security/">security area</a>; the monitoring that proves they operate lives in <a href="{{BASE}}/operations/">operations</a>.</p>
+            <p><strong>See it end to end:</strong> the <a href="https://github.com/jposluns/grc_library/blob/main/executive/journeys/journey-privileged-access-assurance.md" target="_blank" rel="noopener">privileged-access journey</a> walks one control from policy intent to independent assurance.</p>
+          </div>
+        </details>
+        <details class="disclosure">
+          <summary>Respond to an incident</summary>
+          <div class="disclosure-body">
+            <p>Detection, coordination, communication, and recovery. The <a href="{{BASE}}/resilience/">resilience area</a> carries the response and recovery <a href="{{BASE}}/types/plan/">plans</a>; the <a href="{{BASE}}/operations/">operations area</a> carries the monitoring that detects the incident in the first place.</p>
+            <p><strong>Rehearse the bad day:</strong> the <a href="https://github.com/jposluns/grc_library/blob/main/executive/scenarios/scenario-identity-provider-compromise.md" target="_blank" rel="noopener">identity-provider compromise scenario</a> walks leadership through one.</p>
+          </div>
+        </details>
+        <details class="disclosure">
+          <summary>Govern an AI system end to end</summary>
+          <div class="disclosure-body">
+            <p>Intake, approval, oversight, incidents, and retirement, governed like any other system. The <a href="{{BASE}}/ai/">AI area</a> is a self-contained sub-corpus: frameworks, standards, procedures, registers, templates, and per-jurisdiction annexes.</p>
+            <p><strong>See it end to end:</strong> the <a href="https://github.com/jposluns/grc_library/blob/main/executive/journeys/journey-ai-idea-to-retirement.md" target="_blank" rel="noopener">AI idea-to-retirement journey</a> follows the governed life of one system.</p>
+          </div>
+        </details>
+        <details class="disclosure">
+          <summary>Manage a supplier</summary>
+          <div class="disclosure-body">
+            <p>Onboarding, ongoing monitoring, concentration, and exit. The <a href="{{BASE}}/supply-chain/">supply-chain area</a> carries the controls; the <a href="{{BASE}}/types/register/">registers</a> carry the inventory and the assurance trail.</p>
+            <p><strong>Rehearse the failure:</strong> the <a href="https://github.com/jposluns/grc_library/blob/main/executive/scenarios/scenario-critical-supplier-outage.md" target="_blank" rel="noopener">critical-supplier outage scenario</a> shows what the day itself looks like.</p>
+          </div>
+        </details>
+        <details class="disclosure">
+          <summary>Retain and destroy records</summary>
+          <div class="disclosure-body">
+            <p>Classification, retention, cross-border movement, and provable destruction. The <a href="{{BASE}}/security/">security area</a> carries classification and handling; the <a href="{{BASE}}/privacy/">privacy area</a> carries the obligations that set the clock.</p>
+            <p><strong>See it end to end:</strong> the <a href="https://github.com/jposluns/grc_library/blob/main/executive/journeys/journey-record-retention-destruction.md" target="_blank" rel="noopener">record retention-and-destruction journey</a> follows one record from rule to evidence.</p>
+          </div>
+        </details>
+      </div>
+      <p class="mt-sm">The journeys and scenarios linked above read at source on GitHub today; on-site versions are coming.</p>
+    </div>
+  </section>
+
+  <section id="builders">
+    <div class="wrap">
+      <h2>For the CIO and the architect</h2>
+      <p>Building or changing systems rather than responding to one event? Three areas carry the technology side of the corpus.</p>
+      <div class="paths">
+        <article class="path">
+          <h3><a href="{{BASE}}/architecture/">Architecture <span class="go" aria-hidden="true">&rarr;</span></a></h3>
+          <p>Reference architectures and secure-design control patterns.</p>
+        </article>
+        <article class="path">
+          <h3><a href="{{BASE}}/dev-security/">Dev security <span class="go" aria-hidden="true">&rarr;</span></a></h3>
+          <p>Secure development lifecycle, CI/CD, and pipeline controls.</p>
+        </article>
+        <article class="path">
+          <h3><a href="{{BASE}}/operations/">Operations <span class="go" aria-hidden="true">&rarr;</span></a></h3>
+          <p>Operational security, monitoring, and IT service management.</p>
+        </article>
+      </div>
+
+      <h3 class="mt-lg">How a problem becomes evidence</h3>
+      <div class="chains">
+        <ol class="chain" aria-label="Example chain from a problem to audit evidence">
+          <li><span class="node">Problem</span></li>
+          <li><span class="node">Governing standard</span></li>
+          <li><span class="node">Procedure</span></li>
+          <li><span class="node">Register</span></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</main>
+
+{{FOOTER}}
+
+{{SCRIPT}}
+</body>
+</html>

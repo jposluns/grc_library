@@ -358,6 +358,33 @@
   .type-chip .tk { color: var(--ink); }
   .type-chip:hover .tk { color: var(--link-strong); }
 
+  /* ---------- Progressive disclosure (path pages) ---------- */
+  /* Same 46rem-track / 66ch-measure reasoning as .paths. */
+  .disclosures { display: grid; gap: 0.9rem; grid-template-columns: minmax(0, 46rem); margin-top: 1.8rem; }
+  details.disclosure {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+  }
+  details.disclosure:hover { border-color: var(--link); }
+  details.disclosure > summary {
+    cursor: pointer;
+    list-style: none;
+    display: flex; align-items: baseline; gap: 0.7rem;
+    padding: 1.1rem 1.4rem;
+    font-size: var(--fs-body); line-height: 1.5; font-weight: 600;
+    color: var(--ink);
+  }
+  details.disclosure > summary::-webkit-details-marker { display: none; }
+  details.disclosure > summary::before {
+    content: "+"; color: var(--link); font-weight: 700; flex: none;
+  }
+  details.disclosure[open] > summary::before { content: "\2212"; }
+  details.disclosure > summary:hover { color: var(--link-strong); }
+  details.disclosure .disclosure-body { padding: 0 1.4rem 1.2rem; }
+  details.disclosure .disclosure-body p { margin: 0.5rem 0 0; }
+  details.disclosure .disclosure-body p strong { color: var(--brass); font-weight: 600; }
+
   /* ---------- Generic panels and row lists (about / pack / for-ai) ---------- */
   .panel {
     background: var(--surface);

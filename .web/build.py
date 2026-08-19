@@ -31,7 +31,9 @@ the safeguard checks; neither feeds published content.) By default its rendered 
 published surface is those root pages and files, plus the non-indexable staging
 variants' trees under ``.web/dist/v2/`` and ``.web/dist/v3/`` (both noindex); v2 additionally carries the
 executive-shell routes declared in ``V2_EXTRA_PAGES`` (decisions, start, trust,
-coverage, library, how-its-built) and the executive reading room (one on-site page
+coverage, library, how-its-built), v3 additionally carries the need-based path
+routes declared in ``V3_EXTRA_PAGES`` (decide, govern, comply, solutions,
+policies, plus the search placeholder), while v2 carries the executive reading room (one on-site page
 per registry-listed narrative page: ALL 18 published narrative pages across the
 six narrative types render at ``decisions/<subtype>/<slug>/``, each from the
 page's Markdown source by the constrained stdlib renderer below, and the v2
@@ -140,6 +142,25 @@ V2_EXTRA_PAGES = (
     ("how-its-built.html", "how-its-built/index.html"),
 )
 
+# The five need-based path routes (plus the search placeholder) that exist ONLY
+# on the non-indexable /v3 staging tree (PR-B of the ground-up redesign). The
+# landing's path cards and the v3 topnav link these routes; each opens on one
+# plain question and routes to content that already renders in v3 (the
+# per-domain and per-type pages) or to the corpus on GitHub. They render in
+# addition to PAGES for v3 alone, so v1 and v2 are unaffected and stay
+# byte-identical to their baselines. They inherit the noindex + self-canonical
+# + /v3/-prefixed treatment every v3 page gets, and stay out of the discovery
+# files (robots/sitemap/llms.txt), which are emitted for the indexable variant
+# only.
+V3_EXTRA_PAGES = (
+    ("decide.html", "decide/index.html"),
+    ("govern.html", "govern/index.html"),
+    ("comply.html", "comply/index.html"),
+    ("solutions.html", "solutions/index.html"),
+    ("policies.html", "policies/index.html"),
+    ("search.html", "search/index.html"),
+)
+
 # The site variant table: one indexable root variant (v1) plus any non-indexable
 # staging variants (v2 and v3). New staging variants belong in this table, so
 # the template source, URL prefix, and indexability policy stay coupled.
@@ -147,7 +168,8 @@ VARIANTS = (
     Variant("v1", "templates", "", indexable=True),
     Variant("v2", "templates-v2", "v2/", indexable=False, extra_pages=V2_EXTRA_PAGES,
             narrative_routes=True),
-    Variant("v3", "templates-v3", "v3/", indexable=False),
+    Variant("v3", "templates-v3", "v3/", indexable=False,
+            extra_pages=V3_EXTRA_PAGES),
 )
 
 # Shared chrome injected into every page from a single source, so the pages

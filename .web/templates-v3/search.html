@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Search across the GRC Library's {{DOC_TOTAL}} documents is being built for this redesign. Until it ships, browse by need, by area, or by document type, or search the corpus source on GitHub.">
+<title>Search: GRC Library</title>
+{{HEAD_STYLE}}
+</head>
+
+<body>
+<header class="mast">
+  <div class="wrap">
+{{TOPBAR}}
+  </div>
+</header>
+
+<main>
+  <div class="wrap page-head">
+    <p class="eyebrow">Search</p>
+    <h1>Search is on its way.</h1>
+    <p class="lede">Search across all {{DOC_TOTAL}} documents is being built for this redesign. Until it ships, three ways in cover the same ground.</p>
+  </div>
+
+  <section id="meanwhile">
+    <div class="wrap">
+      <h2>Three ways in today</h2>
+      <p>Start from <a href="{{BASE}}/">what you need</a>, browse by document type, or browse by area:</p>
+      <nav class="chip-nav" aria-label="Browse by document type">
+{{TYPE_CHIPS}}
+      </nav>
+      <nav class="chip-nav" aria-label="Browse by area">
+{{SIDENAV_DOMAINS}}
+      </nav>
+      <p class="mt-md">Need full-text search now? <a href="https://github.com/search?q=repo%3Ajposluns%2Fgrc_library&type=code" target="_blank" rel="noopener">Search the corpus source on GitHub</a>.</p>
+    </div>
+  </section>
+</main>
+
+{{FOOTER}}
+
+{{SCRIPT}}
+</body>
+</html>
