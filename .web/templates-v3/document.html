@@ -98,8 +98,14 @@
         .then(function (text) { return navigator.clipboard.writeText(text); })
         .then(function () { announce("Copied to clipboard"); })
         .catch(function () {
+          // Copy failed: the link now navigates to the raw file, so set a
+          // PERMANENT accurate label (do not use announce(), which restores the
+          // "Copy the Markdown" label after 2.6s and would then mislabel the
+          // now-navigation link, LOW-35 promotion audit).
           link.removeEventListener("click", onClick);
-          announce("Copy failed; this link now opens the raw file");
+          if (timer) { window.clearTimeout(timer); }
+          link.textContent = "Open the raw Markdown";
+          if (status) { status.textContent = "Copy failed; this link now opens the raw file."; }
         });
     }
     link.addEventListener("click", onClick);
