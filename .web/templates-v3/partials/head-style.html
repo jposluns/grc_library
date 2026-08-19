@@ -216,7 +216,7 @@
   main section + section { border-top: 1px solid var(--line); }
 
   /* ---------- Path cards (the five ways in) ---------- */
-  /* One clean column: two 46ch cards cannot fit inside the 1120px wrap, and the 46ch reading floor is the priority. */
+  /* One clean column: a 46rem track keeps each card's paragraph inside its 66ch measure; two such tracks do not fit the 1120px wrap. */
   .paths { display: grid; gap: 1.1rem; grid-template-columns: minmax(0, 46rem); margin-top: 1.8rem; }
   .path {
     position: relative;
@@ -413,8 +413,7 @@
     color: var(--ink); margin: 2.2rem 0 0.4rem;
   }
 
-  /* Three-up mode cards (pack page). */
-  /* One clean column (same 46ch-floor reasoning as .paths). */
+  /* One clean column (same 46rem-track / 66ch-measure reasoning as .paths). */
   .modes { display: grid; gap: 1.1rem; grid-template-columns: minmax(0, 46rem); margin-top: 1.8rem; }
   .mode { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 1.5rem 1.6rem; }
   .mode h3 { margin-bottom: 0.4rem; }

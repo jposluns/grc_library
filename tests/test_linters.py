@@ -11089,7 +11089,7 @@ class WebGeneratorV3TypeFloorTests(unittest.TestCase):
         value = value.strip()
         m = re.match(r"var\((--fs-[a-z0-9-]+)\)", value)
         if m:
-            return self.tokens.get(m.group(1))
+            return self.tokens.get(m.group(1), 0.0)  # unknown --fs-* name -> fail closed
         m = re.match(r"clamp\(\s*([0-9.]+)rem", value)  # min arg
         if m:
             return float(m.group(1))
