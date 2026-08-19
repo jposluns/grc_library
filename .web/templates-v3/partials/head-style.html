@@ -455,6 +455,87 @@
   .foot-links a { font-size: var(--fs-small); }
   .foot-meta { color: var(--ink-soft); margin-top: 1.2rem; }
 
+  /* ---------- Document pages (L2) ---------- */
+  /* The metadata record as a hairline grid of label/value cells.
+     Each cell carries a top and left hairline pulled -1px so the outer
+     edges collapse into the container border; a short last row leaves
+     no stray lines and no coloured filler. */
+  .spec-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+    margin: 1.6rem 0 0;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .spec-strip .spec {
+    margin: -1px 0 0 -1px;
+    padding: 0.85rem 1.15rem;
+    border-top: 1px solid var(--line);
+    border-left: 1px solid var(--line);
+  }
+  .spec-strip dt {
+    font-size: var(--fs-micro);
+    line-height: 1.5;
+    font-weight: 600;
+    color: var(--brass);
+  }
+  .spec-strip dd {
+    margin: 0.15rem 0 0;
+    font-size: var(--fs-dense);
+    line-height: 1.55;
+    color: var(--ink);
+    overflow-wrap: anywhere;
+  }
+
+  /* Section outline: a contents list that proves depth without the body. */
+  ol.outline {
+    list-style: none;
+    margin: 1.6rem 0 0;
+    padding: 0;
+    max-width: 62rem;
+    columns: 21rem;
+    column-gap: 2.75rem;
+  }
+  ol.outline li {
+    max-width: none;
+    break-inside: avoid;
+    font-size: var(--fs-dense);
+    line-height: 1.55;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  /* Empty state inside a chip row (no external-framework alignment table). */
+  .chip-nav .chip-muted {
+    display: inline-flex;
+    align-items: baseline;
+    font-size: var(--fs-micro);
+    line-height: 1.5;
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius);
+    padding: 0.45rem 0.95rem;
+    color: var(--ink-soft);
+    background: transparent;
+  }
+
+  /* Button variants for paper: the masthead .btn colours assume the navy
+     cover; these hold contrast on --paper in both themes. */
+  .btn-solid { background: var(--link); border-color: var(--link); color: var(--paper); }
+  .btn-solid:hover { background: var(--link-strong); border-color: var(--link-strong); color: var(--paper); }
+  .btn-ghost { color: var(--ink); border-color: var(--line-strong); background: var(--surface); }
+  .btn-ghost:hover { border-color: var(--link); color: var(--link-strong); }
+
+  /* Links inside an eyebrow keep the brass label voice until hovered. */
+  .eyebrow a { color: inherit; text-decoration: none; }
+  .eyebrow a:hover { color: var(--link-strong); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+
+  .visually-hidden {
+    position: absolute; width: 1px; height: 1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+  }
+
   /* ---------- Motion and access ---------- */
   a, .btn, .path, .chip-nav a, .type-chip, .theme-toggle, .search-cta {
     transition: color 0.15s, border-color 0.15s, background 0.15s;

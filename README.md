@@ -5,8 +5,8 @@
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **SPDX-License-Identifier:** CC-BY-SA-4.0\
-**Library Version:** 2026.08.335 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.10.483 (semantic per-document version for this file)
+**Library Version:** 2026.08.336 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.10.484 (semantic per-document version for this file)
 
 ---
 
@@ -163,7 +163,7 @@ Repository infrastructure directories (not used for governance artefacts):
                 inventory; `tools/run_all_audits.sh` is the local equivalent) on push to
                 main and on every pull request.
 /taxonomy.yml   Auto-generated machine-readable registry of every active artefact's canonical
-                metadata. Regenerated from document metadata by tools/build-taxonomy.py.
+                metadata, purpose, section outline, and framework alignment. Regenerated from document metadata by tools/build-taxonomy.py.
 /narrative.yml  Auto-generated registry of the executive narrative layer's pages.
                 Regenerated from the executive/ pages by tools/build-narrative-registry.py.
 /tests          Linter-regression fixtures for the audit toolchain, exercised by the
