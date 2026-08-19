@@ -9257,6 +9257,54 @@ class WebGeneratorV2StagingTests(unittest.TestCase):
                 "v3/decide must carry exactly 10 concern disclosures (no duplication)",
             )
 
+    def test_v3_document_pages_render_only_under_v3(self):
+        """The on-site L2 document pages (PR-C) render one per corpus DOMAIN
+        document under /v3/documents/ and NOWHERE else, so the frozen root/v2
+        trees stay unaffected. Every domain doc gets a page; root specs do not."""
+        figures = self.mod.compute_figures()
+        full = self.mod.parse_taxonomy_full(self.mod.TAXONOMY.read_text(encoding="utf-8"))
+        expected = [d for d in full if d.get("domain") != self.mod.ROOT_DOMAIN]
+        self.assertGreater(len(expected), 300, "expected 300+ domain documents")
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            self._write_site(self.mod.render_site(figures), out)
+            for d in expected:  # every domain document, not a sample
+                rel = self.mod._doc_route_rel(d["path"])
+                self.assertTrue((out / "v3" / rel).is_file(),
+                                f"/v3 is missing document page {rel}")
+                self.assertFalse((out / rel).is_file(),
+                                 f"root must NOT carry the v3-only document page {rel}")
+                self.assertFalse((out / "v2" / rel).is_file(),
+                                 f"v2 must NOT carry the v3-only document page {rel}")
+            # a root spec has NO document page anywhere
+            roots = [d for d in full if d.get("domain") == self.mod.ROOT_DOMAIN]
+            for d in roots:
+                rel = self.mod._doc_route_rel(d["path"])
+                self.assertFalse((out / "v3" / rel).is_file(),
+                                 f"root spec {d['path']} should have no L2 page")
+
+    def test_v3_document_page_values_from_taxonomy(self):
+        """document_page_values surfaces the enriched taxonomy fields (purpose,
+        section outline, frameworks, spec strip) and the on-site + source links,
+        all resolved (no unfilled placeholders)."""
+        full = self.mod.parse_taxonomy_full(self.mod.TAXONOMY.read_text(encoding="utf-8"))
+        by_path = {d["path"]: d for d in full}
+        pam = by_path["security/standard-privileged-access-management.md"]
+        # the enriched taxonomy fields must be present
+        self.assertTrue(pam.get("purpose"), "taxonomy missing purpose")
+        self.assertIn("1. Purpose", pam.get("sections", []))
+        self.assertTrue(pam.get("frameworks"), "taxonomy missing frameworks")
+        v3 = next(v for v in self.mod.VARIANTS if v.document_routes)
+        vals = self.mod.document_page_values(pam, by_path, v3)
+        self.assertEqual(vals["DOC_TITLE"], "Privileged Access Management Standard")
+        self.assertIn("Purpose", vals["SECTION_OUTLINE"])
+        self.assertIn("type-chip", vals["FRAMEWORKS"])
+        self.assertIn("raw.githubusercontent.com", vals["RAW_MD_URL"])
+        self.assertIn("{{BASE}}/documents/", vals["RELATED_DOCS"])
+        for k, val in vals.items():
+            self.assertNotIn("{{", val.replace("{{BASE}}", ""),
+                             f"unfilled placeholder in {k}")
+
     def test_v2_internal_fragment_links_resolve(self):
         """Every internal /v2 link that carries a #fragment resolves to an id on
         the target page. Regression guard for PR #1627 H1, where a homepage rewrite

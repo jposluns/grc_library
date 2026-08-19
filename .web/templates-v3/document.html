@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="{{DOC_PURPOSE}}">
+<title>{{DOC_TITLE}}: GRC Library</title>
+{{HEAD_STYLE}}
+</head>
+
+<body>
+<header class="mast">
+  <div class="wrap">
+{{TOPBAR}}
+  </div>
+</header>
+
+<main>
+  <div class="wrap page-head">
+    <p class="eyebrow"><a href="{{BASE}}/types/{{DOC_TYPE_SLUG}}/">{{DOC_TYPE}}</a> &middot; <a href="{{BASE}}/{{DOC_AREA_SLUG}}/">{{DOC_AREA}}</a></p>
+    <h1>{{DOC_TITLE}}</h1>
+    <p class="lede">{{DOC_PURPOSE}}</p>
+    <div class="cta-row">
+      <a class="btn btn-solid" href="{{GITHUB_URL}}" target="_blank" rel="noopener">Read the full text</a>
+      <a class="btn btn-ghost" id="copyMd" href="{{RAW_MD_URL}}" target="_blank" rel="noopener">Copy the Markdown</a>
+      <span class="visually-hidden" id="copyStatus" role="status"></span>
+    </div>
+  </div>
+
+  <section id="record">
+    <div class="wrap">
+      <h2>The record</h2>
+      <p>Every library document carries the same governance metadata: who owns it, who approved it, how it is classified, and when it comes back for review.</p>
+      <dl class="spec-strip">
+{{META_STRIP}}
+      </dl>
+    </div>
+  </section>
+
+  <section id="inside">
+    <div class="wrap">
+      <h2>What's inside</h2>
+      <p>The section headings of the full document, in order.</p>
+      <ol class="outline">
+{{SECTION_OUTLINE}}
+      </ol>
+    </div>
+  </section>
+
+  <section id="frameworks">
+    <div class="wrap">
+      <h2>Frameworks it maps to</h2>
+      <p>External standards and regulations this document declares alignment with, from its own alignment table.</p>
+      <div class="chip-nav">
+{{FRAMEWORKS}}
+      </div>
+    </div>
+  </section>
+
+  <section id="related">
+    <div class="wrap">
+      <h2>Related documents</h2>
+      <p>The documents this one lists as related. Domain documents link to their page here; root specifications and other repository files open on GitHub.</p>
+      <ul class="doc-index">
+{{RELATED_DOCS}}
+      </ul>
+      <p class="check-link"><a href="{{GITHUB_URL}}" target="_blank" rel="noopener">Read the full text on GitHub</a></p>
+    </div>
+  </section>
+</main>
+
+{{FOOTER}}
+
+{{SCRIPT}}
+<script>
+  (function () {
+    "use strict";
+    // Progressive enhancement for "Copy the Markdown". Without JS (or without
+    // clipboard support) the control stays a plain link to the raw .md file.
+    var link = document.getElementById("copyMd");
+    var status = document.getElementById("copyStatus");
+    if (!link || !window.fetch || !navigator.clipboard || !navigator.clipboard.writeText) { return; }
+    var label = link.textContent;
+    var timer = null;
+    function announce(text) {
+      link.textContent = text;
+      if (status) { status.textContent = text; }
+      if (timer) { window.clearTimeout(timer); }
+      timer = window.setTimeout(function () { link.textContent = label; }, 2600);
+    }
+    function onClick(ev) {
+      ev.preventDefault();
+      fetch(link.href)
+        .then(function (res) {
+          if (!res.ok) { throw new Error("HTTP " + res.status); }
+          return res.text();
+        })
+        .then(function (text) { return navigator.clipboard.writeText(text); })
+        .then(function () { announce("Copied to clipboard"); })
+        .catch(function () {
+          link.removeEventListener("click", onClick);
+          announce("Copy failed; this link now opens the raw file");
+        });
+    }
+    link.addEventListener("click", onClick);
+  })();
+</script>
+</body>
+</html>

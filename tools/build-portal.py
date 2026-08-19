@@ -177,6 +177,14 @@ def parse_taxonomy() -> list[dict]:
                 current[key.strip()] = _yaml_value(raw, key.strip())
                 if key.strip() != "related_documents":
                     in_related = False
+            elif stripped.endswith(":") and not stripped.startswith("-"):
+                # A bare list-key (e.g. sections:/frameworks:) that is not
+                # related_documents ends the related_documents list: commit it
+                # first (the boundary/EOF blocks only commit while in_related),
+                # then stop absorbing subsequent list items into it.
+                if in_related:
+                    current["related_documents"] = related
+                in_related = False
     if current is not None:
         if in_related:
             current["related_documents"] = related

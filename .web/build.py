@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Static-site generator for the grclibrary.ai public site: the landing, about, pack, per-domain, and per-type pages, plus the non-indexable staging trees (/v2 executive routes and the /v3 need-based path routes).
+"""Static-site generator for the grclibrary.ai public site: the landing, about, pack, per-domain, and per-type pages, plus the non-indexable staging trees (/v2 executive routes; the /v3 need-based path routes and the /v3 on-site document pages, one per domain document, root specs excepted).
 
 WHAT THIS IS. A stdlib-only generator that renders the public site (the landing page,
 the about page, the governance-pack page, one page per corpus domain, and one listing
@@ -125,6 +125,10 @@ class Variant(NamedTuple):
     # byte-identical-root mechanism for the new route class): the root variant
     # keeps the default False and renders exactly the page set it always has.
     narrative_routes: bool = False
+    # Whether this variant renders the on-site document (L2) pages, one per
+    # corpus document from the enriched taxonomy. VARIANT-SCOPED like
+    # narrative_routes so the frozen root/v2 trees are untouched.
+    document_routes: bool = False
 
 
 # Executive routes that exist ONLY on the non-indexable /v2 staging tree (wave 1
@@ -169,7 +173,7 @@ VARIANTS = (
     Variant("v2", "templates-v2", "v2/", indexable=False, extra_pages=V2_EXTRA_PAGES,
             narrative_routes=True),
     Variant("v3", "templates-v3", "v3/", indexable=False,
-            extra_pages=V3_EXTRA_PAGES),
+            extra_pages=V3_EXTRA_PAGES, document_routes=True),
 )
 
 # Shared chrome injected into every page from a single source, so the pages
@@ -306,6 +310,7 @@ _ROOT_HREF_RE = re.compile(r'(?i)href' + r'\s*=\s*["\']?/')
 # lives there; the site does not recreate rendered document content), and carry a
 # canonical URL for SEO. Both are the public repository / site, no secret.
 GITHUB_BLOB_BASE = "https://github.com/jposluns/grc_library/blob/main/"
+RAW_GITHUB_BASE = "https://raw.githubusercontent.com/jposluns/grc_library/main/"
 
 # The curated corpus artefacts linked from the llms.txt map (repo-relative path,
 # label). The manifest's llms.txt rows are re-derived from this list. NOTE: this
@@ -772,20 +777,25 @@ def load_partials(template_dir):
     return partials
 
 
-def render_domain_doc_rows(dp):
+def render_domain_doc_rows(dp, variant):
     """One list row per document in the domain: a type tag and the document
-    title rendered as the link to its source on GitHub, opening in a new tab
-    (the corpus lives on GitHub; the site does not recreate rendered document
-    content). There is no separate GitHub link, the title is the link."""
+    title as a link. On a variant with on-site document pages (v3) the title
+    links to the document's own L2 page; otherwise it links to the source on
+    GitHub in a new tab (the frozen root/v2 behaviour, kept byte-identical)."""
     rows = []
     for d in dp["docs"]:
-        url = GITHUB_BLOB_BASE + d["path"]
+        if variant.document_routes and d["domain"] != ROOT_DOMAIN:
+            url = _doc_page_url("{{BASE}}", d["path"])
+            link = (f'<a class="doc-title" href="{_esc(url)}">'
+                    f'{_esc(d["title"])}</a>')
+        else:
+            url = GITHUB_BLOB_BASE + d["path"]
+            link = (f'<a class="doc-title" href="{_esc(url)}" target="_blank" '
+                    f'rel="noopener">{_esc(d["title"])}<span class="ext">&#8599;</span></a>')
         rows.append(
             f'          <li class="doc-row">'
             f'<span class="doc-type">{_esc(d["type"])}</span>'
-            f'<a class="doc-title" href="{_esc(url)}" target="_blank" rel="noopener">'
-            f'{_esc(d["title"])}<span class="ext">&#8599;</span></a>'
-            f"</li>"
+            f'{link}</li>'
         )
     return "\n".join(rows)
 
@@ -858,7 +868,7 @@ def domain_page_values(dp, variant):
         "DOMAIN_SCOPE_TEXT": _esc(dp["scope"]),
         "DOMAIN_PURPOSE": _esc(dp["purpose"]),
         "DOMAIN_DOC_COUNT": str(dp["count"]),
-        "DOMAIN_DOC_ROWS": render_domain_doc_rows(dp),
+        "DOMAIN_DOC_ROWS": render_domain_doc_rows(dp, variant),
         # The leadership-page (narrative registry) join, consumed by the v2
         # domain template only. Per-page extra= values are inert in a template
         # that does not reference them (the unknown-placeholder error fires only
@@ -875,22 +885,28 @@ def domain_page_values(dp, variant):
     }
 
 
-def render_type_doc_rows(tp):
+def render_type_doc_rows(tp, variant):
     """One list row per document of this type: a small tag showing the document's
-    DOMAIN (all rows on a type page share the type) and the document title rendered
-    as the link to its source on GitHub. Reuses the shared .doc-* list styles."""
+    DOMAIN and the document title as a link. On a variant with on-site document
+    pages (v3) a non-root document links to its own L2 page; otherwise (and for
+    root-level specs, which have no L2 page) it links to the source on GitHub."""
     rows = []
     for d in tp["docs"]:
-        url = GITHUB_BLOB_BASE + d["path"]
         # Root-level specs (domain "root") only ever surface on a type page; show
         # a reader-friendly "library" tag rather than the internal "root".
         dom = "library" if d["domain"] == ROOT_DOMAIN else d["domain"]
+        if variant.document_routes and d["domain"] != ROOT_DOMAIN:
+            url = _doc_page_url("{{BASE}}", d["path"])
+            link = (f'<a class="doc-title" href="{_esc(url)}">'
+                    f'{_esc(d["title"])}</a>')
+        else:
+            url = GITHUB_BLOB_BASE + d["path"]
+            link = (f'<a class="doc-title" href="{_esc(url)}" target="_blank" '
+                    f'rel="noopener">{_esc(d["title"])}<span class="ext">&#8599;</span></a>')
         rows.append(
             f'          <li class="doc-row">'
             f'<span class="doc-type">{_esc(dom)}</span>'
-            f'<a class="doc-title" href="{_esc(url)}" target="_blank" rel="noopener">'
-            f'{_esc(d["title"])}<span class="ext">&#8599;</span></a>'
-            f"</li>"
+            f'{link}</li>'
         )
     return "\n".join(rows)
 
@@ -904,7 +920,7 @@ def type_page_values(tp, variant):
         "TYPE_NAME": _esc(name),
         "TYPE_SCOPE_TEXT": _esc(tp["scope"]),
         "TYPE_DOC_COUNT": str(tp["count"]),
-        "TYPE_DOC_ROWS": render_type_doc_rows(tp),
+        "TYPE_DOC_ROWS": render_type_doc_rows(tp, variant),
         "TYPE_TITLE": f"{_esc(name)} documents: GRC Library",
         "TYPE_SEO_DESC": _esc(
             f"{tp['scope']}. {tp['count']} {name}-type documents in the open, "
@@ -2080,6 +2096,193 @@ def indexable_variant():
     return indexable[0]
 
 
+
+# ---------------------------------------------------------------------------
+# On-site document pages (v3 wave PR-C): one L2 page per corpus document,
+# surfacing the 13-field metadata + purpose + section outline + frameworks +
+# related documents that the corpus already carries (today every document
+# dead-ends at a raw GitHub .md). Data comes ENTIRELY from the enriched
+# taxonomy.yml (tools/build-taxonomy.py emits purpose/sections/frameworks/
+# confidentiality alongside the existing per-doc fields), so the generator
+# still never walks the repository. Variant-scoped by Variant.document_routes
+# so the frozen root/v2 trees are untouched.
+# ---------------------------------------------------------------------------
+
+_TAXO_SCALAR_RE = re.compile(r'^  ([a-z_]+): "(.*)"$')
+_TAXO_LISTKEY_RE = re.compile(r'^  ([a-z_]+):$')
+_TAXO_LISTITEM_RE = re.compile(r'^    - "(.*)"$')
+
+
+def _taxo_unescape(v):
+    """Reverse tools/build-taxonomy.py yaml_escape (double-quoted, backslash +
+    quote escaped)."""
+    return v.replace('\\"', '"').replace("\\\\", "\\")
+
+
+def parse_taxonomy_full(text):
+    """Return a list of full per-document dicts from taxonomy.yml, including the
+    scalar fields plus the ``sections``/``frameworks``/``related_documents``
+    lists. Companion to the deliberately-tiny parse_taxonomy (which reads only
+    path/domain/type/title for the domain/type pages); this reader is used only
+    for the on-site document pages and tolerates exactly the one-doc-per-block
+    shape the generator emits."""
+    docs = []
+    cur = None
+    cur_list = None
+    in_docs = False
+    for line in text.splitlines():
+        if line.rstrip() == "documents:":
+            in_docs = True
+            continue
+        if not in_docs:
+            continue
+        m = _DOC_RE.match(line)
+        if m:
+            cur = {"path": m.group(1), "sections": [], "frameworks": [],
+                   "related_documents": []}
+            docs.append(cur)
+            cur_list = None
+            continue
+        if cur is None:
+            continue
+        ms = _TAXO_SCALAR_RE.match(line)
+        if ms:
+            cur[ms.group(1)] = _taxo_unescape(ms.group(2))
+            cur_list = None
+            continue
+        mk = _TAXO_LISTKEY_RE.match(line)
+        if mk:
+            cur_list = mk.group(1)
+            cur.setdefault(cur_list, [])
+            continue
+        mi = _TAXO_LISTITEM_RE.match(line)
+        if mi and cur_list is not None:
+            cur[cur_list].append(_taxo_unescape(mi.group(1)))
+    return docs
+
+
+def _doc_route_rel(path):
+    """The on-site route for a corpus document page: documents/<path-no-.md>/."""
+    return "documents/" + path[:-3] + "/index.html" if path.endswith(".md") \
+        else "documents/" + path + "/index.html"
+
+
+def _doc_page_url(base, path):
+    """The {{BASE}}-relative link to a document's on-site page."""
+    stem = path[:-3] if path.endswith(".md") else path
+    return f"{base}/documents/{stem}/"
+
+
+# The metadata fields shown in the L2 spec strip, in display order (label, key).
+_SPEC_STRIP_FIELDS = (
+    ("Type", "type"),
+    ("Version", "version"),
+    ("Date", "date"),
+    ("Owner", "owner"),
+    ("Approving authority", "approving_authority"),
+    ("Classification", "classification"),
+    ("Confidentiality", "confidentiality"),
+    ("Category", "category"),
+    ("Review frequency", "review_frequency"),
+    ("License", "license"),
+)
+
+
+def _render_meta_strip(doc):
+    cells = []
+    for label, key in _SPEC_STRIP_FIELDS:
+        val = doc.get(key, "")
+        if not val:
+            continue
+        cells.append(
+            f'        <div class="spec"><dt>{_esc(label)}</dt>'
+            f'<dd>{_esc(val)}</dd></div>'
+        )
+    return "\n".join(cells)
+
+
+def _render_section_outline(doc):
+    secs = doc.get("sections", [])
+    if not secs:
+        return '        <li class="muted">No section outline.</li>'
+    # Flatten inline Markdown (code spans, bold) in a heading for clean display;
+    # the taxonomy keeps the exact heading, the outline shows plain text.
+    def _plain(s):
+        s = s.replace("`", "")
+        s = re.sub(r"\*\*([^*]+)\*\*", r"\1", s)
+        return s
+    return "\n".join(f'        <li>{_esc(_plain(s))}</li>' for s in secs)
+
+
+def _render_frameworks(doc):
+    fws = doc.get("frameworks", [])
+    if not fws:
+        return ('        <span class="chip-muted">'
+                'No external-framework alignment table.</span>')
+    return "\n".join(f'        <span class="type-chip">{_esc(f)}</span>'
+                     for f in fws)
+
+
+def _render_related_docs(doc, docs_by_path, base):
+    rels = doc.get("related_documents", [])
+    if not rels:
+        return ('        <li class="doc-row"><span class="doc-type">None listed</span>'
+                '<span class="doc-title">This document lists no related documents.</span></li>')
+    rows = []
+    for rp in rels:
+        rd = docs_by_path.get(rp)
+        if rd and rd.get("domain") != ROOT_DOMAIN:
+            # on-site link to the related document's own L2 page
+            url = _doc_page_url(base, rp)
+            rows.append(
+                f'        <li class="doc-row">'
+                f'<span class="doc-type">{_esc(rd.get("type",""))}</span>'
+                f'<a class="doc-title" href="{_esc(url)}">'
+                f'{_esc(rd.get("title", rp))}</a></li>'
+            )
+        else:
+            # related target not an on-site domain document: link to source
+            url = GITHUB_BLOB_BASE + rp
+            title = rd.get("title", rp) if rd else rp
+            rows.append(
+                f'        <li class="doc-row">'
+                f'<span class="doc-type">source</span>'
+                f'<a class="doc-title" href="{_esc(url)}" target="_blank" rel="noopener">'
+                f'{_esc(title)}<span class="ext">&#8599;</span></a></li>'
+            )
+    return "\n".join(rows)
+
+
+def document_page_values(doc, docs_by_path, variant):
+    """Per-page values for one on-site document (L2) page, all built from the
+    enriched taxonomy (never from live document prose): the escaper covers the
+    attribute context, so the purpose is safe in the meta-description too."""
+    base = "{{BASE}}"
+    path = doc["path"]
+    domain = doc.get("domain", "")
+    doc_type = doc.get("type", "")
+    title = doc.get("title", path)
+    purpose = doc.get("purpose", "")
+    if not purpose:
+        # Graceful lede for the few structurally-atypical docs with no
+        # purpose paragraph in source (keeps the lede + meta non-empty).
+        purpose = f"A {doc_type.lower()} in the {domain} area of the GRC Library."
+    return {
+        "DOC_TITLE": _esc(title),
+        "DOC_TYPE": _esc(doc_type),
+        "DOC_TYPE_SLUG": type_slug(doc_type),
+        "DOC_AREA": _esc(domain),
+        "DOC_AREA_SLUG": _esc(domain),
+        "DOC_PURPOSE": _esc(purpose),
+        "META_STRIP": _render_meta_strip(doc),
+        "SECTION_OUTLINE": _render_section_outline(doc),
+        "FRAMEWORKS": _render_frameworks(doc),
+        "RELATED_DOCS": _render_related_docs(doc, docs_by_path, base),
+        "GITHUB_URL": _esc(GITHUB_BLOB_BASE + path),
+        "RAW_MD_URL": _esc(RAW_GITHUB_BASE + path),
+    }
+
+
 def render_variant(figures, variant):
     """Render one variant's HTML template tree and return relative outputs."""
     template_dir = template_dir_for(variant)
@@ -2115,6 +2318,26 @@ def render_variant(figures, variant):
             extra=type_page_values(tp, variant), out_rel=f"types/{tp['slug']}/index.html"
         )
         pages.append((f"types/{tp['slug']}/index.html", html))
+
+    # On-site document (L2) pages: one per corpus DOMAIN document, built from
+    # the enriched taxonomy (never from live prose), VARIANT-SCOPED by
+    # document_routes so the frozen root/v2 trees are untouched. Root-level
+    # specs are excluded (they have no domain page to anchor their area link).
+    # Each page's own leftover check in render_page guarantees its DOC_*
+    # placeholders all resolved.
+    if variant.document_routes:
+        full_docs = parse_taxonomy_full(TAXONOMY.read_text(encoding="utf-8"))
+        docs_by_path = {d["path"]: d for d in full_docs}
+        for d in full_docs:
+            if d.get("domain") == ROOT_DOMAIN:
+                continue
+            out_rel = _doc_route_rel(d["path"])
+            html, _ = render_page(
+                "document.html", figures, variant, template_dir, partials,
+                extra=document_page_values(d, docs_by_path, variant),
+                out_rel=out_rel,
+            )
+            pages.append((out_rel, html))
 
     # The /v2 executive reading room (wave-2 PR-2a): one on-site page per
     # registry-listed narrative page of a routed type, VARIANT-SCOPED by the
