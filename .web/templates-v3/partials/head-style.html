@@ -337,7 +337,12 @@
   .doc-row:last-child { border-bottom: none; }
   .doc-type {
     font-size: var(--fs-micro); line-height: 1.5; font-weight: 600;
-    color: var(--brass); flex: 0 0 9.5rem;
+    color: var(--brass);
+    /* Min-width keeps the short corpus doc types in one aligned column; the
+       auto basis lets the longer reading-room narrative types (e.g. "Oversight
+       Question Set") size to their content on one line rather than wrapping and
+       breaking the row baseline (PR #1638; F-6). Capped so a label can't run away. */
+    flex: 0 0 auto; min-width: 9.5rem; max-width: 14rem;
   }
   .doc-title { flex: 1 1 18rem; font-size: var(--fs-body); color: var(--ink); text-decoration: none; }
   .doc-title:hover { color: var(--link); text-decoration: underline; text-underline-offset: 3px; }

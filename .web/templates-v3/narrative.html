@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="{{NARRATIVE_SEO_DESC}}">
+<link rel="canonical" href="{{NARRATIVE_CANONICAL}}">
+<title>{{NARRATIVE_TITLE}}</title>
+{{HEAD_STYLE}}
+<style>
+  /* Reading-room page (narrative-only styles), scoped to this template.
+     The body arrives pre-rendered as .narr sections; everything below
+     styles that output using only the shared v3 tokens. Nothing renders
+     below 1rem, matching the shared readability floor. */
+
+  /* Section number and heading: a quiet label sitting above the h2. */
+  .sec-head { margin-bottom: 1.2rem; }
+  .sec-head .sec-num {
+    display: block;
+    font-size: var(--fs-micro);
+    line-height: 1.5;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--brass);
+    font-variant-numeric: tabular-nums;
+    margin-bottom: 0.35rem;
+  }
+  .sec-head h2 { margin-bottom: 0; }
+
+  /* Prose rhythm: a slightly wider measure than the shared 66ch,
+     set in soft ink so headings and emphasis carry the full ink. */
+  .narr p, .narr li {
+    max-width: 72ch;
+    color: var(--ink-soft);
+  }
+  .narr p { margin: 0 0 1.15rem; }
+  .narr p:last-child { margin-bottom: 0; }
+  .narr strong { color: var(--ink); font-weight: 600; }
+  .narr a { color: var(--link); }
+  .narr a:hover { color: var(--link-strong); }
+
+  .narr ul, .narr ol { margin: 0 0 1.15rem; padding-left: 1.35rem; }
+  .narr li { margin: 0 0 0.55rem; }
+  .narr li:last-child { margin-bottom: 0; }
+  .narr li::marker { color: var(--brass); font-weight: 600; }
+
+  /* Pull quotes and callouts: a left-accent panel in the shared voice. */
+  .narr blockquote {
+    margin: 1.5rem 0 1.6rem;
+    padding: 1.1rem 1.4rem;
+    max-width: 50rem;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 5px solid var(--brass);
+    border-radius: var(--radius);
+  }
+  .narr blockquote p {
+    margin: 0;
+    max-width: none;
+    color: var(--ink);
+    font-size: var(--fs-dense);
+    line-height: 1.6;
+  }
+  .narr blockquote p + p { margin-top: 0.8rem; }
+
+  .narr h3 { margin: 2.1rem 0 0.6rem; }
+  .narr h3[id] { scroll-margin-top: 1.5rem; }
+
+  /* Tables: clean hairlines on the shared surface; the table scrolls
+     sideways on narrow screens rather than breaking the column. */
+  .narr table {
+    display: block;
+    width: max-content;
+    max-width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+    margin: 0.4rem 0 1.7rem;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    font-size: var(--fs-dense);
+    line-height: 1.55;
+  }
+  .narr th, .narr td {
+    text-align: left;
+    vertical-align: top;
+    padding: 0.75rem 1.1rem;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink);
+  }
+  .narr th {
+    font-size: var(--fs-micro);
+    line-height: 1.5;
+    font-weight: 600;
+    color: var(--ink-soft);
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--line-strong);
+  }
+  .narr td + td, .narr th + th { border-left: 1px solid var(--line); }
+  .narr tbody tr:last-child td { border-bottom: none; }
+
+  /* The contents block: bare anchor lines rendered as a quiet list. */
+  .toc {
+    margin-top: 1.6rem;
+    max-width: 46rem;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 1.15rem 1.4rem;
+  }
+  .toc a {
+    display: block;
+    font-size: var(--fs-dense);
+    line-height: 1.55;
+    padding: 0.55rem 0;
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--line);
+  }
+  .toc a:last-child { border-bottom: none; }
+  .toc a:hover {
+    color: var(--link-strong);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+</style>
+</head>
+
+<body>
+<header class="mast">
+  <div class="wrap">
+{{TOPBAR}}
+  </div>
+</header>
+
+<main>
+  <div class="wrap page-head">
+    <p class="eyebrow">{{NARRATIVE_TYPE}}</p>
+    <h1>{{NARRATIVE_H1}}</h1>
+    <p class="lede">
+      A leadership narrative from the library&rsquo;s executive layer: it explains
+      the position in plain language, and the reference documents it cites
+      remain the governing texts.
+    </p>
+    <div class="cta-row">
+      <a class="btn btn-solid" href="{{NARRATIVE_SOURCE_URL}}" target="_blank" rel="noopener">Read the source on GitHub&nbsp;&#8599;</a>
+      <a class="btn btn-ghost" href="{{BASE}}/decide/">&larr; Make a decision</a>
+    </div>
+  </div>
+
+  <section id="contents">
+    <div class="wrap">
+      <h2>On this page</h2>
+      <p>The sections of this narrative, in order.</p>
+      <nav class="toc" aria-label="On this page">
+{{NARRATIVE_SIDENAV}}
+      </nav>
+    </div>
+  </section>
+
+{{NARRATIVE_BODY}}
+
+  <section id="source">
+    <div class="wrap">
+      <h2>The source</h2>
+      <p>
+        This page is a projection; the Markdown is the source. It is rendered
+        from the version-controlled Markdown file in the corpus repository,
+        where its metadata, review record, and full history live. If the two
+        ever differ, the source governs.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn-solid" href="{{NARRATIVE_SOURCE_URL}}" target="_blank" rel="noopener">Read the source on GitHub&nbsp;&#8599;</a>
+        <a class="btn btn-ghost" href="{{BASE}}/decide/">Make a decision</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="go-deeper">
+    <div class="wrap">
+      <h2>Go deeper</h2>
+      <p>The domain pages behind this narrative, for readers who want the working detail.</p>
+      <nav class="chip-nav" aria-label="Domains this narrative touches">
+{{NARRATIVE_DOMAINS}}
+      </nav>
+      <p class="check-link"><a href="{{BASE}}/">Or start again from the library home</a></p>
+    </div>
+  </section>
+</main>
+
+{{FOOTER}}
+
+{{SCRIPT}}
+</body>
+</html>
