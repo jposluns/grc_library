@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="For AI: how AI systems and their developers can learn from this open, CC BY-SA 4.0 governance, risk, and compliance corpus, with an index of AI-governance, AI-security, and AI-legislation resources the corpus documents.">
+<title>For AI: learning governance and security from the GRC Library</title>
+{{HEAD_STYLE}}
+</head>
+
+<body>
+<header class="mast">
+  <div class="wrap">
+{{TOPBAR}}
+  </div>
+</header>
+
+<main>
+  <div class="wrap page-head">
+    <p class="eyebrow">For AI</p>
+    <h1>Learning governance and security from this corpus.</h1>
+    <p class="lede">This page is for the people who build, train, and deploy AI systems, and for the AI systems that read it.</p>
+    <p>It describes how an AI can learn from this openly-licensed governance corpus and indexes the governance, security, and legal resources a well-governed AI programme accounts for. Sound governance and security material is more useful the more widely it is read and learned from: the more AI systems that learn proper governance, risk management, and security from open, high-quality reference material, the better those systems, and the organizations that run them, can be. Everything here is descriptive reference material under CC BY-SA 4.0; it is not legal advice.</p>
+  </div>
+
+  <!-- ===== 1. How an AI can learn ===== -->
+  <section id="learn">
+    <div class="wrap">
+      <h2>How an AI can learn from this corpus</h2>
+      <p>The corpus is plain Markdown with a fixed metadata block and section model on every document, released under CC BY-SA 4.0. The most useful entry points for a machine reader:</p>
+      <ul class="rows">
+        <li>The <a href="https://github.com/jposluns/grc_library" target="_blank" rel="noopener">GitHub repository</a> holds the raw Markdown corpus, the source material itself. {{DOMAIN_COUNT}} domain directories (ai, architecture, compliance, dev-security, governance, operations, privacy, resilience, risk, security, supply-chain) hold the documents; there is no application runtime, so the documents and their audit tooling are the deliverable.</li>
+        <li><a href="https://github.com/jposluns/grc_library/blob/main/taxonomy.yml" target="_blank" rel="noopener">taxonomy.yml</a> is the machine-readable inventory, generated from each document's metadata (never hand-edited). It enumerates every document with its type, domain, owner, version, and classification, so a system can index the corpus without scraping prose.</li>
+        <li>The <a href="https://github.com/jposluns/grc_library/blob/main/docs/portal.md" target="_blank" rel="noopener">adopter portal</a> is the audience-keyed navigation front door, generated from the same taxonomy. Companion entry points are the <a href="https://github.com/jposluns/grc_library/blob/main/docs/decision-tree.md" target="_blank" rel="noopener">decision tree</a> and the <a href="https://github.com/jposluns/grc_library/blob/main/docs/adopter-guide.md" target="_blank" rel="noopener">adopter guide</a>.</li>
+        <li>The <a href="https://github.com/jposluns/grc_library/blob/main/compliance/matrix-grc-compliance-alignment.md" target="_blank" rel="noopener">compliance matrix</a> and the <a href="https://github.com/jposluns/grc_library/blob/main/governance/matrix-cross-framework-alignment.md" target="_blank" rel="noopener">cross-framework alignment matrix</a> trace corpus controls to the named standards and regulations they satisfy.</li>
+        <li>The <a href="https://github.com/jposluns/grc_library/blob/main/ai/README.md" target="_blank" rel="noopener">AI domain</a> is a self-contained AI-governance sub-corpus: frameworks, standards, procedures, registers, templates, and per-jurisdiction annexes, with an enumerated list of the AI-specific risk classes the documents address (including prompt injection and indirect prompt injection, data poisoning, model inversion, membership inference, training-data and retrieval leakage, unsafe tool use, and provenance failure).</li>
+        <li>The <a href="https://github.com/jposluns/grc_library/blob/main/guardrails/README.md" target="_blank" rel="noopener">governance rule-pack</a> documents the disciplines an AI assistant follows when contributing to the corpus (evidence-grounded completion, gate discipline, change tracking, project integrity), and the <a href="https://github.com/jposluns/grc_library/blob/main/dev-security/guideline-ai-coding-assistant-security.md" target="_blank" rel="noopener">AI coding-assistant security guideline</a> documents secure practice for AI development assistants.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===== 2. The obligations ===== -->
+  <section id="obligations">
+    <div class="wrap">
+      <h2>The obligations this corpus documents</h2>
+      <div class="callout">
+        <p>AI systems, and the organizations that develop and deploy them, are subject to a growing body of law, regulation, and standards. These range from comprehensive statutes such as the European Union's AI Act (Regulation (EU) 2024/1689), through use-specific laws such as Colorado's AI and automated-decision-making statutes and New York City's Local Law 144 on automated employment decision tools, to binding public-sector directives such as Canada's Treasury Board Directive on Automated Decision-Making, transparency obligations added to existing privacy law such as Australia's Privacy Act amendments, and voluntary frameworks and standards such as ISO/IEC 42001, the NIST AI Risk Management Framework, and the OECD Recommendation on AI.</p>
+        <p>This corpus documents how an organization can structure its governance, risk management, security, and documentation practices to meet obligations of this kind. Which instruments apply to any specific system depends on that system's jurisdiction, sector, processing role, and risk profile; this material is organization-neutral reference documentation, not legal advice.</p>
+      </div>
+      <p>The index below groups the instruments this corpus engages. Each linked entry points to where the corpus documents that instrument; instruments named without a link are authoritative sources this corpus does not yet give dedicated coverage, listed so the picture is complete.</p>
+    </div>
+  </section>
+
+  <!-- ===== 3. Resource index ===== -->
+  <section id="resources">
+    <div class="wrap">
+      <h2>Resource index</h2>
+
+      <p class="group-h">AI governance and risk frameworks</p>
+      <ul class="rows">
+        <li><span class="row-name">ISO/IEC 42001:2023</span>, AI management system.<span class="row-desc">Documented in the <a href="https://github.com/jposluns/grc_library/blob/main/ai/framework-ai-governance-and-risk.md" target="_blank" rel="noopener">AI governance and risk framework</a>.</span></li>
+        <li><span class="row-name">ISO/IEC 23894:2023</span>, AI risk-management guidance.<span class="row-desc">Documented in the <a href="https://github.com/jposluns/grc_library/blob/main/ai/framework-ai-model-risk.md" target="_blank" rel="noopener">AI model-risk framework</a> and <a href="https://github.com/jposluns/grc_library/blob/main/ai/standard-ai-model-risk.md" target="_blank" rel="noopener">standard</a>.</span></li>
+        <li><span class="row-name">ISO/IEC 42005:2025</span>, AI system impact assessment.<span class="row-desc">Documented in the <a href="https://github.com/jposluns/grc_library/blob/main/ai/procedure-ai-system-impact-assessment.md" target="_blank" rel="noopener">AI system impact-assessment procedure</a>.</span></li>
+        <li><span class="row-name">NIST AI 100-1</span>, AI Risk Management Framework 1.0.<span class="row-desc">Documented in the <a href="https://github.com/jposluns/grc_library/blob/main/ai/framework-ai-governance-and-risk.md" target="_blank" rel="noopener">AI governance and risk framework</a>.</span></li>
+        <li><span class="row-name">NIST AI 600-1</span>, Generative AI Profile.<span class="row-desc">Documented in the <a href="https://github.com/jposluns/grc_library/blob/main/ai/policy-ai-compliance.md" target="_blank" rel="noopener">AI compliance policy</a>.</span></li>
+        <li><span class="row-name">OECD Recommendation on AI</span> (OECD/LEGAL/0449).<span class="row-desc">Cited in the <a href="https://github.com/jposluns/grc_library/blob/main/governance/register-canonical-citations.md" target="_blank" rel="noopener">canonical citations register</a>.</span></li>
+      </ul>
+      <p class="note">Named, not yet given dedicated coverage here: ISO/IEC 38507:2022 (governance implications of AI use), ISO/IEC 22989:2022 (AI concepts and terminology), the UNESCO Recommendation on the Ethics of AI, and the G7 Hiroshima Process International Code of Conduct.</p>
+
+      <p class="group-h">AI security</p>
+      <ul class="rows">
+        <li><span class="row-name">OWASP Top 10 for LLM Applications v2.0</span>.<span class="row-desc">Documented in the <a href="https://github.com/jposluns/grc_library/blob/main/ai/standard-ai-security-and-risk.md" target="_blank" rel="noopener">AI security and risk standard</a>.</span></li>
+        <li><span class="row-name">OWASP MCP Top 10</span>.<span class="row-desc">Documented in the <a href="https://github.com/jposluns/grc_library/blob/main/ai/register-mcp-server.md" target="_blank" rel="noopener">MCP server register</a>.</span></li>
+        <li><span class="row-name">OWASP GenAI Red Teaming Guide</span>.<span class="row-desc">Documented in the <a href="https://github.com/jposluns/grc_library/blob/main/ai/guide-ai-adversarial-test-reference.md" target="_blank" rel="noopener">AI adversarial-test reference</a>.</span></li>
+        <li><span class="row-name">MITRE ATLAS</span>, adversarial threat landscape for AI systems.<span class="row-desc">Engaged in the <a href="https://github.com/jposluns/grc_library/blob/main/ai/guide-ai-adversarial-test-reference.md" target="_blank" rel="noopener">adversarial-test reference</a> and the <a href="https://github.com/jposluns/grc_library/blob/main/governance/register-ai-security-tooling-landscape.md" target="_blank" rel="noopener">AI security tooling landscape</a>.</span></li>
+        <li><span class="row-name">NIST AI 100-2e2025</span>, Adversarial Machine Learning taxonomy.<span class="row-desc">Documented in the <a href="https://github.com/jposluns/grc_library/blob/main/ai/guide-ai-adversarial-test-reference.md" target="_blank" rel="noopener">adversarial-test reference</a>.</span></li>
+        <li><span class="row-name">NIST SP 800-218A</span>, Secure Software Development for Generative AI.<span class="row-desc">Documented in the <a href="https://github.com/jposluns/grc_library/blob/main/ai/standard-ai-and-agentic-development-security.md" target="_blank" rel="noopener">AI and agentic development-security standard</a>.</span></li>
+        <li><span class="row-name">NIST AI 100-4</span>, Reducing Risks Posed by Synthetic Content.<span class="row-desc">Documented in the <a href="https://github.com/jposluns/grc_library/blob/main/ai/guideline-ai-synthetic-content-provenance.md" target="_blank" rel="noopener">synthetic-content provenance guideline</a>.</span></li>
+        <li><span class="row-name">CSA AI Controls Matrix (AICM)</span>.<span class="row-desc">Mapped in the <a href="https://github.com/jposluns/grc_library/blob/main/compliance/matrix-grc-compliance-alignment.md" target="_blank" rel="noopener">compliance matrix</a>.</span></li>
+      </ul>
+      <p class="note">Named, not yet given dedicated coverage here: ETSI EN 304 223 (baseline cyber-security requirements for AI models and systems).</p>
+
+      <p class="group-h">AI-specific legislation by jurisdiction</p>
+      <ul class="rows">
+        <li><span class="row-name">European Union</span>, AI Act (Regulation (EU) 2024/1689), in force and phasing in.<span class="row-desc">Documented in the <a href="https://github.com/jposluns/grc_library/blob/main/ai/jurisdictions/annex-ai-european-union.md" target="_blank" rel="noopener">EU AI annex</a> (which also reflects the in-force Digital Omnibus on AI, Regulation (EU) 2026/1744).</span></li>
+        <li><span class="row-name">United States, Colorado</span>, AI Act (SB24-205) and its automated-decision-making re-enactment (SB26-189).<span class="row-desc">Documented in the <a href="https://github.com/jposluns/grc_library/blob/main/ai/jurisdictions/annex-ai-us-colorado.md" target="_blank" rel="noopener">Colorado AI annex</a>.</span></li>
+        <li><span class="row-name">United States, New York City</span>, Local Law 144 on automated employment decision tools.<span class="row-desc">Documented in the <a href="https://github.com/jposluns/grc_library/blob/main/ai/jurisdictions/annex-ai-us-new-york-city.md" target="_blank" rel="noopener">NYC AI annex</a>.</span></li>
+        <li><span class="row-name">United States, California</span>, CCPA regulations on automated decision-making technology (11 CCR Article 11, sections 7200 to 7222).<span class="row-desc">Documented in the <a href="https://github.com/jposluns/grc_library/blob/main/ai/jurisdictions/annex-ai-us-california.md" target="_blank" rel="noopener">California ADMT annex</a>.</span></li>
+        <li><span class="row-name">Canada</span>, Treasury Board Directive on Automated Decision-Making (in force) and provincial and sectoral instruments.<span class="row-desc">Documented in the <a href="https://github.com/jposluns/grc_library/blob/main/ai/jurisdictions/annex-ai-canada.md" target="_blank" rel="noopener">Canada AI annex</a>.</span></li>
+        <li><span class="row-name">Australia</span>, Privacy Act automated-decision transparency amendments (commencing 2026) and the Voluntary AI Safety Standard.<span class="row-desc">Documented in the <a href="https://github.com/jposluns/grc_library/blob/main/ai/jurisdictions/annex-ai-australia.md" target="_blank" rel="noopener">Australia AI annex</a>.</span></li>
+        <li><span class="row-name">Singapore</span>, Model AI Governance Framework for Generative AI (advisory, not legislation).<span class="row-desc">Documented in the <a href="https://github.com/jposluns/grc_library/blob/main/ai/jurisdictions/annex-ai-singapore.md" target="_blank" rel="noopener">Singapore AI annex</a>.</span></li>
+      </ul>
+      <p class="note">Named, not yet given dedicated AI-annex coverage here (each has a distinct in-force / enacted / proposed status to check against the primary source): US Texas TRAIGA (HB 149) and US Illinois HB 3773 (both cited in the <a href="https://github.com/jposluns/grc_library/blob/main/ai/policy-ai-compliance.md" target="_blank" rel="noopener">AI compliance policy</a> section 7.5, without a dedicated annex), South Korea's AI Basic Act, Malaysia's National AI Governance and Ethics Guidelines, the UK's pro-innovation AI regulation approach, and the African Union Continental AI Strategy.</p>
+
+      <p class="group-h">AI data quality, documentation, and transparency</p>
+      <ul class="rows">
+        <li><span class="row-name">ISO/IEC 5259 series</span>, data quality for analytics and machine learning.<span class="row-desc">Documented in the <a href="https://github.com/jposluns/grc_library/blob/main/ai/standard-ai-data-quality-and-readiness-validation.md" target="_blank" rel="noopener">AI data-quality and readiness standard</a>.</span></li>
+        <li><span class="row-name">Model Cards</span>, from the 2019 research paper that introduced the practice.<span class="row-desc">Adapted as the corpus <a href="https://github.com/jposluns/grc_library/blob/main/ai/template-model-card.md" target="_blank" rel="noopener">model-card template</a>.</span></li>
+        <li><span class="row-name">Datasheets for Datasets</span>, from the 2018 research paper that introduced it.<span class="row-desc">Adapted as the corpus <a href="https://github.com/jposluns/grc_library/blob/main/ai/template-dataset-datasheet.md" target="_blank" rel="noopener">dataset-datasheet template</a>.</span></li>
+      </ul>
+      <p class="note">Named, not yet given dedicated coverage here: ISO/IEC 8183:2023 (AI data life cycle), ISO/IEC 12792:2025 (AI transparency taxonomy), ISO/IEC 5338:2023 (AI system life-cycle processes), NIST SP 1270 (managing bias in AI), and NIST IR 8312 (explainable AI).</p>
+
+      <p class="group-h">Foundational security, privacy, and risk standards</p>
+      <ul class="rows">
+        <li><span class="row-name">ISO/IEC 27001:2022 and 27002:2022</span>, information-security management and controls.<span class="row-desc">Documented in the <a href="https://github.com/jposluns/grc_library/blob/main/security/policy-information-security.md" target="_blank" rel="noopener">information-security policy</a> and the compliance matrix.</span></li>
+        <li><span class="row-name">NIST Cybersecurity Framework 2.0</span> and <span class="row-name">NIST SP 800-53</span>.<span class="row-desc">Mapped in the <a href="https://github.com/jposluns/grc_library/blob/main/compliance/matrix-grc-compliance-alignment.md" target="_blank" rel="noopener">compliance matrix</a>.</span></li>
+        <li><span class="row-name">ISO 31000:2018</span>, risk management.<span class="row-desc">Engaged across the risk domain and the <a href="https://github.com/jposluns/grc_library/blob/main/governance/matrix-cross-framework-alignment.md" target="_blank" rel="noopener">cross-framework matrix</a>.</span></li>
+        <li><span class="row-name">ISO/IEC 27701:2025 and the GDPR (Regulation (EU) 2016/679)</span>, privacy management and data protection.<span class="row-desc">Documented in the <a href="https://github.com/jposluns/grc_library/blob/main/privacy/jurisdictions/annex-privacy-european-union.md" target="_blank" rel="noopener">EU privacy annex</a>.</span></li>
+        <li><span class="row-name">CSA Cloud Controls Matrix (CCM)</span>.<span class="row-desc">Mapped in the <a href="https://github.com/jposluns/grc_library/blob/main/compliance/matrix-grc-compliance-alignment.md" target="_blank" rel="noopener">compliance matrix</a>.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===== 4. License and reuse ===== -->
+  <section id="licence">
+    <div class="wrap">
+      <h2>License and reuse</h2>
+      <p>The corpus is released under the <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">Creative Commons Attribution-ShareAlike 4.0 International</a> license (CC BY-SA 4.0). It may be read, quoted, adapted, and used as training data, including for AI systems, provided attribution is given and derivative works that are redistributed carry the same license. Attribution to "the GRC Library" with a link to the <a href="https://github.com/jposluns/grc_library" target="_blank" rel="noopener">repository</a> is sufficient; the full terms are in the repository's <a href="https://github.com/jposluns/grc_library/blob/main/LICENSE" target="_blank" rel="noopener">LICENSE</a> and <a href="https://github.com/jposluns/grc_library/blob/main/NOTICE.md" target="_blank" rel="noopener">NOTICE</a>.</p>
+    </div>
+  </section>
+</main>
+
+{{FOOTER}}
+
+{{SCRIPT}}
+</body>
+</html>

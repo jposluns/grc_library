@@ -8907,8 +8907,14 @@ class WebGeneratorBaseTokenTests(unittest.TestCase):
             finally:
                 self.mod.figure_values = original_figure_values
 
+            staging_prefixes = tuple(
+                v.url_prefix for v in self.mod.VARIANTS if not v.indexable and v.url_prefix
+            )
             self._write_site(
-                [page for page in self.mod.render_site(figures) if not page[0].startswith("v2/")],
+                [
+                    page for page in self.mod.render_site(figures)
+                    if not page[0].startswith(staging_prefixes)
+                ],
                 after,
             )
             baseline_files = sorted(p.relative_to(baseline) for p in baseline.rglob("*") if p.is_file())
@@ -9101,10 +9107,15 @@ class WebGeneratorV2StagingTests(unittest.TestCase):
             baseline_files = sorted(
                 p.relative_to(baseline) for p in baseline.rglob("*") if p.is_file()
             )
+            staging_dirs = {
+                v.url_prefix.strip("/")
+                for v in self.mod.VARIANTS
+                if not v.indexable and v.url_prefix
+            }
             root_files = sorted(
                 p.relative_to(staged)
                 for p in staged.rglob("*")
-                if p.is_file() and p.relative_to(staged).parts[0] != "v2"
+                if p.is_file() and p.relative_to(staged).parts[0] not in staging_dirs
             )
             self.assertEqual(baseline_files, root_files)
             for rel in baseline_files:
@@ -11048,6 +11059,76 @@ class GateCitationInventoryTests(LinterTestCase):
                          f"--self-test failed.\nstdout:\n{result.stdout}"
                          f"\nstderr:\n{result.stderr}")
         self.assertIn("OK", result.stderr)
+
+
+class WebGeneratorV3TypeFloorTests(unittest.TestCase):
+    """Guards the /v3 redesign's central invariant (the maintainer's #1 concern,
+    PR-A #1634): NO font-size below the 16px (1rem) floor anywhere in the v3
+    stylesheet, and uppercase text only at or above that floor. Without this,
+    the type reset can silently regress (e.g. a later PR reaching for 0.8rem)."""
+
+    FLOOR_REM = 1.0
+
+    KEYWORDS = {"inherit", "initial", "unset", "revert", "smaller", "larger", "medium"}
+
+    @classmethod
+    def setUpClass(cls):
+        root = REPO_ROOT / ".web" / "templates-v3"
+        cls.css = "\n".join(
+            p.read_text(encoding="utf-8") for p in sorted(root.rglob("*.html"))
+        )
+        # Map the --fs-* custom properties to their rem values (clamp -> first arg).
+        cls.tokens = {}
+        for name, val in re.findall(r"(--fs-[a-z0-9-]+):\s*([^;]+);", cls.css):
+            m = re.search(r"([0-9.]+)rem", val)  # clamp()'s first rem is the minimum
+            if m:
+                cls.tokens[name] = float(m.group(1))
+
+    def _resolve(self, value):
+        """Resolve one font-size value to rem, or None if not a size (e.g. inherit)."""
+        value = value.strip()
+        m = re.match(r"var\((--fs-[a-z0-9-]+)\)", value)
+        if m:
+            return self.tokens.get(m.group(1), 0.0)  # unknown --fs-* name -> fail closed
+        m = re.match(r"clamp\(\s*([0-9.]+)rem", value)  # min arg
+        if m:
+            return float(m.group(1))
+        m = re.match(r"([0-9.]+)rem", value)
+        if m:
+            return float(m.group(1))
+        if value.lower() in self.KEYWORDS:
+            return None
+        return 0.0  # unknown unit/token (px, em, %, clamp(px..), typo'd var) -> fail closed
+
+    def test_no_font_size_below_the_16px_floor(self):
+        offenders = []
+        for value in re.findall(r"font-size:\s*([^;]+);", self.css):
+            rem = self._resolve(value)
+            if rem is not None and rem < self.FLOOR_REM:
+                offenders.append((value.strip(), rem))
+        self.assertEqual(
+            offenders, [],
+            f"font-size(s) below the {self.FLOOR_REM}rem (16px) floor in templates-v3: {offenders}",
+        )
+
+    def test_every_fs_token_is_at_or_above_the_floor(self):
+        below = {n: v for n, v in self.tokens.items() if v < self.FLOOR_REM}
+        self.assertEqual(below, {}, f"--fs-* token(s) below the 1rem floor: {below}")
+
+    def test_uppercase_text_only_at_or_above_the_floor(self):
+        # Every rule declaring text-transform: uppercase must resolve to a
+        # font-size >= 1rem (the "uppercase + tracking only above the floor"
+        # discipline). Parse each rule block; if it uppercases, its font-size
+        # (own or the token it names) must clear the floor.
+        offenders = []
+        for block in re.findall(r"\{[^{}]*\}", self.css):
+            if "text-transform: uppercase" not in block:
+                continue
+            m = re.search(r"font-size:\s*([^;]+);", block)
+            rem = self._resolve(m.group(1)) if m else None
+            if rem is not None and rem < self.FLOOR_REM:
+                offenders.append(block.strip()[:80])
+        self.assertEqual(offenders, [], f"uppercase rule(s) below the 1rem floor: {offenders}")
 
 
 class WebGeneratorNarrativeJoinTests(unittest.TestCase):

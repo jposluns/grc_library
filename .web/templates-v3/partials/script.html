@@ -1,0 +1,28 @@
+<script>
+  (function () {
+    "use strict";
+    var root = document.documentElement;
+    var btn = document.getElementById("themeToggle");
+    var KEY = "grclib-theme";
+
+    // Restore an explicit prior choice; otherwise follow the OS preference.
+    try {
+      var saved = localStorage.getItem(KEY);
+      if (saved === "light" || saved === "dark") { root.setAttribute("data-theme", saved); }
+    } catch (e) { /* storage unavailable: fall back to prefers-color-scheme */ }
+
+    function currentTheme() {
+      var explicit = root.getAttribute("data-theme");
+      if (explicit) { return explicit; }
+      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+
+    if (btn) {
+      btn.addEventListener("click", function () {
+        var next = currentTheme() === "dark" ? "light" : "dark";
+        root.setAttribute("data-theme", next);
+        try { localStorage.setItem(KEY, next); } catch (e) { /* ignore */ }
+      });
+    }
+  })();
+</script>

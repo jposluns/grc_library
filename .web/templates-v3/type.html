@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="{{TYPE_SEO_DESC}}">
+<link rel="canonical" href="{{TYPE_CANONICAL}}">
+<title>{{TYPE_TITLE}}</title>
+{{HEAD_STYLE}}
+</head>
+
+<body>
+<header class="mast">
+  <div class="wrap">
+{{TOPBAR}}
+  </div>
+</header>
+
+<main>
+  <div class="wrap page-head">
+    <p class="eyebrow">Document type</p>
+    <h1>{{TYPE_NAME}}</h1>
+    <p class="lede">{{TYPE_SCOPE_TEXT}}.</p>
+  </div>
+
+  <section id="documents">
+    <div class="wrap">
+      <h2>The documents</h2>
+      <p>{{TYPE_DOC_COUNT}} {{TYPE_NAME}}-type documents across the library, grouped by the area each belongs to. Each title links to the full document source on GitHub.</p>
+      <ul class="doc-index">
+{{TYPE_DOC_ROWS}}
+      </ul>
+    </div>
+  </section>
+
+  <section id="types">
+    <div class="wrap">
+      <h2>All document types</h2>
+      <nav class="chip-nav" aria-label="All document types">
+{{TYPE_CHIPS}}
+      </nav>
+    </div>
+  </section>
+</main>
+
+{{FOOTER}}
+
+{{SCRIPT}}
+</body>
+</html>

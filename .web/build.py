@@ -19,7 +19,7 @@ narrative registry, joined at render time into each v2 staging domain
 page's leadership-page list), ``README.md``, each corpus domain's own
 ``<domain>/README.md`` (for the per-domain page intro), and the page templates and
 shared partials under each variant's template tree (``.web/templates/`` and the
-non-indexable ``.web/templates-v2/`` staging copy). It never walks the repository and
+non-indexable ``.web/templates-v2/`` and ``.web/templates-v3/`` staging copies). It never walks the repository and
 never reads ``.working/``, ``.claude/``, ``tools/``, ``tests/``, ``.github/``, or
 the private sibling repositories. (Under ``--check`` it additionally reads the
 committed ``.web/corpus-link-manifest.md`` and self-scans this generator source for
@@ -28,8 +28,8 @@ the safeguard checks; neither feeds published content.) By default its rendered 
 ``for-ai/index.html``, one ``<domain>/index.html`` per corpus domain, one
 ``types/<slug>/index.html`` per document type, and the three generated files
 ``robots.txt``, ``sitemap.xml``, and ``llms.txt``); it also writes the committed ``.web/corpus-link-manifest.md`` (a generated artefact outside the ephemeral ``dist/`` tree). So the
-published surface is those root pages and files, plus the non-indexable ``v2`` staging
-variant's tree under ``.web/dist/v2/`` (noindex), which additionally carries the
+published surface is those root pages and files, plus the non-indexable staging
+variants' trees under ``.web/dist/v2/`` and ``.web/dist/v3/`` (both noindex); v2 additionally carries the
 executive-shell routes declared in ``V2_EXTRA_PAGES`` (decisions, start, trust,
 coverage, library, how-its-built) and the executive reading room (one on-site page
 per registry-listed narrative page: ALL 18 published narrative pages across the
@@ -141,12 +141,13 @@ V2_EXTRA_PAGES = (
 )
 
 # The site variant table: one indexable root variant (v1) plus any non-indexable
-# staging variants (v2). New staging variants belong in this table, so
+# staging variants (v2 and v3). New staging variants belong in this table, so
 # the template source, URL prefix, and indexability policy stay coupled.
 VARIANTS = (
     Variant("v1", "templates", "", indexable=True),
     Variant("v2", "templates-v2", "v2/", indexable=False, extra_pages=V2_EXTRA_PAGES,
             narrative_routes=True),
+    Variant("v3", "templates-v3", "v3/", indexable=False),
 )
 
 # Shared chrome injected into every page from a single source, so the pages
