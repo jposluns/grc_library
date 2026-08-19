@@ -434,6 +434,14 @@ def load_narratives():
             f"{len(missing)} narrative registry page(s) missing a title or "
             f"narrative_type (schema change?); first: {missing[0]}"
         )
+    braced = [p["path"] for p in pages if "{" in p["title"] or "}" in p["title"]]
+    if braced:
+        raise BuildError(
+            f"{len(braced)} narrative registry page(s) with a brace in the "
+            "title: a brace would survive as a template token in NARRATIVE_H1 "
+            "and the discovery-row title (both _esc-only, not brace-escaped); "
+            f"first: {braced[0]}"
+        )
     no_domains = [p["path"] for p in pages if not p["domains"]]
     if no_domains:
         raise BuildError(
@@ -927,7 +935,14 @@ NARRATIVE_ROUTE_PREFIX = "decisions/"
 # substitution pass re-scans the whole document).
 _NARR_ROUTE_SEGMENT_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 _NARR_MD_LINK_RE = re.compile(r"\[([^\[\]]+)\]\(([^()\s]+)\)")
-_NARR_MD_BOLD_RE = re.compile(r"\*\*([^*]+)\*\*")
+# Bold: the interior must open AND close against non-space content (mirroring
+# _NARR_MD_EM_RE), so a CommonMark-invalid space-flanked closing delimiter
+# ('**a **') is NOT paired here. An overlapping run like '**a **b** c**' would
+# otherwise be silently re-partitioned by greedy left-to-right pairing into
+# '<strong>a </strong>b<strong> c</strong>' (the middle word NOT bold, the
+# opposite of the CommonMark parse); with the non-space-flanking interior the
+# stray '**' survives to _esc_narrative_text and raises loudly instead.
+_NARR_MD_BOLD_RE = re.compile(r"\*\*([^*\s](?:[^*]*[^*\s])?)\*\*")
 # Single-star emphasis, processed AFTER bold extraction on the bold-free
 # segments: the span must open and close against non-space content (so a
 # spaced '3 * 4' star is never emphasis and still raises via the residual-star
@@ -946,11 +961,18 @@ _NARR_MD_SPACED_BREAK_RE = re.compile(r"^([-*_=])(?:[ \t]+\1)+[ \t]*$")
 _NARR_MD_RAW_HTML_RE = re.compile(r"<[A-Za-z/!?]")
 _NARR_MD_ENTITY_RE = re.compile(r"&(?:#\d+|#[xX][0-9a-fA-F]+|[A-Za-z][A-Za-z0-9]*);")
 _NARR_MD_OTHER_LIST_RE = re.compile(r"^(\d+[.)]|[*+])\s")
-_NARR_MD_OL_ITEM_RE = re.compile(r"^(\d+)\. ")
-# A GFM separator-row cell, colon-alignment forms included so they can be
-# detected as separator-shaped and then rejected explicitly (the corpus's
-# separators are uniformly ':'-free '---' cells).
-_NARR_MD_TABLE_SEP_CELL_RE = re.compile(r":?-+:?")
+# Ordered-list marker: 1 to 9 ASCII digits (the CommonMark bound). A longer
+# run ('0000000001. ') is NOT a list marker and falls through to the
+# _NARR_MD_OTHER_LIST_RE reject, so it cannot silently become an <ol> via an
+# unbounded \d+ where int('0000000001') == 1.
+_NARR_MD_OL_ITEM_RE = re.compile(r"^(\d{1,9})\. ")
+# A GFM separator-row cell: three-or-more hyphens (the surveyed uniform '---'
+# form), with the colon-alignment forms admitted here ONLY so a colon-bearing
+# ':---:' separator is detected as separator-shaped and then rejected
+# explicitly downstream. A one- or two-hyphen cell ('-', '--') is NOT
+# separator-shaped, so the table model's "second row must be the separator"
+# check raises rather than silently accepting an un-surveyed separator width.
+_NARR_MD_TABLE_SEP_CELL_RE = re.compile(r":?-{3,}:?")
 _NARR_TERMINATOR = "**End of Document**"
 
 
@@ -1247,6 +1269,17 @@ def _narrative_blocks(body_lines, source_rel):
                 f"not directly by prose (GFM would absorb the line into the "
                 f"table): {line[:60]!r}"
             )
+        # The mirror direction: a table row directly UNDER prose, a quote, or a
+        # list item is not a new table in GFM (a table cannot interrupt a
+        # paragraph; under a quote or list item it is a lazy continuation of
+        # that container). This renderer would start a new table block, a
+        # silent divergence, so a table must be PRECEDED by a blank line too.
+        if kind == "tr" and cur_kind in ("p", "quote", "li", "ol"):
+            raise BuildError(
+                f"{source_rel}: a table must be preceded by a blank line, not "
+                f"directly by prose, a quote, or a list item (GFM would not "
+                f"start a new table there): {line[:60]!r}"
+            )
         if kind == "ol":
             # The classifier admitted the 'N. ' marker, so the match holds.
             m = _NARR_MD_OL_ITEM_RE.match(line)
@@ -1383,6 +1416,17 @@ def _narrative_link_url(target, source_rel):
         raise BuildError(
             f"{source_rel}: link fragments and queries unsupported: {target!r}"
         )
+    # A brace in the target would survive into the rendered ``href`` (the URL
+    # is escaped by ``_esc``, which does NOT replace ``{``) and be re-expanded
+    # as a ``{{NAME}}`` template token on render_page's second substitution
+    # pass, injecting a live site partial inside the attribute. No corpus path
+    # contains a brace, so reject it loudly rather than relying on the
+    # defence-in-depth href escape below.
+    if "{" in target or "}" in target:
+        raise BuildError(
+            f"{source_rel}: brace in a link target unsupported (would survive "
+            f"as a template token in the href): {target!r}"
+        )
     resolved = posixpath.normpath(posixpath.join(posixpath.dirname(source_rel), target))
     if resolved.split("/", 1)[0] == "..":
         raise BuildError(f"{source_rel}: link target escapes the repository: {target!r}")
@@ -1397,17 +1441,23 @@ def _narrative_link_url(target, source_rel):
 def _render_narrative_links(text, source_rel):
     """Render one code-free, bold-free text segment's link constructs:
     corpus-relative links (to their GitHub blob URLs, new-tab like every
-    corpus link), the link labels and the between-link segments then carry
-    ``*emphasis*`` rendering; every other inline construct raises via the
-    segment escaper."""
+    corpus link). The between-link segments carry ``*emphasis*`` rendering,
+    but a link LABEL is plain text through ``_esc_narrative_text`` (so a star,
+    bracket, or other inline marker in a label raises rather than silently
+    rendering an un-surveyed nesting such as emphasis-inside-a-label); every
+    other inline construct raises via the segment escaper. The ``href`` is
+    ``{``-escaped as defence-in-depth on top of the brace reject in
+    ``_narrative_link_url`` (a brace in a URL would otherwise re-expand as a
+    ``{{NAME}}`` template token on render_page's second pass)."""
     parts = []
     pos = 0
     for m in _NARR_MD_LINK_RE.finditer(text):
         parts.append(_render_narrative_em(text[pos:m.start()], source_rel))
         url = _narrative_link_url(m.group(2), source_rel)
         parts.append(
-            f'<a href="{_esc(url)}" target="_blank" rel="noopener">'
-            + _render_narrative_em(m.group(1), source_rel) + "</a>"
+            f'<a href="{_esc(url).replace("{", "&#123;")}" '
+            'target="_blank" rel="noopener">'
+            + _esc_narrative_text(m.group(1), source_rel) + "</a>"
         )
         pos = m.end()
     parts.append(_render_narrative_em(text[pos:], source_rel))
@@ -1435,14 +1485,17 @@ def _render_narrative_bold(text, source_rel):
 
 def _render_narrative_inline(text, source_rel):
     """Render one text unit's inline constructs: `code` spans first (as in
-    CommonMark, code binds tighter than links and emphasis, so markup-shaped
-    characters inside a span stay literal), then bold, links, and emphasis
-    on the segments between the spans (in that outer-to-inner order: the
-    corpus nests links inside bold and emphasis inside neither). A code
-    span's inner text flows through ``_esc_narrative_text`` (so
-    ``<``/``>``/``&``/``{`` are escaped, the ``{``->``&#123;``
-    placeholder-injection guard included, and residual markup inside a span
-    raises rather than mis-rendering); an unbalanced or empty span raises
+    CommonMark, code binds tighter than links and emphasis), then bold, links,
+    and emphasis on the segments between the spans (in that outer-to-inner
+    order: the corpus nests links inside bold and emphasis inside neither). A
+    code span's inner text is LITERAL: markup-shaped characters (``*``, ``[``,
+    ``**``, backticks are the span delimiter) stay as text rather than
+    rendering or raising, per CommonMark, but the content is still HTML-escaped
+    (``<``/``>``/``&``/``"``) and the ``{``->``&#123;`` placeholder-injection
+    guard applies, so a ``<script>`` or ``{{NAME}}`` inside a span renders
+    inert. CommonMark's single-space strip is applied (one leading and one
+    trailing space removed when the content both begins and ends with a space
+    and is not all spaces). An unbalanced or all-space/empty span raises
     loudly."""
     if "![" in text:
         raise BuildError(f"{source_rel}: images unsupported: {text[:60]!r}")
@@ -1459,7 +1512,13 @@ def _render_narrative_inline(text, source_rel):
         if i % 2:
             if not segment.strip():
                 raise BuildError(f"{source_rel}: empty code span: {text[:60]!r}")
-            parts.append("<code>" + _esc_narrative_text(segment, source_rel) + "</code>")
+            # CommonMark code-span normalization: strip ONE leading and ONE
+            # trailing space when the content both begins and ends with a space
+            # (the all-space case is excluded above).
+            inner = segment
+            if len(inner) >= 2 and inner[0] == " " and inner[-1] == " ":
+                inner = inner[1:-1]
+            parts.append("<code>" + _esc(inner).replace("{", "&#123;") + "</code>")
         else:
             parts.append(_render_narrative_bold(segment, source_rel))
     return "".join(parts)
@@ -1578,10 +1637,12 @@ def render_narrative_body(text, source_rel):
     tables, **bold**, `inline code`, and corpus-relative links (converted
     to GitHub blob URLs). Any unsupported construct raises a loud
     BuildError so a future narrative fails the build rather than rendering
-    wrong; all text is HTML-escaped with no raw-HTML passthrough, and a
-    literal ``{`` escapes to ``&#123;`` so no ``{{NAME}}`` placeholder
-    pattern survives into render_page's second substitution pass. Blocks
-    before the first heading (the authority disclaimer) render in an
+    wrong; all body text is HTML-escaped with no raw-HTML passthrough, and a
+    literal ``{`` in body prose escapes to ``&#123;`` so no ``{{NAME}}``
+    placeholder pattern survives into render_page's second substitution pass
+    (in a section HEADING a literal brace is instead rejected loudly, since a
+    heading is plain text reused in slugs, the sidenav, and attributes).
+    Blocks before the first heading (the authority disclaimer) render in an
     unnumbered intro section."""
     blocks = _narrative_blocks(_narrative_body_lines(text, source_rel), source_rel)
     seen_slugs = {"narr-intro", "depth", "source"}  # reserved by the template shell
@@ -1593,8 +1654,11 @@ def render_narrative_body(text, source_rel):
             head_text = content[0]
             if _render_narrative_inline(head_text, source_rel) != _esc(head_text):
                 raise BuildError(
-                    f"{source_rel}: inline markup in a section heading "
-                    f"unsupported: {head_text[:60]!r}"
+                    f"{source_rel}: inline markup or a literal brace in a "
+                    f"section heading unsupported (a heading is plain text, "
+                    f"and a brace is template-reserved and rejected here "
+                    f"rather than escaped as it is in body prose): "
+                    f"{head_text[:60]!r}"
                 )
             if cur["head"] is not None or cur["blocks"]:
                 sections.append(cur)
@@ -1610,8 +1674,11 @@ def render_narrative_body(text, source_rel):
             head_text = content[0]
             if _render_narrative_inline(head_text, source_rel) != _esc(head_text):
                 raise BuildError(
-                    f"{source_rel}: inline markup in a section heading "
-                    f"unsupported: {head_text[:60]!r}"
+                    f"{source_rel}: inline markup or a literal brace in a "
+                    f"section heading unsupported (a heading is plain text, "
+                    f"and a brace is template-reserved and rejected here "
+                    f"rather than escaped as it is in body prose): "
+                    f"{head_text[:60]!r}"
                 )
             slug = _narrative_heading_slug(head_text, seen_slugs, source_rel)
             cur["blocks"].append(

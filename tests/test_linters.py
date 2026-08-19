@@ -11394,8 +11394,8 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
         cases = [
             ("#### Too-deep heading", "only '## ' and '### ' section headings"),
             ("# Body H1", "only '## ' and '### ' section headings"),
-            ("## With **bold** inside", "inline markup in a section heading"),
-            ("### With `code` inside", "inline markup in a section heading"),
+            ("## With **bold** inside", "in a section heading unsupported"),
+            ("### With `code` inside", "in a section heading unsupported"),
             ("1) paren-marker ordered item", "unordered and 'N. ' ordered lists"),
             ("* star item", "unordered and 'N. ' ordered lists"),
             ("| a | b |", "a table needs a header row"),
@@ -11430,6 +11430,60 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
                     self.mod.render_narrative_body(
                         self._doc("## Section\n\n" + body), self._SOURCE_REL
                     )
+
+    def test_pr2b_security_qa_fixes_fail_loudly_or_render(self):
+        # Dual-family /validate-pr (#1633) findings, each now guarded. Every
+        # shape below is ABSENT from the 18 published pages (verified), so these
+        # are loud-fail / correctness additions, not corpus-rendering changes.
+        raise_cases = [
+            # E1 (both families): a brace-bearing link target would survive as a
+            # {{NAME}} template token in the rendered href.
+            ("A link [x](../../ai/note-{{SCRIPT}}.md) here.",
+             "brace in a link target"),
+            # E2 (codex): the separator must be the surveyed three-or-more '---'
+            # form; one- or two-hyphen cells are not accepted silently.
+            ("| a | b |\n|-|-|\n| c | d |", "second table row must be the"),
+            ("| a | b |\n|--|--|\n| c | d |", "second table row must be the"),
+            # E3 (codex): a ten-digit ordered marker is not a list marker.
+            ("0000000001. item", "unordered and 'N. ' ordered lists"),
+            # W1 (claude): a table must be PRECEDED by a blank line (the mirror
+            # of the table-followed-by-prose guard).
+            ("prose line\n| a | b |\n| --- | --- |\n| c | d |",
+             "must be preceded by a blank line"),
+            ("- an item\n| a | b |\n| --- | --- |\n| c | d |",
+             "must be preceded by a blank line"),
+            # W2 (claude): overlapping/space-flanked bold does not silently
+            # re-partition into inverted emphasis; the stray '**' raises.
+            ("An **a **b** c** run.", "unbalanced bold"),
+            # W2 (codex): emphasis inside a link label is not a surveyed nesting.
+            ("A [x *y*](../../ai/README.md) link.", "star emphasis"),
+            # W1 (codex) / N2 (claude): a literal brace in a heading is rejected
+            # with an accurate message (headings are plain text, braces reserved).
+            ("## The {rule} set\n\nbody", "in a section heading unsupported"),
+        ]
+        for body, expected in raise_cases:
+            with self.subTest(body=body):
+                with self.assertRaisesRegex(self.mod.BuildError, re.escape(expected)):
+                    self.mod.render_narrative_body(
+                        self._doc("## Section\n\n" + body), self._SOURCE_REL
+                    )
+        # E4 (codex): a code span padded on both sides is normalized (one
+        # leading + one trailing space removed), per CommonMark.
+        html, _ = self.mod.render_narrative_body(
+            self._doc("## Section\n\nA ` code ` span."), self._SOURCE_REL
+        )
+        self.assertIn("<code>code</code>", html)
+        self.assertNotIn("<code> code </code>", html)
+        # W3 (codex): code-span content is LITERAL (markup-shaped characters
+        # stay text) yet still HTML-escaped and {-guarded against injection.
+        html, _ = self.mod.render_narrative_body(
+            self._doc("## Section\n\nUse `arr[0]` and `a**b` and `{{SCRIPT}}` here."),
+            self._SOURCE_REL,
+        )
+        self.assertIn("<code>arr[0]</code>", html)
+        self.assertIn("<code>a**b</code>", html)
+        self.assertIn("<code>&#123;&#123;SCRIPT}}</code>", html)
+        self.assertNotIn("{{SCRIPT}}", html)
 
     def test_document_model_drift_fails_loudly(self):
         with self.assertRaisesRegex(self.mod.BuildError, "no leading '# ' title"):
@@ -12028,7 +12082,7 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
             # empty cells, escaped pipes, prose directly under the table.
             ("| a | b |\n|---|---|\n| only-one-cell |", "ragged table"),
             ("| a | b |\n|---|---|---|\n| c | d |", "ragged table"),
-            ("| a | b |\n|:--|--:|\n| c | d |", "column-alignment colons"),
+            ("| a | b |\n|:---|---:|\n| c | d |", "column-alignment colons"),
             ("| a | b |\n| c | d |\n| e | f |", "must be the '---' separator"),
             ("| a | b |\n|---|---|", "at least one data row"),
             ("| a | b |\n|---|---|\n|---|---|", "separator-shaped table row"),
