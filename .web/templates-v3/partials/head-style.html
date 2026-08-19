@@ -11,6 +11,7 @@
   :root {
     /* Type scale. 16px is the absolute floor. */
     --fs-micro: 1rem;                          /* 16px: labels, eyebrows, metadata, table headers */
+    --fs-dense: 1.0625rem;                     /* 17px: secondary-RANK but full-length prose (row/mode descriptions) */
     --fs-small: 1.0625rem;                     /* 17px: captions, footer */
     --fs-body: 1.1875rem;                      /* 19px: default body */
     --fs-lead: 1.375rem;                       /* 22px: ledes and deks */
@@ -107,6 +108,7 @@
   a:hover { color: var(--link-strong); }
 
   :focus-visible { outline: 3px solid var(--link); outline-offset: 2px; border-radius: 4px; }
+  .mast :focus-visible { outline-color: var(--mast-accent); }  /* accent designed against the constant navy masthead (9.5:1) */
 
   h1, h2, h3 {
     font-family: var(--font-display);
@@ -122,7 +124,7 @@
 
   /* Uppercase only here: 16px, three words or fewer. */
   .eyebrow {
-    font-size: var(--fs-micro);
+    font-size: var(--fs-small);
     line-height: 1.5;
     font-weight: 600;
     letter-spacing: 0.08em;
@@ -140,7 +142,10 @@
   }
 
   .note { font-size: var(--fs-micro); line-height: 1.5; color: var(--ink-soft); }
-  .cap { text-transform: capitalize; }
+  .cap { }  /* domain h1 stays lowercase (matches v1/v2); proper display-names (AI, Supply Chain) are a PR-B build-map item, avoiding the capitalize->'Ai' miscasing */
+  .mt-sm { margin-top: 1.6rem; }
+  .mt-md { margin-top: 1.8rem; }
+  .mt-lg { margin-top: 2.4rem; }
 
   /* ---------- Masthead ---------- */
   .mast {
@@ -169,7 +174,7 @@
     display: inline-flex; align-items: center; gap: 0.5rem;
     font-size: var(--fs-micro); line-height: 1.5;
     color: var(--mast-ink); text-decoration: none;
-    border: 1px solid var(--mast-line); border-radius: 999px;
+    border: 1px solid var(--mast-line); border-radius: var(--radius);
     padding: 0.45rem 1rem; background: rgba(255, 255, 255, 0.04);
   }
   .search-cta:hover { border-color: var(--mast-accent); color: var(--mast-accent); }
@@ -177,7 +182,7 @@
   .theme-toggle {
     font-family: var(--font-body); font-size: var(--fs-micro); line-height: 1.5;
     color: var(--mast-soft); background: transparent;
-    border: 1px solid var(--mast-line); border-radius: 999px;
+    border: 1px solid var(--mast-line); border-radius: var(--radius);
     padding: 0.4rem 0.9rem; cursor: pointer;
   }
   .theme-toggle:hover { color: var(--mast-ink); border-color: var(--mast-accent); }
@@ -192,7 +197,7 @@
   .btn {
     display: inline-flex; align-items: center; gap: 0.5rem;
     font-size: var(--fs-body); line-height: 1.4; font-weight: 600;
-    padding: 0.85rem 1.6rem; border-radius: 999px;
+    padding: 0.85rem 1.6rem; border-radius: var(--radius);
     text-decoration: none; border: 1.5px solid transparent;
   }
   .btn-primary { background: var(--mast-accent); color: #0c1a2e; }
@@ -211,8 +216,7 @@
   main section + section { border-top: 1px solid var(--line); }
 
   /* ---------- Path cards (the five ways in) ---------- */
-  .paths { display: grid; gap: 1.1rem; grid-template-columns: 1fr; margin-top: 1.8rem; }
-  @media (min-width: 900px) { .paths { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .paths { display: grid; gap: 1.1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 34rem), 1fr)); margin-top: 1.8rem; }
   .path {
     position: relative;
     background: var(--surface);
@@ -255,7 +259,7 @@
   .rg-idx { color: var(--ink-soft); width: 3rem; font-variant-numeric: tabular-nums; }
   .rg-name a {
     font-size: var(--fs-body); font-weight: 600;
-    color: var(--link); text-decoration: none; text-transform: capitalize;
+    color: var(--link); text-decoration: none;
     white-space: nowrap;
   }
   .rg-name a:hover { color: var(--link-strong); text-decoration: underline; text-underline-offset: 3px; }
@@ -344,12 +348,12 @@
   .chip-nav a, .type-chip {
     display: inline-flex; align-items: baseline; gap: 0.5rem;
     font-size: var(--fs-micro); line-height: 1.5;
-    border: 1px solid var(--line-strong); border-radius: 999px;
+    border: 1px solid var(--line-strong); border-radius: var(--radius);
     padding: 0.45rem 0.95rem; background: var(--surface);
     color: var(--ink); text-decoration: none;
   }
   .chip-nav a:hover, .type-chip:hover { border-color: var(--link); color: var(--link-strong); }
-  .chip-nav a.sub { text-transform: capitalize; }
+  .chip-nav a.sub { }
   .type-chip .tn { color: var(--link); font-weight: 700; font-variant-numeric: tabular-nums; }
   .type-chip .tk { color: var(--ink); }
   .type-chip:hover .tk { color: var(--link-strong); }
@@ -371,7 +375,7 @@
   .link-row a {
     display: inline-flex; align-items: center; gap: 0.5rem;
     font-size: var(--fs-micro); line-height: 1.5; font-weight: 600;
-    border: 1px solid var(--line-strong); border-radius: 999px;
+    border: 1px solid var(--line-strong); border-radius: var(--radius);
     padding: 0.6rem 1.1rem; color: var(--ink); text-decoration: none;
   }
   .link-row a:hover { border-color: var(--link); color: var(--link-strong); }
@@ -388,7 +392,7 @@
   }
   .rows li:last-child { border-bottom: none; }
   .rows .row-name { font-weight: 600; font-size: var(--fs-body); }
-  .rows .row-desc { display: block; font-size: var(--fs-micro); line-height: 1.55; color: var(--ink-soft); margin-top: 0.2rem; max-width: var(--measure); }
+  .rows .row-desc { display: block; font-size: var(--fs-dense); line-height: 1.55; color: var(--ink); margin-top: 0.2rem; max-width: var(--measure); }
   .rows .row-side { font-size: var(--fs-micro); color: var(--ink-soft); white-space: nowrap; }
   .rows li.split { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.3rem 1rem; }
 
@@ -410,11 +414,10 @@
   }
 
   /* Three-up mode cards (pack page). */
-  .modes { display: grid; gap: 1.1rem; grid-template-columns: 1fr; margin-top: 1.8rem; }
-  @media (min-width: 900px) { .modes { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .modes { display: grid; gap: 1.1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 34rem), 1fr)); margin-top: 1.8rem; }
   .mode { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 1.5rem 1.6rem; }
   .mode h3 { margin-bottom: 0.4rem; }
-  .mode p { margin: 0; font-size: var(--fs-micro); line-height: 1.6; }
+  .mode p { margin: 0; font-size: var(--fs-body); line-height: 1.6; }
 
   /* ---------- Footer ---------- */
   .site-foot { border-top: 1px solid var(--line); background: var(--surface); padding-block: 2.8rem; margin-top: clamp(2.5rem, 6vw, 4rem); }

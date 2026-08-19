@@ -11061,6 +11061,56 @@ class GateCitationInventoryTests(LinterTestCase):
         self.assertIn("OK", result.stderr)
 
 
+class WebGeneratorV3TypeFloorTests(unittest.TestCase):
+    """Guards the /v3 redesign's central invariant (the maintainer's #1 concern,
+    PR-A #1634): NO font-size below the 16px (1rem) floor anywhere in the v3
+    stylesheet, and uppercase text only at or above that floor. Without this,
+    the type reset can silently regress (e.g. a later PR reaching for 0.8rem)."""
+
+    FLOOR_REM = 1.0
+
+    @classmethod
+    def setUpClass(cls):
+        cls.css = (REPO_ROOT / ".web" / "templates-v3" / "partials" / "head-style.html").read_text(
+            encoding="utf-8"
+        )
+        # Map the --fs-* custom properties to their rem values (clamp -> first arg).
+        cls.tokens = {}
+        for name, val in re.findall(r"(--fs-[a-z0-9-]+):\s*([^;]+);", cls.css):
+            m = re.search(r"([0-9.]+)rem", val)  # clamp()'s first rem is the minimum
+            if m:
+                cls.tokens[name] = float(m.group(1))
+
+    def _resolve(self, value):
+        """Resolve one font-size value to rem, or None if not a size (e.g. inherit)."""
+        value = value.strip()
+        m = re.match(r"var\((--fs-[a-z0-9-]+)\)", value)
+        if m:
+            return self.tokens.get(m.group(1))
+        m = re.match(r"clamp\(\s*([0-9.]+)rem", value)  # min arg
+        if m:
+            return float(m.group(1))
+        m = re.match(r"([0-9.]+)rem", value)
+        if m:
+            return float(m.group(1))
+        return None
+
+    def test_no_font_size_below_the_16px_floor(self):
+        offenders = []
+        for value in re.findall(r"font-size:\s*([^;]+);", self.css):
+            rem = self._resolve(value)
+            if rem is not None and rem < self.FLOOR_REM:
+                offenders.append((value.strip(), rem))
+        self.assertEqual(
+            offenders, [],
+            f"font-size(s) below the {self.FLOOR_REM}rem (16px) floor in templates-v3: {offenders}",
+        )
+
+    def test_every_fs_token_is_at_or_above_the_floor(self):
+        below = {n: v for n, v in self.tokens.items() if v < self.FLOOR_REM}
+        self.assertEqual(below, {}, f"--fs-* token(s) below the 1rem floor: {below}")
+
+
 class WebGeneratorNarrativeJoinTests(unittest.TestCase):
     """Wave-2 PR-1: the narrative-registry (narrative.yml) render-time join.
 
