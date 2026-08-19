@@ -147,6 +147,7 @@ VARIANTS = (
     Variant("v1", "templates", "", indexable=True),
     Variant("v2", "templates-v2", "v2/", indexable=False, extra_pages=V2_EXTRA_PAGES,
             narrative_routes=True),
+    Variant("v3", "templates-v3", "v3/", indexable=False),
 )
 
 # Shared chrome injected into every page from a single source, so the pages

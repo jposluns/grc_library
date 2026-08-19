@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="{{DOC_TOTAL}} open, cross-referenced GRC documents: policies, standards, procedures, and templates, free to adopt and adapt under CC BY-SA 4.0.">
+<title>GRC Library: governance documentation you can adopt today</title>
+<link rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">
+{{HEAD_STYLE}}
+</head>
+
+<body>
+<header class="mast">
+  <div class="wrap">
+{{TOPBAR}}
+  </div>
+
+  <div class="wrap hero">
+    <p class="eyebrow">Open GRC library</p>
+    <h1>Governance documentation you can adopt today.</h1>
+    <p class="lede">{{DOC_TOTAL}} open, cross-referenced GRC documents, policies, standards, procedures, and templates, free to adopt and adapt under CC BY-SA 4.0.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="#paths">Find what you need</a>
+      <a class="btn btn-secondary" href="{{BASE}}/library/">Browse the {{DOC_TOTAL}} documents</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ===== 1. The router ===== -->
+  <section id="paths">
+    <div class="wrap">
+      <h2>What do you need?</h2>
+      <div class="paths">
+        <article class="path">
+          <h3><a href="{{BASE}}/decide/">Make a decision <span class="go" aria-hidden="true">&rarr;</span></a></h3>
+          <p>What the board should ask: decision briefs, oversight questions, and the evidence to expect back.</p>
+        </article>
+        <article class="path">
+          <h3><a href="{{BASE}}/govern/">Govern a programme <span class="go" aria-hidden="true">&rarr;</span></a></h3>
+          <p>Stand up a programme, run it, or assess its maturity, with charters, policies, and registers ready to adapt.</p>
+        </article>
+        <article class="path">
+          <h3><a href="{{BASE}}/comply/">Meet an obligation <span class="go" aria-hidden="true">&rarr;</span></a></h3>
+          <p>Choose a framework, see the mappings and the gaps, and assemble the evidence an audit will ask for.</p>
+        </article>
+        <article class="path">
+          <h3><a href="{{BASE}}/solutions/">Find a solution <span class="go" aria-hidden="true">&rarr;</span></a></h3>
+          <p>Start from a problem or a lifecycle event, follow it to the documents that solve it, and see how they are designed.</p>
+        </article>
+        <article class="path">
+          <h3><a href="{{BASE}}/policies/">Write a policy <span class="go" aria-hidden="true">&rarr;</span></a></h3>
+          <p>Choose a template, see its prerequisites, and adapt it to your organization.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 2. The depth ===== -->
+  <section id="inside">
+    <div class="wrap">
+      <h2>What's in it</h2>
+      <p class="lede">{{DOMAIN_COUNT}} areas, one connected corpus. Every count below is computed from the library at build time.</p>
+      <div class="register-wrap">
+        <table class="register">
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th>Area</th>
+              <th>Scope</th>
+              <th class="right">Documents</th>
+            </tr>
+          </thead>
+          <tbody>
+{{DOMAIN_ROWS}}
+          </tbody>
+        </table>
+      </div>
+      <p class="register-note">The area counts sum to {{DOMAIN_DOC_TOTAL}}; the other {{ROOT_COUNT}} of the {{DOC_TOTAL}} documents are library-level specifications.</p>
+      <nav class="chip-nav" aria-label="Browse by document type">
+{{TYPE_CHIPS}}
+      </nav>
+      <nav class="chip-nav" aria-label="Browse by area">
+{{SIDENAV_DOMAINS}}
+      </nav>
+
+      <h3 style="margin-top:2.4rem;">See the depth</h3>
+      <p>Documents are written to link into working chains, so one answer leads to the next:</p>
+      <div class="chains">
+        <ol class="chain" aria-label="Example chain from a board concern to a governing standard">
+          <li><span class="node">Board concern</span></li>
+          <li><span class="node">Decision brief</span></li>
+          <li><span class="node">Evidence request</span></li>
+          <li><span class="node">Governing standard</span></li>
+        </ol>
+        <ol class="chain" aria-label="Example chain from a regulatory obligation to audit evidence">
+          <li><span class="node">Regulatory obligation</span></li>
+          <li><span class="node">Mapping</span></li>
+          <li><span class="node">Control set</span></li>
+          <li><span class="node">Audit evidence</span></li>
+        </ol>
+        <ol class="chain" aria-label="Example chain from a policy to an adaptable template">
+          <li><span class="node">Policy</span></li>
+          <li><span class="node">Governing standard</span></li>
+          <li><span class="node">Procedure</span></li>
+          <li><span class="node">Template</span></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 3. The proof ===== -->
+  <section id="rely">
+    <div class="wrap">
+      <h2>Why you can rely on it</h2>
+      <ul class="proof">
+        <li>A named human approves every change.</li>
+        <li>What isn't covered is declared on the page it affects.</li>
+        <li>Mapped to 58 standards including ISO 27001, NIST CSF, GDPR, and the EU AI Act.</li>
+      </ul>
+      <p class="check-link"><a href="https://github.com/jposluns/grc_library" target="_blank" rel="noopener">How to check for yourself &rarr;</a></p>
+    </div>
+  </section>
+</main>
+
+{{FOOTER}}
+
+{{SCRIPT}}
+</body>
+</html>

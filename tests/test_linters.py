@@ -8907,8 +8907,14 @@ class WebGeneratorBaseTokenTests(unittest.TestCase):
             finally:
                 self.mod.figure_values = original_figure_values
 
+            staging_prefixes = tuple(
+                v.url_prefix for v in self.mod.VARIANTS if not v.indexable and v.url_prefix
+            )
             self._write_site(
-                [page for page in self.mod.render_site(figures) if not page[0].startswith("v2/")],
+                [
+                    page for page in self.mod.render_site(figures)
+                    if not page[0].startswith(staging_prefixes)
+                ],
                 after,
             )
             baseline_files = sorted(p.relative_to(baseline) for p in baseline.rglob("*") if p.is_file())
@@ -9101,10 +9107,15 @@ class WebGeneratorV2StagingTests(unittest.TestCase):
             baseline_files = sorted(
                 p.relative_to(baseline) for p in baseline.rglob("*") if p.is_file()
             )
+            staging_dirs = {
+                v.url_prefix.strip("/")
+                for v in self.mod.VARIANTS
+                if not v.indexable and v.url_prefix
+            }
             root_files = sorted(
                 p.relative_to(staged)
                 for p in staged.rglob("*")
-                if p.is_file() and p.relative_to(staged).parts[0] != "v2"
+                if p.is_file() and p.relative_to(staged).parts[0] not in staging_dirs
             )
             self.assertEqual(baseline_files, root_files)
             for rel in baseline_files:

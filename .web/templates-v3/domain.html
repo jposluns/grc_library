@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="{{DOMAIN_SEO_DESC}}">
+<link rel="canonical" href="{{DOMAIN_CANONICAL}}">
+<title>{{DOMAIN_TITLE}}</title>
+{{HEAD_STYLE}}
+</head>
+
+<body>
+<header class="mast">
+  <div class="wrap">
+{{TOPBAR}}
+  </div>
+</header>
+
+<main>
+  <div class="wrap page-head">
+    <p class="eyebrow">Area</p>
+    <h1 class="cap">{{DOMAIN_NAME}}</h1>
+    <p class="lede">{{DOMAIN_SCOPE_TEXT}}.</p>
+    <p>{{DOMAIN_PURPOSE}}</p>
+  </div>
+
+  <section id="documents">
+    <div class="wrap">
+      <h2>The governing documents</h2>
+      <p>{{DOMAIN_DOC_COUNT}} documents in this area, most foundational first: what governs, then what defines, then what you do, then what you fill in. Each title links to the full document source on GitHub.</p>
+      <ul class="doc-index">
+{{DOMAIN_DOC_ROWS}}
+      </ul>
+    </div>
+  </section>
+
+  <section id="areas">
+    <div class="wrap">
+      <h2>All areas</h2>
+      <nav class="chip-nav" aria-label="All areas">
+{{SIDENAV_DOMAINS}}
+      </nav>
+    </div>
+  </section>
+</main>
+
+{{FOOTER}}
+
+{{SCRIPT}}
+</body>
+</html>

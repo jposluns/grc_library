@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="The governance pack: 15 rules and 24 skills distilled from running an AI-managed GRC library, an open CC BY-SA 4.0 discipline layer you can drop into any AI-assisted project.">
+<link rel="canonical" href="https://grclibrary.ai/pack/">
+<title>The governance pack: GRC Library</title>
+{{HEAD_STYLE}}
+</head>
+
+<body>
+<header class="mast">
+  <div class="wrap">
+{{TOPBAR}}
+  </div>
+</header>
+
+<main>
+  <div class="wrap page-head">
+    <p class="eyebrow">Governance pack</p>
+    <h1>The working discipline behind this library.</h1>
+    <p class="lede">This corpus is maintained largely by an AI assistant working under a compact, open pack of governance rules and skills, distilled from the lessons of running the project itself.</p>
+    <p>Every rule traces to a real maintenance lesson: evidence before assertion, no quality gate weakened to force a pass, ambiguity surfaced before action, integrity ahead of speed. The pack is CC BY-SA 4.0 and written to be lifted straight into any AI-assisted project, not only this one.</p>
+    <div class="link-row">
+      <a href="https://github.com/jposluns/grc_library/tree/main/guardrails" target="_blank" rel="noopener">Read the pack on GitHub &rarr;</a>
+    </div>
+  </div>
+
+  <section id="use">
+    <div class="wrap">
+      <h2>Three ways to use it</h2>
+      <div class="modes">
+        <div class="mode">
+          <h3>Fork the whole library</h3>
+          <p>Fork the <a href="https://github.com/jposluns/grc_library" target="_blank" rel="noopener">parent repository</a> and the pack is already wired into the Claude Code rules and skills, no action required.</p>
+        </div>
+        <div class="mode">
+          <h3>Adopt it in a fork</h3>
+          <p>Fork, substitute your organization-specific values across the corpus (the <a href="https://github.com/jposluns/grc_library/blob/main/docs/adopter-guide.md" target="_blank" rel="noopener">adopter guide</a> walks through it), and inherit the pack as the discipline your sessions apply.</p>
+        </div>
+        <div class="mode">
+          <h3>Drop it into any project</h3>
+          <p>Take the <a href="https://github.com/jposluns/grc_library/tree/main/guardrails" target="_blank" rel="noopener">one directory</a> and drop it into any project's AI-assistant context, no GRC corpus needed. A <a href="https://github.com/jposluns/grc_library/blob/main/guardrails/setup-generator-prompt.md" target="_blank" rel="noopener">setup generator</a> automates it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="rules">
+    <div class="wrap">
+      <h2>The rules (15)</h2>
+      <p>Each rule is one governance discipline, framework-aligned and traceable to the maintenance event that motivated it. Names link to the rule on GitHub.</p>
+      <ul class="rows">
+        <li><a class="row-name" href="https://github.com/jposluns/grc_library/blob/main/guardrails/governance/project-integrity.md" target="_blank" rel="noopener">project-integrity</a><span class="row-desc">The apex rule: the AIQT tier outranks progress, speed, and cost (Accuracy = Integrity = Quality = Trust), non-negotiable.</span></li>
+        <li><a class="row-name" href="https://github.com/jposluns/grc_library/blob/main/guardrails/governance/evidence-grounded-completion.md" target="_blank" rel="noopener">evidence-grounded-completion</a><span class="row-desc">Never claim something is done, or assert a property of an artefact, without reading it and running the verification protocol first.</span></li>
+        <li><a class="row-name" href="https://github.com/jposluns/grc_library/blob/main/guardrails/governance/gate-discipline.md" target="_blank" rel="noopener">gate-discipline</a><span class="row-desc">A failing check is signal: fix the artefact, never weaken, suppress, or bypass the gate to force a pass.</span></li>
+        <li><a class="row-name" href="https://github.com/jposluns/grc_library/blob/main/guardrails/governance/clarify-before-acting.md" target="_blank" rel="noopener">clarify-before-acting</a><span class="row-desc">When a request is genuinely ambiguous, surface it with named options and ask, rather than silently guessing.</span></li>
+        <li><a class="row-name" href="https://github.com/jposluns/grc_library/blob/main/guardrails/governance/validate-inference-before-action.md" target="_blank" rel="noopener">validate-inference-before-action</a><span class="row-desc">Before an action depends on an inferred state, confirm the premise with a concrete check, so one wrong assumption cannot cascade.</span></li>
+        <li><a class="row-name" href="https://github.com/jposluns/grc_library/blob/main/guardrails/governance/surface-counterproductive-instructions.md" target="_blank" rel="noopener">surface-counterproductive-instructions</a><span class="row-desc">A clear instruction is not automatically a correct one; surface a net-negative effect with options before executing it.</span></li>
+        <li><a class="row-name" href="https://github.com/jposluns/grc_library/blob/main/guardrails/governance/action-before-explanation-of-inaction.md" target="_blank" rel="noopener">action-before-explanation-of-inaction</a><span class="row-desc">Never explain why a safe, reversible external action cannot proceed without first attempting it.</span></li>
+        <li><a class="row-name" href="https://github.com/jposluns/grc_library/blob/main/guardrails/governance/change-tracking.md" target="_blank" rel="noopener">change-tracking</a><span class="row-desc">Every change carries an audit-trail entry; the forward backlog and the closed-work ledger stay honest.</span></li>
+        <li><a class="row-name" href="https://github.com/jposluns/grc_library/blob/main/guardrails/governance/artefact-and-branch-discipline.md" target="_blank" rel="noopener">artefact-and-branch-discipline</a><span class="row-desc">Generated artefacts are read-only (regenerate, do not hand-edit); protected branches are append-only.</span></li>
+        <li><a class="row-name" href="https://github.com/jposluns/grc_library/blob/main/guardrails/governance/ai-assistant-workflow-disciplines.md" target="_blank" rel="noopener">ai-assistant-workflow-disciplines</a><span class="row-desc">Five disciplines for multi-change AI work: research-then-author, parallel research with serial apply, apply-time correction, split-when-in-doubt, and productive use of CI-wait windows, with a tiered skeptical-verification standard layered on top.</span></li>
+        <li><a class="row-name" href="https://github.com/jposluns/grc_library/blob/main/guardrails/governance/session-lifecycle.md" target="_blank" rel="noopener">session-lifecycle</a><span class="row-desc">Durable handoffs, explicit operating modes, evidence-gated wind-down, and a clean closing merge for long multi-session work.</span></li>
+        <li><a class="row-name" href="https://github.com/jposluns/grc_library/blob/main/guardrails/governance/decision-classification-before-enacting.md" target="_blank" rel="noopener">decision-classification-before-enacting</a><span class="row-desc">Classify a significant autonomous decision ACT / ASK / BLOCKED against a closed blocker set, written before enacting; an un-instrumented internal-state hold is never valid.</span></li>
+        <li><a class="row-name" href="https://github.com/jposluns/grc_library/blob/main/guardrails/governance/express-authorization-before-execution.md" target="_blank" rel="noopener">express-authorization-before-execution</a><span class="row-desc">Execution begins only on an express, work-naming go from the responsible authority; a discussion is not a go, and a conditional go authorizes only its first step.</span></li>
+        <li><a class="row-name" href="https://github.com/jposluns/grc_library/blob/main/guardrails/governance/high-assurance-verification.md" target="_blank" rel="noopener">high-assurance-verification</a><span class="row-desc">A heavier pre-apply harness for sensitive changes: independent adversarial verifiers and a deterministic, re-checked apply.</span></li>
+        <li><a class="row-name" href="https://github.com/jposluns/grc_library/blob/main/guardrails/governance/trust-recovery-escalation.md" target="_blank" rel="noopener">trust-recovery-escalation</a><span class="row-desc">The recovery tier when discipline lapses put a window of work in question: white-box re-examination to explicit sign-off.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="skills">
+    <div class="wrap">
+      <h2>The skills (24)</h2>
+      <p>Executable procedures the assistant runs on demand, the operational companions to the rules. Grouped by purpose; each links to its skill on GitHub.</p>
+
+      <p class="group-h">Validation and QA sweeps</p>
+      <nav class="chip-nav" aria-label="Validation and QA sweep skills">
+        <a href="https://github.com/jposluns/grc_library/blob/main/guardrails/skills/validation-sweep/SKILL.md" target="_blank" rel="noopener">validation-sweep</a>
+        <a href="https://github.com/jposluns/grc_library/blob/main/guardrails/skills/validation-sweep-pr-scoped/SKILL.md" target="_blank" rel="noopener">validation-sweep-pr-scoped</a>
+        <a href="https://github.com/jposluns/grc_library/blob/main/guardrails/skills/pr-retrospective/SKILL.md" target="_blank" rel="noopener">pr-retrospective</a>
+        <a href="https://github.com/jposluns/grc_library/blob/main/guardrails/skills/library-fitness-review/SKILL.md" target="_blank" rel="noopener">library-fitness-review</a>
+        <a href="https://github.com/jposluns/grc_library/blob/main/guardrails/skills/deep-qa-review/SKILL.md" target="_blank" rel="noopener">deep-qa-review</a>
+        <a href="https://github.com/jposluns/grc_library/blob/main/guardrails/skills/guardrail-review/SKILL.md" target="_blank" rel="noopener">guardrail-review</a>
+      </nav>
+
+      <p class="group-h">Semantic-fit and reference audits</p>
+      <nav class="chip-nav" aria-label="Semantic-fit and reference audit skills">
+        <a href="https://github.com/jposluns/grc_library/blob/main/guardrails/skills/matrix-fit/SKILL.md" target="_blank" rel="noopener">matrix-fit</a>
+        <a href="https://github.com/jposluns/grc_library/blob/main/guardrails/skills/claim-fit/SKILL.md" target="_blank" rel="noopener">claim-fit</a>
+        <a href="https://github.com/jposluns/grc_library/blob/main/guardrails/skills/reference-audit/SKILL.md" target="_blank" rel="noopener">reference-audit</a>
+        <a href="https://github.com/jposluns/grc_library/blob/main/guardrails/skills/citation-quote-verification/SKILL.md" target="_blank" rel="noopener">citation-quote-verification</a>
+      </nav>
+
+      <p class="group-h">Escalation and high assurance</p>
+      <nav class="chip-nav" aria-label="Escalation and high-assurance skills">
+        <a href="https://github.com/jposluns/grc_library/blob/main/guardrails/skills/deep-assessment/SKILL.md" target="_blank" rel="noopener">deep-assessment</a>
+        <a href="https://github.com/jposluns/grc_library/blob/main/guardrails/skills/high-assurance-verification/SKILL.md" target="_blank" rel="noopener">high-assurance-verification</a>
+        <a href="https://github.com/jposluns/grc_library/blob/main/guardrails/skills/publication-screening/SKILL.md" target="_blank" rel="noopener">publication-screening</a>
+      </nav>
+
+      <p class="group-h">Rule-companion disciplines</p>
+      <nav class="chip-nav" aria-label="Rule-companion discipline skills">
+        <a href="https://github.com/jposluns/grc_library/blob/main/guardrails/skills/action-before-explanation-of-inaction/SKILL.md" target="_blank" rel="noopener">action-before-explanation-of-inaction</a>
+        <a href="https://github.com/jposluns/grc_library/blob/main/guardrails/skills/clarify-before-acting/SKILL.md" target="_blank" rel="noopener">clarify-before-acting</a>
+        <a href="https://github.com/jposluns/grc_library/blob/main/guardrails/skills/evidence-grounded-completion/SKILL.md" target="_blank" rel="noopener">evidence-grounded-completion</a>
+        <a href="https://github.com/jposluns/grc_library/blob/main/guardrails/skills/gate-discipline-diagnose/SKILL.md" target="_blank" rel="noopener">gate-discipline-diagnose</a>
+        <a href="https://github.com/jposluns/grc_library/blob/main/guardrails/skills/validate-inference/SKILL.md" target="_blank" rel="noopener">validate-inference</a>
+        <a href="https://github.com/jposluns/grc_library/blob/main/guardrails/skills/surface-instruction-concern/SKILL.md" target="_blank" rel="noopener">surface-instruction-concern</a>
+        <a href="https://github.com/jposluns/grc_library/blob/main/guardrails/skills/artefact-discipline-check/SKILL.md" target="_blank" rel="noopener">artefact-discipline-check</a>
+        <a href="https://github.com/jposluns/grc_library/blob/main/guardrails/skills/change-tracking-write-entry/SKILL.md" target="_blank" rel="noopener">change-tracking-write-entry</a>
+        <a href="https://github.com/jposluns/grc_library/blob/main/guardrails/skills/fresh-reader-validation/SKILL.md" target="_blank" rel="noopener">fresh-reader-validation</a>
+        <a href="https://github.com/jposluns/grc_library/blob/main/guardrails/skills/skill-authoring-discipline/SKILL.md" target="_blank" rel="noopener">skill-authoring-discipline</a>
+      </nav>
+
+      <p class="group-h">Fork onboarding</p>
+      <nav class="chip-nav" aria-label="Fork onboarding skills">
+        <a href="https://github.com/jposluns/grc_library/blob/main/guardrails/skills/adopt/SKILL.md" target="_blank" rel="noopener">adopt</a>
+      </nav>
+
+      <p class="note" style="margin-top:1.8rem;">The pack is versioned independently so standalone adopters can track its updates; provenance for every rule is recorded in the pack's rule-provenance register on GitHub.</p>
+    </div>
+  </section>
+</main>
+
+{{FOOTER}}
+
+{{SCRIPT}}
+</body>
+</html>
