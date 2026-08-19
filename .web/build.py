@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Static-site generator for the grclibrary.ai public site: the landing, about, pack, per-domain, and per-type pages, plus the non-indexable /v2 staging tree's extra executive routes.
+"""Static-site generator for the grclibrary.ai public site: the landing, about, pack, per-domain, and per-type pages, plus the non-indexable staging trees (/v2 executive routes and the /v3 need-based path routes).
 
 WHAT THIS IS. A stdlib-only generator that renders the public site (the landing page,
 the about page, the governance-pack page, one page per corpus domain, and one listing
@@ -2057,7 +2057,7 @@ def render_corpus_link_manifest(figures, variant):
         "taxonomy-derived domain and type pages, the curated `llms.txt` map, and "
         "the corpus links hardcoded in the static page templates. Gate 75 "
         "(`tools/lint-web-corpus-links.py`) resolves each target against the repo. "
-        "Non-indexable staging variants (v2) may carry extra executive routes that "
+        "Non-indexable staging variants (v2 and v3) may carry extra routes that "
         "link further corpus targets; those staging-only links are verified at "
         "authoring time, are not enumerated here, and enter this manifest when a "
         "staging tree is promoted to root.",
