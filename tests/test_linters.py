@@ -11238,7 +11238,11 @@ class WebGeneratorNarrativeJoinTests(unittest.TestCase):
         )
         first = dp["narratives"][0]
         self.assertIn(self.mod._esc(first["title"]), html)
-        self.assertIn(self.mod.GITHUB_BLOB_BASE + first["path"], html)
+        # PR-2b: the row links to the ON-SITE reading-room route (the BASE
+        # token resolved to the variant prefix), not the GitHub blob.
+        route_tail = first["route"][len("executive/"):]
+        self.assertIn(f'href="/v2/decisions/{route_tail}/"', html)
+        self.assertNotIn(self.mod.GITHUB_BLOB_BASE + first["path"], html)
 
     def test_zero_narratives_render_declared_gap_row(self):
         rows = self.mod.render_domain_narrative_rows({"narratives": []})
@@ -11252,8 +11256,7 @@ class WebGeneratorNarrativeJoinTests(unittest.TestCase):
             "title": "T", "narrative_type": "Executive Brief", "domains": ["ai"],
         }
         self.assertEqual(
-            self.mod.narrative_page_url(page),
-            self.mod.GITHUB_BLOB_BASE + "executive/briefs/x.md",
+            self.mod.narrative_page_url(page), "{{BASE}}/decisions/briefs/x/"
         )
         rows = self.mod.render_domain_narrative_rows({"narratives": [page]})
         self.assertIn(
@@ -11290,7 +11293,7 @@ class WebGeneratorNarrativeJoinTests(unittest.TestCase):
 
 
 class WebGeneratorReadingRoomTests(unittest.TestCase):
-    """Wave-2 PR-2a: the /v2 executive reading room.
+    """Wave-2 PR-2a/PR-2b: the /v2 executive reading room.
 
     Covers the constrained Markdown renderer (each supported construct maps to
     its expected HTML; every unsupported construct is a loud BuildError, so a
@@ -11299,11 +11302,17 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
     symlink, duplicate, untracked, and missing-file rejections, driven as pure
     decision logic over constructed roots and tracked sets), the route mapping
     (registry executive/<subtype>/<slug> routes to on-site
-    decisions/<subtype>/<slug>/), the v2-only route generation (the six
-    Executive Briefs render at the right paths with the inherited noindex +
-    self-canonical treatment, the source-on-GitHub link, and the closing
-    three-lens rail), and the v1-root-page-set-unchanged invariant (the
-    byte-identical-root release criterion's structural half)."""
+    decisions/<subtype>/<slug>/), the v2-only route generation (PR-2b: ALL 18
+    published narrative pages across the six narrative types render at the
+    right paths with the inherited noindex + self-canonical treatment, the
+    source-on-GitHub link, and the closing three-lens rail; the discovery
+    rows link to the on-site routes, never the GitHub blobs), and the
+    v1-root-page-set-unchanged invariant (the byte-identical-root release
+    criterion's structural half). PR-2b widens the supported construct set
+    to the shapes the 12 non-brief pages use ('### ' sub-headings, 'N. '
+    ordered lists, uniform-separator GFM tables, `inline code`, and the two
+    survey-miss constructs *emphasis* and links nested inside bold spans),
+    each with its own loud-failure boundary tests."""
 
     @classmethod
     def setUpClass(cls):
@@ -11383,23 +11392,28 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
 
     def test_unsupported_constructs_fail_loudly(self):
         cases = [
-            ("### Deep heading", "only '## ' section headings"),
-            ("# Body H1", "only '## ' section headings"),
-            ("## With **bold** inside", "inline markup in a section heading"),
-            ("1. ordered item", "only flat '- ' unordered lists"),
-            ("* star item", "only flat '- ' unordered lists"),
-            ("| a | b |", "tables unsupported"),
+            ("#### Too-deep heading", "only '## ' and '### ' section headings"),
+            ("# Body H1", "only '## ' and '### ' section headings"),
+            ("## With **bold** inside", "in a section heading unsupported"),
+            ("### With `code` inside", "in a section heading unsupported"),
+            ("1) paren-marker ordered item", "unordered and 'N. ' ordered lists"),
+            ("* star item", "unordered and 'N. ' ordered lists"),
+            ("| a | b |", "a table needs a header row"),
             ("```python", "fenced code unsupported"),
             ("    indented line", "indented line unsupported"),
             ("***", "horizontal rules unsupported"),
-            ("A `code span` here.", "code spans"),
+            ("An unbalanced `code span here.", "unbalanced code span"),
+            ("An empty ` ` code span here.", "empty code span"),
             ("An image ![alt](../../ai/README.md) here.", "images unsupported"),
-            ("A *starred* word.", "star emphasis"),
+            ("A stray 3 * 4 star.", "star emphasis"),
             ("An _underscored_ word.", "underscore emphasis"),
             ("A ~~struck~~ word.", "strikethrough"),
             ("An autolink <https://example.com> here.", "autolink"),
+            ("An email autolink <a@example.com> here.", "raw HTML"),
             ("Unbalanced **bold here.", "unbalanced bold"),
             ("A stray ] bracket.", "link syntax"),
+            ("A [reference-style link][ref] here.", "link syntax"),
+            ("[ref]: https://example.com", "link syntax"),
             ("> quote line one\n> quote line two", "multi-line blockquotes"),
             ("- item\nlazy continuation", "lazy list-item continuation"),
             ("> quote\nlazy quote continuation", "multi-line blockquotes"),
@@ -11416,6 +11430,102 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
                     self.mod.render_narrative_body(
                         self._doc("## Section\n\n" + body), self._SOURCE_REL
                     )
+
+    def test_pr2b_security_qa_fixes_fail_loudly_or_render(self):
+        # Dual-family /validate-pr (#1633) findings, each now guarded. Every
+        # shape below is ABSENT from the 18 published pages (verified), so these
+        # are loud-fail / correctness additions, not corpus-rendering changes.
+        raise_cases = [
+            # E1 (both families): a brace-bearing link target would survive as a
+            # {{NAME}} template token in the rendered href.
+            ("A link [x](../../ai/note-{{SCRIPT}}.md) here.",
+             "brace in a link target"),
+            # E2 (codex): the separator must be the surveyed three-or-more '---'
+            # form; one- or two-hyphen cells are not accepted silently.
+            ("| a | b |\n|-|-|\n| c | d |", "second table row must be the"),
+            ("| a | b |\n|--|--|\n| c | d |", "second table row must be the"),
+            # E3 (codex): a ten-digit ordered marker is not a list marker.
+            ("0000000001. item", "unordered and 'N. ' ordered lists"),
+            # W1 (claude): a table must be PRECEDED by a blank line (the mirror
+            # of the table-followed-by-prose guard).
+            ("prose line\n| a | b |\n| --- | --- |\n| c | d |",
+             "must be preceded by a blank line"),
+            ("- an item\n| a | b |\n| --- | --- |\n| c | d |",
+             "must be preceded by a blank line"),
+            # W2 (claude): overlapping/space-flanked bold does not silently
+            # re-partition into inverted emphasis; the stray '**' raises.
+            ("An **a **b** c** run.", "unbalanced bold"),
+            # W2 (codex): emphasis inside a link label is not a surveyed nesting.
+            ("A [x *y*](../../ai/README.md) link.", "star emphasis"),
+            # W1 (codex) / N2 (claude): a literal brace in a heading is rejected
+            # with an accurate message (headings are plain text, braces reserved).
+            ("## The {rule} set\n\nbody", "in a section heading unsupported"),
+            # F2 (round-2 codex): a CLOSING brace in a heading is rejected too
+            # (the escape asymmetry left `}` slipping through the comparison).
+            ("## The }rule set\n\nbody", "in a section heading unsupported"),
+            ("### The }sub set\n\nbody", "in a section heading unsupported"),
+            # F3 (round-2 codex): a Unicode-digit ordered marker is not ASCII 1-9.
+            ("\u0661. item", "unordered and 'N. ' ordered lists"),
+            ("\uff11. item", "unordered and 'N. ' ordered lists"),
+        ]
+        for body, expected in raise_cases:
+            with self.subTest(body=body):
+                with self.assertRaisesRegex(self.mod.BuildError, re.escape(expected)):
+                    self.mod.render_narrative_body(
+                        self._doc("## Section\n\n" + body), self._SOURCE_REL
+                    )
+        # E4 (codex): a code span padded on both sides is normalized (one
+        # leading + one trailing space removed), per CommonMark.
+        html, _ = self.mod.render_narrative_body(
+            self._doc("## Section\n\nA ` code ` span."), self._SOURCE_REL
+        )
+        self.assertIn("<code>code</code>", html)
+        self.assertNotIn("<code> code </code>", html)
+        # W3 (codex): code-span content is LITERAL (markup-shaped characters
+        # stay text) yet still HTML-escaped and {-guarded against injection.
+        html, _ = self.mod.render_narrative_body(
+            self._doc("## Section\n\nUse `arr[0]` and `a**b` and `{{SCRIPT}}` here."),
+            self._SOURCE_REL,
+        )
+        self.assertIn("<code>arr[0]</code>", html)
+        self.assertIn("<code>a**b</code>", html)
+        self.assertIn("<code>&#123;&#123;SCRIPT}}</code>", html)
+        self.assertNotIn("{{SCRIPT}}", html)
+
+    def test_registry_brace_rejected_by_load_narratives(self):
+        # NEW-1 (round-2 QA): a brace in a registry title OR path would survive
+        # as a {{NAME}} template token in an _esc-only sink (NARRATIVE_H1, the
+        # discovery-row title, or the "Read the source on GitHub" href), so
+        # load_narratives rejects it at build time.
+        import tempfile
+        import pathlib
+        for label, title, path in (
+            ("braced title", "A {rule} title", "executive/briefs/brief-fixture.md"),
+            ("braced path", "A clean title", "executive/briefs/brief-{{X}}.md"),
+        ):
+            with self.subTest(label=label):
+                content = (
+                    "schema_version: 1\n"
+                    "pages:\n"
+                    f'- path: "{path}"\n'
+                    f'  title: "{title}"\n'
+                    '  narrative_type: "Executive Brief"\n'
+                )
+                with tempfile.NamedTemporaryFile(
+                    "w", suffix=".yml", delete=False, encoding="utf-8"
+                ) as tf:
+                    tf.write(content)
+                    tmp = pathlib.Path(tf.name)
+                saved = self.mod.NARRATIVE_REGISTRY
+                try:
+                    self.mod.NARRATIVE_REGISTRY = tmp
+                    with self.assertRaisesRegex(
+                        self.mod.BuildError, "brace in the title or path"
+                    ):
+                        self.mod.load_narratives()
+                finally:
+                    self.mod.NARRATIVE_REGISTRY = saved
+                    tmp.unlink()
 
     def test_document_model_drift_fails_loudly(self):
         with self.assertRaisesRegex(self.mod.BuildError, "no leading '# ' title"):
@@ -11538,22 +11648,46 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
         self.assertEqual(len(rels), len(expected))
         self.assertFalse([r for r in rels if r.startswith("decisions/")])
 
-    def test_v2_renders_the_six_brief_routes(self):
+    def test_v2_renders_all_eighteen_narrative_routes(self):
+        """PR-2b: EVERY registry-listed narrative page (all 18, across the
+        six published narrative types) renders on-site under
+        decisions/<subtype>/<slug>/; no page falls through the type filter."""
         figures = self.mod.compute_figures()
         v2 = self._variant("v2")
         self.assertTrue(v2.narrative_routes)
         pages = dict(self.mod.render_variant(figures, v2))
-        briefs = [
-            p for p in figures["narratives"]
-            if p["narrative_type"] in self.mod.NARRATIVE_ROUTE_TYPES
-        ]
-        self.assertEqual(len(briefs), 6)
-        for page in briefs:
+        narratives = figures["narratives"]
+        self.assertEqual(len(narratives), 18)
+        self.assertEqual(
+            {p["narrative_type"] for p in narratives},
+            set(self.mod.NARRATIVE_ROUTE_TYPES),
+        )
+        self.assertEqual(len(self.mod.NARRATIVE_ROUTE_TYPES), 6)
+        for page in narratives:
             out_rel = "decisions/" + page["route"][len("executive/"):] + "/index.html"
             self.assertIn(out_rel, pages)
-        # Exactly the briefs are added on top of the v1 set + V2_EXTRA_PAGES.
+        # Exactly the narrative routes are added on top of v1 + V2_EXTRA_PAGES.
         v1_count = len(self.mod.render_variant(figures, self._variant("v1")))
-        self.assertEqual(len(pages), v1_count + len(self.mod.V2_EXTRA_PAGES) + len(briefs))
+        self.assertEqual(
+            len(pages), v1_count + len(self.mod.V2_EXTRA_PAGES) + len(narratives)
+        )
+
+    def test_unrouted_narrative_type_fails_loudly(self):
+        """The PR-2b health check: a registry narrative_type missing from
+        NARRATIVE_ROUTE_TYPES is a loud BuildError, so a future NEW type
+        cannot silently skip on-site rendering."""
+        figures = dict(self.mod.compute_figures())
+        figures["narratives"] = figures["narratives"] + [{
+            "path": "executive/briefs/brief-ai-data-governance.md",
+            "route": "executive/future-things/future-page",
+            "title": "A future page",
+            "narrative_type": "Future Type",
+            "domains": ["ai"],
+        }]
+        with self.assertRaisesRegex(
+            self.mod.BuildError, "no on-site route.*Future Type"
+        ):
+            self.mod.render_variant(figures, self._variant("v2"))
 
     def test_rendered_brief_page_carries_the_required_surfaces(self):
         figures = self.mod.compute_figures()
@@ -11581,12 +11715,57 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
         self.assertIn('<span class="sec-num">&sect;01</span>', html)
         self.assertNotIn("End of Document", html)
 
-    def test_source_blob_helper_is_the_stable_flip_point(self):
+    def test_row_url_is_on_site_and_source_link_stays_the_blob(self):
+        """PR-2b: the discovery-row URL helper now returns the ON-SITE
+        reading-room route (site-relative behind the BASE token), while the
+        source-on-GitHub helper keeps returning the blob for the
+        reading-room page's own source link."""
         page = {"path": "executive/briefs/x.md", "route": "executive/briefs/x"}
         blob = self.mod.GITHUB_BLOB_BASE + "executive/briefs/x.md"
         self.assertEqual(self.mod.narrative_source_blob_url(page), blob)
-        # PR-2a: the row URL is still the blob (the on-site flip is PR-2b).
-        self.assertEqual(self.mod.narrative_page_url(page), blob)
+        self.assertEqual(
+            self.mod.narrative_page_url(page), "{{BASE}}/decisions/briefs/x/"
+        )
+
+    def test_every_discovery_row_url_is_on_site(self):
+        """PR-2b: every registry page's row URL is the on-site route (never a
+        GitHub blob), and the rendered v2 domain rows carry the resolved
+        /v2/decisions/ links with no new-tab/external-arrow treatment."""
+        figures = self.mod.compute_figures()
+        for page in figures["narratives"]:
+            url = self.mod.narrative_page_url(page)
+            self.assertTrue(
+                url.startswith("{{BASE}}/decisions/") and url.endswith("/"),
+                f"{page['path']}: {url}",
+            )
+            self.assertNotIn("github.com", url)
+        for dp in figures["domain_pages"]:
+            rows = self.mod.render_domain_narrative_rows(dp)
+            self.assertNotIn("github.com", rows)
+            self.assertNotIn('target="_blank"', rows)
+            self.assertNotIn('class="ext"', rows)
+        # End-to-end: a rendered v2 domain page resolves the BASE token.
+        v2 = self._variant("v2")
+        pages = dict(self.mod.render_variant(figures, v2))
+        html = pages["ai/index.html"]
+        self.assertIn('href="/v2/decisions/', html)
+        self.assertNotIn("blob/main/executive/", html)
+
+    def test_decisions_template_links_are_on_site(self):
+        """PR-2b: the hand-curated decisions.html narrative rows link to the
+        on-site reading-room routes (internal: no blob URL, no new-tab, no
+        external arrow on those rows), and every linked route is a real
+        registry route, so a curated row cannot point at a page the reading
+        room does not render."""
+        template = (
+            self.mod.template_dir_for(self._variant("v2")) / "decisions.html"
+        ).read_text(encoding="utf-8")
+        self.assertNotIn("blob/main/executive/", template)
+        hrefs = set(re.findall(r'href="\{\{BASE\}\}/decisions/([a-z0-9-]+/[a-z0-9-]+)/"', template))
+        figures = self.mod.compute_figures()
+        routes = {p["route"][len("executive/"):] for p in figures["narratives"]}
+        self.assertEqual(hrefs, routes)
+        self.assertEqual(len(routes), 18)
 
     # --- QA fix 1 regression: {{TOKEN}} in prose stays inert END-TO-END ---
 
@@ -11662,8 +11841,8 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
             # a bare '---' body line hits the HR rejection (the metadata
             # terminator consumed the FIRST '---', so this one is body text)
             ("Setext H2 heading\n---", "horizontal rules unsupported"),
-            ("| a | b |\n| --- | --- |", "tables unsupported"),
-            ("Head A | Head B\n--- | ---", "tables unsupported"),
+            ("| a | b |\n| --- | --- |", "a table needs a header row"),
+            ("Head A | Head B\n--- | ---", "a pipe is only supported inside"),
             ("- - -", "spaced thematic breaks unsupported"),
             ("* * *", "spaced thematic breaks unsupported"),
             ("= = =", "spaced thematic breaks unsupported"),
@@ -11708,7 +11887,8 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
             ("## Head ##", "closing-hash ATX headings unsupported"),
             ("## Head #", "closing-hash ATX headings unsupported"),
             ("## ###", "closing-hash ATX headings unsupported"),
-            ("### Head ###", "only '## ' section headings"),
+            ("### Head ###", "closing-hash ATX headings unsupported"),
+            ("### Head #", "closing-hash ATX headings unsupported"),
             # (b) nested block constructs behind a blockquote marker
             ("> ### nested heading", "nested block construct in a blockquote"),
             ("> ## nested heading", "nested block construct in a blockquote"),
@@ -11720,8 +11900,11 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
             ("> ```python", "nested block construct in a blockquote"),
             (">  indented content", "nested block construct in a blockquote"),
             ("> <div>", "nested block construct in a blockquote"),
-            ("> Head A | Head B", "tables unsupported"),
-            ("> | a | b |", "tables unsupported"),
+            # a pipe behind a container marker is caught by the whole-line
+            # pipe-placement check (which runs before the marker branches),
+            # so a table can never hide inside a blockquote or list item.
+            ("> Head A | Head B", "a pipe is only supported inside"),
+            ("> | a | b |", "a pipe is only supported inside"),
             # (b) nested block constructs behind a list marker
             ("- ## nested heading", "nested block construct in a list item"),
             ("- ### nested heading", "nested block construct in a list item"),
@@ -11732,7 +11915,7 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
             ("- ```", "nested block construct in a list item"),
             ("-  indented content", "nested block construct in a list item"),
             ("- <div>", "nested block construct in a list item"),
-            ("- a | b", "tables unsupported"),
+            ("- a | b", "a pipe is only supported inside"),
             # (c) backslash escapes (would print the backslash a standard
             # renderer drops: a silent divergence)
             ("A \\# escaped hash.", "backslash escapes unsupported"),
@@ -11847,6 +12030,143 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
             self.mod._classify_narrative_line("-\titem", "executive/briefs/x.md")
         with self.assertRaises(self.mod.BuildError):
             self.mod._classify_narrative_line("-\t> nested", "executive/briefs/x.md")
+
+    # --- PR-2b: the widened construct set (the 12 non-brief pages) ---
+
+    _PR2B_BODY = (
+        "## Stages\n\n"
+        "### Stage 1: recorded\n\n"
+        "A paragraph under the sub-heading with `inline code` and *emphasis*.\n\n"
+        "1. **First.** With a [link](../../ai/README.md).\n"
+        "2. Second item with `code`.\n"
+        "3. *Third* item.\n\n"
+        "### Stage 2: assessed\n\n"
+        "**Bold containing a [nested link](../../ai/README.md) inside.**\n\n"
+        "## Contribution map\n\n"
+        "| Corpus control | Relationship |\n"
+        "|---|---|\n"
+        "| A [cell link](../../ai/README.md) | dependency |\n"
+        "| Cell with `code` and *em* | **evidence** |"
+    )
+
+    def test_pr2b_constructs_render_expected_html(self):
+        html, toc = self.mod.render_narrative_body(
+            self._doc(self._PR2B_BODY), self._SOURCE_REL
+        )
+        # H3: the H2 anchor treatment, inside the section, NOT in the ToC
+        # (the sidenav lists the numbered '## ' sections alone).
+        self.assertIn('<h3 id="stage-1-recorded">Stage 1: recorded</h3>', html)
+        self.assertIn('<h3 id="stage-2-assessed">Stage 2: assessed</h3>', html)
+        self.assertEqual(
+            toc, [("stages", "Stages"), ("contribution-map", "Contribution map")]
+        )
+        # Ordered list: <ol> with the inline constructs intact per item.
+        self.assertIn("<ol>", html)
+        self.assertIn("<li><strong>First.</strong> With a", html)
+        self.assertIn("<li>Second item with <code>code</code>.</li>", html)
+        self.assertIn("<li><em>Third</em> item.</li>", html)
+        # Inline code and emphasis in a paragraph.
+        self.assertIn("with <code>inline code</code> and <em>emphasis</em>.", html)
+        # A link nested INSIDE a bold span (the corpus's nesting direction).
+        self.assertIn(
+            "<strong>Bold containing a "
+            '<a href="https://github.com/jposluns/grc_library/blob/main/ai/README.md" '
+            'target="_blank" rel="noopener">nested link</a> inside.</strong>',
+            html,
+        )
+        # Table: thead/tbody, header cells as <th>, data cells as <td> with
+        # the full inline treatment.
+        self.assertIn("<table>", html)
+        self.assertIn("<thead>", html)
+        self.assertIn("<tr><th>Corpus control</th><th>Relationship</th></tr>", html)
+        self.assertIn("<tbody>", html)
+        self.assertIn(
+            'rel="noopener">cell link</a></td><td>dependency</td></tr>', html
+        )
+        self.assertIn(
+            "<td>Cell with <code>code</code> and <em>em</em></td>"
+            "<td><strong>evidence</strong></td></tr>",
+            html,
+        )
+
+    def test_code_span_inner_is_escaped_against_placeholder_injection(self):
+        """The QA fix-1 injection guard extends to code-span inner text: a
+        literal `{{SCRIPT}}` inside a code span renders with '{' escaped to
+        &#123;, so render_page's second substitution pass can never expand
+        it into a live partial."""
+        html, _ = self.mod.render_narrative_body(
+            self._doc("## Section\n\nRun `{{SCRIPT}}` and `1 < 2 & {x}` now."),
+            self._SOURCE_REL,
+        )
+        self.assertIn("<code>&#123;&#123;SCRIPT}}</code>", html)
+        self.assertIn("<code>1 &lt; 2 &amp; &#123;x}</code>", html)
+        self.assertIsNone(self.mod._PLACEHOLDER_RE.search(html))
+
+    def test_pr2b_unsupported_shapes_fail_loudly(self):
+        """The widened whitelist's loud boundary: every shape OUTSIDE the
+        surveyed construct set still raises before the paragraph fallback
+        (the tab-marker bypass class, ragged and colon-aligned and misplaced
+        tables, non-sequential ordered lists, nested blocks behind the new
+        container markers, fenced code)."""
+        table = "| a | b |\n|---|---|\n| c | d |"
+        cases = [
+            # the 'N.<tab>' marker bypass (the PR-2a round-3 residual class,
+            # applied to the ordered marker): NEVER a silent paragraph.
+            ("1.\ttab item", "unsupported whitespace after the 'N.'"),
+            ("1.", "empty list item"),
+            ("2. starts past one", "numbered sequentially from 1"),
+            ("1. one\n3. skips two", "numbered sequentially from 1"),
+            ("1. > nested quote", "nested block construct in a ordered-list item"),
+            ("1. ### nested heading", "nested block construct in a ordered-list item"),
+            ("1. - nested list", "nested block construct in a ordered-list item"),
+            ("- item\n2. mixed continuation", "numbered sequentially from 1"),
+            # tables: ragged, colon-aligned, misplaced/missing separator,
+            # empty cells, escaped pipes, prose directly under the table.
+            ("| a | b |\n|---|---|\n| only-one-cell |", "ragged table"),
+            ("| a | b |\n|---|---|---|\n| c | d |", "ragged table"),
+            ("| a | b |\n|:---|---:|\n| c | d |", "column-alignment colons"),
+            ("| a | b |\n| c | d |\n| e | f |", "must be the '---' separator"),
+            ("| a | b |\n|---|---|", "at least one data row"),
+            ("| a | b |\n|---|---|\n|---|---|", "separator-shaped table row"),
+            ("| a | b |\n|---|---|\n| c | ### nested |",
+             "nested block construct in a table cell"),
+            ("| a | b |\n|---|---|\n| c | > nested |",
+             "nested block construct in a table cell"),
+            ("| a |  |\n|---|---|\n| c | d |", "empty table cell"),
+            ("| a\\|b | c |\n|---|---|\n| d | e |", "backslash in a table row"),
+            (table + "\nlazy prose under the table", "followed by a blank line"),
+            ("| unterminated row\n|---|\n| c |", "a pipe is only supported inside"),
+            # emphasis boundaries: unbalanced/malformed stars stay loud.
+            ("A dangling *emphasis opener.", "star emphasis"),
+            ("A doubled **bold *and* tangle.", "unbalanced bold"),
+            ("A [label with **bold**](../../ai/README.md) link.", "link syntax"),
+            # fenced code stays loud (zero fences in the corpus).
+            ("```\ncode\n```", "fenced code unsupported"),
+            ("~~~\ncode\n~~~", "fenced code unsupported"),
+        ]
+        for body, expected in cases:
+            with self.subTest(body=body):
+                with self.assertRaisesRegex(self.mod.BuildError, re.escape(expected)):
+                    self.mod.render_narrative_body(
+                        self._doc("## Section\n\n" + body), self._SOURCE_REL
+                    )
+        # The odd-whitespace ordered markers that are line boundaries for
+        # splitlines() (so they cannot ride a rendered body) still raise at
+        # the classifier, like the '-<tab>' class above.
+        for line in ("1.\vtab item", "1.\ftab item", "1.\rtab item"):
+            with self.subTest(line=line):
+                with self.assertRaisesRegex(
+                    self.mod.BuildError, "unsupported whitespace after the 'N.'"
+                ):
+                    self.mod._classify_narrative_line(line, self._SOURCE_REL)
+        # The boundary stays exact on the positive side: the single-space
+        # marker forms render.
+        html, _ = self.mod.render_narrative_body(
+            self._doc("## Section\n\n1. one\n2. two"), self._SOURCE_REL
+        )
+        self.assertIn("<ol>", html)
+        self.assertIn("<li>one</li>", html)
+        self.assertIn("<li>two</li>", html)
 
 
 class WebCorpusLinkTests(LinterTestCase):
