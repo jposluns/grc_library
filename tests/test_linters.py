@@ -9300,11 +9300,25 @@ class WebGeneratorV2StagingTests(unittest.TestCase):
                              "search index must NOT be in /v2")
             data = json.loads((out / "v3" / "search-index.json").read_text(encoding="utf-8"))
             full = self.mod.parse_taxonomy_full(self.mod.TAXONOMY.read_text(encoding="utf-8"))
-            expected = [d for d in full if d.get("domain") != self.mod.ROOT_DOMAIN]
-            self.assertEqual(len(data), len(expected))
+            docs = [d for d in full if d.get("domain") != self.mod.ROOT_DOMAIN]
+            # The index is corpus DOMAIN documents only: reading-room narrative
+            # pages are corpus documents by neither count nor category (the
+            # gate-86 boundary), so they are NOT indexed here (they are reached
+            # from their domain pages and the Decide path). Guards against the
+            # documents/narratives boundary being re-crossed.
+            self.assertEqual(len(data), len(docs))
+            self.assertFalse([e for e in data if "/decisions/" in e["u"]],
+                             "narrative pages must NOT be in the document search index")
             for e in data[:5]:
                 self.assertEqual(set(e), {"t", "y", "a", "p", "f", "u"})
                 self.assertTrue(e["u"].startswith("/v3/documents/"))
+            # exact-set rigour (RC-4): every indexed URL resolves to an emitted
+            # page, and the URLs are unique (a duplicate hiding a lost document
+            # would pass a bare count check).
+            for e in data:
+                self.assertTrue((out / e["u"].strip("/") / "index.html").is_file(),
+                                f"search URL does not resolve: {e['u']}")
+            self.assertEqual(len({e["u"] for e in data}), len(data), "duplicate URL")
 
     def test_v3_document_page_values_from_taxonomy(self):
         """document_page_values surfaces the enriched taxonomy fields (purpose,
@@ -9327,6 +9341,189 @@ class WebGeneratorV2StagingTests(unittest.TestCase):
         for k, val in vals.items():
             self.assertNotIn("{{", val.replace("{{BASE}}", ""),
                              f"unfilled placeholder in {k}")
+
+    def test_v3_reading_room_renders_only_under_v3(self):
+        """The executive reading room renders under /v3/decisions/ (never at
+        root), one page per registry narrative, via the constrained renderer.
+        v2 renders its own copy under /v2/decisions/ (unchanged); root (v1) never
+        renders it at all."""
+        figures = self.mod.compute_figures()
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            self._write_site(self.mod.render_site(figures), out)
+            v3dec = out / "v3" / "decisions"
+            self.assertTrue(v3dec.is_dir(), "/v3/decisions/ missing")
+            pages = sorted(v3dec.rglob("index.html"))
+            # the build emits one on-site page per registry narrative of a
+            # routed type; all published types are routed, so figures'
+            # narrative list is the authoritative expected count.
+            expected = len(figures["narratives"])
+            self.assertEqual(len(pages), expected,
+                             "one /v3/decisions/ page per registry narrative")
+            self.assertGreaterEqual(expected, 18, "registry narratives missing")
+            self.assertFalse((out / "decisions").exists(),
+                             "the reading room must NOT render at root (v1)")
+            sample = (v3dec / "briefs" / "brief-ai-data-governance" / "index.html")
+            self.assertTrue(sample.is_file(), "sample narrative page missing")
+            html = sample.read_text(encoding="utf-8")
+            self.assertNotIn("{{", html.replace("{{BASE}}", ""),
+                             "unfilled placeholder in a reading-room page")
+            self.assertIn('class="narr"', html)
+            self.assertIn("/v3/decide/", html)
+
+    def test_v3_narrative_reserved_anchor_guard(self):
+        """A narrative body heading slugging to a v3 reading-room shell id
+        (contents / go-deeper) raises loudly rather than emitting a duplicate id
+        (RR guard, PR #1638). The reservation is per-variant: the same heading is
+        fine under the v2 template, which does not use those shell ids."""
+        v3ids = self.mod.NARRATIVE_SHELL_IDS["templates-v3"]
+        v2ids = self.mod.NARRATIVE_SHELL_IDS["templates-v2"]
+        self.assertIn("go-deeper", v3ids)
+        self.assertIn("contents", v3ids)
+        body = "# T\n\n---\n\n## Go deeper\n\nx\n\n**End of Document**\n"
+        with self.assertRaises(self.mod.BuildError):
+            self.mod.render_narrative_body(body, "executive/briefs/x.md", v3ids)
+        # the SAME body renders under the v2 reservation (go-deeper not reserved)
+        html, toc = self.mod.render_narrative_body(
+            body, "executive/briefs/x.md", v2ids)
+        self.assertTrue(toc)
+
+    def test_v3_narrative_reserved_set_matches_template(self):
+        """The v3 reserved shell-id set must EXACTLY cover the v3 narrative
+        template's own <section> ids, plus the renderer-owned narr-intro (RC-2):
+        a template section added or renamed without updating NARRATIVE_SHELL_IDS
+        would silently reopen the collision gap this guard closes."""
+        import re
+        # Parametrized over BOTH reading-room templates (claude round-6 LOW): a
+        # v2-only check let a new templates-v2 section drift from its reservation.
+        for tdir in ("templates-v2", "templates-v3"):
+            tmpl = (self.mod.WEB_DIR / tdir / "narrative.html").read_text(
+                encoding="utf-8")
+            template_ids = set(re.findall(r'<section id="([a-z0-9-]+)"', tmpl))
+            reserved = self.mod.NARRATIVE_SHELL_IDS[tdir]
+            unreserved = template_ids - reserved
+            self.assertEqual(unreserved, set(),
+                             f"{tdir} section id(s) not reserved: {unreserved}")
+            self.assertEqual(reserved - template_ids, {"narr-intro"},
+                             f"reserved set drifted from {tdir}'s section ids")
+
+    def test_v3_narrative_domain_rail_matches_registry(self):
+        """EVERY reading-room page's 'go deeper' rail links exactly the domains
+        the registry tags that narrative with, in order (RC-3) - not a fixed
+        set. Guards the per-narrative-rail fix across all 18 pages, not one."""
+        import re
+        figures = self.mod.compute_figures()
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            self._write_site(self.mod.render_site(figures), out)
+            for pg in figures["narratives"]:
+                tail = pg["route"][len("executive/"):]
+                html = (out / "v3" / "decisions" / tail / "index.html").read_text(
+                    encoding="utf-8")
+                m = re.search(
+                    r'aria-label="Domains this narrative touches">(.*?)</nav>',
+                    html, re.S)
+                self.assertIsNotNone(m, f"{tail}: domain rail missing")
+                rail = re.findall(r'\{\{BASE\}\}/([a-z-]+)/"|/v3/([a-z-]+)/"',
+                                  m.group(1))
+                rail = [a or b for a, b in rail]
+                self.assertEqual(rail, list(pg["domains"]),
+                                 f"{tail}: rail {rail} != registry {pg['domains']}")
+
+    def test_v3_reading_room_reachable_from_domain_pages(self):
+        """Every reading-room narrative is linked from at least one /v3 domain
+        page (the per-domain "Leadership pages" section), so no page is an
+        on-site orphan with JS off (PR #1638; F-3). Reachability is via the
+        domain pages, not the document search index."""
+        import re
+        figures = self.mod.compute_figures()
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            self._write_site(self.mod.render_site(figures), out)
+            linked = set()
+            for dp in figures["domain_pages"]:
+                html = (out / "v3" / dp["domain"] / "index.html").read_text(
+                    encoding="utf-8")
+                linked |= set(re.findall(r'/v3/(decisions/[a-z0-9/-]+/)', html))
+            for pg in figures["narratives"]:
+                tail = pg["route"][len("executive/"):]
+                self.assertIn(f"decisions/{tail}/", linked,
+                              f"{tail} not linked from any /v3 domain page")
+
+    def test_v3_no_stale_executive_blob_links(self):
+        """The executive-blob link surface is EXACT against the registry. Build
+        the allowed map from the narrative registry (each of the 18 pages links
+        exactly twice to its OWN .md source, the two "read the source" CTAs) and
+        require the rendered /v3 tree to match it EXACTLY: no other /v3 page
+        (including a non-registry page under decisions/) carries any executive/
+        blob, and no /v3 template or page carries a stale "coming soon" phrase.
+        Detection is case-insensitive over any path characters and the allowed
+        pages are the exact registry paths (not the whole decisions/ subtree),
+        so an uppercase / digit / foreign / wrong-subtype blob, a non-registry
+        decisions page, and a missing / extra CTA all fail (PR #1638; codex
+        rounds 4-6 each closed a narrower edge, this is the exact-set form)."""
+        import re
+        from collections import Counter
+        figures = self.mod.compute_figures()
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            self._write_site(self.mod.render_site(figures), out)
+            v3 = out / "v3"
+            blob_re = re.compile(r"blob/main/(executive/\S+?\.md)", re.I)
+            actual = {}
+            for f in v3.rglob("*.html"):
+                links = blob_re.findall(f.read_text(encoding="utf-8"))
+                if links:
+                    actual[f.relative_to(v3).as_posix()] = links
+            expected = {
+                f"decisions/{pg['route'][len('executive/'):]}/index.html":
+                    [pg["path"]] * 2
+                for pg in figures["narratives"]
+            }
+            self.assertEqual(
+                set(actual), set(expected),
+                "pages carrying executive/ blobs differ from the registry "
+                f"narrative set: extra={sorted(set(actual) - set(expected))}, "
+                f"missing={sorted(set(expected) - set(actual))}")
+            for rel, exp in expected.items():
+                self.assertEqual(
+                    Counter(actual.get(rel, [])), Counter(exp),
+                    f"{rel}: executive blobs {dict(Counter(actual.get(rel, [])))} "
+                    f"!= two of {exp[0]}")
+            # no stale "coming soon" / GitHub-today phrase in any /v3 template or page
+            tdir = self.mod.WEB_DIR / "templates-v3"
+            stale = ("coming soon", "on-site versions are coming",
+                     "read at source on github", "reads at source on github")
+            for base in (tdir, v3):
+                for f in base.rglob("*.html"):
+                    low = f.read_text(encoding="utf-8").lower()
+                    for ph in stale:
+                        self.assertNotIn(ph, low, f"stale copy phrase {ph!r} in {f}")
+
+    def test_v3_decide_links_resolve(self):
+        """Every on-site reading-room link on the /v3 Decide AND Solutions pages
+        resolves to an actually-emitted page. Guards both relinks (GitHub blob to
+        on-site) against narrative-registry drift: a link to a non-registered
+        executive/ file would 404."""
+        import re
+        figures = self.mod.compute_figures()
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            self._write_site(self.mod.render_site(figures), out)
+            # Both the Decide page (8 briefs) and the Solutions page (5
+            # journeys/scenarios) link narratives on-site; every such link must
+            # resolve to an emitted page (guards both relinks against registry
+            # drift; codex round-4 MED-2 added the Solutions coverage).
+            for page, floor in (("decide", 8), ("solutions", 5)):
+                idx = out / "v3" / page / "index.html"
+                self.assertTrue(idx.is_file(), f"/v3/{page}/ missing")
+                links = re.findall(r'href="/v3/(decisions/[a-z0-9/-]+/)"',
+                                   idx.read_text(encoding="utf-8"))
+                self.assertGreaterEqual(len(links), floor,
+                                        f"/v3/{page}/ lost its on-site narrative links")
+                for rel in links:
+                    self.assertTrue((out / "v3" / rel / "index.html").is_file(),
+                                    f"{page} link /v3/{rel} resolves to no page")
 
     def test_v2_internal_fragment_links_resolve(self):
         """Every internal /v2 link that carries a #fragment resolves to an id on
@@ -11264,8 +11461,8 @@ class WebGeneratorNarrativeJoinTests(unittest.TestCase):
     registry and a minimal fixture; loud BuildError on a missing registry, a
     zero-page parse, a missing required field, and a page with no listing
     route), the compute_figures health check (every domain: derived tag names a
-    real DOMAIN_SCOPE domain), the per-domain leadership-page tokens on the v2
-    domain template (rows in the shared .doc-row shape; a COMPUTED count; the
+    real DOMAIN_SCOPE domain), the per-domain leadership-page tokens on the v2 and v3
+    domain templates (rows in the shared .doc-row shape; a COMPUTED count; the
     N=0 declared-gap branch), the single-helper row URL (wave-2 PR-2's
     blob-to-on-site flip point), and the v1 inertness invariant (the root
     template references neither token, the mechanism that keeps the frozen
@@ -11500,7 +11697,7 @@ class WebGeneratorNarrativeJoinTests(unittest.TestCase):
 
 
 class WebGeneratorReadingRoomTests(unittest.TestCase):
-    """Wave-2 PR-2a/PR-2b: the /v2 executive reading room.
+    """Wave-2 PR-2a/PR-2b (extended to /v3 in PR #1638): the executive reading room.
 
     Covers the constrained Markdown renderer (each supported construct maps to
     its expected HTML; every unsupported construct is a loud BuildError, so a
@@ -11509,10 +11706,10 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
     symlink, duplicate, untracked, and missing-file rejections, driven as pure
     decision logic over constructed roots and tracked sets), the route mapping
     (registry executive/<subtype>/<slug> routes to on-site
-    decisions/<subtype>/<slug>/), the v2-only route generation (PR-2b: ALL 18
+    decisions/<subtype>/<slug>/), the on-site route generation (PR-2b; extended to /v3 in PR #1638: ALL 18
     published narrative pages across the six narrative types render at the
     right paths with the inherited noindex + self-canonical treatment, the
-    source-on-GitHub link, and the closing three-lens rail; the discovery
+    source-on-GitHub link, and the closing rail (v2's three lenses, v3's per-narrative domain chips); the discovery
     rows link to the on-site routes, never the GitHub blobs), and the
     v1-root-page-set-unchanged invariant (the byte-identical-root release
     criterion's structural half). PR-2b widens the supported construct set
@@ -11836,7 +12033,7 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
                 with self.assertRaisesRegex(self.mod.BuildError, re.escape(expected)):
                     self.mod.narrative_out_rel({"route": route})
 
-    # --- the v2-only route generation and the frozen-root invariant ---
+    # --- the on-site route generation (v2 and v3) and the frozen-root invariant ---
 
     def _variant(self, name):
         return next(v for v in self.mod.VARIANTS if v.name == name)
