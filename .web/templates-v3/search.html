@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Search across the GRC Library's {{DOC_TOTAL}} documents is being built for this redesign. Until it ships, browse by need, by area, or by document type, or search the corpus source on GitHub.">
+<meta name="description" content="Search the GRC Library: filter the governance documents by title, type, area, purpose, and the frameworks they map to, then open each on its own page.">
 <title>Search: GRC Library</title>
 {{HEAD_STYLE}}
 </head>
@@ -18,21 +18,35 @@
 <main>
   <div class="wrap page-head">
     <p class="eyebrow">Search</p>
-    <h1>Search is on its way.</h1>
-    <p class="lede">Search across all {{DOC_TOTAL}} documents is being built for this redesign. Until it ships, three ways in cover the same ground.</p>
+    <h1>Search the library.</h1>
+    <p class="lede">Filter every document by what it is and what it covers. Matches title, type, area, purpose, and the frameworks a document maps to.</p>
   </div>
 
-  <section id="meanwhile">
+  <section id="search">
     <div class="wrap">
-      <h2>Three ways in today</h2>
-      <p>Start from <a href="{{BASE}}/">what you need</a>, browse by document type, or browse by area:</p>
+      <form class="search-form" role="search" onsubmit="return false;">
+        <label class="search-label" for="q">Search the library</label>
+        <input id="q" class="search-input" type="search" autocomplete="off"
+               placeholder="e.g. incident response, ISO 27001, retention, privileged access"
+               aria-describedby="search-status">
+      </form>
+      <p id="search-status" class="search-status" role="status" aria-live="polite"></p>
+      <ul id="results" class="doc-index" hidden></ul>
+    </div>
+  </section>
+
+  <section id="browse">
+    <div class="wrap">
+      <h2>Or browse</h2>
+      <p>By document type:</p>
       <nav class="chip-nav" aria-label="Browse by document type">
 {{TYPE_CHIPS}}
       </nav>
+      <p class="mt-md">By area:</p>
       <nav class="chip-nav" aria-label="Browse by area">
 {{SIDENAV_DOMAINS}}
       </nav>
-      <p class="mt-md">Need full-text search now? <a href="https://github.com/search?q=repo%3Ajposluns%2Fgrc_library&type=code" target="_blank" rel="noopener">Search the corpus source on GitHub</a>.</p>
+      <p class="mt-md">Prefer the raw source? <a href="https://github.com/search?q=repo%3Ajposluns%2Fgrc_library&type=code" target="_blank" rel="noopener">Full-text search on GitHub</a>.</p>
     </div>
   </section>
 </main>
@@ -40,5 +54,90 @@
 {{FOOTER}}
 
 {{SCRIPT}}
+<script>
+(function () {
+  "use strict";
+  var input = document.getElementById("q");
+  var status = document.getElementById("search-status");
+  var results = document.getElementById("results");
+  var browse = document.getElementById("browse");
+  if (!input || !results) { return; }
+  var index = null;
+  var MAX = 60;
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function tokens(s) {
+    return s.toLowerCase().split(/\s+/).filter(Boolean);
+  }
+
+  function haystack(d) {
+    return (d.t + " " + d.y + " " + d.a + " " + d.p + " " + (d.f || []).join(" ")).toLowerCase();
+  }
+
+  function render(q) {
+    var toks = tokens(q);
+    if (!toks.length) {
+      results.hidden = true;
+      results.innerHTML = "";
+      status.textContent = "";
+      if (browse) { browse.hidden = false; }
+      return;
+    }
+    if (browse) { browse.hidden = true; }
+    var hits = [];
+    for (var i = 0; i < index.length; i++) {
+      var hay = haystack(index[i]);
+      var ok = true;
+      for (var t = 0; t < toks.length; t++) {
+        if (hay.indexOf(toks[t]) === -1) { ok = false; break; }
+      }
+      if (ok) { hits.push(index[i]); }
+    }
+    if (!hits.length) {
+      results.hidden = true;
+      results.innerHTML = "";
+      status.textContent = 'No documents match "' + q + '". Try fewer or different words, or browse below.';
+      if (browse) { browse.hidden = false; }
+      return;
+    }
+    var shown = hits.slice(0, MAX);
+    var rows = shown.map(function (d) {
+      return '<li class="doc-row"><span class="doc-type">' + esc(d.y) +
+        '</span><a class="doc-title" href="' + esc(d.u) + '">' + esc(d.t) +
+        '</a><span class="doc-area">' + esc(d.a) + "</span></li>";
+    }).join("");
+    results.innerHTML = rows;
+    results.hidden = false;
+    status.textContent = hits.length > MAX
+      ? "Showing the first " + MAX + " of " + hits.length + " matches. Add a word to narrow it."
+      : hits.length + (hits.length === 1 ? " match." : " matches.");
+  }
+
+  var timer = null;
+  function onInput() {
+    if (!index) { return; }
+    if (timer) { clearTimeout(timer); }
+    timer = setTimeout(function () { render(input.value.trim()); }, 120);
+  }
+
+  status.textContent = "Loading the search index...";
+  fetch("{{BASE}}/search-index.json").then(function (r) {
+    if (!r.ok) { throw new Error("index unavailable"); }
+    return r.json();
+  }).then(function (data) {
+    index = data;
+    status.textContent = index.length + " documents indexed. Start typing to filter.";
+    input.addEventListener("input", onInput);
+    if (input.value.trim()) { render(input.value.trim()); }
+  }).catch(function () {
+    status.textContent = "Search could not load. Browse by type or area below, or search the source on GitHub.";
+  });
+})();
+</script>
 </body>
 </html>
