@@ -11069,10 +11069,13 @@ class WebGeneratorV3TypeFloorTests(unittest.TestCase):
 
     FLOOR_REM = 1.0
 
+    KEYWORDS = {"inherit", "initial", "unset", "revert", "smaller", "larger", "medium"}
+
     @classmethod
     def setUpClass(cls):
-        cls.css = (REPO_ROOT / ".web" / "templates-v3" / "partials" / "head-style.html").read_text(
-            encoding="utf-8"
+        root = REPO_ROOT / ".web" / "templates-v3"
+        cls.css = "\n".join(
+            p.read_text(encoding="utf-8") for p in sorted(root.rglob("*.html"))
         )
         # Map the --fs-* custom properties to their rem values (clamp -> first arg).
         cls.tokens = {}
@@ -11093,7 +11096,9 @@ class WebGeneratorV3TypeFloorTests(unittest.TestCase):
         m = re.match(r"([0-9.]+)rem", value)
         if m:
             return float(m.group(1))
-        return None
+        if value.lower() in self.KEYWORDS:
+            return None
+        return 0.0  # unknown unit/token (px, em, %, clamp(px..), typo'd var) -> fail closed
 
     def test_no_font_size_below_the_16px_floor(self):
         offenders = []
@@ -11109,6 +11114,21 @@ class WebGeneratorV3TypeFloorTests(unittest.TestCase):
     def test_every_fs_token_is_at_or_above_the_floor(self):
         below = {n: v for n, v in self.tokens.items() if v < self.FLOOR_REM}
         self.assertEqual(below, {}, f"--fs-* token(s) below the 1rem floor: {below}")
+
+    def test_uppercase_text_only_at_or_above_the_floor(self):
+        # Every rule declaring text-transform: uppercase must resolve to a
+        # font-size >= 1rem (the "uppercase + tracking only above the floor"
+        # discipline). Parse each rule block; if it uppercases, its font-size
+        # (own or the token it names) must clear the floor.
+        offenders = []
+        for block in re.findall(r"\{[^{}]*\}", self.css):
+            if "text-transform: uppercase" not in block:
+                continue
+            m = re.search(r"font-size:\s*([^;]+);", block)
+            rem = self._resolve(m.group(1)) if m else None
+            if rem is not None and rem < self.FLOOR_REM:
+                offenders.append(block.strip()[:80])
+        self.assertEqual(offenders, [], f"uppercase rule(s) below the 1rem floor: {offenders}")
 
 
 class WebGeneratorNarrativeJoinTests(unittest.TestCase):

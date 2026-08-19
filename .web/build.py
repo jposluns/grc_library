@@ -141,7 +141,7 @@ V2_EXTRA_PAGES = (
 )
 
 # The site variant table: one indexable root variant (v1) plus any non-indexable
-# staging variants (v2). New staging variants belong in this table, so
+# staging variants (v2 and v3). New staging variants belong in this table, so
 # the template source, URL prefix, and indexability policy stay coupled.
 VARIANTS = (
     Variant("v1", "templates", "", indexable=True),
