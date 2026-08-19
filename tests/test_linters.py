@@ -9202,6 +9202,61 @@ class WebGeneratorV2StagingTests(unittest.TestCase):
                     f"root must NOT carry the v2-only route {out_rel}",
                 )
 
+    def test_v3_extra_pages_render_only_under_v3(self):
+        """The v3 need-based path routes render under /v3 and NOT at root, so the
+        frozen root tree is unaffected. Locks the exact six-route contract so a
+        silent add/drop is caught (v3 PR-B)."""
+        figures = self.mod.compute_figures()
+        expected = {
+            ("decide.html", "decide/index.html"),
+            ("govern.html", "govern/index.html"),
+            ("comply.html", "comply/index.html"),
+            ("solutions.html", "solutions/index.html"),
+            ("policies.html", "policies/index.html"),
+            ("search.html", "search/index.html"),
+        }
+        self.assertEqual(len(self.mod.V3_EXTRA_PAGES), 6)
+        self.assertEqual(set(self.mod.V3_EXTRA_PAGES), expected)
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            self._write_site(self.mod.render_site(figures), out)
+            for template_name, out_rel in self.mod.V3_EXTRA_PAGES:
+                self.assertTrue(
+                    (out / "v3" / out_rel).is_file(),
+                    f"/v3 is missing path route {out_rel}",
+                )
+                self.assertFalse(
+                    (out / out_rel).is_file(),
+                    f"root must NOT carry the v3-only route {out_rel}",
+                )
+
+    def test_v3_disclosure_integrity(self):
+        """Every rendered /v3 page balances its <details>/</details> tags, and the
+        Decide page carries EXACTLY 10 concern disclosures. Regression guard for the
+        v3 PR-B clustering edit that duplicated 9 of the 10 disclosures (19 rendered)
+        by an unanchored region replace; caught by cross-family QA, missed by every
+        render/byte/unit check because duplicated valid HTML still renders."""
+        figures = self.mod.compute_figures()
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            self._write_site(self.mod.render_site(figures), out)
+            v3root = out / "v3"
+            pages = sorted(v3root.rglob("index.html"))
+            self.assertTrue(pages, "no v3 pages rendered")
+            for page in pages:
+                html = page.read_text(encoding="utf-8")
+                opens = html.count("<details")
+                closes = html.count("</details>")
+                self.assertEqual(
+                    opens, closes,
+                    f"{page.relative_to(out)}: {opens} <details> vs {closes} </details> (orphan tag)",
+                )
+            decide = (v3root / "decide" / "index.html").read_text(encoding="utf-8")
+            self.assertEqual(
+                decide.count('<details class="disclosure">'), 10,
+                "v3/decide must carry exactly 10 concern disclosures (no duplication)",
+            )
+
     def test_v2_internal_fragment_links_resolve(self):
         """Every internal /v2 link that carries a #fragment resolves to an id on
         the target page. Regression guard for PR #1627 H1, where a homepage rewrite

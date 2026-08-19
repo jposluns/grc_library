@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Whether the GRC Library covers the framework or law you answer to: the standards and regulations the corpus maps, the compliance and privacy areas, the matrix, register, and annex documents, and the declared-gaps stance.">
+<title>Meet an obligation: GRC Library</title>
+{{HEAD_STYLE}}
+</head>
+
+<body>
+<header class="mast">
+  <div class="wrap">
+{{TOPBAR}}
+  </div>
+</header>
+
+<main>
+  <div class="wrap page-head">
+    <p class="eyebrow">Meet an obligation</p>
+    <h1>Does this cover the framework or law I answer to?</h1>
+    <p class="lede">Name your obligation, follow the mappings to the documents that support it, and assemble the evidence an audit will ask for. The mappings support gap analysis and audit preparation; they do not certify compliance.</p>
+  </div>
+
+  <section id="frameworks">
+    <div class="wrap">
+      <h2>Choose your framework or law</h2>
+      <p>The corpus maps its controls to recognized standards, frameworks, and laws in a set of alignment matrices, and cites many more standards across its documents. The rows below name where each starts.</p>
+      <ul class="rows">
+        <li><span class="row-name">ISO/IEC 27001 and 27002</span><span class="row-desc">Information-security management and controls. Start from the <a href="{{BASE}}/compliance/">compliance area</a> and the <a href="{{BASE}}/security/">security area</a>.</span></li>
+        <li><span class="row-name">NIST CSF and SP 800-53</span><span class="row-desc">NIST CSF 2.0 is mapped in a dedicated column in the <a href="https://github.com/jposluns/grc_library/blob/main/compliance/matrix-grc-compliance-alignment.md" target="_blank" rel="noopener">compliance alignment matrix</a>. SP 800-53 Rev. 5 is not a column in either alignment matrix, but the <a href="https://github.com/jposluns/grc_library/blob/main/governance/matrix-reverse-framework-control-crosswalk.md" target="_blank" rel="noopener">reverse framework-control crosswalk</a> maps its control families to library documents; the <a href="https://github.com/jposluns/grc_library/blob/main/governance/register-canonical-citations.md" target="_blank" rel="noopener">canonical citations register</a> carries the edition each document names.</span></li>
+        <li><span class="row-name">GDPR and privacy law</span><span class="row-desc">Data protection across jurisdictions, with per-jurisdiction overlays. Start from the <a href="{{BASE}}/privacy/">privacy area</a> and the <a href="{{BASE}}/types/annex/">annex documents</a>.</span></li>
+        <li><span class="row-name">EU AI Act and AI governance standards</span><span class="row-desc">AI law: start from the <a href="{{BASE}}/ai/">AI area</a> and its jurisdiction annexes. The Act is mapped in the <a href="https://github.com/jposluns/grc_library/blob/main/governance/matrix-reverse-framework-control-crosswalk.md" target="_blank" rel="noopener">reverse framework-control crosswalk</a> and appears in the legal-and-regulatory column of the <a href="https://github.com/jposluns/grc_library/blob/main/governance/matrix-cross-framework-alignment.md" target="_blank" rel="noopener">cross-framework alignment matrix</a>, alongside the AI frameworks behind it (ISO/IEC 23894, the NIST AI RMF).</span></li>
+        <li><span class="row-name">Cloud and supply-chain frameworks</span><span class="row-desc">Cloud control matrices and third-party assurance. Start from the <a href="{{BASE}}/supply-chain/">supply-chain area</a> and the <a href="{{BASE}}/types/matrix/">matrix documents</a>.</span></li>
+        <li><span class="row-name">Risk and AI frameworks</span><span class="row-desc">ISO 31000, ISO/IEC 23894, NIST SP 800-39, the NIST AI RMF, COBIT 2019, and CSA CCM v4.1 are mapped in the <a href="https://github.com/jposluns/grc_library/blob/main/governance/matrix-cross-framework-alignment.md" target="_blank" rel="noopener">cross-framework alignment matrix</a>. Start from the <a href="{{BASE}}/risk/">risk area</a>.</span></li>
+      </ul>
+      <p class="mt-sm">Answering to something not listed here? The mappings live in a small set of matrices, chiefly the <a href="https://github.com/jposluns/grc_library/blob/main/compliance/matrix-grc-compliance-alignment.md" target="_blank" rel="noopener">compliance alignment matrix</a> (the CSA control matrices, ISO/IEC 27001, NIST CSF, and the trade programmes) and the <a href="https://github.com/jposluns/grc_library/blob/main/governance/matrix-cross-framework-alignment.md" target="_blank" rel="noopener">cross-framework alignment matrix</a> (ISO 31000, ISO/IEC 23894, NIST SP 800-39, the NIST AI RMF, COBIT 2019, and CSA CCM v4.1); to work backwards from a control you already hold, the <a href="https://github.com/jposluns/grc_library/blob/main/governance/matrix-reverse-framework-control-crosswalk.md" target="_blank" rel="noopener">reverse framework-control crosswalk</a> names which library documents address it. Laws such as the GDPR and the EU AI Act are mapped in that reverse crosswalk and carried in the legal-and-regulatory column of the cross-framework matrix, as well as covered in the jurisdiction <a href="{{BASE}}/types/annex/">annexes</a>. If your obligation is not covered by any of these, the corpus likely does not map it yet.</p>
+    </div>
+  </section>
+
+  <section id="method">
+    <div class="wrap">
+      <h2>Work backwards from the obligation</h2>
+      <p>If your framework appears in the <a href="https://github.com/jposluns/grc_library/blob/main/compliance/matrix-grc-compliance-alignment.md" target="_blank" rel="noopener">compliance alignment matrix</a> or the <a href="https://github.com/jposluns/grc_library/blob/main/governance/matrix-cross-framework-alignment.md" target="_blank" rel="noopener">cross-framework alignment matrix</a>, read off which corpus documents align to its requirements; a law such as the GDPR or the EU AI Act is mapped in the reverse framework-control crosswalk and the legal-and-regulatory column of the cross-framework matrix, and covered in its jurisdiction annex. To work backwards from a control you already hold, the <a href="https://github.com/jposluns/grc_library/blob/main/governance/matrix-reverse-framework-control-crosswalk.md" target="_blank" rel="noopener">reverse framework-control crosswalk</a> names which documents address it. Check editions against the <a href="https://github.com/jposluns/grc_library/blob/main/governance/register-canonical-citations.md" target="_blank" rel="noopener">canonical citations register</a> so your programme names the library's current canonical edition. Then adopt the supporting documents plus the <a href="{{BASE}}/types/annex/">annex overlays</a> for your jurisdiction or sector, and keep the <a href="{{BASE}}/types/register/">registers</a> that carry the evidence.</p>
+      <div class="chains">
+        <ol class="chain" aria-label="Example chain from a regulatory obligation to audit evidence">
+          <li><span class="node">Regulatory obligation</span></li>
+          <li><span class="node">Mapping</span></li>
+          <li><span class="node">Control set</span></li>
+          <li><span class="node">Audit evidence</span></li>
+        </ol>
+      </div>
+
+      <p class="mt-lg"><strong>Where the mappings live:</strong></p>
+      <div class="paths">
+        <article class="path">
+          <h3><a href="{{BASE}}/compliance/">Compliance <span class="go" aria-hidden="true">&rarr;</span></a></h3>
+          <p>Regulatory mapping, control frameworks, and sector audit readiness.</p>
+        </article>
+        <article class="path">
+          <h3><a href="{{BASE}}/governance/">Governance <span class="go" aria-hidden="true">&rarr;</span></a></h3>
+          <p>The cross-framework and reverse-crosswalk matrices and the canonical registers.</p>
+        </article>
+      </div>
+      <div class="callout mt-md">
+        <p>Known coverage gaps are declared in the <a href="https://github.com/jposluns/grc_library/blob/main/governance/register-coverage-gaps.md" target="_blank" rel="noopener">coverage-gaps register</a>, never hidden. Where the corpus does not map your obligation, it says so, and what an assurer ultimately tests is whether your controls are well-designed and actually operate, not only whether the paper exists.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+{{FOOTER}}
+
+{{SCRIPT}}
+</body>
+</html>
