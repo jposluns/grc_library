@@ -2,14 +2,14 @@
 
 **Document Title:** AI Security Technical Implementation Guide\
 **Document Type:** Guide\
-**Version:** 1.3.5\
-**Date:** 2026-07-22\
+**Version:** 1.3.6\
+**Date:** 2026-08-20\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md)\
 **Classification:** Public\
 **Category:** AI Governance\
-**Review Frequency:** Annual and upon material AI framework or regulatory change\
+**Review Frequency:** 6 to 12 months and upon material AI framework or regulatory change\
 **Repository Path:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0

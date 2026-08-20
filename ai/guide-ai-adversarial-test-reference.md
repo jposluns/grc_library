@@ -2,14 +2,14 @@
 
 **Document Title:** AI Adversarial Test Reference\
 **Document Type:** Guide\
-**Version:** 1.3.4\
-**Date:** 2026-07-30\
+**Version:** 1.3.5\
+**Date:** 2026-08-20\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/guideline-adversarial-evaluation-suite-development.md`](guideline-adversarial-evaluation-suite-development.md), [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md), [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md)\
 **Classification:** Public\
 **Category:** AI Governance\
-**Review Frequency:** Annual and upon material AI framework or regulatory change\
+**Review Frequency:** 6 to 12 months and upon material AI framework or regulatory change\
 **Repository Path:** [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0
