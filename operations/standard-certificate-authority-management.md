@@ -2,8 +2,8 @@
 
 **Document Title:** Certificate Authority Management Standard\
 **Document Type:** Standard\
-**Version:** 1.3.6\
-**Date:** 2026-07-23\
+**Version:** 1.3.7\
+**Date:** 2026-08-20\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`operations/standard-cloud-security-configuration-baseline.md`](standard-cloud-security-configuration-baseline.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md)\
@@ -177,7 +177,7 @@ Audit logs are forwarded to SIEM via endpoint management diagnostic settings int
 | RFC 5280 | Internet X.509 PKI Certificate and CRL Profile |
 | CA/Browser Forum Baseline Requirements | Code Signing Certificate Validity (1-year maximum as of December 2025) |
 | S/MIME Baseline Requirements | Updated June 2025 |
-| CSA CCM v4.1 | CEK-03: Encryption and Key Management: PKI |
+| CSA CCM v4.1 | CEK-01: Encryption and Key Management: PKI |
 | COBIT 2019 | DSS05: Managed Security Services |
 
 ---

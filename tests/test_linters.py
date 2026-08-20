@@ -5816,19 +5816,22 @@ class CcmAicmCitationTests(LinterTestCase):
 
     def test_column_domain_name_title_not_flagged(self) -> None:
         # Check 6 exemption (domain-name-as-title, maintainer-decided 2026-08-01):
-        # CEK-03's canonical title is "Data Protection", but citing it with its
-        # DOMAIN name ("Encryption and Key Management", 3 of whose 4 words are in
-        # the CEK domain "Cryptography, Encryption & Key Management", > 1/2) is a
+        # IAM-15's canonical title is "Authorization Mechanisms", but citing it
+        # with its DOMAIN name ("Identity and Access Management", all 3 of whose
+        # words are in the IAM domain "Identity & Access Management", > 1/2) is a
         # legitimate cite-the-domain convention, not a wrong-title error.
+        # After MF-185 (#1641) no single-code Check-6-active corpus instance of this
+        # convention remains, so this fixture is its sole coverage (the exemption
+        # measures a single-code cell; multi-code cells are discarded before it).
         fixture = self.make_fixture(
             "fake-ccm-column-domain-title.md",
             "# X\n\n| Framework | Control |\n| --- | --- |\n"
-            "| CSA CCM v4.1 | CEK-03: Encryption and Key Management: PKI |\n",
+            "| CSA CCM v4.1 | IAM-15: Identity and Access Management: PAM |\n",
         )
         result = run_linter("tools/lint-ccm-aicm-citations.py", fixture)
         self.assertEqual(
             result.returncode, 0,
-            f"a domain-name-as-title citation (CEK-03 by the CEK domain name) "
+            f"a domain-name-as-title citation (IAM-15 by the IAM domain name) "
             f"must not be flagged by Check 6.\n"
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
@@ -5836,20 +5839,20 @@ class CcmAicmCitationTests(LinterTestCase):
     def test_column_verbose_qualifier_title_not_flagged(self) -> None:
         # Check 6 robustness (codex vpr3186 E2): the domain-name exemption measures the
         # BASE title (before a trailing ": qualifier"), so an expanded qualifier cannot
-        # dilute the overlap and cry wolf. CEK-03 with the verbose "Public Key
-        # Infrastructure (PKI)" qualifier is exempt on its base "Encryption and Key
-        # Management" (all 3 words in the CEK domain); the naive full-title ratio would
+        # dilute the overlap and cry wolf. IAM-15 with the verbose "Privileged Access
+        # Workstation Enrolment" qualifier is exempt on its base "Identity and Access
+        # Management" (all 3 words in the IAM domain); the naive full-title ratio would
         # have been 3/6 and wrongly flagged.
         fixture = self.make_fixture(
             "fake-ccm-column-verbose-qualifier.md",
             "# X\n\n| Framework | Control |\n| --- | --- |\n"
-            "| CSA CCM v4.1 | CEK-03: Encryption and Key Management: Public Key Infrastructure (PKI) |\n",
+            "| CSA CCM v4.1 | IAM-15: Identity and Access Management: Privileged Access Workstation Enrolment |\n",
         )
         result = run_linter("tools/lint-ccm-aicm-citations.py", fixture)
         self.assertEqual(
             result.returncode, 0,
-            f"a verbose ': Public Key Infrastructure (PKI)' qualifier must not dilute the "
-            f"CEK-03 domain-name exemption.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            f"a verbose ': Privileged Access Workstation Enrolment' qualifier must not dilute "
+            f"the IAM-15 domain-name exemption.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 
     def test_column_multi_code_cell_skipped(self) -> None:

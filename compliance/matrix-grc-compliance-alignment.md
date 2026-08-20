@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.25\
+**Version:** 1.11.26\
 **Date:** 2026-08-20\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -182,7 +182,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Operations | Standard: Network Security and Segmentation | [`operations/standard-network-security-and-segmentation.md`](../operations/standard-network-security-and-segmentation.md) | I&S-03, I&S-06, I&S-08, I&S-09 | N/A | A.8.20, A.8.21, A.8.22 | PR.IR, DE.CM | IT security controls | Network security | §8.4 | Pillar II (ICT security) | IT systems protection |
 | Operations | Standard: Cloud Security Configuration Baseline | [`operations/standard-cloud-security-configuration-baseline.md`](../operations/standard-cloud-security-configuration-baseline.md) | CCC-01, CCC-02, CEK-01, IAM-01 | N/A | A.8.9, A.8.23, A.8.24 | PR.PS, PR.IR | IT security controls | IT security | §8.4 | Pillar II (ICT security) | Information systems security |
 | Operations | Standard: Physical Security of IT Infrastructure | [`operations/standard-physical-security-of-it-infrastructure.md`](../operations/standard-physical-security-of-it-infrastructure.md) | DCS-01, DCS-02, DCS-03, DCS-04, DCS-05 | N/A | A.7.1, A.7.2, A.7.3, A.7.4, A.7.5, A.7.6, A.7.7, A.7.8 | PR.IR | Physical access controls | Physical security | §8.4 | Pillar II (Customs-to-Business; physical security) | Physical and access security |
-| Operations | Standard: Certificate Authority Management | [`operations/standard-certificate-authority-management.md`](../operations/standard-certificate-authority-management.md) | CEK-03, CEK-04, IAM-08 | N/A | A.8.24 | PR.DS | IT security controls | IT security | §8.4 | Pillar II (ICT security) | Information systems security |
+| Operations | Standard: Certificate Authority Management | [`operations/standard-certificate-authority-management.md`](../operations/standard-certificate-authority-management.md) | CEK-01, CEK-04, IAM-08 | N/A | A.8.24 | PR.DS | IT security controls | IT security | §8.4 | Pillar II (ICT security) | Information systems security |
 | Operations | Procedure: Change Management and Configuration Control | [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md) | CCC-01, CCC-02, CCC-03, CCC-04, CCC-05 | N/A | A.8.9, A.8.32 | PR.PS, ID.IM | IT security controls | IT security | §8.1 | Pillar II (ICT security) | IT systems protection |
 | Operations | Procedure: Endpoint Management and Device Compliance | [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md) | UEM-01, UEM-02, UEM-03 | N/A | A.8.1, A.8.7 | PR.IR, DE.CM | IT security controls | IT security | §8.4 | Pillar II (ICT security) | IT security incident detection and response |
 | Operations | Procedure: Media Handling and Transport | [`operations/procedure-media-handling-and-transport.md`](../operations/procedure-media-handling-and-transport.md) | DSP-04, DCS-05, DSP-02 | N/A | A.7.10, A.8.10 | PR.DS | N/A | Data protection | §7.5, §8.4 | N/A | Documentation security |

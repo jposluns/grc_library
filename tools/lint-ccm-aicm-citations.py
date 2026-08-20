@@ -99,10 +99,11 @@ Checks:
     more than half its content words appear in the code's domain name
     (DOMAIN_NAMES, source-verified against the CCM v4.1.0 / AICM v1.1.0
     catalogues), measured on the BASE title (the part before a trailing
-    ``: <qualifier>``, so a verbose qualifier cannot dilute the overlap): CEK-03
-    "Encryption and Key Management: PKI" is exempt on its base "Encryption and Key
-    Management" (all three words in the CEK domain), while GRC-01 "Risk Management
-    Framework" (one of three base words in the GRC domain) still flags. The check
+    ``: <qualifier>``, so a verbose qualifier cannot dilute the overlap): IAM-15
+    "Identity and Access Management: PAM" is exempt on its base "Identity and
+    Access Management" (all three words in the IAM domain), while GRC-01 "Risk
+    Management Framework" (one of three base words in the GRC domain) still flags.
+    The check
     is precision-first: a cell carrying two or more codes is skipped (no clean
     single-title-to-code mapping), and the more-than-half heuristic is deliberately
     lenient, so a wrong title whose words are mostly domain words is treated as a
@@ -422,7 +423,7 @@ def scan_file(path: Path) -> list[Finding]:
 
                 # Check 6: wrong control TITLE in a framework-LABEL row. In a table
                 # where each row names its framework in a cell (e.g.
-                # "| CSA CCM v4.1 | CEK-03: <title> |"), the code+title sit in the
+                # "| CSA CCM v4.1 | IAM-15: <title> |"), the code+title sit in the
                 # cell AFTER the framework-label cell, so Check 2's ROW_RE (code in
                 # the FIRST cell) never sees them. This catches the Sweep-129 GRC-01
                 # class: a code whose cited title shares NO content word with the
@@ -435,8 +436,8 @@ def scan_file(path: Path) -> list[Finding]:
                 # source-verified vs the CCM/AICM catalogues). FP-safe in practice:
                 # GRC-01 "Risk Management Framework" has only "risk" of 3 words in the
                 # GRC domain "Governance, Risk and Compliance" (1/3, not > 1/2) so it
-                # still flags, while CEK-03 "Encryption and Key Management" has 3/4 in
-                # the CEK domain and is exempt. Family/range validity is Check 1/5's
+                # still flags, while IAM-15 "Identity and Access Management" has 3/3 in
+                # the IAM domain and is exempt. Family/range validity is Check 1/5's
                 # job, so this check skips a non-family or known-bad prefix.
                 for ci, cell in enumerate(cells):
                     if not CCM_COLUMN_HEADER_RE.search(cell) or ci + 1 >= len(cells):
