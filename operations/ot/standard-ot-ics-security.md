@@ -2,8 +2,8 @@
 
 **Document Title:** OT/ICS Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.4\
-**Date:** 2026-07-02\
+**Version:** 1.0.5\
+**Date:** 2026-08-20\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/ot/README.md`](README.md), [`operations/ot/annex-ot-security-overview.md`](annex-ot-security-overview.md), [`operations/standard-network-security-and-segmentation.md`](../standard-network-security-and-segmentation.md), [`operations/procedure-change-management-and-configuration-control.md`](../procedure-change-management-and-configuration-control.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md), [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`supply-chain/procedure-supplier-due-diligence.md`](../../supply-chain/procedure-supplier-due-diligence.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md), [`compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md`](../../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](../../compliance/logistics/annex-logistics-sector-requirements.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`governance/register-glossary.md`](../../governance/register-glossary.md)\
@@ -391,7 +391,7 @@ Terms used in this standard are defined in the library glossary ([`governance/re
 
 13.1.2 Backups must be stored offline or in an isolated zone such that a compromise of the production OT zone does not corrupt the backups.
 
-13.1.3 Backup integrity must be verified by periodic restore testing in a representative environment.
+13.1.3 Backup integrity must be verified by periodic restore testing in a representative environment, at least at the criticality-tiered baseline in [`resilience/procedure-backup-and-recovery.md`](../../resilience/procedure-backup-and-recovery.md) Section 4.
 
 ### 13.2 Recovery objectives
 

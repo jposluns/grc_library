@@ -2,8 +2,8 @@
 
 **Document Title:** Production Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.10\
-**Date:** 2026-08-05\
+**Version:** 1.1.11\
+**Date:** 2026-08-20\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](../dev-security/standard-security-quick-reference.md)\
@@ -44,7 +44,7 @@ This standard defines security requirements for production infrastructure and op
 
 **Immutability:** The primary backup repository must have immutability enforced. Attempted deletions must be blocked and alerted in the SIEM. An off-site copy must also be immutable. Backup admin identities must not be Domain Admins and must be vaulted in PAM.
 
-**Restore testing:** Automated restore tests must run at minimum weekly. Evidence must be retained. A failed restore test is a P2 incident. The DR runbook must be tested quarterly.
+**Restore testing:** Automated restore tests for production workloads must run at minimum weekly, consistent with the criticality-tiered baseline in [`resilience/procedure-backup-and-recovery.md`](../resilience/procedure-backup-and-recovery.md) Section 4. Evidence must be retained. A failed restore test is a P2 incident. The DR runbook must be tested quarterly.
 
 **Framework:** CSA CCM BCR-08, BCR-09, BCR-10
 

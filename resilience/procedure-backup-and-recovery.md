@@ -2,8 +2,8 @@
 
 **Document Title:** Backup and Recovery Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.2\
-**Date:** 2026-07-12\
+**Version:** 1.1.0\
+**Date:** 2026-08-20\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md)\
@@ -80,7 +80,7 @@ For organizations facing elevated ransomware risk, **NIST IR 8374 Rev. 1** (Rans
 
 ### 4. Recovery testing
 
-Recovery capability must be tested according to criticality. Tests should validate data integrity, service restoration, authentication, application dependencies, supplier dependencies, and business acceptance criteria.
+Recovery capability must be tested according to criticality. This section is the normative source for restore-test cadence across the library. Restore tests for production systems and other high-criticality systems (Tier 1 Mission Critical in the criticality classification used by the IT disaster recovery plan) must be performed at least weekly, and restore tests for all other systems (Tier 2 Business Essential, Tier 3 Standard, and Tier 4 Non-Critical) must be performed at least monthly, so no system falls below a monthly restore-test floor. Adopting organizations may define a more frequent cadence for a system, but must not set a less frequent cadence than this baseline. This cadence governs backup restore testing; cryptographic key-recovery and key-escrow ceremony testing follow their own schedules in [`security/procedure-key-escrow-and-recovery.md`](../security/procedure-key-escrow-and-recovery.md) and are not restore-test obligations under this section. Tests should validate data integrity, service restoration, authentication, application dependencies, supplier dependencies, and business acceptance criteria.
 
 ### 5. Restoration procedure
 

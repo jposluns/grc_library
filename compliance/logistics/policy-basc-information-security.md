@@ -2,8 +2,8 @@
 
 **Document Title:** BASC Information Security Policy\
 **Document Type:** Policy\
-**Version:** 1.2.5\
-**Date:** 2026-07-10\
+**Version:** 1.2.6\
+**Date:** 2026-08-20\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-basc-programme-overview.md`](annex-basc-programme-overview.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/logistics/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md), [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -128,7 +128,7 @@ Unattended computers must be locked.
 
 Antivirus and firewall protection are active and monitored.
 
-Physical and virtual backups are maintained securely offsite and tested regularly.
+Physical and virtual backups are maintained securely offsite and restore-tested at least at the criticality-tiered baseline in [`resilience/procedure-backup-and-recovery.md`](../../resilience/procedure-backup-and-recovery.md) Section 4.
 
 *Requirement IDs: 6.1.a, 6.1.b, 6.1.c, 6.2.j, 6.2.l, 6.2.r*
 
