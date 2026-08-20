@@ -5820,8 +5820,9 @@ class CcmAicmCitationTests(LinterTestCase):
         # with its DOMAIN name ("Identity and Access Management", all 3 of whose
         # words are in the IAM domain "Identity & Access Management", > 1/2) is a
         # legitimate cite-the-domain convention, not a wrong-title error.
-        # Live corpus instance of this convention: security/procedure-access-control.md
-        # ("IAM-01 through IAM-15: Identity and Access Management").
+        # After MF-185 (#1641) no single-code Check-6-active corpus instance of this
+        # convention remains, so this fixture is its sole coverage (the exemption
+        # measures a single-code cell; multi-code cells are discarded before it).
         fixture = self.make_fixture(
             "fake-ccm-column-domain-title.md",
             "# X\n\n| Framework | Control |\n| --- | --- |\n"
