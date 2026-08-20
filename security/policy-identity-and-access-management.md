@@ -2,8 +2,8 @@
 
 **Document Title:** Identity and Access Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.14\
-**Date:** 2026-08-16\
+**Version:** 1.3.15\
+**Date:** 2026-08-20\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -58,7 +58,7 @@ To ensure that all users, human, service, and machine, are uniquely identified, 
 ### 4.2 Authentication
 
 4.2.1 Multi-Factor Authentication (MFA) is required for all user (interactive) accounts and all remote access. Non-interactive service accounts (managed identity or equivalent, not interactive MFA) are exempt where documented and approved; any other exception is documented case-by-case with compensating controls. MFA for privileged accounts must be phishing-resistant.
-4.2.2 Passwords and tokens must comply with the organization's authentication and password management standard, which follows NIST SP 800-63B (length- and blocklist-based strength, no mandatory periodic expiry, and change on evidence of compromise; NIST SP 800-63B does not impose character-composition rules).
+4.2.2 Passwords and tokens must comply with the organization's authentication and password management standard, which follows NIST SP 800-63B (length- and blocklist-based strength, no mandatory periodic expiry, and change on evidence of compromise) except for a deliberate organizational character-composition requirement (see Section 4 of that standard).
 4.2.3 Where possible, passwordless authentication (FIDO2 or certificate-based) must be implemented to reduce credential theft risks.
 4.2.4 Shared credentials are prohibited; each account must be traceable to a single entity.
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Identity Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.5\
-**Date:** 2026-08-05\
+**Version:** 1.0.6\
+**Date:** 2026-08-20\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-access-control.md`](procedure-access-control.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -74,7 +74,7 @@ Applies to all user identities, service accounts, and machine identities across 
 
 2.3 Password requirements for accounts where password authentication applies:
 - Minimum 14 characters for standard accounts; 20 characters for privileged accounts, per [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md) (the authoritative password standard).
-- Complexity: upper/lower case, numbers, special characters.
+- Complexity: characters from at least three of upper case, lower case, numbers, special characters, per Section 4 of the authoritative standard.
 - No reuse of the last 12 passwords.
 - No periodic forced rotation unless compromise is suspected.
 - Passwords must not appear in known breach databases (checked via enterprise password protection service).
