@@ -2,8 +2,8 @@
 
 **Document Title:** Integrity and Trustworthiness Principle\
 **Document Type:** Principle\
-**Version:** 0.0.6\
-**Date:** 2026-08-03\
+**Version:** 0.0.7\
+**Date:** 2026-08-20\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`guardrails/governance/project-integrity.md`](../guardrails/governance/project-integrity.md), [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/specification-audit-programme.md`](specification-audit-programme.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md)\
@@ -67,9 +67,9 @@ The four facets align, at the concept level, with the trustworthiness vocabulari
 
 | AIQT facet | NIST AI RMF 1.0 characteristic | ISO/IEC 42001:2023 | ISO/IEC TR 24028:2020 | General assurance (corpus convention) |
 |---|---|---|---|---|
-| **Accuracy** | Valid and Reliable (the "accuracy"/validation measure) | A.6.2.4 verification and validation; A.7.4 data quality | §5.3 integrity attributes (accuracy, consistency); verification (3.47) | NIST SSDF RV.1/RV.2; CSA CCM GRC-05, LOG-02; ISO/IEC 27001 A.5.36, A.8.15 |
-| **Integrity** | (no direct characteristic; nearest is Accountable and Transparent, via disclosure and non-concealment) | A.8 information for interested parties; A.6.2.8 event-log record-keeping | §5.3 integrity ("respect of sound moral and ethical principles; information will not be manipulated in a malicious way") | NIST SSDF PW.7, RV.1; CSA CCM GRC-05, A&A-04; ISO/IEC 27001 A.5.36, A.5.33 |
-| **Quality** | Valid and Reliable (reliability, robustness) | A.6.2.2 requirements; A.6.2.3 design documentation; A.7.4 data quality | quality named as a trustworthiness characteristic (points to the SQuaRE series) | NIST SSDF PO.1, PO.5; CSA CCM GRC-01, GRC-04; ISO/IEC 27001 A.5.1, A.5.4 |
+| **Accuracy** | Valid and Reliable (the "accuracy"/validation measure) | A.6.2.4 verification and validation; A.7.4 data quality | §5.3 integrity attributes (accuracy, consistency); verification (3.47) | NIST SSDF RV.1/RV.2; CSA CCM LOG-02; ISO/IEC 27001 A.5.36, A.8.15 |
+| **Integrity** | (no direct characteristic; nearest is Accountable and Transparent, via disclosure and non-concealment) | A.8 information for interested parties; A.6.2.8 event-log record-keeping | §5.3 integrity ("respect of sound moral and ethical principles; information will not be manipulated in a malicious way") | NIST SSDF PW.7, RV.1; CSA CCM A&A-04; ISO/IEC 27001 A.5.36, A.5.33 |
+| **Quality** | Valid and Reliable (reliability, robustness) | A.6.2.2 requirements; A.6.2.3 design documentation; A.7.4 data quality | quality named as a trustworthiness characteristic (points to the SQuaRE series) | NIST SSDF PO.1, PO.5; CSA CCM GRC-01; ISO/IEC 27001 A.5.1, A.5.4 |
 | **Trust** | Accountable and Transparent ("trustworthy AI depends upon accountability; accountability presupposes transparency") | A.3 accountability; A.5 impact-assessment documentation; A.10.2 responsibility allocation | trust (3.41), trustworthiness as verifiability (3.42), accountability as traceability (3.1) | NIST SSDF PS.1, RV.2; CSA CCM LOG-02, LOG-04, LOG-10, GRC-04; ISO/IEC 27001 A.8.15, A.5.36 |
 
 **Alignment caveats (deliberate, source-verified):**
@@ -87,9 +87,9 @@ An adopter reusing this library inherits the AIQT ordering as the tiebreaker for
 
 | Requirement | NIST SSDF | CSA CCM | ISO/IEC 27001 | NIST AI RMF 1.0 | ISO/IEC 42001:2023 |
 | --- | --- | --- | --- | --- | --- |
-| Quality prioritized over schedule and cost | PO.1, PO.5 | GRC-01, GRC-04 | A.5.1, A.5.4 | Valid and Reliable | A.6.2.2 |
-| Integrity of work product (no fabrication, no suppression) | PW.7, RV.1 | GRC-05, A&A-04 | A.5.36, A.5.33 | Accountable and Transparent | A.8 |
-| Evidence-grounded accuracy | RV.1, RV.2 | GRC-05, LOG-02 | A.5.36, A.8.15 | Valid and Reliable | A.6.2.4 |
+| Quality prioritized over schedule and cost | PO.1, PO.5 | GRC-01 | A.5.1, A.5.4 | Valid and Reliable | A.6.2.2 |
+| Integrity of work product (no fabrication, no suppression) | PW.7, RV.1 | A&A-04 | A.5.36, A.5.33 | Accountable and Transparent | A.8 |
+| Evidence-grounded accuracy | RV.1, RV.2 | LOG-02 | A.5.36, A.8.15 | Valid and Reliable | A.6.2.4 |
 | Trust warranted by an audit trail and authority-gated closure | PS.1, RV.2 | LOG-02, LOG-04, LOG-10, GRC-04 | A.8.15, A.5.36 | Accountable and Transparent | A.3, A.5 |
 
 This principle document carries the AI-assurance mappings the pack apex rule refers to but deliberately does not restate; the AI-assurance columns are verified against the held source texts, the general columns against the corpus's established framework alignment.
