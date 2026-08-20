@@ -31,7 +31,7 @@ TWO SOURCES, TWO EVIDENCE QUALITIES, KEPT SEPARATE ON PURPOSE.
 Advisory only: every reporting path exits 0. Only `--self-test` can exit non-zero. Cross-repo and
 environment-dependent by nature (the transcript lives under the harness's own state directory and
 the deliveries live in the file-drop root), so an absent source is reported as absent rather than
-counted as zero, the same no-op-loudly shape as `audit-delivery-status.py`.
+counted as zero: a gap that reads as zero understates a total silently, so it is reported as UNKNOWN.
 """
 from __future__ import annotations
 

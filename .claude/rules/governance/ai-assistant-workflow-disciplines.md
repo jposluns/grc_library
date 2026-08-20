@@ -318,17 +318,18 @@ The disciplines implement the same audit-trail-integrity principle the broader p
 - **In-session subagent fan-out is DISABLED in this project** by the
   `block-orchestrator-self-qa.py` PreToolUse hook (matcher `Task|Agent|Workflow|SendMessage`): the in-session-subagent
   primitive in §2 above is a general adopter primitive, but `grc_library` uses ONLY the
-  separate-session (exec-dispatch) primitive, via `tools/exec-dispatch.py`, because an in-session
-  subagent bills the scarce orchestrator account. Consuming the once-only actor-created sentinel is
-  the only in-session PATH to authorize such a dispatch, but the actor can create that sentinel with
-  one `touch`, so it is a deliberate speed bump plus an audit record, not a security boundary.
-  Project wiring only; the pack body keeps in-session fan-out for adopters.
+  separate-session primitive, via the shared `orch` worker harness (`orch-verify <family>
+  <prompt-file> [workdir]`), because an in-session subagent bills the scarce orchestrator account.
+  Consuming the once-only actor-created sentinel is the only in-session PATH to authorize such a
+  dispatch, but the actor can create that sentinel with one `touch`, so it is a deliberate speed
+  bump plus an audit record, not a security boundary. Project wiring only; the pack body keeps
+  in-session fan-out for adopters.
 
 - Worker-hallucination tracking artefact: `hallucination-metrics`.
 - Worker-brief template: `grc_library_private/.working/worker-brief-template.md`.
 - Verifier-override register: `grc_library_private/.working/verifier-overrides.md` (surfaced at `/orch`).
-- Exchange channel and runbook: `grc_library_scratch` +
-  `multi-session-orchestration`.
+- Worker dispatch: the shared `orch` harness (`orch --help`, `orch-verify --help`), which
+  returns each worker's output on stdout. Runbook: `multi-session-orchestration`.
 - Guardrails authoring instantiation (TF-2 closed, Option B locked 2026-08-02):
   `grc_library` is the authoritative authoring and dogfood source; the standalone
   `guardrails` repository under the maintainer's account is a one-way publication

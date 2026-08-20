@@ -10,7 +10,7 @@ editions and last-checked dates) and this repo's consumer surface, the
 register [`governance/register-canonical-citations.md`]. Neither repository's
 CI can see the other, so no CI gate can check cross-repo currency; the check is
 orchestrator-side by design (the same pattern as
-``tools/audit-brief-freshness.py`` and ``tools/audit-delivery-status.py``).
+``tools/ref-holds.py``).
 
 It is named ``audit-*`` (not ``lint-*``) so the gate machinery (the four-surface
 parity gate, the regression suite gate) does NOT auto-discover it, and it is NOT

@@ -15,13 +15,13 @@ idle/wait spans, all measured from timestamps. It deliberately does NOT segment 
 per-ACTIVITY buckets (PR build vs edit pass vs dispatch vs consume vs bookkeeping): the transcript
 does not label activities, so per-activity segmentation needs either lightweight boundary markers the
 orchestrator emits or a classifier, which is a design decision surfaced for the maintainer (P-1.11
-follow-up), not guessed here. WORKER durations are measured separately by exec-dispatch (`dur=`),
+follow-up), not guessed here. WORKER durations are measured separately by the dispatch harness,
 kept in their own column per the measured-vs-estimated discipline; joining them is a follow-up.
 
 Advisory only: every reporting path exits 0. Only `--self-test` can exit non-zero. Environment
 dependent by nature (the transcript lives under the harness's own state directory), so an absent
 transcript is reported as absent rather than counted as zero, the same no-op-loudly shape as
-`audit-token-spend.py` and `audit-delivery-status.py`.
+`audit-token-spend.py`.
 """
 from __future__ import annotations
 
@@ -187,7 +187,7 @@ def report(repo_root: Path, session: str | None, idle_threshold_s: int, oneline:
     print("  This is the MECHANICAL BASELINE. Per-ACTIVITY segmentation (PR build vs edit vs dispatch")
     print("  vs consume vs bookkeeping) needs boundary markers or a classifier and is a design")
     print("  decision surfaced for the maintainer (P-1.11 follow-up). Worker durations are measured")
-    print("  separately by exec-dispatch (dur=) and kept in their own column, never summed with these.")
+    print("  separately by the dispatch harness and kept in their own column, never summed with these.")
     return 0
 
 

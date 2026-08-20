@@ -1908,24 +1908,6 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          f"probe --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
         self.assertIn("self-test: ", result.stdout)
 
-    def test_collect_deliveries_self_test(self) -> None:
-        """The delivery-tray sweep's own self-test, wired in so it cannot rot.
-
-        Wired at introduction rather than later, because the 2026-07-25 discriminability audit
-        found 20 tools advertising a self-test and 28 sites whose cases could not detect the
-        removal of the guard they named. This tool's 8 decision guards were each mutation-proved
-        DETECTED before it shipped, and this wiring is what keeps that true.
-        """
-        result = self._run_selftest(
-            [sys.executable, str(REPO_ROOT / "tools" / "collect-deliveries.py"), "--self-test"]
-        )
-        self.assertEqual(
-            result.returncode, 0,
-            f"collect-deliveries --self-test failed.\nstdout:\n{result.stdout}"
-            f"\nstderr:\n{result.stderr}",
-        )
-        self.assertIn("self-test: ", result.stdout)
-
     def test_handoff_snapshot_self_test(self) -> None:
         """The handoff-snapshot aggregator's own self-test, wired in at introduction (roadmap track B, PR #1240).
 
@@ -10982,119 +10964,6 @@ class HookToolItemCountParityTests(unittest.TestCase):
                 os.chdir(cwd)
 
 
-class OrchestratorAdvisoryToolTests(unittest.TestCase):
-    """The two orchestrator-side advisory tools' own ``--self-test`` runs, wired here so
-    they cannot silently rot.
-
-    Both are advisory rather than gates, so the four-surface parity machinery does not
-    protect them and this is the only thing that does. `manage-workers.py` in particular
-    injects keystrokes into a session running under a different account, and its four
-    refusals ARE its entire safety surface; the #1167 sweep found those refusals asserted
-    as tested while nothing tested them, which is why they are covered here now.
-    """
-
-    def test_inbox_drops_self_test_passes(self) -> None:
-        result = run_linter("tools/audit-inbox-drops.py", "--self-test")
-        self.assertEqual(
-            result.returncode, 0,
-            f"audit-inbox-drops.py --self-test failed.\n"
-            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
-        )
-        self.assertIn("passed", result.stdout)
-
-    def test_manage_workers_self_test_passes(self) -> None:
-        result = run_linter("tools/manage-workers.py", "--self-test")
-        self.assertEqual(
-            result.returncode, 0,
-            f"manage-workers.py --self-test failed (its refusal paths are its safety "
-            f"surface).\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
-        )
-        self.assertIn("passed", result.stdout)
-
-    def test_check_class_completeness_self_test_passes(self) -> None:
-        # P-1.5: the class-completeness advisory aid's own --self-test (find_occurrences
-        # discovery + case sensitivity + multi-string + empty-needle safety), wired here so
-        # it cannot silently rot (it is an advisory aid, not a gate, so nothing else runs it).
-        result = run_linter("tools/check-class-completeness.py", "--self-test")
-        self.assertEqual(
-            result.returncode, 0,
-            f"check-class-completeness.py --self-test failed.\n"
-            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
-        )
-        self.assertIn("OK", result.stdout)
-
-    def test_merge_when_green_self_test_passes(self) -> None:
-        # P-1.6: the merge-when-green guard's evaluate() self-test (fails CLOSED on
-        # no-checks / pending / failing / unknown; green only on all-terminal-success),
-        # wired here so the consequential merge-gate logic cannot silently rot.
-        result = run_linter("tools/merge-when-green.py", "--self-test")
-        self.assertEqual(
-            result.returncode, 0,
-            f"merge-when-green.py --self-test failed.\n"
-            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
-        )
-        self.assertIn("OK", result.stdout)
-
-    def test_check_clean_language_upstream_self_test_passes(self) -> None:
-        # P-1.13: the clean-language upstream-drift check's classify() self-test (drift on a
-        # changed / missing-either-side blob SHA), wired here so the monthly-check logic
-        # cannot silently rot. The self-test is offline (pure classify); no network.
-        result = run_linter("tools/check-clean-language-upstream.py", "--self-test")
-        self.assertEqual(
-            result.returncode, 0,
-            f"check-clean-language-upstream.py --self-test failed.\n"
-            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
-        )
-        self.assertIn("OK", result.stdout)
-
-    def test_cleanup_tmp_worker_output_self_test_passes(self) -> None:
-        # P-1.16: the /tmp worker-output cleanup aid's self-test (protect-list rules +
-        # age-based eligibility, both PURE), wired here so the SAFETY logic (never select a
-        # live session dir, a system socket, or a recently-touched worker workspace) cannot
-        # silently rot. Offline; no /tmp access (pure is_protected/eligible over fixtures).
-        result = run_linter("tools/cleanup-tmp-worker-output.py", "--self-test")
-        self.assertEqual(
-            result.returncode, 0,
-            f"cleanup-tmp-worker-output.py --self-test failed.\n"
-            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
-        )
-        self.assertIn("OK", result.stdout)
-
-    def test_cleanup_tmp_apply_moves_only_worker_output_old_and_unprotected(self) -> None:
-        # P-1.16 (codex vp116 finding 6): an integration regression for the DESTRUCTIVE --apply
-        # path. A monkeypatched /tmp proves --apply moves ONLY an old worker-output entry, and
-        # leaves a system dir, a live session dir, and a recently-touched worker entry in place.
-        import importlib.util, tempfile, time as _t
-        spec = importlib.util.spec_from_file_location(
-            "clean_tmp_mod", str(REPO_ROOT / "tools" / "cleanup-tmp-worker-output.py"))
-        mod = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(mod)
-        with tempfile.TemporaryDirectory() as d:
-            root = Path(d)
-            old = _t.time() - 10 * 86400
-            (root / "grc-old-clone").mkdir()          # worker-output, old -> MOVE
-            (root / "systemd-private-x").mkdir()       # NOT worker-output -> keep
-            (root / "claude-9999").mkdir()             # protected session -> keep
-            (root / "grc-fresh").mkdir()               # worker-output but RECENT -> keep
-            (root / "grc-kept").mkdir()                # worker-output + old but --keep'd -> is_protected keeps it
-            for name in ("grc-old-clone", "systemd-private-x", "claude-9999", "grc-kept"):
-                os.utime(root / name, (old, old))
-            # grc-fresh keeps its just-created (now) mtime
-            mod.TMP = root
-            rc = mod.main(["prog", "--apply", "--days", "3", "--keep", "grc-kept",
-                           "--staging", str(root / "deleteme")])
-            moved = not (root / "grc-old-clone").exists() and (root / "deleteme" / "grc-old-clone").exists()
-            self.assertTrue(moved, "old worker-output should have been moved")
-            self.assertTrue((root / "systemd-private-x").exists(), "system dir must NOT be moved (allow-list)")
-            self.assertTrue((root / "claude-9999").exists(), "live session dir must NOT be moved (allow-list)")
-            self.assertTrue((root / "grc-fresh").exists(), "recently-touched worker dir must NOT be moved (age)")
-            self.assertTrue((root / "grc-kept").exists(), "--keep'd worker dir must NOT be moved (is_protected)")
-            self.assertEqual(rc, 0, "clean guarded apply should return 0")
-            # a --staging pointing at a protected claude-* is refused (codex vp116b finding 3)
-            rc2 = mod.main(["prog", "--apply", "--days", "3", "--staging", str(root / "claude-8888")])
-            self.assertEqual(rc2, 2, "staging into a protected claude-* name must be refused (exit 2)")
-
-
 class TokenSpendToolTests(LinterTestCase):
     """The advisory ``tools/audit-token-spend.py`` tool's own ``--self-test``.
 
@@ -11112,29 +10981,10 @@ class TokenSpendToolTests(LinterTestCase):
         )
 
 
-class ExecDispatchToolTests(LinterTestCase):
-    """The ``tools/exec-dispatch.py`` worker-dispatch tool's own ``--self-test``.
-
-    Wired here for the same reason as the token-spend tool: it is project-only operational
-    machinery that no corpus gate exercises, yet it guards a consequential path (which account a
-    worker lands on, the fail-closed refusals on a corrupt in-flight registry, the worker-log
-    pointer). Its ``--self-test`` is pure (in-memory fixture plus tempdirs, no config/network), so
-    a regression in its 60-plus decision checks would otherwise reach CI green.
-    """
-
-    def test_exec_dispatch_self_test_passes(self) -> None:
-        result = run_linter("tools/exec-dispatch.py", "--self-test")
-        self.assertEqual(
-            result.returncode, 0,
-            f"exec-dispatch.py --self-test failed.\n"
-            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
-        )
-
-
 class ActivityTimingToolTests(LinterTestCase):
     """The advisory ``tools/audit-activity-timing.py`` tool's own ``--self-test``.
 
-    Wired here like the token-spend and exec-dispatch tools: it is transcript- and
+    Wired here like the token-spend tool: it is transcript- and
     environment-dependent so no corpus gate exercises it, yet its pure timeline/idle-span math is
     what turns raw timestamps into the maintainer's never-sample duration figures, so a regression
     must not read clean.
@@ -11197,22 +11047,6 @@ class UnwiredToolSelfTests(LinterTestCase):
         self.assertEqual(
             result.returncode, 0,
             f"build-public-changelog.py --self-test failed.\n"
-            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
-        )
-
-    def test_audit_delivery_status_self_test_passes(self) -> None:
-        result = run_linter("tools/audit-delivery-status.py", "--self-test")
-        self.assertEqual(
-            result.returncode, 0,
-            f"audit-delivery-status.py --self-test failed.\n"
-            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
-        )
-
-    def test_audit_brief_freshness_self_test_passes(self) -> None:
-        result = run_linter("tools/audit-brief-freshness.py", "--self-test")
-        self.assertEqual(
-            result.returncode, 0,
-            f"audit-brief-freshness.py --self-test failed.\n"
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 

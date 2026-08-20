@@ -19,7 +19,7 @@ Portable procedure, concrete names. In the parent GRC library this skill runs wi
   `tools/gate-mutation-variants.json`; and the validation-coverage tool for phase 4(e),
   `tools/audit-validation-coverage.py`.
 - Phase-3 advisory aids: `tools/verify-reference-modules.py`,
-  `tools/audit-brief-freshness.py`, `tools/residual-scan.py`, and `tools/tension-scan.py`
+  `tools/residual-scan.py` and `tools/tension-scan.py`
   (the last two run over the QA ledgers).
 - Sibling-repo set: the corpus repo (`grc_library`), the reference base
   (`grc_library_ref`, the held source texts and indexes phase 5 judges against), the

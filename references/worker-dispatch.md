@@ -1,93 +1,86 @@
-# Worker dispatch mechanics and delivery trays (reference)
+# Worker dispatch mechanics (reference)
 
 **Read this at the worker-dispatch boundary, like a skill: when constructing or pinning a worker
-order, managing a codex worker, or processing the delivery trays.**
-[`.claude/CLAUDE.md`](../.claude/CLAUDE.md) carries the lean always-on core (the pin-to-a-containing-SHA
-and codex-single-shot gists, plus the two always-on clauses: inbox issues jump the queue, and sweep
-the trays at each boundary); this file carries the full order-construction and tray mechanics and
-their rationale. Relocated from CLAUDE.md by roadmap C part 2 (the activity-scoped rule loader); the
-always-on residue kept inline in CLAUDE.md is deliberate defence-in-depth and is not a duplication to
-trim. This is project-only operational machinery (the tmux, exec-dispatch, and file-drop specifics),
-NOT pack material. The mechanical backstops are the [`tools/exec-dispatch.py`](../tools/exec-dispatch.py)
-dispatch-time REFUSAL/WARNING checks and [`tools/collect-deliveries.py`](../tools/collect-deliveries.py)'s
-two completeness layers; this prose is the explanation, the tools are the guard.
+order, or dispatching one and reading its result back.** [`.claude/CLAUDE.md`](../.claude/CLAUDE.md)
+carries the lean always-on core (the two clauses whose blast radius reaches beyond this activity);
+this file carries the full mechanics. The companion playbook
+[`worker-offload.md`](worker-offload.md) covers WHETHER to offload and to which family; this one
+covers HOW to construct the order and get the result back.
 
-## Pin an order to a SHA that CONTAINS what the order references
+This is project-only operational machinery, not pack material.
 
-Three orders on 2026-07-25 asserted something untrue at their own pinned SHA, and each cost a worker
-cycle: one named a function that existed only on an unmerged branch, one pinned a merge SHA that
-PREDATED the backlog item the order told the worker to read, and one carried a worker exclusion as
-prose that nothing enforced.
+## The transport
 
-**The rule is narrower than "pin to a merge SHA", which was already the practice and was not enough.**
-The correction adopted after alert 2026-07-23-a made a pinned SHA REACHABLE (never a PR branch head
-that vanishes on squash-merge). It did not make the SHA CONTAIN what the order references. So: pin to
-a commit that contains every path, item and identifier the order tells the worker to read, which for
-an order derived from backlog item N means the commit that CREATED item N, not merely a later one.
+Dispatch is the shared `orch` harness. `orch-verify <family> <prompt-file> [workdir] [options]` runs
+ONE read-only worker to completion and returns its stdout plus a `WORKER_STATUS` line reporting the
+account, model, effort, and return code. `orch --help` and `orch-verify --help` are the authority on
+options and defaults; treat anything written here about specific flags as secondary to them.
 
-**Two mechanical backstops now exist at dispatch**, and their severities differ on purpose:
-- **A REFUSAL** when `not_worker` names a worker id the exchange has never seen, because that input is
-  exact and a vacuous exclusion silently disables an independence control.
-- **A WARNING** when a referenced path or `TODO N.M` item is absent at the pinned SHA, because that
-  extraction is heuristic and a false refusal on a legitimate dispatch would get the check bypassed.
+Consequences of the transport that shape every order:
 
-**Read the dispatch output.** Both backstops are useless if the dispatch line scrolls past unread, and
-a warning is exactly the shape that gets skimmed. The orchestrator's own habit is the primary control;
-these are defence in depth.
+- **Workers are READ-ONLY.** A worker cannot commit, push, or edit. It inspects and reports. Any
+  change it proposes is a CANDIDATE the orchestrator applies and verifies (the research-assistant
+  discipline in the `ai-assistant-workflow-disciplines` pack rule).
+- **Results arrive on stdout and are not persisted for you.** Redirect at dispatch. An uncaptured
+  result is a lost result.
+- **Every worker is SINGLE-SHOT.** There is no resumable worker session, so scope each order to one
+  self-contained pass. Work that needs a second round is a second order carrying forward whatever
+  context the first produced.
+- **A worker sees the working tree it is pointed at.** Where the orchestrator may edit that tree
+  concurrently, the worker can observe half-applied state; pin the order to a commit and say so.
 
-## Codex workers are single-shot: exec-dispatch runs the pass to completion
+## Pinning an order
 
-A Codex chat cannot be resumed once it returns a final response (its own continuation brief records this
-as a confirmed limit), so a Codex worker is SINGLE-SHOT: one self-contained pass per dispatch. Under the
-exec-dispatch model ([`exec-dispatch.py`](../tools/exec-dispatch.py), which invokes `run-codex-worker`),
-the dispatch RUNS THE JOB TO COMPLETION as a background subprocess and delivers to the tray, so there is
-no wake to issue and no poll to manage: dispatch, then wait for the delivery, checking the worker log and
-the delivery tray on the background-task cadence.
+**Pin an order to a commit that CONTAINS what it references.** For a backlog item N, that is the commit
+that CREATED item N, not a later one; for a diff review, the commit under review; for a corpus sweep,
+the merge commit the sweep is meant to cover. A branch head is never a pin: a squash-merge deletes it,
+and the order then references a commit that no longer exists.
 
-Because a codex pass is single-shot, scope each codex order to ONE self-contained pass: a task needing
-several turns will not survive the boundary, so split it rather than hoping the worker persists.
+**Commit the artefact BEFORE dispatching QA on it.** An uncommitted artefact does not exist at the
+pinned revision, so the worker either reports it missing, or reads the working tree and reviews a
+moving target while the orchestrator keeps editing. A worker that REFUSES an uncommitted basis is
+correct, and its refusal is a finding about the DISPATCH, not an unhelpful worker: fix the dispatch,
+do not re-brief the worker to be more accommodating.
 
-(Historical, the retired standing-codex model: before exec-dispatch, codex ran as a standing tmux session
-that had to be nudged with `--send wake` and re-checked every 10 minutes because a control plane cannot
-wake an idle turn, and a replacement session was refused a prior session's claim so worker-id churn was
-expected. exec-dispatch removed that entirely: run-codex-worker runs the pass and exits, so the nudge, the
-10-minute re-check loop, and the id-churn management no longer apply.)
+**Pin the reference base too.** An order that reads `grc_library_ref` names the `_ref` commit it may
+read at. Without that pin a worker operating under a provenance rule cannot quote held source and will
+correctly return a hold.
 
-A codex review that COMPLETES but never lands in the tray (the stranded-verdict class diagnosed
-2026-08-08) is recovered with [`tools/recover-codex-verdict.py`](../tools/recover-codex-verdict.py):
-`--scan` lists verdict-bearing logs with no matching delivery, and a targeted run writes a
-RECOVERED-FROM-LOG delivery into the tray. A recovery is a LOWER-TRUST artefact (the banner states the
-residue); the orchestrator re-verifies positive findings at source exactly as for a normal delivery.
+## Constructing the brief
 
-## Delivery tray: one place to look, and issues jump the queue
+- **State the procedure, do not assume it.** Point the worker at the skill or rule that defines the
+  formal shape of the pass, and tell it to execute that as written.
+- **Give it the asserted-clean set.** Say which surfaces a prior session asserted clean, so a
+  contradiction can be flagged as a MISS-SIGNAL rather than triaged as an ordinary finding.
+- **Demand grounded findings.** Every positive finding carries a path, a line, the quoted offending
+  text, the ground-truth quote that contradicts it, and a severity. A finding that cannot be grounded
+  in a quote is not a finding, and the brief should say so, so the worker reports nothing rather than
+  padding.
+- **Require an honest mechanical section.** Ask for the command's own output, and require an
+  UNRUNNABLE check to be reported as unrunnable. Never let a brief's own asserted values be restatable
+  as if measured; that is precisely how a fabricated proof-of-run gets produced.
+- **Name the read-only constraint explicitly**, including inspecting version-control history read-only
+  (`git show <ref>:<path>`, `git diff`, `git log`) and never moving the working tree's HEAD.
+- **Give parallel same-brief dispatches distinct output paths.** Two families running one brief will
+  otherwise collide on a content-derived name and one will overwrite the other.
 
-The exchange stores a delivery at `<family>/outbox/<worker-id>/<order-id>.md`, so answering "what is
-delivered and unprocessed?" means walking every family crossed with every minted worker id. Doing that
-by hand mis-reported the fleet once on 2026-07-25 (a stale `list-pending` read was described as "7
-stranded orders" when all ten had in fact been delivered). Two trays now separate the traffic, and the
-separation is the point (maintainer-directed 2026-07-25):
+## Reading the result back
 
-- **`inbox/`** carries HIGH-PRIORITY issues a worker raises, read as soon as noticed. A worker writes one
-  the moment it hits a blocker, a malformed order, an out-of-scope defect, or an independence conflict,
-  rather than burying it in a result the orchestrator may not read for hours. This matters more now that
-  workers run HEADLESS, with no pane being watched.
-- **`inbox/deliveries/`** carries routine order results, processed at the next boundary, named
-  `<worker-id>__<order-id>.md` so both ids survive without parsing the body. The orchestrator needs the
-  worker id for the elevated-QA trust window (keyed on worker plus model) and for independence routing.
+- **Read the FULL substantive output, never a truncated tail.** Map its structure first (verdict,
+  findings, proof-of-run), then read each section. A tail-and-conclude read once landed mid-file and
+  nearly produced a false reading of a verifier's verdict.
+- **Every POSITIVE finding is re-verified at source before it is routed.** A worker finding is a
+  hypothesis. A clean zero-finding result is trusted on its proof-of-run.
+- **Check the proof-of-run against what the worker could actually do.** A mechanical result a
+  read-only or plan-mode worker could not have produced is fabricated, however plausible its numbers.
+- **Reconcile the panel, do not average it.** A finding raised by one family only is triaged on its
+  own merits; agreement between families is corroboration worth recording; a disagreement is itself a
+  signal about which family was right, and belongs in the QA record.
 
-Mixing them would destroy what makes the issue channel work, namely that its list is short and every item
-on it matters, so a delivery never lands in bare `inbox/`.
+## Re-issuing
 
-**Run [`tools/collect-deliveries.py`](../tools/collect-deliveries.py) at each task boundary**: it sweeps
-completed deliveries into the tray and files each served order under `done/orders/`. Two independent
-completeness layers gate the move, because they catch different failures. `deliver` publishes via an
-atomic rename from a `.md.tmp` name in the same directory, so any `*.md` in an outbox has all its bytes;
-and the last non-blank line must be `<!-- END OF DELIVERY -->`, which is the author's assertion that the
-work was finished rather than merely fully written. A file failing either is LEFT IN PLACE and REPORTED
-individually, never silently skipped, because a file sitting untouched with no explanation is the same
-silence-reads-as-health failure as a stalled worker that still heartbeats while no longer doing work.
-
-Its report names BOTH planes (tray count and still-in-outbox count) rather than summing them, because the
-sweep only runs while the orchestrator is alive, so a tray-only reading under-reports between sessions.
-That is the single-plane blindness the retired scratch `list-workers` exhibited. `--dry-run` is the read-only
-status form and `--oneline` the statusline form.
+A worker silent past 20 minutes gets the SAME order issued to a distinct account, and whichever
+returns FIRST is authoritative. The late delivery is then read as a CROSS-REFERENCE only, to confirm
+the accepted result missed nothing; it is never re-adjudicated as a competing verdict. Duplicating a
+read-only order costs a worker cycle and nothing else, which is what makes this safe: it converts a
+stalled order from an indefinite block into a bounded one.

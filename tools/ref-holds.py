@@ -7,7 +7,7 @@ about the reference base MUST quote this tool's output, never a bare filename gr
 a vendor publication and wrongly concluded "ISO/IEC 27002:2022 is not held", when the ref
 index lists the standard plainly. This is the `evidence-grounded-completion`
 "inventory/absence claims require the index, not a partial look" corollary, mechanized the
-same way ``audit-delivery-status.py`` mechanized delivery-status claims: run it, quote it.
+same way a status claim is mechanized rather than narrated: run it, quote it.
 
 WHAT IT DOES. It searches the reference base's OWN index files (``INDEX.md`` and
 ``catalogue.yml``; ``SECTION-INDEX.md`` / ``COVERAGE-MAP.md`` if present) for the query as a

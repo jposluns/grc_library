@@ -13,7 +13,8 @@
   "respectGitignore": true,
   "statusLine": {
     "type": "command",
-    "command": "input=$(cat); dir=$(echo \"$input\" | jq -r '.workspace.project_dir // empty'); dr=$(python3 \"${dir:-/home/grc/grc_library}/tools/audit-inbox-drops.py\" --oneline 2>/dev/null); case \"$dr\" in drops:\\ 0*) ;; drops:*) printf '  |  %s' \"$dr\";; esac"
+    "command": "/usr/local/bin/claude-statusline.sh",
+    "padding": 0
   },
   "hooks": {
     "PreToolUse": [

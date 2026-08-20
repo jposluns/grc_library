@@ -448,7 +448,7 @@ is external. Two mechanisms:
      `grc_library_private/.working/`, its completed weeks are archived within the private repository,
      and git history retains every entry regardless). Any such archiving is an advisory close-out follow-up,
      NOT a gate: it is cross-repo (neither repo's CI can see the other), the same cross-repo
-     shape as the `/validate-pr` sweep and the `audit-brief-freshness.py` advisory
+     shape as the `/validate-pr` sweep and the reference-reaching advisory
      tool, and the sweep removes tree content only (this
      repo's git history and the grc_library_private archive both retain the full trail, and the `.working/
      export-ignore` in [`.gitattributes`](../.gitattributes) keeps release tarballs fork-clean
@@ -510,9 +510,9 @@ is external. Two mechanisms:
      RETURNED, with its findings dispositioned.** A row reading `DISPATCHED, RESULT PENDING`
      does NOT satisfy this, however honestly it is worded. Honest prose recording an absence is
      the right way to record it and is not a substitute for the thing being absent.
-   - **If the order is outstanding, WAIT for it.** If an actual exec-dispatch attempt genuinely
+   - **If the order is outstanding, WAIT for it.** If an actual dispatch attempt genuinely
      fails to place the order, SELF-RUN it inline (the trigger is a FAILED ATTEMPT, never a pre-emptive
-     reading that no worker will serve it, since every exec-dispatch order spawns a fresh worker): on this one
+     reading that no worker will serve it, since every order spawns a fresh worker): on this one
      conflict the mandatory-QA rule outranks the mandatory-offload rule, never the reverse.
      Alert the maintainer and request another worker at the same time, per the
      worker-elasticity corollary, but do not let the ask become the reason the QA never ran.

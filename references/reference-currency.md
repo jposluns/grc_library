@@ -35,7 +35,7 @@ enforcement is `detect-env`'s `ref_availability` HALT plus `/orch` step 3 acting
    not-held claim is EXECUTED, not narrated:** run `python3 tools/ref-holds.py <query>` and quote
    its output (HELD with the path, or NOT-FOUND-IN-INDEX), never a partial filename grep. A `grep`
    may FIND a file, but its ABSENCE from a partial/filtered grep never proves not-held. This is the
-   same executed-not-narrated forcing function as `audit-delivery-status.py` for delivery-status
+   same executed-not-narrated forcing function as `decisions-search.py` for recorded-decision
    claims, and the `evidence-grounded-completion` "inventory/absence claims require the index, not a
    partial look" corollary.
 2. **Validate the current version upstream this turn.** The authoritative answer to "is this
