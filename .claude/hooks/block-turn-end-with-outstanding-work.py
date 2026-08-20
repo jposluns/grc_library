@@ -34,7 +34,9 @@ WHAT IT DOES NOT BLOCK, by construction:
   * anything at all, if the escape file exists (see below);
   * anything at all, if it cannot answer the question (see fail-open).
 
-ESCAPE, and it is reachable. Create the file named by ESCAPE_FILE from any shell:
+ESCAPE, and it is reachable BY CONSTRUCTION: ESCAPE_FILE is derived from this file's own
+location, so it follows a checkout relocation instead of stranding on a dead path. Create it from
+any shell:
 ``touch /home/grc/grc_working/.allow-stop``. The hook honours it ONCE and deletes it, so an escape
 cannot silently become the standing state. It is reachable from a Bash tool call, which the previous
 environment-variable form was not: a Stop hook inherits the harness's environment, never the
@@ -67,10 +69,21 @@ import subprocess
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+try:
+    from _hookutil import is_worker_session
+except Exception:                                  # pragma: no cover - fail OPEN on import trouble
+    def is_worker_session() -> bool:               # noqa: D103
+        return False
+
 REPO = Path(os.environ.get("CLAUDE_PROJECT_DIR") or Path(__file__).resolve().parents[2])
-DROP_ROOT = Path(os.environ.get("GRC_DROP_ROOT", "/home/grc/grc_working")) / "inbox" / "deliveries"
-CONSUME_MARKER = DROP_ROOT / ".last-consume"
-ESCAPE_FILE = Path(os.environ.get("GRC_DROP_ROOT", "/home/grc/grc_working")) / ".allow-stop"
+# The working root follows the checkout rather than a hardcoded host path. A hardcoded root is a
+# relocation trap: when the repos moved from /home/grc to /opt/grc the old default left the ESCAPE
+# FILE on a path that did not exist and that the constrained actor could not create, so the guard
+# became unconditional in practice. An escape the actor cannot reach is not an escape, it is the
+# appearance of one, and an inescapable guard is the shape that gets disabled wholesale.
+WORKING_ROOT = Path(os.environ.get("GRC_DROP_ROOT") or (REPO.parent / "grc_working"))
+ESCAPE_FILE = WORKING_ROOT / ".allow-stop"
 # Held branches live in a FILE with a reason per line, not a constant in this file: a hardcoded set
 # goes stale the day it is written, and a comment saying "cite a decision record" enforces nothing.
 HELD_FILE = REPO.parent / "grc_library_private" / ".working" / "held-branches.txt"
@@ -147,17 +160,15 @@ def unmerged_branches() -> list:
 
 
 def new_deliveries() -> list:
-    """Deliveries newer than the recorded consume. Returns [] when it cannot tell."""
-    if not DROP_ROOT.is_dir() or not CONSUME_MARKER.exists():
-        return []          # cannot answer: fail open, per the contract above
-    # RESIDUE, at the predicate: mtime is not arrival and the marker is not attention. A copied or
-    # restored file carries a new mtime without being new work; a file written slowly may predate
-    # its own completion; and the marker is advanced by the orchestrator asserting the tray is
-    # dispositioned, which nothing verifies. The marker is also GLOBAL, so advancing it for one
-    # delivery clears every other. Location would beat all of this (move a dispositioned file to a
-    # consumed/ directory, as the file-drop inbox already does), and is the queued replacement.
-    since = CONSUME_MARKER.stat().st_mtime
-    return sorted(p.name for p in DROP_ROOT.glob("*.md") if p.stat().st_mtime > since)
+    """RETIRED ARM, kept as a no-op so the decision signature and its tests stay stable.
+
+    This watched the file-drop delivery tray for results arriving since the last recorded consume.
+    That transport is gone: the shared `orch` harness returns each worker's output on stdout to the
+    dispatching orchestrator, so there is no tray to watch and no consume marker to compare against.
+    Returning [] leaves the branch arm as the guard's only observable, which is stated plainly in the
+    block message rather than left for a reader to discover.
+    """
+    return []
 
 
 def decide(stop_hook_active: bool, escape: bool, branches: list, deliveries: list) -> str | None:
@@ -172,8 +183,7 @@ def decide(stop_hook_active: bool, escape: bool, branches: list, deliveries: lis
         lines += ["    - " + d for d in deliveries[:6]]
         if len(deliveries) > 6:
             lines.append("    ... and %d more" % (len(deliveries) - 6))
-        lines.append("    Read them, disposition every finding, then record the consume:")
-        lines.append("      touch /home/grc/grc_working/inbox/deliveries/.last-consume")
+        lines.append("    Read them and disposition every finding before yielding.")
     if branches:
         lines.append("  Branches ahead of main and not recorded as held (%d):" % len(branches))
         lines += ["    - %s (+%s)" % (n, a) for n, a in branches[:8]]
@@ -181,8 +191,12 @@ def decide(stop_hook_active: bool, escape: bool, branches: list, deliveries: lis
         lines.append("      grc_library_private/.working/held-branches.txt")
     lines += [
         "",
+        "  This guard watches ONE observable: branches ahead of main. It cannot see a dispatched",
+        "  worker that has not returned, an unfinished task list, or uncommitted changes, so a clean",
+        "  pass here is not evidence that nothing is outstanding.",
+        "",
         "  If this is a genuine block (CI, a maintainer decision, an external wait), say so and:",
-        "      touch /home/grc/grc_working/.allow-stop     # honoured once, then deleted",
+        "      touch " + str(ESCAPE_FILE) + "     # honoured once, then deleted",
     ]
     return "\n".join(lines)
 
@@ -194,6 +208,16 @@ def main() -> int:
         payload = {}
     try:
         if payload.get("stop_hook_active"):
+            return 0
+        if is_worker_session():
+            # A dispatched worker cannot discharge ANY of this guard's remedies: it cannot
+            # merge the orchestrator's branch (merging is orchestrator-only work), it cannot
+            # write the `_private` held-branches record, and it cannot create the escape file,
+            # all three sitting outside a worker's writable root. So the guard could only wedge
+            # a worker at the end of an order it had already completed. The branch it names is
+            # the ORCHESTRATOR's outstanding work, and the orchestrator's own turn-end is where
+            # that gets enforced. Observed 2026-08-20: a /validate-pr worker delivered its full
+            # verdict, then spent its remaining turns unable to satisfy or escape this guard.
             return 0
         escape = ESCAPE_FILE.exists()
         if escape:
