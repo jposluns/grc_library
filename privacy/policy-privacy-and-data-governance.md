@@ -2,14 +2,14 @@
 
 **Document Title:** Privacy and Data Governance Policy\
 **Document Type:** Policy\
-**Version:** 1.4.17\
-**Date:** 2026-08-13\
+**Version:** 1.4.18\
+**Date:** 2026-08-20\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
 **Classification:** Public\
 **Category:** Privacy\
-**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change\
+**Review Frequency:** 6 to 12 months and upon material privacy, regulatory, or AI governance change\
 **Repository Path:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0
