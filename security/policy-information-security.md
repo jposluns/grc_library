@@ -2,8 +2,8 @@
 
 **Document Title:** Information Security Policy\
 **Document Type:** Policy\
-**Version:** 1.3.18\
-**Date:** 2026-08-05\
+**Version:** 1.3.19\
+**Date:** 2026-08-20\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -106,7 +106,7 @@ Where the organization participates in a sector-specific security programme (for
 
 4.7.1 Data classification and labelling must follow the Data Classification Standard.
 4.7.2 Data at rest and in transit must be encrypted using approved algorithms (AES-256 or stronger).
-4.7.3 Backups must be performed daily, tested quarterly, and stored securely in geographically diverse locations.
+4.7.3 Backups must be performed daily and stored securely in geographically diverse locations. Restore testing must follow the criticality-tiered baseline in [`resilience/procedure-backup-and-recovery.md`](../resilience/procedure-backup-and-recovery.md) Section 4: at least weekly for production and other high-criticality systems, and at least monthly for all other systems.
 
 ### 4.8 AI model and system security
 

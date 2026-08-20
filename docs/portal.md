@@ -638,7 +638,7 @@ The Resilience Owner needs the business continuity framework and policy, the dis
 
 ### Procedure
 
-- [Backup and Recovery Procedure](../resilience/procedure-backup-and-recovery.md) (maturity: Baseline)
+- [Backup and Recovery Procedure](../resilience/procedure-backup-and-recovery.md) (maturity: Mature)
 - [Business Impact Analysis Procedure](../resilience/procedure-business-impact-analysis.md) (maturity: Baseline)
 - [Continuity and Recovery Testing Procedure](../resilience/procedure-continuity-and-recovery-testing.md) (maturity: Baseline)
 - [Crisis Management and Emergency Operations Activation Procedure](../resilience/procedure-crisis-management-eoc-activation.md) (maturity: Baseline)
