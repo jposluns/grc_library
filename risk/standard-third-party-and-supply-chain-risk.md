@@ -2,8 +2,8 @@
 
 **Document Title:** Third-Party and Supply Chain Risk Standard\
 **Document Type:** Standard\
-**Version:** 1.1.8\
-**Date:** 2026-08-13\
+**Version:** 1.1.9\
+**Date:** 2026-08-20\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-due-diligence.md`](../supply-chain/procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](../supply-chain/procedure-supplier-ongoing-monitoring.md), [`supply-chain/procedure-supplier-exit-and-data-return.md`](../supply-chain/procedure-supplier-exit-and-data-return.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -116,6 +116,9 @@ For third parties providing AI models, inference services, training data, or oth
 - No-training-on-customer-data commitment unless explicit opt-in is documented, per the AI vendor security questionnaire.
 - Notice period for material model behaviour changes; the provider's deprecation policy.
 - Cross-border data-transfer mechanism per the privacy framework.
+- Incident notification to the organization within 24 hours of discovery, uniform across AI suppliers and governing regardless of the supplier's criticality tier, per [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md) Section 6.3.
+
+This 24-hour AI-supplier incident-notification requirement applies to every AI supplier even where the AI due-diligence applicability matrix above scopes AI due diligence down (assessment-if-AI-enabled, or not-required) for a lower criticality tier; a lower tier does not waive it.
 
 See [`ai/template-ai-vendor-security-questionnaire.md`](../ai/template-ai-vendor-security-questionnaire.md) and [`ai/procedure-foundation-model-lifecycle.md`](../ai/procedure-foundation-model-lifecycle.md) for the operational vehicle.
 
