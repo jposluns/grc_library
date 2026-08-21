@@ -1770,6 +1770,20 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
         self.assertIn("self-test: ", result.stdout)
 
+    def test_block_opus5_orchestrator_model_hook_self_test(self) -> None:
+        """The Opus-5 self-model guard's own self-test, wired at introduction (PR #1649).
+
+        A guard nobody tests silently rots in CI; a gemini verifier flagged this hook as the one
+        block hook missing from the suite, so it is enforced here like the others.
+        """
+        result = self._run_selftest(
+            [sys.executable, str(REPO_ROOT / ".claude" / "hooks" / "block-opus5-orchestrator-model.py"),
+             "--self-test"]
+        )
+        self.assertEqual(result.returncode, 0,
+                         f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        self.assertIn("self-test: ", result.stdout)
+
     def test_lint_ungated_dashes_self_test(self) -> None:
         """Gate 82's own self-test. A prose gate that must flag re-drift while exempting the
         illustration and the third-party overlay is exactly the fail-open-vs-flag shape that rots
