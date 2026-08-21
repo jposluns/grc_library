@@ -58,7 +58,7 @@ def _last_assistant_text(tp) -> "str | None":
 
 def main() -> int:
     if "--self-test" in sys.argv:
-        from _session_clock import conforms, _self_test as clock_test
+        from _session_clock import _self_test as clock_test
         ok = conforms("[2026-08-21 02:31Z] x (session: 1h 0m)") and not conforms("no stamp")
         rc = clock_test()
         print(f"{'block-unstamped-turn-end'} self-test: {'OK' if ok and rc==0 else 'FAIL'}")
