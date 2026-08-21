@@ -2,8 +2,8 @@
 
 **Document Title:** Healthcare Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.1.10\
-**Date:** 2026-08-17\
+**Version:** 1.1.11\
+**Date:** 2026-08-21\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/healthcare/procedure-hipaa-operational-compliance.md`](procedure-hipaa-operational-compliance.md), [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`compliance/register-compliance-obligations-template.md`](../register-compliance-obligations-template.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`privacy/annex-privacy-jurisdiction-index.md`](../../privacy/annex-privacy-jurisdiction-index.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md)\
@@ -209,7 +209,7 @@ Processing health data as special category data under GDPR requires additional s
 | **Data minimization** | Only collect and process health data actually necessary | Privacy-by-design requirements |
 | **Pseudonymization** | Apply pseudonymization where possible | [`security/framework-cryptographic-key-lifecycle.md`](../../security/framework-cryptographic-key-lifecycle.md); [`dev-security/standard-developer-security-requirements.md`](../../dev-security/standard-developer-security-requirements.md) |
 | **Access controls** | Strict access controls; logs of all access to health records | [`security/procedure-access-control.md`](../../security/procedure-access-control.md); [`operations/register-it-security-operations.md`](../../operations/register-it-security-operations.md) |
-| **Breach notification** | Notify the supervisory authority within 72 hours where a personal data breach is likely to result in a risk (GDPR Art. 33); communicate to affected individuals without undue delay where the risk is high (Art. 34) | [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../../privacy/procedure-data-protection-and-privacy-breach-response.md) |
+| **Breach notification** | Notify the supervisory authority without undue delay and, where feasible, within 72 hours of becoming aware of a personal data breach, unless it is unlikely to result in a risk (GDPR Art. 33); communicate to affected individuals without undue delay where the risk is high (Art. 34) | [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../../privacy/procedure-data-protection-and-privacy-breach-response.md) |
 
 ### Caldicott principles (UK NHS)
 

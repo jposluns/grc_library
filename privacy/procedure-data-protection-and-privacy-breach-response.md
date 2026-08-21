@@ -2,8 +2,8 @@
 
 **Document Title:** Data Protection and Privacy Breach Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.30\
-**Date:** 2026-08-12\
+**Version:** 1.4.31\
+**Date:** 2026-08-21\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md)\
@@ -24,7 +24,7 @@
 
 ### 1.1 Purpose
 
-This procedure defines the lifecycle for detecting, containing, assessing, notifying, remediating, and closing personal data breaches and privacy incidents. It establishes mandatory roles, response timeframes, jurisdiction-specific notification obligations, and evidence requirements, and ensures that regulatory notification deadlines are met for all applicable laws.
+This procedure defines the lifecycle for detecting, containing, assessing, notifying, remediating, and closing personal data breaches and privacy incidents. It establishes mandatory roles, response timeframes, jurisdiction-specific notification obligations, and evidence requirements, and supports meeting regulatory notification deadlines for all applicable laws.
 
 The procedure is aligned to ISO/IEC 27701:2025 (privacy incident management; section numbering changed in 2025 standalone revision), GDPR Articles 33 to 34, UK GDPR Articles 33 to 34, PIPEDA (Breach of Security Safeguards Regulations), PIPL Article 57, LGPD, Quebec Law 25, and CSA CCM v4.1 SEF-08 and SEF-06.
 
@@ -168,7 +168,7 @@ The notification assessment is documented in the breach record and approved by t
 
 | Jurisdiction | Governing Law | Regulatory Authority | Notification Trigger | Regulatory Deadline | Individual Notification |
 | --- | --- | --- | --- | --- | --- |
-| **European Union** | GDPR Arts. 33 to 34 | Relevant lead supervisory authority (EDPB member authority); ICO for UK data subjects | Breach likely to result in a risk to the rights and freedoms of natural persons | 72 hours from the point of becoming aware of the breach | Without undue delay where the breach is likely to result in a high risk to individuals |
+| **European Union** | GDPR Arts. 33 to 34 | Relevant lead supervisory authority (EDPB member authority); ICO for UK data subjects | Personal data breach, unless unlikely to result in a risk to the rights and freedoms of natural persons (Art. 33(1); individuals notified where high risk, Art. 34) | 72 hours from the point of becoming aware of the breach | Without undue delay where the breach is likely to result in a high risk to individuals |
 | **United Kingdom** | UK GDPR Arts. 33 to 34 | Information Commissioner's Office (ICO) | Same threshold as EU GDPR | 72 hours from becoming aware | Without undue delay where high risk |
 | **Canada (Federal)** | PIPEDA (Breach of Security Safeguards Regulations); successor Bill C-36 (PPCDA) proposed, not in force | Office of the Privacy Commissioner of Canada (OPC) | Real risk of significant harm to the individual | As soon as feasible (no fixed statutory deadline) | As soon as feasible after the determination that significant harm is likely |
 | **Quebec (Provincial)** | Quebec Law 25 (Bill 64); Act Respecting the Protection of Personal Information | Commission d'accès à l'information (CAI) | Confidentiality incident creating a serious injury risk | Promptly to the CAI (the Act sets no fixed hour-count); affected individuals must also be notified (the Act states the duty without a timeliness standard) | Promptly, as programme policy (the Act states no sequencing or timeliness standard) |
