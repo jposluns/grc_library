@@ -11,10 +11,6 @@
   },
   "disableSkillShellExecution": true,
   "respectGitignore": true,
-  "statusLine": {
-    "type": "command",
-    "command": "input=$(cat); dir=$(echo \"$input\" | jq -r '.workspace.project_dir // empty'); dr=$(python3 \"${dir:-/home/grc/grc_library}/tools/audit-inbox-drops.py\" --oneline 2>/dev/null); case \"$dr\" in drops:\\ 0*) ;; drops:*) printf '  |  %s' \"$dr\";; esac"
-  },
   "hooks": {
     "PreToolUse": [
       {
@@ -101,6 +97,15 @@
             "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-on-open-findings.py"
           }
         ]
+      },
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-opus5-orchestrator-model.py"
+          }
+        ]
       }
     ],
     "Stop": [
@@ -113,6 +118,10 @@
           {
             "type": "command",
             "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/surface-session-facts.py"
+          },
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-opus5-orchestrator-model.py"
           }
         ]
       }
