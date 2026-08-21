@@ -6,35 +6,45 @@ immediately and MAINTAINER ALERT so I can swap you to a better working model." T
 Opus 5 a worse working model for this project than Opus 4.8 and wants a mechanical hard-stop the
 moment a session (or a mid-session model swap) lands on Opus 5.
 
-SIGNAL: the running model id, read from the LAST real assistant entry of the transcript
-(payload["transcript_path"] -> message.model). This is the same transcript surface
-surface-session-facts.py reads; assistant entries carry the model that produced them, so a
-PreToolUse fires with the Opus-5 model already recorded when Opus 5 tries to run its first tool.
-Entries whose model is not a concrete `claude-*` id (`<synthetic>` injected notifications, interrupts)
-are skipped so the guard reads the last GENUINE model.
+MAINTAINER-SCOPED: the Opus-5 ban is the maintainer's preference for THIS project, NOT a portable
+adopter guard. The guard NO-OPS for an adopter (signal: the `grc_library_private` sibling is absent),
+so an adopter who legitimately runs Opus 5 with Claude Code is never blocked by it.
 
-MATCH: a model id matching `claude-opus-5` or `claude-opus-5-<x>` (covers the bare id, dated
-variants, the `-1m` context variant). Does NOT match `claude-opus-4-8`, any 4.x, `claude-opus-50`,
-`claude-opus-5x`, or a sonnet/haiku id.
+SIGNAL: the running model id, read from the transcript's LAST real assistant entry
+(payload["transcript_path"] -> message.model), the same surface surface-session-facts.py reads.
+Injected `<synthetic>` entries (notifications, interrupts) are skipped so the guard reads the last
+GENUINE model, WHATEVER it is (claude or not); is_opus5() then decides. A non-Opus-5 last model
+(4.8, a differently-cased id, a non-claude id) yields ALLOW, never a search back to an older entry.
 
-FAIL-OPEN discipline (same as the other block-* guards): this guard BLOCKS (exit 2) ONLY when it
-POSITIVELY resolves the running model as Opus 5. On ANY uncertainty (no payload, no transcript_path,
-an unreadable/unparseable transcript, no resolvable `claude-*` model) it exits 0 (allow). A
-fail-CLOSED guard here would wedge EVERY tool call on EVERY model, the good 4.8 included, whenever it
-could not read the model, which is the "a guard that blocks work on its own malfunction gets removed"
-failure. RESIDUE, stated not hidden: Opus 5 running while the transcript is momentarily unreadable
-would not be caught by this observer; the passive statusline model readout is the backstop for that
-narrow window.
+MATCH: a model id matching `claude-opus-5` or `claude-opus-5-<x>` (bare id, dated variants, the
+`-1m` context variant). Does NOT match `claude-opus-4-8`, any 4.x, `claude-opus-50`, `claude-opus-5x`,
+or a sonnet/haiku id.
+
+FAIL-OPEN discipline (the contract, and the four fail-CLOSED gaps a codex verifier caught in the
+first version, all closed here): the guard BLOCKS (exit 2) ONLY when it POSITIVELY resolves the
+running model as Opus 5 in the maintainer environment. On ANY uncertainty it exits 0 (allow):
+  * no payload / bad payload / any internal error;
+  * no transcript_path, or an unreadable transcript;
+  * a MALFORMED (unparseable) line at the tail of the transcript: the guard fails OPEN rather than
+    searching PAST it to an older entry, because a partially-written current record after an
+    Opus-5 -> good-model switch must never resurrect the stale Opus-5 and block the good session;
+  * a last genuine model that is not a positive Opus-5 match (this is the whole point);
+  * NO `payload.model` fallback: the transcript is the sole authority, so a missing transcript
+    fails open instead of blocking on an unverified payload hint.
+A fail-CLOSED path here would wedge a GOOD-model session, which is the worst outcome and the reason
+the contract is fail-open. RESIDUE, stated not hidden: Opus 5 running while the transcript is
+momentarily unreadable is not caught (backstopped by the passive statusline model readout); and the
+alert-write dedup is a non-atomic read-then-append, so two concurrent Opus-5 sessions could each
+append one alert block (a duplicate alert, harmless, accepted).
 
 On a positive detection it also appends an OPEN MAINTAINER ALERT block to the out-of-band watchdog
 channel (grc_library_scratch/MAINTAINER_ALERT.md, read at every /orch resume) if that sibling is
-present, deduped by marker-presence so it is written once per open incident. That channel clears by
-REMOVAL (the maintainer removes the block and resets the Status line), so marker-presence is exactly
-open-ness. Best-effort: a write failure never changes the block verdict.
+present, deduped by marker-presence (the channel clears by REMOVAL). Best-effort: a write failure
+never changes the block verdict.
 
-Exit protocol (Claude Code hooks): exit 0 allows; on a blocking-capable event (PreToolUse) exit 2
-blocks and feeds stderr to the model; on Stop the guard is NON-blocking (a turn-end alert must not
-force continuation) and surfaces the alert via a stdout `systemMessage`.
+Exit protocol: exit 0 allows. Only a PreToolUse event blocks (exit 2, reason on stderr). Every other
+event, Stop or an unknown/malformed label, is NON-blocking (a stdout `systemMessage`), so a turn-end
+(or a mislabelled event) never forces continuation.
 
 Self-test: python3 .claude/hooks/block-opus5-orchestrator-model.py --self-test
 """
@@ -55,7 +65,15 @@ def is_opus5(model) -> bool:
 
 
 def model_from_transcript(tp) -> str | None:
-    """The last GENUINE assistant model id (a concrete `claude-*`), or None on any failure."""
+    """The LAST genuine assistant model id (any non-`<synthetic>` model string), or None.
+
+    Returns None (fail OPEN) on: no path, an unreadable file, OR a MALFORMED line reached before any
+    genuine model (never search PAST an unparseable tail record to an older model, which would risk
+    resurrecting a stale Opus-5 after a good-model switch). Skips injected `<synthetic>`/empty models.
+    Returns the model string AS-IS (claude or not); is_opus5() does the classification, so a
+    non-claude or differently-cased current model naturally yields ALLOW rather than a fail-closed
+    fallback.
+    """
     if not tp:
         return None
     try:
@@ -64,35 +82,43 @@ def model_from_transcript(tp) -> str | None:
     except Exception:
         return None
     for ln in reversed(lines):
-        try:
-            obj = json.loads(ln)
-        except Exception:
+        s = ln.strip()
+        if not s:
             continue
+        try:
+            obj = json.loads(s)
+        except Exception:
+            # A non-empty, unparseable line (e.g. a partially-written current record): fail OPEN
+            # rather than falling back to an older entry.
+            return None
         if obj.get("type") != "assistant":
             continue
         msg = obj.get("message")
         if not isinstance(msg, dict):
             continue
         mod = msg.get("model")
-        if isinstance(mod, str) and mod.startswith("claude-"):
-            return mod
+        if not isinstance(mod, str) or not mod or mod == "<synthetic>":
+            continue  # injected/synthetic: skip to the previous genuine entry
+        return mod  # the current real model, whatever it is
     return None
 
 
 def resolve_model(payload) -> str | None:
-    """Best-effort running-model id. Transcript is primary; a payload `model` is a secondary hint."""
-    mod = model_from_transcript(payload.get("transcript_path"))
-    if mod:
-        return mod
-    pm = payload.get("model")
-    if isinstance(pm, dict):
-        return pm.get("id")
-    if isinstance(pm, str):
-        return pm
-    return None
+    """Running-model id from the transcript ONLY (the authoritative source). No payload fallback:
+    a missing/unreadable transcript fails OPEN (returns None), per the fail-open contract."""
+    return model_from_transcript(payload.get("transcript_path"))
 
 
-def _alert_file() -> Path | None:
+def _maintainer_env() -> bool:
+    """True only in the maintainer's environment (the `grc_library_private` sibling is present).
+    Adopters lack `_private`, so the maintainer-specific Opus-5 ban no-ops for them."""
+    try:
+        return (Path(__file__).resolve().parents[2].parent / "grc_library_private").is_dir()
+    except Exception:
+        return False
+
+
+def _alert_file() -> "Path | None":
     try:
         scratch = Path(__file__).resolve().parents[2].parent / "grc_library_scratch"
         if scratch.is_dir():
@@ -103,17 +129,17 @@ def _alert_file() -> Path | None:
 
 
 def already_open(text: str) -> bool:
-    """True if an alert for this marker is already present (dedup).
-
-    This channel clears by REMOVAL: an OPEN alert is a `### ALERT` block PRESENT in the file, and the
-    maintainer clears it by removing the block and resetting the Status line. There is no per-block
-    resolution line, so marker-presence is exactly open-ness.
-    """
+    """True if an alert for this marker is already present (dedup by marker-presence; the channel
+    clears by REMOVAL, so marker-presence is exactly open-ness)."""
     return MARKER in text
 
 
 def write_alert(model: str) -> None:
-    """Append an OPEN alert block (best-effort, deduped by marker-presence). Never raises."""
+    """Append an OPEN alert block (best-effort, deduped by marker-presence). Never raises.
+
+    The read-then-append is deliberately non-atomic: two concurrent Opus-5 sessions could each see no
+    marker and append, yielding a duplicate alert block. That is harmless (the maintainer still sees
+    the alert) and concurrent Opus-5 orchestrator sessions are near-impossible, so it is accepted."""
     try:
         f = _alert_file()
         if f is None:
@@ -154,10 +180,12 @@ def _self_test() -> int:
         ("opus5 point", is_opus5("claude-opus-5-1") is True),
         ("opus5 upper", is_opus5("Claude-Opus-5") is True),
         ("opus48 no", is_opus5("claude-opus-4-8") is False),
+        ("opus48 cased no", is_opus5("Claude-Opus-4-8") is False),
         ("opus41 no", is_opus5("claude-opus-4-1-20250805") is False),
         ("opus50 no", is_opus5("claude-opus-50") is False),
         ("opus5x no", is_opus5("claude-opus-5x") is False),
         ("sonnet5 no", is_opus5("claude-sonnet-5") is False),
+        ("gpt no", is_opus5("gpt-5") is False),
         ("none no", is_opus5(None) is False),
         ("empty no", is_opus5("") is False),
         ("synthetic no", is_opus5("<synthetic>") is False),
@@ -175,6 +203,8 @@ def _self_test() -> int:
 def main() -> int:
     if "--self-test" in sys.argv:
         return _self_test()
+    if not _maintainer_env():
+        return 0  # adopter: the Opus-5 ban is the maintainer's preference, not portable -> allow
     try:
         payload = json.load(sys.stdin)
     except Exception:
@@ -186,13 +216,13 @@ def main() -> int:
     if not is_opus5(model):
         return 0  # not positively Opus 5 -> allow (fail OPEN on uncertainty)
     write_alert(model)
-    if (payload.get("hook_event_name") or "") == "Stop":
-        # Turn-end: surface the alert without forcing continuation.
-        print(json.dumps({"systemMessage": _message(model)}))
-        return 0
-    # PreToolUse (blocking-capable): hard-block the tool.
-    print(_message(model), file=sys.stderr)
-    return 2
+    if (payload.get("hook_event_name") or "") == "PreToolUse":
+        # PreToolUse (blocking-capable): hard-block the tool.
+        print(_message(model), file=sys.stderr)
+        return 2
+    # Stop, or any other/unknown/malformed event label: non-blocking, surface the alert only.
+    print(json.dumps({"systemMessage": _message(model)}))
+    return 0
 
 
 if __name__ == "__main__":
