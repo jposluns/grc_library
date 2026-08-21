@@ -83,9 +83,9 @@ Report, scannable, no diffs dumped to chat:
    or reconstructed data (a repaired ledger, a restored record), confirm each piece traces to a real
    prior git revision (`git show <sha>:<path>`, pickaxe `-S`), never accepting "restored" on trust.
 2. **Independent adversarial verification.** For a substantive interrupted unit, put an INDEPENDENT
-   refute-briefed lens on it before it lands. Exec-dispatch it to a fresh worker (durable in the
-   exchange even if this session is fragile); self-run inline ONLY if the dispatch itself fails (there
-   is no worker-liveness check, every order spawns a worker). Re-verify positive findings at source; fix
+   refute-briefed lens on it before it lands. Dispatch it with `orch-verify` to a fresh read-only worker (synchronous: it runs to completion and
+   returns its result directly); self-run inline ONLY if the dispatch itself fails (there
+   is no worker-liveness check, every `orch-verify` call spawns a worker). Re-verify positive findings at source; fix
    real defects before landing; never land a defect you found.
 3. **Land or park** the unit per the maintainer decision, logging any protected-branch bypass.
 4. **Reconcile identity and lease.** ACQUIRE the lease under THIS session and the CORRECT operating
@@ -112,7 +112,7 @@ The maintainer, in the SAME conversation (re-opened in a durable
 tmux if the recovering session was not in one), sends `/orch`. Resuming in the same session is
 deliberately stronger than a fresh one: it keeps the context the recovery built AND rebuilds state from
 the now-clean `main`. The resume runs its lease step-0, verifies the handoff snapshot against live files
-**for real, never shortcutting from memory just because "I remember"**, and runs the corpus-wide `/validate` (exec-dispatched as a triple-family panel, a fresh-context whole-corpus drift-catch in its own right and the compensating control where the recovery's closing change took the narrow fallback skip), cross-checking
+**for real, never shortcutting from memory just because "I remember"**, and runs the corpus-wide `/validate` (as an `orch-verify` triple-family panel, a fresh-context whole-corpus drift-catch in its own right and the compensating control where the recovery's closing change took the narrow fallback skip), cross-checking
 the recovery's asserted-clean claims. A contradiction of an asserted-clean surface is a genuine recovery
 miss to escalate; ordinary findings route to the backlog. Then continue the deferred queue.
 
