@@ -65,14 +65,16 @@ def _last_assistant_text(tp) -> str:
 
 
 def final_message(payload) -> str:
-    """The final assistant message text: payload.last_assistant_message preferred, transcript fallback."""
-    lam = payload.get("last_assistant_message")
-    if isinstance(lam, str) and lam.strip():
-        return lam.strip()
-    if isinstance(lam, dict):
-        txt = _text_from_content(lam.get("content", []))
-        if txt:
-            return txt
+    """The final assistant message text. If the payload PROVIDES `last_assistant_message`, use it
+    AUTHORITATIVELY (even when empty -> ""), never falling through to the lagging transcript; only
+    when the key is ABSENT do we read the transcript (codex ERR1 + gemini WARN)."""
+    if "last_assistant_message" in payload:
+        lam = payload.get("last_assistant_message")
+        if isinstance(lam, str):
+            return lam.strip()
+        if isinstance(lam, dict):
+            return _text_from_content(lam.get("content", []))
+        return ""  # present but null/other -> treat as empty, do NOT fall back
     return _last_assistant_text(payload.get("transcript_path"))
 
 

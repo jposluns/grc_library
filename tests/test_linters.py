@@ -1820,6 +1820,8 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         conforms-localization regression; this runs main() end-to-end so that class cannot recur."""
         import json
         import tempfile
+        if not (REPO_ROOT.parent / "grc_library_private").is_dir():
+            self.skipTest("maintainer-scoped hook: no grc_library_private sibling (adopter env)")
         hook = str(REPO_ROOT / '.claude' / 'hooks' / 'block-unstamped-turn-end.py')
         def _tx(text):
             fd, p = tempfile.mkstemp(suffix='.jsonl'); os.close(fd)
