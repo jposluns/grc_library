@@ -3918,7 +3918,7 @@ documents:
   domain: "dev-security"
   type: "Standard"
   title: "Developer Security Requirements"
-  version: "1.1.16"
+  version: "1.1.17"
   date: "2026-08-21"
   owner: "Chief Information Security Officer"
   approving_authority: "Chief Information Officer"
@@ -3932,6 +3932,7 @@ documents:
     - "dev-security/standard-security-baseline-and-standards-reference.md"
     - "dev-security/standard-devops-security-requirements.md"
     - "dev-security/standard-security-quick-reference.md"
+    - "security/standard-privileged-access-management.md"
     - "ai/standard-ai-security-and-risk.md"
   sections:
     - "1. Purpose"
@@ -4515,7 +4516,7 @@ documents:
   domain: "governance"
   type: "Policy"
   title: "Exception and Risk Acceptance Management Policy"
-  version: "1.4.1"
+  version: "1.4.2"
   date: "2026-08-21"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"
@@ -10823,7 +10824,7 @@ documents:
   domain: "security"
   type: "Procedure"
   title: "Identity Management Procedure"
-  version: "2.0.0"
+  version: "2.0.1"
   date: "2026-08-21"
   owner: "Chief Information Security Officer"
   approving_authority: "Chief Information Officer"
@@ -10836,6 +10837,7 @@ documents:
   related_documents:
     - "security/procedure-access-control.md"
     - "security/procedure-onboarding-and-offboarding.md"
+    - "security/standard-privileged-access-management.md"
     - "risk/policy-enterprise-governance-and-risk-management.md"
   sections:
     - "Purpose"
