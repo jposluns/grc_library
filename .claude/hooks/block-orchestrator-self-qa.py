@@ -22,8 +22,8 @@ retired `block-mandatory-offload.py` gated its block on
 `count_live_workers() > 0`. That was a hole rather than a nuance: list-workers
 read ZERO because the deprecated file-drop fleet registers none, so the guard
 fell through to ALLOW in exactly the situation it was written for. Under the
-exec'd-worker model, a worker is spawned on demand with
-`tools/exec-dispatch.py --dispatch`. Therefore, no live worker is never a fact
+orch-verify worker model, a worker is spawned on demand with
+`orch-verify <family> <prompt-file>`. Therefore, no live worker is never a fact
 about capability and never a licence to self-run. There is no `list-workers`
 call, no freshness window, and nothing that can read zero and open the gate.
 
@@ -245,17 +245,14 @@ def _block_message(dispatch_text: str) -> str:
         "in-session agent-spawning tool class (Task, Agent, Workflow, SendMessage) because prompt "
         "classification is inherently leaky.\n"
         "\n"
-        "  Exec-dispatch a worker instead:\n"
-        "    python3 /home/grc/grc_library/tools/exec-dispatch.py --dispatch \\\n"
-        "        --family {claude|codex|gemini} --model <model> "
-        "--effort <low|medium|high|xhigh> \\\n"
-        "        --account <account> --order-id <id> --prompt-file <path>\n"
-        "  (for a skeptical verifier, add --not-worker <authoring-worker-id> or "
-        "--not-account <account> so the verifier never lands on the account that "
-        "authored the work).\n"
-        "  (the prompt file must live under the job directory named in the "
-        "_private worker-accounts config `wrapper.job_dir`; use --dry-run first "
-        "to see eligible accounts and the pick).\n"
+        "  Dispatch a worker with orch-verify instead:\n"
+        "    orch-verify {claude|codex|gemini} <prompt-file> [<workdir>] "
+        "[--expensive] [--model <model>] [--effort <low|medium|high|xhigh|max>]\n"
+        "  (for a skeptical verifier, add --skip <account-label> so the verifier "
+        "never lands on the account that authored the work; orch-verify picks the "
+        "account from the shared pool by orch-rank).\n"
+        "  (use orch-verify --pick <family> to dry-run the account choice; the "
+        "prompt file is any readable path, no job-directory requirement).\n"
         "\n"
         "  If this dispatch genuinely must run in-session, that is a deliberate "
         "authorization. The actor can create the once-only sentinel from a shell:\n"
@@ -411,8 +408,9 @@ def _self_test() -> int:
                 with self.subTest(tool=tool):
                     self.assertIn(tool, message)
 
-        def test_block_message_gives_the_not_account_operand(self):
-            self.assertIn("--not-account <account>", decide(dispatch(prompt="x"))[1])
+        def test_block_message_gives_the_skip_operand(self):
+            # orch-verify excludes an account with --skip <label> (the old exec-dispatch --not-account)
+            self.assertIn("--skip <account-label>", decide(dispatch(prompt="x"))[1])
 
         def test_bypass_message_names_the_whole_dispatch_tool_class(self):
             SENTINEL.write_text("", encoding="utf-8")
