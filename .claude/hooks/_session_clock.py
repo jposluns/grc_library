@@ -136,7 +136,6 @@ def maintainer_env() -> bool:
 
 
 def _self_test() -> int:
-    from datetime import timedelta
     now = datetime(2026, 8, 21, 3, 0, 0, tzinfo=timezone.utc)
     checks = [
         ("conforms full", conforms("[2026-08-21 03:00Z] hi (session: 2h 21m)") is True),
