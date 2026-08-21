@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Verify a pull request modifies CHANGELOG.md or carries a Changelog: opt-out trailer.
 
-This is a CI-only delta gate, not part of the corpus audit programme. The
+This is a PR-time delta gate (D1), not part of the corpus audit programme (it runs in quality.yml on pull_request and locally via the pre-push guard). The
 corpus gates check repository state at HEAD; this script compares HEAD to the
 PR's merge-base and asserts the diff includes CHANGELOG.md, unless any commit in the PR
 range carries a `Changelog: <one-line-reason>` trailer in its message body.

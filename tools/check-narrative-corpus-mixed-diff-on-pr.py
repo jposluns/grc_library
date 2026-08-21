@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Reject a PR whose delta touches BOTH narrative content and a corpus document (D11, mixed-diff).
 
-This is a CI-only PR-time delta check, not part of the corpus audit programme
+This is a PR-time delta check, not part of the corpus audit programme
 (the corpus gates check repository state at HEAD; this compares HEAD to the PR
 merge-base). It is the pull-request-process half of the executive-narrative
 one-way authority boundary specified in ``specification-executive-narrative.md``

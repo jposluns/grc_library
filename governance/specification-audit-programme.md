@@ -2,8 +2,8 @@
 
 **Document Title:** Audit Programme Specification\
 **Document Type:** Specification\
-**Version:** 1.17.105\
-**Date:** 2026-08-20\
+**Version:** 1.17.106\
+**Date:** 2026-08-21\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`CHANGELOG.md`](../CHANGELOG.md), [`TODO.md`](../TODO.md)\
@@ -223,22 +223,22 @@ Gate 79 is a NIST SSDF control-identifier validity audit: it validates that ever
 
 ### 6.1 PR-only delta gates
 
-A delta gate inspects the change set of a pull request, not the repository state at HEAD. Delta gates are not part of the corpus inventory above, because their inputs (git history range, PR base ref) are not available in [`tools/run_all_audits.sh`](../tools/run_all_audits.sh) or [`.pre-commit-config.yaml`](../.pre-commit-config.yaml) and they are therefore exempt from gate 35's parity audit. Delta gates run only in [`.github/workflows/quality.yml`](../.github/workflows/quality.yml) on `pull_request` events. This table and the parity linter's exclusion registry are held in two-way lock-step by gate 64's delta-check half (its 2026-07-04 extension) for LIVE rows, which also requires each table row's "Delta gate Dn ..." narrative below (row-to-narrative only; an orphaned narrative whose row was removed is review territory, as for the numbered gates). A RETIRED delta number (in the parity linter's `RETIRED_DELTA_GATES`) is carved out of the live registry-parity but must keep a permanent row whose name cell is a retired marker (`*(retired ...)`), so a retired number can never advertise a live gate; D6 is the first such retirement (2026-08-03).
+A delta gate inspects the change set of a pull request, not the repository state at HEAD. Delta gates are not part of the corpus inventory above, because their inputs (git history range, PR base ref) are not available in [`tools/run_all_audits.sh`](../tools/run_all_audits.sh) or [`.pre-commit-config.yaml`](../.pre-commit-config.yaml) and they are therefore exempt from gate 35's parity audit. Delta gates run in two places: [`.github/workflows/quality.yml`](../.github/workflows/quality.yml) on `pull_request` events (the authoritative required check), and locally in [`tools/run-pr-time-checks.sh`](../tools/run-pr-time-checks.sh), which the pre-push guard invokes to exercise the same gates before push. This table and the parity linter's exclusion registry are held in two-way lock-step by gate 64's delta-check half (its 2026-07-04 extension) for LIVE rows, which also requires each table row's "Delta gate Dn ..." narrative below (row-to-narrative only; an orphaned narrative whose row was removed is review territory, as for the numbered gates). A RETIRED delta number (in the parity linter's `RETIRED_DELTA_GATES`) is carved out of the live registry-parity but must keep a permanent row whose name cell is a retired marker (`*(retired ...)`), so a retired number can never advertise a live gate; D6 is the first such retirement (2026-08-03).
 
 | # | Gate | Script | Surface |
 | --- | --- | --- | --- |
-| D1 | CHANGELOG-on-PR check | [`tools/check-changelog-on-pr.py`](../tools/check-changelog-on-pr.py) | GitHub Actions (PR only) |
-| D2 | Per-PR version-bump check | [`tools/check-version-bump-on-pr.py`](../tools/check-version-bump-on-pr.py) | GitHub Actions (PR only) |
-| D3 | CHANGELOG dash-on-PR check | [`tools/check-changelog-dash-on-pr.py`](../tools/check-changelog-dash-on-pr.py) | GitHub Actions (PR only) |
-| D4 | Per-PR Version-Date co-bump check | [`tools/check-date-cobump-on-pr.py`](../tools/check-date-cobump-on-pr.py) | GitHub Actions (PR only) |
-| D5 | Backlog-rotation-on-PR check | [`tools/check-todo-rotation-on-pr.py`](../tools/check-todo-rotation-on-pr.py) | GitHub Actions (PR only) |
+| D1 | CHANGELOG-on-PR check | [`tools/check-changelog-on-pr.py`](../tools/check-changelog-on-pr.py) | GitHub Actions (PR event) + pre-push runner |
+| D2 | Per-PR version-bump check | [`tools/check-version-bump-on-pr.py`](../tools/check-version-bump-on-pr.py) | GitHub Actions (PR event) + pre-push runner |
+| D3 | CHANGELOG dash-on-PR check | [`tools/check-changelog-dash-on-pr.py`](../tools/check-changelog-dash-on-pr.py) | GitHub Actions (PR event) + pre-push runner |
+| D4 | Per-PR Version-Date co-bump check | [`tools/check-date-cobump-on-pr.py`](../tools/check-date-cobump-on-pr.py) | GitHub Actions (PR event) + pre-push runner |
+| D5 | Backlog-rotation-on-PR check | [`tools/check-todo-rotation-on-pr.py`](../tools/check-todo-rotation-on-pr.py) | GitHub Actions (PR event) + pre-push runner |
 | D6 | *(retired 2026-08-03: the pack-README `## Version history` section it enforced was removed as maintainer-directed; the number is retired, never reused)* | n/a | n/a |
-| D7 | CHANGELOG length-on-PR check | [`tools/check-changelog-length-on-pr.py`](../tools/check-changelog-length-on-pr.py) | GitHub Actions (PR only) |
-| D8 | Daily-changelog-rollup reminder | [`tools/check-daily-changelog-rollup.py`](../tools/check-daily-changelog-rollup.py) | GitHub Actions (PR only) |
-| D9 | Retired-section-orphan check | [`tools/check-retired-section-orphan-on-pr.py`](../tools/check-retired-section-orphan-on-pr.py) | GitHub Actions (PR only) |
-| D10 | CLAUDE.md-size ratchet | [`tools/check-claude-md-size.py`](../tools/check-claude-md-size.py) | GitHub Actions (PR only) |
-| D11 | Narrative-corpus mixed-diff check | [`tools/check-narrative-corpus-mixed-diff-on-pr.py`](../tools/check-narrative-corpus-mixed-diff-on-pr.py) | GitHub Actions (PR only) |
-| D12 | Number-floor monotonicity check | [`tools/check-todo-floor-monotonic-on-pr.py`](../tools/check-todo-floor-monotonic-on-pr.py) | GitHub Actions (PR only) |
+| D7 | CHANGELOG length-on-PR check | [`tools/check-changelog-length-on-pr.py`](../tools/check-changelog-length-on-pr.py) | GitHub Actions (PR event) + pre-push runner |
+| D8 | Daily-changelog-rollup reminder | [`tools/check-daily-changelog-rollup.py`](../tools/check-daily-changelog-rollup.py) | GitHub Actions (PR event) + pre-push runner |
+| D9 | Retired-section-orphan check | [`tools/check-retired-section-orphan-on-pr.py`](../tools/check-retired-section-orphan-on-pr.py) | GitHub Actions (PR event) + pre-push runner |
+| D10 | CLAUDE.md-size ratchet | [`tools/check-claude-md-size.py`](../tools/check-claude-md-size.py) | GitHub Actions (PR event) + pre-push runner |
+| D11 | Narrative-corpus mixed-diff check | [`tools/check-narrative-corpus-mixed-diff-on-pr.py`](../tools/check-narrative-corpus-mixed-diff-on-pr.py) | GitHub Actions (PR event) + pre-push runner |
+| D12 | Number-floor monotonicity check | [`tools/check-todo-floor-monotonic-on-pr.py`](../tools/check-todo-floor-monotonic-on-pr.py) | GitHub Actions (PR event) + pre-push runner |
 
 Delta gate D1 mechanically enforces §7 step 4 below ("the CHANGELOG entry for the phase is written"): it compares the PR head to its merge-base with the target branch and fails when [`CHANGELOG.md`](../CHANGELOG.md) is not in the diff. As of PR #1235 (2026-07-29, the working-state move to the private sibling), the gate enforces ONLY the root [`CHANGELOG.md`](../CHANGELOG.md): the detailed mirror moved to the private-sibling working-state store (cross-repo, invisible to a public PR diff), so the former two-file lock-step (introduced in PR #125, 2026-06-21) no longer applies to the public diff. An opt-out trailer `Changelog: <one-line-reason>` in any commit message body in the PR range satisfies the gate regardless of split, for cases where the convention legitimately does not apply (trivial typo corrections, branch-mechanics fixes, content already covered by a CHANGELOG entry from an earlier commit in the same PR).
 

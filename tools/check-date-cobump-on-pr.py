@@ -39,7 +39,7 @@ when a document is bumped twice on the same UTC day, its Date is already
 today and the bump commit is dated today, so they match and the gate
 stays silent.
 
-This is a CI-only delta gate, not part of the corpus audit programme in
+This is a PR-time delta gate (D4), not part of the corpus audit programme in
 governance/specification-audit-programme.md section 6; it is documented
 there in section 6.1 (PR-only delta gates) alongside the other D-numbered delta gates and is
 exempt from gate 35's parity audit (its inputs, a git history range and
