@@ -488,11 +488,7 @@ The order-construction and delivery-tray mechanics load at the worker-dispatch b
 
 Two clauses stay inline because their blast radius reaches beyond the dispatch activity:
 - **Inbox issues jump the queue.** A worker-raised HIGH-PRIORITY issue in `inbox/` (a blocker, a malformed order, an out-of-scope defect, or an independence conflict) jumps the queue and is read as soon as noticed, never batched to a boundary; routine `inbox/deliveries/` results wait for the next boundary. Workers run HEADLESS, so nothing else surfaces the issue.
-- **Sweep the trays every boundary.** Run [`tools/collect-deliveries.py`](../tools/collect-deliveries.py) at each task boundary and read the trays before selecting work (the QA-priority form of this is `## Guardrail-seed pipeline: for every issue, propose a mechanized fix and let an expensive worker theorycraft it
-
-Maintainer-directed 2026-08-21. As a standing habit, for every action taken and every issue that arises, assess whether a HOOK, LINT, GATE, or other ENFORCING guardrail (not just a prose rule) would prevent that error CLASS from recurring. Whenever an issue, error, or recurring friction is found or caused, submit a SEED to the guardrails-orchestrator inbox (interim `grc_library_scratch/inbox/guardrail-seeds/`) carrying (1) the issue info and (2) proposed resolutions; then dispatch an EXPENSIVE worker (Fable / `--expensive`) to THEORYCRAFT the potential guardrail, whose implementation PLAN is (3). The orchestrator does NOT pre-judge that no guardrail is possible and discard the issue: the expensive worker theorycrafts it, and infeasibility is the worker's finding, not the orchestrator's filter. Keep the pipeline flowing: always have seeds being processed for the error classes that still lack a guardrail. The `guardrails` project/repo (the evolved form of this pack plus the AIQT principle) is the assessor and will ship the replacement pack this project adopts; its orchestrator implements from the seeds. This is the operational form of the fifth of the Five Rules of AIQT ("fix underlying issues, and share the fix") and of the defence-in-depth default: the mechanized guardrail LAYERS on the prose rule (both run, it does not replace it), a layer worth adding wherever its marginal cost is low.
-
-## A delivered QA result BLOCKS progress until it is read and its findings are fixed` above).
+- **Sweep the trays every boundary.** Run [`tools/collect-deliveries.py`](../tools/collect-deliveries.py) at each task boundary and read the trays before selecting work (the QA-priority form of this is `## A delivered QA result BLOCKS progress until it is read and its findings are fixed` above).
 
 ## Source-and-adapter parity (grc_library authors, guardrails publishes)
 
@@ -607,6 +603,10 @@ moment it is confirmed, with a severity, and leaves only via `FIXED` / `ROUTED` 
 `ACCEPTED`; the [`block-on-open-findings.py`](hooks/block-on-open-findings.py) PreToolUse hook
 refuses `gh pr create` and `gh pr merge` while an `error`-severity row has no disposition. The
 hook can only see a row once it is written, so this section is wider than the hook.
+
+## Guardrail-seed pipeline: for every issue, propose a mechanized fix and let an expensive worker theorycraft it
+
+Maintainer-directed 2026-08-21. As a standing habit, for every action taken and every issue that arises, assess whether a HOOK, LINT, GATE, or other ENFORCING guardrail (not just a prose rule) would prevent that error CLASS from recurring. Whenever an issue, error, or recurring friction is found or caused, submit a SEED to the guardrails-orchestrator inbox (interim `grc_library_scratch/inbox/guardrail-seeds/`) carrying (1) the issue info and (2) proposed resolutions; then dispatch an EXPENSIVE worker (Fable / `--expensive`) to THEORYCRAFT the potential guardrail, whose implementation PLAN is (3). The orchestrator does NOT pre-judge that no guardrail is possible and discard the issue: the expensive worker theorycrafts it, and infeasibility is the worker's finding, not the orchestrator's filter. Keep the pipeline flowing: always have seeds being processed for the error classes that still lack a guardrail. The `guardrails` project/repo (the evolved form of this pack plus the AIQT principle) is the assessor and will ship the replacement pack this project adopts; its orchestrator implements from the seeds. This is the operational form of the fifth of the Five Rules of AIQT ("fix underlying issues, and share the fix") and of the defence-in-depth default: the mechanized guardrail LAYERS on the prose rule (both run, it does not replace it), a layer worth adding wherever its marginal cost is low.
 
 ## A delivered QA result BLOCKS progress until it is read and its findings are fixed
 
