@@ -1784,6 +1784,36 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
         self.assertIn("self-test: ", result.stdout)
 
+    def test_session_clock_helper_self_test(self) -> None:
+        """The _session_clock.py self-test, wired at introduction (PR: timestamp/duration console rule)."""
+        result = self._run_selftest(
+            [sys.executable, str(REPO_ROOT / ".claude" / "hooks" / "_session_clock.py"),
+             "--self-test"]
+        )
+        self.assertEqual(result.returncode, 0,
+                         f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        self.assertIn("self-test: OK", result.stdout)
+
+    def test_block_unstamped_turn_end_hook_self_test(self) -> None:
+        """The block-unstamped-turn-end.py self-test, wired at introduction (PR: timestamp/duration console rule)."""
+        result = self._run_selftest(
+            [sys.executable, str(REPO_ROOT / ".claude" / "hooks" / "block-unstamped-turn-end.py"),
+             "--self-test"]
+        )
+        self.assertEqual(result.returncode, 0,
+                         f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        self.assertIn("self-test:", result.stdout)
+
+    def test_inject_session_timestamp_hook_self_test(self) -> None:
+        """The inject-session-timestamp.py self-test, wired at introduction (PR: timestamp/duration console rule)."""
+        result = self._run_selftest(
+            [sys.executable, str(REPO_ROOT / ".claude" / "hooks" / "inject-session-timestamp.py"),
+             "--self-test"]
+        )
+        self.assertEqual(result.returncode, 0,
+                         f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        self.assertIn("self-test:", result.stdout)
+
     def test_lint_ungated_dashes_self_test(self) -> None:
         """Gate 82's own self-test. A prose gate that must flag re-drift while exempting the
         illustration and the third-party overlay is exactly the fail-open-vs-flag shape that rots
