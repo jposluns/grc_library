@@ -36,6 +36,8 @@ def main() -> int:
         payload = json.load(sys.stdin)
     except Exception:
         return 0
+    if not isinstance(payload, dict):
+        return 0
     try:
         if not maintainer_env():
             return 0

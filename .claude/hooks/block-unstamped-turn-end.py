@@ -3,16 +3,19 @@
 UTC timestamp or trailing session duration (maintainer standing rule 2026-08-21). Supplies the
 correct current values in the block reason so the re-emit is trivially correct.
 
-LOOP-SAFE: on `stop_hook_active` it returns 0, so it blocks AT MOST ONCE per turn-end sequence (one
-forced correction with the values supplied), never an infinite wedge.
-FAIL-OPEN: any error, missing transcript, or empty prose (a pure tool-use turn) returns 0 (allow).
-MAINTAINER-SCOPED: no-op for adopters (no grc_library_private), so an adopter is never blocked by the
-maintainer's console-format preference.
+FINAL MESSAGE SOURCE: the Stop payload's `last_assistant_message` (a string, or an object with
+`content`) is preferred over the transcript, because the transcript can lag; the transcript's last
+assistant entry (content as a list of blocks OR a plain string) is the fallback.
 
-RESIDUE (stated): this gates only the FINAL message of a turn, not intermediate narration before
-tool calls; and because it blocks at most once, a second non-conforming re-emit would pass. The
-UserPromptSubmit re-prime + the discipline cover the rest. Hooks cannot rewrite assistant text, so
-this forces a correction rather than performing one.
+LOOP-SAFE: on `stop_hook_active` returns 0, so it blocks AT MOST ONCE per turn-end sequence.
+FAIL-OPEN: any error, a non-dict payload, a missing/unreadable transcript, empty prose, OR an
+UNCOMPUTABLE duration (no parseable session start) returns 0 (allow) - it never blocks demanding a
+value it cannot supply, and never wedges the session.
+MAINTAINER-SCOPED: no-op for adopters (no grc_library_private).
+
+RESIDUE: hooks cannot rewrite assistant text, so this FORCES a correction rather than performing it,
+and gates only the FINAL message of a turn (intermediate narration relies on the re-prime +
+discipline).
 """
 import json
 import sys
@@ -32,11 +35,21 @@ except Exception:
         return False
 
 
-def _last_assistant_text(tp) -> "str | None":
+def _text_from_content(parts) -> str:
+    if isinstance(parts, str):
+        return parts.strip()
+    if isinstance(parts, list):
+        return " ".join(
+            p.get("text", "") for p in parts if isinstance(p, dict) and p.get("type") == "text"
+        ).strip()
+    return ""
+
+
+def _last_assistant_text(tp) -> str:
     try:
         lines = open(tp, encoding="utf-8").readlines()
     except Exception:
-        return None
+        return ""
     for ln in reversed(lines):
         try:
             obj = json.loads(ln)
@@ -46,14 +59,21 @@ def _last_assistant_text(tp) -> "str | None":
             continue
         msg = obj.get("message")
         if not isinstance(msg, dict):
-            return None
-        parts = msg.get("content", [])
-        if not isinstance(parts, list):
-            return None
-        return " ".join(
-            p.get("text", "") for p in parts if isinstance(p, dict) and p.get("type") == "text"
-        ).strip()
-    return None
+            return ""
+        return _text_from_content(msg.get("content", []))
+    return ""
+
+
+def final_message(payload) -> str:
+    """The final assistant message text: payload.last_assistant_message preferred, transcript fallback."""
+    lam = payload.get("last_assistant_message")
+    if isinstance(lam, str) and lam.strip():
+        return lam.strip()
+    if isinstance(lam, dict):
+        txt = _text_from_content(lam.get("content", []))
+        if txt:
+            return txt
+    return _last_assistant_text(payload.get("transcript_path"))
 
 
 def main() -> int:
@@ -61,30 +81,29 @@ def main() -> int:
         from _session_clock import _self_test as clock_test
         ok = conforms("[2026-08-21 02:31Z] x (session: 1h 0m)") and not conforms("no stamp")
         rc = clock_test()
-        print(f"{'block-unstamped-turn-end'} self-test: {'OK' if ok and rc==0 else 'FAIL'}")
+        print(f"block-unstamped-turn-end self-test: {'OK' if ok and rc == 0 else 'FAIL'}")
         return 0 if (ok and rc == 0) else 1
     try:
         payload = json.load(sys.stdin)
     except Exception:
         return 0
+    if not isinstance(payload, dict):
+        return 0  # a non-dict JSON root (null / list): fail OPEN, do not crash
     if payload.get("stop_hook_active"):
         return 0  # continuation under way: block at most once (loop-safe)
     try:
         if not maintainer_env():
             return 0
-        tp = payload.get("transcript_path")
-        if not tp:
-            return 0
-        text = _last_assistant_text(tp)
+        text = final_message(payload)
         if not text:
             return 0  # no prose to stamp (pure tool-use turn)
         if conforms(text):
             return 0
-        stamp, dur = stamp_and_duration(tp)
+        stamp, dur = stamp_and_duration(payload.get("transcript_path"))
+        if dur is None:
+            return 0  # cannot compute the duration -> cannot enforce it -> fail OPEN
     except Exception:
         return 0
-    stamp = stamp or "[<now>Z]"
-    dur = dur or "(session: <duration>)"
     print(
         "TURN-END BLOCKED (maintainer standing rule 2026-08-21): your final message must BEGIN with "
         f"the current UTC timestamp and END with the session duration. Re-send it starting with "

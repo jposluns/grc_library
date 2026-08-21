@@ -1814,6 +1814,34 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
         self.assertIn("self-test:", result.stdout)
 
+    def test_block_unstamped_turn_end_behaviour(self) -> None:
+        """Behavioural: the Stop hook actually BLOCKS a non-conforming final message (exit 2) and
+        ALLOWS a conforming one (exit 0), and is loop-safe. A pure --self-test missed the
+        conforms-localization regression; this runs main() end-to-end so that class cannot recur."""
+        import json
+        import tempfile
+        hook = str(REPO_ROOT / '.claude' / 'hooks' / 'block-unstamped-turn-end.py')
+        def _tx(text):
+            fd, p = tempfile.mkstemp(suffix='.jsonl'); os.close(fd)
+            with open(p, 'w', encoding='utf-8') as fh:
+                fh.write(json.dumps({"type": "user", "timestamp": "2026-08-21T00:00:00Z", "message": {}}) + "\n")
+                fh.write(json.dumps({"type": "assistant", "timestamp": "2026-08-21T01:00:00Z", "message": {"content": [{"type": "text", "text": text}]}}))
+            return p
+        bad = _tx("no stamp and no duration")
+        good = _tx("[2026-08-21 01:00Z] fine (session: 1h 0m)")
+        try:
+            def _run(payload):
+                return subprocess.run([sys.executable, hook], input=json.dumps(payload),
+                                      capture_output=True, text=True)
+            r_bad = _run({"transcript_path": bad})
+            r_good = _run({"transcript_path": good})
+            r_active = _run({"transcript_path": bad, "stop_hook_active": True})
+            self.assertEqual(r_bad.returncode, 2, f"must BLOCK non-conforming: {r_bad.stderr}")
+            self.assertEqual(r_good.returncode, 0, f"must ALLOW conforming: {r_good.stderr}")
+            self.assertEqual(r_active.returncode, 0, "loop-safe: stop_hook_active must allow")
+        finally:
+            os.unlink(bad); os.unlink(good)
+
     def test_lint_ungated_dashes_self_test(self) -> None:
         """Gate 82's own self-test. A prose gate that must flag re-drift while exempting the
         illustration and the third-party overlay is exactly the fail-open-vs-flag shape that rots
