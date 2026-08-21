@@ -2,8 +2,8 @@
 
 **Document Title:** Privileged Access Management Standard\
 **Document Type:** Standard\
-**Version:** 1.0.2\
-**Date:** 2026-07-04\
+**Version:** 2.0.0\
+**Date:** 2026-08-21\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md)\
@@ -59,7 +59,7 @@ Third-party PAM solutions remain available for extended use cases including on-p
 | Just-in-Time Access | Privileged roles must be activated on demand for defined time periods. Permanent standing privilege is prohibited for all accounts where JIT activation is available. |
 | Approval Workflows | High-risk role activations require approval from a designated approver before access is granted. |
 | Multi-Factor Authentication | MFA is required for all privileged role activations without exception. |
-| Time-Bound Activation | Role activations are time-limited. Default maximum activation period is 8 hours; extended periods require justification and approval. |
+| Time-Bound Activation | Role activations are time-limited. The default maximum duration of a single privileged-role activation is 1 hour (this Standard is the single authoritative source for this value); extended periods require justification and approval. |
 | Least Privilege | Privileged access is scoped to the minimum permissions required for the task. Broad administrative roles are not assigned where narrower roles are available. |
 | Separation of Duties | Accounts used for standard day-to-day work are separate from privileged administrative accounts. |
 | Service Account Controls | Service accounts must use managed identities or dedicated non-interactive accounts. Service account passwords must meet complexity requirements and be rotated at least annually or upon staff change. |

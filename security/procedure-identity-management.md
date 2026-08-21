@@ -2,8 +2,8 @@
 
 **Document Title:** Identity Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.6\
-**Date:** 2026-08-20\
+**Version:** 2.0.0\
+**Date:** 2026-08-21\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-access-control.md`](procedure-access-control.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -89,7 +89,7 @@ Applies to all user identities, service accounts, and machine identities across 
 
 3.2 PIM controls:
 - Just-in-time activation required: no standing privileged access.
-- Time-limited sessions: maximum 4 hours, extendable with re-approval.
+- Time-limited sessions: the maximum duration of a privileged-role activation is governed by the [Privileged Access Management Standard](standard-privileged-access-management.md) §4.2 (the single authoritative source).
 - Approval workflow required for activation.
 - Full session recording and logging.
 - Quarterly access review by CISO.

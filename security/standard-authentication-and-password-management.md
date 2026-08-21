@@ -2,8 +2,8 @@
 
 **Document Title:** Authentication and Password Management Standard\
 **Document Type:** Standard\
-**Version:** 1.1.7\
-**Date:** 2026-08-20\
+**Version:** 1.1.8\
+**Date:** 2026-08-21\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md)\
@@ -72,7 +72,7 @@ MFA is enforced at the enterprise identity provider Conditional Access layer.
 ## 6. Session management
 
 Sessions on cloud and productivity platforms are governed by Conditional Access sign-in frequency policies:
-- Maximum session lifetime before re-authentication: 8 hours for standard users; 1 hour for privileged role activations.
+- Maximum session lifetime before re-authentication: 8 hours for standard users; privileged-role activations are governed by the [Privileged Access Management Standard](standard-privileged-access-management.md) §4.2 (the single authoritative source for that maximum).
 - Idle session timeout on managed devices: 15 minutes, enforced via endpoint management platform compliance policy.
 - Persistent browser sessions are disabled for high-sensitivity applications.
 
