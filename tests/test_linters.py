@@ -1858,6 +1858,50 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         finally:
             os.unlink(bad); os.unlink(good)
 
+    def test_block_unstamped_message_hook_self_test(self) -> None:
+        """The block-unstamped-message.py (PreToolUse) self-test, wired at introduction."""
+        result = self._run_selftest(
+            [sys.executable, str(REPO_ROOT / ".claude" / "hooks" / "block-unstamped-message.py"),
+             "--self-test"]
+        )
+        self.assertEqual(result.returncode, 0,
+                         f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        self.assertIn("self-test: OK", result.stdout)
+
+    def test_block_unstamped_message_behaviour(self) -> None:
+        """Behavioural: the PreToolUse hook BLOCKS a tool call whose current message carries
+        unstamped PROSE (exit 2), ALLOWS a stamped one (exit 0), and ALLOWS a pure tool-use message
+        with no prose (exit 0). A pure --self-test covers only conforms(); this runs main()
+        end-to-end so the transcript/payload plumbing regression class cannot recur (the RV-1
+        lesson: an unwired self-test is a CI blind spot)."""
+        import json
+        import tempfile
+        from datetime import datetime, timedelta, timezone
+        if not (REPO_ROOT.parent / "grc_library_private").is_dir():
+            self.skipTest("maintainer-scoped hook: no grc_library_private sibling (adopter env)")
+        hook = str(REPO_ROOT / '.claude' / 'hooks' / 'block-unstamped-message.py')
+        now = datetime.now(timezone.utc)
+        start = now - timedelta(hours=1)
+        cur_stamp = "[" + now.strftime("%Y-%m-%d %H:%M") + "Z]"
+        def _tx(content):
+            fd, pth = tempfile.mkstemp(suffix='.jsonl'); os.close(fd)
+            with open(pth, 'w', encoding='utf-8') as fh:
+                fh.write(json.dumps({"type": "user", "timestamp": start.strftime("%Y-%m-%dT%H:%M:%SZ"), "message": {}}) + "\n")
+                fh.write(json.dumps({"type": "assistant", "timestamp": now.strftime("%Y-%m-%dT%H:%M:%SZ"), "message": {"content": content}}))
+            return pth
+        stamped = _tx([{"type": "text", "text": cur_stamp + " doing it (session: 1h 0m)"}, {"type": "tool_use", "name": "Bash"}])
+        unstamped = _tx([{"type": "text", "text": "doing it, no stamp"}, {"type": "tool_use", "name": "Bash"}])
+        pure_tool = _tx([{"type": "tool_use", "name": "Bash"}])
+        try:
+            def _run(tp):
+                return subprocess.run([sys.executable, hook], input=json.dumps({"transcript_path": tp, "tool_name": "Bash"}),
+                                      capture_output=True, text=True)
+            self.assertEqual(_run(unstamped).returncode, 2, "must BLOCK unstamped prose before a tool call")
+            self.assertEqual(_run(stamped).returncode, 0, "must ALLOW stamped prose")
+            self.assertEqual(_run(pure_tool).returncode, 0, "must ALLOW a pure tool-use message (no prose)")
+        finally:
+            os.unlink(stamped); os.unlink(unstamped); os.unlink(pure_tool)
+
     def test_lint_ungated_dashes_self_test(self) -> None:
         """Gate 82's own self-test. A prose gate that must flag re-drift while exempting the
         illustration and the third-party overlay is exactly the fail-open-vs-flag shape that rots
