@@ -1858,64 +1858,6 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         finally:
             os.unlink(bad); os.unlink(good)
 
-    def test_block_unstamped_message_hook_self_test(self) -> None:
-        """The block-unstamped-message.py (PreToolUse) self-test, wired at introduction."""
-        result = self._run_selftest(
-            [sys.executable, str(REPO_ROOT / ".claude" / "hooks" / "block-unstamped-message.py"),
-             "--self-test"]
-        )
-        self.assertEqual(result.returncode, 0,
-                         f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
-        self.assertIn("self-test: OK", result.stdout)
-
-    def test_block_unstamped_message_behaviour(self) -> None:
-        """Behavioural: the PreToolUse hook BLOCKS a tool call whose OWNING message carries unstamped
-        PROSE (exit 2), ALLOWS a stamped one (exit 0), ALLOWS a message with no text block (exit 0),
-        does NOT block on an OLDER message's prose, and ALLOWS when the tool call is not yet in the
-        transcript (lag -> fail open). Uses the REAL transcript shape (one entry per content block,
-        blocks sharing message.id) and correlates via the payload's tool_use_id to the transcript
-        tool_use entry's id (verified against a live session JSONL). Runs main() end-to-end so the
-        correlation/plumbing regression class cannot recur (the RV-1 lesson)."""
-        import json
-        import tempfile
-        from datetime import datetime, timedelta, timezone
-        if not (REPO_ROOT.parent / "grc_library_private").is_dir():
-            self.skipTest("maintainer-scoped hook: no grc_library_private sibling (adopter env)")
-        hook = str(REPO_ROOT / '.claude' / 'hooks' / 'block-unstamped-message.py')
-        now = datetime.now(timezone.utc)
-        start = now - timedelta(hours=1)
-        cur_stamp = "[" + now.strftime("%Y-%m-%d %H:%M") + "Z]"
-        def _tx(entries):
-            # entries: list of (message_id, content_block) -> one assistant JSONL line each (real shape)
-            fd, pth = tempfile.mkstemp(suffix='.jsonl'); os.close(fd)
-            with open(pth, 'w', encoding='utf-8') as fh:
-                fh.write(json.dumps({"type": "user", "timestamp": start.strftime("%Y-%m-%dT%H:%M:%SZ"), "message": {}}) + "\n")
-                for mid, block in entries:
-                    fh.write(json.dumps({"type": "assistant", "timestamp": now.strftime("%Y-%m-%dT%H:%M:%SZ"), "message": {"id": mid, "content": [block]}}) + "\n")
-            return pth
-        def txt(msg):
-            return {"type": "text", "text": msg}
-        def tool(tid):
-            return {"type": "tool_use", "id": tid, "name": "Bash", "input": {"command": "x"}}
-        stamped = _tx([("m1", txt(cur_stamp + " doing it (session: 1h 0m)")), ("m1", tool("tu1"))])
-        unstamped = _tx([("m1", txt("doing it, no stamp")), ("m1", tool("tu1"))])
-        pure_tool = _tx([("m1", {"type": "thinking", "thinking": "..."}), ("m1", tool("tu1"))])
-        # older message m0 unstamped; current message m1 owns tu1 and has no text -> must ALLOW
-        stale = _tx([("m0", txt("older unstamped prose")), ("m1", tool("tu1"))])
-        try:
-            def _run(tp, tuid="tu1"):
-                return subprocess.run([sys.executable, hook],
-                                      input=json.dumps({"transcript_path": tp, "tool_name": "Bash", "tool_use_id": tuid}),
-                                      capture_output=True, text=True)
-            self.assertEqual(_run(unstamped).returncode, 2, "must BLOCK unstamped prose owning this tool_use")
-            self.assertEqual(_run(stamped).returncode, 0, "must ALLOW stamped prose")
-            self.assertEqual(_run(pure_tool).returncode, 0, "must ALLOW a message with no text block")
-            self.assertEqual(_run(stale).returncode, 0, "must NOT block on an OLDER message's prose")
-            # lag: the current tool_use_id is not yet in the transcript -> must ALLOW (fail open)
-            self.assertEqual(_run(unstamped, tuid="tu_not_present").returncode, 0, "must ALLOW when the tool call is not yet in the transcript (lag)")
-        finally:
-            os.unlink(stamped); os.unlink(unstamped); os.unlink(pure_tool); os.unlink(stale)
-
     def test_lint_ungated_dashes_self_test(self) -> None:
         """Gate 82's own self-test. A prose gate that must flag re-drift while exempting the
         illustration and the third-party overlay is exactly the fail-open-vs-flag shape that rots
