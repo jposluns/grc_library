@@ -915,8 +915,9 @@ These govern how the assistant writes to the maintainer in chat (assistant voice
   the pipeline flowing: ALWAYS have seeds being processed for items missing them. The `guardrails`
   project/repo (the evolved form of this pack + the AIQT principle) is the assessor and will ship the
   replacement pack this project adopts; the guardrails orchestrator implements from the seeds. This is
-  the operational form of AIQT Rule 5 ("fix underlying issues, and share the fix") plus the
-  defence-in-depth default (prefer a mechanized control over prose where the marginal cost is low).
+  the operational form of the fifth of the Five Rules of AIQT ("fix underlying issues, and share the
+  fix") and of the defence-in-depth default: the mechanized guardrail LAYERS on the prose rule (it
+  does not replace it, both run), a layer worth adding wherever its marginal cost is low.
 
 - **Repo shorthands `_scratch`, `_ref`, `_private` (maintainer-directed 2026-07-24).** These are the canonical shorthands for `grc_library_scratch`, `grc_library_ref`, and `grc_library_private` respectively. Always refer to each sibling repo by its underscore shorthand OR its full `grc_library_*` name, consistently; never a bare inconsistent form (for example never `scratch` without the underscore while using `_private` / `_ref`). Applies in chat, commit messages, order params, and prose.
 
