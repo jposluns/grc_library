@@ -1784,6 +1784,80 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
         self.assertIn("self-test: ", result.stdout)
 
+    def test_session_clock_helper_self_test(self) -> None:
+        """The _session_clock.py self-test, wired at introduction (PR: timestamp/duration console rule)."""
+        result = self._run_selftest(
+            [sys.executable, str(REPO_ROOT / ".claude" / "hooks" / "_session_clock.py"),
+             "--self-test"]
+        )
+        self.assertEqual(result.returncode, 0,
+                         f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        self.assertIn("self-test: OK", result.stdout)
+
+    def test_block_unstamped_turn_end_hook_self_test(self) -> None:
+        """The block-unstamped-turn-end.py self-test, wired at introduction (PR: timestamp/duration console rule)."""
+        result = self._run_selftest(
+            [sys.executable, str(REPO_ROOT / ".claude" / "hooks" / "block-unstamped-turn-end.py"),
+             "--self-test"]
+        )
+        self.assertEqual(result.returncode, 0,
+                         f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        self.assertIn("self-test:", result.stdout)
+
+    def test_inject_session_timestamp_hook_self_test(self) -> None:
+        """The inject-session-timestamp.py self-test, wired at introduction (PR: timestamp/duration console rule)."""
+        result = self._run_selftest(
+            [sys.executable, str(REPO_ROOT / ".claude" / "hooks" / "inject-session-timestamp.py"),
+             "--self-test"]
+        )
+        self.assertEqual(result.returncode, 0,
+                         f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        self.assertIn("self-test:", result.stdout)
+
+    def test_block_unstamped_turn_end_behaviour(self) -> None:
+        """Behavioural: the Stop hook actually BLOCKS a non-conforming final message (exit 2) and
+        ALLOWS a conforming one (exit 0), and is loop-safe. A pure --self-test missed the
+        conforms-localization regression; this runs main() end-to-end so that class cannot recur."""
+        import json
+        import tempfile
+        from datetime import datetime, timedelta, timezone
+        if not (REPO_ROOT.parent / "grc_library_private").is_dir():
+            self.skipTest("maintainer-scoped hook: no grc_library_private sibling (adopter env)")
+        hook = str(REPO_ROOT / '.claude' / 'hooks' / 'block-unstamped-turn-end.py')
+        # Use CURRENT values: the accuracy check requires the stamp near now and the duration near
+        # the transcript-computed session length. Session start = now - 1h, so duration == "1h 0m".
+        now = datetime.now(timezone.utc)
+        start = now - timedelta(hours=1)
+        cur_stamp = "[" + now.strftime("%Y-%m-%d %H:%M") + "Z]"
+        def _tx(text):
+            fd, p = tempfile.mkstemp(suffix='.jsonl'); os.close(fd)
+            with open(p, 'w', encoding='utf-8') as fh:
+                fh.write(json.dumps({"type": "user", "timestamp": start.strftime("%Y-%m-%dT%H:%M:%SZ"), "message": {}}) + "\n")
+                fh.write(json.dumps({"type": "assistant", "timestamp": now.strftime("%Y-%m-%dT%H:%M:%SZ"), "message": {"content": [{"type": "text", "text": text}]}}))
+            return p
+        bad = _tx("no stamp and no duration")
+        good = _tx(cur_stamp + " fine (session: 1h 0m)")
+        try:
+            def _run(payload):
+                return subprocess.run([sys.executable, hook], input=json.dumps(payload),
+                                      capture_output=True, text=True)
+            stale = _tx("[2020-01-01 00:00Z] old (session: 1h 0m)")
+            r_bad = _run({"transcript_path": bad})
+            r_good = _run({"transcript_path": good})
+            r_active = _run({"transcript_path": bad, "stop_hook_active": True})
+            r_stale = _run({"transcript_path": stale})
+            r_lam_bad = _run({"transcript_path": good, "last_assistant_message": "no stamp here"})
+            r_lam_good = _run({"transcript_path": bad, "last_assistant_message": cur_stamp + " ok (session: 1h 0m)"})
+            self.assertEqual(r_bad.returncode, 2, f"must BLOCK non-conforming: {r_bad.stderr}")
+            self.assertEqual(r_good.returncode, 0, f"must ALLOW conforming+current: {r_good.stderr}")
+            self.assertEqual(r_active.returncode, 0, "loop-safe: stop_hook_active must allow")
+            self.assertEqual(r_stale.returncode, 2, f"must BLOCK a stale stamp (accuracy): {r_stale.stderr}")
+            self.assertEqual(r_lam_bad.returncode, 2, "must BLOCK via payload last_assistant_message")
+            self.assertEqual(r_lam_good.returncode, 0, "must ALLOW via payload last_assistant_message over a bad transcript")
+            os.unlink(stale)
+        finally:
+            os.unlink(bad); os.unlink(good)
+
     def test_lint_ungated_dashes_self_test(self) -> None:
         """Gate 82's own self-test. A prose gate that must flag re-drift while exempting the
         illustration and the third-party overlay is exactly the fail-open-vs-flag shape that rots
