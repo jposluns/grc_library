@@ -60,8 +60,8 @@
     - "is NEVER a licence to self-run"
     - "Worker ids recorded in this public repo are ANONYMIZED aliases"
   relocated_anchors:
-    - "exec-dispatch.py --dispatch --family"
-    - "issue the SAME order to another"
+    - "orch-verify <claude|codex|gemini> <prompt-file>"
+    - "issue the SAME order again"
     - "Every QA pass gets one worker per available family"
     - "WORKERS ARE ELASTIC"
     - "credit-offload-design.md"

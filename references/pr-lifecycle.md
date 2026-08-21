@@ -510,9 +510,9 @@ is external. Two mechanisms:
      RETURNED, with its findings dispositioned.** A row reading `DISPATCHED, RESULT PENDING`
      does NOT satisfy this, however honestly it is worded. Honest prose recording an absence is
      the right way to record it and is not a substitute for the thing being absent.
-   - **If the order is outstanding, WAIT for it.** If an actual exec-dispatch attempt genuinely
-     fails to place the order, SELF-RUN it inline (the trigger is a FAILED ATTEMPT, never a pre-emptive
-     reading that no worker will serve it, since every exec-dispatch order spawns a fresh worker): on this one
+   - **If the QA call is still running, WAIT for it.** If an actual `orch-verify` call genuinely
+     fails to run (it exits without a usable result, or no account is available), SELF-RUN it inline (the trigger is a FAILED ATTEMPT, never a pre-emptive
+     reading that no worker will serve it, since every `orch-verify` call spawns a fresh worker): on this one
      conflict the mandatory-QA rule outranks the mandatory-offload rule, never the reverse.
      Alert the maintainer and request another worker at the same time, per the
      worker-elasticity corollary, but do not let the ask become the reason the QA never ran.
