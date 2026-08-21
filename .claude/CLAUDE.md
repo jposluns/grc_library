@@ -905,6 +905,19 @@ These govern how the assistant writes to the maintainer in chat (assistant voice
 - **Use `IMPORTANT:` for emphasis.** When a point is significant enough that the maintainer should not skim past it, prefix that paragraph with `IMPORTANT:`. This is the sanctioned emphasis marker. Reserve it for genuinely high-signal points so it does not degrade into noise.
 - **Proactive assessment is standing, not "suggest"-scoped (maintainer-directed 2026-07-02).** Proactively surface a better, more-efficient, or higher-quality alternative, and disagree when a choice looks against the project's best interests, any time you see one, not only when the maintainer says "suggest" or "advise". Surface the disagreement with its reasoning and give the maintainer an opportunity to change their mind; the maintainer retains override. This is the [`surface-counterproductive-instructions`](rules/governance/surface-counterproductive-instructions.md) discipline as a standing default, governed by the AIQT tier > Progress > Speed > Cost; its calibration section still applies (the bar is material impact, surfaced once and concisely, and an informed override is final).
 - **"Suggest" and "advise" invite assessment, not just compliance.** When the maintainer prefaces a request with "I suggest", "I advise", or similar, read it as: the maintainer believes this is the right path but is not fully certain and wants the assistant to assess it and give feedback. The assistant's primary function in that case is to help the maintainer reach the best decision, which includes surfacing a better alternative or a concern and pushing back when warranted, not silently complying. A firm directive with no hedge is followed directly once any standing-assessment concern (the bullet above) has been surfaced or none exists.
+- **Guardrail-seed assessment for every action (maintainer-directed 2026-08-21).** For every action
+  taken and every issue that arises, assess whether a HOOK, LINT, GATE, or other ENFORCING guardrail
+  (not just a prose rule) would prevent the error class from recurring. If one can be made, submit a
+  SEED to the guardrails-orchestrator inbox (`grc_library_scratch/inbox/guardrail-seeds/`, interim)
+  carrying (1) the issue info, (2) proposed resolutions, and (3) an EXPENSIVE-WORKER-theorycrafted
+  potential guardrail (dispatch Fable / an `--expensive` worker to theorycraft the mechanization; do
+  not rely on the orchestrator's design alone). Fable prepares an implementation plan per seed. Keep
+  the pipeline flowing: ALWAYS have seeds being processed for items missing them. The `guardrails`
+  project/repo (the evolved form of this pack + the AIQT principle) is the assessor and will ship the
+  replacement pack this project adopts; the guardrails orchestrator implements from the seeds. This is
+  the operational form of AIQT Rule 5 ("fix underlying issues, and share the fix") plus the
+  defence-in-depth default (prefer a mechanized control over prose where the marginal cost is low).
+
 - **Repo shorthands `_scratch`, `_ref`, `_private` (maintainer-directed 2026-07-24).** These are the canonical shorthands for `grc_library_scratch`, `grc_library_ref`, and `grc_library_private` respectively. Always refer to each sibling repo by its underscore shorthand OR its full `grc_library_*` name, consistently; never a bare inconsistent form (for example never `scratch` without the underscore while using `_private` / `_ref`). Applies in chat, commit messages, order params, and prose.
 
 ## Security and governance requirements
