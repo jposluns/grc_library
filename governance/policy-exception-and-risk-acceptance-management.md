@@ -2,8 +2,8 @@
 
 **Document Title:** Exception and Risk Acceptance Management Policy\
 **Document Type:** Policy\
-**Version:** 1.4.0\
-**Date:** 2026-08-20\
+**Version:** 1.4.1\
+**Date:** 2026-08-21\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md)\
@@ -74,7 +74,7 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 4.2.4 The approval pathway in §4.2.2 is the source of truth for the "Approve exception" row of the Role Authority Register RACI ([`governance/register-role-authority.md`](register-role-authority.md)); the register's row points back at this section so the two documents declare a single chain. The renewal-ceiling pathway in §4.3.5 extends this chain: the original approver acts on the first renewal, and the second and final renewal requires ERC review followed by Board Risk Committee review and approval. This renewal-ceiling pathway is the source of truth for renewal authority. Adopting organizations may tune the tier thresholds in §4.2.2 (and the named bodies in §4.3.5 where they have no equivalent committee, per the §4.3.4 / §4.3.5 substitution clauses) to local governance structure without amending the RACI; the RACI row's reference to this section is what makes that local tuning propagate. The §4.2.2 security-related-exception limb maps to the CISO co-approval named in the RACI Accountable cell, so the CISO's security-exception co-approval is part of the same single chain.
 
 ### 4.3 Duration and renewal
-4.3.1 Exceptions must be time-bound. The initial term must not exceed 180 days. 
+4.3.1 Exceptions must be time-bound. The initial term must not exceed the chosen base term (180 days by default; the base term is an organization-set convention, tunable per §4.3). 
 4.3.2 Renewals must undergo full re-approval and risk reassessment, and each renewal term must not exceed the initial term's length (the chosen base term, 180 days by default per §4.3), so the initial term plus its two permitted renewals cannot exceed the `max_duration` ceiling (three multiples of that base, 540 days by default) and the final-renewal Board review is always reachable within it.
 4.3.3 Expired exceptions must be remediated or escalated immediately.
 
