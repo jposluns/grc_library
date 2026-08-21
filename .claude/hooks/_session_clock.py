@@ -16,7 +16,7 @@ from pathlib import Path
 
 # Anchored SHAPE, with capture groups; semantic validity (real date, minutes 0-59) is checked below.
 LEAD_RE = re.compile(r"^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}(?::\d{2})?)Z\]")
-TAIL_RE = re.compile(r"\(session: (\d+)h ([0-5]?\d)m\)\s*$")
+TAIL_RE = re.compile(r"\(session: (\d{1,5})h ([0-5]?\d)m\)\s*$")
 
 # Staleness tolerance: the message's stamp must be within this of `now`, and its duration within
 # this of the computed duration. Generous enough that normal compose-to-Stop lag never false-blocks,
@@ -90,7 +90,12 @@ def _msg_stamp_dt(text: str):
 
 def _msg_duration_min(text: str):
     m = TAIL_RE.search(text.strip()) if isinstance(text, str) else None
-    return int(m.group(1)) * 60 + int(m.group(2)) if m else None
+    if not m:
+        return None
+    try:
+        return int(m.group(1)) * 60 + int(m.group(2))
+    except Exception:
+        return None
 
 
 def conforms(text) -> bool:
@@ -148,6 +153,8 @@ def _self_test() -> int:
         ("fresh stamp current", values_current("[2026-08-21 03:00Z] x (session: 0h 0m)", None, now) is True),
         ("stale stamp not current", values_current("[2026-08-21 02:30Z] x (session: 0h 0m)", None, now) is False),
         ("unparseable value fails soft", values_current("no stamp", None, now) is True),
+        ("huge-hours duration rejected by grammar", conforms("[2026-08-21 03:00Z] x (session: 999999h 0m)") is False),
+        ("5-digit hours ok", conforms("[2026-08-21 03:00Z] x (session: 99999h 0m)") is True),
     ]
     bad = [n for n, ok in checks if not ok]
     if bad:

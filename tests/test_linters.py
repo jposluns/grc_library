@@ -1841,12 +1841,20 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
             def _run(payload):
                 return subprocess.run([sys.executable, hook], input=json.dumps(payload),
                                       capture_output=True, text=True)
+            stale = _tx("[2020-01-01 00:00Z] old (session: 1h 0m)")
             r_bad = _run({"transcript_path": bad})
             r_good = _run({"transcript_path": good})
             r_active = _run({"transcript_path": bad, "stop_hook_active": True})
+            r_stale = _run({"transcript_path": stale})
+            r_lam_bad = _run({"transcript_path": good, "last_assistant_message": "no stamp here"})
+            r_lam_good = _run({"transcript_path": bad, "last_assistant_message": cur_stamp + " ok (session: 1h 0m)"})
             self.assertEqual(r_bad.returncode, 2, f"must BLOCK non-conforming: {r_bad.stderr}")
-            self.assertEqual(r_good.returncode, 0, f"must ALLOW conforming: {r_good.stderr}")
+            self.assertEqual(r_good.returncode, 0, f"must ALLOW conforming+current: {r_good.stderr}")
             self.assertEqual(r_active.returncode, 0, "loop-safe: stop_hook_active must allow")
+            self.assertEqual(r_stale.returncode, 2, f"must BLOCK a stale stamp (accuracy): {r_stale.stderr}")
+            self.assertEqual(r_lam_bad.returncode, 2, "must BLOCK via payload last_assistant_message")
+            self.assertEqual(r_lam_good.returncode, 0, "must ALLOW via payload last_assistant_message over a bad transcript")
+            os.unlink(stale)
         finally:
             os.unlink(bad); os.unlink(good)
 
