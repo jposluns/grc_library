@@ -46,12 +46,12 @@ def main() -> int:
         return 0
     if not stamp:
         return 0
-    dur_txt = dur if dur else "(session: unavailable)"
+    have_dur = bool(dur)
     msg = (
         "STANDING RULE (maintainer-directed 2026-08-21): BEGIN every message you author with the "
         "current UTC timestamp and END it with the session duration. Use these values now: "
-        f"start with `{stamp}` , end with `{dur_txt}` . Format: `[YYYY-MM-DD HH:MMZ]` ... "
-        "`(session: Xh Ym)`. This applies to every message, including short ones."
+        f"start with `{stamp}` , " + (f"end with `{dur}` ." if have_dur else "and end with `(session: Xh Ym)` (session start not yet determinable this turn).") +
+        " Format: `[YYYY-MM-DD HH:MMZ]` ... `(session: Xh Ym)`. This applies to every message, including short ones."
     )
     try:
         print(json.dumps({"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext": msg}}))

@@ -23,12 +23,15 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 try:
-    from _session_clock import stamp_and_duration, conforms, maintainer_env
+    from _session_clock import stamp_and_duration, conforms, values_current, maintainer_env
 except Exception:
     def stamp_and_duration(tp, now=None):
         return None, None
 
     def conforms(t):
+        return True  # fail-open
+
+    def values_current(t, tp, now=None):
         return True  # fail-open
 
     def maintainer_env():
@@ -54,6 +57,8 @@ def _last_assistant_text(tp) -> str:
         try:
             obj = json.loads(ln)
         except Exception:
+            continue
+        if not isinstance(obj, dict):
             continue
         if obj.get("type") != "assistant":
             continue
@@ -99,9 +104,10 @@ def main() -> int:
         text = final_message(payload)
         if not text:
             return 0  # no prose to stamp (pure tool-use turn)
-        if conforms(text):
+        tp = payload.get("transcript_path")
+        if conforms(text) and values_current(text, tp):
             return 0
-        stamp, dur = stamp_and_duration(payload.get("transcript_path"))
+        stamp, dur = stamp_and_duration(tp)
         if dur is None:
             return 0  # cannot compute the duration -> cannot enforce it -> fail OPEN
     except Exception:

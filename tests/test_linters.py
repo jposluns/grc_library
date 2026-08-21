@@ -1820,17 +1820,23 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         conforms-localization regression; this runs main() end-to-end so that class cannot recur."""
         import json
         import tempfile
+        from datetime import datetime, timedelta, timezone
         if not (REPO_ROOT.parent / "grc_library_private").is_dir():
             self.skipTest("maintainer-scoped hook: no grc_library_private sibling (adopter env)")
         hook = str(REPO_ROOT / '.claude' / 'hooks' / 'block-unstamped-turn-end.py')
+        # Use CURRENT values: the accuracy check requires the stamp near now and the duration near
+        # the transcript-computed session length. Session start = now - 1h, so duration == "1h 0m".
+        now = datetime.now(timezone.utc)
+        start = now - timedelta(hours=1)
+        cur_stamp = "[" + now.strftime("%Y-%m-%d %H:%M") + "Z]"
         def _tx(text):
             fd, p = tempfile.mkstemp(suffix='.jsonl'); os.close(fd)
             with open(p, 'w', encoding='utf-8') as fh:
-                fh.write(json.dumps({"type": "user", "timestamp": "2026-08-21T00:00:00Z", "message": {}}) + "\n")
-                fh.write(json.dumps({"type": "assistant", "timestamp": "2026-08-21T01:00:00Z", "message": {"content": [{"type": "text", "text": text}]}}))
+                fh.write(json.dumps({"type": "user", "timestamp": start.strftime("%Y-%m-%dT%H:%M:%SZ"), "message": {}}) + "\n")
+                fh.write(json.dumps({"type": "assistant", "timestamp": now.strftime("%Y-%m-%dT%H:%M:%SZ"), "message": {"content": [{"type": "text", "text": text}]}}))
             return p
         bad = _tx("no stamp and no duration")
-        good = _tx("[2026-08-21 01:00Z] fine (session: 1h 0m)")
+        good = _tx(cur_stamp + " fine (session: 1h 0m)")
         try:
             def _run(payload):
                 return subprocess.run([sys.executable, hook], input=json.dumps(payload),
