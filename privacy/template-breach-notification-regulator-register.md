@@ -2,8 +2,8 @@
 
 **Document Title:** Breach Notification Regulator Register Template\
 **Document Type:** Template\
-**Version:** 1.0.1\
-**Date:** 2026-07-02\
+**Version:** 1.0.2\
+**Date:** 2026-08-21\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/procedure-data-protection-and-privacy-breach-response.md`](procedure-data-protection-and-privacy-breach-response.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md)\
@@ -48,7 +48,7 @@ Replace the illustrative rows below with the organization's own. The illustrativ
 
 | Jurisdiction / scope | Governing law | Regulatory authority | Notification trigger | Regulatory deadline | Individual-notification requirement | Internal target *[adopter-defined]* |
 | --- | --- | --- | --- | --- | --- | --- |
-| *[example]* European Union | GDPR Arts. 33 to 34 | Lead supervisory authority | Risk to the rights and freedoms of natural persons | 72 hours from becoming aware | Without undue delay where high risk to individuals | *[e.g. 48 hours to internal sign-off]* |
+| *[example]* European Union | GDPR Arts. 33 to 34 | Lead supervisory authority | Personal data breach, unless unlikely to result in a risk to the rights and freedoms of natural persons (Art. 33(1)) | 72 hours from becoming aware | Without undue delay where high risk to individuals | *[e.g. 48 hours to internal sign-off]* |
 | *[example]* United Kingdom | UK GDPR Arts. 33 to 34 | Information Commissioner's Office (ICO) | Same threshold as EU GDPR | 72 hours from becoming aware | Without undue delay where high risk | *[adopter-set]* |
 | *[adopter row]* | | | | | | |
 | *[adopter row]* | | | | | | |
