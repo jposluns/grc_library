@@ -216,7 +216,7 @@ def main() -> int:
     if not is_opus5(model):
         return 0  # not positively Opus 5 -> allow (fail OPEN on uncertainty)
     write_alert(model)
-    if (payload.get("hook_event_name") or "") == "PreToolUse":
+    if (payload.get("hook_event_name") or payload.get("hookEventName") or "") == "PreToolUse":
         # PreToolUse (blocking-capable): hard-block the tool.
         print(_message(model), file=sys.stderr)
         return 2
