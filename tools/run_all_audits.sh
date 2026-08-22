@@ -187,6 +187,7 @@ run_gate "Narrative vocabulary audit"                    python3 tools/lint-narr
 run_gate "Narrative disclaimer-presence audit"            python3 tools/lint-narrative-disclaimer.py
 run_gate "Backlog index-reference parity audit"                    python3 tools/lint-todo-index-reference-parity.py
 run_gate "TODO.md number-allocation block sync"                    python3 tools/build-todo-number-allocation.py --check
+run_gate "Index-header parity audit"                              python3 tools/lint-index-header-parity.py --strict-owner
 
 # ----------------------------------------------------------------------
 # Summary

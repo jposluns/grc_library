@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.118\
+**Version:** 1.27.119\
 **Date:** 2026-08-21\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This register is the authoritative index for active documents in the public GRC Documentation Library. It records, per active document, its domain, type, title, repository path, owner role, review frequency, primary alignment families, and adoption disposition. For Owner Role and Review Frequency, each document's own metadata header is the go-forward source of truth and this register is maintained as a mirror of it: the index records the base Review Frequency cadence (a document header may add a trigger clause on top of the same base cadence) and the Owner Role. A base-cadence or owner-role disagreement between the two is reconciled toward the header; a mechanical index-header parity audit enforcing this is a planned follow-up.
+This register is the authoritative index for active documents in the public GRC Documentation Library. It records, per active document, its domain, type, title, repository path, owner role, review frequency, primary alignment families, and adoption disposition. For Owner Role and Review Frequency, each document's own metadata header is the go-forward source of truth and this register is maintained as a mirror of it: the index records the base Review Frequency cadence (a document header may add a trigger clause on top of the same base cadence) and the Owner Role. A base-cadence or owner-role disagreement between the two is reconciled toward the header; a mechanical index-header parity audit (gate 92, [`tools/lint-index-header-parity.py`](../tools/lint-index-header-parity.py)) enforces this.
 
 This register intentionally avoids internal document numbers from any source organization. Repository paths and filenames are the canonical identifiers.
 

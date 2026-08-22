@@ -55,7 +55,8 @@
       "lint-matrix-control-codes.py",
       "build-taxonomy.py",
       "build-portal.py",
-      "build-todo-number-allocation.py"
+      "build-todo-number-allocation.py",
+      "lint-index-header-parity.py"
     ],
     "operational-meta": [
       "lint-audit-gate-parity.py",
