@@ -9685,9 +9685,11 @@ class RelationshipModelGeneratorTests(unittest.TestCase):
     the --check regeneration gate. Negative fixtures are built in process
     from a base record that passes every rule, so each test carries exactly
     one violation (the base record's clean pass is the positive control);
-    the committed-state test requires the checked-in seed and generated
-    model to be in sync, and the temp-tree test proves drift and a
-    validation failure both return non-zero without touching the real
+    category compatibility is asserted as an advisory warning that still
+    builds, the cycle check is asserted per viewpoint-and-scope slice, the
+    committed-state test requires the checked-in seed and generated model
+    to be in sync, and the temp-tree test proves drift and a validation
+    failure independently return non-zero without touching the real
     governance/ tree."""
 
     def _load(self, unique: str):
@@ -9747,9 +9749,13 @@ class RelationshipModelGeneratorTests(unittest.TestCase):
         rec.update(overrides)
         return rec
 
-    def _errors(self, *records) -> list:
+    def _validate(self, *records) -> tuple:
+        """(errors, warnings) from a fresh module load."""
         mod = self._load("_relmodel_validate")
         return mod.validate_records(list(records))
+
+    def _errors(self, *records) -> list:
+        return self._validate(*records)[0]
 
     def _run_main(self, mod, *argv: str) -> int:
         old_argv = sys.argv
@@ -9761,20 +9767,58 @@ class RelationshipModelGeneratorTests(unittest.TestCase):
 
     def test_base_fixture_records_validate_clean(self) -> None:
         """Positive control: a mutation of a base that itself fails guards nothing."""
-        self.assertEqual(self._errors(self._record()), [])
-        self.assertEqual(self._errors(self._assessed_record()), [])
+        errors, warnings = self._validate(self._record(), self._assessed_record())
+        self.assertEqual(errors, [])
+        self.assertEqual(warnings, [])
 
     def test_unknown_verb_flagged(self) -> None:
         errs = self._errors(self._record(verb="relates to"))
         self.assertTrue(any("[verb-allow-list]" in e for e in errs), errs)
 
-    def test_incompatible_source_category_flagged(self) -> None:
-        # A policy interprets rather than operationalizes, so it is not an
-        # implementation-category source for `implements`.
-        errs = self._errors(self._record(
+    def test_incompatible_source_category_is_advisory_not_fatal(self) -> None:
+        # The framework's scope exclusions define no exhaustive node-by-verb
+        # compatibility matrix: a typical-category mismatch is category-level
+        # guidance for the reviewer, so it warns and still validates. A
+        # policy interprets rather than operationalizes, so it is not a
+        # typical implementation-category source for `implements`.
+        errors, warnings = self._validate(self._record(
             verb="implements", relationship_class="implementation",
             destination={"id": "EXAMPLE-POLICY-B", "class": "policy"}))
-        self.assertTrue(any("[category-compatibility]" in e for e in errs), errs)
+        self.assertEqual(errors, [])
+        self.assertTrue(any("[category-compatibility]" in w for w in warnings),
+                        warnings)
+
+    def test_category_mismatch_warns_but_builds_in_temp_tree(self) -> None:
+        # Build-level contract of the advisory channel: the warning prints
+        # to stderr with the record id, and neither the build nor --check
+        # fails on warnings alone.
+        mod = self._load("_relmodel_advisory_build")
+        old = (mod.SOURCE, mod.GENERATED)
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            source = root / "relationship-model-source.json"
+            generated = root / "relationship-model.generated.json"
+            import json as _json
+            source.write_text(_json.dumps({"records": [self._record(
+                verb="implements", relationship_class="implementation",
+                destination={"id": "EXAMPLE-POLICY-B", "class": "policy"})]}),
+                encoding="utf-8")
+            import contextlib
+            import io
+            try:
+                mod.SOURCE = source
+                mod.GENERATED = generated
+                stderr = io.StringIO()
+                with contextlib.redirect_stderr(stderr):
+                    self.assertEqual(self._run_main(mod), 0)
+                self.assertIn("[category-compatibility]", stderr.getvalue())
+                self.assertIn("rel-test-0001", stderr.getvalue())
+                stderr = io.StringIO()
+                with contextlib.redirect_stderr(stderr):
+                    self.assertEqual(self._run_main(mod, "--check"), 0)
+                self.assertIn("[category-compatibility]", stderr.getvalue())
+            finally:
+                mod.SOURCE, mod.GENERATED = old
 
     def test_unmapped_node_class_flagged(self) -> None:
         errs = self._errors(self._record(
@@ -9782,6 +9826,8 @@ class RelationshipModelGeneratorTests(unittest.TestCase):
         self.assertTrue(any("[unmapped-node-class]" in e for e in errs), errs)
 
     def test_primary_cycle_within_one_viewpoint_flagged(self) -> None:
+        # Both records are unscoped, so they share one (viewpoint, scope)
+        # slice: the unscoped bucket of the governance viewpoint.
         a = self._record(id="rel-test-cyc-a",
                          source={"id": "EXAMPLE-POLICY-A", "class": "policy"},
                          destination={"id": "EXAMPLE-POLICY-B", "class": "policy"})
@@ -9790,6 +9836,28 @@ class RelationshipModelGeneratorTests(unittest.TestCase):
                          destination={"id": "EXAMPLE-POLICY-A", "class": "policy"})
         errs = self._errors(a, b)
         self.assertTrue(any("[primary-cycle]" in e for e in errs), errs)
+
+    def test_same_viewpoint_same_scope_cycle_flagged(self) -> None:
+        a = self._record(id="rel-test-ssc-a", scope="EXAMPLE-SCOPE-X",
+                         source={"id": "EXAMPLE-POLICY-A", "class": "policy"},
+                         destination={"id": "EXAMPLE-POLICY-B", "class": "policy"})
+        b = self._record(id="rel-test-ssc-b", scope="EXAMPLE-SCOPE-X",
+                         source={"id": "EXAMPLE-POLICY-B", "class": "policy"},
+                         destination={"id": "EXAMPLE-POLICY-A", "class": "policy"})
+        errs = self._errors(a, b)
+        self.assertTrue(any("[primary-cycle]" in e for e in errs), errs)
+
+    def test_cross_scope_reciprocal_pair_not_flagged(self) -> None:
+        # Validation test 3 scopes the cycle check to a single declared
+        # viewpoint within a single context: a reciprocal pair split across
+        # two scopes in the same viewpoint is legitimate, not a cycle.
+        a = self._record(id="rel-test-xsc-a", scope="EXAMPLE-SCOPE-X",
+                         source={"id": "EXAMPLE-POLICY-A", "class": "policy"},
+                         destination={"id": "EXAMPLE-POLICY-B", "class": "policy"})
+        b = self._record(id="rel-test-xsc-b", scope="EXAMPLE-SCOPE-Y",
+                         source={"id": "EXAMPLE-POLICY-B", "class": "policy"},
+                         destination={"id": "EXAMPLE-POLICY-A", "class": "policy"})
+        self.assertEqual(self._errors(a, b), [])
 
     def test_associative_only_cycle_not_flagged(self) -> None:
         common = dict(verb="informs", relationship_class="influence",
@@ -9823,6 +9891,25 @@ class RelationshipModelGeneratorTests(unittest.TestCase):
         errs = self._errors(self._assessed_record(evidence_refs=[]))
         self.assertTrue(
             any("[assessed-support]" in e and "evidence" in e for e in errs), errs)
+
+    def test_temporal_nature_requires_validity_window(self) -> None:
+        # Validation test 7: ANY temporal edge carries the validity window
+        # it depends on, whether or not it is assessed.
+        errs = self._errors(self._record(nature=["temporal"]))
+        self.assertTrue(any("[temporal-support]" in e for e in errs), errs)
+        self.assertEqual(self._errors(self._record(
+            nature=["temporal"], validity={"from": "2026-01-01", "to": None})), [])
+
+    def test_evidence_dependent_nature_requires_evidence_refs(self) -> None:
+        # The record field table: evidence_refs supports an assessed OR
+        # evidence-dependent edge, so the requirement binds without the
+        # assessed nature too.
+        errs = self._errors(self._record(nature=["evidence-dependent"]))
+        self.assertTrue(any("[evidence-dependent-support]" in e for e in errs),
+                        errs)
+        self.assertEqual(self._errors(self._record(
+            nature=["evidence-dependent"],
+            evidence_refs=["EXAMPLE-EVIDENCE-A"])), [])
 
     def test_stored_inverse_without_justification_flagged(self) -> None:
         errs = self._errors(self._record(
@@ -9867,18 +9954,28 @@ class RelationshipModelGeneratorTests(unittest.TestCase):
                 mod.GENERATED = generated
                 self.assertEqual(self._run_main(mod), 0)
                 self.assertEqual(self._run_main(mod, "--check"), 0)
+                # Drift sub-case: corrupt the GENERATED file only.
                 generated.write_text(
                     generated.read_text(encoding="utf-8") + "\n", encoding="utf-8")
                 self.assertEqual(self._run_main(mod, "--check"), 1)
-                # A validation failure also fails --check: break one record's verb.
+                # Validation-failure sub-case: restore the generated file to
+                # in-sync FIRST (a rebuild rewrites it), so the exit 1 below
+                # is attributable to the validation failure alone, never to
+                # residual drift from the sub-case above.
+                self.assertEqual(self._run_main(mod), 0)
+                self.assertEqual(self._run_main(mod, "--check"), 0)
                 import json as _json
                 payload = _json.loads(source.read_text(encoding="utf-8"))
                 payload["records"][0]["verb"] = "relates to"
                 source.write_text(_json.dumps(payload), encoding="utf-8")
-                self.assertEqual(self._run_main(mod, "--check"), 1)
+                import contextlib
+                import io
+                stdout = io.StringIO()
+                with contextlib.redirect_stdout(stdout):
+                    self.assertEqual(self._run_main(mod, "--check"), 1)
+                self.assertIn("[verb-allow-list]", stdout.getvalue())
             finally:
                 mod.SOURCE, mod.GENERATED = old
-
 
 class PortalGeneratorCheckTests(unittest.TestCase):
     """tools/build-portal.py (gate 34): --check accepts committed outputs and

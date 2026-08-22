@@ -120,7 +120,7 @@ HIGHEST_DELTA_GATE = 12
 # narrative.yml --check runs AFTER this hook, so that artefact is instead protected by
 # pre-commit's modification detection plus the later check; this hook is not
 # itself a verification gate.
-PRECOMMIT_NON_GATE_HOOKS = {"Regenerate taxonomy, narrative registry, portal, and maturity scorecard"}
+PRECOMMIT_NON_GATE_HOOKS = {"Regenerate taxonomy, narrative registry, portal, maturity scorecard, and relationship model"}
 
 # Regex to extract the tools/X.py portion of a `python3 tools/X.py ...`
 # style command. Captures the script's repository-relative path only,

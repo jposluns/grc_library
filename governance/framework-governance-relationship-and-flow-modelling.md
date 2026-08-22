@@ -2,7 +2,7 @@
 
 **Document Title:** Governance Relationship and Flow Modelling Framework\
 **Document Type:** Framework\
-**Version:** 1.0.3\
+**Version:** 1.0.4\
 **Date:** 2026-08-22\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -277,7 +277,7 @@ EVIDENCE informs ASSESSMENT    (associative; the record shapes the activity's co
 
 ## Relationship validation method
 
-Every asserted relationship must pass the 9 tests below before it enters a register, a matrix, a rendered view, or a machine-readable record. The tests are a review method for authors and reviewers; the library additionally implements seven of them as build-time validation rules over its own relationship-source records (the audit programme's relationship-model sync gate), while an adopter applies all nine as a review method.
+Every asserted relationship must pass the 9 tests below before it enters a register, a matrix, a rendered view, or a machine-readable record. The tests are a review method for authors and reviewers; the library additionally mechanizes several of them as build-time validation rules over its own relationship-source records (the audit programme's relationship-model sync gate), fatally covering the cycle, structural-fact, verb-precision, temporal-validity, and evidence tests, with the source-action test applied as an advisory category check; an adopter applies all nine as a review method.
 
 1. **Source-action test.** Can the source, as classed, logically perform the verb on the destination? An assertion whose source cannot perform the action fails regardless of how familiar the pairing reads.
 2. **Direction test.** Does the assertion run in the semantic direction the verb defines? An edge written backward to suit a diagram fails this test by construction.

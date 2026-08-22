@@ -13,7 +13,12 @@ truth: edit the source records and regenerate.
 
 Every record is validated before anything is written. A validation
 failure names the failing record id and the rule, and the tool exits
-non-zero without writing.
+non-zero without writing. Typical-category compatibility is ADVISORY,
+never fatal: the framework's scope exclusions define no exhaustive
+node-by-verb compatibility matrix (compatibility is category-level
+guidance, and the validation method carries the per-assertion
+judgement), so a mismatch prints a warning to stderr naming the
+record and the advisory, and the record still builds.
 
 Usage:
     python3 tools/build-relationship-model.py
@@ -21,9 +26,10 @@ Usage:
 
 `--check` exits non-zero if any record fails validation or if the
 committed generated file differs from the regenerated content,
-suitable for CI integration. Exit codes: 0 written or in sync, 1 on a
-validation failure or drift, 2 on an environmental error (the source
-file missing or unparseable).
+suitable for CI integration. Advisory warnings never affect the exit
+code. Exit codes: 0 written or in sync, 1 on a validation failure or
+drift, 2 on an environmental error (the source file missing or
+unparseable).
 """
 
 from __future__ import annotations
@@ -105,12 +111,15 @@ def _verb(relationship_class: str,
 # subsection (the 5 assessed-outcome verbs): 23 controlled verbs, exactly
 # one registry entry per verb. Category sets are the TYPICAL source and
 # destination categories; a multi-category node fits if ANY of its
-# categories is in the verb's set. A None set means unrestricted
-# (`references` is "any category to any category"). `layout_role` records
-# the TYPICAL role only; the operative role is decided per view, so records
-# are not validated against it. `contains` is same-category composition and
-# is checked as a non-empty category intersection (SAME_CATEGORY_VERBS)
-# rather than as fixed source and destination sets.
+# categories is in the verb's set, and a non-overlap is an advisory
+# warning rather than a fatal error, because the framework's scope
+# exclusions define no exhaustive node-by-verb compatibility matrix. A
+# None set means unrestricted (`references` is "any category to any
+# category"). `layout_role` records the TYPICAL role only; the operative
+# role is decided per view, so records are not validated against it.
+# `contains` is same-category composition and is advised as a non-empty
+# category intersection (SAME_CATEGORY_VERBS) rather than as fixed source
+# and destination sets.
 VERB_REGISTRY: dict[str, dict] = {
     "issues": _verb("authority", ("authority",), ("authority", "sources"),
                     "primary", "is issued by"),
@@ -168,8 +177,8 @@ for _verb_token, _inverse_reading in (
         "assessed outcome", ("implementation", "governance"),
         ("governance", "authority"), "associative", _inverse_reading)
 
-# Verbs whose compatibility rule is same-category composition: the source
-# and destination must share at least one category.
+# Verbs whose compatibility guidance is same-category composition: the
+# source and destination typically share at least one category.
 SAME_CATEGORY_VERBS = frozenset(("contains",))
 
 # Closed-world node-class-to-category map, transcribed from the framework's
@@ -256,17 +265,20 @@ def _is_nonempty_str(value: object) -> bool:
     return isinstance(value, str) and value.strip() != ""
 
 
-def validate_record(rec: object, position: int) -> list[str]:
-    """Validate one record; return error strings (empty when valid).
+def validate_record(rec: object, position: int) -> tuple[list[str], list[str]]:
+    """Validate one record; return (errors, warnings).
 
-    Each error names the record (its id, or its list position when the id
-    itself is unusable) and a bracketed rule token, so a failure is
+    Errors are fatal (empty when valid); warnings are the advisory channel
+    (category compatibility) and never fail the build. Each entry names
+    the record (its id, or its list position when the id itself is
+    unusable) and a bracketed rule token, so a failure or an advisory is
     traceable to the specific record and rule.
     """
     label = f"records[{position}]"
     if not isinstance(rec, dict):
-        return [f"{label}: [shape] record must be a JSON object"]
+        return [f"{label}: [shape] record must be a JSON object"], []
     errors: list[str] = []
+    warnings: list[str] = []
     rid = rec.get("id")
     if _is_nonempty_str(rid):
         label = rid
@@ -279,7 +291,7 @@ def validate_record(rec: object, position: int) -> list[str]:
     missing = sorted(set(RECORD_FIELDS) - set(rec))
     if missing:
         errors.append(f"{label}: [shape] missing field(s): {', '.join(missing)}")
-        return errors  # a partial record cannot be validated meaningfully
+        return errors, warnings  # a partial record cannot be validated meaningfully
 
     # Endpoints and their taxonomy categories (closed world: an unmapped
     # class is an error, so the source file and CLASS_TO_CATEGORY stay in
@@ -333,15 +345,20 @@ def validate_record(rec: object, position: int) -> list[str]:
             f"{rec['relationship_class']!r} does not match the registry class "
             f"{entry['relationship_class']!r} for verb {verb!r}")
 
-    # Rule 2: source and destination category compatibility. A
-    # multi-category node fits if ANY of its categories is in the verb's
-    # typical set.
+    # Advisory (the retired fatal rule 2): source and destination category
+    # compatibility. The framework's scope exclusions define no exhaustive
+    # node-by-verb compatibility matrix: compatibility is category-level
+    # guidance in the verb table, and the validation method carries the
+    # per-assertion judgement, so a typical-category mismatch warns and
+    # still builds. A multi-category node fits if ANY of its categories is
+    # in the verb's typical set, so the advisory fires only on a genuine
+    # non-overlap, never on a licensed multi-category departure.
     src_cats = endpoint_cats["source"]
     dst_cats = endpoint_cats["destination"]
     if entry is not None and src_cats is not None and dst_cats is not None:
         if verb in SAME_CATEGORY_VERBS:
             if not (src_cats & dst_cats):
-                errors.append(
+                warnings.append(
                     f"{label}: [category-compatibility] {verb!r} asserts "
                     f"same-category composition, but source class "
                     f"{endpoint_cls['source']!r} (categories {sorted(src_cats)}) "
@@ -350,14 +367,14 @@ def validate_record(rec: object, position: int) -> list[str]:
         else:
             allowed_src = entry["source_categories"]
             if allowed_src is not None and not (src_cats & allowed_src):
-                errors.append(
+                warnings.append(
                     f"{label}: [category-compatibility] source class "
                     f"{endpoint_cls['source']!r} (categories {sorted(src_cats)}) does "
                     f"not fit verb {verb!r} (typical source categories "
                     f"{sorted(allowed_src)})")
             allowed_dst = entry["destination_categories"]
             if allowed_dst is not None and not (dst_cats & allowed_dst):
-                errors.append(
+                warnings.append(
                     f"{label}: [category-compatibility] destination class "
                     f"{endpoint_cls['destination']!r} (categories {sorted(dst_cats)}) "
                     f"does not fit verb {verb!r} (typical destination categories "
@@ -508,7 +525,26 @@ def validate_record(rec: object, position: int) -> list[str]:
                 f"{label}: [assessed-support] an assessed relationship requires a "
                 f"scope (principle 7)")
 
-    return errors
+    # Rule 8: temporal support (validation test 7). ANY edge whose nature
+    # includes temporal depends on time, so it must carry the validity
+    # window it depends on, whether or not it is assessed.
+    if "temporal" in nature_set and parsed_dates["from"] is None:
+        errors.append(
+            f"{label}: [temporal-support] a temporal edge requires a validity "
+            f"window (a non-null validity.from; validation test 7)")
+
+    # Rule 9: evidence-dependent support. The record field table:
+    # evidence_refs supports an assessed OR evidence-dependent edge, so an
+    # evidence-dependent edge must carry at least 1 evidence reference,
+    # whether or not it is assessed (the evidence discipline of validation
+    # test 9).
+    if "evidence-dependent" in nature_set and not evidence:
+        errors.append(
+            f"{label}: [evidence-dependent-support] an evidence-dependent edge "
+            f"requires at least 1 evidence reference (the record field table; "
+            f"validation test 9)")
+
+    return errors, warnings
 
 
 def _find_cycle(adjacency: dict[str, list[str]]) -> list[str] | None:
@@ -543,11 +579,16 @@ def _find_cycle(adjacency: dict[str, list[str]]) -> list[str] | None:
 
 def detect_primary_cycles(records: list) -> list[str]:
     """Rule 6 (validation test 3): a directed cycle among the PRIMARY edges
-    of one viewpoint slice is an error. The check runs per viewpoint, so a
-    cycle formed only across viewpoints, or only when associative edges are
-    included, is never flagged. Records too malformed to place in a graph
-    are skipped here; the shape checks report them separately."""
-    by_viewpoint: dict[str, dict[str, list[str]]] = {}
+    of one viewpoint-and-scope slice (a single declared viewpoint within a
+    single context) is an error. The check partitions on the
+    (viewpoint, scope) tuple, so a cycle formed only across viewpoints,
+    only across scopes, or only when associative edges are included, is
+    never flagged; a record with a null scope forms its own unscoped
+    bucket (the empty-string key, which no valid scope value can collide
+    with), so scoped and unscoped edges never merge. Records too malformed
+    to place in a graph are skipped here; the shape checks report them
+    separately."""
+    by_slice: dict[tuple[str, str], dict[str, list[str]]] = {}
     for rec in records:
         if not isinstance(rec, dict) or rec.get("layout_role") != "primary":
             continue
@@ -557,31 +598,42 @@ def detect_primary_cycles(records: list) -> list[str]:
         if not (isinstance(viewpoint, str) and isinstance(source, dict)
                 and isinstance(destination, dict)):
             continue
+        scope = rec.get("scope")
+        scope_key = scope if isinstance(scope, str) else ""
         src_id = source.get("id")
         dst_id = destination.get("id")
         if not (_is_nonempty_str(src_id) and _is_nonempty_str(dst_id)):
             continue
-        adjacency = by_viewpoint.setdefault(viewpoint, {})
+        adjacency = by_slice.setdefault((viewpoint, scope_key), {})
         adjacency.setdefault(src_id, []).append(dst_id)
         adjacency.setdefault(dst_id, [])
     errors: list[str] = []
-    for viewpoint in sorted(by_viewpoint):
-        cycle = _find_cycle(by_viewpoint[viewpoint])
+    for viewpoint, scope_key in sorted(by_slice):
+        cycle = _find_cycle(by_slice[(viewpoint, scope_key)])
         if cycle is not None:
+            scope_text = repr(scope_key) if scope_key else "(unscoped)"
+            cycle_path = " -> ".join(cycle)
             errors.append(
-                f"[primary-cycle] viewpoint {viewpoint!r}: directed cycle among "
-                f"primary edges: {' -> '.join(cycle)} (validation test 3; the check "
-                f"runs per viewpoint slice, so associative edges and cross-viewpoint "
-                f"edges never trigger it)")
+                f"[primary-cycle] viewpoint {viewpoint!r}, scope {scope_text}: "
+                f"directed cycle among primary edges: {cycle_path} "
+                f"(validation test 3; the check runs per viewpoint-and-scope "
+                f"slice, so associative edges, cross-viewpoint edges, and "
+                f"cross-scope edges never trigger it)")
     return errors
 
 
-def validate_records(records: list) -> list[str]:
-    """All validation: per-record rules, duplicate ids, and per-viewpoint
-    primary-edge cycle detection. Returns every error, not only the first."""
+def validate_records(records: list) -> tuple[list[str], list[str]]:
+    """All validation: per-record rules, duplicate ids, and per-slice
+    primary-edge cycle detection. Returns (errors, warnings): every fatal
+    error and every advisory warning, not only the first. Only errors are
+    fatal; warnings (category compatibility) print for the reviewer and
+    never fail the build."""
     errors: list[str] = []
+    warnings: list[str] = []
     for position, rec in enumerate(records):
-        errors.extend(validate_record(rec, position))
+        rec_errors, rec_warnings = validate_record(rec, position)
+        errors.extend(rec_errors)
+        warnings.extend(rec_warnings)
     counts: dict[str, int] = {}
     for rec in records:
         if isinstance(rec, dict) and _is_nonempty_str(rec.get("id")):
@@ -590,7 +642,7 @@ def validate_records(records: list) -> list[str]:
         errors.append(f"{rid}: [duplicate-id] record id appears {counts[rid]} "
                       f"times; ids must be unique")
     errors.extend(detect_primary_cycles(records))
-    return errors
+    return errors, warnings
 
 
 def normalize_record(rec: dict) -> dict:
@@ -679,7 +731,8 @@ def main() -> int:
     parser.add_argument("--check", action="store_true",
                         help="Validate the source records and confirm the generated "
                              "file is in sync; do not write. Exits non-zero on a "
-                             "validation failure or drift.")
+                             "validation failure or drift; advisory warnings never "
+                             "affect the exit code.")
     args = parser.parse_args()
 
     if not SOURCE.exists():
@@ -693,7 +746,15 @@ def main() -> int:
         return 2
 
     records, errors = load_records(payload)
-    errors.extend(validate_records(records))
+    record_errors, warnings = validate_records(records)
+    errors.extend(record_errors)
+    for warning in warnings:
+        print(f"WARN: {warning}", file=sys.stderr)
+    if warnings:
+        print(f"{len(warnings)} advisory warning(s); warnings never fail the "
+              f"build (category compatibility is category-level guidance, and "
+              f"the validation method carries the per-assertion judgement).",
+              file=sys.stderr)
     if errors:
         for error in errors:
             print(f"FAIL: {error}")
