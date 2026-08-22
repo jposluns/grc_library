@@ -2,7 +2,7 @@
 
 **Document Title:** Document Architecture and Interrelationship Framework\
 **Document Type:** Framework\
-**Version:** 1.1.4\
+**Version:** 1.1.5\
 **Date:** 2026-08-22\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -26,7 +26,7 @@ The framework provides a reusable architecture for organizations that need a coh
 
 ## Scope
 
-This framework applies to all repository documents in the `governance`, `risk`, `compliance`, `security`, `ai`, `operations`, `resilience`, `privacy`, `supply-chain`, and `dev-security` domains.
+This framework applies to all repository documents in the `governance`, `risk`, `compliance`, `security`, `ai`, `architecture`, `operations`, `resilience`, `privacy`, `supply-chain`, and `dev-security` domains.
 
 It governs:
 
