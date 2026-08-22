@@ -764,7 +764,7 @@ the last commit before push (bump library CalVer and the README Version field)?
 
 ## Boundaries
 - Never hand-edit generated files (`taxonomy.yml`, `narrative.yml`, `docs/portal.md`,
-  `docs/maturity-scorecard.md`, and the `## Number allocation` counter block in `TODO.md`
+  `docs/maturity-scorecard.md`, `governance/relationship-model.generated.json` (regenerate via `build-relationship-model.py`; gate 93 `--check`), and the `## Number allocation` counter block in `TODO.md`
   between its sentinels); regenerate them (`build-todo-number-allocation.py` for the allocation
   block): CI `--check` fails on drift (gate 91). The block generates from the PUBLIC floor
   `tools/todo-number-floor.json` (a hand-maintained SOURCE, bumped when a new number is

@@ -70,9 +70,7 @@ Fill significant gaps: deepen thin-but-present content to operational sufficienc
 | 2.15 | Landing-page standards list: link each item to its authoritative source, MOVED to 2.25.2 (Series A) (maintainer-confirmed 2026-07-15, M, S-M) | `[public]` |
 | 2.21 | Further AI-jurisdiction annexes (M, L; partly source-gated) | `[public]` |
 | 2.23 | CCPA statute (eff. 2026-01-01) currency + alignment review (maintainer-flagged 2026-07-16, M, S; cross-repo, blocked on ref ingestion) | `[public]` |
-| 2.24 | Governance Relationship and Flow Modelling Framework, MOVED to 2.25.1 (Series A) (2026-07-19, L) | `[content]` `[public]` |
 | 2.25 | Governance traceability and coverage expansion (umbrella; maintainer-directed 2026-07-23, H, XL) | `[content+machinery]` `[public]` |
-| 2.25.1 | Graduate the Governance Relationship and Flow Modelling Framework to a generated model (consolidated from 2.24; H, L) | `[content+machinery]` `[public]` |
 | 2.25.3 | Canadian public-sector authority coverage (consolidated with 2.22; CANADA-PRIORITY, H, L) | `[content]` `[public]` |
 | 2.25.4 | AI assurance and evaluation content (H, L) | `[content]` `[public]` |
 | 2.25.5 | Governance-maturity measurement model (maintainer-directed 2026-07-23; M, M) | `[content]` `[public]` |

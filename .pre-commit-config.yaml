@@ -256,7 +256,7 @@ repos:
 
       - id: regenerate-derived-artefacts
         name: Regenerate taxonomy, narrative registry, portal, and maturity scorecard
-        entry: bash -c 'python3 tools/build-taxonomy.py && python3 tools/build-narrative-registry.py && python3 tools/build-portal.py'
+        entry: bash -c 'python3 tools/build-taxonomy.py && python3 tools/build-narrative-registry.py && python3 tools/build-portal.py && python3 tools/build-relationship-model.py'
         language: system
         pass_filenames: false
         types: [markdown]
@@ -636,6 +636,13 @@ repos:
       - id: lint-index-header-parity
         name: Index-header parity audit
         entry: python3 tools/lint-index-header-parity.py --strict-owner
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: relationship-model-in-sync
+        name: Relationship model in sync
+        entry: python3 tools/build-relationship-model.py --check
         language: system
         pass_filenames: false
         always_run: true

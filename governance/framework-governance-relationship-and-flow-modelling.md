@@ -2,7 +2,7 @@
 
 **Document Title:** Governance Relationship and Flow Modelling Framework\
 **Document Type:** Framework\
-**Version:** 1.0.2\
+**Version:** 1.0.3\
 **Date:** 2026-08-22\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -37,7 +37,7 @@ Document-type selection, document-to-document relationship rules, and the docume
 Three exclusions bound this version:
 
 - All relationship representations inside this library are text form. The library embeds no rendered diagrams; diagram generation is adopter guidance only.
-- The single machine-readable relationship record in this document is illustrative and non-normative. No schema is mandated and no gate validates relationship records.
+- The single machine-readable relationship record in this document is illustrative and non-normative. No schema is mandated on an adopter's records, and no gate validates them; the library does maintain and validate a generated model of its own relationship-source records (the audit programme's relationship-model sync gate), which imposes nothing on an adopter.
 - The framework defines no exhaustive node-by-verb compatibility matrix. Compatibility is expressed at the category level in the verb table, and the validation method carries the per-assertion judgement.
 
 ---
@@ -277,7 +277,7 @@ EVIDENCE informs ASSESSMENT    (associative; the record shapes the activity's co
 
 ## Relationship validation method
 
-Every asserted relationship must pass the 9 tests below before it enters a register, a matrix, a rendered view, or a machine-readable record. The tests are a review method for authors and reviewers; this version of the framework ships no mechanical implementation of them.
+Every asserted relationship must pass the 9 tests below before it enters a register, a matrix, a rendered view, or a machine-readable record. The tests are a review method for authors and reviewers; the library additionally implements seven of them as build-time validation rules over its own relationship-source records (the audit programme's relationship-model sync gate), while an adopter applies all nine as a review method.
 
 1. **Source-action test.** Can the source, as classed, logically perform the verb on the destination? An assertion whose source cannot perform the action fails regardless of how familiar the pairing reads.
 2. **Direction test.** Does the assertion run in the semantic direction the verb defines? An edge written backward to suit a diagram fails this test by construction.
@@ -359,7 +359,7 @@ The library's own matrices illustrate the inverse-storage rule. The forward `map
 
 ## Illustrative machine-readable relationship record
 
-The record below is non-normative. It is a starting point for an adopter who wants to hold relationship assertions in a register, a traceability tool, or a graph database, and it is deliberately expressed with placeholder identifiers: no real standard, control, or framework identifier appears, and no third-party text is reproduced. This library mandates no schema and ships no validation of such records.
+The record below is non-normative. It is a starting point for an adopter who wants to hold relationship assertions in a register, a traceability tool, or a graph database, and it is deliberately expressed with placeholder identifiers: no real standard, control, or framework identifier appears, and no third-party text is reproduced. This library mandates no schema on an adopter's records. It does validate its own relationship-source records through a regeneration gate, but that governs the library's records alone; an adopter's records carry no such requirement.
 
 The example deliberately records an assessed outcome, the most demanding case, because it shows every field that principle 7 and the assessed-outcome subsection place on such an edge: the assessed nature, the evidence, the assessment provenance, the validity window, and the scope within which it was established. A structural edge would omit the evidence and validity content and carry the structural nature alone.
 

@@ -9680,6 +9680,206 @@ class WebGeneratorV2StagingTests(unittest.TestCase):
             self.assertEqual(broken, [], f"unresolved /v2 fragment links: {broken}")
 
 
+class RelationshipModelGeneratorTests(unittest.TestCase):
+    """tools/build-relationship-model.py: relationship-record validation and
+    the --check regeneration gate. Negative fixtures are built in process
+    from a base record that passes every rule, so each test carries exactly
+    one violation (the base record's clean pass is the positive control);
+    the committed-state test requires the checked-in seed and generated
+    model to be in sync, and the temp-tree test proves drift and a
+    validation failure both return non-zero without touching the real
+    governance/ tree."""
+
+    def _load(self, unique: str):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            unique, REPO_ROOT / "tools/build-relationship-model.py")
+        assert spec is not None and spec.loader is not None
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    @staticmethod
+    def _record(**overrides) -> dict:
+        """A record that passes every validation rule; tests override one aspect."""
+        rec = {
+            "id": "rel-test-0001",
+            "source": {"id": "EXAMPLE-POLICY-A", "class": "policy"},
+            "verb": "requires",
+            "destination": {"id": "EXAMPLE-STANDARD-ORG-A",
+                            "class": "organizational standard"},
+            "relationship_class": "requirement",
+            "layout_role": "primary",
+            "nature": ["structural"],
+            "viewpoint": "governance",
+            "direction_rule": "interpreted sources place above the internal "
+                              "instruments that respond to them",
+            "inverse": {"verb": None, "storage": "inferred"},
+            "validity": {"from": None, "to": None},
+            "authority_level": "organizationally mandatory",
+            "evidence_refs": [],
+            "provenance": None,
+            "scope": None,
+            "status": "active",
+        }
+        rec.update(overrides)
+        return rec
+
+    def _assessed_record(self, **overrides) -> dict:
+        """A valid assessed-outcome record (the framework's most demanding case)."""
+        rec = self._record(
+            id="rel-test-0002",
+            source={"id": "EXAMPLE-CONTROL-A", "class": "technical control"},
+            verb="satisfies",
+            destination={"id": "EXAMPLE-OBJECTIVE-A", "class": "control objective"},
+            relationship_class="assessed outcome",
+            layout_role="associative",
+            nature=["assessed", "temporal", "evidence-dependent"],
+            viewpoint="assurance",
+            direction_rule="the asserting entity points to the requirement whose "
+                           "satisfaction is asserted",
+            validity={"from": "2026-01-01", "to": None},
+            authority_level="evidence category",
+            evidence_refs=["EXAMPLE-EVIDENCE-A"],
+            provenance="EXAMPLE-ASSESSMENT-A",
+            scope="EXAMPLE-SCOPE-A",
+        )
+        rec.update(overrides)
+        return rec
+
+    def _errors(self, *records) -> list:
+        mod = self._load("_relmodel_validate")
+        return mod.validate_records(list(records))
+
+    def _run_main(self, mod, *argv: str) -> int:
+        old_argv = sys.argv
+        try:
+            sys.argv = ["build-relationship-model.py", *argv]
+            return mod.main()
+        finally:
+            sys.argv = old_argv
+
+    def test_base_fixture_records_validate_clean(self) -> None:
+        """Positive control: a mutation of a base that itself fails guards nothing."""
+        self.assertEqual(self._errors(self._record()), [])
+        self.assertEqual(self._errors(self._assessed_record()), [])
+
+    def test_unknown_verb_flagged(self) -> None:
+        errs = self._errors(self._record(verb="relates to"))
+        self.assertTrue(any("[verb-allow-list]" in e for e in errs), errs)
+
+    def test_incompatible_source_category_flagged(self) -> None:
+        # A policy interprets rather than operationalizes, so it is not an
+        # implementation-category source for `implements`.
+        errs = self._errors(self._record(
+            verb="implements", relationship_class="implementation",
+            destination={"id": "EXAMPLE-POLICY-B", "class": "policy"}))
+        self.assertTrue(any("[category-compatibility]" in e for e in errs), errs)
+
+    def test_unmapped_node_class_flagged(self) -> None:
+        errs = self._errors(self._record(
+            source={"id": "EXAMPLE-X-1", "class": "quantum widget"}))
+        self.assertTrue(any("[unmapped-node-class]" in e for e in errs), errs)
+
+    def test_primary_cycle_within_one_viewpoint_flagged(self) -> None:
+        a = self._record(id="rel-test-cyc-a",
+                         source={"id": "EXAMPLE-POLICY-A", "class": "policy"},
+                         destination={"id": "EXAMPLE-POLICY-B", "class": "policy"})
+        b = self._record(id="rel-test-cyc-b",
+                         source={"id": "EXAMPLE-POLICY-B", "class": "policy"},
+                         destination={"id": "EXAMPLE-POLICY-A", "class": "policy"})
+        errs = self._errors(a, b)
+        self.assertTrue(any("[primary-cycle]" in e for e in errs), errs)
+
+    def test_associative_only_cycle_not_flagged(self) -> None:
+        common = dict(verb="informs", relationship_class="influence",
+                      layout_role="associative", viewpoint="assurance",
+                      direction_rule="assurance flows from operation to conclusion",
+                      authority_level="evidence category")
+        a = self._record(id="rel-test-asc-a",
+                         source={"id": "EXAMPLE-ASSESSMENT-A", "class": "assessment"},
+                         destination={"id": "EXAMPLE-ASSESSMENT-B",
+                                      "class": "assessment"},
+                         **common)
+        b = self._record(id="rel-test-asc-b",
+                         source={"id": "EXAMPLE-ASSESSMENT-B", "class": "assessment"},
+                         destination={"id": "EXAMPLE-ASSESSMENT-A",
+                                      "class": "assessment"},
+                         **common)
+        self.assertEqual(self._errors(a, b), [])
+
+    def test_cross_viewpoint_cycle_not_flagged(self) -> None:
+        a = self._record(id="rel-test-xvp-a",
+                         source={"id": "EXAMPLE-POLICY-A", "class": "policy"},
+                         destination={"id": "EXAMPLE-POLICY-B", "class": "policy"})
+        b = self._record(id="rel-test-xvp-b", viewpoint="authority",
+                         direction_rule="the entity that confers force places "
+                                        "above the entity that receives it",
+                         source={"id": "EXAMPLE-POLICY-B", "class": "policy"},
+                         destination={"id": "EXAMPLE-POLICY-A", "class": "policy"})
+        self.assertEqual(self._errors(a, b), [])
+
+    def test_missing_evidence_on_assessed_outcome_flagged(self) -> None:
+        errs = self._errors(self._assessed_record(evidence_refs=[]))
+        self.assertTrue(
+            any("[assessed-support]" in e and "evidence" in e for e in errs), errs)
+
+    def test_stored_inverse_without_justification_flagged(self) -> None:
+        errs = self._errors(self._record(
+            inverse={"verb": None, "storage": "stored"}))
+        self.assertTrue(
+            any("[stored-inverse-justification]" in e for e in errs), errs)
+
+    def test_contradictory_natures_flagged(self) -> None:
+        errs = self._errors(self._record(nature=["structural", "temporal"]))
+        self.assertTrue(any("[nature-contradiction]" in e for e in errs), errs)
+
+    def test_malformed_dates_flagged(self) -> None:
+        # The framework's field table: an open end is null, never an empty string.
+        errs = self._errors(self._record(validity={"from": "", "to": None}))
+        self.assertTrue(any("[date-well-formedness]" in e for e in errs), errs)
+        errs = self._errors(self._record(
+            validity={"from": "2026-06-01", "to": "2026-01-01"}))
+        self.assertTrue(any("[date-well-formedness]" in e for e in errs), errs)
+
+    def test_inverse_verb_mismatch_flagged(self) -> None:
+        errs = self._errors(self._record(
+            inverse={"verb": "is specified by", "storage": "inferred"}))
+        self.assertTrue(any("[inverse-verb-mismatch]" in e for e in errs), errs)
+
+    def test_committed_seed_and_generated_model_in_sync(self) -> None:
+        mod = self._load("_relmodel_check_head")
+        self.assertEqual(self._run_main(mod, "--check"), 0)
+
+    def test_drift_and_validation_failure_flagged_in_temp_tree(self) -> None:
+        mod = self._load("_relmodel_check_drift")
+        old = (mod.SOURCE, mod.GENERATED)
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            source = root / "relationship-model-source.json"
+            generated = root / "relationship-model.generated.json"
+            source.write_text(
+                (REPO_ROOT / "governance/relationship-model-source.json"
+                 ).read_text(encoding="utf-8"),
+                encoding="utf-8")
+            try:
+                mod.SOURCE = source
+                mod.GENERATED = generated
+                self.assertEqual(self._run_main(mod), 0)
+                self.assertEqual(self._run_main(mod, "--check"), 0)
+                generated.write_text(
+                    generated.read_text(encoding="utf-8") + "\n", encoding="utf-8")
+                self.assertEqual(self._run_main(mod, "--check"), 1)
+                # A validation failure also fails --check: break one record's verb.
+                import json as _json
+                payload = _json.loads(source.read_text(encoding="utf-8"))
+                payload["records"][0]["verb"] = "relates to"
+                source.write_text(_json.dumps(payload), encoding="utf-8")
+                self.assertEqual(self._run_main(mod, "--check"), 1)
+            finally:
+                mod.SOURCE, mod.GENERATED = old
+
+
 class PortalGeneratorCheckTests(unittest.TestCase):
     """tools/build-portal.py (gate 34): --check accepts committed outputs and
     rejects drift in either generated file without mutating the real docs/ tree."""
