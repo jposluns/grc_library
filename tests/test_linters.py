@@ -13046,6 +13046,53 @@ class TodoNumberPermanenceTests(LinterTestCase):
             import shutil
             shutil.rmtree(root, ignore_errors=True)
 
+class TodoNumberAllocationRobustnessTests(unittest.TestCase):
+    """Gate 91 frozen-allocation invariants beyond the existing --self-test."""
+
+    def _mod(self):
+        return load_linter_module(
+            "tools/build-todo-number-allocation.py",
+            "todo_number_allocation_robustness",
+        )
+
+    def test_below_ceiling_frozen_gap_allocation_flagged(self):
+        """Positive control: 7.4 is below frozen ceiling 7.5 but was never allocated."""
+        mod = self._mod()
+        allowed = set().union(*mod.EXPECTED_LIVE_FROZEN_IDS.values())
+        findings = mod.frozen_floor_violations(
+            {5: 9, 6: 6, 7: 5},
+            allowed | {"7.4"},
+        )
+        self.assertTrue(findings, "a new below-ceiling frozen id must fail")
+        self.assertIn("unrecorded live frozen id 7.4", "\n".join(findings))
+
+    def test_live_frozen_snapshot_passes(self):
+        """Negative control: the committed live-corpus shape remains clean."""
+        mod = self._mod()
+        floor, _ = mod.load_floor(REPO_ROOT)
+        self.assertEqual(
+            mod.frozen_floor_violations(
+                floor,
+                mod.live_public_ids(REPO_ROOT),
+            ),
+            [],
+        )
+
+    def test_frozen_floor_key_parity_mismatch_flagged(self):
+        """Positive control: the documented FROZEN/floor key parity is executable."""
+        mod = self._mod()
+        original = mod.EXPECTED_FROZEN_FLOOR
+        mod.EXPECTED_FROZEN_FLOOR = {5: 9, 6: 6}
+        try:
+            findings = mod.frozen_floor_violations(
+                {5: 9, 6: 6, 7: 5},
+                set().union(*mod.EXPECTED_LIVE_FROZEN_IDS.values()),
+            )
+        finally:
+            mod.EXPECTED_FROZEN_FLOOR = original
+        self.assertIn("EXPECTED_FROZEN_FLOOR keys", "\n".join(findings))
+
+
 class TodoIndexReferenceParityTests(LinterTestCase):
     """tools/lint-todo-index-reference-parity.py (gate 90): the TODO.md index and
     the TODO-REFERENCE.md detail file must be a one-to-one match (id, title, band,
@@ -13127,6 +13174,41 @@ class TodoIndexReferenceParityTests(LinterTestCase):
         r, root = self._run("bij-malformed", idx, ref)
         try:
             self.assertLinterFails(r, "MALFORMED INDEX ROW")
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    def test_malformed_id_without_terminal_pipe_flagged(self):
+        """Positive control for CVAL-3(a): the absent trailing pipe cannot hide 1.X."""
+        idx = self.IDX + "| 1.X | delta (L) | `[public]`\n"
+        ref = self.REF + "### 1.X delta (L)\n\nbody\n"
+        r, root = self._run("bij-malformed-no-terminal", idx, ref)
+        try:
+            self.assertLinterFails(r, "MALFORMED INDEX ROW")
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    def test_valid_id_with_extra_column_flagged(self):
+        """Positive control for CVAL-3(b): parity alone accepts the first three cells."""
+        idx = self.IDX + "| 1.3 | gamma (L) | `[public]` | unexpected |\n"
+        ref = self.REF + "### 1.3 gamma (L)\n\nbody\n"
+        r, root = self._run("bij-malformed-extra-column", idx, ref)
+        try:
+            self.assertLinterFails(r, "MALFORMED INDEX ROW")
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    def test_unrelated_later_h2_table_passes(self):
+        """Negative control for CVAL-3(c): only ID/Item/Tags tables are scanned."""
+        idx = (
+            self.IDX
+            + "\n## Standing conventions\n"
+            + "| Status | Meaning | Owner |\n"
+            + "| --- | --- | --- |\n"
+            + "| open | active convention | maintainer |\n"
+        )
+        r, root = self._run("bij-later-h2-table", idx, self.REF)
+        try:
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         finally:
             import shutil; shutil.rmtree(root, ignore_errors=True)
 

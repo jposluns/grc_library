@@ -22,6 +22,9 @@ reference are not a bijection with matching id, title, band, and position order:
   - ORDER MISMATCH: the id sequence differs between the two files.
   - INDEX DETAIL LEAK: a ``### id`` detail-block heading appearing in the
     index file ([`TODO.md`](../TODO.md)) instead of only in the reference file.
+  - MALFORMED INDEX ROW: a pipe-starting row inside an index table lacks its
+    terminal pipe or exactly three cells, or its first cell is not a valid
+    backlog id (a row missing its LEADING pipe is documented residue).
 
 Adopter-graceful: if ``TODO-REFERENCE.md`` is absent (a clone that has not
 adopted the two-file format), the gate is a no-op OK. Stdlib-only.
@@ -46,6 +49,7 @@ from lint_common import (  # noqa: E402
 
 TODO_REL = "TODO.md"
 REFERENCE_REL = "TODO-REFERENCE.md"
+INDEX_TABLE_HEADER = ("ID", "Item", "Tags")
 
 BAND_RE = re.compile(r"^## (.+?)\s*$")  # any H2 section is a band (Priority N, Time-bounded follow-ups, ...)
 REF_HEADING_RE = re.compile(
@@ -177,40 +181,61 @@ def find_index_detail_leaks(todo_text: str) -> list[str]:
 
 
 def find_malformed_index_rows(todo_text: str) -> list[str]:
-    """An index row under a band that is shaped like an item row (pipe-delimited,
-    3+ cells, not a separator, first cell non-empty and not the ``ID`` header)
-    but whose first cell is NOT a valid backlog id is MALFORMED. ``parse_index``
-    silently SKIPPED these, so a malformed id (and its equally-skipped detail
-    block) could slip through as a vacuous "one-to-one match" (r21 C1). Return the
-    offending first-cell strings. INDEX-side only: the reference-side ``### ``
-    headings are too varied to flag without false positives, and catching either
-    side already breaks the vacuous-clean.
+    """Malformed rows in an actual ``| ID | Item | Tags |`` index table.
 
-    RESIDUE (r21 QA, codex): ``in_band`` matches ANY H2 and never resets, mirroring
-    ``parse_index``'s own band scope. So a FUTURE non-item 3+-column table placed under
-    some later H2 (e.g. a ``| Status | Meaning | Owner |`` legend) would be flagged as
-    malformed. There is no such table today (0 live findings); if one is added, give it
-    an id-shaped first column, move it out of an H2 section, or fence it.
+    Once an index header is seen, every contiguous row that STARTS with a pipe
+    (a table row) must also end with a pipe and hold exactly three cells;
+    non-separator data rows must additionally carry a valid backlog id in cell
+    one. The scan ends at the first line that is not a pipe row, so unrelated
+    tables under later H2 sections are outside its scope. Return the complete
+    offending row strings.
+
+    RESIDUE (dual-family QA of PR #1666, codex): detection is scoped to rows
+    that START with a pipe, so a row missing its LEADING pipe (``id | item |
+    tags |``) ends the table scan rather than being flagged, the mirror of the
+    terminal-pipe direction this catches; and the exact-three-cell rule would
+    flag a future row carrying an unescaped ``|`` inside a cell (claude note),
+    which ``split_row``/``parse`` tolerate via ``cells[:3]``. Neither occurs on
+    the live tree (0 findings); both are routed to close the residual class.
+
+    INDEX-side only: reference-side ``### `` headings are too varied to flag
+    without false positives, and catching the index-side defect already breaks
+    a vacuous-clean match.
     """
     out: list[str] = []
-    in_band = False
+    in_index_table = False
+
     for line in _non_fence_lines(todo_text):
-        if BAND_RE.match(line):
-            in_band = True
+        stripped = line.strip()
+        starts_with_pipe = stripped.startswith("|")
+        ends_with_pipe = stripped.endswith("|")
+        cells = split_row(line) if starts_with_pipe else []
+
+        if not in_index_table:
+            if (starts_with_pipe
+                    and tuple(cells[:3]) == INDEX_TABLE_HEADER):
+                in_index_table = True
+                if not ends_with_pipe or len(cells) != 3:
+                    out.append(stripped)
             continue
-        if not in_band:
+
+        if not starts_with_pipe:
+            in_index_table = False
             continue
-        s = line.strip()
-        if not (s.startswith("|") and s.endswith("|")):
+
+        exact_shape = ends_with_pipe and len(cells) == 3
+        if is_separator_row(cells):
+            if not exact_shape:
+                out.append(stripped)
             continue
-        cells = split_row(line)
-        if len(cells) < 3 or is_separator_row(cells):
-            continue
-        first = cells[0].strip()
-        if not first or first.lower() == "id":
-            continue
-        if not TODO_ID_RE.match(first):
-            out.append(first)
+
+        first = cells[0].strip() if cells else ""
+        if (not exact_shape
+                or not first
+                or first.lower() == "id"
+                or not TODO_ID_RE.match(first)):
+            out.append(stripped)
+
     return out
 
 
@@ -231,9 +256,11 @@ def run(root: Path) -> int:
         findings.append(f"INDEX DETAIL LEAK: {TODO_REL} contains a detail block heading "
                         f"({leak.strip()!r}); detail blocks belong only in {REFERENCE_REL}")
     for bad in find_malformed_index_rows(todo_text):
-        findings.append(f"MALFORMED INDEX ROW: {TODO_REL} has an item-shaped row whose first "
-                        f"cell ({bad!r}) is not a valid backlog id; parse skipped it silently "
-                        f"(fix the id or reshape the row)")
+        findings.append(
+            f"MALFORMED INDEX ROW: {TODO_REL} row {bad!r} must have both bounding "
+            "pipes, exactly three cells (`ID`, `Item`, `Tags`), and a valid backlog "
+            "id in its first cell"
+        )
     if not findings:
         print(
             f"OK: {len(index)} index row(s) and {len(reference)} detail block(s) are a "
