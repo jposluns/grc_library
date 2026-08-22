@@ -12,7 +12,15 @@ close to the number on the same line.
 
 Terms currently tracked (see TERM_PATTERNS for the live set):
 
+  - Privileged-role activation maximum (in minutes or hours; PAM-authoritative)
   - GDPR breach-notification window (in hours)
+
+The privileged-role-activation-maximum pattern binds the authoritative
+PAM Section 4.2 value to the self-contained portable authentication
+guardrail. It matches both the PAM term-before-value form and the
+guardrail value-before-term form. This term is intentionally scanned
+inside fenced blocks because the guardrail renders its normative timeout
+row in a code fence.
 
 The dormant P1/P2/P3 acknowledgement scaffold patterns (added narrow per
 the Phase 23.26 false-positive analysis, matching 0 documents and kept
@@ -40,10 +48,10 @@ legitimate sub-deadlines that need per-deadline patterns (NIS 2 has
 few times in the corpus to justify a curated pattern (DORA 4-hour
 appears in one document).
 
-TERM_PATTERNS currently has one live entry (GDPR-breach-notification-hours),
-whose unit capture group is always "hour"; the minute/day/business-day rows of
-UNIT_TO_MINUTES are forward scaffolding for a future multi-unit term, not an
-active cross-unit comparison today.
+TERM_PATTERNS currently has two live entries. The activation-maximum term
+accepts minute/hour units; the GDPR-breach-notification term's unit capture
+group is always "hour". The day/business-day rows of UNIT_TO_MINUTES remain
+forward scaffolding for a future term.
 
 Usage:
     python3 tools/lint-cross-doc-numbers.py
@@ -85,6 +93,17 @@ EXEMPT_FILES = {
 # Patterns capture both the time/duration value AND a unit, normalizing
 # minute/hour/day equivalences during comparison.
 TERM_PATTERNS: dict[str, re.Pattern[str]] = {
+    # Privileged-role activation maximum. PAM Section 4.2 is authoritative;
+    # the alternative value-before-term form binds the portable authentication
+    # guardrail. The lookahead may not cross a semicolon, so the guardrail row
+    # "8 hours absolute; 1 hour for elevated privilege sessions" captures the
+    # elevated-privilege value rather than the standard-session timeout.
+    "privileged-role-activation-maximum": re.compile(
+        r"(?:\bprivileged-role activation\b[^.;\n]{0,160}?"
+        r"|(?=[^.;\n]{0,80}\bfor elevated privilege sessions\b))"
+        r"(\d+)[\s\-]*(minute|hour)s?\b",
+        re.IGNORECASE,
+    ),
     # GDPR (and UK GDPR) breach notification: Article 33 sets a 72-hour
     # deadline. Captures the first N-hour fragment after "GDPR" on the
     # same line, requiring "breach", "notif", "report", or "notify" to
@@ -95,6 +114,12 @@ TERM_PATTERNS: dict[str, re.Pattern[str]] = {
         re.IGNORECASE,
     ),
 }
+
+# Most tracked terms inspect prose only. This term also has a normative
+# carrier inside the portable guardrail's fenced timeout block.
+TERMS_SCANNED_IN_CODE_FENCES: frozenset[str] = frozenset(
+    {"privileged-role-activation-maximum"}
+)
 
 UNIT_TO_MINUTES = {
     "minute": 1,
@@ -116,8 +141,11 @@ def scan(path: Path) -> dict[str, set[tuple[int, str]]]:
     text = read_text_safe(path)
     if text is None:
         return out
-    for _lineno, line in iter_non_code_lines(text):
-        for term, pattern in TERM_PATTERNS.items():
+    non_code_lines = tuple(iter_non_code_lines(text))
+    all_lines = tuple(enumerate(text.splitlines(), start=1))
+    for term, pattern in TERM_PATTERNS.items():
+        lines = all_lines if term in TERMS_SCANNED_IN_CODE_FENCES else non_code_lines
+        for _lineno, line in lines:
             for m in pattern.finditer(line):
                 value = int(m.group(1))
                 unit = m.group(2)

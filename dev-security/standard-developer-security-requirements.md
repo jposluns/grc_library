@@ -2,8 +2,8 @@
 
 **Document Title:** Developer Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.17\
-**Date:** 2026-08-21\
+**Version:** 1.1.18\
+**Date:** 2026-08-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -88,7 +88,7 @@ Any application onboarding to a production environment must meet the following a
 
 ### 3.6 Session management
 
-Tokens: minimum 128 bits entropy; invalidated on logout; absolute timeouts (8 hours standard; elevated-privilege session tokens must not exceed the privileged-role activation maximum in the [Privileged Access Management Standard](../security/standard-privileged-access-management.md) §4.2); never in URLs or logs; refresh tokens rotatable and revocable.
+Tokens: minimum 128 bits entropy; invalidated on logout; absolute timeouts (8 hours standard; an elevated-privilege session token must expire no later than the end of its corresponding privileged-role activation, whose duration is governed by the [Privileged Access Management Standard](../security/standard-privileged-access-management.md) §4.2); never in URLs or logs; refresh tokens rotatable and revocable.
 
 *CCM: IAM-13, IAM-14, IAM-15*
 
