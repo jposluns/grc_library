@@ -2,11 +2,11 @@
 
 **Document Title:** Document Architecture and Interrelationship Framework\
 **Document Type:** Framework\
-**Version:** 1.1.3\
-**Date:** 2026-07-08\
+**Version:** 1.1.4\
+**Date:** 2026-08-22\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/register-role-authority.md`](register-role-authority.md), [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md), [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md)\
+**Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/register-role-authority.md`](register-role-authority.md), [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md), [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md), [`governance/framework-governance-relationship-and-flow-modelling.md`](framework-governance-relationship-and-flow-modelling.md)\
 **Classification:** Public\
 **Category:** Core Governance\
 **Review Frequency:** Annual and upon material repository structure change\
@@ -41,6 +41,8 @@ It governs:
 ---
 
 ## Document hierarchy
+
+This hierarchy is the document-architecture viewpoint, a document-type layering rather than a universal ordering of governance entities. Entity placement is contextual across viewpoints. The [Governance Relationship and Flow Modelling Framework](framework-governance-relationship-and-flow-modelling.md) models governance entities as directed relationship flows and states that frameworks and policies are not forced into one universal order.
 
 | Level | Type | Function | Parent Relationship | Output |
 | --- | --- | --- | --- | --- |
