@@ -44,6 +44,20 @@ ACTIVE = [(1, "P1 / fix series"), (2, "P2 / content series"),
           (3, "P3 / tooling series"), (4, "P4 / adopter series")]
 FROZEN = [5, 6, 7]
 
+# C3 (r21): a FROZEN series takes NO new allocations, so its public floor is
+# IMMUTABLE. floor_violations() catches a new frozen-series id only when the floor
+# is NOT also raised; a floor bumped in lock-step with a new frozen id would slip
+# through. This ceiling pins each frozen series' floor to its frozen value, so
+# raising a frozen series' floor (the only way to launder a new frozen allocation)
+# fails. Keys MUST match FROZEN.
+EXPECTED_FROZEN_FLOOR = {5: 9, 6: 6, 7: 5}
+
+
+def frozen_floor_violations(floor):
+    """Frozen series whose floor differs from its immutable ceiling (new draw attempt)."""
+    return [f"series {s}.{floor.get(s, 0)} != frozen ceiling {s}.{c}"
+            for s, c in EXPECTED_FROZEN_FLOOR.items() if floor.get(s, 0) != c]
+
 HEADING_ID = re.compile(r"^### ((?:P-)?\d+(?:\.\d+)+[a-z]?|TF-\d+)\b")
 
 
@@ -129,8 +143,10 @@ def render_block(tops, tf_max):
 
 
 def _splice(todo_text, block):
-    if BEGIN not in todo_text or END not in todo_text:
-        raise ValueError(f"allocation sentinels not found ({BEGIN} / {END})")
+    nb, ne = todo_text.count(BEGIN), todo_text.count(END)
+    if nb != 1 or ne != 1:
+        raise ValueError(f"allocation sentinels must appear exactly once ({BEGIN} / {END}); "
+                         f"found {nb} BEGIN and {ne} END")
     pre, rest = todo_text.split(BEGIN, 1)
     _, post = rest.split(END, 1)
     return f"{pre}{BEGIN}\n{block}\n{END}{post}"
@@ -151,6 +167,11 @@ def main(argv):
     if bad:
         sys.stderr.write("FAIL: the number floor is BELOW a live id (bump "
                          f"{FLOOR_PATH}): {'; '.join(bad)}\n")
+        return 1
+    frozen_bad = frozen_floor_violations(floor)
+    if frozen_bad:
+        sys.stderr.write("FAIL: a FROZEN series' floor changed; frozen series take no new "
+                         f"allocations: {'; '.join(frozen_bad)}\n")
         return 1
     try:
         new_todo = _splice(todo, render_block(tops, tf_max))
@@ -174,6 +195,19 @@ def self_test():
     import unittest
 
     class T(unittest.TestCase):
+        def test_frozen_floor_immutable(self):
+            # C3 (r21): frozen-series floor at its ceiling passes; a raise fails.
+            self.assertEqual(frozen_floor_violations({5: 9, 6: 6, 7: 5}), [])
+            self.assertTrue(frozen_floor_violations({5: 10, 6: 6, 7: 5}))
+
+        def test_splice_requires_exactly_one_sentinel(self):
+            # C4 (r21): a duplicate END sentinel must raise, not be accepted.
+            good = f"a\n{BEGIN}\nX\n{END}\nb"
+            self.assertIn("Y", _splice(good.replace("X", "Y"), "Y"))
+            dup = f"a\n{BEGIN}\nX\n{END}\nb\n{END}\n"
+            with self.assertRaises(ValueError):
+                _splice(dup, "X")
+
         def test_render_shape(self):
             block = render_block({1: 30, 2: 32, 3: 248, 4: 31, 5: 9, 6: 6, 7: 5}, 3)
             self.assertIn("- **Next item number: 1.31.** (P1 / fix series)", block)
