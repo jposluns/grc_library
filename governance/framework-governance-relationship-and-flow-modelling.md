@@ -61,7 +61,7 @@ When this document discusses a relationship verb as a vocabulary token rather th
 5. **Inverses are inferred by default.** Every directed relationship implies an inverse reading, and the inverse is inferred, not stored. Storing an inverse as its own record requires a recorded justification, such as a recurring navigation need.
 6. **Natures stay distinguishable.** A relationship carries at least 1 of 5 natures: structural, inferred, assessed, temporal, or evidence-dependent. A relationship may carry several natures at once, and a model must keep the natures distinguishable rather than flattening them into undifferentiated edges.
 7. **Assessed outcomes require support.** A relationship expressing compliance, satisfaction, fulfilment, conformance, or effectiveness must carry evidence, the assessment that established it, a validity period, and a scope. Such a relationship must never be recorded as a permanent structural fact.
-8. **Controlled vocabulary.** Every approved verb has a controlled definition, a relationship class, permitted source and destination categories, and an inverse reading. A verb outside the controlled set must not appear in a relationship assertion until it is added through the lifecycle process in this document.
+8. **Controlled vocabulary.** Every approved verb has a controlled definition, a relationship class, typical source and destination categories (typical rather than strict, since a node's multi-category membership can license a departure in a declared viewpoint), and an inverse reading. A verb outside the controlled set must not appear in a relationship assertion until it is added through the lifecycle process in this document.
 9. **Orthogonal dimensions.** Node class, functional category, authority origin, binding force, and layout layer are independent dimensions of a model. Layer is a property of the view, never of the node: no node class carries an intrinsic layer.
 
 ---
@@ -127,7 +127,7 @@ The following clusters separate verbs that untrained usage treats as interchange
 - **`requires` and `recommends`.** Use `requires` only for obligation. Advisory force is carried by `informs`; an adopter who needs a distinct advisory-requirement edge registers `recommends` through the lifecycle process rather than overloading `requires`.
 - **`informs`, `references`, and `adopts`.** A source `informs` a destination when it shapes the destination's content, `references` it when it merely cites it, and an organization `adopts` a source when it voluntarily commits to it. Influence, citation, and commitment are 3 different assertions with 3 different consequences.
 - **`maps to` and `aligns with`.** Use `maps to` for an identifier-level cross-reference maintained for traceability. The token `aligns with` asserts a broader consistency judgement, which is an assessed outcome, not a structural fact: record it, if at all, only as an assessed-nature relationship with evidence and validity, per the next subsection.
-- **`implements` and `enforces`.** An implementation entity `implements` a requirement when it puts the requirement into operation, and `enforces` it when it compels conformance at run time. A policy interpreting a framework does neither: interpretation is `adopts` or the inverse reading of `informs`, which is why `implements` is restricted to implementation-category sources.
+- **`implements` and `enforces`.** An implementation entity `implements` a requirement when it puts the requirement into operation, and `enforces` it when it compels conformance at run time. A policy interpreting a framework does neither: interpretation is `adopts` or the inverse reading of `informs`, which is why `implements` takes an implementation-category source. A governance document that operationalizes a higher instrument, an organizational standard putting a policy into operation or a procedure putting a standard into operation, acts in that implementation capacity (a multi-category reading, principle 9) and is a valid `implements` source; a document that merely interprets does not operationalize and uses `adopts` or `informs` instead.
 - **`verifies`, `validates`, and `demonstrates`.** Verification (checking against a specification) and validation (checking fitness for purpose) are assessment activities: model both with `assesses` and record the check type on the assessment. What evidence does is `demonstrates`. Prefer `demonstrates` over `evidences`.
 
 ### Rejected and normalized verbs
@@ -139,7 +139,7 @@ The following clusters separate verbs that untrained usage treats as interchange
 
 ### Assessed outcomes are not structural edges
 
-The tokens `satisfies`, `fulfils`, `conforms to`, `complies with`, and `meets` are part of this framework's controlled set alongside the 18 structural verbs, so principle 8's prohibition on out-of-set verbs does not exclude them; they form a distinct assessed-outcome group governed by the conditions below. They express assessed or inferred outcomes. Each depends on evidence, on the assessment that established it, on time, and on scope, and each decays as the implementation, the requirement, or the environment changes. A relationship using any of these verbs must carry the assessed nature, at least 1 evidence reference, a validity period, and the scope within which it was established, and it must never be recorded as a permanent structural edge. A model that stores a control-`satisfies`-objective assertion as a timeless fact has converted an assessment result into an architecture claim, which is the root of several anti-patterns in this framework.
+The tokens `satisfies`, `fulfils`, `conforms to`, `complies with`, and `meets` are part of this framework's controlled set alongside the 18 structural verbs, so principle 8's prohibition on out-of-set verbs does not exclude them; they form a distinct assessed-outcome group with a shared controlled contract: their relationship class is assessed outcome, they typically take an implementation-category or governance-category source and a governance-category or authority-category destination, and their inverse reads `is satisfied by` and its parallels, always stored as an inferred reading. They are governed by the conditions below. They express assessed or inferred outcomes. Each depends on evidence, on the assessment that established it, on time, and on scope, and each decays as the implementation, the requirement, or the environment changes. A relationship using any of these verbs must carry the assessed nature, at least 1 evidence reference, a validity period, and the scope within which it was established, and it must never be recorded as a permanent structural edge. A model that stores a control-`satisfies`-objective assertion as a timeless fact has converted an assessment result into an architecture claim, which is the root of several anti-patterns in this framework.
 
 ---
 
@@ -267,7 +267,7 @@ EVIDENCE informs ASSESSMENT    (associative; the record shapes the activity's co
 **Direction roles.** Every rendered edge carries 1 of 4 direction roles relative to the view's declared direction rule:
 
 - **With-primary:** a primary edge whose semantic direction matches the rendered flow.
-- **Against-primary:** a primary edge whose semantic direction opposes the rendered flow. The view places its nodes by the edge's inferred inverse reading; the stored edge keeps its semantic direction. a procedure-`implements`-standard edge in a top-down governance view is the standing example.
+- **Against-primary:** a primary edge whose semantic direction opposes the rendered flow. The view places its nodes by the edge's inferred inverse reading; the stored edge keeps its semantic direction. A procedure-`implements`-standard edge in a top-down governance view is the standing example.
 - **Lateral:** an edge between peers of the same layer in the current view.
 - **Cross-layer:** an associative edge that skips layers. Cross-layer edges are permitted and must not determine placement.
 
@@ -361,7 +361,7 @@ The library's own matrices illustrate the inverse-storage rule. The forward `map
 
 The record below is non-normative. It is a starting point for an adopter who wants to hold relationship assertions in a register, a traceability tool, or a graph database, and it is deliberately expressed with placeholder identifiers: no real standard, control, or framework identifier appears, and no third-party text is reproduced. This library mandates no schema and ships no validation of such records.
 
-The example deliberately records an assessed outcome, the most demanding case, because it shows every field that principle 7 places on such an edge: the assessed nature, the evidence, the assessment provenance, the validity window, and the scope within which it was established. A structural edge would omit the evidence and validity content and carry the structural nature alone.
+The example deliberately records an assessed outcome, the most demanding case, because it shows every field that principle 7 and the assessed-outcome subsection place on such an edge: the assessed nature, the evidence, the assessment provenance, the validity window, and the scope within which it was established. A structural edge would omit the evidence and validity content and carry the structural nature alone.
 
 ```yaml
 # Non-normative illustrative record. Placeholder identifiers only; this is an
@@ -400,7 +400,7 @@ status: active
 | --- | --- |
 | `id` | Stable identifier of the relationship record itself. |
 | `source`, `destination` | The 2 endpoints, each with an identifier and a node class. |
-| `verb` | The relationship verb. A structural edge uses a controlled-set verb; an assessed-outcome verb (here `satisfies`) is permitted only when the natures and supporting fields below accompany it. |
+| `verb` | The relationship verb. A structural edge uses a structural verb; an assessed-outcome verb (here `satisfies`), also part of the controlled set, is permitted only when the natures and supporting fields below accompany it. |
 | `relationship_class` | The class the verb belongs to (authority, requirement, applicability, containment, definition, specification, implementation, evidence generation, assurance, risk treatment, influence, citation, commitment, correspondence, or assessed outcome). |
 | `layout_role` | Whether the edge places nodes (primary) or annotates (associative) in the declared viewpoint. |
 | `nature` | One or more of: structural, inferred, assessed, temporal, evidence-dependent. |
@@ -456,7 +456,7 @@ The Owner named in this document's metadata owns the relationship vocabulary: th
 
 Adding a verb follows 4 steps:
 
-1. Propose the verb with a definition, a relationship class, permitted source and destination categories, a typical layout role, and an inverse reading.
+1. Propose the verb with a definition, a relationship class, typical source and destination categories, a typical layout role, and an inverse reading.
 2. Check distinctness against the existing set and the distinction clusters; a candidate that an existing verb or a recorded normalization already covers is rejected.
 3. Record the term in [`governance/register-key-terms-and-definitions.md`](register-key-terms-and-definitions.md) and add the verb's row to the controlled set in this document.
 4. Bump this document's version under the library's change control.
