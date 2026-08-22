@@ -4838,7 +4838,7 @@ documents:
   domain: "governance"
   type: "Specification"
   title: "Audit Programme Specification"
-  version: "1.17.107"
+  version: "1.17.108"
   date: "2026-08-21"
   owner: "Governance Library Maintainer"
   approving_authority: "Governance Library Maintainer"
