@@ -14043,6 +14043,20 @@ class IndexHeaderParityTests(LinterTestCase):
             r = run_linter(self.SCRIPT, "--root", d)
             self.assertEqual(r.returncode, 0, f"allow-listed multi-cadence row must pass.\n{r.stdout}")
 
+    def test_allowlisted_path_with_changed_shape_fails(self) -> None:
+        # Fail-closed pinning (codex /validate-pr hardening, PR #1665): the
+        # allow-listed MCP path but with a DIFFERENT cadence shape than the pinned
+        # (index {QUARTERLY} / header {CONTINUOUS, QUARTERLY}) must FAIL, proving
+        # the exception is keyed to the exact pinned base sets, not the path alone.
+        with tempfile.TemporaryDirectory() as d:
+            self._write(
+                d,
+                rows=[self._mcp_row(freq="Quarterly")],
+                mcp=("T", "AI Security Maintainer", "Monthly"),
+            )
+            r = run_linter(self.SCRIPT, "--root", d)
+            self.assertLinterFails(r, "base cadence set mismatch")
+
     def test_exact_equal_base_set_passes(self) -> None:
         with tempfile.TemporaryDirectory() as d:
             self._write(
