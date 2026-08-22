@@ -82,8 +82,9 @@ WORKFLOW_SETUP_STEPS = {"Checkout", "Set up Python"}
 # Workflow steps that are PR-only delta gates documented in
 # governance/specification-audit-programme.md §6.1. These are not part
 # of the corpus inventory in §6 and therefore are excluded from
-# the parity audit. Delta gates run only on pull_request events and
-# inspect the PR's change set rather than the repository state at HEAD.
+# the parity audit. Delta gates run in quality.yml on pull_request events
+# and locally via the pre-push guard (run-pr-time-checks.sh); they inspect
+# the PR's change set rather than the repository state at HEAD.
 WORKFLOW_DELTA_GATE_STEPS = {
     "CHANGELOG-on-PR check",
     "Per-PR version-bump check",
@@ -318,7 +319,7 @@ def parse_precommit(path: Path) -> list[tuple[int, str, str]]:
 #     hook runs `build-taxonomy.py`/`build-narrative-registry.py`/`build-portal.py` in write mode; the §6 gates
 #     run the SAME scripts WITH `--check`, so the `--check` flag is the
 #     discriminator, not the script name.)
-# Gap (ii): the eleven live PR-only delta gates (D1-D12, D6 retired) live only in the workflow with no
+# Gap (ii): the eleven live PR-time delta gates (D1-D12, D6 retired) run in the workflow (authoritative) and the local pre-push runner, with no
 # cross-surface parity. The delta-gate guard confirms each D-numbered gate in the
 # PR-time runner (PRTIME_PATH) maps to a WORKFLOW_DELTA_GATE_STEPS step of the
 # same script, and that the D-numbers are contiguous D1..D12 apart from retired numbers (D6).

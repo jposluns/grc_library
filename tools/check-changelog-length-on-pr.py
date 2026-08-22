@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Verify a pull request's newly-added root CHANGELOG.md entries stay short (delta gate D7).
 
-This is a CI-only PR-time delta gate (D7), not part of the corpus audit
+This is a PR-time delta gate (D7), not part of the corpus audit
 programme. The corpus gates check repository state at HEAD; this script compares
 HEAD to the PR's merge-base and inspects only the compact root CHANGELOG.md
 ENTRY lines the PR ADDS, failing if any added entry's summary exceeds a length
