@@ -255,7 +255,7 @@ repos:
         types: [markdown]
 
       - id: regenerate-derived-artefacts
-        name: Regenerate taxonomy, narrative registry, portal, and maturity scorecard
+        name: Regenerate taxonomy, narrative registry, portal, maturity scorecard, and relationship model
         entry: bash -c 'python3 tools/build-taxonomy.py && python3 tools/build-narrative-registry.py && python3 tools/build-portal.py && python3 tools/build-relationship-model.py'
         language: system
         pass_filenames: false

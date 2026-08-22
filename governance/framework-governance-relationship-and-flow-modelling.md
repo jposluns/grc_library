@@ -480,7 +480,7 @@ Review of this framework follows the cadence in the metadata block: annual, and 
 
 - The framework models assertions about entities, never the truth of what they assert. A validated edge is a well-formed claim; whether the claim holds in the world is established by assessment and evidence, outside the model.
 - Assessed outcomes decay. A compliance or satisfaction edge is only as current as its validity period and its most recent supporting assessment.
-- This version ships no mechanical validation of relationship records. The illustrative record is a starting point only; a generated relationship model with its own regeneration gate is a separate, decision-gated work item and is not promised by this document.
+- The library's generated relationship model and its regeneration gate (the audit programme's relationship-model sync gate) validate the library's own relationship-source records only. An adopter's records are neither validated nor schema-mandated, and the illustrative record is an adopter starting point only.
 - The framework deliberately contains no exhaustive node-by-verb compatibility matrix and no embedded diagrams. Category-level compatibility in the verb table, the 9 validation tests, and the generation guidance carry that weight in prose.
 - A `maps to` correspondence, however well validated, does not establish compliance or certification against any external framework or regulation.
 
