@@ -284,6 +284,9 @@ jobs:
       - name: Index-header parity audit
         run: python3 tools/lint-index-header-parity.py --strict-owner
 
+      - name: Relationship model in sync
+        run: python3 tools/build-relationship-model.py --check
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py

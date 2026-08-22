@@ -65,7 +65,7 @@ STAMP_RE = re.compile(
     r'\d{4}-\d{2}-\d{2} UTC\s*$', re.M)
 MERGE_PR_RE = re.compile(r'\(#(\d+)\)')
 PATH_BULLET_RE = re.compile(r'^- `([^`]+\.(?:md|py|sh|yml|yaml|csv))`', re.M)
-SECTION_ANCHOR_RE = re.compile(r'§(\d+(?:\.\d+)+)')  # full depth: §2.25.1 not truncated to 2.25
+SECTION_ANCHOR_RE = re.compile(r'§(\d+(?:\.\d+)+)')  # full depth: e.g. a three-level anchor is captured whole, not truncated
 SR_ANCHOR_RE = re.compile(r'\bSR-(\d+)\b')
 ADVISORY_PRS_BEHIND = 15
 

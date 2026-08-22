@@ -1,0 +1,226 @@
+{
+  "_comment": [
+    "Hand-maintained relationship source records for the GRC Documentation Library.",
+    "Governed by governance/framework-governance-relationship-and-flow-modelling.md:",
+    "every record must use the controlled verb vocabulary, the node-class taxonomy,",
+    "and the field shape of that framework's illustrative machine-readable record.",
+    "Identifiers are placeholders only: no real standard, control, or framework",
+    "identifier appears, and no third-party text is reproduced. The records are the",
+    "library's own illustrative relationship data; adopters are not required to",
+    "adopt them. Regenerate the derived model with",
+    "python3 tools/build-relationship-model.py after any edit here."
+  ],
+  "records": [
+    {
+      "id": "rel-seed-0001",
+      "source": {
+        "id": "EXAMPLE-REGULATION-01",
+        "class": "regulation or law"
+      },
+      "verb": "requires",
+      "destination": {
+        "id": "EXAMPLE-OBJECTIVE-01",
+        "class": "control objective"
+      },
+      "relationship_class": "requirement",
+      "layout_role": "primary",
+      "nature": ["structural"],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "legal obligation",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-seed-0002",
+      "source": {
+        "id": "EXAMPLE-FRAMEWORK-01",
+        "class": "framework"
+      },
+      "verb": "contains",
+      "destination": {
+        "id": "EXAMPLE-CATALOGUE-01",
+        "class": "control catalogue"
+      },
+      "relationship_class": "containment",
+      "layout_role": "primary",
+      "nature": ["structural"],
+      "viewpoint": "applicability",
+      "direction_rule": "the source of applicability places above the scope it reaches",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-seed-0003",
+      "source": {
+        "id": "EXAMPLE-PROCEDURE-01",
+        "class": "procedure"
+      },
+      "verb": "implements",
+      "destination": {
+        "id": "EXAMPLE-STANDARD-ORG-01",
+        "class": "organizational standard"
+      },
+      "relationship_class": "implementation",
+      "layout_role": "primary",
+      "nature": ["structural"],
+      "viewpoint": "governance",
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "inverse": {
+        "verb": "is implemented by",
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "organizationally mandatory",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-seed-0004",
+      "source": {
+        "id": "EXAMPLE-GUIDELINE-01",
+        "class": "guideline"
+      },
+      "verb": "informs",
+      "destination": {
+        "id": "EXAMPLE-PROCEDURE-01",
+        "class": "procedure"
+      },
+      "relationship_class": "influence",
+      "layout_role": "associative",
+      "nature": ["structural"],
+      "viewpoint": "governance",
+      "direction_rule": "direction-setting documents place above the documents that carry their direction out",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "organizationally recommended",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-seed-0005",
+      "source": {
+        "id": "EXAMPLE-CONTROL-01",
+        "class": "technical control"
+      },
+      "verb": "satisfies",
+      "destination": {
+        "id": "EXAMPLE-OBJECTIVE-01",
+        "class": "control objective"
+      },
+      "relationship_class": "assessed outcome",
+      "layout_role": "associative",
+      "nature": ["assessed", "temporal", "evidence-dependent"],
+      "viewpoint": "assurance",
+      "direction_rule": "the asserting entity points to the requirement whose satisfaction is asserted",
+      "inverse": {
+        "verb": "is satisfied by",
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": "2026-01-01",
+        "to": null
+      },
+      "authority_level": "evidence category",
+      "evidence_refs": ["EXAMPLE-EVIDENCE-01"],
+      "provenance": "EXAMPLE-ASSESSMENT-01",
+      "scope": "EXAMPLE-SCOPE-01",
+      "status": "active"
+    },
+    {
+      "id": "rel-seed-0006",
+      "source": {
+        "id": "EXAMPLE-POLICY-01",
+        "class": "policy"
+      },
+      "verb": "applies to",
+      "destination": {
+        "id": "EXAMPLE-ORGANIZATION-01",
+        "class": "organization"
+      },
+      "relationship_class": "applicability",
+      "layout_role": "primary",
+      "nature": ["structural"],
+      "viewpoint": "applicability",
+      "direction_rule": "the source of applicability places above the scope it reaches",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "organizationally mandatory",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-seed-0007",
+      "source": {
+        "id": "EXAMPLE-FRAMEWORK-01",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "EXAMPLE-REGULATION-01",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": ["structural"],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": "is mapped from",
+        "storage": "stored",
+        "justification": "recurring reverse-lookup navigation need, mirroring the justified stored inverse worked example (the reverse framework-control crosswalk) in the governing framework"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    }
+  ]
+}
