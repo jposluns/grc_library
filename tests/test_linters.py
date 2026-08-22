@@ -4084,6 +4084,26 @@ class CrossDocNumbersTests(LinterTestCase):
         result = run_linter("tools/lint-cross-doc-numbers.py", fixture_a, fixture_b)
         self.assertLinterFails(result, "GDPR-breach-notification-hours")
 
+    def test_privileged_role_activation_maximum_divergence_flagged(self) -> None:
+        # F43: the activation-maximum term binds PAM (prose) to the portable
+        # guardrail (inside a code fence). A fenced divergence must still flag.
+        fixture_a = self.make_fixture(
+            "standard-pam-activation-1h.md",
+            VALID_METADATA
+            + "\n\nThe default maximum duration of a single privileged-role activation is 1 hour.\n",
+        )
+        fixture_b = self.make_fixture(
+            "guardrail-activation-2h.md",
+            VALID_METADATA.replace(
+                "tests/tmp/standard-test.md", "tests/tmp/guardrail-activation-2h.md"
+            )
+            + "\n\n```\n"
+            + "Timeout: 8 hours absolute; 2 hours for elevated privilege sessions\n"
+            + "```\n",
+        )
+        result = run_linter("tools/lint-cross-doc-numbers.py", fixture_a, fixture_b)
+        self.assertLinterFails(result, "privileged-role-activation-maximum")
+
 
 class AuditGateParityTests(LinterTestCase):
     """tools/lint-audit-gate-parity.py
