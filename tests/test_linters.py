@@ -13957,8 +13957,8 @@ class IndexHeaderParityTests(LinterTestCase):
 
     The index register mirrors each active document's Owner Role and Review
     Frequency from that document's own header. This gate locks the mirror:
-    cadence uses an empty-intersection token rule (base-plus-trigger passes,
-    a genuine disagreement fails, an unrecognizable cadence is a finding);
+    cadence requires base-token-set equality (base-plus-trigger passes), with
+    pinned per-document exceptions for legitimate multi-cadence documents;
     owner uses strict equality gated by --strict-owner. Both path-resolution
     branches (same-dir governance target and ../domain target) are exercised.
     """
@@ -13981,7 +13981,7 @@ class IndexHeaderParityTests(LinterTestCase):
         return (f"| {domain} | {typ} | {title} | "
                 f"[`{path_disp}`]({path_tgt}) | {owner} | {freq} | {fam} | {disp} |")
 
-    def _write(self, d: str, *, rows: list[str], gov=None, ai=None) -> None:
+    def _write(self, d: str, *, rows: list[str], gov=None, ai=None, mcp=None) -> None:
         root = Path(d)
         (root / "governance").mkdir(parents=True, exist_ok=True)
         (root / "ai").mkdir(parents=True, exist_ok=True)
@@ -13989,6 +13989,8 @@ class IndexHeaderParityTests(LinterTestCase):
             (root / "governance/charter-test.md").write_text(self._doc(*gov), encoding="utf-8")
         if ai is not None:
             (root / "ai/framework-test.md").write_text(self._doc(*ai), encoding="utf-8")
+        if mcp is not None:
+            (root / "ai/register-mcp-server.md").write_text(self._doc(*mcp), encoding="utf-8")
         table = "\n".join([self.HEADER, self.SEP] + rows)
         (root / "governance/register-document-index-and-classification.md").write_text(
             "# Document Index\n\n" + table + "\n", encoding="utf-8")
@@ -14002,6 +14004,11 @@ class IndexHeaderParityTests(LinterTestCase):
         return self._row(path_disp="ai/framework-test.md", path_tgt="../ai/framework-test.md",
                          owner=owner, freq=freq, domain=domain, typ=typ, **kw)
 
+    def _mcp_row(self, *, owner="AI Security Maintainer", freq="Quarterly", **kw) -> str:
+        return self._row(path_disp="ai/register-mcp-server.md",
+                         path_tgt="../ai/register-mcp-server.md", owner=owner, freq=freq,
+                         domain="ai", typ="Register", **kw)
+
     def test_base_plus_trigger_cadence_not_flagged(self) -> None:
         # Both path branches; header adds a trigger clause on the same base cadence.
         with tempfile.TemporaryDirectory() as d:
@@ -14014,15 +14021,37 @@ class IndexHeaderParityTests(LinterTestCase):
             r = run_linter(self.SCRIPT, "--root", d)
             self.assertEqual(r.returncode, 0, f"base+trigger must pass.\n{r.stdout}\n{r.stderr}")
 
-    def test_multi_cadence_intersection_not_flagged(self) -> None:
+    def test_unallowlisted_header_base_superset_flagged(self) -> None:
         with tempfile.TemporaryDirectory() as d:
             self._write(
                 d,
-                rows=[self._gov_row(freq="Continuous")],
-                gov=("T", "Chief Risk Officer", "Continuous; CISO review monthly; full review annually"),
+                rows=[self._gov_row(freq="Annual")],
+                gov=("T", "Chief Risk Officer",
+                     "Quarterly review of register entries; annual full review"),
             )
             r = run_linter(self.SCRIPT, "--root", d)
-            self.assertEqual(r.returncode, 0, f"multi-cadence intersection must pass.\n{r.stdout}")
+            self.assertLinterFails(r, "base cadence set mismatch")
+
+    def test_allowlisted_multi_cadence_primary_passes(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            self._write(
+                d,
+                rows=[self._mcp_row()],
+                mcp=("T", "AI Security Maintainer",
+                     "Quarterly and continuously updated upon server registration, change, or retirement"),
+            )
+            r = run_linter(self.SCRIPT, "--root", d)
+            self.assertEqual(r.returncode, 0, f"allow-listed multi-cadence row must pass.\n{r.stdout}")
+
+    def test_exact_equal_base_set_passes(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            self._write(
+                d,
+                rows=[self._gov_row(freq="Continuous / Monthly")],
+                gov=("T", "Chief Risk Officer", "Continuous; monthly"),
+            )
+            r = run_linter(self.SCRIPT, "--root", d)
+            self.assertEqual(r.returncode, 0, f"equal base sets must pass.\n{r.stdout}")
 
     def test_review_frequency_mismatch_flagged(self) -> None:
         with tempfile.TemporaryDirectory() as d:
@@ -14032,7 +14061,7 @@ class IndexHeaderParityTests(LinterTestCase):
                 gov=("T", "Chief Risk Officer", "Quarterly"),
             )
             r = run_linter(self.SCRIPT, "--root", d)
-            self.assertLinterFails(r, "disjoint base cadence")
+            self.assertLinterFails(r, "base cadence set mismatch")
 
     def test_owner_match_passes_under_strict(self) -> None:
         with tempfile.TemporaryDirectory() as d:
@@ -14075,7 +14104,7 @@ class IndexHeaderParityTests(LinterTestCase):
                 gov=("T", "Chief Risk Officer", "Quarterly and upon material change"),
             )
             r = run_linter(self.SCRIPT, "--root", d)
-            self.assertLinterFails(r, "disjoint base cadence")
+            self.assertLinterFails(r, "base cadence set mismatch")
 
     def test_blank_line_does_not_truncate_table(self) -> None:
         # C8 (r21): a blank line inside the table must not silently truncate
@@ -14098,7 +14127,7 @@ class IndexHeaderParityTests(LinterTestCase):
             (root / "governance/register-document-index-and-classification.md").write_text(
                 "# Document Index\n\n" + table + "\n", encoding="utf-8")
             r = run_linter(self.SCRIPT, "--root", d)
-            self.assertLinterFails(r, "disjoint base cadence")
+            self.assertLinterFails(r, "base cadence set mismatch")
 
     def test_malformed_row_fails(self) -> None:
         with tempfile.TemporaryDirectory() as d:

@@ -12,12 +12,11 @@ This gate locks that mirror in place. For every active-index row it:
 2. **Review Frequency:** tokenizes both the index cell and the header's
    ``Review Frequency`` value with a cadence recognizer and compares the
    BASE cadence tokens (every token except the ``EVENT`` trigger marker).
-   The row fails when both sides name a base cadence and those base sets
-   are DISJOINT: a header may add a trigger clause on the same base
-   cadence ("Annual and upon material change" vs index "Annual") and
-   still pass, but a genuine base-cadence disagreement fails even when
-   both sides carry the same trigger clause ("Annual and upon ..." vs
-   "Quarterly and upon ..." share only ``EVENT`` and must NOT pass). A
+   The row fails unless the two recognized BASE cadence sets are equal.
+   The ``EVENT`` marker remains a trigger modifier, so "Annual and upon
+   material change" still agrees with index "Annual". A narrow, pinned
+   per-document allow-list covers legitimate multi-cadence headers whose
+   index row deliberately records the primary cadence. A
    side with no base cadence at all (purely event-driven) agrees only
    with another purely-event-driven side; a base-vs-event-only shape
    mismatch is a finding. An unrecognizable cadence on either side is a
@@ -132,6 +131,46 @@ CADENCE_EVENT_RE = re.compile(
 )
 
 
+# Semantic exceptions to base-set equality. Each entry is deliberately pinned
+# to the document path AND the expected (index base set, header base set), so a
+# later cadence change fails closed instead of inheriting a blanket exemption.
+# Tuple shape: (index base tokens, header base tokens, one-line rationale).
+BASE_CADENCE_EQUALITY_ALLOWLIST: dict[
+    str, tuple[frozenset[str], frozenset[str], str]
+] = {
+    "operations/register-it-security-operations.md": (
+        frozenset({"CONTINUOUS", "MONTHLY"}),
+        frozenset({"ANNUAL", "CONTINUOUS", "MONTHLY"}),
+        "Legitimate multi-cadence: index records continuous/monthly operating cadence; "
+        "header additionally requires annual full review.",
+    ),
+    "ai/register-mcp-server.md": (
+        frozenset({"QUARTERLY"}),
+        frozenset({"CONTINUOUS", "QUARTERLY"}),
+        "Legitimate multi-cadence wording: index records quarterly review; the header's "
+        "continuous-update clause is event-driven registration/change/retirement maintenance.",
+    ),
+    "risk/template-enterprise-risk-register.md": (
+        frozenset({"ANNUAL"}),
+        frozenset({"ANNUAL", "QUARTERLY"}),
+        "Template: index records annual template review; header additionally requires "
+        "quarterly review of register entries.",
+    ),
+    "supply-chain/register-supplier-risk-template.md": (
+        frozenset({"QUARTERLY"}),
+        frozenset({"ANNUAL", "QUARTERLY"}),
+        "Template: index records quarterly active-entry review; header additionally requires "
+        "annual template review.",
+    ),
+    "supply-chain/register-sbom.md": (
+        frozenset({"QUARTERLY"}),
+        frozenset({"CONTINUOUS", "QUARTERLY"}),
+        "Legitimate multi-cadence wording: index records quarterly review; the header's "
+        "continuous-update clause is build/supplier-refresh driven.",
+    ),
+}
+
+
 def cadence_tokens(value: str) -> set[str]:
     """Tokenize a cadence string (longest-phrase-first, word-boundary, consuming)."""
     work = value.lower()
@@ -179,9 +218,9 @@ def check_row(cells: list[str], header_fields: dict[str, str], strict_owner: boo
     """Return per-row findings (owner/cadence). Warnings are prefixed 'WARNING:'."""
     findings: list[str] = []
 
-    # Review Frequency: base-cadence agreement (EVENT is a trigger modifier,
-    # not a base cadence, so a shared trigger clause never reconciles a base
-    # disagreement).
+    # Review Frequency: exact base-cadence-set agreement (EVENT is a trigger
+    # modifier, not a base cadence). The caller has already validated the
+    # Repository Path cell, so its display path is safe to use as row identity.
     idx_freq = cells[COL_FREQ]
     hdr_freq = header_fields.get("Review Frequency", "")
     idx_tok = cadence_tokens(idx_freq)
@@ -198,10 +237,18 @@ def check_row(cells: list[str], header_fields: dict[str, str], strict_owner: boo
         idx_base = idx_tok - {"EVENT"}
         hdr_base = hdr_tok - {"EVENT"}
         if idx_base and hdr_base:
-            if not (idx_base & hdr_base):
+            path_match = LINK_TARGET_RE.search(cells[COL_PATH])
+            document_path = path_match.group(1) if path_match else ""
+            exception = BASE_CADENCE_EQUALITY_ALLOWLIST.get(document_path)
+            exception_matches = False
+            if exception is not None:
+                allowed_idx, allowed_hdr, _rationale = exception
+                exception_matches = idx_base == allowed_idx and hdr_base == allowed_hdr
+            if idx_base != hdr_base and not exception_matches:
                 findings.append(
-                    f"disjoint base cadence (index {sorted(idx_base)} vs header {sorted(hdr_base)}); "
-                    "a shared trigger/event clause does not reconcile a base-cadence disagreement"
+                    f"base cadence set mismatch (index {sorted(idx_base)} vs header {sorted(hdr_base)}); "
+                    "exact base-set equality is required unless this document's expected "
+                    "multi-cadence shape is allow-listed"
                 )
         elif not idx_base and not hdr_base:
             pass  # both purely event-driven; EVENT-on-both agrees
