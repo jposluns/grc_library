@@ -176,6 +176,44 @@ def find_index_detail_leaks(todo_text: str) -> list[str]:
     return [ln for ln in _non_fence_lines(todo_text) if INDEX_DETAIL_LEAK_RE.match(ln)]
 
 
+def find_malformed_index_rows(todo_text: str) -> list[str]:
+    """An index row under a band that is shaped like an item row (pipe-delimited,
+    3+ cells, not a separator, first cell non-empty and not the ``ID`` header)
+    but whose first cell is NOT a valid backlog id is MALFORMED. ``parse_index``
+    silently SKIPPED these, so a malformed id (and its equally-skipped detail
+    block) could slip through as a vacuous "one-to-one match" (r21 C1). Return the
+    offending first-cell strings. INDEX-side only: the reference-side ``### ``
+    headings are too varied to flag without false positives, and catching either
+    side already breaks the vacuous-clean.
+
+    RESIDUE (r21 QA, codex): ``in_band`` matches ANY H2 and never resets, mirroring
+    ``parse_index``'s own band scope. So a FUTURE non-item 3+-column table placed under
+    some later H2 (e.g. a ``| Status | Meaning | Owner |`` legend) would be flagged as
+    malformed. There is no such table today (0 live findings); if one is added, give it
+    an id-shaped first column, move it out of an H2 section, or fence it.
+    """
+    out: list[str] = []
+    in_band = False
+    for line in _non_fence_lines(todo_text):
+        if BAND_RE.match(line):
+            in_band = True
+            continue
+        if not in_band:
+            continue
+        s = line.strip()
+        if not (s.startswith("|") and s.endswith("|")):
+            continue
+        cells = split_row(line)
+        if len(cells) < 3 or is_separator_row(cells):
+            continue
+        first = cells[0].strip()
+        if not first or first.lower() == "id":
+            continue
+        if not TODO_ID_RE.match(first):
+            out.append(first)
+    return out
+
+
 def run(root: Path) -> int:
     todo_path = root / TODO_REL
     ref_path = root / REFERENCE_REL
@@ -192,6 +230,10 @@ def run(root: Path) -> int:
     for leak in find_index_detail_leaks(todo_text):
         findings.append(f"INDEX DETAIL LEAK: {TODO_REL} contains a detail block heading "
                         f"({leak.strip()!r}); detail blocks belong only in {REFERENCE_REL}")
+    for bad in find_malformed_index_rows(todo_text):
+        findings.append(f"MALFORMED INDEX ROW: {TODO_REL} has an item-shaped row whose first "
+                        f"cell ({bad!r}) is not a valid backlog id; parse skipped it silently "
+                        f"(fix the id or reshape the row)")
     if not findings:
         print(
             f"OK: {len(index)} index row(s) and {len(reference)} detail block(s) are a "
