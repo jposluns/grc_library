@@ -13118,6 +13118,18 @@ class TodoIndexReferenceParityTests(LinterTestCase):
         finally:
             import shutil; shutil.rmtree(root, ignore_errors=True)
 
+    def test_malformed_index_row_flagged(self):
+        # r21 C1: a malformed id in an item-shaped index row (and its matching
+        # malformed ### block) were BOTH silently skipped -> vacuous "match".
+        # The index-side row must now be flagged rather than skipped.
+        idx = self.IDX + "| 1.X | delta (L) | `[public]` |\n"
+        ref = self.REF + "### 1.X delta (L)\n\nbody\n"
+        r, root = self._run("bij-malformed", idx, ref)
+        try:
+            self.assertLinterFails(r, "MALFORMED INDEX ROW")
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
+
     def test_duplicate_id_flagged(self):
         r, root = self._run("bij-dup", self.IDX + "| 1.1 | alpha again (H) | `[public]` |\n", self.REF)
         try:
