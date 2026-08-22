@@ -2,7 +2,7 @@
 
 **Document Title:** Governance Relationship and Flow Modelling Framework\
 **Document Type:** Framework\
-**Version:** 1.0.4\
+**Version:** 1.0.5\
 **Date:** 2026-08-22\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -22,7 +22,7 @@ This framework standardizes how governance, risk, and compliance entities are mo
 
 The framework's central position is that governance entities have no single universal hierarchy. A regulation, a framework, a policy, a control, and an asset order differently depending on the question being asked. Placement is therefore contextual: every rendered view of a relationship model declares the viewpoint it answers and the direction rule it places by, and the same entities may legitimately occupy different layers in different views.
 
-The framework is a modelling method, not a data platform. It introduces no new document type, no generated artefact, and no mechanical validation tooling. It gives authors and adopters a shared vocabulary and a repeatable validation discipline, and it gives adopters guidance for building their own rendered diagrams or graph representations from the text form this library uses.
+The framework is a modelling method, not a data platform. It introduces no new document type and mandates no generated artefact or validation tooling on an adopter; the library does maintain a generated model of its own relationship-source records, validated by a regeneration gate. It gives authors and adopters a shared vocabulary and a repeatable validation discipline, and it gives adopters guidance for building their own rendered diagrams or graph representations from the text form this library uses.
 
 ---
 

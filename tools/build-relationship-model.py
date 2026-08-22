@@ -528,7 +528,8 @@ def validate_record(rec: object, position: int) -> tuple[list[str], list[str]]:
     # Rule 8: temporal support (validation test 7). ANY edge whose nature
     # includes temporal depends on time, so it must carry the validity
     # window it depends on, whether or not it is assessed.
-    if "temporal" in nature_set and parsed_dates["from"] is None:
+    is_assessed_edge = is_assessed_class or "assessed" in nature_set
+    if "temporal" in nature_set and not is_assessed_edge and parsed_dates["from"] is None:
         errors.append(
             f"{label}: [temporal-support] a temporal edge requires a validity "
             f"window (a non-null validity.from; validation test 7)")
@@ -538,7 +539,7 @@ def validate_record(rec: object, position: int) -> tuple[list[str], list[str]]:
     # evidence-dependent edge must carry at least 1 evidence reference,
     # whether or not it is assessed (the evidence discipline of validation
     # test 9).
-    if "evidence-dependent" in nature_set and not evidence:
+    if "evidence-dependent" in nature_set and not is_assessed_edge and not evidence:
         errors.append(
             f"{label}: [evidence-dependent-support] an evidence-dependent edge "
             f"requires at least 1 evidence reference (the record field table; "
@@ -588,7 +589,15 @@ def detect_primary_cycles(records: list) -> list[str]:
     with), so scoped and unscoped edges never merge. Records too malformed
     to place in a graph are skipped here; the shape checks report them
     separately."""
-    by_slice: dict[tuple[str, str], dict[str, list[str]]] = {}
+    # A null-scope (unscoped) primary edge is UNIVERSAL: it applies within
+    # every context of its viewpoint (a structural fact is not scope-bound).
+    # So for each context (a distinct non-null scope, plus the unscoped
+    # context ""), the cycle graph is {edges with that scope} plus {unscoped
+    # edges}. This catches a same-scope cycle, an unscoped cycle, and a mixed
+    # unscoped-plus-scoped cycle, while a cross-scope reciprocal (two distinct
+    # non-null scopes) is not a cycle. Cycles are deduped per viewpoint by
+    # node set so a universal cycle is reported once, not once per scope.
+    by_viewpoint: dict[str, list[tuple[str, str, str]]] = {}
     for rec in records:
         if not isinstance(rec, dict) or rec.get("layout_role") != "primary":
             continue
@@ -604,21 +613,34 @@ def detect_primary_cycles(records: list) -> list[str]:
         dst_id = destination.get("id")
         if not (_is_nonempty_str(src_id) and _is_nonempty_str(dst_id)):
             continue
-        adjacency = by_slice.setdefault((viewpoint, scope_key), {})
-        adjacency.setdefault(src_id, []).append(dst_id)
-        adjacency.setdefault(dst_id, [])
+        by_viewpoint.setdefault(viewpoint, []).append((scope_key, src_id, dst_id))
     errors: list[str] = []
-    for viewpoint, scope_key in sorted(by_slice):
-        cycle = _find_cycle(by_slice[(viewpoint, scope_key)])
-        if cycle is not None:
-            scope_text = repr(scope_key) if scope_key else "(unscoped)"
+    for viewpoint in sorted(by_viewpoint):
+        edges = by_viewpoint[viewpoint]
+        contexts = sorted({sk for sk, _, _ in edges if sk} | {""})
+        seen_cycles: set[frozenset[str]] = set()
+        for ctx in contexts:
+            adjacency: dict[str, list[str]] = {}
+            for sk, src_id, dst_id in edges:
+                if sk == ctx or sk == "":
+                    adjacency.setdefault(src_id, []).append(dst_id)
+                    adjacency.setdefault(dst_id, [])
+            cycle = _find_cycle(adjacency)
+            if cycle is None:
+                continue
+            key = frozenset(cycle)
+            if key in seen_cycles:
+                continue
+            seen_cycles.add(key)
+            scope_text = repr(ctx) if ctx else "(unscoped)"
             cycle_path = " -> ".join(cycle)
             errors.append(
-                f"[primary-cycle] viewpoint {viewpoint!r}, scope {scope_text}: "
+                f"[primary-cycle] viewpoint {viewpoint!r}, context {scope_text}: "
                 f"directed cycle among primary edges: {cycle_path} "
-                f"(validation test 3; the check runs per viewpoint-and-scope "
-                f"slice, so associative edges, cross-viewpoint edges, and "
-                f"cross-scope edges never trigger it)")
+                f"(validation test 3; the check runs per viewpoint-and-context "
+                f"slice with unscoped edges universal, so associative edges, "
+                f"cross-viewpoint edges, and cross-scope reciprocals never "
+                f"trigger it)")
     return errors
 
 

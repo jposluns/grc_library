@@ -9859,6 +9859,20 @@ class RelationshipModelGeneratorTests(unittest.TestCase):
                          destination={"id": "EXAMPLE-POLICY-A", "class": "policy"})
         self.assertEqual(self._errors(a, b), [])
 
+    def test_unscoped_plus_scoped_reciprocal_flagged(self) -> None:
+        # A null-scope (unscoped) primary edge is universal: it applies in
+        # every context, so an unscoped A->B plus a scoped B->A in the same
+        # viewpoint IS a real cycle when that scope is examined (the mixed
+        # case a viewpoint-and-scope exact partition would falsely miss).
+        a = self._record(id="rel-test-usc-a", scope=None,
+                         source={"id": "EXAMPLE-POLICY-A", "class": "policy"},
+                         destination={"id": "EXAMPLE-POLICY-B", "class": "policy"})
+        b = self._record(id="rel-test-usc-b", scope="EXAMPLE-SCOPE-X",
+                         source={"id": "EXAMPLE-POLICY-B", "class": "policy"},
+                         destination={"id": "EXAMPLE-POLICY-A", "class": "policy"})
+        errs = self._errors(a, b)
+        self.assertTrue(any("[primary-cycle]" in e for e in errs), errs)
+
     def test_associative_only_cycle_not_flagged(self) -> None:
         common = dict(verb="informs", relationship_class="influence",
                       layout_role="associative", viewpoint="assurance",
