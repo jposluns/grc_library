@@ -580,15 +580,18 @@ def _find_cycle(adjacency: dict[str, list[str]]) -> list[str] | None:
 
 def detect_primary_cycles(records: list) -> list[str]:
     """Rule 6 (validation test 3): a directed cycle among the PRIMARY edges
-    of one viewpoint-and-scope slice (a single declared viewpoint within a
-    single context) is an error. The check partitions on the
-    (viewpoint, scope) tuple, so a cycle formed only across viewpoints,
-    only across scopes, or only when associative edges are included, is
-    never flagged; a record with a null scope forms its own unscoped
-    bucket (the empty-string key, which no valid scope value can collide
-    with), so scoped and unscoped edges never merge. Records too malformed
-    to place in a graph are skipped here; the shape checks report them
-    separately."""
+    of one viewpoint within one context (time, jurisdiction, scope) is an
+    error. Within a viewpoint each context is a distinct non-null scope
+    plus the unscoped context, and a null-scope edge is UNIVERSAL: it joins
+    every context's graph (a structural fact is not scope-bound). So a
+    cycle formed across viewpoints, across two distinct non-null scopes, or
+    only when associative edges are included is never flagged, while an
+    unscoped-plus-scoped reciprocal within one context is. A cycle is
+    reported once per viewpoint (deduped by node set), so a single run
+    surfaces one representative cycle per affected node set; fixing it and
+    regenerating surfaces any remaining distinct cycle. Records too
+    malformed to place in a graph are skipped here; the shape checks report
+    them separately."""
     # A null-scope (unscoped) primary edge is UNIVERSAL: it applies within
     # every context of its viewpoint (a structural fact is not scope-bound).
     # So for each context (a distinct non-null scope, plus the unscoped

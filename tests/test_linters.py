@@ -9686,7 +9686,8 @@ class RelationshipModelGeneratorTests(unittest.TestCase):
     from a base record that passes every rule, so each test carries exactly
     one violation (the base record's clean pass is the positive control);
     category compatibility is asserted as an advisory warning that still
-    builds, the cycle check is asserted per viewpoint-and-scope slice, the
+    builds, the cycle check is asserted per viewpoint within one context
+    (with unscoped edges universal), the
     committed-state test requires the checked-in seed and generated model
     to be in sync, and the temp-tree test proves drift and a validation
     failure independently return non-zero without touching the real
