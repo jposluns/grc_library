@@ -44,21 +44,76 @@ ACTIVE = [(1, "P1 / fix series"), (2, "P2 / content series"),
           (3, "P3 / tooling series"), (4, "P4 / adopter series")]
 FROZEN = [5, 6, 7]
 
-# C3 (r21): a FROZEN series takes NO new allocations, so its public floor is
-# IMMUTABLE. floor_violations() catches a new frozen-series id only when the floor
-# is NOT also raised; a floor bumped in lock-step with a new frozen id would slip
-# through. This ceiling pins each frozen series' floor to its frozen value, so
-# raising a frozen series' floor (the only way to launder a new frozen allocation)
-# fails. Keys MUST match FROZEN.
+# C3 (r21 + closing-window residue): a FROZEN series takes NO new allocations.
+# Two independent laundering paths must therefore be closed: raising its floor
+# in lock-step with a new high id, and inserting a previously unrecorded id into
+# a gap below the frozen ceiling. EXPECTED_FROZEN_FLOOR pins the immutable
+# ceilings; EXPECTED_LIVE_FROZEN_IDS snapshots the already-live allocations.
+# Their key sets are checked against FROZEN in executable code.
 EXPECTED_FROZEN_FLOOR = {5: 9, 6: 6, 7: 5}
+EXPECTED_LIVE_FROZEN_IDS = {
+    5: frozenset({"5.2", "5.3", "5.4", "5.5", "5.6", "5.7", "5.8", "5.9"}),
+    6: frozenset({"6.1", "6.2", "6.3", "6.4", "6.5", "6.6"}),
+    7: frozenset({"7.2", "7.3"}),
+}
 
 
-def frozen_floor_violations(floor):
-    """Frozen series whose floor differs from its immutable ceiling (new draw attempt)."""
-    return [f"series {s}.{floor.get(s, 0)} != frozen ceiling {s}.{c}"
-            for s, c in EXPECTED_FROZEN_FLOOR.items() if floor.get(s, 0) != c]
+def frozen_floor_violations(floor, live_ids=()):
+    """Frozen configuration, immutable-floor, or live-allocation violations."""
+    bad = []
+    frozen_keys = set(FROZEN)
+    floor_keys = set(EXPECTED_FROZEN_FLOOR)
+    live_snapshot_keys = set(EXPECTED_LIVE_FROZEN_IDS)
+
+    if floor_keys != frozen_keys:
+        bad.append(
+            f"FROZEN keys {sorted(frozen_keys)} != "
+            f"EXPECTED_FROZEN_FLOOR keys {sorted(floor_keys)}"
+        )
+    if live_snapshot_keys != frozen_keys:
+        bad.append(
+            f"FROZEN keys {sorted(frozen_keys)} != "
+            f"EXPECTED_LIVE_FROZEN_IDS keys {sorted(live_snapshot_keys)}"
+        )
+
+    bad.extend(
+        f"series {s}.{floor.get(s, 0)} != frozen ceiling {s}.{ceiling}"
+        for s, ceiling in EXPECTED_FROZEN_FLOOR.items()
+        if floor.get(s, 0) != ceiling
+    )
+
+    for item_id in sorted(set(live_ids)):
+        match = re.match(r"^(\d+)\.", item_id)
+        if not match:
+            continue
+        series = int(match.group(1))
+        if (series in frozen_keys
+                and item_id not in EXPECTED_LIVE_FROZEN_IDS.get(series, frozenset())):
+            bad.append(f"unrecorded live frozen id {item_id}")
+    return bad
 
 HEADING_ID = re.compile(r"^### ((?:P-)?\d+(?:\.\d+)+[a-z]?|TF-\d+)\b")
+
+
+def live_public_ids(root):
+    """Exact live PUBLIC ids in TODO.md and TODO-REFERENCE.md (the ``P-N.M``
+    private namespace is excluded)."""
+    import lint_common
+
+    ids = {
+        item_id
+        for item_id in lint_common.todo_index_ids(
+            (root / "TODO.md").read_text(errors="replace")
+        )
+        if not item_id.startswith("P-")
+    }
+    ref = root / "TODO-REFERENCE.md"
+    if ref.is_file():
+        for line in ref.read_text(errors="replace").splitlines():
+            match = HEADING_ID.match(line)
+            if match and not match.group(1).startswith("P-"):
+                ids.add(match.group(1))
+    return ids
 
 
 def load_floor(root):
@@ -83,13 +138,10 @@ def live_maxima(root):
     ordinal (including retired numbers AND migrated bare ids that now live in the private
     P-TODO.md), so next = max(floor, live) is floor-dominated and fully public-deterministic.
     Retired ids are NOT here; that is what the floor is for."""
-    import lint_common
     tops, tf = {}, 0
 
     def add(idstr):
         nonlocal tf
-        if idstr.startswith("P-"):
-            return
         m = re.match(r"^(\d+)\.(\d+)", idstr)
         if m:
             s, o = int(m.group(1)), int(m.group(2))
@@ -99,14 +151,8 @@ def live_maxima(root):
         if m:
             tf = max(tf, int(m.group(1)))
 
-    for i in lint_common.todo_index_ids((root / "TODO.md").read_text(errors="replace")):
-        add(i)
-    ref = root / "TODO-REFERENCE.md"
-    if ref.is_file():
-        for ln in ref.read_text(errors="replace").split("\n"):
-            m = HEADING_ID.match(ln)
-            if m:
-                add(m.group(1))
+    for item_id in live_public_ids(root):
+        add(item_id)
     return tops, tf
 
 
@@ -168,9 +214,9 @@ def main(argv):
         sys.stderr.write("FAIL: the number floor is BELOW a live id (bump "
                          f"{FLOOR_PATH}): {'; '.join(bad)}\n")
         return 1
-    frozen_bad = frozen_floor_violations(floor)
+    frozen_bad = frozen_floor_violations(floor, live_public_ids(REPO_ROOT))
     if frozen_bad:
-        sys.stderr.write("FAIL: a FROZEN series' floor changed; frozen series take no new "
+        sys.stderr.write("FAIL: the FROZEN allocation invariant changed; frozen series take no new "
                          f"allocations: {'; '.join(frozen_bad)}\n")
         return 1
     try:
