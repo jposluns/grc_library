@@ -2,7 +2,7 @@
 
 **Document Title:** Governance Relationship and Flow Modelling Framework\
 **Document Type:** Framework\
-**Version:** 1.0.1\
+**Version:** 1.0.2\
 **Date:** 2026-08-22\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -139,7 +139,7 @@ The following clusters separate verbs that untrained usage treats as interchange
 
 ### Assessed outcomes are not structural edges
 
-The tokens `satisfies`, `fulfils`, `conforms to`, `complies with`, and `meets` are part of this framework's controlled set alongside the 18 structural verbs, so principle 8's prohibition on out-of-set verbs does not exclude them; they form a distinct assessed-outcome group with a shared controlled contract: their relationship class is assessed outcome, they typically take an implementation-category or governance-category source and a governance-category or authority-category destination, and their inverse reads `is satisfied by`, with the parallel readings for `fulfils`, `conforms to`, `complies with`, and `meets`, inferred rather than stored like any inverse (principle 5). They are governed by the conditions below. They express assessed or inferred outcomes. Each depends on evidence, on the assessment that established it, on time, and on scope, and each decays as the implementation, the requirement, or the environment changes. A relationship using any of these verbs must carry the assessed nature, at least 1 evidence reference, a validity period, and the scope within which it was established, and it must never be recorded as a permanent structural edge. A model that stores a control-`satisfies`-objective assertion as a timeless fact has converted an assessment result into an architecture claim, which is the root of several anti-patterns in this framework.
+The tokens `satisfies`, `fulfils`, `conforms to`, `complies with`, and `meets` are part of this framework's controlled set alongside the 18 structural verbs, so principle 8's prohibition on out-of-set verbs does not exclude them; they form a distinct assessed-outcome group with a shared controlled contract: their relationship class is assessed outcome, they typically take an implementation-category or governance-category source and a governance-category or authority-category destination, and their inverse reads `is satisfied by`, with `is fulfilled by`, `is conformed to by`, `is complied with by`, and `is met by` as the parallel readings, inferred by default like any inverse (principle 5). They are governed by the conditions below. They express assessed or inferred outcomes. Each depends on evidence, on the assessment that established it, on time, and on scope, and each decays as the implementation, the requirement, or the environment changes. A relationship using any of these verbs must carry the assessed nature, at least 1 evidence reference, a validity period, and the scope within which it was established, and it must never be recorded as a permanent structural edge. A model that stores a control-`satisfies`-objective assertion as a timeless fact has converted an assessment result into an architecture claim, which is the root of several anti-patterns in this framework.
 
 ---
 
