@@ -14020,7 +14020,7 @@ class IndexHeaderParityTests(LinterTestCase):
                 gov=("T", "Chief Risk Officer", "Quarterly"),
             )
             r = run_linter(self.SCRIPT, "--root", d)
-            self.assertLinterFails(r, "disjoint cadence")
+            self.assertLinterFails(r, "disjoint base cadence")
 
     def test_owner_match_passes_under_strict(self) -> None:
         with tempfile.TemporaryDirectory() as d:
@@ -14052,6 +14052,41 @@ class IndexHeaderParityTests(LinterTestCase):
         # The real tree, strict owner on: pins the guard-first invariant.
         r = run_linter(self.SCRIPT, "--strict-owner")
         self.assertEqual(r.returncode, 0, f"live corpus must be clean under strict.\n{r.stdout}\n{r.stderr}")
+
+    def test_shared_event_trigger_does_not_mask_base_mismatch(self) -> None:
+        # C6 (r21): a shared trigger/event clause must NOT reconcile a genuine
+        # base-cadence disagreement (Annual+trigger vs Quarterly+trigger).
+        with tempfile.TemporaryDirectory() as d:
+            self._write(
+                d,
+                rows=[self._gov_row(freq="Annual and upon material change")],
+                gov=("T", "Chief Risk Officer", "Quarterly and upon material change"),
+            )
+            r = run_linter(self.SCRIPT, "--root", d)
+            self.assertLinterFails(r, "disjoint base cadence")
+
+    def test_blank_line_does_not_truncate_table(self) -> None:
+        # C8 (r21): a blank line inside the table must not silently truncate
+        # the scan and drop the later (mismatching) row from checking.
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "governance").mkdir(parents=True, exist_ok=True)
+            (root / "ai").mkdir(parents=True, exist_ok=True)
+            (root / "governance/charter-test.md").write_text(
+                self._doc("T", "Chief Risk Officer", "Annual"), encoding="utf-8")
+            (root / "ai/framework-test.md").write_text(
+                self._doc("T", "AI Governance Approver", "Quarterly"), encoding="utf-8")
+            # gov row is clean; a BLANK line; then the ai row has a cadence mismatch.
+            table = "\n".join([
+                self.HEADER, self.SEP,
+                self._gov_row(freq="Annual"),
+                "",  # accidental blank line inside the table
+                self._ai_row(freq="Annual"),  # index Annual vs header Quarterly -> mismatch
+            ])
+            (root / "governance/register-document-index-and-classification.md").write_text(
+                "# Document Index\n\n" + table + "\n", encoding="utf-8")
+            r = run_linter(self.SCRIPT, "--root", d)
+            self.assertLinterFails(r, "disjoint base cadence")
 
     def test_malformed_row_fails(self) -> None:
         with tempfile.TemporaryDirectory() as d:
