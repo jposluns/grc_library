@@ -633,3 +633,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-index-header-parity
+        name: Index-header parity audit
+        entry: python3 tools/lint-index-header-parity.py --strict-owner
+        language: system
+        pass_filenames: false
+        always_run: true

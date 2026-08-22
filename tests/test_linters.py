@@ -13940,5 +13940,166 @@ class NarrativeScanScopeTests(LinterTestCase):
             probe.unlink()
 
 
+class IndexHeaderParityTests(LinterTestCase):
+    """tools/lint-index-header-parity.py (gate 92)
+
+    The index register mirrors each active document's Owner Role and Review
+    Frequency from that document's own header. This gate locks the mirror:
+    cadence uses an empty-intersection token rule (base-plus-trigger passes,
+    a genuine disagreement fails, an unrecognizable cadence is a finding);
+    owner uses strict equality gated by --strict-owner. Both path-resolution
+    branches (same-dir governance target and ../domain target) are exercised.
+    """
+
+    SCRIPT = "tools/lint-index-header-parity.py"
+    HEADER = ("| Domain | Type | Title | Repository Path | Owner Role | "
+              "Review Frequency | Primary Alignment Families | Adoption Disposition |")
+    SEP = "|---|---|---|---|---|---|---|---|"
+
+    def _doc(self, title: str, owner: str, freq: str) -> str:
+        return (f"# {title}\n\n"
+                f"**Document Title:** {title}\n"
+                f"**Owner:** {owner}\n"
+                f"**Review Frequency:** {freq}\n\n"
+                "Body.\n")
+
+    def _row(self, *, path_disp: str, path_tgt: str, owner: str, freq: str,
+             domain: str = "governance", typ: str = "Charter", title: str = "T",
+             fam: str = "NIST CSF", disp: str = "Recommended") -> str:
+        return (f"| {domain} | {typ} | {title} | "
+                f"[`{path_disp}`]({path_tgt}) | {owner} | {freq} | {fam} | {disp} |")
+
+    def _write(self, d: str, *, rows: list[str], gov=None, ai=None) -> None:
+        root = Path(d)
+        (root / "governance").mkdir(parents=True, exist_ok=True)
+        (root / "ai").mkdir(parents=True, exist_ok=True)
+        if gov is not None:
+            (root / "governance/charter-test.md").write_text(self._doc(*gov), encoding="utf-8")
+        if ai is not None:
+            (root / "ai/framework-test.md").write_text(self._doc(*ai), encoding="utf-8")
+        table = "\n".join([self.HEADER, self.SEP] + rows)
+        (root / "governance/register-document-index-and-classification.md").write_text(
+            "# Document Index\n\n" + table + "\n", encoding="utf-8")
+
+    def _gov_row(self, *, owner="Chief Risk Officer", freq="Annual", **kw) -> str:
+        return self._row(path_disp="governance/charter-test.md", path_tgt="charter-test.md",
+                         owner=owner, freq=freq, **kw)
+
+    def _ai_row(self, *, owner="AI Governance Approver", freq="Annual",
+                domain="ai", typ="Framework", **kw) -> str:
+        return self._row(path_disp="ai/framework-test.md", path_tgt="../ai/framework-test.md",
+                         owner=owner, freq=freq, domain=domain, typ=typ, **kw)
+
+    def test_base_plus_trigger_cadence_not_flagged(self) -> None:
+        # Both path branches; header adds a trigger clause on the same base cadence.
+        with tempfile.TemporaryDirectory() as d:
+            self._write(
+                d,
+                rows=[self._gov_row(freq="Annual"), self._ai_row(freq="Annual")],
+                gov=("T", "Chief Risk Officer", "Annual and upon material regulatory change"),
+                ai=("T", "AI Governance Approver", "Annual and upon material AI risk change"),
+            )
+            r = run_linter(self.SCRIPT, "--root", d)
+            self.assertEqual(r.returncode, 0, f"base+trigger must pass.\n{r.stdout}\n{r.stderr}")
+
+    def test_multi_cadence_intersection_not_flagged(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            self._write(
+                d,
+                rows=[self._gov_row(freq="Continuous")],
+                gov=("T", "Chief Risk Officer", "Continuous; CISO review monthly; full review annually"),
+            )
+            r = run_linter(self.SCRIPT, "--root", d)
+            self.assertEqual(r.returncode, 0, f"multi-cadence intersection must pass.\n{r.stdout}")
+
+    def test_review_frequency_mismatch_flagged(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            self._write(
+                d,
+                rows=[self._gov_row(freq="Annual")],
+                gov=("T", "Chief Risk Officer", "Quarterly"),
+            )
+            r = run_linter(self.SCRIPT, "--root", d)
+            self.assertLinterFails(r, "disjoint base cadence")
+
+    def test_owner_match_passes_under_strict(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            self._write(
+                d,
+                rows=[self._gov_row(owner="Chief Risk Officer", freq="Annual")],
+                gov=("T", "Chief Risk Officer", "Annual"),
+            )
+            r = run_linter(self.SCRIPT, "--root", d, "--strict-owner")
+            self.assertEqual(r.returncode, 0, f"matching owner must pass under strict.\n{r.stdout}")
+
+    def test_owner_mismatch_flagged_under_strict_only(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            self._write(
+                d,
+                rows=[self._gov_row(owner="Chief Risk Officer", freq="Annual")],
+                gov=("T", "Data Protection Officer", "Annual"),
+            )
+            # Without --strict-owner: exit 0 but a WARNING line is present.
+            r = run_linter(self.SCRIPT, "--root", d)
+            self.assertEqual(r.returncode, 0, f"owner mismatch must not fail without strict.\n{r.stdout}")
+            self.assertIn("WARNING", r.stdout)
+            self.assertIn("owner mismatch", r.stdout)
+            # With --strict-owner: exit 1.
+            r2 = run_linter(self.SCRIPT, "--root", d, "--strict-owner")
+            self.assertLinterFails(r2, "owner mismatch")
+
+    def test_live_corpus_clean(self) -> None:
+        # The real tree, strict owner on: pins the guard-first invariant.
+        r = run_linter(self.SCRIPT, "--strict-owner")
+        self.assertEqual(r.returncode, 0, f"live corpus must be clean under strict.\n{r.stdout}\n{r.stderr}")
+
+    def test_shared_event_trigger_does_not_mask_base_mismatch(self) -> None:
+        # C6 (r21): a shared trigger/event clause must NOT reconcile a genuine
+        # base-cadence disagreement (Annual+trigger vs Quarterly+trigger).
+        with tempfile.TemporaryDirectory() as d:
+            self._write(
+                d,
+                rows=[self._gov_row(freq="Annual and upon material change")],
+                gov=("T", "Chief Risk Officer", "Quarterly and upon material change"),
+            )
+            r = run_linter(self.SCRIPT, "--root", d)
+            self.assertLinterFails(r, "disjoint base cadence")
+
+    def test_blank_line_does_not_truncate_table(self) -> None:
+        # C8 (r21): a blank line inside the table must not silently truncate
+        # the scan and drop the later (mismatching) row from checking.
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "governance").mkdir(parents=True, exist_ok=True)
+            (root / "ai").mkdir(parents=True, exist_ok=True)
+            (root / "governance/charter-test.md").write_text(
+                self._doc("T", "Chief Risk Officer", "Annual"), encoding="utf-8")
+            (root / "ai/framework-test.md").write_text(
+                self._doc("T", "AI Governance Approver", "Quarterly"), encoding="utf-8")
+            # gov row is clean; a BLANK line; then the ai row has a cadence mismatch.
+            table = "\n".join([
+                self.HEADER, self.SEP,
+                self._gov_row(freq="Annual"),
+                "",  # accidental blank line inside the table
+                self._ai_row(freq="Annual"),  # index Annual vs header Quarterly -> mismatch
+            ])
+            (root / "governance/register-document-index-and-classification.md").write_text(
+                "# Document Index\n\n" + table + "\n", encoding="utf-8")
+            r = run_linter(self.SCRIPT, "--root", d)
+            self.assertLinterFails(r, "disjoint base cadence")
+
+    def test_malformed_row_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            bad = "| governance | Charter | T | [`governance/charter-test.md`](charter-test.md) | Chief Risk Officer | Annual |"
+            self._write(d, rows=[bad], gov=("T", "Chief Risk Officer", "Annual"))
+            r = run_linter(self.SCRIPT, "--root", d)
+            self.assertLinterFails(r, "malformed row")
+
+    def test_missing_register_exits_2(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            r = run_linter(self.SCRIPT, "--root", d)
+            self.assertEqual(r.returncode, 2, f"missing register must exit 2.\n{r.stdout}\n{r.stderr}")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
