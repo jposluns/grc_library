@@ -20,6 +20,8 @@ reference are not a bijection with matching id, title, band, and position order:
   - TITLE DRIFT: a row and its block disagree on the item title.
   - BAND MISMATCH: a row and its block sit under different ``## `` bands.
   - ORDER MISMATCH: the id sequence differs between the two files.
+  - INDEX DETAIL LEAK: a ``### id`` detail-block heading appearing in the
+    index file ([`TODO.md`](../TODO.md)) instead of only in the reference file.
 
 Adopter-graceful: if ``TODO-REFERENCE.md`` is absent (a clone that has not
 adopted the two-file format), the gate is a no-op OK. Stdlib-only.
