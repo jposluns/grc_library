@@ -221,15 +221,29 @@ def resolve_sibling(name: str) -> Path | None:
 WORKING_SUBDIR = ".working"
 
 
+# The lab_infra-standard operational store (adopt-with-overlay migration, 2026-08-23; decision (a)):
+# `/opt/<project>/private` (wire-orch's `@STORE@`). Files live at the store ROOT (NO `.working`
+# subdir), unlike the transitional `grc_library_private/.working/` location. It is PREFERRED over
+# both the private sibling's `.working/` and the in-repo `.working/`, so a seeded store wins while an
+# absent one falls through untouched (fallback-safe during the migration). Env `GRC_STORE` overrides
+# the default `<repo-parent>/private`.
+def _store_root(root: "Path") -> "Path":
+    import os
+    env = os.environ.get("GRC_STORE")
+    return Path(env) if env else root.parent / "private"
+
+
 def resolve_working(relpath: str, *, repo_root: Path | None = None) -> Path | None:
     """Locate a `.working/`-tree file, preferring `grc_library_private/.working/`.
 
     `relpath` is POSIX-relative to the `.working/` root (e.g.
     ``"validate-pr/history.md"``). Resolution order:
-      1. ``grc_library_private/.working/<relpath>`` (the migrated location), if the
-         private sibling is present AND the file exists there;
-      2. ``<repo>/.working/<relpath>`` (the pre-migration in-repo location), if present;
-      3. ``None`` -- neither is available (public CI / adopter clone). A reader that
+      1. ``<store>/<relpath>`` where ``<store>`` is ``$GRC_STORE`` or ``<repo-parent>/private``
+         (the lab_infra-standard operational store, adopt-with-overlay migration 2026-08-23),
+         if the store dir is present AND the file exists there (NO ``.working`` subdir at the store);
+      2. ``grc_library_private/.working/<relpath>`` (the transitional location), if present there;
+      3. ``<repo>/.working/<relpath>`` (the pre-migration in-repo location), if present;
+      4. ``None`` -- none is available (public CI / adopter clone). A reader that
          routes through this helper then no-ops, the graceful-degradation contract the
          `.working/`-reading gates adopt when their input leaves the public repo.
 
@@ -243,6 +257,11 @@ def resolve_working(relpath: str, *, repo_root: Path | None = None) -> Path | No
     :func:`resolve_sibling`; this helper governs only the DEFAULT `.working/` lookup.
     """
     root = (repo_root or REPO_ROOT).resolve()
+    store = _store_root(root)
+    if store.is_dir():
+        cand = store / relpath
+        if cand.exists():
+            return cand
     private = root.parent / _SIBLING_REPO_DIRS["private"]
     if private.is_dir():
         cand = private / WORKING_SUBDIR / relpath
