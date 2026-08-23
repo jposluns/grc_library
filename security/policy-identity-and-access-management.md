@@ -2,8 +2,8 @@
 
 **Document Title:** Identity and Access Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.15\
-**Date:** 2026-08-20\
+**Version:** 1.3.17\
+**Date:** 2026-08-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -67,7 +67,7 @@ To ensure that all users, human, service, and machine, are uniquely identified, 
 4.3.1 All access must be role-based (RBAC) or attribute-based (ABAC) where feasible. Roles must align with approved job functions, data classifications, and BASC Section 6 access-security requirements.
 4.3.2 Segregation of Duties (SoD) must be implemented for high-risk roles to prevent conflicts of interest.
 4.3.3 Temporary access (e.g., vendor or project) must include start and expiry dates and be reviewed prior to renewal.
-4.3.4 System owners must review user entitlements at least quarterly.
+4.3.4 System owners must hold a quarterly touchpoint that applies the risk-tiered review cadences in [`procedure-access-control.md`](procedure-access-control.md) §3.1 (privileged access quarterly, high-sensitivity semi-annual, general annual, third-party on renewal and at least annually) to the entitlements they own (user, service, and machine accounts), and determines on a risk basis whether any additional review is needed beyond those cadences; a full entitlement review must be performed at least annually where one has not already occurred in the preceding 12 months (the certification floor in §4.5.1). This policy section (item 4.3.4) is authoritative for the entitlement-review cadence model.
 
 ### 4.4 Privileged access management (PAM)
 
@@ -77,7 +77,7 @@ To ensure that all users, human, service, and machine, are uniquely identified, 
 
 ### 4.5 Access review and certification
 
-4.5.1 All user and service account access rights must undergo periodic certification at least annually, with evidence maintained.
+4.5.1 All user and service account access rights must undergo periodic certification at least annually (the mandated review floor of the quarterly-touchpoint model in item 4.3.4), with evidence maintained.
 4.5.2 Any discrepancies identified during certification must be remediated within 15 business days.
 4.5.3 Audit logs for provisioning, deprovisioning, and certification must be preserved for compliance verification.
 
