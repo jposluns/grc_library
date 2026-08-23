@@ -2,7 +2,7 @@
 
 **Document Title:** Access Control Procedure\
 **Document Type:** Procedure\
-**Version:** 1.2.6\
+**Version:** 1.2.7\
 **Date:** 2026-08-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -101,7 +101,7 @@ Applies to all access to organizational systems including cloud platforms, on-pr
 | Standard user access: general systems | Annual |
 | Third-party / contractor access | On contract renewal and at least annually |
 
-These risk-tiered frequencies are the default triggers the quarterly entitlement-review touchpoint in [`policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md) §4.3.4 applies on a risk basis; a full review is mandated at least annually regardless where one has not already occurred in the preceding 12 months.
+These risk-tiered frequencies are the default triggers the quarterly entitlement-review touchpoint in [`policy-identity-and-access-management.md`](policy-identity-and-access-management.md) §4.3.4 applies on a risk basis; a full review is mandated at least annually regardless where one has not already occurred in the preceding 12 months.
 
 3.2 Access reviews confirm that each user's current access:
 

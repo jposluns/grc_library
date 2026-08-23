@@ -113,7 +113,7 @@ HIGHEST_DELTA_GATE = 12
 # Pre-commit hooks that are setup or regeneration steps, not audit
 # gates. These are excluded from the pre-commit-to-spec parity check.
 # The regenerate-derived-artefacts hook runs the build scripts in
-# write mode so taxonomy.yml / narrative.yml / docs/portal.md / docs/maturity-scorecard.md
+# write mode so taxonomy.yml / narrative.yml / docs/portal.md / docs/maturity-scorecard.md / governance/relationship-model.generated.json
 # are refreshed. The ordering differs by artefact: for taxonomy.yml / docs/portal.md /
 # docs/maturity-scorecard.md the --check gates run BEFORE this regen hook (check-then-regen:
 # the gates fail loud on drift first, then the regen auto-fixes the local tree), while the
@@ -316,7 +316,7 @@ def parse_precommit(path: Path) -> list[tuple[int, str, str]]:
 #     of the §6-inventory gate scripts (it is a delta / informational script).
 #   - PRECOMMIT_NON_GATE_HOOKS: the named hook exists and its entry is a write /
 #     regeneration invocation (no `--check`), not a verification gate. (The regen
-#     hook runs `build-taxonomy.py`/`build-narrative-registry.py`/`build-portal.py` in write mode; the §6 gates
+#     hook runs `build-taxonomy.py`/`build-narrative-registry.py`/`build-portal.py`/`build-relationship-model.py` in write mode; the §6 gates
 #     run the SAME scripts WITH `--check`, so the `--check` flag is the
 #     discriminator, not the script name.)
 # Gap (ii): the eleven live PR-time delta gates (D1-D12, D6 retired) run in the workflow (authoritative) and the local pre-push runner, with no

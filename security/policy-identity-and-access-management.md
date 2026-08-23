@@ -2,7 +2,7 @@
 
 **Document Title:** Identity and Access Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.17\
+**Version:** 1.3.18\
 **Date:** 2026-08-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -77,7 +77,7 @@ To ensure that all users, human, service, and machine, are uniquely identified, 
 
 ### 4.5 Access review and certification
 
-4.5.1 All user and service account access rights must undergo periodic certification at least annually (the mandated review floor of the quarterly-touchpoint model in item 4.3.4), with evidence maintained.
+4.5.1 All user, service, and machine account access rights must undergo periodic certification at least annually (the mandated review floor of the quarterly-touchpoint model in item 4.3.4), with evidence maintained.
 4.5.2 Any discrepancies identified during certification must be remediated within 15 business days.
 4.5.3 Audit logs for provisioning, deprovisioning, and certification must be preserved for compliance verification.
 
