@@ -2,8 +2,8 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.121\
-**Date:** 2026-08-22\
+**Version:** 1.27.122\
+**Date:** 2026-08-23\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md)\
@@ -357,6 +357,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Compliance | Annex | DORA Implementation Annex | [`compliance/financial-services/annex-dora-implementation.md`](../compliance/financial-services/annex-dora-implementation.md) | Chief Compliance Officer | Annual | DORA (EU) 2022/2554, DORA RTS/ITS, TIBER-EU, EBA/EIOPA Guidelines, ISO/IEC 27001 | template |
 | Compliance | Annex | NIS 2 Implementation Annex | [`compliance/annex-nis-2-implementation.md`](../compliance/annex-nis-2-implementation.md) | Chief Compliance Officer | Annual | NIS 2 (EU) 2022/2555, ENISA guidelines, EU Cyber Resilience Act, EU Cybersecurity Act, ISO/IEC 27001, NIST CSF 2.0 | template |
 | Compliance | Annex | Public Sector GRC Requirements Annex | [`compliance/public-sector/annex-public-sector-requirements.md`](../compliance/public-sector/annex-public-sector-requirements.md) | Chief Compliance Officer | Annual | WCAG 2.2 AA, EN 301 549, ISO 15489, ISO 19011, OECD Public Service Leadership, ISO/IEC 42001 | template |
+| Compliance | Annex | Canada Public Sector GRC Requirements Annex | [`compliance/public-sector/annex-canada-public-sector-requirements.md`](../compliance/public-sector/annex-canada-public-sector-requirements.md) | Chief Compliance Officer | Annual | TBS Directive on Automated Decision-Making, Privacy Act, Access to Information Act, OSFI B-13 and E-23, CCCS ITSG-33 and ITSP.50.103, provincial and territorial access and health-privacy statutes | template |
 | Compliance | Annex | Telecommunications Sector Requirements Annex | [`compliance/telecommunications/annex-telecommunications-sector-requirements.md`](../compliance/telecommunications/annex-telecommunications-sector-requirements.md) | Chief Compliance Officer | Annual | EU EECC, EU ePrivacy, EU NIS 2, UK Telecoms Security Act, US CALEA, ETSI TS 102 232 | template |
 | Compliance | Annex | Energy and Utilities Sector Requirements Annex | [`compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md`](../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md) | Chief Compliance Officer | Annual | IEC 62443 series, NERC CIP, EU NIS 2, US TSA Directives, EU Critical Entities Resilience, ENTSO-E | template |
 | Compliance | Annex | SOX IT General Controls Annex | [`compliance/financial-services/annex-sox-itgc.md`](../compliance/financial-services/annex-sox-itgc.md) | Chief Compliance Officer | Annual | Sarbanes-Oxley §§302/404/906, PCAOB AS 2201, COSO ICIF 2013, COSO ERM, NI 52-109, J-SOX, SOC 1 (ISAE 3402/SSAE 18) | template |
