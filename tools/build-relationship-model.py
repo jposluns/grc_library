@@ -2,14 +2,20 @@
 """Generate `governance/relationship-model.generated.json` from the relationship source records.
 
 The relationship model is a derived, machine-readable projection of the
-hand-maintained records in `governance/relationship-model-source.json`,
-validated against the controlled vocabulary of
+hand-maintained node registry and relationship records in
+`governance/relationship-model-source.json`, validated against the
+controlled vocabulary of
 `governance/framework-governance-relationship-and-flow-modelling.md`:
 the controlled verb registry (the 18 structural verbs plus the 5
 assessed-outcome verbs), the node-class taxonomy, the nature
 vocabulary, and the field shape of that framework's illustrative
-machine-readable record. The generated file is not the source of
-truth: edit the source records and regenerate.
+machine-readable record. Schema version 2 adds the node registry:
+every record endpoint must resolve to a registered node (an
+unresolved endpoint is a hard error), a resolved endpoint's inline
+class must equal the registry node's class, and the resolved nodes
+ship in the generated model, so an edge-less node is still a
+resolvable node. The generated file is not the source of truth: edit
+the source and regenerate.
 
 Every record is validated before anything is written. A validation
 failure names the failing record id and the rule, and the tool exits
@@ -88,6 +94,14 @@ RECORD_FIELDS = (
 ENDPOINT_FIELDS = frozenset(("id", "class"))
 INVERSE_FIELDS = frozenset(("verb", "storage", "justification"))
 VALIDITY_FIELDS = frozenset(("from", "to"))
+# Schema-version-2 node registry: the resolvable node entries every
+# record endpoint must reference. id, display_name, and class are
+# required; source_identifier (the authority's own external identifier)
+# and corpus_path (the repo-relative corpus document for the node, when
+# one exists) are optional (null or a non-empty string).
+NODE_FIELDS = ("id", "display_name", "class", "source_identifier", "corpus_path")
+NODE_REQUIRED_FIELDS = frozenset(("id", "display_name", "class"))
+NODE_OPTIONAL_STR_FIELDS = ("source_identifier", "corpus_path")
 
 
 def _verb(relationship_class: str,
@@ -263,6 +277,71 @@ _registry_integrity()
 
 def _is_nonempty_str(value: object) -> bool:
     return isinstance(value, str) and value.strip() != ""
+
+
+def validate_nodes(nodes: list) -> tuple[list[str], dict[str, str | None]]:
+    """Validate the node registry; return (errors, node_index).
+
+    Every entry needs a unique non-empty id, a non-empty display_name,
+    and a class from the closed-world taxonomy; source_identifier and
+    corpus_path are optional (null or a non-empty string). The returned
+    node_index maps each usable node id to its stated class (or None
+    when the class itself is unusable), so endpoint resolution can
+    still resolve against a node whose own error is already reported,
+    rather than cascading a second, misleading unresolved-endpoint
+    error. A duplicate id keeps the first occurrence in the index and
+    reports [duplicate-node-id]."""
+    errors: list[str] = []
+    index: dict[str, str | None] = {}
+    counts: dict[str, int] = {}
+    for position, node in enumerate(nodes):
+        label = f"nodes[{position}]"
+        if not isinstance(node, dict):
+            errors.append(f"{label}: [node-shape] node must be a JSON object")
+            continue
+        nid = node.get("id")
+        if _is_nonempty_str(nid):
+            label = nid
+        else:
+            errors.append(f"{label}: [node-shape] id must be a non-empty string")
+        unknown = sorted(set(node) - set(NODE_FIELDS))
+        if unknown:
+            errors.append(f"{label}: [node-shape] unknown field(s): "
+                          f"{', '.join(unknown)}")
+        missing = sorted(NODE_REQUIRED_FIELDS - set(node))
+        if missing:
+            errors.append(f"{label}: [node-shape] missing field(s): "
+                          f"{', '.join(missing)}")
+        if "display_name" in node and not _is_nonempty_str(node.get("display_name")):
+            errors.append(f"{label}: [node-shape] display_name must be a "
+                          f"non-empty string")
+        node_cls: str | None = None
+        if "class" in node:
+            cls = node.get("class")
+            if not _is_nonempty_str(cls):
+                errors.append(f"{label}: [node-shape] class must be a "
+                              f"non-empty string")
+            else:
+                node_cls = cls
+                if cls not in CLASS_TO_CATEGORY:
+                    errors.append(
+                        f"{label}: [unmapped-node-class] class {cls!r} is not in "
+                        f"the closed-world CLASS_TO_CATEGORY map; add the class "
+                        f"with its taxonomy category in the same change that "
+                        f"first uses it")
+        for field in NODE_OPTIONAL_STR_FIELDS:
+            if (field in node and node[field] is not None
+                    and not _is_nonempty_str(node[field])):
+                errors.append(f"{label}: [node-shape] {field} must be null or "
+                              f"a non-empty string")
+        if _is_nonempty_str(nid):
+            counts[nid] = counts.get(nid, 0) + 1
+            if nid not in index:
+                index[nid] = node_cls
+    for nid in sorted(n for n, c in counts.items() if c > 1):
+        errors.append(f"{nid}: [duplicate-node-id] node id appears "
+                      f"{counts[nid]} times; node ids must be unique")
+    return errors, index
 
 
 def validate_record(rec: object, position: int) -> tuple[list[str], list[str]]:
@@ -548,6 +627,48 @@ def validate_record(rec: object, position: int) -> tuple[list[str], list[str]]:
     return errors, warnings
 
 
+def resolve_endpoints(records: list,
+                      node_index: dict[str, str | None]) -> list[str]:
+    """Schema-version-2 endpoint resolution: every record source.id and
+    destination.id must resolve to a node in the registry (an
+    unresolved endpoint is a hard error), and a resolved endpoint's
+    inline class must equal the registry node's class, so the
+    deliberate class duplication between a record and the registry can
+    never silently drift. Endpoints too malformed to carry an id are
+    skipped here; the per-record shape checks report them separately.
+    Support identifiers (evidence_refs, provenance, scope) reference
+    assessment artefacts, not graph endpoints, and are deliberately not
+    resolved here."""
+    errors: list[str] = []
+    for position, rec in enumerate(records):
+        if not isinstance(rec, dict):
+            continue
+        rid = rec.get("id")
+        label = rid if _is_nonempty_str(rid) else f"records[{position}]"
+        for role in ("source", "destination"):
+            endpoint = rec.get(role)
+            if not isinstance(endpoint, dict):
+                continue
+            ep_id = endpoint.get("id")
+            if not _is_nonempty_str(ep_id):
+                continue
+            if ep_id not in node_index:
+                errors.append(
+                    f"{label}: [unresolved-endpoint] {role}.id {ep_id!r} does "
+                    f"not resolve to a node in the nodes registry; register "
+                    f"the node in the same change that first references it")
+                continue
+            node_cls = node_index[ep_id]
+            ep_cls = endpoint.get("class")
+            if (node_cls is not None and _is_nonempty_str(ep_cls)
+                    and ep_cls != node_cls):
+                errors.append(
+                    f"{label}: [endpoint-class-mismatch] {role}.class "
+                    f"{ep_cls!r} does not match the registry class "
+                    f"{node_cls!r} for node {ep_id!r}")
+    return errors
+
+
 def _find_cycle(adjacency: dict[str, list[str]]) -> list[str] | None:
     """Return one directed cycle as a node list (first node repeated at the
     end), or None. Iterative three-colour depth-first search; iteration
@@ -647,14 +768,17 @@ def detect_primary_cycles(records: list) -> list[str]:
     return errors
 
 
-def validate_records(records: list) -> tuple[list[str], list[str]]:
-    """All validation: per-record rules, duplicate ids, and per-slice
-    primary-edge cycle detection. Returns (errors, warnings): every fatal
-    error and every advisory warning, not only the first. Only errors are
-    fatal; warnings (category compatibility) print for the reviewer and
-    never fail the build."""
+def validate_records(records: list, nodes: list) -> tuple[list[str], list[str]]:
+    """All validation: the node registry, per-record rules, duplicate
+    ids, endpoint resolution against the registry, and per-slice
+    primary-edge cycle detection. Returns (errors, warnings): every
+    fatal error and every advisory warning, not only the first. Only
+    errors are fatal; warnings (category compatibility) print for the
+    reviewer and never fail the build."""
     errors: list[str] = []
     warnings: list[str] = []
+    node_errors, node_index = validate_nodes(nodes)
+    errors.extend(node_errors)
     for position, rec in enumerate(records):
         rec_errors, rec_warnings = validate_record(rec, position)
         errors.extend(rec_errors)
@@ -666,8 +790,22 @@ def validate_records(records: list) -> tuple[list[str], list[str]]:
     for rid in sorted(rid for rid, n in counts.items() if n > 1):
         errors.append(f"{rid}: [duplicate-id] record id appears {counts[rid]} "
                       f"times; ids must be unique")
+    errors.extend(resolve_endpoints(records, node_index))
     errors.extend(detect_primary_cycles(records))
     return errors, warnings
+
+
+def normalize_node(node: dict) -> dict:
+    """Canonical projection of a validated node: all five fields
+    emitted, the optional ones as explicit nulls, so the output shape
+    is fixed whether the source omits or nulls an optional field."""
+    return {
+        "id": node["id"],
+        "display_name": node["display_name"],
+        "class": node["class"],
+        "source_identifier": node.get("source_identifier"),
+        "corpus_path": node.get("corpus_path"),
+    }
 
 
 def normalize_record(rec: dict) -> dict:
@@ -703,10 +841,13 @@ def normalize_record(rec: dict) -> dict:
     }
 
 
-def build(records: list) -> str:
-    """Serialize the model: normalized records sorted by id, plus a summary
-    of counts by relationship class. `json.dumps` with sorted keys and a
-    trailing newline keeps the output byte-deterministic for --check."""
+def build(nodes: list, records: list) -> str:
+    """Serialize the model: normalized nodes and records sorted by id,
+    plus a summary of counts by relationship class. `json.dumps` with
+    sorted keys and a trailing newline keeps the output
+    byte-deterministic for --check."""
+    normalized_nodes = sorted((normalize_node(node) for node in nodes),
+                              key=lambda node: node["id"])
     normalized = sorted((normalize_record(rec) for rec in records),
                         key=lambda rec: rec["id"])
     counts: dict[str, int] = {}
@@ -718,35 +859,47 @@ def build(records: list) -> str:
                     "governance/relationship-model-source.json. Regenerate with "
                     "python3 tools/build-relationship-model.py. Do not edit this "
                     "file by hand."),
-        "schema_version": 1,
+        "schema_version": 2,
         "generated_by": "tools/build-relationship-model.py",
         "source": "governance/relationship-model-source.json",
         "framework": "governance/framework-governance-relationship-and-flow-modelling.md",
         "summary": {
+            "node_count": len(normalized_nodes),
             "record_count": len(normalized),
             "records_by_relationship_class": counts,
         },
+        "nodes": normalized_nodes,
         "records": normalized,
     }
     return json.dumps(model, indent=2, sort_keys=True) + "\n"
 
 
-def load_records(payload: object) -> tuple[list, list[str]]:
+def load_source(payload: object) -> tuple[list, list, list[str]]:
     """Unwrap the source envelope: a JSON object holding an optional
-    _comment and the records list. Returns (records, errors)."""
+    _comment, the nodes registry, and the records list. Returns
+    (nodes, records, errors). A missing or non-list half is an error
+    and yields an empty list for that half, so the causal shape error
+    always prints first and validation of the other half still runs
+    (with an absent registry, the per-endpoint unresolved errors that
+    follow are accurate, not noise: nothing resolves)."""
     if not isinstance(payload, dict):
-        return [], [f"{SOURCE.name}: [shape] top level must be a JSON object "
-                    f"holding a records list"]
+        return [], [], [f"{SOURCE.name}: [shape] top level must be a JSON "
+                        f"object holding a nodes registry and a records list"]
     errors: list[str] = []
-    unknown = sorted(set(payload) - {"_comment", "records"})
+    unknown = sorted(set(payload) - {"_comment", "nodes", "records"})
     if unknown:
         errors.append(f"{SOURCE.name}: [shape] unknown top-level field(s): "
                       f"{', '.join(unknown)}")
+    nodes = payload.get("nodes")
+    if not isinstance(nodes, list):
+        errors.append(f"{SOURCE.name}: [shape] nodes must be a list (the "
+                      f"schema-version-2 node registry)")
+        nodes = []
     records = payload.get("records")
     if not isinstance(records, list):
         errors.append(f"{SOURCE.name}: [shape] records must be a list")
-        return [], errors
-    return records, errors
+        records = []
+    return nodes, records, errors
 
 
 def main() -> int:
@@ -770,8 +923,8 @@ def main() -> int:
         print(f"ERROR: {SOURCE.name} is not valid JSON: {exc}")
         return 2
 
-    records, errors = load_records(payload)
-    record_errors, warnings = validate_records(records)
+    nodes, records, errors = load_source(payload)
+    record_errors, warnings = validate_records(records, nodes)
     errors.extend(record_errors)
     for warning in warnings:
         print(f"WARN: {warning}", file=sys.stderr)
@@ -786,7 +939,7 @@ def main() -> int:
         print(f"{len(errors)} validation error(s); nothing written.")
         return 1
 
-    new_content = build(records)
+    new_content = build(nodes, records)
 
     if args.check:
         if not GENERATED.exists():
@@ -798,11 +951,12 @@ def main() -> int:
             print(f"FAIL: {GENERATED.name} is out of sync with {SOURCE.name}.")
             print("Run `python3 tools/build-relationship-model.py` to regenerate.")
             return 1
-        print(f"OK: {GENERATED.name} is in sync ({len(records)} records validated).")
+        print(f"OK: {GENERATED.name} is in sync ({len(nodes)} nodes, "
+                f"{len(records)} records validated).")
         return 0
 
     GENERATED.write_text(new_content, encoding="utf-8")
-    print(f"Wrote {GENERATED.name} ({len(records)} records, "
+    print(f"Wrote {GENERATED.name} ({len(nodes)} nodes, {len(records)} records, "
           f"{len(new_content.splitlines())} lines).")
     return 0
 

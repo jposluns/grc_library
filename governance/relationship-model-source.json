@@ -1,14 +1,91 @@
 {
   "_comment": [
-    "Hand-maintained relationship source records for the GRC Documentation Library.",
+    "Hand-maintained relationship source data for the GRC Documentation Library:",
+    "a nodes registry (the resolvable node entries: id, display_name, class, and",
+    "optional source_identifier and corpus_path) plus the relationship records.",
     "Governed by governance/framework-governance-relationship-and-flow-modelling.md:",
     "every record must use the controlled verb vocabulary, the node-class taxonomy,",
-    "and the field shape of that framework's illustrative machine-readable record.",
-    "Identifiers are placeholders only: no real standard, control, or framework",
-    "identifier appears, and no third-party text is reproduced. The records are the",
-    "library's own illustrative relationship data; adopters are not required to",
-    "adopt them. Regenerate the derived model with",
-    "python3 tools/build-relationship-model.py after any edit here."
+    "and the field shape of that framework's illustrative machine-readable record,",
+    "and every record endpoint must resolve to a node registered here (the",
+    "endpoint class is repeated inline and validated to equal the registry",
+    "node's class). Real authority and corpus identifiers are permitted in the",
+    "library's own nodes and records; the EXAMPLE-* entries remain illustrative,",
+    "and no third-party text is reproduced. This is the library's own",
+    "relationship data; adopters are not required to adopt it. Regenerate the",
+    "derived model with python3 tools/build-relationship-model.py after any",
+    "edit here."
+  ],
+  "nodes": [
+    {
+      "id": "EXAMPLE-CATALOGUE-01",
+      "display_name": "Example Control Catalogue 01",
+      "class": "control catalogue",
+      "source_identifier": null,
+      "corpus_path": null
+    },
+    {
+      "id": "EXAMPLE-CONTROL-01",
+      "display_name": "Example Technical Control 01",
+      "class": "technical control",
+      "source_identifier": null,
+      "corpus_path": null
+    },
+    {
+      "id": "EXAMPLE-FRAMEWORK-01",
+      "display_name": "Example Framework 01",
+      "class": "framework",
+      "source_identifier": null,
+      "corpus_path": null
+    },
+    {
+      "id": "EXAMPLE-GUIDELINE-01",
+      "display_name": "Example Guideline 01",
+      "class": "guideline",
+      "source_identifier": null,
+      "corpus_path": null
+    },
+    {
+      "id": "EXAMPLE-OBJECTIVE-01",
+      "display_name": "Example Control Objective 01",
+      "class": "control objective",
+      "source_identifier": null,
+      "corpus_path": null
+    },
+    {
+      "id": "EXAMPLE-ORGANIZATION-01",
+      "display_name": "Example Organization 01",
+      "class": "organization",
+      "source_identifier": null,
+      "corpus_path": null
+    },
+    {
+      "id": "EXAMPLE-POLICY-01",
+      "display_name": "Example Policy 01",
+      "class": "policy",
+      "source_identifier": null,
+      "corpus_path": null
+    },
+    {
+      "id": "EXAMPLE-PROCEDURE-01",
+      "display_name": "Example Procedure 01",
+      "class": "procedure",
+      "source_identifier": null,
+      "corpus_path": null
+    },
+    {
+      "id": "EXAMPLE-REGULATION-01",
+      "display_name": "Example Regulation 01",
+      "class": "regulation or law",
+      "source_identifier": null,
+      "corpus_path": null
+    },
+    {
+      "id": "EXAMPLE-STANDARD-ORG-01",
+      "display_name": "Example Organizational Standard 01",
+      "class": "organizational standard",
+      "source_identifier": null,
+      "corpus_path": null
+    }
   ],
   "records": [
     {

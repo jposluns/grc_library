@@ -9685,6 +9685,11 @@ class RelationshipModelGeneratorTests(unittest.TestCase):
     the --check regeneration gate. Negative fixtures are built in process
     from a base record that passes every rule, so each test carries exactly
     one violation (the base record's clean pass is the positive control);
+    the schema-version-2 node registry is synthesized from each test's
+    endpoints unless a test passes its own (the registry rules,
+    unresolved endpoints, duplicate node ids, unmapped node classes,
+    endpoint class mismatches, and the edge-less node resolving into
+    the generated model, are each exercised explicitly);
     category compatibility is asserted as an advisory warning that still
     builds, the cycle check is asserted per viewpoint within one context
     (with unscoped edges universal), the
@@ -9750,13 +9755,46 @@ class RelationshipModelGeneratorTests(unittest.TestCase):
         rec.update(overrides)
         return rec
 
-    def _validate(self, *records) -> tuple:
-        """(errors, warnings) from a fresh module load."""
-        mod = self._load("_relmodel_validate")
-        return mod.validate_records(list(records))
+    @staticmethod
+    def _node(node_id: str, node_class: str, **overrides) -> dict:
+        """A registry node that passes every node rule; tests override one."""
+        node = {
+            "id": node_id,
+            "display_name": node_id.replace("-", " ").title(),
+            "class": node_class,
+            "source_identifier": None,
+            "corpus_path": None,
+        }
+        node.update(overrides)
+        return node
 
-    def _errors(self, *records) -> list:
-        return self._validate(*records)[0]
+    def _nodes_for(self, *records) -> list:
+        """Synthesize a registry resolving every endpoint of the given
+        records (first-seen class wins), so a record-rule test carries
+        exactly its one violation and no incidental unresolved-endpoint
+        noise."""
+        seen: dict = {}
+        for rec in records:
+            for role in ("source", "destination"):
+                endpoint = rec.get(role)
+                if not isinstance(endpoint, dict):
+                    continue
+                eid = endpoint.get("id")
+                ecls = endpoint.get("class")
+                if isinstance(eid, str) and eid and eid not in seen:
+                    seen[eid] = ecls if isinstance(ecls, str) and ecls else "policy"
+        return [self._node(eid, ecls) for eid, ecls in seen.items()]
+
+    def _validate(self, *records, nodes=None) -> tuple:
+        """(errors, warnings) from a fresh module load. With nodes=None a
+        registry resolving every endpoint is synthesized; pass nodes
+        explicitly to exercise the registry rules themselves."""
+        mod = self._load("_relmodel_validate")
+        node_list = self._nodes_for(*records) if nodes is None else nodes
+        return mod.validate_records(list(records), node_list)
+
+    def _errors(self, *records, nodes=None) -> list:
+        return self._validate(*records, nodes=nodes)[0]
 
     def _run_main(self, mod, *argv: str) -> int:
         old_argv = sys.argv
@@ -9800,9 +9838,11 @@ class RelationshipModelGeneratorTests(unittest.TestCase):
             source = root / "relationship-model-source.json"
             generated = root / "relationship-model.generated.json"
             import json as _json
-            source.write_text(_json.dumps({"records": [self._record(
+            rec = self._record(
                 verb="implements", relationship_class="implementation",
-                destination={"id": "EXAMPLE-POLICY-B", "class": "policy"})]}),
+                destination={"id": "EXAMPLE-POLICY-B", "class": "policy"})
+            source.write_text(
+                _json.dumps({"nodes": self._nodes_for(rec), "records": [rec]}),
                 encoding="utf-8")
             import contextlib
             import io
@@ -9822,9 +9862,17 @@ class RelationshipModelGeneratorTests(unittest.TestCase):
                 mod.SOURCE, mod.GENERATED = old
 
     def test_unmapped_node_class_flagged(self) -> None:
+        # Guard the RECORD-level endpoint-class taxonomy check (role-prefixed
+        # diagnostic) specifically: the synthesized registry mirrors the class
+        # and also emits a node-level [unmapped-node-class], so a bare
+        # substring assertion would pass on the registry error alone and leave
+        # the legacy validate_record endpoint-class check unguarded (codex
+        # #1672 mutation finding).
         errs = self._errors(self._record(
             source={"id": "EXAMPLE-X-1", "class": "quantum widget"}))
-        self.assertTrue(any("[unmapped-node-class]" in e for e in errs), errs)
+        self.assertTrue(
+            any("[unmapped-node-class]" in e and "source.class" in e
+                for e in errs), errs)
 
     def test_primary_cycle_within_one_viewpoint_flagged(self) -> None:
         # Both records are unscoped, so they share one (viewpoint, scope)
@@ -9948,6 +9996,99 @@ class RelationshipModelGeneratorTests(unittest.TestCase):
         errs = self._errors(self._record(
             inverse={"verb": "is specified by", "storage": "inferred"}))
         self.assertTrue(any("[inverse-verb-mismatch]" in e for e in errs), errs)
+
+    def test_unresolved_endpoint_flagged(self) -> None:
+        # Schema v2: an edge endpoint referencing a non-registry id is a
+        # hard error naming the record, the role, and the missing id.
+        rec = self._record()
+        nodes = [n for n in self._nodes_for(rec)
+                 if n["id"] != "EXAMPLE-STANDARD-ORG-A"]
+        errors, _ = self._validate(rec, nodes=nodes)
+        self.assertTrue(
+            any("[unresolved-endpoint]" in e and "EXAMPLE-STANDARD-ORG-A" in e
+                for e in errors), errors)
+
+    def test_duplicate_node_id_flagged(self) -> None:
+        rec = self._record()
+        nodes = self._nodes_for(rec)
+        nodes.append(dict(nodes[0]))
+        errors, _ = self._validate(rec, nodes=nodes)
+        self.assertTrue(any("[duplicate-node-id]" in e for e in errors), errors)
+
+    def test_invalid_node_class_flagged(self) -> None:
+        rec = self._record()
+        nodes = self._nodes_for(rec)
+        nodes.append(self._node("EXAMPLE-WIDGET-A", "quantum widget"))
+        errors, _ = self._validate(rec, nodes=nodes)
+        self.assertTrue(
+            any("[unmapped-node-class]" in e and "EXAMPLE-WIDGET-A" in e
+                for e in errors), errors)
+
+    def test_endpoint_class_mismatch_flagged(self) -> None:
+        # The inline endpoint class is deliberate duplication; a registry
+        # disagreement is a hard error, never silent drift.
+        rec = self._record()
+        nodes = self._nodes_for(rec)
+        for node in nodes:
+            if node["id"] == "EXAMPLE-POLICY-A":
+                node["class"] = "guideline"
+        errors, _ = self._validate(rec, nodes=nodes)
+        self.assertTrue(any("[endpoint-class-mismatch]" in e for e in errors),
+                        errors)
+
+    def test_edge_less_node_resolves_into_generated_model(self) -> None:
+        # The Series-A resolvable-node acceptance shape: a registry node
+        # with no edges still validates, ships in the generated model's
+        # nodes block, and --check stays green (schema_version 2).
+        mod = self._load("_relmodel_edgeless_node")
+        old = (mod.SOURCE, mod.GENERATED)
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            source = root / "relationship-model-source.json"
+            generated = root / "relationship-model.generated.json"
+            rec = self._record()
+            nodes = self._nodes_for(rec) + [
+                self._node("EXAMPLE-AUTHORITY-EDGELESS", "standards body")]
+            import json as _json
+            source.write_text(_json.dumps({"nodes": nodes, "records": [rec]}),
+                              encoding="utf-8")
+            try:
+                mod.SOURCE = source
+                mod.GENERATED = generated
+                self.assertEqual(self._run_main(mod), 0)
+                model = _json.loads(generated.read_text(encoding="utf-8"))
+                self.assertEqual(model["schema_version"], 2)
+                self.assertIn("EXAMPLE-AUTHORITY-EDGELESS",
+                              [n["id"] for n in model["nodes"]])
+                self.assertEqual(model["summary"]["node_count"], len(nodes))
+                self.assertEqual(self._run_main(mod, "--check"), 0)
+            finally:
+                mod.SOURCE, mod.GENERATED = old
+
+    def test_missing_nodes_registry_fails_loud_in_temp_tree(self) -> None:
+        # The v2 envelope requires the nodes registry: a source with
+        # records but no nodes list fails loud at load and writes nothing.
+        mod = self._load("_relmodel_missing_nodes")
+        old = (mod.SOURCE, mod.GENERATED)
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            source = root / "relationship-model-source.json"
+            generated = root / "relationship-model.generated.json"
+            import json as _json
+            source.write_text(_json.dumps({"records": [self._record()]}),
+                              encoding="utf-8")
+            import contextlib
+            import io
+            try:
+                mod.SOURCE = source
+                mod.GENERATED = generated
+                stdout = io.StringIO()
+                with contextlib.redirect_stdout(stdout):
+                    self.assertEqual(self._run_main(mod), 1)
+                self.assertIn("nodes must be a list", stdout.getvalue())
+                self.assertFalse(generated.exists())
+            finally:
+                mod.SOURCE, mod.GENERATED = old
 
     def test_committed_seed_and_generated_model_in_sync(self) -> None:
         mod = self._load("_relmodel_check_head")
