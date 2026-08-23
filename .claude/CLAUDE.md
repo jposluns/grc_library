@@ -649,8 +649,8 @@ described a fact pattern in which records could be destroyed before a statutory 
 expires. The QA had already found it. Nobody had looked.
 
 **The specific failure this forecloses:** treating a delivered result as inventory to triage later.
-Deliveries accumulate silently because nothing about a full outbox is loud, so "I will read them at
-the next boundary" becomes never, and the boundary that finally forces it is a maintainer noticing.
+A returned QA result is easy to set aside because nothing about an unread result is loud, so "I will
+read it at the next boundary" becomes never, and the boundary that finally forces it is a maintainer noticing.
 
 **Operationally.** An `orch-verify` QA worker returns its result synchronously, so the result is in
 hand the moment the dispatch returns; read every QA-kind result before selecting new work. An unread QA

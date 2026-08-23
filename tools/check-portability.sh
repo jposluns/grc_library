@@ -74,7 +74,7 @@ rc=$?
 # advisory tools must no-op and exit 0 (not error) when their sibling repo is
 # absent, so an adopter running them on a sibling-free clone gets a clean advisory
 # rather than a spurious failure. ref-holds needs a query argument to reach the
-# lookup path; the other two take none.
+# lookup path; the others take none.
 adv_rc=0
 echo
 echo "Checking the sibling-reaching advisory/generator tools degrade gracefully (TODO 1.19.2, 1.19.7) ..."

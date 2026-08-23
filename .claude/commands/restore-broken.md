@@ -121,6 +121,6 @@ miss to escalate; ordinary findings route to the backlog. Then continue the defe
   into a harder-to-reverse mess.
 - **Assuming turn-end is inert** when a Stop hook would auto-commit the dirty tree.
 - **Letting a stale lease's unattended mode silently suppress the questions** the recovery needs to ask.
-- **Reading the tray count as the unprocessed count** and re-actioning already-merged findings.
+- **Reading the file-drop `inbox/` count as the unprocessed count** and re-actioning already-merged findings.
 - **Winding down over an unvalidated interrupted PR**, or resuming without running the compensating
   `/validate`.

@@ -47,6 +47,10 @@ from pathlib import Path
 # that moves on disk (the repo-root-relocation row of the change-impact surface map).
 TRANSCRIPT_HOME = Path.home() / ".claude" / "projects"
 FILEDROP_DEFAULT = Path("/opt/grc/grc_working")
+# NOTE (2026-08-23): the exec-dispatch / delivery-tray model is retired (orch-verify is synchronous
+# and returns its result in hand, never via a tray). This tool's worker-spend source below therefore
+# reads empty on the now-absent tray; re-pointing it to the orch-verify spend signal is a tracked
+# follow-up. Until then it no-ops safely (spend counted as zero).
 DELIVERY_TRAY_REL = "inbox/deliveries"
 
 # A worker's self-reported spend. Deliberately several phrasings: the figure is prose in a

@@ -24,9 +24,14 @@ an unfinished task list, to uncommitted working-tree changes, and to a detached 
 real outstanding work and this hook will let you yield on all of them; the discipline, not the
 guard, covers them.
 
-WHAT IT BLOCKS. A turn-end while EITHER arm is true:
-  * a delivery has landed in the tray since the last recorded consume, or
-  * a branch is ahead of main and is not on the recorded held list.
+WHAT IT BLOCKS. A turn-end while a branch is ahead of main and is not on the recorded held list.
+
+  VESTIGIAL ARM (2026-08-23): a second arm ("a delivery has landed in the tray since the last recorded
+  consume") is retained in the pure `decide()` logic but is now INERT. The exec-dispatch / delivery-tray
+  model was retired in favour of synchronous orch-verify (which returns its result in hand, no tray), so
+  `new_deliveries()` returns [] on the now-absent tray and this arm never fires in the live path. Its
+  full removal (with the self-test) is a tracked follow-up; leaving the fail-open inert code was chosen
+  over risky surgery on a live Stop hook.
 
 WHAT IT DOES NOT BLOCK, by construction:
   * a continuation that is already under way (stop_hook_active), so it blocks at most once and
