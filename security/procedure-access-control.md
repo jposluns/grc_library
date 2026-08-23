@@ -2,8 +2,8 @@
 
 **Document Title:** Access Control Procedure\
 **Document Type:** Procedure\
-**Version:** 1.2.4\
-**Date:** 2026-08-05\
+**Version:** 1.2.5\
+**Date:** 2026-08-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-identity-management.md`](procedure-identity-management.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md)\
@@ -100,6 +100,8 @@ Applies to all access to organizational systems including cloud platforms, on-pr
 | Standard user access: high-sensitivity systems | Semi-annual |
 | Standard user access: general systems | Annual |
 | Third-party / contractor access | On contract renewal and at least annually |
+
+These risk-tiered frequencies are the default triggers the quarterly entitlement-review touchpoint in [`policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md) §4.3.4 applies on a risk basis; a full review is mandated at least annually regardless where one has not already occurred in the preceding 12 months.
 
 3.2 Access reviews confirm that each user's current access:
 
