@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance Domain README\
 **Document Type:** Register\
-**Version:** 1.4.9\
-**Date:** 2026-07-09\
+**Version:** 1.4.10\
+**Date:** 2026-08-23\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/logistics/README.md`](logistics/README.md), [`compliance/financial-services/README.md`](financial-services/README.md), [`compliance/healthcare/README.md`](healthcare/README.md), [`compliance/energy-and-utilities/README.md`](energy-and-utilities/README.md), [`compliance/telecommunications/README.md`](telecommunications/README.md), [`compliance/public-sector/README.md`](public-sector/README.md)\
@@ -116,6 +116,7 @@ Each sub-directory has its own README listing the artefacts within and the regul
 | Type | Title | Path |
 | --- | --- | --- |
 | Annex | Public Sector GRC Requirements Annex | [`compliance/public-sector/annex-public-sector-requirements.md`](public-sector/annex-public-sector-requirements.md) |
+| Annex | Canada Public Sector GRC Requirements Annex | [`compliance/public-sector/annex-canada-public-sector-requirements.md`](public-sector/annex-canada-public-sector-requirements.md) |
 | Annex | FedRAMP Requirements Annex | [`compliance/public-sector/annex-fedramp-requirements.md`](public-sector/annex-fedramp-requirements.md) |
 | Annex | eIDAS Sector Requirements Annex | [`compliance/public-sector/annex-eidas-requirements.md`](public-sector/annex-eidas-requirements.md) |
 
