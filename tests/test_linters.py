@@ -1976,16 +1976,6 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          f"gate --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
         self.assertIn("self-test: ", result.stdout)
 
-    def test_block_unknown_worker_model_hook_self_test(self) -> None:
-        """The 3.194 model-validity guard's own self-test, wired here (its introduction PR #1319
-        shipped the self-test but not this CI wiring; a fail-open guard that rots is worse than none)."""
-        result = self._run_selftest(
-            [sys.executable, str(REPO_ROOT / ".claude" / "hooks" / "block-unknown-worker-model.py"), "--self-test"]
-        )
-        self.assertEqual(result.returncode, 0,
-                         f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
-        self.assertIn("self-test: ", result.stdout)
-
     def test_selftest_discriminability_probe_self_test(self) -> None:
         """The discriminability probe's own self-test. It is an instrument, so it is calibrated here."""
         result = self._run_selftest(
@@ -1994,24 +1984,6 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         )
         self.assertEqual(result.returncode, 0,
                          f"probe --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
-        self.assertIn("self-test: ", result.stdout)
-
-    def test_collect_deliveries_self_test(self) -> None:
-        """The delivery-tray sweep's own self-test, wired in so it cannot rot.
-
-        Wired at introduction rather than later, because the 2026-07-25 discriminability audit
-        found 20 tools advertising a self-test and 28 sites whose cases could not detect the
-        removal of the guard they named. This tool's 8 decision guards were each mutation-proved
-        DETECTED before it shipped, and this wiring is what keeps that true.
-        """
-        result = self._run_selftest(
-            [sys.executable, str(REPO_ROOT / "tools" / "collect-deliveries.py"), "--self-test"]
-        )
-        self.assertEqual(
-            result.returncode, 0,
-            f"collect-deliveries --self-test failed.\nstdout:\n{result.stdout}"
-            f"\nstderr:\n{result.stderr}",
-        )
         self.assertIn("self-test: ", result.stdout)
 
     def test_handoff_snapshot_self_test(self) -> None:
@@ -11764,29 +11736,10 @@ class TokenSpendToolTests(LinterTestCase):
         )
 
 
-class ExecDispatchToolTests(LinterTestCase):
-    """The ``tools/exec-dispatch.py`` worker-dispatch tool's own ``--self-test``.
-
-    Wired here for the same reason as the token-spend tool: it is project-only operational
-    machinery that no corpus gate exercises, yet it guards a consequential path (which account a
-    worker lands on, the fail-closed refusals on a corrupt in-flight registry, the worker-log
-    pointer). Its ``--self-test`` is pure (in-memory fixture plus tempdirs, no config/network), so
-    a regression in its 60-plus decision checks would otherwise reach CI green.
-    """
-
-    def test_exec_dispatch_self_test_passes(self) -> None:
-        result = run_linter("tools/exec-dispatch.py", "--self-test")
-        self.assertEqual(
-            result.returncode, 0,
-            f"exec-dispatch.py --self-test failed.\n"
-            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
-        )
-
-
 class ActivityTimingToolTests(LinterTestCase):
     """The advisory ``tools/audit-activity-timing.py`` tool's own ``--self-test``.
 
-    Wired here like the token-spend and exec-dispatch tools: it is transcript- and
+    Wired here like the token-spend tool: it is transcript- and
     environment-dependent so no corpus gate exercises it, yet its pure timeline/idle-span math is
     what turns raw timestamps into the maintainer's never-sample duration figures, so a regression
     must not read clean.
@@ -11849,14 +11802,6 @@ class UnwiredToolSelfTests(LinterTestCase):
         self.assertEqual(
             result.returncode, 0,
             f"build-public-changelog.py --self-test failed.\n"
-            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
-        )
-
-    def test_audit_delivery_status_self_test_passes(self) -> None:
-        result = run_linter("tools/audit-delivery-status.py", "--self-test")
-        self.assertEqual(
-            result.returncode, 0,
-            f"audit-delivery-status.py --self-test failed.\n"
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 

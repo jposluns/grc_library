@@ -83,7 +83,7 @@ calibration and nothing gates on it.
 
 DOCUMENTATION RESOLUTION RECORD. In the same PR, the dual-family standard in
 `.claude/CLAUDE.md` and the pre-push-verifier exception in
-`references/worker-offload.md` were amended to use exec-dispatch workers. This
+`references/worker-offload.md` were amended to use orch-verify workers. This
 resolved the earlier conflict between those documents and the guard.
 
 Self-test: `python3 block-orchestrator-self-qa.py --self-test`.
@@ -409,7 +409,7 @@ def _self_test() -> int:
                     self.assertIn(tool, message)
 
         def test_block_message_gives_the_skip_operand(self):
-            # orch-verify excludes an account with --skip <label> (the old exec-dispatch --not-account)
+            # orch-verify excludes an account with --skip <label>
             self.assertIn("--skip <account-label>", decide(dispatch(prompt="x"))[1])
 
         def test_bypass_message_names_the_whole_dispatch_tool_class(self):

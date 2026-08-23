@@ -134,7 +134,6 @@ Per-activity disciplines that load "like a skill" at their boundary, not every t
 | PR close-out and session-migration | [PR lifecycle and close-out](../references/pr-lifecycle.md) |
 | An externally-versioned reference (standard, framework, dataset) becomes load-bearing | [Reference-version currency and missing references](../references/reference-currency.md) |
 | Worker dispatch: deciding whether to self-run offloadable work, or managing dispatched workers | [Mandatory worker offload](../references/worker-offload.md) |
-| Constructing / pinning a worker order, managing a codex worker, or processing the delivery trays | [Worker dispatch mechanics and delivery trays](../references/worker-dispatch.md) |
 
 ## Project
 The GRC Library: a CC BY-SA 4.0 corpus of governance, risk, and compliance
@@ -480,13 +479,12 @@ the maintainer.
 
 The discipline ships in the pack rule [`validate-inference-before-action`](rules/governance/validate-inference-before-action.md) (`## Guard inputs`): a guard whose logic is correct and mutation-proved can still be fed an INPUT that cannot answer the question asked of it (mutation perturbs branches, so it is silent on input fidelity). At each consequential guard ask the authority question (can this source even in principle answer this?); make ignorance a first-class return value that REFUSES rather than permits; keep a reality fixture per observer bug; mutate the observer, not only the decision; state a proxy's residue at the point of use; keep a pure decision function behind a thin observer so both halves stay testable. **Project instances (one observed day, one shape):** `tools/manage-workers.py` prefix-matched a **tmux** session name against a per-run worker id, PERMITTING a destructive verb against a worker holding live work (fixed #1170, a five-state attribution that refuses on ambiguity or non-match); delivery-completeness was inferred from a file merely existing (fixed #1171, atomic rename + end-of-delivery sentinel, with the residue stated: the sentinel proves the file went through `deliver`, not that its content is semantically complete); worker-health is read from a heartbeat on a code path separate from the claim loop, so a worker that stopped claiming still read as healthy capacity (fixed #1174, the SAME class).
 
-## Worker dispatch: pinning orders, single-shot codex, and the delivery trays
+## Worker dispatch: pinning orders and single-shot orch-verify workers
 
-The order-construction and delivery-tray mechanics load at the worker-dispatch boundary like a skill: **pin an order to a commit that CONTAINS what it references** (for a backlog item N, the commit that CREATED N, not a later one); **codex workers are SINGLE-SHOT** (exec-dispatch runs each to completion via `run-codex-worker`; scope each to one self-contained pass); and the **two delivery trays**. The full detail (the pin-SHA REFUSAL/WARNING dispatch backstops, the codex single-shot exec-dispatch model and why a codex chat cannot be resumed, the `inbox/` vs `inbox/deliveries/` layout and naming, and the `collect-deliveries.py` two-plane completeness mechanics) lives in the [Worker dispatch mechanics and delivery trays](../references/worker-dispatch.md) playbook. This is project-only operational machinery, not pack material; the mechanical backstops are the [`exec-dispatch.py`](../tools/exec-dispatch.py) dispatch-time checks and [`collect-deliveries.py`](../tools/collect-deliveries.py)'s two completeness layers.
+Two disciplines load at the worker-dispatch boundary. **Pin an order to a commit that CONTAINS what it references** (for a backlog item N, the commit that CREATED N, not a later one; name the SHA in the brief, since `orch-verify` reads the working tree at the given workdir rather than a pinned ref). **`orch-verify` workers are SINGLE-SHOT and SYNCHRONOUS**: each runs to completion and returns its stdout directly, so there is NO async delivery tray, no `collect-deliveries` sweep, and no resumable worker chat; scope each order to one self-contained pass. The full dispatch mechanics live in the [Mandatory worker offload](../references/worker-offload.md) playbook. (The former `exec-dispatch` / two-delivery-tray model was retired when the transport moved to `orch-verify`.)
 
-Two clauses stay inline because their blast radius reaches beyond the dispatch activity:
-- **Inbox issues jump the queue.** A worker-raised HIGH-PRIORITY issue in `inbox/` (a blocker, a malformed order, an out-of-scope defect, or an independence conflict) jumps the queue and is read as soon as noticed, never batched to a boundary; routine `inbox/deliveries/` results wait for the next boundary. Workers run HEADLESS, so nothing else surfaces the issue.
-- **Sweep the trays every boundary.** Run [`tools/collect-deliveries.py`](../tools/collect-deliveries.py) at each task boundary and read the trays before selecting work (the QA-priority form of this is `## A delivered QA result BLOCKS progress until it is read and its findings are fixed` above).
+One clause stays inline because its blast radius reaches beyond the dispatch activity:
+- **Maintainer/worker file-drops jump the queue.** A drop in the file-drop `inbox/` (a maintainer document, or a worker delivering something that was never ordered) is work handed to the orchestrator OUTSIDE the order queue; read it as soon as noticed (surfaced by [`tools/audit-inbox-drops.py`](../tools/audit-inbox-drops.py) at resume and task boundaries), never batched. This is distinct from an `orch-verify` worker's own result, which returns synchronously and is in hand the moment the dispatch returns.
 
 ## Source-and-adapter parity (grc_library authors, guardrails publishes)
 
@@ -654,9 +652,9 @@ expires. The QA had already found it. Nobody had looked.
 Deliveries accumulate silently because nothing about a full outbox is loud, so "I will read them at
 the next boundary" becomes never, and the boundary that finally forces it is a maintainer noticing.
 
-**Operationally.** At every task boundary run
-[`tools/collect-deliveries.py`](../tools/collect-deliveries.py) and read every QA-kind item in the
-tray before selecting work. A tray holding an unread QA delivery means there IS no next work item.
+**Operationally.** An `orch-verify` QA worker returns its result synchronously, so the result is in
+hand the moment the dispatch returns; read every QA-kind result before selecting new work. An unread QA
+result means there IS no next work item.
 An in-flight PR may be finished, since abandoning it mid-flight leaves worse state, but no NEW PR
 starts. If a finding cannot be fixed in-window it is routed with its tier and named in the PR that
 follows, never left resident in the tray as a substitute for a decision. A HOLD verdict blocks the
@@ -818,7 +816,7 @@ decision is recorded (in `grc_library_private/.working/pending-decisions.md`, th
 record, or `grc_library_private/.working/DONE.md`), ACT on it, never re-ask. Re-asking a decided question
 wastes the maintainer's time and erodes trust (an observed recurrence: several content
 forks re-asked though all were recorded in `pending-decisions.md`). This is the executed-not-narrated forcing function,
-the same shape as `audit-delivery-status.py` and `ref-holds.py`. A mechanical backstop, the
+the same shape as `ref-holds.py`. A mechanical backstop, the
 [`block-answered-question.py`](hooks/block-answered-question.py) PreToolUse hook, was DISABLED
 2026-08-13 (maintainer-directed): it keyed on a question's bare distinctive tokens (a lone
 `P-3` matched unrelated recorded decisions), so it false-fired on roughly nine of ten

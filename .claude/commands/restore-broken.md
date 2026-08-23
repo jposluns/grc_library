@@ -7,7 +7,7 @@ description: Recover a project whose orchestrator died or ran out of usage mid-s
 The recovery counterpart to [`/orch`](orch.md). `/orch` rebuilds from a CLEAN
 session-closing handoff. `/restore-broken` is for the case where there is NO clean handoff: the
 previous orchestrator **died, ran out of usage, or was interrupted mid-session**, so `main`, the
-lease, the handoff, and the delivery tray are in a partly-applied, internally-inconsistent state,
+lease and the handoff are in a partly-applied, internally-inconsistent state,
 and often the recovering session is a DIFFERENT identity than the one that died.
 
 The goal is not to guess what the dead session intended. It is to (1) observe the true state
@@ -44,8 +44,7 @@ Emit the AIQT check line, then observe. Do NOT infer state you can read.
    `pending-decisions.md`, `TODO.md` forward sections, and any transition or handoff document a
    departing worker or the maintainer left at the launch root or in the inbox. Note where the lease
    and handoff DISAGREE with live HEAD (that gap is the fingerprint of the interruption).
-4. **The exchange state.** The delivery tray
-   (`inbox/deliveries/`) and the issue channel (`inbox/*.md`); orders claimed-but-undelivered. Many
+4. **The exchange state.** The file-drop `inbox/` (maintainer/worker drops surfaced by `audit-inbox-drops.py`). orch-verify workers return synchronously, so there is no async delivery tray to reconcile; a crashed worker simply did not return. Many
    tray deliveries may already be reflected in merged PRs but never swept to `done/`: assess each; do
    NOT assume the tray count is the unprocessed count.
 5. **SAFETY: does ending this turn change anything?** Check for a **Stop / SessionEnd / PostToolUse
@@ -91,7 +90,7 @@ Report, scannable, no diffs dumped to chat:
 4. **Reconcile identity and lease.** ACQUIRE the lease under THIS session and the CORRECT operating
    mode (the takeover mode the maintainer set, for example daytime attended-autonomous), replacing the
    dead session's stale declaration.
-5. **Reconcile the delivery tray.** Archive already-processed deliveries to `done/`; surface
+5. **Reconcile the file-drop inbox.** Move already-processed drops to `done/`; surface
    genuinely-open findings and route or fix them. Move, never delete; the tray move is the only
    processed-marker.
 6. **Triage any external assessment** against the live backlog and merged PRs; re-verify positives at
