@@ -13,25 +13,17 @@ REVISED 2026-08-07, same day, after a dual-family review of the FIRST version re
 against it. Four were fatal and all four are fixed here: it never read its Stop payload, so it could
 not see stop_hook_active and had no terminating condition; its escape hatch was an environment
 variable the actor cannot set into this process, which is the appearance of an escape rather than
-one; a MISSING consume marker made the threshold epoch 0, so every file in the tray read as
-unconsumed, which is the opposite of the fail-open contract the docstring claimed; and the held-
-branch list was a hardcoded set whose "must cite a decision record" was an unenforced comment.
+one; and the held-branch list was a hardcoded set whose "must cite a decision record" was an
+unenforced comment.
 
 WHAT IT IS, stated narrowly because a cross-family verifier caught the first version claiming more
-than it can see. This is a DELIVERED-RESULT AND LOCAL-BRANCH SENTINEL, not a general
-outstanding-work detector. It is blind to a dispatched worker that has not yet written a file, to
-an unfinished task list, to uncommitted working-tree changes, and to a detached commit. Those are
+than it can see. This is a LOCAL-BRANCH SENTINEL, not a general
+outstanding-work detector. It is blind to a still-running dispatched worker, to an unfinished task list, to uncommitted
+working-tree changes, and to a detached commit. Those are
 real outstanding work and this hook will let you yield on all of them; the discipline, not the
 guard, covers them.
 
 WHAT IT BLOCKS. A turn-end while a branch is ahead of main and is not on the recorded held list.
-
-  VESTIGIAL ARM (2026-08-23): a second arm ("a delivery has landed in the tray since the last recorded
-  consume") is retained in the pure `decide()` logic but is now INERT. The exec-dispatch / delivery-tray
-  model was retired in favour of synchronous orch-verify (which returns its result in hand, no tray), so
-  `new_deliveries()` returns [] on the now-absent tray and this arm never fires in the live path. Its
-  full removal (with the self-test) is a tracked follow-up; leaving the fail-open inert code was chosen
-  over risky surgery on a live Stop hook.
 
 WHAT IT DOES NOT BLOCK, by construction:
   * a continuation that is already under way (stop_hook_active), so it blocks at most once and
@@ -45,18 +37,12 @@ cannot silently become the standing state. It is reachable from a Bash tool call
 environment-variable form was not: a Stop hook inherits the harness's environment, never the
 environment of a tool call.
 
-FAIL OPEN, and this now includes every missing input. Any internal error, an unreadable repository,
-an absent tray, an absent marker: all allow the stop. A guard that traps the actor on its own
-malfunction gets removed, and a removed guard protects nothing.
+FAIL OPEN. Any internal error or an unreadable repository allows the stop. A guard that traps the
+actor on its own malfunction gets removed, and a removed guard protects nothing.
 
 GUARD-INPUT RESIDUE, stated at the point of use per validate-inference-before-action:
-  * "a delivery file is newer than the marker" is NOT "a delivery is unread". It proves a file
-    arrived, nothing more; the marker is advanced by the orchestrator, so the arm measures a
-    RECORDED consume, not a real one.
   * "a branch is ahead of main" is NOT "a branch is meant to merge". A deliberately-held branch
     needs a recorded exemption, which is why the list is a file with reasons rather than a constant.
-  * the tray scan is TOP-LEVEL ONLY (glob, not rglob), so a delivery written into a subdirectory is
-    invisible to this guard.
   * the hook sees files and refs. It cannot see whether the actor intends to continue, which is the
     thing it is really trying to constrain; it can only make yielding-with-work-outstanding require
     a deliberate act.
@@ -73,8 +59,6 @@ import sys
 from pathlib import Path
 
 REPO = Path(os.environ.get("CLAUDE_PROJECT_DIR") or Path(__file__).resolve().parents[2])
-DROP_ROOT = Path(os.environ.get("GRC_DROP_ROOT", "/opt/grc/grc_working")) / "inbox" / "deliveries"
-CONSUME_MARKER = DROP_ROOT / ".last-consume"
 ESCAPE_FILE = Path(os.environ.get("GRC_DROP_ROOT", "/opt/grc/grc_working")) / ".allow-stop"
 # Held branches live in a FILE with a reason per line, not a constant in this file: a hardcoded set
 # goes stale the day it is written, and a comment saying "cite a decision record" enforces nothing.
@@ -151,34 +135,15 @@ def unmerged_branches() -> list:
     return out
 
 
-def new_deliveries() -> list:
-    """Deliveries newer than the recorded consume. Returns [] when it cannot tell."""
-    if not DROP_ROOT.is_dir() or not CONSUME_MARKER.exists():
-        return []          # cannot answer: fail open, per the contract above
-    # RESIDUE, at the predicate: mtime is not arrival and the marker is not attention. A copied or
-    # restored file carries a new mtime without being new work; a file written slowly may predate
-    # its own completion; and the marker is advanced by the orchestrator asserting the tray is
-    # dispositioned, which nothing verifies. The marker is also GLOBAL, so advancing it for one
-    # delivery clears every other. Location would beat all of this (move a dispositioned file to a
-    # consumed/ directory, as the file-drop inbox already does), and is the queued replacement.
-    since = CONSUME_MARKER.stat().st_mtime
-    return sorted(p.name for p in DROP_ROOT.glob("*.md") if p.stat().st_mtime > since)
 
 
-def decide(stop_hook_active: bool, escape: bool, branches: list, deliveries: list) -> str | None:
-    """Pure decision, so it is testable without a repository or a tray."""
+def decide(stop_hook_active: bool, escape: bool, branches: list) -> str | None:
+    """Pure decision, so it is testable without a repository."""
     if stop_hook_active or escape:
         return None
-    if not branches and not deliveries:
+    if not branches:
         return None
     lines = ["BLOCKED (turn-end guard): work is outstanding, so this is not a place to yield.", ""]
-    if deliveries:
-        lines.append("  Deliveries since the last recorded consume (%d):" % len(deliveries))
-        lines += ["    - " + d for d in deliveries[:6]]
-        if len(deliveries) > 6:
-            lines.append("    ... and %d more" % (len(deliveries) - 6))
-        lines.append("    Read them, disposition every finding, then record the consume:")
-        lines.append("      touch /opt/grc/grc_working/inbox/deliveries/.last-consume")
     if branches:
         lines.append("  Branches ahead of main and not recorded as held (%d):" % len(branches))
         lines += ["    - %s (+%s)" % (n, a) for n, a in branches[:8]]
@@ -207,7 +172,7 @@ def main() -> int:
             except OSError:
                 pass
             return 0
-        message = decide(False, False, unmerged_branches(), new_deliveries())
+        message = decide(False, False, unmerged_branches())
         if message:
             print(message, file=sys.stderr)
             return 2
@@ -217,12 +182,10 @@ def main() -> int:
 
 
 SELF_TEST = [
-    ("clean tree allows",            (False, False, [], []),                       False),
-    ("continuation never blocks",    (True,  False, [("b", "1")], ["d.md"]),        False),
-    ("escape file never blocks",     (False, True,  [("b", "1")], ["d.md"]),        False),
-    ("one unmerged branch blocks",   (False, False, [("b", "1")], []),              True),
-    ("one new delivery blocks",      (False, False, [], ["d.md"]),                  True),
-    ("both arms block",              (False, False, [("b", "2")], ["d.md"]),        True),
+    ("clean tree allows",            (False, False, []),           False),
+    ("continuation never blocks",    (True,  False, [("b", "1")]), False),
+    ("escape file never blocks",     (False, True,  [("b", "1")]), False),
+    ("one unmerged branch blocks",   (False, False, [("b", "1")]), True),
 ]
 
 
@@ -234,11 +197,6 @@ def self_test() -> int:
             bad += 1
             print("FAIL " + name + ": want " + ("BLOCK" if should_block else "allow")
                   + ", got " + ("BLOCK" if got else "allow"))
-    # A missing marker must fail OPEN, which is the error-4 regression.
-    real = new_deliveries.__doc__ or ""
-    if "fail open" not in real and "cannot tell" not in real:
-        bad += 1
-        print("FAIL: the fail-open contract is not stated where the reader will look")
     print(str(len(SELF_TEST) - bad) + "/" + str(len(SELF_TEST)) + " decision cases pass")
     return 1 if bad else 0
 
