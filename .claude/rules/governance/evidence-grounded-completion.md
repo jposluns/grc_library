@@ -297,9 +297,8 @@ For genuinely impractical re-reads (a generated file that is millions of lines l
 
 - The stated-intention rule's mechanical backstop here is the
   [`block-turn-end-with-outstanding-work.py`](../../hooks/block-turn-end-with-outstanding-work.py)
-  Stop hook: it refuses turn-end while a `claude/*` branch carries commits not on `origin/main`.
-  (A second, now-VESTIGIAL arm for an unconsumed delivery is inert since the exec-dispatch/tray model
-  was retired for synchronous orch-verify.) It fails open, honours a one-shot `.allow-stop` escape
+  Stop hook: it refuses turn-end while any unmerged local branch (except `main` and recorded held branches) carries commits not on `main`.
+  It fails open, honours a one-shot `.allow-stop` escape
   FILE for a genuine block, and exempts deliberately-held branches through the `held-branches.txt`
   file whose every entry cites its decision record.
 

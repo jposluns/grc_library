@@ -18,8 +18,8 @@ unenforced comment.
 
 WHAT IT IS, stated narrowly because a cross-family verifier caught the first version claiming more
 than it can see. This is a LOCAL-BRANCH SENTINEL, not a general
-outstanding-work detector. It is blind to a dispatched worker that has not yet written a file, to
-an unfinished task list, to uncommitted working-tree changes, and to a detached commit. Those are
+outstanding-work detector. It is blind to a still-running dispatched worker, to an unfinished task list, to uncommitted
+working-tree changes, and to a detached commit. Those are
 real outstanding work and this hook will let you yield on all of them; the discipline, not the
 guard, covers them.
 
