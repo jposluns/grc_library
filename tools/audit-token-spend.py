@@ -46,7 +46,7 @@ from pathlib import Path
 # derives it (absolute path, separators to hyphens), never hardcoded, so this follows a checkout
 # that moves on disk (the repo-root-relocation row of the change-impact surface map).
 TRANSCRIPT_HOME = Path.home() / ".claude" / "projects"
-FILEDROP_DEFAULT = Path("/home/grc/grc_working")
+FILEDROP_DEFAULT = Path("/opt/grc/grc_working")
 DELIVERY_TRAY_REL = "inbox/deliveries"
 
 # A worker's self-reported spend. Deliberately several phrasings: the figure is prose in a

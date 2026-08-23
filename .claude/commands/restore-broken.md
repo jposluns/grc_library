@@ -4,7 +4,7 @@ description: Recover a project whose orchestrator died or ran out of usage mid-s
 
 # /restore-broken
 
-The recovery counterpart to [`/orch`](orch.md). `/orch` rebuilds from a CLEAN
+The recovery counterpart to `/orch`. `/orch` rebuilds from a CLEAN
 session-closing handoff. `/restore-broken` is for the case where there is NO clean handoff: the
 previous orchestrator **died, ran out of usage, or was interrupted mid-session**, so `main`, the
 lease and the handoff are in a partly-applied, internally-inconsistent state,
@@ -44,9 +44,8 @@ Emit the AIQT check line, then observe. Do NOT infer state you can read.
    `pending-decisions.md`, `TODO.md` forward sections, and any transition or handoff document a
    departing worker or the maintainer left at the launch root or in the inbox. Note where the lease
    and handoff DISAGREE with live HEAD (that gap is the fingerprint of the interruption).
-4. **The exchange state.** The file-drop `inbox/` (maintainer/worker drops surfaced by `audit-inbox-drops.py`). orch-verify workers return synchronously, so there is no async delivery tray to reconcile; a crashed worker simply did not return. Many
-   tray deliveries may already be reflected in merged PRs but never swept to `done/`: assess each; do
-   NOT assume the tray count is the unprocessed count.
+4. **The exchange state.** The file-drop `inbox/` (maintainer/worker drops surfaced by `audit-inbox-drops.py`). orch-verify workers return synchronously, so there is no async delivery tray to reconcile; a crashed worker simply did not return, so there is nothing to sweep. Any file-drop in `inbox/` may
+   already be reflected in merged PRs but never moved to `done/`: assess each on its own merits.
 5. **SAFETY: does ending this turn change anything?** Check for a **Stop / SessionEnd / PostToolUse
    hook** (project `settings.json` AND user-level) that auto-commits or auto-pushes on turn end. If
    one exists and the tree is dirty, ending the turn is itself a mutation: account for it before
@@ -91,8 +90,7 @@ Report, scannable, no diffs dumped to chat:
    mode (the takeover mode the maintainer set, for example daytime attended-autonomous), replacing the
    dead session's stale declaration.
 5. **Reconcile the file-drop inbox.** Move already-processed drops to `done/`; surface
-   genuinely-open findings and route or fix them. Move, never delete; the tray move is the only
-   processed-marker.
+   genuinely-open findings and route or fix them. Move, never delete; moving a processed drop to `done/` is the processed-marker.
 6. **Triage any external assessment** against the live backlog and merged PRs; re-verify positives at
    source; present the routed set for maintainer sign-off, never self-closing it.
 

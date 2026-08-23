@@ -21,7 +21,7 @@ Portable procedure, concrete names. In the parent GRC library this skill runs wi
   shape is guarded by the sibling-repo stub-guard gate, guard-if-present-as-stub).
 - Machinery-core working-state (the reset target): the gate-read `.working/` files
   that a maintainer's clone fills with operational history, enumerated in step 3.
-- Resume wiring: `.claude/commands/orch.md` proposes `/adopt` when the classifier
+- Resume wiring: the `/orch` resume command proposes `/adopt` when the classifier
   says `adopter` and no adopt-config exists; once the config is present, resume
   proceeds in adopter-mode.
 - Reference-acquisition manifest + bootstrap planner (sibling model, enrichment): the public

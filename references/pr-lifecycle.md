@@ -171,7 +171,7 @@ is external. Two mechanisms:
    disciplines, the **green-at-`<sha>`** mechanical baseline, and (at session close) the
    **asserted-expectations** section the receiving `/orch` `/validate` cross-checks
    against. It is refreshed at every PR close-out (committed in the same PR, per the synchronous QA model). To resume, the maintainer sends only `/orch` (the
-   [`commands/orch.md`](../.claude/commands/orch.md) command), which reads the handoff, verifies
+   `/orch` command), which reads the handoff, verifies
    the snapshot against live files, and continues from the queue. Prefer starting a fresh
    session at batch boundaries over running a long one.
 

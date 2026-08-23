@@ -481,7 +481,7 @@ The discipline ships in the pack rule [`validate-inference-before-action`](rules
 
 ## Worker dispatch: pinning orders and single-shot orch-verify workers
 
-Two disciplines load at the worker-dispatch boundary. **Pin an order to a commit that CONTAINS what it references** (for a backlog item N, the commit that CREATED N, not a later one; name the SHA in the brief, since `orch-verify` reads the working tree at the given workdir rather than a pinned ref). **`orch-verify` workers are SINGLE-SHOT and SYNCHRONOUS**: each runs to completion and returns its stdout directly, so there is NO async delivery tray, no `collect-deliveries` sweep, and no resumable worker chat; scope each order to one self-contained pass. The full dispatch mechanics live in the [Mandatory worker offload](../references/worker-offload.md) playbook. (The former `exec-dispatch` / two-delivery-tray model was retired when the transport moved to `orch-verify`.)
+Two disciplines load at the worker-dispatch boundary. **Pin an order to a commit that CONTAINS what it references** (for a backlog item N, the commit that CREATED N, not a later one; name the SHA in the brief AND instruct the worker to inspect read-only against it (`git show` / `git diff <sha>`), since `orch-verify` reads the LIVE working tree at the given workdir, not a pinned ref, so a bare SHA is not itself a pin). **`orch-verify` workers are SINGLE-SHOT and SYNCHRONOUS**: each runs to completion and returns its stdout directly, so there is NO async delivery tray, no `collect-deliveries` sweep, and no resumable worker chat; scope each order to one self-contained pass. The full dispatch mechanics live in the [Mandatory worker offload](../references/worker-offload.md) playbook. (The former `exec-dispatch` / two-delivery-tray model was retired when the transport moved to `orch-verify`.)
 
 One clause stays inline because its blast radius reaches beyond the dispatch activity:
 - **Maintainer/worker file-drops jump the queue.** A drop in the file-drop `inbox/` (a maintainer document, or a worker delivering something that was never ordered) is work handed to the orchestrator OUTSIDE the order queue; read it as soon as noticed (surfaced by [`tools/audit-inbox-drops.py`](../tools/audit-inbox-drops.py) at resume and task boundaries), never batched. This is distinct from an `orch-verify` worker's own result, which returns synchronously and is in hand the moment the dispatch returns.
@@ -657,7 +657,7 @@ hand the moment the dispatch returns; read every QA-kind result before selecting
 result means there IS no next work item.
 An in-flight PR may be finished, since abandoning it mid-flight leaves worse state, but no NEW PR
 starts. If a finding cannot be fixed in-window it is routed with its tier and named in the PR that
-follows, never left resident in the tray as a substitute for a decision. A HOLD verdict blocks the
+follows, never left unactioned as a substitute for a decision. A HOLD verdict blocks the
 merge of what it holds; converting a HOLD to SHIP is an explicit recorded judgement with reasoning,
 never the default that follows from not acting.
 

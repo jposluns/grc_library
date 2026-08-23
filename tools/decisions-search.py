@@ -7,8 +7,7 @@ for excessive false positives; a better-targeted backstop is deferred to the gua
 Before surfacing an ``AskUserQuestion`` on an authorial / policy
 decision, the orchestrator runs this tool on the topic's distinctive key(s) and PASTES the
 output: a recorded decision means act on it, never re-ask (the clarify-before-acting
-compute-first gate, the same executed-not-narrated discipline as ``ref-holds.py``
-and ``ref-holds.py``). With the companion hook disabled (above), this on-demand search the
+compute-first gate, the same executed-not-narrated discipline as ``ref-holds.py``). With the companion hook disabled (above), this on-demand search the
     orchestrator drives and quotes is now the sole control against re-asking a decided question.
 
 It searches the decision stores (whichever exist; adopter-safe):

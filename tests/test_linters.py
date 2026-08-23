@@ -11758,7 +11758,7 @@ class UnwiredToolSelfTests(LinterTestCase):
     """Wire the remaining tool ``--self-test`` suites into CI.
 
     Several project tools ship a ``--self-test`` that guards pure decision/parsing logic but was
-    never exercised in CI (the same gap ``TokenSpendToolTests`` / ``ExecDispatchToolTests`` closed for
+    never exercised in CI (the same gap ``TokenSpendToolTests`` closed for
     two of them). Each ``--self-test`` below was verified to run on inline fixtures with no sibling /
     config / network read at test time, so it is CI-safe; a regression in the guarded logic would
     otherwise reach CI green. (``audit-cross-repo-references.py`` is deferred: its self-test reads

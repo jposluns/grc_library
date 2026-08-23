@@ -9,7 +9,7 @@ carries no protocol and no per-session state of its own by design, so it cannot 
 from the real resume behaviour.
 
 To resume, execute the resume protocol in
-[`.claude/commands/orch.md`](.claude/commands/orch.md) verbatim, exactly as if
+`/orch` verbatim, exactly as if
 `/orch` had been invoked. That protocol reads
 `grc_library_private/.working/session-handoff.md` for the live per-session
 state and the next-actions queue, and its first step points at that handoff's "Known
@@ -17,7 +17,7 @@ environment behaviours" section for machine-specific notes (for example a `gh`-C
 mechanism, or a machine that requires a manual commit and push).
 
 Do not copy the protocol or the queue into this file. The single sources of truth are
-[`.claude/commands/orch.md`](.claude/commands/orch.md) (the protocol) and
+`/orch` (the protocol) and
 `grc_library_private/.working/session-handoff.md` (the state). Keeping this
 file a pointer is what ensures that a resume started here runs the same current protocol
 as `/orch`, and reads the same live queue.

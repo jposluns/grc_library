@@ -35,7 +35,7 @@ import os
 import sys
 from pathlib import Path
 
-DEFAULT_ROOT = "/home/grc/grc_working"
+DEFAULT_ROOT = "/opt/grc/grc_working"
 ROOT_ENV = "GRC_WORKING"
 DROP_DIRNAME = "inbox"
 DONE_DROPS = ("done", "drops")

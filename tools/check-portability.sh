@@ -5,7 +5,7 @@
 # Guarantees the sibling-independence invariant: an adopter who clones ONLY the
 # public grc_library repo (reaching no grc_library_ref / grc_library_scratch /
 # grc_library_private sibling) can still run every audit gate green AND run the
-# the §1.19.2-scoped advisory tools (ref-holds, audit-brief-freshness)
+# §1.19.2-scoped advisory tools (ref-holds, audit-brief-freshness)
 # without a spurious error. The corpus' QA toolchain is
 # PRODUCT (adopters clone and run it), so it must not depend on the maintainer's
 # private sibling repos. All six maintainer-cadence tools that also reach
