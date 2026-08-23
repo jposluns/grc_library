@@ -2,8 +2,8 @@
 
 **Document Title:** Information Security Policy\
 **Document Type:** Policy\
-**Version:** 1.3.19\
-**Date:** 2026-08-20\
+**Version:** 1.3.20\
+**Date:** 2026-08-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -81,7 +81,7 @@ Where the organization participates in a sector-specific security programme (for
 4.3.1 Access must follow the principle of least privilege and be granted based on approved business need.
 4.3.2 Multi-factor authentication is required for all interactive user accounts and all remote access; MFA for privileged accounts must be phishing-resistant.
 4.3.3 Role-based access controls must be defined and periodically reviewed for accuracy.
-4.3.4 Access revocation must occur within 24 hours of employee termination or role change.
+4.3.4 Access revocation must occur within 24 hours of employee termination. On a role change, privileged access is revoked within 2 hours and non-privileged excess access is removed within 5 business days, per [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md) §6.3.
 
 ### 4.4 Network and infrastructure security
 

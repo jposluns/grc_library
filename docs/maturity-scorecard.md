@@ -118,7 +118,7 @@ _109 documents._
 | [privacy/procedure-privacy-impact-and-cross-border-transfer.md](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) | Privacy Impact and Cross-Border Transfer Procedure | Procedure | 1.6.2 | 2026-08-16 |
 | [privacy/template-dsar-workflow.md](../privacy/template-dsar-workflow.md) | Data Subject Access Request Workflow Template | Template | 1.1.8 | 2026-08-14 |
 | [resilience/plan-business-continuity-and-crisis-management.md](../resilience/plan-business-continuity-and-crisis-management.md) | Business Continuity and Crisis Management Plan | Plan | 1.1.2 | 2026-07-03 |
-| [resilience/plan-it-disaster-recovery.md](../resilience/plan-it-disaster-recovery.md) | IT Disaster Recovery Plan | Plan | 1.3.6 | 2026-08-20 |
+| [resilience/plan-it-disaster-recovery.md](../resilience/plan-it-disaster-recovery.md) | IT Disaster Recovery Plan | Plan | 1.3.7 | 2026-08-23 |
 | [resilience/procedure-backup-and-recovery.md](../resilience/procedure-backup-and-recovery.md) | Backup and Recovery Procedure | Procedure | 1.1.0 | 2026-08-20 |
 | [resilience/procedure-cross-domain-incident-coordination.md](../resilience/procedure-cross-domain-incident-coordination.md) | Cross-Domain Incident Coordination Procedure | Procedure | 1.1.8 | 2026-08-05 |
 | [resilience/register-eoc-contact-directory.md](../resilience/register-eoc-contact-directory.md) | Emergency Operations Contact Directory Register | Register | 1.1.1 | 2026-07-02 |
@@ -137,9 +137,9 @@ _109 documents._
 | [security/policy-byod.md](../security/policy-byod.md) | Bring Your Own Device (BYOD) Policy | Policy | 1.1.3 | 2026-07-02 |
 | [security/policy-encryption-and-key-management.md](../security/policy-encryption-and-key-management.md) | Encryption and Key Management Policy | Policy | 1.3.18 | 2026-08-16 |
 | [security/policy-identity-and-access-management.md](../security/policy-identity-and-access-management.md) | Identity and Access Management Policy | Policy | 1.3.17 | 2026-08-23 |
-| [security/policy-information-security.md](../security/policy-information-security.md) | Information Security Policy | Policy | 1.3.19 | 2026-08-20 |
+| [security/policy-information-security.md](../security/policy-information-security.md) | Information Security Policy | Policy | 1.3.20 | 2026-08-23 |
 | [security/policy-network-communications-security.md](../security/policy-network-communications-security.md) | Network Communications Security Policy | Policy | 1.1.11 | 2026-08-16 |
-| [security/procedure-access-control.md](../security/procedure-access-control.md) | Access Control Procedure | Procedure | 1.2.5 | 2026-08-23 |
+| [security/procedure-access-control.md](../security/procedure-access-control.md) | Access Control Procedure | Procedure | 1.2.6 | 2026-08-23 |
 | [security/procedure-security-incident-response.md](../security/procedure-security-incident-response.md) | Security Incident Response Procedure | Procedure | 1.3.24 | 2026-08-21 |
 | [security/procedure-vulnerability-management.md](../security/procedure-vulnerability-management.md) | Vulnerability Management Procedure | Procedure | 1.3.12 | 2026-08-16 |
 | [security/roadmap-post-quantum-cryptography.md](../security/roadmap-post-quantum-cryptography.md) | Post-Quantum Cryptography Readiness Roadmap | Roadmap | 1.1.5 | 2026-07-25 |
@@ -311,7 +311,7 @@ _170 documents._
 | [security/standard-endpoint-hardening.md](../security/standard-endpoint-hardening.md) | Endpoint Hardening Standard | Standard | 1.0.4 | 2026-07-02 |
 | [security/standard-penetration-testing-and-red-team.md](../security/standard-penetration-testing-and-red-team.md) | Penetration Testing and Red Team Standard | Standard | 1.0.6 | 2026-08-14 |
 | [security/standard-personnel-security-screening.md](../security/standard-personnel-security-screening.md) | Personnel Security Screening Standard | Standard | 1.0.6 | 2026-08-05 |
-| [security/standard-privileged-access-management.md](../security/standard-privileged-access-management.md) | Privileged Access Management Standard | Standard | 2.0.0 | 2026-08-21 |
+| [security/standard-privileged-access-management.md](../security/standard-privileged-access-management.md) | Privileged Access Management Standard | Standard | 2.0.1 | 2026-08-23 |
 | [security/standard-remote-working-security.md](../security/standard-remote-working-security.md) | Remote Working Security Standard | Standard | 1.0.10 | 2026-08-05 |
 | [security/standard-saas-security-posture-management.md](../security/standard-saas-security-posture-management.md) | SaaS Security Posture Management Standard | Standard | 1.0.4 | 2026-07-02 |
 | [security/standard-security-awareness-and-training.md](../security/standard-security-awareness-and-training.md) | Security Awareness and Training Standard | Standard | 1.0.4 | 2026-07-10 |

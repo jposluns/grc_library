@@ -2,8 +2,8 @@
 
 **Document Title:** Privileged Access Management Standard\
 **Document Type:** Standard\
-**Version:** 2.0.0\
-**Date:** 2026-08-21\
+**Version:** 2.0.1\
+**Date:** 2026-08-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md)\
@@ -75,7 +75,7 @@ Third-party PAM solutions remain available for extended use cases including on-p
 
 **Monitoring and Alerting:** All privileged account activations, role assignments, and access events are logged to the SIEM. Alerts are configured for anomalous activity including off-hours activations, repeated failed activations, and bulk role assignments.
 
-**Revocation:** Privileged access is revoked within 24 hours of role change, departure, or project completion. Service account access is revoked when the associated application is decommissioned.
+**Revocation:** Privileged access is revoked within 2 hours of the effective date of a role change, and within 2 hours of a departure notification being received by IT Operations (per [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md) §6.3.3 and §10.1), and within 24 hours of project completion. Service account access is revoked when the associated application is decommissioned.
 
 ---
 

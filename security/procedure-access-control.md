@@ -2,7 +2,7 @@
 
 **Document Title:** Access Control Procedure\
 **Document Type:** Procedure\
-**Version:** 1.2.5\
+**Version:** 1.2.6\
 **Date:** 2026-08-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -136,7 +136,7 @@ Access that does not meet all four criteria is treated as unjustified. The revie
 | --- | --- |
 | Voluntary resignation | End of last working day |
 | Involuntary termination | Immediate (within 1 hour) |
-| Role change (access no longer required) | Within 1 business day |
+| Role change (access no longer required) | Privileged access within 2 hours of the effective date; non-privileged excess access within 5 business days (per [`procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md) §6.3) |
 | Contract expiry | At contract end date |
 | Security incident or investigation | Immediate upon instruction |
 
