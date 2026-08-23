@@ -10341,10 +10341,18 @@ class ResolveSiblingTests(unittest.TestCase):
             finally:
                 lc.REPO_ROOT = orig
 
+    def _clear_grc_store(self):
+        # The store default is <repo-parent>/private; an exported GRC_STORE would override
+        # it and break temp-root isolation. Clear it for the duration of a resolver test.
+        prev = os.environ.pop("GRC_STORE", None)
+        if prev is not None:
+            self.addCleanup(os.environ.__setitem__, "GRC_STORE", prev)
+
     def test_resolve_working_prefers_private_then_local_then_none(self) -> None:
         # resolve_working: grc_library_private/.working/<rel> preferred, then the
         # in-repo .working/<rel>, else None (the .working -> _private migration).
         lc = self._lc()
+        self._clear_grc_store()
         with tempfile.TemporaryDirectory() as td:
             root = Path(td) / "grc_library"
             root.mkdir()
@@ -10368,6 +10376,77 @@ class ResolveSiblingTests(unittest.TestCase):
                 (root / ".working" / "y.md").write_text("local-y", encoding="utf-8")
                 self.assertEqual(
                     lc.resolve_working("y.md"), root / ".working" / "y.md")
+            finally:
+                lc.REPO_ROOT = orig
+
+    def test_resolve_working_prefers_store_over_private_and_local(self) -> None:
+        # adopt-with-overlay migration (option B): the lab_infra store <repo-parent>/private
+        # is preferred over both the private sibling .working/ and the in-repo .working/.
+        lc = self._lc()
+        self._clear_grc_store()
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td) / "grc_library"
+            root.mkdir()
+            orig = lc.REPO_ROOT
+            try:
+                lc.REPO_ROOT = root
+                store = Path(td) / "private"          # <repo-parent>/private
+                store.mkdir()
+                (store / "x.md").write_text("store", encoding="utf-8")
+                # store wins over both fallbacks
+                (root / ".working").mkdir()
+                (root / ".working" / "x.md").write_text("local", encoding="utf-8")
+                priv = Path(td) / "grc_library_private" / ".working"
+                priv.mkdir(parents=True)
+                (priv / "x.md").write_text("private", encoding="utf-8")
+                self.assertEqual(lc.resolve_working("x.md"), store / "x.md")
+                # a file only in the sibling (partial store) falls back correctly
+                (priv / "y.md").write_text("priv-y", encoding="utf-8")
+                self.assertEqual(lc.resolve_working("y.md"), priv / "y.md")
+                # resolve_working_dir returns the store when it exists
+                self.assertEqual(lc.resolve_working_dir(), store)
+            finally:
+                lc.REPO_ROOT = orig
+
+    def test_store_root_absolute_and_relative_env(self) -> None:
+        # _store_root: absolute GRC_STORE used as-is; relative resolved against the repo
+        # root (not the process CWD), so its meaning is CWD-independent.
+        lc = self._lc()
+        self._clear_grc_store()
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td) / "grc_library"
+            root.mkdir()
+            absdir = Path(td) / "elsewhere"
+            try:
+                os.environ["GRC_STORE"] = str(absdir)
+                self.assertEqual(lc._store_root(root), absdir)
+                os.environ["GRC_STORE"] = "rel-store"
+                self.assertEqual(lc._store_root(root), (root / "rel-store").resolve())
+            finally:
+                os.environ.pop("GRC_STORE", None)
+            # default when unset: <repo-parent>/private
+            self.assertEqual(lc._store_root(root), root.parent / "private")
+
+    def test_private_store_roots_and_for_write_private_prefer_store(self) -> None:
+        # private_store_roots lists the store then the sibling (both private); a NEW
+        # private-required record is written to the store (option B unification).
+        lc = self._lc()
+        self._clear_grc_store()
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td) / "grc_library"
+            root.mkdir()
+            orig = lc.REPO_ROOT
+            try:
+                lc.REPO_ROOT = root
+                store = Path(td) / "private"; store.mkdir()
+                priv = Path(td) / "grc_library_private"; (priv / ".working").mkdir(parents=True)
+                roots = lc.private_store_roots(root)
+                self.assertEqual(roots[0], store.resolve())
+                self.assertIn(priv.resolve(), roots)
+                # a new private-required file goes to the store
+                self.assertEqual(
+                    lc.resolve_working_for_write_private("new-priv.md", repo_root=root),
+                    store / "new-priv.md")
             finally:
                 lc.REPO_ROOT = orig
 

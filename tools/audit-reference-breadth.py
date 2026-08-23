@@ -62,7 +62,7 @@ import signal
 import subprocess
 import sys
 
-from lint_common import REPO_ROOT, resolve_working, resolve_working_for_write_private
+from lint_common import REPO_ROOT, resolve_working, resolve_working_for_write_private, private_store_roots
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -363,13 +363,15 @@ def main(argv: list[str] | None = None) -> int:
         args.state = resolve_working(STATE_REL, repo_root=REPO_ROOT)
         if args.update_state:
             args.state = resolve_working_for_write_private(STATE_REL, repo_root=REPO_ROOT)
-            private_root = (REPO_ROOT.resolve().parent / "grc_library_private").resolve()
+            # Accept EITHER the store or the private sibling as a valid private location
+            # (adopt-with-overlay migration, option B): both are private maintainer stores.
+            stores = private_store_roots(REPO_ROOT)
             is_private = False
-            if args.state is not None and private_root.is_dir():
+            if args.state is not None and stores:
                 try:
-                    args.state.resolve().relative_to(private_root)
-                    is_private = True
-                except (ValueError, OSError):
+                    sp = args.state.resolve()
+                    is_private = any(sp.is_relative_to(sr) for sr in stores)
+                except OSError:
                     is_private = False
             if not is_private:
                 print("ERROR: --update-state requires private maintainer working state (the "
