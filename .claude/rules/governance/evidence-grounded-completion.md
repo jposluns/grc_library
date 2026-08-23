@@ -297,10 +297,11 @@ For genuinely impractical re-reads (a generated file that is millions of lines l
 
 - The stated-intention rule's mechanical backstop here is the
   [`block-turn-end-with-outstanding-work.py`](../../hooks/block-turn-end-with-outstanding-work.py)
-  Stop hook: it refuses turn-end while a delivered worker result is unconsumed or a
-  `claude/*` branch carries commits not on `origin/main`. It fails open, honours
-  `GRC_ALLOW_STOP=1` for a genuine block, and exempts deliberately-held branches through a
-  `HELD_BRANCHES` set whose every entry cites its decision record.
+  Stop hook: it refuses turn-end while a `claude/*` branch carries commits not on `origin/main`.
+  (A second, now-VESTIGIAL arm for an unconsumed delivery is inert since the exec-dispatch/tray model
+  was retired for synchronous orch-verify.) It fails open, honours a one-shot `.allow-stop` escape
+  FILE for a genuine block, and exempts deliberately-held branches through the `held-branches.txt`
+  file whose every entry cites its decision record.
 
 - The broken-link audit the no-decorative-links section names is gate 3
   (repository-internal link audit, `tools/lint-links.py`); the domain allow-list

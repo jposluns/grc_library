@@ -24,7 +24,7 @@ back to the routine effort only after the handoff is clean.
 ## PRIMORDIAL CONSTRAINT: change nothing until an express GO
 
 The assessment phase is **strictly read-only**. No edit, commit, push, merge, lease write, order
-dispatch, or tray move until the maintainer gives an express, work-naming GO on a named phase. This
+dispatch until the maintainer gives an express, work-naming GO on a named phase. This
 is [`express-authorization-before-execution`](../rules/governance/express-authorization-before-execution.md)
 applied to recovery: an interrupted state is exactly where a confident wrong action does the most
 damage. Reading, listing, and read-only `git` / `gh` / API calls are the only actions in Phase A.
@@ -67,7 +67,7 @@ Emit the AIQT check line, then observe. Do NOT infer state you can read.
 Report, scannable, no diffs dumped to chat:
 - The interrupted-unit state (branch, unpushed commits, dirty files, is it green?).
 - The safety findings (turn-end safe? identity and permissions OK? which hooks active?).
-- The exchange backlog (tray, issues) and any in-flight or delivered orders from the dead session.
+- The file-drop `inbox/` (maintainer/worker drops) from the dead session; orch-verify workers return synchronously, so there is no async order/delivery backlog to reconcile.
 - Any external assessment left for triage.
 - A **phased recovery plan** and the decisions only the maintainer can make, recommendation first:
   how to handle the interrupted PR (verify-then-land / review-first / park);

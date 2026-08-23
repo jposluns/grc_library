@@ -492,6 +492,8 @@ The full source-and-adapter parity discipline (a single canonical portable core;
 
 ## Wind-down pre-queues worker research for the next resume (maintainer-directed 2026-07-25)
 
+**MECHANISM UNDER REVIEW (2026-08-23):** the pre-queue-for-the-next-session mechanism below assumed the async exec-dispatch / delivery-tray model, now RETIRED for synchronous `orch-verify` (which runs a worker to completion in-session and has no cross-session order/result queue). The maintainer's INTENT (use idle worker capacity between sessions) stands; redesigning the concrete pre-queue mechanism for the `orch-verify` era is a tracked follow-up. Read the specifics below as pending that redesign, not as the current live mechanism.
+
 **Every wind-down queues worker orders the NEXT session's `/orch` will consume** (worker
 capacity is ELASTIC, the orchestrator is the scarce singleton, so the hours between sessions are
 the only stretch where worker time is free and orchestrator time costs nothing; a wind-down that

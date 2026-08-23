@@ -11,8 +11,7 @@ conduct, so the cost of not reading it was real. This tool is the missing instru
 
 WHAT COUNTS AS PROCESSED. The LOCATION is the marker, deliberately, so nothing has to be
 inferred: a drop still in ``inbox/`` is unprocessed, and a processed drop is MOVED to
-``done/drops/<YYYY-MM>/``. That mirrors how a consumed delivery moves to
-``done/deliveries/<YYYY-MM>/``. Inference was tried and is not sound: a reference-scan over the
+``done/drops/<YYYY-MM>/``. Inference was tried and is not sound: a reference-scan over the
 merged records returned false negatives at a high rate, because the orchestrator
 records a drop's CONTENT without always naming its filename.
 
