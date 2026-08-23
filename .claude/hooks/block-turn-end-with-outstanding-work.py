@@ -24,9 +24,14 @@ an unfinished task list, to uncommitted working-tree changes, and to a detached 
 real outstanding work and this hook will let you yield on all of them; the discipline, not the
 guard, covers them.
 
-WHAT IT BLOCKS. A turn-end while EITHER arm is true:
-  * a delivery has landed in the tray since the last recorded consume, or
-  * a branch is ahead of main and is not on the recorded held list.
+WHAT IT BLOCKS. A turn-end while a branch is ahead of main and is not on the recorded held list.
+
+  VESTIGIAL ARM (2026-08-23): a second arm ("a delivery has landed in the tray since the last recorded
+  consume") is retained in the pure `decide()` logic but is now INERT. The exec-dispatch / delivery-tray
+  model was retired in favour of synchronous orch-verify (which returns its result in hand, no tray), so
+  `new_deliveries()` returns [] on the now-absent tray and this arm never fires in the live path. Its
+  full removal (with the self-test) is a tracked follow-up; leaving the fail-open inert code was chosen
+  over risky surgery on a live Stop hook.
 
 WHAT IT DOES NOT BLOCK, by construction:
   * a continuation that is already under way (stop_hook_active), so it blocks at most once and
@@ -35,7 +40,7 @@ WHAT IT DOES NOT BLOCK, by construction:
   * anything at all, if it cannot answer the question (see fail-open).
 
 ESCAPE, and it is reachable. Create the file named by ESCAPE_FILE from any shell:
-``touch /home/grc/grc_working/.allow-stop``. The hook honours it ONCE and deletes it, so an escape
+``touch /opt/grc/grc_working/.allow-stop``. The hook honours it ONCE and deletes it, so an escape
 cannot silently become the standing state. It is reachable from a Bash tool call, which the previous
 environment-variable form was not: a Stop hook inherits the harness's environment, never the
 environment of a tool call.
@@ -68,9 +73,9 @@ import sys
 from pathlib import Path
 
 REPO = Path(os.environ.get("CLAUDE_PROJECT_DIR") or Path(__file__).resolve().parents[2])
-DROP_ROOT = Path(os.environ.get("GRC_DROP_ROOT", "/home/grc/grc_working")) / "inbox" / "deliveries"
+DROP_ROOT = Path(os.environ.get("GRC_DROP_ROOT", "/opt/grc/grc_working")) / "inbox" / "deliveries"
 CONSUME_MARKER = DROP_ROOT / ".last-consume"
-ESCAPE_FILE = Path(os.environ.get("GRC_DROP_ROOT", "/home/grc/grc_working")) / ".allow-stop"
+ESCAPE_FILE = Path(os.environ.get("GRC_DROP_ROOT", "/opt/grc/grc_working")) / ".allow-stop"
 # Held branches live in a FILE with a reason per line, not a constant in this file: a hardcoded set
 # goes stale the day it is written, and a comment saying "cite a decision record" enforces nothing.
 HELD_FILE = REPO.parent / "grc_library_private" / ".working" / "held-branches.txt"
@@ -173,7 +178,7 @@ def decide(stop_hook_active: bool, escape: bool, branches: list, deliveries: lis
         if len(deliveries) > 6:
             lines.append("    ... and %d more" % (len(deliveries) - 6))
         lines.append("    Read them, disposition every finding, then record the consume:")
-        lines.append("      touch /home/grc/grc_working/inbox/deliveries/.last-consume")
+        lines.append("      touch /opt/grc/grc_working/inbox/deliveries/.last-consume")
     if branches:
         lines.append("  Branches ahead of main and not recorded as held (%d):" % len(branches))
         lines += ["    - %s (+%s)" % (n, a) for n, a in branches[:8]]
@@ -182,7 +187,7 @@ def decide(stop_hook_active: bool, escape: bool, branches: list, deliveries: lis
     lines += [
         "",
         "  If this is a genuine block (CI, a maintainer decision, an external wait), say so and:",
-        "      touch /home/grc/grc_working/.allow-stop     # honoured once, then deleted",
+        "      touch /opt/grc/grc_working/.allow-stop     # honoured once, then deleted",
     ]
     return "\n".join(lines)
 

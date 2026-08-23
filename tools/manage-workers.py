@@ -416,7 +416,7 @@ def attribute_held(session: str, held: dict, families: tuple | None = None) -> t
 
 
 def working_root(explicit: str | None) -> Path | None:
-    for cand in (explicit, os.environ.get("GRC_WORKING"), "/home/grc/grc_working"):
+    for cand in (explicit, os.environ.get("GRC_WORKING"), "/opt/grc/grc_working"):
         if cand and Path(cand).is_dir():
             return Path(cand)
     return None

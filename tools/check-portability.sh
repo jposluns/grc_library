@@ -5,8 +5,8 @@
 # Guarantees the sibling-independence invariant: an adopter who clones ONLY the
 # public grc_library repo (reaching no grc_library_ref / grc_library_scratch /
 # grc_library_private sibling) can still run every audit gate green AND run the
-# three §1.19.2-scoped advisory tools (ref-holds, audit-brief-freshness,
-# audit-delivery-status) without a spurious error. The corpus' QA toolchain is
+# §1.19.2-scoped advisory tools (ref-holds, audit-brief-freshness)
+# without a spurious error. The corpus' QA toolchain is
 # PRODUCT (adopters clone and run it), so it must not depend on the maintainer's
 # private sibling repos. All six maintainer-cadence tools that also reach
 # grc_library_ref are now in the advisory-tool loop below (TODO section 3.91):
@@ -74,11 +74,11 @@ rc=$?
 # advisory tools must no-op and exit 0 (not error) when their sibling repo is
 # absent, so an adopter running them on a sibling-free clone gets a clean advisory
 # rather than a spurious failure. ref-holds needs a query argument to reach the
-# lookup path; the other two take none.
+# lookup path; the others take none.
 adv_rc=0
 echo
 echo "Checking the sibling-reaching advisory/generator tools degrade gracefully (TODO 1.19.2, 1.19.7) ..."
-for tool in ref-holds.py audit-brief-freshness.py audit-delivery-status.py build-reference-manifest.py \
+for tool in ref-holds.py audit-brief-freshness.py build-reference-manifest.py \
             audit-reference-breadth.py audit-claim-precision.py verify-reference-modules.py \
             audit-register-currency.py audit-reference-acquisition-gaps.py \
             scan-publication-instruction-content.py; do

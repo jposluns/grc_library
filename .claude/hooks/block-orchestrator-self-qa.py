@@ -47,7 +47,7 @@ WHAT IT DOES.
 AUTHORIZATION. The sentinel is a deliberate speed bump plus an audit record,
 not a maintainer-only capability. The actor can create it with one shell call:
 
-    touch /home/grc/grc_working/.allow-orchestrator-qa
+    touch /opt/grc/grc_working/.allow-orchestrator-qa
 
 The hook honours only a regular-file sentinel that it successfully removes. A
 directory, symlink, missing path, or removal failure does not authorize the
@@ -75,7 +75,7 @@ arm of the predecessor is precisely the arm that fired during the week that was
 lost, and it changed nothing.
 
 REGISTER. Each BLOCK, each authorized BYPASS, and each FAIL-OPEN appends a row to
-`/home/grc/grc_working/guard-fires.tsv` when that file's directory is writable.
+`/opt/grc/grc_working/guard-fires.tsv` when that file's directory is writable.
 Best-effort by order, `log_fire()` returns False rather than raising so a
 logging failure can never cost a block. The register currently has no reader,
 and rotation is not implemented, so it is an append-only trace for human
@@ -83,7 +83,7 @@ calibration and nothing gates on it.
 
 DOCUMENTATION RESOLUTION RECORD. In the same PR, the dual-family standard in
 `.claude/CLAUDE.md` and the pre-push-verifier exception in
-`references/worker-offload.md` were amended to use exec-dispatch workers. This
+`references/worker-offload.md` were amended to use orch-verify workers. This
 resolved the earlier conflict between those documents and the guard.
 
 Self-test: `python3 block-orchestrator-self-qa.py --self-test`.
@@ -105,7 +105,7 @@ BLOCK_SEVERITY = True
 # The settings matcher scopes the hook, and this set is the internal re-check.
 DISPATCH_TOOLS = {"Task", "Agent", "Workflow", "SendMessage"}
 
-WORKING_ROOT = Path(os.environ.get("GRC_DROP_ROOT", "/home/grc/grc_working"))
+WORKING_ROOT = Path(os.environ.get("GRC_DROP_ROOT", "/opt/grc/grc_working"))
 
 # Actor-created and once-only. Reachable from any shell with `touch <path>`.
 SENTINEL = WORKING_ROOT / ".allow-orchestrator-qa"
@@ -409,7 +409,7 @@ def _self_test() -> int:
                     self.assertIn(tool, message)
 
         def test_block_message_gives_the_skip_operand(self):
-            # orch-verify excludes an account with --skip <label> (the old exec-dispatch --not-account)
+            # orch-verify excludes an account with --skip <label>
             self.assertIn("--skip <account-label>", decide(dispatch(prompt="x"))[1])
 
         def test_bypass_message_names_the_whole_dispatch_tool_class(self):

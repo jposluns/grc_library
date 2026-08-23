@@ -31,7 +31,7 @@ TWO SOURCES, TWO EVIDENCE QUALITIES, KEPT SEPARATE ON PURPOSE.
 Advisory only: every reporting path exits 0. Only `--self-test` can exit non-zero. Cross-repo and
 environment-dependent by nature (the transcript lives under the harness's own state directory and
 the deliveries live in the file-drop root), so an absent source is reported as absent rather than
-counted as zero, the same no-op-loudly shape as `audit-delivery-status.py`.
+counted as zero, a no-op-loudly shape.
 """
 from __future__ import annotations
 
@@ -46,7 +46,11 @@ from pathlib import Path
 # derives it (absolute path, separators to hyphens), never hardcoded, so this follows a checkout
 # that moves on disk (the repo-root-relocation row of the change-impact surface map).
 TRANSCRIPT_HOME = Path.home() / ".claude" / "projects"
-FILEDROP_DEFAULT = Path("/home/grc/grc_working")
+FILEDROP_DEFAULT = Path("/opt/grc/grc_working")
+# NOTE (2026-08-23): the exec-dispatch / delivery-tray model is retired (orch-verify is synchronous
+# and returns its result in hand, never via a tray). This tool's worker-spend source below therefore
+# reads empty on the now-absent tray; re-pointing it to the orch-verify spend signal is a tracked
+# follow-up. Until then it no-ops safely (spend counted as zero).
 DELIVERY_TRAY_REL = "inbox/deliveries"
 
 # A worker's self-reported spend. Deliberately several phrasings: the figure is prose in a

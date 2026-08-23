@@ -4,10 +4,10 @@ description: Recover a project whose orchestrator died or ran out of usage mid-s
 
 # /restore-broken
 
-The recovery counterpart to [`/orch`](orch.md). `/orch` rebuilds from a CLEAN
+The recovery counterpart to `/orch`. `/orch` rebuilds from a CLEAN
 session-closing handoff. `/restore-broken` is for the case where there is NO clean handoff: the
 previous orchestrator **died, ran out of usage, or was interrupted mid-session**, so `main`, the
-lease, the handoff, and the delivery tray are in a partly-applied, internally-inconsistent state,
+lease and the handoff are in a partly-applied, internally-inconsistent state,
 and often the recovering session is a DIFFERENT identity than the one that died.
 
 The goal is not to guess what the dead session intended. It is to (1) observe the true state
@@ -24,7 +24,7 @@ back to the routine effort only after the handoff is clean.
 ## PRIMORDIAL CONSTRAINT: change nothing until an express GO
 
 The assessment phase is **strictly read-only**. No edit, commit, push, merge, lease write, order
-dispatch, or tray move until the maintainer gives an express, work-naming GO on a named phase. This
+dispatch until the maintainer gives an express, work-naming GO on a named phase. This
 is [`express-authorization-before-execution`](../rules/governance/express-authorization-before-execution.md)
 applied to recovery: an interrupted state is exactly where a confident wrong action does the most
 damage. Reading, listing, and read-only `git` / `gh` / API calls are the only actions in Phase A.
@@ -44,10 +44,8 @@ Emit the AIQT check line, then observe. Do NOT infer state you can read.
    `pending-decisions.md`, `TODO.md` forward sections, and any transition or handoff document a
    departing worker or the maintainer left at the launch root or in the inbox. Note where the lease
    and handoff DISAGREE with live HEAD (that gap is the fingerprint of the interruption).
-4. **The exchange state.** The delivery tray
-   (`inbox/deliveries/`) and the issue channel (`inbox/*.md`); orders claimed-but-undelivered. Many
-   tray deliveries may already be reflected in merged PRs but never swept to `done/`: assess each; do
-   NOT assume the tray count is the unprocessed count.
+4. **The exchange state.** The file-drop `inbox/` (maintainer/worker drops surfaced by `audit-inbox-drops.py`). orch-verify workers return synchronously, so there is no async delivery tray to reconcile; a crashed worker simply did not return, so there is nothing to sweep. Any file-drop in `inbox/` may
+   already be reflected in merged PRs but never moved to `done/`: assess each on its own merits.
 5. **SAFETY: does ending this turn change anything?** Check for a **Stop / SessionEnd / PostToolUse
    hook** (project `settings.json` AND user-level) that auto-commits or auto-pushes on turn end. If
    one exists and the tree is dirty, ending the turn is itself a mutation: account for it before
@@ -69,7 +67,7 @@ Emit the AIQT check line, then observe. Do NOT infer state you can read.
 Report, scannable, no diffs dumped to chat:
 - The interrupted-unit state (branch, unpushed commits, dirty files, is it green?).
 - The safety findings (turn-end safe? identity and permissions OK? which hooks active?).
-- The exchange backlog (tray, issues) and any in-flight or delivered orders from the dead session.
+- The file-drop `inbox/` (maintainer/worker drops) from the dead session; orch-verify workers return synchronously, so there is no async order/delivery backlog to reconcile.
 - Any external assessment left for triage.
 - A **phased recovery plan** and the decisions only the maintainer can make, recommendation first:
   how to handle the interrupted PR (verify-then-land / review-first / park);
@@ -91,9 +89,8 @@ Report, scannable, no diffs dumped to chat:
 4. **Reconcile identity and lease.** ACQUIRE the lease under THIS session and the CORRECT operating
    mode (the takeover mode the maintainer set, for example daytime attended-autonomous), replacing the
    dead session's stale declaration.
-5. **Reconcile the delivery tray.** Archive already-processed deliveries to `done/`; surface
-   genuinely-open findings and route or fix them. Move, never delete; the tray move is the only
-   processed-marker.
+5. **Reconcile the file-drop inbox.** Move already-processed drops to `done/`; surface
+   genuinely-open findings and route or fix them. Move, never delete; moving a processed drop to `done/` is the processed-marker.
 6. **Triage any external assessment** against the live backlog and merged PRs; re-verify positives at
    source; present the routed set for maintainer sign-off, never self-closing it.
 
@@ -124,6 +121,6 @@ miss to escalate; ordinary findings route to the backlog. Then continue the defe
   into a harder-to-reverse mess.
 - **Assuming turn-end is inert** when a Stop hook would auto-commit the dirty tree.
 - **Letting a stale lease's unattended mode silently suppress the questions** the recovery needs to ask.
-- **Reading the tray count as the unprocessed count** and re-actioning already-merged findings.
+- **Reading the file-drop `inbox/` count as the unprocessed count** and re-actioning already-merged findings.
 - **Winding down over an unvalidated interrupted PR**, or resuming without running the compensating
   `/validate`.
