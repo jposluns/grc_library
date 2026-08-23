@@ -2,8 +2,8 @@
 
 **Document Title:** Threat Modelling Standard\
 **Document Type:** Standard\
-**Version:** 1.0.9\
-**Date:** 2026-08-16\
+**Version:** 1.0.10\
+**Date:** 2026-08-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-penetration-testing-and-red-team.md`](standard-penetration-testing-and-red-team.md), [`security/procedure-vulnerability-management.md`](procedure-vulnerability-management.md), [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md)\
@@ -143,7 +143,7 @@ Administrative APIs and privileged operations sit behind an internal trust bound
 
 ### 5.5 Privacy-sensitive systems
 
-Where the threat being modelled is privacy harm rather than (or as well as) security harm, the threat-modelling activity is supplemented by the LINDDUN methodology (Linkability, Identifiability, Non-repudiation, Detectability, Disclosure of information, Unawareness, Non-compliance). The disposition tier model in Step 5 applies to LINDDUN findings as well.
+Where the threat being modelled is privacy harm rather than (or as well as) security harm, the threat-modelling activity is supplemented by the LINDDUN methodology (Linking, Identifying, Non-repudiation, Detecting, Data Disclosure, Unawareness, Non-compliance). The disposition tier model in Step 5 applies to LINDDUN findings as well.
 
 ---
 

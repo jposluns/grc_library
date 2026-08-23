@@ -2,8 +2,8 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.58\
-**Date:** 2026-08-16\
+**Version:** 1.5.59\
+**Date:** 2026-08-23\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py)\
@@ -218,7 +218,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | MITRE ATT&CK | v19.1 | 2026-05 | Adversary Tactics, Techniques, and Common Knowledge | v15 | https://attack.mitre.org/resources/updates/ | 2026-06-30 |
 | MITRE ATLAS | v2026.06 | 2026-06 | Adversarial Threat Landscape for AI Systems | v2026.05 | https://github.com/mitre-atlas/atlas-data | 2026-07-01 |
 | STRIDE | continuous | 1999 | Six-category threat taxonomy (Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege) introduced by Kohnfelder and Garg at Microsoft; integrated into the Microsoft Security Development Lifecycle (SDL) Threat Modeling Tool | - | https://owasp.org/www-community/Threat_Modeling_Process | 2026-06-30 |
-| LINDDUN | v3.0 | 2023 | Seven-category privacy threat taxonomy (Linkability, Identifiability, Non-repudiation, Detectability, Disclosure of information, Unawareness, Non-compliance) maintained by KU Leuven imec-DistriNet | v2.0 (2015) | https://linddun.org/ | 2026-06-30 |
+| LINDDUN | v240118 (knowledge release; methods GO / PRO / MAESTRO) | 2024-01-18 | Seven-category privacy threat taxonomy (Linking, Identifying, Non-repudiation, Detecting, Data Disclosure, Unawareness, Non-compliance) maintained by KU Leuven imec-DistriNet | v20230802, v0 | https://linddun.org/linddun-version-release-history/ | 2026-08-23 |
 | AVID | continuous | 2023 | AI Vulnerability Database, an open knowledge base of AI failure modes and harms (avidml.org) | - | https://avidml.org/ | 2026-06-30 |
 | MLCommons AILuminate | v1.0 | 2024 | AI risk taxonomy and benchmark, 14-category hazard taxonomy | - | https://mlcommons.org/benchmarks/ailuminate/ | 2026-06-30 |
 | HarmBench | continuous | 2024-02 | Standardized evaluation framework for automated red-teaming methods against LLMs and defences | - | https://github.com/centerforaisafety/HarmBench | 2026-06-30 |
@@ -265,7 +265,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | NFPA 72 | 2025 | 2025 | National Fire Alarm and Signaling Code | 2022, 2019 | https://www.nfpa.org/codes-and-standards/nfpa-72-standard-development/72 | 2026-06-30 |
 | EN 54 | series (CEN/TC 72; 25+ parts, many harmonized under the Construction Products Regulation (EU) 305/2011) | various | Fire detection and fire alarm systems (European standard series) | - | https://standards.cencenelec.eu/ | verified 2026-07-10 (series-level; corpus cites the series generically, no specific part) |
 | TSA Pipeline Security Directive | SD Pipeline-2021-02F (effective 2025-05-03; listed expiry 2026-05-02 has passed. TSA renews these directives annually, but the current post-expiry instrument could not be reconfirmed at the authoritative TSA source this pass) | 2025-05-03 | US Transportation Security Administration pipeline cybersecurity requirements | SD02, SD 02C | https://www.tsa.gov/sites/default/files/tsa-security-directive-pipeline-2021-02f-and-memo-508c.pdf | needs-reconfirm (checked 2026-08-04, TSA source inaccessible) |
-| Basel III | 2017 (with 2023 finalization, in force 2025) | - | Banking regulation framework | Basel II | https://www.bis.org/bcbs/basel3.htm | 2026-06-30 |
+| Basel III | 2017 (post-crisis reform finalization; now in the consolidated Basel Framework; transitional arrangements through 2028) | 2017-12 | Banking regulation framework | Basel II | https://www.bis.org/bcbs/basel3.htm | 2026-08-23 |
 
 ## OECD and global
 
