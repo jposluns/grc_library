@@ -2,7 +2,7 @@
 
 **Document Title:** IT Disaster Recovery Plan\
 **Document Type:** Plan\
-**Version:** 1.3.7\
+**Version:** 1.3.8\
 **Date:** 2026-08-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -69,7 +69,7 @@ Specific per-system RTO/RPO targets for ongoing system modernization workstreams
 
 Recovery follows the sequence demonstrated and refined during the prior security incident response and post-incident review.
 
-The phased sequence below applies to a **catastrophic full-site recovery** (for example, a site-wide ransomware event or facility loss requiring rebuild from clean backups), where systems are restored in dependency order rather than concurrently. The per-system RTO and RPO targets in the "RTO and RPO targets" table above remain the objectives for a normal isolated system failure; in a catastrophic recovery a system's effective restoration time is governed by its recovery phase, which may exceed its individual-failure RTO because upstream dependencies must be restored first.
+The phased sequence below applies to a **catastrophic full-site recovery** (for example, a site-wide ransomware event or facility loss requiring rebuild from clean backups), where systems are restored in dependency order rather than concurrently. The per-system RPO targets in the "RTO and RPO targets" table above are data-loss tolerances that remain the objective in every recovery scenario, catastrophic recovery included. The per-system RTO targets are the objectives for a normal isolated system failure; in a catastrophic recovery a system's effective restoration time is governed instead by its recovery phase, which may exceed its individual-failure RTO because upstream dependencies must be restored first.
 
 | Phase | Target | Description |
 | --- | --- | --- |
