@@ -303,10 +303,11 @@ def write_state(path: Path, state: dict[str, str], ref_head: str,
         "",
         "Maps each corpus document to the grc_library_ref commit at its last",
         "per-document reference audit (the /reference-audit --docs mode's delta",
-        "anchor). Live surface: non-dated, retained in the private sibling at",
-        "`grc_library_private/.working/reference-audit/doc-state.md` under the current-week",
-        "sweep model. Rewritten by `tools/audit-reference-breadth.py --update-state`; include",
-        "the private-sibling refresh in the touching PR's QA batch.",
+        "anchor). Live surface: non-dated, held in the operational store (the lab_infra-standard",
+        "`/opt/<project>/private/reference-audit/doc-state.md`, or the `grc_library_private`",
+        "sibling as the transitional fallback). Rewritten by",
+        "`tools/audit-reference-breadth.py --update-state`; include the store refresh in the",
+        "touching PR's QA batch.",
         "",
         "| Document | Ref SHA at last audit | Updated (UTC) |",
         "| --- | --- | --- |",
@@ -340,8 +341,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--aliases", type=Path, default=DEFAULT_ALIASES)
     ap.add_argument("--state", type=Path, default=None,
                     help="Explicit state path for intentional adopter-local use. Without it, "
-                         "reads use resolved working state and --update-state requires the "
-                         "private sibling.")
+                         "reads use resolved working state and --update-state requires a "
+                         "private maintainer store (the operational store or the "
+                         "grc_library_private sibling).")
     ap.add_argument("--docs", nargs="+", default=None,
                     help="Per-touch mode: corpus documents to assess.")
     ap.add_argument("--update-state", action="store_true",
@@ -374,9 +376,10 @@ def main(argv: list[str] | None = None) -> int:
                 except OSError:
                     is_private = False
             if not is_private:
-                print("ERROR: --update-state requires private maintainer working state (the "
-                      "grc_library_private sibling); pass an explicit --state only for "
-                      "intentional adopter-local state.", file=sys.stderr)
+                print("ERROR: --update-state requires a private maintainer store (the "
+                      "operational store /opt/<project>/private or the grc_library_private "
+                      "sibling); pass an explicit --state only for intentional adopter-local "
+                      "state.", file=sys.stderr)
                 return 2
 
     # Adopter graceful-degradation (TODO 3.91): with no reachable reference base (the

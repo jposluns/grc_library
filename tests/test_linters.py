@@ -10426,6 +10426,18 @@ class ResolveSiblingTests(unittest.TestCase):
                 os.environ.pop("GRC_STORE", None)
             # default when unset: <repo-parent>/private
             self.assertEqual(lc._store_root(root), root.parent / "private")
+            # a store that resolves INSIDE the public repo is REJECTED by _store_dir
+            # (private content must never land in the public checkout); reads fall back.
+            (root / "private").mkdir()
+            try:
+                os.environ["GRC_STORE"] = "private"   # -> <repo>/private (in-repo)
+                self.assertIsNone(lc._store_dir(root))
+                self.assertEqual(lc.private_store_roots(root), [])
+                os.environ["GRC_STORE"] = "."          # -> the repo root itself
+                self.assertIsNone(lc._store_dir(root))
+                self.assertEqual(lc.private_store_roots(root), [])
+            finally:
+                os.environ.pop("GRC_STORE", None)
 
     def test_private_store_roots_and_for_write_private_prefer_store(self) -> None:
         # private_store_roots lists the store then the sibling (both private); a NEW

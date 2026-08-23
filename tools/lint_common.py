@@ -250,13 +250,29 @@ def private_store_roots(root: "Path | None" = None) -> "list[Path]":
     (adopt-with-overlay migration, option B, 2026-08-23)."""
     r = (root or REPO_ROOT).resolve()
     roots = []
-    store = _store_root(r)
-    if store.is_dir():
+    store = _store_dir(r)
+    if store is not None:
         roots.append(store.resolve())
     private = r.parent / _SIBLING_REPO_DIRS["private"]
     if private.is_dir():
         roots.append(private.resolve())
     return roots
+
+
+def _store_dir(root: "Path") -> "Path | None":
+    """The USABLE operational store for ``root``: :func:`_store_root` when it exists AND
+    resolves OUTSIDE the public repo. A store that resolves INSIDE the repo (e.g. a relative
+    ``GRC_STORE=private`` -> ``<repo>/private``) is REJECTED (returns None), preserving the
+    invariant the old hardcoded ``grc_library_private`` guard held: private maintainer content
+    is never written into the public checkout. Callers then fall back to the private sibling /
+    in-repo ``.working/`` (reads) or refuse (private writes)."""
+    store = _store_root(root)
+    try:
+        if store.is_dir() and not store.resolve().is_relative_to(root.resolve()):
+            return store
+    except OSError:
+        return None
+    return None
 
 
 def resolve_working(relpath: str, *, repo_root: Path | None = None) -> Path | None:
@@ -283,8 +299,8 @@ def resolve_working(relpath: str, *, repo_root: Path | None = None) -> Path | No
     :func:`resolve_sibling`; this helper governs only the DEFAULT `.working/` lookup.
     """
     root = (repo_root or REPO_ROOT).resolve()
-    store = _store_root(root)
-    if store.is_dir():
+    store = _store_dir(root)
+    if store is not None:
         cand = store / relpath
         if cand.exists():
             return cand
@@ -373,8 +389,8 @@ def resolve_working_for_write_private(relpath: str, *, repo_root: Path | None = 
     # Prefer the lab_infra-standard store (a private maintainer location) for a NEW
     # private-required record, so it unifies with the rest of the operational state
     # (adopt-with-overlay migration, option B). Fall back to the private sibling, else None.
-    store = _store_root(root)
-    if store.is_dir():
+    store = _store_dir(root)
+    if store is not None:
         return store / relpath
     private = root.parent / _SIBLING_REPO_DIRS["private"]
     if private.is_dir():
