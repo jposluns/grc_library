@@ -47,7 +47,7 @@ import sys
 import time
 from pathlib import Path
 
-from lint_common import resolve_working_for_write, resolve_working_for_write_private
+from lint_common import resolve_working_for_write, resolve_working_for_write_private, private_store_roots
 
 LOG_REL = ".working/worker-prompt-log.md"
 
@@ -430,13 +430,13 @@ def prepare_private_log(repo: Path) -> Path:
     appendable, PRIVATE destination BEFORE the irreversible tmux send, never a
     recreated public .working/ path resolved after the fact."""
     p = resolve_working_for_write_private(LOG_REL.removeprefix(".working/"), repo_root=repo)
-    private_root = (repo.resolve().parent / "grc_library_private").resolve()
-    if p is None or not private_root.is_dir():
-        raise RuntimeError("private working-state repository is unavailable")
-    try:
-        p.resolve().relative_to(private_root)
-    except ValueError as exc:
-        raise RuntimeError(f"resolved prompt log is not under the private sibling: {p}") from exc
+    # Accept EITHER the lab_infra-standard store or the private sibling as a valid private
+    # location (adopt-with-overlay migration, option B): both are private maintainer stores.
+    stores = private_store_roots(repo)
+    if p is None or not stores:
+        raise RuntimeError("private working-state store is unavailable")
+    if not any(p.resolve().is_relative_to(sr) for sr in stores):
+        raise RuntimeError(f"resolved prompt log is not under a private maintainer store: {p}")
     if not p.exists():
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text(

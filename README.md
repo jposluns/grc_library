@@ -5,8 +5,8 @@
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **SPDX-License-Identifier:** CC-BY-SA-4.0\
-**Library Version:** 2026.08.372 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.10.520 (semantic per-document version for this file)
+**Library Version:** 2026.08.374 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.10.522 (semantic per-document version for this file)
 
 ---
 
@@ -172,8 +172,9 @@ Repository infrastructure directories (not used for governance artefacts):
                 cluster), separated from the reusable corpus so an adopter does not consume
                 them as their own governance (see .project-governance/README.md).
 (private)       Maintainer working state (session handoff, QA-history registers, detailed
-                CHANGELOG mirror, improvement log): audit-trail and process records, moved out
-                of this public repository into the private sibling grc_library_private/.working/;
+                CHANGELOG mirror, improvement log): audit-trail and process records, held OUTSIDE
+                this public repository in the operational store (the lab_infra-standard
+                /opt/<project>/private, with grc_library_private as the transitional fallback);
                 not part of the corpus and not required to use the library or run the gates.
 /TODO.md        Forward-looking maintainer backlog (index of rows). Not a governance artefact; adopters may delete.
 /TODO-REFERENCE.md  Per-item detail blocks for the TODO.md index. Not a governance artefact; adopters may delete.

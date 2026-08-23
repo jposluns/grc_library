@@ -214,7 +214,7 @@ def classify_cross_repo(
 
 def audit_tree(
     root: Path, *, sibling_resolver=_default_resolve_sibling, rel_root: Path | None = None,
-    link_root: Path | None = None
+    link_root: Path | None = None, logical_prefix: str | None = None
 ) -> tuple[list[tuple[str, int, str, str, str]], Counter]:
     """Audit every text file under ``root``. Returns (findings, counts).
 
@@ -245,8 +245,17 @@ def audit_tree(
         text = read_text_safe(path)
         if text is None:
             continue  # binary or non-UTF-8: skip
-        rel = path.relative_to(rel_base).as_posix()
-        rel_parts = path.relative_to(rel_base).parts
+        if logical_prefix:
+            # The walked tree is an operational store whose physical dir is NOT named
+            # `.working` (the lab_infra store /opt/<project>/private). Re-root each file to a
+            # LOGICAL `<logical_prefix>/...` path so classification keys on `.working/` exactly
+            # as for the sibling `.working/` tree (adopt-with-overlay migration, option B).
+            _relp = path.relative_to(root)
+            rel = (Path(logical_prefix) / _relp).as_posix()
+            rel_parts = (logical_prefix,) + _relp.parts
+        else:
+            rel = path.relative_to(rel_base).as_posix()
+            rel_parts = path.relative_to(rel_base).parts
         is_md = path.suffix == ".md"
         in_code = False
         for lineno, raw in enumerate(text.splitlines(), start=1):
@@ -417,7 +426,7 @@ def main(argv: list[str]) -> int:
         try:
             wd.relative_to(root)
         except ValueError:
-            wfind, wcounts = audit_tree(wd, rel_root=wd.parent, link_root=root)
+            wfind, wcounts = audit_tree(wd, link_root=root, logical_prefix=".working")
             findings.extend(wfind)
             counts.update(wcounts)
     _print_report(findings, counts, root)

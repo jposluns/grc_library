@@ -62,7 +62,7 @@ import signal
 import subprocess
 import sys
 
-from lint_common import REPO_ROOT, resolve_working, resolve_working_for_write_private
+from lint_common import REPO_ROOT, resolve_working, resolve_working_for_write_private, private_store_roots
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -303,10 +303,11 @@ def write_state(path: Path, state: dict[str, str], ref_head: str,
         "",
         "Maps each corpus document to the grc_library_ref commit at its last",
         "per-document reference audit (the /reference-audit --docs mode's delta",
-        "anchor). Live surface: non-dated, retained in the private sibling at",
-        "`grc_library_private/.working/reference-audit/doc-state.md` under the current-week",
-        "sweep model. Rewritten by `tools/audit-reference-breadth.py --update-state`; include",
-        "the private-sibling refresh in the touching PR's QA batch.",
+        "anchor). Live surface: non-dated, held in the operational store (the lab_infra-standard",
+        "`/opt/<project>/private/reference-audit/doc-state.md`, or the `grc_library_private`",
+        "sibling as the transitional fallback). Rewritten by",
+        "`tools/audit-reference-breadth.py --update-state`; include the store refresh in the",
+        "touching PR's QA batch.",
         "",
         "| Document | Ref SHA at last audit | Updated (UTC) |",
         "| --- | --- | --- |",
@@ -340,8 +341,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--aliases", type=Path, default=DEFAULT_ALIASES)
     ap.add_argument("--state", type=Path, default=None,
                     help="Explicit state path for intentional adopter-local use. Without it, "
-                         "reads use resolved working state and --update-state requires the "
-                         "private sibling.")
+                         "reads use resolved working state and --update-state requires a "
+                         "private maintainer store (the operational store or the "
+                         "grc_library_private sibling).")
     ap.add_argument("--docs", nargs="+", default=None,
                     help="Per-touch mode: corpus documents to assess.")
     ap.add_argument("--update-state", action="store_true",
@@ -363,18 +365,21 @@ def main(argv: list[str] | None = None) -> int:
         args.state = resolve_working(STATE_REL, repo_root=REPO_ROOT)
         if args.update_state:
             args.state = resolve_working_for_write_private(STATE_REL, repo_root=REPO_ROOT)
-            private_root = (REPO_ROOT.resolve().parent / "grc_library_private").resolve()
+            # Accept EITHER the store or the private sibling as a valid private location
+            # (adopt-with-overlay migration, option B): both are private maintainer stores.
+            stores = private_store_roots(REPO_ROOT)
             is_private = False
-            if args.state is not None and private_root.is_dir():
+            if args.state is not None and stores:
                 try:
-                    args.state.resolve().relative_to(private_root)
-                    is_private = True
-                except (ValueError, OSError):
+                    sp = args.state.resolve()
+                    is_private = any(sp.is_relative_to(sr) for sr in stores)
+                except OSError:
                     is_private = False
             if not is_private:
-                print("ERROR: --update-state requires private maintainer working state (the "
-                      "grc_library_private sibling); pass an explicit --state only for "
-                      "intentional adopter-local state.", file=sys.stderr)
+                print("ERROR: --update-state requires a private maintainer store (the "
+                      "operational store /opt/<project>/private or the grc_library_private "
+                      "sibling); pass an explicit --state only for intentional adopter-local "
+                      "state.", file=sys.stderr)
                 return 2
 
     # Adopter graceful-degradation (TODO 3.91): with no reachable reference base (the
