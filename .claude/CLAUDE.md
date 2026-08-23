@@ -165,9 +165,9 @@ content stays citable, cross-linked, and free of drift, secrets, or PII.
 - One gate: `python3 tools/<lint-name>.py`
 - Linter regression tests: `python3 tools/run-linter-regression.py`
 - Pre-commit (mirrors CI): `pre-commit run --all-files`
-- Regenerate derived artefacts: `python3 tools/build-taxonomy.py`,
-  `python3 tools/build-narrative-registry.py`, `python3 tools/build-portal.py`
-  (CI checks sync via `--check`)
+- Regenerate derived artefacts (`tools/build-*.py`, `python3`-run; CI `--check` verifies sync):
+  `build-taxonomy.py`, `build-narrative-registry.py`, `build-portal.py`,
+  `build-relationship-model.py`, `build-todo-number-allocation.py`
 
 CI source of truth: `.github/workflows/quality.yml`. Keep `quality.yml`,
 `tools/run_all_audits.sh`, and `.pre-commit-config.yaml` in lock-step: a gate added to
