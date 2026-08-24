@@ -2,11 +2,11 @@
 
 **Document Title:** Certificate Authority Management Standard\
 **Document Type:** Standard\
-**Version:** 1.3.7\
-**Date:** 2026-08-20\
+**Version:** 1.3.8\
+**Date:** 2026-08-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`operations/standard-cloud-security-configuration-baseline.md`](standard-cloud-security-configuration-baseline.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md)\
+**Related Documents:** [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`operations/standard-cloud-security-configuration-baseline.md`](standard-cloud-security-configuration-baseline.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md)\
 **Classification:** Public\
 **Category:** Operations\
 **Review Frequency:** Annual and upon material platform or regulatory change\
@@ -141,7 +141,9 @@ S/MIME encryption requires that old private keys are retained to decrypt email e
 
 ---
 
-## 11. CA audit logging
+## 11. CA audit logging and privileged administrative access
+
+### 11.1 CA audit logging
 
 All CA operations are logged within the cloud-based PKI service and endpoint management platform audit log. Logs include:
 
@@ -150,7 +152,16 @@ All CA operations are logged within the cloud-based PKI service and endpoint man
 - SCEP profile assignment and delivery events
 - Administrator access events
 
-Audit logs are forwarded to SIEM via endpoint management diagnostic settings integration. CA audit logs are retained for 7 years. Access to cloud-based PKI configuration is restricted to designated administrators and governed by Privileged Identity Management (PIM).
+Audit logs are forwarded to SIEM via endpoint management diagnostic settings integration. CA audit logs are retained for 7 years.
+
+### 11.2 Privileged administrative access
+
+Access to cloud-based PKI configuration is restricted to designated administrators.
+
+- All CA administrative roles and rights (the CA creation permission in the enterprise identity provider, issuing-CA and certificate-template configuration, and SCEP profile management) must be assigned through Privileged Identity Management (PIM) as eligible assignments and activated just in time for a defined, time-limited period. Permanent standing CA privilege is prohibited.
+- Role activation requires a documented business justification. Activation mechanics (maximum activation duration, approval workflow, multi-factor authentication, and emergency access) are governed by the [Privileged Access Management Standard](../security/standard-privileged-access-management.md) section 4.2, the single authoritative source for the activation-duration value.
+- CA administrative permissions must be scoped to the minimum required for the task. Consistent with the distinct roles in section 3, no administrator may accumulate privileged roles that would defeat separation of duties, and PIM role-assignment procedures must prevent the accumulation of segregated privileged access.
+- PIM role-assignment and activation events are logged to SIEM through the privileged-access monitoring governed by the [Privileged Access Management Standard](../security/standard-privileged-access-management.md) section 5, distinct from the CA-platform audit events in section 11.1, and constitute the audit evidence for this section.
 
 ---
 
