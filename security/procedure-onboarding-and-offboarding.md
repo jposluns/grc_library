@@ -2,7 +2,7 @@
 
 **Document Title:** IT Onboarding and Offboarding Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.6\
+**Version:** 1.0.7\
 **Date:** 2026-08-24\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -175,19 +175,21 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 
 ### 8.1 Account suspension
 
-8.1.1 In the event of involuntary termination (dismissal, redundancy with immediate effect, or any termination where the individual is not permitted to work their notice), all accounts must be suspended on the same business day, effective at the time the termination decision is implemented.
+8.1.1 In the event of involuntary termination (dismissal, redundancy with immediate effect, or any termination where the individual is not permitted to work their notice), all accounts the organization directly controls must be suspended within 1 hour of the suspension instruction being received by IT Operations, effective at the time the termination decision is implemented; independently-authenticated external portal access follows the removal path in item 9.5 and the Section 11 checklist.
 
 8.1.2 Where possible, account suspension should be coordinated to occur at the same time as, or immediately before, the individual is informed of the termination.
 
 ### 8.2 Access removal timeline
 
-8.2.1 All access must be fully removed within 4 hours of the suspension instruction being received by IT Operations. This includes:
+8.2.1 For an involuntary termination, privileged access is revoked first (per Section 10, within 1 hour), and the following critical access-removal actions must be completed within 1 hour of the suspension instruction being received by IT Operations. This 1-hour timeline applies only to the items listed below; all other deprovisioning actions retain the timelines in the Section 11 checklist:
 
 - Enterprise identity provider account suspension
 - Revocation of all active sessions and tokens
-- Removal from all security groups and distribution lists
+- Removal from all security groups
 - Revocation of VPN certificates
 - Suspension of collaboration platform access
+
+Disabling the enterprise identity-provider account and revoking active sessions, tokens, and VPN access are completed first because they remove the individual's primary means of authenticating to corporate systems. The remaining Section 11 checklist actions (for example multi-factor enrolment removal, mailbox conversion, file-storage removal, and licence reclamation) follow on their own timelines as subsequent cleanup. Independently-authenticated external portals not federated to the identity provider follow the distinct removal path in item 9.5.
 
 ### 8.3 Device collection
 
@@ -219,9 +221,9 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 
 ## 10. Privileged access deprovisioning
 
-10.1 All privileged accounts held by a departing individual, including local administrator accounts, domain administrator accounts, cloud platform administrative roles, PAM vault accounts, and any other elevated access, must be reviewed and revoked within 2 hours of the departure notification being received by IT Operations.
+10.1 All privileged accounts held by a departing individual, including local administrator accounts, domain administrator accounts, cloud platform administrative roles, PAM vault accounts, and any other elevated access, must be reviewed and revoked within 2 hours of the departure notification being received by IT Operations for a voluntary departure, and within 1 hour of the suspension instruction being received by IT Operations for an involuntary termination.
 
-10.2 This timeline applies to both voluntary and involuntary departures. For involuntary departures, privileged access revocation is the first priority action, preceding completion of all other deprovisioning steps.
+10.2 For involuntary departures, privileged access revocation is the first priority action, preceding completion of all other deprovisioning steps; the critical access-removal actions listed in Section 8.2 are completed within the same 1-hour window, and all remaining actions retain their Section 11 checklist timelines.
 
 10.3 Service accounts that are registered to or owned by the departing individual must be addressed as follows:
 
@@ -241,26 +243,27 @@ The following checklist must be completed for every departure. IT Operations is 
 
 | # | Action Item | Responsible Party | Target Timeline | Verification Step |
 | --- | --- | --- | --- | --- |
-| 1 | User account disabled in enterprise identity provider | IT Operations | Last day (voluntary) / 4 hours (involuntary) | Confirm account status in identity provider console |
+| 1 | User account disabled in enterprise identity provider | IT Operations | Last day (voluntary) / 1 hour (involuntary) | Confirm account status in identity provider console |
 | 2 | All active sessions terminated and refresh tokens revoked | IT Operations | Simultaneous with account disable | Session log confirms no active sessions |
 | 3 | MFA tokens and authenticator app enrolments removed | IT Operations | Within 4 hours of departure | MFA device list confirmed empty |
-| 4 | VPN certificate revoked | IT Operations | Within 4 hours of departure | Certificate revocation confirmed in PKI management console |
+| 4 | VPN certificate revoked | IT Operations | Within 4 hours of departure (voluntary) / 1 hour (involuntary) | Certificate revocation confirmed in PKI management console |
 | 5 | Email access removed and mailbox converted or archived | IT Operations | Last day (voluntary) / 4 hours (involuntary) | Mailbox status confirmed in mail admin console |
 | 6 | Email forwarding to personal account removed and blocked | IT Operations | Last day | Mail routing confirmed; no forwarding rules active |
 | 7 | Shared mailbox access removed | IT Operations | Within 24 hours | Access list confirmed in mail admin console |
-| 8 | Collaboration platform access removed | IT Operations | Within 4 hours of departure | User removed from collaboration platform tenant |
+| 8 | Collaboration platform access removed | IT Operations | Within 4 hours of departure (voluntary) / 1 hour (involuntary) | User removed from collaboration platform tenant |
 | 9 | Collaboration and file storage platform access removed | IT Operations | Within 4 hours of departure | Access confirmed removed; data transferred to line manager |
 | 10 | Managed device returned and confirmed received | Line Manager / IT Operations | Last day (voluntary) / 1 business day (involuntary) | Device serial number recorded as returned; chain of custody documented |
 | 11 | Remote wipe of managed device initiated (if not returned) | IT Operations | Within 1 business day of non-return | Wipe confirmation recorded from endpoint management platform |
-| 12 | All privileged accounts revoked | IT Operations | Within 2 hours of departure notification | PAM vault audit confirms no active privileged sessions |
-| 13 | Service accounts re-assigned or disabled | IT Operations | Within 2 hours of departure notification | Service account ownership register updated |
+| 12 | All privileged accounts revoked | IT Operations | Within 2 hours of departure notification (voluntary) / 1 hour, first priority (involuntary) | PAM vault audit confirms no active privileged sessions |
+| 13 | Service accounts re-assigned or disabled | IT Operations | Within 2 hours of departure notification (voluntary) / 1 hour, first priority (involuntary) | Service account ownership register updated |
 | 14 | Service desk / ITSM account closed | IT Operations | Within 7 calendar days | Account status confirmed in ITSM system |
 | 15 | Third-party portal access removed | IT Operations / Line Manager | Within 7 calendar days | Each portal confirmed; documented in offboarding record |
 | 16 | Shared credentials rotated (contractors/third parties) | IT Operations | Immediately upon departure | Credential rotation confirmed; new credentials distributed to remaining authorized users |
 | 17 | Physical access cards and office keys returned | Facilities / Line Manager | Last day | Facilities receipt or confirmation email |
-| 18 | Security group and distribution list memberships removed | IT Operations | Within 24 hours | Directory groups confirmed |
-| 19 | Software licences released and reclaimed | IT Operations | Within 7 calendar days | Licence management platform updated |
-| 20 | Offboarding record completed and filed | IT Operations | Within 7 calendar days of departure | Record accessible in ITSM with all checklist items verified |
+| 18 | Security group memberships removed | IT Operations | Within 24 hours (voluntary) / 1 hour (involuntary) | Directory security groups confirmed |
+| 19 | Distribution list memberships removed | IT Operations | Within 24 hours | Distribution list memberships confirmed |
+| 20 | Software licences released and reclaimed | IT Operations | Within 7 calendar days | Licence management platform updated |
+| 21 | Offboarding record completed and filed | IT Operations | Within 7 calendar days of departure | Record accessible in ITSM with all checklist items verified |
 
 ---
 

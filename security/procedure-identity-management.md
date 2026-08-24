@@ -2,8 +2,8 @@
 
 **Document Title:** Identity Management Procedure\
 **Document Type:** Procedure\
-**Version:** 2.0.1\
-**Date:** 2026-08-21\
+**Version:** 2.0.2\
+**Date:** 2026-08-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-access-control.md`](procedure-access-control.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -132,8 +132,8 @@ Applies to all user identities, service accounts, and machine identities across 
 6.1 Identity termination is triggered by the offboarding workflow.
 
 6.2 Termination timeline:
-- Voluntary departure: all access disabled end of last working day.
-- Involuntary termination: all access disabled within 1 hour of notification.
+- Voluntary departure: general access disabled at the end of the last working day; privileged access revoked within 2 hours of the departure notification, per [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md) §5.
+- Involuntary termination: privileged access revoked first, within 1 hour of the suspension instruction being received by IT Operations; the critical access-removal actions listed in [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md) §8.2.1 are completed within the same 1-hour window; remaining actions follow that procedure's Section 11 checklist timelines.
 
 6.3 Termination includes:
 - Disabling the account in all identity systems.
