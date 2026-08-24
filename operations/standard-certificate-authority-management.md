@@ -2,7 +2,7 @@
 
 **Document Title:** Certificate Authority Management Standard\
 **Document Type:** Standard\
-**Version:** 1.3.8\
+**Version:** 1.3.9\
 **Date:** 2026-08-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -188,7 +188,7 @@ Access to cloud-based PKI configuration is restricted to designated administrato
 | RFC 5280 | Internet X.509 PKI Certificate and CRL Profile |
 | CA/Browser Forum Baseline Requirements | Code Signing Certificate Validity (1-year maximum as of December 2025) |
 | S/MIME Baseline Requirements | Updated June 2025 |
-| CSA CCM v4.1 | CEK-01: Encryption and Key Management: PKI |
+| CSA CCM v4.1 | CEK-01: Encryption and Key Management Policy and Procedures; CEK-04: Encryption Algorithm; IAM-10: Management of Privileged Access Roles |
 | COBIT 2019 | DSS05: Managed Security Services |
 
 ---
