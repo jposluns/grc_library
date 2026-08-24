@@ -2,8 +2,8 @@
 
 **Document Title:** Remote Working Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.10\
-**Date:** 2026-08-05\
+**Version:** 1.0.11\
+**Date:** 2026-08-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md)\
@@ -30,7 +30,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 2.2 It covers all company-owned managed devices used for remote work.
 
-2.3 Personal device access is governed by conditional access policy enforcement and is subject to the requirements in Section 7 (Bring-Your-Own Device). A formal BYOD policy will supplement this standard when approved.
+2.3 Personal device access is governed by conditional access policy enforcement and is subject to the requirements in Section 8 (Bring-Your-Own Device). A formal BYOD policy will supplement this standard when approved.
 
 2.4 This standard does not govern access controls for on-premises systems or in-office working, except where those controls intersect with remote access technology (e.g., VPN, enterprise identity provider).
 
@@ -111,7 +111,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 5.3.2 Where split tunnelling is configured by IT Operations for performance reasons (e.g., to allow direct routing of cloud productivity platform traffic), the configuration must ensure that all access to on-premises resources and Confidential or Restricted data is routed through the VPN tunnel.
 
-5.3.3 Any approved split tunnelling configuration must be documented, reviewed annually, and subject to the exception management process in Section 9.
+5.3.3 Any approved split tunnelling configuration must be documented, reviewed annually, and subject to the exception management process in Section 10.
 
 ### 5.4 Home router security
 
@@ -175,7 +175,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 - Enrolment in the endpoint management platform (where technically feasible) or equivalent mobile device management
 - Conditional access policy enforcement applied to the personal device
 - Prohibition on local data storage: access must be read-only or via browser-based thin client; any deviation requires CISO approval recorded as an exception in the risk register
-- The CISO approval must be documented, time-limited (maximum 90 days per the exception process in Section 9), and reviewed on renewal
+- The CISO approval must be documented, time-limited (maximum 90 days per the exception process in Section 10), and reviewed on renewal
 
 8.4 Personal devices may access Public and Internal data via cloud productivity platform browser interfaces subject to conditional access policy enforcement, without CISO approval, provided no data is downloaded to the personal device.
 
