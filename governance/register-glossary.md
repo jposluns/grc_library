@@ -2,8 +2,8 @@
 
 **Document Title:** Glossary and Acronym Index\
 **Document Type:** Register\
-**Version:** 1.4.17\
-**Date:** 2026-08-12\
+**Version:** 1.4.18\
+**Date:** 2026-08-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/register-key-terms-and-definitions.md`](register-key-terms-and-definitions.md), [`README.md`](../README.md)\
@@ -280,7 +280,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **RACI** | Responsible, Accountable, Consulted, Informed. Role-mapping convention. |
 | **RBAC** | Role-Based Access Control. |
 | **RPO** | Recovery Point Objective. Maximum tolerable data loss measured backward from an incident. |
-| **RTO** | Recovery Time Objective. Maximum tolerable downtime measured from incident declaration. |
+| **RTO** | Recovery Time Objective. The target time to restore a process, system, or service to an acceptable level. |
 
 ## S
 

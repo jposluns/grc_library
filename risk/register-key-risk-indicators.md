@@ -2,8 +2,8 @@
 
 **Document Title:** Key Risk Indicator Catalogue\
 **Document Type:** Register\
-**Version:** 1.1.1\
-**Date:** 2026-07-02\
+**Version:** 1.1.2\
+**Date:** 2026-08-24\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -90,7 +90,7 @@ Each KRI is defined by the following fields.
 | KRI ID | KRI Name | Indicator | Unit | Green | Amber | Red | Owner | Frequency |
 |---|---|---|---|---|---|---|---|---|
 | KRI-RES-001 | Business Continuity Plan Test Results | Pass rate in most recent BCP test | % | >90% | 70 to 90% | <70% | Resilience Manager | Semi-annually |
-| KRI-RES-002 | Recovery Time Objective Achievement | Percentage of Tier 1 systems meeting RTO in DR test | % | 100% | 80 to 99% | <80% | IT Operations | Semi-annually |
+| KRI-RES-002 | Recovery Target Achievement | Percentage of Tier 1 systems meeting their recovery target in DR test (per-system RTO for an isolated-failure test; recovery-phase target for a catastrophic-recovery test) | % | 100% | 80 to 99% | <80% | IT Operations | Semi-annually |
 | KRI-RES-003 | Backup Validation Success Rate | Percentage of backup restorations successfully validated | % | >99% | 95 to 99% | <95% | IT Operations | Monthly |
 | KRI-RES-004 | Crisis Response Training Currency | Percentage of crisis team members with training current (within 12 months) | % | 100% | 80 to 99% | <80% | Resilience Manager | Quarterly |
 
