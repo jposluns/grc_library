@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Security Questionnaire\
 **Document Type:** Template\
-**Version:** 1.0.4\
-**Date:** 2026-07-05\
+**Version:** 1.0.5\
+**Date:** 2026-08-24\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-onboarding-security-review.md`](procedure-supplier-onboarding-security-review.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](../compliance/logistics/register-ctpat-united-states-it-controls.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md)\
@@ -53,12 +53,14 @@ This questionnaire is issued to suppliers and third-party service providers to g
 
 ## Section 3: access control and identity management
 
+The cadences in questions 3.3 and 3.4 are suggested baselines (recommended, not mandatory); a supplier may describe an equivalent risk-based model in the Evidence / Comment column.
+
 | Question | Yes/No | Evidence / Comment |
 |---|---|---|
 | 3.1 Does your organization enforce a documented access control policy based on least privilege? | | |
 | 3.2 Is multi-factor authentication (MFA) required for: (a) all remote access; (b) privileged accounts; (c) cloud management consoles? | | |
-| 3.3 Are user accounts reviewed at least quarterly for appropriateness? | | |
-| 3.4 Are accounts disabled within 24 hours of an employee's departure or role change? | | |
+| 3.3 Are user accounts reviewed for appropriateness on a risk-tiered cadence (suggested baseline: privileged access quarterly; high-sensitivity systems semi-annually; general systems annually; third-party access on contract renewal and at least annually)? | | |
+| 3.4 Are accounts disabled on departure or role change on a risk-tiered timeline (suggested baseline: within 24 hours of termination; privileged access within 2 hours of a role-change or departure notification; non-privileged excess access within 5 business days)? | | |
 | 3.5 Are shared or generic accounts prohibited for privileged access? | | |
 | 3.6 Is privileged access management (PAM) or just-in-time privilege activation in use? | | |
 
