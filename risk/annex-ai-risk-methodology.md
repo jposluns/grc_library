@@ -2,8 +2,8 @@
 
 **Document Title:** AI-Specific Risk Methodology Annex\
 **Document Type:** Annex\
-**Version:** 1.0.7\
-**Date:** 2026-08-14\
+**Version:** 1.0.8\
+**Date:** 2026-08-24\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`ai/register-ai-risk.md`](../ai/register-ai-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](../ai/standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-model-lifecycle-management.md`](../ai/procedure-ai-model-lifecycle-management.md), [`ai/procedure-ai-audit.md`](../ai/procedure-ai-audit.md), [`ai/framework-ai-model-documentation-and-transparency.md`](../ai/framework-ai-model-documentation-and-transparency.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -45,7 +45,7 @@ Before applying the risk assessment methodology, each AI system must be assigned
 | Risk Tier | EU AI Act Classification | Criteria | Required Controls |
 |---|---|---|---|
 | **Tier 1, Unacceptable** | Prohibited | Biometric mass surveillance; social scoring; subliminal manipulation; exploitation of vulnerability | Not permitted for deployment, must be blocked at governance gate |
-| **Tier 2: High Risk** | High-risk (Annex III) | Systems in critical infrastructure, employment, education, credit, insurance, law enforcement, border management, AI in legal proceedings | Full pre-deployment assessment; human oversight mandatory; AIGC approval required; ongoing monitoring |
+| **Tier 2: High Risk** | High-risk (Annex III, subject to the Article 6(3) derogation) | Systems in critical infrastructure, employment, education, credit, insurance, law enforcement, border management, AI in legal proceedings | Full pre-deployment assessment; human oversight mandatory; AIGC approval required; ongoing monitoring |
 | **Tier 3, Limited Risk** | Transparency obligation | Chatbots; deepfakes; emotion recognition; biometric categorization, transparency disclosure required | User disclosure; documentation; quarterly review |
 | **Tier 4: Minimal Risk** | Minimal or no obligation | AI with low impact on safety or fundamental rights; internal automation tools | Standard testing; annual review |
 

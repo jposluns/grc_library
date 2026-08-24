@@ -2,8 +2,8 @@
 
 **Document Title:** AI System Audit and Certification Framework\
 **Document Type:** Framework\
-**Version:** 1.0.9\
-**Date:** 2026-08-13\
+**Version:** 1.0.10\
+**Date:** 2026-08-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md)\
@@ -65,7 +65,7 @@ All AI systems are assigned an audit tier at the time of classification (see [`a
 
 | Audit Tier | System Classification | Audit Frequency | Audit Type | Primary Evidence Required |
 |---|---|---|---|---|
-| **Tier 1: High-Risk** | EU AI Act Annex III systems; safety-critical AI; AI making or materially influencing decisions with significant impact on individuals | Annual | Full technical audit by independent auditor; includes conformity assessment alignment check | Model card; system card; training data provenance; bias and fairness test results; explainability documentation; human oversight records; incident register entries; post-market monitoring data; FRIA |
+| **Tier 1: High-Risk** | systems high-risk under EU AI Act Article 6 (Annex III use cases after the Article 6(3) derogation, or products and safety components covered by Article 6(1) and Annex I); safety-critical AI; AI making or materially influencing decisions with significant impact on individuals | Annual | Full technical audit by independent auditor; includes conformity assessment alignment check | Model card; system card; training data provenance; bias and fairness test results; explainability documentation; human oversight records; incident register entries; post-market monitoring data; FRIA (where the Article 27(1) deployer test is met) |
 | **Tier 2: General-Purpose** | GPAI models integrated into products or operations; large language models; foundation models | Every 18 months | Internal audit with CISO lead; supplemented by provider's published transparency documentation | Model card; system card; provider transparency documentation; use case assessment; incident register entries; copyright and licensing records |
 | **Tier 3: Standard** | AI systems with limited decision-making impact; AI tools used for operational support without individual impact | Every 24 months (biennial) | Internal audit | AI System Register entry; model card (if applicable); access control review; incident log review |
 | **Tier 4: Low-Risk** | Minimal-risk AI tools; AI-assisted productivity tools without personal data processing or individual impact | Every 24 months (biennial); triggered review if risk profile changes | Desk-based review | AI System Register entry; confirmation of current classification; access log review |
@@ -85,8 +85,8 @@ The following evidence must be available for each audit tier. Evidence gaps iden
 | Training data provenance | Documentation of training data sources, data quality measures, data governance agreements, and any data exclusions | AI System Owner / Data Owner |
 | Bias and fairness test results | Results of bias testing performed before deployment and at the most recent periodic re-assessment; methodology documented | CISO / AI System Owner |
 | Explainability documentation | Description of explainability approach; output of explainability testing; documentation of any inherent explainability limitations | AI System Owner |
-| Human oversight records | Evidence that designated human overseers exist; training completion records (anonymized); evidence of override capability testing | AI System Owner / Business Unit Owner |
-| Fundamental rights impact assessment (FRIA) | Completed FRIA per [`ai/policy-ai-compliance.md`](policy-ai-compliance.md) Section 5.2; evidence of Data Protection Officer review | Data Protection Officer / AI System Owner |
+| Human oversight records | Evidence that designated human overseers exist; training completion records (anonymized); evidence of override capability testing; evidence that overseers hold the necessary competence and authority and receive the necessary support (Article 26(2)) | AI System Owner / Business Unit Owner |
+| Fundamental rights impact assessment (FRIA) | Completed FRIA where required per [`ai/policy-ai-compliance.md`](policy-ai-compliance.md) Section 5.2 (Article 27(1) deployer test); evidence of Data Protection Officer review | Data Protection Officer / AI System Owner |
 | Incident register entries | Extract from the AI Incident Register for incidents involving this system in the preceding audit period | CISO |
 | Post-market monitoring data | Monitoring plan; performance metrics including accuracy trend, drift metrics, and bias drift; alerts generated and resolved | AI System Owner |
 | Conformity assessment records | EU AI Act Annex IV technical documentation; prior conformity assessment report if applicable | CISO / Legal |
