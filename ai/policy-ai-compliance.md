@@ -2,7 +2,7 @@
 
 **Document Title:** AI Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.18\
+**Version:** 1.0.19\
 **Date:** 2026-08-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -81,7 +81,7 @@ All AI systems must be classified before deployment. Classification determines t
 
 | EU AI Act Risk Tier | EU AI Act Scope | Regulatory Obligations | Organization Approach |
 |---|---|---|---|
-| **Prohibited** | AI systems that pose unacceptable risk: social scoring by public authorities; real-time remote biometric identification in public spaces (subject to narrow exceptions); AI exploiting vulnerabilities of specific groups; subliminal manipulation that causes harm (EU AI Act Chapter II, Article 5) | Deployment prohibited | The organization does not deploy prohibited AI systems. Any proposed use case that may fall within this tier must be referred to the AIGC and Legal before any procurement or development activity |
+| **Prohibited** | AI systems involving a practice prohibited under EU AI Act Article 5 (Chapter II), including, non-exhaustively: social scoring of natural persons or groups leading to unjustified or disproportionate detrimental treatment (Article 5(1)(c)); real-time remote biometric identification in publicly accessible spaces for the purposes of law enforcement, except where strictly necessary for the narrow exceptions in Article 5(1)(h); exploitation of the vulnerabilities of specific groups; and subliminal or purposefully manipulative techniques that cause harm | Deployment prohibited | The organization does not deploy prohibited AI systems. Any proposed use case that may fall within this tier must be referred to the AIGC and Legal before any procurement or development activity |
 | **High-risk** | AI systems that are high-risk under the EU AI Act: systems within the Annex III use cases, subject to the Article 6(3) non-high-risk derogation (a system performing profiling of natural persons is always high-risk), including AI in critical infrastructure; educational or vocational training decisions; employment and workforce management; access to essential services; law enforcement; migration and border control; administration of justice; and AI that is, or is a safety component of, an Annex I regulated product subject to third-party conformity assessment (Article 6(1)) | Conformity assessment; registration as required under Article 49; fundamental rights impact assessment (where the Article 27(1) deployer test is met); human oversight; technical documentation (Annex IV); logging; post-market monitoring; serious incident reporting | Full compliance programme applies; AI System Impact Assessment required before deployment; annual audit; human oversight mandatory; incident reporting pathway established |
 | **General-purpose AI (GPAI) model with systemic risk** | GPAI models with training compute above 10^25 FLOPs or designated by the European Commission (EU AI Act Chapter V) | Adversarial testing; incident reporting to the AI Office; cybersecurity measures; energy efficiency transparency | Where the organization deploys or integrates GPAI models meeting this threshold, it ensures that the provider's obligations are met and documents its own deployer obligations |
 | **General-purpose AI (GPAI) model: standard** | GPAI models that do not meet the systemic risk threshold | Technical and copyright compliance documentation; transparency obligations | Transparency and documentation obligations met; AI System Register entry required |
@@ -108,12 +108,14 @@ High-risk AI systems used in contexts covered by EU AI Act Annex III must be reg
 
 A Fundamental Rights Impact Assessment (FRIA) is required under EU AI Act Article 27(1) prior to deploying a high-risk AI system referred to in Article 6(2), with the exception of systems intended to be used in the Annex III point 2 (critical infrastructure) area, where the organization is a body governed by public law, a private entity providing public services, or a deployer of a high-risk AI system referred to in Annex III point 5(b) (creditworthiness evaluation and credit scoring) or 5(c) (risk assessment and pricing in life and health insurance). Where the organization is such a deployer, the FRIA must:
 
-- Identify the fundamental rights that may be affected by the AI system.
-- Assess the likelihood and severity of adverse impacts on those rights.
-- Document the groups likely to be affected, including vulnerable groups.
-- Identify the specific risks arising from the intended use context.
-- Set out the human oversight and safeguard measures that will mitigate identified risks.
-- Be completed in consultation with the Data Protection Officer and, where required, affected stakeholders.
+- Describe the deployer's processes in which the high-risk AI system will be used in line with its intended purpose (Article 27(1)(a)).
+- Describe the period and frequency with which each high-risk AI system is intended to be used (Article 27(1)(b)).
+- Identify the categories of natural persons and groups likely to be affected by its use in the specific context (Article 27(1)(c)).
+- Identify the specific risks of harm likely to affect those categories, taking into account the information provided by the provider under Article 13 (Article 27(1)(d)).
+- Describe the human oversight measures to be implemented according to the instructions for use (Article 27(1)(e)).
+- Set out the measures to be taken if those risks materialize, including internal-governance arrangements and complaint mechanisms (Article 27(1)(f)).
+
+Once the assessment has been performed, the organization notifies the market surveillance authority of its results, submitting the filled-out Article 27(5) template, unless exempt under Article 46(1) (Article 27(3)). Consultation with the Data Protection Officer and affected stakeholders is maintained as an organizational internal control rather than an Article 27(1) statutory element.
 
 The FRIA is documented as part of the AI System Impact Assessment (see [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md)) and retained as part of the system's compliance documentation.
 
@@ -131,7 +133,7 @@ Human oversight assignments must be documented in the AI System Register and rev
 
 ### 5.4 Incident reporting
 
-AI-related incidents involving high-risk AI systems must be reported in accordance with Section 10 of this policy.
+Where the organization, acting as a deployer, identifies a serious incident involving a high-risk AI system, it must immediately inform first the provider, and then the importer or distributor and the relevant market surveillance authorities of the incident (EU AI Act Article 26(5)). If the provider cannot be reached, the Article 73 reporting procedure in Section 10 applies mutatis mutandis. Other AI-related incidents involving high-risk AI systems must be reported in accordance with Section 10 of this policy.
 
 ---
 
@@ -298,11 +300,11 @@ All AI incidents must be reported internally within 24 hours of detection to the
 
 ### 10.3 External reporting: EU AI act
 
-For serious incidents involving high-risk AI systems deployed in the EU, the organization must report to the relevant national competent authority:
+For a serious incident involving a high-risk AI system, the organization's primary duty as a deployer is the Article 26(5) notification described in Section 5.4. Where the organization cannot reach the provider, the Article 73 reporting procedure applies mutatis mutandis and the organization reports to the relevant national market surveillance authority:
 
-- **Within 15 days** of becoming aware of a serious incident involving a high-risk AI system, the general deadline (EU AI Act Art. 73).
-- **Immediately, and no later than 2 days**, where the serious incident is a widespread infringement or a serious and irreversible disruption of the management or operation of critical infrastructure (Art. 73(3), referencing Art. 3(49)(b)).
-- **Immediately, and no later than 10 days**, in the event of the death of a person (Art. 73).
+- **Immediately** after establishing a causal link, or its reasonable likelihood, between the AI system and the incident, and in any event **within 15 days** of becoming aware of it (EU AI Act Art. 73(2)).
+- **Immediately, and no later than 2 days** after becoming aware of it, where the serious incident is a widespread infringement or a serious and irreversible disruption of the management or operation of critical infrastructure (Art. 73(3), referencing Art. 3(49)(b)).
+- In the event of the death of a person, **immediately** after establishing, or as soon as suspecting, a causal relationship between the system and the incident, and no later than **10 days** after becoming aware of it (Art. 73(4)).
 
 The CISO is responsible for preparing and submitting the report, in coordination with Legal.
 

@@ -2,7 +2,7 @@
 
 **Document Title:** European Union AI Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.9\
+**Version:** 0.0.10\
 **Date:** 2026-08-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -61,7 +61,7 @@ The AI Act classifies AI systems into risk tiers, and the obligation set follows
 
 ## High-risk obligation chain
 
-For a high-risk AI system the obligations split between provider and deployer, and the corpus carries the deployer chain in operational form at [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md) section 5. The enacted references:
+For a high-risk AI system the obligations split between provider and deployer. Section 5 of [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md) currently addresses registration, the fundamental-rights impact assessment, human oversight, and incident reporting; it does not yet carry every Article 26 deployer duty in operational form. The enacted references:
 
 - **Provider obligations** (Article 16): the conformity-assessment, technical-documentation, quality-management, logging, and post-market-monitoring obligations; registration of the high-risk system in the EU database under Article 49; and the transparency obligations under Article 50.
 - **Deployer obligations** (Article 26): use in accordance with the instructions for use (Article 26(1)); assignment of human oversight to natural persons who have the necessary competence, training, and authority, as well as the necessary support (Article 26(2)); ensuring, to the extent the deployer exercises control over the input data, that input data is relevant and sufficiently representative (Article 26(4)); monitoring of operation and keeping of the automatically generated logs (Article 26(5) and (6)); and, for deployers that are public authorities or Union institutions, bodies, offices, or agencies, the Article 49 registration obligations (Article 26(8)). The fundamental-rights impact assessment is the separate Article 27 duty, whose deployer scope the next bullet states.

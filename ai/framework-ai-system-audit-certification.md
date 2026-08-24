@@ -2,7 +2,7 @@
 
 **Document Title:** AI System Audit and Certification Framework\
 **Document Type:** Framework\
-**Version:** 1.0.10\
+**Version:** 1.0.11\
 **Date:** 2026-08-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -178,10 +178,10 @@ An ISO/IEC 42001 AIMS certificate issued under ISO/IEC 42006 is a management-sys
 
 ### 7.1 Self-assessment vs. third-party notified body
 
-Under EU AI Act Art. 43, conformity assessment for most high-risk AI systems listed in Annex III may be conducted by the provider as a self-assessment. However, a third-party assessment by an EU AI Act notified body is required for:
+Under EU AI Act Art. 43, the conformity-assessment route for Annex III high-risk AI systems depends on the category:
 
-- AI systems intended for use in biometric identification.
-- AI systems in Annex III categories where the Commission has specified third-party assessment in implementing acts.
+- For AI systems in Annex III point 1 (biometrics), where the provider has applied the relevant harmonized standards or, where applicable, common specifications, the provider must choose either internal control (Annex VI) or an assessment involving a notified body (Annex VII), per Article 43(1). Notified-body assessment (Annex VII) is instead mandatory in any of the four Article 43(1) cases: the harmonized standards do not exist and common specifications are not available; the provider has not applied, or has applied only part of, the harmonized standard; applicable common specifications exist but have not been applied; or a harmonized standard has been published with a restriction, for the restricted part.
+- For AI systems in Annex III points 2 to 8, internal control (Annex VI) is the default; the Commission may, by delegated act under Article 43(6), subject those categories to Annex VII assessment or parts of it.
 
 Where the organization acts as a deployer of a high-risk system rather than the provider, it relies on the provider's conformity assessment documentation, supplemented by its own deployer obligations assessment.
 
@@ -220,14 +220,14 @@ Each high-risk AI system in production must have a documented post-market monito
 
 ### 8.2 Serious incident reporting
 
-Where post-market monitoring or any other signal identifies a serious incident as defined under EU AI Act Art. 3(49), the following reporting timeline applies:
+Where post-market monitoring or any other signal identifies a serious incident as defined under EU AI Act Art. 3(49), the following reporting timeline applies. Where the organization acts as a deployer, it first notifies the provider, then the importer or distributor and the market surveillance authorities, under Article 26(5); the Article 73 timeline below governs the provider, and applies to the deployer only where the provider cannot be reached:
 
 | Incident Type | Reporting Deadline | Report Recipient |
 |---|---|---|
-| Serious incident, general case (serious harm to a person's health; infringement of obligations under Union law protecting fundamental rights; serious harm to property or the environment) | Immediately after establishing a causal link, and no later than 15 days of becoming aware (EU AI Act Art. 73) | National competent authority |
-| Widespread infringement, or a serious and irreversible disruption of the management or operation of critical infrastructure (Art. 3(49)(b)) | Immediately, and no later than 2 days of becoming aware (Art. 73(3)) | National competent authority |
-| Death of a person | Immediately, and no later than 10 days of becoming aware (Art. 73) | National competent authority |
-| Near-miss or significant malfunction that could lead to a serious incident if not addressed | Internal escalation without undue delay; reported to the authority if it develops into a serious incident | National competent authority (if escalated) |
+| Serious incident, general case (serious harm to a person's health; infringement of obligations under Union law protecting fundamental rights; serious harm to property or the environment) | Immediately after establishing a causal link, or its reasonable likelihood, and no later than 15 days of becoming aware (Art. 73(2)) | Market surveillance authority |
+| Widespread infringement, or a serious and irreversible disruption of the management or operation of critical infrastructure (Art. 3(49)(b)) | Immediately, and no later than 2 days of becoming aware (Art. 73(3)) | Market surveillance authority |
+| Death of a person | Immediately after establishing, or as soon as suspecting, a causal relationship, and no later than 10 days of becoming aware (Art. 73(4)) | Market surveillance authority |
+| Near-miss or significant malfunction that could lead to a serious incident if not addressed | Internal escalation without undue delay; reported to the authority if it develops into a serious incident | Market surveillance authority (if escalated) |
 
 The CISO is responsible for preparing and submitting reports, in coordination with Legal. Reports are logged in the AI Incident Register.
 
