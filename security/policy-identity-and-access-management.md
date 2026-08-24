@@ -2,8 +2,8 @@
 
 **Document Title:** Identity and Access Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.18\
-**Date:** 2026-08-23\
+**Version:** 1.3.19\
+**Date:** 2026-08-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -53,7 +53,7 @@ To ensure that all users, human, service, and machine, are uniquely identified, 
 4.1.1 All identities (user, service, and device) must be uniquely identifiable and associated with a verified entity.
 4.1.2 Access provisioning must follow the principle of least privilege and need to know.
 4.1.3 IAM directories must maintain authoritative records of all identities, access entitlements, and authentication factors.
-4.1.4 Identities must be deactivated within 24 hours of termination or contract completion.
+4.1.4 Organization-controlled identities must be deactivated within 24 hours of termination or contract completion, and sooner where the tiered offboarding timelines in [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md) require it (on involuntary termination, the critical identity-plane accounts within 1 hour). Access on independently-authenticated external portals not federated to the identity provider follows the distinct removal path in item 9.5 of that procedure.
 
 ### 4.2 Authentication
 
