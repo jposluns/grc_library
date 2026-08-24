@@ -44,7 +44,6 @@ from __future__ import annotations
 import argparse
 import subprocess
 import sys
-from pathlib import Path
 
 from lint_common import PrRangeError, git, git_show, head_version, resolve_pr_range
 

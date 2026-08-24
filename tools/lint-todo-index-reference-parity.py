@@ -39,13 +39,7 @@ _TOOLS_DIR = str(Path(__file__).resolve().parent)
 if _TOOLS_DIR not in sys.path:
     sys.path.insert(0, _TOOLS_DIR)
 
-from lint_common import (  # noqa: E402
-    REPO_ROOT,
-    TODO_ID_RE,
-    parse_todo_index,
-    split_row,
-    is_separator_row,
-)
+from lint_common import REPO_ROOT, TODO_ID_RE, split_row, is_separator_row  # noqa: E402
 
 TODO_REL = "TODO.md"
 REFERENCE_REL = "TODO-REFERENCE.md"

@@ -58,13 +58,7 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import (
-    CODE_SPAN_RE,
-    CROSS_EXTERNAL_CONTEXT_RE,
-    REPO_ROOT,
-    is_fence_line,
-    read_text_safe,
-)
+from lint_common import CODE_SPAN_RE, CROSS_EXTERNAL_CONTEXT_RE, REPO_ROOT, read_text_safe
 
 # Bare ``shall``: free-standing, not part of a hyphenated identifier and not
 # a substring (``Marshall``). Same boundaries as gate 56.

@@ -90,7 +90,6 @@ from __future__ import annotations
 
 import re
 import sys
-from pathlib import Path
 
 from lint_common import REPO_ROOT, iter_non_code_lines, read_text_safe
 
