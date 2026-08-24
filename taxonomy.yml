@@ -5853,8 +5853,8 @@ documents:
   domain: "operations"
   type: "Standard"
   title: "Certificate Authority Management Standard"
-  version: "1.3.7"
-  date: "2026-08-20"
+  version: "1.3.8"
+  date: "2026-08-24"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"
   classification: "Public"
@@ -5865,6 +5865,7 @@ documents:
   purpose: "Defines requirements for establishing, operating, and maintaining the internal Certificate Authority (CA) infrastructure. Governs certificate issuance policy, CA hierarchy design, use-case scope, and the boundary between the internal CA and externally trusted commercial CAs. Supplements the Cryptographic Key Operations Procedure, which addresses day-to-day certificate lifecycle operations."
   related_documents:
     - "security/policy-encryption-and-key-management.md"
+    - "security/standard-privileged-access-management.md"
     - "operations/standard-production-security-requirements.md"
     - "operations/standard-cloud-security-configuration-baseline.md"
     - "operations/procedure-change-management-and-configuration-control.md"
@@ -5879,7 +5880,7 @@ documents:
     - "8. Certificate validity periods"
     - "9. Trust distribution"
     - "10. S/MIME key history and encryption key retention"
-    - "11. CA audit logging"
+    - "11. CA audit logging and privileged administrative access"
     - "12. Boundary between internal CA and commercial cas"
     - "13. Framework alignment"
   frameworks:
