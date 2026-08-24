@@ -2,8 +2,8 @@
 
 **Document Title:** Third-Party AI Due Diligence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.11\
-**Date:** 2026-08-20\
+**Version:** 1.0.12\
+**Date:** 2026-08-24\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -61,7 +61,7 @@ Before commencing due diligence, each AI supplier and the AI system being evalua
 
 | Classification | Criteria | Deployer Obligations |
 | --- | --- | --- |
-| High-Risk AI System | Applies to systems listed in EU AI Act Annex III (e.g., biometric identification, critical infrastructure management, employment screening, credit scoring, law enforcement). | Full due diligence required per Articles 9 and 13; deployer obligations per Article 26 (and importer obligations per Article 23) apply. |
+| High-Risk AI System | Applies to systems within the EU AI Act Annex III use cases (e.g., biometric identification, critical infrastructure management, employment screening, credit scoring, law enforcement), subject to the Article 6(3) non-high-risk derogation; a system performing profiling of natural persons is always high-risk. | Full due diligence required per Articles 9 and 13; deployer obligations per Article 26 (and importer obligations per Article 23) apply. |
 | General Purpose AI (GPAI) | Foundation models or large language models with broad applicability across tasks. | Model card, capability documentation, and systemic risk assessment required. |
 | Limited or Minimal Risk | AI systems with narrow scope and low potential for harm (e.g., spam filters, recommendation engines). | Standard due diligence; transparency disclosure required where the system interacts with individuals. |
 

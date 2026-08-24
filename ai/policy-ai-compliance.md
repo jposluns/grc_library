@@ -2,8 +2,8 @@
 
 **Document Title:** AI Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.17\
-**Date:** 2026-08-12\
+**Version:** 1.0.18\
+**Date:** 2026-08-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -65,7 +65,7 @@ The AI Governance Council is the organization's primary body for AI compliance o
 |---|---|
 | AI Governance Council (AIGC) | Owns the AI compliance programme; approves AI system classifications; reviews annual AI compliance audit findings; escalates material non-compliance to the Board |
 | Chief Information Security Officer (CISO) | Leads technical AI compliance; chairs the AIGC; ensures that AI security controls align with regulatory obligations; co-ordinates AI incident response |
-| Data Protection Officer | Ensures that fundamental rights impact assessments and privacy impact assessments are completed for high-risk AI systems; advises on GDPR Art. 22 (automated decision-making) and Art. 33 (personal data breach) interactions with AI incidents |
+| Data Protection Officer | Ensures that privacy impact assessments are completed for high-risk AI systems and that fundamental rights impact assessments are completed where required under EU AI Act Article 27(1); advises on GDPR Art. 22 (automated decision-making) and Art. 33 (personal data breach) interactions with AI incidents |
 | Chief Information Officer (CIO) | Accountable for AI system infrastructure compliance; ensures that AI systems are registered and lifecycle-managed; approves significant AI system changes |
 | Legal | Interprets regulatory obligations; advises on jurisdiction-specific compliance; reviews AI-generated content labelling and transparency disclosures |
 | Business Unit Owners | Designate an AI system owner for each AI system under their control; ensure that staff complete required AI training; escalate AI compliance concerns to the AIGC |
@@ -82,7 +82,7 @@ All AI systems must be classified before deployment. Classification determines t
 | EU AI Act Risk Tier | EU AI Act Scope | Regulatory Obligations | Organization Approach |
 |---|---|---|---|
 | **Prohibited** | AI systems that pose unacceptable risk: social scoring by public authorities; real-time remote biometric identification in public spaces (subject to narrow exceptions); AI exploiting vulnerabilities of specific groups; subliminal manipulation that causes harm (EU AI Act Chapter II, Article 5) | Deployment prohibited | The organization does not deploy prohibited AI systems. Any proposed use case that may fall within this tier must be referred to the AIGC and Legal before any procurement or development activity |
-| **High-risk** | AI systems listed in EU AI Act Annex III: AI in critical infrastructure; educational or vocational training decisions; employment and workforce management; access to essential services; law enforcement; migration and border control; administration of justice; AI used as safety components in regulated products (Annex I) | Conformity assessment; registration in the EU database; fundamental rights impact assessment; human oversight; technical documentation (Annex IV); logging; post-market monitoring; serious incident reporting | Full compliance programme applies; AI System Impact Assessment required before deployment; annual audit; human oversight mandatory; incident reporting pathway established |
+| **High-risk** | AI systems that are high-risk under the EU AI Act: systems within the Annex III use cases, subject to the Article 6(3) non-high-risk derogation (a system performing profiling of natural persons is always high-risk), including AI in critical infrastructure; educational or vocational training decisions; employment and workforce management; access to essential services; law enforcement; migration and border control; administration of justice; and AI that is, or is a safety component of, an Annex I regulated product subject to third-party conformity assessment (Article 6(1)) | Conformity assessment; registration as required under Article 49; fundamental rights impact assessment (where the Article 27(1) deployer test is met); human oversight; technical documentation (Annex IV); logging; post-market monitoring; serious incident reporting | Full compliance programme applies; AI System Impact Assessment required before deployment; annual audit; human oversight mandatory; incident reporting pathway established |
 | **General-purpose AI (GPAI) model with systemic risk** | GPAI models with training compute above 10^25 FLOPs or designated by the European Commission (EU AI Act Chapter V) | Adversarial testing; incident reporting to the AI Office; cybersecurity measures; energy efficiency transparency | Where the organization deploys or integrates GPAI models meeting this threshold, it ensures that the provider's obligations are met and documents its own deployer obligations |
 | **General-purpose AI (GPAI) model: standard** | GPAI models that do not meet the systemic risk threshold | Technical and copyright compliance documentation; transparency obligations | Transparency and documentation obligations met; AI System Register entry required |
 | **Limited-risk** | AI systems with specific transparency obligations: chatbots; AI-generated content; emotion recognition and biometric categorization systems (EU AI Act Art. 50) | Disclose AI interaction to users; label AI-generated content | User notification implemented; AI-generated content labelling policy applied |
@@ -106,7 +106,7 @@ High-risk AI systems used in contexts covered by EU AI Act Annex III must be reg
 
 ### 5.2 Fundamental rights impact assessment (FRIA)
 
-A Fundamental Rights Impact Assessment must be completed before deploying any high-risk AI system. The FRIA must:
+A Fundamental Rights Impact Assessment (FRIA) is required under EU AI Act Article 27(1) prior to deploying a high-risk AI system referred to in Article 6(2), with the exception of systems intended to be used in the Annex III point 2 (critical infrastructure) area, where the organization is a body governed by public law, a private entity providing public services, or a deployer of a high-risk AI system referred to in Annex III point 5(b) (creditworthiness evaluation and credit scoring) or 5(c) (risk assessment and pricing in life and health insurance). Where the organization is such a deployer, the FRIA must:
 
 - Identify the fundamental rights that may be affected by the AI system.
 - Assess the likelihood and severity of adverse impacts on those rights.
@@ -121,6 +121,7 @@ The FRIA is documented as part of the AI System Impact Assessment (see [`ai/proc
 
 High-risk AI systems must be deployed with appropriate human oversight mechanisms that:
 
+- Ensure that human oversight is assigned to natural persons who have the necessary competence, training, and authority, as well as the necessary support (EU AI Act Article 26(2)).
 - Allow designated individuals to understand the system's capabilities and limitations.
 - Allow designated individuals to correctly interpret outputs before relying on them for decisions.
 - Allow designated individuals to disregard, override, or interrupt the system.
