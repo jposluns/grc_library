@@ -2,8 +2,8 @@
 
 **Document Title:** Access Control Procedure\
 **Document Type:** Procedure\
-**Version:** 1.2.7\
-**Date:** 2026-08-23\
+**Version:** 1.2.8\
+**Date:** 2026-08-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-identity-management.md`](procedure-identity-management.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md)\
@@ -135,12 +135,12 @@ Access that does not meet all four criteria is treated as unjustified. The revie
 | Trigger | Revocation Timeline |
 | --- | --- |
 | Voluntary resignation | End of last working day |
-| Involuntary termination | Immediate (within 1 hour) |
+| Involuntary termination | Privileged access first, within 1 hour; critical access-removal actions per [`procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md) §8.2.1 within 1 hour; remaining actions per its Section 11 checklist |
 | Role change (access no longer required) | Privileged access within 2 hours of the effective date; non-privileged excess access within 5 business days (per [`procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md) §6.3) |
 | Contract expiry | At contract end date |
 | Security incident or investigation | Immediate upon instruction |
 
-5.2 The offboarding checklist confirms all access is revoked. Revocation is verified by the Identity Team within 24 hours of the effective date.
+5.2 The offboarding checklist confirms all access is revoked. The Identity Team verifies each revocation action against its target timeline in the Section 11 checklist of [`procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md).
 
 5.3 Third-party access is revoked in coordination with the supplier or contract manager.
 
