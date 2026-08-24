@@ -63,7 +63,6 @@ from collections import Counter
 from pathlib import Path
 
 from lint_common import (
-    DEFAULT_EXEMPT_DIRS,
     REPO_ROOT,
     is_fence_line,
     read_text_safe,
