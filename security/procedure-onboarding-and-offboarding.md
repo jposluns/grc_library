@@ -2,8 +2,8 @@
 
 **Document Title:** IT Onboarding and Offboarding Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.5\
-**Date:** 2026-08-05\
+**Version:** 1.0.6\
+**Date:** 2026-08-24\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -212,6 +212,8 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 9.3 Where a contractor or third-party worker shared credentials with other members of their organization (e.g., a shared service account for a supplier), those shared credentials must be rotated immediately upon the individual's departure, regardless of whether other authorized users continue to require access.
 
 9.4 IT Operations must confirm with the relevant line manager or contract owner that all third-party access has been removed before closing the offboarding record.
+
+9.5 The 7-calendar-day target for deprovisioning checklist item 15 (Section 11) is a deliberate, narrow exception to the timelines in item 9.1: independently-authenticated external portals (client portals, supplier systems, and other platforms not federated to the organization's identity provider) are a distinct access class whose removal depends on the external party's own administrative process, so it cannot be guaranteed within the internal-account revocation timelines (checklist item 1 onward). Portals federated to the identity provider lose access when the account is disabled under checklist item 1, and centralized, privileged, and shared-credential access retains its shorter timelines (checklist items 1, 12, and 16).
 
 ---
 
