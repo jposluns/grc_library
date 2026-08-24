@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
-"""PreToolUse hook: block every in-session agent-spawning dispatch.
+"""PreToolUse hook: block in-session agent-spawning dispatch in ORCHESTRATOR sessions.
 
-SCOPE. DISPATCH_TOOLS (and the settings.json matcher) cover every in-session tool that
+SCOPE. In a DISPATCHED WORKER session this hook is a no-op (see `_is_worker_session`): the
+worker is already the offload and its fan-out bills the pooled worker account, so blocking it
+only degrades a fan-out skill into a sequential one. In an ORCHESTRATOR session,
+DISPATCH_TOOLS (and the settings.json matcher) cover every in-session tool that
 spawns or resumes a reasoning agent billing the orchestrator account: Task, Agent,
 Workflow (which fans out many subagents, up to the harness cap), and SendMessage (which
 resumes one). The set below is the authoritative list; if the harness later adds another
@@ -32,7 +35,9 @@ as do real examples such as `/fitness`, `verify`, `validation sweep`, `screen
 publications`, and `poke holes in this diff`. The robust guard blocks the tool
 class instead of trying to classify the prompt. Every Task, Agent, Workflow, or
 SendMessage dispatch is blocked, whether it asks for QA, research, drafting, or
-exploration. The only inputs to the decision are the tool name and the sentinel.
+exploration. The inputs to the decision are the tool name, the SESSION IDENTITY (a dispatched
+worker is exempt: it IS the offload, and its fan-out bills the pooled worker account, not the
+orchestrator's), and the sentinel.
 Deterministic Bash and Read calls remain allowed because they are not members of
 the in-session agent-spawning tool class.
 
@@ -97,6 +102,20 @@ import stat
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+
+# The shared `orch` worker broker launches each dispatched Claude worker with
+# CLAUDE_CONFIG_DIR pointed at an EPHEMERAL credential copy it creates as
+# `mktemp -d "<tmpbase>/orch-worker.XXXXXX"`. The orchestrator's own value is a
+# stable pooled-account path (`/opt/orch-accounts/<project>/<account>`), so the
+# `orch-worker.` basename prefix is a positive marker set by the broker itself.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+try:
+    from _hookutil import is_worker_session as _is_worker_session
+except Exception:                                  # pragma: no cover
+    # FAIL CLOSED: if the shared detector cannot be imported we cannot prove this is a
+    # worker, so every dispatch keeps the orchestrator contract and blocks. Ignorance refuses.
+    def _is_worker_session() -> bool:              # noqa: D103
+        return False
 
 # BLOCK (exit 2) on an unauthorized in-session dispatch. False downgrades to
 # WARN-only (exit 0 plus stderr). See the severity paragraph before changing it.
@@ -205,7 +224,7 @@ def log_fire(event: str, detail: str) -> bool:
 
     Row: <utc-iso-Z> TAB <event> TAB <hook> TAB <detail>. The four-column shape
     matches existing rows. Column 2 carries the event class, one of BLOCK,
-    BYPASS-AUTHORIZED, FAIL-OPEN, or WARN-ALLOWED (the last is what a
+    BYPASS-AUTHORIZED, FAIL-OPEN, WORKER-ALLOWED, or WARN-ALLOWED (the last is what a
     `BLOCK_SEVERITY = False` flip records, because the register logs the OUTCOME
     rather than the intent). The caller ignores a False result on the block path,
     but the self-test can assert that the writer works.
@@ -235,7 +254,7 @@ def _dispatch_summary(text: str) -> str:
 
 def _block_message(dispatch_text: str) -> str:
     return (
-        "BLOCKED (orchestrator dispatch guardrail): every in-session "
+        "BLOCKED (orchestrator dispatch guardrail): in an orchestrator session every in-session "
         "Task/Agent/Workflow/SendMessage dispatch is prohibited. Dispatch fields: "
         + repr(_dispatch_summary(dispatch_text))
         + ".\n"
@@ -274,6 +293,16 @@ def decide(payload: dict):
     """
     if not _is_dispatch(payload):
         return "allow", ""
+    if _is_worker_session():
+        # A dispatched worker IS the offload; its fan-out spends the elastic pooled
+        # account, not the orchestrator's scarce one. Allowed without consuming the
+        # sentinel, which is the orchestrator's one-shot authorization and must not be
+        # burned by a worker. Logged so the register still shows the guard deciding.
+        return "worker-allow", (
+            "WORKER SESSION: dispatch allowed. CLAUDE_CONFIG_DIR names a broker "
+            "ephemeral worker dir, so this process is a dispatched worker rather than "
+            "the orchestrator; its subagent fan-out bills the pooled worker account."
+        )
     dispatch_text = _dispatch_text(payload)
     if _consume_sentinel():
         return "bypass", (
@@ -308,6 +337,9 @@ def main(argv: list) -> int:
         action, message = decide(payload)
     except Exception as exc:
         log_fire("FAIL-OPEN", type(exc).__name__ + ": " + raw[:200])
+        return 0
+    if action == "worker-allow":
+        log_fire("WORKER-ALLOWED", message.splitlines()[0])
         return 0
     if action == "bypass":
         log_fire("BYPASS-AUTHORIZED", message.splitlines()[0])
@@ -346,9 +378,18 @@ def _self_test() -> int:
             self._sentinel, self._fire_log = SENTINEL, FIRE_LOG
             SENTINEL = self._root / ".allow-orchestrator-qa"
             FIRE_LOG = self._root / "guard-fires.tsv"
+            # HERMETIC ENVIRONMENT. Existing legacy cases assert the ORCHESTRATOR
+            # contract, and `_is_worker_session()` reads ambient CLAUDE_CONFIG_DIR.
+            # Pin a non-worker value so each case states its own precondition instead
+            # of inheriting the session that happens to run the self-test.
+            self._config_dir_patch = mock.patch.dict(
+                os.environ, {"CLAUDE_CONFIG_DIR": "/opt/orch-accounts/test/orchestrator"}
+            )
+            self._config_dir_patch.start()
 
         def tearDown(self):
             global SENTINEL, FIRE_LOG
+            self._config_dir_patch.stop()
             SENTINEL, FIRE_LOG = self._sentinel, self._fire_log
             self._temporary_root.cleanup()
 
@@ -528,6 +569,108 @@ def _self_test() -> int:
             FIRE_LOG = self._root / "missing" / "guard-fires.tsv"
             self.assertFalse(log_fire("BLOCK", "x"))
             self.assertEqual(decide(dispatch(prompt="research"))[0], "block")
+
+        # --- worker-session scoping (GS-1, 2026-08-20) ---------------------------
+        # The guard protects the ORCHESTRATOR's scarce account. A dispatched worker is
+        # already the offload, so its fan-out must not be blocked. Detection is a
+        # POSITIVE match on the broker's ephemeral config dir; every other state must
+        # keep blocking, so most of these tests are the fail-closed negatives.
+
+        def test_worker_session_dispatch_is_allowed(self):
+            with mock.patch.dict(
+                os.environ, {"CLAUDE_CONFIG_DIR": "/run/orch/orch-worker.Ab3xZ9"}
+            ):
+                self.assertEqual(decide(dispatch(prompt="research"))[0], "worker-allow")
+
+        def test_worker_allow_does_not_consume_the_sentinel(self):
+            # The sentinel is the ORCHESTRATOR's one-shot authorization. A worker must
+            # never burn it, or an unrelated orchestrator dispatch later loses its bypass.
+            SENTINEL.write_text("", encoding="utf-8")
+            with mock.patch.dict(
+                os.environ, {"CLAUDE_CONFIG_DIR": "/run/orch/orch-worker.Ab3xZ9"}
+            ):
+                self.assertEqual(decide(dispatch(prompt="research"))[0], "worker-allow")
+            self.assertTrue(SENTINEL.is_file(), "worker-allow consumed the sentinel")
+
+        def test_orchestrator_pooled_account_dir_still_blocks(self):
+            with mock.patch.dict(
+                os.environ,
+                {"CLAUDE_CONFIG_DIR": "/opt/orch-accounts/grc/claude-team-pro-jposluns-work"},
+            ):
+                self.assertEqual(decide(dispatch(prompt="research"))[0], "block")
+
+        def test_unset_config_dir_blocks(self):
+            env = {k: v for k, v in os.environ.items() if k != "CLAUDE_CONFIG_DIR"}
+            with mock.patch.dict(os.environ, env, clear=True):
+                self.assertEqual(decide(dispatch(prompt="research"))[0], "block")
+
+        def test_empty_config_dir_blocks(self):
+            with mock.patch.dict(os.environ, {"CLAUDE_CONFIG_DIR": ""}):
+                self.assertEqual(decide(dispatch(prompt="research"))[0], "block")
+
+        def test_marker_must_be_the_basename_not_a_parent(self):
+            # A PARENT directory named orch-worker.* must not qualify the session: the
+            # broker sets the ephemeral dir itself, so only the basename is authoritative.
+            with mock.patch.dict(
+                os.environ,
+                {"CLAUDE_CONFIG_DIR": "/run/orch-worker.Ab3xZ9/orch-accounts/grc/acct"},
+            ):
+                self.assertEqual(decide(dispatch(prompt="research"))[0], "block")
+
+        def test_lookalike_prefix_blocks(self):
+            # "orch-workers-cache" shares a prefix up to the dot; the dot is load-bearing.
+            with mock.patch.dict(
+                os.environ, {"CLAUDE_CONFIG_DIR": "/run/orch/orch-workers-cache"}
+            ):
+                self.assertEqual(decide(dispatch(prompt="research"))[0], "block")
+
+        def test_non_dispatch_early_return_precedes_the_worker_check(self):
+            # NOT a test of the worker detector: `decide()` returns "allow" for a non-dispatch
+            # tool BEFORE it consults `_is_worker_session()`, so this case would pass against a
+            # broken detector. What it DOES pin is the ORDERING, that the worker branch did not
+            # displace the early return and a non-dispatch tool is never reported "worker-allow".
+            with mock.patch.dict(
+                os.environ, {"CLAUDE_CONFIG_DIR": "/run/orch/orch-worker.Ab3xZ9"}
+            ):
+                self.assertEqual(decide(dispatch(tool="Bash", prompt="verify"))[0], "allow")
+
+        def test_worker_allow_never_calls_consume_sentinel(self):
+            # Stronger than checking the sentinel still exists afterwards: this proves the
+            # consume was never ATTEMPTED, so no transient claim/restore race can occur.
+            with mock.patch.dict(
+                os.environ, {"CLAUDE_CONFIG_DIR": "/run/orch/orch-worker.Ab3xZ9"}
+            ), mock.patch(
+                "__main__._consume_sentinel", side_effect=AssertionError("must not be called")
+            ) as consume:
+                self.assertEqual(decide(dispatch(prompt="research"))[0], "worker-allow")
+            consume.assert_not_called()
+
+        def test_main_worker_allow_exits_zero_and_logs_the_event(self):
+            payload = json.dumps(dispatch(prompt="research"))
+            with mock.patch.dict(
+                os.environ, {"CLAUDE_CONFIG_DIR": "/run/orch/orch-worker.Ab3xZ9"}
+            ), mock.patch.object(sys, "stdin", io.StringIO(payload)):
+                self.assertEqual(main(["block-orchestrator-self-qa.py"]), 0)
+            self.assertIn("WORKER-ALLOWED", FIRE_LOG.read_text(encoding="utf-8"))
+
+        def test_marker_is_lexical_and_does_not_stat_the_path(self):
+            # PINS THE DOCUMENTED WEAKNESS rather than a wish. The check never stats, so a
+            # nonexistent or unreadable path bearing the prefix IS accepted. If a future
+            # change makes the check filesystem-aware, this test should fail deliberately.
+            for path in (
+                "/definitely/missing/orch-worker.fake",
+                "/root/orch-worker.fake",
+                "/run/orch/orch-worker.",          # no mktemp suffix
+            ):
+                with self.subTest(path=path), mock.patch.dict(
+                    os.environ, {"CLAUDE_CONFIG_DIR": path}
+                ):
+                    self.assertEqual(decide(dispatch(prompt="research"))[0], "worker-allow")
+
+        def test_environment_read_failure_falls_closed(self):
+            with mock.patch.dict(os.environ, {"CLAUDE_CONFIG_DIR": "/run/orch/orch-worker.Ab3"}):
+                with mock.patch("os.environ.get", side_effect=RuntimeError("simulated")):
+                    self.assertEqual(decide(dispatch(prompt="research"))[0], "block")
 
         def test_documented_block_all_contract(self):
             examples = (
