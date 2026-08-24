@@ -15,7 +15,7 @@ Nothing enforced it, and it was broken twice. PR #1151 created a
 by PR #1130, and left the P1 counter at ``1.23`` while ``### 1.23`` was
 live; a pre-push verifier caught both. A class-width check then found a
 further live violation predating #1151 at ``§3.100``. This gate is the
-mechanical backstop (TODO section 3.110).
+mechanical backstop (built in PR #1173).
 
 Three checks, spanning ``TODO.md``, the private ``P-TODO.md``,
 ``.working/DONE.md``, and the public ``tools/todo-number-floor.json``:
