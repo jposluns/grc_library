@@ -2,8 +2,8 @@
 
 **Document Title:** BASC Information Security Policy\
 **Document Type:** Policy\
-**Version:** 1.2.6\
-**Date:** 2026-08-20\
+**Version:** 1.2.7\
+**Date:** 2026-08-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-basc-programme-overview.md`](annex-basc-programme-overview.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/logistics/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md), [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -24,7 +24,7 @@ This policy establishes the framework for managing and protecting the organizati
 
 ## 2. Scope
 
-Applies to all employees, contractors, and third parties accessing the organization's information systems, data, and technology resources.
+Applies to all employees, contractors, and third parties accessing the organization's information systems, data, and technology resources. The access-revocation timelines in this policy (including the two-hour access-revocation ceiling) govern organization-controlled and identity-provider-federated access; independently-authenticated external-party portals (client portals, supplier systems, and other platforms not federated to the organization's identity provider) are a distinct access class outside this internal-revocation scope, and their removal follows the deprovisioning path in [`security/procedure-onboarding-and-offboarding.md`](../../security/procedure-onboarding-and-offboarding.md) item 9.5.
 
 ---
 
