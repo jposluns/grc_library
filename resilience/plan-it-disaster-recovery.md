@@ -2,8 +2,8 @@
 
 **Document Title:** IT Disaster Recovery Plan\
 **Document Type:** Plan\
-**Version:** 1.3.8\
-**Date:** 2026-08-23\
+**Version:** 1.3.9\
+**Date:** 2026-08-24\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -116,7 +116,7 @@ DR testing requirements follow the Continuity and Recovery Testing and Exercisin
 
 - Tier 1 systems must be included in the annual full recovery test.
 - Cloud-based site recovery failover tests for production-critical virtual machines must be conducted at minimum annually.
-- Test results, recovery time achieved versus RTO target, and any identified gaps are documented and reported to the CIO and ERC.
+- Test results, recovery time achieved versus the applicable target (the per-system RTO for an isolated-failure test, or the recovery-phase target for a catastrophic-recovery test), and any identified gaps are documented and reported to the CIO and ERC.
 - Failures and gaps are logged in the CAPA Register.
 
 ---
@@ -127,7 +127,7 @@ A ransomware incident resulted in approximately a 30-day recovery window. Key le
 
 - Hypervisor infrastructure requires explicit DR coverage via a cloud-based site recovery service.
 - Identity recovery (on-premises directory service) must be the first recovery step.
-- The integration layer recovery timeline (approximately 14 days) is the longest single phase and requires dedicated resourcing.
+- In the prior incident, integration-layer recovery took approximately 14 days, exceeding its 7-to-10-day Phase 3 target, and required dedicated resourcing.
 - Legacy data environments with backup gaps materially increase recovery complexity and must be eliminated.
 - Evidence of attacker removal must be confirmed before any system is restored to production.
 
