@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import os
 import re
+from pathlib import Path
 import shlex
 
 # A heredoc INTRODUCER. Three angle brackets is a herestring, not a heredoc, and `a << b` is a
@@ -99,6 +100,62 @@ def strip_heredocs(command: str) -> str:
                 out.extend(lines[i:end + 1])
                 i = end + 1
     return "\n".join(out)
+
+
+# --- session identity ------------------------------------------------------
+# The shared `orch` worker broker launches each dispatched Claude worker with
+# CLAUDE_CONFIG_DIR pointed at an EPHEMERAL credential copy it creates as
+# `mktemp -d "<tmpbase>/orch-worker.XXXXXX"`. The orchestrator's own value is a stable
+# pooled-account path. Defined here, not in each hook, so the guards that need it
+# cannot drift apart.
+#
+# WHAT THIS MARKER IS, STATED HONESTLY. It is a LEXICAL check on caller-controlled
+# text. It does NOT establish broker provenance: it proves only that the environment
+# variable has that prefix, not that the broker set it, that the path exists, that it
+# is a directory, or who owns it. An orchestrator that constructs a matching directory
+# by hand is classified as a worker. That residual forgeability is ACCEPTED, on the
+# same footing as this guard family's deliberate one-shot sentinel escape: the only
+# actor positioned to forge it is the orchestrator whose own discipline the guard
+# encodes, so it is a guardrail, not a security boundary.
+#
+# The ACCIDENTAL case, which mattered more, is closed at the source: `orch` reserves
+# the `orch-worker.` label prefix (`valid_label()`, plus an explicit die on the
+# `--account` path), so no orchestrator account can be labelled into a masquerade.
+# An unforgeable signal (a distinct worker UID, or a root-owned marker) requires a
+# privileged step the dispatch path does not currently have; it is designed as a
+# deliberate lab_infra follow-up, and when it lands this function becomes a single
+# ownership or UID check and this caveat goes away.
+WORKER_CONFIG_DIR_PREFIX = "orch-worker."
+
+
+def is_worker_session() -> bool:
+    """True when CLAUDE_CONFIG_DIR's BASENAME begins with the broker's worker prefix.
+
+    That is the whole test, and the name of this function claims more than the test
+    delivers, so read the module comment above before relying on it.
+
+    WHAT IT CHECKS: a lexical prefix on the basename. It does NOT stat the path, so a
+    NONEXISTENT or UNREADABLE path bearing the prefix returns True. An earlier version
+    of this docstring claimed those cases fell closed; that claim was FALSE and is
+    corrected here (found by a cross-family verifier on PR #1648, which measured
+    `/root/orch-worker.fake` and `/definitely/missing/orch-worker.fake` both returning
+    True).
+
+    WHAT DOES FALL CLOSED: an unset or empty variable, a path whose basename lacks the
+    prefix, the prefix appearing only in a PARENT component, and any exception while
+    reading the environment. In each of those a caller keeps its orchestrator behaviour,
+    which is the safe direction: the worst case of a miss is the status quo.
+
+    SCOPE: Claude-specific by construction, which is the scope that matters, since Codex
+    and Gemini workers do not run Claude Code hooks at all.
+    """
+    try:
+        config_dir = os.environ.get("CLAUDE_CONFIG_DIR", "")
+        if not config_dir:
+            return False
+        return Path(config_dir).name.startswith(WORKER_CONFIG_DIR_PREFIX)
+    except Exception:
+        return False
 
 
 SELF_TEST = [

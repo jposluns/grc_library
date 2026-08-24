@@ -58,6 +58,13 @@ import subprocess
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+try:
+    from _hookutil import is_worker_session
+except Exception:                                  # pragma: no cover - fail OPEN on import trouble
+    def is_worker_session() -> bool:               # noqa: D103
+        return True
+
 REPO = Path(os.environ.get("CLAUDE_PROJECT_DIR") or Path(__file__).resolve().parents[2])
 ESCAPE_FILE = Path(os.environ.get("GRC_DROP_ROOT", "/opt/grc/grc_working")) / ".allow-stop"
 # Held branches live in a FILE with a reason per line, not a constant in this file: a hardcoded set
@@ -165,6 +172,16 @@ def main() -> int:
     try:
         if payload.get("stop_hook_active"):
             return 0
+        if is_worker_session():
+            # A dispatched worker cannot discharge ANY of this guard's remedies: it cannot
+            # merge the orchestrator's branch (merging is orchestrator-only work), it cannot
+            # write the `_private` held-branches record, and it cannot create the escape file,
+            # all three sitting outside a worker's writable root. So the guard could only wedge
+            # a worker at the end of an order it had already completed. The branch it names is
+            # the ORCHESTRATOR's outstanding work, and the orchestrator's own turn-end is where
+            # that gets enforced. Observed 2026-08-20: a /validate-pr worker delivered its full
+            # verdict, then spent its remaining turns unable to satisfy or escape this guard.
+            return 0
         escape = ESCAPE_FILE.exists()
         if escape:
             try:
@@ -190,6 +207,9 @@ SELF_TEST = [
 
 
 def self_test() -> int:
+    import io
+    from unittest import mock
+
     bad = 0
     for name, args, should_block in SELF_TEST:
         got = decide(*args) is not None
@@ -197,7 +217,46 @@ def self_test() -> int:
             bad += 1
             print("FAIL " + name + ": want " + ("BLOCK" if should_block else "allow")
                   + ", got " + ("BLOCK" if got else "allow"))
-    print(str(len(SELF_TEST) - bad) + "/" + str(len(SELF_TEST)) + " decision cases pass")
+
+    # Worker scoping lives in main(), not the pure branch decision. Assert that a
+    # positively identified worker returns before it probes either the escape or branches.
+    module = sys.modules[__name__]
+    worker_escape = mock.Mock()
+    with mock.patch.dict(
+        os.environ, {"CLAUDE_CONFIG_DIR": "/run/orch/orch-worker.Ab3xZ9"}
+    ), mock.patch.object(
+        sys, "stdin", io.StringIO("{}")
+    ), mock.patch.object(
+        module, "ESCAPE_FILE", worker_escape
+    ), mock.patch.object(
+        module, "unmerged_branches"
+    ) as branch_scan:
+        worker_rc = main()
+    if worker_rc != 0 or worker_escape.exists.called or branch_scan.called:
+        bad += 1
+        print("FAIL worker session allows before escape/branch probes")
+
+    # A normal orchestrator path must retain the current branch-blocking contract.
+    orchestrator_escape = mock.Mock()
+    orchestrator_escape.exists.return_value = False
+    with mock.patch.dict(
+        os.environ, {"CLAUDE_CONFIG_DIR": "/opt/orch-accounts/test/orchestrator"}
+    ), mock.patch.object(
+        sys, "stdin", io.StringIO("{}")
+    ), mock.patch.object(
+        sys, "stderr", io.StringIO()
+    ), mock.patch.object(
+        module, "ESCAPE_FILE", orchestrator_escape
+    ), mock.patch.object(
+        module, "unmerged_branches", return_value=[("b", "1")]
+    ) as branch_scan:
+        orchestrator_rc = main()
+    if orchestrator_rc != 2 or branch_scan.call_count != 1:
+        bad += 1
+        print("FAIL orchestrator session did not retain branch block")
+
+    total = len(SELF_TEST) + 2
+    print(str(total - bad) + "/" + str(total) + " decision cases pass")
     return 1 if bad else 0
 
 
