@@ -2,8 +2,8 @@
 
 **Document Title:** Data Retention Schedule\
 **Document Type:** Register\
-**Version:** 1.0.26\
-**Date:** 2026-08-16\
+**Version:** 1.0.27\
+**Date:** 2026-08-24\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md)\
@@ -39,11 +39,11 @@ This register defines the mandatory retention periods for each category of organ
 | Record Type | Retention Period | Legal Basis / Rationale |
 | --- | --- | --- |
 | Employee personnel files | 7 years after employment ends | Employment law; tax and payroll obligations |
-| Payroll and compensation records | 7 years | Tax and audit requirements |
-| Background screening records | Duration of employment + 3 years | Personnel security; legal defensibility |
-| Onboarding and offboarding checklists | Duration of employment + 3 years | Audit evidence |
-| Disciplinary and grievance records | Resolution + 5 years | Legal defensibility |
-| Training completion records | Duration of employment + 3 years | Compliance evidence |
+| Payroll and compensation records | 7 years after employment ends | Tax and audit requirements |
+| Background screening records | 7 years after employment ends, or 5 years from the screening outcome, whichever is longer | Personnel security; legal defensibility |
+| Onboarding and offboarding checklists | 7 years after the date of departure or offboarding | Audit evidence |
+| Disciplinary and grievance records | 7 years after employment ends, or 5 years after resolution, whichever is longer | Legal defensibility |
+| Training completion records | 7 years after employment ends | Compliance evidence |
 
 ### 2. Financial and accounting records
 
@@ -115,7 +115,7 @@ This register defines the mandatory retention periods for each category of organ
 | Customs declarations and entries | 7 years | Organization retention baseline for customs records. Confirm the applicable jurisdiction's customs record-keeping minimum at source and apply the longer period. |
 | BASC audit records and certifications | Certification period + 7 years | BASC International Standard v6 |
 | Cargo manifest and chain of custody | 7 years | Organization retention baseline for trade records; confirm the applicable jurisdiction's customs record-keeping minimum at source (no generic CTPAT, NEEC, or WCO-AEO retention term is held; the held WCO-AEO 7-year statement is Myanmar-specific, for financial and operational documents) |
-| Personnel security screening (trade) | Duration of employment + 5 years | BASC v6 Chapter 6 |
+| Personnel security screening (trade) | 7 years after employment ends, or 5 years from the screening outcome, whichever is longer | BASC v6 Chapter 6; the base HR 7-year-after-separation floor governs where longer, per the records-retention standard sector-overlay rule |
 | Cryptographic key audit records (trade) | 7 years | Organization retention baseline, aligned with the cryptographic-audit-record floor in the key lifecycle framework. |
 
 ### 9. Supplier and third-party records
