@@ -44,7 +44,6 @@ from __future__ import annotations
 
 import datetime as _dt
 import re
-import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent

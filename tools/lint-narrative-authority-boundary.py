@@ -53,13 +53,7 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-from lint_common import (
-    AUDITED_DOMAIN_DIRS,
-    REPO_ROOT,
-    is_fence_line,
-    parse_metadata_block,
-    read_text_safe,
-)
+from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT, parse_metadata_block, read_text_safe
 
 # The narrative directory: the target the direction rule forbids corpus
 # documents from referencing.

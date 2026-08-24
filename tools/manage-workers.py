@@ -47,7 +47,7 @@ import sys
 import time
 from pathlib import Path
 
-from lint_common import resolve_working_for_write, resolve_working_for_write_private, private_store_roots
+from lint_common import resolve_working_for_write_private, private_store_roots
 
 LOG_REL = ".working/worker-prompt-log.md"
 
