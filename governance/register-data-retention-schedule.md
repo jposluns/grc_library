@@ -2,8 +2,8 @@
 
 **Document Title:** Data Retention Schedule\
 **Document Type:** Register\
-**Version:** 1.0.27\
-**Date:** 2026-08-24\
+**Version:** 1.0.28\
+**Date:** 2026-08-25\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md)\
@@ -81,7 +81,7 @@ This register defines the mandatory retention periods for each category of organ
 
 | Record Type | Retention Period | Legal Basis / Rationale |
 | --- | --- | --- |
-| Internal audit reports | 7 years | ISO 19011; compliance evidence; matches [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md):360 §8.3 (Evidence retention) canonical 7-year mandate for audit working papers, evidence, draft findings, management responses, and final reports |
+| Internal audit reports | 7 years | ISO 19011; compliance evidence; matches [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md) §8.3 (Evidence retention) canonical 7-year mandate for audit working papers, evidence, draft findings, management responses, and final reports |
 | External audit and certification records | Certification period + 5 years | ISO/IEC 27001; certification requirements |
 | Regulatory correspondence | 7 years | Legal and regulatory requirements |
 | Compliance attestations | 5 years | Compliance evidence |

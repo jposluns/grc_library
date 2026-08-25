@@ -2,8 +2,8 @@
 
 **Document Title:** Audit Programme Specification\
 **Document Type:** Specification\
-**Version:** 1.17.114\
-**Date:** 2026-08-23\
+**Version:** 1.17.115\
+**Date:** 2026-08-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`CHANGELOG.md`](../CHANGELOG.md), [`TODO.md`](../TODO.md)\
@@ -41,7 +41,7 @@ The audit programme is the library's primary defence against the failure modes c
 
 The audit programme rests on five principles:
 
-1. **Determinism over heuristic**. Every gate produces a deterministic pass/fail outcome from the repository state alone. No gate depends on network access, third-party services, or wall-clock state outside the repository.
+1. **Determinism over heuristic**. Every gate produces a deterministic pass/fail outcome. No gate depends on network access or third-party services. The result is a function of the repository state alone, with one bounded exception: the date-sensitive gates, which compare a repository-recorded date field against the current date (per-document date staleness and review cadence, citation and tooling currency and freshness, and follow-up ageing, plus the advisory daily-changelog-rollup check). The current date is their only external input, and each is otherwise deterministic from repository state.
 2. **Stdlib-only Python**. Every linter is implemented in Python 3.11 standard-library code with no third-party dependencies. This keeps the audit programme reproducible across local, CI, and pre-commit surfaces with zero environment setup beyond a Python interpreter.
 3. **One gate, one concern**. Each gate enforces a single, narrowly defined rule. Failure messages name the rule, the file, the line, and the offending content. When a rule's domain grows beyond one file, the gate is split rather than overloaded.
 4. **Conservative scope over false positives**. A gate that would produce legitimate false positives at scale is scoped narrowly to what it can track without false positives, or not shipped at all. (An earlier variant kept a deliberately dormant pattern as forward scaffolding, for example [`tools/lint-cross-doc-numbers.py`](../tools/lint-cross-doc-numbers.py)'s P1/P2/P3-acknowledgement patterns from Phase 23.26; that scaffold was retired per the deep-assessment r3 DA-gate25-scaffold finding because a permanently zero-tracking pattern adds no protection while implying coverage the gate does not provide, so dormant scaffolding is no longer kept. The gate stays active on its GDPR-breach-notification term.) Honest scope management is preferred over either silent false positives or blanket exemption lists. A permitted exception is *meta-documents* whose purpose is to describe a linter's rule set (the linter script itself, the CHANGELOG, this specification, and the Citation Verification Specification): these documents inevitably contain the patterns the linter searches for and are exempted by name in the linter's exemption list, with an inline comment naming the reason.
