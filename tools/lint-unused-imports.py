@@ -45,7 +45,7 @@ EXCLUSIONS (each with its detection mechanism):
 RESIDUES (stated so nobody trusts the gate past its reach): a marker-less deliberate re-export is
 indistinguishable from dead code; a name used only via `getattr`/`globals()` is invisible unless a
 string literal names it; a name mentioned only in a comment or docstring suppresses a real finding
-(the accepted false-negative direction, the PR #1697 shape); a file that does not PARSE is SKIPped whole (printed as a SKIP line, not a finding), so gate 94 does not syntax-check the toolchain (that coverage for `.claude/hooks/` is a separate routed gap).
+(the accepted false-negative direction, the PR #1697 shape); a file that does not PARSE is SKIPped whole (printed as a SKIP line, not a finding), so gate 94 does not syntax-check the toolchain (gate 95, the hooks Python-syntax audit, covers `.claude/hooks/`; gate 71 parse-fails `tools/`, `tests/`, and `.web/`).
 
 Usage:
     python3 tools/lint-unused-imports.py                 # ENFORCE (default): exit 1 on any finding (gate 94)

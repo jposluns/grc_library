@@ -652,3 +652,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-hooks-syntax
+        name: Hooks Python-syntax audit
+        entry: python3 tools/lint-hooks-syntax.py
+        language: system
+        pass_filenames: false
+        always_run: true
