@@ -290,6 +290,9 @@ jobs:
       - name: Static unused-import audit
         run: python3 tools/lint-unused-imports.py --enforce
 
+      - name: Hooks Python-syntax audit
+        run: python3 tools/lint-hooks-syntax.py
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py

@@ -14811,5 +14811,60 @@ class UnusedImportsGateTests(unittest.TestCase):
         self.assertEqual(r.returncode, 0,
                          "live toolchain has unused imports:\n" + r.stdout)
 
+class HooksSyntaxGateTests(unittest.TestCase):
+    """tools/lint-hooks-syntax.py (gate 95): every .claude/hooks/*.py must compile.
+    Positive: a syntax-broken hook fixture fails (exit 1, path:line: message finding).
+    Negative: a well-formed fixture dir passes (exit 0). Head-tree: the live hooks
+    directory compiles clean."""
+
+    TOOL = str(REPO_ROOT / "tools/lint-hooks-syntax.py")
+
+    def _run(self, *args):
+        import subprocess
+        return subprocess.run([sys.executable, self.TOOL, *args],
+                              capture_output=True, text=True)
+
+    def test_positive_syntax_error_fails(self):
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "ok.py").write_text("x = 1\n", encoding="utf-8")
+            (Path(td) / "broken.py").write_text("def f(:\n    pass\n", encoding="utf-8")
+            r = self._run("--hooks-dir", td)
+            self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+            self.assertIn("broken.py:1:", r.stdout)
+
+    def test_negative_wellformed_dir_passes(self):
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "a.py").write_text("import json\n\n\ndef f():\n    return json.dumps({})\n", encoding="utf-8")
+            (Path(td) / "sub").mkdir()
+            (Path(td) / "sub" / "b.py").write_text("y = 2\n", encoding="utf-8")
+            r = self._run("--hooks-dir", td)
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertIn("OK", r.stdout)
+            self.assertIn("2 hook file(s)", r.stdout)
+
+    def test_head_tree_hooks_parse(self):
+        r = self._run()
+        self.assertEqual(r.returncode, 0,
+                         "live .claude/hooks/ has a syntax error:\n" + r.stdout)
+
+    def test_compile_stage_error_fails(self):
+        # `return` at module scope is a COMPILE-stage error the interpreter rejects
+        # but a bare ast.parse accepts; the gate must catch it (uses compile()).
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "bad.py").write_text("return 1\n", encoding="utf-8")
+            r = self._run("--hooks-dir", td)
+            self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+            self.assertIn("bad.py:1:", r.stdout)
+
+    def test_bom_prefixed_file_passes(self):
+        # A leading UTF-8 BOM runs fine under python3; compiling raw bytes must accept
+        # it (no false positive), unlike read_text(utf-8) + ast.parse.
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "bom.py").write_bytes(b"\xef\xbb\xbfx = 1\n")
+            r = self._run("--hooks-dir", td)
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertIn("OK", r.stdout)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
