@@ -9786,6 +9786,16 @@ class RelationshipModelGeneratorTests(unittest.TestCase):
         errs = self._errors(self._record(verb="relates to"))
         self.assertTrue(any("[verb-allow-list]" in e for e in errs), errs)
 
+    def test_invalid_authority_level_flagged(self) -> None:
+        # Framework test 8: authority_level must be one of the 8 alignment-type +
+        # internal-force values; a parallel taxonomy is rejected (r22-F3).
+        errs = self._errors(self._record(authority_level="invented force"))
+        self.assertTrue(any("[shape] authority_level" in e for e in errs), errs)
+
+    def test_valid_authority_level_passes(self) -> None:
+        errs = self._errors(self._record(authority_level="legal obligation"))
+        self.assertEqual(errs, [], errs)
+
     def test_incompatible_source_category_is_advisory_not_fatal(self) -> None:
         # The framework's scope exclusions define no exhaustive node-by-verb
         # compatibility matrix: a typical-category mismatch is category-level
