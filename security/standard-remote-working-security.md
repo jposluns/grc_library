@@ -2,7 +2,7 @@
 
 **Document Title:** Remote Working Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.12\
+**Version:** 1.0.13\
 **Date:** 2026-08-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -30,7 +30,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 2.2 It covers all company-owned managed devices used for remote work.
 
-2.3 Personal device access is governed by conditional access policy enforcement and is subject to the requirements in Section 8 (Bring-Your-Own Device). A formal BYOD policy will supplement this standard when approved.
+2.3 Personal device access is governed by conditional access policy enforcement and is subject to the requirements in Section 8 (Bring-Your-Own Device). The formal BYOD policy ([`policy-byod.md`](policy-byod.md)) supplements this standard.
 
 2.4 This standard does not govern access controls for on-premises systems or in-office working, except where those controls intersect with remote access technology (e.g., VPN, enterprise identity provider).
 
@@ -154,6 +154,8 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 | **Confidential** | Yes, on compliant managed device; personal devices require CISO approval | Company-managed encrypted storage; personal cloud storage prohibited | Yes, always (VPN required for all Confidential-data access regardless of network type, per Section 5.2.2) |
 | **Restricted** | Managed device only; CISO approval required for remote access | Company-managed encrypted storage; no personal storage of any kind | Yes, always |
 
+The VPN Required column states requirements by data classification; Section 5.1 additionally requires VPN on untrusted networks (for example public Wi-Fi and most client-site networks) regardless of the data classification.
+
 7.1.2 All data must remain in company-managed storage. Data must not be saved to personal cloud storage services, personal drives, or any storage medium not under the control of the organization.
 
 ### 7.2 Collaboration and file sharing
@@ -166,7 +168,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 ## 8. Bring-your-own device (BYOD)
 
-8.1 A formal BYOD policy is pending approval. In the interim, the following requirements apply to any use of personal devices to access organizational systems:
+8.1 The formal BYOD policy ([`policy-byod.md`](policy-byod.md)) supplements this standard. The following requirements apply to any use of personal devices to access organizational systems:
 
 8.2 Personal devices must not be used to access data classified as Confidential or Restricted without explicit written approval from the CISO and a documented compensating control.
 
