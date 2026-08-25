@@ -58,7 +58,10 @@ def _scan_files() -> list[Path]:
         if not base.is_dir():
             continue
         for p in sorted(base.rglob("*.py")):
-            if "__pycache__" in p.parts:
+            if not p.is_file() or "__pycache__" in p.parts:
+                # is_file: rglob("*.py") also matches a DIRECTORY named `*.py`;
+                # skip it (reading it would raise IsADirectoryError). Mirrors the
+                # gate-94 fix (PR #1715); r22-F4 codex follow-up.
                 continue
             files.append(p)
     return files
