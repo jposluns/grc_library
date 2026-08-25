@@ -3,6 +3,8 @@
 All notable changes to this repository are recorded in this file as one compact entry per change: a `date | version | PR` header followed by a short, plain-language summary a general reader can follow. The full maintainer-grade detail for each change (the Added / Changed / Removed / Fixed / Security / Verification sections) is kept in the private sibling working-state store and in git history; that mirror is how this project's maintainer tracks the full audit trail. The convention is project-specific; forks may keep their own working-state store and adopt their own approach to detailed change tracking. The mechanics are documented in the [`change-tracking` governance rule](guardrails/governance/change-tracking.md). Significant project milestones are recorded inline as dated `MILESTONE:` entries (`**YYYY-MM-DD | MILESTONE:** ...`) that float to the top of the entry stream, above that day's per-PR entries; those are never condensed by the daily or weekly roll-ups, and the roll-up tooling skips them by their `MILESTONE:` marker.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+**2026-08-25 | 2026.08.412 | PR #1711** - Fixed three small accuracy slips a fresh validation sweep surfaced: an overstated changelog line about the new unused-import check and two stale internal tooling doc-comments.
+
 **2026-08-25 | 2026.08.411 | PR #1710** - Codified the plain-language changelog style as a rule, so future per-PR entries and daily and weekly summaries stay human-readable and corpus-first by default.
 
 **2026-08-25 | 2026.08.410 | PR #1709** - Restructured the changelog for readability: the two completed weeks now roll up into weekly summaries, stray days fold into their weeks, and the earliest version-range headers became PR ranges. Every weekly range is contiguous, so PRs #1 to #1709 are all covered; the last rhetorical contrast framing was removed.
@@ -15,7 +17,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 **2026-08-25 | 2026.08.406 | PR #1705** - Tightened a governance-model check so it can only publish one of the eight approved authority levels, preventing an invented one from slipping through.
 
-**2026-08-25 | 2026.08.405 | PR #1704** - Turned the new unused-import check into an enforced gate, so dead imports can no longer be committed to the tooling.
+**2026-08-25 | 2026.08.405 | PR #1704** - Turned the new unused-import check into an enforced gate, so flagged unused imports in the audit tooling are blocked from being committed.
 
 **2026-08-25 | 2026.08.404 | PR #1703** - Removed five unused imports that the new import check had flagged across the audit tools.
 
