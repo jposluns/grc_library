@@ -70,9 +70,9 @@ EXCLUDED_DIRS = {".git", "node_modules", "__pycache__"}
 # to lint_common so residual-scan and the D9 orphan gate share one source
 # (roadmap C phase 2, #1250). Re-exported here under the original names for back-compat.
 from lint_common import (  # noqa: E402
-    FROZEN_RECORD_RE,
-    LEDGER_PATHS,
-    LEDGER_RE,
+    FROZEN_RECORD_RE,  # re-export: back-compat consumers import these FROM residual-scan (#1250)
+    LEDGER_PATHS,  # re-export: back-compat (#1250)
+    LEDGER_RE,  # re-export: back-compat (#1250)
     classify,
 )
 
