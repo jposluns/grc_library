@@ -10,7 +10,7 @@ positives are not). It shipped report-only (#1702), soaked to an empty report (#
 last five findings), and now runs as ENFORCING gate 94 (exit 1 on findings by default; --report is
 the advisory opt-out), wired into the four gate surfaces.
 
-SCOPE. `tools/*.py` and `.claude/hooks/*.py` only (`tests/`, `.web/`, corpus are non-goals).
+SCOPE. `tools/`, `tests/`, `.web/`, and `.claude/hooks/`, recursive with `__pycache__` excluded: gate 71's scan set plus the hooks tree (the corpus is a non-goal). Widened from the original top-level `tools/` + `.claude/hooks/` scan (the r22-F4 follow-up), so a dead import in a nested subdirectory, in `tests/`, or in `.web/` is no longer invisible.
 
 VERDICT. A name is flagged ONLY when a semantic (AST) pass finds no Load reference AND a
 conservative textual backstop finds no bare token AND no exclusion applies. Every ambiguity
@@ -51,7 +51,7 @@ Usage:
     python3 tools/lint-unused-imports.py                 # ENFORCE (default): exit 1 on any finding (gate 94)
     python3 tools/lint-unused-imports.py --report        # report-only opt-out: print worklist, exit 0
     python3 tools/lint-unused-imports.py --ignore-markers # debug: ignore `# re-export` markers (control)
-    python3 tools/lint-unused-imports.py --paths a.py b.py   # explicit files (default: the two dirs)
+    python3 tools/lint-unused-imports.py --paths a.py b.py   # explicit files (default: the four scan dirs)
     python3 tools/lint-unused-imports.py --self-test
 """
 from __future__ import annotations
@@ -63,7 +63,7 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_DIRS = ("tools", ".claude/hooks")
+DEFAULT_DIRS = ("tools", "tests", ".web", ".claude/hooks")
 _MARKER_RE = re.compile(r"#\s*re-export", re.IGNORECASE)
 _NOQA_RE = re.compile(r"#\s*noqa(?::\s*(?P<codes>[A-Z0-9,\t ]+))?", re.IGNORECASE)
 
@@ -302,7 +302,9 @@ def iter_targets(paths):
         base = REPO_ROOT / d
         if not base.is_dir():
             continue
-        for p in sorted(base.glob("*.py")):
+        for p in sorted(base.rglob("*.py")):
+            if not p.is_file() or "__pycache__" in p.parts:
+                continue
             yield p
 
 
@@ -430,7 +432,7 @@ def main(argv=None):
     ap.add_argument("--report", action="store_true",
                     help="report-only opt-out: print the worklist and exit 0")
     ap.add_argument("--ignore-markers", action="store_true", help="debug/control: ignore `# re-export` markers")
-    ap.add_argument("--paths", nargs="+", help="explicit files to scan (default: tools/ + .claude/hooks/)")
+    ap.add_argument("--paths", nargs="+", help="explicit files to scan (default: tools/ + tests/ + .web/ + .claude/hooks/, recursive)")
     ap.add_argument("--self-test", action="store_true", help="run the built-in self-test and exit")
     args = ap.parse_args(argv)
     if args.self_test:

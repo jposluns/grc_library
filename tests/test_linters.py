@@ -14811,6 +14811,43 @@ class UnusedImportsGateTests(unittest.TestCase):
         self.assertEqual(r.returncode, 0,
                          "live toolchain has unused imports:\n" + r.stdout)
 
+    def test_default_discovery_is_recursive_and_widened(self):
+        # r22-F4: default discovery covers tools/, tests/, .web/, and
+        # .claude/hooks/ RECURSIVELY (a nested file under EACH root is in scope),
+        # with __pycache__ excluded and a directory whose name ends in .py
+        # skipped (is_file filter, so rglob never hands a directory to read_text).
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "lint_unused_imports_mod", REPO_ROOT / "tools/lint-unused-imports.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            expected = set()
+            # a nested file under every one of the four roots proves recursion in all four
+            for rel in ("tools/top.py", "tools/nested/deep.py",
+                        "tests/nested/test_x.py", ".web/helpers/build.py",
+                        ".claude/hooks/hook.py", ".claude/hooks/helpers/util.py"):
+                p = root / rel
+                p.parent.mkdir(parents=True, exist_ok=True)
+                p.write_text("x = 1\n", encoding="utf-8")
+                expected.add(p)
+            # __pycache__ is excluded
+            cache = root / "tools" / "__pycache__" / "junk.py"
+            cache.parent.mkdir(parents=True)
+            cache.write_text("x = 1\n", encoding="utf-8")
+            # a DIRECTORY named *.py must be skipped (is_file), while a real file
+            # nested inside it is still discovered -- and no IsADirectoryError.
+            weird = root / "tools" / "weird.py"
+            weird.mkdir()
+            inner = weird / "inner.py"
+            inner.write_text("x = 1\n", encoding="utf-8")
+            expected.add(inner)
+            mod.REPO_ROOT = root
+            got = set(mod.iter_targets(None))
+            self.assertEqual(got, expected)
+
+
 class HooksSyntaxGateTests(unittest.TestCase):
     """tools/lint-hooks-syntax.py (gate 95): every .claude/hooks/*.py must compile.
     Positive: a syntax-broken hook fixture fails (exit 1, path:line: message finding).
