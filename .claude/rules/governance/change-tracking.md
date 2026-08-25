@@ -56,7 +56,7 @@ The detailed mirror remains the full technical audit trail; the root is the huma
 
 Every entry must include the following. Items 1, 2, and the lead "why" are recorded in the **root** file; items 3-7 (structured sections, file references, verification, phase context) are recorded in the **detailed** file when the project uses the two-file split, or in the root file when the project does not.
 
-1. **A date-and-version header**. The date pins the entry to wall-clock time; the version pins it to a release. The version monotonically increases across entries.
+1. **A date-and-version header** (per-PR entries). The date pins the entry to wall-clock time; the version pins it to a release. The version monotonically increases across per-PR entries. A period roll-up is the exception (per the `### Plain-language, human-readable root style` section): it carries a contiguous-PR-range header instead, a daily `**YYYY-MM-DD | version | PRs #A-#B (N PRs)**` or a weekly `**Week of YYYY-MM-DD (PRs #A-#B)**` that omits the single version.
 2. **A short title sentence** summarizing the change in plain language. "Phase 2: add the authorization rule to the baseline pack" is a title; "Updates" is not.
 3. **Structured sections** following the Keep a Changelog convention: `Added`, `Changed`, `Removed`, `Fixed`, `Security`. A single entry may use multiple sections. Use the section that most accurately classifies the change; do not bury a removed-public-API event under `Changed`.
 4. **File references**, with every touched file linked from the entry text. A link-coverage gate (see below) enforces that bare path references in markdown code spans are wrapped in markdown links so readers can navigate to the file from the entry.
@@ -78,15 +78,13 @@ What changes is the *shape* of the entry, not its existence. Two shapes are sanc
    - Pure refactors with no behavioural change and no surface-area change.
    - Typo fixes in non-citable strings (a typo in a private internal variable name is a candidate; a typo in a normative requirement statement that other documents cite is not).
 
-Terse-entry shape:
+Terse-entry shape (the compact one-line root form):
 
 ```
-## YYYY-MM-DD, Version X.Y.Z, PR #N
-
-[scope] for local project: [one sentence on what was accomplished].
+**YYYY-MM-DD | X.Y.Z | PR #N** - [scope]: [one sentence on what was accomplished].
 ```
 
-Example: ``.claude/ changes for local project: added a `## Version-bump discipline` section to CLAUDE.md codifying when each version surface bumps across a multi-commit PR.``
+Example: ``**YYYY-MM-DD | X.Y.Z | PR #N** - .claude/ change: added a `## Version-bump discipline` section to CLAUDE.md codifying when each version surface bumps across a multi-commit PR.``
 
 The terse entry is not a free pass: a reviewer who sees a terse entry on a behaviour-changing PR is expected to reject it and require the substantive form. Classify generously when in doubt: the substantive entry is always allowed for ancillary changes (and is sometimes worth writing anyway, to record a discipline lesson). The terse entry is the floor, not the ceiling.
 

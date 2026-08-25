@@ -61,15 +61,13 @@ When the project runs the detailed mirror under a **current-period model** (comp
 
 When the change qualifies for the terse form, the entry is the date-and-version header followed by a single sentence describing what was accomplished. No structured sections, no file links, no verification block.
 
-Terse-entry shape:
+Terse-entry shape (the compact one-line root form):
 
 ```
-## YYYY-MM-DD, Version X.Y.Z, PR #N
-
-[scope] for local project: [one sentence on what was accomplished].
+**YYYY-MM-DD | X.Y.Z | PR #N** - [scope]: [one sentence on what was accomplished].
 ```
 
-Example: ``.claude/ changes for local project: added a `## Version-bump discipline` section to CLAUDE.md codifying when each version surface bumps across a multi-commit PR.``
+Example: ``**YYYY-MM-DD | X.Y.Z | PR #N** - .claude/ change: added a `## Version-bump discipline` section to CLAUDE.md codifying when each version surface bumps across a multi-commit PR.``
 
 Reviewers who see a terse entry on a behaviour-changing PR are expected to reject it and require the substantive form. Terse is the floor for ancillary changes, not the ceiling: when a discipline lesson is worth recording, escalate to substantive even when the surface scope is small.
 
