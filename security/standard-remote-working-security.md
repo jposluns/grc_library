@@ -2,7 +2,7 @@
 
 **Document Title:** Remote Working Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.13\
+**Version:** 1.0.15\
 **Date:** 2026-08-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -170,16 +170,16 @@ The VPN Required column states requirements by data classification; Section 5.1 
 
 8.1 The formal BYOD policy ([`policy-byod.md`](policy-byod.md)) supplements this standard. The following requirements apply to any use of personal devices to access organizational systems:
 
-8.2 Personal devices must not be used to access data classified as Confidential or Restricted without explicit written approval from the CISO and a documented compensating control.
+8.2 Personal devices may be used to access Public, Controlled, and Internal data only, as set out in Section 8.4. Access to Confidential data from a personal device is not permitted by default; where a specific business need requires it, explicit written approval from the CISO and a documented compensating control are required. Access to Restricted data from a personal device is not permitted; Restricted data requires a company-managed device. This aligns with the data-classification restriction in the BYOD policy ([`policy-byod.md`](policy-byod.md), Section 7).
 
-8.3 Where the CISO approves personal device access, the minimum compensating controls are:
+8.3 Where the CISO approves personal device access to Confidential data under Section 8.2, the minimum compensating controls are:
 
 - Enrolment in the endpoint management platform (where technically feasible) or equivalent mobile device management
 - Conditional access policy enforcement applied to the personal device
 - Prohibition on local data storage: access must be read-only or via browser-based thin client; any deviation requires CISO approval recorded as an exception in the risk register
 - The CISO approval must be documented, time-limited (maximum 90 days per the exception process in Section 10), and reviewed on renewal
 
-8.4 Personal devices may access Public and Internal data via cloud productivity platform browser interfaces subject to conditional access policy enforcement, without CISO approval, provided no data is downloaded to the personal device.
+8.4 Personal devices may access Public, Controlled, and Internal data via cloud productivity platform browser interfaces subject to conditional access policy enforcement, without CISO approval, provided no data is downloaded to the personal device.
 
 ---
 
