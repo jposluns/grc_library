@@ -132,7 +132,6 @@ def main(argv: list[str]) -> int:
 
 def _self_test() -> int:
     import tempfile
-    import subprocess
     import unittest
 
     def make_repo(tmp, origin_url, with_private):

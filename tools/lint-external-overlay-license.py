@@ -35,7 +35,6 @@ Exit codes: 0 pass, 1 findings, 2 internal error.
 
 from __future__ import annotations
 
-import re
 import sys
 from typing import NamedTuple
 
