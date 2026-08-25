@@ -285,7 +285,7 @@ def _block_message(dispatch_text: str) -> str:
 
 
 def decide(payload: dict):
-    """Return (action, message), where action is allow, block, or bypass.
+    """Return (action, message), where action is allow, worker-allow, block, or bypass.
 
     The dispatch text is collected only for logging. It does not affect the
     decision. The decision uses the tool name, the session identity (a

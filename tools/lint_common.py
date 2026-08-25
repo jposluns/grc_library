@@ -332,16 +332,18 @@ def resolve_working_for_write(relpath: str, *, repo_root: Path | None = None) ->
     Unlike :func:`resolve_working` (existence-based, ``None`` when neither location holds
     the file), a WRITER needs a destination regardless: the existing resolved file if one
     is present, else alongside the CURRENT `.working/` tree (:func:`resolve_working_dir`:
-    the private sibling's ``.working/`` when that TREE exists, else the in-repo tree), else
+    the operational store when it exists, else the private sibling's ``.working/``, else the in-repo tree), else
     the private sibling's ``.working/<relpath>`` as the eventual home when no `.working/`
     tree exists anywhere (or the in-repo path when no private sibling repo is present). The
     caller creates the parent directory as needed. Never ``None``.
 
-    RESIDUE (migration): once BOTH `.working/` trees exist (mid-copy), an existing
-    in-repo-only file's writes stay in-repo (existing wins) while a NEW file goes
-    to the private tree, splitting the two. Safe ONLY when the copy is COMPLETE
-    (every existing file is also private, so writes unify there); the deletion
-    step's no-in-repo-only-file QA is the control. A partial copy splits.
+    RESIDUE (migration): a NEW file lands in the current `.working/` tree that
+    resolve_working_dir selects (the operational store, else the private sibling, else
+    in-repo), whereas an EXISTING file stays wherever it already lives (existing wins). So
+    while a migration INTO the selected tree is incomplete, an existing file still in the
+    old tree and a new file in the selected tree split across the two; they unify only once
+    every existing file has also been copied into the selected tree. The deletion step's
+    no-leftover-in-the-old-tree QA is the control. A partial copy splits.
     """
     root = (repo_root or REPO_ROOT).resolve()
     existing = resolve_working(relpath, repo_root=root)
