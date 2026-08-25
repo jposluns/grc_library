@@ -279,9 +279,33 @@ RETURNED_MARK = re.compile(r"\bRETURNED\b", re.IGNORECASE)
 TABLE_ROW = re.compile(r"^\|\s*\d{4}-\d{2}-\d{2}\s*\|")
 
 
+# The right-hand boundary of a PR-number token (P-3.245): the digit run must
+# not CONTINUE into a word character (`resume-0825b`), a dotted-id segment
+# (`3.245`, `1.17.118`, `2026.08.415`), or a hyphenated identifier tail
+# (`338-x`) -- while a `-#` continuation stays allowed, so a combined
+# `#1699-#1710` cell keeps contributing both endpoints exactly as the old
+# extraction did. A sentence-final `.` with no digit after it is not a
+# continuation (`#1709.` still parses).
+PR_NUM_BOUNDARY = r"(?!\w|\.\d|-(?!#))"
+
+# A PR token inside a register PR cell (the validate-pr history's c[2]). Two
+# shapes: a `#`-anchored `#N` in any adjacent context (`#1709`, `PR #2000`,
+# `#1699-#1710`), or a STANDALONE bare digit run (the documented mixed and
+# combined formats: `500`, `248, 249`), left-bounded so a digit run inside a
+# dotted or hyphenated identifier (`3.245`, `P-3.150`, `2026.08.415`,
+# `§7.1.1`, `resume-0825b`) is never read as a PR. P-3.245: the earlier
+# greedy `re.findall(r"\d+", ...)` matched those interior digit runs,
+# injected phantom low PR numbers into the status map, and collapsed the
+# dynamic floor (`max(INCEPTION, min(rows))`) toward INCEPTION, demanding
+# rows for every swept-out PR (the #1709-window storm).
+PR_CELL_TOKEN = re.compile(r"#(\d+)" + PR_NUM_BOUNDARY + r"|(?<![\w.#-])(\d+)" + PR_NUM_BOUNDARY)
+
 # improvement-log PR column tolerates an optional leading `#` (mixed format:
-# some rows `338`, others `#333`).
-RETRO_ROW_PR = re.compile(r"^\|\s*\d{4}-\d{2}-\d{2}\s*\|\s*#?(\d+)")
+# some rows `338`, others `#333`). P-3.245: the trailing PR_NUM_BOUNDARY
+# refuses a digit run that continues into a larger token, so a dotted
+# backlog id or version at the cell start (`3.245`, `1.17.118`,
+# `2026.08.415`) no longer reads as a PR number.
+RETRO_ROW_PR = re.compile(r"^\|\s*\d{4}-\d{2}-\d{2}\s*\|\s*#?(\d+)" + PR_NUM_BOUNDARY)
 
 # TODO/DONE rotation-failure markers on a backlog bullet (precision-first).
 # Two precision levers keep this FP-free on the live TODO: (1) the
@@ -384,7 +408,9 @@ CHANGELOG_PR_HEADER = re.compile(
     r"|\*\*Week of \d{4}-\d{2}-\d{2} \(PRs? (?P<c>#\d[^)]*)\)\*\*)",
     re.MULTILINE,
 )
-PR_RANGE_TOKEN = re.compile(r"#(\d+)(?:\s*-\s*#(\d+))?")
+# P-3.245 belt-and-braces: `(?!\.\d)` refuses a dotted continuation, so a
+# literal `#3.245` in a header body reads as no PR rather than as `#3`.
+PR_RANGE_TOKEN = re.compile(r"#(\d+)(?!\d|\.\d)(?:\s*-\s*#(\d+)(?!\d|\.\d))?")
 # A single header cannot legitimately span more than this many PRs. Enforced across the WHOLE
 # header, not per range token: `#1-#5000 and #5001-#10000 and #10001-#15000` is three in-bound
 # tokens and 15000 PRs, which a per-token check would wave through. Checked BEFORE the set is
@@ -449,7 +475,9 @@ def parse_validate_pr_status(text: str) -> dict[int, str]:
     Status is one of 'handoff', 'subsumption', 'pending', or 'normal', classified from
     the row's Findings cell (field index 4). A PR cell may name more than one
     PR (a combined row such as `248, 249`); each named PR inherits the row's
-    status.
+    status. PR tokens are boundary-checked (P-3.245): a digit run inside a
+    dotted or hyphenated identifier (`3.245`, a version, `resume-0825b`) is
+    not read as a PR.
     """
     status: dict[int, str] = {}
     for line in text.splitlines():
@@ -468,7 +496,7 @@ def parse_validate_pr_status(text: str) -> dict[int, str]:
             row_status = "pending"
         else:
             row_status = "normal"
-        for pr in (int(x) for x in re.findall(r"\d+", c[2])):
+        for pr in (int(m.group(1) or m.group(2)) for m in PR_CELL_TOKEN.finditer(c[2])):
             # 3.150 item 3: the ledger is newest-first, so the FIRST parsed row for a PR is the
             # newest; keep it (setdefault) rather than letting a later (older) row overwrite. This
             # forecloses a latent false-BLOCK where a newer RETURNED row above an older DISPATCHED
@@ -478,7 +506,7 @@ def parse_validate_pr_status(text: str) -> dict[int, str]:
 
 
 def parse_retro_prs(text: str) -> set[int]:
-    """The set of PR numbers with an improvement-log (/retro) row."""
+    """The set of PR numbers with an improvement-log (/retro) row (boundary-checked, P-3.245)."""
     prs: set[int] = set()
     for line in text.splitlines():
         m = RETRO_ROW_PR.match(line)

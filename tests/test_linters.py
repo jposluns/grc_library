@@ -6847,6 +6847,101 @@ class BookkeepingParityTests(LinterTestCase):
         )
         self.assertEqual(mod.parse_validate_pr_status(text).get(500), "normal")
 
+    # ---- P-3.245: PR-token boundary hardening (the #1709-window dotted-id mis-parse).
+
+    def test_pr_cell_dotted_ids_not_read_as_prs(self) -> None:
+        # (a)+(d) P-3.245: a dotted backlog id, a version, a section token, or a
+        # run id in the PR cell must contribute NO PR numbers. The greedy
+        # re.findall(r"\d+") read `3.245` as PRs 3 and 245 (and `resume-0825b`
+        # as 825), injecting phantom entries into the status map.
+        mod = self._load_module()
+        header = ("| Date | PR | Touched | Findings | Hot-fix | Detail | Summary |\n"
+                  "|---|---|---|---|---|---|---|\n")
+        for cell in ("3.245", "P-3.150", "1.17.118", "2026.08.415", "\u00a77.1.1", "resume-0825b"):
+            text = header + f"| 2026-08-25 | {cell} | x | **RETURNED: clean** | none | - | s |\n"
+            self.assertEqual(mod.parse_validate_pr_status(text), {},
+                             f"dotted/embedded id {cell!r} must not parse as a PR")
+
+    def test_pr_cell_real_pr_tokens_still_parse(self) -> None:
+        # (b) P-3.245: the legitimate cell shapes keep working: `#N`, a bare
+        # number, the `PR #N` prefix form, a combined `A, B`, and a `#A-#B`
+        # range cell (endpoints only, exactly the old extraction's behaviour).
+        mod = self._load_module()
+        header = ("| Date | PR | Touched | Findings | Hot-fix | Detail | Summary |\n"
+                  "|---|---|---|---|---|---|---|\n")
+        for cell, expected in [("#1709", {1709}), ("500", {500}), ("PR #2000", {2000}),
+                               ("248, 249", {248, 249}), ("#1699-#1710", {1699, 1710})]:
+            text = header + f"| 2026-08-25 | {cell} | x | **RETURNED: clean** | none | - | s |\n"
+            self.assertEqual(set(mod.parse_validate_pr_status(text)), expected, cell)
+
+    def test_pr_cell_dotted_id_does_not_collapse_the_floor(self) -> None:
+        # P-3.245, the actual failure shape: with the register swept to a recent
+        # window (oldest surviving row #1650), a dotted id in one PR cell used to
+        # inject phantom PRs 3 and 245, dragging effective_floor from 1650 back
+        # toward INCEPTION and flagging every swept-out PR as missing its row.
+        mod = self._load_module()
+        text = ("| Date | PR | Touched | Findings | Hot-fix | Detail | Summary |\n"
+                "|---|---|---|---|---|---|---|\n"
+                "| 2026-08-25 | 1650 | x | **RETURNED: clean** | none | - | s |\n"
+                "| 2026-08-25 | 3.245 | x | **RETURNED: clean** | none | - | s |\n")
+        status = mod.parse_validate_pr_status(text)
+        self.assertEqual(set(status), {1650})
+        self.assertEqual(mod.effective_floor(set(status), floor=329), 1650,
+                         "a dotted id must not drag the dynamic floor down")
+
+    def test_retro_row_dotted_id_not_read_as_pr(self) -> None:
+        # (a)+(d) for the improvement log: a dotted id or version at the PR-cell
+        # start no longer reads as a PR; the documented mixed formats still do.
+        mod = self._load_module()
+        text = ("| 2026-08-25 | 3.245 | note |\n"
+                "| 2026-08-25 | 1.17.118 | note |\n"
+                "| 2026-08-25 | 2026.08.415 | note |\n"
+                "| 2026-08-25 | #1709 | note |\n"
+                "| 2026-08-25 | 338 | note |\n")
+        self.assertEqual(mod.parse_retro_prs(text), {1709, 338})
+
+    def test_bypass_row_dotted_cell_not_read_as_pr(self) -> None:
+        # Pin the already-safe full-cell bypass parser (defence in depth): a
+        # dotted PR cell contributes nothing, a real `#N` cell still counts.
+        mod = self._load_module()
+        text = ("| 2026-08-25 | #3.245 | green | `--admin` | j | c |\n"
+                "| 2026-08-25 | 3.245 | green | `--admin` | j | c |\n"
+                "| 2026-08-25 | #1174 | green | `--admin` | j | c |\n")
+        self.assertEqual(mod.parse_bypass_prs(text), {1174})
+
+    def test_known_skipped_pr_still_exempt_from_range_expansion(self) -> None:
+        # (c) P-3.245: a never-merged number inside a weekly range (the
+        # KNOWN_SKIPPED_PRS class) is removed from the universe BEFORE
+        # windowing; the extraction hardening lives on the register side and
+        # must not disturb that subtraction. #1493 is a live member.
+        mod = self._load_module()
+        universe = mod.parse_changelog_prs(
+            "**Week of 2026-08-03 (PRs #1490-#1495)**\n") - mod.KNOWN_SKIPPED_PRS
+        self.assertNotIn(1493, universe)
+        self.assertIn(1492, universe)
+        findings = mod.qa_cadence_findings(
+            universe, {n: "normal" for n in universe}, set(universe),
+            inception=1490, known_handoff=frozenset())
+        self.assertEqual(findings, [],
+                         f"a KNOWN_SKIPPED_PRS member must not be demanded rows; got {findings}")
+
+    def test_changelog_dotted_pr_token_not_backtrack_truncated(self) -> None:
+        # P-3.245 F1 (codex /validate-pr): PR_RANGE_TOKEN's `\d+` must not
+        # backtrack to a truncated phantom PR when a dotted token follows
+        # (`#1709.5` used to yield 170; `#1699-#1710.5` used to yield 171). The
+        # `(?!\d|\.\d)` boundary forbids a following digit as well as `.digit`.
+        mod = self._load_module()
+        self.assertEqual(mod.parse_changelog_prs(
+            "**2026-08-25 | 2026.08.417 | PR #1709.5**\n"), set())
+        r = mod.parse_changelog_prs("**Week of 2026-08-24 (PRs #1699-#1710.5)**\n")
+        self.assertNotIn(171, r)
+        self.assertEqual(r, {1699})
+        # a genuine range still expands; a sentence-final period still parses
+        self.assertEqual(mod.parse_changelog_prs(
+            "**Week of 2026-08-24 (PRs #1699-#1701)**\n"), {1699, 1700, 1701})
+        self.assertEqual(mod.parse_changelog_prs(
+            "**2026-08-25 | 2026.08.417 | PR #1709.**\n"), {1709})
+
     def test_todo_strikethrough_bullet_flagged(self) -> None:
         # A whole backlog bullet struck through is a rotation failure.
         mod = self._load_module()
