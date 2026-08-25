@@ -133,11 +133,22 @@ def report_one(doc_path: str) -> None:
         f"(add a row in the Active document index table)"
     )
     readme = f"{domain}/README.md"
-    rm_listed = doc_path in referenced_paths(readme)
-    print(
-        f"    [{'present' if rm_listed else 'MISSING'}] {readme} "
-        f"(add to the domain's document listing)"
-    )
+    if (REPO_ROOT / readme).is_file():
+        rm_listed = doc_path in referenced_paths(readme)
+        print(
+            f"    [{'present' if rm_listed else 'MISSING'}] {readme} "
+            f"(add to the domain's document listing)"
+        )
+    else:
+        # No README for this first-path-segment: it is not a real corpus domain
+        # (e.g. docs/, a root meta-dir) or the domain's README is missing. An
+        # advisory tool must not crash (read_text_safe does not swallow a
+        # FileNotFoundError, by design), so report it instead of reading a
+        # non-existent file.
+        print(
+            f"    [n/a] {readme} does not exist -- '{domain}/' is not a corpus "
+            f"domain with a README (no MECHANICAL domain-README surface applies)."
+        )
     print(
         "    [regenerate] taxonomy.yml, docs/portal.md, docs/maturity-scorecard.md "
         "-- run: python3 tools/build-taxonomy.py && python3 tools/build-portal.py "

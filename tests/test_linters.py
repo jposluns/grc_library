@@ -15022,5 +15022,31 @@ class HooksSyntaxGateTests(unittest.TestCase):
             self.assertIn("OK", r.stdout)
 
 
+class SuggestListingSurfacesTests(unittest.TestCase):
+    """tools/suggest-listing-surfaces.py (advisory, exit-0-always): must not crash on a
+    doc whose first path segment is not a corpus domain with a README (docs/, a bogus
+    domain). Regression for the FileNotFoundError at the domain-README read
+    (read_text_safe does not swallow filesystem errors, by design)."""
+
+    TOOL = str(REPO_ROOT / "tools/suggest-listing-surfaces.py")
+
+    def _run(self, arg):
+        import subprocess
+        return subprocess.run([sys.executable, self.TOOL, arg],
+                              capture_output=True, text=True)
+
+    def test_domain_without_readme_does_not_crash(self):
+        for arg in ("docs/portal.md", "nonexistent/foo.md"):
+            r = self._run(arg)
+            self.assertNotIn("Traceback", r.stdout + r.stderr, f"{arg} crashed")
+            self.assertEqual(r.returncode, 0, f"{arg}: {r.stdout}{r.stderr}")
+            self.assertIn("[n/a]", r.stdout)
+
+    def test_real_domain_doc_still_reports(self):
+        r = self._run("ai/policy-ai-compliance.md")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn("ai/README.md", r.stdout)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
