@@ -646,3 +646,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-unused-imports
+        name: Static unused-import audit
+        entry: python3 tools/lint-unused-imports.py --enforce
+        language: system
+        pass_filenames: false
+        always_run: true

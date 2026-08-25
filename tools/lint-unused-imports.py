@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-"""FP-safe static unused-import report for grc_library tooling (Fable-planned, #1698 follow-up).
+"""FP-safe static unused-import gate for grc_library tooling (Fable-planned, #1698 follow-up).
 
 WHY THIS EXISTS. PRs #1697/#1698 removed unused imports by hand; #1698's AST pass
 initially over-removed three DELIBERATE back-compat re-exports in `residual-scan.py`
 (`FROZEN_RECORD_RE`, `LEDGER_PATHS`, `LEDGER_RE`), which a codex `/validate-pr` HOLD caught
 and restored. This tool detects the recurrence CLASS, but is built so it can NEVER repeat
 that over-removal: it is deliberately ASYMMETRIC (false negatives acceptable, false
-positives are not), it defaults to REPORT mode (exit 0), and it is NOT wired into any gate
-surface until a separate enforcing-flip PR after a clean soak.
+positives are not). It shipped report-only (#1702), soaked to an empty report (#1703 removed the
+last five findings), and now runs as ENFORCING gate 94 (exit 1 on findings by default; --report is
+the advisory opt-out), wired into the four gate surfaces.
 
 SCOPE. `tools/*.py` and `.claude/hooks/*.py` only (`tests/`, `.web/`, corpus are non-goals).
 
@@ -44,11 +45,11 @@ EXCLUSIONS (each with its detection mechanism):
 RESIDUES (stated so nobody trusts the gate past its reach): a marker-less deliberate re-export is
 indistinguishable from dead code; a name used only via `getattr`/`globals()` is invisible unless a
 string literal names it; a name mentioned only in a comment or docstring suppresses a real finding
-(the accepted false-negative direction, the PR #1697 shape).
+(the accepted false-negative direction, the PR #1697 shape); a file that does not PARSE is SKIPped whole (printed as a SKIP line, not a finding), so gate 94 does not syntax-check the toolchain (that coverage for `.claude/hooks/` is a separate routed gap).
 
 Usage:
-    python3 tools/lint-unused-imports.py                 # REPORT (default): print worklist, exit 0
-    python3 tools/lint-unused-imports.py --enforce       # exit 1 if any finding
+    python3 tools/lint-unused-imports.py                 # ENFORCE (default): exit 1 on any finding (gate 94)
+    python3 tools/lint-unused-imports.py --report        # report-only opt-out: print worklist, exit 0
     python3 tools/lint-unused-imports.py --ignore-markers # debug: ignore `# re-export` markers (control)
     python3 tools/lint-unused-imports.py --paths a.py b.py   # explicit files (default: the two dirs)
     python3 tools/lint-unused-imports.py --self-test
@@ -112,6 +113,13 @@ def collect(tree: ast.AST):
             for _alias in _n.names:
                 if _alias.name == "TYPE_CHECKING":
                     tc_aliases.add(_alias.asname or "TYPE_CHECKING")
+        # A dynamic `__all__` mutation/access (`__all__.append(...)`, `.extend(...)`,
+        # `__all__[i] = ...`) is not a static literal assign, so the membership set is
+        # unresolvable; skip the file rather than risk flagging a name it re-exports.
+        elif isinstance(_n, ast.Attribute) and isinstance(_n.value, ast.Name) and _n.value.id == "__all__":
+            unresolved_all = True
+        elif isinstance(_n, ast.Subscript) and isinstance(_n.value, ast.Name) and _n.value.id == "__all__":
+            unresolved_all = True
 
     def visit(node, type_checking, import_error):
         nonlocal has_star, unresolved_all
@@ -304,9 +312,10 @@ def run(paths=None, *, enforce=False, ignore_markers=False, out=sys.stdout):
     for target in iter_targets(paths):
         findings, skip = scan_file(target, ignore_markers=ignore_markers)
         if skip:
-            skips.append((str(target.relative_to(REPO_ROOT)), skip))
+            rel = str(target.relative_to(REPO_ROOT)) if target.is_relative_to(REPO_ROOT) else str(target)
+            skips.append((rel, skip))
         all_findings.extend(findings)
-    banner = "" if enforce else "REPORT-ONLY (advisory; not a gate). "
+    banner = "" if enforce else "REPORT-ONLY (opt-out; the wired gate enforces). "
     for f in all_findings:
         print(f.render(), file=out)
     for path, reason in skips:
@@ -393,6 +402,10 @@ def _self_test() -> int:
     check_skip("dynamic __all__ (call) skips file", "import os\n__all__ = sorted(['os'])\n", expect_skip_substr="dynamic __all__")
     check_skip("annotated dynamic __all__ skips file",
                "from p import Public\n__all__: list = make_exports()\n", expect_skip_substr="dynamic __all__")
+    check_skip("__all__.extend mutation skips file",
+               "from p import Public\n__all__ = []\n__all__.extend(['Public'])\n", expect_skip_substr="dynamic __all__")
+    check_skip("__all__.append mutation skips file",
+               "from p import Public\n__all__ = []\n__all__.append('Public')\n", expect_skip_substr="dynamic __all__")
 
     # Direct collector assertions (discriminating): layer 2 also silences `__all__` names via the
     # string literal, so scan_file alone cannot isolate the `__all__` mechanism; assert it directly.
@@ -411,16 +424,18 @@ def _self_test() -> int:
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(description="FP-safe static unused-import report (report-mode default).")
-    ap.add_argument("--enforce", action="store_true", help="exit 1 on any finding (default: report only, exit 0)")
-    ap.add_argument("--report", action="store_true", help="explicit report mode (default; kept for symmetry)")
+    ap = argparse.ArgumentParser(description="FP-safe static unused-import gate (enforce-mode default).")
+    ap.add_argument("--enforce", action="store_true",
+                    help="exit 1 on any finding (the default; kept as the explicit gate-invocation form)")
+    ap.add_argument("--report", action="store_true",
+                    help="report-only opt-out: print the worklist and exit 0")
     ap.add_argument("--ignore-markers", action="store_true", help="debug/control: ignore `# re-export` markers")
     ap.add_argument("--paths", nargs="+", help="explicit files to scan (default: tools/ + .claude/hooks/)")
     ap.add_argument("--self-test", action="store_true", help="run the built-in self-test and exit")
     args = ap.parse_args(argv)
     if args.self_test:
         return _self_test()
-    enforce = args.enforce and not args.report
+    enforce = not args.report
     return run(args.paths, enforce=enforce, ignore_markers=args.ignore_markers)
 
 

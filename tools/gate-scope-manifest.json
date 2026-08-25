@@ -92,6 +92,7 @@
       "lint-todo-staleness.py",
       "lint-tooling-provenance-freshness.py",
       "lint-ungated-dashes.py",
+      "lint-unused-imports.py",
       "lint-version-date-consistency.py",
       "lint-web-corpus-links.py",
       "lint-working-prose-hygiene.py",
@@ -119,8 +120,7 @@
       "check-class-completeness.py",
       "check-clean-language-upstream.py",
       "detect-collection-candidates.py",
-      "check-daily-changelog-rollup.py",
-      "lint-unused-imports.py"
+      "check-daily-changelog-rollup.py"
     ]
   }
 }
