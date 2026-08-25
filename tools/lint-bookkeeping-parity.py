@@ -208,6 +208,15 @@ INCEPTION = 329
 # invisible while this check's window was empty.
 KNOWN_HANDOFF_NO_ROW: frozenset[int] = frozenset({300, 322, 334, 1054})
 
+# Never-merged PR numbers that fall INSIDE a contiguous weekly range in the root
+# CHANGELOG. The weekly headers cite gap-free PR ranges by convention (a skipped
+# number is shown in-range rather than as a visible gap), but this gate builds its
+# "every merged PR needs a QA row" universe by expanding those ranges, so a skipped
+# number would otherwise be demanded a validate-pr and a bypass-log row it can never
+# have. These PRs were opened-and-closed-without-merge (verified: no `(#N)` merge
+# commit on `main`), so excluding them is a false-positive fix, not a gate weakening.
+KNOWN_SKIPPED_PRS: frozenset[int] = frozenset({1092, 1093, 1221, 1400, 1471, 1493, 1648})
+
 # A row whose Findings cell marks the PR as a session-closing handoff
 # (validate-pr + retro both legitimately skipped, the loop-break).
 HANDOFF_FINDINGS = re.compile(
@@ -811,7 +820,7 @@ def main() -> int:
     bypass_path = resolve_working("merge-bypass-log.md")
 
     try:
-        changelog = parse_changelog_prs(read(CHANGELOG_PATH))
+        changelog = parse_changelog_prs(read(CHANGELOG_PATH)) - KNOWN_SKIPPED_PRS
         todo_text = read(TODO_PATH)
         vp_text = vp_path.read_text(encoding="utf-8") if vp_path else None
         retro_text = retro_path.read_text(encoding="utf-8") if retro_path else None
