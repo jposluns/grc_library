@@ -17,8 +17,8 @@ ship gate-green (the r22 guardrail-review coverage finding this gate closes).
 
 Mechanism: `compile(source_bytes, path, "exec")` every `*.py` under `.claude/hooks/`
 (recursive, `__pycache__` excluded; the directory is flat today, and recursion keeps a
-future helper subdirectory in scope by construction, unlike gate 94's deliberate
-top-level-only hooks scan). `compile` runs the FULL compile-stage check the interpreter
+future helper subdirectory in scope by construction, a property gate 94's scan shares since its
+r22-F4 widening). `compile` runs the FULL compile-stage check the interpreter
 performs (it catches `return` / `break` / `continue` / `yield` / `nonlocal` at module
 scope and other errors that a bare `ast.parse` accepts), but it never imports or
 executes the module, so no hook side effect can fire during the audit. Compiling RAW
