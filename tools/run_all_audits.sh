@@ -191,6 +191,7 @@ run_gate "Backlog index-reference parity audit"                    python3 tools
 run_gate "TODO.md number-allocation block sync"                    python3 tools/build-todo-number-allocation.py --check
 run_gate "Index-header parity audit"                              python3 tools/lint-index-header-parity.py --strict-owner
 run_gate "Relationship model in sync"                            python3 tools/build-relationship-model.py --check
+run_gate "Static unused-import audit"                            python3 tools/lint-unused-imports.py --enforce
 
 # ----------------------------------------------------------------------
 # Summary

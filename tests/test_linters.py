@@ -14746,5 +14746,60 @@ class IndexHeaderParityTests(LinterTestCase):
             self.assertEqual(r.returncode, 2, f"missing register must exit 2.\n{r.stdout}\n{r.stderr}")
 
 
+
+class UnusedImportsGateTests(unittest.TestCase):
+    """tools/lint-unused-imports.py (gate 94): enforce-mode default flags a dead
+    import (exit 1); --report opts out (exit 0); the `# re-export` marker is the
+    FP-safe escape. The tool's own 33-case --self-test is wired in as a
+    subprocess run (the self-test-wiring precedent)."""
+
+    TOOL = str(REPO_ROOT / "tools/lint-unused-imports.py")
+
+    def _run(self, *args):
+        import subprocess
+        return subprocess.run([sys.executable, self.TOOL, *args],
+                              capture_output=True, text=True)
+
+    def test_positive_dead_import_fails_by_default(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "m.py"
+            p.write_text("import os\nx = 1\n", encoding="utf-8")
+            r = self._run("--paths", str(p))
+            self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+            self.assertIn("unused import 'os'", r.stdout)
+
+    def test_report_opt_out_exits_zero(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "m.py"
+            p.write_text("import os\nx = 1\n", encoding="utf-8")
+            r = self._run("--paths", str(p), "--report")
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+
+    def test_external_skipped_path_does_not_crash(self):
+        # A dynamic __all__ file makes scan_file SKIP; the CLI must print SKIP and
+        # exit 0 for an EXTERNAL --paths target, not crash on relative_to (codex r22 High).
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "m.py"
+            p.write_text("from a import Public\n__all__ = []\n__all__.extend(['Public'])\n", encoding="utf-8")
+            r = self._run("--paths", str(p))
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertIn("SKIP", r.stdout)
+
+    def test_negative_re_export_marker_passes(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "m.py"
+            p.write_text("from a import b  # re-export\nx = 1\n", encoding="utf-8")
+            r = self._run("--paths", str(p))
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+
+    def test_self_test_suite_passes(self):
+        r = self._run("--self-test")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+
+    def test_head_tree_is_clean(self):
+        r = self._run()
+        self.assertEqual(r.returncode, 0,
+                         "live toolchain has unused imports:\n" + r.stdout)
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
