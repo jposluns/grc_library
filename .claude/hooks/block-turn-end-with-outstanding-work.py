@@ -29,7 +29,9 @@ WHAT IT DOES NOT BLOCK, by construction:
   * a continuation that is already under way (stop_hook_active), so it blocks at most once and
     cannot loop the session;
   * anything at all, if the escape file exists (see below);
-  * anything at all, if it cannot answer the question (see fail-open).
+  * anything at all, if it cannot answer the question (see fail-open);
+  * anything at all, inside a dispatched worker session: a worker's fan-out cannot discharge any of
+    this guard's remedies, so the check is skipped there (#1695).
 
 ESCAPE, and it is reachable. Create the file named by ESCAPE_FILE from any shell:
 ``touch /opt/grc/grc_working/.allow-stop``. The hook honours it ONCE and deletes it, so an escape

@@ -288,8 +288,9 @@ def decide(payload: dict):
     """Return (action, message), where action is allow, block, or bypass.
 
     The dispatch text is collected only for logging. It does not affect the
-    decision. The decision uses only the tool name and successful sentinel
-    consumption.
+    decision. The decision uses the tool name, the session identity (a
+    dispatched worker session is allowed unconditionally, without consuming
+    the sentinel, per #1695), and successful sentinel consumption.
     """
     if not _is_dispatch(payload):
         return "allow", ""

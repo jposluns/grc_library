@@ -276,7 +276,7 @@ def _store_dir(root: "Path") -> "Path | None":
 
 
 def resolve_working(relpath: str, *, repo_root: Path | None = None) -> Path | None:
-    """Locate a `.working/`-tree file, preferring `grc_library_private/.working/`.
+    """Locate a `.working/`-tree file, preferring the operational store (`$GRC_STORE` or `<repo-parent>/private`); the private sibling `grc_library_private/.working/` is a transitional fallback.
 
     `relpath` is POSIX-relative to the `.working/` root (e.g.
     ``"validate-pr/history.md"``). Resolution order:
