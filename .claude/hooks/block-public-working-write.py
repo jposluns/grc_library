@@ -246,7 +246,7 @@ def decide(tool_name: str, tool_input: dict, project_dir: str) -> str | None:
 
 
 def _self_test() -> int:
-    import tempfile, textwrap
+    import tempfile
     failures = []
     def mk_repo(origin_url, with_private):
         parent = tempfile.mkdtemp()

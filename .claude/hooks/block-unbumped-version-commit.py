@@ -357,7 +357,7 @@ def self_test() -> int:
     ck("set_date is a no-op with no Date line", set_date("**Version:** 1.0.0\\", "2026-07-29"), "**Version:** 1.0.0\\")
 
     # --- 3.134 auto-bump: git-fixture behaviour ---
-    import tempfile, os
+    import tempfile
     def mkrepo():
         d = Path(tempfile.mkdtemp())
         git(d, "init", "-q")
