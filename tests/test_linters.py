@@ -11142,6 +11142,30 @@ class StdlibOnlyImportsTests(unittest.TestCase):
         mod = self._load("_stdlib_head")
         self.assertEqual(mod.scan(), [])
 
+    def test_py_directory_skipped_not_crash(self) -> None:
+        # r22-F4 follow-up (PR #1715 fixed gate 94; this mirrors it for gate 71):
+        # rglob("*.py") also matches a DIRECTORY whose name ends in .py; _scan_files
+        # must skip it (is_file), not hand it to the reader (IsADirectoryError). The
+        # real .py file nested inside such a directory is still scanned.
+        mod = self._load("_stdlib_pydir")
+        old = mod.REPO_ROOT
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "tools").mkdir()
+            (root / "tools" / "ok.py").write_text("import os\n", encoding="utf-8")
+            weird = root / "tools" / "weird.py"
+            weird.mkdir()
+            (weird / "inner.py").write_text("import re\n", encoding="utf-8")
+            try:
+                mod.REPO_ROOT = root
+                scanned = mod._scan_files()
+                self.assertNotIn(weird, scanned)
+                self.assertIn(weird / "inner.py", scanned)
+                self.assertIn(root / "tools" / "ok.py", scanned)
+                self.assertEqual(mod.scan(), [])  # must not raise IsADirectoryError
+            finally:
+                mod.REPO_ROOT = old
+
 
 class RepoGuardTests(unittest.TestCase):
     """tools/repo-guard.sh (TODO 1.15a): a cross-repo write-safety wrapper that refuses a
