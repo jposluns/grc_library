@@ -7,7 +7,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 **2026-08-25 | 2026.08.408 | PR #1707** - Reconciled the remote-working standard's personal-device rules with the approved BYOD policy: Restricted data now requires a company-managed device, and only Confidential data allows a CISO-approved exception.
 
-**2026-08-25 | 2026.08.407 | PR #1706** - Updated the remote-working standard to reference the approved BYOD policy directly, instead of describing it as still pending approval.
+**2026-08-25 | 2026.08.407 | PR #1706** - Updated the remote-working standard to reference the approved BYOD policy directly (instead of calling it pending approval), and clarified that a VPN is required on untrusted networks regardless of data classification.
 
 **2026-08-25 | 2026.08.406 | PR #1705** - Tightened a governance-model check so it can only publish one of the eight approved authority levels, preventing an invented one from slipping through.
 
@@ -19,11 +19,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 **2026-08-25 | 2026.08.402 | PR #1701** - Fixed a few internal AI-assistant documentation notes that had drifted out of date.
 
-**2026-08-25 | 2026.08.401 | PR #1700** - Corrected a few governance-accuracy details in the audit-programme specification, including exempting the date-sensitive checks from its determinism rule.
+**2026-08-25 | 2026.08.401 | PR #1700** - Corrected a few governance-accuracy details, mainly in the audit-programme specification (exempting the date-sensitive checks from its determinism rule) plus a data-retention register fix.
 
 **2026-08-25 | 2026.08.400 | PR #1699** - Fixed two internal-consistency issues in the remote-working security standard, around the managed-device default and when a VPN is required.
 
-**2026-08-24 | 2026.08.399 | PRs #1682-#1698 (17 PRs)** - A corpus-accuracy day driven by the resume-validation sweep. The main work: a new Certificate Authority Management standard; EU AI Act classifications re-verified against the current Act; staff-offboarding and policy-exception rules reconciled into consistent tiered timelines across the security policies; and fixes to disaster-recovery targets, data retention, supplier onboarding, and the risk-appetite template. The rest was routine tooling upkeep.
+**2026-08-24 | 2026.08.399 | PRs #1682-#1698 (17 PRs)** - A corpus-accuracy day driven by the resume-validation sweep. The main work: new just-in-time privileged-access requirements added to the Certificate Authority Management standard; EU AI Act classifications re-verified against the current Act; staff-offboarding and policy-exception rules reconciled into consistent tiered timelines across the security policies; and fixes to disaster-recovery targets, data retention, supplier onboarding, and the risk-appetite template. The rest was routine tooling upkeep.
 
 **2026-08-23 | 2026.08.382 | PRs #1672-#1681 (10 PRs)** - Two threads. On the corpus: the foundation of a Canada public-sector GRC annex, register-accuracy fixes, and a batch of cross-document consistency corrections from the resume-validation sweep (access-revocation and entitlement-review cadences among them). Underneath, the orchestration working-state store was migrated to its standard location.
 
@@ -73,7 +73,7 @@ A reference-and-accuracy week over a heavy machinery build. On the corpus: newly
 
 **Week of 2026-07-13 (PRs #866-#1055)**
 
-A two-front week. The most visible new output was the public grclibrary.ai website, a static-site generator producing per-domain and per-document pages, search and AI-training metadata, and a CI health check. On the corpus, the reference-breadth stream concluded with new privacy and sector citations, three deep-assessment rounds ran end to end and remediated their findings, and jurisdiction accuracy was sharpened across Canada, Quebec, and the US. Underneath ran the internal-architecture sprint: the privatization of the working state to a companion repository and the design of the worker-orchestration model.
+A two-front week. The most visible new output was the public grclibrary.ai website, a static-site generator producing per-domain and per-document pages, search and AI-training metadata, and a CI health check. On the corpus, the reference-breadth stream concluded with new privacy and sector citations, three deep-assessment rounds ran end to end and remediated their findings, and jurisdiction accuracy was sharpened across Canada, Quebec, and the US. Underneath ran the internal-architecture sprint: the privatization and adopter-portability sprint and the design of the worker-orchestration model.
 
 **Week of 2026-07-06 (PRs #667-#865)**
 
