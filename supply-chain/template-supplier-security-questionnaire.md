@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Security Questionnaire\
 **Document Type:** Template\
-**Version:** 1.0.5\
-**Date:** 2026-08-24\
+**Version:** 1.0.6\
+**Date:** 2026-08-25\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-onboarding-security-review.md`](procedure-supplier-onboarding-security-review.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](../compliance/logistics/register-ctpat-united-states-it-controls.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md)\
@@ -53,7 +53,7 @@ This questionnaire is issued to suppliers and third-party service providers to g
 
 ## Section 3: access control and identity management
 
-The cadences in questions 3.3 and 3.4 are suggested baselines (recommended, not mandatory); a supplier may describe an equivalent risk-based model in the Evidence / Comment column.
+The cadences in questions 3.3 and 3.4 are suggested baselines (recommended, not mandatory); a supplier may describe an equivalent risk-based model in the Evidence / Comment column. The 3.4 suggested baseline does not distinguish voluntary from involuntary departures; the organization applies a faster, risk-tiered involuntary-termination timeline to its own personnel as its internal standard, and suppliers are not expected to adopt that internal timeline.
 
 | Question | Yes/No | Evidence / Comment |
 |---|---|---|
