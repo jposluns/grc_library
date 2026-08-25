@@ -68,6 +68,16 @@ def age_days(p: Path) -> float:
     return max(0.0, (now - mtime) / 86400.0)
 
 
+def size_kb(p: Path) -> float:
+    """Size in KB, 0.0 when the file vanished after survey (3.118(b)): a drop consumed
+    between survey() and the report print must not crash the advisory, whose contract is
+    that every reporting path exits 0 (only --self-test may exit non-zero)."""
+    try:
+        return p.stat().st_size / 1024.0
+    except OSError:
+        return 0.0
+
+
 def is_transient(name: str) -> bool:
     low = name.lower()
     return low.endswith(TRANSIENT_SUFFIXES) or low.startswith(TRANSIENT_PREFIXES)
@@ -111,7 +121,7 @@ def report(root: Path, oneline: bool) -> int:
     if unprocessed:
         print("\nUNPROCESSED (still in inbox/, so not yet read; age is context, not status):")
         for p in sorted(unprocessed, key=age_days, reverse=True):
-            kb = p.stat().st_size / 1024.0
+            kb = size_kb(p)
             print(f"  {age_days(p):5.1f}d  {kb:7.1f}KB  {p.name}")
         print("\n  Process each, then MOVE it to done/drops/<YYYY-MM>/ so the location records")
         print("  that it was read. Do not infer processed-ness from age or from a grep.")
@@ -167,6 +177,9 @@ def self_test() -> int:
         empty.mkdir()
         un3, st3, ar3, _ = survey(empty)
         check("absent drop dir is a no-op", (un3, st3, ar3), ([], [], 0))
+        # 3.118(b): a drop consumed between survey() and the report print must not crash;
+        # a vanished path sizes to 0.0 rather than raising (the exit-0 reporting contract).
+        check("size of a vanished drop is 0.0", size_kb(Path(td) / "nonexistent-gone.md"), 0.0)
 
     # Both numbers derive from the actual check count. A hardcoded denominator decouples the
     # reported total from reality, so a later added check goes silently uncounted and a reader
