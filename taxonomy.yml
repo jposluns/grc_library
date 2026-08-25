@@ -10622,7 +10622,7 @@ documents:
   domain: "security"
   type: "Standard"
   title: "Remote Working Security Standard"
-  version: "1.0.12"
+  version: "1.0.13"
   date: "2026-08-25"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"
