@@ -2,8 +2,8 @@
 
 **Document Title:** Remote Working Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.11\
-**Date:** 2026-08-24\
+**Version:** 1.0.12\
+**Date:** 2026-08-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md)\
@@ -51,7 +51,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 ### 4.1 Managed device requirement
 
-4.1.1 Remote work must be conducted exclusively on a company-managed device enrolled in the endpoint management platform. The endpoint management platform enforces configuration baselines and conditional access policy enforcement prevents access from non-compliant or unmanaged devices.
+4.1.1 Remote work must be conducted on a company-managed device enrolled in the endpoint management platform as the default. Personal (bring-your-own) devices are permitted only as provided in Section 8, and any use beyond what Section 8 allows requires an exception under Section 10. The endpoint management platform enforces configuration baselines; conditional access policy enforcement blocks non-compliant managed devices (Section 4.2) and limits unmanaged personal devices to the access permitted under Section 8.
 
 4.1.2 Devices must maintain compliance with the endpoint configuration baseline at all times. The baseline requires, at minimum:
 
@@ -151,7 +151,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 | **Public** | Yes, on any compliant managed device | Company-managed storage | No |
 | **Controlled** | Yes, on any compliant managed device | Company-managed storage | No |
 | **Internal** | Yes, on any compliant managed device | Company-managed storage | No (cloud); Yes (on-premises) |
-| **Confidential** | Yes, on compliant managed device; personal devices require CISO approval | Company-managed encrypted storage; personal cloud storage prohibited | Yes (on-premises access); Yes (all access from non-home networks) |
+| **Confidential** | Yes, on compliant managed device; personal devices require CISO approval | Company-managed encrypted storage; personal cloud storage prohibited | Yes, always (VPN required for all Confidential-data access regardless of network type, per Section 5.2.2) |
 | **Restricted** | Managed device only; CISO approval required for remote access | Company-managed encrypted storage; no personal storage of any kind | Yes, always |
 
 7.1.2 All data must remain in company-managed storage. Data must not be saved to personal cloud storage services, personal drives, or any storage medium not under the control of the organization.
