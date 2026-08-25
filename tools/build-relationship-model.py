@@ -67,6 +67,16 @@ VIEWPOINTS = frozenset((
 LAYOUT_ROLES = frozenset(("primary", "associative"))
 INVERSE_STORAGE = frozenset(("inferred", "stored"))
 
+# Validation test 8 (Authority): the alignment-type vocabulary the
+# governance/matrix-cross-framework-alignment.md matrix carries (6 values),
+# extended with the 2 force levels internal to an organization. A parallel
+# authority taxonomy must not be invented (framework test 8).
+AUTHORITY_LEVELS = frozenset((
+    "legal obligation", "regulatory interpretation", "contractual requirement",
+    "industry practice", "architectural recommendation", "evidence category",
+    "organizationally mandatory", "organizationally recommended",
+))
+
 # Principle 6: a relationship carries at least 1 of these 5 natures.
 VALID_NATURES = frozenset((
     "structural", "inferred", "assessed", "temporal", "evidence-dependent",
@@ -496,6 +506,12 @@ def validate_record(rec: object, position: int) -> tuple[list[str], list[str]]:
     for field in ("direction_rule", "authority_level", "status"):
         if not _is_nonempty_str(rec[field]):
             errors.append(f"{label}: [shape] {field} must be a non-empty string")
+
+    if _is_nonempty_str(rec["authority_level"]) and rec["authority_level"] not in AUTHORITY_LEVELS:
+        errors.append(
+            f"{label}: [shape] authority_level {rec['authority_level']!r} must be one of the "
+            f"framework test-8 authority values {sorted(AUTHORITY_LEVELS)} "
+            f"(no parallel authority taxonomy)")
 
     for field in ("provenance", "scope"):
         if rec[field] is not None and not _is_nonempty_str(rec[field]):
