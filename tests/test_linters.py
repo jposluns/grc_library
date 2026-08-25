@@ -12102,9 +12102,11 @@ class GateCitationInventoryTests(LinterTestCase):
                          f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}")
 
     def test_self_test_passes(self):
-        # The linter's 9-case --self-test exercises the match/mismatch/renumber
-        # cases and every FP exclusion (article-open role-gloss, gate-digit
-        # cross-ref, bare-number list, token-overlap style tolerance).
+        # The linter's --self-test exercises the match/mismatch/renumber cases,
+        # every FP exclusion (article-open role-gloss, gate-digit cross-ref,
+        # bare-number list, token-overlap style tolerance), and the section-6
+        # inventory scoping (fence- and container-aware CommonMark block-structure
+        # scan, whitespace-tolerant, fail-loud boundaries).
         result = run_linter(self.SCRIPT, "--self-test")
         self.assertEqual(result.returncode, 0,
                          f"--self-test failed.\nstdout:\n{result.stdout}"
