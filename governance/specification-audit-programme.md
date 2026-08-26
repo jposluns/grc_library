@@ -2,7 +2,7 @@
 
 **Document Title:** Audit Programme Specification\
 **Document Type:** Specification\
-**Version:** 1.17.120\
+**Version:** 1.17.121\
 **Date:** 2026-08-26\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -306,12 +306,12 @@ A new gate is added when:
 
 1. A class of defect is identified that current gates do not catch.
 2. The defect is deterministically detectable from repository state without network access or third-party dependencies.
-3. The signal-to-noise ratio of the proposed rule is acceptable (false-positive rate is empirically zero or near-zero on the current corpus, or the rule is scoped narrowly enough to track zero items in scaffold form).
+3. The signal-to-noise ratio of the proposed rule is acceptable (false-positive rate is empirically zero or near-zero on the current corpus).
 
 The procedure for adding a gate:
 
 1. Write the linter as `tools/lint-<feature>.py` (Python 3.11, stdlib only).
-2. Confirm the linter exits 0 on the current corpus (zero false positives) or that its rule set is conservatively scaffolded.
+2. Confirm the linter exits 0 on the current corpus (zero false positives).
 3. Add the gate to [`.github/workflows/quality.yml`](../.github/workflows/quality.yml), [`tools/run_all_audits.sh`](../tools/run_all_audits.sh), [`.pre-commit-config.yaml`](../.pre-commit-config.yaml), and the §6 inventory table above.
 4. Add the new gate's row to the §6 inventory; §5 places the gate in its functional category. The §6 inventory table is the canonical source of truth for the gate count.
 5. Record the addition in the CHANGELOG under a new phase entry.

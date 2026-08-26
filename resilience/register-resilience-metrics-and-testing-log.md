@@ -2,7 +2,7 @@
 
 **Document Title:** Resilience Metrics and Testing Log Register\
 **Document Type:** Register\
-**Version:** 1.1.2\
+**Version:** 1.1.3\
 **Date:** 2026-08-26\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
@@ -37,7 +37,7 @@ Completed versions must not be published under CC BY-SA 4.0 unless sanitized. Re
 
 ## Section 1: test and exercise log
 
-| Test ID | Test Date | Test Type | Scope | Objective | Recovery Target Type | RTO Target | RTO Actual | RPO Target | RPO Actual | Success Criteria Met | Owner Role | Findings Summary | Residual Risk |
+| Test ID | Test Date | Test Type | Scope | Objective | Recovery Target Type | Recovery Target | Recovery Actual | RPO Target | RPO Actual | Success Criteria Met | Owner Role | Findings Summary | Residual Risk |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | | | Tabletop, walkthrough, restoration, communications, supplier, failover, AI resilience, or other. | | | Isolated-failure (per-system RTO) or catastrophic-recovery (phase target). | | | | | | | | |
 
