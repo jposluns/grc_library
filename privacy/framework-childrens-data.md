@@ -2,8 +2,8 @@
 
 **Document Title:** Children's Data Framework\
 **Document Type:** Framework\
-**Version:** 1.0.10\
-**Date:** 2026-08-14\
+**Version:** 1.0.11\
+**Date:** 2026-08-26\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/framework-consent-management.md`](framework-consent-management.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/register-automated-decision-making.md`](register-automated-decision-making.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md)\
@@ -149,7 +149,7 @@ These defaults apply by design wherever the product or feature is likely to be a
 | CCPA / CPRA minor provisions | CCPA Regs 11 CCR ss. 7070-7072 | Opt-in/opt-out mechanics for the sale or sharing of minors' personal information: affirmative opt-in for consumers at least 13 and under 16 (s. 7071), parental consent for consumers under 13 (s. 7070), and the notices to consumers under 16 (s. 7072) |
 | LGPD | Article 14 | Child consent and best interest |
 | PIPL | Article 31 | Children under 14 |
-| EU AI Act | Article 5(1)(b) | Prohibition on exploiting vulnerabilities of children |
+| EU AI Act | Article 5(1)(b) | Prohibition on exploiting age-related vulnerabilities where an AI system's objective or effect is to materially distort a child's behaviour so as to cause or be reasonably likely to cause significant harm |
 | UN Convention on the Rights of the Child General Comment 25 | Children's rights in the digital environment | Best-interest principle |
 
 ---

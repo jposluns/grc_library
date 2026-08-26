@@ -2,8 +2,8 @@
 
 **Document Title:** AI-Specific Risk Methodology Annex\
 **Document Type:** Annex\
-**Version:** 1.0.8\
-**Date:** 2026-08-24\
+**Version:** 1.0.9\
+**Date:** 2026-08-26\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`ai/register-ai-risk.md`](../ai/register-ai-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](../ai/standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-model-lifecycle-management.md`](../ai/procedure-ai-model-lifecycle-management.md), [`ai/procedure-ai-audit.md`](../ai/procedure-ai-audit.md), [`ai/framework-ai-model-documentation-and-transparency.md`](../ai/framework-ai-model-documentation-and-transparency.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -44,7 +44,7 @@ Before applying the risk assessment methodology, each AI system must be assigned
 
 | Risk Tier | EU AI Act Classification | Criteria | Required Controls |
 |---|---|---|---|
-| **Tier 1, Unacceptable** | Prohibited | Biometric mass surveillance; social scoring; subliminal manipulation; exploitation of vulnerability | Not permitted for deployment, must be blocked at governance gate |
+| **Tier 1, Unacceptable** | Prohibited | Law-enforcement real-time remote biometric identification in publicly accessible spaces (Article 5(1)(h), narrow exceptions apply); social scoring leading to unrelated-context or unjustified or disproportionate detrimental treatment (Article 5(1)(c)); subliminal, purposefully manipulative, or deceptive techniques whose objective or effect is to materially distort behaviour by appreciably impairing informed decision-making, thereby causing a decision that would not otherwise have been taken in a manner that causes or is reasonably likely to cause significant harm (Article 5(1)(a)); exploitation of age, disability, or social or economic vulnerability whose objective or effect is to materially distort behaviour so as to cause or be reasonably likely to cause significant harm (Article 5(1)(b)) | Not permitted for deployment, must be blocked at governance gate |
 | **Tier 2: High Risk** | High-risk (Annex III, subject to the Article 6(3) derogation) | Systems in critical infrastructure, employment, education, credit, insurance, law enforcement, border management, AI in legal proceedings | Full pre-deployment assessment; human oversight mandatory; AIGC approval required; ongoing monitoring |
 | **Tier 3, Limited Risk** | Transparency obligation | Chatbots; deepfakes; emotion recognition; biometric categorization, transparency disclosure required | User disclosure; documentation; quarterly review |
 | **Tier 4: Minimal Risk** | Minimal or no obligation | AI with low impact on safety or fundamental rights; internal automation tools | Standard testing; annual review |
