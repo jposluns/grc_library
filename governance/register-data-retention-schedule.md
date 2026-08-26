@@ -2,7 +2,7 @@
 
 **Document Title:** Data Retention Schedule\
 **Document Type:** Register\
-**Version:** 1.0.29\
+**Version:** 1.0.30\
 **Date:** 2026-08-26\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Chief Information Officer\
@@ -38,12 +38,12 @@ This register defines the mandatory retention periods for each category of organ
 
 | Record Type | Retention Period | Legal Basis / Rationale |
 | --- | --- | --- |
-| Employee personnel files | 7 years after employment ends | Employment law; tax and payroll obligations |
-| Payroll and compensation records | 7 years after employment ends | Tax and audit requirements |
-| Background screening records | 7 years after employment ends, or 5 years from the screening outcome, whichever is longer | Personnel security; legal defensibility |
+| Employee personnel files | 7 years after employment, contract, or engagement ends | Employment law; tax and payroll obligations |
+| Payroll and compensation records | 7 years after employment, contract, or engagement ends | Tax and audit requirements |
+| Background screening records | 7 years after employment, contract, or engagement ends, or 5 years from the screening outcome, whichever is longer | Personnel security; legal defensibility |
 | Onboarding and offboarding checklists | 7 years after the date of departure or offboarding | Audit evidence |
-| Disciplinary and grievance records | 7 years after employment ends, or 5 years after resolution, whichever is longer | Legal defensibility |
-| Training completion records | 7 years after employment ends | Compliance evidence |
+| Disciplinary and grievance records | 7 years after employment, contract, or engagement ends, or 5 years after resolution, whichever is longer | Legal defensibility |
+| Training completion records | 7 years after employment, contract, or engagement ends | Compliance evidence |
 
 ### 2. Financial and accounting records
 
