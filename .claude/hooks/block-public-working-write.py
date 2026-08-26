@@ -102,7 +102,37 @@ def _origin_is_maintainer(project_dir: str) -> bool:
 
 
 def _private_working_present(project_dir: str) -> bool:
-    return (Path(project_dir).resolve().parent / "grc_library_private" / ".working").is_dir()
+    """True when a USABLE private/operational store exists to redirect public ``.working`` writes to.
+
+    STATE-THE-PROXY: this answers "is there a USABLE store to redirect to", NOT "does the old
+    ``.working`` sibling exist". Reproduces ``lint_common._store_root``/``_store_dir`` semantics so
+    the guard applies the SAME usability rule ``resolve_working`` uses:
+      * the candidate store is ``GRC_STORE`` (an EXCLUSIVE override when set) else ``<repo-parent>/private``;
+      * it is usable only if it is a dir AND resolves OUTSIDE the public repo (an in-repo store, e.g.
+        a relative ``GRC_STORE`` or an inward-resolving symlink, is REJECTED -- private content is never
+        written into the public checkout);
+      * an explicit-but-unusable ``GRC_STORE`` is NOT backfilled with ``<repo-parent>/private``.
+    Falls back to the transitional ``grc_library_private/.working`` sibling. Fail-open on any error
+    (a false BLOCK bricks the session), so the guard stays correct after ``.working`` is retired to
+    ``grc_library_private/deprecated/``."""
+    repo = Path(project_dir).resolve()
+    env = os.environ.get("GRC_STORE")
+    if env:
+        # GRC_STORE is an EXCLUSIVE override; a RELATIVE value resolves against the REPO ROOT
+        # (not the process CWD), exactly as lint_common._store_root does.
+        pe = Path(env)
+        store = pe if pe.is_absolute() else (repo / pe).resolve()
+    else:
+        store = repo.parent / "private"
+    try:
+        if store.is_dir() and not store.resolve().is_relative_to(repo):
+            return True  # a usable operational store exists (outside the public repo)
+    except (OSError, ValueError):
+        pass  # fail-open: fall through to the transitional sibling check
+    try:
+        return (repo.parent / "grc_library_private" / ".working").is_dir()
+    except OSError:
+        return False
 
 
 def _path_under_public_working(project_dir: str, file_path: str) -> bool:
@@ -225,9 +255,10 @@ def decide(tool_name: str, tool_input: dict, project_dir: str) -> str | None:
             return (
                 f"BLOCKED (public-.working writer-contract guard): {fp} would RE-CREATE a path under "
                 f"the public grc_library/.working/ tree, which was DELETED in PR #1235 (PR2b-3). The "
-                f"canonical working-state store is the private-sibling working-state tree "
-                f"(resolve_working* resolves there); the public tree must not be re-created. Write to "
-                f"the private location instead, or use resolve_working_for_write."
+                f"canonical working-state store is the operational store that "
+                f"resolve_working_for_write resolves to (the local operational store, or the "
+                f"transitional private sibling); the public tree must not be re-created. Write there "
+                f"via resolve_working_for_write instead."
             )
         return None
     if tool_name == "Bash":
@@ -236,8 +267,8 @@ def decide(tool_name: str, tool_input: dict, project_dir: str) -> str | None:
             return (
                 "BLOCKED (public-.working writer-contract guard): this command writes/creates under "
                 "the public grc_library/.working/ tree, which was DELETED in PR #1235 (PR2b-3); this "
-                "guard now prevents its RE-CREATION. The canonical store is the private-sibling "
-                "working-state tree; target that instead. (Removals such as `rm`/`git rm` are "
+                "guard now prevents its RE-CREATION. The canonical store is the operational store "
+                "that resolve_working_for_write resolves to; target that instead. (Removals such as `rm`/`git rm` are "
                 "allowed; add `WorkingWrite: intentional` to the command only for a genuinely "
                 "authorized public-.working write.)"
             )
@@ -248,7 +279,10 @@ def decide(tool_name: str, tool_input: dict, project_dir: str) -> str | None:
 def _self_test() -> int:
     import tempfile
     failures = []
-    def mk_repo(origin_url, with_private):
+    # HERMETIC: the real GRC_STORE (an absolute operational-store path) would make
+    # _private_working_present() True for every tempdir case; isolate it for the test.
+    _prev_store = os.environ.pop("GRC_STORE", None)
+    def mk_repo(origin_url, with_private, with_store=False):
         parent = tempfile.mkdtemp()
         d = Path(parent) / "grc_library"; d.mkdir()
         g = d / ".git"; g.mkdir()
@@ -256,6 +290,8 @@ def _self_test() -> int:
         (d / ".working").mkdir()
         if with_private:
             (Path(parent) / "grc_library_private" / ".working").mkdir(parents=True, exist_ok=True)
+        if with_store:
+            (Path(parent) / "private").mkdir(parents=True, exist_ok=True)
         return str(d)
     # maintainer + private present
     m = mk_repo("https://github.com/jposluns/grc_library.git", True)
@@ -312,15 +348,49 @@ def _self_test() -> int:
     for tn, ti, label in [("Write", {"file_path": ".working/DONE.md"}, "adopter Write"), ("Bash", {"command": "echo x > .working/x"}, "adopter Bash")]:
         if decide(tn, ti, a):
             failures.append(f"  adopter must not be blocked: {label}")
-    # maintainer but NO private working (pre-copy) -> allow (nothing canonical yet)
+    # maintainer but NO private working AND NO store (pre-copy) -> allow (nothing canonical yet)
     mnp = mk_repo("https://github.com/jposluns/grc_library.git", False)
     if decide("Write", {"file_path": ".working/DONE.md"}, mnp):
-        failures.append("  maintainer without _private/.working must allow (pre-copy)")
+        failures.append("  maintainer without store or _private/.working must allow (pre-copy)")
+    # maintainer with the OPERATIONAL STORE present but .working RETIRED -> block (post-migration)
+    mstore = mk_repo("https://github.com/jposluns/grc_library.git", False, with_store=True)
+    if not decide("Write", {"file_path": ".working/DONE.md"}, mstore):
+        failures.append("  maintainer WITH operational store (no .working) must block public .working write (post-retirement)")
+    # GRC_STORE EXTERNAL (outside the repo) -> usable -> block
+    mext = mk_repo("https://github.com/jposluns/grc_library.git", False)
+    ext_store = tempfile.mkdtemp()  # a real dir OUTSIDE the temp repo
+    os.environ["GRC_STORE"] = ext_store
+    if not decide("Write", {"file_path": ".working/DONE.md"}, mext):
+        failures.append("  external GRC_STORE (outside repo) must block public .working write")
+    # GRC_STORE IN-REPO -> rejected (matches _store_dir) -> inactive (allow, no other store/.working)
+    minr = mk_repo("https://github.com/jposluns/grc_library.git", False)
+    (Path(minr) / "private").mkdir(parents=True, exist_ok=True)
+    os.environ["GRC_STORE"] = str(Path(minr) / "private")
+    if decide("Write", {"file_path": ".working/DONE.md"}, minr):
+        failures.append("  in-repo GRC_STORE must be REJECTED (guard inactive, mirrors _store_dir outside-repo rule)")
+    # RELATIVE GRC_STORE resolves against the REPO ROOT, not the process CWD. DISCRIMINATING reality
+    # fixture (a hostile <cwd>/private would make a CWD-relative impl falsely usable): with GRC_STORE=private,
+    # an EXTERNAL <cwd>/private present AND an in-repo <repo>/private present, the guard must REJECT
+    # (repo-root resolution -> <repo>/private is in-repo). A CWD-relative regression would BLOCK and fail here.
+    mrel = mk_repo("https://github.com/jposluns/grc_library.git", False)
+    (Path(mrel) / "private").mkdir(parents=True, exist_ok=True)          # <repo>/private (in-repo)
+    hostile = tempfile.mkdtemp(); (Path(hostile) / "private").mkdir()    # <cwd>/private (external)
+    _cwd = os.getcwd()
+    try:
+        os.chdir(hostile)
+        os.environ["GRC_STORE"] = "private"  # relative; CWD-relative would resolve to the external hostile/private
+        if decide("Write", {"file_path": ".working/DONE.md"}, mrel):
+            failures.append("  relative GRC_STORE with a HOSTILE <cwd>/private must still be REJECTED (repo-root resolution, not CWD)")
+    finally:
+        os.chdir(_cwd)
+        os.environ.pop("GRC_STORE", None)
+    if _prev_store is not None:
+        os.environ["GRC_STORE"] = _prev_store
     if failures:
         print("SELF-TEST FAILED:", file=sys.stderr)
         print("\n".join(failures), file=sys.stderr)
         return 1
-    print(f"OK: block-public-working-write self-test passed ({len(cases)+3} cases).")
+    print(f"OK: block-public-working-write self-test passed ({len(cases)+7} cases).")
     return 0
 
 
