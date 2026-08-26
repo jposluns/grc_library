@@ -178,7 +178,10 @@ def decide(stop_hook_active: bool, escape: bool, branches: list) -> str | None:
         lines.append("  Branches ahead of main and not recorded as held (%d):" % len(branches))
         lines += ["    - %s (+%s)" % (n, a) for n, a in branches[:8]]
         lines.append("    Merge them, or record the hold with its reason in")
-        lines.append("      grc_library_private/.working/held-branches.txt")
+        # Show the ACTUAL resolved held-branches path (resolve_working -> local store), never a
+        # hardcoded sibling path, so the remediation the guard prints follows the store migration.
+        lines.append("      %s" % (HELD_FILE if HELD_FILE is not None
+                                   else "the held-branches file (resolved via lint_common.resolve_working)"))
     lines += [
         "",
         "  If this is a genuine block (CI, a maintainer decision, an external wait), say so and:",
