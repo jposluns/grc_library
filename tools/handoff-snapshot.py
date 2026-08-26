@@ -17,7 +17,7 @@ Sources of truth (each the canonical one, so the emitted number cannot drift fro
   - HEAD                             : git rev-parse --short HEAD (green-at requires
                                        the pre-push guard to confirm; this tool only
                                        reports the sha, it does not run the guard).
-  - Session metrics (optional)       : the private sibling grc_library_private/
+  - Session metrics (optional)       : the operational store's
                                        degradation-watch-log.md, if present (adopter
                                        clones have none; the section is then omitted).
 
@@ -29,12 +29,16 @@ Exit codes: 0 on success (and on a passing self-test); 1 only on a self-test fai
 The reporting path always exits 0, so this tool is advisory and never blocks a run.
 """
 import argparse
+import os
 import re
 import subprocess
 import sys
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from lint_common import resolve_working, resolve_working_for_write  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]  # tools/ -> repo root
 
@@ -90,13 +94,13 @@ _TS = re.compile(r"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?Z)")
 
 
 def session_metrics(root: Path, now: datetime | None = None):
-    """Best-effort: latest session-start timestamp + elapsed, from the private log.
+    """Best-effort: latest session-start timestamp + elapsed, from the operational store's log.
 
-    Returns None if the private sibling is absent (the adopter case). Returns a dict
+    Returns None if the log is absent (the adopter case). Returns a dict
     with `start` None if the log holds no parseable session-start timestamp.
     """
-    log = root.parent / "grc_library_private" / "degradation-watch-log.md"
-    if not log.is_file():
+    log = resolve_working("degradation-watch-log.md", repo_root=root)
+    if log is None or not log.is_file():
         return None
     text = _read(log)
     starts = []
@@ -142,7 +146,7 @@ def snapshot(root: Path) -> str:
         elapsed = sm["elapsed"] or "?"
         lines.append(
             f"- **Session:** start {start}, elapsed {elapsed}, "
-            f"{sm['compaction_rows']} stamped compaction row(s) in the private log "
+            f"{sm['compaction_rows']} stamped compaction row(s) in the working log "
             "(count the rows at/after this session-start for the per-session figure)"
         )
     return "\n".join(lines) + "\n"
@@ -151,7 +155,11 @@ def snapshot(root: Path) -> str:
 def _self_test() -> int:
     """Build a throwaway fixture repo and assert every parser reads it correctly."""
     failures = []
+    _prev_store = os.environ.get("GRC_STORE")
     with tempfile.TemporaryDirectory() as td:
+        # hermetic: point the store at the tempdir so resolve_working_for_write NEVER
+        # touches the ambient operational store (GRC_STORE is absolute, repo_root-independent).
+        os.environ["GRC_STORE"] = str(Path(td) / "store")
         root = Path(td) / "grc_library"
         root.mkdir()
         (root / "tools").mkdir()
@@ -190,14 +198,14 @@ def _self_test() -> int:
             if got != want:
                 failures.append(f"  {name}: got {got!r}, want {want!r}")
 
-        # session_metrics: absent private sibling -> None
+        # session_metrics: absent log -> None
         if session_metrics(root) is not None:
-            failures.append("  session_metrics: expected None when private sibling absent")
+            failures.append("  session_metrics: expected None when the log is absent")
 
         # session_metrics: present log -> parse latest start + fixed-clock elapsed
-        priv = root.parent / "grc_library_private"
-        priv.mkdir(exist_ok=True)
-        (priv / "degradation-watch-log.md").write_text(
+        dw = resolve_working_for_write("degradation-watch-log.md", repo_root=root)
+        dw.parent.mkdir(parents=True, exist_ok=True)
+        dw.write_text(
             "| 2026-07-29T10:00:00Z | session-start | earlier full-seconds |\n"
             "- session-start 2026-07-29T12:00:00Z (prose full-seconds)\n"
             "| 2026-07-29T15:30Z | session-start | latest, MINUTES-ONLY (the real log's dominant form) |\n"
@@ -211,6 +219,10 @@ def _self_test() -> int:
         elif sm["compaction_rows"] != 1:
             failures.append(f"  session_metrics.compaction_rows: got {sm['compaction_rows']}")
 
+    if _prev_store is None:
+        os.environ.pop("GRC_STORE", None)
+    else:
+        os.environ["GRC_STORE"] = _prev_store
     if failures:
         print("handoff-snapshot self-test: FAILED")
         print("\n".join(failures))
