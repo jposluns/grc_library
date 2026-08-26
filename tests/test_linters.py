@@ -2,7 +2,9 @@
 """Linter regression tests.
 
 For each in-scope linter, this module constructs a minimal synthetic
-markdown fixture that should trigger exactly one rule, invokes the
+fixture appropriate to each linter's target surface (Markdown for the
+corpus linters, Python source for the gate-94/95 code linters) that
+should trigger exactly one rule, invokes the
 linter against the fixture, and asserts the linter exits non-zero.
 
 The tests catch a class of defect that no other gate in the audit

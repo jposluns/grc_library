@@ -2,8 +2,8 @@
 
 **Document Title:** Identity Management Procedure\
 **Document Type:** Procedure\
-**Version:** 2.0.2\
-**Date:** 2026-08-24\
+**Version:** 2.0.3\
+**Date:** 2026-08-26\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-access-control.md`](procedure-access-control.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -88,7 +88,7 @@ Applies to all user identities, service accounts, and machine identities across 
 3.1 Privileged identities (domain admin, cloud admin, root, sudo, security platform admin) are managed through the Privileged Identity Management (PIM) system.
 
 3.2 PIM controls:
-- Just-in-time activation required: no standing privileged access.
+- Just-in-time activation required: no standing privileged access, except where just-in-time activation is genuinely unavailable and standing access is authorized through the formal exception process governed by the [Policy Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (Section 4), per [procedure-access-control.md](procedure-access-control.md) 6.2.
 - Time-limited sessions: the maximum duration of a privileged-role activation is governed by the [Privileged Access Management Standard](standard-privileged-access-management.md) §4.2 (the single authoritative source).
 - Approval workflow required for activation.
 - Full session recording and logging.

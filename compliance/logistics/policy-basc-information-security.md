@@ -2,7 +2,7 @@
 
 **Document Title:** BASC Information Security Policy\
 **Document Type:** Policy\
-**Version:** 1.2.9\
+**Version:** 1.2.10\
 **Date:** 2026-08-26\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -174,8 +174,8 @@ Any employee may submit an exception request via the ITSM portal or designated c
 
 ### 7.3 Approval
 
-- Temporary exceptions (less than 90 days): approved by CISO and CIO.
-- Long-term exceptions: reviewed by the Change Control Board and require a risk acceptance memo signed by executive leadership.
+- Approval follows the enterprise exception risk-tier matrix in [`policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md) Section 4.2 (medium risk by the CIO; high or critical risk by the Executive Committee or Board Risk Committee), with CISO co-approval for security-related exceptions in addition to (not in place of) the risk-tier approver.
+- Duration and renewal follow that policy's Section 4.3: an exception's initial term does not exceed the enterprise base term, and any extension runs through the renewal pathway (the original approver, then the Enterprise Risk Committee, then the Board Risk Committee) up to the renewal ceiling, converting to a formal risk acceptance once that ceiling is reached.
 
 ### 7.4 Documentation and monitoring
 
