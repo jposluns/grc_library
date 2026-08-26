@@ -2,8 +2,8 @@
 
 **Document Title:** Access Control Procedure\
 **Document Type:** Procedure\
-**Version:** 1.2.8\
-**Date:** 2026-08-24\
+**Version:** 1.2.9\
+**Date:** 2026-08-26\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-identity-management.md`](procedure-identity-management.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md)\
@@ -154,7 +154,7 @@ Access that does not meet all four criteria is treated as unjustified. The revie
 - Just-in-time access activation required for all domain and cloud administrative roles.
 - Privileged activity is reviewed by the CISO quarterly.
 
-6.2 Standing privileged access is prohibited unless operationally necessary and approved by the CISO.
+6.2 Standing privileged access is prohibited where just-in-time activation is available. Where just-in-time activation is genuinely unavailable, standing privileged access is permitted only through the formal exception process governed by the [Policy Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (Section 4), with a documented business justification, a compensating control, and a time-bound review, and it remains subject to the controls in the [Privileged Access Management Standard](../security/standard-privileged-access-management.md). Certificate Authority administrative privilege admits no standing-access exception and is always activated just-in-time (see the [Certificate Authority Management Standard](../operations/standard-certificate-authority-management.md), Section 11.2).
 
 6.3 Break-glass (emergency) accounts are sealed, inventoried, and their use triggers an immediate security alert.
 
