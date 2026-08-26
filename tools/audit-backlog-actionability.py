@@ -58,12 +58,20 @@ import re
 import sys
 from pathlib import Path
 
+# Ensure the tools dir is importable whether run standalone or loaded via importlib
+# (the regression suite loads this module with spec_from_file_location).
+_TOOLS_DIR = str(Path(__file__).resolve().parent)
+if _TOOLS_DIR not in sys.path:
+    sys.path.insert(0, _TOOLS_DIR)
+from lint_common import resolve_working
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TODO_PATH = REPO_ROOT / "TODO.md"
 # The private backlog lives in the maintainer's private sibling; adopters have no
 # such sibling and simply audit the public list (resolve_sibling no-op).
 PTODO_PATH = REPO_ROOT.parent / "grc_library_private" / "P-TODO.md"
-DONE_PATH = REPO_ROOT.parent / "grc_library_private" / ".working" / "DONE.md"
+# DONE.md moved to the operational store; resolve it via lint_common.resolve_working
+# (store-preferred, private-sibling fallback), matching gate 78 (lint-todo-number-permanence).
 
 # An open backlog item heading: ``### <id> <title>`` where <id> is a section
 # number (``N.M`` / ``N.M.K``, optional trailing letter), a private ``P-n.m`` id,
@@ -635,8 +643,8 @@ def main(argv: list[str]) -> int:
         else f" (private list {ptodo} absent; public-only)"
 
     if args.pipeline:
-        done = Path(DONE_PATH)
-        done_text = done.read_text(encoding="utf-8", errors="replace") if done.is_file() else None
+        done = resolve_working("DONE.md")
+        done_text = done.read_text(encoding="utf-8", errors="replace") if done and done.is_file() else None
         print(render_pipeline(public_text, private_text, done_text, args.umbrella))
         return 0
 
