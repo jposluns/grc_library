@@ -2,8 +2,8 @@
 
 **Document Title:** Remote Working Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.15\
-**Date:** 2026-08-25\
+**Version:** 1.0.16\
+**Date:** 2026-08-26\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md)\
@@ -154,7 +154,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 | **Confidential** | Yes, on compliant managed device; personal devices require CISO approval | Company-managed encrypted storage; personal cloud storage prohibited | Yes, always (VPN required for all Confidential-data access regardless of network type, per Section 5.2.2) |
 | **Restricted** | Managed device only; CISO approval required for remote access | Company-managed encrypted storage; no personal storage of any kind | Yes, always |
 
-The VPN Required column states requirements by data classification; Section 5.1 additionally requires VPN on untrusted networks (for example public Wi-Fi and most client-site networks) regardless of the data classification.
+The VPN Required column states requirements by data classification; Section 5.1 additionally requires VPN on untrusted networks (for example public Wi-Fi and most client-site networks) regardless of the data classification. The Remote Access Permitted column describes managed-device access; personal (BYOD) devices may also access Public, Controlled, and Internal data through browser interfaces under the conditional-access path set out in Section 8 (which also governs the personal-device conditions for Confidential and Restricted data).
 
 7.1.2 All data must remain in company-managed storage. Data must not be saved to personal cloud storage services, personal drives, or any storage medium not under the control of the organization.
 
