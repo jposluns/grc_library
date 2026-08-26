@@ -41,6 +41,14 @@ python3 tools/build-portal.py
 The narrative registry derives independently from `executive/` page metadata. The portal
 generator depends on the taxonomy; always regenerate the taxonomy first.
 
+Two further generated artefacts derive from their own source files rather than from
+document metadata, and are regenerated when that source changes:
+
+```
+python3 tools/build-relationship-model.py       # from governance/relationship-model-source.json
+python3 tools/build-todo-number-allocation.py   # from tools/todo-number-floor.json + the live TODO ids
+```
+
 ## Pre-commit integration
 
 [`.pre-commit-config.yaml`](../.pre-commit-config.yaml) at the repository root wires every gate as a local hook. Install once:
