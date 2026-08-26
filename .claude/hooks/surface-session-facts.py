@@ -11,17 +11,16 @@ externally-observable numbers the maintainer actually tracks.
 
 NON-BLOCKING: emits the facts via the hook `systemMessage` field (shown to the maintainer),
 never blocks turn-end. FAIL OPEN on any error, a personal instrument must never trap the run.
-MAINTAINER-ORCHESTRATOR-ONLY: reads grc_library_private/degradation-watch-log.md; if that is
-absent (adopter, or _private not present) it is a silent no-op.
+MAINTAINER-ORCHESTRATOR-ONLY: reads degradation-watch-log.md from the operational store (via lint_common.resolve_working); if that is
+absent (adopter, or the operational store not present) it is a silent no-op.
 
 Fact sources (the maintainer's own metric log):
   * session length  = now minus the newest `session-start` ISO timestamp.
   * compaction count = canonical `| <iso> | compaction |` rows with ts >= session-start.
 """
 import sys, os, re, json
+from pathlib import Path
 from datetime import datetime, timezone
-
-LOG = "/home/grc/grc_library_private/degradation-watch-log.md"
 ISO = r"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z)"
 
 
@@ -82,10 +81,17 @@ def main():
     text = _last_assistant_text(tp)
     if not text or not _has_pair(text):
         _fail_open()
-    if not os.path.exists(LOG):
+    repo = Path(os.environ.get("CLAUDE_PROJECT_DIR", "/home/grc/grc_library")).resolve()
+    try:
+        sys.path.insert(0, str(repo / "tools"))
+        from lint_common import resolve_working
+        log_path = resolve_working("degradation-watch-log.md", repo_root=repo)
+    except Exception:
+        _fail_open()
+    if log_path is None or not log_path.exists():
         _fail_open()
     try:
-        content = open(LOG, encoding="utf-8").read()
+        content = log_path.read_text(encoding="utf-8")
     except Exception:
         _fail_open()
     # STRICT session-start detection: match only the type-token forms, never a prose

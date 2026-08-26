@@ -94,7 +94,7 @@ def decide(subject: str):
             "differs byte-for-byte from the blocked one. Do NOT attribute this to session "
             "length or degradation as a first move; DIAGNOSE THE MECHANISM. If you are about "
             "to cite session length or heaviness, first append a `considered` row to "
-            "`grc_library_private/degradation-watch-log.md` and read plus assess it (session "
+            "the operational store's `degradation-watch-log.md` (resolved via lint_common.resolve_working) and read plus assess it (session "
             "duration, whether a compaction happened, prior real indicators) before asserting "
             "degradation."
         )
