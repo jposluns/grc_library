@@ -2,7 +2,7 @@
 
 **Document Title:** AI Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.20\
+**Version:** 1.0.21\
 **Date:** 2026-08-26\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -86,7 +86,7 @@ All AI systems must be classified before deployment. Classification determines t
 | **General-purpose AI (GPAI) model with systemic risk** | GPAI models with training compute above 10^25 FLOPs or designated by the European Commission (EU AI Act Chapter V) | Adversarial testing; incident reporting to the AI Office; cybersecurity measures; energy efficiency transparency | Where the organization deploys or integrates GPAI models meeting this threshold, it ensures that the provider's obligations are met and documents its own deployer obligations |
 | **General-purpose AI (GPAI) model: standard** | GPAI models that do not meet the systemic risk threshold | Technical and copyright compliance documentation; transparency obligations | Transparency and documentation obligations met; AI System Register entry required |
 | **Limited-risk** | AI systems with specific transparency obligations: chatbots; AI-generated content; emotion recognition and biometric categorization systems (EU AI Act Art. 50) | Disclose AI interaction to users; label AI-generated content | User notification implemented; AI-generated content labelling policy applied |
-| **Minimal-risk** | All other AI systems | No mandatory obligations under EU AI Act | Best-practice governance applied; AI System Register entry still required; periodic review conducted |
+| **Minimal-risk** | All other AI systems | No high-risk obligations arise from this tier, but the cross-cutting Article 4 AI-literacy duty (on providers and deployers of AI systems) and, where their conditions apply, the Article 50 transparency obligations still apply | Best-practice governance applied; AI System Register entry still required; periodic review conducted |
 
 ### 4.2 Classification process
 
@@ -173,7 +173,7 @@ Where a GPAI model is identified as presenting systemic risk under EU AI Act Cha
 
 ### 7.1 EU AI act
 
-The EU AI Act applies to AI systems placed on the market or put into service in the EU, and to outputs of AI systems used in the EU, regardless of where the deployer or provider is established. Where any AI system operated by the organization generates outputs used in, or affects individuals in, the EU, the obligations of the EU AI Act apply. For the threshold question of what qualifies as an AI system (Article 3(1)) and for the scope of the Article 5 prohibitions, the organization treats the Commission's interpretive guidelines, C(2025) 5053 final (definition of an artificial intelligence system) and C(2025) 5052 final (prohibited artificial intelligence practices), both dated 29 July 2025, as authoritative non-binding guidance; the binding text remains the AI Act and its annexes.
+The EU AI Act applies to AI systems placed on the market or put into service in the EU, and to outputs of AI systems used in the EU, regardless of where the deployer or provider is established. Where the organization is a third-country provider or deployer and the output produced by the AI system is used in the Union, the obligations of the EU AI Act apply (Article 2(1)(c)); the Regulation separately brings affected persons located in the Union within its scope (Article 2(1)(g)). For the threshold question of what qualifies as an AI system (Article 3(1)) and for the scope of the Article 5 prohibitions, the organization treats the Commission's interpretive guidelines, C(2025) 5053 final (definition of an artificial intelligence system) and C(2025) 5052 final (prohibited artificial intelligence practices), both dated 29 July 2025, as authoritative non-binding guidance; the binding text remains the AI Act and its annexes.
 
 Key compliance obligations:
 
