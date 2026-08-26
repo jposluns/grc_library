@@ -2,8 +2,8 @@
 
 **Document Title:** Authentication and Password Management Standard\
 **Document Type:** Standard\
-**Version:** 1.1.8\
-**Date:** 2026-08-21\
+**Version:** 1.1.9\
+**Date:** 2026-08-26\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md)\
@@ -88,7 +88,7 @@ Password-based service account authentication is only permitted where no alterna
 
 ## 8. Exceptions
 
-Exceptions to any requirement in this standard require CISO approval and must be documented with a compensating control and a remediation target date. No exception may remain open beyond 12 months without re-approval.
+Exceptions to any requirement in this standard require CISO approval and must be documented with a compensating control and a remediation target date. Exception duration, renewal, and escalation are governed by the [Policy Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (Section 4.3); this standard sets no separate exception term.
 
 ---
 
