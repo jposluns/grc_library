@@ -119,7 +119,7 @@ run_gate "Gate-name parity audit"                        python3 tools/lint-audi
 
 # ----------------------------------------------------------------------
 # Linter regression test suite (1 gate). Positive tests for each
-# in-scope linter: each test constructs a synthetic markdown fixture
+# in-scope linter: each test constructs a synthetic fixture appropriate to the linter's target surface (Markdown for corpus linters, Python source for the gate-94/95 code linters)
 # that should trigger exactly one rule, invokes the linter, and asserts
 # non-zero exit. See tests/README.md for scope and limits.
 # ----------------------------------------------------------------------

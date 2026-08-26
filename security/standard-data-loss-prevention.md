@@ -2,7 +2,7 @@
 
 **Document Title:** Data Loss Prevention Standard\
 **Document Type:** Standard\
-**Version:** 1.3.6\
+**Version:** 1.3.7\
 **Date:** 2026-08-26\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -54,8 +54,8 @@ The organization applies a 5-level Data Classification Model. DLP controls are c
 | Public | Approved for open distribution | May be freely shared without restriction |
 | Controlled | May be shared externally on demand where disclosure poses low risk | Shareable with external parties under appropriate context without NDA |
 | Internal | Restricted to employees and authorized contractors | Limited to internal systems and approved collaboration tools |
-| Confidential | Sensitive business, legal, financial, or personal data (PII, PHI, trade secrets) | Restricted to explicitly authorized individuals; external release only under NDA |
-| Restricted | Top-tier data: merger plans, executive communications, system credentials | Strictly controlled; additional audit trail, DLP enforcement, and PAM integration apply |
+| Confidential | Sensitive business, legal, financial, or personal data (PII, PHI) | Restricted to explicitly authorized individuals; external release only under NDA |
+| Restricted | Top-tier data: trade secrets, merger plans, executive communications, system credentials | Strictly controlled; additional audit trail, DLP enforcement, and PAM integration apply |
 
 ---
 

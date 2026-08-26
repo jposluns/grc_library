@@ -3,7 +3,7 @@
 This directory contains regression tests for the audit-programme linters
 in [`tools/`](../tools/). Each test:
 
-1. Constructs a minimal synthetic markdown fixture that should trigger
+1. Constructs a minimal synthetic fixture appropriate to each linter's target surface (Markdown for the corpus linters, Python source for the gate-94/95 code linters) that should trigger
    exactly one linter rule.
 2. Invokes the target linter against the fixture.
 3. Asserts that the linter exits non-zero and emits a finding
