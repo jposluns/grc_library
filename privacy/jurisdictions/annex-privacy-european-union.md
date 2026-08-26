@@ -2,8 +2,8 @@
 
 **Document Title:** European Union Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.13\
-**Date:** 2026-08-24\
+**Version:** 1.1.14\
+**Date:** 2026-08-26\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -43,7 +43,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ### EU AI act obligations (phased)
 
-- **Prohibited practices (Article 5, applicable 2 February 2025; the two practices inserted by Regulation (EU) 2026/1744 at Article 5(1) points (ba) and (bb) apply from 2 December 2026):** Prohibited AI applications include subliminal manipulation, exploitation of vulnerable groups, real-time remote biometric identification in publicly accessible spaces for law-enforcement purposes (subject to the narrow Article 5(1)(h) exceptions and Article 5(2) to (7) conditions), social scoring leading to unjustified or disproportionate detrimental treatment, predictive policing based solely on profiling, and, from 2 December 2026, AI systems that generate or manipulate non-consensual intimate material (image, audio, video, or similar) or child sexual abuse material.
+- **Prohibited practices (Article 5, applicable 2 February 2025; the two practices inserted by Regulation (EU) 2026/1744 at Article 5(1) points (ba) and (bb) apply from 2 December 2026):** Prohibited AI applications include subliminal, purposefully manipulative, or deceptive techniques whose objective or effect is to materially distort behaviour by appreciably impairing informed decision-making, thereby causing a decision that would not otherwise have been taken so as to cause or be reasonably likely to cause significant harm (Article 5(1)(a)), exploitation of vulnerabilities due to age, disability, or a specific social or economic situation whose objective or effect is to materially distort behaviour so as to cause or be reasonably likely to cause significant harm (Article 5(1)(b)), real-time remote biometric identification in publicly accessible spaces for law-enforcement purposes (subject to the narrow Article 5(1)(h) exceptions and Article 5(2) to (7) conditions), social scoring leading to detrimental treatment in unrelated social contexts, or to unjustified or disproportionate detrimental treatment, predictive policing based solely on profiling, and, from 2 December 2026, AI systems that generate or manipulate non-consensual intimate material (image, audio, video, or similar) or child sexual abuse material.
 - **High-risk AI systems (Annex III, applicable 2 December 2027 as restaged by Regulation (EU) 2026/1744):** AI deployed in employment management, credit scoring, biometric categorization, and critical infrastructure is subject to mandatory conformity assessments, technical documentation, human oversight mechanisms, and registration as required under Article 49, subject to the Article 6(3) non-high-risk derogation (a system performing profiling of natural persons is always high-risk).
 - **General-purpose AI (GPAI) models (Articles 51 to 56, applicable August 2025):** Providers must maintain technical documentation, comply with EU copyright law, and publish training data summaries. Providers of GPAI models with systemic risk have additional obligations including adversarial testing and incident reporting.
 - **Limited-risk systems (Article 50):** Chatbots and deepfake generators must disclose AI interaction or AI-generated content to users.
