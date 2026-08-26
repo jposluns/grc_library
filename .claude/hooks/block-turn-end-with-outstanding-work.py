@@ -71,7 +71,28 @@ REPO = Path(os.environ.get("CLAUDE_PROJECT_DIR") or Path(__file__).resolve().par
 ESCAPE_FILE = Path(os.environ.get("GRC_DROP_ROOT", "/opt/grc/grc_working")) / ".allow-stop"
 # Held branches live in a FILE with a reason per line, not a constant in this file: a hardcoded set
 # goes stale the day it is written, and a comment saying "cite a decision record" enforces nothing.
-HELD_FILE = REPO.parent / "grc_library_private" / ".working" / "held-branches.txt"
+# The file is resolved via the store-aware resolver (local operational store preferred, the
+# grc_library_private/.working sibling a transitional fallback), never a hardcoded sibling-store path,
+# so this guard follows the migration of the working store to local. Fail-safe: a resolver-load
+# failure leaves _resolve_working None and _working_file falls back to the in-repo .working/ path.
+_TOOLS_DIR = str(Path(__file__).resolve().parents[2] / "tools")
+if _TOOLS_DIR not in sys.path:
+    sys.path.insert(0, _TOOLS_DIR)
+try:
+    from lint_common import resolve_working as _resolve_working
+except Exception:  # pragma: no cover - fail-safe: never let a helper-load failure break the hook
+    _resolve_working = None
+
+
+def _working_file(rel_below, root):
+    """`.working/<rel_below>` resolved via lint_common (local store preferred), or None."""
+    if _resolve_working is not None:
+        return _resolve_working(rel_below, repo_root=root)
+    cand = root / ".working" / rel_below
+    return cand if cand.exists() else None
+
+
+HELD_FILE = _working_file("held-branches.txt", REPO)
 GIT_TIMEOUT = 20
 _EXPIRY = _re.compile(r"\d{4}-\d{2}-\d{2}")
 
@@ -98,7 +119,7 @@ def held_branches() -> dict:
     for weeks and would need its hold rewritten on every commit.
     """
     held = {}
-    if not HELD_FILE.exists():
+    if HELD_FILE is None or not HELD_FILE.exists():
         return held
     today = _dt.date.today().isoformat()
     for line in HELD_FILE.read_text(encoding="utf-8").splitlines():
