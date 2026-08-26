@@ -2,7 +2,7 @@
 
 **Document Title:** BASC Information Security Policy\
 **Document Type:** Policy\
-**Version:** 1.2.8\
+**Version:** 1.2.9\
 **Date:** 2026-08-26\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -114,7 +114,7 @@ Privileged access, including superuser and administrator accounts, is managed th
 
 Access for all third parties requires a supplier evaluation approved by the CISO.
 
-Access is revoked immediately upon termination or contract conclusion; the two-hour access-revocation target stated in the Access Management control is the measurable ceiling for this immediacy principle.
+Access is revoked immediately upon termination or contract conclusion; the two-hour access-revocation target stated in the Access Management control is the measurable ceiling for this immediacy principle, without prejudice to the stricter one-hour involuntary-termination path in [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md) Section 4.1.4 and [`security/procedure-onboarding-and-offboarding.md`](../../security/procedure-onboarding-and-offboarding.md) Section 8.1.1, which governs organization-controlled and identity-provider-federated accounts on involuntary termination.
 
 *Requirement IDs: 6.1.b, 6.1.c, 6.2.c, 6.2.e, 6.2.f, 6.2.g, 6.2.k, 6.2.p, 6.2.s, 6.2.v*
 

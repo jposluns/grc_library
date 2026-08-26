@@ -2,8 +2,8 @@
 
 **Document Title:** IT Operations Key Performance Indicators Register\
 **Document Type:** Register\
-**Version:** 1.1.3\
-**Date:** 2026-08-16\
+**Version:** 1.1.4\
+**Date:** 2026-08-26\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/standard-service-level-management.md`](standard-service-level-management.md), [`operations/register-it-security-operations.md`](register-it-security-operations.md), [`operations/procedure-patch-management.md`](procedure-patch-management.md), [`operations/procedure-security-monitoring-and-alert-management.md`](procedure-security-monitoring-and-alert-management.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md), [`governance/register-digital-trust-and-assurance-metrics.md`](../governance/register-digital-trust-and-assurance-metrics.md), [`resilience/register-resilience-metrics-and-testing-log.md`](../resilience/register-resilience-metrics-and-testing-log.md)\
@@ -60,7 +60,7 @@ This register applies to all IT services, infrastructure, cloud environments, an
 | P1 incident resolution within SLA | Percentage of P1 (Critical) incidents resolved within the 4-hour resolution target defined in the IT Service Management Framework. | 90% | Monthly | Service Management Office | Incident record, SLA report | Chief Information Officer | Chief Information Officer | Resolution time is measured from incident creation to service restoration. |
 | P2 incident resolution within SLA | Percentage of P2 (High) incidents resolved within the 8-hour resolution target. | 90% | Monthly | Service Management Office | Incident record, SLA report | Chief Information Officer | Chief Information Officer | |
 | Mean time to detect (MTTD) | Average elapsed time between the occurrence of a service disruption and its detection, based on confirmed P1 and P2 incidents. | Trend tracking; establish baseline in Year 1 | Monthly | Service Management Office | Incident record, monitoring alert log | Chief Information Officer | Chief Information Officer | MTTD depends on monitoring coverage; track alongside monitoring coverage KPI. |
-| Mean time to restore (MTTR) | Average elapsed time between incident detection and service restoration for P1 and P2 incidents. | P1: ≤ 4 hours; P2: ≤ 8 hours | Monthly | Service Management Office | Incident record, resolution log | Chief Information Officer | Chief Information Officer | |
+| Mean time to restore | Average elapsed time between incident detection and service restoration for P1 and P2 incidents. | P1: ≤ 4 hours; P2: ≤ 8 hours | Monthly | Service Management Office | Incident record, resolution log | Chief Information Officer | Chief Information Officer | |
 | Major incident frequency | Count of P1 incidents per calendar month. | Trend reduction year-on-year | Monthly | Chief Information Officer | Incident register | Enterprise Risk Committee | Enterprise Risk Committee | No fixed target; trend reduction is the governance objective. |
 | Incident recurrence rate | Percentage of P1 and P2 incidents that are repeat occurrences of a known issue without a permanent fix applied. | < 10% | Monthly | Problem Manager | Incident record, problem register | Chief Information Officer | Chief Information Officer | High recurrence indicates unresolved underlying causes. |
 | NIS 2 notification compliance | Percentage of significant cybersecurity incidents for which EU NIS 2 early warning (24-hour) and incident notification (72-hour) obligations were met. | 100% | Per occurrence; quarterly review | Chief Information Security Officer | Notification record, incident log | Enterprise Risk Committee | Enterprise Risk Committee | Applies where EU NIS 2 is in scope. Track separately from general incident SLA. |

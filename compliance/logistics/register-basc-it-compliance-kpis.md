@@ -2,8 +2,8 @@
 
 **Document Title:** BASC IT Compliance Monitoring and KPIs\
 **Document Type:** Register\
-**Version:** 1.2.3\
-**Date:** 2026-08-08\
+**Version:** 1.2.4\
+**Date:** 2026-08-26\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-basc-programme-overview.md`](annex-basc-programme-overview.md), [`compliance/logistics/policy-basc-information-security.md`](policy-basc-information-security.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md), [`operations/procedure-security-monitoring-and-alert-management.md`](../../operations/procedure-security-monitoring-and-alert-management.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`security/standard-authentication-and-password-management.md`](../../security/standard-authentication-and-password-management.md), [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md)\
@@ -33,7 +33,7 @@ This register defines the key performance indicators (KPIs) used to monitor IT a
 | Access review completion | Percentage of privileged account access reviews completed on schedule | 100% quarterly | Quarterly | IAM Team | Chief Information Security Officer | Chief Information Security Officer |
 | Offboarding completeness | Percentage of offboarding actions completed within required timelines | 100% | Monthly | IT Operations | Chief Information Security Officer | Chief Information Security Officer |
 | Security incident volume | Number of confirmed P1/P2 security incidents per quarter | Trend tracking; no absolute target | Quarterly | Chief Information Security Officer (CISO) | Enterprise Risk Committee | Enterprise Risk Committee |
-| Mean time to respond (MTTR) | Average time from alert to containment for P1/P2 incidents | P1: < 1 hour; P2: < 4 hours | Quarterly | Chief Information Security Officer (CISO) | Enterprise Risk Committee | Enterprise Risk Committee |
+| Mean time to respond (alert to containment) | Average time from alert to containment for P1/P2 incidents | P1: < 1 hour; P2: < 4 hours | Quarterly | Chief Information Security Officer (CISO) | Enterprise Risk Committee | Enterprise Risk Committee |
 | Exception register currency | Percentage of open exceptions with current owner and target date | 100% | Quarterly | Chief Information Security Officer (CISO) | Enterprise Risk Committee | Enterprise Risk Committee |
 | Vulnerability remediation (High) | Percentage of High severity vulnerabilities remediated within 14 days | 90% | Monthly | IT Operations | Chief Information Security Officer | Chief Information Security Officer |
 
