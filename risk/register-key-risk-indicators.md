@@ -2,8 +2,8 @@
 
 **Document Title:** Key Risk Indicator Catalogue\
 **Document Type:** Register\
-**Version:** 1.1.2\
-**Date:** 2026-08-24\
+**Version:** 1.1.3\
+**Date:** 2026-08-26\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -52,12 +52,13 @@ Each KRI is defined by the following fields.
 |---|---|---|---|---|---|---|---|---|
 | KRI-CYB-001 | Unpatched Critical Vulnerabilities | Count of critical-severity vulnerabilities unpatched beyond defined SLA | Count | 0 | 1 to 5 | >5 | CISO | Weekly |
 | KRI-CYB-002 | Mean Time to Detect (MTTD) | Average time from incident start to detection | Hours | <4 | 4 to 24 | >24 | CISO | Monthly |
-| KRI-CYB-003 | Mean Time to Respond (MTTR) | Average time from detection to containment | Hours | <8 | 8 to 48 | >48 | CISO | Monthly |
+| KRI-CYB-003 | Mean Time to Contain (MTTC) | Average time from incident declaration to confirmed containment | Hours | <8 | 8 to 48 | >48 | CISO | Monthly |
 | KRI-CYB-004 | Phishing Click Rate | Percentage of staff clicking simulated phishing emails | % | <5% | 5 to 15% | >15% | CISO | Quarterly |
 | KRI-CYB-005 | Privileged Account MFA Coverage | Percentage of privileged accounts with MFA enforced | % | 100% | 95 to 99% | <95% | CISO | Monthly |
 | KRI-CYB-006 | Security Training Completion | Percentage of staff completing annual security awareness training | % | >95% | 85 to 95% | <85% | CISO / HR | Quarterly |
 | KRI-CYB-007 | Endpoint Protection Coverage | Percentage of managed endpoints with active protection | % | >99% | 95 to 99% | <95% | IT Operations | Weekly |
 | KRI-CYB-008 | Security Incidents (P1+P2) | Count of P1 and P2 security incidents in the period | Count | 0 | 1 to 2 | >2 | CISO | Monthly |
+| KRI-CYB-009 | Mean Time to Recover (MTTR) | Average time from incident declaration to confirmed service restoration | Hours | <24 | 24 to 72 | >72 | CISO | Monthly |
 
 ---
 
