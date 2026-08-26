@@ -2,7 +2,7 @@
 
 **Document Title:** European Union Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.15\
+**Version:** 1.1.16\
 **Date:** 2026-08-26\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -39,7 +39,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 - **Automated decision-making and profiling (Article 22):** Data subjects have the right not to be subject to solely automated decisions producing legal or similarly significant effects. Exceptions apply for contract necessity, legal authorization, or explicit consent: each requiring human review safeguards.
 - **Data Protection Impact Assessment (Article 35):** Mandatory before processing likely to result in high risk, including systematic automated processing, large-scale processing of special categories, or systematic monitoring. AI systems processing personal data at scale will typically require a DPIA.
 - **Data minimization and purpose limitation (Articles 5(1)(b) and 5(1)(c)):** AI training datasets must be limited to data adequate, relevant, and necessary for the specified purpose. Repurposing data for AI training requires a compatible purpose assessment or fresh lawful basis.
-- **Transparency and right to explanation (Articles 13(2)(f), 14(2)(g), 15(1)(h); safeguards under Article 22(3)):** Individuals must be informed when their data is used in automated processing, including meaningful information about the logic involved, provided at collection (Articles 13(2)(f) and 14(2)(g)) and on access (Article 15(1)(h)). Where a decision is based solely on automated processing and produces legal or similarly significant effects, Article 22(3) requires safeguards including the right to obtain human intervention, to express a point of view, and to contest the decision.
+- **Transparency and the safeguards around automated decisions (Articles 13(2)(f), 14(2)(g), 15(1)(h), 22):** For the automated decision-making referred to in Article 22(1) and (4), the controller provides meaningful information about the logic involved, at the point Article 13 sets for data obtained from the subject and Article 14(3) sets for data obtained indirectly, and again on access under Article 15(1)(h). Where such a decision produces legal or similarly significant effects, Article 22(2) sets the limited grounds on which it is permitted; for the Article 22(2)(a) and (c) grounds, Article 22(3) requires safeguards including the right to obtain human intervention, to express a point of view, and to contest the decision, while the Article 22(2)(b) ground carries its own safeguards in the authorizing Union or Member State law.
 
 ### EU AI act obligations (phased)
 
