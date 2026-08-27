@@ -2,8 +2,8 @@
 
 **Document Title:** Encryption and Key Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.18\
-**Date:** 2026-08-16\
+**Version:** 1.3.19\
+**Date:** 2026-08-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -171,13 +171,13 @@ Model explainability files (e.g., SHAP/LIME outputs) must be encrypted and acces
 
 Exceptions require:
 
-- Written approval from the CISO and CIO.
+- Approval through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md), with CISO co-approval (encryption exceptions are security-related) in addition to, not in place of, the risk-tier approver.
 - Documented business justification and risk assessment.
-- A temporary exception record in the Exception Register.
+- A temporary exception record in the Exception Register; duration and renewal per that policy's §4.3.
 
 ### 11.2 Sector-programme exceptions
 
-Where the organization participates in a sector programme that imposes additional encryption requirements (for example, BASC for customs-data encryption), exceptions to those programme-specific controls are not permitted unless explicitly authorized by the sector-conditional role defined by the relevant sector annex and the Enterprise Risk Committee; see [`compliance/`](../compliance/).
+Where the organization participates in a sector programme that imposes additional encryption requirements (for example, BASC for customs-data encryption), exceptions to those programme-specific controls follow the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (with CISO co-approval, as security-related exceptions) and additionally are not permitted unless explicitly authorized by the sector-conditional role defined by the relevant sector annex and the Enterprise Risk Committee. This sector overlay is deliberately stricter than the baseline trade-and-customs limb of §4.2.2 (compliance-officer co-approval with ERC notification); the stricter requirement governs. See [`compliance/`](../compliance/).
 
 ---
 
