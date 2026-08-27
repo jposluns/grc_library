@@ -93,6 +93,18 @@ def head_sha(root: Path) -> str | None:
 _TS = re.compile(r"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?Z)")
 
 
+def _parse_ts(ts):
+    """Parse a degradation-log ISO stamp (minute-only OR full-seconds) to an aware datetime;
+    None if unparseable. Used for NEWEST-selection so a same-minute mix does not lexicographically
+    mis-sort (`15:30Z` must not out-sort `15:30:45Z`)."""
+    for fmt in ("%Y-%m-%dT%H:%M:%SZ", "%Y-%m-%dT%H:%MZ"):
+        try:
+            return datetime.strptime(ts, fmt).replace(tzinfo=timezone.utc)
+        except ValueError:
+            continue
+    return None
+
+
 def session_metrics(root: Path, now: datetime | None = None):
     """Best-effort: latest session-start timestamp + elapsed, from the operational store's log.
 
@@ -109,17 +121,12 @@ def session_metrics(root: Path, now: datetime | None = None):
             m = _TS.search(line)
             if m:
                 starts.append(m.group(1))
-    start = sorted(starts)[-1] if starts else None
+    _EPOCH0 = datetime.min.replace(tzinfo=timezone.utc)
+    start = max(starts, key=lambda t: _parse_ts(t) or _EPOCH0) if starts else None
     elapsed = None
     if start:
         now = now or datetime.now(timezone.utc)
-        dt = None
-        for fmt in ("%Y-%m-%dT%H:%M:%SZ", "%Y-%m-%dT%H:%MZ"):
-            try:
-                dt = datetime.strptime(start, fmt).replace(tzinfo=timezone.utc)
-                break
-            except ValueError:
-                continue
+        dt = _parse_ts(start)
         if dt is not None:
             secs = int((now - dt).total_seconds())
             if secs >= 0:
@@ -208,14 +215,15 @@ def _self_test() -> int:
         dw.write_text(
             "| 2026-07-29T10:00:00Z | session-start | earlier full-seconds |\n"
             "- session-start 2026-07-29T12:00:00Z (prose full-seconds)\n"
-            "| 2026-07-29T15:30Z | session-start | latest, MINUTES-ONLY (the real log's dominant form) |\n"
+            "| 2026-07-29T15:30Z | session-start | minute-only |\n"
+            "| 2026-07-29T15:30:45Z | session-start | SAME-MINUTE full-seconds, the TRUE latest (lexicographic sort would wrongly pick 15:30Z) |\n"
             "| 2026-07-29T13:00:00Z | compaction | C1 |\n", encoding="utf-8")
         now = datetime(2026, 7, 29, 18, 0, 0, tzinfo=timezone.utc)
         sm = session_metrics(root, now=now)
-        if not sm or sm["start"] != "2026-07-29T15:30Z":
+        if not sm or sm["start"] != "2026-07-29T15:30:45Z":
             failures.append(f"  session_metrics.start (minutes-only latest): got {sm}")
-        elif sm["elapsed"] != "2h30m":
-            failures.append(f"  session_metrics.elapsed (minutes-only): got {sm['elapsed']!r}, want '2h30m'")
+        elif sm["elapsed"] != "2h29m":
+            failures.append(f"  session_metrics.elapsed (same-minute mixed): got {sm['elapsed']!r}, want '2h29m'")
         elif sm["compaction_rows"] != 1:
             failures.append(f"  session_metrics.compaction_rows: got {sm['compaction_rows']}")
 
