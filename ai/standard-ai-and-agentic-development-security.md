@@ -2,8 +2,8 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.23\
-**Date:** 2026-08-20\
+**Version:** 1.8.24\
+**Date:** 2026-08-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-system-card.md`](template-system-card.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md)\
@@ -97,7 +97,7 @@ Enforcement points: input validation before inference; output validation before 
 | Context persistence | Session-scoped; no cross-session memory |
 | Model output | Treated as Untrusted until validated |
 | RAG retrieval | Source attribution required |
-| AI content filtering | Strictest available setting; documented exception required to loosen |
+| AI content filtering | Strictest available setting; loosening requires a documented exception per section 8 |
 | Inference call logging | Enabled; request hash, response hash, token count, tool calls |
 | PII in prompts | Blocked; requires data handling justification |
 | AI-generated code in CI | Flagged for security review; does not auto-merge |
@@ -168,7 +168,7 @@ The threat classes above crosswalk to the OWASP Top 10 for Agentic Applications 
 
 ## 8. Prohibited engineering patterns
 
-Absolute prohibitions. No exception without written CIO/CISO approval.
+Absolute prohibitions. No exception without approval through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (with CISO co-approval for security-related exceptions).
 
 | # | Prohibited | Risk |
 | --- | --- | --- |
@@ -191,7 +191,7 @@ Absolute prohibitions. No exception without written CIO/CISO approval.
 | P-17 | Multi-agent systems where downstream agents implicitly trust upstream agent output | Agent chain compromise |
 | P-18 | Prompt templates hardcoded in application code without version control | Untracked prompt modification |
 | P-19 | AI-suggested dependency names used without registry verification | Dependency confusion / typosquatting |
-| P-20 | AI content safety filters disabled without documented exception and CIO/CISO approval | Jailbreak exposure |
+| P-20 | AI content safety filters disabled without a documented exception approved per the section 8 exception path | Jailbreak exposure |
 
 ---
 
@@ -204,7 +204,7 @@ Approved AI coding tools:
 - **Claude Code**: for development sessions with appropriate secure coding rule files deployed
 - **GitHub Copilot**: within the approved organization and tier
 
-Use of other AI coding tools, including public web interfaces, to generate code for production systems requires CIO approval.
+Use of other AI coding tools, including public web interfaces, to generate code for production systems requires a formal exception per the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) §4.2.2 risk-tier pathway.
 
 ### 9.2 Secure coding rules deployment
 
@@ -397,7 +397,7 @@ External rule repositories (TikiTribe, Kariedo, addyosmani, Wiz) referenced in [
 
 **RUNTIME-SEC-01:** All production AI systems must have AI content safety filters enabled. Hate, self-harm, sexual content, violence, jailbreak detection, and indirect attack detection must be active at the highest available sensitivity.
 
-**RUNTIME-SEC-02:** Content safety filter changes are High-risk changes requiring security team approval. Disabling or loosening filters requires CIO/CISO approval.
+**RUNTIME-SEC-02:** Content safety filter changes are High-risk changes requiring security team approval. Disabling or loosening filters requires a documented exception approved per the section 8 exception path.
 
 **RUNTIME-SEC-03:** Content safety block events must be logged to the SIEM with the request hash and block category.
 
@@ -460,7 +460,7 @@ External rule repositories (TikiTribe, Kariedo, addyosmani, Wiz) referenced in [
 
 1. **In-scope file formats**: pickle and pickle-derived (`.pkl`, `.pickle`, `cloudpickle`, `dill`, `joblib`), PyTorch (`.bin`, `.pt`, ZIP-based PyTorch archives), HDF5 (`.h5`), Keras V3, TensorFlow SavedModel (Protocol Buffer), NumPy object arrays (`.npy` with `allow_pickle=True`).
 2. **Out-of-scope (lower attack surface)**: ONNX, Safetensors, GGUF, TensorRT plan files. These restrict to ML computation without code execution at load time. Weight manipulation remains theoretically possible but is not addressed by file-content scanning.
-3. **Required detection categories** (Critical severity, deployment blocking unless explicitly accepted by CISO):
+3. **Required detection categories** (Critical severity, deployment blocking unless excepted per item 8):
    - Python builtins enabling code execution: `eval`, `exec`, `compile`, `open`, `breakpoint`, `__import__`, `getattr`, `apply`.
    - OS / process / network modules: `os`, `nt`, `posix`, `sys`, `subprocess`, `socket`, `shutil`.
    - Debug and runtime: `pdb`, `bdb`, `pty`, `asyncio`, `runpy`.
@@ -471,7 +471,7 @@ External rule repositories (TikiTribe, Kariedo, addyosmani, Wiz) referenced in [
 5. **Medium severity** (review before adoption): unknown custom operators lacking a parent-library mapping.
 6. **Adoption gate**: every model artefact entering the model registry from outside the organization (Hugging Face Hub, vendor download, supplier delivery) passes through this scan before the registry entry is approved. The scan is repeated when the artefact version changes.
 7. **Production-load gate**: production AI workloads loading model artefacts at runtime use scanner-aware loaders or run with `trust_remote_code=False` (per `P-14` in §8) and rely on the adoption-gate scan as the integrity record.
-8. **Exception path**: organizations may grant a CISO-approved exception for a model artefact that requires a Critical operator for legitimate reasons; the exception is recorded in the AI risk register with compensating controls (network isolation of the loading host, restricted-identity execution).
+8. **Exception path**: organizations may grant an exception through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (with CISO co-approval as a security-related exception) for a model artefact that requires a Critical operator for legitimate reasons; the exception is recorded in the exception register, cross-referenced from the AI risk register, with compensating controls (network isolation of the loading host, restricted-identity execution).
 
 The control is informed by the byte-level scanning patterns established by open-source tools modelscan (Apache-2.0), picklescan (MIT, the engine used by Hugging Face Hub-side scanning), and fickling (LGPL-3.0, pickle decompiler and symbolic tracer). Tool choice is at the organization's discretion; the deny-list categories above are the minimum coverage. The scanner must produce a machine-readable report retained alongside the model registry entry.
 
@@ -510,7 +510,7 @@ Every CI/CD pipeline for AI-enabled systems must include the following gates in 
 | Security block | trace_id, block_type, timestamp | SIEM |
 | Context isolation event | session_id, event_type, timestamp | Application telemetry platform |
 
-**OBS-SEC-01:** Full prompt content must not be logged. Log request hash and token count only. The one exception is an explicitly authorized purpose such as testing or security analysis, under written CIO/CISO approval per section 8: even then SECRET-SEC-01 (no secrets) and OBS-SEC-02 (PII masking) remain absolute, and access follows the authorized-operator selective-unmasking of OBS-SEC-03.
+**OBS-SEC-01:** Full prompt content must not be logged. Log request hash and token count only. The one exception is an explicitly authorized purpose such as testing or security analysis, under a documented exception per section 8: even then SECRET-SEC-01 (no secrets) and OBS-SEC-02 (PII masking) remain absolute, and access follows the authorized-operator selective-unmasking of OBS-SEC-03.
 
 **OBS-SEC-02:** PII detected in prompts or responses must be masked in all log systems before writing.
 
@@ -744,7 +744,7 @@ AI-driven penetration testing and offensive security agents (PentestGPT, PentAGI
 
 Compliance with this standard is verified through: CI/CD pipeline gate results (automated, per commit); pre-production security checklist gate (per deployment); quarterly security review of AI systems (manual); and annual red team evaluation per §23.
 
-Any AI system found non-compliant with a Critical or High requirement must be remediated within the timeframes defined in the Production Security Requirements Standard. Continued operation requires explicit CIO risk acceptance documented in the Exception Register.
+Any AI system found non-compliant with a Critical or High requirement must be remediated within the timeframes defined in the Production Security Requirements Standard. Continued operation requires an explicit risk acceptance per [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md) (approved by the acceptance authority for the residual risk level; High or Critical routes to the Executive Committee or Board Risk Committee), documented as a risk-acceptance record per that procedure and cross-referenced to any related exception register entry.
 
 This standard is reviewed and updated at minimum annually, or when any of the following occurs: a new confirmed AI threat technique affects deployed AI surface; a significant new AI capability is introduced; OWASP LLM Top 10 or NIST AI RMF is materially updated; or an AI security incident occurs.
 
@@ -766,7 +766,7 @@ The governing principle is that authority sits in the system boundary, not in th
 
 **AGENT-PROD-05:** Each action-capable agent has a single named accountable owner (a human role per the Role and Authority Register), recorded in the AI System Register. Accountability for actions the agent performs within its approved autonomous envelope remains with that owner and with the approver of the envelope; it does not transfer to the agent. The agent is never the accountable party. Where an action required human approval (§24), accountability also attaches to the approver recorded in the approval event.
 
-**AGENT-PROD-06:** The decision to grant production action authority must produce an evidence record, held within the agent's AI System Register entry and system card, sufficient for audit, assurance, and risk acceptance. The record references the permission-boundary configuration; the reversibility classification (`AGENT-PROD-02`); the recovery-test results (`AGENT-PROD-03`); the lineage design (`AGENT-PROD-04`); the named accountable owner (`AGENT-PROD-05`); the pre-production gate (§21) and red-team (§23) results; and any risk acceptance recorded in the Exception Register. Continued authority requires the record to remain current through the review cadence.
+**AGENT-PROD-06:** The decision to grant production action authority must produce an evidence record, held within the agent's AI System Register entry and system card, sufficient for audit, assurance, and risk acceptance. The record references the permission-boundary configuration; the reversibility classification (`AGENT-PROD-02`); the recovery-test results (`AGENT-PROD-03`); the lineage design (`AGENT-PROD-04`); the named accountable owner (`AGENT-PROD-05`); the pre-production gate (§21) and red-team (§23) results; and any risk-acceptance record, cross-referenced to its related exception register entry where applicable. Continued authority requires the record to remain current through the review cadence.
 
 This section governs autonomous and semi-autonomous production action. It does not raise the bar for passive AI assistance, decision support that a human acts on, or read-only agent capability; those remain governed by the controls already defined in this standard. The progression from passive assistance, to decision support, to semi-autonomous workflow execution, to autonomous production action is a progression in required controls, and production action authority is the point at which all four preconditions above become mandatory.
 
