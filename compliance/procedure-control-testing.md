@@ -2,8 +2,8 @@
 
 **Document Title:** Control Testing Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.2\
-**Date:** 2026-08-05\
+**Version:** 1.1.3\
+**Date:** 2026-08-27\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md), [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md)\
@@ -131,7 +131,7 @@ The tester records, in the evidence package, the population definition, the samp
 
 3.4 Where a control test relies solely on inquiry (interview) evidence, the tester corroborates it with at least one other evidence type (observation, inspection, or re-performance) before concluding that the control is effective. Inquiry alone does not support an Effective result for a Deficiency-or-higher-risk control.
 
-3.5 Evidence is retained for a minimum of 7 years per [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md), or longer where regulatory requirements specify. The 7-year floor aligns with Sarbanes-Oxley §103 audit-evidence retention and the records-retention standard's Corporate Governance, Financial, and Legal-and-Compliance domain default (each carrying a 7-year retention).
+3.5 Evidence is retained for a minimum of 7 years per [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md), or longer where regulatory requirements specify. The 7-year floor aligns with the records-retention standard's Corporate Governance, Financial, and Legal-and-Compliance domain default (a 7-year retention). Sarbanes-Oxley §103's seven-year duty applies to the external auditor's audit work papers and related information, not categorically to internal control-testing evidence, so it informs rather than mandates this floor.
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.27\
-**Date:** 2026-08-24\
+**Version:** 1.11.28\
+**Date:** 2026-08-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/logistics/register-basc-it-responsibilities.md`](logistics/register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](logistics/annex-aeo-united-kingdom-cybersecurity.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md)\
@@ -164,7 +164,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Security | SOP: Incident Escalation Matrix | [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md) | SEF-01, SEF-03, SEF-08 | N/A | A.5.24, A.5.26, A.5.5 | RS.MA, RS.CO | IT security incidents | Incident response | §8.4, §10 | Pillar II (ICT security) | IT security incident detection and response |
 | Security | SOP: Security Ticket Reporting Scheme | [`security/sop-security-ticket-reporting-scheme.md`](../security/sop-security-ticket-reporting-scheme.md) | SEF-09, SEF-01 | N/A | A.5.24, A.5.25 | RS.MA | IT security incidents | Incident response | §8.4, §10 | Pillar II (ICT security) | IT security incident detection and response |
 | Security | Standard: Security Operations Centre Operating Model | [`security/standard-soc-operating-model.md`](../security/standard-soc-operating-model.md) | LOG-03, SEF-01, TVM-02 | N/A | A.5.7, A.8.15, A.8.16 | DE.CM, DE.AE, RS.MA | IT security monitoring | IT security | §9.1 | Pillar II (ICT security) | IT security incidents |
-| Security | Standard: Penetration Testing and Red Team | [`security/standard-penetration-testing-and-red-team.md`](../security/standard-penetration-testing-and-red-team.md) | TVM-07, TVM-06, A&A-02 | N/A | A.8.8, A.5.36, A.5.19 | ID.RA, PR.PS | IT security controls | IT security | §8.4, §9.1 | Pillar II (ICT security) | IT security controls review and testing |
+| Security | Standard: Penetration Testing and Red Team | [`security/standard-penetration-testing-and-red-team.md`](../security/standard-penetration-testing-and-red-team.md) | TVM-07, TVM-08, A&A-02 | N/A | A.8.8, A.5.36, A.5.19 | ID.RA, PR.PS | IT security controls | IT security | §8.4, §9.1 | Pillar II (ICT security) | IT security controls review and testing |
 | Security | Standard: Threat Modelling | [`security/standard-threat-modelling.md`](../security/standard-threat-modelling.md) | TVM-04, AIS-04 | MDS-06, DSP-21 | A.8.25, A.8.27, A.8.28 | ID.RA, PR.PS | IT security controls | IT security | §8.4, §9.1 | Pillar II (ICT security) | IT security controls review and testing |
 | Security | Procedure: Security Disciplinary Process | [`security/procedure-security-disciplinary-process.md`](../security/procedure-security-disciplinary-process.md) | HRS-13, HRS-09 | N/A | A.6.4 | GV.RR, PR.AT | Personnel security | Personnel and staffing | §8.3 | N/A | Personnel security |
 | Security | Standard: Personnel Security Screening | [`security/standard-personnel-security-screening.md`](../security/standard-personnel-security-screening.md) | HRS-01, IAM-02 | N/A | A.6.1, A.5.15 | PR.AT, GV.RR | Personnel security | Personnel and staffing | §8.3 | N/A | Personnel security |
