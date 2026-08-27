@@ -2,7 +2,7 @@
 
 **Document Title:** Data Retention Schedule\
 **Document Type:** Register\
-**Version:** 1.0.33\
+**Version:** 1.0.34\
 **Date:** 2026-08-27\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Chief Information Officer\
@@ -82,7 +82,7 @@ This register defines the mandatory retention periods for each category of organ
 | Record Type | Retention Period | Legal Basis / Rationale |
 | --- | --- | --- |
 | Internal audit reports | 7 years | Organizational retention floor (compliance evidence); ISO 19011 requires audit information to be retained or disposed of according to the audit programme and applicable requirements but prescribes no fixed period; matches [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md) §8.3 (Evidence retention) canonical 7-year mandate for audit working papers, evidence, draft findings, management responses, and final reports |
-| External audit and certification records | Certification period + 5 years | Certification-body retention requirements and organizational floor; ISO/IEC 27001 mandates documented-information retention controls but prescribes no fixed period |
+| External audit and certification records | Certification period + 5 years | Organizational retention floor spanning the certification lifecycle; ISO/IEC 27001 mandates documented-information retention controls but prescribes no fixed period |
 | Regulatory correspondence | 7 years | Legal and regulatory requirements |
 | Compliance attestations | 5 years | Compliance evidence |
 | Control testing evidence | 7 years | Organizational evidentiary floor for audit and certification support; aligns with the records-retention standard's 7-year financial / legal / compliance domain default (Sarbanes-Oxley §103's seven-year duty applies to the external auditor's audit work papers and related information, not categorically to internal control-testing evidence); matches the 3.5 evidence-retention statement in [`compliance/procedure-control-testing.md`](../compliance/procedure-control-testing.md) |

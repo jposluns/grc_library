@@ -2,7 +2,7 @@
 
 **Document Title:** Identity and Access Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.20\
+**Version:** 1.3.21\
 **Date:** 2026-08-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -97,7 +97,7 @@ To ensure that all users, human, service, and machine, are uniquely identified, 
 
 4.8.1 IAM compliance is monitored through periodic audits and control assessments.
 4.8.2 Nonconformities or violations must be logged, remediated, and tracked through the Corrective and Preventive Action Procedure.
-4.8.3 Exceptions must be documented under the Exception Management Policy and approved through its risk-tier approval pathway, with CISO co-approval for security-related exceptions in addition to (not in place of) the risk-tier approver.
+4.8.3 Exceptions must be documented under the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) and approved through its risk-tier approval pathway, with CISO co-approval for security-related exceptions in addition to (not in place of) the risk-tier approver.
 
 ### 4.9 Training and awareness
 
