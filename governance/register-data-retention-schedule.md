@@ -2,7 +2,7 @@
 
 **Document Title:** Data Retention Schedule\
 **Document Type:** Register\
-**Version:** 1.0.35\
+**Version:** 1.0.36\
 **Date:** 2026-08-27\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Chief Information Officer\
@@ -125,7 +125,7 @@ This register defines the mandatory retention periods for each category of organ
 | Supplier contracts | Term + 7 years | Legal and contractual obligations |
 | Supplier security assessments | Assessment date + 5 years | Supply chain security governance |
 | Supplier audit reports | 7 years | Compliance and certification support; the [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md) Section 4.7.1 seven-year audit-records floor governs; matches the Step 4 report-retention statement in [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md) |
-| Data processing agreements | Term + 5 years | GDPR Article 28 |
+| Data processing agreements | Term + 5 years | Organization retention baseline (GDPR Article 28 requires a binding processing contract or other legal act and, at 28(3)(g), deletion or return of personal data after the provision of services, not a retention term) |
 
 ---
 
