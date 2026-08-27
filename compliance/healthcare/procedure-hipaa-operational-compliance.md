@@ -2,8 +2,8 @@
 
 **Document Title:** HIPAA Operational Compliance Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.1\
-**Date:** 2026-07-09\
+**Version:** 0.0.2\
+**Date:** 2026-08-27\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/healthcare/annex-healthcare-sector-requirements.md`](annex-healthcare-sector-requirements.md), [`compliance/healthcare/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`privacy/procedure-data-subject-rights-management.md`](../../privacy/procedure-data-subject-rights-management.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
@@ -37,7 +37,7 @@ The governing text is 45 CFR Part 164 (the HIPAA Privacy, Security, and Breach N
 
 | Role | Responsibility |
 | --- | --- |
-| **Chief Compliance Officer** | Owns this procedure and the HIPAA compliance programme; approves exceptions; receives the request-handling and breach-log reporting. |
+| **Chief Compliance Officer** | Owns this procedure and the HIPAA compliance programme; co-approves exceptions as the applicable compliance officer, in addition to the §4.2.2 risk-tier approver of the [Exception and Risk Acceptance Management Policy](../../governance/policy-exception-and-risk-acceptance-management.md); receives the request-handling and breach-log reporting. |
 | **Data Protection Officer** | Operates the individual-rights request handling (access, amendment, accounting), the Notice of Privacy Practices, and the minimum-necessary determinations; is the privacy lead for breach risk assessment. |
 | **Security Owner** | Maintains the Security Rule safeguards the annex maps, and supports breach investigation for ePHI incidents. |
 | **Business relationship owner** | Confirms a compliant business associate agreement is in place before PHI is shared with a vendor, and tracks subcontractor flow-down. |
