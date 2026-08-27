@@ -2,8 +2,8 @@
 
 **Document Title:** BASC Information Security Policy\
 **Document Type:** Policy\
-**Version:** 1.2.10\
-**Date:** 2026-08-26\
+**Version:** 1.2.11\
+**Date:** 2026-08-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-basc-programme-overview.md`](annex-basc-programme-overview.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/logistics/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md), [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -56,35 +56,35 @@ Applies to all employees, contractors, and third parties accessing the organizat
 
 ## 5. BASC information security requirements
 
-All requirements identified in Chapter 6 of the BASC International Security Standard are mapped below to the organization's control areas.
+All requirements identified in Chapter 5 of the BASC International Security Standard are mapped below to the organization's control areas.
 
 | ID | Description | Control Area |
 | --- | --- | --- |
-| 6.1.a | Manage and protect information and IT resources, including response measures for non-compliance. | Asset Management; Threat Response |
-| 6.1.b | Safeguard confidentiality, integrity, and availability of information in all forms. | Governance; Access Management; Asset Management; System Integrity; Threat Response |
-| 6.1.c | Protect IT infrastructure. | Access Management; Asset Management; System Integrity; Threat Response |
-| 6.2.a | Establish security criteria for IT systems and ensure that recovery capabilities are in place. | Threat Response |
-| 6.2.b | Communicate cybersecurity threats to relevant parties. | Threat Response |
-| 6.2.c | Identify critical stakeholders in IT infrastructure. | Access Management |
-| 6.2.d | Classify information, systems, and access levels based on criticality. | Governance |
-| 6.2.e | Use unique user credentials with periodic updates. | Access Management |
-| 6.2.f | Limit and review user permissions based on assigned roles. | Access Management |
-| 6.2.g | Revoke system access upon contract termination. | Access Management |
-| 6.2.h | Prevent unauthorized software installation. | System Integrity |
-| 6.2.i | Use licensed, updated hardware/software to protect against malware. | System Integrity |
-| 6.2.j | Maintain secure backup copies of sensitive data offsite. | Asset Management |
-| 6.2.k | Keep an updated user access record with criticality level. | Access Management |
-| 6.2.l | Lock unattended computers. | Asset Management |
-| 6.2.m | Evaluate IT infrastructure annually and address vulnerabilities. | Threat Response |
-| 6.2.n | Identify unauthorized access or policy breaches. | Threat Response |
-| 6.2.o | Review and update cybersecurity policies annually or as needed. | Governance |
-| 6.2.p | Use VPN or MFA for remote access. | Access Management |
-| 6.2.q | Prevent unauthorized remote access from personal or other devices. | System Integrity |
-| 6.2.r | Inventory IT infrastructure media and equipment; ensure that legal disposal is carried out. | Asset Management |
-| 6.2.s | Restrict unauthorized devices from connecting to IT infrastructure. | System Integrity; Access Management |
-| 6.2.t | Monitor cybersecurity policy compliance in digital content and tools. | System Integrity; Threat Response |
-| 6.2.u | Conduct cybersecurity drills to test response effectiveness. | Threat Response |
-| 6.2.v | Implement controls for admin and superuser account traceability. | Access Management |
+| 5.1.a | Manage and protect information and IT resources, including response measures for non-compliance. | Asset Management; Threat Response |
+| 5.1.b | Safeguard confidentiality, integrity, and availability of information in all forms. | Governance; Access Management; Asset Management; System Integrity; Threat Response |
+| 5.1.c | Protect IT infrastructure. | Access Management; Asset Management; System Integrity; Threat Response |
+| 5.2.a | Establish security criteria for IT systems and ensure that recovery capabilities are in place. | Threat Response |
+| 5.2.b | Communicate cybersecurity threats to relevant parties. | Threat Response |
+| 5.2.c | Identify critical stakeholders in IT infrastructure. | Access Management |
+| 5.2.d | Classify information, systems, and access levels based on criticality. | Governance |
+| 5.2.e | Use unique user credentials with periodic updates. | Access Management |
+| 5.2.f | Limit and review user permissions based on assigned roles. | Access Management |
+| 5.2.g | Revoke system access upon contract termination. | Access Management |
+| 5.2.h | Prevent unauthorized software installation. | System Integrity |
+| 5.2.i | Use licensed, updated hardware/software to protect against malware. | System Integrity |
+| 5.2.j | Maintain secure backup copies of sensitive data offsite. | Asset Management |
+| 5.2.k | Keep an updated user access record with criticality level. | Access Management |
+| 5.2.l | Lock unattended computers. | Asset Management |
+| 5.2.m | Evaluate IT infrastructure annually and address vulnerabilities. | Threat Response |
+| 5.2.n | Identify unauthorized access or policy breaches. | Threat Response |
+| 5.2.o | Review and update cybersecurity policies annually or as needed. | Governance |
+| 5.2.p | Use VPN or MFA for remote access. | Access Management |
+| 5.2.q | Prevent unauthorized remote access from personal or other devices. | System Integrity |
+| 5.2.r | Inventory IT infrastructure media and equipment; ensure that legal disposal is carried out. | Asset Management |
+| 5.2.s | Restrict unauthorized devices from connecting to IT infrastructure. | System Integrity; Access Management |
+| 5.2.t | Monitor cybersecurity policy compliance in digital content and tools. | System Integrity; Threat Response |
+| 5.2.u | Conduct cybersecurity drills to test response effectiveness. | Threat Response |
+| 5.2.v | Establish controls for system administrators and superusers to allow user ID continuity for active systems (where applicable). | Access Management |
 
 ---
 
@@ -100,7 +100,7 @@ Information assets are classified by sensitivity per the canonical [Data Classif
 
 Mandatory annual security awareness training is required for all personnel, covering the BASC Control and Security Management System (CSMS) and cybercrime prevention.
 
-*Requirement IDs: 6.1.b, 6.2.d, 6.2.o*
+*Requirement IDs: 5.1.b, 5.2.d, 5.2.o*
 
 ### 6.2 Access management
 
@@ -116,7 +116,7 @@ Access for all third parties requires a supplier evaluation approved by the CISO
 
 Access is revoked immediately upon termination or contract conclusion; the two-hour access-revocation target stated in the Access Management control is the measurable ceiling for this immediacy principle, without prejudice to the stricter one-hour involuntary-termination path in [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md) Section 4.1.4 and [`security/procedure-onboarding-and-offboarding.md`](../../security/procedure-onboarding-and-offboarding.md) Section 8.1.1, which governs organization-controlled and identity-provider-federated accounts on involuntary termination.
 
-*Requirement IDs: 6.1.b, 6.1.c, 6.2.c, 6.2.e, 6.2.f, 6.2.g, 6.2.k, 6.2.p, 6.2.s, 6.2.v*
+*Requirement IDs: 5.1.b, 5.1.c, 5.2.c, 5.2.e, 5.2.f, 5.2.g, 5.2.k, 5.2.p, 5.2.s, 5.2.v*
 
 ### 6.3 Asset and media management
 
@@ -130,7 +130,7 @@ Antivirus and firewall protection are active and monitored.
 
 Physical and virtual backups are maintained securely offsite and restore-tested at least at the criticality-tiered baseline in [`resilience/procedure-backup-and-recovery.md`](../../resilience/procedure-backup-and-recovery.md) Section 4.
 
-*Requirement IDs: 6.1.a, 6.1.b, 6.1.c, 6.2.j, 6.2.l, 6.2.r*
+*Requirement IDs: 5.1.a, 5.1.b, 5.1.c, 5.2.j, 5.2.l, 5.2.r*
 
 ### 6.4 System integrity
 
@@ -142,7 +142,7 @@ Compliance with this policy for all sanctioned applications and platforms is act
 
 Personal device connections to internal systems are restricted unless explicitly authorized through the endpoint management platform.
 
-*Requirement IDs: 6.1.b, 6.1.c, 6.2.h, 6.2.i, 6.2.q, 6.2.s, 6.2.t*
+*Requirement IDs: 5.1.b, 5.1.c, 5.2.h, 5.2.i, 5.2.q, 5.2.s, 5.2.t*
 
 ### 6.5 Threat response
 
@@ -156,7 +156,7 @@ Where required, post-incident evaluations are conducted to identify root causes 
 
 Compliance is monitored through logs, reports, and audits.
 
-*Requirement IDs: 6.1.a, 6.1.b, 6.1.c, 6.2.a, 6.2.b, 6.2.m, 6.2.n, 6.2.t, 6.2.u*
+*Requirement IDs: 5.1.a, 5.1.b, 5.1.c, 5.2.a, 5.2.b, 5.2.m, 5.2.n, 5.2.t, 5.2.u*
 
 ---
 
@@ -199,7 +199,7 @@ All exceptions are logged and assigned an expiry or review date. Owners are resp
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| BASC International Standard v6 (2022) | Chapter 6: IT and Information Security | Primary source of control requirements |
+| BASC International Standard v6 (2022) | Chapter 5: IT and Information Security | Primary source of control requirements |
 | ISO/IEC 27001:2022 | A.5 to A.8: Security controls | Information security management alignment |
 | NIST SP 800-53 r5 | AC, IA, SI, IR: Access, identity, integrity, incident | Control family mapping |
 | CSA CCM v4.1 | IAM, HRS, TVM, LOG | Cloud control alignment |
