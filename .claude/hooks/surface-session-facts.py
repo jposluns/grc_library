@@ -133,9 +133,9 @@ def main():
 
 
 def _self_test():
-    # Reality fixture (guard-input discipline): the degradation log\'s dominant form is
+    # Reality fixture (guard-input discipline): the degradation log's dominant form is
     # MINUTE-ONLY; the pre-fix regex/_parse silently missed it. Assert both forms parse and
-    # that the minute-only start is selected as newest, mirroring handoff-snapshot.py\'s fixture.
+    # that the minute-only start is selected as newest, mirroring handoff-snapshot.py's fixture.
     assert _parse("2026-08-27T15:30Z").minute == 30          # minute-only parses
     assert _parse("2026-07-29T12:00:00Z").second == 0        # full-seconds still parses
     fixture = (
