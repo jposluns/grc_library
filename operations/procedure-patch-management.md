@@ -2,8 +2,8 @@
 
 **Document Title:** Patch Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.10\
-**Date:** 2026-08-16\
+**Version:** 1.0.11\
+**Date:** 2026-08-27\
 **Owner:** IT Operations Lead\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md), [`security/policy-information-security.md`](../security/policy-information-security.md)\
@@ -37,7 +37,7 @@ Effective patch management reduces the window of exposure between public vulnera
 | Role | Responsibility |
 | --- | --- |
 | **IT Operations Lead** | Owns the patch management programme; operates the patching infrastructure; produces compliance reports. |
-| **Chief Information Security Officer (CISO)** | Sets patch SLAs; approves exceptions and emergency patches; receives monthly compliance reporting. |
+| **Chief Information Security Officer (CISO)** | Sets patch SLAs; co-approves security-related exceptions per the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md); approves emergency patches; receives monthly compliance reporting. |
 | **Change Advisory Board (CAB)** | Authorizes Standard patch deployments; receives post-notification for Emergency patches. |
 | **System Owners** | Accountable for ensuring patches are applied to their assets within defined SLAs; raise deferrals where operationally required. |
 | **Development Teams** | Responsible for patching application dependencies and open-source libraries; integrate SCA tooling into CI/CD pipelines. |
@@ -114,18 +114,19 @@ Where an operational dependency prevents patching within the required SLA, for e
 
 | Requirement | Detail |
 | --- | --- |
-| **Approval authority** | CISO approval required for all exceptions. CIO co-approval required for Critical and Emergency exceptions. |
+| **Approval authority** | Approval through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md), with CISO co-approval for all (security-related) exceptions in addition to, not in place of, the risk-tier approver. |
+| **Risk rating** | A deferral of an Emergency-severity item (an actively exploited vulnerability) is assigned at least a High risk rating, so the risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (§4.2.2) routes its approval to the Executive Committee or Board Risk Committee. This is a risk-rating floor for actively-exploited items, not a per-document approver override, and it is at least as strong as any prior fixed sign-off. |
 | **Documentation** | Business justification; risk assessment; compensating controls implemented; target remediation date. |
 | **Maximum deferral** | Per the exception maximums in [`procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md) section 6 (the single source of truth): 30 days for Critical and High; 90 days for Medium; 180 days for Low. |
 | **Compensating controls** | Required for all Critical and High deferrals. Examples: network isolation, WAF rule, egress restriction, enhanced monitoring. |
 | **Register** | All exceptions logged in the Exception Register with status and review dates tracked. |
-| **Review** | Open exceptions reviewed monthly by IT Operations and the CISO. Extended deferrals beyond maximum duration require CIO escalation. |
+| **Review** | Open exceptions reviewed monthly by IT Operations and the CISO. A deferral extended beyond its class maximum is a renewal under §4.3.5 of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (original approving authority, then ERC, then Board Risk Committee) and must stay within the §4.3.4 cumulative ceiling. |
 
 ---
 
 ## 5. End-of-life system management
 
-End-of-life (EOL) systems no longer receive security patches from vendors. No EOL system is permitted in production without a CIO-approved exception, consistent with the Production Security Requirements Standard.
+End-of-life (EOL) systems no longer receive security patches from vendors. No EOL system is permitted in production without an exception approved through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (with CISO co-approval as a security-related exception), consistent with the Production Security Requirements Standard.
 
 Upon a system reaching EOL status:
 
