@@ -2,8 +2,8 @@
 
 **Document Title:** Security Baseline and Standards Reference\
 **Document Type:** Standard\
-**Version:** 1.1.20\
-**Date:** 2026-08-15\
+**Version:** 1.1.21\
+**Date:** 2026-08-27\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md)\
@@ -65,7 +65,7 @@ Current architectural authority documents define infrastructure delivery standar
 
 ## 3. Core security principles
 
-Deviations require a formal exception approved by the CIO or CISO.
+Deviations require a formal exception through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md), with CISO co-approval for security-related exceptions in addition to, not in place of, the risk-tier approver.
 
 | Principle | Statement |
 | --- | --- |
@@ -75,7 +75,7 @@ Deviations require a formal exception approved by the CIO or CISO.
 | **Default Deny** | All access, network flows, and service-to-service communication is denied by default. Only explicitly approved flows are permitted. |
 | **Separation of Environments** | Production, Test, and Dev are distinct environments with dedicated identity domains, network segments, and access controls. No shared credentials or paths between them. |
 | **Immutable and Auditable** | All significant actions generate audit records that cannot be deleted by the actor. Logs are forwarded to the SIEM immediately. Backup repositories use immutable (WORM) storage. |
-| **Data Residency First** | All data is hosted in primary cloud regions by default. Non-default hosting requires a risk assessment, CIO/Legal approval, and privacy impact assessment where personal data is involved. |
+| **Data Residency First** | All data is hosted in primary cloud regions by default. Non-default hosting requires a risk assessment, an exception through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) with Legal sign-off, and privacy impact assessment where personal data is involved. |
 | **Encryption Everywhere** | Data at rest, in transit, and in use is encrypted. TLS 1.3 (or stronger). RC4, 3DES, SSL, TLS 1.0/1.1/1.2 prohibited. AES-256 for symmetric encryption. NTLMv1 prohibited. |
 | **Supply Chain Integrity** | All third-party code, libraries, models, and services are evaluated before use. Software Bill of Materials (SBOM) maintained for all applications. |
 | **Privacy by Design** | Personal data processing is minimized and purposeful. Privacy Impact Assessments (PIAs) completed before any new system processing personal data is deployed. |
@@ -120,7 +120,7 @@ Canada has no in-force federal AI statute. AIDA (proposed as Part 3 of Bill C-27
 
 **Default:** Primary cloud region designated by the organization.
 
-**Non-default hosting process:** Initiate data residency risk assessment; Legal and Compliance review; PIA where personal data is involved; written CIO approval with Legal sign-off; recorded in Exception Register; reviewed annually.
+**Non-default hosting process:** Initiate data residency risk assessment; Legal and Compliance review; PIA where personal data is involved; approval through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) with Legal sign-off; recorded in Exception Register; reviewed annually.
 
 **Multi-cloud:** Multiple cloud platforms may be approved for specific workloads. All multi-cloud workloads must comply with this security baseline and be included in SIEM monitoring.
 
@@ -138,7 +138,7 @@ An enterprise identity provider (IdP) serves as the authoritative identity autho
 
 ### 7.2 Authentication standards
 
-Multi-factor authentication (MFA) is mandatory for all human access; exceptions exist only via the CISO-approved path in [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md) Section 8 (documented compensating control, remediation target date). Phishing-resistant MFA (e.g., FIDO2 or certificate-based) is required for Tier 0 access. Service accounts use platform managed identities or PAM-vaulted accounts. LDAPS (port 636) is the only permitted directory integration protocol. Kerberos AES-256 is required; RC4 Kerberos is prohibited in all new builds.
+Multi-factor authentication (MFA) is mandatory for all human access; exceptions exist only via the exception path in [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md) Section 8 (documented compensating control, remediation target date). Phishing-resistant MFA (e.g., FIDO2 or certificate-based) is required for Tier 0 access. Service accounts use platform managed identities or PAM-vaulted accounts. LDAPS (port 636) is the only permitted directory integration protocol. Kerberos AES-256 is required; RC4 Kerberos is prohibited in all new builds.
 
 ### 7.3 Privileged access management
 
@@ -207,13 +207,13 @@ Running application frameworks, language runtimes, or middleware that have reach
 
 | Class | Definition | Remediation SLA | Interim Controls |
 | --- | --- | --- | --- |
-| **Class 1: Critical** | Runtime EOL for more than 12 months AND a CVE rated CVSS 7.0 or above published against it since EOL | 30 days. No extension without CIO approval and documented compensating controls. | Network isolation where feasible; enhanced monitoring; no new features on the affected service. |
+| **Class 1: Critical** | Runtime EOL for more than 12 months AND a CVE rated CVSS 7.0 or above published against it since EOL | 30 days. No extension without an exception approved through the formal exception process in [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (the Section 4.2.2 risk-tier approver, with CISO co-approval for security-related exceptions) and documented compensating controls. | Network isolation where feasible; enhanced monitoring; no new features on the affected service. |
 | **Class 2: High** | Runtime EOL date has passed with no qualifying CVE yet, OR runtime reaches EOL within 90 days | 90 days for already-EOL. Upgrade initiated before EOL date for imminent EOL. | Upgrade plan documented and tracked. Interim monitoring in place. |
 | **Class 3: Medium** | Runtime reaches EOL within 180 days | Upgrade plan must exist before the 90-day threshold is reached. | Planning and procurement only. |
 
 ### 11.2 EOL tracking and enforcement
 
-A runtime EOL tracking register is maintained by the DevOps lead and reviewed quarterly. SIEM alerts fire at 180 days, 90 days, and 30 days before any runtime reaches EOL. Cloud governance policy should block deployment to EOL runtime versions at the subscription or organizational level. Policy exceptions require a documented waiver with a maximum 30-day duration and CIO approval.
+A runtime EOL tracking register is maintained by the DevOps lead and reviewed quarterly. SIEM alerts fire at 180 days, 90 days, and 30 days before any runtime reaches EOL. Cloud governance policy should block deployment to EOL runtime versions at the subscription or organizational level. Policy exceptions require a documented waiver with a maximum 30-day duration, approved through the formal exception process in [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (the Section 4.2.2 risk-tier approver, with CISO co-approval for security-related exceptions). An exception permitting an EOL runtime, operating system, middleware, or database in production, or an exception permitting any Class 1 EOL runtime (one with a published CVE rated CVSS 7.0 or above) in any environment, is rated at least High risk (running unsupported software, especially with an active high-severity vulnerability, is a high-severity exposure), so the Section 4.2.2 risk-tier pathway routes its approval to the Executive Committee or Board Risk Committee. This is a risk-rating floor for end-of-life exceptions, not a per-document approver override.
 
 ---
 

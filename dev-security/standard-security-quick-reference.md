@@ -2,8 +2,8 @@
 
 **Document Title:** Security Quick Reference\
 **Document Type:** Standard\
-**Version:** 1.1.13\
-**Date:** 2026-08-14\
+**Version:** 1.1.14\
+**Date:** 2026-08-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md)\
@@ -26,7 +26,7 @@ If you are unsure whether something is allowed, check this guide first. If the a
 
 ## 2. NEVER do these things
 
-Absolute prohibitions. No exception exists without written CIO or CISO approval, and most have no exception path at all.
+Absolute prohibitions. No exception exists without approval through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (with CISO co-approval for security-related exceptions), and most have no exception path at all.
 
 | # | Prohibition | Why |
 | --- | --- | --- |
@@ -39,7 +39,7 @@ Absolute prohibitions. No exception exists without written CIO or CISO approval,
 | 7 | Use SAMAccountName-only authentication in new code | LDAPS and UPN/SSO are the required patterns. |
 | 8 | Use MD5, SHA-1, RC4, 3DES, SSL, or TLS 1.0/1.1/1.2 | All deprecated. AES-256, SHA-256+, TLS 1.3 only. |
 | 9 | Send personal or Confidential data to an external AI service without a data processing agreement and CIO approval | Violates privacy law and organizational policy. |
-| 10 | Bypass a pipeline security gate | Gates exist for a reason. Disable nothing without security team approval. |
+| 10 | Bypass a pipeline security gate | Gates exist for a reason. Disable nothing without approval per the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) §4.2.2 pathway (CISO co-approval). |
 | 11 | Reimage or modify a system you suspect is compromised | Preserve evidence. Alert the security team first. |
 | 12 | Use `:latest` as a container image tag in Test or Production | Digest-pinned or explicit version tags only. |
 | 13 | Create a shadow IT system or unapproved cloud resource | All resources must be under organizational governance and in approved cloud environments. |
@@ -56,7 +56,7 @@ Absolute prohibitions. No exception exists without written CIO or CISO approval,
 | 24 | Modify a production workflow that is a critical financial or operational gate without CIO approval and a formal risk assessment | Any latency or logic change to a financial approval or operational gate carries direct financial exposure. |
 | 25 | Use wildcard CORS origins (`origins: "*"`) in any production API, web app, or automation platform HTTP trigger | Wildcard CORS allows any origin to make credentialed requests. Use an explicit allow-list only. |
 | 26 | Download or save corporate data to local device storage or personal cloud storage | Violates acceptable use policy and remote working security standard. Corporate data must stay in company-managed storage. |
-| 27 | Connect unapproved USB drives or external storage to company devices | Exceptions require CISO approval. |
+| 27 | Connect unapproved USB drives or external storage to company devices | Exceptions require approval per the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) §4.2.2 pathway (CISO co-approval). |
 | 28 | Promote to production without an approved change record | Every production change requires a documented, approved change request. Emergency changes require retrospective CAB review within 24 hours. |
 | 29 | Allow a critical or high vulnerability to remain unpatched beyond its SLA | Unpatched critical vulnerabilities are an active security risk. Patch SLAs are mandatory, not targets. |
 
@@ -88,8 +88,8 @@ OAuth 2.0 client credentials flow validated by IdP token validation policy at th
 | Public | Not required (good practice) | HTTPS for web | Anyone | Yes |
 | Controlled | Not required (good practice) | TLS 1.3 for any external sharing | Employees, contractors, and external recipients under appropriate context | Yes |
 | Internal | Required for databases, backups, and portable devices | TLS 1.3 required | Employees and approved contractors | Yes, with appropriate controls |
-| Confidential | Required. AES-256 minimum. | TLS 1.3 mandatory | Authorized personnel on a need-to-know basis | Requires data residency risk assessment and CIO/Legal approval |
-| Restricted | Required. AES-256. Key in secrets vault. | TLS 1.3 mandatory | Named individuals only. PAM-controlled access where applicable. | Prohibited except with explicit Legal sign-off and documented justification |
+| Confidential | Required. AES-256 minimum. | TLS 1.3 mandatory | Authorized personnel on a need-to-know basis | Requires the non-default hosting exception process in the [Security Baseline Standard](standard-security-baseline-and-standards-reference.md) (risk assessment, §4.2.2 pathway, Legal sign-off) |
+| Restricted | Required. AES-256. Key in secrets vault. | TLS 1.3 mandatory | Named individuals only. PAM-controlled access where applicable. | Prohibited except via the non-default hosting exception process in the [Security Baseline Standard](standard-security-baseline-and-standards-reference.md) (risk assessment, §4.2.2 pathway, Legal sign-off) with documented justification |
 
 If you are unsure what classification applies, classify one level higher until clarified.
 
@@ -298,7 +298,7 @@ Personal data breach? The DPO must be notified immediately. Quebec Law 25 requir
 | Data retention requirements | Data Retention Schedule Register |
 | Privacy programme | Privacy and Data Governance Policy |
 | Cloud exit and portability | Cloud Exit and Data Portability Standard |
-| Exception request | CIO or CISO: document in Exception Register |
+| Exception request | Per [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) §4.2.2 risk-tier pathway (CISO co-approval for security-related): document in Exception Register |
 | Privacy Impact Assessment | Data Protection Officer / Legal |
 
 ---
