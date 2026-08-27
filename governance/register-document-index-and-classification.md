@@ -2,8 +2,8 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.122\
-**Date:** 2026-08-23\
+**Version:** 1.27.123\
+**Date:** 2026-08-27\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md)\
@@ -86,10 +86,10 @@ Documents are classified by their **primary** disposition. The small number that
 | Compliance | Policy | Compliance and Audit Management Policy | [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md) | Chief Compliance Officer | Annual | Compliance, audit, control testing, corrective action | template |
 | Compliance | Policy | Legal and Regulatory Compliance Policy | [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md) | Chief Compliance Officer | Annual | ISO 37301, COBIT MEA03, GDPR, NIS 2, EU AI Act, BASC v6, WCO SAFE | template |
 | Compliance | Annex | BASC Programme Overview Annex | [`compliance/logistics/annex-basc-programme-overview.md`](../compliance/logistics/annex-basc-programme-overview.md) | Chief Information Security Officer | Annual | BASC programme overview, applicability, library relationship | template |
-| Compliance | Policy | BASC Information Security Policy | [`compliance/logistics/policy-basc-information-security.md`](../compliance/logistics/policy-basc-information-security.md) | Chief Information Security Officer | Annual | BASC v6 Chapter 6, IT security controls, access management, threat response | template |
+| Compliance | Policy | BASC Information Security Policy | [`compliance/logistics/policy-basc-information-security.md`](../compliance/logistics/policy-basc-information-security.md) | Chief Information Security Officer | Annual | BASC v6 Chapter 5, IT security controls, access management, threat response | template |
 | Compliance | Register | Global Regulatory Applicability Register | [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md) | Compliance Maintainer | 6 to 12 months | Privacy, cybersecurity, AI, resilience, supplier, trade, and sector regimes | template |
 | Compliance | Register | BASC IT and Information Security Responsibilities | [`compliance/logistics/register-basc-it-responsibilities.md`](../compliance/logistics/register-basc-it-responsibilities.md) | Chief Information Security Officer | Annual | BASC v6 §5.1 to §10, IT security obligations, supply-chain trusted-trader | template |
-| Compliance | Register | BASC IT Compliance Monitoring and KPIs | [`compliance/logistics/register-basc-it-compliance-kpis.md`](../compliance/logistics/register-basc-it-compliance-kpis.md) | Chief Information Security Officer | Annual | BASC v6 §9.1, KPI monitoring, continuous improvement | template |
+| Compliance | Register | BASC IT Compliance Monitoring and KPIs | [`compliance/logistics/register-basc-it-compliance-kpis.md`](../compliance/logistics/register-basc-it-compliance-kpis.md) | Chief Information Security Officer | Annual | BASC v6 §8.1, KPI monitoring, continuous improvement | template |
 | Compliance | Annex | UK AEO-S IT and Cybersecurity Requirements | [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md) | Chief Information Security Officer | Annual | HMRC AEO-S, WCO SAFE, ISO/IEC 27001, trusted-trader IT controls | template |
 | Compliance | Matrix | GRC Library Compliance Alignment Matrix | [`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md) | Chief Information Security Officer | Annual | CSA CCM v4.1, ISO/IEC 27001, NIST CSF, CTPAT, PIP, BASC v6, WCO SAFE, AEO/AEO-S | template |
 | Compliance | Standard | Internal Audit Standard | [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md) | Chief Audit Executive | Annual | ISO 19011:2026, ISO/IEC 27001 §9.2, audit principles, independence, CAPA | template |

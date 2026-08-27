@@ -2,7 +2,7 @@
 
 **Document Title:** Data Retention Schedule\
 **Document Type:** Register\
-**Version:** 1.0.34\
+**Version:** 1.0.35\
 **Date:** 2026-08-27\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Chief Information Officer\
@@ -115,7 +115,7 @@ This register defines the mandatory retention periods for each category of organ
 | Customs declarations and entries | 7 years | Organization retention baseline for customs records. Confirm the applicable jurisdiction's customs record-keeping minimum at source and apply the longer period. |
 | BASC audit records and certifications | Certification period + 7 years | BASC International Standard v6 |
 | Cargo manifest and chain of custody | 7 years | Organization retention baseline for trade records; confirm the applicable jurisdiction's customs record-keeping minimum at source (no generic CTPAT, NEEC, or WCO-AEO retention term is held; the held WCO-AEO 7-year statement is Myanmar-specific, for financial and operational documents) |
-| Personnel security screening (trade) | 7 years after employment, contract, or engagement ends, or 5 years from the screening outcome, whichever is longer | BASC v6 Chapter 6; the base HR 7-year-after-separation floor governs where longer, per the records-retention standard sector-overlay rule |
+| Personnel security screening (trade) | 7 years after employment, contract, or engagement ends, or 5 years from the screening outcome, whichever is longer | BASC v6 Chapter 3; the base HR 7-year-after-separation floor governs where longer, per the records-retention standard sector-overlay rule |
 | Cryptographic key audit records (trade) | 7 years | Organization retention baseline, aligned with the cryptographic-audit-record floor in the key lifecycle framework. |
 
 ### 9. Supplier and third-party records
