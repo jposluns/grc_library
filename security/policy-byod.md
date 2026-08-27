@@ -2,8 +2,8 @@
 
 **Document Title:** Bring Your Own Device (BYOD) Policy\
 **Document Type:** Policy\
-**Version:** 1.1.3\
-**Date:** 2026-07-02\
+**Version:** 1.1.4\
+**Date:** 2026-08-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-remote-working-security.md`](standard-remote-working-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md)\
@@ -47,7 +47,7 @@ An organization choosing MDM must obtain and record the device owner's explicit 
 
 | Role | Responsibility |
 | --- | --- |
-| **Chief Information Security Officer (CISO)** | Owns this policy; approves exceptions for Confidential data access from personal devices; oversees the configured BYOD model or models, including MAM application-protection policies and, where MDM is used, device-management policies and enrolment-consent records. |
+| **Chief Information Security Officer (CISO)** | Owns this policy; co-approves security-related exceptions per the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md), including exceptions permitting Confidential data access from personal devices; oversees the configured BYOD model or models, including MAM application-protection policies and, where MDM is used, device-management policies and enrolment-consent records. |
 | **IT Operations** | Configures and maintains the controls for the deployed model or models, MAM application-protection policies and, under MDM, device-level policies and enrolment; monitors enrolment records; initiates the model-appropriate wipe (corporate-container selective wipe under MAM, or full-device wipe under MDM where the device is enrolled) on notification of device loss or departure. |
 | **Employees / Contractors** | Comply with all requirements in this policy when using personal devices for work purposes; report loss, theft, or suspected compromise immediately. |
 
@@ -88,7 +88,7 @@ These boundaries are properties of the MAM model. Under the MDM model the organi
 
 ## 7. Data classification restriction
 
-Personal devices may only be used to access Internal and lower data classifications (Public, Controlled, and Internal per the [Data Classification and Handling Standard](standard-data-classification-and-handling.md)). Access to data classified as Confidential or Restricted from a personal device is not permitted. Personnel with regular access requirements for Confidential data must use a company-managed device. Where a specific business need requires Confidential access from a personal device, written CISO approval is required and a compensating control plan must be documented.
+Personal devices may only be used to access Internal and lower data classifications (Public, Controlled, and Internal per the [Data Classification and Handling Standard](standard-data-classification-and-handling.md)). Access to data classified as Confidential or Restricted from a personal device is not permitted. Personnel with regular access requirements for Confidential data must use a company-managed device. Where a specific business need requires Confidential access from a personal device, an exception approved through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (with CISO co-approval as a security-related exception) is required and a compensating control plan must be documented.
 
 ---
 
@@ -122,7 +122,7 @@ Violations of this policy, including attempts to circumvent MAM or MDM controls,
 
 ## 12. Exceptions
 
-Exceptions to this policy require CISO approval, documented business justification, a compensating control plan, and a defined expiry date not exceeding 90 days. Exception records are retained for 7 years.
+Exceptions to this policy are approved through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md), with CISO co-approval for security-related exceptions in addition to, not in place of, the risk-tier approver, with documented business justification, a compensating control plan, and a defined expiry date not exceeding 90 days; renewals follow that policy's §4.3.5 (original approving authority, then ERC, then Board Risk Committee) within the §4.3.4 cumulative ceiling. Exception records are retained for 7 years.
 
 ---
 

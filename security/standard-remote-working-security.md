@@ -2,8 +2,8 @@
 
 **Document Title:** Remote Working Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.16\
-**Date:** 2026-08-26\
+**Version:** 1.0.17\
+**Date:** 2026-08-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md)\
@@ -40,9 +40,9 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 | Role | Responsibility |
 | --- | --- |
-| Chief Information Security Officer (CISO) | Owns this standard. Approves exceptions to remote working security requirements, including high-risk data access from non-standard devices or networks. Reviews compliance reports quarterly. |
+| Chief Information Security Officer (CISO) | Owns this standard. Co-approves security-related exceptions per the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md), including exceptions for high-risk data access from non-standard devices or networks. Reviews compliance reports quarterly. |
 | IT Operations | Maintains and enforces conditional access policies, VPN and secure access tooling, and the endpoint management platform configuration. Monitors device compliance and reports deviations to the CISO. |
-| Line Managers | Ensure that direct reports are aware of and comply with this standard prior to commencing remote work. Approve requests for exceptions in the first instance before escalation to the CISO. |
+| Line Managers | Ensure that direct reports are aware of and comply with this standard prior to commencing remote work. Endorse requests for exceptions in the first instance before submission through the exception pathway in Section 10. |
 | All Employees and Contractors | Comply with all requirements in this standard. Report suspected incidents, device loss, or suspected compromise immediately to the IT service desk. |
 
 ---
@@ -151,7 +151,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 | **Public** | Yes, on any compliant managed device | Company-managed storage | No |
 | **Controlled** | Yes, on any compliant managed device | Company-managed storage | No |
 | **Internal** | Yes, on any compliant managed device | Company-managed storage | No (cloud); Yes (on-premises) |
-| **Confidential** | Yes, on compliant managed device; personal devices require CISO approval | Company-managed encrypted storage; personal cloud storage prohibited | Yes, always (VPN required for all Confidential-data access regardless of network type, per Section 5.2.2) |
+| **Confidential** | Yes, on compliant managed device; personal devices require an approved exception per the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) | Company-managed encrypted storage; personal cloud storage prohibited | Yes, always (VPN required for all Confidential-data access regardless of network type, per Section 5.2.2) |
 | **Restricted** | Managed device only; CISO approval required for remote access | Company-managed encrypted storage; no personal storage of any kind | Yes, always |
 
 The VPN Required column states requirements by data classification; Section 5.1 additionally requires VPN on untrusted networks (for example public Wi-Fi and most client-site networks) regardless of the data classification. The Remote Access Permitted column describes managed-device access; personal (BYOD) devices may also access Public, Controlled, and Internal data through browser interfaces under the conditional-access path set out in Section 8 (which also governs the personal-device conditions for Confidential and Restricted data).
@@ -170,14 +170,14 @@ The VPN Required column states requirements by data classification; Section 5.1 
 
 8.1 The formal BYOD policy ([`policy-byod.md`](policy-byod.md)) supplements this standard. The following requirements apply to any use of personal devices to access organizational systems:
 
-8.2 Personal devices may be used to access Public, Controlled, and Internal data only, as set out in Section 8.4. Access to Confidential data from a personal device is not permitted by default; where a specific business need requires it, explicit written approval from the CISO and a documented compensating control are required. Access to Restricted data from a personal device is not permitted; Restricted data requires a company-managed device. This aligns with the data-classification restriction in the BYOD policy ([`policy-byod.md`](policy-byod.md), Section 7).
+8.2 Personal devices may be used to access Public, Controlled, and Internal data only, as set out in Section 8.4. Access to Confidential data from a personal device is not permitted by default; where a specific business need requires it, an exception approved through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (with CISO co-approval as a security-related exception) and a documented compensating control are required. Access to Restricted data from a personal device is not permitted; Restricted data requires a company-managed device. This aligns with the data-classification restriction in the BYOD policy ([`policy-byod.md`](policy-byod.md), Section 7).
 
-8.3 Where the CISO approves personal device access to Confidential data under Section 8.2, the minimum compensating controls are:
+8.3 Where an exception permitting personal device access to Confidential data is approved through the Section 10 exception process, the minimum compensating controls are:
 
 - Enrolment in the endpoint management platform (where technically feasible) or equivalent mobile device management
 - Conditional access policy enforcement applied to the personal device
-- Prohibition on local data storage: access must be read-only or via browser-based thin client; any deviation requires CISO approval recorded as an exception in the risk register
-- The CISO approval must be documented, time-limited (maximum 90 days per the exception process in Section 10), and reviewed on renewal
+- Prohibition on local data storage: access must be read-only or via browser-based thin client; any deviation requires its own exception through the Section 10 process, recorded in the exception register
+- The exception approval must be documented, time-limited (maximum 90 days per the exception process in Section 10), and reviewed on renewal
 
 8.4 Personal devices may access Public, Controlled, and Internal data via cloud productivity platform browser interfaces subject to conditional access policy enforcement, without CISO approval, provided no data is downloaded to the personal device.
 
@@ -214,7 +214,7 @@ The VPN Required column states requirements by data classification; Section 5.1 
 
 ## 10. Exceptions
 
-10.1 Exceptions to any requirement in this standard must be approved in writing by the CISO before the exception is applied.
+10.1 Exceptions to any requirement in this standard must be approved through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md), with CISO co-approval (exceptions to this standard are security-related) in addition to, not in place of, the risk-tier approver, before the exception is applied.
 
 10.2 Exception requests must include:
 
@@ -223,7 +223,7 @@ The VPN Required column states requirements by data classification; Section 5.1 
 - A documented compensating control that mitigates the associated risk
 - A proposed end date
 
-10.3 Exceptions are granted for a maximum of 90 calendar days. Renewal requires a fresh application and re-approval.
+10.3 Exceptions are granted for a maximum of 90 calendar days. Renewal requires a fresh application and re-approval under §4.3.5 of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md): first renewal by the original approving authority, second by the ERC, third and final by the Board Risk Committee, within the §4.3.4 cumulative ceiling.
 
 10.4 All approved exceptions are recorded in the policy exception register maintained under the Exception and Risk Acceptance Management Policy.
 

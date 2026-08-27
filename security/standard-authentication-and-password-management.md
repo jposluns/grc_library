@@ -2,8 +2,8 @@
 
 **Document Title:** Authentication and Password Management Standard\
 **Document Type:** Standard\
-**Version:** 1.1.9\
-**Date:** 2026-08-26\
+**Version:** 1.1.10\
+**Date:** 2026-08-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md)\
@@ -36,7 +36,7 @@ To establish consistent, risk-proportionate authentication controls that reduce 
 
 | Role | Responsibility |
 | --- | --- |
-| CISO | Owns this standard; approves exceptions to MFA requirements. |
+| CISO | Owns this standard; co-approves security-related exceptions (including MFA exceptions) per the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md). |
 | IT Operations / IAM Team | Enforces authentication controls via Conditional Access, enterprise identity provider, and endpoint management platform; manages MFA configuration. |
 | System / Application Owners | Ensure that their systems enforce password and authentication policies; report deviations to IT Operations. |
 
@@ -57,7 +57,7 @@ To establish consistent, risk-proportionate authentication controls that reduce 
 
 ## 5. Multi-factor authentication (MFA)
 
-MFA is required for all user (interactive) accounts and for all remote access. Non-interactive service accounts (authenticating via a managed identity or equivalent, not interactive MFA) are exempt where the exemption is documented and approved. Any other exception may be granted only under Section 8 (CISO approval, a documented compensating control, and a remediation target date) and is documented case-by-case; absent an approved exception, there are no circumstances under which a user account may access company resources without MFA enrolled. MFA for privileged accounts must be phishing-resistant.
+MFA is required for all user (interactive) accounts and for all remote access. Non-interactive service accounts (authenticating via a managed identity or equivalent, not interactive MFA) are exempt where the exemption is documented and approved. Any other exception may be granted only under Section 8 (approval through the Section 8 exception path, a documented compensating control, and a remediation target date) and is documented case-by-case; absent an approved exception, there are no circumstances under which a user account may access company resources without MFA enrolled. MFA for privileged accounts must be phishing-resistant.
 
 **MFA method hierarchy (in order of preference):**
 1. FIDO2 hardware security key
@@ -88,7 +88,7 @@ Password-based service account authentication is only permitted where no alterna
 
 ## 8. Exceptions
 
-Exceptions to any requirement in this standard require CISO approval and must be documented with a compensating control and a remediation target date. Exception duration, renewal, and escalation are governed by the [Policy Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (Section 4.3); this standard sets no separate exception term.
+Exceptions to any requirement in this standard are approved through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md), with CISO co-approval (exceptions to this standard are security-related) in addition to, not in place of, the risk-tier approver, and must be documented with a compensating control and a remediation target date. Exception duration, renewal, and escalation are governed by the [Policy Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (Section 4.3); this standard sets no separate exception term.
 
 ---
 
