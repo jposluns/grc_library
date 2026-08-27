@@ -2,8 +2,8 @@
 
 **Document Title:** API Security Standard\
 **Document Type:** Standard\
-**Version:** 0.0.11\
-**Date:** 2026-07-17\
+**Version:** 0.0.12\
+**Date:** 2026-08-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-software-composition-analysis.md`](standard-software-composition-analysis.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/standard-data-loss-prevention.md`](../security/standard-data-loss-prevention.md), [`security/framework-zero-trust-architecture.md`](../security/framework-zero-trust-architecture.md), [`ai/standard-ai-access-and-agent-permissions.md`](../ai/standard-ai-access-and-agent-permissions.md)\
@@ -62,7 +62,7 @@ For routine changes within an existing API contract, the security controls in th
 
 | Control area | Requirement |
 | --- | --- |
-| No anonymous APIs | Every API requires authentication; anonymous-access exceptions require CISO approval and are public-only by data classification |
+| No anonymous APIs | Every API requires authentication; anonymous-access exceptions are approved through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (CISO co-approval as security-related) and are public-only by data classification |
 | Federated identity | Human-driven APIs authenticate via the enterprise identity provider with OAuth 2.0 / OpenID Connect |
 | Service-to-service | mTLS for service-to-service where the network allows; workload identity where the platform supports it |
 | Token formats | JWT or platform-native; encrypted JWTs (JWE) where the token transits networks the organization does not control |

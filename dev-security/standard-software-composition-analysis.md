@@ -2,8 +2,8 @@
 
 **Document Title:** Software Composition Analysis Standard\
 **Document Type:** Standard\
-**Version:** 1.1.13\
-**Date:** 2026-08-13\
+**Version:** 1.1.14\
+**Date:** 2026-08-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/README.md`](README.md), [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`dev-security/register-compliance-controls-and-gap-register.md`](register-compliance-controls-and-gap-register.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md)\
@@ -83,7 +83,7 @@ Remediation timelines for SCA-detected third-party component vulnerabilities are
 Where a fix is not available (no patched version exists), the following actions must be taken within the SLA for the severity:
 1. Document the vulnerability and remediation blocker in the risk register
 2. Implement a compensating control (e.g., input validation, network isolation, WAF rule)
-3. Obtain formal risk acceptance from the CISO if the vulnerability will remain open beyond the SLA
+3. Obtain a formal risk acceptance per [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md) (approved by the acceptance authority for the residual risk level) if the vulnerability will remain open beyond the SLA
 4. Monitor for patch availability daily for Critical, weekly for High
 
 ### 4.3 Licence compliance
@@ -177,7 +177,7 @@ Not all CVEs require immediate remediation. Developers must triage each finding 
 
 Findings assessed as not exploitable in context must be documented using a **VEX (Vulnerability Exploitability eXchange)** statement in the SBOM, specifying the justification status (`not_affected`; `in_triage`; `affected`; `fixed`) and rationale.
 
-Formal exceptions to SLA timelines must be approved by the CISO and documented in the risk register.
+Formal exceptions to SLA timelines are approved through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md), with CISO co-approval as security-related exceptions in addition to, not in place of, the risk-tier approver, and documented in the exception register.
 
 ### 4.7 AI and machine learning dependencies
 SCA controls apply to all ML and AI codebases with the following additional requirements:
@@ -219,8 +219,8 @@ A tool that passes the criteria is documented in the security architecture regis
 | **Developer** | Perform triage on SCA findings in their codebase; remediate within SLA; document VEX justifications for non-exploitable findings |
 | **Security Champion** | Review SCA reports for their team; escalate unresolved High+ findings; advise on compensating controls |
 | **DevOps / Platform Team** | Maintain and configure SCA tooling in CI/CD pipelines; ensure that SBOM generation is automated; manage private registry configuration |
-| **CISO** | Approve exceptions to remediation SLAs; set organizational risk acceptance thresholds; review Critical vulnerability escalations |
-| **Legal** | Review and approve licence exceptions; advise on SBOM distribution obligations |
+| **CISO** | Co-approve security-related exceptions to remediation SLAs per the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md); set organizational risk acceptance thresholds; review Critical vulnerability escalations |
+| **Legal** | Review and co-approve licence exceptions, in addition to the §4.2.2 risk-tier approver of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md); advise on SBOM distribution obligations |
 | **Procurement** | Require SBOMs from commercial software vendors; include SBOM provision clauses in software procurement contracts |
 
 ---

@@ -2,8 +2,8 @@
 
 **Document Title:** Secure Code Review Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.5\
-**Date:** 2026-08-05\
+**Version:** 0.0.6\
+**Date:** 2026-08-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-software-composition-analysis.md`](standard-software-composition-analysis.md), [`dev-security/standard-api-security.md`](standard-api-security.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`dev-security/guideline-ai-coding-assistant-security.md`](guideline-ai-coding-assistant-security.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -211,7 +211,7 @@ The change can be merged when:
 | Required reviewers | All required reviewers have approved per Step 2 |
 | Status checks | All required CI checks are green; security gates are green |
 | Branch protection | Branch protection rules satisfied; no force-push, no bypass |
-| Out-of-policy approvals | Any policy waiver is approved in writing by the policy owner |
+| Out-of-policy approvals | Any policy waiver is approved through the formal exception process in [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (the Section 4.2.2 risk-tier approver, with CISO co-approval for security-related exceptions) |
 | Code freeze | If a freeze is in effect, an exception ticket is present |
 
 ### Step 7: Post-merge actions

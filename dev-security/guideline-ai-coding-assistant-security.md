@@ -2,8 +2,8 @@
 
 **Document Title:** AI Coding Assistant Security Guideline\
 **Document Type:** Guideline\
-**Version:** 1.3.11\
-**Date:** 2026-08-14\
+**Version:** 1.3.12\
+**Date:** 2026-08-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`guardrails/README.md`](../guardrails/README.md), [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -165,7 +165,7 @@ All code (AI-generated or human-written) passes through SAST before merge. AI-ge
 
 ## Prohibited uses
 
-The following uses of AI coding assistants are prohibited without explicit CIO/CISO approval and a formal risk acceptance:
+The following uses of AI coding assistants are prohibited without an exception approved through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (with CISO co-approval as security-related exceptions) and a formal risk acceptance per [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md):
 
 1. Generating code that handles personal data without a human security design review.
 2. Using AI to modify production infrastructure or configuration directly (no human review step).
@@ -217,7 +217,7 @@ AI-generated code committed to a repository should be automatically scanned, in 
 - **Exfiltration-style egress in generated code**: outbound HTTP calls to unexpected hosts, embedded analytics or telemetry calls to unrecognized endpoints, base64-encoded payloads in string literals.
 - **Comment-embedded instructions**: AI-generated comments containing instruction-like content that could influence a future AI session reading the file.
 
-Output scanning is a CI/CD gate distinct from standard SAST. Findings block merge by default; tracked exception requires CISO approval per the standard exception policy.
+Output scanning is a CI/CD gate distinct from standard SAST. Findings block merge by default; tracked exception per the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) §4.2.2 risk-tier pathway (CISO co-approval as security-related).
 
 ---
 
