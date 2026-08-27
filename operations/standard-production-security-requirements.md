@@ -2,8 +2,8 @@
 
 **Document Title:** Production Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.11\
-**Date:** 2026-08-20\
+**Version:** 1.1.12\
+**Date:** 2026-08-27\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](../dev-security/standard-security-quick-reference.md)\
@@ -152,7 +152,7 @@ The following must be maintained as living artefacts:
 
 **Conditional Access:** All Conditional Access policies are defined and enforced centrally by the enterprise identity platform. Application and infrastructure teams must not design around Conditional Access.
 
-**RBAC:** Custom roles are preferred over built-in where built-in roles grant excess permissions. Owner/Contributor at subscription level must be minimized. All assignments must use Privileged Identity Management (PIM) eligible assignments; any standing assignment requires CIO or CISO approval recorded as an exception. A quarterly review is mandatory.
+**RBAC:** Custom roles are preferred over built-in where built-in roles grant excess permissions. Owner/Contributor at subscription level must be minimized. All assignments must use Privileged Identity Management (PIM) eligible (just-in-time) assignments; standing assignment is permitted only where just-in-time activation is genuinely unavailable, through the formal exception process in [`policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md) (the Section 4.2.2 risk-tier approver, with CISO co-approval for security-related exceptions), and is time-bound with a mandatory quarterly review.
 
 **Secrets management:** Every application has its own secrets vault. No cross-application sharing for Confidential or Restricted secrets. Soft delete and purge protection must be enabled. Diagnostic logs must be forwarded to the SIEM. Firewall rules must restrict network access.
 
