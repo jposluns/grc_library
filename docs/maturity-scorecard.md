@@ -91,13 +91,13 @@ _109 documents._
 | [governance/specification-citation-verification.md](../governance/specification-citation-verification.md) | Citation Verification Specification | Specification | 1.2.15 | 2026-07-11 |
 | [governance/standard-records-retention-and-destruction.md](../governance/standard-records-retention-and-destruction.md) | Records Retention and Destruction Standard | Standard | 1.4.21 | 2026-08-16 |
 | [operations/procedure-change-management-and-configuration-control.md](../operations/procedure-change-management-and-configuration-control.md) | Change Management and Configuration Control Procedure | Procedure | 1.3.3 | 2026-07-14 |
-| [operations/procedure-endpoint-management-and-device-compliance.md](../operations/procedure-endpoint-management-and-device-compliance.md) | Endpoint Management and Device Compliance Procedure | Procedure | 1.3.7 | 2026-07-10 |
+| [operations/procedure-endpoint-management-and-device-compliance.md](../operations/procedure-endpoint-management-and-device-compliance.md) | Endpoint Management and Device Compliance Procedure | Procedure | 1.3.8 | 2026-08-27 |
 | [operations/procedure-media-handling-and-transport.md](../operations/procedure-media-handling-and-transport.md) | Media Handling and Transport Procedure | Procedure | 1.3.8 | 2026-07-14 |
 | [operations/procedure-security-monitoring-and-alert-management.md](../operations/procedure-security-monitoring-and-alert-management.md) | Security Monitoring and Alert Management Procedure | Procedure | 1.3.10 | 2026-08-01 |
 | [operations/procedure-threat-intelligence-and-siem-operations.md](../operations/procedure-threat-intelligence-and-siem-operations.md) | Threat Intelligence and SIEM Operations Procedure | Procedure | 1.3.7 | 2026-07-03 |
 | [operations/register-it-operations-kpis.md](../operations/register-it-operations-kpis.md) | IT Operations Key Performance Indicators Register | Register | 1.1.4 | 2026-08-26 |
-| [operations/standard-certificate-authority-management.md](../operations/standard-certificate-authority-management.md) | Certificate Authority Management Standard | Standard | 1.3.9 | 2026-08-24 |
-| [operations/standard-cloud-security-configuration-baseline.md](../operations/standard-cloud-security-configuration-baseline.md) | Cloud Security Configuration Baseline | Standard | 1.4.14 | 2026-08-05 |
+| [operations/standard-certificate-authority-management.md](../operations/standard-certificate-authority-management.md) | Certificate Authority Management Standard | Standard | 1.3.10 | 2026-08-27 |
+| [operations/standard-cloud-security-configuration-baseline.md](../operations/standard-cloud-security-configuration-baseline.md) | Cloud Security Configuration Baseline | Standard | 1.4.15 | 2026-08-27 |
 | [operations/standard-network-security-and-segmentation.md](../operations/standard-network-security-and-segmentation.md) | Network Security and Segmentation Standard | Standard | 1.4.8 | 2026-08-05 |
 | [operations/standard-physical-security-of-it-infrastructure.md](../operations/standard-physical-security-of-it-infrastructure.md) | Physical Security of IT Infrastructure Standard | Standard | 1.3.6 | 2026-08-16 |
 | [operations/standard-production-security-requirements.md](../operations/standard-production-security-requirements.md) | Production Security Requirements | Standard | 1.1.14 | 2026-08-27 |
@@ -238,7 +238,7 @@ _170 documents._
 | [operations/ot/procedure-ot-change-management.md](../operations/ot/procedure-ot-change-management.md) | OT Change Management Procedure | Procedure | 1.0.3 | 2026-07-02 |
 | [operations/ot/procedure-ot-incident-response.md](../operations/ot/procedure-ot-incident-response.md) | OT Incident Response Procedure | Procedure | 1.0.5 | 2026-08-17 |
 | [operations/ot/register-ot-asset-inventory-and-lifecycle.md](../operations/ot/register-ot-asset-inventory-and-lifecycle.md) | OT Asset Inventory and Lifecycle Register | Register | 1.0.2 | 2026-07-02 |
-| [operations/ot/standard-ot-ics-security.md](../operations/ot/standard-ot-ics-security.md) | OT/ICS Security Standard | Standard | 1.0.5 | 2026-08-20 |
+| [operations/ot/standard-ot-ics-security.md](../operations/ot/standard-ot-ics-security.md) | OT/ICS Security Standard | Standard | 1.0.6 | 2026-08-27 |
 | [operations/procedure-patch-management.md](../operations/procedure-patch-management.md) | Patch Management Procedure | Procedure | 1.0.11 | 2026-08-27 |
 | [operations/procedure-release-management.md](../operations/procedure-release-management.md) | Release Management Procedure | Procedure | 1.0.3 | 2026-07-14 |
 | [operations/register-asset-inventory.md](../operations/register-asset-inventory.md) | Asset Inventory Register | Register | 1.0.8 | 2026-08-26 |

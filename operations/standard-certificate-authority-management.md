@@ -2,8 +2,8 @@
 
 **Document Title:** Certificate Authority Management Standard\
 **Document Type:** Standard\
-**Version:** 1.3.9\
-**Date:** 2026-08-24\
+**Version:** 1.3.10\
+**Date:** 2026-08-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`operations/standard-cloud-security-configuration-baseline.md`](standard-cloud-security-configuration-baseline.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md)\
@@ -35,7 +35,7 @@ Defines requirements for establishing, operating, and maintaining the internal C
 
 | Role | Responsibility |
 |---|---|
-| Chief Information Security Officer (CISO) | Owns this standard; approves CA hierarchy design, certificate policy exceptions, and changes to the trust boundary between the internal CA and commercial CAs. |
+| Chief Information Security Officer (CISO) | Owns this standard; approves CA hierarchy design and changes to the trust boundary between the internal CA and commercial CAs; co-approves certificate policy exceptions as security-related exceptions per the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md). |
 | IT Operations / Security Engineering | Operates the CA infrastructure; manages issuing CA configuration in the endpoint management platform; processes certificate requests; maintains CA audit logs. |
 | Identity / PKI Administrator | Configures and maintains the cloud-based PKI service in the endpoint management admin console; manages SCEP profiles and certificate templates; holds the CA creation permission in the enterprise identity provider. |
 | Internal Audit | Reviews CA audit logs, certificate inventory, and issuance policy compliance annually. |

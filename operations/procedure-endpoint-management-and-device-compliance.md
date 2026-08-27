@@ -2,8 +2,8 @@
 
 **Document Title:** Endpoint Management and Device Compliance Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.7\
-**Date:** 2026-07-10\
+**Version:** 1.3.8\
+**Date:** 2026-08-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md)\
@@ -37,7 +37,7 @@ To ensure that all organizational endpoints, including workstations, laptops, se
 
 | Role | Responsibility |
 | --- | --- |
-| **CISO** | Owns this procedure; approves exceptions; receives monthly compliance metrics; approves EOL exceptions with CIO co-approval. |
+| **CISO** | Owns this procedure; co-approves security-related exceptions per the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md); receives monthly compliance metrics. |
 | **IT Operations** | Manages the endpoint management platform; deploys and maintains endpoint protection and hardening baselines; maintains the asset register; executes decommissioning and disposal. |
 | **Security Operations (SOC)** | Monitors endpoint protection alerts forwarded to the SIEM; triages endpoint-related security events; escalates confirmed incidents to the Incident Response Procedure. |
 | **System Owners** | Accountable for the compliance status of servers and applications within their scope; coordinate patch and remediation activities within defined SLAs. |
@@ -135,7 +135,7 @@ The endpoint management platform performs continuous compliance assessment again
 
 ### 5.3 Workstation screen lock
 
-All workstations and laptops must lock automatically after a maximum of 15 minutes of inactivity. This control is enforced via endpoint management platform policy and verified as part of the compliance assessment cycle. Manual bypass or policy exception requires CISO written approval.
+All workstations and laptops must lock automatically after a maximum of 15 minutes of inactivity. This control is enforced via endpoint management platform policy and verified as part of the compliance assessment cycle. Manual bypass or policy exception requires an exception approved through the formal exception process in [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (the Section 4.2.2 risk-tier approver, with CISO co-approval for security-related exceptions).
 
 ### 5.4 Compliance remediation
 
@@ -155,7 +155,7 @@ No end-of-life operating system version is permitted in production. OS versions 
 - At 180 days before EOL: upgrade plan initiated; owner and budget assigned.
 - At 90 days before EOL: upgrade in active execution.
 - At 30 days before EOL: emergency remediation; monthly status reported to the CIO.
-- At EOL without remediation: immediate escalation; CISO and CIO-approved exception with documented compensating controls is mandatory before the system may continue operating.
+- At EOL without remediation: immediate escalation; an exception approved through the formal exception process in [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (the Section 4.2.2 risk-tier approver, with CISO co-approval as a security-related exception) with documented compensating controls is mandatory before the system may continue operating. An exception permitting an EOL operating system to continue operating in production is rated at least High risk (running an unsupported operating system is a high-severity exposure), so the Section 4.2.2 risk-tier pathway routes its approval to the Executive Committee or Board Risk Committee. This is a risk-rating floor for EOL-in-production, not a per-document approver override.
 
 ---
 
@@ -170,7 +170,7 @@ Device compliance status is evaluated by the enterprise identity provider at eve
 - VPN and remote access infrastructure.
 - Cloud platform resources.
 
-The enterprise identity provider is the authoritative enforcement point for policy-based access controls. Application and infrastructure teams must not implement workarounds or exceptions to policy-based access controls without written CISO approval.
+The enterprise identity provider is the authoritative enforcement point for policy-based access controls. Application and infrastructure teams must not implement workarounds or exceptions to policy-based access controls without an exception approved through the formal exception process in [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (the Section 4.2.2 risk-tier approver, with CISO co-approval for security-related exceptions).
 
 ### 6.2 Conditional access policy governance
 
@@ -178,7 +178,7 @@ policy-based access controls are defined and owned by the CISO. All policy chang
 
 ### 6.3 Grace period for newly enrolled devices
 
-Newly enrolled devices are granted a grace period of up to 8 business hours from enrolment to achieve full compliance status before policy-based access controls restrictions are applied. Grace period extensions require IT Operations Manager approval.
+Newly enrolled devices are granted a grace period of up to 8 business hours from enrolment to achieve full compliance status before policy-based access controls restrictions are applied. Grace period extensions require an exception approved through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (with CISO co-approval for security-related exceptions).
 
 ---
 

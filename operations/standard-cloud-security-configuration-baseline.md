@@ -2,8 +2,8 @@
 
 **Document Title:** Cloud Security Configuration Baseline\
 **Document Type:** Standard\
-**Version:** 1.4.14\
-**Date:** 2026-08-05\
+**Version:** 1.4.15\
+**Date:** 2026-08-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md)\
@@ -50,7 +50,7 @@ A workload built on a cloud provider must conform to both: the enterprise-tenant
 
 | Role | Responsibility |
 |---|---|
-| Chief Information Security Officer (CISO) | Owns this standard; defines baseline requirements and approves exceptions |
+| Chief Information Security Officer (CISO) | Owns this standard; defines baseline requirements; co-approves security-related exceptions per the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) |
 | IT Operations / Cloud Team | Implements and maintains baseline configurations; remediates configuration drift |
 | Infrastructure Programme Team | Ensures that all new infrastructure deployments conform to this standard from initial build |
 | Internal Audit | Reviews compliance against baseline using the cloud security posture score and cloud security posture management (CSPM) tooling |
