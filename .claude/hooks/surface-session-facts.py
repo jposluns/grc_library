@@ -21,7 +21,7 @@ Fact sources (the maintainer's own metric log):
 import sys, os, re, json
 from pathlib import Path
 from datetime import datetime, timezone
-ISO = r"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z)"
+ISO = r"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?Z)"  # seconds OPTIONAL: the degradation log's dominant form is minute-only (handoff-snapshot.py:211)
 
 
 def _fail_open():
@@ -29,7 +29,13 @@ def _fail_open():
 
 
 def _parse(ts):
-    return datetime.strptime(ts, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+    # Accept BOTH minute-only (the log's dominant form) and full-seconds ISO stamps.
+    for fmt in ("%Y-%m-%dT%H:%M:%SZ", "%Y-%m-%dT%H:%MZ"):
+        try:
+            return datetime.strptime(ts, fmt).replace(tzinfo=timezone.utc)
+        except ValueError:
+            continue
+    raise ValueError(f"unparseable timestamp: {ts!r}")
 
 
 def _last_assistant_text(transcript_path):
@@ -126,7 +132,34 @@ def main():
     sys.exit(0)
 
 
+def _self_test():
+    # Reality fixture (guard-input discipline): the degradation log\'s dominant form is
+    # MINUTE-ONLY; the pre-fix regex/_parse silently missed it. Assert both forms parse and
+    # that the minute-only start is selected as newest, mirroring handoff-snapshot.py\'s fixture.
+    assert _parse("2026-08-27T15:30Z").minute == 30          # minute-only parses
+    assert _parse("2026-07-29T12:00:00Z").second == 0        # full-seconds still parses
+    fixture = (
+        "| 2026-07-29T10:00:00Z | session-start | earlier full-seconds |\n"
+        "| 2026-07-29T15:30Z | session-start | latest, MINUTES-ONLY (dominant form) |\n"
+        "| 2026-07-29T13:00Z | compaction | C1 |\n"
+    )
+    starts = []
+    for ln in fixture.splitlines():
+        m = re.match(r"\|\s*" + ISO + r"\s*\|\s*session-start\b", ln)
+        if m:
+            starts.append(m.group(1))
+    assert starts == ["2026-07-29T10:00:00Z", "2026-07-29T15:30Z"], starts
+    assert max(starts, key=_parse) == "2026-07-29T15:30Z"    # minute-only selected as newest
+    comp = sum(1 for ln in fixture.splitlines()
+               if re.match(r"\|\s*" + ISO + r"\s*\|\s*compaction\s*\|", ln))
+    assert comp == 1, comp                                    # minute-only compaction row counted
+    print("surface-session-facts self-test: 5 assertions PASS (minute-only + full-seconds)")
+
+
 if __name__ == "__main__":
+    if "--self-test" in sys.argv:
+        _self_test()
+        sys.exit(0)
     try:
         main()
     except Exception:
