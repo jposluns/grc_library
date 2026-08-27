@@ -68,8 +68,8 @@ _109 documents._
 | [dev-security/guideline-ai-coding-assistant-security.md](../dev-security/guideline-ai-coding-assistant-security.md) | AI Coding Assistant Security Guideline | Guideline | 1.3.11 | 2026-08-14 |
 | [dev-security/standard-developer-security-requirements.md](../dev-security/standard-developer-security-requirements.md) | Developer Security Requirements | Standard | 1.1.18 | 2026-08-22 |
 | [dev-security/standard-mobile-application-security.md](../dev-security/standard-mobile-application-security.md) | Mobile Application Security Standard | Standard | 1.1.5 | 2026-07-02 |
-| [dev-security/standard-security-baseline-and-standards-reference.md](../dev-security/standard-security-baseline-and-standards-reference.md) | Security Baseline and Standards Reference | Standard | 1.1.20 | 2026-08-15 |
-| [dev-security/standard-security-quick-reference.md](../dev-security/standard-security-quick-reference.md) | Security Quick Reference | Standard | 1.1.13 | 2026-08-14 |
+| [dev-security/standard-security-baseline-and-standards-reference.md](../dev-security/standard-security-baseline-and-standards-reference.md) | Security Baseline and Standards Reference | Standard | 1.1.21 | 2026-08-27 |
+| [dev-security/standard-security-quick-reference.md](../dev-security/standard-security-quick-reference.md) | Security Quick Reference | Standard | 1.1.14 | 2026-08-27 |
 | [dev-security/standard-software-composition-analysis.md](../dev-security/standard-software-composition-analysis.md) | Software Composition Analysis Standard | Standard | 1.1.13 | 2026-08-13 |
 | [governance/charter-governance-library.md](../governance/charter-governance-library.md) | Governance Library Charter | Charter | 1.2.6 | 2026-08-03 |
 | [governance/framework-continuous-assurance-and-improvement.md](../governance/framework-continuous-assurance-and-improvement.md) | Continuous Assurance and Improvement Framework | Framework | 1.1.2 | 2026-08-05 |
@@ -100,7 +100,7 @@ _109 documents._
 | [operations/standard-cloud-security-configuration-baseline.md](../operations/standard-cloud-security-configuration-baseline.md) | Cloud Security Configuration Baseline | Standard | 1.4.14 | 2026-08-05 |
 | [operations/standard-network-security-and-segmentation.md](../operations/standard-network-security-and-segmentation.md) | Network Security and Segmentation Standard | Standard | 1.4.8 | 2026-08-05 |
 | [operations/standard-physical-security-of-it-infrastructure.md](../operations/standard-physical-security-of-it-infrastructure.md) | Physical Security of IT Infrastructure Standard | Standard | 1.3.6 | 2026-08-16 |
-| [operations/standard-production-security-requirements.md](../operations/standard-production-security-requirements.md) | Production Security Requirements | Standard | 1.1.13 | 2026-08-27 |
+| [operations/standard-production-security-requirements.md](../operations/standard-production-security-requirements.md) | Production Security Requirements | Standard | 1.1.14 | 2026-08-27 |
 | [privacy/charter-privacy-management-programme.md](../privacy/charter-privacy-management-programme.md) | Privacy Management Programme Charter | Charter | 1.5.11 | 2026-08-14 |
 | [privacy/jurisdictions/annex-privacy-brazil.md](../privacy/jurisdictions/annex-privacy-brazil.md) | Brazil Privacy Regulatory Requirements | Annex | 1.1.8 | 2026-08-14 |
 | [privacy/jurisdictions/annex-privacy-canada.md](../privacy/jurisdictions/annex-privacy-canada.md) | Canada Privacy Regulatory Requirements | Annex | 1.1.19 | 2026-08-15 |
