@@ -5465,7 +5465,7 @@ documents:
   domain: "governance"
   type: "Register"
   title: "Data Retention Schedule"
-  version: "1.0.35"
+  version: "1.0.36"
   date: "2026-08-27"
   owner: "Data Protection Officer"
   approving_authority: "Chief Information Officer"
