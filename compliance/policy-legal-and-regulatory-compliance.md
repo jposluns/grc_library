@@ -2,8 +2,8 @@
 
 **Document Title:** Legal and Regulatory Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.18\
-**Date:** 2026-08-17\
+**Version:** 1.0.19\
+**Date:** 2026-08-27\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md)\
@@ -75,7 +75,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer for tr
 
 6.2 High-risk obligations (such as customs reporting, data export, and AI bias mitigation) must have defined mitigation controls and response plans.
 
-6.3 Sector-programme compliance deviations (for example, trade and customs deviations under BASC) require co-approval by the CISO and the sector-conditional role defined by the relevant sector annex.
+6.3 Sector-programme compliance deviations (for example, trade and customs deviations under BASC) are approved through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md), with co-approval by the sector-conditional role defined by the relevant sector annex (the applicable compliance officer) and by the CISO, and with ERC notification per that policy's trade-and-customs limb. The sector-role and CISO co-approvals are in addition to, not in place of, the risk-tier approver; where this is stricter than the baseline trade-and-customs limb (compliance-officer co-approval with ERC notification), the stricter requirement governs.
 
 ---
 

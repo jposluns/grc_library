@@ -2,8 +2,8 @@
 
 **Document Title:** Cloud Exit and Data Portability Standard\
 **Document Type:** Standard\
-**Version:** 1.1.4\
-**Date:** 2026-08-14\
+**Version:** 1.1.5\
+**Date:** 2026-08-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`operations/register-asset-inventory.md`](../operations/register-asset-inventory.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -34,7 +34,7 @@ This standard defines the requirements for planning, managing, and executing the
 
 | Role | Responsibility |
 | --- | --- |
-| **CISO** | Owns this standard; approves cloud exit plans and any waiver of portability requirements. |
+| **CISO** | Owns this standard; approves cloud exit plans; co-approves waivers of portability requirements as security-related exceptions per the Section 8 exception path ([Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) §4.2.2 risk-tier pathway). |
 | **IT Operations / Cloud Team** | Maintains exit plans for all in-scope cloud services; executes exit procedures when required. |
 | **Procurement / Legal** | Ensures that data portability and exit rights are included in all cloud and SaaS contracts before signature. |
 | **Internal Audit** | Reviews exit plan currency and contract compliance annually. |
@@ -43,7 +43,7 @@ This standard defines the requirements for planning, managing, and executing the
 
 ## 4. Contract requirements
 
-All new cloud and SaaS contracts must include the following provisions before signature. Procurement must confirm their presence; contracts without these provisions require CISO approval before execution.
+All new cloud and SaaS contracts must include the following provisions before signature. Procurement must confirm their presence; contracts without these provisions require an exception approved under Section 8 before execution.
 
 1. **Data export right:** The provider must allow the organization to export all data in a documented, machine-readable, non-proprietary format at any time during the contract term and for a minimum of 90 days following contract termination.
 
@@ -101,7 +101,7 @@ Emergency exits follow the Incident Response and Crisis Management escalation pa
 
 ## 8. Exceptions
 
-Where a cloud provider cannot meet the contract requirements in this standard, for example, a commodity SaaS tool with no data export capability, the service may still be used for non-Confidential, non-Restricted data with CISO approval and a documented risk acceptance in the Exception Register.
+Where a cloud provider cannot meet the contract requirements in this standard, for example, a commodity SaaS tool with no data export capability, the service may still be used for non-Confidential, non-Restricted data with an exception approved through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (with CISO co-approval as a security-related exception) and a documented risk acceptance recorded per [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md), cross-referenced to that exception register entry.
 
 ---
 
