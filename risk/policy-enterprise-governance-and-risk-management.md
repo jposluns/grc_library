@@ -2,8 +2,8 @@
 
 **Document Title:** Enterprise Governance and Risk Management Policy\
 **Document Type:** Policy\
-**Version:** 1.4.12\
-**Date:** 2026-07-05\
+**Version:** 1.4.13\
+**Date:** 2026-08-27\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -37,7 +37,7 @@ This policy establishes the enterprise governance and risk management framework,
 |---|---|
 | Board Risk Committee | Approves risk appetite statements; receives enterprise risk reporting. |
 | Enterprise Risk Committee (ERC) | Meets quarterly to oversee risk posture, treatment progress, and escalated items. |
-| AI Governance Council (AIGC) | Approves AI risk appetite statements and exceptions for high-risk AI uses per ISO/IEC 23894 and NIST AI RMF Govern function; meets monthly. |
+| AI Governance Council (AIGC) | Approves AI risk appetite statements and co-approves AI-related exceptions (in addition to the risk-tier approver in the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md), §4.2.2) per ISO/IEC 23894 and NIST AI RMF Govern function; meets monthly. |
 | Chief Risk Officer | Accountable for the enterprise risk management framework and its alignment with strategic objectives; owns risk strategy, risk-appetite stewardship, and ERM-programme outcomes; reports to the Board Risk Committee. |
 | Chief Information Officer | Provides executive support to the ERM programme on technology-risk integration; ensures that IT-strategy risk is reflected in the enterprise risk register. |
 | Chief Information Security Officer | Responsible for information security, privacy, and AI risk integration. |
@@ -105,7 +105,7 @@ Consolidated enterprise risk reporting must be presented to executive leadership
 | Activity | Responsible | Accountable | Consulted | Informed |
 |---|---|---|---|---|
 | Risk appetite approval | Board Risk Committee | Board Risk Committee | ERC, AIGC | All employees |
-| AI risk appetite and exceptions | AIGC | CIO | CISO | ERC |
+| AI policy exceptions | AIGC | Tiered per the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) §4.2.2 (with the §4.3.5 renewal escalation), and AIGC co-approval for AI-related exceptions | CISO | ERC |
 | Enterprise risk register | Risk Manager / Compliance Officer | CIO | Process Owners | ERC |
 | Control design and operation | Process and System Owners | Executive Sponsors | CISO | Internal Audit |
 | Independent assurance | Internal Audit | Chief Audit Executive | GRC | Board Risk Committee |
@@ -147,7 +147,7 @@ Consolidated enterprise risk reporting must be presented to executive leadership
 
 ## 8. Exceptions
 
-Exceptions to this policy require documented justification, a compensating control, approval by the CIO, and time-bounded review. AI-related exceptions additionally require AIGC approval. All exceptions must be logged in the risk register.
+Exceptions to this policy must be documented under the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) and approved through its §4.2.2 risk-tier pathway, with CISO co-approval for security-related exceptions in addition to, not in place of, the risk-tier approver; duration and renewal follow its §4.3. AI-related exceptions additionally require AIGC co-approval (in addition to, not in place of, the risk-tier approver). All exceptions must be logged in the enterprise exception register.
 
 ---
 
