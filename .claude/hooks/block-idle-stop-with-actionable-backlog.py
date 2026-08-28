@@ -113,12 +113,22 @@ def _parse_mode(text: str) -> str | None:
     begins with the words "Operating-mode" (no colon) does NOT arm the hook. First
     match wins. Testable without a filesystem.
     """
-    m = re.search(r"^\**[^\S\n]*Operating-mode\**[^\S\n]*:[^\S\n]*\**[^\S\n]*`?([A-Za-z][A-Za-z-]*)`?\**[^\S\n]*\\?[^\S\n]*$",
-                  text, re.MULTILINE)
-    if not m:
-        return None
-    v = m.group(1).strip().lower()
-    return v if v in KNOWN_MODES else None
+    pat = re.compile(
+        r"^\**[^\S\n]*Operating-mode\**[^\S\n]*:[^\S\n]*\**[^\S\n]*`?([A-Za-z][A-Za-z-]*)`?\**[^\S\n]*\\?[^\S\n]*$"
+    )
+    # splitlines() splits on EVERY Unicode line boundary (\n \r \v \f
+    # \x1c-\x1e \x85 \u2028 \u2029), so a key and value separated by any of
+    # them land on different physical lines and cannot both match one anchored
+    # line. This closes the vertical-whitespace false-arm that re.MULTILINE +
+    # [^\S\n] left open (\n-only line anchoring treated \v/\f/NEL/LS/PS as
+    # intra-line whitespace). First matching physical line wins.
+    for line in text.splitlines():
+        m = pat.match(line)
+        if m:
+            v = m.group(1).strip().lower()
+            if v in KNOWN_MODES:
+                return v
+    return None
 
 
 def operating_mode() -> str | None:

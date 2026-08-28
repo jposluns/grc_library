@@ -1826,6 +1826,11 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         self.assertIsNone(m._parse_mode("Operating-mode\n:\nattended-autonomous"))
         self.assertEqual(m._parse_mode("prefix\n**Operating-mode:** daytime-unattended\nsuffix"),
                          "daytime-unattended", "the real single-line key among other lines still parses")
+        # Vertical Unicode line separators must NOT let key+value cross a line
+        # (PR #1754 codex iter-5: [^\S\n] admitted \v \f NEL LS PS; splitlines fix).
+        for sep in ("\x0b", "\x0c", "\x1c", "\x1d", "\x1e", "\x85", "\u2028", "\u2029"):
+            self.assertIsNone(m._parse_mode("Operating-mode:" + sep + "attended-autonomous"),
+                              f"vertical separator {sep!r} must not bridge key and value")
 
     def test_block_idle_stop_fail_open_consumes_escape(self) -> None:
         """A malformed-payload fail-open must still consume .allow-idle-stop (one-shot; PR #1754 codex B)."""
