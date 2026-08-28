@@ -24,7 +24,7 @@ yield-with-work-remaining is an idle-stop unless a legitimate wait is declared.
 
 The escape IS the declaration. A genuine reason to yield in these modes -- waiting on
 CI, on a dispatched worker, on a maintainer decision, or a real session-closing
-wind-down -- is declared by ``touch $GRC_DROP_ROOT/.allow-idle-stop`` (default ``/opt/grc/grc_working/.allow-idle-stop``; this guard's
+wind-down -- is declared by ``touch "${GRC_DROP_ROOT:-/opt/grc/grc_working}/.allow-idle-stop"`` (default ``/opt/grc/grc_working/.allow-idle-stop`` when GRC_DROP_ROOT is unset; this guard's
 OWN one-shot sentinel, distinct from the branch guard's ``.allow-stop`` so the two never
 race on a shared file under parallel Stop-hook execution). A wait during branch-bearing
 work declares both. The reliable loop-terminator remains ``stop_hook_active``.
