@@ -4223,7 +4223,7 @@ documents:
   domain: "dev-security"
   type: "Standard"
   title: "Security Quick Reference"
-  version: "1.1.15"
+  version: "1.1.17"
   date: "2026-08-28"
   owner: "Chief Information Security Officer"
   approving_authority: "Chief Information Officer"
@@ -4237,6 +4237,7 @@ documents:
     - "dev-security/standard-security-baseline-and-standards-reference.md"
     - "dev-security/standard-developer-security-requirements.md"
     - "dev-security/standard-devops-security-requirements.md"
+    - "security/standard-authentication-and-password-management.md"
   sections:
     - "1. How to use this document"
     - "2. NEVER do these things"
@@ -10622,7 +10623,7 @@ documents:
   domain: "security"
   type: "Standard"
   title: "Remote Working Security Standard"
-  version: "1.0.18"
+  version: "1.0.19"
   date: "2026-08-28"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"
@@ -10638,6 +10639,7 @@ documents:
     - "security/standard-authentication-and-password-management.md"
     - "operations/procedure-endpoint-management-and-device-compliance.md"
     - "security/standard-data-classification-and-handling.md"
+    - "security/policy-byod.md"
   sections:
     - "1. Purpose"
     - "2. Scope"

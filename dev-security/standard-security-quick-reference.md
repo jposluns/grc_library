@@ -2,11 +2,11 @@
 
 **Document Title:** Security Quick Reference\
 **Document Type:** Standard\
-**Version:** 1.1.15\
+**Version:** 1.1.17\
 **Date:** 2026-08-28\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
-**Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md)\
+**Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md)\
 **Classification:** Public\
 **Category:** Developer Security\
 **Review Frequency:** 6 to 12 months and upon material threat, regulatory, or framework change\
@@ -26,7 +26,7 @@ If you are unsure whether something is allowed, check this guide first. If the a
 
 ## 2. NEVER do these things
 
-Absolute prohibitions. No exception exists without approval through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (with CISO co-approval for security-related exceptions), and most have no exception path at all.
+Prohibited by default. Most carry no exception path at all; where a row is exceptionable, the exception is granted ONLY in advance through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (with CISO co-approval for security-related exceptions) or the specific approval the row names, never by unilateral action.
 
 | # | Prohibition | Why |
 | --- | --- | --- |
