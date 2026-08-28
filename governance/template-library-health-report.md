@@ -2,8 +2,8 @@
 
 **Document Title:** Library Health Report Template\
 **Document Type:** Template\
-**Version:** 1.0.9\
-**Date:** 2026-08-23\
+**Version:** 1.0.10\
+**Date:** 2026-08-28\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md), [`governance/template-document-review-record.md`](template-document-review-record.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md)\
@@ -76,6 +76,7 @@ Aggregated output of the automated audits (see [`governance/specification-audit-
 | `build-narrative-registry.py --check` | In sync / Out of sync | n/a | |
 | `build-portal.py --check` | In sync / Out of sync | n/a | |
 | `build-relationship-model.py --check` | In sync / Out of sync | n/a | |
+| `build-todo-number-allocation.py --check` | In sync / Out of sync | n/a | |
 
 For each non-pass: brief description, file(s) affected, remediation plan, target date.
 

@@ -222,7 +222,7 @@ _170 documents._
 | [governance/policy-digital-twin-and-simulation-governance.md](../governance/policy-digital-twin-and-simulation-governance.md) | Digital Twin and Simulation Governance Policy | Policy | 1.0.7 | 2026-07-23 |
 | [governance/procedure-continuous-improvement-register.md](../governance/procedure-continuous-improvement-register.md) | Continuous Improvement Register Procedure | Procedure | 1.0.4 | 2026-08-13 |
 | [governance/procedure-grc-programme-management-and-annual-review.md](../governance/procedure-grc-programme-management-and-annual-review.md) | GRC Programme Management and Annual Review Procedure | Procedure | 1.0.10 | 2026-08-13 |
-| [governance/procedure-library-quality-and-review-cadence.md](../governance/procedure-library-quality-and-review-cadence.md) | Library Quality and Review Cadence Procedure | Procedure | 1.0.23 | 2026-08-23 |
+| [governance/procedure-library-quality-and-review-cadence.md](../governance/procedure-library-quality-and-review-cadence.md) | Library Quality and Review Cadence Procedure | Procedure | 1.0.24 | 2026-08-28 |
 | [governance/procedure-standard-version-upgrade.md](../governance/procedure-standard-version-upgrade.md) | Standard Version Upgrade Procedure | Procedure | 1.0.2 | 2026-08-20 |
 | [governance/procedure-whistleblower-and-incident-reporting.md](../governance/procedure-whistleblower-and-incident-reporting.md) | Whistleblower and Incident Reporting Procedure | Procedure | 1.0.9 | 2026-08-21 |
 | [governance/register-data-retention-schedule.md](../governance/register-data-retention-schedule.md) | Data Retention Schedule | Register | 1.0.36 | 2026-08-27 |
@@ -231,7 +231,7 @@ _170 documents._
 | [governance/template-citation-verification-worklist.md](../governance/template-citation-verification-worklist.md) | Citation Verification Worklist Template | Template | 1.0.4 | 2026-07-02 |
 | [governance/template-document-review-record.md](../governance/template-document-review-record.md) | Document Review Record Template | Template | 1.0.7 | 2026-08-20 |
 | [governance/template-executive-narrative-subtypes.md](../governance/template-executive-narrative-subtypes.md) | Executive Narrative Subtype Templates | Template | 1.0.3 | 2026-08-08 |
-| [governance/template-library-health-report.md](../governance/template-library-health-report.md) | Library Health Report Template | Template | 1.0.9 | 2026-08-23 |
+| [governance/template-library-health-report.md](../governance/template-library-health-report.md) | Library Health Report Template | Template | 1.0.10 | 2026-08-28 |
 | [operations/framework-it-service-management.md](../operations/framework-it-service-management.md) | IT Service Management Framework | Framework | 1.0.9 | 2026-08-17 |
 | [operations/ot/annex-bms-overlay.md](../operations/ot/annex-bms-overlay.md) | Building Management Systems (BMS) Overlay Annex | Annex | 1.0.2 | 2026-07-02 |
 | [operations/ot/annex-ot-security-overview.md](../operations/ot/annex-ot-security-overview.md) | Operational Technology Security Overview Annex | Annex | 1.0.4 | 2026-07-02 |
