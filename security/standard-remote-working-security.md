@@ -2,11 +2,11 @@
 
 **Document Title:** Remote Working Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.18\
+**Version:** 1.0.19\
 **Date:** 2026-08-28\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md)\
+**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/policy-byod.md`](policy-byod.md)\
 **Classification:** Public\
 **Category:** Information Security\
 **Review Frequency:** Annual and upon material change\
