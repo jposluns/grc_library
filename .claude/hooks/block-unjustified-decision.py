@@ -331,7 +331,7 @@ def _self_test() -> int:
             self.assertIn("un-instrumented", r)
 
         def test_synonym_deferral_with_forbidden_blocked(self):
-            # TODO 3.103: a deferral phrased with a SYNONYM outside the original
+            # 3.103 (closing PR #1081): a deferral phrased with a SYNONYM outside the original
             # five keywords (here "postpone") that carries a forbidden
             # internal-state justification must still be caught by the widened set.
             b, r = decide(
