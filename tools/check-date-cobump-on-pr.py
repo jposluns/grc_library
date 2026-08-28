@@ -99,7 +99,7 @@ EXEMPT_FILES: frozenset[str] = frozenset(
         "narrative.yml",
         "docs/portal.md",
         "docs/maturity-scorecard.md",
-        # Append-only .working logs (TODO 3.135): unversioned, so exempt from the
+        # Append-only .working logs (3.135 (closing PR #1194)): unversioned, so exempt from the
         # per-PR Version-bump (D2) and Version-Date co-bump (D4) requirements.
         ".working/validate-pr/history.md",
         ".working/improvement-log.md",

@@ -72,7 +72,7 @@ DEFAULT_SENTENCE_MAX = 45
 ENTRY_RE = re.compile(r"^\*\*\d{4}-\d{2}-\d{2} \| [^|]+ \| PR #(\d+)\*\* - (.+)$")
 _SENTENCE_SPLIT_RE = re.compile(r"(?<=[.?!)\"'])\s+")
 
-# Tiered-public-CHANGELOG note (TODO section 1.19.10): ENTRY_RE matches ONLY the
+# Tiered-public-CHANGELOG note (1.19.10 (closing PR #1037)): ENTRY_RE matches ONLY the
 # per-PR compact header. In the tiered model the older weeks collapse to weekly
 # (``**Week of YYYY-MM-DD (PRs #N-#M)**``) and monthly (``**YYYY-MM (PRs ...)**``)
 # paragraph headers, which do NOT match ENTRY_RE, so those tiers are already out

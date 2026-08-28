@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the public reference-acquisition manifest (grc_library TODO 1.19.7).
+"""Generate the public reference-acquisition manifest (1.19.7 (closing PR #1007)).
 
 The manifest [`docs/reference-acquisition-manifest.md`] is a PUBLIC BIBLIOGRAPHY of the
 corpus's citation-source reference base: for each trusted-bucket entry in

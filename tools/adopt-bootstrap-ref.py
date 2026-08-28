@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Adopter `.ref` bootstrap planner (TODO section 1.19.7 part c).
+"""Adopter `.ref` bootstrap planner (1.19.7 (closing PR #1007) part c).
 
 WHAT IT DOES. Reads the committed public reference-acquisition manifest
 (`docs/reference-acquisition-manifest.md`, itself generated from grc_library_ref's

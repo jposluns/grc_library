@@ -192,7 +192,7 @@ def scan_file(path: Path) -> list[Finding]:
 def _display_path(path: Path) -> str:
     """Repo-relative POSIX path for display, falling back to the absolute path for a
     target outside REPO_ROOT (a hand-invocation on an external file), so the findings
-    loop never raises ValueError from ``relative_to`` (deep-assessment r5 Low-3 / TODO 3.98)."""
+    loop never raises ValueError from ``relative_to`` (deep-assessment r5 Low-3 / 3.98 (closing PR #1010))."""
     try:
         return path.relative_to(REPO_ROOT).as_posix()
     except ValueError:

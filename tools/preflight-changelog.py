@@ -17,7 +17,7 @@ mirror contain any of:
     (the link-coverage convention that ``lint-changelog-link-coverage.py``
     enforces post-commit on the root file), or
   - a relative markdown-link whose in-repo target does not resolve to an
-    existing file (TODO 3.34): unlike the two checks above, this one has NO
+    existing file (3.34 (closing PR #1084)): unlike the two checks above, this one has NO
     authoritative gate behind it, because the detailed mirror lives under
     ``.working/`` (gate-exempt) so the corpus broken-link gate never scans it,
     a dangling link there is otherwise ungated. Cross-repo / out-of-repo
@@ -31,7 +31,7 @@ mirror contain any of:
     never drift, catching an over-long entry at authoring rather than at the guard.
 
 In addition to the added-line checks above, a FULL-MIRROR link-resolution pass
-(TODO 3.34 remaining half) scans EVERY in-repo relative markdown link in the
+(3.34 (closing PR #1084) remaining half) scans EVERY in-repo relative markdown link in the
 whole detailed mirror (not only added lines), reusing the identical resolution
 and exclusion rules, and fails on any dangling target with its line number. This
 catches a link that went dangling by a later move of its TARGET, which the
@@ -209,7 +209,7 @@ def unlinked_refs_in_line(line: str) -> list[str]:
     return findings
 
 
-# --- Markdown-link target resolution (TODO 3.34) ---
+# --- Markdown-link target resolution (3.34 (closing PR #1084)) ---
 # The detailed mirror lives under `.working/` (gate-exempt), so the corpus
 # broken-link gate does not scan it; a dangling relative link there is otherwise
 # ungated. This check verifies that each IN-REPO relative markdown-link target
@@ -235,7 +235,7 @@ def unresolved_link_targets(
     """Return in-repo relative markdown-link targets on ``line`` that do NOT
     resolve to an existing file (see the block comment above for exclusions).
     ``root`` is the repository root (default ``REPO_ROOT``); it is a parameter so
-    the full-mirror scan (TODO 3.34) can reuse this identical resolution against
+    the full-mirror scan (3.34 (closing PR #1084)) can reuse this identical resolution against
     a test root without a divergent reimplementation. ``source_path`` is the
     PHYSICAL on-disk location of the source file when it differs from its logical
     ``root``/``source_rel_path`` location (the post-.working-move case: the mirror
@@ -275,7 +275,7 @@ def unresolved_link_targets(
     return findings
 
 
-# --- Full-mirror link-resolution scan (TODO 3.34 remaining half) ---
+# --- Full-mirror link-resolution scan (3.34 (closing PR #1084) remaining half) ---
 # The added-line check above catches a NEW dangling link before commit, but a
 # link that went dangling by a later move of its TARGET (the source line
 # unchanged) is invisible to it. This full-mirror pass scans EVERY in-repo
@@ -421,7 +421,7 @@ def main(argv: list[str]) -> int:
                     (path, f"dangling markdown-link target `{tgt}`", text.strip())
                 )
 
-    # Full-mirror scan (TODO 3.34 remaining half): catch a link that went
+    # Full-mirror scan (3.34 (closing PR #1084) remaining half): catch a link that went
     # dangling by a later move of its target, which the added-line pass misses.
     for lineno, tgt, evidence in unresolved_links_in_mirror():
         findings.append(
@@ -458,7 +458,7 @@ def main(argv: list[str]) -> int:
         f"D7 length ceiling (100 words total, or a single sentence over 45 words). "
         f"This aid mirrors delta gate D3, the D7 length check, gate 51, the "
         f"link-coverage gate, and the detailed-mirror link-resolution check "
-        f"(TODO 3.34), surfaced before the first commit.",
+        f"(3.34 (closing PR #1084)), surfaced before the first commit.",
         file=sys.stderr,
     )
     return 1

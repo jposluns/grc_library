@@ -20,7 +20,7 @@ section 3 principle 5 is broken. This linter detects that drift
 deterministically.
 
 In addition to the four-surface row parity, this gate ADDITIVELY guards the
-three exclusion allow-lists and the per-PR D1-D12 delta gates (TODO 3.99, extended by #1250): each
+three exclusion allow-lists and the per-PR D1-D12 delta gates (3.99 (closing PR #1087), extended by #1250): each
 exclusion member is cross-checked against a positive signal that it is genuinely
 not a corpus gate (a setup step invokes no gate script; a delta-gate step's
 script is not a §6-inventory script; a non-gate pre-commit hook carries no
@@ -72,7 +72,7 @@ WORKFLOW_PATH = ".github/workflows/quality.yml"
 RUNNER_PATH = "tools/run_all_audits.sh"
 PRECOMMIT_PATH = ".pre-commit-config.yaml"
 # The PR-time runner where the D1-D12 delta gates are actually invoked (the
-# positive-signal surface for the delta-gate parity guard, TODO 3.99).
+# positive-signal surface for the delta-gate parity guard, 3.99 (closing PR #1087)).
 PRTIME_PATH = "tools/run-pr-time-checks.sh"
 
 # Workflow steps that are setup, not audit gates. These names are
@@ -305,7 +305,7 @@ def parse_precommit(path: Path) -> list[tuple[int, str, str]]:
 
 
 # --- Additive hardening of the exclusion allow-lists + the D1-D12 delta gates
-# (TODO 3.99). These guards ADD to the parity audit; they do not weaken the
+# (3.99 (closing PR #1087)). These guards ADD to the parity audit; they do not weaken the
 # name/script row-parity above. Gap (i): the three exclusion allow-lists are
 # themselves unguarded, so a real §6 gate mistakenly added to an exclusion set
 # would be silently masked from parity. Each guard cross-checks every exclusion

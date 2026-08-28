@@ -50,7 +50,7 @@ def find_ref_root(explicit: str | None) -> Path | None:
         p = Path(explicit).expanduser().resolve()
         return p if (p / "INDEX.md").exists() or (p / "catalogue.yml").exists() else None
     # Default: the real grc_library_ref sibling, located via the shared resolver
-    # (TODO section 1.19.2). None on a portable clone that has no sibling.
+    # (1.19.2 (closing PR #996)). None on a portable clone that has no sibling.
     sibling = resolve_sibling("ref")
     if sibling is not None and (
         (sibling / "INDEX.md").exists() or (sibling / "catalogue.yml").exists()
@@ -159,7 +159,7 @@ def main(argv: list[str]) -> int:
     if ref_root is None:
         # A GENUINELY ABSENT default sibling on a portable clone (the committed
         # .ref placeholder confirms this is such a clone) degrades to an advisory
-        # no-op (exit 0), per TODO section 1.19.2: ref-holds is a maintainer-only
+        # no-op (exit 0), per 1.19.2 (closing PR #996): ref-holds is a maintainer-only
         # forcing-function tool, and an adopter clone that never fetched
         # grc_library_ref has nothing to answer against. The graceful branch is
         # gated on resolve_sibling("ref") is None (the real sibling dir truly

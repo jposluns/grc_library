@@ -8,7 +8,7 @@ and stays the author's apply-time responsibility; a wrong control *code* IS
 mechanically checkable, and this gate checks it, the same philosophy as the
 matrix control-code validity gate.
 
-The gate exists because the external-audit remediation (TODO 1.27) found
+The gate exists because the external-audit remediation (1.27 (closing PR #1286)) found
 fabricated SSDF families (``VE.1``, ``DS.2`` -- there is no VE or DS group)
 and the dual-family verifies kept catching parallel occurrences the register
 had not named. A mechanical gate closes that class.

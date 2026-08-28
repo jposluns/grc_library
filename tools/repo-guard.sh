@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Cross-repo write-safety guard (TODO section 1.15a).
+# Cross-repo write-safety guard (1.15a (closing PR #1026)).
 #
 # The maintainer-orchestrator works across three colocated repositories under
 # /home/grc/ (grc_library, grc_library_ref, grc_library_scratch, plus

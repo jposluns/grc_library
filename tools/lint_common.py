@@ -31,7 +31,7 @@ Scope notes:
   ``grc_library_private``) by short name, returning ``None`` when it is
   absent. Sibling-reaching ADVISORY tools route their default lookup
   through these so a portable clone with no sibling degrades to an
-  advisory no-op (exit 0) rather than an error (TODO section 1.19.2).
+  advisory no-op (exit 0) rather than an error (1.19.2 (closing PR #996)).
 - ``iter_markdown_targets`` and ``is_markdown_target`` deliberately
   accept ``Iterable[str]`` for ``exempt_files`` so callers can pass a
   ``set``, ``frozenset``, or ``list`` interchangeably.
@@ -73,7 +73,7 @@ DEFAULT_EXEMPT_DIRS: frozenset[str] = frozenset(
         ".claude",
         ".working",
         # references/ holds operational REFERENCE prose relocated from the
-        # gate-exempt .claude/CLAUDE.md (TODO 3.139.1, roadmap C phase 1): the
+        # gate-exempt .claude/CLAUDE.md (3.139.1 (closing PR #1249), roadmap C phase 1): the
         # per-turn-loaded governance detail read at the PR-close-out boundary.
         # It is operational machinery, not corpus content, so it is exempt like
         # .claude/ (the prose was exempt in its prior home; this preserves that).
@@ -85,7 +85,7 @@ DEFAULT_EXEMPT_DIRS: frozenset[str] = frozenset(
         # queued morning-review item; a reviewer adding a nested references/ must
         # weigh this.
         "references",
-        # In-repo sibling-repo placeholder slots (TODO section 1.22.2): OPTIONAL
+        # In-repo sibling-repo placeholder slots (1.22.2 (closing PR #1047)): OPTIONAL
         # stand-ins for the grc_library_ref / grc_library_scratch / grc_library_private
         # siblings. They are NOT shipped by default (the maintainer runs the real
         # siblings; an adopter opts into an in-repo stub via /adopt), so these are
@@ -838,7 +838,7 @@ def is_fence_line(line: str) -> bool:
     in-code-block skip loops, so a fence toggle is recognized consistently
     across gates. It replaces the per-linter private ``startswith("```")``
     checks, six of which were tilde-blind before the r5 GR-4 consolidation
-    (TODO 3.10). A toggle is a toggle: this predicate does not pair fences by
+    (3.10 (closing PR #937)). A toggle is a toggle: this predicate does not pair fences by
     character or match fence widths, consistent with :func:`iter_non_code_lines`.
     """
     stripped = line.lstrip()

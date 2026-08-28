@@ -81,7 +81,7 @@ def check_file(path: Path) -> list[tuple[int, str, str]]:
 # code actually scans), not by grepping source text. ``tools`` and ``docs`` are
 # per-linter extras beyond the audited domains; the domain run is splatted from
 # lint_common (the scan-scope parity gate forbids hardcoding it). ``.claude/rules``
-# (TODO 3.182) is a shipped rule surface, the pack mirror plus third-party
+# (3.182 (closing PR #1347)) is a shipped rule surface, the pack mirror plus third-party
 # overlays, whose relative Markdown targets must resolve; it is in
 # DEFAULT_EXEMPT_DIRS so no other gate link-checks it, and scanning it here
 # catches dead links (never-vendored companions, mirror path rot) before they
