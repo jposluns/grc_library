@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """PreToolUse Bash hook: block a command whose target repo depends on the ambient cwd.
 
-Shipped 2026-07-19 (TODO §1.22.1) after the orchestrator ran ``python3
+Shipped 2026-07-19 (1.22.1 (closing PR #1042)) after the orchestrator ran ``python3
 tools/credit-offload-queue.py`` from the ``grc_library`` cwd, but that helper lives in the
 ``grc_library_scratch`` sibling repo, so the command failed with a file-not-found. WIDENED
 2026-07-24 (maintainer-directed) after the mirror failure: a ``grc_library`` tool

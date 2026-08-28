@@ -67,7 +67,7 @@ def parse_open_rows(text: str) -> list:
     Scoped to the `## Open` section so the `## Closed today` table cannot block anything, and so a
     row is retired simply by moving it, which is the cheapest possible disposition action.
 
-    Two robustness properties (TODO 3.126). (1) Columns are split on UNESCAPED pipes, so a cell may
+    Two robustness properties (3.126 (closing PR #1209)). (1) Columns are split on UNESCAPED pipes, so a cell may
     carry a literal `|` written as `\\|` without shifting the columns. (2) A row whose column count
     is NOT the well-formed five yields `disposition = None`, which the caller treats as
     undispositioned (fail closed), rather than silently reading a middle fragment as the disposition,
@@ -104,7 +104,7 @@ def parse_open_rows(text: str) -> list:
     return rows
 
 
-# The disposition GRAMMAR (TODO 3.126, maintainer-decided 2026-07-27). The closed vocabulary is
+# The disposition GRAMMAR (3.126 (closing PR #1209), maintainer-decided 2026-07-27). The closed vocabulary is
 # still the four words, but a bare terminal WORD is no longer enough: an earlier check only asked
 # that the cell START with one of them, so `ROUTED nowhere yet, it smells like 3.145 territory` and
 # even a lone `FIXED` passed while saying nothing checkable. Two rules close that, and they differ by

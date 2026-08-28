@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """PreToolUse Edit|Write hook: block an edit to a grc_library file while HEAD is on main.
 
-Shipped 2026-07-24 (TODO §3.62, the guardrail-review r10 G1 proposal; maintainer-decided
+Shipped 2026-07-24 (3.62 (closing PR #1134), the guardrail-review r10 G1 proposal; maintainer-decided
 BUILD). A recurring class (improvement-log #595, #884): an edit lands on local ``main`` because
 a merge+sync skipped the ``git checkout -b`` step that must precede any feature work. The project
 PR workflow is strict, protected ``main`` is PR-only, so an edit to a ``grc_library`` file while

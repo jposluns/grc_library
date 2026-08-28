@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """PreToolUse Edit/Write hook: fail loud when the maintainer orchestrator lacks _private.
 
-Shipped 2026-07-18 (TODO section 1.19.8 layered assurance, maintainer-directed). The concern:
+Shipped 2026-07-18 (1.19.8 (closing PR #1030) layered assurance, maintainer-directed). The concern:
 an AI "trying to be helpful" ignores grc_library_private being inaccessible, or skips it and
 reconstructs its content from memory, instead of using it or failing loud. grc_library_private
 holds the maintainer orchestrator's operational state (the CLAUDE.md delegation directive points
