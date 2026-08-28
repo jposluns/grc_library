@@ -2,8 +2,8 @@
 
 **Document Title:** BASC Information Security Policy\
 **Document Type:** Policy\
-**Version:** 1.2.11\
-**Date:** 2026-08-27\
+**Version:** 1.2.12\
+**Date:** 2026-08-28\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-basc-programme-overview.md`](annex-basc-programme-overview.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/logistics/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md), [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -176,6 +176,7 @@ Any employee may submit an exception request via the ITSM portal or designated c
 
 - Approval follows the enterprise exception risk-tier matrix in [`policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md) Section 4.2 (medium risk by the CIO; high or critical risk by the Executive Committee or Board Risk Committee), with CISO co-approval for security-related exceptions in addition to (not in place of) the risk-tier approver.
 - Duration and renewal follow that policy's Section 4.3: an exception's initial term does not exceed the enterprise base term, and any extension runs through the renewal pathway (the original approver, then the Enterprise Risk Committee, then the Board Risk Committee) up to the renewal ceiling, converting to a formal risk acceptance once that ceiling is reached.
+- Exceptions under this policy are exceptions to information-security controls and are handled as security-related exceptions (the CISO co-approval above). Membership in the BASC trade-and-supply-chain programme does not by itself make an information-security exception a trade or customs exception; the trade and customs co-approval and Enterprise Risk Committee notification pathway in that policy's Section 4.2.2 applies where an exception also affects trade or customs operations, in which case both applicable pathways apply.
 
 ### 7.4 Documentation and monitoring
 
