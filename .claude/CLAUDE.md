@@ -121,7 +121,7 @@ encode. On genuine conflict between the two layers, surface it rather than silen
 
 Two coupled obligations, placed high because a lost directive erodes the maintainer's trust faster than a defect:
 
-1. **Re-read the standing list on entry.** After every `/orch`, AND ESPECIALLY after every conversation compaction, RE-READ the `grc_library_private/INDEX.md` READ-THIS-FIRST block and `grc_library_private/.working/session-handoff.md` (the Resume-cursor block) before the next action. Compaction silently drops maintainer directives from working context; those two files are the durable record, so re-reading them is how the directives survive a compaction. Treat a compaction event as a mini-resume for this purpose. **You DETECT a compaction by the arrival of a session-continuation summary** (the hand-off delivered when context is compacted): on that event, increment the compaction tally in `grc_library_private/degradation-watch-log.md` (it feeds the A12 second-compaction pacing threshold) AND re-read the standing list. No maintainer-override wiring is needed, the maintainer always has override and can direct a missed tally entry to be added (maintainer-directed 2026-08-01). (Adopters have no `_private`; this obligation is maintainer-orchestrator-only, and it degrades gracefully to re-reading whatever standing-reminders surface the adopter keeps.)
+1. **Re-read the standing list on entry.** After every `/orch`, AND ESPECIALLY after every conversation compaction, RE-READ the `grc_library_private/INDEX.md` READ-THIS-FIRST block and `grc_library_private/.working/session-handoff.md` (the Resume-cursor block) before the next action. Compaction silently drops maintainer directives from working context; those two files are the durable record, so re-reading them is how the directives survive a compaction. Treat a compaction event as a mini-resume for this purpose. **You DETECT a compaction by the arrival of a session-continuation summary** (the hand-off delivered when context is compacted): on that event, increment the compaction tally in `grc_library_private/degradation-watch-log.md` (it feeds the two-compaction FLOOR in `## No manufactured wind-down`, which superseded the A12 second-compaction pacing gate: the count is a minimum-effort floor, not a pacing gate) AND re-read the standing list. No maintainer-override wiring is needed, the maintainer always has override and can direct a missed tally entry to be added (maintainer-directed 2026-08-01). (Adopters have no `_private`; this obligation is maintainer-orchestrator-only, and it degrades gracefully to re-reading whatever standing-reminders surface the adopter keeps.)
 
 2. **Persist every maintainer directive the moment it is given.** Whenever the maintainer gives direction or orientation: (a) confirm whether it is already registered somewhere durable (the READ-FIRST block, the handoff Resume-cursor block, a decision log, or TODO); (b) assess whether it must be maintained across sessions or past a compaction; (c) if yes, LOG it in the IMPORTANT place BEFORE acting on it, so it cannot evaporate: the READ-FIRST block for a behavioural standing rule, the `P-TODO.md` `## Up next` queue for sequencing, `TODO.md` for numbered work, the decision log for a design decision. A directive acted on but never logged is one compaction away from lost, which is the exact failure this section exists to prevent.
 
@@ -523,7 +523,7 @@ open on a fresh session so prior findings and framing do not bias it). Depth ALO
 trigger.
 
 **The compaction-gate on pacing and continue-vs-fresh questions (maintainer-directed
-2026-07-24).** Absent evidence of degradation, the assistant does NOT ask the maintainer
+2026-07-24).** **(SUPERSEDED IN PART 2026-08-28 by `## No manufactured wind-down` below: the two contributing-factor OFFER cases this paragraph references are RETIRED, and compaction count is a minimum FLOOR, never a pacing gate or a stop trigger. The retained core, do not manufacture a "what now / continue-vs-fresh" question absent a named degradation signal, still holds and composes with that section.)** Absent evidence of degradation, the assistant does NOT ask the maintainer
 "what should I do now" or "should we do this fresh / hand off", and does NOT surface a
 continue-vs-fresh, checkpoint, or sequencing choice, UNLESS both hold: (a) there is a
 justifiable reason, AND (b) the session has passed its SECOND conversation compaction.
@@ -597,16 +597,18 @@ open and every gate green, talks itself into winding down on a reason that only 
 is a signal; each is felt state or the mere SHAPE of the work dressed as a considered call, and acting
 on it stops productive work that no observable problem asked to stop.
 
-**The ONLY valid triggers** for proposing or taking a wind-down are NAMED and EXTERNALLY-OBSERVABLE: a
-failing check, gate, or audit; a QA finding revealing a PROCESS-INTEGRITY or systemic lapse
-(trust-recovery territory), as distinct from an ordinary defect which is fixed in place while the run
-continues; an operator correction or an explicit stop / mode-change instruction; a concrete, quotable
+**The ONLY valid triggers** for proposing or taking a wind-down are NAMED and EXTERNALLY-OBSERVABLE: an
+UNRESOLVED failing check, gate, or audit that BLOCKS and cannot be fixed in place (an ordinary
+caught-and-fixed gate failure is NORMAL OPERATION, not a stop, per the caught-issue clause below and
+the verification-layer-working note in `## Attended-autonomous operating mode` item 4); a QA finding
+revealing a PROCESS-INTEGRITY or systemic lapse (trust-recovery territory), as distinct from an
+ordinary defect which is fixed in place while the run continues; an operator correction or an explicit stop / mode-change instruction; a concrete, quotable
 self-inconsistency (not a felt sense of one); or TOOL-VERIFIED whole-set exhaustion
 ([`tools/audit-backlog-actionability.py`](../tools/audit-backlog-actionability.py) enumerates every open
 item, each carrying a granted closed-set blocker, shown item-by-item). A self-reported "high-priority is
 exhausted" is NOT exhaustion: it is a set-completeness claim that licenses less work, so it needs MORE
 evidence, and the required default on partial evidence is to CONTINUE on the highest-priority open item.
-A recorded maintainer-deferral counts as non-actionable for its duration.
+A recorded maintainer-deferral counts as non-actionable for its duration. (The AIQT apex rule's Progress clause, "do not grind marginal work when higher-value work or a clean handoff is available", is a DECISIVENESS principle, not a wind-down authorization: the "clean handoff" it names is one already triggered by a named signal above or a maintainer instruction, never a depth- or shape-triggered one. This section governs WHEN a wind-down is available; the AIQT clause governs not grinding once it already is.)
 
 **NEVER a trigger:** session depth or length; elapsed wall-clock; "long / heavy session", "done a lot",
 "complete milestone", "this deep in"; felt degradation or context-heaviness (un-observable, so never
