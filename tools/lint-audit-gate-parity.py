@@ -117,7 +117,7 @@ HIGHEST_DELTA_GATE = 12
 # are refreshed. The ordering differs by artefact: for taxonomy.yml / docs/portal.md /
 # docs/maturity-scorecard.md the --check gates run BEFORE this regen hook (check-then-regen:
 # the gates fail loud on drift first, then the regen auto-fixes the local tree), while the
-# narrative.yml --check and the number-allocation --check (gate 91, always_run) run AFTER this hook, so those artefacts are instead protected by
+# narrative.yml --check, the relationship-model-in-sync --check, and the number-allocation --check (gate 91, always_run) run AFTER this hook, so those artefacts are instead protected by
 # pre-commit's modification detection plus the later check; this hook is not
 # itself a verification gate.
 PRECOMMIT_NON_GATE_HOOKS = {"Regenerate taxonomy, narrative registry, portal, maturity scorecard, relationship model, and number-allocation block"}
