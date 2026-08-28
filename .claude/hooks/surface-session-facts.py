@@ -23,6 +23,39 @@ from pathlib import Path
 from datetime import datetime, timezone
 ISO = r"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?Z)"  # seconds OPTIONAL: the degradation log's dominant form is minute-only (handoff-snapshot.py:211)
 
+# --- session-start matcher (KEEP IN LOCKSTEP with tools/handoff-snapshot.py) ---
+# A row is a session-start entry when the TYPE TOKEN `session-start` heads the row (after
+# optional bullet/heading/table markers and an optional leading ISO), NOT when the substring
+# appears inside another row's prose note (a compaction/considered DECOY). Two cases:
+# ISO-before-token (table iso-first, bullet iso-first, bold-iso) and token-first (bare, bullet,
+# ###, table token-first, reversed inline). `(?![\w-])` rejects `session-start-<suffix>`.
+# Reality-validated against the live degradation log: 87/87 real rows, 0 decoys.
+_SS_RE_B = re.compile(r"^[\s\-#>|]*(?:\*\*)?" + ISO + r"(?:\*\*)?\s*\|?\s*session-start(?![\w-])")
+_SS_RE_A = re.compile(r"^[\s\-#>|]*session-start(?![\w-])[:\s|]")
+# NOTE: this matcher is deliberately LINE-ANCHORED (session-start must HEAD its row after optional
+# markers). That anchoring IS the decoy-exclusion mechanism: a session-start mentioned inside another
+# row's note (a compaction/considered decoy, INCLUDING a quoted `| session-start <iso>`) sits on a line
+# that starts with the OTHER row's structure, so it never matches. ASSUMPTION: one record per physical
+# line. A record concatenated onto another row's line (a write that dropped the trailing newline) is a
+# DATA defect to correct in the log, NOT to parse here: matching it mid-line reintroduces the
+# prose-decoy ambiguity (codex #1759 iter-2 proved a mid-line Case-C leaks quoted-pipe decoys).
+
+
+def _session_start_stamps(text):
+    """Every session-start row's ISO stamp, TYPE-token-keyed (excludes prose/decoy mentions)."""
+    out = []
+    for ln in text.splitlines():
+        m = _SS_RE_B.match(ln)
+        if m:
+            out.append(m.group(1))
+            continue
+        if _SS_RE_A.match(ln):
+            m2 = re.search(ISO, ln)
+            if m2:
+                out.append(m2.group(1))
+    return out
+
+
 
 def _fail_open():
     sys.exit(0)
@@ -100,17 +133,10 @@ def main():
         content = log_path.read_text(encoding="utf-8")
     except Exception:
         _fail_open()
-    # STRICT session-start detection: match only the type-token forms, never a prose
-    # mention of "session-start" inside another row (e.g. a compaction row's note).
-    #   table form: | <iso> | session-start | ...   (iso before the token)
-    #   plain form: session-start <iso> ...          (iso after the token)
-    starts = []
-    for ln in content.splitlines():
-        m = re.match(r"\|\s*" + ISO + r"\s*\|\s*session-start\b", ln)
-        if not m:
-            m = re.match(r"\s*session-start\s+" + ISO, ln)
-        if m:
-            starts.append(m.group(1))
+    # TYPE-token-keyed session-start detection (see _session_start_stamps): recalls all
+    # live layout variants (table both directions, bullet both directions, bold-iso, colon,
+    # ### heading, bare) and excludes decoy prose (a compaction/considered row's note).
+    starts = _session_start_stamps(content)
     if not starts:
         _fail_open()
     start_ts = max(starts, key=_parse)
@@ -138,22 +164,39 @@ def _self_test():
     # that the minute-only start is selected as newest, mirroring handoff-snapshot.py's fixture.
     assert _parse("2026-08-27T15:30Z").minute == 30          # minute-only parses
     assert _parse("2026-07-29T12:00:00Z").second == 0        # full-seconds still parses
+    # Multi-shape reality fixture: every session-start LAYOUT the live log carries, plus a
+    # DECOY compaction row whose note mentions session-start with a NEWER iso (must be excluded
+    # so it cannot wrongly win max()) and a session-start-<suffix> row (must not match).
     fixture = (
-        "| 2026-07-29T10:00:00Z | session-start | earlier full-seconds |\n"
-        "| 2026-07-29T15:30Z | session-start | latest, MINUTES-ONLY (dominant form) |\n"
+        "| 2026-07-29T10:00:00Z | session-start | table iso-first, full-seconds |\n"
+        "| session-start | 2026-07-29T11:00Z | table token-first |\n"
+        "session-start | 2026-07-29T12:00:00Z | reversed inline |\n"
+        "- session-start 2026-07-29T13:00Z (bullet token-first)\n"
+        "- 2026-07-29T14:00:00Z  session-start: bullet iso-first\n"
+        "- **2026-07-29T15:00Z** session-start: bold-iso\n"
+        "session-start 2026-07-29T16:00:00Z | bare token-first\n"
+        "### session-start 2026-07-29T17:00Z\n"
+        "- session-start: 2026-07-29T18:30:45Z (bullet colon, the TRUE newest)\n"
+        "| 2026-07-29T09:30:00Z | considered | quote: | session-start 2026-12-31T23:59:59Z | end (pipe-prose decoy, codex #1759 iter-2) |\n"
+        "| 2026-07-29T23:59:59Z | compaction | DECOY note mentions session-start 2026-07-29T23:59:59Z |\n"
+        "elapsed = now minus the session-start row (prose decoy)\n"
+        "session-start-continuation 2026-07-29T22:00Z (suffix decoy)\n"
         "| 2026-07-29T13:00Z | compaction | C1 |\n"
     )
-    starts = []
-    for ln in fixture.splitlines():
-        m = re.match(r"\|\s*" + ISO + r"\s*\|\s*session-start\b", ln)
-        if m:
-            starts.append(m.group(1))
-    assert starts == ["2026-07-29T10:00:00Z", "2026-07-29T15:30Z"], starts
-    assert max(starts, key=_parse) == "2026-07-29T15:30Z"    # minute-only selected as newest
+    starts = _session_start_stamps(fixture)
+    reals = {"2026-07-29T10:00:00Z", "2026-07-29T11:00Z", "2026-07-29T12:00:00Z",
+             "2026-07-29T13:00Z", "2026-07-29T14:00:00Z", "2026-07-29T15:00Z",
+             "2026-07-29T16:00:00Z", "2026-07-29T17:00Z", "2026-07-29T18:30:45Z"}
+    assert reals <= set(starts), ("recall gap", reals - set(starts))          # all 9 shapes recalled
+    assert "2026-07-29T23:59:59Z" not in starts, "DECOY compaction iso leaked"  # decoy excluded
+    assert "2026-07-29T22:00Z" not in starts, "session-start-<suffix> leaked"    # suffix excluded
+    assert "2026-12-31T23:59:59Z" not in starts, "pipe-prose decoy iso leaked (would wrongly win newest)"
+    assert "2026-07-29T09:30:00Z" not in starts, "decoy host considered-row iso leaked"
+    assert max(starts, key=_parse) == "2026-07-29T18:30:45Z", max(starts, key=_parse)  # not the newer decoy
     comp = sum(1 for ln in fixture.splitlines()
                if re.match(r"\|\s*" + ISO + r"\s*\|\s*compaction\s*\|", ln))
-    assert comp == 1, comp                                    # minute-only compaction row counted
-    print("surface-session-facts self-test: 5 assertions PASS (minute-only + full-seconds)")
+    assert comp == 2, comp                                    # two compaction rows counted
+    print("surface-session-facts self-test: shape-recall + decoy-exclusion + minute-only PASS")
 
 
 if __name__ == "__main__":
