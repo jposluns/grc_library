@@ -1806,6 +1806,91 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
         self.assertIn("self-test:", result.stdout)
 
+    def test_block_idle_stop_parse_mode_requires_colon(self) -> None:
+        """_parse_mode must require the Operating-mode KEY (colon), not arm on prose (PR #1754 codex A)."""
+        import importlib.util
+        hook = str(REPO_ROOT / ".claude" / "hooks" / "block-idle-stop-with-actionable-backlog.py")
+        spec = importlib.util.spec_from_file_location("_bis_mode", hook)
+        m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+        self.assertEqual(m._parse_mode("**Operating-mode:** attended-autonomous"), "attended-autonomous")
+        self.assertEqual(m._parse_mode("Operating-mode: overnight-unattended"), "overnight-unattended")
+        self.assertIsNone(m._parse_mode("Operating-mode attended-autonomous sessions are described here."),
+                          "a prose line with no colon must NOT be parsed as the mode")
+        self.assertIsNone(m._parse_mode("Notes on Operating-mode considerations follow."))
+        self.assertIsNone(m._parse_mode("Operating-mode: attended-autonomous is the default mode"),
+                          "colon-bearing prose (mode not at end-of-line) must NOT arm")
+        self.assertIsNone(m._parse_mode("Operating-mode: musings about attended-autonomous"),
+                          "an unrecognized captured token must be None")
+        self.assertIsNone(m._parse_mode("Operating-mode:\nattended-autonomous"),
+                          "colon and value on different lines must NOT parse (no newline crossing)")
+        self.assertIsNone(m._parse_mode("Operating-mode\n:\nattended-autonomous"))
+        self.assertEqual(m._parse_mode("prefix\n**Operating-mode:** daytime-unattended\nsuffix"),
+                         "daytime-unattended", "the real single-line key among other lines still parses")
+        # Vertical Unicode line separators must NOT let key+value cross a line
+        # (PR #1754 codex iter-5: [^\S\n] admitted \v \f NEL LS PS; splitlines fix).
+        for sep in ("\x0b", "\x0c", "\x1c", "\x1d", "\x1e", "\x85", "\u2028", "\u2029"):
+            self.assertIsNone(m._parse_mode("Operating-mode:" + sep + "attended-autonomous"),
+                              f"vertical separator {sep!r} must not bridge key and value")
+
+    def test_block_idle_stop_fail_open_consumes_escape(self) -> None:
+        """A malformed-payload fail-open must still consume .allow-idle-stop (one-shot; PR #1754 codex B)."""
+        import subprocess as sp, tempfile, os
+        hook = str(REPO_ROOT / ".claude" / "hooks" / "block-idle-stop-with-actionable-backlog.py")
+        with tempfile.TemporaryDirectory() as d:
+            sentinel = os.path.join(d, ".allow-idle-stop")
+            open(sentinel, "w").close()
+            env = dict(os.environ, GRC_DROP_ROOT=d)
+            r = sp.run([sys.executable, hook], input="not-json", capture_output=True,
+                       text=True, cwd=str(REPO_ROOT), env=env)
+            self.assertEqual(r.returncode, 0, f"fail-open must exit 0\nstderr:\n{r.stderr}")
+            self.assertFalse(os.path.exists(sentinel),
+                             "the escape sentinel must be consumed even on the fail-open path")
+
+    def test_block_idle_stop_nonobject_json_consumes_escape(self) -> None:
+        """Non-object JSON (valid but not a dict) must fail-open AND consume the escape (PR #1754 codex iter-3)."""
+        import subprocess as sp, tempfile, os
+        hook = str(REPO_ROOT / ".claude" / "hooks" / "block-idle-stop-with-actionable-backlog.py")
+        with tempfile.TemporaryDirectory() as d:
+            sentinel = os.path.join(d, ".allow-idle-stop")
+            open(sentinel, "w").close()
+            env = dict(os.environ, GRC_DROP_ROOT=d)
+            r = sp.run([sys.executable, hook], input="123", capture_output=True,
+                       text=True, cwd=str(REPO_ROOT), env=env)
+            self.assertEqual(r.returncode, 0, f"non-object payload must fail-open\nstderr:\n{r.stderr}")
+            self.assertFalse(os.path.exists(sentinel),
+                             "the escape must be consumed on the non-object fail-open path too")
+
+    def test_block_idle_stop_hook_main_fail_open(self) -> None:
+        """main()-level fail-open + loop-terminator paths (PR #1754 codex F2/F4).
+
+        The --self-test exercises decide() only; this drives main() over stdin to confirm the
+        two release paths never block: an unparseable payload (cannot read stop_hook_active ->
+        fail open) and a continuation (stop_hook_active truthy). Both must exit 0.
+        """
+        import subprocess as sp
+        hook = str(REPO_ROOT / ".claude" / "hooks" / "block-idle-stop-with-actionable-backlog.py")
+        for label, stdin in [("malformed payload", "not-json"),
+                             ("stop_hook_active continuation", '{"stop_hook_active": true}')]:
+            r = sp.run([sys.executable, hook], input=stdin, capture_output=True,
+                       text=True, cwd=str(REPO_ROOT))
+            self.assertEqual(r.returncode, 0,
+                             f"{label}: main() must fail-open (exit 0), got {r.returncode}\nstderr:\n{r.stderr}")
+
+    def test_block_idle_stop_with_actionable_backlog_hook_self_test(self) -> None:
+        """The idle-stop guard's own self-test, wired at introduction (PR #1754).
+
+        Origin: an attended-autonomous idle-stop that claimed the queue was exhausted while
+        ~96 ACTIONABLE backlog items remained, the exact class a prior guardrail seed warned
+        of. A guard nobody tests is the shape this whole failure takes, so it is enforced here.
+        """
+        result = self._run_selftest(
+            [sys.executable, str(REPO_ROOT / ".claude" / "hooks" / "block-idle-stop-with-actionable-backlog.py"),
+             "--self-test"]
+        )
+        self.assertEqual(result.returncode, 0,
+                         f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        self.assertIn("self-test: OK", result.stdout)
+
     def test_inject_session_timestamp_hook_self_test(self) -> None:
         """The inject-session-timestamp.py self-test, wired at introduction (PR: timestamp/duration console rule)."""
         result = self._run_selftest(
