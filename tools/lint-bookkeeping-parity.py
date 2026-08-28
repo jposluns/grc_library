@@ -27,7 +27,7 @@ The six checks:
 
 **Check 1, QA-cadence parity (the former §4.6 surface).** Derive the merged-PR
 list from the ``CHANGELOG.md`` per-entry headers, matched in BOTH the compact
-``**date | version | PR #N**`` form (the TODO 3.16 root-reformat default), the
+``**date | version | PR #N**`` form (the 3.16 (closing PR #1176) root-reformat default), the
 legacy ``## YYYY-MM-DD, Library Version X, PR #N`` form, AND the rolled-up forms
 that condensation produces (``| PRs #A-#B (N PRs) |``, its multi-range variant,
 and three ``**Week of ... (PRs ...)**`` shapes), whose ranges are expanded. Before
@@ -52,7 +52,7 @@ the improvement log, with these exemptions:
   the ``-ised`` or ``-ized`` spelling) satisfies
   the validate-pr requirement and does NOT require a retro row (#328 is the
   canonical instance: its QA was force-stopped and subsumed by Sweep 42).
-- A THIRD row state, ``pending`` (TODO 3.120): a validate-pr row that is
+- A THIRD row state, ``pending`` (3.120 (closing PR #1210)): a validate-pr row that is
   PRESENT but records the QA as ``DISPATCHED`` / ``RESULT PENDING`` and never
   ``RETURNED``. Row presence alone used to read GREEN on it, the hole that let
   validate-pr-1173 / validate-pr-1180 sit unconsumed across sessions. A pending
@@ -67,7 +67,7 @@ the improvement log, with these exemptions:
   false-positive on a legitimately-absent row.
 - The window's lower bound is a DYNAMIC per-register floor,
   ``max(INCEPTION, oldest surviving row in that register)`` (``effective_floor``,
-  mirroring gate 59): the dated-archive sweep (TODO section 1.19.9) moves AGED
+  mirroring gate 59): the dated-archive sweep (1.19.9 (closing PR #1034)) moves AGED
   validate-pr / retro rows out to ``grc_library_private``, keeping each register
   to a recent window, so a swept-out PR falls below its register's floor and is
   out of scope, not flagged missing. The two registers sweep independently, so
@@ -265,7 +265,7 @@ def is_subsumption_findings(findings: str) -> bool:
     )
 
 # A row whose QA was DISPATCHED / offloaded but has NOT yet RETURNED, so the row is
-# present-but-UNRESOLVED (TODO 3.120). Check 1 was satisfied by row PRESENCE, so an
+# present-but-UNRESOLVED (3.120 (closing PR #1210)). Check 1 was satisfied by row PRESENCE, so an
 # honest `DISPATCHED, RESULT PENDING` row read GREEN while the PR's QA had in fact never
 # run: this is the stranded-QA hole that let validate-pr-1173 (`PENDING, offloaded`) and
 # validate-pr-1180 (`DISPATCHED`) sit unconsumed across sessions. It is a THIRD state,
@@ -595,7 +595,7 @@ def bypass_log_findings(
 def effective_floor(present_prs: set[int], *, floor: int = INCEPTION) -> int:
     """The dynamic Check-1 floor: ``max(INCEPTION, oldest surviving row)``.
 
-    The dated-archive sweep (TODO section 1.19.9) moves AGED roll-up rows out
+    The dated-archive sweep (1.19.9 (closing PR #1034)) moves AGED roll-up rows out
     of the in-repo history registers (``validate-pr/history.md`` and
     ``improvement-log.md``) to ``grc_library_private``, keeping each register
     to a recent window (the gate-59 current-week model applied to the
@@ -627,7 +627,7 @@ def qa_cadence_findings(
     if not changelog_prs:
         return ["  [qa-cadence] CHANGELOG.md has no parseable PR headers."]
     max_pr = max(changelog_prs)
-    # Dynamic per-register floors (TODO section 1.19.9): a row swept to
+    # Dynamic per-register floors (1.19.9 (closing PR #1034)): a row swept to
     # grc_library_private drops below its register's floor and is out of scope,
     # not flagged missing. Before any sweep both floors equal INCEPTION.
     vp_floor = effective_floor(set(vp_status), floor=inception)
@@ -655,7 +655,7 @@ def qa_cadence_findings(
             # satisfied by the note row, no retro required.
             continue
         if st == "pending":
-            # Third state (TODO 3.120): the row is PRESENT but marks the QA as
+            # Third state (3.120 (closing PR #1210)): the row is PRESENT but marks the QA as
             # DISPATCHED / RESULT-PENDING and never RETURNED. Row presence alone used
             # to read GREEN here, so a stranded QA order (validate-pr-1173/1180) passed
             # while the PR's QA had never run. This PR is in-window (the window includes the current highest PR),

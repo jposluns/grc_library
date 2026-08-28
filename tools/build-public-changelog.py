@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Project the root CHANGELOG.md into the tiered public form (TODO section 1.19.10).
+"""Project the root CHANGELOG.md into the tiered public form (1.19.10 (closing PR #1037)).
 
 The tiered public-CHANGELOG model (maintainer-approved, locked at the #1020
 handoff): the public root ``CHANGELOG.md`` keeps only a recency-tiered
 projection, while the full per-PR record (the compact root entries and the
-detailed mirror) is the private source. FOUR tiers (TODO section 1.22.5 added the
+detailed mirror) is the private source. FOUR tiers (1.22.5 (closing PR #1048) added the
 daily tier on top of the original three), by the entry date relative to the run's
 "current day" and "current week":
 
@@ -136,7 +136,7 @@ def tier_of(d: datetime.date, as_of: datetime.date, current_week: datetime.date,
             window_start: datetime.date) -> str:
     """Return 'current', 'daily', 'weekly', or 'monthly' for an entry date.
 
-    Daily model (TODO section 1.22.5): the CURRENT DAY (``as_of``) is kept per-PR
+    Daily model (1.22.5 (closing PR #1048)): the CURRENT DAY (``as_of``) is kept per-PR
     verbatim; each PREVIOUS DAY still within the current week collapses to ONE
     daily summary paragraph; older weeks/months collapse as before. A previous
     day is condensed once the next day begins (the day-boundary trigger)."""
@@ -545,7 +545,7 @@ def main(argv: list[str]) -> int:
     mode.add_argument("--dry-run", action="store_true", default=True)
     mode.add_argument("--emit", metavar="PATH")
     mode.add_argument("--condense-completed-week", action="store_true",
-                      help="recurring weekly-rollup mode (TODO 1.19.10a): condense "
+                      help="recurring weekly-rollup mode (1.19.10a (closing PR #1176)): condense "
                            "the public root's completed-week per-PR entries to "
                            "weekly placeholders and append them to the private "
                            "full-source; available close-out step, NOT auto-run.")

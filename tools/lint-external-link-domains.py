@@ -39,7 +39,7 @@ EXEMPT_FILES = {
     "test_linters.py",
     # Generated bibliography (tools/build-reference-manifest.py): its upstream URLs
     # are the diverse issuer domains of the reference base, not corpus prose links,
-    # so the allow-list does not apply (TODO 1.19.7).
+    # so the allow-list does not apply (1.19.7 (closing PR #1007)).
     "reference-acquisition-manifest.md",
 }
 
@@ -156,7 +156,7 @@ ALLOW_LIST = {
     "pdp.gov.my",  # Malaysia Personal Data Protection Department (PDPA)
     "linddun.org",  # LINDDUN privacy threat-modelling (KU Leuven imec-DistriNet)
     "ukgovernmentbeis.github.io",  # UK AISI inspect_evals catalogue (GitHub Pages)
-    # Canonical-citations register Upstream check location URLs (register v1.5.17, TODO 1.5 currency sweep)
+    # Canonical-citations register Upstream check location URLs (register v1.5.17, 1.5 (closing PR #777) currency sweep)
     "ecfr.gov",  # US Electronic Code of Federal Regulations (CMMC 32 CFR 170 / 48 CFR DFARS acquisition rule)
     "pib.gov.in",  # India Press Information Bureau (DPDP Rules 2025 notification)
 }

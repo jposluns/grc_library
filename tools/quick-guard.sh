@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# quick-guard.sh - a FAST local ITERATION aid, NOT the push gate (TODO 3.137a).
+# quick-guard.sh - a FAST local ITERATION aid, NOT the push gate (3.137a (closing PR #1245)).
 #
 # Runs the "fast-ready" gates while iterating, in two groups: per-file-sound
 # gates on ONLY the changed .md files, plus a few FIXED-TARGET gates (matrix /
@@ -54,7 +54,7 @@ echo "------------------------------------------------------------"
 #  - CHANGED-FILE gates (FAST_TOOLS): per-file-sound, so they run on ONLY the
 #    changed .md files. Includes the two refactored gates (check-review-cadence
 #    = gate 10, lint-skill-internal-refs = gate 76). All accept a uniform
-#    positional list of .md paths (TODO 3.137a).
+#    positional list of .md paths (3.137a (closing PR #1245)).
 #  - FIXED-TARGET gates (FAST_FIXED_TARGET): each validates ONE specific file
 #    (the compliance matrix / CHANGELOG.md). Feeding them an arbitrary changed
 #    doc makes them mis-validate it AS that file and spuriously FAIL (Sweep-133

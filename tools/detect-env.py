@@ -12,7 +12,7 @@ auto-commit-push (present in cloud, absent on the local machine), the pipe-guard
 hook (fires on the local machine; silent in cloud resumed sessions because
 ``CLAUDE_PROJECT_DIR`` is unset there, the #677 root cause), egress
 reachability per source family, sibling-repo access, and the operator identity
-(maintainer vs adopter fork, by the ``origin`` remote, TODO section 1.19.5). This
+(maintainer vs adopter fork, by the ``origin`` remote, 1.19.5 (closing PR #997)). This
 tool probes what a SCRIPT can observe and prints one profile block the resume step
 consumes; the
 items only the assistant can observe from its own side (which MCP tools are in
@@ -52,7 +52,7 @@ SIBLINGS = ("grc_library_ref", "grc_library_scratch", "grc_library_private")
 
 # The canonical maintainer origin (owner/repo). A clone whose ``origin`` remote
 # points here is the maintainer's own repo; any other owner is an adopter fork.
-# Used by the origin-identity probe (TODO section 1.19.5).
+# Used by the origin-identity probe (1.19.5 (closing PR #997)).
 MAINTAINER_ORIGIN_OWNER_REPO = "jposluns/grc_library"
 
 # The committed adopt-config marker (TODO section 3.92a). The /adopt run-once
@@ -178,7 +178,7 @@ def _origin_is_maintainer(url: str | None) -> bool:
     ``ssh://`` URLs, case-insensitively, tolerating a trailing ``.git`` / slash. A non-GitHub host
     (including an SSH host alias), a fork under a different owner, a different
     repo, or a malformed multi-segment path does NOT match. The host-pin closes
-    the theoretical false-maintainer classifications noted in TODO section 1.19.5;
+    the theoretical false-maintainer classifications noted in 1.19.5 (closing PR #997);
     since section 1.19.6 makes the classification load-bearing (it drives the
     ``/orch`` maintainer-vs-adopter path), a false MAINTAINER is the dangerous
     direction and is foreclosed, while a maintainer using an unusual SSH host
@@ -244,7 +244,7 @@ def _adopt_config_status() -> tuple[bool, "bool | None"]:
 
 
 def probe_identity(siblings: dict) -> dict:
-    """Classify the operator by ORIGIN IDENTITY (TODO section 1.19.5).
+    """Classify the operator by ORIGIN IDENTITY (1.19.5 (closing PR #997)).
 
     - ``maintainer``: origin is the canonical maintainer repo AND at least one
       private sibling is readable (corroboration).
@@ -277,7 +277,7 @@ def probe_identity(siblings: dict) -> dict:
 
 
 def ref_availability_decision(classification: str, ref_readable: bool) -> str:
-    """The _ref-required loud gate (TODO section 1.19.7).
+    """The _ref-required loud gate (1.19.7 (closing PR #1007)).
 
     Reference-checking is critical to the orchestrator's content work, so a
     missing grc_library_ref is a LOUD failure for the maintainer, never a silent
@@ -315,7 +315,7 @@ def ref_availability_decision(classification: str, ref_readable: bool) -> str:
 
 
 def private_availability_decision(classification: str, private_readable: bool) -> str:
-    """The _private-required loud gate (TODO section 1.19.8 layered assurance).
+    """The _private-required loud gate (1.19.8 (closing PR #1030) layered assurance).
 
     grc_library_private holds the maintainer orchestrator's operational state, so
     for the maintainer a missing _private is a LOUD failure to fix (clone it),
@@ -609,13 +609,13 @@ def main(argv: list[str] | None = None) -> int:
                     "adopter-mode per the recorded config)."),
             }[idn["classification"]]
         )
-        # _ref-required loud gate (TODO section 1.19.7): a missing grc_library_ref is a LOUD
+        # _ref-required loud gate (1.19.7 (closing PR #1007)): a missing grc_library_ref is a LOUD
         # failure for the maintainer, never a silent graceful degradation (that is adopter-only).
         ref_readable = bool(
             profile["siblings"].get("grc_library_ref", {}).get("readable"))
         decisions["ref_availability"] = ref_availability_decision(
             idn["classification"], ref_readable)
-        # _private-required loud gate (TODO section 1.19.8 layered assurance): a missing
+        # _private-required loud gate (1.19.8 (closing PR #1030) layered assurance): a missing
         # grc_library_private is a LOUD failure for the maintainer, never a silent skip.
         private_readable = bool(
             profile["siblings"].get("grc_library_private", {}).get("readable"))

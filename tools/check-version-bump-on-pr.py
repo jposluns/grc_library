@@ -60,7 +60,7 @@ EXEMPT_FILES: frozenset[str] = frozenset(
         # regenerated not edited, so exempt like the other generated artefacts and
         # matching gate 40 (lint-version-bump-recency) EXEMPT_FILES (parity, #1380).
         "docs/reference-acquisition-manifest.md",
-        # Append-only .working logs (TODO 3.135): unversioned, so exempt from the
+        # Append-only .working logs (3.135 (closing PR #1194)): unversioned, so exempt from the
         # per-PR Version-bump (D2) and Version-Date co-bump (D4) requirements.
         ".working/validate-pr/history.md",
         ".working/improvement-log.md",

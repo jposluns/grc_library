@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""COBIT 2019 objective TITLE-TEXT validation audit (TODO section 1.16).
+"""COBIT 2019 objective TITLE-TEXT validation audit (1.16 (closing PR #1074)).
 
 Gate 61 (``lint-cobit-iso31000-citations.py``) validates COBIT code
 EXISTENCE (a code is one of the 40 objectives / inside its practice range)

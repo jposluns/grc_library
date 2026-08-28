@@ -3,7 +3,7 @@
 directions, exhaustively.
 
 WHAT THIS IS (and is NOT). This is an orchestrator dev-AID feeding the
-/reference-audit skill (TODO 2.14), not an audit gate. It exits 0 after
+/reference-audit skill (2.14 (closing PR #707)), not an audit gate. It exits 0 after
 printing its report (2 only on internal or usage error; a truncated-pipe consumer
 such as ``| head`` terminates it via SIGPIPE, as normal for a command-line tool);
 CI cannot host it because
@@ -382,7 +382,7 @@ def main(argv: list[str] | None = None) -> int:
                       "state.", file=sys.stderr)
                 return 2
 
-    # Adopter graceful-degradation (TODO 3.91): with no reachable reference base (the
+    # Adopter graceful-degradation (3.91 (closing PR #1011)): with no reachable reference base (the
     # DEFAULT ref-base, not an explicit --ref-base override, and no grc_library_ref
     # sibling holding a catalogue), no-op exit 0 rather than crash, so a bare adopter
     # clone runs this maintainer-only advisory green. An EXPLICIT --ref-base that is bad

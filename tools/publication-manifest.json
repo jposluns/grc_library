@@ -228,7 +228,7 @@
     "skills/adopt/SKILL.md": {
       "bucket": "GRC-ONLY",
       "disclosure": "WITHHELD",
-      "rationale": "Its subject is resetting a maintainer fork of the parent library: names `grc_library_private` and `grc_library_scratch`, the maintainer GitHub account, `tools/detect-env.py`, `.working/`, and internal TODO 1.19.7. The published repo needs a newly authored install path."
+      "rationale": "Its subject is resetting a maintainer fork of the parent library: names `grc_library_private` and `grc_library_scratch`, the maintainer GitHub account, `tools/detect-env.py`, `.working/`, and internal 1.19.7 (closing PR #1007). The published repo needs a newly authored install path."
     },
     "skills/artefact-discipline-check/SKILL.md": {
       "bucket": "CORE",

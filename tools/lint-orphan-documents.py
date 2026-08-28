@@ -52,13 +52,13 @@ ALWAYS_EXEMPT = {
     # RESUME.md is a manual session-resume entry point opened by filename
     # convention (its own header: "manual entry point"), the same category as
     # the other root entry points above. Its only markdown-linked referrer was
-    # a CHANGELOG entry body; the plain-language CHANGELOG rework (TODO 3.16)
+    # a CHANGELOG entry body; the plain-language CHANGELOG rework (3.16 (closing PR #1176))
     # collapses bodies, so relying on that incidental link is fragile. It is
     # reached by convention, not by inbound link, so it is exempt like its peers.
     "RESUME.md",
     # Generated public bibliography (tools/build-reference-manifest.py): reached by
     # the /adopt bootstrap and its standalone purpose, not by an inbound corpus link,
-    # the same convention-reached category as RESUME.md (TODO 1.19.7).
+    # the same convention-reached category as RESUME.md (1.19.7 (closing PR #1007)).
     "reference-acquisition-manifest.md",
 }
 

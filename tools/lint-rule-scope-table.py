@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rule-scope-table completeness audit (gate 74; TODO section 1.18 PR-2).
+"""Rule-scope-table completeness audit (gate 74; 1.18 (closing PR #1109) PR-2).
 
 The pack README's "Rule files and their scope" table
 (``guardrails/README.md``) is exhaustive by design: it lists

@@ -2,7 +2,7 @@
 """Instruction-content scan over reference-base publication extracts.
 
 WHAT THIS IS (and is NOT). An advisory dev-AID feeding the /screen-publications
-skill (TODO 2.11), not an audit gate. It always exits 0 after printing its report
+skill (2.11 (closing PR #722)), not an audit gate. It always exits 0 after printing its report
 (2 only on internal or usage error). It performs the MECHANICAL half of the
 skill's instruction-content screen: a pattern scan over publication text extracts
 for the shapes prompt-injection and instruction-smuggling payloads take (OWASP
@@ -95,7 +95,7 @@ def main(argv: list[str] | None = None) -> int:
                     help="Scan every --full-text.md in the reference base.")
     args = ap.parse_args(argv)
 
-    # Adopter graceful-degradation (TODO 3.91): no explicit --files and the default
+    # Adopter graceful-degradation (3.91 (closing PR #1011)): no explicit --files and the default
     # ref-base (no --ref-base override) with no grc_library_ref dir -> no-op exit 0, so
     # a bare adopter clone runs this maintainer-only advisory green rather than crashing.
     # An explicit --files or --ref-base still proceeds (and errors below on a bad path).

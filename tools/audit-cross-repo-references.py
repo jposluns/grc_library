@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Advisory cross-repo / in-repo reference-existence audit (TODO section 1.22.4).
+"""Advisory cross-repo / in-repo reference-existence audit (1.22.4 (closing PR #1072)).
 
 Scans every text file across the WHOLE repository (including the gate-exempt
 ``.claude/`` and ``.working/`` trees, which the corpus CI gates deliberately
@@ -37,7 +37,7 @@ link-extraction and path-resolution shapes from ``lint-links.py``, and
 iterator, UTF-8-safe reader, and the section-1.19.2 sibling resolver
 (``resolve_sibling`` / ``sibling_placeholder_present``).
 
-Portable-clone degradation (TODO section 1.19.2 / the gate-70 pattern): the
+Portable-clone degradation (1.19.2 (closing PR #996) / the gate-70 pattern): the
 CROSS-REPO EXISTENCE check routes its sibling lookup through
 ``resolve_sibling(name)``. In an adopter clone that reaches no sibling, that
 returns ``None`` and the existence check for that sibling NO-OPS (the pointer is

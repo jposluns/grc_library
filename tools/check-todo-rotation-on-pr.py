@@ -54,7 +54,7 @@ e.g. "TODO 3.21 ... closed", the #637 lead that evaded forms 1 and 7; added
 (9) the verb-first bare TODO-section closure form ``clos(e|es|ed|ing) [the]
 TODO N.M`` (the clos-FIRST word order, the mirror of forms 7 and 8 and the
 decimal analogue of form 1; e.g. "Closes TODO 3.177"; added 2026-08-01 for
-TODO 3.188 after the eight prior forms passed this phrasing vacuously,
+3.188 (closing PR #1312) after the eight prior forms passed this phrasing vacuously,
 full-history census 29 matches, 28 same-PR closures plus one re-added prior
 closure line (a prior PR's closure entry re-touched in a later PR's commit and
 masked by that PR's own rotation, the re-add class every form shares), 0 genuine
@@ -234,7 +234,7 @@ CLOSURE_PATTERNS = (
     # "section" word and NO `§`). This is the clos-FIRST word order (e.g.
     # "Closes TODO 3.177"), the mirror of forms 7/8 (which are token-first) and the
     # exact decimal analogue of form 1 ("clos... TODO §"). Added 2026-08-01
-    # (TODO 3.188) after a PR2b-3 dual-family verify (codex F5 / Fable F-10) found
+    # (3.188 (closing PR #1312)) after a PR2b-3 dual-family verify (codex F5 / Fable F-10) found
     # the eight prior forms all pass "Closes TODO N.M" phrasing VACUOUSLY (form 1
     # wants `§`; forms 7/8 want the TODO token to PRECEDE the closure verb).
     # Full-history census: 29 matches, 28 same-PR closures ("Closes/closed/closing

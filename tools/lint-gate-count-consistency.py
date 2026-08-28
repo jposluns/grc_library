@@ -71,7 +71,7 @@ minus the exempt set (CHANGELOG.md, generated artefacts, regression
 fixtures that intentionally embed stale counts). In ``*.py`` / ``*.sh``
 files, ``#``-comment lines are scanned like any other line (they are code
 comments, not markdown headings); the ``## Version history`` skip and
-heading detection apply to ``*.md`` files only (TODO 3.195).
+heading detection apply to ``*.md`` files only (3.195 (closing PR #1287)).
 
 Exit codes: 0 pass, 1 findings, 2 internal error (canonical §6 not
 parseable).
@@ -460,7 +460,7 @@ def scan_file(path: Path, counts: dict[str, int]) -> list[Finding]:
     # heading, and comment lines frequently carry gate-count idioms (a shell
     # ``# ... N gates ...`` banner, a module-docstring-adjacent comment). Treating
     # a ``#``-comment line as a heading made gate 39 BLIND to a stale count in it
-    # (the gate-80 vpr gF6 finding, TODO 3.195: a stale count idiom in a shell comment in
+    # (the gate-80 vpr gF6 finding, 3.195 (closing PR #1287): a stale count idiom in a shell comment in
     # tools/quick-guard.sh line 9 that this gate skipped as a "heading"). So the
     # heading / version-history logic is applied to MARKDOWN files only; in a
     # non-markdown file every line (comments included) is scanned, and the
