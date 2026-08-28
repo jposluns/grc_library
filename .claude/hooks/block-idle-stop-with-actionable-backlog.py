@@ -31,17 +31,21 @@ work declares both. The reliable loop-terminator remains ``stop_hook_active``.
 
 DESIGN INVARIANTS (each mirrors ``block-turn-end-with-outstanding-work.py``):
   * FAIL OPEN. Any exception, unreadable/ambiguous state, unknown mode, or audit
-    failure resolves the blocking predicate to False (allow). The only path that
-    blocks is the fully-parsed happy path. A guard that wedges the session on its own
-    malfunction gets removed, and a removed guard protects nothing.
+    failure resolves the blocking predicate to False (allow), with one deliberate
+    exception: a failed escape CONSUMPTION (a caught unlink error) refuses the escape
+    rather than granting it, then continues through the normal blocking predicate. The
+    only path that blocks is the fully-parsed happy path. A guard that wedges the session
+    on its own malfunction gets removed, and a removed guard protects nothing.
   * LOOP-SAFE. ``stop_hook_active`` -> allow, so it blocks at most once per stop
     attempt; the continuation then proceeds.
   * WORKER-EXEMPT. A dispatched worker cannot discharge or escape this (it has no
     backlog to work and no writable escape root), so a worker session -> allow.
   * ONE-SHOT ESCAPE. ``.allow-idle-stop`` (this guard's OWN sentinel, not shared with the
-    branch guard) is consumed at the TOP of main() on any turn-end where it is present, so
-    no path -- malformed or non-object payload, worker, or continuation -- can leak it to a
-    later stop, and no parallel-execution race with a sibling can consume it first.
+    branch guard) is consumed at the TOP of main() on any turn-end where it is present AND
+    deletable; the escape is honoured ONLY after a successful deletion, so a failed unlink
+    refuses the escape rather than granting it, and no path -- malformed or non-object
+    payload, worker, or continuation -- can leak a consumed sentinel to a later stop, and no
+    parallel-execution race with a sibling can consume it first.
 
 RESIDUE, stated per the guard-inputs discipline:
   * "ACTIONABLE count >= 1" is a PROXY for "productive authorized work remains". It is
@@ -74,7 +78,7 @@ except Exception:                                  # pragma: no cover - fail OPE
         return True
 
 REPO = Path(os.environ.get("CLAUDE_PROJECT_DIR") or Path(__file__).resolve().parents[2])
-ESCAPE_FILE = Path(os.environ.get("GRC_DROP_ROOT", "/opt/grc/grc_working")) / ".allow-idle-stop"
+ESCAPE_FILE = Path((os.environ.get("GRC_DROP_ROOT") or "/opt/grc/grc_working")) / ".allow-idle-stop"
 
 # Modes where the maintainer is NOT watching every step, so a yield with authorized
 # work remaining is an idle-stop unless a wait is declared. Fully "attended" is absent
