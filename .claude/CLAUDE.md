@@ -513,7 +513,7 @@ re-verifies every positive finding at source, and routes findings normally).
 [`session-lifecycle`](rules/governance/session-lifecycle.md) §4 (evidence-gated wind-down;
 continue is the default; session length, context "heaviness", and "a large / substantial /
 fresh-context-best series remaining" are NOT valid triggers by themselves; the ONLY valid trigger
-is a NAMED, externally-observable signal; surfaced never silent). **Project overlay.** Session
+is a NAMED, externally-observable signal; surfaced never silent). **Project overlay.** **(SUPERSEDED 2026-08-28 by `## No manufactured wind-down` below: session depth and work shape are NEVER a wind-down trigger at any point, and case (ii)'s fresh-context need is a DISPATCH trigger there, not a stop; that section governs. The two OFFER cases below are retired.)** Session
 depth is a legitimate CONTRIBUTING factor to OFFERING a handoff (the maintainer's choice, never an
 auto-handoff) in two cases only: (i) a very-long-run of expected chained large PRs ahead where the
 project's OWN historical metrics show a measured quality decline on comparable prior runs (a named
@@ -577,6 +577,65 @@ roughly-2-minute window fires with no answer, **MAINTAIN overnight mode** and re
 next time the maintainer messages. A session-closing handoff silently ends an overnight
 run, so the overnight-OFF decision is carved out of the wind-down no-answer-to-handoff
 default above: it requires an explicit maintainer signal, never a timeout.
+
+## No manufactured wind-down: depth and work shape are never stop triggers (interim, adopted 2026-08-28)
+
+Adopted from the lab_infra fleet share (Architect-directed 2026-08-28), interim pending the canonical
+guardrails/AIQT pack, which this reconciles to when it ships. Where it conflicts with the `## Wind-down
+decision framework` above and the pack rule [`session-lifecycle`](rules/governance/session-lifecycle.md)
+(its §1 "prefer a fresh session" preference, its §4 "session depth is a legitimate CONTRIBUTING factor"
+clause with the very-long-run and fresh-context sub-cases, and its "winding down on felt degradation or
+work shape" anti-pattern), THIS section GOVERNS and those passages are SUPERSEDED. The pack rule bodies
+are NOT edited here (guardrails owns them; they reconcile at the canonical ship); this is a CLAUDE.md
+interim overlay plus a supersession note in the local
+[`session-lifecycle`](rules/governance/session-lifecycle.md) PROJECT-OVERLAY block.
+
+**The failure it forecloses: the MANUFACTURED stop.** An orchestrator that, with authorized work still
+open and every gate green, talks itself into winding down on a reason that only sounds like prudence:
+"a long session", "a heavy session", "done a lot", "a complete milestone", "this deep into the run",
+"best done fresh later", "a large series is next", or "this audit needs fresh context". None of these
+is a signal; each is felt state or the mere SHAPE of the work dressed as a considered call, and acting
+on it stops productive work that no observable problem asked to stop.
+
+**The ONLY valid triggers** for proposing or taking a wind-down are NAMED and EXTERNALLY-OBSERVABLE: a
+failing check, gate, or audit; a QA finding revealing a PROCESS-INTEGRITY or systemic lapse
+(trust-recovery territory), as distinct from an ordinary defect which is fixed in place while the run
+continues; an operator correction or an explicit stop / mode-change instruction; a concrete, quotable
+self-inconsistency (not a felt sense of one); or TOOL-VERIFIED whole-set exhaustion
+([`tools/audit-backlog-actionability.py`](../tools/audit-backlog-actionability.py) enumerates every open
+item, each carrying a granted closed-set blocker, shown item-by-item). A self-reported "high-priority is
+exhausted" is NOT exhaustion: it is a set-completeness claim that licenses less work, so it needs MORE
+evidence, and the required default on partial evidence is to CONTINUE on the highest-priority open item.
+A recorded maintainer-deferral counts as non-actionable for its duration.
+
+**NEVER a trigger:** session depth or length; elapsed wall-clock; "long / heavy session", "done a lot",
+"complete milestone", "this deep in"; felt degradation or context-heaviness (un-observable, so never
+assertable per `evidence-grounded-completion`, and never a stop trigger); and the mere SHAPE of
+remaining work (a large series, migration, or audit ahead). Large work is done unit by unit with
+independent verification sustaining quality; its size is a reason to keep going, never to stop. A
+caught-and-fixed issue is NORMAL OPERATION, not a stop: finish the unit in hand, fix, then continue.
+
+**The two-compaction floor.** The fleet minimum is that a run continues to at least two compaction
+events before ANY discretionary wind-down is even proposed. That floor is a minimum-effort expectation,
+never a point past which depth becomes a valid consideration and never a ceiling that authorizes a stop:
+depth is never a valid consideration at any compaction count. A named externally-observable degradation
+signal remains an always-valid trigger regardless of count. This supersedes the weaker
+"second-compaction-plus-justifiable-reason" reading in the compaction-gate above.
+
+**"Needs fresh context" is a DISPATCH trigger, never a stop.** A task that genuinely benefits from fresh
+context, the canonical case being a whole-project audit or assessment, is a reason to DISPATCH A WORKER
+(fresh context by construction) while the orchestrator keeps advancing the queue, not to wind the
+orchestrator down. This supersedes the "excessively-sensitive work needing fresh context" OFFER
+sub-case above and its `/deep-assessment`-on-fresh-session framing: the freshness is met by the
+dispatched worker.
+
+**Mechanization.** lab_infra pairs the rule with an unattended Stop hook binding a stop to the
+tool-verified whole-set-exhaustion check. This project's
+[`block-idle-stop-with-actionable-backlog.py`](hooks/block-idle-stop-with-actionable-backlog.py)
+already enforces the no-idle-stop half (it blocks a turn-end yield in a non-attended mode while the
+backlog audit reports actionable items, absent a declared wait); a stronger tool-verified-exhaustion
+binding is a queued guardrail-seed follow-up.
+
 
 ## Anything wrong: finish the current task, then FIX IT, and nothing else proceeds first
 

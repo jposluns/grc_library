@@ -138,3 +138,10 @@ The rule's mechanisms are the exception paths (graceful degradation for blocked 
   blocks it anyway); the concrete close is a green merged PR plus a refreshed
   `grc_library_private/.working/session-handoff.md` (Next-actions, State-snapshot, Asserted-expectations,
   green-at-`<sha>`) and the `grc_library_private/.working/session-state.md` lease RELEASE.
+- **No-manufactured-winddown interim supersession (2026-08-28).** The lab_infra fleet share
+  `10-TRUST-no-manufactured-winddown` is adopted as an interim local control in the project CLAUDE.md
+  `## No manufactured wind-down` section, which SUPERSEDES this rule's §1 "prefer a fresh session"
+  preference, its §4 "session depth is a legitimate CONTRIBUTING factor" clause (both OFFER sub-cases),
+  and its "winding down on felt degradation or work shape" anti-pattern until the canonical
+  guardrails/AIQT pack ships and reconciles. Read that CLAUDE.md section as governing on wind-down
+  triggers. Overlay-only; the pack rule body is unchanged.
