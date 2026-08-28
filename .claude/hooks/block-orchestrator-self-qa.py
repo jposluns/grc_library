@@ -124,7 +124,7 @@ BLOCK_SEVERITY = True
 # The settings matcher scopes the hook, and this set is the internal re-check.
 DISPATCH_TOOLS = {"Task", "Agent", "Workflow", "SendMessage"}
 
-WORKING_ROOT = Path(os.environ.get("GRC_DROP_ROOT", "/opt/grc/grc_working"))
+WORKING_ROOT = Path(os.environ.get("GRC_DROP_ROOT") or "/opt/grc/grc_working")
 
 # Actor-created and once-only. Reachable from any shell with `touch <path>`.
 SENTINEL = WORKING_ROOT / ".allow-orchestrator-qa"

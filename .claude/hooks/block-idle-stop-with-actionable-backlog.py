@@ -39,9 +39,11 @@ DESIGN INVARIANTS (each mirrors ``block-turn-end-with-outstanding-work.py``):
   * WORKER-EXEMPT. A dispatched worker cannot discharge or escape this (it has no
     backlog to work and no writable escape root), so a worker session -> allow.
   * ONE-SHOT ESCAPE. ``.allow-idle-stop`` (this guard's OWN sentinel, not shared with the
-    branch guard) is consumed at the TOP of main() on any turn-end where it is present, so
-    no path -- malformed or non-object payload, worker, or continuation -- can leak it to a
-    later stop, and no parallel-execution race with a sibling can consume it first.
+    branch guard) is consumed at the TOP of main() on any turn-end where it is present AND
+    deletable; the escape is honoured ONLY after a successful deletion, so a failed unlink
+    refuses the escape rather than granting it, and no path -- malformed or non-object
+    payload, worker, or continuation -- can leak a consumed sentinel to a later stop, and no
+    parallel-execution race with a sibling can consume it first.
 
 RESIDUE, stated per the guard-inputs discipline:
   * "ACTIONABLE count >= 1" is a PROXY for "productive authorized work remains". It is
