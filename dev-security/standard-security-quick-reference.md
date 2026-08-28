@@ -2,8 +2,8 @@
 
 **Document Title:** Security Quick Reference\
 **Document Type:** Standard\
-**Version:** 1.1.14\
-**Date:** 2026-08-27\
+**Version:** 1.1.15\
+**Date:** 2026-08-28\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md)\
@@ -65,7 +65,7 @@ Absolute prohibitions. No exception exists without approval through the §4.2.2 
 ## 3. Authentication decision tree
 
 **Human user accessing the system?** 
-Use the enterprise IdP. MFA is mandatory. No bypass permitted. 
+Use the enterprise IdP. MFA is mandatory; no bypass without an approved exception (Authentication Standard, Section 8).
 For Tier 0 (identity systems, PAM, PKI): phishing-resistant MFA (FIDO2 or certificate-based) required.
 
 **Service-to-service call?** 

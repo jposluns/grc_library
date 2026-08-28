@@ -2,8 +2,8 @@
 
 **Document Title:** Bring Your Own Device (BYOD) Policy\
 **Document Type:** Policy\
-**Version:** 1.1.4\
-**Date:** 2026-08-27\
+**Version:** 1.1.5\
+**Date:** 2026-08-28\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-remote-working-security.md`](standard-remote-working-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md)\
@@ -122,7 +122,7 @@ Violations of this policy, including attempts to circumvent MAM or MDM controls,
 
 ## 12. Exceptions
 
-Exceptions to this policy are approved through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md), with CISO co-approval for security-related exceptions in addition to, not in place of, the risk-tier approver, with documented business justification, a compensating control plan, and a defined expiry date not exceeding 90 days; renewals follow that policy's §4.3.5 (original approving authority, then ERC, then Board Risk Committee) within the §4.3.4 cumulative ceiling. Exception records are retained for 7 years.
+Exceptions to this policy are approved through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md), with CISO co-approval for security-related exceptions in addition to, not in place of, the risk-tier approver, with documented business justification, a compensating control plan, and a defined expiry date not exceeding 90 days; renewals follow that policy's §4.3.5 (original approving authority, then ERC, then Board Risk Committee) within the §4.3.4 cumulative ceiling. Exception records are retained for 7 years. The prohibition on accessing Restricted-classified data from a personal device (Section 7) is absolute and is not subject to this exception process; Restricted access requires a company-managed device.
 
 ---
 

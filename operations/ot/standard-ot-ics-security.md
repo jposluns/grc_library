@@ -2,7 +2,7 @@
 
 **Document Title:** OT/ICS Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.7\
+**Version:** 1.0.8\
 **Date:** 2026-08-28\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -184,7 +184,7 @@ Terms used in this standard are defined in the library glossary ([`governance/re
 
 ### 7.1 Identity management
 
-7.1.1 Every OT user account must be uniquely attributable to an identifiable person or service. Generic shared accounts ("operator", "engineer", "admin") are prohibited except where vendor or safety constraints make individual accounts technically infeasible; in such cases, compensating physical-access logging must be in place.
+7.1.1 Every OT user account must be uniquely attributable to an identifiable person or service. Generic shared accounts ("operator", "engineer", "admin") are prohibited except where vendor or safety constraints make individual accounts technically infeasible; in such cases, compensating physical-access logging must be in place and the deviation must be filed as an exception under Section 2.3.
 
 7.1.2 OT identity sources are governed by [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md). OT engineering workstations that are domain-joined fall under the same IAM standard with the OT-specific overlays in this section.
 
@@ -204,7 +204,7 @@ Terms used in this standard are defined in the library glossary ([`governance/re
 - All access to safety-related configuration interfaces.
 - All access to the OT DMZ (Purdue Level 3.5) from the IT side.
 
-7.2.2 Where MFA is technically infeasible (legacy HMI without MFA support; vendor-supplied appliance without MFA capability), the affected access must be confined to a physical-access-controlled location and logged via compensating controls (video, badge readers, witness presence).
+7.2.2 Where MFA is technically infeasible (legacy HMI without MFA support; vendor-supplied appliance without MFA capability), the affected access must be confined to a physical-access-controlled location and logged via compensating controls (video, badge readers, witness presence), and the deviation must be filed as an exception under Section 2.3.
 
 7.2.3 Default vendor credentials must be changed before any OT component is connected to a zone. The change must be verified during commissioning.
 
