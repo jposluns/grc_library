@@ -52,7 +52,7 @@ WHAT IT DOES.
 AUTHORIZATION. The sentinel is a deliberate speed bump plus an audit record,
 not a maintainer-only capability. The actor can create it with one shell call:
 
-    touch /opt/grc/grc_working/.allow-orchestrator-qa
+    touch "${GRC_DROP_ROOT:-/opt/grc/grc_working}/.allow-orchestrator-qa"
 
 The hook honours only a regular-file sentinel that it successfully removes. A
 directory, symlink, missing path, or removal failure does not authorize the
@@ -80,7 +80,7 @@ arm of the predecessor is precisely the arm that fired during the week that was
 lost, and it changed nothing.
 
 REGISTER. Each BLOCK, each authorized BYPASS, and each FAIL-OPEN appends a row to
-`/opt/grc/grc_working/guard-fires.tsv` when that file's directory is writable.
+``${GRC_DROP_ROOT:-/opt/grc/grc_working}/guard-fires.tsv`` when that file's directory is writable.
 Best-effort by order, `log_fire()` returns False rather than raising so a
 logging failure can never cost a block. The register currently has no reader,
 and rotation is not implemented, so it is an append-only trace for human

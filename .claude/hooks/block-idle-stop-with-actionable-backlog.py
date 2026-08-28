@@ -31,9 +31,11 @@ work declares both. The reliable loop-terminator remains ``stop_hook_active``.
 
 DESIGN INVARIANTS (each mirrors ``block-turn-end-with-outstanding-work.py``):
   * FAIL OPEN. Any exception, unreadable/ambiguous state, unknown mode, or audit
-    failure resolves the blocking predicate to False (allow). The only path that
-    blocks is the fully-parsed happy path. A guard that wedges the session on its own
-    malfunction gets removed, and a removed guard protects nothing.
+    failure resolves the blocking predicate to False (allow), with one deliberate
+    exception: a failed escape CONSUMPTION (a caught unlink error) refuses the escape
+    rather than granting it, then continues through the normal blocking predicate. The
+    only path that blocks is the fully-parsed happy path. A guard that wedges the session
+    on its own malfunction gets removed, and a removed guard protects nothing.
   * LOOP-SAFE. ``stop_hook_active`` -> allow, so it blocks at most once per stop
     attempt; the continuation then proceeds.
   * WORKER-EXEMPT. A dispatched worker cannot discharge or escape this (it has no
