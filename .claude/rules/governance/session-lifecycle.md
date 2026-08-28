@@ -145,3 +145,14 @@ The rule's mechanisms are the exception paths (graceful degradation for blocked 
   and its "winding down on felt degradation or work shape" anti-pattern until the canonical
   guardrails/AIQT pack ships and reconciles. Read that CLAUDE.md section as governing on wind-down
   triggers. Overlay-only; the pack rule body is unchanged.
+- **#5(b) attended->unattended timeout swap (2026-08-28).** The project CLAUDE.md §3
+  graceful-degradation timeout now performs an ASSISTANT-INITIATED `Operating-mode` transition
+  attended-autonomous -> daytime-unattended on a no-answer timeout (records the decision PENDING,
+  continues), a NARROW project exception to §2's "mode transitions are operator acts", authorized by
+  fleet directive #5(b). It is direction-limited: attended -> MORE-unattended ONLY, never ENDING
+  unattended, so §2's hard clause ("ending an unattended mode is never a no-answer default or a
+  timeout effect") is fully preserved. Swap-BACK to attended remains an operator act per §2:
+  maintainer return does not itself restore attended mode (the block-askuserquestion-unattended.py
+  message directs updating Operating-mode before re-issuing a prompt). Reversibility gate absolute:
+  authorial / irreversible / outward decisions still defer-and-skip, never auto-proceed. Overlay-only;
+  pack §2 body unchanged.

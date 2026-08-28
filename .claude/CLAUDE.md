@@ -430,12 +430,12 @@ where one is clearly safer, or the external-standard / canonical-internal-source
 where one governs; document the choice and its evidence.
 
 3. **Pending-decisions graceful degradation.** Surface a genuinely maintainer-owned decision (per
-`clarify-before-acting`) with named options and arm a short timer (about 2 minutes; mechanically a
-background `sleep`). Answer before it fires: act on the answer. On timeout take exactly one of two
-LOGGED paths in `grc_library_private/.working/pending-decisions.md`: a **stricter-safe default**
-when rule 2 yields a defensible, more-conservative, evidence-backed option AND the action is
-reversible / on-branch (record "proceeded with X (stricter-safe default); confirm or redirect on
-resume", and continue), or **defer-and-skip** when the decision is authorial, irreversible, or
+`clarify-before-acting`) with named options and arm a **5-minute** timer (mechanically a
+background `sleep`). Answer before it fires: act on the answer. On a no-answer timeout take one of two
+LOGGED paths in `grc_library_private/.working/pending-decisions.md`: for a REVERSIBLE / on-branch
+decision, **swap the lease `Operating-mode` attended-autonomous -> daytime-unattended** (the
+`block-askuserquestion-unattended.py` hook then blocks further prompts), record it PENDING, and CONTINUE
+(the swap-and-continue IS the stricter-safe continuation; a narrow #5(b) exception to session-lifecycle §2's operator-only mode-transition rule, attended->unattended ONLY, see the rule's overlay); or **defer-and-skip** when the decision is authorial, irreversible, or
 outward-facing (record "deferred-blocked: needs maintainer", route AROUND it to the next
 independent task, hold any dependent task). The reversibility gate is absolute: a timeout never
 auto-proceeds on a destructive or outward-facing action.
@@ -561,7 +561,7 @@ trigger; and (3) named options (the `clarify-before-acting` shape, recommended o
      the correct default): if the maintainer picks D, the assistant reminds the maintainer
      not to be stupid and hands off immediately (a Ulysses pact).
 
-**The timeout (graceful degradation).** This decision uses the same roughly-2-minute
+**The timeout (graceful degradation).** This decision uses the same roughly-5-minute
 background-`sleep` timer as the attended-autonomous mechanism (§3). If the maintainer answers
 before it fires, act on the answer. If it fires with no answer, **proceed with option A
 (handoff)**: the conservative, reversible, no-regret resolution of an already-triggered wind-down.
@@ -573,7 +573,7 @@ quality signals turn.
 
 **Turning overnight mode OFF is never a no-answer default.** Do NOT end
 overnight mode unless the maintainer explicitly says so; if unsure, pause and ask. If the
-roughly-2-minute window fires with no answer, **MAINTAIN overnight mode** and re-ask the
+roughly-5-minute window fires with no answer, **MAINTAIN overnight mode** and re-ask the
 next time the maintainer messages. A session-closing handoff silently ends an overnight
 run, so the overnight-OFF decision is carved out of the wind-down no-answer-to-handoff
 default above: it requires an explicit maintainer signal, never a timeout.
