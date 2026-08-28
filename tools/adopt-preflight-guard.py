@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pre-flight adopter-clone guard for /adopt (TODO section 3.92b).
+"""Pre-flight adopter-clone guard for /adopt (§3.92.b, tool-side shipped in PR #1017).
 
 `/adopt` is the RUN-ONCE fork-onboarding that RESETS the machinery-core `.working/`
 working-state to clean adopter baselines. That reset is destructive on the WRONG

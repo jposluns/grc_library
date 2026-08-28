@@ -55,7 +55,7 @@ SIBLINGS = ("grc_library_ref", "grc_library_scratch", "grc_library_private")
 # Used by the origin-identity probe (1.19.5 (closing PR #997)).
 MAINTAINER_ORIGIN_OWNER_REPO = "jposluns/grc_library"
 
-# The committed adopt-config marker (TODO section 3.92a). The /adopt run-once
+# The committed adopt-config marker (§3.92.a, tool-side shipped in PR #1016). The /adopt run-once
 # onboarding writes it; the /orch adopter-path reads it to skip re-onboarding.
 # Its minimal schema (per the adopt SKILL step 6): mode == "adopter",
 # adopted_at (UTC date), sibling_choice in the set below, adopt_config_version.
@@ -219,7 +219,7 @@ def _origin_is_maintainer(url: str | None) -> bool:
 
 
 def _adopt_config_status() -> tuple[bool, "bool | None"]:
-    """Return (present, valid) for ``.claude/adopt-config.json`` (TODO 3.92a).
+    """Return (present, valid) for ``.claude/adopt-config.json`` (§3.92.a, PR #1016).
 
     ``valid`` is ``None`` when the file is absent. When present, ``valid`` is
     True only for parseable JSON with ``mode == "adopter"`` AND a recognized

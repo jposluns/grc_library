@@ -293,7 +293,7 @@ def strip_front_matter(text: str) -> str:
 # tell a machine-id slug (`parallel-execution-worker-fan-out`) from a three-plus-
 # segment English compound (`state-of-the-art`, `up-to-date`), so such a compound
 # in a metadata cell is a KNOWN over-strip residual (claude verify-3115, 2026-07-27),
-# tracked in TODO 3.148; a `command-exempt` marker is the escape hatch, and it is
+# tracked in the backlog (formerly TODO 3.148); a `command-exempt` marker is the escape hatch, and it is
 # latent (no registered command file carries such a cell today). A SPACE-separated
 # cell of ordinary words stays prose (the atom must be whitespace-free), as does a
 # one-hyphen compound like `fan-out` (two segments, below the three-segment floor).
