@@ -120,7 +120,7 @@ def main():
     text = _last_assistant_text(tp)
     if not text or not _has_pair(text):
         _fail_open()
-    repo = Path(os.environ.get("CLAUDE_PROJECT_DIR", "/home/grc/grc_library")).resolve()
+    repo = Path(os.environ.get("CLAUDE_PROJECT_DIR") or str(Path(__file__).resolve().parents[2])).resolve()
     try:
         sys.path.insert(0, str(repo / "tools"))
         from lint_common import resolve_working
