@@ -134,12 +134,12 @@ def disposition_valid(cell: str) -> bool:
     documented "whitespace OR markup between the word and the ref" holds: `**FIXED** #1178`,
     `` FIXED `#1178` ``, `FIXED **#1208**`, `FIXED [#1208](url)`, and `**ROUTED** 3.56a` all validate
     (claude + codex verify-3126). A colon between the word and the ref (`ROUTED: 3.56a`, `FIXED: #1210`)
-    is normalized to whitespace too (3.149), since the ledger writes some dispositions with a colon. The ref shapes carry none of those characters, so removing them is
+    is normalized to whitespace too (3.149 (closing PR #1341)), since the ledger writes some dispositions with a colon. The ref shapes carry none of those characters, so removing them is
     lossless for the match. Returns False for an empty cell, a bare terminal word with no adjacent
     ref, a narration that merely mentions a ref later (`FIXED in #1208`: `in` sits between), a `#0`
     PR ref, and any non-vocabulary prose (`pending`, `OPEN: ...`)."""
     plain = re.sub(r"[*_`\[\]]", "", cell)
-    # 3.149: a colon separating the keyword from the ref (`ROUTED: 3.56a`, `FIXED: #1210`) is a
+    # 3.149 (closing PR #1341): a colon separating the keyword from the ref (`ROUTED: 3.56a`, `FIXED: #1210`) is a
     # SEPARATOR, not markup, and the ref shapes carry no colon, so normalizing it to whitespace is
     # lossless and lets the adjacent-ref grammar match. The REFUTED/ACCEPTED word-only branch (which
     # already tolerates a trailing colon via `\b`) is unaffected.
