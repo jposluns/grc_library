@@ -15,7 +15,7 @@ inferred: a drop still in ``inbox/`` is unprocessed, and a processed drop is MOV
 merged records returned false negatives at a high rate, because the orchestrator
 records a drop's CONTENT without always naming its filename.
 
-TWO TRAPS THIS AVOIDS, both named when the gap was routed (TODO 3.117):
+TWO TRAPS THIS AVOIDS, both named when the gap was routed (§3.117, implemented in PR #1167):
 - **Transient staging is not a drop, and LOCATION marks that too (3.118(c), Option i).** The
   orchestrator stages diffs and scratch files for workers to read under ``inbox/staging/``;
   everything there is reported separately as staging, never as unprocessed work. Anything

@@ -16,7 +16,7 @@ axis) and ``lint-citations.py`` on a hand-curated known-bad string (the
 enumeration axis). A source that is correctly registered and correctly current
 but whose last verification has gone stale is invisible to both; this gate adds
 that dimension. It does NOT close the require-registration gap (a source absent
-from the register entirely; TODO section 3.9 / GR-GAP-1); it assumes a source IS
+from the register entirely; GR-GAP-1); it assumes a source IS
 registered and checks its freshness.
 
 ADVISORY (WARN) MODE, deliberately (not merely a soft rollout). The register's
