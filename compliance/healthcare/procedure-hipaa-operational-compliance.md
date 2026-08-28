@@ -2,8 +2,8 @@
 
 **Document Title:** HIPAA Operational Compliance Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.2\
-**Date:** 2026-08-27\
+**Version:** 0.0.3\
+**Date:** 2026-08-28\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/healthcare/annex-healthcare-sector-requirements.md`](annex-healthcare-sector-requirements.md), [`compliance/healthcare/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`privacy/procedure-data-subject-rights-management.md`](../../privacy/procedure-data-subject-rights-management.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
@@ -42,6 +42,8 @@ The governing text is 45 CFR Part 164 (the HIPAA Privacy, Security, and Breach N
 | **Security Owner** | Maintains the Security Rule safeguards the annex maps, and supports breach investigation for ePHI incidents. |
 | **Business relationship owner** | Confirms a compliant business associate agreement is in place before PHI is shared with a vendor, and tracks subcontractor flow-down. |
 | **Internal Audit** | Reviews retention-schedule adherence, request-clock performance, and breach-determination records at the review frequency. |
+
+**Exception scope limit.** No exception under this procedure may waive an applicable statutory or regulatory obligation, or extend a deadline prescribed by 45 CFR Part 164 beyond any extension or delay that Part 164 itself permits; an exception may cover only this procedure's internal implementation choices.
 
 ---
 
