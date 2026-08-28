@@ -68,7 +68,7 @@ except Exception:                                  # pragma: no cover - fail OPE
         return True
 
 REPO = Path(os.environ.get("CLAUDE_PROJECT_DIR") or Path(__file__).resolve().parents[2])
-ESCAPE_FILE = Path(os.environ.get("GRC_DROP_ROOT", "/opt/grc/grc_working")) / ".allow-stop"
+ESCAPE_FILE = Path((os.environ.get("GRC_DROP_ROOT") or "/opt/grc/grc_working")) / ".allow-stop"
 # Held branches live in a FILE with a reason per line, not a constant in this file: a hardcoded set
 # goes stale the day it is written, and a comment saying "cite a decision record" enforces nothing.
 # The file is resolved via the store-aware resolver (local operational store preferred, the
@@ -208,13 +208,15 @@ def main() -> int:
             # that gets enforced. Observed 2026-08-20: a /validate-pr worker delivered its full
             # verdict, then spent its remaining turns unable to satisfy or escape this guard.
             return 0
-        escape = ESCAPE_FILE.exists()
-        if escape:
+        if ESCAPE_FILE.exists():
             try:
-                ESCAPE_FILE.unlink()          # one-shot: an escape must not become the default
+                ESCAPE_FILE.unlink()          # one-shot: CONSUME before granting
             except OSError:
-                pass
-            return 0
+                pass                          # a failed unlink must NOT grant the stop (else the
+                                              # sentinel persists = the permanent standing state the
+                                              # docstring rules out); fall through to block instead
+            else:
+                return 0                      # granted ONLY after a successful consume
         message = decide(False, False, unmerged_branches())
         if message:
             print(message, file=sys.stderr)

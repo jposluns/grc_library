@@ -74,7 +74,7 @@ except Exception:                                  # pragma: no cover - fail OPE
         return True
 
 REPO = Path(os.environ.get("CLAUDE_PROJECT_DIR") or Path(__file__).resolve().parents[2])
-ESCAPE_FILE = Path(os.environ.get("GRC_DROP_ROOT", "/opt/grc/grc_working")) / ".allow-idle-stop"
+ESCAPE_FILE = Path((os.environ.get("GRC_DROP_ROOT") or "/opt/grc/grc_working")) / ".allow-idle-stop"
 
 # Modes where the maintainer is NOT watching every step, so a yield with authorized
 # work remaining is an idle-stop unless a wait is declared. Fully "attended" is absent
