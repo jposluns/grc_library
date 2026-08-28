@@ -1175,7 +1175,7 @@ class VersionBumpRecencyTests(LinterTestCase):
 class DateCobumpOnPrTests(LinterTestCase):
     """tools/check-date-cobump-on-pr.py (delta gate D4).
 
-    A PR-only delta gate, so the fixtures build a synthetic two-commit
+    A per-PR delta gate, so the fixtures build a synthetic two-commit
     git repo (base then head) and run the gate over the range, the same
     shape VersionBumpRecencyTests uses. Committer dates are pinned via
     GIT_*_DATE so the bump-commit-date comparison is deterministic.
@@ -8232,7 +8232,7 @@ class AuditSpecDetailedProseTests(LinterTestCase):
             f"| D{n} | {name} | `tools/d{n}.py` | GH |" for n, name in rows
         )
         return (
-            "\n### 6.1 PR-only delta gates\n\n"
+            "\n### 6.1 Per-PR delta gates\n\n"
             "| # | Gate | Script | Surface |\n|---|---|---|---|\n"
             + table + "\n\n" + prose + "\n\n## 7. Next\n"
         )
@@ -8381,7 +8381,7 @@ class AuditSpecDetailedProseTests(LinterTestCase):
         spec = self.make_fixture(
             "spec-prose-delta-headonly.md",
             self._spec([35], "Gate 35 is a parity audit for the fixture.")
-            + "\n### 6.1 PR-only delta gates\n\nNo table yet.\n\n## 7. Next\n",
+            + "\n### 6.1 Per-PR delta gates\n\nNo table yet.\n\n## 7. Next\n",
         )
         result = run_linter(self.SCRIPT, "--spec", spec)
         self.assertEqual(result.returncode, 2, result.stdout + result.stderr)

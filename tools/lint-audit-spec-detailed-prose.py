@@ -42,7 +42,7 @@ would demand prose archaeology with no drift-prevention payoff; new
 gates always land above both floors.
 
 The DELTA-CHECK half (the r4 G-3 extension, decided 2026-07-04): the
-section-6.1 PR-only delta gates were the same seam one layer down
+section-6.1 per-PR delta gates were the same seam one layer down
 (numeric-gate-only coverage), so when the spec carries a ``| Dn |``
 delta-gate table the linter additionally verifies:
 

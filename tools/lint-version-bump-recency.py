@@ -11,7 +11,7 @@ block), this linter compares two commits:
 If they differ, the file's body has been modified since its last
 Version field bump, indicating a missed bump.
 
-This is the corpus-side counterpart of delta gate D2 (the PR-only
+This is the corpus-side counterpart of delta gate D2 (the per-PR
 version-bump check in ``tools/check-version-bump-on-pr.py``). D2
 catches the failure mode at PR time, comparing the PR head to its
 merge-base; this linter catches it from HEAD using git log heuristics,
