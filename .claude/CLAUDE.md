@@ -435,7 +435,7 @@ background `sleep`). Answer before it fires: act on the answer. On a no-answer t
 LOGGED paths in `grc_library_private/.working/pending-decisions.md`: for a REVERSIBLE / on-branch
 decision, **swap the lease `Operating-mode` attended-autonomous -> daytime-unattended** (the
 `block-askuserquestion-unattended.py` hook then blocks further prompts), record it PENDING, and CONTINUE
-(the swap-and-continue IS the stricter-safe continuation; #5(b) fleet directive 2026-08-28); or **defer-and-skip** when the decision is authorial, irreversible, or
+(the swap-and-continue IS the stricter-safe continuation; a narrow #5(b) exception to session-lifecycle §2's operator-only mode-transition rule, attended->unattended ONLY, see the rule's overlay); or **defer-and-skip** when the decision is authorial, irreversible, or
 outward-facing (record "deferred-blocked: needs maintainer", route AROUND it to the next
 independent task, hold any dependent task). The reversibility gate is absolute: a timeout never
 auto-proceeds on a destructive or outward-facing action.

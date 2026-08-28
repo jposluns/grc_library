@@ -73,7 +73,7 @@ attempt acquisition, then named options on failure. The project instantiation:
    run the ref gate), then continue against the now-held source. The `grc_library_ref` write is a
    cross-repo PR (writes to the sibling `grc_library_ref` repo go through its own PR, not a direct push).
 2. **On acquisition failure** (egress-blocked, licensed/paywalled): the unattended DEFAULT is
-   defer-and-skip via the roughly-2-minute graceful-degradation timer, recording the deferral in
+   defer-and-skip via the roughly-5-minute graceful-degradation timer, recording the deferral in
    `grc_library_private/.working/pending-decisions.md` as deferred-blocked, routing around to the
    next independent item, and holding anything that depends on it. Attended, surface named options:
    the maintainer downloads or provides the document (the usual resolution when licensed or
