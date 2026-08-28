@@ -34,7 +34,7 @@ WHAT IT DOES NOT BLOCK, by construction:
     this guard's remedies, so the check is skipped there (#1695).
 
 ESCAPE, and it is reachable. Create the file named by ESCAPE_FILE from any shell:
-``touch $GRC_DROP_ROOT/.allow-stop`` (default ``/opt/grc/grc_working/.allow-stop``). The hook honours it ONCE and deletes it, so an escape
+``touch "${GRC_DROP_ROOT:-/opt/grc/grc_working}/.allow-stop"`` (default ``/opt/grc/grc_working/.allow-stop`` when GRC_DROP_ROOT is unset). The hook honours it ONCE and deletes it, so an escape
 cannot silently become the standing state. It is reachable from a Bash tool call, which the previous
 environment-variable form was not: a Stop hook inherits the harness's environment, never the
 environment of a tool call.
