@@ -105,6 +105,39 @@ def _parse_ts(ts):
     return None
 
 
+# --- session-start matcher (KEEP IN LOCKSTEP with .claude/hooks/surface-session-facts.py) ---
+# A row is a session-start entry when the TYPE TOKEN `session-start` heads the row (after
+# optional bullet/heading/table markers and an optional leading ISO), NOT when the substring
+# appears inside another row's prose note (a compaction/considered DECOY). Two cases:
+# ISO-before-token (table iso-first, bullet iso-first, bold-iso) and token-first (bare, bullet,
+# ###, table token-first, reversed inline). `(?![\w-])` rejects `session-start-<suffix>`.
+# Reality-validated against the live degradation log: 87/87 real rows, 0 decoys.
+_SS_RE_B = re.compile(r"^[\s\-#>|]*(?:\*\*)?" + _TS.pattern + r"(?:\*\*)?\s*\|?\s*session-start(?![\w-])")
+_SS_RE_A = re.compile(r"^[\s\-#>|]*session-start(?![\w-])[:\s|]")
+# NOTE: this matcher is deliberately LINE-ANCHORED (session-start must HEAD its row after optional
+# markers). That anchoring IS the decoy-exclusion mechanism: a session-start mentioned inside another
+# row's note (a compaction/considered decoy, INCLUDING a quoted `| session-start <iso>`) sits on a line
+# that starts with the OTHER row's structure, so it never matches. ASSUMPTION: one record per physical
+# line. A record concatenated onto another row's line (a write that dropped the trailing newline) is a
+# DATA defect to correct in the log, NOT to parse here: matching it mid-line reintroduces the
+# prose-decoy ambiguity (codex #1759 iter-2 proved a mid-line Case-C leaks quoted-pipe decoys).
+
+
+def _session_start_stamps(text: str) -> list:
+    """Every session-start row's ISO stamp, TYPE-token-keyed (excludes prose/decoy mentions)."""
+    out = []
+    for ln in text.splitlines():
+        m = _SS_RE_B.match(ln)
+        if m:
+            out.append(m.group(1))
+            continue
+        if _SS_RE_A.match(ln):
+            m2 = _TS.search(ln)
+            if m2:
+                out.append(m2.group(1))
+    return out
+
+
 def session_metrics(root: Path, now: datetime | None = None):
     """Best-effort: latest session-start timestamp + elapsed, from the operational store's log.
 
@@ -115,12 +148,7 @@ def session_metrics(root: Path, now: datetime | None = None):
     if log is None or not log.is_file():
         return None
     text = _read(log)
-    starts = []
-    for line in text.splitlines():
-        if "session-start" in line:
-            m = _TS.search(line)
-            if m:
-                starts.append(m.group(1))
+    starts = _session_start_stamps(text)
     _EPOCH0 = datetime.min.replace(tzinfo=timezone.utc)
     start = max(starts, key=lambda t: _parse_ts(t) or _EPOCH0) if starts else None
     elapsed = None
@@ -215,8 +243,12 @@ def _self_test() -> int:
         dw.write_text(
             "| 2026-07-29T10:00:00Z | session-start | earlier full-seconds |\n"
             "- session-start 2026-07-29T12:00:00Z (prose full-seconds)\n"
+            "| session-start | 2026-07-29T11:00Z | table token-first |\n"
+            "- **2026-07-29T14:00Z** session-start: bold-iso |\n"
             "| 2026-07-29T15:30Z | session-start | minute-only |\n"
             "| 2026-07-29T15:30:45Z | session-start | SAME-MINUTE full-seconds, the TRUE latest (lexicographic sort would wrongly pick 15:30Z) |\n"
+            "session-start-continuation 2026-07-29T16:45Z (suffix decoy, must not match)\n"
+            "| 2026-07-29T17:00:00Z | compaction | DECOY note mentions session-start 2026-07-29T17:00:00Z (newer; must be excluded) |\n"
             "| 2026-07-29T13:00:00Z | compaction | C1 |\n", encoding="utf-8")
         now = datetime(2026, 7, 29, 18, 0, 0, tzinfo=timezone.utc)
         sm = session_metrics(root, now=now)
@@ -224,8 +256,34 @@ def _self_test() -> int:
             failures.append(f"  session_metrics.start (minutes-only latest): got {sm}")
         elif sm["elapsed"] != "2h29m":
             failures.append(f"  session_metrics.elapsed (same-minute mixed): got {sm['elapsed']!r}, want '2h29m'")
-        elif sm["compaction_rows"] != 1:
+        elif sm["compaction_rows"] != 2:
             failures.append(f"  session_metrics.compaction_rows: got {sm['compaction_rows']}")
+        # matcher recall + decoy exclusion (guard-input reality fixture): every layout recalled,
+        # the newer compaction-note decoy and the session-start-<suffix> row both excluded.
+        _mf = (
+            "| session-start | 2026-07-29T11:00Z | token-first |\n"
+            "session-start | 2026-07-29T12:00:00Z | reversed |\n"
+            "- 2026-07-29T14:00:00Z  session-start: iso-first\n"
+            "### session-start 2026-07-29T17:00Z\n"
+            "- session-start: 2026-07-29T18:30:45Z\n"
+            "| 2026-07-29T09:30:00Z | considered | quote: | session-start 2026-12-31T23:59:59Z | end (pipe-prose decoy) |\n"
+            "| 2026-07-29T23:59:59Z | compaction | DECOY session-start 2026-07-29T23:59:59Z |\n"
+            "session-start-continuation 2026-07-29T22:00Z\n")
+        _st = _session_start_stamps(_mf)
+        for _real in ("2026-07-29T11:00Z", "2026-07-29T12:00:00Z", "2026-07-29T14:00:00Z",
+                      "2026-07-29T17:00Z", "2026-07-29T18:30:45Z"):
+            if _real not in _st:
+                failures.append(f"  _session_start_stamps recall gap: {_real} missing")
+        if "2026-12-31T23:59:59Z" in _st:
+            failures.append("  _session_start_stamps: pipe-prose decoy iso leaked (line-anchored must exclude)")
+        if "2026-07-29T09:30:00Z" in _st:
+            failures.append("  _session_start_stamps: decoy host considered-row iso leaked")
+        if "2026-07-29T23:59:59Z" in _st:
+            failures.append("  _session_start_stamps: compaction-note DECOY leaked")
+        if "2026-07-29T22:00Z" in _st:
+            failures.append("  _session_start_stamps: session-start-<suffix> leaked")
+        if _st and max(_st) != "2026-07-29T18:30:45Z":
+            failures.append(f"  _session_start_stamps newest: got {max(_st)}")
 
     if _prev_store is None:
         os.environ.pop("GRC_STORE", None)
