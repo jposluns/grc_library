@@ -52,7 +52,10 @@ CLAUDE_MD = REPO_ROOT / ".claude" / "CLAUDE.md"
 # canonical Five Rules of AIQT into the PRIMORDIAL RULE section (2026-08-11); a deliberate
 # one-time upward bump for a locked canonical addition, not drift. The downward-ratchet
 # convention resumes from here.
-CEILING = 962
+# #1775 raises 962 -> 1023 for the maintainer-authorized (AskUser, 2026-08-28) adoption of the
+# no-manufactured-winddown interim rule (lab_infra fleet share); an intentional canonical
+# behavioural addition, reconciles when the guardrails/AIQT pack ships.
+CEILING = 1023
 
 
 def line_count(path: Path) -> int:
