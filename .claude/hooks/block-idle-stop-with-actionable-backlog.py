@@ -24,7 +24,7 @@ yield-with-work-remaining is an idle-stop unless a legitimate wait is declared.
 
 The escape IS the declaration. A genuine reason to yield in these modes -- waiting on
 CI, on a dispatched worker, on a maintainer decision, or a real session-closing
-wind-down -- is declared by ``touch /opt/grc/grc_working/.allow-idle-stop`` (this guard's
+wind-down -- is declared by ``touch $GRC_DROP_ROOT/.allow-idle-stop`` (default ``/opt/grc/grc_working/.allow-idle-stop``; this guard's
 OWN one-shot sentinel, distinct from the branch guard's ``.allow-stop`` so the two never
 race on a shared file under parallel Stop-hook execution). A wait during branch-bearing
 work declares both. The reliable loop-terminator remains ``stop_hook_active``.
@@ -194,7 +194,7 @@ def decide(stop_hook_active: bool, worker: bool, escape: bool,
         "PR-by-PR. Run `python3 tools/audit-backlog-actionability.py --actionable-only` for the list.\n"
         "  If this is a GENUINE wait (CI, a dispatched worker, a maintainer decision, or a real "
         "session-closing wind-down), declare it:\n"
-        "      touch /opt/grc/grc_working/.allow-idle-stop   # this guard\x27s own one-shot sentinel\n"
+        f"      touch {ESCAPE_FILE}   # this guard\x27s own one-shot sentinel\n"
         "  (the branch guard block-turn-end uses a SEPARATE .allow-stop; a wait during branch-bearing\n"
         "   work declares both. Distinct sentinels avoid a parallel-execution race on one shared file.)"
     )

@@ -34,7 +34,7 @@ WHAT IT DOES NOT BLOCK, by construction:
     this guard's remedies, so the check is skipped there (#1695).
 
 ESCAPE, and it is reachable. Create the file named by ESCAPE_FILE from any shell:
-``touch /opt/grc/grc_working/.allow-stop``. The hook honours it ONCE and deletes it, so an escape
+``touch $GRC_DROP_ROOT/.allow-stop`` (default ``/opt/grc/grc_working/.allow-stop``). The hook honours it ONCE and deletes it, so an escape
 cannot silently become the standing state. It is reachable from a Bash tool call, which the previous
 environment-variable form was not: a Stop hook inherits the harness's environment, never the
 environment of a tool call.
@@ -185,7 +185,7 @@ def decide(stop_hook_active: bool, escape: bool, branches: list) -> str | None:
     lines += [
         "",
         "  If this is a genuine block (CI, a maintainer decision, an external wait), say so and:",
-        "      touch /opt/grc/grc_working/.allow-stop     # honoured once, then deleted",
+        f"      touch {ESCAPE_FILE}     # honoured once, then deleted",
     ]
     return "\n".join(lines)
 
