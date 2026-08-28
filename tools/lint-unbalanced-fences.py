@@ -30,7 +30,7 @@ is the recurring case), and an unbalanced fence there would suppress
 that invocation's tail while this gate's default walk never sees the
 file; this gate accepts explicit paths too, so scan the same paths when
 it matters. The default-population widening is a routed maintainer
-shape call (TODO section 3.15).
+shape call (3.15 (split to 3.11, closing PR #1080)).
 
 Usage:
     python3 tools/lint-unbalanced-fences.py
