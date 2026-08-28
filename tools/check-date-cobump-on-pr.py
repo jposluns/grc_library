@@ -41,7 +41,7 @@ stays silent.
 
 This is a PR-time delta gate (D4), not part of the corpus audit programme in
 governance/specification-audit-programme.md section 6; it is documented
-there in section 6.1 (PR-only delta gates) alongside the other D-numbered delta gates and is
+there in section 6.1 (per-PR delta gates) alongside the other D-numbered delta gates and is
 exempt from gate 35's parity audit (its inputs, a git history range and
 the PR base ref, are not available to ``tools/run_all_audits.sh`` or
 ``.pre-commit-config.yaml``).

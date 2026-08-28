@@ -19,7 +19,7 @@ drive end-to-end on the maintainer's behalf:
    committed state, so a between-commits run catches what a working-tree run misses).
    Before pushing, run both runners as a single pre-push gate:
    `tools/pre-push-guard.sh && git push -u origin <branch>`. The guard chains
-   `run_all_audits.sh` (corpus gates from HEAD) then `run-pr-time-checks.sh` (the PR-only
+   `run_all_audits.sh` (corpus gates from HEAD) then `run-pr-time-checks.sh` (the per-PR
    delta gates D1-D12 (D6 retired) plus the history-aware trio 45/40/31 against the merge base), then `.web/build.py --check` (web-generator health),
    stopping non-zero on the first failure, so a gate defect blocks the push instead of
    flipping CI red after the fact. The two runners plus the web-generator check together cover every gate CI runs.
@@ -307,7 +307,7 @@ is external. Two mechanisms:
      presence; none reads the §5 grouped-list or the per-gate narrative, so those slip (Sweep
      77 found gate 57's detailed-prose pair absent after #468, the seam gate 64 was later
      built to close; Sweep 38 found gate 48's §6 narrative stale after its logic changed in
-     #308 and #309). A PR-only delta check Dn also needs its step name added to
+     #308 and #309). A per-PR delta check Dn also needs its step name added to
      `WORKFLOW_DELTA_GATE_STEPS`. This bullet is the type-A row of the `## Change-impact
      surface map` in `.claude/CLAUDE.md`; see it for the B/C/D change types and the website surface.
    - **Change-impact completeness across all surfaces** (originated in the change-impact-map work, PR #1104; the generalization of

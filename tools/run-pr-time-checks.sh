@@ -6,7 +6,7 @@
 # current branch, so their diagnoses appear before push instead of after
 # CI has flipped the check red. Two groups:
 #
-#   1. The PR-only delta gates (D1 CHANGELOG-on-PR, D2 per-PR
+#   1. The per-PR delta gates (D1 CHANGELOG-on-PR, D2 per-PR
 #      version-bump, D3 CHANGELOG-dash-on-PR, D4 per-PR Version-Date
 #      co-bump, D5 backlog-rotation-on-PR,
 #      D7 CHANGELOG-length-on-PR, D8 daily-changelog-rollup reminder

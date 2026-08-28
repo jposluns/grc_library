@@ -20,7 +20,7 @@ section 3 principle 5 is broken. This linter detects that drift
 deterministically.
 
 In addition to the four-surface row parity, this gate ADDITIVELY guards the
-three exclusion allow-lists and the PR-only D1-D12 delta gates (TODO 3.99, extended by #1250): each
+three exclusion allow-lists and the per-PR D1-D12 delta gates (TODO 3.99, extended by #1250): each
 exclusion member is cross-checked against a positive signal that it is genuinely
 not a corpus gate (a setup step invokes no gate script; a delta-gate step's
 script is not a §6-inventory script; a non-gate pre-commit hook carries no
@@ -79,7 +79,7 @@ PRTIME_PATH = "tools/run-pr-time-checks.sh"
 # excluded from the workflow's audit-gate list before comparison.
 WORKFLOW_SETUP_STEPS = {"Checkout", "Set up Python"}
 
-# Workflow steps that are PR-only delta gates documented in
+# Workflow steps that are per-PR delta gates documented in
 # governance/specification-audit-programme.md §6.1. These are not part
 # of the corpus inventory in §6 and therefore are excluded from
 # the parity audit. Delta gates run in quality.yml on pull_request events
