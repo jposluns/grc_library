@@ -86,7 +86,7 @@ _109 documents._
 | [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.123 | 2026-08-27 |
 | [governance/register-glossary.md](../governance/register-glossary.md) | Glossary and Acronym Index | Register | 1.4.18 | 2026-08-24 |
 | [governance/register-key-terms-and-definitions.md](../governance/register-key-terms-and-definitions.md) | Key Terms and Definitions Register | Register | 1.1.4 | 2026-07-02 |
-| [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.5.8 | 2026-08-27 |
+| [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.5.9 | 2026-08-28 |
 | [governance/specification-audit-programme.md](../governance/specification-audit-programme.md) | Audit Programme Specification | Specification | 1.17.122 | 2026-08-26 |
 | [governance/specification-citation-verification.md](../governance/specification-citation-verification.md) | Citation Verification Specification | Specification | 1.2.15 | 2026-07-11 |
 | [governance/standard-records-retention-and-destruction.md](../governance/standard-records-retention-and-destruction.md) | Records Retention and Destruction Standard | Standard | 1.4.21 | 2026-08-16 |
