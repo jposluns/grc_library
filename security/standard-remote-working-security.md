@@ -2,8 +2,8 @@
 
 **Document Title:** Remote Working Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.17\
-**Date:** 2026-08-27\
+**Version:** 1.0.18\
+**Date:** 2026-08-28\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md)\
@@ -40,7 +40,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 | Role | Responsibility |
 | --- | --- |
-| Chief Information Security Officer (CISO) | Owns this standard. Co-approves security-related exceptions per the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md), including exceptions for high-risk data access from non-standard devices or networks. Reviews compliance reports quarterly. |
+| Chief Information Security Officer (CISO) | Owns this standard. Co-approves security-related exceptions per the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md), including exceptions permitting Confidential-data access from personal devices, and exceptions for access from non-standard networks. Reviews compliance reports quarterly. |
 | IT Operations | Maintains and enforces conditional access policies, VPN and secure access tooling, and the endpoint management platform configuration. Monitors device compliance and reports deviations to the CISO. |
 | Line Managers | Ensure that direct reports are aware of and comply with this standard prior to commencing remote work. Endorse requests for exceptions in the first instance before submission through the exception pathway in Section 10. |
 | All Employees and Contractors | Comply with all requirements in this standard. Report suspected incidents, device loss, or suspected compromise immediately to the IT service desk. |
@@ -51,7 +51,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 ### 4.1 Managed device requirement
 
-4.1.1 Remote work must be conducted on a company-managed device enrolled in the endpoint management platform as the default. Personal (bring-your-own) devices are permitted only as provided in Section 8, and any use beyond what Section 8 allows requires an exception under Section 10. The endpoint management platform enforces configuration baselines; conditional access policy enforcement blocks non-compliant managed devices (Section 4.2) and limits unmanaged personal devices to the access permitted under Section 8.
+4.1.1 Remote work must be conducted on a company-managed device enrolled in the endpoint management platform as the default. Personal (bring-your-own) devices are permitted only as provided in Section 8, and any use beyond what Section 8 allows requires an exception under Section 10, except that access to Restricted data from a personal device is prohibited outright and is not available through the Section 10 exception process. The endpoint management platform enforces configuration baselines; conditional access policy enforcement blocks non-compliant managed devices (Section 4.2) and limits unmanaged personal devices to the access permitted under Section 8.
 
 4.1.2 Devices must maintain compliance with the endpoint configuration baseline at all times. The baseline requires, at minimum:
 
@@ -214,7 +214,7 @@ The VPN Required column states requirements by data classification; Section 5.1 
 
 ## 10. Exceptions
 
-10.1 Exceptions to any requirement in this standard must be approved through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md), with CISO co-approval (exceptions to this standard are security-related) in addition to, not in place of, the risk-tier approver, before the exception is applied.
+10.1 Exceptions to any requirement in this standard must be approved through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md), with CISO co-approval (exceptions to this standard are security-related) in addition to, not in place of, the risk-tier approver, before the exception is applied. The prohibition on accessing Restricted-classified data from a personal device (Section 8) is absolute and is not subject to this exception process; Restricted access requires a company-managed device.
 
 10.2 Exception requests must include:
 

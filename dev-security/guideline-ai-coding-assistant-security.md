@@ -2,8 +2,8 @@
 
 **Document Title:** AI Coding Assistant Security Guideline\
 **Document Type:** Guideline\
-**Version:** 1.3.12\
-**Date:** 2026-08-27\
+**Version:** 1.3.13\
+**Date:** 2026-08-28\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`guardrails/README.md`](../guardrails/README.md), [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -168,7 +168,7 @@ All code (AI-generated or human-written) passes through SAST before merge. AI-ge
 The following uses of AI coding assistants are prohibited without an exception approved through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (with CISO co-approval as security-related exceptions) and a formal risk acceptance per [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md):
 
 1. Generating code that handles personal data without a human security design review.
-2. Using AI to modify production infrastructure or configuration directly (no human review step).
+2. Using AI to modify production infrastructure or configuration directly (no human review step). This prohibition is absolute and is not subject to the exception pathway above: an AI coding assistant must never modify production infrastructure or configuration without a human review step.
 3. Using AI coding assistants on production systems (read access to production data is prohibited).
 4. Training or fine-tuning AI models on organizational source code without Legal and CISO sign-off.
 5. Using AI coding assistants to bypass security controls (no "write code to disable this security check").
