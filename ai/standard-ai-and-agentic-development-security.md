@@ -2,8 +2,8 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.24\
-**Date:** 2026-08-27\
+**Version:** 1.8.25\
+**Date:** 2026-08-28\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-system-card.md`](template-system-card.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md)\
@@ -168,7 +168,7 @@ The threat classes above crosswalk to the OWASP Top 10 for Agentic Applications 
 
 ## 8. Prohibited engineering patterns
 
-Absolute prohibitions. No exception without approval through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (with CISO co-approval for security-related exceptions).
+Absolute prohibitions. No exception without approval through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (with CISO co-approval for security-related exceptions), except where a pattern restates a Section 4 architecture principle that itself declares no exception: human approval for irreversible actions (the Section 4 P-05 principle) is absolute, so P-13 is not subject to this exception pathway.
 
 | # | Prohibited | Risk |
 | --- | --- | --- |
