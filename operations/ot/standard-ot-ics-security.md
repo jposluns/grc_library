@@ -2,8 +2,8 @@
 
 **Document Title:** OT/ICS Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.6\
-**Date:** 2026-08-27\
+**Version:** 1.0.7\
+**Date:** 2026-08-28\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/ot/README.md`](README.md), [`operations/ot/annex-ot-security-overview.md`](annex-ot-security-overview.md), [`operations/standard-network-security-and-segmentation.md`](../standard-network-security-and-segmentation.md), [`operations/procedure-change-management-and-configuration-control.md`](../procedure-change-management-and-configuration-control.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md), [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`supply-chain/procedure-supplier-due-diligence.md`](../../supply-chain/procedure-supplier-due-diligence.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md), [`compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md`](../../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](../../compliance/logistics/annex-logistics-sector-requirements.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`governance/register-glossary.md`](../../governance/register-glossary.md)\
@@ -172,7 +172,7 @@ Terms used in this standard are defined in the library glossary ([`governance/re
 
 ### 6.3 Security Level Capability (SL-C)
 
-6.3.1 OT components procured by the organization must have a documented SL-C from the vendor stating the security level they are capable of achieving when correctly configured. Components without a stated SL-C may be procured only with CISO approval and documented compensating controls.
+6.3.1 OT components procured by the organization must have a documented SL-C from the vendor stating the security level they are capable of achieving when correctly configured. Components without a stated SL-C may be procured only through the Section 2.3 exception process, with compensating controls documented and approved.
 
 6.3.2 For each OT component in the asset inventory, the SL-C must be recorded alongside the SL-A of the zone or conduit the component supports. The SL-A of a zone or conduit cannot exceed the lowest SL-C of any component contributing to it.
 
