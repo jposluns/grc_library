@@ -4223,7 +4223,7 @@ documents:
   domain: "dev-security"
   type: "Standard"
   title: "Security Quick Reference"
-  version: "1.1.16"
+  version: "1.1.17"
   date: "2026-08-28"
   owner: "Chief Information Security Officer"
   approving_authority: "Chief Information Officer"
@@ -4238,7 +4238,6 @@ documents:
     - "dev-security/standard-developer-security-requirements.md"
     - "dev-security/standard-devops-security-requirements.md"
     - "security/standard-authentication-and-password-management.md"
-    - "governance/policy-exception-and-risk-acceptance-management.md"
   sections:
     - "1. How to use this document"
     - "2. NEVER do these things"
