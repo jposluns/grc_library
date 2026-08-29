@@ -1053,3 +1053,35 @@ def parse_todo_index(text: str) -> list[dict]:
 def todo_index_ids(text: str) -> set[str]:
     """The set of live backlog ids declared as index rows in a new-format TODO.md."""
     return {it["id"] for it in parse_todo_index(text)}
+
+
+def has_todo_index_header(text: str) -> bool:
+    """True iff the text contains an index TABLE HEADER row (``| ID | Item | Tags |``).
+
+    This is the reliable signal that a backlog file is in INDEX form (versus the
+    legacy ``### <id>`` block form). It is STRICTER than "contains a parseable
+    index row": a legacy item whose BODY happens to hold a markdown table with a
+    backlog-id-shaped first cell has no such header, so it is correctly classified
+    as legacy rather than a half-converted index. Conversely a genuine index whose
+    only rows are the header + separator (or malformed) still classifies as index.
+    """
+    in_fence = False
+    for line in text.splitlines():
+        st = line.lstrip()
+        if st.startswith("```") or st.startswith("~~~"):
+            in_fence = not in_fence   # F1793-11: skip fenced example tables
+            continue
+        if in_fence:
+            continue
+        s = line.strip()
+        # F1793-10: a header row STARTS with a pipe; the TERMINAL pipe is not
+        # required (a header missing it is still an index header, and
+        # find_malformed_index_rows flags the malformation). Requiring it let a
+        # malformed header silently misclassify an index file as legacy, hiding
+        # its items with no gate firing (a silent-green escape).
+        if not s.startswith("|"):
+            continue
+        cells = split_row(line)
+        if tuple(c.strip() for c in cells[:3]) == ("ID", "Item", "Tags"):
+            return True
+    return False

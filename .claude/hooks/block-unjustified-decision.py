@@ -151,7 +151,13 @@ def _todo_item_count(project_dir: str | None) -> int | None:
         count = len(TODO_ROW_RE.findall(todo.read_text(encoding="utf-8")))
         ptodo = root.parent / "grc_library_private" / "P-TODO.md"
         if ptodo.is_file():
-            count += len(ITEM_HEADING_RE.findall(ptodo.read_text(encoding="utf-8")))
+            ptodo_text = ptodo.read_text(encoding="utf-8")
+            # Transitional (2026-08 migration): P-TODO.md moves from ### -block to
+            # index-row form. Count BOTH so the union open-item count matches
+            # audit-backlog-actionability in either layout; a file is one format
+            # at a time, so only one regex contributes.
+            count += len(ITEM_HEADING_RE.findall(ptodo_text))
+            count += len(TODO_ROW_RE.findall(ptodo_text))
         return count
     except Exception:
         return None

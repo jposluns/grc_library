@@ -31,7 +31,7 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import resolve_sibling, parse_todo_index
+from lint_common import resolve_sibling, parse_todo_index, has_todo_index_header
 
 REPO_ROOT: Path = Path(__file__).resolve().parent.parent
 
@@ -122,16 +122,27 @@ def main(argv: list[str]) -> int:
     total_items = 0
     all_findings: list[tuple[str, int, str, int]] = []
     for rel, text in sources:
-        # TODO.md is index-format (rows); P-TODO.md keeps the ### heading shape.
-        if rel == TODO_REL:
-            items = find_untagged_index(text)
-            total_items += len(parse_todo_index(text))
-            for lineno, line, count in items:
+        # Both backlogs move to index form (2026-08); P-TODO.md is ### -block
+        # pre-migration. UNION both parsers (F1793-4): check index rows AND any
+        # leftover ### headings (deduped by captured id), so a mixed / half-
+        # converted file cannot let an untagged legacy item pass. A pure file has
+        # exactly one shape, so the other parser contributes nothing.
+        # F1793-7: classify index form by the header, not any parseable row, so a
+        # legacy item body table does not flip this to the index path.
+        if has_todo_index_header(text):
+            idx_items = parse_todo_index(text)
+            total_items += len(idx_items)
+            for lineno, line, count in find_untagged_index(text):
                 all_findings.append((rel, lineno, line, count))
-        else:
-            total_items += sum(1 for line in text.splitlines() if ITEM_HEADING_RE.match(line))
-            for lineno, line, count in find_untagged_or_ambiguous(text):
-                all_findings.append((rel, lineno, line, count))
+        # legacy ### headings (pure-index files carry none; their detail is in the
+        # reference file). F1793-9: count every ### heading by PHYSICAL LINE, no
+        # dedup by captured id (that key is only the numeric prefix for lettered
+        # subheadings, which would drop ### 3.92.a/.b against an index row 3.92).
+        for line in text.splitlines():
+            if ITEM_HEADING_RE.match(line):
+                total_items += 1
+        for lineno, line, count in find_untagged_or_ambiguous(text):
+            all_findings.append((rel, lineno, line, count))
 
     if not all_findings:
         print(

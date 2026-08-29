@@ -4980,6 +4980,19 @@ class LintCommonHelperTests(unittest.TestCase):
         self.assertEqual(len(cells), 2, "a backslash-before-delimiter cell must not merge")
         self.assertEqual(cells[-1], "PR.IP", "the framework code must land in its own cell")
 
+    def test_has_todo_index_header(self):
+        """F1793-10/11: index-form is signalled by a | ID | Item | Tags | header row
+        that STARTS with a pipe (terminal pipe NOT required, so a malformed header
+        cannot silently misclassify an index file as legacy), skipping fenced lines
+        and prose mentions."""
+        lc = self._lint_common()
+        h = lc.has_todo_index_header
+        self.assertTrue(h("| ID | Item | Tags |\n| --- | --- | --- |\n"), "proper header")
+        self.assertTrue(h("| ID | Item | Tags\n| P-1.1 | x | |\n"), "header missing terminal pipe")
+        self.assertFalse(h("### P-1.1 legacy\n| 2.7 | a | b |\n"), "legacy body id-table is not a header")
+        self.assertFalse(h("```\n| ID | Item | Tags |\n```\n"), "fenced example is skipped")
+        self.assertFalse(h("The row is `| ID | Item | Tags |`.\n"), "prose mention is not a header")
+
     def _lint_common(self):
         import importlib.util
 
@@ -11835,6 +11848,65 @@ class BacklogActionabilityTests(unittest.TestCase):
         self.assertIs(rows[0][3], False)  # body mention -> actionable, not blocked
         self.assertEqual((blocked, actionable), (0, 1))
 
+    def test_private_index_format_parsed_with_injected_bodies(self):
+        # 2026-08 migration: P-TODO.md moves to index-row form with detail in
+        # P-TODO-REFERENCE.md. parse_items must enumerate the index rows, capture
+        # the ## band as umbrella, read the [BLOCKED:] tag off the index row, and
+        # join per-item body prose from the reference bodies for the signal scan.
+        mod = self._load()
+        ptodo = ("## Group A - tooling\n"
+                 "| ID | Item | Tags |\n| --- | --- | --- |\n"
+                 "| P-1.1 | alpha (H) | `[private]` |\n"
+                 "| P-3.5 | beta (M) | `[private] [BLOCKED:maintainer owes a call]` |\n")
+        ref = {"P-1.1": "### P-1.1 alpha (H)\nAn egress item (egress-gated).",
+               "P-3.5": "### P-3.5 beta (M)\nBody."}
+        items = mod.parse_items(ptodo, "private", ref_bodies=ref)
+        self.assertEqual([i[0] for i in items], ["P-1.1", "P-3.5"])
+        self.assertTrue(all(i[4] == "Group A - tooling" for i in items))
+        by = {i[0]: i for i in items}
+        self.assertIs(mod.is_blocked(by["P-3.5"][2]), True)   # tag on the index row
+        self.assertIs(mod.is_blocked(by["P-1.1"][2]), False)
+        self.assertIn("egress", mod.prose_signals(by["P-1.1"][2]))  # ref body joined
+
+    def test_mixed_ptodo_unions_index_and_legacy(self):
+        # F1793-3: a mixed P-TODO (index row + leftover ### block) enumerates BOTH,
+        # so the count stays in agreement with the gate-78 / hook unions.
+        mod = self._load()
+        mixed = ("## Group A\n### P-1.1 legacy one\ninline body\n"
+                 "| ID | Item | Tags |\n| --- | --- | --- |\n"
+                 "| P-2.1 | index two | `[private]` |\n")
+        items = mod.parse_items(mixed, "private", ref_bodies={"P-2.1": "### P-2.1 index two\nbody"})
+        self.assertEqual(sorted(i[0] for i in items), ["P-1.1", "P-2.1"])
+
+    def test_legacy_body_table_does_not_create_false_items(self):
+        # F1793-7: a legacy ###-block item whose body has an id-first-cell table must
+        # NOT flip parse_items to the index branch and inject false items.
+        mod = self._load()
+        legacy = ("## G\n### P-1.1 legacy with body table\n"
+                  "| 2.7 | prior | status |\n| --- | --- | --- |\n| 3.4 | other | done |\nbody\n")
+        self.assertEqual([i[0] for i in mod.parse_items(legacy, "private")], ["P-1.1"])
+
+    def test_lettered_siblings_not_dropped_in_mixed(self):
+        # F1793-9: a mixed file with index row 3.92 + legacy ### 3.92.a/.b must count
+        # all three (the union no longer dedups by the prefix-only captured id).
+        mod = self._load()
+        mixed = ("## G\n| ID | Item | Tags |\n| --- | --- | --- |\n| 3.92 | idx | `[private]` |\n"
+                 "### 3.92.a legacy sib a\nbody\n### 3.92.b legacy sib b\nbody\n")
+        items = mod.parse_items(mixed, "private", ref_bodies={"3.92": "### 3.92 idx\nx"})
+        self.assertEqual(len(items), 3)  # none dropped
+
+    def test_private_legacy_block_format_still_parsed(self):
+        # The pre-migration ### -block P-TODO layout keeps working (no index rows
+        # -> the legacy block grammar; detail inline).
+        mod = self._load()
+        legacy = ("## Group A\n### P-1.1 alpha (H)\nAn egress item (egress-gated).\n"
+                  "### P-3.5 beta (M) [BLOCKED:x]\nBody.\n")
+        items = mod.parse_items(legacy, "private")
+        self.assertEqual([i[0] for i in items], ["P-1.1", "P-3.5"])
+        by = {i[0]: i for i in items}
+        self.assertIs(mod.is_blocked(by["P-3.5"][2]), True)
+        self.assertIn("egress", mod.prose_signals(by["P-1.1"][2]))
+
 
 class HookToolItemCountParityTests(unittest.TestCase):
     """The decision-log hook's TODO item-count regex (block-unjustified-decision.py)
@@ -11892,6 +11964,29 @@ class HookToolItemCountParityTests(unittest.TestCase):
             self.assertEqual(
                 hook._todo_item_count(str(root)), 2,
                 "a missing P-TODO.md degrades to the public count, not None")
+
+    def test_hook_unions_index_format_ptodo(self):
+        # 2026-08 migration: P-TODO.md moves to index-row form; the hook must count
+        # its rows (union leg) so the open-item count stays in parity with
+        # audit-backlog-actionability, which also enumerates index rows.
+        import tempfile
+        import shutil
+        hook = self._load("_hook_idx_ptodo", ".claude/hooks/block-unjustified-decision.py")
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d) / "grc_library"
+            root.mkdir()
+            (root / "TODO.md").write_text(
+                "| 1.1 | pub one | `[public]` |\n| 2.3 | pub two | `[public]` |\n", encoding="utf-8")
+            priv = Path(d) / "grc_library_private"
+            priv.mkdir()
+            (priv / "P-TODO.md").write_text(
+                "## Group A\n| ID | Item | Tags |\n| --- | --- | --- |\n"
+                "| P-1.5 | priv one | `[private]` |\n| P-2.1 | priv two | `[private]` |\n",
+                encoding="utf-8")
+            self.assertEqual(
+                hook._todo_item_count(str(root)), 4,
+                "hook must count 2 public + 2 index-format private = 4")
+            shutil.rmtree(priv)
 
     def test_hook_count_resolves_relative_and_symlink_project_dir(self):
         # codex vpr1323 Finding 1: an unresolved relative or symlinked project_dir made
@@ -13703,6 +13798,39 @@ class TodoNumberPermanenceTests(LinterTestCase):
             import shutil
             shutil.rmtree(root, ignore_errors=True)
 
+    def test_ptodo_index_format_parsed_as_live(self) -> None:
+        # 2026-08 migration: P-TODO.md moves to index-row form; its ids must
+        # still be unioned into the live set (parse_live_index leg of the union).
+        root, result = self._run(
+            "perm-ptodo-index-live",
+            "# TODO\n\n## Priority 2\n\n### 2.3 A public item\n\nBody.\n",
+            "# DONE\n\nNo entries.\n",
+            ptodo=("# P-TODO\n## Group A\n| ID | Item | Tags |\n| --- | --- | --- |\n"
+                   "| P-1.1 | A born-private tooling item (H) | `[private]` |\n"),
+        )
+        try:
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("P-TODO.md", result.stdout)  # index-format P-TODO counted
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_ptodo_index_format_recycle_flagged(self) -> None:
+        # A migrated N.M id kept in an INDEX-format P-TODO row whose number DONE
+        # retired must still flag (the union sees index rows, not just ### blocks).
+        root, result = self._run(
+            "perm-ptodo-index-recycle",
+            "# TODO\n\n## Priority 2\n\n### 2.3 A public item\n\nBody.\n",
+            "# DONE\n\n### \u00a72.9 closed long ago (2026-07-01, PR #900)\n\nBody.\n",
+            ptodo=("# P-TODO\n## Group A\n| ID | Item | Tags |\n| --- | --- | --- |\n"
+                   "| 2.9 | migrated item wearing a retired number (M) | `[private]` |\n"),
+        )
+        try:
+            self.assertLinterFails(result, "2.9")
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True)
+
     def test_number_live_in_ptodo_and_retired_in_done_fails(self) -> None:
         # Load-bearing migration case: a migrated N.M id (kept on move into
         # P-TODO.md) whose number DONE.md retired must flag, though public
@@ -13945,7 +14073,11 @@ class TodoIndexReferenceParityTests(LinterTestCase):
         root.mkdir(parents=True, exist_ok=True)
         (root / "TODO.md").write_text(idx, encoding="utf-8")
         (root / "TODO-REFERENCE.md").write_text(ref, encoding="utf-8")
-        return run_linter("tools/lint-todo-index-reference-parity.py", "--root", str(root)), root
+        # --private-root scopes the transitional private-first reference lookup
+        # to the fixture, so these tests stay hermetic after the real
+        # grc_library_private/TODO-REFERENCE.md exists (2026-08 migration).
+        return run_linter("tools/lint-todo-index-reference-parity.py",
+                          "--root", str(root), "--private-root", str(root)), root
 
     def test_clean_bijection_passes(self):
         r, root = self._run("bij-clean", self.IDX, self.REF)
@@ -14060,11 +14192,190 @@ class TodoIndexReferenceParityTests(LinterTestCase):
         root = FIXTURE_DIR / "bij-noref"
         root.mkdir(parents=True, exist_ok=True)
         (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
-        r = run_linter("tools/lint-todo-index-reference-parity.py", "--root", str(root))
+        r = run_linter("tools/lint-todo-index-reference-parity.py",
+                       "--root", str(root), "--private-root", str(root))
         try:
             self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         finally:
             import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    # --- 2026-08 migration: the transitional second (private P-TODO) pair ---
+    PIDX = ("# P-TODO\n## Group A \u2014 tooling\n| ID | Item | Tags |\n| --- | --- | --- |\n"
+            "| P-1.1 | ptask (H) | `[private]` |\n| P-3.5 | qtask (M) | `[private]` |\n")
+    PREF = ("# P-ref\n## Group A \u2014 tooling\n### P-1.1 ptask (H)\n\nbody\n"
+            "### P-3.5 qtask (M)\n\nbody\n")
+
+    def _run_pair(self, name, idx, ref, pidx, pref, ref_in_private=True):
+        """New-layout run: TODO.md in root; references (and P-TODO pair) under a
+        private-root dir, addressed via --private-root."""
+        root = FIXTURE_DIR / name
+        priv = FIXTURE_DIR / (name + "-priv")
+        root.mkdir(parents=True, exist_ok=True)
+        priv.mkdir(parents=True, exist_ok=True)
+        (root / "TODO.md").write_text(idx, encoding="utf-8")
+        target = priv if ref_in_private else root
+        (target / "TODO-REFERENCE.md").write_text(ref, encoding="utf-8")
+        (priv / "P-TODO.md").write_text(pidx, encoding="utf-8")
+        (priv / "P-TODO-REFERENCE.md").write_text(pref, encoding="utf-8")
+        return run_linter("tools/lint-todo-index-reference-parity.py",
+                          "--root", str(root), "--private-root", str(priv)), root, priv
+
+    def test_new_layout_both_pairs_clean_passes(self):
+        r, root, priv = self._run_pair("bij-new-clean", self.IDX, self.REF, self.PIDX, self.PREF)
+        try:
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertIn("P-TODO.md", r.stdout)
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
+
+    def test_new_layout_ptodo_title_drift_flagged(self):
+        bad_pref = self.PREF.replace("### P-3.5 qtask (M)", "### P-3.5 qtask DRIFTED (M)")
+        r, root, priv = self._run_pair("bij-new-drift", self.IDX, self.REF, self.PIDX, bad_pref)
+        try:
+            self.assertLinterFails(r, "TITLE DRIFT")
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
+
+    def test_new_layout_ptodo_missing_block_flagged(self):
+        extra_idx = self.PIDX + "| P-3.6 | rtask (L) | `[private]` |\n"
+        r, root, priv = self._run_pair("bij-new-missing", self.IDX, self.REF, extra_idx, self.PREF)
+        try:
+            self.assertLinterFails(r, "MISSING")
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
+
+    def test_reference_in_private_root_resolved(self):
+        """Post-move: TODO-REFERENCE.md lives under the private root, not root."""
+        root = FIXTURE_DIR / "bij-privref"
+        priv = FIXTURE_DIR / "bij-privref-priv"
+        root.mkdir(parents=True, exist_ok=True); priv.mkdir(parents=True, exist_ok=True)
+        (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
+        (priv / "TODO-REFERENCE.md").write_text(self.REF, encoding="utf-8")
+        r = run_linter("tools/lint-todo-index-reference-parity.py",
+                       "--root", str(root), "--private-root", str(priv))
+        try:
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
+
+    def test_legacy_ptodo_block_format_skipped(self):
+        """Pre-restructure P-TODO (### blocks, no P-TODO-REFERENCE.md) is a no-op
+        for the P-TODO pair (no index-detail-leak false-positive on it)."""
+        root = FIXTURE_DIR / "bij-legacy-ptodo"
+        priv = FIXTURE_DIR / "bij-legacy-ptodo-priv"
+        root.mkdir(parents=True, exist_ok=True); priv.mkdir(parents=True, exist_ok=True)
+        (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
+        (priv / "TODO-REFERENCE.md").write_text(self.REF, encoding="utf-8")
+        (priv / "P-TODO.md").write_text("# P-TODO\n## Group A\n### P-1.1 ptask (H)\n\nbody\n",
+                                        encoding="utf-8")  # legacy, no P-TODO-REFERENCE.md
+        r = run_linter("tools/lint-todo-index-reference-parity.py",
+                       "--root", str(root), "--private-root", str(priv))
+        try:
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
+
+    def test_ptodo_index_without_reference_flagged(self):
+        """F1793-2: a P-TODO.md already in INDEX form but with no P-TODO-REFERENCE.md
+        is a half-converted botch -> fail loud (rc 2), unlike a legacy ###-block
+        P-TODO which is correctly skipped."""
+        root = FIXTURE_DIR / "bij-halfconv"
+        priv = FIXTURE_DIR / "bij-halfconv-priv"
+        root.mkdir(parents=True, exist_ok=True); priv.mkdir(parents=True, exist_ok=True)
+        (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
+        (priv / "TODO-REFERENCE.md").write_text(self.REF, encoding="utf-8")
+        (priv / "P-TODO.md").write_text(self.PIDX, encoding="utf-8")  # index rows, NO P-TODO-REFERENCE.md
+        r = run_linter("tools/lint-todo-index-reference-parity.py",
+                       "--root", str(root), "--private-root", str(priv))
+        try:
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn("half-converted", r.stdout + r.stderr)
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
+
+    def test_ptodo_reference_without_index_flagged(self):
+        """A present P-TODO-REFERENCE.md with a missing P-TODO.md is a broken pair."""
+        root = FIXTURE_DIR / "bij-brokenpair"
+        priv = FIXTURE_DIR / "bij-brokenpair-priv"
+        root.mkdir(parents=True, exist_ok=True); priv.mkdir(parents=True, exist_ok=True)
+        (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
+        (priv / "TODO-REFERENCE.md").write_text(self.REF, encoding="utf-8")
+        (priv / "P-TODO-REFERENCE.md").write_text(self.PREF, encoding="utf-8")  # no P-TODO.md
+        r = run_linter("tools/lint-todo-index-reference-parity.py",
+                       "--root", str(root), "--private-root", str(priv))
+        try:
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn("broken backlog pair", r.stdout + r.stderr)
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
+
+    def test_legacy_ptodo_with_body_table_not_flagged(self):
+        """F1793-7: a legacy ###-block P-TODO whose item BODY holds a markdown table
+        with a backlog-id-shaped first cell must NOT be misread as index-form and
+        flagged half-converted (the header, not any parseable row, is the signal)."""
+        root = FIXTURE_DIR / "bij-legacy-bodytable"
+        priv = FIXTURE_DIR / "bij-legacy-bodytable-priv"
+        root.mkdir(parents=True, exist_ok=True); priv.mkdir(parents=True, exist_ok=True)
+        (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
+        (priv / "TODO-REFERENCE.md").write_text(self.REF, encoding="utf-8")
+        (priv / "P-TODO.md").write_text(
+            "# P-TODO\n## G\n### P-1.1 legacy item with an evidence table\n\n"
+            "| 2.7 | prior item | status |\n| --- | --- | --- |\n| 3.4 | another | done |\n\nbody\n",
+            encoding="utf-8")  # legacy, body table, NO P-TODO-REFERENCE.md
+        r = run_linter("tools/lint-todo-index-reference-parity.py",
+                       "--root", str(root), "--private-root", str(priv))
+        try:
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)  # skipped, not half-converted
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
+
+    def test_header_only_index_ptodo_flagged(self):
+        """F1793-7: a P-TODO with the | ID | Item | Tags | header (index form) but no
+        P-TODO-REFERENCE.md is half-converted even if it has no data rows yet."""
+        root = FIXTURE_DIR / "bij-headeronly"
+        priv = FIXTURE_DIR / "bij-headeronly-priv"
+        root.mkdir(parents=True, exist_ok=True); priv.mkdir(parents=True, exist_ok=True)
+        (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
+        (priv / "TODO-REFERENCE.md").write_text(self.REF, encoding="utf-8")
+        (priv / "P-TODO.md").write_text(
+            "# P-TODO\n## G\n| ID | Item | Tags |\n| --- | --- | --- |\n", encoding="utf-8")  # header, no rows, no ref
+        r = run_linter("tools/lint-todo-index-reference-parity.py",
+                       "--root", str(root), "--private-root", str(priv))
+        try:
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn("half-converted", r.stdout + r.stderr)
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
+
+    def test_malformed_header_index_ptodo_not_silently_skipped(self):
+        """F1793-10: an index-form P-TODO whose header is missing its terminal pipe
+        must NOT be misclassified as legacy and silently skipped (a silent-green
+        escape hiding its items); it is recognized as index form -> half-converted."""
+        root = FIXTURE_DIR / "bij-malformedhdr"
+        priv = FIXTURE_DIR / "bij-malformedhdr-priv"
+        root.mkdir(parents=True, exist_ok=True); priv.mkdir(parents=True, exist_ok=True)
+        (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
+        (priv / "TODO-REFERENCE.md").write_text(self.REF, encoding="utf-8")
+        (priv / "P-TODO.md").write_text(
+            "# P-TODO\n## G\n| ID | Item | Tags\n| --- | --- | --- |\n"
+            "| P-1.1 | hidden untagged | |\n", encoding="utf-8")  # header missing terminal pipe, no ref
+        r = run_linter("tools/lint-todo-index-reference-parity.py",
+                       "--root", str(root), "--private-root", str(priv))
+        try:
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn("half-converted", r.stdout + r.stderr)
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
 
 
 class TagGateTests(LinterTestCase):
@@ -14087,7 +14398,11 @@ class TagGateTests(LinterTestCase):
             _tags = " ".join(_re.findall(r"`\[[^\]]*\]`", _rest))
             _title = _re.sub(r"`\[[^\]]*\]`", "", _rest).strip().replace(chr(124), chr(92)+chr(124))
             return f"| {_m.group(1)} | {_title} | {_tags} |"
-        todo = "\n".join(_row(_ln) for _ln in todo.splitlines()) + "\n"
+        rendered = "\n".join(_row(_ln) for _ln in todo.splitlines())
+        # The public TODO is always index-form WITH a | ID | Item | Tags | header;
+        # prepend it so has_todo_index_header() classifies the fixture as index form
+        # (F1793-7: the header, not any parseable row, is the index signal).
+        todo = "| ID | Item | Tags |\n| --- | --- | --- |\n" + rendered + "\n"
         (root / "TODO.md").write_text(todo, encoding="utf-8")
         if ptodo is not None:
             (root / "P-TODO.md").write_text(ptodo, encoding="utf-8")
@@ -14164,6 +14479,45 @@ class TagGateTests(LinterTestCase):
         finally:
             import shutil
             shutil.rmtree(root, ignore_errors=True)
+
+
+    def test_ptodo_index_format_untagged_flagged(self):
+        # 2026-08 migration: an index-form P-TODO row missing its list tag is flagged
+        # (the format-detect + index path applies to the private backlog too).
+        root, result = self._run(
+            "tag-ptodo-index",
+            "# TODO\n\n## Priority 2\n\n### 2.3 A public item `[public]`\n",
+            ptodo=("# P-TODO\n## Group A\n| ID | Item | Tags |\n| --- | --- | --- |\n"
+                   "| P-1.1 | tagged one | `[private]` |\n| P-1.2 | UNtagged two | |\n"))
+        try:
+            self.assertLinterFails(result, "P-1.2")
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    def test_ptodo_index_format_all_tagged_passes(self):
+        root, result = self._run(
+            "tag-ptodo-index-ok",
+            "# TODO\n\n## Priority 2\n\n### 2.3 A public item `[public]`\n",
+            ptodo=("# P-TODO\n## Group A\n| ID | Item | Tags |\n| --- | --- | --- |\n"
+                   "| P-1.1 | one | `[private]` |\n"))
+        try:
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    def test_ptodo_mixed_untagged_legacy_flagged(self):
+        # F1793-4: a mixed P-TODO (index rows + leftover ### block) must NOT let an
+        # untagged legacy item slip past because index rows are present (the union).
+        root, result = self._run(
+            "tag-ptodo-mixed",
+            "# TODO\n\n## Priority 2\n\n### 2.3 A public item `[public]`\n",
+            ptodo=("# P-TODO\n## Group A\n| ID | Item | Tags |\n| --- | --- | --- |\n"
+                   "| P-1.1 | index one | `[private]` |\n"
+                   "### P-2.9 legacy untagged item\n\nbody\n"))
+        try:
+            self.assertLinterFails(result, "P-2.9")
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
 
 
 class NormalizedPositionalArgsTests(LinterTestCase):

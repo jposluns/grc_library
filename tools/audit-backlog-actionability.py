@@ -63,7 +63,7 @@ from pathlib import Path
 _TOOLS_DIR = str(Path(__file__).resolve().parent)
 if _TOOLS_DIR not in sys.path:
     sys.path.insert(0, _TOOLS_DIR)
-from lint_common import resolve_working
+from lint_common import resolve_working, has_todo_index_header
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TODO_PATH = REPO_ROOT / "TODO.md"
@@ -109,14 +109,41 @@ _REF_ID_RE = re.compile(r"^### (?P<id>P-\d+(?:\.\d+){1,2}[a-z]?|\d+(?:\.\d+)+(?:
 _ROW_RE = re.compile(r"^\|\s*(?P<id>P-\d+(?:\.\d+){1,2}[a-z]?|\d+(?:\.\d+)+(?:\.[a-z]|[a-z])?|TF-\d+)\s*\|(?P<title>[^|]*)\|(?P<tags>[^|]*)\|")
 
 
-def _load_ref_bodies() -> dict[str, str]:
-    """Map item id -> its TODO-REFERENCE.md ### block body (for prose-signal scan).
+_PRIVATE_DIR = REPO_ROOT.parent / "grc_library_private"
 
-    TODO.md is now an index of rows; the per-item detail lives in
-    TODO-REFERENCE.md as ``### <id> <title>`` blocks. This reads those blocks so
-    the actionability scan can still see each public item's body prose."""
-    ref = REPO_ROOT / "TODO-REFERENCE.md"
-    if not ref.is_file():
+
+def _first_existing(*cands: Path | None) -> Path | None:
+    for c in cands:
+        if c is not None and c.is_file():
+            return c
+    return None
+
+
+def _ref_file(which: str) -> Path | None:
+    """Resolve the detail (reference) file for a backlog.
+
+    Transitional (2026-08 migration): the public detail file (TODO-REFERENCE.md)
+    is moving into the private sibling, and the private backlog gains its own
+    detail file (P-TODO-REFERENCE.md). ``which='public'`` resolves private-first
+    (post-move) then the legacy public location (pre-move); ``which='private'``
+    resolves the private P-TODO-REFERENCE.md. Absent -> None (no-op)."""
+    if which == "public":
+        return _first_existing(
+            _PRIVATE_DIR / "TODO-REFERENCE.md",
+            REPO_ROOT / "TODO-REFERENCE.md",
+        )
+    return _first_existing(_PRIVATE_DIR / "P-TODO-REFERENCE.md")
+
+
+def _load_ref_bodies(which: str = "public") -> dict[str, str]:
+    """Map item id -> its reference ``### <id> <title>`` block body.
+
+    The per-item detail lives in the reference file (TODO-REFERENCE.md for the
+    public backlog, P-TODO-REFERENCE.md for the private one). This reads those
+    blocks so the actionability scan can still see each item's body prose when
+    the backlog is in index-row form."""
+    ref = _ref_file(which)
+    if ref is None:
         return {}
     bodies: dict[str, str] = {}
     cur = None
@@ -140,7 +167,8 @@ def _load_ref_bodies() -> dict[str, str]:
     return bodies
 
 
-def parse_items(text: str, source: str) -> list[tuple[str, str, str, str, str]]:
+def parse_items(text: str, source: str,
+                ref_bodies: dict[str, str] | None = None) -> list[tuple[str, str, str, str, str]]:
     """Return ``(id, title, block_text, source, umbrella)`` for every open item. PUBLIC
     ``TODO.md`` items are parsed as INDEX ROWS (the local ``_ROW_RE``), their bodies joined
     from ``TODO-REFERENCE.md``; only private / legacy items use the ``### `` heading-block
@@ -151,14 +179,19 @@ def parse_items(text: str, source: str) -> list[tuple[str, str, str, str, str]]:
     own text. ``source`` labels which list the item came from (``public`` /
     ``private``)."""
     lines = text.splitlines()
-    # TODO.md is index-format now: | id | title | tags | rows under ## bands,
-    # detail in TODO-REFERENCE.md. P-TODO.md keeps the ### section shape.
-    if source == "public" and any(_ROW_RE.match(ln) for ln in lines):
-        # index-format: any index row means TODO.md; a stray ``### `` block that
-        # leaked in is ignored here (gate 90 flags it) rather than flipping this
-        # to the legacy branch and collapsing the enumeration.
-        ref_bodies = _load_ref_bodies()
-        idx_items: list[tuple[str, str, str, str, str]] = []
+    # Both backlogs move to index form: | id | title | tags | rows under ## bands,
+    # detail in the reference file. A pre-migration P-TODO.md is still ### -block.
+    # UNION both parsers (F1793-3): a pure file yields exactly one shape (the other
+    # parser finds nothing), while a mixed / half-converted file keeps BOTH rather
+    # than silently dropping the leftover legacy items (which would disagree with
+    # the gate-78 / hook union counts). gate 90's index-detail-leak check fails
+    # loud on such a mixed state; this keeps the enumeration honest meanwhile.
+    idx_items: list[tuple[str, str, str, str, str]] = []
+    if has_todo_index_header(text):   # F1793-7: the header, not any parseable row,
+        # is the reliable index-form signal (a legacy item body table must not
+        # flip this branch and inject false items).
+        if ref_bodies is None:
+            ref_bodies = _load_ref_bodies(source)
         band = ""
         for ln in lines:
             if ln.startswith("## "):
@@ -172,31 +205,37 @@ def parse_items(text: str, source: str) -> list[tuple[str, str, str, str, str]]:
                 body = ref_bodies.get(iid, "")
                 block = f"{iid} {title} {tags}\n{body}"
                 idx_items.append((iid, title, block, source, band))
-        return idx_items
-    items: list[tuple[str, str, str, str, str]] = []
+
+    legacy_items: list[tuple[str, str, str, str, str]] = []
     cur: tuple[str, str] | None = None
-    body: list[str] = []
+    body_lines: list[str] = []
     umbrella = ""  # the most-recent ``## `` section header (the item's umbrella)
 
     def flush() -> None:
         if cur is not None:
-            items.append((cur[0], cur[1].strip(), "\n".join(body), source, umbrella))
+            legacy_items.append((cur[0], cur[1].strip(), "\n".join(body_lines), source, umbrella))
 
     for line in lines:
         m = ITEM_HEADING_RE.match(line)
         if m:
             flush()
             cur = (m.group("id"), m.group("title"))
-            body = [line]
+            body_lines = [line]
         elif line.startswith("## "):
             flush()
             cur = None
-            body = []
+            body_lines = []
             umbrella = line[3:].strip()
         elif cur is not None:
-            body.append(line)
+            body_lines.append(line)
     flush()
-    return items
+
+    # F1793-9: no dedup by captured id (that key is only the numeric prefix for
+    # lettered subheadings, so ### 3.92.a/.b would collide with an index row 3.92
+    # and be dropped). With the header classifier, a CLEAN file is one shape (the
+    # other list is empty, no overlap); a mixed/botched file is gate-90 fail-loud,
+    # where listing both forms is more honest than silently dropping siblings.
+    return idx_items + legacy_items
 
 
 def is_blocked(block_text: str) -> bool:
