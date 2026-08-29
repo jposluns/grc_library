@@ -74,7 +74,7 @@ CHANGELOG_HEADING_RE = re.compile(
     re.MULTILINE,
 )
 
-# The compact heading (3.16 (closing PR #1176) root-reformat), same six capture groups,
+# The compact heading (3.16 (PR #855) root-reformat), same six capture groups,
 # optional PR clause and optional stage-3b summary tail.
 COMPACT_HEADING_RE = re.compile(
     r"^\*\*(\d{4})-(\d{2})-(\d{2}) \| (\d+)\.(\d+)\.(\d+)"

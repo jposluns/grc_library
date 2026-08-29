@@ -52,7 +52,7 @@ ALWAYS_EXEMPT = {
     # RESUME.md is a manual session-resume entry point opened by filename
     # convention (its own header: "manual entry point"), the same category as
     # the other root entry points above. Its only markdown-linked referrer was
-    # a CHANGELOG entry body; the plain-language CHANGELOG rework (3.16 (closing PR #1176))
+    # a CHANGELOG entry body; the plain-language CHANGELOG rework (3.16 (closing PR #862))
     # collapses bodies, so relying on that incidental link is fragile. It is
     # reached by convention, not by inbound link, so it is exempt like its peers.
     "RESUME.md",

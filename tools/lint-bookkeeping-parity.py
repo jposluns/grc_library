@@ -27,7 +27,7 @@ The six checks:
 
 **Check 1, QA-cadence parity (the former §4.6 surface).** Derive the merged-PR
 list from the ``CHANGELOG.md`` per-entry headers, matched in BOTH the compact
-``**date | version | PR #N**`` form (the 3.16 (closing PR #1176) root-reformat default), the
+``**date | version | PR #N**`` form (the 3.16 (PR #855) root-reformat default), the
 legacy ``## YYYY-MM-DD, Library Version X, PR #N`` form, AND the rolled-up forms
 that condensation produces (``| PRs #A-#B (N PRs) |``, its multi-range variant,
 and three ``**Week of ... (PRs ...)**`` shapes), whose ranges are expanded. Before
