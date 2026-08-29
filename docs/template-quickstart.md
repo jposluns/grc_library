@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Quickstart Template\
 **Document Type:** Template\
-**Version:** 3.0.7\
-**Date:** 2026-07-04\
+**Version:** 3.0.8\
+**Date:** 2026-08-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/template-startup-roadmap.md`](template-startup-roadmap.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/template-implementation-roadmap.md`](template-implementation-roadmap.md), [`README.md`](../README.md)\
@@ -53,6 +53,7 @@ When ready to go beyond the floor, the adopter paths are designed to be used in 
 - **[`docs/decision-tree.md`](decision-tree.md)**: the conditional applicability decision tree for the sector, jurisdiction, and capability questions that sequence which domains you adopt.
 - **[`docs/template-implementation-roadmap.md`](template-implementation-roadmap.md)**: once the composition is set, this template calendars the modules into 90 / 180 / 365-day phases.
 - **[`docs/adopter-guide.md`](adopter-guide.md)**: the controlled reference on how the library is meant to be adopted, including the three adoption modes (fork the whole repo, adopt the corpus only, adopt the pack only) and the Tier 1 / Tier 2 / Tier 3 growth path.
+- **`/adopt`** (AI-assisted maintenance): if you forked the whole repo and will maintain it with an AI coding assistant, run the pack's `/adopt` command once before editing. It configures the clone as an adopter clone, records your sibling model and adoption config, and resets any maintainer working-state that is present to clean adopter baselines (a fresh public fork usually carries none); see the adopter guide's Quick start for what it does.
 
 To plan the fuller composition (what to add beyond the floor), see **[`docs/template-startup-roadmap.md`](template-startup-roadmap.md)**: the full composition workbook. Five dimensions (activity, data scope, audience, regulatory exposure, GRC capacity), 24 modules, three worked examples. Plan on an afternoon.
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Guide\
 **Document Type:** Guide\
-**Version:** 1.3.16\
-**Date:** 2026-08-03\
+**Version:** 1.3.17\
+**Date:** 2026-08-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/worked-example.md`](worked-example.md), [`docs/worked-example-adoption.md`](worked-example-adoption.md), [`docs/adopter-guide-multi-entity.md`](adopter-guide-multi-entity.md), [`specification-master-project.md`](../specification-master-project.md)\
@@ -53,7 +53,7 @@ These modes describe a single organization adopting the library. A group, holdin
 
 **What you ignore.** Nothing structural. You will substitute organization-specific values inside the artefacts (roles, jurisdictions, sector context, vendor names if any) and add organization-specific overlays alongside the library content, but the structural shape stays.
 
-**Next step.** Follow the Quick start below and the [`docs/decision-tree.md`](decision-tree.md) for prioritization.
+**Next step.** Follow the Quick start below and the [`docs/decision-tree.md`](decision-tree.md) for prioritization. If you will maintain the corpus with an AI coding assistant, run `/adopt` once before editing (see the note under Quick start).
 
 ### Mode B: Adopt the corpus only
 
@@ -86,6 +86,8 @@ These modes describe a single organization adopting the library. A group, holdin
 3. **Substitute roles and identifiers.** Every Owner and Approving Authority is role-based. Map each role to a real person in your organization in a private overlay that you do not commit to a public fork. Do not edit roles into named individuals inside the artefacts themselves.
 4. **Validate applicability.** Each artefact contains framework references, regulatory citations, and review-frequency expectations. Validate that each applies to your jurisdiction, sector, processing role, and risk appetite before adopting it.
 5. **Track upstream.** If you forked, periodically pull from upstream. Most upstream changes are corrections and additions; conflicts are rare in practice because the corpus uses stable filenames and a controlled metadata block.
+
+**AI-assisted maintenance: run `/adopt` first (full-fork adopters).** If you forked the whole repo (Mode A) and will maintain your corpus with an AI coding assistant, the pack ships an `/adopt` command (its skill is [`guardrails/skills/adopt/SKILL.md`](../guardrails/skills/adopt/SKILL.md)). Run it once before you start editing: it confirms the clone is an adopter clone, records your sibling model (your own reference / exchange / private repositories, or self-contained in-repo stubs), resets any maintainer working-state that is present (the session handoff and the QA and history registers) to clean adopter baselines (a fresh public fork usually carries none, since that state lives in the maintainer's private sibling), strips residual maintainer-only machinery, and records your `.claude/adopt-config.json` so the tooling runs in adopter mode.
 
 ## Applicability decision tree
 
