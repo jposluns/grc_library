@@ -64,6 +64,34 @@ false-negative cost:
      change; this gate is deliberately the recorded-retirement half rather
      than nothing.
 
+     1a. PRIVATE-LIST (P-N.M) ids use a DIFFERENT convention, so a SECOND
+     pass (P_RETIRED_RE) handles them. They carry no ``§`` marker, and the
+     DONE heading places the id AFTER the ``PR #N:`` prefix (``### PR
+     #1487: P-3.247 ...``), where the before-last-colon scope of the § pass
+     would exclude it. So the P-pass scans the WHOLE paren-stripped heading.
+     To keep that wide scope false-positive-free it (a) rejects a compound
+     token whole rather than truncating it (``P-1.51b-ii`` and ``P-1.33-35``
+     yield nothing, not a parent ``P-1.51`` / ``P-1.33``), (b) skips an id
+     preceded by a destination cue (``absorbed into P-1.55``) or followed by
+     a creation participle (``P-1.52 created``), both naming a LIVE id, and
+     (c) relies on the same EXEMPT dict for live-umbrella partial closes
+     (the P-id section, including two same-id FAMILY rows). Series P-1 has
+     NO public floor backstop, so this pass is its ONLY recycle protection.
+
+     ACCEPTED LIMITATION (bare in-paren ids). The P-pass strips parentheticals
+     before scanning, because a paren usually holds a DESTINATION or a live
+     cross-reference (``(...; advances P-3.210)`` names the LIVE P-3.210). So a
+     BARE in-paren id with no retirement verb is NOT detected: this is
+     deliberate FP-safety, since catching it would also flag the live P-3.210.
+     RETIRE_CUE_PID_RE recovers the sub-case that IS unambiguous (``closes
+     P-x.y`` inside a paren). What remains undetected is a completed SUB-ITEM
+     referenced bare-in-paren, e.g. the ``(P-1.25.26)`` website-build sub-items
+     of the P-1.25 umbrella (a sub-item governed by its umbrella, ~nil top-level
+     recycle risk). Safely closing this needs the live-set-aware or
+     structured-DONE-id-field durable fix (guardrail seed
+     gate78-parse-retired-misses-pr-prefixed-P3-ids, part 2), not a wider paren
+     scan that would reintroduce the destination false positive.
+
      Sub-bullet ids (``§5.9-R1``, ``§6.3-R3``) are NOT retired item
      numbers, so the id pattern requires a bare dotted number and rejects
      a ``-R<n>`` suffix. Otherwise closing a sub-bullet would read as
@@ -147,6 +175,38 @@ LIVE_HEADING_RE = re.compile(
 # '-R<n>' sub-bullet suffix (see design note 1).
 RETIRED_ID_RE = re.compile(r"§\s*((?:\d+(?:\.\d+)+[a-z]?)|TF-\d+)(?!-R\d)(?![\d.])")
 
+# A retired PRIVATE-list id (P-N.M / P-N.M.K, optional trailing letter) in a
+# DONE.md heading (design note 1a). Differs from the § convention in marker AND
+# placement: no '§', and the id usually follows the 'PR #N:' prefix, where the
+# before-last-colon scope would exclude it. The token grammar mirrors
+# lint_common.TODO_ID_RE's P-branch (parity pinned by a regression test) so live
+# and retired ids compare as equal strings. The trailing lookaheads make a
+# compound token a NON-match, never a truncated prefix: 'P-1.51b-ii' (a sub-slice
+# label) and 'P-1.33-35' (a creation range) yield nothing, not their parent id;
+# 'P-384' (undotted) never matches.
+P_RETIRED_RE = re.compile(r"\bP-\d+(?:\.\d+){1,2}[a-z]?(?!\.\d)(?![-\w])")
+
+# A P-id immediately preceded by a destination/relocation cue names a LIVE id
+# pointed AT ('absorbed into P-1.55', 're-homed to P-1.9', '-> P-3.250'); one
+# immediately followed by a creation participle names a LIVE id being opened
+# ('P-1.52 created'). Measured 2026-08-29: zero activations across the ledger
+# (real destination mentions sit inside parentheses, already stripped), so both
+# guards are prophylactic at zero measured false-negative cost.
+P_DEST_CUE_RE = re.compile(
+    r"(?:\b(?:to|into|as|by|of)|->|\u2192|\badvances|\bnow)\s*$", re.IGNORECASE)
+P_CREATE_CUE_RE = re.compile(r"^\s*(?:created|opened|spawned|filed)\b", re.IGNORECASE)
+
+# An explicit retirement verb immediately before a P-id names a RETIRED id even
+# INSIDE a parenthetical (which the whole-heading P-pass strips for FP-safety),
+# e.g. DONE:3315 '(...; closes P-3.216, advances P-3.210)': 'closes P-3.216' is a
+# retirement the paren-strip would otherwise hide, while 'advances P-3.210' is
+# NOT a retirement verb so the live P-3.210 is untouched. Only unambiguous
+# retirement verbs (closes/closed/retires/retired); 'superseded' is omitted
+# because 'superseded BY P-x' points at a live id.
+RETIRE_CUE_PID_RE = re.compile(
+    r"\b(?:closes|closed|retires|retired)\s+(P-\d+(?:\.\d+){1,2}[a-z]?)(?!\.\d)(?![-\w])",
+    re.IGNORECASE)
+
 # '**Next item number: 3.110.**' / '**Next item number: TF-3.**'
 COUNTER_RE = re.compile(
     r"^\s*-?\s*\*\*Next item number:\s*((?:\d+\.\d+)|TF-\d+)\.\*\*"
@@ -164,8 +224,12 @@ PAREN_RE = re.compile(r"\([^()]*\)")
 # SUBSTRING, not by line number: a line key looked tighter but re-fired on any
 # unrelated edit that shifted DONE.md (measured: one PR moved two entries by 4
 # lines and both exemptions lapsed), which would make the gate unusable
-# per-commit. Each substring below was checked to match exactly ONE of DONE.md's
-# 543 entry headings, so an exemption cannot widen to another entry.
+# per-commit. Each § substring below was checked to match exactly ONE of
+# DONE.md's entry headings, so an exemption cannot widen to another entry. The
+# P-id partial-close section adds two FAMILY rows (a distinctive id-prefixed
+# substring matching a batch of the SAME id's headings, e.g. 'P-1.25 Phase'):
+# these are id-scoped by _exempt so they still cannot widen to a DIFFERENT item,
+# only to more of the same live id's own partial closes.
 #
 # THIS DICT'S COMPLETENESS, NOT THE PARSE, IS THIS GATE'S FALSE-POSITIVE SURFACE:
 # the parse cannot tell a partial or sub-item close from a full retirement, so
@@ -258,6 +322,66 @@ EXEMPT: dict[tuple[str, str], str] = {
         "date: this partial close is POST-rule, which is why this class is not a "
         "closed historical set."
     ),
+    # --- P-id partial closes (2026-08-29, PR ####; P-1.55). The private-list
+    #     ids (P-N.M) newly detected by P_RETIRED_RE. Each is a live P-TODO
+    #     umbrella whose DONE headings closed one phase/batch/sub-item. Two are
+    #     FAMILY rows (a distinctive id-prefixed substring matching a batch of
+    #     same-id headings): scoped to the id by _exempt, so a family row cannot
+    #     widen to a different item, only to more of the SAME live id's own
+    #     partial closes -- acceptable because recycling that id is forbidden
+    #     anyway. ---
+    ("P-1.25", "P-1.25 Phase"): (
+        "PARTIAL CLOSE family (5 headings, DONE:581/586/591/3210/3214). The "
+        "'Executive narrative + executive-experience layer' umbrella (P-1.25) is "
+        "live at P-TODO; each 'Phase N' entry closed one build phase of it."
+    ),
+    ("P-3.202", "P-3.202 synchronous-model cutover-leftover"): (
+        "PARTIAL CLOSE (provisional; DONE:3186, #1361). P-3.202 is live at P-TODO "
+        "and its detail says the comprehensive sweep is INCOMPLETE, so #1361 is "
+        "read as a slice, not a full close. The DONE heading itself does not say "
+        "'partial', so the substantiation rests on the live P-TODO detail, not "
+        "the heading; the disposition (was #1361 a partial advance, or should "
+        "P-3.202 be closed?) is ROUTED to the maintainer (pending-decisions "
+        "2026-08-29). Provisionally EXEMPT to keep the gate green; revisit on the "
+        "maintainer's call."
+    ),
+    ("P-3.209", "P-3.209 batch"): (
+        "PARTIAL CLOSE family (9 headings, DONE:596-628). The security/risk/"
+        "resilience defect-hunt umbrella (P-3.209) is live at P-TODO; each "
+        "'batch N' entry closed one batch of it."
+    ),
+    ("P-3.209", "P-3.209 cadence-consistency findings"): (
+        "PARTIAL CLOSE (DONE:216, #1677; findings F45/F47/F41-42 of the live "
+        "P-3.209 defect-hunt umbrella)."
+    ),
+    ("P-3.214", "P-3.214 ISO 19011:2018"): (
+        "PARTIAL CLOSE (DONE:632, #1392) of the live P-3.214 reference-currency "
+        "umbrella (ISO 19011 edition migration)."
+    ),
+    ("P-3.214", "P-3.214 currency"): (
+        "PARTIAL CLOSE (DONE:636, #1391) of the live P-3.214 reference-currency "
+        "umbrella (CRA staging + ISO 27017 edition)."
+    ),
+    ("P-3.214", "P-3.214 B-3"): (
+        "PARTIAL CLOSE (DONE:640, #1390) of the live P-3.214 reference-currency "
+        "umbrella (ISO 19011 clause-structure)."
+    ),
+    ("P-3.214", "P-3.214 confirmed errors"): (
+        "PARTIAL CLOSE (DONE:648, #1388) of the live P-3.214 reference-currency "
+        "umbrella (Bill C-27 lapsed + NIST 800-61 Rev.3 inversion)."
+    ),
+    ("P-3.217", "P-3.217 HIGH citation defects"): (
+        "PARTIAL CLOSE (DONE:3318, #1507) of the live P-3.217 orphaned-finding-set "
+        "umbrella (MED/LOW tier stays open)."
+    ),
+    ("P-3.217", "P-3.217 residue M16/M17"): (
+        "PARTIAL CLOSE (DONE:3321, #1508) of the live P-3.217 umbrella (MED/LOW "
+        "tier stays open)."
+    ),
+    ("P-3.217", "P-3.217 HIGH-tier disposition"): (
+        "PARTIAL CLOSE (DONE:3563, #1797; the HIGH-tier disposition) of the live "
+        "P-3.217 umbrella (MED/LOW tier stays open)."
+    ),
 }
 
 
@@ -329,6 +453,24 @@ def parse_retired(text: str) -> dict[str, list[int]]:
         # retiring 2.17 through 2.21, which was a measured false positive.
         scope = PAREN_RE.sub(" ", scope)
         for m in RETIRED_ID_RE.finditer(scope):
+            retired.setdefault(m.group(1), []).append(lineno)
+        # P-id pass (design note 1a): the WHOLE paren-stripped heading, not the
+        # before-last-colon scope -- the private-list P-id convention places the
+        # id AFTER the 'PR #N:' prefix. Cue-guarded against destination/creation
+        # mentions of a LIVE id (P_DEST_CUE_RE / P_CREATE_CUE_RE).
+        p_scope = PAREN_RE.sub(" ", head)
+        for m in P_RETIRED_RE.finditer(p_scope):
+            if P_DEST_CUE_RE.search(p_scope[max(0, m.start() - 40):m.start()]):
+                continue
+            if P_CREATE_CUE_RE.match(p_scope[m.end():]):
+                continue
+            retired.setdefault(m.group(0), []).append(lineno)
+        # Retirement-cue pass: an explicit 'closes/closed/retires/retired P-x.y'
+        # names a RETIRED id even inside a parenthetical, which the P-pass strips
+        # for FP-safety (the single real case: DONE 'closes P-3.216'). Scans the
+        # RAW head; a live destination like 'advances P-3.210' is not a cue and
+        # stays untouched.
+        for m in RETIRE_CUE_PID_RE.finditer(head):
             retired.setdefault(m.group(1), []).append(lineno)
     return retired
 
@@ -535,21 +677,21 @@ def main(argv: list[str]) -> int:
             if item_id in ptodo_live:
                 srcs.append("P-TODO.md:" + ",".join(str(n) for n in ptodo_live[item_id]))
             dl = ", ".join(f".working/DONE.md:{n}" for n in done_lines)
-            print(f"  §{item_id}: live at {'; '.join(srcs)}; recorded retired at {dl}")
+            print(f"  {'' if item_id.startswith('P-') else '§'}{item_id}: live at {'; '.join(srcs)}; recorded retired at {dl}")
 
     if cross:
         print("=== numbers live in BOTH lists (a copy-not-move migration bug) ===")
         for item_id in cross:
             tl = ",".join(str(n) for n in todo_live[item_id])
             pl = ",".join(str(n) for n in ptodo_live[item_id])
-            print(f"  §{item_id}: TODO.md:{tl} AND P-TODO.md:{pl}")
+            print(f"  {'' if item_id.startswith('P-') else '§'}{item_id}: TODO.md:{tl} AND P-TODO.md:{pl}")
 
     if stale:
         print("=== counters pointing at an already-used number ===")
         for section, raw, lineno, highest, names in stale:
             print(
                 f"  TODO.md:{lineno}: section {section} counter is '{raw}' but "
-                f"{', '.join('§' + n for n in names)} already exist(s) "
+                f"{', '.join(('' if n.startswith('P-') else '§') + n for n in names)} already exist(s) "
                 f"(highest used ordinal {highest}); advance it past {highest}"
             )
 
