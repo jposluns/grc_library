@@ -269,7 +269,7 @@ is external. Two mechanisms:
      section-close can leave a stale forward pointer in a gate-exempt file, and the
      intra-doc-ref gate does not scan the gate-exempt trees at all, so such a pointer is
      invisible to every gate and is caught only by this whole-repo grep, not by CI
-     (Sweep 78 B-1). **Reference-KEY-WIDTH axis (the §3.46 codification):** the grep
+     (Sweep 78 B-1). **Reference-KEY-WIDTH axis (the PR #819 codification):** the grep
      must cover every KEY FORM the closed thing is cited by, not only the bare `§N`.
      Beyond `§N` / `PN.M` / bare tokens, this includes RANGE notation (`§A-§B`, `§A to
      §B`: a `§1.5-§1.8` residual range stays stale when only its last member closes) and
@@ -441,7 +441,7 @@ is external. Two mechanisms:
      the pack rule's current-period-model section is the authoritative description): the
      `grc_library_private/.working/changelog-details/CHANGELOG-detailed.md`
      is intended to hold only the CURRENT week's entries, with completed weeks (and, per
-     §1.19.9, the aged roll-up ROWS of `validate-pr/history.md` and `improvement-log.md`)
+     PR #1034, the aged roll-up ROWS of `validate-pr/history.md` and `improvement-log.md`)
      swept to the `grc_library_private` archive as weekly Monday-dated files by
      a private-side process (the former in-public-repo `sweep-working-records-to-private.py` was
      RETIRED with the working-state move to the private sibling; the detailed mirror now lives in
@@ -462,7 +462,7 @@ is external. Two mechanisms:
      summary`, plain hyphen, no em/en dash) is ADOPTED as the standard go-forward root shape: the
      3b plain-language wave (#855-#862) converted the whole back-catalogue to it, so every new root
      entry uses this one-line form while the detailed mirror keeps the full structured sections.
-     TODO 3.16's only remaining residual is the deferred, maintainer-gated git-history collapse.
+     The only remaining residual of that CHANGELOG-format work is the deferred, maintainer-gated git-history collapse.
    - **Daily-changelog-rollup reminder (D8, midnight-UTC cadence).** If the pre-push guard's D8 check prints `DAILY SUMMARY DUE for <date>`, the next PR carries that date's daily roll-up (collapse its per-PR root entries to one `**date | version | PRs #A-#B (N PRs)**` summary) AND prunes the matching detailed-mirror rows to the `grc_library_private/changelog-archive/`. D8 is advisory (exit 0, never blocks), so the reminder is ACTIONED not skipped; the roll-up draft is a small worker offload (`tools/check-daily-changelog-rollup.py` is the check).
    - CHANGELOG (root + detailed) and version bumps are present; the pre-push guard
      (`run_all_audits.sh` + `run-pr-time-checks.sh` + `.web/build.py --check`) is green.

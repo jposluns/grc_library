@@ -13,13 +13,13 @@ external-version-currency corollary, for the `grc_library_ref` reference base.
 
 ## The `_ref`-required loud gate (full mechanism)
 
-`_ref` is a REQUIRED maintainer-orchestrator dependency; its absence fails LOUD (§1.19.7
+`_ref` is a REQUIRED maintainer-orchestrator dependency; its absence fails LOUD (PR #1007
 `_ref`-required gate). Reference-checking against the held ground truth is critical to content
 correctness, so for the maintainer a missing `grc_library_ref` is a broken setup to FIX, never a
 state to silently work around. `/orch` step 3 acts on `detect-env`'s `ref_availability` decision:
 on `maintainer` identity with `_ref` NOT readable it HALTs and surfaces the `--add-dir` fix, and no
 reference-dependent (content) work proceeds until access is granted and the session re-resumed. The
-sibling-reaching tools' graceful degradation (`lint_common.resolve_sibling` no-op, §1.19.2) is
+sibling-reaching tools' graceful degradation (`lint_common.resolve_sibling` no-op, PR #996) is
 ADOPTER-ONLY: an adopter legitimately has no `_ref` (the committed reference-acquisition manifest +
 `/adopt` `.ref` bootstrap cover it), so graceful there is correct, whereas for the maintainer it
 would mask the missing dependency. (There is no `_ref`-specific PreToolUse hook; the mechanical
@@ -65,7 +65,7 @@ When a task needs a load-bearing reference (a standard, regulation, RTS/ITS, fra
 citation or attributed value depends on) that `grc_library_ref` does not hold, follow the pack's
 missing-load-bearing-reference corollary in
 [`evidence-grounded-completion`](../.claude/rules/governance/evidence-grounded-completion.md) (its
-`## Un-observable state, inventory, and external-version currency` section; TODO 3.53): PAUSE,
+`## Un-observable state, inventory, and external-version currency` section; PR #832): PAUSE,
 attempt acquisition, then named options on failure. The project instantiation:
 
 1. **Attempt the ingest into `grc_library_ref`** (drop in `ingest/`, dedupe, identify, route to the

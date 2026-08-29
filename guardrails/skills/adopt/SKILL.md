@@ -27,7 +27,7 @@ Portable procedure, concrete names. In the parent GRC library this skill runs wi
 - Reference-acquisition manifest + bootstrap planner (sibling model, enrichment): the public
   bibliography `/adopt` can bootstrap an EXTERNAL `.ref` from (`docs/reference-acquisition-manifest.md`),
   and the planner `tools/adopt-bootstrap-ref.py` that categorizes it into auto-fetchable /
-  free-manual / licensed-manual (TODO section 1.19.7). Adopters substitute their own equivalents.
+  free-manual / licensed-manual (PR #1007). Adopters substitute their own equivalents.
 
 An adopting project maps each bullet to its own classifier, config, placeholders,
 working-state, and resume flow; the procedure below refers to them generically.
