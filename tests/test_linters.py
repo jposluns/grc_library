@@ -11855,6 +11855,16 @@ class BacklogActionabilityTests(unittest.TestCase):
         self.assertIs(mod.is_blocked(by["P-1.1"][2]), False)
         self.assertIn("egress", mod.prose_signals(by["P-1.1"][2]))  # ref body joined
 
+    def test_mixed_ptodo_unions_index_and_legacy(self):
+        # F1793-3: a mixed P-TODO (index row + leftover ### block) enumerates BOTH,
+        # so the count stays in agreement with the gate-78 / hook unions.
+        mod = self._load()
+        mixed = ("## Group A\n### P-1.1 legacy one\ninline body\n"
+                 "| ID | Item | Tags |\n| --- | --- | --- |\n"
+                 "| P-2.1 | index two | `[private]` |\n")
+        items = mod.parse_items(mixed, "private", ref_bodies={"P-2.1": "### P-2.1 index two\nbody"})
+        self.assertEqual(sorted(i[0] for i in items), ["P-1.1", "P-2.1"])
+
     def test_private_legacy_block_format_still_parsed(self):
         # The pre-migration ### -block P-TODO layout keeps working (no index rows
         # -> the legacy block grammar; detail inline).
@@ -14240,6 +14250,42 @@ class TodoIndexReferenceParityTests(LinterTestCase):
             import shutil
             shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
 
+    def test_ptodo_index_without_reference_flagged(self):
+        """F1793-2: a P-TODO.md already in INDEX form but with no P-TODO-REFERENCE.md
+        is a half-converted botch -> fail loud (rc 2), unlike a legacy ###-block
+        P-TODO which is correctly skipped."""
+        root = FIXTURE_DIR / "bij-halfconv"
+        priv = FIXTURE_DIR / "bij-halfconv-priv"
+        root.mkdir(parents=True, exist_ok=True); priv.mkdir(parents=True, exist_ok=True)
+        (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
+        (priv / "TODO-REFERENCE.md").write_text(self.REF, encoding="utf-8")
+        (priv / "P-TODO.md").write_text(self.PIDX, encoding="utf-8")  # index rows, NO P-TODO-REFERENCE.md
+        r = run_linter("tools/lint-todo-index-reference-parity.py",
+                       "--root", str(root), "--private-root", str(priv))
+        try:
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn("half-converted", r.stdout + r.stderr)
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
+
+    def test_ptodo_reference_without_index_flagged(self):
+        """A present P-TODO-REFERENCE.md with a missing P-TODO.md is a broken pair."""
+        root = FIXTURE_DIR / "bij-brokenpair"
+        priv = FIXTURE_DIR / "bij-brokenpair-priv"
+        root.mkdir(parents=True, exist_ok=True); priv.mkdir(parents=True, exist_ok=True)
+        (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
+        (priv / "TODO-REFERENCE.md").write_text(self.REF, encoding="utf-8")
+        (priv / "P-TODO-REFERENCE.md").write_text(self.PREF, encoding="utf-8")  # no P-TODO.md
+        r = run_linter("tools/lint-todo-index-reference-parity.py",
+                       "--root", str(root), "--private-root", str(priv))
+        try:
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn("broken backlog pair", r.stdout + r.stderr)
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
+
 
 class TagGateTests(LinterTestCase):
     """tools/lint-todo-list-tag.py (gate 81): every open TODO.md / P-TODO.md
@@ -14338,6 +14384,45 @@ class TagGateTests(LinterTestCase):
         finally:
             import shutil
             shutil.rmtree(root, ignore_errors=True)
+
+
+    def test_ptodo_index_format_untagged_flagged(self):
+        # 2026-08 migration: an index-form P-TODO row missing its list tag is flagged
+        # (the format-detect + index path applies to the private backlog too).
+        root, result = self._run(
+            "tag-ptodo-index",
+            "# TODO\n\n## Priority 2\n\n### 2.3 A public item `[public]`\n",
+            ptodo=("# P-TODO\n## Group A\n| ID | Item | Tags |\n| --- | --- | --- |\n"
+                   "| P-1.1 | tagged one | `[private]` |\n| P-1.2 | UNtagged two | |\n"))
+        try:
+            self.assertLinterFails(result, "P-1.2")
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    def test_ptodo_index_format_all_tagged_passes(self):
+        root, result = self._run(
+            "tag-ptodo-index-ok",
+            "# TODO\n\n## Priority 2\n\n### 2.3 A public item `[public]`\n",
+            ptodo=("# P-TODO\n## Group A\n| ID | Item | Tags |\n| --- | --- | --- |\n"
+                   "| P-1.1 | one | `[private]` |\n"))
+        try:
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    def test_ptodo_mixed_untagged_legacy_flagged(self):
+        # F1793-4: a mixed P-TODO (index rows + leftover ### block) must NOT let an
+        # untagged legacy item slip past because index rows are present (the union).
+        root, result = self._run(
+            "tag-ptodo-mixed",
+            "# TODO\n\n## Priority 2\n\n### 2.3 A public item `[public]`\n",
+            ptodo=("# P-TODO\n## Group A\n| ID | Item | Tags |\n| --- | --- | --- |\n"
+                   "| P-1.1 | index one | `[private]` |\n"
+                   "### P-2.9 legacy untagged item\n\nbody\n"))
+        try:
+            self.assertLinterFails(result, "P-2.9")
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
 
 
 class NormalizedPositionalArgsTests(LinterTestCase):

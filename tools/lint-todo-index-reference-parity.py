@@ -307,6 +307,17 @@ def _resolve_pairs(root: Path, private_dir: Path | None) -> tuple[list[tuple[Pat
         p_ref = private_dir / PTODO_REFERENCE_REL
         if p_index.is_file() and p_ref.is_file():
             pairs.append((p_index, p_ref, PTODO_INDEX_REL, PTODO_REFERENCE_REL))
+        elif p_ref.is_file() and not p_index.is_file():
+            errors.append(f"{PTODO_REFERENCE_REL} is present but {PTODO_INDEX_REL} is "
+                          "missing (broken backlog pair)")
+        elif p_index.is_file() and not p_ref.is_file():
+            # F1793-2: a legacy ### -block P-TODO.md with no reference is a no-op
+            # (skipped); but a P-TODO.md already in INDEX form with no reference is
+            # a half-converted / botched migration -> fail loud rather than skip.
+            if parse_index(p_index.read_text(encoding="utf-8")):
+                errors.append(f"{PTODO_INDEX_REL} is in index-row form but "
+                              f"{PTODO_REFERENCE_REL} is absent (half-converted backlog; "
+                              "every index row would be MISSING its detail block)")
 
     return pairs, errors
 

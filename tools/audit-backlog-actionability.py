@@ -180,16 +180,16 @@ def parse_items(text: str, source: str,
     ``private``)."""
     lines = text.splitlines()
     # Both backlogs move to index form: | id | title | tags | rows under ## bands,
-    # detail in the reference file. Transitional (2026-08): a legacy P-TODO.md
-    # still in ``### `` section form has no index rows and falls through to the
-    # block grammar below.
+    # detail in the reference file. A pre-migration P-TODO.md is still ### -block.
+    # UNION both parsers (F1793-3): a pure file yields exactly one shape (the other
+    # parser finds nothing), while a mixed / half-converted file keeps BOTH rather
+    # than silently dropping the leftover legacy items (which would disagree with
+    # the gate-78 / hook union counts). gate 90's index-detail-leak check fails
+    # loud on such a mixed state; this keeps the enumeration honest meanwhile.
+    idx_items: list[tuple[str, str, str, str, str]] = []
     if any(_ROW_RE.match(ln) for ln in lines):
-        # index-format: any index row means this backlog is an index; a stray
-        # ``### `` block that leaked in is ignored here (gate 90 flags it) rather
-        # than flipping this to the legacy branch and collapsing the enumeration.
         if ref_bodies is None:
             ref_bodies = _load_ref_bodies(source)
-        idx_items: list[tuple[str, str, str, str, str]] = []
         band = ""
         for ln in lines:
             if ln.startswith("## "):
@@ -203,31 +203,33 @@ def parse_items(text: str, source: str,
                 body = ref_bodies.get(iid, "")
                 block = f"{iid} {title} {tags}\n{body}"
                 idx_items.append((iid, title, block, source, band))
-        return idx_items
-    items: list[tuple[str, str, str, str, str]] = []
+
+    legacy_items: list[tuple[str, str, str, str, str]] = []
     cur: tuple[str, str] | None = None
-    body: list[str] = []
+    body_lines: list[str] = []
     umbrella = ""  # the most-recent ``## `` section header (the item's umbrella)
 
     def flush() -> None:
         if cur is not None:
-            items.append((cur[0], cur[1].strip(), "\n".join(body), source, umbrella))
+            legacy_items.append((cur[0], cur[1].strip(), "\n".join(body_lines), source, umbrella))
 
     for line in lines:
         m = ITEM_HEADING_RE.match(line)
         if m:
             flush()
             cur = (m.group("id"), m.group("title"))
-            body = [line]
+            body_lines = [line]
         elif line.startswith("## "):
             flush()
             cur = None
-            body = []
+            body_lines = []
             umbrella = line[3:].strip()
         elif cur is not None:
-            body.append(line)
+            body_lines.append(line)
     flush()
-    return items
+
+    idx_ids = {i[0] for i in idx_items}
+    return idx_items + [it for it in legacy_items if it[0] not in idx_ids]
 
 
 def is_blocked(block_text: str) -> bool:

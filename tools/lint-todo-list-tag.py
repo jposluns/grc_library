@@ -122,17 +122,25 @@ def main(argv: list[str]) -> int:
     total_items = 0
     all_findings: list[tuple[str, int, str, int]] = []
     for rel, text in sources:
-        # Format-detect per source: TODO.md is always index-format; P-TODO.md is
-        # ### -block pre-migration and index-format post-migration (2026-08). An
-        # index row present -> index parser; otherwise the legacy ### grammar.
+        # Both backlogs move to index form (2026-08); P-TODO.md is ### -block
+        # pre-migration. UNION both parsers (F1793-4): check index rows AND any
+        # leftover ### headings (deduped by captured id), so a mixed / half-
+        # converted file cannot let an untagged legacy item pass. A pure file has
+        # exactly one shape, so the other parser contributes nothing.
         idx_items = parse_todo_index(text)
-        if idx_items:
-            total_items += len(idx_items)
-            for lineno, line, count in find_untagged_index(text):
-                all_findings.append((rel, lineno, line, count))
-        else:
-            total_items += sum(1 for line in text.splitlines() if ITEM_HEADING_RE.match(line))
-            for lineno, line, count in find_untagged_or_ambiguous(text):
+        idx_ids = {it["id"] for it in idx_items}
+        total_items += len(idx_items)
+        for lineno, line, count in find_untagged_index(text):
+            all_findings.append((rel, lineno, line, count))
+        # legacy ### headings not already counted as index rows (pure-index files
+        # carry no ### item headings; their detail lives in the reference file).
+        for line in text.splitlines():
+            hm = ITEM_HEADING_RE.match(line)
+            if hm and hm.group("id") not in idx_ids:
+                total_items += 1
+        for lineno, line, count in find_untagged_or_ambiguous(text):
+            hm = ITEM_HEADING_RE.match(line)
+            if hm and hm.group("id") not in idx_ids:
                 all_findings.append((rel, lineno, line, count))
 
     if not all_findings:
