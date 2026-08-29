@@ -2,8 +2,8 @@
 
 **Document Title:** Audit Programme Specification\
 **Document Type:** Specification\
-**Version:** 1.17.123\
-**Date:** 2026-08-28\
+**Version:** 1.17.124\
+**Date:** 2026-08-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`CHANGELOG.md`](../CHANGELOG.md), [`TODO.md`](../TODO.md)\
@@ -249,7 +249,7 @@ A delta gate inspects the change set of a pull request, not the repository state
 
 Delta gate D1 mechanically enforces §7 step 4 below ("the CHANGELOG entry for the phase is written"): it compares the PR head to its merge-base with the target branch and fails when [`CHANGELOG.md`](../CHANGELOG.md) is not in the diff. As of PR #1235 (2026-07-29, the working-state move to the private sibling), the gate enforces ONLY the root [`CHANGELOG.md`](../CHANGELOG.md): the detailed mirror moved to the private-sibling working-state store (cross-repo, invisible to a public PR diff), so the former two-file lock-step (introduced in PR #125, 2026-06-21) no longer applies to the public diff. An opt-out trailer `Changelog: <one-line-reason>` in any commit message body in the PR range satisfies the gate regardless of split, for cases where the convention legitimately does not apply (trivial typo corrections, branch-mechanics fixes, content already covered by a CHANGELOG entry from an earlier commit in the same PR).
 
-Delta gate D2 enforces that every versioned document modified in a PR carries a bumped `**Version:**` field. For each markdown file in the diff, the gate reads the file's Version field at the merge-base and at the PR head and fails if the file's body changed but Version did not. Exempt files: [`CHANGELOG.md`](../CHANGELOG.md), generated artefacts, and files without a Version field. The gate catches the per-document-version-bump-omission class of defect that the §6 monotonicity audit (gate 13) cannot detect; gate 13 confirms versions strictly increase, but cannot detect a file whose body changed without an accompanying bump.
+Delta gate D2 enforces that every versioned document modified in a PR carries a bumped `**Version:**` field. For each markdown file in the diff, the gate reads the file's Version field at the merge-base and at the PR head and fails if the file's body changed but Version did not. Exempt files: [`CHANGELOG.md`](../CHANGELOG.md), generated artefacts, and files without a Version field. The gate catches the per-document-version-bump-omission class of defect that the §6 monotonicity audit (gate 13) cannot detect; gate 13 confirms versions never decrease, but cannot detect a file whose body changed without an accompanying bump.
 
 Delta gate D3 enforces the prose dash convention (no em dashes, no en dashes; see [`tools/lint-language.py`](../tools/lint-language.py)) on the root [`CHANGELOG.md`](../CHANGELOG.md), but only on lines a PR adds. The root CHANGELOG is deliberately outside `lint-language.py`'s whole-file scan set, because its long append-only entry history accumulated many em dashes before the convention was enforced and rewriting historical entries risks altering their meaning. D3 closes that gap forward-only: it compares the PR head to its merge-base, inspects the added CHANGELOG lines, and fails when any added line contains an em dash or en dash, so new entries follow the convention while history stays untouched. This is the new-entries-only resolution of deferred decision DD-1 (2026-06-23); the detailed mirror is maintainer working state and is not checked.
 
