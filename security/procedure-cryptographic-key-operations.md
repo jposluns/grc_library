@@ -2,8 +2,8 @@
 
 **Document Title:** Cryptographic Key Operations Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.4\
-**Date:** 2026-08-05\
+**Version:** 1.0.5\
+**Date:** 2026-08-29\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/framework-cryptographic-key-lifecycle.md`](framework-cryptographic-key-lifecycle.md), [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -141,7 +141,7 @@ Dual control is required for all key generation, export, and destruction operati
 7.2 Destruction procedure:
 1. Key Custodian submits a destruction request approved by CISO.
 2. Two Key Custodians must witness or cryptographically authenticate destruction.
-3. Keys stored in HSMs are destroyed via the HSM's cryptographic erasure function.
+3. Keys stored in HSMs are destroyed via the HSM's zeroization function.
 4. Keys stored in software are overwritten using approved secure deletion methods.
 5. KLR is updated: status set to Destroyed, destruction date and operator recorded.
 6. A certificate of destruction is retained in the compliance repository.

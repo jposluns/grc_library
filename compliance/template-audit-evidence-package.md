@@ -2,8 +2,8 @@
 
 **Document Title:** Audit Evidence Package Template\
 **Document Type:** Template\
-**Version:** 1.1.0\
-**Date:** 2026-07-06\
+**Version:** 1.1.1\
+**Date:** 2026-08-29\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-control-testing.md`](procedure-control-testing.md), [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/register-compliance-obligations-template.md`](register-compliance-obligations-template.md), [`compliance/template-regulator-interaction.md`](template-regulator-interaction.md)\
@@ -122,7 +122,7 @@ Frameworks differ on these axes: SOC 2 Type II requires both implementation and 
 For each control in the inventory, the bundle contains a section using the template below. The per-control section is the page an auditor lands on when following an index link.
 
 ```
-## Control <#>: <Control ID> — <Control title>
+## Control <#>: <Control ID> - <Control title>
 
 ### Framework references
 
