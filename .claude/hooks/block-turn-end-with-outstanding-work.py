@@ -322,7 +322,30 @@ def self_test() -> int:
         bad += 1
         print("FAIL malformed payload did not fail open + consume the escape")
 
-    total = len(SELF_TEST) + 3
+    # And a malformed payload with NO sentinel present + an unmerged branch must STILL
+    # fail open (rc 0) WITHOUT scanning branches - the case the F1 fix repairs (the
+    # pre-fix code fell through to a branch-block return 2). Distinct from the
+    # present-sentinel case above, which the pre-fix code also allowed via the escape.
+    absent_escape = mock.Mock()
+    absent_escape.exists.return_value = False
+    absent_escape.unlink.side_effect = FileNotFoundError   # no sentinel on disk
+    with mock.patch.dict(
+        os.environ, {"CLAUDE_CONFIG_DIR": "/opt/orch-accounts/test/orchestrator"}
+    ), mock.patch.object(
+        sys, "stdin", io.StringIO("{not valid json")
+    ), mock.patch.object(
+        sys, "stderr", io.StringIO()
+    ), mock.patch.object(
+        module, "ESCAPE_FILE", absent_escape
+    ), mock.patch.object(
+        module, "unmerged_branches", return_value=[("b", "1")]
+    ) as absent_branch_scan:
+        absent_rc = main()
+    if absent_rc != 0 or absent_branch_scan.called:
+        bad += 1
+        print("FAIL malformed payload with no sentinel did not fail open")
+
+    total = len(SELF_TEST) + 4
     print(str(total - bad) + "/" + str(total) + " decision cases pass")
     return 1 if bad else 0
 
