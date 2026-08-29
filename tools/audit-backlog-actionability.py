@@ -63,7 +63,7 @@ from pathlib import Path
 _TOOLS_DIR = str(Path(__file__).resolve().parent)
 if _TOOLS_DIR not in sys.path:
     sys.path.insert(0, _TOOLS_DIR)
-from lint_common import resolve_working
+from lint_common import resolve_working, has_todo_index_header
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TODO_PATH = REPO_ROOT / "TODO.md"
@@ -187,7 +187,9 @@ def parse_items(text: str, source: str,
     # the gate-78 / hook union counts). gate 90's index-detail-leak check fails
     # loud on such a mixed state; this keeps the enumeration honest meanwhile.
     idx_items: list[tuple[str, str, str, str, str]] = []
-    if any(_ROW_RE.match(ln) for ln in lines):
+    if has_todo_index_header(text):   # F1793-7: the header, not any parseable row,
+        # is the reliable index-form signal (a legacy item body table must not
+        # flip this branch and inject false items).
         if ref_bodies is None:
             ref_bodies = _load_ref_bodies(source)
         band = ""
@@ -228,8 +230,12 @@ def parse_items(text: str, source: str,
             body_lines.append(line)
     flush()
 
-    idx_ids = {i[0] for i in idx_items}
-    return idx_items + [it for it in legacy_items if it[0] not in idx_ids]
+    # F1793-9: no dedup by captured id (that key is only the numeric prefix for
+    # lettered subheadings, so ### 3.92.a/.b would collide with an index row 3.92
+    # and be dropped). With the header classifier, a CLEAN file is one shape (the
+    # other list is empty, no overlap); a mixed/botched file is gate-90 fail-loud,
+    # where listing both forms is more honest than silently dropping siblings.
+    return idx_items + legacy_items
 
 
 def is_blocked(block_text: str) -> bool:

@@ -11865,6 +11865,23 @@ class BacklogActionabilityTests(unittest.TestCase):
         items = mod.parse_items(mixed, "private", ref_bodies={"P-2.1": "### P-2.1 index two\nbody"})
         self.assertEqual(sorted(i[0] for i in items), ["P-1.1", "P-2.1"])
 
+    def test_legacy_body_table_does_not_create_false_items(self):
+        # F1793-7: a legacy ###-block item whose body has an id-first-cell table must
+        # NOT flip parse_items to the index branch and inject false items.
+        mod = self._load()
+        legacy = ("## G\n### P-1.1 legacy with body table\n"
+                  "| 2.7 | prior | status |\n| --- | --- | --- |\n| 3.4 | other | done |\nbody\n")
+        self.assertEqual([i[0] for i in mod.parse_items(legacy, "private")], ["P-1.1"])
+
+    def test_lettered_siblings_not_dropped_in_mixed(self):
+        # F1793-9: a mixed file with index row 3.92 + legacy ### 3.92.a/.b must count
+        # all three (the union no longer dedups by the prefix-only captured id).
+        mod = self._load()
+        mixed = ("## G\n| ID | Item | Tags |\n| --- | --- | --- |\n| 3.92 | idx | `[private]` |\n"
+                 "### 3.92.a legacy sib a\nbody\n### 3.92.b legacy sib b\nbody\n")
+        items = mod.parse_items(mixed, "private", ref_bodies={"3.92": "### 3.92 idx\nx"})
+        self.assertEqual(len(items), 3)  # none dropped
+
     def test_private_legacy_block_format_still_parsed(self):
         # The pre-migration ### -block P-TODO layout keeps working (no index rows
         # -> the legacy block grammar; detail inline).
@@ -14286,6 +14303,46 @@ class TodoIndexReferenceParityTests(LinterTestCase):
             import shutil
             shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
 
+    def test_legacy_ptodo_with_body_table_not_flagged(self):
+        """F1793-7: a legacy ###-block P-TODO whose item BODY holds a markdown table
+        with a backlog-id-shaped first cell must NOT be misread as index-form and
+        flagged half-converted (the header, not any parseable row, is the signal)."""
+        root = FIXTURE_DIR / "bij-legacy-bodytable"
+        priv = FIXTURE_DIR / "bij-legacy-bodytable-priv"
+        root.mkdir(parents=True, exist_ok=True); priv.mkdir(parents=True, exist_ok=True)
+        (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
+        (priv / "TODO-REFERENCE.md").write_text(self.REF, encoding="utf-8")
+        (priv / "P-TODO.md").write_text(
+            "# P-TODO\n## G\n### P-1.1 legacy item with an evidence table\n\n"
+            "| 2.7 | prior item | status |\n| --- | --- | --- |\n| 3.4 | another | done |\n\nbody\n",
+            encoding="utf-8")  # legacy, body table, NO P-TODO-REFERENCE.md
+        r = run_linter("tools/lint-todo-index-reference-parity.py",
+                       "--root", str(root), "--private-root", str(priv))
+        try:
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)  # skipped, not half-converted
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
+
+    def test_header_only_index_ptodo_flagged(self):
+        """F1793-7: a P-TODO with the | ID | Item | Tags | header (index form) but no
+        P-TODO-REFERENCE.md is half-converted even if it has no data rows yet."""
+        root = FIXTURE_DIR / "bij-headeronly"
+        priv = FIXTURE_DIR / "bij-headeronly-priv"
+        root.mkdir(parents=True, exist_ok=True); priv.mkdir(parents=True, exist_ok=True)
+        (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
+        (priv / "TODO-REFERENCE.md").write_text(self.REF, encoding="utf-8")
+        (priv / "P-TODO.md").write_text(
+            "# P-TODO\n## G\n| ID | Item | Tags |\n| --- | --- | --- |\n", encoding="utf-8")  # header, no rows, no ref
+        r = run_linter("tools/lint-todo-index-reference-parity.py",
+                       "--root", str(root), "--private-root", str(priv))
+        try:
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn("half-converted", r.stdout + r.stderr)
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
+
 
 class TagGateTests(LinterTestCase):
     """tools/lint-todo-list-tag.py (gate 81): every open TODO.md / P-TODO.md
@@ -14307,7 +14364,11 @@ class TagGateTests(LinterTestCase):
             _tags = " ".join(_re.findall(r"`\[[^\]]*\]`", _rest))
             _title = _re.sub(r"`\[[^\]]*\]`", "", _rest).strip().replace(chr(124), chr(92)+chr(124))
             return f"| {_m.group(1)} | {_title} | {_tags} |"
-        todo = "\n".join(_row(_ln) for _ln in todo.splitlines()) + "\n"
+        rendered = "\n".join(_row(_ln) for _ln in todo.splitlines())
+        # The public TODO is always index-form WITH a | ID | Item | Tags | header;
+        # prepend it so has_todo_index_header() classifies the fixture as index form
+        # (F1793-7: the header, not any parseable row, is the index signal).
+        todo = "| ID | Item | Tags |\n| --- | --- | --- |\n" + rendered + "\n"
         (root / "TODO.md").write_text(todo, encoding="utf-8")
         if ptodo is not None:
             (root / "P-TODO.md").write_text(ptodo, encoding="utf-8")

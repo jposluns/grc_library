@@ -31,7 +31,7 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import resolve_sibling, parse_todo_index
+from lint_common import resolve_sibling, parse_todo_index, has_todo_index_header
 
 REPO_ROOT: Path = Path(__file__).resolve().parent.parent
 
@@ -127,21 +127,22 @@ def main(argv: list[str]) -> int:
         # leftover ### headings (deduped by captured id), so a mixed / half-
         # converted file cannot let an untagged legacy item pass. A pure file has
         # exactly one shape, so the other parser contributes nothing.
-        idx_items = parse_todo_index(text)
-        idx_ids = {it["id"] for it in idx_items}
-        total_items += len(idx_items)
-        for lineno, line, count in find_untagged_index(text):
-            all_findings.append((rel, lineno, line, count))
-        # legacy ### headings not already counted as index rows (pure-index files
-        # carry no ### item headings; their detail lives in the reference file).
+        # F1793-7: classify index form by the header, not any parseable row, so a
+        # legacy item body table does not flip this to the index path.
+        if has_todo_index_header(text):
+            idx_items = parse_todo_index(text)
+            total_items += len(idx_items)
+            for lineno, line, count in find_untagged_index(text):
+                all_findings.append((rel, lineno, line, count))
+        # legacy ### headings (pure-index files carry none; their detail is in the
+        # reference file). F1793-9: count every ### heading by PHYSICAL LINE, no
+        # dedup by captured id (that key is only the numeric prefix for lettered
+        # subheadings, which would drop ### 3.92.a/.b against an index row 3.92).
         for line in text.splitlines():
-            hm = ITEM_HEADING_RE.match(line)
-            if hm and hm.group("id") not in idx_ids:
+            if ITEM_HEADING_RE.match(line):
                 total_items += 1
         for lineno, line, count in find_untagged_or_ambiguous(text):
-            hm = ITEM_HEADING_RE.match(line)
-            if hm and hm.group("id") not in idx_ids:
-                all_findings.append((rel, lineno, line, count))
+            all_findings.append((rel, lineno, line, count))
 
     if not all_findings:
         print(

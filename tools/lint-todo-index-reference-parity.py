@@ -39,7 +39,8 @@ _TOOLS_DIR = str(Path(__file__).resolve().parent)
 if _TOOLS_DIR not in sys.path:
     sys.path.insert(0, _TOOLS_DIR)
 
-from lint_common import REPO_ROOT, TODO_ID_RE, split_row, is_separator_row, resolve_sibling  # noqa: E402
+from lint_common import (REPO_ROOT, TODO_ID_RE, split_row, is_separator_row,  # noqa: E402
+                         resolve_sibling, has_todo_index_header)
 
 TODO_REL = "TODO.md"
 REFERENCE_REL = "TODO-REFERENCE.md"
@@ -314,7 +315,7 @@ def _resolve_pairs(root: Path, private_dir: Path | None) -> tuple[list[tuple[Pat
             # F1793-2: a legacy ### -block P-TODO.md with no reference is a no-op
             # (skipped); but a P-TODO.md already in INDEX form with no reference is
             # a half-converted / botched migration -> fail loud rather than skip.
-            if parse_index(p_index.read_text(encoding="utf-8")):
+            if has_todo_index_header(p_index.read_text(encoding="utf-8")):
                 errors.append(f"{PTODO_INDEX_REL} is in index-row form but "
                               f"{PTODO_REFERENCE_REL} is absent (half-converted backlog; "
                               "every index row would be MISSING its detail block)")
