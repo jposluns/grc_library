@@ -6,8 +6,8 @@ The pack README's "Rule files and their scope" table
 every pack rule file (``core`` / ``ai`` / ``pipeline`` / ``governance`` /
 ``languages``) with its when-to-use. It is a rule-enumeration surface gate 41
 does not cover: gate 41 (collection-enumeration consistency) checks the
-directory tree, the two CLAUDE.md bullet lists, and (since the section 3.56a
-guard-3 addition) the rule-provenance register, not this table, so a new
+directory tree, the two CLAUDE.md bullet lists, and (since guard 3 was
+added in PR #1135) the rule-provenance register, not this table, so a new
 rule silently misses a row (the 14th governance rule
 ``decision-classification-before-enacting`` was added with no scope-table row).
 
