@@ -7484,6 +7484,33 @@ class WorkingProseHygieneTests(LinterTestCase):
             f"fenced-block dash must not flag.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 
+    def test_guardrail_seeds_inbox_exempt(self) -> None:
+        # The guardrail-seed pipeline inbox holds VERBATIM foreign seed prose, which
+        # legitimately carries em/en-dashes; EXEMPT_DIRS skips any `guardrail-seeds`
+        # directory (name-component match). A same-content file OUTSIDE such a
+        # directory is still flagged (PR #1799 iter-2, codex catch).
+        seed_dir = FIXTURE_DIR / "guardrail-seeds"
+        seed_dir.mkdir(exist_ok=True)
+        seed = seed_dir / "SEED-em-dash.md"
+        seed.write_text(
+            "# Seed\n\nPart 3 — implementation plan carries an em-dash.\n",
+            encoding="utf-8",
+        )
+        self.addCleanup(seed_dir.rmdir)
+        self.addCleanup(lambda: seed.unlink() if seed.exists() else None)
+        exempt = run_linter("tools/lint-working-prose-hygiene.py", seed)
+        self.assertEqual(
+            exempt.returncode, 0,
+            f"a guardrail-seeds seed must be exempt.\nstdout:\n{exempt.stdout}\nstderr:\n{exempt.stderr}",
+        )
+        # Control: the SAME em-dash prose NOT under guardrail-seeds is still flagged.
+        control = self.make_fixture(
+            "not-a-seed-em-dash.md",
+            "# Note\n\nPart 3 — implementation plan carries an em-dash.\n",
+        )
+        result = run_linter("tools/lint-working-prose-hygiene.py", control)
+        self.assertLinterFails(result, "prose-dash")
+
 
 class ScanScopeParityTests(LinterTestCase):
     """tools/lint-scan-scope-parity.py (gate 52)
