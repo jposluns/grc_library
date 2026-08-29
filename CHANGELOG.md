@@ -3,6 +3,8 @@
 All notable changes to this repository are recorded in this file in two forms: while a week is current, one compact entry per change (a `date | version | PR` header followed by a short, plain-language summary a general reader can follow); once a week completes, its entries are rolled up into a single weekly summary carrying the week's contiguous PR range, so the root file preserves complete PR coverage while staying scannable as the entry count grows. The full maintainer-grade detail for each change (the Added / Changed / Removed / Fixed / Security / Verification sections) is kept in the private sibling working-state store and in git history; that mirror is how this project's maintainer tracks the full audit trail. The convention is project-specific; forks may keep their own working-state store and adopt their own approach to detailed change tracking. The mechanics are documented in the [`change-tracking` governance rule](guardrails/governance/change-tracking.md). Significant project milestones are recorded inline as dated `MILESTONE:` entries (`**YYYY-MM-DD | MILESTONE:** ...`) that float to the top of the entry stream, above that day's per-PR entries; those are never condensed by the daily or weekly roll-ups, and the roll-up tooling skips them by their `MILESTONE:` marker.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+**2026-08-29 | 2026.08.498 | PR #1796** - Changelog upkeep: rolled the four completed days (2026-08-25 through 2026-08-28) of per-PR entries into single plain-language daily summaries, keeping the current day granular, per the changelog roll-up cadence.
+
 **2026-08-29 | 2026.08.497 | PR #1795** - Backlog: the public TODO roadmap is now index-only (one row per planned item, with its title and tags); the per-item detail moved to the maintainer's private working store, so adopters see the planned-work titles without the maintainer's internal detail. The backlog-governing gates were re-pointed to the public index, and the audit-programme specification updated to match.
 
 **2026-08-29 | 2026.08.496 | PR #1794** - Internal tooling: bumped the shared series-3 backlog-number floor to 249 (a new series-3 item was allocated in the private backlog during the backlog reorganization) and regenerated the number-allocation block. No adopter-facing content changed.
@@ -41,161 +43,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 **2026-08-29 | 2026.08.479 | PR #1777** - Internal tooling: fixed the turn-end Stop-guard hook so a malformed Stop payload now fails open (allows the stop) rather than blocking on unmerged branches, matching its sibling idle-stop guard; added a regression test for the parse-error path.
 
-**2026-08-28 | 2026.08.477 | PR #1776** - .claude/ change: adopted fleet directive #5(b) - the attended-autonomous graceful-degradation timer is now 5 minutes (was 2), and a no-answer timeout on a reversible decision swaps the session Operating-mode to unattended and continues (the existing block-askuserquestion-unattended hook then prevents further blocking prompts), replacing the prior reversible stricter-safe-default continuation.
+**2026-08-28 | 2026.08.477 | PRs #1755-#1776 (22 PRs)** - Another governance-accuracy day closing out the exception-authority residue a resume validation surfaced. Two prohibitions were made absolute and non-exceptionable (an AI assistant modifying production with no human review, and Restricted-classified data on a personal device); the operational-technology and post-quantum-cryptography deviation clauses were routed to the canonical exception process; and several other exception clauses across the healthcare and logistics documents were tightened for accuracy. The EU AI Act deployer human-oversight clause was verified complete against the primary text and its roadmap item closed, and the security quick reference and role-authority register were sharpened for exception accuracy. The rest was extensive backlog-number-permanence hygiene, repointing retired references to their closing pull requests, plus routine hook upkeep.
 
-**2026-08-28 | 2026.08.476 | PR #1775** - .claude/ change: adopted the lab_infra fleet's no-manufactured-winddown rule as an interim local control (session depth and work shape are never wind-down triggers; "needs fresh context" is a dispatch trigger, not a stop), superseding the depth-contributing-factor wind-down passages until the canonical guardrails pack ships.
+**2026-08-27 | 2026.08.455 | PRs #1739-#1754 (16 PRs)** - An exception-authority day: most of the work aligned exception and waiver clauses across the corpus to a single canonical risk-tier approval model, completing the programme's first wave and carrying its second wave through the dev-security, operations, cloud, AI, healthcare, and compliance documents. Self-approved waivers and single-officer sign-offs now route through the enterprise exception and risk-acceptance processes, and the OT/ICS and certificate-authority standards joined the programme for the first time. Separately, a data-processing-agreement retention attribution was corrected (the cited privacy regulation prescribes no retention term) and BASC section numbering was aligned to the held standard. The rest was routine tooling, including a new turn-end guardrail against idle stops.
 
-**2026-08-28 | 2026.08.475 | PR #1774** - Governance: sharpened the security quick reference so its "never do these" list no longer calls the whole class absolute when some items are approval-exceptionable, and listed the authentication standard and the BYOD policy as related documents of the quick-reference and remote-working standards respectively.
+**2026-08-26 | 2026.08.439 | PRs #1722-#1738 (17 PRs)** - A corpus-accuracy day driven by fresh whole-corpus validation sweeps. The main work: the EU AI Act deployer duties, risk tiers, and territorial scope were made precise; the standing privileged-access rule was tightened to prohibit standing access wherever just-in-time activation is available; incident metrics were separated into distinct mean-time-to-contain and mean-time-to-recover indicators in the cybersecurity key-risk-indicator register; and human-resources retention anchors were broadened to cover contractors and other third-party personnel. Further fixes reconciled BASC access-revocation timing, resilience recovery-testing targets, remote-working BYOD access, and several retention and citation attributions. The rest was routine store-migration and tooling upkeep.
 
-**2026-08-28 | 2026.08.474 | PR #1773** - Internal tooling: fixed a session Stop-guard hook whose escape sentinel could become a permanent bypass if undeletable, and aligned the GRC_DROP_ROOT default across three guard hooks (two Stop-guards plus the orchestrator-QA PreToolUse guard) with the documented shell command.
-
-**2026-08-28 | 2026.08.473 | PR #1772** - Backlog hygiene: rotated the completed EU AI Act Article 26(2) roadmap item out of the public backlog. Today's resume validation confirmed the AI EU annex already carries the full deployer human-oversight clause (competence, training, authority, and support), verified against the held primary text; the roadmap item and its cross-references were closed accordingly.
-
-**2026-08-28 | 2026.08.472 | PR #1771** - Governance: closed the exception-authority residue class a resume validation surfaced across five documents. Two prohibitions (an AI assistant modifying production with no human review; Restricted-classified data on a personal device) are now absolute and non-exceptionable. Two OT technical-infeasibility carve-outs now route to the Section 2.3 exception process, and the security quick reference's MFA line aligns to the Authentication Standard's exception path.
-
-**2026-08-28 | 2026.08.471 | PR #1770** - Internal tooling (item-15 continuation): re-pointed the last five relocated or retired backlog-section provenance references in tool docstrings to stable pull-request anchors or their current tracking location. Illustrative and test references were left untouched; the enforcing gate for this class remains a separate follow-up.
-
-**2026-08-28 | 2026.08.470 | PR #1769** - Tooling: the resume mandatory corpus validation (triple-family) confirmed the corpus clean; corrected the two Stop-guard hooks' documented escape command to the `${GRC_DROP_ROOT:-default}` form so it works when the variable is unset (the common case), and routed the sweep's other findings (an exception-authority residue class and store-migration documentation drift) to the backlog.
-
-**2026-08-28 | 2026.08.469 | PR #1768** - Internal tooling: resolved the three item-15 provenance references that needed git archaeology. Re-pointed the recycled-number 3.15 to its true closing PR #1080 (via the 3.11 split; #756 only restructured it), 1.14 Layer A to #1176, and two block-on-open-findings 3.149 tags to #1341; illustrative and test references left untouched.
-
-**2026-08-28 | 2026.08.468 | PR #1767** - Internal tooling: re-pointed 77 retired backlog-section references in tool docstrings, comments, and internal help/output strings (plus the publication-manifest rationale) to their closing pull requests (item-15 continuation), so the citations resolve permanently; two ambiguous refs (a relocated section and a recycled number) were held for careful resolution.
-
-**2026-08-28 | 2026.08.467 | PR #1766** - Tooling: fixed five accuracy and robustness nits a resume validation surfaced (a regenerate-order parity comment, two prior CHANGELOG-entry wordings, and the two Stop-guard hooks now print their GRC_DROP_ROOT-resolved sentinel path).
-
-**2026-08-28 | 2026.08.466 | PR #1765** - Governance: resolved two exception-authority residues a resume validation surfaced, routing the OT SL-C procurement clause to the Section 2.3 exception process and carving the absolute human-approval principle out of the AI-standard prohibited-patterns exception chapeau.
-
-**2026-08-28 | 2026.08.465 | PR #1764** - Internal tooling: repointed seven references (five docstrings and two comments) across six AI-assistant hooks from deleted backlog-section numbers to their closing pull requests, so the references resolve permanently per the backlog-number-permanence rule.
-
-**2026-08-28 | 2026.08.464 | PR #1763** - Tooling: the pre-commit regenerate hook now also refreshes the backlog number-allocation block on a Markdown backlog edit (a JSON-source-only edit still relies on the gate-91 sync check), instead of requiring a separate manual regenerate.
-
-**2026-08-28 | 2026.08.463 | PR #1762** - Governance: completed the library-quality cadence procedure and the health-report template so their generated-artefact inventories and in-sync check tables now name the backlog number-allocation block, a generated artefact they had omitted.
-
-**2026-08-28 | 2026.08.462 | PR #1761** - Governance: corrected the audit-programme's description of the per-PR delta gates, which run both in CI and in the local pre-push guard, not CI-only, reconciling the specification and the tool docstrings that had described them inconsistently.
-
-**2026-08-28 | 2026.08.461 | PR #1760** - Tooling: the session-facts hook now derives its repository root from its own location instead of a hardcoded path that no longer exists on this host, so it stays correct wherever the checkout lives.
-
-**2026-08-28 | 2026.08.460 | PR #1759** - Tooling: the session-start parser feeding the session-length facts now keys on the entry type rather than a substring, so it reads every log layout and ignores a decoy mention inside another row's note.
-
-**2026-08-28 | 2026.08.459 | PR #1758** - Governance: the Role Authority Register's exception-approval row now marks its tier summary as non-exhaustive and defers to the exception policy for the complete chain, adding the trade/customs co-approval and the first-renewal authority it had omitted.
-
-**2026-08-28 | 2026.08.458 | PR #1757** - Logistics compliance: the BASC information-security policy now notes that programme membership alone does not make its information-security exceptions trade or customs exceptions, though the trade and customs pathway still applies where an exception affects those operations.
-
-**2026-08-28 | 2026.08.457 | PR #1756** - Healthcare compliance: an exception under the HIPAA operational-compliance procedure cannot waive a statutory or regulatory obligation or extend a 45 CFR Part 164 deadline beyond what the rule permits.
-
-**2026-08-28 | 2026.08.456 | PR #1755** - Security: post-quantum-cryptography roadmap deviations now route through the canonical exception process (the risk-tier approver with security co-approval), matching how the rest of the corpus handles documented deviations.
-
-**2026-08-27 | 2026.08.455 | PR #1754** - Tooling: added a turn-end guardrail that refuses an idle-stop while authorized backlog remains. When the session is in a not-watched-every-step mode and the backlog audit still reports actionable work, ending the turn is blocked once with the next action named, unless a genuine wait is declared. Closes a recurring gap the existing turn-end guard could not see.
-
-**2026-08-27 | 2026.08.454 | PR #1753** - Corpus accuracy: aligned the exception clauses in the software-composition-analysis standard, the AI-coding-assistant guideline, the API-security standard, and the secure-code-review procedure to the canonical risk-tier exception model. A secure-code-review gate that let a policy owner approve their own waiver now routes through the enterprise exception process, and open-vulnerability risk acceptances route to the risk-acceptance procedure. Final dev-security step of the exception-authority programme's second wave.
-
-**2026-08-27 | 2026.08.453 | PR #1752** - Corpus accuracy: aligned the exception clauses in the cloud-exit-and-data-portability standard, the legal-and-regulatory-compliance policy, and the HIPAA operational-compliance procedure to the canonical risk-tier exception model. Sector-programme compliance deviations now carry the risk-tier base with sector-officer and security co-approval and the required committee notification, and a non-compliant cloud service's continued use records its risk acceptance in the dedicated risk-acceptance record. Fifth step of the exception-authority programme's second wave.
-
-**2026-08-27 | 2026.08.452 | PR #1751** - Corpus accuracy: aligned the exception clauses in the AI and agentic development security standard to the canonical risk-tier exception model, so content-filter, AI-coding-tool, malicious-operator, and observability exceptions route through the standard's own exceptions section and the enterprise pathway. A non-compliant AI system's continued operation now routes to the formal risk-acceptance procedure at the severity-appropriate authority. Fourth step of the exception-authority programme's second wave.
-
-**2026-08-27 | 2026.08.451 | PR #1750** - Corpus accuracy: aligned the exception clauses in four operations documents (endpoint management, the cloud security configuration baseline, the OT/ICS security standard, and certificate authority management) to the canonical risk-tier exception model, bringing the OT and certificate standards into the programme for the first time. End-of-life endpoint exceptions gain a high-risk rating floor, and the OT end-of-support clause now routes through the standard's own exception process. Third step of the exception-authority programme's second wave.
-
-**2026-08-27 | 2026.08.450 | PR #1749** - Corpus accuracy: aligned the security baseline reference and the security quick-reference to the canonical risk-tier exception model, covering the dev-security exception surfaces that other documents point at. The baseline's end-of-life exceptions now carry an explicit high-risk rating floor that routes approval to the executive or board risk committee, and the production-security standard's cross-reference to the baseline is repaired to match. Second step of the exception-authority program's second wave.
-
-**2026-08-27 | 2026.08.449 | PR #1748** - Corpus accuracy: aligned the exception and authorization language in the authentication standard, the bring-your-own-device policy, and the remote-working standard to the canonical risk-tier approval model. Personal-device access to confidential data and other security exceptions now route through the enterprise exception process rather than a single officer's sign-off, the opening step of the exception-authority program's second wave.
-
-**2026-08-27 | 2026.08.448 | PR #1747** - Corpus accuracy: aligned the enterprise governance and risk policy's exception clauses (the exception section, the AI-exception RACI row, and the AI Governance Council role) to the canonical risk-tier model. The AI council now co-approves AI-related exceptions in addition to the tier approver, and the role-authority register carries a matching clarifier. Fourth and final step of the exception-authority program's first wave.
-
-**2026-08-27 | 2026.08.447 | PR #1746** - Corpus accuracy: aligned the production-security standard's end-of-life exception clause to the canonical risk-tier approval model, matching the standard's own standing-access exemplar, the third step of the exception-authority remediation program.
-
-**2026-08-27 | 2026.08.446 | PR #1745** - Corpus accuracy: aligned the vulnerability-management and patch-management procedures' exception clauses to the canonical risk-tier approval model - role cells, approval rows, end-of-life exceptions, and extension/renewal rows now reference the tiered approval pathway and the renewal chain (with the security chief co-approving as a security-related exception) - the second step of the exception-authority remediation program.
-
-**2026-08-27 | 2026.08.445 | PR #1744** - Corpus accuracy: aligned the encryption policy's exception clauses to the canonical risk-tier approval model - standard exceptions now route through the tiered pathway (with the security chief's co-approval retained, since encryption exceptions are security-related) instead of a fixed two-officer sign-off, and the stricter sector-programme overlay is stated explicitly - the first document in the exception-authority remediation program.
-
-**2026-08-27 | 2026.08.444 | PR #1743** - Corpus accuracy: corrected a data-retention register entry that wrongly attributed a five-year data-processing-agreement retention period to GDPR Article 28, which requires the agreement and the return or deletion of data after services end but prescribes no retention term.
-
-**2026-08-27 | 2026.08.443 | PR #1742** - Corpus accuracy: corrected the BASC information-security section numbering in the logistics policy and KPI register to match the held BASC v6 standard (its information-security requirements are numbered 5.1 and 5.2, and its monitoring clause is 8.1); surfaced by a triple-family claim-fit against the source.
-
-**2026-08-27 | 2026.08.442 | PR #1741** - Internal tooling: the session-facts hook now reads minute-only timestamps (its dominant form), not only full-seconds, so session length and compaction counts stay accurate.
-
-**2026-08-27 | 2026.08.441 | PR #1740** - Corpus accuracy: aligned five governance documents to their governing policies and registers - exception-approval authority, standing privileged-access conditions, an audit-evidence retention attribution, and a vulnerability control-code mapping - surfaced by the resume whole-corpus review.
-
-**2026-08-27 | 2026.08.440 | PR #1739** - Internal tooling: the public-working-write guard now keys on the operational store's presence rather than the retired private-sibling working directory, so retiring that directory no longer silently disables the guard.
-
-**2026-08-26 | 2026.08.439 | PR #1738** - Internal tooling: migrated the operational degradation-watch log to the local operational store, routing the handoff-snapshot reader through the store-aware resolver instead of a hardcoded private-sibling path.
-
-**2026-08-26 | 2026.08.438 | PR #1737** - Fixed ten precision findings from a fresh corpus-wide validation sweep. Harmonized the standing privileged-access rule across the access-control and identity procedures, moved trade secrets to the Restricted data class, and corrected the European Union privacy annex's automated-decision safeguards. Routed BASC exception approvals through the enterprise risk-tier matrix, registered the security-metrics standard for currency tracking, fixed an asset-inventory control title, and reworded two retention rationales so the seven-year figure reads as the organization's own floor.
-
-**2026-08-26 | 2026.08.437 | PR #1736** - Corrected a security-metrics standard citation from the nonexistent ISO/IEC 27004:2022 to the current published 2016 edition, which the reference library already holds; a corpus-wide edition-consistency sweep confirmed this was the only such mismatch.
-
-**2026-08-26 | 2026.08.436 | PR #1735** - Migrated the turn-end guard's held-branches file to the local operational store: the hook now resolves it through the store-aware resolver instead of a hardcoded private-sibling path, one step in consolidating the working store to local and retiring the private sibling.
-
-**2026-08-26 | 2026.08.435 | PR #1734** - Fixed the backlog pipeline tool to read the completed-work ledger from the current operational store rather than a stale copy an earlier store migration left behind, so the pipeline view's recently-completed list is accurate again.
-
-**2026-08-26 | 2026.08.434 | PR #1733** - Applied nine precision fixes a fresh corpus-wide validation sweep surfaced. Retention, EU AI Act, BASC access-revocation, and resilience-log wording were aligned with their governing sources. The mean-time-to-recover acronym was reserved for its canonical incident metric across the KPI and data-loss registers. Accountability and automated-decision-explanation citations were corrected in the exception-management policy and the European Union privacy annex.
-
-**2026-08-26 | 2026.08.433 | PR #1732** - Extended the tools README regeneration recipe to include the two source-driven generators (relationship model and TODO number allocation) so contributors regenerating derived artefacts see the full set.
-
-**2026-08-26 | 2026.08.432 | PR #1731** - Tightened the standing privileged-access rule so it is prohibited wherever just-in-time activation is available and is permitted only through the formal exception process where JIT is genuinely unavailable, aligning it with the privileged-access standard and preserving the certificate-authority standard's absolute no-standing-access rule.
-
-**2026-08-26 | 2026.08.431 | PR #1730** - Reconciled the BASC information-security policy's termination access-revocation wording so the "immediately" principle and the "within two hours" control target read as one requirement, with the two-hour figure noted as the measurable ceiling for the immediacy principle.
-
-**2026-08-26 | 2026.08.430 | PR #1729** - Added a recovery-target-type field to the resilience test-and-exercise log and qualified the recovery-testing metric so an isolated-failure test is measured against its per-system recovery-time objective while a catastrophic-recovery test is measured against the approved recovery-phase target.
-
-**2026-08-26 | 2026.08.429 | PR #1728** - Broadened the human-resources records-retention anchors from "employment ends" to "employment, contract, or engagement ends" so the retention floors also cover contractors, consultants, and other third-party personnel to whom the screening and training standards apply.
-
-**2026-08-26 | 2026.08.428 | PR #1727** - Completed the EU AI Act deployer and scope precision: enumerated the conditional Article 26 deployer duties, corrected the minimal-risk tier to carry the cross-cutting Article 4 AI-literacy duty, tightened the territorial-scope statement to the Article 2(1)(c) output-used hook, and recorded that both Articles 19(1) and 26(6) set the six-month log-retention floor.
-
-**2026-08-26 | 2026.08.427 | PR #1726** - Tightened the EU AI Act Article 5 prohibited-practice summaries across five documents so the manipulation and vulnerability-exploitation examples carry the Act's material-distortion and significant-harm tests, and relabelled an unacceptable-risk table to the precise statutory categories, rather than reading as blanket prohibitions.
-
-**2026-08-26 | 2026.08.426 | PR #1725** - Clarified the remote-working access table so it notes that personal (BYOD) devices may reach Public, Controlled, and Internal data through the browser path in Section 8.4, which the managed-device-oriented columns did not previously signal.
-
-**2026-08-26 | 2026.08.425 | PR #1724** - Removed a standalone 12-month exception term from the authentication and password standard, deferring exception duration and renewal to the central exception and risk-acceptance policy so a single governed model (base term plus renewal ceiling) applies everywhere.
-
-**2026-08-26 | 2026.08.424 | PR #1723** - Corrected a metric-naming drift in the cybersecurity KRI register: the declaration-to-containment indicator now reads Mean Time to Contain (MTTC), matching the SOC and incident-response definitions, and a distinct Mean Time to Recover (MTTR) indicator (declaration to service restoration) was added.
-
-**2026-08-26 | 2026.08.423 | PR #1722** - Reconciled the changelog-model prose in the root file and the audit-programme spec with the current weekly-roll-up model, so the descriptions of how completed weeks are summarized no longer lag the actual behaviour.
-
-**2026-08-25 | 2026.08.422 | PR #1721** - Hardened the gate-name-citation audit so it reads the gate inventory only from the audit-programme spec's section-6 region, so an inventory-shaped table row elsewhere in the spec can no longer be misread as a gate.
-
-**2026-08-25 | 2026.08.421 | PR #1720** - inbox-drops 3.118(c): staging is now marked by location (inbox/staging/), every loose inbox/ file is a drop, and a one-window legacy-staging advisory flags old name-matched files.
-
-**2026-08-25 | 2026.08.420 | PR #1719** - Hardened the inbox-drops advisory so a drop consumed while it is reporting no longer crashes it (a vanished file now reports zero size), honouring the tool's exit-cleanly contract.
-
-**2026-08-25 | 2026.08.419 | PR #1718** - Fixed a crash in the document-listing advisory helper when a document's top-level folder has no README, so it now reports that cleanly instead of erroring.
-
-**2026-08-25 | 2026.08.418 | PR #1717** - Hardened the stdlib-only import check to skip a directory whose name ends in .py, so it can no longer crash on that unusual case (matching the same fix made to the unused-import check).
-
-**2026-08-25 | 2026.08.417 | PR #1716** - Hardened the bookkeeping audit's pull-request-number extraction so a dotted backlog id or version number in a record cell can no longer be misread as a pull request, which had caused spurious missing-QA-record failures.
-
-**2026-08-25 | 2026.08.416 | PR #1715** - Widened the toolchain dead-import check to also cover the test suite, the website builder, and any nested subdirectories, matching the breadth of the stdlib-only import check so a dead import can no longer hide outside the original scan set.
-
-**2026-08-25 | 2026.08.415 | PR #1714** - Added a check that every AI-assistant hook script compiles as valid Python, so a hook broken by a syntax error can no longer be committed unnoticed.
-
-**2026-08-25 | 2026.08.414 | PR #1713** - Added a note to the supplier security questionnaire clarifying that its account-deprovisioning baseline is a recommended target (not a mandate) that does not separate voluntary from involuntary departures, while the organization applies a faster internal timeline to its own staff.
-
-**2026-08-25 | 2026.08.413 | PR #1712** - Reconciled the changelog rule with its own new roll-up style: a period roll-up is now explicitly exempt from the per-entry version header, and the terse-entry example was updated to the compact one-line form.
-
-**2026-08-25 | 2026.08.412 | PR #1711** - Fixed three small accuracy slips a fresh validation sweep surfaced: an overstated changelog line about the new unused-import check and two stale internal tooling doc-comments.
-
-**2026-08-25 | 2026.08.411 | PR #1710** - Codified the plain-language changelog style as a rule, so future per-PR entries and daily and weekly summaries stay human-readable and corpus-first by default.
-
-**2026-08-25 | 2026.08.410 | PR #1709** - Restructured the changelog for readability: the two completed weeks now roll up into weekly summaries, stray days fold into their weeks, and the earliest version-range headers became PR ranges. Every weekly range is contiguous, so PRs #1 to #1709 are all covered; the last rhetorical contrast framing was removed.
-
-**2026-08-25 | 2026.08.409 | PR #1708** - Made the changelog human-readable: rewrote the daily and weekly summaries and the recent per-PR entries in a plain-language, corpus-first style, and rolled up eight days of unrolled per-PR entries (the founding-narrative and milestone entries were kept as-is).
-
-**2026-08-25 | 2026.08.408 | PR #1707** - Reconciled the remote-working standard's personal-device rules with the approved BYOD policy: Restricted data now requires a company-managed device, and only Confidential data allows a CISO-approved exception.
-
-**2026-08-25 | 2026.08.407 | PR #1706** - Updated the remote-working standard to reference the approved BYOD policy directly (instead of calling it pending approval), and clarified that a VPN is required on untrusted networks regardless of data classification.
-
-**2026-08-25 | 2026.08.406 | PR #1705** - Tightened a governance-model check so it can only publish one of the eight approved authority levels, preventing an invented one from slipping through.
-
-**2026-08-25 | 2026.08.405 | PR #1704** - Turned the new unused-import check into an enforced gate, so flagged unused imports in the audit tooling are blocked from being committed.
-
-**2026-08-25 | 2026.08.404 | PR #1703** - Removed five unused imports that the new import check had flagged across the audit tools.
-
-**2026-08-25 | 2026.08.403 | PR #1702** - Added a tool that flags unused imports in the audit tooling (reporting only, for now).
-
-**2026-08-25 | 2026.08.402 | PR #1701** - Fixed a few internal AI-assistant documentation notes that had drifted out of date.
-
-**2026-08-25 | 2026.08.401 | PR #1700** - Corrected a few governance-accuracy details, mainly in the audit-programme specification (exempting the date-sensitive checks from its determinism rule) plus a data-retention register fix.
-
-**2026-08-25 | 2026.08.400 | PR #1699** - Fixed two internal-consistency issues in the remote-working security standard, around the managed-device default and when a VPN is required.
+**2026-08-25 | 2026.08.422 | PRs #1699-#1721 (23 PRs)** - A readability day for the changelog, paired with a corpus reconciliation of remote-working rules. The remote-working standard was brought into line with the approved bring-your-own-device policy: Restricted data now requires a company-managed device, Confidential data allows a CISO-approved exception, and a VPN is required on untrusted networks regardless of classification. The changelog itself was restructured for readability, with completed weeks folded into plain-language weekly summaries and the human-readable, corpus-first style codified as a standing rule. The rest was routine audit-tooling hardening, including a new unused-import check turned into an enforced gate.
 
 **2026-08-24 | 2026.08.399 | PRs #1682-#1698 (17 PRs)** - A corpus-accuracy day driven by the resume-validation sweep. The main work: new just-in-time privileged-access requirements added to the Certificate Authority Management standard; EU AI Act classifications re-verified against the current Act; staff-offboarding and policy-exception rules reconciled into consistent tiered timelines across the security policies; and fixes to disaster-recovery targets, data retention, supplier onboarding, and the risk-appetite template. The rest was routine tooling upkeep.
 
