@@ -125,8 +125,6 @@ Adopter experience and future work: capability and guidance for organizations ad
 | 6.4 | CMMI capability levels alongside maturity levels (L) (was 6.5) | `[public]` |
 | 6.5 | Multi-cloud governance overlay (XL) (was 6.1) | `[public]` |
 | 6.6 | Java EE / Jakarta EE security standard (L) | `[public]` |
-| 7.2 | Per-regulation context (FR-104) | `[public]` |
-| 7.3 | Portal reorder (FR-130) | `[public]` |
 
 ---
 
