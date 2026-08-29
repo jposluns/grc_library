@@ -27,7 +27,7 @@ Item numbers are permanent identity, never recycled, and decoupled from the P1-P
 <!-- BEGIN-GENERATED number-allocation -->
 - **Next item number: 1.31.** (P1 / fix series)
 - **Next item number: 2.33.** (P2 / content series)
-- **Next item number: 3.249.** (P3 / tooling series)
+- **Next item number: 3.250.** (P3 / tooling series)
 - **Next item number: 4.32.** (P4 / adopter series)
 - **Next item number: 5.10.** (frozen; series 5 takes no new items)
 - **Next item number: 6.7.** (frozen; series 6 takes no new items)
