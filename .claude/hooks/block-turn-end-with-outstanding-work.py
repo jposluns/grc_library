@@ -192,11 +192,26 @@ def decide(stop_hook_active: bool, escape: bool, branches: list) -> str | None:
     return "\n".join(lines)
 
 
+def _fail_open() -> int:
+    """Allow the stop, consuming a present one-shot escape first so a malformed or
+    non-object Stop payload cannot leave the ``.allow-stop`` sentinel behind to
+    authorize a LATER stop (one-shot parity with block-idle-stop, which consumes at
+    top). Fails open regardless of whether the sentinel was present or the unlink
+    succeeded, because a malformed payload gives no readable loop-termination signal."""
+    try:
+        ESCAPE_FILE.unlink()
+    except OSError:
+        pass
+    return 0
+
+
 def main() -> int:
     try:
         payload = json.load(sys.stdin) if not sys.stdin.isatty() else {}
     except Exception:
-        payload = {}
+        return _fail_open()                   # unparseable payload: consume escape, then fail open
+    if not isinstance(payload, dict):
+        return _fail_open()                   # non-object payload: consume escape, then fail open
     try:
         if payload.get("stop_hook_active"):
             return 0
@@ -285,7 +300,52 @@ def self_test() -> int:
         bad += 1
         print("FAIL orchestrator session did not retain branch block")
 
-    total = len(SELF_TEST) + 2
+    # A malformed/unparseable Stop payload must fail OPEN (rc 0), even with branches
+    # present, so a harness or environment error never blocks turn-end (the fail-open
+    # design; parity with block-idle-stop-with-actionable-backlog.py). Also asserts the
+    # parse-error path short-circuits BEFORE the branch scan.
+    malformed_escape = mock.Mock()
+    malformed_escape.exists.return_value = True   # sentinel present: must be consumed on the fail-open path
+    with mock.patch.dict(
+        os.environ, {"CLAUDE_CONFIG_DIR": "/opt/orch-accounts/test/orchestrator"}
+    ), mock.patch.object(
+        sys, "stdin", io.StringIO("{not valid json")
+    ), mock.patch.object(
+        sys, "stderr", io.StringIO()
+    ), mock.patch.object(
+        module, "ESCAPE_FILE", malformed_escape
+    ), mock.patch.object(
+        module, "unmerged_branches", return_value=[("b", "1")]
+    ) as malformed_branch_scan:
+        malformed_rc = main()
+    if malformed_rc != 0 or malformed_branch_scan.called or not malformed_escape.unlink.called:
+        bad += 1
+        print("FAIL malformed payload did not fail open + consume the escape")
+
+    # And a malformed payload with NO sentinel present + an unmerged branch must STILL
+    # fail open (rc 0) WITHOUT scanning branches - the case the F1 fix repairs (the
+    # pre-fix code fell through to a branch-block return 2). Distinct from the
+    # present-sentinel case above, which the pre-fix code also allowed via the escape.
+    absent_escape = mock.Mock()
+    absent_escape.exists.return_value = False
+    absent_escape.unlink.side_effect = FileNotFoundError   # no sentinel on disk
+    with mock.patch.dict(
+        os.environ, {"CLAUDE_CONFIG_DIR": "/opt/orch-accounts/test/orchestrator"}
+    ), mock.patch.object(
+        sys, "stdin", io.StringIO("{not valid json")
+    ), mock.patch.object(
+        sys, "stderr", io.StringIO()
+    ), mock.patch.object(
+        module, "ESCAPE_FILE", absent_escape
+    ), mock.patch.object(
+        module, "unmerged_branches", return_value=[("b", "1")]
+    ) as absent_branch_scan:
+        absent_rc = main()
+    if absent_rc != 0 or absent_branch_scan.called:
+        bad += 1
+        print("FAIL malformed payload with no sentinel did not fail open")
+
+    total = len(SELF_TEST) + 4
     print(str(total - bad) + "/" + str(total) + " decision cases pass")
     return 1 if bad else 0
 

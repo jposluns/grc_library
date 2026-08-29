@@ -1860,6 +1860,63 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
             self.assertFalse(os.path.exists(sentinel),
                              "the escape must be consumed on the non-object fail-open path too")
 
+    def test_block_turn_end_hook_self_test(self) -> None:
+        """block-turn-end-with-outstanding-work.py must ship a passing --self-test (gemini CVAL3-F1)."""
+        import subprocess as sp
+        hook = str(REPO_ROOT / ".claude" / "hooks" / "block-turn-end-with-outstanding-work.py")
+        r = sp.run([sys.executable, hook, "--self-test"], capture_output=True, text=True,
+                   cwd=str(REPO_ROOT))
+        self.assertEqual(r.returncode, 0, f"--self-test must exit 0\nstdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+        # Assert the self-test actually RAN and every case passed (not just rc 0, which an
+        # EOF/no-dispatch path could also yield): the "N/N decision cases pass" marker with
+        # both counts equal (codex CVAL3-F1 iter-2).
+        import re as _re
+        m = _re.search(r"(\d+)/(\d+) decision cases pass", r.stdout)
+        self.assertIsNotNone(m, f"self-test marker absent; --self-test did not run\nstdout:\n{r.stdout}")
+        self.assertEqual(m.group(1), m.group(2), f"not all self-test cases passed\nstdout:\n{r.stdout}")
+
+    def test_block_turn_end_malformed_no_sentinel_fails_open(self) -> None:
+        """Malformed payload with NO .allow-stop present must fail open (rc 0) even with unmerged
+        branches - the case the F1 fix repairs; bites on the pre-fix fail-closed code (CVAL3-F1 codex)."""
+        import subprocess as sp, tempfile, os
+        hook = str(REPO_ROOT / ".claude" / "hooks" / "block-turn-end-with-outstanding-work.py")
+        with tempfile.TemporaryDirectory() as d:
+            # no sentinel created in d; REPO_ROOT has unmerged branches during a PR, so the
+            # pre-fix code would have scanned branches and returned 2. The fix returns 0.
+            env = dict(os.environ, GRC_DROP_ROOT=d)
+            r = sp.run([sys.executable, hook], input="not-json", capture_output=True,
+                       text=True, cwd=str(REPO_ROOT), env=env)
+            self.assertEqual(r.returncode, 0,
+                             f"malformed + no sentinel must fail open (rc 0)\nstderr:\n{r.stderr}")
+
+    def test_block_turn_end_fail_open_consumes_escape(self) -> None:
+        """A malformed-payload fail-open must still consume .allow-stop (one-shot; CVAL3-F1 codex+gemini)."""
+        import subprocess as sp, tempfile, os
+        hook = str(REPO_ROOT / ".claude" / "hooks" / "block-turn-end-with-outstanding-work.py")
+        with tempfile.TemporaryDirectory() as d:
+            sentinel = os.path.join(d, ".allow-stop")
+            open(sentinel, "w").close()
+            env = dict(os.environ, GRC_DROP_ROOT=d)
+            r = sp.run([sys.executable, hook], input="not-json", capture_output=True,
+                       text=True, cwd=str(REPO_ROOT), env=env)
+            self.assertEqual(r.returncode, 0, f"fail-open must exit 0\nstderr:\n{r.stderr}")
+            self.assertFalse(os.path.exists(sentinel),
+                             "the .allow-stop sentinel must be consumed even on the fail-open path")
+
+    def test_block_turn_end_nonobject_json_consumes_escape(self) -> None:
+        """Non-object JSON (valid but not a dict) must fail-open AND consume .allow-stop (CVAL3-F1)."""
+        import subprocess as sp, tempfile, os
+        hook = str(REPO_ROOT / ".claude" / "hooks" / "block-turn-end-with-outstanding-work.py")
+        with tempfile.TemporaryDirectory() as d:
+            sentinel = os.path.join(d, ".allow-stop")
+            open(sentinel, "w").close()
+            env = dict(os.environ, GRC_DROP_ROOT=d)
+            r = sp.run([sys.executable, hook], input="123", capture_output=True,
+                       text=True, cwd=str(REPO_ROOT), env=env)
+            self.assertEqual(r.returncode, 0, f"non-object payload must fail-open\nstderr:\n{r.stderr}")
+            self.assertFalse(os.path.exists(sentinel),
+                             "the escape must be consumed on the non-object fail-open path too")
+
     def test_block_idle_stop_hook_main_fail_open(self) -> None:
         """main()-level fail-open + loop-terminator paths (PR #1754 codex F2/F4).
 
