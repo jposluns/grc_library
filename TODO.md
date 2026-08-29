@@ -103,8 +103,7 @@ Adopter experience and future work: capability and guidance for organizations ad
 
 | ID | Item | Tags |
 | --- | --- | --- |
-| 3.180 | Adopter-facing skills hard-require the private siblings with no degrade branch (2026-07-28 deep-assessment c6, claude, M, S) | `[public]` |
-| 3.183 | Adopter-facing polish (changelog audience, fork-hook source edit, alarming clean-run output, closed-set framing) (2026-07-28 deep-assessment c6, claude, L, S) | `[public]` |
+| 3.183 | Adopter overlay-exemption config: replace the `DEFAULT_EXEMPT_DIRS` source-edit instruction with a non-source config surface (2026-07-28 deep-assessment c6, claude, L, S; re-scoped 2026-08-29 to sub-part 2) | `[public]` |
 | 4.1 | Corpus-management discipline as a shareable skill (M, XL) | `[public]` |
 | 4.5 | Adopter reference-base specification: build-your-own-ref guide, source lists, and the corpus-to-sources relevance map (L, L) | `[public]` |
 | 4.6 | Fork update-assessment tooling (upstream-change applicability report) (S-f, maintainer-requested 2026-07-04, M-L) | `[public]` |

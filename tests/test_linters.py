@@ -10697,14 +10697,17 @@ class ResolveSiblingTests(unittest.TestCase):
             finally:
                 lc.REPO_ROOT = orig
 
-    def test_ref_holds_graceful_on_portable_clone(self) -> None:
-        # Real grc_library_ref absent, .ref placeholder present -> exit 0 (no-op).
+    def test_ref_holds_graceful_on_adopter_clone(self) -> None:
+        # ADOPTER clone with grc_library_ref genuinely absent -> exit 0 (advisory
+        # no-op), even with NO .ref placeholder (a fresh adopter clone has none;
+        # deep-assessment 3.183(3)). Gated on the detect-env operator identity,
+        # injected here as adopter.
         lc = self._lc()
         mod = self._load_ref_holds("_ref_holds_graceful")
+        mod._operator_is_adopter = lambda: True
         with tempfile.TemporaryDirectory() as td:
             root = Path(td) / "grc_library"
             root.mkdir()
-            (root / ".ref").mkdir()
             orig = lc.REPO_ROOT
             try:
                 lc.REPO_ROOT = root
@@ -10712,11 +10715,14 @@ class ResolveSiblingTests(unittest.TestCase):
             finally:
                 lc.REPO_ROOT = orig
 
-    def test_ref_holds_errors_when_neither_present(self) -> None:
-        # Neither real sibling nor .ref placeholder -> exit 2 (broken checkout,
-        # not a portable clone): the graceful path is gated on the placeholder.
+    def test_ref_holds_maintainer_absent_ref_stays_loud(self) -> None:
+        # MAINTAINER (or undetermined identity) with grc_library_ref genuinely
+        # absent -> exit 2 (LOUD), the 1.19.7 loud gate /orch relies on. Identity
+        # injected here as NON-adopter (the fail-safe default of the real helper
+        # too, since a maintainer origin classifies as maintainer).
         lc = self._lc()
         mod = self._load_ref_holds("_ref_holds_broken")
+        mod._operator_is_adopter = lambda: False
         with tempfile.TemporaryDirectory() as td:
             root = Path(td) / "grc_library"
             root.mkdir()
@@ -10729,15 +10735,15 @@ class ResolveSiblingTests(unittest.TestCase):
 
     def test_ref_holds_errors_on_corrupt_sibling(self) -> None:
         # A real ../grc_library_ref dir that EXISTS but lacks its index (a
-        # corrupt/partial checkout) must still exit 2 even with the .ref
-        # placeholder present: the graceful branch is gated on
-        # resolve_sibling("ref") is None, so a broken ref is surfaced, not masked.
+        # corrupt/partial checkout) must still exit 2 EVEN for an adopter: the
+        # graceful branch is gated on resolve_sibling("ref") is None, so a broken
+        # ref is surfaced, not masked, regardless of operator identity.
         lc = self._lc()
         mod = self._load_ref_holds("_ref_holds_corrupt")
+        mod._operator_is_adopter = lambda: True
         with tempfile.TemporaryDirectory() as td:
             root = Path(td) / "grc_library"
             root.mkdir()
-            (root / ".ref").mkdir()
             (Path(td) / "grc_library_ref").mkdir()  # exists but has no INDEX/catalogue
             orig = lc.REPO_ROOT
             try:
@@ -10745,6 +10751,54 @@ class ResolveSiblingTests(unittest.TestCase):
                 self.assertEqual(mod.main(["ref-holds.py", "anything"]), 2)
             finally:
                 lc.REPO_ROOT = orig
+
+    def test_operator_is_adopter_fails_safe_on_probe_error(self) -> None:
+        # The identity helper must fail SAFE (return False -> loud exit 2) if the
+        # detect-env probe cannot run at all, so a probe malfunction can NEVER
+        # silently no-op a maintainer's missing grc_library_ref (the 1.19.7 loud
+        # gate). Force the importlib load to raise and assert False. Environment-
+        # independent (does not depend on this clone's origin classification).
+        import importlib.util as _iu
+        mod = self._load_ref_holds("_ref_holds_failsafe")
+        orig = _iu.spec_from_file_location
+        try:
+            def _boom(*a, **k):
+                raise RuntimeError("forced probe failure")
+            _iu.spec_from_file_location = _boom
+            self.assertFalse(mod._operator_is_adopter())
+        finally:
+            _iu.spec_from_file_location = orig
+
+    def test_identity_is_adopter_pure_decision(self) -> None:
+        # The pure decision must require a POSITIVELY-READ, non-maintainer origin.
+        # A None origin_url is NOT adopter: detect-env swallows a git-origin probe
+        # FAILURE (e.g. a subprocess timeout) into a None origin, so keying on the
+        # classification alone would let a maintainer's git timeout silently no-op
+        # the missing-_ref HALT (regression guard for that fail-loud violation).
+        mod = self._load_ref_holds("_ref_holds_puredecision")
+        f = mod._identity_is_adopter
+        # fork / private origin -> adopter (graceful)
+        self.assertTrue(f({"origin_url": "https://github.com/someone/grc_library",
+                           "origin_is_maintainer_repo": False}))
+        # maintainer origin -> NOT adopter (loud)
+        self.assertFalse(f({"origin_url": "https://github.com/jposluns/grc_library",
+                            "origin_is_maintainer_repo": True}))
+        # git-origin probe FAILURE / genuinely absent origin -> NOT adopter (loud)
+        self.assertFalse(f({"origin_url": None, "origin_is_maintainer_repo": False}))
+        # missing fields -> NOT adopter (loud, fail-safe)
+        self.assertFalse(f({}))
+        # truthy origin_url with the maintainer flag MISSING (a partial probe
+        # result) -> NOT adopter: the flag must be EXPLICITLY False, so an
+        # ambiguous/partial identity REFUSES rather than permits (guard-input).
+        self.assertFalse(f({"origin_url": "https://github.com/jposluns/grc_library"}))
+        # flag present but None -> NOT adopter (loud)
+        self.assertFalse(f({"origin_url": "https://github.com/x/grc_library",
+                            "origin_is_maintainer_repo": None}))
+        # a NON-STRING truthy origin_url (probe_identity yields str|None, so this
+        # is non-producible, but the decision fails safe anyway) -> NOT adopter
+        self.assertFalse(f({"origin_url": 1, "origin_is_maintainer_repo": False}))
+        # empty-string origin -> NOT adopter (loud)
+        self.assertFalse(f({"origin_url": "", "origin_is_maintainer_repo": False}))
 
     def test_resolve_working_dir_prefers_private_then_local_then_none(self) -> None:
         # resolve_working_dir: the .working DIRECTORY, private preferred, in-repo

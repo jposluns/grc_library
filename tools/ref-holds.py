@@ -37,7 +37,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from lint_common import REPO_ROOT, resolve_sibling, sibling_placeholder_present
+from lint_common import REPO_ROOT, resolve_sibling
 
 # Default: grc_library_ref is a sibling of the repo containing this tool.
 DEFAULT_REF_ROOT = REPO_ROOT.parent / "grc_library_ref"
@@ -140,6 +140,51 @@ def _self_test() -> int:
     return 0 if result.wasSuccessful() else 1
 
 
+def _identity_is_adopter(identity: dict) -> bool:
+    """PURE decision over a detect-env ``probe_identity`` result: an operator is an
+    adopter ONLY on a SUCCESSFULLY-READ, non-maintainer origin. A None/absent
+    ``origin_url`` is NOT treated as adopter -- detect-env swallows a git-origin
+    probe FAILURE (e.g. a subprocess timeout, rc 124) into a None origin, which
+    ``probe_identity`` then classifies as ``adopter``; keying on that classification
+    alone would let a MAINTAINER's transient git timeout silently no-op the
+    missing-grc_library_ref HALT. Fail SAFE: only a positively-read fork/private
+    origin degrades; a None origin, a maintainer origin, or any missing field ->
+    False (loud). Pure + injectable so the fail-safe is regression-locked (the
+    guard-input pure-decision-behind-a-thin-observer discipline)."""
+    origin_url = identity.get("origin_url")
+    # Degrade ONLY on a fully-formed non-maintainer identity: a non-empty STRING
+    # origin_url AND the maintainer flag EXACTLY False. isinstance-guarding the url
+    # (probe_identity yields str|None) and requiring `is False` make the decision
+    # monotonically fail-safe: any None/empty/non-str origin, or any non-exactly-
+    # False flag, -> False (loud). This TRUSTS probe_identity to produce a (url,
+    # flag) pair consistent with each other (the flag is derived from the url); a
+    # dict whose flag CONTRADICTS its url is non-producible by that observer, and
+    # re-deriving maintainer-ness from the url here would duplicate detect-env's
+    # canonical origin check (forbidden by the guard-input single-source rule).
+    return isinstance(origin_url, str) and bool(origin_url) and identity.get("origin_is_maintainer_repo") is False
+
+
+def _operator_is_adopter() -> bool:
+    """True ONLY if the operator has a positively-read, non-maintainer origin (see
+    _identity_is_adopter). Maintainer / maintainer-fresh-machine / undetermined /
+    absent-or-unreadable origin / any error -> False, so a maintainer's
+    genuinely-missing grc_library_ref stays a LOUD exit-2 failure (the 1.19.7
+    (closing PR #1007) loud gate that /orch relies on). Reuses the SINGLE canonical
+    identity source (detect-env.py) via importlib (the file is hyphenated, so not
+    import-able by name) rather than duplicating the origin check here (the
+    guard-input single-source discipline). Only reached on the rare absent-ref
+    branch, so the probe cost is not on any hot path."""
+    try:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "detect_env", str(Path(__file__).resolve().parent / "detect-env.py"))
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return _identity_is_adopter(mod.probe_identity(mod.probe_siblings()))
+    except Exception:
+        return False
+
+
 def main(argv: list[str]) -> int:
     p = argparse.ArgumentParser(
         description="Answer held/not-held for grc_library_ref from its index (forcing-function; quote the output).",
@@ -157,26 +202,29 @@ def main(argv: list[str]) -> int:
 
     ref_root = find_ref_root(a.ref_root)
     if ref_root is None:
-        # A GENUINELY ABSENT default sibling on a portable clone (the committed
-        # .ref placeholder confirms this is such a clone) degrades to an advisory
-        # no-op (exit 0), per 1.19.2 (closing PR #996): ref-holds is a maintainer-only
-        # forcing-function tool, and an adopter clone that never fetched
-        # grc_library_ref has nothing to answer against. The graceful branch is
-        # gated on resolve_sibling("ref") is None (the real sibling dir truly
-        # absent), NOT merely on find_ref_root being None: a real grc_library_ref
-        # dir that EXISTS but lacks its index (a corrupt/partial maintainer
-        # checkout) still errors (exit 2), so a broken ref is surfaced, not
-        # masked. An EXPLICIT --ref-root that did not resolve likewise stays the
-        # operator's mistake to surface (exit 2).
+        # A GENUINELY ABSENT default sibling on an ADOPTER clone degrades to an
+        # advisory no-op (exit 0), per 1.19.2 (closing PR #996): ref-holds is a
+        # maintainer-only forcing-function tool, and an adopter clone that never
+        # fetched grc_library_ref has nothing to answer against. The branch is
+        # gated on the detect-env OPERATOR IDENTITY (adopter -> graceful; a
+        # maintainer / undetermined identity stays a LOUD exit 2, the 1.19.7 loud
+        # gate /orch relies on), NOT on the committed .ref placeholder, which is
+        # NOT shipped by default (a fresh adopter clone has no .ref, so the old
+        # placeholder gate errored spuriously -- deep-assessment 3.183(3)). It is
+        # further gated on resolve_sibling("ref") is None (the real sibling dir
+        # truly absent), NOT merely on find_ref_root being None: a real
+        # grc_library_ref dir that EXISTS but lacks its index (a corrupt/partial
+        # checkout) still errors (exit 2), so a broken ref is surfaced, not masked.
+        # An EXPLICIT --ref-root that did not resolve likewise stays the operator's
+        # mistake to surface (exit 2).
         if (
             a.ref_root is None
             and resolve_sibling("ref") is None
-            and sibling_placeholder_present("ref")
+            and _operator_is_adopter()
         ):
             print(
-                "advisory: grc_library_ref sibling absent (portable clone; .ref "
-                "placeholder present); ref-holds is a maintainer-only advisory, "
-                "nothing to report."
+                "advisory: grc_library_ref sibling absent (adopter clone); "
+                "ref-holds is a maintainer-only advisory, nothing to report."
             )
             return 0
         print(
