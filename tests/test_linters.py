@@ -1860,6 +1860,42 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
             self.assertFalse(os.path.exists(sentinel),
                              "the escape must be consumed on the non-object fail-open path too")
 
+    def test_block_turn_end_hook_self_test(self) -> None:
+        """block-turn-end-with-outstanding-work.py must ship a passing --self-test (gemini CVAL3-F1)."""
+        import subprocess as sp
+        hook = str(REPO_ROOT / ".claude" / "hooks" / "block-turn-end-with-outstanding-work.py")
+        r = sp.run([sys.executable, hook, "--self-test"], capture_output=True, text=True,
+                   cwd=str(REPO_ROOT))
+        self.assertEqual(r.returncode, 0, f"--self-test must exit 0\nstdout:\n{r.stdout}\nstderr:\n{r.stderr}")
+
+    def test_block_turn_end_fail_open_consumes_escape(self) -> None:
+        """A malformed-payload fail-open must still consume .allow-stop (one-shot; CVAL3-F1 codex+gemini)."""
+        import subprocess as sp, tempfile, os
+        hook = str(REPO_ROOT / ".claude" / "hooks" / "block-turn-end-with-outstanding-work.py")
+        with tempfile.TemporaryDirectory() as d:
+            sentinel = os.path.join(d, ".allow-stop")
+            open(sentinel, "w").close()
+            env = dict(os.environ, GRC_DROP_ROOT=d)
+            r = sp.run([sys.executable, hook], input="not-json", capture_output=True,
+                       text=True, cwd=str(REPO_ROOT), env=env)
+            self.assertEqual(r.returncode, 0, f"fail-open must exit 0\nstderr:\n{r.stderr}")
+            self.assertFalse(os.path.exists(sentinel),
+                             "the .allow-stop sentinel must be consumed even on the fail-open path")
+
+    def test_block_turn_end_nonobject_json_consumes_escape(self) -> None:
+        """Non-object JSON (valid but not a dict) must fail-open AND consume .allow-stop (CVAL3-F1)."""
+        import subprocess as sp, tempfile, os
+        hook = str(REPO_ROOT / ".claude" / "hooks" / "block-turn-end-with-outstanding-work.py")
+        with tempfile.TemporaryDirectory() as d:
+            sentinel = os.path.join(d, ".allow-stop")
+            open(sentinel, "w").close()
+            env = dict(os.environ, GRC_DROP_ROOT=d)
+            r = sp.run([sys.executable, hook], input="123", capture_output=True,
+                       text=True, cwd=str(REPO_ROOT), env=env)
+            self.assertEqual(r.returncode, 0, f"non-object payload must fail-open\nstderr:\n{r.stderr}")
+            self.assertFalse(os.path.exists(sentinel),
+                             "the escape must be consumed on the non-object fail-open path too")
+
     def test_block_idle_stop_hook_main_fail_open(self) -> None:
         """main()-level fail-open + loop-terminator paths (PR #1754 codex F2/F4).
 

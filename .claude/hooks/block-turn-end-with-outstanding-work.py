@@ -192,13 +192,26 @@ def decide(stop_hook_active: bool, escape: bool, branches: list) -> str | None:
     return "\n".join(lines)
 
 
+def _fail_open() -> int:
+    """Allow the stop, consuming a present one-shot escape first so a malformed or
+    non-object Stop payload cannot leave the ``.allow-stop`` sentinel behind to
+    authorize a LATER stop (one-shot parity with block-idle-stop, which consumes at
+    top). Fails open regardless of whether the sentinel was present or the unlink
+    succeeded, because a malformed payload gives no readable loop-termination signal."""
+    try:
+        ESCAPE_FILE.unlink()
+    except OSError:
+        pass
+    return 0
+
+
 def main() -> int:
     try:
         payload = json.load(sys.stdin) if not sys.stdin.isatty() else {}
     except Exception:
-        return 0                              # unparseable payload: fail open (loop-termination signal unreadable)
+        return _fail_open()                   # unparseable payload: consume escape, then fail open
     if not isinstance(payload, dict):
-        return 0                              # non-dict payload: fail open (parity with block-idle-stop)
+        return _fail_open()                   # non-object payload: consume escape, then fail open
     try:
         if payload.get("stop_hook_active"):
             return 0
@@ -292,7 +305,7 @@ def self_test() -> int:
     # design; parity with block-idle-stop-with-actionable-backlog.py). Also asserts the
     # parse-error path short-circuits BEFORE the branch scan.
     malformed_escape = mock.Mock()
-    malformed_escape.exists.return_value = False
+    malformed_escape.exists.return_value = True   # sentinel present: must be consumed on the fail-open path
     with mock.patch.dict(
         os.environ, {"CLAUDE_CONFIG_DIR": "/opt/orch-accounts/test/orchestrator"}
     ), mock.patch.object(
@@ -305,9 +318,9 @@ def self_test() -> int:
         module, "unmerged_branches", return_value=[("b", "1")]
     ) as malformed_branch_scan:
         malformed_rc = main()
-    if malformed_rc != 0 or malformed_branch_scan.called:
+    if malformed_rc != 0 or malformed_branch_scan.called or not malformed_escape.unlink.called:
         bad += 1
-        print("FAIL malformed payload did not fail open")
+        print("FAIL malformed payload did not fail open + consume the escape")
 
     total = len(SELF_TEST) + 3
     print(str(total - bad) + "/" + str(total) + " decision cases pass")
