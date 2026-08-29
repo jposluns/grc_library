@@ -213,13 +213,9 @@ TODO items carry internal working-provenance that an adopter reading the backlog
 
 ## Priority 4 — Adopter experience and future
 
-### 3.180 Adopter-facing skills hard-require the private siblings with no degrade branch (2026-07-28 deep-assessment c6, claude, M, S)
+### 3.183 Adopter overlay-exemption config: replace the `DEFAULT_EXEMPT_DIRS` source-edit instruction with a non-source config surface (2026-07-28 deep-assessment c6, claude, L, S; re-scoped 2026-08-29 to sub-part 2)
 
-`deep-assessment/SKILL.md` and `reference-audit/SKILL.md` require all three private siblings / the full suite to exit 0 before any semantic phase, with no absent/skip/not-applicable branch, so an adopter stalls at an unsatisfiable phase-1 precondition. Add an adopter degrade path.
-
-### 3.183 Adopter-facing polish (changelog audience, fork-hook source edit, alarming clean-run output, closed-set framing) (2026-07-28 deep-assessment c6, claude, L, S)
-
-The changelog top entries are maintainer jargon with no adopter banner; the adopter guide tells the adopter to edit `tools/lint_common.py` `DEFAULT_EXEMPT_DIRS` (a source edit that conflicts on every upstream pull); a clean adopter clone prints `ERROR: could not locate the grc_library_ref index` twice; and "five paths"/"seven areas" are framed as complete against 12 `docs/` files / 11 domain dirs. Low-severity adopter-experience cleanups.
+RE-SCOPED 2026-08-29 (codex research @ 2c902b97) against current state. Of the four original sub-parts: (1) changelog adopter-audience banner = ADDRESSED (the intro now distinguishes public/general-reader summaries, maintainer-grade private detail, and forks' own tracking); (3) the alarming absent-`_ref` `ERROR` from `ref-holds.py` = FIXED in #1792 (identity-aware degrade: adopter -> advisory no-op exit 0, maintainer stays loud); (4) "five paths"/"seven areas" = NON-ISSUE (accurate enumerations of 5 named deeper-dive paths and 7 thematic groupings, explicitly distinguished from 12 docs / 11 domain dirs). REMAINING (sub-part 2): `docs/adopter-guide.md` still instructs the adopter to EDIT `DEFAULT_EXEMPT_DIRS` in `tools/lint_common.py` (a source edit that conflicts on every upstream pull); no non-source config surface exists. NEEDS A MAINTAINER DESIGN DECISION (routed to pending-decisions 2026-08-29): a configurable exclusion can BLIND the PII/secrets and other security gates, so the maintainer must decide the config file/API, whether exclusions apply to all gates or only selected corpus-content gates, path restrictions, and whether protected surfaces may ever be excluded.
 
 ### 4.1 Corpus-management discipline as a shareable skill (M, XL)
 
