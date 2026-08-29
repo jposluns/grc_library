@@ -283,7 +283,9 @@ def parse_live_index(text: str) -> dict[str, list[int]]:
     """Live item ids in a NEW-format TODO.md (index rows) -> their line numbers.
 
     TODO.md is now an index of ``| <id> | <title> | <tags> |`` rows; the ids
-    are in cell 1. (P-TODO.md keeps the ``### <id>`` shape parse_live reads.)
+    are in cell 1. During the 2026-08 migration P-TODO.md also moves to this
+    index-row shape; the caller unions this with ``parse_live`` so BOTH the
+    legacy ``### <id>`` layout and the new index layout are covered.
     """
     live: dict[str, list[int]] = {}
     for it in parse_todo_index(text):
@@ -499,7 +501,14 @@ def main(argv: list[str]) -> int:
         return 2
 
     todo_live = parse_live_index(todo_text)
+    # Transitional (2026-08 migration): P-TODO.md is moving from the legacy
+    # ``### <id>`` block shape to the index-row shape (its detail splits into
+    # P-TODO-REFERENCE.md). Union both parsers so gate 78 sees every live
+    # P-TODO id in EITHER layout; a backlog file is one format at a time, so
+    # the two id sets do not overlap in practice.
     ptodo_live = parse_live(ptodo_text)
+    for _pid, _plines in parse_live_index(ptodo_text).items():
+        ptodo_live.setdefault(_pid, []).extend(_plines)
     live = {**todo_live, **ptodo_live}   # union of ids across both lists
     retired = parse_retired(done_text)
     counters = parse_counters(todo_text)

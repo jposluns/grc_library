@@ -109,14 +109,41 @@ _REF_ID_RE = re.compile(r"^### (?P<id>P-\d+(?:\.\d+){1,2}[a-z]?|\d+(?:\.\d+)+(?:
 _ROW_RE = re.compile(r"^\|\s*(?P<id>P-\d+(?:\.\d+){1,2}[a-z]?|\d+(?:\.\d+)+(?:\.[a-z]|[a-z])?|TF-\d+)\s*\|(?P<title>[^|]*)\|(?P<tags>[^|]*)\|")
 
 
-def _load_ref_bodies() -> dict[str, str]:
-    """Map item id -> its TODO-REFERENCE.md ### block body (for prose-signal scan).
+_PRIVATE_DIR = REPO_ROOT.parent / "grc_library_private"
 
-    TODO.md is now an index of rows; the per-item detail lives in
-    TODO-REFERENCE.md as ``### <id> <title>`` blocks. This reads those blocks so
-    the actionability scan can still see each public item's body prose."""
-    ref = REPO_ROOT / "TODO-REFERENCE.md"
-    if not ref.is_file():
+
+def _first_existing(*cands: Path | None) -> Path | None:
+    for c in cands:
+        if c is not None and c.is_file():
+            return c
+    return None
+
+
+def _ref_file(which: str) -> Path | None:
+    """Resolve the detail (reference) file for a backlog.
+
+    Transitional (2026-08 migration): the public detail file (TODO-REFERENCE.md)
+    is moving into the private sibling, and the private backlog gains its own
+    detail file (P-TODO-REFERENCE.md). ``which='public'`` resolves private-first
+    (post-move) then the legacy public location (pre-move); ``which='private'``
+    resolves the private P-TODO-REFERENCE.md. Absent -> None (no-op)."""
+    if which == "public":
+        return _first_existing(
+            _PRIVATE_DIR / "TODO-REFERENCE.md",
+            REPO_ROOT / "TODO-REFERENCE.md",
+        )
+    return _first_existing(_PRIVATE_DIR / "P-TODO-REFERENCE.md")
+
+
+def _load_ref_bodies(which: str = "public") -> dict[str, str]:
+    """Map item id -> its reference ``### <id> <title>`` block body.
+
+    The per-item detail lives in the reference file (TODO-REFERENCE.md for the
+    public backlog, P-TODO-REFERENCE.md for the private one). This reads those
+    blocks so the actionability scan can still see each item's body prose when
+    the backlog is in index-row form."""
+    ref = _ref_file(which)
+    if ref is None:
         return {}
     bodies: dict[str, str] = {}
     cur = None
@@ -140,7 +167,8 @@ def _load_ref_bodies() -> dict[str, str]:
     return bodies
 
 
-def parse_items(text: str, source: str) -> list[tuple[str, str, str, str, str]]:
+def parse_items(text: str, source: str,
+                ref_bodies: dict[str, str] | None = None) -> list[tuple[str, str, str, str, str]]:
     """Return ``(id, title, block_text, source, umbrella)`` for every open item. PUBLIC
     ``TODO.md`` items are parsed as INDEX ROWS (the local ``_ROW_RE``), their bodies joined
     from ``TODO-REFERENCE.md``; only private / legacy items use the ``### `` heading-block
@@ -151,13 +179,16 @@ def parse_items(text: str, source: str) -> list[tuple[str, str, str, str, str]]:
     own text. ``source`` labels which list the item came from (``public`` /
     ``private``)."""
     lines = text.splitlines()
-    # TODO.md is index-format now: | id | title | tags | rows under ## bands,
-    # detail in TODO-REFERENCE.md. P-TODO.md keeps the ### section shape.
-    if source == "public" and any(_ROW_RE.match(ln) for ln in lines):
-        # index-format: any index row means TODO.md; a stray ``### `` block that
-        # leaked in is ignored here (gate 90 flags it) rather than flipping this
-        # to the legacy branch and collapsing the enumeration.
-        ref_bodies = _load_ref_bodies()
+    # Both backlogs move to index form: | id | title | tags | rows under ## bands,
+    # detail in the reference file. Transitional (2026-08): a legacy P-TODO.md
+    # still in ``### `` section form has no index rows and falls through to the
+    # block grammar below.
+    if any(_ROW_RE.match(ln) for ln in lines):
+        # index-format: any index row means this backlog is an index; a stray
+        # ``### `` block that leaked in is ignored here (gate 90 flags it) rather
+        # than flipping this to the legacy branch and collapsing the enumeration.
+        if ref_bodies is None:
+            ref_bodies = _load_ref_bodies(source)
         idx_items: list[tuple[str, str, str, str, str]] = []
         band = ""
         for ln in lines:

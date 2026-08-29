@@ -122,11 +122,13 @@ def main(argv: list[str]) -> int:
     total_items = 0
     all_findings: list[tuple[str, int, str, int]] = []
     for rel, text in sources:
-        # TODO.md is index-format (rows); P-TODO.md keeps the ### heading shape.
-        if rel == TODO_REL:
-            items = find_untagged_index(text)
-            total_items += len(parse_todo_index(text))
-            for lineno, line, count in items:
+        # Format-detect per source: TODO.md is always index-format; P-TODO.md is
+        # ### -block pre-migration and index-format post-migration (2026-08). An
+        # index row present -> index parser; otherwise the legacy ### grammar.
+        idx_items = parse_todo_index(text)
+        if idx_items:
+            total_items += len(idx_items)
+            for lineno, line, count in find_untagged_index(text):
                 all_findings.append((rel, lineno, line, count))
         else:
             total_items += sum(1 for line in text.splitlines() if ITEM_HEADING_RE.match(line))

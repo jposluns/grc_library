@@ -39,11 +39,13 @@ _TOOLS_DIR = str(Path(__file__).resolve().parent)
 if _TOOLS_DIR not in sys.path:
     sys.path.insert(0, _TOOLS_DIR)
 
-from lint_common import REPO_ROOT, TODO_ID_RE, split_row, is_separator_row  # noqa: E402
+from lint_common import REPO_ROOT, TODO_ID_RE, split_row, is_separator_row, resolve_sibling  # noqa: E402
 
 TODO_REL = "TODO.md"
 REFERENCE_REL = "TODO-REFERENCE.md"
 INDEX_TABLE_HEADER = ("ID", "Item", "Tags")
+PTODO_INDEX_REL = "P-TODO.md"           # private backlog index (in grc_library_private)
+PTODO_REFERENCE_REL = "P-TODO-REFERENCE.md"  # private backlog detail (in grc_library_private)
 
 BAND_RE = re.compile(r"^## (.+?)\s*$")  # any H2 section is a band (Priority N, Time-bounded follow-ups, ...)
 REF_HEADING_RE = re.compile(
@@ -121,7 +123,9 @@ def _dups(ids: list[str]) -> list[str]:
 
 
 def find_findings(index: list[tuple[str, str, str]],
-                  reference: list[tuple[str, str, str]]) -> list[str]:
+                  reference: list[tuple[str, str, str]],
+                  index_label: str = TODO_REL,
+                  reference_label: str = REFERENCE_REL) -> list[str]:
     findings: list[str] = []
     idx_ids = [r[0] for r in index]
     ref_ids = [r[0] for r in reference]
@@ -129,16 +133,16 @@ def find_findings(index: list[tuple[str, str, str]],
     ref_map = {r[0]: r for r in reference}
 
     for d in _dups(idx_ids):
-        findings.append(f"DUPLICATE: id {d} appears more than once in {TODO_REL}")
+        findings.append(f"DUPLICATE: id {d} appears more than once in {index_label}")
     for d in _dups(ref_ids):
-        findings.append(f"DUPLICATE: id {d} appears more than once in {REFERENCE_REL}")
+        findings.append(f"DUPLICATE: id {d} appears more than once in {reference_label}")
 
     for i in idx_ids:
         if i not in ref_map:
-            findings.append(f"MISSING: index row {i} in {TODO_REL} has no detail block in {REFERENCE_REL}")
+            findings.append(f"MISSING: index row {i} in {index_label} has no detail block in {reference_label}")
     for i in ref_ids:
         if i not in idx_map:
-            findings.append(f"EXTRA: detail block {i} in {REFERENCE_REL} has no index row in {TODO_REL}")
+            findings.append(f"EXTRA: detail block {i} in {reference_label} has no index row in {index_label}")
 
     for i in idx_ids:
         if i in ref_map:
@@ -146,18 +150,18 @@ def find_findings(index: list[tuple[str, str, str]],
             _, rt, rb = ref_map[i]
             if it != rt:
                 findings.append(
-                    f"TITLE DRIFT: {i} title differs: {TODO_REL} has {it!r}, {REFERENCE_REL} has {rt!r}")
+                    f"TITLE DRIFT: {i} title differs: {index_label} has {it!r}, {reference_label} has {rt!r}")
             if ib != rb:
                 findings.append(
-                    f"BAND MISMATCH: {i} is under {ib!r} in {TODO_REL} but {rb!r} in {REFERENCE_REL}")
+                    f"BAND MISMATCH: {i} is under {ib!r} in {index_label} but {rb!r} in {reference_label}")
 
     # order: the shared-id sequence must be identical in both files
     shared_idx = [i for i in idx_ids if i in ref_map]
     shared_ref = [i for i in ref_ids if i in idx_map]
     if shared_idx != shared_ref:
         findings.append(
-            f"ORDER MISMATCH: the id order in {TODO_REL} ({', '.join(shared_idx)}) "
-            f"differs from {REFERENCE_REL} ({', '.join(shared_ref)})")
+            f"ORDER MISMATCH: the id order in {index_label} ({', '.join(shared_idx)}) "
+            f"differs from {reference_label} ({', '.join(shared_ref)})")
     return findings
 
 
@@ -233,42 +237,109 @@ def find_malformed_index_rows(todo_text: str) -> list[str]:
     return out
 
 
-def run(root: Path) -> int:
-    todo_path = root / TODO_REL
-    ref_path = root / REFERENCE_REL
-    if not todo_path.is_file():
-        print(f"ERROR: required file missing: {todo_path}", file=sys.stderr)
-        return 2
-    if not ref_path.is_file():
-        print(f"OK: {REFERENCE_REL} not present (two-file backlog format not adopted); no-op.")
-        return 0
-    todo_text = todo_path.read_text(encoding="utf-8")
+def _check_one(index_path: Path, reference_path: Path,
+               index_label: str, reference_label: str) -> tuple[list[str], int, int]:
+    """Parity + leak + malformed findings for one (index, reference) backlog pair.
+
+    Caller guarantees both files exist. Labels are the human-facing relative
+    names used in finding text (they differ per pair: TODO.md/TODO-REFERENCE.md
+    vs P-TODO.md/P-TODO-REFERENCE.md)."""
+    todo_text = index_path.read_text(encoding="utf-8")
     index = parse_index(todo_text)
-    reference = parse_reference(ref_path.read_text(encoding="utf-8"))
-    findings = find_findings(index, reference)
+    reference = parse_reference(reference_path.read_text(encoding="utf-8"))
+    findings = find_findings(index, reference, index_label, reference_label)
     for leak in find_index_detail_leaks(todo_text):
-        findings.append(f"INDEX DETAIL LEAK: {TODO_REL} contains a detail block heading "
-                        f"({leak.strip()!r}); detail blocks belong only in {REFERENCE_REL}")
+        findings.append(f"INDEX DETAIL LEAK: {index_label} contains a detail block heading "
+                        f"({leak.strip()!r}); detail blocks belong only in {reference_label}")
     for bad in find_malformed_index_rows(todo_text):
         findings.append(
-            f"MALFORMED INDEX ROW: {TODO_REL} row {bad!r} must have both bounding "
+            f"MALFORMED INDEX ROW: {index_label} row {bad!r} must have both bounding "
             "pipes, exactly three cells (`ID`, `Item`, `Tags`), and a valid backlog "
             "id in its first cell"
         )
-    if not findings:
-        print(
-            f"OK: {len(index)} index row(s) and {len(reference)} detail block(s) are a "
-            f"one-to-one match (id, title, band, and order all agree)."
+    return findings, len(index), len(reference)
+
+
+def _first_existing(*candidates: Path | None) -> Path | None:
+    for c in candidates:
+        if c is not None and c.is_file():
+            return c
+    return None
+
+
+def _resolve_pairs(root: Path, private_dir: Path | None) -> tuple[list[tuple[Path, Path, str, str]], list[str]]:
+    """Backlog (index, reference) pairs whose BOTH files currently exist.
+
+    Transitional (2026-08 migration): the public TODO detail file
+    (TODO-REFERENCE.md) is moving into the private sibling, and the private
+    backlog (P-TODO.md) is being split into an index + P-TODO-REFERENCE.md. This
+    resolver handles BOTH the pre-move layout (public TODO-REFERENCE.md, no
+    P-TODO-REFERENCE.md) and the post-move layout (references in the private
+    sibling), so PR-1 lands green on the old state and stays green after the
+    restructure. A pair whose reference file is absent is a no-op (the two-file
+    format is not adopted for that backlog yet), matching the original
+    adopter-graceful contract. ``private_dir`` is the private sibling root
+    (``resolve_sibling('private')`` in production, or a fixture root under
+    test); ``None`` means no private sibling (an adopter clone). Returns
+    (active_pairs, errors)."""
+    pairs: list[tuple[Path, Path, str, str]] = []
+    errors: list[str] = []
+
+    # Pair 1: public TODO. Index is required; reference resolves private-first
+    # (post-move) then public (pre-move). Absent reference -> no-op.
+    todo_path = root / TODO_REL
+    if not todo_path.is_file():
+        errors.append(f"required file missing: {todo_path}")
+    else:
+        ref = _first_existing(
+            (private_dir / REFERENCE_REL) if private_dir else None,
+            root / REFERENCE_REL,
         )
+        if ref is not None:
+            pairs.append((todo_path, ref, TODO_REL, REFERENCE_REL))
+
+    # Pair 2: private P-TODO. Only when the private sibling exists (adopters lack
+    # it). Both index and reference must be present; pre-restructure P-TODO.md is
+    # a legacy ### -block file with no P-TODO-REFERENCE.md -> no-op (skipped),
+    # which correctly avoids running the index-detail-leak check on it.
+    if private_dir is not None:
+        p_index = private_dir / PTODO_INDEX_REL
+        p_ref = private_dir / PTODO_REFERENCE_REL
+        if p_index.is_file() and p_ref.is_file():
+            pairs.append((p_index, p_ref, PTODO_INDEX_REL, PTODO_REFERENCE_REL))
+
+    return pairs, errors
+
+
+def run(root: Path, private_dir: Path | None = None) -> int:
+    pairs, errors = _resolve_pairs(root, private_dir)
+    if errors:
+        for e in errors:
+            print(f"ERROR: {e}", file=sys.stderr)
+        return 2
+    if not pairs:
+        print("OK: no two-file backlog pair present (reference file(s) absent); no-op.")
+        return 0
+
+    all_findings: list[str] = []
+    summary: list[str] = []
+    for index_path, reference_path, index_label, reference_label in pairs:
+        findings, n_index, n_ref = _check_one(
+            index_path, reference_path, index_label, reference_label)
+        all_findings.extend(findings)
+        summary.append(f"{index_label}: {n_index} index row(s) / {n_ref} detail block(s)")
+
+    if not all_findings:
+        print("OK: index<->reference parity holds for " + "; ".join(summary)
+              + " (id, title, band, and order all agree).")
         return 0
     print("=== TODO index<->reference parity findings ===", file=sys.stderr)
-    for f in findings:
+    for f in all_findings:
         print(f"  {f}", file=sys.stderr)
     print(
-        f"\nFAIL: {len(findings)} index<->reference parity finding(s). Every open item "
-        f"is exactly one {TODO_REL} index row plus one {REFERENCE_REL} detail block, "
-        f"with matching id, title, band, and position order. Fix the mismatch; do not "
-        f"weaken this gate.",
+        f"\nFAIL: {len(all_findings)} index<->reference parity finding(s). Every open item "
+        f"is exactly one index row plus one detail block, with matching id, title, band, "
+        f"and position order. Fix the mismatch; do not weaken this gate.",
         file=sys.stderr,
     )
     return 1
@@ -276,10 +347,24 @@ def run(root: Path) -> int:
 
 def main(argv: list[str]) -> int:
     root = REPO_ROOT
+    private_override: Path | None = None
+    have_private_override = False
     args = argv[1:]
-    if len(args) == 2 and args[0] == "--root":
-        root = Path(args[1]).resolve()
-    return run(root)
+    i = 0
+    while i < len(args):
+        if args[i] == "--root" and i + 1 < len(args):
+            root = Path(args[i + 1]).resolve()
+            i += 2
+        elif args[i] == "--private-root" and i + 1 < len(args):
+            private_override = Path(args[i + 1]).resolve()
+            have_private_override = True
+            i += 2
+        else:
+            i += 1
+    # Default the private sibling to the real one; --private-root scopes it to a
+    # fixture so `--root` regression tests stay hermetic.
+    private_dir = private_override if have_private_override else resolve_sibling("private")
+    return run(root, private_dir)
 
 
 if __name__ == "__main__":
