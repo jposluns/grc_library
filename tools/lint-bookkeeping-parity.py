@@ -640,7 +640,7 @@ def qa_cadence_findings(
         if st is None:
             if pr < vp_floor:
                 # Older than the oldest surviving validate-pr row: its row was
-                # swept to grc_library_private (section 1.19.9), so out of scope.
+                # swept to grc_library_private (PR #1034), so out of scope.
                 continue
             findings.append(
                 f"  [qa-cadence] PR #{pr}: no row in {VALIDATE_PR_HISTORY}. "

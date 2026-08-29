@@ -179,7 +179,7 @@ def _origin_is_maintainer(url: str | None) -> bool:
     (including an SSH host alias), a fork under a different owner, a different
     repo, or a malformed multi-segment path does NOT match. The host-pin closes
     the theoretical false-maintainer classifications noted in 1.19.5 (closing PR #997);
-    since section 1.19.6 makes the classification load-bearing (it drives the
+    since PR #998 makes the classification load-bearing (it drives the
     ``/orch`` maintainer-vs-adopter path), a false MAINTAINER is the dangerous
     direction and is foreclosed, while a maintainer using an unusual SSH host
     alias degrades to the recoverable false-ADOPTER (``/orch`` proposes
@@ -255,7 +255,7 @@ def probe_identity(siblings: dict) -> dict:
 
     Detection only: the ``/orch`` maintainer-vs-adopter path acts on this and,
     on an un-onboarded adopter clone, proposes the ``/adopt`` run-once onboarding
-    skill (built in the same section-1.19.6 change as this probe's load-bearing
+    skill (built in the same change (PR #998) as this probe's load-bearing
     use).
     """
     url = _origin_url()

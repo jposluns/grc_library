@@ -2,7 +2,7 @@
 """PreToolUse AskUserQuestion hook: block re-asking an already-decided question.
 
 Shipped 2026-07-19 (1.22.6 (closing PR #1041)) after the assistant re-asked the maintainer
-four content forks (section 3.68 vuln-SLA, section 3.69 MFA scope, section 3.70
+four content forks (PR #1097 vuln-SLA, PR #1053 MFA scope, PR #1052
 asymmetric-key minimums, the standards-rendering item) whose decisions were already
 recorded in ``.working/pending-decisions.md``. The failure was skipping the compute-first
 / check-before-asking gate (clarify-before-acting): the answer was a findable fact in the

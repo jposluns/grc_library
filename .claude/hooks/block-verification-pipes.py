@@ -27,7 +27,7 @@ line whose text itself starts with a verification invocation still blocks
 command-position anchor); (2) `set -o pipefail` pipes still block even
 though pipefail unmasks the exit (uniformity is worth more than the edge);
 (3) piping the WRAPPER's own output truncates only display (it prints
-EXIT=<code>), allowed; (4) the 2026-07-04 section-1.9(c) widening added
+EXIT=<code>), allowed; (4) the 2026-07-04 PR #629 widening added
 run-linter-regression.py, build-*.py --check invocations, and the tee/wc
 sinks to the named sets; a runner outside the widened set is still
 uncovered by design (the wrapper and the unpiped habit are the primary
@@ -113,7 +113,7 @@ def self_test() -> int:
         'bash tools/run_all_audits.sh | tail -3',
         'FOO=1 ./tools/pre-push-guard.sh 2>&1 | tail -1',
         './tools/run_all_audits.sh |& tail -3',
-        # the 2026-07-04 1.9(c) widening: new runners and new sinks
+        # the 2026-07-04 PR #629 widening: new runners and new sinks
         'python3 tools/run-linter-regression.py | tail -5',
         'python3 tools/build-taxonomy.py --check | head -2',
         './tools/run_all_audits.sh | wc -l',
