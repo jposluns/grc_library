@@ -12,7 +12,7 @@ line ... not a strikethrough, not a '[done]' suffix, not a
 
 This is the marked-done detector half of the TODO/DONE-rotation
 bookkeeping-parity gate family (maintainer-decided "Option B", the
-project's §4.10). It is the static, content-side check: it flags a TODO
+project's 4.10 (closing PR #469)). It is the static, content-side check: it flags a TODO
 item that self-marks done. Its companion, the CHANGELOG-asserts-closure
 PR-time check, catches the *wholesale-forgotten* rotation (where TODO is
 never edited at all, so there is nothing self-marked to detect here).

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Verify a PR that asserts it closes a TODO item also rotates it to DONE (delta gate D5).
 
-This is the PR-time, CHANGELOG-asserts-closure half of the §4.10 TODO/DONE
+This is the PR-time, CHANGELOG-asserts-closure half of the 4.10 (closing PR #469) TODO/DONE
 rotation bookkeeping-parity gate family. Its static companion is the corpus
 gate "Backlog marked-done audit" (gate 57, `lint-todo-marked-done.py`), which
 flags an item self-marked done IN PLACE. This check covers the case gate 57

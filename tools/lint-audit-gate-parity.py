@@ -348,7 +348,7 @@ def _wf_step_script(wf_lines: list[str], name: str) -> str | None:
 def verify_exclusion_and_delta_guards(
     root: Path, spec_scripts: set[str]
 ) -> list[str]:
-    """Additive TODO-3.99 guards over the exclusion allow-lists and the D1-D12
+    """Additive 3.99 (closing PR #1087) guards over the exclusion allow-lists and the D1-D12
     delta gates. Returns a (possibly empty) list of findings. Never mutates the
     row-parity result; the caller appends these to its findings."""
     findings: list[str] = []
@@ -571,7 +571,7 @@ def main(argv: list[str]) -> int:
                 f"pre-commit({PRECOMMIT_PATH}:{pc_line}) = {pc_script!r}"
             )
 
-    # Additive TODO-3.99 guards: cross-check the exclusion allow-lists against a
+    # Additive 3.99 (closing PR #1087) guards: cross-check the exclusion allow-lists against a
     # positive signal, and check the D1-D12 delta gates' cross-surface parity.
     spec_scripts = {script for (_, _, _, script) in spec}
     findings.extend(verify_exclusion_and_delta_guards(REPO_ROOT, spec_scripts))

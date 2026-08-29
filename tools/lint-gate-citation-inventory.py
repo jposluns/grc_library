@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Gate-name-citation inventory audit (gate 77; backlog item 3.56a guard 2, private list).
+"""Gate-name-citation inventory audit (gate 77; backlog item 3.56a (closing PR #1139) guard 2, private list).
 
 Wiring sections, command stubs, and the CLAUDE.md files cite gates by number
 AND name, for example ``gate 35 (gate-name parity)`` or ``the
@@ -11,7 +11,7 @@ that the audit-programme specification's section 6 inventory records for that
 NUMBER, and flags a citation whose name shares NO significant token with the
 number's current canonical name (the shape a renumber produces).
 
-FP-safety (census-derived, backlog item 3.56a, private list; the census is
+FP-safety (census-derived, backlog item 3.56a (closing PR #1139), private list; the census is
 ``grc_library_scratch:results/research-guard2-gatename-citation-census.md``):
 
   * SCOPE: it scans only the CITATION surfaces (pack ``SKILL.md`` files, the

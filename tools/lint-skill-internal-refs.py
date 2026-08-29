@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Skill-body internal-reference audit (gate 76; backlog item 3.56a guard 1, private list).
+"""Skill-body internal-reference audit (gate 76; backlog item 3.56a (closing PR #1138) guard 1, private list).
 
 Pack skills under ``guardrails/skills/<name>/SKILL.md`` are
 PORTABLE: their body is meant to be project-agnostic so an adopting fork can use
@@ -31,7 +31,7 @@ section) and flags a line carrying one of these project-internal token classes:
     ``ipaddress.is_private`` substring false positive; only the full repo name or
     a ``_private/`` path form counts).
 
-Exemptions (census-derived, backlog item 3.56a, private list; the census is
+Exemptions (census-derived, backlog item 3.56a (closing PR #1138), private list; the census is
 ``grc_library_scratch:results/research-guard1-skillbody-tokens-census.md``):
 
   * The ``adopt`` skill is EXEMPT WHOLESALE: it is inherently the parent
