@@ -4920,7 +4920,7 @@ documents:
   domain: "governance"
   type: "Specification"
   title: "Audit Programme Specification"
-  version: "1.17.124"
+  version: "1.17.125"
   date: "2026-08-29"
   owner: "Governance Library Maintainer"
   approving_authority: "Governance Library Maintainer"
