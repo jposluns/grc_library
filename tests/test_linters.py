@@ -444,7 +444,7 @@ class LinksLinterTests(LinterTestCase):
         self.assertLinterFails(result, "target does not exist")
 
     def test_default_scan_covers_claude_rules(self) -> None:
-        # TODO 3.182: `.claude/rules` is a shipped rule surface (the pack mirror +
+        # PR #1347: `.claude/rules` is a shipped rule surface (the pack mirror +
         # third-party overlays) whose relative Markdown links must resolve, but it
         # is in DEFAULT_EXEMPT_DIRS so gate 3 is the ONLY link-checker that reaches
         # it. Guard that it stays in the default scan roots so a future dead link
@@ -673,7 +673,7 @@ class ShallNearUncertaintyTests(LinterTestCase):
         self.assertLinterFails(result)
 
     def test_shall_near_uncertainty_inside_tilde_fence_ignored(self) -> None:
-        # TODO 3.10 (GR-4 tilde-blindness): a ~~~ fenced code block must be
+        # PR #937 (GR-4 tilde-blindness): a ~~~ fenced code block must be
         # skipped exactly as a backtick fence is. Before the shared
         # lint_common.is_fence_line() consolidation this linter was tilde-blind
         # and scanned the shall-near-uncertainty phrase inside the fence (a
@@ -1742,7 +1742,7 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
 
     """The RM-10 enforcers' own self-tests, wired into the suite.
 
-    Closes TODO 1.9(d) (from the 2026-07-04 worker QA run's validated
+    Added by PR #635 (the 2026-07-04 worker QA run's validated
     GR-GAP-3): the PreToolUse pipe-blocking hook's ``--self-test`` and
     the ``tail-safe.sh`` wrapper's ``--self-test`` were wired into no
     runner, CI, or regression surface, so a broken enforcer failed
@@ -2235,7 +2235,7 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         self.assertIn("OK", result.stdout)
 
     def test_block_branch_to_main_edit_hook_self_test(self) -> None:
-        # The branch-to-main edit guard (TODO §3.62 G1): blocks Edit/Write to a
+        # The branch-to-main edit guard (PR #1134): blocks Edit/Write to a
         # grc_library file while HEAD is on main; allows sibling-repo files and
         # feature branches. Its 7-case --self-test gates the FP-safety envelope.
         result = self._run_selftest(
@@ -2305,7 +2305,7 @@ class PrePushGuardTests(unittest.TestCase):
         import subprocess as sp
 
         # capture_output wires the guard's stdout to a PIPE, which the
-        # RM-10 self-defence (TODO 1.9(b), PR #620) refuses by design; the
+        # RM-10 self-defence (PR #620) refuses by design; the
         # documented override is the sanctioned way to run a deliberate,
         # judged pipe, which is exactly what this harness capture is. The
         # refusal path itself is pinned by test_piped_stdout_refused.
@@ -2388,7 +2388,7 @@ class PrePushGuardTests(unittest.TestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
     def test_piped_stdout_refused(self) -> None:
-        """RM-10 self-defence (TODO 1.9(b)): piped stdout without the
+        """RM-10 self-defence (PR #620): piped stdout without the
         override refuses with exit 3 before any runner runs."""
         tmp, shutil = self._build_guard_dir(first_rc=0, second_rc=0)
         try:
@@ -2656,7 +2656,7 @@ class PairedSkillStepParityTests(LinterTestCase):
     )
 
     # A single-subsection skill for the four gate-44 fail-open route fixtures
-    # (TODO 3.115): a command that represents the numbered step but omits the
+    # (PR #1208): a command that represents the numbered step but omits the
     # named subsection must be flagged, so each fixture can prove that a token
     # surviving in metadata (front matter, a slug cell, a truncated link
     # target, an HTML attribute) does NOT count as representing the subsection.
@@ -3069,7 +3069,7 @@ class PairedSkillStepParityTests(LinterTestCase):
         )
 
     def test_provenance_register_is_a_rules_enumeration_surface(self) -> None:
-        # §3.56a guard 3: the rule-provenance register is wired as a fourth
+        # Guard 3 (PR #1135): the rule-provenance register is wired as a fourth
         # enumeration surface for the pack-governance-rules collection, so a
         # new rule cannot ship without its `### `<rule-name>`` entry. This
         # locks the surface's parse regexes against register-format drift: if
@@ -3386,7 +3386,7 @@ class GateCountConsistencyTests(LinterTestCase):
         self.assertLinterFails(result)
 
     def test_stale_count_in_shell_comment_flagged(self) -> None:
-        # TODO 3.195 / gate-80 vpr gF6: gate 39 treated a ``#``-comment line in a
+        # PR #1287 / gate-80 vpr gF6: gate 39 treated a ``#``-comment line in a
         # .py/.sh file as a markdown heading and skipped it, so a stale count
         # idiom in a shell comment escaped. The fix scopes the heading /
         # version-history skip to .md files, so a ``.sh`` comment is now scanned.
@@ -3401,7 +3401,7 @@ class GateCountConsistencyTests(LinterTestCase):
         self.assertLinterFails(result)
 
     def test_markdown_version_history_still_skipped(self) -> None:
-        # Regression guard for the .md-only scoping (TODO 3.195): a stale count
+        # Regression guard for the .md-only scoping (PR #1287): a stale count
         # inside a ``## Version history`` section of a MARKDOWN file must still be
         # SKIPPED (the frozen-changelog exemption), so the fix did not over-broaden
         # into flagging legitimately-superseded counts in a version-history log.
@@ -3683,7 +3683,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         self.assertNotIn("DIFFERENT Library Versions", result.stdout)
 
     def test_compact_root_header_parses(self) -> None:
-        # The stage-3a compact root header form (TODO 3.16 changelog reformat)
+        # The stage-3a compact root header form (PR #855 changelog reformat)
         # must parse to the same PR set as a long-form mirror header, so a
         # reformatted root and a still-long mirror stay at parity.
         with tempfile.TemporaryDirectory() as tmp:
@@ -4155,7 +4155,7 @@ class InternalReferencesTests(LinterTestCase):
         # A `.local`/`.internal`/etc. stem followed by a file extension is a
         # FILENAME, not an internal hostname: the canonical Claude Code
         # machine-local settings file `.claude/settings.local.json` must not
-        # trip the internal-hostname check (the detect-env.py / TODO 3.18 case).
+        # trip the internal-hostname check (the detect-env.py / PR #724 case).
         fixture = self.make_fixture(
             "standard-local-filename.md",
             VALID_METADATA
@@ -4319,7 +4319,7 @@ class ChangelogLinkCoverageTests(LinterTestCase):
         self.assertLinterFails(result, "unlinked-file-ref")
 
     def test_unlinked_html_reference_flagged(self) -> None:
-        # TODO section 3.77: a bare web-template path (.html/.css/.js) must be
+        # PR #1075: a bare web-template path (.html/.css/.js) must be
         # link-required once FILE_EXTENSIONS is widened.
         fixture = self.make_fixture(
             "fake-changelog-web.md",
@@ -4614,7 +4614,7 @@ class VersionDateConsistencyTests(LinterTestCase):
         self.assertLinterFails(result, "must match")
 
     def test_compact_heading_month_mismatch_flagged(self) -> None:
-        # The stage-3a compact CHANGELOG heading (TODO 3.16 reformat) must be
+        # The stage-3a compact CHANGELOG heading (PR #855 reformat) must be
         # PARSED for the date-vs-version-month check. Non-vacuous by design:
         # the compact heading carries a month mismatch (date 2026-07 vs version
         # 2026.06), so the gate can only flag it if COMPACT_HEADING_RE parses.
@@ -5074,7 +5074,7 @@ class LintCommonHelperTests(unittest.TestCase):
         self.assertEqual(lines, ["a", "b"])
 
     def test_is_fence_line_predicate(self) -> None:
-        # TODO 3.10: the shared fence predicate the corpus linters route their
+        # PR #937: the shared fence predicate the corpus linters route their
         # in-code-block skip loops through. It recognizes both backtick and
         # tilde fences (closing the GR-4 tilde-blindness in the six formerly
         # private copies) and tolerates leading indentation, but does not match
@@ -6704,7 +6704,7 @@ class BookkeepingParityTests(LinterTestCase):
 
     def test_parse_changelog_prs_reads_compact_header(self) -> None:
         # parse_changelog_prs must read the stage-3a compact header form
-        # (TODO 3.16 reformat) as well as the long form.
+        # (PR #855 reformat) as well as the long form.
         mod = self._load_module()
         text = (
             "## 2026-07-01, Library Version 2026.07.9, PR #521\n\nlong.\n"
@@ -6756,7 +6756,7 @@ class BookkeepingParityTests(LinterTestCase):
         self.assertEqual(findings, [], f"subsumption PR must pass; got {findings}")
 
     def test_pending_row_fails_when_a_later_pr_exists(self) -> None:
-        # TODO 3.120: PR #11's validate-pr row is PRESENT but marks the QA
+        # PR #1210: PR #11's validate-pr row is PRESENT but marks the QA
         # DISPATCHED / RESULT-PENDING and never RETURNED. With a later PR (#12) it is a
         # STRANDED order and must flag, where row-presence alone used to read green (the
         # hole that let validate-pr-1173/1180 sit unconsumed across sessions).
@@ -6818,7 +6818,7 @@ class BookkeepingParityTests(LinterTestCase):
         self.assertEqual(findings, [], f"allowlisted handoff must pass; got {findings}")
 
     def test_dynamic_floor_swept_row_out_of_scope_genuine_miss_still_flags(self) -> None:
-        # Section 1.19.9 dynamic floor: the oldest surviving validate-pr row is
+        # PR #1034 dynamic floor: the oldest surviving validate-pr row is
         # #11, so the per-register floor is max(inception=10, 11) = 11. PR #10
         # is below the floor (its row was swept to grc_library_private) -> out
         # of scope, NOT flagged. PR #12 is above the floor with no row -> a
@@ -6834,7 +6834,7 @@ class BookkeepingParityTests(LinterTestCase):
                          f"swept row below floor must be out of scope; got {findings}")
 
     def test_dynamic_retro_floor_swept_retro_out_of_scope(self) -> None:
-        # Section 1.19.9 per-register floor: the oldest surviving retro row is
+        # PR #1034 per-register floor: the oldest surviving retro row is
         # #12 (retro floor 12) and the oldest surviving validate-pr row is #11
         # (vp floor 11). PR #10 is below the vp floor (swept) and PR #11 has a
         # validate-pr row but its retro row was swept (#11 < retro floor 12);
@@ -8160,7 +8160,7 @@ class CobitIso31000CitationsTests(LinterTestCase):
         )
 
     def test_display_path_guards_external(self) -> None:
-        # deep-assessment r5 Low-3 / TODO 3.98: the findings-print helper must not raise
+        # deep-assessment r5 Low-3 / PR #1010: the findings-print helper must not raise
         # ValueError on a path outside REPO_ROOT (a hand-invocation on an external file).
         import importlib.util
         tools_dir = str(REPO_ROOT / "tools")
@@ -8726,7 +8726,7 @@ class TodoRotationOnPrTests(unittest.TestCase):
             "the build-only half of TODO 3.21 closed at source this PR.",
             "TODO 3.15 #637 F3 closed with the eighth-form ship.",
             "todo 2.13 is closed and the register bumped.",
-            # Form 9 (2026-08-01, TODO 3.188): the verb-first "clos... [the] TODO
+            # Form 9 (2026-08-01, PR #1312): the verb-first "clos... [the] TODO
             # N.M" word order, caught by NONE of forms 1-8 (form 1 wants a §,
             # forms 7/8 want the TODO token to precede the closure verb). These
             # are the exact "Closes TODO N.M" phrasings that passed D5 vacuously.
@@ -8858,7 +8858,7 @@ class DoctypeParityTests(LinterTestCase):
             mod.canonical_sets = real
 
     def test_doctype_region_extraction(self) -> None:
-        # Region-scoping (TODO 3.23): a heading anchor extracts the block up to
+        # Region-scoping (PR #729): a heading anchor extracts the block up to
         # the next same-or-shallower heading; a phrase anchor extracts the
         # containing line; an absent anchor returns None (a hard failure signal).
         mod = self._load()
@@ -8883,7 +8883,7 @@ class DoctypeParityTests(LinterTestCase):
         self.assertIsNone(mod.doctype_region(text, ("heading", "## No such heading")))
 
     def test_region_scoping_closes_out_of_region_false_pass(self) -> None:
-        # The TODO 3.23 hardening's core regression: a canonical type appearing as
+        # The PR #729 hardening's core regression: a canonical type appearing as
         # a cell in an UNRELATED table outside the doctype region must NOT count as
         # present. The old whole-file scan false-passed this; the region-scoped
         # check does not.
@@ -9016,7 +9016,7 @@ class PositionalBacklogTokenLinterTests(LinterTestCase):
         )
 
     def test_positional_todo_item_dotted_flagged(self) -> None:
-        # The "TODO item N.M" qualifier form (widened 2026-07-15, TODO 3.50): an
+        # The "TODO item N.M" qualifier form (widened 2026-07-15, PR #933): an
         # optional `item(s)` qualifier between TODO and a dotted token is still a
         # positional reference and must be flagged.
         fixture = self.make_fixture(
@@ -9063,7 +9063,7 @@ class PositionalBacklogTokenLinterTests(LinterTestCase):
 
 
 class GeneratorSortKeyParityTests(unittest.TestCase):
-    """TODO 3.76: the two generators that order documents must stay in sync.
+    """PR #949: the two generators that order documents must stay in sync.
 
     ``tools/build-taxonomy.py`` orders ``taxonomy.yml`` and ``.web/build.py`` orders the
     website domain pages; the type-reading-progression rank ``TYPE_ORDER`` is replicated
@@ -10427,7 +10427,7 @@ class SiblingPlaceholderTests(LinterTestCase):
     capped at 25 lines, no payload); a slot present but NOT a declared stub (a
     functional directory) is out of scope. Guards against reference,
     worker-exchange, or private-operational payload leaking into an
-    adopter-created stub (TODO section 1.22.2).
+    adopter-created stub (PR #1047).
     """
 
     GOOD_STUB = "<!-- SIBLING-PLACEHOLDER: ref -->\n# `.ref` placeholder\n\nStub.\n"
@@ -10514,7 +10514,7 @@ class SiblingPlaceholderTests(LinterTestCase):
 class ResolveSiblingTests(unittest.TestCase):
     """lint_common.resolve_sibling / sibling_placeholder_present, and the
     advisory tools' graceful degradation when a sibling repo is absent on a
-    portable clone (TODO section 1.19.2). resolve_sibling reads the module
+    portable clone (PR #996). resolve_sibling reads the module
     global lint_common.REPO_ROOT at call time, so the tests drive the logic
     by monkeypatching that global to a temp tree with / without siblings.
     """
@@ -10924,7 +10924,7 @@ class WorkingResolveNoOpTests(unittest.TestCase):
 
 
 class DetectEnvIdentityTests(unittest.TestCase):
-    """tools/detect-env.py origin-identity probe (TODO section 1.19.5):
+    """tools/detect-env.py origin-identity probe (PR #997):
     `_origin_is_maintainer` URL matching and `probe_identity` classification.
     probe_identity reads the module-global `_origin_url` at call time, so the
     classification tests monkeypatch that global (no real git needed).
@@ -10963,7 +10963,7 @@ class DetectEnvIdentityTests(unittest.TestCase):
             "https://github.com/someone/grc_library-fork.git",  # different repo
             "git@github.com:acme/grc_library.git",
             "https://github.com/jposluns/other-repo.git",       # same owner, other repo
-            # Host-pin + exact-2-segment hardening (TODO 1.19.6): these matched the
+            # Host-pin + exact-2-segment hardening (PR #998): these matched the
             # earlier endswith() form but are now correctly rejected.
             "https://evil.com/jposluns/grc_library.git",        # non-GitHub host
             "git@evil.com:jposluns/grc_library.git",            # non-GitHub SSH host/alias
@@ -10999,7 +10999,7 @@ class DetectEnvIdentityTests(unittest.TestCase):
         out = mod.probe_identity({"grc_library_ref": {"readable": False}})
         self.assertEqual(out["classification"], "adopter")
 
-    # _ref-required loud gate (TODO section 1.19.7): a missing grc_library_ref is a
+    # _ref-required loud gate (PR #1007): a missing grc_library_ref is a
     # LOUD failure for the maintainer, never a silent graceful degradation.
     def test_ref_gate_maintainer_absent_halts_loud(self) -> None:
         mod = self._load("_detect_env_refgate_m")
@@ -11035,7 +11035,7 @@ class DetectEnvIdentityTests(unittest.TestCase):
         self.assertIn("HALT (LOUD)", msg)
         self.assertIn("undetermined", msg)
 
-    # adopt-config validity flag (TODO 3.92a): _adopt_config_status parses
+    # adopt-config validity flag (backlog item 3.92a, private list): _adopt_config_status parses
     # .claude/adopt-config.json and returns (present, valid); probe_identity emits
     # both as adopt_config_present / adopt_config_valid. Tests monkeypatch the
     # module-global ADOPT_CONFIG to a temp file, save/restore for isolation.
@@ -11091,7 +11091,7 @@ class DetectEnvIdentityTests(unittest.TestCase):
 
 
 class ReferenceManifestGeneratorTests(unittest.TestCase):
-    """tools/build-reference-manifest.py (TODO 1.19.7): the render() output shape and
+    """tools/build-reference-manifest.py (PR #1007): the render() output shape and
     the sibling-free graceful degradation (adopter portability)."""
 
     def _load(self, unique: str):
@@ -11173,7 +11173,7 @@ class ReferenceManifestGeneratorTests(unittest.TestCase):
 
 
 class AdoptBootstrapRefTests(unittest.TestCase):
-    """tools/adopt-bootstrap-ref.py (TODO 1.19.7 part c): the manifest table parse +
+    """tools/adopt-bootstrap-ref.py (PR #1007 part c): the manifest table parse +
     the three-way acquisition categorization the /adopt skill drives. Read-only,
     stdlib-only, adopter-portable (reads the committed manifest, no siblings)."""
 
@@ -11312,7 +11312,7 @@ class StdlibOnlyImportsTests(unittest.TestCase):
 
 
 class RepoGuardTests(unittest.TestCase):
-    """tools/repo-guard.sh (TODO 1.15a): a cross-repo write-safety wrapper that refuses a
+    """tools/repo-guard.sh (PR #1013): a cross-repo write-safety wrapper that refuses a
     repo-mutating command when the cwd's git-toplevel basename does not match the asserted
     --repo, so a persisted `cd` into the wrong sibling repo cannot silently target the
     wrong repo. On a match it execs the command (its exit code passes through)."""
@@ -11366,7 +11366,7 @@ class RepoGuardTests(unittest.TestCase):
 
 
 class CitationCurrencyCadenceTests(unittest.TestCase):
-    """tools/lint-citation-currency-cadence.py (gate 72, TODO 1.14 Layer A): reads the
+    """tools/lint-citation-currency-cadence.py (gate 72, PR #1015): reads the
     canonical-citations register's `Last verified (UTC)` per row and WARNS (advisory,
     always exit 0) when a source is past its per-trust-tier re-check window. Egress-free
     date arithmetic. The tests monkeypatch CANONICAL_REGISTER (a temp register) and
@@ -11460,7 +11460,7 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
 
 
 class AdoptPreflightGuardTests(unittest.TestCase):
-    """tools/adopt-preflight-guard.py (TODO 3.92b): a fail-safe pre-flight that lets
+    """tools/adopt-preflight-guard.py (backlog item 3.92b, private list): a fail-safe pre-flight that lets
     /adopt proceed ONLY on an `adopter` classification (from detect-env, the single
     source of truth). Any other outcome (maintainer / fresh-machine / undetermined /
     probe failure) REFUSES (exit 3) so /adopt's destructive reset does not run. The
@@ -11515,7 +11515,7 @@ class AdoptPreflightGuardTests(unittest.TestCase):
     def test_live_repo_guard_consistent_with_classification(self) -> None:
         # Smoke test the real classify() shell-out + parse. The guard's exit must be
         # CONSISTENT with the live detect-env classification, which makes this test
-        # PORTABLE across clone types (TODO 1.20): rc 0 iff classify() == "adopter",
+        # PORTABLE across clone types (PR #1023): rc 0 iff classify() == "adopter",
         # else rc 3. A maintainer / fresh-machine / CI clone classifies non-adopter,
         # so the guard REFUSES (rc 3); a genuine adopter clone classifies "adopter",
         # so the guard PROCEEDS (rc 0); a failed / missing probe yields None, which is
@@ -11531,7 +11531,7 @@ class AdoptPreflightGuardTests(unittest.TestCase):
 
 
 class CobitTitleTextTests(LinterTestCase):
-    """tools/lint-cobit-title-text.py (gate 73, TODO 1.16)
+    """tools/lint-cobit-title-text.py (gate 73, PR #1074)
 
     COBIT 2019 objective title-text canonicity: where a corpus document
     pairs an objective code with a title, the title must be the canonical
@@ -11573,7 +11573,7 @@ class CobitTitleTextTests(LinterTestCase):
 
 
 class PreflightChangelogMirrorTests(unittest.TestCase):
-    """tools/preflight-changelog.py full-mirror link-resolution scan (TODO 3.34
+    """tools/preflight-changelog.py full-mirror link-resolution scan (PR #1084
     remaining half): a dangling in-repo relative markdown link ANYWHERE in the
     whole detailed mirror is flagged (not only on added lines), reusing the
     added-line resolver. Uses the function's explicit ``root`` parameter so the
@@ -11640,7 +11640,7 @@ class PreflightChangelogMirrorTests(unittest.TestCase):
 
 
 class AuditGateParityExclusionGuardTests(unittest.TestCase):
-    """tools/lint-audit-gate-parity.py (gate 35) additive TODO-3.99 guards over
+    """tools/lint-audit-gate-parity.py (gate 35) additive PR #1087 guards over
     the exclusion allow-lists and the D1-D12 delta gates. The guards read the real
     repo surfaces via an explicit ``root`` and take ``spec_scripts`` as a
     parameter, so the tests run against the live config without monkeypatching a
@@ -14113,7 +14113,7 @@ class TagGateTests(LinterTestCase):
 
 
 class NormalizedPositionalArgsTests(LinterTestCase):
-    """TODO 3.137a: the fast-ready gate tools were normalized to accept a uniform
+    """PR #1245: the fast-ready gate tools were normalized to accept a uniform
     positional multi-file ``.md`` list (the ``tools/quick-guard.sh`` contract).
     This regression-guards the normalization: each must accept two positional
     .md paths without an argparse rejection and process them cleanly."""

@@ -18,7 +18,7 @@ into one of four buckets:
                           ``intended-minimal`` (a ref/scratch pointer, the two
                           siblings the public repo legitimately references) or
                           ``review-over-exposure`` (a ``_private`` pointer from a
-                          public-tree file, which the section-1.19 privatization
+                          public-tree file, which the PR #1030 privatization
                           wants minimized). When the named sibling is PRESENT, the
                           pointed-to path (if any) is additionally checked for
                           existence in the sibling; when it is ABSENT the existence
@@ -34,7 +34,7 @@ worker-run or run on demand, like ``/validate-pr``, not wired into the per-PR li
 CI. It reuses the existing machinery rather than reinventing it: the gate-3
 link-extraction and path-resolution shapes from ``lint-links.py``, and
 ``lint_common``'s repository root, fenced-code-aware line
-iterator, UTF-8-safe reader, and the section-1.19.2 sibling resolver
+iterator, UTF-8-safe reader, and the PR #996 sibling resolver
 (``resolve_sibling`` / ``sibling_placeholder_present``).
 
 Portable-clone degradation (1.19.2 (closing PR #996) / the gate-70 pattern): the
@@ -184,7 +184,7 @@ def classify_cross_repo(
     intended-minimal, since those trees are maintainer/AI operational state, not
     public corpus). When the named sibling RESOLVES (is present), a pointed-to
     sub-path is existence-checked in the sibling; when it does NOT resolve, that
-    check NO-OPS and the detail records ``sibling-absent`` (the section-1.19.2
+    check NO-OPS and the detail records ``sibling-absent`` (the PR #996
     portable-clone degradation, distinguishing an expected placeholder None).
     """
     full = match.group(1)
