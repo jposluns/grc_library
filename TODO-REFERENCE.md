@@ -217,10 +217,6 @@ TODO items carry internal working-provenance that an adopter reading the backlog
 
 `deep-assessment/SKILL.md` and `reference-audit/SKILL.md` require all three private siblings / the full suite to exit 0 before any semantic phase, with no absent/skip/not-applicable branch, so an adopter stalls at an unsatisfiable phase-1 precondition. Add an adopter degrade path.
 
-### 3.181 The adopter on-ramp never mentions `/adopt`, siblings, or `.working` (2026-07-28 deep-assessment c6, both families, M, S)
-
-No public adopter doc (`docs/adopter-guide.md`, `docs/template-quickstart.md`, `CONTRIBUTING.md`) mentions `/adopt`, `adopt-config`, the siblings, or `.working`, so an adopter can complete the entire documented on-ramp and then work on top of the maintainer's queue/handoff/QA registers. Surface `/adopt` in the on-ramp.
-
 ### 3.183 Adopter-facing polish (changelog audience, fork-hook source edit, alarming clean-run output, closed-set framing) (2026-07-28 deep-assessment c6, claude, L, S)
 
 The changelog top entries are maintainer jargon with no adopter banner; the adopter guide tells the adopter to edit `tools/lint_common.py` `DEFAULT_EXEMPT_DIRS` (a source edit that conflicts on every upstream pull); a clean adopter clone prints `ERROR: could not locate the grc_library_ref index` twice; and "five paths"/"seven areas" are framed as complete against 12 `docs/` files / 11 domain dirs. Low-severity adopter-experience cleanups.
