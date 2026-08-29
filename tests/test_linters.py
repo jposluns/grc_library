@@ -13799,6 +13799,140 @@ class TodoNumberPermanenceTests(LinterTestCase):
             import shutil
             shutil.rmtree(root, ignore_errors=True)
 
+    def _perm_module(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "perm_pid", REPO_ROOT / "tools" / "lint-todo-number-permanence.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    def test_pid_retired_recycle_flagged(self) -> None:
+        # P-1.55 positive control: the RB-R6 -> P-3.247 incident replay. A LIVE
+        # private-list P-id whose number DONE.md retired must be flagged; before
+        # the P_RETIRED_RE pass this was a silent false-negative.
+        root, result = self._run(
+            "perm-pid-recycle",
+            "# TODO\n\n## Priority 3\n\n### 3.9 A public item\n\nBody.\n",
+            "# DONE\n\n### PR #1487: P-3.247 Canada CPPA legal-currency, record the "
+            "C-36/PPCDA successor (2026-08-12)\n\nBody.\n",
+            ptodo="# P-TODO\n\n### P-3.247 A new item wearing a retired private "
+            "number\n\nBody.\n",
+        )
+        try:
+            self.assertLinterFails(result, "P-3.247")
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    def test_pid_compound_suffix_no_parent_leak(self) -> None:
+        # Negative control: 'P-1.51b-ii' (a sub-slice label) must NOT extract the
+        # parent 'P-1.51', so a live P-1.51 coexisting with a P-1.51b-ii DONE
+        # heading is clean (the historic coexistence state).
+        root, result = self._run(
+            "perm-pid-compound",
+            "# TODO\n\n## Priority 3\n\n### 3.9 A public item\n\nBody.\n",
+            "# DONE\n\n### PR #1789: P-1.51b-ii sensitive slice (2026-08-29)\n\nBody.\n",
+            ptodo="# P-TODO\n\n### P-1.51 A live umbrella\n\nBody.\n",
+        )
+        try:
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    def test_pid_destination_cue_not_retired(self) -> None:
+        # A P-id preceded by a destination cue ('absorbed into P-1.55') names a
+        # LIVE id pointed at, not a retirement, so a live P-1.55 is not flagged.
+        root, result = self._run(
+            "perm-pid-dest",
+            "# TODO\n\n## Priority 3\n\n### 3.9 A public item\n\nBody.\n",
+            "# DONE\n\n### PR #1900: P-1.51 absorbed into P-1.55 (2026-08-29)\n\nBody.\n",
+            ptodo="# P-TODO\n\n### P-1.55 A live destination item\n\nBody.\n",
+        )
+        try:
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    def test_pid_exempt_partial_close(self) -> None:
+        # EXEMPT positive control: a live P-1.25 umbrella with a 'P-1.25 Phase N'
+        # partial-close DONE heading passes via the family EXEMPT row.
+        root, result = self._run(
+            "perm-pid-exempt",
+            "# TODO\n\n## Priority 3\n\n### 3.9 A public item\n\nBody.\n",
+            "# DONE\n\n### PR #1423: P-1.25 Phase 1 - narrative disclaimer-presence "
+            "gate (gate 89) (2026-08-06)\n\nBody.\n",
+            ptodo="# P-TODO\n\n### P-1.25 Executive narrative umbrella (live)\n\nBody.\n",
+        )
+        try:
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    def test_pid_token_boundaries(self) -> None:
+        # Direct parse_retired boundary controls: undotted 'P-384' (NIST curve)
+        # and paren-protected '(P-39.1)' are NOT retired ids; a letter-suffix id
+        # ('P-3.202b') does NOT leak its parent 'P-3.202'; an id-first heading
+        # with a trailing (date, PR) paren is caught.
+        m = self._perm_module()
+        r = lambda h: list(m.parse_retired(h).keys())
+        self.assertNotIn("P-384", r(
+            "### TODO §3.70: tighten to the P-384 / RSA-4096 floor (PR #1052)"))
+        self.assertIn("3.70", r(
+            "### TODO §3.70: tighten to the P-384 / RSA-4096 floor (PR #1052)"))
+        self.assertNotIn("P-39.1", r(
+            "### TODO §3.100: re-ingested Quebec Law 25 (P-39.1) source (2026-07-18)"))
+        self.assertEqual(["P-3.202b"], r(
+            "### PR #1362: P-3.202b PR-checklist renumbering (2026-08-03)"))
+        self.assertIn("P-3.245", r(
+            "### P-3.245: gate-50 PR-number extraction hardened (2026-08-25, PR #1716)"))
+        # Mutation-sensitive compound rejection (codex #1798 MED): 'P-1.51b-ii'
+        # must yield NOTHING; removing the P_RETIRED_RE trailing '(?![-\w])'
+        # lookahead truncates it to 'P-1.51b', so this assertion then FAILS.
+        self.assertEqual([], r("### PR #1789: P-1.51b-ii sensitive slice (2026-08-29)"))
+        self.assertEqual([], r("### PR #1456: ... + P-1.33-35 created (2026-08-08)"))
+
+    def test_pid_retirement_cue_in_parenthetical(self) -> None:
+        # codex #1798 HIGH: an explicit 'closes P-x.y' retirement INSIDE a
+        # parenthetical is caught (the whole-heading P-pass strips parens for
+        # FP-safety, so RETIRE_CUE_PID_RE scans the raw head), while a live
+        # 'advances P-x.y' destination in the same paren is NOT retired.
+        m = self._perm_module()
+        r = lambda h: list(m.parse_retired(h).keys())
+        got = r("### PR #1506: ISO/IEC 42001 clause-attribution accuracy "
+                "(2026-08-13; closes P-3.216, advances P-3.210)")
+        self.assertIn("P-3.216", got)       # in-paren retirement caught
+        self.assertNotIn("P-3.210", got)    # in-paren live destination untouched
+        # 'superseded by P-x' points at a live id -> not a retirement cue
+        self.assertEqual([], r("### PR #9: work superseded by P-1.55 (2026-08-29)"))
+
+    def test_pid_bare_in_paren_not_caught_accepted_limitation(self) -> None:
+        # ACCEPTED LIMITATION (codex #1798 re-verify): a BARE in-paren id with no
+        # retirement verb is NOT detected, because the paren-strip is FP-critical
+        # (catching bare in-paren ids would also flag the LIVE 'advances P-3.210'
+        # in the same fixture). This pins the deliberate tradeoff: '(P-1.25.26)'
+        # (a completed sub-item of the live P-1.25 umbrella) is not caught. The
+        # durable fix is routed to the guardrail seed (part 2). If a future change
+        # makes this caught, re-confirm it does NOT also catch a live in-paren id.
+        m = self._perm_module()
+        r = lambda h: list(m.parse_retired(h).keys())
+        self.assertEqual([], r(
+            "### PR #1618: website build wave 0 S1 (P-1.25.26) - web-gen check "
+            "in pre-push guard (2026-08-17)"))
+        # but the SAME paren with an explicit retirement verb IS caught:
+        self.assertIn("P-3.216", r(
+            "### PR #1506: accuracy (2026-08-13; closes P-3.216, advances P-3.210)"))
+
+    def test_pid_grammar_parity_with_todo_id_re(self) -> None:
+        # P_RETIRED_RE's token grammar must agree with lint_common.TODO_ID_RE's
+        # P-branch, so a live id and a retired id compare as equal strings.
+        m = self._perm_module()
+        import lint_common
+        for tok in ["P-1.1", "P-3.247", "P-1.25.12", "P-1.40a", "P-3.202b"]:
+            self.assertTrue(lint_common.TODO_ID_RE.fullmatch(tok), tok)
+            self.assertTrue(m.P_RETIRED_RE.fullmatch(tok), tok)
+        for tok in ["P-384", "P-1.51b-ii", "P-1.33-35"]:
+            self.assertIsNone(m.P_RETIRED_RE.fullmatch(tok), tok)
+
     def test_ptodo_index_format_parsed_as_live(self) -> None:
         # 2026-08 migration: P-TODO.md moves to index-row form; its ids must
         # still be unioned into the live set (parse_live_index leg of the union).
