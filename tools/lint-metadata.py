@@ -25,14 +25,14 @@ Additional checks:
   Guide, Register, Matrix, Specification, Template, Annex, Checklist,
   Worklist).
 - Version follows semantic versioning (`x.y.z`).
-- Date follows ISO 8601 (`YYYY-MM-DD`).
+- Date has the lexical `YYYY-MM-DD` shape (full calendar validity is gate 14).
 - Owner and Approving Authority are role-based (no obvious person names).
 - License is `CC BY-SA 4.0`.
 - Repository Path matches the file's actual path (after stripping the
   `[`display`](target)` markdown link wrapper).
 - Filename prefix matches Document Type (e.g. `policy-foo.md` -> Policy);
   see TYPE_TO_PREFIX for the full mapping.
-- Backslash-newline hard-line-break markers terminate every metadata
+- Backslash-newline hard-line-break markers terminate each non-last metadata
   line per CommonMark §6.7 (so the metadata block renders as separate
   lines, not as one wrapped paragraph). See check_line_break_markers.
 

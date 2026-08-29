@@ -2,7 +2,7 @@
 """Thin wrapper that runs the linter regression test suite.
 
 The audit programme's linter regression test suite gate invokes this
-script (the final gate in the inventory; its number is maintained in
+script (a gate in the inventory; its number is maintained in
 ``governance/specification-audit-programme.md`` §6 and is not repeated
 here, because gate numbers shift when a gate is inserted). It exists so
 that all four audit-programme surfaces (spec inventory, workflow,
