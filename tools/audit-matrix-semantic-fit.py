@@ -106,7 +106,7 @@ KNOWN_TITLES.update(AICM_V11)
 KNOWN_TITLES.update(CSF_CATEGORIES)
 # COBIT 2019 objective titles and ISO 31000:2018 clause headings (the
 # 2026-07-02 extension; gate-blind fit judgment for the two families gates
-# 48/49/54/58 do not cover, per the section-3.13 build). Practice-level COBIT
+# 48/49/54/58 do not cover, per the PR #587 build). Practice-level COBIT
 # titles are deliberately absent from the reference module (extraction wraps
 # them), so practice codes are existence-checked by the companion gate and
 # fit-assessed here only at the objective level.

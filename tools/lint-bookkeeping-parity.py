@@ -84,7 +84,7 @@ and is NOT flagged; the markers are the uppercase ``SHIPPED in #N`` /
 ``[done]`` / ``[shipped]`` / ``[x]`` checkbox/suffix marker, or a
 strikethrough ``~~...~~`` on a list item.
 
-**Check 3, worker-provenance (ACTIVE since the section-3.6 codification).**
+**Check 3, worker-provenance (ACTIVE since the PR #612 codification).**
 Both activation conditions now hold: the external-collaborator worker
 primitive exists (a Model-B worker session delivers research to the scratch
 repository's ``inbox/<worker-id>/`` with a ``MANIFEST.md``, per the scratch
@@ -817,7 +817,7 @@ def worker_provenance_findings(detailed_text: str) -> list[str]:
     line does not count; an empty remainder is a finding). It enforces presence and well-formedness,
     never the apply-time verification's semantic soundness; an unmarked
     worker application is free prose, guarded by the CLAUDE.md close-out
-    checklist. Formerly a dormant stub; activated by the section-3.6
+    checklist. Formerly a dormant stub; activated by the PR #612
     codification once the external-collaborator primitive (the scratch
     WORKER-ONBOARDING flow) and this marking convention both existed. See
     the "Bookkeeping-parity gate, pinned design" entry in
