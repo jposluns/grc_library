@@ -43,7 +43,7 @@ KNOWN RESIDUALS (accepted; fail-open nudge, not a shell parser): a QUOTED cwd-re
   catches the common cd-then-tool shape only (codex QA, P-1.19).
 
 A false block just tells the orchestrator to use an absolute path or ``git -C``, the intended
-discipline. Complements ``tools/repo-guard.sh`` (the write-mutation cross-repo guard, §1.15a)
+discipline. Complements ``tools/repo-guard.sh`` (the write-mutation cross-repo guard, 1.15a (closing PR #1013))
 on the READ side.
 
 Exit protocol (Claude Code hooks): exit 0 allows the tool call; exit 2 blocks it and feeds

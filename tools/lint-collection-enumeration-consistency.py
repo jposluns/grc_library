@@ -5,7 +5,7 @@ The corpus carries several "collections" of items that are enumerated
 in multiple places: the pack's fifteen governance rules are listed in the
 pack README directory-tree section, in the pack's own CLAUDE.md
 Development-governance discipline section, in the project's
-CLAUDE.md Security-and-governance-requirements section, and (§3.56a
+CLAUDE.md Security-and-governance-requirements section, and (3.56a (closing PR #1135)
 guard 3) in the pack's rule-provenance register under its
 "## Governance rules" section; the pack's
 skills are listed in the pack README; and the external overlay
@@ -122,7 +122,7 @@ COLLECTIONS: tuple[Collection, ...] = (
                 section_end_regex=r"^The `guardrails/` pack|^---|^## ",
                 item_regex=r"^- `\.claude/rules/governance/([\w-]+)\.md`",
             ),
-            # Provenance register (§3.56a guard 3): every governance rule must
+            # Provenance register (3.56a (closing PR #1135) guard 3): every governance rule must
             # have a `### `<rule-name>`` entry under the register's
             # "## Governance rules" section, so a new rule cannot ship without
             # its provenance entry. The register's per-rule headings run from
