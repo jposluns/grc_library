@@ -25,13 +25,13 @@ WHY A SCAFFOLD, NOT A FULL GENERATOR. A week can hold dozens of PRs; a faithful
 a mechanical join, so this tool cannot write the final prose. It produces the
 tiered STRUCTURE and, for each collapsed week/month, a placeholder paragraph
 carrying the PR range and the constituent per-PR summaries as raw material, which
-the orchestrator/maintainer condenses at the one-time tiering migration (TODO
-section 1.19.10 slice 2). This is the "maintainer-side generated projection" the
+the orchestrator/maintainer condenses at the one-time tiering migration (closing
+PR #1037, slice 2). This is the "maintainer-side generated projection" the
 model names: the tool scaffolds, a human authors the summary.
 
 NOT A CI --check GATE. Unlike the taxonomy/portal generators, this projection is
 NOT verified by CI: its source (the full per-PR record) moves to
-``grc_library_private`` under section 1.19.10, and no public gate may reach a
+``grc_library_private`` in PR #1037, and no public gate may reach a
 private sibling (the sibling-independence invariant, ``check-portability.sh``).
 It is a maintainer-side generator run when the tiering is refreshed.
 
@@ -49,8 +49,8 @@ Modes (mutually exclusive; default --dry-run):
                   used; PATH must be given). This produces a SCAFFOLD whose
                   weekly/monthly paragraphs are placeholders to be authored; it
                   is the slice-2 migration input, not a finished artefact.
-    --condense-completed-week   the RECURRING weekly-rollup wiring (TODO section
-                  1.19.10a). At a week boundary it condenses the public root's
+    --condense-completed-week   the RECURRING weekly-rollup wiring (closing PR
+                  #1120). At a week boundary it condenses the public root's
                   COMPLETED-week per-PR entries (those in ISO weeks strictly
                   before --as-of's week; the current week stays per-PR) into one
                   weekly placeholder each and appends them to the private
@@ -63,8 +63,8 @@ Modes (mutually exclusive; default --dry-run):
                   the orchestrator (this tool scaffolds, a human condenses), so
                   the first restructuring run is an ATTENDED close-out step. This
                   is an AVAILABLE close-out step, NOT auto-run and NOT a CI gate.
-                  This recurring mode is week-based by section 1.19.10a's design;
-                  the finer daily tier (section 1.22.5) applies only to the
+                  This recurring mode is week-based by the design closed in PR #1120;
+                  the finer daily tier (PR #1048) applies only to the
                   one-time --emit projection scaffold, not this recurring path.
     --self-test   run the inline unit tests and exit.
 
@@ -545,7 +545,7 @@ def main(argv: list[str]) -> int:
     mode.add_argument("--dry-run", action="store_true", default=True)
     mode.add_argument("--emit", metavar="PATH")
     mode.add_argument("--condense-completed-week", action="store_true",
-                      help="recurring weekly-rollup mode (1.19.10a (closing PR #1176)): condense "
+                      help="recurring weekly-rollup mode (1.19.10a (closing PR #1120)): condense "
                            "the public root's completed-week per-PR entries to "
                            "weekly placeholders and append them to the private "
                            "full-source; available close-out step, NOT auto-run.")

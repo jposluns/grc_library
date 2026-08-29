@@ -22,8 +22,8 @@ Scope notes:
   inline (``.git``, ``node_modules``, ``__pycache__``, ``.claude``,
   ``.working``), the top-level ``references`` operational-prose dir (added
   in #1249), plus the three in-repo sibling-repo placeholder
-  directories (``.ref``, ``.scratch``, ``.private``; TODO section
-  1.19.3, whose stub-only invariant the sibling-repo stub-guard gate
+  directories (``.ref``, ``.scratch``, ``.private``; closing PR
+  #994, whose stub-only invariant the sibling-repo stub-guard gate
   enforces). Linters that need further exempt directories beyond this
   shared default pass them via the ``exempt_dirs`` argument.
 - ``resolve_sibling`` / ``sibling_placeholder_present`` locate a real
@@ -158,8 +158,8 @@ def classify(rel: str) -> str:
 
 
 # Sibling-repo short name -> the real sibling checkout's directory name.
-# The three siblings of the public ``grc_library`` repo. See TODO section
-# 1.19 (operational-state privatization + adopter-clone portability).
+# The three siblings of the public ``grc_library`` repo. See PR #996
+# (operational-state privatization + adopter-clone portability).
 _SIBLING_REPO_DIRS: dict[str, str] = {
     "ref": "grc_library_ref",
     "scratch": "grc_library_scratch",
