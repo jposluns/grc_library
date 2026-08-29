@@ -3,8 +3,9 @@
 
 The TODO/DONE rotation discipline (the change-tracking rule's
 PR-finalization protocol) requires that when a PR closes a backlog item,
-the item is DELETED from ``TODO.md`` (index row) and ``TODO-REFERENCE.md`` (detail block) and an entry is added to
-``.working/DONE.md`` in the same diff, not annotated done-in-place.
+the item's index row is DELETED from ``TODO.md`` in this diff, and the per-item
+detail block plus the DONE ledger rotate in the private sibling (cross-repo,
+outside the public diff), not annotated done-in-place.
 ``TODO.md`` is forward-looking; a self-marked-done item is rotation
 debris that the rule explicitly forbids ("Removal means deletion of the
 line ... not a strikethrough, not a '[done]' suffix, not a
@@ -39,7 +40,7 @@ Inline backtick spans are stripped and fenced code blocks are skipped
 before matching, so a backticked mention of these markers (as in this
 file's own design note in ``TODO.md``) does not register.
 
-Scope: ``TODO.md`` and ``TODO-REFERENCE.md`` (the item detail moved there). ``.working/DONE.md`` is the done ledger and
+Scope: ``TODO.md`` (the public index; the per-item detail moved to the private sibling in the 2026-08 migration and is governed there). ``.working/DONE.md`` is the done ledger and
 legitimately carries done items, so it is never scanned.
 
 Usage:
@@ -79,7 +80,7 @@ STATUS_DONE = re.compile(r"\bStatus:\s*(?:completed|done)\b", re.IGNORECASE)
 # ``~~`` and ``[done]``) does not register.
 INLINE_CODE_SPAN = SIMPLE_CODE_SPAN_RE
 
-DEFAULT_PATHS = ["TODO.md", "TODO-REFERENCE.md"]
+DEFAULT_PATHS = ["TODO.md"]  # the public index; the per-item DETAIL moved to the private sibling (2026-08 migration), governed there
 
 
 def iter_markdown_files(paths: list[str]) -> list[Path]:

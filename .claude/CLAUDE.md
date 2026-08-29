@@ -334,7 +334,7 @@ detail and rationale for everything below live in
    the live control, do not drop it.
 
    **Backstopped (gate/hook named; detail in `references/pr-lifecycle.md`):**
-   - THIS PR's own `/validate-pr` + `/retro` rows present (gate 50 Check 1); every closed TODO item deleted from TODO (index row + `TODO-REFERENCE.md` detail block) + added to DONE, same PR (convention; D5 + gate 78 cover only parts, see step 10 of `## PR workflow`).
+   - THIS PR's own `/validate-pr` + `/retro` rows present (gate 50 Check 1); every closed TODO item deleted from TODO (the public index row; the detail block + DONE entry rotate in the private sibling, cross-repo) same PR (convention; D5 + gate 78 cover only parts, see step 10 of `## PR workflow`).
    - New pack prose (SKILL/rule/command/pack-README/CLAUDE.md prose) run through `lint-language.py` AND `lint-unbalanced-fences.py` on EXPLICIT paths before the first commit (both default to corpus paths, so `.claude/`/pack prose needs explicit paths; both also run in CI).
    - `preflight-changelog.py` before the first commit (`&& git commit`): an AID mirroring the D3 dash check + link-coverage; the D1 changelog-presence check is the separate `check-changelog-on-pr.py`.
    - Pack-README `Version` bumped on a body change: D2 + gate 40 (the `## Version history` section and its D6 gate were retired 2026-08-03, maintainer-directed).

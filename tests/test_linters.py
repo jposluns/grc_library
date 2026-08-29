@@ -1692,17 +1692,18 @@ class TodoRotationOnPrDeltaTests(DeltaGateRepoTestCase):
             result = self._run_gate(self.SCRIPT, tmp, base_sha)
             self.assertEqual(
                 result.returncode, 0,
-                f"D5 should PASS when both public backlog files rotate; got "
+                f"D5 should PASS when the TODO.md index row rotates; got "
                 f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
             )
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 
-    def test_incomplete_two_file_rotation_flagged(self) -> None:
-        # TODO-rework 2026-08 (codex /validate-pr F2): a closure that deletes the index row
-        # from TODO.md but leaves the detail block in TODO-REFERENCE.md is an INCOMPLETE
-        # two-file rotation and must FAIL. (Before the fix, a TODO.md-only touch passed,
-        # leaving a stale detail block.)
+    def test_index_only_rotation_passes(self) -> None:
+        # 2026-08 migration: the per-item DETAIL (TODO-REFERENCE.md) moved to the private
+        # sibling, so a public closure rotates ONLY the TODO.md index row; the detail block
+        # and the DONE ledger rotate cross-repo, outside the public diff. A closure that
+        # touches TODO.md (index row) therefore PASSES D5, even with no public detail edit.
+        # (Superseded the earlier two-file-rotation requirement.)
         tmp, base_sha, shutil = self._build_repo(
             self.BASE,
             {
@@ -1713,9 +1714,9 @@ class TodoRotationOnPrDeltaTests(DeltaGateRepoTestCase):
         try:
             result = self._run_gate(self.SCRIPT, tmp, base_sha)
             self.assertEqual(
-                result.returncode, 1,
-                f"D5 should FAIL on a closure that touches TODO.md but not "
-                f"TODO-REFERENCE.md (incomplete two-file rotation); got "
+                result.returncode, 0,
+                f"D5 should PASS on a closure that rotates the TODO.md index row (the detail "
+                f"block rotates in the private sibling); got "
                 f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
             )
         finally:

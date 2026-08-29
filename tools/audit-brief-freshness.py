@@ -22,7 +22,7 @@ freshness check", the settled slice-1 design). This tool produces that report:
      re-verify before any worker picks it up.
   3. DEAD TODO ANCHORS: every ``research/COVERAGE.md`` row's section anchor
      (``§N.M``, or an ``SR-N`` id for the scratch-reference rows) is checked
-     against a live ``### N.M `` / ``### SR-N `` heading in ``TODO-REFERENCE.md``
+     against a live ``N.M`` / ``SR-N`` anchor (a TODO.md index row, or a ``### `` heading in the private detail)
      (the item-detail file; ``TODO.md`` is the index of rows); a dead
      anchor means a TODO renumber or close landed without the paired coverage
      sync (the close-out pairing line in
@@ -57,7 +57,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from lint_common import REPO_ROOT, resolve_sibling, sibling_placeholder_present
+from lint_common import REPO_ROOT, resolve_sibling, sibling_placeholder_present, resolve_todo_reference
 
 
 STAMP_RE = re.compile(
@@ -126,13 +126,23 @@ def brief_target_paths(text):
 
 
 def todo_anchors():
-    """Live ``### N.M`` and ``### SR-N`` heading anchors (in TODO-REFERENCE.md,
-    the per-item detail file; TODO.md is now the index of rows)."""
-    ref = REPO_ROOT / "TODO-REFERENCE.md"
-    todo = ref.read_text(errors="replace") if ref.is_file() else ""
-    todo += "\n" + (REPO_ROOT / "TODO.md").read_text(errors="replace")
-    sections = set(re.findall(r'^### (\d+(?:\.\d+)+)\s', todo, re.M))  # full depth: matches ### 2.25.1
-    srs = set(re.findall(r'^### (SR-\d+)\s', todo, re.M))
+    """Live ``N.M`` and ``SR-N`` anchors from TWO sources: the public TODO.md
+    INDEX ROWS (``| N.M |``, always present) and the per-item detail ``### N.M``
+    headings, which moved to the private sibling in the 2026-08 migration (read
+    private-first, graceful-absent). Reading the index rows keeps the anchor set
+    complete when the private detail is absent (an adopter clone)."""
+    # Anchors come from TWO sources: the public TODO.md INDEX ROWS (`| N.M |`,
+    # always present) AND the per-item detail (`### N.M` headings), which moved to
+    # the private sibling in the 2026-08 migration (read private-first, graceful).
+    # Reading the index rows means the anchors are complete even when the private
+    # detail is absent (an adopter clone), fixing the all-anchors-dead failure.
+    todo_index = (REPO_ROOT / "TODO.md").read_text(errors="replace")
+    ref = resolve_todo_reference()
+    detail = ref.read_text(errors="replace") if ref is not None else ""
+    sections = set(re.findall(r'^### (\d+(?:\.\d+)+)\s', detail, re.M))  # detail headings
+    sections |= set(re.findall(r'^\|\s*(\d+(?:\.\d+)+)\s*\|', todo_index, re.M))  # index rows
+    srs = set(re.findall(r'^### (SR-\d+)\s', detail, re.M))
+    srs |= set(re.findall(r'^\|\s*(SR-\d+)\s*\|', todo_index, re.M))
     return sections, srs
 
 
@@ -182,11 +192,11 @@ def run_report(scratch):
         if sec and sec.group(1) not in sections:
             dead_anchor += 1
             findings.append(f"[coverage] row anchor §{sec.group(1)} has no "
-                            f"live TODO heading: {first_cell.strip()}")
+                            f"live TODO anchor: {first_cell.strip()}")
         elif sr and f"SR-{sr.group(1)}" not in srs:
             dead_anchor += 1
             findings.append(f"[coverage] row anchor SR-{sr.group(1)} has no "
-                            f"live TODO heading: {first_cell.strip()}")
+                            f"live TODO anchor: {first_cell.strip()}")
     print(f"coverage anchors: {len(rows)} row(s) checked; "
           f"{dead_anchor} dead anchor(s)")
 

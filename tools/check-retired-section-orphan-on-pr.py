@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """Delta gate D9: retired-section-orphan check (roadmap C phase 2, #1250).
 
-When a PR CLOSES a numbered TODO section (deletes its `### N.M` heading),
-positional references to that section (`§N.M`, `PN.M`, `TODO §N.M`,
-`TODO section N.M`) can survive on the OPERATIONAL / gate-exempt surfaces (the item detail blocks now live in TODO-REFERENCE.md) that
+When a PR CLOSES a numbered TODO item (deletes its `| N.M |` INDEX ROW from
+TODO.md), positional references to that section (`§N.M`, `PN.M`, `TODO §N.M`,
+`TODO section N.M`) can survive on the OPERATIONAL / gate-exempt surfaces (the per-item detail moved to the private sibling in the 2026-08 migration; the public TODO.md index rows are the live-id source now) that
 no other gate scans, silently dangling. This gate flags those survivors.
 
 Why it is false-positive-safe (the design constraint: a gate that cries wolf gets
 bypassed and protects nothing):
-- DELETION-TRIGGERED. It derives the retired ids from headings this PR REMOVES
-  from TODO-REFERENCE.md (the item-detail file; TODO.md is the index of rows), so
+- DELETION-TRIGGERED. It derives the retired ids from INDEX ROWS this PR REMOVES
+  from TODO.md (the public index; the per-item detail moved private), so
   "old" is unambiguous and there is no coexisting "new" value to
   disambiguate against (unlike a value-change, which is irreducibly semantic).
 - ANCHORED KEY FORMS ONLY. It matches `§N.M` / `PN.M` / `TODO §N.M` /
@@ -25,7 +25,7 @@ bypassed and protects nothing):
   which dissolves the corpus-vs-backlog ambiguity.
 
 Four FP guards:
-1. RENUMBER/REWORD: an id is retired only if it is NOT a `### <id>` heading in TODO-REFERENCE.md (where the item detail blocks now live) at
+1. RENUMBER/REWORD: an id is retired only if it is NOT a `| <id> |` index row in TODO.md at
    HEAD (an in-place reword/split/reorder keeps the id, so references stay valid).
 2. HISTORICAL NARRATION: each hit is classified (shared lint_common.classify);
    only LIVE hits are violations. NOTE (dual-family verify, #1250): for D9's
@@ -64,31 +64,38 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from lint_common import REPO_ROOT, classify  # noqa: E402
 
 
-# A numbered TODO heading: `### N.M`, optionally `### §N.M`. Two+ decimal parts.
-HEADING_RE = re.compile(r"^#{3,6}\s+(?:§\s*)?(\d+(?:\.\d+){1,3})\b")
+# Post-2026-08 migration the per-item DETAIL (TODO-REFERENCE.md) is PRIVATE, so
+# an id's live/retired status is read from the PUBLIC TODO.md INDEX rows instead
+# (`| <bare N.M id> | ... |`); the ids are parity-guaranteed with the detail
+# (gate 90). D9 governs the public surfaces, so the public index is the right
+# source and is git-readable in public CI (unlike the private detail).
+INDEX_ROW_RE = re.compile(r"^\|\s*(\d+(?:\.\d+){1,3})\s*\|")
 
 
 def ids_in_headings(todo_text: str) -> set[str]:
-    """Every numbered id that is currently a heading in TODO-REFERENCE.md. PURE."""
+    """Every bare-`N.M` id that is currently an INDEX ROW in TODO.md. PURE.
+
+    (Formerly a `### N.M` heading in TODO-REFERENCE.md; the detail moved private in
+    the 2026-08 migration, so the public index rows are the live-id source now.)"""
     out: set[str] = set()
     for line in todo_text.splitlines():
-        m = HEADING_RE.match(line)
+        m = INDEX_ROW_RE.match(line)
         if m:
             out.add(m.group(1))
     return out
 
 
 def retired_ids(todo_diff: str, head_todo_text: str) -> set[str]:
-    """Ids whose heading this PR DELETED and which are NOT a heading at HEAD.
+    """Ids whose INDEX ROW this PR DELETED and which are NOT an index row at HEAD.
 
-    PURE. `todo_diff` is `git diff <base> <head> -- TODO-REFERENCE.md`. A removed heading
-    line begins with `-` (but not `---`). FP guard #1 (renumber) is the
-    subtraction of the still-present headings.
+    PURE. `todo_diff` is `git diff <base> <head> -- TODO.md`. A removed index row
+    begins with `-` (but not `---`). FP guard #1 (renumber) is the subtraction of
+    the still-present index rows.
     """
     deleted: set[str] = set()
     for line in todo_diff.splitlines():
         if line.startswith("-") and not line.startswith("---"):
-            m = HEADING_RE.match(line[1:])
+            m = INDEX_ROW_RE.match(line[1:])
             if m:
                 deleted.add(m.group(1))
     return deleted - ids_in_headings(head_todo_text)
@@ -229,17 +236,17 @@ def run(base: str | None, head: str) -> int:
         base = f"origin/{target}"
     try:
         merge_base = git("merge-base", base, head).strip()
-        ref_diff = git("diff", merge_base, head, "--", "TODO-REFERENCE.md")
+        ref_diff = git("diff", merge_base, head, "--", "TODO.md")
         try:
-            head_ref = git("show", f"{head}:TODO-REFERENCE.md")
+            head_ref = git("show", f"{head}:TODO.md")
         except subprocess.CalledProcessError:
             head_ref = ""
     except subprocess.CalledProcessError as exc:
         print(f"ERROR: git failed (base={base}, head={head}): {exc}", file=sys.stderr)
         return 2
     base = merge_base
-    # NOTE: retired ids + TODO-REFERENCE.md come from the `head` git object, but the orphan
-    # scan reads the WORKING TREE (operational_files reads files from disk). In
+    # NOTE: retired ids come from the `head` git object (removed TODO.md INDEX rows), but the
+    # orphan scan reads the WORKING TREE (operational_files reads files from disk). In
     # the pre-push guard and CI, HEAD IS the checked-out working tree, so the two
     # agree; D9 assumes head == working tree and is not meant for an arbitrary
     # non-checked-out head ref.
@@ -274,17 +281,17 @@ def _self_test() -> int:
     class D9Tests(unittest.TestCase):
         # --- retired-id derivation (FP guard #1: renumber) ---
         def test_retired_id_derivation(self):
-            diff = "-### 3.9 old thing\n+### 3.10 new thing\n"
-            self.assertEqual(retired_ids(diff, "### 3.10 new thing\n"), {"3.9"})
+            diff = "-| 3.9 | old thing | `[public]` |\n+| 3.10 | new thing | `[public]` |\n"
+            self.assertEqual(retired_ids(diff, "| 3.10 | new thing | `[public]` |\n"), {"3.9"})
 
         def test_renumber_in_place_not_retired(self):
-            diff = "-### 3.9 reworded\n+### 3.9 reworded better\n"
-            self.assertEqual(retired_ids(diff, "### 3.9 reworded better\n"), set())
+            diff = "-| 3.9 | reworded | `[public]` |\n+| 3.9 | reworded better | `[public]` |\n"
+            self.assertEqual(retired_ids(diff, "| 3.9 | reworded better | `[public]` |\n"), set())
 
-        def test_heading_needs_three_hashes(self):
-            # a level-2 `## 3.9` is not a TODO item heading
-            self.assertEqual(ids_in_headings("## 3.9 not an item\n"), set())
-            self.assertEqual(ids_in_headings("### 3.9 an item\n"), {"3.9"})
+        def test_index_row_is_the_live_source(self):
+            # 2026-08: live ids come from TODO.md INDEX ROWS, not ### headings
+            self.assertEqual(ids_in_headings("| 3.9 | an item | `[public]` |\n"), {"3.9"})
+            self.assertEqual(ids_in_headings("### 3.9 a detail heading, not an index row\n"), set())
 
         # --- anchored-pattern precision (FP guards) ---
         def test_live_orphan_flagged(self):

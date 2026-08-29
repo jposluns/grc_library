@@ -33,3 +33,6 @@ claude-output.log
 
 # Machine-local self-guard hook state (block-history JSONL; never committed).
 .claude/hooks/.state/
+
+# Session/orchestration artefact (carries account config); never commit.
+.orch
