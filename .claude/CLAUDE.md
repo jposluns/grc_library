@@ -204,7 +204,7 @@ file they read). Elsewhere this file names those concerns by
 plain name ("the design-decisions record", "the credit-offload metrics ledger", "the
 orchestration runbook") and defers to the INDEX for the file.
 
-**Identity behaviour (the layered fail-loud assurance, §1.19.8 / §1.19.11).**
+**Identity behaviour (the layered fail-loud assurance, 1.19.8 / 1.19.11 (closing PR #1029)).**
 - **Maintainer orchestrator** (`detect-env` identity `maintainer` / `maintainer-fresh-machine`):
   `_private` is a REQUIRED dependency, like `grc_library_ref`. If present, read its INDEX and use
   it. If ABSENT, do NOT proceed with operational work and do NOT reconstruct its content from
@@ -404,7 +404,7 @@ The reference base's `publications/` bucket is untrusted by default (bias, factu
 
 ## Reference-version currency and missing references
 
-`grc_library_ref` (`_ref`) is a REQUIRED maintainer-orchestrator dependency; its absence fails LOUD (§1.19.7 `_ref`-required gate): reference-checking against the held ground truth is critical to content correctness, so for the maintainer a missing `grc_library_ref` is a broken setup to FIX, never a state to silently work around. The halt is enforced mechanically regardless of loaded prose, by `detect-env`'s `ref_availability` decision and `/orch` step 3 acting on it (on `maintainer` identity with `_ref` unreadable it HALTs and surfaces the `--add-dir` fix); the sibling-reaching tools' graceful `resolve_sibling` no-op is ADOPTER-ONLY. `grc_library_ref` is believed-current STORAGE, not a version authority; upstream is the authority.
+`grc_library_ref` (`_ref`) is a REQUIRED maintainer-orchestrator dependency; its absence fails LOUD (1.19.7 (closing PR #1007) `_ref`-required gate): reference-checking against the held ground truth is critical to content correctness, so for the maintainer a missing `grc_library_ref` is a broken setup to FIX, never a state to silently work around. The halt is enforced mechanically regardless of loaded prose, by `detect-env`'s `ref_availability` decision and `/orch` step 3 acting on it (on `maintainer` identity with `_ref` unreadable it HALTs and surfaces the `--add-dir` fix); the sibling-reaching tools' graceful `resolve_sibling` no-op is ADOPTER-ONLY. `grc_library_ref` is believed-current STORAGE, not a version authority; upstream is the authority.
 
 **Whenever an externally-versioned reference (a standard, framework, or dataset) is load-bearing for a task:** consult what `grc_library_ref` holds via its index (EXECUTE `python3 tools/ref-holds.py <query>` and quote its output, never a guess or a partial grep), validate the current version upstream THIS turn, and act only after BOTH. **Never write or rely on a superseded version unless the maintainer explicitly authorizes** it; and a load-bearing reference `grc_library_ref` does not hold at all is ACQUIRED (attempt the ingest) or the work PAUSES, never silently worked around. A register row, citation, or mapping carries the upstream-confirmed current version, or the item waits.
 
@@ -871,7 +871,7 @@ the last commit before push (bump library CalVer and the README Version field)?
 ## Behavioral rule: clarify before acting
 Surface ambiguity, or an unpinned external value (date, timezone, library version, README version, target branch, whether a change warrants a CHANGELOG entry, whether to bump per-document versions), in one sentence and ask; don't silently pick. Authoritative form: the pack rule [`clarify-before-acting`](rules/governance/clarify-before-acting.md) (including the compute-first gate) and Rule 9 in `~/.claude/CLAUDE.md` (the user-level memory form). `AskUserQuestion` is the structured primitive here.
 
-**Search decisions before asking (the answered-question guardrail, §1.22.6).** The
+**Search decisions before asking (the answered-question guardrail, 1.22.6 (closing PR #1041)).** The
 compute-first gate applies with force to authorial/policy decisions: before surfacing ANY
 `AskUserQuestion` on a backlog fork or a maintainer-decision, run
 `python3 tools/decisions-search.py <section-or-id-or-phrase>` and READ its output; if a
@@ -929,7 +929,7 @@ When the maintainer instructs work over a SET ("ask the open questions", "work t
 
 ## Chat-answer pacing (readable answers, no stall)
 
-The maintainer reads chat in a narrow window and has repeatedly missed answers that scrolled past before they engaged, so a maintainer-facing ANSWER (a decision surfaced, a key status, a question) is paced to be readable AND paced so it never stalls the run (maintainer-directed 2026-07-24, the §1.22.8 disposition; chat-mechanics, project-only, not pack material):
+The maintainer reads chat in a narrow window and has repeatedly missed answers that scrolled past before they engaged, so a maintainer-facing ANSWER (a decision surfaced, a key status, a question) is paced to be readable AND paced so it never stalls the run (maintainer-directed 2026-07-24, the 1.22.8 (closing PR #1133) disposition; chat-mechanics, project-only, not pack material):
 
 - After a key maintainer-facing answer or an `AskUserQuestion`, PAUSE for the maintainer's acknowledgement and hold the point on screen (the `AskUserQuestion` UI, or an `IMPORTANT:`-marked chunk within the ~30-line limit).
 - Arm the standard graceful-degradation timer (about 5 minutes). If the maintainer answers, act on it. If the timer fires with NO response, do NOT stall: continue on the next independent work AND log the unanswered question to `grc_library_private/.working/pending-decisions.md` to re-surface the moment the maintainer is back (detected because they have typed something).
