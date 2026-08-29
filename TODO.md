@@ -104,7 +104,6 @@ Adopter experience and future work: capability and guidance for organizations ad
 | ID | Item | Tags |
 | --- | --- | --- |
 | 3.180 | Adopter-facing skills hard-require the private siblings with no degrade branch (2026-07-28 deep-assessment c6, claude, M, S) | `[public]` |
-| 3.181 | The adopter on-ramp never mentions `/adopt`, siblings, or `.working` (2026-07-28 deep-assessment c6, both families, M, S) | `[public]` |
 | 3.183 | Adopter-facing polish (changelog audience, fork-hook source edit, alarming clean-run output, closed-set framing) (2026-07-28 deep-assessment c6, claude, L, S) | `[public]` |
 | 4.1 | Corpus-management discipline as a shareable skill (M, XL) | `[public]` |
 | 4.5 | Adopter reference-base specification: build-your-own-ref guide, source lists, and the corpus-to-sources relevance map (L, L) | `[public]` |
