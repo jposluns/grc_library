@@ -317,12 +317,3 @@ Author a dev-security standard for Java EE / Jakarta EE application security, no
 
 ---
 
-### 7.2 Per-regulation context (FR-104)
-
-Per-regulation context not pursued (dropped-decision audit-trail record; see `grc_library_private/design-decisions.md`).
-
-### 7.3 Portal reorder (FR-130)
-
-Portal reorder not pursued (README stays at decision-tree item 1; dropped-decision audit-trail record).
-
----
