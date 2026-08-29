@@ -4980,6 +4980,19 @@ class LintCommonHelperTests(unittest.TestCase):
         self.assertEqual(len(cells), 2, "a backslash-before-delimiter cell must not merge")
         self.assertEqual(cells[-1], "PR.IP", "the framework code must land in its own cell")
 
+    def test_has_todo_index_header(self):
+        """F1793-10/11: index-form is signalled by a | ID | Item | Tags | header row
+        that STARTS with a pipe (terminal pipe NOT required, so a malformed header
+        cannot silently misclassify an index file as legacy), skipping fenced lines
+        and prose mentions."""
+        lc = self._lint_common()
+        h = lc.has_todo_index_header
+        self.assertTrue(h("| ID | Item | Tags |\n| --- | --- | --- |\n"), "proper header")
+        self.assertTrue(h("| ID | Item | Tags\n| P-1.1 | x | |\n"), "header missing terminal pipe")
+        self.assertFalse(h("### P-1.1 legacy\n| 2.7 | a | b |\n"), "legacy body id-table is not a header")
+        self.assertFalse(h("```\n| ID | Item | Tags |\n```\n"), "fenced example is skipped")
+        self.assertFalse(h("The row is `| ID | Item | Tags |`.\n"), "prose mention is not a header")
+
     def _lint_common(self):
         import importlib.util
 
@@ -14334,6 +14347,27 @@ class TodoIndexReferenceParityTests(LinterTestCase):
         (priv / "TODO-REFERENCE.md").write_text(self.REF, encoding="utf-8")
         (priv / "P-TODO.md").write_text(
             "# P-TODO\n## G\n| ID | Item | Tags |\n| --- | --- | --- |\n", encoding="utf-8")  # header, no rows, no ref
+        r = run_linter("tools/lint-todo-index-reference-parity.py",
+                       "--root", str(root), "--private-root", str(priv))
+        try:
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn("half-converted", r.stdout + r.stderr)
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
+
+    def test_malformed_header_index_ptodo_not_silently_skipped(self):
+        """F1793-10: an index-form P-TODO whose header is missing its terminal pipe
+        must NOT be misclassified as legacy and silently skipped (a silent-green
+        escape hiding its items); it is recognized as index form -> half-converted."""
+        root = FIXTURE_DIR / "bij-malformedhdr"
+        priv = FIXTURE_DIR / "bij-malformedhdr-priv"
+        root.mkdir(parents=True, exist_ok=True); priv.mkdir(parents=True, exist_ok=True)
+        (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
+        (priv / "TODO-REFERENCE.md").write_text(self.REF, encoding="utf-8")
+        (priv / "P-TODO.md").write_text(
+            "# P-TODO\n## G\n| ID | Item | Tags\n| --- | --- | --- |\n"
+            "| P-1.1 | hidden untagged | |\n", encoding="utf-8")  # header missing terminal pipe, no ref
         r = run_linter("tools/lint-todo-index-reference-parity.py",
                        "--root", str(root), "--private-root", str(priv))
         try:
