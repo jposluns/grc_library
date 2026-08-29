@@ -107,6 +107,42 @@ available concurrent worker capacity, PROACTIVELY tell the maintainer and reques
 serializing work through too few. Under-requesting wastes the orchestrator's own scarce time on
 serialization the maintainer would gladly parallelize.
 
+## Standard pipeline: seeds -> plan -> worker draft -> tri-family QA -> orchestrator finalize (2026-08-28)
+
+The fleet operating mode for substantive build work (Architect-directed 2026-08-28; the model guardrails converged
+with the Architect, adopted across lab_infra, worker-harness, and grc). It layers a DRAFT stage on the
+research-assistant discipline so the orchestrator stays off the synthesis AND authoring critical path, doing only
+the finalize + integrate:
+
+1. **SEEDS.** Tri-family (claude/codex/gemini) INDEPENDENT seed passes over the problem, each an `orch-verify` worker.
+2. **PLAN (the expensive synthesis step).** Fable (`claude-fable-5`, `--expensive`) synthesizes the seeds into ONE
+   implementation plan, PLAN ONLY. FALLBACK CHAIN (maintainer-directed 2026-08-28): if Fable is exhausted or
+   unreachable (e.g. a 7-day overage), the plan step falls to CODEX (`gpt-5.6-sol`) at XHIGH effort, NOT orchestrator
+   self-synthesis; the orchestrator self-synthesizes only if Codex is also unavailable. This keeps the orchestrator
+   off the synthesis critical path even when Fable is down.
+3. **WORKER DRAFT (split out of the plan so drafting is cheap + parallelizable).** A worker drafts the candidate
+   package FROM the plan. DEFAULT DRAFTER = CODEX (`gpt-5.6-sol`, spare premium capacity, strong coder): HIGH effort
+   for substantive/delicate/correctness-critical, medium for mechanical. Use CLAUDE to draft the MOST
+   correctness-critical items (so Codex stays an independent verifier on them; Codex has been the sharpest verifier,
+   catching fail-closed and unsound-analyzer defects the others cleared). GEMINI is QA-ONLY (always paid usage; never
+   draft on it). The draft is INPUT, never finished output.
+4. **TRI-FAMILY QA.** claude/codex/gemini adversarial `/validate-pr` panel (the permanent triple-family standard),
+   each an `orch-verify` worker, reconciled. Keep Codex in the panel.
+5. **ORCHESTRATOR FINALIZES.** Verify EVERY claim at source (per the research-assistant discipline; a worker draft is
+   a hypothesis, never pasted unmodified), apply house conventions, integrate SERIALLY, and hold SOLE authority over
+   records, manifest, and merge.
+
+**Fable-exhausted fallback is standing for ANY `--expensive` role (maintainer-directed 2026-08-28).** Wherever a
+worker would go to Fable (the `--expensive` theorycraft, high-assurance, or plan-synthesis role, e.g. a guardrail-seed
+part-3 theorycraft or the pipeline PLAN step, NOT the DRAFT step which is Codex-default per step 3), if Fable is exhausted, dispatch the SAME work to Codex
+`gpt-5.6-sol` at XHIGH effort (`orch-verify codex <prompt-file> [workdir] --effort xhigh`) instead.
+
+**Optional parallelism ("shape B").** Author independent streams in isolated git WORKTREES off the integration base;
+regenerate whole-tree artefacts (a repo manifest, generated files) ONLY at the serial integration step, NEVER in the
+parallel worktrees; one integrator serializes the merges. Workers stay READ-ONLY (inert output); the write / commit /
+merge stays the orchestrator's, because giving a worker write access needs OS-isolation and erodes single-writer
+integrity. This takes the orchestrator off the authoring critical path too; it only finalizes + integrates.
+
 The design of record is `grc_library_private/credit-offload-design.md`; the orchestrator-side
 operating discipline is `grc_library_private/orchestrator-claude.md` (`## Credit-offload mode`,
 group A1).
