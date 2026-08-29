@@ -31,10 +31,11 @@ The gate is a regular corpus audit gate (runs on every audit cycle,
 not just at PR time). This catches drift at audit-time before any
 push, so the maintainer can refresh TODO before merging the next PR.
 
-Scope: the queued-PR check scans TODO.md AND TODO-REFERENCE.md (TARGET_FILES); the
+Scope: the queued-PR check scans the public TODO.md index (required) and, for the
+maintainer, the private TODO-REFERENCE.md detail (resolve_todo_reference, graceful-absent). The
 sweep-cursor check scans SWEEP_CURSOR_FILE (`.working/session-handoff.md`).
 Other files adopting the queued-PR convention should be added to
-TARGET_FILES.
+these two sources, TODO.md required and the private detail optional.
 
 Exit codes:
     0 - All checked patterns are current.
@@ -49,12 +50,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-from lint_common import REPO_ROOT, resolve_working
+from lint_common import REPO_ROOT, resolve_working, resolve_todo_reference
 
-TARGET_FILES: list[str] = [
-    "TODO.md",
-    "TODO-REFERENCE.md",
-]
 SWEEP_HISTORY_PATH = ".working/validate-sweeps/history.md"
 # The sweep cursor lives in the session-handoff file (the canonical resume
 # point), not in TODO.md: TODO.md is purely forward-looking work items.
@@ -197,18 +194,25 @@ def main() -> int:
     latest = latest_sweep_iteration(resolve_working("validate-sweeps/history.md"))
 
     all_findings: dict[str, list[str]] = {}
-    # Queued-PR check scans the forward-looking TODO file(s).
-    for rel in TARGET_FILES:
-        path = REPO_ROOT / rel
-        if not path.exists():
-            print(
-                f"ERROR: target file {rel} does not exist.",
-                file=sys.stderr,
-            )
-            return 2
-        findings = check_queued_pr(path, merged)
-        if findings:
-            all_findings[rel] = findings
+    scanned = 0
+    # Queued-PR check: the public index TODO.md is required; the DETAIL file
+    # (TODO-REFERENCE.md) moved to the private sibling (2026-08 migration), so it
+    # is read private-first and no-ops in public CI / an adopter clone (the
+    # index-only roadmap), the same graceful-degradation the sweep-cursor uses.
+    todo_path = REPO_ROOT / "TODO.md"
+    if not todo_path.exists():
+        print("ERROR: target file TODO.md does not exist.", file=sys.stderr)
+        return 2
+    scanned += 1
+    findings = check_queued_pr(todo_path, merged)
+    if findings:
+        all_findings["TODO.md"] = findings
+    ref_path = resolve_todo_reference()
+    if ref_path is not None:
+        scanned += 1
+        rfindings = check_queued_pr(ref_path, merged)
+        if rfindings:
+            all_findings["TODO-REFERENCE.md"] = rfindings
     # Sweep-cursor check scans the session-handoff file (the resume cursor's home).
     cursor_path = resolve_working("session-handoff.md")
     if cursor_path is None:
@@ -230,7 +234,7 @@ def main() -> int:
         )
 
     if not all_findings:
-        n = len(TARGET_FILES)
+        n = scanned
         print(
             f"OK: TODO staleness audit clean across {n} target file(s)."
         )

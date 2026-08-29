@@ -11,12 +11,13 @@ catch. That is the #466 failure mode (it built gate 56 "closing TODO §4.5 S4"
 but omitted the rotation; the omission surfaced only in the post-merge sweep).
 
 The rule (change-tracking PR-finalization protocol): when a PR closes a TODO
-item, the item's index row is deleted from `TODO.md` AND its detail block from `TODO-REFERENCE.md`, and an entry is added to the DONE ledger in
-the SAME diff. As of PR #1235 (2026-07-29, the working-state move to the private
-sibling), the DONE ledger moved to the private-sibling working-state store (cross-repo,
-outside the public diff), so this gate enforces the public two-file rotation (BOTH `TODO.md` and `TODO-REFERENCE.md` present on a closure)
+item, the item's index row is deleted from `TODO.md` in THIS diff, and the per-item
+detail block and the DONE ledger rotate in the private sibling (cross-repo, outside
+the public diff). As of PR #1235 (2026-07-29, the working-state move to the private
+sibling), the DONE ledger moved to the private-sibling working-state store, so this
+gate enforces only the public index rotation (`TODO.md` present on a closure)
 surface: if any line ADDED to the root CHANGELOG asserts a TODO-item closure, the PR's
-changed-file set must include BOTH `TODO.md` (index row) and `TODO-REFERENCE.md` (detail block).
+changed-file set must include `TODO.md` (index row); the detail block rotates in the private sibling, outside the public diff.
 
 Trigger (broadened 2026-06-30 to three forms, 2026-07-02 to six,
 2026-07-03 to seven, 2026-07-06 to eight, and 2026-08-01 to nine, each chosen to stay
@@ -91,11 +92,11 @@ Usage:
     python3 tools/check-todo-rotation-on-pr.py origin/main HEAD
 
 Exit codes:
-    0 : no closure assertion in the added CHANGELOG lines, OR both TODO.md and
-        TODO-REFERENCE.md are in the diff, OR an opt-out trailer is present, OR
+    0 : no closure assertion in the added CHANGELOG lines, OR TODO.md is in the
+        diff (the public index rotated), OR an opt-out trailer is present, OR
         empty diff.
-    1 : a closure is asserted but TODO.md and/or TODO-REFERENCE.md is missing from
-        the diff (an incomplete two-file rotation).
+    1 : a closure is asserted but TODO.md is missing from the diff (the public
+        index row was not rotated).
     2 : invocation or environment error (cannot determine base/head, git failure).
 """
 
@@ -109,15 +110,15 @@ import sys
 
 CHANGELOG_PATHS = ("CHANGELOG.md",)
 TODO_PATH = "TODO.md"
-# TODO-rework 2026-08: a closed item is deleted from BOTH the index (TODO.md row)
-# AND the detail file (TODO-REFERENCE.md block). Requiring both on a closure catches
-# an incomplete two-file rotation (delete the row, leave the block, or vice versa).
-REFERENCE_PATH = "TODO-REFERENCE.md"
+# 2026-08 migration: the per-item detail file (TODO-REFERENCE.md) moved to the private
+# sibling, so a PUBLIC closure only rotates the TODO.md INDEX row; the detail block and the
+# DONE ledger rotate privately (cross-repo, invisible to the public diff). Retained for the
+# docstring/reference; the check now requires only TODO.md.
 
 # The DONE ledger (.working/DONE.md) moved to the private-sibling working-state store in
 # the .working/ -> _private migration, so it is a cross-repo surface invisible to a public
-# PR diff. This gate therefore requires the PUBLIC rotation surfaces: the TODO.md index-row
-# edit AND the TODO-REFERENCE.md detail-block edit.
+# PR diff. This gate therefore requires the PUBLIC rotation surface: the TODO.md index-row
+# edit (the per-item detail block rotates in the private sibling, cross-repo, outside this diff).
 # (The closure-assertion scan reads only the root CHANGELOG.md; the detailed mirror is
 # likewise private now.)
 
@@ -288,7 +289,7 @@ def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
         description=(
             "Check that a PR asserting a TODO-item closure also rotates the "
-            "item (touches TODO.md and TODO-REFERENCE.md)."
+            "item (touches the TODO.md index row; the detail rotates privately)."
         ),
     )
     parser.add_argument("base", nargs="?", help="Base ref (default: origin/$GITHUB_BASE_REF in CI).")
@@ -334,13 +335,15 @@ def main(argv: list[str]) -> int:
         print("OK: no TODO-item closure asserted in the added CHANGELOG lines.")
         return 0
 
-    missing_rotation = [p for p in (TODO_PATH, REFERENCE_PATH) if p not in changed]
+    # 2026-08 migration: the per-item DETAIL (TODO-REFERENCE.md) is PRIVATE now,
+    # so a public closure touches only the TODO.md INDEX row; the detail block and
+    # the DONE ledger rotate in the private sibling (cross-repo, not in this diff).
+    missing_rotation = [p for p in (TODO_PATH,) if p not in changed]
     if not missing_rotation:
         print(
-            f"OK: CHANGELOG asserts a TODO-item closure and BOTH {TODO_PATH} and "
-            f"{REFERENCE_PATH} are in the diff (the index row and the detail block rotate "
-            f"together); the DONE ledger now lives in the private sibling (cross-repo, not "
-            f"in the public diff)."
+            f"OK: CHANGELOG asserts a TODO-item closure and {TODO_PATH} is in the diff "
+            f"(the public index row rotated); the item's detail block and the DONE ledger "
+            f"rotate in the private sibling (cross-repo, not in the public diff)."
         )
         return 0
 
@@ -361,18 +364,18 @@ def main(argv: list[str]) -> int:
 
     print(
         f"FAIL: an added CHANGELOG line asserts a TODO-item closure but the diff "
-        f"does not fully rotate it: {' and '.join(missing_rotation)} not in the diff. "
-        f"A closure deletes the item's index row from {TODO_PATH} AND its detail block "
-        f"from {REFERENCE_PATH} in the same diff.",
+        f"does not rotate the public index: {' and '.join(missing_rotation)} not in the diff. "
+        f"A closure deletes the item's index row from {TODO_PATH} (the detail block rotates "
+        f"in the private sibling).",
         file=sys.stderr,
     )
     print(f"  asserting line: {closure_line.strip()[:160]}", file=sys.stderr)
     print("", file=sys.stderr)
     print(
-        "When a PR closes a TODO item, delete its index row from TODO.md AND its detail "
-        "block from TODO-REFERENCE.md in the same diff (the "
-        "change-tracking rotation discipline; the paired DONE ledger row now lands in the "
-        "private-sibling working-state store, cross-repo and not in the public diff). If "
+        "When a PR closes a TODO item, delete its index row from TODO.md (the "
+        "change-tracking rotation discipline; the per-item detail block and the paired DONE "
+        "ledger row now land in the private-sibling working-state store, cross-repo and not "
+        "in the public diff). If "
         "the CHANGELOG line merely narrates a past closure, add a 'TodoRotation: <reason>' "
         "trailer to any commit to opt out.",
         file=sys.stderr,

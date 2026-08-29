@@ -107,7 +107,7 @@ run_check "D4 Per-PR Version-Date co-bump check" \
 # closure ("clos... TODO §X"), require the same diff to rotate the item
 # by touching the public TODO.md (the DONE ledger moved to the private-
 # sibling working-state store in PR #1235, cross-repo and outside the
-# public diff, so only the public TODO.md + TODO-REFERENCE.md rotation is enforced). PR-time companion of gate 57
+# public diff, so only the public TODO.md index rotation is enforced). PR-time companion of gate 57
 # (the static marked-done detector); catches the wholesale-forgotten
 # rotation where TODO.md is never edited.
 run_check "D5 Backlog-rotation-on-PR check" \
@@ -129,10 +129,11 @@ run_check "D8 Daily-changelog-rollup reminder" \
     python3 tools/check-daily-changelog-rollup.py
 
 # Delta gate D9: retired-section-orphan check. When this PR CLOSES a numbered
-# TODO section (deletes its `### N.M` heading), flag any anchored positional
+# TODO item (deletes its `| N.M |` index row from TODO.md), flag any anchored positional
 # reference (§N.M / PN.M / TODO §N.M / TODO section N.M) that survives on the
 # operational / gate-exempt surfaces no other gate scans (.claude/, references/,
-# tools/*.py, *.sh, .github/*.yml, TODO.md, TODO-REFERENCE.md). Deletion-triggered + anchored +
+# tools/*.py, *.sh, .github/*.yml, TODO.md, and a legacy public TODO-REFERENCE.md if
+# one still exists). Deletion-triggered + anchored +
 # LIVE-only, so it is false-positive-safe (roadmap C phase 2, #1250).
 run_check "D9 Retired-section-orphan check" \
     python3 tools/check-retired-section-orphan-on-pr.py "${BASE_REF}" "${HEAD_REF}"

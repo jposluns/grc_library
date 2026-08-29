@@ -126,7 +126,7 @@ drive end-to-end on the maintainer's behalf:
    both backlogs, `TODO.md` and `P-TODO.md`; it replaced the retired `next-prs.txt`) and list the
    upcoming next five planned PRs in the chat. If new items surfaced during the just-finished work,
    add them to the appropriate backlog (an index row in [`TODO.md`](../TODO.md) plus a detail block
-   in [`TODO-REFERENCE.md`](../TODO-REFERENCE.md), or a private `P-TODO.md` item) and into the
+   in the private `grc_library_private/TODO-REFERENCE.md`, or a private `P-TODO.md` item) and into the
    `## Up next` order BEFORE the list is published (the list comes from the queue, not from memory).
    This is the project-specific instantiation of the PR finalization protocol in
    [`.claude/rules/governance/change-tracking.md`](../.claude/rules/governance/change-tracking.md).
@@ -140,7 +140,7 @@ drive end-to-end on the maintainer's behalf:
    that formerly displayed the top items was removed 2026-08-15, PR #1565.)
 10. TODO/DONE rotation discipline: when a PR closes a TODO item, the item's index row is
    deleted from [`TODO.md`](../TODO.md) AND its detail block from
-   [`TODO-REFERENCE.md`](../TODO-REFERENCE.md) in the same PR, and an entry is added to
+   the private `grc_library_private/TODO-REFERENCE.md` (cross-repo), and an entry is added to
    `grc_library_private/.working/DONE.md`
    (the closed-TODO ledger, keyed by PR number with the original backlog ID as a
    cross-reference). The DONE entry names the closed item's number and gives a clean
@@ -181,7 +181,7 @@ is external. Two mechanisms:
    - THIS PR's OWN `/validate-pr` history row AND its `/retro` row are both
      present (they land in THIS PR, recording this PR's own number, per the synchronous QA model, rather than being batched forward from the prior PR).
    - Every TODO item this PR closes has its index row deleted from `TODO.md` AND its
-     detail block deleted from `TODO-REFERENCE.md`, and is added to
+     detail block deleted from the private `grc_library_private/TODO-REFERENCE.md` (cross-repo), and is added to
      `grc_library_private/.working/DONE.md`, in the same diff. **Backlog-item-keyed, not
      FR/§-keyed**: a prose-named or maintainer-directed item (not just an `FR-N` or a
      numbered `§N.M`) is a TODO item that rotates the same way.

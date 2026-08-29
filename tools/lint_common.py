@@ -1006,7 +1006,8 @@ def resolve_pr_range(base: str | None, head: str = "HEAD") -> tuple[str, str]:
 
 # --- TODO index-format parsing (PR-1 rework, 2026-08) -----------------------
 # TODO.md is an INDEX of ``| <id> | <title> | <tags> |`` rows under ``## Priority
-# N`` bands; the per-item detail lives in TODO-REFERENCE.md as ``### <id>
+# N`` bands; the per-item detail lives in the PRIVATE sibling's TODO-REFERENCE.md
+# (relocated there in the 2026-08 migration) as ``### <id>
 # <title>`` blocks. The private P-TODO.md keeps the older ``### <id>`` section
 # shape until its own consolidation. These helpers parse the index form so every
 # backlog reader shares one tested parser rather than re-deriving the grammar.
@@ -1053,6 +1054,29 @@ def parse_todo_index(text: str) -> list[dict]:
 def todo_index_ids(text: str) -> set[str]:
     """The set of live backlog ids declared as index rows in a new-format TODO.md."""
     return {it["id"] for it in parse_todo_index(text)}
+
+
+def resolve_todo_reference(repo_root: "Path | None" = None) -> "Path | None":
+    """The TODO detail file (``TODO-REFERENCE.md``), private-first, or ``None``.
+
+    Post-2026-08 migration the per-item DETAIL lives in the private sibling
+    (``grc_library_private/TODO-REFERENCE.md``); the public ``TODO.md`` is an
+    index-only roadmap. Resolution: the private sibling's copy if present, else
+    the legacy public ``<repo>/TODO-REFERENCE.md`` (a pre-migration or adopter
+    clone), else ``None``. A detail-reading backlog gate routes through this and
+    no-ops on the detail when it returns ``None`` (public CI / adopter clone),
+    scanning only the public index; the maintainer's run reads the private copy.
+    """
+    root = (repo_root or REPO_ROOT).resolve()
+    # scope the private-sibling lookup to THIS root (not the global sibling), so an
+    # explicit adopter/test root resolves correctly.
+    private = root.parent / _SIBLING_REPO_DIRS["private"]
+    if private.is_dir():
+        cand = private / "TODO-REFERENCE.md"
+        if cand.is_file():
+            return cand
+    pub = root / "TODO-REFERENCE.md"
+    return pub if pub.is_file() else None
 
 
 def has_todo_index_header(text: str) -> bool:
