@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Citation-currency-cadence audit (gate 72) -- 1.14 Layer A (closing PR #1176).
+"""Citation-currency-cadence audit (gate 72) -- 1.14 Layer A (closing PR #1015).
 
 The canonical-citations register (``governance/register-canonical-citations.md``)
 records, per externally-cited source, a ``Last verified (UTC)`` date (the SR-1

@@ -120,7 +120,7 @@ CUTOFF_PR = 463
 # A per-PR entry header, e.g. "## 2026-07-01, Library Version 2026.07.8, PR #520".
 HEADER_RE = re.compile(r"^##\s+\d{4}-\d{2}-\d{2},.*\bPR #(\d+)\b")
 
-# The compact root-entry header (the 3.16 (closing PR #1176) root-reformat), with or
+# The compact root-entry header (the 3.16 (PR #855) root-reformat), with or
 # without the stage-3b ``- summary`` tail:
 # ``**2026-07-08 | 2026.07.201 | PR #713**`` or the same followed by
 # `` - <summary>``. Groups: (2,3,4) the version triple, (5) the PR.
