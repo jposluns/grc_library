@@ -2,8 +2,8 @@
 
 **Document Title:** Encryption and Key Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.19\
-**Date:** 2026-08-27\
+**Version:** 1.3.20\
+**Date:** 2026-08-29\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -78,7 +78,7 @@ Encryption keys rotated at least every 90 days for Restricted data and annually 
 
 ### 5.5 Key destruction
 
-Retired or expired keys destroyed using cryptographic erase (per NIST SP 800-88). Destruction events logged in the Key Lifecycle Register and retained for seven years.
+Retired or expired keys destroyed by zeroization (the recommended key sanitization technique per NIST SP 800-88 Rev. 2). Destruction events logged in the Key Lifecycle Register and retained for seven years.
 
 ---
 

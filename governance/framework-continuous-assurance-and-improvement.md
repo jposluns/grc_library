@@ -2,8 +2,8 @@
 
 **Document Title:** Continuous Assurance and Improvement Framework\
 **Document Type:** Framework\
-**Version:** 1.1.2\
-**Date:** 2026-08-05\
+**Version:** 1.1.3\
+**Date:** 2026-08-29\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](../compliance/procedure-audit-planning.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md)\
@@ -100,7 +100,7 @@ The organization must track and improve:
 - Security resilience and service availability.
 - Ethical accountability and stakeholder confidence.
 
-### 4.2 AI performance and maturity kpis (ISO/IEC 42001 §9.1)
+### 4.2 AI performance and maturity kpis (monitored under ISO/IEC 42001 §9.1)
 
 - Percentage of AI models passing fairness and robustness thresholds.
 - Explainability compliance rate for deployed AI systems.

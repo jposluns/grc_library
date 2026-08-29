@@ -2,8 +2,8 @@
 
 **Document Title:** Cryptographic Key Lifecycle Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.11\
-**Date:** 2026-08-16\
+**Version:** 1.0.12\
+**Date:** 2026-08-29\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md)\
@@ -38,7 +38,7 @@ Applies to all enterprise systems, databases, applications, network devices, and
 | **Activation** | Enable keys for cryptographic operations. | Integration with encryption libraries and system credentials. |
 | **Rotation** | Periodically replace active keys to reduce risk of compromise. | Rotate symmetric keys every 90 days; asymmetric every 12 months. These are key-type baselines; where a key also carries a data-classification cadence (see the Encryption and Key Management Policy), apply the shorter applicable interval. NIST SP 800-57 Part 1 (section 5.3.6) sets a key's cryptoperiod from its type, usage environment, and data characteristics together, as rough guidance rather than a fixed one-to-one mapping. |
 | **Revocation** | Immediately invalidate compromised or expired keys. | Update CRL or OCSP; remove from all dependent systems. |
-| **Destruction** | Securely destroy obsolete or retired keys. | Perform cryptographic erasure; document certificate of destruction. |
+| **Destruction** | Securely destroy obsolete or retired keys. | Perform zeroization (the key sanitization technique per NIST SP 800-88 Rev. 2); document certificate of destruction. |
 
 ---
 
@@ -73,7 +73,7 @@ All cryptographic keys must be registered in the Key Lifecycle Register with the
 | Validity Period | Issue date and expiry date |
 | Rotation Schedule | Next scheduled rotation date |
 | Status | Active, suspended, revoked, or destroyed |
-| Destruction Record | Cryptographic erasure method and date |
+| Destruction Record | Key sanitization (zeroization) method and date |
 
 ---
 
