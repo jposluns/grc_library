@@ -196,7 +196,9 @@ def main() -> int:
     try:
         payload = json.load(sys.stdin) if not sys.stdin.isatty() else {}
     except Exception:
-        payload = {}
+        return 0                              # unparseable payload: fail open (loop-termination signal unreadable)
+    if not isinstance(payload, dict):
+        return 0                              # non-dict payload: fail open (parity with block-idle-stop)
     try:
         if payload.get("stop_hook_active"):
             return 0
@@ -285,7 +287,29 @@ def self_test() -> int:
         bad += 1
         print("FAIL orchestrator session did not retain branch block")
 
-    total = len(SELF_TEST) + 2
+    # A malformed/unparseable Stop payload must fail OPEN (rc 0), even with branches
+    # present, so a harness or environment error never blocks turn-end (the fail-open
+    # design; parity with block-idle-stop-with-actionable-backlog.py). Also asserts the
+    # parse-error path short-circuits BEFORE the branch scan.
+    malformed_escape = mock.Mock()
+    malformed_escape.exists.return_value = False
+    with mock.patch.dict(
+        os.environ, {"CLAUDE_CONFIG_DIR": "/opt/orch-accounts/test/orchestrator"}
+    ), mock.patch.object(
+        sys, "stdin", io.StringIO("{not valid json")
+    ), mock.patch.object(
+        sys, "stderr", io.StringIO()
+    ), mock.patch.object(
+        module, "ESCAPE_FILE", malformed_escape
+    ), mock.patch.object(
+        module, "unmerged_branches", return_value=[("b", "1")]
+    ) as malformed_branch_scan:
+        malformed_rc = main()
+    if malformed_rc != 0 or malformed_branch_scan.called:
+        bad += 1
+        print("FAIL malformed payload did not fail open")
+
+    total = len(SELF_TEST) + 3
     print(str(total - bad) + "/" + str(total) + " decision cases pass")
     return 1 if bad else 0
 
