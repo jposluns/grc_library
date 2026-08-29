@@ -16,7 +16,9 @@ prose violation only if it appears outside an inline code span and outside a
 fenced code block. Dashes inside code spans are content (a regex literal, a
 quoted format string), not prose, and are left untouched.
 
-Scope is the `.working/` tree ONLY. The corpus proper is covered by
+Scope is the `.working/` tree ONLY, minus the `guardrail-seeds` inbox
+(see EXEMPT_DIRS: it holds verbatim foreign seed prose, exempt from the store
+house-style). The corpus proper is covered by
 `lint-language.py`; the root `CHANGELOG.md`'s historical entries carry
 legitimate en-dashes and are covered at PR time by the D3 dash gate
 (`check-changelog-dash-on-pr.py`), so this gate does NOT full-scan `CHANGELOG.md`.
@@ -91,8 +93,14 @@ def display_path(path: Path) -> str:
 
 # The `.working` tree is in DEFAULT_EXEMPT_DIRS for every other linter; this
 # gate deliberately overrides that exemption to scan inside it. The remaining
-# exemptions are the universal non-content dirs.
-EXEMPT_DIRS = frozenset({".git", "node_modules", "__pycache__"})
+# exemptions are the universal non-content dirs, plus `guardrail-seeds`: the
+# operational store's guardrail-seed pipeline inbox holds VERBATIM foreign seed
+# prose (worker/external theorycraft outputs, migrated seed archives). Those are
+# not the maintainer's own working prose, so the store house-style (which targets
+# ORCHESTRATOR store-writes) does not apply to them; forcing it would corrupt a
+# migrated artefact. The seed inbox moved here when grc_library_scratch was
+# retired (2026-08-29).
+EXEMPT_DIRS = frozenset({".git", "node_modules", "__pycache__", "guardrail-seeds"})
 
 # Standard CommonMark inline code span: an opening run of N backticks, the
 # shortest content, then a closing run of exactly N backticks. Stripping these
