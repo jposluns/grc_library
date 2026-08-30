@@ -462,8 +462,8 @@ pages:
   title: "What happens when a critical AI supplier fails"
   narrative_type: "Scenario"
   narrative_status: "Non-normative"
-  version: "0.0.1"
-  date: "2026-08-15"
+  version: "0.0.2"
+  date: "2026-08-30"
   corpus_sources:
     - "supply-chain/procedure-third-party-ai-due-diligence.md"
     - "risk/standard-third-party-and-supply-chain-risk.md"
