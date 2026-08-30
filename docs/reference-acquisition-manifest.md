@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-reference-manifest.py`
 **Document Title:** Reference-Acquisition Manifest\
 **Document Type:** Guide\
 **Version:** 1.0.0\
-**Date:** 2026-08-26\
+**Date:** 2026-08-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`docs/portal.md`](portal.md)\
@@ -315,7 +315,7 @@ without the private reference sibling).
 | NIST SP 800-94, Guide to Intrusion Detection and Prevention Systems (IDPS) |  | NIST |  | FREE |
 | NIST SP 800-95, Guide to Secure Web Services | SP 800-95 (August 2007) | NIST |  | FREE |
 
-## Frameworks (261: 217 free, 44 licensed)
+## Frameworks (255: 217 free, 38 licensed)
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
@@ -336,12 +336,6 @@ without the private reference sibling).
 | Australia Telecommunications Security Factsheet (CISC) |  | Australia CISC/Home Affairs |  | FREE |
 | Australia Voluntary AI Safety Standard (National AI Centre, August 2024; 10 guardrails) | Voluntary AI Safety Standard, August 2024 (10 guardrails) | Australia NAIC |  | FREE |
 | Australia's AI Ethics Principles (8 principles; published 7 November 2019, updated 2 December 2025) (Department of Industry, Science and Resources) | 8 principles, updated 2 December 2025 | Australia DISR |  | FREE |
-| BASC Glossary of Terms and Definitions V6-2022 (CSMS) |  | BASC |  | LICENSED |
-| BASC International Norm Implementation Guide V6-2022 (CSMS) |  | BASC |  | LICENSED |
-| BASC International Norm V6-2022 (Control and Security Management System, CSMS) |  | BASC |  | LICENSED |
-| BASC International Security Standard 6.0.2 (2022, companies with indirect relation to the cargo) |  | BASC |  | LICENSED |
-| BASC International Security Standard 6.0.3 (2022, companies implementing basic security operational controls) |  | BASC |  | LICENSED |
-| BASC International Standards Implementation Guide V6-2022 (CSMS) |  | BASC |  | LICENSED |
 | Canada CCCS Baseline Security Requirements for Network Security Zones (ITSP.80.022) | version 2.0, effective 2021-01-12 (confirmed current upstream 2026-07-15) | Canadian Centre for Cyber Security |  | FREE |
 | Canada CCCS Developing Your Incident Response Plan (ITSAP.40.003) | ITSAP.40.003, 2026-01 | Canadian Centre for Cyber Security |  | FREE |
 | Canada CCCS ITSP.50.103 Medium Cloud Control Profile (Annex B: Medium Cloud Profile Recommendations) | ITSP.50.103 Annex B, CCCS Medium Cloud Control Profile; effective 2020-05-20 per the held GC Cloud Profile reference note (spreadsheet docProps modified 2019-10-15) | Canadian Centre for Cyber Security | https://www.cyber.gc.ca/en/guidance/guidance-security-categorization-cloud-based-services-itsp50103 | FREE |
@@ -490,8 +484,8 @@ without the private reference sibling).
 | Japan AI Safety Institute Guide to Red Teaming Methodology on AI Safety (Version 1.10, March 2025) | J-AISI Red Teaming Methodology v1.10 (March 2025) | Japan AISI |  | FREE |
 | Japan FSA Guidelines on Cybersecurity for the Financial Sector (English, effective 4 October 2024) |  | Japan FSA |  | FREE |
 | Malaysia National Guidelines on AI Governance and Ethics (AIGE) (MOSTI, September 2024) | AIGE, launched 20 September 2024 (7 principles) | Malaysia MOSTI |  | FREE |
-| MITRE ATLAS v2026.06 (adversarial threat landscape for AI systems) |  | MITRE |  | FREE |
-| MITRE ATT&CK Enterprise v19.1 (distilled) |  | MITRE |  | FREE |
+| MITRE ATLAS v2026.07 (adversarial threat landscape for AI systems) |  | MITRE |  | FREE |
+| MITRE ATT&CK Enterprise v19.2 (distilled) |  | MITRE |  | FREE |
 | MITRE CAPEC v3.9 (Common Attack Pattern Enumeration and Classification, distilled) | CAPEC List Version 3.9 (confirmed current at capec.mitre.org/data 2026-07-07; latest diff report is 3.8 to 3.9). MITRE royalty-free licence with attribution (terms of use confirmed at capec.mitre.org 2026-07-07). | MITRE |  | FREE |
 | MITRE CWE v4.20 (Common Weakness Enumeration, distilled) | CWE List Version 4.20 (confirmed current at cwe.mitre.org/data 2026-07-07; latest diff report is 4.19.1 to 4.20). MITRE royalty-free licence with attribution. | MITRE |  | FREE |
 | MITRE D3FEND v1.4.0 (defensive techniques, distilled) | D3FEND ontology v1.4.0 (confirmed current at d3fend.mitre.org/resources/ontology 2026-07-07; released 2026-03-31 per prior maintainer confirmation). MITRE royalty-free licence with attribution; Approved for Public Release, Distribution Unlimited. | MITRE |  | FREE |
@@ -581,14 +575,11 @@ without the private reference sibling).
 | US Interagency Paper: Sound Practices to Strengthen Operational Resilience (OCC / FRB / FDIC, 2020) |  | US OCC/FRB/FDIC |  | FREE |
 | Vulnerability Scans and Approved Scanning Vendors (ASV): A PCI SSC Resource Guide |  | PCI SSC |  | FREE |
 
-## Legislation (225: 225 free, 0 licensed)
+## Legislation (203: 203 free, 0 licensed)
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
-| Access to Information Act (RSC 1985, c. A-1) | RSC 1985 c. A-1, consolidated | Canada (Federal) |  | FREE |
 | ADGM Data Protection Regulations 2021 (Feb-2024 consolidation; SUPERSEDED by Amendment No.1 2025) | ADGM Data Protection Regulations 2021, Feb-2024 consolidation - SUPERSEDED by Amendment No.1 2025 (in force 9 Sep 2025) | United Arab Emirates (ADGM) |  | FREE |
-| Alberta Access to Information Act (SA 2024, c. A-1.4; in force 2025-06-11) | SA 2024 c. A-1.4, in force 2025-06-11 | Canada (Alberta) |  | FREE |
-| Alberta Protection of Privacy Act (SA 2024, c. P-28.5; in force 2025-06-11) | SA 2024 c. P-28.5, in force 2025-06-11 | Canada (Alberta) |  | FREE |
 | American Recovery and Reinvestment Act of 2009 (Pub. L. 111-5), including the HITECH Act (Title XIII) |  | US |  | FREE |
 | Argentina Decreto 1558/2001 (reglamentario de la Ley 25.326 de Protección de los Datos Personales) | Decreto 1558/2001, enacted 29 November 2001 (B.O. 3 December 2001); Anexo I, arts. 1 to 32 reglamentados (arts. 33 to 46 sin reglamentar). Title, date, and implementing-decree status orchestrator-confirmed at argentina.gob.ar 2026-07-16 (texto original shown). | Argentina |  | FREE |
 | Argentina Ley 25.326 de Protección de los Datos Personales (Habeas Data) |  | Argentina |  | FREE |
@@ -604,8 +595,6 @@ without the private reference sibling).
 | Brazil ANPD Resolução CD/ANPD nº 2/2022 (aplicação da LGPD para agentes de tratamento de pequeno porte; Small Processing Agents) | Resolução CD/ANPD nº 2, de 27 de janeiro de 2022 (DOU 28/01/2022); gov.br-served text (host confirmed reachable 2026-07-16; worker-acquired 2026-07-16). | Brazil |  | FREE |
 | Brazil ANPD Resolução CD/ANPD nº 4, de 24 de fevereiro de 2023 (Regulamento de Dosimetria e Aplicação de Sanções Administrativas / administrative sanctions dosimetry) | Resolução CD/ANPD nº 4/2023, published DOU 27/02/2023 (Edição 39, Seção 1, p. 59); in force since publication; current | Brazil |  | FREE |
 | Brazil Lei Geral de Proteção de Dados Pessoais (LGPD), Lei nº 13.709/2018 | Lei 13.709/2018, in force since 2020-09-18; law text unchanged, current | Brazil | https://www.gov.br/anpd/pt-br/centrais-de-conteudo/outros-documentos-e-publicacoes-institucionais/lgpd-en-lei-no-13-709-capa.pdf | FREE |
-| British Columbia E-Health (Personal Health Information Access and Protection of Privacy) Act (SBC 2008, c. 38) | SBC 2008 c. 38, consolidated | Canada (British Columbia) |  | FREE |
-| British Columbia Freedom of Information and Protection of Privacy Act (RSBC 1996, c. 165) | RSBC 1996 c. 165, consolidated | Canada (British Columbia) |  | FREE |
 | British Columbia Personal Information Protection Act (PIPA), S.B.C. 2003, c. 63 |  | Canada |  | FREE |
 | California Consumer Privacy Act / CPRA, Cal. Civ. Code § 1798.100 et seq. | CCPA/CPRA, Cal. Civ. Code Title 1.81.5, current text reflecting amendments effective January 1, 2026 (incl. AB 137 and AB 566) | US | https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?lawCode=CIV&division=3.&title=1.81.5.&part=4.&chapter=&article= | FREE |
 | California Consumer Privacy Act Regulations (CCPA updates, cybersecurity audits, risk assessments, ADMT, and insurance), 11 CCR Division 6 Chapter 1 (CPPA, final text effective January 1, 2026) | CPPA CCPA Regulations, final consolidated text effective January 1, 2026 (Title 11, Division 6, Chapter 1, sections 7000 to 7304; approved by the Office of Administrative Law 2025-09-22); 103 pages | US | https://cppa.ca.gov/regulations/pdf/ccpa_statute_eff_20260101.pdf | FREE |
@@ -644,7 +633,6 @@ without the private reference sibling).
 | Commission Implementing Regulation (EU) 2024/2956 (DORA ITS: standard templates for the register of information), 29 November 2024 | Implementing Reg (EU) 2024/2956 (OJ 2 December 2024) | EU |  | FREE |
 | Commission Implementing Regulation (EU) 2025/302 (DORA ITS: standard forms and templates for incident reporting), 23 October 2024 | Implementing Reg (EU) 2025/302 (OJ 20 February 2025) | EU |  | FREE |
 | COPPA Rule, 16 CFR Part 312, Children's Online Privacy Protection |  | US |  | FREE |
-| Council of Europe Framework Convention on Artificial Intelligence and Human Rights, Democracy and the Rule of Law (CETS No. 225) | CETS No. 225, adopted 17 May 2024, opened for signature 5 September 2024 | Council of Europe |  | FREE |
 | Cyber Incident Reporting for Critical Infrastructure Act (CIRCIA), 6 U.S.C. § 681 et seq. |  | US |  | FREE |
 | Digital Operational Resilience Act (DORA), Regulation (EU) 2022/2554 |  | EU |  | FREE |
 | DR Congo Code du numerique, Ordonnance-loi 23/010 du 13 mars 2023 (FR) |  | DRC |  | FREE |
@@ -739,8 +727,6 @@ without the private reference sibling).
 | Kenya Data Protection Act, No. 24 of 2019 (consolidated) |  | Kenya |  | FREE |
 | Malaysia Personal Data Protection (Amendment) Act 2024, Act A1727 |  | Malaysia |  | FREE |
 | Malaysia Personal Data Protection Act 2010, Act 709 (principal Act, bilingual) |  | Malaysia |  | FREE |
-| Manitoba Freedom of Information and Protection of Privacy Act (CCSM c. F175) | CCSM c. F175, consolidated | Canada (Manitoba) |  | FREE |
-| Manitoba Personal Health Information Act (CCSM c. P33.5) | CCSM c. P33.5, consolidated | Canada (Manitoba) |  | FREE |
 | Mexico DOF Official Gazette publication (NOM-001-SCFI-2018) | DOF publication (NOM-001-SCFI-2018) | Mexico |  | FREE |
 | Mexico Ley Federal de Proteccion de Datos Personales en Posesion de los Particulares (2010) |  | Mexico |  | FREE |
 | Mexico Ley Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP) |  | Mexico |  | FREE |
@@ -749,33 +735,20 @@ without the private reference sibling).
 | Mexico NOM-001-SCFI-2018, electronic apparatus safety requirements |  | Mexico |  | FREE |
 | Morocco Loi 09-08 relative a la protection des donnees a caractere personnel (FR) |  | Morocco |  | FREE |
 | My Health Records Act 2012 (Cth), No. 63, 2012 (Compilation No. 17, 5 December 2025) |  | Australia |  | FREE |
-| New Brunswick Personal Health Information Privacy and Access Act (SNB 2009, c. P-7.05) | SNB 2009 c. P-7.05, consolidated | Canada (New Brunswick) |  | FREE |
-| New Brunswick Right to Information and Protection of Privacy Act (RSNB c. R-10.6) | RSNB c. R-10.6, consolidated | Canada (New Brunswick) |  | FREE |
 | New York City Local Law 144 (2021), automated employment decision tools: DCWP final rule (6 RCNY 5-300 to 5-304) |  | US |  | FREE |
 | New Zealand Privacy Act 2020 (2020 No 31, version 205, as at 2026-05-01) |  | New-Zealand |  | FREE |
-| Newfoundland and Labrador Access to Information and Protection of Privacy Act, 2015 (SNL 2015, c. A-1.2) | SNL 2015 c. A-1.2, consolidated | Canada (Newfoundland and Labrador) |  | FREE |
-| Newfoundland and Labrador Personal Health Information Act (SNL 2008, c. P-7.01) | SNL 2008 c. P-7.01, consolidated | Canada (Newfoundland and Labrador) |  | FREE |
 | NIS2 Directive, Directive (EU) 2022/2555 |  | EU |  | FREE |
-| Northwest Territories Access to Information and Protection of Privacy Act (SNWT 1994, c. 20) | SNWT 1994 c. 20, consolidated | Canada (Northwest Territories) |  | FREE |
-| Nova Scotia Freedom of Information and Protection of Privacy Act (SNS 1993, c. 5) | SNS 1993 c. 5, consolidated | Canada (Nova Scotia) |  | FREE |
-| Nova Scotia Personal Health Information Act (SNS 2010, c. 41) | SNS 2010 c. 41, consolidated | Canada (Nova Scotia) |  | FREE |
 | Oman Personal Data Protection Law, Royal Decree 6/2022 (EN) |  | Oman |  | FREE |
 | Ontario Enhancing Digital Security and Trust Act, 2024 (Bill 194, S.O. 2024, c. 24) |  | Canada |  | FREE |
-| Ontario Freedom of Information and Protection of Privacy Act (RSO 1990, c. F.31) | RSO 1990 c. F.31, consolidated | Canada (Ontario) |  | FREE |
 | Ontario Order in Council 361/2025 (commencement of the Enhancing Digital Security and Trust Act, 2024) | O.C. 361/2025, approved and ordered 2025-01-28 | Canada |  | FREE |
-| Ontario Personal Health Information Protection Act, 2004 (SO 2004, c. 3, Sched. A) | SO 2004 c. 3 Sched. A, consolidated | Canada (Ontario) |  | FREE |
 | Ontario Personal Health Information Protection Act, 2004, S.O. 2004, c. 3, Sch. A (PHIPA) |  | Canada |  | FREE |
 | Personal Information Protection Act (PIPA), S.A. 2003, c. P-6.5 (Alberta, consolidated) | S.A. 2003, c. P-6.5 (consolidated, current as of September 1, 2025) | Canada |  | FREE |
 | Personal Information Protection and Electronic Documents Act (PIPEDA), S.C. 2000, c. 5 |  | Canada |  | FREE |
 | Peru Decreto Supremo 016-2024-JUS, Reglamento de la Ley 29733 (2024) |  | Peru |  | FREE |
 | Peru Ley 29733 de Proteccion de Datos Personales + Reglamento (updated bundle, 30/11/2024) |  | Peru |  | FREE |
-| Prince Edward Island Freedom of Information and Protection of Privacy Act (RSPEI 1988, c. F-15.01) | RSPEI 1988 c. F-15.01, consolidated | Canada (Prince Edward Island) |  | FREE |
-| Prince Edward Island Health Information Act (RSPEI 1988, c. H-1.41) | RSPEI 1988 c. H-1.41, consolidated | Canada (Prince Edward Island) |  | FREE |
 | Privacy Act, R.S.C. 1985, c. P-21 (Canada, federal public-sector privacy) |  | Canada |  | FREE |
 | Privacy and Other Legislation Amendment Act 2024 (Cth), No. 128, 2024 (as made, Authorised Version C2024A00128) | as made, C2024A00128 (No. 128, 2024) | Australia |  | FREE |
 | Proceeds of Crime (Money Laundering) and Terrorist Financing Act (PCMLTFA), S.C. 2000, c. 17 (Parts 1-2 extract) | S.C. 2000, c. 17 (consolidated, current to 2026-06-17, last amended 2026-03-26; Parts 1-2 extract) | Canada |  | FREE |
-| Quebec Act respecting access to documents held by public bodies and the protection of personal information (CQLR c. A-2.1) | CQLR c. A-2.1, consolidated | Canada (Quebec) |  | FREE |
-| Quebec Act respecting health and social services information (CQLR c. R-22.1) | CQLR c. R-22.1, consolidated | Canada (Quebec) |  | FREE |
 | Quebec Act respecting the protection of personal information in the private sector, CQLR c. P-39.1 (as amended by Law 25) | P-39.1 as amended by Law 25; all provisions in force (final phase 2024-09-22), current | Canada | https://www.legisquebec.gouv.qc.ca/fr/document/lc/p-39.1 | FREE |
 | Quebec Règlement sur l'anonymisation des renseignements personnels (A-2.1, r. 0.1) | Règlement sur l'anonymisation des renseignements personnels (A-2.1, r. 0.1), sections I to III, arts. 1 to 10; in force 30 May 2024 (D. 783-2024, 2024 G.O. 2, 2847); consolidation à jour au 2026-03-01 per the worker acquisition. Orchestrator re-fetch blocked (legisquebec.gouv.qc.ca JS-gated, HTTP 403 on 2026-07-16); worker-acquired and recorded 2026-07-16. | Canada |  | FREE |
 | Saudi Arabia Essential Cybersecurity Controls ECC-1:2018 (EN, SUPERSEDED by ECC-2:2024) |  | Saudi-Arabia |  | FREE |
@@ -809,7 +782,6 @@ without the private reference sibling).
 | Vietnam Decree No. 356/2025/ND-CP on Personal Data Protection (unofficial English translation) | Decree 356/2025/ND-CP, dated 2025-12-31, in force 2026-01-01 (Art 42(1)); implements PDPL 91/2025; unofficial English translation (QTSC); Vietnamese original authoritative | Vietnam |  | FREE |
 | Vietnam Law on Personal Data Protection No. 91/2025/QH15 (unofficial English translation) | Law 91/2025/QH15, passed 2025-06-26, in force 2026-01-01 (Art 38(1)); unofficial English translation (DPO-India); Vietnamese original authoritative | Vietnam |  | FREE |
 | Virginia Consumer Data Protection Act (VCDPA), Code of Virginia Title 59.1 Chapter 53 |  | US |  | FREE |
-| Yukon Access to Information and Protection of Privacy Act (SY 2018, c. 9) | SY 2018 c. 9, consolidated | Canada (Yukon) |  | FREE |
 
 ## Programs (42: 42 free, 0 licensed)
 
@@ -858,5 +830,5 @@ without the private reference sibling).
 | WCO Compendium of Authorized Economic Operator Programmes (2020 edition) |  | World Customs Organization |  | FREE |
 | WCO SAFE Framework of Standards (2025 edition) | 2025 edition (dated June 2025, published September 2025); current upstream, confirmed 2026-07-11; 2021 edition retired to .superseded/ | World Customs Organization | https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/facilitation/instruments-and-tools/tools/safe-package/safe-framework-2025_en.pdf | FREE |
 
-**Total: 793 sources (667 free, 126 licensed).**
+**Total: 765 sources (645 free, 120 licensed).**
 

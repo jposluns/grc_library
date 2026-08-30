@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.64\
+**Version:** 1.5.65\
 **Date:** 2026-08-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -217,8 +217,8 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 
 | Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
 | --- | --- | --- | --- | --- | --- | --- |
-| MITRE ATT&CK | v19.1 | 2026-05 | Adversary Tactics, Techniques, and Common Knowledge | v15 | https://attack.mitre.org/resources/updates/ | 2026-06-30 |
-| MITRE ATLAS | v2026.06 | 2026-06 | Adversarial Threat Landscape for AI Systems | v2026.05 | https://github.com/mitre-atlas/atlas-data | 2026-07-01 |
+| MITRE ATT&CK | v19.2 | 2026-08 | Adversary Tactics, Techniques, and Common Knowledge | v19.1 | https://attack.mitre.org/resources/updates/ | 2026-08-30 |
+| MITRE ATLAS | v2026.07 | 2026-08 | Adversarial Threat Landscape for AI Systems | v2026.06 | https://github.com/mitre-atlas/atlas-data | 2026-08-30 |
 | STRIDE | continuous | 1999 | Six-category threat taxonomy (Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege) introduced by Kohnfelder and Garg at Microsoft; integrated into the Microsoft Security Development Lifecycle (SDL) Threat Modeling Tool | - | https://owasp.org/www-community/Threat_Modeling_Process | 2026-06-30 |
 | LINDDUN | v240118 (knowledge release; methods GO / PRO / MAESTRO) | 2024-01-18 | Seven-category privacy threat taxonomy (Linking, Identifying, Non-repudiation, Detecting, Data Disclosure, Unawareness, Non-compliance) maintained by KU Leuven imec-DistriNet | v20230802, v0 | https://linddun.org/linddun-version-release-history/ | 2026-08-23 |
 | AVID | continuous | 2023 | AI Vulnerability Database, an open knowledge base of AI failure modes and harms (avidml.org) | - | https://avidml.org/ | 2026-06-30 |
