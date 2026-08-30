@@ -2,7 +2,7 @@
 
 **Document Title:** Citation Verification Worklist: Batch Q4 (Remaining Canonical Citations)\
 **Document Type:** Worklist\
-**Version:** 1.0.15\
+**Version:** 1.0.16\
 **Date:** 2026-08-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -44,8 +44,8 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 - **OWASP Agentic AI Top 10 2026**: confirm published; release timing uncertain.
 - **OWASP MCP Top 10 2025**: confirm published.
 - **Meta CyberSecEval v4**: confirm v4 is current (v3 was earlier).
-- **MITRE ATT&CK v19.1**: verified current 2026-06-28 against the upstream authority (was v15; attack-stix-data release v19.1, 2026-05-12).
-- **MITRE ATLAS v2026.06**: re-verified current 2026-07-01 (#512) against the upstream authority; the 2026-06-28 batch check had found v2026.05 current (was v4.7; atlas-data new YAML/CalVer format v6.0.0), and the v2026.06 monthly content update published 2026-06-30 superseded it.
+- **MITRE ATT&CK v19.2**: verified current 2026-08-30 against the upstream authority (attack.mitre.org/resources/updates; v19.2 is the 2026-08-06 Agile Groups/Software release; supersedes v19.1).
+- **MITRE ATLAS v2026.07**: verified current 2026-08-30 against the upstream authority (github.com/mitre-atlas/atlas-data; v2026.07 published 2026-08-07 adds AI-agent tool-poisoning + prompt-construction-manipulation techniques; supersedes v2026.06). Ingested to _ref (PR #148).
 - **CSA AICM v1.1**: verify current version.
 - **Basel III**: multiple amendments since 2017; verify current state.
 - **NFPA 72 2025**: confirm 2025 edition published.
@@ -124,8 +124,8 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 
 | Standard ID | Expected primary URL | Field(s) | Expected value | Captured text | Wayback URL | Result | Captured by | Confidence | Date |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| MITRE ATT&CK | https://attack.mitre.org/ | all | v19.1, 2026-05 (verified current 2026-06-28; was v15, 2024-10) |  |  |  |  |  |  |
-| MITRE ATLAS | https://atlas.mitre.org/ | all | v2026.05, 2026-05 (verified current 2026-06-28; superseded 2026-06-30 by v2026.06, re-verified 2026-07-01 per #512; was v4.7, 2024) |  |  |  |  |  |  |
+| MITRE ATT&CK | https://attack.mitre.org/ | all | v19.2, 2026-08 (verified current 2026-08-30; supersedes v19.1, 2026-05; was v15, 2024-10) |  |  |  |  |  |  |
+| MITRE ATLAS | https://atlas.mitre.org/ | all | v2026.07, 2026-08 (verified current 2026-08-30; supersedes v2026.06 (2026-06); was v4.7, 2024) |  |  |  |  |  |  |
 | AVID | https://avidml.org/ | all | continuous, 2023, AI Vulnerability Database |  |  |  |  |  |  |
 | MLCommons AILuminate | https://mlcommons.org/benchmarks/ailuminate/ | all | v1.0, 2024, AI risk taxonomy and benchmark with 14-category hazard taxonomy |  |  |  |  |  |  |
 | HarmBench | https://www.harmbench.org/ | all | continuous, 2024-02, Standardized evaluation framework |  |  |  |  |  |  |
