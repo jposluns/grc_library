@@ -2,8 +2,8 @@
 
 **Document Title:** AI Incident Response Plan\
 **Document Type:** Plan\
-**Version:** 1.0.9\
-**Date:** 2026-07-22\
+**Version:** 1.0.10\
+**Date:** 2026-08-30\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md)\
@@ -193,7 +193,7 @@ The AI Security Maintainer ensures that the following evidence is preserved for 
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| OWASP LLM Top 10 (2025) | LLM01 to LLM10 | Threat taxonomy |
+| OWASP LLM Top 10 (2026) | LLM01:2026 to LLM10:2026 | Threat taxonomy |
 | MITRE ATLAS | Tactics and techniques | Adversarial ML threat catalogue |
 | NIST AI RMF Generative AI Profile (NIST AI 600-1) | GOVERN 1.5 (GV-1.5-002, after-action reviews of incident response and disclosure); GOVERN 2.1 (GV-2.1-001, communicating incidents to AI actors and downstream stakeholders); MANAGE 2.3 (MG-2.3-001, incident response and recovery plans across the value chain); MANAGE 4.3 (MG-4.3-001, after-action assessments; MG-4.3-003, reporting in compliance with legal and regulatory requirements) | AI incident management, deepened to the generative-AI-profile action IDs |
 | NIST AI 100-2e2025 | Adversarial ML attack taxonomy (NISTAML.01 to NISTAML.05) | Incident-class taxonomy anchor (the crosswalk under AI incident classes) |

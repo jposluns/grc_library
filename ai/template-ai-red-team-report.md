@@ -2,8 +2,8 @@
 
 **Document Title:** AI Red Team Report Template\
 **Document Type:** Template\
-**Version:** 1.0.3\
-**Date:** 2026-07-11\
+**Version:** 1.0.4\
+**Date:** 2026-08-30\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/guideline-adversarial-evaluation-suite-development.md`](guideline-adversarial-evaluation-suite-development.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/plan-ai-incident-response.md`](plan-ai-incident-response.md), [`security/standard-penetration-testing-and-red-team.md`](../security/standard-penetration-testing-and-red-team.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -59,7 +59,7 @@ This template applies to all adversarial-testing engagements against the organiz
 | Field | Required content |
 | --- | --- |
 | Threat model | The threat model the engagement tested |
-| Attack frameworks consulted | OWASP LLM Top 10 (2025) categories, MITRE ATLAS tactics and techniques, the NIST AI 100-2e2025 adversarial machine-learning taxonomy, in-house threat library |
+| Attack frameworks consulted | OWASP LLM Top 10 (2026) categories, MITRE ATLAS tactics and techniques, the NIST AI 100-2e2025 adversarial machine-learning taxonomy, in-house threat library |
 | Tooling | Automated tools (e.g. red team automation frameworks, LLM scanners), manual techniques, social-engineering simulations where applicable |
 | Test cases executed | Reference to the test case library; coverage statement against the categories |
 | Attacker personas | The personas tested (e.g. unauthenticated external user, authenticated low-privilege user, malicious insider, compromised upstream supplier, malicious end customer) |
@@ -105,16 +105,16 @@ Critical and High findings block production deployment of the affected component
 
 | Threat category | Tested | Findings | Note |
 | --- | --- | --- | --- |
-| LLM01 prompt injection (direct and indirect) | Yes / No / Partial | Count by severity | |
-| LLM02 sensitive information disclosure | Yes / No / Partial | Count by severity | |
-| LLM03 supply chain | Yes / No / Partial | Count by severity | |
-| LLM04 data and model poisoning | Yes / No / Partial | Count by severity | |
-| LLM05 improper output handling | Yes / No / Partial | Count by severity | |
-| LLM06 excessive agency | Yes / No / Partial | Count by severity | |
-| LLM07 system prompt leakage | Yes / No / Partial | Count by severity | |
-| LLM08 vector and embedding weaknesses | Yes / No / Partial | Count by severity | |
-| LLM09 misinformation and hallucination | Yes / No / Partial | Count by severity | |
-| LLM10 unbounded consumption | Yes / No / Partial | Count by severity | |
+| LLM01:2026 Prompt Injection (direct and indirect) | Yes / No / Partial | Count by severity | |
+| LLM02:2026 Sensitive Information Disclosure | Yes / No / Partial | Count by severity | |
+| LLM03:2026 Excessive Agency | Yes / No / Partial | Count by severity | |
+| LLM04:2026 Supply Chain | Yes / No / Partial | Count by severity | |
+| LLM05:2026 Data and Model Poisoning | Yes / No / Partial | Count by severity | |
+| LLM06:2026 Unbounded Consumption | Yes / No / Partial | Count by severity | |
+| LLM07:2026 Misinformation (including hallucination) | Yes / No / Partial | Count by severity | |
+| LLM08:2026 Hidden Context Exposure | Yes / No / Partial | Count by severity | |
+| LLM09:2026 Vector and Embedding Weaknesses | Yes / No / Partial | Count by severity | |
+| LLM10:2026 Improper Output Handling | Yes / No / Partial | Count by severity | |
 | MITRE ATLAS reconnaissance, initial access, ML attack staging, exfiltration, impact | Yes / No / Partial | Count by severity | |
 | NIST AI 100-2e2025 generative-AI classes (supply-chain, direct prompting, indirect prompt injection, security of agents) | Yes / No / Partial | Count by severity | |
 | Application-specific tests (per the system under test) | Yes / No / Partial | Count by severity | |
@@ -212,7 +212,7 @@ A summary of findings (without exploit detail) feeds the AI risk register and th
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| OWASP LLM Top 10 (2025) | Categories and prevention guidance | Threat taxonomy |
+| OWASP LLM Top 10 (2026) | Categories and prevention guidance | Threat taxonomy |
 | MITRE ATLAS | Tactics, techniques, case studies | Adversarial ML threat catalogue |
 | NIST AI 100-2e2025 | Adversarial machine-learning taxonomy (attacks and mitigations) | Threat taxonomy |
 | NIST AI RMF | MEASURE | Test, evaluation, validation, verification |

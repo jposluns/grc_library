@@ -2,8 +2,8 @@
 
 **Document Title:** Reverse Framework Control Crosswalk Matrix\
 **Document Type:** Matrix\
-**Version:** 1.0.11\
-**Date:** 2026-08-16\
+**Version:** 1.0.12\
+**Date:** 2026-08-30\
 **Owner:** Control Framework Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../supply-chain/matrix-supply-chain-security-programme-alignment.md), [`NOTICE.md`](../NOTICE.md)\
@@ -221,20 +221,20 @@ This matrix does not reproduce restricted third-party framework text, does not e
 
 ---
 
-## OWASP LLM Top 10 (2025) and MITRE ATLAS
+## OWASP LLM Top 10 (2026) and MITRE ATLAS
 
 | Threat area | Library documents | Alignment type |
 | --- | --- | --- |
-| LLM01 Prompt injection (direct and indirect) | [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`ai/guide-ai-adversarial-test-reference.md`](../ai/guide-ai-adversarial-test-reference.md), [`ai/guide-ai-security-technical-implementation.md`](../ai/guide-ai-security-technical-implementation.md) | Architectural recommendation |
-| LLM02 Sensitive information disclosure | [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`security/standard-data-loss-prevention.md`](../security/standard-data-loss-prevention.md) | Architectural recommendation |
-| LLM03 Supply chain (model and component provenance) | [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md), [`dev-security/standard-software-composition-analysis.md`](../dev-security/standard-software-composition-analysis.md) | Architectural recommendation |
-| LLM04 Data and model poisoning | [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](../ai/standard-ai-model-risk.md), [`ai/procedure-ai-model-risk-assessment.md`](../ai/procedure-ai-model-risk-assessment.md) | Architectural recommendation |
-| LLM05 Improper output handling | [`ai/guide-ai-security-technical-implementation.md`](../ai/guide-ai-security-technical-implementation.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md) | Architectural recommendation |
-| LLM06 Excessive agency in agentic systems | [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`ai/guide-ai-security-technical-implementation.md`](../ai/guide-ai-security-technical-implementation.md) | Architectural recommendation |
-| LLM07 System prompt leakage | [`ai/guide-ai-adversarial-test-reference.md`](../ai/guide-ai-adversarial-test-reference.md), [`ai/guide-ai-security-technical-implementation.md`](../ai/guide-ai-security-technical-implementation.md) | Architectural recommendation |
-| LLM08 Vector and embedding weaknesses | [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`ai/guide-ai-security-technical-implementation.md`](../ai/guide-ai-security-technical-implementation.md) | Architectural recommendation |
-| LLM09 Misinformation and hallucination | [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md), [`ai/procedure-ai-evaluation.md`](../ai/procedure-ai-evaluation.md), [`ai/standard-ai-testing-validation-and-documentation.md`](../ai/standard-ai-testing-validation-and-documentation.md) | Architectural recommendation |
-| LLM10 Unbounded consumption | [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`ai/guide-ai-security-technical-implementation.md`](../ai/guide-ai-security-technical-implementation.md) | Architectural recommendation |
+| LLM01:2026 Prompt injection (direct and indirect) | [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`ai/guide-ai-adversarial-test-reference.md`](../ai/guide-ai-adversarial-test-reference.md), [`ai/guide-ai-security-technical-implementation.md`](../ai/guide-ai-security-technical-implementation.md) | Architectural recommendation |
+| LLM02:2026 Sensitive information disclosure | [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`security/standard-data-loss-prevention.md`](../security/standard-data-loss-prevention.md) | Architectural recommendation |
+| LLM03:2026 Excessive agency in agentic systems | [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`ai/guide-ai-security-technical-implementation.md`](../ai/guide-ai-security-technical-implementation.md) | Architectural recommendation |
+| LLM04:2026 Supply chain (model and component provenance) | [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md), [`dev-security/standard-software-composition-analysis.md`](../dev-security/standard-software-composition-analysis.md) | Architectural recommendation |
+| LLM05:2026 Data and model poisoning | [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](../ai/standard-ai-model-risk.md), [`ai/procedure-ai-model-risk-assessment.md`](../ai/procedure-ai-model-risk-assessment.md) | Architectural recommendation |
+| LLM06:2026 Unbounded consumption | [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`ai/guide-ai-security-technical-implementation.md`](../ai/guide-ai-security-technical-implementation.md) | Architectural recommendation |
+| LLM07:2026 Misinformation (including hallucination) | [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md), [`ai/procedure-ai-evaluation.md`](../ai/procedure-ai-evaluation.md), [`ai/standard-ai-testing-validation-and-documentation.md`](../ai/standard-ai-testing-validation-and-documentation.md) | Architectural recommendation |
+| LLM08:2026 Hidden context exposure (formerly system prompt leakage) | [`ai/guide-ai-adversarial-test-reference.md`](../ai/guide-ai-adversarial-test-reference.md), [`ai/guide-ai-security-technical-implementation.md`](../ai/guide-ai-security-technical-implementation.md) | Architectural recommendation |
+| LLM09:2026 Vector and embedding weaknesses | [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`ai/guide-ai-security-technical-implementation.md`](../ai/guide-ai-security-technical-implementation.md) | Architectural recommendation |
+| LLM10:2026 Improper output handling | [`ai/guide-ai-security-technical-implementation.md`](../ai/guide-ai-security-technical-implementation.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md) | Architectural recommendation |
 | MITRE ATLAS tactics (adversarial ML) | [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`ai/guide-ai-adversarial-test-reference.md`](../ai/guide-ai-adversarial-test-reference.md), [`ai/guideline-adversarial-evaluation-suite-development.md`](../ai/guideline-adversarial-evaluation-suite-development.md) | Architectural recommendation |
 
 ---
