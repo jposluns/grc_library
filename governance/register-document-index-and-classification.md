@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.127\
+**Version:** 1.27.128\
 **Date:** 2026-08-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -55,6 +55,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Domain | Type | Title | Repository Path | Owner Role | Review Frequency | Primary Alignment Families | Adoption Disposition |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Governance | Charter | Governance Library Charter | [`governance/charter-governance-library.md`](charter-governance-library.md) | Governance Library Maintainer | Annual | Governance authority, document lifecycle, licence boundary | library-internal |
+| Governance | Principle | Capability Is Not Authority Principle | [`governance/principle-capability-is-not-authority.md`](principle-capability-is-not-authority.md) | Governance Library Maintainer | Annual and upon material governance, AI, or regulatory change | Access governance: capability is not authority; the seven capability vectors vs the authorization record; default-deny, zero-trust, least-privilege, fail-closed instantiation; NIST SP 800-53 AC family, ISO/IEC 27001 A.5/A.8, NIST CSF PR.AA, CSA CCM IAM | library-internal |
 | Governance | Principle | Integrity and Trustworthiness Principle | [`governance/principle-integrity-and-trustworthiness.md`](principle-integrity-and-trustworthiness.md) | Governance Library Maintainer | Annual and upon material governance, AI, or regulatory change | The AIQT Principle ((Accuracy = Integrity = Quality = Trust) > Progress > Speed > Cost): the four co-equal facets (with Progress and Speed the throughput tier below them), their enforcing machinery, and the source-verified AI-assurance framework alignment | library-internal |
 | Governance | Framework | Document Architecture and Interrelationship Framework | [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md) | Governance Library Maintainer | Annual | Governance hierarchy, audit traceability, policy architecture | template |
 | Governance | Framework | Governance Relationship and Flow Modelling Framework | [`governance/framework-governance-relationship-and-flow-modelling.md`](framework-governance-relationship-and-flow-modelling.md) | Governance Library Maintainer | Annual | Directed relationship-flow modelling, node classes, six viewpoints, canonical verbs, validation tests | template |

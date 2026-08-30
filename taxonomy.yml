@@ -5575,7 +5575,7 @@ documents:
   domain: "governance"
   type: "Register"
   title: "Document Index and Classification Register"
-  version: "1.27.127"
+  version: "1.27.128"
   date: "2026-08-30"
   owner: "Governance Library Maintainer"
   approving_authority: "Governance Library Maintainer"
