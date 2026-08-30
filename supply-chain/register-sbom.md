@@ -2,8 +2,8 @@
 
 **Document Title:** Software Bill of Materials Register\
 **Document Type:** Register\
-**Version:** 1.0.3\
-**Date:** 2026-07-02\
+**Version:** 1.0.4\
+**Date:** 2026-08-30\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-fourth-party-and-nth-party-risk.md`](procedure-fourth-party-and-nth-party-risk.md), [`dev-security/standard-software-composition-analysis.md`](../dev-security/standard-software-composition-analysis.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md)\
@@ -129,7 +129,7 @@ Each SBOM is continuously cross-referenced against published vulnerability data:
 
 Where the organization is a software vendor or delivers software-bearing products to customers:
 
-1. Customer contracts at the equivalent tier include the SBOM as a customer-deliverable obligation under EU Cyber Resilience Act, US Executive Order 14028, and applicable sector regulation.
+1. Customer contracts at the equivalent tier include the SBOM as a customer deliverable (the organization's own supply-chain-transparency commitment), aligned with the EU Cyber Resilience Act requirement to draw up an SBOM (Annex I; the CRA does not itself oblige making the SBOM public), the software-supply-chain expectations US Executive Order 14028 set for US federal procurement, and any applicable sector regulation.
 2. Customer-distributed SBOMs are produced from the internal SBOM with consistent format and coverage statement.
 3. Customer queries about specific CVEs are answered using the corresponding VEX statement.
 
@@ -152,7 +152,7 @@ Where the organization is a software vendor or delivers software-bearing product
 | US Executive Order 14028 | EO 14028 §4 | Federal SBOM expectation |
 | CISA SBOM guidance | Multiple | SBOM operationalization |
 | EU Cyber Resilience Act | Regulation (EU) 2024/2847 | Mandatory product-level SBOM |
-| NIST SP 800-218 | SSDF PW.4, PW.7, PW.8 | Secure software development; SBOM production |
+| NIST SP 800-218 | SSDF PS.3.2 (provenance/SBOM); PW.4, PW.7, PW.8 (secure development) | SBOM production and sharing maps to PS.3.2 ("share provenance data ... in a software bill of materials"); the PW practices cover secure development, not SBOM production |
 | NIST SP 800-161 Rev. 1 | Cybersecurity Supply Chain Risk Management | Supply chain |
 | ISO/IEC 5230 (OpenChain) | Open source compliance | OSS programme baseline |
 | CycloneDX | OWASP standard | SBOM format |
