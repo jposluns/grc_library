@@ -354,6 +354,12 @@ EXEMPT: dict[tuple[str, str], str] = {
         "PARTIAL CLOSE (DONE:216, #1677; findings F45/F47/F41-42 of the live "
         "P-3.209 defect-hunt umbrella)."
     ),
+    ("P-1.31", "P-1.31 item 6"): (
+        "PARTIAL CLOSE (DONE:3591, #1821) of the live P-1.31 umbrella (external "
+        "AI-review advisory: the 5 governance-coverage docs the maintainer picked). "
+        "Item 6 (Capability Is Not Authority principle) landed; items 1/10/2/7 "
+        "remain open, so P-1.31 stays live at P-TODO until all five land."
+    ),
     ("P-3.214", "P-3.214 ISO 19011:2018"): (
         "PARTIAL CLOSE (DONE:632, #1392) of the live P-3.214 reference-currency "
         "umbrella (ISO 19011 edition migration)."

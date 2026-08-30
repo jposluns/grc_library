@@ -2,8 +2,8 @@
 
 **Document Title:** AI Governance Domain README\
 **Document Type:** Register\
-**Version:** 1.1.15\
-**Date:** 2026-07-24\
+**Version:** 1.1.16\
+**Date:** 2026-08-30\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md)\
@@ -38,6 +38,7 @@ AI documents in this repository treat data as the primary risk surface. They add
 | Template | AI System Register Template | [`ai/template-ai-system-register.md`](template-ai-system-register.md) |
 | Framework | AI Model Risk Framework | [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md) |
 | Standard | AI Model Risk Standard | [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md) |
+| Standard | AI Human-Oversight Standard | [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md) |
 | Procedure | AI Model Risk Assessment Procedure | [`ai/procedure-ai-model-risk-assessment.md`](procedure-ai-model-risk-assessment.md) |
 | Matrix | AI Model Risk Control to Lifecycle Mapping | [`ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md`](matrix-ai-model-risk-control-to-lifecycle-mapping.md) |
 | Template | Model Card Template | [`ai/template-model-card.md`](template-model-card.md) |

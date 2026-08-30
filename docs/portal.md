@@ -403,6 +403,7 @@ Security architects need the dev-security standards, the AI security guides, the
 
 - [AI Access and Agent Permissions Standard](../ai/standard-ai-access-and-agent-permissions.md) (maturity: Draft)
 - [AI Data Quality and Readiness Validation Standard](../ai/standard-ai-data-quality-and-readiness-validation.md) (maturity: Draft)
+- [AI Human-Oversight Standard](../ai/standard-ai-human-oversight.md) (maturity: Draft)
 - [AI Inference Cost Governance Standard](../ai/standard-ai-inference-cost-governance.md) (maturity: Draft)
 - [AI Model Risk Standard](../ai/standard-ai-model-risk.md) (maturity: Mature)
 - [AI Security and Risk Standard](../ai/standard-ai-security-and-risk.md) (maturity: Mature)
