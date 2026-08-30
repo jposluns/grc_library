@@ -2,8 +2,8 @@
 
 **Document Title:** AI Vendor Security Questionnaire Template\
 **Document Type:** Template\
-**Version:** 1.0.3\
-**Date:** 2026-07-11\
+**Version:** 1.0.4\
+**Date:** 2026-08-30\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/template-supplier-security-questionnaire.md`](../supply-chain/template-supplier-security-questionnaire.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/register-model-registry.md`](register-model-registry.md)\
@@ -196,7 +196,7 @@ This section applies where the provider offers agentic or tool-using capabilitie
 | ISO/IEC 42001:2023 | All clauses | AI management system |
 | EU AI Act | Articles 26 (deployer), 53 (GPAI), 55 (GPAI systemic risk) | Provider regulation |
 | NIST AI RMF | MAP, MEASURE, MANAGE | Risk management functions |
-| OWASP LLM Top 10 | LLM03 supply chain | AI supply-chain risk |
+| OWASP LLM Top 10 | LLM04:2026 Supply Chain | AI supply-chain risk |
 | ISO/IEC 27036 | Information security for supplier relationships | Supplier security baseline |
 | GDPR / UK GDPR | Article 28 | Processor obligations where personal data is involved |
 | DORA | Articles 28 to 44 | Where the provider is a critical ICT third party |

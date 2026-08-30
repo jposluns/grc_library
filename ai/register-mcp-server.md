@@ -2,8 +2,8 @@
 
 **Document Title:** Model Context Protocol Server Register\
 **Document Type:** Register\
-**Version:** 1.0.5\
-**Date:** 2026-08-03\
+**Version:** 1.0.6\
+**Date:** 2026-08-30\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`guardrails/ai/mcp-security.md`](../guardrails/ai/mcp-security.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
@@ -148,7 +148,7 @@ Every approved server satisfies:
 | --- | --- | --- |
 | MCP specification | Open standard | Protocol baseline |
 | ISO/IEC 42001:2023 | §8 operation | AI management system |
-| OWASP LLM Top 10 | LLM06 excessive agency; LLM03 supply chain | Agentic and supply-chain risks |
+| OWASP LLM Top 10 | LLM03:2026 Excessive Agency; LLM04:2026 Supply Chain | Agentic and supply-chain risks |
 | MITRE ATLAS | Tool-abuse tactics | Adversarial ML |
 | NIST AI RMF | MANAGE | AI risk management |
 | NIST SP 800-53 Rev. 5 | AC, AU, SI, SR families | Access, audit, integrity, supply chain |

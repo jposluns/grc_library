@@ -2,7 +2,7 @@
 
 **Document Title:** AI Algorithmic Compliance Checklist\
 **Document Type:** Checklist\
-**Version:** 1.0.12\
+**Version:** 1.0.13\
 **Date:** 2026-08-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -88,13 +88,13 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 
 ## Section c: security controls
 
-*Synthesized from: OWASP LLM Top 10 (2025); MITRE ATLAS adversarial ML evaluation; EU AI Act Art. 15; NIST AI RMF Measure 2.7; ISO/IEC 42001:2023 §8.3*
+*Synthesized from: OWASP LLM Top 10 (2026); MITRE ATLAS adversarial ML evaluation; EU AI Act Art. 15; NIST AI RMF Measure 2.7; ISO/IEC 42001:2023 §8.3*
 
 | # | Control Item | Status (Yes / No / Partial / N/A) | Evidence | Owner | Notes |
 |---|---|---|---|---|---|
-| C1 | Prompt injection attack resistance tested (OWASP LLM01): system has been assessed for direct and indirect prompt injection; findings documented and remediated | | | | |
-| C2 | Training data poisoning controls in place (OWASP LLM04 Data and Model Poisoning in the 2025 edition): data provenance validated; integrity controls applied; adversarial data injection tested | | | | |
-| C3 | Model inversion and membership inference risks assessed (NIST AI RMF Measure 2.7; not a distinct OWASP LLM Top 10:2025 category but related to LLM02 Sensitive Information Disclosure): risk assessment documented; mitigations implemented where risk is material | | | | |
+| C1 | Prompt injection attack resistance tested (OWASP LLM01:2026): system has been assessed for direct and indirect prompt injection; findings documented and remediated | | | | |
+| C2 | Training data poisoning controls in place (OWASP LLM05:2026 Data and Model Poisoning): data provenance validated; integrity controls applied; adversarial data injection tested | | | | |
+| C3 | Model inversion and membership inference risks assessed (NIST AI RMF Measure 2.7; not a distinct OWASP LLM Top 10:2026 category but related to LLM02:2026 Sensitive Information Disclosure): risk assessment documented; mitigations implemented where risk is material | | | | |
 | C4 | Output validation implemented before AI outputs are used in downstream decisions or communicated to users: validation logic documented and tested | | | | |
 | C5 | AI system access controls verified: principle of least privilege applied; service accounts are isolated; privileged access is logged and reviewed | | | | |
 | C6 | AI system logs (inputs, outputs, decisions, anomalies) forwarded to the SIEM platform and retained for a minimum of 7 years per the AI decision and detection logs row in [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md) | | | | |

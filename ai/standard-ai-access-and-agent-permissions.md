@@ -2,8 +2,8 @@
 
 **Document Title:** AI Access and Agent Permissions Standard\
 **Document Type:** Standard\
-**Version:** 0.0.11\
-**Date:** 2026-07-22\
+**Version:** 0.0.12\
+**Date:** 2026-08-30\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/register-mcp-server.md`](register-mcp-server.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/plan-ai-incident-response.md`](plan-ai-incident-response.md), [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md)\
@@ -253,7 +253,7 @@ Retrieval-augmented generation and other context-injection patterns:
 | ISO/IEC 42001:2023 | §8 operation | AI operational controls |
 | EU AI Act | Articles 14, 15, 26 | Human oversight, accuracy and security, deployer obligations |
 | NIST AI RMF | MANAGE | Risk management of operational AI |
-| OWASP LLM Top 10 | LLM05 improper output handling; LLM06 excessive agency; LLM08 vector and embedding weaknesses | Agentic and retrieval risks |
+| OWASP LLM Top 10 | LLM10:2026 Improper Output Handling; LLM03:2026 Excessive Agency; LLM09:2026 Vector and Embedding Weaknesses | Agentic and retrieval risks |
 | MITRE ATLAS | Tactics relating to tool abuse and credential access | Adversarial ML threat catalogue |
 | NIST SP 800-53 Rev. 5 | AC family | Access control baseline |
 | ISO/IEC 27001:2022 | A.5.15 to A.5.18, A.8.2 | Access control and privileged access |

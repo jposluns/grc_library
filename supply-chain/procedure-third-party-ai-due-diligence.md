@@ -2,8 +2,8 @@
 
 **Document Title:** Third-Party AI Due Diligence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.12\
-**Date:** 2026-08-24\
+**Version:** 1.0.13\
+**Date:** 2026-08-30\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -156,9 +156,9 @@ At least annually, the AI Governance Council must review or commission a bias an
 
 Whenever a supplier releases a major model version update, a re-evaluation against the OWASP LLM Top 10 supply chain risk categories must be conducted before the new version is approved for operational use. The evaluation must specifically address:
 
-- LLM03: Supply Chain (model and component provenance).
-- LLM04: Data and Model Poisoning (training-data integrity).
-- LLM09: Misinformation (including overreliance on hallucinated AI output for automated decisions).
+- LLM04:2026: Supply Chain (model and component provenance).
+- LLM05:2026: Data and Model Poisoning (training-data integrity).
+- LLM07:2026: Misinformation (including overreliance on hallucinated AI output for automated decisions).
 
 ### 7.4 Reassessment triggers
 
@@ -220,7 +220,7 @@ The organization must retain the following AI system documentation for a minimum
 - NIST AI Risk Management Framework 1.0: Govern 1.1 to 1.7; Map 5.1 to 5.2.
 - ISO/IEC 42001:2023, Artificial intelligence, Management system, Annex A.10 and B.10.3 (Third-party and customer relationships, Suppliers), applied to third-party AI governance.
 - EU AI Act (Regulation 2024/1689): Articles 9 (Risk management), 13 (Transparency and provision of information), 26 (Obligations of deployers of high-risk AI systems), and 23 (Obligations of importers).
-- OWASP LLM Top 10:2025: LLM03 Supply Chain; LLM04 Data and Model Poisoning; LLM09 Misinformation (the 2025 edition restructured and renumbered the risks; this list uses 2025 numbering).
+- OWASP LLM Top 10:2026: LLM04:2026 Supply Chain; LLM05:2026 Data and Model Poisoning; LLM07:2026 Misinformation (the 2026 edition renumbered the risks; this list uses 2026 numbering).
 - CSA AI Controls Matrix (AICM) v1.1: Cloud Security Alliance.
 - ISO/IEC 27036-3:2023: Cybersecurity - Supplier relationships - Part 3: Guidelines for hardware, software, and services supply chain security (Edition 2; supersedes the 2013 edition titled "Information security for supplier relationships - Guidelines for ICT supply chain security").
 - ENISA AI cybersecurity work (feasibility studies and standardization gap analyses under the EU Cybersecurity Act framework; as of 2026 no dedicated AI cybersecurity certification scheme has been formally published, though the work is ongoing and adopters should monitor ENISA publications and EU AI Act conformity-assessment guidance).

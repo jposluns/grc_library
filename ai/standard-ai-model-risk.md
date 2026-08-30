@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Risk Standard\
 **Document Type:** Standard\
-**Version:** 1.1.3\
-**Date:** 2026-07-11\
+**Version:** 1.1.4\
+**Date:** 2026-08-30\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/procedure-ai-model-risk-assessment.md`](procedure-ai-model-risk-assessment.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)\
@@ -63,7 +63,7 @@ It applies to internally developed models, externally supplied models, fine-tune
 
 ### 3.5 Robustness and adversarial testing
 
-Model testing must address, proportionate to risk and model class. The taxonomy below distinguishes LLM and generative-system threats from classical ML threats, federated-learning threats, and the defence categories that apply across them. Coverage depth follows model class and deployment context, not all threats apply to all models. The threat and defence categories in this section align with the adversarial-machine-learning taxonomy of NIST AI 100-2e2025, the LLM-application risks of the OWASP Top 10 for LLM Applications v2.0, and the adversarial-technique catalogue of MITRE ATLAS; the specific technique names below are illustrative, not an exhaustive or prescriptive list.
+Model testing must address, proportionate to risk and model class. The taxonomy below distinguishes LLM and generative-system threats from classical ML threats, federated-learning threats, and the defence categories that apply across them. Coverage depth follows model class and deployment context, not all threats apply to all models. The threat and defence categories in this section align with the adversarial-machine-learning taxonomy of NIST AI 100-2e2025, the LLM-application risks of the OWASP Top 10 for LLM Applications (2026 edition), and the adversarial-technique catalogue of MITRE ATLAS; the specific technique names below are illustrative, not an exhaustive or prescriptive list.
 
 #### 3.5.1 LLM and generative-system threats
 

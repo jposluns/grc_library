@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.125\
+**Version:** 1.27.126\
 **Date:** 2026-08-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -300,9 +300,9 @@ Documents are classified by their **primary** disposition. The small number that
 | AI | Template | Dataset Datasheet Template | [`ai/template-dataset-datasheet.md`](../ai/template-dataset-datasheet.md) | AI Data Steward | Annual | Datasheets for Datasets, ISO/IEC 42001 §7.5, EU AI Act Arts 10-12, NIST AI RMF MAP, GDPR Arts 5/6/9/25/30, ISO/IEC 5259 | template |
 | AI | Register | Model Registry | [`ai/register-model-registry.md`](../ai/register-model-registry.md) | AI System Inventory Keeper | Continuous | ISO/IEC 42001 §8/§7.5, EU AI Act Arts 9/11/12/26/50/Annex IV, NIST AI RMF MAP/MEASURE/MANAGE, ISO/IEC 42006:2025, ISO/IEC 23894 | template |
 | AI | Procedure | Foundation Model Lifecycle Procedure | [`ai/procedure-foundation-model-lifecycle.md`](../ai/procedure-foundation-model-lifecycle.md) | AI Governance Approver | Annual | ISO/IEC 42001 §8/9, EU AI Act Arts 26/50/53, NIST AI RMF, ISO/IEC 23894, Hiroshima Process, DORA Arts 28-44 | template |
-| AI | Template | AI Vendor Security Questionnaire Template | [`ai/template-ai-vendor-security-questionnaire.md`](../ai/template-ai-vendor-security-questionnaire.md) | AI Security Maintainer | Annual | ISO/IEC 42001, EU AI Act Arts 26/53/55, NIST AI RMF, OWASP LLM03, ISO/IEC 27036, GDPR Art 28, DORA Arts 28-44 | template |
-| AI | Standard | AI Access and Agent Permissions Standard | [`ai/standard-ai-access-and-agent-permissions.md`](../ai/standard-ai-access-and-agent-permissions.md) | AI Security Maintainer | Annual | ISO/IEC 42001 §8, EU AI Act Arts 14/15/26, NIST AI RMF MANAGE, OWASP LLM05/06/08, MITRE ATLAS, NIST SP 800-53 AC, ISO/IEC 27001 Annex A.5.15-18, A.8.2 | template |
-| AI | Register | Model Context Protocol Server Register | [`ai/register-mcp-server.md`](../ai/register-mcp-server.md) | AI Security Maintainer | Quarterly | MCP specification, ISO/IEC 42001 §8, OWASP LLM06/LLM03, MITRE ATLAS, NIST AI RMF, NIST SP 800-53 AC/AU/SI/SR, ISO/IEC 27001 | template |
+| AI | Template | AI Vendor Security Questionnaire Template | [`ai/template-ai-vendor-security-questionnaire.md`](../ai/template-ai-vendor-security-questionnaire.md) | AI Security Maintainer | Annual | ISO/IEC 42001, EU AI Act Arts 26/53/55, NIST AI RMF, OWASP LLM04:2026, ISO/IEC 27036, GDPR Art 28, DORA Arts 28-44 | template |
+| AI | Standard | AI Access and Agent Permissions Standard | [`ai/standard-ai-access-and-agent-permissions.md`](../ai/standard-ai-access-and-agent-permissions.md) | AI Security Maintainer | Annual | ISO/IEC 42001 §8, EU AI Act Arts 14/15/26, NIST AI RMF MANAGE, OWASP LLM10:2026/LLM03:2026/LLM09:2026, MITRE ATLAS, NIST SP 800-53 AC, ISO/IEC 27001 Annex A.5.15-18, A.8.2 | template |
+| AI | Register | Model Context Protocol Server Register | [`ai/register-mcp-server.md`](../ai/register-mcp-server.md) | AI Security Maintainer | Quarterly | MCP specification, ISO/IEC 42001 §8, OWASP LLM03:2026/LLM04:2026, MITRE ATLAS, NIST AI RMF, NIST SP 800-53 AC/AU/SI/SR, ISO/IEC 27001 | template |
 | AI | Procedure | Training Data Governance Procedure | [`ai/procedure-training-data-governance.md`](../ai/procedure-training-data-governance.md) | AI Data Steward | Annual | EU AI Act Arts 10/11, ISO/IEC 42001 §7.5, GDPR Arts 5/6/9/17/22/25/30/35, LGPD, PIPL, NIST AI RMF MAP, ISO/IEC 5259, OECD AI | template |
 | AI | Standard | AI Inference Cost Governance Standard | [`ai/standard-ai-inference-cost-governance.md`](../ai/standard-ai-inference-cost-governance.md) | AI Governance Approver | Annual | ISO/IEC 42001 §8/9, NIST AI RMF MEASURE/MANAGE, FinOps Foundation Framework, ISO/IEC 30134, EU AI Act Arts 26/53/55, GHG Protocol | template |
 | AI | Template | AI Red Team Report Template | [`ai/template-ai-red-team-report.md`](../ai/template-ai-red-team-report.md) | AI Security Maintainer | Annual | OWASP LLM Top 10, MITRE ATLAS, NIST AI RMF MEASURE, ISO/IEC 42001 §9, EU AI Act Arts 15/17, ISO/IEC 27001 Annex A.8.29, PTES, OWASP GenAI Red Teaming | template |
