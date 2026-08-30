@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.62\
+**Version:** 1.5.63\
 **Date:** 2026-08-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -236,7 +236,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | OWASP MCP Top 10 | 2025 (Beta; a living document whose categories may change) | 2025 | Security risks for Model Context Protocol integrations; anchor controls corroboratively rather than normatively while it remains Beta | - | https://owasp.org/www-project-mcp-top-10/ | 2026-06-30 |
 | OWASP GenAI Red Teaming Guide | 1.0 | 2025-01 | Phased GenAI red-team process blueprint (model, implementation, system, and runtime / human and agentic evaluation phases) with per-phase checklists and agentic and RAG red-team tooling; sub-formal trusted guidance, cited corroboratively (see-also), not normative | - | https://genai.owasp.org/ | 2026-07-24 |
 | OWASP ASVS | 5.0.0 | 2025-05 | Application Security Verification Standard (released May 2025 at Global AppSec EU Barcelona; ~350 requirements across 17 chapters in a three-tier model) | 4.0.3, 4.0, 3.0 | https://owasp.org/www-project-application-security-verification-standard/ | 2026-06-30 |
-| OWASP SAMM | 2.0 | 2020 | Software Assurance Maturity Model | 1.5 | https://owaspsamm.org/ | 2026-06-30 |
+| OWASP SAMM | 2.2.0 | 2026-07 | Software Assurance Maturity Model | 2.1.0, 2.0, 1.5 | https://owaspsamm.org/ | verified 2026-08-30 (held _ref v2.2.0; owaspsamm/core tag v2.2.0 released 2026-07-06) |
 
 ## Customs and trade
 
