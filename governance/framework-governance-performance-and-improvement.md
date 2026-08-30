@@ -2,8 +2,8 @@
 
 **Document Title:** Governance Performance and Improvement Framework\
 **Document Type:** Framework\
-**Version:** 1.0.10\
-**Date:** 2026-08-29\
+**Version:** 1.0.11\
+**Date:** 2026-08-30\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`governance/register-digital-trust-and-assurance-metrics.md`](register-digital-trust-and-assurance-metrics.md), [`governance/standard-maturity-assessment-methodology.md`](standard-maturity-assessment-methodology.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -46,7 +46,7 @@ Annual maturity assessments are conducted across all governance domains using a 
 | 4: Quantitatively Managed | Processes measured with quantitative objectives; statistical controls applied. |
 | 5: Optimized | Continuous process improvement through incremental and innovative change. |
 
-AI governance maturity indicators covering explainability, fairness, and accountability are monitored under ISO/IEC 42001 Clause 9.1.
+Organization-defined AI governance maturity indicators covering explainability, fairness, and accountability, selected to support the monitoring, measurement, analysis, and evaluation required by ISO/IEC 42001 Clause 9.1, are tracked in the maturity assessment.
 
 The methodology behind this ladder, the median-of-medians aggregation, its outlier-masking limitation, and the compensating floor-check the assessor applies, is documented in [`governance/standard-maturity-assessment-methodology.md`](standard-maturity-assessment-methodology.md).
 
