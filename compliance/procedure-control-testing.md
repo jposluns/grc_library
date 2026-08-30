@@ -2,8 +2,8 @@
 
 **Document Title:** Control Testing Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.3\
-**Date:** 2026-08-27\
+**Version:** 1.1.4\
+**Date:** 2026-08-30\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md), [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md)\
@@ -61,7 +61,7 @@ The tester of a control is never the owner or operator of that control: control 
 | **Medium** | At least once every two years |
 | **Low** | At least once every three years |
 
-No control within a certification scope is tested less often than the certification's own cycle requires (for example, controls in the ISO/IEC 27001 and SOC 2 scopes are tested at least annually irrespective of risk rating), and no in-scope control remains untested for more than three consecutive years.
+No control within a certification scope is tested less often than the certification's own maintenance cycle requires (for example, in-scope SOC 2 controls are tested at least annually under the Type II audit period, and the organization schedules its ISO/IEC 27001 internal-audit programme so that in-scope controls are covered at least annually; ISO/IEC 27001 Clause 9.2 itself requires internal audits at organization-defined planned intervals rather than a fixed annual per-control cadence), and no in-scope control remains untested for more than three consecutive years.
 
 1.4 The Control Testing Calendar records, per planned test: the control identifier and framework reference, the control owner, the test type (design or operating effectiveness), the planned test period, the assigned tester, the residual-risk rating driving the frequency, and the certification scopes the control supports.
 
