@@ -2,8 +2,8 @@
 
 **Document Title:** What happens when a critical AI supplier fails\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.1\
-**Date:** 2026-08-15\
+**Version:** 0.0.2\
+**Date:** 2026-08-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/procedure-third-party-ai-due-diligence.md`](../../supply-chain/procedure-third-party-ai-due-diligence.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md), [`ai/plan-ai-incident-response.md`](../../ai/plan-ai-incident-response.md)\
@@ -38,7 +38,7 @@ The first signals are operational. The [AI Incident Response Plan](../../ai/plan
 
 The provider's advisory arrives through the contractual notification channel. Where the contract follows the corpus pattern, it obliges the provider to notify within the window the [Third-Party AI Due Diligence Procedure](../../supply-chain/procedure-third-party-ai-due-diligence.md) records and to state the notification contents it specifies (its section 6.3).
 
-The next internal question is exposure. The [Model Registry](../../ai/register-model-registry.md) is the corpus's authoritative inventory of every model the organization uses in production or pre-production, and its scope includes foundation models consumed from a provider, recorded at the specific version and configuration the organization depends on; each entry cross-references the AI systems that depend on the model, and its lineage records exist to allow traceability for incident response and supplier-incident impact analysis. The register is a dependency of a complete impact assessment: enumerating the affected models, systems, and derived artefacts requires the inventory the register holds.
+The next internal question is exposure. The [Model Registry](../../ai/register-model-registry.md) is the corpus's model-scoped view of the authoritative AI System Inventory, covering every model the organization uses in production or pre-production, and its scope includes foundation models consumed from a provider, recorded at the specific version and configuration the organization depends on; each entry cross-references the AI systems that depend on the model, and its lineage records exist to allow traceability for incident response and supplier-incident impact analysis. The register is a dependency of a complete impact assessment: enumerating the affected models, systems, and derived artefacts requires the inventory the register holds.
 
 The event now runs in four streams at once: an operational outage, a security incident, a privacy matter, and a supplier matter. The [Cross-Domain Incident Coordination Procedure](../../resilience/procedure-cross-domain-incident-coordination.md) assigns ownership for exactly these classes, and it supplies the joint command structure and the hand-off checklists that coordinate the parallel streams (the checklist items it enumerates).
 
