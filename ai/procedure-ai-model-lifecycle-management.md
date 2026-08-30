@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Lifecycle Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.6\
-**Date:** 2026-08-13\
+**Version:** 1.0.7\
+**Date:** 2026-08-30\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -36,17 +36,17 @@ Applies to all AI models and machine learning systems developed internally, proc
 | **AI System Owner** | Accountable for model currency, performance, and compliance throughout lifecycle. |
 | **AI Development / Data Science Teams** | Execute development, testing, training, and retraining activities. |
 | **CISO** | Reviews security requirements at deployment and retraining gates. |
-| **GRC Programme Manager** | Maintains the AI System Inventory and tracks lifecycle status. |
+| **AI System Inventory Keeper** | Owns and maintains the AI System Inventory (the authoritative system-of-record for all AI models and systems) and tracks lifecycle status. |
 
 ---
 
 ## 1. AI system inventory
 
-1.1 The GRC Programme Manager maintains an AI System Inventory covering all AI models in use or under development.
+1.1 The AI System Inventory Keeper owns and maintains the AI System Inventory, the authoritative system-of-record, covering all AI models in use or under development.
 
 1.2 Inventory records include: model name, version, owner, risk tier, deployment date, last review date, monitoring status, lifecycle stage, and the recorded performance thresholds (metric, floor value, and accountable owner) required at deployment by 4.5.
 
-1.3 The inventory is reviewed and updated at minimum quarterly by the GRC Programme Manager.
+1.3 The inventory is reviewed and updated at minimum quarterly by the AI System Inventory Keeper.
 
 ---
 

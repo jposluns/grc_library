@@ -2,8 +2,8 @@
 
 **Document Title:** Asset Inventory Register\
 **Document Type:** Register\
-**Version:** 1.0.8\
-**Date:** 2026-08-26\
+**Version:** 1.0.9\
+**Date:** 2026-08-30\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/procedure-patch-management.md`](procedure-patch-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This register defines the schema, governance, and classification model for the organizational Asset Inventory. The Asset Inventory is the authoritative record of all IT hardware, software, cloud resources, data assets, and AI systems owned, managed, or used by the organization. It supports risk assessments, vulnerability management, disaster recovery planning, and compliance activities.
+This register defines the schema, governance, and classification model for the organizational Asset Inventory. The Asset Inventory is the authoritative record of all IT hardware, software, cloud resources, data assets, and AI systems owned, managed, or used by the organization as IT assets. For AI systems, the Asset Inventory records them as deployed IT assets and defers to the AI System Inventory (the authoritative AI-governance record of all AI models and systems, owned by the AI System Inventory Keeper) for their AI-governance attributes such as model lineage, risk tier, and lifecycle status. It supports risk assessments, vulnerability management, disaster recovery planning, and compliance activities.
 
 ---
 
