@@ -2,8 +2,8 @@
 
 **Document Title:** Continuous Assurance and Improvement Framework\
 **Document Type:** Framework\
-**Version:** 1.1.3\
-**Date:** 2026-08-29\
+**Version:** 1.1.4\
+**Date:** 2026-08-30\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](../compliance/procedure-audit-planning.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md)\
@@ -28,7 +28,7 @@ It ensures that ongoing monitoring, evaluation, and improvement activities are c
 
 1. Applies to all enterprise governance domains, including information security, privacy, AI ethics, sustainability, ESG, and BASC trade compliance.
 2. Covers assurance mechanisms for control effectiveness, process maturity, and regulatory compliance.
-3. Includes AI governance maturity monitoring under ISO/IEC 42001 §9.1 and digital trust indicators per COBIT 2019.
+3. Includes AI governance maturity monitoring under ISO/IEC 42001 §9.1 and organization-defined digital-trust indicators (informed by ISACA's Digital Trust Ecosystem Framework, 2024).
 4. Encompasses global operations, including BASC-certified trade and logistics activities.
 
 ---
@@ -92,7 +92,7 @@ This structure provides a continuous feedback loop ensuring organizational learn
 
 ## 4. Performance evaluation
 
-### 4.1 Digital trust indicators (COBIT 2019)
+### 4.1 Digital-trust indicators (organization-defined)
 
 The organization must track and improve:
 - Governance effectiveness and transparency.
@@ -182,7 +182,7 @@ Performance data from all assurance activities feed into the Governance Performa
 | ISO/IEC 42001:2023 | §9.1: Monitoring, measurement, analysis and evaluation | AI governance maturity KPIs |
 | ISO/IEC 27001:2022 | §10: Continual Improvement | Security assurance integration |
 | COBIT 2019 | MEA01: Managed Performance and Conformance Monitoring | Performance governance, digital trust |
-| COBIT 2019 | Digital Trust Indicators | Governance maturity metrics |
+| ISACA DTEF (2024) | Digital-trust indicators (organization-defined) | Governance maturity metrics |
 | CSA CCM v4.1 | A&A-01, A&A-05: Audit and Assurance Policy and Procedures; Audit Management Process | Cloud control assurance |
 | BASC v6 (2022) | Trade and Customs Assurance Governance | Regional trade compliance integration |
 
