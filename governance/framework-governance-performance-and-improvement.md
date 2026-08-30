@@ -2,7 +2,7 @@
 
 **Document Title:** Governance Performance and Improvement Framework\
 **Document Type:** Framework\
-**Version:** 1.0.11\
+**Version:** 1.0.12\
 **Date:** 2026-08-30\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
@@ -32,7 +32,7 @@ Applies to all governance domains: governance, risk, compliance, security, priva
 
 ### 1. Governance performance measurement
 
-All governance domains define measurable KPIs aligned with organizational goals and compliance requirements. Metrics include risk reduction, compliance rate, audit closure rate, control effectiveness, and incident response time. Governance maturity is tracked using COBIT 2019 maturity models and Digital Trust Indicators.
+All governance domains define measurable KPIs aligned with organizational goals and compliance requirements. Metrics include risk reduction, compliance rate, audit closure rate, control effectiveness, and incident response time. Governance maturity is tracked using COBIT 2019 maturity models and organization-defined digital-trust indicators.
 
 ### 2. Maturity assessment
 
@@ -66,7 +66,7 @@ Organization-defined AI governance KPIs, selected to support the monitoring, mea
 - Bias mitigation and fairness testing frequency.
 - AI incident response timeliness.
 
-COBIT 2019 Digital Trust Indicators are applied across data, process, and technology domains.
+Organization-defined digital-trust indicators, informed by ISACA's Digital Trust Ecosystem Framework (DTEF, 2024), are applied across data, process, and technology domains.
 
 ---
 
@@ -102,7 +102,7 @@ COBIT 2019 Digital Trust Indicators are applied across data, process, and techno
 | ISO/IEC 27001:2022 | §10: Continual Improvement | Security governance improvement |
 | ISO/IEC 42001:2023 | §9.1: Monitoring, measurement, analysis and evaluation | AI maturity KPIs |
 | COBIT 2019 | MEA01: Managed Performance and Conformance Monitoring | Performance governance |
-| COBIT 2019 | Digital Trust Indicators | Maturity and stakeholder confidence |
+| ISACA DTEF (2024) | Digital-trust indicators (organization-defined) | Maturity and stakeholder confidence |
 
 ---
 
