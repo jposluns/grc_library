@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.131\
+**Version:** 1.27.132\
 **Date:** 2026-08-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -78,6 +78,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Governance | Matrix | Reverse Framework Control Crosswalk Matrix | [`governance/matrix-reverse-framework-control-crosswalk.md`](matrix-reverse-framework-control-crosswalk.md) | Control Framework Maintainer | 6 to 12 months | ISO/IEC 27001, ISO/IEC 42001, NIST CSF 2.0, NIST SP 800-53, NIST AI RMF, CSA CCM v4.1, EU AI Act, GDPR, DORA, NIS 2, OWASP LLM Top 10, MITRE ATLAS, CTPAT, BASC, WCO SAFE | template |
 | Governance | Policy | Exception and Risk Acceptance Management Policy | [`governance/policy-exception-and-risk-acceptance-management.md`](policy-exception-and-risk-acceptance-management.md) | Chief Information Security Officer | Annual | Exceptions, deviations, compensating controls, expiry | template |
 | Governance | Standard | Records Retention and Destruction Standard | [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md) | Chief Information Officer | Annual | ISO 15489, ISO/IEC 27701, ISO/IEC 42001, BASC (sector trade/customs retention) | template |
+| Governance | Standard | Delegation-of-Authority Standard | [`governance/standard-delegation-of-authority.md`](standard-delegation-of-authority.md) | GRC Programme Manager | Annual or as required by regulatory or framework change | NIST SP 800-53 AC-2/AC-5/AC-6/AC-6(7), ISO/IEC 27001 A.5.3/A.5.15/A.5.18, NIST CSF PR.AA/PR.AA-05 | template |
 | Governance | Standard | Maturity Assessment Methodology Standard | [`governance/standard-maturity-assessment-methodology.md`](standard-maturity-assessment-methodology.md) | GRC Programme Manager | Annual | CMMI, COBIT 2019 MEA01, ISO/IEC 42001 §9.1, ISO 9001 §9 to 10 | template |
 | Governance | Procedure | GRC Programme Management and Annual Review Procedure | [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md) | GRC Programme Manager | Annual | ISO 37301 §9, ISO/IEC 27001 §9.3, ISO 31000 §6.6, COBIT 2019 APO01 | template |
 | Governance | Register | Digital Trust and Assurance Metrics Register | [`governance/register-digital-trust-and-assurance-metrics.md`](register-digital-trust-and-assurance-metrics.md) | Assurance Metrics Maintainer | 6 to 12 months | COBIT 2019 MEA01/MEA02, ISO 9001 §9 to 10, ISO/IEC 42001 §9.1, Digital Trust Index | template |
