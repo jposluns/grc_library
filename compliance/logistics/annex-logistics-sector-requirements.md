@@ -2,8 +2,8 @@
 
 **Document Title:** Logistics Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.14\
-**Date:** 2026-08-17\
+**Version:** 1.0.15\
+**Date:** 2026-08-30\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-basc-programme-overview.md`](annex-basc-programme-overview.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](register-ctpat-united-states-it-controls.md), [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](register-ctpat-united-states-msc-controls.md), [`compliance/logistics/register-pip-canada-controls.md`](register-pip-canada-controls.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/logistics/template-trade-compliance-gap-assessment.md`](template-trade-compliance-gap-assessment.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../../supply-chain/matrix-supply-chain-security-programme-alignment.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](../../supply-chain/annex-trade-and-supply-chain-continuity-controls.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md)\
@@ -38,7 +38,7 @@ This annex applies where an organization:
 
 | Regulation / Directive | Authority | Mode / Scope |
 |---|---|---|
-| **TSA Security Directive SD Pipeline-2021-02F**: Pipeline Cybersecurity (listed expiry 2026-05-02 passed; current post-expiry instrument needs reconfirmation) | Transportation Security Administration (TSA) | Critical pipeline operators |
+| **TSA Security Directive SD Pipeline-2021-02G**: Pipeline Cybersecurity (effective 2026-05-03 through 2027-05-02; cancels and supersedes the expired 02F) | Transportation Security Administration (TSA) | Critical pipeline operators |
 | **TSA Security Directive SD-1580/82-2022-01**: Surface Transportation Cybersecurity | TSA | Passenger and freight railroad carriers; owner-operators of highways |
 | **TSA Security Directive SD-1582-21-01**: Freight Rail Cybersecurity | TSA | Freight railroad carriers; rail transit; designated categories |
 | **TSA Security Directive: Aviation Cybersecurity** | TSA | Airport operators; aircraft operators; last-mile delivery involving air |
@@ -91,7 +91,7 @@ This annex applies where an organization:
 | **ICAO Annex 17 (Chicago Convention): Aviation Security** | International Civil Aviation Organization | States; aviation operators |
 | **ICAO Doc 10055: Aviation Cybersecurity Strategy** | ICAO | States; airlines; ANSPs; airports |
 | **IMO MSC-FAL.1/Circ.3**: Maritime Cyber Risk Management (guidelines) | International Maritime Organization | Shipping companies; port operators |
-| **IMO MSC-FAL.1/Circ.3 Rev.3** (4 April 2025) | IMO | Guidelines supporting maritime cyber-risk management within the ISM Code SMS (per IMO Res. MSC.428(98)) |
+| **IMO MSC-FAL.1/Circ.3/Rev.3** (4 April 2025) | IMO | Guidelines supporting maritime cyber-risk management within the ISM Code SMS (per IMO Res. MSC.428(98)) |
 | **IATA Cyber Security Guidance** | International Air Transport Association | IATA member airlines; handling agents |
 | **WCO SAFE Framework** | World Customs Organization | All customs operators |
 | **ISO 28000:2022**: Supply chain security | ISO | Supply chain organizations |

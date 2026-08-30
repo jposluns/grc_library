@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.61\
+**Version:** 1.5.62\
 **Date:** 2026-08-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -266,7 +266,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | NIST SP 1900 series | subseries (Cyber-Physical Systems; individual publications carry their own dates, e.g. SP 1900-206:2022) | various per publication | Smart-building cybersecurity and IoT guidance | - | https://www.nist.gov/nist-research-library/nist-special-publication-subseries-descriptions | verified 2026-07-09 |
 | NFPA 72 | 2025 | 2025 | National Fire Alarm and Signaling Code | 2022, 2019 | https://www.nfpa.org/codes-and-standards/nfpa-72-standard-development/72 | 2026-06-30 |
 | EN 54 | series (CEN/TC 72; 25+ parts, many harmonized under the Construction Products Regulation (EU) 305/2011) | various | Fire detection and fire alarm systems (European standard series) | - | https://standards.cencenelec.eu/ | verified 2026-07-10 (series-level; corpus cites the series generically, no specific part) |
-| TSA Pipeline Security Directive | SD Pipeline-2021-02F (effective 2025-05-03; listed expiry 2026-05-02 has passed. TSA renews these directives annually, but the current post-expiry instrument could not be reconfirmed at the authoritative TSA source this pass) | 2025-05-03 | US Transportation Security Administration pipeline cybersecurity requirements | SD02, SD 02C | https://www.tsa.gov/sites/default/files/tsa-security-directive-pipeline-2021-02f-and-memo-508c.pdf | needs-reconfirm (checked 2026-08-04, TSA source inaccessible) |
+| TSA Pipeline Security Directive | SD Pipeline-2021-02G (effective 2026-05-03 through 2027-05-02; cancels and supersedes SD Pipeline-2021-02F) | 2026-05-03 | US Transportation Security Administration pipeline cybersecurity requirements (mitigation actions, contingency planning, and testing) | 02F, SD02, SD 02C | https://www.tsa.gov/sites/default/files/signed_security_directive_pipeline-2021-02g_and_transmittal_memo_508c.pdf | verified 2026-08-30 (TSA-published 02G PDF + independent current-web confirmation; tsa.gov direct-fetch 403) |
 | Basel III | 2017 (post-crisis reform finalization; now in the consolidated Basel Framework; transitional arrangements through 2028) | 2017-12 | Banking regulation framework | Basel II | https://www.bis.org/bcbs/basel3.htm | 2026-08-23 |
 
 ## OECD and global
