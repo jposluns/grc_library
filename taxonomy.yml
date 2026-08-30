@@ -4458,7 +4458,7 @@ documents:
   domain: "governance"
   type: "Principle"
   title: "Capability Is Not Authority Principle"
-  version: "0.0.1"
+  version: "0.0.2"
   date: "2026-08-30"
   owner: "Governance Library Maintainer"
   approving_authority: "Governance Library Maintainer"
@@ -4475,6 +4475,7 @@ documents:
     - "security/standard-privileged-access-management.md"
     - "operations/standard-network-security-and-segmentation.md"
     - "ai/standard-ai-and-agentic-development-security.md"
+    - "security/standard-logging-and-monitoring.md"
     - "governance/principle-integrity-and-trustworthiness.md"
   sections:
     - "Purpose"

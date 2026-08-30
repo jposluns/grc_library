@@ -2,11 +2,11 @@
 
 **Document Title:** Capability Is Not Authority Principle\
 **Document Type:** Principle\
-**Version:** 0.0.1\
+**Version:** 0.0.2\
 **Date:** 2026-08-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`security/framework-zero-trust-architecture.md`](../security/framework-zero-trust-architecture.md), [`ai/standard-ai-access-and-agent-permissions.md`](../ai/standard-ai-access-and-agent-permissions.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`operations/standard-network-security-and-segmentation.md`](../operations/standard-network-security-and-segmentation.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`governance/principle-integrity-and-trustworthiness.md`](principle-integrity-and-trustworthiness.md)\
+**Related Documents:** [`security/framework-zero-trust-architecture.md`](../security/framework-zero-trust-architecture.md), [`ai/standard-ai-access-and-agent-permissions.md`](../ai/standard-ai-access-and-agent-permissions.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`operations/standard-network-security-and-segmentation.md`](../operations/standard-network-security-and-segmentation.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`governance/principle-integrity-and-trustworthiness.md`](principle-integrity-and-trustworthiness.md)\
 **Classification:** Public\
 **Category:** Core Governance\
 **Review Frequency:** Annual and upon material governance, AI, or regulatory change\
@@ -28,14 +28,14 @@ Applies to every access decision within the corpus's reach: human, service-accou
 
 ## 1. The principle
 
-**Capability is not authority. Only a current, in-scope authorization record confers authority; every other signal is a means to act, never a permission to act.**
+**Capability is not authority. Only a current, in-scope authorization grant confers authority; every other signal is a means to act, never a permission to act.**
 
-Authentication establishes *who* an actor is. Authorization, recorded separately, establishes *what that actor may do*. The gap between the two is where this principle lives: an actor may be fully authenticated, technically capable, and network-reachable, and still have no authority for the action in front of it. The default, absent a matching authorization record, is deny.
+Authentication establishes *who* an actor is. Authorization, recorded separately, establishes *what that actor may do*. The gap between the two is where this principle lives: an actor may be fully authenticated, technically capable, and network-reachable, and still have no authority for the action in front of it. The default, absent a matching authorization grant, is deny.
 
 Two readings are foreclosed:
 
 - **Presence of a means is not a grant.** That a path exists, a tool is installed, a key is held, or a login succeeds says nothing about whether the action is permitted. Each is a precondition an attacker or a mis-scoped agent also satisfies.
-- **The authorization record is the sole source of authority.** Authority is not inferred from capability, convenience, precedent, or silence. It is read from an explicit, attributable, scoped, time-bounded, revocable, evidenced record, or it is absent.
+- **The authorization grant is the sole source of authority.** Authority is not inferred from capability, convenience, precedent, or silence. It is read from an explicit, attributable, scoped, time-bounded, revocable, and recorded grant, or it is absent.
 
 ## 2. The seven capability vectors
 
@@ -54,7 +54,7 @@ That an AI model *can* produce an output, invoke a function, or take an action d
 That an actor, tool, or role *can see* data, logs, or telemetry does not authorize use of what is seen, nor action upon it. Visibility for one purpose (observability, security monitoring) is not authorization for another (decision-making, disclosure, enforcement).
 
 ### 2.5 Key possession
-Holding a credential, token, certificate, or private key is the ability to authenticate or decrypt, not standing authority to act. Break-glass and privileged credentials exist as capabilities that are withheld from routine authority: their use is separated, logged, reviewed, and bounded to an authorized emergency ([`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md)).
+Holding a credential, token, certificate, or private key is the ability to authenticate or decrypt, not standing authority to act. Break-glass and privileged credentials exist as capabilities that are withheld from routine authority: their use is separated, logged, and reviewed ([`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md)) and bounded to an authorized emergency ([`security/procedure-access-control.md`](../security/procedure-access-control.md)).
 
 ### 2.6 Network reachability
 That one system can reach another over the network does not authorize the traffic. Zone boundaries and perimeter gateways operate default-deny; inter-zone communication requires an explicit, approved, documented rule ([`operations/standard-network-security-and-segmentation.md`](../operations/standard-network-security-and-segmentation.md)). Reachability is topology; authority is policy.
@@ -64,7 +64,7 @@ That an actor has proven its identity does not establish what it may do. Authent
 
 ## 3. What creates authority: the authorization record
 
-The single thing that turns a capability into a permitted action is a **current, in-scope authorization record**. To confer authority, the record is:
+The single thing that turns a capability into a permitted action is a **current, in-scope authorization grant**. To confer authority, the grant is:
 
 - **Explicit** (an affirmative grant, never inferred from absence of objection),
 - **Attributable** (to a grantor with the standing to grant it),
@@ -73,7 +73,7 @@ The single thing that turns a capability into a permitted action is a **current,
 - **Revocable** (withdrawable, with the withdrawal taking effect), and
 - **Evidenced** (recorded as the durable artefact an audit reads).
 
-Where no such record covers the action, the action is unauthorized regardless of how easily it could be performed. This is the fail-closed default: on a missing, ambiguous, or expired authorization, deny rather than fall through to a permissive path ([`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md)).
+Where no such record covers the action, the action is unauthorized regardless of how easily it could be performed. This is the fail-closed default: on a missing, ambiguous, or expired authorization, deny rather than fall through to a permissive path ([`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md)). Where an emergency path permits a verbal grant, the grant is still an authorization (attributable and time-bounded) and its durable record is formalized within the window the access-control procedure sets ([`security/procedure-access-control.md`](../security/procedure-access-control.md)): the grant is the authority, the record its evidence.
 
 ## 4. Instantiation in the corpus
 
@@ -87,6 +87,7 @@ This principle is not new machinery; it is the statement of a rule the corpus al
 | Least privilege; explicit, reviewed authorization | [`security/procedure-access-control.md`](../security/procedure-access-control.md) | Technical access |
 | Break-glass separated, logged, and reviewed | [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md) | Key possession |
 | Fail closed on error or validation failure | [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md) | Model capability |
+| Log and telemetry access restricted to authorized personnel | [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) | Monitoring visibility |
 
 The production-process analogue of this principle is the governance pack's express-authorization discipline (a shared understanding of what could be done is not an instruction to do it); this document is the access-governance form, and the two are conceptual siblings.
 
@@ -98,9 +99,9 @@ An adopter reusing this library inherits "capability is not authority" as the ru
 
 | Requirement | NIST SP 800-53 Rev. 5 | ISO/IEC 27001:2022 | NIST CSF 2.0 | CSA CCM v4.1 |
 | --- | --- | --- | --- | --- |
-| Access is enforced only per an approved authorization | AC-3 (Access Enforcement); AC-24 (Access Control Decisions) | A.5.15 (Access control); A.8.3 (Information access restriction) | PR.AA | IAM-05 |
-| Capability granted only at minimum scope | AC-6 (Least Privilege) | A.8.2 (Privileged access rights) | PR.AA | IAM-05 |
-| Authentication success is distinct from authorization | IA-2 (Identification and Authentication); AC-3 | A.5.16 (Identity management); A.5.15 | PR.AA | IAM-08 |
-| Per-request / continuous authorization (zero trust) | AC-24 (Access Control Decisions) | A.5.15; A.5.18 (Access rights) | PR.AA | IAM-08 |
+| Access is enforced only per an approved authorization | AC-3 (Access Enforcement); AC-24 (Access Control Decisions) | A.5.15 (Access control); A.8.3 (Information access restriction) | PR.AA (category); PR.AA-05 | IAM-15 (Authorization Mechanisms); IAM-06 (Access Provisioning) |
+| Capability granted only at minimum scope | AC-6 (Least Privilege) | A.8.2 (Privileged access rights) | PR.AA (category) | IAM-05 (Least Privilege) |
+| Authentication is distinct from, and precedes, authorization | IA-2 (Identification and Authentication (Organizational Users)); AC-3 | A.8.5 (Secure authentication); A.5.15 | PR.AA (category); PR.AA-03 | IAM-13 (Strong Authentication); IAM-15 (Authorization Mechanisms) |
+| Access rights are provisioned, reviewed, and revoked over their lifecycle | AC-6 (Least Privilege); AC-24 (Access Control Decisions) | A.5.18 (Access rights); A.5.15 | PR.AA (category); PR.AA-05 | IAM-08 (Access Review); IAM-06 (Access Provisioning) |
 
-Control identifiers are verified against the held source texts (NIST SP 800-53 Rev. 5 catalogue; ISO/IEC 27001:2022 Annex A; NIST CSF 2.0 subcategory PR.AA; CSA Cloud Controls Matrix v4.1 IAM domain). NIST SP 800-207 (Zero Trust Architecture) is the primary reference for the per-request, capability-independent authorization model this principle expresses.
+Control identifiers are verified against the held source texts (NIST SP 800-53 Rev. 5 catalogue; ISO/IEC 27001:2022 Annex A; NIST CSF 2.0 category PR.AA; CSA Cloud Controls Matrix v4.1 IAM domain). NIST SP 800-207 (Zero Trust Architecture) is the primary reference for the per-request, capability-independent authorization model this principle expresses.
