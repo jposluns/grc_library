@@ -6,7 +6,7 @@ skill (2.11 (closing PR #722)), not an audit gate. It always exits 0 after print
 (2 only on internal or usage error). It performs the MECHANICAL half of the
 skill's instruction-content screen: a pattern scan over publication text extracts
 for the shapes prompt-injection and instruction-smuggling payloads take (OWASP
-LLM01 prompt injection; LLM05 improper output handling), plus encoding anomalies
+LLM01:2026 prompt injection; LLM10:2026 improper output handling), plus encoding anomalies
 that can hide them. A hit is a candidate for the screening judge to read in
 context, never a verdict: legitimate security literature QUOTES injection strings
 when describing attacks, so quoted-example hits are expected and are cleared by

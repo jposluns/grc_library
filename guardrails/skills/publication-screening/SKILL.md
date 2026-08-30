@@ -37,8 +37,8 @@ ingested untrusted source and an AI assistant's reference context: no per-item
 screening record, no instruction-content check, and no gate that fails when an
 unscreened item sits in the untrusted collection. That is a trust boundary with no
 control on it, and the failure modes are exactly the ones the industry's AI-security
-guidance describes (OWASP LLM01 prompt injection carried by retrieved reference text;
-LLM05 improper output handling; plain bias and factual error steering
+guidance describes (OWASP LLM01:2026 prompt injection carried by retrieved reference text;
+LLM10:2026 improper output handling; plain bias and factual error steering
 authoring).
 
 `publication-screening` is the formal process. It is a two-part instrument: the
@@ -227,6 +227,6 @@ The pass is complete on a given run when:
   posture and the ingest steps), the screening register this protocol writes, and the
   reference-base validation gate (the enforcement half; never weaken it to pass, fix
   the artefact). Concrete names are in the project wiring above.
-- The industry AI-security guidance the pattern classes anchor to: OWASP LLM01 (prompt
-  injection carried by retrieved reference text) and LLM05 (Improper Output Handling), plus whatever AI-security material the adopting project holds (in
+- The industry AI-security guidance the pattern classes anchor to: OWASP LLM01:2026 (prompt
+  injection carried by retrieved reference text) and LLM10:2026 (Improper Output Handling), plus whatever AI-security material the adopting project holds (in
   the parent GRC library, the `ai/` and `dev-security/` domains).
