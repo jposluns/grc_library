@@ -119,30 +119,35 @@ def _first_existing(*cands: Path | None) -> Path | None:
     return None
 
 
-def _ref_file(which: str) -> Path | None:
+def _ref_file(which: str, private_dir: "Path | None" = None) -> Path | None:
     """Resolve the detail (reference) file for a backlog.
 
     Transitional (2026-08 migration): the public detail file (TODO-REFERENCE.md)
     is moving into the private sibling, and the private backlog gains its own
     detail file (P-TODO-REFERENCE.md). ``which='public'`` resolves private-first
     (post-move) then the legacy public location (pre-move); ``which='private'``
-    resolves the private P-TODO-REFERENCE.md. Absent -> None (no-op)."""
+    resolves the private P-TODO-REFERENCE.md. Absent -> None (no-op).
+
+    ``private_dir`` (F1793-5 / P-1.53) overrides the import-fixed ``_PRIVATE_DIR`` so a
+    ``--private-root`` CLI (or fixture) run loads reference bodies from a fixture, at
+    parity with the index-reference-parity gate's own ``--private-root``."""
+    base = private_dir if private_dir is not None else _PRIVATE_DIR
     if which == "public":
         return _first_existing(
-            _PRIVATE_DIR / "TODO-REFERENCE.md",
+            base / "TODO-REFERENCE.md",
             REPO_ROOT / "TODO-REFERENCE.md",
         )
-    return _first_existing(_PRIVATE_DIR / "P-TODO-REFERENCE.md")
+    return _first_existing(base / "P-TODO-REFERENCE.md")
 
 
-def _load_ref_bodies(which: str = "public") -> dict[str, str]:
+def _load_ref_bodies(which: str = "public", private_dir: "Path | None" = None) -> dict[str, str]:
     """Map item id -> its reference ``### <id> <title>`` block body.
 
     The per-item detail lives in the reference file (TODO-REFERENCE.md for the
     public backlog, P-TODO-REFERENCE.md for the private one). This reads those
     blocks so the actionability scan can still see each item's body prose when
     the backlog is in index-row form."""
-    ref = _ref_file(which)
+    ref = _ref_file(which, private_dir)
     if ref is None:
         return {}
     bodies: dict[str, str] = {}
@@ -168,7 +173,8 @@ def _load_ref_bodies(which: str = "public") -> dict[str, str]:
 
 
 def parse_items(text: str, source: str,
-                ref_bodies: dict[str, str] | None = None) -> list[tuple[str, str, str, str, str]]:
+                ref_bodies: dict[str, str] | None = None,
+                private_dir: "Path | None" = None) -> list[tuple[str, str, str, str, str]]:
     """Return ``(id, title, block_text, source, umbrella)`` for every open item. PUBLIC
     ``TODO.md`` items are parsed as INDEX ROWS (the local ``_ROW_RE``), their bodies joined
     from ``TODO-REFERENCE.md``; only private / legacy items use the ``### `` heading-block
@@ -191,7 +197,7 @@ def parse_items(text: str, source: str,
         # is the reliable index-form signal (a legacy item body table must not
         # flip this branch and inject false items).
         if ref_bodies is None:
-            ref_bodies = _load_ref_bodies(source)
+            ref_bodies = _load_ref_bodies(source, private_dir)
         band = ""
         for ln in lines:
             if ln.startswith("## "):
@@ -255,12 +261,13 @@ def prose_signals(block_text: str) -> list[str]:
 
 
 def build_report(public_text: str,
-                 private_text: str | None = None) -> tuple[list, int, int]:
+                 private_text: str | None = None,
+                 private_dir: "Path | None" = None) -> tuple[list, int, int]:
     """Return (rows, blocked_count, actionable_count). Each row is
     ``(id, title, source, blocked_bool, prose_list)``."""
-    items = parse_items(public_text, "public")
+    items = parse_items(public_text, "public", private_dir=private_dir)
     if private_text is not None:
-        items += parse_items(private_text, "private")
+        items += parse_items(private_text, "private", private_dir=private_dir)
     rows = []
     blocked = 0
     for item_id, title, block, source, _umbrella in items:
@@ -366,13 +373,13 @@ def _short_id(title: str) -> str:
 
 def render_pipeline(public_text: str, private_text: str | None,
                     done_text: str | None, umbrella_filter: str | None,
-                    limit: int = 20) -> str:
+                    limit: int = 20, private_dir: "Path | None" = None) -> str:
     """Render the pipeline view: the 5 most-recent done at top (``[x]`` + PR####),
     then the current umbrella's open items up to ``limit``, filling from subsequent
     umbrellas (file/priority order) when the current one has fewer than ``limit``."""
-    items = parse_items(public_text, "public")
+    items = parse_items(public_text, "public", private_dir=private_dir)
     if private_text is not None:
-        items += parse_items(private_text, "private")
+        items += parse_items(private_text, "private", private_dir=private_dir)
 
     # Build LEAF items. A ``### `` block that contains ``- **<id>**`` bullets is an
     # umbrella whose bullets are the leaves (umbrella = the ### heading id + title);
@@ -664,7 +671,12 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--todo", default=str(TODO_PATH), help="public TODO.md path")
     ap.add_argument("--ptodo", default=str(PTODO_PATH),
                     help="private P-TODO.md path (no-op if absent)")
+    ap.add_argument("--private-root", default=None,
+                    help="override the private-sibling dir the reference (detail) bodies "
+                         "load from (F1793-5 / P-1.53), at parity with the index-reference "
+                         "parity gate's --private-root; a fixture run scopes it hermetically")
     args = ap.parse_args(argv)
+    private_dir = Path(args.private_root).resolve() if args.private_root else None
 
     if args.self_test:
         return _self_test()
@@ -684,10 +696,11 @@ def main(argv: list[str]) -> int:
     if args.pipeline:
         done = resolve_working("DONE.md")
         done_text = done.read_text(encoding="utf-8", errors="replace") if done and done.is_file() else None
-        print(render_pipeline(public_text, private_text, done_text, args.umbrella))
+        print(render_pipeline(public_text, private_text, done_text, args.umbrella,
+                              private_dir=private_dir))
         return 0
 
-    rows, blocked, actionable = build_report(public_text, private_text)
+    rows, blocked, actionable = build_report(public_text, private_text, private_dir=private_dir)
 
     def trunc(t: str, w: int = 52) -> str:
         t = t.strip()

@@ -11796,6 +11796,67 @@ class BacklogActionabilityTests(unittest.TestCase):
         spec.loader.exec_module(mod)
         return mod
 
+    def test_private_root_overrides_reference_body_dir(self):
+        # P-1.53 / F1793-5: --private-root (threaded as private_dir) overrides the
+        # import-fixed _PRIVATE_DIR so a fixture run loads reference (detail) bodies from
+        # the fixture, at parity with the index-reference-parity gate's --private-root.
+        # Before this, a CLI fixture run of an index-form P-TODO loaded NO ref bodies.
+        import tempfile
+        mod = self._load()
+        ptodo_text = ("| ID | Item | Tags |\n| --- | --- | --- |\n"
+                      "| P-9.9 | fixture item | `[private]` |\n")
+        with tempfile.TemporaryDirectory() as d:
+            priv = Path(d) / "priv"
+            priv.mkdir()
+            (priv / "P-TODO-REFERENCE.md").write_text(
+                "## A. Test band\n\n### P-9.9 fixture item\n\n"
+                "This body mentions egress-gated so a prose signal is detectable.\n",
+                encoding="utf-8")
+            without = mod.parse_items(ptodo_text, "private")
+            with_override = mod.parse_items(ptodo_text, "private", private_dir=priv)
+            def block(items):
+                return next((it[2] for it in items if it[0] == "P-9.9"), "")
+            self.assertNotIn(
+                "egress", block(without),
+                "without --private-root the fixture ref body must NOT load (uses real _PRIVATE_DIR)")
+            self.assertIn(
+                "egress", block(with_override),
+                "with private_dir the P-9.9 detail body must load from the fixture")
+            self.assertEqual(
+                mod.prose_signals(block(with_override)), ["egress"],
+                "the loaded fixture body's egress signal must be detected (CLI-level ref-body testing)")
+
+    def test_private_root_cli_subprocess_loads_fixture_ref_bodies(self):
+        # P-1.53 (codex #1812): prove the actual --private-root CLI arg-parse path (not just
+        # the private_dir param) reaches the ref-body loader. Run the tool as a subprocess in
+        # --pipeline mode with --private-root pointing at a fixture; the fixture P-9.9 detail
+        # body must appear (it would not if the CLI arg were dropped or not threaded).
+        import tempfile
+        import subprocess
+        import sys
+        tool = str(REPO_ROOT / "tools/audit-backlog-actionability.py")
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            (d / "TODO.md").write_text(
+                "| ID | Item | Tags |\n| --- | --- | --- |\n| 1.1 | pub one | `[public]` |\n",
+                encoding="utf-8")
+            ptodo = d / "P-TODO.md"
+            ptodo.write_text(
+                "| ID | Item | Tags |\n| --- | --- | --- |\n| P-9.9 | fixture item | `[private]` |\n",
+                encoding="utf-8")
+            priv = d / "priv"
+            priv.mkdir()
+            (priv / "P-TODO-REFERENCE.md").write_text(
+                "## A. Test band\n\n### P-9.9 fixture item\n\nBody prose for the fixture item.\n",
+                encoding="utf-8")
+            out = subprocess.run(
+                [sys.executable, tool, "--todo", str(d / "TODO.md"),
+                 "--ptodo", str(ptodo), "--private-root", str(priv)],
+                capture_output=True, text=True)
+            self.assertEqual(out.returncode, 0, out.stderr)
+            self.assertIn("P-9.9", out.stdout,
+                "the fixture private item must enumerate via the CLI --private-root path")
+
     FIXTURE = (
         "## Priority 1 - x\n"
         "### 1.1 An egress item (egress-gated)\nBody.\n"
