@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-portal.py`.
 **Document Title:** Document Maturity Scorecard\
 **Document Type:** Register\
 **Version:** 1.0.0\
-**Date:** 2026-08-29\
+**Date:** 2026-08-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/portal.md`](portal.md), [`docs/adopter-guide.md`](adopter-guide.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`specification-master-project.md`](../specification-master-project.md)\
@@ -214,7 +214,7 @@ _170 documents._
 | [dev-security/standard-devops-security-requirements.md](../dev-security/standard-devops-security-requirements.md) | DevOps Security Requirements | Standard | 1.0.12 | 2026-08-13 |
 | [dev-security/standard-quality-assurance-and-testing.md](../dev-security/standard-quality-assurance-and-testing.md) | Quality Assurance and Testing Standard | Standard | 1.0.5 | 2026-07-23 |
 | [dev-security/standard-software-evaluation-acceptance-and-lifecycle.md](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md) | Software Evaluation, Acceptance and Lifecycle Management Standard | Standard | 1.0.9 | 2026-08-01 |
-| [governance/framework-governance-performance-and-improvement.md](../governance/framework-governance-performance-and-improvement.md) | Governance Performance and Improvement Framework | Framework | 1.0.10 | 2026-08-29 |
+| [governance/framework-governance-performance-and-improvement.md](../governance/framework-governance-performance-and-improvement.md) | Governance Performance and Improvement Framework | Framework | 1.0.11 | 2026-08-30 |
 | [governance/framework-governance-relationship-and-flow-modelling.md](../governance/framework-governance-relationship-and-flow-modelling.md) | Governance Relationship and Flow Modelling Framework | Framework | 1.0.6 | 2026-08-22 |
 | [governance/framework-human-capital-and-ethical-conduct.md](../governance/framework-human-capital-and-ethical-conduct.md) | Human Capital and Ethical Conduct Framework | Framework | 1.0.10 | 2026-08-14 |
 | [governance/guideline-minimum-viable-governance-structure.md](../governance/guideline-minimum-viable-governance-structure.md) | Minimum Viable Governance Structure Guideline | Guideline | 1.0.4 | 2026-07-02 |

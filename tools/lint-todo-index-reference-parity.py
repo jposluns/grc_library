@@ -4,7 +4,8 @@
 The TODO-rework format (2026-08) splits the public backlog into an INDEX
 ([`TODO.md`](../TODO.md): one ``| ID | Item | Tags |`` row per open item, under
 ``## `` bands, e.g. Priority N) and a DETAIL file
-([`TODO-REFERENCE.md`](../TODO-REFERENCE.md): one ``### <id> <title>`` block per
+(the private `grc_library_private/TODO-REFERENCE.md`, resolved via the private
+sibling since PR #1795 removed the public copy: one ``### <id> <title>`` block per
 item, under the same bands). The two surfaces are joined by the stable id, and
 the format's whole contract is that they stay in one-to-one correspondence.
 
@@ -26,8 +27,9 @@ reference are not a bijection with matching id, title, band, and position order:
     terminal pipe or exactly three cells, or its first cell is not a valid
     backlog id (a row missing its LEADING pipe is documented residue).
 
-Adopter-graceful: if ``TODO-REFERENCE.md`` is absent (a clone that has not
-adopted the two-file format), the gate is a no-op OK. Stdlib-only.
+Adopter-graceful: if the private ``grc_library_private/TODO-REFERENCE.md`` is
+absent (an adopter clone without the private sibling), the gate is a no-op OK.
+Stdlib-only.
 """
 from __future__ import annotations
 

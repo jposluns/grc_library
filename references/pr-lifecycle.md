@@ -146,8 +146,9 @@ drive end-to-end on the maintainer's behalf:
    cross-reference). The DONE entry names the closed item's number and gives a clean
    one-to-two-sentence summary of what the item was and how it was accomplished, and that
    same summary is surfaced in chat at the moment of completion (in addition to DONE and the
-   CHANGELOG), per the change-tracking rule's completion-summary convention. The rotation
-   lives in the same commit. TODO holds only
+   CHANGELOG), per the change-tracking rule's completion-summary convention. The public
+   TODO index-row deletion lives in this PR; the private detail-block and DONE rotations are
+   cross-repo in the private sibling. TODO holds only
    forward-looking content; historical lists belong in DONE, not in TODO. **"TODO item"
    is backlog-item-keyed, not FR/§-keyed**: a `FR-N` item, a numbered `§N.M` subsection,
    AND a prose-named or maintainer-directed item recorded in TODO (e.g. "OT post-ingestion
@@ -181,8 +182,8 @@ is external. Two mechanisms:
    - THIS PR's OWN `/validate-pr` history row AND its `/retro` row are both
      present (they land in THIS PR, recording this PR's own number, per the synchronous QA model, rather than being batched forward from the prior PR).
    - Every TODO item this PR closes has its index row deleted from `TODO.md` AND its
-     detail block deleted from the private `grc_library_private/TODO-REFERENCE.md` (cross-repo), and is added to
-     `grc_library_private/.working/DONE.md`, in the same diff. **Backlog-item-keyed, not
+     detail block deleted from the private `grc_library_private/TODO-REFERENCE.md`, and is added to
+     `grc_library_private/.working/DONE.md`, both cross-repo in the private sibling (outside this PR's public diff). **Backlog-item-keyed, not
      FR/§-keyed**: a prose-named or maintainer-directed item (not just an `FR-N` or a
      numbered `§N.M`) is a TODO item that rotates the same way.
    - If this PR changed an enumerated collection (gates, governance rules, skills), every

@@ -25,7 +25,8 @@ Usage:
   python3 tools/ref-holds.py --self-test
 
 Exit codes:
-  0  at least one index match (HELD)
+  0  at least one index match (HELD); OR, on an adopter clone with the reference
+     sibling absent, a clean advisory no-op (nothing to report), per the #1792 degrade
   1  no index match (NOT-FOUND-IN-INDEX)
   2  the ref index could not be read (locate grc_library_ref, or pass --ref-root)
 Stdlib-only Python 3.11.

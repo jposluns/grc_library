@@ -134,8 +134,9 @@ def main(argv: list[str]) -> int:
             print(f"  L{lineno} [{marker}] {snippet}")
 
     print(f"\nFAIL: {total} self-marked-done item(s) across {len(grouped)} file(s).")
-    print("TODO is forward-looking: a closed item is DELETED from TODO and added to")
-    print(".working/DONE.md in the same PR, not annotated done-in-place. Rotate the item.")
+    print("TODO is forward-looking: a closed item is DELETED from TODO in this PR;")
+    print("its DONE entry rotates cross-repo to the private sibling, not annotated")
+    print("done-in-place. Rotate the item.")
     return 1
 
 

@@ -699,8 +699,8 @@ def todo_rotation_findings(todo_text: str) -> list[str]:
             findings.append(
                 f"  [todo-rotation] {TODO_PATH}:{lineno} carries a "
                 f"self-completion marker ({hit}): a closed item must be "
-                f"DELETED from TODO and rotated to the DONE ledger in the "
-                f"same PR, not annotated in place. Line: {line.strip()[:100]}"
+                f"DELETED from TODO in this PR and rotated to the private-sibling "
+                f"DONE ledger (cross-repo), not annotated in place. Line: {line.strip()[:100]}"
             )
     return findings
 
@@ -882,9 +882,10 @@ def main() -> int:
 
     # Checks 2 and 4 read PUBLIC files only (TODO.md; the repo-wide
     # metadata/version-history pair), so they always run. Check 2 scans the
-    # TODO.md index rows; per-item DETAIL now lives in TODO-REFERENCE.md, whose
-    # same marked-done markers are covered by the defence-in-depth layer gate 57
-    # (lint-todo-marked-done.py scans both files), so this check is not widened.
+    # TODO.md index rows; per-item DETAIL now lives in the private
+    # grc_library_private/TODO-REFERENCE.md (cross-repo, PR #1795), governed there.
+    # gate 57 (lint-todo-marked-done.py) defaults to the public TODO.md only, so
+    # this check is not widened.
     all_findings.extend(todo_rotation_findings(todo_text))
     vh_files = discover_version_history_files()
     all_findings.extend(version_history_parity_findings(vh_files))
