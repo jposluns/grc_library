@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.132\
+**Version:** 1.27.133\
 **Date:** 2026-08-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -178,6 +178,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Privacy | Annex | Vietnam Privacy Requirements | [`privacy/jurisdictions/annex-privacy-vietnam.md`](../privacy/jurisdictions/annex-privacy-vietnam.md) | Data Protection Officer | Annual | PDPL 91/2025; Decree 356/2025 | template |
 | Privacy | Annex | Malaysia Privacy Requirements | [`privacy/jurisdictions/annex-privacy-malaysia.md`](../privacy/jurisdictions/annex-privacy-malaysia.md) | Data Protection Officer | Annual | PDPA 2010 (amended 2024) | template |
 | AI | Framework | AI Governance and Risk Framework | [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md) | AI Governance Approver | 6 to 12 months | ISO/IEC 42001, NIST AI RMF, EU AI Act, COBIT | template |
+| AI | Framework | Agentic Response State Model Framework | [`ai/framework-agentic-response-state-model.md`](../ai/framework-agentic-response-state-model.md) | AI Governance Approver | 6 to 12 months | EU AI Act Article 14, ISO/IEC 42001, NIST AI RMF, NIST SP 800-61 Rev. 3, MITRE ATLAS | template |
 | AI | Framework | AI Maturity Model Framework | [`ai/framework-ai-maturity-model.md`](../ai/framework-ai-maturity-model.md) | AI Governance Approver | 6 to 12 months | OWASP AIMA, CMU SEI, ISO/IEC 42001, NIST AI RMF | template |
 | AI | Framework | AI Value and Decision-Governance Framework | [`ai/framework-ai-value-and-decision-governance.md`](../ai/framework-ai-value-and-decision-governance.md) | AI Governance Approver | 6 to 12 months | CMU SEI, ISO/IEC 42001, NIST AI RMF | template |
 | AI | Guide | AI Board Oversight Guide | [`ai/guide-ai-board-oversight.md`](../ai/guide-ai-board-oversight.md) | Board Risk Committee | Annual | ISO/IEC 38507, ISO/IEC 42001, NIST AI RMF GOVERN | template |
