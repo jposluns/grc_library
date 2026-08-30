@@ -2,7 +2,7 @@
 
 **Document Title:** AI Model Documentation and Transparency Framework\
 **Document Type:** Framework\
-**Version:** 1.0.10\
+**Version:** 1.0.11\
 **Date:** 2026-08-30\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -106,7 +106,7 @@ The organization's transparency disclosures follow the transparency taxonomy of 
 
 All stakeholders with governance responsibility for an AI system must have access to the current Model Card and AI Impact Assessment.
 
-The AI System Inventory published by the GRC Programme Manager provides a summary view of all deployed AI systems and their risk tiers.
+The GRC Programme Manager publishes a summary view of all deployed AI systems and their risk tiers, drawn from the authoritative AI System Inventory owned by the AI System Inventory Keeper.
 
 This realizes the traceability and proper-usage objectives (ISO/IEC 12792:2025 §6.2) among the internal provider and governance roles (the AI-producer-to-AI-provider stakeholder pairing in §6.3).
 

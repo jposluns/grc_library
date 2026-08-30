@@ -2,8 +2,8 @@
 
 **Document Title:** Model Registry\
 **Document Type:** Register\
-**Version:** 0.0.7\
-**Date:** 2026-07-12\
+**Version:** 0.0.8\
+**Date:** 2026-08-30\
 **Owner:** AI System Inventory Keeper\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/template-dataset-datasheet.md`](template-dataset-datasheet.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/register-ai-risk.md`](register-ai-risk.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This register is the authoritative inventory of every model used in production or pre-production by the organization. A model is any artefact whose outputs are consumed by the organization's products, services, internal operations, or AI systems. The register complements the AI System Register (which lists deployed AI systems and use cases) by capturing per-model technical, ownership, lineage, evaluation, and lifecycle attributes.
+This register is the model-scoped view of the AI System Inventory, the authoritative system-of-record for all AI models and systems maintained per [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md); it covers every model used in production or pre-production by the organization. A model is any artefact whose outputs are consumed by the organization's products, services, internal operations, or AI systems. The register complements the AI System Register (the system-scoped view of the same inventory, listing deployed AI systems and use cases) by capturing per-model technical, ownership, lineage, evaluation, and lifecycle attributes.
 
 A populated model registry identifies real systems and is sensitive operational data; populate, classify, and store internally.
 
@@ -133,7 +133,7 @@ For each model, the registry records two lineage chains:
 
 1. A model is not deployed to a production environment without a corresponding registry row in Production state.
 2. Material changes (new base model, new fine-tuning data, new restricted use, new tier) trigger a row update within five business days.
-3. The AI System Inventory Keeper reviews the registry at minimum quarterly for completeness and accuracy.
+3. The AI System Inventory Keeper reviews the registry at minimum quarterly for completeness and accuracy, reconciling it against the authoritative AI System Inventory.
 4. The Data Protection Officer reviews entries for personal-data exposure at minimum annually.
 5. The AI Security Maintainer reviews entries for adversarial-evaluation currency at minimum semi-annually.
 6. Retired model artefacts are handled per the records retention standard with explicit consideration of derived embeddings, caches, and downstream model lineage.
@@ -158,7 +158,7 @@ For each model, the registry records two lineage chains:
 
 ## Limitations
 
-This register is a CC BY-SA 4.0 structural baseline. The completeness of a populated registry depends on the maturity of MLOps tooling and the discipline of model promotion. The register is not a substitute for the model card or for the impact assessment; it is the inventory and lineage layer that connects them.
+This register is a CC BY-SA 4.0 structural baseline. The completeness of a populated registry depends on the maturity of MLOps tooling and the discipline of model promotion. The register is not a substitute for the model card or for the impact assessment; it is the model-scoped inventory view and lineage layer that connects them.
 
 ---
 

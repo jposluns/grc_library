@@ -2,8 +2,8 @@
 
 **Document Title:** Role Authority Register\
 **Document Type:** Register\
-**Version:** 1.5.9\
-**Date:** 2026-08-28\
+**Version:** 1.5.10\
+**Date:** 2026-08-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md)\
@@ -42,7 +42,7 @@ This register defines generic governance roles used across the GRC Documentation
 | AI Governance Lead | Umbrella AI governance role chairing the AI governance function and coordinating the AI Governance Approver, AI Data Steward, and AI System Inventory Keeper. Typically the AI Governance Council secretariat. | AI governance framework, AI impact assessment, AI exceptions. |
 | AI Governance Approver | Approval decisions for AI policies, frameworks, standards, deployment gates, foundation-model selection, risk-classification approvals, and material lifecycle changes. | AI policy approvals, deployment decisions, AI exception co-approval (in addition to the risk-tier approver under [`policy-exception-and-risk-acceptance-management.md`](policy-exception-and-risk-acceptance-management.md) §4.2.2), model-selection sign-off. |
 | AI Data Steward | Training-data governance, dataset acceptance, deletion-propagation, lineage tracking, sensitive-content controls, and dataset documentation (datasheets). | Dataset acceptance, deletion authorization, lineage records. |
-| AI System Inventory Keeper | Maintenance of the AI System Register, Model Registry, MCP server register, model cards, system cards, and cross-references between AI inventories and adjacent registers (ADM, resilience, supplier). | Inventory updates, model card and system card maintenance, register reconciliation. |
+| AI System Inventory Keeper | Ownership of the AI System Inventory, the authoritative system-of-record for all AI models and systems; downstream of it, maintenance of the AI System Register (the system-scoped view), the Model Registry (the model-scoped view), the MCP server register, model cards, system cards, and cross-references between AI inventories and adjacent registers (ADM, resilience, supplier). | Authoritative AI System Inventory updates, model card and system card maintenance, register reconciliation. |
 | Legal Counsel | Legal interpretation, contractual obligations, regulatory privilege, and legal risk review. | Legal position statements, regulatory interpretation, contract exceptions. |
 | Internal Audit | Independent assessment of governance, control design, control operating effectiveness, and evidence. | Audit plan, audit report, assurance findings. |
 | System Owner | Accountability for a system, service, platform, model, or application across its lifecycle. For an action-capable AI agent, the System Owner (or a designated AI System Owner) is the named accountable owner of the agent's autonomous envelope; accountability for actions the agent performs does not transfer to the agent (`AGENT-PROD-05` in the AI and Agentic Development Security Standard). | System risk acceptance, operating procedures, evidence maintenance, agent autonomous-envelope accountability. |
