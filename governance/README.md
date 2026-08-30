@@ -2,8 +2,8 @@
 
 **Document Title:** Governance Domain README\
 **Document Type:** Register\
-**Version:** 1.10.13\
-**Date:** 2026-08-22\
+**Version:** 1.10.14\
+**Date:** 2026-08-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md)\
@@ -27,6 +27,7 @@ This directory contains the enterprise-wide governance foundation of the GRC Doc
 | Type | Title | Path |
 | --- | --- | --- |
 | Charter | Governance Library Charter | [`governance/charter-governance-library.md`](charter-governance-library.md) |
+| Principle | Capability Is Not Authority Principle | [`governance/principle-capability-is-not-authority.md`](principle-capability-is-not-authority.md) |
 | Principle | Integrity and Trustworthiness Principle | [`governance/principle-integrity-and-trustworthiness.md`](principle-integrity-and-trustworthiness.md) |
 | Framework | Document Architecture and Interrelationship Framework | [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md) |
 | Framework | Governance Relationship and Flow Modelling Framework | [`governance/framework-governance-relationship-and-flow-modelling.md`](framework-governance-relationship-and-flow-modelling.md) |
