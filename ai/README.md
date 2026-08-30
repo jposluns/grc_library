@@ -2,7 +2,7 @@
 
 **Document Title:** AI Governance Domain README\
 **Document Type:** Register\
-**Version:** 1.1.16\
+**Version:** 1.1.17\
 **Date:** 2026-08-30\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
@@ -29,6 +29,7 @@ AI documents in this repository treat data as the primary risk surface. They add
 | Type | Title | Path |
 | --- | --- | --- |
 | Framework | AI Governance and Risk Framework | [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md) |
+| Framework | Agentic Response State Model Framework | [`ai/framework-agentic-response-state-model.md`](framework-agentic-response-state-model.md) |
 | Framework | AI Maturity Model Framework | [`ai/framework-ai-maturity-model.md`](framework-ai-maturity-model.md) |
 | Framework | AI Value and Decision-Governance Framework | [`ai/framework-ai-value-and-decision-governance.md`](framework-ai-value-and-decision-governance.md) |
 | Guide | AI Board Oversight Guide | [`ai/guide-ai-board-oversight.md`](guide-ai-board-oversight.md) |
