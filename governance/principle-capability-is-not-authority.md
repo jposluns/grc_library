@@ -2,7 +2,7 @@
 
 **Document Title:** Capability Is Not Authority Principle\
 **Document Type:** Principle\
-**Version:** 0.0.2\
+**Version:** 0.0.3\
 **Date:** 2026-08-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -62,7 +62,7 @@ That one system can reach another over the network does not authorize the traffi
 ### 2.7 Authentication success
 That an actor has proven its identity does not establish what it may do. Authentication and authorization are distinct steps: every access request is authenticated *and* authorized, regardless of source, per the zero-trust rule "never trust, always verify" ([`security/framework-zero-trust-architecture.md`](../security/framework-zero-trust-architecture.md)). A valid login is the beginning of an authorization decision, not its conclusion.
 
-## 3. What creates authority: the authorization record
+## 3. What creates authority: the authorization grant
 
 The single thing that turns a capability into a permitted action is a **current, in-scope authorization grant**. To confer authority, the grant is:
 
@@ -73,7 +73,7 @@ The single thing that turns a capability into a permitted action is a **current,
 - **Revocable** (withdrawable, with the withdrawal taking effect), and
 - **Evidenced** (recorded as the durable artefact an audit reads).
 
-Where no such record covers the action, the action is unauthorized regardless of how easily it could be performed. This is the fail-closed default: on a missing, ambiguous, or expired authorization, deny rather than fall through to a permissive path ([`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md)). Where an emergency path permits a verbal grant, the grant is still an authorization (attributable and time-bounded) and its durable record is formalized within the window the access-control procedure sets ([`security/procedure-access-control.md`](../security/procedure-access-control.md)): the grant is the authority, the record its evidence.
+Where no such grant covers the action, the action is unauthorized regardless of how easily it could be performed. This is the fail-closed default: on a missing, ambiguous, or expired authorization, deny rather than fall through to a permissive path ([`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md)). Where an emergency path permits a verbal grant, the grant is still an authorization (attributable and time-bounded) and its durable record is formalized within the window the access-control procedure sets ([`security/procedure-access-control.md`](../security/procedure-access-control.md)): the grant is the authority, the record its evidence.
 
 ## 4. Instantiation in the corpus
 
@@ -87,21 +87,21 @@ This principle is not new machinery; it is the statement of a rule the corpus al
 | Least privilege; explicit, reviewed authorization | [`security/procedure-access-control.md`](../security/procedure-access-control.md) | Technical access |
 | Break-glass separated, logged, and reviewed | [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md) | Key possession |
 | Fail closed on error or validation failure | [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md) | Model capability |
-| Log and telemetry access restricted to authorized personnel | [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) | Monitoring visibility |
+| Log access restricted to authorized personnel | [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) | Monitoring visibility |
 
 The production-process analogue of this principle is the governance pack's express-authorization discipline (a shared understanding of what could be done is not an instruction to do it); this document is the access-governance form, and the two are conceptual siblings.
 
 ## 5. Adoption guidance
 
-An adopter reusing this library inherits "capability is not authority" as the rule that resolves every "the actor could, so the actor may" question. To operationalize it: make default-deny the posture at every boundary (access, tool, network, agent capability), so authority must be granted rather than assumed; require an authorization record with the six properties in section 3 for any action beyond the default-allowed baseline; keep authentication and authorization as distinct, separately-recorded steps; and treat a missing or expired record as deny, never as tacit permission. The principle is the "why" an adopter cites when a stakeholder asks why access is not simply granted to whoever can technically reach the resource.
+An adopter reusing this library inherits "capability is not authority" as the rule that resolves every "the actor could, so the actor may" question. To operationalize it: make default-deny the posture at every boundary (access, tool, network, agent capability), so authority must be granted rather than assumed; require an authorization grant (recorded, with the six properties in section 3) for any action beyond the default-allowed baseline; keep authentication and authorization as distinct, separately-recorded steps; and treat a missing or expired authorization as deny, never as tacit permission. The principle is the "why" an adopter cites when a stakeholder asks why access is not simply granted to whoever can technically reach the resource.
 
 ## Framework alignment
 
 | Requirement | NIST SP 800-53 Rev. 5 | ISO/IEC 27001:2022 | NIST CSF 2.0 | CSA CCM v4.1 |
 | --- | --- | --- | --- | --- |
 | Access is enforced only per an approved authorization | AC-3 (Access Enforcement); AC-24 (Access Control Decisions) | A.5.15 (Access control); A.8.3 (Information access restriction) | PR.AA (category); PR.AA-05 | IAM-15 (Authorization Mechanisms); IAM-06 (Access Provisioning) |
-| Capability granted only at minimum scope | AC-6 (Least Privilege) | A.8.2 (Privileged access rights) | PR.AA (category) | IAM-05 (Least Privilege) |
-| Authentication is distinct from, and precedes, authorization | IA-2 (Identification and Authentication (Organizational Users)); AC-3 | A.8.5 (Secure authentication); A.5.15 | PR.AA (category); PR.AA-03 | IAM-13 (Strong Authentication); IAM-15 (Authorization Mechanisms) |
-| Access rights are provisioned, reviewed, and revoked over their lifecycle | AC-6 (Least Privilege); AC-24 (Access Control Decisions) | A.5.18 (Access rights); A.5.15 | PR.AA (category); PR.AA-05 | IAM-08 (Access Review); IAM-06 (Access Provisioning) |
+| Capability granted only at minimum scope | AC-6 (Least Privilege) | A.8.2 (Privileged access rights) | PR.AA (category); PR.AA-05 | IAM-05 (Least Privilege) |
+| Authentication is distinct from authorization | IA-2 (Identification and Authentication (Organizational Users)); AC-3 | A.8.5 (Secure authentication); A.5.15 | PR.AA (category); PR.AA-03 | IAM-13 (Strong Authentication); IAM-15 (Authorization Mechanisms) |
+| Access rights are provisioned, reviewed, and revoked over their lifecycle | AC-2 (Account Management); AC-6 (Least Privilege) | A.5.18 (Access rights); A.5.15 | PR.AA (category); PR.AA-05 | IAM-07 (Access Changes and Revocation); IAM-08 (Access Review); IAM-06 (Access Provisioning) |
 
-Control identifiers are verified against the held source texts (NIST SP 800-53 Rev. 5 catalogue; ISO/IEC 27001:2022 Annex A; NIST CSF 2.0 category PR.AA; CSA Cloud Controls Matrix v4.1 IAM domain). NIST SP 800-207 (Zero Trust Architecture) is the primary reference for the per-request, capability-independent authorization model this principle expresses.
+Control identifiers are verified against the held source texts (NIST SP 800-53 Rev. 5 catalogue; ISO/IEC 27001:2022 Annex A; NIST CSF 2.0 category PR.AA; CSA Cloud Controls Matrix v4.1 IAM domain). The alignment is at the control-family and category level and is analogical (each row aligns with or is informed by the cited controls), not a prescriptive crosswalk: several requirements draw on the same control, and no row asserts a cited control prescribes the requirement verbatim. NIST SP 800-207 (Zero Trust Architecture) is the primary reference for the per-request, capability-independent authorization model this principle expresses.
