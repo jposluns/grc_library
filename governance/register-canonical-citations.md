@@ -2,8 +2,8 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.60\
-**Date:** 2026-08-26\
+**Version:** 1.5.61\
+**Date:** 2026-08-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py)\
@@ -89,6 +89,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | ISO 37301 | 2021 | 2021-04 | Compliance management systems | - | https://www.iso.org/standard/75080.html | verified 2026-07-09 |
 | ISO 37001 | 2025 | 2025-02 | Anti-bribery management systems - Requirements with guidance for use (Edition 2; transition deadline February 2027; changes from 2016 edition are not extensive) | 2016 | https://www.iso.org/standard/37001 | verified 2026-07-09 |
 | ISO/IEC 17021 | 2015 | 2015 | Conformity assessment: requirements for bodies providing audit and certification of management systems | - | https://www.iso.org/standard/61651.html | verified 2026-07-09 |
+| ISO 19011 | 2026 | 2026-05 | Guidelines for auditing management systems | 2018 | https://www.iso.org/standard/19011 | verified 2026-08-30 |
 
 ## NIST publications
 
