@@ -1,6 +1,6 @@
 # AI and LLM Application Security Rules
 
-Apply these rules to all code that calls LLMs, uses AI APIs, processes AI-generated content, or builds AI-powered features. These rules implement OWASP LLM Top 10 and MITRE ATLAS controls.
+Apply these rules to all code that calls LLMs, uses AI APIs, processes AI-generated content, or builds AI-powered features. These rules implement the OWASP LLM Top 10 (2026) and MITRE ATLAS controls.
 
 ---
 
@@ -10,7 +10,7 @@ Treat every LLM response, every model output, and every AI-generated value as if
 
 ---
 
-## Prompt injection defense (OWASP LLM01)
+## Prompt injection defense (OWASP LLM01:2026)
 
 **Direct prompt injection**: user input reaching the system prompt:
 - Never concatenate raw user input into system prompts
@@ -24,11 +24,11 @@ Treat every LLM response, every model output, and every AI-generated value as if
 - Log all indirect content sources for anomaly detection
 - Apply the same defense to MCP tool outputs, function call results, and memory store results
 
-**References:** OWASP LLM01, MITRE ATLAS AML.T0051: LLM Prompt Injection
+**References:** OWASP LLM01:2026, MITRE ATLAS AML.T0051: LLM Prompt Injection
 
 ---
 
-## Sensitive information disclosure (OWASP LLM02)
+## Sensitive information disclosure (OWASP LLM02:2026)
 
 - Never include secrets, credentials, API keys, or PII in prompts sent to external AI APIs
 - Implement PII detection and redaction before sending user-generated content to AI services
@@ -36,11 +36,11 @@ Treat every LLM response, every model output, and every AI-generated value as if
 - Scrub AI responses for potential training data leakage before returning to users
 - Set up output content scanning to detect when the model reveals system prompt content, training data, or organizational configuration
 
-**References:** OWASP LLM02, MITRE ATLAS AML.T0057: LLM Data Leakage
+**References:** OWASP LLM02:2026, MITRE ATLAS AML.T0057: LLM Data Leakage
 
 ---
 
-## Supply chain and model source security (OWASP LLM03)
+## Supply chain and model source security (OWASP LLM04:2026)
 
 - Source models and model APIs only from approved, verified providers
 - Verify model checksums/signatures when downloading open-weight models
@@ -48,11 +48,11 @@ Treat every LLM response, every model output, and every AI-generated value as if
 - Never use a model that has been fine-tuned on unverified data for production applications handling Confidential data
 - Assess and document model licences: some open-weight models have usage restrictions
 
-**References:** OWASP LLM03, OWASP LLM06 (Excessive Agency)
+**References:** OWASP LLM04:2026, OWASP LLM03:2026 (Excessive Agency)
 
 ---
 
-## Excessive agency and authorization (OWASP LLM06)
+## Excessive agency and authorization (OWASP LLM03:2026)
 
 - **Minimize tools and permissions granted to AI agents**: give the model access only to tools it needs for the current task
 - Every tool that writes, deletes, or modifies data must require **human confirmation** before execution
@@ -61,11 +61,11 @@ Treat every LLM response, every model output, and every AI-generated value as if
 - Implement hard limits on tool-call chains and recursion depth
 - Log every tool call (name, caller, timestamp, result status); redact secrets and PII from any logged arguments or results, and do not log full argument or result content in production except for an explicitly authorized purpose such as testing or security analysis (see the AI logging requirements section below for the canonical policy)
 
-**References:** OWASP LLM06, MITRE ATLAS AML.T0053: AI Agent Tool Invocation
+**References:** OWASP LLM03:2026, MITRE ATLAS AML.T0053: AI Agent Tool Invocation
 
 ---
 
-## Improper output handling and overreliance (OWASP LLM05, LLM09)
+## Improper output handling and overreliance (OWASP LLM10:2026, LLM07:2026)
 
 - Validate AI output before using it in downstream operations, especially:
  - Code generation → run SAST and security review
@@ -75,7 +75,7 @@ Treat every LLM response, every model output, and every AI-generated value as if
 - Implement confidence thresholds: reject low-confidence outputs or route them to human review
 - Test for model hallucinations in security-sensitive contexts (e.g., package names, API endpoints, permissions)
 
-**References:** OWASP LLM05 (Improper Output Handling), OWASP LLM09 (Misinformation)
+**References:** OWASP LLM10:2026 (Improper Output Handling), OWASP LLM07:2026 (Misinformation)
 
 ---
 
@@ -124,8 +124,8 @@ Before any AI feature reaches production, adversarial testing must include:
 
 | Requirement | OWASP LLM Top 10 | MITRE ATLAS | CSA AICM | NIST AI RMF |
 | --- | --- | --- | --- | --- |
-| Prompt injection | LLM01 | AML.T0051 | TVM-12 | Measure 2.5 |
-| Sensitive disclosure | LLM02 | AML.T0057 | DSP-05 | Measure 2.7 |
-| Supply chain | LLM03 | AML.T0010 | STA-10 | Govern 1.7 |
-| Excessive agency | LLM06 | AML.T0053 | IAM-04 | Manage 1.3 |
-| Improper output handling | LLM05 | N/A | AIS-02 | Measure 2.9 |
+| Prompt injection | LLM01:2026 | AML.T0051 | TVM-12 | Measure 2.5 |
+| Sensitive disclosure | LLM02:2026 | AML.T0057 | DSP-05 | Measure 2.7 |
+| Supply chain | LLM04:2026 | AML.T0010 | STA-10 | Govern 1.7 |
+| Excessive agency | LLM03:2026 | AML.T0053 | IAM-04 | Manage 1.3 |
+| Improper output handling | LLM10:2026 | N/A | AIS-02 | Measure 2.9 |

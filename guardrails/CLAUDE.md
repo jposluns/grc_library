@@ -154,7 +154,7 @@ The phased governance rollout announced at pack version 1.6.0 completed at 1.11.
 
 These requirements implement controls from:
 - OWASP Top 10:2025 (eighth edition; supersedes 2021)
-- OWASP LLM Top 10
+- OWASP LLM Top 10 (2026)
 - OWASP MCP Top 10
 - OWASP ASVS v5.0.0
 - NIST SSDF (SP 800-218 and SP 800-218A: Generative AI Profile)

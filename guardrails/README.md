@@ -2,8 +2,8 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.71.10\
-**Date:** 2026-08-25\
+**Version:** 1.71.11\
+**Date:** 2026-08-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Parent-library related documents:** `dev-security/standard-developer-security-requirements.md`, `dev-security/standard-devops-security-requirements.md`, `dev-security/guideline-ai-coding-assistant-security.md`, `ai/standard-ai-and-agentic-development-security.md`\
@@ -421,7 +421,7 @@ These rule files draw on and are aligned to the following external projects and 
 - URL: `https://owasp.org/www-project-top-10/`
 - Direct application: [`core/owasp.md`](core/owasp.md)
 
-**OWASP Top 10 for Large Language Model Applications**
+**OWASP Top 10 for Large Language Model Applications (2026)**
 - URL: `https://owasp.org/www-project-top-10-for-large-language-model-applications/`
 - Direct application: [`ai/ai-security.md`](ai/ai-security.md), [`ai/agent-security.md`](ai/agent-security.md), [`ai/rag-security.md`](ai/rag-security.md)
 

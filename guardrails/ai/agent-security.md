@@ -101,7 +101,7 @@ Before deploying an agentic system to production, adversarial testing must inclu
 
 | Test Category | Description | Resource |
 | --- | --- | --- |
-| Direct prompt injection | Attempt to override system instructions via user input | OWASP LLM01 |
+| Direct prompt injection | Attempt to override system instructions via user input | OWASP LLM01:2026 |
 | Indirect injection via documents | Embed adversarial instructions in documents the agent reads | Indirect-injection test suite |
 | Tool-call argument manipulation | Supply malformed or boundary-violating tool arguments | Tool-call fuzzing / boundary-case tests |
 | Trust escalation | Attempt to have a subagent claim orchestrator-level trust | Multi-agent trust-boundary tests |
@@ -117,9 +117,9 @@ Exercise the categories above as part of pre-production red-teaming, using an ag
 
 | Requirement | OWASP LLM Top 10 | MITRE ATLAS | CSA AICM | NIST AI RMF |
 | --- | --- | --- | --- | --- |
-| Trust hierarchy | LLM06, LLM08 | AML.T0053 | IAM-04 | Govern 1.4 |
-| Tool validation | LLM06 | AML.T0053 | AIS-02 | Manage 1.3 |
-| Human-in-the-loop | LLM06 | AML.T0054 | GRC-15 | Govern 6.2 |
-| Prompt injection (agentic) | LLM01 | AML.T0051 | TVM-12 | Measure 2.5 |
-| Memory security | LLM02 | AML.T0057 | DSP-05 | Measure 2.7 |
-| Recursion limits | LLM06 | N/A | N/A | Manage 1.3 |
+| Trust hierarchy | LLM03:2026, LLM09:2026 | AML.T0053 | IAM-04 | Govern 1.4 |
+| Tool validation | LLM03:2026 | AML.T0053 | AIS-02 | Manage 1.3 |
+| Human-in-the-loop | LLM03:2026 | AML.T0054 | GRC-15 | Govern 6.2 |
+| Prompt injection (agentic) | LLM01:2026 | AML.T0051 | TVM-12 | Measure 2.5 |
+| Memory security | LLM02:2026 | AML.T0057 | DSP-05 | Measure 2.7 |
+| Recursion limits | LLM03:2026 | N/A | N/A | Manage 1.3 |
