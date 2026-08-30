@@ -272,6 +272,7 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 
 ### Principle
 
+- [Capability Is Not Authority Principle](../governance/principle-capability-is-not-authority.md) (maturity: Draft)
 - [Integrity and Trustworthiness Principle](../governance/principle-integrity-and-trustworthiness.md) (maturity: Draft)
 
 ### Procedure
