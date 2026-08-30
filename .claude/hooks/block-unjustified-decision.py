@@ -49,6 +49,38 @@ import re
 import sys
 from pathlib import Path
 
+# F1793-12: harmonize the P-TODO open-item count with tools/audit-backlog-actionability.py
+# (parse_items), which GATES the index-ROW count on has_todo_index_header so a legacy item's
+# body table cannot inflate the count. Import the canonical classifier; fail OPEN to a
+# faithful inline replica if tools/ is not importable (the hook must never crash).
+_TOOLS_DIR = str(Path(__file__).resolve().parents[2] / "tools")
+if _TOOLS_DIR not in sys.path:
+    sys.path.insert(0, _TOOLS_DIR)
+try:
+    from lint_common import has_todo_index_header as _has_todo_index_header
+except Exception:  # pragma: no cover - fail OPEN on import trouble
+    def _has_todo_index_header(text: str) -> bool:  # noqa: D103
+        in_fence = False
+        for line in text.splitlines():
+            st = line.lstrip()
+            if st.startswith("```") or st.startswith("~~~"):
+                in_fence = not in_fence
+                continue
+            if in_fence or not st.startswith("|"):
+                continue
+            # Replicate lint_common.split_row EXACTLY (codex #1811): drop exactly ONE
+            # bounding pipe each side, not every leading pipe. A `.strip("|")` would
+            # misclassify `|| ID | Item | Tags |` as an index header (canonical: not one).
+            parts = line.split("|")
+            if parts and parts[0].strip() == "":
+                parts = parts[1:]
+            if parts and parts[-1].strip() == "":
+                parts = parts[:-1]
+            cells = [c.strip() for c in parts]
+            if tuple(cells[:3]) == ("ID", "Item", "Tags"):
+                return True
+        return False
+
 LOG_BASENAME = "autonomous-decisions-log.md"
 
 # Un-instrumented self-justifications for INACTION (the language the failure uses). A BLOCKED
@@ -152,12 +184,14 @@ def _todo_item_count(project_dir: str | None) -> int | None:
         ptodo = root.parent / "grc_library_private" / "P-TODO.md"
         if ptodo.is_file():
             ptodo_text = ptodo.read_text(encoding="utf-8")
-            # Transitional (2026-08 migration): P-TODO.md moves from ### -block to
-            # index-row form. Count BOTH so the union open-item count matches
-            # audit-backlog-actionability in either layout; a file is one format
-            # at a time, so only one regex contributes.
+            # F1793-12: mirror audit-backlog-actionability.py parse_items - the
+            # index-ROW count is GATED on has_todo_index_header (the reliable index-form
+            # signal, so a legacy item's body table cannot inflate the count); the
+            # ### -heading (legacy) count is unconditional, matching parse_items' sum of
+            # idx_items + legacy_items.
+            if _has_todo_index_header(ptodo_text):
+                count += len(TODO_ROW_RE.findall(ptodo_text))
             count += len(ITEM_HEADING_RE.findall(ptodo_text))
-            count += len(TODO_ROW_RE.findall(ptodo_text))
         return count
     except Exception:
         return None

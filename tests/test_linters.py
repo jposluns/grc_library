@@ -12016,6 +12016,61 @@ class HookToolItemCountParityTests(unittest.TestCase):
                 "hook must count 2 public + 2 index-format private = 4")
             shutil.rmtree(priv)
 
+    def test_hook_gates_legacy_body_table_rows(self):
+        # F1793-12: a LEGACY-form P-TODO.md (### blocks, no `| ID | Item | Tags |` header)
+        # whose block body holds a markdown table with a backlog-id-shaped first cell must
+        # NOT have those body-table rows counted as items. Before the fix the hook added
+        # TODO_ROW_RE unconditionally (inflating the count); now the index-row count is
+        # gated on has_todo_index_header, mirroring audit-backlog-actionability.parse_items.
+        import tempfile
+        hook = self._load("_hook_legacy_body", ".claude/hooks/block-unjustified-decision.py")
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d) / "grc_library"
+            root.mkdir()
+            (root / "TODO.md").write_text(
+                "| 1.1 | pub one | `[public]` |\n", encoding="utf-8")
+            priv = Path(d) / "grc_library_private"
+            priv.mkdir()
+            (priv / "P-TODO.md").write_text(
+                "# P-TODO\n\n### P-1.5 legacy one\n\nBody prose. A doc table:\n\n"
+                "| P-9.9 | not an item, a doc row | x |\n"
+                "| P-8.8 | also a doc row | y |\n\n"
+                "### P-2.1 legacy two\n\nMore prose.\n",
+                encoding="utf-8")
+            self.assertEqual(
+                hook._todo_item_count(str(root)), 3,
+                "1 public + 2 legacy ### items; the 2 body-table rows must NOT count "
+                "(F1793-12: index-row count gated on has_todo_index_header)")
+
+    def test_hook_fallback_replicates_split_row_on_import_failure(self):
+        # codex #1811: when `from lint_common import has_todo_index_header` fails, the inline
+        # fallback must replicate lint_common.split_row EXACTLY - drop exactly ONE bounding
+        # pipe each side, not every leading pipe. A `.strip("|")` fallback misclassifies a
+        # double-leading-pipe row `|| ID | Item | Tags |` as an index header (canonical: no),
+        # which during an import failure could re-enable the inflated row counting this
+        # whole fix removes. Force the import to fail and exercise the fallback.
+        import sys
+        import importlib.util
+        saved = sys.modules.get("lint_common", "absent")
+        sys.modules["lint_common"] = None  # makes `from lint_common import ...` raise ImportError
+        try:
+            spec = importlib.util.spec_from_file_location(
+                "_hook_fallback", REPO_ROOT / ".claude/hooks/block-unjustified-decision.py")
+            mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)  # the except-branch fallback is defined
+            f = mod._has_todo_index_header
+            self.assertTrue(f("| ID | Item | Tags |\n"),
+                "a normal index header must classify True")
+            self.assertFalse(f("|| ID | Item | Tags |\n"),
+                "double-leading-pipe must NOT classify as index header (split_row drops ONE pipe)")
+            self.assertFalse(f("### P-1.1 legacy\n\n| P-9.9 | doc row | x |\n"),
+                "a legacy body table (no ID/Item/Tags header) is not an index header")
+        finally:
+            if saved == "absent":
+                sys.modules.pop("lint_common", None)
+            else:
+                sys.modules["lint_common"] = saved
+
     def test_hook_count_resolves_relative_and_symlink_project_dir(self):
         # codex vpr1323 Finding 1: an unresolved relative or symlinked project_dir made
         # root.parent point at the symlink's container / cwd rather than the real repo
