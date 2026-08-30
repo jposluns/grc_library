@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.130\
+**Version:** 1.27.131\
 **Date:** 2026-08-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -56,6 +56,7 @@ Documents are classified by their **primary** disposition. The small number that
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Governance | Charter | Governance Library Charter | [`governance/charter-governance-library.md`](charter-governance-library.md) | Governance Library Maintainer | Annual | Governance authority, document lifecycle, licence boundary | library-internal |
 | Governance | Principle | Capability Is Not Authority Principle | [`governance/principle-capability-is-not-authority.md`](principle-capability-is-not-authority.md) | Governance Library Maintainer | Annual and upon material governance, AI, or regulatory change | Access governance: capability is not authority; the seven capability vectors vs the authorization grant; default-deny, zero-trust, least-privilege, fail-closed instantiation; NIST SP 800-53 AC family, ISO/IEC 27001 A.5/A.8, NIST CSF PR.AA, CSA CCM IAM | library-internal |
+| Governance | Principle | Fail-Closed Automation Principle | [`governance/principle-fail-closed-automation.md`](../governance/principle-fail-closed-automation.md) | Governance Library Maintainer | Annual and upon material governance, AI, or regulatory change | Automation fails into a known controlled safe state; deny/halt over permissive; degraded modes preserve safety, observability, stop-ability; NIST SP 800-53 SC-24/SI-17/CP-12, ISO/IEC 27001 A.5.29/A.8.20, NIST CSF PR.IR, IEC 61508/61511 | library-internal |
 | Governance | Principle | Integrity and Trustworthiness Principle | [`governance/principle-integrity-and-trustworthiness.md`](principle-integrity-and-trustworthiness.md) | Governance Library Maintainer | Annual and upon material governance, AI, or regulatory change | The AIQT Principle ((Accuracy = Integrity = Quality = Trust) > Progress > Speed > Cost): the four co-equal facets (with Progress and Speed the throughput tier below them), their enforcing machinery, and the source-verified AI-assurance framework alignment | library-internal |
 | Governance | Framework | Document Architecture and Interrelationship Framework | [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md) | Governance Library Maintainer | Annual | Governance hierarchy, audit traceability, policy architecture | template |
 | Governance | Framework | Governance Relationship and Flow Modelling Framework | [`governance/framework-governance-relationship-and-flow-modelling.md`](framework-governance-relationship-and-flow-modelling.md) | Governance Library Maintainer | Annual | Directed relationship-flow modelling, node classes, six viewpoints, canonical verbs, validation tests | template |
