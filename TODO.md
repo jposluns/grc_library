@@ -26,7 +26,7 @@ Item numbers are permanent identity, never recycled, and decoupled from the P1-P
 
 <!-- BEGIN-GENERATED number-allocation -->
 - **Next item number: 1.31.** (P1 / fix series)
-- **Next item number: 2.33.** (P2 / content series)
+- **Next item number: 2.34.** (P2 / content series)
 - **Next item number: 3.250.** (P3 / tooling series)
 - **Next item number: 4.32.** (P4 / adopter series)
 - **Next item number: 5.10.** (frozen; series 5 takes no new items)
@@ -86,6 +86,7 @@ Fill significant gaps: deepen thin-but-present content to operational sufficienc
 | 2.18 | AI jurisdiction annex: South Korea AI Basic Act (H, M) | `[public]` |
 | 2.25.2 | Control-to-policy-instrument coverage: international AI-governance authorities (consolidated with 2.15; M, M) | `[content]` `[public]` |
 | 2.26 | OSCAL machine-readable representation (umbrella; maintainer-directed 2026-07-23, H, XL) | `[machinery]` `[public]` |
+| 2.33 | Canada-specific executive/jurisdiction document series (maintainer-directed 2026-08-17; content; moved from private P-1.38 2026-08-30) | `[public]` |
 | 3.184 | Corpus ISO citation currency updates enabled by the 2026-07-28 `_ref` ingest (2026-07-28 ingest follow-up, M, S) | `[public]` |
 | 3.14 | ETSI Securing-AI alignment map (L, M) (was 3.16) | `[public]` |
 
