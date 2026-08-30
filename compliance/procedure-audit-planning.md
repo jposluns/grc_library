@@ -2,8 +2,8 @@
 
 **Document Title:** Audit Planning Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.7\
-**Date:** 2026-08-05\
+**Version:** 1.0.8\
+**Date:** 2026-08-30\
 **Owner:** Chief Audit Executive\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md)\
@@ -108,7 +108,7 @@ e. **Time since last audit:** No domain may remain unaudited for more than three
 
 ### 3.2 Regulatory and certification triggers
 
-The following certification and regulatory requirements mandate minimum audit frequencies that must be reflected in the Annual Audit Plan regardless of risk-based prioritization:
+The following certification and regulatory requirements drive the minimum audit frequencies reflected in the Annual Audit Plan, applied regardless of risk-based prioritization (each frequency is the certification scheme's own surveillance cycle, or, where the standard sets no fixed cadence such as ISO/IEC 27001 Clause 9.2's organization-defined planned intervals, the annual cadence the organization adopts to maintain certification):
 
 | Certification / Requirement | Minimum Internal Audit Frequency | Domains / Scope Items |
 |-----------------------------|-----------------------------------|-----------------------|
@@ -460,7 +460,7 @@ After the 7-year retention period, records are disposed of in accordance with th
 |----------------------|---------------------------|---------|
 | ISO 19011:2026 | §5.4 Establishing the audit programme; §5.5 Implementing the audit programme; §5.7 Reviewing and improving the audit programme | Primary procedural reference; this procedure operationalizes the audit-programme-management clauses |
 | ISO 19011:2026 | §6.2 Initiating the audit; §6.3 Preparing auditing activities | Individual audit planning steps (Sections 4 and 5) |
-| ISO/IEC 27001:2022 | §9.2 Internal Audit | Annual programme and individual audit requirements |
+| ISO/IEC 27001:2022 | §9.2 Internal Audit | Internal-audit programme at organization-defined planned intervals (the organization adopts an annual cadence to maintain certification), plus individual audit planning requirements |
 | COBIT 2019 | MEA04 (Managed Assurance) | Audit programme planning, resource allocation, and assurance reporting |
 | BASC Standard | §9.2 Internal Audit | Annual audit of BASC programme scope; evidence collection and reporting requirements |
 | AEO-S IT Control Requirements | IT control testing and documentation | Third-party and technical security audit procedures applicable to AEO-S scope |
