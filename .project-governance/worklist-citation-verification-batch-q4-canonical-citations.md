@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Worklist: Batch Q4 (Remaining Canonical Citations)\
 **Document Type:** Worklist\
-**Version:** 1.0.14\
-**Date:** 2026-08-14\
+**Version:** 1.0.15\
+**Date:** 2026-08-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](../governance/specification-citation-verification.md), [`governance/template-citation-verification-worklist.md`](../governance/template-citation-verification-worklist.md), [`.project-governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](../governance/register-canonical-citations.md), [`.project-governance/register-citation-verification-bundle.md`](register-citation-verification-bundle.md)\
@@ -173,7 +173,7 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 | NIST SP 1900 series | https://www.nist.gov/programs-projects/cyber-physical-systems | all | 2023, Smart-building cybersecurity and IoT |  |  |  |  |  |  |
 | NFPA 72 | https://www.nfpa.org/codes-and-standards/all-codes-and-standards/list-of-codes-and-standards/detail?code=72 | all | 2025, National Fire Alarm and Signaling Code; supersedes 2022, 2019 |  |  |  |  |  |  |
 | EN 54 | https://standards.cencenelec.eu/dyn/www/f?p=205:32:0::::FSP_ORG_ID,FSP_LANG_ID:6196,25 | all | Series, current parts published 2017 to 2023 |  |  |  |  |  |  |
-| TSA Pipeline Security Directive | https://www.tsa.gov/sites/default/files/tsa-security-directive-pipeline-2021-02f-and-memo-508c.pdf | all | SD Pipeline-2021-02F (2025-05-03; listed expiry 2026-05-02 passed, current post-expiry instrument needs reconfirmation) |  |  |  |  |  |  |
+| TSA Pipeline Security Directive | https://www.tsa.gov/sites/default/files/signed_security_directive_pipeline-2021-02g_and_transmittal_memo_508c.pdf | all | SD Pipeline-2021-02G (effective 2026-05-03 through 2027-05-02; cancels and supersedes 02F) |  |  |  |  |  |  |
 | Basel III | https://www.bis.org/basel_framework/ | all | 2017 (with 2023 finalization, in force 2025); supersedes Basel II |  |  |  |  |  |  |
 | NERC CIP | https://www.nerc.com/pa/Stand/Pages/CIPStandards.aspx | all | 014-3 (latest revision), various |  |  |  |  |  |  |
 | PCI DSS | https://www.pcisecuritystandards.org/document_library/?category=pcidss | all | 4.0.1, 2024-06; supersedes 3.2.1, 4.0 |  |  |  |  |  |  |
