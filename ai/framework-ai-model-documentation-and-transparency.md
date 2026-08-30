@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Documentation and Transparency Framework\
 **Document Type:** Framework\
-**Version:** 1.0.9\
-**Date:** 2026-07-12\
+**Version:** 1.0.10\
+**Date:** 2026-08-30\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md)\
@@ -116,7 +116,7 @@ Where an AI system makes or materially influences decisions affecting individual
 
 - Disclose that an AI system is involved in the decision.
 - Provide a plain-language explanation of the factors that influenced the outcome.
-- Provide a mechanism for individuals to request human review of AI-influenced decisions (GDPR Article 22 right).
+- Provide a mechanism for individuals to request human review of AI-influenced decisions; for a decision based solely on automated processing that produces legal or similarly significant effects, the narrower GDPR Article 22 protections apply, namely the Article 22(1) right not to be subject to such a decision and, in the Article 22(2)(a) contract and (c) explicit-consent cases, the Article 22(3) safeguard of at least a right to obtain human intervention (the Article 22(2)(b) authorizing-law case instead relies on the safeguards that law lays down).
 - Document the explanation provided and retain for audit purposes.
 
 This realizes the right-to-know objective (ISO/IEC 12792:2025 §6.2) for the affected individual, who is the AI subject in the AI-deployer-to-AI-subject stakeholder pair (§6.3).
