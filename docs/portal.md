@@ -331,6 +331,7 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 - [Maturity Assessment Methodology Standard](../governance/standard-maturity-assessment-methodology.md) (maturity: Baseline)
 - [Records Retention and Destruction Standard](../governance/standard-records-retention-and-destruction.md) (maturity: Mature)
 - [Sanctions and Export-Control Screening Standard](../compliance/standard-sanctions-and-export-control-screening.md) (maturity: Baseline)
+- [Semantic Continuity in Migration and Retirement Standard](../governance/standard-semantic-continuity-in-migration-and-retirement.md) (maturity: Draft)
 - [Third-Party and Supply Chain Risk Standard](../risk/standard-third-party-and-supply-chain-risk.md) (maturity: Mature)
 
 ### Template
