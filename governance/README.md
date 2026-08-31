@@ -2,8 +2,8 @@
 
 **Document Title:** Governance Domain README\
 **Document Type:** Register\
-**Version:** 1.10.16\
-**Date:** 2026-08-30\
+**Version:** 1.10.17\
+**Date:** 2026-08-31\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md)\
@@ -51,6 +51,7 @@ This directory contains the enterprise-wide governance foundation of the GRC Doc
 | Register | Digital Trust and Assurance Metrics Register | [`governance/register-digital-trust-and-assurance-metrics.md`](register-digital-trust-and-assurance-metrics.md) |
 | Standard | Records Retention and Destruction Standard | [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md) |
 | Standard | Delegation-of-Authority Standard | [`governance/standard-delegation-of-authority.md`](standard-delegation-of-authority.md) |
+| Standard | Emergency Authority Standard | [`governance/standard-emergency-authority.md`](standard-emergency-authority.md) |
 | Standard | Maturity Assessment Methodology Standard | [`governance/standard-maturity-assessment-methodology.md`](standard-maturity-assessment-methodology.md) |
 | Procedure | GRC Programme Management and Annual Review Procedure | [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md) |
 | Framework | Human Capital and Ethical Conduct Framework | [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md) |

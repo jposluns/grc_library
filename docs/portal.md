@@ -324,6 +324,7 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 ### Standard
 
 - [Delegation-of-Authority Standard](../governance/standard-delegation-of-authority.md) (maturity: Draft)
+- [Emergency Authority Standard](../governance/standard-emergency-authority.md) (maturity: Draft)
 - [Enterprise Risk Management Standard](../risk/standard-enterprise-risk-management.md) (maturity: Mature)
 - [Internal Audit Standard](../compliance/standard-internal-audit.md) (maturity: Mature)
 - [Maturity Assessment Methodology Standard](../governance/standard-maturity-assessment-methodology.md) (maturity: Baseline)

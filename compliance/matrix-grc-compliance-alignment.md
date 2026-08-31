@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.33\
+**Version:** 1.11.37\
 **Date:** 2026-08-31\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -51,6 +51,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Governance | Governance Library Charter | [`governance/charter-governance-library.md`](../governance/charter-governance-library.md) | GRC-01, GRC-02 | N/A | §5.1, §5.2, §6.1 | GV.OC, GV.RM | N/A | Programme governance | §5.1, §7.5 | Pillar II (Customs-to-Business Partnership) | Management commitment |
 | Governance | Policy: Exception and Risk Acceptance Management | [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md) | GRC-04, GRC-05 | N/A | §6.1.3, §8.2 | GV.RM, ID.RA | N/A | N/A | §6.1, §10 | N/A | Risk management |
 | Governance | Standard: Records Retention and Destruction | [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) | DSP-16, DSP-02 | MDS-03, DSP-20 | A.5.33, A.8.10 | PR.DS | Documentation and record-keeping | Record retention | §7.5 | Pillar II (Customs-to-Business) | Documentation security; Trade records retention |
+| Governance | Standard: Emergency Authority | [`governance/standard-emergency-authority.md`](../governance/standard-emergency-authority.md) | CCC-08, CCC-09, IAM-05, IAM-10, SEF-03, SEF-07, SEF-09, BCR-09 | GRC-15, IAM-18 | A.8.2, A.5.15, A.5.18, A.8.13, A.5.26, A.5.27 | GV.RR, PR.AA, ID.IM, RS.MA, RS.MI, RC.RP | N/A | N/A | N/A | N/A | N/A |
 | Governance | Register: Document Index and Classification | [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md) | GRC-01 | N/A | §7.5 | GV.OC | N/A | N/A | §7.5 | N/A | Documentation security |
 | Governance | Framework: Continuous Assurance and Improvement | [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md) | A&A-01, A&A-05, A&A-02 | GRC-14, GRC-12 | §9.1, §9.2, §10.1 | ID.IM, GV.OV, DE.CM | N/A | N/A | Trade and customs assurance governance | Pillar II (Customs-to-Business) | IT controls review and testing |
 | Governance | Framework: Document Architecture and Interrelationship | [`governance/framework-document-architecture-and-interrelationship.md`](../governance/framework-document-architecture-and-interrelationship.md) | GRC-01, GRC-03 | N/A | §7.5, A.5.1 | GV.OC, GV.PO | N/A | N/A | N/A | N/A | N/A |
