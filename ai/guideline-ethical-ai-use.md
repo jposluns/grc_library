@@ -2,11 +2,11 @@
 
 **Document Title:** Ethical AI Use Guideline\
 **Document Type:** Guideline\
-**Version:** 1.0.5\
-**Date:** 2026-07-11\
+**Version:** 1.0.6\
+**Date:** 2026-08-31\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
-**Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`governance/framework-human-capital-and-ethical-conduct.md`](../governance/framework-human-capital-and-ethical-conduct.md), [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md)\
+**Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`governance/framework-human-capital-and-ethical-conduct.md`](../governance/framework-human-capital-and-ethical-conduct.md), [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md)\
 **Classification:** Public\
 **Category:** AI Governance\
 **Review Frequency:** Annual and upon material AI framework or regulatory change\
