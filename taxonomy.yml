@@ -5245,7 +5245,7 @@ documents:
   domain: "governance"
   type: "Standard"
   title: "Semantic Continuity in Migration and Retirement Standard"
-  version: "0.0.1"
+  version: "0.0.2"
   date: "2026-08-31"
   owner: "GRC Programme Manager"
   approving_authority: "Governance Library Maintainer"

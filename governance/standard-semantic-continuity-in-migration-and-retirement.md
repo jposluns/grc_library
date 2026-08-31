@@ -2,7 +2,7 @@
 
 **Document Title:** Semantic Continuity in Migration and Retirement Standard\
 **Document Type:** Standard\
-**Version:** 0.0.1\
+**Version:** 0.0.2\
 **Date:** 2026-08-31\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
@@ -40,7 +40,7 @@ The comparison demonstrates decision, behaviour, and interpretation equivalence,
 
 ## 4. Pass criteria and tolerance
 
-Equivalence thresholds and materiality classes are declared before the comparison is run, so that pass and fail are judged against a pre-committed bar rather than rationalized after the result is seen. Each divergence between predecessor and successor is classified as an intended improvement (a deliberate, approved change the successor is meant to introduce), a regression (an unintended loss of fidelity), or an unexplained divergence. Intended improvements are recorded and do not fail the gate; regressions and unexplained divergences fail it until resolved or explicitly accepted under section 5.
+Equivalence thresholds and materiality classes are declared before the comparison is run, so that pass and fail are judged against a pre-committed bar rather than rationalized after the result is seen. Each divergence between predecessor and successor is classified as an intended improvement (a deliberate, approved change the successor is meant to introduce), a regression (an unintended loss of fidelity), or an unexplained divergence. An intended improvement that stays within the pre-declared tolerance is recorded and does not fail the gate; an intended improvement that falls outside tolerance, like any regression or unexplained divergence, fails the gate until it is resolved or explicitly accepted under section 5.
 
 ## 5. Authorization on a partial pass
 
@@ -62,12 +62,12 @@ This standard is additive and composes with, rather than duplicates, the existin
 
 | Requirement | ISO/IEC 42001:2023 | NIST AI RMF 1.0 | ISO/IEC 20000-1:2018 | NIST SP 800-53 Rev 5 | CSA CCM v4.1 | ISO/IEC 27001:2022 |
 | --- | --- | --- | --- | --- | --- | --- |
-| Retirement and decommissioning governed as a lifecycle stage | A.6.2 | MANAGE 4.1 | 8.5.2 (service transition, including removal) | SA-3 | CCC-03 | A.8.32 |
-| Successor outcome-consistency before supersession | n/a | MANAGE 2.4 | n/a | CM-4 | CCC-03 | A.8.32 |
-| Impact analysis before the change is implemented | n/a | MANAGE 2.4 | 8.5.2 | CM-4 | BCR-02 | A.8.32 |
-| Retention of comparison evidence | n/a | n/a | n/a | n/a | DSP-16 | A.5.33 |
+| Retirement and decommissioning governed as a lifecycle stage | A.6.2 | MANAGE 4.1 | 8.5.2 (service transition, including removal) | SR-12 | CCC-03 | A.8.32 |
+| Successor outcome-consistency before supersession (novel; no framework mapping) | n/a | n/a | n/a | n/a | n/a | n/a |
+| Impact analysis before the change is implemented | n/a | n/a | 8.5.2 | CM-4 | CCC-03 | A.8.32 |
+| Retention of comparison evidence | n/a | n/a | n/a | n/a | DSP-16 | 7.5.3 |
 
-Control identifiers are cited at the objective level; the paired documents in Related Documents carry the operational detail. The alignment is deliberately narrow: the sources govern decommissioning as a lifecycle stage (ISO/IEC 42001 A.6.2 on the AI system life cycle, which documents operation, transfer, and decommissioning; ISO/IEC 20000-1 8.5.2 on service transition), outcome-consistency at supersession (NIST AI RMF MANAGE 2.4, whose mechanism is to supersede or deactivate systems whose outcomes are inconsistent with intended use), and pre-change impact analysis (NIST SP 800-53 CM-4). None prescribes a meaning-preserving comparison as a retirement precondition; see Limitations.
+Control identifiers are cited at the objective level; the paired documents in Related Documents carry the operational detail. The alignment is deliberately narrow, and the standard's core requirement, successor outcome-consistency, has no framework mapping at all, which reinforces its novelty. The mapped sources govern the surrounding activities: decommissioning as a lifecycle stage (ISO/IEC 42001 A.6.2 on the AI system life cycle; NIST AI RMF MANAGE 4.1, which names decommissioning within post-deployment monitoring; NIST SP 800-53 SR-12 on component disposal), service removal (ISO/IEC 20000-1 8.5.2), pre-change impact analysis (NIST SP 800-53 CM-4), and evidence retention (ISO/IEC 27001 7.5.3 on the retention and disposition of documented information). None prescribes a meaning-preserving comparison as a retirement precondition; see Limitations.
 
 ## 10. Limitations
 
