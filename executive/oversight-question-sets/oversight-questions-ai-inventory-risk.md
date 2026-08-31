@@ -2,8 +2,8 @@
 
 **Document Title:** What the governing body should ask about the organization's AI inventory, risks, incidents, suppliers, and change\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.2\
-**Date:** 2026-08-16\
+**Version:** 0.0.3\
+**Date:** 2026-08-31\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-board-oversight.md`](../../ai/guide-ai-board-oversight.md), [`ai/template-ai-system-register.md`](../../ai/template-ai-system-register.md), [`ai/register-ai-risk.md`](../../ai/register-ai-risk.md), [`ai/plan-ai-incident-response.md`](../../ai/plan-ai-incident-response.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../../supply-chain/procedure-third-party-ai-due-diligence.md), [`risk/template-board-risk-report.md`](../../risk/template-board-risk-report.md)\
@@ -58,7 +58,7 @@ The questions are entity-neutral. They presume nothing about whether the asking 
 
 - *What counts as an AI incident here?* A strong answer produces the defined AI incident classes with their detection triggers and the severity criteria, as the [AI incident response plan](../../ai/plan-ai-incident-response.md) sets them out. An organization that has not defined the classes cannot report against them.
 - *What AI incidents and near misses occurred in the period, and what did they change?* A strong answer combines the incidents section of the periodic risk report (the [board risk report template](../../risk/template-board-risk-report.md), its Section 6) with the post-incident review the [AI incident response plan](../../ai/plan-ai-incident-response.md) defines; use that plan's post-incident review member for its review points, so each incident becomes a test of the other controls on this page.
-- *For a serious incident, could we reconstruct what the system did?* A strong answer shows the evidence the [AI incident response plan](../../ai/plan-ai-incident-response.md) requires preserved for the incident severities it names, in classes including prompt logs, tool invocation logs, action lineage, and model version metadata (its evidence requirements section).
+- *For a serious incident, could we reconstruct what the system did?* A strong answer shows the evidence the [AI incident response plan](../../ai/plan-ai-incident-response.md) requires preserved for the incident severities it names (its evidence requirements section).
 - *Are AI incidents escalated through the same incident discipline as everything else?* A strong answer shows AI incidents classified and escalated through incident management, covering the AI-specific incident types the [AI security and risk standard](../../ai/standard-ai-security-and-risk.md) lists (its section 4.10).
 
 **A weak answer in this theme:** "we had no AI incidents" from an organization with no defined AI incident classes. Absence of detection is not absence of events.
@@ -66,7 +66,7 @@ The questions are entity-neutral. They presume nothing about whether the asking 
 **Theme: suppliers. Who puts AI into our operations, and on what terms?**
 
 - *Which suppliers put AI into our operations, and what did due diligence conclude for each?* A strong answer produces the completed pre-engagement checklist and the supplier classification for each, per the [third-party AI due diligence procedure](../../supply-chain/procedure-third-party-ai-due-diligence.md) (its sections 4 and 5).
-- *Do our contracts give us incident notification, model version change notification, audit rights, and deletion on exit?* A strong answer shows the contractual AI requirements in that procedure's section 6 evidenced supplier by supplier, not asserted in general.
+- *Do our contracts carry the mandatory AI contractual requirements that procedure's section 6 defines?* A strong answer shows those section 6 contractual AI requirements evidenced supplier by supplier, not asserted in general.
 - *Where are we concentrated, and what happens if a critical AI provider fails, changes terms, or becomes unavailable?* A strong answer reads from the [concentration risk register](../../supply-chain/register-concentration-risk.md) across the dimensions it tracks, together with the supplier and concentration section of the periodic risk report (the [board risk report template](../../risk/template-board-risk-report.md), its Section 8).
 - *When we exit an AI supplier, can we show our data and models were returned or deleted?* A strong answer produces the completed offboarding record in the form the [supplier offboarding evidence template](../../supply-chain/template-supplier-offboarding-evidence.md) defines, with the exit and deletion steps of the [third-party AI due diligence procedure](../../supply-chain/procedure-third-party-ai-due-diligence.md) (its section 8) behind it.
 
