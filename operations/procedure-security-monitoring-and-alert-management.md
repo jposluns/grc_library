@@ -2,8 +2,8 @@
 
 **Document Title:** Security Monitoring and Alert Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.10\
-**Date:** 2026-08-01\
+**Version:** 1.3.11\
+**Date:** 2026-08-31\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md)\
@@ -327,15 +327,15 @@ The following metrics are tracked by the SOC, reported to the CISO monthly, and 
 
 | Control Area | ISO/IEC 27002:2022 | NIST CSF | COBIT 2019 | CSA CCM v4.1 |
 | --- | --- | --- | --- | --- |
-| Log ingestion and integrity | §8.15 | Detect: DE.CM-09 | DSS05.03 | LOG-01, LOG-04, LOG-07 |
-| Time synchronization | §8.17 | Detect: DE.CM | DSS01.03 | LOG-03 |
-| Alert rules and coverage | §8.16 | Detect: DE.CM-09, DE.AE-02 | DSS05.03 | LOG-09, SEF-01 |
-| Alert triage and response | §8.16 | Respond: RS.MA-02 | DSS05.03 | SEF-02, SEF-03 |
-| Automated ticket creation | §8.16 | Respond: RS.MA-02 | DSS05.03 | SEF-04 |
-| Escalation to incident response | §5.25, §5.26 | Respond: RS.MA-04 | DSS02.01 | SEF-05, SEF-06 |
-| Dashboards and reporting | §8.16 | Detect: DE.AE-06 | MEA01.04 | LOG-11, LOG-14 |
-| Rule tuning and MITRE mapping | §8.16 | Detect: DE.AE-07 | DSS05.03 | LOG-10, SEF-09 |
-| AI-assisted detection | §8.16 | Detect: DE.CM-09 | DSS05.03 | SEF-10 |
+| Log ingestion and integrity | §8.15 | Detect: DE.CM-09 | DSS05.03 | LOG-01, LOG-07, LOG-09, LOG-10 |
+| Time synchronization | §8.17 | Detect: DE.CM | DSS01.03 | LOG-06 |
+| Alert rules and coverage | §8.16 | Detect: DE.CM-09, DE.AE-02 | DSS05.03 | LOG-03 |
+| Alert triage and response | §8.16 | Respond: RS.MA-02 | DSS05.03 | SEF-06, SEF-07 |
+| Automated ticket creation | §8.16 | Respond: RS.MA-02 | DSS05.03 | SEF-06, SEF-09 |
+| Escalation to incident response | §5.25, §5.26 | Respond: RS.MA-04 | DSS02.01 | SEF-03, SEF-07 |
+| Dashboards and reporting | §8.16 | Detect: DE.AE-06 | MEA01.04 | LOG-03, LOG-14 |
+| Rule tuning and MITRE mapping | §8.16 | Detect: DE.AE-07 | DSS05.03 | TVM-05, LOG-05 |
+| AI-assisted detection | §8.16 | Detect: DE.CM-09 | DSS05.03 | LOG-03 |
 
 ---
 
