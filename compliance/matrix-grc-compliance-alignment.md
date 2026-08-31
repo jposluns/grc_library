@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.37\
+**Version:** 1.11.38\
 **Date:** 2026-08-31\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -408,6 +408,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 | AI | Integrated AI and Privacy Assessment Procedure | [`ai/procedure-integrated-ai-and-privacy-assessment.md`](../ai/procedure-integrated-ai-and-privacy-assessment.md) | DSP-09, GRC-07 | GRC-10 | A.5.34, §6.1.2 | ID.RA | N/A | N/A | N/A | N/A | N/A |
 | AI | AI Data Quality and Readiness Validation Standard | [`ai/standard-ai-data-quality-and-readiness-validation.md`](../ai/standard-ai-data-quality-and-readiness-validation.md) | DSP-16, STA-11 | DSP-23, DSP-24 | §8.1, A.5.20, A.8.10 | ID.AM, PR.DS, GV.SC | N/A | N/A | N/A | N/A | N/A |
 | AI | AI Model Succession and Identity Continuity Standard | [`ai/standard-ai-model-succession-and-identity.md`](../ai/standard-ai-model-succession-and-identity.md) | CCC-01, IAM-05 | MDS-03, MDS-05, MDS-08, MDS-10 | A.5.18 | PR.AA | N/A | N/A | N/A | N/A | N/A |
+| AI | AI Actor Role and Forum Standing Charter | [`ai/charter-ai-actor-role-and-forum-standing.md`](../ai/charter-ai-actor-role-and-forum-standing.md) | GRC-01, GRC-06 | GRC-12, GRC-15 | A.5.2 | GV.RR | N/A | N/A | N/A | N/A | N/A |
 
 ---
 

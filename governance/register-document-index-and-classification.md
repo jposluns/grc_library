@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.138\
+**Version:** 1.27.139\
 **Date:** 2026-08-31\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -295,6 +295,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Operations | Register | OT Asset Inventory and Lifecycle Register | [`operations/ot/register-ot-asset-inventory-and-lifecycle.md`](../operations/ot/register-ot-asset-inventory-and-lifecycle.md) | Chief Information Security Officer | Annual | IEC 62443-2-1, IEC 62443-3-2, IEC 62443-3-3, NIST SP 800-82 Rev. 3, ISO/IEC 27001 Annex A.5.9, ISO/IEC 27019:2024, NERC CIP-002, NERC CIP-010, IEC 61511, EU NIS 2, TSA Pipeline | template |
 | Operations | Annex | Building Management Systems (BMS) Overlay Annex | [`operations/ot/annex-bms-overlay.md`](../operations/ot/annex-bms-overlay.md) | Chief Information Security Officer | Annual | IEC 62443 family, NIST SP 800-82 Rev. 3, ISO 16484, ASHRAE 135 (BACnet incl. BACnet/SC), NIST SP 1900 series, NFPA 72, EN 54, ISO/IEC 27001, ISO/IEC 27018/27701, GDPR / UK GDPR / CCPA | template |
 | AI | Charter | AI Governance Council Charter | [`ai/charter-ai-governance-council.md`](../ai/charter-ai-governance-council.md) | Chief Information Officer | Annual | ISO/IEC 42001 §5, EU AI Act Chapter III, NIST AI RMF GOVERN, OECD AI Principles | template |
+| AI | Charter | AI Actor Role and Forum Standing Charter | [`ai/charter-ai-actor-role-and-forum-standing.md`](../ai/charter-ai-actor-role-and-forum-standing.md) | AI Governance Lead | Annual | CSA AICM GRC-01/GRC-06/GRC-12/GRC-15, ISO/IEC 42001 Clause 5.3/A.3.2, NIST AI RMF GOVERN 2.1/2.3/3.2, ISO/IEC 38507, OECD AI Principles | template |
 | AI | Charter | AI Ethics Review Panel Charter | [`ai/charter-ai-ethics-review-panel.md`](../ai/charter-ai-ethics-review-panel.md) | Chief Risk Officer | Annual | ISO/IEC 42001 §5, EU AI Act Chapter III, NIST AI RMF GOVERN, OECD AI Principles | template |
 | AI | Standard | AI Testing, Validation and Documentation Standard | [`ai/standard-ai-testing-validation-and-documentation.md`](../ai/standard-ai-testing-validation-and-documentation.md) | Chief Information Officer | Annual | ISO/IEC 42001 §8, ISO/IEC 42005:2025, EU AI Act Annex IV, NIST AI RMF, OWASP LLM Top 10 | template |
 | AI | Framework | AI Model Documentation and Transparency Framework | [`ai/framework-ai-model-documentation-and-transparency.md`](../ai/framework-ai-model-documentation-and-transparency.md) | Chief Information Officer | Annual | ISO/IEC 42001 §7.5, EU AI Act Annex IV, NIST AI RMF, OECD AI Principles, GDPR Art 22 | template |
