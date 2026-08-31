@@ -2,8 +2,8 @@
 
 **Document Title:** Data Classification and Handling Standard\
 **Document Type:** Standard\
-**Version:** 1.4.9\
-**Date:** 2026-08-02\
+**Version:** 1.4.10\
+**Date:** 2026-08-31\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -142,7 +142,7 @@ Where the organization participates in a sector programme that imposes additiona
 | --- | --- | --- | --- | --- |
 | Classification and labelling | §§5.12 to 5.15 | DSS05 | DSP-04 | GDPR Art. 32, PIPEDA |
 | Encryption | §8.24 | DSS05.03 | CEK-01 to 21 | BASC §6 |
-| Retention and disposal | §8.10 | DSS05 | DSP-02, DSP-16 | ISO/IEC 27701 §8.8 |
+| Retention and disposal | §8.10 | DSS05 | DSP-02, DSP-16 | ISO/IEC 27701:2025 Annex A.1.4.8 to A.1.4.9, A.2.4.3 |
 | AI data handling | N/A | DSS05.06 | N/A | AIDA (lapsed), PIPEDA |
 | Trade data (BASC) | N/A | N/A | N/A | BASC v6, ISO 28000 |
 

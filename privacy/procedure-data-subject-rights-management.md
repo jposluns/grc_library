@@ -2,8 +2,8 @@
 
 **Document Title:** Data Subject Rights Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.6.16\
-**Date:** 2026-08-14\
+**Version:** 1.6.17\
+**Date:** 2026-08-31\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
@@ -377,7 +377,7 @@ The following metrics are tracked and reported to the CIO at the quarterly Priva
 | Restriction of processing | GDPR Art. 18; UK GDPR Art. 18 |
 | Objection to processing | GDPR Art. 21; UK GDPR Art. 21; PIPEDA Sch 1 Principle 3 (withdrawal of consent) |
 | Automated decision review | GDPR Art. 22; UK GDPR Art. 22 |
-| DPO accountability and record keeping | GDPR Art. 37 to 39; ISO/IEC 27701 §6.2.3 |
+| DPO accountability and record keeping | GDPR Art. 37 to 39; ISO/IEC 27701:2025 §5.3, Annex A.1.2.9, A.3.4 |
 | Retention of DSR records | [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) |
 
 ---

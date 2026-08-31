@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy and Data Governance Policy\
 **Document Type:** Policy\
-**Version:** 1.4.19\
-**Date:** 2026-08-30\
+**Version:** 1.4.20\
+**Date:** 2026-08-31\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -143,13 +143,13 @@ This policy defines principles, governance structure, and control framework for 
 | Policy Area | ISO/IEC 27701 | COBIT 2019 | CSA CCM v4.1 | Regulatory References |
 |---|---|---|---|---|
 | Governance and accountability | Clauses 5 to 7 | APO13.01 | GRC-06 | GDPR Art 5, PIPEDA Sch 1 Principle 1 (Accountability) |
-| Lawful processing and consent | Clause 8.2 | DSS05 | DSP-12 | GDPR, PIPL, LGPD |
-| Data classification and handling | Clause 8.5 | DSS01 | DSP-01 | ISO 8000-8 §5, SOX, SOC 2 |
-| Cross-border data transfers | Clause 8.6 | APO10 | DSP-10 | GDPR Ch V, CBPR 2.0 |
+| Lawful processing and consent | Annex A.1.2.3 to A.1.2.5, A.2.2.2 to A.2.2.5 | DSS05 | DSP-12 | GDPR, PIPL, LGPD |
+| Data classification and handling | Annex A.3.5, A.3.7, A.3.20, A.3.26 | DSS01 | DSP-01 | ISO 8000-8 §5, SOX, SOC 2 |
+| Cross-border data transfers | Annex A.1.5.2 to A.1.5.4, A.2.5.2 to A.2.5.3 | APO10 | DSP-10 | GDPR Ch V, CBPR 2.0 |
 | AI training data governance | N/A | DSS05.06 | DSP-04 | ISO 8000-8 §6, EU Data Act (Regulation (EU) 2023/2854) |
-| Data subject rights | Clause 8.7 | MEA01 | DSP-11 | GDPR Arts 15 to 22, PIPEDA Sch 1 Principle 9 (Individual Access) |
-| Records management | Clause 8.8 | DSS01 | DSP-02 | ISO 8000-8 §7, Retention laws |
-| Breach management | Clause 8.9 | DSS02 | SEF-08 | GDPR Art 33, PIPL Art 57 |
+| Data subject rights | Annex A.1.3.2 to A.1.3.11, A.2.3.2 | MEA01 | DSP-11 | GDPR Arts 15 to 22, PIPEDA Sch 1 Principle 9 (Individual Access) |
+| Records management | Annex A.1.4.8 to A.1.4.9, A.2.4.3, A.3.14 | DSS01 | DSP-02 | ISO 8000-8 §7, Retention laws |
+| Breach management | Annex A.3.11 to A.3.12 | DSS02 | SEF-08 | GDPR Art 33, PIPL Art 57 |
 
 ---
 
