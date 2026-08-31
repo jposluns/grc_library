@@ -2,8 +2,8 @@
 
 **Document Title:** Logging and Monitoring Standard\
 **Document Type:** Standard\
-**Version:** 1.4.15\
-**Date:** 2026-08-05\
+**Version:** 1.4.16\
+**Date:** 2026-08-31\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`governance/register-digital-trust-and-assurance-metrics.md`](../governance/register-digital-trust-and-assurance-metrics.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -140,7 +140,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who ov
 | Time synchronization | §8.17 | SP 800-92 | DSS01.03 | LOG-06 | SOX |
 | Central collection and retention | §8.15 | CSF Detect | DSS05.02 | LOG-02 | NIS 2 Directive |
 | Access and protection | §8.15 | SP 800-53 AC-6 | DSS05.04 | LOG-04 | Privacy laws |
-| AI system traceability | N/A | AI RMF | DSS05.06 | LOG-09 | ENISA AI Certification Scheme |
+| AI system traceability | N/A | AI RMF | DSS05.06 | LOG-09 | EU AI Act Art. 12, 19, 26(6) |
 | Monitoring and alerting | §8.16 | CSF Respond | DSS05.03 | LOG-03 | Incident reporting laws |
 | BASC trade logging | N/A | N/A | N/A | N/A | BASC v6, WCO SAFE, ISO 28000 |
 
