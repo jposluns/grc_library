@@ -10848,7 +10848,7 @@ documents:
   domain: "security"
   type: "Standard"
   title: "Monitoring Integrity and Coverage Standard"
-  version: "0.0.2"
+  version: "0.0.3"
   date: "2026-08-31"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"

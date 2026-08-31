@@ -2,7 +2,7 @@
 
 **Document Title:** Monitoring Integrity and Coverage Standard\
 **Document Type:** Standard\
-**Version:** 0.0.2\
+**Version:** 0.0.3\
 **Date:** 2026-08-31\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -39,14 +39,14 @@ The unit of governance is the monitoring source and the chain that carries its s
 ## 3. Principles
 
 - **Monitoring is a control, and a control can fail.** The health of a monitoring source is itself monitored, owned, and evidenced; an unmonitored monitor is an ungoverned single point of failure.
-- **Fail closed on lost visibility.** When monitoring for a scope is compromised, silent, saturated, or degraded, the organization treats that scope as being in an unknown state and escalates, rather than assuming the last-known-good state persists. This is the fail-closed automation principle applied to observation.
+- **Fail closed on lost visibility.** When monitoring for a scope is compromised, silent, saturated, or degraded, the organization treats that scope as being in an unknown state and raises it for disposition under section 6, rather than assuming the last-known-good state persists. This is the fail-closed automation principle applied to observation.
 - **Absence of evidence is not evidence of absence.** No alert and no event mean the monitored scope is safe only when coverage and pipeline health for that interval are demonstrated; otherwise the correct status is unknown or blind, not clear.
 - **Blind spots are declared, not discovered.** Where coverage is knowingly incomplete, the gap is recorded in advance with its owner, cause, expiry, and compensating control, so that a decision-maker sees the limit of what the monitoring can support.
 - **Detect the failure of detection.** Monitoring integrity depends on independent, out-of-band checks that do not share a failure mode with the monitoring they verify.
 
 ## 4. Ownership, inventory, and expected signals
 
-Every monitoring source in scope has a named owner accountable for its health, an entry in a monitoring inventory, a criticality rating, a defined set of expected signals (what it should emit, and at what cadence or volume), a health service-level objective, and an independent escalation path used when the source itself fails. The inventory is the authoritative list against which coverage and silence are judged; a source that is not in the inventory cannot be reconciled and is treated as an ungoverned gap. Criticality determines the health service-level objective and the incident severity a failure of the source attracts.
+Every monitoring source in scope has a named owner accountable for its health, an entry in a monitoring inventory, a criticality rating, a defined set of expected signals (what it should emit, and at what cadence or volume), a health service-level objective, and an independent escalation path used when the source itself fails. The inventory is the authoritative list against which coverage and silence are judged; a source that is not in the inventory cannot be reconciled and is treated as an ungoverned gap. Criticality determines the health service-level objective, the thresholds at which the section 6 disposition escalates, and, where a failure becomes an incident, the severity it attracts.
 
 ## 5. Monitoring-failure taxonomy
 
@@ -64,7 +64,7 @@ Each condition is defined per source against its expected signals and health ser
 The four failure conditions in section 5 are not, by themselves, incidents; a single transition rule governs how a detected condition is dispositioned, so that "monitoring-health condition", "declared blind spot", and "incident" are not used interchangeably:
 
 1. A monitoring-health condition is **detected** against a source's expected signals and health service-level objective.
-2. If the affected scope is covered by a current **declared blind spot** (section 7), the condition is a recorded, accepted, and time-bounded gap, and is handled under that blind spot's terms rather than as a new incident.
+2. If the affected scope is covered by a current **declared blind spot** (section 7) and no adverse activity is suspected, the condition is a recorded, accepted, and time-bounded gap, handled under that blind spot's terms rather than as a new incident; where adverse activity is suspected within a blind-spot scope, the condition is escalated under step 4 regardless of the blind spot.
 3. If the condition has an **explained, benign cause** (planned maintenance, a scheduled change, a known and bounded outage), it is a reportable operational condition, recorded and resolved without incident escalation.
 4. If the condition is **unexplained**, or is explained but suspected of masking or coinciding with adverse activity, it is escalated as an **incident** and classified by severity per section 10.
 
@@ -96,9 +96,9 @@ The organization tests monitoring integrity rather than assuming it. Tests exerc
 | --- | --- | --- | --- | --- | --- | --- |
 | Monitoring as a governed, health-owned control | DE.CM-09 | ISCM strategy and programme | A.8.16 | LOG-03 | n/a | Log-management infrastructure health |
 | Failure of the monitoring system reported and handled | DE.AE-06, DE.AE-08 | Gap and shortcoming detection | A.8.15, A.8.16 | LOG-14 | T1685 | Response to log-management failures |
-| Saturation and dropped-event handling | PR.IR-04 | Programme-gap assessment | A.8.15 | LOG-05 | T1685 | Storage-exceeded and overflow handling |
+| Saturation and dropped-event handling | PR.IR-04 | Programme-gap assessment | A.8.15 | I&S-02 | T1685 | Storage-exceeded and overflow handling |
 | Declared coverage limits and blind spots | GV.RM-02 | Coverage and effectiveness assessment | A.8.16 | LOG-03 | n/a | n/a |
-| Detection of detection failure (independent checks) | DE.CM-09, DE.AE-08 | Continuous assessment | A.8.16 | LOG-14 | T1685 | Monitoring the log-management status |
+| Detection of detection failure (independent checks) | DE.CM-09 | Continuous assessment | A.8.16 | LOG-14 | T1685 | Monitoring the log-management status |
 | Incident classification for lost visibility | DE.AE-04, DE.AE-08 | n/a | A.5.25 | SEF-06, SEF-07 | T1685 | n/a |
 
 Control identifiers are cited at the objective level; the paired procedures in Related Documents carry the operational detail. MITRE ATT&CK technique T1685 ("Disable or Modify Tools") and its sub-techniques model the adversary impairment of security tooling this standard defends against; it is the current identifier for that behaviour, superseding the retired T1562 (formerly "Impair Defenses").
