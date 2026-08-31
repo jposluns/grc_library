@@ -2,8 +2,8 @@
 
 **Document Title:** Cloud Security Configuration Baseline\
 **Document Type:** Standard\
-**Version:** 1.4.15\
-**Date:** 2026-08-27\
+**Version:** 1.4.16\
+**Date:** 2026-08-31\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md)\
@@ -161,7 +161,7 @@ A workload built on a cloud provider must conform to both: the enterprise-tenant
 |---|---|
 | Public blob access | Disabled by default |
 | Secure transfer | HTTPS only required |
-| Shared Access Signatures (SAS) | Must be time-limited; unlimited-duration SAS tokens are prohibited |
+| Shared Access Signatures (SAS) | Must be time-limited; unlimited-duration SAS tokens are prohibited. This prohibition is absolute and is not subject to the exception pathway described in Section 3. |
 | Storage protection | Cloud storage threat protection enabled |
 
 ### 6.6 Secrets management service
