@@ -2,8 +2,8 @@
 
 **Document Title:** FedRAMP Sector Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.6\
-**Date:** 2026-07-02\
+**Version:** 0.0.7\
+**Date:** 2026-08-31\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`operations/standard-cloud-security-configuration-baseline.md`](../../operations/standard-cloud-security-configuration-baseline.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
@@ -52,12 +52,12 @@ The library is not relevant where the organization has no federal customer in pi
 
 FedRAMP baselines map to FIPS 199 system categorization. Adopting organizations confirm the categorization with their agency sponsor before selecting a baseline.
 
-| Baseline | Use case | Control count (approximate) |
+| Baseline | Use case | Rev. 5 baseline entries (controls and control enhancements) |
 | --- | --- | --- |
-| FedRAMP Low | Public-facing services with no confidentiality, integrity, or availability impact above Low | About 125 controls |
-| FedRAMP Moderate | Most federal use cases involving controlled unclassified information (CUI) | About 325 controls |
-| FedRAMP High | Mission-critical federal use cases including law enforcement, emergency services, financial systems | About 425 controls |
-| FedRAMP Tailored Low (LI-SaaS) | SaaS only, limited data scope | About 40 controls plus the FedRAMP Tailored Authorization Process |
+| FedRAMP Low | Public-facing services with no confidentiality, integrity, or availability impact above Low | 156 |
+| FedRAMP Moderate | Most federal use cases involving controlled unclassified information (CUI) | 323 |
+| FedRAMP High | Mission-critical federal use cases including law enforcement, emergency services, financial systems | 410 |
+| FedRAMP Tailored Low (LI-SaaS) | SaaS only, limited data scope | 156 tailored entries (all Low-baseline controls, assigned tailoring actions) |
 
 ---
 
@@ -111,8 +111,9 @@ Library gaps requiring additional documentation for a FedRAMP authorization pack
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| FedRAMP Baseline (Low, Moderate, High) | NIST SP 800-53 Rev. 5 + FedRAMP parameters | Primary control set |
-| FedRAMP Tailored | LI-SaaS Authorization Process | Tailored route |
+| FedRAMP Rev5 Baselines (Low, Moderate, High) | NIST SP 800-53 Rev. 5 + FedRAMP parameters | Legacy controls-based certification type |
+| FedRAMP 20x | 2026 Consolidated Rules + Key Security Indicators (KSIs) | Modern measured-outcomes certification type; certification Classes A to D |
+| FedRAMP Rev5 Tailored | LI-SaaS Authorization Process | Legacy tailored route |
 | NIST SP 800-53 Rev. 5 | Security and Privacy Controls | Underlying control catalogue |
 | NIST SP 800-37 Rev. 2 | Risk Management Framework | Authorization lifecycle |
 | NIST SP 800-171 / 800-172 | Protecting CUI | Where applicable |
@@ -120,6 +121,8 @@ Library gaps requiring additional documentation for a FedRAMP authorization pack
 | FIPS 199 | Standards for Security Categorization | Categorization prerequisite |
 | FIPS 200 | Minimum Security Requirements | Baseline prerequisite |
 | FIPS 140-3 / 140-2 | Cryptographic Module Validation | FIPS-validated cryptography |
+
+The 2026 Consolidated Rules distinguish applicability by certification type (Rev5 or 20x) and by certification class (A to D). Their held timeline places the rules in optional adoption from 4 July 2026, schedules mandatory adoption for 1 January 2027, and ends new Rev5 certifications on 11 June 2027; these dates are from the held July 2026 snapshot, so verify the live FedRAMP rules before relying on the transition timeline. RFC-0006 is a superseded historical draft; the finalized Key Security Indicators are the current 20x specification. The pre-2026 route-selection and documentation content elsewhere in this annex (JAB P-ATO, FedRAMP Ready, and the Rev5 SSP/SAP/SAR artifacts) reflects the legacy structure: JAB P-ATO and FedRAMP Ready are discontinued (FedRAMP Ready went legacy in July 2026 with no new submissions), the 2026 rules restructure certification into two paths (Program Certification, provided directly by FedRAMP, and Agency Certification, agency-sponsored and Rev5-only), and the 20x path replaces the Rev5 SSP/SAP/SAR documentation artifacts with continuously-evidenced Key Security Indicators. A full refresh of this annex to the 2026 structure is tracked separately.
 
 ---
 
