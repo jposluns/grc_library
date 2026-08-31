@@ -234,8 +234,8 @@ pages:
   title: "From AI idea to retirement: the governed life of an AI system"
   narrative_type: "Journey"
   narrative_status: "Explanatory"
-  version: "0.0.3"
-  date: "2026-08-17"
+  version: "0.0.4"
+  date: "2026-08-31"
   corpus_sources:
     - "ai/guide-ai-board-oversight.md"
     - "ai/framework-ai-governance-and-risk.md"
@@ -359,8 +359,8 @@ pages:
   title: "What the governing body should ask about the organization's AI inventory, risks, incidents, suppliers, and change"
   narrative_type: "Oversight Question Set"
   narrative_status: "Advisory"
-  version: "0.0.2"
-  date: "2026-08-16"
+  version: "0.0.3"
+  date: "2026-08-31"
   corpus_sources:
     - "ai/guide-ai-board-oversight.md"
     - "governance/guideline-minimum-viable-governance-structure.md"

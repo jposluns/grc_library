@@ -2,8 +2,8 @@
 
 **Document Title:** From AI idea to retirement: the governed life of an AI system\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.3\
-**Date:** 2026-08-17\
+**Version:** 0.0.4\
+**Date:** 2026-08-31\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](../../ai/framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](../../ai/procedure-ai-system-impact-assessment.md), [`ai/procedure-ai-model-lifecycle-management.md`](../../ai/procedure-ai-model-lifecycle-management.md)\
@@ -82,7 +82,7 @@ Somewhere in the organization, a team has an idea for an AI system. The organiza
 
 ### Stage 7: retirement leaves evidence behind
 
-**What changes.** The system reaches the end of its life. This journey engages the member labelled **Decommissioning** (section 7) in the [AI model lifecycle management procedure](../../ai/procedure-ai-model-lifecycle-management.md)'s seven ordered lifecycle sections; use that member for its decommissioning triggers and ordered checklist. The [AI security and risk standard](../../ai/standard-ai-security-and-risk.md) requires AI systems to be retired with controls for areas including access removal, API key revocation, retrieval store deletion, log retention decisions, and supplier deletion confirmation where applicable (its section 4.11). The [records retention and destruction standard](../../governance/standard-records-retention-and-destruction.md) requires AI training datasets, test results, and model versions to be retained to support audit and reproducibility obligations (its section 9) and requires destruction actions to be logged in the destruction register it defines (its section 8.2). Where retiring the system also ends the relationship with a supplier that held the organization's data, the [supplier offboarding evidence template](../../supply-chain/template-supplier-offboarding-evidence.md) provides the structure for the data return and destruction evidence (its Section 3); its scope is third-party relationships that are ending, so where the supplier relationship continues, the deletion evidence is governed by the instrument that applies to that case rather than by this template.
+**What changes.** The system reaches the end of its life. This journey engages the member labelled **Decommissioning** (section 7) in the [AI model lifecycle management procedure](../../ai/procedure-ai-model-lifecycle-management.md)'s seven ordered lifecycle sections; use that member for its decommissioning triggers and ordered checklist. The [AI security and risk standard](../../ai/standard-ai-security-and-risk.md) requires AI systems to be retired under the decommissioning controls its section 4.11 defines. The [records retention and destruction standard](../../governance/standard-records-retention-and-destruction.md) requires AI training datasets, test results, and model versions to be retained to support audit and reproducibility obligations (its section 9) and requires destruction actions to be logged in the destruction register it defines (its section 8.2). Where retiring the system also ends the relationship with a supplier that held the organization's data, the [supplier offboarding evidence template](../../supply-chain/template-supplier-offboarding-evidence.md) provides the structure for the data return and destruction evidence (its Section 3); its scope is third-party relationships that are ending, so where the supplier relationship continues, the deletion evidence is governed by the instrument that applies to that case rather than by this template.
 
 **Why it matters.** The retained decommission record and the destruction documentation are evidence to inspect when testing whether the retirement controls operated. The retention requirements serve the longer-lived obligations the retention standard defines, which outlast the system itself.
 
