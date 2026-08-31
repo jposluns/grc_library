@@ -2,11 +2,11 @@
 
 **Document Title:** AI Human-Oversight Standard\
 **Document Type:** Standard\
-**Version:** 0.0.1\
-**Date:** 2026-08-30\
+**Version:** 0.0.2\
+**Date:** 2026-08-31\
 **Owner:** AI Governance Lead\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`privacy/register-automated-decision-making.md`](../privacy/register-automated-decision-making.md)\
+**Related Documents:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`privacy/register-automated-decision-making.md`](../privacy/register-automated-decision-making.md), [`governance/principle-capability-is-not-authority.md`](../governance/principle-capability-is-not-authority.md)\
 **Classification:** Public\
 **Category:** AI Governance\
 **Review Frequency:** 6 to 12 months and upon material AI, framework, or regulatory change\
@@ -58,7 +58,7 @@ Every AI system's oversight design names one or more of the six interaction mode
 | **Delegation** | The system acts semi-autonomously within a bounded scope, under a standing kill-switch. | Bounded, monitored operation where a human can interrupt at any time. |
 | **Consultation** | The system advises; a human makes the decision. | Decision-support where the human is the decision-maker (AI as adviser). |
 | **Confirmation** | The system proposes; a human verifies the output before it is relied on or executed. | Sensitive or material actions; probabilistic outputs used as evidence. |
-| **Consent** | An affected person affirmatively opts in as the lawful basis for the processing or decision. | Where explicit consent is the chosen Article 22 basis for a solely-automated decision with legal or similarly significant effect (GDPR Article 22(2)(c)); and sensitive-data or minors' processing where opt-in is required. |
+| **Consent** | An affected person affirmatively opts in to the processing and, where applicable, to a solely-automated decision. | Where consent is the selected Article 6 lawful basis for processing; where explicit consent is relied on as the Article 22(2)(c) exception for a solely-automated decision with legal or similarly significant effect; and for sensitive-data or minors' processing where opt-in is required. |
 | **Approval** | A human authorizes each action before the system executes it. | Destructive, financially material, or irreversible actions. |
 
 The confirmation mode has three sub-forms drawn from the agent-permissions standard: per-action confirmation (each action confirmed; standing approval prohibited) for destructive or financially material actions; per-session confirmation (scope confirmed at session start; deviations require new confirmation) for bulk operations; and asynchronous approval (the agent produces a plan; a separate human approves before execution) for queued workflow actions.
@@ -77,7 +77,7 @@ Overseers are equipped and empowered to challenge AI outputs, not merely to rubb
 
 ### 4.6 Negative consent and opt-out
 
-Where an affected person has a right to object to or opt out of automated processing, the default is the more protective state and the opt-out is honoured without penalty. A solely-automated decision with legal or similarly significant effect requires an Article 22 basis (explicit consent, contractual necessity, or authorizing law) and, absent it, a human-in-the-loop path; the basis and the path are recorded in the automated-decision-making register.
+Where an affected person has a right to object to or opt out of automated processing, the default is the more protective state and the opt-out is honoured without penalty. A solely-automated decision with legal or similarly significant effect requires an Article 22(2) exception (contractual necessity, authorizing law, or explicit consent) and, absent one, a genuine human-in-the-loop path; the applicable exception or human-review path is recorded in the automated-decision-making register.
 
 ### 4.7 Disclosure
 
@@ -88,7 +88,7 @@ Where a person interacts directly with an AI system, that fact is disclosed to t
 - The oversight assignment for each in-scope system (overseer, mode, scope, review date) in the AI System Register.
 - The oversight-mode selection rationale, tied to the system's consequence-and-reversibility assessment.
 - Records of intervention-path testing (override and stop) for agentic and high-risk systems.
-- The Article 22 basis and human-in-the-loop path for each solely-automated decision with legal or similarly significant effect, in the automated-decision-making register.
+- The applicable Article 22(2) exception (or, where none applies, the human-in-the-loop path) for each solely-automated decision with legal or similarly significant effect, in the automated-decision-making register.
 - Disclosure artefacts (the notices presented to affected persons).
 - Overseer competence and training records.
 
@@ -106,7 +106,7 @@ The alignment below is analogical (each row aligns with or is informed by the ci
 | EU AI Act (Regulation (EU) 2024/1689) | Article 26(2) | Deployer duty to assign oversight to competent, supported natural persons (section 4.1). |
 | EU AI Act (Regulation (EU) 2024/1689) | Article 50 | Transparency to a person interacting directly with an AI system (section 4.7). |
 | EU AI Act (Regulation (EU) 2024/1689) | Article 26(11) | Deployer disclosure to a person subject to a decision by a deployed high-risk (Annex III) system (section 4.7). |
-| EU GDPR (Regulation 2016/679) | Article 22 | Right not to be subject to a solely-automated decision with legal or similarly significant effect; the lawful bases (contract, authorizing law, or explicit consent) and the human-intervention safeguard (sections 4.2, 4.6). |
+| EU GDPR (Regulation 2016/679) | Article 22 | Right not to be subject to a solely-automated decision with legal or similarly significant effect; the Article 22(2) exceptions (contractual necessity, authorizing law, or explicit consent), noting that the Article 22(3) human-intervention safeguard applies to the contract and explicit-consent exceptions while the authorizing-law exception relies on that law's own suitable safeguards (sections 4.2, 4.6). |
 | ISO/IEC 42001:2023 | Clause 8 (Operation); Annex A controls for controlled AI operation | Human oversight embedded in the AI management system's operating controls (sections 4.1 to 4.4). |
 | NIST AI RMF 1.0 (2023) | GOVERN, MAP, MEASURE, MANAGE functions | Differentiated human-AI configuration roles and defined, documented human-oversight processes across a range from autonomous to manual (sections 4.1, 4.2). |
 | ISO/IEC 23894:2023 | AI risk-management guidance | Stakeholder participation in identifying where human oversight is needed and in defining fairness and bias concerns (sections 4.1, 4.3). |
