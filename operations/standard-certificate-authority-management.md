@@ -2,8 +2,8 @@
 
 **Document Title:** Certificate Authority Management Standard\
 **Document Type:** Standard\
-**Version:** 1.3.10\
-**Date:** 2026-08-27\
+**Version:** 1.3.11\
+**Date:** 2026-08-31\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`operations/standard-cloud-security-configuration-baseline.md`](standard-cloud-security-configuration-baseline.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md)\
@@ -158,7 +158,7 @@ Audit logs are forwarded to SIEM via endpoint management diagnostic settings int
 
 Access to cloud-based PKI configuration is restricted to designated administrators.
 
-- All CA administrative roles and rights (the CA creation permission in the enterprise identity provider, issuing-CA and certificate-template configuration, and SCEP profile management) must be assigned through Privileged Identity Management (PIM) as eligible assignments and activated just in time for a defined, time-limited period. Permanent standing CA privilege is prohibited.
+- All CA administrative roles and rights (the CA creation permission in the enterprise identity provider, issuing-CA and certificate-template configuration, and SCEP profile management) must be assigned through Privileged Identity Management (PIM) as eligible assignments and activated just in time for a defined, time-limited period. Permanent standing CA privilege is prohibited. This prohibition is absolute and is not subject to the exception pathway described in Section 3.
 - Role activation requires a documented business justification. Activation mechanics (maximum activation duration, approval workflow, multi-factor authentication, and emergency access) are governed by the [Privileged Access Management Standard](../security/standard-privileged-access-management.md) section 4.2, the single authoritative source for the activation-duration value.
 - CA administrative permissions must be scoped to the minimum required for the task. Consistent with the distinct roles in section 3, no administrator may accumulate privileged roles that would defeat separation of duties, and PIM role-assignment procedures must prevent the accumulation of segregated privileged access.
 - PIM role-assignment and activation events are logged to SIEM through the privileged-access monitoring governed by the [Privileged Access Management Standard](../security/standard-privileged-access-management.md) section 5, distinct from the CA-platform audit events in section 11.1, and constitute the audit evidence for this section.

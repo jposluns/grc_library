@@ -2,8 +2,8 @@
 
 **Document Title:** Encryption and Key Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.20\
-**Date:** 2026-08-29\
+**Version:** 1.3.21\
+**Date:** 2026-08-31\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -62,7 +62,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who ve
 
 ### 5.1 Key generation
 
-Keys generated using FIPS 140-3 certified hardware or software modules. Default, hard-coded, or vendor-supplied keys are prohibited.
+Keys generated using FIPS 140-3 certified hardware or software modules. Default, hard-coded, or vendor-supplied keys are prohibited. This prohibition is absolute and is not subject to the Section 11 exception process.
 
 ### 5.2 Key distribution
 
@@ -70,7 +70,7 @@ Symmetric keys distributed via encrypted channels (TLS 1.3+). Asymmetric key exc
 
 ### 5.3 Key storage
 
-Keys stored in dedicated Hardware Security Modules (HSMs) or a cloud key management service (KMS). Keys must never be stored in plaintext or embedded in source code.
+Keys stored in dedicated Hardware Security Modules (HSMs) or a cloud key management service (KMS). Keys must never be stored in plaintext or embedded in source code. These prohibitions are absolute and are not subject to the Section 11 exception process.
 
 ### 5.4 Key rotation
 
