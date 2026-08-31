@@ -2,7 +2,7 @@
 
 **Document Title:** Threat Intelligence and SIEM Operations Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.8\
+**Version:** 1.3.9\
 **Date:** 2026-08-31\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -334,7 +334,7 @@ Metric trends are reviewed for continual improvement. Lessons learned from incid
 | Incident escalation | ISO/IEC 27035; NIST SP 800-61 Rev. 3; CSA CCM SEF-06, SEF-07 |
 | Pre-go-live SIEM validation | [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md) §4.1 to §4.2 |
 | AI-assisted detection | [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) §4.9; NIST AI RMF |
-| Records and audit | COBIT 2019 DSS05.07; ISO/IEC 27001:2022 Annex A.5.28 |
+| Records and audit | COBIT 2019 DSS05; ISO/IEC 27001:2022 Annex A.5.28 |
 
 ---
 

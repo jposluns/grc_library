@@ -3,6 +3,8 @@
 All notable changes to this repository are recorded in this file in two forms: while a week is current, one compact entry per change (a `date | version | PR` header followed by a short, plain-language summary a general reader can follow); once a week completes, its entries are rolled up into a single weekly summary carrying the week's contiguous PR range, so the root file preserves complete PR coverage while staying scannable as the entry count grows. The full maintainer-grade detail for each change (the Added / Changed / Removed / Fixed / Security / Verification sections) is kept in the private sibling working-state store and in git history; that mirror is how this project's maintainer tracks the full audit trail. The convention is project-specific; forks may keep their own working-state store and adopt their own approach to detailed change tracking. The mechanics are documented in the [`change-tracking` governance rule](guardrails/governance/change-tracking.md). Significant project milestones are recorded inline as dated `MILESTONE:` entries (`**YYYY-MM-DD | MILESTONE:** ...`) that float to the top of the entry stream, above that day's per-PR entries; those are never condensed by the daily or weekly roll-ups, and the roll-up tooling skips them by their `MILESTONE:` marker.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+**2026-08-31 | 2026.08.558 | PR #1856** - Resume-validation close-out: corrected a mis-fitting control-framework code on the threat-intelligence records-and-audit row, completed two register review-frequency entries that had been shortened, and corrected an over-stated completion claim in an earlier changelog entry.
+
 **2026-08-31 | 2026.08.557 | PR #1855** - Added an AI Actor Role and Forum Standing Charter defining what a chartered AI actor may decide, the decisions it never makes, how it escalates, the evidence it owes, and its advisory-by-default (non-voting) standing in governance forums.
 
 **2026-08-31 | 2026.08.556 | PR #1854** - Added an Emergency Authority Standard: one cross-domain construct for temporary emergency authority (declaration, least-harmful reversible action, automatic expiry, independent renewal review, retrospective proportionality), spanning access, change, incident, crisis, and AI agents.
@@ -13,7 +15,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 **2026-08-31 | 2026.08.553 | PR #1851** - Corrected the FedRAMP baseline control counts and distinguished the legacy Rev5 route from the FedRAMP 20x and 2026 Consolidated Rules direction in the public-sector annex.
 
-**2026-08-31 | 2026.08.552 | PR #1850** - Corrected ISO/IEC 27701:2025 annex control citations in the privacy breach-response alignment table, completing the control-fit sweep.
+**2026-08-31 | 2026.08.552 | PR #1850** - Corrected ISO/IEC 27701:2025 annex control citations in the privacy breach-response alignment table.
 
 **2026-08-31 | 2026.08.551 | PR #1849** - Corrected control-code and clause mappings in the master compliance-alignment and cross-framework matrices, continuing the control-fit sweep.
 
