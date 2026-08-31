@@ -2,7 +2,7 @@
 
 **Document Title:** Cross-Framework Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.1.15\
+**Version:** 1.1.16\
 **Date:** 2026-08-31\
 **Owner:** Control Framework Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -61,7 +61,7 @@ The following table maps the enterprise risk management control areas to externa
 
 | Control Area | ISO 31000 | ISO/IEC 23894 | NIST SP 800-39 | NIST AI RMF | COBIT 2019 | CSA CCM v4.1 / AICM v1.1 | Legal and Regulatory | Trade and Supply-Chain Programmes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Risk framework and governance | Clause 5 Framework | Clause 5 Governance | Organization-wide RMF | Govern | EDM03 Ensured Risk Optimization | GRC domain | Corporate governance charters | WCO SAFE, ISO 28000, BASC, PIP, CTPAT, AEO, AEO-S |
+| Risk framework and governance | Clause 5 Framework | Clause 5 Framework | Organization-wide RMF | Govern | EDM03 Ensured Risk Optimization | GRC domain | Corporate governance charters | WCO SAFE, ISO 28000, BASC, PIP, CTPAT, AEO, AEO-S |
 | Risk identification and analysis | Clause 6.4.2 Risk identification; Clause 6.4.3 Risk analysis (ISO 31000:2018) | Clause 6.4.2 Risk identification; Clause 6.4.3 Risk analysis | Tasks 1 and 2 | Map; Measure | APO12.02 Analyze risk | GRC domain | GDPR Article 25; PIPEDA accountability | WCO SAFE equivalence |
 | Risk appetite and tolerance | Clause 6.3.4 Defining risk criteria (ISO 31000:2018) | Clause 6.3.4 Defining risk criteria (including risk appetite) | Organizational risk strategy | Govern | EDM03.01 Evaluate risk management | GRC domain | Board-approved appetite statements | WCO SAFE equivalence |
 | Treatment and control selection | Clause 6.5 Risk treatment (ISO 31000:2018) | Clause 6.5 Risk treatment | Task 3 Respond | Manage | APO12.06 Respond to risk | GRC domain | ISO/IEC 27001 Annex A controls | WCO SAFE equivalence |
