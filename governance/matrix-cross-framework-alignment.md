@@ -2,8 +2,8 @@
 
 **Document Title:** Cross-Framework Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.1.14\
-**Date:** 2026-08-13\
+**Version:** 1.1.15\
+**Date:** 2026-08-31\
 **Owner:** Control Framework Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/matrix-reverse-framework-control-crosswalk.md`](matrix-reverse-framework-control-crosswalk.md), [`NOTICE.md`](../NOTICE.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md), [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md), [`governance/guideline-esg-and-ai-ethics-disclosure.md`](guideline-esg-and-ai-ethics-disclosure.md), [`risk/guideline-quantitative-risk-analysis.md`](../risk/guideline-quantitative-risk-analysis.md)\
@@ -59,14 +59,14 @@ This matrix provides an original, non-verbatim alignment structure for mapping r
 
 The following table maps the enterprise risk management control areas to external framework families. It supports the Enterprise Governance and Risk Management Policy, the Enterprise Risk Management Standard, and the underlying risk procedures.
 
-| Control Area | ISO 31000 | ISO/IEC 23894 | NIST SP 800-39 | NIST AI RMF | COBIT 2019 | CSA CCM v4.1 | Legal and Regulatory | Trade and Supply-Chain Programmes |
+| Control Area | ISO 31000 | ISO/IEC 23894 | NIST SP 800-39 | NIST AI RMF | COBIT 2019 | CSA CCM v4.1 / AICM v1.1 | Legal and Regulatory | Trade and Supply-Chain Programmes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Risk framework and governance | Clause 5 Framework | Clause 5 Governance | Organization-wide RMF | Govern | EDM03 Ensured Risk Optimization | GRC domain | Corporate governance charters | WCO SAFE, ISO 28000, BASC, PIP, CTPAT, AEO, AEO-S |
 | Risk identification and analysis | Clause 6.4.2 Risk identification; Clause 6.4.3 Risk analysis (ISO 31000:2018) | Clause 6.4.2 Risk identification; Clause 6.4.3 Risk analysis | Tasks 1 and 2 | Map; Measure | APO12.02 Analyze risk | GRC domain | GDPR Article 25; PIPEDA accountability | WCO SAFE equivalence |
 | Risk appetite and tolerance | Clause 6.3.4 Defining risk criteria (ISO 31000:2018) | Clause 6.3.4 Defining risk criteria (including risk appetite) | Organizational risk strategy | Govern | EDM03.01 Evaluate risk management | GRC domain | Board-approved appetite statements | WCO SAFE equivalence |
 | Treatment and control selection | Clause 6.5 Risk treatment (ISO 31000:2018) | Clause 6.5 Risk treatment | Task 3 Respond | Manage | APO12.06 Respond to risk | GRC domain | ISO/IEC 27001 Annex A controls | WCO SAFE equivalence |
 | Monitoring and review | Clause 6.6 Monitoring and review (ISO 31000:2018) | Clause 6.6 Monitoring and review | Task 4 Monitor | Manage | MEA01; MEA02 | GRC domain | Regulatory reporting duties | WCO SAFE equivalence |
-| AI model governance | Clause 6 Process applied iteratively across the AI lifecycle (ISO 31000:2018) | Clauses 5 and 6 lifecycle | Organizational context | Govern; Manage | APO12; BAI03; DSS06 | AIS domain | EU AI Act; Treasury Board Directive on Automated Decision-Making (Canada; AIDA lapsed) | Not applicable |
+| AI model governance | Clause 6 Process applied iteratively across the AI lifecycle (ISO 31000:2018) | Clauses 5 and 6 lifecycle | Organizational context | Govern; Manage | APO12; BAI03; DSS06 | MDS domain | EU AI Act; Treasury Board Directive on Automated Decision-Making (Canada; AIDA lapsed) | Not applicable |
 | Third-party and supply-chain risk | Clause 6.3 Scope, context, criteria (third-party scope inclusion) and Clause 5.3 Integration (ISO 31000:2018) | Clause 6.3 Scope, context and criteria (third-party data) | Organizational context | Govern | APO10 Managed Vendors | STA domain | Contractual clauses; data processing agreements; transfer impact assessments | WCO SAFE equivalence |
 | Business continuity and resilience | Clause 5.2 Leadership | Not applicable | Organizational resilience context | Manage | DSS04 Managed Continuity | BCR domain | Local continuity regulations | WCO SAFE equivalence |
 | Exception and acceptance | Clause 6.5 Risk treatment, acceptance option (ISO 31000:2018) | Clause 6.5 Risk treatment (acceptance option) | Risk response acceptance | Govern | APO12.06 Respond to risk | GRC domain | Documented approvals and durations | WCO SAFE equivalence |
