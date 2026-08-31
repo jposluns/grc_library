@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Ongoing Monitoring Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.4\
-**Date:** 2026-08-18\
+**Version:** 1.0.5\
+**Date:** 2026-08-31\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`risk/register-key-risk-indicators.md`](../risk/register-key-risk-indicators.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`supply-chain/procedure-supplier-exit-and-data-return.md`](procedure-supplier-exit-and-data-return.md)\
@@ -91,7 +91,7 @@ In addition to scheduled activities, the following continuous signals should be 
 | **Financial distress signals** | Credit rating downgrade; county court judgements; news of financial difficulty | Initiate contingency planning review; escalate to CRO |
 | **Regulatory sanctions** | Supplier named in regulatory enforcement action | Assess impact on organization; escalate to CCO and CRO |
 | **Adverse media** | Significant negative news coverage involving security, privacy, or ethical conduct | Review and assess relevance; escalate if material |
-| **Trade compliance alerts** | Supplier loses CTPAT / AEO-S / PIP / BASC certification; enters customs sanctions list | Immediate escalation to Trade Compliance Manager and CRO; assess operational impact |
+| **Trade compliance alerts** | Supplier loses CTPAT / AEO-S / BASC certification or PIP membership; enters customs sanctions list | Immediate escalation to Trade Compliance Manager and CRO; assess operational impact |
 
 ---
 

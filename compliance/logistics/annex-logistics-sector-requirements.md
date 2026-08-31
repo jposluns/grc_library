@@ -2,8 +2,8 @@
 
 **Document Title:** Logistics Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.15\
-**Date:** 2026-08-30\
+**Version:** 1.0.16\
+**Date:** 2026-08-31\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-basc-programme-overview.md`](annex-basc-programme-overview.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](register-ctpat-united-states-it-controls.md), [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](register-ctpat-united-states-msc-controls.md), [`compliance/logistics/register-pip-canada-controls.md`](register-pip-canada-controls.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/logistics/template-trade-compliance-gap-assessment.md`](template-trade-compliance-gap-assessment.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../../supply-chain/matrix-supply-chain-security-programme-alignment.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](../../supply-chain/annex-trade-and-supply-chain-continuity-controls.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md)\
@@ -138,8 +138,8 @@ Post and courier services are **not** in NIS 2 Annex I. Postal and courier provi
 | Art 21(2)(b): Incident handling | Incident detection and response | [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md) |
 | Art 21(2)(c): Business continuity | BCM, backup management, DR, crisis management | [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md); [`resilience/plan-it-disaster-recovery.md`](../../resilience/plan-it-disaster-recovery.md) |
 | Art 21(2)(d): Supply chain security | Security policies for suppliers and service providers | [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md); [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md) |
-| Art 21(2)(e): Secure development | Security in network and information systems acquisition, development, maintenance | [`dev-security/policy-secure-development-and-engineering.md`](../../dev-security/policy-secure-development-and-engineering.md) |
-| Art 21(2)(f): Vulnerability handling | Vulnerability disclosure and patch management | [`dev-security/standard-software-composition-analysis.md`](../../dev-security/standard-software-composition-analysis.md) |
+| Art 21(2)(e): Security in acquisition, development and maintenance (incl. vulnerability handling) | Security in network and information systems acquisition, development and maintenance, including vulnerability handling and disclosure | [`dev-security/policy-secure-development-and-engineering.md`](../../dev-security/policy-secure-development-and-engineering.md) |
+| Art 21(2)(f): Effectiveness assessment | Policies and procedures to assess the effectiveness of cybersecurity risk-management measures | [`compliance/procedure-control-testing.md`](../../compliance/procedure-control-testing.md) |
 | Art 21(2)(g): Cybersecurity training | Cybersecurity hygiene and training | [`governance/framework-human-capital-and-ethical-conduct.md`](../../governance/framework-human-capital-and-ethical-conduct.md) |
 | Art 21(2)(h): Cryptography | Policies on use of cryptography and encryption | [`security/framework-cryptographic-key-lifecycle.md`](../../security/framework-cryptographic-key-lifecycle.md) |
 | Art 21(2)(i): Human resources security | Personnel security, access control, asset management | [`security/procedure-access-control.md`](../../security/procedure-access-control.md); [`security/procedure-identity-management.md`](../../security/procedure-identity-management.md) |
@@ -262,7 +262,7 @@ The transportation and logistics sector is the primary sector affected by truste
 For transportation and logistics organizations building sector-specific GRC compliance:
 
 1. **Immediate (core baseline):**
- - Confirm CTPAT / AEO-S / PIP / BASC certification status and gap-fill using existing compliance domain documents
+ - Confirm CTPAT / AEO-S / BASC certification or PIP membership status and gap-fill using existing compliance domain documents
  - Assess NIS 2 applicability and determine entity classification (essential / important)
  - Identify applicable TSA Security Directives or IMO obligations
 

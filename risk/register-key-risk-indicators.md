@@ -2,8 +2,8 @@
 
 **Document Title:** Key Risk Indicator Catalogue\
 **Document Type:** Register\
-**Version:** 1.1.3\
-**Date:** 2026-08-26\
+**Version:** 1.1.4\
+**Date:** 2026-08-31\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -80,7 +80,7 @@ Each KRI is defined by the following fields.
 |---|---|---|---|---|---|---|---|---|
 | KRI-SUP-001 | Critical Supplier Incidents | Count of P1/P2 incidents involving Tier 1 suppliers | Count | 0 | 1 to 2 | >2 | Chief Risk Officer | Monthly |
 | KRI-SUP-002 | Overdue Supplier Risk Reviews | Count of Tier 1 suppliers with overdue risk review | Count | 0 | 1 to 2 | >2 | Supplier Risk Manager | Monthly |
-| KRI-SUP-003 | Trade Compliance Programme Status | Count of Tier 1 logistics suppliers whose CTPAT/AEO-S/PIP/BASC certification has lapsed | Count | 0 | 1 | >1 | Trade Compliance Manager | Quarterly |
+| KRI-SUP-003 | Trade Compliance Programme Status | Count of Tier 1 logistics suppliers whose CTPAT/AEO-S/BASC certification or PIP membership has lapsed | Count | 0 | 1 | >1 | Trade Compliance Manager | Quarterly |
 | KRI-SUP-004 | Supplier Financial Distress Signals | Count of Tier 1 suppliers with credit rating downgrade or financial distress alert | Count | 0 | 1 to 2 | >2 | Chief Risk Officer | Monthly |
 | KRI-SUP-005 | Concentration: Top Supplier Revenue | Percentage of freight operations dependent on single largest supplier | % | <25% | 25 to 40% | >40% | Chief Risk Officer | Quarterly |
 

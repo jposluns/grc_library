@@ -2,8 +2,8 @@
 
 **Document Title:** Telecommunications Sector Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.5\
-**Date:** 2026-07-02\
+**Version:** 0.0.6\
+**Date:** 2026-08-31\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/annex-nis-2-implementation.md`](../annex-nis-2-implementation.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../../supply-chain/framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md)\
@@ -90,7 +90,7 @@ EU: Court of Justice case law (Tele2 Sverige, La Quadrature du Net) restricts ge
 
 UK: Investigatory Powers Act 2016 framework.
 
-Canada: PIPEDA does not require telecoms data retention; lawful-access requests handled per the IPA-equivalent framework.
+Canada: PIPEDA prescribes no telecom metadata-retention period. Canadian lawful-access and retention overlay: SOURCE GAP - the applicable Canadian authority is not yet held; acquire and verify it before operationalizing a specific requirement.
 
 ---
 
@@ -171,7 +171,7 @@ Numbering plans and number portability are regulated.
 | UK PECR | SI 2003/2426 | ePrivacy transposition |
 | US Communications Act, FCC rules | 47 CFR | Sector framework |
 | US CALEA | 47 USC 1001-1010 | Lawful interception |
-| Canada Telecommunications Act | RSC 1993 c 38 | Sector framework |
+| Canada Telecommunications Act | S.C. 1993, c. 38 | Sector framework |
 | ETSI TS 102 232 series | ETSI | Lawful interception standards |
 | ITU-T Recommendations | ITU | International telecoms standards |
 
