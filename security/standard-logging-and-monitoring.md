@@ -2,7 +2,7 @@
 
 **Document Title:** Logging and Monitoring Standard\
 **Document Type:** Standard\
-**Version:** 1.4.16\
+**Version:** 1.4.17\
 **Date:** 2026-08-31\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -136,12 +136,12 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who ov
 
 | Control Area | ISO/IEC 27002 | NIST | COBIT 2019 | CSA CCM v4.1 | Legal |
 | --- | --- | --- | --- | --- | --- |
-| Log management | §8.15 | SP 800-92 | DSS05.01 | LOG-01 | GDPR Art. 32, PIPEDA |
+| Log management | §8.15 | SP 800-92 | DSS01.03 | LOG-01 | GDPR Art. 32, PIPEDA |
 | Time synchronization | §8.17 | SP 800-92 | DSS01.03 | LOG-06 | SOX |
-| Central collection and retention | §8.15 | CSF Detect | DSS05.02 | LOG-02 | NIS 2 Directive |
+| Central collection and retention | §8.15 | CSF Detect | DSS01.03 | LOG-02 | NIS 2 Directive |
 | Access and protection | §8.15 | SP 800-53 AC-6 | DSS05.04 | LOG-04 | Privacy laws |
-| AI system traceability | N/A | AI RMF | DSS05.06 | LOG-09 | EU AI Act Art. 12, 19, 26(6) |
-| Monitoring and alerting | §8.16 | CSF Respond | DSS05.03 | LOG-03 | Incident reporting laws |
+| AI system traceability | N/A | AI RMF | DSS01.03 | LOG-09 | EU AI Act Art. 12, 19, 26(6) |
+| Monitoring and alerting | §8.16 | CSF Respond | DSS05.07 | LOG-03 | Incident reporting laws |
 | BASC trade logging | N/A | N/A | N/A | N/A | BASC v6, WCO SAFE, ISO 28000 |
 
 
