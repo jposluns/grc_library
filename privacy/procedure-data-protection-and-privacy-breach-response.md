@@ -2,7 +2,7 @@
 
 **Document Title:** Data Protection and Privacy Breach Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.32\
+**Version:** 1.4.33\
 **Date:** 2026-08-31\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -354,8 +354,8 @@ The following metrics are tracked and reported to the CIO and CISO at the quarte
 | Security incident response | ISO/IEC 27035; NIST SP 800-61 Rev. 3; [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) |
 | Evidence preservation | ISO/IEC 27037; [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) §8 |
 | SIEM alert integration | CSA CCM v4.1 SEF-06; [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) |
-| Record keeping and retention | ISO/IEC 27701:2025 §7.5.3, Annex A.3.11, A.3.14; [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) |
-| AI training data leakage | ISO/IEC 27701:2025 Annex A.3.11 to A.3.12; [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) |
+| Record keeping and retention | ISO/IEC 27701:2025 §7.5.3, Annex A.3.14; [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) |
+| AI training data leakage | ISO/IEC 27701:2025 Annex A.3.12; [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) |
 | BASC trade data | BASC International Standard v6; [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](../supply-chain/annex-trade-and-supply-chain-continuity-controls.md) |
 
 ---
