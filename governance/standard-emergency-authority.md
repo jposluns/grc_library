@@ -2,7 +2,7 @@
 
 **Document Title:** Emergency Authority Standard\
 **Document Type:** Standard\
-**Version:** 0.0.2\
+**Version:** 0.0.3\
 **Date:** 2026-08-31\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
@@ -36,7 +36,7 @@ The [Capability Is Not Authority Principle](principle-capability-is-not-authorit
 
 ### 4.1 The emergency-authority instrument and declaration trigger
 
-An emergency grant is a recorded instrument, created at declaration or (for a pre-approved class) referenced at use, carrying at minimum: the declared emergency and the trigger that opened it; the role that declared the emergency and the role that conferred the specific authority (which may be one role or, per 4.2, two); the grantee (person, role, system, or AI agent); the specific authority granted, bounded to the minimum the emergency needs; the actions it permits; its expiry; and its unique identifier and lineage. A pre-approved emergency class (a documented break-glass path, a standing emergency-change category) is an advance approval of authority for a named trigger, distinct from the declaration that an actual emergency has occurred: activation requires the trigger to be evaluated and the emergency declared by an authorized party (or, for a narrow pre-approved autonomous class per 4.8, by an externally enforced trigger evaluation), and each activation is recorded against the class.
+An emergency grant is a recorded instrument, created at declaration or (for a pre-approved class) referenced at use, carrying at minimum: the declared emergency and the trigger that opened it; the role that declared the emergency and the role that conferred the specific authority (which may be one role or, per 4.2, two); the grantee (person, role, system, or AI agent); the specific authority granted, bounded to the minimum the emergency needs; the actions it permits; its expiry; and its unique identifier and lineage. A pre-approved emergency class (a documented break-glass path, a standing emergency-change category) is an advance approval of authority for a named trigger, distinct from the declaration that an actual emergency has occurred: activation requires the trigger to be evaluated and the emergency declared by an authorized party; for a narrow pre-approved autonomous class per 4.8, an externally enforced trigger evaluation activates the human-approved class rather than declaring the emergency itself, the human who approved the class remains the authority source, and the trigger evaluation and activation are recorded against the class with the authorizing subject and scope.
 
 ### 4.2 Grantor standing, grantee identity, scope, and separation of duties
 
@@ -69,7 +69,7 @@ An AI agent can hold emergency authority only under the rules above, tightened a
 ## 5. Evidence requirements
 
 - The emergency-authority instrument for each grant (the fields in 4.1, including identifier and lineage), retained under the `Governance authorization and delegation records` category in the Data Retention Schedule ([`governance/register-data-retention-schedule.md`](register-data-retention-schedule.md)).
-- Evidence that the grantor held the standing to declare the emergency and confer the authority.
+- Evidence that the declaring role held the standing to declare the emergency, and that the conferring role held the standing to confer the specific authority (recorded separately where 4.2 splits them).
 - The expiry and the record of return to ordinary authority, including closure or restoration of any capability opened.
 - The independent-review record for each renewal.
 - Revocation records, including the propagation confirmation that downstream credentials, entitlements, sessions, and onward grants were closed.
@@ -90,7 +90,7 @@ The alignment below is analogical (each row aligns with or is informed by the ci
 | Time-bounded, reviewed privileged access | IAM-10 (Management of Privileged Access Roles) | n/a | AC-6(7) (Review of User Privileges) | A.5.18 (Access rights) | PR.AA |
 | Rollback and recovery to a known-good state | CCC-09 (Change Restoration); BCR-09 (Disaster Response Plan) | n/a | CP-10 (System Recovery and Reconstitution) | A.8.13 (Information backup) | RC.RP |
 | Incident response and containment | SEF-07 (Incident Management and Response); SEF-03 (Incident Response Plans) | n/a | IR-4 (Incident Handling); IR-4(5) (Automatic Disabling of System) | A.5.26 (Response to information security incidents) | RS.MA; RS.MI |
-| Incident records and post-incident learning | SEF-09 (Incident Records Management) | n/a | IR-4 (Incident Handling) | A.5.27 (Learning from information security incidents) | RS.MA |
+| Incident records and post-incident learning | SEF-09 (Incident Records Management) | n/a | IR-4 (Incident Handling) | A.5.27 (Learning from information security incidents) | ID.IM (Improvement) |
 | AI-agent emergency authority (4.8) | n/a | GRC-15 (Human supervision); IAM-18 (Agent Access Restriction) | n/a | n/a | GV.RR (Roles, Responsibilities, and Authorities) |
 
 ---
