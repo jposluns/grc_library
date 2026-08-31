@@ -1773,6 +1773,18 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
         self.assertIn("self-test: ", result.stdout)
 
+    def test_block_pr_without_resume_validate_hook_self_test(self) -> None:
+        """The resume-/validate presence guard's own self-test, wired at introduction
+        (SEED-1, 2026-08-31): a PR must not open/merge in a session that ran no resume
+        /validate (step 6a). Mirrors the block-on-open-findings self-test wiring."""
+        result = subprocess.run(
+            [sys.executable, str(REPO_ROOT / ".claude" / "hooks" / "block-pr-without-resume-validate.py"),
+             "--self-test"],
+            capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0,
+                         f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        self.assertIn("self-test: ", result.stdout)
+
     def test_block_opus5_orchestrator_model_hook_self_test(self) -> None:
         """The Opus-5 self-model guard's own self-test, wired at introduction (PR #1649).
 
