@@ -2,7 +2,7 @@
 
 **Document Title:** AI Model Succession and Identity Continuity Standard\
 **Document Type:** Standard\
-**Version:** 0.0.1\
+**Version:** 0.0.2\
 **Date:** 2026-08-31\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
@@ -32,18 +32,19 @@ It does not govern the training, evaluation, or engineering of the successor its
 
 | Principle | Statement |
 | --- | --- |
-| No automatic inheritance | A successor does not inherit the predecessor's approvals, delegations, access, or forum standing by default; each is re-established on evidence. |
+| No automatic inheritance | A successor does not inherit the predecessor's approvals, delegations, access, or forum standing by default; each is re-established by a fresh authorization grant. |
 | Identity is per-version | For authority purposes each model or agent version is a distinct identity; a shared name or endpoint does not make the successor the same subject as the predecessor. |
 | Evidence before standing | The successor presents the documentation, validation, and integrity evidence for the standing it seeks before that standing is recognized. |
+| Standing comes from a grant, not evidence | Standing is conferred only by a fresh authorization grant, or an authorized grantor's explicit re-confirmation of the grant to the successor; the evidence supports that decision but never substitutes for it. |
 | Pause and compare | Standing transfers only after a paused comparison of successor against predecessor on a representative set, not on release alone. |
 | Least privilege across the transition | Access and delegations are re-issued to the successor scoped to the minimum the successor's task needs, never copied wholesale from the predecessor. |
-| Reversibility | The predecessor's standing and access are retained until the successor's standing is validated, so a failed transition can fall back. |
+| Reversibility, else fail closed | Where the predecessor can be retained, it keeps its standing and access until the successor's standing is validated, so a failed transition can fall back; where retention is not possible (for example a supplier deprecates the prior version without continuity), the transition is fail-closed per section 5, never defaulted open. |
 
 ---
 
 ## 4. Successor standing criteria (inheritance evidence)
 
-A successor establishes standing by presenting, for each class of standing it seeks, the evidence that the standing's original grant required. At minimum:
+A successor's standing is conferred only by a fresh authorization grant for the successor, or an authorized grantor's explicit re-confirmation of the existing grant to the successor; the evidence below supports that grant decision but does not itself confer standing (per [`governance/principle-capability-is-not-authority.md`](../governance/principle-capability-is-not-authority.md)). For each class of standing it seeks, the successor presents the evidence the original grant required. At minimum:
 
 1. **Model documentation.** Current documentation for the successor version (its purpose, training and data provenance, evaluation results, and known limitations), maintained to the same requirement as the predecessor's.
 2. **Validation evidence.** Independent validation that the documentation is accurate and that the successor meets the acceptance criteria the standing depends on.
@@ -57,17 +58,19 @@ Standing that the successor does not seek, or cannot evidence, lapses with the p
 Before the successor assumes any standing, its behaviour is compared against the predecessor's in a paused state, on a representative evaluation set covering the tasks the standing authorizes:
 
 1. The comparison runs before cutover, with the predecessor still holding standing, so the successor is not exercising authority it has not yet earned.
-2. Material behaviour changes are reassessed for risk per the version-transition reassessment in [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md); a change that alters the risk basis of an approval requires that approval to be re-granted, not carried.
+2. Material behaviour changes are reassessed for risk per the version-transition reassessment in [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md); no approval passes to the successor without the authorized approver's fresh grant or explicit re-confirmation, and a change that alters the risk basis of an approval requires that approval to be re-granted rather than re-confirmed.
 3. The comparison result is recorded against the successor's registry entry ([`ai/register-model-registry.md`](register-model-registry.md)).
 4. After cutover the successor is monitored on a defined cadence so a regression that the pre-cutover comparison did not surface is detected in operation.
 
 A successor that fails the comparison does not assume standing; the predecessor is retained per the reversibility principle.
 
+Where the predecessor cannot be retained (a supplier deprecates it without a pinning or continuity option, per [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md)), the transition is fail-closed: the successor does not assume standing by default on release. Standing then requires a fresh grant on heightened validation, and where that grant cannot be obtained the affected capability is paused rather than operated under unvalidated standing.
+
 ## 6. In-flight approvals and decisions
 
 Approvals and decisions in progress at the transition moment are handled explicitly, never carried by default:
 
-1. An approval granted to the predecessor and not yet acted on does not transfer to the successor; it is re-issued against the successor or explicitly confirmed to still hold, with the confirmation recorded.
+1. An approval granted to the predecessor and not yet acted on does not transfer to the successor; it is re-issued against the successor, or explicitly re-confirmed for the successor by the authorized approver as a recorded grant decision. A mere restatement that the predecessor's approval exists is not such a re-confirmation.
 2. A decision or action the predecessor had begun but not completed at cutover is either completed under the predecessor's retained standing or re-initiated under the successor; it is not silently continued by the successor as though it were the same subject.
 3. Any automated approval or delegation that references the predecessor identity is updated to the successor identity or revoked; a dangling grant to a decommissioned predecessor is closed.
 
@@ -85,10 +88,10 @@ The alignment below is analogical (each row aligns with or is informed by the ci
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| CSA AICM v1.1.0 | MDS-03 Model Documentation; MDS-05 Model Documentation Validation | Documentation and validation evidence a successor presents for standing |
+| CSA AICM v1.1.0 | MDS-03 Model Documentation; MDS-05 Model Documentation Validation | Successor documentation, and validation of that documentation against the successor model, as standing evidence |
 | CSA AICM v1.1.0 | MDS-08 Model Integrity Checks | The successor artefact is the validated artefact |
 | CSA AICM v1.1.0 | MDS-10 Model Continuous Monitoring | Post-cutover monitoring for regressions the comparison did not surface |
-| ISO/IEC 42001:2023 | §8.1 operational planning and control (AI system life cycle controls) | Governing the version-transition operation |
+| ISO/IEC 42001:2023 | A.6.2 AI system life cycle; §8.1 operational planning and control | Life-cycle stage criteria for the transition, and control of the version transition as a planned change |
 | NIST AI RMF | MAP; MANAGE | Framing the transition risk and managing it across the successor's operation |
 | CSA CCM v4.1.0 | CCC-01 Change Management Policy and Procedures | The version transition as a governed change |
 | CSA CCM v4.1.0 | IAM-05 Least Privilege | Access re-issued to the successor scoped to the minimum |
