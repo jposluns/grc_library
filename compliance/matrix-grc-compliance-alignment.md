@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.30\
+**Version:** 1.11.32\
 **Date:** 2026-08-31\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -118,8 +118,12 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Compliance | Annex: SOX IT General Controls | [`compliance/financial-services/annex-sox-itgc.md`](financial-services/annex-sox-itgc.md) | IAM-06, IAM-08, CCC-01, BCR-08, A&A-05 | N/A | A.5.15, A.5.18, A.8.32, A.8.13, §9.2 | PR.AA, PR.PS, ID.AM, ID.IM | N/A | N/A | N/A | N/A | N/A |
 | Compliance | Annex: Energy and Utilities Sector Requirements | [`compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md`](energy-and-utilities/annex-energy-and-utilities-sector-requirements.md) | GRC-07, I&S-06, STA-01, SEF-03, DCS-01 | N/A | §4.1, A.5.19, A.8.20, A.5.24, A.7.1 | GV.OC, ID.AM, PR.IR, GV.SC, RS.MA | N/A | N/A | N/A | N/A | N/A |
 | Compliance | Annex: Healthcare Sector GRC Requirements | [`compliance/healthcare/annex-healthcare-sector-requirements.md`](healthcare/annex-healthcare-sector-requirements.md) | DSP-17, GRC-07, SEF-08 | N/A | A.5.34, A.5.24, A.8.24 | PR.DS, GV.OC, RS.CO | N/A | N/A | N/A | N/A | N/A |
+| Compliance | Annex: United States HIPAA Sector Requirements | [`compliance/healthcare/annex-healthcare-united-states.md`](healthcare/annex-healthcare-united-states.md) | GRC-07, DSP-17, SEF-08 | N/A | A.5.31, A.5.34, A.5.26 | GV.OC, PR.DS, RS.CO | N/A | N/A | N/A | N/A | N/A |
+| Compliance | Procedure: HIPAA Operational Compliance | [`compliance/healthcare/procedure-hipaa-operational-compliance.md`](healthcare/procedure-hipaa-operational-compliance.md) | DSP-11, DSP-16, SEF-08, STA-11 | N/A | A.5.34, A.5.33, A.5.26, A.5.20 | GV.PO, PR.DS, RS.CO, GV.SC | N/A | N/A | N/A | N/A | N/A |
 | Compliance | Annex: FedRAMP Sector Requirements | [`compliance/public-sector/annex-fedramp-requirements.md`](public-sector/annex-fedramp-requirements.md) | GRC-07, IAM-01, A&A-02, STA-01 | N/A | §5.1, A.5.1, A.8.16 | GV.OC, ID.RA, PR.AA, DE.CM, RS.MA | N/A | N/A | N/A | N/A | N/A |
 | Compliance | Annex: Public Sector GRC Requirements | [`compliance/public-sector/annex-public-sector-requirements.md`](public-sector/annex-public-sector-requirements.md) | GRC-07, DSP-16, A&A-01 | N/A | §7.5, A.5.31, A.5.34 | GV.OC, GV.OV, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Compliance | Annex: eIDAS Sector Requirements | [`compliance/public-sector/annex-eidas-requirements.md`](public-sector/annex-eidas-requirements.md) | GRC-07, IAM-13, DSP-12 | N/A | A.5.31, A.8.5, A.5.34 | GV.OC, PR.AA | N/A | N/A | N/A | N/A | N/A |
+| Compliance | Annex: Canada Public Sector GRC Requirements | [`compliance/public-sector/annex-canada-public-sector-requirements.md`](public-sector/annex-canada-public-sector-requirements.md) | GRC-07 | N/A | A.5.31 | GV.OC | N/A | N/A | N/A | N/A | N/A |
 | Compliance | Annex: Telecommunications Sector Requirements | [`compliance/telecommunications/annex-telecommunications-sector-requirements.md`](telecommunications/annex-telecommunications-sector-requirements.md) | GRC-07, I&S-03, SEF-01, STA-01 | N/A | A.8.20, A.8.16, A.5.30 | GV.OC, PR.IR, DE.CM, GV.SC | N/A | N/A | N/A | N/A | N/A |
 | Compliance | Annex: BASC Programme Overview | [`compliance/logistics/annex-basc-programme-overview.md`](logistics/annex-basc-programme-overview.md) | GRC-01, GRC-07 | N/A | §4.1, §4.2 | GV.OC | N/A | N/A | Programme governance | Pillar II (Customs-to-Business) | N/A |
 | Compliance | Annex: Logistics Sector GRC Requirements | [`compliance/logistics/annex-logistics-sector-requirements.md`](logistics/annex-logistics-sector-requirements.md) | GRC-01, GRC-07, STA-01 | N/A | §4.1, §6.1 | GV.OC, GV.RM, GV.SC | Programme governance | Programme governance | Programme governance | Pillar II (Customs-to-Business) | Business partners |
@@ -298,6 +302,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Privacy | Kenya Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-kenya.md`](../privacy/jurisdictions/annex-privacy-kenya.md) | DSP-01, DSP-10, DSP-17 | N/A | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Latin America Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-latin-america.md`](../privacy/jurisdictions/annex-privacy-latin-america.md) | DSP-01, DSP-10, DSP-17 | N/A | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Malaysia Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-malaysia.md`](../privacy/jurisdictions/annex-privacy-malaysia.md) | DSP-01, DSP-10, DSP-17 | N/A | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Mexico Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-mexico.md`](../privacy/jurisdictions/annex-privacy-mexico.md) | DSP-01, DSP-10, DSP-17 | N/A | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
 | Privacy | New Zealand Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-new-zealand.md`](../privacy/jurisdictions/annex-privacy-new-zealand.md) | DSP-01, DSP-10, DSP-17 | N/A | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Nigeria Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-nigeria.md`](../privacy/jurisdictions/annex-privacy-nigeria.md) | DSP-01, DSP-10, DSP-17 | N/A | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Philippines Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-philippines.md`](../privacy/jurisdictions/annex-privacy-philippines.md) | DSP-01, DSP-10, DSP-17 | N/A | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
@@ -393,6 +398,14 @@ This matrix is indicative only. It reflects the best available assessment of con
 | AI | Dataset Datasheet Template | [`ai/template-dataset-datasheet.md`](../ai/template-dataset-datasheet.md) | DSP-03, DSP-06, DSP-05 | DSP-20, DSP-24 | A.5.9, A.8.10, §7.5 | ID.AM, PR.DS, GV.OC | N/A | N/A | N/A | N/A | N/A |
 | AI | Model Card Template | [`ai/template-model-card.md`](../ai/template-model-card.md) | DSP-03, GRC-02, AIS-05 | MDS-03, MDS-04, GRC-13 | §7.5, A.5.9, §9.1 | ID.IM, GV.OC, ID.RA | N/A | N/A | N/A | N/A | N/A |
 | AI | System Card Template | [`ai/template-system-card.md`](../ai/template-system-card.md) | DSP-03, GRC-02, IAM-15 | MDS-03, GRC-13, GRC-15 | §7.5, A.5.15, §9.1 | ID.IM, GV.OC, PR.AA | N/A | N/A | N/A | N/A | N/A |
+| AI | Agentic Response State Model Framework | [`ai/framework-agentic-response-state-model.md`](../ai/framework-agentic-response-state-model.md) | SEF-03, IAM-15 | AIS-11, GRC-15 | A.5.25, A.5.26, A.8.15 | DE.AE, RS.MA, RS.MI | N/A | N/A | N/A | N/A | N/A |
+| AI | AI Human-Oversight Standard | [`ai/standard-ai-human-oversight.md`](../ai/standard-ai-human-oversight.md) | GRC-06 | GRC-15, HRS-14 | A.5.2, A.6.3 | GV.RR, PR.AT | N/A | N/A | N/A | N/A | N/A |
+| AI | AI Maturity Model Framework | [`ai/framework-ai-maturity-model.md`](../ai/framework-ai-maturity-model.md) | GRC-01, GRC-06 | GRC-11, GRC-14 | §9.1, §10.1 | GV.OV, ID.IM | N/A | N/A | N/A | N/A | N/A |
+| AI | AI Value and Decision-Governance Framework | [`ai/framework-ai-value-and-decision-governance.md`](../ai/framework-ai-value-and-decision-governance.md) | GRC-06 | N/A | §5.3, §9.1 | GV.RR, GV.OV | N/A | N/A | N/A | N/A | N/A |
+| AI | AI Board Oversight Guide | [`ai/guide-ai-board-oversight.md`](../ai/guide-ai-board-oversight.md) | GRC-02, GRC-06 | HRS-14 | §5.1, §5.3, §9.3 | GV.RR, GV.RM, GV.OV | N/A | N/A | N/A | N/A | N/A |
+| AI | AI Synthetic-Content Provenance Guideline | [`ai/guideline-ai-synthetic-content-provenance.md`](../ai/guideline-ai-synthetic-content-provenance.md) | GRC-07 | N/A | A.5.31 | GV.OC | N/A | N/A | N/A | N/A | N/A |
+| AI | Integrated AI and Privacy Assessment Procedure | [`ai/procedure-integrated-ai-and-privacy-assessment.md`](../ai/procedure-integrated-ai-and-privacy-assessment.md) | DSP-09, GRC-07 | GRC-10 | A.5.34, §6.1.2 | ID.RA | N/A | N/A | N/A | N/A | N/A |
+| AI | AI Data Quality and Readiness Validation Standard | [`ai/standard-ai-data-quality-and-readiness-validation.md`](../ai/standard-ai-data-quality-and-readiness-validation.md) | DSP-16, STA-11 | DSP-23, DSP-24 | §8.1, A.5.20, A.8.10 | ID.AM, PR.DS, GV.SC | N/A | N/A | N/A | N/A | N/A |
 
 ---
 
