@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.141\
+**Version:** 1.27.142\
 **Date:** 2026-08-31\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -106,6 +106,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Security | Policy | Acceptable Use Policy | [`security/policy-acceptable-use.md`](../security/policy-acceptable-use.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.5.10, NIST SP 800-53 PL-4, CSA CCM HRS | template |
 | Security | Policy | Encryption and Key Management Policy | [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.8.24, NIST SP 800-57, CSA CCM CEK | template |
 | Security | Standard | Logging and Monitoring Standard | [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.8.15 to 16, NIST SP 800-92, CSA CCM LOG | template |
+| Security | Standard | Monitoring Integrity and Coverage Standard | [`security/standard-monitoring-integrity-and-coverage.md`](../security/standard-monitoring-integrity-and-coverage.md) | Chief Information Security Officer | Annual and upon material threat, framework, or regulatory change | NIST CSF 2.0 DE.CM/DE.AE, NIST SP 800-137, ISO/IEC 27001 A.8.15 to 16, CSA CCM LOG-14, MITRE ATT&CK T1685, NIST SP 800-92 | template |
 | Security | Standard | Data Classification and Handling Standard | [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.5.12 to 13, NIST SP 800-60, BASC data classification | template |
 | Security | Standard | Security Awareness and Training Standard | [`security/standard-security-awareness-and-training.md`](../security/standard-security-awareness-and-training.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.6.3, NIST SP 800-50, CSA CCM HRS-07 | template |
 | Security | Standard | Privileged Access Management Standard | [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.5.18, NIST SP 800-53 AC-6, CSA CCM IAM-05 | template |
