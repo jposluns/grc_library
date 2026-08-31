@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Due Diligence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.11\
-**Date:** 2026-07-23\
+**Version:** 1.1.12\
+**Date:** 2026-08-31\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -138,7 +138,7 @@ A sector-supplier compliance log maintained by the appropriate sector-conditiona
 | Due Diligence Evaluation | Domain assessment results, evidence artefacts, remediation plan where required. |
 | Contractual Review | Executed contract with required clauses confirmed, Legal Counsel approval. |
 | Periodic Re-Assessment | Updated TPRAQ or equivalent, reassessment report, CAPA entries where applicable. |
-| Sector-Programme Compliance | Sector certificate copy (for example, BASC, CTPAT, AEO, PIP where applicable), compliance log entry, renewal tracking record. |
+| Sector-Programme Compliance | Sector certificate or membership record (for example, BASC, CTPAT, AEO certificates; PIP membership) where applicable, compliance log entry, renewal tracking record. |
 
 ---
 

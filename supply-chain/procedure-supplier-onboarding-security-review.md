@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Onboarding Security Review Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.8\
-**Date:** 2026-08-18\
+**Version:** 1.0.9\
+**Date:** 2026-08-31\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/template-supplier-security-questionnaire.md`](template-supplier-security-questionnaire.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`supply-chain/register-subprocessor-template.md`](register-subprocessor-template.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md)\
@@ -72,7 +72,7 @@ This procedure is triggered when:
 | 2.4 If cross-border data transfer: confirm adequate transfer mechanism (SCCs, IDTA, adequacy) and conduct transfer impact assessment if required | DPO / Legal | Before contract execution |
 | 2.5 Review completed questionnaire and evidence against assurance requirements | Supplier Risk Manager / Information Security | Within 5 business days of receipt |
 | 2.6 For Tier 1: conduct reference checks; review any publicly available incident history; assess financial solvency | Supplier Risk Manager | During Step 2 |
-| 2.7 For logistics suppliers: verify current CTPAT / AEO-S / PIP / BASC / NEEC / OEA certification status as applicable | Trade Compliance Manager | During Step 2 |
+| 2.7 For logistics suppliers: verify current CTPAT / AEO-S / BASC / NEEC / OEA certification or PIP membership status as applicable | Trade Compliance Manager | During Step 2 |
 
 **Supplier response deadlines:** Tier 1, 10 business days; Tier 2, 10 business days; Tier 3: 15 business days. Escalate to Requesting Business Unit if supplier does not respond.
 

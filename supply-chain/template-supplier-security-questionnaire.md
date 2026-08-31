@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Security Questionnaire\
 **Document Type:** Template\
-**Version:** 1.0.6\
-**Date:** 2026-08-25\
+**Version:** 1.0.7\
+**Date:** 2026-08-31\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-onboarding-security-review.md`](procedure-supplier-onboarding-security-review.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](../compliance/logistics/register-ctpat-united-states-it-controls.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md)\
@@ -154,7 +154,7 @@ The cadences in questions 3.3 and 3.4 are suggested baselines (recommended, not 
 | 10.1 Is your organization a member of CTPAT? If yes, provide membership number and tier (Certified / Validated / Status). | | |
 | 10.2 Does your organization hold UK AEO-S certification? If yes, provide authorization number and HMRC reference. | | |
 | 10.3 Does your organization hold EU AEO certification? If yes, provide EORI number and certification reference. | | |
-| 10.4 Does your organization hold PIP certification? If yes, provide CBSA-assigned number. | | |
+| 10.4 Does your organization hold PIP membership? If yes, provide the CBSA-assigned member number. | | |
 | 10.5 Does your organization hold BASC certification? | | |
 | 10.6 Does your organization hold NEEC certification? | | |
 | 10.7 Does your organization hold OEA (Brazil) certification? | | |
