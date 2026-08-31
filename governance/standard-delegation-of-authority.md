@@ -2,11 +2,11 @@
 
 **Document Title:** Delegation-of-Authority Standard\
 **Document Type:** Standard\
-**Version:** 0.0.1\
-**Date:** 2026-08-30\
+**Version:** 0.0.2\
+**Date:** 2026-08-31\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`governance/register-role-authority.md`](register-role-authority.md), [`governance/register-key-terms-and-definitions.md`](register-key-terms-and-definitions.md), [`governance/policy-exception-and-risk-acceptance-management.md`](policy-exception-and-risk-acceptance-management.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`governance/principle-capability-is-not-authority.md`](principle-capability-is-not-authority.md)\
+**Related Documents:** [`governance/register-role-authority.md`](register-role-authority.md), [`governance/register-key-terms-and-definitions.md`](register-key-terms-and-definitions.md), [`governance/policy-exception-and-risk-acceptance-management.md`](policy-exception-and-risk-acceptance-management.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`governance/principle-capability-is-not-authority.md`](principle-capability-is-not-authority.md), [`governance/register-data-retention-schedule.md`](register-data-retention-schedule.md)\
 **Classification:** Public\
 **Category:** Core Governance\
 **Review Frequency:** Annual or as required by regulatory or framework change\
@@ -62,7 +62,7 @@ The grantor can revoke a delegation, with the revocation taking effect promptly;
 
 ## 5. Evidence requirements
 
-- The delegation instrument for each active delegation (the fields in 4.1, including its identifier and lineage), retained per the records-retention schedule.
+- The delegation instrument for each active delegation (the fields in 4.1, including its identifier and lineage), retained under the `Governance authorization and delegation records` category in the Data Retention Schedule ([`governance/register-data-retention-schedule.md`](register-data-retention-schedule.md)) for seven years after expiry or revocation.
 - Evidence that the grantor held the delegated, delegable authority under the authority schedule at the time of the grant.
 - Revocation records, including the propagation check that downstream sub-delegations and entitlements were removed.
 - The periodic review record of active delegated privileges.
