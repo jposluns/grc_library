@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.134\
+**Version:** 1.27.135\
 **Date:** 2026-08-31\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -185,6 +185,7 @@ Documents are classified by their **primary** disposition. The small number that
 | AI | Standard | AI Security and Risk Standard | [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) | AI Security Maintainer | 6 to 12 months | ISO/IEC 42001, OWASP LLM Top 10, MITRE ATLAS, NIST AI RMF | template |
 | AI | Standard | AI Human-Oversight Standard | [`ai/standard-ai-human-oversight.md`](../ai/standard-ai-human-oversight.md) | AI Governance Lead | 6 to 12 months | EU AI Act Article 14, ISO/IEC 42001, NIST AI RMF, EU GDPR Article 22 | template |
 | AI | Standard | AI Model Risk Standard | [`ai/standard-ai-model-risk.md`](../ai/standard-ai-model-risk.md) | AI Governance Approver | 6 to 12 months | ISO/IEC 42001, NIST AI RMF, EU AI Act Annex IV, model risk governance | template |
+| AI | Standard | AI Model Succession and Identity Continuity Standard | [`ai/standard-ai-model-succession-and-identity.md`](../ai/standard-ai-model-succession-and-identity.md) | AI Governance Approver | Annual | CSA AICM MDS, ISO/IEC 42001, NIST AI RMF, CSA CCM, ISO/IEC 27001, NIST SP 800-53 | template |
 | AI | Standard | AI Data Quality and Readiness Validation Standard | [`ai/standard-ai-data-quality-and-readiness-validation.md`](../ai/standard-ai-data-quality-and-readiness-validation.md) | AI Data Steward | 6 to 12 months | ISO/IEC 5259 series, ISO/IEC 8183, ISO/IEC 42005, EU AI Act Article 10 | template |
 | AI | Standard | AI and Agentic Development Security Standard | [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md) | Chief Information Security Officer | 6 to 12 months | OWASP LLM Top 10, MITRE ATLAS, ISO/IEC 27001, NIST AI RMF | template |
 | AI | Framework | AI Model Risk Framework | [`ai/framework-ai-model-risk.md`](../ai/framework-ai-model-risk.md) | AI Governance Approver | 6 to 12 months | Model risk, data provenance, lifecycle assurance | template |
