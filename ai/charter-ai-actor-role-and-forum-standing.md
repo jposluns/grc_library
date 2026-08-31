@@ -2,7 +2,7 @@
 
 **Document Title:** AI Actor Role and Forum Standing Charter\
 **Document Type:** Charter\
-**Version:** 0.0.2\
+**Version:** 0.0.3\
 **Date:** 2026-08-31\
 **Owner:** AI Governance Lead\
 **Approving Authority:** Governance Library Maintainer\
@@ -43,7 +43,7 @@ Regardless of capability, the AI actor never makes any of the following decision
 1. Grant or expand its own authority, scope, or autonomous envelope.
 2. Accept a risk or approve an exception.
 3. Provide, on its own judgement, an approval of its own work product that stands in for a required independent human approval, or declare that trust in its work is restored.
-4. Hold accountability for its own actions (accountability rests with the human owner).
+4. Hold accountability for its own actions (accountability rests with the human owner and the envelope and per-action approvers named in the role-definition section, never the AI actor).
 5. Change its own operating mode or its own oversight assignment.
 6. Weaken, suppress, or bypass a control or gate to force a pass.
 7. Vote in, or count toward the quorum of, a governance forum absent an explicit grant (see Forum standing).

@@ -10,7 +10,7 @@ documents:
   domain: "ai"
   type: "Charter"
   title: "AI Actor Role and Forum Standing Charter"
-  version: "0.0.2"
+  version: "0.0.3"
   date: "2026-08-31"
   owner: "AI Governance Lead"
   approving_authority: "Governance Library Maintainer"
