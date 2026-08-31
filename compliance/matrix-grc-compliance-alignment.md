@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.31\
+**Version:** 1.11.32\
 **Date:** 2026-08-31\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -403,9 +403,9 @@ This matrix is indicative only. It reflects the best available assessment of con
 | AI | AI Maturity Model Framework | [`ai/framework-ai-maturity-model.md`](../ai/framework-ai-maturity-model.md) | GRC-01, GRC-06 | GRC-11, GRC-14 | §9.1, §10.1 | GV.OV, ID.IM | N/A | N/A | N/A | N/A | N/A |
 | AI | AI Value and Decision-Governance Framework | [`ai/framework-ai-value-and-decision-governance.md`](../ai/framework-ai-value-and-decision-governance.md) | GRC-06 | N/A | §5.3, §9.1 | GV.RR, GV.OV | N/A | N/A | N/A | N/A | N/A |
 | AI | AI Board Oversight Guide | [`ai/guide-ai-board-oversight.md`](../ai/guide-ai-board-oversight.md) | GRC-02, GRC-06 | HRS-14 | §5.1, §5.3, §9.3 | GV.RR, GV.RM, GV.OV | N/A | N/A | N/A | N/A | N/A |
-| AI | AI Synthetic-Content Provenance Guideline | [`ai/guideline-ai-synthetic-content-provenance.md`](../ai/guideline-ai-synthetic-content-provenance.md) | GRC-07 | DSP-20 | A.5.31 | GV.OC | N/A | N/A | N/A | N/A | N/A |
-| AI | Integrated AI and Privacy Assessment Procedure | [`ai/procedure-integrated-ai-and-privacy-assessment.md`](../ai/procedure-integrated-ai-and-privacy-assessment.md) | DSP-09, GRC-07 | GRC-10 | A.5.34, §6.1.2 | ID.RA, GV.RM | N/A | N/A | N/A | N/A | N/A |
-| AI | AI Data Quality and Readiness Validation Standard | [`ai/standard-ai-data-quality-and-readiness-validation.md`](../ai/standard-ai-data-quality-and-readiness-validation.md) | DSP-03, DSP-16, STA-11 | DSP-23, DSP-24 | §8.1, A.5.20, A.8.10 | ID.AM, PR.DS, GV.SC | N/A | N/A | N/A | N/A | N/A |
+| AI | AI Synthetic-Content Provenance Guideline | [`ai/guideline-ai-synthetic-content-provenance.md`](../ai/guideline-ai-synthetic-content-provenance.md) | GRC-07 | N/A | A.5.31 | GV.OC | N/A | N/A | N/A | N/A | N/A |
+| AI | Integrated AI and Privacy Assessment Procedure | [`ai/procedure-integrated-ai-and-privacy-assessment.md`](../ai/procedure-integrated-ai-and-privacy-assessment.md) | DSP-09, GRC-07 | GRC-10 | A.5.34, §6.1.2 | ID.RA | N/A | N/A | N/A | N/A | N/A |
+| AI | AI Data Quality and Readiness Validation Standard | [`ai/standard-ai-data-quality-and-readiness-validation.md`](../ai/standard-ai-data-quality-and-readiness-validation.md) | DSP-16, STA-11 | DSP-23, DSP-24 | §8.1, A.5.20, A.8.10 | ID.AM, PR.DS, GV.SC | N/A | N/A | N/A | N/A | N/A |
 
 ---
 
