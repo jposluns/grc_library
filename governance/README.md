@@ -2,7 +2,7 @@
 
 **Document Title:** Governance Domain README\
 **Document Type:** Register\
-**Version:** 1.10.17\
+**Version:** 1.10.18\
 **Date:** 2026-08-31\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -52,6 +52,7 @@ This directory contains the enterprise-wide governance foundation of the GRC Doc
 | Standard | Records Retention and Destruction Standard | [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md) |
 | Standard | Delegation-of-Authority Standard | [`governance/standard-delegation-of-authority.md`](standard-delegation-of-authority.md) |
 | Standard | Emergency Authority Standard | [`governance/standard-emergency-authority.md`](standard-emergency-authority.md) |
+| Standard | Semantic Continuity in Migration and Retirement Standard | [`governance/standard-semantic-continuity-in-migration-and-retirement.md`](standard-semantic-continuity-in-migration-and-retirement.md) |
 | Standard | Maturity Assessment Methodology Standard | [`governance/standard-maturity-assessment-methodology.md`](standard-maturity-assessment-methodology.md) |
 | Procedure | GRC Programme Management and Annual Review Procedure | [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md) |
 | Framework | Human Capital and Ethical Conduct Framework | [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md) |
