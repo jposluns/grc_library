@@ -225,7 +225,7 @@ _170 documents._
 | [governance/procedure-library-quality-and-review-cadence.md](../governance/procedure-library-quality-and-review-cadence.md) | Library Quality and Review Cadence Procedure | Procedure | 1.0.24 | 2026-08-28 |
 | [governance/procedure-standard-version-upgrade.md](../governance/procedure-standard-version-upgrade.md) | Standard Version Upgrade Procedure | Procedure | 1.0.2 | 2026-08-20 |
 | [governance/procedure-whistleblower-and-incident-reporting.md](../governance/procedure-whistleblower-and-incident-reporting.md) | Whistleblower and Incident Reporting Procedure | Procedure | 1.0.9 | 2026-08-21 |
-| [governance/register-data-retention-schedule.md](../governance/register-data-retention-schedule.md) | Data Retention Schedule | Register | 1.0.37 | 2026-08-30 |
+| [governance/register-data-retention-schedule.md](../governance/register-data-retention-schedule.md) | Data Retention Schedule | Register | 1.0.38 | 2026-08-31 |
 | [governance/specification-project-governance-separation.md](../governance/specification-project-governance-separation.md) | Project Governance Separation Specification | Specification | 1.0.9 | 2026-08-03 |
 | [governance/standard-maturity-assessment-methodology.md](../governance/standard-maturity-assessment-methodology.md) | Maturity Assessment Methodology Standard | Standard | 1.0.2 | 2026-08-05 |
 | [governance/template-citation-verification-worklist.md](../governance/template-citation-verification-worklist.md) | Citation Verification Worklist Template | Template | 1.0.4 | 2026-07-02 |
@@ -381,7 +381,7 @@ _43 documents._
 | [governance/principle-capability-is-not-authority.md](../governance/principle-capability-is-not-authority.md) | Capability Is Not Authority Principle | Principle | 0.0.3 | 2026-08-30 |
 | [governance/principle-fail-closed-automation.md](../governance/principle-fail-closed-automation.md) | Fail-Closed Automation Principle | Principle | 0.0.1 | 2026-08-30 |
 | [governance/principle-integrity-and-trustworthiness.md](../governance/principle-integrity-and-trustworthiness.md) | Integrity and Trustworthiness Principle | Principle | 0.0.7 | 2026-08-20 |
-| [governance/standard-delegation-of-authority.md](../governance/standard-delegation-of-authority.md) | Delegation-of-Authority Standard | Standard | 0.0.1 | 2026-08-30 |
+| [governance/standard-delegation-of-authority.md](../governance/standard-delegation-of-authority.md) | Delegation-of-Authority Standard | Standard | 0.0.2 | 2026-08-31 |
 | [operations/standard-observability-and-telemetry.md](../operations/standard-observability-and-telemetry.md) | Observability and Telemetry Standard | Standard | 0.0.6 | 2026-07-14 |
 | [privacy/jurisdictions/annex-privacy-mexico.md](../privacy/jurisdictions/annex-privacy-mexico.md) | Mexico Privacy Regulatory Requirements | Annex | 0.0.2 | 2026-07-13 |
 | [security/framework-zero-trust-architecture.md](../security/framework-zero-trust-architecture.md) | Zero Trust Architecture Framework | Framework | 0.0.7 | 2026-08-05 |
