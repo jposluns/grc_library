@@ -2,7 +2,7 @@
 
 **Document Title:** Emergency Authority Standard\
 **Document Type:** Standard\
-**Version:** 0.0.1\
+**Version:** 0.0.2\
 **Date:** 2026-08-31\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
@@ -30,17 +30,17 @@ It does not replace the domain procedures that carry the operational mechanics (
 
 ## 3. Relationship to other GRC documents
 
-The [Capability Is Not Authority Principle](principle-capability-is-not-authority.md) fixes that an emergency grant, like any authority, comes from an explicit record and not from the ability to act; a sealed break-glass credential is capability, and its use is authorized only within a declared emergency. The [Delegation of Authority Standard](standard-delegation-of-authority.md) supplies the instrument shape this standard specializes, and the [Role and Authority Register](register-role-authority.md) identifies the typical emergency grantors and the independent reviewer for an adopter to make definitive. The [Exception and Risk Acceptance Management Policy](policy-exception-and-risk-acceptance-management.md) supplies the renewal-requires-fresh-review precedent this standard applies to emergency authority. The domain procedures listed in Related Documents carry the operational paths this standard governs.
+The [Capability Is Not Authority Principle](principle-capability-is-not-authority.md) fixes that an emergency grant, like any authority, comes from an explicit record and not from the ability to act; a sealed break-glass credential is capability, and its use is authorized only within a declared emergency. The [Delegation of Authority Standard](standard-delegation-of-authority.md) supplies the instrument shape this standard specializes, and the [Role and Authority Register](register-role-authority.md) provides the role framework within which an adopter designates the emergency grantors and the independent reviewer this standard requires, since the register's own rows assign primary accountability and typical approval authority rather than these emergency roles. The [Exception and Risk Acceptance Management Policy](policy-exception-and-risk-acceptance-management.md) supplies the renewal-requires-fresh-review precedent this standard applies to emergency authority. The domain procedures listed in Related Documents carry the operational paths this standard governs.
 
 ## 4. Minimum requirements
 
 ### 4.1 The emergency-authority instrument and declaration trigger
 
-An emergency grant is a recorded instrument, created at declaration or (for a pre-approved class) referenced at use, carrying at minimum: the declared emergency and the trigger that opened it; the grantor with standing to declare it; the grantee (person, role, system, or AI agent); the specific authority granted, bounded to the minimum the emergency needs; the actions it permits; its expiry; and its unique identifier and lineage. A pre-approved emergency class (a documented break-glass path, a standing emergency-change category) is itself such an instrument, declared in advance for a named trigger; its use is recorded against it.
+An emergency grant is a recorded instrument, created at declaration or (for a pre-approved class) referenced at use, carrying at minimum: the declared emergency and the trigger that opened it; the role that declared the emergency and the role that conferred the specific authority (which may be one role or, per 4.2, two); the grantee (person, role, system, or AI agent); the specific authority granted, bounded to the minimum the emergency needs; the actions it permits; its expiry; and its unique identifier and lineage. A pre-approved emergency class (a documented break-glass path, a standing emergency-change category) is an advance approval of authority for a named trigger, distinct from the declaration that an actual emergency has occurred: activation requires the trigger to be evaluated and the emergency declared by an authorized party (or, for a narrow pre-approved autonomous class per 4.8, by an externally enforced trigger evaluation), and each activation is recorded against the class.
 
 ### 4.2 Grantor standing, grantee identity, scope, and separation of duties
 
-An emergency grant is valid only if the grantor has standing to declare the emergency and to confer the authority, the authority is one that may be granted under emergency, and the grant is no broader than the emergency requires. Separation of duties is preserved: the subject that declares the emergency is not, by that act alone, the independent reviewer of its renewal or the sole judge of its proportionality afterwards.
+The authority to declare the emergency and the authority to confer the specific power need not rest in one role, and several domain procedures deliberately split them (an incident is opened and classified by one role, and the emergency access or change is approved by another). An emergency grant is valid only if the declaration is made by a role with standing to declare the emergency, the specific power is conferred by a role with standing to confer it, the authority is one that may be granted under emergency, and the grant is no broader than the emergency requires. Separation of duties is preserved: the subject that declares the emergency is not, by that act alone, the independent reviewer of its renewal or the sole judge of its proportionality afterwards.
 
 ### 4.3 The least-harmful, reversible-action rule
 
@@ -81,16 +81,17 @@ Emergency authority is proportionate to the harm it averts: a short break-glass 
 
 ## 7. Framework alignment
 
-The alignment below is analogical (each row aligns with or is informed by the cited reference) and at the control-family and category level, not a prescriptive crosswalk. Control identifiers are verified against the held source texts.
+The alignment below is analogical (each row aligns with or is informed by the cited reference) and at the control-family and category level, not a prescriptive crosswalk. Control identifiers are verified against the held source texts. The standard's distinctive rules, the least-harmful reversible-action rule (4.3), the independent renewal review (4.5), and the retrospective proportionality review (4.7), are locally derived: the references below inform the adjacent access, change, incident, and recovery concepts and do not themselves prescribe those rules.
 
-| Requirement | CSA CCM v4.1.0 | NIST SP 800-53 Rev. 5 | ISO/IEC 27001:2022 | NIST CSF 2.0 |
-| --- | --- | --- | --- | --- |
-| Emergency authority is a scoped, time-bounded grant with a declaration trigger | CCC-08 (Exception Management); IAM-10 (Management of Privileged Access Roles) | AC-2(2) (Automated Temporary and Emergency Account Management) | A.8.2 (Privileged access rights); A.5.15 (Access control) | GV.RR (Roles, Responsibilities, and Authorities); PR.AA |
-| Least privilege and the least-harmful reversible action | IAM-05 (Least Privilege) | AC-6 (Least Privilege) | A.5.18 (Access rights) | PR.AA |
-| Automatic expiry and independent renewal review | IAM-10 (Management of Privileged Access Roles) | AC-6(7) (Review of User Privileges) | A.5.18 (Access rights) | PR.AA |
-| Rollback and restoration to a known-good state | CCC-09 (Change Restoration); BCR-09 (Disaster Response Plan) | CP-10 (System Recovery and Reconstitution); IR-4(2) (Dynamic Reconfiguration) | A.5.29 (Information security during disruption); A.8.32 (Change management) | RC.RP |
-| Incident containment authority | SEF-07 (Incident Management and Response); SEF-03 (Incident Response Plans) | IR-4 (Incident Handling); IR-4(5) (Automatic Disabling of System) | A.5.26 (Response to information security incidents) | RS.MA; RS.MI |
-| Retrospective proportionality review | SEF-09 (Incident Records Management) | IR-8 (Incident Response Plan) | A.5.27 (Learning from information security incidents) | RS.MA |
+| Requirement | CSA CCM v4.1.0 | CSA AICM v1.1.0 | NIST SP 800-53 Rev. 5 | ISO/IEC 27001:2022 | NIST CSF 2.0 |
+| --- | --- | --- | --- | --- | --- |
+| Emergency authority is a scoped, time-bounded grant with a declaration trigger | CCC-08 (Exception Management); IAM-10 (Management of Privileged Access Roles) | n/a | AC-2(2) (Automated Temporary and Emergency Account Management) | A.8.2 (Privileged access rights); A.5.15 (Access control) | GV.RR (Roles, Responsibilities, and Authorities); PR.AA |
+| Least privilege for the granted authority | IAM-05 (Least Privilege) | n/a | AC-6 (Least Privilege) | A.5.18 (Access rights) | PR.AA |
+| Time-bounded, reviewed privileged access | IAM-10 (Management of Privileged Access Roles) | n/a | AC-6(7) (Review of User Privileges) | A.5.18 (Access rights) | PR.AA |
+| Rollback and recovery to a known-good state | CCC-09 (Change Restoration); BCR-09 (Disaster Response Plan) | n/a | CP-10 (System Recovery and Reconstitution) | A.8.13 (Information backup) | RC.RP |
+| Incident response and containment | SEF-07 (Incident Management and Response); SEF-03 (Incident Response Plans) | n/a | IR-4 (Incident Handling); IR-4(5) (Automatic Disabling of System) | A.5.26 (Response to information security incidents) | RS.MA; RS.MI |
+| Incident records and post-incident learning | SEF-09 (Incident Records Management) | n/a | IR-4 (Incident Handling) | A.5.27 (Learning from information security incidents) | RS.MA |
+| AI-agent emergency authority (4.8) | n/a | GRC-15 (Human supervision); IAM-18 (Agent Access Restriction) | n/a | n/a | GV.RR (Roles, Responsibilities, and Authorities) |
 
 ---
 
