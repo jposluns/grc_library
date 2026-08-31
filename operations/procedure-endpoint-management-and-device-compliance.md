@@ -2,8 +2,8 @@
 
 **Document Title:** Endpoint Management and Device Compliance Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.8\
-**Date:** 2026-08-27\
+**Version:** 1.3.9\
+**Date:** 2026-08-31\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md)\
@@ -299,13 +299,13 @@ The following metrics are reported to the CISO monthly and reviewed at the quart
 
 | Control Area | ISO/IEC 27001:2022 | NIST SP 800-124 | CSA CCM v4.1 | COBIT 2019 |
 | --- | --- | --- | --- | --- |
-| Asset inventory and lifecycle | A.8.1 to A.8.3 | §4.1 Device Inventory | UEM-04 | DSS05.01 |
+| Asset inventory and lifecycle | A.8.1 to A.8.3 | §4.1 Device Inventory | UEM-04 | BAI09.01, BAI09.03 |
 | Endpoint protection deployment | A.8.7 | §4.2 Configuration Mgmt | UEM-09 | DSS05.03 |
-| Configuration compliance and hardening | A.8.9 | §4.3 Security Baseline | UEM-05 | DSS05.04 |
-| Policy-based access-control enforcement | A.5.15, A.8.2 | §4.4 Access Control | UEM-05 | DSS05.05 |
+| Configuration compliance and hardening | A.8.9 | §4.3 Security Baseline | UEM-05 | DSS05.03 |
+| Policy-based access-control enforcement | A.5.15, A.8.2 | §4.4 Access Control | UEM-05 | DSS05.04 |
 | Patch and vulnerability management | A.8.8 | §4.5 Patch Management | UEM-07, TVM-06 | DSS05.07 |
 | Mobile and BYOD | A.8.1, A.6.7 | §4.6 Mobile Devices | UEM-01 | DSS05.03 |
-| Decommissioning and media sanitization | A.8.10 | §4.7 Disposal | DSP-02 | DSS05.06 |
+| Decommissioning and media sanitization | A.8.10 | SP 800-124 §4.7 Disposal | DSP-02 | BAI09.03 |
 
 ---
 
