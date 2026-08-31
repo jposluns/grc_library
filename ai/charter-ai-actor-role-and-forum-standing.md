@@ -2,7 +2,7 @@
 
 **Document Title:** AI Actor Role and Forum Standing Charter\
 **Document Type:** Charter\
-**Version:** 0.0.3\
+**Version:** 0.0.4\
 **Date:** 2026-08-31\
 **Owner:** AI Governance Lead\
 **Approving Authority:** Governance Library Maintainer\
@@ -20,7 +20,7 @@
 
 An AI actor is an action-capable AI agent or assistant that carries out work in the organization's processes. As such systems take on more of that work, an organization needs a stated role for the AI actor itself: what it may decide, what it must not, how it escalates, what evidence it owes, and what standing it holds in the governance forums that decide policy. Most governance roles in the corpus describe humans; this charter defines the AI-actor role and its forum standing, so an AI actor's participation is governed rather than assumed.
 
-The term is used narrowly here. In the NIST AI Risk Management Framework, "AI actors" are the humans and organizations that build, deploy, or operate AI systems; this charter's "AI actor" is the AI agent itself, a distinct subject. Where this document says AI actor it means the chartered agent, not the human roles that govern it.
+The term is used narrowly here. In the NIST AI Risk Management Framework, "AI actors" are the organizations and individuals that play an active role across the AI system lifecycle, not only those that deploy or operate AI systems; this charter's "AI actor" is the AI agent itself, a distinct subject. Where this document says AI actor it means the chartered agent, not the human roles that govern it.
 
 This charter is written to be adopted by any organization, and it is also self-referential: this library is itself maintained by an AI actor operating under the governance pack in [`guardrails/`](../guardrails/), so the rules below describe a live practice as much as a recommended one.
 

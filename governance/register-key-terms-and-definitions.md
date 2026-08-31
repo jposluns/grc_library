@@ -2,7 +2,7 @@
 
 **Document Title:** Key Terms and Definitions Register\
 **Document Type:** Register\
-**Version:** 1.1.5\
+**Version:** 1.1.6\
 **Date:** 2026-08-31\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -35,7 +35,7 @@ When in doubt: external term or acronym → the glossary. Internal governance co
 | --- | --- |
 | Accountability | The assigned obligation to own, decide, maintain, evidence, or accept risk for a governance outcome. |
 | Adoption Disposition | The per-document classification that records how an organization cloning this library should treat the document, expressed as one of three inheritance labels: `library-internal` (library scaffolding, index, or build-and-governance machinery the adopter treats as internal reference or deletes, not an adopter deliverable), `template` (adopter-fillable or adopter-customizable governance content the adopter adapts to its organization, the default for the corpus), or `reference` (external-standard or source content cited and kept as cited, not authored by the adopter). Recorded in the Adoption Disposition column of the [Document Index and Classification Register](register-document-index-and-classification.md). |
-| AI Actor | An action-capable AI agent or assistant that carries out work in the organization's processes, chartered with defined decision rights, prohibited decisions, escalation paths, and evidence obligations, and advisory-by-default (non-voting) standing in governance forums. Distinct from the NIST AI Risk Management Framework sense, where "AI actors" are the humans and organizations that build, deploy, or operate AI systems; the library uses "AI actor" for the chartered agent itself unless it cites the NIST framework. Defined in [`ai/charter-ai-actor-role-and-forum-standing.md`](../ai/charter-ai-actor-role-and-forum-standing.md). |
+| AI Actor | An action-capable AI agent or assistant that carries out work in the organization's processes, chartered with defined decision rights, prohibited decisions, escalation paths, and evidence obligations, and advisory-by-default (non-voting) standing in governance forums. Distinct from the NIST AI Risk Management Framework sense, where "AI actors" are the organizations and individuals that play an active role across the AI system lifecycle, including but not limited to those that deploy or operate AI systems; the library uses "AI actor" for the chartered agent itself unless it cites the NIST framework. Defined in [`ai/charter-ai-actor-role-and-forum-standing.md`](../ai/charter-ai-actor-role-and-forum-standing.md). |
 | AI Agent | An autonomous actor implemented on top of one or more AI models that invokes tools, makes decisions, and carries out multi-step tasks on behalf of a user or service. An agent has its own identity, an explicit capability scope, and a defined human-in-the-loop posture. |
 | AI Capability | The specific task or function an AI system or AI service performs (for example, summarization, classification, retrieval-augmented generation, tool invocation). Several capabilities may be combined inside one AI system. |
 | AI Service | An externally-provided AI capability consumed by the organization (typically a provider-hosted API or managed service). The contractual relationship and supplier governance apply at the service level. |
