@@ -2,11 +2,11 @@
 
 **Document Title:** AI System Register Template\
 **Document Type:** Template\
-**Version:** 1.1.3\
-**Date:** 2026-07-11\
+**Version:** 1.1.4\
+**Date:** 2026-08-31\
 **Owner:** AI System Inventory Keeper\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/register-ai-risk.md`](register-ai-risk.md)\
+**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/register-ai-risk.md`](register-ai-risk.md), [`ai/register-model-registry.md`](register-model-registry.md)\
 **Classification:** Public\
 **Category:** AI Governance\
 **Review Frequency:** 6 to 12 months and upon material AI governance change\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This template defines a reusable structure for recording AI systems, owners, risk tiering, lifecycle status, data categories, suppliers, controls, approvals, and evidence. It must be adapted by adopting organizations before use in an internal environment.
+This template defines the reusable structure for the AI System Register, the system-scoped view of the authoritative AI System Inventory, recording AI systems and use cases, owners, risk tiering, lifecycle status, data categories, suppliers, controls, approvals, and evidence. It must be adapted by adopting organizations before use in an internal environment.
 
 Do not populate this public template with real systems, company names, personal names, customer names, suppliers, internal identifiers, data samples, or incident details.
 
@@ -53,7 +53,7 @@ Do not populate this public template with real systems, company names, personal 
 | Action Lineage Coverage | For action-capable agents: whether the audit trail links trigger, agent decision, tool invocation, system action, and resulting data or configuration change. | Conditional |
 | Risk Tier | Low, moderate, high, critical. | Yes |
 | Impact Assessment Status | Not started, in progress, approved, approved with conditions, rejected, retired. | Yes |
-| Human Oversight | Required reviewer, review point, escalation path, and override authority. | Conditional |
+| Human Oversight | For each in-scope system, record the named overseer, oversight mode, scope, review date, review point, escalation path, and override authority. For a system assessed as outside the mandatory conditions in the AI Human-Oversight Standard section 4.3, record `Not required` with the assessment rationale. | Yes |
 | Security Testing Status | Not required, planned, complete, failed, remediation required. | Yes |
 | Monitoring Method | Logs, alerts, sampling, review queue, drift monitoring, misuse monitoring, incident reporting. | Yes |
 | Supplier Assessment Status | Not applicable, required, in progress, approved, rejected, expired. | Conditional |
