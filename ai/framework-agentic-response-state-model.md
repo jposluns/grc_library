@@ -2,11 +2,11 @@
 
 **Document Title:** Agentic Response State Model Framework\
 **Document Type:** Framework\
-**Version:** 0.0.1\
-**Date:** 2026-08-30\
+**Version:** 0.0.2\
+**Date:** 2026-08-31\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/plan-ai-incident-response.md`](plan-ai-incident-response.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`operations/procedure-threat-intelligence-and-siem-operations.md`](../operations/procedure-threat-intelligence-and-siem-operations.md), [`governance/principle-capability-is-not-authority.md`](../governance/principle-capability-is-not-authority.md)\
+**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/plan-ai-incident-response.md`](plan-ai-incident-response.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`operations/procedure-threat-intelligence-and-siem-operations.md`](../operations/procedure-threat-intelligence-and-siem-operations.md), [`governance/principle-capability-is-not-authority.md`](../governance/principle-capability-is-not-authority.md), [`governance/principle-fail-closed-automation.md`](../governance/principle-fail-closed-automation.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`governance/register-canonical-citations.md`](../governance/register-canonical-citations.md)\
 **Classification:** Public\
 **Category:** AI Governance\
 **Review Frequency:** 6 to 12 months and upon material AI, threat, or regulatory change\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This framework defines a state model for automated (agentic) response to a detected condition (a security event, an operational anomaly, a policy breach). The corpus governs the human incident lifecycle ([`ai/plan-ai-incident-response.md`](plan-ai-incident-response.md)) and requires human review before containment ([`operations/procedure-threat-intelligence-and-siem-operations.md`](../operations/procedure-threat-intelligence-and-siem-operations.md)), but it has no state machine for what an agent may do autonomously between detection and human authorization. This framework supplies that: the states an agentic response moves through, the transitions between them, and, at each transition, the containment-authority boundary that separates what the agent may do on its own capability from what requires a human grant.
+This framework defines a state model for automated (agentic) response to a detected condition (a security event, an operational anomaly, a policy breach). The corpus governs the human incident lifecycle ([`ai/plan-ai-incident-response.md`](plan-ai-incident-response.md)) and requires human review before containment ([`operations/procedure-threat-intelligence-and-siem-operations.md`](../operations/procedure-threat-intelligence-and-siem-operations.md)), but it has no state machine for what an agent may do autonomously between detection and human authorization. This framework supplies that: the states an agentic response moves through, the transitions between them, and, at each transition, the containment-authority boundary that separates what the agent may do within its existing observation-and-analysis grant from what requires a further human grant.
 
 Its organizing rule is the [`capability-is-not-authority`](../governance/principle-capability-is-not-authority.md) principle: an agent's technical ability to contain (revoke a token, isolate a host, kill a process) is never, by itself, the authority to do so; that authority is conferred by a human grant or a pre-approved autonomous policy, never by the agent's reach.
 
@@ -41,7 +41,7 @@ An agentic response moves through six states: four in the response path and two 
 
 ## State transitions and the containment-authority boundary
 
-The transitions Detected to Triaged to Corroborated are autonomous: they are read-only or reversible and change no external state, so the agent's capability is sufficient and no separate authority is needed.
+The transitions Detected to Triaged to Corroborated may execute autonomously within the agent's recorded observation-and-analysis grant: they are read-only or reversible and change no external state, so no additional per-transition authorization grant is needed.
 
 The **Corroborated to Contained transition is the containment-authority boundary**. Executing a containment action changes external state and is often hard to reverse, so it requires a human authorization grant before execution, consistent with the human-review-before-containment rule ([`operations/procedure-threat-intelligence-and-siem-operations.md`](../operations/procedure-threat-intelligence-and-siem-operations.md)) and the oversight modes of [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md) (Approval or Confirmation). The agent's containment capability does not authorize the crossing; the recorded grant does.
 
