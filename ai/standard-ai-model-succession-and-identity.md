@@ -2,7 +2,7 @@
 
 **Document Title:** AI Model Succession and Identity Continuity Standard\
 **Document Type:** Standard\
-**Version:** 0.0.2\
+**Version:** 0.0.3\
 **Date:** 2026-08-31\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
@@ -18,9 +18,9 @@
 
 ## 1. Purpose
 
-When an AI model or an action-capable agent is succeeded by a new version, the predecessor's standing does not transfer to the successor by default. Standing here means the approvals the predecessor held (its production or use approval), the delegations and access granted to it, and any forum or decision standing it exercised. A successor is a new subject for authority purposes, and it establishes its own standing on evidence rather than inheriting the predecessor's by continuity of name or platform.
+When an AI model or an action-capable agent is succeeded by a new version, the predecessor's standing does not transfer to the successor by default. Standing here means the approvals the predecessor held (its production or use approval), the delegations and access granted to it, and any forum or decision standing it exercised. A successor is a new subject for authority purposes, and it establishes its own standing through a fresh grant rather than inheriting the predecessor's by continuity of name or platform.
 
-This standard sets the requirements for that transition: the evidence a successor presents to establish standing, a pause-and-compare validation before it assumes standing, the handling of approvals and decisions in flight at the transition moment, and the re-issuance of access and delegations to the successor identity. It complements the version-transition risk reassessment in [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md) and the lineage tracking in [`ai/register-model-registry.md`](register-model-registry.md), which record that a transition occurred; this standard governs what the successor must satisfy for its standing to be recognized.
+This standard sets the requirements for that transition: the evidence a successor presents in support of a fresh grant of standing, a pause-and-compare validation before it assumes standing, the handling of approvals and decisions in flight at the transition moment, and the re-issuance of access and delegations to the successor identity. It complements the version-transition risk reassessment in [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md) and the lineage tracking in [`ai/register-model-registry.md`](register-model-registry.md), which record that a transition occurred; this standard governs what the successor must satisfy for its standing to be recognized.
 
 ## 2. Scope
 
@@ -42,7 +42,7 @@ It does not govern the training, evaluation, or engineering of the successor its
 
 ---
 
-## 4. Successor standing criteria (inheritance evidence)
+## 4. Successor standing criteria (evidence for the grant)
 
 A successor's standing is conferred only by a fresh authorization grant for the successor, or an authorized grantor's explicit re-confirmation of the existing grant to the successor; the evidence below supports that grant decision but does not itself confer standing (per [`governance/principle-capability-is-not-authority.md`](../governance/principle-capability-is-not-authority.md)). For each class of standing it seeks, the successor presents the evidence the original grant required. At minimum:
 
@@ -62,7 +62,7 @@ Before the successor assumes any standing, its behaviour is compared against the
 3. The comparison result is recorded against the successor's registry entry ([`ai/register-model-registry.md`](register-model-registry.md)).
 4. After cutover the successor is monitored on a defined cadence so a regression that the pre-cutover comparison did not surface is detected in operation.
 
-A successor that fails the comparison does not assume standing; the predecessor is retained per the reversibility principle.
+A successor that fails the comparison does not assume standing; the predecessor is retained where retention is possible, and otherwise the fail-closed path below applies.
 
 Where the predecessor cannot be retained (a supplier deprecates it without a pinning or continuity option, per [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md)), the transition is fail-closed: the successor does not assume standing by default on release. Standing then requires a fresh grant on heightened validation, and where that grant cannot be obtained the affected capability is paused rather than operated under unvalidated standing.
 
@@ -102,7 +102,7 @@ The alignment below is analogical (each row aligns with or is informed by the ci
 
 ## 9. Limitations
 
-This standard is a CC BY-SA 4.0 baseline. It states what a successor must satisfy to establish standing; the enforcing evaluation, validation, and access-provisioning mechanics live in the model lifecycle procedures, the access and agent-permissions standard, and the delegation standard. Model-platform and supplier practices for versioning and substitution vary, and adopting organizations adapt the evidence set and the comparison method to their model estate. The standard is not a substitute for per-model evaluation or for the risk reassessment the lifecycle procedure requires.
+This standard is a CC BY-SA 4.0 baseline. It states what a successor must satisfy before its standing is granted; the enforcing evaluation, validation, and access-provisioning mechanics live in the model lifecycle procedures, the access and agent-permissions standard, and the delegation standard. Model-platform and supplier practices for versioning and substitution vary, and adopting organizations adapt the evidence set and the comparison method to their model estate. The standard is not a substitute for per-model evaluation or for the risk reassessment the lifecycle procedure requires.
 
 ---
 

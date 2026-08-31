@@ -361,7 +361,7 @@ _44 documents._
 | [ai/standard-ai-data-quality-and-readiness-validation.md](../ai/standard-ai-data-quality-and-readiness-validation.md) | AI Data Quality and Readiness Validation Standard | Standard | 0.0.2 | 2026-07-12 |
 | [ai/standard-ai-human-oversight.md](../ai/standard-ai-human-oversight.md) | AI Human-Oversight Standard | Standard | 0.0.2 | 2026-08-31 |
 | [ai/standard-ai-inference-cost-governance.md](../ai/standard-ai-inference-cost-governance.md) | AI Inference Cost Governance Standard | Standard | 0.0.8 | 2026-08-30 |
-| [ai/standard-ai-model-succession-and-identity.md](../ai/standard-ai-model-succession-and-identity.md) | AI Model Succession and Identity Continuity Standard | Standard | 0.0.2 | 2026-08-31 |
+| [ai/standard-ai-model-succession-and-identity.md](../ai/standard-ai-model-succession-and-identity.md) | AI Model Succession and Identity Continuity Standard | Standard | 0.0.3 | 2026-08-31 |
 | [architecture/standard-api-design.md](../architecture/standard-api-design.md) | API Design Standard | Standard | 0.0.4 | 2026-07-02 |
 | [architecture/standard-integration-architecture.md](../architecture/standard-integration-architecture.md) | Integration Architecture Standard | Standard | 0.0.4 | 2026-07-02 |
 | [compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md](../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md) | Energy and Utilities Sector Requirements Annex | Annex | 0.0.7 | 2026-07-10 |
