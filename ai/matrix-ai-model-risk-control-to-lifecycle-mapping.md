@@ -2,11 +2,11 @@
 
 **Document Title:** AI Model Risk Control to Lifecycle Mapping Matrix\
 **Document Type:** Matrix\
-**Version:** 1.0.2\
-**Date:** 2026-07-11\
+**Version:** 1.0.3\
+**Date:** 2026-08-31\
 **Owner:** AI System Inventory Keeper\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-model-risk-assessment.md`](procedure-ai-model-risk-assessment.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/guideline-adversarial-evaluation-suite-development.md`](guideline-adversarial-evaluation-suite-development.md), [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)\
+**Related Documents:** [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-model-risk-assessment.md`](procedure-ai-model-risk-assessment.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/guideline-adversarial-evaluation-suite-development.md`](guideline-adversarial-evaluation-suite-development.md), [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md), [`ai/standard-ai-model-succession-and-identity.md`](standard-ai-model-succession-and-identity.md)\
 **Classification:** Public\
 **Category:** AI Governance\
 **Review Frequency:** 6 to 12 months and upon material model, data, framework, threat, or assurance change\
