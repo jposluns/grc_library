@@ -355,10 +355,11 @@ EXEMPT: dict[tuple[str, str], str] = {
         "P-3.209 defect-hunt umbrella)."
     ),
     ("P-1.31", "P-1.31 item"): (
-        "PARTIAL CLOSE FAMILY of the live P-1.31 umbrella (external AI-review "
-        "advisory: the 5 governance-coverage docs the maintainer picked - items "
-        "6/1/10/2/7). Each 'PR #NNNN: P-1.31 item N' DONE heading retires one of "
-        "the five sub-docs; P-1.31 stays live at P-TODO until all five land. "
+        "PARTIAL CLOSE FAMILY of the still-live P-1.31 umbrella (external "
+        "AI-review advisory). The five governance-coverage documents the "
+        "maintainer selected (items 6/1/10/2/7) landed as PRs #1821-#1825. "
+        "Their five 'PR #NNNN: P-1.31 item N' DONE headings are partial closes; "
+        "P-1.31 remains live for held items 3/4/5/8/9. The exemption is "
         "id-scoped, so it cannot widen to a different item."
     ),
     ("P-3.214", "P-3.214 ISO 19011:2018"): (
