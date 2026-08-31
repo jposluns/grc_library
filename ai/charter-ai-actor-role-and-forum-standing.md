@@ -2,7 +2,7 @@
 
 **Document Title:** AI Actor Role and Forum Standing Charter\
 **Document Type:** Charter\
-**Version:** 0.0.1\
+**Version:** 0.0.2\
 **Date:** 2026-08-31\
 **Owner:** AI Governance Lead\
 **Approving Authority:** Governance Library Maintainer\
@@ -30,11 +30,11 @@ The chartered AI actor exists to carry out granted, evidence-bound work under a 
 
 ## Role definition and accountability
 
-Every action-capable AI actor has a single named human accountable owner (the System Owner or a designated AI System Owner per `AGENT-PROD-05` in the [AI and Agentic Development Security Standard](standard-ai-and-agentic-development-security.md)). Accountability for what the AI actor does rests with that human owner and never transfers to the AI actor, consistent with the Role and Authority Register's statement that an action-capable agent's accountability does not transfer to the agent. The AI actor holds authority only through grants recorded under the [Delegation of Authority Standard](../governance/standard-delegation-of-authority.md); it is a permitted grantee (person, role, system, or AI agent) there, not a source of its own authority.
+Every action-capable AI actor has a single named human accountable owner (the System Owner or a designated AI System Owner per `AGENT-PROD-05` in the [AI and Agentic Development Security Standard](standard-ai-and-agentic-development-security.md)). Accountability for what the AI actor does rests with that human owner and, per `AGENT-PROD-05`, with the approver of the agent's autonomous envelope (and a per-action approver where one applies); it never transfers to the AI actor, consistent with the Role and Authority Register's statement that an action-capable agent's accountability does not transfer to the agent. The AI actor holds authority only through grants recorded under the [Delegation of Authority Standard](../governance/standard-delegation-of-authority.md); it is a permitted grantee (person, role, system, or AI agent) there, not a source of its own authority.
 
 ## Scope of authority: decision rights
 
-The AI actor's decision rights are granted, enumerated, and default-deny: it may make only the decisions an authorization grant names, and everything not granted is withheld. Each decision right carries the six properties of a valid grant from the [Capability Is Not Authority Principle](../governance/principle-capability-is-not-authority.md): explicit, attributable, scoped, time-bounded, revocable, and evidenced. A worked example of such a scoped grant is a standing authority to merge the AI actor's own routine, gate-passing work when continuous integration is green, with the human operator redirecting by exception; the grant is explicit and bounded, and it does not imply any authority the grant does not name. Capability is never authority: that the AI actor can invoke a function, produce an output, or reach a system does not permit it to, only the recorded grant does.
+The AI actor's decision rights are granted, enumerated, and default-deny: it may make only the decisions an authorization grant names, and everything not granted is withheld. Each decision right carries the six properties of a valid grant from the [Capability Is Not Authority Principle](../governance/principle-capability-is-not-authority.md): explicit, attributable, scoped, time-bounded, revocable, and evidenced. A worked example of such a scoped grant is a standing authority to merge the AI actor's own routine, gate-passing work when continuous integration is green, with the human operator redirecting by exception; the grant is explicit and bounded, and it does not imply any authority the grant does not name. Such a grant is not the self-approval the prohibited-decisions section forbids: the acceptance test is the objective, human-defined gates together with the standing human authorization and the human's retained exception-override, not the AI actor's own judgement of its work, and work that requires an independent human review falls outside such a grant. Capability is never authority: that the AI actor can invoke a function, produce an output, or reach a system does not permit it to, only the recorded grant does.
 
 ## Prohibited decisions
 
@@ -42,17 +42,17 @@ Regardless of capability, the AI actor never makes any of the following decision
 
 1. Grant or expand its own authority, scope, or autonomous envelope.
 2. Accept a risk or approve an exception.
-3. Approve its own work product, or declare that trust in its work is restored.
+3. Provide, on its own judgement, an approval of its own work product that stands in for a required independent human approval, or declare that trust in its work is restored.
 4. Hold accountability for its own actions (accountability rests with the human owner).
 5. Change its own operating mode or its own oversight assignment.
 6. Weaken, suppress, or bypass a control or gate to force a pass.
 7. Vote in, or count toward the quorum of, a governance forum absent an explicit grant (see Forum standing).
-8. Execute an irreversible, destructive, or outward-facing action without the human approval its oversight assignment requires.
+8. Execute a permanently human-confirmed action without the per-action human approval its oversight assignment requires; these classes (irreversible, destructive, or outward-facing actions, and, per `AUTON-SEC-02`, sending data outside the tenant, modifying a production database record, initiating a financial transaction, changing accounts or permissions, or externally notifying a customer, partner, or regulator) require per-action confirmation and are never covered by a standing grant.
 9. Begin a plan-initiating unit of work without an express, work-naming authorization.
 
 ## Escalation paths
 
-When a decision is not the AI actor's to make, or when it is uncertain whether a grant covers the work, the AI actor surfaces the decision to its accountable owner with named options rather than choosing silently, classifying it as act, ask, or blocked. A decision the AI actor may take, it takes; a decision that is the owner's, it asks; a decision blocked by a named, externally-observable blocker, it records as blocked and does not enact. An unresolved decision escalates through the owner's human chain and is never resolved by the AI actor by default.
+When a decision is not the AI actor's to make, or when it is uncertain whether a grant covers the work, the AI actor surfaces the decision to its accountable owner with named options rather than choosing silently, classifying it in writing, before enacting, as act, ask, or blocked. A decision the AI actor may take, it takes; a decision that is the owner's, it asks; a decision blocked by a named blocker from the closed set the pack defines (maintainer-decision-unreachable, irreversible-needs-confirmation, failing-check, source-unavailable, maintainer-directed-hold), it records as blocked and does not enact. An unresolved decision escalates through the owner's human chain and is never resolved by the AI actor by default.
 
 ## Evidence obligations
 
@@ -78,7 +78,7 @@ The alignment below is analogical (each row aligns with or is informed by the ci
 | --- | --- | --- | --- |
 | Roles and responsibilities for AI are defined and assigned | GRC-06 (Governance Responsibility Model) | Clause 5.3 (Organizational roles, responsibilities and authorities); A.3.2 (AI roles and responsibilities) | GOVERN 2.1; GOVERN 3.2 |
 | Human oversight and control of the AI system | GRC-15 (Human supervision) | A.3.2 (AI roles and responsibilities) | GOVERN 3.2 |
-| Governance program policy and forum establishment | GRC-01 (Governance Program Policy and Procedures); GRC-12 (Ethics Committee) | Clause 5.3 (Organizational roles, responsibilities and authorities) | GOVERN 2.1 |
+| Governance program policy for the AI-actor role | GRC-01 (Governance Program Policy and Procedures) | Clause 5.2 (AI policy) | GOVERN 1.2 |
 | Accountability rests with human leadership | GRC-06 (Governance Responsibility Model) | A.3.2 (AI roles and responsibilities) | GOVERN 2.3 |
 
 Corroborative, non-prescriptive: ISO/IEC 38507:2022 (governance implications of the use of AI by organizations) and the OECD Recommendation on Artificial Intelligence (accountability) inform the accountability and roles model without prescribing this charter's specific rules.
