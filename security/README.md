@@ -31,6 +31,7 @@ This directory contains organization-neutral information security governance art
 | Policy | Network Communications Security Policy | [`security/policy-network-communications-security.md`](policy-network-communications-security.md) |
 | Policy | Bring Your Own Device (BYOD) Policy | [`security/policy-byod.md`](policy-byod.md) |
 | Standard | Logging and Monitoring Standard | [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md) |
+| Standard | Monitoring Integrity and Coverage Standard | [`security/standard-monitoring-integrity-and-coverage.md`](standard-monitoring-integrity-and-coverage.md) |
 | Standard | Data Classification and Handling Standard | [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md) |
 | Standard | Security Awareness and Training Standard | [`security/standard-security-awareness-and-training.md`](standard-security-awareness-and-training.md) |
 | Standard | Privileged Access Management Standard | [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md) |
