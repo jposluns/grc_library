@@ -2,7 +2,7 @@
 
 **Document Title:** Logging and Monitoring Standard\
 **Document Type:** Standard\
-**Version:** 1.4.18\
+**Version:** 1.4.19\
 **Date:** 2026-09-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -74,7 +74,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who ov
 
 4.1.3 Logs for cloud or AI systems must include provider identifiers, API actions, and model inference events.
 
-4.1.4 BASC-regulated trade and customs platforms must log: cargo manifest creation, customs document transmission, cargo inspection results, and seal verification events. Each entry must include user ID, timestamp, facility identifier, and cargo reference number per BASC Section 6. Tamper-proof logging or WORM storage is mandatory for customs data records.
+4.1.4 For trade and customs platforms operated under a BASC programme, the organization logs cargo manifest creation, customs document transmission, cargo inspection results, and seal verification events, each entry including user ID, timestamp, facility identifier, and cargo reference number, and holds customs data records in tamper-proof or write-once storage. The applicable BASC International Security Standard (section 5.2) requires monitoring and review of unauthorized access and cybersecurity-policy compliance; the event set, fields, and storage form above are the organization's implementing controls rather than a prescribed BASC schema.
 
 ### 4.2 Time synchronization
 
@@ -89,14 +89,14 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who ov
 
 ### 4.4 Retention and protection
 
-4.4.1 Security and audit logs must be retained per the tiered retention periods in [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), which is authoritative and sets retention by log class (for example: access logs 1 year, privileged-access session logs 2 years, SIEM event logs 1 year hot plus 2 years cold, security incident records 7 years, AI decision and detection logs 7 years or 5 years after system decommission, whichever is longer). Sector-mandated logs are retained longer where legally required, including BASC-governed trade and customs logs required for regional audit and customs validation.
-4.4.2 Log archives must be stored in write-once, read-many (WORM) or tamper-evident repositories, with BASC trade-data logs maintained in secure BASC-approved data centres or validated cloud regions.
+4.4.1 Security and audit logs must be retained per the tiered retention periods in [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), which is authoritative and sets retention by log class (for example: access logs 1 year, privileged-access session logs 2 years, SIEM event logs 1 year hot plus 2 years cold, security incident records 7 years, AI decision and detection logs 7 years or 5 years after system decommission, whichever is longer). Sector-mandated logs are retained longer where legally required, including trade and customs logs from BASC-regulated operations where a legal or contractual retention requirement applies (the held BASC sources set retention by legal requirement and risk rather than prescribing a fixed period).
+4.4.2 Log archives must be stored in write-once, read-many (WORM) or tamper-evident repositories; trade-data logs from BASC-regulated operations are held in secure, access-controlled facilities or validated cloud regions.
 4.4.3 Access to logs must be limited to authorized personnel with MFA and role-based access controls.
 4.4.4 Logs containing personal, regulated, or customs data must be protected in accordance with GDPR, PIPEDA, PIPL, and BASC data-protection requirements.
 
 ### 4.5 Monitoring and alerting
 
-4.5.1 The SOC must define correlation rules for detecting anomalies, intrusion attempts, and unauthorized activities aligned with MITRE ATT&CK and NIST CSF Detect Function, including alerts for cargo data tampering, unauthorized customs-system access, and BASC Section 6 trade-security controls.
+4.5.1 The SOC must define correlation rules for detecting anomalies, intrusion attempts, and unauthorized activities aligned with MITRE ATT&CK and NIST CSF Detect Function, including alerts for cargo data tampering, unauthorized customs-system access, and the trade-security controls of the applicable BASC International Security Standard (section 5.2).
 4.5.2 Alerts must be triaged within 15 minutes for high severity and one hour for medium severity events.
 4.5.3 Automated incident tickets must be generated for all critical alerts.
 4.5.4 Dashboards must display real-time metrics on system health, event volume, and incident trends.
@@ -142,7 +142,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who ov
 | Access and protection | §8.15 | SP 800-53 AC-6 | DSS05.04 | LOG-04 | Privacy laws |
 | AI system traceability | N/A | AI RMF | DSS01.03 | LOG-09 | EU AI Act Art. 12, 19, 26(6) |
 | Monitoring and alerting | §8.16 | CSF Respond | DSS05.07 | LOG-03 | Incident reporting laws |
-| BASC trade logging | N/A | N/A | N/A | N/A | BASC v6, WCO SAFE, ISO 28000 |
+| Trade-security monitoring and review | N/A | N/A | N/A | N/A | BASC International Security Standard 5.2(n),(t); WCO SAFE; ISO 28000 |
 
 
 
