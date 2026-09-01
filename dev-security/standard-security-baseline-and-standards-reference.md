@@ -2,8 +2,8 @@
 
 **Document Title:** Security Baseline and Standards Reference\
 **Document Type:** Standard\
-**Version:** 1.1.21\
-**Date:** 2026-08-27\
+**Version:** 1.1.22\
+**Date:** 2026-09-01\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md)\
@@ -221,7 +221,7 @@ A runtime EOL tracking register is maintained by the DevOps lead and reviewed qu
 
 | Control Area | ISO/IEC 27001/27002 | CSA CCM v4.1 | NIST SP 800-218 | OWASP ASVS | Regulatory |
 | --- | --- | --- | --- | --- | --- |
-| Security governance and principles | A.5 | GRC-01 to 06 | PW.1 to PW.4 | N/A | ISO 37301, COBIT |
+| Security governance and principles | A.5 | GRC-01 to 06 | PO.1 to PO.4 | N/A | ISO 37301, COBIT |
 | Data classification | A.5.10 to 5.13 | DSP-01 to 07 | N/A | V14 | PIPEDA, Law 25, GDPR |
 | Identity and access | A.5.15 to 5.18 | IAM-01 to 15 | N/A | V6, V8 | PIPEDA, BASC |
 | Network security | A.8.20 to 8.23 | I&S-03, I&S-08, I&S-09 | N/A | V12 | CTPAT |
