@@ -2,8 +2,8 @@
 
 **Document Title:** Developer Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.19\
-**Date:** 2026-08-31\
+**Version:** 1.1.20\
+**Date:** 2026-09-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -32,7 +32,7 @@ Before design begins, document: what data the feature creates, reads, updates, o
 
 Mandatory for: any new application or service; any new API endpoint handling Confidential or Restricted data; any authentication or authorization mechanism; any integration with external systems; any AI/ML component; any significant change to a security-sensitive component. Use STRIDE methodology. Document, review with the security team, and retain as evidence. Update when design changes materially.
 
-*CCM: TVM-04 / AICM: TVM-12*
+*CCM: TVM-04 / AICM: TVM-04*
 
 ### 2.3 Pre-production gate (acceptance into service)
 

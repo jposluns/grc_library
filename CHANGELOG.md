@@ -1,5 +1,7 @@
 # Changelog
 
+**2026-09-01 | 2026.09.608 | PR #1905** - Fix a stranded body control-code: developer-security-requirements section 2.2 threat-modelling cited AICM TVM-12 (Vulnerability Management Metrics), corrected to TVM-04 (Threat Analysis and Modelling) to match the CCM TVM-04 already on the line; a paired-surface miss from an earlier table-only fix, caught by a guardrail-seed replay.
+
 **2026-09-01 | 2026.09.607 | PR #1904** - P-1.60 wave 18: reverse-framework-control-crosswalk, two cross-family-converged source-verified corrections, NIST CSF 2.0 PR.IR relabelled to its held title Technology Infrastructure Resilience, and the NIS2 Incident-reporting row narrowed from Articles 23 to 25 down to Article 23 Reporting obligations (Articles 24 and 25 are certification and standardisation).
 
 **2026-09-01 | 2026.09.606 | PR #1903** - P-1.60 wave 15: supplier-security-and-privacy-assurance framework-alignment, NIST Privacy Framework row, fabricated CT-P.2 corrected to ID.DE-P (Data Processing Ecosystem Risk Management), cross-family-converged and source-verified.
