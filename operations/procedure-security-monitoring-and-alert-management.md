@@ -2,7 +2,7 @@
 
 **Document Title:** Security Monitoring and Alert Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.14\
+**Version:** 1.3.15\
 **Date:** 2026-09-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -332,7 +332,7 @@ The following metrics are tracked by the SOC, reported to the CISO monthly, and 
 | Alert rules and coverage | §8.16 | Detect: DE.CM-09, DE.AE-02 | DSS05.07 | LOG-03 |
 | Alert triage and response | §8.16 | Respond: RS.MA-02 | DSS02.02, DSS02.04 | SEF-06, SEF-07 |
 | Automated ticket creation | §8.16 | Respond: RS.MA-02 | DSS02.02 | SEF-06, SEF-09 |
-| Escalation to incident response | §5.25, §5.26 | Respond: RS.MA-04 | DSS02.01 | SEF-03, SEF-07 |
+| Escalation to incident response | §5.25, §5.26 | Respond: RS.MA-04 | DSS02.04 | SEF-03, SEF-07 |
 | Dashboards and reporting | §8.16 | Detect: DE.AE-06 | MEA01.04 | LOG-03, LOG-14 |
 | Rule tuning and MITRE mapping | §8.16 | Detect: DE.AE-07 | DSS05.07 | TVM-05, LOG-05 |
 | AI-assisted detection | §8.16 | Detect: DE.CM-09 | DSS05.07 | LOG-03 |

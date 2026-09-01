@@ -2,8 +2,8 @@
 
 **Document Title:** Threat Intelligence and SIEM Operations Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.9\
-**Date:** 2026-08-31\
+**Version:** 1.3.10\
+**Date:** 2026-09-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`operations/procedure-security-monitoring-and-alert-management.md`](procedure-security-monitoring-and-alert-management.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -327,14 +327,14 @@ Metric trends are reviewed for continual improvement. Lessons learned from incid
 | Control Area | Framework Reference |
 | --- | --- |
 | Threat intelligence programme | NIST SP 800-150; ISO/IEC 27001:2022 Annex A.5.7; CSA CCM TVM domain (Threat and Vulnerability Management) controls |
-| SIEM operations and monitoring | CSA CCM LOG-03; NIST CSF Detect (DE.CM); ISO/IEC 27002:2022 §8.16 |
+| SIEM operations and monitoring | CSA CCM LOG-03, LOG-05; NIST CSF Detect (DE.CM); ISO/IEC 27002:2022 §8.16 |
 | Correlation rule development | MITRE ATT&CK Enterprise; NIST SP 800-53 SI-4; CSA CCM LOG-05 |
-| Threat hunting | MITRE ATT&CK; NIST CSF Detect (DE.AE); ISO/IEC 27002:2022 §8.16 |
+| Threat hunting | MITRE ATT&CK; NIST CSF Detect (DE.AE); ISO/IEC 27002:2022 §8.16; CSA CCM LOG-05 |
 | Intelligence sharing | NIST SP 800-150 §4; no CSA CCM control specific to intelligence sharing (N/A); CISA TLP Policy |
 | Incident escalation | ISO/IEC 27035; NIST SP 800-61 Rev. 3; CSA CCM SEF-06, SEF-07 |
 | Pre-go-live SIEM validation | [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md) §4.1 to §4.2 |
 | AI-assisted detection | [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) §4.9; NIST AI RMF |
-| Records and audit | COBIT 2019 DSS05; ISO/IEC 27001:2022 Annex A.5.28 |
+| Records and audit | COBIT 2019 DSS05; ISO/IEC 27001:2022 Annex A.5.33 |
 
 ---
 
