@@ -25,7 +25,7 @@ Items are grouped into four priority bands by work type: **P1** fix errors and p
 Item numbers are permanent identity, never recycled, and decoupled from the P1-P4 display bands (an item keeps its number when it rebands). A new item draws the next number in the series matching its band's work type; the counter for that series then advances. Series 5, 6, and 7 are **frozen**: their items rebanded into P2 and P4, and no new 5.x / 6.x / 7.x numbers are drawn (the numbers already allocated in those series stay retired-or-live as permanent ids). Time-bounded follow-ups use the `TF-` series.
 
 <!-- BEGIN-GENERATED number-allocation -->
-- **Next item number: 1.31.** (P1 / fix series)
+- **Next item number: 1.32.** (P1 / fix series)
 - **Next item number: 2.34.** (P2 / content series)
 - **Next item number: 3.250.** (P3 / tooling series)
 - **Next item number: 4.32.** (P4 / adopter series)
@@ -57,6 +57,7 @@ Fix errors and prevent their recurrence. Worked first; the routine `/validate`, 
 | ID | Item | Tags |
 | --- | --- | --- |
 | 1.29 | EU AI Act Digital Omnibus reconciliation: correct the corpus for the in-force Regulation (EU) 2026/1744 (H, M) | `[content]` `[public]` |
+| 1.31 | BASC clause-citation re-mapping to the held BASC sources (high-assurance) (H, L) | `[content]` `[public]` |
 
 ## Priority 2 — Fill significant gaps
 
