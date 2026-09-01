@@ -10867,7 +10867,7 @@ documents:
   domain: "security"
   type: "Standard"
   title: "Logging and Monitoring Standard"
-  version: "1.4.18"
+  version: "1.4.19"
   date: "2026-09-01"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"
