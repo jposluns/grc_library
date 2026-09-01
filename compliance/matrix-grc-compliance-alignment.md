@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.42\
+**Version:** 1.11.43\
 **Date:** 2026-09-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -148,7 +148,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Security | Policy: Acceptable Use | [`security/policy-acceptable-use.md`](../security/policy-acceptable-use.md) | HRS-01, HRS-02 | N/A | A.5.10, A.6.2, A.8.1 | GV.PO, PR.AT | N/A | Employee security | §7.2 | N/A | Personnel security |
 | Security | Policy: Encryption and Key Management | [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md) | CEK-01, CEK-02, CEK-03, CEK-04 | N/A | A.8.24 | PR.DS | IT security controls | Data protection | §8.4 | Pillar II (ICT security) | Information systems security |
 | Security | Standard: Logging and Monitoring | [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) | LOG-01, LOG-02, LOG-03, LOG-04 | LOG-15, LOG-16 | A.8.15, A.8.16, A.8.17 | DE.CM, DE.AE | IT security monitoring | IT security | §9.1 | Pillar II (ICT security) | IT security incidents; Trade records retention |
-| Security | Standard: Monitoring Integrity and Coverage | [`security/standard-monitoring-integrity-and-coverage.md`](../security/standard-monitoring-integrity-and-coverage.md) | LOG-03, LOG-14, I&S-02, SEF-06, SEF-07 | N/A | A.8.15, A.8.16, A.5.25 | DE.CM, DE.AE, GV.RM, PR.IR | N/A | N/A | N/A | N/A | N/A |
+| Security | Standard: Monitoring Integrity and Coverage | [`security/standard-monitoring-integrity-and-coverage.md`](../security/standard-monitoring-integrity-and-coverage.md) | LOG-03, LOG-14, I&S-02, SEF-06, SEF-07 | N/A | A.8.6, A.8.15, A.8.16, A.5.25 | DE.CM, DE.AE, GV.RM, PR.IR | N/A | N/A | N/A | N/A | N/A |
 | Security | Standard: Data Classification and Handling | [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md) | DSP-01, DSP-02, DSP-03, DSP-04 | N/A | A.5.12, A.5.13, A.8.10 | PR.DS | N/A | Data protection | §7.5, §8.4 | Pillar II (ICT security) | Documentation security |
 | Security | Standard: Privileged Access Management | [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md) | IAM-05, IAM-06, IAM-07, IAM-09, IAM-10 | N/A | A.5.18, A.8.2 | PR.AA, PR.IR | IT access controls | Access controls | §8.5 | Pillar II (Standard 6, access) | Access to IT systems |
 | Security | Standard: Authentication and Password Management | [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md) | IAM-02, IAM-13, IAM-14 | N/A | A.5.17, A.8.5 | PR.AA | IT access controls | Access controls | §8.3, §8.5 | Pillar II (Standard 6, access) | Access to IT systems; Personnel security screening |
