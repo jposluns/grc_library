@@ -2,8 +2,8 @@
 
 **Document Title:** Data Classification and Handling Standard\
 **Document Type:** Standard\
-**Version:** 1.4.10\
-**Date:** 2026-08-31\
+**Version:** 1.4.11\
+**Date:** 2026-09-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -20,7 +20,7 @@ This standard defines the classification, labelling, protection, retention, and 
 
 ## 1. Purpose
 
-To ensure that information is handled consistently according to its sensitivity, regulatory obligations, and business impact, while supporting confidentiality, integrity, and availability. Aligns with ISO/IEC 27002:2022 §§5.12 to 5.15, COBIT 2019 DSS05, CSA CCM v4.1 DSP-04, GDPR Article 32, ISO/IEC 27701:2025 (data retention and deletion; section numbering changed in 2025 standalone revision), and BASC International Standard (v6 2022).
+To ensure that information is handled consistently according to its sensitivity, regulatory obligations, and business impact, while supporting confidentiality, integrity, and availability. Aligns with ISO/IEC 27002:2022 §§5.12 to 5.15, COBIT 2019 DSS05, CSA CCM v4.1 DSP-04, GDPR Article 32, ISO/IEC 27701:2025 (data retention and deletion; section numbering changed in 2025 standalone revision), and the applicable BASC International Security Standard (6.0.2 or 6.0.3).
 
 ---
 
@@ -44,7 +44,7 @@ To ensure that information is handled consistently according to its sensitivity,
 | Data Protection Officer | Ensures that alignment with privacy and data protection laws is maintained. |
 | AI Governance Council | Oversees classification and protection of AI datasets and model data. |
 
-Sector-conditional roles (for example, a BASC Regional Compliance Officer who ensures that classification of customs, trade, and cargo data meets BASC confidentiality standards) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
+Sector-conditional roles (for example, a sector-conditional compliance role that oversees classification of customs, trade, and cargo data for BASC-certified operations) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
 
 ---
 
@@ -56,7 +56,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who en
 | **Controlled** | Information that may be shared externally at discretion; disclosure poses low risk. | Share externally under context; management awareness required. | Product overviews, proposals, general client communications. |
 | **Internal** | Restricted to employees and authorized contractors; external sharing requires approval or NDA. | Store in internal systems; encryption required for databases and backups (full at-rest requirements including portable devices in the encryption-requirements table). | Internal procedures, reports, project data. |
 | **Confidential** | Contains sensitive business, financial, or personal data. Unauthorized disclosure may cause harm. | Encryption at rest and in transit; access by authorization only. | Contracts, client data, payroll, incident reports. |
-| **Restricted** | Highest sensitivity; includes trade secrets, privileged data, or AI model code. | Strong encryption, strict access control, PAM enforcement, audit logging. | Source code, credentials, merger data, BASC customs data, AI model weights. |
+| **Restricted** | Highest sensitivity; includes trade secrets, privileged data, or AI model code. | Strong encryption, strict access control, PAM enforcement, audit logging. | Source code, credentials, merger data, customs and cargo data from BASC-certified operations, AI model weights. |
 
 ---
 
@@ -103,7 +103,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who en
 - Cryptographic erasure for digital data (per NIST SP 800-88).
 - Cross-cut shredding for physical media.
 8.3 Certificates of Destruction must be logged and archived for seven years.
-8.4 AI datasets and BASC trade data must undergo destruction validation to ensure that data lineage tracking integrity is preserved.
+8.4 AI datasets and BASC-certified trade data undergo destruction validation to ensure that data-lineage-tracking integrity is preserved.
 
 ---
 
@@ -123,7 +123,7 @@ Encryption keys must be managed under the Encryption and Key Management Policy.
 
 ## 10. Sector-programme data handling overlays
 
-Where the organization participates in a sector programme that imposes additional handling requirements on programme-specific data (for example, BASC for customs, cargo, and personnel data classified as Restricted by default; healthcare regulation for PHI; financial-services regulation for payment-card or fraud data), the corresponding sector annex states the additional classification, storage, physical-copy, and incident-treatment requirements. See [`compliance/`](../compliance/).
+Where the organization participates in a sector programme that imposes additional handling requirements on programme-specific data (for example, customs, cargo, and personnel data in BASC-certified operations; healthcare regulation for PHI; financial-services regulation for payment-card or fraud data), the corresponding sector annex states the additional classification, storage, physical-copy, and incident-treatment requirements. See [`compliance/`](../compliance/).
 
 ---
 
@@ -132,7 +132,7 @@ Where the organization participates in a sector programme that imposes additiona
 11.1 The CISO and Compliance Manager perform quarterly reviews of classification and handling adherence.
 11.2 Automated DLP reports must be analyzed monthly to detect potential misclassifications or policy breaches.
 11.3 Noncompliance or mishandling triggers investigation and remediation under the Corrective and Preventive Action Procedure.
-11.4 Annual ISO and BASC audits verify adherence to classification standards and encryption controls.
+11.4 Annual ISO and BASC certification audits verify adherence to the organization's classification and handling controls.
 
 ---
 
@@ -141,10 +141,10 @@ Where the organization participates in a sector programme that imposes additiona
 | Control Area | ISO/IEC 27002 | COBIT 2019 | CSA CCM v4.1 | Legal / Regulatory |
 | --- | --- | --- | --- | --- |
 | Classification and labelling | §§5.12 to 5.15 | DSS05 | DSP-04 | GDPR Art. 32, PIPEDA |
-| Encryption | §8.24 | DSS05.03 | CEK-01 to 21 | BASC §6 |
+| Encryption | §8.24 | DSS05.03 | CEK-01 to 21 | N/A |
 | Retention and disposal | §8.10 | DSS05 | DSP-02, DSP-16 | ISO/IEC 27701:2025 Annex A.1.4.8 to A.1.4.9, A.2.4.3 |
 | AI data handling | N/A | DSS05.06 | N/A | AIDA (lapsed), PIPEDA |
-| Trade data (BASC) | N/A | N/A | N/A | BASC v6, ISO 28000 |
+| Trade data (BASC) | N/A | N/A | N/A | BASC Security Standard 6.0.2/6.0.3, ISO 28000 |
 
 This standard also aligns with ISO/IEC 27040:2024 (Storage security) for the secure storage, retention, and sanitization of classified data at rest.
 
