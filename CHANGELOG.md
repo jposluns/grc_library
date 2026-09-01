@@ -1,5 +1,7 @@
 # Changelog
 
+**2026-09-01 | 2026.09.607 | PR #1904** - P-1.60 wave 18: reverse-framework-control-crosswalk, two cross-family-converged source-verified corrections, NIST CSF 2.0 PR.IR relabelled to its held title Technology Infrastructure Resilience, and the NIS2 Incident-reporting row narrowed from Articles 23 to 25 down to Article 23 Reporting obligations (Articles 24 and 25 are certification and standardisation).
+
 **2026-09-01 | 2026.09.606 | PR #1903** - P-1.60 wave 15: supplier-security-and-privacy-assurance framework-alignment, NIST Privacy Framework row, fabricated CT-P.2 corrected to ID.DE-P (Data Processing Ecosystem Risk Management), cross-family-converged and source-verified.
 
 **2026-09-01 | 2026.09.605 | PR #1902** - P-1.60 wave 14: two cross-family-converged control-fit corrections, incident-response triage COBIT DSS02.03 (service requests) to DSS02.02 (record/classify/prioritize), and security-baseline governance-row SSDF PW.1-PW.4 (produce software) to PO.1-PO.4 (prepare the organization).
