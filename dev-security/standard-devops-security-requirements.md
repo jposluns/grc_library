@@ -2,8 +2,8 @@
 
 **Document Title:** DevOps Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.0.12\
-**Date:** 2026-08-13\
+**Version:** 1.0.13\
+**Date:** 2026-09-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`operations/README.md`](../operations/README.md)\
@@ -63,7 +63,7 @@ Production deployments require manual approval from a designated approver who is
 
 All build artefacts deployed to Production must be signed (signing key in the organization's secrets management service) and the signature verified before deployment. An artefact with an invalid or absent signature must not be deployed.
 
-*CCM: CCC-04, CCC-05 / contributes toward SLSA Build L3*
+*CCM: CCC-04 / contributes toward SLSA Build L3*
 
 ---
 
@@ -204,8 +204,8 @@ The EOL classification policy and remediation SLAs are defined in the Security B
 | Control Area | ISO/IEC 27001/27002 | CSA CCM v4.1 | NIST SSDF | NIST SP 800-53 | SLSA |
 | --- | --- | --- | --- | --- | --- |
 | CI/CD pipeline security | A.8.25 to 8.27 | CCC-01 to 09, AIS-04 | PW.8 | SA-10, SA-15 | Level 2 to 3 |
-| Pipeline secret scanning | A.8.28 | CEK-10 to 21 | PW.8.2 | IA-5 | Level 2 |
-| Artifact signing and integrity | A.8.27 | CCC-04 to 05 | PS.2 | SR-4; SI-7 | Level 3 |
+| Pipeline secret scanning | A.8.28 | AIS-05 | PW.8.2 | IA-5 | Level 2 |
+| Artifact signing and integrity | A.8.27 | CCC-04 | PS.2 | SR-4; SI-7 | Level 3 |
 | IaC security | A.8.25 | CCC-06 | PW.4 | CM-2, CM-3 | N/A |
 | Environment separation | A.8.31 | I&S-05 | PO.5 | SC-3, SC-7 | N/A |
 | Container security | A.8.25 | I&S-04 | PW.2 | CM-7, SI-3 | N/A |
