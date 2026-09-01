@@ -4991,8 +4991,8 @@ documents:
   domain: "governance"
   type: "Framework"
   title: "Human Capital and Ethical Conduct Framework"
-  version: "1.0.10"
-  date: "2026-08-14"
+  version: "1.0.11"
+  date: "2026-09-01"
   owner: "Chief Information Officer"
   approving_authority: "Chief Information Officer"
   classification: "Public"
@@ -5007,6 +5007,7 @@ documents:
     - "security/procedure-onboarding-and-offboarding.md"
     - "governance/procedure-whistleblower-and-incident-reporting.md"
     - "ai/guideline-ethical-ai-use.md"
+    - "ai/standard-ai-human-oversight.md"
   sections:
     - "Purpose"
     - "Scope"
@@ -5020,6 +5021,7 @@ documents:
     - "OECD AI Principles (2019, updated 2024)"
     - "COBIT 2019"
     - "CSA CCM v4.1"
+    - "ISO/IEC 42001:2023"
 - path: "governance/framework-metrics-monitoring-and-performance-reporting.md"
   domain: "governance"
   type: "Framework"
@@ -11134,7 +11136,7 @@ documents:
   domain: "security"
   type: "Standard"
   title: "Security Awareness and Training Standard"
-  version: "1.0.5"
+  version: "1.0.6"
   date: "2026-09-01"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"
@@ -11147,6 +11149,7 @@ documents:
   related_documents:
     - "security/policy-information-security.md"
     - "security/standard-privileged-access-management.md"
+    - "ai/standard-ai-human-oversight.md"
   sections:
     - "1. Purpose"
     - "2. Scope"

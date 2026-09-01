@@ -2,11 +2,11 @@
 
 **Document Title:** Security Awareness and Training Standard\
 **Document Type:** Standard\
-**Version:** 1.0.5\
+**Version:** 1.0.6\
 **Date:** 2026-09-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md)\
+**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`ai/standard-ai-human-oversight.md`](../ai/standard-ai-human-oversight.md)\
 **Classification:** Public\
 **Category:** Information Security\
 **Review Frequency:** Annual and upon material threat, framework, or regulatory change\
@@ -64,6 +64,7 @@ To ensure that all personnel understand their security obligations, can recogniz
 | Finance and payroll | Business email compromise (BEC) and payment fraud awareness | Annual |
 | Privileged account holders | PAM and identity hygiene training | Annual or upon privilege grant |
 | Executive and ELT | Executive-level social engineering and phishing awareness | Annual |
+| Assigned AI human overseers | AI human-oversight competency: the assigned system's capabilities and limitations, the override, intervention, and safe-halt procedures, and recognition and avoidance of automation bias, per the AI Human Oversight Standard | Annual or upon oversight assignment |
 
 ---
 

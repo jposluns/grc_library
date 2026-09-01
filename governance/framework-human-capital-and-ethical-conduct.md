@@ -2,11 +2,11 @@
 
 **Document Title:** Human Capital and Ethical Conduct Framework\
 **Document Type:** Framework\
-**Version:** 1.0.10\
-**Date:** 2026-08-14\
+**Version:** 1.0.11\
+**Date:** 2026-09-01\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
-**Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/standard-personnel-security-screening.md`](../security/standard-personnel-security-screening.md), [`security/procedure-onboarding-and-offboarding.md`](../security/procedure-onboarding-and-offboarding.md), [`governance/procedure-whistleblower-and-incident-reporting.md`](procedure-whistleblower-and-incident-reporting.md), [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md)\
+**Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/standard-personnel-security-screening.md`](../security/standard-personnel-security-screening.md), [`security/procedure-onboarding-and-offboarding.md`](../security/procedure-onboarding-and-offboarding.md), [`governance/procedure-whistleblower-and-incident-reporting.md`](procedure-whistleblower-and-incident-reporting.md), [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md), [`ai/standard-ai-human-oversight.md`](../ai/standard-ai-human-oversight.md)\
 **Classification:** Public\
 **Category:** Governance\
 **Review Frequency:** Annual and upon material HR, legal, or regulatory change\
@@ -73,6 +73,8 @@ Personnel involved in AI development, data science, or AI-enabled decision-makin
 - Explainability requirements for high-risk AI.
 - Ethical obligations when AI decisions affect individuals.
 
+Personnel assigned as human overseers of AI systems additionally complete human-oversight competency training covering the assigned system's capabilities and limitations, the override, intervention, and safe-halt procedures, and how to recognize and avoid automation bias, as required by the AI Human Oversight Standard.
+
 ### 6. Diversity, inclusion, and equity
 
 The organization is committed to inclusive hiring, equitable treatment, and non-discrimination in all employment practices. Diversity and inclusion metrics are monitored and reported to leadership quarterly.
@@ -85,6 +87,7 @@ The organization is committed to inclusive hiring, equitable treatment, and non-
 | Information security awareness | Within 30 days of hire; annually thereafter |
 | Data protection / privacy | Within 30 days of hire; annually thereafter |
 | Responsible AI | Within 60 days of hire for applicable roles; annually thereafter |
+| AI human-oversight competency (assigned overseers) | Upon oversight assignment; annually thereafter |
 
 Training completion is tracked and reported annually to the ERC and relevant compliance bodies.
 
@@ -112,6 +115,7 @@ Training completion is tracked and reported annually to the ERC and relevant com
 | OECD AI Principles (2019, updated 2024) | Human-centric, fair, accountable AI | Responsible AI training |
 | COBIT 2019 | APO07: Managed Human Resources | HR governance and competency |
 | CSA CCM v4.1 | HRS-09 Personnel Roles and Responsibilities; HRS-11 Security Awareness Training; HRS-13 Compliance User Responsibility | Workforce conduct, awareness, and compliance responsibility |
+| ISO/IEC 42001:2023 | Clause 7.2 Competence | AI human-oversight competency and training |
 
 ---
 
