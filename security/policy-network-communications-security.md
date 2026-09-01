@@ -2,8 +2,8 @@
 
 **Document Title:** Network Communications Security Policy\
 **Document Type:** Policy\
-**Version:** 1.1.11\
-**Date:** 2026-08-16\
+**Version:** 1.1.12\
+**Date:** 2026-09-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md), [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md)\
@@ -48,7 +48,7 @@ It establishes requirements for network segmentation, firewall configuration, in
 | **System and Application Owners** | Validate that network configurations support required data classifications and encryption levels. |
 | **Internal Audit** | Performs periodic verification of firewall and segmentation effectiveness across enterprise environments and any sector-programme environments the organization participates in. |
 
-Sector-conditional roles (for example, a BASC Regional Compliance Officer who ensures that BASC-certified networks follow customs-security and cargo-integrity controls) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
+Sector-conditional roles (for example, a sector-conditional compliance role that oversees customs-security and cargo-integrity controls for BASC-certified networks) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
 
 ---
 
@@ -94,7 +94,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who en
 
 7.1 All remote connections must use VPN or Zero-Trust Network Access (ZTNA) solutions enforcing device health, MFA, and continuous session validation.
 
-7.2 Direct remote access to networks operating under a sector programme that requires elevated authorization (for example, BASC trade or customs networks where the organization participates in BASC) is prohibited unless authorized in writing by the CISO and the sector-conditional role defined by the relevant sector annex; see [`compliance/`](../compliance/).
+7.2 Direct remote access to networks operating under a sector programme, where the organization applies elevated authorization (for example, BASC trade or customs networks where the organization participates in BASC), is prohibited unless authorized in writing by the CISO and the sector-conditional role defined by the relevant sector annex; see [`compliance/`](../compliance/).
 
 7.3 Partner and supplier connections must be isolated using virtual network peering, firewalls, or secure APIs.
 
@@ -151,7 +151,7 @@ Where the organization participates in a sector programme that imposes additiona
 | CSA CCM v4.1 | I&S-03: Network Security | Monitoring, encryption, and restriction of communications between environments |
 | EU NIS 2 Directive (Directive (EU) 2022/2555) | Critical Network Security Requirements | Critical infrastructure network obligations |
 
-Sector-specific framework alignments (for example, BASC v6 (2022) Section 6, WCO SAFE Framework (2025 edition), and ISO 28000:2022 for trade and customs network security) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
+Sector-specific framework alignments (for example, the applicable BASC International Security Standard (6.0.2 or 6.0.3, section 5), WCO SAFE Framework (2025 edition), and ISO 28000:2022 for trade and customs network security) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
 
 ---
 
