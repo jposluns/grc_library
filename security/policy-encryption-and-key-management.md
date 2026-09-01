@@ -2,8 +2,8 @@
 
 **Document Title:** Encryption and Key Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.21\
-**Date:** 2026-08-31\
+**Version:** 1.3.22\
+**Date:** 2026-09-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -120,17 +120,17 @@ DLP enforcement must block or encrypt Restricted and Confidential data shared ex
 
 All trade, customs, and cargo data in BASC-certified regions (Colombia, Mexico, Peru, Chile) must:
 
-- Be encrypted at rest and in transit per ISO 28000 and BASC Section 6.
+- Be encrypted at rest and in transit per ISO 28000 and the organization's trade-data protection controls.
 - Utilize PKI authentication for customs and government system integration.
 - Maintain tamper-proof audit logs of encryption and decryption events.
 
 ### 8.2 Key custody
 
-Trade-data decryption keys must remain under organizational or BASC-validated custody only.
+Trade-data decryption keys must remain under organizational custody only.
 
 ### 8.3 Violations
 
-Unauthorized decryption, key export, or sharing constitutes a Critical BASC Violation and triggers investigation under the Incident Response Procedure.
+Unauthorized decryption, key export, or sharing constitutes a critical security violation and triggers investigation under the Incident Response Procedure.
 
 ---
 
@@ -160,7 +160,7 @@ Model explainability files (e.g., SHAP/LIME outputs) must be encrypted and acces
 |---|---|---|
 | Continuous encryption compliance monitoring via SIEM and KMS dashboards | Ongoing | CISO / IT Operations |
 | Encryption compliance audit | Quarterly | CISO and Compliance Manager |
-| Sector-programme audit of programme-specific encryption (for example, customs data and cargo communications encryption under BASC where the organization participates) | At the cadence stated by the relevant sector annex | Sector-conditional role per the annex; see [`compliance/`](../compliance/) |
+| Sector-programme audit of programme-specific encryption (for example, the customs-data and cargo-communications encryption controls the organization applies to its BASC-certified operations) | At the cadence stated by the relevant sector annex | Sector-conditional role per the annex; see [`compliance/`](../compliance/) |
 | Findings and remediation actions logged in CAPA Register | Per finding | Compliance / GRC Programme Manager |
 
 ---
@@ -177,7 +177,7 @@ Exceptions require:
 
 ### 11.2 Sector-programme exceptions
 
-Where the organization participates in a sector programme that imposes additional encryption requirements (for example, BASC for customs-data encryption), exceptions to those programme-specific controls follow the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (with CISO co-approval, as security-related exceptions) and additionally are not permitted unless explicitly authorized by the sector-conditional role defined by the relevant sector annex and the Enterprise Risk Committee. This sector overlay is deliberately stricter than the baseline trade-and-customs limb of §4.2.2 (compliance-officer co-approval with ERC notification); the stricter requirement governs. See [`compliance/`](../compliance/).
+Where the organization adopts additional encryption controls for a sector programme (for example, for customs data in BASC-certified operations), exceptions to those programme-specific controls follow the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (with CISO co-approval, as security-related exceptions) and additionally are not permitted unless explicitly authorized by the sector-conditional role defined by the relevant sector annex and the Enterprise Risk Committee. This sector overlay is deliberately stricter than the baseline trade-and-customs limb of §4.2.2 (compliance-officer co-approval with ERC notification); the stricter requirement governs. See [`compliance/`](../compliance/).
 
 ---
 
@@ -197,7 +197,7 @@ Lessons learned from incidents or audits feed into the continual improvement cyc
 |---|---|
 | Encryption coverage | Coverage by classification level |
 | Key rotation SLA adherence | Percentage of keys rotated within scheduled windows |
-| BASC encryption compliance rate | Success rate across BASC-certified regions |
+| Trade-data encryption compliance rate | Success rate across BASC-certified regions |
 | PQC algorithm adoption progress | Percentage of eligible systems migrated to hybrid or PQC schemes |
 
 ---
@@ -212,7 +212,7 @@ Lessons learned from incidents or audits feed into the continual improvement cyc
 | NIST SP 800-57 | Key Management Guidelines |
 | NIST SP 800-208 | Recommendation for Stateful Hash-Based Signature Schemes |
 | PCI DSS v4.0.1 | Requirement 3: Protect Stored Account Data |
-| BASC International Standard (v6 2022) | Trade and Customs Data Security |
+| BASC International Security Standard 6.0.2/6.0.3 (2022) | Trade and Customs Data Security |
 | WCO SAFE Framework (2025 edition) | Supply Chain Security |
 | ISO 28000:2022 | Supply-Chain Security and Resilience |
 
