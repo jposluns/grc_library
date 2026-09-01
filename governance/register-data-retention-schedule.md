@@ -2,8 +2,8 @@
 
 **Document Title:** Data Retention Schedule\
 **Document Type:** Register\
-**Version:** 1.0.38\
-**Date:** 2026-08-31\
+**Version:** 1.0.39\
+**Date:** 2026-09-01\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md), [`governance/standard-delegation-of-authority.md`](standard-delegation-of-authority.md)\
@@ -114,9 +114,9 @@ This register defines the mandatory retention periods for each category of organ
 | Record Type | Retention Period | Legal Basis / Rationale |
 | --- | --- | --- |
 | Customs declarations and entries | 7 years | Organization retention baseline for customs records. Confirm the applicable jurisdiction's customs record-keeping minimum at source and apply the longer period. |
-| BASC audit records and certifications | Certification period + 7 years | BASC International Standard v6 |
+| BASC audit records and certifications | Certification period + 7 years (organization-set) | BASC International Norm V6-2022 §7.2.3 (the organization sets the retention period per legal requirement and risk; BASC prescribes no fixed period) |
 | Cargo manifest and chain of custody | 7 years | Organization retention baseline for trade records; confirm the applicable jurisdiction's customs record-keeping minimum at source (no generic CTPAT, NEEC, or WCO-AEO retention term is held; the held WCO-AEO 7-year statement is Myanmar-specific, for financial and operational documents) |
-| Personnel security screening (trade) | 7 years after employment, contract, or engagement ends, or 5 years from the screening outcome, whichever is longer | BASC v6 Chapter 3; the base HR 7-year-after-separation floor governs where longer, per the records-retention standard sector-overlay rule |
+| Personnel security screening (trade) | 7 years after employment, contract, or engagement ends, or 5 years from the screening outcome, whichever is longer | BASC International Security Standard §3 (personnel screening required; the retention period is the organization's, set per the base HR 7-year-after-separation floor and legal requirements, which govern where longer, per the records-retention standard sector-overlay rule) |
 | Cryptographic key audit records (trade) | 7 years | Organization retention baseline, aligned with the cryptographic-audit-record floor in the key lifecycle framework. |
 
 ### 9. Supplier and third-party records

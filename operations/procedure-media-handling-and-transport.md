@@ -2,8 +2,8 @@
 
 **Document Title:** Media Handling and Transport Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.8\
-**Date:** 2026-07-14\
+**Version:** 1.3.9\
+**Date:** 2026-09-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md), [`operations/standard-physical-security-of-it-infrastructure.md`](standard-physical-security-of-it-infrastructure.md)\
@@ -43,7 +43,7 @@ To protect information held on physical and digital media from unauthorized disc
 | **Data Owners** | Classify data held on media under their domain; authorize transfers of Confidential or Restricted data; confirm retention holds before disposal is initiated. |
 | **All Employees and Contractors** | Handle media in accordance with the classification of the information it contains; report loss or suspected compromise of media immediately to IT Operations and the CISO. |
 
-Sector-conditional roles (for example, a BASC Regional Compliance Officer who confirms destruction of trade and customs data per BASC and applicable national customs authority obligations) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
+Sector-conditional roles (for example, a sector-conditional compliance role that confirms destruction of trade and customs data in line with the organization's obligations and applicable national customs-authority requirements) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
 
 ---
 
@@ -255,10 +255,10 @@ Where external vendors are used for media sanitization or physical destruction, 
 
 ### 9.3 Sector-programme data disposal
 
-Where media holds data governed by a sector programme (for example, BASC-governed trade and customs data where the organization participates in BASC), destruction must be confirmed by the sector-conditional role defined by the relevant sector annex (for example, a BASC Regional Compliance Officer) before the Certificate of Destruction is filed. The sector-conditional role verifies that:
+Where media holds data associated with a sector programme (for example, trade and customs data in BASC-certified operations), the organization's disposal workflow requires that destruction be confirmed by the sector-conditional role defined by the relevant sector annex before the Certificate of Destruction is filed. That role verifies that:
 
 - The sector-programme minimum retention period has expired or the records have been migrated to an approved successor system.
-- No sector authority hold or audit request (for example, no outstanding customs authority hold or audit request under BASC) is outstanding.
+- No sector authority hold or audit request (for example, no outstanding customs-authority hold or audit request affecting a BASC-certified operation) is outstanding.
 - The destruction method satisfies the relevant sector annex's data-security requirements.
 
 See [`compliance/`](../compliance/) for the sector annex applicable to the organization's covered programmes.
