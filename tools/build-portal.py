@@ -85,6 +85,7 @@ AUDIENCES: list[tuple[str, str, list[dict]]] = [
             {"domain": "governance"},
             {"domain": "risk", "type": ("Standard", "Procedure", "Guideline", "Register", "Template", "Annex")},
             {"domain": "compliance"},
+            {"domain": "ai", "type": ("Charter",)},
         ],
     ),
     (
