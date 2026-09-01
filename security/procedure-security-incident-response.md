@@ -2,7 +2,7 @@
 
 **Document Title:** Security Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.26\
+**Version:** 1.3.27\
 **Date:** 2026-09-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -332,6 +332,7 @@ The SOC must track and report the following metrics at the monthly security oper
 | Triage and classification | Clause 5.4 | §3.2 | A.5.25 | DSS02.03 | SEF-06 |
 | Containment and evidence preservation | Clause 5.5 | §3.2 | A.5.26 | DSS02.04 | SEF-07, SEF-09 |
 | Eradication and recovery | Clause 5.5 | §3.2 | A.5.26 | DSS02.05 | SEF-07 |
+| Regulatory notification | Clause 5.5 | §3.2 | A.5.5 | MEA03 | SEF-08 |
 | Post-incident review | Clause 5.6 | §3.1 | A.5.27 | DSS02.06 | SEF-07, SEF-09 |
 | Evidence handling | Clause 5.5 | §3.2 | A.5.28 | DSS02.04 | SEF-09 |
 | Incident response metrics | Clause 5.6 | §3.1 | A.5.35 | MEA01 | SEF-05 |
