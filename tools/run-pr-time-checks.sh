@@ -11,7 +11,7 @@
 #      co-bump, D5 backlog-rotation-on-PR,
 #      D7 CHANGELOG-length-on-PR, D8 daily-changelog-rollup reminder
 #      (advisory), D9 retired-section-orphan check, D10 CLAUDE.md-size
-#      ratchet, D11 narrative-corpus mixed-diff, D12 number-floor monotonicity). Most compare the PR head to its merge base, so their
+#      ratchet, D11 narrative-corpus mixed-diff, D12 number-floor monotonicity, D13 stranded-control-code). Most compare the PR head to its merge base, so their
 #      inputs are not available in tools/run_all_audits.sh (the advisory D8
 #      and the size-only D10 read working-tree state and take no base ref);
 #      they run
@@ -157,6 +157,9 @@ run_check "D11 Narrative-corpus mixed-diff check" \
 
 run_check "D12 Number-floor monotonicity check" \
     python3 tools/check-todo-floor-monotonic-on-pr.py "${BASE_REF}" "${HEAD_REF}"
+
+run_check "D13 Stranded-control-code check" \
+    python3 tools/check-stranded-control-code-on-pr.py "${BASE_REF}" "${HEAD_REF}"
 
 # Gate 45: TODO staleness audit. Behaves like a delta gate because its
 # inputs (git log of merged-PR commit subjects, .working/validate-sweeps/

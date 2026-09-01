@@ -337,6 +337,10 @@ jobs:
         if: github.event_name == 'pull_request'
         run: python3 tools/check-todo-floor-monotonic-on-pr.py
 
+      - name: Stranded-control-code check
+        if: github.event_name == 'pull_request'
+        run: python3 tools/check-stranded-control-code-on-pr.py
+
       - name: Detect collection candidates on pack PRs (informational)
         if: github.event_name == 'pull_request'
         env:

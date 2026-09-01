@@ -98,6 +98,7 @@ WORKFLOW_DELTA_GATE_STEPS = {
     "CLAUDE.md-size ratchet",
     "Narrative-corpus mixed-diff check",
     "Number-floor monotonicity check",
+    "Stranded-control-code check",
 }
 
 # Delta-gate numbers are PERMANENT and never reused (the same rule as backlog
@@ -108,7 +109,7 @@ WORKFLOW_DELTA_GATE_STEPS = {
 # ``## Version history`` section was removed; the contiguity guard below
 # tolerates this gap.
 RETIRED_DELTA_GATES = {6}
-HIGHEST_DELTA_GATE = 12
+HIGHEST_DELTA_GATE = 13
 
 # Pre-commit hooks that are setup or regeneration steps, not audit
 # gates. These are excluded from the pre-commit-to-spec parity check.

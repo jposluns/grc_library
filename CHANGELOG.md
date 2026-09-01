@@ -1,5 +1,7 @@
 # Changelog
 
+**2026-09-01 | 2026.09.609 | PR #1906** - New audit gate D13, the stranded-control-code check: a PR-time delta gate that catches a body control-code left citing an old value after the alignment table was corrected in the same document, the paired-surface stranding class that escaped review three times this session.
+
 **2026-09-01 | 2026.09.608 | PR #1905** - Fix a stranded body control-code: developer-security-requirements section 2.2 threat-modelling cited AICM TVM-12 (Vulnerability Management Metrics), corrected to TVM-04 (Threat Analysis and Modelling) to match the CCM TVM-04 already on the line; a paired-surface miss from an earlier table-only fix, caught by a guardrail-seed replay.
 
 **2026-09-01 | 2026.09.607 | PR #1904** - P-1.60 wave 18: reverse-framework-control-crosswalk, two cross-family-converged source-verified corrections, NIST CSF 2.0 PR.IR relabelled to its held title Technology Infrastructure Resilience, and the NIS2 Incident-reporting row narrowed from Articles 23 to 25 down to Article 23 Reporting obligations (Articles 24 and 25 are certification and standardisation).
