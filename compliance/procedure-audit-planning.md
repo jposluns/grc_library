@@ -2,8 +2,8 @@
 
 **Document Title:** Audit Planning Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.8\
-**Date:** 2026-08-30\
+**Version:** 1.0.9\
+**Date:** 2026-09-01\
 **Owner:** Chief Audit Executive\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md)\
@@ -462,7 +462,7 @@ After the 7-year retention period, records are disposed of in accordance with th
 | ISO 19011:2026 | §6.2 Initiating the audit; §6.3 Preparing auditing activities | Individual audit planning steps (Sections 4 and 5) |
 | ISO/IEC 27001:2022 | §9.2 Internal Audit | Internal-audit programme at organization-defined planned intervals (the organization adopts an annual cadence to maintain certification), plus individual audit planning requirements |
 | COBIT 2019 | MEA04 (Managed Assurance) | Audit programme planning, resource allocation, and assurance reporting |
-| BASC Standard | §9.2 Internal Audit | Annual audit of BASC programme scope; evidence collection and reporting requirements |
+| BASC International Norm V6-2022 | §8.2 Internal Audit | Annual audit of BASC programme scope; evidence collection and reporting requirements |
 | AEO-S IT Control Requirements | IT control testing and documentation | Third-party and technical security audit procedures applicable to AEO-S scope |
 
 ---
