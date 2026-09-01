@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Offboarding Evidence Template\
 **Document Type:** Template\
-**Version:** 1.0.8\
-**Date:** 2026-08-13\
+**Version:** 1.0.9\
+**Date:** 2026-09-01\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/procedure-supplier-exit-and-data-return.md`](procedure-supplier-exit-and-data-return.md), [`supply-chain/standard-cloud-exit-and-data-portability.md`](standard-cloud-exit-and-data-portability.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md)\
@@ -75,7 +75,7 @@ Access revocation target: within 24 hours of the formal offboarding declaration.
 | Personal data | Return to organization OR destruction | Return: secure transfer log; destruction: certificate of destruction signed by the supplier | |
 | Customer data | Return OR destruction | As above | |
 | Confidential business data | Return OR destruction | As above | |
-| Trade or regulated data (e.g. BASC, customs) | Return OR destruction per BASC retention rule | As above | |
+| Trade or regulated data (e.g. BASC, customs) | Return OR destruction per the applicable retention requirement for BASC-certified data | As above | |
 | Backup copies | Destruction within the contracted retention window after the operational data is returned or destroyed | Supplier attestation; backup-system log where accessible | |
 | Embeddings, vectors, derived data | Destruction or anonymization | Supplier attestation describing the technical action | |
 | Logs and monitoring data | Retention per contract; destruction at end of retention | Supplier attestation | |

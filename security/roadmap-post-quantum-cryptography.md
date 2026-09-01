@@ -2,8 +2,8 @@
 
 **Document Title:** Post-Quantum Cryptography Readiness Roadmap\
 **Document Type:** Roadmap\
-**Version:** 1.1.6\
-**Date:** 2026-08-28\
+**Version:** 1.1.7\
+**Date:** 2026-09-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/framework-cryptographic-key-lifecycle.md`](framework-cryptographic-key-lifecycle.md), [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -165,7 +165,7 @@ The PQC Roadmap is reviewed annually by the CISO and Security Architecture team.
 | NSA CNSA 2.0 Suite | Commercial National Security Algorithm Suite 2.0 | High-assurance PQC guidance |
 | ETSI TR 103 619 | Migration Strategies for Quantum-Safe Cryptography | Migration planning guidance |
 | ISO/IEC 27001:2022 | Annex A.8.24 | Cryptographic controls |
-| BASC International Standard v6 | Trade and customs encryption | Trade system cryptography requirements |
+| BASC International Security Standard 6.0.2/6.0.3 | Trade and customs data (safeguard information per section 5.1(b)) | Organization applies its own cryptographic baseline to BASC-certified trade systems; BASC prescribes no cryptography standard |
 
 ---
 

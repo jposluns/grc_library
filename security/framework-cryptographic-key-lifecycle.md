@@ -2,8 +2,8 @@
 
 **Document Title:** Cryptographic Key Lifecycle Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.12\
-**Date:** 2026-08-29\
+**Version:** 1.0.13\
+**Date:** 2026-09-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This framework establishes the strategic governance, lifecycle controls, and operational standards for managing cryptographic keys across the organization's IT, OT, cloud, and BASC-certified trade environments. It defines a unified structure for key generation, distribution, storage, rotation, revocation, and destruction, aligned with NIST SP 800-57, ISO/IEC 27002:2022 §8.24, BASC v6, and the WCO SAFE Framework.
+This framework establishes the strategic governance, lifecycle controls, and operational standards for managing cryptographic keys across the organization's IT, OT, cloud, and BASC-certified trade environments. It defines a unified structure for key generation, distribution, storage, rotation, revocation, and destruction, aligned with NIST SP 800-57 and ISO/IEC 27002:2022 §8.24, and applicable to BASC-certified and WCO SAFE trade environments (which prescribe no cryptographic standard of their own).
 
 ---
 
@@ -86,7 +86,7 @@ All cryptographic keys must be registered in the Key Lifecycle Register with the
 | **IT Operations** | Executes key rotation, distribution, and revocation procedures. |
 | **Internal Audit** | Verifies KLR completeness and control adherence annually. |
 
-Sector-conditional roles (for example, a BASC Regional Compliance Officer who maintains trade-system key registrations and validates keys during BASC audits) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
+Sector-conditional roles (for example, a BASC Regional Compliance Officer who maintains trade-system key registrations for BASC-certified operations) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
 
 ---
 
