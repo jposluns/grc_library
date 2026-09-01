@@ -2,11 +2,11 @@
 
 **Document Title:** AI Ethics Review Panel Charter\
 **Document Type:** Charter\
-**Version:** 1.0.3\
-**Date:** 2026-07-11\
+**Version:** 1.0.4\
+**Date:** 2026-09-01\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Chief Risk Officer\
-**Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md)\
+**Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md), [`ai/charter-ai-actor-role-and-forum-standing.md`](charter-ai-actor-role-and-forum-standing.md)\
 **Classification:** Public\
 **Category:** AI Governance\
 **Review Frequency:** Annual and upon material organizational or regulatory change\

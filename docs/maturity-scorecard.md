@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-portal.py`.
 **Document Title:** Document Maturity Scorecard\
 **Document Type:** Register\
 **Version:** 1.0.0\
-**Date:** 2026-08-31\
+**Date:** 2026-09-01\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/portal.md`](portal.md), [`docs/adopter-guide.md`](adopter-guide.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`specification-master-project.md`](../specification-master-project.md)\
@@ -45,7 +45,7 @@ _109 documents._
 
 | Path | Title | Type | Version | Date |
 | --- | --- | --- | --- | --- |
-| [ai/charter-ai-governance-council.md](../ai/charter-ai-governance-council.md) | AI Governance Council Charter | Charter | 1.2.8 | 2026-07-17 |
+| [ai/charter-ai-governance-council.md](../ai/charter-ai-governance-council.md) | AI Governance Council Charter | Charter | 1.2.9 | 2026-09-01 |
 | [ai/framework-ai-governance-and-risk.md](../ai/framework-ai-governance-and-risk.md) | AI Governance and Risk Framework | Framework | 1.1.4 | 2026-07-11 |
 | [ai/guide-ai-adversarial-test-reference.md](../ai/guide-ai-adversarial-test-reference.md) | AI Adversarial Test Reference | Guide | 1.3.5 | 2026-08-20 |
 | [ai/guide-ai-security-technical-implementation.md](../ai/guide-ai-security-technical-implementation.md) | AI Security Technical Implementation Guide | Guide | 1.3.6 | 2026-08-20 |
@@ -93,7 +93,7 @@ _109 documents._
 | [operations/procedure-change-management-and-configuration-control.md](../operations/procedure-change-management-and-configuration-control.md) | Change Management and Configuration Control Procedure | Procedure | 1.3.4 | 2026-08-31 |
 | [operations/procedure-endpoint-management-and-device-compliance.md](../operations/procedure-endpoint-management-and-device-compliance.md) | Endpoint Management and Device Compliance Procedure | Procedure | 1.3.9 | 2026-08-31 |
 | [operations/procedure-media-handling-and-transport.md](../operations/procedure-media-handling-and-transport.md) | Media Handling and Transport Procedure | Procedure | 1.3.8 | 2026-07-14 |
-| [operations/procedure-security-monitoring-and-alert-management.md](../operations/procedure-security-monitoring-and-alert-management.md) | Security Monitoring and Alert Management Procedure | Procedure | 1.3.12 | 2026-08-31 |
+| [operations/procedure-security-monitoring-and-alert-management.md](../operations/procedure-security-monitoring-and-alert-management.md) | Security Monitoring and Alert Management Procedure | Procedure | 1.3.13 | 2026-09-01 |
 | [operations/procedure-threat-intelligence-and-siem-operations.md](../operations/procedure-threat-intelligence-and-siem-operations.md) | Threat Intelligence and SIEM Operations Procedure | Procedure | 1.3.9 | 2026-08-31 |
 | [operations/register-it-operations-kpis.md](../operations/register-it-operations-kpis.md) | IT Operations Key Performance Indicators Register | Register | 1.1.4 | 2026-08-26 |
 | [operations/standard-certificate-authority-management.md](../operations/standard-certificate-authority-management.md) | Certificate Authority Management Standard | Standard | 1.3.11 | 2026-08-31 |
@@ -139,7 +139,7 @@ _109 documents._
 | [security/policy-identity-and-access-management.md](../security/policy-identity-and-access-management.md) | Identity and Access Management Policy | Policy | 1.3.21 | 2026-08-27 |
 | [security/policy-information-security.md](../security/policy-information-security.md) | Information Security Policy | Policy | 1.3.21 | 2026-08-24 |
 | [security/policy-network-communications-security.md](../security/policy-network-communications-security.md) | Network Communications Security Policy | Policy | 1.1.11 | 2026-08-16 |
-| [security/procedure-access-control.md](../security/procedure-access-control.md) | Access Control Procedure | Procedure | 1.2.10 | 2026-08-26 |
+| [security/procedure-access-control.md](../security/procedure-access-control.md) | Access Control Procedure | Procedure | 1.2.11 | 2026-09-01 |
 | [security/procedure-security-incident-response.md](../security/procedure-security-incident-response.md) | Security Incident Response Procedure | Procedure | 1.3.25 | 2026-08-31 |
 | [security/procedure-vulnerability-management.md](../security/procedure-vulnerability-management.md) | Vulnerability Management Procedure | Procedure | 1.3.14 | 2026-08-30 |
 | [security/roadmap-post-quantum-cryptography.md](../security/roadmap-post-quantum-cryptography.md) | Post-Quantum Cryptography Readiness Roadmap | Roadmap | 1.1.6 | 2026-08-28 |
@@ -163,7 +163,7 @@ _170 documents._
 
 | Path | Title | Type | Version | Date |
 | --- | --- | --- | --- | --- |
-| [ai/charter-ai-ethics-review-panel.md](../ai/charter-ai-ethics-review-panel.md) | AI Ethics Review Panel Charter | Charter | 1.0.3 | 2026-07-11 |
+| [ai/charter-ai-ethics-review-panel.md](../ai/charter-ai-ethics-review-panel.md) | AI Ethics Review Panel Charter | Charter | 1.0.4 | 2026-09-01 |
 | [ai/checklist-ai-algorithmic-compliance.md](../ai/checklist-ai-algorithmic-compliance.md) | AI Algorithmic Compliance Checklist | Checklist | 1.0.13 | 2026-08-30 |
 | [ai/framework-ai-model-documentation-and-transparency.md](../ai/framework-ai-model-documentation-and-transparency.md) | AI Model Documentation and Transparency Framework | Framework | 1.0.11 | 2026-08-30 |
 | [ai/framework-ai-model-risk.md](../ai/framework-ai-model-risk.md) | AI Model Risk Framework | Framework | 1.0.3 | 2026-07-12 |
@@ -175,7 +175,7 @@ _170 documents._
 | [ai/plan-ai-incident-response.md](../ai/plan-ai-incident-response.md) | AI Incident Response Plan | Plan | 1.0.10 | 2026-08-30 |
 | [ai/policy-ai-compliance.md](../ai/policy-ai-compliance.md) | AI Compliance Policy | Policy | 1.0.23 | 2026-08-31 |
 | [ai/procedure-ai-evaluation.md](../ai/procedure-ai-evaluation.md) | AI Evaluation Procedure | Procedure | 1.0.10 | 2026-08-16 |
-| [ai/procedure-ai-model-lifecycle-management.md](../ai/procedure-ai-model-lifecycle-management.md) | AI Model Lifecycle Management Procedure | Procedure | 1.0.7 | 2026-08-30 |
+| [ai/procedure-ai-model-lifecycle-management.md](../ai/procedure-ai-model-lifecycle-management.md) | AI Model Lifecycle Management Procedure | Procedure | 1.0.8 | 2026-09-01 |
 | [ai/procedure-ai-model-risk-assessment.md](../ai/procedure-ai-model-risk-assessment.md) | AI Model Risk Assessment Procedure | Procedure | 1.0.5 | 2026-07-11 |
 | [ai/procedure-ai-system-impact-assessment.md](../ai/procedure-ai-system-impact-assessment.md) | AI System Impact Assessment Procedure | Procedure | 1.0.8 | 2026-08-04 |
 | [ai/register-ai-risk.md](../ai/register-ai-risk.md) | AI Risk Register | Register | 1.0.9 | 2026-07-23 |
@@ -354,7 +354,7 @@ _48 documents._
 | [ai/jurisdictions/annex-ai-us-california.md](../ai/jurisdictions/annex-ai-us-california.md) | California CCPA Automated Decision-Making Technology (ADMT) Regulatory Requirements | Annex | 0.0.2 | 2026-07-24 |
 | [ai/jurisdictions/annex-ai-us-colorado.md](../ai/jurisdictions/annex-ai-us-colorado.md) | Colorado AI and Automated Decision-Making Technology Regulatory Requirements | Annex | 0.0.2 | 2026-07-12 |
 | [ai/jurisdictions/annex-ai-us-new-york-city.md](../ai/jurisdictions/annex-ai-us-new-york-city.md) | New York City Automated Employment Decision Tool Regulatory Requirements | Annex | 0.0.2 | 2026-07-12 |
-| [ai/procedure-foundation-model-lifecycle.md](../ai/procedure-foundation-model-lifecycle.md) | Foundation Model Lifecycle Procedure | Procedure | 0.0.8 | 2026-08-20 |
+| [ai/procedure-foundation-model-lifecycle.md](../ai/procedure-foundation-model-lifecycle.md) | Foundation Model Lifecycle Procedure | Procedure | 0.0.9 | 2026-09-01 |
 | [ai/procedure-integrated-ai-and-privacy-assessment.md](../ai/procedure-integrated-ai-and-privacy-assessment.md) | Integrated AI and Privacy Assessment Procedure | Procedure | 0.1.5 | 2026-08-04 |
 | [ai/procedure-training-data-governance.md](../ai/procedure-training-data-governance.md) | Training Data Governance Procedure | Procedure | 0.0.11 | 2026-07-24 |
 | [ai/register-model-registry.md](../ai/register-model-registry.md) | Model Registry | Register | 0.0.8 | 2026-08-30 |
