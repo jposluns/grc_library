@@ -2,8 +2,8 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.65\
-**Date:** 2026-08-30\
+**Version:** 1.5.66\
+**Date:** 2026-09-01\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py)\
@@ -243,7 +243,9 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
 | --- | --- | --- | --- | --- | --- | --- |
 | WCO SAFE Framework | 2025 edition | 2025-06 | World Customs Organization Framework of Standards to Secure and Facilitate Global Trade | 2018, 2021 | https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/facilitation/instruments-and-tools/tools/safe-package/safe-framework-2025_en.pdf | verified 2026-07-11 |
-| BASC International Standard | v6 (2022) | 2022 | Business Alliance for Secure Commerce international security standard | v5 | https://www.wbasco.org/en/certification/basc-certification | 2026-06-30 |
+| BASC International Norm V6-2022 (Control and Security Management System, CSMS) | V6-2022 | 2022-03 | Business Alliance for Secure Commerce control and security management system norm (CSMS) | V5 | https://www.wbasco.org/en/certification/basc-certification | needs-reconfirm |
+| BASC International Security Standard 6.0.2 (2022, companies with indirect relation to the cargo) | 6.0.2 | 2022 | BASC security standard for companies with indirect relation to the cargo | - | https://www.wbasco.org/en/certification/basc-certification | needs-reconfirm |
+| BASC International Security Standard 6.0.3 (2022, companies implementing basic security operational controls) | 6.0.3 | 2022 | BASC security standard for companies implementing basic security operational controls | - | https://www.wbasco.org/en/certification/basc-certification | needs-reconfirm |
 | CTPAT MSC | 2020 | 2020 | Customs-Trade Partnership Against Terrorism Minimum Security Criteria | - | https://www.cbp.gov/border-security/ports-entry/cargo-security/ctpat-customs-trade-partnership-against-terrorism/apply/security-criteria | verified 2026-07-09 |
 
 ## Sector-specific (energy, telecom, finance)
