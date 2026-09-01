@@ -2,8 +2,8 @@
 
 **Document Title:** Privileged Access Management Standard\
 **Document Type:** Standard\
-**Version:** 2.0.3\
-**Date:** 2026-08-31\
+**Version:** 2.0.4\
+**Date:** 2026-09-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md)\
@@ -90,7 +90,7 @@ Suspected compromise of a privileged account constitutes a P1 security incident.
 | Control | ISO/IEC 27001:2022 | NIST SP 800-53 | COBIT 2019 | CSA CCM v4.1 | CIS |
 | --- | --- | --- | --- | --- | --- |
 | Privileged access rights | A.8.2 | AC-2, AC-6 | DSS05.04 | IAM-09, IAM-10 | Control 5 |
-| Just-in-time access | A.5.18 | AC-2(7) | N/A | IAM-10 | Control 6 |
+| Just-in-time access | A.5.18 | AC-2(7) | DSS05.04 | IAM-10 | Control 6 |
 | Emergency access | A.5.17 | AC-2(2) | DSS05.04 | IAM-10 | N/A |
 | Session logging | A.8.15 | AU-2, AU-12 | DSS01.03 | LOG-09 | Control 8 |
 
