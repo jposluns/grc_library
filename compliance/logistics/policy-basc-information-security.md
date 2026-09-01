@@ -2,8 +2,8 @@
 
 **Document Title:** BASC Information Security Policy\
 **Document Type:** Policy\
-**Version:** 1.2.12\
-**Date:** 2026-08-28\
+**Version:** 1.2.13\
+**Date:** 2026-09-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-basc-programme-overview.md`](annex-basc-programme-overview.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/logistics/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md), [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -18,7 +18,7 @@
 
 ## 1. Purpose
 
-This policy establishes the framework for managing and protecting the organization's information assets and supporting infrastructure in alignment with the Business Alliance for Secure Commerce (BASC) International Security Standards. It ensures that the confidentiality, integrity, and availability of data are maintained across all BASC-certified operations.
+This policy establishes the framework for managing and protecting the organization's information assets and supporting infrastructure in alignment with the applicable Business Alliance for Secure Commerce (BASC) International Security Standard (6.0.2 or 6.0.3, per the organization's role in the cargo chain). It ensures that the confidentiality, integrity, and availability of data are maintained across all BASC-certified operations.
 
 ---
 
@@ -56,7 +56,7 @@ Applies to all employees, contractors, and third parties accessing the organizat
 
 ## 5. BASC information security requirements
 
-All requirements identified in Chapter 5 of the BASC International Security Standard are mapped below to the organization's control areas.
+All requirements identified in Chapter 5 of the applicable BASC International Security Standard (6.0.2 or 6.0.3) are mapped below to the organization's control areas.
 
 | ID | Description | Control Area |
 | --- | --- | --- |
@@ -200,7 +200,7 @@ All exceptions are logged and assigned an expiry or review date. Owners are resp
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| BASC International Standard v6 (2022) | Chapter 5: IT and Information Security | Primary source of control requirements |
+| BASC International Security Standard 6.0.2/6.0.3 (2022) | Chapter 5: Information Security | Primary source of control requirements |
 | ISO/IEC 27001:2022 | A.5 to A.8: Security controls | Information security management alignment |
 | NIST SP 800-53 r5 | AC, IA, SI, IR: Access, identity, integrity, incident | Control family mapping |
 | CSA CCM v4.1 | IAM, HRS, TVM, LOG | Cloud control alignment |
