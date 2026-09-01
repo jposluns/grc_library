@@ -2,8 +2,8 @@
 
 **Document Title:** Monitoring Integrity and Coverage Standard\
 **Document Type:** Standard\
-**Version:** 0.0.3\
-**Date:** 2026-08-31\
+**Version:** 0.0.4\
+**Date:** 2026-09-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/principle-fail-closed-automation.md`](../governance/principle-fail-closed-automation.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/standard-soc-operating-model.md`](standard-soc-operating-model.md), [`operations/standard-observability-and-telemetry.md`](../operations/standard-observability-and-telemetry.md), [`operations/procedure-security-monitoring-and-alert-management.md`](../operations/procedure-security-monitoring-and-alert-management.md), [`operations/procedure-threat-intelligence-and-siem-operations.md`](../operations/procedure-threat-intelligence-and-siem-operations.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md), [`operations/register-it-operations-kpis.md`](../operations/register-it-operations-kpis.md)\
@@ -96,7 +96,7 @@ The organization tests monitoring integrity rather than assuming it. Tests exerc
 | --- | --- | --- | --- | --- | --- | --- |
 | Monitoring as a governed, health-owned control | DE.CM-09 | ISCM strategy and programme | A.8.16 | LOG-03 | n/a | Log-management infrastructure health |
 | Failure of the monitoring system reported and handled | DE.AE-06, DE.AE-08 | Gap and shortcoming detection | A.8.15, A.8.16 | LOG-14 | T1685 | Response to log-management failures |
-| Saturation and dropped-event handling | PR.IR-04 | Programme-gap assessment | A.8.15 | I&S-02 | T1685 | Storage-exceeded and overflow handling |
+| Saturation and dropped-event handling | PR.IR-04 | Programme-gap assessment | A.8.6, A.8.15 | I&S-02 | T1685 | Storage-exceeded and overflow handling |
 | Declared coverage limits and blind spots | GV.RM-02 | Coverage and effectiveness assessment | A.8.16 | LOG-03 | n/a | n/a |
 | Detection of detection failure (independent checks) | DE.CM-09 | Continuous assessment | A.8.16 | LOG-14 | T1685 | Monitoring the log-management status |
 | Incident classification for lost visibility | DE.AE-04, DE.AE-08 | n/a | A.5.25 | SEF-06, SEF-07 | T1685 | n/a |
