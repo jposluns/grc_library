@@ -239,6 +239,9 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 
 ### Charter
 
+- [AI Actor Role and Forum Standing Charter](../ai/charter-ai-actor-role-and-forum-standing.md) (maturity: Draft)
+- [AI Ethics Review Panel Charter](../ai/charter-ai-ethics-review-panel.md) (maturity: Baseline)
+- [AI Governance Council Charter](../ai/charter-ai-governance-council.md) (maturity: Mature)
 - [Governance Library Charter](../governance/charter-governance-library.md) (maturity: Mature)
 
 ### Framework
