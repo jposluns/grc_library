@@ -2,7 +2,7 @@
 
 **Document Title:** Security Monitoring and Alert Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.13\
+**Version:** 1.3.14\
 **Date:** 2026-09-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -72,7 +72,7 @@ The SIEM normalizes all ingested logs to a common event schema to enable consist
 - Maps vendor-specific field names to the enterprise event taxonomy.
 - Enriches events with asset context (asset classification, owner, environment tier) from the asset register.
 - Resolves IP addresses to hostnames and tags events with network zone designations.
-- Tags events from BASC-regulated environments with a BASC scope indicator for targeted rule application.
+- Tags events from BASC-certified environments with a BASC scope indicator for targeted rule application.
 
 Normalization rule coverage is reviewed monthly by Security Engineering. Sources with persistent normalization failures are flagged for pipeline remediation.
 

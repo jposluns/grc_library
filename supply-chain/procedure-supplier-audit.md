@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Audit Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.15\
-**Date:** 2026-08-14\
+**Version:** 1.0.16\
+**Date:** 2026-09-01\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -75,7 +75,7 @@ Audit scope for each engagement must be defined to cover, as applicable:
 - Business continuity and operational resilience.
 - Contractual SLA adherence and performance obligations.
 - AI governance controls (for AI-enabled or AI system vendors).
-- Trade compliance, cargo security, and customs integrity (for BASC-regulated suppliers).
+- Trade compliance, cargo security, and customs integrity (for BASC-certified suppliers).
 
 Suppliers must be formally notified of an upcoming audit at least 30 calendar days in advance. Notification must include the proposed audit scope, requested documentation, and the scheduled date range.
 
