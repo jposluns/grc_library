@@ -2,7 +2,7 @@
 
 **Document Title:** Change Management and Configuration Control Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.5\
+**Version:** 1.3.6\
 **Date:** 2026-09-01\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -208,9 +208,9 @@ The following metrics are reported to the CISO and CIO monthly:
 
 | Control Area | ISO/IEC 20000-1 | ISO/IEC 27001:2022 | COBIT 2019 | CSA CCM v4.1 | NIST |
 | --- | --- | --- | --- | --- | --- |
-| Change management | §8.5.1 | A.8.32 | BAI06 | CCC-01 to CCC-05 | SP 800-128 §4 |
+| Change management | §8.5.1 | A.8.32 | BAI06 | CCC-01 to CCC-05 | SP 800-128 §3.3 |
 | Configuration management | §8.2.6 | A.8.9 | BAI10 | CCC-06 to CCC-09 | SP 800-128 §3 |
-| Emergency change | §8.5.1 | A.8.32 | BAI06 | CCC-08 | SP 800-128 §4.4 |
+| Emergency change | §8.5.1 | A.8.32 | BAI06 | CCC-08 | SP 800-128 §3.3 |
 | CAB governance | §8.5.1 | A.8.32 | BAI06 | CCC-01 | N/A |
 | IaC and drift | N/A | A.8.9 | BAI10 | CCC-07 | SP 800-128 §3.2 |
 
