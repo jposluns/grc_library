@@ -2,11 +2,11 @@
 
 **Document Title:** Change Management and Configuration Control Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.4\
-**Date:** 2026-08-31\
+**Version:** 1.3.5\
+**Date:** 2026-09-01\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md)\
+**Related Documents:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`governance/standard-emergency-authority.md`](../governance/standard-emergency-authority.md)\
 **Classification:** Public\
 **Category:** Operations\
 **Review Frequency:** Annual and upon material platform or regulatory change\
