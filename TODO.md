@@ -57,7 +57,6 @@ Fix errors and prevent their recurrence. Worked first; the routine `/validate`, 
 | ID | Item | Tags |
 | --- | --- | --- |
 | 1.29 | EU AI Act Digital Omnibus reconciliation: correct the corpus for the in-force Regulation (EU) 2026/1744 (H, M) | `[content]` `[public]` |
-| 1.31 | BASC clause-citation re-mapping to the held BASC sources (high-assurance) (H, L) | `[content]` `[public]` |
 
 ## Priority 2 — Fill significant gaps
 
