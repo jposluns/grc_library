@@ -2,7 +2,7 @@
 
 **Document Title:** Media Handling and Transport Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.9\
+**Version:** 1.3.10\
 **Date:** 2026-09-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -284,8 +284,8 @@ The following metrics are reported to the CISO quarterly and reviewed annually a
 
 | Control Area | ISO/IEC 27001:2022 | NIST SP 800-88 Rev. 2 / IEEE 2883 | CSA CCM v4.1 | COBIT 2019 |
 | --- | --- | --- | --- | --- |
-| Media handling and classification | A.8.10 | 800-88 Rev. 2: programme scope | DSP-04 | DSS05.06 |
-| Physical transport and chain of custody | A.8.10, A.7.10 | IEEE 2883: Clear | DCS-05 | DSS05.06 |
+| Media handling and classification | A.7.10, A.5.12 | 800-88 Rev. 2: programme scope | DSP-04 | DSS05.06 |
+| Physical transport and chain of custody | A.7.10 | IEEE 2883: Clear | DCS-05 | DSS05.06 |
 | Digital transfer controls | A.8.24, A.5.14 | N/A | DSP-10, CEK-03 | DSS05.02 |
 | Media storage | A.8.10, A.7.9 | 800-88 Rev. 2: programme | DCS-04 | DSS05.01 |
 | Sanitization and destruction | A.8.10 | IEEE 2883: Purge / Destruct | DSP-02 | DSS05.06 |
