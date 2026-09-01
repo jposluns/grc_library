@@ -2,7 +2,7 @@
 
 **Document Title:** Endpoint Management and Device Compliance Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.10\
+**Version:** 1.3.11\
 **Date:** 2026-09-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -299,13 +299,13 @@ The following metrics are reported to the CISO monthly and reviewed at the quart
 
 | Control Area | ISO/IEC 27001:2022 | NIST SP 800-124 | CSA CCM v4.1 | COBIT 2019 |
 | --- | --- | --- | --- | --- |
-| Asset inventory and lifecycle | A.5.9, A.8.1 | §4.1 Device Inventory | UEM-04 | BAI09.01, BAI09.03 |
-| Endpoint protection deployment | A.8.7 | §4.2 Configuration Mgmt | UEM-09 | DSS05.03 |
-| Configuration compliance and hardening | A.8.9 | §4.3 Security Baseline | UEM-05 | DSS05.03 |
-| Policy-based access-control enforcement | A.5.15, A.8.2 | §4.4 Access Control | UEM-05 | DSS05.04 |
-| Patch and vulnerability management | A.8.8 | §4.5 Patch Management | UEM-07, TVM-06 | DSS05.07 |
-| Mobile and BYOD | A.8.1, A.6.7 | §4.6 Mobile Devices | UEM-01 | DSS05.03 |
-| Decommissioning and media sanitization | A.8.10 | SP 800-124 §4.7 Disposal | DSP-02 | BAI09.03 |
+| Asset inventory and lifecycle | A.5.9, A.8.1 | SP 800-124 Rev. 2 §5.1.2 Survey Current Inventory | UEM-04 | BAI09.01, BAI09.03 |
+| Endpoint protection deployment | A.8.7 | SP 800-124 Rev. 2 §4.2 Enterprise Mobile Security Technologies | UEM-09 | DSS05.03 |
+| Configuration compliance and hardening | A.8.9 | SP 800-124 Rev. 2 §5.3.3 Set Policy, Device Configuration, and Provision | UEM-05 | DSS05.03 |
+| Policy-based access-control enforcement | A.5.15, A.8.2 | SP 800-124 Rev. 2 §5.3.2 Integration of EMM into the Enterprise Service Infrastructure | UEM-05 | DSS05.04 |
+| Patch and vulnerability management | A.8.8 | SP 800-124 Rev. 2 §4.3.6 Rapid Adoption of Software Updates | UEM-07, TVM-06 | DSS05.07 |
+| Mobile and BYOD | A.8.1, A.6.7 | SP 800-124 Rev. 2 §5.1.3 Choose Deployment Model | UEM-01 | DSS05.03 |
+| Decommissioning and media sanitization | A.8.10 | SP 800-124 Rev. 2 §5.5 Dispose of and/or Reuse Device | DSP-02 | BAI09.03 |
 
 ---
 
