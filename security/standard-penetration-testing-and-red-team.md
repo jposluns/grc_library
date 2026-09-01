@@ -2,8 +2,8 @@
 
 **Document Title:** Penetration Testing and Red Team Standard\
 **Document Type:** Standard\
-**Version:** 1.0.7\
-**Date:** 2026-08-27\
+**Version:** 1.0.8\
+**Date:** 2026-09-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/procedure-vulnerability-management.md`](procedure-vulnerability-management.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md)\
@@ -22,7 +22,7 @@ This standard defines the requirements for the organization's penetration testin
 
 The programme complements the Vulnerability Management Procedure and the Logging and Monitoring Standard by validating that controls are effective in practice, not merely in configuration. Vulnerability scanning identifies what is present; penetration testing determines what is exploitable. Together they provide assurance that the organization's defensive posture reflects its intended security architecture.
 
-This standard supports the Information Security Policy and addresses NIST SP 800-53 SA-11.
+This standard supports the Information Security Policy and addresses NIST SP 800-53 CA-8 (Penetration Testing) and SA-11(8) (Developer Testing and Evaluation, for web application security testing).
 
 ---
 
@@ -125,7 +125,7 @@ The CISO retains final approval authority over vendor selection for all penetrat
 
 | Control Area | ISO/IEC 27001:2022 | NIST SP 800-53 | CSA CCM v4.1 | Other |
 | --- | --- | --- | --- | --- |
-| Penetration testing programme | A.8.8 | SA-11 | TVM-07 | PTES |
+| Penetration testing programme | A.8.8 | CA-8 | TVM-07 | PTES |
 | Web application security testing | A.8.8 | SA-11(8) | TVM-07 | OWASP Testing Guide v4.2 |
 | Rules of engagement and authorization | A.5.36 | CA-8 | TVM-07 | N/A |
 | Remediation tracking | A.8.8 | SI-2 | TVM-08 | N/A |
