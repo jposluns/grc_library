@@ -2,8 +2,8 @@
 
 **Document Title:** BASC Programme Overview Annex\
 **Document Type:** Annex\
-**Version:** 1.1.1\
-**Date:** 2026-07-02\
+**Version:** 1.1.2\
+**Date:** 2026-09-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](annex-logistics-sector-requirements.md), [`compliance/logistics/policy-basc-information-security.md`](policy-basc-information-security.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/logistics/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md)\
@@ -48,7 +48,7 @@ It does not apply to organizations that operate exclusively outside BASC's scope
 
 ## Relationship to the main library
 
-Where the BASC International Standard requires specific control language, evidence formats, or operating cadences, the BASC-specific artefacts state those requirements explicitly. Where BASC controls coincide with the main library's controls (for example, access management, logging, incident response, data classification), the main-library control remains the implementation; the BASC artefacts document how that implementation maps to BASC's expectations.
+Where the BASC International Standard requires specific control language, evidence formats, or operating cadences, the BASC-specific artefacts state those requirements explicitly. Where BASC controls coincide with the main library's controls (for example, access management, security-policy compliance monitoring, incident response, data classification), the main-library control remains the implementation; the BASC artefacts document how that implementation maps to BASC's expectations.
 
 Adopting organizations implementing BASC certification consume:
 
