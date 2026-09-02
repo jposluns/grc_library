@@ -1,5 +1,7 @@
 # Changelog
 
+**2026-09-02 | 2026.09.632 | PR #1929** - Added roadmap item 2.34, a workforce monitoring and network-telemetry compliance suite (six new documents plus retention-schedule and jurisdiction-annex edits), requested by a downstream project and targeted for the coming week. It spans a monitoring policy, presence-inference limits, DPI controls, employment legitimate-interest guidance, works-council consultation, and an employee notice template.
+
 **2026-09-02 | 2026.09.631 | PR #1928** - Taught the advisory control-code fit pre-filter to assess ISO/IEC 27001:2022 Annex A controls, closing its blind spot in the family where a recent wrong-control fix landed. A new 93-control title reference module carries the canonical titles, cross-checked against the held standard.
 
 **2026-09-02 | 2026.09.630 | PR #1927** - Added a verdict-carrier-completeness audit (gate 97) for the matrix-fit and claim-fit skills. It checks that every carrier stating a verdict requirement carries the required held-source citation field and its source-not-held exception, mechanizing the completeness that cost an earlier change four rounds of review.
