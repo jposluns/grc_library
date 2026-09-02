@@ -121,8 +121,9 @@
     "advisory-not-gate": [
       "check-class-completeness.py",
       "check-clean-language-upstream.py",
+      "check-daily-changelog-rollup.py",
       "detect-collection-candidates.py",
-      "check-daily-changelog-rollup.py"
+      "lint-alignment-citation-existence.py"
     ]
   }
 }
