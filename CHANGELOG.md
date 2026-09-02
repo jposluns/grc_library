@@ -1,5 +1,7 @@
 # Changelog
 
+**2026-09-02 | 2026.09.633 | PR #1930** - Sharpened the matrix-fit skill's verdict discipline with a fit rubric for its three verdicts, a title-then-full-text evidence ladder for borderline calls, and an explicit disposition for a loose-supporting verdict, which is kept as an indicative mapping and recorded rather than corrected. Representative mappings are now distinguished from mismatches per the indicative-citation convention.
+
 **2026-09-02 | 2026.09.632 | PR #1929** - Added roadmap item 2.34, a workforce monitoring and network-telemetry compliance suite (six new documents plus retention-schedule and jurisdiction-annex edits), requested by a downstream project and targeted for the coming week. It spans a monitoring policy, presence-inference limits, DPI controls, employment legitimate-interest guidance, works-council consultation, and an employee notice template.
 
 **2026-09-02 | 2026.09.631 | PR #1928** - Taught the advisory control-code fit pre-filter to assess ISO/IEC 27001:2022 Annex A controls, closing its blind spot in the family where a recent wrong-control fix landed. A new 93-control title reference module carries the canonical titles, cross-checked against the held standard.
