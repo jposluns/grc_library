@@ -10,28 +10,29 @@
       "lint-acronym-consistency.py"
     ],
     "cross-cutting-includes-narrative": [
-      "lint-secrets-in-content.py",
-      "lint-pii-in-content.py",
-      "lint-external-link-domains.py",
-      "lint-links.py",
-      "lint-internal-references.py",
-      "lint-section-anchors.py",
-      "lint-placeholder-leakage.py",
-      "lint-license-consistency.py",
-      "lint-unbalanced-fences.py",
-      "lint-nested-markdown-links.py",
-      "lint-date-format.py",
-      "lint-intra-doc-refs.py",
-      "lint-cross-doc-numbers.py",
-      "lint-cross-file-section-refs.py",
-      "lint-cross-file-section-names.py",
-      "lint-ssdf-control-ids.py",
+      "lint-alignment-citation-existence.py",
+      "lint-bookkeeping-parity.py",
       "lint-ccm-aicm-citations.py",
       "lint-cobit-iso31000-citations.py",
       "lint-cobit-title-text.py",
+      "lint-cross-doc-numbers.py",
+      "lint-cross-file-section-names.py",
+      "lint-cross-file-section-refs.py",
+      "lint-date-format.py",
+      "lint-external-link-domains.py",
+      "lint-internal-references.py",
+      "lint-intra-doc-refs.py",
       "lint-library-version-monotonicity.py",
-      "lint-version-bump-recency.py",
-      "lint-bookkeeping-parity.py"
+      "lint-license-consistency.py",
+      "lint-links.py",
+      "lint-nested-markdown-links.py",
+      "lint-pii-in-content.py",
+      "lint-placeholder-leakage.py",
+      "lint-secrets-in-content.py",
+      "lint-section-anchors.py",
+      "lint-ssdf-control-ids.py",
+      "lint-unbalanced-fences.py",
+      "lint-version-bump-recency.py"
     ],
     "corpus-structural": [
       "build-portal.py",
@@ -122,8 +123,7 @@
       "check-class-completeness.py",
       "check-clean-language-upstream.py",
       "check-daily-changelog-rollup.py",
-      "detect-collection-candidates.py",
-      "lint-alignment-citation-existence.py"
+      "detect-collection-candidates.py"
     ]
   }
 }

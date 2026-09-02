@@ -293,6 +293,9 @@ jobs:
       - name: Hooks Python-syntax audit
         run: python3 tools/lint-hooks-syntax.py
 
+      - name: Alignment-citation existence audit
+        run: python3 tools/lint-alignment-citation-existence.py --strict
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py

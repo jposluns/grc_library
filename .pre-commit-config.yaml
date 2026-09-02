@@ -658,3 +658,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-alignment-citation-existence
+        name: Alignment-citation existence audit
+        entry: python3 tools/lint-alignment-citation-existence.py --strict
+        language: system
+        pass_filenames: false
+        always_run: true

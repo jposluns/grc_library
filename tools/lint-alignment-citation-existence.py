@@ -1,26 +1,29 @@
 #!/usr/bin/env python3
 """Fabricated alignment-citation existence audit (registry-driven).
 
-Catches control/section identifiers cited in the corpus that do NOT exist in the
-named framework EDITION's catalogue -- the "fabricated code" class the framework
+Catches control/section identifiers cited in the corpus that do NOT exist in any held
+edition of their framework's catalogue -- the "fabricated code" class the framework
 existence gates 48/49/54/58/61 do not cover for these frameworks (a wrong control
 *mapping* stays an authorial judgement; a nonexistent *code* is mechanically
 checkable). Same philosophy and shape as `lint-ssdf-control-ids.py`.
 
 It consumes ONLY the committed factual registry `alignment_citation_reference.py`
 (never the held `grc_library_ref` at run time), so it works in a sibling-free clone
-(portability). Only an unknown identifier attributed to a catalogue marked
-`status="complete"` is a fabricated-code error.
+(portability). A framework-family code is validated against the UNION of the held editions
+of that framework; only a code absent from ALL of them is a fabricated-code error, so a
+legitimate draft-edition-only code is not false-flagged.
 
-Coverage in this initial cut: NIST Privacy Framework 1.0 (the smallest complete,
-edition-pinned catalogue: 18 categories, 100 subcategories). The PF `XX.YY-P`
+Coverage in this initial cut: the held NIST Privacy Framework editions, validated as a
+union -- the 1.0 core (18 categories, 100 subcategories, complete) and the 1.1 IPD draft
+(24 categories, 138 subcategories), so a legitimate 1.1-only code is not false-flagged. The PF `XX.YY-P`
 family is unique in the corpus (no other cited framework uses the `-P` suffix on a
 letter.letter code), so any such token is a Privacy-Framework citation (the same
 family-uniqueness argument `lint-ssdf-control-ids.py` mode A uses).
 
 RANGE-AWARE: a range cite such as `CT.PO-P1 to P5` is expanded and its endpoints
-validated -- the exact bare-token/RANGE shape the per-PR D13 stranded-code gate does
-not scan (resume /validate 2026-09-02, template-privacy-notice.md:162).
+validated -- the bare-token/RANGE shape whose fabricated codes the per-PR, existence-blind
+D13 stranded-code delta gate cannot catch (it expands ranges on changed lines but never
+validates a token against a catalogue) (resume /validate 2026-09-02, template-privacy-notice.md:162).
 
 Modes:
   * default (report-only): print any fabricated code, exit 0. Use during the
@@ -39,7 +42,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from lint_common import (  # noqa: E402
     REPO_ROOT, iter_markdown_targets, read_text_safe, iter_non_code_lines,
 )
-from alignment_citation_reference import REGISTRY  # noqa: E402
+from alignment_citation_reference import REGISTRY, PF_ALL_EDITIONS_VALID  # noqa: E402
 
 # Files where a code-shaped string is historical description / an example, not a live cite.
 # Markdown files where a code-shaped string is historical description / an example, not
@@ -51,10 +54,12 @@ EXEMPT_SUFFIXES = (
     "governance/specification-citation-verification.md",  # ditto
 )
 
-# The Privacy-Framework catalogue (only complete catalogue in this cut).
+# The PF 1.0 edition entry supplies the framework name and counts; validation uses the union below.
 _PF = REGISTRY["nist-privacy-framework-1.0"]
-_PF_ALL = _PF["all"]
-_PF_NAME = f'{_PF["name"]} {_PF["edition"]}'
+# Validate against the UNION of every held Privacy Framework edition (1.0 + 1.1 IPD), so a
+# legitimate 1.1-only code is not false-flagged; only a code absent from ALL editions is fabricated.
+_PF_ALL = PF_ALL_EDITIONS_VALID
+_PF_NAME = _PF["name"]  # edition-agnostic; validated vs the union of held editions
 
 # A single PF identifier: XX.YY-P optionally with a subcategory number.
 _PF_SINGLE = re.compile(r"\b([A-Z]{2}\.[A-Z]{2}-P)(\d+)?\b")
@@ -124,11 +129,11 @@ def main(argv: list[str]) -> int:
         print(f"{label}: fabricated alignment citation(s) found ({len(set(findings))}):")
         for f in sorted(set(findings)):
             print(f"  - {f}")
-        print(f"\nEach cites an identifier absent from the named framework edition's catalogue. "
+        print(f"\nEach cites an identifier absent from every held edition of its framework's catalogue. "
               f"Correct to an existing identifier that fits the row.")
         return 1 if args.strict else 0
-    print(f"OK: all alignment citations exist in their named framework edition "
-          f"(coverage: {_PF_NAME}).")
+    print(f"OK: all alignment citations exist in a held edition of their framework "
+          f"(coverage: {_PF_NAME}, 1.0 core + 1.1 IPD, validated as a union).")
     return 0
 
 

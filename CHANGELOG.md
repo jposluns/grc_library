@@ -1,5 +1,7 @@
 # Changelog
 
+**2026-09-02 | 2026.09.619 | PR #1916** - Promoted the fabricated-alignment-citation check to a blocking audit gate now that the corpus is clean of fabricated codes. The check validates that every cited framework control or section identifier exists in at least one held edition of its framework, catching a nonexistent code the existing framework gates cannot see, starting with the NIST Privacy Framework across its 1.0 and 1.1-draft editions. This completes the fabricated-code half of the scan-first remediation.
+
 **2026-09-02 | 2026.09.618 | PR #1915** - Added the storage-media control to the media-handling document index entry, matching the control-fit correction just applied to that document. The index had named only the information-deletion control, which now sits alongside the storage-media control that heads most of the document.
 
 **2026-09-02 | 2026.09.617 | PR #1914** - Corrected the ISO control on the media-storage row of the media-handling procedure. The row led with the information-deletion control, which fits deletion rather than storage, so it now cites the storage-media control while retaining the off-premises-assets control. An earlier fix had corrected the adjacent handling and transport rows but missed this one; the deletion control correctly remains on the sanitization row.

@@ -15935,6 +15935,18 @@ class AlignmentCitationExistenceTests(LinterTestCase):
         self.assertEqual(result.returncode, 0,
                          f"valid range should pass; stdout:\n{result.stdout}")
 
+    def test_pf11_only_code_passes(self) -> None:
+        # A NIST Privacy Framework 1.1 IPD code (GV.RR-P1, absent from 1.0) must NOT be flagged:
+        # the gate validates against the UNION of held editions, so only a code absent from ALL is fabricated.
+        fixture = self.make_fixture(
+            "align-cite-pf11.md",
+            "| Framework | Code | Note |\n| --- | --- | --- |\n"
+            "| NIST Privacy Framework 1.1 | GV.RR-P1 | valid in the 1.1 IPD |\n",
+        )
+        result = run_linter(self.SCRIPT, "--strict", fixture)
+        self.assertEqual(result.returncode, 0,
+                         f"PF 1.1 code should pass via the edition union; stdout:\n{result.stdout}")
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
