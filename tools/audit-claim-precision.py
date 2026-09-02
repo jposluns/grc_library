@@ -35,7 +35,7 @@ Ground truth for the judge is the held source text in the SIBLING
 grc_library_ref reference repo (buckets at its root); this tool reports,
 best-effort, whether each named source FAMILY appears held (token search of
 the grc_library_ref indexes), because a claim against an un-held source
-cannot be judged and routes to the maintainer's source-drop queue instead.
+cannot be judged and routes to the maintainer's source-acquisition queue instead.
 The grc_library_ref checkout is optional input (as in
 audit-brief-freshness.py): absent checkout means held-state reads
 "unknown", never a failure.
