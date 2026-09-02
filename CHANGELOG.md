@@ -1,5 +1,7 @@
 # Changelog
 
+**2026-09-02 | 2026.09.636 | PR #1933** - Reframed a disaster-recovery plan and a personnel-screening standard so their example incident and infrastructure read as explicitly illustrative rather than as a specific organization's history, restoring organization-neutrality.
+
 **2026-09-02 | 2026.09.635 | PR #1932** - Corrected an EU AI Act citation in the compliance and audit policy: the risk, quality, and post-market monitoring alignment now cites Articles 9, 17, and 72 (the prior "Articles 9 to 16" range omitted quality, Article 17, and post-market monitoring, Article 72).
 
 **2026-09-02 | 2026.09.634 | PR #1931** - Defined the claim-fit skill's Tier-B sampling discipline: soft-alignment claims are sampled per run, stratified by source family and document domain, and drawn without replacement so the whole population is progressively covered.

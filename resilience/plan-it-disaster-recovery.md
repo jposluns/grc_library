@@ -2,8 +2,8 @@
 
 **Document Title:** IT Disaster Recovery Plan\
 **Document Type:** Plan\
-**Version:** 1.3.9\
-**Date:** 2026-08-24\
+**Version:** 1.4.0\
+**Date:** 2026-09-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -18,15 +18,15 @@
 
 ## Purpose
 
-This plan defines the system-specific recovery procedures, RTO and RPO targets, and runbook references for IT Disaster Recovery (DR). It is a companion document to the BC/DR Standard and the Business Continuity and Crisis Management Plan, which govern the broader BC/DR framework. This plan focuses on IT system recovery execution rather than business continuity governance. The plan reflects industry experience with phased recovery from major security incidents; adopting organizations calibrate RTO/RPO targets, tier assignments, and phasing to their own incident history, risk appetite, and operational context.
+This plan defines the system-specific recovery procedures, RTO and RPO targets, and runbook references for IT Disaster Recovery (DR). It is a companion document to the BC/DR Standard and the Business Continuity and Crisis Management Plan, which govern the broader BC/DR framework. This plan focuses on IT system recovery execution rather than business continuity governance. The plan reflects industry experience with phased recovery from major security incidents; adopting organizations calibrate RTO/RPO targets, tier assignments, and phasing to their own incident history, risk appetite, and operational context. The specific infrastructure, environments, and topology named throughout this plan (for example on-premises and cloud tiers, a hypervisor estate, directory and identity services, and a cloud-based recovery platform) are an illustrative reference deployment, not a description of any particular organization's environment; an adopter substitutes its own.
 
 ---
 
 ## Scope
 
-1. Applies to all IT systems and infrastructure supporting organizational operations, including production systems in the primary data centre and cloud platform environments.
+1. Applies to all IT systems and infrastructure supporting organizational operations, across on-premises and cloud production environments.
 2. Covers recovery of virtual infrastructure, identity systems, data systems, integration layer, and reporting services.
-3. Covers the current infrastructure programme environment model (DEV / TEST / PROD) as it is brought into service.
+3. Covers the environment tiers in scope (for example DEV / TEST / PROD).
 
 ---
 
@@ -51,11 +51,13 @@ This plan defines the system-specific recovery procedures, RTO and RPO targets, 
 | **Tier 3: Standard** | Reporting and analytics, departmental tools, collaboration and file storage platforms | 72 hours | 24 hours |
 | **Tier 4: Non-Critical** | Non-production environments, internal knowledge bases | 7 days | 72 hours |
 
-Specific per-system RTO/RPO targets for ongoing system modernization workstreams will be incorporated into this plan upon project completion.
+Per-system RTO/RPO targets for systems added through modernization or onboarding workstreams are incorporated into this plan as those systems enter service.
 
 ---
 
 ## Recovery infrastructure
+
+The recovery architecture described here, like the infrastructure examples used throughout this plan, is an illustrative reference deployment; an adopting organization substitutes its own primary-site topology, recovery platform, and cloud-service dependencies.
 
 **Primary site:** On-premises hypervisor infrastructure in the primary data centre.
 
@@ -67,7 +69,7 @@ Specific per-system RTO/RPO targets for ongoing system modernization workstreams
 
 ## Phased recovery sequence
 
-Recovery follows the sequence demonstrated and refined during the prior security incident response and post-incident review.
+Recovery follows a phased sequence, refined through incident-response testing and post-incident review, that restores systems in dependency order.
 
 The phased sequence below applies to a **catastrophic full-site recovery** (for example, a site-wide ransomware event or facility loss requiring rebuild from clean backups), where systems are restored in dependency order rather than concurrently. The per-system RPO targets in the "RTO and RPO targets" table above are data-loss tolerances that remain the objective in every recovery scenario, catastrophic recovery included. The per-system RTO targets are the objectives for a normal isolated system failure; in a catastrophic recovery a system's effective restoration time is governed instead by its recovery phase, which may exceed its individual-failure RTO because upstream dependencies must be restored first.
 
@@ -121,13 +123,13 @@ DR testing requirements follow the Continuity and Recovery Testing and Exercisin
 
 ---
 
-## Lessons learned: prior security incident
+## Lessons learned: illustrative incident scenario
 
-A ransomware incident resulted in approximately a 30-day recovery window. Key lessons incorporated into this plan include:
+In an illustrative ransomware scenario, recovery could span roughly a 30-day window. The lessons this plan incorporates from such scenarios include:
 
 - Hypervisor infrastructure requires explicit DR coverage via a cloud-based site recovery service.
 - Identity recovery (on-premises directory service) must be the first recovery step.
-- In the prior incident, integration-layer recovery took approximately 14 days, exceeding its 7-to-10-day Phase 3 target, and required dedicated resourcing.
+- In such a scenario, integration-layer recovery can take roughly 14 days, exceeding its 7-to-10-day Phase 3 target and requiring dedicated resourcing.
 - Legacy data environments with backup gaps materially increase recovery complexity and must be eliminated.
 - Evidence of attacker removal must be confirmed before any system is restored to production.
 
