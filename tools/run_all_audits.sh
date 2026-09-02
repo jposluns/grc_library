@@ -193,6 +193,7 @@ run_gate "Index-header parity audit"                              python3 tools/
 run_gate "Relationship model in sync"                            python3 tools/build-relationship-model.py --check
 run_gate "Static unused-import audit"                            python3 tools/lint-unused-imports.py --enforce
 run_gate "Hooks Python-syntax audit"                             python3 tools/lint-hooks-syntax.py
+run_gate "Alignment-citation existence audit"                     python3 tools/lint-alignment-citation-existence.py --strict
 
 # ----------------------------------------------------------------------
 # Summary
