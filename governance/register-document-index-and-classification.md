@@ -2,8 +2,8 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.144\
-**Date:** 2026-09-01\
+**Version:** 1.27.145\
+**Date:** 2026-09-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md)\
@@ -129,7 +129,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Operations | Standard | Certificate Authority Management | [`operations/standard-certificate-authority-management.md`](../operations/standard-certificate-authority-management.md) | Chief Information Security Officer | Annual | RFC 5280, CA/Browser Forum Baseline Requirements, NIST SP 800-57 | template |
 | Operations | Procedure | Change Management and Configuration Control | [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md) | Chief Information Officer | Annual | ISO/IEC 20000-1, COBIT CCC, NIST SP 800-128 | template |
 | Operations | Procedure | Endpoint Management and Device Compliance | [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.8.1/A.8.3, NIST SP 800-124, CSA CCM UEM | template |
-| Operations | Procedure | Media Handling and Transport | [`operations/procedure-media-handling-and-transport.md`](../operations/procedure-media-handling-and-transport.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.8.10, NIST SP 800-88, CSA CCM DSP, DCS, BASC | template |
+| Operations | Procedure | Media Handling and Transport | [`operations/procedure-media-handling-and-transport.md`](../operations/procedure-media-handling-and-transport.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.7.10 and A.8.10, NIST SP 800-88, CSA CCM DSP, DCS, BASC | template |
 | Operations | Procedure | Security Monitoring and Alert Management | [`operations/procedure-security-monitoring-and-alert-management.md`](../operations/procedure-security-monitoring-and-alert-management.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.8.15 to 16, NIST SP 800-53 SI, MITRE ATT&CK | template |
 | Operations | Procedure | Threat Intelligence and SIEM Operations | [`operations/procedure-threat-intelligence-and-siem-operations.md`](../operations/procedure-threat-intelligence-and-siem-operations.md) | Chief Information Security Officer | Annual | NIST SP 800-150, MITRE ATT&CK, STIX/TAXII, CSA CCM TVM | template |
 | Operations | Procedure | Patch Management Procedure | [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md) | IT Operations Lead | Annual | NIST SP 800-40, ISO/IEC 27001 Annex A.8.8, CSA CCM TVM-08, CIS Controls v8.1 | template |
