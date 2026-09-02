@@ -24,6 +24,8 @@ Portable procedure, concrete names. In the parent GRC library this skill runs wi
 - Primary cadence trigger: each matrix-expansion batch of the standing
   matrix-completion backlog item.
 
+- QA execution (this project): the pass itself runs as the TRIPLE-FAMILY QA panel (the CLAUDE.md standard), the identical brief given to one Claude-, one Codex-, and one Gemini-family orch-verify worker with the verdicts reconciled; the Process's "dispatch one or more subagents (or perform the read directly)" wording describes the WORKER's own internal execution, never an in-session Task/Agent dispatch by the maintainer orchestrator, which the offload rule forbids and the block-orchestrator-self-qa hook blocks.
+
 An adopting project maps each bullet to its own gates, pre-filter, surfaces, and
 sources; the procedure below refers to them generically.
 

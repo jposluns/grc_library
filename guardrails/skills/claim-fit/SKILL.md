@@ -16,6 +16,8 @@ Portable procedure, concrete names. In the parent GRC library this skill runs wi
 - Reference base: the sibling private `grc_library_ref` repository, located via its indexes (`grc_library_ref/INDEX.md`, `grc_library_ref/catalogue.yml`, `grc_library_ref/SECTION-INDEX.md`), with the per-source currency confirmation and trust-bucket rules its own conventions define.
 - Tier definitions (as the pre-filter implements them): TIER A, a specific value tied to a named normative source in one clause, both orders, judged EVERY row; TIER B, soft-alignment phrasing with no specific value, sampled on cadence.
 
+- QA execution (this project): the pass itself runs as the TRIPLE-FAMILY QA panel (the CLAUDE.md standard), the identical brief given to one Claude-, one Codex-, and one Gemini-family orch-verify worker with the verdicts reconciled; the Process's "dispatch one or more subagents (or perform the read directly)" wording describes the WORKER's own internal execution, never an in-session Task/Agent dispatch by the maintainer orchestrator, which the offload rule forbids and the block-orchestrator-self-qa hook blocks.
+
 An adopting project maps each bullet to its own gates, pre-filter, baseline runner, reference base, and tiers; the procedure below refers to them generically.
 
 ## Overview
