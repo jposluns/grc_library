@@ -45,31 +45,20 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from lint_common import REPO_ROOT, read_text_safe  # noqa: E402
+from matrix_code_parse import (  # shared canonical parser (P-1.62 I10)
+    CSA_CODE_RE as _CSA_CODE,
+    CSA_RANGE_RE as _CSA_RANGE,
+    expand_codes as _expand_codes,
+)
 
 MATRIX_REL = "compliance/matrix-grc-compliance-alignment.md"
-# CSA CCM / AICM code: 2-5 char prefix of letters+ampersand (A&A, I&S, TVM, CEK, ...),
-# hyphen, two digits. Leading char is always a letter.
-_CSA_CODE = re.compile(r"(?<![\w&])([A-Z][A-Z&]{1,4}-\d{2})\b")
-# A contiguous range: "IAM-01 to 15", "LOG-01 through LOG-14", "A&A-01 to A&A-06".
-_CSA_RANGE = re.compile(
-    r"(?<![\w&])([A-Z][A-Z&]{1,4})-(\d{1,2})\s*(?:to|through)\s*"
-    r"(?:([A-Z][A-Z&]{1,4})-)?(\d{1,2})\b"
-)
+# _CSA_CODE / _CSA_RANGE / _expand_codes are the shared canonical CSA parser,
+# imported (aliased to the historical private names) from tools/matrix_code_parse.py
+# above (unified with audit-matrix-semantic-fit, P-1.62 I10).
 # A matrix header row (locates the CCM/AICM columns).
 _HEADER_CELLS = ("Domain", "Document Title", "Path", "CSA CCM v4.1", "CSA AICM v1.1")
 
 
-def _expand_codes(text: str) -> set[str]:
-    """All control codes the text carries, with contiguous ranges expanded."""
-    codes: set[str] = set(_CSA_CODE.findall(text))
-    for prefix, start, end_prefix, end in _CSA_RANGE.findall(text):
-        if end_prefix and end_prefix != prefix:  # cross-family range: not a real range
-            continue
-        s, e = int(start), int(end)
-        if s <= e and e - s < 100:  # sane bound
-            for n in range(s, e + 1):
-                codes.add(f"{prefix}-{n:02d}")
-    return codes
 
 
 def _cells(line: str) -> list[str]:

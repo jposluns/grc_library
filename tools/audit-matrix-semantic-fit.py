@@ -83,6 +83,7 @@ from ccm_aicm_reference import AICM_V11, CCM_V41
 from cobit_iso31000_reference import COBIT_OBJECTIVES, ISO31000_CLAUSES
 from nist_csf_reference import CSF_CATEGORIES
 from iso27001_reference import ISO27001_2022_ANNEX_A
+from matrix_code_parse import CODE_RE  # shared canonical parser (P-1.62 I10)
 
 try:
     from lint_common import AUDITED_DOMAIN_DIRS
@@ -123,15 +124,9 @@ KNOWN_TITLES.update(
 # gate 58 (Annex A existence) cannot see. Now assessable at the control-title level.
 KNOWN_TITLES.update(ISO27001_2022_ANNEX_A)
 
-# Control-code token: CCM (e.g. DSP-16, A&A-02), CSF category (e.g. GV.OC),
-# a COBIT 2019 objective/practice code (e.g. APO12, DSS05.03; practice
-# codes are collected so the row surfaces on the worklist, though only the
-# objective level carries a known title for the overlap heuristic), or an
-# ISO/IEC 27001:2022 Annex A control code (e.g. A.5.1, A.7.10, A.8.34).
-CODE_RE = re.compile(
-    r"\b(?:[A-Z&]{2,4}-[0-9]{2}|(?:GV|ID|PR|DE|RS|RC)\.[A-Z]{2}"
-    r"|(?:EDM|APO|BAI|DSS|MEA)\d{2}(?:\.\d{2})?"
-    r"|A\.[5-8]\.\d{1,2}(?!\d|\.\d))\b")
+# Control-code token CODE_RE (CCM/AICM + CSF category + COBIT objective/practice +
+# ISO/IEC 27001:2022 Annex A) is the shared canonical parser, imported above from
+# tools/matrix_code_parse.py (unified with audit-stranded-matrix-code, P-1.62 I10).
 
 # Minimal stopword set: only words with no discriminating power. Kept SMALL on
 # purpose - a larger set would strip real overlap and over-flag (the opposite of
