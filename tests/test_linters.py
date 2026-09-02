@@ -1773,6 +1773,33 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
         self.assertIn("self-test: ", result.stdout)
 
+    def test_skill_verdict_carrier_completeness_gate(self) -> None:
+        """Gate 97 (verdict-carrier-completeness) self-test PLUS the live census.
+
+        The --self-test proves both checks (missing-field, exception-contradiction), the
+        exempt-marker states, and the environmental exits. The live run against the real
+        matrix-fit/claim-fit pairs at exit 0 is the standing negative test (a future PR that
+        drops a required verdict field from a carrier turns this red), per the audit suite's
+        census convention. Origin: PR #1926 (P-1.56) cost four QA rounds on exactly this class.
+        """
+        tool = REPO_ROOT / "tools" / "lint-skill-verdict-carrier-completeness.py"
+        st = self._run_selftest([sys.executable, str(tool), "--self-test"])
+        self.assertEqual(st.returncode, 0,
+                         f"gate 97 --self-test failed.\nstdout:\n{st.stdout}\nstderr:\n{st.stderr}")
+        self.assertIn("self-test case(s) passed", st.stdout)
+        census = self._run_selftest([sys.executable, str(tool)])
+        self.assertEqual(census.returncode, 0,
+                         f"gate 97 live census is not clean; a verdict carrier lost a required "
+                         f"field.\nstdout:\n{census.stdout}\nstderr:\n{census.stderr}")
+        # A never-match carrier_signal would pass the tool vacuously; assert the live run
+        # actually MATCHED carriers (non-vacuity), so a broken signal on the real manifest
+        # turns this red in CI.
+        m = re.search(r"(\d+) carrier unit\(s\) checked", census.stdout)
+        self.assertIsNotNone(m, f"census did not report a carrier count.\n{census.stdout}")
+        self.assertGreater(int(m.group(1)), 0,
+                           "gate 97 matched ZERO carriers on the real manifest; its "
+                           "carrier_signal is vacuous.")
+
     def test_block_pr_without_resume_validate_hook_self_test(self) -> None:
         """The resume-/validate presence guard's own self-test, wired at introduction
         (SEED-1, 2026-08-31): a PR must not open/merge in a session that ran no resume

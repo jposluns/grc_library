@@ -664,3 +664,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-skill-verdict-carrier-completeness
+        name: Skill verdict carrier-completeness audit
+        entry: python3 tools/lint-skill-verdict-carrier-completeness.py
+        language: system
+        pass_filenames: false
+        always_run: true

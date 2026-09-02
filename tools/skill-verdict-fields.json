@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "_doc": "Manifest for gate 97 (lint-skill-verdict-carrier-completeness.py). Declares, per verdict-bearing skill, the REQUIRED verdict-recording field token set, its legitimate per-verdict-type exception, and a carrier-signal regex that identifies requirement-stating units. Origin: PR #1926 (P-1.56) cost 4 QA rounds because a required field was applied carrier-by-carrier; this gate mechanizes the carrier-completeness check. Enroll ONLY proven-out fields (each addition gated on a zero-finding census). Adopters of the bare guardrails pack do not inherit this project-side gate, by design.",
+  "exempt_marker": "verdict-fields: exempt",
+  "skills": [
+    {
+      "name": "claim-fit",
+      "files": [
+        "guardrails/skills/claim-fit/SKILL.md",
+        ".claude/commands/claim-fit.md"
+      ],
+      "carrier_signal": "(?i)(every (?:fit )?(?:verdict|judgement)|recording a verdict|reject any|report back:|surface confirmed findings)",
+      "fields": [
+        {
+          "name": "held-source-citation",
+          "exception": {
+            "verdict": "source-not-held",
+            "requires_all": [
+              "index lookup"
+            ],
+            "mandatory_with_primary": true
+          },
+          "requires_regex": [
+            "(?i)(?:held[- ]source|reference-base)[^\\n]{0,60}path:line"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "matrix-fit",
+      "files": [
+        "guardrails/skills/matrix-fit/SKILL.md",
+        ".claude/commands/matrix-fit.md"
+      ],
+      "carrier_signal": "(?i)(every (?:fit )?(?:verdict|judgement)|recording a fit verdict|reject any|report back:|surface confirmed findings)",
+      "fields": [
+        {
+          "name": "held-source-title-citation",
+          "requires_regex": [
+            "(?i)(?:held[- ]source|reference-base)[^\\n]{0,60}path:line"
+          ]
+        }
+      ]
+    }
+  ]
+}

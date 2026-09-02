@@ -98,6 +98,7 @@
       "lint-sibling-placeholders.py",
       "lint-skill-derives-from.py",
       "lint-skill-internal-refs.py",
+      "lint-skill-verdict-carrier-completeness.py",
       "lint-stdlib-only-imports.py",
       "lint-todo-index-reference-parity.py",
       "lint-todo-list-tag.py",
