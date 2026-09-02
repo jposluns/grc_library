@@ -1,5 +1,7 @@
 # Changelog
 
+**2026-09-02 | 2026.09.635 | PR #1932** - Corrected an EU AI Act citation in the compliance and audit policy: the risk, quality, and post-market monitoring alignment now cites Articles 9, 17, and 72 (the prior "Articles 9 to 16" range omitted quality, Article 17, and post-market monitoring, Article 72).
+
 **2026-09-02 | 2026.09.634 | PR #1931** - Defined the claim-fit skill's Tier-B sampling discipline: soft-alignment claims are sampled per run, stratified by source family and document domain, and drawn without replacement so the whole population is progressively covered.
 
 **2026-09-02 | 2026.09.633 | PR #1930** - Sharpened the matrix-fit skill's verdict discipline with a fit rubric for its three verdicts, a title-then-full-text evidence ladder for borderline calls, and an explicit disposition for a loose-supporting verdict, which is kept as an indicative mapping and recorded rather than corrected. Representative mappings are now distinguished from mismatches per the indicative-citation convention.

@@ -2,7 +2,7 @@
 
 **Document Title:** Compliance, Audit, and CAPA Management Policy\
 **Document Type:** Policy\
-**Version:** 1.0.21\
+**Version:** 1.0.22\
 **Date:** 2026-09-02\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -114,7 +114,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 - **Cloud Security Alliance (CSA)** frameworks (GRC, A&A, AICM)
 - **NIST SP 800-53 Rev. 5 CA** family (Assessment and Authorization)
 - **OECD AI Principles** (Accountability, Transparency, Human Oversight)
-- **EU AI Act** Articles 9 to 16 (Risk, Quality, and Post-Market Monitoring)
+- **EU AI Act** Articles 9, 17, and 72 (Risk management, Quality management, and Post-market monitoring)
 - **Canada AI governance:** the Treasury Board Directive on Automated Decision-Making and the federal Voluntary Code of Conduct on Generative AI (AIDA lapsed at the 2025-01-06 prorogation; not in force)
 - **U.S. AI executive action:** Executive Order 14110 (Safe, Secure, and Trustworthy AI) was rescinded on 20 January 2025 and superseded by "Removing Barriers to American Leadership in Artificial Intelligence"; retained as historical context, not a current alignment target
 - **Trade and Supply Chain Programs:** WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (U.S.), AEO (EU), and equivalents
