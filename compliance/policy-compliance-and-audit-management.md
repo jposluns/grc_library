@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance, Audit, and CAPA Management Policy\
 **Document Type:** Policy\
-**Version:** 1.0.20\
-**Date:** 2026-09-01\
+**Version:** 1.0.21\
+**Date:** 2026-09-02\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md)\
@@ -126,12 +126,12 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 | Control Area | ISO 37301 | ISO 19011 | COBIT 2019 | CSA | NIST | Legal / Regulatory | Trade and Supply Chain Programs |
 |---------------|------------|------------|-------------|------|-------|--------------------|--------------------------------|
 | Compliance governance | Clauses 5 to 6 Leadership | Clause 5 Managing an audit programme | EDM01 Ensured Governance Framework Setting and Maintenance | GRC 01 to 03 | NIST CSF Govern | GDPR, PIPEDA | WCO SAFE, ISO 28000, BASC, PIP, CTPAT, AEO |
-| Compliance risk and obligations register | Clauses 6 to 7 Planning | N/A | APO12 linkage | GRC 04 | NIST RMF Prepare | Multi-jurisdiction | WCO SAFE equivalence |
+| Compliance risk and obligations register | Clauses 6 to 7 Planning | N/A | APO12 linkage | GRC 07 | NIST RMF Prepare | Multi-jurisdiction | WCO SAFE equivalence |
 | Audit planning and execution | Clauses 8 to 9 Operation | Clauses 5 to 6 (audit programme; conducting an audit) | MEA04 Managed Assurance | A&A 01 to 04 | NIST SP 800-53 CA-2, CA-5 | AI Act, sectoral laws | WCO SAFE equivalence |
 | Findings and CAPA | Clause 10 Improvement | §6.4 audit findings; §6.7 audit follow-up | MEA01.05 Ensure the implementation of corrective actions | A&A 05, A&A 06 | NIST CA-7, IR-4 | CAPA regulations | WCO SAFE equivalence |
 | AI audit and algorithmic monitoring | [Adopted in CMS] | [Guidance] | MEA01.03 Collect and process performance and conformance data | AIS 01 to 03 | NIST AI RMF Measure | EU AI Act; Treasury Board Directive (AIDA lapsed) | Not applicable |
 | Reporting and disclosure | Clause 9 Performance evaluation | §6.5 Preparing and distributing the audit report | MEA01.04 Analyze and report performance | GRC 06 | NIST CSF Communicate | All jurisdictions | WCO SAFE equivalence |
-| Supplier and trade compliance auditing | Clauses 8 to 9 | Clause 6 Conducting an audit | APO10.05 Monitor vendor performance and compliance | STA 05 | NIST SP 800-161 Rev. 1 SCRM | Trade and customs laws | WCO SAFE equivalence |
+| Supplier and trade compliance auditing | Clauses 8 to 9 | Clause 6 Conducting an audit | APO10.05 Monitor vendor performance and compliance | STA 13 | NIST SP 800-161 Rev. 1 SCRM | Trade and customs laws | WCO SAFE equivalence |
 
 
 

@@ -1,5 +1,7 @@
 # Changelog
 
+**2026-09-02 | 2026.09.616 | PR #1913** - Corrected two wrong control codes in the compliance-and-audit policy alignment table. The compliance-obligations-register row moves off the policy-exception control to the regulatory-mapping control, and the supplier-audit row moves off a supply-chain-ownership control to the supply-chain-compliance-assessment control. Both now match the codes the master matrix already assigns to these documents.
+
 **2026-09-02 | 2026.09.615 | PR #1912** - Corrected the secret-scanning and artefact-signing control mappings left stranded by an earlier fix. The CI/CD pipeline secret-scanning row moves off a key-lifecycle range to the application-security-testing control, and the artefact-signing rows in the CI/CD and OWASP integrity rules drop a change-agreement control; the DevOps standard moves its secret-scanning row off an authenticator-management control to the developer-testing control. Each surface had lagged the paired document fix, and the CI/CD rule was corrected in both its pack source and its in-repo copy.
 
 **2026-09-02 | 2026.09.614 | PR #1911** - Corrected four stranded control codes across three master compliance-matrix rows so each row cites controls its document carries. The vulnerability row drops a malware-protection code for the remediation-schedule code; the threat-intelligence row drops two codes absent from that document for the monitoring and event-triage controls; and the DevOps row drops a change-agreement control whose title does not fit. Each row had lagged an earlier document fix.
