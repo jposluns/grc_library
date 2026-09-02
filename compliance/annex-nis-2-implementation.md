@@ -2,8 +2,8 @@
 
 **Document Title:** NIS 2 Implementation Annex\
 **Document Type:** Annex\
-**Version:** 1.2.3\
-**Date:** 2026-08-17\
+**Version:** 1.2.4\
+**Date:** 2026-09-02\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](matrix-grc-compliance-alignment.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md)\
@@ -79,7 +79,7 @@ Library support: [`governance/framework-human-capital-and-ethical-conduct.md`](.
 
 ---
 
-## Articles 23 to 25 incident reporting
+## Article 23 incident reporting
 
 NIS 2 mandates a tiered incident-notification regime to the competent authority or CSIRT.
 
