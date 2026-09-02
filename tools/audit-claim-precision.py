@@ -28,7 +28,7 @@ build, and the human reading its output) a worklist, tiered by risk:
     consistent with / in accordance with / compliance with / conforms
     to / as required by / as defined in / per" plus a
     named source) with no specific value. These assert alignment, not
-    specific language; the census counts 54 Tier-A + 164 Tier-B rows (2026-09-02, post the I2 recall-widening and its over-match fixes), so the
+    specific language; the census counts 53 Tier-A + 163 Tier-B rows (2026-09-02, post the I2 recall-widening, its over-match fixes, and the non-corpus-tree exclusions guardrails/ references/ .project-governance/), so the
     skill samples them rather than judging each per run.
 
 Ground truth for the judge is the held source text in the SIBLING
@@ -68,7 +68,10 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 # generated artefacts (edit the source, not the artefact), and the
 # CHANGELOG (it quotes claims historically; it does not assert them).
 EXCLUDE_DIRS = {".git", ".working", ".claude", "node_modules", "__pycache__",
-                "tests", "tools"}
+                "tests", "tools",
+                # Non-corpus trees: the pack (skill/rule EXAMPLE claims), the playbooks,
+                # and the project-governance working store are not corpus documents.
+                "guardrails", "references", ".project-governance", ".web"}
 EXCLUDE_FILES = {"CHANGELOG.md", "TODO.md", "TODO-REFERENCE.md",
                  str(Path("docs") / "portal.md"),
                  str(Path("docs") / "maturity-scorecard.md"),
@@ -152,12 +155,20 @@ def find_ref_base(cli_path):
     return default if (default / "catalogue.yml").exists() else None
 
 
-def corpus_files():
+def corpus_files(docs=None):
+    """Yield (rel, path) for corpus markdown. If `docs` is given (an iterable of
+    repo-relative path strings), yield ONLY those files that exist and pass the
+    exclusions, so a per-batch cadence can scope the worklist to the batch's docs."""
+    want = None
+    if docs is not None:
+        want = {str(Path(d)) for d in docs}
     for p in sorted(REPO_ROOT.rglob("*.md")):
         rel = p.relative_to(REPO_ROOT)
         if rel.parts and rel.parts[0] in EXCLUDE_DIRS:
             continue
         if str(rel) in EXCLUDE_FILES or rel.name == "CHANGELOG.md":
+            continue
+        if want is not None and str(rel) not in want:
             continue
         yield rel, p
 
@@ -221,14 +232,27 @@ def held_families(ref_base):
     return held
 
 
-def run_report(tier_filter, ref_base):
+def run_report(tier_filter, ref_base, docs=None, as_json=False):
     held = held_families(ref_base)
     all_rows = []
-    for rel, p in corpus_files():
+    for rel, p in corpus_files(docs):
         for tier, ln, line, src in extract_claims(p.read_text(errors="replace")):
             all_rows.append((tier, rel, ln, line, src))
     a = [r for r in all_rows if r[0] == "A"]
     b = [r for r in all_rows if r[0] == "B"]
+    if as_json:
+        import json as _json
+        def _row(r):
+            fam = family_of(r[4])
+            return {"tier": r[0], "path": str(r[1]), "line": r[2], "text": r[3],
+                    "source": r[4], "family": fam,
+                    "held": (None if held is None else (fam in held))}
+        rows = all_rows if tier_filter == "all" else [r for r in all_rows if r[0] == tier_filter]
+        print(_json.dumps({"census": {"tier_a": len(a), "tier_b": len(b)},
+                           "tier_filter": tier_filter,
+                           "scoped_docs": (sorted(str(Path(d)) for d in docs) if docs is not None else None),
+                           "rows": [_row(r) for r in rows]}, indent=2))
+        return
     print(f"claim-precision worklist: {len(a)} Tier-A value-attribution "
           f"claim(s), {len(b)} Tier-B soft-alignment claim(s) "
           f"(recall-oriented; rows are judge-candidates, not defects)"
@@ -280,6 +304,36 @@ def self_test():
         def test_value_without_source_not_tier_a(self):
             line = "Backups are retained for 30 days in the primary region."
             self.assertEqual(extract_claims(line), [])
+
+        def test_guardrails_pack_is_excluded(self):
+            # The pack (guardrails/) carries skill/rule EXAMPLE claims (e.g. the claim-fit
+            # 7-year example), which are illustrations, NOT corpus normative-attribution
+            # claims, so corpus_files must not scan them.
+            for d in ("guardrails", "references", ".project-governance", ".web"):
+                self.assertIn(d, EXCLUDE_DIRS)
+            paths = [str(rel) for rel, _ in corpus_files()]
+            self.assertFalse(
+                any(p.split("/", 1)[0] in ("guardrails", "references", ".project-governance", ".web")
+                    for p in paths),
+                "non-corpus trees must be excluded from the corpus scan")
+
+        def test_docs_scope_filters_corpus(self):
+            # --docs scoping: corpus_files(docs=[X]) yields only X (a real corpus doc).
+            target = "governance/register-data-retention-schedule.md"
+            got = [str(rel) for rel, _ in corpus_files(docs=[target])]
+            self.assertEqual(got, [target])
+            self.assertEqual([str(rel) for rel, _ in corpus_files(docs=["nope/none.md"])], [])
+
+        def test_json_output_is_valid_and_scoped(self):
+            import io, contextlib, json as _json
+            target = "governance/register-data-retention-schedule.md"
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                run_report("all", None, docs=[target], as_json=True)
+            d = _json.loads(buf.getvalue())
+            self.assertEqual(d["scoped_docs"], [target])
+            self.assertIn("census", d)
+            self.assertTrue(all(r["path"] == target for r in d["rows"]))
 
         def test_family_mapping(self):
             self.assertEqual(family_of("under ISO/IEC 42001"), "ISO")
@@ -366,12 +420,16 @@ def main(argv):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--ref-base", help="path to the grc_library_ref checkout")
     ap.add_argument("--tier", choices=["A", "B", "all"], default="all")
+    ap.add_argument("--docs", nargs="+", metavar="PATH",
+                    help="scope to these repo-relative doc path(s) (the per-batch cadence)")
+    ap.add_argument("--json", action="store_true", dest="as_json",
+                    help="emit the worklist as JSON (for a dispatch brief or a run-over-run diff)")
     ap.add_argument("--self-test", action="store_true",
                     help="run the inline extractor self-test and exit")
     args = ap.parse_args(argv[1:])
     if args.self_test:
         return self_test()
-    run_report(args.tier, find_ref_base(args.ref_base))
+    run_report(args.tier, find_ref_base(args.ref_base), docs=args.docs, as_json=args.as_json)
     return 0
 
 

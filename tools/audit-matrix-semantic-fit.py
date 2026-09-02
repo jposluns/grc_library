@@ -209,7 +209,7 @@ def _split_row(line: str) -> list[str]:
     return cells
 
 
-def scan_matrix(path: Path) -> tuple[list[dict], int, int]:
+def scan_matrix(path: Path, docs=None) -> tuple[list[dict], int, int]:
     """Scan the compliance matrix's per-domain mapping tables.
 
     Returns (candidates, n_assessed, n_unparsed_tables). n_assessed is the number of data
@@ -225,7 +225,7 @@ def scan_matrix(path: Path) -> tuple[list[dict], int, int]:
     n_candidate_headers = 0  # rows that look like a mapping-table header ("Document Title" present)
     n_recognized_headers = 0  # of those, the ones whose "CSA CCM v4.1" column was also found
     lines = path.read_text(encoding="utf-8").splitlines()
-    title_idx = ccm_idx = aicm_idx = csf_idx = cobit_idx = None
+    title_idx = ccm_idx = aicm_idx = csf_idx = cobit_idx = path_idx = None
     in_table = False
     for raw, line in enumerate(lines, start=1):
         if line.lstrip().startswith("|"):
@@ -243,6 +243,7 @@ def scan_matrix(path: Path) -> tuple[list[dict], int, int]:
                 aicm_idx = cells.index("CSA AICM v1.1") if "CSA AICM v1.1" in cells else None
                 csf_idx = cells.index("NIST CSF 2.0") if "NIST CSF 2.0" in cells else None
                 cobit_idx = cells.index("COBIT 2019") if "COBIT 2019" in cells else None
+                path_idx = cells.index("Path") if "Path" in cells else None
                 in_table = True
                 continue
             if not in_table or title_idx is None:
@@ -251,6 +252,14 @@ def scan_matrix(path: Path) -> tuple[list[dict], int, int]:
                 continue  # separator row
             if len(cells) <= ccm_idx:
                 continue
+            if docs is not None:  # per-batch scope: keep only rows referencing a scoped doc
+                rowdoc = None
+                if path_idx is not None and len(cells) > path_idx:
+                    m = (re.search(r"`([^`]+\.md)`", cells[path_idx])
+                         or re.search(r"\]\((?:\.\./)?([^)]+\.md)\)", cells[path_idx]))
+                    rowdoc = m.group(1) if m else None
+                if rowdoc is None or rowdoc not in docs:
+                    continue
             subject = strip_type_prefix(cells[title_idx])
             codes = CODE_RE.findall(cells[ccm_idx])
             if aicm_idx is not None and len(cells) > aicm_idx:
@@ -270,7 +279,7 @@ def scan_matrix(path: Path) -> tuple[list[dict], int, int]:
                 candidates.append(result)
         else:
             in_table = False
-            title_idx = ccm_idx = aicm_idx = csf_idx = cobit_idx = None
+            title_idx = ccm_idx = aicm_idx = csf_idx = cobit_idx = path_idx = None
     # A "Document Title" header row whose "CSA CCM v4.1" column was renamed is a table
     # the scan silently skipped (a PARTIAL parse failure). Residue: a table whose
     # "Document Title" column itself was renamed is invisible to this candidate count.
@@ -318,7 +327,7 @@ def scan_source_doc(path: Path) -> tuple[dict | None, bool]:
     return result, True
 
 
-def scan_source_docs() -> tuple[list[dict], int, int]:
+def scan_source_docs(docs=None) -> tuple[list[dict], int, int]:
     """Scan every corpus document's framework-alignment table. Recurses into domain
     SUBDIRECTORIES (sector annexes under compliance/<sector>/, jurisdiction annexes
     under ai/jurisdictions/, ...) via rglob, matching the docstring's "each corpus
@@ -333,6 +342,8 @@ def scan_source_docs() -> tuple[list[dict], int, int]:
             continue
         for md in sorted(d.rglob("*.md")):
             if md.resolve() == MATRIX_PATH.resolve():
+                continue
+            if docs is not None and md.relative_to(REPO_ROOT).as_posix() not in docs:
                 continue
             res, had_table = scan_source_doc(md)
             if had_table:
@@ -365,15 +376,31 @@ def report(candidates: list[dict], n_assessed: int, surface: str, n_unparsed: in
             print(f"        {code} = {title!r} (overlap {score})")
 
 
-def run(matrix: bool, source_docs: bool) -> int:
+def run(matrix: bool, source_docs: bool, docs=None, as_json=False) -> int:
+    docset = None if docs is None else {str(Path(d).as_posix()) for d in docs}
+    if as_json:
+        import json as _json
+        out = {"scoped_docs": (sorted(docset) if docset is not None else None)}
+        def _wl(cands):
+            return [{"location": c["location"], "subject": c["subject"],
+                     "codes": [{"code": code, "title": title, "overlap": score}
+                               for code, title, score in c["codes"]]} for c in cands]
+        if matrix:
+            cands, n, nu = scan_matrix(MATRIX_PATH, docset)
+            out["matrix"] = {"assessed": n, "n_unparsed_tables": nu, "worklist": _wl(cands)}
+        if source_docs:
+            cands, n, nu = scan_source_docs(docset)
+            out["source_docs"] = {"assessed": n, "worklist": _wl(cands)}
+        print(_json.dumps(out, indent=2))
+        return 0
     print("ADVISORY semantic-fit TRIAGE worklist for the /matrix-fit audit (NOT a gate; exit 0 always).")
     print("Listed rows lack a lexical anchor; they are the audit's worklist, NOT confirmed defects.")
     print("Non-listed rows are deprioritized, NOT certified; the /matrix-fit skill adjudicates fit.\n")
     if matrix:
-        cands, n, n_unparsed = scan_matrix(MATRIX_PATH)
+        cands, n, n_unparsed = scan_matrix(MATRIX_PATH, docset)
         report(cands, n, "Compliance matrix", n_unparsed)
     if source_docs:
-        cands, n, n_unparsed = scan_source_docs()
+        cands, n, n_unparsed = scan_source_docs(docset)
         report(cands, n, "Source-doc framework tables", n_unparsed)
     print(
         "\nThe /matrix-fit semantic audit judges each listed row against the source control "
@@ -497,6 +524,35 @@ def _self_test() -> int:
             finally:
                 os.unlink(path)
 
+        def test_docs_scope_filters_matrix_rows(self):
+            # --docs scoping: only rows whose Path cell is in the docs set are assessed.
+            m = (
+                "| Domain | Document Title | Path | CSA CCM v4.1 |\n"
+                "| --- | --- | --- | --- |\n"
+                "| Risk | Records Retention | `risk/a.md` | DSP-07 |\n"
+                "| Ops | Media Handling | `ops/b.md` | DCS-05 |\n"
+            )
+            import tempfile, os
+            with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False) as f:
+                f.write(m); path = Path(f.name)
+            try:
+                _, n_all, _ = scan_matrix(path)
+                _, n_scoped, _ = scan_matrix(path, {"risk/a.md"})
+                self.assertEqual(n_all, 2)
+                self.assertEqual(n_scoped, 1)
+            finally:
+                os.unlink(path)
+
+        def test_json_output_is_valid(self):
+            import io, contextlib, json as _json
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                run(matrix=True, source_docs=False,
+                    docs=["compliance/matrix-grc-compliance-alignment.md"], as_json=True)
+            d = _json.loads(buf.getvalue())
+            self.assertIn("matrix", d)
+            self.assertIn("worklist", d["matrix"])
+
         def test_data_cell_named_document_title_is_not_a_candidate_header(self):
             # Hardening (claude/codex iter-2 note): a DATA cell whose value is literally
             # "Document Title" must NOT be counted as a candidate header (it lacks the
@@ -551,12 +607,16 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--matrix-only", action="store_true", help="scan only the compliance matrix")
     parser.add_argument("--source-docs-only", action="store_true", help="scan only source-doc framework tables")
     parser.add_argument("--self-test", action="store_true", help="run the inline unit tests and exit")
+    parser.add_argument("--docs", nargs="+", metavar="PATH",
+                        help="scope to matrix rows / source docs whose path is in this set (per-batch cadence)")
+    parser.add_argument("--json", action="store_true", dest="as_json",
+                        help="emit the worklist as JSON (for a dispatch brief or a run-over-run diff)")
     args = parser.parse_args(argv[1:])
     if args.self_test:
         return _self_test()
     matrix = not args.source_docs_only
     source_docs = not args.matrix_only
-    return run(matrix, source_docs)
+    return run(matrix, source_docs, docs=args.docs, as_json=args.as_json)
 
 
 if __name__ == "__main__":
