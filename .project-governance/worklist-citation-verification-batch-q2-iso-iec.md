@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Worklist: Batch Q2 (ISO and ISO/IEC)\
 **Document Type:** Worklist\
-**Version:** 1.0.2\
-**Date:** 2026-08-05\
+**Version:** 1.0.3\
+**Date:** 2026-09-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](../governance/specification-citation-verification.md), [`governance/template-citation-verification-worklist.md`](../governance/template-citation-verification-worklist.md), [`.project-governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](../governance/register-canonical-citations.md)\
@@ -95,10 +95,10 @@ These flags are AI-verifier orientation, not verification. The human verifier sh
 | ISO/IEC 27002 | ISO | `https://www.iso.org/standard/75652.html` | `https://www.iso.org/search.html?q=ISO%2FIEC+27002` | all | Current: 2022; published 2022-02; topic: Information security controls; supersedes 2013 |  |  |  |  |  |  |  |  |  | A.5-A.8 control set foundation. |
 | ISO/IEC 27005 | ISO | `https://www.iso.org/standard/80585.html` | `https://www.iso.org/search.html?q=ISO%2FIEC+27005` | all | Current: 2022; published 2022-10; topic: Information security risk management; supersedes 2018 |  |  |  |  |  |  |  |  |  |  |
 | ISO/IEC 27017 | ISO | `https://www.iso.org/standard/43757.html` | `https://www.iso.org/search.html?q=ISO%2FIEC+27017` | all | Current: 2026; published 2026-07; topic: Information security controls based on ISO/IEC 27002 for cloud services; superseded 2015 |  |  |  |  |  |  |  |  |  | Confirm no later edition has been published. |
-| ISO/IEC 27018 | ISO | `https://www.iso.org/standard/76559.html` | `https://www.iso.org/search.html?q=ISO%2FIEC+27018` | all | Current: 2019; published 2019-01; topic: Protection of PII in public clouds acting as PII processors; no superseded versions recorded |  |  |  |  |  |  |  |  |  | Confirm no later edition. |
+| ISO/IEC 27018 | ISO | `https://www.iso.org/standard/76559.html` | `https://www.iso.org/search.html?q=ISO%2FIEC+27018` | all | Current: 2025; published 2025-08; topic: Protection of PII in public clouds acting as PII processors; supersedes 2019 (per register) |  |  |  |  |  |  |  |  |  | Confirm no later edition. |
 | ISO/IEC 27033 | ISO | `https://www.iso.org/standard/63461.html` | `https://www.iso.org/search.html?q=ISO%2FIEC+27033` | all | Current: 2020; topic: Network security architecture and segmentation; no superseded versions recorded |  |  |  |  |  |  |  |  |  | Multi-part standard; capture which part(s) are at 2020 and which are at later years. |
-| ISO/IEC 27036-2 | ISO | `https://www.iso.org/standard/59680.html` | `https://www.iso.org/search.html?q=ISO%2FIEC+27036-2` | all | Current: 2014; published 2014-08; topic: Information security for supplier relationships; no superseded versions recorded |  |  |  |  |  |  |  |  |  | Verify the 2014 edition is current and that no 2022+ revision has superseded. |
-| ISO/IEC 27701 | ISO | `https://www.iso.org/standard/71670.html` | `https://www.iso.org/search.html?q=ISO%2FIEC+27701` | all | Current: 2019; published 2019-08; topic: Privacy information management extension to ISO/IEC 27001 |  |  |  |  |  |  |  |  |  | Confirm 2025 revision (if any) has not superseded. |
+| ISO/IEC 27036-2 | ISO | `https://www.iso.org/standard/59680.html` | `https://www.iso.org/search.html?q=ISO%2FIEC+27036-2` | all | Current: 2022 (Edition 2, cancels and replaces the 2014 first edition); published 2022-06; topic: Cybersecurity - Supplier relationships Part 2: Requirements; supersedes 2014 (per register) |  |  |  |  |  |  |  |  |  | Confirm the 2022 Edition 2 is current (it cancels and replaces the 2014 first edition). |
+| ISO/IEC 27701 | ISO | `https://www.iso.org/standard/71670.html` | `https://www.iso.org/search.html?q=ISO%2FIEC+27701` | all | Current: 2025 (standalone PIMS since the 2025 revision; transition deadline October 2028); published 2025-10; topic: Privacy information management system; supersedes 2019 (per register) |  |  |  |  |  |  |  |  |  | Confirm the 2025 revision is current (standalone PIMS; supersedes the 2019 edition). |
 | ISO 22301 | ISO | `https://www.iso.org/standard/75106.html` | `https://www.iso.org/search.html?q=ISO+22301` | all | Current: 2019; published 2019-10; topic: Business continuity management systems |  |  |  |  |  |  |  |  |  |  |
 | ISO 31000 | ISO | `https://www.iso.org/standard/65694.html` | `https://www.iso.org/search.html?q=ISO+31000` | all | Current: 2018; published 2018-02; topic: Risk management: Guidelines |  |  |  |  |  |  |  |  |  |  |
 | ISO/IEC 38500 | ISO | `https://www.iso.org/standard/81684.html` | `https://www.iso.org/search.html?q=ISO%2FIEC+38500` | all | Current: 2024; published 2024; topic: Governance of IT for the organization; supersedes 2015 | _Flagged in §3.6._ |  |  |  |  |  |  |  |  |  |
@@ -114,7 +114,7 @@ These flags are AI-verifier orientation, not verification. The human verifier sh
 | ISO 37301 | ISO | `https://www.iso.org/standard/75080.html` | `https://www.iso.org/search.html?q=ISO+37301` | all | Current: 2021; published 2021-04; topic: Compliance management systems |  |  |  |  |  |  |  |  |  |  |
 | ISO 37001 | ISO | `https://www.iso.org/standard/65034.html` | `https://www.iso.org/search.html?q=ISO+37001` | all | Current: 2025; published 2025; topic: Anti-bribery management systems; supersedes 2016 | _Flagged in §3.6._ |  |  |  |  |  |  |  |  |  |
 | ISO/IEC 17021 | ISO | `https://www.iso.org/standard/61651.html` | `https://www.iso.org/search.html?q=ISO%2FIEC+17021` | all | Current: 2015; published 2015; topic: Conformity assessment - requirements for bodies providing audit and certification of management systems |  |  |  |  |  |  |  |  |  | Multi-part; -1 is the foundational part. |
-| ISO 16484 | ISO | `https://www.iso.org/standard/37300.html` | `https://www.iso.org/search.html?q=ISO+16484` | all | Current: parts published 2010 to 2020; topic: Building automation and control systems (BACS) | _Flagged in §3.4 (multi-part). Per-part verification required._ |  |  |  |  |  |  |  |  |  |
+| ISO 16484 | ISO | `https://www.iso.org/standard/37300.html` | `https://www.iso.org/search.html?q=ISO+16484` | all | Current: Part 1:2024 (Ed.2), Part 2:2025 (Ed.2), Part 4:2025, Part 3 at draft (DIS); published 2024 to 2025; supersedes the parts published 2010 to 2020 (per register); topic: Building automation and control systems (BACS) | _Flagged in §3.4 (multi-part). Per-part verification required._ |  |  |  |  |  |  |  |  |  |
 
 **Total entries in batch: 24.**
 
