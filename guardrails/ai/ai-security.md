@@ -124,7 +124,7 @@ Before any AI feature reaches production, adversarial testing must include:
 
 | Requirement | OWASP LLM Top 10 | MITRE ATLAS | CSA AICM | NIST AI RMF |
 | --- | --- | --- | --- | --- |
-| Prompt injection | LLM01:2026 | AML.T0051 | TVM-12 | Measure 2.5 |
+| Prompt injection | LLM01:2026 | AML.T0051 | AIS-15, AIS-09 | Measure 2.5 |
 | Sensitive disclosure | LLM02:2026 | AML.T0057 | DSP-05 | Measure 2.7 |
 | Supply chain | LLM04:2026 | AML.T0010 | STA-10 | Govern 1.7 |
 | Excessive agency | LLM03:2026 | AML.T0053 | IAM-04 | Manage 1.3 |

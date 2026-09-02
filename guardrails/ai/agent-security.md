@@ -120,6 +120,6 @@ Exercise the categories above as part of pre-production red-teaming, using an ag
 | Trust hierarchy | LLM03:2026, LLM09:2026 | AML.T0053 | IAM-04 | Govern 1.4 |
 | Tool validation | LLM03:2026 | AML.T0053 | AIS-02 | Manage 1.3 |
 | Human-in-the-loop | LLM03:2026 | AML.T0054 | GRC-15 | Govern 6.2 |
-| Prompt injection (agentic) | LLM01:2026 | AML.T0051 | TVM-12 | Measure 2.5 |
+| Prompt injection (agentic) | LLM01:2026 | AML.T0051 | AIS-15, AIS-09 | Measure 2.5 |
 | Memory security | LLM02:2026 | AML.T0057 | DSP-05 | Measure 2.7 |
 | Recursion limits | LLM03:2026 | N/A | N/A | Manage 1.3 |
