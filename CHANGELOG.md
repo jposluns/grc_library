@@ -1,5 +1,7 @@
 # Changelog
 
+**2026-09-02 | 2026.09.614 | PR #1911** - Corrected four stranded control codes across three master compliance-matrix rows so each row cites controls its document carries. The vulnerability row drops a malware-protection code for the remediation-schedule code; the threat-intelligence row drops two codes absent from that document for the monitoring and event-triage controls; and the DevOps row drops a change-agreement control whose title does not fit. Each row had lagged an earlier document fix.
+
 **2026-09-02 | 2026.09.613 | PR #1910** - Corrected a mis-mapped AI control code in four AI-security rule pages: the prompt-injection rows cited an AI controls-matrix metrics control (TVM-12, Vulnerability Management Metrics) where the AI-specific prompt-injection controls (AIS-15 Prompt Differentiation and AIS-09 Input Validation) fit; this matches the mapping the corpus already uses for the same threat in the AI-and-agentic-development-security standard. The corpus AI-security guidance now maps injection threats consistently across pages.
 
 **2026-09-02 | 2026.09.612 | PR #1909** - Corrected an over-broad NIS 2 citation stranded by an earlier fix: the incident-reporting section heading and a resilience-coordination alignment row cited Articles 23 to 25, but only Article 23 governs incident reporting (24 and 25 are cybersecurity certification and standardisation). Narrowed to Article 23 in both places and regenerated the taxonomy that echoed the old range.
