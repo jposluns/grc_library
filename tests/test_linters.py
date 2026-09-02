@@ -12430,6 +12430,94 @@ class UnwiredToolSelfTests(LinterTestCase):
                             "--sample", "--docs", "privacy/x.md")
         self.assertNotEqual(result.returncode, 0)            # argparse error: global-only
 
+
+    def test_lint_worklist_register_drift_self_test_passes(self) -> None:
+        """P-1.65: the worklist-vs-register drift tool's inline unit suite (pure register /
+        header-signature parsers, exact/alias/ambiguous/no-map/broken id mapping, the
+        comparable-vs-descriptor version classifier that suppresses the false positives, the
+        fabricated-supersedes catch, the q2-only bounded rewriter, and the write scope guard).
+        Operates on inline strings only, no register / worklist / sidecar / network read, so
+        it is CI-safe."""
+        result = run_linter("tools/audit-worklist-register-drift.py", "--self-test")
+        self.assertEqual(
+            result.returncode, 0,
+            f"audit-worklist-register-drift.py --self-test failed.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_lint_worklist_register_drift_check_live_tree_exit_semantics(self) -> None:
+        """P-1.65: run --check against the LIVE register + batch worklists and assert exit-code
+        semantics: the tool must run cleanly on real data (no traceback / argparse error) and
+        return exactly 0 (no drift) or 1 (drift found), never 2+. This exercises the
+        header-signature parser against the full real worklists without coupling the assertion
+        to the current drift state (which the maintainer will fix over time)."""
+        result = run_linter("tools/audit-worklist-register-drift.py", "--check")
+        self.assertIn(
+            result.returncode, (0, 1),
+            f"--check on the live tree returned {result.returncode} (expected 0 or 1).\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertNotIn(
+            "Traceback", result.stderr,
+            f"--check on the live tree raised:\n{result.stderr}",
+        )
+        # The parser found and summarized at least the two prototyped verification tables.
+        self.assertIn("verification rows", result.stdout)
+
+    def test_lint_worklist_register_drift_check_exit_codes_on_fixtures(self) -> None:
+        """P-1.65: lock the --check exit-code contract deterministically on controlled fixtures,
+        independent of the live tree. A clean worklist -> exit 0; a drifting worklist (stale
+        aliased version + fabricated supersede) -> exit 1 with the drift surfaced; and the
+        descriptor register value is reported UNVERIFIABLE, never DRIFT (the false-positive fix)."""
+        import os
+        import tempfile
+
+        register = (
+            "| Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |\n"
+            "| --- | --- | --- | --- | --- | --- | --- |\n"
+            "| ISO/IEC 27033-1 | 2015 | 2015 | Network security | 2013 | http://x | verified 2026-01-01 |\n"
+            "| EU eIDAS | Regulation 910/2014 as amended by Regulation 2024/1183 (eIDAS 2) | 2024-04 (amend) | Trust services | - | http://x | verified 2026-01-01 |\n"
+            "| CSA STAR | continuous | 2026-01 | Cloud registry | - | http://x | verified 2026-01-01 |\n"
+        )
+        clean_wl = (
+            "| Standard ID | Publisher | Expected primary URL | Field(s) to verify | Expected value (from register) | Notes |\n"
+            "| --- | --- | --- | --- | --- | --- |\n"
+            "| ISO/IEC 27033-1 | ISO | `u` | all | Current: 2015; published 2015; topic: Network security; supersedes 2013 |  |\n"
+        )
+        drift_wl = (
+            "| Standard ID | Publisher | Expected primary URL | Field(s) to verify | Expected value (from register) | Notes |\n"
+            "| --- | --- | --- | --- | --- | --- |\n"
+            "| ISO/IEC 27033 | ISO | `u` | all | Current: 2020; topic: Network security; no superseded versions recorded |  |\n"
+            "| EU eIDAS | ISO | `u` | all | Regulation 2024/1183; supersedes Regulation 910/2014 (eIDAS 1) |  |\n"
+            "| CSA STAR | ISO | `u` | all | continuous registry snapshot |  |\n"
+        )
+        with tempfile.TemporaryDirectory() as td:
+            reg_p = os.path.join(td, "register.md")
+            clean_p = os.path.join(td, "clean.md")
+            drift_p = os.path.join(td, "drift.md")
+            with open(reg_p, "w", encoding="utf-8") as fh:
+                fh.write(register)
+            with open(clean_p, "w", encoding="utf-8") as fh:
+                fh.write(clean_wl)
+            with open(drift_p, "w", encoding="utf-8") as fh:
+                fh.write(drift_wl)
+
+            ok = run_linter("tools/audit-worklist-register-drift.py",
+                            "--check", "--register", reg_p, "--worklist", clean_p)
+            self.assertEqual(
+                ok.returncode, 0,
+                f"clean fixture should exit 0.\nstdout:\n{ok.stdout}\nstderr:\n{ok.stderr}",
+            )
+
+            bad = run_linter("tools/audit-worklist-register-drift.py",
+                             "--check", "--register", reg_p, "--worklist", drift_p)
+            self.assertEqual(
+                bad.returncode, 1,
+                f"drift fixture should exit 1.\nstdout:\n{bad.stdout}\nstderr:\n{bad.stderr}",
+            )
+            self.assertIn("DRIFT", bad.stdout)
+            self.assertIn("27033", bad.stdout)              # aliased stale-version true positive
+            self.assertIn("UNVERIFIABLE", bad.stdout)       # descriptor register value, not DRIFT
     def test_audit_register_currency_self_test_passes(self) -> None:
         result = run_linter("tools/audit-register-currency.py", "--self-test")
         self.assertEqual(

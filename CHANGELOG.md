@@ -1,5 +1,7 @@
 # Changelog
 
+**2026-09-02 | 2026.09.642 | PR #1939** - Added an advisory tool that detects when the citation-verification worklists' expected-value baselines drift from the canonical register, flagging genuine version/supersedes drift while suppressing false positives on descriptor-valued register entries and refusing to guess unmatched standards.
+
 **2026-09-02 | 2026.09.641 | PR #1938** - Made the claim-fit Tier-B coverage-sweep discipline tool-executable: a new `--sample`/`--unjudged` mode on the citation-precision tool draws the next stratified, without-replacement sample of un-judged soft-alignment claims from a deterministic ledger, so cross-run coverage is computed rather than operator-tracked.
 
 **2026-09-02 | 2026.09.640 | PR #1937** - Documented the compliance matrix's indicative-citation convention: framework-column identifiers are a representative selection, not an exhaustive reproduction of a document's own codes, so an advisory stranded-code scan may list an absent code as an expected candidate, not a defect.
