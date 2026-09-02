@@ -42,7 +42,7 @@ not serve as a precision-first reporter). A row lands on the worklist when,
 across every cited control whose title this aid knows (CCM v4.1 via ``CCM_V41``;
 CSA AICM v1.1 via ``AICM_V11``, which supplies titles for the AI-specific
 AICM-only delta carried in the matrix's "CSA AICM v1.1" column; NIST CSF 2.0
-categories via ``CSF_CATEGORIES``), NO control's title shares a
+categories via ``CSF_CATEGORIES``; COBIT 2019 objectives via ``COBIT_OBJECTIVES``; ISO 31000:2018 clauses; and ISO/IEC 27001:2022 Annex A controls via ``ISO27001_2022_ANNEX_A``), NO control's title shares a
 single significant word with the document subject. A single anchoring code (a
 sibling whose title overlaps the subject) keeps the row OFF the worklist, both
 because matrix rows legitimately carry a primary mapping plus looser supporting
@@ -51,9 +51,10 @@ adjudicate. The subtler "loose supporting code on an otherwise-anchored row"
 case (e.g. matrix row 163's TVM-06 on a pen-testing standard, Sweep-61 note
 A-note-1) is intentionally NOT on the worklist: an anchored row is deprioritized,
 and that residual case is exactly what the semantic `/matrix-fit` skill catches.
-ISO/IEC 27001:2022 codes are not assessed (no Annex A title source in the repo;
-ISO 31000 clause headings and COBIT 2019 objective titles ARE assessable since
-the 2026-07-02 cobit_iso31000_reference extension); rows whose
+ISO/IEC 27001:2022 Annex A controls ARE assessed (via the 93-control
+iso27001_reference title map, the 2026-09-02 extension closing the pre-filter's
+ISO blind spot); ISO 31000 clause headings and COBIT 2019 objective titles are
+assessable via the 2026-07-02 cobit_iso31000_reference extension; rows whose
 only known-title codes are absent are skipped (not assessable, so not listed).
 
 WHAT IT SCANS:
@@ -81,6 +82,7 @@ from pathlib import Path
 from ccm_aicm_reference import AICM_V11, CCM_V41
 from cobit_iso31000_reference import COBIT_OBJECTIVES, ISO31000_CLAUSES
 from nist_csf_reference import CSF_CATEGORIES
+from iso27001_reference import ISO27001_2022_ANNEX_A
 
 try:
     from lint_common import AUDITED_DOMAIN_DIRS
@@ -94,8 +96,9 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 MATRIX_PATH = REPO_ROOT / "compliance" / "matrix-grc-compliance-alignment.md"
 
 # Combined code -> title lookup the aid can assess against (CCM v4.1 + AICM v1.1
-# + CSF 2.0 categories). ISO codes have no title source and are intentionally
-# absent. AICM v1.1 is the AI-focused extension of CCM v4.1; as an implementation
+# + CSF 2.0 categories + COBIT 2019 objectives + ISO 31000:2018 clauses + ISO/IEC
+# 27001:2022 Annex A controls). AICM v1.1 is the AI-focused extension of CCM v4.1;
+# as an implementation
 # detail its code-set carries the CCM base plus 40 AICM-only codes (identical
 # titles for the shared base). Updating AICM_V11 folds in the AICM-only titles so
 # the matrix's "CSA AICM v1.1" column (which carries those AICM-only codes) is
@@ -113,14 +116,22 @@ KNOWN_TITLES.update(CSF_CATEGORIES)
 KNOWN_TITLES.update(COBIT_OBJECTIVES)
 KNOWN_TITLES.update(
     {f"ISO 31000 §{k}": v for k, v in ISO31000_CLAUSES.items()})
+# ISO/IEC 27001:2022 Annex A control titles (the 93-control closed set, keyed
+# "A.<theme>.<n>" as the corpus/matrix cite them). Added because the ISO family
+# was the pre-filter's blind spot: the P-1.63 stranded-code incident (A.8.10 ->
+# A.7.10, #1914) was a valid-code-wrong-control miss in exactly this family, which
+# gate 58 (Annex A existence) cannot see. Now assessable at the control-title level.
+KNOWN_TITLES.update(ISO27001_2022_ANNEX_A)
 
 # Control-code token: CCM (e.g. DSP-16, A&A-02), CSF category (e.g. GV.OC),
-# or a COBIT 2019 objective/practice code (e.g. APO12, DSS05.03; practice
+# a COBIT 2019 objective/practice code (e.g. APO12, DSS05.03; practice
 # codes are collected so the row surfaces on the worklist, though only the
-# objective level carries a known title for the overlap heuristic).
+# objective level carries a known title for the overlap heuristic), or an
+# ISO/IEC 27001:2022 Annex A control code (e.g. A.5.1, A.7.10, A.8.34).
 CODE_RE = re.compile(
     r"\b(?:[A-Z&]{2,4}-[0-9]{2}|(?:GV|ID|PR|DE|RS|RC)\.[A-Z]{2}"
-    r"|(?:EDM|APO|BAI|DSS|MEA)\d{2}(?:\.\d{2})?)\b")
+    r"|(?:EDM|APO|BAI|DSS|MEA)\d{2}(?:\.\d{2})?"
+    r"|A\.[5-8]\.\d{1,2}(?!\d|\.\d))\b")
 
 # Minimal stopword set: only words with no discriminating power. Kept SMALL on
 # purpose - a larger set would strip real overlap and over-flag (the opposite of
@@ -190,7 +201,7 @@ def assess_row(subject_text: str, codes: list[str]) -> dict | None:
         return None
     known = [(c, KNOWN_TITLES[c]) for c in codes if c in KNOWN_TITLES]
     if not known:
-        return None  # nothing assessable (e.g. ISO-only) -> do not flag
+        return None  # no code carries a known title -> nothing to assess, do not flag
     best = 0
     per_code = []
     for code, title in known:
@@ -225,7 +236,7 @@ def scan_matrix(path: Path, docs=None) -> tuple[list[dict], int, int]:
     n_candidate_headers = 0  # rows that look like a mapping-table header ("Document Title" present)
     n_recognized_headers = 0  # of those, the ones whose "CSA CCM v4.1" column was also found
     lines = path.read_text(encoding="utf-8").splitlines()
-    title_idx = ccm_idx = aicm_idx = csf_idx = cobit_idx = path_idx = None
+    title_idx = ccm_idx = aicm_idx = csf_idx = cobit_idx = iso_idx = path_idx = None
     in_table = False
     for raw, line in enumerate(lines, start=1):
         if line.lstrip().startswith("|"):
@@ -243,6 +254,8 @@ def scan_matrix(path: Path, docs=None) -> tuple[list[dict], int, int]:
                 aicm_idx = cells.index("CSA AICM v1.1") if "CSA AICM v1.1" in cells else None
                 csf_idx = cells.index("NIST CSF 2.0") if "NIST CSF 2.0" in cells else None
                 cobit_idx = cells.index("COBIT 2019") if "COBIT 2019" in cells else None
+                iso_idx = (cells.index("ISO/IEC 27001:2022")
+                           if "ISO/IEC 27001:2022" in cells else None)
                 path_idx = cells.index("Path") if "Path" in cells else None
                 in_table = True
                 continue
@@ -268,6 +281,8 @@ def scan_matrix(path: Path, docs=None) -> tuple[list[dict], int, int]:
                 codes += CODE_RE.findall(cells[csf_idx])
             if cobit_idx is not None and len(cells) > cobit_idx:
                 codes += CODE_RE.findall(cells[cobit_idx])
+            if iso_idx is not None and len(cells) > iso_idx:
+                codes += CODE_RE.findall(cells[iso_idx])
             n_assessed += 1
             result = assess_row(subject, codes)
             if result:
@@ -404,7 +419,8 @@ def run(matrix: bool, source_docs: bool, docs=None, as_json=False) -> int:
         report(cands, n, "Source-doc framework tables", n_unparsed)
     print(
         "\nThe /matrix-fit semantic audit judges each listed row against the source control "
-        "TITLE (CCM v4.1 / AICM v1.1 / CSF 2.0 / COBIT 2019 / ISO 31000:2018). A "
+        "TITLE (CCM v4.1 / AICM v1.1 / CSF 2.0 / COBIT 2019 / ISO 31000:2018 / "
+        "ISO/IEC 27001:2022). A "
         "worklisted row is a focus candidate, not a "
         "mismatch; a non-worklisted row may still carry a loose supporting code (the skill covers those too)."
     )
@@ -446,10 +462,50 @@ def _self_test() -> int:
             )
             self.assertIsNone(r)
 
-        def test_iso_only_row_skipped(self):
-            # No known-title codes (ISO has no title source) -> not flagged.
+        def test_iso27001_only_row_assessed(self):
+            # ISO/IEC 27001:2022 Annex A codes now carry titles (the 2026-09-02
+            # iso27001_reference extension), so an ISO-only row participates.
+            # A.5.33 = "Protection of records", A.8.10 = "Information deletion":
+            # neither shares a token with "Some Document" -> the row lands on the
+            # worklist (recall-oriented), where before it was skipped as unassessable.
+            self.assertEqual(KNOWN_TITLES["A.5.33"], "Protection of records")
+            self.assertEqual(KNOWN_TITLES["A.8.10"], "Information deletion")
             r = assess_row("Some Document", ["A.5.33", "A.8.10"])
+            self.assertIsNotNone(r)
+
+        def test_iso27001_only_row_anchored_rescued(self):
+            # An ISO-only row whose control title shares a token with the subject
+            # is rescued (anchored), same as any other assessable family.
+            # A.8.13 = "Information backup" anchors a backup-standard subject.
+            self.assertEqual(KNOWN_TITLES["A.8.13"], "Information backup")
+            r = assess_row("Information Backup Standard", ["A.8.13", "A.8.14"])
             self.assertIsNone(r)
+
+        def test_matrix_iso_column_extracted(self):
+            # Regression (codex, P-1.62 I1): the matrix parser must READ the
+            # "ISO/IEC 27001:2022" column, else the ISO title map is inert on the
+            # matrix (codes are extracted per-column). A row whose only code is a
+            # non-anchoring ISO control is assessed and flagged; before iso_idx
+            # was wired the row was skipped (no assessable code found).
+            m = (
+                "| Domain | Document Title | Path | CSA CCM v4.1 "
+                "| ISO/IEC 27001:2022 |\n"
+                "| --- | --- | --- | --- | --- |\n"
+                "| Sec | Fire Suppression Plan | `sec/x.md` |  | A.5.1 |\n"
+            )
+            import tempfile, os
+            with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False) as f:
+                f.write(m); path = Path(f.name)
+            try:
+                cands, n_assessed, _ = scan_matrix(path)
+                # A.5.1 = "Policies for information security" shares no token with
+                # "Fire Suppression Plan" -> flagged, proving the ISO cell was read.
+                self.assertEqual(n_assessed, 1)
+                self.assertEqual(len(cands), 1)
+                got = [c for c, _t, _o in cands[0]["codes"]]
+                self.assertIn("A.5.1", got)
+            finally:
+                os.unlink(path)
 
         def test_aicm_only_code_is_assessable(self):
             # An AICM-only code (carried in the matrix's "CSA AICM v1.1" column)
