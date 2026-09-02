@@ -1,5 +1,7 @@
 # Changelog
 
+**2026-09-02 | 2026.09.624 | PR #1921** - Corrected two skill-process defects the P-1.62 review found. The matrix-fit command now defines its audit scope the same way its skill does, and the claim-fit skill now attempts to acquire a missing source before queuing it, matching the acquire-or-pause rule it derives from.
+
 **2026-09-02 | 2026.09.623 | PR #1920** - tools: fixed two defects in the /matrix-fit pre-filter scan found by the P-1.62 skill review. It now reports how many rows it assessed and warns of a parse failure instead of falsely reporting a clean surface, and it scans corpus documents in nested sector and jurisdiction folders it previously skipped.
 
 **2026-09-02 | 2026.09.622 | PR #1919** - Corrected two control-code citations to the fit that three independent reviews agreed on. The secret-scanning CI/CD row now cites Application Security Testing, matching the rest of the library instead of a baseline-deviation control. The physical-transport media row dropped a storage-sanitization reference that does not apply to moving media.
