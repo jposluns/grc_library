@@ -296,6 +296,9 @@ jobs:
       - name: Alignment-citation existence audit
         run: python3 tools/lint-alignment-citation-existence.py --strict
 
+      - name: Skill verdict carrier-completeness audit
+        run: python3 tools/lint-skill-verdict-carrier-completeness.py
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py
