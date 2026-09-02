@@ -25,6 +25,7 @@ Portable procedure, concrete names. In the parent GRC library this skill runs wi
   matrix-completion backlog item.
 
 - QA execution (this project): the pass itself runs as the TRIPLE-FAMILY QA panel (the CLAUDE.md standard), the identical brief given to one Claude-, one Codex-, and one Gemini-family orch-verify worker with the verdicts reconciled; the Process's "dispatch one or more subagents (or perform the read directly)" wording describes the WORKER's own internal execution, never an in-session Task/Agent dispatch by the maintainer orchestrator, which the offload rule forbids and the block-orchestrator-self-qa hook blocks.
+- Held-source citation and holdings/currency basis (P-1.56, from the 2026-08-31 stale-note `grc_library_ref` incident): every fit verdict cites the HELD SOURCE's own reference-base `path:line` for the control TITLE it read (the validator module or the `grc_library_ref` extract) as a REQUIRED field alongside the quoted title, and a verdict without it is REJECTED, because a title recalled from a note or from memory has no reference-base location to cite. That location comes from OPENING the held source (the validator module or the `grc_library_ref` extract), located via an EXECUTED `python3 tools/ref-holds.py <framework>` plus a reference-base INDEX read performed in THIS run (ref-holds and the index locate the held source and are the authority for what is HELD; the in-repo validator modules are current-by-construction; the `path:line` is where the title sits, read this run), never a note, a prior run's record, or memory. CURRENCY of a `grc_library_ref` extract is a SEPARATE question, validated UPSTREAM this run per the reference-version-currency SOP, never inferred from the index (believed-current STORAGE, not a version authority).
 
 An adopting project maps each bullet to its own gates, pre-filter, surfaces, and
 sources; the procedure below refers to them generically.
@@ -50,7 +51,7 @@ This skill is a single-pass advisory audit, not a fix-to-fixed-point loop and no
 
 ### 1. Establish scope and confirm the reference base
 
-Name the scope for this run: the rows a just-authored batch introduced (the per-batch cadence), the whole mapping surface (the completion cadence), or a maintainer-flagged set of rows (the ad-hoc cadence). Confirm that the project's full audit-gate suite exits 0 first; a fit pass judges among rows that already pass the existence gates, so a red gate is a defect to fix mechanically before the semantic read. Confirm that the reference base named in the project wiring is available: the gate-validated control codes and titles, and the full source-text extracts for each cited framework family. The judge reads control TITLES from these, never from memory.
+Name the scope for this run: the rows a just-authored batch introduced (the per-batch cadence), the whole mapping surface (the completion cadence), or a maintainer-flagged set of rows (the ad-hoc cadence). Confirm that the project's full audit-gate suite exits 0 first; a fit pass judges among rows that already pass the existence gates, so a red gate is a defect to fix mechanically before the semantic read. Confirm that the reference base named in the project wiring is available: the gate-validated control codes and titles, and the full source-text extracts for each cited framework family. The judge reads control TITLES from these, never from memory. Every fit verdict cites the held source's own reference-base `path:line` for the control TITLE it read from the held source this run (the source located via an EXECUTED `ref-holds` + index read; the Project-wiring held-source-citation requirement), never a note, a prior run's record, or memory; a held source extract's CURRENCY is validated upstream this run, not inferred from the index.
 
 ### 2. Run the advisory pre-filter to generate the worklist
 
@@ -58,7 +59,7 @@ Run the pre-filter named in the project wiring, scoped to match the scope from s
 
 ### 3. Dispatch the semantic-fit judge over the worklist
 
-Dispatch one or more subagents (or perform the read directly for a small worklist) to judge each worklisted row. The judge brief carries the shared preamble: read the cited control's TITLE from the reference base for every code on the row, compare it against the row's document subject, and decide fit (`fits` / `mismatch` / `loose-supporting`) with the source title quoted as evidence. The binding rule: judge against the source control TITLE, not a lexical proxy or a remembered meaning. A code that exists and is in-catalogue can still be a mismatch; only the title comparison decides. Every judgement quotes the control code, its source title, and the row location as `path:line`; a judgement without a quoted source title is a hypothesis, not a finding.
+Dispatch one or more subagents (or perform the read directly for a small worklist) to judge each worklisted row. The judge brief carries the shared preamble: read the cited control's TITLE from the reference base for every code on the row, compare it against the row's document subject, and decide fit (`fits` / `mismatch` / `loose-supporting`) with the source title quoted as evidence. The binding rule: judge against the source control TITLE, not a lexical proxy or a remembered meaning. A code that exists and is in-catalogue can still be a mismatch; only the title comparison decides. Every judgement quotes the control code, its source title, the row location as `path:line`, AND the held source title's own reference-base `path:line` where that title was read in THIS run; a judgement without a quoted source title OR without its held-source `path:line` is a hypothesis, not a finding (P-1.56: a title from a note or from memory has no reference-base location to cite).
 
 ### 4. Synthesize and apply-time-verify each candidate against the source control title
 
@@ -70,7 +71,7 @@ For confirmed mismatches in the current scope (the batch just authored, or the m
 
 ### 6. Record and surface
 
-Surface confirmed findings inline in chat (per-finding: row `path:line`, the wrong code and its source title, the proposed right code and its source title, fix-in-window vs routed). Write the run to the project's matrix-fit record location and append a history row; a zero-finding run still gets a history row (the proof-of-discipline), with no detail file. The pass terminates when the worklist is judged, the confirmed findings are routed or fixed, and the run is recorded; it is a single advisory pass, not a fix-to-fixed-point loop.
+Surface confirmed findings inline in chat (per-finding: row `path:line`, the wrong code and its source title, the proposed right code and its source title, each title's held-source reference-base `path:line`, fix-in-window vs routed). Write the run to the project's matrix-fit record location and append a history row; a zero-finding run still gets a history row (the proof-of-discipline), with no detail file. The pass terminates when the worklist is judged, the confirmed findings are routed or fixed, and the run is recorded; it is a single advisory pass, not a fix-to-fixed-point loop.
 
 ## Red Flags
 
@@ -78,6 +79,7 @@ Surface confirmed findings inline in chat (per-finding: row `path:line`, the wro
 - Treating the advisory pre-filter's worklist as a defect list. It is recall-oriented triage; most listed rows are correct-but-lexically-distinct mappings. The skill adjudicates; the pre-filter only narrows scope.
 - Treating a non-listed row as certified correct. The pre-filter deprioritizes anchored rows; the loose-supporting-code-on-an-anchored-row case is exactly what the pre-filter does not list and the judge must still catch when flagged.
 - Routing a judge finding without the orchestrator's own re-read of the source title. Apply-time verification is the false-positive filter; on a clean corpus the dominant case is a correct mapping the lexical signal flagged.
+- Recording a fit verdict, or a held-status claim for a cited framework, from a note or a prior run's record instead of an executed `ref-holds` + index read with the held-source title `path:line` cited THIS run (the 2026-08-31 stale-note incident this cadence's P-1.56 requirement exists to prevent).
 - Fixing a code without re-reading the paired description cell for stale prose echoing the old code's meaning (the migration-leaves-stale-prose class).
 - Running this as a substitute for the existence gates, or skipping it because "the gates passed". The gates and this skill cover orthogonal classes; passing the gates says nothing about fit.
 
@@ -88,6 +90,7 @@ The pass is complete on a given run when:
 - The scope was named and the mechanical baseline was clean (the project's full audit-gate suite exit 0) before the semantic read.
 - The advisory pre-filter was run and its worklist (plus any maintainer-flagged rows) was the judge's input.
 - Every worklisted row was judged against the source control TITLE read from the reference base, with the title quoted as evidence.
+- Every fit verdict cited the held source title's own reference-base `path:line` from an executed `ref-holds` + index read in THIS run (not a note, a prior run's record, or memory); any held source extract currency claim was validated upstream this run rather than inferred from the index.
 - The orchestrator re-read each candidate mismatch's source title and refuted or confirmed it; refutations are recorded, not routed.
 - Confirmed in-scope mismatches were fixed (code corrected, Version and Date bumped, CHANGELOG entry written) and out-of-scope mismatches were surfaced with named options.
 - The run was recorded (history row always; detail file when findings exist) and findings were surfaced inline in chat.
@@ -99,6 +102,7 @@ The pass is complete on a given run when:
 | "The existence gates pass, so the codes are fine." | Those gates check existence and catalogue membership, not fit. A valid code can be the wrong control; only a title read decides. |
 | "The worklist is short / empty, so the matrix is clean." | The worklist is recall-oriented triage, not a verdict. A short worklist narrows the read; it does not certify the unlisted rows, and the loose-supporting-code case is deliberately off the worklist. |
 | "I recognize this code; it fits." | Recognition is a remembered meaning, the exact failure mode this skill exists to catch. Read the source title. |
+| "The reference base held this title last run, or a note says it is held." | Holdings is determined by an executed `ref-holds` + index read THIS run, cited by the held-source title `path:line`; a note or a prior run's record is not a holdings authority, and a held source extract's currency is validated upstream, never inferred from the index. |
 | "The judge flagged it, so it is wrong; route it." | The lexical signal flags many correct mappings. Re-read the source title at apply-time before routing; on a clean corpus most flags are false positives. |
 | "Semantic fit should just be a gate." | It is not mechanically checkable (correct GRC mappings routinely share no vocabulary with the document title). A blocking gate would be decorative; the cadenced audit is the durable instrument. |
 
