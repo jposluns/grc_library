@@ -1,5 +1,7 @@
 # Changelog
 
+**2026-09-02 | 2026.09.628 | PR #1925** - Added batch-scoping and JSON output to both semantic-fit pre-filter tools, found by the P-1.62 review. A --docs flag narrows the worklist to a batch's documents (the per-batch cadence the commands name but the tools could not produce), and --json lets a worklist feed a dispatch brief or a run-over-run diff.
+
 **2026-09-02 | 2026.09.627 | PR #1924** - .claude/ and pack: named this project's triple-family QA panel standard in the matrix-fit and claim-fit skill wiring, and gave the matrix-fit command the same concrete record-location path its claim-fit sibling already carries (P-1.62 I8, I9).
 
 **2026-09-02 | 2026.09.626 | PR #1923** - Refined the claim-fit skill so it judges a claim once per cited source, found by the P-1.62 review. A value can be prescribed by one source and merely informed by another, so a single verdict per claim erased that distinction; the fix now derives from the per-source verdicts.
