@@ -12412,6 +12412,24 @@ class UnwiredToolSelfTests(LinterTestCase):
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 
+    def test_audit_claim_precision_sample_mode_cold_start(self) -> None:
+        import json, tempfile, os
+        with tempfile.TemporaryDirectory() as td:
+            rec = os.path.join(td, "sweeps.jsonl")          # absent -> cold start
+            result = run_linter("tools/audit-claim-precision.py",
+                                "--sample", "--n", "5", "--sweeps-record", rec, "--json")
+            self.assertEqual(result.returncode, 0,
+                             f"--sample failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+            d = json.loads(result.stdout)
+            self.assertEqual(d["cycle"], 1)                  # cold start
+            self.assertLessEqual(d["n_drawn"], 5)            # <= N
+            self.assertEqual(d["mode"], "coverage-sweep")
+
+    def test_audit_claim_precision_sample_rejects_docs(self) -> None:
+        result = run_linter("tools/audit-claim-precision.py",
+                            "--sample", "--docs", "privacy/x.md")
+        self.assertNotEqual(result.returncode, 0)            # argparse error: global-only
+
     def test_audit_register_currency_self_test_passes(self) -> None:
         result = run_linter("tools/audit-register-currency.py", "--self-test")
         self.assertEqual(

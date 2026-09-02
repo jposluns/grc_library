@@ -1,5 +1,7 @@
 # Changelog
 
+**2026-09-02 | 2026.09.641 | PR #1938** - Made the claim-fit Tier-B coverage-sweep discipline tool-executable: a new `--sample`/`--unjudged` mode on the citation-precision tool draws the next stratified, without-replacement sample of un-judged soft-alignment claims from a deterministic ledger, so cross-run coverage is computed rather than operator-tracked.
+
 **2026-09-02 | 2026.09.640 | PR #1937** - Documented the compliance matrix's indicative-citation convention: framework-column identifiers are a representative selection, not an exhaustive reproduction of a document's own codes, so an advisory stranded-code scan may list an absent code as an expected candidate, not a defect.
 
 **2026-09-02 | 2026.09.639 | PR #1936** - Unified the two matrix control-code parsers (the semantic-fit and stranded-code advisory aids) onto one shared, canonical parser module, a behaviour-preserving refactor verified to extract identical codes on the whole corpus, with added regression coverage for both aids.
