@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.71.19\
+**Version:** 1.71.20\
 **Date:** 2026-09-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -158,7 +158,7 @@ guardrails/
 │   ├── pr-retrospective/SKILL.md                      Retrospective on each PR as its finalizing step; appends to the improvement-log register; recurring patterns surface as candidates for pack-rule updates or worker-brief additions
 │   ├── guardrail-review/SKILL.md                      Periodic structural-integrity review of the governance machinery (rules, skills, gates, wiring surfaces) for overlap / gap / drift the mechanical parity gates cannot see; maintainer-triggered + auto-prompt on machinery change
 │   ├── matrix-fit/SKILL.md                            Cadenced semantic-fit audit of the compliance matrix and per-document framework tables; catches the gate-blind "valid code, wrong control" class the existence gates cannot; after each batch that adds or edits mapping rows, at completion of a mapping surface, and ad-hoc
-│   ├── claim-fit/SKILL.md                             Cadenced citation-precision audit of normative-attribution claims; catches the gate-blind "attributed value, silent source" class the existence and citation gates cannot; one-time Tier-A pass at adoption + after normative-value batches + ad-hoc
+│   ├── claim-fit/SKILL.md                             Cadenced citation-precision audit of normative-attribution claims; catches the gate-blind "attributed value, silent source" class the existence and citation gates cannot; one-time Tier-A pass at adoption + after normative-value batches + periodic Tier-B coverage sweep + ad-hoc
 │   ├── high-assurance-verification/SKILL.md           Heavier pre-apply harness for a sensitive change (gate-blind, delicate-at-scale, costly): research fan-out, signal pass over the negatives, two or more independent adversarial verifiers, an invariant floor, and a deterministic scripted apply plus re-parse; the executable form of the high-assurance-verification rule
 │   ├── deep-assessment/SKILL.md                       Rare, maintainer-invoked whole-project deep assessment; composes the semantic instruments by invocation and adds the lenses the routine cadence does not apply to itself (gate-efficacy probing, blind-spot mapping, ground-truth sampling, adoptability and pipeline integrity, QA-ledger meta-audit); count-free and inventory-deriving, register-backed and re-entrant, completion-standard-terminated (no separate sign-off, since it composes only established validate-and-fix QA processes); derives_from trust-recovery-escalation
 │   ├── reference-audit/SKILL.md                        Cadenced reference-breadth audit between project claims and an available reference base, both directions; catches the gate-blind "held but unused" class (surfaced by the parent GRC library's SP 800-154 lesson); full, per-touch, and new-ingest modes with project-defined evidence tiers; dispatches a semantic judge over the configured audit worklist; derives_from evidence-grounded-completion
