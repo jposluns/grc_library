@@ -22,13 +22,13 @@ build, and the human reading its output) a worklist, tiered by risk:
     same clause, in either order ("retained ... 7 years ... under ISO/IEC
     42001"; "GDPR Article 33(1) requires ... 72 hours"). A wrong Tier-A
     claim is a factual misattribution, the exact FR-120 shape. The corpus
-    population is small (census 2026-07-04, post the adoption-pass fixes:
-    8 rows).
+    population was small before the I2 recall-widening (census 2026-07-04,
+    post the adoption-pass fixes: 8 Tier-A rows); the current count is below.
   TIER B (sample on cadence): soft-alignment claims ("aligns with /
     consistent with / in accordance with / compliance with / conforms
     to / as required by / as defined in / per" plus a
     named source) with no specific value. These assert alignment, not
-    specific language; the census counts 119 rows (2026-07-04), so the
+    specific language; the census counts 54 Tier-A + 164 Tier-B rows (2026-09-02, post the I2 recall-widening and its over-match fixes), so the
     skill samples them rather than judging each per run.
 
 Ground truth for the judge is the held source text in the SIBLING
@@ -71,7 +71,11 @@ EXCLUDE_DIRS = {".git", ".working", ".claude", "node_modules", "__pycache__",
                 "tests", "tools"}
 EXCLUDE_FILES = {"CHANGELOG.md", "TODO.md", "TODO-REFERENCE.md",
                  str(Path("docs") / "portal.md"),
-                 str(Path("docs") / "maturity-scorecard.md")}
+                 str(Path("docs") / "maturity-scorecard.md"),
+                 # A pure document-index register: its review-cadence column ("6 to 12
+                 # months") pairs with an adjacent frameworks-list column, a cross-cell
+                 # value+source that is NOT an attribution claim (P-1.62 I2 QA, #1922).
+                 str(Path("governance") / "register-document-index-and-classification.md")}
 
 SOURCE = (
     r'(?:ISO(?:/IEC)?\s?(?:TS\s|TR\s)?[0-9]{4,5}(?:-[0-9]+)?(?::[0-9]{4})?'
@@ -85,13 +89,23 @@ SOURCE = (
     r'|PCI\sDSS(?:\sv?[0-9.]+)?'
     r'|SOC\s?2'
     r'|HIPAA(?:\sSecurity\sRule|\sPrivacy\sRule)?'
-    r'|DORA|NIS2|CPRA|CCPA|LGPD|PIPEDA|POPIA|APPI'
+    r'|\b(?:DORA|NIS2|CPRA|CCPA|LGPD|PIPEDA|POPIA|APPI)\b'
+    r'|\bPIPL\b(?:\sArticle\s[0-9]+)?'
+    r'|\bFIPS\s?[0-9]{3}(?:-[0-9])?'
+    r'|(?:NIST\s)?\bAI\sRMF\b'
+    r'|\bSSAE\b\s?(?:No\.?\s?)?[0-9]+'
+    r'|\bCIS\b(?:\s(?:Controls?|Critical(?:\sSecurity\sControls?)?|CSC|Benchmarks?)|\sv?[0-9][0-9.]*)'
+    r'|\bFedRAMP\b'
     r'|ISO\s?[0-9]{4,5}(?::[0-9]{4})?'
     r')'
 )
 VALUE = (
+    r'(?:'
     r'[0-9]+(?:\.[0-9]+)?[- ]'
-    r'(?:calendar[- ]day|business[- ]day|working[- ]day|day|hour|month|year)s?'
+    r'(?:calendar[- ]day|business[- ]day|working[- ]day|day|hour|minute|week|month|year)s?'
+    r'|[0-9]+[- ](?:character|attempt|failed[- ]attempt|bit|round)s?\b'
+    r'|[0-9]+(?:\.[0-9]+)?\s?(?:%|per\s?cent|percent)'
+    r')'
 )
 ATTRIB = (r'\b(?:per|under|as\srequired\sby|as\sdefined\sin|'
           r'in\saccordance\swith|compliance\swith|consistent\swith|'
@@ -107,6 +121,10 @@ TIER_A_VALUE_FIRST = re.compile(
     VALUE + CLAUSE + ATTRIB + r'\s(?:the\s)?' + SOURCE, re.IGNORECASE)
 TIER_A_SOURCE_FIRST = re.compile(
     SOURCE + CLAUSE + NORMVERB + CLAUSE + VALUE, re.IGNORECASE)
+# The FR-120 shape: an ATTRIB leads into a source-first attribution with no
+# normative verb ("Under GDPR Article 33(1), notification ... within 72 hours").
+TIER_A_ATTRIB_FIRST = re.compile(
+    ATTRIB + r'\s(?:the\s)?' + SOURCE + CLAUSE + VALUE, re.IGNORECASE)
 TIER_B = re.compile(ATTRIB + r'\s(?:the\s)?' + SOURCE, re.IGNORECASE)
 
 # Held-state token per source family, searched in the grc_library_ref indexes.
@@ -116,6 +134,8 @@ FAMILY_TOKENS = {
     "HIPAA": "HIPAA", "DORA": "DORA", "NIS2": "NIS2", "CPRA": "CCPA",
     "CCPA": "CCPA", "LGPD": "LGPD", "PIPEDA": "PIPEDA", "POPIA": "POPIA",
     "APPI": "APPI",
+    "PIPL": "PIPL", "FIPS": "FIPS", "AI RMF": "AI RMF",
+    "SSAE": "SSAE", "CIS": "CIS", "FedRAMP": "FedRAMP",
 }
 
 
@@ -146,12 +166,24 @@ def extract_claims(text):
     """Return (tier, line_no, line, source) tuples for one file's text."""
     out = []
     for i, line in enumerate(text.splitlines(), 1):
-        a1 = TIER_A_VALUE_FIRST.search(line)
-        a2 = TIER_A_SOURCE_FIRST.search(line)
-        if a1 or a2:
-            m = a1 or a2
+        m = (TIER_A_VALUE_FIRST.search(line)
+             or TIER_A_ATTRIB_FIRST.search(line)
+             or TIER_A_SOURCE_FIRST.search(line))
+        if m:
             out.append(("A", i, line.strip(), m.group(0)))
             continue
+        # Cross-cell table row: CLAUSE excludes '|', so a value cell and a source
+        # cell in DIFFERENT cells of one row are invisible to the patterns above.
+        # A KPI/SLA table is a primary /claim-fit batch trigger, so surface the row.
+        stripped = line.lstrip()
+        if stripped.startswith("|") and stripped.count("|") >= 2:
+            cells = [c.strip() for c in line.split("|")]
+            if any(re.search(VALUE, c, re.IGNORECASE) for c in cells):
+                sm = next((re.search(SOURCE, c, re.IGNORECASE)
+                           for c in cells if re.search(SOURCE, c, re.IGNORECASE)), None)
+                if sm:
+                    out.append(("A", i, line.strip(), sm.group(0)))
+                    continue
         b = TIER_B.search(line)
         if b:
             out.append(("B", i, line.strip(), b.group(0)))
@@ -160,11 +192,17 @@ def extract_claims(text):
 
 def family_of(match_text):
     up = match_text.upper()
-    for fam in ("EU AI ACT", "NIST", "CSA", "COBIT", "GDPR", "PCI", "SOC",
-                "HIPAA", "DORA", "NIS2", "CPRA", "CCPA", "LGPD", "PIPEDA",
-                "POPIA", "APPI", "ISO"):
+    for fam in ("EU AI ACT", "AI RMF", "NIST", "CSA", "COBIT", "GDPR", "PCI",
+                "SOC", "HIPAA", "DORA", "NIS2", "CPRA", "CCPA", "LGPD", "PIPEDA",
+                "POPIA", "APPI", "PIPL", "FIPS", "SSAE", "FEDRAMP", "CIS", "ISO"):
         if fam in up:
-            return "EU AI Act" if fam == "EU AI ACT" else fam
+            if fam == "EU AI ACT":
+                return "EU AI Act"
+            if fam == "AI RMF":
+                return "AI RMF"
+            if fam == "FEDRAMP":
+                return "FedRAMP"
+            return fam
     return "other"
 
 
@@ -247,6 +285,76 @@ def self_test():
             self.assertEqual(family_of("under ISO/IEC 42001"), "ISO")
             self.assertEqual(family_of("per GDPR Article 33(2)"), "GDPR")
             self.assertEqual(family_of("EU AI Act Annex IV"), "EU AI Act")
+
+        # --- I2 recall-widening (2026-09-02): each new shape + an over-match guard ---
+        def test_tier_a_attrib_first_fr120(self):
+            line = "Under GDPR Article 33(1), notification is due within 72 hours of awareness."
+            self.assertEqual(extract_claims(line)[0][0], "A")
+
+        def test_tier_a_minute_and_week_values(self):
+            self.assertEqual(extract_claims(
+                "Sessions time out after 15 minutes, as required by PCI DSS.")[0][0], "A")
+            self.assertEqual(extract_claims(
+                "Scans run every 2 weeks in accordance with ISO/IEC 27001.")[0][0], "A")
+
+        def test_tier_a_count_value(self):
+            self.assertEqual(extract_claims(
+                "Passwords are a minimum of 12 characters, as required by PCI DSS.")[0][0], "A")
+
+        def test_tier_a_cross_cell_table_row(self):
+            self.assertEqual(extract_claims(
+                "| Regulator notification | 72 hours | GDPR Article 33(1) |")[0][0], "A")
+
+        def test_new_sources_recognized_not_invisible(self):
+            # PIPL / FIPS / NIST AI RMF were NO-MATCH before I2; now at least Tier-B.
+            for line in ("Requests are handled under PIPL Article 45.",
+                         "Keys use AES in accordance with FIPS 140-3.",
+                         "The programme aligns with the NIST AI RMF."):
+                self.assertTrue(extract_claims(line), f"source not recognized: {line}")
+
+        def test_cis_substring_does_not_false_match(self):
+            # \bCIS\b must NOT match the "cis" inside "precise" (over-match guard).
+            self.assertEqual(extract_claims(
+                "This requires a precise 30 day review of the register."), [])
+
+        def test_new_family_mapping(self):
+            self.assertEqual(family_of("under PIPL Article 45"), "PIPL")
+            self.assertEqual(family_of("aligns with the NIST AI RMF"), "AI RMF")
+            self.assertEqual(family_of("per FedRAMP"), "FedRAMP")
+
+        # --- I2 QA (#1922) over-match fixes: count/source boundary + junk-column guards ---
+        def test_count_value_needs_trailing_boundary(self):
+            # 'character' must not match inside 'characteristic' (a header cell), nor
+            # 'attempt' in 'attempted', 'bit' in 'bitmap', 'round' in 'roundup'.
+            self.assertEqual(extract_claims(
+                "| AIQT facet | NIST AI RMF 1.0 characteristic | ISO/IEC 42001 |"), [])
+            self.assertNotEqual(
+                (extract_claims("Lockout after 5 attempted logins per NIST SP 800-63")
+                 or [("", 0, "", "")])[0][0], "A")
+
+        def test_legacy_short_source_word_boundary(self):
+            # \bAPPI\b must not match the 'appi' inside 'mapping'.
+            self.assertEqual(extract_claims(
+                "| MITRE ATT&CK mapping documented | 100% of rules | retire |"), [])
+
+        def test_cis_requires_qualifier_not_url_slug(self):
+            # \bCIS\b with no Controls/version qualifier (e.g. a URL slug '...-cis')
+            # must not match; a real 'CIS Controls v8' claim still does.
+            self.assertEqual(extract_claims(
+                "| ANPD | 3-business-day | comunicado-de-incidente-de-seguranca-cis |"), [])
+            self.assertEqual(extract_claims(
+                "per CIS Controls v8, patch within 14 days")[0][0], "A")
+            # CIS Benchmark(s) / CSC are the corpus's most common CIS forms -> recognized
+            self.assertTrue(extract_claims(
+                "Baselines are aligned with CIS Benchmark recommendations."))
+            self.assertTrue(extract_claims("consistent with CIS CSC controls"))
+
+        def test_pure_index_register_excluded(self):
+            # The document-index/classification register is in EXCLUDE_FILES: its
+            # review-cadence-vs-frameworks columns are not attribution claims.
+            self.assertIn(
+                str(Path("governance") / "register-document-index-and-classification.md"),
+                EXCLUDE_FILES)
 
     runner = unittest.TextTestRunner(verbosity=1)
     result = runner.run(
