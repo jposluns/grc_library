@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.46\
+**Version:** 1.11.47\
 **Date:** 2026-09-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -19,6 +19,8 @@
 ## How to use this matrix
 
 This matrix maps GRC library documents to the control domains and section references of nine compliance, security, and AI-control frameworks. Each row represents one GRC library document. Each framework column lists the control identifiers, domains, or section references that the document materially supports.
+
+**Citations are indicative, not exhaustive (representative-citation convention).** The identifiers in each framework column are a REPRESENTATIVE selection that best characterizes how the document aligns to that framework; they are not an exhaustive reproduction of, and need not appear verbatim in, the referenced document. A document commonly expresses its own control coverage at a different granularity or as a different subset (or carries no same-framework identifiers of its own at all), so a control named here may be an indicative example of the domain's applicability rather than a code the document itself cites. Consequently, an advisory stranded-code scan that compares a cell against the referenced document's own codes may list a cited identifier as a "candidate"; under this convention that is expected and is not, by itself, a defect. A cited identifier is still expected to be a real control of its framework and to materially fit the row's subject: literal absence from the referenced document is permitted by this convention, but a fabricated (non-existent) code or a genuine wrong-fit is not, and the corpus's citation-validity and periodic semantic-fit checks address those separately (to the extent each framework column is covered).
 
 **Framework column keys:**
 

@@ -1,5 +1,7 @@
 # Changelog
 
+**2026-09-02 | 2026.09.640 | PR #1937** - Documented the compliance matrix's indicative-citation convention: framework-column identifiers are a representative selection, not an exhaustive reproduction of a document's own codes, so an advisory stranded-code scan may list an absent code as an expected candidate, not a defect.
+
 **2026-09-02 | 2026.09.639 | PR #1936** - Unified the two matrix control-code parsers (the semantic-fit and stranded-code advisory aids) onto one shared, canonical parser module, a behaviour-preserving refactor verified to extract identical codes on the whole corpus, with added regression coverage for both aids.
 
 **2026-09-02 | 2026.09.638 | PR #1935** - Refreshed the ISO/IEC 27018, 27701, 27036-2, CSA AICM, OWASP suite, WCO SAFE, and ISO 16484 rows of two citation-verification worklists to match the current canonical register; the broader systematic worklist-baseline staleness is routed for a wholesale refresh.
