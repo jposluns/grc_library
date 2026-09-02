@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Notice Template\
 **Document Type:** Template\
-**Version:** 1.0.8\
-**Date:** 2026-08-14\
+**Version:** 1.0.9\
+**Date:** 2026-09-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/framework-consent-management.md`](framework-consent-management.md)\
@@ -159,7 +159,7 @@ For just-in-time notices delivered at the point of collection (form submission, 
 | PIPL | Articles 17 to 21 | Notification to individuals |
 | CCPA / CPRA | Notice at Collection | Pre-collection disclosure |
 | ISO/IEC 29184:2020 | Online notice and consent | Notice structure |
-| NIST Privacy Framework | CT.PO-P1 to P5 | Transparency and control |
+| NIST Privacy Framework | CM.PO-P1, CM.AW-P1, CT.PO-P1 to P3 | Transparency and control |
 
 ---
 

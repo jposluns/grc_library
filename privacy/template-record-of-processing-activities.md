@@ -2,8 +2,8 @@
 
 **Document Title:** Record of Processing Activities Template\
 **Document Type:** Template\
-**Version:** 1.0.10\
-**Date:** 2026-08-14\
+**Version:** 1.0.11\
+**Date:** 2026-09-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/register-cross-border-data-flow.md`](register-cross-border-data-flow.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`supply-chain/register-subprocessor-template.md`](../supply-chain/register-subprocessor-template.md)\
@@ -106,7 +106,7 @@ This template applies to every processing activity carried out by the organizati
 | LGPD | Article 37 | Record of operations |
 | CPPA | Section 60 (lapsed with Bill C-27) | Records of security-safeguard breaches |
 | PIPL | Article 55 | Compliance audit and recording |
-| NIST Privacy Framework | CT.PO-P5 | Identifying and inventorying data |
+| NIST Privacy Framework | ID.IM-P | Identifying and inventorying data |
 
 ---
 
