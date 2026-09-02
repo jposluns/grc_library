@@ -1,5 +1,7 @@
 # Changelog
 
+**2026-09-02 | 2026.09.626 | PR #1923** - Refined the claim-fit skill so it judges a claim once per cited source, found by the P-1.62 review. A value can be prescribed by one source and merely informed by another, so a single verdict per claim erased that distinction; the fix now derives from the per-source verdicts.
+
 **2026-09-02 | 2026.09.625 | PR #1922** - Widened the claim-fit precision pre-filter to catch value-attribution claims it was missing, found by the P-1.62 review. It now recognizes minute, week, count, and percentage values, source-first phrasings, cross-cell table rows, and the PIPL, FIPS, NIST AI RMF, SSAE, CIS, and FedRAMP sources.
 
 **2026-09-02 | 2026.09.624 | PR #1921** - Corrected two skill-process defects the P-1.62 review found. The matrix-fit command now defines its audit scope the same way its skill does, and the claim-fit skill now attempts to acquire a missing source before queuing it, matching the acquire-or-pause rule it derives from.
