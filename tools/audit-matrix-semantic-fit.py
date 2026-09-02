@@ -289,7 +289,7 @@ def scan_matrix(path: Path, docs=None) -> tuple[list[dict], int, int]:
                 candidates.append(result)
         else:
             in_table = False
-            title_idx = ccm_idx = aicm_idx = csf_idx = cobit_idx = path_idx = None
+            title_idx = ccm_idx = aicm_idx = csf_idx = cobit_idx = iso_idx = path_idx = None
     # A "Document Title" header row whose "CSA CCM v4.1" column was renamed is a table
     # the scan silently skipped (a PARTIAL parse failure). Residue: a table whose
     # "Document Title" column itself was renamed is invisible to this candidate count.
