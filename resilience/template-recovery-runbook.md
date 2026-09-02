@@ -2,8 +2,8 @@
 
 **Document Title:** Recovery Runbook Template\
 **Document Type:** Template\
-**Version:** 1.0.6\
-**Date:** 2026-08-16\
+**Version:** 1.0.7\
+**Date:** 2026-09-02\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/plan-it-disaster-recovery.md`](plan-it-disaster-recovery.md), [`resilience/procedure-backup-and-recovery.md`](procedure-backup-and-recovery.md), [`resilience/procedure-business-impact-analysis.md`](procedure-business-impact-analysis.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -157,7 +157,7 @@ Each scheduled recovery test against this runbook is recorded with date, scope (
 
 1. Each in-scope service has its own runbook instantiated from this template before the service goes live.
 2. The runbook is owned by the service owner and reviewed annually.
-3. The runbook is tested per the resilience testing procedure: at minimum annually for Tier 1, at minimum every two years for Tier 2, on a defined cadence for Tier 3.
+3. The runbook is tested per the resilience testing procedure: at minimum annually for Tier 1 and Tier 2, and on a defined cadence no less than annually for Tier 3 (aligning with the DR plan's minimum-annual testing floor).
 4. Runbook changes follow the change management procedure if material.
 5. The populated runbook is stored in a location accessible to responders during an event; offline copy is maintained where the platform itself could be unavailable.
 
