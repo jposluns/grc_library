@@ -2,8 +2,8 @@
 
 **Document Title:** DPIA (Data Protection Impact Assessment) Template\
 **Document Type:** Template\
-**Version:** 1.0.10\
-**Date:** 2026-08-04\
+**Version:** 1.0.11\
+**Date:** 2026-09-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/register-automated-decision-making.md`](register-automated-decision-making.md), [`privacy/framework-childrens-data.md`](framework-childrens-data.md), [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md)\
@@ -200,7 +200,7 @@ Measures must include, at minimum: technical measures (encryption at rest and in
 | EU AI Act | Article 27 | Fundamental rights impact assessment (where the DPIA is integrated with the AI-system limb) |
 | ISO/IEC 29134:2023 | Privacy impact assessment methodology | Methodology guidance for PIA / DPIA |
 | ISO/IEC 27701:2025 | Privacy information management | DPIA as a privacy control |
-| NIST Privacy Framework | CT.PO-P5, CM.AW-P5 | Risk assessment and awareness |
+| NIST Privacy Framework | ID.RA-P, CM.AW-P5 | Risk assessment and awareness |
 | Quebec Law 25 (Canada, CQLR c. P-39.1) | Section 3.3 (privacy impact assessment); section 12.1 (automated decision-making notice) | Privacy impact assessment for information-system projects involving personal information, and transparency for decisions based exclusively on automated processing (the proposed AIDA, Bill C-27 Part 3, lapsed January 2025 and is not in force) |
 
 ---

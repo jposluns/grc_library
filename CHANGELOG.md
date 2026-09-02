@@ -1,5 +1,7 @@
 # Changelog
 
+**2026-09-02 | 2026.09.611 | PR #1908** - Corrected a fabricated NIST Privacy Framework citation in three privacy templates: the nonexistent code CT.PO-P5 (the CT.PO-P category ends at P4) becomes the fitting existing control in each, risk assessment (ID.RA-P) in the impact-assessment template and inventory and mapping (ID.IM-P) in the records-of-processing register, and the transparency-notice row is re-mapped to the fitting communication controls (CM.PO-P1, CM.AW-P1) plus the data-control policies (CT.PO-P1 to P3), replacing an over-run range whose endpoint did not exist. This is the class the new report-only existence check flags; the corpus is now free of fabricated Privacy Framework codes.
+
 **2026-09-02 | 2026.09.610 | PR #1907** - New report-only existence check for NIST Privacy Framework alignment citations, with its committed identifier catalogue (18 categories, 100 subcategories); it flags a cited privacy-control code absent from the framework, including a fabricated range endpoint, the class a resume validation surfaced in three privacy templates. First step of the scan-first remediation.
 
 **2026-09-01 | 2026.09.609 | PR #1906** - New audit gate D13, the stranded-control-code check: a PR-time delta gate that catches a body control-code left citing an old value after the alignment table was corrected in the same document, the paired-surface stranding class that escaped review three times this session.
