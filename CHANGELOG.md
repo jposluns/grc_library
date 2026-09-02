@@ -1,5 +1,7 @@
 # Changelog
 
+**2026-09-02 | 2026.09.637 | PR #1934** - Two accuracy fixes from the resume review: recovery-runbook testing now floors Tier 2 at annual (matching the disaster-recovery plan), and the LINDDUN privacy-threat-modelling control mapping now cites the risk-assessment control that actually covers threat identification instead of the PII-authority controls.
+
 **2026-09-02 | 2026.09.636 | PR #1933** - Reframed a disaster-recovery plan and a personnel-screening standard so their example incident and infrastructure read as explicitly illustrative rather than as a specific organization's history, restoring organization-neutrality.
 
 **2026-09-02 | 2026.09.635 | PR #1932** - Corrected an EU AI Act citation in the compliance and audit policy: the risk, quality, and post-market monitoring alignment now cites Articles 9, 17, and 72 (the prior "Articles 9 to 16" range omitted quality, Article 17, and post-market monitoring, Article 72).
