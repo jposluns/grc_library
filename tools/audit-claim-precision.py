@@ -60,6 +60,7 @@ import argparse
 import os
 import re
 import sys
+import hashlib
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -215,6 +216,186 @@ def family_of(match_text):
                 return "FedRAMP"
             return fam
     return "other"
+
+
+def _norm_claim(text):
+    """Normalize a claim line for anchoring: lowercase, collapse whitespace, strip.
+    Survives reflow/whitespace edits; a genuine reword changes the anchor (accepted
+    residue, per the claim-fit SKILL step-3 note)."""
+    return re.sub(r"\s+", " ", text.strip().lower())
+
+
+def claim_anchor(text, length=12):
+    """Stable short content anchor for a claim line (D1/D2). sha256 hex, truncated;
+    line-drift-immune (NOT a line number), matching the sweep-preflight-scanner precedent."""
+    return hashlib.sha256(_norm_claim(text).encode("utf-8")).hexdigest()[:length]
+
+
+def source_key(src):
+    """The normalized SOURCE identifier component of a row key (D3): drop the leading
+    ATTRIB verb so 'per ISO/IEC 27001' and 'in accordance with ISO/IEC 27001' key the
+    same source. Falls back to the whole match if no bare SOURCE is found."""
+    m = re.search(SOURCE, src, re.IGNORECASE)
+    return re.sub(r"\s+", " ", (m.group(0) if m else src).strip().lower())
+
+
+def domain_of(rel):
+    """Document domain = corpus top-level dir (D4)."""
+    parts = Path(rel).parts
+    return parts[0] if parts else "(root)"
+
+
+def row_key(path, src, anchor):
+    """Row identity for the coverage sweep: path + cited source + claim anchor."""
+    return f"{path}|{source_key(src)}|{anchor}"
+
+
+def build_tier_b_census(docs=None):
+    """Live Tier-B census as a deterministic, key-deduped list of row dicts.
+    Global (no --docs) for the coverage sweep; `docs` is accepted only for testing."""
+    rows = []
+    for rel, p in corpus_files(docs):
+        for tier, ln, line, src in extract_claims(p.read_text(errors="replace")):
+            if tier != "B":
+                continue
+            anchor = claim_anchor(line)
+            rows.append({
+                "key": row_key(str(rel), src, anchor),
+                "path": str(rel), "source": src,
+                "family": family_of(src), "domain": domain_of(rel),
+                "anchor": anchor, "line_hint": ln,
+            })
+    seen = {}                       # D7: collapse identical claim lines by key, keep first
+    for r in rows:
+        seen.setdefault(r["key"], r)
+    return sorted(seen.values(), key=lambda r: r["key"])
+
+
+def load_sweep_records(path):
+    """Parse the JSONL sweep ledger into a list of dicts (empty if absent)."""
+    import json as _json
+    out = []
+    if path and Path(path).exists():
+        for ln in Path(path).read_text(errors="replace").splitlines():
+            ln = ln.strip()
+            if ln:
+                out.append(_json.loads(ln))
+    return out
+
+
+def current_cycle_state(records):
+    """Return (cycle, judged_keys:set, runs_in_cycle:int, per_stratum_judged:dict).
+    Cycle advances on each cycle-reset; judged/rotation counts are scoped to the
+    CURRENT cycle only, so a reset restarts sampling on the refreshed census."""
+    from collections import Counter
+    cycle = 1
+    for rec in records:
+        if rec.get("kind") == "cycle-reset":
+            cycle = max(cycle, int(rec["cycle"]) + 1)
+    judged, runs, strat = set(), 0, Counter()
+    for rec in records:
+        if rec.get("kind") != "coverage-sweep" or rec.get("cycle") != cycle:
+            continue
+        runs += 1
+        for s in rec.get("sampled", []):
+            judged.add(s["key"])
+            strat[(s["family"], s["domain"])] += 1
+    return cycle, judged, runs, dict(strat)
+
+
+def stratified_draw(census, judged, per_stratum_judged, n):
+    """Draw the next <=n un-judged rows, stratified by (family,domain) with rotation.
+    Deterministic: no seed/date/random. Returns (drawn_rows, unjudged_total).
+
+    Rotation (D6): strata are ordered least-judged-this-cycle first (then canonical
+    tuple), so under-sampled strata surface each run -> every stratum is reached over
+    the cadence. Within a run we round-robin one row per stratum (spread, not cluster).
+    Within a stratum, rows are taken in ascending-anchor order (without replacement)."""
+    from collections import defaultdict
+    unjudged = [r for r in census if r["key"] not in judged]
+    buckets = defaultdict(list)
+    for r in unjudged:
+        buckets[(r["family"], r["domain"])].append(r)
+    for k in buckets:
+        buckets[k].sort(key=lambda r: r["anchor"])
+    order = sorted(buckets.keys(),
+                   key=lambda s: (per_stratum_judged.get(s, 0), s))
+    drawn, cursor, progressed = [], {k: 0 for k in order}, True
+    while len(drawn) < n and progressed:
+        progressed = False
+        for stratum in order:
+            if len(drawn) >= n:
+                break
+            i = cursor[stratum]
+            if i < len(buckets[stratum]):
+                drawn.append(buckets[stratum][i])
+                cursor[stratum] = i + 1
+                progressed = True
+    return drawn, len(unjudged)
+
+
+def run_sample(n, record_path, date=None, as_json=False, _census=None, _records=None):
+    """Tier-B coverage-sweep mode: emit the next stratified un-judged N and the JSONL
+    record line(s) to append. `_census`/`_records` are test injection seams."""
+    import json as _json
+    records = _records if _records is not None else load_sweep_records(record_path)
+    cycle, judged, runs, strat = current_cycle_state(records)
+    census = _census if _census is not None else build_tier_b_census()
+    census_keys = {r["key"] for r in census}
+    stale = judged - census_keys        # judged rows no longer in the live census
+    drawn, unjudged_total = stratified_draw(census, judged, strat, n)
+    remaining_after = unjudged_total - len(drawn)
+    run_no = runs + 1
+
+    sweep_rec = None
+    if drawn:
+        sweep_rec = {"kind": "coverage-sweep", "cycle": cycle, "run": run_no,
+                     "date": date, "census_size": len(census),
+                     "n_requested": n, "n_drawn": len(drawn),
+                     "remaining_after": remaining_after,
+                     "sampled": [{"key": r["key"], "path": r["path"],
+                                  "source": r["source"], "family": r["family"],
+                                  "domain": r["domain"], "anchor": r["anchor"],
+                                  "line_hint": r["line_hint"]} for r in drawn]}
+    reset_rec = None
+    if remaining_after == 0:             # this run completes the cycle (or already done)
+        reset_rec = {"kind": "cycle-reset", "cycle": cycle, "date": date,
+                     "reason": ("census exhausted; sampling restarts on the refreshed "
+                                f"census as cycle {cycle + 1}")}
+
+    if as_json:
+        print(_json.dumps({
+            "mode": "coverage-sweep", "cycle": cycle, "run": run_no,
+            "census_size": len(census), "unjudged_before": unjudged_total,
+            "n_requested": n, "n_drawn": len(drawn),
+            "remaining_after": remaining_after, "cycle_complete": remaining_after == 0,
+            "stale_judged_keys": sorted(stale),
+            "record_path": (str(record_path) if record_path else None),
+            "append_records": [r for r in (sweep_rec, reset_rec) if r],
+        }, indent=2))
+        return 0
+
+    print(f"claim-fit Tier-B coverage sweep: cycle {cycle}, run {run_no} "
+          f"(census {len(census)}, un-judged before {unjudged_total}, drawing "
+          f"{len(drawn)} of {n}; {remaining_after} left after)")
+    if record_path is None:
+        print("  note: no sweep-ledger path resolved (public/adopter clone); cold start "
+              "assumed. Pass --sweeps-record PATH to persist without-replacement state.")
+    if stale:
+        print(f"  note: {len(stale)} previously-judged key(s) no longer in the live "
+              f"census (rename/reword); manual reconciliation, per SKILL residue.")
+    for r in drawn:
+        print(f"  [{r['family']} x {r['domain']}] {r['path']}:{r['line_hint']} "
+              f"({r['anchor']})  {r['source']}")
+    if remaining_after == 0:
+        print(f"  CYCLE {cycle} COMPLETE -> append the cycle-reset record; next run "
+              f"starts cycle {cycle + 1} on the refreshed census.")
+    print("\n  append the following line(s) to the sweep ledger AFTER judging "
+          "(the without-replacement basis):")
+    for r in (sweep_rec, reset_rec):
+        if r:
+            print("    " + _json.dumps(r))
+    return 0
 
 
 def held_families(ref_base):
@@ -410,6 +591,89 @@ def self_test():
                 str(Path("governance") / "register-document-index-and-classification.md"),
                 EXCLUDE_FILES)
 
+        # --- P-1.64 Tier-B coverage-sweep mode ---
+        def _mk(self, fam, dom, i):
+            path = f"{dom}/doc{i}.md"
+            src = f"per {fam}"
+            return {"key": f"{path}|{fam.lower()}|{i:012d}", "path": path,
+                    "source": src, "family": fam, "domain": dom,
+                    "anchor": f"{i:012d}", "line_hint": i}
+
+        def test_anchor_stable_and_whitespace_immune(self):
+            self.assertEqual(claim_anchor("aligns with  NIST CSF 2.0"),
+                             claim_anchor("aligns with NIST CSF 2.0 "))
+            self.assertEqual(len(claim_anchor("x")), 12)
+
+        def test_source_key_drops_attrib_verb(self):
+            self.assertEqual(source_key("per ISO/IEC 27001"),
+                             source_key("in accordance with ISO/IEC 27001"))
+
+        def test_sample_cold_start_stratified(self):
+            census = [self._mk("ISO", "ai", i) for i in range(6)] + \
+                     [self._mk("GDPR", "privacy", 100 + i) for i in range(6)]
+            drawn, rem = stratified_draw(census, set(), {}, 4)
+            self.assertEqual(len(drawn), 4)
+            self.assertEqual(rem, 12)
+            self.assertEqual(len({d["family"] for d in drawn}), 2)  # spread, not cluster
+
+        def test_sample_without_replacement(self):
+            census = [self._mk("ISO", "ai", i) for i in range(6)]
+            d1, _ = stratified_draw(census, set(), {}, 3)
+            judged = {r["key"] for r in d1}
+            d2, _ = stratified_draw(census, judged, {("ISO", "ai"): 3}, 3)
+            self.assertFalse({r["key"] for r in d2} & judged)
+
+        def test_sample_terminal_min_n_remaining(self):
+            census = [self._mk("ISO", "ai", i) for i in range(2)]
+            drawn, rem = stratified_draw(census, set(), {}, 10)
+            self.assertEqual(len(drawn), 2)         # min(N, remaining)
+            self.assertEqual(rem, 2)
+
+        def test_sample_rotation_across_runs_covers_all_strata(self):
+            # 4 strata, N=2: run1 hits 2 strata, run2 (given run1 counts) hits the other 2.
+            strata = [("ISO", "ai"), ("GDPR", "privacy"),
+                      ("NIST", "security"), ("CSA", "compliance")]
+            census = [self._mk(f, d, k * 10 + j)
+                      for k, (f, d) in enumerate(strata) for j in range(2)]
+            d1, _ = stratified_draw(census, set(), {}, 2)
+            j1 = {r["key"] for r in d1}
+            s1 = {(r["family"], r["domain"]) for r in d1}
+            counts = {}
+            for r in d1:
+                counts[(r["family"], r["domain"])] = counts.get((r["family"], r["domain"]), 0) + 1
+            d2, _ = stratified_draw(census, j1, counts, 2)
+            s2 = {(r["family"], r["domain"]) for r in d2}
+            self.assertEqual(s1 | s2, set(strata))   # every stratum reached over the cadence
+
+        def test_cycle_state_and_reset(self):
+            recs = [{"kind": "coverage-sweep", "cycle": 1, "run": 1,
+                     "sampled": [{"key": "k1", "family": "ISO", "domain": "ai"}]}]
+            cyc, judged, runs, strat = current_cycle_state(recs)
+            self.assertEqual((cyc, runs), (1, 1))
+            self.assertEqual(judged, {"k1"})
+            recs.append({"kind": "cycle-reset", "cycle": 1})
+            cyc2, judged2, runs2, _ = current_cycle_state(recs)
+            self.assertEqual(cyc2, 2)          # cycle advanced
+            self.assertEqual((judged2, runs2), (set(), 0))  # judged/rotation reset
+
+        def test_sample_determinism(self):
+            census = [self._mk("ISO", "ai", i) for i in range(5)] + \
+                     [self._mk("GDPR", "privacy", 100 + i) for i in range(5)]
+            a, _ = stratified_draw(census, set(), {}, 4)
+            b, _ = stratified_draw(census, set(), {}, 4)
+            self.assertEqual([r["key"] for r in a], [r["key"] for r in b])
+
+        def test_sample_emits_reset_record_when_exhausted(self):
+            import io, contextlib, json as _json
+            census = [self._mk("ISO", "ai", i) for i in range(2)]
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                run_sample(10, None, as_json=True, _census=census, _records=[])
+            out = _json.loads(buf.getvalue())
+            self.assertTrue(out["cycle_complete"])
+            kinds = {r["kind"] for r in out["append_records"]}
+            self.assertEqual(kinds, {"coverage-sweep", "cycle-reset"})
+
     runner = unittest.TextTestRunner(verbosity=1)
     result = runner.run(
         unittest.defaultTestLoader.loadTestsFromTestCase(Extractors))
@@ -426,10 +690,41 @@ def main(argv):
                     help="emit the worklist as JSON (for a dispatch brief or a run-over-run diff)")
     ap.add_argument("--self-test", action="store_true",
                     help="run the inline extractor self-test and exit")
+    ap.add_argument("--sample", "--unjudged", action="store_true", dest="sample",
+                    help="Tier-B coverage-sweep mode: emit the next stratified, "
+                         "without-replacement, un-judged N (P-1.64)")
+    ap.add_argument("--n", type=int, default=10, metavar="N",
+                    help="coverage-sweep sample size (default 10)")
+    ap.add_argument("--sweeps-record", metavar="PATH",
+                    help="JSONL sweep-ledger path (default: resolve_working "
+                         "claim-fit/tierb-coverage-sweeps.jsonl)")
+    ap.add_argument("--date", help="date stamp written into the emitted record "
+                                   "(metadata only; NOT used in the draw)")
     args = ap.parse_args(argv[1:])
     if args.self_test:
         return self_test()
-    run_report(args.tier, find_ref_base(args.ref_base), docs=args.docs, as_json=args.as_json)
+    if args.sample:
+        if args.docs:
+            ap.error("--sample is the GLOBAL Tier-B coverage sweep; it does not take "
+                     "--docs (a scoped run does not advance the coverage cycle).")
+        if args.n <= 0:
+            ap.error("--n must be a positive integer (the coverage sweep draws the "
+                     "next N un-judged rows; N<=0 would never advance the cadence).")
+        record_path = args.sweeps_record
+        if record_path is None:
+            try:                       # lazy: keep the default path off the module top
+                import lint_common
+                # Resolve the WORKING DIR (which exists) then name the ledger file, so a
+                # cold start (ledger not yet created) still gets a writable first-use path;
+                # resolve_working() is existence-only and returns None for a missing file.
+                base = lint_common.resolve_working_dir()
+                record_path = (str(Path(base) / "claim-fit" /
+                                   "tierb-coverage-sweeps.jsonl") if base else None)
+            except Exception:
+                record_path = None
+        return run_sample(args.n, record_path, date=args.date, as_json=args.as_json)
+    run_report(args.tier, find_ref_base(args.ref_base), docs=args.docs,
+               as_json=args.as_json)
     return 0
 
 
