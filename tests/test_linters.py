@@ -12377,6 +12377,25 @@ class UnwiredToolSelfTests(LinterTestCase):
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 
+    def test_matrix_code_parse_self_test_passes(self) -> None:
+        # P-1.62 I10: the shared canonical control-code parser both matrix aids import.
+        result = run_linter("tools/matrix_code_parse.py", "--self-test")
+        self.assertEqual(
+            result.returncode, 0,
+            f"matrix_code_parse.py --self-test failed.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_audit_stranded_matrix_code_self_test_passes(self) -> None:
+        # P-1.62 I10: new coverage , the stranded aid now shares matrix_code_parse,
+        # so its self-test enters the gated suite alongside semantic-fit's.
+        result = run_linter("tools/audit-stranded-matrix-code.py", "--self-test")
+        self.assertEqual(
+            result.returncode, 0,
+            f"audit-stranded-matrix-code.py --self-test failed.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
     def test_statusline_next_pr_self_test_passes(self) -> None:
         result = run_linter("tools/statusline-next-pr.py", "--self-test")
         self.assertEqual(
