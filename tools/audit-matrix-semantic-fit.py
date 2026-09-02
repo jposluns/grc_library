@@ -209,17 +209,35 @@ def _split_row(line: str) -> list[str]:
     return cells
 
 
-def scan_matrix(path: Path) -> list[dict]:
-    """Scan the compliance matrix's per-domain mapping tables."""
+def scan_matrix(path: Path) -> tuple[list[dict], int, int]:
+    """Scan the compliance matrix's per-domain mapping tables.
+
+    Returns (candidates, n_assessed, n_unparsed_tables). n_assessed is the number of data
+    rows actually read; n_unparsed_tables is the count of "Document Title"+"Path" header
+    rows whose "CSA CCM v4.1" column was renamed (a table silently skipped, a PARTIAL parse
+    failure). n_assessed == 0 means the header anchor was
+    never matched (a reworded/renamed column), i.e. a PARSE FAILURE, NOT a clean
+    surface: the caller must refuse to assert cleanliness in that case (guard-inputs
+    discipline; make ignorance a first-class return that refuses rather than permits).
+    """
     candidates: list[dict] = []
+    n_assessed = 0
+    n_candidate_headers = 0  # rows that look like a mapping-table header ("Document Title" present)
+    n_recognized_headers = 0  # of those, the ones whose "CSA CCM v4.1" column was also found
     lines = path.read_text(encoding="utf-8").splitlines()
     title_idx = ccm_idx = aicm_idx = csf_idx = cobit_idx = None
     in_table = False
     for raw, line in enumerate(lines, start=1):
         if line.lstrip().startswith("|"):
             cells = _split_row(line)
+            # A candidate mapping-table header carries BOTH stable label columns
+            # ("Document Title" and "Path"); requiring both stops a lone data cell whose
+            # value is literally "Document Title" from masquerading as a header.
+            if "Document Title" in cells and "Path" in cells:
+                n_candidate_headers += 1
             # Header row of a mapping table?
             if "Document Title" in cells and "CSA CCM v4.1" in cells:
+                n_recognized_headers += 1
                 title_idx = cells.index("Document Title")
                 ccm_idx = cells.index("CSA CCM v4.1")
                 aicm_idx = cells.index("CSA AICM v1.1") if "CSA AICM v1.1" in cells else None
@@ -241,14 +259,23 @@ def scan_matrix(path: Path) -> list[dict]:
                 codes += CODE_RE.findall(cells[csf_idx])
             if cobit_idx is not None and len(cells) > cobit_idx:
                 codes += CODE_RE.findall(cells[cobit_idx])
+            n_assessed += 1
             result = assess_row(subject, codes)
             if result:
-                result["location"] = f"{path.relative_to(REPO_ROOT)}:{raw}"
+                try:
+                    rel = path.relative_to(REPO_ROOT)
+                except ValueError:  # a path outside the repo (e.g. a self-test temp file)
+                    rel = path
+                result["location"] = f"{rel}:{raw}"
                 candidates.append(result)
         else:
             in_table = False
             title_idx = ccm_idx = aicm_idx = csf_idx = cobit_idx = None
-    return candidates
+    # A "Document Title" header row whose "CSA CCM v4.1" column was renamed is a table
+    # the scan silently skipped (a PARTIAL parse failure). Residue: a table whose
+    # "Document Title" column itself was renamed is invisible to this candidate count.
+    n_unparsed_tables = n_candidate_headers - n_recognized_headers
+    return candidates, n_assessed, n_unparsed_tables
 
 
 # --- Source-doc framework-table parsing -------------------------------------
@@ -265,12 +292,12 @@ def _doc_title(lines: list[str]) -> str | None:
     return None
 
 
-def scan_source_doc(path: Path) -> dict | None:
+def scan_source_doc(path: Path) -> tuple[dict | None, bool]:
     """Scan one corpus document's '## Framework alignment' table, if present."""
     lines = path.read_text(encoding="utf-8").splitlines()
     subject = _doc_title(lines)
     if not subject:
-        return None
+        return None, False
     # Locate the framework-alignment section and collect codes from its table.
     in_section = False
     codes: list[str] = []
@@ -281,35 +308,57 @@ def scan_source_doc(path: Path) -> dict | None:
         if in_section and line.lstrip().startswith("|"):
             codes += CODE_RE.findall(line)
     if not codes:
-        return None
+        return None, False
     result = assess_row(subject, codes)
     if result:
-        result["location"] = f"{path.relative_to(REPO_ROOT)}"
-    return result
+        try:
+            result["location"] = f"{path.relative_to(REPO_ROOT)}"
+        except ValueError:
+            result["location"] = f"{path}"
+    return result, True
 
 
-def scan_source_docs() -> list[dict]:
+def scan_source_docs() -> tuple[list[dict], int, int]:
+    """Scan every corpus document's framework-alignment table. Recurses into domain
+    SUBDIRECTORIES (sector annexes under compliance/<sector>/, jurisdiction annexes
+    under ai/jurisdictions/, ...) via rglob, matching the docstring's "each corpus
+    document" claim. Returns (candidates, n_assessed, n_unparsed) where n_assessed counts
+    docs that carried a framework-alignment table (0 assessed is a PARSE FAILURE, not a
+    clean result); n_unparsed is always 0 here (source docs are per-doc, no multi-table)."""
     candidates: list[dict] = []
+    n_assessed = 0
     for domain in AUDITED_DOMAIN_DIRS:
         d = REPO_ROOT / domain
         if not d.is_dir():
             continue
-        for md in sorted(d.glob("*.md")):
+        for md in sorted(d.rglob("*.md")):
             if md.resolve() == MATRIX_PATH.resolve():
                 continue
-            res = scan_source_doc(md)
+            res, had_table = scan_source_doc(md)
+            if had_table:
+                n_assessed += 1
             if res:
                 candidates.append(res)
-    return candidates
+    return candidates, n_assessed, 0  # source docs are per-doc: no multi-table partial case
 
 
 # --- Reporting --------------------------------------------------------------
 
-def report(candidates: list[dict], surface: str) -> None:
-    if not candidates:
-        print(f"  {surface}: 0 rows on the worklist (every row has a lexical anchor).")
+def report(candidates: list[dict], n_assessed: int, surface: str, n_unparsed: int = 0) -> None:
+    if n_assessed == 0:
+        print(f"  {surface}: PARSE-FAILURE - 0 rows assessed. The header/table anchor was "
+              f"NOT found (a renamed or reworded column), so the scan could not read this "
+              f"surface. This is NOT a clean result; do not trust the worklist as empty.")
         return
-    print(f"  {surface}: {len(candidates)} row(s) on the semantic-audit worklist:")
+    if n_unparsed > 0:
+        print(f"  {surface}: PARTIAL-PARSE WARNING - {n_unparsed} mapping table(s) had a "
+              f"'Document Title' header but no recognized 'CSA CCM v4.1' column (a renamed "
+              f"column), so those tables were SKIPPED. The worklist below is INCOMPLETE.")
+    if not candidates:
+        print(f"  {surface}: assessed {n_assessed} row(s), 0 on the worklist "
+              f"(every assessed row has a lexical anchor).")
+        return
+    print(f"  {surface}: assessed {n_assessed} row(s), {len(candidates)} on the semantic-audit worklist:")
     for c in candidates:
         print(f"    - {c['location']}  subject: {c['subject']!r}")
         for code, title, score in c["codes"]:
@@ -321,9 +370,11 @@ def run(matrix: bool, source_docs: bool) -> int:
     print("Listed rows lack a lexical anchor; they are the audit's worklist, NOT confirmed defects.")
     print("Non-listed rows are deprioritized, NOT certified; the /matrix-fit skill adjudicates fit.\n")
     if matrix:
-        report(scan_matrix(MATRIX_PATH), "Compliance matrix")
+        cands, n, n_unparsed = scan_matrix(MATRIX_PATH)
+        report(cands, n, "Compliance matrix", n_unparsed)
     if source_docs:
-        report(scan_source_docs(), "Source-doc framework tables")
+        cands, n, n_unparsed = scan_source_docs()
+        report(cands, n, "Source-doc framework tables", n_unparsed)
     print(
         "\nThe /matrix-fit semantic audit judges each listed row against the source control "
         "TITLE (CCM v4.1 / AICM v1.1 / CSF 2.0 / COBIT 2019 / ISO 31000:2018). A "
@@ -395,6 +446,100 @@ def _self_test() -> int:
             self.assertTrue(token_match("classification", "classify"))
             self.assertTrue(token_match("retention", "retention"))
             self.assertFalse(token_match("data", "duty"))
+
+        def test_parse_failure_on_reworded_matrix_header(self):
+            # C4 (guard-inputs): a reworded/renamed header -> the anchor is never
+            # matched -> 0 rows assessed. scan_matrix must report n_assessed == 0 so
+            # report() refuses to assert a clean surface (PARSE-FAILURE), not "0 on
+            # the worklist (every row has a lexical anchor)".
+            import tempfile, os
+            good = (
+                "| Domain | Document Title | Path | CSA CCM v4.1 |\n"
+                "| --- | --- | --- | --- |\n"
+                "| Risk | Records Retention and Destruction | `x.md` | DSP-07 |\n"
+                "| Risk | Third Party Risk | `y.md` | STA-01 |\n"
+            )
+            reworded = good.replace("CSA CCM v4.1", "CSA CCM (v4.1)")  # column renamed
+            paths = []
+            for body in (good, reworded):
+                with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False) as f:
+                    f.write(body); paths.append(Path(f.name))
+            try:
+                _, n_good, unparsed_good = scan_matrix(paths[0])
+                _, n_bad, _ = scan_matrix(paths[1])
+                self.assertEqual(n_good, 2, "a well-formed header must assess its data rows")
+                self.assertEqual(unparsed_good, 0, "a well-formed table has no unparsed tables")
+                self.assertEqual(n_bad, 0, "a fully-reworded header must assess 0 rows (parse failure)")
+            finally:
+                for pth in paths:
+                    os.unlink(pth)
+
+        def test_partial_parse_flags_one_renamed_table(self):
+            # codex HOLD (iter-1): the matrix has MANY mapping tables; renaming ONE
+            # table's CCM column drops that table silently (n_assessed stays > 0). The
+            # candidate-vs-recognized header count must surface it as n_unparsed > 0.
+            import tempfile, os
+            two_tables = (
+                "| Domain | Document Title | Path | CSA CCM v4.1 |\n"
+                "| --- | --- | --- | --- |\n"
+                "| Risk | Third Party Risk | `y.md` | STA-01 |\n"
+                "\n"
+                "| Domain | Document Title | Path | CSA CCM (renamed) |\n"  # CCM col renamed
+                "| --- | --- | --- | --- |\n"
+                "| Ops | Media Handling | `m.md` | DCS-05 |\n"
+            )
+            with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False) as f:
+                f.write(two_tables); path = Path(f.name)
+            try:
+                _, n_assessed, n_unparsed = scan_matrix(path)
+                self.assertEqual(n_assessed, 1, "only the recognized table's row is assessed")
+                self.assertEqual(n_unparsed, 1, "the renamed-column table must be flagged unparsed")
+            finally:
+                os.unlink(path)
+
+        def test_data_cell_named_document_title_is_not_a_candidate_header(self):
+            # Hardening (claude/codex iter-2 note): a DATA cell whose value is literally
+            # "Document Title" must NOT be counted as a candidate header (it lacks the
+            # "Path" label column), so it cannot fire a spurious PARTIAL-PARSE warning.
+            import tempfile, os
+            body = (
+                "| Domain | Document Title | Path | CSA CCM v4.1 |\n"
+                "| --- | --- | --- | --- |\n"
+                "| Ops | Document Title | `m.md` | DCS-05 |\n"  # data cell == 'Document Title'
+            )
+            with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False) as f:
+                f.write(body); path = Path(f.name)
+            try:
+                _, n_assessed, n_unparsed = scan_matrix(path)
+                self.assertEqual(n_assessed, 1)
+                self.assertEqual(n_unparsed, 0, "a data cell must not masquerade as a candidate header")
+            finally:
+                os.unlink(path)
+
+        def test_report_flags_partial_parse(self):
+            import io, contextlib
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                report([], 5, "Compliance matrix", n_unparsed=2)
+            out = buf.getvalue()
+            self.assertIn("PARTIAL-PARSE WARNING", out)
+            self.assertIn("2 mapping table(s)", out)
+
+        def test_report_refuses_clean_on_parse_failure(self):
+            # report() with n_assessed == 0 must print PARSE-FAILURE, never the
+            # clean-state sentence.
+            import io, contextlib
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                report([], 0, "Compliance matrix")
+            out = buf.getvalue()
+            self.assertIn("PARSE-FAILURE", out)
+            self.assertNotIn("has a lexical anchor", out)
+            # and a genuine clean surface (rows assessed, none worklisted) still reads clean
+            buf2 = io.StringIO()
+            with contextlib.redirect_stdout(buf2):
+                report([], 42, "Compliance matrix")
+            self.assertIn("assessed 42 row(s), 0 on the worklist", buf2.getvalue())
 
     suite = unittest.TestLoader().loadTestsFromTestCase(SemanticFitTests)
     result = unittest.TextTestRunner(verbosity=2).run(suite)
