@@ -2,8 +2,8 @@
 
 **Document Title:** Personnel Security Screening Standard\
 **Document Type:** Standard\
-**Version:** 1.0.7\
-**Date:** 2026-09-01\
+**Version:** 1.0.8\
+**Date:** 2026-09-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md)\
@@ -20,7 +20,7 @@
 
 This standard defines the organization's minimum requirements for personnel security screening. It governs pre-employment background verification for all employees and contractors, with heightened requirements for roles with access to sensitive systems, data, or privileged accounts.
 
-A prior security incident in which a previously active account belonging to a departed individual was exploited underscores the critical importance of sound identity lifecycle controls. Personnel screening is the first preventive layer; it must be paired with rigorous onboarding and offboarding procedures to ensure that access rights accurately reflect current employment status throughout the personnel lifecycle.
+A representative scenario, in which a departed individual's still-active account is exploited, underscores the critical importance of sound identity lifecycle controls. Personnel screening is the first preventive layer; it must be paired with rigorous onboarding and offboarding procedures to ensure that access rights accurately reflect current employment status throughout the personnel lifecycle.
 
 This standard supports the Identity and Access Management Policy, the Information Security Policy, and personnel security requirements under CTPAT Minimum Security Criteria and the Canada Partners in Protection (PIP) programme.
 
