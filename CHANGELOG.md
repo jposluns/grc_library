@@ -1,5 +1,7 @@
 # Changelog
 
+**2026-09-02 | 2026.09.622 | PR #1919** - Corrected two control-code citations to the fit that three independent reviews agreed on. The secret-scanning CI/CD row now cites Application Security Testing, matching the rest of the library instead of a baseline-deviation control. The physical-transport media row dropped a storage-sanitization reference that does not apply to moving media.
+
 **2026-09-02 | 2026.09.621 | PR #1918** - Added an advisory whole-corpus scan that finds stranded control codes, where the master compliance matrix still cites a control an updated document no longer carries. It flags only the high-confidence case where the document uses a different code in the same control family, and ships with a built-in self-test.
 
 **2026-09-02 | 2026.09.620 | PR #1917** - Corrected seven stranded control codes across five rows of the master compliance matrix, found by a full-corpus stranded-code scan and triaged against the held control titles. Each row dropped or replaced a code its document does not carry, mostly cloud shared-responsibility controls cited for documents that do not use that model. Two rows keep a same-domain representative code that the matrix's indicative-citation convention permits, so this pass removes only the mis-fitting codes rather than enforcing strict reproduction.
