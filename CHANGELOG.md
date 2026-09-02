@@ -1,5 +1,7 @@
 # Changelog
 
+**2026-09-02 | 2026.09.620 | PR #1917** - Corrected seven stranded control codes across five rows of the master compliance matrix, found by a full-corpus stranded-code scan and triaged against the held control titles. Each row dropped or replaced a code its document does not carry, mostly cloud shared-responsibility controls cited for documents that do not use that model. Two rows keep a same-domain representative code that the matrix's indicative-citation convention permits, so this pass removes only the mis-fitting codes rather than enforcing strict reproduction.
+
 **2026-09-02 | 2026.09.619 | PR #1916** - Promoted the fabricated-alignment-citation check to a blocking audit gate now that the corpus is clean of fabricated codes. The check validates that every cited framework control or section identifier exists in at least one held edition of its framework, catching a nonexistent code the existing framework gates cannot see, starting with the NIST Privacy Framework across its 1.0 and 1.1-draft editions. This completes the fabricated-code half of the scan-first remediation.
 
 **2026-09-02 | 2026.09.618 | PR #1915** - Added the storage-media control to the media-handling document index entry, matching the control-fit correction just applied to that document. The index had named only the information-deletion control, which now sits alongside the storage-media control that heads most of the document.
