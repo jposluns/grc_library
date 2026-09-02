@@ -124,12 +124,12 @@ Pipeline definition files (YAML, JSON, HCL) must:
 
 | Gate | CSA CCM | NIST SSDF | ISO 27001 |
 | --- | --- | --- | --- |
-| Secret scanning | CEK-10 to 21 | PW.8.2 | A.8.28 |
+| Secret scanning | AIS-05 | PW.8.2 | A.8.28 |
 | SAST | AIS-04 | PW.7.1, PW.7.2 | A.8.29 |
 | SCA | TVM-06 | PO.5, PW.4 | A.8.8 |
 | Container scan | I&S-04 | PW.4.4 | A.8.8 |
 | IaC scan | CCC-06 | PW.9 | A.8.9 |
-| Artefact signing | CCC-04 to 05 | PS.2.1 | A.8.27 |
+| Artefact signing | CCC-04 | PS.2.1 | A.8.27 |
 | Manual approval | CCC-01 to 03 | N/A | A.8.32 |
 | Branch protection | CCC-04 | PO.5 | A.8.32 |
 
