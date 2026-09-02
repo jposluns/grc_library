@@ -2,8 +2,8 @@
 
 **Document Title:** Master Project Specification\
 **Document Type:** Specification\
-**Version:** 1.6.21\
-**Date:** 2026-08-22\
+**Version:** 1.6.22\
+**Date:** 2026-09-02\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Risk Officer\
 **Related Documents:** [`specification-ingestion.md`](specification-ingestion.md), [`instruction-ai-document-ingestion.md`](instruction-ai-document-ingestion.md), [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md)\
@@ -111,6 +111,17 @@ Repository infrastructure directories and files that are not used for governance
                        and on every pull request.
 /tools/                Stdlib-only Python audit scripts and taxonomy / narrative registry /
                        portal generators.
+/guardrails/           The portable governance-rule and skill pack (CC BY-SA 4.0): the
+                       authoritative authoring source, one-way published to the standalone
+                       guardrails repository. Not an audited corpus domain.
+/.claude/              Coding-agent adapter surface. The rule copies under .claude/rules/ are
+                       kept in parity with the guardrails/ pack (gate 37); the slash commands,
+                       hooks, and settings are project-specific operational wiring.
+/executive/            Executive narrative layer (early): non-normative, advisory pages, not an
+                       audited corpus domain; the source for narrative.yml.
+/tests/                Linter-regression fixtures for the audit toolchain.
+/.project-governance/  The project's own governance artefacts (the citation-verification
+                       worklists and related records), governed as their own governance.
 /docs/                 Adopter-facing documentation not subject to the canonical governance
                        artefact metadata block (adopter guide, worked example, auto-generated
                        portal and maturity scorecard).
