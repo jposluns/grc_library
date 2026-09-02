@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Worklist: Batch Q4 (Remaining Canonical Citations)\
 **Document Type:** Worklist\
-**Version:** 1.0.16\
-**Date:** 2026-08-30\
+**Version:** 1.0.17\
+**Date:** 2026-09-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](../governance/specification-citation-verification.md), [`governance/template-citation-verification-worklist.md`](../governance/template-citation-verification-worklist.md), [`.project-governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](../governance/register-canonical-citations.md), [`.project-governance/register-citation-verification-bundle.md`](register-citation-verification-bundle.md)\
@@ -41,7 +41,7 @@ At batch close: notify AI verifier with completed worklist. AI verifier transcri
 
 Particular-attention flags (entries where AI-verifier confidence is lowest):
 
-- **OWASP Agentic AI Top 10 2026**: confirm published; release timing uncertain.
+- **OWASP Top 10 for Agentic Applications**: published 2025-12 per register (renamed from the 2026 pre-release working title); verify the /resource/ page.
 - **OWASP MCP Top 10 2025**: confirm published.
 - **Meta CyberSecEval v4**: confirm v4 is current (v3 was earlier).
 - **MITRE ATT&CK v19.2**: verified current 2026-08-30 against the upstream authority (attack.mitre.org/resources/updates; v19.2 is the 2026-08-06 Agile Groups/Software release; supersedes v19.1).
@@ -116,7 +116,7 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 | Standard ID | Expected primary URL | Field(s) | Expected value | Captured text | Wayback URL | Result | Captured by | Confidence | Date |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | CSA CCM | https://cloudsecurityalliance.org/research/cloud-controls-matrix | all | v4.1, 2026-01, Cloud Controls Matrix; supersedes v3.0.1, v4.0, v4.0.13 |  |  |  |  |  |  |
-| CSA AICM | https://cloudsecurityalliance.org/research/ai-controls-matrix | all | v1.0.3, 2025, AI Controls Matrix; supersedes v1.0.0, v1.0.1, v1.0.2 |  |  |  |  |  |  |
+| CSA AICM | https://cloudsecurityalliance.org/artifacts/ai-controls-matrix | all | v1.1, 2026, AI Controls Matrix; supersedes v1.0.0, v1.0.1, v1.0.2, v1.0.3 |  |  |  |  |  |  |
 | CSA STAR | https://cloudsecurityalliance.org/star | all | Continuous, Security Trust Assurance and Risk programme |  |  |  |  |  |  |
 | COBIT | https://www.isaca.org/resources/cobit | all | 2019, 2018-11 (with Design/Implementation Guide updates 2019, 2020); supersedes COBIT 5, COBIT 4.1; "COBIT 2025" is hallucinated |  |  |  |  |  |  |
 
@@ -135,18 +135,18 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 
 | Standard ID | Expected primary URL | Field(s) | Expected value | Captured text | Wayback URL | Result | Captured by | Confidence | Date |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| OWASP Top 10 | https://owasp.org/Top10/ | all | 2021; supersedes 2017 (note: 2025 edition may now be current) |  |  |  |  |  |  |
-| OWASP LLM Top 10 | https://genai.owasp.org/llm-top-10/ | all | 2025; supersedes 2023 |  |  |  |  |  |  |
-| OWASP Agentic AI Top 10 | https://genai.owasp.org/owasp-top-10-for-agentic-ai/ | all | 2026 (confirm published) |  |  |  |  |  |  |
-| OWASP MCP Top 10 | https://owasp.org/www-project-mcp-top-10/ | all | 2025 (confirm published) |  |  |  |  |  |  |
-| OWASP ASVS | https://owasp.org/www-project-application-security-verification-standard/ | all | 4.0.3, 2021; supersedes 3.0 (note: v5 may now be released) |  |  |  |  |  |  |
-| OWASP SAMM | https://owaspsamm.org/ | all | 2.0, 2020; supersedes 1.5 |  |  |  |  |  |  |
+| OWASP Top 10 | https://owasp.org/Top10/ | all | 2025; published 2025-11; supersedes 2021, 2017 (per register) |  |  |  |  |  |  |
+| OWASP LLM Top 10 | https://genai.owasp.org/llm-top-10/ | all | 2026; published 2026-08; supersedes 2025 (v2.0) (per register) |  |  |  |  |  |  |
+| OWASP Top 10 for Agentic Applications | https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/ | all | 2026; published 2025-12; risks ASI01-ASI10 (per register) |  |  |  |  |  |  |
+| OWASP MCP Top 10 | https://owasp.org/www-project-mcp-top-10/ | all | 2025 (Beta; a living document whose categories may change); published 2025 (per register) |  |  |  |  |  |  |
+| OWASP ASVS | https://owasp.org/www-project-application-security-verification-standard/ | all | 5.0.0; published 2025-05; supersedes 4.0.3, 4.0, 3.0 (per register) |  |  |  |  |  |  |
+| OWASP SAMM | https://owaspsamm.org/ | all | 2.2.0; published 2026-07; supersedes 2.1.0, 2.0, 1.5 (per register) |  |  |  |  |  |  |
 
 ### 3.8 Customs and trade (3 entries)
 
 | Standard ID | Expected primary URL | Field(s) | Expected value | Captured text | Wayback URL | Result | Captured by | Confidence | Date |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| WCO SAFE Framework | https://www.wcoomd.org/en/topics/facilitation/instrument-and-tools/frameworks-of-standards/safe_package.aspx | all | 2021, WCO SAFE Framework of Standards; supersedes 2018 |  |  |  |  |  |  |
+| WCO SAFE Framework | https://www.wcoomd.org/en/topics/facilitation/instrument-and-tools/frameworks-of-standards/safe_package.aspx | all | 2025 edition; published 2025-06; WCO Framework of Standards to Secure and Facilitate Global Trade; supersedes 2018, 2021 (per register) |  |  |  |  |  |  |
 | BASC International Standard | https://www.wbasco.org/en/programs-of-certification | all | v6 (2022); supersedes v5 |  |  |  |  |  |  |
 | CTPAT MSC | https://www.cbp.gov/border-security/ports-entry/cargo-security/ctpat | all | 2020, Minimum Security Criteria |  |  |  |  |  |  |
 
@@ -168,7 +168,7 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | IEC 61511 | https://webstore.iec.ch/publication/24241 | all | 2016 (Edition 2, Amendment 1 in 2017); supersedes Edition 1 (2003) |  |  |  |  |  |  |
 | IEC 61508 | https://webstore.iec.ch/publication/22273 | all | 2010, Functional safety; supersedes 1998 |  |  |  |  |  |  |
-| ISO 16484 | https://www.iso.org/standard/72074.html | all | Parts published 2010 to 2020, BACS |  |  |  |  |  |  |
+| ISO 16484 | https://www.iso.org/standard/72074.html | all | Part 1:2024 (Ed.2), Part 2:2025 (Ed.2), Part 4:2025, Part 3 at draft (DIS); supersedes parts published 2010 to 2020 (per register); BACS |  |  |  |  |  |  |
 | ASHRAE 135 | https://www.ashrae.org/technical-resources/bookstore/standard-135 | all | 2020 (with addenda), BACnet protocol |  |  |  |  |  |  |
 | NIST SP 1900 series | https://www.nist.gov/programs-projects/cyber-physical-systems | all | 2023, Smart-building cybersecurity and IoT |  |  |  |  |  |  |
 | NFPA 72 | https://www.nfpa.org/codes-and-standards/all-codes-and-standards/list-of-codes-and-standards/detail?code=72 | all | 2025, National Fire Alarm and Signaling Code; supersedes 2022, 2019 |  |  |  |  |  |  |

@@ -1,5 +1,7 @@
 # Changelog
 
+**2026-09-02 | 2026.09.638 | PR #1935** - Refreshed the ISO/IEC 27018, 27701, 27036-2, CSA AICM, OWASP suite, WCO SAFE, and ISO 16484 rows of two citation-verification worklists to match the current canonical register; the broader systematic worklist-baseline staleness is routed for a wholesale refresh.
+
 **2026-09-02 | 2026.09.637 | PR #1934** - Two accuracy fixes from the resume review: recovery-runbook testing now floors Tier 2 at annual (matching the disaster-recovery plan), and the LINDDUN privacy-threat-modelling control mapping now cites the risk-assessment control that actually covers threat identification instead of the PII-authority controls.
 
 **2026-09-02 | 2026.09.636 | PR #1933** - Reframed a disaster-recovery plan and a personnel-screening standard so their example incident and infrastructure read as explicitly illustrative rather than as a specific organization's history, restoring organization-neutrality.
