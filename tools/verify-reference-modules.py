@@ -3,12 +3,14 @@
 
 A maintainer dev-aid that confirms the in-repo control-reference modules
 ([`tools/ccm_aicm_reference.py`], [`tools/nist_csf_reference.py`], and
-[`tools/cobit_iso31000_reference.py`]) still match the authoritative source
+[`tools/cobit_iso31000_reference.py`], and [`tools/iso27001_reference.py`])
+still match the authoritative source
 extracts in the ``grc_library_ref`` reference repo (buckets at its root): the
 CSA CCM v4.1.0 / AICM v1.1.0 catalogue CSVs under ``frameworks/CSA/``, the
 NIST CSWP-29 CSF 2.0 full text under ``standards/NIST/``, the COBIT 2019
 Governance and Management Objectives extract under ``frameworks/COBIT/``,
-and the ISO 31000:2018 full text under ``standards/ISO/``. The in-repo
+the ISO 31000:2018 full text under ``standards/ISO/``, and the ISO/IEC
+27001:2022 full text (Annex A control table) under ``standards/ISO/``. The in-repo
 modules are a *derived encoding* of codes and titles; the reference extracts are
 the *source text*. Gates 48/49/54/58/61 enforce code validity against the
 modules, so a silent drift between the modules and the source would let the
@@ -101,6 +103,7 @@ from cobit_iso31000_reference import (
     ISO31000_CLAUSES,
 )
 from nist_csf_reference import CSF_CATEGORIES
+from iso27001_reference import ISO27001_2022_ANNEX_A
 
 # Source-extract paths, relative to the grc_library_ref root.
 CCM_CSV = "frameworks/CSA/CCM/CSA-CCM-v4.1.0-catalogue__CCM.csv"
@@ -111,6 +114,7 @@ COBIT_MD = (
     "COBIT-2019-Framework-Governance-and-Management-Objectives--full-text.md"
 )
 ISO31000_MD = "standards/ISO/ISO-31000-2018--Risk-management-guidelines--full-text.md"
+ISO27001_MD = "standards/ISO/ISO-IEC-27001-2022--ISMS-requirements--full-text.md"
 
 CONTROL_ID_RE = re.compile(r"^[A-Z&]{2,4}-[0-9]{2}$")
 CSF_CATEGORY_RE = re.compile(r"\b(?:GV|ID|PR|DE|RS|RC)\.[A-Z]{2}\b")
@@ -249,6 +253,61 @@ def iso31000_drift(path: Path) -> list[str]:
     ]
 
 
+def iso27001_drift(path: Path) -> list[str]:
+    """Module-to-source, CODE EXISTENCE within the Annex A table.
+
+    Every recorded control number (the ``A.<theme>.<n>`` key with the ``A.``
+    prefix stripped, e.g. ``5.1``, ``8.34``) must appear as a standalone token
+    inside the held extract's Annex A span. A fabricated or misnumbered code
+    (e.g. ``A.5.40``, which does not exist) is caught here.
+
+    RESIDUE (stated at the point of use): this is a row-bound code-EXISTENCE check
+    (each number must appear as a standalone control-row line), not a TITLE-parity check. The held extract is PDF-derived and interleaves each
+    control's ``Control`` body text into its title line (e.g. "Information
+    security roles and Control responsibilities"), so a reliable contiguous
+    title-substring match is not mechanically available and a title check here
+    would false-fail on the layout. The 93 canonical titles are instead
+    cross-checked by the triple-family panel at authoring time (P-1.62 I1,
+    2026-09-02); this backstop guards against a code drifting out of the
+    Annex A set on a future _ref refresh.
+    """
+    text = path.read_text(encoding="utf-8")
+    # Scope to the Annex A control table. Anchor on the "Table A.1" caption
+    # (unique to the actual table body) rather than "Annex A"/"Bibliography",
+    # which also occur as table-of-contents entries far earlier and would yield
+    # an empty ToC span. The table runs to end-of-file (only the short
+    # Bibliography follows, and it carries no A.n.m codes).
+    lo = text.find("Table A.1")
+    if lo < 0:
+        # Fail CLOSED: without the caption anchor the span would be the whole
+        # document, and a bare number like "5.1" matches the ISMS clause 5.1,
+        # vacuously passing. A missing anchor is an unreadable source, not a pass.
+        return [
+            "ISO/IEC 27001:2022 Annex A: source anchor \"Table A.1\" not found; "
+            "cannot scope the Annex A span (refusing rather than scanning the "
+            "whole document, which would false-pass on ISMS clause numbers)."
+        ]
+    span = text[lo:]
+    # Bind each code to a STANDALONE control-row line (the Annex A table lists
+    # every control number on its own line, verified: all 93 match `^\s*N\s*$`).
+    # A bare number appearing only in narrative prose, a cross-reference, or the
+    # bibliography does NOT satisfy the check, closing the row-unbound vacuous-pass
+    # residue (a source with "Table A.1" but a deleted control row now fails).
+    missing = [
+        code
+        for code in sorted(ISO27001_2022_ANNEX_A)
+        if re.search(
+            rf"(?m)^\s*{re.escape(code[2:])}\s*$", span) is None
+    ]
+    if not missing:
+        return []
+    return [
+        f"ISO/IEC 27001:2022 Annex A: {len(missing)} control number(s) in the "
+        f"in-repo module but NOT found in the source Annex A span: "
+        f"{', '.join(missing)}"
+    ]
+
+
 def main(argv: list[str]) -> int:
     source = locate_source(argv)
     if source is None:
@@ -300,6 +359,16 @@ def main(argv: list[str]) -> int:
                 f"(module-to-source direction; see docstring)."
             ),
         ),
+        (
+            ISO27001_MD,
+            iso27001_drift,
+            (
+                f"OK: ISO/IEC 27001:2022 Annex A module "
+                f"({len(ISO27001_2022_ANNEX_A)} controls) all present in the "
+                f"source Annex A span (code-existence; titles tri-family "
+                f"verified, see docstring)."
+            ),
+        ),
     ]:
         path = source / filename
         if not path.is_file():
@@ -331,7 +400,7 @@ def main(argv: list[str]) -> int:
     print(
         f"\nOK: all reference modules match the grc_library_ref source "
         f"extracts at {source} (CCM v4.1.0, AICM v1.1.0, NIST CSF 2.0, "
-        f"COBIT 2019, ISO 31000:2018)."
+        f"COBIT 2019, ISO 31000:2018, ISO/IEC 27001:2022)."
     )
     return 0
 

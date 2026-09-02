@@ -1,5 +1,7 @@
 # Changelog
 
+**2026-09-02 | 2026.09.631 | PR #1928** - Taught the advisory control-code fit pre-filter to assess ISO/IEC 27001:2022 Annex A controls, closing its blind spot in the family where a recent wrong-control fix landed. A new 93-control title reference module carries the canonical titles, cross-checked against the held standard.
+
 **2026-09-02 | 2026.09.630 | PR #1927** - Added a verdict-carrier-completeness audit (gate 97) for the matrix-fit and claim-fit skills. It checks that every carrier stating a verdict requirement carries the required held-source citation field and its source-not-held exception, mechanizing the completeness that cost an earlier change four rounds of review.
 
 **2026-09-02 | 2026.09.629 | PR #1926** - Hardened the matrix-fit and claim-fit cadences against a stale-note failure (P-1.56). Every fit or precision verdict must now cite the held source it read this run: its reference-base path and line, or the executed lookup that found nothing for an unheld source. A verdict reasoned from a note or memory is rejected; currency stays a separate upstream check, not inferred from the index.
