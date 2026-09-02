@@ -15892,5 +15892,49 @@ class SuggestListingSurfacesTests(unittest.TestCase):
         self.assertIn("ai/README.md", r.stdout)
 
 
+class AlignmentCitationExistenceTests(LinterTestCase):
+    """tools/lint-alignment-citation-existence.py (fabricated NIST Privacy Framework code)"""
+
+    SCRIPT = "tools/lint-alignment-citation-existence.py"
+
+    def test_fabricated_pf_subcategory_flagged(self) -> None:
+        fixture = self.make_fixture(
+            "align-cite-fabricated.md",
+            "| Framework | Code | Note |\n| --- | --- | --- |\n"
+            "| NIST Privacy Framework | CT.PO-P5 | fabricated (CT.PO-P ends at P4) |\n",
+        )
+        result = run_linter(self.SCRIPT, "--strict", fixture)
+        self.assertLinterFails(result, "CT.PO-P5")
+
+    def test_fabricated_pf_range_endpoint_flagged(self) -> None:
+        fixture = self.make_fixture(
+            "align-cite-range.md",
+            "| Framework | Code | Note |\n| --- | --- | --- |\n"
+            "| NIST Privacy Framework | CT.PO-P1 to P5 | endpoint P5 fabricated |\n",
+        )
+        result = run_linter(self.SCRIPT, "--strict", fixture)
+        self.assertLinterFails(result, "CT.PO-P5")
+
+    def test_valid_pf_codes_pass(self) -> None:
+        fixture = self.make_fixture(
+            "align-cite-valid.md",
+            "| Framework | Code | Note |\n| --- | --- | --- |\n"
+            "| NIST Privacy Framework | CT.PO-P4, CM.AW-P5, ID.IM-P | all valid |\n",
+        )
+        result = run_linter(self.SCRIPT, "--strict", fixture)
+        self.assertEqual(result.returncode, 0,
+                         f"valid PF codes should pass; stdout:\n{result.stdout}")
+
+    def test_valid_range_passes(self) -> None:
+        fixture = self.make_fixture(
+            "align-cite-valid-range.md",
+            "| Framework | Code | Note |\n| --- | --- | --- |\n"
+            "| NIST Privacy Framework | CT.PO-P1 to P4 | valid same-category range |\n",
+        )
+        result = run_linter(self.SCRIPT, "--strict", fixture)
+        self.assertEqual(result.returncode, 0,
+                         f"valid range should pass; stdout:\n{result.stdout}")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

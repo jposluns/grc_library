@@ -1,5 +1,7 @@
 # Changelog
 
+**2026-09-02 | 2026.09.610 | PR #1907** - New report-only existence check for NIST Privacy Framework alignment citations, with its committed identifier catalogue (18 categories, 100 subcategories); it flags a cited privacy-control code absent from the framework, including a fabricated range endpoint, the class a resume validation surfaced in three privacy templates. First step of the scan-first remediation.
+
 **2026-09-01 | 2026.09.609 | PR #1906** - New audit gate D13, the stranded-control-code check: a PR-time delta gate that catches a body control-code left citing an old value after the alignment table was corrected in the same document, the paired-surface stranding class that escaped review three times this session.
 
 **2026-09-01 | 2026.09.608 | PR #1905** - Fix a stranded body control-code: developer-security-requirements section 2.2 threat-modelling cited AICM TVM-12 (Vulnerability Management Metrics), corrected to TVM-04 (Threat Analysis and Modelling) to match the CCM TVM-04 already on the line; a paired-surface miss from an earlier table-only fix, caught by a guardrail-seed replay.
