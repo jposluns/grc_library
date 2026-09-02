@@ -1,5 +1,7 @@
 # Changelog
 
+**2026-09-02 | 2026.09.629 | PR #1926** - Hardened the matrix-fit and claim-fit cadences against a stale-note failure (P-1.56). Every fit or precision verdict must now cite the held source it read this run: its reference-base path and line, or the executed lookup that found nothing for an unheld source. A verdict reasoned from a note or memory is rejected; currency stays a separate upstream check, not inferred from the index.
+
 **2026-09-02 | 2026.09.628 | PR #1925** - Added batch-scoping and JSON output to both semantic-fit pre-filter tools, found by the P-1.62 review. A --docs flag narrows the worklist to a batch's documents (the per-batch cadence the commands name but the tools could not produce), and --json lets a worklist feed a dispatch brief or a run-over-run diff.
 
 **2026-09-02 | 2026.09.627 | PR #1924** - .claude/ and pack: named this project's triple-family QA panel standard in the matrix-fit and claim-fit skill wiring, and gave the matrix-fit command the same concrete record-location path its claim-fit sibling already carries (P-1.62 I8, I9).
