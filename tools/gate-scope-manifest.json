@@ -120,6 +120,7 @@
       "lint-narrative-disclaimer.py"
     ],
     "advisory-not-gate": [
+      "audit-stranded-matrix-code.py",
       "check-class-completeness.py",
       "check-clean-language-upstream.py",
       "check-daily-changelog-rollup.py",
