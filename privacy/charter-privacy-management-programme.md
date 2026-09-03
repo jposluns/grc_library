@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Management Programme Charter\
 **Document Type:** Charter\
-**Version:** 1.5.11\
-**Date:** 2026-08-14\
+**Version:** 1.5.12\
+**Date:** 2026-09-03\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -111,14 +111,13 @@ Where the organization is not established in the European Union but is subject t
 1. The organization is established outside the European Union (and outside the EEA more broadly: Iceland, Liechtenstein, Norway are within the EEA scope of GDPR).
 2. The organization processes personal data of subjects in the Union in the context of offering goods or services (irrespective of payment) OR monitoring behaviour that takes place within the Union (Article 3(2)).
 
-**Article 27(2) exemptions.** The obligation does NOT apply where ALL of the following are true:
+**Article 27(2) exemptions.** The obligation does NOT apply in either of two independent cases: (a) the processing meets ALL THREE occasional-processing conditions below, OR (b) the organization is a public authority or body (which is exempt regardless of the limb (a) conditions).
 
-| Exemption criterion | Description |
+| Limb (a) criterion (all three required together) | Description |
 |---|---|
 | Processing is occasional | Not part of regular activity; ad hoc rather than systematic |
 | Excludes Article 9 / Article 10 special categories | No large-scale processing of special-category (Article 9) or criminal-conviction (Article 10) data |
 | Unlikely to result in a risk to rights and freedoms | Risk assessment documents this conclusion |
-| Public authority or body | Public authorities and bodies are exempt |
 
 The DPO documents the Article 27(2) exemption analysis in the organization's Article 30 ROPA.
 

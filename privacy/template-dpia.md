@@ -2,8 +2,8 @@
 
 **Document Title:** DPIA (Data Protection Impact Assessment) Template\
 **Document Type:** Template\
-**Version:** 1.0.11\
-**Date:** 2026-09-02\
+**Version:** 1.0.12\
+**Date:** 2026-09-03\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/register-automated-decision-making.md`](register-automated-decision-making.md), [`privacy/framework-childrens-data.md`](framework-childrens-data.md), [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md)\
@@ -113,7 +113,7 @@ Where a DPIA is required, the assessment must contain at least the four content 
 | Nature of the processing | What is being done with the personal data (collection, storage, analysis, disclosure, deletion) |
 | Scope of the processing | The categories and volumes of data subjects, the categories and volumes of personal data, the geographical and temporal extent |
 | Context of the processing | The relationship to the data subject, the data subject's reasonable expectations, the source of the data, the technologies used |
-| Purposes of the processing | Each purpose stated separately; the lawful basis under Article 6 (and Article 9 where special-category data is processed) for each purpose |
+| Purposes of the processing | Each purpose stated separately; the lawful basis under Article 6 (and, where special-category data is processed, the applicable Article 9 condition) for each purpose |
 | Legitimate interest (where applicable) | Where the lawful basis is Article 6(1)(f), the legitimate interest pursued and the balancing analysis |
 | Joint controllers (where applicable) | Identity of any joint controller and the essence of the Article 26 arrangement |
 | Processors (where applicable) | Categories of processors and the essence of the Article 28 contract |
@@ -131,7 +131,7 @@ Where a DPIA is required, the assessment must contain at least the four content 
 | Accuracy | Measures to ensure that the data is accurate and kept up to date (Article 5(1)(d)) |
 | Lawfulness, fairness, transparency | The Article 13 or 14 information provided to data subjects; the cross-reference to the privacy notice |
 | Data subject rights | How the controller will give effect to the rights of access, rectification, erasure, restriction, portability, and objection (Articles 15 to 22); cross-reference to the data subject rights procedure |
-| Consent (where applicable) | Where the lawful basis is consent (Article 6(1)(a) or Article 9(2)(a)), the consent mechanism and the means of withdrawal; cross-reference to the consent management framework |
+| Consent (where applicable) | Where the lawful basis is consent (Article 6(1)(a), together with the Article 9(2)(a) condition for special-category data), the consent mechanism and the means of withdrawal; cross-reference to the consent management framework |
 
 ### 3.3. Assessment of the risks to the rights and freedoms of data subjects referred to in paragraph 1 (Article 35(7)(c))
 

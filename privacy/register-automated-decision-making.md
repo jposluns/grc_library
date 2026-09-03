@@ -2,7 +2,7 @@
 
 **Document Title:** Automated Decision-Making and Profiling Register\
 **Document Type:** Register\
-**Version:** 1.0.14\
+**Version:** 1.0.15\
 **Date:** 2026-09-03\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -84,7 +84,7 @@ Each registered ADM activity is one row. Mandatory fields:
 
 A system is registered when any of the following is true:
 
-1. The system meets the Article 22 threshold (legal or similarly significant effect, solely or substantially automated).
+1. The system meets or approaches the Article 22 threshold, which is a decision based SOLELY on automated processing with legal or similarly significant effect; this register deliberately also captures substantially-automated decisions with such effect as a broader internal trigger, even though the statutory bar is solely-automated.
 2. The system falls in a category that supervisory authorities have repeatedly identified as high-risk regardless of automation degree (lending, employment, insurance, essential services access).
 3. The EU AI Act classifies the system in a high-risk category under Annex III.
 4. The Data Protection Officer determines that the system warrants registration due to scale, sensitivity, or public expectation.

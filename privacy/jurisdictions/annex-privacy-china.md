@@ -2,8 +2,8 @@
 
 **Document Title:** China Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.3\
-**Date:** 2026-07-02\
+**Version:** 1.1.4\
+**Date:** 2026-09-03\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -39,7 +39,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ### PIPL and AI
 
-- **Lawful basis (Article 13):** Processing requires one of: consent; contract performance or HR management; legal obligation; vital interests; public interest or journalism; or other legitimate interests (narrower than GDPR). Consent must be voluntary, specific, informed, and unambiguous.
+- **Lawful basis (Article 13):** Processing requires one of: consent; where necessary to conclude or perform a contract to which the individual is a party, or to conduct human-resources management under lawfully formulated labour rules and lawfully concluded collective contracts; where necessary to perform a statutory duty or obligation; where necessary to respond to a public-health emergency or to protect a natural person's life, health, or property in an emergency; processing within a reasonable scope to carry out news reporting, public-opinion supervision, and other such activities in the public interest; processing within a reasonable scope, in accordance with this Law, of personal information the individual has disclosed or that has otherwise been lawfully disclosed; or other circumstances provided by laws and administrative regulations. PIPL has no general legitimate-interests basis (unlike the GDPR). Consent must be fully informed, voluntary, and explicit (Article 14).
 - **Sensitive personal information (Articles 28 to 32):** Separate and express consent required. Sensitive categories include biometric identification, religious beliefs, specially-designated status, medical health, financial accounts, whereabouts/location, and personal information of minors under 14.
 - **Automated decision-making (Article 24):** Organizations must ensure that transparency and fairness are upheld. No unreasonable differential treatment of individuals in terms of transaction price or conditions. Individuals have the right to receive an explanation and to opt out of automated decision-making significantly affecting their interests.
 - **Person in charge of personal information protection (Article 52):** Large-scale personal information processors must designate a responsible person whose name and contact information must be disclosed publicly.
