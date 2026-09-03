@@ -2,8 +2,8 @@
 
 **Document Title:** Data Subject Access Request Workflow Template\
 **Document Type:** Template\
-**Version:** 1.1.9\
-**Date:** 2026-08-31\
+**Version:** 1.1.10\
+**Date:** 2026-09-03\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md)\
@@ -82,7 +82,7 @@ If identity cannot be verified within 10 business days, the request is suspended
 | Owner | Each system-of-record steward; Privacy team coordinates |
 | Inputs | Scoped request; mapping of personal data to systems from the ROPA |
 | Outputs | Per-system extracts; aggregated assembly record; provenance per item |
-| SLA | Per the right's regulatory window: one month from intake under the GDPR (Art. 12(3)), extendable by two further months for complex or numerous requests with documented reason and subject notification within the first month; 45 days under the CCPA / CPRA, extendable once by an additional 45 days with notice within the first 45-day period; 30 days under PIPEDA; confirmation and access under Brazil's LGPD, Art. 19 (immediately in simplified format, or within 15 days by complete declaration); 20 days for an ARCO determination under Mexico's LFPDPPP (Art. 31). Where more than one regime applies to a request, run the strictest (shortest) applicable window |
+| SLA | Per the right's regulatory window: one month from intake under the GDPR (Art. 12(3)), extendable by two further months for complex or numerous requests with documented reason and subject notification within the first month; 45 days under the CCPA / CPRA for know, access, delete, and correct requests (11 CCR s. 7021), extendable once by an additional 45 days with notice within the first 45-day period, while an opt-out of sale/sharing (s. 7026(f)) and an ADMT opt-out submitted after processing has begun (s. 7221(n)) each carry a 15-business-day ceiling; 30 days under PIPEDA; confirmation and access under Brazil's LGPD, Art. 19 (immediately in simplified format, or within 15 days by complete declaration); 20 days for an ARCO determination under Mexico's LFPDPPP (Art. 31). Where more than one regime applies to a request, run the strictest (shortest) applicable window |
 | Quality gates | Each system queried with the subject identifier; null returns recorded explicitly; backups and cold storage included if reasonable; embeddings, vector stores, AI training data, and derived datasets considered |
 
 ### Stage 5: Redaction and exception handling

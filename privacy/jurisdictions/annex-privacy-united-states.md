@@ -2,7 +2,7 @@
 
 **Document Title:** United States Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.2.7\
+**Version:** 1.2.8\
 **Date:** 2026-09-03\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -54,7 +54,7 @@ The United States does not have a single comprehensive federal privacy law. Obli
 ### CCPA/CPRA automated decision-making
 
 - **ADMT (final; 11 CCR Article 11, sections 7200 to 7222, effective 2026-01-01, compliance no later than 2027-01-01).** For automated decision-making technology used to make a *significant decision* (section 7001), a business must provide a pre-use notice (section 7220), honour a right to opt out of ADMT (section 7221), and honour a right to access ADMT (section 7222), with a human-appeal alternative to the opt-out (section 7221(b)(1)). The [California CCPA ADMT jurisdiction annex](../../ai/jurisdictions/annex-ai-us-california.md) is the canonical home for the full per-regime detail (the operative Article 11 obligation text, the section-7001 significant-decision categories, and the AI-governance framework crosswalk); adopting organizations reconfirm the version-sensitive in-force text and the 2027-01-01 compliance date upstream before committing to a milestone.
-- **Risk assessments (final; Article 10, sections 7150 to 7157).** A business must conduct a risk assessment *before initiating* processing that presents a significant risk to consumers' privacy, as enumerated in section 7150(b): selling or sharing personal information, processing sensitive personal information, using ADMT for a significant decision, and certain profiling.
+- **Risk assessments (final; Article 10, sections 7150 to 7157).** A business must conduct a risk assessment *before initiating* processing that presents a significant risk to consumers' privacy, as enumerated in section 7150(b): selling or sharing personal information, processing sensitive personal information, using ADMT for a significant decision, certain profiling, and processing personal information the business intends to use to train ADMT for a significant decision or to train facial-recognition, emotion-recognition, identity-verification, or physical or biological identification or profiling technology (section 7150(b)(6)).
 - **Cybersecurity audits (final; Article 9, sections 7120 to 7124).** Distinct from the risk assessment, and on a different trigger: a threshold-based, periodic audit required of a business that meets the section 7120 thresholds (the section 7120(b) trigger is met if a business either derives 50 percent or more of its annual revenue from selling or sharing personal information, or has annual gross revenue over USD 25 million (the Civil Code section 1798.140(d)(1)(A) threshold, as periodically adjusted for inflation) and processed either the personal information of 250,000 or more consumers or households or the sensitive personal information of 50,000 or more consumers), with first audits phased by annual gross revenue (by 2028-04-01 for businesses whose 2026 revenue exceeded USD 100 million, 2029-04-01 for businesses whose 2027 revenue was USD 50 to 100 million, and 2030-04-01 for businesses whose 2028 revenue was under USD 50 million).
 
 ### NIST AI RMF (voluntary; broadly adopted in US enterprise practice as of 2026)
