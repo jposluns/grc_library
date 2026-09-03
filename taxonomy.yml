@@ -7301,7 +7301,7 @@ documents:
   domain: "privacy"
   type: "Charter"
   title: "Privacy Management Programme Charter"
-  version: "1.5.12"
+  version: "1.5.13"
   date: "2026-09-03"
   owner: "Data Protection Officer"
   approving_authority: "Governance Library Maintainer"
