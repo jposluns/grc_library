@@ -2,8 +2,8 @@
 
 **Document Title:** Training Data Governance Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.11\
-**Date:** 2026-07-24\
+**Version:** 0.0.12\
+**Date:** 2026-09-03\
 **Owner:** AI Data Steward\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/template-dataset-datasheet.md`](template-dataset-datasheet.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`privacy/standard-pseudonymization-and-anonymization.md`](../privacy/standard-pseudonymization-and-anonymization.md), [`privacy/procedure-data-subject-rights-management.md`](../privacy/procedure-data-subject-rights-management.md)\
@@ -39,7 +39,7 @@ For each candidate dataset, the AI Data Steward records:
 | Field | Required content |
 | --- | --- |
 | Source | Internal generation, supplier licence, scrape under documented rules, public corpus, synthetic generation, mixed |
-| Lawful basis | Lawful basis under each applicable regime (GDPR Article 6 and 9; LGPD; PIPL; CCPA; sector regimes) |
+| Lawful basis | Lawful basis under each applicable regime (GDPR Article 6, plus the applicable Article 9(2) condition where special-category data is processed; LGPD; PIPL; CCPA; sector regimes) |
 | Consent evidence | Where consent is the basis, the capture mechanism and evidence retention |
 | Licence terms | For licensed corpora; restrictions on use (training, evaluation, redistribution, derivative works) |
 | Subject notification | Whether subjects whose data is in the corpus have been notified, or the rationale for not notifying |
