@@ -2,8 +2,8 @@
 
 **Document Title:** Joint Controller Arrangement Template\
 **Document Type:** Template\
-**Version:** 1.0.8\
-**Date:** 2026-08-16\
+**Version:** 1.0.9\
+**Date:** 2026-09-03\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](procedure-data-protection-and-privacy-breach-response.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/template-dpia.md`](template-dpia.md), [`privacy/register-cross-border-data-flow.md`](register-cross-border-data-flow.md)\
@@ -76,11 +76,11 @@ Where more than two joint controllers exist, repeat the per-party field set.
 | Field | Description |
 |---|---|
 | Processing purpose(s) | The joint purposes determined by all parties. List each purpose as a separate item. |
-| Categories of personal data | Identification data, contact data, demographic data, behavioural data, special categories per Article 9 (with the Article 9(2) legal basis if special categories are processed), criminal-conviction data per Article 10, etc. |
+| Categories of personal data | Identification data, contact data, demographic data, behavioural data, special categories per Article 9 (with the applicable Article 9(2) condition if special categories are processed), criminal-conviction data per Article 10, etc. |
 | Categories of data subjects | Customers, employees, prospects, members of the public, children, etc. |
 | Approximate volume | Order-of-magnitude estimate of subjects in scope |
 | Geographic scope | Jurisdictions where data subjects are located; jurisdictions where processing operations are carried out |
-| Lawful basis (per purpose) | Article 6(1)(a) to (f); plus Article 9(2) where special categories; plus Article 10 conditions where criminal-conviction data. Where consent is the basis, identify who collects, who can demonstrate, and how withdrawal cascades to all joint controllers. |
+| Lawful basis (per purpose) | Article 6(1)(a) to (f); plus the applicable Article 9(2) condition where special categories; plus Article 10 conditions where criminal-conviction data. Where consent is the basis, identify who collects, who can demonstrate, and how withdrawal cascades to all joint controllers. |
 | Means of processing | Systems, platforms, tooling jointly determined by the parties |
 | Data flows | Identify which data flows between the joint controllers; the lawful basis for each flow; whether any cross-border transfer is involved |
 | Retention period | Maximum retention; deletion or anonymization procedure; alignment between joint controllers' retention schedules |
@@ -92,7 +92,7 @@ This section is the heart of the arrangement under Article 26(1): the parties **
 
 | GDPR obligation | Article(s) | Responsible party (A / B / both / leader-then-coordinated) | Notes |
 |---|---|---|---|
-| Determination of lawful basis | Article 6(1); Article 9(2); Article 10 | Both (must agree) | Where the basis differs by category, document per category |
+| Determination of lawful basis | Article 6(1); Article 9(2); Article 10 | Both (must agree) | Article 6(1) supplies the lawful basis; Article 9(2) and Article 10 supply the special-category and criminal-conviction conditions. Where the basis differs by category, document per category |
 | Information to data subjects at collection | Article 13 | Party collecting the data; copies to other party | Where both collect, each provides own notice referencing the joint arrangement |
 | Information where data not obtained from subject | Article 14 | Party originating the indirect collection | |
 | Right of access | Article 15 | <A / B / both / lead and coordinate> | Per Article 26(3), data subjects may exercise rights against EITHER controller regardless of internal allocation; the allocation here is internal coordination, not a defence against the subject |
@@ -161,7 +161,7 @@ Joint controllership exists under several regimes with substantively similar req
 |---|---|---|
 | **UK GDPR** (UK) | Joint controllers (same as EU GDPR) | Information Commissioner's Office (ICO) is the lead supervisory authority |
 | **LGPD** (Brazil) | No statutory co-controller category; Article 5(VI) defines the controller. Article 42 s.1(II) makes controllers jointly and severally liable when directly involved in the processing from which the damage resulted, subject to Article 43 exclusions | ANPD is the supervisory authority; no statutory written co-controller arrangement duty |
-| **PIPL** (China) | Joint personal information handlers (Article 20) | Public notice of arrangement required; CAC is the supervisory authority |
+| **PIPL** (China) | Joint personal information handlers (Article 20): handlers jointly deciding the purpose and method must agree each party's rights and obligations, and bear joint liability for resulting harm | CAC is the supervisory authority; PIPL imposes no public-notice-of-arrangement duty |
 | **India DPDP Act 2023** | No statutory joint-controller category; Data Fiduciaries may determine purposes and means in conjunction with others (section 2(i)) | Data Protection Board of India is the supervisory authority |
 | **PIPEDA** (Canada) | No formal "joint controller" concept; contractual allocation between controllers; OPC is the supervisory authority | Contractual best-practice mirrors GDPR Article 26 |
 | **CCPA / CPRA** (California) | No joint-controller equivalent; section 1798.100(d) requires a business that sells or shares personal information with a third party, or discloses it to a service provider or contractor, to enter into an agreement that limits purposes and binds the recipient to this title's obligations | California Privacy Protection Agency (CPPA) is the regulator |
@@ -208,7 +208,7 @@ A populated arrangement is sensitive contractual data. Adopters do NOT publish t
 | Requirement | GDPR | UK GDPR | LGPD | PIPL | India DPDP 2023 |
 |---|---|---|---|---|---|
 | Joint determination of purposes and means | Article 26(1) | Article 26(1) | No statutory joint-controller provision (Article 5(VI) defines the controller) | Article 20 | Section 2(i) "Data Fiduciary" with joint construction |
-| Transparent allocation of responsibilities | Article 26(1) | Article 26(1) | No LGPD co-controller allocation duty (Article 39 governs controller-to-operator instructions) | Article 20(2) | No DPDPA joint-controller allocation duty; each Data Fiduciary bears the Act's obligations directly |
-| Essence-of-arrangement availability to subjects | Article 26(2) | Article 26(2) | No LGPD essence-of-arrangement duty (Article 18 grants data-subject access rights, not arrangement publication) | Article 17 information rights | No DPDPA essence-of-arrangement publication duty (s. 5 notice is the individual-notice duty, not arrangement publication) |
+| Transparent allocation of responsibilities | Article 26(1) | Article 26(1) | No LGPD co-controller allocation duty (Article 39 governs controller-to-operator instructions) | Article 20 (handlers agree each party's rights and obligations) | No DPDPA joint-controller allocation duty; each Data Fiduciary bears the Act's obligations directly |
+| Essence-of-arrangement availability to subjects | Article 26(2) | Article 26(2) | No LGPD essence-of-arrangement duty (Article 18 grants data-subject access rights, not arrangement publication) | No PIPL essence-of-arrangement duty (Article 17 governs individual pre-processing notice, not arrangement publication) | No DPDPA essence-of-arrangement publication duty (s. 5 notice is the individual-notice duty, not arrangement publication) |
 | Joint and several liability toward subjects | Article 82(4) | Article 82(4) | Article 42 | Article 20(2) (joint liability) | No DPDPA joint-and-several-liability scheme (grievance redressal is s. 13) |
 | Contact point designation | Article 26(1) | Article 26(1) | Article 41 (DPO contact) | Article 52 (DPO contact) | Section 8(9) (all Data Fiduciaries publish a DPO or responsible-person contact) and section 10(2)(a) (Significant Data Fiduciaries appoint a DPO as grievance contact); not a general joint-controller contact duty |

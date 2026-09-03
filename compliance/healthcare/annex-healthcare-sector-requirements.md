@@ -2,8 +2,8 @@
 
 **Document Title:** Healthcare Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.1.11\
-**Date:** 2026-08-21\
+**Version:** 1.1.12\
+**Date:** 2026-09-03\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/healthcare/procedure-hipaa-operational-compliance.md`](procedure-hipaa-operational-compliance.md), [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`compliance/register-compliance-obligations-template.md`](../register-compliance-obligations-template.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`privacy/annex-privacy-jurisdiction-index.md`](../../privacy/annex-privacy-jurisdiction-index.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md)\
@@ -204,7 +204,7 @@ Processing health data as special category data under GDPR requires additional s
 
 | Obligation | Requirement | GRC Library Mapping |
 |---|---|---|
-| **Explicit consent or Article 9(2) basis** | Special category health data requires explicit consent or one of the Article 9(2) derogations | [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md); supplement with health data processing basis documentation |
+| **Article 6 basis plus an Article 9(2) condition** | Special-category health data requires an Article 6 lawful basis together with an applicable Article 9(2) condition (for example explicit consent under Article 9(2)(a), or the health or social care condition under Article 9(2)(h)) | [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md); supplement with health data processing basis documentation |
 | **Data Protection Impact Assessment** | DPIA mandatory before processing health data at scale | [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../../privacy/procedure-privacy-impact-and-cross-border-transfer.md) |
 | **Data minimization** | Only collect and process health data actually necessary | Privacy-by-design requirements |
 | **Pseudonymization** | Apply pseudonymization where possible | [`security/framework-cryptographic-key-lifecycle.md`](../../security/framework-cryptographic-key-lifecycle.md); [`dev-security/standard-developer-security-requirements.md`](../../dev-security/standard-developer-security-requirements.md) |
