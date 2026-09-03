@@ -2,8 +2,8 @@
 
 **Document Title:** Audit Planning Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.9\
-**Date:** 2026-09-01\
+**Version:** 1.0.10\
+**Date:** 2026-09-03\
 **Owner:** Chief Audit Executive\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md)\
@@ -106,16 +106,16 @@ d. **Significant changes:** Domains that have undergone material changes (new sy
 
 e. **Time since last audit:** No domain may remain unaudited for more than three consecutive years. As domains approach this threshold, they are elevated in scheduling priority.
 
-### 3.2 Regulatory and certification triggers
+### 3.2 Regulatory and external-assurance triggers
 
-The following certification and regulatory requirements drive the minimum audit frequencies reflected in the Annual Audit Plan, applied regardless of risk-based prioritization (each frequency is the certification scheme's own surveillance cycle, or, where the standard sets no fixed cadence such as ISO/IEC 27001 Clause 9.2's organization-defined planned intervals, the annual cadence the organization adopts to maintain certification):
+The following external-assurance and regulatory requirements drive the minimum audit frequencies reflected in the Annual Audit Plan, applied regardless of risk-based prioritization (each frequency is the certification scheme's own surveillance cycle, or, where the standard sets no fixed cadence such as ISO/IEC 27001 Clause 9.2's organization-defined planned intervals, the annual cadence the organization adopts to maintain certification):
 
-| Certification / Requirement | Minimum Internal Audit Frequency | Domains / Scope Items |
+| Assurance scope / Requirement | Minimum Internal Audit Frequency | Domains / Scope Items |
 |-----------------------------|-----------------------------------|-----------------------|
 | BASC Certification | Annual | BASC programme scope |
 | AEO-S (Authorized Economic Operator to Security) | Annual | AEO-S IT control scope |
 | ISO/IEC 27001 ISMS | Annual | ISMS scope |
-| SOC 2 Type II | Annual | SOC 2 Trust Services Criteria scope |
+| SOC 2 Type II | Organization-set (commonly annual) | SOC 2 Trust Services Criteria scope |
 
 Additional regulatory requirements applicable to the organization's jurisdictions of operation are identified in the Regulatory Applicability Register and must be reviewed during Annual Audit Plan development.
 
@@ -181,7 +181,7 @@ The lead auditor compiles a comprehensive list of audit criteria applicable to t
 
 - Internal policies, standards, and procedures relevant to the domain;
 - Applicable legislation and regulation (identified via the Regulatory Applicability Register);
-- Certification requirements (e.g., BASC standard clauses, ISO/IEC 27001 controls, SOC 2 criteria);
+- External-assurance requirements (e.g., BASC standard clauses, ISO/IEC 27001 controls, SOC 2 criteria);
 - Contractual obligations with customers or suppliers, where the audit scope includes supplier management or customer commitment verification;
 - Prior audit findings and accepted management responses, to verify that agreed actions have been implemented.
 

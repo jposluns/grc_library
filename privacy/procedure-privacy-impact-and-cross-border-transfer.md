@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Impact and Cross-Border Transfer Procedure\
 **Document Type:** Procedure\
-**Version:** 1.6.3\
-**Date:** 2026-08-31\
+**Version:** 1.6.4\
+**Date:** 2026-09-03\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-dpia.md`](template-dpia.md), [`privacy/template-transfer-impact-assessment.md`](template-transfer-impact-assessment.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
@@ -227,7 +227,7 @@ The Article 36 trigger is distinct from the internal Step 5.1 trigger. The inter
 
 The Article 36 pathway is regulatory and external; the internal escalation pathway is governance and organizational. Both must be cleared before high-residual-risk processing begins.
 
-**Non-EU equivalents.** Other jurisdictions have analogous prior-consultation regimes; consult the per-jurisdiction triggers and timelines in [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md). Notable examples: LGPD Article 38 (Brazil, ANPD prior consultation); PIPL Articles 55-56 (China, CAC security assessment for high-risk transfers); UK GDPR Article 36 (post-Brexit retained equivalent). The trigger thresholds, content requirements, and timelines vary by regime.
+**Non-EU equivalents.** Other jurisdictions have analogous prior-consultation regimes; consult the per-jurisdiction triggers and timelines in [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md). Notable example: UK GDPR Article 36 (the post-Brexit retained prior-consultation provision). Most non-EU regimes rely on impact-assessment duties rather than a mandatory prior-consultation step: under LGPD Article 38 the ANPD may require a data-protection impact report (RIPD) for high-risk processing, and PIPL Article 55 requires an internal personal-information protection impact assessment before sensitive-data or automated-decision processing (PIPL's cross-border transfer mechanisms, including the CAC security assessment, sit in Articles 38 to 40). The trigger thresholds, content requirements, and timelines vary by regime.
 
 #### Step 5.3: Documentation requirements
 

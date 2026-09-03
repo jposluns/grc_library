@@ -2,8 +2,8 @@
 
 **Document Title:** Regulator Interaction Templates\
 **Document Type:** Template\
-**Version:** 1.0.4\
-**Date:** 2026-08-17\
+**Version:** 1.0.5\
+**Date:** 2026-09-03\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/register-compliance-obligations-template.md`](register-compliance-obligations-template.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -260,7 +260,7 @@ Internal support team: <list of roles and the artefacts they own>
 
 ### When to use
 
-When the framework requires the organization to submit a recurring report (e.g., annual cybersecurity assessment under DFS Part 500; annual report under NIS 2; quarterly returns under sector regulators).
+When the framework requires the organization to submit a recurring report (e.g., annual certification of compliance under DFS Part 500; quarterly returns under sector regulators). Note that some regimes (such as NIS2) impose event-triggered incident reporting rather than a recurring organizational report; use those under the incident-notification workflow, not here.
 
 ### Timing
 
@@ -269,7 +269,7 @@ Per the framework. Set internal deadlines 4 to 8 weeks ahead of the regulator de
 ### Template
 
 ```
-Report identifier: <regulator reference, e.g. NIS-2-AR-2026>
+Report identifier: <internal reference, e.g. DFS-500-CERT-2026>
 Reporting period: <YYYY-MM-DD to YYYY-MM-DD>
 Regulator: <name>
 Submission deadline: <YYYY-MM-DD>

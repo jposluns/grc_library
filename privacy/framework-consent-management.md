@@ -2,8 +2,8 @@
 
 **Document Title:** Consent Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.12\
-**Date:** 2026-08-14\
+**Version:** 1.0.13\
+**Date:** 2026-09-03\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/register-cookie-and-tracker.md`](register-cookie-and-tracker.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/framework-childrens-data.md`](framework-childrens-data.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md)\
@@ -30,7 +30,7 @@ This framework supports GDPR, UK GDPR, ePrivacy expectations, LGPD, PIPL, PIPEDA
 
 ## Scope
 
-This framework applies to all consent collection from data subjects across all channels, products, services, and jurisdictions in which the organization operates. It does not displace contractual, legitimate interest, vital interest, public task, or legal obligation lawful bases; where one of those bases is lawful and appropriate, consent is not required.
+This framework applies to all consent collection from data subjects across all channels, products, services, and jurisdictions in which the organization operates. It does not displace contractual, legitimate interest, vital interest, public task, or legal obligation lawful bases; where one of those bases is lawful and appropriate, consent is not required for ordinary personal data. Special-category data additionally requires an Article 9(2) condition (explicit consent being one), so an Article 6 basis alone does not remove the need for consent where no other Article 9(2) condition applies.
 
 ---
 
@@ -40,7 +40,7 @@ Consent is the lawful basis where:
 
 1. The processing is voluntary in nature and not necessary for contract, legitimate interest, vital interest, public task, or legal obligation.
 2. The subject has a free choice without negative consequences for refusal or withdrawal.
-3. The processing falls within a category where consent is legally required (for example most ePrivacy cookie use cases, special-category data under GDPR Article 9, certain transfers, marketing communications under most regimes, and processing of children's data under COPPA and equivalents).
+3. The processing falls within a category where consent is legally required (for example most ePrivacy cookie use cases, special-category data under GDPR Article 9 where no other Article 9(2) condition applies, certain transfers, marketing communications under most regimes, and processing of children's data under COPPA and equivalents).
 4. The subject's freely-given, specific, informed, and unambiguous indication is required.
 
 Where consent is not appropriate (for example processing necessary to perform a contract), the organization does not collect consent for that purpose; it identifies the actual lawful basis in the privacy notice and the ROPA.
