@@ -2,8 +2,8 @@
 
 **Document Title:** Data Subject Rights Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.6.17\
-**Date:** 2026-08-31\
+**Version:** 1.6.18\
+**Date:** 2026-09-03\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
@@ -63,7 +63,7 @@ The following table defines the rights managed under this procedure, the applica
 | **Data Portability** | GDPR Art. 20; UK GDPR Art. 20 | Provision of data in a structured, commonly used, machine-readable format; direct transmission to another controller where technically feasible | One month | Applies only to data provided by the individual and processed by consent or contract; does not apply to data processed under other legal bases |
 | **Restriction of Processing** | GDPR Art. 18; UK GDPR Art. 18 | Marking data to restrict active processing while accuracy, lawfulness, or competing interests are assessed | Acknowledgement within 72 hours (a calendar-clock ceiling on the intake receipt acknowledgement, issued before identity verification or the Section 5 triage completes and binding over weekends and holidays where a business-day SLA would not; it confirms receipt, not application of the restriction); restriction applied within one month | Restriction lifted only on data subject consent, legal claims, overriding public interest, or resolution of the disputed grounds |
 | **Objection to Processing** | GDPR Art. 21; UK GDPR Art. 21; PIPEDA Sch 1 Principle 3 (withdrawal of consent) | Right to object to processing based on legitimate interests or for direct marketing | Halt direct marketing processing immediately; assess other objections and respond within one month (GDPR Art. 12(3); PIPEDA Principle 3 carries no statutory response clock) | Compelling legitimate grounds overriding the individual's interests; legal claims |
-| **Automated Decision Review (including profiling)** | GDPR Art. 22; UK GDPR Art. 22 | Right to not be subject to solely automated decisions with significant legal or similarly significant effect; request human review | Acknowledgement within 5 business days; human review completed within one month | Decisions necessary for contract performance; authorized by law; explicit consent with appropriate safeguards |
+| **Automated Decision Review (including profiling)** | GDPR Art. 22; UK GDPR Arts. 22A-22D (per the UK annex; DUAA 2025, in force 2026-02-05) | Right to not be subject to solely automated decisions with significant legal or similarly significant effect; request human review | Acknowledgement within 5 business days; human review completed within one month | Decisions necessary for contract performance; authorized by law; explicit consent with appropriate safeguards |
 
 **Canadian legal basis.** The in-force Canadian federal basis for these rights is PIPEDA Schedule 1 (the CSA Model Code fair-information principles): access and amendment rest on Principle 9 (Individual Access), and objection rests on Principle 3 (Consent, including withdrawal of consent). PIPEDA does not provide a standalone right to erasure or a right not to be subject to automated decision-making; for those, the basis above is GDPR (and equivalents). The Consumer Privacy Protection Act (CPPA, Part 1 of Bill C-27) would have introduced disposal and automated-decision-explanation rights, but Bill C-27 lapsed at the 2025-01-06 prorogation and is **not in force**; its privacy successor Bill C-36 (Protecting Privacy and Consumer Data Act), introduced 2026-06-15, is proposed and not in force (see [`privacy/jurisdictions/annex-privacy-canada.md`](jurisdictions/annex-privacy-canada.md)). Where the organization handles personal information in the course of carrying on an enterprise (Quebec Civil Code art. 1525), Quebec Law 25 provides stronger rights (including portability and de-indexing) and applies in addition to PIPEDA.
 
@@ -376,7 +376,7 @@ The following metrics are tracked and reported to the CIO at the quarterly Priva
 | Data portability | GDPR Art. 20; UK GDPR Art. 20 |
 | Restriction of processing | GDPR Art. 18; UK GDPR Art. 18 |
 | Objection to processing | GDPR Art. 21; UK GDPR Art. 21; PIPEDA Sch 1 Principle 3 (withdrawal of consent) |
-| Automated decision review | GDPR Art. 22; UK GDPR Art. 22 |
+| Automated decision review | GDPR Art. 22; UK GDPR Arts. 22A-22D (per the UK annex) |
 | DPO accountability and record keeping | GDPR Art. 37 to 39; ISO/IEC 27701:2025 §5.3, Annex A.1.2.9, A.3.4 |
 | Retention of DSR records | [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) |
 
