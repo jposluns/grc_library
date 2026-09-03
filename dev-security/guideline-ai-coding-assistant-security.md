@@ -2,8 +2,8 @@
 
 **Document Title:** AI Coding Assistant Security Guideline\
 **Document Type:** Guideline\
-**Version:** 1.3.13\
-**Date:** 2026-08-28\
+**Version:** 1.3.14\
+**Date:** 2026-09-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`guardrails/README.md`](../guardrails/README.md), [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -52,6 +52,8 @@ When evaluating a new AI coding assistant for approval, the assessment should co
 ### Load security rules before using an AI coding assistant
 
 All AI coding assistant sessions working on organizational code should have security rules loaded before generating or reviewing code. The organization's security rules are maintained in `guardrails/` as library-canonical, locally-vetted content.
+
+> **Moving to AIQT Guardrails.** The pack is being published as the standalone **AIQT Guardrails** project ([jposluns/guardrails](https://github.com/jposluns/guardrails), [aiqt.ai](https://aiqt.ai)); the upcoming **AIQT 1.1.0** release is the recommended install once available. The embedded `guardrails/` copy referenced here remains the library's dogfood and tracks the migration.
 
 **For Claude Code, in order of decreasing scope:**
 
