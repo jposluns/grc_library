@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.146\
+**Version:** 1.27.147\
 **Date:** 2026-09-03\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -392,7 +392,7 @@ The expansion backlog is currently empty. All planned documents are active.
 
 ## Index maintenance rules
 
-1. Every active document must appear in this register.
+1. Every active document must appear in this register, with the exception of the repository's root-level project-specification documents (`specification-ingestion.md` and `specification-master-project.md`), which define the library's own ingestion and project-versioning model rather than governance content and are catalogued in `taxonomy.yml` only.
 2. Every document path must be unique.
 3. Every document must use a role-based owner and approving authority.
 4. Every document must be checked for organization-specific and person-specific identifiers before publication.
