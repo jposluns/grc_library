@@ -2,7 +2,7 @@
 
 **Document Title:** Training Data Governance Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.12\
+**Version:** 0.0.13\
 **Date:** 2026-09-03\
 **Owner:** AI Data Steward\
 **Approving Authority:** Governance Library Maintainer\
@@ -84,7 +84,7 @@ Before any training, fine-tuning, or RL pipeline consumes the dataset:
 | Dataset acceptance | Every new dataset or material refresh | AI Data Steward with Data Protection Officer co-sign if personal data; Legal Counsel co-sign if licensed corpus |
 | Data-quality readiness | Every new dataset or material refresh, before the training pipeline consumes it | AI Data Steward, per the [AI Data Quality and Readiness Validation Standard](standard-ai-data-quality-and-readiness-validation.md) readiness sign-off gate |
 | Use-case fit | Per training run | Service owner |
-| Risk assessment | High-risk training run (e.g. foundation-model-scale, regulated-sector model, agentic system) | AI Governance Council |
+| Risk assessment | High-risk training run (e.g. foundation-model-scale, regulated-sector model, agentic system), or any run in scope of CCPA Article 10 (personal information used to train significant-decision ADMT or covered recognition/profiling technology, section 7150(b)(6)), which mandates a documented assessment before processing begins (section 7155(a)(1)) | AI Governance Council |
 | Sustainability check | High-compute training | Per the sustainability framework |
 
 ### Step 5: Lineage tracking
