@@ -2,8 +2,8 @@
 
 **Document Title:** Observability and Telemetry Standard\
 **Document Type:** Standard\
-**Version:** 0.0.6\
-**Date:** 2026-07-14\
+**Version:** 0.0.7\
+**Date:** 2026-09-03\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/standard-service-level-management.md`](standard-service-level-management.md), [`operations/register-it-operations-kpis.md`](register-it-operations-kpis.md), [`operations/procedure-security-monitoring-and-alert-management.md`](procedure-security-monitoring-and-alert-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`ai/procedure-ai-evaluation.md`](../ai/procedure-ai-evaluation.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md)\
@@ -238,7 +238,7 @@ Service-level objectives (SLOs) are defined per the service-level management sta
 | Google SRE | The four golden signals, SLOs, error budgets | Reliability practice |
 | ITIL 4 | Service value chain; monitoring and event management | Service management |
 | ISO/IEC 20000-1 | §9.1 Monitoring, measurement, analysis and evaluation | Service monitoring and measurement |
-| ISO/IEC 27001:2022 | A.5.7, A.8.15, A.8.16 | Threat intelligence, logging, monitoring |
+| ISO/IEC 27001:2022 | A.8.15, A.8.16 | Logging, monitoring |
 | NIST SP 800-137 | Information Security Continuous Monitoring | Continuous monitoring |
 | OpenTelemetry | Specification and semantic conventions | Telemetry portability |
 | W3C Trace Context | Trace propagation | Distributed tracing |
