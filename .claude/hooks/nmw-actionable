@@ -1,0 +1,90 @@
+#!/usr/bin/env python3
+"""GRC actionable-item producer for stop-guard-unattended.py's default actionable_items() adapter.
+
+Contract (per the No-Manufactured-Wind-Down README): print one `id<TAB>title` line per OPEN backlog
+item that is NOT granted-blocked; print nothing (exit 0) on genuine whole-set exhaustion; exit NONZERO
+on any failure so the hook's adapter reads it as indeterminate and FAILS OPEN (allows the stop).
+
+Source of truth: tools/audit-backlog-actionability.py --actionable-only. Its summary line declares the
+authoritative actionable count `N` (`...; N ACTIONABLE.`), and when N>0 it also lists the items under an
+`ACTIONABLE (N):` section. Granted-blocked items (maintainer-APPROVED [BLOCKED:] tags) are already
+excluded from N; PROPOSED holds stay actionable, per the rule.
+
+Robustness (codex validate-pr #1945 f2/f3):
+  * The declared N is AUTHORITATIVE. We parse the item section and REQUIRE parsed_count == N; a mismatch
+    (a format drift that made item lines unparseable) exits NONZERO -> hook fails open as INDETERMINATE,
+    never as a false "exhaustion" that would silently disable the guard.
+  * Genuine exhaustion is N == 0 (the tool then emits no `ACTIONABLE (N):` header at all): we emit
+    nothing and exit 0 (tool-verified exhaustion), rather than misreporting it as a producer error.
+
+Kept as a thin producer (not a rewired adapter) so the hook's bundled --self-test stays unedited and
+hermetic. The tool path is overridable via NMW_ACTIONABLE_TOOL for regression testing."""
+import os
+import re
+import subprocess
+import sys
+
+TOOL = os.environ.get("NMW_ACTIONABLE_TOOL") or "/opt/grc/grc_library/tools/audit-backlog-actionability.py"
+_SUMMARY = re.compile(r"^\d+ open item\(s\).*;\s*(\d+)\s+ACTIONABLE\b")  # the AUTHORITATIVE summary line only
+_HEADER = re.compile(r"^ACTIONABLE \((\d+)\):\s*$")               # item-section header
+_ITEM = re.compile(r"^\s+-\s+(\S+)\s+(?:\[[^\]]*\]\s+)?(.*)$")    # '  - <id>  [tags]  <title>'
+_ORIGIN = re.compile(r"^\((?:public|private)\)\s+")
+
+
+def main():
+    try:
+        proc = subprocess.run(
+            [sys.executable, TOOL, "--actionable-only"],
+            capture_output=True, text=True, timeout=60,
+        )
+    except Exception:
+        return 1  # spawn/timeout failure -> indeterminate -> hook fails open
+    if proc.returncode != 0:
+        return 1  # tool error -> indeterminate -> hook fails open
+
+    declared = None
+    for line in proc.stdout.splitlines():
+        m = _SUMMARY.match(line)
+        if m:
+            declared = int(m.group(1))
+            break
+    if declared is None:
+        return 1  # no authoritative summary line found (format drift) -> indeterminate -> fail open
+
+    # Parse the item section and reconcile ALL THREE authoritative counts -- the summary's declared N,
+    # the `ACTIONABLE (M):` header's M (when the section is present), and the parsed row count -- so ANY
+    # internal contradiction in the tool output (a zero summary with items present, a summary/header
+    # disagreement, or a wrong row count) is caught as a drift and exits NONZERO (INDETERMINATE, fail
+    # open), never a silent false "exhaustion" (codex validate-pr #1945 rv/rv2 f2).
+    header_n = None
+    in_section = False
+    out = []
+    for line in proc.stdout.splitlines():
+        hm = _HEADER.match(line)
+        if hm:
+            header_n = int(hm.group(1))
+            in_section = True
+            continue
+        if not in_section:
+            continue
+        m = _ITEM.match(line)
+        if m:
+            iid = m.group(1).strip()
+            title = _ORIGIN.sub("", m.group(2).strip())
+            if iid:
+                out.append("%s\t%s" % (iid, title))
+
+    if declared == 0:
+        # exhaustion: the tool emits NO `ACTIONABLE (N):` section for a zero set; a section or any row
+        # present contradicts the declared zero -> indeterminate.
+        if in_section or out:
+            return 1
+        return 0
+    if header_n != declared or len(out) != declared:
+        return 1  # summary N, header M, and row count must all agree, else drift -> indeterminate
+    sys.stdout.write("\n".join(out) + "\n")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

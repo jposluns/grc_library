@@ -1988,6 +1988,128 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
         self.assertIn("self-test: OK", result.stdout)
 
+    def test_stop_guard_unattended_hook_self_test(self) -> None:
+        """The adopted No-Manufactured-Wind-Down Stop guard's own self-test (22 cases), wired at
+        introduction (2026-09-03, lab_infra "No Manufactured Wind-Down" delivery). This canonical
+        guard replaces the bespoke block-idle-stop guard's registration; enforcing its self-test here
+        keeps the active idle-stop guard from rotting untested."""
+        result = self._run_selftest(
+            [sys.executable, str(REPO_ROOT / ".claude" / "hooks" / "stop-guard-unattended.py"),
+             "--self-test"]
+        )
+        self.assertEqual(result.returncode, 0,
+                         f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        self.assertIn("OK", result.stderr)
+
+    def test_stop_guard_unattended_grc_map_mode(self) -> None:
+        """_grc_map_mode preserves the retired block-idle-stop coverage: attended-autonomous and any
+        *unattended* mode arm the guard; fully-attended allows (codex validate-pr #1945 f4 coverage gap)."""
+        mod = load_linter_module(".claude/hooks/stop-guard-unattended.py", "nmw_stop_guard_map")
+        self.assertEqual(mod._grc_map_mode("daytime-unattended"), "unattended")
+        self.assertEqual(mod._grc_map_mode("overnight-unattended"), "unattended")
+        self.assertEqual(mod._grc_map_mode("unattended"), "unattended")
+        self.assertEqual(mod._grc_map_mode("attended-autonomous"), "unattended")
+        self.assertEqual(mod._grc_map_mode("attended"), "attended")
+        self.assertIsNone(mod._grc_map_mode(""))
+        self.assertIsNone(mod._grc_map_mode(None))
+
+    def test_stop_guard_unattended_escape_one_shot(self) -> None:
+        """_grc_consume_escape consumes the declared-wait sentinel exactly once (codex #1945 f1): a
+        present sentinel -> True + unlinked; a second call -> False; a non-grc root -> no-op."""
+        import tempfile
+        mod = load_linter_module(".claude/hooks/stop-guard-unattended.py", "nmw_stop_guard_esc")
+        with tempfile.TemporaryDirectory() as d:
+            old = os.environ.get("GRC_DROP_ROOT")
+            os.environ["GRC_DROP_ROOT"] = d
+            try:
+                sentinel = os.path.join(d, ".allow-idle-stop")
+                open(sentinel, "w").close()
+                self.assertTrue(mod._grc_consume_escape(mod._GRC_REPO_ROOT))
+                self.assertFalse(os.path.exists(sentinel))
+                self.assertFalse(mod._grc_consume_escape(mod._GRC_REPO_ROOT))
+                open(sentinel, "w").close()
+                self.assertFalse(mod._grc_consume_escape(d))
+                self.assertTrue(os.path.exists(sentinel))
+            finally:
+                if old is None:
+                    os.environ.pop("GRC_DROP_ROOT", None)
+                else:
+                    os.environ["GRC_DROP_ROOT"] = old
+
+    def test_stop_guard_unattended_main_consumes_escape_end_to_end(self) -> None:
+        """End-to-end: main() actually WIRES _grc_consume_escape (codex #1945 rv f4). Running the real
+        hook with the declared-wait sentinel present (GRC_DROP_ROOT temp) and even a MALFORMED payload
+        must exit 0 (allow) AND consume the sentinel one-shot -- proving the escape fires before parse."""
+        import subprocess as sp
+        import tempfile
+        # The hook's grc one-shot escape is gated to the literal grc repo path (/opt/grc/grc_library) so
+        # --self-test stays hermetic; off that host (e.g. CI at a different checkout path) the escape
+        # correctly does NOT fire, so this end-to-end assertion is only meaningful on the grc host.
+        if str(REPO_ROOT) != "/opt/grc/grc_library":
+            self.skipTest("grc-host-scoped: hook escape is gated to /opt/grc/grc_library")
+        hook = str(REPO_ROOT / ".claude" / "hooks" / "stop-guard-unattended.py")
+        with tempfile.TemporaryDirectory() as d:
+            sentinel = os.path.join(d, ".allow-idle-stop")
+            open(sentinel, "w").close()
+            env = dict(os.environ, GRC_DROP_ROOT=d)
+            env.pop("ORCH_VERIFY_OWNER", None)
+            r = sp.run([sys.executable, hook], input="not-json", capture_output=True,
+                       text=True, env=env, cwd=str(REPO_ROOT))
+            self.assertEqual(r.returncode, 0,
+                             "sentinel present -> allow, got %d\n%s" % (r.returncode, r.stderr))
+            self.assertFalse(os.path.exists(sentinel),
+                             "main() must consume the sentinel one-shot even on the malformed-payload path")
+
+    def test_nmw_actionable_producer_semantics(self) -> None:
+        """nmw-actionable keys off the tool's declared N: N==0 -> empty exit 0 (tool-verified
+        exhaustion); N == parsed -> emit exit 0; N != parsed, no summary, or tool error -> exit 1
+        (indeterminate, never a false 'exhaustion') (codex validate-pr #1945 f2/f3)."""
+        import subprocess as sp
+        import tempfile
+        prod = str(REPO_ROOT / ".claude" / "hooks" / "nmw-actionable")
+        cases = {
+            "exh": ('print("5 open item(s) across both lists; 5 BLOCKED; 0 ACTIONABLE.")', 0, 0),
+            "ok": ('print("3 open item(s) across both lists; 1 BLOCKED; 2 ACTIONABLE.")\n'
+                   'print("ACTIONABLE (2):")\n'
+                   'print("  - 1.1  (public)  First")\n'
+                   'print("  - 1.2  [deferred]  Second")', 0, 2),
+            "drift": ('print("3 open item(s) across both lists; 1 BLOCKED; 2 ACTIONABLE.")\n'
+                      'print("ACTIONABLE (2):")\n'
+                      'print("  - 1.1  (public)  First")\n'
+                      'print("  garbled")', 1, 0),
+            "nosum": ('print("no count here")', 1, 0),
+            "loose": ('print("diagnostic: 0 ACTIONABLE legacy records")\n'
+                      'print("3 open item(s) across both lists; 1 BLOCKED; 2 ACTIONABLE.")\n'
+                      'print("ACTIONABLE (2):")\n'
+                      'print("  - 1.1  (public)  First")\n'
+                      'print("  - 1.2  (public)  Second")', 0, 2),
+            "zeromismatch": ('print("2 open item(s) across both lists; 0 BLOCKED; 0 ACTIONABLE.")\n'
+                             'print("ACTIONABLE (1):")\n'
+                             'print("  - 9.9  (public)  Stray")', 1, 0),
+            "headermismatch": ('print("3 open item(s) across both lists; 1 BLOCKED; 2 ACTIONABLE.")\n'
+                               'print("ACTIONABLE (99):")\n'
+                               'print("  - 1.1  (public)  First")\n'
+                               'print("  - 1.2  (public)  Second")', 1, 0),
+        }
+        with tempfile.TemporaryDirectory() as d:
+            for name, (body, exp_rc, exp_lines) in cases.items():
+                fake = os.path.join(d, "tool_%s.py" % name)
+                with open(fake, "w") as fh:
+                    fh.write(body + "\n")
+                env = dict(os.environ, NMW_ACTIONABLE_TOOL=fake)
+                r = sp.run([sys.executable, prod], capture_output=True, text=True, env=env)
+                self.assertEqual(r.returncode, exp_rc,
+                                 "%s: rc %d != %d\n%s" % (name, r.returncode, exp_rc, r.stderr))
+                lines = [ln for ln in r.stdout.splitlines() if ln.strip()]
+                self.assertEqual(len(lines), exp_lines,
+                                 "%s: %d lines != %d" % (name, len(lines), exp_lines))
+            fake = os.path.join(d, "tool_err.py")
+            with open(fake, "w") as fh:
+                fh.write("import sys; sys.exit(2)\n")
+            env = dict(os.environ, NMW_ACTIONABLE_TOOL=fake)
+            r = sp.run([sys.executable, prod], capture_output=True, text=True, env=env)
+            self.assertEqual(r.returncode, 1, "tool nonzero -> producer exit 1")
+
     def test_inject_session_timestamp_hook_self_test(self) -> None:
         """The inject-session-timestamp.py self-test, wired at introduction (PR: timestamp/duration console rule)."""
         result = self._run_selftest(

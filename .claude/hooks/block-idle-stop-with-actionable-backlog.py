@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 """Stop-hook arm: refuse an IDLE-STOP while authorized backlog remains.
 
+RETIRED 2026-09-03 (registration only): SUPERSEDED as the active Stop guard by the fleet-canonical
+`stop-guard-unattended.py` (lab_infra "No Manufactured Wind-Down" adoption). This file is RETAINED on
+disk (its unit tests still validate this logic; its `.allow-idle-stop` escape is preserved by the new
+guard) but is NO LONGER registered in .claude/settings.json. Kept pending full retirement once the
+canonical guard is proven.
+
 Origin: 2026-08-27. The orchestrator finished a GO'd program (exception-authority
 Wave 2), wrote the close-out + handoff, then ENDED THE TURN claiming "the queue is
 exhausted and the rest is yours to decide" -- while ~96 ACTIONABLE backlog items and

@@ -632,11 +632,8 @@ sub-case above and its `/deep-assessment`-on-fresh-session framing: the freshnes
 dispatched worker.
 
 **Mechanization.** lab_infra pairs the rule with an unattended Stop hook binding a stop to the
-tool-verified whole-set-exhaustion check. This project's
-[`block-idle-stop-with-actionable-backlog.py`](hooks/block-idle-stop-with-actionable-backlog.py)
-already enforces the no-idle-stop half (it blocks a turn-end yield in a non-attended mode while the
-backlog audit reports actionable items, absent a declared wait); a stronger tool-verified-exhaustion
-binding is a queued guardrail-seed follow-up.
+tool-verified whole-set-exhaustion check. This project ADOPTED it (2026-09-03, Architect-directed) as
+[`stop-guard-unattended.py`](hooks/stop-guard-unattended.py): in a non-attended mode it BLOCKS a turn-end yield while the backlog tool ([`nmw-actionable`](hooks/nmw-actionable) over `audit-backlog-actionability.py`) reports actionable items; it honours the `stop_hook_active` loop-guard, the `.allow-idle-stop` declared-wait escape, and FAILS OPEN. It REPLACES the de-registered bespoke [`block-idle-stop-with-actionable-backlog.py`](hooks/block-idle-stop-with-actionable-backlog.py) (retained on disk) and reconciles to the guardrails/AIQT pack.
 
 
 ## Anything wrong: finish the current task, then FIX IT, and nothing else proceeds first
