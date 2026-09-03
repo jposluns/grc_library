@@ -2042,6 +2042,11 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         must exit 0 (allow) AND consume the sentinel one-shot -- proving the escape fires before parse."""
         import subprocess as sp
         import tempfile
+        # The hook's grc one-shot escape is gated to the literal grc repo path (/opt/grc/grc_library) so
+        # --self-test stays hermetic; off that host (e.g. CI at a different checkout path) the escape
+        # correctly does NOT fire, so this end-to-end assertion is only meaningful on the grc host.
+        if str(REPO_ROOT) != "/opt/grc/grc_library":
+            self.skipTest("grc-host-scoped: hook escape is gated to /opt/grc/grc_library")
         hook = str(REPO_ROOT / ".claude" / "hooks" / "stop-guard-unattended.py")
         with tempfile.TemporaryDirectory() as d:
             sentinel = os.path.join(d, ".allow-idle-stop")
