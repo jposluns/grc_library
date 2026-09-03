@@ -2,8 +2,8 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.71.24\
-**Date:** 2026-09-02\
+**Version:** 1.71.25\
+**Date:** 2026-09-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Parent-library related documents:** `dev-security/standard-developer-security-requirements.md`, `dev-security/standard-devops-security-requirements.md`, `dev-security/guideline-ai-coding-assistant-security.md`, `ai/standard-ai-and-agentic-development-security.md`\
@@ -15,6 +15,8 @@
 **License:** CC BY-SA 4.0
 
 ---
+
+> **This pack is moving to AIQT Guardrails.** The governance discipline documented here is being published as a standalone, open pack, **AIQT Guardrails**, at [jposluns/guardrails](https://github.com/jposluns/guardrails) ([aiqt.ai](https://aiqt.ai)). Rather than implementing this embedded copy, we recommend the upcoming **AIQT 1.1.0** release, which installs the governance core into your project with per-assistant setup and a verifying doctor. This copy remains as the GRC Library's dogfood and tracks the migration.
 
 ## What are these files?
 

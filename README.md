@@ -5,8 +5,8 @@
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **SPDX-License-Identifier:** CC-BY-SA-4.0\
-**Library Version:** 2026.09.651 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.10.794 (semantic per-document version for this file)
+**Library Version:** 2026.09.652 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.10.795 (semantic per-document version for this file)
 
 ---
 
@@ -69,7 +69,7 @@ An adopter can engage with this repository at any of three levels:
 
 - **Adopt the corpus only.** You want the Markdown artefacts as a starting point and have your own maintenance workflow (or no AI assistance in the loop). Take the domain directories you need; ignore [`tools/`](tools/) and [`guardrails/`](guardrails/). The CC BY-SA 4.0 share-alike clause applies to derivatives you redistribute.
 
-- **Adopt the pack only.** You are not building a GRC library, but you want a Claude Code baseline pack, usable on any project regardless of whether it has a GRC corpus, distilled from the disciplines this library required to maintain itself. Take [`guardrails/`](guardrails/) (the pack's own [`README.md`](guardrails/README.md) is its front door) and drop it into your project's Claude Code context. For an automated, AI-assisted installation that tailors the pack to your specific project, see the setup generator prompt at [`guardrails/setup-generator-prompt.md`](guardrails/setup-generator-prompt.md). The pack ships with its own version sequence and is documented to operate standalone.
+- **Adopt the pack (now moving to AIQT Guardrails).** You are not building a GRC library, but you want a Claude Code / AI-assistant governance baseline for any project. The pack is being published as a standalone, open pack, **AIQT Guardrails**, at [jposluns/guardrails](https://github.com/jposluns/guardrails) ([aiqt.ai](https://aiqt.ai)). Rather than implementing the embedded copy here, we recommend the upcoming **AIQT 1.1.0** release, which installs the governance core into your project with per-assistant setup and a verifying doctor. The [`guardrails/`](guardrails/) copy in this repository (front door: its own [`README.md`](guardrails/README.md)) remains as the library's dogfood and tracks the migration.
 
 The third mode is an emergent use that has been adopted by developers in practice; it is supported alongside the primary fork-the-whole-repo path.
 
