@@ -2,7 +2,7 @@
 
 **Document Title:** California CCPA Automated Decision-Making Technology (ADMT) Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.3\
+**Version:** 0.0.4\
 **Date:** 2026-09-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -26,7 +26,7 @@ The controlling instruments are the CCPA/CPRA statute (Cal. Civ. Code section 17
 
 ## Transition timeline
 
-The CPPA CCPA Regulations are the final consolidated text effective 1 January 2026. ADMT compliance is DEFERRED: a business that uses ADMT for a significant decision must be in compliance with Article 11 no later than 1 January 2027 (section 7200(b)). The adjacent risk-assessment (Article 10) and cybersecurity-audit (Article 9) obligations run on their own timelines and are outside this annex's ADMT scope: Article 10 requires a risk assessment before initiating any new in-scope processing (section 7155(a)(1)), with processing already under way before 1 January 2026 assessed no later than 31 December 2027, and Article 9 audit reports phasing in across 2028 to 2030. The held edition is confirmed current against the CPPA as of the date of this annex; the regulation is version-sensitive, so the in-force text and the compliance dates are reconfirmed upstream at corpus-cite time.
+The CPPA CCPA Regulations are the final consolidated text effective 1 January 2026. ADMT compliance is DEFERRED: a business that uses ADMT for a significant decision must be in compliance with Article 11 no later than 1 January 2027 (section 7200(b)). The adjacent risk-assessment (Article 10) and cybersecurity-audit (Article 9) obligations run on their own timelines and are outside this annex's ADMT scope: Article 10 requires a risk assessment before initiating any new in-scope processing (section 7155(a)(1)), with processing initiated before 1 January 2026 and continuing after that date assessed no later than 31 December 2027, and Article 9 audit reports phasing in across 2028 to 2030. The held edition is confirmed current against the CPPA as of the date of this annex; the regulation is version-sensitive, so the in-force text and the compliance dates are reconfirmed upstream at corpus-cite time.
 
 ## Scope: covered actors and covered decisions
 
