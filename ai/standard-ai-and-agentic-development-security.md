@@ -2,8 +2,8 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.27\
-**Date:** 2026-08-31\
+**Version:** 1.8.28\
+**Date:** 2026-09-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-system-card.md`](template-system-card.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md)\
@@ -207,6 +207,8 @@ Approved AI coding tools:
 Use of other AI coding tools, including public web interfaces, to generate code for production systems requires a formal exception per the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) §4.2.2 risk-tier pathway.
 
 ### 9.2 Secure coding rules deployment
+
+> **Moving to AIQT Guardrails.** The pack is being published as the standalone **AIQT Guardrails** project ([jposluns/guardrails](https://github.com/jposluns/guardrails), [aiqt.ai](https://aiqt.ai)); the upcoming **AIQT 1.1.0** release is the recommended install once available. The embedded `guardrails/` copy referenced here remains the library's dogfood and tracks the migration.
 
 The library's CC BY-SA 4.0 secure-coding rules pack at [`guardrails/`](../guardrails/) is the approved Claude Code rules framework. Install the pack per Option 1 in the [pack README](../guardrails/README.md) (copy the whole `guardrails/` directory and reference it with `@guardrails/CLAUDE.md`; copying `CLAUDE.md` alone breaks its links to the sibling `ai/` and `governance/` files), copy selected rule files into the project's `.claude/rules/` directory (with optional `paths:` YAML frontmatter for path-scoped loading), or use the AI-assisted setup generator at [`guardrails/setup-generator-prompt.md`](../guardrails/setup-generator-prompt.md). See [`dev-security/guideline-ai-coding-assistant-security.md`](../dev-security/guideline-ai-coding-assistant-security.md) for full deployment options.
 

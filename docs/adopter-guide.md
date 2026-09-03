@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Guide\
 **Document Type:** Guide\
-**Version:** 1.3.17\
-**Date:** 2026-08-29\
+**Version:** 1.3.18\
+**Date:** 2026-09-03\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/worked-example.md`](worked-example.md), [`docs/worked-example-adoption.md`](worked-example-adoption.md), [`docs/adopter-guide-multi-entity.md`](adopter-guide-multi-entity.md), [`specification-master-project.md`](../specification-master-project.md)\
@@ -74,6 +74,8 @@ These modes describe a single organization adopting the library. A group, holdin
 **What you ignore.** Everything else in this repository. The pack does not require the GRC corpus to be present; the pack rules are written as project-agnostic disciplines that any Claude Code project benefits from.
 
 **Why this is supported.** This mode emerged in practice: developers found the pack useful as a Claude Code baseline pack, usable on any project regardless of whether it has a GRC corpus, distilled from the disciplines this library required to maintain itself. The provenance is what makes the pack credible as a standalone artefact: the pack's own provenance register, [`guardrails/rule-provenance.md`](../guardrails/rule-provenance.md), summarizes each rule's origin (a real maintenance event where one exists, an honest up-front codification where that is the truth), and the detailed lineage lives in this library's records.
+
+> **Moving to AIQT Guardrails.** The pack is being published as the standalone **AIQT Guardrails** project ([jposluns/guardrails](https://github.com/jposluns/guardrails), [aiqt.ai](https://aiqt.ai)); the upcoming **AIQT 1.1.0** release is the recommended install once available. The embedded `guardrails/` copy referenced here remains the library's dogfood and tracks the migration.
 
 **Next step.** Either copy [`guardrails/`](../guardrails/) directly into your project (under `guardrails/` or wherever you want it), or use the pack's setup generator to produce a tailored Claude Code configuration for your specific project. The pack's own [`README.md`](../guardrails/README.md) section "How to use" walks both options.
 
