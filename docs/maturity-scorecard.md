@@ -274,7 +274,7 @@ _170 documents._
 | [privacy/template-dpa-article-28.md](../privacy/template-dpa-article-28.md) | Data Processing Agreement Template (GDPR Article 28) | Template | 1.0.3 | 2026-08-14 |
 | [privacy/template-dpia.md](../privacy/template-dpia.md) | DPIA (Data Protection Impact Assessment) Template | Template | 1.0.12 | 2026-09-03 |
 | [privacy/template-joint-controller-arrangement.md](../privacy/template-joint-controller-arrangement.md) | Joint Controller Arrangement Template | Template | 1.0.9 | 2026-09-03 |
-| [privacy/template-legitimate-interest-assessment.md](../privacy/template-legitimate-interest-assessment.md) | Legitimate Interest Assessment (LIA) Template | Template | 1.0.3 | 2026-07-03 |
+| [privacy/template-legitimate-interest-assessment.md](../privacy/template-legitimate-interest-assessment.md) | Legitimate Interest Assessment (LIA) Template | Template | 1.0.4 | 2026-09-04 |
 | [privacy/template-privacy-notice.md](../privacy/template-privacy-notice.md) | Privacy Notice Template | Template | 1.0.9 | 2026-09-02 |
 | [privacy/template-record-of-processing-activities.md](../privacy/template-record-of-processing-activities.md) | Record of Processing Activities Template | Template | 1.0.12 | 2026-09-03 |
 | [privacy/template-transfer-impact-assessment.md](../privacy/template-transfer-impact-assessment.md) | Transfer Impact Assessment (TIA) Template | Template | 1.0.3 | 2026-07-13 |
@@ -387,7 +387,7 @@ _52 documents._
 | [governance/standard-emergency-authority.md](../governance/standard-emergency-authority.md) | Emergency Authority Standard | Standard | 0.0.3 | 2026-08-31 |
 | [governance/standard-semantic-continuity-in-migration-and-retirement.md](../governance/standard-semantic-continuity-in-migration-and-retirement.md) | Semantic Continuity in Migration and Retirement Standard | Standard | 0.0.2 | 2026-08-31 |
 | [operations/standard-observability-and-telemetry.md](../operations/standard-observability-and-telemetry.md) | Observability and Telemetry Standard | Standard | 0.0.7 | 2026-09-03 |
-| [privacy/annex-legitimate-interest-employment-monitoring.md](../privacy/annex-legitimate-interest-employment-monitoring.md) | Legitimate Interest Assessment for Employment Monitoring Annex | Annex | 0.1.0 | 2026-09-04 |
+| [privacy/annex-legitimate-interest-employment-monitoring.md](../privacy/annex-legitimate-interest-employment-monitoring.md) | Legitimate Interest Assessment for Employment Monitoring Annex | Annex | 0.1.1 | 2026-09-04 |
 | [privacy/jurisdictions/annex-privacy-mexico.md](../privacy/jurisdictions/annex-privacy-mexico.md) | Mexico Privacy Regulatory Requirements | Annex | 0.0.2 | 2026-07-13 |
 | [privacy/standard-network-telemetry-and-dpi-controls.md](../privacy/standard-network-telemetry-and-dpi-controls.md) | Network Telemetry and DPI Controls Standard | Standard | 0.1.0 | 2026-09-04 |
 | [privacy/standard-presence-inference-limitations.md](../privacy/standard-presence-inference-limitations.md) | Presence Inference Limitations Standard | Standard | 0.1.0 | 2026-09-04 |
