@@ -2,8 +2,8 @@
 
 **Document Title:** Data Retention Schedule\
 **Document Type:** Register\
-**Version:** 1.0.39\
-**Date:** 2026-09-01\
+**Version:** 1.0.40\
+**Date:** 2026-09-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md), [`governance/standard-delegation-of-authority.md`](standard-delegation-of-authority.md)\
@@ -65,7 +65,12 @@ This register defines the mandatory retention periods for each category of organ
 | Penetration test reports | 5 years | Compliance evidence |
 | Vulnerability scan results | 3 years | Compliance and audit evidence |
 | CAPA records | 7 years after closure | Quality management; audit evidence; matches [`compliance/procedure-capa.md`](../compliance/procedure-capa.md) §12 (Evidence retention) canonical 7-year mandate; preserves the audit-evidence chain with control-testing-evidence retention (7y) |
+| Workforce network-monitoring telemetry (flow, connection, and session metadata collected for the monitoring purpose) | 90 days | Data-minimization baseline per the [Workforce Network Monitoring Policy](../security/policy-workforce-network-monitoring.md) (Section 8) and the [Network Telemetry and DPI Controls Standard](../privacy/standard-network-telemetry-and-dpi-controls.md); kept only as long as the security and compliance purpose needs. Where this telemetry is forwarded into the SIEM, the SIEM event-log row below governs its retention there. |
+| Deep-packet-inspection and application-usage records (only where content inspection is exceptionally approved) | 90 days | The exceptional, narrowly approved content inspection the [Network Telemetry and DPI Controls Standard](../privacy/standard-network-telemetry-and-dpi-controls.md) (Section 5) permits; minimized and kept no longer than the approved purpose requires. |
 | SIEM event logs (including cloud platform activity logs forwarded into the SIEM) | 1 year hot + 2 years cold | Security investigation and compliance. This row is the authoritative retention for activity-log events forwarded from cloud platforms; the cloud platform's own 90-day minimum (see [`operations/standard-cloud-security-configuration-baseline.md`](../operations/standard-cloud-security-configuration-baseline.md) §6.3) is the platform-side forwarding floor, not a full retention figure. |
+
+
+> **Audit and access logs as personal data.** Access, authentication, and audit logs in this category that identify an individual are personal data. In addition to the security retention above, they are subject to the privacy retention and data-subject-rights regime in the [Privacy and Data Governance Policy](../privacy/policy-privacy-and-data-governance.md) and the workforce-monitoring suite, and their use for workforce monitoring is bounded by the [Workforce Network Monitoring Policy](../security/policy-workforce-network-monitoring.md).
 
 ### 4. Privacy and personal data records
 
@@ -75,6 +80,8 @@ This register defines the mandatory retention periods for each category of organ
 | Data subject access request records | 3 years | Organization retention baseline (GDPR prescribes no fixed retention period; Article 15 governs the right of access, not a retention term) |
 | Consent records | Duration of processing + 3 years | Organization retention baseline (GDPR Article 7 sets consent conditions and demonstrability, not a retention term) |
 | Privacy breach notifications | 7 years | The organization's canonical breach-record retention floor (PIPEDA's breach-of-security-safeguards regulations set a 24-month minimum, not 7 years; GDPR prescribes no fixed period); matches the breach-evidence minimum in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) Section 9.2 |
+| Workforce presence and availability records (derived from network connection or system sign-in for the monitoring purpose) | 90 days | Data-minimization baseline; presence is connection, not proof of work, per the [Presence Inference Limitations Standard](../privacy/standard-presence-inference-limitations.md); kept only as long as the monitoring purpose needs. |
+| Device-to-person mapping records (linking a device or identifier to an individual) | Duration of the device assignment, plus an organization-defined wind-down of up to 90 days | Personal data linking a device or network identifier to an individual. The retention beyond the device assignment is an organization-defined, minimized period per the data-minimization baseline the [Workforce Network Monitoring Policy](../security/policy-workforce-network-monitoring.md) (Section 8) requires (no external standard prescribes it); the mapping is kept only while operationally required and is then destroyed or de-identified. |
 | Processing records (Article 30 ROPA) | Active + 5 years | Organization retention baseline (GDPR Article 30 defines the ROPA's content and availability, not a retention term) |
 
 ### 5. Audit and compliance records
