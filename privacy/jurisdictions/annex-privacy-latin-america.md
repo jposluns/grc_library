@@ -2,7 +2,7 @@
 
 **Document Title:** Latin America Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.8\
+**Version:** 1.0.9\
 **Date:** 2026-09-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -46,8 +46,8 @@ This annex provides an overview of privacy regulatory requirements in key Latin 
 
 ### Peru
 
-- **Law No. 29733, Law on Personal Data Protection (2011).** Applies to personal data processing in Peru. Requires registration of databases.
-- **Regulatory authority:** Autoridad Nacional de Protección de Datos Personales (ANPD Peru, within the Ministry of Justice).
+- **Law No. 29733, Law on Personal Data Protection (2011).** Applies to personal data processing in Peru. Requires registration of databases. See the dedicated [`Peru privacy annex`](annex-privacy-peru.md) for the operational per-regime view under Ley 29733 and DS 016-2024-JUS; this Latin America overview defers to it for Peru.
+- **Regulatory authority:** the Autoridad Nacional de Protección de Datos Personales, exercised by the Dirección General de Transparencia, Acceso a la Información Pública y Protección de Datos Personales (DGTAIPD) within the Ministry of Justice.
 
 ---
 
