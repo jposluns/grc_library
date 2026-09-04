@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Domain README\
 **Document Type:** Register\
-**Version:** 1.2.10\
+**Version:** 1.2.11\
 **Date:** 2026-09-04\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -38,6 +38,7 @@ This directory contains privacy governance artefacts covering data protection po
 | Framework | Privacy by Design Framework | [`privacy/framework-privacy-by-design.md`](framework-privacy-by-design.md) |
 | Standard | Pseudonymization and Anonymization Standard | [`privacy/standard-pseudonymization-and-anonymization.md`](standard-pseudonymization-and-anonymization.md) |
 | Standard | Presence Inference Limitations Standard | [`privacy/standard-presence-inference-limitations.md`](standard-presence-inference-limitations.md) |
+| Standard | Network Telemetry and DPI Controls Standard | [`privacy/standard-network-telemetry-and-dpi-controls.md`](standard-network-telemetry-and-dpi-controls.md) |
 | Register | Automated Decision-Making and Profiling Register | [`privacy/register-automated-decision-making.md`](register-automated-decision-making.md) |
 | Register | Cookie and Tracker Register | [`privacy/register-cookie-and-tracker.md`](register-cookie-and-tracker.md) |
 | Template | Record of Processing Activities Template | [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md) |
