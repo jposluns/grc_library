@@ -140,6 +140,7 @@ The Chief Information Security Officer needs policies, standards, and procedures
 - [Information Security Policy](../security/policy-information-security.md) (maturity: Mature)
 - [Network Communications Security Policy](../security/policy-network-communications-security.md) (maturity: Mature)
 - [Secure Development and Engineering Policy](../dev-security/policy-secure-development-and-engineering.md) (maturity: Baseline)
+- [Workforce Network Monitoring Policy](../security/policy-workforce-network-monitoring.md) (maturity: Draft)
 
 ### Procedure
 

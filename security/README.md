@@ -2,8 +2,8 @@
 
 **Document Title:** Information Security Domain README\
 **Document Type:** Register\
-**Version:** 1.2.3\
-**Date:** 2026-08-31\
+**Version:** 1.2.4\
+**Date:** 2026-09-04\
 **Owner:** Information Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](policy-information-security.md)\
@@ -38,6 +38,7 @@ This directory contains organization-neutral information security governance art
 | Standard | Authentication and Password Management Standard | [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md) |
 | Standard | Data Loss Prevention Standard | [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md) |
 | Policy | Acceptable Use Policy | [`security/policy-acceptable-use.md`](policy-acceptable-use.md) |
+| Policy | Workforce Network Monitoring Policy | [`security/policy-workforce-network-monitoring.md`](policy-workforce-network-monitoring.md) |
 | Policy | Encryption and Key Management Policy | [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md) |
 | Procedure | Security Incident Response Procedure | [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md) |
 | Procedure | Vulnerability Management Procedure | [`security/procedure-vulnerability-management.md`](procedure-vulnerability-management.md) |
