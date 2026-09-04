@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Management Programme Charter\
 **Document Type:** Charter\
-**Version:** 1.5.13\
-**Date:** 2026-09-03\
+**Version:** 1.5.14\
+**Date:** 2026-09-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -97,7 +97,7 @@ This list is not exhaustive; the test is whether the secondary role results in t
 |---|---|---|
 | **UK GDPR** (UK) | Article 38(3) (same as EU GDPR) | Article 38(6) (same); ICO guidance mirrors EDPB |
 | **LGPD** (Brazil, Article 41) | DPO must have appropriate technical knowledge and act independently; ANPD guidance on conflict |
-| **PIPL** (China, Article 52) | Personal information protection officer must have professional knowledge and management experience; CAC Provisions impose function-separation expectations |
+| **PIPL** (China, Article 52) | Large-scale handlers must designate a personal information protection officer to supervise handling activities and protection measures, disclose the officer's contact method, and report the officer's name and contact to the authorities; Article 52 itself prescribes no professional-qualification or function-separation requirement for the officer (additional qualification and independence expectations derive from separate CAC provisions) |
 | **India DPDP 2023** | Data Protection Officer required for Significant Data Fiduciaries; no statutory independence requirement (the DPO represents the SDF, is based in India, and is responsible to its governing body, s. 10(2)(a)); Data Protection Board provides oversight |
 
 For multi-regime non-EU controllers the strictest applicable independence regime governs.
