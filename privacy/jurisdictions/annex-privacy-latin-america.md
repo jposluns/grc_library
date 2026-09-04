@@ -2,7 +2,7 @@
 
 **Document Title:** Latin America Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.7\
+**Version:** 1.0.8\
 **Date:** 2026-09-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -41,7 +41,7 @@ This annex provides an overview of privacy regulatory requirements in key Latin 
 
 ### Chile
 
-- **Law No. 19,628 on the Protection of Private Life (1999)**, in force during the transition until 2026-11-30. **Law No. 21,719 (published 2024-12-13, in force 2026-12-01)** modernizes the framework to align with GDPR and establishes the Agencia de Protección de Datos Personales as the supervisory authority.
+- **Law No. 19,628 on the Protection of Private Life (1999)**, in force during the transition until 2026-11-30. **Law No. 21,719 (published 2024-12-13, in force 2026-12-01)** modernizes the framework to align with GDPR and establishes the Agencia de Protección de Datos Personales as the supervisory authority. See the dedicated [`Chile privacy annex`](annex-privacy-chile.md) for the operational per-regime view under Ley 19.628; this Latin America overview defers to it for Chile.
 - **Regulatory authority:** Consejo para la Transparencia (public-sector oversight under Law 19,628); the Agencia de Protección de Datos Personales is established by Law 21,719, operative from 2026-12-01.
 
 ### Peru
