@@ -254,12 +254,18 @@ def class_attestation_state(cell: str) -> str:
     NORMALIZE an invalid exempt reason into a valid one (`sing_leton` -> `singleton`,
     `non-*textual` -> `non-textual`), a false pass. The exempt reason must be matched exactly
     as written so an off-set reason returns 'bad-exempt' and refuses."""
-    if CLASS_ATTEST_RE.search(cell):
-        return "class"
-    m = CLASS_EXEMPT_RE.search(cell)
-    if m:
-        return "exempt" if m.group(1).lower() in CLASS_EXEMPT_REASONS else "bad-exempt"
-    return "none"
+    # Enforce the ledger's "exactly one clause per row" rule (codex QA #1989 iter-3): count
+    # ALL class and exempt clauses. Any malformed exempt reason fails closed with precedence,
+    # so a valid class clause cannot mask an invalid exemption in the same cell; more than one
+    # clause of any kind is 'multi' (rejected); zero is 'none'.
+    class_clauses = CLASS_ATTEST_RE.findall(cell)
+    exempt_reasons = CLASS_EXEMPT_RE.findall(cell)
+    if any(r.lower() not in CLASS_EXEMPT_REASONS for r in exempt_reasons):
+        return "bad-exempt"
+    total = len(class_clauses) + len(exempt_reasons)
+    if total != 1:
+        return "multi" if total > 1 else "none"
+    return "class" if class_clauses else "exempt"
 
 
 def extract_class_attestation(cell: str):
@@ -475,6 +481,14 @@ def self_test() -> int:
        class_attestation_state("FIXED #1 [class-exempt: non-*textual]"), "bad-exempt")
     ck("F1: a valid closed-set reason still classifies exempt",
        class_attestation_state("FIXED #1 [class-exempt: cross-repo]"), "exempt")
+    ck("iter3: a class clause plus an invalid exempt is bad-exempt (precedence)",
+       class_attestation_state('FIXED #1 [class: "never-present" @ 0] [class-exempt: sing_leton]'), "bad-exempt")
+    ck("iter3: two valid exempt clauses are multi (exactly-one rule)",
+       class_attestation_state("FIXED #1 [class-exempt: singleton] [class-exempt: cross-repo]"), "multi")
+    ck("iter3: a class clause plus a valid exempt is multi (exactly-one rule)",
+       class_attestation_state('FIXED #1 [class: "x" @ 1] [class-exempt: singleton]'), "multi")
+    ck("iter3: two class clauses are multi",
+       class_attestation_state('FIXED #1 [class: "x" @ 1] [class: "y" @ 2]'), "multi")
     ck("no clause is none", class_attestation_state("FIXED #1 then prose"), "none")
     ck("extraction unescapes a table-escaped pipe",
        extract_class_attestation('FIXED #1 [class: "a \\| b" @ 4]'), ("a | b", 4))

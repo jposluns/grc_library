@@ -89,8 +89,10 @@ MATCHER_REL = Path("tools") / "check-class-completeness.py"
 # DISCLOSED RESIDUE (codex/gemini QA #1989): a NEW class finding added AND fixed without
 # attestation on the merge day itself, after this gate merges, is exempt forever (Found
 # dates are permanent). The window is at most the few hours between merge and 00:00 UTC, it
-# is self-closing (no new merge-day rows can be created after that), and the open-findings
-# hook still emits its (date-unwindowed) advisory warning for such a row. The retroactive
+# is self-closing (no new merge-day rows can be created after that), and while such a row
+# remains in `## Open` the open-findings hook still emits its (date-unwindowed) advisory
+# warning for it (that advisory does not fire once the row is moved to `## Closed today`,
+# the hook's parser being Open-only). The retroactive
 # attestation of the 15 pre-grammar rows is tracked as P-1.69; once they are attested or
 # archived out of the scanned sections, this floor can be tightened to the merge date and
 # the residue eliminated.
@@ -135,7 +137,8 @@ def evaluate(rows_full: list, hook, probe, floor: datetime.date = SHIP_FLOOR):
     """PURE decision core (the thin observers live in main; this is the testable half).
 
     rows_full: [(found, severity, finding, disposition)] from the hook's
-        ``parse_open_rows_full``.
+        ``parse_dispositioned_rows_full`` (Open + Closed today; the caller in ``main`` supplies
+        it, so D14 sees a fixed row whether or not it has been moved to Closed).
     hook: the loaded open-findings hook module, the single grammar owner
         (``is_fixed_disposition``, ``leading_class_token``, ``class_attestation_state``,
         ``extract_class_attestation``, ``CLASS_EXEMPT_REASONS``).
@@ -169,6 +172,12 @@ def evaluate(rows_full: list, hook, probe, floor: datetime.date = SHIP_FLOOR):
                 f"and paste the emitted clause into the Disposition cell, or use "
                 f"[class-exempt: {'|'.join(hook.CLASS_EXEMPT_REASONS)}] where no textual "
                 f"class exists."
+            )
+            continue
+        if state == "multi":
+            failures.append(
+                f"more than one class/exempt clause on FIXED row {finding[:100]!r}: exactly "
+                f"one [class: ...] or [class-exempt: ...] clause is allowed per row."
             )
             continue
         if state == "bad-exempt":
@@ -268,6 +277,11 @@ def _self_test() -> int:
                                "FIXED #1985 [class-exempt: too-hard]")), probe)
         checks.append(("off-set-exemption-fails",
                        len(fails) == 1 and "closed set" in fails[0]))
+
+        fails, _ = run(ledger(("2026-09-04", "warning", "[multi] two clauses",
+                               'FIXED #1985 [class: "x" @ 1] [class-exempt: singleton]')), probe)
+        checks.append(("iter3-multi-clause-row-fails",
+                       len(fails) == 1 and "more than one" in fails[0]))
 
         fails, _ = run(ledger(("2026-08-01", "warning", "[old-class] pre-floor row",
                                "FIXED #1900")), probe)
