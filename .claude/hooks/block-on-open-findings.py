@@ -246,7 +246,7 @@ def is_fixed_disposition(cell: str) -> bool:
 
 
 def class_attestation_state(cell: str) -> str:
-    """PURE. 'class' | 'exempt' | 'bad-exempt' | 'none' for a Disposition cell.
+    """PURE. 'class' | 'exempt' | 'bad-exempt' | 'multi' | 'none' for a Disposition cell.
 
     Matches the RAW cell (F1, codex QA #1989 iter-2): the `[class: ...]` / `[class-exempt: ...]`
     clause is delimited by its own brackets, so emphasis markup AROUND it never interferes,
