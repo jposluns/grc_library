@@ -116,6 +116,6 @@ This is a planning requirement, not an immediate implementation requirement, exc
 | --- | --- | --- | --- | --- |
 | Algorithm selection | V11.3 | Full document | CEK-01 to 03 | A.8.24 |
 | Key management | V13.3 | SP 800-57 | CEK-09 to 21 | A.8.24 |
-| Password hashing | V11.4.2 | N/A | IAM-07 | A.5.17 |
+| Password hashing | V11.4.2 | N/A | IAM-14 | A.5.17 |
 | TLS configuration | V12.1 to V12.3 | SP 800-52 | I&S-09 | A.8.24 |
 | Random number generation | V11.5 | N/A | CEK-03 | A.8.24 |
