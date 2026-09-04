@@ -3619,7 +3619,7 @@ documents:
   domain: "compliance"
   type: "Annex"
   title: "MiCA Implementation Annex"
-  version: "0.0.1"
+  version: "0.0.2"
   date: "2026-09-04"
   owner: "Chief Compliance Officer"
   approving_authority: "Governance Library Maintainer"

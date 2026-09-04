@@ -2,7 +2,7 @@
 
 **Document Title:** MiCA Implementation Annex\
 **Document Type:** Annex\
-**Version:** 0.0.1\
+**Version:** 0.0.2\
 **Date:** 2026-09-04\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -28,7 +28,7 @@ MiCA applies to persons engaged in the issuance, offer to the public, or admissi
 
 1. Offeror or person seeking admission to trading of a crypto-asset **other than an ART or EMT** (Title II).
 2. Issuer of an **asset-referenced token (ART)** (Title III).
-3. Issuer of an **e-money token (EMT)** ,  necessarily a credit institution or an electronic money institution (Art 48(1)).
+3. Issuer of an **e-money token (EMT)**, necessarily a credit institution or an electronic money institution (Art 48(1)).
 4. **Crypto-asset service provider (CASP)** authorized under Art 63, or a financial entity providing crypto-asset services under Art 60.
 
 MiCA does not apply to crypto-assets that are unique and non-fungible (Art 2(3)) or that qualify as financial instruments, deposits, funds (other than EMTs), or the other instruments listed in Art 2(4). Partial exemptions exist but do not relieve all duties: Art 4(2) disapplies Art 4(1) points (b), (c), (d), and (f) for a Title II offer of a crypto-asset other than an ART or EMT that is made to fewer than 150 persons per Member State acting on their own account, or whose total consideration over twelve months does not exceed EUR 1 000 000, or that is addressed solely to qualified investors (and can only be held by them); the remaining Art 4(1) obligations still apply. Art 16(2) disapplies the Art 16(1) authorization requirement where the ART's average outstanding value over twelve months never exceeds EUR 5 000 000 and the issuer is not linked to a network of other exempt issuers, or the offer is addressed solely to qualified investors and the ART can only be held by them, but the issuer must still draw up an ART white paper and notify it to its competent authority. Consult the article and the relevant RTS for the exact conditions.
@@ -42,7 +42,7 @@ MiCA entered into force on 29 June 2023 (Art 149(1)). It applies in two phases: 
 The obligations that apply turn entirely on which category a token falls in, and the distinction is precise:
 
 - **E-money token (EMT):** purports to maintain a stable value by referencing **one official currency** (Art 3(7)); deemed electronic money (Art 48(2)); issuable only by a credit institution or EMI (Art 48(1)).
-- **Asset-referenced token (ART):** any stable-value token that is **not** an EMT ,  referencing another value or right, a combination, or **one or more** official currencies (Art 3(6)); a multi-currency basket stablecoin is an ART, not an EMT.
+- **Asset-referenced token (ART):** any stable-value token that is **not** an EMT, referencing another value or right, a combination, or **one or more** official currencies (Art 3(6)); a multi-currency basket stablecoin is an ART, not an EMT.
 - **Crypto-asset other than ART or EMT:** the residual category (utility tokens and other non-stable crypto-assets), governed by Title II.
 
 Misclassification propagates into the wrong reserve, redemption, and authorization regime, so the classification is the first control an adopter documents.
@@ -65,13 +65,13 @@ Gap: the Title II crypto-asset white paper (Annex I schema, Art 6) and its notif
 | Governance, internal control, risk management (Art 34) | `risk/standard-enterprise-risk-management.md`, `security/policy-information-security.md` |
 | ICT risk management + data safeguarding (Art 34(10)/(11), cross-referencing DORA) | the DORA implementation annex + `security/` standards |
 | Business continuity (Art 34(9)) | `resilience/framework-business-continuity-and-resilience.md` |
-| Complaints-handling (Art 31; RTS 2025/293) | library complaints/CAPA procedure (adopter extends to the RTS template) |
+| Complaints-handling (Art 31; RTS 2025/293) | no direct carrier; `compliance/procedure-capa.md` covers internal corrective and preventive action only, so the adopter provides a MiCA complaints-handling procedure per RTS 2025/293 |
 | Conflicts of interest (Art 32; RTS 2025/1141) | library conflicts-of-interest control |
-| Reserve of assets: constitution, segregation, audit (Arts 36-38) | *(MiCA-specific; no core artefact ,  the reserve is a supervised financial construct)* |
+| Reserve of assets: constitution, segregation, audit (Arts 36-38) | *(MiCA-specific; no core artefact, the reserve is a supervised financial construct)* |
 | Right of redemption at market value, in principle without a fee but subject to the Art 46 recovery options (Art 39) | *(MiCA-specific policy)* |
 | Recovery and redemption plans (Arts 46-47) | `resilience/` continuity/recovery artefacts as the operational base |
 
-Gaps: the reserve-of-assets regime (Arts 36-38 ,  legal/operational segregation, six-monthly independent audit, custody within five working days, investment constraints), the permanent right of redemption at market value (Art 39), own-funds at the highest of EUR 350 000 / 2% of reserve / a quarter of fixed overheads (Art 35, rising to 3% for significant ARTs, Art 45(5); a credit institution issuing ARTs is not subject to Art 35, Art 17(4)), and the recovery/redemption plans (Arts 46-47) are MiCA-specific supervisory artefacts the issuer maintains beyond the library baseline.
+Gaps: the reserve-of-assets regime (Arts 36-38, legal/operational segregation, six-monthly independent audit, custody within five working days, investment constraints), the permanent right of redemption at market value (Art 39), own-funds at the highest of EUR 350 000 / 2% of reserve / a quarter of fixed overheads (Art 35, rising to 3% for significant ARTs, Art 45(5); a credit institution issuing ARTs is not subject to Art 35, Art 17(4)), and the recovery/redemption plans (Arts 46-47) are MiCA-specific supervisory artefacts the issuer maintains beyond the library baseline.
 
 ## Title IV: e-money tokens (Arts 48-58)
 
@@ -97,7 +97,7 @@ Gap: an ordinary EMT uses the EMD safeguarding regime plus Art 54, not the Art 3
 | Governance, fit-and-proper, continuity, AML, records (Art 68; RTS 2025/299, 2025/1140) | `risk/standard-enterprise-risk-management.md`, `resilience/framework-business-continuity-and-resilience.md`, `security/standard-logging-and-monitoring.md` |
 | ICT continuity per DORA (Art 68(7), citing DORA Arts 11-12) | the DORA implementation annex |
 | Safekeeping of clients' crypto-assets and funds; insolvency protection (Art 70) | `security/` + `operations/` custody controls (adopter extends to segregation + next-day placement) |
-| Complaints-handling (Art 71; RTS 2025/294) | library complaints procedure |
+| Complaints-handling (Art 71; RTS 2025/294) | no direct carrier; `compliance/procedure-capa.md` covers internal corrective and preventive action only, so the adopter provides a MiCA CASP complaints-handling procedure per RTS 2025/294 |
 | Conflicts of interest, reviewed annually (Art 72; RTS 2025/1142) | library conflicts-of-interest control |
 | Outsourcing, incl. contingency + exit strategies (Art 73) | `supply-chain/framework-supplier-and-cloud-governance.md`, `supply-chain/procedure-supplier-exit-and-data-return.md`, `supply-chain/standard-supplier-security-and-privacy-assurance.md` |
 | Orderly wind-down plan, for CASPs providing the services in Arts 75 to 79 (Art 74) | `resilience/` recovery artefacts |
@@ -121,19 +121,19 @@ MiCA is supervised two-tier: national competent authorities designated under Art
 
 ## Library gaps requiring additional documentation
 
-1. **Crypto-asset white papers** (Title II Annex I; ART Annex II; EMT Annex III) ,  MiCA-specific, per category.
+1. **Crypto-asset white papers** (Title II Annex I; ART Annex II; EMT Annex III), MiCA-specific, per category.
 2. **Reserve-of-assets construction, segregation, custody, and six-monthly independent audit** for ARTs (Arts 36-38).
 3. **Own-funds / prudential-safeguards calculation** (Arts 35, 67; Annex IV).
 4. **Client-asset segregation and insolvency-protection evidence** (Arts 70, 75).
-5. **Recovery and redemption plans** (Arts 46-47, 55, 74).
-6. **RTS/ITS-templated submissions** ,  complaints (2025/293, 2025/294), conflicts (2025/1141, 2025/1142), records (2025/1140), order-book (2025/416), liquidity (2025/1264), remuneration (2025/418), market-abuse detection (2025/885), and the authorization and notification submissions, where the RTS specify the required information and their paired ITS provide the forms (2025/305, 2025/306, 2025/303, 2025/304, 2025/1125, 2025/1126).
+5. **Recovery and redemption plans** (Arts 46-47, 55).
+6. **RTS/ITS-templated submissions**, complaints (2025/293, 2025/294), conflicts (2025/1141, 2025/1142), records (2025/1140), order-book (2025/416), liquidity (2025/1264), remuneration (2025/418), market-abuse detection (2025/885), and the authorization and notification submissions, where the RTS specify the required information and their paired ITS provide the forms (2025/305, 2025/306, 2025/303, 2025/304, 2025/1125, 2025/1126).
 
 ## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | MiCA | Regulation (EU) 2023/1114 | Primary regulation |
-| MiCA RTS and ITS | Multiple 2024-2025 Delegated/Implementing Regulations (see the RTS/ITS table) | Implementing detail |
+| MiCA RTS and ITS | Multiple 2024-2025 Delegated/Implementing Regulations (cited in the Title tables and the library-gaps list above) | Implementing detail |
 | DORA | Regulation (EU) 2022/2554 | ICT risk management cross-referenced by MiCA Arts 34(10)/(11), 68(7)/(8) |
 | Directive 2009/110/EC (EMD2) | E-money directive | Governs EMT issuers (Art 48(3)) |
 | Directive (EU) 2015/849 (AMLD) | Anti-money-laundering | CASP AML obligations (Arts 60, 68, 76) |
