@@ -84,6 +84,7 @@ HEADING_TIER = {
     "OWASP": "framework",
     "Customs and trade": "framework",
     "Sector-specific (energy, telecom, finance)": "framework",
+    "International treaties and conventions": "legislation",
     "OECD and global": "framework",
     "ICAO and IMO": "framework",
     "AI safety evaluation programmes": "dataset",

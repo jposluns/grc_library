@@ -11698,6 +11698,25 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
         self.assertIn("ISO/IEC VFORM", out)
         self.assertIn("ISO/IEC BARE", out)
 
+    def test_international_treaties_heading_legislation_tier(self) -> None:
+        # 2.25.2 PR-1: the new "International treaties and conventions" heading maps to
+        # the legislation tier (180-day window); a stale row under it warns with "180-day".
+        mod = self._load("_cadence_treaties")
+        header = (
+            "## International treaties and conventions\n\n"
+            "| Standard ID | Current version | Publication date | Topic | "
+            "Superseded versions | Upstream check location | Last verified (UTC) |\n"
+            "| --- | --- | --- | --- | --- | --- | --- |\n"
+        )
+        reg = header + (
+            "| CoE FRAMEWORK CONV | 2024 | 2024 | AI treaty | - | http://coe | verified 2024-01-01 |\n"
+        )
+        rc, out = self._run(mod, reg, today=(2026, 7, 15))
+        self.assertEqual(rc, 0)
+        self.assertIn("WARN:", out)
+        self.assertIn("CoE FRAMEWORK CONV", out)
+        self.assertIn("180-day", out)   # legislation tier window in the message
+
     def test_live_register_is_within_windows(self) -> None:
         # Guard-first: the live register must be CLEAN under the real today (green at
         # merge). Because the gate is WARN-only (always rc 0), assert on the OUTPUT,
