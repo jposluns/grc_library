@@ -224,7 +224,7 @@ class LanguageLinterTests(LinterTestCase):
         result = run_linter("tools/lint-language.py", fixture)
         self.assertLinterFails(result, "dash")
 
-    def test_ise_americanism_flagged(self) -> None:
+    def test_ise_commonwealth_flagged(self) -> None:
         fixture = self.make_fixture(
             "standard-ise.md",
             VALID_METADATA + "\n\nThis text was finalised by the team.\n",
