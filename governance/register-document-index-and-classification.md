@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.156\
+**Version:** 1.27.157\
 **Date:** 2026-09-04\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -170,6 +170,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Privacy | Annex | Mexico Privacy Requirements | [`privacy/jurisdictions/annex-privacy-mexico.md`](../privacy/jurisdictions/annex-privacy-mexico.md) | Data Protection Officer | Annual | LFPDPPP (2025, DOF 20-03-2025) | template |
 | Privacy | Annex | Chile Privacy Requirements | [`privacy/jurisdictions/annex-privacy-chile.md`](../privacy/jurisdictions/annex-privacy-chile.md) | Data Protection Officer | Annual | Ley 19.628 (consolidated 2023-05-09, Fin Vigencia 2026-11-30) | template |
 | Privacy | Annex | Peru Privacy Requirements | [`privacy/jurisdictions/annex-privacy-peru.md`](../privacy/jurisdictions/annex-privacy-peru.md) | Data Protection Officer | Annual | Ley 29733 (2011, amended) + DS 016-2024-JUS | template |
+| Privacy | Annex | Colombia Privacy Requirements | [`privacy/jurisdictions/annex-privacy-colombia.md`](../privacy/jurisdictions/annex-privacy-colombia.md) | Data Protection Officer | Annual | Ley 1581 de 2012 + Decreto 1074 de 2015 (Cap 25/26) | template |
 | Privacy | Annex | Singapore Privacy Requirements | [`privacy/jurisdictions/annex-privacy-singapore.md`](../privacy/jurisdictions/annex-privacy-singapore.md) | Data Protection Officer | Annual | PDPA 2012 (amended 2020) | template |
 | Privacy | Annex | Australia Privacy Requirements | [`privacy/jurisdictions/annex-privacy-australia.md`](../privacy/jurisdictions/annex-privacy-australia.md) | Data Protection Officer | Annual | Privacy Act 1988, Privacy and Other Legislation Amendment Act 2024 | template |
 | Privacy | Annex | Japan Privacy Requirements | [`privacy/jurisdictions/annex-privacy-japan.md`](../privacy/jurisdictions/annex-privacy-japan.md) | Data Protection Officer | Annual | APPI (amended 2022) | template |

@@ -2,7 +2,7 @@
 
 **Document Title:** Latin America Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.9\
+**Version:** 1.0.10\
 **Date:** 2026-09-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -36,8 +36,8 @@ This annex provides an overview of privacy regulatory requirements in key Latin 
 
 ### Colombia
 
-- **Statutory Law 1581/2012 on Data Protection.** Applies to processing of personal data of Colombian residents. Requires a lawful basis, data subject consent for sensitive data, and registration of databases with the SIC. Its implementing regulation is **Decreto Único Reglamentario 1074 de 2015, Capítulo 25**, which details the data-protection duties, including the international transfer and transmission rules (Sección 5, art. 2.2.2.25.5.1) and the Binding Corporate Rules (Normas Corporativas Vinculantes) certification route (art. 2.2.2.25.7).
-- **Regulatory authority:** Superintendencia de Industria y Comercio (SIC).
+- **Statutory Law 1581/2012 on Data Protection.** Applies to processing carried out in Colombian territory, and to a controller or processor not established in Colombia where Colombian law applies to it by international norms or treaties. Requires a lawful basis, data subject authorization for sensitive data, and, for controllers within the registration threshold, registration of databases with the SIC. Its implementing regulation is **Decreto Único Reglamentario 1074 de 2015, Capítulo 25**, which details the data-protection duties, including the international transfer and transmission rules (Sección 5, art. 2.2.2.25.5.1) and the Binding Corporate Rules (Normas Corporativas Vinculantes) certification route (art. 2.2.2.25.7).
+- **Regulatory authority:** Superintendencia de Industria y Comercio (SIC). See the dedicated [`Colombia privacy annex`](annex-privacy-colombia.md) for the operational per-regime view under Ley 1581 de 2012; this Latin America overview defers to it for Colombia.
 
 ### Chile
 
@@ -80,7 +80,7 @@ Where the organization monitors the network and device activity of workers in th
 |---|---|
 | Argentina | Adequacy (EU); contractual obligations; AAIP authorization |
 | Mexico | LFPDPPP (2025) transfer provisions (Articles 35 and 36); privacy-notice disclosure and consent |
-| Colombia | Consent; contractual safeguards; SIC authorization; Binding Corporate Rules (Normas Corporativas Vinculantes, Decreto 1074/2015 art. 2.2.2.25.7) for intra-group transfers outside Colombia |
+| Colombia | Express, unequivocal consent; the Article 26 statutory exceptions; SIC declaration of conformity; Binding Corporate Rules (Normas Corporativas Vinculantes, Decreto 1074/2015 art. 2.2.2.25.7) for intra-group transfers outside Colombia |
 | Chile | Law 19,628 (until 2026-11-30); Law 21,719 (from 2026-12-01) adopts GDPR-style transfer mechanisms |
 | Peru | Consent; contractual safeguards; ANPD registration requirements |
 
