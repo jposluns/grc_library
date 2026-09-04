@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.150\
+**Version:** 1.27.151\
 **Date:** 2026-09-04\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -153,10 +153,11 @@ Documents are classified by their **primary** disposition. The small number that
 | Privacy | Register | Cookie and Tracker Register | [`privacy/register-cookie-and-tracker.md`](../privacy/register-cookie-and-tracker.md) | Data Protection Officer | Quarterly | ePrivacy Directive Art 5(3), UK PECR, GDPR, LGPD, PIPL, CCPA/CPRA | template |
 | Privacy | Standard | Pseudonymization and Anonymization Standard | [`privacy/standard-pseudonymization-and-anonymization.md`](../privacy/standard-pseudonymization-and-anonymization.md) | Data Protection Officer | Annual | GDPR Art 4(5)/25/Recital 26, ISO/IEC 20889, ISO/IEC 27559, NIST SP 800-188, EDPB Opinion 05/2014 | template |
 | Privacy | Standard | Presence Inference Limitations Standard | [`privacy/standard-presence-inference-limitations.md`](../privacy/standard-presence-inference-limitations.md) | Data Protection Officer | Annual | ISO/IEC 27001 Annex A.8.16/A.5.34, NIST CSF GV.OC, CSA CCM DSP-12/DSP-08, GDPR Art 5/22/88 | template |
-| Privacy | Standard | Network Telemetry and DPI Controls Standard | [`privacy/standard-network-telemetry-and-dpi-controls.md`](../privacy/standard-network-telemetry-and-dpi-controls.md) | Data Protection Officer | Annual | ISO/IEC 27001 Annex A.8.16/A.8.20/A.8.12, NIST CSF PR.DS, CSA CCM DSP-05/DSP-08, GDPR Art 5/9/25 | template |
+| Privacy | Standard | Network Telemetry and DPI Controls Standard | [`privacy/standard-network-telemetry-and-dpi-controls.md`](../privacy/standard-network-telemetry-and-dpi-controls.md) | Data Protection Officer | Annual | ISO/IEC 27001 Annex A.5.34, NIST CSF GV.OC/GV.PO, CSA CCM DSP-08/DSP-12, GDPR Art 5/6/9/25 | template |
 | Privacy | Framework | Children's Data Framework | [`privacy/framework-childrens-data.md`](../privacy/framework-childrens-data.md) | Data Protection Officer | Annual | GDPR Art 8, UK ICO AADC, COPPA, California AB 1394, LGPD Art 14, PIPL Art 31, EU AI Act Art 5(1)(b), UNCRC GC25 | template |
 | Privacy | Framework | Privacy by Design Framework | [`privacy/framework-privacy-by-design.md`](../privacy/framework-privacy-by-design.md) | Data Protection Officer | Annual | GDPR Art 25/Recital 78/Art 42, UK GDPR Art 25, Privacy by Design (Cavoukian), ISO/IEC 27701:2025, ISO/IEC 29134:2023 | template |
 | Privacy | Annex | Privacy Jurisdiction Index | [`privacy/annex-privacy-jurisdiction-index.md`](../privacy/annex-privacy-jurisdiction-index.md) | Data Protection Officer | Annual | GDPR, EU AI Act, UK GDPR, CCPA/CPRA, LGPD, PIPL, PDPA, POPIA, UAE PDPL, DPDPA, APEC CBPR 2.0 | template |
+| Privacy | Annex | Legitimate Interest Assessment for Employment Monitoring Annex | [`privacy/annex-legitimate-interest-employment-monitoring.md`](../privacy/annex-legitimate-interest-employment-monitoring.md) | Data Protection Officer | Annual | ISO/IEC 27001 Annex A.5.34, NIST CSF GV.OC/GV.PO, CSA CCM DSP-08/DSP-12, GDPR Art 5/6/9/21/88 | template |
 | Privacy | Annex | EU Privacy Requirements | [`privacy/jurisdictions/annex-privacy-european-union.md`](../privacy/jurisdictions/annex-privacy-european-union.md) | Data Protection Officer | Annual | GDPR, EU AI Act | template |
 | Privacy | Annex | UK Privacy Requirements | [`privacy/jurisdictions/annex-privacy-united-kingdom.md`](../privacy/jurisdictions/annex-privacy-united-kingdom.md) | Data Protection Officer | Annual | UK GDPR, DPA 2018 | template |
 | Privacy | Annex | Switzerland Privacy Requirements | [`privacy/jurisdictions/annex-privacy-switzerland.md`](../privacy/jurisdictions/annex-privacy-switzerland.md) | Data Protection Officer | Annual | nFADP/revDSG | template |
