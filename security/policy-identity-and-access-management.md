@@ -2,8 +2,8 @@
 
 **Document Title:** Identity and Access Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.23\
-**Date:** 2026-09-01\
+**Version:** 1.3.24\
+**Date:** 2026-09-04\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -117,7 +117,7 @@ To ensure that all users, human, service, and machine, are uniquely identified, 
 | --- | --- | --- | --- | --- | --- |
 | Identity Management | A.5.15 to A.5.18 | §5.16 to 5.17 | SP 800-63 | DSS05 | IAM-01 to 09 |
 | Authentication | A.8.5 | §8.5 | SP 800-63B | DSS05.04 | IAM-13 |
-| Privileged Access | A.8.2 | §8.2 | SP 800-53 AC-2, AC-6 | DSS05.04 | IAM-02, IAM-04 |
+| Privileged Access | A.8.2 | §8.2 | SP 800-53 AC-2, AC-6 | DSS05.04 | IAM-10, IAM-04 |
 | Access Review | A.5.18 | §5.18 | SP 800-53 AC-2 | DSS05.04 | IAM-08 |
 | AI/Automation Access | A.8 (emerging) | N/A | AI RMF | DSS05.04 | IAM-14 |
 

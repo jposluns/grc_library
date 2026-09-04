@@ -2,8 +2,8 @@
 
 **Document Title:** Personnel Security Screening Standard\
 **Document Type:** Standard\
-**Version:** 1.0.8\
-**Date:** 2026-09-02\
+**Version:** 1.0.9\
+**Date:** 2026-09-04\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md)\
@@ -106,7 +106,7 @@ Screening records, adverse finding decisions, and conditional access approvals a
 | --- | --- | --- | --- | --- |
 | Pre-employment screening | A.6.1 | PS-3 | HRS-01 | CTPAT Personnel Security; Canada PIP: Personnel and Staffing; BASC International Security Standard 6.0.2/6.0.3 §3.1.1 |
 | Contractor screening | A.6.1 | PS-7 | HRS-01 | CTPAT Personnel Security |
-| Role-based access consideration | A.5.15 | AC-2 | IAM-02 | N/A |
+| Role-based access consideration | A.5.15 | AC-2 | IAM-06 | N/A |
 | Records and accountability | A.5.33 | PS-3(1) | HRS-09 | N/A |
 
 ---

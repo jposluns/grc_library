@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.153\
+**Version:** 1.27.154\
 **Date:** 2026-09-04\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -112,7 +112,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Security | Standard | Data Classification and Handling Standard | [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.5.12 to 13, NIST SP 800-60, BASC data classification | template |
 | Security | Standard | Security Awareness and Training Standard | [`security/standard-security-awareness-and-training.md`](../security/standard-security-awareness-and-training.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.6.3, NIST SP 800-50, CSA CCM HRS-07 | template |
 | Security | Standard | Privileged Access Management Standard | [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.5.18, NIST SP 800-53 AC-6, CSA CCM IAM-05 | template |
-| Security | Standard | Authentication and Password Management Standard | [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.8.5, NIST SP 800-63B, FIDO2, CSA CCM IAM-09 | template |
+| Security | Standard | Authentication and Password Management Standard | [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.8.5, NIST SP 800-63B, FIDO2, CSA CCM IAM-13, IAM-14 | template |
 | Security | Standard | Data Loss Prevention Standard | [`security/standard-data-loss-prevention.md`](../security/standard-data-loss-prevention.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.8.11 to 12, NIST SP 800-53 SI-12, CSA CCM DSP-09 | template |
 | Security | Procedure | Security Incident Response Procedure | [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.5.24 to 26, NIST SP 800-61, GDPR Art 33 to 34, BASC | template |
 | Security | Procedure | Vulnerability Management Procedure | [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.8.8, NIST SP 800-40, CVSS v4.0 | template |
