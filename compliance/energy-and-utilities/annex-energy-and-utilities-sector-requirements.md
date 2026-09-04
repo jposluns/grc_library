@@ -2,11 +2,11 @@
 
 **Document Title:** Energy and Utilities Sector Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.7\
-**Date:** 2026-07-10\
+**Version:** 0.0.8\
+**Date:** 2026-09-04\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/annex-nis-2-implementation.md`](../annex-nis-2-implementation.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`operations/standard-network-security-and-segmentation.md`](../../operations/standard-network-security-and-segmentation.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md)\
+**Related Documents:** [`compliance/README.md`](../README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/annex-nis-2-implementation.md`](../annex-nis-2-implementation.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`operations/standard-network-security-and-segmentation.md`](../../operations/standard-network-security-and-segmentation.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md)\
 **Classification:** Public\
 **Category:** Compliance: Sector-Specific\
 **Review Frequency:** Annual and upon material sector-regulator, IEC 62443, or critical-infrastructure-protection-standard change\
