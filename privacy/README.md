@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Domain README\
 **Document Type:** Register\
-**Version:** 1.2.13\
+**Version:** 1.2.14\
 **Date:** 2026-09-04\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -52,6 +52,7 @@ This directory contains privacy governance artefacts covering data protection po
 | Template | Breach Notification Regulator Register Template | [`privacy/template-breach-notification-regulator-register.md`](template-breach-notification-regulator-register.md) |
 | Template | Joint Controller Arrangement Template | [`privacy/template-joint-controller-arrangement.md`](template-joint-controller-arrangement.md) |
 | Template | Data Processing Agreement Template (GDPR Article 28) | [`privacy/template-dpa-article-28.md`](template-dpa-article-28.md) |
+| Template | Employee Monitoring Notice Template | [`privacy/template-employee-monitoring-notice.md`](template-employee-monitoring-notice.md) |
 
 ### Superseded documents (retained for redirect)
 

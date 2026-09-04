@@ -525,6 +525,7 @@ The Data Protection Officer needs the privacy programme charter, policy, procedu
 - [DPIA (Data Protection Impact Assessment) Template](../privacy/template-dpia.md) (maturity: Baseline)
 - [Data Processing Agreement Template (GDPR Article 28)](../privacy/template-dpa-article-28.md) (maturity: Baseline)
 - [Data Subject Access Request Workflow Template](../privacy/template-dsar-workflow.md) (maturity: Mature)
+- [Employee Monitoring Notice Template](../privacy/template-employee-monitoring-notice.md) (maturity: Draft)
 - [Joint Controller Arrangement Template](../privacy/template-joint-controller-arrangement.md) (maturity: Baseline)
 - [Legitimate Interest Assessment (LIA) Template](../privacy/template-legitimate-interest-assessment.md) (maturity: Baseline)
 - [Privacy Notice Template](../privacy/template-privacy-notice.md) (maturity: Baseline)
