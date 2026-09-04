@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Impact and Cross-Border Transfer Procedure\
 **Document Type:** Procedure\
-**Version:** 1.6.4\
-**Date:** 2026-09-03\
+**Version:** 1.6.5\
+**Date:** 2026-09-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-dpia.md`](template-dpia.md), [`privacy/template-transfer-impact-assessment.md`](template-transfer-impact-assessment.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
@@ -144,7 +144,7 @@ Article 39 consent is **separate** from any general processing consent under Art
 
 CIIO designation is made by the relevant industry regulator under the Cybersecurity Law of China; the controller does NOT self-designate. The 2024 Provisions do not exempt CIIOs from Article 40's domestic-storage default.
 
-**Step E: PIA for the transfer.** Regardless of mechanism, conduct a personal-information impact assessment (PIPL Article 55) before the transfer. The PIA documents the lawful basis, the purposes, the categories, the volumes, the recipient's protection measures, and the risk to the data subject. The PIA is part of the Standard Contract filing under Step B and is retained for at least 3 years.
+**Step E: PIA for the transfer.** Regardless of mechanism, conduct a personal-information impact assessment (PIPL Article 55) before the transfer. The PIA documents the lawful basis, the purposes, the categories, the volumes, the recipient's protection measures, and the risk to the data subject. The PIA is part of the Standard Contract filing under Step B and is retained for at least 3 years (PIPL Article 56).
 
 **Step F: Documentation and re-assessment.**
 

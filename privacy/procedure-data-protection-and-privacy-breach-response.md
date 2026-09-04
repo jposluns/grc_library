@@ -2,8 +2,8 @@
 
 **Document Title:** Data Protection and Privacy Breach Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.33\
-**Date:** 2026-08-31\
+**Version:** 1.4.34\
+**Date:** 2026-09-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md)\
@@ -346,7 +346,7 @@ The following metrics are tracked and reported to the CIO and CISO at the quarte
 | --- | --- |
 | Privacy breach response programme | ISO/IEC 27701:2025 (privacy incident management); CSA CCM v4.1 SEF-08 |
 | Regulatory breach notification: EU/UK | GDPR Arts. 33 to 34; UK GDPR Arts. 33 to 34; EDPB Guidelines 9/2022 on personal data breach notification |
-| Regulatory breach notification: Canada | PIPEDA Breach of Security Safeguards Regulations; Quebec Law 25 (successor Bill C-36/PPCDA proposed, not in force) |
+| Regulatory breach notification: Canada | PIPEDA Breach of Security Safeguards Regulations (successor Bill C-36/PPCDA proposed, not in force); Quebec Law 25 |
 | Regulatory breach notification: China | PIPL Art. 57 |
 | Regulatory breach notification: India | DPDPA 2023; Digital Personal Data Protection Rules 2025; DPBI |
 | Regulatory breach notification: Brazil | LGPD Arts. 48 to 49 |
