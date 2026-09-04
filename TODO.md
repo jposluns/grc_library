@@ -95,7 +95,6 @@ Fill significant gaps: deepen thin-but-present content to operational sufficienc
 | 2.34.7 | [req-P0] EDIT `governance/register-data-retention-schedule.md` + `governance/standard-records-retention-and-destruction.md`: add data classes for network telemetry, DPI/app-usage, presence records, device-to-person mappings, audit logs; note audit-log-as-personal-data | `[content]` `[public]` |
 | 2.34.8 | [req-P0] EDIT `privacy/jurisdictions/annex-privacy-{canada,european-union,united-kingdom,mexico,latin-america,united-states}.md`: add "Employment / workforce monitoring" section each; Canada adequacy commercial-scope caveat (not employee data under federal PIPEDA) + Quebec Law 25 pre-transfer/PIA; EU GDPR Art.35(4) mandatory-DPIA hint | `[content]` `[public]` |
 | 2.34.9 | Citations import for 2.34: Art.29 WP WP249 (data processing at work), ICO "Monitoring workers"/employment-practices, ILO + Council of Europe workplace-monitoring recommendations, NIST Privacy Framework (ref-holds + upstream currency before citing) | `[content]` `[public]` |
-| 3.184 | Corpus ISO citation currency updates enabled by the 2026-07-28 `_ref` ingest (2026-07-28 ingest follow-up, M, S) | `[public]` |
 | 3.14 | ETSI Securing-AI alignment map (L, M) (was 3.16) | `[public]` |
 
 ## Priority 3 — Clean up and tooling
