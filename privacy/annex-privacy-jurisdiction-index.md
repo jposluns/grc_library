@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Jurisdiction Index\
 **Document Type:** Annex\
-**Version:** 1.0.31\
+**Version:** 1.0.32\
 **Date:** 2026-09-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -22,7 +22,7 @@
 
 ## Purpose
 
-This index provides navigation to jurisdiction-specific privacy and AI regulatory requirement annexes and a cross-jurisdiction compliance mapping summary. Each jurisdiction file covers applicable laws, AI and privacy obligations, cross-border transfer mechanisms, and enforcement authorities and fines.
+This index provides navigation to jurisdiction-specific privacy and AI regulatory requirement annexes and a cross-jurisdiction compliance mapping summary. Each jurisdiction file covers applicable laws, privacy obligations (and AI obligations where the jurisdiction addresses them), cross-border transfer mechanisms, and enforcement authorities and fines.
 
 Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting organizations should retain only the jurisdiction files relevant to their geographic footprint, regulatory obligations, and data subject locations.
 
@@ -107,6 +107,9 @@ Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting 
 | United States | FTC Act, CCPA/CPRA, state laws, BIPA (single-recovery post SB 2979) | NIST AI RMF; ADMT pre-use notice, opt-out, and access (final CCPA Regs 11 CCR ss. 7220-7222, eff 2026-01-01, compliance 2027-01-01), plus Article 10 risk assessments for s. 7150(b)(3) significant-decision ADMT and (b)(6) processing of consumer personal information to train significant-decision ADMT or covered recognition/profiling technology (ss. 7150-7157, assessed before processing begins); Colorado AI Act (SB 24-205 repealed and re-enacted as SB 26-189, ADMT consequential-decision duties on/after 2027-01-01; litigation pending) | DPF (EU/UK); contractual (CCPA) | USD 7,500 per intentional or minor-involved violation, USD 2,500 otherwise (CCPA; the section 1798.155 CPPA administrative fine keys the minor tier to actual knowledge a consumer is under 16, the Attorney General civil penalty to any violation involving a minor's personal information; both adjusted under section 1798.199.95(d)); USD 5,000/violation (BIPA class action) |
 | Brazil | LGPD | Automated decision review (Art. 20); ANPD DPIA guidance | ANPD SCCs (Resolution 19/2024); EU/EEA adequacy (Resolution 32/2026) | BRL 50M per violation / 2% Brazil revenue |
 | Mexico | LFPDPPP (2025) | Privacy-notice transparency for automated processing; ARCO rights | Privacy-notice disclosure + consent (Arts. 35 and 36) | 320,000 UMA (up to 2x for sensitive data) |
+| Chile | Ley 19.628 (transition to Ley 21.719 on 2026-12-01) | No ADM-specific regime under Ley 19.628; Ley 21.719 introduces one | No general cross-border regime under Ley 19.628 (Art 5 only) | UTM fines 1-50 via civil courts; no DPA under Ley 19.628 (Agencia under Ley 21.719) |
+| Peru | Ley 29733; DS 016-2024-JUS (2024) | Automated-decision rights; facultative DPIA (DS Art 40) | Adequacy-plus-safeguards; DGTAIPD model clauses (DS Arts 18-20) | Fines up to 100 UIT for very serious (serious to 50 UIT); capped at 10% prior-year gross income |
+| Colombia | Ley 1581 de 2012; Decreto 1074 de 2015 | ARCO-style rights; no ADM-specific regime | Adequacy determination + Normas Corporativas Vinculantes (BCR) | Fines up to 2,000 SMLMV (SIC) |
 | Latin America | Various (see jurisdiction file) | Varies by jurisdiction | Varies by jurisdiction | Varies by jurisdiction |
 | Singapore | PDPA | PDPC AI Model Governance Framework; mandatory breach notification | PDPC contractual clauses, CBPR 2.0 | SGD 1M, or 10% of SG turnover if it exceeds SGD 10M (s.48J) |
 | Australia | Privacy Act 1988 | AI Ethics Framework (voluntary); APP principles; Privacy Act 2024 reforms | APP 8 contractual safeguards | AUD 50M or 30% adjusted turnover |

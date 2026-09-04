@@ -2,7 +2,7 @@
 
 **Document Title:** Latin America Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.10\
+**Version:** 1.0.11\
 **Date:** 2026-09-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -26,7 +26,7 @@ This annex provides an overview of privacy regulatory requirements in key Latin 
 
 ### Argentina
 
-- **Personal Data Protection Act (Law No. 25,326/2000).** Argentina holds an EU adequacy decision. An updated privacy law aligned with GDPR standards is under legislative consideration.
+- **Personal Data Protection Act (Law No. 25.326/2000).** Argentina holds an EU adequacy decision. An updated privacy law aligned with GDPR standards is under legislative consideration.
 - **Regulatory authority:** Agencia de Acceso a la Información Pública (AAIP).
 
 ### Mexico
@@ -41,8 +41,8 @@ This annex provides an overview of privacy regulatory requirements in key Latin 
 
 ### Chile
 
-- **Law No. 19,628 on the Protection of Private Life (1999)**, in force during the transition until 2026-11-30. **Law No. 21,719 (published 2024-12-13, in force 2026-12-01)** modernizes the framework to align with GDPR and establishes the Agencia de Protección de Datos Personales as the supervisory authority. See the dedicated [`Chile privacy annex`](annex-privacy-chile.md) for the operational per-regime view under Ley 19.628; this Latin America overview defers to it for Chile.
-- **Regulatory authority:** Consejo para la Transparencia (public-sector oversight under Law 19,628); the Agencia de Protección de Datos Personales is established by Law 21,719, operative from 2026-12-01.
+- **Law No. 19.628 on the Protection of Private Life (1999)**, in force during the transition until 2026-11-30. **Law No. 21.719 (published 2024-12-13, in force 2026-12-01)** modernizes the framework to align with GDPR and establishes the Agencia de Protección de Datos Personales as the supervisory authority. See the dedicated [`Chile privacy annex`](annex-privacy-chile.md) for the operational per-regime view under Ley 19.628; this Latin America overview defers to it for Chile.
+- **Regulatory authority:** Consejo para la Transparencia (public-sector oversight under Law 19.628); the Agencia de Protección de Datos Personales is established by Law 21.719, operative from 2026-12-01.
 
 ### Peru
 
@@ -55,10 +55,10 @@ This annex provides an overview of privacy regulatory requirements in key Latin 
 
 Most Latin American jurisdictions apply general data protection principles to AI processing of personal data. Key considerations:
 
-- **Argentina:** The AAIP has issued guidance on AI and data protection, applying Law 25,326 to automated processing; that guidance is cited illustratively and is confirmed by adopters against current AAIP publications. Algorithmic transparency is an area of active regulatory development.
+- **Argentina:** The AAIP has issued guidance on AI and data protection, applying Law 25.326 to automated processing; that guidance is cited illustratively and is confirmed by adopters against current AAIP publications. Algorithmic transparency is an area of active regulatory development.
 - **Mexico:** Under the 2025 LFPDPPP, the Secretaría Anticorrupción y Buen Gobierno applies the law's principles to automated processing, requiring transparency about automated processing in privacy notices. The LFPDPPP provides rights to access, rectification, cancellation, and objection (ARCO rights). See the dedicated [`Mexico privacy annex`](annex-privacy-mexico.md).
 - **Colombia:** The SIC applies Law 1581 to AI systems. Data subjects may exercise ARCO rights against automated processing.
-- **Chile and Peru:** Both apply their data protection laws to AI processing. Chile has enacted Law 21,719 (in force 2026-12-01), which introduces explicit automated decision-making provisions; Peru applies its Law 29733.
+- **Chile and Peru:** Both apply their data protection laws to AI processing. Chile has enacted Law 21.719 (in force 2026-12-01), which introduces explicit automated decision-making provisions; Peru applies its Law 29733.
 - **BASC regional context:** In jurisdictions where BASC certification is relevant, privacy controls should be aligned with BASC security management standards in addition to applicable local data protection laws.
 
 ---
@@ -67,7 +67,7 @@ Most Latin American jurisdictions apply general data protection principles to AI
 
 Where the organization monitors the network and device activity of workers in the Latin American jurisdictions this annex covers (Argentina, Mexico, Colombia, Chile, and Peru), the processing of their personal data is governed by each jurisdiction's general data protection law and, operationally, by the Workforce Network Monitoring Policy ([`security/policy-workforce-network-monitoring.md`](../../security/policy-workforce-network-monitoring.md)) and its supporting suite. None of these laws carries a dedicated employee-monitoring regime; monitoring is subject to the general principles, and the position varies by country, so adopters verify per jurisdiction.
 
-- **The region varies; verify per country.** Each jurisdiction applies its own lawful-basis, notice, and data-subject-rights framework to workforce monitoring, and several are in transition. Argentina applies Law 25,326 (its AAIP guidance on automated processing is cited illustratively and is confirmed by adopters against current AAIP publications); Colombia applies Statutory Law 1581/2012 with ARCO-style rights enforced by the SIC; Chile's modernized Law 21,719 (in force 1 December 2026) introduces GDPR-style automated-decision and lawful-basis provisions that will apply to monitoring once operative, while Law 19,628 governs in the interim; Peru applies Law 29,733. Mexico's private-sector position is worked in the dedicated [`Mexico privacy annex`](annex-privacy-mexico.md), which this overview defers to.
+- **The region varies; verify per country.** Each jurisdiction applies its own lawful-basis, notice, and data-subject-rights framework to workforce monitoring, and several are in transition. Argentina applies Law 25.326 (its AAIP guidance on automated processing is cited illustratively and is confirmed by adopters against current AAIP publications); Colombia applies Statutory Law 1581/2012 with ARCO-style rights enforced by the SIC; Chile's modernized Law 21.719 (in force 1 December 2026) introduces GDPR-style automated-decision and lawful-basis provisions that will apply to monitoring once operative, while Law 19.628 governs in the interim; Peru applies Law 29733. Mexico's private-sector position is worked in the dedicated [`Mexico privacy annex`](annex-privacy-mexico.md), which this overview defers to.
 - **Brazil's legitimate-interest position (cross-reference).** For workers in Brazil, the LGPD supplies ten lawful bases (Article 7), including legitimate interest, and a controller relying on legitimate interest for monitoring conducts a balancing test and may be required by the ANPD to provide a data protection impact assessment (Articles 10 and 38). The Brazil-specific analysis is in the [`Brazil privacy annex`](annex-privacy-brazil.md); this annex does not restate it.
 - **Purpose stated separately from basis; consent treated cautiously in employment.** Across the region, a legitimate security aim states the purpose the monitoring serves but does not by itself supply the lawful footing, and the corpus treats employment consent as presumptively not freely given; the necessity, proportionality, and balancing analysis is worked in the [Legitimate Interest Assessment for Employment Monitoring Annex](../annex-legitimate-interest-employment-monitoring.md), adapted to each jurisdiction's basis.
 - **Notice, consultation, telemetry, and presence.** Advance notice of the nature, purpose, and scope of monitoring is provided using the [Employee Monitoring Notice Template](../template-employee-monitoring-notice.md); where a representative-body or collective duty applies, it is determined through the [Works Council and Employee Representative Consultation Procedure](../procedure-works-council-and-employee-representative-consultation.md); connection metadata is governed by the [Network Telemetry and DPI Controls Standard](../standard-network-telemetry-and-dpi-controls.md) and presence signals by the [Presence Inference Limitations Standard](../standard-presence-inference-limitations.md). Monitoring signals do not drive automated employment decisions.
@@ -81,7 +81,7 @@ Where the organization monitors the network and device activity of workers in th
 | Argentina | Adequacy (EU); contractual obligations; AAIP authorization |
 | Mexico | LFPDPPP (2025) transfer provisions (Articles 35 and 36); privacy-notice disclosure and consent |
 | Colombia | Express, unequivocal consent; the Article 26 statutory exceptions; SIC declaration of conformity; Binding Corporate Rules (Normas Corporativas Vinculantes, Decreto 1074/2015 art. 2.2.2.25.7) for intra-group transfers outside Colombia |
-| Chile | Law 19,628 (until 2026-11-30); Law 21,719 (from 2026-12-01) adopts GDPR-style transfer mechanisms |
+| Chile | Law 19.628 (until 2026-11-30); Law 21.719 (from 2026-12-01) adopts GDPR-style transfer mechanisms |
 | Peru | Consent; contractual safeguards; ANPD registration requirements |
 
 ---
@@ -90,11 +90,11 @@ Where the organization monitors the network and device activity of workers in th
 
 | Jurisdiction | Regulator | Penalty Regime |
 |---|---|---|
-| Argentina | AAIP | Fines under Law 25,326; updated enforcement under anticipated new law |
+| Argentina | AAIP | Fines under Law 25.326; updated enforcement under anticipated new law |
 | Mexico | Secretaría Anticorrupción y Buen Gobierno | Fines up to 320,000 UMA, up to twofold for sensitive-data infringements |
 | Colombia | SIC | Fines up to 2,000 monthly minimum legal wages (approx. USD 600,000) |
-| Chile | Ministry of Justice / courts (Law 19,628); Agencia de Protección de Datos Personales (Law 21,719, from 2026-12-01) | Compensation under Law 19,628; administrative fines under Law 21,719 |
-| Peru | ANPD Peru | Fines up to 100 UIT (approx. USD 130,000) for serious violations |
+| Chile | Ministry of Justice / courts (Law 19.628); Agencia de Protección de Datos Personales (Law 21.719, from 2026-12-01) | Compensation under Law 19.628; administrative fines under Law 21.719 |
+| Peru | DGTAIPD (MINJUS) | Fines up to 100 UIT for very serious violations (serious to 50 UIT); UIT is set annually, so convert to the current sol value |
 
 ---
 

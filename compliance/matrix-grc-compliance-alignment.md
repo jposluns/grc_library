@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.50\
+**Version:** 1.11.51\
 **Date:** 2026-09-04\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -300,6 +300,9 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Privacy | Data Processing Agreement Template (GDPR Article 28) | [`privacy/template-dpa-article-28.md`](../privacy/template-dpa-article-28.md) | DSP-13, DSP-14, DSP-02, DSP-01 | N/A | A.5.34, A.5.20, A.5.19 | GV.SC, PR.DS, GV.OC | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Australia Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-australia.md`](../privacy/jurisdictions/annex-privacy-australia.md) | DSP-01, DSP-10, DSP-17 | N/A | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Brazil Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-brazil.md`](../privacy/jurisdictions/annex-privacy-brazil.md) | DSP-01, DSP-10, DSP-17 | N/A | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Chile Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-chile.md`](../privacy/jurisdictions/annex-privacy-chile.md) | DSP-01, DSP-10, DSP-17 | N/A | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Peru Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-peru.md`](../privacy/jurisdictions/annex-privacy-peru.md) | DSP-01, DSP-10, DSP-17 | N/A | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Colombia Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-colombia.md`](../privacy/jurisdictions/annex-privacy-colombia.md) | DSP-01, DSP-10, DSP-17 | N/A | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Canada Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-canada.md`](../privacy/jurisdictions/annex-privacy-canada.md) | DSP-01, DSP-10, DSP-17 | N/A | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
 | Privacy | China Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-china.md`](../privacy/jurisdictions/annex-privacy-china.md) | DSP-01, DSP-10, DSP-17 | N/A | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
 | Privacy | European Union Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-european-union.md`](../privacy/jurisdictions/annex-privacy-european-union.md) | DSP-01, DSP-10, DSP-17 | N/A | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |

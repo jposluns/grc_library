@@ -2,7 +2,7 @@
 
 **Document Title:** Peru Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.1\
+**Version:** 0.0.2\
 **Date:** 2026-09-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -70,7 +70,7 @@ Fine amounts are expressed in UIT because the UIT is set annually; an adopter co
 
 ## Employment and workforce monitoring
 
-Where the organization monitors the network and device activity of workers in Peru, the processing is governed by Ley 29733 and DS 016-2024-JUS and, operationally, by the Workforce Network Monitoring Policy and its supporting suite. The framework has no employment-specific regime; workforce monitoring is subject to the general rules.
+Where the organization monitors the network and device activity of workers in Peru, the processing is governed by Ley 29733 and DS 016-2024-JUS and, operationally, by the Workforce Network Monitoring Policy ([`security/policy-workforce-network-monitoring.md`](../../security/policy-workforce-network-monitoring.md)) and its supporting suite. The framework has no employment-specific regime; workforce monitoring is subject to the general rules.
 
 - **Private-communications limit**: private communications, telecommunications, and IT systems may be opened, seized, intercepted, or accessed only by a motivated judicial order or with the holder's authorization, and data obtained in violation have no legal effect [Ley Art 13.4]. This governs interception-type monitoring directly.
 - **Lawful footing**: consent is the primary basis [Ley Arts 5, 13.5], but the regulation treats consent conditioned on a service or benefit as not free where the data are not indispensable [DS Art 3.2], so where employment consent is not a sound footing the operative basis is a statutory authorization or an applicable Article 14 exception, not "general principles" and not a controller legitimate-interest basis (Article 14.9 concerns the data subject's legitimate interest). The Legitimate Interest Assessment for Employment Monitoring Annex is used only as an analytic aid, adapted to Ley 29733's consent-and-authorization scheme rather than to GDPR Article 6(1)(f).
