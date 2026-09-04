@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.157\
+**Version:** 1.27.158\
 **Date:** 2026-09-04\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -374,6 +374,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Compliance | Annex | FedRAMP Sector Requirements Annex | [`compliance/public-sector/annex-fedramp-requirements.md`](../compliance/public-sector/annex-fedramp-requirements.md) | Chief Compliance Officer | Annual | FedRAMP Baselines, NIST SP 800-53 Rev. 5, NIST SP 800-37 Rev. 2, NIST SP 800-171, OMB M-22-09, FIPS 140-3 | template |
 | Compliance | Annex | eIDAS Sector Requirements Annex | [`compliance/public-sector/annex-eidas-requirements.md`](../compliance/public-sector/annex-eidas-requirements.md) | Chief Compliance Officer | Annual | eIDAS Regulation 910/2014 as amended by 2024/1183, NIS2 Directive 2022/2555 Art 31, GDPR Art 17, EU Cybersecurity Act 2019/881 | template |
 | Compliance | Annex | DORA Implementation Annex | [`compliance/financial-services/annex-dora-implementation.md`](../compliance/financial-services/annex-dora-implementation.md) | Chief Compliance Officer | Annual | DORA (EU) 2022/2554, DORA RTS/ITS, TIBER-EU, EBA/EIOPA Guidelines, ISO/IEC 27001 | template |
+| Compliance | Annex | MiCA Implementation Annex | [`compliance/financial-services/annex-mica-implementation.md`](../compliance/financial-services/annex-mica-implementation.md) | Chief Compliance Officer | Annual | MiCA (EU) 2023/1114, MiCA RTS/ITS, EBA/ESMA Guidelines, ISO/IEC 27001 | template |
 | Compliance | Annex | NIS 2 Implementation Annex | [`compliance/annex-nis-2-implementation.md`](../compliance/annex-nis-2-implementation.md) | Chief Compliance Officer | Annual | NIS 2 (EU) 2022/2555, ENISA guidelines, EU Cyber Resilience Act, EU Cybersecurity Act, ISO/IEC 27001, NIST CSF 2.0 | template |
 | Compliance | Annex | Public Sector GRC Requirements Annex | [`compliance/public-sector/annex-public-sector-requirements.md`](../compliance/public-sector/annex-public-sector-requirements.md) | Chief Compliance Officer | Annual | WCAG 2.2 AA, EN 301 549, ISO 15489, ISO 19011, OECD Public Service Leadership, ISO/IEC 42001 | template |
 | Compliance | Annex | Canada Public Sector GRC Requirements Annex | [`compliance/public-sector/annex-canada-public-sector-requirements.md`](../compliance/public-sector/annex-canada-public-sector-requirements.md) | Chief Compliance Officer | Annual | TBS Directive on Automated Decision-Making, Privacy Act, Access to Information Act, OSFI B-13 and E-23, CCCS ITSG-33 and ITSP.50.103, provincial and territorial access and health-privacy statutes | template |

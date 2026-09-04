@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.49\
+**Version:** 1.11.50\
 **Date:** 2026-09-04\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -119,6 +119,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Compliance | Template: Regulator Interaction | [`compliance/template-regulator-interaction.md`](template-regulator-interaction.md) | GRC-06, SEF-08 | N/A | A.5.5, A.5.24 | RS.CO, GV.OC | N/A | N/A | N/A | N/A | N/A |
 | Compliance | Annex: NIS 2 Implementation | [`compliance/annex-nis-2-implementation.md`](annex-nis-2-implementation.md) | GRC-06, STA-01, SEF-01 | N/A | §6.1, A.5.19, A.5.24 | GV.OC, ID.RA, GV.SC | N/A | N/A | N/A | N/A | N/A |
 | Compliance | Annex: DORA Implementation | [`compliance/financial-services/annex-dora-implementation.md`](financial-services/annex-dora-implementation.md) | GRC-02, STA-01, BCR-02, SEF-03 | N/A | §5.1, A.5.19, A.5.20, A.5.24, A.5.30 | GV.RM, GV.SC, ID.RA, RS.MA, RC.RP | N/A | N/A | N/A | N/A | N/A |
+| Compliance | Annex: MiCA Implementation | [`compliance/financial-services/annex-mica-implementation.md`](financial-services/annex-mica-implementation.md) | GRC-07, GRC-02 | N/A | §5.1, A.5.31, A.5.36 | GV.OC, GV.RM, GV.SC | N/A | N/A | N/A | N/A | N/A |
 | Compliance | Annex: Financial Services Sector GRC Requirements | [`compliance/financial-services/annex-financial-services-sector-requirements.md`](financial-services/annex-financial-services-sector-requirements.md) | GRC-01, GRC-07, STA-01, SEF-03, BCR-02 | N/A | §4.1, §4.2, §6.1, A.5.19, A.5.24 | GV.OC, GV.RM, GV.SC, ID.RA, RS.MA | N/A | N/A | N/A | N/A | N/A |
 | Compliance | Annex: SOX IT General Controls | [`compliance/financial-services/annex-sox-itgc.md`](financial-services/annex-sox-itgc.md) | IAM-06, IAM-08, CCC-01, BCR-08, A&A-05 | N/A | A.5.15, A.5.18, A.8.32, A.8.13, §9.2 | PR.AA, PR.PS, ID.AM, ID.IM | N/A | N/A | N/A | N/A | N/A |
 | Compliance | Annex: Energy and Utilities Sector Requirements | [`compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md`](energy-and-utilities/annex-energy-and-utilities-sector-requirements.md) | GRC-07, I&S-06, STA-01, SEF-03, DCS-01 | N/A | §4.1, A.5.19, A.8.20, A.5.24, A.7.1 | GV.OC, ID.AM, PR.IR, GV.SC, RS.MA | N/A | N/A | N/A | N/A | N/A |

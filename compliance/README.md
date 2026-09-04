@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance Domain README\
 **Document Type:** Register\
-**Version:** 1.4.10\
-**Date:** 2026-08-23\
+**Version:** 1.4.11\
+**Date:** 2026-09-04\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/logistics/README.md`](logistics/README.md), [`compliance/financial-services/README.md`](financial-services/README.md), [`compliance/healthcare/README.md`](healthcare/README.md), [`compliance/energy-and-utilities/README.md`](energy-and-utilities/README.md), [`compliance/telecommunications/README.md`](telecommunications/README.md), [`compliance/public-sector/README.md`](public-sector/README.md)\
@@ -89,6 +89,7 @@ Each sub-directory has its own README listing the artefacts within and the regul
 | --- | --- | --- |
 | Annex | Financial Services Sector GRC Requirements Annex | [`compliance/financial-services/annex-financial-services-sector-requirements.md`](financial-services/annex-financial-services-sector-requirements.md) |
 | Annex | DORA Implementation Annex | [`compliance/financial-services/annex-dora-implementation.md`](financial-services/annex-dora-implementation.md) |
+| Annex | MiCA Implementation Annex | [`compliance/financial-services/annex-mica-implementation.md`](financial-services/annex-mica-implementation.md) |
 | Annex | SOX IT General Controls Annex | [`compliance/financial-services/annex-sox-itgc.md`](financial-services/annex-sox-itgc.md) |
 
 ### Healthcare sub-directory artefacts

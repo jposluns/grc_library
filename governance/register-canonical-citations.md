@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.68\
+**Version:** 1.5.69\
 **Date:** 2026-09-04\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -131,6 +131,8 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | EU NIS 2 Directive | Directive 2022/2555 | 2022-12 | Cybersecurity of network and information systems | NIS Directive 2016/1148 | https://eur-lex.europa.eu/eli/dir/2022/2555/oj | 2026-06-30 |
 | EU NIS 2 Implementing Regulation | Commission Implementing Regulation (EU) 2024/2690 | 2024-10 | Technical and methodological requirements of the Article 21(2) cybersecurity risk-management measures and the significant-incident parameters under Article 23(3), for the digital-infrastructure and digital-service entity types in its scope only (adopted 17 October 2024; legal basis Article 21(5) and 23(11) of Directive 2022/2555) | - | https://eur-lex.europa.eu/eli/reg_impl/2024/2690/oj | verified 2026-07-13 |
 | EU DORA | Regulation 2022/2554 | 2022-12 | Digital Operational Resilience Act (financial-services) | - | https://eur-lex.europa.eu/eli/reg/2022/2554/oj | 2026-06-30 |
+| EU MiCA | Regulation 2023/1114 (as amended by Regulation (EU) 2023/2869) | 2023-05 | Markets in Crypto-Assets Regulation (financial-services) | - | https://eur-lex.europa.eu/eli/reg/2023/1114/oj | 2026-09-04 |
+| EU MiCA RTS and ITS | Multiple 2024-2025 Delegated and Implementing Regulations under MiCA | 2024-2025 | MiCA implementing technical standards (financial-services) | - | https://eur-lex.europa.eu/eli/reg/2023/1114/oj | 2026-09-04 |
 | EU GDPR | Regulation 2016/679 | 2016-04 | General Data Protection Regulation | Directive 95/46/EC | https://eur-lex.europa.eu/eli/reg/2016/679/oj | 2026-06-30 |
 | EU Controller-Processor SCCs | Commission Implementing Decision (EU) 2021/915 | 2021-06 | Standard contractual clauses between controllers and processors under Article 28(7) GDPR and Article 29(7) Regulation (EU) 2018/1725; not a Chapter V transfer mechanism (the transfer SCCs are Decision (EU) 2021/914) | - | https://eur-lex.europa.eu/eli/dec_impl/2021/915/oj | verified 2026-07-13 |
 | EU Data Act | Regulation (EU) 2023/2854 | 2023-12 | Data Act (harmonized rules on fair access to and use of data; main provisions applicable from 12 September 2025) | - | https://eur-lex.europa.eu/eli/reg/2023/2854/oj | 2026-06-30 |
