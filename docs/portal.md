@@ -513,6 +513,7 @@ The Data Protection Officer needs the privacy programme charter, policy, procedu
 
 ### Standard
 
+- [Network Telemetry and DPI Controls Standard](../privacy/standard-network-telemetry-and-dpi-controls.md) (maturity: Draft)
 - [Presence Inference Limitations Standard](../privacy/standard-presence-inference-limitations.md) (maturity: Draft)
 - [Pseudonymization and Anonymization Standard](../privacy/standard-pseudonymization-and-anonymization.md) (maturity: Baseline)
 
