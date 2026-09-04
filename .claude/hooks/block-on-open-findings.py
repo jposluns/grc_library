@@ -23,6 +23,14 @@ FAIL-OPEN BY DESIGN, AND SAID SO PLAINLY. If the ledger is missing or unparseabl
 action, because a guard that blocks all work on its own malfunction would be removed within a day, and
 a removed guard protects nothing. That is a deliberate trade recorded here rather than an oversight: the
 ledger plus the convention are the primary control and this hook is defence in depth.
+
+CLASS-COMPLETENESS ATTESTATION (P-1.67, advisory here). A Finding cell that LEADS with a
+bracketed class token names a CLASS of defect, so its FIXED disposition must attest the fix
+was checked at the width of the class: a `[class: "<token>" @ <count>]` clause (emitted by
+tools/check-class-completeness.py --attest) or a `[class-exempt: <reason>]` from a closed
+set. A FIXED class row missing the attestation is SURFACED AS A WARNING here, never a block
+(preserving this hook's fail-open posture); the fail-closed half is the pre-push D14 check
+(tools/check-class-attestation-on-pr.py), which also REPRODUCES the probe.
 """
 from __future__ import annotations
 
@@ -61,8 +69,8 @@ def project_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
-def parse_open_rows(text: str) -> list:
-    """PURE. Rows of the `## Open` table as (severity, finding, disposition).
+def parse_open_rows_full(text: str) -> list:
+    """PURE. Rows of the `## Open` table as (found, severity, finding, disposition).
 
     Scoped to the `## Open` section so the `## Closed today` table cannot block anything, and so a
     row is retired simply by moving it, which is the cheapest possible disposition action.
@@ -92,16 +100,25 @@ def parse_open_rows(text: str) -> list:
         if not cells or cells[0].lower() == "found" or all(set(c) <= {"-"} for c in cells):
             continue                          # header row or the `--- | --- | ...` delimiter
         if len(cells) == 5:
-            rows.append((cells[1].lower(), cells[2], cells[4]))
+            rows.append((cells[0], cells[1].lower(), cells[2], cells[4]))
         else:
             # MALFORMED (wrong column count, e.g. an unescaped `|` shifted the columns). We cannot
             # trust ANY cell, INCLUDING the severity: an early-column pipe makes the severity read as
             # something other than `error`, so the row would escape the error check entirely (codex
             # verify-3126 false-pass). Force it to a blocking error with no disposition so it fails
-            # closed regardless of what the shifted cells happen to say.
+            # closed regardless of what the shifted cells happen to say. The Found cell is equally
+            # untrustworthy, so it is BLANKED: a consumer that windows on the Found date (the D14
+            # ship-floor) must treat an unknown date as in-window, never as exempt.
             finding = (cells[2] if len(cells) > 2 else line.strip())[:120]
-            rows.append(("error", finding, None))
+            rows.append(("", "error", finding, None))
     return rows
+
+
+def parse_open_rows(text: str) -> list:
+    """PURE. The (severity, finding, disposition) projection of ``parse_open_rows_full``
+    (the shape every pre-P-1.67 consumer reads; the D14 pre-push check reads the 4-tuple
+    form because its ship-date floor needs the Found cell)."""
+    return [(s, f, d) for (_found, s, f, d) in parse_open_rows_full(text)]
 
 
 # The disposition GRAMMAR (3.126 (closing PR #1209), maintainer-decided 2026-07-27). The closed vocabulary is
@@ -164,6 +181,90 @@ def undispositioned(rows: list, severity: str) -> list:
     ]
 
 
+# --- Class-completeness attestation grammar (P-1.67) -------------------------------------
+# The recurring class this consumes: "fix the cited instance, miss the siblings". A Finding
+# cell that LEADS with a bracketed class token (`[R1-APPI] ...`, `[held-branch-discrepancy]
+# ...`) names a CLASS of defect, so a FIXED disposition on it must attest the fix was checked
+# at the width of the class, not the one cited instance. Exactly one of:
+#   [class: "<distinctive-token>" @ <count>]  the corpus-wide completeness probe ran; the
+#       clause is emitted by tools/check-class-completeness.py --attest, and <count> is the
+#       occurrence count over the git-tracked corpus set at attest time, the attested state
+#       the pre-push D14 check REPRODUCES (it fails on growth or a coverage escape).
+#   [class-exempt: <reason>]                  no textual class exists to probe; the reason
+#       comes from the CLOSED set below (an open reason field would be a free-prose bypass,
+#       the same failure the 3.126 disposition grammar closed).
+# GUARD-INPUT NOTE: the token is AUTHOR-DECLARED, never derived from the finding prose. The
+# prose has no authority to answer "which distinctive string identifies this class", so a
+# derived token would feed the guard an input that cannot answer the question asked of it.
+# The machinery verifies the DECLARED probe reproduces; relatedness judgement stays the
+# author's, encoded as the count. This hook only WARNS on a missing/invalid attestation
+# (fail-open, matching its posture); the fail-closed enforcement is D14.
+CLASS_TOKEN_RE = re.compile(r"^\[([A-Za-z0-9][A-Za-z0-9_.-]*)\](?!\()")
+CLASS_ATTEST_RE = re.compile(r'\[class:\s*"([^"\r\n]+)"\s*@\s*(\d+)\s*\]', re.IGNORECASE)
+CLASS_EXEMPT_REASONS = ("singleton", "non-textual", "cross-repo")
+CLASS_EXEMPT_RE = re.compile(r"\[class-exempt:\s*([A-Za-z-]+)\s*\]", re.IGNORECASE)
+_FIXED_WORD_RE = re.compile(r"^\s*fixed\b", re.IGNORECASE)
+
+
+def leading_class_token(finding: str) -> str | None:
+    """PURE. The bracketed class token a Finding cell LEADS with, or None.
+
+    Identifier-shaped only (letters, digits, `_`, `.`, `-`; no spaces or colons), so a
+    `[class: ...]` clause, bracketed prose, and a leading markdown link (`[text](url)`,
+    excluded by the `](` lookahead) never trigger. Leading only: a bracket mid-cell
+    classifies nothing."""
+    m = CLASS_TOKEN_RE.match(finding.strip())
+    return m.group(1) if m else None
+
+
+def is_fixed_disposition(cell: str) -> bool:
+    """PURE. A VALID (3.126) disposition whose terminal word is FIXED: the only
+    disposition that owes a class attestation (ROUTED carries the class question to the
+    routed item; REFUTED/ACCEPTED fix nothing)."""
+    if not disposition_valid(cell):
+        return False
+    plain = re.sub(r"[*_`\[\]]", "", cell).replace(":", " ").strip()
+    return bool(_FIXED_WORD_RE.match(plain))
+
+
+def class_attestation_state(cell: str) -> str:
+    """PURE. 'class' | 'exempt' | 'bad-exempt' | 'none' for a Disposition cell.
+
+    Inline emphasis markup (`*`, `_`, backticks) is removed first, as ``disposition_valid``
+    does; the square brackets are the clause's own delimiters and are kept."""
+    plain = re.sub(r"[*_`]", "", cell)
+    if CLASS_ATTEST_RE.search(plain):
+        return "class"
+    m = CLASS_EXEMPT_RE.search(plain)
+    if m:
+        return "exempt" if m.group(1).lower() in CLASS_EXEMPT_REASONS else "bad-exempt"
+    return "none"
+
+
+def extract_class_attestation(cell: str):
+    """PURE. (token, attested_count) from the first `[class: "<token>" @ <count>]` clause,
+    or None. A literal `|` is written `\\|` inside a table cell, so it is unescaped here
+    (the emit side, --attest, performs the matching escape)."""
+    m = CLASS_ATTEST_RE.search(re.sub(r"[*_`]", "", cell))
+    if not m:
+        return None
+    return m.group(1).replace("\\|", "|"), int(m.group(2))
+
+
+def fixed_class_rows_unattested(rows: list) -> list:
+    """PURE. (severity, finding, disposition) rows FIXED on a class-token finding with no
+    valid attestation: the clause is missing entirely, or the class-exempt reason falls
+    outside the closed set (ignorance REFUSES rather than permits)."""
+    return [
+        (s, f, d)
+        for (s, f, d) in rows
+        if d is not None
+        and is_fixed_disposition(d)
+        and leading_class_token(f)
+        and class_attestation_state(d) not in ("class", "exempt")
+    ]
+
+
 def is_blocking_command(cmd: str) -> bool:
     """PURE. Does this shell command open or merge a PR?"""
     flat = " ".join(cmd.split())
@@ -194,6 +295,18 @@ def main() -> int:
             print(f"NOTE ({len(warns)} undispositioned warning-severity finding(s) in {LEDGER_REL}): "
                   "an in-flight PR may finish, but no NEW work starts until each is dispositioned.",
                   file=sys.stderr)
+        una = fixed_class_rows_unattested(rows)
+        if una:
+            print(
+                f"WARNING (class-completeness attestation, P-1.67): {len(una)} FIXED row(s) in "
+                f"{LEDGER_REL} lead with a bracketed class token but carry no "
+                '[class: "<token>" @ <count>] or [class-exempt: <reason>] clause. Run '
+                'python3 tools/check-class-completeness.py --attest "<distinctive-token>" and '
+                "paste the emitted clause into the Disposition cell, or use [class-exempt: "
+                f"{'|'.join(CLASS_EXEMPT_REASONS)}] where no textual class exists. Advisory "
+                "here (fail-open); the pre-push D14 check fails closed on it.",
+                file=sys.stderr,
+            )
         return 0
 
     lines = [f"BLOCKED (open-findings guard): {len(errs)} error-severity finding(s) in {LEDGER_REL} "
@@ -315,6 +428,53 @@ def self_test() -> int:
              "| 2026-07-25 | injected | error | a confirmed defect | probe | |\n")
     ck("an early-column pipe (mis-read severity) still fails closed",
        len(undispositioned(parse_open_rows(early), "error")), 1)
+
+    # --- P-1.67 class-completeness attestation grammar (unit level) ----------------
+    ck("a leading class token is recognized", leading_class_token("[R1-APPI] a wrong value"), "R1-APPI")
+    ck("a hyphenated class token is recognized",
+       leading_class_token("[held-branch-discrepancy] stale row"), "held-branch-discrepancy")
+    ck("a mid-cell bracket is not a class token", leading_class_token("fixed the [R1] case"), None)
+    ck("a leading markdown link is not a class token",
+       leading_class_token("[a link](https://example.org) prose"), None)
+    ck("a class clause is not itself a class token",
+       leading_class_token('[class: "x" @ 1] prose'), None)
+    ck("bracketed prose with spaces is not a class token",
+       leading_class_token("[not a token] prose"), None)
+    ck("an attest clause is recognized",
+       class_attestation_state('FIXED #1 [class: "180-day baseline" @ 2]'), "class")
+    ck("an attest clause survives emphasis markup",
+       class_attestation_state('**FIXED #1** [class: "x y" @ 0]'), "class")
+    ck("a closed-set exemption is recognized",
+       class_attestation_state("FIXED #1 [class-exempt: singleton]"), "exempt")
+    ck("an off-set exemption reason is bad-exempt (refuses, never permits)",
+       class_attestation_state("FIXED #1 [class-exempt: too-hard]"), "bad-exempt")
+    ck("no clause is none", class_attestation_state("FIXED #1 then prose"), "none")
+    ck("extraction unescapes a table-escaped pipe",
+       extract_class_attestation('FIXED #1 [class: "a \\| b" @ 4]'), ("a | b", 4))
+    ck("FIXED is the attesting disposition", is_fixed_disposition("FIXED #1178"), True)
+    ck("ROUTED owes no attestation", is_fixed_disposition("ROUTED 3.56a"), False)
+    ck("an invalid bare FIXED is not an attesting disposition", is_fixed_disposition("FIXED"), False)
+
+    attn = ("## Open\n"
+            "| Found | Severity | Finding | Source | Disposition |\n"
+            "| --- | --- | --- | --- | --- |\n"
+            "| 2026-09-04 | warning | [CE3-CASP] cited instance fixed, class unchecked | probe | FIXED #1984 |\n"
+            '| 2026-09-04 | warning | [R1-APPI] classed and attested | probe | FIXED #1985 [class: "publicly available data" @ 2] |\n'
+            "| 2026-09-04 | note | [one-off] no textual class | probe | FIXED #1986 [class-exempt: non-textual] |\n"
+            "| 2026-09-04 | warning | [E9] routed class | probe | ROUTED TODO 3.73 |\n"
+            "| 2026-09-04 | warning | unclassed finding | probe | FIXED #1987 |\n"
+            "| 2026-09-04 | warning | [bad-reason] off-set exemption | probe | FIXED #1988 [class-exempt: too-hard] |\n")
+    urows = fixed_class_rows_unattested(parse_open_rows(attn))
+    uflagged = [f for (_s, f, _d) in urows]
+    ck("an unattested FIXED class row is flagged",
+       any(f.startswith("[CE3-CASP]") for f in uflagged), True)
+    ck("an off-set exemption is flagged",
+       any(f.startswith("[bad-reason]") for f in uflagged), True)
+    ck("attested, exempt, routed and unclassed rows are not flagged", len(urows), 2)
+    full = parse_open_rows_full(attn)
+    ck("the full parse carries the Found cell", full[0][0], "2026-09-04")
+    ck("the projection matches the full parse", parse_open_rows(attn),
+       [(s, f, d) for (_fd, s, f, d) in full])
 
     ck("gh pr create blocks", is_blocking_command("cd /x && gh pr create --title y"), True)
     ck("gh pr merge blocks", is_blocking_command("gh pr merge 12 --squash --admin"), True)

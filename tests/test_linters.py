@@ -12393,6 +12393,19 @@ class OrchestratorAdvisoryToolTests(unittest.TestCase):
         )
         self.assertIn("OK", result.stdout)
 
+
+    def test_check_class_attestation_on_pr_self_test_passes(self) -> None:
+        # P-1.67 (D14): the class-completeness attestation gate's own --self-test. Its
+        # fixture set includes the CE3/CE3-CASP reality fixture, the dynamic ship-date
+        # floor, the closed exempt set, the fail-closed unparseable-Found window, the
+        # path-escape failure, and the escaped-pipe token round trip against the hook grammar.
+        result = run_linter("tools/check-class-attestation-on-pr.py", "--self-test")
+        self.assertEqual(
+            result.returncode, 0,
+            f"check-class-attestation-on-pr.py --self-test failed.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("OK", result.stdout)
     def test_merge_when_green_self_test_passes(self) -> None:
         # P-1.6: the merge-when-green guard's evaluate() self-test (fails CLOSED on
         # no-checks / pending / failing / unknown; green only on all-terminal-success),

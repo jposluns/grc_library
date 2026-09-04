@@ -64,6 +64,7 @@
       "check-changelog-dash-on-pr.py",
       "check-changelog-length-on-pr.py",
       "check-changelog-on-pr.py",
+      "check-class-attestation-on-pr.py",
       "check-claude-md-size.py",
       "check-date-cobump-on-pr.py",
       "check-narrative-corpus-mixed-diff-on-pr.py",
