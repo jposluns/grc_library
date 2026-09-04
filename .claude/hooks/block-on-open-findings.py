@@ -69,7 +69,7 @@ def project_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
-def parse_open_rows_full(text: str) -> list:
+def _parse_rows_full(text: str, section_prefixes: tuple) -> list:
     """PURE. Rows of the `## Open` table as (found, severity, finding, disposition).
 
     Scoped to the `## Open` section so the `## Closed today` table cannot block anything, and so a
@@ -84,12 +84,13 @@ def parse_open_rows_full(text: str) -> list:
     false-BLOCK direction; the general fix makes the parser answer honestly either way).
     """
     rows = []
-    in_open = False
+    in_scope = False
     for line in text.splitlines():
         if line.startswith("## "):
-            in_open = line.strip().lower().startswith("## open")
+            heading = line.strip().lower()
+            in_scope = any(heading.startswith(pfx) for pfx in section_prefixes)
             continue
-        if not in_open or not line.startswith("|"):
+        if not in_scope or not line.startswith("|"):
             continue
         parts = re.split(r"(?<!\\)\|", line.strip())
         cells = [c.strip() for c in parts]
@@ -112,6 +113,23 @@ def parse_open_rows_full(text: str) -> list:
             finding = (cells[2] if len(cells) > 2 else line.strip())[:120]
             rows.append(("", "error", finding, None))
     return rows
+
+
+def parse_open_rows_full(text: str) -> list:
+    """PURE. Rows of the `## Open` table as (found, severity, finding, disposition).
+    Open-only, so the `## Closed today` archive never affects the undispositioned-blocking
+    path (the hook blocks only on `## Open`)."""
+    return _parse_rows_full(text, ("## open",))
+
+
+def parse_dispositioned_rows_full(text: str) -> list:
+    """PURE. Rows of BOTH `## Open` and `## Closed today` as 4-tuples, for the D14
+    class-completeness reproduce-check. A FIXED class row is DISPOSITIONED the moment it is
+    fixed and, per this hook's own guidance, MOVED to `## Closed today` in the same PR; a
+    D14 that scanned only `## Open` would therefore miss exactly the rows it exists to
+    verify (the move-to-Closed evasion, gemini QA #1989). The dynamic ship floor in D14
+    keeps this from retro-failing archived pre-mechanization rows."""
+    return _parse_rows_full(text, ("## open", "## closed today"))
 
 
 def parse_open_rows(text: str) -> list:
@@ -245,7 +263,7 @@ def extract_class_attestation(cell: str):
     """PURE. (token, attested_count) from the first `[class: "<token>" @ <count>]` clause,
     or None. A literal `|` is written `\\|` inside a table cell, so it is unescaped here
     (the emit side, --attest, performs the matching escape)."""
-    m = CLASS_ATTEST_RE.search(re.sub(r"[*_`]", "", cell))
+    m = CLASS_ATTEST_RE.search(cell)  # RAW cell (F1): never strip inside the token
     if not m:
         return None
     return m.group(1).replace("\\|", "|"), int(m.group(2))
@@ -451,6 +469,12 @@ def self_test() -> int:
     ck("no clause is none", class_attestation_state("FIXED #1 then prose"), "none")
     ck("extraction unescapes a table-escaped pipe",
        extract_class_attestation('FIXED #1 [class: "a \\| b" @ 4]'), ("a | b", 4))
+    ck("F1: extraction preserves an underscore inside the token",
+       extract_class_attestation('FIXED #1 [class: "foo_bar" @ 1]'), ("foo_bar", 1))
+    ck("F1: extraction preserves asterisk and backtick inside the token",
+       extract_class_attestation('FIXED #1 [class: "a*b`c" @ 2]'), ("a*b`c", 2))
+    ck("F1: an underscore token still detected as a class attestation",
+       class_attestation_state('**FIXED #1** [class: "foo_bar" @ 1]'), "class")
     ck("FIXED is the attesting disposition", is_fixed_disposition("FIXED #1178"), True)
     ck("ROUTED owes no attestation", is_fixed_disposition("ROUTED 3.56a"), False)
     ck("an invalid bare FIXED is not an attesting disposition", is_fixed_disposition("FIXED"), False)

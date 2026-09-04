@@ -162,7 +162,7 @@ run_check "D13 Stranded-control-code check" \
     python3 tools/check-stranded-control-code-on-pr.py "${BASE_REF}" "${HEAD_REF}"
 
 # Delta gate D14: class-completeness attestation check (P-1.67). For each
-# in-window FIXED row of the open-findings ledger's ## Open table whose
+# in-window FIXED row of the open-findings ledger (## Open or ## Closed today) whose
 # Finding cell leads with a bracketed class token, require the
 # [class: "<token>" @ <count>] / [class-exempt: <reason>] attestation and
 # REPRODUCE the completeness probe over the git-tracked corpus set (fail on

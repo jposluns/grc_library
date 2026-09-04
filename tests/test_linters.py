@@ -11916,7 +11916,7 @@ class PreflightChangelogMirrorTests(unittest.TestCase):
 
 class AuditGateParityExclusionGuardTests(unittest.TestCase):
     """tools/lint-audit-gate-parity.py (gate 35) additive PR #1087 guards over
-    the exclusion allow-lists and the D1-D12 delta gates. The guards read the real
+    the exclusion allow-lists and the D-numbered delta gates. The guards read the real
     repo surfaces via an explicit ``root`` and take ``spec_scripts`` as a
     parameter, so the tests run against the live config without monkeypatching a
     module global (the Global-state isolation convention)."""
@@ -12406,6 +12406,7 @@ class OrchestratorAdvisoryToolTests(unittest.TestCase):
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
         self.assertIn("OK", result.stdout)
+
     def test_merge_when_green_self_test_passes(self) -> None:
         # P-1.6: the merge-when-green guard's evaluate() self-test (fails CLOSED on
         # no-checks / pending / failing / unknown; green only on all-terminal-success),

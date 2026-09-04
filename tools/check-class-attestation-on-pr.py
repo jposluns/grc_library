@@ -7,7 +7,9 @@ cited while the same wording survives elsewhere in the corpus (#1955/#1957/#1981
 all auto-graduated this way). The open-findings ledger's attestation grammar (P-1.67) makes
 the class check part of the FIXED disposition; this gate is the fail-closed verifier.
 
-WHAT IT CHECKS. For each row of the ledger's `## Open` table whose Found date is on or after
+WHAT IT CHECKS. For each row of the ledger's `## Open` OR `## Closed today` table (both,
+because a fixed finding is dispositioned and MOVED to `## Closed today` in the same PR, so an
+Open-only scan would miss exactly the rows it verifies) whose Found date is on or after
 the SHIP-DATE FLOOR (dynamic floor: pre-mechanization rows are never retro-failed), whose
 disposition is a valid `FIXED <ref>` (3.126 grammar), and whose Finding cell LEADS with a
 bracketed class token:
@@ -65,10 +67,25 @@ from lint_common import REPO_ROOT, resolve_working  # noqa: E402
 HOOK_REL = Path(".claude") / "hooks" / "block-on-open-findings.py"
 MATCHER_REL = Path("tools") / "check-class-completeness.py"
 
-# The mechanization's ship date (UTC): the DYNAMIC FLOOR. Only `## Open` FIXED rows whose
-# Found date is ON OR AFTER this date are in scope, so the ledger's pre-P-1.67 rows are
-# never retro-failed. Set to the UTC merge date of the PR that ships this gate; adjust at
-# apply time if the merge date differs.
+# The mechanization's DYNAMIC ACTIVATION FLOOR (UTC). Only FIXED class rows (in `## Open` or
+# `## Closed today`) whose Found date is ON OR AFTER this date are reproduce-checked, so the
+# ledger's pre-P-1.67 rows are never retro-failed.
+#
+# Set to the DAY AFTER this gate merges, NOT the merge date: ~15 FIXED class rows already in
+# the ledger were authored on the merge day (2026-09-04) BEFORE the attestation grammar
+# existed, and the Found cell is day-granular, so a merge-date floor could not tell those
+# pre-grammar rows apart from post-grammar rows added the same day, and would retro-fail
+# them. Choosing day-after exempts all of the merge day, which is the price of the
+# no-retro-fail property.
+#
+# DISCLOSED RESIDUE (codex/gemini QA #1989): a NEW class finding added AND fixed without
+# attestation on the merge day itself, after this gate merges, is exempt forever (Found
+# dates are permanent). The window is at most the few hours between merge and 00:00 UTC, it
+# is self-closing (no new merge-day rows can be created after that), and the open-findings
+# hook still emits its (date-unwindowed) advisory warning for such a row. The retroactive
+# attestation of the 15 pre-grammar rows is tracked as P-1.69; once they are attested or
+# archived out of the scanned sections, this floor can be tightened to the merge date and
+# the residue eliminated.
 SHIP_FLOOR = datetime.date(2026, 9, 5)
 
 FOUND_DATE_RE = re.compile(r"(\d{4}-\d{2}-\d{2})")
@@ -92,7 +109,12 @@ def in_window(found_cell: str, floor: datetime.date) -> bool:
     Fail-closed direction: a row that cannot PROVE it predates the mechanization is
     checked. The blanked Found cell of a malformed row never reaches here (its
     disposition is None, so it is noted and skipped before the window test)."""
-    m = FOUND_DATE_RE.search(found_cell or "")
+    # F5 (codex QA #1989): require the Found cell to be EXACTLY one ISO date (full match of
+    # the stripped cell), so an annotated or multi-date cell ("copied 2026-09-04; actual
+    # 2026-09-05", "2026-09-04 typo") cannot let its FIRST embedded date falsely prove the
+    # row predates the floor. Anything that is not a clean single ISO date is in-window and
+    # fails closed.
+    m = FOUND_DATE_RE.fullmatch((found_cell or "").strip())
     if not m:
         return True
     try:
@@ -192,7 +214,7 @@ def _self_test() -> int:
         )
 
     def run(txt: str, probe):
-        return evaluate(hook.parse_open_rows_full(txt), hook, probe, floor)
+        return evaluate(hook.parse_dispositioned_rows_full(txt), hook, probe, floor)
 
     with tempfile.TemporaryDirectory() as d:
         root = Path(d)
@@ -246,6 +268,13 @@ def _self_test() -> int:
                                "FIXED #1984")), probe)
         checks.append(("unparseable-found-is-in-window-fail-closed", len(fails) == 1))
 
+        fails, _ = run(ledger(("copied 2026-09-04; actual 2026-09-05", "warning",
+                               "[annot] annotated multi-date Found", "FIXED #1984")), probe)
+        checks.append(("F5-annotated-found-is-in-window-fail-closed", len(fails) == 1))
+        fails, _ = run(ledger(("2026-09-04 typo", "warning",
+                               "[annot2] trailing-annotation Found", "FIXED #1984")), probe)
+        checks.append(("F5-trailing-annotation-found-in-window-fail-closed", len(fails) == 1))
+
         fails, _ = run(ledger(("2026-09-04", "warning", "[E9] routed class",
                                "ROUTED TODO 3.73")), probe)
         checks.append(("routed-class-row-out-of-scope", fails == []))
@@ -270,6 +299,21 @@ def _self_test() -> int:
         fails, notes = run(malformed, probe)
         checks.append(("malformed-row-noted-not-failed",
                        fails == [] and len(notes) == 1 and "malformed" in notes[0]))
+
+        # MOVE-TO-CLOSED EVASION (gemini QA #1989): a FIXED class row that the maintainer
+        # dispositioned AND relocated to `## Closed today` in the same PR must STILL be
+        # reproduce-checked; scanning only `## Open` would let a surviving sibling escape.
+        closed_led = ("## Open\n"
+                      "| Found | Severity | Finding | Source | Disposition |\n"
+                      "| --- | --- | --- | --- | --- |\n"
+                      "## Closed today\n"
+                      "| Found | Severity | Finding | Source | Disposition |\n"
+                      "| --- | --- | --- | --- | --- |\n"
+                      "| 2026-09-04 | warning | [CE3-CASP] moved-to-closed same PR | probe | "
+                      'FIXED #1984 [class: "non-EU/UK scoping caveat" @ 1] |\n')
+        fails, _ = run(closed_led, probe)
+        checks.append(("closed-today-row-is-checked-not-evaded",
+                       len(fails) == 1 and "3 occurrence(s) now vs 1 attested" in fails[0]))
 
         # Escaped-pipe round trip: the cell carries `\|`, the extraction unescapes, and
         # the probe matches the literal `|` in the corpus.
@@ -314,7 +358,7 @@ def main(argv: list[str]) -> int:
         return 2
 
     try:
-        rows_full = hook.parse_open_rows_full(ledger.read_text(encoding="utf-8"))
+        rows_full = hook.parse_dispositioned_rows_full(ledger.read_text(encoding="utf-8"))
     except Exception as exc:
         print(f"D14 FAIL (fail-closed): cannot read/parse {ledger} ({exc}).",
               file=sys.stderr)

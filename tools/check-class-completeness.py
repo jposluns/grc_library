@@ -94,7 +94,14 @@ def find_occurrences(
         for lineno, raw in enumerate(text.splitlines(), 1):
             hay = raw.lower() if ignore_case else raw
             for s, needle in needles:
-                if needle and needle in hay:
+                if not needle:
+                    continue
+                # F4 (codex QA #1989): count EVERY occurrence on the line, not just whether
+                # the line matches, so a second instance on the SAME physical line (plausible
+                # in a table row) is not invisible to the D14 growth check. One record per
+                # occurrence; the attest and reproduce sides both count this way, so they stay
+                # on the same measure.
+                for _ in range(hay.count(needle)):
                     out[s].append((rel, lineno, raw.strip()))
     return out, skipped
 
@@ -143,7 +150,19 @@ def attest_file_set(root: Path = REPO_ROOT, tracked: set[str] | None = None) -> 
     tests (the pure half); the default observes git (the thin observer)."""
     if tracked is None:
         tracked = _git_tracked(root)
-    return [f for f in corpus_files(root) if f.relative_to(root).as_posix() in tracked]
+    # F3 (codex QA #1989): derive from `git ls-files` (the authoritative tracked set),
+    # NOT from the rglob discovery intersected with git. A tracked markdown path that is
+    # locally ABSENT (an unstaged deletion) or a broken symlink would be dropped by an
+    # rglob+is_file discovery and silently vanish from the probe, letting a sibling in that
+    # file escape; kept in the set here, it is handed to find_occurrences, which reports it
+    # as SKIPPED (unreadable), which the D14 reproduce-check treats as a fail-closed
+    # coverage escape. is_markdown_target is pure (suffix + exempt-dir parts, no stat), so
+    # it classifies a non-materialized path correctly.
+    return sorted(
+        root / rel
+        for rel in tracked
+        if rel.endswith(".md") and is_markdown_target(root / rel)
+    )
 
 
 def _self_test() -> int:
@@ -184,6 +203,20 @@ def _self_test() -> int:
         checks.append(("attest-token-plain-ok", validate_attest_token("7 years") is None))
         afs = attest_file_set(root, tracked={"a.md"})
         checks.append(("attest-set-git-tracked-only", [f.name for f in afs] == ["a.md"]))
+        # F3 (codex QA #1989): a tracked-but-locally-absent markdown path stays in the
+        # attest set (not silently dropped) and is reported SKIPPED by the reader, so the
+        # D14 reproduce-check fails closed on it rather than under-counting.
+        afs3 = attest_file_set(root, tracked={"a.md", "ghost.md"})
+        checks.append(("F3-attest-set-keeps-tracked-absent",
+                       sorted(f.name for f in afs3) == ["a.md", "ghost.md"]))
+        _, sk3 = find_occurrences(["7 years"], afs3, root=root)
+        checks.append(("F3-tracked-absent-file-reported-skipped", "ghost.md" in sk3))
+        # F4 (codex QA #1989): two occurrences on ONE physical line count as two, so a
+        # same-line sibling is not invisible to the growth check.
+        (root / "sameline.md").write_text("dup_tok here and dup_tok again on one line\n",
+                                           encoding="utf-8")
+        occ4, _ = find_occurrences(["dup_tok"], corpus_files(root), root=root)
+        checks.append(("F4-same-line-occurrences-counted-twice", len(occ4["dup_tok"]) == 2))
     bad = [n for n, ok in checks if not ok]
     if bad:
         print(f"check-class-completeness self-test: FAIL {bad}")
