@@ -2,8 +2,8 @@
 
 **Document Title:** Legitimate Interest Assessment (LIA) Template\
 **Document Type:** Template\
-**Version:** 1.0.3\
-**Date:** 2026-07-03\
+**Version:** 1.0.4\
+**Date:** 2026-09-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-dpia.md`](template-dpia.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/framework-consent-management.md`](framework-consent-management.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md)\
@@ -92,7 +92,7 @@ Necessity is assessed against Recital 39 and the data-minimization principle: if
 | The nature of the data and the intrusiveness of the processing. | | |
 | The possible impact or harm to the data subject. | | |
 | Whether the data subject is a **child** or otherwise vulnerable (Article 6(1)(f) names children explicitly; this weighs against the interest). | | |
-| Safeguards and mitigations that reduce the impact (transparency, the Article 21 right to object and how it is offered, pseudonymization, retention limits, access controls). | | |
+| Additional safeguards that reduce the impact **beyond what the law already requires** (for example pseudonymization or aggregation where these go further than necessity and Articles 5, 25, and 32 already require, minimization tighter than the necessity test itself compels, and offering and acting on the Article 21 right to object more readily than the minimum). Measures the controller must adopt regardless (baseline transparency, data minimization, retention limits, access controls) are obligations that must be met but do not by themselves tip an otherwise failing balance (EDPB Opinion 28/2024). | | |
 | **Conclusion**: does the legitimate interest prevail after the safeguards are applied? | | |
 
 ## Section 3. Outcome and decision
