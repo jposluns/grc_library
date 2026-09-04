@@ -2,11 +2,11 @@
 
 **Document Title:** Logistics Sector Compliance README\
 **Document Type:** Register\
-**Version:** 1.0.1\
-**Date:** 2026-07-02\
+**Version:** 1.0.2\
+**Date:** 2026-09-04\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`compliance/README.md`](README.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](annex-logistics-sector-requirements.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md)\
+**Related Documents:** [`compliance/README.md`](../README.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](annex-logistics-sector-requirements.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md)\
 **Classification:** Public\
 **Category:** Compliance: Logistics Sector\
 **Review Frequency:** Annual and upon material change to any covered programme or addition of a new programme\
