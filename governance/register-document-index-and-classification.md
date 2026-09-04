@@ -2,8 +2,8 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.147\
-**Date:** 2026-09-03\
+**Version:** 1.27.148\
+**Date:** 2026-09-04\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md)\
@@ -105,6 +105,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Security | Policy | Information Security Policy | [`security/policy-information-security.md`](../security/policy-information-security.md) | Chief Information Security Officer | Annual | ISO/IEC 27001, NIST CSF, COBIT DSS, CSA CCM, BASC Security Standard §5 | template |
 | Security | Policy | Identity and Access Management Policy | [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.5.15 to 18, NIST SP 800-63, CSA CCM IAM | template |
 | Security | Policy | Acceptable Use Policy | [`security/policy-acceptable-use.md`](../security/policy-acceptable-use.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.5.10, NIST SP 800-53 PL-4, CSA CCM HRS | template |
+| Security | Policy | Workforce Network Monitoring Policy | [`security/policy-workforce-network-monitoring.md`](../security/policy-workforce-network-monitoring.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.8.16/A.8.15, NIST CSF DE.CM, CSA CCM LOG/DSP/HRS, GDPR Art 88 | template |
 | Security | Policy | Encryption and Key Management Policy | [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.8.24, NIST SP 800-57, CSA CCM CEK | template |
 | Security | Standard | Logging and Monitoring Standard | [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.8.15 to 16, NIST SP 800-92, CSA CCM LOG | template |
 | Security | Standard | Monitoring Integrity and Coverage Standard | [`security/standard-monitoring-integrity-and-coverage.md`](../security/standard-monitoring-integrity-and-coverage.md) | Chief Information Security Officer | Annual and upon material threat, framework, or regulatory change | NIST CSF 2.0 DE.CM/DE.AE, NIST SP 800-137, ISO/IEC 27001 A.8.15 to 16, CSA CCM LOG-14, MITRE ATT&CK T1685, NIST SP 800-92 | template |
