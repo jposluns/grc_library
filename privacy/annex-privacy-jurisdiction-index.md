@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Jurisdiction Index\
 **Document Type:** Annex\
-**Version:** 1.0.30\
+**Version:** 1.0.31\
 **Date:** 2026-09-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -48,7 +48,8 @@ Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting 
 | Mexico (LFPDPPP 2025) | [`privacy/jurisdictions/annex-privacy-mexico.md`](jurisdictions/annex-privacy-mexico.md) |
 | Chile (Ley 19.628; transition to Ley 21.719) | [`privacy/jurisdictions/annex-privacy-chile.md`](jurisdictions/annex-privacy-chile.md) |
 | Peru (Ley 29733; DS 016-2024-JUS) | [`privacy/jurisdictions/annex-privacy-peru.md`](jurisdictions/annex-privacy-peru.md) |
-| Latin America (Argentina, Colombia) | [`privacy/jurisdictions/annex-privacy-latin-america.md`](jurisdictions/annex-privacy-latin-america.md) |
+| Colombia (Ley 1581 de 2012; Decreto 1074 de 2015) | [`privacy/jurisdictions/annex-privacy-colombia.md`](jurisdictions/annex-privacy-colombia.md) |
+| Latin America (Argentina) | [`privacy/jurisdictions/annex-privacy-latin-america.md`](jurisdictions/annex-privacy-latin-america.md) |
 
 ### Asia-pacific
 

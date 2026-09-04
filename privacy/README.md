@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Domain README\
 **Document Type:** Register\
-**Version:** 1.2.16\
+**Version:** 1.2.17\
 **Date:** 2026-09-04\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -73,6 +73,7 @@ This directory contains privacy governance artefacts covering data protection po
 | Mexico | [`privacy/jurisdictions/annex-privacy-mexico.md`](jurisdictions/annex-privacy-mexico.md) |
 | Chile | [`privacy/jurisdictions/annex-privacy-chile.md`](jurisdictions/annex-privacy-chile.md) |
 | Peru | [`privacy/jurisdictions/annex-privacy-peru.md`](jurisdictions/annex-privacy-peru.md) |
+| Colombia | [`privacy/jurisdictions/annex-privacy-colombia.md`](jurisdictions/annex-privacy-colombia.md) |
 | Latin America | [`privacy/jurisdictions/annex-privacy-latin-america.md`](jurisdictions/annex-privacy-latin-america.md) |
 | Singapore | [`privacy/jurisdictions/annex-privacy-singapore.md`](jurisdictions/annex-privacy-singapore.md) |
 | Australia | [`privacy/jurisdictions/annex-privacy-australia.md`](jurisdictions/annex-privacy-australia.md) |
