@@ -505,6 +505,7 @@ The Data Protection Officer needs the privacy programme charter, policy, procedu
 - [Data Protection and Privacy Breach Response Procedure](../privacy/procedure-data-protection-and-privacy-breach-response.md) (maturity: Mature)
 - [Data Subject Rights Management Procedure](../privacy/procedure-data-subject-rights-management.md) (maturity: Mature)
 - [Privacy Impact and Cross-Border Transfer Procedure](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) (maturity: Mature)
+- [Works Council and Employee Representative Consultation Procedure](../privacy/procedure-works-council-and-employee-representative-consultation.md) (maturity: Draft)
 
 ### Register
 

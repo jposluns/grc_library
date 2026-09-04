@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.151\
+**Version:** 1.27.152\
 **Date:** 2026-09-04\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -139,6 +139,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Privacy | Procedure | Privacy Impact and Cross-Border Transfer Procedure | [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) | Data Protection Officer | Annual | GDPR Art 35, ISO/IEC 27701:2025 Annex A.1.2.6, A.1.4.2 to A.1.4.10, A.1.5.2 to A.1.5.4, PIPL Arts 38 to 40, Quebec Law 25 §3.3/§12.1/§17 | template |
 | Privacy | Procedure | Data Subject Rights Management Procedure | [`privacy/procedure-data-subject-rights-management.md`](../privacy/procedure-data-subject-rights-management.md) | Data Protection Officer | Annual | GDPR Arts 15 to 22, PIPEDA, PIPL Arts 44 to 47, ISO/IEC 27701:2025 Annex A.1.3.2 to A.1.3.11, A.2.3.2 | template |
 | Privacy | Procedure | Data Protection and Privacy Breach Response Procedure | [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) | Data Protection Officer | Annual | GDPR Arts 33 to 34, PIPEDA, PIPL Art 57, LGPD, Quebec Law 25, breach assessment, notification | template |
+| Privacy | Procedure | Works Council and Employee Representative Consultation Procedure | [`privacy/procedure-works-council-and-employee-representative-consultation.md`](../privacy/procedure-works-council-and-employee-representative-consultation.md) | Data Protection Officer | Annual | ISO/IEC 27001 Annex A.5.31/A.5.34, NIST CSF GV.OC/GV.PO, CSA CCM GRC-07/A&A-04, GDPR Art 88/35(9)/5, UK GDPR | template |
 | Privacy | Template | Record of Processing Activities Template | [`privacy/template-record-of-processing-activities.md`](../privacy/template-record-of-processing-activities.md) | Data Protection Officer | Annual | GDPR Art 30, UK GDPR, LGPD Art 37, PIPEDA, PIPL Art 55, ISO/IEC 27701:2025 Annex A.1.2.9, A.2.2.7, A.3.14 | template |
 | Privacy | Template | Privacy Notice Template | [`privacy/template-privacy-notice.md`](../privacy/template-privacy-notice.md) | Data Protection Officer | Annual | GDPR Arts 12 to 14, UK GDPR, LGPD Arts 6/9/18, PIPL Arts 17 to 21, CCPA/CPRA, ISO/IEC 29184 | template |
 | Privacy | Template | Data Subject Access Request Workflow Template | [`privacy/template-dsar-workflow.md`](../privacy/template-dsar-workflow.md) | Data Protection Officer | Annual | GDPR Arts 12 to 23, LGPD Arts 17 to 22, PIPL Arts 44 to 50, CCPA/CPRA, ISO/IEC 27701:2025 Annex A.1.3.2 to A.1.3.11, A.2.3.2 | template |

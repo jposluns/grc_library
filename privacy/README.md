@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Domain README\
 **Document Type:** Register\
-**Version:** 1.2.12\
+**Version:** 1.2.13\
 **Date:** 2026-09-04\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -31,6 +31,7 @@ This directory contains privacy governance artefacts covering data protection po
 | Procedure | Privacy Impact and Cross-Border Transfer Procedure | [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md) |
 | Procedure | Data Subject Rights Management Procedure | [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md) |
 | Procedure | Data Protection and Privacy Breach Response Procedure | [`privacy/procedure-data-protection-and-privacy-breach-response.md`](procedure-data-protection-and-privacy-breach-response.md) |
+| Procedure | Works Council and Employee Representative Consultation Procedure | [`privacy/procedure-works-council-and-employee-representative-consultation.md`](procedure-works-council-and-employee-representative-consultation.md) |
 | Annex | Privacy Jurisdiction Index | [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md) |
 | Register | Cross-Border Data Flow Register | [`privacy/register-cross-border-data-flow.md`](register-cross-border-data-flow.md) |
 | Framework | Consent Management Framework | [`privacy/framework-consent-management.md`](framework-consent-management.md) |
