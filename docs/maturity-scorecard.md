@@ -37,7 +37,7 @@ The metadata block above carries a generator schema constant for `Version` and t
 
 ---
 
-_Summary as of last regeneration: Mature: 109, Baseline: 170, Draft: 53, Unknown: 0._
+_Summary as of last regeneration: Mature: 109, Baseline: 170, Draft: 54, Unknown: 0._
 
 ## Mature
 
@@ -83,7 +83,7 @@ _109 documents._
 | [governance/register-canonical-citations.md](../governance/register-canonical-citations.md) | Canonical Citations Register | Register | 1.5.67 | 2026-09-04 |
 | [governance/register-coverage-gaps.md](../governance/register-coverage-gaps.md) | Coverage Gap Analysis Register | Register | 1.1.32 | 2026-08-04 |
 | [governance/register-digital-trust-and-assurance-metrics.md](../governance/register-digital-trust-and-assurance-metrics.md) | Digital Trust and Assurance Metrics Register | Register | 1.1.3 | 2026-08-30 |
-| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.152 | 2026-09-04 |
+| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.153 | 2026-09-04 |
 | [governance/register-glossary.md](../governance/register-glossary.md) | Glossary and Acronym Index | Register | 1.4.18 | 2026-08-24 |
 | [governance/register-key-terms-and-definitions.md](../governance/register-key-terms-and-definitions.md) | Key Terms and Definitions Register | Register | 1.1.6 | 2026-08-31 |
 | [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.5.10 | 2026-08-30 |
@@ -338,7 +338,7 @@ _170 documents._
 
 ## Draft
 
-_53 documents._
+_54 documents._
 
 | Path | Title | Type | Version | Date |
 | --- | --- | --- | --- | --- |
@@ -392,6 +392,7 @@ _53 documents._
 | [privacy/procedure-works-council-and-employee-representative-consultation.md](../privacy/procedure-works-council-and-employee-representative-consultation.md) | Works Council and Employee Representative Consultation Procedure | Procedure | 0.1.0 | 2026-09-04 |
 | [privacy/standard-network-telemetry-and-dpi-controls.md](../privacy/standard-network-telemetry-and-dpi-controls.md) | Network Telemetry and DPI Controls Standard | Standard | 0.1.0 | 2026-09-04 |
 | [privacy/standard-presence-inference-limitations.md](../privacy/standard-presence-inference-limitations.md) | Presence Inference Limitations Standard | Standard | 0.1.0 | 2026-09-04 |
+| [privacy/template-employee-monitoring-notice.md](../privacy/template-employee-monitoring-notice.md) | Employee Monitoring Notice Template | Template | 0.1.0 | 2026-09-04 |
 | [security/framework-zero-trust-architecture.md](../security/framework-zero-trust-architecture.md) | Zero Trust Architecture Framework | Framework | 0.0.7 | 2026-08-05 |
 | [security/policy-workforce-network-monitoring.md](../security/policy-workforce-network-monitoring.md) | Workforce Network Monitoring Policy | Policy | 0.1.0 | 2026-09-04 |
 | [security/standard-monitoring-integrity-and-coverage.md](../security/standard-monitoring-integrity-and-coverage.md) | Monitoring Integrity and Coverage Standard | Standard | 0.0.4 | 2026-09-01 |

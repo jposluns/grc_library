@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.152\
+**Version:** 1.27.153\
 **Date:** 2026-09-04\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -149,6 +149,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Privacy | Template | Breach Notification Regulator Register Template | [`privacy/template-breach-notification-regulator-register.md`](../privacy/template-breach-notification-regulator-register.md) | Data Protection Officer | Annual | GDPR Arts 33 to 34, UK GDPR, PIPEDA, Quebec Law 25, PIPL Art 57, LGPD Arts 48 to 49, breach-notification deadlines | template |
 | Privacy | Template | Joint Controller Arrangement Template | [`privacy/template-joint-controller-arrangement.md`](../privacy/template-joint-controller-arrangement.md) | Data Protection Officer | Annual | GDPR Art 26, UK GDPR Art 26, LGPD Art 42, PIPL Art 20, India DPDP 2023 §2(i), EDPB Guidelines 07/2020 | template |
 | Privacy | Template | Data Processing Agreement Template (GDPR Article 28) | [`privacy/template-dpa-article-28.md`](../privacy/template-dpa-article-28.md) | Data Protection Officer | Annual | GDPR Art 28, UK GDPR Art 28, LGPD Arts 39/42, PIPL Art 21, PIPEDA Principle 4.1.3, ISO/IEC 27001 A.5.20, ISO/IEC 27701:2025 | template |
+| Privacy | Template | Employee Monitoring Notice Template | [`privacy/template-employee-monitoring-notice.md`](../privacy/template-employee-monitoring-notice.md) | Data Protection Officer | Annual | ISO/IEC 27001 Annex A.5.34, GDPR Art 5/6/12/21/88, UK GDPR | template |
 | Privacy | Framework | Consent Management Framework | [`privacy/framework-consent-management.md`](../privacy/framework-consent-management.md) | Data Protection Officer | Annual | GDPR Arts 4(11)/6/7/8/9, ePrivacy Directive, LGPD Arts 7/8, PIPL Arts 13/14, COPPA, ISO/IEC 29184 | template |
 | Privacy | Register | Automated Decision-Making and Profiling Register | [`privacy/register-automated-decision-making.md`](../privacy/register-automated-decision-making.md) | Data Protection Officer | Quarterly | GDPR Art 22, EU AI Act Arts 6/14/26, LGPD Art 20, PIPL Art 24, NIST AI RMF | template |
 | Privacy | Register | Cookie and Tracker Register | [`privacy/register-cookie-and-tracker.md`](../privacy/register-cookie-and-tracker.md) | Data Protection Officer | Quarterly | ePrivacy Directive Art 5(3), UK PECR, GDPR, LGPD, PIPL, CCPA/CPRA | template |
