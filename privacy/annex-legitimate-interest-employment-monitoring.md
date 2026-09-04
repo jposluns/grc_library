@@ -2,7 +2,7 @@
 
 **Document Title:** Legitimate Interest Assessment for Employment Monitoring Annex\
 **Document Type:** Annex\
-**Version:** 0.1.1\
+**Version:** 0.1.2\
 **Date:** 2026-09-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -20,7 +20,7 @@
 
 This annex specializes the general Legitimate Interest Assessment (LIA) method for one context: the monitoring of personnel and their devices on organization systems and networks. It operationalizes, for that context, the three-part test defined in the [Legitimate Interest Assessment (LIA) Template](template-legitimate-interest-assessment.md), and it is the privacy-analysis companion to the [Workforce Network Monitoring Policy](../security/policy-workforce-network-monitoring.md).
 
-Employment monitoring sits on a difficult lawful-basis footing. The employer-employee relationship carries an imbalance of power that makes consent an unreliable basis, so monitoring generally relies on the legitimate-interests basis (GDPR Article 6(1)(f)) or another basis, and reliance on that basis is available only through a documented balancing analysis. This annex sets out how each part of the LIA test is applied when the interest pursued is a security, integrity, availability, or compliance aim and the individuals whose data is processed are the organization's own workforce.
+Employment monitoring sits on a difficult lawful-basis footing. The employer-employee relationship carries an imbalance of power that makes consent an unreliable basis, so monitoring generally relies on the legitimate-interests basis (GDPR Article 6(1)(f)) or another basis, and reliance on that basis is available only through a documented balancing analysis. This annex sets out how each part of the LIA test is applied when the interest pursued is a security, integrity, availability, or compliance aim and the individuals whose data is processed are the organization's own workforce. This annex addresses the EU and UK legitimate-interest basis specifically; other jurisdictions differ (some rest on a legal authorization or consent, some provide no controller legitimate-interest basis), so confirm the applicable basis under that jurisdiction's privacy annex before relying on this assessment.
 
 This annex supports the LIA template; it does not restate the template's generic method. Where a step is fully covered by the template, this annex points to it and adds only what the monitoring context changes.
 

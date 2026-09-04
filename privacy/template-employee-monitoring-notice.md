@@ -2,7 +2,7 @@
 
 **Document Title:** Employee Monitoring Notice Template\
 **Document Type:** Template\
-**Version:** 0.1.0\
+**Version:** 0.1.1\
 **Date:** 2026-09-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -85,7 +85,7 @@ State the legal ground for the monitoring, separately from the purpose above, an
 - **The usual basis is legitimate interests.** For most workforce monitoring the organization relies on its legitimate interests (GDPR / UK GDPR Article 6(1)(f)), balanced against your interests, rights, freedoms, and reasonable expectations. That balancing is documented in the organization's legitimate interest assessment for monitoring; the method is set out in the [Legitimate Interest Assessment for Employment Monitoring Annex](annex-legitimate-interest-employment-monitoring.md). Because this basis is used, you have the right to object (block 7).
 - **Consent is not the basis.** In an employment relationship, consent is generally not a valid basis for monitoring, because the imbalance of power between employer and employee means consent cannot be freely given. The organization does not rely on your consent for monitoring, and signing this notice, acknowledging the acceptable-use policy, or continuing in employment is not treated as consent to monitoring.
 - **Where another basis applies.** A specific monitoring activity may instead rest on a legal obligation or another Article 6 basis; where it does, that basis is stated for that activity: [state any activity-specific basis].
-- **Jurisdictional note.** [EU]: monitoring that processes personal data relies on an Article 6 basis; where a Member State has introduced more specific employment rules under GDPR Article 88, those rules also apply. [United Kingdom]: monitoring relies on a UK GDPR Article 6 basis; UK GDPR Article 88 is not adopted, so there is no UK employment-specific Article 88 regime, and UK employment monitoring relies on the general lawful-basis analysis. [Populate the jurisdictions that apply to the organization.]
+- **Jurisdictional note.** [EU]: monitoring that processes personal data relies on an Article 6 basis; where a Member State has introduced more specific employment rules under GDPR Article 88, those rules also apply. [United Kingdom]: monitoring relies on a UK GDPR Article 6 basis; UK GDPR Article 88 is not adopted, so there is no UK employment-specific Article 88 regime, and UK employment monitoring relies on the general lawful-basis analysis. [Other jurisdictions]: the legitimate-interest default above is EU/UK-specific and does not carry over automatically. Some regimes have no legitimate-interest basis and rest instead on a specific legal authorization or express consent (for example Chile's Ley 19.628, where workforce monitoring relies on a legal authorization or the worker's express written consent), and some provide no controller legitimate-interest basis at all (for example Colombia's Ley 1581 de 2012); state the lawful basis under the applicable jurisdiction's privacy annex. [Populate the jurisdictions that apply to the organization.]
 
 ### 5. What data is collected, how long it is kept, and who can see it
 
@@ -134,7 +134,7 @@ For a short notice delivered at the point of collection (for example a sign-in b
 
 1. **Who:** that [organization name] monitors activity on this organization system or network.
 2. **What and why:** that it collects connection metadata, telemetry, and security signals for security and compliance purposes, and that it does not routinely inspect the content of communications and does not monitor personal devices beyond the organization-resource interaction.
-3. **Lawful basis:** that the monitoring relies on the organization's legitimate interests (Article 6(1)(f)), not on your consent.
+3. **Lawful basis:** in EU/UK regimes, that the monitoring relies on the organization's legitimate interests (Article 6(1)(f)), not on your consent; in other jurisdictions, the basis that applies under that jurisdiction's annex (which may instead be a legal authorization or consent).
 4. **Not a work measure:** that these signals are not used to measure your work and do not, by themselves, trigger any employment consequence.
 5. **Your right to object, and where to go:** a clear pointer to the right to object and a link to the full monitoring notice and the rights information.
 
