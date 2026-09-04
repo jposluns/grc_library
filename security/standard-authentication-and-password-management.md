@@ -2,8 +2,8 @@
 
 **Document Title:** Authentication and Password Management Standard\
 **Document Type:** Standard\
-**Version:** 1.1.11\
-**Date:** 2026-08-31\
+**Version:** 1.1.12\
+**Date:** 2026-09-04\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md)\
@@ -98,7 +98,7 @@ Exceptions to any requirement in this standard are approved through the §4.2.2 
 | --- | --- | --- | --- | --- |
 | Password requirements | SP 800-63B §3.1.1 (except the organizational character-composition requirement, a deliberate divergence noted in Section 4) | A.8.5 | IAM-14 | Control 5 |
 | MFA | SP 800-63B §2.2 (AAL2) | A.8.5 | IAM-13 | Control 6 |
-| Session management | SP 800-63B §5 | A.8.5 | IAM-09 | Control 5 |
+| Session management | SP 800-63B §5 | A.8.5 | IAM-13 | Control 5 |
 | Service account auth | N/A | A.8.2 | IAM-02 | Control 5 |
 
 
