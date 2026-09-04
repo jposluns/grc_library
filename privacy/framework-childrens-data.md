@@ -2,8 +2,8 @@
 
 **Document Title:** Children's Data Framework\
 **Document Type:** Framework\
-**Version:** 1.0.11\
-**Date:** 2026-08-26\
+**Version:** 1.0.12\
+**Date:** 2026-09-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/framework-consent-management.md`](framework-consent-management.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/register-automated-decision-making.md`](register-automated-decision-making.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md)\
@@ -46,7 +46,7 @@ The framework deliberately uses "child" rather than a single age threshold becau
 | Canada (Quebec): Law 25 | Under 14: parental or tutor consent (s. 14); information may not be collected from the minor without that consent unless clearly for the minor's benefit (s. 4.1) | Quebec-specific |
 | Brazil: LGPD | Under 18 considered child or adolescent; under 12 child | Best-interest principle |
 | China: PIPL | Under 14 | Parental or guardian consent required |
-| Japan: APPI | No fixed statutory numeric age; guardian involvement expected for minors under PPC guidance | Personal Information Protection Commission guidance applies |
+| Japan: APPI | No fixed statutory numeric age; guardian involvement for minors is common practice, but specific PPC guidance on it is not held in the reference base | Adopters confirm the current PPC position |
 | South Korea: PIPA | Under 14 | Parental consent required |
 
 Adopting organizations validate these against the jurisdiction index and applicable legal advice at the time of processing.
