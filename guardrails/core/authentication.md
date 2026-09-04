@@ -71,8 +71,8 @@ All login endpoints must implement:
 
 | Requirement | OWASP ASVS | OWASP Top 10 | CSA CCM | ISO 27001 |
 | --- | --- | --- | --- | --- |
-| MFA enforcement | V6.5 | A07 | IAM-15 | A.5.17 |
+| MFA enforcement | V6.5 | A07 | IAM-13 | A.5.17 |
 | Session management | V7.2 to V7.5 | A07 | IAM-13 to 14 | A.8.2 |
-| Service auth | V13.3 | A07 | IAM-09 | A.5.15 |
-| Directory integration | V6.8 | A07 | IAM-01 | A.5.15 |
-| Brute force | V6.3 | A07 | IAM-15 | A.8.3 |
+| Service auth | V13.3 | A07 | IAM-13 | A.5.15 |
+| Directory integration | V6.8 | A07 | IAM-13 | A.5.15 |
+| Brute force | V6.3 | A07 | IAM-13 | A.8.3 |

@@ -131,7 +131,7 @@ The clarification discipline has natural exceptions:
 | Requirement | NIST SSDF | CSA CCM | ISO 27001 |
 | --- | --- | --- | --- |
 | Documented decisions before action | PO.1, PO.5 | GRC-01, GRC-04 | A.5.1, A.5.4 |
-| Scope-bounded authorization | PO.5 | IAM-09 | A.5.15, A.5.18 |
+| Scope-bounded authorization | PO.5 | IAM-15 | A.5.15, A.5.18 |
 | Investigation before destructive action | RV.1, RV.2 | TVM-01 | A.5.27, A.8.16 |
 | Change-management for scope expansion | PO.5 | CCC-01 to 03 | A.5.4, A.8.32 |
 
