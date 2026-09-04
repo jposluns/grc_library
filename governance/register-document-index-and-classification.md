@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.158\
+**Version:** 1.27.159\
 **Date:** 2026-09-04\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -205,6 +205,7 @@ Documents are classified by their **primary** disposition. The small number that
 | AI | Procedure | Integrated AI and Privacy Assessment Procedure | [`ai/procedure-integrated-ai-and-privacy-assessment.md`](../ai/procedure-integrated-ai-and-privacy-assessment.md) | AI Risk Maintainer | 6 to 12 months | GDPR Art 22 and 35, EU AI Act Art 27 (FRIA), the DPIA / AI-IA / FRIA composition | template |
 | AI | Procedure | AI Model Risk Assessment Procedure | [`ai/procedure-ai-model-risk-assessment.md`](../ai/procedure-ai-model-risk-assessment.md) | AI Governance Approver | 6 to 12 months | Model risk assessment, lineage, robustness, residual risk | template |
 | AI | Matrix | AI Model Risk Control to Lifecycle Mapping Matrix | [`ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md`](../ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md) | AI System Inventory Keeper | 6 to 12 months | Model lifecycle, controls, evidence mapping | template |
+| AI | Matrix | ETSI Securing-AI Baseline Alignment Matrix | [`ai/matrix-etsi-sai-baseline-alignment.md`](../ai/matrix-etsi-sai-baseline-alignment.md) | AI Security Maintainer | 6 to 12 months | ETSI EN 304 223 baseline, AI security carriers, gap register | template |
 | AI | Template | AI System Register Template | [`ai/template-ai-system-register.md`](../ai/template-ai-system-register.md) | AI System Inventory Keeper | 6 to 12 months | Inventory, ownership, lifecycle, evidence | template |
 | AI | Template | Model Card Template | [`ai/template-model-card.md`](../ai/template-model-card.md) | AI System Inventory Keeper | 6 to 12 months | Model documentation, evaluation, limitations | template |
 | AI | Template | System Card Template | [`ai/template-system-card.md`](../ai/template-system-card.md) | AI System Inventory Keeper | 6 to 12 months | System context, integrations, controls | template |

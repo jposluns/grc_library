@@ -2,8 +2,8 @@
 
 **Document Title:** AI Governance Domain README\
 **Document Type:** Register\
-**Version:** 1.1.19\
-**Date:** 2026-08-31\
+**Version:** 1.1.20\
+**Date:** 2026-09-04\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md)\
@@ -43,6 +43,7 @@ AI documents in this repository treat data as the primary risk surface. They add
 | Standard | AI Human-Oversight Standard | [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md) |
 | Procedure | AI Model Risk Assessment Procedure | [`ai/procedure-ai-model-risk-assessment.md`](procedure-ai-model-risk-assessment.md) |
 | Matrix | AI Model Risk Control to Lifecycle Mapping | [`ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md`](matrix-ai-model-risk-control-to-lifecycle-mapping.md) |
+| Matrix | ETSI Securing-AI Baseline Alignment | [`ai/matrix-etsi-sai-baseline-alignment.md`](matrix-etsi-sai-baseline-alignment.md) |
 | Template | Model Card Template | [`ai/template-model-card.md`](template-model-card.md) |
 | Template | System Card Template | [`ai/template-system-card.md`](template-system-card.md) |
 | Guideline | Adversarial Evaluation Suite Development Guideline | [`ai/guideline-adversarial-evaluation-suite-development.md`](guideline-adversarial-evaluation-suite-development.md) |
