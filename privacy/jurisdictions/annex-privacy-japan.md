@@ -2,8 +2,8 @@
 
 **Document Title:** Japan Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.0\
-**Date:** 2026-07-04\
+**Version:** 1.1.1\
+**Date:** 2026-09-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -26,14 +26,14 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 - **Act on the Protection of Personal Information (APPI)**: Substantially amended in 2022 (effective April 2022) to introduce stricter consent requirements for third-party provision, cross-border transfer restrictions, pseudonymous information as a new category, rights to request suspension of third-party provision and deletion, and expanded enforcement powers.
 - **Regulatory authority:** Personal Information Protection Commission (PPC).
-- **PPC AI Guidelines (2024):** Guidelines addressing the application of APPI to AI systems, including requirements for lawful basis when using personal information for AI training, restrictions on use of third-party data, and transparency obligations.
+- **PPC AI-related guidance:** The PPC has published material on applying APPI to AI systems. That specific guidance is not held in the reference base, so an adopter confirms the current PPC AI guidance directly; the APPI obligations below apply to AI processing regardless.
 
 ---
 
 ## AI and privacy obligations
 
-- **Purpose specification:** Personal information used to train AI must be handled in compliance with APPI's purpose specification principle. Using personal information obtained by a third party for AI training requires that it was originally provided for a compatible purpose or that explicit consent exists for repurposing.
-- **Publicly available data:** The PPC has issued guidance that even publicly available personal information must be handled in compliance with APPI; scraping for AI training may constitute a violation.
+- **Purpose specification:** APPI's purpose-limitation principle applies to personal information used to train AI: using it beyond the originally specified purpose of utilization generally requires the individual's consent. For third-party-sourced data, an adopter confirms the use is within the purpose for which the data was provided, or obtains consent for the new purpose.
+- **Publicly available data:** APPI contains no general exemption for publicly available personal information, so it remains within scope. The proper-acquisition duty applies: a business must not acquire personal information by deceit or other improper means [Article 17], and must not use personal information by a method that may foment or prompt an unlawful or unfair act [Article 16-2]. Guidance specific to web scraping for AI training is not held in the reference base; adopters confirm the current PPC position before relying on a scraping-specific interpretation.
 - **Pseudonymous information (kamei kakō jōhō, 仮名加工情報: 2022 amendment):** May be used for internal analysis without consent under certain conditions, providing a lawful basis for some internal AI processing.
 - **Third-party provision:** Consent is required before providing personal information to AI system operators as third parties, unless an exception applies.
 - **Sensitive personal information:** Explicit opt-in consent required for processing of sensitive categories (race, creed, social status, medical history, criminal record, etc.) in AI systems.
@@ -52,8 +52,7 @@ Article numbers follow the current consolidated APPI (confirmed against the offi
 
 ## Cross-border transfer mechanisms
 
-- Cross-border third-party provision requires either consent of the data subject, or the recipient is in a country designated by the PPC as having equivalent protection (EU and UK recognized), or the recipient has established a personal information protection system equivalent to APPI standards (BCRs or equivalent contractual obligations).
-- The PPC has issued guidance on required contractual and monitoring obligations for cross-border transfers.
+- Cross-border third-party provision requires either consent of the data subject, or the recipient is in a country designated by the PPC as having equivalent protection, or the recipient has established a personal information protection system conforming to PPC rules [APPI Article 24].
 - Japan participates in the APEC CBPR 2.0 framework.
 
 ---

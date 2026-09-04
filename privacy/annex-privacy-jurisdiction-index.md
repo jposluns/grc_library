@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Jurisdiction Index\
 **Document Type:** Annex\
-**Version:** 1.0.32\
+**Version:** 1.0.33\
 **Date:** 2026-09-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -113,7 +113,7 @@ Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting 
 | Latin America | Various (see jurisdiction file) | Varies by jurisdiction | Varies by jurisdiction | Varies by jurisdiction |
 | Singapore | PDPA | PDPC AI Model Governance Framework; mandatory breach notification | PDPC contractual clauses, CBPR 2.0 | SGD 1M, or 10% of SG turnover if it exceeds SGD 10M (s.48J) |
 | Australia | Privacy Act 1988 | AI Ethics Framework (voluntary); APP principles; Privacy Act 2024 reforms | APP 8 contractual safeguards | AUD 50M or 30% adjusted turnover |
-| Japan | APPI | PPC AI Guidelines; purpose limitation for AI training | Adequacy (EU, UK); contractual | JPY 100M |
+| Japan | APPI | APPI purpose limitation for AI training; PPC AI guidance (not held, adopter-verify) | Adequacy (EU, UK); contractual | JPY 100M |
 | South Korea | PIPA 2023 | Right to explanation; automated decision review; PIPC guidance | Adequacy (EU); PIPC SCCs; consent | 3% annual revenue |
 | New Zealand | Privacy Act 2020 | IPP principles; OPC AI guidance; mandatory breach notification | IPP 12 safeguards; CBPR 2.0; adequacy (EU) | NZD 10,000 per offence |
 | UAE | PDPL, DIFC DPL, ADGM DPR | Sector-specific AI guidance; automated decision rights | Adequacy determination, SCCs | AED 5M (PDPL); USD 100,000 (DIFC) |
