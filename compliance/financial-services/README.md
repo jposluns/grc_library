@@ -2,8 +2,8 @@
 
 **Document Title:** Financial Services Sector Compliance README\
 **Document Type:** Register\
-**Version:** 1.0.1\
-**Date:** 2026-07-02\
+**Version:** 1.0.2\
+**Date:** 2026-09-04\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/financial-services/annex-financial-services-sector-requirements.md`](annex-financial-services-sector-requirements.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md)\
@@ -43,6 +43,7 @@ This directory applies to organizations operating as any of the following:
 | --- | --- | --- |
 | [`annex-financial-services-sector-requirements.md`](annex-financial-services-sector-requirements.md) | Annex | Financial-services sector regulatory landscape, prudential and conduct regulator obligations, and cross-jurisdiction requirements. |
 | [`annex-dora-implementation.md`](annex-dora-implementation.md) | Annex | EU Digital Operational Resilience Act (DORA) implementation overlay. |
+| [`annex-mica-implementation.md`](annex-mica-implementation.md) | Annex | EU Markets in Crypto-Assets Regulation (MiCA) implementation overlay. |
 | [`annex-sox-itgc.md`](annex-sox-itgc.md) | Annex | US Sarbanes-Oxley (SOX) IT general controls overlay for publicly-traded entities. |
 
 ---
