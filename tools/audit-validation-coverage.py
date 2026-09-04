@@ -202,14 +202,52 @@ def commit_age_days(repo_path, sha, now=None):
     return ((now if now is not None else time.time()) - int(out)) / 86400.0
 
 
+# Only LANDING-validation events attest that THIS landing passed CI. A schedule /
+# workflow_dispatch run carries head_sha = main's HEAD when it fired but does not
+# validate the landing at push time, so counting its green could MASK a red push
+# run on the same sha (the 2026-07-24 incident class this tool exists to catch);
+# such non-landing runs are excluded from the correlation.
+_LANDING_EVENTS = {"push", "pull_request"}
+
+
+def _wf_basename(path):
+    """Final workflow filename from a run `path`, tolerating GitHub's documented
+    `@ref` suffix (e.g. '.github/workflows/quality.yml@main' -> 'quality.yml')."""
+    return (path or "").rsplit("/", 1)[-1].split("@", 1)[0]
+
+
+def _reduce_ci_runs(runs, validating_names):
+    """Pure reduction (self-tested): given the actions/runs list for one sha and
+    the validating-workflow filename set, return 'success'|'failure'|'none'|
+    'unknown'. Correlate a run to the validating workflow by path basename (the
+    documented '@ref' suffix is stripped) AND restrict to landing events
+    (_LANDING_EVENTS), so a green scheduled sweep on the same head_sha cannot
+    mask a red push run. 'success' if ANY landing validating run concluded
+    success (re-runs update in place, so a superseded red cannot outvote a
+    green); else 'failure' if a landing validating run completed non-success;
+    else 'unknown' if landing validating runs exist but none completed
+    (in-flight); else 'none' (no landing validating run for the sha)."""
+    validating = [r for r in runs
+                  if _wf_basename(r.get("path")) in validating_names
+                  and r.get("event") in _LANDING_EVENTS]
+    if not validating:
+        return "none"
+    concluded = [r for r in validating if r.get("status") == "completed"]
+    if any(r.get("conclusion") == "success" for r in concluded):
+        return "success"
+    if concluded:
+        return "failure"
+    return "unknown"  # validating run(s) exist but still queued / in progress
+
+
 def ci_run_status(owner, repo, sha, validating_names):
     """CI-run status for a landed commit: 'success' | 'failure' | 'none' | 'unknown'.
 
     Queries `gh api repos/{o}/{r}/actions/runs?head_sha={sha}` (the PAT has
     Actions:Read; `gh pr checks` and the commits/status API are not usable) and
-    correlates runs to the VALIDATING workflow by matching each run's `path`
-    basename against `validating_names`, the workflow filenames detected by
-    has_validating_ci (e.g. {"quality.yml"}). Reduction across multiple runs:
+    correlates runs to the VALIDATING workflow by path basename (the documented
+    `@ref` suffix stripped) restricted to landing events, then delegates to the
+    pure _reduce_ci_runs (which carries the reduction + masking discipline). Reduction across multiple runs:
     the list endpoint reports each run at its LATEST attempt (a re-run updates
     the run in place), so a superseded failed attempt cannot mask a later green;
     'success' if ANY validating run for the sha concluded success (a later
@@ -225,23 +263,14 @@ def ci_run_status(owner, repo, sha, validating_names):
     rc, out, _ = _run(
         ["gh", "api",
          f"repos/{owner}/{repo}/actions/runs?head_sha={sha}&per_page=100",
-         "--jq", "[.workflow_runs[] | {path, status, conclusion}]"])
+         "--jq", "[.workflow_runs[] | {path, status, conclusion, event}]"])
     if rc != 0:
         return "unknown"
     try:
         runs = json.loads(out.strip() or "[]")
     except json.JSONDecodeError:
         return "unknown"
-    validating = [r for r in runs
-                  if (r.get("path") or "").rsplit("/", 1)[-1] in validating_names]
-    if not validating:
-        return "none"
-    concluded = [r for r in validating if r.get("status") == "completed"]
-    if any(r.get("conclusion") == "success" for r in concluded):
-        return "success"
-    if concluded:
-        return "failure"
-    return "unknown"  # validating run(s) exist but still queued / in progress
+    return _reduce_ci_runs(runs, validating_names)
 
 
 def verdict(policy, ci_counts, landing_counts, ci_present):
@@ -274,12 +303,14 @@ def verdict(policy, ci_counts, landing_counts, ci_present):
         else:
             unvalidated = ci_counts["failure"] + ci_counts["none_recent"]
         if unvalidated:
+            parts = [f"{ci_counts['failure']} with a red/non-success conclusion"]
+            if policy != "exchange":
+                parts.append(f"{ci_counts['none_recent']} with no validating "
+                             "run recorded")
             findings.append(
                 f"{unvalidated} landed commit(s) without a successful validating "
-                f"CI run ({ci_counts['failure']} with a red/non-success "
-                f"conclusion, {ci_counts['none_recent']} with no validating run "
-                "recorded); an unvalidated change is live on main until "
-                "remediated (the 2026-07-24 failure signature)")
+                f"CI run ({'; '.join(parts)}); an unvalidated change is live on "
+                "main until remediated (the 2026-07-24 failure signature)")
     if findings:
         return "FINDING", findings
     sampled = sum(ci_counts.values())
@@ -526,6 +557,23 @@ def _self_test():
                 verdict("exchange", _ci(success=4, failure=1),
                         _landing(other_direct=5), True)[0], "FINDING")
 
+        def test_exchange_failure_message_excludes_none_recent(self):
+            # codex defect 2: exchange counts only failure as unvalidated, so the
+            # finding breakdown must NOT claim the none_recent no-runs as findings
+            v, notes = verdict("exchange", _ci(failure=1, none_recent=5),
+                               _landing(other_direct=6), True)
+            self.assertEqual(v, "FINDING")
+            fnote = next(n for n in notes if "without a successful" in n)
+            self.assertIn("1 landed commit", fnote)
+            self.assertNotIn("no validating run recorded", fnote)
+
+        def test_mixed_none_old_and_unknown_is_ok_partial(self):
+            v, notes = verdict("pr-required", _ci(success=10, none_old=2, unknown=3),
+                               _landing(pr=15), True)
+            self.assertEqual(v, "OK-PARTIAL")
+            self.assertTrue(any("retention" in n for n in notes))
+            self.assertTrue(any("unknown" in n for n in notes))
+
     class CiDetectionTests(unittest.TestCase):
         """has_validating_ci is fixturable (pure string + tempfile); this catches the
         actions/checkout false-positive that a bare `check` token would let through."""
@@ -555,10 +603,59 @@ def _self_test():
         def test_no_workflows_is_not_validating(self):
             self.assertFalse(has_validating_ci(Path(tempfile.mkdtemp()))[0])
 
+    class ReduceCiRunsTests(unittest.TestCase):
+        """_reduce_ci_runs is pure (list of run dicts in, verdict out); pins the
+        landing-event filter (a green scheduled sweep must not mask a red push on
+        the same head_sha) and the @ref path normalization codex flagged."""
+
+        def _r(self, path, conclusion, event, status="completed"):
+            return {"path": f".github/workflows/{path}", "status": status,
+                    "conclusion": conclusion, "event": event}
+
+        NAMES = {"quality.yml", "nightly-sweep.yml"}
+
+        def test_scheduled_green_does_not_mask_push_red(self):
+            runs = [self._r("quality.yml", "failure", "push"),
+                    self._r("nightly-sweep.yml", "success", "schedule")]
+            self.assertEqual(_reduce_ci_runs(runs, self.NAMES), "failure")
+
+        def test_push_green_is_success(self):
+            self.assertEqual(
+                _reduce_ci_runs([self._r("quality.yml", "success", "push")],
+                                self.NAMES), "success")
+
+        def test_ref_suffix_path_is_normalized(self):
+            # codex defect 1: GitHub's documented path may carry an @ref suffix
+            self.assertEqual(
+                _reduce_ci_runs([self._r("quality.yml@main", "success", "push")],
+                                {"quality.yml"}), "success")
+
+        def test_only_scheduled_run_is_none(self):
+            self.assertEqual(
+                _reduce_ci_runs([self._r("quality.yml", "success", "schedule")],
+                                self.NAMES), "none")
+
+        def test_inflight_push_is_unknown(self):
+            self.assertEqual(
+                _reduce_ci_runs([self._r("quality.yml", None, "push",
+                                         status="in_progress")], self.NAMES),
+                "unknown")
+
+        def test_non_validating_workflow_is_none(self):
+            self.assertEqual(
+                _reduce_ci_runs([self._r("web-generator-health.yml", "success",
+                                         "push")], self.NAMES), "none")
+
+        def test_pull_request_event_counts(self):
+            self.assertEqual(
+                _reduce_ci_runs([self._r("quality.yml", "success",
+                                         "pull_request")], self.NAMES), "success")
+
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
     suite.addTests(loader.loadTestsFromTestCase(VerdictTests))
     suite.addTests(loader.loadTestsFromTestCase(CiDetectionTests))
+    suite.addTests(loader.loadTestsFromTestCase(ReduceCiRunsTests))
     res = unittest.TextTestRunner(verbosity=1).run(suite)
     return 0 if res.wasSuccessful() else 1
 
