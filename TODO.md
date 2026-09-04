@@ -86,7 +86,6 @@ Fill significant gaps: deepen thin-but-present content to operational sufficienc
 | 2.26 | OSCAL machine-readable representation (umbrella; maintainer-directed 2026-07-23, H, XL) | `[machinery]` `[public]` |
 | 2.33 | Canada-specific executive/jurisdiction document series (maintainer-directed 2026-08-17; content; moved from private P-1.38 2026-08-30) | `[public]` |
 | 2.34 | Workforce monitoring and network-telemetry compliance suite (umbrella; requested by the UniFi presence/traffic project 2026-09-02, maintainer-directed, target ~2026-09-09; H, L) | `[content]` `[public]` |
-| 2.34.8 | [req-P0] EDIT `privacy/jurisdictions/annex-privacy-{canada,european-union,united-kingdom,mexico,latin-america,united-states}.md`: add "Employment / workforce monitoring" section each; Canada adequacy commercial-scope caveat (not employee data under federal PIPEDA) + Quebec Law 25 pre-transfer/PIA; EU GDPR Art.35(4) mandatory-DPIA hint | `[content]` `[public]` |
 | 2.34.9 | Citations import for 2.34: Art.29 WP WP249 (data processing at work), ICO "Monitoring workers"/employment-practices, ILO + Council of Europe workplace-monitoring recommendations, NIST Privacy Framework (ref-holds + upstream currency before citing) | `[content]` `[public]` |
 | 3.14 | ETSI Securing-AI alignment map (L, M) (was 3.16) | `[public]` |
 

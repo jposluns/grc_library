@@ -2,8 +2,8 @@
 
 **Document Title:** Mexico Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.2\
-**Date:** 2026-07-13\
+**Version:** 0.0.3\
+**Date:** 2026-09-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/jurisdictions/annex-privacy-latin-america.md`](annex-privacy-latin-america.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -68,6 +68,18 @@ Transfers of personal data, whether domestic or international, are governed by A
 - **Criminal offences** (Articles 62 and 63): the law establishes criminal penalties (imprisonment) for a person who, being authorized to process personal data, causes a security breach for profit (Article 62), and for a person who processes personal data deceitfully for unlawful profit (Article 63).
 
 The fine amounts are stated in UMA rather than a fixed peso figure because the UMA is indexed annually; an adopter converts to the current peso value using the UMA in force for the relevant year.
+
+---
+
+## Employment and workforce monitoring
+
+Where the organization monitors the network and device activity of workers in Mexico, the processing of their personal data by a private party is governed by the LFPDPPP (the 2025 law) and, operationally, by the Workforce Network Monitoring Policy ([`security/policy-workforce-network-monitoring.md`](../../security/policy-workforce-network-monitoring.md)) and its supporting suite. The LFPDPPP has no employment-specific regime; workforce monitoring is subject to the law's general principles.
+
+- **Purpose limitation and the general principles apply.** Monitoring must satisfy the principles of the LFPDPPP (Article 5), including finalidad (purpose), proporcionalidad (proportionality), calidad (quality), and licitud (lawfulness). A legitimate security aim states the purpose the monitoring serves; the purpose does not displace the requirement that the processing be limited to what is necessary and proportionate for that stated purpose, and monitoring data is not repurposed beyond the disclosed purposes.
+- **Privacy notice (aviso de privacidad).** The responsable must make an aviso de privacidad available to workers before or at collection, stating the identity of the controller, the purposes of the monitoring, the means to exercise ARCO rights, the options to limit use or disclosure, and any transfers (Articles 14 to 16). This is the LFPDPPP counterpart to the workforce monitoring notice; the [Employee Monitoring Notice Template](../template-employee-monitoring-notice.md) provides content that is adapted to the aviso de privacidad form.
+- **Consent and data-subject rights.** Under Article 7, all processing of personal data requires the data subject's consent unless a statutory exception in Article 9 applies; the LFPDPPP has no GDPR-style legitimate-interests basis. Workers retain the ARCO rights (access, rectification, cancellation, opposition; Articles 21 to 34) and the right to revoke consent (Article 7). Where the corpus's caution about the reliability of employment consent applies, the operative footing for monitoring is therefore not "general principles" but either an applicable Article 9 exception, most plausibly the exception for processing necessary to fulfil obligations arising from the legal relationship between the responsable and the worker (fact-dependent), or valid consent; the necessity and proportionality analysis in the [Legitimate Interest Assessment for Employment Monitoring Annex](../annex-legitimate-interest-employment-monitoring.md) is used only as an analytic aid for that assessment, adapted to the LFPDPPP's principles rather than to GDPR Article 6(1)(f).
+- **Transfers.** Communication of monitored employee data to a third party or abroad is governed by the LFPDPPP transfer provisions (Articles 35 and 36), which generally require privacy-notice disclosure and consent subject to the enumerated exceptions, with the transferee assuming the same obligations.
+- **Consultation, telemetry, and presence.** Where any representative-body or collective duty applies to introducing monitoring, it is determined and evidenced through the [Works Council and Employee Representative Consultation Procedure](../procedure-works-council-and-employee-representative-consultation.md). Connection metadata is governed by the [Network Telemetry and DPI Controls Standard](../standard-network-telemetry-and-dpi-controls.md) and presence signals by the [Presence Inference Limitations Standard](../standard-presence-inference-limitations.md), with the scope stated to workers mirroring the parent policy's in-scope and out-of-scope boundaries.
 
 ---
 

@@ -103,14 +103,14 @@ _109 documents._
 | [operations/standard-production-security-requirements.md](../operations/standard-production-security-requirements.md) | Production Security Requirements | Standard | 1.1.14 | 2026-08-27 |
 | [privacy/charter-privacy-management-programme.md](../privacy/charter-privacy-management-programme.md) | Privacy Management Programme Charter | Charter | 1.5.14 | 2026-09-04 |
 | [privacy/jurisdictions/annex-privacy-brazil.md](../privacy/jurisdictions/annex-privacy-brazil.md) | Brazil Privacy Regulatory Requirements | Annex | 1.1.8 | 2026-08-14 |
-| [privacy/jurisdictions/annex-privacy-canada.md](../privacy/jurisdictions/annex-privacy-canada.md) | Canada Privacy Regulatory Requirements | Annex | 1.1.20 | 2026-08-31 |
+| [privacy/jurisdictions/annex-privacy-canada.md](../privacy/jurisdictions/annex-privacy-canada.md) | Canada Privacy Regulatory Requirements | Annex | 1.1.21 | 2026-09-04 |
 | [privacy/jurisdictions/annex-privacy-china.md](../privacy/jurisdictions/annex-privacy-china.md) | China Privacy Regulatory Requirements | Annex | 1.1.5 | 2026-09-04 |
-| [privacy/jurisdictions/annex-privacy-european-union.md](../privacy/jurisdictions/annex-privacy-european-union.md) | European Union Privacy Regulatory Requirements | Annex | 1.1.18 | 2026-08-30 |
+| [privacy/jurisdictions/annex-privacy-european-union.md](../privacy/jurisdictions/annex-privacy-european-union.md) | European Union Privacy Regulatory Requirements | Annex | 1.1.19 | 2026-09-04 |
 | [privacy/jurisdictions/annex-privacy-india.md](../privacy/jurisdictions/annex-privacy-india.md) | India Privacy Regulatory Requirements | Annex | 1.1.8 | 2026-08-16 |
 | [privacy/jurisdictions/annex-privacy-japan.md](../privacy/jurisdictions/annex-privacy-japan.md) | Japan Privacy Regulatory Requirements | Annex | 1.1.0 | 2026-07-04 |
 | [privacy/jurisdictions/annex-privacy-malaysia.md](../privacy/jurisdictions/annex-privacy-malaysia.md) | Malaysia Privacy Regulatory Requirements | Annex | 1.1.2 | 2026-07-02 |
-| [privacy/jurisdictions/annex-privacy-united-kingdom.md](../privacy/jurisdictions/annex-privacy-united-kingdom.md) | United Kingdom Privacy Regulatory Requirements | Annex | 1.1.2 | 2026-07-02 |
-| [privacy/jurisdictions/annex-privacy-united-states.md](../privacy/jurisdictions/annex-privacy-united-states.md) | United States Privacy Regulatory Requirements | Annex | 1.2.8 | 2026-09-03 |
+| [privacy/jurisdictions/annex-privacy-united-kingdom.md](../privacy/jurisdictions/annex-privacy-united-kingdom.md) | United Kingdom Privacy Regulatory Requirements | Annex | 1.1.3 | 2026-09-04 |
+| [privacy/jurisdictions/annex-privacy-united-states.md](../privacy/jurisdictions/annex-privacy-united-states.md) | United States Privacy Regulatory Requirements | Annex | 1.2.9 | 2026-09-04 |
 | [privacy/jurisdictions/annex-privacy-vietnam.md](../privacy/jurisdictions/annex-privacy-vietnam.md) | Vietnam Privacy Regulatory Requirements | Annex | 1.2.1 | 2026-08-04 |
 | [privacy/policy-privacy-and-data-governance.md](../privacy/policy-privacy-and-data-governance.md) | Privacy and Data Governance Policy | Policy | 1.4.20 | 2026-08-31 |
 | [privacy/procedure-data-protection-and-privacy-breach-response.md](../privacy/procedure-data-protection-and-privacy-breach-response.md) | Data Protection and Privacy Breach Response Procedure | Procedure | 1.4.34 | 2026-09-04 |
@@ -254,7 +254,7 @@ _170 documents._
 | [privacy/jurisdictions/annex-privacy-australia.md](../privacy/jurisdictions/annex-privacy-australia.md) | Australia Privacy Regulatory Requirements | Annex | 1.0.4 | 2026-07-11 |
 | [privacy/jurisdictions/annex-privacy-indonesia.md](../privacy/jurisdictions/annex-privacy-indonesia.md) | Indonesia Privacy Regulatory Requirements | Annex | 1.0.3 | 2026-07-02 |
 | [privacy/jurisdictions/annex-privacy-kenya.md](../privacy/jurisdictions/annex-privacy-kenya.md) | Kenya Privacy Regulatory Requirements | Annex | 1.0.5 | 2026-07-02 |
-| [privacy/jurisdictions/annex-privacy-latin-america.md](../privacy/jurisdictions/annex-privacy-latin-america.md) | Latin America Privacy Regulatory Requirements | Annex | 1.0.6 | 2026-08-04 |
+| [privacy/jurisdictions/annex-privacy-latin-america.md](../privacy/jurisdictions/annex-privacy-latin-america.md) | Latin America Privacy Regulatory Requirements | Annex | 1.0.7 | 2026-09-04 |
 | [privacy/jurisdictions/annex-privacy-new-zealand.md](../privacy/jurisdictions/annex-privacy-new-zealand.md) | New Zealand Privacy Regulatory Requirements | Annex | 1.0.4 | 2026-07-02 |
 | [privacy/jurisdictions/annex-privacy-nigeria.md](../privacy/jurisdictions/annex-privacy-nigeria.md) | Nigeria Privacy Regulatory Requirements | Annex | 1.0.3 | 2026-07-02 |
 | [privacy/jurisdictions/annex-privacy-philippines.md](../privacy/jurisdictions/annex-privacy-philippines.md) | Philippines Privacy Regulatory Requirements | Annex | 1.0.3 | 2026-07-02 |
@@ -388,7 +388,7 @@ _54 documents._
 | [governance/standard-semantic-continuity-in-migration-and-retirement.md](../governance/standard-semantic-continuity-in-migration-and-retirement.md) | Semantic Continuity in Migration and Retirement Standard | Standard | 0.0.2 | 2026-08-31 |
 | [operations/standard-observability-and-telemetry.md](../operations/standard-observability-and-telemetry.md) | Observability and Telemetry Standard | Standard | 0.0.7 | 2026-09-03 |
 | [privacy/annex-legitimate-interest-employment-monitoring.md](../privacy/annex-legitimate-interest-employment-monitoring.md) | Legitimate Interest Assessment for Employment Monitoring Annex | Annex | 0.1.1 | 2026-09-04 |
-| [privacy/jurisdictions/annex-privacy-mexico.md](../privacy/jurisdictions/annex-privacy-mexico.md) | Mexico Privacy Regulatory Requirements | Annex | 0.0.2 | 2026-07-13 |
+| [privacy/jurisdictions/annex-privacy-mexico.md](../privacy/jurisdictions/annex-privacy-mexico.md) | Mexico Privacy Regulatory Requirements | Annex | 0.0.3 | 2026-09-04 |
 | [privacy/procedure-works-council-and-employee-representative-consultation.md](../privacy/procedure-works-council-and-employee-representative-consultation.md) | Works Council and Employee Representative Consultation Procedure | Procedure | 0.1.0 | 2026-09-04 |
 | [privacy/standard-network-telemetry-and-dpi-controls.md](../privacy/standard-network-telemetry-and-dpi-controls.md) | Network Telemetry and DPI Controls Standard | Standard | 0.1.0 | 2026-09-04 |
 | [privacy/standard-presence-inference-limitations.md](../privacy/standard-presence-inference-limitations.md) | Presence Inference Limitations Standard | Standard | 0.1.0 | 2026-09-04 |
