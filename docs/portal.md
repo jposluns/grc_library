@@ -513,6 +513,7 @@ The Data Protection Officer needs the privacy programme charter, policy, procedu
 
 ### Standard
 
+- [Presence Inference Limitations Standard](../privacy/standard-presence-inference-limitations.md) (maturity: Draft)
 - [Pseudonymization and Anonymization Standard](../privacy/standard-pseudonymization-and-anonymization.md) (maturity: Baseline)
 
 ### Template
