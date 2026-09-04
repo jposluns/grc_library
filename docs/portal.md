@@ -460,6 +460,7 @@ The Data Protection Officer needs the privacy programme charter, policy, procedu
 - [Australia Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-australia.md) (maturity: Baseline)
 - [Brazil Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-brazil.md) (maturity: Mature)
 - [Canada Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-canada.md) (maturity: Mature)
+- [Chile Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-chile.md) (maturity: Draft)
 - [China Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-china.md) (maturity: Mature)
 - [European Union Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-european-union.md) (maturity: Mature)
 - [India Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-india.md) (maturity: Mature)
