@@ -2,7 +2,7 @@
 
 **Document Title:** AI Governance Domain README\
 **Document Type:** Register\
-**Version:** 1.1.20\
+**Version:** 1.1.21\
 **Date:** 2026-09-04\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
@@ -81,6 +81,7 @@ AI documents in this repository treat data as the primary risk surface. They add
 | Procedure | Training Data Governance Procedure | [`ai/procedure-training-data-governance.md`](procedure-training-data-governance.md) |
 | Standard | AI Data Quality and Readiness Validation Standard | [`ai/standard-ai-data-quality-and-readiness-validation.md`](standard-ai-data-quality-and-readiness-validation.md) |
 | Standard | AI Inference Cost Governance Standard | [`ai/standard-ai-inference-cost-governance.md`](standard-ai-inference-cost-governance.md) |
+| Standard | AI Total Cost of Ownership Governance Standard | [`ai/standard-ai-total-cost-of-ownership-governance.md`](standard-ai-total-cost-of-ownership-governance.md) |
 | Template | AI Red Team Report Template | [`ai/template-ai-red-team-report.md`](template-ai-red-team-report.md) |
 
 ---

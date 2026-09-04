@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.159\
+**Version:** 1.27.160\
 **Date:** 2026-09-04\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -325,6 +325,7 @@ Documents are classified by their **primary** disposition. The small number that
 | AI | Register | Model Context Protocol Server Register | [`ai/register-mcp-server.md`](../ai/register-mcp-server.md) | AI Security Maintainer | Quarterly | MCP specification, ISO/IEC 42001 §8, OWASP LLM03:2026/LLM04:2026, MITRE ATLAS, NIST AI RMF, NIST SP 800-53 AC/AU/SI/SR, ISO/IEC 27001 | template |
 | AI | Procedure | Training Data Governance Procedure | [`ai/procedure-training-data-governance.md`](../ai/procedure-training-data-governance.md) | AI Data Steward | Annual | EU AI Act Arts 10/11, ISO/IEC 42001 §7.5, GDPR Arts 5/6/9/17/22/25/30/35, LGPD, PIPL, NIST AI RMF MAP, ISO/IEC 5259, OECD AI | template |
 | AI | Standard | AI Inference Cost Governance Standard | [`ai/standard-ai-inference-cost-governance.md`](../ai/standard-ai-inference-cost-governance.md) | AI Governance Approver | Annual | ISO/IEC 42001 §8/9, NIST AI RMF MEASURE/MANAGE, FinOps Foundation Framework, ISO/IEC 30134, EU AI Act Arts 26/53/55, GHG Protocol | template |
+| AI | Standard | AI Total Cost of Ownership Governance Standard | [`ai/standard-ai-total-cost-of-ownership-governance.md`](../ai/standard-ai-total-cost-of-ownership-governance.md) | AI Governance Approver | Annual | NIST AI RMF MAP/MANAGE, ISO/IEC 42001 §7, COBIT 2019 APO06, NIST AI 600-1 | template |
 | AI | Template | AI Red Team Report Template | [`ai/template-ai-red-team-report.md`](../ai/template-ai-red-team-report.md) | AI Security Maintainer | Annual | OWASP LLM Top 10, MITRE ATLAS, NIST AI RMF MEASURE, ISO/IEC 42001 §9, EU AI Act Arts 15/17, ISO/IEC 27001 Annex A.8.29, PTES, OWASP GenAI Red Teaming | template |
 | Dev Security | Policy | Secure Development and Engineering Policy | [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md) | Chief Information Officer | Annual | ISO/IEC 27034, NIST SSDF, OWASP ASVS v5, COBIT BAI03/BAI07, CSA CCM AIS | template |
 | Dev Security | Standard | Software Evaluation, Acceptance and Lifecycle Management Standard | [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md) | Chief Information Officer | Annual | ISO/IEC/IEEE 12207:2026, ISO/IEC 27002, ISO/IEC 25010, COBIT BAI03/BAI07/BAI09, CSA CCM AIS/TVM | template |

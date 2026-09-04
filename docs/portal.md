@@ -420,6 +420,7 @@ Security architects need the dev-security standards, the AI security guides, the
 - [AI Model Succession and Identity Continuity Standard](../ai/standard-ai-model-succession-and-identity.md) (maturity: Draft)
 - [AI Security and Risk Standard](../ai/standard-ai-security-and-risk.md) (maturity: Mature)
 - [AI Testing, Validation and Documentation Standard](../ai/standard-ai-testing-validation-and-documentation.md) (maturity: Baseline)
+- [AI Total Cost of Ownership Governance Standard](../ai/standard-ai-total-cost-of-ownership-governance.md) (maturity: Draft)
 - [AI and Agentic Development Security Standard](../ai/standard-ai-and-agentic-development-security.md) (maturity: Mature)
 - [API Security Standard](../dev-security/standard-api-security.md) (maturity: Draft)
 - [AWS Cloud Hardening Baseline Standard](../dev-security/standard-cloud-hardening-baseline-aws.md) (maturity: Draft)
