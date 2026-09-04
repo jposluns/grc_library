@@ -34,10 +34,18 @@ ledger) FAILS the check rather than passing it. The ledger is maintainer working
 resolved through lint_common.resolve_working, so on public CI and adopter clones it is
 legitimately ABSENT and the gate no-ops (exit 0), the same graceful degradation every
 `.working/`-reading gate takes; the fail-closed property therefore binds where the ledger
-exists, the maintainer's pre-push runner. Residue, stated: a MALFORMED `## Open` row (an
-unescaped pipe shifted its columns) has no trustworthy Found or Disposition cell; it is
-NOTED here and left to the open-findings hook, which forces it to a blocking error at
-`gh pr create` / `gh pr merge` time (layered defence, no gap: the row cannot merge).
+exists, the maintainer's pre-push runner. Residue, stated honestly (codex/claude QA #1989
+iter-2): a MALFORMED row (an unescaped pipe shifted its columns) has no trustworthy Found
+or Disposition cell and is NOTED, not failed, here. For a malformed row in `## Open` the
+open-findings hook forces it to a blocking error at `gh pr create` / `gh pr merge` time, so
+that case has a backstop. A malformed row in `## Closed today` has NO such backstop (the
+hook's blocking path is `## Open`-only), so a malformed FIXED class row moved to Closed
+while corrupt is a KNOWN, disclosed residue of this note-and-skip choice. Closing it
+properly (fail this gate closed on any in-window malformed row, after first repairing the
+pre-existing malformed Closed rows so the gate does not red-light on unrelated legacy
+corruption) is tracked as P-1.70; it is not done here because the pre-existing malformed
+rows are irregular and their columns cannot be re-assigned deterministically in an
+unattended run.
 
 SINGLE GRAMMAR OWNER. The row parser and the attestation grammar are loaded from the
 open-findings hook itself (importlib), and the matcher from check-class-completeness.py, so
@@ -71,8 +79,8 @@ MATCHER_REL = Path("tools") / "check-class-completeness.py"
 # `## Closed today`) whose Found date is ON OR AFTER this date are reproduce-checked, so the
 # ledger's pre-P-1.67 rows are never retro-failed.
 #
-# Set to the DAY AFTER this gate merges, NOT the merge date: ~15 FIXED class rows already in
-# the ledger were authored on the merge day (2026-09-04) BEFORE the attestation grammar
+# Set to the DAY AFTER this gate merges, NOT the merge date: the FIXED class rows already in
+# the ledger that were authored on the merge day (2026-09-04) BEFORE the attestation grammar
 # existed, and the Found cell is day-granular, so a merge-date floor could not tell those
 # pre-grammar rows apart from post-grammar rows added the same day, and would retro-fail
 # them. Choosing day-after exempts all of the merge day, which is the price of the
@@ -141,8 +149,9 @@ def evaluate(rows_full: list, hook, probe, floor: datetime.date = SHIP_FLOOR):
     for found, _sev, finding, disp in rows_full:
         if disp is None:
             notes.append(
-                f"malformed ## Open row skipped here; the open-findings hook forces it to "
-                f"a blocking error at PR time: {finding[:100]!r}"
+                f"malformed row skipped here (columns unreadable); a malformed `## Open` "
+                f"row is separately blocked by the open-findings hook, but a malformed "
+                f"`## Closed today` row is a known disclosed residue (P-1.70): {finding[:100]!r}"
             )
             continue
         if not hook.is_fixed_disposition(disp):

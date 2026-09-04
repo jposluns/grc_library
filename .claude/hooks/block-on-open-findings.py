@@ -220,7 +220,7 @@ def undispositioned(rows: list, severity: str) -> list:
 CLASS_TOKEN_RE = re.compile(r"^\[([A-Za-z0-9][A-Za-z0-9_.-]*)\](?!\()")
 CLASS_ATTEST_RE = re.compile(r'\[class:\s*"([^"\r\n]+)"\s*@\s*(\d+)\s*\]', re.IGNORECASE)
 CLASS_EXEMPT_REASONS = ("singleton", "non-textual", "cross-repo")
-CLASS_EXEMPT_RE = re.compile(r"\[class-exempt:\s*([A-Za-z-]+)\s*\]", re.IGNORECASE)
+CLASS_EXEMPT_RE = re.compile(r"\[class-exempt:\s*([^\]]+?)\s*\]", re.IGNORECASE)
 _FIXED_WORD_RE = re.compile(r"^\s*fixed\b", re.IGNORECASE)
 
 
@@ -248,12 +248,15 @@ def is_fixed_disposition(cell: str) -> bool:
 def class_attestation_state(cell: str) -> str:
     """PURE. 'class' | 'exempt' | 'bad-exempt' | 'none' for a Disposition cell.
 
-    Inline emphasis markup (`*`, `_`, backticks) is removed first, as ``disposition_valid``
-    does; the square brackets are the clause's own delimiters and are kept."""
-    plain = re.sub(r"[*_`]", "", cell)
-    if CLASS_ATTEST_RE.search(plain):
+    Matches the RAW cell (F1, codex QA #1989 iter-2): the `[class: ...]` / `[class-exempt: ...]`
+    clause is delimited by its own brackets, so emphasis markup AROUND it never interferes,
+    and stripping `*`/`_`/backtick FIRST would (a) corrupt a token that contains one and (b)
+    NORMALIZE an invalid exempt reason into a valid one (`sing_leton` -> `singleton`,
+    `non-*textual` -> `non-textual`), a false pass. The exempt reason must be matched exactly
+    as written so an off-set reason returns 'bad-exempt' and refuses."""
+    if CLASS_ATTEST_RE.search(cell):
         return "class"
-    m = CLASS_EXEMPT_RE.search(plain)
+    m = CLASS_EXEMPT_RE.search(cell)
     if m:
         return "exempt" if m.group(1).lower() in CLASS_EXEMPT_REASONS else "bad-exempt"
     return "none"
@@ -466,6 +469,12 @@ def self_test() -> int:
        class_attestation_state("FIXED #1 [class-exempt: singleton]"), "exempt")
     ck("an off-set exemption reason is bad-exempt (refuses, never permits)",
        class_attestation_state("FIXED #1 [class-exempt: too-hard]"), "bad-exempt")
+    ck("F1: an underscore in an exempt reason does NOT normalize to a valid reason",
+       class_attestation_state("FIXED #1 [class-exempt: sing_leton]"), "bad-exempt")
+    ck("F1: a star in an exempt reason does NOT normalize to a valid reason",
+       class_attestation_state("FIXED #1 [class-exempt: non-*textual]"), "bad-exempt")
+    ck("F1: a valid closed-set reason still classifies exempt",
+       class_attestation_state("FIXED #1 [class-exempt: cross-repo]"), "exempt")
     ck("no clause is none", class_attestation_state("FIXED #1 then prose"), "none")
     ck("extraction unescapes a table-escaped pipe",
        extract_class_attestation('FIXED #1 [class: "a \\| b" @ 4]'), ("a | b", 4))
