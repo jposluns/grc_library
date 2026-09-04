@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Guide\
 **Document Type:** Guide\
-**Version:** 1.3.18\
-**Date:** 2026-09-03\
+**Version:** 1.3.19\
+**Date:** 2026-09-04\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/worked-example.md`](worked-example.md), [`docs/worked-example-adoption.md`](worked-example-adoption.md), [`docs/adopter-guide-multi-entity.md`](adopter-guide-multi-entity.md), [`specification-master-project.md`](../specification-master-project.md)\
@@ -213,6 +213,16 @@ A customized fork hits three recurring cases the pull does not resolve on its ow
 ### Running the audit toolchain on your fork
 
 Some audit gates are calibrated for this library's organization-neutral public corpus and will raise false positives once you insert real values. In particular, [`tools/lint-pii-in-content.py`](../tools/lint-pii-in-content.py) and [`tools/lint-secrets-in-content.py`](../tools/lint-secrets-in-content.py) will flag the real role-holders, names, internal system names, or credentials a fork legitimately carries. Keep organization-specific values in a private overlay directory the linters do not scan (the toolchain reads its exempt directories from `DEFAULT_EXEMPT_DIRS` in [`tools/lint_common.py`](../tools/lint_common.py); add your overlay directory there), or keep those values out of the committed fork entirely. Relax or scope a gate only with a documented deviation, per the upstream-tracking guidance above.
+
+### Extending the bundled framework-control registries
+
+The corpus validates the framework control codes cited in an alignment table against bundled, edition-pinned identifier registries under `tools/`. Each framework family has its own committed registry and its own existence gate, and each gate reads the committed registry rather than the held reference repository at run time, so the checks run in a sibling-free clone. For example, the NIST Privacy Framework uses [`tools/alignment_citation_reference.py`](../tools/alignment_citation_reference.py) (checked by [`tools/lint-alignment-citation-existence.py`](../tools/lint-alignment-citation-existence.py)); CSA CCM/AICM uses [`tools/ccm_aicm_reference.py`](../tools/ccm_aicm_reference.py) (checked by [`tools/lint-ccm-aicm-citations.py`](../tools/lint-ccm-aicm-citations.py)); ISO/IEC 27001 Annex A uses [`tools/iso_27001_reference.py`](../tools/iso_27001_reference.py) (checked by [`tools/lint-document-iso-annex-a.py`](../tools/lint-document-iso-annex-a.py)); and COBIT/ISO 31000 uses [`tools/cobit_iso31000_reference.py`](../tools/cobit_iso31000_reference.py) (checked by [`tools/lint-cobit-iso31000-citations.py`](../tools/lint-cobit-iso31000-citations.py)).
+
+If your fork cites a control the relevant framework's registry does not carry (an edition the corpus does not bundle, or an identifier outside the captured set), that framework's existence gate reports a fabricated-code error even though the citation is legitimate against a source you hold. Extend that framework's registry rather than weakening the gate:
+
+1. Identify the registry module the flagging gate imports, and add your held edition's identifiers to it, following that module's own existing structure. The modules differ in shape: some carry a per-edition entry with a `status` and a `provenance` stamp (held-source reference, extraction method, and expected structural counts), while others carry framework-specific sets of constants. Match the module you are editing rather than assuming one common schema.
+2. Extract the identifiers deterministically from the edition you hold. Where a gate validates a code against the union of a framework's held editions, adding your edition's identifiers clears the finding without loosening the check for anything else.
+3. Re-run the gate that flagged the code to confirm it now accepts your citation, then record the addition and its provenance in your local change record. Keep the change in your fork; do not expect it upstream unless the corpus adopts that framework and edition.
 
 ## When to file an issue upstream
 
