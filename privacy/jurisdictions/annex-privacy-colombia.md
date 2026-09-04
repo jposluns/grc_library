@@ -2,7 +2,7 @@
 
 **Document Title:** Colombia Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.1\
+**Version:** 0.0.2\
 **Date:** 2026-09-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -72,7 +72,7 @@ Every controller and processor must designate a person or area assuming the pers
 
 ## Employment and workforce monitoring
 
-Where the organization monitors the network and device activity of workers in Colombia, the processing is governed by Ley 1581 de 2012 and its reglamentos and, operationally, by the Workforce Network Monitoring Policy and its supporting suite. The framework has no employment-specific regime; workforce monitoring is subject to the general rules.
+Where the organization monitors the network and device activity of workers in Colombia, the processing is governed by Ley 1581 de 2012 and its reglamentos and, operationally, by the Workforce Network Monitoring Policy ([`security/policy-workforce-network-monitoring.md`](../../security/policy-workforce-network-monitoring.md)) and its supporting suite. The framework has no employment-specific regime; workforce monitoring is subject to the general rules.
 
 - **Lawful footing**: authorization is the primary basis [Ley Arts 9, 12], but the corpus's standing caution about the reliability of employment consent applies; where consent is not a sound footing the operative basis is an applicable Article 10 exception or another legal mandate that releases consent [Ley Arts 4.c, 10], not a controller legitimate-interest basis, which the regime does not provide. The Legitimate Interest Assessment for Employment Monitoring Annex is used only as an analytic aid, adapted to Colombia's authorization-and-purpose scheme rather than to GDPR Article 6(1)(f).
 - **Sensitive data**: monitoring that would capture sensitive data (broadly defined at Ley Art 5) is prohibited unless an Article 6 exception applies, and the worker must be told they are not obliged to authorize sensitive-data processing, with no activity conditioned on providing it [Ley Arts 5-6; D1377 Art 6 / DUR 2.2.2.25.2.3].
