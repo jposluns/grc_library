@@ -2,8 +2,8 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.66\
-**Date:** 2026-09-01\
+**Version:** 1.5.67\
+**Date:** 2026-09-04\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py)\
@@ -286,6 +286,13 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | ICAO Annex 17 (Chicago Convention) | Edition 12 | 2022 | Security: safeguarding international civil aviation against acts of unlawful interference | Edition 11 | https://store.icao.int/en/annex-17-security | verified 2026-07-10 |
 | ICAO Doc 10055 | 2024 | 2024 | Aviation Cybersecurity Strategy | - | https://www.icao.int/aviation-cybersecurity/strategy | 2026-06-30 |
 | IMO MSC-FAL.1/Circ.3 | Rev. 3 | 2025-04 | Maritime cyber risk management guidelines | Rev. 2, Rev. 1 | https://www.imo.org/en/OurWork/Security/Pages/Cyber-security.aspx | 2026-06-30 |
+
+## International treaties and conventions
+
+This section records international treaties and conventions, binding at the inter-state level, that establish AI-governance or related obligations. Treaty text is version-sensitive (amendment, protocol, and ratification status change over time), so rows in this section carry the legislation re-verification tier. Data rows are populated as each instrument's authoritative text is confirmed held and current.
+
+| Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
+| --- | --- | --- | --- | --- | --- | --- |
 
 ## AI safety evaluation programmes
 
