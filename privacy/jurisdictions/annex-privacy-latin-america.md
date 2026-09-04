@@ -2,8 +2,8 @@
 
 **Document Title:** Latin America Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.6\
-**Date:** 2026-08-04\
+**Version:** 1.0.7\
+**Date:** 2026-09-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/jurisdictions/annex-privacy-brazil.md`](../jurisdictions/annex-privacy-brazil.md), [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -55,11 +55,22 @@ This annex provides an overview of privacy regulatory requirements in key Latin 
 
 Most Latin American jurisdictions apply general data protection principles to AI processing of personal data. Key considerations:
 
-- **Argentina:** The AAIP has issued guidance on AI and data protection, applying Law 25,326 to automated processing. Algorithmic transparency is an area of active regulatory development.
+- **Argentina:** The AAIP has issued guidance on AI and data protection, applying Law 25,326 to automated processing; that guidance is cited illustratively and is confirmed by adopters against current AAIP publications. Algorithmic transparency is an area of active regulatory development.
 - **Mexico:** Under the 2025 LFPDPPP, the Secretaría Anticorrupción y Buen Gobierno applies the law's principles to automated processing, requiring transparency about automated processing in privacy notices. The LFPDPPP provides rights to access, rectification, cancellation, and objection (ARCO rights). See the dedicated [`Mexico privacy annex`](annex-privacy-mexico.md).
 - **Colombia:** The SIC applies Law 1581 to AI systems. Data subjects may exercise ARCO rights against automated processing.
 - **Chile and Peru:** Both apply their data protection laws to AI processing. Chile has enacted Law 21,719 (in force 2026-12-01), which introduces explicit automated decision-making provisions; Peru applies its Law 29733.
 - **BASC regional context:** In jurisdictions where BASC certification is relevant, privacy controls should be aligned with BASC security management standards in addition to applicable local data protection laws.
+
+---
+
+## Employment and workforce monitoring
+
+Where the organization monitors the network and device activity of workers in the Latin American jurisdictions this annex covers (Argentina, Mexico, Colombia, Chile, and Peru), the processing of their personal data is governed by each jurisdiction's general data protection law and, operationally, by the Workforce Network Monitoring Policy ([`security/policy-workforce-network-monitoring.md`](../../security/policy-workforce-network-monitoring.md)) and its supporting suite. None of these laws carries a dedicated employee-monitoring regime; monitoring is subject to the general principles, and the position varies by country, so adopters verify per jurisdiction.
+
+- **The region varies; verify per country.** Each jurisdiction applies its own lawful-basis, notice, and data-subject-rights framework to workforce monitoring, and several are in transition. Argentina applies Law 25,326 (its AAIP guidance on automated processing is cited illustratively and is confirmed by adopters against current AAIP publications); Colombia applies Statutory Law 1581/2012 with ARCO-style rights enforced by the SIC; Chile's modernized Law 21,719 (in force 1 December 2026) introduces GDPR-style automated-decision and lawful-basis provisions that will apply to monitoring once operative, while Law 19,628 governs in the interim; Peru applies Law 29,733. Mexico's private-sector position is worked in the dedicated [`Mexico privacy annex`](annex-privacy-mexico.md), which this overview defers to.
+- **Brazil's legitimate-interest position (cross-reference).** For workers in Brazil, the LGPD supplies ten lawful bases (Article 7), including legitimate interest, and a controller relying on legitimate interest for monitoring conducts a balancing test and may be required by the ANPD to provide a data protection impact assessment (Articles 10 and 38). The Brazil-specific analysis is in the [`Brazil privacy annex`](annex-privacy-brazil.md); this annex does not restate it.
+- **Purpose stated separately from basis; consent treated cautiously in employment.** Across the region, a legitimate security aim states the purpose the monitoring serves but does not by itself supply the lawful footing, and the corpus treats employment consent as presumptively not freely given; the necessity, proportionality, and balancing analysis is worked in the [Legitimate Interest Assessment for Employment Monitoring Annex](../annex-legitimate-interest-employment-monitoring.md), adapted to each jurisdiction's basis.
+- **Notice, consultation, telemetry, and presence.** Advance notice of the nature, purpose, and scope of monitoring is provided using the [Employee Monitoring Notice Template](../template-employee-monitoring-notice.md); where a representative-body or collective duty applies, it is determined through the [Works Council and Employee Representative Consultation Procedure](../procedure-works-council-and-employee-representative-consultation.md); connection metadata is governed by the [Network Telemetry and DPI Controls Standard](../standard-network-telemetry-and-dpi-controls.md) and presence signals by the [Presence Inference Limitations Standard](../standard-presence-inference-limitations.md). Monitoring signals do not drive automated employment decisions.
 
 ---
 

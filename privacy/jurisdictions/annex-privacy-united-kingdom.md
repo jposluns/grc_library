@@ -2,8 +2,8 @@
 
 **Document Title:** United Kingdom Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.2\
-**Date:** 2026-07-02\
+**Version:** 1.1.3\
+**Date:** 2026-09-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/jurisdictions/annex-privacy-european-union.md`](../jurisdictions/annex-privacy-european-union.md), [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -40,6 +40,19 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 - **Subject Access Requests (SARs):** DUAA 2025 codifies the principle that searches in response to an SAR are limited to "reasonable and proportionate" searches, and codifies "stopping the clock" while the controller is waiting for the data subject to provide clarification that the controller can demonstrate is reasonably required.
 - **DPIA:** Mandatory under UK GDPR Article 35 for high-risk processing, consistent with EU GDPR requirements.
 - **AI literacy and accountability:** The UK government's AI Opportunities Action Plan and ICO guidance on responsible AI apply. The UK has not enacted legislation equivalent to the EU AI Act; DUAA 2025 did not create a horizontal AI regulatory framework. Organizations should monitor developments in the UK's forthcoming statutory AI framework.
+
+---
+
+## Employment and workforce monitoring
+
+Where the organization monitors the network and device activity of workers in the United Kingdom, that monitoring processes personal data under UK GDPR and the Data Protection Act 2018 (as amended by the Data (Use and Access) Act 2025) and is governed by the Workforce Network Monitoring Policy ([`security/policy-workforce-network-monitoring.md`](../../security/policy-workforce-network-monitoring.md)) and its supporting suite. The UK position is worked separately from the EU position; the two regimes are not conflated.
+
+- **Lawful basis, stated separately from the purpose.** As under the GDPR, a legitimate security aim does not by itself satisfy the lawful-basis requirement. Monitoring generally relies on legitimate interests (Article 6(1)(f)), assessed through the three-part test in the [Legitimate Interest Assessment for Employment Monitoring Annex](../annex-legitimate-interest-employment-monitoring.md); consent is presumptively not freely given in employment.
+- **Article 88 is not adopted.** There is no UK employment-specific Article 88 regime, so UK workforce monitoring relies on the general lawful-basis analysis: an Article 6 basis, a UK GDPR Article 9 condition where special-category data is processed, and, for several of those conditions, an associated Data Protection Act 2018 Schedule 1 condition (often including an Appropriate Policy Document). These UK conditions are set under the UK regime and are not identical to the EU Article 9(2) conditions.
+- **ICO guidance and DPIA.** A DPIA is required under UK GDPR Article 35 for high-risk processing such as systematic monitoring of workers. The ICO's employment-practices guidance, including its guidance on monitoring workers, sets the supervisory expectations for lawfulness, fairness, transparency, and proportionality; that guidance is cited here illustratively and is not reproduced or held in the reference base, and adopters confirm the ICO's current publications before reliance.
+- **Automated decisions (Articles 22A to 22D).** Following the Data (Use and Access) Act 2025 (in force 5 February 2026), UK GDPR Article 22 is replaced by Articles 22A to 22D, which restructure the rules on significant decisions based solely on automated processing. Where a monitoring signal could feed such a decision, those provisions apply in addition to the lawful-basis analysis; the parent policy prohibits monitoring signals from driving employment action automatically. The EU and UK automated-decision regimes are not cited under a single combined shorthand.
+- **Information and consultation.** The UK does not operate a general co-determination regime, but information-and-consultation arrangements may apply, for example under the Information and Consultation of Employees Regulations 2004 where triggered (an employee-triggered mechanism rather than an automatic one), and collective agreements with a recognized union may address monitoring. These UK mechanisms are cited illustratively and are not held in the reference base; adopters confirm their applicability and current text. Where any such duty applies, it is determined and evidenced through the [Works Council and Employee Representative Consultation Procedure](../procedure-works-council-and-employee-representative-consultation.md).
+- **Transparency and notice.** Advance and ongoing notice of the nature, purpose, and scope of monitoring is required; covert monitoring is prohibited. The [Employee Monitoring Notice Template](../template-employee-monitoring-notice.md) provides the notice content, applied consistently to connection metadata under the [Network Telemetry and DPI Controls Standard](../standard-network-telemetry-and-dpi-controls.md) and to presence signals under the [Presence Inference Limitations Standard](../standard-presence-inference-limitations.md).
 
 ---
 
