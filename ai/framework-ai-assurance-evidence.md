@@ -44,7 +44,7 @@ The AI Governance Council consumes assurance cases at deployment-approval and pe
 
 ### 3.1 Assurance claims
 
-An assurance claim is a bounded assertion about an AI system that evidence can support or refute. The claim taxonomy is keyed to the NIST AI RMF (NIST AI 100-1) MEASURE 2 subcategories, with two organizational claims the corpus lifecycle adds. Each claim is discharged by evidence marshalled under sections 3.2 to 3.4, never by the presence of this framework.
+An assurance claim is a bounded assertion about an AI system that evidence can support or refute. The claim taxonomy is keyed to the NIST AI RMF (NIST AI 100-1) MEASURE 2 subcategories, with one organizational claim the corpus lifecycle adds. Each claim is discharged by evidence marshalled under sections 3.2 to 3.4, never by the presence of this framework.
 
 | Claim | Assertion | NIST AI RMF anchor |
 | --- | --- | --- |
@@ -64,20 +64,20 @@ Evidence is organized into seven artefact classes, each produced by an activity 
 
 - **Design evidence**: model cards, system cards, threat models, and architecture records.
 - **Test and evaluation evidence**: test plans and results, evaluation reports, and adversarial-suite execution records.
-- **Independent-assessment evidence**: internal audit reports, third-party red-team reports, and certification and conformity records.
+- **Independent-assessment evidence**: internal audit reports, third-party red-team reports, and certification or conformity records produced by a notified body or other demonstrably independent assessor. A self-assessed or internal-control conformity record (permitted for some systems under [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md)) is not independent-assessment evidence: it is classified by its actual producer and tier.
 - **Review and approval evidence**: approval records, exception records, and governance-council minutes.
 - **Operational evidence**: monitoring logs, drift metrics, and incident records.
 - **Attestations**: control-owner attestations, deletion or retention attestations, and supplier declarations.
-- **Received third-party evidence**: developer-shared testing and evaluation findings, provider transparency documentation, and vendor questionnaire responses. This class is anchored to ETSI EN 304 223 provision 5.2.5-3, under which developers ensure that the findings from testing and evaluation are shared with system operators to inform the operators' own testing and evaluation.
+- **Received third-party evidence**: provider transparency documentation, vendor questionnaire responses, and, for systemic-risk third-party models, provider evaluation results. ETSI EN 304 223 provision 5.2.5-3 recommends that developers share testing and evaluation findings with system operators to inform the operators' own testing and evaluation; the organization's vendor questionnaire and foundation-model processes are where any shared findings are obtained and retained, and where a developer does not share them the gap is recorded against the affected claims.
 
 ### 3.3 Attestation tiers
 
-The attestation tier records evidence weight by the independence of its producer. The tiers grade weight; they do not substitute for one another.
+The attestation tier records evidence weight by the independence of its producer, and applies to evidence that embodies an assurance assessment or attestation (test and evaluation, independent assessment, or a declaration). A raw source record (design documentation, operational or monitoring logs, incident records, approval minutes) is not itself an assessment: it is marked tier not-applicable and carries instead its producer and an integrity control. The tiers grade weight; they do not substitute for one another.
 
 | Tier | Producer | Basis |
 | --- | --- | --- |
 | A | Independent third party: accredited certification body, external red team, or external auditor | Highest weight; fully independent of development and operation |
-| B | Internally independent assessor: internal experts who did not serve as front-line developers, or independent internal security testers | NIST AI RMF MEASURE 1.3; ETSI EN 304 223 provision 5.2.5-2.1 |
+| B | Internally independent assessor: an internal expert who did not serve as a front-line developer for the system | NIST AI RMF MEASURE 1.3 |
 | C | First-party test and evaluation by the developing or operating team, with method documentation | NIST AI RMF MEASURE 2.1 (test sets, metrics, and tools documented) |
 | D | Self-attestation and declaration | Lowest weight; the producer asserts the fact without an assessment |
 
@@ -88,14 +88,14 @@ A Tier A certificate does not discharge a claim that has no underlying Tier C te
 Evidence supporting a claim is sufficient when it satisfies five dimensions:
 
 - **Coverage**: the claim's scope is measured, and any risk or trustworthiness characteristic that will not or cannot be measured is documented (NIST AI RMF MEASURE 1.1).
-- **Currency**: the evidence was produced within the review window for the system's risk tier and re-produced on material change, per the thresholds in [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md).
+- **Currency**: the evidence was produced within the organization-set review window for the system's risk tier and re-produced on material change, the material-change thresholds being those in [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md).
 - **Independence**: the attestation tier meets the minimum the system's risk tier requires (section 5).
 - **Method traceability**: the test sets, metrics, and tools are documented (NIST AI RMF MEASURE 2.1).
 - **Deployment-representative demonstration**: performance or assurance criteria are measured and demonstrated for conditions similar to the deployment setting, and the measures are documented (NIST AI RMF MEASURE 2.3).
 
 ### 3.5 The assurance case
 
-The assurance case for a system is a claims-by-evidence record maintained by the AI System Owner across the eleven lifecycle stages of the governance framework's lifecycle model (Intake through Retirement, reused as defined there). For each claim it records the supporting artefacts, their evidence class, their attestation tier, their currency, and any documented gap. The marshalled assurance case is the pack that satisfies the section 4 evidence catalogue of [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md) and the evidence-collection step of [`ai/procedure-ai-audit.md`](procedure-ai-audit.md). The effectiveness of the evidence-producing processes is itself evaluated and documented (NIST AI RMF MEASURE 2.13), so the assurance case is periodically tested against the activities that feed it, not only assembled from them.
+The assurance case for a system is a claims-by-evidence record maintained by the AI System Owner across the eleven lifecycle stages of the governance framework's lifecycle model (Intake through Retirement, reused as defined there). For each claim it records the supporting artefacts, their evidence class, their attestation tier, their currency, and any documented gap. The marshalled assurance case is the pack that satisfies the section 4 evidence catalogue of [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md) and the evidence-collection step of [`ai/procedure-ai-audit.md`](procedure-ai-audit.md). The effectiveness of the employed TEVV metrics and processes is itself evaluated and documented (NIST AI RMF MEASURE 2.13); as an organizational practice extending that discipline, the assurance case is periodically tested against the activities that feed it, not only assembled from them.
 
 ## 4. Evidence-to-activity index
 
@@ -121,10 +121,10 @@ Each row maps a claim and evidence class to the corpus document whose activity p
 
 The framework adds only the small set of normative requirements below; every other requirement lives in the indexed documents.
 
-1. **Evidence-record minimum fields.** Each evidence record must carry: the AI System Register reference; the claim or claims it supports; its evidence class and attestation tier; the producing activity (a corpus document reference); a method reference; a production date and currency window; the lifecycle stage; a storage location and integrity control; and any documented gaps or unmeasured aspects.
+1. **Evidence-record minimum fields.** Each evidence record must carry: the AI System Register reference; the claim or claims it supports; its evidence class; its attestation tier where the evidence embodies an assessment or attestation (a source record is marked tier not-applicable); the producing activity (a corpus document reference); a method reference; a production date and currency window; the lifecycle stage; the producer; a storage location and integrity control; and any documented gaps or unmeasured aspects.
 2. **Gap documentation.** A claim that lacks sufficient evidence must carry a documented gap in the assurance case, stating what is missing and the plan to close it; an undocumented gap on a material claim blocks the approval or audit gate.
-3. **Currency by risk tier.** Evidence for a high-risk system must be current within that system's review window and re-produced on material change; the windows are those the governance framework sets per risk tier.
-4. **Independence minimum for high-risk security evidence.** Security and resilience evidence for a high-risk system must reach at least attestation Tier B (an internally independent assessor), consistent with ETSI EN 304 223 provision 5.2.5-2.1.
+3. **Currency by risk tier.** Evidence for a high-risk system must be current within the review window the organization sets for that system's risk tier, and re-produced on material change per the material-change thresholds in [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md). The organization sets the per-tier windows; this framework does not fix them, and they must be at least as frequent as the corresponding audit cadence in [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md) section 3.
+4. **Independence minimum for high-risk security evidence.** Security and resilience evidence for a high-risk system must be produced by an independent security tester with technical skills relevant to the system (attestation Tier A or B). This is the organization's risk-based strengthening, for high-risk systems, of ETSI EN 304 223 provision 5.2.5-2.1, which recommends (should) that operators and developers use such independent security testers: the organization makes it a requirement and specifies the relevant-competence condition.
 5. **Marshalling obligation.** The AI System Owner must marshal the assurance case into an evidence pack before each deployment-approval and audit gate, so the demand-side catalogue of the audit-certification framework is satisfiable without ad-hoc collection.
 
 ## 6. Framework alignment
