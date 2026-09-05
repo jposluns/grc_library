@@ -2,7 +2,7 @@
 
 **Document Title:** Maturity Assessment Methodology Standard\
 **Document Type:** Standard\
-**Version:** 1.0.3\
+**Version:** 1.1.0\
 **Date:** 2026-09-05\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
@@ -18,12 +18,13 @@
 
 ## 1. Purpose
 
-This standard defines the methodology for assessing governance programme maturity across the library's domains. It documents four things that the corpus previously applied without a single authoritative reference:
+This standard defines the methodology for assessing governance programme maturity across the library's domains. It documents five things that the corpus previously applied without a single authoritative reference:
 
 1. The five-tier maturity ladder.
 2. The median-of-medians aggregation that produces per-domain and overall programme tiers.
 3. The limitation of that aggregation: a single critically-weak domain does not move the aggregate tier.
 4. The compensating floor-check that surfaces such a domain regardless of the aggregate tier.
+5. The structured, comparable measurement model that derives objective maturity signals from the relationship model.
 
 It is the authoritative methodology reference behind the maturity-assessment section of the [`Governance Performance and Improvement Framework`](framework-governance-performance-and-improvement.md) and the [`Adopter Maturity Self-Assessment Template`](../docs/template-maturity-self-assessment.md). Those documents apply the ladder in context; this standard states the method, its limitation, and the compensating control in one place.
 
@@ -32,7 +33,7 @@ It is the authoritative methodology reference behind the maturity-assessment sec
 ## 2. Scope
 
 1. Applies to programme-maturity assessment across all governance domains: governance, risk, compliance, crypto, privacy, security, operations, resilience, supply chain, architecture, developer security, and AI.
-2. Covers the maturity ladder, the aggregation method, its outlier-masking limitation, and the compensating floor-check.
+2. Covers the maturity ladder, the aggregation method, its outlier-masking limitation, the compensating floor-check, and the relationship-model-derived measurement model.
 3. Governs **programme maturity** (how mature an organization's use of the governance programme is), not **document maturity** (the stability classification the generated scorecard assigns each library document). The two are distinguished in section 8.
 4. Documents the existing maturity-level model. It does not introduce process capability levels, which are a distinct model (section 9).
 
@@ -130,7 +131,51 @@ A capability-level scheme, if the organization adopts one, is a separate model l
 
 ---
 
-## 10. Application and review cadence
+## 10. Structured, comparable measurement model
+
+Sections 4 and 5 produce a self-assessed tier: a domain owner scores each question against the ladder, and the median-of-medians aggregation yields per-domain and overall tiers. This section adds an objective, evidence-grounded layer over that self-assessment: a set of measurable signals derived from the machine-readable [`relationship model`](relationship-model.generated.json), so a tier claim is corroborated by corpus evidence and is comparable across domains, over time, and across adopters.
+
+### 10.1 Relationship-model-derived signals
+
+The relationship model records typed relationships among corpus entities across seven relationship classes. Each class yields one normalized maturity signal:
+
+| Relationship class | Derived signal | What it measures |
+| --- | --- | --- |
+| requirement | Requirement coverage | Share of applicable requirements that a corpus document expresses |
+| implementation | Implementation coverage | Share of required controls that an implementing document realizes |
+| correspondence | Framework-alignment breadth | Share of controls carrying at least one cross-framework mapping |
+| applicability | Scoping completeness | Share of entities carrying an explicit applicability determination |
+| assessed outcome | Assurance density | Share of controls carrying a recorded assessed outcome |
+| influence | Dependency articulation | Share of entities whose influencing relationships are recorded |
+| containment | Structural completeness | Share of collections whose members are enumerated |
+
+A domain's **measured profile** is the vector of its seven signals.
+
+### 10.2 Comparability basis
+
+Each signal is a normalized ratio in the range 0 to 1, not a raw count. Normalization is what makes the model comparable: a ratio is independent of corpus size, so a domain with forty controls and a domain with four hundred are measured on the same scale, the same domain is comparable to itself over successive assessments (a longitudinal trend), and two adopters of different corpus scales are comparable to each other. Raw counts support none of these comparisons; the ratio basis supports all three. Each signal's denominator is the domain's recorded count of the relevant entity class (its controls, requirements, entities, or collections), so a value is a share within that range whenever the eligible population is completely recorded. Where the eligible population is itself incompletely recorded (for example a requirement that should exist but has not been captured), the ratio can over-state or under-state true coverage and is therefore not a reliable comparable share: the signal is reported as indeterminate and excluded from comparison rather than read as a bound. A domain with no relevant entities has no denominator; its signal is reported as not applicable, never computed as zero over zero. Recording completeness is thus a precondition for a comparable measurement, in the same spirit as the aggregate-masking limitation in section 6.
+
+### 10.3 Evidence-tempering of the self-assessed tier
+
+The measured profile corroborates or tempers the ladder self-assessment. A self-assessed tier is evidence-supported only when the domain's measured signals meet that tier's expected floor; a tier claimed above its measured evidence is surfaced as an exception, in the same spirit as the floor-check of section 7, except that the comparison here is self-assessment against measured evidence rather than aggregate median against an outlier. The tier-to-evidence expectations are the proposed defaults; an organization sets them to its own risk appetite:
+
+| Tier | Expected measured floor |
+| --- | --- |
+| 1 Initial | No expectation; signals may be absent |
+| 2 Managed | Requirement and implementation coverage have begun (signals above zero) |
+| 3 Defined | Requirement coverage, implementation coverage, and scoping completeness are substantive |
+| 4 Quantitatively Managed | Assurance density is substantive, so measured outcomes exist to manage against objectives |
+| 5 Optimized | The signals show a sustained improving trend across successive assessments |
+
+An organization tunes the "begun", "substantive", and "sustained" thresholds to its exposure, exactly as it tunes the floor-check defaults in section 7.
+
+### 10.4 Source population and current state
+
+The signals compute from the relationship model once its source is populated with the corpus's real relationships. The model ships today as a schema scaffold: [`relationship-model-source.json`](relationship-model-source.json) carries representative example entities and one record of each relationship class, demonstrating the structure without asserting real corpus relationships. Until the source is populated, this measurement model defines the derivation only; computing live signal values additionally requires a generator over the populated relationship model, which the follow-up work below establishes. Populating the relationship-model source with the corpus's real relationships is the downstream enablement that turns the defined derivation into live, comparable measurement; it is tracked as separate follow-up work and is not a change to this methodology.
+
+---
+
+## 11. Application and review cadence
 
 Maturity assessment is conducted at least annually, per the governance review process in the Governance Performance and Improvement Framework, and on material change to the programme's scope. The assessor uses the adopter template to record per-domain and per-question scores, applies the aggregation in section 5 and the floor-check in section 7, and reports both the aggregate tiers and the floor-check exceptions to the ERC through the Maturity Assessment Report.
 
@@ -138,7 +183,7 @@ This standard is reviewed annually, or on material change to the maturity model 
 
 ---
 
-## 11. Framework alignment
+## 12. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
