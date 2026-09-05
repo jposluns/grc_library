@@ -2,7 +2,7 @@
 
 **Document Title:** Nigeria Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.4\
+**Version:** 1.0.5\
 **Date:** 2026-09-05\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -24,33 +24,33 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Applicable laws and regulatory authorities
 
-- **Nigeria Data Protection Act 2023 (NDPA)**: Signed July 2023; the most significant recent privacy legislation in Sub-Saharan Africa, replacing the Nigeria Data Protection Regulation 2019 (NDPR).
-- Applies to: processing of personal data of Nigerian residents; controllers and processors established in Nigeria; and controllers and processors outside Nigeria where the processing relates to Nigerian residents.
-- Mandatory breach notification within 72 hours to the NDPC for breaches likely to result in harm to data subjects.
-- Data Protection Officers required for controllers processing large volumes or sensitive categories of personal data.
+- **Nigeria Data Protection Act 2023 (NDPA)**: assented on 12 June 2023 and published in Official Gazette No. 119 on 1 July 2023; the most significant recent privacy legislation in Sub-Saharan Africa. It is the primary data-protection statute; under its transitional provisions (s. 64), existing instruments, including the Nigeria Data Protection Regulation 2019 (NDPR), continue in force until they expire or are repealed, replaced, or altered.
+- Applies (s. 2(2)) where: the data controller or processor is domiciled in, resident in, or operating in Nigeria; the processing of personal data occurs within Nigeria; or a controller or processor not in Nigeria processes the personal data of a data subject in Nigeria.
+- Mandatory breach notification to the NDPC within 72 hours for a breach likely to result in a risk to the rights and freedoms of individuals (s. 40(2)).
+- A data controller of major importance must designate a Data Protection Officer (s. 32(1)). A controller or processor of "major importance" is one processing the personal data of more than a Commission-prescribed number of data subjects in Nigeria, or a class the Commission designates as of particular significance to Nigeria (s. 65).
 - **Regulatory authority:** Nigeria Data Protection Commission (NDPC), established as an independent regulatory agency.
 
 ---
 
 ## AI and privacy obligations
 
-- Data subjects may object to automated decision-making used for profiling purposes.
+- A data subject has the right not to be subject to a decision based solely on automated processing, including profiling, that produces legal or similarly significant effects (s. 37(1)), subject to the exceptions and safeguards, including human intervention and the right to contest, in s. 37(2)-(3).
 - The NDPA requires accountability and transparency for automated processing that significantly affects data subjects.
-- The NDPC is developing supplementary guidance on AI and data processing aligned with the NDPA accountability framework.
+- As of 2026, the NDPC has been developing supplementary guidance on AI and data processing aligned with the NDPA accountability framework.
 
 ---
 
 ## Cross-border transfer mechanisms
 
 - Transfers permitted to countries providing adequate protection as determined by the NDPC, or with appropriate safeguards in place (standard contractual clauses, binding corporate rules, or approved codes of conduct).
-- The NDPC is developing its adequacy determination framework; contractual mechanisms are currently the primary route.
+- As of 2026, the NDPC's adequacy-determination framework is still developing; contractual mechanisms are the primary route in the interim.
 
 ---
 
 ## Enforcement and fines
 
 - Administrative sanctions (NDPA 2023, s. 48): a penalty may be up to, for a data controller or processor of major importance, the greater of NGN 10 million or 2% of its annual gross revenue in the preceding financial year, and for others, the greater of NGN 2 million or 2% of its annual gross revenue in the preceding financial year.
-- The NDPC may issue orders for cessation of processing, data deletion, and mandatory public disclosure.
+- The NDPC may issue enforcement orders (for example, cessation of processing or data deletion). Where it considers a controller's steps to inform data subjects of a breach inadequate, the Commission itself may make a public communication about the breach (s. 40(5)).
 
 ---
 
