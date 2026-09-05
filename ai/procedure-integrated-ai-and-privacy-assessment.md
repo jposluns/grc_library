@@ -2,8 +2,8 @@
 
 **Document Title:** Integrated AI and Privacy Assessment Procedure\
 **Document Type:** Procedure\
-**Version:** 0.1.5\
-**Date:** 2026-08-04\
+**Version:** 0.1.6\
+**Date:** 2026-09-05\
 **Owner:** AI Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`privacy/register-automated-decision-making.md`](../privacy/register-automated-decision-making.md), [`privacy/template-dpia.md`](../privacy/template-dpia.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md)\
@@ -59,7 +59,7 @@ Identify which of the trigger events above are present. The determination is per
 | Solely-automated decision with legal or similarly significant effect (GDPR Article 22) | ADM register entry plus a DPIA | GDPR Article 35(3)(a) makes a DPIA required for systematic automated evaluation that produces such decisions; the DPIA covers the data-protection limb |
 | High-risk AI system (EU AI Act Article 6, Annex III) | AI System Impact Assessment plus the EU AI Act deployer obligations | The AI System Impact Assessment covers the AI-specific limb |
 | High-risk AI system whose deployer meets the EU AI Act Article 27(1) test (public-law body, private provider of a public service, or a deployer of an Annex III point 5(b) or (c) system) | FRIA | Under Article 27(4) (as amended) the deployer may cross-reference the DPIA in the FRIA; it may reuse a previously conducted FRIA or an existing impact assessment (Article 27(2)) |
-| Automated decision system in scope of the Canada Treasury Board Directive on Automated Decision-Making (in production, making or assisting an administrative decision about a client) | Algorithmic Impact Assessment (AIA), completed and published before the system enters production (Directive section 6.1) | The AIA owns the Canadian automated-decision-governance limb; its impact level (I to IV) sets the proportionate Appendix C requirements. It shares evidence with, and does not substitute for, the DPIA, the AI System Impact Assessment, and the FRIA |
+| Automated decision system in scope of the Canada Treasury Board Directive on Automated Decision-Making (in production, making or assisting an administrative decision or a related assessment about a client) | Algorithmic Impact Assessment (AIA), completed and published before the system enters production (Directive section 6.1) | The AIA owns the Canadian automated-decision-governance limb; its impact level (I to IV) sets the proportionate Appendix C requirements. It shares evidence with, and does not substitute for, the DPIA, the AI System Impact Assessment, and the FRIA |
 | Privacy-risk context managed under the United States NIST Privacy Framework | NIST Privacy Framework privacy risk assessment, organized by the Identify-P, Govern-P, Control-P, Communicate-P, and Protect-P Functions | Owns the United States privacy-risk limb (privacy risk is the likelihood and impact of a problematic data action); complements, and does not substitute for, the GDPR DPIA limb, and shares the data-map and inventory evidence |
 | All of the above (automated decision plus high-risk AI plus an Article 27 deployer) | ADM register entry plus DPIA plus AI System Impact Assessment plus FRIA | One coordinated pass: the DPIA owns the data-protection limb, the AI System Impact Assessment owns the AI-specific limb, and the FRIA owns the fundamental-rights limb complementing the DPIA |
 
