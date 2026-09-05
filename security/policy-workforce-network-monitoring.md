@@ -2,8 +2,8 @@
 
 **Document Title:** Workforce Network Monitoring Policy\
 **Document Type:** Policy\
-**Version:** 0.1.0\
-**Date:** 2026-09-04\
+**Version:** 0.1.1\
+**Date:** 2026-09-05\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/framework-insider-risk-programme.md`](framework-insider-risk-programme.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`governance/framework-human-capital-and-ethical-conduct.md`](../governance/framework-human-capital-and-ethical-conduct.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md)\
@@ -153,6 +153,7 @@ All personnel are informed of this policy and acknowledge it on hire, annually, 
 |---|---|
 | ISO/IEC 27001:2022 | A.8.16: Monitoring Activities; A.8.15: Logging; A.5.10: Acceptable Use of Information and Other Associated Assets; A.5.34: Privacy and Protection of PII; A.6.4: Disciplinary Process |
 | NIST CSF 2.0 | DE.CM-03: Personnel activity and technology usage are monitored to find potentially adverse events; GV.PO: Policy; GV.OC: Organizational Context |
+| NIST Privacy Framework 1.0 | GV.PO-P Governance Policies, Processes, and Procedures; GV.MT-P Monitoring and Review; CM.AW-P Data Processing Awareness; ID.RA-P Risk Assessment |
 | GDPR (EU) | Article 5 (principles: purpose limitation, data minimization, storage limitation); Article 6 (lawfulness of processing, legitimate interests); Article 22 (automated individual decision-making); Article 88 (processing in the context of employment) |
 | UK GDPR | Under the UK GDPR, Article 22 is replaced by Articles 22A to 22D and Article 88 is not adopted; see the [United Kingdom privacy annex](../privacy/jurisdictions/annex-privacy-united-kingdom.md) for the current UK position |
 | CSA CCM v4.1 | LOG-03: Security Monitoring and Alerting; DSP-08: Data Privacy by Design and Default; DSP-12: Limitation of Purpose in Personal Data Processing; HRS-13: Compliance User Responsibility |
