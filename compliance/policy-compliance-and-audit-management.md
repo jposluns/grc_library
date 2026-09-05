@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance, Audit, and CAPA Management Policy\
 **Document Type:** Policy\
-**Version:** 1.0.22\
-**Date:** 2026-09-02\
+**Version:** 1.0.23\
+**Date:** 2026-09-05\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md)\
@@ -47,7 +47,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 ### 3.3 Internal audit function
 3.3.1 Internal Audit operates independently under the authority of the Audit Committee.
 3.3.2 Audits are risk-based and prioritized through the annual audit plan.
-3.3.3 Audit scope covers information security, privacy, financial, operational, AI, and supplier domains.
+3.3.3 Audit scope covers all governance, risk, and compliance domains defined in the Internal Audit Standard ([`compliance/standard-internal-audit.md`](standard-internal-audit.md)).
 
 ### 3.4 Corrective and preventive action (CAPA)
 3.4.1 Process owners are accountable for defining, implementing, and closing CAPAs within agreed timelines.
@@ -70,7 +70,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 4.1.3 Compliance performance indicators must be reviewed quarterly and escalated where thresholds are breached.
 
 ### 4.2 Audit planning and execution
-4.2.1 Annual audit plans must be risk-based, approved by the Audit Committee, and include IT, operational, supplier, AI, and trade-compliance audits.
+4.2.1 Annual audit plans must be risk-based, approved by the Audit Committee, and provide risk-prioritized coverage across the domains within the audit scope (the Internal Audit Standard, [`compliance/standard-internal-audit.md`](standard-internal-audit.md)), including trade-compliance audits where the organization's activities warrant them.
 4.2.2 Audit criteria must follow ISO 19011 principles of integrity, independence, evidence-based assessment, and risk orientation.
 4.2.3 Each audit must document objective evidence, findings, severity, and recommendations.
 4.2.4 Audit evidence, process documentation, and system-specific procedures must be retained per the records retention and destruction standard ([`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)) and aligned with the operations domain's IT service management framework ([`operations/framework-it-service-management.md`](../operations/framework-it-service-management.md)) so that testing and assurance activities remain traceable to governance artefacts.
