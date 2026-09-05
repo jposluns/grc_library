@@ -5,8 +5,8 @@
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **SPDX-License-Identifier:** CC-BY-SA-4.0\
-**Library Version:** 2026.09.703 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.10.846 (semantic per-document version for this file)
+**Library Version:** 2026.09.704 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.10.847 (semantic per-document version for this file)
 
 ---
 
@@ -48,8 +48,9 @@ The repository provides reusable artefacts across the following thematic areas:
 - Business continuity, crisis management, disaster recovery, and operational resilience.
 - Supplier, third-party, cloud, and supply-chain governance.
 - Cross-framework mapping, regulatory applicability analysis, and metrics.
+- Crypto-asset and blockchain governance: classification, custody, key control, and platform risk.
 
-The seven thematic areas above span 12 governance domain directories, and the library grows by routine PR cadence; the current document inventory is machine-generated on every change and lives in [`taxonomy.yml`](taxonomy.yml) (one row per active artefact with canonical metadata). For an audience-keyed view of the same inventory, see [`docs/portal.md`](docs/portal.md). The `compliance/` domain hosts sector-conditional sub-directories ([`compliance/logistics/`](compliance/logistics/), [`compliance/financial-services/`](compliance/financial-services/), [`compliance/healthcare/`](compliance/healthcare/), and others) for organizations operating in those sectors or participating in covered programmes.
+The eight thematic areas above span 12 governance domain directories, and the library grows by routine PR cadence; the current document inventory is machine-generated on every change and lives in [`taxonomy.yml`](taxonomy.yml) (one row per active artefact with canonical metadata). For an audience-keyed view of the same inventory, see [`docs/portal.md`](docs/portal.md). The `compliance/` domain hosts sector-conditional sub-directories ([`compliance/logistics/`](compliance/logistics/), [`compliance/financial-services/`](compliance/financial-services/), [`compliance/healthcare/`](compliance/healthcare/), and others) for organizations operating in those sectors or participating in covered programmes.
 
 ---
 
