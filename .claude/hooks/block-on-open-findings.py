@@ -69,6 +69,78 @@ def project_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
+# The ledger's closed SEVERITY vocabulary (cell 2 of a finding-row). Widen HERE if a new
+# severity is ever added; the D14 self-test pins this set so a silent narrowing is caught.
+SEVERITIES = ("error", "warning", "note")
+# A finding-row fingerprint (P-1.70 part-2b): date-leading AND severity-second, at column 0.
+# The severity screen is what separates a real finding-row from the heterogeneous QA sub-table /
+# archive rows that legitimately live OUTSIDE the scanned sections (date-leading but NOT
+# severity-second, per the D14 module docstring). `^`-anchored, so a backtick-quoted legend example
+# (which starts with a backtick) can never match; a `YYYY-MM-DD` placeholder fails the literal-date.
+MISFILED_ROW_RE = re.compile(
+    r"^\|\s*\d{4}-\d{2}-\d{2}\s*\|\s*(?:" + "|".join(SEVERITIES) + r")\s*\|",
+    re.IGNORECASE,
+)
+
+
+# A scanned heading may carry ONE complete parenthetical decoration and nothing else (codex QA #1996:
+# `## Closed today (swept 2026-09) and the row is deleted` must NOT open -- trailing prose after the
+# `)` is a phantom-heading tail, and an unclosed `(` is not a decoration either).
+_DECORATION_RE = re.compile(r"\([^()]*\)")
+
+
+def _opens_scanned_section(heading_lower: str, section_prefixes: tuple) -> bool:
+    """PURE. Does this `## ` heading (already lower-cased and stripped) OPEN a scanned section?
+
+    Opens only if it prefix-matches a scanned name AND carries no backtick. The backtick screen is
+    the P-1.70 phantom-heading fix: the observed corruption spliced a sentence tail beginning with a
+    backtick-quoted ``## Closed today` `` at column 0, which prefix-matched and opened a false
+    section. CLOSING stays wide (the caller resets scope on ANY `## ` line), so junk pushes rows OUT
+    of scope, where the mis-filed-row detector converts the old silence into a loud failure. No real
+    SCANNED ledger heading currently carries a backtick, so the exclusion risk is near zero (the live
+    ledger's only backtick-bearing heading is a dated ARCHIVE heading, which is not scanned; a
+    backtick-free heading that is an EXACT scanned name or carries one COMPLETE `(...)` decoration and
+    nothing else opens (`## Open (swept 2026-09)`); trailing prose after the decoration, an unclosed
+    `(`, or any backtick does not (codex QA #1996). RESIDUE: a backtick-DECORATED scanned heading
+    (e.g. ``## Closed today (`sweep-700`)``) is rejected and its rows flagged LOUDLY, a
+    fail-closed FP in the safe direction (never silence), which is the signal to undo the decoration.
+    """
+    if "`" in heading_lower:
+        return False
+    for pfx in section_prefixes:
+        if heading_lower.startswith(pfx):
+            rest = heading_lower[len(pfx):]
+            # exact scanned name, or a parenthetical decoration (`## Open (swept 2026-09)`); NOT
+            # arbitrary trailing prose (codex QA #1996: a backtick-FREE phantom `## Closed today and
+            # the row is deleted` must NOT prefix-match and open a false scanned section).
+            rest = rest.strip()
+            if rest == "" or _DECORATION_RE.fullmatch(rest):
+                return True
+    return False
+
+
+def _fence_run(stripped: str):
+    """PURE. If the line begins a code fence, return (char, length) where char is `` ` `` or `~` and
+    length is the run of that char (>= 3); else None. CommonMark-aware fence tracking (codex QA
+    #1996): the OPENER records its char and length, and a line CLOSES it only when it is the same
+    char, at least as long, and bare (no info string). This keeps a `~~~` line inside a ``` fence
+    from closing it, AND a three-backtick line inside a four-backtick fence from closing it."""
+    for ch in ("`", "~"):
+        if stripped.startswith(ch * 3):
+            return (ch, len(stripped) - len(stripped.lstrip(ch)))
+    return None
+
+
+def _fence_closes(run, fence, stripped: str) -> bool:
+    """PURE. Does this fence-run line CLOSE the open `fence` (char, length)? Same char, length >=
+    opener, AND BARE, meaning the run spans the whole stripped line so there is no info string
+    (codex/gemini QA #1996: ``` ```python ``` closes nothing; a CommonMark closing fence carries no
+    info string). RESIDUE (accepted): four-space-indented and backtick-in-info-string openers are not
+    modelled (callers pass ``line.strip()``); the operational ledger uses column-0 bare fences."""
+    return (fence is not None and run is not None and run[0] == fence[0]
+            and run[1] >= fence[1] and run[1] == len(stripped))
+
+
 def _parse_rows_full(text: str, section_prefixes: tuple) -> list:
     """PURE. Rows of the `## Open` table as (found, severity, finding, disposition).
 
@@ -85,10 +157,20 @@ def _parse_rows_full(text: str, section_prefixes: tuple) -> list:
     """
     rows = []
     in_scope = False
+    fence = None
     for line in text.splitlines():
+        stripped = line.strip()
+        run = _fence_run(stripped)
+        if fence is not None:
+            if _fence_closes(run, fence, stripped):
+                fence = None
+            continue                      # inside a fence (or the line that closes it): never a row
+        if run is not None:
+            fence = run
+            continue                      # the line that opens a fence
         if line.startswith("## "):
-            heading = line.strip().lower()
-            in_scope = any(heading.startswith(pfx) for pfx in section_prefixes)
+            heading = stripped.lower()
+            in_scope = _opens_scanned_section(heading, section_prefixes)
             continue
         if not in_scope or not line.startswith("|"):
             continue
@@ -113,6 +195,62 @@ def _parse_rows_full(text: str, section_prefixes: tuple) -> list:
             finding = (cells[2] if len(cells) > 2 else line.strip())[:120]
             rows.append(("", "error", finding, None))
     return rows
+
+
+def misfiled_finding_rows(text: str, section_prefixes: tuple = ("## open", "## closed today")) -> list:
+    """PURE. Finding-rows mis-filed BEFORE the `## Closed today` archive opens (P-1.70 part-2b).
+
+    Returns [(lineno, governing_section_or_None, line), ...] for each column-0, non-fenced line that
+    matches ``MISFILED_ROW_RE`` while (a) no scanned section is currently open AND (b) the real
+    `## Closed today` section has not yet opened. This catches BOTH the observed 2026-09-05 preamble
+    corruption (twelve dispositioned rows spliced into the `## Disposition values` legend, above
+    `## Open`) AND a finding-row orphaned by a phantom heading BETWEEN `## Open` and `## Closed today`
+    (codex QA #1996: a backtick-quoted `## Closed today` after `## Open` resets the parser's scope but
+    must not silently swallow the rows it strands). Shares heading + delimiter-aware fence semantics
+    with ``_parse_rows_full`` (both use ``_opens_scanned_section`` and ``_fence_run``), so the
+    parser and detector cannot disagree at the phantom-heading or the fenced-heading seam.
+
+    SCOPE (stops once the real `## Closed today` opens, established by the part-2b pre-landing sweep):
+    the ledger keeps a large LEGITIMATE archive of old finding-rows under dated `## YYYY-MM-DD ...`
+    headings BELOW `## Closed today`, in the SAME `date | severity |` schema (40 rows observed), so a
+    row in the post-`## Closed today` archive is indistinguishable from a legitimately-archived one by
+    location and is exempt.
+
+    RESIDUES (stated, ACCEPTED): (1) an OPEN (undispositioned) finding-row spliced into the archive
+    region escapes this location-based check (a future disposition-aware extension could catch it);
+    (2) a row FUSED onto a prose line (not `|`-leading) escapes the `^`-anchor, which is deliberate
+    FP-safety (matching mid-prose `| ... |` would flag ordinary tables-in-sentences); (3) the backtick
+    screen in ``_opens_scanned_section`` rejects ANY scanned heading carrying a backtick, so a
+    backtick-decorated scanned heading (e.g. ``## Closed today (`sweep-700`)``) is rejected and its
+    rows are flagged LOUDLY (a fail-closed FP, never silence). No CURRENT scanned heading carries a
+    backtick (the live ledger's only backtick-bearing heading is a dated ARCHIVE heading, which is not
+    scanned); if a maintainer ever decorates a scanned heading, the loud flag is the signal to undo it.
+    """
+    out = []
+    in_scope = False
+    closed_today_opened = False
+    fence = None
+    current = None
+    for i, line in enumerate(text.splitlines(), start=1):
+        stripped = line.strip()
+        run = _fence_run(stripped)
+        if fence is not None:
+            if _fence_closes(run, fence, stripped):
+                fence = None
+            continue
+        if run is not None:
+            fence = run
+            continue
+        if line.startswith("## "):
+            heading = stripped.lower()
+            in_scope = _opens_scanned_section(heading, section_prefixes)
+            if in_scope and heading.startswith("## closed today"):
+                closed_today_opened = True
+            current = None if in_scope else stripped
+            continue
+        if not closed_today_opened and not in_scope and MISFILED_ROW_RE.match(line):
+            out.append((i, current, stripped))
+    return out
 
 
 def parse_open_rows_full(text: str) -> list:
@@ -333,7 +471,8 @@ def main() -> int:
 
     ledger = _working_file("open-findings.md", project_root())
     try:
-        rows = parse_open_rows(ledger.read_text(encoding="utf-8"))
+        ledger_text = ledger.read_text(encoding="utf-8")
+        rows = parse_open_rows(ledger_text)
     except Exception:
         return 0  # fail-open (a None/missing/unreadable ledger), per the docstring
 
@@ -356,6 +495,21 @@ def main() -> int:
                 "here (fail-open); the pre-push D14 check fails closed on it.",
                 file=sys.stderr,
             )
+        misfiled = misfiled_finding_rows(ledger_text)
+        if misfiled:
+            print(
+                f"WARNING (mis-filed finding-row, P-1.70 part-2b): {len(misfiled)} finding-row(s) in "
+                f"{LEDGER_REL} sit OUTSIDE '## Open' / '## Closed today', so they are invisible to "
+                "this hook AND the D14 gate. Move each into a scanned section (or, if a deliberate "
+                "archive, its heading must be a scanned one / it must not carry the finding-row "
+                "shape):",
+                file=sys.stderr,
+            )
+            for _ln, _sec, _line in misfiled[:5]:
+                print(f"  - line {_ln} (under {_sec or 'no scanned heading'}): {_line[:100]}",
+                      file=sys.stderr)
+            print("Advisory here (fail-open); the pre-push D14 check fails closed on it.",
+                  file=sys.stderr)
         return 0
 
     lines = [f"BLOCKED (open-findings guard): {len(errs)} error-severity finding(s) in {LEDGER_REL} "
@@ -559,6 +713,200 @@ def self_test() -> int:
     ck("gh pr merge blocks", is_blocking_command("gh pr merge 12 --squash --admin"), True)
     ck("an unrelated command does not block", is_blocking_command("git status --short"), False)
     ck("gh pr checks does not block", is_blocking_command("gh pr checks 12"), False)
+
+    # --- P-1.70 part-2b: mis-filed finding-row detector (reality fixture + negative controls) ----
+    # Mirrors the observed corruption: rows spliced into the PREAMBLE legend (above `## Open`), a
+    # false backtick-`## ` heading, backtick/fenced/placeholder examples, an in-scope row, and a
+    # legitimate dated ARCHIVE row below `## Closed today` (must NOT be flagged: pre-Closed-today scope).
+    mf_fixture = (
+        "## Disposition values\n"
+        "A DISPOSITIONED row is moved to `## Closed today` (an archive), leaving `## Open` open.\n"
+        "| 2026-08-31 | warning | a standalone mis-filed row | probe | FIXED #1 |\n"
+        "| 2026-09-03 | note | a standalone note row | probe | ROUTED 3.1 |\n"
+        "| 2026-09-03 | error | a standalone E9-shape row | probe | FIXED #2 |\n"
+        "An inline example `| 2026-09-03 | error | quoted example | probe |  |` stays backticked.\n"
+        "| YYYY-MM-DD | error | placeholder example | probe |  |\n"
+        "```\n"
+        "| 2026-09-03 | error | fenced example row | probe |  |\n"
+        "```\n"
+        "## Closed today` and the row is deleted from the legend.\n"
+        "| 2026-09-03 | error | a row after the phantom heading | probe | FIXED #3 |\n"
+        "## Open\n"
+        "| Found | Severity | Finding | Source | Disposition |\n"
+        "| --- | --- | --- | --- | --- |\n"
+        "| 2026-09-05 | error | an in-scope open row | probe |  |\n"
+        "## Closed today\n"
+        "| 2026-09-05 | error | a closed row | probe | FIXED #4 |\n"
+        "## 2026-08-24 resume /validate (archived QA record)\n"
+        "| 2026-08-24 | error | a legitimately archived row | probe | FIXED #5 |\n"
+    )
+    mf = misfiled_finding_rows(mf_fixture)
+    mf_lines = [ln for (_ln, _sec, ln) in mf]
+    ck("part-2b: exactly the 3 preamble + 1 post-phantom rows are flagged", len(mf), 4)
+    ck("part-2b: an in-scope Open row is NOT flagged",
+       any("an in-scope open row" in x for x in mf_lines), False)
+    ck("part-2b: a row in the post-Closed-today archive region is NOT flagged (positional exemption)",
+       any("a legitimately archived row" in x for x in mf_lines), False)
+    ck("part-2b: a backtick-quoted legend example is NOT flagged (not `|`-leading)",
+       any("quoted example" in x for x in mf_lines), False)
+    ck("part-2b: a YYYY-MM-DD placeholder is NOT flagged (no literal date)",
+       any("placeholder example" in x for x in mf_lines), False)
+    ck("part-2b: a fenced example row is NOT flagged",
+       any("fenced example row" in x for x in mf_lines), False)
+    ck("part-2b: a standalone preamble mis-filed row IS flagged",
+       any("a standalone mis-filed row" in x for x in mf_lines), True)
+    ck("part-2b: a row after a phantom backtick-heading IS flagged",
+       any("after the phantom heading" in x for x in mf_lines), True)
+    _parsed = [fi for (_fd, _sv, fi, _d) in parse_dispositioned_rows_full(mf_fixture)]
+    ck("part-2b seam: the parser does NOT treat the post-phantom row as in-scope",
+       any("after the phantom heading" in fi for fi in _parsed), False)
+    ck("part-2b: a clean ledger (no preamble rows) yields zero mis-filed",
+       len(misfiled_finding_rows(doc)), 0)
+
+    # --- codex QA #1996 HIGH-1: a phantom heading AFTER `## Open` strands an OPEN row -----------
+    mf_postopen = (
+        "## Open\n"
+        "| Found | Severity | Finding | Source | Disposition |\n"
+        "| --- | --- | --- | --- | --- |\n"
+        "| 2026-09-05 | error | a real open row | probe |  |\n"
+        "## Closed today` and the rest is deleted.\n"
+        "| 2026-09-05 | error | an orphaned open row after a post-Open phantom | probe |  |\n"
+        "## Closed today\n"
+        "| 2026-09-04 | error | a genuinely closed row | probe | FIXED #1 |\n"
+        "## 2026-08-01 archive\n"
+        "| 2026-08-01 | error | an archived row | probe | FIXED #2 |\n"
+    )
+    mf_po = [ln for (_l, _s, ln) in misfiled_finding_rows(mf_postopen)]
+    ck("part-2b codex-1: a row orphaned by a post-Open phantom heading IS flagged",
+       any("an orphaned open row" in x for x in mf_po), True)
+    ck("part-2b codex-1: the in-scope Open row is NOT flagged",
+       any("a real open row" in x for x in mf_po), False)
+    ck("part-2b codex-1: a genuine Closed-today row is NOT flagged",
+       any("a genuinely closed row" in x for x in mf_po), False)
+    ck("part-2b codex-1: a post-Closed-today archive row is NOT flagged",
+       any("an archived row" in x for x in mf_po), False)
+
+    # --- codex QA #1996 HIGH-2: delimiter-aware fences + parser/detector seam ------------------
+    mf_fence = (
+        "## Disposition values\n"
+        "```\n"
+        "~~~\n"
+        "## Closed today\n"
+        "| 2026-09-03 | error | a fenced row that must be ignored | probe | FIXED #1 |\n"
+        "```\n"
+        "| 2026-09-03 | error | a real preamble row after the fence | probe | FIXED #2 |\n"
+        "## Open\n"
+        "| Found | Severity | Finding | Source | Disposition |\n"
+        "| --- | --- | --- | --- | --- |\n"
+    )
+    mf_fn = [ln for (_l, _s, ln) in misfiled_finding_rows(mf_fence)]
+    ck("part-2b codex-2: a fenced row (mixed ~~~ inside ``` ) is NOT flagged",
+       any("a fenced row that must be ignored" in x for x in mf_fn), False)
+    ck("part-2b codex-2: a real preamble row after the fence IS flagged",
+       any("a real preamble row after the fence" in x for x in mf_fn), True)
+    mf_fence_open = (
+        "## Open\n"
+        "| Found | Severity | Finding | Source | Disposition |\n"
+        "| --- | --- | --- | --- | --- |\n"
+        "```\n"
+        "## Closed today\n"
+        "```\n"
+        "| 2026-09-05 | error | an open row after a FENCED phantom heading | probe |  |\n"
+    )
+    _po = [fi for (_fd, _sv, fi, _d) in parse_open_rows_full(mf_fence_open)]
+    ck("part-2b codex-2 seam: the parser ignores a FENCED `## ` heading (row stays in Open scope)",
+       any("after a FENCED phantom heading" in fi for fi in _po), True)
+
+    # --- codex QA #1996 iter-2 HIGH: a backtick-FREE phantom `## Closed today <prose>` must NOT open a
+    # scanned section (only an exact name or a `(`-decoration opens); a decorated real heading DOES. ---
+    mf_bf = (
+        "## Open\n"
+        "| Found | Severity | Finding | Source | Disposition |\n"
+        "| --- | --- | --- | --- | --- |\n"
+        "| 2026-09-05 | error | a real open row | probe |  |\n"
+        "## Closed today and the row is deleted from the legend.\n"
+        "| 2026-09-05 | error | an orphan after a backtick-free phantom | probe |  |\n"
+        "## Closed today\n"
+        "| 2026-09-04 | error | a real closed row | probe | FIXED #1 |\n"
+    )
+    mf_bfl = [ln for (_l, _s, ln) in misfiled_finding_rows(mf_bf)]
+    ck("part-2b iter2: a backtick-FREE phantom `## Closed today <prose>` does NOT open (orphan flagged)",
+       any("an orphan after a backtick-free phantom" in x for x in mf_bfl), True)
+    mf_dec = (
+        "## Disposition values\n"
+        "| 2026-09-03 | error | a preamble row | probe | FIXED #1 |\n"
+        "## Open (swept 2026-09)\n"
+        "| Found | Severity | Finding | Source | Disposition |\n"
+        "| --- | --- | --- | --- | --- |\n"
+        "| 2026-09-05 | error | a row under a decorated Open heading | probe |  |\n"
+    )
+    _dec = [fi for (_fd, _sv, fi, _d) in parse_open_rows_full(mf_dec)]
+    ck("part-2b iter2: a `(`-decorated `## Open (swept ...)` heading DOES open (row parsed)",
+       any("a row under a decorated Open heading" in fi for fi in _dec), True)
+
+    # --- codex QA #1996 iter-2 MED: a 4-backtick fence is not closed by a 3-backtick content line. ---
+    mf_4f = (
+        "## Disposition values\n"
+        "````\n"
+        "```\n"
+        "| 2026-09-03 | error | a row inside a 4-backtick fence | probe | FIXED #1 |\n"
+        "````\n"
+        "| 2026-09-03 | error | a real row after the 4-backtick fence | probe | FIXED #2 |\n"
+        "## Open\n"
+        "| Found | Severity | Finding | Source | Disposition |\n"
+        "| --- | --- | --- | --- | --- |\n"
+    )
+    mf_4fl = [ln for (_l, _s, ln) in misfiled_finding_rows(mf_4f)]
+    ck("part-2b iter2: a row inside a 4-backtick fence (3-backtick content) is NOT flagged",
+       any("inside a 4-backtick fence" in x for x in mf_4fl), False)
+    ck("part-2b iter2: a real row after the 4-backtick fence IS flagged",
+       any("after the 4-backtick fence" in x for x in mf_4fl), True)
+
+    # --- codex QA #1996 iter-3 HIGH: a decoration with TRAILING PROSE (or unclosed `(`) must NOT open. ---
+    mf_trail = (
+        "## Open\n"
+        "| Found | Severity | Finding | Source | Disposition |\n"
+        "| --- | --- | --- | --- | --- |\n"
+        "| 2026-09-05 | error | real open | probe |  |\n"
+        "## Closed today (swept 2026-09) and the row is deleted\n"
+        "| 2026-09-05 | error | an orphan after a paren+prose phantom | probe |  |\n"
+        "## Closed today\n"
+        "| 2026-09-04 | error | closed | probe | FIXED #1 |\n"
+    )
+    mf_tl = [ln for (_l, _s, ln) in misfiled_finding_rows(mf_trail)]
+    ck("part-2b iter3: a `(...)`-decoration with TRAILING PROSE does NOT open (orphan flagged)",
+       any("an orphan after a paren+prose phantom" in x for x in mf_tl), True)
+    mf_unclosed = (
+        "## Open\n"
+        "| Found | Severity | Finding | Source | Disposition |\n"
+        "| --- | --- | --- | --- | --- |\n"
+        "## Closed today (and the row is deleted\n"
+        "| 2026-09-05 | error | an orphan after an unclosed-paren phantom | probe |  |\n"
+        "## Closed today\n"
+        "| 2026-09-04 | error | closed | probe | FIXED #2 |\n"
+    )
+    mf_uc = [ln for (_l, _s, ln) in misfiled_finding_rows(mf_unclosed)]
+    ck("part-2b iter3: an UNCLOSED `(` heading does NOT open (orphan flagged)",
+       any("an orphan after an unclosed-paren phantom" in x for x in mf_uc), True)
+
+    # --- codex/gemini QA #1996 iter-3 MED: an info-string line (```python) must NOT close a fence. ---
+    mf_info = (
+        "## Disposition values\n"
+        "```\n"
+        "```python\n"
+        "| 2026-09-03 | error | a row after an info-string line inside a fence | probe | FIXED #1 |\n"
+        "```\n"
+        "| 2026-09-03 | error | a real row after the true fence close | probe | FIXED #2 |\n"
+        "## Open\n"
+        "| Found | Severity | Finding | Source | Disposition |\n"
+        "| --- | --- | --- | --- | --- |\n"
+    )
+    mf_if = [ln for (_l, _s, ln) in misfiled_finding_rows(mf_info)]
+    ck("part-2b iter3: an info-string ```lang line does NOT close the fence (fenced row not flagged)",
+       any("after an info-string line inside a fence" in x for x in mf_if), False)
+    ck("part-2b iter3: the row after the true (bare) fence close IS flagged",
+       any("after the true fence close" in x for x in mf_if), True)
+
     if fails:
         print(f"\nself-test: FAILED ({len(fails)} of {cases})")
         for f in fails:
