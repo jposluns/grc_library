@@ -2,8 +2,8 @@
 
 **Document Title:** Presence Inference Limitations Standard\
 **Document Type:** Standard\
-**Version:** 0.1.0\
-**Date:** 2026-09-04\
+**Version:** 0.1.1\
+**Date:** 2026-09-05\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-workforce-network-monitoring.md`](../security/policy-workforce-network-monitoring.md), [`governance/framework-human-capital-and-ethical-conduct.md`](../governance/framework-human-capital-and-ethical-conduct.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`security/framework-insider-risk-programme.md`](../security/framework-insider-risk-programme.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md)\
@@ -142,6 +142,7 @@ Presence and presence-derived data is retained only as long as necessary for its
 | --- | --- | --- |
 | ISO/IEC 27001:2022 | A.8.16 Monitoring Activities; A.5.34 Privacy and protection of personal identifiable information (PII); A.5.10 Acceptable Use of Information and Other Associated Assets | Bounds the interpretation and use of monitoring output and the handling of personal data derived from it. |
 | NIST CSF 2.0 | GV.OC Organizational Context; GV.PO Policy | Governs the policy and organizational-context constraints on how monitoring signals are used. |
+| NIST Privacy Framework 1.0 | CT.DP-P Disassociated Processing; CT.DM-P Data Processing Management; CM.AW-P Data Processing Awareness | Limits on inference from presence signals, purpose-limitation on presence telemetry, and mandatory caveats on displayed presence-derived metrics |
 | CSA CCM v4.1 | DSP-12 Limitation of Purpose in Personal Data Processing; DSP-08 Data Privacy by Design and Default | Purpose limitation on presence data and privacy-by-default in the design of any presence-derived metric. |
 | GDPR (EU) | Article 5(1)(b) purpose limitation; Article 5(1)(d) accuracy; Article 22 automated individual decision-making; Article 88 processing in the context of employment | Aligns the standard's purpose-limitation, accuracy, no-automated-scoring, and employment-context requirements. These principles inform the standard; the standard does not assert that any single article prescribes the specific presence-use limits. |
 | UK GDPR | Article 22 replaced by Articles 22A to 22D; Article 88 not adopted; see the United Kingdom privacy annex | The UK position on automated decisions and employment-context processing differs from the EU; do not conflate the two regimes. |

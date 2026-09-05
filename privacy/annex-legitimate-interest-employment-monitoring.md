@@ -2,8 +2,8 @@
 
 **Document Title:** Legitimate Interest Assessment for Employment Monitoring Annex\
 **Document Type:** Annex\
-**Version:** 0.1.2\
-**Date:** 2026-09-04\
+**Version:** 0.1.3\
+**Date:** 2026-09-05\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/template-legitimate-interest-assessment.md`](template-legitimate-interest-assessment.md), [`security/policy-workforce-network-monitoring.md`](../security/policy-workforce-network-monitoring.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/framework-consent-management.md`](framework-consent-management.md), [`privacy/standard-presence-inference-limitations.md`](standard-presence-inference-limitations.md), [`privacy/standard-network-telemetry-and-dpi-controls.md`](standard-network-telemetry-and-dpi-controls.md), [`privacy/template-dpia.md`](template-dpia.md), [`privacy/standard-pseudonymization-and-anonymization.md`](standard-pseudonymization-and-anonymization.md), [`security/framework-insider-risk-programme.md`](../security/framework-insider-risk-programme.md)\
@@ -147,6 +147,7 @@ The table maps only the controls this annex substantively implements or constrai
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | GDPR (EU) | Article 6(1)(f) legitimate interests; Article 5(2) accountability; Article 21 right to object; Article 9 special-category prohibition (absent an Article 9(2) condition); Article 88 employment-context processing | The legitimate-interests basis this annex's balancing analysis evidences, the accountability the documented assessment provides, the right to object that attaches to the basis, and the special-category and employment-context constraints on basis selection. These provisions inform the annex; the annex does not assert that any single article prescribes the specific balancing factors. |
+| NIST Privacy Framework 1.0 | ID.RA-P Risk Assessment; CT.DM-P Data Processing Management | The LIA as a structured privacy risk assessment, and the right-to-object as data-processing management |
 | UK GDPR | Article 6(1)(f) legitimate interests; Article 9 condition plus, for several, a Data Protection Act 2018 Schedule 1 condition; Article 88 not adopted; Article 22 replaced by Articles 22A to 22D (DUAA 2025, in force 2026-02-05); see the United Kingdom privacy annex | The UK basis, special-category, and automated-decision positions differ from the EU regime and are worked separately; do not conflate the two regimes. |
 | EDPB Guidelines 05/2020 (Version 1.1) | Guidelines 05/2020 on consent under Regulation 2016/679 | The supervisory basis for the presumption that employment consent is not freely given, given the imbalance of power (Section 5). |
 | EDPB Opinion 28/2024 | Legitimate-interest analysis (three cumulative conditions) | Articulates the three cumulative conditions (purpose, necessity, balancing) that this annex specializes for monitoring. |

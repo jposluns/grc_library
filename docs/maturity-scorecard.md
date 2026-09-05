@@ -396,17 +396,17 @@ _65 documents._
 | [governance/standard-emergency-authority.md](../governance/standard-emergency-authority.md) | Emergency Authority Standard | Standard | 0.0.3 | 2026-08-31 |
 | [governance/standard-semantic-continuity-in-migration-and-retirement.md](../governance/standard-semantic-continuity-in-migration-and-retirement.md) | Semantic Continuity in Migration and Retirement Standard | Standard | 0.0.2 | 2026-08-31 |
 | [operations/standard-observability-and-telemetry.md](../operations/standard-observability-and-telemetry.md) | Observability and Telemetry Standard | Standard | 0.0.7 | 2026-09-03 |
-| [privacy/annex-legitimate-interest-employment-monitoring.md](../privacy/annex-legitimate-interest-employment-monitoring.md) | Legitimate Interest Assessment for Employment Monitoring Annex | Annex | 0.1.2 | 2026-09-04 |
+| [privacy/annex-legitimate-interest-employment-monitoring.md](../privacy/annex-legitimate-interest-employment-monitoring.md) | Legitimate Interest Assessment for Employment Monitoring Annex | Annex | 0.1.3 | 2026-09-05 |
 | [privacy/jurisdictions/annex-privacy-chile.md](../privacy/jurisdictions/annex-privacy-chile.md) | Chile Privacy Regulatory Requirements | Annex | 0.0.1 | 2026-09-04 |
 | [privacy/jurisdictions/annex-privacy-colombia.md](../privacy/jurisdictions/annex-privacy-colombia.md) | Colombia Privacy Regulatory Requirements | Annex | 0.0.2 | 2026-09-04 |
 | [privacy/jurisdictions/annex-privacy-mexico.md](../privacy/jurisdictions/annex-privacy-mexico.md) | Mexico Privacy Regulatory Requirements | Annex | 0.0.3 | 2026-09-04 |
 | [privacy/jurisdictions/annex-privacy-peru.md](../privacy/jurisdictions/annex-privacy-peru.md) | Peru Privacy Regulatory Requirements | Annex | 0.0.2 | 2026-09-04 |
 | [privacy/procedure-works-council-and-employee-representative-consultation.md](../privacy/procedure-works-council-and-employee-representative-consultation.md) | Works Council and Employee Representative Consultation Procedure | Procedure | 0.1.0 | 2026-09-04 |
-| [privacy/standard-network-telemetry-and-dpi-controls.md](../privacy/standard-network-telemetry-and-dpi-controls.md) | Network Telemetry and DPI Controls Standard | Standard | 0.1.0 | 2026-09-04 |
-| [privacy/standard-presence-inference-limitations.md](../privacy/standard-presence-inference-limitations.md) | Presence Inference Limitations Standard | Standard | 0.1.0 | 2026-09-04 |
+| [privacy/standard-network-telemetry-and-dpi-controls.md](../privacy/standard-network-telemetry-and-dpi-controls.md) | Network Telemetry and DPI Controls Standard | Standard | 0.1.1 | 2026-09-05 |
+| [privacy/standard-presence-inference-limitations.md](../privacy/standard-presence-inference-limitations.md) | Presence Inference Limitations Standard | Standard | 0.1.1 | 2026-09-05 |
 | [privacy/template-employee-monitoring-notice.md](../privacy/template-employee-monitoring-notice.md) | Employee Monitoring Notice Template | Template | 0.1.1 | 2026-09-04 |
 | [security/framework-zero-trust-architecture.md](../security/framework-zero-trust-architecture.md) | Zero Trust Architecture Framework | Framework | 0.0.7 | 2026-08-05 |
-| [security/policy-workforce-network-monitoring.md](../security/policy-workforce-network-monitoring.md) | Workforce Network Monitoring Policy | Policy | 0.1.0 | 2026-09-04 |
+| [security/policy-workforce-network-monitoring.md](../security/policy-workforce-network-monitoring.md) | Workforce Network Monitoring Policy | Policy | 0.1.1 | 2026-09-05 |
 | [security/standard-monitoring-integrity-and-coverage.md](../security/standard-monitoring-integrity-and-coverage.md) | Monitoring Integrity and Coverage Standard | Standard | 0.0.4 | 2026-09-01 |
 
 ---

@@ -2,8 +2,8 @@
 
 **Document Title:** Network Telemetry and DPI Controls Standard\
 **Document Type:** Standard\
-**Version:** 0.1.0\
-**Date:** 2026-09-04\
+**Version:** 0.1.1\
+**Date:** 2026-09-05\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-workforce-network-monitoring.md`](../security/policy-workforce-network-monitoring.md), [`privacy/standard-presence-inference-limitations.md`](standard-presence-inference-limitations.md), [`security/policy-byod.md`](../security/policy-byod.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`operations/standard-observability-and-telemetry.md`](../operations/standard-observability-and-telemetry.md), [`privacy/standard-pseudonymization-and-anonymization.md`](standard-pseudonymization-and-anonymization.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md)\
@@ -129,6 +129,7 @@ Network flow and DPI telemetry is retained only for as long as necessary for its
 | --- | --- | --- |
 | ISO/IEC 27001:2022 | A.5.34 Privacy and protection of personal identifiable information (PII) | Bounds the handling of personal data derived from network telemetry. |
 | NIST CSF 2.0 | GV.OC Organizational Context; GV.PO Policy | Governs the organizational-context and policy constraints on telemetry. |
+| NIST Privacy Framework 1.0 | CT.DM-P Data Processing Management; CT.DP-P Disassociated Processing | Field-level telemetry minimization and disassociation of flow data (k-anonymity and differencing defences) |
 | CSA CCM v4.1 | DSP-08 Data Privacy by Design and Default; DSP-12 Limitation of Purpose in Personal Data Processing | Privacy-by-default in telemetry design and purpose limitation on telemetry. |
 | GDPR (EU) | Article 5 (data minimization, purpose limitation, storage limitation); Article 6 (lawful basis); Article 9 (prohibition on processing special-category data absent an Article 9(2) condition); Article 25 (data protection by design and by default) | Aligns the standard's minimization, exclusion-by-design, and special-category-exclusion requirements. These principles inform the standard; the standard does not assert that any single article prescribes a specific threshold or field-level control, and a purpose or legitimate aim is not itself an Article 6 basis or an Article 9 condition. |
 | UK GDPR | The UK retains an equivalent special-category prohibition; processing requires an Article 6 lawful basis, a UK GDPR Article 9 condition, and, for several of those conditions, an associated Data Protection Act 2018 Schedule 1 condition. The permitting conditions are set under the UK regime and are not identical to the EU conditions. | Do not conflate the EU and UK special-category regimes. |
