@@ -13,13 +13,14 @@ importing ``lint_common`` and does not touch this shim.
 Discovery order (first hit wins), all keyed on the pack's ``.aiqt`` root marker
 so no host path is hardcoded:
 
-1. ``GRC_AIQT_PACK`` env var (explicit override; its ``tools/aiqt_corpus.py``
-   must exist), for a non-default layout or a test harness.
+1. ``AIQT_PACK_ROOT`` (the AIQT-standard name) or ``GRC_AIQT_PACK`` env var (explicit
+   override; its ``tools/aiqt_corpus.py`` must exist), for a non-default layout or a test harness.
 2. A ``.aiqt`` marker walked UP from this file, for a pack vendored inside or
    above the consuming repo.
-3. A sibling directory of the repo root carrying a ``.aiqt`` marker AND
-   ``tools/aiqt_corpus.py`` -- grc's dogfood, where the standalone ``guardrails``
-   pack sits beside ``grc_library``.
+3. The known in-repo vendored location ``<repo>/vendor/aiqt/`` (a ``.aiqt`` marker +
+   ``tools/aiqt_corpus.py``): the digest-verified copy CI and dev both use.
+4. A sibling directory of the repo root carrying a ``.aiqt`` marker AND
+   ``tools/aiqt_corpus.py`` -- dev convenience only, when no in-repo vendor copy is present.
 
 It fails LOUD (``ImportError`` naming the fix) when the pack cannot be found,
 so a broken setup surfaces here rather than as a downstream
@@ -46,12 +47,14 @@ def _has_module(pack_root: Path) -> bool:
 
 def find_pack_tools() -> Path | None:
     """Return the AIQT pack's ``tools/`` directory, or ``None`` if not found."""
-    # 1. explicit override
-    env = os.environ.get("GRC_AIQT_PACK")
-    if env:
-        root = Path(env).expanduser()
-        if _has_module(root):
-            return root / "tools"
+    # 1. explicit override: AIQT_PACK_ROOT is the AIQT-standard name; GRC_AIQT_PACK is
+    #    accepted too (guardrails 2026-09-05: "standardize AIQT_PACK_ROOT ... or accept both").
+    for var in ("AIQT_PACK_ROOT", "GRC_AIQT_PACK"):
+        env = os.environ.get(var)
+        if env:
+            root = Path(env).expanduser()
+            if _has_module(root):
+                return root / "tools"
 
     here = Path(__file__).resolve()
 
@@ -60,9 +63,18 @@ def find_pack_tools() -> Path | None:
         if _has_module(parent):
             return parent / "tools"
 
-    # 3. a sibling of the repo root carrying the marker + the module
+    # 3. the known IN-REPO vendored location <repo>/vendor/aiqt/ (guardrails convention #3,
+    #    "a known vendored location"). This is the digest-verified copy CI and dev both use, so
+    #    it is preferred over the live sibling pack below; the walk-up above cannot reach it
+    #    because it is a descendant of the repo root, not an ancestor of this file.
     #    (this file lives at <repo>/tools/aiqt_bootstrap.py, so parents[1] == repo root)
     repo_root = here.parents[1]
+    vendored = repo_root / "vendor" / "aiqt"
+    if _has_module(vendored):
+        return vendored / "tools"
+
+    # 4. a sibling of the repo root carrying the marker + the module (dev convenience: the live
+    #    standalone pack beside the repo, used only when no in-repo vendor copy is present)
     parent_dir = repo_root.parent
     try:
         siblings = sorted(parent_dir.iterdir())

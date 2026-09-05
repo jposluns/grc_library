@@ -50,6 +50,16 @@ SCAN_DIRS = ("tools", "tests", ".web")
 # documented project dependency (the gate-discipline exception pattern).
 ALLOWED_THIRD_PARTY: dict[str, str] = {}
 
+# Vendored FIRST-PARTY modules: code CONSUMED from AIQT and vendored in-repo under vendor/
+# (exempt from the general scan, so their stems are not picked up by _first_party_names). They
+# are digest-verified against their pin by gate 98 (lint-aiqt-vendor-digest.py) and imported
+# through the tools/aiqt_bootstrap.py shim, so they are sanctioned toolchain modules, not
+# third-party dependencies. (Corpus-Management umbrella Phase-2; guardrails-coordinated 2026-09-05.)
+VENDORED_FIRST_PARTY: dict[str, str] = {
+    "aiqt_corpus": "AIQT generic corpus-tool core, vendored at vendor/aiqt/tools/aiqt_corpus.py, "
+                   "digest-verified by gate 98, imported via the aiqt_bootstrap shim",
+}
+
 
 def _scan_files() -> list[Path]:
     files: list[Path] = []
@@ -91,7 +101,8 @@ def _import_roots(tree: ast.AST) -> list[tuple[int, str]]:
 
 def scan() -> list[tuple[str, int, str]]:
     files = _scan_files()
-    allowed = set(sys.stdlib_module_names) | _first_party_names(files) | set(ALLOWED_THIRD_PARTY)
+    allowed = (set(sys.stdlib_module_names) | _first_party_names(files)
+               | set(ALLOWED_THIRD_PARTY) | set(VENDORED_FIRST_PARTY))
     findings: list[tuple[str, int, str]] = []
     for path in files:
         try:

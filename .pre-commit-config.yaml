@@ -670,3 +670,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-aiqt-vendor-digest
+        name: AIQT vendor digest audit
+        entry: python3 tools/lint-aiqt-vendor-digest.py
+        language: system
+        pass_filenames: false
+        always_run: true

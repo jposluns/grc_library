@@ -1,0 +1,8 @@
+# AIQT pack-root marker (vendored minimal subset).
+# This directory is a VENDORED, digest-verified copy of a minimal subset of the AIQT
+# guardrails pack -- tools/aiqt_corpus.py, the genericized corpus-tool core -- CONSUMED
+# from jposluns/guardrails (dependency-model B, Corpus-Management umbrella Phase-2).
+# The shim tools/aiqt_bootstrap.py discovers this root via this `.aiqt` marker.
+# Do NOT hand-edit tools/aiqt_corpus.py here: it is byte-for-byte from the pack and is
+# verified against PIN.toml by tools/lint-aiqt-vendor-digest.py. To update, re-vendor
+# from the pack and re-pin.
