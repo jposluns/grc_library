@@ -2,8 +2,8 @@
 
 **Document Title:** Coverage Gap Analysis Register\
 **Document Type:** Register\
-**Version:** 1.1.33\
-**Date:** 2026-09-04\
+**Version:** 1.1.34\
+**Date:** 2026-09-05\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/register-glossary.md`](register-glossary.md), [`README.md`](../README.md), [`TODO.md`](../TODO.md)\
@@ -150,7 +150,7 @@ The `ai/jurisdictions/` structure (parallel to `privacy/jurisdictions/`) was fou
 | US California (CCPA ADMT) | Substantive | In library | n/a | Dedicated jurisdiction annex [`ai/jurisdictions/annex-ai-us-california.md`](../ai/jurisdictions/annex-ai-us-california.md) (11 CCR Article 11 sections 7200 to 7222: pre-use notice, opt-out, access, human-appeal alternative), the canonical home for the CCPA ADMT limb; the US privacy annex keeps the risk-assessment and cybersecurity-audit slices |
 | US Colorado | Substantive | In library | n/a | Dedicated two-regime jurisdiction annex [`ai/jurisdictions/annex-ai-us-colorado.md`](../ai/jurisdictions/annex-ai-us-colorado.md) (SB 24-205 re-enacted by SB 26-189: developer and deployer duties, consumer rights, meaningful human review, AG-exclusive enforcement, transition timeline) |
 | US New York City | Substantive | In library | n/a | Dedicated jurisdiction annex [`ai/jurisdictions/annex-ai-us-new-york-city.md`](../ai/jurisdictions/annex-ai-us-new-york-city.md) (Local Law 144 of 2021, automated employment decision tools), with the implementing DCWP rule held in the reference base and currency confirmed 2026-07-24; a struck candidate rather than an open gap in the TODO backlog's AI-jurisdiction-overlays item |
-| Other US states (Texas, Illinois) | Partial | Cited, no annex | TODO backlog: further AI-jurisdiction annexes | Texas TRAIGA (HB 149) and Illinois HB 3773 (PA 103-0804) are cited in [`ai/policy-ai-compliance.md`](../ai/policy-ai-compliance.md) section 7.5 with canonical-citations rows verified 2026-07-24; both primaries are held in the reference base. The dedicated annexes remain the gap, and the source-gate is CLEARED |
+| Illinois (US state) | Partial | Cited, no annex | TODO backlog: Illinois AI-jurisdiction annex (2.21) | Illinois HB 3773 (PA 103-0804) is cited in [`ai/policy-ai-compliance.md`](../ai/policy-ai-compliance.md) section 7.5 with a canonical-citations row verified 2026-07-24; the primary is held in the reference base and the source-gate is CLEARED. The Texas TRAIGA annex shipped ([`ai/jurisdictions/annex-ai-us-texas.md`](../ai/jurisdictions/annex-ai-us-texas.md)); the Illinois dedicated annex remains the gap |
 | UK AI regulatory framework | Partial | Planned | TODO backlog: AI jurisdiction overlays | Re-graded None to Partial 2026-07-02: the AI compliance policy carries a dedicated UK subsection (7.3, AI Safety Institute and ICO commitments, UK GDPR and DPA 2018) and a framework-table row; the dedicated jurisdiction annex remains the gap |
 | China generative AI rules | Partial | Planned | TODO backlog: AI jurisdiction overlays | Re-graded None to Partial 2026-07-03 (the #586 sweep's M-2): the China privacy annex carries a described-obligations bullet for the Interim Measures for the Management of Generative AI Services plus dedicated Generative-AI obligations and enforcement subsections (the UK-AI-framework adjacent-dedicated-subsection pattern), and the jurisdiction index carries Generative-AI cells in its file, regime, and developments tables; unlike the Colorado basis there is no canonical-citations row; the dedicated AI jurisdiction annex remains the gap |
 | Korea AI framework | None | Planned | TODO backlog: AI jurisdiction overlays |  |
