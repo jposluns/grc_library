@@ -9100,7 +9100,7 @@ documents:
   domain: "privacy"
   type: "Annex"
   title: "Nigeria Privacy Regulatory Requirements"
-  version: "1.0.4"
+  version: "1.0.6"
   date: "2026-09-05"
   owner: "Data Protection Officer"
   approving_authority: "Governance Library Maintainer"
