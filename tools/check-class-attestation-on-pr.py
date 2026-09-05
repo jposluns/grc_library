@@ -41,9 +41,14 @@ This gate now FAILS-CLOSED on any such row in either scanned section (no in_wind
 blanked Found cannot be trusted), after the 6 pre-existing malformed `## Closed today` rows were
 repaired (the appended-disposition shape, not an unescaped pipe). The heterogeneous QA sub-tables
 live OUTSIDE the scanned `## Open`/`## Closed today` sections, so fail-closed cannot false-positive
-on them. TWO residues remain (P-1.70 follow-up): (a) a WELL-FORMED row mis-filed OUTSIDE both
-scanned sections is invisible to hook and gate alike (an optional date-leading-orphan detector is
-deferred); (b) the malformed-WRAPPER false-pass is NARROWED, not fully closed, it survives only the
+on them. ONE residue remains (b, below): residue (a), a WELL-FORMED finding-row mis-filed OUTSIDE the
+scanned sections, is now CLOSED by the P-1.70 part-2b mis-filed-row detector (``misfiled_finding_rows``
+in the hook; a date|severity|-leading, column-0, non-fenced row that appears BEFORE the real
+`## Closed today` archive opens, in the preamble above `## Open` OR orphaned between `## Open` and
+`## Closed today` by a phantom heading, fails this gate closed). Stopping at the real `## Closed today`
+is deliberate (the pre-landing sweep found the ledger's legitimate dated `## YYYY-MM-DD` archive uses
+the same schema; see the hook fn for
+the stated archive/fused-line residues). (b) the malformed-WRAPPER false-pass is NARROWED, not fully closed, it survives only the
 contrived case of a malformed `[class:` wrapper together with any valid `[class-exempt:]` reason,
 whether embedded in the wrapper token OR standalone/adjacent in the cell (a malformed wrapper yields
 empty class_spans, so an adjacent exempt is matched too; author-run tooling, adversarial-only), ACCEPTED.
@@ -365,6 +370,62 @@ def _self_test() -> int:
                                'FIXED #1990 [class: "weird \\| token" @ 1]')), probe)
         checks.append(("escaped-pipe-token-round-trips", fails == []))
 
+        # P-1.70 part-2b: the mis-filed-row detector fires end-to-end. A finding-row spliced into a
+        # legend section, and a row after a phantom backtick-`## ` heading, are both detected; a clean
+        # all-in-scope ledger yields none; the severity vocabulary is pinned against silent drift.
+        _mf_fix = (
+            "## Disposition values\n"
+            "| 2026-09-03 | error | a preamble mis-filed row | probe | FIXED #1 |\n"
+            "## Closed today` and the row is deleted.\n"
+            "| 2026-09-03 | error | after phantom | probe | FIXED #2 |\n"
+            "## Open\n"
+            "| Found | Severity | Finding | Source | Disposition |\n"
+            "| --- | --- | --- | --- | --- |\n"
+            "| 2026-09-05 | error | clean in-scope | probe |  |\n"
+            "## Closed today\n"
+            "| 2026-09-04 | error | a real closed row | probe | FIXED #8 |\n"
+            "## 2026-08-24 archived QA record\n"
+            "| 2026-08-24 | error | a legitimately archived row | probe | FIXED #9 |\n"
+        )
+        checks.append(("part-2b-detects-misfiled-and-post-phantom-rows",
+                       len(hook.misfiled_finding_rows(_mf_fix)) == 2))
+        checks.append(("part-2b-clean-ledger-has-no-misfiled",
+                       hook.misfiled_finding_rows(
+                           ledger(("2026-09-04", "error", "[x] a thing", "FIXED #1"))) == []))
+        checks.append(("part-2b-severity-vocab-pinned",
+                       tuple(hook.SEVERITIES) == ("error", "warning", "note")))
+
+        # codex QA #1996 MED-3: exercise the D14 fail-closed BRANCH itself (not just the pure fn), by
+        # patching the module-global resolve_working to a temp ledger and calling main(). Removing the
+        # `if misfiled: return 1` branch in main would flip rc_misfiled to 0 and fail this check.
+        _mod = sys.modules[__name__]
+        _saved_rw = _mod.resolve_working
+        try:
+            _mf_led = root / "misfiled-ledger.md"
+            _mf_led.write_text(
+                "## Disposition values\n"
+                "| 2026-09-03 | error | a mis-filed preamble row | probe | FIXED #1 |\n"
+                "## Open\n"
+                "| Found | Severity | Finding | Source | Disposition |\n"
+                "| --- | --- | --- | --- | --- |\n"
+                "## Closed today\n",
+                encoding="utf-8")
+            _mod.resolve_working = lambda _name: _mf_led
+            _rc_misfiled = main(["check-class-attestation-on-pr.py"])
+            _clean_led = root / "clean-ledger.md"
+            _clean_led.write_text(
+                "## Open\n"
+                "| Found | Severity | Finding | Source | Disposition |\n"
+                "| --- | --- | --- | --- | --- |\n"
+                "## Closed today\n",
+                encoding="utf-8")
+            _mod.resolve_working = lambda _name: _clean_led
+            _rc_clean = main(["check-class-attestation-on-pr.py"])
+        finally:
+            _mod.resolve_working = _saved_rw
+        checks.append(("part-2b-D14-branch-fails-closed-on-misfiled", _rc_misfiled == 1))
+        checks.append(("part-2b-D14-branch-passes-a-clean-ledger", _rc_clean == 0))
+
     bad = [n for n, ok in checks if not ok]
     if bad:
         print(f"check-class-attestation-on-pr self-test: FAIL {bad}")
@@ -400,11 +461,30 @@ def main(argv: list[str]) -> int:
         return 2
 
     try:
-        rows_full = hook.parse_dispositioned_rows_full(ledger.read_text(encoding="utf-8"))
+        ledger_text = ledger.read_text(encoding="utf-8")
+        rows_full = hook.parse_dispositioned_rows_full(ledger_text)
     except Exception as exc:
         print(f"D14 FAIL (fail-closed): cannot read/parse {ledger} ({exc}).",
               file=sys.stderr)
         return 2
+
+    # P-1.70 part-2b: mis-filed finding-row detector (fail-closed). A finding-row (date|severity|-
+    # leading, column 0, not fenced/backtick-quoted) that sits OUTSIDE '## Open' / '## Closed today'
+    # is invisible to this gate AND the open-findings hook (the 2026-09-05 legend-splice corruption).
+    # UNWINDOWED, deliberately: a row's LOCATION is not a permanent property like its Found date, so
+    # the ship floor does not apply (windowing on the Found cell of a mis-filed row would trust a cell
+    # the corruption context taints, the same reasoning that removed in_window from the malformed
+    # branch). RESIDUE: a fused-onto-prose or severity-mangled row escapes the fingerprint (stated in
+    # the hook fn; a strict subset of the class, ACCEPTED).
+    misfiled = hook.misfiled_finding_rows(ledger_text)
+    if misfiled:
+        print(f"D14 FAIL (fail-closed): {len(misfiled)} finding-row(s) mis-filed OUTSIDE "
+              f"'## Open' / '## Closed today' in {ledger} (invisible to the hook and D14). "
+              "Move each into a scanned section:", file=sys.stderr)
+        for _ln, _sec, _line in misfiled[:8]:
+            print(f"  - line {_ln} (under {_sec or 'no scanned heading'}): {_line[:100]}",
+                  file=sys.stderr)
+        return 1
 
     try:
         files = matcher.attest_file_set()
