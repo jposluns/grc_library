@@ -2,7 +2,7 @@
 
 **Document Title:** Compliance, Audit, and CAPA Management Policy\
 **Document Type:** Policy\
-**Version:** 1.0.23\
+**Version:** 1.0.24\
 **Date:** 2026-09-05\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -22,7 +22,7 @@ This policy defines the governance framework for compliance assurance, internal 
 
 It consolidates previous compliance, audit, and CAPA policies into one unified governance instrument, ensuring consistent oversight of legal, regulatory, contractual, and ethical obligations; verification of control effectiveness; and continual improvement through audit findings and remediation cycles.
 
-The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO 19011:2026** (Auditing Guidelines), **COBIT 2019 MEA01** (Managed Performance and Conformance Monitoring), **Cloud Security Alliance (CSA)** frameworks, **NIST SP 800-53 Rev. 5 CA** family, and regulatory expectations under the **EU AI Act**. (Canada's AIDA, proposed as Part 3 of Bill C-27, lapsed at the 2025-01-06 prorogation and is not in force; the current Canadian instruments are the Treasury Board Directive on Automated Decision-Making (binding on federal institutions) and the federal Voluntary Code of Conduct on Generative AI (voluntary). U.S. Executive Order 14110 on Safe, Secure, and Trustworthy AI was rescinded on 20 January 2025 and superseded by "Removing Barriers to American Leadership in Artificial Intelligence".)
+The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO 19011:2026** (Auditing Guidelines), **COBIT 2019 MEA01** (Managed Performance and Conformance Monitoring), **Cloud Security Alliance (CSA)** frameworks, **NIST SP 800-53 Rev. 5 CA** family, and regulatory expectations under the **EU AI Act**. (Canada's AIDA, proposed as Part 3 of Bill C-27, lapsed at the 2025-01-06 prorogation and is not in force; the current Canadian instruments are the Treasury Board Directive on Automated Decision-Making (binding on federal institutions subject to the Policy on Service and Digital) and the federal Voluntary Code of Conduct on Generative AI (voluntary). U.S. Executive Order 14110 on Safe, Secure, and Trustworthy AI was rescinded on 20 January 2025 and superseded by "Removing Barriers to American Leadership in Artificial Intelligence".)
 
 
 
