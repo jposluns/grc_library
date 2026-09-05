@@ -1,0 +1,75 @@
+# Digital Asset Custody Standard
+
+**Document Title:** Digital Asset Custody Standard\
+**Document Type:** Standard\
+**Version:** 0.0.1\
+**Date:** 2026-09-05\
+**Owner:** Crypto-Asset Governance Approver\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`crypto/framework-crypto-asset-governance.md`](framework-crypto-asset-governance.md), [`security/framework-cryptographic-key-lifecycle.md`](../security/framework-cryptographic-key-lifecycle.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/procedure-cryptographic-key-operations.md`](../security/procedure-cryptographic-key-operations.md), [`security/procedure-key-escrow-and-recovery.md`](../security/procedure-key-escrow-and-recovery.md), [`compliance/financial-services/annex-mica-implementation.md`](../compliance/financial-services/annex-mica-implementation.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
+**Classification:** Public\
+**Category:** Crypto-Asset Governance\
+**Review Frequency:** 6 to 12 months and upon material custody-arrangement, threat, or regulatory change\
+**Repository Path:** [`crypto/standard-digital-asset-custody.md`](standard-digital-asset-custody.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## 1. Purpose
+
+This standard sets the requirements for safekeeping and custody of crypto-assets and the means of access to them (private keys and equivalent credentials). It is a requirements document under the Crypto-Asset Governance Framework ([`crypto/framework-crypto-asset-governance.md`](framework-crypto-asset-governance.md)), which names custody as a risk domain and a governance requirement and defers the detail here. It relates to, and does not duplicate, the organization's cryptographic key controls in the security domain; key-lifecycle mechanics live there and this standard adds only the custody-specific requirements.
+
+"Digital asset" is used as the organization-neutral umbrella term; where a requirement is grounded in the EU Markets in Crypto-Assets Regulation (Regulation (EU) 2023/1114, MiCA), the regulation's defined term "crypto-asset" is used and the provision is named at the point of use.
+
+## 2. Applicability
+
+This standard applies to an organization that holds crypto-assets, or the means of access to them, on behalf of clients or other third parties, and, proportionately, to an organization safeguarding its own material holdings. The requirements grounded in MiCA attach where the organization acts as a custodian providing custody and administration of crypto-assets on behalf of clients; they are not extended to an organization that merely holds its own assets. The segregation, wallet, and key-control practices are applied as good practice to proprietary holdings even where the regime-specific duties do not bind. An organization outside the European Union applies the same control structure against its own governing law.
+
+## 3. Requirements
+
+### 3.1 Custody policy and governance
+
+A written custody policy sets internal rules and procedures for the safekeeping or the control of the crypto-assets held on behalf of clients, or of the means of access, and minimizes the risk of loss of clients' crypto-assets, or of the means of access, due to fraud, cyber threats or negligence (MiCA Article 75(3)); a summary of the policy is made available to clients, on request, in electronic format. Custody activity proceeds only after the asset is classified and the activity approved, per Governance requirements 1 and 2 of the framework.
+
+### 3.2 Segregation of client and proprietary assets
+
+The custodian safeguards clients' ownership rights, in particular in the event of the custodian's insolvency, and prevents the use of clients' crypto-assets on its own account (MiCA Article 70(1)). Client holdings are segregated from proprietary holdings: on the distributed ledger, clients' crypto-assets are held in positions separate from the custodian's own; the custodied assets are legally segregated from the custodian's estate so that the custodian's creditors have no recourse to them, in particular on insolvency; and the segregation is operationally effected (MiCA Article 75(7)). Where client funds other than electronic money tokens are held, the custodian safeguards the clients' ownership rights and does not use those funds on its own account (Article 70(2)) and places them with a central bank or a credit institution by the end of the business day following the day on which they were received, in an account separately identifiable from any account used to hold funds belonging to the custodian (Article 70(3)); Article 70(2) and (3) do not apply to crypto-asset service providers that are electronic money institutions, payment institutions, or credit institutions (Article 70(5)). The next-business-day placement clock is a MiCA-specific value.
+
+### 3.3 Client agreement
+
+Custody rests on an agreement with the client specifying the parties' duties and responsibilities, containing at least: the identity of the parties; the nature and description of the service provided; the custody policy; the means of communication between the parties, including the client's authentication system; a description of the security systems used; the fees, costs and charges applied; and the applicable law (MiCA Article 75(1)). Any event likely to create or modify a client's rights is recorded without delay in the register of positions, and on a change to the distributed ledger technology, or any other event likely to create or modify the client's rights, the client is entitled to any crypto-assets or rights newly created on the basis and to the extent of their positions at the time of that event, save where a prior valid agreement expressly provides otherwise (Article 75(4)). Procedures ensure that custodied crypto-assets, or the means of access, are returned to clients as soon as possible (Article 75(6)). The agreement setting out the parties' rights and obligations is retained for at least five years from the end of the contractual relationship, extendable to a maximum of seven years where a competent authority so requests before the five-year period expires (Commission Delegated Regulation (EU) 2025/1140, Article 4); these retention periods are MiCA-regime values.
+
+### 3.4 Wallet architecture
+
+Wallets are tiered by network exposure (for example a hot, warm, and cold tiering, or an equivalent documented scheme), with a defined maximum value at risk per tier and the bulk of client assets held in the least-exposed tier; movements between tiers and outbound transfers are subject to documented authorization (address allow-listing, transaction limits, and out-of-band verification); and the tier design is recorded in the custody policy. These are organization-defined parameters. NIST IR 8202 (section 3.4.1) grounds the underlying risk, that loss of a private key is loss of the asset and that an on-chain transfer by a thief generally cannot be reversed, but it is an informative technical report and prescribes no tiering; the parameters above are organizational controls, not a regulatory or NIST attribution.
+
+### 3.5 Key custody and module assurance
+
+Custody keys are enrolled in the organization's cryptographic key lifecycle: generation, distribution, activation, rotation, revocation, destruction, and compromise response are governed by [`security/framework-cryptographic-key-lifecycle.md`](../security/framework-cryptographic-key-lifecycle.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/procedure-cryptographic-key-operations.md`](../security/procedure-cryptographic-key-operations.md), and [`security/procedure-key-escrow-and-recovery.md`](../security/procedure-key-escrow-and-recovery.md); this standard requires a key-lifecycle register entry, an escrow-category assignment, and exercised recovery procedures for custody keys, and adds the custody-specific deltas below. Key generation and storage occur in cryptographic modules validated under NIST FIPS 140-3, or a documented equivalent, at a validation level selected and justified as appropriate for the security requirements of the application and environment; FIPS 140-3 defines four increasing qualitative levels and does not prescribe which level a custody application requires, so the level is the organization's risk decision rather than a value fixed here. No single individual can unilaterally authorize the movement of client assets: control of custody keys uses split knowledge and dual control (NIST SP 800-57), so that no one person holds enough key material to act alone; threshold-signature and multi-party-computation schemes are acceptable modern implementations of the same discipline. Approved algorithms and key lengths follow the security key stack, which carries NIST SP 800-131A Rev. 2.
+
+### 3.6 Register of positions and inventory
+
+The custodian keeps a register of positions, opened in the name of each client, corresponding to each client's rights to the crypto-assets; movements following the client's instructions are recorded as soon as possible; and internal procedures ensure that any movement affecting the registration of the crypto-assets is evidenced by a transaction regularly registered in the client's register of positions (MiCA Article 75(2)). The custodian provides each client with a statement of position at least once every three months, and at the client's request, in electronic format, stating the crypto-assets, their balance and value, and the transfers over the period (Article 75(5)). The wallets and custody arrangements also appear in the domain inventory required by the framework's Governance requirement 4, and the client register of positions and the domain inventory are reconciled on an organization-defined cadence against on-chain balances.
+
+### 3.7 Records
+
+Custody records are kept on a medium that is accessible to the competent authority, that allows each key stage of the processing of each transaction to be reconstituted, that makes any correction or amendment and the pre-correction content ascertainable, and that cannot otherwise be manipulated or altered (Commission Delegated Regulation (EU) 2025/1140, Article 2). Safekeeping records allow one client's crypto-assets and funds to be distinguished at any time and without delay from those of any other client and from the custodian's own, and record per-client balances, the fund-account and credit-institution or central-bank arrangements, any third parties holding crypto-assets and the related agreements, any outsourced tasks and their providers, the names and functions of the persons responsible for safekeeping, and the agreements establishing clients' ownership (Article 5). Orders and transactions are recorded immediately, with the content classes set out in the regulation's annex; the full annex field tables are a regime-specific detail carried in the MiCA implementation annex, not reproduced here.
+
+### 3.8 Loss liability
+
+Where crypto-assets or the means of access are lost as a result of an incident that is attributable to the custodian, the custodian is liable to the client, and the liability is capped at the market value of the crypto-asset that was lost, at the time the loss occurred (MiCA Article 75(8)). An incident is not attributable to the custodian where the custodian demonstrates that it occurred independently of the provision of the service or of the custodian's operations, such as a problem inherent in the operation of the distributed ledger that the custodian does not control (Article 75(8)). This liability is a distinct provision from the safekeeping duty of Article 70. The client agreement reflects this allocation of liability, and the organization assesses its financial capacity to meet it; MiCA does not impose an insurance mandate, and none is asserted here. Where the custodian uses another provider for custody, it uses only an authorized provider and informs its clients (Article 75(9)); a third-party custodian is assessed as a supplier under [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md).
+
+### 3.9 Incident and loss handling
+
+A custody incident (a suspected key compromise, an unauthorized movement, or a loss of the means of access) is handled through [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), with key-compromise response per [`security/procedure-cryptographic-key-operations.md`](../security/procedure-cryptographic-key-operations.md) and recovery per [`security/procedure-key-escrow-and-recovery.md`](../security/procedure-key-escrow-and-recovery.md). A loss is quantified at the market value of the affected crypto-asset at the time the loss occurred, which is what makes the Article 75(8) cap computable; the client is informed; and the incident and its disposition are entered in the records of section 3.7.
+
+## 4. Evidence requirements
+
+Evidence for this standard comprises the custody policy and its client-available summary; the client agreement template and executed instances; the register of positions and its reconciliation records; the statements of position issued to clients; segregation evidence (account structures and on-ledger separation); cryptographic-module validation certificates and the level-selection justification; key-ceremony and multi-party-control records; key-lifecycle register entries for custody keys; records-retention evidence; sub-custodian due-diligence records; and incident and loss records.
+
+## 5. Limitations
+
+This is original library content and reproduces no external control text. MiCA-grounded requirements are named at the point of use; an organization under another regime applies its own governing law. NIST IR 8202 is a 2018 Internal Report, used here as informative orientation, not as a normative standard. The FIPS 140-3 validation level appropriate to a custody application is the organization's risk decision and is not prescribed here. Anti-money-laundering, counter-terrorist-financing, and the crypto-asset transfer travel rule are out of scope, consistent with the framework's Limitations.
+
+**End of Document**

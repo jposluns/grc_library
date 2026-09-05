@@ -331,6 +331,7 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 ### Standard
 
 - [Delegation-of-Authority Standard](../governance/standard-delegation-of-authority.md) (maturity: Draft)
+- [Digital Asset Custody Standard](../crypto/standard-digital-asset-custody.md) (maturity: Draft)
 - [Emergency Authority Standard](../governance/standard-emergency-authority.md) (maturity: Draft)
 - [Enterprise Risk Management Standard](../risk/standard-enterprise-risk-management.md) (maturity: Mature)
 - [Internal Audit Standard](../compliance/standard-internal-audit.md) (maturity: Mature)
@@ -434,6 +435,7 @@ Security architects need the dev-security standards, the AI security guides, the
 - [Data Loss Prevention Standard](../security/standard-data-loss-prevention.md) (maturity: Mature)
 - [DevOps Security Requirements](../dev-security/standard-devops-security-requirements.md) (maturity: Baseline)
 - [Developer Security Requirements](../dev-security/standard-developer-security-requirements.md) (maturity: Mature)
+- [Digital Asset Custody Standard](../crypto/standard-digital-asset-custody.md) (maturity: Draft)
 - [Email Security Standard](../security/standard-email-security.md) (maturity: Baseline)
 - [Endpoint Hardening Standard](../security/standard-endpoint-hardening.md) (maturity: Baseline)
 - [Google Cloud Platform Hardening Baseline Standard](../dev-security/standard-cloud-hardening-baseline-gcp.md) (maturity: Draft)
@@ -611,6 +613,7 @@ The Chief Compliance Officer needs the compliance and audit policies, the regula
 
 ### Standard
 
+- [Digital Asset Custody Standard](../crypto/standard-digital-asset-custody.md) (maturity: Draft)
 - [Internal Audit Standard](../compliance/standard-internal-audit.md) (maturity: Mature)
 - [Sanctions and Export-Control Screening Standard](../compliance/standard-sanctions-and-export-control-screening.md) (maturity: Baseline)
 
