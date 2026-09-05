@@ -267,13 +267,16 @@ def class_attestation_state(cell: str) -> str:
     # (that reason belongs to the author-declared token, and the resulting 'class' still routes
     # to the D14 count-reproduction probe), and never turns a genuinely multi-clause or
     # standalone-bad-exempt cell into a pass.
-    # SCOPE NOTE (codex+claude QA #1994): a MALFORMED class wrapper (a non-numeric count, or a
-    # spaced/obfuscated `[class:` opener) fails CLASS_ATTEST_RE, so class_spans is empty and an
-    # embedded `[class-exempt: ...]` is then counted standalone -> 'exempt'. This pre-existing
-    # false-pass is a MALFORMED-ROW problem and is NOT closed here: chasing every opener-
-    # obfuscation variant with a regex is an unbounded regress. It is addressed structurally by
-    # P-1.70 parts 1-2 (repair the legacy malformed rows; fail-closed on ANY in-window malformed
-    # row), which does not depend on recognizing the opener.
+    # SCOPE NOTE (codex+claude QA #1994; NARROWED by P-1.70 parts 1-2): a MALFORMED `[class:` wrapper
+    # (non-numeric count, or a spaced/obfuscated opener) fails CLASS_ATTEST_RE, so class_spans is empty
+    # and an embedded `[class-exempt: ...]` is counted standalone -> 'exempt'. Chasing opener-obfuscation
+    # with a regex is an unbounded regress, so it is not attempted here. The D14 gate's row-level
+    # fail-closed (P-1.70 parts 1-2) catches every case where the wrapper corruption ALSO breaks the
+    # row's columns (an unescaped `|` -> cell count != 5). The residue it does NOT catch is the contrived
+    # case of a WELL-FORMED 5-col row whose Disposition holds a malformed `[class:` wrapper TOGETHER WITH
+    # any valid `[class-exempt: ...]` reason (whether inside the malformed wrapper OR standalone/adjacent
+    # in the cell -- a malformed wrapper yields empty class_spans, so CLASS_EXEMPT_RE then matches an
+    # adjacent exempt too, gemini QA #1995); that is adversarial-only in this author-run tooling, ACCEPTED.
     exempt_reasons = [
         m.group(1)
         for m in CLASS_EXEMPT_RE.finditer(cell)
