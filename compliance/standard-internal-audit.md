@@ -2,8 +2,8 @@
 
 **Document Title:** Internal Audit Standard\
 **Document Type:** Standard\
-**Version:** 1.2.6\
-**Date:** 2026-09-03\
+**Version:** 1.2.7\
+**Date:** 2026-09-05\
 **Owner:** Chief Audit Executive\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/template-audit-evidence-package.md`](template-audit-evidence-package.md)\
@@ -51,6 +51,7 @@ This standard applies to all internal audit activity conducted across the follow
 
 | Domain | Description |
 |--------|-------------|
+| Governance | Governance structures, policy and standard lifecycle, roles and accountabilities, and oversight-body effectiveness |
 | Information Security | Controls protecting the confidentiality, integrity, and availability of information assets |
 | Privacy | Data protection obligations, privacy-by-design, and data subject rights management |
 | Risk Management | Enterprise risk identification, assessment, treatment, and monitoring processes |
@@ -60,6 +61,8 @@ This standard applies to all internal audit activity conducted across the follow
 | Regulatory Compliance | Adherence to applicable legal, regulatory, and contractual requirements |
 | Organizational Resilience | Business continuity, disaster recovery, and crisis management capabilities |
 | Development Security | Secure development lifecycle, code quality, and DevSecOps control effectiveness |
+| Architecture | Enterprise architecture governance, architecture decision records, reference-architecture conformance, and design-assurance practice |
+| Crypto-Asset Governance | Crypto-asset and blockchain governance, digital-asset custody controls, and crypto-asset regulatory compliance |
 
 This standard applies to all personnel who plan, conduct, manage, or are subject to internal audits.
 
