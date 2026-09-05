@@ -2,7 +2,7 @@
 
 **Document Title:** Coverage Gap Analysis Register\
 **Document Type:** Register\
-**Version:** 1.1.36\
+**Version:** 1.1.37\
 **Date:** 2026-09-05\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -175,6 +175,7 @@ Regulations and frameworks named in the library but without dedicated operationa
 | ITIL 4 | Partial | Out of scope | n/a | Service management framework; operational rather than governance. Re-graded None to Partial 2026-07-02: [`operations/framework-it-service-management.md`](../operations/framework-it-service-management.md) consolidates the ITIL-based ITSM processes (SMO oversight, process ownership); dedicated ITIL-instrument treatment stays out of scope |
 | TOGAF | Referenced | Out of scope | n/a | Architecture framework; operational. Re-graded None to Referenced 2026-07-02: framework-table rows in six shipped architecture documents (the enterprise-architecture framework, the reference-architecture standard, the architecture-review procedure, and three further standards); dedicated TOGAF treatment stays out of scope |
 | COBIT 2019 | Substantive | In library | n/a | Cited throughout governance and compliance |
+| FATF Recommendations (AML/CFT + Recommendation 16 travel rule) | Partial | Deferred | Backlog candidate: crypto-asset AML/CFT and travel-rule coverage (FATF source not held; egress-blocked) | Generic AML/CFT is materially addressed in [`compliance/financial-services/annex-financial-services-sector-requirements.md`](../compliance/financial-services/annex-financial-services-sector-requirements.md) (CDD, EDD, transaction monitoring, SAR, retention, training); the crypto-asset-specific AML/CFT and Recommendation 16 travel rule remain deferred, as [`crypto/README.md`](../crypto/README.md) discloses. |
 
 ---
 
