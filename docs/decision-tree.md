@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Decision Tree\
 **Document Type:** Guide\
-**Version:** 1.0.26\
-**Date:** 2026-08-15\
+**Version:** 1.0.27\
+**Date:** 2026-09-05\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/adopter-guide.md`](adopter-guide.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`README.md`](../README.md), [`docs/worked-example.md`](worked-example.md)\
@@ -90,6 +90,7 @@ These bands select reading paths in this document. They are a different axis fro
 - Rely on the EU Digital Identity Wallet or provide trust services in the EU (eIDAS in scope)
 - Participate in a trusted-trader programme (BASC, CTPAT, AEO, PIP)
 - Develop, deploy, or procure AI systems (EU AI Act, ISO/IEC 42001 in scope)
+- Hold, use, issue, or service crypto-assets, or operate blockchain platforms (EU MiCA in scope; crypto-asset governance)
 
 ### 1.5 Technology footprint
 
@@ -287,6 +288,11 @@ If you develop or deploy AI that makes consequential decisions affecting Colorad
 
 Start with the [`operations/ot/`](../operations/ot/) suite (OT security overview, OT/ICS security standard, OT change management, OT incident response, the OT asset-inventory register, and the BMS overlay), plus the universal baseline and the energy-and-utilities annex (Section 3.4). Deeper IEC 62443 alignment is a backlog candidate (not currently scheduled in TODO); see [`governance/register-coverage-gaps.md`](../governance/register-coverage-gaps.md) section 5.
 
+
+### 5.6 If you hold, use, issue, or service crypto-assets, or operate blockchain platforms
+
+Start with the [`crypto/`](../crypto/) suite: [`crypto/framework-crypto-asset-governance.md`](../crypto/framework-crypto-asset-governance.md) (the domain anchor: crypto-asset classification, the platform and technology model, and governance requirements), then [`crypto/standard-digital-asset-custody.md`](../crypto/standard-digital-asset-custody.md) if you hold crypto-assets, or the means of access to them, on behalf of clients or other third parties. If in EU scope, layer [`compliance/financial-services/annex-mica-implementation.md`](../compliance/financial-services/annex-mica-implementation.md).
+
 ---
 
 ## 6. Phased adoption suggestions
@@ -317,7 +323,7 @@ Deliverable: an operating GRC programme covering the baseline.
 
 ### 6.3 180-day expansion (large enterprise / multi-national)
 
-1. Add capability-conditional content (Section 5) for AI, cloud, software development, identity, OT as applicable.
+1. Add capability-conditional content (Section 5) for AI, cloud, software development, identity, OT, crypto-assets as applicable.
 2. Add jurisdiction-conditional content for every jurisdiction in which you operate.
 3. Implement the resilience programme (Section 2.6) end-to-end including testing.
 4. Establish the metrics, KPIs, and assurance cycles documented in [`governance/framework-metrics-monitoring-and-performance-reporting.md`](../governance/framework-metrics-monitoring-and-performance-reporting.md) and [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md).
