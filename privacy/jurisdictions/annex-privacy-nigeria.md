@@ -2,7 +2,7 @@
 
 **Document Title:** Nigeria Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.5\
+**Version:** 1.0.6\
 **Date:** 2026-09-05\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
