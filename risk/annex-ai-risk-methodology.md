@@ -2,8 +2,8 @@
 
 **Document Title:** AI-Specific Risk Methodology Annex\
 **Document Type:** Annex\
-**Version:** 1.0.9\
-**Date:** 2026-08-26\
+**Version:** 1.0.10\
+**Date:** 2026-09-05\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`ai/register-ai-risk.md`](../ai/register-ai-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](../ai/standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-model-lifecycle-management.md`](../ai/procedure-ai-model-lifecycle-management.md), [`ai/procedure-ai-audit.md`](../ai/procedure-ai-audit.md), [`ai/framework-ai-model-documentation-and-transparency.md`](../ai/framework-ai-model-documentation-and-transparency.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -143,7 +143,7 @@ The following events must trigger an unscheduled AI risk review:
 | Regulation | Key AI Risk Obligations | Applicability |
 |---|---|---|
 | **EU AI Act** | Risk-tiered obligations; prohibited systems list; high-risk system requirements; conformity assessment | EU market; global operators with EU users |
-| **Canada (Treasury Board Directive on Automated Decision-Making in force; AIDA lapsed)** | Algorithmic impact assessment and transparency for federal automated decision systems; AIDA's proposed high-impact AI regime lapsed at the 2025-01-06 prorogation and is not in force | Government of Canada institutions; production automated decision systems used for administrative decisions about a client |
+| **Canada (Treasury Board Directive on Automated Decision-Making in force; AIDA lapsed)** | Algorithmic impact assessment and transparency for federal automated decision systems; AIDA's proposed high-impact AI regime lapsed at the 2025-01-06 prorogation and is not in force | Government of Canada institutions subject to the Policy on Service and Digital; production automated decision systems used for administrative decisions about a client |
 | **UK AI approach** | Principles-based; sector regulator-led; cross-sector AI Security Institute oversight | UK operations and markets |
 | **GDPR / UK GDPR** | Automated decision-making rights (Article 22); purpose limitation in training data; Data Protection Impact Assessments for AI | Processing EU/UK personal data |
 | **CPPA (Canada, lapsed with Bill C-27)** | Algorithmic transparency obligations; automated decision explanation rights (from the lapsed Bill C-27, not in force) | Canadian personal data processing |

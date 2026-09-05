@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Impact and Cross-Border Transfer Procedure\
 **Document Type:** Procedure\
-**Version:** 1.6.5\
-**Date:** 2026-09-04\
+**Version:** 1.6.6\
+**Date:** 2026-09-05\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-dpia.md`](template-dpia.md), [`privacy/template-transfer-impact-assessment.md`](template-transfer-impact-assessment.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
@@ -277,7 +277,7 @@ Processing of children's personal data requires enhanced safeguards including ve
 | Privacy Impact Assessment Requirements | ISO/IEC 27701:2025 Annex A.1.2.6 |
 | Data Protection Impact Assessments | GDPR Article 35 |
 | Conformity Assessment Information Requirements | EU AI Act Annex IV |
-| AI and automated-decision impact obligations (Canada) | Treasury Board Directive on Automated Decision-Making, section 6.1 (Algorithmic Impact Assessment; federal institutions); Quebec Law 25 (CQLR c. P-39.1) sections 3.3 and 12.1 (private sector) |
+| AI and automated-decision impact obligations (Canada) | Treasury Board Directive on Automated Decision-Making, section 6.1 (Algorithmic Impact Assessment; federal institutions subject to the Policy on Service and Digital); Quebec Law 25 (CQLR c. P-39.1) sections 3.3 and 12.1 (private sector) |
 | Privacy Impact and Risk Assessment Control | CSA CCM v4.1 DSP-09 |
 | AI Impact Assessment | ISO/IEC 42005:2025 |
 
