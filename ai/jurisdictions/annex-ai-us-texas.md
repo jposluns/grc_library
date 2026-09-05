@@ -2,7 +2,7 @@
 
 **Document Title:** Texas Responsible Artificial Intelligence Governance Act (TRAIGA) Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.2\
+**Version:** 0.0.3\
 **Date:** 2026-09-05\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -53,11 +53,11 @@ The controlling text is the enrolled bill as codified. Version-sensitive facts (
 - **Unlawful discrimination (Sec. 552.056):** a person may not develop or deploy an AI system with the intent to unlawfully discriminate against a protected class in violation of state or federal law; a disparate impact is not by itself sufficient to demonstrate an intent to discriminate. Insurance entities subject to the applicable unfair-discrimination statutes, and federally insured financial institutions that comply with applicable banking law, are carved out.
 - **Prohibited sexual-content uses (Sec. 552.057):** a person may not develop or distribute an AI system with the sole intent of producing or distributing unlawful visual material under the referenced Penal Code provisions, or intentionally develop or distribute one that engages in text-based conversations simulating sexual conduct while impersonating a child younger than 18.
 
-**Prohibited uses that bind governmental entities only:**
+**Prohibited uses that principally bind governmental entities:**
 - **Social scoring (Sec. 552.053):** a governmental entity may not use or deploy an AI system that evaluates or classifies natural persons based on social behaviour or personal characteristics with the intent to assign a social score, where the score results or may result in detrimental or unfavourable treatment in an unrelated context, treatment unjustified or disproportionate to the gravity of the behaviour, or the infringement of a constitutional or legal right.
 - **Biometric identification (Sec. 552.054):** a governmental entity may not develop or deploy an AI system to uniquely identify a specific individual using biometric data, or the targeted or untargeted gathering of images or media from the internet or other publicly available sources, without consent, if the gathering would infringe a right of the individual. The biometric-data definition excludes photographs and recordings and data derived from them, and HIPAA treatment, payment, and operations data. Subsection (c) additionally makes a violation of the Texas biometric-identifier statute (Business and Commerce Code Section 503.001) a violation of this section, so Section 552.054's reach extends, through that incorporation, beyond governmental entities.
 
-**What TRAIGA does not impose.** Subtitle D contains no deployer risk-management-programme, impact-assessment, or algorithmic-discrimination duty-of-care of the Colorado type; the operative private-sector provisions are the intent-based prohibitions above. The nearest analogue to a documentation duty is the Attorney General's investigative-demand list (Sec. 552.103), which is responsive rather than standing.
+**What TRAIGA does not impose.** Subtitle D contains no deployer risk-management-programme, impact-assessment, or algorithmic-discrimination duty-of-care of the Colorado type; the operative private-sector provisions are principally the intent-based prohibitions above, together with the health-care-provider disclosure duty (Section 552.051(f)) and the Section 503.001 biometric-statute violations that Section 552.054(c) incorporates. The nearest analogue to a documentation duty is the Attorney General's investigative-demand list (Sec. 552.103), which is responsive rather than standing.
 
 ## Consumer rights
 
