@@ -2,7 +2,7 @@
 
 **Document Title:** Adopter Maturity Self-Assessment Template\
 **Document Type:** Template\
-**Version:** 1.1.2\
+**Version:** 1.1.3\
 **Date:** 2026-09-05\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -52,7 +52,7 @@ The five tiers, modelled on the process-maturity ladder used in NIST CSF Tiers, 
 
 A programme can be at different tiers per domain. A multi-national might be Tier 4 in `compliance/financial-services/` (heavy external scrutiny drives maturity) and Tier 2 in `architecture/` (less external pressure).
 
-The methodology behind this ladder, the median-of-medians aggregation used below, its outlier-masking limitation, and the compensating floor-check the assessor runs, is documented authoritatively in [`governance/standard-maturity-assessment-methodology.md`](../governance/standard-maturity-assessment-methodology.md).
+The methodology behind this ladder, the median-of-medians aggregation used below, its outlier-masking limitation, and the compensating floor-check the assessor runs, is documented authoritatively in [`governance/standard-maturity-assessment-methodology.md`](../governance/standard-maturity-assessment-methodology.md). That standard's structured measurement model (its section 10) grounds a self-assessed tier in objective, relationship-model-derived evidence, so an assessment can be corroborated rather than taken on self-report alone.
 
 ---
 

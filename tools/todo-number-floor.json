@@ -1,7 +1,7 @@
 {
   "_comment": "PUBLIC floor: the highest ordinal EVER allocated per public backlog series (bare N.M / TF-n; the P-N.M private namespace is separate). MONOTONIC: only ever increases, bumped in the PR that allocates a new number. build-todo-number-allocation.py computes next(series) = max(floor, highest live id) + 1 from THIS file (no private-data dependency, so gate 91 --check runs on CI and adopter clones). gate 78's recycle check also reads this floor. Series 5/6/7 are frozen (no new draws).",
   "1": 31,
-  "2": 34,
+  "2": 35,
   "3": 249,
   "4": 31,
   "5": 9,
