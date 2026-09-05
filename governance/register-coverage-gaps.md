@@ -2,7 +2,7 @@
 
 **Document Title:** Coverage Gap Analysis Register\
 **Document Type:** Register\
-**Version:** 1.1.35\
+**Version:** 1.1.36\
 **Date:** 2026-09-05\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -153,7 +153,7 @@ The `ai/jurisdictions/` structure (parallel to `privacy/jurisdictions/`) was fou
 | Illinois (US state) | Substantive | In library | n/a | Dedicated jurisdiction annex [`ai/jurisdictions/annex-ai-us-illinois.md`](../ai/jurisdictions/annex-ai-us-illinois.md) (HB 3773 / Public Act 103-0804, AI in employment: an Illinois Human Rights Act amendment making discriminatory AI use, zip-code proxying, and failure to give employee notice each a civil rights violation), effective 1 January 2026, with the primary held in the reference base and a canonical-citations row verified 2026-07-24 |
 | UK AI regulatory framework | Partial | Planned | TODO backlog: AI jurisdiction overlays | Re-graded None to Partial 2026-07-02: the AI compliance policy carries a dedicated UK subsection (7.3, AI Safety Institute and ICO commitments, UK GDPR and DPA 2018) and a framework-table row; the dedicated jurisdiction annex remains the gap |
 | China generative AI rules | Partial | Planned | TODO backlog: AI jurisdiction overlays | Re-graded None to Partial 2026-07-03 (the #586 sweep's M-2): the China privacy annex carries a described-obligations bullet for the Interim Measures for the Management of Generative AI Services plus dedicated Generative-AI obligations and enforcement subsections (the UK-AI-framework adjacent-dedicated-subsection pattern), and the jurisdiction index carries Generative-AI cells in its file, regime, and developments tables; unlike the Colorado basis there is no canonical-citations row; the dedicated AI jurisdiction annex remains the gap |
-| Korea AI framework | None | Planned | TODO backlog: AI jurisdiction overlays |  |
+| Korea AI framework | Substantive | In library | n/a | Dedicated jurisdiction annex [`ai/jurisdictions/annex-ai-south-korea.md`](../ai/jurisdictions/annex-ai-south-korea.md) (Framework Act on the Development of AI and Establishment of Trust, Law No. 20676, enacted 21 January 2025, in force 22 January 2026: high-impact AI duties, transparency and labelling, compute-threshold safety measures, domestic representative), working from the held CSET English translation |
 | Vietnam AI law | Referenced | Planned | TODO backlog: AI jurisdiction overlays | Added 2026-08-04: secondary sources report Vietnam enacted a standalone AI law (reported as Law 134/2025/QH15); text not held, so [`privacy/jurisdictions/annex-privacy-vietnam.md`](../privacy/jurisdictions/annex-privacy-vietnam.md) names it as adopted but defers it (asserts nothing about its number, dates, scope or provisions), scoped out in its Limitations. Queued in the reference-base acquisition queue as V-01 (not freely retrievable: thuvienphapluat.vn 403, luatvietnam.vn subscriber-gated). |
 
 ## 3. Regulations and frameworks referenced but not detailed

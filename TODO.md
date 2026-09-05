@@ -79,7 +79,6 @@ Fill significant gaps: deepen thin-but-present content to operational sufficienc
 | 2.26.5 | OSCAL profiles and crosswalks for framework alignments (M, L) | `[machinery]` `[public]` |
 | 2.28 | AI jurisdiction annex + ref ingest: Singapore Model AI Governance Framework for Agentic AI (M, M) | `[content]` `[public]` |
 | 2.29 | Latin-American privacy jurisdiction annexes + corpus alignment for the newly-held primaries (M, M) | `[content]` `[public]` |
-| 2.18 | AI jurisdiction annex: South Korea AI Basic Act (H, M) | `[public]` |
 | 2.25.2 | Control-to-policy-instrument coverage: international AI-governance authorities (consolidated with 2.15; M, M) | `[content]` `[public]` |
 | 2.26 | OSCAL machine-readable representation (umbrella; maintainer-directed 2026-07-23, H, XL) | `[machinery]` `[public]` |
 | 2.33 | Canada-specific executive/jurisdiction document series (maintainer-directed 2026-08-17; content; moved from private P-1.38 2026-08-30) | `[public]` |

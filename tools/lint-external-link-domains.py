@@ -143,6 +143,7 @@ ALLOW_LIST = {
     "govinfo.gov",  # US Government Publishing Office (public laws: HITECH, SOX)
     "ilga.gov",  # Illinois General Assembly (BIPA, HB 3773)
     "capitol.texas.gov",  # Texas Legislature (TRAIGA HB 149)
+    "law.go.kr",  # Korea Law Information Center / Ministry of Government Legislation (AI Basic Act)
     "leg.colorado.gov",  # Colorado General Assembly (Colorado AI Act / SB 24-205 / SB 26-189)
     "nyc.gov",  # New York City (DCWP Automated Employment Decision Tools / Local Law 144)
     "cac.gov.cn",  # Cyberspace Administration of China (cross-border data provisions)

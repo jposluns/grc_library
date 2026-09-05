@@ -2,7 +2,7 @@
 
 **Document Title:** AI Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.26\
+**Version:** 1.0.27\
 **Date:** 2026-09-05\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -227,6 +227,10 @@ The United States has no comprehensive federal AI statute; specific AI uses are 
 
 Where the organization deploys AI in hiring, lending, housing, insurance, or other consequential decisions affecting United States residents, it assesses applicability against these and successor state laws and applies the classification and oversight controls in Sections 4 and 5.
 
+### 7.6 South Korea: AI Basic Act
+
+South Korea's Framework Act on the Development of Artificial Intelligence and Establishment of Trust (the "AI Basic Act", Law No. 20676), in force since 22 January 2026, is a comprehensive national AI statute that applies extraterritorially to acts abroad affecting the Korean market or users. It classifies "high-impact AI" across critical sectors (including employment and lending assessments) and imposes transparency duties (advance notice of AI use and of generative-AI use, and synthetic-content labelling), compute-threshold safety measures with results reported to the Ministry of Science and ICT, advance high-impact review, and high-impact operator measures including human oversight; a foreign operator above decree-set user and revenue thresholds must appoint a domestic representative. Where the organization develops or deploys AI reaching Korean users, it assesses high-impact classification and applies the classification and oversight controls in Sections 4 and 5. See [`ai/jurisdictions/annex-ai-south-korea.md`](jurisdictions/annex-ai-south-korea.md) for the per-regime detail.
+
 ---
 
 ## 8. AI compliance audit and review
@@ -353,6 +357,7 @@ Material non-compliance must be reported to the AIGC by the relevant business un
 | California CCPA ADMT and risk-assessment regulations (11 CCR Div 6 Ch 1 Arts 10-11) | Automated decisionmaking technology (pre-use notice, opt-out, and access for significant decisions), plus Article 10 risk assessments before in-scope processing under the section 7150(b) triggers (including processing personal information to train significant-decision ADMT or covered recognition/profiling technology, section 7150(b)(6)) | 7.5 |
 | Texas TRAIGA (HB 149, 2025) | Comprehensive state AI governance; prohibited uses (behavioural manipulation to harm, social scoring, unlawful discrimination); Attorney-General enforcement | 7.5 |
 | Illinois HB 3773 (PA 103-0804) | AI in employment; civil-rights violation for discriminatory AI use and failure to notify | 7.5 |
+| South Korea AI Basic Act (Law No. 20676, 2025) | Comprehensive national AI statute; high-impact AI duties, transparency and labelling, compute-threshold safety measures, domestic representative | 7.6 |
 | GDPR (UK and EU) | Personal data processing; automated decision-making; breach reporting | 5.2, 9.3, 10.4 |
 
 ### Related GRC library documents

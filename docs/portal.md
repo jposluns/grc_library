@@ -566,6 +566,7 @@ The Chief Compliance Officer needs the compliance and audit policies, the regula
 - [Public Sector GRC Requirements Annex](../compliance/public-sector/annex-public-sector-requirements.md) (maturity: Draft)
 - [SOX IT General Controls Annex](../compliance/financial-services/annex-sox-itgc.md) (maturity: Draft)
 - [Singapore Model AI Governance Framework for Generative AI](../ai/jurisdictions/annex-ai-singapore.md) (maturity: Draft)
+- [South Korea AI Regulatory Requirements](../ai/jurisdictions/annex-ai-south-korea.md) (maturity: Draft)
 - [Telecommunications Sector Requirements Annex](../compliance/telecommunications/annex-telecommunications-sector-requirements.md) (maturity: Draft)
 - [Texas Responsible Artificial Intelligence Governance Act (TRAIGA) Regulatory Requirements](../ai/jurisdictions/annex-ai-us-texas.md) (maturity: Draft)
 - [UK AEO-S IT and Cybersecurity Requirements](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md) (maturity: Baseline)
