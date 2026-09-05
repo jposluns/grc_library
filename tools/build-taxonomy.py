@@ -30,6 +30,7 @@ DOMAINS = [
     "ai",
     "architecture",
     "compliance",
+    "crypto",
     "dev-security",
     "governance",
     "operations",

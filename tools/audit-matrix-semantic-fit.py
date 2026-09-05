@@ -89,7 +89,7 @@ try:
     from lint_common import AUDITED_DOMAIN_DIRS
 except Exception:  # pragma: no cover - lint_common shape is stable; fallback keeps the aid runnable
     AUDITED_DOMAIN_DIRS = (
-        "ai", "architecture", "compliance", "dev-security", "governance",
+        "ai", "architecture", "compliance", "crypto", "dev-security", "governance",
         "operations", "privacy", "resilience", "risk", "security", "supply-chain",
     )
 

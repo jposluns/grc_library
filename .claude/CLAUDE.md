@@ -140,7 +140,7 @@ The GRC Library: a CC BY-SA 4.0 corpus of governance, risk, and compliance
 documentation in Markdown, plus a stdlib-only Python audit toolchain that keeps the
 corpus internally consistent. There is no application runtime: the deliverable is the
 documents and the linters that govern them.
-- Documents live in domain dirs: `ai/` `architecture/` `compliance/` `dev-security/`
+- Documents live in domain dirs: `ai/` `architecture/` `compliance/` `crypto/` `dev-security/`
   `governance/` `operations/` `privacy/` `resilience/` `risk/` `security/`
   `supply-chain/`.
 - Audit/build tooling lives in `tools/` as `lint-*.py` and `build-*.py` scripts;

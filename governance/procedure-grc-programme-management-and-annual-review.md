@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Programme Management and Annual Review Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.10\
-**Date:** 2026-08-13\
+**Version:** 1.0.11\
+**Date:** 2026-09-05\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md), [`dev-security/register-compliance-controls-and-gap-register.md`](../dev-security/register-compliance-controls-and-gap-register.md)\
@@ -26,7 +26,7 @@ This procedure aligns to ISO 37301:2021 §9 (Performance evaluation), ISO/IEC 27
 
 ## 2. Scope
 
-2.1 This procedure applies to all documents held in the GRC library, spanning the following domains: governance, risk, compliance, information security, privacy, artificial intelligence governance, resilience, supply chain security, IT operations, architecture, and development security.
+2.1 This procedure applies to all documents held in the GRC library, spanning the following domains: governance, risk, compliance, information security, privacy, artificial intelligence governance, resilience, supply chain security, IT operations, architecture, development security, and crypto-asset governance.
 
 2.2 The GRC Programme Manager is the primary responsible party for coordinating the annual review cycle and for maintaining the quality and currency of the library.
 
@@ -230,6 +230,8 @@ Each quarterly report must include the following:
 | Supply Chain | [n] | [n] | [n] | [n] | Compliant / At Risk / Non-Compliant |
 | IT Operations | [n] | [n] | [n] | [n] | Compliant / At Risk / Non-Compliant |
 | Development Security | [n] | [n] | [n] | [n] | Compliant / At Risk / Non-Compliant |
+| Architecture | [n] | [n] | [n] | [n] | Compliant / At Risk / Non-Compliant |
+| Crypto-Asset Governance | [n] | [n] | [n] | [n] | Compliant / At Risk / Non-Compliant |
 
 **Status definitions:**
 - **Compliant:** No material gaps; all controls tested within cadence; no overdue CAPAs

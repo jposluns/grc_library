@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Guide\
 **Document Type:** Guide\
-**Version:** 1.3.19\
-**Date:** 2026-09-04\
+**Version:** 1.3.20\
+**Date:** 2026-09-05\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/worked-example.md`](worked-example.md), [`docs/worked-example-adoption.md`](worked-example-adoption.md), [`docs/adopter-guide-multi-entity.md`](adopter-guide-multi-entity.md), [`specification-master-project.md`](../specification-master-project.md)\
@@ -49,7 +49,7 @@ These modes describe a single organization adopting the library. A group, holdin
 
 **Audience.** An organization building or modernizing its GRC programme that also wants AI-assisted maintenance of the resulting corpus.
 
-**What you take.** Everything: the eleven domain directories, the `governance/` corpus, the audit toolchain, the pack, the specifications, the CHANGELOG and version-monotonicity discipline, the `docs/` adopter-facing materials.
+**What you take.** Everything: the twelve domain directories, the `governance/` corpus, the audit toolchain, the pack, the specifications, the CHANGELOG and version-monotonicity discipline, the `docs/` adopter-facing materials.
 
 **What you ignore.** Nothing structural. You will substitute organization-specific values inside the artefacts (roles, jurisdictions, sector context, vendor names if any) and add organization-specific overlays alongside the library content, but the structural shape stays.
 
@@ -105,6 +105,7 @@ Use this to decide which domains and sector annexes your organization needs.
 | Does the organization participate in CTPAT, AEO, AEO-S, or PIP trade programmes? | The relevant programme annexes in `compliance/` | The non-relevant trade-compliance annexes |
 | Does the organization operate in a sector with sector-specific regulation (financial services, healthcare, transportation/logistics, telecoms, energy/utilities, public sector)? | The corresponding `compliance/annex-*` | Non-relevant sector annexes |
 | Does the organization operate under SOX or equivalent financial reporting controls? | [`compliance/financial-services/annex-sox-itgc.md`](../compliance/financial-services/annex-sox-itgc.md) | This annex |
+| Does the organization hold, use, issue, or service crypto-assets, or operate blockchain platforms? | [`crypto/framework-crypto-asset-governance.md`](../crypto/framework-crypto-asset-governance.md) (plus the MiCA annex if in EU scope) | Skip `crypto/`. |
 | Does the organization operate under DORA, NIS 2, or equivalent EU resilience regulation? | The corresponding implementation annex in `compliance/` | These annexes |
 | Does the organization have a software development practice? | `dev-security/` domain | Most of dev-security/ (keep the policy as reference) |
 | Does the organization have a formal architecture practice? | `architecture/` domain | Most of architecture/ (keep ADR standard as a useful reference regardless) |

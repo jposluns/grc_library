@@ -56,7 +56,7 @@ its document list (title / type / path from ``taxonomy.yml``, each linking to it
 on-site document page on v3, or the document's GitHub blob on the frozen v1/v2
 trees and for root specifications); the v2 and v3 staging domain pages additionally list the
 published leadership (executive-narrative) pages that touch the area, joined at
-render time from ``narrative.yml``. The allow-list additions are the eleven
+render time from ``narrative.yml``. The allow-list additions are the twelve
 domain READMEs, ``narrative.yml``, and, for the v2 and v3 reading rooms, the
 registry-listed ``executive/`` narrative sources (each admitted only through the
 renderer-confinement validator above).
@@ -210,7 +210,7 @@ AI_CRAWLER_USER_AGENTS = (
     "PerplexityBot", "Perplexity-User", "Timpibot", "YouBot",
 )
 
-# The eleven corpus domains, with the one-line scope description shown in the
+# The twelve corpus domains, with the one-line scope description shown in the
 # section-04 register. Curated prose (a scope sentence is not derivable from
 # metadata); the COUNTS beside them are always recomputed from the taxonomy.
 # A domain present in the taxonomy but missing here is a build error (the
@@ -222,6 +222,7 @@ DOMAIN_SCOPE = {
     "security": "Information-security controls, architecture, and operations",
     "governance": "Charters, policies, registers, and the programme operating model",
     "compliance": "Regulatory mapping, control frameworks, and sector audit readiness",
+    "crypto": "Crypto-asset and blockchain governance: classification, custody, and platform risk",
     "operations": "Operational security, monitoring, and IT service management",
     "resilience": "Business continuity, disaster recovery, and incident response",
     "supply-chain": "Third-party, vendor, and supply-chain security management",

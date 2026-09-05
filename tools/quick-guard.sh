@@ -36,7 +36,7 @@ mapfile -t CHANGED < <(
     git diff --name-only --diff-filter=d "$MB" -- '*.md' 2>/dev/null
     git diff --name-only --diff-filter=d HEAD -- '*.md' 2>/dev/null
     git ls-files --others --exclude-standard -- '*.md' 2>/dev/null
-  } | sort -u | grep -E '^(ai|architecture|compliance|dev-security|governance|\.project-governance|operations|privacy|resilience|risk|security|supply-chain)/' | grep -vE '(^|/)README\.md$'
+  } | sort -u | grep -E '^(ai|architecture|compliance|crypto|dev-security|governance|\.project-governance|operations|privacy|resilience|risk|security|supply-chain)/' | grep -vE '(^|/)README\.md$'
 )
 
 if [ "${#CHANGED[@]}" -eq 0 ]; then

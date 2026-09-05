@@ -27,7 +27,7 @@ truth ``lint_common.AUDITED_DOMAIN_DIRS`` (minus ``.project-governance``,
 which is the project-governance directory, not deliverable corpus) plus
 the root deliverable documents, so adding a future audited domain
 directory propagates here from one place. Deriving the run (rather than
-hardcoding the eleven domain names as standalone literals) also keeps
+hardcoding the twelve domain names as standalone literals) also keeps
 this gate clear of the directory-scan-scope parity gate (gate 52), which
 forbids content linters from hardcoding the audited-domain run.
 

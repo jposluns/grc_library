@@ -401,7 +401,7 @@ def resolve_working_for_write_private(relpath: str, *, repo_root: Path | None = 
 
 
 # Canonical list of audited-not-exempt top-level directories: the
-# eleven domain directories plus ``.project-governance``. This is the
+# twelve domain directories plus ``.project-governance``. This is the
 # single source of truth for the "explicit allow-list" content linters
 # (the ones that enumerate scan roots rather than walking the
 # repository root and subtracting ``DEFAULT_EXEMPT_DIRS``). Each such
@@ -428,6 +428,7 @@ AUDITED_DOMAIN_DIRS: tuple[str, ...] = (
     "ai",
     "architecture",
     "compliance",
+    "crypto",
     "dev-security",
     "governance",
     ".project-governance",

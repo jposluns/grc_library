@@ -96,7 +96,7 @@ BODY_LINK_RE = re.compile(r"\[[^\]]+\]\((?P<target>[^)]+)\)")
 # Corpus domain dirs a body link would point into (a link is "to the corpus" if
 # its resolved target lands in one of these top-level dirs).
 CORPUS_DOMAIN_PREFIXES = (
-    "ai/", "architecture/", "compliance/", "dev-security/", "governance/",
+    "ai/", "architecture/", "compliance/", "crypto/", "dev-security/", "governance/",
     "operations/", "privacy/", "resilience/", "risk/", "security/", "supply-chain/",
 )
 # Root-level corpus documents (the corpus metadata gate's by-name root scan set,

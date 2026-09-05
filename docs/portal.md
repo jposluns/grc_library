@@ -249,6 +249,7 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 ### Framework
 
 - [Continuous Assurance and Improvement Framework](../governance/framework-continuous-assurance-and-improvement.md) (maturity: Mature)
+- [Crypto-Asset Governance Framework](../crypto/framework-crypto-asset-governance.md) (maturity: Draft)
 - [Document Architecture and Interrelationship Framework](../governance/framework-document-architecture-and-interrelationship.md) (maturity: Mature)
 - [Governance Performance and Improvement Framework](../governance/framework-governance-performance-and-improvement.md) (maturity: Baseline)
 - [Governance Relationship and Flow Modelling Framework](../governance/framework-governance-relationship-and-flow-modelling.md) (maturity: Baseline)
@@ -369,6 +370,7 @@ Security architects need the dev-security standards, the AI security guides, the
 - [AI System Audit and Certification Framework](../ai/framework-ai-system-audit-certification.md) (maturity: Baseline)
 - [AI Value and Decision-Governance Framework](../ai/framework-ai-value-and-decision-governance.md) (maturity: Draft)
 - [Agentic Response State Model Framework](../ai/framework-agentic-response-state-model.md) (maturity: Draft)
+- [Crypto-Asset Governance Framework](../crypto/framework-crypto-asset-governance.md) (maturity: Draft)
 - [Cryptographic Key Lifecycle Management Framework](../security/framework-cryptographic-key-lifecycle.md) (maturity: Baseline)
 - [Insider Risk Programme Framework](../security/framework-insider-risk-programme.md) (maturity: Baseline)
 - [Zero Trust Architecture Framework](../security/framework-zero-trust-architecture.md) (maturity: Draft)
@@ -572,6 +574,10 @@ The Chief Compliance Officer needs the compliance and audit policies, the regula
 - [UK AEO-S IT and Cybersecurity Requirements](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md) (maturity: Baseline)
 - [United States HIPAA Sector Requirements Annex](../compliance/healthcare/annex-healthcare-united-states.md) (maturity: Draft)
 - [eIDAS Sector Requirements Annex](../compliance/public-sector/annex-eidas-requirements.md) (maturity: Draft)
+
+### Framework
+
+- [Crypto-Asset Governance Framework](../crypto/framework-crypto-asset-governance.md) (maturity: Draft)
 
 ### Matrix
 

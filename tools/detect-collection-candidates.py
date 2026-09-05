@@ -60,6 +60,7 @@ CANDIDATE_ROOTS: tuple[str, ...] = (
     "guardrails",
     "governance",
     "compliance",
+    "crypto",
     "ai",
     "privacy",
     "security",

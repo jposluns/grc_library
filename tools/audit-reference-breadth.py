@@ -83,7 +83,7 @@ TIER_BY_BUCKET = {
 EXCLUDED_BUCKETS_DEFAULT = ("publications",)
 
 CORPUS_DIRS = (
-    "ai", "architecture", "compliance", "dev-security", "governance",
+    "ai", "architecture", "compliance", "crypto", "dev-security", "governance",
     "operations", "privacy", "resilience", "risk", "security", "supply-chain",
 )
 # The scan set is INCLUDE-based: the citable corpus surface only. Registers
@@ -102,6 +102,7 @@ DIR_TOPICS = {
     "ai": {"ai", "ai-security", "risk-management"},
     "architecture": {"cybersecurity", "cloud-security", "governance"},
     "compliance": {"controls-frameworks", "law", "governance", "privacy"},
+    "crypto": {"finance", "cybersecurity", "governance"},
     "dev-security": {"appsec", "cybersecurity", "ai-security"},
     "governance": {"governance", "risk-management", "controls-frameworks"},
     "operations": {"cybersecurity", "resilience", "incident-response"},

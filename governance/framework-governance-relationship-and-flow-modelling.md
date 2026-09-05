@@ -2,8 +2,8 @@
 
 **Document Title:** Governance Relationship and Flow Modelling Framework\
 **Document Type:** Framework\
-**Version:** 1.0.6\
-**Date:** 2026-08-22\
+**Version:** 1.0.7\
+**Date:** 2026-09-05\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/register-key-terms-and-definitions.md`](register-key-terms-and-definitions.md), [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md), [`architecture/framework-enterprise-architecture.md`](../architecture/framework-enterprise-architecture.md)\
@@ -28,7 +28,7 @@ The framework is a modelling method, not a data platform. It introduces no new d
 
 ## Scope
 
-This framework applies to relationship modelling across all repository domains: `governance`, `risk`, `compliance`, `security`, `ai`, `architecture`, `operations`, `resilience`, `privacy`, `supply-chain`, and `dev-security`.
+This framework applies to relationship modelling across all repository domains: `governance`, `risk`, `compliance`, `crypto`, `security`, `ai`, `architecture`, `operations`, `resilience`, `privacy`, `supply-chain`, and `dev-security`.
 
 It governs the modelling of governance entities generally: authorities, regulations, contractual requirements, frameworks, standards, policies, procedures, control objectives, controls, assets, processes, risks, evidence, assessments, and findings. Corpus documents are one class of governance entity among many; this framework is not limited to documents.
 

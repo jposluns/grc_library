@@ -37,7 +37,7 @@ The metadata block above carries a generator schema constant for `Version` and t
 
 ---
 
-_Summary as of last regeneration: Mature: 109, Baseline: 171, Draft: 63, Unknown: 0._
+_Summary as of last regeneration: Mature: 109, Baseline: 171, Draft: 64, Unknown: 0._
 
 ## Mature
 
@@ -73,7 +73,7 @@ _109 documents._
 | [dev-security/standard-software-composition-analysis.md](../dev-security/standard-software-composition-analysis.md) | Software Composition Analysis Standard | Standard | 1.1.15 | 2026-09-03 |
 | [governance/charter-governance-library.md](../governance/charter-governance-library.md) | Governance Library Charter | Charter | 1.2.6 | 2026-08-03 |
 | [governance/framework-continuous-assurance-and-improvement.md](../governance/framework-continuous-assurance-and-improvement.md) | Continuous Assurance and Improvement Framework | Framework | 1.1.4 | 2026-08-30 |
-| [governance/framework-document-architecture-and-interrelationship.md](../governance/framework-document-architecture-and-interrelationship.md) | Document Architecture and Interrelationship Framework | Framework | 1.1.5 | 2026-08-22 |
+| [governance/framework-document-architecture-and-interrelationship.md](../governance/framework-document-architecture-and-interrelationship.md) | Document Architecture and Interrelationship Framework | Framework | 1.1.6 | 2026-09-05 |
 | [governance/framework-metrics-monitoring-and-performance-reporting.md](../governance/framework-metrics-monitoring-and-performance-reporting.md) | Metrics, Monitoring and Performance Reporting Framework | Framework | 1.1.7 | 2026-08-30 |
 | [governance/framework-sustainability-and-responsible-technology.md](../governance/framework-sustainability-and-responsible-technology.md) | Sustainability and Responsible Technology Framework | Framework | 1.2.4 | 2026-07-23 |
 | [governance/guideline-esg-and-ai-ethics-disclosure.md](../governance/guideline-esg-and-ai-ethics-disclosure.md) | ESG and AI Ethics Disclosure Guideline | Guideline | 1.1.4 | 2026-07-24 |
@@ -83,11 +83,11 @@ _109 documents._
 | [governance/register-canonical-citations.md](../governance/register-canonical-citations.md) | Canonical Citations Register | Register | 1.5.70 | 2026-09-05 |
 | [governance/register-coverage-gaps.md](../governance/register-coverage-gaps.md) | Coverage Gap Analysis Register | Register | 1.1.36 | 2026-09-05 |
 | [governance/register-digital-trust-and-assurance-metrics.md](../governance/register-digital-trust-and-assurance-metrics.md) | Digital Trust and Assurance Metrics Register | Register | 1.1.3 | 2026-08-30 |
-| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.164 | 2026-09-05 |
+| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.165 | 2026-09-05 |
 | [governance/register-glossary.md](../governance/register-glossary.md) | Glossary and Acronym Index | Register | 1.4.18 | 2026-08-24 |
 | [governance/register-key-terms-and-definitions.md](../governance/register-key-terms-and-definitions.md) | Key Terms and Definitions Register | Register | 1.1.6 | 2026-08-31 |
-| [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.5.10 | 2026-08-30 |
-| [governance/specification-audit-programme.md](../governance/specification-audit-programme.md) | Audit Programme Specification | Specification | 1.17.134 | 2026-09-05 |
+| [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.5.11 | 2026-09-05 |
+| [governance/specification-audit-programme.md](../governance/specification-audit-programme.md) | Audit Programme Specification | Specification | 1.17.135 | 2026-09-05 |
 | [governance/specification-citation-verification.md](../governance/specification-citation-verification.md) | Citation Verification Specification | Specification | 1.2.15 | 2026-07-11 |
 | [governance/standard-records-retention-and-destruction.md](../governance/standard-records-retention-and-destruction.md) | Records Retention and Destruction Standard | Standard | 1.4.22 | 2026-09-04 |
 | [operations/procedure-change-management-and-configuration-control.md](../operations/procedure-change-management-and-configuration-control.md) | Change Management and Configuration Control Procedure | Procedure | 1.3.6 | 2026-09-01 |
@@ -149,8 +149,8 @@ _109 documents._
 | [security/standard-data-classification-and-handling.md](../security/standard-data-classification-and-handling.md) | Data Classification and Handling Standard | Standard | 1.4.11 | 2026-09-01 |
 | [security/standard-data-loss-prevention.md](../security/standard-data-loss-prevention.md) | Data Loss Prevention Standard | Standard | 1.3.7 | 2026-08-26 |
 | [security/standard-logging-and-monitoring.md](../security/standard-logging-and-monitoring.md) | Logging and Monitoring Standard | Standard | 1.4.20 | 2026-09-01 |
-| [specification-ingestion.md](../specification-ingestion.md) | GRC Library Ingestion and Transformation Specification | Specification | 1.7.13 | 2026-08-08 |
-| [specification-master-project.md](../specification-master-project.md) | Master Project Specification | Specification | 1.6.22 | 2026-09-02 |
+| [specification-ingestion.md](../specification-ingestion.md) | GRC Library Ingestion and Transformation Specification | Specification | 1.7.14 | 2026-09-05 |
+| [specification-master-project.md](../specification-master-project.md) | Master Project Specification | Specification | 1.6.23 | 2026-09-05 |
 | [supply-chain/procedure-supplier-due-diligence.md](../supply-chain/procedure-supplier-due-diligence.md) | Supplier Due Diligence Procedure | Procedure | 1.1.12 | 2026-08-31 |
 | [supply-chain/standard-cloud-exit-and-data-portability.md](../supply-chain/standard-cloud-exit-and-data-portability.md) | Cloud Exit and Data Portability Standard | Standard | 1.1.5 | 2026-08-27 |
 | [supply-chain/standard-supplier-security-and-privacy-assurance.md](../supply-chain/standard-supplier-security-and-privacy-assurance.md) | Supplier Security and Privacy Assurance Standard | Standard | 1.1.13 | 2026-09-01 |
@@ -215,20 +215,20 @@ _171 documents._
 | [dev-security/standard-devops-security-requirements.md](../dev-security/standard-devops-security-requirements.md) | DevOps Security Requirements | Standard | 1.0.14 | 2026-09-02 |
 | [dev-security/standard-quality-assurance-and-testing.md](../dev-security/standard-quality-assurance-and-testing.md) | Quality Assurance and Testing Standard | Standard | 1.0.5 | 2026-07-23 |
 | [dev-security/standard-software-evaluation-acceptance-and-lifecycle.md](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md) | Software Evaluation, Acceptance and Lifecycle Management Standard | Standard | 1.0.9 | 2026-08-01 |
-| [governance/framework-governance-performance-and-improvement.md](../governance/framework-governance-performance-and-improvement.md) | Governance Performance and Improvement Framework | Framework | 1.0.12 | 2026-08-30 |
-| [governance/framework-governance-relationship-and-flow-modelling.md](../governance/framework-governance-relationship-and-flow-modelling.md) | Governance Relationship and Flow Modelling Framework | Framework | 1.0.6 | 2026-08-22 |
+| [governance/framework-governance-performance-and-improvement.md](../governance/framework-governance-performance-and-improvement.md) | Governance Performance and Improvement Framework | Framework | 1.0.13 | 2026-09-05 |
+| [governance/framework-governance-relationship-and-flow-modelling.md](../governance/framework-governance-relationship-and-flow-modelling.md) | Governance Relationship and Flow Modelling Framework | Framework | 1.0.7 | 2026-09-05 |
 | [governance/framework-human-capital-and-ethical-conduct.md](../governance/framework-human-capital-and-ethical-conduct.md) | Human Capital and Ethical Conduct Framework | Framework | 1.0.11 | 2026-09-01 |
 | [governance/guideline-minimum-viable-governance-structure.md](../governance/guideline-minimum-viable-governance-structure.md) | Minimum Viable Governance Structure Guideline | Guideline | 1.0.4 | 2026-07-02 |
 | [governance/matrix-reverse-framework-control-crosswalk.md](../governance/matrix-reverse-framework-control-crosswalk.md) | Reverse Framework Control Crosswalk Matrix | Matrix | 1.0.13 | 2026-09-01 |
 | [governance/policy-digital-twin-and-simulation-governance.md](../governance/policy-digital-twin-and-simulation-governance.md) | Digital Twin and Simulation Governance Policy | Policy | 1.0.7 | 2026-07-23 |
 | [governance/procedure-continuous-improvement-register.md](../governance/procedure-continuous-improvement-register.md) | Continuous Improvement Register Procedure | Procedure | 1.0.4 | 2026-08-13 |
-| [governance/procedure-grc-programme-management-and-annual-review.md](../governance/procedure-grc-programme-management-and-annual-review.md) | GRC Programme Management and Annual Review Procedure | Procedure | 1.0.10 | 2026-08-13 |
+| [governance/procedure-grc-programme-management-and-annual-review.md](../governance/procedure-grc-programme-management-and-annual-review.md) | GRC Programme Management and Annual Review Procedure | Procedure | 1.0.11 | 2026-09-05 |
 | [governance/procedure-library-quality-and-review-cadence.md](../governance/procedure-library-quality-and-review-cadence.md) | Library Quality and Review Cadence Procedure | Procedure | 1.0.24 | 2026-08-28 |
 | [governance/procedure-standard-version-upgrade.md](../governance/procedure-standard-version-upgrade.md) | Standard Version Upgrade Procedure | Procedure | 1.0.2 | 2026-08-20 |
 | [governance/procedure-whistleblower-and-incident-reporting.md](../governance/procedure-whistleblower-and-incident-reporting.md) | Whistleblower and Incident Reporting Procedure | Procedure | 1.0.9 | 2026-08-21 |
 | [governance/register-data-retention-schedule.md](../governance/register-data-retention-schedule.md) | Data Retention Schedule | Register | 1.0.40 | 2026-09-04 |
-| [governance/specification-project-governance-separation.md](../governance/specification-project-governance-separation.md) | Project Governance Separation Specification | Specification | 1.0.9 | 2026-08-03 |
-| [governance/standard-maturity-assessment-methodology.md](../governance/standard-maturity-assessment-methodology.md) | Maturity Assessment Methodology Standard | Standard | 1.0.2 | 2026-08-05 |
+| [governance/specification-project-governance-separation.md](../governance/specification-project-governance-separation.md) | Project Governance Separation Specification | Specification | 1.0.10 | 2026-09-05 |
+| [governance/standard-maturity-assessment-methodology.md](../governance/standard-maturity-assessment-methodology.md) | Maturity Assessment Methodology Standard | Standard | 1.0.3 | 2026-09-05 |
 | [governance/template-citation-verification-worklist.md](../governance/template-citation-verification-worklist.md) | Citation Verification Worklist Template | Template | 1.0.4 | 2026-07-02 |
 | [governance/template-document-review-record.md](../governance/template-document-review-record.md) | Document Review Record Template | Template | 1.0.7 | 2026-08-20 |
 | [governance/template-executive-narrative-subtypes.md](../governance/template-executive-narrative-subtypes.md) | Executive Narrative Subtype Templates | Template | 1.0.3 | 2026-08-08 |
@@ -339,7 +339,7 @@ _171 documents._
 
 ## Draft
 
-_63 documents._
+_64 documents._
 
 | Path | Title | Type | Version | Date |
 | --- | --- | --- | --- | --- |
@@ -382,6 +382,7 @@ _63 documents._
 | [compliance/public-sector/annex-fedramp-requirements.md](../compliance/public-sector/annex-fedramp-requirements.md) | FedRAMP Sector Requirements Annex | Annex | 0.0.8 | 2026-09-04 |
 | [compliance/public-sector/annex-public-sector-requirements.md](../compliance/public-sector/annex-public-sector-requirements.md) | Public Sector GRC Requirements Annex | Annex | 0.0.6 | 2026-09-04 |
 | [compliance/telecommunications/annex-telecommunications-sector-requirements.md](../compliance/telecommunications/annex-telecommunications-sector-requirements.md) | Telecommunications Sector Requirements Annex | Annex | 0.0.7 | 2026-09-04 |
+| [crypto/framework-crypto-asset-governance.md](../crypto/framework-crypto-asset-governance.md) | Crypto-Asset Governance Framework | Framework | 0.1.0 | 2026-09-05 |
 | [dev-security/procedure-secure-code-review.md](../dev-security/procedure-secure-code-review.md) | Secure Code Review Procedure | Procedure | 0.0.6 | 2026-08-27 |
 | [dev-security/standard-api-security.md](../dev-security/standard-api-security.md) | API Security Standard | Standard | 0.0.12 | 2026-08-27 |
 | [dev-security/standard-cloud-hardening-baseline-aws.md](../dev-security/standard-cloud-hardening-baseline-aws.md) | AWS Cloud Hardening Baseline Standard | Standard | 0.0.9 | 2026-07-06 |
