@@ -5513,7 +5513,7 @@ documents:
   domain: "governance"
   type: "Standard"
   title: "Maturity Assessment Methodology Standard"
-  version: "1.1.0"
+  version: "1.1.1"
   date: "2026-09-05"
   owner: "GRC Programme Manager"
   approving_authority: "Governance Library Maintainer"

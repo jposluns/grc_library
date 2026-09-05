@@ -2,7 +2,7 @@
 
 **Document Title:** Maturity Assessment Methodology Standard\
 **Document Type:** Standard\
-**Version:** 1.1.0\
+**Version:** 1.1.1\
 **Date:** 2026-09-05\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
@@ -78,7 +78,7 @@ The assessment aggregates individual scores into tiers in two steps:
 
 The median, not the mean, is used at both steps. The median resists distortion by a single outlying score: one spurious low score does not drag a domain down, and one spurious high score does not inflate it. This robustness is the reason the method is used, and it is also the source of the limitation documented in section 6.
 
-The aggregation produces a tier value (an integer, or a half-value where an even count of scores straddles two adjacent tiers). This standard documents the method; it does not change the mechanics the template records step by step, and it is independent of the generated document-maturity scoring (section 8).
+The per-domain median produces an integer or a half-value (the latter where an even count of question scores leaves two middle tiers that differ by an odd number, so their average lands on a half); the overall median, taken over those per-domain scores, can additionally produce a quarter-value (for example, the median of the domain scores 2.0 and 2.5 is 2.25). This standard documents the method; it does not change the mechanics the template records step by step, and it is independent of the generated document-maturity scoring (section 8).
 
 ---
 
@@ -137,7 +137,7 @@ Sections 4 and 5 produce a self-assessed tier: a domain owner scores each questi
 
 ### 10.1 Relationship-model-derived signals
 
-The relationship model records typed relationships among corpus entities across seven relationship classes. Each class yields one normalized maturity signal:
+The relationship model can record typed relationships among corpus entities across the governance relationship framework's full relationship-class vocabulary (fifteen classes). This measurement model derives its signals from seven of those classes, each selected because it maps to a distinct maturity dimension; each of the seven yields one normalized maturity signal:
 
 | Relationship class | Derived signal | What it measures |
 | --- | --- | --- |
@@ -171,7 +171,7 @@ An organization tunes the "begun", "substantive", and "sustained" thresholds to 
 
 ### 10.4 Source population and current state
 
-The signals compute from the relationship model once its source is populated with the corpus's real relationships. The model ships today as a schema scaffold: [`relationship-model-source.json`](relationship-model-source.json) carries representative example entities and one record of each relationship class, demonstrating the structure without asserting real corpus relationships. Until the source is populated, this measurement model defines the derivation only; computing live signal values additionally requires a generator over the populated relationship model, which the follow-up work below establishes. Populating the relationship-model source with the corpus's real relationships is the downstream enablement that turns the defined derivation into live, comparable measurement; it is tracked as separate follow-up work and is not a change to this methodology.
+The signals compute from the relationship model once its source is populated with the corpus's real relationships. The model ships today as a schema scaffold: [`relationship-model-source.json`](relationship-model-source.json) carries representative example entities and one record for each of the seven signal-bearing classes, demonstrating the structure without asserting real corpus relationships. Until the source is populated, this measurement model defines the derivation only; computing live signal values additionally requires a generator over the populated relationship model, which the follow-up work below establishes. Populating the relationship-model source with the corpus's real relationships is the downstream enablement that turns the defined derivation into live, comparable measurement; it is tracked as separate follow-up work and is not a change to this methodology.
 
 ---
 
