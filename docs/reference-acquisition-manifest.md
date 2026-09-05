@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-reference-manifest.py`
 **Document Title:** Reference-Acquisition Manifest\
 **Document Type:** Guide\
 **Version:** 1.0.0\
-**Date:** 2026-08-30\
+**Date:** 2026-09-05\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`docs/portal.md`](portal.md)\
@@ -45,7 +45,7 @@ from `grc_library_ref/catalogue.yml`; regenerate on any reference-base change (t
 generator is maintainer-side, never a CI gate, so the public repo stays clonable
 without the private reference sibling).
 
-## Standards (265: 183 free, 82 licensed)
+## Standards (266: 184 free, 82 licensed)
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
@@ -210,6 +210,7 @@ without the private reference sibling).
 | NIST IR 8011 Vol. 3, Automation Support for Security Control Assessments: Software Asset Management | IR 8011 Vol. 3 (December 2018) | NIST |  | FREE |
 | NIST IR 8011 Vol. 4, Automation Support for Security Control Assessments: Software Vulnerability Management | IR 8011 Vol. 4 (April 2020) | NIST |  | FREE |
 | NIST IR 8062, An Introduction to Privacy Engineering and Risk Management in Federal Systems | IR 8062 (January 2017) | NIST |  | FREE |
+| NIST IR 8202, Blockchain Technology Overview | NISTIR 8202 (October 2018) | NIST |  | FREE |
 | NIST IR 8276, Key Practices in Cyber Supply Chain Risk Management: Observations from Industry | IR 8276 (February 2021) | NIST |  | FREE |
 | NIST IR 8286 Rev. 1, Integrating Cybersecurity and Enterprise Risk Management (ERM) | IR 8286 Rev. 1 (December 2025) | NIST |  | FREE |
 | NIST IR 8286A Rev. 1, Identifying and Estimating Cybersecurity Risk for Enterprise Risk Management | IR 8286A Rev. 1 (December 2025) | NIST |  | FREE |
@@ -856,5 +857,5 @@ without the private reference sibling).
 | WCO Compendium of Authorized Economic Operator Programmes (2020 edition) |  | World Customs Organization |  | FREE |
 | WCO SAFE Framework of Standards (2025 edition) | 2025 edition (dated June 2025, published September 2025); current upstream, confirmed 2026-07-11; 2021 edition retired to .superseded/ | World Customs Organization | https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/facilitation/instruments-and-tools/tools/safe-package/safe-framework-2025_en.pdf | FREE |
 
-**Total: 791 sources (665 free, 126 licensed).**
+**Total: 792 sources (666 free, 126 licensed).**
 
