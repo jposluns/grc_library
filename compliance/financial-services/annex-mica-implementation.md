@@ -2,7 +2,7 @@
 
 **Document Title:** MiCA Implementation Annex\
 **Document Type:** Annex\
-**Version:** 0.0.3\
+**Version:** 0.0.4\
 **Date:** 2026-09-05\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -104,7 +104,7 @@ Gap: an ordinary EMT uses the EMD safeguarding regime plus Art 54, not the Art 3
 | Custody-specific: register of positions, custody policy, statements at least once every three months, legal/operational segregation, liability (Art 75) | [`crypto/standard-digital-asset-custody.md`](../../crypto/standard-digital-asset-custody.md) (register of positions, custody policy, agreement content, statement cadence, Art 75(8) attributable-loss liability) |
 | Trading-platform operating rules, order-book records (Art 76; RTS 2025/416) | `operations/` + market-integrity controls |
 
-Gaps: the crypto custody standard now supplies the reusable core of client-asset segregation, custody policy, the register of positions, and the record-keeping obligation (Arts 70, 75, 68(9); RTS 2025/1140); the Annex IV prudential-safeguards calculation (Art 67) and the service-specific operating rules for the other crypto-asset services (Arts 76-82) remain MiCA-specific and maintained beyond the library baseline.
+Gaps: the crypto custody standard now supplies the reusable core of client-asset segregation, the custody policy, the register of positions, and the RTS 2025/1140 records medium and client-distinguishability (Arts 70, 75; RTS 2025/1140 Arts 2, 5); the Article 68(9) general record-keeping obligation (records of all crypto-asset services, activities, orders, and transactions, provision to clients on request, and five-to-seven-year retention), the Annex IV prudential-safeguards calculation (Art 67), and the service-specific operating rules for the other crypto-asset services (Arts 76-82) remain MiCA-specific and maintained beyond the library baseline.
 
 ## Title VI: market abuse (Arts 86-92)
 
