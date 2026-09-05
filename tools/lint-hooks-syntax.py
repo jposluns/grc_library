@@ -9,7 +9,7 @@ gets disabled), so a syntax-broken hook does not announce itself: it silently st
 protecting.
 
 Before this gate, no gate covered that. Gate 71 (stdlib-only imports) AST-parses
-`tools/`, `tests/`, and `.web/` and fails on an unparseable file there, but does not
+`tools/`, `tests/`, `.web/`, and the vendored `vendor/aiqt/tools/` and fails on an unparseable file there, but does not
 scan `.claude/hooks/`; gate 94 (static unused-import) scans `.claude/hooks/` but SKIPs
 a file it cannot parse, by design (its verdicts are about imports, and its ignorance
 refuses to flag). So a `.claude/hooks/*.py` with a syntax error could be committed and
