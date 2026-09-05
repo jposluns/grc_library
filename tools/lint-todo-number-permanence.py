@@ -390,6 +390,12 @@ EXEMPT: dict[tuple[str, str], str] = {
         "PARTIAL CLOSE (DONE:3563, #1797; the HIGH-tier disposition) of the live "
         "P-3.217 umbrella (MED/LOW tier stays open)."
     ),
+    ("P-1.70", "P-1.70 part 3"): (
+        "PARTIAL CLOSE. PR #1994 closed part 3 (overlap-aware class-attestation clause "
+        "counting) of the still-open P-1.70 umbrella; parts 1-2 (repair the legacy "
+        "malformed Closed-today rows; structural fail-closed on any in-window malformed "
+        "row) remain live in P-TODO.md. Dated 2026-09-05, after the 2026-07-15 rule."
+    ),
 }
 
 

@@ -258,14 +258,33 @@ def class_attestation_state(cell: str) -> str:
     # ALL class and exempt clauses. Any malformed exempt reason fails closed with precedence,
     # so a valid class clause cannot mask an invalid exemption in the same cell; more than one
     # clause of any kind is 'multi' (rejected); zero is 'none'.
-    class_clauses = CLASS_ATTEST_RE.findall(cell)
-    exempt_reasons = CLASS_EXEMPT_RE.findall(cell)
+    class_spans = [m.span() for m in CLASS_ATTEST_RE.finditer(cell)]
+    # Overlap-aware clause counting (P-1.70): a `[class-exempt: ...]` substring INSIDE a
+    # `[class: "<token>" @ n]` clause's span is part of that token, not a second clause, so it
+    # is not counted again. A genuine standalone clause can never fall inside a class span (the
+    # token is `[^"\r\n]+`, which cannot cross a quote), so this is safe-direction: it removes
+    # a false 'multi' AND a false 'bad-exempt' for an off-set reason written inside a token
+    # (that reason belongs to the author-declared token, and the resulting 'class' still routes
+    # to the D14 count-reproduction probe), and never turns a genuinely multi-clause or
+    # standalone-bad-exempt cell into a pass.
+    # SCOPE NOTE (codex+claude QA #1994): a MALFORMED class wrapper (a non-numeric count, or a
+    # spaced/obfuscated `[class:` opener) fails CLASS_ATTEST_RE, so class_spans is empty and an
+    # embedded `[class-exempt: ...]` is then counted standalone -> 'exempt'. This pre-existing
+    # false-pass is a MALFORMED-ROW problem and is NOT closed here: chasing every opener-
+    # obfuscation variant with a regex is an unbounded regress. It is addressed structurally by
+    # P-1.70 parts 1-2 (repair the legacy malformed rows; fail-closed on ANY in-window malformed
+    # row), which does not depend on recognizing the opener.
+    exempt_reasons = [
+        m.group(1)
+        for m in CLASS_EXEMPT_RE.finditer(cell)
+        if not any(a <= m.start() and m.end() <= b for (a, b) in class_spans)
+    ]
     if any(r.lower() not in CLASS_EXEMPT_REASONS for r in exempt_reasons):
         return "bad-exempt"
-    total = len(class_clauses) + len(exempt_reasons)
+    total = len(class_spans) + len(exempt_reasons)
     if total != 1:
         return "multi" if total > 1 else "none"
-    return "class" if class_clauses else "exempt"
+    return "class" if class_spans else "exempt"
 
 
 def extract_class_attestation(cell: str):
@@ -489,6 +508,16 @@ def self_test() -> int:
        class_attestation_state('FIXED #1 [class: "x" @ 1] [class-exempt: singleton]'), "multi")
     ck("iter3: two class clauses are multi",
        class_attestation_state('FIXED #1 [class: "x" @ 1] [class: "y" @ 2]'), "multi")
+    ck("P-1.70: a [class-exempt: ...] substring INSIDE a class token is not a 2nd clause",
+       class_attestation_state('FIXED #1 [class: "the [class-exempt: singleton] literal" @ 3]'), "class")
+    ck("P-1.70: a real standalone exempt AFTER a class token is still multi",
+       class_attestation_state('FIXED #1 [class: "x [class-exempt: singleton] y" @ 1] [class-exempt: cross-repo]'), "multi")
+    ck("P-1.70: an OFF-SET exempt reason INSIDE a valid token is part of the token -> class",
+       class_attestation_state('FIXED #1 [class: "x [class-exempt: bogus] y" @ 1]'), "class")
+    ck("P-1.70: an off-set exempt inside a token PLUS a real standalone bad exempt is bad-exempt",
+       class_attestation_state('FIXED #1 [class: "x [class-exempt: bogus] y" @ 1] [class-exempt: alsobad]'), "bad-exempt")
+    ck("P-1.70: a literal [class: opener INSIDE a valid token does not false-block -> class",
+       class_attestation_state('FIXED #1 [class: "see [class: nested] here" @ 2]'), "class")
     ck("no clause is none", class_attestation_state("FIXED #1 then prose"), "none")
     ck("extraction unescapes a table-escaped pipe",
        extract_class_attestation('FIXED #1 [class: "a \\| b" @ 4]'), ("a | b", 4))
