@@ -288,11 +288,14 @@ def parse_open_rows(text: str) -> list:
 #     "where did this go?" rather than merely mention a number somewhere. Prose may follow the ref.
 #   - REFUTED / ACCEPTED carry PROSE (the legend defines `REFUTED <evidence>` / `ACCEPTED <rationale>`),
 #     so only the terminal WORD is machine-required; the evidence/rationale is author judgement.
-# A ref is a PR number (`#1178`), a backlog item (`3.73`, `3.56a`), or a `TODO`-qualified item.
+# A ref is a PR number (`#1178`), a public backlog item (`3.73`, `3.56a`), a private `P-N.M` item
+# (`P-1.71`), or a `TODO`-qualified item (`TODO 3.73`, `TODO P-1.60`).
 TERMINAL = ("fixed", "routed", "refuted", "accepted")
-# A ref is a PR number (`#1`.., never `#0`), a backlog item (`3.73`, `3.56a`, `3.139.1`), or a
-# `TODO`-qualified item. `(` or `[` may sit immediately before it (a parenthesized or link-form ref).
-_REF = r"[(\[]?(?:#[1-9]\d*|TODO\s+\d+(?:\.\d+)+[a-z]?|\d+(?:\.\d+)+[a-z]?)"
+# A ref is a PR number (`#1`.., never `#0`), a public backlog item (`3.73`, `3.56a`, `3.139.1`), a
+# private `P-N.M` item (`P-1.71`), or a `TODO`-qualified item. The private `P-` namespace is a
+# first-class routing target (e.g. P-1.60/P-1.61); rejecting it read a valid `ROUTED P-1.71` as
+# undispositioned (self-caught 2026-09-05, #2016). `(` or `[` may sit immediately before it (a parenthesized or link-form ref).
+_REF = r"[(\[]?(?:#[1-9]\d*|TODO\s+(?:P-)?\d+(?:\.\d+)+[a-z]?|P-\d+(?:\.\d+)+[a-z]?|\d+(?:\.\d+)+[a-z]?)"
 _DISPOSITION_RE = re.compile(
     r"^(?:fixed|routed)\s+" + _REF + r"(?:\b|[.,;:)\]])"   # FIXED/ROUTED + adjacent ref
     r"|^(?:refuted|accepted)\b",                            # REFUTED/ACCEPTED + prose (word only)
@@ -557,6 +560,11 @@ def self_test() -> int:
     ck("bold FIXED + adjacent ref is valid", disposition_valid("**FIXED #1208** then prose"), True)
     ck("ROUTED + adjacent TODO ref is valid", disposition_valid("ROUTED TODO 3.73, P1 tier"), True)
     ck("ROUTED + adjacent bare item ref is valid", disposition_valid("ROUTED 3.56a (residual)"), True)
+    ck("ROUTED + adjacent P-namespace ref is valid", disposition_valid("ROUTED P-1.71 (Nigeria batch)"), True)
+    ck("ROUTED + adjacent TODO P-ref is valid", disposition_valid("ROUTED TODO P-1.60"), True)
+    ck("a P- ref without a dotted number is INVALID", disposition_valid("ROUTED P-71"), False)
+    ck("TODO with a P-less hyphenless malformed ref is INVALID", disposition_valid("ROUTED TODO P1.60"), False)
+    ck("TODO with a bare-hyphen malformed ref is INVALID", disposition_valid("ROUTED TODO -1.60"), False)
     ck("FIXED with a NON-adjacent ref is INVALID", disposition_valid("FIXED in #1208: the branch"), False)
     ck("ROUTED narration with a later ref is INVALID",
        disposition_valid("ROUTED nowhere yet, it smells like 3.145 territory"), False)
