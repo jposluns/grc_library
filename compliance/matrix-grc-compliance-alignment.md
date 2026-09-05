@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.51\
-**Date:** 2026-09-04\
+**Version:** 1.11.52\
+**Date:** 2026-09-05\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/logistics/register-basc-it-responsibilities.md`](logistics/register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](logistics/annex-aeo-united-kingdom-cybersecurity.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md)\
@@ -418,6 +418,15 @@ This matrix is indicative only. It reflects the best available assessment of con
 | AI | AI Data Quality and Readiness Validation Standard | [`ai/standard-ai-data-quality-and-readiness-validation.md`](../ai/standard-ai-data-quality-and-readiness-validation.md) | DSP-16, STA-11 | DSP-23, DSP-24 | §8.1, A.5.20, A.8.10 | ID.AM, PR.DS, GV.SC | N/A | N/A | N/A | N/A | N/A |
 | AI | AI Model Succession and Identity Continuity Standard | [`ai/standard-ai-model-succession-and-identity.md`](../ai/standard-ai-model-succession-and-identity.md) | CCC-01, IAM-05 | MDS-03, MDS-05, MDS-08, MDS-10 | A.5.18 | PR.AA | N/A | N/A | N/A | N/A | N/A |
 | AI | AI Actor Role and Forum Standing Charter | [`ai/charter-ai-actor-role-and-forum-standing.md`](../ai/charter-ai-actor-role-and-forum-standing.md) | GRC-01, GRC-06 | GRC-15 | A.5.2 | GV.RR | N/A | N/A | N/A | N/A | N/A |
+
+---
+
+## Crypto domain
+
+| Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 | ISO/IEC 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Crypto | Crypto-Asset Governance Framework | [`crypto/framework-crypto-asset-governance.md`](../crypto/framework-crypto-asset-governance.md) | GRC-01, GRC-02, GRC-06, GRC-07 | N/A | §6.1.2, A.5.2, A.5.9, A.5.19, A.5.31 | GV.OC, GV.RM, GV.RR, ID.AM, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Crypto | Digital Asset Custody Standard | [`crypto/standard-digital-asset-custody.md`](../crypto/standard-digital-asset-custody.md) | CEK-01, CEK-20, CEK-21, IAM-04, LOG-10, SEF-07 | N/A | A.5.1, A.5.3, A.5.9, A.5.26, A.5.33, A.8.24 | GV.PO, PR.AA, PR.DS, ID.AM, RS.MA, RC.RP | N/A | N/A | N/A | N/A | N/A |
 
 ---
 
