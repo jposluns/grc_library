@@ -2,7 +2,7 @@
 
 **Document Title:** MiCA Implementation Annex\
 **Document Type:** Annex\
-**Version:** 0.0.4\
+**Version:** 0.0.5\
 **Date:** 2026-09-05\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -80,7 +80,7 @@ Gaps: the reserve-of-assets regime (Arts 36-38, legal/operational segregation, s
 | Credit-institution / EMI status + white-paper notification (Art 48) | governance/authorization artefacts (status is an external licence) |
 | Issue at par value, redeem at par value at any time, in principle without a fee but subject to the Art 46 recovery options (Art 49) | *(MiCA-specific; note: par value, unlike ART market value)* |
 | Interest prohibition (Art 50) | *(MiCA-specific policy)* |
-| Safeguarding of funds: 30% deposited, remainder in highly liquid low-risk instruments (Art 54) | `risk/` + `supply-chain/` custody controls as inputs |
+| Safeguarding of funds: at least 30% deposited, remainder in highly liquid low-risk instruments (Art 54) | `risk/` + `supply-chain/` custody controls as inputs |
 | Recovery/redemption plans (Art 55, applying Title III Ch 6) | `resilience/` artefacts |
 | Significant-EMT additional obligations (Art 58, applying Arts 36-38, 45; RTS 2025/1264, 2025/418) | as for significant ARTs |
 
