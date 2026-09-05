@@ -11484,7 +11484,7 @@ class AdoptBootstrapRefTests(unittest.TestCase):
 
 class StdlibOnlyImportsTests(unittest.TestCase):
     """tools/lint-stdlib-only-imports.py (gate 71): flags a third-party import in the
-    runnable toolchain (tools/ tests/ .web/); stdlib + first-party (sibling .py) imports
+    runnable toolchain (tools/ tests/ .web/ vendor/aiqt/tools/); stdlib + first-party (sibling .py) imports
     pass. The gate reads REPO_ROOT as a module global, so the tests drive it by
     monkeypatching that global to a temp tree, saving + restoring it (test isolation)."""
 

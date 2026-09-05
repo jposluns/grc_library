@@ -9,7 +9,7 @@ standard library or a first-party in-repo module. A third-party import (``import
 a maintainer machine that happens to have the package installed.
 
 This gate closes exactly that blind spot. It statically AST-parses every toolchain Python
-file (``tools/``, ``tests/``, ``.web/``) and flags any imported ROOT module that is not:
+file (``tools/``, ``tests/``, ``.web/``, and the vendored ``vendor/aiqt/tools/``) and flags any imported ROOT module that is not:
 
   - in ``sys.stdlib_module_names`` (the running interpreter's standard library), OR
   - a first-party in-repo module (the stem of a ``.py`` file in the scanned set, e.g.
