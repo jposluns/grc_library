@@ -2,8 +2,8 @@
 
 **Document Title:** MiCA Implementation Annex\
 **Document Type:** Annex\
-**Version:** 0.0.2\
-**Date:** 2026-09-04\
+**Version:** 0.0.5\
+**Date:** 2026-09-05\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/financial-services/annex-financial-services-sector-requirements.md`](annex-financial-services-sector-requirements.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`compliance/financial-services/annex-dora-implementation.md`](annex-dora-implementation.md)\
@@ -80,7 +80,7 @@ Gaps: the reserve-of-assets regime (Arts 36-38, legal/operational segregation, s
 | Credit-institution / EMI status + white-paper notification (Art 48) | governance/authorization artefacts (status is an external licence) |
 | Issue at par value, redeem at par value at any time, in principle without a fee but subject to the Art 46 recovery options (Art 49) | *(MiCA-specific; note: par value, unlike ART market value)* |
 | Interest prohibition (Art 50) | *(MiCA-specific policy)* |
-| Safeguarding of funds: 30% deposited, remainder in highly liquid low-risk instruments (Art 54) | `risk/` + `supply-chain/` custody controls as inputs |
+| Safeguarding of funds: at least 30% deposited, remainder in highly liquid low-risk instruments (Art 54) | `risk/` + `supply-chain/` custody controls as inputs |
 | Recovery/redemption plans (Art 55, applying Title III Ch 6) | `resilience/` artefacts |
 | Significant-EMT additional obligations (Art 58, applying Arts 36-38, 45; RTS 2025/1264, 2025/418) | as for significant ARTs |
 
@@ -96,15 +96,15 @@ Gap: an ordinary EMT uses the EMD safeguarding regime plus Art 54, not the Art 3
 | Prudential safeguards (Art 67, the higher of the Annex IV permanent minimum capital or a quarter of the preceding year's fixed overheads; a financial entity providing services under Art 60 is not subject to Art 67) | `risk/` capital/financial-control artefacts as inputs |
 | Governance, fit-and-proper, continuity, AML, records (Art 68; RTS 2025/299, 2025/1140) | `risk/standard-enterprise-risk-management.md`, `resilience/framework-business-continuity-and-resilience.md`, `security/standard-logging-and-monitoring.md` |
 | ICT continuity per DORA (Art 68(7), citing DORA Arts 11-12) | the DORA implementation annex |
-| Safekeeping of clients' crypto-assets and funds; insolvency protection (Art 70) | `security/` + `operations/` custody controls (adopter extends to segregation + next-day placement) |
+| Safekeeping of clients' crypto-assets and funds; insolvency protection (Art 70) | [`crypto/standard-digital-asset-custody.md`](../../crypto/standard-digital-asset-custody.md) (segregation, next-business-day fund placement) + `security/` + `operations/` key controls |
 | Complaints-handling (Art 71; RTS 2025/294) | no direct carrier; `compliance/procedure-capa.md` covers internal corrective and preventive action only, so the adopter provides a MiCA CASP complaints-handling procedure per RTS 2025/294 |
 | Conflicts of interest, reviewed annually (Art 72; RTS 2025/1142) | library conflicts-of-interest control |
 | Outsourcing, incl. contingency + exit strategies (Art 73) | `supply-chain/framework-supplier-and-cloud-governance.md`, `supply-chain/procedure-supplier-exit-and-data-return.md`, `supply-chain/standard-supplier-security-and-privacy-assurance.md` |
 | Orderly wind-down plan, for CASPs providing the services in Arts 75 to 79 (Art 74) | `resilience/` recovery artefacts |
-| Custody-specific: register of positions, custody policy, quarterly statements, legal/operational segregation, liability (Art 75) | `security/` custody controls (adopter maps to Art 75 minimum agreement content) |
+| Custody-specific: register of positions, custody policy, statements at least once every three months, legal/operational segregation, liability (Art 75) | [`crypto/standard-digital-asset-custody.md`](../../crypto/standard-digital-asset-custody.md) (register of positions, custody policy, agreement content, statement cadence, Art 75(8) attributable-loss liability) |
 | Trading-platform operating rules, order-book records (Art 76; RTS 2025/416) | `operations/` + market-integrity controls |
 
-Gaps: the client-asset segregation and insolvency-protection regime (Arts 70, 75(7)), the five-to-seven-year record-keeping obligation (Art 68(9); RTS 2025/1140), the Annex IV prudential-safeguards calculation (Art 67), and the service-specific operating rules (Arts 75-82) are MiCA-specific and maintained beyond the library baseline.
+Gaps: the crypto custody standard now supplies the reusable core of client-asset segregation, the custody policy, the register of positions, and the RTS 2025/1140 records medium and client-distinguishability (Arts 70, 75; RTS 2025/1140 Arts 2, 5); the Article 68(9) general record-keeping obligation (records of all crypto-asset services, activities, orders, and transactions, provision to clients on request, and five-to-seven-year retention), the Annex IV prudential-safeguards calculation (Art 67), and the service-specific operating rules for the other crypto-asset services (Arts 76-82) remain MiCA-specific and maintained beyond the library baseline.
 
 ## Title VI: market abuse (Arts 86-92)
 

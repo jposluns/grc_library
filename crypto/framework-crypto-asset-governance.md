@@ -2,11 +2,11 @@
 
 **Document Title:** Crypto-Asset Governance Framework\
 **Document Type:** Framework\
-**Version:** 0.1.0\
+**Version:** 0.1.1\
 **Date:** 2026-09-05\
 **Owner:** Crypto-Asset Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`crypto/README.md`](README.md), [`compliance/financial-services/annex-mica-implementation.md`](../compliance/financial-services/annex-mica-implementation.md), [`security/framework-cryptographic-key-lifecycle.md`](../security/framework-cryptographic-key-lifecycle.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md)\
+**Related Documents:** [`crypto/README.md`](README.md), [`crypto/standard-digital-asset-custody.md`](standard-digital-asset-custody.md), [`compliance/financial-services/annex-mica-implementation.md`](../compliance/financial-services/annex-mica-implementation.md), [`security/framework-cryptographic-key-lifecycle.md`](../security/framework-cryptographic-key-lifecycle.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md)\
 **Classification:** Public\
 **Category:** Crypto-Asset Governance\
 **Review Frequency:** 6 to 12 months and upon material crypto-asset activity, platform, threat, or regulatory change\
