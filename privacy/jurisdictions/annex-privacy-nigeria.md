@@ -24,10 +24,10 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Applicable laws and regulatory authorities
 
-- **Nigeria Data Protection Act 2023 (NDPA)**: assented on 12 June 2023 and published in Official Gazette No. 119 on 1 July 2023; the most significant recent privacy legislation in Sub-Saharan Africa. It is the primary data-protection statute; under its transitional provisions (s. 64), existing instruments, including the Nigeria Data Protection Regulation 2019 (NDPR), continue in force until they expire or are repealed, replaced, or altered.
-- Applies (s. 2(2)) where: the data controller or processor is domiciled in, resident in, or operating in Nigeria; the processing of personal data occurs within Nigeria; or a controller or processor not in Nigeria processes the personal data of a data subject in Nigeria.
-- Mandatory breach notification to the NDPC within 72 hours for a breach likely to result in a risk to the rights and freedoms of individuals (s. 40(2)).
-- A data controller of major importance must designate a Data Protection Officer (s. 32(1)). A controller or processor of "major importance" is one processing the personal data of more than a Commission-prescribed number of data subjects in Nigeria, or a class the Commission designates as of particular significance to Nigeria (s. 65).
+- **Nigeria Data Protection Act 2023 (NDPA)**: assented on 12 June 2023 and published in Official Gazette No. 119 on 1 July 2023. It is the primary data-protection statute; under its transitional provisions (s. 64), existing instruments, including the Nigeria Data Protection Regulation 2019 (NDPR), continue in force until they expire or are repealed, replaced, reassembled, or altered.
+- Applies (s. 2(2)) where: the data controller or processor is domiciled in, resident in, or operating in Nigeria; the processing of personal data occurs within Nigeria; or a controller or processor not domiciled in, resident in, or operating in Nigeria is processing the personal data of a data subject in Nigeria.
+- A data controller must notify the NDPC within 72 hours of becoming aware of a breach likely to result in a risk to the rights and freedoms of individuals (s. 40(2)).
+- A data controller of major importance must designate a Data Protection Officer (s. 32(1)). A controller or processor of "major importance" is one that is domiciled, resident in, or operating in Nigeria and processes, or intends to process, the personal data of more than a Commission-prescribed number of data subjects in Nigeria, or a class the Commission designates as processing personal data of particular value or significance to the economy, society, or security of Nigeria (s. 65).
 - **Regulatory authority:** Nigeria Data Protection Commission (NDPC), established as an independent regulatory agency.
 
 ---
