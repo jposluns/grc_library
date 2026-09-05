@@ -2,7 +2,7 @@
 
 **Document Title:** Texas Responsible Artificial Intelligence Governance Act (TRAIGA) Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.1\
+**Version:** 0.0.2\
 **Date:** 2026-09-05\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\

@@ -2190,7 +2190,7 @@ documents:
   domain: "ai"
   type: "Annex"
   title: "Texas Responsible Artificial Intelligence Governance Act (TRAIGA) Regulatory Requirements"
-  version: "0.0.1"
+  version: "0.0.2"
   date: "2026-09-05"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"
