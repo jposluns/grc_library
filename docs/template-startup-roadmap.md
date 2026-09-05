@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Startup Roadmap Template\
 **Document Type:** Template\
-**Version:** 2.2.9\
-**Date:** 2026-09-03\
+**Version:** 2.2.10\
+**Date:** 2026-09-05\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/template-quickstart.md`](template-quickstart.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/maturity-scorecard.md`](maturity-scorecard.md), [`docs/template-maturity-self-assessment.md`](template-maturity-self-assessment.md), [`README.md`](../README.md), [`docs/worked-example.md`](worked-example.md)\
@@ -26,7 +26,7 @@ This is the long-form composition workbook. Readers who want a 10-minute on-ramp
 
 The canonical front door for adopters is [`docs/portal.md`](portal.md) (audience-keyed grouping by role). This template is one of five deeper-dive paths that branch off the portal; it answers "how do I compose the full starting set across activity, data, audience, regulatory exposure, and capacity?". The other four are [`docs/adopter-guide.md`](adopter-guide.md) (fork-and-adapt principles), [`docs/template-quickstart.md`](template-quickstart.md) (what to copy on Day 1; the 10-minute on-ramp version of this workbook), [`docs/decision-tree.md`](decision-tree.md) (sequenced reading order), and [`docs/template-implementation-roadmap.md`](template-implementation-roadmap.md) (calendar phasing). The portal's "Other entry points and when to use them" table picks the right path by question; see the portal Overview.
 
-The aim is to compress the adopter's first-week question (`which of the 11 domains do I need on day one?`) into: copy the core baseline, then add the modules that match the organization. The [`docs/decision-tree.md`](decision-tree.md) covers the conditional logic; this template names the resulting compositions.
+The aim is to compress the adopter's first-week question (`which of the 12 domains do I need on day one?`) into: copy the core baseline, then add the modules that match the organization. The [`docs/decision-tree.md`](decision-tree.md) covers the conditional logic; this template names the resulting compositions.
 
 A composition is a starting point, not a final scope. Adopters typically grow into adjacent modules as the programme matures; the [`docs/adopter-guide.md`](adopter-guide.md) section "Maturity progression" describes the standard growth path.
 
@@ -133,6 +133,15 @@ Adopt:
 - [`operations/`](../operations/) full set.
 - The sector overlay under [`compliance/`](../compliance/) for the relevant industry (logistics, healthcare, energy-and-utilities, etc.).
 - [`resilience/`](../resilience/): physical operations have physical resilience needs.
+
+#### A7: We hold, use, issue, or service crypto-assets, or operate blockchain platforms
+
+Triggered by holding or transacting crypto-assets, issuing or offering them, running or using a crypto-asset trading or custody service, staking, deploying smart contracts, or adopting a blockchain platform.
+
+Adopt:
+- [`crypto/framework-crypto-asset-governance.md`](../crypto/framework-crypto-asset-governance.md): the domain anchor (crypto-asset classification, platform and technology model, risk domains, governance requirements).
+- [`compliance/financial-services/annex-mica-implementation.md`](../compliance/financial-services/annex-mica-implementation.md): if in scope of the EU MiCA regime.
+- [`security/framework-cryptographic-key-lifecycle.md`](../security/framework-cryptographic-key-lifecycle.md): digital-asset key custody relates to the cryptographic key controls.
 
 ### Dimension B: Data scope (what we HANDLE)
 

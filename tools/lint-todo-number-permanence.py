@@ -396,6 +396,12 @@ EXEMPT: dict[tuple[str, str], str] = {
         "malformed Closed-today rows; structural fail-closed on any in-window malformed "
         "row) remain live in P-TODO.md. Dated 2026-09-05, after the 2026-07-15 rule."
     ),
+    ("P-1.70", "P-1.70 part-2b"): (
+        "PARTIAL CLOSE. PR #1996 closed part-2b (the mis-filed finding-row detector: D14 "
+        "fail-closed + hook warning) of the still-open P-1.70 umbrella; the L250 archive-row "
+        "reword and the warn-to-block posture decision remain. Dated 2026-09-05, after the "
+        "2026-07-15 rule."
+    ),
 }
 
 

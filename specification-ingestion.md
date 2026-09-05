@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Library Ingestion and Transformation Specification\
 **Document Type:** Specification\
-**Version:** 1.7.13\
-**Date:** 2026-08-08\
+**Version:** 1.7.14\
+**Date:** 2026-09-05\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md)\
@@ -114,6 +114,9 @@ supply-chain/  Supplier governance, third-party risk, cloud governance, supply-c
 compliance/    Compliance management, legal and regulatory obligations, audit governance,
                sector-specific requirements, and trade compliance controls registers.
 
+crypto/       Crypto-asset and blockchain governance: crypto-asset classification,
+              custody and key control, blockchain-platform vetting, staking, and smart-contract risk.
+
 risk/          Enterprise risk management, risk registers, key risk indicators, risk appetite,
                quantitative analysis, AI risk methodology, and third-party risk standards.
 
@@ -122,6 +125,9 @@ dev-security/  Secure development standards, DevOps security, software compositi
 
 operations/    IT operations, asset management, change management, configuration management,
                and security operations registers.
+
+architecture/  Enterprise architecture: framework, decision records, reference architectures,
+               integration and data architecture, and technology radar.
 ```
 
 The following directories and files exist in the repository but are not used for governance artefacts and are not in scope of this ingestion specification:

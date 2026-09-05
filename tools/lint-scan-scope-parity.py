@@ -43,7 +43,7 @@ a deliberate, rationale-bearing edit to this gate, not a silent drift.
 
 The gate also asserts the source of truth is intact:
 ``lint_common.AUDITED_DOMAIN_DIRS`` must contain exactly the expected
-twelve members (the eleven domain directories plus ``.project-governance``).
+thirteen members (the twelve domain directories plus ``.project-governance``).
 
 Usage:
     python3 tools/lint-scan-scope-parity.py [tools-dir]
@@ -66,7 +66,7 @@ TOOLS_DIR = Path(__file__).resolve().parent
 
 # A file with at least this many DISTINCT audited-domain-dir literals
 # appearing as standalone string-literal lines is treated as enumerating
-# the domain run. The real enumerations all carry eleven or twelve; a
+# the domain run. The real enumerations all carry twelve or thirteen; a
 # file that incidentally names one or two domain directories (a path
 # fragment, a single example) is well below the threshold.
 DECLARE_THRESHOLD = 6
@@ -117,6 +117,7 @@ EXPECTED_AUDITED = (
     "ai",
     "architecture",
     "compliance",
+    "crypto",
     "dev-security",
     "governance",
     ".project-governance",
@@ -145,7 +146,7 @@ def main(argv: list[str]) -> int:
     findings: list[str] = []
 
     # Source-of-truth integrity: AUDITED_DOMAIN_DIRS must be exactly the
-    # expected twelve members (order-independent membership check).
+    # expected thirteen members (order-independent membership check).
     if set(AUDITED_DOMAIN_DIRS) != set(EXPECTED_AUDITED):
         missing = set(EXPECTED_AUDITED) - set(AUDITED_DOMAIN_DIRS)
         extra = set(AUDITED_DOMAIN_DIRS) - set(EXPECTED_AUDITED)

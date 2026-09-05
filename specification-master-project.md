@@ -2,8 +2,8 @@
 
 **Document Title:** Master Project Specification\
 **Document Type:** Specification\
-**Version:** 1.6.22\
-**Date:** 2026-09-02\
+**Version:** 1.6.23\
+**Date:** 2026-09-05\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Risk Officer\
 **Related Documents:** [`specification-ingestion.md`](specification-ingestion.md), [`instruction-ai-document-ingestion.md`](instruction-ai-document-ingestion.md), [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md)\
@@ -91,6 +91,7 @@ Top-level structure for governance artefacts:
 /resilience/
 /supply-chain/
 /compliance/
+/crypto/
 /risk/
 /dev-security/
 /operations/
@@ -155,6 +156,7 @@ Documents subject to this specification are placed only in the governance-artefa
 | `resilience/` | Business continuity, disaster recovery, crisis management, incident response, resilience testing, and recovery governance |
 | `supply-chain/` | Supplier governance, third-party risk, cloud governance, supply-chain security, trade compliance programmes, and service-provider assurance |
 | `compliance/` | Compliance management, legal and regulatory obligations, audit governance, sector-specific annexes, and trade compliance controls |
+| `crypto/` | Crypto-asset and blockchain governance: crypto-asset classification, custody and key control, blockchain-platform vetting, staking governance, and smart-contract risk. |
 | `risk/` | Enterprise risk management, risk registers, KRIs, risk appetite, quantitative analysis, AI risk methodology, and third-party risk standards |
 | `dev-security/` | Secure development standards, DevOps security, software composition analysis, developer quick references |
 | `operations/` | IT operations, asset management, change management, configuration management, and security operations registers |

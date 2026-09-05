@@ -2,8 +2,8 @@
 
 **Document Title:** Role Authority Register\
 **Document Type:** Register\
-**Version:** 1.5.10\
-**Date:** 2026-08-30\
+**Version:** 1.5.11\
+**Date:** 2026-09-05\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md)\
@@ -41,6 +41,7 @@ This register defines generic governance roles used across the GRC Documentation
 | Chief Audit Executive | Internal audit function head; audit planning, audit assurance, and audit-committee reporting. | Audit plan, audit charter, audit findings. |
 | AI Governance Lead | Umbrella AI governance role chairing the AI governance function and coordinating the AI Governance Approver, AI Data Steward, and AI System Inventory Keeper. Typically the AI Governance Council secretariat. | AI governance framework, AI impact assessment, AI exceptions. |
 | AI Governance Approver | Approval decisions for AI policies, frameworks, standards, deployment gates, foundation-model selection, risk-classification approvals, and material lifecycle changes. | AI policy approvals, deployment decisions, AI exception co-approval (in addition to the risk-tier approver under [`policy-exception-and-risk-acceptance-management.md`](policy-exception-and-risk-acceptance-management.md) §4.2.2), model-selection sign-off. |
+| Crypto-Asset Governance Approver | Approval decisions for crypto-asset and blockchain governance: crypto-asset classification, custody and key-control arrangements, blockchain-platform adoption, staking programmes, and smart-contract deployment. | Crypto-asset activity approvals, platform-adoption sign-off, crypto-asset exception co-approval (with the risk-tier approver under [`policy-exception-and-risk-acceptance-management.md`](policy-exception-and-risk-acceptance-management.md) section 4.2.2). |
 | AI Data Steward | Training-data governance, dataset acceptance, deletion-propagation, lineage tracking, sensitive-content controls, and dataset documentation (datasheets). | Dataset acceptance, deletion authorization, lineage records. |
 | AI System Inventory Keeper | Ownership of the AI System Inventory, the authoritative system-of-record for all AI models and systems; downstream of it, maintenance of the AI System Register (the system-scoped view), the Model Registry (the model-scoped view), the MCP server register, model cards, system cards, and cross-references between AI inventories and adjacent registers (ADM, resilience, supplier). | Authoritative AI System Inventory updates, model card and system card maintenance, register reconciliation. |
 | Legal Counsel | Legal interpretation, contractual obligations, regulatory privilege, and legal risk review. | Legal position statements, regulatory interpretation, contract exceptions. |

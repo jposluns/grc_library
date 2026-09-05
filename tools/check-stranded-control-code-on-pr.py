@@ -172,7 +172,7 @@ def in_scope(rel: str) -> bool:
         return False
     top = rel.split("/", 1)[0]
     CORPUS = {
-        "ai", "architecture", "compliance", "dev-security", "governance",
+        "ai", "architecture", "compliance", "crypto", "dev-security", "governance",
         "operations", "privacy", "resilience", "risk", "security", "supply-chain",
     }
     return "/" in rel and top in CORPUS

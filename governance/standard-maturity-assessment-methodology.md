@@ -2,8 +2,8 @@
 
 **Document Title:** Maturity Assessment Methodology Standard\
 **Document Type:** Standard\
-**Version:** 1.0.2\
-**Date:** 2026-08-05\
+**Version:** 1.0.3\
+**Date:** 2026-09-05\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/framework-governance-performance-and-improvement.md`](framework-governance-performance-and-improvement.md), [`docs/template-maturity-self-assessment.md`](../docs/template-maturity-self-assessment.md), [`governance/register-digital-trust-and-assurance-metrics.md`](register-digital-trust-and-assurance-metrics.md), [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`docs/maturity-scorecard.md`](../docs/maturity-scorecard.md)\
@@ -31,7 +31,7 @@ It is the authoritative methodology reference behind the maturity-assessment sec
 
 ## 2. Scope
 
-1. Applies to programme-maturity assessment across all governance domains: governance, risk, compliance, privacy, security, operations, resilience, supply chain, architecture, developer security, and AI.
+1. Applies to programme-maturity assessment across all governance domains: governance, risk, compliance, crypto, privacy, security, operations, resilience, supply chain, architecture, developer security, and AI.
 2. Covers the maturity ladder, the aggregation method, its outlier-masking limitation, and the compensating floor-check.
 3. Governs **programme maturity** (how mature an organization's use of the governance programme is), not **document maturity** (the stability classification the generated scorecard assigns each library document). The two are distinguished in section 8.
 4. Documents the existing maturity-level model. It does not introduce process capability levels, which are a distinct model (section 9).

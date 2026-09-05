@@ -85,6 +85,7 @@ AUDIENCES: list[tuple[str, str, list[dict]]] = [
             {"domain": "governance"},
             {"domain": "risk", "type": ("Standard", "Procedure", "Guideline", "Register", "Template", "Annex")},
             {"domain": "compliance"},
+            {"domain": "crypto"},
             {"domain": "ai", "type": ("Charter",)},
         ],
     ),
@@ -96,6 +97,7 @@ AUDIENCES: list[tuple[str, str, list[dict]]] = [
             {"domain": "ai", "type": ("Standard", "Framework", "Guide", "Guideline", "Procedure")},
             {"path_prefix": "security/framework-"},
             {"path_prefix": "security/standard-"},
+            {"domain": "crypto", "type": ("Framework", "Standard", "Procedure")},
             {"title_regex": r"Reverse Framework"},
             {"title_regex": r"Cross-Framework Alignment"},
         ],
@@ -112,6 +114,7 @@ AUDIENCES: list[tuple[str, str, list[dict]]] = [
         "The Chief Compliance Officer needs the compliance and audit policies, the regulatory applicability register, sector annexes, trade-compliance registers, the audit programme, every AI jurisdiction annex, and the reverse framework crosswalk (GDPR / EU AI Act / DORA / NIS 2 mappings).",
         [
             {"domain": "compliance"},
+            {"domain": "crypto"},
             {"path_prefix": "ai/jurisdictions/"},
             {"title_regex": r"Reverse Framework"},
         ],

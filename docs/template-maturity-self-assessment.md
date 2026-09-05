@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Maturity Self-Assessment Template\
 **Document Type:** Template\
-**Version:** 1.1.1\
-**Date:** 2026-07-06\
+**Version:** 1.1.2\
+**Date:** 2026-09-05\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/adopter-guide.md`](adopter-guide.md), [`docs/template-quickstart.md`](template-quickstart.md), [`docs/template-startup-roadmap.md`](template-startup-roadmap.md), [`docs/maturity-scorecard.md`](maturity-scorecard.md), [`governance/standard-maturity-assessment-methodology.md`](../governance/standard-maturity-assessment-methodology.md), [`docs/decision-tree.md`](decision-tree.md), [`README.md`](../README.md)\
@@ -59,13 +59,13 @@ The methodology behind this ladder, the median-of-medians aggregation used below
 ## How to use this template
 
 1. **Copy this file into your own corpus** as `adopter-maturity-self-assessment.md` (or a project-specific name). Replace the placeholder header values with the assessment date and the assessor name.
-2. **Work through each domain section below** in order. The domains follow the library's 11-domain structure. For each domain, answer the 5 to 8 questions by placing your tier in the response column.
+2. **Work through each domain section below** in order. The domains follow the library's 12-domain structure. For each domain, answer the 5 to 8 questions by placing your tier in the response column.
 3. **Score the domain** by taking the median of the per-question tiers. Median, not mean, so a single low score does not drag the median; conversely a single high score does not inflate it.
 4. **Score the overall programme** by taking the median of the per-domain scores.
 5. **Record the assessment date** and the assessor's name in the header. Keep prior assessments alongside the current one so progression is visible year over year.
 6. **Use the per-tier next-step guidance** at the end of the document to prioritize the next investment.
 
-A complete self-assessment for a single-domain or single-jurisdiction programme typically takes 1 to 2 hours. A full 11-domain assessment for a multi-national programme typically takes 1 to 2 days, often split across owners by domain.
+A complete self-assessment for a single-domain or single-jurisdiction programme typically takes 1 to 2 hours. A full 12-domain assessment for a multi-national programme typically takes 1 to 2 days, often split across owners by domain.
 
 ---
 
@@ -228,6 +228,23 @@ Per-statement scoring (apply to each statement above):
 
 ---
 
+### Section 12: Crypto-Asset Governance domain
+
+(Skip this section if the organization does not hold, use, issue, or service crypto-assets or operate blockchain platforms. Otherwise complete it.)
+
+| # | Statement | Your tier | Notes |
+| --- | --- | --- | --- |
+| CR1 | A crypto-asset governance framework and an activity-approval gate are in place. | _ | |
+| CR2 | Every crypto-asset is classified before it is issued, offered, custodied, traded, or used. | _ | |
+| CR3 | A current inventory records crypto-assets held, wallets, custody arrangements, platforms, and deployed smart contracts. | _ | |
+| CR4 | Blockchain platforms are vetted (permission model, consensus, fork governance, data visibility) before adoption. | _ | |
+| CR5 | Digital-asset custody and key control relate to the cryptographic key-lifecycle controls, with segregation and defined client-agreement terms where assets are held for others. | _ | |
+| CR6 | Smart-contract and staking risks are assessed within enterprise risk management before deployment or participation. | _ | |
+
+**Domain Crypto-Asset Governance score (median):** _
+
+---
+
 ## Overall programme tier
 
 **Overall programme tier (median of all completed domain scores):** _
@@ -309,6 +326,7 @@ Domain scores:
 - Architecture: <tier>
 - DevSecOps: <tier>
 - AI (if in scope): <tier>
+- Crypto-Asset Governance (if in scope): <tier>
 
 Overall tier: <median>
 

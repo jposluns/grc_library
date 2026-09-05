@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.164\
+**Version:** 1.27.165\
 **Date:** 2026-09-05\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -102,6 +102,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Compliance | Procedure | Audit Planning Procedure | [`compliance/procedure-audit-planning.md`](../compliance/procedure-audit-planning.md) | Chief Audit Executive | Annual | Risk-based audit plan, annual scheduling, ERC approval, evidence retention | template |
 | Compliance | Procedure | Corrective and Preventive Action (CAPA) Procedure | [`compliance/procedure-capa.md`](../compliance/procedure-capa.md) | Chief Information Security Officer | Annual | ISO 9001 §10.2, ISO/IEC 27001 §10.2, root cause analysis, CAPA lifecycle | template |
 | Compliance | Procedure | UK AEO IT Self-Assessment Procedure | [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](../compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md) | Chief Information Security Officer | Annual | HMRC AEO-S, WCO SAFE Framework, ISO/IEC 27001 §9.1, IT self-assessment | template |
+| Crypto | Framework | Crypto-Asset Governance Framework | [`crypto/framework-crypto-asset-governance.md`](../crypto/framework-crypto-asset-governance.md) | Crypto-Asset Governance Approver | 6 to 12 months | Crypto-asset classification, custody, blockchain risk | template |
 | Security | Policy | Information Security Policy | [`security/policy-information-security.md`](../security/policy-information-security.md) | Chief Information Security Officer | Annual | ISO/IEC 27001, NIST CSF, COBIT DSS, CSA CCM, BASC Security Standard §5 | template |
 | Security | Policy | Identity and Access Management Policy | [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.5.15 to 18, NIST SP 800-63, CSA CCM IAM | template |
 | Security | Policy | Acceptable Use Policy | [`security/policy-acceptable-use.md`](../security/policy-acceptable-use.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.5.10, NIST SP 800-53 PL-4, CSA CCM HRS | template |

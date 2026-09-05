@@ -64,7 +64,7 @@ TOOL_DIR = Path(__file__).resolve().parent
 TOOL_REPO_ROOT = TOOL_DIR.parent
 MARKER = "DISPOSABLE-COPY-OK"
 CORPUS_DIRS = (
-    "ai", "architecture", "compliance", "dev-security", "governance",
+    "ai", "architecture", "compliance", "crypto", "dev-security", "governance",
     "operations", "privacy", "resilience", "risk", "security", "supply-chain",
 )
 

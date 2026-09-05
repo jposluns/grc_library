@@ -2,8 +2,8 @@
 
 **Document Title:** Governance Performance and Improvement Framework\
 **Document Type:** Framework\
-**Version:** 1.0.12\
-**Date:** 2026-08-30\
+**Version:** 1.0.13\
+**Date:** 2026-09-05\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`governance/register-digital-trust-and-assurance-metrics.md`](register-digital-trust-and-assurance-metrics.md), [`governance/standard-maturity-assessment-methodology.md`](standard-maturity-assessment-methodology.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -24,7 +24,7 @@ This framework defines the processes and performance mechanisms used to measure,
 
 ## Scope
 
-Applies to all governance domains: governance, risk, compliance, security, privacy, AI, resilience, supply chain, operations, architecture, and developer security.
+Applies to all governance domains: governance, risk, compliance, crypto, security, privacy, AI, resilience, supply chain, operations, architecture, and developer security.
 
 ---
 
