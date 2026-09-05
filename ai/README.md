@@ -2,8 +2,8 @@
 
 **Document Title:** AI Governance Domain README\
 **Document Type:** Register\
-**Version:** 1.1.21\
-**Date:** 2026-09-04\
+**Version:** 1.1.22\
+**Date:** 2026-09-05\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md)\
@@ -52,6 +52,7 @@ AI documents in this repository treat data as the primary risk surface. They add
 | Guide | AI Security Technical Implementation Guide | [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md) |
 | Guide | AI Adversarial Test Reference | [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md) |
 | Framework | AI System Audit and Certification Framework | [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md) |
+| Framework | AI Assurance Evidence and Attestation Framework | [`ai/framework-ai-assurance-evidence.md`](framework-ai-assurance-evidence.md) |
 | Checklist | AI Algorithmic Compliance Checklist | [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md) |
 | Charter | AI Governance Council Charter | [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md) |
 | Charter | AI Actor Role and Forum Standing Charter | [`ai/charter-ai-actor-role-and-forum-standing.md`](charter-ai-actor-role-and-forum-standing.md) |

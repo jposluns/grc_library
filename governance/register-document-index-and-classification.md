@@ -2,8 +2,8 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.160\
-**Date:** 2026-09-04\
+**Version:** 1.27.161\
+**Date:** 2026-09-05\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md)\
@@ -222,6 +222,7 @@ Documents are classified by their **primary** disposition. The small number that
 | AI | Annex | Singapore Model AI Governance Framework for Generative AI | [`ai/jurisdictions/annex-ai-singapore.md`](../ai/jurisdictions/annex-ai-singapore.md) | Chief Information Security Officer | Annual | Singapore Model AI Governance Framework for Generative AI, NIST AI RMF, ISO/IEC 42001 | template |
 | AI | Annex | California CCPA Automated Decision-Making Technology (ADMT) Regulatory Requirements | [`ai/jurisdictions/annex-ai-us-california.md`](../ai/jurisdictions/annex-ai-us-california.md) | Chief Information Security Officer | Annual | CCPA/CPRA (Cal. Civ. Code 1798.100 et seq.), CPPA CCPA Regulations 11 CCR Div 6 Ch 1 Art 11 (ADMT), NIST AI RMF, ISO/IEC 42001 | template |
 | AI | Framework | AI System Audit and Certification Framework | [`ai/framework-ai-system-audit-certification.md`](../ai/framework-ai-system-audit-certification.md) | Chief Information Security Officer | 6 to 12 months | ISO/IEC 42001, EU AI Act Chapter IX, NIST AI RMF, ISO/IEC 42006:2025, CSA AICM | template |
+| AI | Framework | AI Assurance Evidence and Attestation Framework | [`ai/framework-ai-assurance-evidence.md`](../ai/framework-ai-assurance-evidence.md) | Chief Information Security Officer | 6 to 12 months | NIST AI RMF, ETSI EN 304 223, ISO/IEC 42001 | template |
 | AI | Checklist | AI Algorithmic Compliance Checklist | [`ai/checklist-ai-algorithmic-compliance.md`](../ai/checklist-ai-algorithmic-compliance.md) | Chief Information Security Officer | 6 to 12 months | EU AI Act, NIST AI RMF, OWASP LLM Top 10, MITRE ATLAS, ISO/IEC 42001 | template |
 | Dev Security | Standard | Developer Security Requirements Standard | [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md) | Chief Information Security Officer | 6 to 12 months | OWASP Top 10, ISO/IEC 27001 Annex A.8.25 to 28, NIST SP 800-218 | template |
 | Dev Security | Standard | DevOps Security Requirements Standard | [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md) | Chief Information Security Officer | 6 to 12 months | NIST SP 800-218, SLSA, CIS Benchmarks, OWASP SAMM | template |

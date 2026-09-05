@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-portal.py`.
 **Document Title:** Adopter Portal\
 **Document Type:** Guide\
 **Version:** 1.3.1\
-**Date:** 2026-09-04\
+**Date:** 2026-09-05\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/maturity-scorecard.md`](maturity-scorecard.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md)\
@@ -361,6 +361,7 @@ Security architects need the dev-security standards, the AI security guides, the
 
 ### Framework
 
+- [AI Assurance Evidence and Attestation Framework](../ai/framework-ai-assurance-evidence.md) (maturity: Baseline)
 - [AI Governance and Risk Framework](../ai/framework-ai-governance-and-risk.md) (maturity: Mature)
 - [AI Maturity Model Framework](../ai/framework-ai-maturity-model.md) (maturity: Draft)
 - [AI Model Documentation and Transparency Framework](../ai/framework-ai-model-documentation-and-transparency.md) (maturity: Baseline)
