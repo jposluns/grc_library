@@ -2,8 +2,8 @@
 
 **Document Title:** Worked Example: Adopting the Library into a Running Programme\
 **Document Type:** Guide\
-**Version:** 1.0.0\
-**Date:** 2026-07-08\
+**Version:** 1.0.1\
+**Date:** 2026-09-05\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/worked-example.md`](worked-example.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/template-quickstart.md`](template-quickstart.md), [`docs/template-startup-roadmap.md`](template-startup-roadmap.md), [`docs/template-implementation-roadmap.md`](template-implementation-roadmap.md), [`docs/decision-tree.md`](decision-tree.md)\
@@ -30,7 +30,7 @@ The adopter follows the [`docs/adopter-guide.md`](adopter-guide.md) quick start:
 
 ## Step 2: Copy the Day-1 six-artefact floor
 
-Before composing anything larger, the adopter takes the Day-1 floor named in [`docs/template-quickstart.md`](template-quickstart.md). It is six artefacts, and it is a strict subset of the adopter guide's 17-document Tier 1 set:
+Before composing anything larger, the adopter takes the Day-1 floor named in [`docs/template-quickstart.md`](template-quickstart.md). It is six artefacts, and their fixed documents are all within the adopter guide's 17-document Tier 1 set; the one exception is the adopter-specific home-jurisdiction annex bundled with the privacy artefact, which the fixed Tier 1 set does not include:
 
 - [`security/policy-information-security.md`](../security/policy-information-security.md)
 - [`security/policy-acceptable-use.md`](../security/policy-acceptable-use.md)
