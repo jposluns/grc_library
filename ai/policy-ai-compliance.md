@@ -2,7 +2,7 @@
 
 **Document Title:** AI Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.28\
+**Version:** 1.0.29\
 **Date:** 2026-09-05\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -187,7 +187,7 @@ Key compliance obligations:
 
 Canada has no in-force federal AI statute. The Artificial Intelligence and Data Act (AIDA), introduced as Part 3 of Bill C-27, lapsed when that bill died at the January 2025 prorogation and, per the June 2025 ministerial statement, will not return in its original form (Section 1.1). Pending a successor, where the organization operates in Canada or processes data in connection with Canadian operations it aligns to the in-force Canadian instruments:
 
-- **Treasury Board Directive on Automated Decision-Making**, the mandatory federal instrument governing automated decision systems. It binds federal government institutions subject to the Policy on Service and Digital; other organizations use it as a leading-practice benchmark. Where the organization is a federal institution or delivers automated decisions on behalf of one, it complies with the Directive's requirements, using the **Algorithmic Impact Assessment (AIA)** tool to classify and document each automated decision system by impact level.
+- **Treasury Board Directive on Automated Decision-Making**, the mandatory federal instrument governing automated decision systems. It binds federal government institutions subject to the Policy on Service and Digital; other organizations use it as a leading-practice benchmark. Where the organization is such an in-scope institution or delivers automated decisions on behalf of one, it complies with the Directive's requirements, using the **Algorithmic Impact Assessment (AIA)** tool to classify and document each automated decision system by impact level.
 - **ISED Voluntary Code of Conduct on the Responsible Development and Management of Advanced Generative AI Systems (2023)**, the voluntary code for advanced generative-AI systems. The organization adopts its commitments (accountability; safety; fairness and equity; transparency; human oversight and monitoring; and validity and robustness) for generative-AI systems it develops or manages, pending binding legislation.
 - The federal Personal Information Protection and Electronic Documents Act (PIPEDA) remains the private-sector privacy law governing personal data used in AI systems.
 

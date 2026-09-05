@@ -2,7 +2,7 @@
 
 **Document Title:** Canada AI Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.5\
+**Version:** 1.0.6\
 **Date:** 2026-09-05\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -30,7 +30,7 @@ Canada has no omnibus AI law in force. Federal AI governance rests on a binding 
 
 ## Federal public-sector automated decision-making: the Treasury Board Directive
 
-The **Treasury Board of Canada Secretariat (TBS) Directive on Automated Decision-Making** applies to institutions subject to the Treasury Board Policy on Service and Digital that use an automated decision system to make an administrative decision about a client; other departments and separate agencies are encouraged to meet its requirements as good practice. It is **in force**: it took effect on 1 April 2019, with compliance required by 1 April 2020, and applies to automated decision systems developed or procured after 1 April 2020. Following its fourth review, the Directive was amended; existing automated decision systems developed or procured before 24 June 2025 had until 24 June 2026 to meet the new or updated requirements, a transition period that has since ended. (The 24 June 2025 date is a compliance-transition date for the updated requirements, not the Directive's in-force date, which is 2019.) The Directive is reviewed on a defined cycle.
+The **Treasury Board of Canada Secretariat (TBS) Directive on Automated Decision-Making** applies to institutions subject to the Treasury Board Policy on Service and Digital that use an automated decision system to make an administrative decision or a related assessment about a client; other departments and separate agencies are encouraged to meet its requirements as good practice. It is **in force**: it took effect on 1 April 2019, with compliance required by 1 April 2020, and applies to automated decision systems developed or procured after 1 April 2020. Following its fourth review, the Directive was amended; existing automated decision systems developed or procured before 24 June 2025 had until 24 June 2026 to meet the new or updated requirements, a transition period that has since ended. (The 24 June 2025 date is a compliance-transition date for the updated requirements, not the Directive's in-force date, which is 2019.) The Directive is reviewed on a defined cycle.
 
 The Directive requires the following, some obligations scaled to the impact level and others applied as a baseline: an Algorithmic Impact Assessment; transparency (notice before the decision, a meaningful explanation after it, and access to system components); quality assurance (testing, monitoring, data quality and governance, peer review, Gender-Based Analysis Plus, employee training, security, and legal review); recourse; and reporting. At the two highest impact levels the final decision must be made by a human. The TBS Guide on the Scope of the Directive sets out the five cumulative elements that bring a system into scope: use by a department; development after 1 April 2020; use within an administrative decision-making process; the system replacing or assisting a judgment; and use in a production environment.
 
@@ -68,7 +68,7 @@ The **Office of the Superintendent of Financial Institutions (OSFI) Guideline E-
 
 ## Adopter-role framing
 
-- A **federal government institution subject to the Policy on Service and Digital** that uses an automated decision system for administrative decisions is bound by the Treasury Board Directive and completes the AIA (others are encouraged to meet it as good practice).
+- A **federal government institution subject to the Policy on Service and Digital** that uses an automated decision system for administrative decisions or related assessments is bound by the Treasury Board Directive and completes the AIA (others are encouraged to meet it as good practice).
 - An organization **developing or managing advanced generative AI** may commit to the ISED Voluntary Code (voluntary).
 - A **federal government institution** adopting AI for its own operations follows the AI Strategy for the Federal Public Service 2025-2027 (a strategy and policy direction, not an obligation on an external adopter); its AI systems appear in the Government of Canada AI Register.
 - A **federally regulated financial institution** prepares for OSFI Guideline E-23 (effective 1 May 2027).
