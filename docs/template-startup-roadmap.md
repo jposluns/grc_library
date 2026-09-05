@@ -2,7 +2,7 @@
 
 **Document Title:** Adopter Startup Roadmap Template\
 **Document Type:** Template\
-**Version:** 2.2.10\
+**Version:** 2.2.11\
 **Date:** 2026-09-05\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -140,6 +140,7 @@ Triggered by holding or transacting crypto-assets, issuing or offering them, run
 
 Adopt:
 - [`crypto/framework-crypto-asset-governance.md`](../crypto/framework-crypto-asset-governance.md): the domain anchor (crypto-asset classification, platform and technology model, risk domains, governance requirements).
+- [`crypto/standard-digital-asset-custody.md`](../crypto/standard-digital-asset-custody.md): if you hold crypto-assets, or the means of access to them, on behalf of clients or other third parties.
 - [`compliance/financial-services/annex-mica-implementation.md`](../compliance/financial-services/annex-mica-implementation.md): if in scope of the EU MiCA regime.
 - [`security/framework-cryptographic-key-lifecycle.md`](../security/framework-cryptographic-key-lifecycle.md): digital-asset key custody relates to the cryptographic key controls.
 

@@ -2,7 +2,7 @@
 
 **Document Title:** Adopter Guide\
 **Document Type:** Guide\
-**Version:** 1.3.20\
+**Version:** 1.3.21\
 **Date:** 2026-09-05\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -105,7 +105,7 @@ Use this to decide which domains and sector annexes your organization needs.
 | Does the organization participate in CTPAT, AEO, AEO-S, or PIP trade programmes? | The relevant programme annexes in `compliance/` | The non-relevant trade-compliance annexes |
 | Does the organization operate in a sector with sector-specific regulation (financial services, healthcare, transportation/logistics, telecoms, energy/utilities, public sector)? | The corresponding `compliance/annex-*` | Non-relevant sector annexes |
 | Does the organization operate under SOX or equivalent financial reporting controls? | [`compliance/financial-services/annex-sox-itgc.md`](../compliance/financial-services/annex-sox-itgc.md) | This annex |
-| Does the organization hold, use, issue, or service crypto-assets, or operate blockchain platforms? | [`crypto/framework-crypto-asset-governance.md`](../crypto/framework-crypto-asset-governance.md) (plus the MiCA annex if in EU scope) | Skip `crypto/`. |
+| Does the organization hold, use, issue, or service crypto-assets, or operate blockchain platforms? | [`crypto/framework-crypto-asset-governance.md`](../crypto/framework-crypto-asset-governance.md) (plus [`crypto/standard-digital-asset-custody.md`](../crypto/standard-digital-asset-custody.md) if you hold client crypto-assets, and the MiCA annex if in EU scope) | Skip `crypto/`. |
 | Does the organization operate under DORA, NIS 2, or equivalent EU resilience regulation? | The corresponding implementation annex in `compliance/` | These annexes |
 | Does the organization have a software development practice? | `dev-security/` domain | Most of dev-security/ (keep the policy as reference) |
 | Does the organization have a formal architecture practice? | `architecture/` domain | Most of architecture/ (keep ADR standard as a useful reference regardless) |
