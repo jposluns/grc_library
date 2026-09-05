@@ -2,8 +2,8 @@
 
 **Document Title:** Kenya Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.5\
-**Date:** 2026-07-02\
+**Version:** 1.0.6\
+**Date:** 2026-09-05\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -49,8 +49,8 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Enforcement and fines
 
-- Civil fines up to KES 3 million (approximately USD 23,000) per violation.
-- Criminal offences: imprisonment up to 10 years for the most serious violations.
+- Administrative fines (ODPC penalty notice): up to KES 5 million, or one per cent of an undertaking's annual turnover, whichever is lower (Data Protection Act 2019, s. 63).
+- General penalty on conviction: for an offence with no specific penalty, a fine up to KES 3 million or imprisonment up to 10 years, or both (s. 73).
 - The ODPC may issue compliance notices, enforcement notices, and assessment notices.
 
 ---
