@@ -222,7 +222,7 @@ documents:
   domain: "ai"
   type: "Framework"
   title: "AI Assurance Evidence and Attestation Framework"
-  version: "1.0.0"
+  version: "1.0.1"
   date: "2026-09-05"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"
