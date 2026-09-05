@@ -2,7 +2,7 @@
 
 **Document Title:** Adopter Guide\
 **Document Type:** Guide\
-**Version:** 1.3.21\
+**Version:** 1.3.22\
 **Date:** 2026-09-05\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -119,7 +119,7 @@ Most adopting organizations cannot operate all of the library's controls on day 
 
 ### Tier 1 starter set (minimum viable)
 
-If your organization is small (under approximately 200 staff, low regulatory exposure, no high-risk AI in production), start with these 17 documents and operate them well before adding more (the Governance Library Charter among them is read for orientation rather than operated, as noted below). This Tier 1 set is a strict superset of the six-artefact Day-1 floor named in [`docs/template-quickstart.md`](template-quickstart.md): it contains all six floor artefacts, including the acceptable-use and identity-and-access-management policies. Tier 1 in turn sits within the larger sector-conditional sets the [`docs/decision-tree.md`](decision-tree.md) builds (for example about 25 documents for an EU-fintech path). The three sizes are progressively-nested, complementary starting points rather than competing ones.
+If your organization is small (under approximately 200 staff, low regulatory exposure, no high-risk AI in production), start with these 17 documents and operate them well before adding more (the Governance Library Charter among them is read for orientation rather than operated, as noted below). This Tier 1 set contains all six artefacts in the Day-1 floor named in [`docs/template-quickstart.md`](template-quickstart.md), with one qualification: the privacy artefact bundles the privacy policy with an adopter-specific home-jurisdiction annex, and that annex is not part of the fixed Tier 1 set. Tier 1 in turn sits within the larger sector-conditional sets the [`docs/decision-tree.md`](decision-tree.md) builds (for example about 25 documents for an EU-fintech path). Across their fixed documents the three sizes are progressively-nested, complementary starting points rather than competing ones, with the adopter's home-jurisdiction annex the one Day-1 piece the fixed sets leave to them.
 
 **Approximate reading time**: 5 to 7 hours to read all 17 documents once at a moderate pace; substantially longer to internalize. **If you only read three** to get an immediate orientation, pick the three Governance documents in the table below (Charter + Framework + Role Authority Register); they ground the structure that the rest of Tier 1 operationalizes. The Charter is `library-internal` per the document-index register ([`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md)): it documents how this library governs itself, not an artefact you fork, so read it for orientation and then keep it as reference or delete it. The Framework and Role Authority Register are the two of the three you adapt as your own deliverables.
 

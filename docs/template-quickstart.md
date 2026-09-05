@@ -2,7 +2,7 @@
 
 **Document Title:** Adopter Quickstart Template\
 **Document Type:** Template\
-**Version:** 3.0.9\
+**Version:** 3.0.10\
 **Date:** 2026-09-05\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -42,7 +42,7 @@ Every adopter needs these three things in the first session, regardless of size 
 
 3. **Point at the portal.** Browse [`docs/portal.md`](portal.md) to see which other documents fit your audience (CIO, CISO, DPO (Data Protection Officer), auditor, engineering team, etc.). Take only the documents that match your sector, jurisdiction, and operating model.
 
-That is the quickstart. An organization that has done these three things has a defensible floor. These six artefacts are the Day-1 floor, and all six now also appear in the adopter guide's 17-document Tier 1 set, so the Day-1 floor is a strict subset of Tier 1. The Day-1 floor, the Tier 1 set, and the sector-conditional sets the decision tree builds are progressively-nested, complementary starting points rather than competing ones.
+That is the quickstart. An organization that has done these three things has a defensible floor. These six artefacts are the Day-1 floor. All six are represented in the adopter guide's 17-document Tier 1 set; the only piece not in the fixed set is the home-jurisdiction annex that the privacy artefact bundles alongside the privacy policy, which is adopter-specific. The Day-1 floor's fixed documents, the Tier 1 set, and the sector-conditional sets the decision tree builds are progressively-nested, complementary starting points rather than competing ones, and the home-jurisdiction annex is the one adopter-specific file the fixed sets leave to you.
 
 ---
 
