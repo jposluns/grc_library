@@ -2,8 +2,8 @@
 
 **Document Title:** Nigeria Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.3\
-**Date:** 2026-07-02\
+**Version:** 1.0.4\
+**Date:** 2026-09-05\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -49,7 +49,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Enforcement and fines
 
-- Administrative fines up to 2% of annual gross revenue or USD 10 million (whichever is higher) for violations.
+- Administrative sanctions (NDPA 2023, s. 48): a penalty may be up to, for a data controller or processor of major importance, the greater of NGN 10 million or 2% of its annual gross revenue in the preceding financial year, and for others, the greater of NGN 2 million or 2% of its annual gross revenue in the preceding financial year.
 - The NDPC may issue orders for cessation of processing, data deletion, and mandatory public disclosure.
 
 ---
