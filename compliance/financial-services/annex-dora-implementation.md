@@ -2,8 +2,8 @@
 
 **Document Title:** DORA Implementation Annex\
 **Document Type:** Annex\
-**Version:** 0.0.8\
-**Date:** 2026-09-04\
+**Version:** 0.0.9\
+**Date:** 2026-09-05\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/financial-services/annex-financial-services-sector-requirements.md`](annex-financial-services-sector-requirements.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
@@ -30,10 +30,10 @@ DORA applies to a broad set of financial entities established in the EU. The lib
 
 1. Credit institution, payment institution, electronic money institution, account information service provider.
 2. Investment firm, central securities depository, central counterparty, trading venue.
-3. Trade repository, credit rating agency, administrator of critical benchmarks, crowdfunding service provider.
-4. Insurance and reinsurance undertaking, insurance intermediary, institution for occupational retirement provision.
+3. Trade repository, securitization repository, credit rating agency, administrator of critical benchmarks, crowdfunding service provider, crypto-asset service provider (authorized under the Markets in Crypto-Assets Regulation), and issuer of asset-referenced tokens.
+4. Insurance and reinsurance undertaking, insurance intermediary, reinsurance intermediary, ancillary insurance intermediary, institution for occupational retirement provision.
 5. Manager of alternative investment fund, management company, data reporting service provider.
-6. Critical ICT third-party service provider designated by the ESAs.
+6. ICT third-party service provider (point (u)); those the ESAs designate as Critical (CTPPs) are additionally subject to the EU Oversight Framework.
 
 The micro-enterprise carve-out and the simplified ICT risk management framework apply to a defined subset; consult Article 16 and the related RTS for the exact thresholds.
 
