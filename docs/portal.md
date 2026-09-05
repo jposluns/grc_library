@@ -558,6 +558,7 @@ The Chief Compliance Officer needs the compliance and audit policies, the regula
 - [FedRAMP Sector Requirements Annex](../compliance/public-sector/annex-fedramp-requirements.md) (maturity: Draft)
 - [Financial Services Sector GRC Requirements Annex](../compliance/financial-services/annex-financial-services-sector-requirements.md) (maturity: Baseline)
 - [Healthcare Sector GRC Requirements Annex](../compliance/healthcare/annex-healthcare-sector-requirements.md) (maturity: Mature)
+- [Illinois AI in Employment (HB 3773) Regulatory Requirements](../ai/jurisdictions/annex-ai-us-illinois.md) (maturity: Draft)
 - [Logistics Sector GRC Requirements Annex](../compliance/logistics/annex-logistics-sector-requirements.md) (maturity: Baseline)
 - [MiCA Implementation Annex](../compliance/financial-services/annex-mica-implementation.md) (maturity: Draft)
 - [NIS 2 Implementation Annex](../compliance/annex-nis-2-implementation.md) (maturity: Mature)
