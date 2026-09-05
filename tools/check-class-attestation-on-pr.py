@@ -35,17 +35,18 @@ resolved through lint_common.resolve_working, so on public CI and adopter clones
 legitimately ABSENT and the gate no-ops (exit 0), the same graceful degradation every
 `.working/`-reading gate takes; the fail-closed property therefore binds where the ledger
 exists, the maintainer's pre-push runner. Residue, stated honestly (codex/claude QA #1989
-iter-2): a MALFORMED row (an unescaped pipe shifted its columns) has no trustworthy Found
-or Disposition cell and is NOTED, not failed, here. For a malformed row in `## Open` the
-open-findings hook forces it to a blocking error at `gh pr create` / `gh pr merge` time, so
-that case has a backstop. A malformed row in `## Closed today` has NO such backstop (the
-hook's blocking path is `## Open`-only), so a malformed FIXED class row moved to Closed
-while corrupt is a KNOWN, disclosed residue of this note-and-skip choice. Closing it
-properly (fail this gate closed on any in-window malformed row, after first repairing the
-pre-existing malformed Closed rows so the gate does not red-light on unrelated legacy
-corruption) is tracked as P-1.70; it is not done here because the pre-existing malformed
-rows are irregular and their columns cannot be re-assigned deterministically in an
-unattended run.
+iter-2; CLOSED by P-1.70 parts 1-2, #1994 follow-up): a MALFORMED row (cell count != 5 after
+border-trim) has no trustworthy cell, so the parser blanks its Found and nulls its Disposition.
+This gate now FAILS-CLOSED on any such row in either scanned section (no in_window call: the
+blanked Found cannot be trusted), after the 6 pre-existing malformed `## Closed today` rows were
+repaired (the appended-disposition shape, not an unescaped pipe). The heterogeneous QA sub-tables
+live OUTSIDE the scanned `## Open`/`## Closed today` sections, so fail-closed cannot false-positive
+on them. TWO residues remain (P-1.70 follow-up): (a) a WELL-FORMED row mis-filed OUTSIDE both
+scanned sections is invisible to hook and gate alike (an optional date-leading-orphan detector is
+deferred); (b) the malformed-WRAPPER false-pass is NARROWED, not fully closed, it survives only the
+contrived case of a malformed `[class:` wrapper together with any valid `[class-exempt:]` reason,
+whether embedded in the wrapper token OR standalone/adjacent in the cell (a malformed wrapper yields
+empty class_spans, so an adjacent exempt is matched too; author-run tooling, adversarial-only), ACCEPTED.
 
 SINGLE GRAMMAR OWNER. The row parser and the attestation grammar are loaded from the
 open-findings hook itself (importlib), and the matcher from check-class-completeness.py, so
@@ -118,7 +119,7 @@ def in_window(found_cell: str, floor: datetime.date) -> bool:
 
     Fail-closed direction: a row that cannot PROVE it predates the mechanization is
     checked. The blanked Found cell of a malformed row never reaches here (its
-    disposition is None, so it is noted and skipped before the window test)."""
+    disposition is None, so it is failed closed before the window test, P-1.70 #1995)."""
     # F5 (codex QA #1989): require the Found cell to be EXACTLY one ISO date (full match of
     # the stripped cell), so an annotated or multi-date cell ("copied 2026-09-04; actual
     # 2026-09-05", "2026-09-04 typo") cannot let its FIRST embedded date falsely prove the
@@ -151,10 +152,17 @@ def evaluate(rows_full: list, hook, probe, floor: datetime.date = SHIP_FLOOR):
     notes: list[str] = []
     for found, _sev, finding, disp in rows_full:
         if disp is None:
-            notes.append(
-                f"malformed row skipped here (columns unreadable); a malformed `## Open` "
-                f"row is separately blocked by the open-findings hook, but a malformed "
-                f"`## Closed today` row is a known disclosed residue (P-1.70): {finding[:100]!r}"
+            # FAIL-CLOSED (P-1.70): a malformed row (cell count != 5 after border-trim) has no
+            # trustworthy cell, so the parser blanked its Found and nulled its Disposition; it must
+            # NOT be skipped. No in_window() call: windowing on the blanked Found would trust an
+            # untrustworthy cell. The heterogeneous QA sub-tables live OUTSIDE the scanned
+            # `## Open` / `## Closed today` sections, so this cannot false-positive on them.
+            failures.append(
+                f"malformed ledger row (cell count != 5; an unescaped `|` must be written `\\|`, and "
+                f"a superseding disposition REPLACES the Disposition cell, never appends after the "
+                f"row's trailing `|`): {finding[:120]!r}. If this is a deliberate different-schema "
+                f"sub-table, it does not belong in `## Open` or `## Closed today`; place it in a "
+                f"dated archive section."
             )
             continue
         if not hook.is_fixed_disposition(disp):
@@ -320,8 +328,19 @@ def _self_test() -> int:
                      "| --- | --- | --- | --- | --- |\n"
                      "| 2026-09-04 | error | a cell with a raw | pipe | probe | FIXED #9 |\n")
         fails, notes = run(malformed, probe)
-        checks.append(("malformed-row-noted-not-failed",
-                       fails == [] and len(notes) == 1 and "malformed" in notes[0]))
+        checks.append(("malformed-row-fails-closed",
+                       len(fails) == 1 and notes == [] and "malformed ledger row" in fails[0]))
+
+        # P-1.70 reality fixture: the OBSERVED corruption shape (a superseding disposition appended
+        # after the row's trailing `|`, making a 6th cell) inside `## Closed today` must FAIL-CLOSED,
+        # not skip (the residue this closes; the hook's blocking path is `## Open`-only).
+        closed_malformed = ("## Closed today\n"
+                            "| Found | Severity | Finding | Source | Disposition |\n"
+                            "| --- | --- | --- | --- | --- |\n"
+                            "| 2026-09-02 | error | some finding | codex | ROUTED interim | FIXED #123\n")
+        fails, notes = run(closed_malformed, probe)
+        checks.append(("malformed-closed-today-appended-disposition-fails-closed",
+                       len(fails) == 1 and notes == [] and "malformed ledger row" in fails[0]))
 
         # MOVE-TO-CLOSED EVASION (gemini QA #1989): a FIXED class row that the maintainer
         # dispositioned AND relocated to `## Closed today` in the same PR must STILL be
