@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Jurisdiction Index\
 **Document Type:** Annex\
-**Version:** 1.0.34\
+**Version:** 1.0.35\
 **Date:** 2026-09-05\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -120,7 +120,7 @@ Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting 
 | Saudi Arabia | PDPL | SDAIA AI governance framework; automated decision transparency | Adequacy determination; consent; localization | SAR 5M (doubled for repeat) |
 | South Africa | POPIA | Automated decision rights (s. 71); Information Regulator PIA guidance | s. 72 adequacy or safeguards | ZAR 10M |
 | Turkey | KVKK (2024 amendment) | Automated decision transparency; KVKK Board guidance | KVKK Board adequacy list; commitments; BCRs | TRY 22.7M for unlawful cross-border transfer |
-| Nigeria | NDPA 2023 | Automated profiling objection; NDPC accountability guidance | Adequacy (NDPC-determined); contractual safeguards | 2% annual gross revenue / USD 10M |
+| Nigeria | NDPA 2023 | Automated profiling objection; NDPC accountability guidance | Adequacy (NDPC-determined); contractual safeguards | Up to, per importance tier, the greater of a fixed amount (NGN 10M major, NGN 2M standard) or 2% of preceding-year annual gross revenue (s. 48) |
 | Kenya | Data Protection Act 2019 | Automated decision objection right; ODPC guidance | Adequacy standard; contractual safeguards | KES 5M or 1% turnover admin fine (whichever lower, s. 63); KES 3M on conviction (s. 73) |
 | China | PIPL, CSL, DSL, Generative AI Regulations | PIPL automated decision rights (Art. 24); pre-deployment security assessment; CAC labelling | CAC security assessment, PIPL SCCs, certification | RMB 50M / 5% revenue (PIPL) |
 | India | DPDPA 2023 / Rules 2025 | Children's-data safeguards (s. 9): verifiable parental consent and no tracking, behavioural monitoring, or targeted advertising (subject to s. 9(4)-(5) exemptions); no processing detrimental to a child's well-being; SDF DPIA requirement | Negative-list restriction power (s.16(1)); Rule 15 requirements; Rule 13(4) SDF localization (personal data specified by the Central Government, together with traffic data pertaining to its flow, not transferred outside India) | INR 250 crore (~USD 30M) |
