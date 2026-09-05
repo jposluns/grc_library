@@ -16255,5 +16255,80 @@ class AlignmentCitationExistenceTests(LinterTestCase):
                          f"PF 1.1 code should pass via the edition union; stdout:\n{result.stdout}")
 
 
+
+
+class AIQTVendorDigestTests(LinterTestCase):
+    """Gate 98 (lint-aiqt-vendor-digest.py) + the aiqt_bootstrap shim: the vendored AIQT core
+    is digest-verified against its pin, and the shim resolves it in-repo without the sibling pack."""
+
+    def _gate(self):
+        return load_linter_module("tools/lint-aiqt-vendor-digest.py", "aiqt_vendor_digest_gate")
+
+    def test_authentic_vendored_file_passes(self):
+        import contextlib, io
+        mod = self._gate()
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc = mod.check()
+        self.assertEqual(rc, 0, f"gate 98 should pass on the authentic vendored file; got {rc}: {buf.getvalue()}")
+
+    def _synthetic(self, tmp: Path, module_bytes: bytes, sha: str, nbytes: int):
+        (tmp / "tools").mkdir(parents=True, exist_ok=True)
+        (tmp / "tools" / "aiqt_corpus.py").write_bytes(module_bytes)
+        (tmp / "PIN.toml").write_text(
+            "[source]\nrepo = \"jposluns/guardrails\"\ncommit = \"deadbeef\"\n"
+            "[module]\npath = \"tools/aiqt_corpus.py\"\n"
+            f"sha256 = \"{sha}\"\nbytes = {nbytes}\n", encoding="utf-8")
+
+    def test_tampered_file_fails_byte_and_sha(self):
+        import contextlib, io, tempfile, hashlib
+        mod = self._gate()
+        good = b"# authentic\n"
+        sha = hashlib.sha256(good).hexdigest()
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            # PIN pins `good`, but the vendored file is tampered (extra byte) -> byte+sha mismatch
+            self._synthetic(tmp, good + b"# tamper\n", sha, len(good))
+            mod.VENDOR = tmp
+            mod.PIN = tmp / "PIN.toml"
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                rc = mod.check()
+            out = buf.getvalue()
+        self.assertEqual(rc, 1, "gate 98 must fail on a tampered vendored file")
+        self.assertIn("byte count", out)
+        self.assertIn("sha256", out)
+
+    def test_missing_vendored_module_fails(self):
+        import contextlib, io, tempfile, hashlib
+        mod = self._gate()
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            (tmp / "PIN.toml").write_text(
+                "[module]\npath = \"tools/aiqt_corpus.py\"\n"
+                "sha256 = \"" + "0"*64 + "\"\nbytes = 1\n", encoding="utf-8")
+            mod.VENDOR = tmp
+            mod.PIN = tmp / "PIN.toml"
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                rc = mod.check()
+            out = buf.getvalue()
+        self.assertEqual(rc, 1, "gate 98 must fail when the vendored module is missing")
+        self.assertIn("missing", out.lower())
+
+    def test_shim_resolves_vendor_in_repo_without_sibling(self):
+        import os
+        saved = {k: os.environ.pop(k, None) for k in ("AIQT_PACK_ROOT", "GRC_AIQT_PACK")}
+        try:
+            mod = load_linter_module("tools/aiqt_bootstrap.py", "aiqt_bootstrap_shimtest")
+            tools = mod.find_pack_tools()
+        finally:
+            for k, v in saved.items():
+                if v is not None:
+                    os.environ[k] = v
+        self.assertIsNotNone(tools, "shim must resolve the AIQT pack tools/ dir")
+        # CI-safety: must find the IN-REPO vendored copy, not depend on a sibling pack
+        self.assertEqual(Path(tools).resolve(), (REPO_ROOT / "vendor" / "aiqt" / "tools").resolve())
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

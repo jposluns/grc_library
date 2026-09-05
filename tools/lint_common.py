@@ -72,11 +72,6 @@ DEFAULT_EXEMPT_DIRS: frozenset[str] = frozenset(
         "__pycache__",
         ".claude",
         ".working",
-        # vendor/ holds a digest-verified copy of external code CONSUMED from AIQT
-        # (vendor/aiqt/tools/aiqt_corpus.py), not grc-authored corpus/tooling: its integrity is
-        # guaranteed by tools/lint-aiqt-vendor-digest.py against vendor/aiqt/PIN.toml, so grc's
-        # own authoring linters skip it (like .claude/ machinery).
-        "vendor",
         # references/ holds operational REFERENCE prose relocated from the
         # gate-exempt .claude/CLAUDE.md (3.139.1 (closing PR #1249), roadmap C phase 1): the
         # per-turn-loaded governance detail read at the PR-close-out boundary.

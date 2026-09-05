@@ -25,6 +25,15 @@ VENDOR = REPO_ROOT / "vendor" / "aiqt"
 PIN = VENDOR / "PIN.toml"
 
 
+def _rel(p: Path) -> str:
+    """Path relative to the repo root when possible, else the path itself.
+    Keeps the error path from crashing if VENDOR is ever relocated or monkeypatched."""
+    try:
+        return str(p.relative_to(REPO_ROOT))
+    except ValueError:
+        return str(p)
+
+
 def _fail(msg: str) -> int:
     print(f"FAIL: {msg}")
     return 1
@@ -32,11 +41,11 @@ def _fail(msg: str) -> int:
 
 def check() -> int:
     if not PIN.is_file():
-        return _fail(f"vendor pin not found at {PIN.relative_to(REPO_ROOT)}")
+        return _fail(f"vendor pin not found at {_rel(PIN)}")
     try:
         pin = tomllib.loads(PIN.read_text(encoding="utf-8"))
     except (OSError, tomllib.TOMLDecodeError) as exc:
-        return _fail(f"vendor pin {PIN.relative_to(REPO_ROOT)} is unreadable: {exc}")
+        return _fail(f"vendor pin {_rel(PIN)} is unreadable: {exc}")
 
     module = pin.get("module", {})
     rel = module.get("path")
@@ -47,7 +56,7 @@ def check() -> int:
 
     target = VENDOR / rel
     if not target.is_file():
-        return _fail(f"vendored module missing at {target.relative_to(REPO_ROOT)}")
+        return _fail(f"vendored module missing at {_rel(target)}")
 
     data = target.read_bytes()
     got_sha = hashlib.sha256(data).hexdigest()
