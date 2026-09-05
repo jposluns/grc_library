@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.162\
+**Version:** 1.27.163\
 **Date:** 2026-09-05\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -217,6 +217,7 @@ Documents are classified by their **primary** disposition. The small number that
 | AI | Annex | European Union AI Regulatory Requirements | [`ai/jurisdictions/annex-ai-european-union.md`](../ai/jurisdictions/annex-ai-european-union.md) | Chief Information Security Officer | Annual | EU AI Act Regulation (EU) 2024/1689, NIST AI RMF, ISO/IEC 42001 | template |
 | AI | Annex | Colorado AI and Automated Decision-Making Technology Regulatory Requirements | [`ai/jurisdictions/annex-ai-us-colorado.md`](../ai/jurisdictions/annex-ai-us-colorado.md) | Chief Information Security Officer | Annual | Colorado SB 24-205, Colorado SB 26-189, NIST AI RMF, ISO/IEC 42001 | template |
 | AI | Annex | Texas Responsible Artificial Intelligence Governance Act (TRAIGA) Regulatory Requirements | [`ai/jurisdictions/annex-ai-us-texas.md`](../ai/jurisdictions/annex-ai-us-texas.md) | Chief Information Security Officer | Annual | Texas TRAIGA (HB 149), NIST AI RMF, ISO/IEC 42001 | template |
+| AI | Annex | Illinois AI in Employment (HB 3773) Regulatory Requirements | [`ai/jurisdictions/annex-ai-us-illinois.md`](../ai/jurisdictions/annex-ai-us-illinois.md) | Chief Information Security Officer | Annual | Illinois HB 3773 (PA 103-0804), NIST AI RMF, ISO/IEC 42001 | template |
 | AI | Annex | New York City Automated Employment Decision Tool Regulatory Requirements | [`ai/jurisdictions/annex-ai-us-new-york-city.md`](../ai/jurisdictions/annex-ai-us-new-york-city.md) | Chief Information Security Officer | Annual | NYC Local Law 144, DCWP rule 6 RCNY 5-300 to 5-304, NIST AI RMF, ISO/IEC 42001 | template |
 | AI | Annex | Canada AI Regulatory Requirements | [`ai/jurisdictions/annex-ai-canada.md`](../ai/jurisdictions/annex-ai-canada.md) | Chief Information Security Officer | Annual | TBS Directive on ADM, OSFI E-23, Ontario EDSTA, ISED Voluntary Code, CAN/DGSI 101, NIST AI RMF, ISO/IEC 42001 | template |
 | AI | Annex | Australia AI Regulatory Requirements | [`ai/jurisdictions/annex-ai-australia.md`](../ai/jurisdictions/annex-ai-australia.md) | Chief Information Security Officer | Annual | Privacy Act 1988 APP 1.7 to 1.9, National AI Plan 2025, Voluntary AI Safety Standard, AI Ethics Principles, NIST AI RMF, ISO/IEC 42001 | template |
