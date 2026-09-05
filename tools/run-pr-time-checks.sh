@@ -11,7 +11,7 @@
 #      co-bump, D5 backlog-rotation-on-PR,
 #      D7 CHANGELOG-length-on-PR, D8 daily-changelog-rollup reminder
 #      (advisory), D9 retired-section-orphan check, D10 CLAUDE.md-size
-#      ratchet, D11 narrative-corpus mixed-diff, D12 number-floor monotonicity, D13 stranded-control-code). Most compare the PR head to its merge base, so their
+#      ratchet, D11 narrative-corpus mixed-diff, D12 number-floor monotonicity, D13 stranded-control-code, D14 class-completeness attestation). Most compare the PR head to its merge base, so their
 #      inputs are not available in tools/run_all_audits.sh (the advisory D8
 #      and the size-only D10 read working-tree state and take no base ref);
 #      they run
@@ -160,6 +160,17 @@ run_check "D12 Number-floor monotonicity check" \
 
 run_check "D13 Stranded-control-code check" \
     python3 tools/check-stranded-control-code-on-pr.py "${BASE_REF}" "${HEAD_REF}"
+
+# Delta gate D14: class-completeness attestation check (P-1.67). For each
+# in-window FIXED row of the open-findings ledger (## Open or ## Closed today) whose
+# Finding cell leads with a bracketed class token, require the
+# [class: "<token>" @ <count>] / [class-exempt: <reason>] attestation and
+# REPRODUCE the completeness probe over the git-tracked corpus set (fail on
+# count growth or a coverage escape). Reads ledger + working-tree state
+# (resolve_working), so like D8/D10 it takes no base ref; on a clone with no
+# resolvable ledger (public CI, adopter) it no-ops.
+run_check "D14 Class-completeness attestation check" \
+    python3 tools/check-class-attestation-on-pr.py
 
 # Gate 45: TODO staleness audit. Behaves like a delta gate because its
 # inputs (git log of merged-PR commit subjects, .working/validate-sweeps/

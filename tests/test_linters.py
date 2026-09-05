@@ -11916,7 +11916,7 @@ class PreflightChangelogMirrorTests(unittest.TestCase):
 
 class AuditGateParityExclusionGuardTests(unittest.TestCase):
     """tools/lint-audit-gate-parity.py (gate 35) additive PR #1087 guards over
-    the exclusion allow-lists and the D1-D12 delta gates. The guards read the real
+    the exclusion allow-lists and the D-numbered delta gates. The guards read the real
     repo surfaces via an explicit ``root`` and take ``spec_scripts`` as a
     parameter, so the tests run against the live config without monkeypatching a
     module global (the Global-state isolation convention)."""
@@ -12389,6 +12389,20 @@ class OrchestratorAdvisoryToolTests(unittest.TestCase):
         self.assertEqual(
             result.returncode, 0,
             f"check-class-completeness.py --self-test failed.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("OK", result.stdout)
+
+
+    def test_check_class_attestation_on_pr_self_test_passes(self) -> None:
+        # P-1.67 (D14): the class-completeness attestation gate's own --self-test. Its
+        # fixture set includes the CE3/CE3-CASP reality fixture, the dynamic ship-date
+        # floor, the closed exempt set, the fail-closed unparseable-Found window, the
+        # path-escape failure, and the escaped-pipe token round trip against the hook grammar.
+        result = run_linter("tools/check-class-attestation-on-pr.py", "--self-test")
+        self.assertEqual(
+            result.returncode, 0,
+            f"check-class-attestation-on-pr.py --self-test failed.\n"
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
         self.assertIn("OK", result.stdout)

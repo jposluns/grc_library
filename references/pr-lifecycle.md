@@ -20,7 +20,7 @@ drive end-to-end on the maintainer's behalf:
    Before pushing, run both runners as a single pre-push gate:
    `tools/pre-push-guard.sh && git push -u origin <branch>`. The guard chains
    `run_all_audits.sh` (corpus gates from HEAD) then `run-pr-time-checks.sh` (the per-PR
-   delta gates D1-D12 (D6 retired) plus the history-aware trio 45/40/31 against the merge base), then `.web/build.py --check` (web-generator health),
+   D-numbered delta gates (D6 retired) plus the history-aware trio 45/40/31 against the merge base), then `.web/build.py --check` (web-generator health),
    stopping non-zero on the first failure, so a gate defect blocks the push instead of
    flipping CI red after the fact. The two runners plus the web-generator check together cover every gate CI runs.
    Git hooks do not fire in this environment, so the `&&`-chained guard is what actually
