@@ -3121,8 +3121,8 @@ documents:
   domain: "compliance"
   type: "Matrix"
   title: "GRC Library Compliance Alignment Matrix"
-  version: "1.11.51"
-  date: "2026-09-04"
+  version: "1.11.52"
+  date: "2026-09-05"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"
   classification: "Public"
@@ -3152,6 +3152,7 @@ documents:
     - "Architecture domain"
     - "Dev-security domain"
     - "AI domain"
+    - "Crypto domain"
     - "Framework coverage summary"
   frameworks: []
 - path: "compliance/logistics/register-basc-it-responsibilities.md"
