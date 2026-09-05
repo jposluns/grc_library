@@ -295,7 +295,7 @@ TERMINAL = ("fixed", "routed", "refuted", "accepted")
 # private `P-N.M` item (`P-1.71`), or a `TODO`-qualified item. The private `P-` namespace is a
 # first-class routing target (e.g. P-1.60/P-1.61); rejecting it read a valid `ROUTED P-1.71` as
 # undispositioned (self-caught 2026-09-05, #2016). `(` or `[` may sit immediately before it (a parenthesized or link-form ref).
-_REF = r"[(\[]?(?:#[1-9]\d*|TODO\s+P?-?\d+(?:\.\d+)+[a-z]?|P-\d+(?:\.\d+)+[a-z]?|\d+(?:\.\d+)+[a-z]?)"
+_REF = r"[(\[]?(?:#[1-9]\d*|TODO\s+(?:P-)?\d+(?:\.\d+)+[a-z]?|P-\d+(?:\.\d+)+[a-z]?|\d+(?:\.\d+)+[a-z]?)"
 _DISPOSITION_RE = re.compile(
     r"^(?:fixed|routed)\s+" + _REF + r"(?:\b|[.,;:)\]])"   # FIXED/ROUTED + adjacent ref
     r"|^(?:refuted|accepted)\b",                            # REFUTED/ACCEPTED + prose (word only)
@@ -563,6 +563,8 @@ def self_test() -> int:
     ck("ROUTED + adjacent P-namespace ref is valid", disposition_valid("ROUTED P-1.71 (Nigeria batch)"), True)
     ck("ROUTED + adjacent TODO P-ref is valid", disposition_valid("ROUTED TODO P-1.60"), True)
     ck("a P- ref without a dotted number is INVALID", disposition_valid("ROUTED P-71"), False)
+    ck("TODO with a P-less hyphenless malformed ref is INVALID", disposition_valid("ROUTED TODO P1.60"), False)
+    ck("TODO with a bare-hyphen malformed ref is INVALID", disposition_valid("ROUTED TODO -1.60"), False)
     ck("FIXED with a NON-adjacent ref is INVALID", disposition_valid("FIXED in #1208: the branch"), False)
     ck("ROUTED narration with a later ref is INVALID",
        disposition_valid("ROUTED nowhere yet, it smells like 3.145 territory"), False)
