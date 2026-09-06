@@ -67,7 +67,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: puts the AIQT pack tools/ on sys.path
-from aiqt_corpus import parse_metadata_block, split_row, is_separator_row  # noqa: E402  # generic core (AST-identical to lint_common)
+from aiqt_corpus import parse_metadata_block, split_row, is_separator_row  # noqa: E402  # generic core (behaviour-identical to lint_common)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
