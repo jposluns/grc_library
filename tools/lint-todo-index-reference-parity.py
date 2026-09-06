@@ -41,8 +41,9 @@ _TOOLS_DIR = str(Path(__file__).resolve().parent)
 if _TOOLS_DIR not in sys.path:
     sys.path.insert(0, _TOOLS_DIR)
 
-from lint_common import (REPO_ROOT, TODO_ID_RE, split_row, is_separator_row,  # noqa: E402
-                         resolve_sibling, has_todo_index_header)
+import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
+from aiqt_corpus import split_row, is_separator_row  # noqa: E402  # generic core (behaviour-identical to lint_common)
+from lint_common import REPO_ROOT, TODO_ID_RE, resolve_sibling, has_todo_index_header  # noqa: E402  # grc-config/store, stays local
 
 TODO_REL = "TODO.md"
 REFERENCE_REL = "TODO-REFERENCE.md"
