@@ -288,7 +288,7 @@ def check_file(path: Path) -> list[tuple[str, int, str]]:
             stem = strip_numbering(heading_text)
             if stem and stem[0].islower():
                 # Allow canonical lowercase project names as first word.
-                first_word = re.split(r"\s|[^A-Za-z0-9_-]", stem, 1)[0].lower()
+                first_word = re.split(r"\s|[^A-Za-z0-9_-]", stem, maxsplit=1)[0].lower()
                 if first_word not in LOWERCASE_PROJECT_NAMES:
                     findings.append(("heading-case", lineno, line.strip()))
 
