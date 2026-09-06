@@ -3,7 +3,7 @@
 open fenced code block (the guardrail review's GR-4 residual).
 
 Why this gate exists: the shared fence-aware iterator
-(``lint_common.iter_non_code_lines``) treats every line whose stripped
+(``aiqt_corpus.iter_non_code_lines``) treats every line whose stripped
 form starts with three backticks or three tildes as a state TOGGLE. An
 UNBALANCED fence (an odd number of fence lines) therefore leaves the
 iterator "inside a code block" for the remainder of the file, silently
@@ -53,7 +53,7 @@ from lint_common import DEFAULT_EXEMPT_DIRS, REPO_ROOT, iter_scan_roots_markdown
 
 def fence_lines(text: str) -> list[int]:
     """Return the 1-indexed line numbers of every fence-toggle line,
-    using the same test as ``lint_common.iter_non_code_lines``."""
+    using the same test as ``aiqt_corpus.iter_non_code_lines``."""
     hits: list[int] = []
     for lineno, line in enumerate(text.splitlines(), start=1):
         stripped = line.strip()
