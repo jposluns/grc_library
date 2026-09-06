@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Worklist: Batch Q4 (Remaining Canonical Citations)\
 **Document Type:** Worklist\
-**Version:** 1.0.17\
-**Date:** 2026-09-02\
+**Version:** 1.0.18\
+**Date:** 2026-09-06\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](../governance/specification-citation-verification.md), [`governance/template-citation-verification-worklist.md`](../governance/template-citation-verification-worklist.md), [`.project-governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](../governance/register-canonical-citations.md), [`.project-governance/register-citation-verification-bundle.md`](register-citation-verification-bundle.md)\
@@ -54,7 +54,7 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 
 ## 3. Worklist (by publisher cluster)
 
-### 3.1 NIST cluster (10 entries): publishers `nvlpubs.nist.gov`, `csrc.nist.gov`, `nist.gov`
+### 3.1 NIST cluster (11 entries): publishers `nvlpubs.nist.gov`, `csrc.nist.gov`, `nist.gov`
 
 | Standard ID | Expected primary URL | Field(s) | Expected value | Captured text | Wayback URL | Result | Captured by | Confidence | Date |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -162,7 +162,7 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 | IEC 62443-4-1 | https://webstore.iec.ch/publication/33615 | all | 2018, Secure product development lifecycle requirements |  |  |  |  |  |  |
 | IEC 62443-4-2 | https://webstore.iec.ch/publication/34421 | all | 2019, Technical security requirements for IACS components |  |  |  |  |  |  |
 
-### 3.10 Sector-specific: functional safety + BMS + fire + pipeline + banking (10 entries)
+### 3.10 Sector-specific: functional safety + BMS + fire + pipeline + banking (11 entries)
 
 | Standard ID | Expected primary URL | Field(s) | Expected value | Captured text | Wayback URL | Result | Captured by | Confidence | Date |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
