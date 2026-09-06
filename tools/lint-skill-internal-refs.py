@@ -82,11 +82,11 @@ _PAT_GATE = re.compile(r"\bgate\s+\d+\b")
 _PAT_WORKING = re.compile(r"(?<![\w./])\.working/")
 _PAT_PR = re.compile(r"#\d{3,5}\b")
 # A backlog-section reference is the project's MULTI-LEVEL numbering (`§3.56a`,
-# `§5.9`, `§1.22.3`, `PN.M`); it requires at least one dot. A bare single-level
+# `§5.9`, `§1.22.3`, `PN.M`, `P-N.M`); it requires at least one dot. A bare single-level
 # `§3` / `§8` is a document's OWN section reference (a skill naming its report's
 # `§3 Findings` section, or a pack rule's `§1`), which is legitimate and portable,
 # so it is NOT flagged (census: zero backlog-section leaks in skill bodies).
-_PAT_SECTION = re.compile(r"(?:§\s?\d+\.\d+[a-z]?)|(?:\bP\d+\.\d+\b)")
+_PAT_SECTION = re.compile(r"(?:§\s?\d+\.\d+[a-z]?)|(?:(?<![\w-])P-?\d+\.\d+(?![\w.-]))")
 _PAT_TOOLPATH = re.compile(r"\btools/([A-Za-z0-9_-]+\.(?:py|sh))\b")
 _PAT_REPO = re.compile(r"\bgrc_library_(?:scratch|private|ref)\b|(?<![\w])_private/")
 
@@ -232,6 +232,19 @@ def _self_test() -> int:
 
         def test_section_ref_flagged(self):
             self.assertTrue(self._scan("# S\n\nSee §3.56a for the plan.\n"))
+
+        def test_hyphenated_backlog_ref_flagged(self):
+            # P-N.M (hyphenated private-backlog id) must flag like PN.M; the
+            # un-hyphenated-only pattern missed it (the gate-76 P-N.M gap).
+            self.assertTrue(self._scan("# S\n\nThe held-source rule is P-1.56 here.\n"))
+
+        def test_compound_p_token_not_flagged(self):
+            # boundary-guarded: compound tokens shaped around P-N.M are NOT the
+            # private-backlog id, so they do not flag (the P-N.M over-fire guard).
+            self.assertEqual(self._scan("# S\n\nUse ABC-P-1.2, P-1.2-beta, and P-1.2.3 generically.\n"), [])
+            # residue (stated): an exact-shape statutory chapter like `c. P-7.05`
+            # is indistinguishable by shape and would flag; statutes live in the
+            # corpus, not portable skill bodies, so it is out of this gate's scope.
 
         def test_single_level_section_ref_allowed(self):
             # a bare `§3` / `§8` is a document's own section reference, not a
