@@ -45,7 +45,9 @@ import subprocess
 import sys
 from pathlib import Path
 
-from lint_common import DEFAULT_EXEMPT_DIRS, REPO_ROOT, iter_non_code_lines
+import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
+from aiqt_corpus import iter_non_code_lines  # noqa: E402  # generic core (behaviour-identical to lint_common)
+from lint_common import DEFAULT_EXEMPT_DIRS, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
 
 
 CALVER_RE = re.compile(r"\*\*Library Version:\*\*\s+(\d+)\.(\d+)\.(\d+)")

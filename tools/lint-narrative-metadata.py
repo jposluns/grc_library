@@ -39,7 +39,9 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from lint_common import METADATA_FIELD_RE, REPO_ROOT, is_narrative_root, parse_iso_date, read_text_safe
+import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
+from aiqt_corpus import METADATA_FIELD_RE, parse_iso_date, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
+from lint_common import REPO_ROOT, is_narrative_root  # noqa: E402  # grc-config/store, stays local
 
 NARRATIVE_DOCUMENT_TYPE = "Executive Narrative"
 ENTRY_POINT = "executive/README.md"  # the single named non-narrative-page exemption
