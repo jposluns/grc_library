@@ -28,7 +28,7 @@ repos:
         entry: python3 tools/lint-language.py
         language: system
         pass_filenames: false
-        types: [markdown]
+        files: '(\.md$|^tools/build-(narrative-registry|portal|taxonomy)\.py$)'
 
       - id: lint-links
         name: Repository-internal link audit
@@ -161,28 +161,28 @@ repos:
         entry: python3 tools/lint-secrets-in-content.py
         language: system
         pass_filenames: false
-        types: [markdown]
+        files: '\.(md|py|yaml|yml|json|toml|txt)$'
 
       - id: lint-pii-in-content
         name: PII pattern audit
         entry: python3 tools/lint-pii-in-content.py
         language: system
         pass_filenames: false
-        types: [markdown]
+        files: '\.(md|py|yaml|yml|json|toml|txt|cff)$'
 
       - id: lint-internal-references
         name: Internal references audit
         entry: python3 tools/lint-internal-references.py
         language: system
         pass_filenames: false
-        types: [markdown]
+        files: '\.(md|py|yaml|yml|json|toml|txt)$'
 
       - id: lint-external-link-domains
         name: External link domain audit
         entry: python3 tools/lint-external-link-domains.py
         language: system
         pass_filenames: false
-        types: [markdown]
+        files: '\.(md|py|yaml|yml|json|toml|txt|cff)$'
 
       - id: lint-cross-doc-numbers
         name: Cross-document numerical coherence audit
@@ -245,7 +245,7 @@ repos:
         entry: python3 tools/build-taxonomy.py --check
         language: system
         pass_filenames: false
-        types: [markdown]
+        always_run: true
 
       - id: portal-in-sync
         name: Adopter portal and maturity scorecard in sync
@@ -266,14 +266,14 @@ repos:
         entry: python3 tools/lint-audit-gate-parity.py
         language: system
         pass_filenames: false
-        types: [markdown]
+        always_run: true
 
       - id: linter-regression-tests
         name: Linter regression test suite
         entry: python3 tools/run-linter-regression.py
         language: system
         pass_filenames: false
-        types: [markdown]
+        always_run: true
 
       - id: lint-claude-rules-sync
         name: Claude-rules local-copy sync audit
@@ -315,7 +315,7 @@ repos:
         entry: python3 tools/lint-external-overlay-license.py
         language: system
         pass_filenames: false
-        types: [markdown]
+        always_run: true
 
       - id: lint-followup-ageing
         name: Follow-up ageing audit
