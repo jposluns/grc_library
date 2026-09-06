@@ -105,7 +105,7 @@ def scan(path: Path) -> list[tuple[int, str]]:
     findings: list[tuple[int, str]] = []
     text = path.read_text(encoding="utf-8")
     # Strip fenced code blocks (backtick or tilde, via the shared
-    # lint_common.is_fence_line predicate) so backticks inside code blocks are
+    # aiqt_corpus.is_fence_line predicate) so backticks inside code blocks are
     # ignored. CHANGELOG.md may contain code blocks for examples; references
     # inside them are not navigation targets.
     in_code_block = False

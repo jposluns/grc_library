@@ -164,7 +164,7 @@ EXEMPT_FILES: frozenset[str] = frozenset(
 )
 
 # Date parsing is delegated to the shared metadata parser
-# (lint_common.parse_metadata_block + parse_iso_date), which strips
+# (aiqt_corpus.parse_metadata_block + parse_iso_date), which strips
 # the optional trailing backslash (hard-line-break marker) and windows
 # the scan to the metadata head lines. This retired the private
 # line-end-anchored DATE_RE whose non-match silently skipped a file
