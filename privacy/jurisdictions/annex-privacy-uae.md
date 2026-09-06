@@ -2,8 +2,8 @@
 
 **Document Title:** United Arab Emirates Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.3\
-**Date:** 2026-07-02\
+**Version:** 1.0.4\
+**Date:** 2026-09-06\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -24,9 +24,9 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Applicable laws and regulatory authorities
 
-- **UAE Personal Data Protection Law (PDPL)**: Federal Decree-Law No. 45 of 2021, effective 2022-01-02 (implementing regulations issued 2023). The UAE's first comprehensive federal data protection law. Extraterritorial application where data of UAE residents is processed outside the UAE.
+- **UAE Personal Data Protection Law (PDPL)**: Federal Decree-Law No. 45 of 2021, effective 2022-01-02 (Executive Regulations not yet issued as of 2026). The UAE's first comprehensive federal data protection law. Extraterritorial application where data of UAE residents is processed outside the UAE.
 - Key rights: access, correction, erasure, objection to processing, and withdrawal of consent.
-- Sensitive data categories: biometric, health, financial, and data of children under 18.
+- Sensitive data categories (the PDPL's exhaustive definition of Sensitive Personal Data): data revealing family, ethnic origin, political or philosophical opinions, religious beliefs, criminal record, biometric data, and health (including physical, psychological, mental, genetic, or sexual condition). Financial data and a data subject's age are not designated sensitive categories under the PDPL.
 - **UAE AI Strategy 2031:** National AI strategy with published AI Ethics Principles (2019). Sector-specific AI guidance is being issued by the Securities and Commodities Authority, Central Bank of the UAE, and Health Authority.
 - **Dubai International Financial Centre (DIFC) Data Protection Law (DIFC Law No. 5 of 2020):** Applies within the DIFC free zone; modelled closely on GDPR. Administered by the DIFC Commissioner of Data Protection.
 - **Abu Dhabi Global Market (ADGM) Data Protection Regulations 2021:** Applies within the ADGM free zone; modelled closely on GDPR.
@@ -51,7 +51,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Enforcement and fines
 
-- **UAE PDPL:** Administrative fines up to AED 5 million (approximately USD 1.36 million) for violations. Criminal penalties for unauthorized disclosure of sensitive personal data.
+- **UAE PDPL:** Administrative penalties are set by a Cabinet (Council of Ministers) decision under Article 26; the PDPL itself does not prescribe a fine ceiling, and that implementing decision has not yet been issued. Criminal penalties for unauthorized disclosure of sensitive personal data.
 - **DIFC:** Fines up to USD 100,000 for significant violations.
 
 ---

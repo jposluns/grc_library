@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Jurisdiction Index\
 **Document Type:** Annex\
-**Version:** 1.0.37\
+**Version:** 1.0.38\
 **Date:** 2026-09-06\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -116,7 +116,7 @@ Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting 
 | Japan | APPI | APPI purpose limitation for AI training; PPC AI guidance (not held, adopter-verify) | Adequacy (EU, UK); contractual | JPY 100M |
 | South Korea | PIPA 2023 | Right to explanation; automated decision review; PIPC guidance | Adequacy (EU); PIPC SCCs; consent | 3% annual revenue |
 | New Zealand | Privacy Act 2020 | IPP principles; OPC AI guidance; mandatory breach notification | IPP 12 safeguards; CBPR 2.0; adequacy (EU) | NZD 10,000 per offence |
-| UAE | PDPL, DIFC DPL, ADGM DPR | Sector-specific AI guidance; automated decision rights | Adequacy determination, SCCs | AED 5M (PDPL); USD 100,000 (DIFC) |
+| UAE | PDPL, DIFC DPL, ADGM DPR | Sector-specific AI guidance; automated decision rights | Adequacy determination, SCCs | Cabinet decision under Art 26 (PDPL); USD 100,000 (DIFC) |
 | Saudi Arabia | PDPL | SDAIA AI governance framework; automated decision transparency | Adequacy determination; consent; localization | SAR 5M (doubled for repeat) |
 | South Africa | POPIA | Automated decision rights (s. 71); Information Regulator PIA guidance | s. 72 adequacy or safeguards | ZAR 10M |
 | Turkey | KVKK (2024 amendment) | Automated decision transparency; KVKK Board guidance | KVKK Board adequacy list; commitments; BCRs | TRY 22.7M for unlawful cross-border transfer |

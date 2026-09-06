@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Bundle Index\
 **Document Type:** Register\
-**Version:** 1.0.6\
-**Date:** 2026-07-02\
+**Version:** 1.0.7\
+**Date:** 2026-09-06\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](../governance/specification-citation-verification.md), [`.project-governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](../governance/register-canonical-citations.md), [`governance/register-ai-security-tooling-landscape.md`](../governance/register-ai-security-tooling-landscape.md), [`.project-governance/worklist-citation-verification-batch-q2-iso-iec.md`](worklist-citation-verification-batch-q2-iso-iec.md), [`.project-governance/worklist-citation-verification-batch-q3-ai-tooling.md`](worklist-citation-verification-batch-q3-ai-tooling.md), [`.project-governance/worklist-citation-verification-batch-q3-1-new-citations.md`](worklist-citation-verification-batch-q3-1-new-citations.md)\
@@ -160,7 +160,7 @@ When all four batches are complete, the following library state updates apply:
 - **[`lint-citation-verification-freshness.py`](../tools/lint-citation-verification-freshness.py)** engages with real entries (currently passes vacuously).
 - **[`lint-tooling-provenance-freshness.py`](../tools/lint-tooling-provenance-freshness.py)** transitions from "55 entries within window" to "55 entries human-verified within window".
 
-The three worklist files can be retained for evidence or archived; the authoritative records are the registers.
+The four worklist files can be retained for evidence or archived; the authoritative records are the registers.
 
 ---
 
