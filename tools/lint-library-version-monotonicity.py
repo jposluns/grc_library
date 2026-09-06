@@ -47,7 +47,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import iter_non_code_lines  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import DEFAULT_EXEMPT_DIRS, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+from lint_common import is_default_exempt_root, DEFAULT_EXEMPT_DIRS, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
 
 
 CALVER_RE = re.compile(r"\*\*Library Version:\*\*\s+(\d+)\.(\d+)\.(\d+)")
@@ -142,6 +142,8 @@ def check_document_versions(prior_ref: str) -> list[tuple[str, str]]:
     # Walk markdown files in artefact domains; skip non-artefact directories.
     skip_dirs = DEFAULT_EXEMPT_DIRS
     for path in REPO_ROOT.rglob("*.md"):
+        if is_default_exempt_root(path, repo_root=REPO_ROOT):
+            continue
         if any(part in skip_dirs for part in path.parts):
             continue
         rel = path.relative_to(REPO_ROOT).as_posix()

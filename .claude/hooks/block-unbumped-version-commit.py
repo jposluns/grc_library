@@ -209,6 +209,8 @@ def main() -> int:
             return 0
         versioned = set()
         for p in staged:
+            if p.startswith(".corpus-management/"):
+                continue
             f = root / p
             try:
                 if f.suffix == ".md" and VERSION_LINE.search(f.read_text(errors="replace")):

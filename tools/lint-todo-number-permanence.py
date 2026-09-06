@@ -335,6 +335,14 @@ EXEMPT: dict[tuple[str, str], str] = {
         "'Executive narrative + executive-experience layer' umbrella (P-1.25) is "
         "live at P-TODO; each 'Phase N' entry closed one build phase of it."
     ),
+    ("P-1.77", "P-1.77 pt1 gate-98 whole-pin canonical-form schema"): (
+        "PARTIAL CLOSE against a still-open umbrella (DONE #2034, 2026-09-06). P-1.77 "
+        "('gate/tool hardening tail') is live at P-TODO with two remaining parts "
+        "(parity-argv gate-35 full-invocation compare; runtime-pin delegation to the "
+        "guardrails aiqt-core vendor-digest-verify); #2034 closed only pt1, the gate-98 "
+        "whole-pin canonical-form schema + crash/display/output safety. The DONE heading "
+        "says 'pt1', so the partial nature is on the heading itself."
+    ),
     ("P-3.202", "P-3.202 synchronous-model cutover-leftover"): (
         "PARTIAL CLOSE (provisional; DONE:3186, #1361). P-3.202 is live at P-TODO "
         "and its detail says the comprehensive sweep is INCOMPLETE, so #1361 is "

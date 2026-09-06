@@ -49,7 +49,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import iter_non_code_lines, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import AUDITED_DOMAIN_DIRS, DEFAULT_EXEMPT_DIRS, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+from lint_common import is_default_exempt_root, AUDITED_DOMAIN_DIRS, DEFAULT_EXEMPT_DIRS, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
 
 
 META_LINE = re.compile(r"^\*\*[A-Za-z][A-Za-z0-9 ]*:\*\*")
@@ -118,7 +118,7 @@ def iter_target_files(targets: list[str]) -> list[Path]:
                 if any(part in DEFAULT_EXEMPT_DIRS for part in f.relative_to(REPO_ROOT).parts):
                     continue
                 files.append(f)
-    return sorted(set(files))
+    return sorted(f for f in set(files) if not is_default_exempt_root(f, repo_root=REPO_ROOT))
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -146,6 +146,7 @@ def main(argv: list[str] | None = None) -> int:
     else:
         files = iter_target_files(DEFAULT_TARGETS)
 
+    files = [f for f in files if not is_default_exempt_root(f, repo_root=REPO_ROOT)]
     total_findings = 0
     files_flagged = 0
     for f in files:

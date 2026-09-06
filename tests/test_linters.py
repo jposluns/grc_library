@@ -15576,6 +15576,640 @@ class PublicationManifestTest(unittest.TestCase):
 
 
 
+class CorpusManagementScanScopeTests(unittest.TestCase):
+    """Exercise production selectors against an in-memory repository.
+
+    Baseline mode disables only the new root policy and prefix entries.
+    Target comparisons happen before detector-specific content filtering.
+    No scaffold, generated output, git mutation or checkout fixture is needed.
+    """
+
+    PACK = ".corpus-management/"
+    SHARED = {
+        "lint-date-format.py": "scan",
+        "lint-license-consistency.py": "scan",
+        "lint-section-anchors.py": "scan",
+        "lint-intra-doc-refs.py": "scan",
+        "lint-acronym-consistency.py": "scan",
+        "lint-cross-doc-numbers.py": "scan",
+        "lint-ccm-aicm-citations.py": "scan_file",
+        "lint-cobit-iso31000-citations.py": "scan_file",
+        "lint-cross-file-section-refs.py": "check_file",
+        "lint-cross-file-section-names.py": "check_file",
+        "lint-cobit-title-text.py": "scan_file",
+        "lint-ssdf-control-ids.py": "check_file",
+        "lint-alignment-citation-existence.py": "check_file",
+    }
+    SAFETY = {
+        "lint-secrets-in-content.py": "scan",
+        "lint-pii-in-content.py": "scan",
+        "lint-internal-references.py": "scan",
+        "lint-external-link-domains.py": "scan",
+        "lint-working-prose-hygiene.py": "check_file",
+    }
+    ALLOW = {
+        "lint-language.py": "iter_markdown_files",
+        "lint-links.py": "iter_markdown_files",
+        "lint-citations.py": "iter_markdown_files",
+        "lint-standards-currency.py": "iter_files",
+        "lint-filename-title-alignment.py": "iter_active_files",
+        "lint-roles.py": "iter_markdown_files",
+        "lint-shall-near-uncertainty.py": "iter_markdown_files",
+        "lint-bare-normative-shall.py": "iter_markdown_files",
+        "lint-todo-marked-done.py": "iter_markdown_files",
+        "lint-positional-backlog-tokens.py": "iter_markdown_files",
+    }
+    WALKERS = {
+        "lint-placeholder-leakage.py": "iter_targets",
+        "lint-stub-documents.py": "iter_targets",
+        "lint-required-sections.py": "iter_targets",
+        "lint-section-placement.py": "iter_targets",
+        "lint-gate-count-consistency.py": "iter_targets",
+        "lint-unbalanced-fences.py": "iter_targets",
+        "lint-nested-markdown-links.py": "iter_targets",
+        "lint-directional-dependency.py": "iter_markdown_files",
+    }
+    SPECIAL = (
+        "lint-library-version-monotonicity.py",
+        "lint-orphan-documents.py",
+        "lint-metadata-line-breaks.py",
+        "lint-document-date-staleness.py",
+        "lint-version-bump-recency.py",
+        "lint-bookkeeping-parity.py",
+        "lint-metadata.py",
+        "lint-document-control-codes.py",
+        "lint-document-iso-annex-a.py",
+        "lint-narrative-authority-boundary.py",
+        "sweep-preflight-scanner.py",
+        "detect-collection-candidates.py",
+        "audit-claim-precision.py",
+        "suggest-listing-surfaces.py",
+        "check-class-completeness.py",
+        "check-version-bump-on-pr.py",
+        "check-date-cobump-on-pr.py",
+    )
+    BODY = (
+        "# Scope probe\n\n**Document Type:** Standard\n"
+        "**Version:** 1.0.0\n**Date:** 9999-01-01\n\n"
+        "TODO [content to be added]\n\n"
+        "## Version history\n\n| Version | Change |\n|---|---|\n| 0.1.0 | Old |\n"
+    )
+
+    def setUp(self):
+        from contextlib import ExitStack
+        from unittest.mock import patch
+
+        self.stack = ExitStack()
+        self.addCleanup(self.stack.close)
+        self.patch = patch
+        self.stack.enter_context(patch.object(sys, "dont_write_bytecode", True))
+        self.stack.enter_context(patch.object(sys, "path", [str(REPO_ROOT / "tools"), *sys.path]))
+        import lint_common
+
+        self.lc = lint_common
+        self.root = Path(tempfile.gettempdir()).resolve() / "corpus-management-scope-fixture"
+        self.stack.enter_context(patch.object(self.lc, "REPO_ROOT", self.root))
+        self.modules = {}
+        self.reads = []
+        roots = [
+            ".corpus-management/core",
+            "governance/.corpus-management",
+            "governance/corpus-management",
+            ".corpus-management-copy",
+            "governance/executive",
+            "executive",
+            "docs",
+            "guardrails",
+            ".claude/rules",
+            "references",
+            ".working",
+            *self.lc.AUDITED_DOMAIN_DIRS,
+        ]
+        self.data = {
+            self.root / d / name: self.BODY
+            for d in roots
+            for name in ("standard-scope.md", "matrix-scope.md", "probe.json", "probe.py")
+        }
+        self.dirs = {self.root}
+        for p in self.data:
+            self.dirs.update(parent for parent in p.parents if parent.is_relative_to(self.root))
+
+        def virtual(p):
+            return p.is_relative_to(self.root)
+
+        for name, members in (
+            ("is_file", self.data), ("is_dir", self.dirs),
+            ("exists", set(self.data) | self.dirs),
+        ):
+            original = getattr(Path, name)
+            self.stack.enter_context(patch.object(
+                Path, name,
+                lambda p, *a, _old=original, _members=members, **kw:
+                    p in _members if virtual(p) else _old(p, *a, **kw),
+            ))
+        for name in ("rglob", "glob"):
+            original = getattr(Path, name)
+            self.stack.enter_context(patch.object(
+                Path, name,
+                lambda p, pattern, _old=original:
+                    iter(sorted(f for f in self.data
+                                if f.is_relative_to(p) and f.match(pattern.removeprefix("**/"))))
+                    if virtual(p) else _old(p, pattern),
+            ))
+        original_read = Path.read_text
+        original_open = Path.open
+
+        def read(p, *args, **kwargs):
+            if virtual(p):
+                if p not in self.data:
+                    raise FileNotFoundError(p)
+                self.reads.append(p)
+                return self.data[p]
+            return original_read(p, *args, **kwargs)
+
+        def open_file(p, *args, **kwargs):
+            if virtual(p):
+                return io.StringIO(read(p))
+            return original_open(p, *args, **kwargs)
+
+        self.stack.enter_context(patch.object(Path, "read_text", read))
+        self.stack.enter_context(patch.object(Path, "open", open_file))
+
+    def load(self, name):
+        import types
+
+        if name in self.modules:
+            return self.modules[name]
+        rel = name if "/" in name else "tools/" + name
+        path = REPO_ROOT / rel
+        module = types.ModuleType("scope_" + Path(name).stem.replace("-", "_"))
+        module.__file__ = str(path)
+        self.stack.enter_context(self.patch.dict(sys.modules, {module.__name__: module}))
+        exec(compile(path.read_text(encoding="utf-8"), str(path), "exec"), module.__dict__)
+        if hasattr(module, "REPO_ROOT"):
+            module.REPO_ROOT = self.root
+        if hasattr(module, "DEFAULT_PATHS"):
+            module.DEFAULT_PATHS = [
+                str(self.root) if str(p) == str(REPO_ROOT) else p
+                for p in module.DEFAULT_PATHS
+            ]
+        self.modules[name] = module
+        return module
+
+    def baseline(self):
+        from contextlib import ExitStack
+
+        stack = ExitStack()
+        stack.enter_context(self.patch.object(self.lc, "DEFAULT_EXEMPT_ROOTS", frozenset()))
+        for m in self.modules.values():
+            if hasattr(m, "EXEMPT_PREFIXES"):
+                stack.enter_context(self.patch.object(
+                    m, "EXEMPT_PREFIXES",
+                    tuple(p for p in m.EXEMPT_PREFIXES if p != self.PACK),
+                ))
+            if hasattr(m, "EXCLUDE_DIRS"):
+                stack.enter_context(self.patch.object(
+                    m, "EXCLUDE_DIRS", m.EXCLUDE_DIRS - {self.PACK.rstrip("/")},
+                ))
+        return stack
+
+    def effective(self, name, paths):
+        """Observe the production selector or the first content-read boundary."""
+        from contextlib import ExitStack, redirect_stdout
+
+        m = self.load(name)
+        selected = []
+        self.reads.clear()
+
+        def capture(p, *args, **kwargs):
+            selected.append(Path(p))
+            return {} if name == "lint-cross-doc-numbers.py" else []
+
+        with ExitStack() as stack:
+            stack.enter_context(redirect_stdout(io.StringIO()))
+            if name in self.SHARED or name in self.SAFETY:
+                scanner = (self.SHARED | self.SAFETY)[name]
+                stack.enter_context(self.patch.object(m, scanner, capture))
+                if name == "lint-acronym-consistency.py":
+                    stack.enter_context(self.patch.object(m, "parse_glossary", return_value={"X": {"Example"}}))
+                if name == "lint-working-prose-hygiene.py":
+                    stack.enter_context(self.patch.object(m, "default_scan_root", return_value=self.root / ".working"))
+                argv = paths if name in (
+                    "lint-cross-file-section-refs.py", "lint-cross-file-section-names.py",
+                ) else [name, *paths]
+                self.assertEqual(m.main(argv), 0)
+                return selected
+            if name in self.ALLOW:
+                return getattr(m, self.ALLOW[name])(paths)
+            if name in self.WALKERS:
+                return getattr(m, self.WALKERS[name])(
+                    paths or (m.DEFAULT_PATHS if name in (
+                        "lint-placeholder-leakage.py", "lint-stub-documents.py",
+                        "lint-required-sections.py", "lint-section-placement.py",
+                    ) else []),
+                )
+            if name == "lint-orphan-documents.py":
+                return m.find_artefacts() + m.find_all_markdown()
+            if name == "lint-library-version-monotonicity.py":
+                stack.enter_context(self.patch.object(m, "git_show", return_value=None))
+                m.check_document_versions("baseline")
+                return list(self.reads)
+            if name == "lint-bookkeeping-parity.py":
+                m.discover_version_history_files()
+                return list(self.reads)
+            if name == "lint-metadata.py":
+                for p in m.iter_markdown_files(paths):
+                    m.check_file(p)
+                return list(self.reads)
+            if name in ("lint-document-control-codes.py", "lint-document-iso-annex-a.py"):
+                return m.collect_targets(paths)
+            if name == "lint-narrative-authority-boundary.py":
+                return m.iter_markdown_files(paths, root=self.root)
+            if name == "lint-metadata-line-breaks.py":
+                stack.enter_context(self.patch.object(m, "scan_file", capture))
+                self.assertEqual(m.main(paths), 0)
+                return selected
+            if name == "lint-document-date-staleness.py":
+                def read_target(p):
+                    selected.append(p)
+                    return ""
+                stack.enter_context(self.patch.object(m, "read_text_safe", read_target))
+                self.assertEqual(m.main(["--root", str(self.root), *paths]), 0)
+                return selected
+            if name == "lint-version-bump-recency.py":
+                def history(rel):
+                    selected.append(self.root / rel)
+                    return None
+                stack.enter_context(self.patch.object(m, "last_file_commit", history))
+                stack.enter_context(self.patch.object(m, "GIT_POOL_WORKERS", 1))
+                self.assertEqual(m.main([name, "--root", str(self.root), *paths]), 0)
+                return selected if paths else list(self.reads)
+            if name == "sweep-preflight-scanner.py":
+                return m.iter_targets()
+            if name == "detect-collection-candidates.py":
+                return m.iter_corpus_markdown()
+            if name == "audit-claim-precision.py":
+                return [p for _, p in m.corpus_files()]
+            if name == "suggest-listing-surfaces.py":
+                return [self.root / p for p in m.find_matrix_surfaces()]
+            if name == "check-class-completeness.py":
+                tracked = {str(p.relative_to(self.root)) for p in self.data}
+                return m.corpus_files(self.root) + m.attest_file_set(self.root, tracked)
+            if name in ("check-version-bump-on-pr.py", "check-date-cobump-on-pr.py"):
+                return [p for p in self.data if not m.is_exempt(p.relative_to(self.root).as_posix())]
+        self.fail("No selector adapter for " + name)
+
+    def assert_scope_delta(self, name, paths, expect_pack=True):
+        self.load(name)
+        with self.baseline():
+            before = self.effective(name, paths)
+        after = self.effective(name, paths)
+        old, new = set(before), set(after)
+        pack = {p for p in old if p.relative_to(self.root).as_posix().startswith(self.PACK)}
+        if expect_pack:
+            self.assertTrue(pack, (name, "baseline did not reach pack", paths))
+        self.assertTrue(old - pack, (name, "missing positive population", paths))
+        self.assertEqual((old ^ new) - pack, set(), (name, paths))
+        self.assertEqual(new, old - pack, (name, paths))
+        self.assertEqual(after, [p for p in before if p not in pack], (name, "order or duplicates changed"))
+
+    def test_all_affected_selectors_compare_effective_targets(self):
+        names = sorted(set(self.SHARED) | set(self.ALLOW) | set(self.WALKERS) | set(self.SPECIAL))
+        for name in names:
+            with self.subTest(name=name):
+                # Explicit-file-only gates retain that contract.
+                paths = [str(p) for p in self.data if p.suffix == ".md"]
+                self.assert_scope_delta(name, paths)
+                if name not in ("lint-document-control-codes.py", "lint-document-iso-annex-a.py",
+                                "lint-version-bump-recency.py"):
+                    self.assert_scope_delta(name, [str(self.root)])
+
+    def test_default_discovery_and_orphan_populations(self):
+        names = set(self.SHARED) | set(self.WALKERS) | set(self.SPECIAL)
+        for name in sorted(names):
+            with self.subTest(name=name):
+                # Empty input has no default meaning for these selector APIs.
+                if name in ("lint-metadata.py", "lint-directional-dependency.py",
+                            "lint-narrative-authority-boundary.py"):
+                    continue
+                self.assert_scope_delta(name, [], expect_pack=name not in (
+                    "lint-document-control-codes.py", "lint-document-iso-annex-a.py",
+                    "lint-metadata-line-breaks.py", "lint-document-date-staleness.py",
+                ))
+        orphan = self.load("lint-orphan-documents.py")
+        for collect in (orphan.find_artefacts, orphan.find_all_markdown):
+            self.assertNotIn(self.root / self.PACK / "core/standard-scope.md", collect())
+            self.assertIn(self.root / "governance/.corpus-management/standard-scope.md", collect())
+
+    def test_anchor_suffixes_custom_root_and_missing_tracked_files(self):
+        pack = self.root / self.PACK / "core/standard-scope.md"
+        for value in (pack, pack.relative_to(self.root), ".corpus-management/core/../core/standard-scope.md"):
+            self.assertTrue(self.lc.is_default_exempt_root(value))
+        for value in (
+            "governance/.corpus-management/standard-scope.md",
+            "governance/corpus-management/standard-scope.md",
+            ".corpus-management-copy/standard-scope.md",
+            ".project-governance/standard-scope.md",
+            "executive/standard-scope.md",
+            ".corpus-management",
+        ):
+            self.assertFalse(self.lc.is_default_exempt_root(value))
+        outside = self.root.parent / "outside/.corpus-management/probe.md"
+        self.assertFalse(self.lc.is_default_exempt_root(outside))
+        self.assertTrue(self.lc.is_markdown_target(outside))
+        with self.patch.object(self.lc, "REPO_ROOT", REPO_ROOT):
+            self.assertFalse(self.lc.is_default_exempt_root(pack))
+            self.assertTrue(self.lc.is_default_exempt_root(pack, repo_root=self.root))
+            self.assertEqual(self.lc.iter_markdown_targets([pack], repo_root=self.root), [])
+            for name in ("lint-document-date-staleness.py", "lint-version-bump-recency.py",
+                         "check-class-completeness.py", "lint-narrative-authority-boundary.py"):
+                self.assert_scope_delta(name, [str(p) for p in self.data if p.suffix == ".md"])
+        m = self.load("check-class-completeness.py")
+        ghost = "governance/absent.md"
+        self.assertEqual(m.attest_file_set(self.root, {ghost, self.PACK + "absent.md"}), [self.root / ghost])
+        suffixes = {".md", ".json", ".py"}
+        for suffix in suffixes:
+            p = self.root / self.PACK / ("core/probe" + suffix)
+            self.assertFalse(self.lc.is_target(p, suffixes=suffixes))
+            self.assertTrue(self.lc.is_target(p, suffixes=suffixes, exclude_default_roots=False))
+        # iter_targets input paths remain CWD-relative, independently of repo_root.
+        rel = os.path.relpath(pack, Path.cwd())
+        self.assertEqual(self.lc.iter_markdown_targets([rel]), [])
+        targets = [self.root / "governance/standard-scope.md", pack] * 2
+        self.assertEqual(self.lc.iter_markdown_targets(targets), targets[:1])
+
+    def test_allow_lists_narrative_and_operational_roots_remain_covered(self):
+        for name in self.ALLOW:
+            with self.subTest(name=name):
+                paths = list(self.lc.AUDITED_DOMAIN_DIRS)
+                self.assert_scope_delta(name, paths, expect_pack=False)
+                selected = set(self.effective(name, paths))
+                for domain in self.lc.AUDITED_DOMAIN_DIRS:
+                    self.assertIn(self.root / domain / "standard-scope.md", selected)
+        links = self.load("lint-links.py")
+        selected = links.iter_markdown_files(links.DEFAULT_SCAN_ROOTS)
+        self.assertIn(self.root / "executive/standard-scope.md", selected)
+        self.assertIn(self.root / ".claude/rules/standard-scope.md", selected)
+        self.assertNotIn(".corpus-management", self.lc.AUDITED_DOMAIN_DIRS)
+        self.assertNotIn(".corpus-management", self.lc.DEFAULT_EXEMPT_DIRS)
+        self.assertNotIn("executive", self.lc.DEFAULT_EXEMPT_DIRS)
+        for name in self.SAFETY:
+            self.load(name)
+            for paths in ([], [str(self.root)], [str(p) for p in self.data]):
+                with self.subTest(name=name, paths=paths[:1]):
+                    with self.baseline():
+                        before = self.effective(name, paths)
+                    after = self.effective(name, paths)
+                    self.assertEqual(after, before)
+                    if paths:
+                        self.assertTrue(any(self.PACK in str(p) for p in after))
+        for name in ("lint-stub-documents.py", "lint-required-sections.py",
+                     "lint-section-placement.py", "lint-acronym-consistency.py"):
+            selected = self.effective(name, [str(self.root)])
+            self.assertNotIn(self.root / "executive/standard-scope.md", selected)
+            self.assertIn(self.root / "governance/executive/standard-scope.md", selected)
+
+    def test_positive_twins_and_repo_wide_boundary(self):
+        from contextlib import redirect_stdout
+
+        pack = self.root / self.PACK / "core/standard-scope.md"
+        twin = self.root / "governance/standard-scope.md"
+        required = self.load("lint-required-sections.py")
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(required.main(["probe", str(pack)]), 0)
+            self.assertEqual(required.main(["probe", str(twin)]), 1)
+        for name, body in (
+            ("lint-document-control-codes.py", "| Framework | Code |\n|---|---|\n| NIST CSF 2.0 | ID.BE |\n"),
+            ("lint-document-iso-annex-a.py", "| Framework | Code |\n|---|---|\n| ISO/IEC 27001:2022 | A.5.99 |\n"),
+            ("lint-metadata-line-breaks.py", "**Version:** 1.0.0\n**Date:** 2026-01-01\n"),
+        ):
+            self.data[pack] = self.data[twin] = body
+            m = self.load(name)
+            with redirect_stdout(io.StringIO()), self.patch.object(sys, "stderr", io.StringIO()):
+                prefix = [] if name == "lint-metadata-line-breaks.py" else ["probe"]
+                self.assertEqual(m.main(prefix + [str(pack)]), 0)
+                self.assertEqual(m.main(prefix + [str(twin)]), 1)
+        for name, body in (
+            ("lint-secrets-in-content.py", "AKIAIOSFODNN7EXAMPLE\n"),
+            ("lint-pii-in-content.py", "Reach person@real-business.test for assistance.\n"),
+        ):
+            m = self.load(name)
+            for p in (pack, twin, self.root / "executive/standard-scope.md"):
+                self.data[p] = body
+                with redirect_stdout(io.StringIO()):
+                    self.assertEqual(m.main(["probe", str(p)]), 1)
+        boundary = self.load("lint-narrative-boundary.py")
+        for rel in (self.PACK + "core/standard-scope.md", "governance/standard-scope.md",
+                    "docs/standard-scope.md", "guardrails/standard-scope.md",
+                    ".claude/rules/standard-scope.md", "references/standard-scope.md",
+                    "governance/.corpus-management/standard-scope.md"):
+            p = self.root / rel
+            self.data[p] = "**Document Type:** Executive Narrative\n**Audience:** Board\n"
+            outside, _ = boundary.discover(self.root)
+            self.assertIn((p, rel), outside)
+            self.assertTrue(boundary.scan_outside_file(p, rel))
+        inside = self.root / "executive/standard-scope.md"
+        self.data[inside] = self.BODY
+        self.assertTrue(boundary.check_inside_page(inside, "executive/standard-scope.md"))
+        for name, attr, expected in (
+            ("lint-stdlib-only-imports.py", "SCAN_DIRS", ("tools", "tests", ".web", "vendor/aiqt/tools")),
+            ("lint-unused-imports.py", "DEFAULT_DIRS", ("tools", "tests", ".web", ".claude/hooks")),
+        ):
+            self.assertEqual(getattr(self.load(name), attr), expected)
+
+    def test_listing_report_and_commit_hook_skip_before_content_reads(self):
+        import json
+        from contextlib import redirect_stderr, redirect_stdout
+
+        listing = self.load("suggest-listing-surfaces.py")
+        self.reads.clear()
+        with redirect_stdout(io.StringIO()) as output:
+            listing.report_one(self.PACK + "core/standard-scope.md")
+        self.assertIn("outside the corpus", output.getvalue())
+        self.assertEqual(self.reads, [])
+        hook = self.load(".claude/hooks/block-unbumped-version-commit.py")
+        pack = self.PACK + "core/standard-scope.md"
+        twin = "governance/standard-scope.md"
+        payload = json.dumps({"tool_name": "Bash", "tool_input": {"command": "git commit -m probe"}})
+        for staged, expected in (([pack], set()), ([pack, twin], {twin})):
+            seen = []
+            def git(root, *args):
+                if args[:3] == ("diff", "--cached", "--name-only"):
+                    return "\n".join(staged)
+                seen.extend(args[args.index("--") + 1:])
+                return ""
+            with self.patch.object(hook, "project_root", return_value=self.root), \
+                 self.patch.object(hook, "git", git), \
+                 self.patch.object(sys, "stdin", io.StringIO(payload)), \
+                 redirect_stderr(io.StringIO()) as stderr:
+                self.reads.clear()
+                self.assertEqual(hook.main(), 0)
+            self.assertEqual(set(seen), expected)
+            self.assertNotIn(self.root / pack, self.reads)
+            self.assertEqual("taxonomy" in stderr.getvalue(), bool(expected))
+        body_diff = (
+            f"diff --git a/{twin} b/{twin}\n@@ -20,1 +20,1 @@\n"
+            "-Old body.\n+Changed body.\n"
+        )
+        def changed_git(root, *args):
+            return "\n".join((pack, twin)) if "--name-only" in args else body_diff
+        with self.patch.object(hook, "project_root", return_value=self.root), \
+             self.patch.object(hook, "git", changed_git), \
+             self.patch.object(hook, "try_auto_bump", return_value=False) as bump, \
+             self.patch.object(sys, "stdin", io.StringIO(payload)), \
+             redirect_stderr(io.StringIO()):
+            self.assertEqual(hook.main(), 2)
+        self.assertEqual([c.args[1] for c in bump.call_args_list], [twin])
+
+    def test_delta_gates_preserve_positive_enforcement(self):
+        import datetime
+        from contextlib import ExitStack, redirect_stderr, redirect_stdout
+
+        pack = self.PACK + "core/standard-scope.md"
+        twin = "governance/standard-scope.md"
+        for name in ("check-version-bump-on-pr.py", "check-date-cobump-on-pr.py"):
+            m = self.load(name)
+            for changed, expected in ((pack, 0), (twin, 1)):
+                reads = []
+                def show(ref, path):
+                    reads.append(path)
+                    version = "1.0.1" if ref == "head" and name == "check-date-cobump-on-pr.py" else "1.0.0"
+                    return f"**Version:** {version}\n**Date:** 2026-01-01\n\nChanged body.\n"
+                with ExitStack() as stack:
+                    stack.enter_context(self.patch.object(m, "resolve_pr_range", return_value=("base", "head")))
+                    stack.enter_context(self.patch.object(m, "git", return_value=changed))
+                    stack.enter_context(self.patch.object(m, "git_show", show))
+                    if name == "check-date-cobump-on-pr.py":
+                        stack.enter_context(self.patch.object(
+                            m, "bump_commit_date_utc", return_value=datetime.date(2026, 1, 2)))
+                    stack.enter_context(redirect_stdout(io.StringIO()))
+                    stack.enter_context(redirect_stderr(io.StringIO()))
+                    self.assertEqual(m.main(["probe", "base", "head"]), expected)
+                self.assertEqual(set(reads), set() if changed == pack else {twin})
+
+    def test_scope_mutations_are_detected(self):
+        paths = [str(self.root)]
+        with self.patch.object(self.lc, "is_default_exempt_root", return_value=False):
+            with self.assertRaises(AssertionError):
+                self.assert_scope_delta("lint-date-format.py", paths)
+        def broad(path, *, repo_root=None):
+            return bool(self.lc.DEFAULT_EXEMPT_ROOTS) and any(
+                ".corpus-management" in p for p in Path(path).parts)
+        with self.patch.object(self.lc, "is_default_exempt_root", broad):
+            with self.assertRaises(AssertionError):
+                self.assert_scope_delta("lint-date-format.py", paths)
+        m = self.load("lint-date-format.py")
+        with self.patch.object(m, "iter_markdown_targets", return_value=[]):
+            with self.assertRaises(AssertionError):
+                self.assert_scope_delta("lint-date-format.py", paths)
+
+    def test_closed_wired_inventory(self):
+        # These gates retain named-input, configured-root or independent
+        # operational scope. Their existing positive regression fixtures apply.
+        unchanged = set("""
+        build-narrative-registry.py
+        build-portal.py
+        build-relationship-model.py
+        build-taxonomy.py
+        build-todo-number-allocation.py
+        check-changelog-dash-on-pr.py
+        check-changelog-length-on-pr.py
+        check-changelog-on-pr.py
+        check-claude-md-size.py
+        check-daily-changelog-rollup.py
+        check-narrative-corpus-mixed-diff-on-pr.py
+        check-retired-section-orphan-on-pr.py
+        check-review-cadence.py
+        check-stranded-control-code-on-pr.py
+        check-todo-floor-monotonic-on-pr.py
+        check-todo-rotation-on-pr.py
+        lint-aiqt-vendor-digest.py
+        lint-audit-gate-parity.py
+        lint-audit-spec-detailed-prose.py
+        lint-changelog-link-coverage.py
+        lint-changelog-mirror-header-parity.py
+        lint-citation-currency-cadence.py
+        lint-citation-verification-freshness.py
+        lint-claude-rules-sync.py
+        lint-collection-enumeration-consistency.py
+        lint-doctype-parity.py
+        lint-external-overlay-license.py
+        lint-followup-ageing.py
+        lint-gate-citation-inventory.py
+        lint-guardrail-cadence.py
+        lint-hooks-syntax.py
+        lint-index-header-parity.py
+        lint-listing-surface-completeness.py
+        lint-matrix-control-codes.py
+        lint-narrative-disclaimer.py
+        lint-narrative-metadata.py
+        lint-narrative-vocabulary.py
+        lint-overnight-file.py
+        lint-paired-skill-step-parity.py
+        lint-playbook-pointer-integrity.py
+        lint-publication-manifest.py
+        lint-retention-consistency.py
+        lint-rule-scope-table.py
+        lint-scan-scope-parity.py
+        lint-session-state.py
+        lint-sibling-placeholders.py
+        lint-skill-derives-from.py
+        lint-skill-internal-refs.py
+        lint-skill-verdict-carrier-completeness.py
+        lint-structure.py
+        lint-todo-index-reference-parity.py
+        lint-todo-list-tag.py
+        lint-todo-number-permanence.py
+        lint-todo-staleness.py
+        lint-tooling-provenance-freshness.py
+        lint-ungated-dashes.py
+        lint-version-date-consistency.py
+        lint-web-corpus-links.py
+        run-linter-regression.py
+        """.split())
+        delegated = {"check-class-attestation-on-pr.py": "check-class-completeness.py"}
+        preserved = {"lint-narrative-boundary.py", "lint-stdlib-only-imports.py",
+                     "lint-unused-imports.py"}
+        exercised = set(self.SHARED) | set(self.SAFETY) | set(self.ALLOW) | set(self.WALKERS) | set(self.SPECIAL)
+        self.assertFalse(unchanged & (exercised | preserved))
+        wired = set()
+        for rel in ("tools/run_all_audits.sh", "tools/run-pr-time-checks.sh",
+                    ".github/workflows/quality.yml"):
+            wired.update(re.findall(r"tools/([a-z0-9-]+\.py)", (REPO_ROOT / rel).read_text()))
+        self.assertEqual(wired - unchanged - exercised - preserved - delegated.keys(), set())
+        for name in unchanged | preserved | exercised:
+            self.assertTrue((REPO_ROOT / "tools" / name).is_file(), name)
+        # Unchanged gates cannot silently start inheriting corpus exclusions.
+        import ast
+        helpers = {"iter_targets", "iter_markdown_targets", "is_target",
+                   "is_markdown_target", "iter_scan_roots_markdown",
+                   "is_default_exempt_root"}
+        for name in unchanged | preserved:
+            tree = ast.parse((REPO_ROOT / "tools" / name).read_text())
+            inherited = {a.name for n in ast.walk(tree)
+                         if isinstance(n, ast.ImportFrom) and n.module == "lint_common"
+                         for a in n.names}
+            self.assertFalse(inherited & helpers, name)
+        for name, target in delegated.items():
+            source = (REPO_ROOT / "tools" / name).read_text()
+            self.assertIn(target, source)
+            self.assertTrue(any(isinstance(n, ast.Call)
+                                and getattr(n.func, "attr", "") == "attest_file_set"
+                                for n in ast.walk(ast.parse(source))))
+        web = (REPO_ROOT / ".web/build.py").read_text()
+        self.assertNotIn("import lint_common", web)
+        self.assertNotIn("from lint_common", web)
+        self.assertNotIn(".corpus-management", web)
+
+    def test_exclusion_precedes_version_content_filters(self):
+        for p in self.data:
+            self.data[p] = "Plain source text without metadata.\n"
+        for name in ("lint-library-version-monotonicity.py",
+                     "lint-version-bump-recency.py", "lint-bookkeeping-parity.py"):
+            with self.subTest(name=name):
+                self.assert_scope_delta(name, [])
+
+
 class NarrativeScanScopeTests(LinterTestCase):
     """P-1.25 scan-root split: executive/ is outside the corpus document
     model but inside the repository safety gates, and the classification is

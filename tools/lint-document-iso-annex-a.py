@@ -70,7 +70,7 @@ from iso_27001_reference import (
 )
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import is_fence_line, is_separator_row, read_text_safe, split_row  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT, iter_markdown_targets  # noqa: E402  # grc-config/store, stays local
+from lint_common import is_default_exempt_root, AUDITED_DOMAIN_DIRS, REPO_ROOT, iter_markdown_targets  # noqa: E402  # grc-config/store, stays local
 
 # The central matrix is gate 49's exact target; exclude it here to avoid
 # duplicate coverage. Path is relative to REPO_ROOT, posix form.
@@ -222,7 +222,10 @@ def scan_file(path: Path) -> list[Finding]:
 def collect_targets(paths: list[str] | None) -> list[Path]:
     """Resolve the scan targets: explicit paths, or the audited corpus."""
     if paths:
-        return [Path(p).resolve() for p in paths]
+        return [
+            Path(p).resolve() for p in paths
+            if not is_default_exempt_root(Path(p).resolve(), repo_root=REPO_ROOT)
+        ]
     roots = [REPO_ROOT / d for d in (*AUDITED_DOMAIN_DIRS, "guardrails")]
     out: list[Path] = []
     for p in iter_markdown_targets(roots):

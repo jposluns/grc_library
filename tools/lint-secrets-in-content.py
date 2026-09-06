@@ -178,6 +178,7 @@ def main(argv: list[str]) -> int:
     targets = iter_targets(
         args.paths,
         suffixes=SCAN_SUFFIXES,
+        exclude_default_roots=False,  # Preserve source-tree safety coverage.
         exempt_files=EXEMPT_FILES,
     )
     grouped: dict[Path, list[tuple[int, str, str]]] = {}

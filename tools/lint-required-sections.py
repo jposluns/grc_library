@@ -42,7 +42,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import iter_non_code_lines, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import DEFAULT_EXEMPT_DIRS, is_narrative_root, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+from lint_common import is_default_exempt_root, DEFAULT_EXEMPT_DIRS, is_narrative_root, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
 
 DEFAULT_PATHS = [str(REPO_ROOT)]
 
@@ -109,6 +109,8 @@ EXEMPT_FILES: set[str] = {
 
 
 def is_target(path: Path) -> bool:
+    if is_default_exempt_root(path, repo_root=REPO_ROOT):
+        return False
     if path.suffix != ".md":
         return False
     if any(part in EXEMPT_DIR_PARTS for part in path.parts) or is_narrative_root(path):

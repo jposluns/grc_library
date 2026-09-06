@@ -53,7 +53,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+from lint_common import is_default_exempt_root, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
 
 
 # Candidate canonical source roots. Each direct subdirectory of these
@@ -166,6 +166,8 @@ def iter_corpus_markdown() -> list[Path]:
     """Yield markdown files in the corpus, minus the skip set."""
     out: list[Path] = []
     for path in REPO_ROOT.rglob("*.md"):
+        if is_default_exempt_root(path, repo_root=REPO_ROOT):
+            continue
         try:
             rel = path.relative_to(REPO_ROOT).as_posix()
             parts = set(path.relative_to(REPO_ROOT).parts)

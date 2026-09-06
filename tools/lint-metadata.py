@@ -69,7 +69,7 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT
+from lint_common import is_default_exempt_root, AUDITED_DOMAIN_DIRS, REPO_ROOT
 
 
 ALLOWED_TYPES = {
@@ -347,6 +347,8 @@ def normalize_link_value(value: str) -> str:
 
 def check_file(path: Path) -> list[str]:
     findings: list[str] = []
+    if is_default_exempt_root(path, repo_root=REPO_ROOT):
+        return findings
     rel = path.relative_to(REPO_ROOT).as_posix()
     basename = path.name
 

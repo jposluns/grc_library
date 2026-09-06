@@ -55,7 +55,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import parse_metadata_block, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+from lint_common import is_default_exempt_root, AUDITED_DOMAIN_DIRS, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
 
 # The narrative directory: the target the direction rule forbids corpus
 # documents from referencing.
@@ -238,6 +238,8 @@ def iter_markdown_files(paths: list[str], root: Path = REPO_ROOT) -> list[Path]:
     # are the ALLOWED direction); guard explicit-path invocations too.
     kept = []
     for f in files:
+        if is_default_exempt_root(f, repo_root=root):
+            continue
         try:
             rel = f.resolve().relative_to(root.resolve())
             if rel.parts and rel.parts[0] == NARRATIVE_ROOT:

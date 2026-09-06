@@ -169,7 +169,7 @@ import sys
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import SIMPLE_CODE_SPAN_RE, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import DEFAULT_EXEMPT_DIRS, REPO_ROOT, dynamic_floor, resolve_working  # noqa: E402  # grc-config/store, stays local
+from lint_common import is_default_exempt_root, DEFAULT_EXEMPT_DIRS, REPO_ROOT, dynamic_floor, resolve_working  # noqa: E402  # grc-config/store, stays local
 
 
 CHANGELOG_PATH = "CHANGELOG.md"
@@ -713,6 +713,8 @@ def discover_version_history_files() -> list[tuple[str, str]]:
     """
     out: list[tuple[str, str]] = []
     for path in sorted(REPO_ROOT.rglob("*.md")):
+        if is_default_exempt_root(path, repo_root=REPO_ROOT):
+            continue
         rel = path.relative_to(REPO_ROOT)
         if any(part in DEFAULT_EXEMPT_DIRS for part in rel.parts):
             continue

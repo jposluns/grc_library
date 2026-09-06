@@ -65,7 +65,7 @@ def corpus_files(root: Path = REPO_ROOT) -> list[Path]:
     the pack under ``guardrails/``, and ``.project-governance/``): broader is
     the SAFE direction for a class-completeness sweep, which wants to surface every occurrence
     it can read."""
-    return sorted(p for p in root.rglob("*.md") if p.is_file() and is_markdown_target(p))
+    return sorted(p for p in root.rglob("*.md") if p.is_file() and is_markdown_target(p, repo_root=root))
 
 
 def find_occurrences(
@@ -161,7 +161,7 @@ def attest_file_set(root: Path = REPO_ROOT, tracked: set[str] | None = None) -> 
     return sorted(
         root / rel
         for rel in tracked
-        if rel.endswith(".md") and is_markdown_target(root / rel)
+        if rel.endswith(".md") and is_markdown_target(root / rel, repo_root=root)
     )
 
 

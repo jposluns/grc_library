@@ -146,7 +146,9 @@ def main(argv: list[str]) -> int:
             return 0
         paths = [str(scan_root)]
 
-    files = iter_markdown_targets(paths, exempt_dirs=EXEMPT_DIRS)
+    files = iter_markdown_targets(
+        paths, exempt_dirs=EXEMPT_DIRS, exclude_default_roots=False,
+    )
 
     grouped: dict[str, list[tuple[int, str]]] = defaultdict(list)
     total = 0
