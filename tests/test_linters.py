@@ -16838,6 +16838,37 @@ class CorpusManagementCompilerTests(LinterTestCase):
         self.assertIn(result.returncode, (1, 2), result.stdout + result.stderr)
         self.assertNotIn("Traceback", result.stderr)
 
+    # --- Round-3 hardening regression (iter-3 HOLD, gemini+claude): a
+    # --- symlink-to-DIRECTORY is not is_file(), so a naive rglob scan missed it. ---
+    def test_symlink_dir_stray_in_owned_tree_is_drift(self):
+        root = self._make_root(
+            gensrc=self.TREE_GENSRC, ownership=self.TREE_OWNERSHIP,
+            owned_targets='"generated/rules"',
+            sources={"core/rules/a.md": "# A\n\nBody a.\n"},
+        )
+        self.assertEqual(self._run(root).returncode, 0)
+        self.assertEqual(self._run(root, "--check").returncode, 0)
+        outside = root / "outside-dir"
+        outside.mkdir()
+        (outside / "x.md").write_text("stray\n", encoding="utf-8")
+        os.symlink(outside, root / "generated" / "rules" / "sneaky")
+        result = self._run(root, "--check")
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("unexpected file", result.stdout)
+
+    def test_symlink_dir_in_tree_source_is_config_error(self):
+        root = self._make_root(
+            gensrc=self.TREE_GENSRC, ownership=self.TREE_OWNERSHIP,
+            owned_targets='"generated/rules"',
+            sources={"core/rules/a.md": "# A\n\nBody a.\n"},
+        )
+        outside = root / "src-outside"
+        outside.mkdir()
+        (outside / "y.md").write_text("y\n", encoding="utf-8")
+        os.symlink(outside, root / ".corpus-management" / "core" / "rules" / "linkdir")
+        result = self._run(root, "--check")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+
 
 class NarrativeScanScopeTests(LinterTestCase):
     """P-1.25 scan-root split: executive/ is outside the corpus document

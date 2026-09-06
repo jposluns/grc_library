@@ -547,6 +547,12 @@ def load_and_validate(root: Path, pack_root: Path) -> tuple[list[Rule], list[str
             src_dir = pack_root / r.sources[0]
             files = sorted((p for p in src_dir.rglob("*") if p.is_file()),
                            key=lambda p: p.relative_to(src_dir).as_posix())
+            for sd in sorted(q for q in src_dir.rglob("*")
+                             if q.is_symlink() and not q.is_file()):
+                problems.append(f"rule {r.id!r}: tree source {r.sources[0]}/"
+                                f"{sd.relative_to(src_dir).as_posix()} is a symlinked "
+                                f"directory; its contents are not reproducibly "
+                                f"enumerable (remove the symlink)")
             tree_files: list[tuple[str, str]] = []
             for f in files:
                 rel = f.relative_to(src_dir).as_posix()
@@ -687,7 +693,8 @@ def run_check(root: Path, rules: list[Rule]) -> list[str]:
                                     f"with its pack source (rule {r.id!r})")
             tdir = root / r.target
             if tdir.is_dir():
-                for f in sorted(p for p in tdir.rglob("*") if p.is_file()):
+                for f in sorted(p for p in tdir.rglob("*")
+                               if p.is_file() or p.is_symlink()):
                     rel = f.relative_to(root).as_posix()
                     if rel not in renders:
                         findings.append(f"{rel}: unexpected file inside the "
@@ -746,7 +753,8 @@ def plan_generate(root: Path, rules: list[Rule]) -> tuple[list[str], list[tuple[
             renders = _tree_renders(r)
             tdir = root / r.target
             if tdir.is_dir():
-                for f in sorted(p for p in tdir.rglob("*") if p.is_file()):
+                for f in sorted(p for p in tdir.rglob("*")
+                               if p.is_file() or p.is_symlink()):
                     rel = f.relative_to(root).as_posix()
                     if rel not in renders:
                         problems.append(f"{rel}: unexpected file inside the "
