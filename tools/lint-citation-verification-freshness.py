@@ -33,7 +33,9 @@ import sys
 from datetime import date, datetime
 from pathlib import Path
 
-from lint_common import REPO_ROOT, add_months
+import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
+from aiqt_corpus import add_months  # noqa: E402  # generic core (AST-identical to lint_common)
+from lint_common import REPO_ROOT  # noqa: E402  # grc-config/store, stays local
 
 VERIFICATIONS = REPO_ROOT / ".project-governance" / "register-citation-verifications.md"
 CADENCE_MONTHS = 12  # per Citation Verification Specification §12.1

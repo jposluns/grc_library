@@ -74,15 +74,9 @@ import sys
 from collections import namedtuple
 from pathlib import Path
 
-from lint_common import (
-    AUDITED_DOMAIN_DIRS,
-    REPO_ROOT,
-    is_fence_line,
-    is_separator_row,
-    iter_markdown_targets,
-    read_text_safe,
-    split_row,
-)
+import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
+from aiqt_corpus import is_fence_line, is_separator_row, read_text_safe, split_row  # noqa: E402  # generic core (AST-identical to lint_common)
+from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT, iter_markdown_targets  # noqa: E402  # grc-config/store, stays local
 from nist_csf_reference import is_valid_category, relocation_note
 
 # The central matrix is gate 49's exact target; exclude it here to avoid
