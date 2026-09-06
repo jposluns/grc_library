@@ -1,0 +1,50 @@
+# Corpus-Management pack manifest (skeleton; umbrella 4.1).
+# PR-1 reserves structure only: no clauses transferred, no enforcement installed,
+# generation disabled. Paths are relative to the pack root (.corpus-management/).
+schema_version = 1
+
+[pack]
+id = "corpus-management"
+version = "0.0.0"
+state = "skeleton"
+source_root = "."
+
+[dependency.aiqt]
+model = "B"
+module = "aiqt_corpus"
+minimum_python = "3.11"
+
+[registers]
+clauses = "core/clauses.toml"
+id_history = "core/id-history.toml"
+ownership = "core/ownership.toml"
+gates = "core/gates.toml"
+hooks = "core/hooks.toml"
+
+[metadata]
+structure = "fixed"
+vocabulary = "configurable"
+default_profile = "grc"
+
+[reference_registers]
+distribution = "defaults-with-adopter-overrides"
+defaults_root = "defaults/grc"
+
+[operational_registers]
+scope = "project-only"
+shipped = false
+
+[generation]
+enabled = false
+ruleset = "gensrc.toml"
+owned_targets = []
+
+[addons]
+available = ["matrix-fit", "claim-fit", "reference-audit"]
+enabled = []
+requires_reference_base = true
+
+[rollout]
+phase_2b = "skip"
+gate_98 = "corpus-interim"
+publication = "deferred-P4"

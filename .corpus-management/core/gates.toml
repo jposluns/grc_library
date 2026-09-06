@@ -1,0 +1,3 @@
+# Gate register (skeleton). PR-1 installs no gates.
+schema_version = 1
+gates = []

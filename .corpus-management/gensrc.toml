@@ -1,0 +1,4 @@
+# Generation ruleset (skeleton). PR-1 installs no rules and owns no outputs;
+# the compiler and the first generated slice arrive in PR-2.
+schema_version = 1
+rules = []

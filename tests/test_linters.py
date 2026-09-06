@@ -16210,6 +16210,77 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
                 self.assert_scope_delta(name, [])
 
 
+class CorpusManagementScaffoldInertnessTests(unittest.TestCase):
+    """The .corpus-management/ pack scaffold (compile PR-1b) is well-formed and INERT: the manifest
+    and every register parse, register paths resolve inside the pack, generation is disabled with no
+    owned targets, every register collection is empty, and no Python ships in the pack. Guards the
+    PR-1b codex-QA E2 gap: the scan-boundary exemption removes corpus-content checks from the pack, so
+    WITHOUT this test a malformed manifest, an enabled generation flag, a dangling register path, or a
+    nonempty register would leave the audit green. Runs in the regression suite (gate 36)."""
+
+    PACK = REPO_ROOT / ".corpus-management"
+
+    def _manifest(self):
+        import tomllib
+        with open(self.PACK / "core" / "manifest.toml", "rb") as fh:
+            return tomllib.load(fh)
+
+    def test_scaffold_present_and_manifest_wellformed(self):
+        self.assertTrue(self.PACK.is_dir(), ".corpus-management/ pack scaffold must be present")
+        man = self._manifest()
+        self.assertEqual(man["schema_version"], 1)
+        self.assertEqual(man["pack"]["state"], "skeleton")
+        self.assertEqual(man["pack"]["version"], "0.0.0")
+
+    def test_generation_disabled_no_owned_targets(self):
+        man = self._manifest()
+        self.assertFalse(man["generation"]["enabled"], "PR-1b: generation must be disabled")
+        self.assertEqual(man["generation"]["owned_targets"], [], "PR-1b: no owned generation targets")
+
+    def test_register_paths_resolve_and_collections_empty(self):
+        import tomllib
+        man = self._manifest()
+        # Fail-CLOSED on INVENTORY: the manifest must declare EXACTLY these five registers (a
+        # deleted register key must fail, not silently reduce the checked set).
+        self.assertEqual(
+            set(man["registers"]),
+            {"clauses", "id_history", "ownership", "gates", "hooks"},
+            "manifest [registers] must declare exactly the five expected registers",
+        )
+        # Fail-CLOSED on SHAPE: each register must carry its SPECIFIC empty-list collection (a scalar,
+        # table, or missing collection must fail, not silently pass). Keyed by filename.
+        expected_collection = {
+            "clauses.toml": "clauses",
+            "id-history.toml": "events",
+            "ownership.toml": "owned_targets",
+            "gates.toml": "gates",
+            "hooks.toml": "hooks",
+        }
+        for key, rel in man["registers"].items():
+            reg_path = self.PACK / rel
+            self.assertTrue(reg_path.is_file(), f"register {key!r} path {rel!r} does not resolve")
+            with open(reg_path, "rb") as fh:
+                reg = tomllib.load(fh)
+            self.assertEqual(reg.get("schema_version"), 1, f"register {key!r} missing schema_version=1")
+            coll = expected_collection.get(Path(rel).name)
+            self.assertIsNotNone(coll, f"register {key!r} ({rel}) has no expected-collection mapping")
+            self.assertIn(coll, reg, f"register {key!r} missing its {coll!r} collection")
+            self.assertIsInstance(reg[coll], list, f"register {key!r} {coll!r} must be a list, not a scalar/table")
+            self.assertEqual(reg[coll], [], f"register {key!r} {coll!r} must be EMPTY in PR-1b")
+
+    def test_gensrc_disabled_no_rules(self):
+        import tomllib
+        with open(self.PACK / "gensrc.toml", "rb") as fh:
+            g = tomllib.load(fh)
+        self.assertIn("rules", g, "PR-1b: gensrc must declare an (empty) rules collection")
+        self.assertIsInstance(g["rules"], list, "PR-1b: gensrc rules must be a list, not a scalar/table")
+        self.assertEqual(g["rules"], [], "PR-1b: gensrc installs no rules")
+
+    def test_no_python_ships_in_pack(self):
+        pys = sorted(str(p.relative_to(self.PACK)) for p in self.PACK.rglob("*.py"))
+        self.assertEqual(pys, [], f"PR-1b ships NO Python in the pack; found {pys}")
+
+
 class NarrativeScanScopeTests(LinterTestCase):
     """P-1.25 scan-root split: executive/ is outside the corpus document
     model but inside the repository safety gates, and the classification is

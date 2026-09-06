@@ -1,0 +1,3 @@
+# Append-only clause-ID history (skeleton). PR-1 reserves structure; no events.
+schema_version = 1
+events = []
