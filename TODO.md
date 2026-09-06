@@ -81,7 +81,7 @@ Fill significant gaps: deepen thin-but-present content to operational sufficienc
 | 2.29 | Latin-American privacy jurisdiction annexes + corpus alignment for the newly-held primaries (M, M) | `[content]` `[public]` |
 | 2.25.2 | Control-to-policy-instrument coverage: international AI-governance authorities (consolidated with 2.15; M, M) | `[content]` `[public]` |
 | 2.26 | OSCAL machine-readable representation (umbrella; maintainer-directed 2026-07-23, H, XL) | `[machinery]` `[public]` |
-| 2.33 | Canada-specific executive/jurisdiction document series (maintainer-directed 2026-08-17; content; moved from private P-1.38 2026-08-30) | `[public]` |
+| 2.33 | Canada-specific executive/jurisdiction document series (maintainer-directed 2026-08-17; content) | `[public]` |
 | 2.34 | Workforce monitoring and network-telemetry compliance suite (umbrella; requested by the UniFi presence/traffic project 2026-09-02, maintainer-directed, target ~2026-09-09; H, L) | `[content]` `[public]` |
 | 2.34.9 | Citations import for 2.34 (NIST Privacy Framework registered #1972; WP249, ICO Monitoring-workers, ILO + Council of Europe workplace-monitoring recommendations remain egress-blocked and in the maintainer-egress queue, pending console-upload before source-verification and registration) | `[content]` `[public]` |
 | 3.14 | ETSI Securing-AI alignment map (L, M) (was 3.16) | `[public]` |

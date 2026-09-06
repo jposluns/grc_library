@@ -2,8 +2,8 @@
 
 **Document Title:** Master Project Specification\
 **Document Type:** Specification\
-**Version:** 1.6.23\
-**Date:** 2026-09-05\
+**Version:** 1.6.24\
+**Date:** 2026-09-06\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Risk Officer\
 **Related Documents:** [`specification-ingestion.md`](specification-ingestion.md), [`instruction-ai-document-ingestion.md`](instruction-ai-document-ingestion.md), [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md)\
@@ -223,7 +223,7 @@ Examples: `2026.05.0`, `2026.05.7`, `2026.06.0`, `2026.12.42`.
 > historical gaps do not violate the go-forward sequential intent. No current gate detects them (the
 > library-version monotonicity gate asserts only that the version never decreases, and the CHANGELOG
 > mirror-parity gate's strictly-decreasing check no-ops without the private mirror; a skipped number
-> satisfies both); a forward-looking continuity check is a planned gate (P-3.240).
+> satisfies both); a forward-looking continuity check remains planned under the Corpus-Management discipline roadmap ([`TODO.md`](TODO.md), item 4.1).
 
 #### Why CalVer
 
