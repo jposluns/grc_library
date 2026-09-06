@@ -12833,7 +12833,7 @@ class SkillInternalRefsTests(LinterTestCase):
                          f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}")
 
     def test_self_test_passes(self):
-        # The linter's own 15-case --self-test exercises every token class and
+        # The linter's own 17-case --self-test exercises every token class and
         # every exemption (adopt-wholesale, .claude/ tree, placeholder tool path,
         # generic gate placeholders, single-level section refs, is_private
         # substring), the FP-safety envelope the census established.
