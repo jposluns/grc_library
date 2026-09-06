@@ -53,7 +53,9 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT, parse_metadata_block, read_text_safe
+import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
+from aiqt_corpus import parse_metadata_block, read_text_safe  # noqa: E402  # generic core (AST-identical to lint_common)
+from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
 
 # The narrative directory: the target the direction rule forbids corpus
 # documents from referencing.
