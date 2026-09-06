@@ -33,12 +33,9 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import (
-    AUDITED_DOMAIN_DIRS,
-    iter_non_code_lines,
-    iter_scan_roots_markdown,
-    read_text_safe,
-)
+import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
+from aiqt_corpus import iter_non_code_lines, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
+from lint_common import AUDITED_DOMAIN_DIRS, iter_scan_roots_markdown  # noqa: E402  # grc-config/store, stays local
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 CANONICAL_REGISTER = REPO_ROOT / "governance" / "register-canonical-citations.md"

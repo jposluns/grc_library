@@ -47,14 +47,9 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import (
-    AUDITED_DOMAIN_DIRS,
-    REPO_ROOT,
-    SIMPLE_CODE_SPAN_RE,
-    iter_non_code_lines,
-    iter_scan_roots_markdown,
-    read_text_safe,
-)
+import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
+from aiqt_corpus import SIMPLE_CODE_SPAN_RE, iter_non_code_lines, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
+from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT, iter_scan_roots_markdown  # noqa: E402  # grc-config/store, stays local
 
 # A bare normative ``shall``: the word standing free, not part of a
 # hyphenated identifier (e.g. ``lint-shall-near-uncertainty``) and not a

@@ -27,7 +27,9 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT, is_fence_line, iter_scan_roots_markdown
+import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
+from aiqt_corpus import is_fence_line  # noqa: E402  # generic core (behaviour-identical to lint_common)
+from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT, iter_scan_roots_markdown  # noqa: E402  # grc-config/store, stays local
 
 
 # Match markdown links: [text](target) where target is not an external URL.
