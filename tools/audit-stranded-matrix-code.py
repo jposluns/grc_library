@@ -44,7 +44,9 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from lint_common import REPO_ROOT, read_text_safe  # noqa: E402
+import aiqt_bootstrap  # noqa: E402,F401  # single shim: puts the AIQT pack tools/ on sys.path
+from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (AST-identical to lint_common)
+from lint_common import REPO_ROOT  # noqa: E402  # grc-config, stays local
 from matrix_code_parse import (  # shared canonical parser (P-1.62 I10)
     CSA_CODE_RE as _CSA_CODE,
     CSA_RANGE_RE as _CSA_RANGE,

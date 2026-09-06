@@ -73,6 +73,7 @@
       "check-todo-floor-monotonic-on-pr.py",
       "check-todo-rotation-on-pr.py",
       "check-version-bump-on-pr.py",
+      "lint-aiqt-vendor-digest.py",
       "lint-audit-gate-parity.py",
       "lint-audit-spec-detailed-prose.py",
       "lint-changelog-link-coverage.py",

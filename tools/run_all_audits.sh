@@ -195,6 +195,7 @@ run_gate "Static unused-import audit"                            python3 tools/l
 run_gate "Hooks Python-syntax audit"                             python3 tools/lint-hooks-syntax.py
 run_gate "Alignment-citation existence audit"                     python3 tools/lint-alignment-citation-existence.py --strict
 run_gate "Skill verdict carrier-completeness audit"            python3 tools/lint-skill-verdict-carrier-completeness.py
+run_gate "AIQT vendor digest audit"                              python3 tools/lint-aiqt-vendor-digest.py
 
 # ----------------------------------------------------------------------
 # Summary

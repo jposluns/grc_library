@@ -1,0 +1,17 @@
+# grc-side vendor pin for the AIQT generic-core module (Corpus-Management umbrella Phase-2).
+# tools/lint-aiqt-vendor-digest.py --checks sha256(tools/aiqt_corpus.py) + byte count against this.
+
+[source]
+repo = "jposluns/guardrails"
+commit = "29d61c055b5a606617693241d36b5df3f6bb77cc"   # pack #202: ship aiqt_corpus generic core
+pack_version = "1.0.0"   # main VERSION; aiqt_corpus is bound for 1.1.0 (interim pin, see note below)
+
+[module]
+path = "tools/aiqt_corpus.py"
+sha256 = "09353ed2bd671d243130a1f5cf158be30e9027ddc08af88c3ba1ea38b2728d34"
+bytes = 19503
+
+# INTERIM PIN. aiqt_corpus.py landed on the pack main AFTER the 1.0.0 release and is not yet in a
+# released, ROOT-digest-published manifest (it is bound for 1.1.0). This pin is to the pack COMMIT
+# plus the .aiqt/manifest.toml sha256 verified at source 2026-09-05. Re-pin to the 1.1.0 published
+# root-digest manifest (posluns.dev) when 1.1.0 releases; guardrails will ship aiqt_corpus in it.

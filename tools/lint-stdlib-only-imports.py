@@ -9,7 +9,7 @@ standard library or a first-party in-repo module. A third-party import (``import
 a maintainer machine that happens to have the package installed.
 
 This gate closes exactly that blind spot. It statically AST-parses every toolchain Python
-file (``tools/``, ``tests/``, ``.web/``) and flags any imported ROOT module that is not:
+file (``tools/``, ``tests/``, ``.web/``, and the vendored ``vendor/aiqt/tools/``) and flags any imported ROOT module that is not:
 
   - in ``sys.stdlib_module_names`` (the running interpreter's standard library), OR
   - a first-party in-repo module (the stem of a ``.py`` file in the scanned set, e.g.
@@ -43,12 +43,22 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 # Directories whose *.py ship as the runnable toolchain (adopters execute these).
-SCAN_DIRS = ("tools", "tests", ".web")
+SCAN_DIRS = ("tools", "tests", ".web", "vendor/aiqt/tools")  # vendor/: audit the vendored AIQT core imports so a future re-pin cannot slip in a third-party dep (codex #2018)
 
 # Sanctioned third-party dependencies (root module name -> rationale). EMPTY: the
 # toolchain is pure standard library. A future entry needs a rationale here and a
 # documented project dependency (the gate-discipline exception pattern).
 ALLOWED_THIRD_PARTY: dict[str, str] = {}
+
+# Vendored FIRST-PARTY modules: code CONSUMED from AIQT and vendored in-repo under vendor/
+# (exempt from the general scan, so their stems are not picked up by _first_party_names). They
+# are digest-verified against their pin by gate 98 (lint-aiqt-vendor-digest.py) and imported
+# through the tools/aiqt_bootstrap.py shim, so they are sanctioned toolchain modules, not
+# third-party dependencies. The vendored module is ALSO scanned (SCAN_DIRS) so its own imports are audited. (Corpus-Management umbrella Phase-2; guardrails-coordinated 2026-09-05.)
+VENDORED_FIRST_PARTY: dict[str, str] = {
+    "aiqt_corpus": "AIQT generic corpus-tool core, vendored at vendor/aiqt/tools/aiqt_corpus.py, "
+                   "digest-verified by gate 98, imported via the aiqt_bootstrap shim",
+}
 
 
 def _scan_files() -> list[Path]:
@@ -91,7 +101,8 @@ def _import_roots(tree: ast.AST) -> list[tuple[int, str]]:
 
 def scan() -> list[tuple[str, int, str]]:
     files = _scan_files()
-    allowed = set(sys.stdlib_module_names) | _first_party_names(files) | set(ALLOWED_THIRD_PARTY)
+    allowed = (set(sys.stdlib_module_names) | _first_party_names(files)
+               | set(ALLOWED_THIRD_PARTY) | set(VENDORED_FIRST_PARTY))
     findings: list[tuple[str, int, str]] = []
     for path in files:
         try:
