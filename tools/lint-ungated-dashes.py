@@ -28,7 +28,9 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import CODE_SPAN_RE, REPO_ROOT
+import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
+from aiqt_corpus import CODE_SPAN_RE  # noqa: E402  # generic core (behaviour-identical to lint_common)
+from lint_common import REPO_ROOT  # noqa: E402  # grc-config/store, stays local
 
 DASH = re.compile("[\u2014\u2013]")
 # Inline-code span: a run of N backticks, shortest content, closing run of N backticks.
