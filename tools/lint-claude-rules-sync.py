@@ -170,9 +170,10 @@ def load_compiler_owned(root: Path) -> tuple[list[str], set[str], set[str]]:
             f"cannot read the Corpus-Management ownership register "
             f"{OWNERSHIP_REGISTER_REL}: {exc}"
         )
-    if register.get("schema_version") != 1:
+    _sv = register.get("schema_version")
+    if not isinstance(_sv, int) or isinstance(_sv, bool) or _sv != 1:
         raise OwnershipRegisterError(
-            f"{OWNERSHIP_REGISTER_REL}: 'schema_version' must be 1"
+            f"{OWNERSHIP_REGISTER_REL}: 'schema_version' must be the integer 1"
         )
     if "owned_targets" not in register:
         raise OwnershipRegisterError(
@@ -201,6 +202,16 @@ def load_compiler_owned(root: Path) -> tuple[list[str], set[str], set[str]]:
             )
         kind = entry["kind"]
         target = entry["target"]
+        if kind not in ("block", "file", "tree"):
+            raise OwnershipRegisterError(
+                f"{OWNERSHIP_REGISTER_REL}: owned_targets[{i}] has unknown kind "
+                f"{kind!r} (must be block, file, or tree)"
+            )
+        if "\x00" in target or PurePosixPath(target).is_absolute() or ".." in PurePosixPath(target).parts:
+            raise OwnershipRegisterError(
+                f"{OWNERSHIP_REGISTER_REL}: owned_targets[{i}] target must be a "
+                f"relative, '..'-free, NUL-free path: {target!r}"
+            )
         tposix = PurePosixPath(target)
         in_rules = tposix == claude_rules or claude_rules in tposix.parents
         contains_rules = kind == "tree" and (

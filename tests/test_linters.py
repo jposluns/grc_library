@@ -16743,6 +16743,80 @@ class CorpusManagementCompilerTests(LinterTestCase):
         result = self._run(root, "--check")
         self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
 
+    # --- Round-2 hardening regressions (compile PR-2 /validate-pr iter-2 HOLD,
+    # --- codex the discriminator; deeper crash/fail-open edge cases). ---
+    def test_nul_in_target_is_config_error_not_crash(self):
+        root = self._make_root(
+            gensrc='schema_version = 1\n\n[[rules]]\nid = "r"\nkind = "file"\n'
+                   'sources = ["core/policies/note.md"]\ntarget = "bad\\u0000.md"\n',
+            ownership='schema_version = 1\n\n[[owned_targets]]\nrule = "r"\n'
+                      'kind = "file"\ntarget = "x"\n',
+            owned_targets='"x"',
+            sources={"core/policies/note.md": self.NOTE_SOURCE},
+        )
+        result = self._run(root, "--check")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+
+    def test_boolean_schema_version_is_config_error(self):
+        # True == 1 in Python; schema_version must be a real int, not a bool.
+        root = self._make_root(
+            gensrc="schema_version = 1\nrules = []\n",
+            ownership="schema_version = 1\nowned_targets = []\n",
+            owned_targets="",
+        )
+        (root / ".corpus-management" / "core" / "manifest.toml").write_text(
+            'schema_version = true\n[registers]\nownership = "core/ownership.toml"\n'
+            'clauses = "core/clauses.toml"\n[generation]\nenabled = true\n'
+            'ruleset = "gensrc.toml"\nowned_targets = []\n',
+            encoding="utf-8",
+        )
+        result = self._run(root, "--check")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+
+    def test_block_block_alias_same_file_is_config_error(self):
+        # Two block rules whose target STRINGS differ but resolve to one file
+        # (foo.md vs ./foo.md) are not the sanctioned same-string shared-file
+        # case; they must fail-closed rather than silently conflict.
+        root = self._make_root(
+            gensrc='schema_version = 1\n\n[[rules]]\nid = "a"\nkind = "block"\n'
+                   'sources = ["core/policies/note.md"]\ntarget = "foo.md"\n'
+                   'begin = "<!-- ba -->"\nend = "<!-- ea -->"\n[[rules]]\nid = "b"\n'
+                   'kind = "block"\nsources = ["core/policies/note.md"]\n'
+                   'target = "./foo.md"\nbegin = "<!-- bb -->"\nend = "<!-- eb -->"\n',
+            ownership='schema_version = 1\n\n[[owned_targets]]\nrule = "a"\n'
+                      'kind = "block"\ntarget = "foo.md"\n[[owned_targets]]\n'
+                      'rule = "b"\nkind = "block"\ntarget = "./foo.md"\n',
+            owned_targets='"foo.md", "./foo.md"',
+            sources={"core/policies/note.md": self.NOTE_SOURCE},
+            files={"foo.md": "x\n"},
+        )
+        result = self._run(root, "--check")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+
+    def test_tree_target_that_is_a_file_is_config_error(self):
+        root = self._make_root(
+            gensrc='schema_version = 1\n\n[[rules]]\nid = "t"\nkind = "tree"\n'
+                   'sources = ["core/rules"]\ntarget = "README.md"\n',
+            ownership='schema_version = 1\n\n[[owned_targets]]\nrule = "t"\n'
+                      'kind = "tree"\ntarget = "README.md"\n',
+            owned_targets='"README.md"',
+            files={"README.md": "x\n"},
+        )
+        (root / ".corpus-management" / "core" / "rules").mkdir(parents=True, exist_ok=True)
+        result = self._run(root, "--check")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+
+    def test_unreadable_target_in_check_is_not_a_traceback(self):
+        # A permission-denied on a committed target during --check must be a
+        # clean exit 2 (top-level boundary), never an uncaught traceback.
+        root = self._block_root(self.HANDBOOK_IN_SYNC)
+        handbook = root / "HANDBOOK.md"
+        os.chmod(handbook, 0)
+        self.addCleanup(os.chmod, handbook, 0o644)
+        result = self._run(root, "--check")
+        self.assertIn(result.returncode, (1, 2), result.stdout + result.stderr)
+        self.assertNotIn("Traceback", result.stderr)
+
 
 class NarrativeScanScopeTests(LinterTestCase):
     """P-1.25 scan-root split: executive/ is outside the corpus document

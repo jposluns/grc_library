@@ -138,7 +138,10 @@ def _contained(base: Path, rel: str) -> Path | None:
     p = PurePosixPath(rel)
     if not rel or p.is_absolute() or ".." in p.parts:
         return None
-    resolved = (base / rel).resolve()
+    try:
+        resolved = (base / rel).resolve()
+    except (ValueError, OSError):
+        return None
     if not resolved.is_relative_to(base.resolve()):
         return None
     return resolved
@@ -214,8 +217,9 @@ def load_and_validate(root: Path, pack_root: Path) -> tuple[list[Rule], list[str
     manifest = _load_toml(pack_root / "core" / "manifest.toml", problems, "core/manifest.toml")
     if manifest is None:
         return [], problems
-    if manifest.get("schema_version") != 1:
-        problems.append("core/manifest.toml: schema_version must be 1")
+    _sv = manifest.get("schema_version")
+    if not isinstance(_sv, int) or isinstance(_sv, bool) or _sv != 1:
+        problems.append("core/manifest.toml: schema_version must be the integer 1")
     registers = manifest.get("registers")
     if (not isinstance(registers, dict)
             or not isinstance(registers.get("ownership"), str)
@@ -260,8 +264,9 @@ def load_and_validate(root: Path, pack_root: Path) -> tuple[list[Rule], list[str
     if gensrc is None or ownership is None or clauses is None:
         return [], problems
     for label, reg in ((ruleset_rel, gensrc), (own_rel, ownership), (clause_rel, clauses)):
-        if reg.get("schema_version") != 1:
-            problems.append(f"{label}: schema_version must be 1")
+        _rsv = reg.get("schema_version")
+        if not isinstance(_rsv, int) or isinstance(_rsv, bool) or _rsv != 1:
+            problems.append(f"{label}: schema_version must be the integer 1")
 
     raw_rules = gensrc.get("rules")
     if not isinstance(raw_rules, list):
@@ -401,6 +406,23 @@ def load_and_validate(root: Path, pack_root: Path) -> tuple[list[Rule], list[str
             problems.append(f"{where}: a {kind} target must be a file, not an "
                             f"existing directory: {target}")
             continue
+        if kind == "tree" and resolved_target.exists() and not resolved_target.is_dir():
+            problems.append(f"{where}: a tree target must be a directory or absent, "
+                            f"not an existing file: {target}")
+            continue
+        _cr = (root / ".claude" / "rules").resolve()
+        _cm = (root / ".claude" / "rules" / "corpus-management").resolve()
+        _under_cr = resolved_target == _cr or _cr in resolved_target.parents
+        _under_cm = resolved_target == _cm or _cm in resolved_target.parents
+        if _under_cr and not _under_cm:
+            problems.append(f"{where}: target resolves under .claude/rules/ but not "
+                            f"under .claude/rules/corpus-management/ (a symlink alias "
+                            f"cannot smuggle a target into the reserved tree): {target}")
+            continue
+        if kind == "block" and _under_cr:
+            problems.append(f"{where}: a block target resolves under .claude/rules/ "
+                            f"(symlink alias); a rule-mirror body cannot carry a block")
+            continue
 
         # Source path validation.
         src_ok = True
@@ -443,7 +465,7 @@ def load_and_validate(root: Path, pack_root: Path) -> tuple[list[Rule], list[str
             # exact same file (the sanctioned shared-file block case).
             same = ra == rb
             nested = ra != rb and (rb == ra or ra in rb.parents or rb in ra.parents)
-            if same and a.kind == "block" and b.kind == "block":
+            if same and a.kind == "block" and b.kind == "block" and a.target == b.target:
                 continue
             if same or nested:
                 seen_pairs.add(frozenset((a.id, b.id)))
@@ -604,6 +626,16 @@ def _locate_block(text: str, rule: Rule) -> tuple[int | None, int | None, str | 
 def run_check(root: Path, rules: list[Rule]) -> list[str]:
     """Render every rule in memory and compare to the committed state."""
     findings: list[str] = []
+    _root_r = root.resolve()
+    for _r in rules:
+        try:
+            _rt = (root / _r.target).resolve()
+        except (ValueError, OSError):
+            findings.append(f"{_r.target}: target cannot be resolved")
+            continue
+        if not _rt.is_relative_to(_root_r):
+            findings.append(f"{_r.target}: resolves outside the project root "
+                            f"(symlink escape); refusing to compare")
     block_by_target: dict[str, list[Rule]] = {}
     for r in rules:
         if r.kind == "block":
@@ -763,7 +795,7 @@ def apply_writes(writes: list[tuple[Path, bytes]]) -> tuple[int, int]:
     return written, unchanged
 
 
-def main(argv: list[str] | None = None) -> int:
+def _main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=("Corpus-Management pack compiler: generate the pack's owned "
                      "outputs from the pack source, or --check them for drift "
@@ -828,6 +860,19 @@ def main(argv: list[str] | None = None) -> int:
     print(f"OK: corpus-management generation complete ({len(rules)} rule(s), "
           f"{n_targets} target(s); {written} updated, {unchanged} unchanged).")
     return 0
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Categorical crash-safety wrapper: any uncaught exception becomes a clean
+    exit 2 (configuration/internal error), never a traceback (the gate never
+    crashes on a malformed input; the specific validations above give precise
+    messages for the known shapes, this is the fail-closed backstop)."""
+    try:
+        return _main(argv)
+    except Exception as exc:
+        print("FAIL: corpus-management internal error:")
+        print(f"  [corpus-management] uncaught {type(exc).__name__}: {exc}")
+        return 2
 
 
 if __name__ == "__main__":
