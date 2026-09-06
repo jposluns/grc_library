@@ -47,7 +47,7 @@ import subprocess
 import sys
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import git  # noqa: E402  # generic core (AST-identical to lint_common)
+from aiqt_corpus import git  # noqa: E402  # generic core (behaviour-identical to lint_common)
 from lint_common import PrRangeError, resolve_pr_range  # noqa: E402  # grc-config/store, stays local
 
 CHANGELOG_PATH = "CHANGELOG.md"

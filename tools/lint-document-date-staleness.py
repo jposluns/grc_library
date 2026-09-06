@@ -111,7 +111,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import parse_iso_date, parse_metadata_block, read_text_safe  # noqa: E402  # generic core (AST-identical to lint_common)
+from aiqt_corpus import parse_iso_date, parse_metadata_block, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
 from lint_common import AUDITED_DOMAIN_DIRS, DEFAULT_EXEMPT_DIRS, REPO_ROOT, iter_markdown_targets  # noqa: E402  # grc-config/store, stays local
 
 
