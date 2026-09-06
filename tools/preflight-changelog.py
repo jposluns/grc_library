@@ -83,7 +83,9 @@ from pathlib import Path
 _TOOLS_DIR = str(Path(__file__).resolve().parent)
 if _TOOLS_DIR not in sys.path:
     sys.path.insert(0, _TOOLS_DIR)
-from lint_common import CODE_SPAN_RE, REPO_ROOT, resolve_working  # noqa: E402
+import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
+from aiqt_corpus import CODE_SPAN_RE  # noqa: E402  # generic core (behaviour-identical to lint_common)
+from lint_common import REPO_ROOT, resolve_working  # noqa: E402  # grc-config/store, stays local
 
 # D7 length check reuse (P-1.4): import the authoritative per-PR length checker so the
 # 100-word / 45-word-sentence ceiling on a root-CHANGELOG compact entry is caught at

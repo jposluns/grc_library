@@ -35,7 +35,9 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import REPO_ROOT, read_text_safe
+import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
+from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
+from lint_common import REPO_ROOT  # noqa: E402  # grc-config/store, stays local
 
 REGISTER = "governance/register-document-index-and-classification.md"
 PATH_IN_CODESPAN = re.compile(r"`([a-z][a-z0-9-]*(?:/[a-z0-9._-]+)+\.md)`")
