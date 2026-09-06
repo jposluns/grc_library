@@ -16276,7 +16276,7 @@ class AIQTVendorDigestTests(LinterTestCase):
         (tmp / "tools").mkdir(parents=True, exist_ok=True)
         (tmp / "tools" / "aiqt_corpus.py").write_bytes(module_bytes)
         (tmp / "PIN.toml").write_text(
-            "[source]\nrepo = \"jposluns/guardrails\"\ncommit = \"deadbeef\"\n"
+            "[source]\nrepo = \"jposluns/guardrails\"\ncommit = \"" + "deadbeef" * 5 + "\"\n"
             "[module]\npath = \"tools/aiqt_corpus.py\"\n"
             f"sha256 = \"{sha}\"\nbytes = {nbytes}\n", encoding="utf-8")
 
@@ -16305,6 +16305,7 @@ class AIQTVendorDigestTests(LinterTestCase):
         with tempfile.TemporaryDirectory() as d:
             tmp = Path(d)
             (tmp / "PIN.toml").write_text(
+                "[source]\nrepo = \"jposluns/guardrails\"\ncommit = \"" + "0" * 40 + "\"\n"
                 "[module]\npath = \"tools/aiqt_corpus.py\"\n"
                 "sha256 = \"" + "0"*64 + "\"\nbytes = 1\n", encoding="utf-8")
             mod.VENDOR = tmp
@@ -16316,6 +16317,290 @@ class AIQTVendorDigestTests(LinterTestCase):
         self.assertEqual(rc, 1, "gate 98 must fail when the vendored module is missing")
         self.assertIn("missing", out.lower())
 
+    # ---- P-1.77 pin-schema robustness: a malformed PIN fails cleanly (rc=1), never raises ----
+
+    def _source_lines(self, commit: str = "a" * 40, repo: str = "jposluns/guardrails") -> str:
+        return f"[source]\nrepo = \"{repo}\"\ncommit = \"{commit}\"\n"
+
+    def _module_lines(self, module_bytes: bytes = b"# m\n") -> str:
+        import hashlib
+        sha = hashlib.sha256(module_bytes).hexdigest()
+        return (
+            "[module]\npath = \"tools/aiqt_corpus.py\"\n"
+            f"sha256 = \"{sha}\"\nbytes = {len(module_bytes)}\n"
+        )
+
+    def _run_with_pin(self, pin_text: str, module_bytes: bytes = b"# m\n"):
+        """Run gate 98 against a synthetic vendor tree carrying the given PIN text.
+        Returns (rc, stdout); the call completing without an exception IS the no-crash proof."""
+        import contextlib, io, tempfile
+        mod = self._gate()
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            (tmp / "tools").mkdir(parents=True, exist_ok=True)
+            (tmp / "tools" / "aiqt_corpus.py").write_bytes(module_bytes)
+            (tmp / "PIN.toml").write_text(pin_text, encoding="utf-8")
+            mod.VENDOR = tmp
+            mod.PIN = tmp / "PIN.toml"
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                rc = mod.check()
+        return rc, buf.getvalue()
+
+    def _assert_malformed(self, pin_text: str, expect_fragment: str):
+        rc, out = self._run_with_pin(pin_text)
+        self.assertEqual(rc, 1, f"gate 98 must fail cleanly (rc=1) on a malformed pin; got {rc}: {out}")
+        self.assertIn("malformed", out)
+        self.assertIn(expect_fragment, out)
+
+    # positive controls (test_authentic_vendored_file_passes covers the REAL pin)
+    def test_schema_valid_synthetic_pin_passes(self):
+        rc, out = self._run_with_pin(self._source_lines() + self._module_lines())
+        self.assertEqual(rc, 0, f"a schema-shaped pin with a matching digest must pass; got {rc}: {out}")
+
+    def test_uppercase_and_mixed_case_commit_passes(self):
+        rc, out = self._run_with_pin(self._source_lines(commit="A" * 40) + self._module_lines())
+        self.assertEqual(rc, 0, f"an uppercase 40-hex commit must pass; got {rc}: {out}")
+        rc, out = self._run_with_pin(self._source_lines(commit="aA0f" * 10) + self._module_lines())
+        self.assertEqual(rc, 0, f"a mixed-case 40-hex commit must pass; got {rc}: {out}")
+
+    # malformed [source] shapes
+    def test_scalar_source_fails_cleanly(self):
+        self._assert_malformed("source = \"str\"\n" + self._module_lines(), "[source] must be a table")
+
+    def test_list_source_fails_cleanly(self):
+        self._assert_malformed("source = [\"list\"]\n" + self._module_lines(), "[source] must be a table")
+
+    def test_missing_source_section_fails_cleanly(self):
+        self._assert_malformed(self._module_lines(), "[source] must be a table")
+
+    def test_empty_repo_fails_cleanly(self):
+        self._assert_malformed(
+            "[source]\nrepo = \"\"\ncommit = \"" + "a" * 40 + "\"\n" + self._module_lines(),
+            "repo must be a non-empty string")
+
+    def test_short_commit_fails_cleanly(self):
+        self._assert_malformed(self._source_lines(commit="deadbeef") + self._module_lines(),
+                               "40 hexadecimal")
+
+    def test_overlong_commit_fails_cleanly(self):
+        self._assert_malformed(self._source_lines(commit="a" * 41) + self._module_lines(),
+                               "40 hexadecimal")
+
+    def test_non_hex_commit_fails_cleanly(self):
+        self._assert_malformed(self._source_lines(commit="z" * 40) + self._module_lines(),
+                               "40 hexadecimal")
+
+    def test_integer_commit_fails_cleanly(self):
+        self._assert_malformed("[source]\nrepo = \"r\"\ncommit = 7\n" + self._module_lines(),
+                               "40 hexadecimal")
+
+    # malformed [module] shapes
+    def test_scalar_module_fails_cleanly(self):
+        self._assert_malformed("module = \"str\"\n" + self._source_lines(), "[module] must be a table")
+
+    def test_list_module_fails_cleanly(self):
+        self._assert_malformed("module = [\"list\"]\n" + self._source_lines(), "[module] must be a table")
+
+    def test_missing_module_section_fails_cleanly(self):
+        self._assert_malformed(self._source_lines(), "[module] must be a table")
+
+    def test_integer_module_path_fails_cleanly(self):
+        pin = self._source_lines() + "[module]\npath = 7\nsha256 = \"" + "0" * 64 + "\"\nbytes = 1\n"
+        self._assert_malformed(pin, "path must be a non-empty string")
+
+    def test_empty_module_path_fails_cleanly(self):
+        pin = self._source_lines() + "[module]\npath = \"\"\nsha256 = \"" + "0" * 64 + "\"\nbytes = 1\n"
+        self._assert_malformed(pin, "path must be a non-empty string")
+
+    def test_non_string_sha256_fails_cleanly(self):
+        pin = self._source_lines() + "[module]\npath = \"tools/aiqt_corpus.py\"\nsha256 = 123\nbytes = 1\n"
+        self._assert_malformed(pin, "sha256 must be a string of exactly 64 lowercase hexadecimal")
+
+    def test_string_bytes_fails_cleanly(self):
+        pin = (self._source_lines() + "[module]\npath = \"tools/aiqt_corpus.py\"\n"
+               "sha256 = \"" + "0" * 64 + "\"\nbytes = \"1\"\n")
+        self._assert_malformed(pin, "bytes must be an integer")
+
+    def test_boolean_bytes_fails_cleanly(self):
+        # bool is an int subclass in Python; `bytes = true` must still be rejected
+        pin = (self._source_lines() + "[module]\npath = \"tools/aiqt_corpus.py\"\n"
+               "sha256 = \"" + "0" * 64 + "\"\nbytes = true\n")
+        self._assert_malformed(pin, "bytes must be an integer")
+
+    # reporting + ordering behaviour
+    def test_multiple_schema_problems_reported_together(self):
+        rc, out = self._run_with_pin("source = \"str\"\nmodule = \"str\"\n")
+        self.assertEqual(rc, 1)
+        self.assertIn("[module] must be a table", out)
+        self.assertIn("[source] must be a table", out)
+
+    def test_tampered_digest_with_scalar_source_fails_on_schema_not_crash(self):
+        # The abandoned gate-98 shape: a digest mismatch whose error message reads pin["source"].
+        # Schema-first ordering means the scalar source fails BEFORE the digest message renders.
+        pin = ("source = \"str\"\n[module]\npath = \"tools/aiqt_corpus.py\"\n"
+               "sha256 = \"" + "0" * 64 + "\"\nbytes = 1\n")
+        rc, out = self._run_with_pin(pin, module_bytes=b"# tampered\n")
+        self.assertEqual(rc, 1)
+        self.assertIn("malformed", out)
+        self.assertNotIn("byte count", out)
+
+    def test_nul_in_module_path_fails_cleanly(self):
+        # A TOML-valid path with an embedded NUL is a control char: the canonical-form schema
+        # now rejects it at the schema stage (before any resolve), clean rc=1, never a crash.
+        # (Codex/Claude cross-family QA on PR #2034 found the original residual crash; the
+        # containment guard below still belt-and-suspenders catches other resolve-time ValueErrors.)
+        rc, out = self._run_with_pin(
+            self._source_lines()
+            + '[module]\npath = "\\u0000"\nsha256 = "' + "0" * 64 + '"\nbytes = 1\n')
+        self.assertEqual(rc, 1, f"gate 98 must fail cleanly on a NUL-in-path pin; got {rc}: {out}")
+        self.assertIn("path must be printable ASCII", out)
+
+    def test_non_utf8_pin_fails_cleanly(self):
+        # A PIN whose bytes are not valid UTF-8 (corruption/tamper of an integrity-pin
+        # file): read_text(encoding="utf-8") raises UnicodeDecodeError; the read guard
+        # must catch it -> clean rc=1, never a crash. (PR #2034 cross-family QA.)
+        import contextlib, io, tempfile
+        mod = self._gate()
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            (tmp / "tools").mkdir(parents=True, exist_ok=True)
+            (tmp / "tools" / "aiqt_corpus.py").write_bytes(b"# m\n")
+            (tmp / "PIN.toml").write_bytes(b"\xff\xfe[source]\n")
+            mod.VENDOR = tmp
+            mod.PIN = tmp / "PIN.toml"
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                rc = mod.check()
+            out = buf.getvalue()
+        self.assertEqual(rc, 1, f"gate 98 must fail cleanly on a non-UTF-8 pin; got {rc}: {out}")
+        self.assertIn("unreadable", out)
+
+    def test_deeply_nested_pin_fails_cleanly(self):
+        # Pathological nesting makes tomllib raise RecursionError (a RuntimeError subclass
+        # outside the named read excepts); the categorical parse guard must catch it -> rc=1.
+        # (PR #2034 iter-2 codex/claude cross-family QA found this residual crash path.)
+        pin = "a = " + "[" * 3000 + "]" * 3000 + "\n"
+        rc, out = self._run_with_pin(pin)
+        self.assertEqual(rc, 1, f"gate 98 must fail cleanly on a deeply-nested pin; got {rc}: {out}")
+        self.assertIn("unreadable", out)
+
+    def test_giant_integer_bytes_fails_cleanly(self):
+        # A 4301-digit integer trips Python's int-string-conversion limit (ValueError) during
+        # parse; the categorical parse guard must catch it -> rc=1, never an uncaught crash.
+        pin = (self._source_lines()
+               + '[module]\npath = "tools/aiqt_corpus.py"\nsha256 = "' + "0" * 64
+               + '"\nbytes = ' + ("9" * 4301) + "\n")
+        rc, out = self._run_with_pin(pin)
+        self.assertEqual(rc, 1, f"gate 98 must fail cleanly on a giant-integer bytes pin; got {rc}: {out}")
+        self.assertIn("unreadable", out)
+
+    def test_nul_in_source_repo_fails_cleanly(self):
+        # A TOML-valid NUL (control char) in [source].repo is display-only but must not pass rc=0:
+        # the schema rejects control characters in the echoed provenance string -> clean rc=1.
+        rc, out = self._run_with_pin(
+            '[source]\nrepo = "\\u0000"\ncommit = "' + "a" * 40 + '"\n' + self._module_lines())
+        self.assertEqual(rc, 1, f"gate 98 must reject a control-char repo; got {rc}: {out}")
+        self.assertIn("malformed", out)
+        self.assertIn("printable ASCII", out)
+
+    def test_hex_integer_bytes_fails_cleanly(self):
+        # A hex/oct/bin integer literal bypasses Python's DECIMAL int-string digit limit at parse,
+        # so a huge bytes value would formerly crash at the mismatch-message int->decimal format;
+        # the schema bound now rejects it cleanly. (PR #2034 iter-3 codex E1.)
+        pin = (self._source_lines() + '[module]\npath = "tools/aiqt_corpus.py"\nsha256 = "' + "0" * 64
+               + '"\nbytes = 0x' + ("f" * 5000) + "\n")
+        rc, out = self._run_with_pin(pin)
+        self.assertEqual(rc, 1, f"gate 98 must fail cleanly on a huge hex-int bytes; got {rc}: {out}")
+        self.assertIn("malformed", out)
+        self.assertIn("bytes must be an integer between", out)
+
+    def test_negative_bytes_fails_cleanly(self):
+        pin = (self._source_lines() + '[module]\npath = "tools/aiqt_corpus.py"\nsha256 = "' + "0" * 64
+               + '"\nbytes = -1\n')
+        rc, out = self._run_with_pin(pin)
+        self.assertEqual(rc, 1, f"gate 98 must reject a negative byte count; got {rc}: {out}")
+        self.assertIn("bytes must be an integer between", out)
+
+    def test_c1_control_in_repo_fails_cleanly(self):
+        # A C1 control (U+0085 NEL) is category Cc but is NOT < 0x20 or == 0x7f; the categorical
+        # _is_printable_ascii (printable-ASCII graphics only) rejects it. (PR #2034 iter-3 codex E2 / claude W.)
+        rc, out = self._run_with_pin(
+            '[source]\nrepo = "x\\u0085y"\ncommit = "' + "a" * 40 + '"\n' + self._module_lines())
+        self.assertEqual(rc, 1, f"gate 98 must reject a C1 control in repo; got {rc}: {out}")
+        self.assertIn("printable ASCII", out)
+
+    def test_control_in_module_path_fails_cleanly(self):
+        # A control char (LF) in [module].path could name a real POSIX file and inject a split OK
+        # display line; the schema rejects control chars in path. (PR #2034 iter-3 codex E3.)
+        rc, out = self._run_with_pin(
+            self._source_lines() + '[module]\npath = "tools/a\\u000ab"\nsha256 = "' + "0" * 64 + '"\nbytes = 1\n')
+        self.assertEqual(rc, 1, f"gate 98 must reject a control char in path; got {rc}: {out}")
+        self.assertIn("path must be printable ASCII", out)
+
+    def test_uppercase_sha256_rejected(self):
+        # hashlib.hexdigest() is lowercase; an uppercase sha256 would always false-mismatch, so the
+        # schema now requires lowercase 64-hex and rejects uppercase cleanly. (PR #2034 iter-4 gemini #4.)
+        rc, out = self._run_with_pin(
+            self._source_lines() + '[module]\npath = "tools/aiqt_corpus.py"\nsha256 = "' + "A" * 64 + '"\nbytes = 1\n')
+        self.assertEqual(rc, 1, f"gate 98 must reject an uppercase sha256; got {rc}: {out}")
+        self.assertIn("64 lowercase hexadecimal", out)
+
+    def test_bidi_control_in_repo_rejected(self):
+        # A Cf bidi override (U+202E RLO) is not Cc/Zl/Zp but corrupts the echoed provenance line
+        # (Trojan-Source, CVE-2021-42574) and can raise UnicodeEncodeError on an ASCII stdout; the
+        # printable-ASCII charset rejects it. (PR #2034 iter-4 codex E2 / claude W1 / gemini #2.)
+        rc, out = self._run_with_pin(
+            '[source]\nrepo = "safe\\u202eevil"\ncommit = "' + "a" * 40 + '"\n' + self._module_lines())
+        self.assertEqual(rc, 1, f"gate 98 must reject a bidi control in repo; got {rc}: {out}")
+        self.assertIn("printable ASCII", out)
+
+    def test_alternate_integer_spelling_bytes_accepted(self):
+        # INTENTIONAL: a hex/underscore integer spelling for bytes whose VALUE matches the module size
+        # is a valid pin (TOML integers are integers); it passes rc=0. Documents that "canonical decimal
+        # spelling" is NOT required - only the numeric value and the digest matter. (PR #2034 iter-4 E1: not a defect.)
+        import hashlib
+        mod = b"# m\n"  # 4 bytes; matches _run_with_pin default module_bytes
+        sha = hashlib.sha256(mod).hexdigest()
+        rc, out = self._run_with_pin(
+            self._source_lines() + '[module]\npath = "tools/aiqt_corpus.py"\nsha256 = "' + sha + '"\nbytes = 0x4\n')
+        self.assertEqual(rc, 0, f"a hex-spelled bytes matching the module size must pass; got {rc}: {out}")
+
+    def test_nonascii_parse_error_output_is_ascii_safe(self):
+        # A malformed pin whose tomllib parse error echoes a non-ASCII key (duplicate [source."e-acute"])
+        # must fail rc=1 with the non-ASCII backslash-escaped, never an uncaught UnicodeEncodeError on a
+        # strict-ASCII stdout. The _emit output choke-point renders every message ASCII-safe. (PR #2034
+        # iter-5 codex E1: the error-message print path, which fires before field validation.)
+        rc, out = self._run_with_pin('[source]\nrepo = "r"\ncommit = "' + "a" * 40 + '"\n'
+                                     + self._module_lines() + '[extra."\\u00e9"]\nx = 1\n[extra."\\u00e9"]\ny = 2\n')
+        self.assertEqual(rc, 1, f"gate 98 must fail cleanly on a non-ASCII-keyed malformed pin; got {rc}: {out}")
+        self.assertIn("unreadable", out)
+        self.assertNotIn("\u00e9", out)  # the non-ASCII char is backslash-escaped, not emitted raw
+        out.encode("ascii")  # the emitted message is pure ASCII (would raise if not)
+
+    def test_module_path_escaping_vendor_root_fails(self):
+        import contextlib, io, tempfile, hashlib
+        mod = self._gate()
+        outside = b"# outside the vendor root\n"
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            vendor = tmp / "vendor"
+            vendor.mkdir()
+            # the escapee's digest MATCHES the pin, so only the containment check can fail it
+            (tmp / "outside.py").write_bytes(outside)
+            sha = hashlib.sha256(outside).hexdigest()
+            (vendor / "PIN.toml").write_text(
+                self._source_lines()
+                + f"[module]\npath = \"../outside.py\"\nsha256 = \"{sha}\"\nbytes = {len(outside)}\n",
+                encoding="utf-8")
+            mod.VENDOR = vendor
+            mod.PIN = vendor / "PIN.toml"
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                rc = mod.check()
+            out = buf.getvalue()
+        self.assertEqual(rc, 1, "gate 98 must refuse a pin path that escapes the vendor root")
+        self.assertIn("escapes", out)
     def test_shim_resolves_vendor_in_repo_without_sibling(self):
         import os
         saved = {k: os.environ.pop(k, None) for k in ("AIQT_PACK_ROOT", "GRC_AIQT_PACK")}
