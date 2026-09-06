@@ -100,9 +100,10 @@ def ensure_on_path() -> Path:
     if tools is None:
         raise ImportError(
             "AIQT pack not found: looked for a `.aiqt` marker + tools/aiqt_corpus.py "
-            "via GRC_AIQT_PACK, a walk-up from this file, and repo siblings. "
-            "Set GRC_AIQT_PACK to the pack root (the dir containing `.aiqt`), or place "
-            "the pack beside this repo."
+            "via AIQT_PACK_ROOT or GRC_AIQT_PACK, a walk-up from this file, the in-repo "
+            "vendor/aiqt/, and repo siblings. Set AIQT_PACK_ROOT (or GRC_AIQT_PACK) to the "
+            "pack root (the dir containing `.aiqt`), restore the vendored vendor/aiqt/, "
+            "or place the pack beside this repo."
         )
     p = str(tools)
     if p not in sys.path:

@@ -460,9 +460,10 @@ def is_target(
       - its filename (``path.name``) is not in ``exempt_files``.
 
     The caller passes its own suffix and exempt sets. The defaults are
-    the minimum-common-denominator across markdown linters: scan only
-    ``.md``; skip ``.git``, ``node_modules``, ``__pycache__``; no
-    per-file exemptions.
+    the common markdown-linter set: scan only ``.md``
+    (``MARKDOWN_SUFFIXES``) and skip the ``DEFAULT_EXEMPT_DIRS`` set (``.git``,
+    ``node_modules``, ``__pycache__``, ``.claude``, ``.working``, ``references``,
+    ``.ref``, ``.scratch``, ``.private``), with no per-file exemptions.
 
     Implementation note: if the same exempt sets are checked many times
     (e.g., during a recursive walk), prefer to pass pre-constructed
