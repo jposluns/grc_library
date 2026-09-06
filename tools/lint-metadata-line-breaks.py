@@ -17,8 +17,8 @@ metadata block and every governed document); both are accepted to avoid
 flagging documents authored in environments that strip trailing
 backslashes or insert hard breaks via trailing whitespace.
 
-Fenced code blocks are skipped via [`tools/lint_common.py`](lint_common.py)
-``iter_non_code_lines``, so templates that demonstrate metadata format
+Fenced code blocks are skipped via ``aiqt_corpus.iter_non_code_lines``
+(the vendored generic core), so templates that demonstrate metadata format
 inside ``` ``` ``` regions (e.g. [`CONTRIBUTING.md`](../CONTRIBUTING.md),
 [`docs/worked-example.md`](../docs/worked-example.md)) are not
 false-positives. The last line in a run is exempt from the requirement

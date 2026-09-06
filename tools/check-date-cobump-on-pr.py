@@ -111,7 +111,7 @@ EXEMPT_PREFIXES: tuple[str, ...] = (
 )
 
 # Field extraction is shared with the corpus linters (GR-3 wave 2:
-# ``lint_common.head_version`` for the Version window, and
+# ``aiqt_corpus.head_version`` for the Version window, and
 # ``parse_metadata_block`` + ``parse_iso_date`` for the Date). An
 # annotated or malformed Date value (``parse_iso_date`` returns
 # ``None``) is treated as a missing canonical line, a FAIL for a

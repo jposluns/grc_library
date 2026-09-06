@@ -33,9 +33,9 @@ This tool is ADVISORY, NOT a CI gate. It spans gate-exempt trees, always exits 0
 worker-run or run on demand, like ``/validate-pr``, not wired into the per-PR lint
 CI. It reuses the existing machinery rather than reinventing it: the gate-3
 link-extraction and path-resolution shapes from ``lint-links.py``, and
-``lint_common``'s repository root, fenced-code-aware line
-iterator, UTF-8-safe reader, and the PR #996 sibling resolver
-(``resolve_sibling`` / ``sibling_placeholder_present``).
+``lint_common``'s repository root and the PR #996 sibling resolver
+(``resolve_sibling`` / ``sibling_placeholder_present``), plus the
+fenced-code-aware line iterator and UTF-8-safe reader from ``aiqt_corpus``.
 
 Portable-clone degradation (1.19.2 (closing PR #996) / the gate-70 pattern): the
 CROSS-REPO EXISTENCE check routes its sibling lookup through
