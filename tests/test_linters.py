@@ -5573,6 +5573,27 @@ class ClaudeRulesSyncTests(LinterTestCase):
             )
         return root, {local_rel: source_rel}
 
+    def test_unreadable_mapped_file_is_not_a_traceback(self) -> None:
+        # An unreadable mapped rule file makes read_text_safe raise OSError;
+        # the gate's top-level boundary must turn it into a clean exit 2, never
+        # a traceback (compile PR-2 /validate-pr iter-3 HOLD, gemini).
+        import shutil
+        mod = self._load_module()
+        root, fake_map = self._make_synthetic(
+            local_body="# Title\n\nBody.\n", source_body="# Title\n\nBody.\n",
+        )
+        target = root / ".claude" / "rules" / "secrets.md"
+        os.chmod(target, 0)
+        self.addCleanup(shutil.rmtree, root, True)
+        self.addCleanup(os.chmod, target, 0o644)
+        saved = mod.MIRROR_MAP
+        try:
+            mod.MIRROR_MAP = fake_map
+            rc = mod.main(["--root", str(root)])
+        finally:
+            mod.MIRROR_MAP = saved
+        self.assertEqual(rc, 2, "unreadable mapped file must be a clean exit 2")
+
     def test_current_state_passes(self) -> None:
         # The live repository state must be in sync (this is what every
         # other gate run assumes).

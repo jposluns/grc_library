@@ -332,7 +332,7 @@ def find_local_rule_files(root: Path) -> list[Path]:
     return out
 
 
-def main(argv: list[str] | None = None) -> int:
+def _main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=(
             "Audit that every project-local .claude/rules copy's body "
@@ -453,6 +453,18 @@ def main(argv: list[str] | None = None) -> int:
         f"guardrails/ pack sources."
     )
     return 1
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Categorical crash-safety wrapper: any uncaught exception (e.g. an
+    unreadable mapped rule file whose read_text_safe raises OSError) becomes a
+    clean exit 2, never a traceback (the gate never crashes)."""
+    try:
+        return _main(argv)
+    except Exception as exc:
+        print("FAIL: claude-rules-sync internal error: "
+              f"{type(exc).__name__}: {exc}")
+        return 2
 
 
 if __name__ == "__main__":
