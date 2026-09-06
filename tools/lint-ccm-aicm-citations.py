@@ -136,8 +136,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import is_fence_line, is_separator_row, iter_markdown_targets, read_text_safe, split_row  # noqa: E402  # generic core (AST-identical to lint_common)
-from lint_common import DEFAULT_EXEMPT_DIRS, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+from aiqt_corpus import is_fence_line, is_separator_row, read_text_safe, split_row  # noqa: E402  # generic core (AST-identical to lint_common)
+from lint_common import DEFAULT_EXEMPT_DIRS, REPO_ROOT, iter_markdown_targets  # noqa: E402  # grc-config/store, stays local
 
 try:
     from ccm_aicm_reference import (

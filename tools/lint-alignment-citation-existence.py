@@ -40,8 +40,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import iter_markdown_targets, read_text_safe, iter_non_code_lines  # noqa: E402  # generic core (AST-identical to lint_common)
-from lint_common import REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+from aiqt_corpus import read_text_safe, iter_non_code_lines  # noqa: E402  # generic core (AST-identical to lint_common)
+from lint_common import REPO_ROOT, iter_markdown_targets  # noqa: E402  # grc-config/store, stays local
 from alignment_citation_reference import REGISTRY, PF_ALL_EDITIONS_VALID  # noqa: E402
 
 # Files where a code-shaped string is historical description / an example, not a live cite.
