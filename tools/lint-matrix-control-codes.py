@@ -92,7 +92,7 @@ from pathlib import Path
 from ccm_aicm_reference import is_aicm_only, is_ccm_v41
 from iso_27001_reference import check_iso_token
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (AST-identical to lint_common)
+from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
 from lint_common import REPO_ROOT  # noqa: E402  # grc-config/store, stays local
 from nist_csf_reference import is_valid_category, relocation_note
 
