@@ -105,6 +105,7 @@ EXEMPT_FILES: frozenset[str] = frozenset(
 
 # Directory prefixes whose files are exempt.
 EXEMPT_PREFIXES: tuple[str, ...] = (
+    ".corpus-management/",
     ".git/",
     "node_modules/",
     "__pycache__/",

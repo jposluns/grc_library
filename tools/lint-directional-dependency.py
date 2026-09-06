@@ -106,7 +106,7 @@ def _closes(marker, opener) -> bool:
 # prefixes are relative to REPO_ROOT, POSIX form. The pack (``guardrails/``) is
 # the root-level non-deliverable subtree; TODO.md / CHANGELOG.md / docs/
 # / .working/ / .claude/ are likewise absent from the scan roots below.
-EXEMPT_PREFIXES: tuple[str, ...] = ("guardrails/",)
+EXEMPT_PREFIXES: tuple[str, ...] = ("guardrails/", ".corpus-management/")
 
 # Root-level deliverable documents (the published library specifications
 # and front matter), matching the broken-link checker's root set minus

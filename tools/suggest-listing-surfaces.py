@@ -37,7 +37,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+from lint_common import is_default_exempt_root, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
 
 REGISTER = "governance/register-document-index-and-classification.md"
 PATH_IN_CODESPAN = re.compile(r"`([a-z][a-z0-9-]*(?:/[a-z0-9._-]+)+\.md)`")
@@ -87,6 +87,8 @@ def find_matrix_surfaces() -> list[str]:
     """All matrix/crosswalk files in the corpus (the semantic listing surfaces)."""
     found: list[str] = []
     for p in sorted(REPO_ROOT.glob("**/*.md")):
+        if is_default_exempt_root(p, repo_root=REPO_ROOT):
+            continue
         rel = p.relative_to(REPO_ROOT).as_posix()
         # Skip the working dir, the pack, generated docs.
         if rel.startswith((".working/", "guardrails/", "docs/", ".git/")):
@@ -105,6 +107,10 @@ def referenced_paths(file_rel: str) -> set[str]:
 
 
 def report_one(doc_path: str) -> None:
+    if is_default_exempt_root(doc_path, repo_root=REPO_ROOT):
+        print(f"\n=== {doc_path} ===")
+        print("    Source-pack path outside the corpus; no listing surfaces apply.")
+        return
     domain = domain_of(doc_path)
     exists = (REPO_ROOT / doc_path).is_file()
     title = doc_type = None

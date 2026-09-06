@@ -323,6 +323,7 @@ def main(argv: list[str] | None = None) -> int:
     scan_paths = [root / p for p in args.paths]
     files = iter_markdown_targets(
         scan_paths,
+        repo_root=root,
         exempt_dirs=DEFAULT_EXEMPT_DIRS,
     )
 

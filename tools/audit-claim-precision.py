@@ -68,7 +68,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 # Directories and files never scanned: working state, assistant config,
 # generated artefacts (edit the source, not the artefact), and the
 # CHANGELOG (it quotes claims historically; it does not assert them).
-EXCLUDE_DIRS = {".git", ".working", ".claude", "node_modules", "__pycache__",
+EXCLUDE_DIRS = {".corpus-management", ".git", ".working", ".claude", "node_modules", "__pycache__",
                 "tests", "tools",
                 # Non-corpus trees: the pack (skill/rule EXAMPLE claims), the playbooks,
                 # and the project-governance working store are not corpus documents.

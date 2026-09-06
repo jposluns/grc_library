@@ -48,7 +48,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import DEFAULT_EXEMPT_DIRS, REPO_ROOT, iter_scan_roots_markdown  # noqa: E402  # grc-config/store, stays local
+from lint_common import is_default_exempt_root, DEFAULT_EXEMPT_DIRS, REPO_ROOT, iter_scan_roots_markdown  # noqa: E402  # grc-config/store, stays local
 
 
 def fence_lines(text: str) -> list[int]:
@@ -67,6 +67,8 @@ def iter_targets(paths: list[str]) -> list[Path]:
         return iter_scan_roots_markdown(paths, repo_root=REPO_ROOT)
     files: list[Path] = []
     for f in REPO_ROOT.rglob("*.md"):
+        if is_default_exempt_root(f, repo_root=REPO_ROOT):
+            continue
         rel_parts = f.relative_to(REPO_ROOT).parts
         if any(part in DEFAULT_EXEMPT_DIRS for part in rel_parts):
             continue

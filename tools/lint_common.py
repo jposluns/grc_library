@@ -98,6 +98,31 @@ DEFAULT_EXEMPT_DIRS: frozenset[str] = frozenset(
     }
 )
 
+# Root-relative source trees excluded from corpus content selection.
+# Safety callers can retain these trees with exclude_default_roots=False.
+DEFAULT_EXEMPT_ROOTS: frozenset[str] = frozenset({".corpus-management"})
+
+
+def is_default_exempt_root(
+    path: str | Path, *, repo_root: Path | None = None,
+) -> bool:
+    """Match descendants of a default exempt root, including missing files.
+
+    Relative paths are repository-relative. Outside paths and nested or
+    similarly named directories do not acquire this exemption. None uses
+    the current REPO_ROOT; it does not disable the policy.
+    """
+    root = (REPO_ROOT if repo_root is None else Path(repo_root)).resolve()
+    candidate = Path(path)
+    if not candidate.is_absolute():
+        candidate = root / candidate
+    try:
+        rel = candidate.resolve().relative_to(root)
+    except (ValueError, OSError):
+        return False
+    return len(rel.parts) > 1 and rel.parts[0] in DEFAULT_EXEMPT_ROOTS
+
+
 # The executive narrative layer (P-1.25, root ``executive/``) is OUTSIDE the
 # corpus document model but INSIDE the repository safety gates. Corpus-MODEL
 # gates that walk the repo root exclude it via the root-anchored
@@ -451,12 +476,15 @@ def is_target(
     suffixes: Iterable[str] = MARKDOWN_SUFFIXES,
     exempt_dirs: Iterable[str] = DEFAULT_EXEMPT_DIRS,
     exempt_files: Iterable[str] = (),
+    repo_root: Path | None = None,
+    exclude_default_roots: bool = True,
 ) -> bool:
     """Return True if ``path`` is a file the linter should scan.
 
     A path is a target when:
       - its suffix is in ``suffixes``;
       - none of its directory parts appears in ``exempt_dirs``;
+      - it is outside the default exempt roots unless explicitly retained;
       - its filename (``path.name``) is not in ``exempt_files``.
 
     The caller passes its own suffix and exempt sets. The defaults are
@@ -477,6 +505,8 @@ def is_target(
         return False
     if any(part in exempt_dirs_set for part in path.parts):
         return False
+    if exclude_default_roots and is_default_exempt_root(path, repo_root=repo_root):
+        return False
     if path.name in exempt_files_set:
         return False
     return True
@@ -487,17 +517,21 @@ def is_markdown_target(
     *,
     exempt_dirs: Iterable[str] = DEFAULT_EXEMPT_DIRS,
     exempt_files: Iterable[str] = (),
+    repo_root: Path | None = None,
+    exclude_default_roots: bool = True,
 ) -> bool:
     """Return True if ``path`` is a markdown file the linter should scan.
 
     Convenience wrapper around :func:`is_target` with the markdown suffix
-    set. Retained for callers that scan only ``.md``.
+    set. Root policy arguments are forwarded unchanged.
     """
     return is_target(
         path,
         suffixes=MARKDOWN_SUFFIXES,
         exempt_dirs=exempt_dirs,
         exempt_files=exempt_files,
+        repo_root=repo_root,
+        exclude_default_roots=exclude_default_roots,
     )
 
 
@@ -507,6 +541,8 @@ def iter_targets(
     suffixes: Iterable[str] = MARKDOWN_SUFFIXES,
     exempt_dirs: Iterable[str] = DEFAULT_EXEMPT_DIRS,
     exempt_files: Iterable[str] = (),
+    repo_root: Path | None = None,
+    exclude_default_roots: bool = True,
 ) -> list[Path]:
     """Return deduplicated, ordered list of targets matching ``suffixes``.
 
@@ -517,7 +553,8 @@ def iter_targets(
         :func:`is_target`.
 
     Paths are resolved before deduplication. Order across the input is
-    preserved.
+    preserved. Relative input paths retain their current-working-directory
+    interpretation; repo_root controls only the exemption boundary.
     """
     targets: list[Path] = []
     seen: set[Path] = set()
@@ -533,6 +570,8 @@ def iter_targets(
                 suffixes=suffixes_set,
                 exempt_dirs=exempt_dirs_set,
                 exempt_files=exempt_files_set,
+                repo_root=repo_root,
+                exclude_default_roots=exclude_default_roots,
             ):
                 if p not in seen:
                     targets.append(p)
@@ -546,6 +585,8 @@ def iter_targets(
                     suffixes=suffixes_set,
                     exempt_dirs=exempt_dirs_set,
                     exempt_files=exempt_files_set,
+                    repo_root=repo_root,
+                    exclude_default_roots=exclude_default_roots,
                 ):
                     if f not in seen:
                         targets.append(f)
@@ -558,6 +599,8 @@ def iter_markdown_targets(
     *,
     exempt_dirs: Iterable[str] = DEFAULT_EXEMPT_DIRS,
     exempt_files: Iterable[str] = (),
+    repo_root: Path | None = None,
+    exclude_default_roots: bool = True,
 ) -> list[Path]:
     """Return deduplicated, ordered list of markdown targets under ``paths``.
 
@@ -569,6 +612,8 @@ def iter_markdown_targets(
         suffixes=MARKDOWN_SUFFIXES,
         exempt_dirs=exempt_dirs,
         exempt_files=exempt_files,
+        repo_root=repo_root,
+        exclude_default_roots=exclude_default_roots,
     )
 
 
@@ -588,7 +633,9 @@ def iter_scan_roots_markdown(
 
     Each entry is taken relative to ``repo_root``: a ``.md`` FILE entry is
     included as-is; a DIRECTORY entry contributes every ``.md`` beneath it
-    recursively. Deliberately NO exempt-directory subtraction happens here
+    recursively. Only the default root exemption is subtracted. No component
+    exemptions are applied, so explicitly listed operational roots remain in scope.
+    Otherwise, no exempt-directory subtraction happens here
     (an allow-list linter's scan roots ARE its scope) and paths are not
     resolved (matching the historical walkers, so reported paths and
     ordering are unchanged). ``repo_root`` defaults to :data:`REPO_ROOT`;
@@ -603,7 +650,7 @@ def iter_scan_roots_markdown(
             files.add(path)
         elif path.is_dir():
             files.update(path.rglob("*.md"))
-    return sorted(files)
+    return sorted(f for f in files if not is_default_exempt_root(f, repo_root=root))
 
 
 def read_text_safe(path: Path) -> str | None:

@@ -44,7 +44,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import head_version, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import DEFAULT_EXEMPT_DIRS, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+from lint_common import is_default_exempt_root, DEFAULT_EXEMPT_DIRS, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
 
 # Thread-pool width for the per-file git queries. The queries are
 # independent read-only subprocesses, so the pool changes wall-clock
@@ -79,6 +79,8 @@ def iter_targets(root: Path) -> list[Path]:
     metadata-block Version field, minus the exempt set."""
     targets: list[Path] = []
     for path in root.rglob("*.md"):
+        if is_default_exempt_root(path, repo_root=root):
+            continue
         try:
             rel = path.relative_to(root).as_posix()
             parts = set(path.relative_to(root).parts)
@@ -138,7 +140,11 @@ def main(argv: list[str]) -> int:
     root = Path(args.root).resolve()
 
     if args.paths:
-        targets = [Path(p).resolve() for p in args.paths if p.endswith(".md")]
+        targets = [
+            Path(p).resolve() for p in args.paths
+            if p.endswith(".md")
+            and not is_default_exempt_root(Path(p).resolve(), repo_root=root)
+        ]
     else:
         targets = iter_targets(root)
 
