@@ -106,7 +106,9 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from lint_common import REPO_ROOT, dynamic_floor, read_text_safe, resolve_working
+import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
+from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (AST-identical to lint_common)
+from lint_common import REPO_ROOT, dynamic_floor, resolve_working  # noqa: E402  # grc-config/store, stays local
 
 # Paths of the two surfaces, relative to the repository root.
 ROOT_CHANGELOG_REL = "CHANGELOG.md"
