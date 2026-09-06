@@ -16659,6 +16659,90 @@ class CorpusManagementCompilerTests(LinterTestCase):
             "the spliced body must come from the pack source",
         )
 
+    # --- Hardening regressions (compile PR-2 /validate-pr HOLD, tri-family;
+    # --- codex+gemini found these latent fail-closed/containment gaps). ---
+    def test_non_utf8_register_is_config_error(self):
+        root = self._block_root(self.HANDBOOK_IN_SYNC)
+        (root / ".corpus-management" / "gensrc.toml").write_bytes(b"\xff\xfe not toml")
+        result = self._run(root, "--check")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+
+    def test_file_target_that_is_a_directory_is_config_error(self):
+        root = self._make_root(
+            gensrc='schema_version = 1\n\n[[rules]]\nid = "r"\nkind = "file"\n'
+                   'sources = ["core/policies/note.md"]\ntarget = "sub"\n',
+            ownership='schema_version = 1\n\n[[owned_targets]]\nrule = "r"\n'
+                      'kind = "file"\ntarget = "sub"\n',
+            owned_targets='"sub"',
+            sources={"core/policies/note.md": self.NOTE_SOURCE},
+            files={"sub/keep.md": "x\n"},
+        )
+        result = self._run(root, "--check")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+
+    def test_block_target_under_claude_rules_is_config_error(self):
+        root = self._make_root(
+            gensrc='schema_version = 1\n\n[[rules]]\nid = "r"\nkind = "block"\n'
+                   'sources = ["core/policies/note.md"]\n'
+                   'target = ".claude/rules/corpus-management/x.md"\n'
+                   'begin = "<!-- b -->"\nend = "<!-- e -->"\n',
+            ownership='schema_version = 1\n\n[[owned_targets]]\nrule = "r"\n'
+                      'kind = "block"\ntarget = ".claude/rules/corpus-management/x.md"\n',
+            owned_targets='".claude/rules/corpus-management/x.md"',
+            sources={"core/policies/note.md": self.NOTE_SOURCE},
+        )
+        result = self._run(root, "--check")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+
+    def test_carriage_return_sentinel_is_config_error(self):
+        root = self._make_root(
+            gensrc='schema_version = 1\n\n[[rules]]\nid = "r"\nkind = "block"\n'
+                   'sources = ["core/policies/note.md"]\ntarget = "H.md"\n'
+                   'begin = "<!-- b\\r -->"\nend = "<!-- e -->"\n',
+            ownership='schema_version = 1\n\n[[owned_targets]]\nrule = "r"\n'
+                      'kind = "block"\ntarget = "H.md"\n',
+            owned_targets='"H.md"',
+            sources={"core/policies/note.md": self.NOTE_SOURCE},
+            files={"H.md": "x\n"},
+        )
+        result = self._run(root, "--check")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+
+    def test_alias_and_nested_target_overlap_is_config_error(self):
+        # Two file rules whose targets resolve to the same file (foo.md vs
+        # ./foo.md) OR nest (gen/out vs gen/out/child.md) must fail-closed.
+        for a, b in (("foo.md", "./foo.md"), ("gen/out", "gen/out/child.md")):
+            root = self._make_root(
+                gensrc=(f'schema_version = 1\n\n[[rules]]\nid = "a"\nkind = "file"\n'
+                        f'sources = ["core/policies/note.md"]\ntarget = "{a}"\n'
+                        f'[[rules]]\nid = "b"\nkind = "file"\n'
+                        f'sources = ["core/policies/note.md"]\ntarget = "{b}"\n'),
+                ownership=(f'schema_version = 1\n\n[[owned_targets]]\nrule = "a"\n'
+                           f'kind = "file"\ntarget = "{a}"\n[[owned_targets]]\n'
+                           f'rule = "b"\nkind = "file"\ntarget = "{b}"\n'),
+                owned_targets=f'"{a}", "{b}"',
+                sources={"core/policies/note.md": self.NOTE_SOURCE},
+            )
+            result = self._run(root, "--check")
+            self.assertEqual(result.returncode, 2, f"{a} vs {b}: " + result.stdout + result.stderr)
+
+    def test_tree_source_symlink_escape_is_config_error(self):
+        root = self._make_root(
+            gensrc='schema_version = 1\n\n[[rules]]\nid = "t"\nkind = "tree"\n'
+                   'sources = ["core/rules"]\ntarget = "gen/rules"\n',
+            ownership='schema_version = 1\n\n[[owned_targets]]\nrule = "t"\n'
+                      'kind = "tree"\ntarget = "gen/rules"\n',
+            owned_targets='"gen/rules"',
+        )
+        td = root / ".corpus-management" / "core" / "rules"
+        td.mkdir(parents=True, exist_ok=True)
+        outside = root.parent / "cm-symlink-secret.md"
+        outside.write_text("secret\n", encoding="utf-8")
+        self.addCleanup(outside.unlink, True)
+        os.symlink(outside, td / "leak.md")
+        result = self._run(root, "--check")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+
 
 class NarrativeScanScopeTests(LinterTestCase):
     """P-1.25 scan-root split: executive/ is outside the corpus document

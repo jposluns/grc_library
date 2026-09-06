@@ -177,7 +177,7 @@ def _load_toml(path: Path, problems: list[str], label: str) -> dict | None:
     try:
         with open(path, "rb") as fh:
             return tomllib.load(fh)
-    except tomllib.TOMLDecodeError as exc:
+    except (tomllib.TOMLDecodeError, UnicodeDecodeError, OSError) as exc:
         problems.append(f"{label}: cannot parse: {exc}")
         return None
 
@@ -336,7 +336,8 @@ def load_and_validate(root: Path, pack_root: Path) -> tuple[list[Rule], list[str
             end = raw.get("end")
             bad = False
             for name, val in (("begin", begin), ("end", end)):
-                if not isinstance(val, str) or not val.strip() or "\n" in val:
+                if (not isinstance(val, str) or not val.strip()
+                        or "\n" in val or "\r" in val):
                     problems.append(f"{where}: '{name}' must be a non-empty "
                                     f"single-line sentinel string")
                     bad = True
@@ -391,6 +392,15 @@ def load_and_validate(root: Path, pack_root: Path) -> tuple[list[Rule], list[str
             problems.append(f"{where}: a target under {CLAUDE_RULES}/ must be "
                             f"strictly under {CM_RULES}/")
             continue
+        if kind == "block" and _under(tposix, CLAUDE_RULES):
+            problems.append(f"{where}: a block target may not sit under {CLAUDE_RULES}/ "
+                            f"(a rule-mirror body cannot also carry a compiler-owned "
+                            f"block; gate 37 rejects it too)")
+            continue
+        if kind in ("block", "file") and resolved_target.is_dir():
+            problems.append(f"{where}: a {kind} target must be a file, not an "
+                            f"existing directory: {target}")
+            continue
 
         # Source path validation.
         src_ok = True
@@ -415,24 +425,31 @@ def load_and_validate(root: Path, pack_root: Path) -> tuple[list[Rule], list[str
     # --- Cross-rule target checks. ---
     by_target: dict[str, list[Rule]] = {}
     for r in rules:
-        by_target.setdefault(r.target, []).append(r)
+        by_target.setdefault(str((root / r.target).resolve()), []).append(r)
     for target, rs in sorted(by_target.items()):
         if len(rs) > 1 and any(r.kind != "block" for r in rs):
             problems.append(f"target {target!r} is claimed by more than one rule and "
                             f"not all are block rules ({', '.join(r.id for r in rs)})")
     seen_pairs: set[frozenset[str]] = set()
-    for tr in [r for r in rules if r.kind == "tree"]:
-        tp = PurePosixPath(tr.target)
-        for r in rules:
-            if r is tr:
+    res = {r.id: (root / r.target).resolve() for r in rules}
+    for a in rules:
+        for b in rules:
+            if a is b or frozenset((a.id, b.id)) in seen_pairs:
                 continue
-            rp = PurePosixPath(r.target)
-            if _under(rp, tp) or (r.kind == "tree" and _under(tp, rp)):
-                pair = frozenset((r.id, tr.id))
-                if pair not in seen_pairs:
-                    seen_pairs.add(pair)
-                    problems.append(f"targets overlap: rule {r.id!r} ({r.target}) and "
-                                    f"tree rule {tr.id!r} ({tr.target})")
+            ra, rb = res[a.id], res[b.id]
+            # A resolved target sitting AT or UNDER another (a file inside a
+            # tree, a tree inside a tree, or a file that is an ancestor dir of
+            # another file) is an overlap unless both are block rules on the
+            # exact same file (the sanctioned shared-file block case).
+            same = ra == rb
+            nested = ra != rb and (rb == ra or ra in rb.parents or rb in ra.parents)
+            if same and a.kind == "block" and b.kind == "block":
+                continue
+            if same or nested:
+                seen_pairs.add(frozenset((a.id, b.id)))
+                problems.append(f"targets overlap: rule {a.id!r} ({a.target}) and "
+                                f"rule {b.id!r} ({b.target}) resolve to the same or "
+                                f"a nested path")
 
     # --- Source/target overlap (defence in depth: targets cannot sit in the
     # --- pack, and sources must sit in the pack, so this cannot fire today).
@@ -511,6 +528,11 @@ def load_and_validate(root: Path, pack_root: Path) -> tuple[list[Rule], list[str
             tree_files: list[tuple[str, str]] = []
             for f in files:
                 rel = f.relative_to(src_dir).as_posix()
+                if not f.resolve().is_relative_to(pack_root.resolve()):
+                    problems.append(f"rule {r.id!r}: tree source file "
+                                    f"{r.sources[0]}/{rel} resolves outside the pack "
+                                    f"root (symlink escape)")
+                    continue
                 text, prob = _strict_text(f)
                 if text is None:
                     problems.append(f"rule {r.id!r}: tree source file "
@@ -701,6 +723,16 @@ def plan_generate(root: Path, rules: list[Rule]) -> tuple[list[str], list[tuple[
                                         f"pack source) and re-run")
             for rel, content in sorted(renders.items()):
                 writes.append((root / rel, content.encode("utf-8")))
+    root_r = root.resolve()
+    for wpath, _ in writes:
+        try:
+            resolved = wpath.resolve()
+        except OSError as exc:
+            problems.append(f"output path {wpath}: cannot resolve ({exc})")
+            continue
+        if not resolved.is_relative_to(root_r):
+            problems.append(f"output path {wpath} resolves outside the project "
+                            f"root (symlink escape); refusing to write")
     return problems, writes
 
 
@@ -787,7 +819,12 @@ def main(argv: list[str] | None = None) -> int:
         for p in problems:
             print(f"  [corpus-management] {p}")
         return 2
-    written, unchanged = apply_writes(writes)
+    try:
+        written, unchanged = apply_writes(writes)
+    except OSError as exc:
+        print("FAIL: corpus-management generation problem(s):")
+        print(f"  [corpus-management] write failed: {exc}")
+        return 2
     print(f"OK: corpus-management generation complete ({len(rules)} rule(s), "
           f"{n_targets} target(s); {written} updated, {unchanged} unchanged).")
     return 0

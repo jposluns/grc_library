@@ -165,12 +165,20 @@ def load_compiler_owned(root: Path) -> tuple[list[str], set[str], set[str]]:
     try:
         with open(reg_path, "rb") as fh:
             register = tomllib.load(fh)
-    except (tomllib.TOMLDecodeError, OSError) as exc:
+    except (tomllib.TOMLDecodeError, UnicodeDecodeError, OSError) as exc:
         raise OwnershipRegisterError(
             f"cannot read the Corpus-Management ownership register "
             f"{OWNERSHIP_REGISTER_REL}: {exc}"
         )
-    entries = register.get("owned_targets", [])
+    if register.get("schema_version") != 1:
+        raise OwnershipRegisterError(
+            f"{OWNERSHIP_REGISTER_REL}: 'schema_version' must be 1"
+        )
+    if "owned_targets" not in register:
+        raise OwnershipRegisterError(
+            f"{OWNERSHIP_REGISTER_REL}: missing required 'owned_targets' collection"
+        )
+    entries = register["owned_targets"]
     if not isinstance(entries, list):
         raise OwnershipRegisterError(
             f"{OWNERSHIP_REGISTER_REL}: 'owned_targets' must be a list"
