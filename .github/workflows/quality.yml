@@ -302,6 +302,9 @@ jobs:
       - name: AIQT vendor digest audit
         run: python3 tools/lint-aiqt-vendor-digest.py
 
+      - name: Corpus-management generated outputs in sync
+        run: python3 tools/build-corpus-management.py --check
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py

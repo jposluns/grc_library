@@ -47,6 +47,26 @@ unchecked. This is the property that prevents the drift class from
 recurring one level up: forgetting to map a new mirror is loud, not
 silent.
 
+Compiler-owned recognition (compile PR-2): the Corpus-Management pack's
+compiler (``tools/build-corpus-management.py``; gate 99) may generate
+rule files under ``.claude/rules/corpus-management/``. The completeness
+check recognizes those files through the pack's validated ownership
+register (``.corpus-management/core/ownership.toml``): a local rule file
+covered by a valid register entry (an exact file target, or inside a
+tree target) is accepted as compiler-owned and skipped from the mapping
+requirement, because its byte-integrity is gate 99's stricter job.
+Recognition is keyed to the register, never to a directory skip, so a
+hand-dropped stray under the reserved subdirectory still fails loud.
+Three ownership defects are findings here (defence in depth with the
+compiler's own validation): an entry that contests a MIRROR_MAP path
+(guardrails mirrors and compiler outputs can never contest a path), an
+entry under ``.claude/rules/`` outside the reserved
+``corpus-management/`` subdirectory, and a block-kind entry targeting
+anything under ``.claude/rules/`` (a compiler-owned block inside a
+mirrored rule body would put two owners on one file). An absent register
+yields an empty owned set (fail-closed); an unparseable register is an
+internal error (exit 2).
+
 The ``--root`` argument overrides the repository root used to resolve
 both halves of every pair. Used by the regression test suite to point
 at a synthetic minimal source set with engineered drift so the linter's
@@ -59,14 +79,16 @@ Exit codes:
     0   every mapped local copy's body matches its pack source, and
         every local rule file is covered by the mapping.
     1   one or more findings (body drift, or an unmapped local file).
-    2   internal error (a declared source or local file is missing).
+    2   internal error (a declared source or local file is missing, or
+        the Corpus-Management ownership register is unparseable).
 """
 
 from __future__ import annotations
 
 import argparse
 import sys
-from pathlib import Path
+import tomllib
+from pathlib import Path, PurePosixPath
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
@@ -110,6 +132,132 @@ MIRROR_MAP: dict[str, str] = {
     ".claude/rules/governance/decision-classification-before-enacting.md": "guardrails/governance/decision-classification-before-enacting.md",
     ".claude/rules/governance/express-authorization-before-execution.md": "guardrails/governance/express-authorization-before-execution.md",
 }
+
+# Compiler-owned recognition (Corpus-Management pack, compile PR-2): the
+# ownership register the pack's compiler validates (gate 99), read here
+# schema-light so this gate stays import-decoupled from the compiler. The
+# reserved subdirectory is the ONLY place a compiler-owned rule file may
+# live; recognition is keyed to the register, never to a directory skip.
+OWNERSHIP_REGISTER_REL = ".corpus-management/core/ownership.toml"
+CM_RULES_SUBDIR = ".claude/rules/corpus-management"
+
+
+class OwnershipRegisterError(Exception):
+    """The Corpus-Management ownership register exists but cannot be read."""
+
+
+def load_compiler_owned(root: Path) -> tuple[list[str], set[str], set[str]]:
+    """Return ``(findings, owned_files, owned_trees)`` from the
+    Corpus-Management pack's ownership register, scoped to targets under
+    ``.claude/rules/``.
+
+    An absent register yields an empty owned set (fail-closed: every file
+    under the reserved subdirectory then fails as unmapped). An unparseable
+    or malformed register raises ``OwnershipRegisterError`` (exit 2). An
+    entry that contests a MIRROR_MAP path, sits under ``.claude/rules/``
+    outside the reserved ``corpus-management/`` subdirectory, or claims a
+    block inside ``.claude/rules/`` yields a finding and contributes no
+    coverage.
+    """
+    reg_path = root / OWNERSHIP_REGISTER_REL
+    if not reg_path.is_file():
+        return [], set(), set()
+    try:
+        with open(reg_path, "rb") as fh:
+            register = tomllib.load(fh)
+    except (tomllib.TOMLDecodeError, UnicodeDecodeError, OSError) as exc:
+        raise OwnershipRegisterError(
+            f"cannot read the Corpus-Management ownership register "
+            f"{OWNERSHIP_REGISTER_REL}: {exc}"
+        )
+    _sv = register.get("schema_version")
+    if not isinstance(_sv, int) or isinstance(_sv, bool) or _sv != 1:
+        raise OwnershipRegisterError(
+            f"{OWNERSHIP_REGISTER_REL}: 'schema_version' must be the integer 1"
+        )
+    if "owned_targets" not in register:
+        raise OwnershipRegisterError(
+            f"{OWNERSHIP_REGISTER_REL}: missing required 'owned_targets' collection"
+        )
+    entries = register["owned_targets"]
+    if not isinstance(entries, list):
+        raise OwnershipRegisterError(
+            f"{OWNERSHIP_REGISTER_REL}: 'owned_targets' must be a list"
+        )
+    findings: list[str] = []
+    owned_files: set[str] = set()
+    owned_trees: set[str] = set()
+    claude_rules = PurePosixPath(LOCAL_RULES_DIR_REL)
+    cm_rules = PurePosixPath(CM_RULES_SUBDIR)
+    for i, entry in enumerate(entries):
+        if (
+            not isinstance(entry, dict)
+            or not isinstance(entry.get("rule"), str)
+            or not isinstance(entry.get("kind"), str)
+            or not isinstance(entry.get("target"), str)
+        ):
+            raise OwnershipRegisterError(
+                f"{OWNERSHIP_REGISTER_REL}: owned_targets[{i}] must be a "
+                f"table with string 'rule', 'kind', and 'target' fields"
+            )
+        kind = entry["kind"]
+        target = entry["target"]
+        if kind not in ("block", "file", "tree"):
+            raise OwnershipRegisterError(
+                f"{OWNERSHIP_REGISTER_REL}: owned_targets[{i}] has unknown kind "
+                f"{kind!r} (must be block, file, or tree)"
+            )
+        if "\x00" in target or PurePosixPath(target).is_absolute() or ".." in PurePosixPath(target).parts:
+            raise OwnershipRegisterError(
+                f"{OWNERSHIP_REGISTER_REL}: owned_targets[{i}] target must be a "
+                f"relative, '..'-free, NUL-free path: {target!r}"
+            )
+        tposix = PurePosixPath(target)
+        in_rules = tposix == claude_rules or claude_rules in tposix.parents
+        contains_rules = kind == "tree" and (
+            tposix == claude_rules or tposix in claude_rules.parents
+        )
+        if not in_rules and not contains_rules:
+            continue  # a target outside .claude/rules/ is not this gate's concern
+        mirror_clash = sorted(
+            m for m in MIRROR_MAP
+            if m == target
+            or (kind == "tree" and tposix in PurePosixPath(m).parents)
+        )
+        if mirror_clash or contains_rules:
+            clash = ", ".join(mirror_clash) or LOCAL_RULES_DIR_REL
+            findings.append(
+                f"ownership overlap: register entry {entry['rule']!r} "
+                f"({kind} {target}) contests {clash}, which the guardrails "
+                f"mirror mapping owns; guardrails mirrors and compiler "
+                f"outputs can never contest a path."
+            )
+            continue
+        if kind == "block":
+            findings.append(
+                f"block-kind ownership entry {entry['rule']!r} targets "
+                f"{target} under {LOCAL_RULES_DIR_REL}/: a compiler-owned "
+                f"block inside a mirrored rule body would put two owners "
+                f"on one file; only file or tree kinds may own rule files."
+            )
+            continue
+        if not (tposix == cm_rules or cm_rules in tposix.parents):
+            findings.append(
+                f"ownership entry {entry['rule']!r} ({kind} {target}) sits "
+                f"under {LOCAL_RULES_DIR_REL}/ outside the reserved "
+                f"{CM_RULES_SUBDIR}/ subdirectory."
+            )
+            continue
+        if kind == "tree":
+            owned_trees.add(target)
+        elif kind == "file":
+            owned_files.add(target)
+        else:
+            findings.append(
+                f"ownership entry {entry['rule']!r} has unknown kind "
+                f"{kind!r} for target {target}."
+            )
+    return findings, owned_files, owned_trees
 
 
 def strip_preamble(text: str) -> str:
@@ -184,7 +332,7 @@ def find_local_rule_files(root: Path) -> list[Path]:
     return out
 
 
-def main(argv: list[str] | None = None) -> int:
+def _main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=(
             "Audit that every project-local .claude/rules copy's body "
@@ -206,6 +354,14 @@ def main(argv: list[str] | None = None) -> int:
     root: Path = args.root.resolve()
 
     findings: list[str] = []
+
+    # --- Compiler-owned recognition (Corpus-Management pack, gate 99). ---
+    try:
+        ownership_findings, owned_files, owned_trees = load_compiler_owned(root)
+    except OwnershipRegisterError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
+    findings.extend(ownership_findings)
 
     # --- Body-sync check for every mapped pair. ---
     for local_rel, source_rel in sorted(MIRROR_MAP.items()):
@@ -257,17 +413,29 @@ def main(argv: list[str] | None = None) -> int:
                 f"comment, if any)."
             )
 
-    # --- Completeness check: every local rule file must be mapped. ---
+    # --- Completeness check: every local rule file must be mapped, or
+    # --- compiler-owned (recognized through the validated ownership
+    # --- register above, never through a directory skip). ---
     for local_path in find_local_rule_files(root):
         rel = local_path.relative_to(root).as_posix()
-        if rel not in MIRROR_MAP:
-            findings.append(
-                f"unmapped local rule file: {rel}. Add it to MIRROR_MAP "
-                f"in tools/lint-claude-rules-sync.py with its pack source, "
-                f"so its sync with the source is audited (or move it under "
-                f".claude/rules/{LOCAL_ONLY_SUBDIR}/ if it is a local-only "
-                f"overlay with no pack source)."
-            )
+        if rel in MIRROR_MAP:
+            continue
+        rel_posix = PurePosixPath(rel)
+        if rel in owned_files or any(
+            PurePosixPath(tree) in rel_posix.parents for tree in owned_trees
+        ):
+            # Compiler-owned: byte-integrity is gate 99's stricter job
+            # (tools/build-corpus-management.py --check).
+            continue
+        findings.append(
+            f"unmapped local rule file: {rel}. Add it to MIRROR_MAP "
+            f"in tools/lint-claude-rules-sync.py with its pack source, "
+            f"declare it in the Corpus-Management ownership register "
+            f"({OWNERSHIP_REGISTER_REL}) if it is compiler-generated "
+            f"(gate 99 then owns its bytes), or move it under "
+            f".claude/rules/{LOCAL_ONLY_SUBDIR}/ if it is a local-only "
+            f"overlay with no pack source."
+        )
 
     if not findings:
         print(
@@ -285,6 +453,18 @@ def main(argv: list[str] | None = None) -> int:
         f"guardrails/ pack sources."
     )
     return 1
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Categorical crash-safety wrapper: any uncaught exception (e.g. an
+    unreadable mapped rule file whose read_text_safe raises OSError) becomes a
+    clean exit 2, never a traceback (the gate never crashes)."""
+    try:
+        return _main(argv)
+    except Exception as exc:
+        print("FAIL: claude-rules-sync internal error: "
+              f"{type(exc).__name__}: {exc}")
+        return 2
 
 
 if __name__ == "__main__":

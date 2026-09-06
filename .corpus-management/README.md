@@ -1,8 +1,9 @@
 # Corpus-Management pack (`.corpus-management/`)
 
-**Status: SKELETON (umbrella 4.1, PR-1).** This directory reserves the structure of a standalone,
-adoptable Corpus-Management pack. PR-1 ships an inert scaffold only: no clauses have been transferred,
-no gates or hooks are installed, and generation is disabled. Enforcement and the compiler arrive in PR-2.
+**Status: ACTIVE (umbrella 4.1, compile PR-2).** This directory is the structure of a standalone,
+adoptable Corpus-Management pack. PR-2 shipped the compiler, the first generated slice (the CLAUDE.md
+generated-artefacts instruction block, transferred verbatim), and the mandatory drift gate (grc gate
+99); no corpus gates or hooks have been transferred into the pack registers yet.
 
 ## What this is
 A **thin, adoptable layer** for keeping a documentation corpus internally consistent (metadata shape,
@@ -13,9 +14,11 @@ policy: the fixed metadata structure, the register grammar, and the corpus gates
 policy-free primitives, not a corpus compiler; this pack is that compiler's source of record.
 
 ## Source-of-record discipline
-`.corpus-management/` is the **authoritative source**. Once PR-2 installs the compiler, generated
-outputs (rules, CLAUDE.md blocks, gate/hook wiring) are produced FROM this tree and are **never edited
-directly**; edit the source here and regenerate. A drift gate will enforce byte-parity.
+`.corpus-management/` is the **authoritative source**. Generated outputs (rules, CLAUDE.md blocks,
+gate/hook wiring) are produced FROM this tree by the compiler (`tools/corpus_mgmt_compiler.py`,
+wrapped by the project's `tools/build-corpus-management.py`) and are **never edited directly**; edit
+the source here and regenerate. The drift gate (grc gate 99, the wrapper's `--check` form) enforces
+byte-parity with nothing stripped before comparison.
 
 ## Scan boundary (why this directory is exempt from corpus-content gates)
 This is pack SOURCE, not corpus content, so the corpus-content validators do not select it (a
@@ -23,7 +26,8 @@ root-anchored exemption, matched on the first path component only, so nested loo
 `governance/.corpus-management/` are NOT exempt). The security and cross-cutting operational audits
 (secrets, PII, internal-references, external-link-domains, narrative-boundary, and prose dash-style)
 **still apply** to this tree; the exemption is from corpus-document-model validation only, not a blanket
-skip. (The stdlib-only-imports gate scans this tree once the pack ships Python, in PR-2.)
+skip. (The stdlib-only-imports and unused-import gates scan the pack's `tools/` tree, which ships
+Python since PR-2.)
 
 ## Structure (fixed) vs vocabulary (configurable)
 The metadata STRUCTURE is fixed (every document carries the same field set and section model, which is
@@ -40,8 +44,9 @@ that require an adopter to supply a reference base; they are listed in the manif
 disabled in the skeleton.
 
 ## Rollout
-- **PR-1 (this):** inert scaffold + the root-anchored scan-boundary exemption + scope tests.
-- **PR-2:** the compiler + the first generated vertical slice + the mandatory drift gate.
+- **PR-1:** inert scaffold + the root-anchored scan-boundary exemption + scope tests. SHIPPED.
+- **PR-2 (this):** the compiler + the first generated vertical slice + the mandatory drift gate (grc gate 99). SHIPPED.
+- **PR-3 (next):** the first clause-transfer wave, generating `.claude/rules/corpus-management/` rule files.
 - **Phase-2b: SKIP.** **Gate-98 (vendored-core digest): CORPUS interim.** **Publication: deferred (P4).**
 
 See `core/manifest.toml` for the machine-readable pack descriptor.

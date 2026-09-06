@@ -1,3 +1,10 @@
-# Generated-output ownership register (skeleton). PR-1 owns no targets.
+# Generated-output ownership register: one entry per gensrc.toml rule. This
+# is the small, stable inventory OTHER gates read (gate 37 recognizes
+# compiler-owned .claude/rules/ files from it) without needing the generation
+# schema; the compiler fail-closes (exit 2) on any mismatch with the ruleset.
 schema_version = 1
-owned_targets = []
+
+[[owned_targets]]
+rule = "claude-generated-artefacts-note"
+kind = "block"
+target = ".claude/CLAUDE.md"

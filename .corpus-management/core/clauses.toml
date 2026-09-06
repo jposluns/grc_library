@@ -1,3 +1,10 @@
-# Clause register (skeleton). PR-1 reserves structure; no clauses transferred.
+# Clause register: the instructions transferred INTO the pack as sources of
+# record. Each clause names its pack source (validated to exist) and its
+# origin; the compiler fail-closes on a duplicate id or a dangling source.
 schema_version = 1
-clauses = []
+
+[[clauses]]
+id = "claude-generated-artefacts-note"
+title = "Generated corpus artefacts are never hand-edited"
+source = "core/policies/generated-artefacts-note.md"
+origin = "grc_library .claude/CLAUDE.md, the Project section's generated-artefacts bullet (transferred verbatim in compile PR-2)"

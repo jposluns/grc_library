@@ -9,7 +9,7 @@ standard library or a first-party in-repo module. A third-party import (``import
 a maintainer machine that happens to have the package installed.
 
 This gate closes exactly that blind spot. It statically AST-parses every toolchain Python
-file (``tools/``, ``tests/``, ``.web/``, and the vendored ``vendor/aiqt/tools/``) and flags any imported ROOT module that is not:
+file (``tools/``, ``tests/``, ``.web/``, the Corpus-Management pack's ``.corpus-management/tools/``, and the vendored ``vendor/aiqt/tools/``) and flags any imported ROOT module that is not:
 
   - in ``sys.stdlib_module_names`` (the running interpreter's standard library), OR
   - a first-party in-repo module (the stem of a ``.py`` file in the scanned set, e.g.
@@ -43,7 +43,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 # Directories whose *.py ship as the runnable toolchain (adopters execute these).
-SCAN_DIRS = ("tools", "tests", ".web", "vendor/aiqt/tools")  # vendor/: audit the vendored AIQT core imports so a future re-pin cannot slip in a third-party dep (codex #2018)
+SCAN_DIRS = ("tools", "tests", ".web", ".corpus-management/tools", "vendor/aiqt/tools")  # vendor/: audit the vendored AIQT core imports so a future re-pin cannot slip in a third-party dep (codex #2018); .corpus-management/tools: the pack's own Python (compile PR-2) is held to the same stdlib-only bar
 
 # Sanctioned third-party dependencies (root module name -> rationale). EMPTY: the
 # toolchain is pure standard library. A future entry needs a rationale here and a

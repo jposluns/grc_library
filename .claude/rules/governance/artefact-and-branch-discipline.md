@@ -180,10 +180,13 @@ Both exception paths are slow by design; the friction is proportional to the res
 ## Project overlay (grc_library wiring and lineage; local copy only)
 
 - Generated artefacts here: `taxonomy.yml`, `narrative.yml`, `docs/portal.md`,
-  `docs/maturity-scorecard.md`, `governance/relationship-model.generated.json`, and
-  the `## Number allocation` block in `TODO.md` (regenerate via `tools/build-taxonomy.py`,
+  `docs/maturity-scorecard.md`, `governance/relationship-model.generated.json`,
+  the `## Number allocation` block in `TODO.md`, and every compiler-owned
+  corpus-management output (currently the CLAUDE.md generated-artefacts block)
+  (regenerate via `tools/build-taxonomy.py`,
   `tools/build-narrative-registry.py`, `tools/build-portal.py`,
-  `tools/build-relationship-model.py`, and `tools/build-todo-number-allocation.py`;
-  gates 33, 85, 34, 93, and 91 run the `--check` forms).
+  `tools/build-relationship-model.py`, `tools/build-todo-number-allocation.py`,
+  and `tools/build-corpus-management.py`;
+  gates 33, 85, 34, 93, 91, and 99 run the `--check` forms).
 - Protected-branch force-push procedure and `refs/preservation/` convention: the
   project CLAUDE.md Boundaries section.

@@ -10,7 +10,7 @@ positives are not). It shipped report-only (#1702), soaked to an empty report (#
 last five findings), and now runs as ENFORCING gate 94 (exit 1 on findings by default; --report is
 the advisory opt-out), wired into the four gate surfaces.
 
-SCOPE. `tools/`, `tests/`, `.web/`, and `.claude/hooks/`, recursive with `__pycache__` excluded: gate 71's original tools/tests/.web scan set plus the hooks tree, but NOT the vendored vendor/aiqt/tools that gate 71 now also audits (unused-import hygiene does not apply to consumed code; the corpus is a non-goal). Widened from the original top-level `tools/` + `.claude/hooks/` scan (the r22-F4 follow-up), so a dead import in a nested subdirectory, in `tests/`, or in `.web/` is no longer invisible.
+SCOPE. `tools/`, `tests/`, `.web/`, `.claude/hooks/`, and the Corpus-Management pack's `.corpus-management/tools/` (compile PR-2; authored here, so import hygiene applies), recursive with `__pycache__` excluded: gate 71's original tools/tests/.web scan set plus the hooks tree and the pack tools, but NOT the vendored vendor/aiqt/tools that gate 71 now also audits (unused-import hygiene does not apply to consumed code; the corpus is a non-goal). Widened from the original top-level `tools/` + `.claude/hooks/` scan (the r22-F4 follow-up), so a dead import in a nested subdirectory, in `tests/`, or in `.web/` is no longer invisible.
 
 VERDICT. A name is flagged ONLY when a semantic (AST) pass finds no Load reference AND a
 conservative textual backstop finds no bare token AND no exclusion applies. Every ambiguity
@@ -45,13 +45,13 @@ EXCLUSIONS (each with its detection mechanism):
 RESIDUES (stated so nobody trusts the gate past its reach): a marker-less deliberate re-export is
 indistinguishable from dead code; a name used only via `getattr`/`globals()` is invisible unless a
 string literal names it; a name mentioned only in a comment or docstring suppresses a real finding
-(the accepted false-negative direction, the PR #1697 shape); a file that does not PARSE is SKIPped whole (printed as a SKIP line, not a finding), so gate 94 does not syntax-check the toolchain (gate 95, the hooks Python-syntax audit, covers `.claude/hooks/`; gate 71 parse-fails `tools/`, `tests/`, `.web/`, and `vendor/aiqt/tools/`).
+(the accepted false-negative direction, the PR #1697 shape); a file that does not PARSE is SKIPped whole (printed as a SKIP line, not a finding), so gate 94 does not syntax-check the toolchain (gate 95, the hooks Python-syntax audit, covers `.claude/hooks/`; gate 71 parse-fails `tools/`, `tests/`, `.web/`, `.corpus-management/tools/`, and `vendor/aiqt/tools/`).
 
 Usage:
     python3 tools/lint-unused-imports.py                 # ENFORCE (default): exit 1 on any finding (gate 94)
     python3 tools/lint-unused-imports.py --report        # report-only opt-out: print worklist, exit 0
     python3 tools/lint-unused-imports.py --ignore-markers # debug: ignore `# re-export` markers (control)
-    python3 tools/lint-unused-imports.py --paths a.py b.py   # explicit files (default: the four scan dirs)
+    python3 tools/lint-unused-imports.py --paths a.py b.py   # explicit files (default: the five scan dirs)
     python3 tools/lint-unused-imports.py --self-test
 """
 from __future__ import annotations
@@ -63,7 +63,7 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_DIRS = ("tools", "tests", ".web", ".claude/hooks")
+DEFAULT_DIRS = ("tools", "tests", ".web", ".claude/hooks", ".corpus-management/tools")
 _MARKER_RE = re.compile(r"#\s*re-export", re.IGNORECASE)
 _NOQA_RE = re.compile(r"#\s*noqa(?::\s*(?P<codes>[A-Z0-9,\t ]+))?", re.IGNORECASE)
 

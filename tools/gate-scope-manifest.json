@@ -61,6 +61,7 @@
       "lint-todo-marked-done.py"
     ],
     "operational-meta": [
+      "build-corpus-management.py",
       "check-changelog-dash-on-pr.py",
       "check-changelog-length-on-pr.py",
       "check-changelog-on-pr.py",

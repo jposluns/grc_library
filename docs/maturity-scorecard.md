@@ -87,7 +87,7 @@ _110 documents._
 | [governance/register-glossary.md](../governance/register-glossary.md) | Glossary and Acronym Index | Register | 1.4.18 | 2026-08-24 |
 | [governance/register-key-terms-and-definitions.md](../governance/register-key-terms-and-definitions.md) | Key Terms and Definitions Register | Register | 1.1.6 | 2026-08-31 |
 | [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.5.11 | 2026-09-05 |
-| [governance/specification-audit-programme.md](../governance/specification-audit-programme.md) | Audit Programme Specification | Specification | 1.17.142 | 2026-09-06 |
+| [governance/specification-audit-programme.md](../governance/specification-audit-programme.md) | Audit Programme Specification | Specification | 1.17.143 | 2026-09-06 |
 | [governance/specification-citation-verification.md](../governance/specification-citation-verification.md) | Citation Verification Specification | Specification | 1.2.15 | 2026-07-11 |
 | [governance/standard-maturity-assessment-methodology.md](../governance/standard-maturity-assessment-methodology.md) | Maturity Assessment Methodology Standard | Standard | 1.1.1 | 2026-09-05 |
 | [governance/standard-records-retention-and-destruction.md](../governance/standard-records-retention-and-destruction.md) | Records Retention and Destruction Standard | Standard | 1.4.22 | 2026-09-04 |
