@@ -2,8 +2,8 @@
 
 **Document Title:** Data Retention Schedule\
 **Document Type:** Register\
-**Version:** 1.0.40\
-**Date:** 2026-09-04\
+**Version:** 1.0.41\
+**Date:** 2026-09-06\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md), [`governance/standard-delegation-of-authority.md`](standard-delegation-of-authority.md)\
@@ -101,7 +101,7 @@ This register defines the mandatory retention periods for each category of organ
 | Board and committee minutes | Permanent | Corporate governance |
 | Policy and standards versions | Superseded version + 7 years | Audit and legal reference |
 | Risk register entries | Closed + 5 years | Risk governance; audit trail |
-| Business continuity test records | 5 years | ISO 22301; certification evidence |
+| Business continuity test records | 5 years | Organizational retention floor for business continuity test and certification evidence |
 | DR test records | 5 years | Compliance and insurance requirements |
 | Governance authorization and delegation records | 7 years after expiry or revocation | Corporate-governance and audit evidence; applies the Records Retention and Destruction Standard's seven-year Corporate Governance domain minimum and preserves the authorization and revocation lineage for retrospective review. |
 
