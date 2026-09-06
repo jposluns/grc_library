@@ -2,8 +2,8 @@
 
 **Document Title:** Coverage Gap Analysis Register\
 **Document Type:** Register\
-**Version:** 1.1.38\
-**Date:** 2026-09-05\
+**Version:** 1.1.39\
+**Date:** 2026-09-06\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/register-glossary.md`](register-glossary.md), [`README.md`](../README.md), [`TODO.md`](../TODO.md)\
@@ -139,7 +139,7 @@ The library currently covers 4 of approximately 94 trusted-trader programmes glo
 
 ### 2.5 AI jurisdictions
 
-The `ai/jurisdictions/` structure (parallel to `privacy/jurisdictions/`) was founded by the EU AI Act annex and now holds seven dedicated annexes: Australia, Canada, the European Union, Singapore, US California (CCPA ADMT), US Colorado, and US New York City. The remaining candidates below are source-gated or awaiting an annex; see the TODO backlog's AI-jurisdiction-overlays item for the candidate list and its further-AI-jurisdiction-annexes item for the deferred set.
+The `ai/jurisdictions/` structure (parallel to `privacy/jurisdictions/`) was founded by the EU AI Act annex and now holds ten dedicated annexes: Australia, Canada, the European Union, Singapore, South Korea, US California (CCPA ADMT), US Colorado, US Illinois, US New York City, and US Texas. The remaining candidates below are source-gated or awaiting an annex; see the TODO backlog's AI-jurisdiction-overlays item for the candidate list and its further-AI-jurisdiction-annexes item for the deferred set.
 
 | Jurisdiction | Coverage | Status | Planned target | Notes |
 | --- | --- | --- | --- | --- |
@@ -151,6 +151,7 @@ The `ai/jurisdictions/` structure (parallel to `privacy/jurisdictions/`) was fou
 | US Colorado | Substantive | In library | n/a | Dedicated two-regime jurisdiction annex [`ai/jurisdictions/annex-ai-us-colorado.md`](../ai/jurisdictions/annex-ai-us-colorado.md) (SB 24-205 re-enacted by SB 26-189: developer and deployer duties, consumer rights, meaningful human review, AG-exclusive enforcement, transition timeline) |
 | US New York City | Substantive | In library | n/a | Dedicated jurisdiction annex [`ai/jurisdictions/annex-ai-us-new-york-city.md`](../ai/jurisdictions/annex-ai-us-new-york-city.md) (Local Law 144 of 2021, automated employment decision tools), with the implementing DCWP rule held in the reference base and currency confirmed 2026-07-24; a struck candidate rather than an open gap in the TODO backlog's AI-jurisdiction-overlays item |
 | Illinois (US state) | Substantive | In library | n/a | Dedicated jurisdiction annex [`ai/jurisdictions/annex-ai-us-illinois.md`](../ai/jurisdictions/annex-ai-us-illinois.md) (HB 3773 / Public Act 103-0804, AI in employment: an Illinois Human Rights Act amendment making discriminatory AI use, zip-code proxying, and failure to give employee notice each a civil rights violation), effective 1 January 2026, with the primary held in the reference base and a canonical-citations row verified 2026-07-24 |
+| Texas (US state) | Substantive | In library | n/a | Dedicated jurisdiction annex [`ai/jurisdictions/annex-ai-us-texas.md`](../ai/jurisdictions/annex-ai-us-texas.md) (Texas Responsible Artificial Intelligence Governance Act (TRAIGA), HB 149: prohibited AI uses, governmental-agency and health-care-provider disclosure, and AG enforcement), effective 1 January 2026 |
 | UK AI regulatory framework | Partial | Planned | TODO backlog: AI jurisdiction overlays | Re-graded None to Partial 2026-07-02: the AI compliance policy carries a dedicated UK subsection (7.3, AI Safety Institute and ICO commitments, UK GDPR and DPA 2018) and a framework-table row; the dedicated jurisdiction annex remains the gap |
 | China generative AI rules | Partial | Planned | TODO backlog: AI jurisdiction overlays | Re-graded None to Partial 2026-07-03 (the #586 sweep's M-2): the China privacy annex carries a described-obligations bullet for the Interim Measures for the Management of Generative AI Services plus dedicated Generative-AI obligations and enforcement subsections (the UK-AI-framework adjacent-dedicated-subsection pattern), and the jurisdiction index carries Generative-AI cells in its file, regime, and developments tables; unlike the Colorado basis there is no canonical-citations row; the dedicated AI jurisdiction annex remains the gap |
 | Korea AI framework | Substantive | In library | n/a | Dedicated jurisdiction annex [`ai/jurisdictions/annex-ai-south-korea.md`](../ai/jurisdictions/annex-ai-south-korea.md) (Framework Act on the Development of AI and Establishment of Trust, Law No. 20676, enacted 21 January 2025, in force 22 January 2026: high-impact AI duties, transparency and labelling, compute-threshold safety measures, domestic representative), working from the held CSET English translation |
