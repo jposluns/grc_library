@@ -167,14 +167,9 @@ from __future__ import annotations
 import re
 import sys
 
-from lint_common import (
-    DEFAULT_EXEMPT_DIRS,
-    REPO_ROOT,
-    SIMPLE_CODE_SPAN_RE,
-    dynamic_floor,
-    read_text_safe,
-    resolve_working,
-)
+import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
+from aiqt_corpus import SIMPLE_CODE_SPAN_RE, read_text_safe  # noqa: E402  # generic core (AST-identical to lint_common)
+from lint_common import DEFAULT_EXEMPT_DIRS, REPO_ROOT, dynamic_floor, resolve_working  # noqa: E402  # grc-config/store, stays local
 
 
 CHANGELOG_PATH = "CHANGELOG.md"
