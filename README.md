@@ -5,8 +5,8 @@
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **SPDX-License-Identifier:** CC-BY-SA-4.0\
-**Library Version:** 2026.09.732 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.10.875 (semantic per-document version for this file)
+**Library Version:** 2026.09.733 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.10.876 (semantic per-document version for this file)
 
 ---
 
@@ -56,7 +56,7 @@ The eight thematic areas above span 12 governance domain directories, and the li
 
 ## What this repository is
 
-This repository is, primarily, a **GRC documentation corpus**: organization-neutral, CC BY-SA 4.0 governance artefacts (charters, frameworks, policies, standards, procedures, registers, matrices, plans, guidelines, templates) across the twelve domains listed above. The corpus is the product an adopter takes away.
+This repository is, primarily, a **GRC documentation corpus**: organization-neutral, CC BY-SA 4.0 governance artefacts (charters, frameworks, policies, standards, procedures, registers, matrices, plans, guidelines, templates) across twelve governance domain directories. The corpus is the product an adopter takes away.
 
 The corpus is maintained by a small team using Claude Code as an AI coding assistant, under documented governance and discipline. To keep the corpus internally consistent under that maintenance model, the project carries an audit toolchain ([`tools/`](tools/), the multi-gate audit programme under [`tools/run_all_audits.sh`](tools/run_all_audits.sh)) and a Claude Code rules-and-skills pack at [`guardrails/`](guardrails/). The audit toolchain is the maintainer's quality-assurance machinery, not an adopter dependency: adopters who only consume the corpus do not need it. Adopters who want the same maintenance discipline for their own fork can adopt the toolchain (it is permissively licensed and copy-paste portable), but doing so is optional. The pack distils the maintenance disciplines into reusable rules that ship under CC BY-SA 4.0 alongside the corpus: an adopter who is not building a GRC library can still take the pack for use on any project. The pack is a by-product of the corpus's maintenance, not a parallel deliverable.
 
