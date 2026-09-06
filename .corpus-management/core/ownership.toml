@@ -1,0 +1,3 @@
+# Generated-output ownership register (skeleton). PR-1 owns no targets.
+schema_version = 1
+owned_targets = []

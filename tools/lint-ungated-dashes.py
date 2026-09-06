@@ -8,7 +8,7 @@ rule copies), and `references/` (the activity playbooks). PR #1314 swept those s
 59 dash code points across 48 lines; this gate prevents re-drift (decision-2, the widen-the-gate
 half; the sweep was the other half).
 
-Scope: `tools/*.py` and `tools/*.sh`, everything under `.claude/`, everything under `references/`.
+Scope: `tools/*.py` and `tools/*.sh`, everything under `.claude/`, everything under `references/`, and everything under `.corpus-management/` (the Corpus-Management pack source).
 
 Exemptions (each principled, not a drive-by allow-list):
   - `.claude/rules/external/` : the THIRD-PARTY overlay (addyosmani / kariedo / tikitribe, each
@@ -44,14 +44,14 @@ TEXT_SUFFIXES = {".py", ".md", ".sh", ".yml", ".yaml", ".json", ".txt", ".toml"}
 
 
 def _targets():
-    """The files in scope: tools/*.py, .claude/**, references/**."""
+    """The files in scope: tools/*.py, .claude/**, references/**, .corpus-management/** (the pack source)."""
     out = []
     # tools/ operational SCRIPTS (.py and .sh) carry prose comments/docstrings; the tool config
     # data files (.json) are not prose and are not scanned here.
     for pat in ("*.py", "*.sh"):
         for f in sorted((REPO_ROOT / "tools").glob(pat)):
             out.append(f)
-    for base in (".claude", "references"):
+    for base in (".claude", "references", ".corpus-management"):
         root = REPO_ROOT / base
         if not root.is_dir():
             continue
@@ -119,6 +119,7 @@ def _self_test() -> int:
     c("targets-includes-sh", any(t.name == "pre-push-guard.sh" for t in tgt))
     c("targets-includes-py", any(t.name == "lint-ungated-dashes.py" for t in tgt))
     c("targets-excludes-external", not any("rules" in t.parts and "external" in t.parts for t in tgt))
+    c("targets-includes-corpus-management", any(".corpus-management" in t.parts for t in tgt))
     bad = [n for n, ok in checks if not ok]
     if bad:
         print(f"lint-ungated-dashes self-test: FAIL {bad}")
@@ -136,14 +137,14 @@ def main(argv) -> int:
             findings.append((path.relative_to(REPO_ROOT), lineno, line))
     if findings:
         print(f"FAIL: {len(findings)} Unicode em/en dash(es) on operational surfaces "
-              f"(tools/*.py, tools/*.sh, .claude/, references/) that lint-language.py does not scan. Replace with "
+              f"(tools/*.py, tools/*.sh, .claude/, references/, .corpus-management/) that lint-language.py does not scan. Replace with "
               f"a comma, colon, or parentheses; a glyph that must appear (an illustration, a code "
               f"example) belongs inside a backtick code span; the third-party overlay under "
               f".claude/rules/external/ is exempt.")
         for rel, lineno, line in findings:
             print(f"  {rel}:{lineno}: {line[:110]}")
         return 1
-    print("OK: no Unicode em/en dashes on the operational surfaces (tools/*.py, tools/*.sh, .claude/, references/); "
+    print("OK: no Unicode em/en dashes on the operational surfaces (tools/*.py, tools/*.sh, .claude/, references/, .corpus-management/); "
           "the third-party .claude/rules/external/ overlay and backtick-quoted glyphs are exempt.")
     return 0
 

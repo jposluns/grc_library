@@ -1,0 +1,3 @@
+# Clause register (skeleton). PR-1 reserves structure; no clauses transferred.
+schema_version = 1
+clauses = []
