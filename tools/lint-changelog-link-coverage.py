@@ -35,7 +35,9 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import REPO_ROOT, is_fence_line
+import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
+from aiqt_corpus import is_fence_line  # noqa: E402  # generic core (AST-identical to lint_common)
+from lint_common import REPO_ROOT  # noqa: E402  # grc-config/store, stays local
 
 DEFAULT_TARGET = REPO_ROOT / "CHANGELOG.md"
 

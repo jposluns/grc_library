@@ -53,7 +53,9 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from lint_common import REPO_ROOT, is_markdown_target  # noqa: E402
+import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
+from aiqt_corpus import is_markdown_target  # noqa: E402  # generic core (AST-identical to lint_common)
+from lint_common import REPO_ROOT  # noqa: E402  # grc-config/store, stays local
 
 
 def corpus_files(root: Path = REPO_ROOT) -> list[Path]:

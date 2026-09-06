@@ -45,7 +45,9 @@ import argparse
 import subprocess
 import sys
 
-from lint_common import PrRangeError, git, git_show, head_version, resolve_pr_range
+import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
+from aiqt_corpus import git, git_show, head_version  # noqa: E402  # generic core (AST-identical to lint_common)
+from lint_common import PrRangeError, resolve_pr_range  # noqa: E402  # grc-config/store, stays local
 
 
 # Files exempt from the version-bump requirement.

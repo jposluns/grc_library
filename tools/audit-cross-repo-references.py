@@ -62,14 +62,9 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from lint_common import (
-    REPO_ROOT,
-    is_fence_line,
-    read_text_safe,
-    resolve_sibling as _default_resolve_sibling,
-    resolve_working_dir,
-    sibling_placeholder_present,
-)
+import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
+from aiqt_corpus import is_fence_line, read_text_safe  # noqa: E402  # generic core (AST-identical to lint_common)
+from lint_common import REPO_ROOT, resolve_sibling as _default_resolve_sibling, resolve_working_dir, sibling_placeholder_present  # noqa: E402  # grc-config/store, stays local
 
 
 # Directories skipped even by this advisory (noise / non-text / stubs). NOTE this
