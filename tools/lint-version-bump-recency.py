@@ -20,7 +20,7 @@ through any path (squash commit, direct push, batch merge).
 
 Scope: ``*.md`` files under the repository root, minus the exempt set.
 The linter requires a versioned-metadata field (the shared
-``lint_common.head_version`` helper returns non-None; GR-3 wave 2
+``aiqt_corpus.head_version`` helper returns non-None; GR-3 wave 2
 retired this file's private window regex for it) to bring a file into
 scope; files without a Version field are silently skipped.
 
