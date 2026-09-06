@@ -1,4 +1,16 @@
-# Generation ruleset (skeleton). PR-1 installs no rules and owns no outputs;
-# the compiler and the first generated slice arrive in PR-2.
+# Generation ruleset for the Corpus-Management pack. Each rule declares one
+# generated output the compiler (tools/build-corpus-management.py, wrapping
+# .corpus-management/tools/corpus_mgmt_compiler.py) owns; gate 99 runs the
+# --check form. Every rule is mirrored by a core/ownership.toml entry and
+# summarized in core/manifest.toml [generation].owned_targets; the compiler
+# fail-closes (exit 2) on any disagreement among the three surfaces.
 schema_version = 1
-rules = []
+
+[[rules]]
+id = "claude-generated-artefacts-note"
+kind = "block"
+sources = ["core/policies/generated-artefacts-note.md"]
+target = ".claude/CLAUDE.md"
+begin = "<!-- corpus-management:begin claude-generated-artefacts-note (compiler-owned; edit .corpus-management/core/policies/generated-artefacts-note.md, then run: python3 tools/build-corpus-management.py) -->"
+end = "<!-- corpus-management:end claude-generated-artefacts-note -->"
+regenerate = ["python3", "tools/build-corpus-management.py"]

@@ -99,11 +99,11 @@ run_gate "Document Date staleness audit"                 python3 tools/lint-docu
 run_gate "Skill derives-from reference audit"            python3 tools/lint-skill-derives-from.py
 
 # ----------------------------------------------------------------------
-# Generator-output drift gates (the first 2 of 5 generator --check gates).
+# Generator-output drift gates (the first 2 of 6 generator --check gates).
 # These ensure the auto-generated taxonomy.yml / portal.md / maturity-
 # scorecard.md are in sync with the canonical metadata they derive from. The
-# other 3 generator --check gates (narrative registry, TODO number-allocation,
-# relationship model) run in later sections.
+# other 4 generator --check gates (narrative registry, TODO number-allocation,
+# relationship model, corpus-management outputs) run in later sections.
 # ----------------------------------------------------------------------
 run_gate "Machine-readable taxonomy in sync"             python3 tools/build-taxonomy.py --check
 run_gate "Adopter portal and maturity scorecard in sync" python3 tools/build-portal.py --check
@@ -196,6 +196,7 @@ run_gate "Hooks Python-syntax audit"                             python3 tools/l
 run_gate "Alignment-citation existence audit"                     python3 tools/lint-alignment-citation-existence.py --strict
 run_gate "Skill verdict carrier-completeness audit"            python3 tools/lint-skill-verdict-carrier-completeness.py
 run_gate "AIQT vendor digest audit"                              python3 tools/lint-aiqt-vendor-digest.py
+run_gate "Corpus-management generated outputs in sync"           python3 tools/build-corpus-management.py --check
 
 # ----------------------------------------------------------------------
 # Summary

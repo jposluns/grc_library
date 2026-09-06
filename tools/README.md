@@ -41,7 +41,7 @@ python3 tools/build-portal.py
 The narrative registry derives independently from `executive/` page metadata. The portal
 generator depends on the taxonomy; always regenerate the taxonomy first.
 
-Two further generated artefacts derive from their own source files rather than from
+Further generated artefacts derive from their own source files rather than from
 document metadata, and are regenerated when that source changes:
 
 ```

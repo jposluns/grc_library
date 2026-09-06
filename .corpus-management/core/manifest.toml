@@ -1,12 +1,14 @@
-# Corpus-Management pack manifest (skeleton; umbrella 4.1).
-# PR-1 reserves structure only: no clauses transferred, no enforcement installed,
-# generation disabled. Paths are relative to the pack root (.corpus-management/).
+# Corpus-Management pack manifest (umbrella 4.1).
+# Compile PR-2 activates generation: the compiler (tools/corpus_mgmt_compiler.py,
+# wrapped by the project's tools/build-corpus-management.py) owns the targets
+# summarized below; gate 99 runs its --check form.
+# Paths are relative to the pack root (.corpus-management/).
 schema_version = 1
 
 [pack]
 id = "corpus-management"
-version = "0.0.0"
-state = "skeleton"
+version = "0.1.0"
+state = "active"
 source_root = "."
 
 [dependency.aiqt]
@@ -35,9 +37,9 @@ scope = "project-only"
 shipped = false
 
 [generation]
-enabled = false
+enabled = true
 ruleset = "gensrc.toml"
-owned_targets = []
+owned_targets = [".claude/CLAUDE.md"]
 
 [addons]
 available = ["matrix-fit", "claim-fit", "reference-audit"]

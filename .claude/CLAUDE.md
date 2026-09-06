@@ -147,11 +147,13 @@ documents and the linters that govern them.
   shared helpers in `tools/lint_common.py`. Tests in `tests/`. Exact counts drift as
   gates are added; the source of truth for the current set is
   `tools/run_all_audits.sh` and `.github/workflows/quality.yml`.
+<!-- corpus-management:begin claude-generated-artefacts-note (compiler-owned; edit .corpus-management/core/policies/generated-artefacts-note.md, then run: python3 tools/build-corpus-management.py) -->
 - `taxonomy.yml`, `docs/portal.md`, and `docs/maturity-scorecard.md` are generated
   from corpus document metadata; `narrative.yml` is generated independently from
   `executive/` page metadata. Never hand-edit generated files; regenerate via
   `tools/build-taxonomy.py`, `tools/build-narrative-registry.py`, and
   `tools/build-portal.py`, and commit the source plus the regenerated output together.
+<!-- corpus-management:end claude-generated-artefacts-note -->
 
 ## Why
 Every document carries a 13-field metadata block and a fixed section model so the
@@ -167,7 +169,7 @@ content stays citable, cross-linked, and free of drift, secrets, or PII.
 - Pre-commit (mirrors CI): `pre-commit run --all-files`
 - Regenerate derived artefacts (`tools/build-*.py`, `python3`-run; CI `--check` verifies sync):
   `build-taxonomy.py`, `build-narrative-registry.py`, `build-portal.py`,
-  `build-relationship-model.py`, `build-todo-number-allocation.py`
+  `build-relationship-model.py`, `build-todo-number-allocation.py`, `build-corpus-management.py`
 
 CI source of truth: `.github/workflows/quality.yml`. Keep `quality.yml`,
 `tools/run_all_audits.sh`, and `.pre-commit-config.yaml` in lock-step: a gate added to
@@ -822,8 +824,8 @@ the last commit before push (bump library CalVer and the README Version field)?
 
 ## Boundaries
 - Never hand-edit generated files (`taxonomy.yml`, `narrative.yml`, `docs/portal.md`,
-  `docs/maturity-scorecard.md`, `governance/relationship-model.generated.json` (regenerate via `build-relationship-model.py`; gate 93 `--check`), and the `## Number allocation` counter block in `TODO.md`
-  between its sentinels); regenerate them (`build-todo-number-allocation.py` for the allocation
+  `docs/maturity-scorecard.md`, `governance/relationship-model.generated.json` (regenerate via `build-relationship-model.py`; gate 93 `--check`), the `## Number allocation` counter block in `TODO.md`
+  between its sentinels, and every compiler-owned corpus-management output, including this file's sentinel-wrapped generated-artefacts block (edit the `.corpus-management/` pack source; regenerate via `build-corpus-management.py`; gate 99 `--check`)); regenerate them (`build-todo-number-allocation.py` for the allocation
   block): CI `--check` fails on drift (gate 91). The block generates from the PUBLIC floor
   `tools/todo-number-floor.json` (a hand-maintained SOURCE, bumped when a new number is
   allocated, NOT itself generated) plus the live ids; gate 78 reads the same floor.

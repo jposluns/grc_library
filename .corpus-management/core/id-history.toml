@@ -1,3 +1,9 @@
-# Append-only clause-ID history (skeleton). PR-1 reserves structure; no events.
+# Append-only clause-ID history. A clause id, once assigned, is never reused;
+# a retirement is recorded here, never erased.
 schema_version = 1
-events = []
+
+[[events]]
+id = "claude-generated-artefacts-note"
+event = "created"
+date = 2026-09-06
+note = "compile PR-2: first generated slice, transferred verbatim from .claude/CLAUDE.md"
