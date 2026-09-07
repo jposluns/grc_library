@@ -2,8 +2,8 @@
 
 **Document Title:** Enterprise Risk Management Standard\
 **Document Type:** Standard\
-**Version:** 1.8.7\
-**Date:** 2026-08-05\
+**Version:** 1.8.8\
+**Date:** 2026-09-07\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -18,7 +18,7 @@
 
 ## 1. Purpose
 
-This standard defines the enterprise-wide risk management framework, taxonomy, and scoring methodology that guide the identification, evaluation, treatment, and monitoring of risks across all business units and functions. It ensures that risk management practices are consistent, measurable, and traceable, aligned with ISO 31000, COBIT 2019 APO12, and CSA CCM v4.1 GRC-01 and GRC-02.
+This standard defines the enterprise-wide risk management framework, taxonomy, and scoring methodology that guide the identification, evaluation, treatment, and monitoring of risks across all business units and functions. It ensures that risk management practices are consistent, measurable, and traceable, aligned with ISO 31000, COBIT 2019 APO12, and CSA CCM v4.1 GRC-02.
 
 ---
 
@@ -249,7 +249,7 @@ The Risk Owner role's six accountability actions (defined in §3) map to specifi
 | ISO/IEC 23894:2023 | AI Risk Management |
 | ISO/IEC 42001:2023 | AI Management System |
 | COBIT 2019 | APO12 Managed Risk; APO10 Managed Vendors; MEA01 |
-| CSA CCM v4.1 | GRC-01 Governance Program; GRC-02 Risk Management Program |
+| CSA CCM v4.1 | GRC-02 Risk Management Program |
 | NIST SP 800-39 | Managing Information Security Risk |
 | NIST IR 8286 (Rev. 1; and 8286A/B/C/D) | Integrating Cybersecurity and Enterprise Risk Management |
 | NIST SP 800-221 / 800-221A | Enterprise Impact of ICT Risk; ICT Risk Outcomes |
