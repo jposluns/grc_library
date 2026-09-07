@@ -374,13 +374,17 @@ def added_lines(staged: bool, root: Path = REPO_ROOT) -> list[tuple[str, str]]:
     try:
         mirror.relative_to(root.resolve())
     except ValueError:
-        # The mirror is in the private sibling: .working/changelog-details/<file>
-        # has the repository root at parents[2]. Diff it in its own repo. NOTE (3.190): the
-        # parents[2] depth hardcodes the mirror layout (.working/changelog-details/<file>); it is
-        # correct for the current DETAILED_MIRROR_REL constant but is brittle if that path moves.
-        private_root = mirror.parents[2]
+        # The mirror lives outside this repo (the operational store, Option C, or a
+        # private sibling). resolve_working already located it; derive its OWN repo
+        # root from the stripped mirror-relative path's depth (store layout is
+        # changelog-details/<file> -> root is parents[1]) and diff it there with the
+        # stripped rel path, so the store (no .working/ prefix) and any sibling layout
+        # both resolve correctly. Fixes the prior parents[2]+".working/"-rel mismatch
+        # that silently no-op'd the store mirror's added-line checks.
+        stripped_rel = DETAILED_MIRROR_REL[len(".working/"):]
+        private_root = mirror.parents[stripped_rel.count("/")]
         results.extend(
-            _added_lines_from_repo(private_root, (DETAILED_MIRROR_REL,), staged)
+            _added_lines_from_repo(private_root, (stripped_rel,), staged)
         )
     return results
 
