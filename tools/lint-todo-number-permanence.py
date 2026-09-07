@@ -493,6 +493,14 @@ EXEMPT: dict[tuple[str, str], str] = {
         "A.8.28; :233 drop CIS Benchmarks/OWASP SAMM); :232 A.8.25-28 range accepted (pure-breadth). "
         "CSF columns + pure-breadth/AICM decisions remain. The DONE heading says 'batch 20'."
     ),
+    ("P-1.60", "P-1.60 batch 21"): (
+        "PARTIAL CLOSE against a still-open umbrella (DONE #2063, 2026-09-07). P-1.60 "
+        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
+        "batch 21 (ESG-disclosure strip, maintainer-decided #2045/#2046) stripped 7 establish-a-programme "
+        "codes from matrix:66 (the ESG+AI-Ethics DISCLOSURE guideline reports outcomes, does not establish "
+        "the programmes): CCM GRC-01/GRC-06 + AICM GRC-10/11/13 -> N/A, ISO drop §9.1, CSF drop GV.OV; "
+        "kept ISO §7.4 + CSF GV.OC. CSF-cyber-scope + AICM + remaining decisions still open. DONE says 'batch 21'."
+    ),
     ("P-3.202", "P-3.202 synchronous-model cutover-leftover"): (
         "PARTIAL CLOSE (provisional; DONE:3186, #1361). P-3.202 is live at P-TODO "
         "and its detail says the comprehensive sweep is INCOMPLETE, so #1361 is "
