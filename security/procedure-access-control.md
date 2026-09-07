@@ -2,8 +2,8 @@
 
 **Document Title:** Access Control Procedure\
 **Document Type:** Procedure\
-**Version:** 1.2.11\
-**Date:** 2026-09-01\
+**Version:** 1.2.12\
+**Date:** 2026-09-07\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-identity-management.md`](procedure-identity-management.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md), [`governance/standard-emergency-authority.md`](../governance/standard-emergency-authority.md)\
@@ -179,7 +179,7 @@ Access that does not meet all four criteria is treated as unjustified. The revie
 | ISO/IEC 29146:2024 | A framework for access management | Access-management framework and lifecycle |
 | NIST SP 800-53 | AC: Access Control Family | Access management controls |
 | COBIT 2019 | DSS05: Managed Security Services | Access security services |
-| CSA CCM v4.1 | IAM-01 through IAM-15: Identity and Access Management | Cloud IAM controls |
+| CSA CCM v4.1 | IAM-01 through IAM-10, IAM-12 through IAM-15: Identity and Access Management | Cloud IAM controls |
 | NIST SP 800-207 | Zero Trust Architecture | Least privilege and continuous authorization |
 
 ---
