@@ -4396,6 +4396,36 @@ class AuditGateParityTests(LinterTestCase):
     distinctive finding substring, not on the exit code alone.
     """
 
+    def test_extract_argv_quote_and_operator_aware(self) -> None:
+        # Unit proof that the argv extractor is quote- AND operator-aware, so the
+        # integration fixtures' flagged results rest on a correct parse (codex
+        # iter-2: shlex word-split alone cannot tell an unquoted && operator from a
+        # quoted '&&' literal; the extractor compares the raw remainder when a
+        # shell metacharacter is present).
+        import importlib.util
+        tool = Path(__file__).resolve().parent.parent / "tools" / "lint-audit-gate-parity.py"
+        spec = importlib.util.spec_from_file_location("_agp_unit", str(tool))
+        agp = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(agp)
+        e = agp._extract_argv
+        S = "tools/x.py"
+        self.assertEqual(e(f"python3 {S} --check", S), ("--check",))
+        self.assertEqual(e(f"python3 {S}", S), ())
+        # quoted whitespace preserved (a naive split would collapse these equal)
+        self.assertNotEqual(
+            e(f"python3 {S} --s 'a  b'", S), e(f"python3 {S} --s 'a b'", S)
+        )
+        # unquoted operator (chain) vs quoted literal must NOT collapse equal
+        self.assertNotEqual(
+            e(f"python3 {S} --strict && echo done", S),
+            e(f"python3 {S} --strict '&&' echo done", S),
+        )
+        # malformed (unbalanced quote) vs valid must differ and never crash
+        self.assertNotEqual(
+            e(f'python3 {S} --sep "a', S),
+            e(f"python3 {S} --sep '\"a'", S),
+        )
+
     def test_current_surfaces_pass_parity(self) -> None:
         result = run_linter("tools/lint-audit-gate-parity.py")
         self.assertEqual(
@@ -4464,9 +4494,9 @@ class AuditGateParityTests(LinterTestCase):
             shutil.rmtree(synthetic_root, ignore_errors=True)
 
     def test_synthetic_argv_drift_flagged(self) -> None:
-        # Four surfaces align on name + script, but the two full-corpus
-        # execution surfaces (runner, workflow) invoke the gate with
-        # DIFFERENT flags (runner --strict, workflow none): argv-parity flags it.
+        # Four surfaces align on name + script, but the execution surfaces
+        # invoke the gate with DIFFERENT flags (runner --strict, workflow and
+        # pre-commit none): 3-way argv-parity flags it.
         synthetic_root = FIXTURE_DIR / "synthetic-parity-argv-drift"
         import shutil
         if synthetic_root.exists():
@@ -4514,14 +4544,25 @@ class AuditGateParityTests(LinterTestCase):
                 "--root",
                 str(synthetic_root),
             )
-            self.assertLinterFails(result, "argv")
+            # Fail-closed: require the specific finding, not just any nonzero
+            # exit (assertLinterFails accepts a crash whose traceback merely
+            # contains "argv", e.g. an _extract_argv frame).
+            self.assertEqual(
+                result.returncode, 1,
+                f"expected findings (rc=1), not a crash.\nstdout:\n{result.stdout}\n"
+                f"stderr:\n{result.stderr}",
+            )
+            self.assertIn(
+                "invocation (argv) drift", result.stdout,
+                f"expected an argv-drift finding.\nstdout:\n{result.stdout}",
+            )
         finally:
             shutil.rmtree(synthetic_root, ignore_errors=True)
 
     def test_synthetic_argv_value_drift_flagged(self) -> None:
-        # Same-name, same-script gate invoked with DIFFERENT flag VALUES on the
-        # two execution surfaces (runner --strict vs workflow --enforce), not
-        # merely a missing flag: argv-parity must flag this second shape too.
+        # Same-name, same-script gate invoked with DIFFERENT flag VALUES across
+        # the execution surfaces (runner --strict vs workflow --enforce; pre-commit
+        # --strict), not merely a missing flag: argv-parity must flag this shape too.
         synthetic_root = FIXTURE_DIR / "synthetic-parity-argv-value-drift"
         import shutil
         if synthetic_root.exists():
@@ -4569,7 +4610,18 @@ class AuditGateParityTests(LinterTestCase):
                 "--root",
                 str(synthetic_root),
             )
-            self.assertLinterFails(result, "argv")
+            # Fail-closed: require the specific finding, not just any nonzero
+            # exit (assertLinterFails accepts a crash whose traceback merely
+            # contains "argv", e.g. an _extract_argv frame).
+            self.assertEqual(
+                result.returncode, 1,
+                f"expected findings (rc=1), not a crash.\nstdout:\n{result.stdout}\n"
+                f"stderr:\n{result.stderr}",
+            )
+            self.assertIn(
+                "invocation (argv) drift", result.stdout,
+                f"expected an argv-drift finding.\nstdout:\n{result.stdout}",
+            )
         finally:
             shutil.rmtree(synthetic_root, ignore_errors=True)
 
@@ -4625,7 +4677,18 @@ class AuditGateParityTests(LinterTestCase):
                 "--root",
                 str(synthetic_root),
             )
-            self.assertLinterFails(result, "argv")
+            # Fail-closed: require the specific finding, not just any nonzero
+            # exit (assertLinterFails accepts a crash whose traceback merely
+            # contains "argv", e.g. an _extract_argv frame).
+            self.assertEqual(
+                result.returncode, 1,
+                f"expected findings (rc=1), not a crash.\nstdout:\n{result.stdout}\n"
+                f"stderr:\n{result.stderr}",
+            )
+            self.assertIn(
+                "invocation (argv) drift", result.stdout,
+                f"expected an argv-drift finding.\nstdout:\n{result.stdout}",
+            )
         finally:
             shutil.rmtree(synthetic_root, ignore_errors=True)
 
@@ -4681,7 +4744,18 @@ class AuditGateParityTests(LinterTestCase):
                 "--root",
                 str(synthetic_root),
             )
-            self.assertLinterFails(result, "argv")
+            # Fail-closed: require the specific finding, not just any nonzero
+            # exit (assertLinterFails accepts a crash whose traceback merely
+            # contains "argv", e.g. an _extract_argv frame).
+            self.assertEqual(
+                result.returncode, 1,
+                f"expected findings (rc=1), not a crash.\nstdout:\n{result.stdout}\n"
+                f"stderr:\n{result.stderr}",
+            )
+            self.assertIn(
+                "invocation (argv) drift", result.stdout,
+                f"expected an argv-drift finding.\nstdout:\n{result.stdout}",
+            )
         finally:
             shutil.rmtree(synthetic_root, ignore_errors=True)
 

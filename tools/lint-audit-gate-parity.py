@@ -139,26 +139,35 @@ SCRIPT_RE = re.compile(r"python3\s+(tools/[A-Za-z0-9_.\-]+\.py)")
 # inventory table's Script column.
 SPEC_SCRIPT_RE = re.compile(r"`(tools/[A-Za-z0-9_.\-]+\.py)`")
 
+_SHELL_METACHARS = frozenset("&|;<>()")
+
+
 def _extract_argv(command: str, script_path: str) -> tuple[str, ...]:
-    """Return the shell-tokenized argv a run command passes to ``script_path``:
-    the tokens after the script path, parsed quote-aware via ``shlex`` so a quoted
-    argument (spaces or shell metacharacters inside quotes) is ONE token compared
-    faithfully, and repeated whitespace between tokens is irrelevant.
-    ``python3 tools/x.py --a  --b`` -> ``('--a', '--b')``; ``--sep 'a|b'`` ->
-    ``('--sep', 'a|b')``; a bare ``python3 tools/x.py`` -> ``()``. On a malformed
-    command (unbalanced quotes) it falls back to a whitespace split, so the command
-    surfaces as a mismatch to review rather than crashing the gate. Used to compare
-    the three EXECUTION surfaces (workflow, runner, pre-commit) with each other; the
-    spec §6 row carries no argv, so it is not argv-compared.
+    """Return a comparable representation of the argv a run command passes to
+    ``script_path``. For a plain flag list (every real gate) this is the shlex
+    word-split token tuple, quote-aware so ``--sep 'a b'`` is ONE token and repeated
+    whitespace between tokens is irrelevant. If the remainder instead contains a shell
+    control character (chaining, redirection, a subshell, or a quoted metacharacter)
+    or is malformed (unbalanced quotes), it is returned as a single raw-sentinel token
+    holding the stripped remainder verbatim: shlex word-splitting cannot tell an
+    unquoted ``&&`` operator from a quoted ``'&&'`` literal, so for those cases the
+    raw text is compared, which preserves EVERY textual difference and so fails toward
+    flagging a mismatch rather than masking a real divergence (or crashing the gate).
+    No real gate invocation contains a shell metacharacter (each is a plain
+    ``python3 tools/x.py --flags`` call), so the shlex path handles every live line.
+    The value is only ever compared with this function's output on another execution
+    surface; the spec §6 row carries no argv, so it is not argv-compared.
     """
     idx = command.find(script_path)
     if idx < 0:
         return ()
     tail = command[idx + len(script_path):]
-    try:
-        return tuple(shlex.split(tail))
-    except ValueError:
-        return tuple(tail.split())
+    if not any(ch in _SHELL_METACHARS for ch in tail):
+        try:
+            return tuple(shlex.split(tail))
+        except ValueError:
+            pass
+    return ("\x00raw:" + tail.strip(),)
 
 
 # Inventory-table row pattern. Captures the gate number, the gate name,
@@ -215,7 +224,7 @@ def parse_spec_inventory(path: Path) -> list[tuple[int, int, str, str]]:
     return rows
 
 
-def parse_workflow(path: Path) -> list[tuple[int, str, str, str]]:
+def parse_workflow(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
     """Return [(line_number, step_name, script_path, argv), ...] from quality.yml.
 
     Skips the setup steps named in WORKFLOW_SETUP_STEPS. Looks for
@@ -224,7 +233,7 @@ def parse_workflow(path: Path) -> list[tuple[int, str, str, str]]:
     """
     name_re = re.compile(r"^\s*-\s*name:\s*(.+?)\s*$")
     run_re = re.compile(r"^\s*run:\s*(.+?)\s*$")
-    entries: list[tuple[int, str, str, str]] = []
+    entries: list[tuple[int, str, str, tuple[str, ...]]] = []
     pending: tuple[int, str] | None = None
     with path.open("r", encoding="utf-8") as fh:
         for lineno, raw in enumerate(fh, 1):
@@ -262,7 +271,7 @@ def parse_workflow(path: Path) -> list[tuple[int, str, str, str]]:
     return entries
 
 
-def parse_runner(path: Path) -> list[tuple[int, str, str, str]]:
+def parse_runner(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
     """Return [(line_number, gate_name, script_path, argv), ...] from run_all_audits.sh.
 
     Matches lines of the form:
@@ -270,7 +279,7 @@ def parse_runner(path: Path) -> list[tuple[int, str, str, str]]:
     Ignores the function-definition line (`run_gate() {`).
     """
     line_re = re.compile(r"^run_gate\s+\"([^\"]+)\"\s+(.+?)\s*$")
-    entries: list[tuple[int, str, str, str]] = []
+    entries: list[tuple[int, str, str, tuple[str, ...]]] = []
     with path.open("r", encoding="utf-8") as fh:
         for lineno, raw in enumerate(fh, 1):
             line = raw.rstrip("\n")
