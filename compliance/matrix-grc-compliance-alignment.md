@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.69\
+**Version:** 1.11.70\
 **Date:** 2026-09-07\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -104,8 +104,8 @@ This matrix is indicative only. It reflects the best available assessment of con
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Compliance | Policy: Compliance, Audit, and CAPA Management | [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md) | GRC-06, GRC-07, A&A-05 | GRC-11 | §9.2, §9.3, §10.1, §10.2 | ID.IM | N/A | Programme governance | Norm §8.2; Norm §9.2 to §9.4 | N/A | IT controls review and testing |
 | Compliance | Register: Global Regulatory Applicability | [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md) | GRC-01, GRC-07 | N/A | §4.1, §4.2, §6.1 | N/A | N/A | Programme governance | Norm §4.1 to §4.2; Norm §6.2 | N/A | Management commitment |
-| Compliance | Register: BASC IT and Information Security Responsibilities | [`compliance/logistics/register-basc-it-responsibilities.md`](logistics/register-basc-it-responsibilities.md) | GRC-01, GRC-02 | N/A | §5.3, §6.1, §9.1 | GV.OC, GV.RM | N/A | N/A | Norm §5.1; Norm §5.4; Norm §6.1; Norm §7.1.2; Norm §7.2; Norm §8.1; Norm §8.2; Norm §9.2 to §9.4; Sec Std §3.1 to §3.2; Sec Std §5.1 to §5.2 | Pillar II (Customs-to-Business; Standard 6) | All AEO-S IT requirement areas |
-| Compliance | Register: BASC IT Compliance Monitoring and KPIs | [`compliance/logistics/register-basc-it-compliance-kpis.md`](logistics/register-basc-it-compliance-kpis.md) | A&A-04, GRC-07 | N/A | §9.1 | GV.OC, ID.IM | N/A | N/A | Norm §8.1 | N/A | IT controls review and testing |
+| Compliance | Register: BASC IT and Information Security Responsibilities | [`compliance/logistics/register-basc-it-responsibilities.md`](logistics/register-basc-it-responsibilities.md) | GRC-01, GRC-02 | N/A | §5.3, §6.1, §9.1 | GV.RR | N/A | N/A | Norm §5.1; Norm §5.4; Norm §6.1; Norm §7.1.2; Norm §7.2; Norm §8.1; Norm §8.2; Norm §9.2 to §9.4; Sec Std §3.1 to §3.2; Sec Std §5.1 to §5.2 | Pillar II (Customs-to-Business; Standard 6) | All AEO-S IT requirement areas |
+| Compliance | Register: BASC IT Compliance Monitoring and KPIs | [`compliance/logistics/register-basc-it-compliance-kpis.md`](logistics/register-basc-it-compliance-kpis.md) | A&A-04, GRC-07 | N/A | §9.1 | GV.OV, ID.IM | N/A | N/A | Norm §8.1 | N/A | IT controls review and testing |
 | Compliance | Annex: AEO-S IT and Cybersecurity Requirements | [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](logistics/annex-aeo-united-kingdom-cybersecurity.md) | IAM-01, SEF-01, DSP-01 | N/A | §5.3, §8.1, §9.1 | GV.OC, PR.AA, DE.CM | IT security requirements | IT security | Sec Std §5.2 | Pillar II (ICT security) | Access to IT systems; Information systems security; IT security incidents; Trade records retention |
 | Compliance | Policy: Legal and Regulatory Compliance | [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md) | GRC-01, GRC-06, GRC-07 | N/A | §4.1, §4.2, §6.1 | N/A | N/A | N/A | N/A | Pillar II (Customs-to-Business; AEO) | Customs compliance and AEO obligations |
 | Compliance | Standard: Internal Audit | [`compliance/standard-internal-audit.md`](standard-internal-audit.md) | A&A-01, A&A-02, A&A-03 | N/A | §9.2 | ID.IM | N/A | N/A | Norm §8.2 | N/A | N/A |
@@ -400,7 +400,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 | AI | AI and Agentic Development Security Standard | [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md) | AIS-04, AIS-05, TVM-04, STA-09 | N/A | A.8.25, A.8.28, A.8.29, A.8.16 | PR.PS, ID.RA, DE.AE | N/A | N/A | N/A | N/A | N/A |
 | AI | AI Inference Cost Governance Standard | [`ai/standard-ai-inference-cost-governance.md`](../ai/standard-ai-inference-cost-governance.md) | GRC-02, LOG-03, STA-11, I&S-02 | N/A | A.5.30, A.8.6, A.5.20 | ID.AM, DE.AE | N/A | N/A | N/A | N/A | N/A |
 | AI | AI Model Risk Standard | [`ai/standard-ai-model-risk.md`](../ai/standard-ai-model-risk.md) | GRC-02, TVM-04, A&A-02, DSP-03 | MDS-06, MDS-10, MDS-12, DSP-20 | A.5.9, A.8.16, A.5.7, A.5.36 | ID.RA, DE.AE | N/A | N/A | N/A | N/A | N/A |
-| AI | AI Security and Risk Standard | [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) | GRC-05, IAM-01, TVM-04, STA-10 | AIS-09, AIS-13, DSP-20, TVM-13 | A.5.1, A.8.16, A.5.15, A.5.19 | GV.OC, ID.RA, PR.AA, DE.CM | N/A | N/A | N/A | N/A | N/A |
+| AI | AI Security and Risk Standard | [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) | GRC-05, IAM-01, TVM-04, STA-10 | AIS-09, AIS-13, DSP-20, TVM-13 | A.5.1, A.8.16, A.5.15, A.5.19 | GV.PO, ID.RA, PR.AA, DE.CM | N/A | N/A | N/A | N/A | N/A |
 | AI | AI Testing, Validation and Documentation Standard | [`ai/standard-ai-testing-validation-and-documentation.md`](../ai/standard-ai-testing-validation-and-documentation.md) | AIS-05, CCC-02, A&A-02, DSP-09 | MDS-04, MDS-05, GRC-14 | A.8.29, A.8.33, A.5.36, A.8.16 | ID.RA, DE.CM | N/A | N/A | N/A | N/A | N/A |
 | AI | AI Red Team Report Template | [`ai/template-ai-red-team-report.md`](../ai/template-ai-red-team-report.md) | TVM-07, AIS-05, TVM-04 | MDS-06 | A.8.29, A.8.8, §9.1 | ID.RA, ID.IM, DE.CM | N/A | N/A | N/A | N/A | N/A |
 | AI | AI System Register Template | [`ai/template-ai-system-register.md`](../ai/template-ai-system-register.md) | DSP-03, GRC-02, GRC-07 | GRC-10, MDS-03 | A.5.9, §6.1.2, A.5.19 | ID.AM, ID.RA | N/A | N/A | N/A | N/A | N/A |
