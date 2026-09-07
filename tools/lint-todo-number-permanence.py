@@ -476,6 +476,15 @@ EXEMPT: dict[tuple[str, str], str] = {
         "CSF columns + register-ISO surface + the range-sweep/AICM decisions remain. The DONE "
         "heading says 'batch 18', so the partial nature is on the heading itself."
     ),
+    ("P-1.60", "P-1.60 batch 19"): (
+        "PARTIAL CLOSE against a still-open umbrella (DONE #2061, 2026-09-07). P-1.60 "
+        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
+        "batch 19 (wrong-direction A) excised 4 CCC-05 'Change Agreements' (provider-to-tenant) "
+        "mis-fits from internal change / software-eval surfaces (matrix rows 197/216/368 + "
+        "procedure-change-management range CCC-01 to CCC-04); CSF columns + register-ISO surface + "
+        "the pure-breadth/AICM decisions remain. The DONE heading says 'batch 19', so the partial "
+        "nature is on the heading itself."
+    ),
     ("P-3.202", "P-3.202 synchronous-model cutover-leftover"): (
         "PARTIAL CLOSE (provisional; DONE:3186, #1361). P-3.202 is live at P-TODO "
         "and its detail says the comprehensive sweep is INCOMPLETE, so #1361 is "
