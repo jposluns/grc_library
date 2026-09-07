@@ -133,6 +133,32 @@ SCRIPT_RE = re.compile(r"python3\s+(tools/[A-Za-z0-9_.\-]+\.py)")
 # inventory table's Script column.
 SPEC_SCRIPT_RE = re.compile(r"`(tools/[A-Za-z0-9_.\-]+\.py)`")
 
+# Shell operators that terminate a gate's own argv within a run command; anything
+# at or after one of these belongs to a chained command / redirect, not the gate's
+# flags. Ordered so the longest tokens are searched too (earliest position wins).
+SHELL_OPS = ("&&", "||", ";", "|", ">", "<", "&")
+
+
+def _extract_argv(command: str, script_path: str) -> str:
+    """Return the normalized argv (flags/positional args) a run command passes to
+    ``script_path``: everything after the script token, truncated at the first shell
+    operator, whitespace-collapsed. ``python3 tools/x.py --a  --b && y`` -> ``--a --b``;
+    a bare ``python3 tools/x.py`` -> ``""``. Used only to compare the two full-corpus
+    EXECUTION surfaces (runner, workflow) with each other; the spec §6 row carries no
+    argv and pre-commit runs a different (staged-file) execution model, so neither is
+    argv-compared."""
+    idx = command.find(script_path)
+    if idx < 0:
+        return ""
+    tail = command[idx + len(script_path):]
+    cut = len(tail)
+    for op in SHELL_OPS:
+        pos = tail.find(op)
+        if pos >= 0:
+            cut = min(cut, pos)
+    return " ".join(tail[:cut].split())
+
+
 # Inventory-table row pattern. Captures the gate number, the gate name,
 # and the rest of the row (which contains the script link).
 SPEC_ROW_RE = re.compile(r"^\|\s*(\d+)\s*\|\s*(.+?)\s*\|\s*(.+?)\s*\|\s*$")
@@ -187,8 +213,8 @@ def parse_spec_inventory(path: Path) -> list[tuple[int, int, str, str]]:
     return rows
 
 
-def parse_workflow(path: Path) -> list[tuple[int, str, str]]:
-    """Return [(line_number, step_name, script_path), ...] from quality.yml.
+def parse_workflow(path: Path) -> list[tuple[int, str, str, str]]:
+    """Return [(line_number, step_name, script_path, argv), ...] from quality.yml.
 
     Skips the setup steps named in WORKFLOW_SETUP_STEPS. Looks for
     consecutive `- name: X` / `run: python3 tools/Y.py ...` pairs.
@@ -196,7 +222,7 @@ def parse_workflow(path: Path) -> list[tuple[int, str, str]]:
     """
     name_re = re.compile(r"^\s*-\s*name:\s*(.+?)\s*$")
     run_re = re.compile(r"^\s*run:\s*(.+?)\s*$")
-    entries: list[tuple[int, str, str]] = []
+    entries: list[tuple[int, str, str, str]] = []
     pending: tuple[int, str] | None = None
     with path.open("r", encoding="utf-8") as fh:
         for lineno, raw in enumerate(fh, 1):
@@ -222,7 +248,10 @@ def parse_workflow(path: Path) -> list[tuple[int, str, str]]:
                         f"{m_run.group(1)!r} that does not match the "
                         f"`python3 tools/X.py ...` pattern"
                     )
-                entries.append((step_lineno, step_name, script_match.group(1)))
+                entries.append((
+                    step_lineno, step_name, script_match.group(1),
+                    _extract_argv(m_run.group(1), script_match.group(1)),
+                ))
                 pending = None
     if not entries:
         raise ParseError(
@@ -231,15 +260,15 @@ def parse_workflow(path: Path) -> list[tuple[int, str, str]]:
     return entries
 
 
-def parse_runner(path: Path) -> list[tuple[int, str, str]]:
-    """Return [(line_number, gate_name, script_path), ...] from run_all_audits.sh.
+def parse_runner(path: Path) -> list[tuple[int, str, str, str]]:
+    """Return [(line_number, gate_name, script_path, argv), ...] from run_all_audits.sh.
 
     Matches lines of the form:
         run_gate "<gate name>" python3 tools/<script>.py [...]
     Ignores the function-definition line (`run_gate() {`).
     """
     line_re = re.compile(r"^run_gate\s+\"([^\"]+)\"\s+(.+?)\s*$")
-    entries: list[tuple[int, str, str]] = []
+    entries: list[tuple[int, str, str, str]] = []
     with path.open("r", encoding="utf-8") as fh:
         for lineno, raw in enumerate(fh, 1):
             line = raw.rstrip("\n")
@@ -254,7 +283,10 @@ def parse_runner(path: Path) -> list[tuple[int, str, str]]:
                     f"run_gate '{gate_name}' command {command!r} does not "
                     f"match the `python3 tools/X.py ...` pattern"
                 )
-            entries.append((lineno, gate_name, script_match.group(1)))
+            entries.append((
+                lineno, gate_name, script_match.group(1),
+                _extract_argv(command, script_match.group(1)),
+            ))
     if not entries:
         raise ParseError(
             f"{path.relative_to(REPO_ROOT)}: no run_gate entries found"
@@ -531,8 +563,8 @@ def main(argv: list[str]) -> int:
 
     # Row-by-row parity. Spec inventory is canonical.
     for idx, (spec_line, gate_num, spec_name, spec_script) in enumerate(spec):
-        wf_line, wf_name, wf_script = workflow[idx]
-        ru_line, ru_name, ru_script = runner[idx]
+        wf_line, wf_name, wf_script, wf_argv = workflow[idx]
+        ru_line, ru_name, ru_script, ru_argv = runner[idx]
         pc_line, pc_name, pc_script = precommit[idx]
 
         if wf_name != spec_name:
@@ -571,6 +603,21 @@ def main(argv: list[str]) -> int:
                 f"Gate {gate_num} script drift: "
                 f"spec({SPEC_PATH}:{spec_line}) = {spec_script!r}; "
                 f"pre-commit({PRECOMMIT_PATH}:{pc_line}) = {pc_script!r}"
+            )
+
+        # Invocation (argv) parity between the two full-corpus EXECUTION
+        # surfaces. The spec §6 row carries no argv, and pre-commit runs a
+        # different (staged-file) execution model, so only runner and workflow
+        # are argv-compared. A gate must run with identical flags in both, so a
+        # --strict / --enforce / --check that lands in one surface but not the
+        # other is caught here rather than silently diverging.
+        if wf_argv != ru_argv:
+            findings.append(
+                f"Gate {gate_num} invocation (argv) drift: "
+                f"runner({RUNNER_PATH}:{ru_line}) = {ru_argv!r}; "
+                f"workflow({WORKFLOW_PATH}:{wf_line}) = {wf_argv!r}. "
+                f"The two full-corpus execution surfaces must invoke each "
+                f"gate with identical flags."
             )
 
     # Additive 3.99 (closing PR #1087) guards: cross-check the exclusion allow-lists against a

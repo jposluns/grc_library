@@ -4462,6 +4462,126 @@ class AuditGateParityTests(LinterTestCase):
         finally:
             shutil.rmtree(synthetic_root, ignore_errors=True)
 
+    def test_synthetic_argv_drift_flagged(self) -> None:
+        # Four surfaces align on name + script, but the two full-corpus
+        # execution surfaces (runner, workflow) invoke the gate with
+        # DIFFERENT flags (runner --strict, workflow none): argv-parity flags it.
+        synthetic_root = FIXTURE_DIR / "synthetic-parity-argv-drift"
+        import shutil
+        if synthetic_root.exists():
+            shutil.rmtree(synthetic_root)
+        (synthetic_root / "governance").mkdir(parents=True)
+        (synthetic_root / ".github" / "workflows").mkdir(parents=True)
+        (synthetic_root / "tools").mkdir(parents=True)
+        try:
+            (synthetic_root / "governance" / "specification-audit-programme.md").write_text(
+                "# Audit Programme\n\n"
+                "## 6. Gate inventory\n\n"
+                "| # | Gate | Script |\n"
+                "| --- | --- | --- |\n"
+                "| 1 | Metadata audit | [`tools/lint-metadata.py`](../tools/lint-metadata.py) |\n\n"
+                "## 7. Next section\n",
+                encoding="utf-8",
+            )
+            (synthetic_root / ".github" / "workflows" / "quality.yml").write_text(
+                "name: Quality\n\n"
+                "on: [push]\n\n"
+                "jobs:\n"
+                "  lint:\n"
+                "    runs-on: ubuntu-latest\n"
+                "    steps:\n"
+                "      - name: Metadata audit\n"
+                "        run: python3 tools/lint-metadata.py\n",
+                encoding="utf-8",
+            )
+            (synthetic_root / "tools" / "run_all_audits.sh").write_text(
+                '#!/usr/bin/env bash\n'
+                'run_gate "Metadata audit" python3 tools/lint-metadata.py --strict\n',
+                encoding="utf-8",
+            )
+            (synthetic_root / ".pre-commit-config.yaml").write_text(
+                "repos:\n"
+                "  - repo: local\n"
+                "    hooks:\n"
+                "      - id: lint-metadata\n"
+                "        name: Metadata audit\n"
+                "        entry: python3 tools/lint-metadata.py\n",
+                encoding="utf-8",
+            )
+            result = run_linter(
+                "tools/lint-audit-gate-parity.py",
+                "--root",
+                str(synthetic_root),
+            )
+            self.assertLinterFails(result, "argv")
+        finally:
+            shutil.rmtree(synthetic_root, ignore_errors=True)
+
+    def test_matching_argv_with_divergent_precommit_passes(self) -> None:
+        # Runner and workflow carry IDENTICAL flags (--strict); pre-commit
+        # carries a DIFFERENT flag. argv-parity compares only the two
+        # full-corpus execution surfaces, so the pre-commit divergence must
+        # NOT be flagged (pre-commit runs a staged-file execution model).
+        synthetic_root = FIXTURE_DIR / "synthetic-parity-argv-match"
+        import shutil
+        if synthetic_root.exists():
+            shutil.rmtree(synthetic_root)
+        (synthetic_root / "governance").mkdir(parents=True)
+        (synthetic_root / ".github" / "workflows").mkdir(parents=True)
+        (synthetic_root / "tools").mkdir(parents=True)
+        try:
+            (synthetic_root / "governance" / "specification-audit-programme.md").write_text(
+                "# Audit Programme\n\n"
+                "## 6. Gate inventory\n\n"
+                "| # | Gate | Script |\n"
+                "| --- | --- | --- |\n"
+                "| 1 | Metadata audit | [`tools/lint-metadata.py`](../tools/lint-metadata.py) |\n\n"
+                "## 7. Next section\n",
+                encoding="utf-8",
+            )
+            (synthetic_root / ".github" / "workflows" / "quality.yml").write_text(
+                "name: Quality\n\n"
+                "on: [push]\n\n"
+                "jobs:\n"
+                "  lint:\n"
+                "    runs-on: ubuntu-latest\n"
+                "    steps:\n"
+                "      - name: Metadata audit\n"
+                "        run: python3 tools/lint-metadata.py --strict\n",
+                encoding="utf-8",
+            )
+            (synthetic_root / "tools" / "run_all_audits.sh").write_text(
+                '#!/usr/bin/env bash\n'
+                'run_gate "Metadata audit" python3 tools/lint-metadata.py --strict\n',
+                encoding="utf-8",
+            )
+            (synthetic_root / ".pre-commit-config.yaml").write_text(
+                "repos:\n"
+                "  - repo: local\n"
+                "    hooks:\n"
+                "      - id: lint-metadata\n"
+                "        name: Metadata audit\n"
+                "        entry: python3 tools/lint-metadata.py --different-flag\n",
+                encoding="utf-8",
+            )
+            result = run_linter(
+                "tools/lint-audit-gate-parity.py",
+                "--root",
+                str(synthetic_root),
+            )
+            # The minimal synthetic root trips the unrelated exclusion/delta
+            # guards (it lacks the real workflow setup + delta steps), so we
+            # assert the precise claim: matching runner/workflow argv with a
+            # DIVERGENT pre-commit flag produces NO argv finding (pre-commit is
+            # excluded from argv-parity).
+            self.assertNotIn(
+                "invocation (argv)", result.stdout,
+                f"pre-commit argv divergence must not produce an argv finding.\n"
+                f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+        finally:
+            shutil.rmtree(synthetic_root, ignore_errors=True)
+
 
 class ChangelogLinkCoverageTests(LinterTestCase):
     """tools/lint-changelog-link-coverage.py"""
