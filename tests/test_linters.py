@@ -4391,17 +4391,19 @@ class AuditGateParityTests(LinterTestCase):
     a mismatched gate NAME; an invocation (argv) drift between the execution
     surfaces (a missing flag, a wrong flag value, a pre-commit-only
     divergence now that argv-parity is 3-way, and a shlex-quoted-whitespace
-    difference a naive split would miss). Each synthetic root deliberately
+    difference a naive split would miss); plus unit coverage of the extractor's
+    branch routing and the documented out-of-contract metacharacter residue. Each
+    synthetic root deliberately
     trips the unrelated exclusion/delta guards, so the negatives key on the
     distinctive finding substring, not on the exit code alone.
     """
 
     def test_extract_argv_quote_and_operator_aware(self) -> None:
-        # Unit proof that the argv extractor is quote- AND operator-aware, so the
-        # integration fixtures' flagged results rest on a correct parse (codex
-        # iter-2: shlex word-split alone cannot tell an unquoted && operator from a
-        # quoted '&&' literal; the extractor compares the raw remainder when a
-        # shell metacharacter is present).
+        # Unit proof that the argv extractor routes correctly AND each branch is
+        # right, so the integration fixtures' flagged results rest on a correct
+        # parse. shlex word-split alone cannot tell an unquoted && operator (or a
+        # $-expansion / glob) from a quoted literal, so a char outside the safe
+        # allowlist routes to the raw-sentinel comparand instead of shlex.
         import importlib.util
         tool = Path(__file__).resolve().parent.parent / "tools" / "lint-audit-gate-parity.py"
         spec = importlib.util.spec_from_file_location("_agp_unit", str(tool))
@@ -4409,21 +4411,60 @@ class AuditGateParityTests(LinterTestCase):
         spec.loader.exec_module(agp)
         e = agp._extract_argv
         S = "tools/x.py"
+
+        def is_raw(r):
+            return len(r) == 1 and r[0].startswith("\x00raw:")
+
+        # SHLEX branch (all chars in the allowlist): simple flag, empty, and a
+        # quoted-whitespace value tokenized correctly (NOT the raw branch).
         self.assertEqual(e(f"python3 {S} --check", S), ("--check",))
+        self.assertFalse(is_raw(e(f"python3 {S} --check", S)))
         self.assertEqual(e(f"python3 {S}", S), ())
-        # quoted whitespace preserved (a naive split would collapse these equal)
+        self.assertEqual(e(f"python3 {S} --s 'a b'", S), ("--s", "a b"))
+        self.assertFalse(is_raw(e(f"python3 {S} --s 'a b'", S)))
+        # shlex preserves intra-quote whitespace (a naive split would collapse
+        # these equal -- the distinction the shlex branch exists to make):
         self.assertNotEqual(
             e(f"python3 {S} --s 'a  b'", S), e(f"python3 {S} --s 'a b'", S)
         )
-        # unquoted operator (chain) vs quoted literal must NOT collapse equal
+        # RAW branch: an allowlist-violating char (operator, $-expansion, glob)
+        # routes to the raw-sentinel comparand.
+        self.assertTrue(is_raw(e(f"python3 {S} --x && y", S)))
+        self.assertTrue(is_raw(e(f"python3 {S} --arg $FOO", S)))
+        self.assertTrue(is_raw(e(f"python3 {S} --g *.py", S)))
+        # and the raw comparand distinguishes what shlex would collapse: an
+        # unquoted operator vs a quoted literal, and $-expansion vs a quoted string.
         self.assertNotEqual(
-            e(f"python3 {S} --strict && echo done", S),
-            e(f"python3 {S} --strict '&&' echo done", S),
+            e(f"python3 {S} --x && y", S), e(f"python3 {S} --x '&&' y", S)
         )
-        # malformed (unbalanced quote) vs valid must differ and never crash
         self.assertNotEqual(
-            e(f'python3 {S} --sep "a', S),
-            e(f"python3 {S} --sep '\"a'", S),
+            e(f"python3 {S} --arg $FOO", S), e(f'python3 {S} --arg "$FOO"', S)
+        )
+        # malformed (unbalanced quote) never crashes and routes to raw.
+        self.assertTrue(is_raw(e(f'python3 {S} --sep "a', S)))
+
+    def test_extract_argv_metachar_residue_documented(self) -> None:
+        # Locks the out-of-contract residue (codex iter-3, accepted with rationale):
+        # a metacharacter-bearing invocation gets a best-effort RAW comparison, NOT
+        # shell-semantic modelling. No live gate uses a metacharacter, so this is
+        # inert; the tests below document the boundary so it cannot regress silently.
+        import importlib.util
+        tool = Path(__file__).resolve().parent.parent / "tools" / "lint-audit-gate-parity.py"
+        spec = importlib.util.spec_from_file_location("_agp_res", str(tool))
+        agp = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(agp)
+        e = agp._extract_argv
+        S = "tools/x.py"
+        # Residue A (SAFE, fail-toward-flagging): equivalent quote spellings of a
+        # metachar arg compare UNEQUAL -> surfaced for review, never a silent pass.
+        self.assertNotEqual(
+            e(f"python3 {S} --x 'a&b'", S), e(f'python3 {S} --x "a&b"', S)
+        )
+        # Residue B: identical metachar TEXT across surfaces yields identical
+        # comparands (no drift flagged). Such an operator would break the gate
+        # loudly under argparse in the direct-exec pre-commit surface anyway.
+        self.assertEqual(
+            e(f"python3 {S} --x && y", S), e(f"python3 {S} --x && y", S)
         )
 
     def test_current_surfaces_pass_parity(self) -> None:

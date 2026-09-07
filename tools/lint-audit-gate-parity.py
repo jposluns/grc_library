@@ -139,30 +139,53 @@ SCRIPT_RE = re.compile(r"python3\s+(tools/[A-Za-z0-9_.\-]+\.py)")
 # inventory table's Script column.
 SPEC_SCRIPT_RE = re.compile(r"`(tools/[A-Za-z0-9_.\-]+\.py)`")
 
-_SHELL_METACHARS = frozenset("&|;<>()")
+# Characters allowed in a plain gate invocation argv (flags, paths, values, matched
+# quotes, and backslash for shlex escaping). This is an ALLOWLIST: if every character of
+# the argv tail is in this set, shlex word-splitting models the shell faithfully (quote-
+# aware, whitespace-normalizing between tokens). If ANY other character appears -- shell
+# expansion, substitution, globbing, or control such as $ ` & | ; < > ( ) * ? [ ] { } ~
+# -- shlex cannot be trusted (it strips quotes but ignores expansion/globbing), so the
+# raw remainder is compared instead. Allowlisting rather than blocklisting the special
+# characters is complete by construction: an unanticipated metacharacter routes to the
+# safe raw comparand rather than being silently mis-parsed.
+_SAFE_ARGV_CHARS = frozenset(
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    " \t_=./:@,+-'\"\\"
+)
 
 
 def _extract_argv(command: str, script_path: str) -> tuple[str, ...]:
     """Return a comparable representation of the argv a run command passes to
     ``script_path``. For a plain flag list (every real gate) this is the shlex
     word-split token tuple, quote-aware so ``--sep 'a b'`` is ONE token and repeated
-    whitespace between tokens is irrelevant. If the remainder instead contains a shell
-    control character (chaining, redirection, a subshell, or a quoted metacharacter)
-    or is malformed (unbalanced quotes), it is returned as a single raw-sentinel token
-    holding the stripped remainder verbatim: shlex word-splitting cannot tell an
-    unquoted ``&&`` operator from a quoted ``'&&'`` literal, so for those cases the
-    raw text is compared, which preserves EVERY textual difference and so fails toward
-    flagging a mismatch rather than masking a real divergence (or crashing the gate).
-    No real gate invocation contains a shell metacharacter (each is a plain
+    whitespace between tokens is irrelevant. If the remainder contains ANY character
+    outside the ``_SAFE_ARGV_CHARS`` allowlist (shell expansion, substitution, globbing,
+    or control -- ``$`` ``&`` ``|`` ``;`` ``<`` ``>`` ``(`` ``)`` ``*`` ``?`` and the
+    like), or is malformed (unbalanced quotes), it is returned as a single raw-sentinel
+    token holding the stripped remainder verbatim: shlex strips quotes but does not model
+    expansion/globbing and cannot tell an unquoted ``&&`` operator from a quoted ``'&&'``
+    literal, so for those cases the raw text is compared, which preserves EVERY textual
+    difference and so fails toward flagging rather than masking a divergence (or crashing).
+    No real gate invocation contains such a character (each is a plain
     ``python3 tools/x.py --flags`` call), so the shlex path handles every live line.
     The value is only ever compared with this function's output on another execution
     surface; the spec §6 row carries no argv, so it is not argv-compared.
+
+    CONTRACT + residue: the guard compares the flags of a SIMPLE gate invocation.
+    A metacharacter-bearing invocation is out of that contract, and the raw comparand
+    is a documented best-effort, NOT a model of shell execution semantics: it may flag
+    an equivalent quote-spelling difference (e.g. ``--x 'a&b'`` vs ``--x "a&b"`` -- the
+    SAFE fail-toward-flagging direction), and it does not distinguish how the shell-run
+    surfaces (workflow, runner) versus the direct-exec pre-commit hooks would interpret
+    an operator in identical text (such text would break the gate loudly under argparse
+    anyway). No live gate invocation contains a metacharacter, so this residue is inert;
+    modelling per-surface shell semantics is deliberately out of scope for this guard.
     """
     idx = command.find(script_path)
     if idx < 0:
         return ()
     tail = command[idx + len(script_path):]
-    if not any(ch in _SHELL_METACHARS for ch in tail):
+    if all(ch in _SAFE_ARGV_CHARS for ch in tail):
         try:
             return tuple(shlex.split(tail))
         except ValueError:
