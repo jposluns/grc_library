@@ -2,8 +2,8 @@
 
 **Document Title:** Production Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.14\
-**Date:** 2026-08-27\
+**Version:** 1.1.15\
+**Date:** 2026-09-07\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](../dev-security/standard-security-quick-reference.md)\
@@ -32,7 +32,7 @@ This standard defines security requirements for production infrastructure and op
 
 **Remote access:** All on-premises remote administration must originate from a Privileged Access Workstation (PAW) or approved jump host on the Management VLAN. Direct RDP/SSH from general workstations is prohibited. External vendor access must use the approved path or VPN with MFA, subject to PAM workflow.
 
-**Framework:** CSA CCM I&S-03, I&S-06, I&S-08, I&S-09
+**Framework:** CSA CCM I&S-03, I&S-08, I&S-09
 
 ---
 
@@ -223,7 +223,7 @@ The EOL classification policy and remediation SLAs are defined in the Security B
 | Change management | A.8.32 | CCC-01 to 09 | CM-3, CM-5 | N/A |
 | Certificate management | A.8.24 | CEK-01 to 21 | SC-12, SC-17 | N/A |
 | Access control | A.5.15 to 5.18 | IAM-01 to 15 | AC-2, AC-6 | PW.6 |
-| EOL and lifecycle | A.8.8 | TVM-01 to 02 | SA-22 | PO.5 |
+| EOL and lifecycle | A.8.8 | TVM-01 | SA-22 | PO.5 |
 
 
 
