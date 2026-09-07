@@ -2,7 +2,7 @@
 
 **Document Title:** Audit Programme Specification\
 **Document Type:** Specification\
-**Version:** 1.17.148\
+**Version:** 1.17.149\
 **Date:** 2026-09-07\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -378,7 +378,7 @@ These limitations are not defects in the audit programme; they are the natural b
 
 The audit programme contributes to control objectives in the following frameworks (cross-referenced for adopter convenience, not authoritative attribution):
 
-- **ISO/IEC 27001 Annex A.5.1 (policies for information security)**: documented quality controls over governance artefacts.
+- **ISO/IEC 27001 Annex A.5.36 (compliance with policies, rules and standards)**: automated regular review of governance artefacts' compliance with the library's documented rules.
 - **NIST CSF 2.0 GV.OC (organizational context)**: documented internal consistency mechanisms.
 - **COBIT 2019 BAI06 (managed changes)**: pre-commit and pre-merge gating preventing unreviewed changes.
 - **SSDF PO.3.2 (deploy required tools for the secure development environment)**: pre-commit hooks and CI enforcement of repository quality.

@@ -2,8 +2,8 @@
 
 **Document Title:** Fail-Closed Automation Principle\
 **Document Type:** Principle\
-**Version:** 0.0.1\
-**Date:** 2026-08-30\
+**Version:** 0.0.2\
+**Date:** 2026-09-07\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/principle-capability-is-not-authority.md`](principle-capability-is-not-authority.md), [`security/framework-zero-trust-architecture.md`](../security/framework-zero-trust-architecture.md), [`operations/standard-network-security-and-segmentation.md`](../operations/standard-network-security-and-segmentation.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`privacy/framework-privacy-by-design.md`](../privacy/framework-privacy-by-design.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md), [`governance/principle-integrity-and-trustworthiness.md`](principle-integrity-and-trustworthiness.md)\
@@ -75,7 +75,7 @@ The alignment below is analogical (each row aligns with or is informed by the ci
 | Requirement | NIST SP 800-53 Rev. 5 | ISO/IEC 27001:2022 | NIST CSF 2.0 | Functional safety |
 | --- | --- | --- | --- | --- |
 | On failure, enter a known controlled (safe) state | SC-24 (Fail in Known State); CP-12 (Safe Mode) | A.5.29 (Information security during disruption) | PR.IR | IEC 61508:2010; IEC 61511:2016 |
-| Fail toward the protective outcome (deny, halt) | SI-17 (Fail-safe Procedures) | A.8.20 (Networks security) | PR.IR | IEC 61508:2010 |
+| Fail toward the protective outcome (deny, halt) | SI-17 (Fail-safe Procedures) | A.5.29 (Information security during disruption) | PR.IR | IEC 61508:2010 |
 | Recover to a known-good state after a safe halt | CP-10 (System Recovery and Reconstitution) | A.5.29 (Information security during disruption) | RC.RP | IEC 61511:2016 |
 
 NIST SP 800-53 SC-24 (Fail in Known State) is the primary reference for the known-controlled-state facet this principle expresses; IEC 61508 and IEC 61511 are the functional-safety root of the fail-safe concept the principle generalizes.
