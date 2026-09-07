@@ -2,8 +2,8 @@
 
 **Document Title:** Mobile Application Security Standard\
 **Document Type:** Standard\
-**Version:** 1.1.5\
-**Date:** 2026-07-02\
+**Version:** 1.1.6\
+**Date:** 2026-09-07\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-software-composition-analysis.md`](standard-software-composition-analysis.md), [`dev-security/standard-api-security.md`](standard-api-security.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/standard-endpoint-hardening.md`](../security/standard-endpoint-hardening.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`privacy/framework-childrens-data.md`](../privacy/framework-childrens-data.md)\
@@ -267,7 +267,7 @@ Application stores (Apple App Store, Google Play, Microsoft Store) issue receipt
 | Apple Platform Security and App Store Review Guidelines | Apple | iOS platform |
 | Android Enterprise security model and Play Console policy | Android | Android platform |
 | NIST SP 800-163 Rev. 1 | Vetting the Security of Mobile Applications | US baseline |
-| NIST SP 800-124 Rev. 2 | Managing the Security of Mobile Devices | Endpoint cross-walk |
+| NIST SP 800-124 Rev. 2 | Guidelines for Managing the Security of Mobile Devices in the Enterprise | Endpoint cross-walk |
 | ISO/IEC 27001:2022 | A.5.10, A.8.21, A.8.25 to A.8.34 | Information transfer; secure development |
 | GDPR / UK GDPR / equivalents | Privacy framework | Privacy compliance |
 | ATT&CK (Mobile) | MITRE | Threat coverage |
