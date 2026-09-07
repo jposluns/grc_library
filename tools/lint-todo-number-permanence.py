@@ -501,6 +501,14 @@ EXEMPT: dict[tuple[str, str], str] = {
         "the programmes): CCM GRC-01/GRC-06 + AICM GRC-10/11/13 -> N/A, ISO drop §9.1, CSF drop GV.OV; "
         "kept ISO §7.4 + CSF GV.OC. CSF-cyber-scope + AICM + remaining decisions still open. DONE says 'batch 21'."
     ),
+    ("P-1.60", "P-1.60 batch 22"): (
+        "PARTIAL CLOSE against a still-open umbrella (DONE #2064, 2026-09-07). P-1.60 "
+        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
+        "batch 22 (range-embedded wrong-actor A) enumerated around 2 service-customer-facing CCM members "
+        "in 4 internal-doc ranges: IAM-11 (access-control:182 + identity-management:160) and CEK-08 "
+        "(data-classification:144 + production-security:224), each held-title-verified as provider-to-tenant. "
+        "CSF-cyber-scope + AICM + I&S/IPY residual + remaining decisions still open. DONE says 'batch 22'."
+    ),
     ("P-3.202", "P-3.202 synchronous-model cutover-leftover"): (
         "PARTIAL CLOSE (provisional; DONE:3186, #1361). P-3.202 is live at P-TODO "
         "and its detail says the comprehensive sweep is INCOMPLETE, so #1361 is "

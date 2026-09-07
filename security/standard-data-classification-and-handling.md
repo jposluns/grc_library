@@ -2,8 +2,8 @@
 
 **Document Title:** Data Classification and Handling Standard\
 **Document Type:** Standard\
-**Version:** 1.4.11\
-**Date:** 2026-09-01\
+**Version:** 1.4.12\
+**Date:** 2026-09-07\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -141,7 +141,7 @@ Where the organization participates in a sector programme that imposes additiona
 | Control Area | ISO/IEC 27002 | COBIT 2019 | CSA CCM v4.1 | Legal / Regulatory |
 | --- | --- | --- | --- | --- |
 | Classification and labelling | §§5.12 to 5.15 | DSS05 | DSP-04 | GDPR Art. 32, PIPEDA |
-| Encryption | §8.24 | DSS05.03 | CEK-01 to 21 | N/A |
+| Encryption | §8.24 | DSS05.03 | CEK-01 to CEK-07, CEK-09 to CEK-21 | N/A |
 | Retention and disposal | §8.10 | DSS05 | DSP-02, DSP-16 | ISO/IEC 27701:2025 Annex A.1.4.8 to A.1.4.9, A.2.4.3 |
 | AI data handling | N/A | DSS05.06 | N/A | AIDA (lapsed), PIPEDA |
 | Trade data (BASC) | N/A | N/A | N/A | BASC Security Standard 6.0.2/6.0.3, ISO 28000 |
