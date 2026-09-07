@@ -85,9 +85,9 @@ indistinguishable from "that entry was legitimately swept to the private archive
 so no purely-content check can tell them apart. Parity is therefore
 asserted only for the entries the in-repo mirror still holds; historical
 parity moves to git history and to the private-sibling archive. The
-compensating controls: the detailed mirror now lives in the private
-sibling (``grc_library_private/.working/``), its completed weeks are
-archived within that private repository (``grc_library_private/changelog-archive/``),
+compensating controls: the detailed mirror now lives in the
+operational store (resolved via ``resolve_working``), its completed weeks are
+archived in the pushed private sibling (``grc_library_private/changelog-archive/``),
 and git history retains every entry regardless. (The former in-public-repo
 sweep script was retired with the working-state move to the private sibling.)
 
@@ -187,7 +187,9 @@ def effective_cutoff(mirror_text: str) -> int:
 
     The current-week model (2026-07-08) keeps only the current week's
     entries in the in-repo detailed mirror; completed weeks are swept to
-    the private-sibling archive. The root ``CHANGELOG.md`` keeps EVERY entry. So
+    the private-sibling archive AND rolled up into a period summary in the
+    root at the same time (the coupled roll-up-and-sweep), so above the floor
+    both surfaces carry per-PR entries and below it neither does. So
     the set of PRs that still have an in-repo mirror counterpart is
     exactly ``PR #N >= (oldest PR still in the mirror)``. Scoping the
     parity comparison to that floor means a swept-out (now private-archive-only)
