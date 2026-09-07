@@ -2,7 +2,7 @@
 
 **Document Title:** Mobile Application Security Standard\
 **Document Type:** Standard\
-**Version:** 1.1.6\
+**Version:** 1.1.7\
 **Date:** 2026-09-07\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -268,7 +268,7 @@ Application stores (Apple App Store, Google Play, Microsoft Store) issue receipt
 | Android Enterprise security model and Play Console policy | Android | Android platform |
 | NIST SP 800-163 Rev. 1 | Vetting the Security of Mobile Applications | US baseline |
 | NIST SP 800-124 Rev. 2 | Guidelines for Managing the Security of Mobile Devices in the Enterprise | Endpoint cross-walk |
-| ISO/IEC 27001:2022 | A.5.10, A.8.21, A.8.25 to A.8.34 | Information transfer; secure development |
+| ISO/IEC 27001:2022 | A.5.14, A.8.21, A.8.25 to A.8.34 | Information transfer; secure development |
 | GDPR / UK GDPR / equivalents | Privacy framework | Privacy compliance |
 | ATT&CK (Mobile) | MITRE | Threat coverage |
 
