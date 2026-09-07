@@ -2,7 +2,7 @@
 
 **Document Title:** Production Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.15\
+**Version:** 1.1.16\
 **Date:** 2026-09-07\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -216,7 +216,7 @@ The EOL classification policy and remediation SLAs are defined in the Security B
 
 | Control Area | ISO/IEC 27001:2022 | CSA CCM v4.1 | NIST SP 800-53 | NIST SSDF |
 | --- | --- | --- | --- | --- |
-| Network security | A.8.20 to 8.23 | I&S-01 to 09 | SC-7, SC-8 | N/A |
+| Network security | A.8.20 to 8.22 | I&S-01 to 09 | SC-7, SC-8 | N/A |
 | Backup and recovery | A.8.13 to 8.14 | BCR-08 to 10 | CP-9, CP-10 | N/A |
 | Monitoring and incident response | A.8.15 to 8.16, A.5.24 to 5.28 | LOG-01 to 14, SEF-01 to 10 | IR-1 to 8, SI-4 | RV.1 |
 | Vulnerability management | A.8.8 | TVM-03 to 12 | RA-5, SI-2 | PO.5 |

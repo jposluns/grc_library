@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.55\
+**Version:** 1.11.56\
 **Date:** 2026-09-07\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -206,7 +206,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Operations | Procedure: Release Management | [`operations/procedure-release-management.md`](../operations/procedure-release-management.md) | CCC-01, CCC-02, CCC-09 | N/A | A.8.32 | PR.PS, ID.IM | IT security controls | IT security | Sec Std §5.2 | Pillar II (ICT security) | IT systems protection |
 | Operations | Standard: Capacity and Performance Management | [`operations/standard-capacity-and-performance-management.md`](../operations/standard-capacity-and-performance-management.md) | I&S-02, BCR-03 | N/A | A.8.6 | ID.AM, PR.IR | N/A | N/A | N/A | N/A | N/A |
 | Operations | Standard: Observability and Telemetry | [`operations/standard-observability-and-telemetry.md`](../operations/standard-observability-and-telemetry.md) | LOG-01, LOG-03, LOG-07 | LOG-15, LOG-16 | A.8.15, A.8.16 | DE.CM, DE.AE | N/A | N/A | N/A | N/A | N/A |
-| Operations | Standard: IT Financial Management | [`operations/standard-it-financial-management.md`](../operations/standard-it-financial-management.md) | GRC-01, GRC-02 | N/A | §5.1, A.5.13, A.5.14 | GV.OC, GV.RM | N/A | N/A | N/A | N/A | N/A |
+| Operations | Standard: IT Financial Management | [`operations/standard-it-financial-management.md`](../operations/standard-it-financial-management.md) | GRC-01, GRC-02 | N/A | §5.1, A.5.9 | GV.OC, GV.RM | N/A | N/A | N/A | N/A | N/A |
 | Operations | Register: Asset Inventory | [`operations/register-asset-inventory.md`](../operations/register-asset-inventory.md) | DCS-06, DCS-07, UEM-04 | N/A | A.5.9, A.5.10, A.8.1 | ID.AM | N/A | N/A | Sec Std §5.2 | N/A | IT systems protection |
 | Operations | Register: IT Operations KPIs | [`operations/register-it-operations-kpis.md`](../operations/register-it-operations-kpis.md) | GRC-02, SEF-05 | N/A | §6.1, §9.1 | GV.OV, ID.IM | N/A | N/A | Norm §8.1 | N/A | IT controls review and testing |
 | Operations | Register: IT Security Operations | [`operations/register-it-security-operations.md`](../operations/register-it-security-operations.md) | SEF-01, LOG-03 | N/A | §9.1, A.8.8 | DE.CM, ID.IM | N/A | N/A | Sec Std §5.2 | N/A | IT security incident detection and response |
