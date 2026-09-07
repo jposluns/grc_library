@@ -366,6 +366,21 @@ EXEMPT: dict[tuple[str, str], str] = {
         "fixed, 2 questionable routed), and the per-document alignment tables + non-worklisted "
         "rows remain. The DONE heading says 'batch 2', so the partial nature is on the heading."
     ),
+    ("P-1.60", "P-1.60 batch 3"): (
+        "PARTIAL CLOSE against a still-open umbrella (DONE #2046, 2026-09-07). P-1.60 "
+        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
+        "batch 3 fixed 2 tri-family-unanimous matrix mis-fits (A&A-01 removal; CCC-05->CCC-04 "
+        "multi-surface) and routed the contested line-66 strip + CCC-05 methodology question. "
+        "The DONE heading says 'batch 3', so the partial nature is on the heading itself."
+    ),
+    ("P-1.60", "P-1.60 batch 4a"): (
+        "PARTIAL CLOSE against a still-open umbrella (DONE #2047, 2026-09-07). P-1.60 "
+        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
+        "batch 4a fixed 3 range-independent precise-spec CCM mis-fits in security-domain "
+        "alignment tables (CEK-03->CEK-04, drop TVM-05, IAM-02->IAM-13) and routed the 5 "
+        "pervasive range-sweep findings to the family-vs-spec methodology decision. The DONE "
+        "heading says 'batch 4a', so the partial nature is on the heading itself."
+    ),
     ("P-3.202", "P-3.202 synchronous-model cutover-leftover"): (
         "PARTIAL CLOSE (provisional; DONE:3186, #1361). P-3.202 is live at P-TODO "
         "and its detail says the comprehensive sweep is INCOMPLETE, so #1361 is "
