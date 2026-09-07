@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.65\
+**Version:** 1.11.66\
 **Date:** 2026-09-07\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -276,24 +276,24 @@ This matrix is indicative only. It reflects the best available assessment of con
 
 | Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 | ISO/IEC 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Privacy | Policy: Privacy and Data Governance | [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md) | DSP-01, DSP-02, DSP-03, DSP-04 | DSP-20, GRC-13 | A.5.34, A.8.11, A.8.12 | GV.PO, PR.DS | N/A | N/A | N/A | N/A | N/A |
-| Privacy | Procedure: Privacy Impact and Cross-Border Transfer | [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) | DSP-04, DSP-09, DSP-10 | GRC-10, DSP-21 | A.5.34 | GV.PO, PR.DS, ID.RA | N/A | N/A | N/A | N/A | N/A |
-| Privacy | Privacy Management Programme Charter | [`privacy/charter-privacy-management-programme.md`](../privacy/charter-privacy-management-programme.md) | GRC-01, DSP-01, GRC-06 | N/A | A.5.34, A.5.31, §5.3 | GV.PO, GV.RR, GV.OC | N/A | N/A | N/A | N/A | N/A |
-| Privacy | Children's Data Framework | [`privacy/framework-childrens-data.md`](../privacy/framework-childrens-data.md) | DSP-17, DSP-07, DSP-04 | GRC-10, GRC-15 | A.5.34, A.8.12 | GV.PO, PR.DS, GV.OC | N/A | N/A | N/A | N/A | N/A |
-| Privacy | Consent Management Framework | [`privacy/framework-consent-management.md`](../privacy/framework-consent-management.md) | DSP-12, DSP-01, GRC-01 | N/A | A.5.34 | GV.PO | N/A | N/A | N/A | N/A | N/A |
-| Privacy | Privacy by Design Framework | [`privacy/framework-privacy-by-design.md`](../privacy/framework-privacy-by-design.md) | DSP-07, DSP-08, DSP-01 | N/A | A.5.34, A.8.25, A.8.27 | GV.PO, PR.DS, PR.PS | N/A | N/A | N/A | N/A | N/A |
-| Privacy | Pseudonymization and Anonymization Standard | [`privacy/standard-pseudonymization-and-anonymization.md`](../privacy/standard-pseudonymization-and-anonymization.md) | DSP-07, DSP-17, DSP-16 | DSP-22 | A.8.11, A.5.34 | PR.DS, GV.PO | N/A | N/A | N/A | N/A | N/A |
-| Privacy | Automated Decision-Making and Profiling Register | [`privacy/register-automated-decision-making.md`](../privacy/register-automated-decision-making.md) | DSP-03, GRC-02, DSP-12 | GRC-11, GRC-13, GRC-15 | A.5.34 | GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
-| Privacy | Cookie and Tracker Register | [`privacy/register-cookie-and-tracker.md`](../privacy/register-cookie-and-tracker.md) | DSP-03, DSP-12, DSP-01 | N/A | A.5.34 | GV.PO, ID.AM | N/A | N/A | N/A | N/A | N/A |
-| Privacy | Cross-Border Data Flow Register | [`privacy/register-cross-border-data-flow.md`](../privacy/register-cross-border-data-flow.md) | DSP-10, DSP-19, DSP-03 | N/A | A.5.34, A.5.31 | GV.OC, ID.RA | N/A | N/A | N/A | N/A | N/A |
-| Privacy | Transfer Impact Assessment (TIA) Template | [`privacy/template-transfer-impact-assessment.md`](../privacy/template-transfer-impact-assessment.md) | DSP-10, DSP-19, GRC-02 | N/A | A.5.34, A.5.31 | GV.OC, ID.RA, PR.DS | N/A | N/A | N/A | N/A | N/A |
-| Privacy | Privacy Jurisdiction Index | [`privacy/annex-privacy-jurisdiction-index.md`](../privacy/annex-privacy-jurisdiction-index.md) | GRC-01, GRC-07 | N/A | A.5.31, A.5.34 | GV.OC, GV.PO | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Policy: Privacy and Data Governance | [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md) | DSP-01, DSP-02, DSP-03, DSP-04 | DSP-20, GRC-13 | A.5.34, A.8.11, A.8.12 | PR.DS | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Procedure: Privacy Impact and Cross-Border Transfer | [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) | DSP-04, DSP-09, DSP-10 | GRC-10, DSP-21 | A.5.34 | PR.DS, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Privacy Management Programme Charter | [`privacy/charter-privacy-management-programme.md`](../privacy/charter-privacy-management-programme.md) | GRC-01, DSP-01, GRC-06 | N/A | A.5.34, A.5.31, §5.3 | N/A | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Children's Data Framework | [`privacy/framework-childrens-data.md`](../privacy/framework-childrens-data.md) | DSP-17, DSP-07, DSP-04 | GRC-10, GRC-15 | A.5.34, A.8.12 | PR.DS | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Consent Management Framework | [`privacy/framework-consent-management.md`](../privacy/framework-consent-management.md) | DSP-12, DSP-01, GRC-01 | N/A | A.5.34 | N/A | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Privacy by Design Framework | [`privacy/framework-privacy-by-design.md`](../privacy/framework-privacy-by-design.md) | DSP-07, DSP-08, DSP-01 | N/A | A.5.34, A.8.25, A.8.27 | PR.DS, PR.PS | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Pseudonymization and Anonymization Standard | [`privacy/standard-pseudonymization-and-anonymization.md`](../privacy/standard-pseudonymization-and-anonymization.md) | DSP-07, DSP-17, DSP-16 | DSP-22 | A.8.11, A.5.34 | PR.DS | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Automated Decision-Making and Profiling Register | [`privacy/register-automated-decision-making.md`](../privacy/register-automated-decision-making.md) | DSP-03, GRC-02, DSP-12 | GRC-11, GRC-13, GRC-15 | A.5.34 | ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Cookie and Tracker Register | [`privacy/register-cookie-and-tracker.md`](../privacy/register-cookie-and-tracker.md) | DSP-03, DSP-12, DSP-01 | N/A | A.5.34 | ID.AM | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Cross-Border Data Flow Register | [`privacy/register-cross-border-data-flow.md`](../privacy/register-cross-border-data-flow.md) | DSP-10, DSP-19, DSP-03 | N/A | A.5.34, A.5.31 | ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Transfer Impact Assessment (TIA) Template | [`privacy/template-transfer-impact-assessment.md`](../privacy/template-transfer-impact-assessment.md) | DSP-10, DSP-19, GRC-02 | N/A | A.5.34, A.5.31 | ID.RA, PR.DS | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Privacy Jurisdiction Index | [`privacy/annex-privacy-jurisdiction-index.md`](../privacy/annex-privacy-jurisdiction-index.md) | GRC-01, GRC-07 | N/A | A.5.31, A.5.34 | N/A | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Data Protection and Privacy Breach Response Procedure | [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) | SEF-08, SEF-03, SEF-06 | N/A | A.5.34, A.5.26, A.6.8 | RS.MA, RS.CO, RC.RP | N/A | N/A | Trade-data breach response | N/A | N/A |
-| Privacy | Breach Notification Regulator Register Template | [`privacy/template-breach-notification-regulator-register.md`](../privacy/template-breach-notification-regulator-register.md) | SEF-08, DSP-18, GRC-07 | N/A | A.5.34, A.6.8 | RS.CO, GV.OC | N/A | N/A | N/A | N/A | N/A |
-| Privacy | Data Subject Rights Management Procedure | [`privacy/procedure-data-subject-rights-management.md`](../privacy/procedure-data-subject-rights-management.md) | DSP-11, DSP-01, DSP-06 | N/A | A.5.34, A.5.33 | GV.PO, PR.DS, ID.AM | N/A | N/A | N/A | N/A | N/A |
-| Privacy | DPIA (Data Protection Impact Assessment) Template | [`privacy/template-dpia.md`](../privacy/template-dpia.md) | DSP-07, DSP-08, DSP-01 | GRC-10, GRC-11 | A.5.34, §6.1 | ID.RA, GV.PO, PR.DS | N/A | N/A | N/A | N/A | N/A |
-| Privacy | Legitimate Interest Assessment (LIA) Template | [`privacy/template-legitimate-interest-assessment.md`](../privacy/template-legitimate-interest-assessment.md) | DSP-12, DSP-01, GRC-02 | N/A | A.5.34, §6.1 | GV.PO, ID.RA, PR.DS | N/A | N/A | N/A | N/A | N/A |
-| Privacy | Data Subject Access Request Workflow Template | [`privacy/template-dsar-workflow.md`](../privacy/template-dsar-workflow.md) | DSP-11, DSP-01, DSP-06 | N/A | A.5.34, A.5.33 | GV.PO, PR.DS, ID.AM | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Breach Notification Regulator Register Template | [`privacy/template-breach-notification-regulator-register.md`](../privacy/template-breach-notification-regulator-register.md) | SEF-08, DSP-18, GRC-07 | N/A | A.5.34, A.6.8 | RS.CO | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Data Subject Rights Management Procedure | [`privacy/procedure-data-subject-rights-management.md`](../privacy/procedure-data-subject-rights-management.md) | DSP-11, DSP-01, DSP-06 | N/A | A.5.34, A.5.33 | PR.DS, ID.AM | N/A | N/A | N/A | N/A | N/A |
+| Privacy | DPIA (Data Protection Impact Assessment) Template | [`privacy/template-dpia.md`](../privacy/template-dpia.md) | DSP-07, DSP-08, DSP-01 | GRC-10, GRC-11 | A.5.34, §6.1 | ID.RA, PR.DS | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Legitimate Interest Assessment (LIA) Template | [`privacy/template-legitimate-interest-assessment.md`](../privacy/template-legitimate-interest-assessment.md) | DSP-12, DSP-01, GRC-02 | N/A | A.5.34, §6.1 | ID.RA, PR.DS | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Data Subject Access Request Workflow Template | [`privacy/template-dsar-workflow.md`](../privacy/template-dsar-workflow.md) | DSP-11, DSP-01, DSP-06 | N/A | A.5.34, A.5.33 | PR.DS, ID.AM | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Joint Controller Arrangement Template | [`privacy/template-joint-controller-arrangement.md`](../privacy/template-joint-controller-arrangement.md) | GRC-06, DSP-06, DSP-01 | N/A | A.5.34 | GV.OC, GV.PO, PR.DS | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Privacy Notice Template | [`privacy/template-privacy-notice.md`](../privacy/template-privacy-notice.md) | DSP-01, DSP-08, DSP-05 | N/A | A.5.34, §7.4 | GV.PO, ID.AM | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Record of Processing Activities Template | [`privacy/template-record-of-processing-activities.md`](../privacy/template-record-of-processing-activities.md) | DSP-03, DSP-05, DSP-06 | N/A | A.5.34, A.5.33, §7.5 | ID.AM, GV.PO, PR.DS | N/A | N/A | N/A | N/A | N/A |
