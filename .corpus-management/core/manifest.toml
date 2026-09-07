@@ -7,7 +7,7 @@ schema_version = 1
 
 [pack]
 id = "corpus-management"
-version = "0.1.0"
+version = "0.2.0"
 state = "active"
 source_root = "."
 
@@ -39,7 +39,7 @@ shipped = false
 [generation]
 enabled = true
 ruleset = "gensrc.toml"
-owned_targets = [".claude/CLAUDE.md"]
+owned_targets = [".claude/CLAUDE.md", ".claude/rules/corpus-management/language-convention.md"]
 
 [addons]
 available = ["matrix-fit", "claim-fit", "reference-audit"]

@@ -182,7 +182,7 @@ Both exception paths are slow by design; the friction is proportional to the res
 - Generated artefacts here: `taxonomy.yml`, `narrative.yml`, `docs/portal.md`,
   `docs/maturity-scorecard.md`, `governance/relationship-model.generated.json`,
   the `## Number allocation` block in `TODO.md`, and every compiler-owned
-  corpus-management output (currently the CLAUDE.md generated-artefacts block)
+  corpus-management output (currently the CLAUDE.md generated-artefacts block and the generated `.claude/rules/corpus-management/language-convention.md` rule)
   (regenerate via `tools/build-taxonomy.py`,
   `tools/build-narrative-registry.py`, `tools/build-portal.py`,
   `tools/build-relationship-model.py`, `tools/build-todo-number-allocation.py`,

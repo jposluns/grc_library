@@ -15,8 +15,10 @@ Exemptions (each principled, not a drive-by allow-list):
     under its own MIT licence and PROVENANCE.md). It is refreshed FROM SOURCE, never hand-edited to
     conform to this project's house style, so its em-dashes are legitimate external content.
   - A glyph inside a markdown INLINE-CODE backtick span (`` `X` ``) or a fenced code block: the
-    DELIBERATE illustration / functional form. This is exactly how the language-convention section
-    of `.claude/CLAUDE.md` DEFINES the rule (it quotes the forbidden glyphs in backticks), and how a
+    DELIBERATE illustration / functional form. This is exactly how the compiler-generated language-convention
+    rule (`.claude/rules/corpus-management/language-convention.md`, source of record
+    `.corpus-management/core/rules/language-convention.md`) DEFINES the rule (it quotes the forbidden
+    glyphs in backticks), and how a
     code example legitimately shows a dash. A dash used AS a dash in prose (outside code) is what
     re-drift looks like, and that is what this gate catches.
   - The standard exempt dirs (`.git`, `__pycache__`) and non-text artefacts.

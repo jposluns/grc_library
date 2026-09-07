@@ -1,6 +1,6 @@
 # Corpus-Management pack (`.corpus-management/`)
 
-**Status: ACTIVE (umbrella 4.1, compile PR-2).** This directory is the structure of a standalone,
+**Status: ACTIVE (umbrella 4.1, compile PR-3).** This directory is the structure of a standalone,
 adoptable Corpus-Management pack. PR-2 shipped the compiler, the first generated slice (the CLAUDE.md
 generated-artefacts instruction block, transferred verbatim), and the mandatory drift gate (grc gate
 99); no corpus gates or hooks have been transferred into the pack registers yet.
@@ -45,8 +45,9 @@ disabled in the skeleton.
 
 ## Rollout
 - **PR-1:** inert scaffold + the root-anchored scan-boundary exemption + scope tests. SHIPPED.
-- **PR-2 (this):** the compiler + the first generated vertical slice + the mandatory drift gate (grc gate 99). SHIPPED.
-- **PR-3 (next):** the first clause-transfer wave, generating `.claude/rules/corpus-management/` rule files.
+- **PR-2:** the compiler + the first generated vertical slice + the mandatory drift gate (grc gate 99). SHIPPED.
+- **PR-3 (this):** the first clause-transfer wave: the `language-convention` file-kind rule generated to `.claude/rules/corpus-management/` (first live gate-37 recognition), plus the tree-child containment hardening (routed from #2038). SHIPPED.
+- **PR-4 (next):** further clause transfers (per-clause file-kind rules); the tree-kind decision is deferred to the wave that needs it (the containment fix now precedes it).
 - **Phase-2b: SKIP.** **Gate-98 (vendored-core digest): CORPUS interim.** **Publication: deferred (P4).**
 
 See `core/manifest.toml` for the machine-readable pack descriptor.
