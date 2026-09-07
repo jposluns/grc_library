@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.54\
+**Version:** 1.11.55\
 **Date:** 2026-09-07\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -63,7 +63,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Governance | Framework: Human Capital and Ethical Conduct | [`governance/framework-human-capital-and-ethical-conduct.md`](../governance/framework-human-capital-and-ethical-conduct.md) | HRS-09, HRS-11, HRS-13 | HRS-14, GRC-11 | A.6.3, A.5.4 | PR.AT, GV.RR, GV.PO | N/A | N/A | N/A | N/A | N/A |
 | Governance | Framework: Metrics, Monitoring and Performance Reporting | [`governance/framework-metrics-monitoring-and-performance-reporting.md`](../governance/framework-metrics-monitoring-and-performance-reporting.md) | GRC-02, LOG-03 | MDS-10, GRC-11, GRC-14 | §9.1, A.5.35 | ID.IM, DE.CM, GV.OV | N/A | N/A | Trade-security performance measurement | Pillar II (Customs-to-Business) | IT controls review and testing |
 | Governance | Framework: Sustainability and Responsible Technology | [`governance/framework-sustainability-and-responsible-technology.md`](../governance/framework-sustainability-and-responsible-technology.md) | GRC-02, STA-01 | GRC-10, GRC-11, GRC-12 | N/A | GV.OC, GV.RM | N/A | N/A | N/A | N/A | N/A |
-| Governance | Guideline: ESG and AI Ethics Disclosure | [`governance/guideline-esg-and-ai-ethics-disclosure.md`](../governance/guideline-esg-and-ai-ethics-disclosure.md) | GRC-01, GRC-06, A&A-01 | GRC-10, GRC-11, GRC-13 | §7.4, §9.1 | GV.OC, GV.OV | N/A | N/A | N/A | N/A | N/A |
+| Governance | Guideline: ESG and AI Ethics Disclosure | [`governance/guideline-esg-and-ai-ethics-disclosure.md`](../governance/guideline-esg-and-ai-ethics-disclosure.md) | GRC-01, GRC-06 | GRC-10, GRC-11, GRC-13 | §7.4, §9.1 | GV.OC, GV.OV | N/A | N/A | N/A | N/A | N/A |
 | Governance | Guideline: Minimum Viable Governance Structure | [`governance/guideline-minimum-viable-governance-structure.md`](../governance/guideline-minimum-viable-governance-structure.md) | GRC-01, GRC-06 | N/A | §5.1, §5.3, A.5.2 | GV.OC, GV.RR | N/A | N/A | N/A | N/A | N/A |
 | Governance | Policy: Digital Twin and Simulation Governance | [`governance/policy-digital-twin-and-simulation-governance.md`](../governance/policy-digital-twin-and-simulation-governance.md) | GRC-01, DSP-05, IAM-01, LOG-01 | GRC-10, GRC-13, GRC-15 | §8.1, A.5.15, A.8.15, A.8.24 | GV.OC, PR.AA, PR.DS, DE.CM | N/A | N/A | N/A | N/A | N/A |
 | Governance | Procedure: Continuous Improvement Register | [`governance/procedure-continuous-improvement-register.md`](../governance/procedure-continuous-improvement-register.md) | A&A-06, GRC-02 | N/A | §10.1, §10.2, §9.3 | ID.IM, GV.OV | N/A | N/A | N/A | N/A | N/A |
@@ -181,7 +181,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Security | Standard: Personnel Security Screening | [`security/standard-personnel-security-screening.md`](../security/standard-personnel-security-screening.md) | HRS-01, IAM-06 | N/A | A.6.1, A.5.15 | PR.AT, GV.RR | Personnel security | Personnel and staffing | Sec Std §3.1 | N/A | Personnel security |
 | Security | Standard: Security Awareness and Training | [`security/standard-security-awareness-and-training.md`](../security/standard-security-awareness-and-training.md) | HRS-11, HRS-12 | N/A | A.6.3, §7.2 | PR.AT, GV.RR | Security training and threat awareness | Personnel and staffing | Sec Std §3.2 | N/A | Personnel security |
 | Security | Framework: Insider Risk Programme | [`security/framework-insider-risk-programme.md`](../security/framework-insider-risk-programme.md) | HRS-01, IAM-05, LOG-03, SEF-07 | N/A | A.6.1, A.6.4, A.8.16 | DE.CM, DE.AE, RS.MA | IT security monitoring | IT security | Sec Std §5.2 | Pillar II (ICT security) | IT security incidents |
-| Security | Policy: Acceptance Into Service | [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md) | CCC-01, CCC-02, CCC-05 | GRC-10 | A.8.32, A.5.37 | PR.PS, ID.IM | IT security controls | IT security | Sec Std §5.2 | Pillar II (ICT security) | Information systems security |
+| Security | Policy: Acceptance Into Service | [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md) | CCC-01, CCC-02, CCC-04 | GRC-10 | A.8.32, A.5.37 | PR.PS, ID.IM | IT security controls | IT security | Sec Std §5.2 | Pillar II (ICT security) | Information systems security |
 
 ---
 
