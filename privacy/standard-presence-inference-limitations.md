@@ -2,8 +2,8 @@
 
 **Document Title:** Presence Inference Limitations Standard\
 **Document Type:** Standard\
-**Version:** 0.1.1\
-**Date:** 2026-09-05\
+**Version:** 0.1.2\
+**Date:** 2026-09-07\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-workforce-network-monitoring.md`](../security/policy-workforce-network-monitoring.md), [`governance/framework-human-capital-and-ethical-conduct.md`](../governance/framework-human-capital-and-ethical-conduct.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`security/framework-insider-risk-programme.md`](../security/framework-insider-risk-programme.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md)\
@@ -140,7 +140,7 @@ Presence and presence-derived data is retained only as long as necessary for its
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 27001:2022 | A.8.16 Monitoring Activities; A.5.34 Privacy and protection of personal identifiable information (PII); A.5.10 Acceptable Use of Information and Other Associated Assets | Bounds the interpretation and use of monitoring output and the handling of personal data derived from it. |
+| ISO/IEC 27001:2022 | A.5.34 Privacy and protection of personal identifiable information (PII); A.5.10 Acceptable Use of Information and Other Associated Assets | Bounds the interpretation and use of monitoring output and the handling of personal data derived from it. |
 | NIST CSF 2.0 | GV.OC Organizational Context; GV.PO Policy | Governs the policy and organizational-context constraints on how monitoring signals are used. |
 | NIST Privacy Framework 1.0 | CT.DP-P Disassociated Processing; CT.DM-P Data Processing Management; CM.AW-P Data Processing Awareness | Limits on inference from presence signals, purpose-limitation on presence telemetry, and mandatory caveats on displayed presence-derived metrics |
 | CSA CCM v4.1 | DSP-12 Limitation of Purpose in Personal Data Processing; DSP-08 Data Privacy by Design and Default | Purpose limitation on presence data and privacy-by-default in the design of any presence-derived metric. |
