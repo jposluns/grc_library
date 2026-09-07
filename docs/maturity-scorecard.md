@@ -184,7 +184,7 @@ _170 documents._
 | [ai/register-mcp-server.md](../ai/register-mcp-server.md) | Model Context Protocol Server Register | Register | 1.0.6 | 2026-08-30 |
 | [ai/standard-ai-testing-validation-and-documentation.md](../ai/standard-ai-testing-validation-and-documentation.md) | AI Testing, Validation and Documentation Standard | Standard | 1.0.4 | 2026-07-11 |
 | [ai/template-ai-red-team-report.md](../ai/template-ai-red-team-report.md) | AI Red Team Report Template | Template | 1.0.4 | 2026-08-30 |
-| [ai/template-ai-vendor-security-questionnaire.md](../ai/template-ai-vendor-security-questionnaire.md) | AI Vendor Security Questionnaire Template | Template | 1.0.4 | 2026-08-30 |
+| [ai/template-ai-vendor-security-questionnaire.md](../ai/template-ai-vendor-security-questionnaire.md) | AI Vendor Security Questionnaire Template | Template | 1.0.5 | 2026-09-07 |
 | [ai/template-dataset-datasheet.md](../ai/template-dataset-datasheet.md) | Dataset Datasheet Template | Template | 1.0.7 | 2026-07-12 |
 | [ai/template-model-card.md](../ai/template-model-card.md) | Model Card Template | Template | 1.0.2 | 2026-07-11 |
 | [architecture/framework-enterprise-architecture.md](../architecture/framework-enterprise-architecture.md) | Enterprise Architecture Framework | Framework | 1.0.3 | 2026-07-10 |
@@ -363,7 +363,7 @@ _65 documents._
 | [ai/procedure-integrated-ai-and-privacy-assessment.md](../ai/procedure-integrated-ai-and-privacy-assessment.md) | Integrated AI and Privacy Assessment Procedure | Procedure | 0.1.6 | 2026-09-05 |
 | [ai/procedure-training-data-governance.md](../ai/procedure-training-data-governance.md) | Training Data Governance Procedure | Procedure | 0.0.13 | 2026-09-03 |
 | [ai/register-model-registry.md](../ai/register-model-registry.md) | Model Registry | Register | 0.0.8 | 2026-08-30 |
-| [ai/standard-ai-access-and-agent-permissions.md](../ai/standard-ai-access-and-agent-permissions.md) | AI Access and Agent Permissions Standard | Standard | 0.0.13 | 2026-08-31 |
+| [ai/standard-ai-access-and-agent-permissions.md](../ai/standard-ai-access-and-agent-permissions.md) | AI Access and Agent Permissions Standard | Standard | 0.0.14 | 2026-09-07 |
 | [ai/standard-ai-data-quality-and-readiness-validation.md](../ai/standard-ai-data-quality-and-readiness-validation.md) | AI Data Quality and Readiness Validation Standard | Standard | 0.0.2 | 2026-07-12 |
 | [ai/standard-ai-human-oversight.md](../ai/standard-ai-human-oversight.md) | AI Human-Oversight Standard | Standard | 0.0.2 | 2026-08-31 |
 | [ai/standard-ai-inference-cost-governance.md](../ai/standard-ai-inference-cost-governance.md) | AI Inference Cost Governance Standard | Standard | 0.0.9 | 2026-09-04 |
