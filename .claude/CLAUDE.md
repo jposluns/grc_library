@@ -231,11 +231,11 @@ assurance above exists to prevent). The machinery guarantees `_private` is prese
 this discipline guarantees a claim about its CONTENT rests on a real read.
 
 ## Conventions
-- Mirror an existing same-type document's metadata and section shape rather than
-  inventing one; changing the model means changing the linters that enforce it.
-- External-standard citations must be accurate and current: `lint-citations.py` and
-  `lint-standards-currency.py` reject hallucinated or stale references.
-- Prose style is enforced by `lint-language.py`; do not fight the linter by hand.
+Transferred to the Corpus-Management pack (compile PR-4): the corpus authoring conventions
+load as the compiler-generated rule file `.claude/rules/corpus-management/authoring-conventions.md`
+(source of record `.corpus-management/core/rules/authoring-conventions.md`; edit the source
+and regenerate via `python3 tools/build-corpus-management.py`, never the output; gate 99
+owns its bytes).
 
 ## Language convention
 Transferred to the Corpus-Management pack (compile PR-3): the convention loads as the

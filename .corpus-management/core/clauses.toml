@@ -14,3 +14,9 @@ id = "language-convention"
 title = "Corpus language convention (Canadian-first English, -ize orthography, no em/en dashes)"
 source = "core/rules/language-convention.md"
 origin = "grc_library .claude/CLAUDE.md language-convention section (transferred in compile PR-3; heading raised h2 to standalone h1 with a blank line after, body otherwise verbatim; the CLAUDE.md section is now a pointer stub)"
+
+[[clauses]]
+id = "authoring-conventions"
+title = "Corpus authoring conventions (mirror same-type document shape; citation accuracy and currency; linter-enforced prose style)"
+source = "core/rules/authoring-conventions.md"
+origin = "grc_library .claude/CLAUDE.md Conventions section (transferred in compile PR-4; heading raised h2 Conventions to standalone h1 Authoring conventions, body otherwise verbatim; the CLAUDE.md section is now a pointer stub)"
