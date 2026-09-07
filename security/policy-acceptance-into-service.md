@@ -2,8 +2,8 @@
 
 **Document Title:** Acceptance Into Service Policy\
 **Document Type:** Policy\
-**Version:** 1.0.8\
-**Date:** 2026-08-05\
+**Version:** 1.0.9\
+**Date:** 2026-09-07\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/framework-document-architecture-and-interrelationship.md`](../governance/framework-document-architecture-and-interrelationship.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md)\
@@ -22,7 +22,7 @@ This policy establishes a standardized framework for evaluating, approving, and 
 
 The policy replaces the AIS Lifecycle Process, Readiness Review Procedure, and Post-Implementation Review Procedure, providing a unified acceptance model for IT, cloud, and AI-enabled services.
 
-It aligns with ISO/IEC 42001 §8 Operation, NIST SP 800-37 Risk Management Framework (RMF) Authorize step, COBIT 2019 BAI07 Managed IT Change Acceptance and Transitioning, and CSA CCM v4.1 CCC-01, CCC-02, and CCC-05 (change acceptance and transitioning).
+It aligns with ISO/IEC 42001 §8 Operation, NIST SP 800-37 Risk Management Framework (RMF) Authorize step, COBIT 2019 BAI07 Managed IT Change Acceptance and Transitioning, and CSA CCM v4.1 CCC-01, CCC-02, and CCC-04 (change acceptance and transitioning).
 
 Mandatory AI risk classification and impact validation are required as a prerequisite for production deployment.
 
@@ -56,7 +56,7 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 | **IT Service Owner** | Validates operational support model, monitoring, and service-level readiness. |
 | **AI Governance Council (AIGC)** | Reviews AI systems for ISO/IEC 42001 alignment, risk classification, and compliance readiness. |
 | **Change Advisory Board (CAB)** | Reviews change records, rollback plans, and post-implementation validation evidence. |
-| **Internal Audit** | Periodically reviews AIS outcomes and verifies adherence to COBIT BAI07 and CSA CCM CCC-01, CCC-02, and CCC-05 controls. |
+| **Internal Audit** | Periodically reviews AIS outcomes and verifies adherence to COBIT BAI07 and CSA CCM CCC-01, CCC-02, and CCC-04 controls. |
 
 ---
 
@@ -131,7 +131,7 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 
 4.8.2 Performance metrics (time-to-acceptance, post-implementation incidents, audit findings) must be analyzed quarterly.
 
-4.8.3 Feedback loops must ensure that alignment with COBIT BAI07 and CSA CCM CCC-01, CCC-02, and CCC-05 maturity progression is maintained.
+4.8.3 Feedback loops must ensure that alignment with COBIT BAI07 and CSA CCM CCC-01, CCC-02, and CCC-04 maturity progression is maintained.
 
 ---
 
@@ -144,7 +144,7 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 | NIST SP 800-37 Rev. 2 | RMF Authorize step (Tasks R-1 to R-5) | Risk-based production authorization |
 | COBIT 2019 | BAI07: Managed IT Change Acceptance and Transitioning | Controlled transition and handover |
 | COBIT 2019 | DSS01: Managed Operations | Operational readiness validation |
-| CSA CCM v4.1 | CCC-01 Change Management Policy and Procedures; CCC-02 Quality Testing; CCC-05 Change Agreements | Controlled change acceptance, readiness testing, and handover sign-off |
+| CSA CCM v4.1 | CCC-01 Change Management Policy and Procedures; CCC-02 Quality Testing; CCC-04 Unauthorized Change Protection | Controlled change acceptance, readiness testing, and handover sign-off |
 | OECD AI Principles | Safety and Accountability | AI readiness and impact validation |
 | EU AI Act | Annex III and Annex IV | High-risk AI system acceptance criteria |
 
