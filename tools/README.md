@@ -4,7 +4,7 @@ This directory contains repository quality tooling. The scripts are intentionall
 
 ## Scripts
 
-The library's audit programme is a set of linters, build-and-check generators, and the linter regression test suite. The canonical inventory of every gate, with its name, script, category, and the current gate count, is maintained in [`governance/specification-audit-programme.md`](../governance/specification-audit-programme.md) §6. Gate 35 (gate-name parity audit) enforces that the §6 inventory, the CI workflow, the local runner, and the pre-commit config declare identical gates with identical names; the inventory is the single source of truth.
+The library's audit programme is a set of linters, build-and-check generators, and the linter regression test suite. The canonical inventory of every gate, with its name, script, category, and the current gate count, is maintained in [`governance/specification-audit-programme.md`](../governance/specification-audit-programme.md) §6. Gate 35 (gate-name parity audit) enforces that the §6 inventory, the CI workflow, the local runner, and the pre-commit config declare identical gates with identical names and scripts, and that the three execution surfaces (workflow, runner, pre-commit) invoke each gate with identical flags; the inventory is the single source of truth.
 
 To see the current gate set in one place, run [`tools/run_all_audits.sh`](run_all_audits.sh) or read the §6 table.
 

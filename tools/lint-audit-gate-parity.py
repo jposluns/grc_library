@@ -37,6 +37,11 @@ inventory, this linter confirms that:
     pre-commit hook at the same ordered position.
   - The gate's script path (e.g., tools/lint-metadata.py) matches the
     command in each of the three runtime surfaces.
+  - The invocation arguments (flags after the script path) are identical
+    across the execution surfaces that run the gate. The workflow, runner,
+    and pre-commit hook all invoke each gate with the same flags (a
+    --strict / --enforce / --check present on one surface but not another
+    is a finding); the spec §6 row carries no argv, so it is not compared.
 
 Exit codes:
 
@@ -62,6 +67,7 @@ from __future__ import annotations
 
 import argparse
 import re
+import shlex
 import sys
 from pathlib import Path
 
@@ -133,6 +139,60 @@ SCRIPT_RE = re.compile(r"python3\s+(tools/[A-Za-z0-9_.\-]+\.py)")
 # inventory table's Script column.
 SPEC_SCRIPT_RE = re.compile(r"`(tools/[A-Za-z0-9_.\-]+\.py)`")
 
+# Characters allowed in a plain gate invocation argv (flags, paths, values, matched
+# quotes, and backslash for shlex escaping). This is an ALLOWLIST: if every character of
+# the argv tail is in this set, shlex word-splitting models the shell faithfully (quote-
+# aware, whitespace-normalizing between tokens). If ANY other character appears -- shell
+# expansion, substitution, globbing, or control such as $ ` & | ; < > ( ) * ? [ ] { } ~
+# -- shlex cannot be trusted (it strips quotes but ignores expansion/globbing), so the
+# raw remainder is compared instead. Allowlisting rather than blocklisting the special
+# characters is complete by construction: an unanticipated metacharacter routes to the
+# safe raw comparand rather than being silently mis-parsed.
+_SAFE_ARGV_CHARS = frozenset(
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    " \t_=./:@,+-'\"\\"
+)
+
+
+def _extract_argv(command: str, script_path: str) -> tuple[str, ...]:
+    """Return a comparable representation of the argv a run command passes to
+    ``script_path``. For a plain flag list (every real gate) this is the shlex
+    word-split token tuple, quote-aware so ``--sep 'a b'`` is ONE token and repeated
+    whitespace between tokens is irrelevant. If the remainder contains ANY character
+    outside the ``_SAFE_ARGV_CHARS`` allowlist (shell expansion, substitution, globbing,
+    or control -- ``$`` ``&`` ``|`` ``;`` ``<`` ``>`` ``(`` ``)`` ``*`` ``?`` and the
+    like), or is malformed (unbalanced quotes), it is returned as a single raw-sentinel
+    token holding the stripped remainder verbatim: shlex strips quotes but does not model
+    expansion/globbing and cannot tell an unquoted ``&&`` operator from a quoted ``'&&'``
+    literal, so for those cases the raw text is compared, which preserves EVERY textual
+    difference and so fails toward flagging rather than masking a divergence (or crashing).
+    No real gate invocation contains such a character (each is a plain
+    ``python3 tools/x.py --flags`` call), so the shlex path handles every live line.
+    The value is only ever compared with this function's output on another execution
+    surface; the spec §6 row carries no argv, so it is not argv-compared.
+
+    CONTRACT + residue: the guard compares the flags of a SIMPLE gate invocation.
+    A metacharacter-bearing invocation is out of that contract, and the raw comparand
+    is a documented best-effort, NOT a model of shell execution semantics: it may flag
+    an equivalent quote-spelling difference (e.g. ``--x 'a&b'`` vs ``--x "a&b"`` -- the
+    SAFE fail-toward-flagging direction), and it does not distinguish how the shell-run
+    surfaces (workflow, runner) versus the direct-exec pre-commit hooks would interpret
+    an operator in identical text (such text would break the gate loudly under argparse
+    anyway). No live gate invocation contains a metacharacter, so this residue is inert;
+    modelling per-surface shell semantics is deliberately out of scope for this guard.
+    """
+    idx = command.find(script_path)
+    if idx < 0:
+        return ()
+    tail = command[idx + len(script_path):]
+    if all(ch in _SAFE_ARGV_CHARS for ch in tail):
+        try:
+            return tuple(shlex.split(tail))
+        except ValueError:
+            pass
+    return ("\x00raw:" + tail.strip(),)
+
+
 # Inventory-table row pattern. Captures the gate number, the gate name,
 # and the rest of the row (which contains the script link).
 SPEC_ROW_RE = re.compile(r"^\|\s*(\d+)\s*\|\s*(.+?)\s*\|\s*(.+?)\s*\|\s*$")
@@ -187,8 +247,8 @@ def parse_spec_inventory(path: Path) -> list[tuple[int, int, str, str]]:
     return rows
 
 
-def parse_workflow(path: Path) -> list[tuple[int, str, str]]:
-    """Return [(line_number, step_name, script_path), ...] from quality.yml.
+def parse_workflow(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
+    """Return [(line_number, step_name, script_path, argv), ...] from quality.yml.
 
     Skips the setup steps named in WORKFLOW_SETUP_STEPS. Looks for
     consecutive `- name: X` / `run: python3 tools/Y.py ...` pairs.
@@ -196,7 +256,7 @@ def parse_workflow(path: Path) -> list[tuple[int, str, str]]:
     """
     name_re = re.compile(r"^\s*-\s*name:\s*(.+?)\s*$")
     run_re = re.compile(r"^\s*run:\s*(.+?)\s*$")
-    entries: list[tuple[int, str, str]] = []
+    entries: list[tuple[int, str, str, tuple[str, ...]]] = []
     pending: tuple[int, str] | None = None
     with path.open("r", encoding="utf-8") as fh:
         for lineno, raw in enumerate(fh, 1):
@@ -222,7 +282,10 @@ def parse_workflow(path: Path) -> list[tuple[int, str, str]]:
                         f"{m_run.group(1)!r} that does not match the "
                         f"`python3 tools/X.py ...` pattern"
                     )
-                entries.append((step_lineno, step_name, script_match.group(1)))
+                entries.append((
+                    step_lineno, step_name, script_match.group(1),
+                    _extract_argv(m_run.group(1), script_match.group(1)),
+                ))
                 pending = None
     if not entries:
         raise ParseError(
@@ -231,15 +294,15 @@ def parse_workflow(path: Path) -> list[tuple[int, str, str]]:
     return entries
 
 
-def parse_runner(path: Path) -> list[tuple[int, str, str]]:
-    """Return [(line_number, gate_name, script_path), ...] from run_all_audits.sh.
+def parse_runner(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
+    """Return [(line_number, gate_name, script_path, argv), ...] from run_all_audits.sh.
 
     Matches lines of the form:
         run_gate "<gate name>" python3 tools/<script>.py [...]
     Ignores the function-definition line (`run_gate() {`).
     """
     line_re = re.compile(r"^run_gate\s+\"([^\"]+)\"\s+(.+?)\s*$")
-    entries: list[tuple[int, str, str]] = []
+    entries: list[tuple[int, str, str, tuple[str, ...]]] = []
     with path.open("r", encoding="utf-8") as fh:
         for lineno, raw in enumerate(fh, 1):
             line = raw.rstrip("\n")
@@ -254,7 +317,10 @@ def parse_runner(path: Path) -> list[tuple[int, str, str]]:
                     f"run_gate '{gate_name}' command {command!r} does not "
                     f"match the `python3 tools/X.py ...` pattern"
                 )
-            entries.append((lineno, gate_name, script_match.group(1)))
+            entries.append((
+                lineno, gate_name, script_match.group(1),
+                _extract_argv(command, script_match.group(1)),
+            ))
     if not entries:
         raise ParseError(
             f"{path.relative_to(REPO_ROOT)}: no run_gate entries found"
@@ -262,8 +328,8 @@ def parse_runner(path: Path) -> list[tuple[int, str, str]]:
     return entries
 
 
-def parse_precommit(path: Path) -> list[tuple[int, str, str]]:
-    """Return [(line_number, hook_name, script_path), ...] from .pre-commit-config.yaml.
+def parse_precommit(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
+    """Return [(line_number, hook_name, script_path, argv), ...] from .pre-commit-config.yaml.
 
     Looks for blocks of `- id: ... / name: ... / entry: ...`. Captures
     the (name, entry) pair, recording the line number of the name field.
@@ -271,7 +337,7 @@ def parse_precommit(path: Path) -> list[tuple[int, str, str]]:
     id_re = re.compile(r"^\s*-\s*id:\s*(.+?)\s*$")
     name_re = re.compile(r"^\s*name:\s*(.+?)\s*$")
     entry_re = re.compile(r"^\s*entry:\s*(.+?)\s*$")
-    entries: list[tuple[int, str, str]] = []
+    entries: list[tuple[int, str, str, tuple[str, ...]]] = []
     pending_name: tuple[int, str] | None = None
     with path.open("r", encoding="utf-8") as fh:
         for lineno, raw in enumerate(fh, 1):
@@ -297,7 +363,10 @@ def parse_precommit(path: Path) -> list[tuple[int, str, str]]:
                         f"does not match the `python3 tools/X.py ...` "
                         f"pattern"
                     )
-                entries.append((hook_lineno, hook_name, script_match.group(1)))
+                entries.append((
+                    hook_lineno, hook_name, script_match.group(1),
+                    _extract_argv(m_entry.group(1), script_match.group(1)),
+                ))
                 pending_name = None
     if not entries:
         raise ParseError(
@@ -531,9 +600,9 @@ def main(argv: list[str]) -> int:
 
     # Row-by-row parity. Spec inventory is canonical.
     for idx, (spec_line, gate_num, spec_name, spec_script) in enumerate(spec):
-        wf_line, wf_name, wf_script = workflow[idx]
-        ru_line, ru_name, ru_script = runner[idx]
-        pc_line, pc_name, pc_script = precommit[idx]
+        wf_line, wf_name, wf_script, wf_argv = workflow[idx]
+        ru_line, ru_name, ru_script, ru_argv = runner[idx]
+        pc_line, pc_name, pc_script, pc_argv = precommit[idx]
 
         if wf_name != spec_name:
             findings.append(
@@ -571,6 +640,43 @@ def main(argv: list[str]) -> int:
                 f"Gate {gate_num} script drift: "
                 f"spec({SPEC_PATH}:{spec_line}) = {spec_script!r}; "
                 f"pre-commit({PRECOMMIT_PATH}:{pc_line}) = {pc_script!r}"
+            )
+
+        # Invocation (argv) parity across the THREE execution surfaces
+        # (workflow, runner, pre-commit). The spec §6 row carries no argv, so
+        # it is not argv-compared. All pre-commit hooks are pass_filenames:false,
+        # so their authored entry flags are directly comparable. Surfaces are
+        # grouped by the script they run; within each group of two or more
+        # surfaces that agree on the script, the flags must be identical, so a
+        # --strict / --enforce / --check that lands on one surface but not the
+        # others is caught rather than silently diverging. Comparing flags of
+        # two DIFFERENT scripts is meaningless (a script drift is already
+        # reported by the script-drift checks above), so the grouping is by
+        # script rather than a blanket three-way equality.
+        exec_surfaces = (
+            (WORKFLOW_PATH, wf_line, wf_script, wf_argv),
+            (RUNNER_PATH, ru_line, ru_script, ru_argv),
+            (PRECOMMIT_PATH, pc_line, pc_script, pc_argv),
+        )
+        by_script: dict[str, list[tuple[str, int, tuple[str, ...]]]] = {}
+        for surf_path, surf_line, surf_script, surf_argv in exec_surfaces:
+            by_script.setdefault(surf_script, []).append(
+                (surf_path, surf_line, surf_argv)
+            )
+        for surf_script, members in by_script.items():
+            if len(members) < 2:
+                continue
+            if len({argv for (_, _, argv) in members}) == 1:
+                continue
+            detail = "; ".join(
+                f"{mp}:{ml} = {(' '.join(margv) or '<no args>')!r}"
+                for (mp, ml, margv) in members
+            )
+            findings.append(
+                f"Gate {gate_num} invocation (argv) drift: execution surfaces "
+                f"running {surf_script!r} disagree on flags: {detail}. Every "
+                f"execution surface that runs a gate must invoke it with "
+                f"identical flags."
             )
 
     # Additive 3.99 (closing PR #1087) guards: cross-check the exclusion allow-lists against a

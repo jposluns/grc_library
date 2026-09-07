@@ -4386,14 +4386,86 @@ class CrossDocNumbersTests(LinterTestCase):
 class AuditGateParityTests(LinterTestCase):
     """tools/lint-audit-gate-parity.py
 
-    Tests both directions:
-
-    1. The current real repository state passes (positive baseline).
-    2. A synthetic source-set with engineered name drift is correctly
-       flagged (negative test). The negative test uses ``--root`` to
-       point the linter at a temp directory whose four surface files
-       declare matching gate counts but a single mismatched gate name.
+    Covers the positive baseline (the real repository state passes) and
+    synthetic-``--root`` negatives for each drift class the gate detects:
+    a mismatched gate NAME; an invocation (argv) drift between the execution
+    surfaces (a missing flag, a wrong flag value, a pre-commit-only
+    divergence now that argv-parity is 3-way, and a shlex-quoted-whitespace
+    difference a naive split would miss); plus unit coverage of the extractor's
+    branch routing and the documented out-of-contract metacharacter residue. Each
+    synthetic root deliberately
+    trips the unrelated exclusion/delta guards, so the negatives key on the
+    distinctive finding substring, not on the exit code alone.
     """
+
+    def test_extract_argv_quote_and_operator_aware(self) -> None:
+        # Unit proof that the argv extractor routes correctly AND each branch is
+        # right, so the integration fixtures' flagged results rest on a correct
+        # parse. shlex word-split alone cannot tell an unquoted && operator (or a
+        # $-expansion / glob) from a quoted literal, so a char outside the safe
+        # allowlist routes to the raw-sentinel comparand instead of shlex.
+        import importlib.util
+        tool = Path(__file__).resolve().parent.parent / "tools" / "lint-audit-gate-parity.py"
+        spec = importlib.util.spec_from_file_location("_agp_unit", str(tool))
+        agp = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(agp)
+        e = agp._extract_argv
+        S = "tools/x.py"
+
+        def is_raw(r):
+            return len(r) == 1 and r[0].startswith("\x00raw:")
+
+        # SHLEX branch (all chars in the allowlist): simple flag, empty, and a
+        # quoted-whitespace value tokenized correctly (NOT the raw branch).
+        self.assertEqual(e(f"python3 {S} --check", S), ("--check",))
+        self.assertFalse(is_raw(e(f"python3 {S} --check", S)))
+        self.assertEqual(e(f"python3 {S}", S), ())
+        self.assertEqual(e(f"python3 {S} --s 'a b'", S), ("--s", "a b"))
+        self.assertFalse(is_raw(e(f"python3 {S} --s 'a b'", S)))
+        # shlex preserves intra-quote whitespace (a naive split would collapse
+        # these equal -- the distinction the shlex branch exists to make):
+        self.assertNotEqual(
+            e(f"python3 {S} --s 'a  b'", S), e(f"python3 {S} --s 'a b'", S)
+        )
+        # RAW branch: an allowlist-violating char (operator, $-expansion, glob)
+        # routes to the raw-sentinel comparand.
+        self.assertTrue(is_raw(e(f"python3 {S} --x && y", S)))
+        self.assertTrue(is_raw(e(f"python3 {S} --arg $FOO", S)))
+        self.assertTrue(is_raw(e(f"python3 {S} --g *.py", S)))
+        # and the raw comparand distinguishes what shlex would collapse: an
+        # unquoted operator vs a quoted literal, and $-expansion vs a quoted string.
+        self.assertNotEqual(
+            e(f"python3 {S} --x && y", S), e(f"python3 {S} --x '&&' y", S)
+        )
+        self.assertNotEqual(
+            e(f"python3 {S} --arg $FOO", S), e(f'python3 {S} --arg "$FOO"', S)
+        )
+        # malformed (unbalanced quote) never crashes and routes to raw.
+        self.assertTrue(is_raw(e(f'python3 {S} --sep "a', S)))
+
+    def test_extract_argv_metachar_residue_documented(self) -> None:
+        # Locks the out-of-contract residue (codex iter-3, accepted with rationale):
+        # a metacharacter-bearing invocation gets a best-effort RAW comparison, NOT
+        # shell-semantic modelling. No live gate uses a metacharacter, so this is
+        # inert; the tests below document the boundary so it cannot regress silently.
+        import importlib.util
+        tool = Path(__file__).resolve().parent.parent / "tools" / "lint-audit-gate-parity.py"
+        spec = importlib.util.spec_from_file_location("_agp_res", str(tool))
+        agp = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(agp)
+        e = agp._extract_argv
+        S = "tools/x.py"
+        # Residue A (SAFE, fail-toward-flagging): equivalent quote spellings of a
+        # metachar arg compare UNEQUAL -> surfaced for review, never a silent pass.
+        self.assertNotEqual(
+            e(f"python3 {S} --x 'a&b'", S), e(f'python3 {S} --x "a&b"', S)
+        )
+        # Residue B: identical metachar TEXT across surfaces yields identical
+        # comparands (no drift flagged). Such an operator would break the gate
+        # loudly under argparse in the direct-exec pre-commit surface anyway.
+        self.assertEqual(
+            e(f"python3 {S} --x && y", S), e(f"python3 {S} --x && y", S)
+        )
 
     def test_current_surfaces_pass_parity(self) -> None:
         result = run_linter("tools/lint-audit-gate-parity.py")
@@ -4462,6 +4534,271 @@ class AuditGateParityTests(LinterTestCase):
         finally:
             shutil.rmtree(synthetic_root, ignore_errors=True)
 
+    def test_synthetic_argv_drift_flagged(self) -> None:
+        # Four surfaces align on name + script, but the execution surfaces
+        # invoke the gate with DIFFERENT flags (runner --strict, workflow and
+        # pre-commit none): 3-way argv-parity flags it.
+        synthetic_root = FIXTURE_DIR / "synthetic-parity-argv-drift"
+        import shutil
+        if synthetic_root.exists():
+            shutil.rmtree(synthetic_root)
+        (synthetic_root / "governance").mkdir(parents=True)
+        (synthetic_root / ".github" / "workflows").mkdir(parents=True)
+        (synthetic_root / "tools").mkdir(parents=True)
+        try:
+            (synthetic_root / "governance" / "specification-audit-programme.md").write_text(
+                "# Audit Programme\n\n"
+                "## 6. Gate inventory\n\n"
+                "| # | Gate | Script |\n"
+                "| --- | --- | --- |\n"
+                "| 1 | Metadata audit | [`tools/lint-metadata.py`](../tools/lint-metadata.py) |\n\n"
+                "## 7. Next section\n",
+                encoding="utf-8",
+            )
+            (synthetic_root / ".github" / "workflows" / "quality.yml").write_text(
+                "name: Quality\n\n"
+                "on: [push]\n\n"
+                "jobs:\n"
+                "  lint:\n"
+                "    runs-on: ubuntu-latest\n"
+                "    steps:\n"
+                "      - name: Metadata audit\n"
+                "        run: python3 tools/lint-metadata.py\n",
+                encoding="utf-8",
+            )
+            (synthetic_root / "tools" / "run_all_audits.sh").write_text(
+                '#!/usr/bin/env bash\n'
+                'run_gate "Metadata audit" python3 tools/lint-metadata.py --strict\n',
+                encoding="utf-8",
+            )
+            (synthetic_root / ".pre-commit-config.yaml").write_text(
+                "repos:\n"
+                "  - repo: local\n"
+                "    hooks:\n"
+                "      - id: lint-metadata\n"
+                "        name: Metadata audit\n"
+                "        entry: python3 tools/lint-metadata.py\n",
+                encoding="utf-8",
+            )
+            result = run_linter(
+                "tools/lint-audit-gate-parity.py",
+                "--root",
+                str(synthetic_root),
+            )
+            # Fail-closed: require the specific finding, not just any nonzero
+            # exit (assertLinterFails accepts a crash whose traceback merely
+            # contains "argv", e.g. an _extract_argv frame).
+            self.assertEqual(
+                result.returncode, 1,
+                f"expected findings (rc=1), not a crash.\nstdout:\n{result.stdout}\n"
+                f"stderr:\n{result.stderr}",
+            )
+            self.assertIn(
+                "invocation (argv) drift", result.stdout,
+                f"expected an argv-drift finding.\nstdout:\n{result.stdout}",
+            )
+        finally:
+            shutil.rmtree(synthetic_root, ignore_errors=True)
+
+    def test_synthetic_argv_value_drift_flagged(self) -> None:
+        # Same-name, same-script gate invoked with DIFFERENT flag VALUES across
+        # the execution surfaces (runner --strict vs workflow --enforce; pre-commit
+        # --strict), not merely a missing flag: argv-parity must flag this shape too.
+        synthetic_root = FIXTURE_DIR / "synthetic-parity-argv-value-drift"
+        import shutil
+        if synthetic_root.exists():
+            shutil.rmtree(synthetic_root)
+        (synthetic_root / "governance").mkdir(parents=True)
+        (synthetic_root / ".github" / "workflows").mkdir(parents=True)
+        (synthetic_root / "tools").mkdir(parents=True)
+        try:
+            (synthetic_root / "governance" / "specification-audit-programme.md").write_text(
+                "# Audit Programme\n\n"
+                "## 6. Gate inventory\n\n"
+                "| # | Gate | Script |\n"
+                "| --- | --- | --- |\n"
+                "| 1 | Metadata audit | [`tools/lint-metadata.py`](../tools/lint-metadata.py) |\n\n"
+                "## 7. Next section\n",
+                encoding="utf-8",
+            )
+            (synthetic_root / ".github" / "workflows" / "quality.yml").write_text(
+                "name: Quality\n\n"
+                "on: [push]\n\n"
+                "jobs:\n"
+                "  lint:\n"
+                "    runs-on: ubuntu-latest\n"
+                "    steps:\n"
+                "      - name: Metadata audit\n"
+                "        run: python3 tools/lint-metadata.py --enforce\n",
+                encoding="utf-8",
+            )
+            (synthetic_root / "tools" / "run_all_audits.sh").write_text(
+                '#!/usr/bin/env bash\n'
+                'run_gate "Metadata audit" python3 tools/lint-metadata.py --strict\n',
+                encoding="utf-8",
+            )
+            (synthetic_root / ".pre-commit-config.yaml").write_text(
+                "repos:\n"
+                "  - repo: local\n"
+                "    hooks:\n"
+                "      - id: lint-metadata\n"
+                "        name: Metadata audit\n"
+                "        entry: python3 tools/lint-metadata.py --strict\n",
+                encoding="utf-8",
+            )
+            result = run_linter(
+                "tools/lint-audit-gate-parity.py",
+                "--root",
+                str(synthetic_root),
+            )
+            # Fail-closed: require the specific finding, not just any nonzero
+            # exit (assertLinterFails accepts a crash whose traceback merely
+            # contains "argv", e.g. an _extract_argv frame).
+            self.assertEqual(
+                result.returncode, 1,
+                f"expected findings (rc=1), not a crash.\nstdout:\n{result.stdout}\n"
+                f"stderr:\n{result.stderr}",
+            )
+            self.assertIn(
+                "invocation (argv) drift", result.stdout,
+                f"expected an argv-drift finding.\nstdout:\n{result.stdout}",
+            )
+        finally:
+            shutil.rmtree(synthetic_root, ignore_errors=True)
+
+    def test_divergent_precommit_argv_flagged(self) -> None:
+        # Runner and workflow carry IDENTICAL flags (--strict); pre-commit
+        # carries a DIFFERENT flag. All three are full pass_filenames:false
+        # execution surfaces, so argv-parity is 3-way: the pre-commit
+        # divergence MUST be flagged.
+        synthetic_root = FIXTURE_DIR / "synthetic-parity-argv-precommit-drift"
+        import shutil
+        if synthetic_root.exists():
+            shutil.rmtree(synthetic_root)
+        (synthetic_root / "governance").mkdir(parents=True)
+        (synthetic_root / ".github" / "workflows").mkdir(parents=True)
+        (synthetic_root / "tools").mkdir(parents=True)
+        try:
+            (synthetic_root / "governance" / "specification-audit-programme.md").write_text(
+                "# Audit Programme\n\n"
+                "## 6. Gate inventory\n\n"
+                "| # | Gate | Script |\n"
+                "| --- | --- | --- |\n"
+                "| 1 | Metadata audit | [`tools/lint-metadata.py`](../tools/lint-metadata.py) |\n\n"
+                "## 7. Next section\n",
+                encoding="utf-8",
+            )
+            (synthetic_root / ".github" / "workflows" / "quality.yml").write_text(
+                "name: Quality\n\n"
+                "on: [push]\n\n"
+                "jobs:\n"
+                "  lint:\n"
+                "    runs-on: ubuntu-latest\n"
+                "    steps:\n"
+                "      - name: Metadata audit\n"
+                "        run: python3 tools/lint-metadata.py --strict\n",
+                encoding="utf-8",
+            )
+            (synthetic_root / "tools" / "run_all_audits.sh").write_text(
+                '#!/usr/bin/env bash\n'
+                'run_gate "Metadata audit" python3 tools/lint-metadata.py --strict\n',
+                encoding="utf-8",
+            )
+            (synthetic_root / ".pre-commit-config.yaml").write_text(
+                "repos:\n"
+                "  - repo: local\n"
+                "    hooks:\n"
+                "      - id: lint-metadata\n"
+                "        name: Metadata audit\n"
+                "        entry: python3 tools/lint-metadata.py --different-flag\n",
+                encoding="utf-8",
+            )
+            result = run_linter(
+                "tools/lint-audit-gate-parity.py",
+                "--root",
+                str(synthetic_root),
+            )
+            # Fail-closed: require the specific finding, not just any nonzero
+            # exit (assertLinterFails accepts a crash whose traceback merely
+            # contains "argv", e.g. an _extract_argv frame).
+            self.assertEqual(
+                result.returncode, 1,
+                f"expected findings (rc=1), not a crash.\nstdout:\n{result.stdout}\n"
+                f"stderr:\n{result.stderr}",
+            )
+            self.assertIn(
+                "invocation (argv) drift", result.stdout,
+                f"expected an argv-drift finding.\nstdout:\n{result.stdout}",
+            )
+        finally:
+            shutil.rmtree(synthetic_root, ignore_errors=True)
+
+    def test_synthetic_argv_quoted_whitespace_flagged(self) -> None:
+        # shlex quote-awareness: runner passes --sep with a DOUBLE-space
+        # quoted value, workflow a SINGLE-space one. A naive whitespace split
+        # would collapse both to the same tokens (a false PASS); shlex keeps
+        # the quoted argument as one token, so the drift is correctly flagged.
+        synthetic_root = FIXTURE_DIR / "synthetic-parity-argv-quoted"
+        import shutil
+        if synthetic_root.exists():
+            shutil.rmtree(synthetic_root)
+        (synthetic_root / "governance").mkdir(parents=True)
+        (synthetic_root / ".github" / "workflows").mkdir(parents=True)
+        (synthetic_root / "tools").mkdir(parents=True)
+        try:
+            (synthetic_root / "governance" / "specification-audit-programme.md").write_text(
+                "# Audit Programme\n\n"
+                "## 6. Gate inventory\n\n"
+                "| # | Gate | Script |\n"
+                "| --- | --- | --- |\n"
+                "| 1 | Metadata audit | [`tools/lint-metadata.py`](../tools/lint-metadata.py) |\n\n"
+                "## 7. Next section\n",
+                encoding="utf-8",
+            )
+            (synthetic_root / ".github" / "workflows" / "quality.yml").write_text(
+                "name: Quality\n\n"
+                "on: [push]\n\n"
+                "jobs:\n"
+                "  lint:\n"
+                "    runs-on: ubuntu-latest\n"
+                "    steps:\n"
+                "      - name: Metadata audit\n"
+                "        run: python3 tools/lint-metadata.py --sep 'a b'\n",
+                encoding="utf-8",
+            )
+            (synthetic_root / "tools" / "run_all_audits.sh").write_text(
+                '#!/usr/bin/env bash\n'
+                'run_gate "Metadata audit" python3 tools/lint-metadata.py --sep \'a  b\'\n',
+                encoding="utf-8",
+            )
+            (synthetic_root / ".pre-commit-config.yaml").write_text(
+                "repos:\n"
+                "  - repo: local\n"
+                "    hooks:\n"
+                "      - id: lint-metadata\n"
+                "        name: Metadata audit\n"
+                "        entry: python3 tools/lint-metadata.py --sep 'a b'\n",
+                encoding="utf-8",
+            )
+            result = run_linter(
+                "tools/lint-audit-gate-parity.py",
+                "--root",
+                str(synthetic_root),
+            )
+            # Fail-closed: require the specific finding, not just any nonzero
+            # exit (assertLinterFails accepts a crash whose traceback merely
+            # contains "argv", e.g. an _extract_argv frame).
+            self.assertEqual(
+                result.returncode, 1,
+                f"expected findings (rc=1), not a crash.\nstdout:\n{result.stdout}\n"
+                f"stderr:\n{result.stderr}",
+            )
+            self.assertIn(
+                "invocation (argv) drift", result.stdout,
+                f"expected an argv-drift finding.\nstdout:\n{result.stdout}",
+            )
+        finally:
+            shutil.rmtree(synthetic_root, ignore_errors=True)
 
 class ChangelogLinkCoverageTests(LinterTestCase):
     """tools/lint-changelog-link-coverage.py"""
