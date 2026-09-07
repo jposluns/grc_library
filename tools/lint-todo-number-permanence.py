@@ -505,7 +505,7 @@ EXEMPT: dict[tuple[str, str], str] = {
         "PARTIAL CLOSE against a still-open umbrella (DONE #2064, 2026-09-07). P-1.60 "
         "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
         "batch 22 (range-embedded wrong-actor A) enumerated around 2 service-customer-facing CCM members "
-        "in 4 internal-doc ranges: IAM-11 (access-control:182 + identity-management:160) and CEK-08 "
+        "in 5 internal-doc ranges: IAM-11 (access-control:182 + identity-management:160 + production-security:225) and CEK-08 "
         "(data-classification:144 + production-security:224), each held-title-verified as provider-to-tenant. "
         "CSF-cyber-scope + AICM + I&S/IPY residual + remaining decisions still open. DONE says 'batch 22'."
     ),

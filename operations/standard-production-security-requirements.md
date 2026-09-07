@@ -2,7 +2,7 @@
 
 **Document Title:** Production Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.17\
+**Version:** 1.1.18\
 **Date:** 2026-09-07\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -222,7 +222,7 @@ The EOL classification policy and remediation SLAs are defined in the Security B
 | Vulnerability management | A.8.8 | TVM-03 to 12 | RA-5, SI-2 | PO.5 |
 | Change management | A.8.32 | CCC-01 to 09 | CM-3, CM-5 | N/A |
 | Certificate management | A.8.24 | CEK-01 to CEK-07, CEK-09 to CEK-21 | SC-12, SC-17 | N/A |
-| Access control | A.5.15 to 5.18 | IAM-01 to 15 | AC-2, AC-6 | PW.6 |
+| Access control | A.5.15 to 5.18 | IAM-01 to 10, IAM-12 to 15 | AC-2, AC-6 | PW.6 |
 | EOL and lifecycle | A.8.8 | TVM-01 | SA-22 | PO.5 |
 
 
