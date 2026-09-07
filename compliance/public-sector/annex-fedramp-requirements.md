@@ -2,8 +2,8 @@
 
 **Document Title:** FedRAMP Sector Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.8\
-**Date:** 2026-09-04\
+**Version:** 0.0.11\
+**Date:** 2026-09-07\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`operations/standard-cloud-security-configuration-baseline.md`](../../operations/standard-cloud-security-configuration-baseline.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
@@ -20,7 +20,7 @@
 
 This annex describes how a cloud service provider seeking US Federal Risk and Authorization Management Program (FedRAMP) authorization can use the core GRC library to demonstrate the control set, evidence, and operating expectations FedRAMP requires. The annex maps the library to FedRAMP baselines, identifies applicability triggers, describes the authorization routes, and lists the supplementary documentation FedRAMP requires beyond the library's baseline.
 
-This annex does not reproduce FedRAMP control text, the FedRAMP Tailored guidance, or the assessment documentation templates. Adopting organizations consume those from the official FedRAMP source.
+This annex does not reproduce FedRAMP control text or the FedRAMP-specified certification-package requirements. Adopting organizations consume those from the official FedRAMP source (which, under the 2026 rules, specifies required information rather than providing fixed templates).
 
 ---
 
@@ -39,14 +39,19 @@ The library is not relevant where the organization has no federal customer in pi
 
 ## Authorization route selection
 
-| Route | When to choose | Effort |
+Under the 2026 Consolidated Rules the pre-2026 routes are superseded: the Joint Authorization Board Provisional ATO is retired, and FedRAMP Ready went legacy in July 2026 (no new submissions, with existing Ready status retained through the transition). A cloud service offering's authorization is now described by a **certification profile**: the combination of a certification type, a certification path, and a certification class.
+
+| Dimension | Options | Basis for choosing |
 | --- | --- | --- |
-| Joint Authorization Board (JAB) Provisional ATO (P-ATO) | High-impact services with broad agency demand; CSP can sustain continuous JAB engagement | Highest; finite annual slots |
-| Agency Authorization (A-ATO) | Specific agency sponsor identified; faster than JAB; package later submitted for agency-to-agency reuse | High |
-| FedRAMP Tailored | SaaS with limited impact and well-defined data scope (Low or Moderate); reduced control set | Lower |
-| FedRAMP Ready | Pre-authorization marketplace listing; demonstrates a 3PAO-assessed control posture without an agency sponsor | Medium |
+| Certification type | **20x** (modern; assurance based primarily on measured outcomes, evidenced through Key Security Indicators) or **Rev5** (legacy; assurance based primarily on documented plans and Rev5 Controls) | 20x for offerings following the measured-outcomes model; Rev5 for offerings continuing under the legacy documented-plans model during the transition |
+| Certification path | **Program** (provided directly by FedRAMP) or **Agency** (agency-sponsored; a legacy path available only for Rev5 and still requiring review and approval from FedRAMP) | Program for a direct FedRAMP certification with no agency sponsor; Agency only where an agency sponsor exists and the offering is Rev5 |
+| Certification class | **Class A** through **Class D**, increasing from minimal assurance at Class A to significant assurance at Class D | Chosen so the class matches the assurance the offering must supply to its federal customers |
+
+The transition timeline in the held July 2026 rules places optional adoption from 4 July 2026, mandatory adoption from 1 January 2027, and the end of new Rev5 certifications on 11 June 2027; these dates are from the held July 2026 snapshot, so verify the live FedRAMP rules before relying on them.
 
 ---
+
+> **Pre-2026 sections below.** The baseline-selection, library-coverage-and-gaps, operating-expectations, and framework-alignment sections that follow still reflect the pre-2026 FedRAMP structure (impact-level baselines, monthly continuous monitoring and POA&Ms, FedRAMP templates, and 3PAO terminology). The 2026 Consolidated Rules supersede much of this (Certification Classes A to D, Ongoing Certification, Accepted Weaknesses, no FedRAMP-provided templates, independent assessors); a fuller refresh is tracked separately (P-1.79).
 
 ## Baseline selection
 
@@ -87,10 +92,10 @@ The library provides architectural baselines that align with FedRAMP control fam
 
 Library gaps requiring additional documentation for a FedRAMP authorization package:
 
-1. **System Security Plan (SSP).** FedRAMP requires an SSP using the FedRAMP template. The library provides architectural inputs; the SSP itself is a per-system artefact built outside the library.
+1. **Certification package documentation.** Under the 2026 Consolidated Rules the historically required System Security Plan and appendices are replaced, for both certification types, by the Certification Package Overview and the Security Decision Record (SDR); the security practices are expressed as measured Key Security Indicators under 20x and as Rev5 Controls under Rev5. The library provides architectural inputs; the certification-package documents are per-system artefacts built outside the library.
 2. **Continuous Monitoring (ConMon) plan and monthly reporting.** FedRAMP requires monthly POA&M, vulnerability scan submission, and inventory updates.
 3. **Plan of Action and Milestones (POA&M) register.** Tracked per FedRAMP cadence; library risk register is the conceptual basis but FedRAMP format is mandated.
-4. **3PAO Security Assessment Report (SAR) and Security Assessment Plan (SAP).** Produced by the assessor using FedRAMP templates.
+4. **Independent assessment.** The 2026 rules do not require a separate Security Assessment Plan or Security Assessment Report for either 20x or Rev5 certifications; the assessment information is captured in the Security Decision Record. Under the legacy Agency path an agency authorizing official may still request the traditional Security Assessment Plan and Report in addition to FedRAMP's materials.
 5. **Incident Response Reporting per OMB M-22-09 and US-CERT timelines.** Library incident procedures cover lifecycle; FedRAMP-specific reporting timelines are layered on top.
 6. **FIPS-validated cryptography.** Library cryptographic key lifecycle framework establishes the practice; FedRAMP additionally requires FIPS 140-3 (or 140-2 in transition) validated modules.
 7. **Personnel investigations under federal standards.** US federal background investigation standards beyond the library's screening standard.
@@ -122,13 +127,13 @@ Library gaps requiring additional documentation for a FedRAMP authorization pack
 | FIPS 200 | Minimum Security Requirements | Baseline prerequisite |
 | FIPS 140-3 / 140-2 | Cryptographic Module Validation | FIPS-validated cryptography |
 
-The 2026 Consolidated Rules distinguish applicability by certification type (Rev5 or 20x) and by certification class (A to D). Their held timeline places the rules in optional adoption from 4 July 2026, schedules mandatory adoption for 1 January 2027, and ends new Rev5 certifications on 11 June 2027; these dates are from the held July 2026 snapshot, so verify the live FedRAMP rules before relying on the transition timeline. RFC-0006 is a superseded historical draft; the finalized Key Security Indicators are the current 20x specification. The pre-2026 route-selection and documentation content elsewhere in this annex (JAB P-ATO, FedRAMP Ready, and the Rev5 SSP/SAP/SAR artifacts) reflects the legacy structure: JAB P-ATO and FedRAMP Ready are discontinued (FedRAMP Ready went legacy in July 2026 with no new submissions), the 2026 rules restructure certification into two paths (Program Certification, provided directly by FedRAMP, and Agency Certification, agency-sponsored and Rev5-only), and the 20x path replaces the Rev5 SSP/SAP/SAR documentation artifacts with continuously-evidenced Key Security Indicators. A full refresh of this annex to the 2026 structure is tracked separately.
+The 2026 Consolidated Rules distinguish applicability by certification type (Rev5 or 20x) and by certification class (A to D). Their held timeline places the rules in optional adoption from 4 July 2026, schedules mandatory adoption for 1 January 2027, and ends new Rev5 certifications on 11 June 2027; these dates are from the held July 2026 snapshot, so verify the live FedRAMP rules before relying on the transition timeline. RFC-0006 is a superseded historical draft; the finalized Key Security Indicators are the current 20x specification. The Authorization route selection section above and the certification-package documentation items now reflect the 2026 certification-profile structure (type, path, and class) and the Certification Package Overview / Security Decision Record documentation model. JAB Provisional ATO is retired and FedRAMP Ready went legacy in July 2026 (no new submissions; existing Ready status persists through the transition). Several other sections of this annex still reflect the pre-2026 FedRAMP structure and are NOT yet updated: the baseline-selection table (Low/Moderate/High and Tailored, superseded by Certification Classes A to D), the continuous-monitoring and POA&M model (the 2026 rules replace continuous monitoring with Ongoing Certification and POA&Ms with a list of Accepted Weaknesses), the documentation templates (FedRAMP no longer provides templates), the assessor terminology (3PAO, now independent assessor), and the framework-alignment table. A fuller refresh of those sections to the 2026 model is tracked separately (P-1.79).
 
 ---
 
 ## Limitations
 
-This annex is a CC BY-SA 4.0 navigation aid. FedRAMP authorization requires the FedRAMP-mandated artefacts, a federal sponsor or marketplace listing, and engagement with a 3PAO; this library does not produce authorization by itself. Adopting organizations consult the official FedRAMP programme documentation and engage a 3PAO before commencing authorization work. This annex is not a substitute for FedRAMP programme guidance.
+This annex is a CC BY-SA 4.0 navigation aid. FedRAMP authorization requires the FedRAMP-mandated certification-package materials and, depending on the certification path and class, a federal agency sponsor and independent verification and validation by a FedRAMP Recognized assessor; this library does not produce authorization by itself. Adopting organizations consult the official FedRAMP programme documentation before commencing authorization work. This annex is not a substitute for FedRAMP programme guidance.
 
 ---
 
