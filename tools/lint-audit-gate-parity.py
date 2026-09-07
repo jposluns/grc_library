@@ -611,11 +611,14 @@ def main(argv: list[str]) -> int:
         # are argv-compared. A gate must run with identical flags in both, so a
         # --strict / --enforce / --check that lands in one surface but not the
         # other is caught here rather than silently diverging.
-        if wf_argv != ru_argv:
+        # Compare argv only once both scripts already match the canonical
+        # spec script, so a script drift (reported above) does not co-report a
+        # confusing argv finding computed against two different scripts.
+        if wf_script == spec_script and ru_script == spec_script and wf_argv != ru_argv:
             findings.append(
                 f"Gate {gate_num} invocation (argv) drift: "
-                f"runner({RUNNER_PATH}:{ru_line}) = {ru_argv!r}; "
-                f"workflow({WORKFLOW_PATH}:{wf_line}) = {wf_argv!r}. "
+                f"runner({RUNNER_PATH}:{ru_line}) = {(ru_argv or '<no args>')!r}; "
+                f"workflow({WORKFLOW_PATH}:{wf_line}) = {(wf_argv or '<no args>')!r}. "
                 f"The two full-corpus execution surfaces must invoke each "
                 f"gate with identical flags."
             )
