@@ -405,6 +405,14 @@ EXEMPT: dict[tuple[str, str], str] = {
         "methodology decision remain. The DONE heading says 'batch 8', so the partial nature is "
         "on the heading itself."
     ),
+    ("P-1.60", "P-1.60 batch 9"): (
+        "PARTIAL CLOSE against a still-open umbrella (DONE #2051, 2026-09-07). P-1.60 "
+        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
+        "batch 9 fixed 3 precise-spec CCM mis-fits in dev-security alignment tables (IAM-15 "
+        "moved session->access; LOG-14 and I&S-08 dropped); the remaining domains' tables + the "
+        "range-sweep methodology decision remain. The DONE heading says 'batch 9', so the "
+        "partial nature is on the heading itself."
+    ),
     ("P-3.202", "P-3.202 synchronous-model cutover-leftover"): (
         "PARTIAL CLOSE (provisional; DONE:3186, #1361). P-3.202 is live at P-TODO "
         "and its detail says the comprehensive sweep is INCOMPLETE, so #1361 is "
