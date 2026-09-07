@@ -6250,7 +6250,7 @@ documents:
   domain: "governance"
   type: "Register"
   title: "Document Index and Classification Register"
-  version: "1.27.168"
+  version: "1.27.169"
   date: "2026-09-07"
   owner: "Governance Library Maintainer"
   approving_authority: "Governance Library Maintainer"
