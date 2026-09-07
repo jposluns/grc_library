@@ -21,7 +21,11 @@ Rule kinds (the generation contract):
 - ``tree``: one source directory; every file under it is mirrored to the
   same relative path under ``target``, each with the file-kind provenance
   header; the compiler owns the whole target directory, so an unexpected
-  file there is drift.
+  file there is drift. Each rendered tree child is resolved and contained
+  under the project root before it is compared or written (an expected child
+  that is a symlink escaping the root is a drift finding in ``--check`` and a
+  generation refusal), and a compiler-owned child that is a symlink at all is
+  drift the compiler repairs on the next generate (it emits regular files only).
 
 Declared ownership (validated before any write or comparison; any mismatch
 is a configuration error): every rule is mirrored by a
@@ -686,6 +690,22 @@ def run_check(root: Path, rules: list[Rule]) -> list[str]:
             renders = _tree_renders(r)
             for rel, content in sorted(renders.items()):
                 tp = root / rel
+                try:
+                    tp_r = tp.resolve()
+                except (ValueError, OSError):
+                    findings.append(f"{rel}: tree child path cannot be resolved "
+                                    f"(rule {r.id!r})")
+                    continue
+                if not tp_r.is_relative_to(_root_r):
+                    findings.append(f"{rel}: compiler-owned tree child resolves "
+                                    f"outside the project root (symlink escape; "
+                                    f"rule {r.id!r}); refusing to compare")
+                    continue
+                if tp.is_symlink():
+                    findings.append(f"{rel}: compiler-owned tree child is a symlink "
+                                    f"(rule {r.id!r}); the compiler writes regular "
+                                    f"files only, so regenerate")
+                    continue
                 if not tp.is_file():
                     findings.append(f"{rel}: compiler-owned tree file is missing (rule {r.id!r})")
                 elif tp.read_bytes() != content.encode("utf-8"):
@@ -762,7 +782,18 @@ def plan_generate(root: Path, rules: list[Rule]) -> tuple[list[str], list[tuple[
                                         f"never deletes, so remove it (or add its "
                                         f"pack source) and re-run")
             for rel, content in sorted(renders.items()):
-                writes.append((root / rel, content.encode("utf-8")))
+                cp = root / rel
+                try:
+                    cp_r = cp.resolve()
+                except (ValueError, OSError) as exc:
+                    problems.append(f"{rel}: tree child path cannot be resolved "
+                                    f"({exc}); refusing to write (rule {r.id!r})")
+                    continue
+                if not cp_r.is_relative_to(root.resolve()):
+                    problems.append(f"{rel}: tree child resolves outside the project "
+                                    f"root (symlink escape; rule {r.id!r}); refusing to write")
+                    continue
+                writes.append((cp, content.encode("utf-8")))
     root_r = root.resolve()
     for wpath, _ in writes:
         try:
@@ -795,7 +826,7 @@ def apply_writes(writes: list[tuple[Path, bytes]]) -> tuple[int, int]:
     written = 0
     unchanged = 0
     for path, data in writes:
-        if path.is_file() and path.read_bytes() == data:
+        if path.is_file() and not path.is_symlink() and path.read_bytes() == data:
             unchanged += 1
             continue
         _atomic_write(path, data)
