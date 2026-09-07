@@ -2,7 +2,7 @@
 
 **Document Title:** FedRAMP Sector Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.10\
+**Version:** 0.0.11\
 **Date:** 2026-09-07\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -20,7 +20,7 @@
 
 This annex describes how a cloud service provider seeking US Federal Risk and Authorization Management Program (FedRAMP) authorization can use the core GRC library to demonstrate the control set, evidence, and operating expectations FedRAMP requires. The annex maps the library to FedRAMP baselines, identifies applicability triggers, describes the authorization routes, and lists the supplementary documentation FedRAMP requires beyond the library's baseline.
 
-This annex does not reproduce FedRAMP control text, the FedRAMP Tailored guidance, or the assessment documentation templates. Adopting organizations consume those from the official FedRAMP source.
+This annex does not reproduce FedRAMP control text or the FedRAMP-specified certification-package requirements. Adopting organizations consume those from the official FedRAMP source (which, under the 2026 rules, specifies required information rather than providing fixed templates).
 
 ---
 
@@ -39,7 +39,7 @@ The library is not relevant where the organization has no federal customer in pi
 
 ## Authorization route selection
 
-Under the 2026 Consolidated Rules the pre-2026 routes (Joint Authorization Board Provisional ATO and FedRAMP Ready) are discontinued. A cloud service offering's authorization is now described by a **certification profile**: the combination of a certification type, a certification path, and a certification class.
+Under the 2026 Consolidated Rules the pre-2026 routes are superseded: the Joint Authorization Board Provisional ATO is retired, and FedRAMP Ready went legacy in July 2026 (no new submissions, with existing Ready status retained through the transition). A cloud service offering's authorization is now described by a **certification profile**: the combination of a certification type, a certification path, and a certification class.
 
 | Dimension | Options | Basis for choosing |
 | --- | --- | --- |
@@ -133,7 +133,7 @@ The 2026 Consolidated Rules distinguish applicability by certification type (Rev
 
 ## Limitations
 
-This annex is a CC BY-SA 4.0 navigation aid. FedRAMP authorization requires the FedRAMP-mandated artefacts, a federal sponsor or marketplace listing, and engagement with a 3PAO; this library does not produce authorization by itself. Adopting organizations consult the official FedRAMP programme documentation and engage a 3PAO before commencing authorization work. This annex is not a substitute for FedRAMP programme guidance.
+This annex is a CC BY-SA 4.0 navigation aid. FedRAMP authorization requires the FedRAMP-mandated certification-package materials and, depending on the certification path and class, a federal agency sponsor and independent verification and validation by a FedRAMP Recognized assessor; this library does not produce authorization by itself. Adopting organizations consult the official FedRAMP programme documentation before commencing authorization work. This annex is not a substitute for FedRAMP programme guidance.
 
 ---
 
