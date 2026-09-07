@@ -2,7 +2,7 @@
 
 **Document Title:** Acceptance Into Service Policy\
 **Document Type:** Policy\
-**Version:** 1.0.9\
+**Version:** 1.0.10\
 **Date:** 2026-09-07\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -140,7 +140,8 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ISO/IEC 42001:2023 | §8: AI Management System Operation | AI acceptance and risk classification |
-| ISO/IEC 27001:2022 | Annex A.5.36 to A.5.37 | Change and handover controls |
+| ISO/IEC 27001:2022 | Annex A.8.32, A.5.37 | Change and handover controls |
+| ISO/IEC 27001:2022 | Annex A.5.36 | Periodic compliance review of acceptance outcomes by Internal Audit |
 | NIST SP 800-37 Rev. 2 | RMF Authorize step (Tasks R-1 to R-5) | Risk-based production authorization |
 | COBIT 2019 | BAI07: Managed IT Change Acceptance and Transitioning | Controlled transition and handover |
 | COBIT 2019 | DSS01: Managed Operations | Operational readiness validation |
