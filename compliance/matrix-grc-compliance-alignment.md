@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.61\
+**Version:** 1.11.62\
 **Date:** 2026-09-07\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -80,21 +80,21 @@ This matrix is indicative only. It reflects the best available assessment of con
 
 | Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 | ISO/IEC 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Risk | Policy: Enterprise Governance and Risk Management | [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) | GRC-01, GRC-02, GRC-03 | MDS-10, GRC-11, GRC-15 | §5.1, §5.3, §6.1, §6.2 | GV.RM, GV.OC, ID.RA | N/A | Programme governance | Norm §5; Norm §6.1 | N/A | Management commitment; Risk management |
-| Risk | Standard: Enterprise Risk Management | [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md) | GRC-01, GRC-02 | GRC-10, GRC-13, MDS-10 | §6.1.1, §6.1.2, §6.1.3, §8.2, §8.3 | ID.RA, GV.RM | N/A | Risk assessment | Norm §6.1 | N/A | IT security risk management; Risk management |
+| Risk | Policy: Enterprise Governance and Risk Management | [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) | GRC-01, GRC-02, GRC-03 | MDS-10, GRC-11, GRC-15 | §5.1, §5.3, §6.1, §6.2 | ID.RA | N/A | Programme governance | Norm §5; Norm §6.1 | N/A | Management commitment; Risk management |
+| Risk | Standard: Enterprise Risk Management | [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md) | GRC-01, GRC-02 | GRC-10, GRC-13, MDS-10 | §6.1.1, §6.1.2, §6.1.3, §8.2, §8.3 | ID.RA | N/A | Risk assessment | Norm §6.1 | N/A | IT security risk management; Risk management |
 | Risk | Standard: Third-Party and Supply Chain Risk | [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md) | STA-01 | MDS-04 | A.5.19, A.5.20, A.5.21, A.5.22 | GV.SC | Business partner requirements | Third-party security | Norm §6.1; Sec Std §1.1 | Pillar II (Customs-to-Business; Standard 6) | Business partners; IT security risk management |
-| Risk | Procedure: Risk Assessment Methodology | [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md) | GRC-01, GRC-02 | N/A | §6.1.1, §6.1.2, §6.1.3, §8.2, §8.3 | ID.RA, GV.RM | N/A | Risk assessment | Norm §6.1 | N/A | IT security risk management |
-| Risk | Procedure: Risk Register | [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md) | GRC-02 | N/A | §6.1.2, §6.1.3, §8.2, §8.3, §9.1 | ID.RA, GV.RM | N/A | Risk assessment | Norm §6.1; Norm §8.1 | N/A | IT security risk management |
-| Risk | Procedure: Risk Acceptance | [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md) | GRC-02, GRC-04 | N/A | §6.1.3, §8.3 | GV.RM, ID.RA | N/A | N/A | Norm §6.1; Norm §9.2 to §9.3 | N/A | Risk management |
-| Risk | Register: Assurance Map | [`risk/register-assurance-map.md`](../risk/register-assurance-map.md) | A&A-02, A&A-03, GRC-02 | N/A | §9.1, §9.2, A.5.35 | GV.OV, GV.RM, ID.IM | N/A | N/A | Norm §8.1; Norm §8.2 | N/A | IT controls review and testing |
-| Risk | Register: Key Risk Indicators | [`risk/register-key-risk-indicators.md`](../risk/register-key-risk-indicators.md) | GRC-02 | MDS-10, GRC-11, GRC-10 | §6.1, §9.1 | GV.RM, ID.RA, ID.IM | N/A | N/A | Norm §6.1; Norm §8.1 | N/A | IT controls review and testing |
-| Risk | Register: Scenario Risk Catalogue | [`risk/register-scenario-risk-catalogue.md`](../risk/register-scenario-risk-catalogue.md) | GRC-02, BCR-02, A&A-03 | MDS-11, AIS-11, DSP-21 | §6.1, §8.2 | ID.RA, GV.RM, RC.RP | N/A | N/A | Norm §6.1 | N/A | IT security risk management |
-| Risk | Guideline: Quantitative Risk Analysis | [`risk/guideline-quantitative-risk-analysis.md`](../risk/guideline-quantitative-risk-analysis.md) | GRC-02, A&A-03 | N/A | §6.1.2, §8.2 | ID.RA, GV.RM | N/A | N/A | N/A | N/A | IT security risk management |
-| Risk | Template: Enterprise Risk Register | [`risk/template-enterprise-risk-register.md`](../risk/template-enterprise-risk-register.md) | GRC-02, GRC-04 | N/A | §6.1.2, §6.1.3, §9.1 | ID.RA, GV.RM | N/A | N/A | Norm §6.1 | N/A | IT security risk management |
-| Risk | Template: Operational Risk Register | [`risk/template-operational-risk-register.md`](../risk/template-operational-risk-register.md) | GRC-02, GRC-04 | N/A | §6.1.2, §6.1.3, §9.1 | ID.RA, GV.RM | N/A | N/A | Norm §6.1 | N/A | IT security risk management |
-| Risk | Template: Risk Appetite Statement | [`risk/template-risk-appetite-statement.md`](../risk/template-risk-appetite-statement.md) | GRC-02 | N/A | §5.1, §6.1.1, §6.1.3 | GV.RM, GV.OV | N/A | N/A | N/A | N/A | Management commitment; Risk management |
-| Risk | Template: Board Risk Report | [`risk/template-board-risk-report.md`](../risk/template-board-risk-report.md) | GRC-02, GRC-06 | N/A | §5.1, §9.1, §9.3 | GV.RM, GV.OV | N/A | N/A | N/A | N/A | Management commitment |
-| Risk | Annex: AI-Specific Risk Methodology | [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md) | GRC-02, AIS-01, A&A-03 | GRC-10, GRC-15, DSP-21 | §6.1.2, §6.1.3, §8.2 | ID.RA, GV.RM, GV.OC | N/A | N/A | N/A | N/A | IT security risk management |
+| Risk | Procedure: Risk Assessment Methodology | [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md) | GRC-01, GRC-02 | N/A | §6.1.1, §6.1.2, §6.1.3, §8.2, §8.3 | ID.RA | N/A | Risk assessment | Norm §6.1 | N/A | IT security risk management |
+| Risk | Procedure: Risk Register | [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md) | GRC-02 | N/A | §6.1.2, §6.1.3, §8.2, §8.3, §9.1 | ID.RA | N/A | Risk assessment | Norm §6.1; Norm §8.1 | N/A | IT security risk management |
+| Risk | Procedure: Risk Acceptance | [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md) | GRC-02, GRC-04 | N/A | §6.1.3, §8.3 | ID.RA | N/A | N/A | Norm §6.1; Norm §9.2 to §9.3 | N/A | Risk management |
+| Risk | Register: Assurance Map | [`risk/register-assurance-map.md`](../risk/register-assurance-map.md) | A&A-02, A&A-03, GRC-02 | N/A | §9.1, §9.2, A.5.35 | ID.IM | N/A | N/A | Norm §8.1; Norm §8.2 | N/A | IT controls review and testing |
+| Risk | Register: Key Risk Indicators | [`risk/register-key-risk-indicators.md`](../risk/register-key-risk-indicators.md) | GRC-02 | MDS-10, GRC-11, GRC-10 | §6.1, §9.1 | ID.RA, ID.IM | N/A | N/A | Norm §6.1; Norm §8.1 | N/A | IT controls review and testing |
+| Risk | Register: Scenario Risk Catalogue | [`risk/register-scenario-risk-catalogue.md`](../risk/register-scenario-risk-catalogue.md) | GRC-02, BCR-02, A&A-03 | MDS-11, AIS-11, DSP-21 | §6.1, §8.2 | ID.RA, RC.RP | N/A | N/A | Norm §6.1 | N/A | IT security risk management |
+| Risk | Guideline: Quantitative Risk Analysis | [`risk/guideline-quantitative-risk-analysis.md`](../risk/guideline-quantitative-risk-analysis.md) | GRC-02, A&A-03 | N/A | §6.1.2, §8.2 | ID.RA | N/A | N/A | N/A | N/A | IT security risk management |
+| Risk | Template: Enterprise Risk Register | [`risk/template-enterprise-risk-register.md`](../risk/template-enterprise-risk-register.md) | GRC-02, GRC-04 | N/A | §6.1.2, §6.1.3, §9.1 | ID.RA | N/A | N/A | Norm §6.1 | N/A | IT security risk management |
+| Risk | Template: Operational Risk Register | [`risk/template-operational-risk-register.md`](../risk/template-operational-risk-register.md) | GRC-02, GRC-04 | N/A | §6.1.2, §6.1.3, §9.1 | ID.RA | N/A | N/A | Norm §6.1 | N/A | IT security risk management |
+| Risk | Template: Risk Appetite Statement | [`risk/template-risk-appetite-statement.md`](../risk/template-risk-appetite-statement.md) | GRC-02 | N/A | §5.1, §6.1.1, §6.1.3 | N/A | N/A | N/A | N/A | N/A | Management commitment; Risk management |
+| Risk | Template: Board Risk Report | [`risk/template-board-risk-report.md`](../risk/template-board-risk-report.md) | GRC-02, GRC-06 | N/A | §5.1, §9.1, §9.3 | N/A | N/A | N/A | N/A | N/A | Management commitment |
+| Risk | Annex: AI-Specific Risk Methodology | [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md) | GRC-02, AIS-01, A&A-03 | GRC-10, GRC-15, DSP-21 | §6.1.2, §6.1.3, §8.2 | ID.RA | N/A | N/A | N/A | N/A | IT security risk management |
 
 ---
 
