@@ -302,7 +302,7 @@ _170 documents._
 | [risk/template-risk-appetite-statement.md](../risk/template-risk-appetite-statement.md) | Risk Appetite Statement Template | Template | 1.0.5 | 2026-08-24 |
 | [security/framework-cryptographic-key-lifecycle.md](../security/framework-cryptographic-key-lifecycle.md) | Cryptographic Key Lifecycle Management Framework | Framework | 1.0.14 | 2026-09-07 |
 | [security/framework-insider-risk-programme.md](../security/framework-insider-risk-programme.md) | Insider Risk Programme Framework | Framework | 1.0.6 | 2026-07-02 |
-| [security/policy-acceptance-into-service.md](../security/policy-acceptance-into-service.md) | Acceptance Into Service Policy | Policy | 1.0.9 | 2026-09-07 |
+| [security/policy-acceptance-into-service.md](../security/policy-acceptance-into-service.md) | Acceptance Into Service Policy | Policy | 1.0.10 | 2026-09-07 |
 | [security/procedure-cryptographic-key-operations.md](../security/procedure-cryptographic-key-operations.md) | Cryptographic Key Operations Procedure | Procedure | 1.0.5 | 2026-08-29 |
 | [security/procedure-identity-management.md](../security/procedure-identity-management.md) | Identity Management Procedure | Procedure | 2.0.3 | 2026-08-26 |
 | [security/procedure-key-escrow-and-recovery.md](../security/procedure-key-escrow-and-recovery.md) | Key Escrow and Recovery Procedure | Procedure | 1.0.9 | 2026-08-05 |
@@ -310,14 +310,14 @@ _170 documents._
 | [security/procedure-security-disciplinary-process.md](../security/procedure-security-disciplinary-process.md) | Security Disciplinary Process Procedure | Procedure | 1.0.3 | 2026-07-23 |
 | [security/standard-email-security.md](../security/standard-email-security.md) | Email Security Standard | Standard | 1.0.5 | 2026-08-05 |
 | [security/standard-endpoint-hardening.md](../security/standard-endpoint-hardening.md) | Endpoint Hardening Standard | Standard | 1.0.5 | 2026-09-07 |
-| [security/standard-penetration-testing-and-red-team.md](../security/standard-penetration-testing-and-red-team.md) | Penetration Testing and Red Team Standard | Standard | 1.0.8 | 2026-09-01 |
+| [security/standard-penetration-testing-and-red-team.md](../security/standard-penetration-testing-and-red-team.md) | Penetration Testing and Red Team Standard | Standard | 1.0.9 | 2026-09-07 |
 | [security/standard-personnel-security-screening.md](../security/standard-personnel-security-screening.md) | Personnel Security Screening Standard | Standard | 1.0.9 | 2026-09-04 |
 | [security/standard-privileged-access-management.md](../security/standard-privileged-access-management.md) | Privileged Access Management Standard | Standard | 2.0.4 | 2026-09-01 |
-| [security/standard-remote-working-security.md](../security/standard-remote-working-security.md) | Remote Working Security Standard | Standard | 1.0.20 | 2026-08-31 |
+| [security/standard-remote-working-security.md](../security/standard-remote-working-security.md) | Remote Working Security Standard | Standard | 1.0.21 | 2026-09-07 |
 | [security/standard-saas-security-posture-management.md](../security/standard-saas-security-posture-management.md) | SaaS Security Posture Management Standard | Standard | 1.0.4 | 2026-07-02 |
 | [security/standard-security-awareness-and-training.md](../security/standard-security-awareness-and-training.md) | Security Awareness and Training Standard | Standard | 1.0.6 | 2026-09-01 |
 | [security/standard-soc-operating-model.md](../security/standard-soc-operating-model.md) | Security Operations Centre Operating Model Standard | Standard | 1.0.4 | 2026-07-02 |
-| [security/standard-threat-modelling.md](../security/standard-threat-modelling.md) | Threat Modelling Standard | Standard | 1.0.12 | 2026-09-04 |
+| [security/standard-threat-modelling.md](../security/standard-threat-modelling.md) | Threat Modelling Standard | Standard | 1.0.13 | 2026-09-07 |
 | [supply-chain/annex-trade-and-supply-chain-continuity-controls.md](../supply-chain/annex-trade-and-supply-chain-continuity-controls.md) | Trade and Supply-Chain Continuity Controls Annex | Annex | 1.0.1 | 2026-07-02 |
 | [supply-chain/framework-supplier-and-cloud-governance.md](../supply-chain/framework-supplier-and-cloud-governance.md) | Supplier and Cloud Governance Framework | Framework | 1.0.1 | 2026-07-02 |
 | [supply-chain/matrix-supply-chain-security-programme-alignment.md](../supply-chain/matrix-supply-chain-security-programme-alignment.md) | Supply Chain Security Programme Alignment Matrix | Matrix | 1.0.8 | 2026-08-14 |

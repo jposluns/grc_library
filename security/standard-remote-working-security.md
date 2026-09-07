@@ -2,8 +2,8 @@
 
 **Document Title:** Remote Working Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.20\
-**Date:** 2026-08-31\
+**Version:** 1.0.21\
+**Date:** 2026-09-07\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/policy-byod.md`](policy-byod.md)\
@@ -249,7 +249,7 @@ The VPN Required column states requirements by data classification; Section 5.1 
 | --- | --- | --- |
 | ISO/IEC 27001:2022 | A.6.7 Remote working | Primary alignment: this standard operationalizes A.6.7 requirements |
 | ISO/IEC 27001:2022 | A.8.1 User endpoint devices | Device security and compliance baseline requirements |
-| ISO/IEC 27001:2022 | A.6.6 Confidentiality or non-disclosure agreements | Data handling obligations for remote workers |
+| ISO/IEC 27001:2022 | A.5.10 Acceptable use of information and other associated assets | Data handling obligations for remote workers |
 | ISO/IEC 27002:2022 | §6.7 Remote working | Detailed implementation guidance for teleworking controls |
 | NIST SP 800-46 Rev. 2 | §3 Security for Telework and Remote Access Solutions | Network, device, and data handling requirements |
 | NIST SP 800-46 Rev. 2 | §4 Securing Telework Client Devices | Endpoint compliance baseline |
