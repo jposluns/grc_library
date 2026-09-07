@@ -8,3 +8,8 @@ schema_version = 1
 rule = "claude-generated-artefacts-note"
 kind = "block"
 target = ".claude/CLAUDE.md"
+
+[[owned_targets]]
+rule = "language-convention"
+kind = "file"
+target = ".claude/rules/corpus-management/language-convention.md"

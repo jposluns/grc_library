@@ -238,14 +238,11 @@ this discipline guarantees a claim about its CONTENT rests on a real read.
 - Prose style is enforced by `lint-language.py`; do not fight the linter by hand.
 
 ## Language convention
-The library uses **Canadian English first, Commonwealth (UK / Australian) English
-second, other dialects last.** Canadian English shares its `-ize` / `-ization`
-orthography with American English (the Oxford convention adopted in Canadian usage),
-so the `-ize` rule that `tools/lint-language.py` enforces is the Canadian-orthography
-manifestation of the convention, not a generic American mandate. Where Canadian English
-has no opinion, Commonwealth forms are preferred; where neither has an opinion, other
-dialects' usage is acceptable. Em-dashes (`—`) and en-dashes (`–`) are forbidden in
-prose regardless of dialect; use commas, colons, or parentheses.
+Transferred to the Corpus-Management pack (compile PR-3): the convention loads as the
+compiler-generated rule file `.claude/rules/corpus-management/language-convention.md`
+(source of record `.corpus-management/core/rules/language-convention.md`; edit the source
+and regenerate via `python3 tools/build-corpus-management.py`, never the output; gate 99
+owns its bytes).
 
 ## Testing
 - A change is green only when `tools/run_all_audits.sh` reports all gates passing.

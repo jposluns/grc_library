@@ -8,3 +8,9 @@ id = "claude-generated-artefacts-note"
 title = "Generated corpus artefacts are never hand-edited"
 source = "core/policies/generated-artefacts-note.md"
 origin = "grc_library .claude/CLAUDE.md, the Project section's generated-artefacts bullet (transferred verbatim in compile PR-2)"
+
+[[clauses]]
+id = "language-convention"
+title = "Corpus language convention (Canadian-first English, -ize orthography, no em/en dashes)"
+source = "core/rules/language-convention.md"
+origin = "grc_library .claude/CLAUDE.md language-convention section (transferred in compile PR-3; heading raised h2 to standalone h1 with a blank line after, body otherwise verbatim; the CLAUDE.md section is now a pointer stub)"

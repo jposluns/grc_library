@@ -14,3 +14,10 @@ target = ".claude/CLAUDE.md"
 begin = "<!-- corpus-management:begin claude-generated-artefacts-note (compiler-owned; edit .corpus-management/core/policies/generated-artefacts-note.md, then run: python3 tools/build-corpus-management.py) -->"
 end = "<!-- corpus-management:end claude-generated-artefacts-note -->"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "language-convention"
+kind = "file"
+sources = ["core/rules/language-convention.md"]
+target = ".claude/rules/corpus-management/language-convention.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]

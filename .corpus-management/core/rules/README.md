@@ -2,5 +2,7 @@
 
 Sources for the generated `.claude/rules/corpus-management/` tree. The compiler machinery and the
 rules-sync recognition (gate 37 reads the pack's ownership register, never a directory skip) shipped
-fixture-tested in compile PR-2; no rule source has been transferred yet, so this directory is still
-empty. The first clause-transfer wave (PR-3) populates it.
+fixture-tested in compile PR-2; the first clause-transfer wave (compile PR-3) transferred the
+`language-convention.md` rule here (the first live file-kind rule, generated to
+`.claude/rules/corpus-management/language-convention.md` and recognized live by gate 37). Edit a rule
+source here and regenerate via `python3 tools/build-corpus-management.py`, never the generated output.

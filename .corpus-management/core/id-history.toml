@@ -7,3 +7,9 @@ id = "claude-generated-artefacts-note"
 event = "created"
 date = 2026-09-06
 note = "compile PR-2: first generated slice, transferred verbatim from .claude/CLAUDE.md"
+
+[[events]]
+id = "language-convention"
+event = "created"
+date = 2026-09-07
+note = "compile PR-3: first clause-transfer wave; first file-kind rule; first live gate-37 compiler-owned recognition"
