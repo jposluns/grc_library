@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.53\
+**Version:** 1.11.54\
 **Date:** 2026-09-07\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -62,7 +62,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Governance | Framework: Governance Performance and Improvement | [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md) | GRC-06, A&A-03, GRC-03 | GRC-14, GRC-11 | §9.1, §9.3, §10.1 | GV.OV, ID.IM, GV.RM | N/A | N/A | N/A | N/A | N/A |
 | Governance | Framework: Human Capital and Ethical Conduct | [`governance/framework-human-capital-and-ethical-conduct.md`](../governance/framework-human-capital-and-ethical-conduct.md) | HRS-09, HRS-11, HRS-13 | HRS-14, GRC-11 | A.6.3, A.5.4 | PR.AT, GV.RR, GV.PO | N/A | N/A | N/A | N/A | N/A |
 | Governance | Framework: Metrics, Monitoring and Performance Reporting | [`governance/framework-metrics-monitoring-and-performance-reporting.md`](../governance/framework-metrics-monitoring-and-performance-reporting.md) | GRC-02, LOG-03 | MDS-10, GRC-11, GRC-14 | §9.1, A.5.35 | ID.IM, DE.CM, GV.OV | N/A | N/A | Trade-security performance measurement | Pillar II (Customs-to-Business) | IT controls review and testing |
-| Governance | Framework: Sustainability and Responsible Technology | [`governance/framework-sustainability-and-responsible-technology.md`](../governance/framework-sustainability-and-responsible-technology.md) | GRC-01, GRC-02, STA-01 | GRC-10, GRC-11, GRC-12 | §5.1, §6.1 | GV.OC, GV.RM, GV.SC | N/A | N/A | N/A | N/A | N/A |
+| Governance | Framework: Sustainability and Responsible Technology | [`governance/framework-sustainability-and-responsible-technology.md`](../governance/framework-sustainability-and-responsible-technology.md) | GRC-02, STA-01 | GRC-10, GRC-11, GRC-12 | N/A | GV.OC, GV.RM | N/A | N/A | N/A | N/A | N/A |
 | Governance | Guideline: ESG and AI Ethics Disclosure | [`governance/guideline-esg-and-ai-ethics-disclosure.md`](../governance/guideline-esg-and-ai-ethics-disclosure.md) | GRC-01, GRC-06, A&A-01 | GRC-10, GRC-11, GRC-13 | §7.4, §9.1 | GV.OC, GV.OV | N/A | N/A | N/A | N/A | N/A |
 | Governance | Guideline: Minimum Viable Governance Structure | [`governance/guideline-minimum-viable-governance-structure.md`](../governance/guideline-minimum-viable-governance-structure.md) | GRC-01, GRC-06 | N/A | §5.1, §5.3, A.5.2 | GV.OC, GV.RR | N/A | N/A | N/A | N/A | N/A |
 | Governance | Policy: Digital Twin and Simulation Governance | [`governance/policy-digital-twin-and-simulation-governance.md`](../governance/policy-digital-twin-and-simulation-governance.md) | GRC-01, DSP-05, IAM-01, LOG-01 | GRC-10, GRC-13, GRC-15 | §8.1, A.5.15, A.8.15, A.8.24 | GV.OC, PR.AA, PR.DS, DE.CM | N/A | N/A | N/A | N/A | N/A |
