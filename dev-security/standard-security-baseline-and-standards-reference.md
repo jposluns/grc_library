@@ -2,7 +2,7 @@
 
 **Document Title:** Security Baseline and Standards Reference\
 **Document Type:** Standard\
-**Version:** 1.1.24\
+**Version:** 1.1.25\
 **Date:** 2026-09-07\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -223,10 +223,10 @@ A runtime EOL tracking register is maintained by the DevOps lead and reviewed qu
 | --- | --- | --- | --- | --- | --- |
 | Security governance and principles | A.5 | GRC-01 to 06 | PO.1 to PO.4 | N/A | ISO 37301, COBIT |
 | Data classification | A.5.10 to 5.13 | DSP-01 to 07 | N/A | V14 | PIPEDA, Law 25, GDPR |
-| Identity and access | A.5.15 to 5.18 | IAM-01 to 15 | N/A | V6, V8 | PIPEDA, BASC |
+| Identity and access | A.5.15 to 5.18 | IAM-01 to 10, IAM-12 to 15 | N/A | V6, V8 | PIPEDA, BASC |
 | Network security | A.8.20 to 8.23 | I&S-03, I&S-09 | N/A | V12 | CTPAT |
 | Logging and monitoring | A.8.15 to 8.16 | LOG-01 to 13 | RV.1 to RV.2 | V16 | Quebec Law 25 |
-| Cryptography | A.8.24 | CEK-01 to 21 | N/A | V11 | FIPS 140-3 guidance |
+| Cryptography | A.8.24 | CEK-01 to CEK-07, CEK-09 to CEK-21 | N/A | V11 | FIPS 140-3 guidance |
 | Incident response | A.5.26 | SEF-01 to 06 | RV.1 to RV.3 | N/A | PIPEDA, Law 25 |
 | Supplier and third-party | A.5.19 to 5.22 | STA-01 to 09 | N/A | N/A | CTPAT, BASC, WCO SAFE |
 | EOL and vulnerability management | A.8.8 | TVM-01 to 10 | PW.4.4 | N/A | BASC |
