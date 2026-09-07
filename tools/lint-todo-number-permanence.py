@@ -346,8 +346,8 @@ EXEMPT: dict[tuple[str, str], str] = {
     ("P-1.77", "P-1.77 pt2 gate-35 argv-parity"): (
         "PARTIAL CLOSE against a still-open umbrella (DONE #2041, 2026-09-07). P-1.77 "
         "('gate/tool hardening tail') stays live at P-TODO after #2041: pt2 closed the "
-        "parity-argv gate-35 full-invocation (argv) compare between the runner and the "
-        "workflow, leaving pt3 (runtime-pin delegation to the guardrails aiqt-core "
+        "parity-argv gate-35 full-invocation (argv) compare across the workflow, "
+        "runner, and pre-commit, leaving pt3 (runtime-pin delegation to the guardrails aiqt-core "
         "vendor-digest-verify). The DONE heading says 'pt2', so the partial nature is "
         "on the heading itself."
     ),

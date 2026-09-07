@@ -4386,13 +4386,14 @@ class CrossDocNumbersTests(LinterTestCase):
 class AuditGateParityTests(LinterTestCase):
     """tools/lint-audit-gate-parity.py
 
-    Tests both directions:
-
-    1. The current real repository state passes (positive baseline).
-    2. A synthetic source-set with engineered name drift is correctly
-       flagged (negative test). The negative test uses ``--root`` to
-       point the linter at a temp directory whose four surface files
-       declare matching gate counts but a single mismatched gate name.
+    Covers the positive baseline (the real repository state passes) and
+    synthetic-``--root`` negatives for each drift class the gate detects:
+    a mismatched gate NAME; an invocation (argv) drift between the execution
+    surfaces (a missing flag, a wrong flag value, a pre-commit-only
+    divergence now that argv-parity is 3-way, and a shlex-quoted-whitespace
+    difference a naive split would miss). Each synthetic root deliberately
+    trips the unrelated exclusion/delta guards, so the negatives key on the
+    distinctive finding substring, not on the exit code alone.
     """
 
     def test_current_surfaces_pass_parity(self) -> None:
@@ -4572,12 +4573,12 @@ class AuditGateParityTests(LinterTestCase):
         finally:
             shutil.rmtree(synthetic_root, ignore_errors=True)
 
-    def test_matching_argv_with_divergent_precommit_passes(self) -> None:
+    def test_divergent_precommit_argv_flagged(self) -> None:
         # Runner and workflow carry IDENTICAL flags (--strict); pre-commit
-        # carries a DIFFERENT flag. argv-parity compares only the two
-        # full-corpus execution surfaces, so the pre-commit divergence must
-        # NOT be flagged (pre-commit runs a staged-file execution model).
-        synthetic_root = FIXTURE_DIR / "synthetic-parity-argv-match"
+        # carries a DIFFERENT flag. All three are full pass_filenames:false
+        # execution surfaces, so argv-parity is 3-way: the pre-commit
+        # divergence MUST be flagged.
+        synthetic_root = FIXTURE_DIR / "synthetic-parity-argv-precommit-drift"
         import shutil
         if synthetic_root.exists():
             shutil.rmtree(synthetic_root)
@@ -4624,19 +4625,65 @@ class AuditGateParityTests(LinterTestCase):
                 "--root",
                 str(synthetic_root),
             )
-            # The minimal synthetic root trips the unrelated exclusion/delta
-            # guards (it lacks the real workflow setup + delta steps), so we
-            # assert the precise claim: matching runner/workflow argv with a
-            # DIVERGENT pre-commit flag produces NO argv finding (pre-commit is
-            # excluded from argv-parity).
-            self.assertNotIn(
-                "invocation (argv)", result.stdout,
-                f"pre-commit argv divergence must not produce an argv finding.\n"
-                f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
-            )
+            self.assertLinterFails(result, "argv")
         finally:
             shutil.rmtree(synthetic_root, ignore_errors=True)
 
+    def test_synthetic_argv_quoted_whitespace_flagged(self) -> None:
+        # shlex quote-awareness: runner passes --sep with a DOUBLE-space
+        # quoted value, workflow a SINGLE-space one. A naive whitespace split
+        # would collapse both to the same tokens (a false PASS); shlex keeps
+        # the quoted argument as one token, so the drift is correctly flagged.
+        synthetic_root = FIXTURE_DIR / "synthetic-parity-argv-quoted"
+        import shutil
+        if synthetic_root.exists():
+            shutil.rmtree(synthetic_root)
+        (synthetic_root / "governance").mkdir(parents=True)
+        (synthetic_root / ".github" / "workflows").mkdir(parents=True)
+        (synthetic_root / "tools").mkdir(parents=True)
+        try:
+            (synthetic_root / "governance" / "specification-audit-programme.md").write_text(
+                "# Audit Programme\n\n"
+                "## 6. Gate inventory\n\n"
+                "| # | Gate | Script |\n"
+                "| --- | --- | --- |\n"
+                "| 1 | Metadata audit | [`tools/lint-metadata.py`](../tools/lint-metadata.py) |\n\n"
+                "## 7. Next section\n",
+                encoding="utf-8",
+            )
+            (synthetic_root / ".github" / "workflows" / "quality.yml").write_text(
+                "name: Quality\n\n"
+                "on: [push]\n\n"
+                "jobs:\n"
+                "  lint:\n"
+                "    runs-on: ubuntu-latest\n"
+                "    steps:\n"
+                "      - name: Metadata audit\n"
+                "        run: python3 tools/lint-metadata.py --sep 'a b'\n",
+                encoding="utf-8",
+            )
+            (synthetic_root / "tools" / "run_all_audits.sh").write_text(
+                '#!/usr/bin/env bash\n'
+                'run_gate "Metadata audit" python3 tools/lint-metadata.py --sep \'a  b\'\n',
+                encoding="utf-8",
+            )
+            (synthetic_root / ".pre-commit-config.yaml").write_text(
+                "repos:\n"
+                "  - repo: local\n"
+                "    hooks:\n"
+                "      - id: lint-metadata\n"
+                "        name: Metadata audit\n"
+                "        entry: python3 tools/lint-metadata.py --sep 'a b'\n",
+                encoding="utf-8",
+            )
+            result = run_linter(
+                "tools/lint-audit-gate-parity.py",
+                "--root",
+                str(synthetic_root),
+            )
+            self.assertLinterFails(result, "argv")
+        finally:
+            shutil.rmtree(synthetic_root, ignore_errors=True)
 
 class ChangelogLinkCoverageTests(LinterTestCase):
     """tools/lint-changelog-link-coverage.py"""

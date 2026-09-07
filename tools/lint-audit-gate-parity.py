@@ -37,6 +37,11 @@ inventory, this linter confirms that:
     pre-commit hook at the same ordered position.
   - The gate's script path (e.g., tools/lint-metadata.py) matches the
     command in each of the three runtime surfaces.
+  - The invocation arguments (flags after the script path) are identical
+    across the execution surfaces that run the gate. The workflow, runner,
+    and pre-commit hook all invoke each gate with the same flags (a
+    --strict / --enforce / --check present on one surface but not another
+    is a finding); the spec §6 row carries no argv, so it is not compared.
 
 Exit codes:
 
@@ -62,6 +67,7 @@ from __future__ import annotations
 
 import argparse
 import re
+import shlex
 import sys
 from pathlib import Path
 
@@ -133,30 +139,26 @@ SCRIPT_RE = re.compile(r"python3\s+(tools/[A-Za-z0-9_.\-]+\.py)")
 # inventory table's Script column.
 SPEC_SCRIPT_RE = re.compile(r"`(tools/[A-Za-z0-9_.\-]+\.py)`")
 
-# Shell operators that terminate a gate's own argv within a run command; anything
-# at or after one of these belongs to a chained command / redirect, not the gate's
-# flags. Ordered so the longest tokens are searched too (earliest position wins).
-SHELL_OPS = ("&&", "||", ";", "|", ">", "<", "&")
-
-
-def _extract_argv(command: str, script_path: str) -> str:
-    """Return the normalized argv (flags/positional args) a run command passes to
-    ``script_path``: everything after the script token, truncated at the first shell
-    operator, whitespace-collapsed. ``python3 tools/x.py --a  --b && y`` -> ``--a --b``;
-    a bare ``python3 tools/x.py`` -> ``""``. Used only to compare the two full-corpus
-    EXECUTION surfaces (runner, workflow) with each other; the spec §6 row carries no
-    argv and pre-commit runs a different (staged-file) execution model, so neither is
-    argv-compared."""
+def _extract_argv(command: str, script_path: str) -> tuple[str, ...]:
+    """Return the shell-tokenized argv a run command passes to ``script_path``:
+    the tokens after the script path, parsed quote-aware via ``shlex`` so a quoted
+    argument (spaces or shell metacharacters inside quotes) is ONE token compared
+    faithfully, and repeated whitespace between tokens is irrelevant.
+    ``python3 tools/x.py --a  --b`` -> ``('--a', '--b')``; ``--sep 'a|b'`` ->
+    ``('--sep', 'a|b')``; a bare ``python3 tools/x.py`` -> ``()``. On a malformed
+    command (unbalanced quotes) it falls back to a whitespace split, so the command
+    surfaces as a mismatch to review rather than crashing the gate. Used to compare
+    the three EXECUTION surfaces (workflow, runner, pre-commit) with each other; the
+    spec §6 row carries no argv, so it is not argv-compared.
+    """
     idx = command.find(script_path)
     if idx < 0:
-        return ""
+        return ()
     tail = command[idx + len(script_path):]
-    cut = len(tail)
-    for op in SHELL_OPS:
-        pos = tail.find(op)
-        if pos >= 0:
-            cut = min(cut, pos)
-    return " ".join(tail[:cut].split())
+    try:
+        return tuple(shlex.split(tail))
+    except ValueError:
+        return tuple(tail.split())
 
 
 # Inventory-table row pattern. Captures the gate number, the gate name,
@@ -294,8 +296,8 @@ def parse_runner(path: Path) -> list[tuple[int, str, str, str]]:
     return entries
 
 
-def parse_precommit(path: Path) -> list[tuple[int, str, str]]:
-    """Return [(line_number, hook_name, script_path), ...] from .pre-commit-config.yaml.
+def parse_precommit(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
+    """Return [(line_number, hook_name, script_path, argv), ...] from .pre-commit-config.yaml.
 
     Looks for blocks of `- id: ... / name: ... / entry: ...`. Captures
     the (name, entry) pair, recording the line number of the name field.
@@ -303,7 +305,7 @@ def parse_precommit(path: Path) -> list[tuple[int, str, str]]:
     id_re = re.compile(r"^\s*-\s*id:\s*(.+?)\s*$")
     name_re = re.compile(r"^\s*name:\s*(.+?)\s*$")
     entry_re = re.compile(r"^\s*entry:\s*(.+?)\s*$")
-    entries: list[tuple[int, str, str]] = []
+    entries: list[tuple[int, str, str, tuple[str, ...]]] = []
     pending_name: tuple[int, str] | None = None
     with path.open("r", encoding="utf-8") as fh:
         for lineno, raw in enumerate(fh, 1):
@@ -329,7 +331,10 @@ def parse_precommit(path: Path) -> list[tuple[int, str, str]]:
                         f"does not match the `python3 tools/X.py ...` "
                         f"pattern"
                     )
-                entries.append((hook_lineno, hook_name, script_match.group(1)))
+                entries.append((
+                    hook_lineno, hook_name, script_match.group(1),
+                    _extract_argv(m_entry.group(1), script_match.group(1)),
+                ))
                 pending_name = None
     if not entries:
         raise ParseError(
@@ -565,7 +570,7 @@ def main(argv: list[str]) -> int:
     for idx, (spec_line, gate_num, spec_name, spec_script) in enumerate(spec):
         wf_line, wf_name, wf_script, wf_argv = workflow[idx]
         ru_line, ru_name, ru_script, ru_argv = runner[idx]
-        pc_line, pc_name, pc_script = precommit[idx]
+        pc_line, pc_name, pc_script, pc_argv = precommit[idx]
 
         if wf_name != spec_name:
             findings.append(
@@ -605,22 +610,41 @@ def main(argv: list[str]) -> int:
                 f"pre-commit({PRECOMMIT_PATH}:{pc_line}) = {pc_script!r}"
             )
 
-        # Invocation (argv) parity between the two full-corpus EXECUTION
-        # surfaces. The spec §6 row carries no argv, and pre-commit runs a
-        # different (staged-file) execution model, so only runner and workflow
-        # are argv-compared. A gate must run with identical flags in both, so a
-        # --strict / --enforce / --check that lands in one surface but not the
-        # other is caught here rather than silently diverging.
-        # Compare argv only once both scripts already match the canonical
-        # spec script, so a script drift (reported above) does not co-report a
-        # confusing argv finding computed against two different scripts.
-        if wf_script == spec_script and ru_script == spec_script and wf_argv != ru_argv:
+        # Invocation (argv) parity across the THREE execution surfaces
+        # (workflow, runner, pre-commit). The spec §6 row carries no argv, so
+        # it is not argv-compared. All pre-commit hooks are pass_filenames:false,
+        # so their authored entry flags are directly comparable. Surfaces are
+        # grouped by the script they run; within each group of two or more
+        # surfaces that agree on the script, the flags must be identical, so a
+        # --strict / --enforce / --check that lands on one surface but not the
+        # others is caught rather than silently diverging. Comparing flags of
+        # two DIFFERENT scripts is meaningless (a script drift is already
+        # reported by the script-drift checks above), so the grouping is by
+        # script rather than a blanket three-way equality.
+        exec_surfaces = (
+            (WORKFLOW_PATH, wf_line, wf_script, wf_argv),
+            (RUNNER_PATH, ru_line, ru_script, ru_argv),
+            (PRECOMMIT_PATH, pc_line, pc_script, pc_argv),
+        )
+        by_script: dict[str, list[tuple[str, int, tuple[str, ...]]]] = {}
+        for surf_path, surf_line, surf_script, surf_argv in exec_surfaces:
+            by_script.setdefault(surf_script, []).append(
+                (surf_path, surf_line, surf_argv)
+            )
+        for surf_script, members in by_script.items():
+            if len(members) < 2:
+                continue
+            if len({argv for (_, _, argv) in members}) == 1:
+                continue
+            detail = "; ".join(
+                f"{mp}:{ml} = {(' '.join(margv) or '<no args>')!r}"
+                for (mp, ml, margv) in members
+            )
             findings.append(
-                f"Gate {gate_num} invocation (argv) drift: "
-                f"runner({RUNNER_PATH}:{ru_line}) = {(ru_argv or '<no args>')!r}; "
-                f"workflow({WORKFLOW_PATH}:{wf_line}) = {(wf_argv or '<no args>')!r}. "
-                f"The two full-corpus execution surfaces must invoke each "
-                f"gate with identical flags."
+                f"Gate {gate_num} invocation (argv) drift: execution surfaces "
+                f"running {surf_script!r} disagree on flags: {detail}. Every "
+                f"execution surface that runs a gate must invoke it with "
+                f"identical flags."
             )
 
     # Additive 3.99 (closing PR #1087) guards: cross-check the exclusion allow-lists against a
