@@ -2,8 +2,8 @@
 
 **Document Title:** IT Onboarding and Offboarding Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.7\
-**Date:** 2026-08-24\
+**Version:** 1.0.8\
+**Date:** 2026-09-07\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -289,7 +289,7 @@ The following checklist must be completed for every departure. IT Operations is 
 | ISO/IEC 27001:2022 | A.6.2 Terms and conditions of employment | Access provisioning tied to accepted terms; acknowledgement required before access granted |
 | ISO/IEC 27001:2022 | A.6.5 Responsibilities after termination or change of employment | Deprovisioning timelines, device return, data handling post-departure |
 | ISO/IEC 27001:2022 | A.5.18 Access rights | Role-based provisioning, excess access removal, and access review on role change |
-| ISO/IEC 27001:2022 | A.8.11 Data masking; A.8.12 Data leakage prevention | Data retrieval and forwarding controls on departure |
+| ISO/IEC 27001:2022 | A.5.11 Return of assets; A.8.12 Data leakage prevention | Data retrieval and forwarding controls on departure |
 | ISO/IEC 27002:2022 | §6.5 Responsibilities after termination or change of employment | Detailed implementation guidance for offboarding controls |
 | NIST SP 800-53 Rev. 5 | PS-4 Personnel Termination | Account suspension, credential revocation, device return timelines |
 | NIST SP 800-53 Rev. 5 | PS-5 Personnel Transfer | Access review and excess access removal on role change |
