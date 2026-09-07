@@ -381,6 +381,14 @@ EXEMPT: dict[tuple[str, str], str] = {
         "pervasive range-sweep findings to the family-vs-spec methodology decision. The DONE "
         "heading says 'batch 4a', so the partial nature is on the heading itself."
     ),
+    ("P-1.60", "P-1.60 batch 5"): (
+        "PARTIAL CLOSE against a still-open umbrella (DONE #2048, 2026-09-07). P-1.60 "
+        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
+        "batch 5 fixed 5 register-to-document parity mis-fits in the document-index register "
+        "(incl. the non-existent IPY-05); the governance per-document tables audited clean, and "
+        "the other domains' tables + the range-sweep methodology decision remain. The DONE "
+        "heading says 'batch 5', so the partial nature is on the heading itself."
+    ),
     ("P-3.202", "P-3.202 synchronous-model cutover-leftover"): (
         "PARTIAL CLOSE (provisional; DONE:3186, #1361). P-3.202 is live at P-TODO "
         "and its detail says the comprehensive sweep is INCOMPLETE, so #1361 is "
