@@ -2,8 +2,8 @@
 
 **Document Title:** Cloud Security Configuration Baseline\
 **Document Type:** Standard\
-**Version:** 1.4.16\
-**Date:** 2026-08-31\
+**Version:** 1.4.17\
+**Date:** 2026-09-07\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md)\
@@ -200,7 +200,7 @@ To reduce the manual correlation an auditor would otherwise perform, the baselin
 
 | Baseline section | ISO/IEC 27001:2022 | CIS benchmark area | NIST SP 800-53 |
 |---|---|---|---|
-| §4 Enterprise identity provider baseline | A.8.9, A.8.24 | Identity and Access Management | CM-2, CM-6 |
+| §4 Enterprise identity provider baseline | A.8.9, A.8.5, A.8.2 | Identity and Access Management | CM-2, CM-6 |
 | §5 Cloud productivity platform baseline | A.8.9, A.8.23 | Email and collaboration security; storage; endpoint protection | CM-2, CM-6 |
 | §6 Cloud platform baseline | A.8.9, A.8.24 | Identity and Access Management; Logging and Monitoring; Networking; Storage | CM-2, CM-6 |
 

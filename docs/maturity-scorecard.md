@@ -61,7 +61,7 @@ _110 documents._
 | [compliance/logistics/policy-basc-information-security.md](../compliance/logistics/policy-basc-information-security.md) | BASC Information Security Policy | Policy | 1.2.13 | 2026-09-01 |
 | [compliance/logistics/register-basc-it-compliance-kpis.md](../compliance/logistics/register-basc-it-compliance-kpis.md) | BASC IT Compliance Monitoring and KPIs | Register | 1.2.6 | 2026-09-01 |
 | [compliance/logistics/register-basc-it-responsibilities.md](../compliance/logistics/register-basc-it-responsibilities.md) | BASC IT and Information Security Responsibilities | Register | 1.1.3 | 2026-09-01 |
-| [compliance/matrix-grc-compliance-alignment.md](../compliance/matrix-grc-compliance-alignment.md) | GRC Library Compliance Alignment Matrix | Matrix | 1.11.55 | 2026-09-07 |
+| [compliance/matrix-grc-compliance-alignment.md](../compliance/matrix-grc-compliance-alignment.md) | GRC Library Compliance Alignment Matrix | Matrix | 1.11.56 | 2026-09-07 |
 | [compliance/procedure-control-testing.md](../compliance/procedure-control-testing.md) | Control Testing Procedure | Procedure | 1.1.5 | 2026-09-03 |
 | [compliance/standard-internal-audit.md](../compliance/standard-internal-audit.md) | Internal Audit Standard | Standard | 1.2.7 | 2026-09-05 |
 | [compliance/template-audit-evidence-package.md](../compliance/template-audit-evidence-package.md) | Audit Evidence Package Template | Template | 1.1.1 | 2026-08-29 |
@@ -83,7 +83,7 @@ _110 documents._
 | [governance/register-canonical-citations.md](../governance/register-canonical-citations.md) | Canonical Citations Register | Register | 1.5.71 | 2026-09-05 |
 | [governance/register-coverage-gaps.md](../governance/register-coverage-gaps.md) | Coverage Gap Analysis Register | Register | 1.1.40 | 2026-09-06 |
 | [governance/register-digital-trust-and-assurance-metrics.md](../governance/register-digital-trust-and-assurance-metrics.md) | Digital Trust and Assurance Metrics Register | Register | 1.1.3 | 2026-08-30 |
-| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.170 | 2026-09-07 |
+| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.171 | 2026-09-07 |
 | [governance/register-glossary.md](../governance/register-glossary.md) | Glossary and Acronym Index | Register | 1.4.18 | 2026-08-24 |
 | [governance/register-key-terms-and-definitions.md](../governance/register-key-terms-and-definitions.md) | Key Terms and Definitions Register | Register | 1.1.6 | 2026-08-31 |
 | [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.5.11 | 2026-09-05 |
@@ -92,16 +92,16 @@ _110 documents._
 | [governance/standard-maturity-assessment-methodology.md](../governance/standard-maturity-assessment-methodology.md) | Maturity Assessment Methodology Standard | Standard | 1.1.1 | 2026-09-05 |
 | [governance/standard-records-retention-and-destruction.md](../governance/standard-records-retention-and-destruction.md) | Records Retention and Destruction Standard | Standard | 1.4.22 | 2026-09-04 |
 | [operations/procedure-change-management-and-configuration-control.md](../operations/procedure-change-management-and-configuration-control.md) | Change Management and Configuration Control Procedure | Procedure | 1.3.6 | 2026-09-01 |
-| [operations/procedure-endpoint-management-and-device-compliance.md](../operations/procedure-endpoint-management-and-device-compliance.md) | Endpoint Management and Device Compliance Procedure | Procedure | 1.3.11 | 2026-09-01 |
+| [operations/procedure-endpoint-management-and-device-compliance.md](../operations/procedure-endpoint-management-and-device-compliance.md) | Endpoint Management and Device Compliance Procedure | Procedure | 1.3.12 | 2026-09-07 |
 | [operations/procedure-media-handling-and-transport.md](../operations/procedure-media-handling-and-transport.md) | Media Handling and Transport Procedure | Procedure | 1.3.12 | 2026-09-02 |
 | [operations/procedure-security-monitoring-and-alert-management.md](../operations/procedure-security-monitoring-and-alert-management.md) | Security Monitoring and Alert Management Procedure | Procedure | 1.3.15 | 2026-09-01 |
 | [operations/procedure-threat-intelligence-and-siem-operations.md](../operations/procedure-threat-intelligence-and-siem-operations.md) | Threat Intelligence and SIEM Operations Procedure | Procedure | 1.3.10 | 2026-09-01 |
 | [operations/register-it-operations-kpis.md](../operations/register-it-operations-kpis.md) | IT Operations Key Performance Indicators Register | Register | 1.1.4 | 2026-08-26 |
 | [operations/standard-certificate-authority-management.md](../operations/standard-certificate-authority-management.md) | Certificate Authority Management Standard | Standard | 1.3.11 | 2026-08-31 |
-| [operations/standard-cloud-security-configuration-baseline.md](../operations/standard-cloud-security-configuration-baseline.md) | Cloud Security Configuration Baseline | Standard | 1.4.16 | 2026-08-31 |
+| [operations/standard-cloud-security-configuration-baseline.md](../operations/standard-cloud-security-configuration-baseline.md) | Cloud Security Configuration Baseline | Standard | 1.4.17 | 2026-09-07 |
 | [operations/standard-network-security-and-segmentation.md](../operations/standard-network-security-and-segmentation.md) | Network Security and Segmentation Standard | Standard | 1.4.10 | 2026-09-07 |
 | [operations/standard-physical-security-of-it-infrastructure.md](../operations/standard-physical-security-of-it-infrastructure.md) | Physical Security of IT Infrastructure Standard | Standard | 1.3.6 | 2026-08-16 |
-| [operations/standard-production-security-requirements.md](../operations/standard-production-security-requirements.md) | Production Security Requirements | Standard | 1.1.15 | 2026-09-07 |
+| [operations/standard-production-security-requirements.md](../operations/standard-production-security-requirements.md) | Production Security Requirements | Standard | 1.1.16 | 2026-09-07 |
 | [privacy/charter-privacy-management-programme.md](../privacy/charter-privacy-management-programme.md) | Privacy Management Programme Charter | Charter | 1.5.14 | 2026-09-04 |
 | [privacy/jurisdictions/annex-privacy-brazil.md](../privacy/jurisdictions/annex-privacy-brazil.md) | Brazil Privacy Regulatory Requirements | Annex | 1.1.8 | 2026-08-14 |
 | [privacy/jurisdictions/annex-privacy-canada.md](../privacy/jurisdictions/annex-privacy-canada.md) | Canada Privacy Regulatory Requirements | Annex | 1.1.21 | 2026-09-04 |
@@ -245,7 +245,7 @@ _170 documents._
 | [operations/register-asset-inventory.md](../operations/register-asset-inventory.md) | Asset Inventory Register | Register | 1.0.9 | 2026-08-30 |
 | [operations/register-it-security-operations.md](../operations/register-it-security-operations.md) | IT Security Operations Register | Register | 1.0.3 | 2026-08-01 |
 | [operations/standard-capacity-and-performance-management.md](../operations/standard-capacity-and-performance-management.md) | Capacity and Performance Management Standard | Standard | 1.0.5 | 2026-07-14 |
-| [operations/standard-it-financial-management.md](../operations/standard-it-financial-management.md) | IT Financial Management Standard | Standard | 1.0.6 | 2026-09-04 |
+| [operations/standard-it-financial-management.md](../operations/standard-it-financial-management.md) | IT Financial Management Standard | Standard | 1.0.7 | 2026-09-07 |
 | [operations/standard-service-level-management.md](../operations/standard-service-level-management.md) | Service Level Management Standard | Standard | 1.0.6 | 2026-07-23 |
 | [operations/standard-site-reliability-engineering.md](../operations/standard-site-reliability-engineering.md) | Site Reliability Engineering Standard | Standard | 1.0.3 | 2026-07-02 |
 | [privacy/annex-privacy-jurisdiction-index.md](../privacy/annex-privacy-jurisdiction-index.md) | Privacy Jurisdiction Index | Annex | 1.0.38 | 2026-09-06 |

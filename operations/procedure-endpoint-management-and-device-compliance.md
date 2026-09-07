@@ -2,8 +2,8 @@
 
 **Document Title:** Endpoint Management and Device Compliance Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.11\
-**Date:** 2026-09-01\
+**Version:** 1.3.12\
+**Date:** 2026-09-07\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md)\
@@ -302,7 +302,7 @@ The following metrics are reported to the CISO monthly and reviewed at the quart
 | Asset inventory and lifecycle | A.5.9, A.8.1 | SP 800-124 Rev. 2 §5.1.2 Survey Current Inventory | UEM-04 | BAI09.01, BAI09.03 |
 | Endpoint protection deployment | A.8.7 | SP 800-124 Rev. 2 §4.2 Enterprise Mobile Security Technologies | UEM-09 | DSS05.03 |
 | Configuration compliance and hardening | A.8.9 | SP 800-124 Rev. 2 §5.3.3 Set Policy, Device Configuration, and Provision | UEM-05 | DSS05.03 |
-| Policy-based access-control enforcement | A.5.15, A.8.2 | SP 800-124 Rev. 2 §5.3.2 Integration of EMM into the Enterprise Service Infrastructure | UEM-05 | DSS05.04 |
+| Policy-based access-control enforcement | A.5.15 | SP 800-124 Rev. 2 §5.3.2 Integration of EMM into the Enterprise Service Infrastructure | UEM-05 | DSS05.04 |
 | Patch and vulnerability management | A.8.8 | SP 800-124 Rev. 2 §4.3.6 Rapid Adoption of Software Updates | UEM-07, TVM-06 | DSS05.07 |
 | Mobile and BYOD | A.8.1, A.6.7 | SP 800-124 Rev. 2 §5.1.3 Choose Deployment Model | UEM-01 | DSS05.03 |
 | Decommissioning and media sanitization | A.8.10 | SP 800-124 Rev. 2 §5.5 Dispose of and/or Reuse Device | DSP-02 | BAI09.03 |

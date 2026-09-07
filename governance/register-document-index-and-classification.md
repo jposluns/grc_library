@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.170\
+**Version:** 1.27.171\
 **Date:** 2026-09-07\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -305,7 +305,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Operations | Standard | Site Reliability Engineering Standard | [`operations/standard-site-reliability-engineering.md`](../operations/standard-site-reliability-engineering.md) | Chief Information Officer | Annual | Google SRE Book and Workbook, ITIL 4, ISO/IEC 20000-1, ISO/IEC 27001 Annex A.5.29, ISO 22301, DORA Arts 5-16, NIST CSF 2.0 | template |
 | Operations | Standard | Capacity and Performance Management Standard | [`operations/standard-capacity-and-performance-management.md`](../operations/standard-capacity-and-performance-management.md) | Chief Information Officer | Annual | ITIL 4 capacity and performance management, ISO/IEC 20000-1, FinOps Foundation, Google SRE, ISO/IEC 27001 Annex A.8.6, NIST SP 800-53 SC-5/CP-2 | template |
 | Operations | Procedure | Release Management Procedure | [`operations/procedure-release-management.md`](../operations/procedure-release-management.md) | Chief Information Officer | Annual | ITIL 4 release and deployment management, ISO/IEC 20000-1, ISO/IEC 27001 Annex A.8.32, NIST SP 800-218 SSDF, OWASP SAMM, Google SRE, DORA accelerate metrics | template |
-| Operations | Standard | IT Financial Management Standard | [`operations/standard-it-financial-management.md`](../operations/standard-it-financial-management.md) | Chief Information Officer | Annual | FinOps Foundation, ITIL 4 service financial management, ISO/IEC 20000-1, COBIT 2019 APO06, ISO/IEC 27001 Annex A.5.13/A.5.14, ISO 14001, GAAP/IFRS | template |
+| Operations | Standard | IT Financial Management Standard | [`operations/standard-it-financial-management.md`](../operations/standard-it-financial-management.md) | Chief Information Officer | Annual | FinOps Foundation, ITIL 4 service financial management, ISO/IEC 20000-1, COBIT 2019 APO06, ISO/IEC 27001 Annex A.5.9, ISO 14001, GAAP/IFRS | template |
 | Operations | Annex | OT Security Overview Annex | [`operations/ot/annex-ot-security-overview.md`](../operations/ot/annex-ot-security-overview.md) | Chief Information Security Officer | Annual | IEC 62443 family, NIST SP 800-82 Rev. 3, IEC 61511 / IEC 61508, NERC CIP | template |
 | Operations | Standard | OT/ICS Security Standard | [`operations/ot/standard-ot-ics-security.md`](../operations/ot/standard-ot-ics-security.md) | Chief Information Security Officer | Annual | IEC 62443 (1-1, 2-1, 2-4, 3-2, 3-3, 4-1, 4-2), NIST SP 800-82 Rev. 3, IEC 61511 / IEC 61508, NERC CIP, ISO/IEC 27019:2024 | template |
 | Operations | Procedure | OT Incident Response Procedure | [`operations/ot/procedure-ot-incident-response.md`](../operations/ot/procedure-ot-incident-response.md) | Chief Information Security Officer | Annual | IEC 62443-2-1, NIST SP 800-82 Rev. 3, NIST SP 800-61 Rev. 3, ISO/IEC 27035, IEC 61511, NERC CIP-008, EU NIS 2 | template |

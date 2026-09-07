@@ -462,6 +462,13 @@ EXEMPT: dict[tuple[str, str], str] = {
         "A.5.1->A.5.36); the remaining domains ISO + non-CCM columns + range-sweep decision remain. "
         "The DONE heading says 'batch 16', so the partial nature is on the heading itself."
     ),
+    ("P-1.60", "P-1.60 batch 17"): (
+        "PARTIAL CLOSE against a still-open umbrella (DONE #2059, 2026-09-07). P-1.60 "
+        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
+        "batch 17 fixed 4 ISO Annex A mis-fits in operations (A.8.2 drop, A.5.13/14->A.5.9 multi-surface, "
+        "A.8.24->A.8.5/A.8.2, A.8.23 range-drop); privacy ISO + non-CCM columns + range-sweep decision remain. "
+        "The DONE heading says 'batch 17', so the partial nature is on the heading itself."
+    ),
     ("P-3.202", "P-3.202 synchronous-model cutover-leftover"): (
         "PARTIAL CLOSE (provisional; DONE:3186, #1361). P-3.202 is live at P-TODO "
         "and its detail says the comprehensive sweep is INCOMPLETE, so #1361 is "
