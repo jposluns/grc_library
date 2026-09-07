@@ -1,11 +1,12 @@
 # Corpus-Management pack (`.corpus-management/`)
 
-**Status: ACTIVE (umbrella 4.1, compile PR-3).** This directory is the structure of a standalone,
+**Status: ACTIVE (umbrella 4.1, compile PR-4).** This directory is the structure of a standalone,
 adoptable Corpus-Management pack. PR-2 shipped the compiler, the first generated slice (the CLAUDE.md
 generated-artefacts instruction block, transferred verbatim), and the mandatory drift gate (grc gate
 99); PR-3 transferred the first authoring rule (the corpus language convention) as a generated
-file-kind rule, the first live use of the rules-sync gate's compiler-owned recognition. No corpus
-gates or hooks have been transferred into the pack registers yet.
+file-kind rule, the first live use of the rules-sync gate's compiler-owned recognition; PR-4
+transferred the second authoring rule (the corpus authoring conventions) as the second file-kind
+rule. No corpus gates or hooks have been transferred into the pack registers yet.
 
 ## What this is
 A **thin, adoptable layer** for keeping a documentation corpus internally consistent (metadata shape,
@@ -48,8 +49,9 @@ disabled in the skeleton.
 ## Rollout
 - **PR-1:** inert scaffold + the root-anchored scan-boundary exemption + scope tests. SHIPPED.
 - **PR-2:** the compiler + the first generated vertical slice + the mandatory drift gate (grc gate 99). SHIPPED.
-- **PR-3 (this):** the first clause-transfer wave: the `language-convention` file-kind rule generated to `.claude/rules/corpus-management/` (first live gate-37 recognition), plus the tree-child containment hardening (routed from #2038). SHIPPED.
-- **PR-4 (next):** further clause transfers (per-clause file-kind rules); the tree-kind decision is deferred to the wave that needs it (the containment fix now precedes it).
+- **PR-3:** the first clause-transfer wave: the `language-convention` file-kind rule generated to `.claude/rules/corpus-management/` (first live gate-37 recognition), plus the tree-child containment hardening (routed from #2038). SHIPPED.
+- **PR-4 (this):** the second clause-transfer wave: the `authoring-conventions` file-kind rule (the corpus authoring conventions, transferred from the CLAUDE.md `## Conventions` section), the pack's second file-kind rule. SHIPPED.
+- **PR-5 (next):** further clause transfers (per-clause file-kind rules); the tree-kind decision is deferred to the wave that needs it.
 - **Phase-2b: SKIP.** **Gate-98 (vendored-core digest): CORPUS interim.** **Publication: deferred (P4).**
 
 See `core/manifest.toml` for the machine-readable pack descriptor.
