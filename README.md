@@ -5,8 +5,8 @@
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **SPDX-License-Identifier:** CC-BY-SA-4.0\
-**Library Version:** 2026.09.773 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.10.916 (semantic per-document version for this file)
+**Library Version:** 2026.09.774 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.10.917 (semantic per-document version for this file)
 
 ---
 
