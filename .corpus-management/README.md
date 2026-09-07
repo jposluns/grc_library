@@ -3,7 +3,9 @@
 **Status: ACTIVE (umbrella 4.1, compile PR-3).** This directory is the structure of a standalone,
 adoptable Corpus-Management pack. PR-2 shipped the compiler, the first generated slice (the CLAUDE.md
 generated-artefacts instruction block, transferred verbatim), and the mandatory drift gate (grc gate
-99); no corpus gates or hooks have been transferred into the pack registers yet.
+99); PR-3 transferred the first authoring rule (the corpus language convention) as a generated
+file-kind rule, the first live use of the rules-sync gate's compiler-owned recognition. No corpus
+gates or hooks have been transferred into the pack registers yet.
 
 ## What this is
 A **thin, adoptable layer** for keeping a documentation corpus internally consistent (metadata shape,
