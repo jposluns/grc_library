@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.171\
+**Version:** 1.27.172\
 **Date:** 2026-09-07\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -156,7 +156,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Privacy | Register | Automated Decision-Making and Profiling Register | [`privacy/register-automated-decision-making.md`](../privacy/register-automated-decision-making.md) | Data Protection Officer | Quarterly | GDPR Art 22, EU AI Act Arts 6/14/26, LGPD Art 20, PIPL Art 24, NIST AI RMF | template |
 | Privacy | Register | Cookie and Tracker Register | [`privacy/register-cookie-and-tracker.md`](../privacy/register-cookie-and-tracker.md) | Data Protection Officer | Quarterly | ePrivacy Directive Art 5(3), UK PECR, GDPR, LGPD, PIPL, CCPA/CPRA | template |
 | Privacy | Standard | Pseudonymization and Anonymization Standard | [`privacy/standard-pseudonymization-and-anonymization.md`](../privacy/standard-pseudonymization-and-anonymization.md) | Data Protection Officer | Annual | GDPR Art 4(5)/25/Recital 26, ISO/IEC 20889, ISO/IEC 27559, NIST SP 800-188, EDPB Opinion 05/2014 | template |
-| Privacy | Standard | Presence Inference Limitations Standard | [`privacy/standard-presence-inference-limitations.md`](../privacy/standard-presence-inference-limitations.md) | Data Protection Officer | Annual | ISO/IEC 27001 Annex A.8.16/A.5.34, NIST CSF GV.OC, CSA CCM DSP-12/DSP-08, GDPR Art 5/22/88 | template |
+| Privacy | Standard | Presence Inference Limitations Standard | [`privacy/standard-presence-inference-limitations.md`](../privacy/standard-presence-inference-limitations.md) | Data Protection Officer | Annual | ISO/IEC 27001 Annex A.5.34/A.5.10, NIST CSF GV.OC, CSA CCM DSP-12/DSP-08, GDPR Art 5/22/88 | template |
 | Privacy | Standard | Network Telemetry and DPI Controls Standard | [`privacy/standard-network-telemetry-and-dpi-controls.md`](../privacy/standard-network-telemetry-and-dpi-controls.md) | Data Protection Officer | Annual | ISO/IEC 27001 Annex A.5.34, NIST CSF GV.OC/GV.PO, CSA CCM DSP-08/DSP-12, GDPR Art 5/6/9/25 | template |
 | Privacy | Framework | Children's Data Framework | [`privacy/framework-childrens-data.md`](../privacy/framework-childrens-data.md) | Data Protection Officer | Annual | GDPR Art 8, UK ICO AADC, COPPA, California AB 1394, LGPD Art 14, PIPL Art 31, EU AI Act Art 5(1)(b), UNCRC GC25 | template |
 | Privacy | Framework | Privacy by Design Framework | [`privacy/framework-privacy-by-design.md`](../privacy/framework-privacy-by-design.md) | Data Protection Officer | Annual | GDPR Art 25/Recital 78/Art 42, UK GDPR Art 25, Privacy by Design (Cavoukian), ISO/IEC 27701:2025, ISO/IEC 29134:2023 | template |
