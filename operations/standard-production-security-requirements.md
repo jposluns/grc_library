@@ -2,8 +2,8 @@
 
 **Document Title:** Production Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.18\
-**Date:** 2026-09-07\
+**Version:** 1.1.19\
+**Date:** 2026-09-08\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](../dev-security/standard-security-quick-reference.md)\
@@ -82,7 +82,7 @@ The following must be evidenced before any system promotes to production. These 
 7. **SIEM:** Critical event categories visible with correct alert routing.
 8. **Break-glass:** Emergency accounts functional; alerts fire on use.
 
-**Framework:** CSA CCM LOG-01 through LOG-14, SEF-01 through SEF-10
+**Framework:** CSA CCM LOG-01 through LOG-07, LOG-09 through LOG-14, SEF-01 through SEF-10
 
 ### 4.3 Incident response obligations
 
@@ -111,7 +111,7 @@ Authenticated vulnerability scans must run at minimum weekly. Results must be re
 
 All production changes must be executed through the approved IaC pipeline. Direct manual production changes are prohibited except in declared incidents and must be codified within 24 hours. Every CAB-reviewed change must include a tested rollback plan.
 
-**Framework:** CSA CCM CCC-01 through CCC-09
+**Framework:** CSA CCM CCC-01 through CCC-04, CCC-06 through CCC-09
 
 ---
 
@@ -158,7 +158,7 @@ The following must be maintained as living artefacts:
 
 **Endpoint protection and SIEM:** Enterprise endpoint protection must be deployed on all servers. Hybrid server management is required for all on-premises servers enrolled in cloud management. All endpoint protection alerts must be forwarded to the SIEM. SIEM workspace deletion is restricted to break-glass roles.
 
-**Framework:** CSA CCM I&S-01 through I&S-09, LOG-01 through LOG-14
+**Framework:** CSA CCM I&S-01 through I&S-05, I&S-07 through I&S-09, LOG-01 through LOG-07, LOG-09 through LOG-14
 
 ---
 
@@ -216,11 +216,11 @@ The EOL classification policy and remediation SLAs are defined in the Security B
 
 | Control Area | ISO/IEC 27001:2022 | CSA CCM v4.1 | NIST SP 800-53 | NIST SSDF |
 | --- | --- | --- | --- | --- |
-| Network security | A.8.20 to 8.22 | I&S-01 to 09 | SC-7, SC-8 | N/A |
+| Network security | A.8.20 to 8.22 | I&S-01 to I&S-05, I&S-07 to I&S-09 | SC-7, SC-8 | N/A |
 | Backup and recovery | A.8.13 to 8.14 | BCR-08 to 10 | CP-9, CP-10 | N/A |
-| Monitoring and incident response | A.8.15 to 8.16, A.5.24 to 5.28 | LOG-01 to 14, SEF-01 to 10 | IR-1 to 8, SI-4 | RV.1 |
+| Monitoring and incident response | A.8.15 to 8.16, A.5.24 to 5.28 | LOG-01 to LOG-07, LOG-09 to LOG-14, SEF-01 to 10 | IR-1 to 8, SI-4 | RV.1 |
 | Vulnerability management | A.8.8 | TVM-03 to 12 | RA-5, SI-2 | PO.5 |
-| Change management | A.8.32 | CCC-01 to 09 | CM-3, CM-5 | N/A |
+| Change management | A.8.32 | CCC-01 to CCC-04, CCC-06 to CCC-09 | CM-3, CM-5 | N/A |
 | Certificate management | A.8.24 | CEK-01 to CEK-07, CEK-09 to CEK-21 | SC-12, SC-17 | N/A |
 | Access control | A.5.15 to 5.18 | IAM-01 to 10, IAM-12 to 15 | AC-2, AC-6 | PW.6 |
 | EOL and lifecycle | A.8.8 | TVM-01 | SA-22 | PO.5 |
