@@ -6,6 +6,8 @@ ownership, and clause registers against it (any disagreement is a configuration 
 renders every declared output deterministically: sorted-rule order, strict UTF-8 with LF endings, no
 timestamps, digests, or environment values in any output, atomic temp-file-plus-rename writes.
 
+Gate engines also live here as pack source of record. `gate_lint_language.py` is the engine for grc gate 2 (the language-and-style audit), transferred verbatim in compile PR-5 with only wiring deltas; its project entry point is the thin `tools/lint-language.py` wrapper, which supplies the grc scan roots. Gate 99 owns the compiler and generated outputs, NOT the gate-engine or wrapper bytes: the engine is authored pack source (like the compiler), and the wrapper is hand-maintained project wiring; the linter-regression suite (gate 36) and the gate register's entry-point existence check cover them instead.
+
 Modes and exit codes:
 
 - default (no flag): generate; writes owned outputs that changed. Generation never deletes and never

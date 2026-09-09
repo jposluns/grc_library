@@ -28,7 +28,7 @@ repos:
         entry: python3 tools/lint-language.py
         language: system
         pass_filenames: false
-        files: '(\.md$|^tools/build-(narrative-registry|portal|taxonomy)\.py$)'
+        files: '(\.md$|^tools/build-(narrative-registry|portal|taxonomy)\.py$|^tools/lint-language\.py$|^\.corpus-management/tools/gate_lint_language\.py$)'
 
       - id: lint-links
         name: Repository-internal link audit
