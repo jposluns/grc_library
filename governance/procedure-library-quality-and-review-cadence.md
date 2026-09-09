@@ -2,8 +2,8 @@
 
 **Document Title:** Library Quality and Review Cadence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.24\
-**Date:** 2026-08-28\
+**Version:** 1.0.25\
+**Date:** 2026-09-09\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/template-document-review-record.md`](template-document-review-record.md), [`specification-master-project.md`](../specification-master-project.md), [`specification-ingestion.md`](../specification-ingestion.md)\
@@ -196,7 +196,6 @@ The Governance Library Maintainer is not the sole reviewer; the role coordinates
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 27001:2022 | A.5.36 Compliance with policies; A.5.37 Documented operating procedures | Information security cross-walk |
 | ISO 9001:2015 | §7.5 Documented information; §9 Performance evaluation | Quality management |
 | COBIT 2019 | APO11 Managed Quality | Enterprise quality management |
 | ITIL 4 | Continual improvement practice | Service management |

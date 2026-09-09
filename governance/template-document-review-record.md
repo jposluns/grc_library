@@ -2,8 +2,8 @@
 
 **Document Title:** Document Review Record Template\
 **Document Type:** Template\
-**Version:** 1.0.7\
-**Date:** 2026-08-20\
+**Version:** 1.0.8\
+**Date:** 2026-09-09\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md), [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md)\
@@ -180,7 +180,7 @@ Actions that exceed a defined ageing threshold escalate per the library quality 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ISO 9001:2015 | §7.5 Documented information; §9.3 Management review | Quality management |
-| ISO/IEC 27001:2022 | A.5.36 Compliance with policies; A.5.37 Documented operating procedures; A.5.35 Independent review of information security | Information security cross-walk |
+| ISO/IEC 27001:2022 | A.5.35 Independent review of information security | Information security cross-walk |
 | ISO 19011:2026 | Guidelines for auditing management systems | Audit and review baseline |
 | ISO 30301 | Management systems for records | Records discipline |
 | ISO/IEC 42001:2023 | §9.3 Management review | AI management system cross-walk |
