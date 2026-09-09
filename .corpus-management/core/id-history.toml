@@ -21,3 +21,9 @@ id = "authoring-conventions"
 event = "created"
 date = 2026-09-07
 note = "compile PR-4: second clause-transfer wave; transferred from the CLAUDE.md Conventions section"
+
+[[events]]
+id = "lint-language"
+event = "created"
+date = 2026-09-09
+note = "compile PR-5: gate-wave D0 opened; first gate transfer (grc gate 2; Model-2 wrapper, engine pack source of record, enforces the language-convention clause)"

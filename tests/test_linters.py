@@ -16754,8 +16754,9 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
     """The .corpus-management/ pack (compile PR-2) is ACTIVE and internally consistent: the
     manifest and every register parse, register paths resolve inside the pack, generation is
     enabled with the ruleset / ownership register / manifest summary in three-way agreement,
-    the clause and id-history registers are non-empty and well-formed, the gate and hook
-    registers are still empty (no corpus gates transferred yet), and pack Python lives only
+    the clause and id-history registers are non-empty and well-formed, the gate register
+    carries its first transfer (lint-language, compile PR-5) and the hook register is still
+    empty, and pack Python lives only
     under .corpus-management/tools/. Rewrites the PR-1b CorpusManagementScaffoldInertnessTests
     as the activation-shape class: the scan-boundary exemption removes corpus-content checks
     from the pack, so WITHOUT this test a malformed manifest, a register desync, or misplaced
@@ -16773,7 +16774,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.3.0", "compile PR-4 bumps the pack version to 0.3.0")
+        self.assertEqual(man["pack"]["version"], "0.4.0", "compile PR-5 bumps the pack version to 0.4.0")
 
     def test_generation_enabled_and_summary_matches_ruleset(self):
         man = self._load("core/manifest.toml")
@@ -16803,7 +16804,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
             "clauses.toml": ("clauses", True),
             "id-history.toml": ("events", True),
             "ownership.toml": ("owned_targets", True),
-            "gates.toml": ("gates", False),
+            "gates.toml": ("gates", True),
             "hooks.toml": ("hooks", False),
         }
         for key, rel in man["registers"].items():
@@ -16835,6 +16836,20 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         for c in clauses:
             src = self.PACK / c["source"]
             self.assertTrue(src.is_file(), f"clause {c['id']!r} source missing: {c['source']}")
+
+    def test_gates_wellformed(self):
+        gates = self._load("core/gates.toml")["gates"]
+        clause_ids = {c["id"] for c in self._load("core/clauses.toml")["clauses"]}
+        ids = [g["id"] for g in gates]
+        self.assertEqual(len(ids), len(set(ids)), "gate ids must be unique")
+        self.assertFalse(set(ids) & clause_ids, "gate ids must not collide with clause ids")
+        for g in gates:
+            src = self.PACK / g["source"]
+            self.assertTrue(src.is_file(), f"gate {g['id']!r} engine source missing: {g['source']}")
+            self.assertIn(g["enforces"], clause_ids,
+                          f"gate {g['id']!r} enforces unknown clause {g['enforces']!r}")
+            self.assertTrue((REPO_ROOT / g["entry_point"]).is_file(),
+                            f"gate {g['id']!r} entry_point missing: {g['entry_point']}")
 
     def test_pack_python_only_under_tools(self):
         pys = [p.relative_to(self.PACK) for p in self.PACK.rglob("*.py")
