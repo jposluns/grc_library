@@ -212,7 +212,7 @@ For Cordova: same rule via `<preference name="AndroidInsecureFileModeEnabled" va
 
 ## Over-the-air updates (Section 15)
 
-Apple and Google permit OTA of web assets (HTML, CSS, JS) but not native code, subject to the store's review policies. Ionic Appflow Live Updates is one option; Capacitor Live Updates is another. Both must satisfy the Section 15 OTA rule.
+Apple and Google permit OTA of web assets (HTML, CSS, JS) but not native code, subject to the store's review policies. Ionic Appflow Live Updates is one option; Capacitor Live Updates is another; [Capgo](https://capgo.app) (`@capgo/capacitor-updater`) is a third Capacitor OTA path (channels, signed updates, rollback, any CI/CD). All must satisfy the Section 15 OTA rule.
 
 ```ts
 // CORRECT: signed Live Update channels
