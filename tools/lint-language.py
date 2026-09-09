@@ -31,12 +31,27 @@ import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys
 from lint_common import AUDITED_DOMAIN_DIRS, iter_scan_roots_markdown  # noqa: E402  # grc-config/store, stays local
 
 
-def main(argv: list[str] | None = None) -> int:
-    argv = list(sys.argv[1:] if argv is None else argv)
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
     pack_tools = str(PACK_TOOLS)
     if pack_tools not in sys.path:
         sys.path.insert(0, pack_tools)
     import gate_lint_language  # the pack-owned engine (source of record)
+    return gate_lint_language
+
+
+def iter_markdown_files(paths: list[str]) -> list:
+    """The effective markdown scope: lint_common scan-root iteration plus the
+    engine's GENERATED_DOCS filter. Retained on the wrapper for the scan-scope
+    regression and the language-linter test, which observe this scope directly."""
+    engine = _engine()
+    return engine.filter_markdown_files(
+        iter_scan_roots_markdown(paths, repo_root=REPO_ROOT), REPO_ROOT)
+
+
+def main(argv: list[str] | None = None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    gate_lint_language = _engine()
 
     if argv:
         md_input = list(argv)
