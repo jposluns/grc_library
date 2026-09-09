@@ -517,6 +517,21 @@ EXEMPT: dict[tuple[str, str], str] = {
         "+ CEK-08 (security-baseline:229, developer-security-requirements:158 + :352), held-title-verified. "
         "CSF-cyber-scope + AICM + I&S/IPY residual still open. DONE says 'batch 23'."
     ),
+    ("P-1.60", "P-1.60 CCM-Hybrid batch-1 -"): (
+        "PARTIAL CLOSE against a still-open umbrella (DONE #2081, 2026-09-08). P-1.60 "
+        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
+        "CCM-Hybrid batch-1 removed provider-to-tenant CCM members (I&S-06/STA-04/DSP-18) from the "
+        "matrix cells and kept I&S-06 on the genuine multi-tenant container row (codex caught the "
+        "over-strip). NIST 800-53 / COBIT columns and other framework work remain. DONE heading "
+        "says 'CCM-Hybrid batch-1'."
+    ),
+    ("P-1.60", "P-1.60 CCM-Hybrid batch-2 -"): (
+        "PARTIAL CLOSE against a still-open umbrella (DONE #2082, 2026-09-08). P-1.60 "
+        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
+        "CCM-Hybrid batch-2 excised wrong-direction range members (LOG-08/CCC-05/I&S-06) across 5 "
+        "docs and added the family-range mapping convention. NIST 800-53 / COBIT columns and other "
+        "framework work remain. DONE heading says 'CCM-Hybrid batch-2'."
+    ),
     ("P-3.202", "P-3.202 synchronous-model cutover-leftover"): (
         "PARTIAL CLOSE (provisional; DONE:3186, #1361). P-3.202 is live at P-TODO "
         "and its detail says the comprehensive sweep is INCOMPLETE, so #1361 is "
