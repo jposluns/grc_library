@@ -7173,6 +7173,73 @@ class MatrixControlCodeTests(LinterTestCase):
         self.assertLinterFails(result, "aicm-unknown")
 
 
+class CcmProviderMemberInRangeTests(LinterTestCase):
+    """tools/lint-ccm-provider-member-in-range.py"""
+
+    def test_family_range_sweeping_provider_member_flagged(self) -> None:
+        fixture = self.make_fixture(
+            "fake-ccm-provider-member-range.md",
+            "| Control | CSA CCM v4.1 |\n"
+            "| --- | --- |\n"
+            "| Sample | CCC-01 to 09 |\n",
+        )
+        result = run_linter(
+            "tools/lint-ccm-provider-member-in-range.py", fixture
+        )
+        self.assertLinterFails(result, "CCC-05")
+
+    def test_fenced_or_blockquoted_example_not_flagged(self) -> None:
+        for label, body in (
+            ("fenced", "```text\n| S | CCC-01 to 09 |\n```\n"),
+            ("blockquote", "> historical bad example: CCC-01 to 09\n"),
+            ("inline", "The range `CCC-01 to 09` is a bad example.\n"),
+        ):
+            fixture = self.make_fixture(
+                f"fake-ccm-provider-member-{label}.md", body,
+            )
+            result = run_linter(
+                "tools/lint-ccm-provider-member-in-range.py", fixture
+            )
+            self.assertEqual(
+                result.returncode, 0,
+                f"a {label} example must not be flagged.\n"
+                f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+
+    def test_mixed_family_range_not_flagged(self) -> None:
+        fixture = self.make_fixture(
+            "fake-ccm-provider-member-mixed-family.md",
+            "| Control | CSA CCM v4.1 |\n"
+            "| --- | --- |\n"
+            "| Sample | CCC-01 to LOG-09 |\n",
+        )
+        result = run_linter(
+            "tools/lint-ccm-provider-member-in-range.py", fixture
+        )
+        self.assertEqual(
+            result.returncode, 0,
+            f"a malformed mixed-family range must not be read as CCC.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_split_range_excluding_provider_member_passes(self) -> None:
+        fixture = self.make_fixture(
+            "fake-ccm-provider-member-split-range.md",
+            "| Control | CSA CCM v4.1 |\n"
+            "| --- | --- |\n"
+            "| Sample | CCC-01 to 04, CCC-06 to 09 |\n",
+        )
+        result = run_linter(
+            "tools/lint-ccm-provider-member-in-range.py", fixture
+        )
+        self.assertEqual(
+            result.returncode,
+            0,
+            f"a split range excluding CCC-05 must pass.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+
 class DocumentControlCodeTests(LinterTestCase):
     """tools/lint-document-control-codes.py (per-document NIST CSF 2.0 codes)"""
 
@@ -16104,6 +16171,7 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
         "lint-document-date-staleness.py",
         "lint-version-bump-recency.py",
         "lint-bookkeeping-parity.py",
+        "lint-ccm-provider-member-in-range.py",
         "lint-metadata.py",
         "lint-document-control-codes.py",
         "lint-document-iso-annex-a.py",
@@ -16314,6 +16382,8 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
                 return selected if paths else list(self.reads)
             if name == "sweep-preflight-scanner.py":
                 return m.iter_targets()
+            if name == "lint-ccm-provider-member-in-range.py":
+                return m.scan_targets()
             if name == "detect-collection-candidates.py":
                 return m.iter_corpus_markdown()
             if name == "audit-claim-precision.py":
@@ -16363,6 +16433,7 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
                 self.assert_scope_delta(name, [], expect_pack=name not in (
                     "lint-document-control-codes.py", "lint-document-iso-annex-a.py",
                     "lint-metadata-line-breaks.py", "lint-document-date-staleness.py",
+                    "lint-ccm-provider-member-in-range.py",
                 ))
         orphan = self.load("lint-orphan-documents.py")
         for collect in (orphan.find_artefacts, orphan.find_all_markdown):

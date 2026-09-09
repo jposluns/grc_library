@@ -13,6 +13,7 @@
       "lint-alignment-citation-existence.py",
       "lint-bookkeeping-parity.py",
       "lint-ccm-aicm-citations.py",
+      "lint-ccm-provider-member-in-range.py",
       "lint-cobit-iso31000-citations.py",
       "lint-cobit-title-text.py",
       "lint-cross-doc-numbers.py",
