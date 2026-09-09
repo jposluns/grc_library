@@ -1,3 +1,16 @@
-# Gate register (skeleton). PR-1 installs no gates.
+# Gate register: corpus gates whose ENGINE is pack-owned source of record.
+# Each entry names the pack engine source (validated to exist inside the pack),
+# the clause it enforces (validated against core/clauses.toml), and the
+# project-side entry point (the thin Model-2 wrapper; hand-maintained, not
+# compiler-generated, so the drift gate does not own its bytes). The compiler
+# fail-closes (exit 2) on a malformed or duplicate entry, a dangling source, an
+# unknown enforced clause, or a missing entry point.
 schema_version = 1
-gates = []
+
+[[gates]]
+id = "lint-language"
+title = "Language and style audit (Canadian-first -ize orthography, dash ban, ensure-that, heading case)"
+source = "tools/gate_lint_language.py"
+enforces = "language-convention"
+entry_point = "tools/lint-language.py"
+origin = "grc_library tools/lint-language.py, grc gate 2 (engine transferred in compile PR-5, check logic and vocabulary verbatim; the project tool became a thin Model-2 wrapper supplying the grc scan roots)"

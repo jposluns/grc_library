@@ -16754,8 +16754,9 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
     """The .corpus-management/ pack (compile PR-2) is ACTIVE and internally consistent: the
     manifest and every register parse, register paths resolve inside the pack, generation is
     enabled with the ruleset / ownership register / manifest summary in three-way agreement,
-    the clause and id-history registers are non-empty and well-formed, the gate and hook
-    registers are still empty (no corpus gates transferred yet), and pack Python lives only
+    the clause and id-history registers are non-empty and well-formed, the gate register
+    carries its first transfer (lint-language, compile PR-5) and the hook register is still
+    empty, and pack Python lives only
     under .corpus-management/tools/. Rewrites the PR-1b CorpusManagementScaffoldInertnessTests
     as the activation-shape class: the scan-boundary exemption removes corpus-content checks
     from the pack, so WITHOUT this test a malformed manifest, a register desync, or misplaced
@@ -16773,7 +16774,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.3.0", "compile PR-4 bumps the pack version to 0.3.0")
+        self.assertEqual(man["pack"]["version"], "0.4.0", "compile PR-5 bumps the pack version to 0.4.0")
 
     def test_generation_enabled_and_summary_matches_ruleset(self):
         man = self._load("core/manifest.toml")
@@ -16803,7 +16804,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
             "clauses.toml": ("clauses", True),
             "id-history.toml": ("events", True),
             "ownership.toml": ("owned_targets", True),
-            "gates.toml": ("gates", False),
+            "gates.toml": ("gates", True),
             "hooks.toml": ("hooks", False),
         }
         for key, rel in man["registers"].items():
@@ -16835,6 +16836,20 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         for c in clauses:
             src = self.PACK / c["source"]
             self.assertTrue(src.is_file(), f"clause {c['id']!r} source missing: {c['source']}")
+
+    def test_gates_wellformed(self):
+        gates = self._load("core/gates.toml")["gates"]
+        clause_ids = {c["id"] for c in self._load("core/clauses.toml")["clauses"]}
+        ids = [g["id"] for g in gates]
+        self.assertEqual(len(ids), len(set(ids)), "gate ids must be unique")
+        self.assertFalse(set(ids) & clause_ids, "gate ids must not collide with clause ids")
+        for g in gates:
+            src = self.PACK / g["source"]
+            self.assertTrue(src.is_file(), f"gate {g['id']!r} engine source missing: {g['source']}")
+            self.assertIn(g["enforces"], clause_ids,
+                          f"gate {g['id']!r} enforces unknown clause {g['enforces']!r}")
+            self.assertTrue((REPO_ROOT / g["entry_point"]).is_file(),
+                            f"gate {g['id']!r} entry_point missing: {g['entry_point']}")
 
     def test_pack_python_only_under_tools(self):
         pys = [p.relative_to(self.PACK) for p in self.PACK.rglob("*.py")
@@ -16888,22 +16903,30 @@ class CorpusManagementCompilerTests(LinterTestCase):
     EMPTY_CLAUSES = "schema_version = 1\nclauses = []\n"
 
     def _make_root(self, *, gensrc, ownership, owned_targets,
-                   clauses=None, sources=None, files=None):
+                   clauses=None, sources=None, files=None,
+                   gates_toml=None, gates_register_line=None):
         root = FIXTURE_DIR / "synthetic-corpus-mgmt"
         if root.exists():
             shutil.rmtree(root)
         self.addCleanup(shutil.rmtree, root, True)
         pack = root / ".corpus-management"
         (pack / "core").mkdir(parents=True)
+        _gline = gates_register_line if gates_register_line is not None else (
+            'gates = "core/gates.toml"\n' if gates_toml is not None else ""
+        )
         (pack / "core" / "manifest.toml").write_text(
             "schema_version = 1\n\n[registers]\n"
             'ownership = "core/ownership.toml"\n'
-            'clauses = "core/clauses.toml"\n\n'
+            'clauses = "core/clauses.toml"\n'
+            f"{_gline}"
+            "\n"
             "[generation]\nenabled = true\n"
             'ruleset = "gensrc.toml"\n'
             f"owned_targets = [{owned_targets}]\n",
             encoding="utf-8",
         )
+        if gates_toml is not None:
+            (pack / "core" / "gates.toml").write_text(gates_toml, encoding="utf-8")
         (pack / "gensrc.toml").write_text(gensrc, encoding="utf-8")
         (pack / "core" / "ownership.toml").write_text(ownership, encoding="utf-8")
         (pack / "core" / "clauses.toml").write_text(
@@ -16972,6 +16995,63 @@ class CorpusManagementCompilerTests(LinterTestCase):
         result = self._run(self._block_root(doubled), "--check")
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
         self.assertIn("expected exactly one begin", result.stdout)
+
+    # --- Gate-register validation (compile PR-5; the D2 slice codex hardened). ---
+    GATES_VALID = 'schema_version = 1\n\n[[gates]]\nid = "note-gate"\ntitle = "Note gate"\nsource = "tools/gate_note.py"\nenforces = "note-clause"\nentry_point = "tools/note_wrapper.py"\norigin = "test"\n'
+
+    def _gate_root(self, *, gates_toml=None, gates_register_line=None):
+        return self._make_root(
+            gensrc=self.BLOCK_GENSRC,
+            ownership=self.BLOCK_OWNERSHIP,
+            owned_targets='"HANDBOOK.md"',
+            clauses='schema_version = 1\n\n[[clauses]]\nid = "note-clause"\nsource = "core/policies/note.md"\n',
+            sources={
+                "core/policies/note.md": self.NOTE_SOURCE,
+                "tools/gate_note.py": '# engine\n',
+            },
+            files={
+                "HANDBOOK.md": self.HANDBOOK_IN_SYNC,
+                "tools/note_wrapper.py": '# wrapper\n',
+            },
+            gates_toml=gates_toml,
+            gates_register_line=gates_register_line,
+        )
+
+    def test_gate_register_wellformed_passes(self):
+        # Positive control: a valid gates register (engine in pack, enforces a
+        # real clause, entry_point a real project file) passes.
+        result = self._run(self._gate_root(gates_toml=self.GATES_VALID), "--check")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_gate_entry_point_relative_escape_flagged(self):
+        # entry_point with a ".." component escapes the project root.
+        bad = self.GATES_VALID.replace(
+            'entry_point = "tools/note_wrapper.py"',
+            'entry_point = "../note_wrapper.py"',
+        )
+        result = self._run(self._gate_root(gates_toml=bad), "--check")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("escapes the project", result.stdout + result.stderr)
+
+    def test_gate_entry_point_absolute_escape_flagged(self):
+        # An absolute entry_point escapes the project root (pathlib join
+        # discards the left operand); the old is_file()-only check missed it.
+        bad = self.GATES_VALID.replace(
+            'entry_point = "tools/note_wrapper.py"',
+            'entry_point = "/etc/passwd"',
+        )
+        result = self._run(self._gate_root(gates_toml=bad), "--check")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("escapes the project", result.stdout + result.stderr)
+
+    def test_gate_register_non_string_declared_flagged(self):
+        # A declared-but-non-string [registers].gates value fails closed
+        # (validate-when-declared), never silently treated as absent.
+        result = self._run(
+            self._gate_root(gates_register_line="gates = 123\n"), "--check"
+        )
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("must be a string path", result.stdout + result.stderr)
 
     def test_reversed_sentinels_flagged(self):
         reversed_doc = (

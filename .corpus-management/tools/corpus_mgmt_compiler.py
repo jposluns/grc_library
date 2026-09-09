@@ -545,6 +545,83 @@ def load_and_validate(root: Path, pack_root: Path) -> tuple[list[Rule], list[str
             problems.append(f"{clause_rel}: clause {c['id']!r} source does not exist "
                             f"inside the pack: {c['source']}")
 
+    # --- Gate-register well-formedness (validate-when-declared; compile PR-5). ---
+    # The gates register is validated only when the manifest declares it, so the
+    # minimal-adoption pack shape (ownership + clauses only) stays valid. When
+    # declared, each gate names its pack ENGINE source (validated to exist inside
+    # the pack), the clause it enforces (validated against the clause register),
+    # and the project-side entry point (the thin wrapper; existence-checked, its
+    # content deliberately not compiler-owned). Ids share ONE namespace with
+    # clauses (and future hooks/rules): a gate id may not collide with a clause id.
+    gates_rel = registers.get("gates")
+    if gates_rel is not None and not isinstance(gates_rel, str):
+        problems.append("core/manifest.toml: [registers].gates must be a string path")
+    elif isinstance(gates_rel, str):
+        gates_path = _contained(pack_root, gates_rel)
+        if gates_path is None:
+            problems.append(f"core/manifest.toml: [registers].gates escapes the pack "
+                            f"root: {gates_rel}")
+        else:
+            gates_reg = _load_toml(gates_path, problems, gates_rel)
+            if gates_reg is not None:
+                _gsv = gates_reg.get("schema_version")
+                if not isinstance(_gsv, int) or isinstance(_gsv, bool) or _gsv != 1:
+                    problems.append(f"{gates_rel}: schema_version must be the integer 1")
+                gentries = gates_reg.get("gates")
+                if not isinstance(gentries, list):
+                    problems.append(f"{gates_rel}: 'gates' must be a list")
+                    gentries = []
+                gate_keys = {"id", "title", "source", "enforces", "entry_point", "origin"}
+                seen_gate_ids: set[str] = set()
+                for i, g in enumerate(gentries):
+                    where = f"{gates_rel}: gates[{i}]"
+                    if not isinstance(g, dict):
+                        problems.append(f"{where}: must be a table")
+                        continue
+                    unknown = set(g) - gate_keys
+                    if unknown:
+                        problems.append(f"{where}: unknown key(s): {', '.join(sorted(unknown))}")
+                    gid = g.get("id")
+                    if not isinstance(gid, str) or not RULE_ID_RE.match(gid):
+                        problems.append(f"{where}: 'id' must be a string matching "
+                                        f"^[a-z0-9][a-z0-9-]*$")
+                        gid = None
+                    elif gid in seen_gate_ids:
+                        problems.append(f"{where}: duplicate gate id {gid!r}")
+                    elif gid in seen_clause_ids:
+                        problems.append(f"{where}: gate id {gid!r} collides with a clause "
+                                        f"id (clause / gate / hook / rule ids share one "
+                                        f"namespace)")
+                    if isinstance(gid, str):
+                        seen_gate_ids.add(gid)
+                    gsource = g.get("source")
+                    if not isinstance(gsource, str):
+                        problems.append(f"{where}: 'source' must be a pack-relative path "
+                                        f"string")
+                    else:
+                        gsrc = _contained(pack_root, gsource)
+                        if gsrc is None or not gsrc.is_file():
+                            problems.append(f"{where}: 'source' engine does not exist "
+                                            f"inside the pack: {gsource}")
+                    enforces = g.get("enforces")
+                    if not isinstance(enforces, str):
+                        problems.append(f"{where}: 'enforces' must be a clause id string")
+                    elif enforces not in seen_clause_ids:
+                        problems.append(f"{where}: 'enforces' names an unknown clause id "
+                                        f"{enforces!r}")
+                    entry_point = g.get("entry_point")
+                    if not isinstance(entry_point, str):
+                        problems.append(f"{where}: 'entry_point' must be a project-relative "
+                                        f"path string")
+                    else:
+                        ep = _contained(root, entry_point)
+                        if ep is None:
+                            problems.append(f"{where}: 'entry_point' escapes the project "
+                                            f"root: {entry_point}")
+                        elif not ep.is_file():
+                            problems.append(f"{where}: 'entry_point' wrapper does not exist: "
+                                            f"{entry_point}")
+
     # --- Source content load (strict UTF-8, LF-only, one trailing newline). ---
     for r in rules:
         if r.kind == "tree":
