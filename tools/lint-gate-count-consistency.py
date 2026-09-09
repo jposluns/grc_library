@@ -57,7 +57,7 @@ bare "<word> rules/skills/gates" is NOT a pattern.
   P12  ``<collection> to <word>``    the growth-narrative TO-target, where
        the collection keyword (rules/skills/gates) selects which count is
        checked; the only skill-count check (a bare "<word> skills" is too
-       FP-prone). A word->number map (1-99) resolves the captured word.
+       FP-prone). A word->number map (1-100) resolves the captured word.
 
 A ``## Version history`` section is treated as a frozen change log and
 skipped (its rows narrate past changes and legitimately quote superseded
@@ -98,7 +98,7 @@ RULES_DIR = REPO_ROOT / "guardrails" / "governance"
 SKILLS_DIR = REPO_ROOT / "guardrails" / "skills"
 
 # Word-number map for the word-form count patterns (P9-P12 below), covering
-# 1-99: enough for every current collection size with ample headroom (exact
+# 1-100: enough for every current collection size with ample headroom (exact
 # counts drift as collections grow; the canonical values are parsed live). Built from units, teens, and tens plus hyphenated
 # compounds (e.g. "fifty-eight"). Used both to build the regex alternation
 # and to resolve a captured word to its integer value.
@@ -122,6 +122,8 @@ def _build_word_to_num() -> dict[str, int]:
     m.update(_UNITS)
     m.update(_TEENS)
     m.update(_TENS)
+    m["one hundred"] = 100
+    m["one-hundred"] = 100
     for tens_word, tens_val in _TENS.items():
         for unit_word, unit_val in _UNITS.items():
             m[f"{tens_word}-{unit_word}"] = tens_val + unit_val

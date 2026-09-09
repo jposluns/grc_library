@@ -173,6 +173,9 @@ jobs:
       - name: Matrix control-code validity audit
         run: python3 tools/lint-matrix-control-codes.py
 
+      - name: CCM provider-member range-direction audit
+        run: python3 tools/lint-ccm-provider-member-in-range.py
+
       - name: Bookkeeping-parity audit
         run: python3 tools/lint-bookkeeping-parity.py
 
