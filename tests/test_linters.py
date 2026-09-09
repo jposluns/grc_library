@@ -16903,22 +16903,30 @@ class CorpusManagementCompilerTests(LinterTestCase):
     EMPTY_CLAUSES = "schema_version = 1\nclauses = []\n"
 
     def _make_root(self, *, gensrc, ownership, owned_targets,
-                   clauses=None, sources=None, files=None):
+                   clauses=None, sources=None, files=None,
+                   gates_toml=None, gates_register_line=None):
         root = FIXTURE_DIR / "synthetic-corpus-mgmt"
         if root.exists():
             shutil.rmtree(root)
         self.addCleanup(shutil.rmtree, root, True)
         pack = root / ".corpus-management"
         (pack / "core").mkdir(parents=True)
+        _gline = gates_register_line if gates_register_line is not None else (
+            'gates = "core/gates.toml"\n' if gates_toml is not None else ""
+        )
         (pack / "core" / "manifest.toml").write_text(
             "schema_version = 1\n\n[registers]\n"
             'ownership = "core/ownership.toml"\n'
-            'clauses = "core/clauses.toml"\n\n'
+            'clauses = "core/clauses.toml"\n'
+            f"{_gline}"
+            "\n"
             "[generation]\nenabled = true\n"
             'ruleset = "gensrc.toml"\n'
             f"owned_targets = [{owned_targets}]\n",
             encoding="utf-8",
         )
+        if gates_toml is not None:
+            (pack / "core" / "gates.toml").write_text(gates_toml, encoding="utf-8")
         (pack / "gensrc.toml").write_text(gensrc, encoding="utf-8")
         (pack / "core" / "ownership.toml").write_text(ownership, encoding="utf-8")
         (pack / "core" / "clauses.toml").write_text(
@@ -16987,6 +16995,63 @@ class CorpusManagementCompilerTests(LinterTestCase):
         result = self._run(self._block_root(doubled), "--check")
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
         self.assertIn("expected exactly one begin", result.stdout)
+
+    # --- Gate-register validation (compile PR-5; the D2 slice codex hardened). ---
+    GATES_VALID = 'schema_version = 1\n\n[[gates]]\nid = "note-gate"\ntitle = "Note gate"\nsource = "tools/gate_note.py"\nenforces = "note-clause"\nentry_point = "tools/note_wrapper.py"\norigin = "test"\n'
+
+    def _gate_root(self, *, gates_toml=None, gates_register_line=None):
+        return self._make_root(
+            gensrc=self.BLOCK_GENSRC,
+            ownership=self.BLOCK_OWNERSHIP,
+            owned_targets='"HANDBOOK.md"',
+            clauses='schema_version = 1\n\n[[clauses]]\nid = "note-clause"\nsource = "core/policies/note.md"\n',
+            sources={
+                "core/policies/note.md": self.NOTE_SOURCE,
+                "tools/gate_note.py": '# engine\n',
+            },
+            files={
+                "HANDBOOK.md": self.HANDBOOK_IN_SYNC,
+                "tools/note_wrapper.py": '# wrapper\n',
+            },
+            gates_toml=gates_toml,
+            gates_register_line=gates_register_line,
+        )
+
+    def test_gate_register_wellformed_passes(self):
+        # Positive control: a valid gates register (engine in pack, enforces a
+        # real clause, entry_point a real project file) passes.
+        result = self._run(self._gate_root(gates_toml=self.GATES_VALID), "--check")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_gate_entry_point_relative_escape_flagged(self):
+        # entry_point with a ".." component escapes the project root.
+        bad = self.GATES_VALID.replace(
+            'entry_point = "tools/note_wrapper.py"',
+            'entry_point = "../note_wrapper.py"',
+        )
+        result = self._run(self._gate_root(gates_toml=bad), "--check")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("escapes the project", result.stdout + result.stderr)
+
+    def test_gate_entry_point_absolute_escape_flagged(self):
+        # An absolute entry_point escapes the project root (pathlib join
+        # discards the left operand); the old is_file()-only check missed it.
+        bad = self.GATES_VALID.replace(
+            'entry_point = "tools/note_wrapper.py"',
+            'entry_point = "/etc/passwd"',
+        )
+        result = self._run(self._gate_root(gates_toml=bad), "--check")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("escapes the project", result.stdout + result.stderr)
+
+    def test_gate_register_non_string_declared_flagged(self):
+        # A declared-but-non-string [registers].gates value fails closed
+        # (validate-when-declared), never silently treated as absent.
+        result = self._run(
+            self._gate_root(gates_register_line="gates = 123\n"), "--check"
+        )
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("must be a string path", result.stdout + result.stderr)
 
     def test_reversed_sentinels_flagged(self):
         reversed_doc = (

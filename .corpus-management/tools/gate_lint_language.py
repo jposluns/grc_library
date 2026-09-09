@@ -3,7 +3,7 @@
 
 This is the pack-owned engine for grc gate 2; the project entry point is the
 thin Model-2 wrapper ``tools/lint-language.py`` (supplying the grc scan roots
-and lint_common iteration). Pack register ``core/gates.toml`` id ``lint-language``,
+and their iteration). Pack register ``core/gates.toml`` id ``lint-language``,
 enforcing the ``language-convention`` clause. No standalone ``main()`` here for
 compile PR-5 (a CLI needs the PR-6 vocabulary/config split); run via the wrapper.
 Everything below the imports is byte-preserved from the former
@@ -408,4 +408,3 @@ def run(md_files: list[Path], gen_input: list[str], *, repo_root: Path) -> int:
 
     print(f"\nFAIL: {total} finding(s) across {len(grouped)} file(s).")
     return 1
-

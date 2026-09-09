@@ -554,7 +554,9 @@ def load_and_validate(root: Path, pack_root: Path) -> tuple[list[Rule], list[str
     # content deliberately not compiler-owned). Ids share ONE namespace with
     # clauses (and future hooks/rules): a gate id may not collide with a clause id.
     gates_rel = registers.get("gates")
-    if isinstance(gates_rel, str):
+    if gates_rel is not None and not isinstance(gates_rel, str):
+        problems.append("core/manifest.toml: [registers].gates must be a string path")
+    elif isinstance(gates_rel, str):
         gates_path = _contained(pack_root, gates_rel)
         if gates_path is None:
             problems.append(f"core/manifest.toml: [registers].gates escapes the pack "
@@ -571,7 +573,6 @@ def load_and_validate(root: Path, pack_root: Path) -> tuple[list[Rule], list[str
                     gentries = []
                 gate_keys = {"id", "title", "source", "enforces", "entry_point", "origin"}
                 seen_gate_ids: set[str] = set()
-                project_root = pack_root.parent
                 for i, g in enumerate(gentries):
                     where = f"{gates_rel}: gates[{i}]"
                     if not isinstance(g, dict):
@@ -612,9 +613,14 @@ def load_and_validate(root: Path, pack_root: Path) -> tuple[list[Rule], list[str
                     if not isinstance(entry_point, str):
                         problems.append(f"{where}: 'entry_point' must be a project-relative "
                                         f"path string")
-                    elif not (project_root / entry_point).is_file():
-                        problems.append(f"{where}: 'entry_point' wrapper does not exist: "
-                                        f"{entry_point}")
+                    else:
+                        ep = _contained(root, entry_point)
+                        if ep is None:
+                            problems.append(f"{where}: 'entry_point' escapes the project "
+                                            f"root: {entry_point}")
+                        elif not ep.is_file():
+                            problems.append(f"{where}: 'entry_point' wrapper does not exist: "
+                                            f"{entry_point}")
 
     # --- Source content load (strict UTF-8, LF-only, one trailing newline). ---
     for r in rules:
