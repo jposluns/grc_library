@@ -2,8 +2,8 @@
 
 **Document Title:** Board Risk Report Template\
 **Document Type:** Template\
-**Version:** 1.0.4\
-**Date:** 2026-09-09\
+**Version:** 1.0.5\
+**Date:** 2026-09-10\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-operational-risk-register.md`](template-operational-risk-register.md), [`risk/register-scenario-risk-catalogue.md`](register-scenario-risk-catalogue.md), [`risk/register-key-risk-indicators.md`](register-key-risk-indicators.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/register-assurance-map.md`](register-assurance-map.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md), [`governance/framework-metrics-monitoring-and-performance-reporting.md`](../governance/framework-metrics-monitoring-and-performance-reporting.md)\
@@ -250,6 +250,7 @@ For each of the top enterprise risks (typically five to ten):
 | OECD G20 Principles of Corporate Governance | Board oversight of risk | Governance baseline |
 | FRC UK Corporate Governance Code | Section IV Audit, risk and internal control | UK governance |
 | NIST CSF 2.0 | Govern function | Risk integration |
+| ISO/IEC 27001:2022 | §5.1 Leadership and commitment; §9.1 Monitoring, measurement, analysis and evaluation; §9.3 Management review | Information security management oversight and review |
 | Basel Committee Corporate Governance Principles | Board oversight | Financial-services governance |
 
 ---
