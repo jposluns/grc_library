@@ -28,3 +28,10 @@ kind = "file"
 sources = ["core/rules/authoring-conventions.md"]
 target = ".claude/rules/corpus-management/authoring-conventions.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "corpus-scan-integrity"
+kind = "file"
+sources = ["core/rules/corpus-scan-integrity.md"]
+target = ".claude/rules/corpus-management/corpus-scan-integrity.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]

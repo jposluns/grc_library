@@ -14,3 +14,11 @@ source = "tools/gate_lint_language.py"
 enforces = "language-convention"
 entry_point = "tools/lint-language.py"
 origin = "grc_library tools/lint-language.py, grc gate 2 (engine transferred in compile PR-5, check logic and vocabulary verbatim; the project tool became a thin Model-2 wrapper supplying the grc scan roots)"
+
+[[gates]]
+id = "lint-unbalanced-fences"
+title = "Unbalanced-fence audit (no scanned file ends inside an open fenced code block)"
+source = "tools/gate_lint_unbalanced_fences.py"
+enforces = "corpus-scan-integrity"
+entry_point = "tools/lint-unbalanced-fences.py"
+origin = "grc_library tools/lint-unbalanced-fences.py, grc gate 66 (engine transferred in compile PR-6, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc scan walk)"

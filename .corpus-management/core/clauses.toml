@@ -20,3 +20,9 @@ id = "authoring-conventions"
 title = "Corpus authoring conventions (mirror same-type document shape; citation accuracy and currency; linter-enforced prose style)"
 source = "core/rules/authoring-conventions.md"
 origin = "grc_library .claude/CLAUDE.md Conventions section (transferred in compile PR-4; heading raised h2 Conventions to standalone h1 Authoring conventions, body otherwise verbatim; the CLAUDE.md section is now a pointer stub)"
+
+[[clauses]]
+id = "corpus-scan-integrity"
+title = "Corpus scan integrity (balanced fences; no file ends inside an open code block)"
+source = "core/rules/corpus-scan-integrity.md"
+origin = "grc_library tools/lint-unbalanced-fences.py gate rationale (new clause in compile PR-6; generated AI-facing rule via gensrc, kind=file, like language-convention, per the Option-A maintainer decision 2026-09-10)"

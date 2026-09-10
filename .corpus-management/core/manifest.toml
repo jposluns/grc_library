@@ -39,7 +39,7 @@ shipped = false
 [generation]
 enabled = true
 ruleset = "gensrc.toml"
-owned_targets = [".claude/CLAUDE.md", ".claude/rules/corpus-management/language-convention.md", ".claude/rules/corpus-management/authoring-conventions.md"]
+owned_targets = [".claude/CLAUDE.md", ".claude/rules/corpus-management/language-convention.md", ".claude/rules/corpus-management/authoring-conventions.md", ".claude/rules/corpus-management/corpus-scan-integrity.md"]
 
 [addons]
 available = ["matrix-fit", "claim-fit", "reference-audit"]
