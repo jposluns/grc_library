@@ -11,13 +11,19 @@ mechanical.
 
 WHAT IT READS. `.working/open-findings.md`, the ledger, whose `## Open` table carries one row per
 confirmed defect with a severity and a disposition. A row with an EMPTY disposition is undispositioned.
-A row leaves the ledger only via FIXED, ROUTED, REFUTED or ACCEPTED, so "no disposition" is the single
-blocking condition and there is no third state to argue about.
+A row leaves the ledger only via FIXED, ROUTED, REFUTED or ACCEPTED, so "no disposition" is the
+primary blocking condition; the one other blocking condition is a MIS-FILED row (below).
 
 WHAT IT BLOCKS. An `error`-severity undispositioned row blocks opening or merging a PR, because
 shipping past a known wrong behaviour is the thing worth preventing. A `warning` does not block a PR
 (an in-flight change should finish rather than be abandoned half-landed) and is surfaced instead.
-Notes never block.
+Notes never block. SECOND blocking condition (P-1.70, 2026-09-10): a MIS-FILED finding-row - one that
+carries the finding-row shape but sits BEFORE the scanned sections open (in the preamble above
+'## Open', or stranded by a phantom heading between '## Open' and '## Closed today'), so it escapes
+the disposition scan - also blocks (any severity/disposition). The legitimate post-'## Closed today'
+archive is location-EXEMPT (a row there is indistinguishable from an archived one; see the
+misfiled_finding_rows SCOPE/RESIDUES). This covers the push->merge edit window the pre-push D14
+check cannot see.
 
 FAIL-OPEN BY DESIGN, AND SAID SO PLAINLY. If the ledger is missing or unparseable this hook ALLOWS the
 action, because a guard that blocks all work on its own malfunction would be removed within a day, and
@@ -96,7 +102,7 @@ def _opens_scanned_section(heading_lower: str, section_prefixes: tuple) -> bool:
     the P-1.70 phantom-heading fix: the observed corruption spliced a sentence tail beginning with a
     backtick-quoted ``## Closed today` `` at column 0, which prefix-matched and opened a false
     section. CLOSING stays wide (the caller resets scope on ANY `## ` line), so junk pushes rows OUT
-    of scope, where the mis-filed-row detector converts the old silence into a loud failure. No real
+    of scope, where the mis-filed-row detector converts the old silence into a BLOCK (P-1.70, 2026-09-10). No real
     SCANNED ledger heading currently carries a backtick, so the exclusion risk is near zero (the live
     ledger's only backtick-bearing heading is a dated ARCHIVE heading, which is not scanned; a
     backtick-free heading that is an EXACT scanned name or carries one COMPLETE `(...)` decoration and
@@ -461,24 +467,15 @@ def is_blocking_command(cmd: str) -> bool:
     return any(" ".join(parts) in flat for parts in BLOCKING_CMDS)
 
 
-def main() -> int:
-    try:
-        payload = json.load(sys.stdin)
-    except Exception:
-        return 0
-    if payload.get("tool_name") != "Bash":
-        return 0
-    cmd = (payload.get("tool_input") or {}).get("command", "") or ""
-    if not is_blocking_command(cmd):
-        return 0
+def decide_exit(rows, ledger_text) -> int:
+    """PURE decision: the exit code (0 allow / 2 block) for a PARSED ledger.
 
-    ledger = _working_file("open-findings.md", project_root())
-    try:
-        ledger_text = ledger.read_text(encoding="utf-8")
-        rows = parse_open_rows(ledger_text)
-    except Exception:
-        return 0  # fail-open (a None/missing/unreadable ledger), per the docstring
-
+    Extracted from main() (P-1.70, #2094) so BOTH blocking conditions - an
+    undispositioned error-severity row, and a mis-filed finding-row - are directly
+    regression-tested by self_test(), not just the misfiled DETECTOR. main() keeps the
+    fail-open ledger read/parse; this decides on the already-parsed result and emits the
+    same stderr diagnostics as before.
+    """
     errs = undispositioned(rows, "error")
     if not errs:
         warns = undispositioned(rows, "warning")
@@ -500,19 +497,21 @@ def main() -> int:
             )
         misfiled = misfiled_finding_rows(ledger_text)
         if misfiled:
-            print(
-                f"WARNING (mis-filed finding-row, P-1.70 part-2b): {len(misfiled)} finding-row(s) in "
-                f"{LEDGER_REL} sit OUTSIDE '## Open' / '## Closed today', so they are invisible to "
-                "this hook AND the D14 gate. Move each into a scanned section (or, if a deliberate "
-                "archive, its heading must be a scanned one / it must not carry the finding-row "
-                "shape):",
-                file=sys.stderr,
-            )
+            lines = [
+                f"BLOCKED (mis-filed finding-row, P-1.70 part-2b): {len(misfiled)} finding-row(s) in "
+                f"{LEDGER_REL} sit OUTSIDE '## Open' / '## Closed today', so they are invisible to this "
+                "hook's disposition scan and would escape it. This PR must not open or merge until each "
+                "is moved into a scanned section (or, if a deliberate archive, its heading is a scanned "
+                "one / it does not carry the finding-row shape):",
+            ]
             for _ln, _sec, _line in misfiled[:5]:
-                print(f"  - line {_ln} (under {_sec or 'no scanned heading'}): {_line[:100]}",
-                      file=sys.stderr)
-            print("Advisory here (fail-open); the pre-push D14 check fails closed on it.",
-                  file=sys.stderr)
+                lines.append(f"  - line {_ln} (under {_sec or 'no scanned heading'}): {_line[:100]}")
+            lines.append(
+                "This now BLOCKS at gh pr create/merge (P-1.70, maintainer-GO'd 2026-09-10), covering "
+                "the push->merge edit window the pre-push D14 check cannot see; D14 remains the "
+                "pre-push backstop.")
+            print("\n".join(lines), file=sys.stderr)
+            return 2
         return 0
 
     lines = [f"BLOCKED (open-findings guard): {len(errs)} error-severity finding(s) in {LEDGER_REL} "
@@ -528,6 +527,27 @@ def main() -> int:
     print("\n".join(lines), file=sys.stderr)
     return 2
 
+
+
+def main() -> int:
+    try:
+        payload = json.load(sys.stdin)
+    except Exception:
+        return 0
+    if payload.get("tool_name") != "Bash":
+        return 0
+    cmd = (payload.get("tool_input") or {}).get("command", "") or ""
+    if not is_blocking_command(cmd):
+        return 0
+
+    ledger = _working_file("open-findings.md", project_root())
+    try:
+        ledger_text = ledger.read_text(encoding="utf-8")
+        rows = parse_open_rows(ledger_text)
+    except Exception:
+        return 0  # fail-open (a None/missing/unreadable ledger), per the docstring
+
+    return decide_exit(rows, ledger_text)
 
 def self_test() -> int:
     cases, fails = 0, []
@@ -914,6 +934,17 @@ def self_test() -> int:
        any("after an info-string line inside a fence" in x for x in mf_if), False)
     ck("part-2b iter3: the row after the true (bare) fence close IS flagged",
        any("after the true fence close" in x for x in mf_if), True)
+
+    # P-1.70 (#2094): regression-test the BLOCKING branches of decide_exit directly, not just
+    # the misfiled DETECTOR (codex #2094 vpr F2). Clean ledger allows (0); an undispositioned
+    # error blocks (2); a mis-filed preamble row blocks (2).
+    _hdr = "| Found | Severity | Finding | Source | Disposition |\n| --- | --- | --- | --- | --- |\n"
+    _clean = "## Open\n\n" + _hdr + "\n## Closed today\n"
+    ck("decide_exit: clean ledger allows (0)", decide_exit(parse_open_rows(_clean), _clean), 0)
+    _err = "## Open\n\n" + _hdr + "| 2026-01-01 | error | undispositioned err | s |  |\n"
+    ck("decide_exit: undispositioned error blocks (2)", decide_exit(parse_open_rows(_err), _err), 2)
+    _mf = "| 2026-01-01 | error | preamble stray finding | s | FIXED #1 |\n\n## Open\n\n" + _hdr
+    ck("decide_exit: mis-filed preamble row blocks (2)", decide_exit(parse_open_rows(_mf), _mf), 2)
 
     if fails:
         print(f"\nself-test: FAILED ({len(fails)} of {cases})")
