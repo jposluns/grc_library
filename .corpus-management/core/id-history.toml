@@ -27,3 +27,15 @@ id = "lint-language"
 event = "created"
 date = 2026-09-09
 note = "compile PR-5: gate-wave D0 opened; first gate transfer (grc gate 2; Model-2 wrapper, engine pack source of record, enforces the language-convention clause)"
+
+[[events]]
+id = "lint-unbalanced-fences"
+event = "created"
+date = 2026-09-10
+note = "compile PR-6: gate-wave second gate transfer (grc gate 66; Model-2 wrapper, engine pack source of record, enforces the corpus-scan-integrity clause)"
+
+[[events]]
+id = "corpus-scan-integrity"
+event = "created"
+date = 2026-09-10
+note = "compile PR-6: new pack-internal clause (balanced fences precede any fence-aware gate's soundness); non-generated, in core/policies/ per the generated-artefacts-note precedent"

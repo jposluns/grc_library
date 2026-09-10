@@ -14,9 +14,11 @@ does NOT own them; the linter-regression suite (``UnbalancedFenceTests``) and ga
 entry-point existence check are the wrapper's mechanical coverage. ``iter_targets`` stays
 here (grc scan config) so the scan-scope regression's WALKERS map observes it unmoved.
 
-Scope (unchanged by the transfer): every ``*.md`` under the repository root except
-``DEFAULT_EXEMPT_DIRS`` in a default run; explicit path arguments are scanned as given
-(the mandated new-pack-prose run on ``.claude/`` files is the recurring explicit case).
+Scope (unchanged by the transfer): a default run walks every ``*.md`` under the
+repository root, minus both the ``DEFAULT_EXEMPT_DIRS`` path components and the
+``is_default_exempt_root`` default-root exemption (``DEFAULT_EXEMPT_ROOTS``, currently
+``.corpus-management``); explicit path arguments are scanned as given (the mandated
+new-pack-prose run on ``.claude/`` files is the recurring explicit case).
 
 Usage:
     python3 tools/lint-unbalanced-fences.py
