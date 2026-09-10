@@ -270,7 +270,7 @@ def private_store_roots(root: "Path | None" = None) -> "list[Path]":
     and the private sibling (``grc_library_private``) are private (maintainer-owned, not a public
     or adopter checkout), so a private-required write guarded as "must be under a private store"
     accepts EITHER. Returns only the roots that actually exist, resolved. Order: store first, then
-    the sibling. Used by the private-write accountability guards (manage-workers worker-prompt log,
+    the sibling. Used by the private-write accountability guards (e.g.
     audit-reference-breadth --update-state) so they accept the store as a valid private location
     (adopt-with-overlay migration, option B, 2026-08-23)."""
     r = (root or REPO_ROOT).resolve()
