@@ -20,8 +20,8 @@ TWO TRAPS THIS AVOIDS, both named when the gap was routed (§3.117, implemented 
   orchestrator stages diffs and scratch files for workers to read under ``inbox/staging/``;
   everything there is reported separately as staging, never as unprocessed work. Anything
   directly in ``inbox/`` is a DROP whatever its name: the retired name-based classification
-  false-negatived a genuine drop named like scratch (a real ``notes.log``), so it survives
-  only as the one-window ``legacy-staging`` advisory in the report.
+  false-negatived a genuine drop named like scratch (a real ``notes.log``); location, not
+  name, now marks staging.
 - **Age is not evidence.** An old drop can be unread and a new one already consumed, so age is
   reported as CONTEXT (how long something has been waiting) and never used to decide status.
 
@@ -43,14 +43,6 @@ DROP_DIRNAME = "inbox"
 DONE_DROPS = ("done", "drops")
 
 STAGING_DIRNAME = "staging"  # inbox/staging/: location, not name, marks staging (3.118(c))
-
-# RETIRED from classification (3.118(c) Option i, 2026-08-25): these name patterns no longer
-# decide staging vs drop; location does. Kept ONLY to drive the one-deprecation-window
-# `legacy-staging` advisory in report(). REMOVE (with is_legacy_staging_name and the advisory
-# block plus its self-test checks) once the live exchange inbox/ carries no legacy-named
-# loose files, and no later than the first PR after 2026-09-30.
-LEGACY_STAGING_SUFFIXES = (".diff", ".patch", ".log", ".tmp")
-LEGACY_STAGING_PREFIXES = ("pending-", "staging-", "scratch-")
 
 
 def root_dir(explicit: str | None) -> Path | None:
@@ -84,13 +76,6 @@ def size_kb(p: Path) -> float:
         return p.stat().st_size / 1024.0
     except OSError:
         return 0.0
-
-
-def is_legacy_staging_name(name: str) -> bool:
-    """True when a name matches the RETIRED staging patterns; drives ONLY the report()
-    legacy-staging advisory, never classification (3.118(c))."""
-    low = name.lower()
-    return low.endswith(LEGACY_STAGING_SUFFIXES) or low.startswith(LEGACY_STAGING_PREFIXES)
 
 
 def survey(root: Path):
@@ -153,15 +138,6 @@ def report(root: Path, oneline: bool) -> int:
         print("  that it was read. Do not infer processed-ness from age or from a grep.")
     else:
         print("\n  No unprocessed drops.")
-    legacy = [p for p in unprocessed if is_legacy_staging_name(p.name)]
-    if legacy:
-        print("\nLEGACY-STAGING ADVISORY: these files match the RETIRED staging-name convention")
-        print("but are loose in inbox/, so they are DROPS (counted and listed as unprocessed")
-        print("above) - process them like any drop. The name no longer marks staging; put genuine")
-        print("scratch in inbox/staging/, and relocate one of these there ONLY if you know it is")
-        print("scratch, not a real drop:")
-        for p in legacy:
-            print(f"  legacy-named drop: {p.name}")
     if staging:
         print("\nSTAGING (inbox/staging/, orchestrator scratch, not work awaiting a read):")
         for p in staging:
@@ -210,10 +186,6 @@ def self_test() -> int:
               sorted(p.name for p in st), ["1234.diff", "candidate.md", "nested.log"])
         check("README is ignored", any(p.name == "README.md" for p in un + st), False)
         check("archived drops are counted", ar, 1)
-        check("legacy matcher hits a retired pattern",
-              is_legacy_staging_name("pending-1157.diff"), True)
-        check("legacy matcher passes a normal drop name",
-              is_legacy_staging_name("codex-brief.md"), False)
         import contextlib
         import io
         buf = io.StringIO()
@@ -222,11 +194,6 @@ def self_test() -> int:
         out = buf.getvalue()
         check("report counts legacy-named files as unprocessed",
               "unprocessed: 3" in out, True)
-        check("report surfaces the legacy-staging advisory",
-              "legacy-named drop:" in out, True)
-        check("the drop listing precedes the advisory (advisory adds, never replaces)",
-              out.index("UNPROCESSED") < out.index("legacy-named drop:"),
-              True)
         # 3.118(c) F1 (codex/claude): an unreadable inbox/staging/ must fail LOUD (surface
         # in unreadable), not silently report empty - rglob suppresses the perm error, the
         # iterdir probe restores it. Skipped where the chmod does not bite (e.g. root).
