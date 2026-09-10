@@ -5914,6 +5914,16 @@ class ClaudeRulesSyncTests(LinterTestCase):
         # An unreadable mapped rule file makes read_text_safe raise OSError;
         # the gate's top-level boundary must turn it into a clean exit 2, never
         # a traceback (compile PR-2 /validate-pr iter-3 HOLD, gemini).
+        if hasattr(os, "geteuid") and os.geteuid() == 0:
+            # Root reads a chmod-0 file regardless, so the unreadable-mapped-file
+            # precondition cannot be established as uid 0 (D1, #2093). Skip with a
+            # visible NOTE rather than emit a spurious red gate for a root sweep.
+            print(
+                "NOTE: skipping test_unreadable_mapped_file_is_not_a_traceback under "
+                "root (chmod-0 is still readable as uid 0)",
+                file=sys.stderr,
+            )
+            self.skipTest("running as root: chmod-0 file remains readable; unreadable-file case not exercisable")
         import shutil
         mod = self._load_module()
         root, fake_map = self._make_synthetic(
@@ -17311,6 +17321,16 @@ class CorpusManagementCompilerTests(LinterTestCase):
     def test_unreadable_target_in_check_is_not_a_traceback(self):
         # A permission-denied on a committed target during --check must be a
         # clean exit 2 (top-level boundary), never an uncaught traceback.
+        if hasattr(os, "geteuid") and os.geteuid() == 0:
+            # Root reads a chmod-0 file regardless, so the permission-denied-target
+            # precondition cannot be established as uid 0 (D1, #2093). Skip with a
+            # visible NOTE rather than emit a spurious red gate for a root sweep.
+            print(
+                "NOTE: skipping test_unreadable_target_in_check_is_not_a_traceback under "
+                "root (chmod-0 is still readable as uid 0)",
+                file=sys.stderr,
+            )
+            self.skipTest("running as root: chmod-0 file remains readable; unreadable-target case not exercisable")
         root = self._block_root(self.HANDBOOK_IN_SYNC)
         handbook = root / "HANDBOOK.md"
         os.chmod(handbook, 0)
