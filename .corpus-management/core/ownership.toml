@@ -18,3 +18,8 @@ target = ".claude/rules/corpus-management/language-convention.md"
 rule = "authoring-conventions"
 kind = "file"
 target = ".claude/rules/corpus-management/authoring-conventions.md"
+
+[[owned_targets]]
+rule = "corpus-scan-integrity"
+kind = "file"
+target = ".claude/rules/corpus-management/corpus-scan-integrity.md"

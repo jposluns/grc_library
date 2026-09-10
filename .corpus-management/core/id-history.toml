@@ -38,4 +38,4 @@ note = "compile PR-6: gate-wave second gate transfer (grc gate 66; Model-2 wrapp
 id = "corpus-scan-integrity"
 event = "created"
 date = 2026-09-10
-note = "compile PR-6: new pack-internal clause (balanced fences precede any fence-aware gate's soundness); non-generated, in core/policies/ per the generated-artefacts-note precedent"
+note = "compile PR-6: new pack-internal clause (balanced fences precede any fence-aware gate's soundness); generated AI-facing rule (compile PR-6, Option A) like language-convention"

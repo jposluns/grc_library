@@ -17,8 +17,10 @@ here (grc scan config) so the scan-scope regression's WALKERS map observes it un
 Scope (unchanged by the transfer): a default run walks every ``*.md`` under the
 repository root, minus both the ``DEFAULT_EXEMPT_DIRS`` path components and the
 ``is_default_exempt_root`` default-root exemption (``DEFAULT_EXEMPT_ROOTS``, currently
-``.corpus-management``); explicit path arguments are scanned as given (the mandated
-new-pack-prose run on ``.claude/`` files is the recurring explicit case).
+``.corpus-management``); explicit path arguments are scanned with ONLY the default-root
+exemption applied (no ``DEFAULT_EXEMPT_DIRS`` component filter), so an explicit ``.claude/``
+path IS scanned (the mandated new-pack-prose run) while an explicit ``.corpus-management``
+path is still default-root-exempted.
 
 Usage:
     python3 tools/lint-unbalanced-fences.py
