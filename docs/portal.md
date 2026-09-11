@@ -330,6 +330,7 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 
 ### Standard
 
+- [Crypto-Asset Service Provider Vetting Standard](../crypto/standard-crypto-asset-service-provider-vetting.md) (maturity: Draft)
 - [Delegation-of-Authority Standard](../governance/standard-delegation-of-authority.md) (maturity: Draft)
 - [Digital Asset Custody Standard](../crypto/standard-digital-asset-custody.md) (maturity: Draft)
 - [Emergency Authority Standard](../governance/standard-emergency-authority.md) (maturity: Draft)
@@ -431,6 +432,7 @@ Security architects need the dev-security standards, the AI security guides, the
 - [Authentication and Password Management Standard](../security/standard-authentication-and-password-management.md) (maturity: Mature)
 - [Azure Cloud Hardening Baseline Standard](../dev-security/standard-cloud-hardening-baseline-azure.md) (maturity: Draft)
 - [Container and Image Security Standard](../dev-security/standard-container-and-image-security.md) (maturity: Baseline)
+- [Crypto-Asset Service Provider Vetting Standard](../crypto/standard-crypto-asset-service-provider-vetting.md) (maturity: Draft)
 - [Data Classification and Handling Standard](../security/standard-data-classification-and-handling.md) (maturity: Mature)
 - [Data Loss Prevention Standard](../security/standard-data-loss-prevention.md) (maturity: Mature)
 - [DevOps Security Requirements](../dev-security/standard-devops-security-requirements.md) (maturity: Baseline)
@@ -613,6 +615,7 @@ The Chief Compliance Officer needs the compliance and audit policies, the regula
 
 ### Standard
 
+- [Crypto-Asset Service Provider Vetting Standard](../crypto/standard-crypto-asset-service-provider-vetting.md) (maturity: Draft)
 - [Digital Asset Custody Standard](../crypto/standard-digital-asset-custody.md) (maturity: Draft)
 - [Internal Audit Standard](../compliance/standard-internal-audit.md) (maturity: Mature)
 - [Sanctions and Export-Control Screening Standard](../compliance/standard-sanctions-and-export-control-screening.md) (maturity: Baseline)
