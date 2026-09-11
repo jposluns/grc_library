@@ -2,7 +2,7 @@
 
 **Document Title:** MiCA Implementation Annex\
 **Document Type:** Annex\
-**Version:** 0.2.0\
+**Version:** 0.3.0\
 **Date:** 2026-09-11\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -151,6 +151,34 @@ Art 92(3) provides for ESMA guidelines on the consistency of supervisory practic
 ## Supervisory architecture (Title VII)
 
 MiCA is supervised two-tier: national competent authorities designated under Art 93 supervise CASPs, Title II offerors, and non-significant ART/EMT issuers (a Title II white paper is notified, not approved: the competent authority does not require prior approval, Art 8(3)); **EBA** supervises **significant** ARTs and, for a significant EMT issued by an electronic money institution, compliance with Arts 55 and 58 (Art 117(4)), the significant-token classification triggering EBA's role (Arts 43(7), 56(6)), except that supervision of a significant EMT denominated in a non-euro Member-State currency does not transfer where at least 80% of holders and transactions are domestic (Art 56(7)); **ESMA** maintains the public register of white papers, issuers, and CASPs (Art 109) and, with EBA, develops the RTS/ITS; the **ECB and national central banks** hold monetary-sovereignty opinion rights over tokens referencing their currency (Arts 17(5), 43). An adopter identifies its home-Member-State competent authority (and, for a significant token, EBA) as its supervisor.
+
+
+## Held MiCA technical standards (RTS and ITS) map
+
+`grc_library_ref` holds twenty MiCA Level 2 technical standards. An RTS is a regulatory (delegated) technical standard; an ITS is an implementing technical standard. Most are cited inline in the Title sections above; this table consolidates them as a single index of what is held, the MiCA article each derives from (verified against each instrument's own citation of Regulation (EU) 2023/1114), and the library disposition. It also records three instruments not otherwise mapped above: RTS 2025/413 and RTS 2025/414 (qualifying holdings) and RTS 2025/297 (supervisory colleges).
+
+| Instrument | Type | MiCA basis (Title / Article) | Subject | Library disposition |
+| --- | --- | --- | --- | --- |
+| RTS 2025/1125 | RTS | Title III / Art 18(6) | Information in an application for authorization to offer ARTs | governance authorization controls (adopter maps); the MiCA application is a gap |
+| ITS 2025/1126 | ITS | Title III / Art 18(7) | Standard forms and templates for the ART authorization application | *(MiCA-specific gap)* |
+| RTS 2025/293 | RTS | Title III / Art 31(5) | Complaints-handling procedures for ART issuers | no direct carrier; adopter provides a MiCA complaints procedure (`compliance/procedure-capa.md` is internal CAPA, not consumer complaints) |
+| RTS 2025/1141 | RTS | Title III / Art 32(5) | Conflicts-of-interest policy for ART issuers | library conflicts-of-interest control |
+| RTS 2025/413 | RTS | Title III / Art 42(4) | Information to assess a proposed acquisition of a qualifying holding in an ART issuer | *(MiCA-specific gap; the proposed acquirer's disclosure is MiCA-specific)* |
+| RTS 2025/1264 | RTS | Title III / Art 45(7) | Minimum contents of the liquidity-management policy for issuers of significant ARTs and significant EMTs (and non-significant classes where the competent authority requires) | library liquidity and resilience controls (adopter maps); the MiCA-specific content is a gap |
+| RTS 2025/418 | RTS | Title III / Art 45(7) | Governance of the remuneration policy for issuers of significant ARTs and significant EMTs (and non-significant classes where the competent authority requires) | *(MiCA-specific gap; the library carries no remuneration-governance control)* |
+| RTS 2025/303 | RTS | Title V / Art 60(13) | Information notified by financial entities intending to provide crypto-asset services | governance notification controls (adopter maps); the MiCA notification is a gap |
+| ITS 2025/304 | ITS | Title V / Art 60(14) | Standard forms and templates for the financial-entity notification | *(MiCA-specific gap)* |
+| RTS 2025/305 | RTS | Title V / Art 62(5) | Information in an application for authorization as a CASP | governance authorization controls (adopter maps); the MiCA application is a gap |
+| ITS 2025/306 | ITS | Title V / Art 62(6) | Standard forms and templates for the CASP authorization application | *(MiCA-specific gap)* |
+| RTS 2025/299 | RTS | Title V / Art 68(10) | Continuity and regularity in the performance of crypto-asset services | `resilience/` continuity controls |
+| RTS 2025/1140 | RTS | Title V / Art 68(10) | Records of all crypto-asset services, activities, orders, and transactions | `crypto/register-crypto-asset-inventory.md` and library record-keeping controls |
+| RTS 2025/294 | RTS | Title V / Art 71(5) | Complaints-handling procedures for CASPs | no direct carrier; adopter provides a MiCA complaints procedure |
+| RTS 2025/1142 | RTS | Title V / Art 72(5) | Conflicts-of-interest policy for CASPs | library conflicts-of-interest control |
+| RTS 2025/416 | RTS | Title V / Art 76(16) | Content and format of order-book records for trading-platform CASPs | `operations/` logging and record controls (adopter maps); the MiCA format is a gap |
+| RTS 2025/414 | RTS | Title V / Art 84(4) | Information to assess a proposed acquisition of a qualifying holding in a CASP | *(MiCA-specific gap; the proposed acquirer's disclosure is MiCA-specific)* |
+| ITS 2024/2861 | ITS | Title VI / Art 88(4) | Technical means for public disclosure and delay of inside information | *(MiCA-specific gap; supplies the Art 88 technical means for reference)* |
+| RTS 2025/885 | RTS | Title VI / Art 92(2) | Arrangements, systems, and procedures to prevent, detect, and report market abuse | `operations/procedure-threat-intelligence-and-siem-operations.md`, `security/standard-logging-and-monitoring.md` (monitoring base; the detection template and report are MiCA-specific) |
+| RTS 2025/297 | RTS | Title VII / Art 119(8) | Conditions for the establishment and functioning of consultative supervisory colleges | *(supervisory-architecture matter; no adopter artefact)* |
 
 ## Library gaps requiring additional documentation
 
