@@ -2,8 +2,8 @@
 
 **Document Title:** Backup and Recovery Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.0\
-**Date:** 2026-08-20\
+**Version:** 1.1.1\
+**Date:** 2026-09-11\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md)\
@@ -70,7 +70,7 @@ Each system requiring backup must have documented scope covering:
 
 ### 2. Recovery objectives
 
-Recovery time objectives and recovery point objectives must be documented for critical services. Objectives must align with business impact analysis, contractual commitments, legal obligations, data classification, and supplier capability.
+Recovery time objectives and recovery point objectives must be documented for critical services. Objectives must align with business impact analysis, contractual commitments, legal obligations, data classification, and supplier capability. Backups must be taken at a cadence that meets each system's recovery point objective; the [IT disaster recovery plan](plan-it-disaster-recovery.md) sets the normative floor by tier (continuous or near-continuous protection for Tier 1's one-hour RPO, at least every four hours for Tier 2, and at least daily for Tier 3 and Tier 4), and no system's backup-taking cadence may fall below its RPO. This is the backup-taking cadence; restore-test cadence is governed separately by the Recovery testing section below.
 
 ### 3. Protection requirements
 
