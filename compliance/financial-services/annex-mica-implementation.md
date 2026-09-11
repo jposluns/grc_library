@@ -2,7 +2,7 @@
 
 **Document Title:** MiCA Implementation Annex\
 **Document Type:** Annex\
-**Version:** 0.1.0\
+**Version:** 0.2.0\
 **Date:** 2026-09-11\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -132,12 +132,21 @@ Gaps: the crypto custody standard now supplies the reusable core of client-asset
 
 ## Title VI: market abuse (Arts 86-92)
 
-MiCA imposes an EU market-abuse regime on crypto-assets admitted to (or requested for admission to) trading, applying to any person and on or off a trading platform (Art 86). Obligations: public disclosure of inside information (Art 88), and prohibitions on insider dealing (Art 89), unlawful disclosure (Art 90), and market manipulation (Art 91).
+Title VI imposes an EU market-abuse regime on crypto-assets that are admitted to trading, or for which a request for admission to trading has been made, applying to acts by any person and whether carried out on or off a trading platform (Art 86). The regime rests on the disclosure duty (Art 88) and the prohibitions on insider dealing (Art 89), unlawful disclosure (Art 90), and market manipulation (Art 91), backed by a prevention-and-detection duty (Art 92). Two Title VI technical standards are held and cited below: the ITS 2024/2861 (an implementing technical standard under Art 88(4)) and the RTS 2025/885 (a regulatory technical standard under Art 92(2)); the Art 92(3) ESMA guidelines are soft law and are not held.
 
-| MiCA element | Library artefact |
+| MiCA obligation (held cite) | Library artefact / disposition |
 | --- | --- |
-| Prevent-and-detect arrangements + suspicious-transaction reporting (Art 92; RTS 2025/885) | `operations/procedure-threat-intelligence-and-siem-operations.md`, `security/standard-logging-and-monitoring.md` (monitoring base; the market-abuse detection template is MiCA-specific) |
-| Inside-information disclosure mechanics (Art 88; ITS 2024/2861) | library disclosure-governance controls |
+| **Scope of the market-abuse rules (Art 86)**: the Title applies to acts concerning crypto-assets admitted to, or requested for admission to, trading, by any person and whether on or off a trading platform. | *(scoping gate; the prohibitions and duties below are the operative controls)* |
+| **Inside-information definition (Art 87)**: information of a precise nature, not made public, relating directly or indirectly to issuers, offerors, persons seeking admission, or crypto-assets, which if made public would likely have a significant effect on the prices of those or related crypto-assets. | *(definitional; informs the disclosure and insider-dealing controls below)* |
+| **Public disclosure of inside information (Art 88(1))**: issuers, offerors, and persons seeking admission inform the public as soon as possible of inside information that directly concerns them. | library disclosure-governance controls (adopter maps); the MiCA-specific timing is a gap |
+| **Delayed disclosure and its notification (Art 88(2)-(3))**: disclosure may be delayed, on the person's own responsibility, only where the Art 88(2) conditions are met; the person then informs the competent authority that disclosure was delayed and provides a written explanation of how those conditions were met, immediately after the information is disclosed to the public (Art 88(3); a Member State may instead require that the explanation be provided only on the authority's request). | library disclosure-governance and decision-record controls; the MiCA-specific delay procedure is a gap |
+| **Technical means for public disclosure (Art 88(4); ITS 2024/2861)**: disclose to a wide public, free of charge and simultaneously, through the technical means the ITS prescribes. | *(MiCA-specific gap; the held ITS 2024/2861 supplies the technical means for reference)* |
+| **Prohibition of insider dealing (Art 89)**: a person possessing inside information must not use it to acquire or dispose of the related crypto-assets, cancel or amend an order that was placed before the person possessed the information, or recommend or induce another to do so. | library insider-dealing, conflict-of-interest, and code-of-conduct controls |
+| **Prohibition of unlawful disclosure of inside information (Art 90)**: a person possessing inside information must not unlawfully disclose it, except in the normal exercise of employment, a profession, or duties. | library information-handling and confidentiality controls |
+| **Prohibition of market manipulation (Art 91)**: no person may engage, or attempt to engage, in market manipulation, including giving false or misleading signals, securing a price at an abnormal or artificial level, employing fictitious devices, or disseminating misleading information. | library conduct and market-integrity controls (adopter maps); the MiCA-specific application is a gap |
+| **Prevention-and-detection arrangements and suspicious-transaction-and-order reporting (Art 92; RTS 2025/885)**: any person professionally arranging or executing transactions in crypto-assets maintains effective arrangements, systems, and procedures to prevent and detect market abuse, and reports suspicious transactions and orders to the competent authority without delay, per the RTS 2025/885 detection, reporting-template, and record-retention requirements. | `operations/procedure-threat-intelligence-and-siem-operations.md`, `security/standard-logging-and-monitoring.md` (monitoring base; the market-abuse detection template and the suspicious-transaction-and-order report are MiCA-specific) |
+
+Art 92(3) provides for ESMA guidelines on the consistency of supervisory practices under Art 92; those guidelines are soft law and are not held in `grc_library_ref`.
 
 ## Supervisory architecture (Title VII)
 
