@@ -2,8 +2,8 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.28\
-**Date:** 2026-09-03\
+**Version:** 1.8.29\
+**Date:** 2026-09-11\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-system-card.md`](template-system-card.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md)\
@@ -779,7 +779,7 @@ This section governs autonomous and semi-autonomous production action. It does n
 | Control Area | OWASP LLM Top 10 | MITRE ATLAS | CSA AICM v1.1.0 | NIST AI RMF | OWASP AI Exchange | SANS CAISG v1.4 | OWASP Top 10 for Agentic Applications (ASI) |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Prompt injection | LLM01:2026 | AML.T0051 | AIS-15, AIS-09 | GOVERN 1.1 | Prompt injection I/O handling | Model I/O handling | ASI01 |
-| Supply chain | LLM04:2026 | AML.T0010 | STA-10, STA-09 | MANAGE 2.2 | Supply chain manage | AI supply chain management | ASI04 |
+| Supply chain | LLM04:2026 | AML.T0010, AML.T0110, AML.T0115 | STA-10, STA-09 | MANAGE 2.2 | Supply chain manage | AI supply chain management | ASI04 |
 | Sensitive data disclosure | LLM02:2026 | N/A | DSP-17, IAM-16 | MAP 1.6 | Sensitive output handling | Data minimization and obfuscation | ASI02 (data exfiltration); ASI03 (privilege route) |
 | Tool misuse / overreach | LLM03:2026 | AML.T0053 | AIS-11, AIS-13, IAM-18 | GOVERN 2.2 | Least model privilege | Limit model behavior | ASI02 |
 | Unsafe code generation | LLM10:2026 | N/A | AIS-10, AIS-05 | MAP 1.1 | N/A | N/A | ASI05 |
