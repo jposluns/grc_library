@@ -2,7 +2,7 @@
 
 **Document Title:** South Africa Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.0\
+**Version:** 1.1.1\
 **Date:** 2026-09-11\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -24,9 +24,9 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Applicable laws and regulatory authorities
 
-- **Protection of Personal Information Act, 2013 (POPIA)**: Act No. 4 of 2013, fully in effect since 2021-07-01. The most comprehensive privacy law in Africa, closely modelled on GDPR. Applies to processing of personal information by responsible parties established in South Africa, or not established in South Africa but who make use of automated or non-automated means in South Africa.
+- **Protection of Personal Information Act, 2013 (POPIA)**: Act No. 4 of 2013, fully in effect since 2021-07-01. One of the most comprehensive privacy laws in Africa, enacted to regulate the processing of personal information in harmony with international standards (s. 2). Applies to processing of personal information by responsible parties established in South Africa, or not established in South Africa but who make use of automated or non-automated means in South Africa.
 - **Eight conditions for lawful processing:** Accountability; Processing Limitation; Purpose Specification; Further Processing Limitation; Information Quality; Openness; Security Safeguards; Data Subject Participation.
-- **Special personal information:** Additional restrictions apply to health, sexual orientation, religious beliefs, racial origin, biometric information, criminal behaviour, political views, trade union membership, children's information, and financial services information.
+- **Special personal information (s. 26):** processing is prohibited, subject to the s. 27 authorizations, for a data subject's religious or philosophical beliefs, race or ethnic origin, trade union membership, political persuasion, health or sex life, or biometric information, and for criminal behaviour. A child's personal information is governed separately (ss. 34-35).
 - **Regulatory authority:** Information Regulator.
 
 ---
@@ -51,22 +51,22 @@ Special personal information (religion or philosophy, race or ethnic origin, tra
 ## AI and privacy obligations
 
 - **Processing Limitation (Condition 2) and Purpose Specification (Condition 3):** Apply to the use of personal information in AI training and operation.
-- **Automated decision-making (POPIA Section 71):** Data subjects have the right not to be subject to decisions taken solely on the basis of automated processing of personal information where those decisions have legal or similarly significant effects. The responsible party must inform the data subject and allow for human review.
+- **Automated decision-making (POPIA Section 71):** a data subject may not be subject to a decision that results in legal consequences, or affects the data subject to a substantial degree, based solely on automated processing intended to profile the data subject (s. 71(1)). This does not apply where the decision is taken in connection with a contract (with the data subject's request met or appropriate safeguards taken) or is governed by a law or code of conduct in which appropriate measures safeguard the data subject's legitimate interests (s. 71(2)). Where the contractual route is relied on, those appropriate measures (s. 71(2)(a)(ii)) must give the data subject an opportunity to make representations and sufficient information about the underlying logic (s. 71(3)).
 - **Security safeguards (Condition 7):** Responsible parties must implement appropriate technical and organizational measures to protect personal information processed in AI systems.
-- The Information Regulator has published guidance encouraging responsible parties to conduct PIAs before deploying AI systems involving personal information.
+- The concrete high-risk mechanism is prior authorization: a responsible party must obtain the Regulator's prior authorization before it links a unique identifier, for a purpose other than the one it was collected for, with information processed by other responsible parties; processes criminal or unlawful-conduct information for third parties; processes information for credit reporting; or transfers special or children's information to a foreign country without adequate protection (s. 57(1)), unless a Chapter 7 code of conduct for the sector is in force (s. 57(3)).
 
 ---
 
 ## Cross-border transfer mechanisms
 
-- **Section 72:** Restricts transfer of personal information to a third party in a foreign country unless: the foreign country has adequate protection (as determined by the Information Regulator); the data subject consents; the transfer is necessary for the performance of a contract; it is in the public interest; it is necessary for establishment, exercise, or defence of legal claims; or the responsible party takes reasonable steps to ensure that adequate protection is in place.
+- **Section 72:** a responsible party may transfer personal information to a third party in a foreign country only where: the recipient is subject to a law, binding corporate rules, or binding agreement providing an adequate level of protection substantially similar to POPIA's conditions and onward-transfer rules (s. 72(1)(a)); the data subject consents (b); the transfer is necessary to perform a contract with the data subject or for pre-contractual measures at the data subject's request (c); the transfer is necessary to conclude or perform a contract concluded in the data subject's interest between the responsible party and a third party (d); or the transfer is for the data subject's benefit where obtaining consent is not reasonably practicable but the data subject would likely give it (e).
 
 ---
 
 ## Enforcement and fines
 
 - Administrative fines up to ZAR 10 million (approximately USD 535,000).
-- Criminal penalties including imprisonment for responsible parties and operators in serious cases.
+- Criminal penalties on conviction for the enumerated offences: up to 10 years' imprisonment or a fine (or both) for the s. 100/103(1)/104(2)/105(1)/106 offences, and up to 12 months or a fine (or both) for the s. 59/101/102/103(2)/104(1) offences (s. 107).
 - Private right of action for damages.
 
 ---
