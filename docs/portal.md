@@ -490,7 +490,7 @@ The Data Protection Officer needs the privacy programme charter, policy, procedu
 - [Philippines Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-philippines.md) (maturity: Baseline)
 - [Privacy Jurisdiction Index](../privacy/annex-privacy-jurisdiction-index.md) (maturity: Baseline)
 - [Saudi Arabia Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-saudi-arabia.md) (maturity: Baseline)
-- [Singapore Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-singapore.md) (maturity: Baseline)
+- [Singapore Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-singapore.md) (maturity: Mature)
 - [South Africa Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-south-africa.md) (maturity: Baseline)
 - [South Korea Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-south-korea.md) (maturity: Baseline)
 - [Switzerland Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-switzerland.md) (maturity: Baseline)

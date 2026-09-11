@@ -37,11 +37,11 @@ The metadata block above carries a generator schema constant for `Version` and t
 
 ---
 
-_Summary as of last regeneration: Mature: 111, Baseline: 169, Draft: 68, Unknown: 0._
+_Summary as of last regeneration: Mature: 112, Baseline: 168, Draft: 68, Unknown: 0._
 
 ## Mature
 
-_111 documents._
+_112 documents._
 
 | Path | Title | Type | Version | Date |
 | --- | --- | --- | --- | --- |
@@ -110,6 +110,7 @@ _111 documents._
 | [privacy/jurisdictions/annex-privacy-india.md](../privacy/jurisdictions/annex-privacy-india.md) | India Privacy Regulatory Requirements | Annex | 1.1.8 | 2026-08-16 |
 | [privacy/jurisdictions/annex-privacy-japan.md](../privacy/jurisdictions/annex-privacy-japan.md) | Japan Privacy Regulatory Requirements | Annex | 1.1.1 | 2026-09-04 |
 | [privacy/jurisdictions/annex-privacy-malaysia.md](../privacy/jurisdictions/annex-privacy-malaysia.md) | Malaysia Privacy Regulatory Requirements | Annex | 1.1.2 | 2026-07-02 |
+| [privacy/jurisdictions/annex-privacy-singapore.md](../privacy/jurisdictions/annex-privacy-singapore.md) | Singapore Privacy Regulatory Requirements | Annex | 1.1.0 | 2026-09-11 |
 | [privacy/jurisdictions/annex-privacy-united-kingdom.md](../privacy/jurisdictions/annex-privacy-united-kingdom.md) | United Kingdom Privacy Regulatory Requirements | Annex | 1.1.3 | 2026-09-04 |
 | [privacy/jurisdictions/annex-privacy-united-states.md](../privacy/jurisdictions/annex-privacy-united-states.md) | United States Privacy Regulatory Requirements | Annex | 1.2.9 | 2026-09-04 |
 | [privacy/jurisdictions/annex-privacy-vietnam.md](../privacy/jurisdictions/annex-privacy-vietnam.md) | Vietnam Privacy Regulatory Requirements | Annex | 1.2.1 | 2026-08-04 |
@@ -161,7 +162,7 @@ _111 documents._
 
 ## Baseline
 
-_169 documents._
+_168 documents._
 
 | Path | Title | Type | Version | Date |
 | --- | --- | --- | --- | --- |
@@ -261,7 +262,6 @@ _169 documents._
 | [privacy/jurisdictions/annex-privacy-nigeria.md](../privacy/jurisdictions/annex-privacy-nigeria.md) | Nigeria Privacy Regulatory Requirements | Annex | 1.0.6 | 2026-09-05 |
 | [privacy/jurisdictions/annex-privacy-philippines.md](../privacy/jurisdictions/annex-privacy-philippines.md) | Philippines Privacy Regulatory Requirements | Annex | 1.0.3 | 2026-07-02 |
 | [privacy/jurisdictions/annex-privacy-saudi-arabia.md](../privacy/jurisdictions/annex-privacy-saudi-arabia.md) | Saudi Arabia Privacy Regulatory Requirements | Annex | 1.0.3 | 2026-07-02 |
-| [privacy/jurisdictions/annex-privacy-singapore.md](../privacy/jurisdictions/annex-privacy-singapore.md) | Singapore Privacy Regulatory Requirements | Annex | 1.0.6 | 2026-08-14 |
 | [privacy/jurisdictions/annex-privacy-south-africa.md](../privacy/jurisdictions/annex-privacy-south-africa.md) | South Africa Privacy Regulatory Requirements | Annex | 1.0.4 | 2026-07-02 |
 | [privacy/jurisdictions/annex-privacy-south-korea.md](../privacy/jurisdictions/annex-privacy-south-korea.md) | South Korea Privacy Regulatory Requirements | Annex | 1.0.3 | 2026-07-02 |
 | [privacy/jurisdictions/annex-privacy-switzerland.md](../privacy/jurisdictions/annex-privacy-switzerland.md) | Switzerland Privacy Regulatory Requirements | Annex | 1.0.5 | 2026-08-12 |
