@@ -2,8 +2,8 @@
 
 **Document Title:** Latin America Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.11\
-**Date:** 2026-09-04\
+**Version:** 1.0.12\
+**Date:** 2026-09-11\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/jurisdictions/annex-privacy-brazil.md`](../jurisdictions/annex-privacy-brazil.md), [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -56,7 +56,7 @@ This annex provides an overview of privacy regulatory requirements in key Latin 
 Most Latin American jurisdictions apply general data protection principles to AI processing of personal data. Key considerations:
 
 - **Argentina:** The AAIP has issued guidance on AI and data protection, applying Law 25.326 to automated processing; that guidance is cited illustratively and is confirmed by adopters against current AAIP publications. Algorithmic transparency is an area of active regulatory development.
-- **Mexico:** Under the 2025 LFPDPPP, the Secretaría Anticorrupción y Buen Gobierno applies the law's principles to automated processing, requiring transparency about automated processing in privacy notices. The LFPDPPP provides rights to access, rectification, cancellation, and objection (ARCO rights). See the dedicated [`Mexico privacy annex`](annex-privacy-mexico.md).
+- **Mexico:** under the 2025 LFPDPPP (administered by the Secretaría Anticorrupción y Buen Gobierno), the privacy-notice contents are fixed by Article 15 and do not include a specific automated-processing disclosure; the automated-decision provision is the Article 26(II) right to object where personal data are subject to automated processing that produces unwanted legal effects or significantly affects the person's interests, rights, or freedoms by evaluating personal aspects without human intervention. The law provides the access, rectification, cancellation, and objection (ARCO) rights. See the dedicated [`Mexico privacy annex`](annex-privacy-mexico.md).
 - **Colombia:** The SIC applies Law 1581 to AI systems. Data subjects may exercise ARCO rights against automated processing.
 - **Chile and Peru:** Both apply their data protection laws to AI processing. Chile has enacted Law 21.719 (in force 2026-12-01), which introduces explicit automated decision-making provisions; Peru applies its Law 29733.
 - **BASC regional context:** In jurisdictions where BASC certification is relevant, privacy controls should be aligned with BASC security management standards in addition to applicable local data protection laws.
@@ -78,11 +78,11 @@ Where the organization monitors the network and device activity of workers in th
 
 | Jurisdiction | Transfer Mechanism |
 |---|---|
-| Argentina | Adequacy (EU); contractual obligations; AAIP authorization |
+| Argentina | Prohibited to countries without adequate protection, subject to the Ley 25.326 Art. 12 exceptions (international judicial cooperation; medical-data exchange; banking/securities transfers; international treaties; intelligence cooperation) |
 | Mexico | LFPDPPP (2025) transfer provisions (Articles 35 and 36); privacy-notice disclosure and consent |
 | Colombia | Express, unequivocal consent; the Article 26 statutory exceptions; SIC declaration of conformity; Binding Corporate Rules (Normas Corporativas Vinculantes, Decreto 1074/2015 art. 2.2.2.25.7) for intra-group transfers outside Colombia |
 | Chile | Law 19.628 (until 2026-11-30); Law 21.719 (from 2026-12-01) adopts GDPR-style transfer mechanisms |
-| Peru | Consent; contractual safeguards; ANPD registration requirements |
+| Peru | Cross-border flow requires a sufficient (adequate) level of protection (Ley 29733 Art. 11); absent adequacy, the exporter guarantees compliance, subject to the Art. 15 exceptions (including consent), with the Reglamento's appropriate-guarantee/model-clause and registration requirements |
 
 ---
 
