@@ -2,7 +2,7 @@
 
 **Document Title:** New Zealand Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.0\
+**Version:** 1.1.1\
 **Date:** 2026-09-11\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -28,7 +28,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 - 13 Information Privacy Principles (IPPs) govern collection, use, disclosure, storage, and security of personal information.
 - **Mandatory breach notification:** Agencies must notify the OPC and affected individuals of privacy breaches likely to cause serious harm as soon as practicable after becoming aware.
 - **Extraterritorial reach:** Applies to any agency carrying on business in New Zealand, regardless of where they are based.
-- New Zealand benefits from EU adequacy status.
+- **EU adequacy:** the EU has recognized New Zealand as providing an adequate level of protection, facilitating data flows from the EU into New Zealand (an inbound recognition under EU law, not a provision of the Privacy Act).
 
 ---
 
@@ -56,21 +56,20 @@ New Zealand's Privacy Act 2020 (s. 22) sets thirteen information privacy princip
 
 - **IPP 1 (purpose of collection), IPP 6 (access), and IPP 10 (limits on use)** apply to personal information used in AI systems.
 - The OPC has published guidance on responsible use of AI and application of IPPs to AI-assisted decision-making.
-- **Automated decisions:** Decisions producing significant effects must, if challenged, be capable of human review. The OPC is monitoring global developments in automated decision-making rights regulation.
+- **Automated decisions:** the Privacy Act 2020 contains no automated decision-making provision; an adopter applying the library's automated-decision controls does so as governance practice, not as a Privacy Act requirement.
 
 ---
 
 ## Cross-border transfer mechanisms
 
-- **IPP 12** restricts transfer to overseas recipients. Transfer is permitted if: the overseas recipient is subject to privacy safeguards comparable to the IPPs; the data subject has authorized the transfer; or the agency takes reasonable steps to ensure that comparable protection is in place.
-- New Zealand benefits from EU adequacy status.
-- New Zealand participates in the APEC CBPR 2.0 framework.
+- **IPP 12** governs the disclosure of personal information to a foreign person or entity where the agency is relying on the IPP 11(1)(a), (c), (e), (f), (h), or (i) disclosure grounds (transfer to an agent for storage or processing is not a disclosure under s. 11(5)). In that case the disclosure is permitted only if: the individual authorizes it after being expressly informed the recipient may not provide comparable safeguards; or the recipient carries on business in New Zealand and the agency believes on reasonable grounds that, in relation to the information, the recipient is subject to the Act; or the agency believes on reasonable grounds that the recipient is subject to privacy laws with comparable safeguards, is a participant in a prescribed binding scheme, is subject to the privacy laws of a prescribed country and no prescribed limitation or qualification precludes the disclosure, or is otherwise required to provide comparable safeguards (IPP 12(1)(a)-(f)). These conditions do not apply to a disclosure relying on IPP 11(1)(e) or (f) where complying with them is not reasonably practicable (IPP 12(2)).
+- The EU's adequacy recognition of New Zealand governs transfers from the EU into New Zealand under EU law; it is not an IPP 12 outbound-disclosure route. A country or a binding scheme is an IPP 12 route only when prescribed by New Zealand regulations (ss. 213-214).
 
 ---
 
 ## Enforcement and fines
 
-- Pecuniary penalties up to NZD 10,000 for certain offences.
+- Criminal fines up to NZD 10,000 on conviction for the enumerated offences (s. 212), distinct from Human Rights Review Tribunal damages and the Commissioner's compliance-notice remedies.
 - The Human Rights Review Tribunal may award damages for proven privacy interferences.
 - The OPC may conduct investigations, issue compliance notices, and refer matters to the Director of Human Rights Proceedings.
 
