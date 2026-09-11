@@ -2,8 +2,8 @@
 
 **Document Title:** Data Subject Access Request Workflow Template\
 **Document Type:** Template\
-**Version:** 1.1.10\
-**Date:** 2026-09-03\
+**Version:** 1.1.11\
+**Date:** 2026-09-11\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md)\
@@ -63,7 +63,9 @@ The workflow has seven stages. Each stage has defined inputs, outputs, owners, a
 | Enhanced | Requests involving health, financial, or biometric data; requests with indications of identity fraud; requests from authorized third parties acting on behalf of the data subject; high-impact actions asserted through an unauthenticated channel (erasure, portability of a comprehensive data set, ADM review) | Government-issued photo ID plus secondary verification; notarized authorization for third-party requestors acting on behalf of the data subject. For the unauthenticated high-impact cases, the evidence is additionally reviewed by a second Privacy team member |
 | Re-verification | Requests for the same data type made within 12 months of a prior request | Standard verification unless circumstances indicate heightened risk |
 
-If identity cannot be verified within 10 business days, the request is suspended (not closed): the data subject is notified of the outstanding verification requirement and given a reasonable further period to provide acceptable evidence, per the governing procedure.
+Requests that do not require a verifiable consumer request, the CCPA / CPRA rights to opt out of sale or sharing, to limit sensitive personal information, and to opt out of ADMT (11 CCR sections 7026, 7027, 7221), skip this identity-verification stage and proceed to Stage 3 (scope definition) and fulfilment; a request to access ADMT instead requires the heightened Article 5 standard (a reasonably high degree of certainty for non-accountholders, 11 CCR s. 7062(c); password-protected-account verification, s. 7061).
+
+If identity cannot be verified within 10 business days, the request is suspended (not closed); for CCPA / CPRA requests the section 7021(b) clock runs from receipt regardless of verification time, so suspension marks case status only and does not pause that clock. The data subject is notified of the outstanding verification requirement and given a reasonable further period to provide acceptable evidence, per the governing procedure.
 
 ### Stage 3: Scope definition
 
@@ -82,7 +84,7 @@ If identity cannot be verified within 10 business days, the request is suspended
 | Owner | Each system-of-record steward; Privacy team coordinates |
 | Inputs | Scoped request; mapping of personal data to systems from the ROPA |
 | Outputs | Per-system extracts; aggregated assembly record; provenance per item |
-| SLA | Per the right's regulatory window: one month from intake under the GDPR (Art. 12(3)), extendable by two further months for complex or numerous requests with documented reason and subject notification within the first month; 45 days under the CCPA / CPRA for know, access, delete, and correct requests (11 CCR s. 7021), extendable once by an additional 45 days with notice within the first 45-day period, while an opt-out of sale/sharing (s. 7026(f)) and an ADMT opt-out submitted after processing has begun (s. 7221(n)) each carry a 15-business-day ceiling; 30 days under PIPEDA; confirmation and access under Brazil's LGPD, Art. 19 (immediately in simplified format, or within 15 days by complete declaration); 20 days for an ARCO determination under Mexico's LFPDPPP (Art. 31). Where more than one regime applies to a request, run the strictest (shortest) applicable window |
+| SLA | Per the right's regulatory window: one month from intake under the GDPR (Art. 12(3)), extendable by two further months for complex or numerous requests with documented reason and subject notification within the first month; 45 days under the CCPA / CPRA for know, access, delete, and correct requests (11 CCR s. 7021), extendable once by an additional 45 days with notice within the first 45-day period, while an opt-out of sale/sharing (s. 7026(f)), a limit of sensitive personal information (s. 7027(g)), and an ADMT opt-out submitted after processing has begun (s. 7221(n)) each carry a 15-business-day ceiling, while an ADMT opt-out submitted before processing has begun requires the business not to initiate that processing (s. 7221(m)); 30 days under PIPEDA; confirmation and access under Brazil's LGPD, Art. 19 (immediately in simplified format, or within 15 days by complete declaration); 20 days for an ARCO determination under Mexico's LFPDPPP (Art. 31). Where more than one regime applies to a request, run the strictest (shortest) applicable window |
 | Quality gates | Each system queried with the subject identifier; null returns recorded explicitly; backups and cold storage included if reasonable; embeddings, vector stores, AI training data, and derived datasets considered |
 
 ### Stage 5: Redaction and exception handling
@@ -122,13 +124,14 @@ If identity cannot be verified within 10 business days, the request is suspended
 | Field | Description |
 | --- | --- |
 | Request ID | Unique identifier |
-| Right category | Access, rectification, erasure, restriction, portability, objection, consent withdrawal, ADM review, complaint, safeguards access, other |
+| Right category | Access, rectification, erasure, restriction, portability, objection, consent withdrawal, ADM review, opt-out of sale or sharing (CCPA), limit sensitive PI (CCPA), opt-out of ADMT (CCPA), access ADMT (CCPA), complaint, safeguards access, other |
 | Jurisdiction | Applicable regime per the subject's residency and processing context |
 | Channel | Web form, email, postal, social, regulator, legal representative, in-product |
 | Intake timestamp (UTC) | |
 | Acknowledgement timestamp (UTC) | |
 | Identity verification level | Standard, Enhanced, Re-verification (per the governing procedure Section 4.2) |
 | Identity verification mechanism | Photo ID; account or employment confirmation; paired data points (an auth session or registered-channel token counts as one of the two); photo ID plus secondary verification; notarized third-party authorization |
+| Verification requirement | Verifiable consumer request required (know / access / delete / correct; access ADMT under Article 5 to a heightened standard per 11 CCR ss. 7222(e), 7061-7062, reaching a reasonably high degree of certainty for non-accountholders (s. 7062(c))) OR no verifiable consumer request required (opt-out of sale or sharing s. 7026, limit sensitive PI s. 7027, opt-out of ADMT s. 7221(f)) |
 | Scope | Time range, data categories, systems, recipients of interest |
 | Systems searched | List of systems queried; per-system result (data found, null, refused with rationale) |
 | Redactions applied | Count and rationale categories |

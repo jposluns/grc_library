@@ -115,9 +115,9 @@ _110 documents._
 | [privacy/jurisdictions/annex-privacy-vietnam.md](../privacy/jurisdictions/annex-privacy-vietnam.md) | Vietnam Privacy Regulatory Requirements | Annex | 1.2.1 | 2026-08-04 |
 | [privacy/policy-privacy-and-data-governance.md](../privacy/policy-privacy-and-data-governance.md) | Privacy and Data Governance Policy | Policy | 1.4.21 | 2026-09-07 |
 | [privacy/procedure-data-protection-and-privacy-breach-response.md](../privacy/procedure-data-protection-and-privacy-breach-response.md) | Data Protection and Privacy Breach Response Procedure | Procedure | 1.4.34 | 2026-09-04 |
-| [privacy/procedure-data-subject-rights-management.md](../privacy/procedure-data-subject-rights-management.md) | Data Subject Rights Management Procedure | Procedure | 1.6.18 | 2026-09-03 |
+| [privacy/procedure-data-subject-rights-management.md](../privacy/procedure-data-subject-rights-management.md) | Data Subject Rights Management Procedure | Procedure | 1.6.19 | 2026-09-11 |
 | [privacy/procedure-privacy-impact-and-cross-border-transfer.md](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) | Privacy Impact and Cross-Border Transfer Procedure | Procedure | 1.6.6 | 2026-09-05 |
-| [privacy/template-dsar-workflow.md](../privacy/template-dsar-workflow.md) | Data Subject Access Request Workflow Template | Template | 1.1.10 | 2026-09-03 |
+| [privacy/template-dsar-workflow.md](../privacy/template-dsar-workflow.md) | Data Subject Access Request Workflow Template | Template | 1.1.11 | 2026-09-11 |
 | [resilience/plan-business-continuity-and-crisis-management.md](../resilience/plan-business-continuity-and-crisis-management.md) | Business Continuity and Crisis Management Plan | Plan | 1.1.2 | 2026-07-03 |
 | [resilience/plan-it-disaster-recovery.md](../resilience/plan-it-disaster-recovery.md) | IT Disaster Recovery Plan | Plan | 1.4.0 | 2026-09-02 |
 | [resilience/procedure-backup-and-recovery.md](../resilience/procedure-backup-and-recovery.md) | Backup and Recovery Procedure | Procedure | 1.1.1 | 2026-09-11 |
