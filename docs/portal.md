@@ -479,7 +479,7 @@ The Data Protection Officer needs the privacy programme charter, policy, procedu
 - [India Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-india.md) (maturity: Mature)
 - [Indonesia Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-indonesia.md) (maturity: Baseline)
 - [Japan Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-japan.md) (maturity: Mature)
-- [Kenya Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-kenya.md) (maturity: Baseline)
+- [Kenya Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-kenya.md) (maturity: Mature)
 - [Latin America Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-latin-america.md) (maturity: Baseline)
 - [Legitimate Interest Assessment for Employment Monitoring Annex](../privacy/annex-legitimate-interest-employment-monitoring.md) (maturity: Draft)
 - [Malaysia Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-malaysia.md) (maturity: Mature)
