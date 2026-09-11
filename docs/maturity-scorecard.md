@@ -115,7 +115,7 @@ _117 documents._
 | [privacy/jurisdictions/annex-privacy-singapore.md](../privacy/jurisdictions/annex-privacy-singapore.md) | Singapore Privacy Regulatory Requirements | Annex | 1.1.0 | 2026-09-11 |
 | [privacy/jurisdictions/annex-privacy-south-africa.md](../privacy/jurisdictions/annex-privacy-south-africa.md) | South Africa Privacy Regulatory Requirements | Annex | 1.1.1 | 2026-09-11 |
 | [privacy/jurisdictions/annex-privacy-south-korea.md](../privacy/jurisdictions/annex-privacy-south-korea.md) | South Korea Privacy Regulatory Requirements | Annex | 1.1.0 | 2026-09-11 |
-| [privacy/jurisdictions/annex-privacy-thailand.md](../privacy/jurisdictions/annex-privacy-thailand.md) | Thailand Privacy Regulatory Requirements | Annex | 1.1.0 | 2026-09-11 |
+| [privacy/jurisdictions/annex-privacy-thailand.md](../privacy/jurisdictions/annex-privacy-thailand.md) | Thailand Privacy Regulatory Requirements | Annex | 1.1.1 | 2026-09-11 |
 | [privacy/jurisdictions/annex-privacy-united-kingdom.md](../privacy/jurisdictions/annex-privacy-united-kingdom.md) | United Kingdom Privacy Regulatory Requirements | Annex | 1.1.3 | 2026-09-04 |
 | [privacy/jurisdictions/annex-privacy-united-states.md](../privacy/jurisdictions/annex-privacy-united-states.md) | United States Privacy Regulatory Requirements | Annex | 1.2.9 | 2026-09-04 |
 | [privacy/jurisdictions/annex-privacy-vietnam.md](../privacy/jurisdictions/annex-privacy-vietnam.md) | Vietnam Privacy Regulatory Requirements | Annex | 1.2.1 | 2026-08-04 |
