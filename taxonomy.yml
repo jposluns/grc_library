@@ -9159,8 +9159,8 @@ documents:
   domain: "privacy"
   type: "Annex"
   title: "New Zealand Privacy Regulatory Requirements"
-  version: "1.0.4"
-  date: "2026-07-02"
+  version: "1.1.0"
+  date: "2026-09-11"
   owner: "Data Protection Officer"
   approving_authority: "Governance Library Maintainer"
   classification: "Public"
@@ -9177,6 +9177,7 @@ documents:
   sections:
     - "Purpose"
     - "Applicable laws and regulatory authorities"
+    - "Thirteen information privacy principles (IPPs)"
     - "AI and privacy obligations"
     - "Cross-border transfer mechanisms"
     - "Enforcement and fines"
