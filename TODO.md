@@ -67,7 +67,6 @@ Fill significant gaps: deepen thin-but-present content to operational sufficienc
 | 2.3 | Crypto-asset / blockchain governance domain (FR-70, H[critical], XL) | `[public]` |
 | 2.15 | Landing-page standards list: link each item to its authoritative source, MOVED to 2.25.2 (Series A) (maintainer-confirmed 2026-07-15, M, S-M) | `[public]` |
 | 2.21 | Further AI-jurisdiction annexes (M, L; partly source-gated) | `[public]` |
-| 2.23 | CCPA statute (eff. 2026-01-01) currency + alignment review (maintainer-flagged 2026-07-16, M, S; cross-repo, blocked on ref ingestion) | `[public]` |
 | 2.25 | Governance traceability and coverage expansion (umbrella; maintainer-directed 2026-07-23, H, XL) | `[content+machinery]` `[public]` |
 | 2.25.3 | Canadian public-sector authority coverage (consolidated with 2.22; CANADA-PRIORITY, H, L) | `[content]` `[public]` |
 | 2.25.4 | AI assurance and evaluation content (H, L) | `[content]` `[public]` |
