@@ -341,6 +341,7 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 - [Records Retention and Destruction Standard](../governance/standard-records-retention-and-destruction.md) (maturity: Mature)
 - [Sanctions and Export-Control Screening Standard](../compliance/standard-sanctions-and-export-control-screening.md) (maturity: Baseline)
 - [Semantic Continuity in Migration and Retirement Standard](../governance/standard-semantic-continuity-in-migration-and-retirement.md) (maturity: Draft)
+- [Smart-Contract and Oracle Risk Standard](../crypto/standard-smart-contract-and-oracle-risk.md) (maturity: Draft)
 - [Third-Party and Supply Chain Risk Standard](../risk/standard-third-party-and-supply-chain-risk.md) (maturity: Mature)
 
 ### Template
@@ -455,6 +456,7 @@ Security architects need the dev-security standards, the AI security guides, the
 - [Security Baseline and Standards Reference](../dev-security/standard-security-baseline-and-standards-reference.md) (maturity: Mature)
 - [Security Operations Centre Operating Model Standard](../security/standard-soc-operating-model.md) (maturity: Baseline)
 - [Security Quick Reference](../dev-security/standard-security-quick-reference.md) (maturity: Mature)
+- [Smart-Contract and Oracle Risk Standard](../crypto/standard-smart-contract-and-oracle-risk.md) (maturity: Draft)
 - [Software Composition Analysis Standard](../dev-security/standard-software-composition-analysis.md) (maturity: Mature)
 - [Software Evaluation, Acceptance and Lifecycle Management Standard](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md) (maturity: Baseline)
 - [Threat Modelling Standard](../security/standard-threat-modelling.md) (maturity: Baseline)
@@ -621,6 +623,7 @@ The Chief Compliance Officer needs the compliance and audit policies, the regula
 - [Digital Asset Custody Standard](../crypto/standard-digital-asset-custody.md) (maturity: Draft)
 - [Internal Audit Standard](../compliance/standard-internal-audit.md) (maturity: Mature)
 - [Sanctions and Export-Control Screening Standard](../compliance/standard-sanctions-and-export-control-screening.md) (maturity: Baseline)
+- [Smart-Contract and Oracle Risk Standard](../crypto/standard-smart-contract-and-oracle-risk.md) (maturity: Draft)
 
 ### Template
 
