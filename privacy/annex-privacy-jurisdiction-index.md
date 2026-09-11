@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Jurisdiction Index\
 **Document Type:** Annex\
-**Version:** 1.0.39\
+**Version:** 1.0.40\
 **Date:** 2026-09-11\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -111,7 +111,7 @@ Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting 
 | Peru | Ley 29733; DS 016-2024-JUS (2024) | Automated-decision rights; facultative DPIA (DS Art 40) | Adequacy-plus-safeguards; DGTAIPD model clauses (DS Arts 18-20) | Fines up to 100 UIT for very serious (serious to 50 UIT); capped at 10% prior-year gross income |
 | Colombia | Ley 1581 de 2012; Decreto 1074 de 2015 | ARCO-style rights; no ADM-specific regime | Adequacy determination + Normas Corporativas Vinculantes (BCR) | Fines up to 2,000 SMLMV (SIC) |
 | Latin America | Various (see jurisdiction file) | Varies by jurisdiction | Varies by jurisdiction | Varies by jurisdiction |
-| Singapore | PDPA | PDPC AI Model Governance Framework; mandatory breach notification | PDPC contractual clauses, CBPR 2.0 | SGD 1M, or 10% of SG turnover if it exceeds SGD 10M (s.48J) |
+| Singapore | PDPA | mandatory breach notification; voluntary PDPC Model AI Governance Framework | s. 26 prescribed comparable-protection requirements; Commission exemption (s. 26(2)) | SGD 1M, or 10% of SG turnover if it exceeds SGD 10M (s.48J) |
 | Australia | Privacy Act 1988 | AI Ethics Framework (voluntary); APP principles; Privacy Act 2024 reforms | APP 8 contractual safeguards | AUD 50M or 30% adjusted turnover |
 | Japan | APPI | APPI purpose limitation for AI training; PPC AI guidance (not held, adopter-verify) | Adequacy (EU, UK); contractual | JPY 100M |
 | South Korea | PIPA 2023 | Right to explanation; automated decision review; PIPC guidance | Adequacy (EU); PIPC SCCs; consent | 3% annual revenue |
