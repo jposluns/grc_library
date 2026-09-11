@@ -2,8 +2,8 @@
 
 **Document Title:** European Union Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.19\
-**Date:** 2026-09-04\
+**Version:** 1.1.20\
+**Date:** 2026-09-11\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -37,7 +37,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 - **Lawful basis (Article 6):** Personal data used to train or operate AI systems must have a lawful basis (consent, legitimate interests, contract, legal obligation, vital interests, or public task).
 - **Special categories (Article 9):** AI systems processing biometric data, health data, political opinions, racial or ethnic origin, or other special categories require explicit consent or an Article 9(2) exemption. The EU AI Act's new Article 4a (inserted by Regulation (EU) 2026/1744) supplies a narrow Union-law basis, under Article 9(2), point (g), of the GDPR, for the exceptional processing of special categories of personal data where strictly necessary for bias detection and correction in AI systems, subject to the cumulative safeguards and limits Article 4a sets out (including that the purpose cannot be met with other data, that access is controlled and the data not shared onward, and that it is deleted once no longer needed). Article 4a states the full scope and conditions, which differ between its paragraph 1 (providers of high-risk systems) and paragraph 2 (other AI systems, limited to specified bias harms).
 - **Automated decision-making and profiling (Article 22):** Data subjects have the right not to be subject to solely automated decisions producing legal or similarly significant effects. The permitted grounds are contract necessity (Article 22(2)(a)), authorization by Union or Member State law (Article 22(2)(b)), and explicit consent (Article 22(2)(c)); for the contract and consent grounds, Article 22(3) requires safeguards including the right to obtain human intervention, to express a point of view, and to contest the decision, while the legal-authorization ground carries the safeguards laid down in that authorizing law.
-- **Data Protection Impact Assessment (Article 35):** Mandatory before processing likely to result in high risk, including systematic automated processing, large-scale processing of special categories, or systematic monitoring. AI systems processing personal data at scale will typically require a DPIA.
+- **Data Protection Impact Assessment (Article 35):** required before processing likely to result in a high risk (Art. 35(1)), and in particular for a systematic and extensive evaluation of personal aspects based on automated processing (including profiling) on which decisions producing legal or similarly significant effects are based, large-scale processing of special categories or of personal data relating to criminal convictions and offences (Article 10), or systematic monitoring of a publicly accessible area on a large scale (Art. 35(3)). A DPIA is required in these cases (subject to the Article 35(10) exception), and AI systems meeting these conditions fall within them.
 - **Data minimization and purpose limitation (Articles 5(1)(b) and 5(1)(c)):** AI training datasets must be limited to data adequate, relevant, and necessary for the specified purpose. Repurposing data for AI training requires a compatible purpose assessment or fresh lawful basis.
 - **Transparency and the safeguards around automated decisions (Articles 13(2)(f), 14(2)(g), 15(1)(h), 22):** For the automated decision-making referred to in Article 22(1) and (4), the controller provides meaningful information about the logic involved, at the point Article 13 sets for data obtained from the subject and Article 14(3) sets for data obtained indirectly, and again on access under Article 15(1)(h). Where such a decision produces legal or similarly significant effects, Article 22(2) sets the limited grounds on which it is permitted; for the Article 22(2)(a) and (c) grounds, Article 22(3) requires safeguards including the right to obtain human intervention, to express a point of view, and to contest the decision, while the Article 22(2)(b) ground carries its own safeguards in the authorizing Union or Member State law.
 
@@ -118,8 +118,8 @@ GDPR Article 8(1) sets the default age at 16 for child consent to information so
 
 ## Enforcement and fines
 
-- **Higher tier (GDPR):** Up to €20 million or 4% of total worldwide annual turnover for violations of basic principles, lawful basis, data subject rights, international transfers, and high-risk processing obligations.
-- **Lower tier (GDPR):** Up to €10 million or 2% of total worldwide annual turnover for data controller and processor obligation violations and notification failures.
+- **Higher tier (GDPR):** Up to €20 million or 4% of total worldwide annual turnover for violations of the basic principles, conditions for consent, data subject rights (Articles 12-22), and international-transfer rules (Articles 44-49) (Article 83(5)).
+- **Lower tier (GDPR):** Up to €10 million or 2% of total worldwide annual turnover for the controller and processor obligations under Articles 25 to 39 (including data-protection by design, security, breach notification, and the DPIA and high-risk-processing duties) (Article 83(4)).
 - **EU AI Act: prohibited practices:** Up to €35 million or 7% of worldwide annual turnover.
 - **EU AI Act: high-risk/GPAI violations:** Up to €15 million or 3% of worldwide annual turnover.
 - **EU AI Act: incorrect information:** Up to €7.5 million or 1% of worldwide annual turnover. Lower absolute caps apply to SMEs and start-ups.
