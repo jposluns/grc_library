@@ -2,8 +2,8 @@
 
 **Document Title:** IT Disaster Recovery Plan\
 **Document Type:** Plan\
-**Version:** 1.4.0\
-**Date:** 2026-09-02\
+**Version:** 1.4.1\
+**Date:** 2026-09-11\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -142,7 +142,7 @@ In an illustrative ransomware scenario, recovery could span roughly a 30-day win
 | ISO 22301:2019 | Business Continuity Management Systems | DR governance and testing |
 | COBIT 2019 | DSS04: Managed Continuity | IT continuity management |
 | NIST SP 800-34r1 | Contingency Planning Guide for Federal Information Systems | DR plan structure |
-| CSA CCM v4.1 | BCR-01 through BCR-07: Business Continuity and Resilience | Cloud resilience controls |
+| CSA CCM v4.1 | BCR-08, BCR-09, BCR-11: backups, disaster response plan, and redundant business-critical equipment | Cloud resilience controls |
 
 ---
 
