@@ -2,8 +2,8 @@
 
 **Document Title:** Internal Audit Standard\
 **Document Type:** Standard\
-**Version:** 1.2.7\
-**Date:** 2026-09-05\
+**Version:** 1.2.8\
+**Date:** 2026-09-11\
 **Owner:** Chief Audit Executive\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/template-audit-evidence-package.md`](template-audit-evidence-package.md)\
@@ -446,6 +446,8 @@ Audit findings are not closed in the audit register until the corresponding CAPA
 | CSA Cloud Controls Matrix | A&A-01 through A&A-06 (Audit and Assurance) | Audit planning, scope, independence, results, metrics, and remediation |
 | NIST Cybersecurity Framework 2.0 | GV.OV (Oversight), ID.IM (Improvement) | Oversight and improvement of the audit programme |
 | BASC International Norm V6-2022 | §8.2 Internal Audit | Internal audit requirements for BASC certification scope |
+
+**Advisory guidance (not a conformity requirement).** The BASC International Norm Implementation Guide V6-2022 (CSMS), Performance Evaluation / Internal audit program section, offers implementation guidance for the §8.2 Internal Audit alignment above: complete the internal-audit cycle (report delivery, result communication, action implementation, and effectiveness verification) before the annual certification expiry; define an internal-audit program covering objectives, scope, responsible persons, records, results management and monitoring, and program review and improvement; and maintain auditor competency through interpretation and internal-auditor training, risk-management competency, and periodic re-evaluation. The guide states it does not constitute mandatory requirements evidenced for BASC conformity; it is cited here as guidance only.
 
 ---
 

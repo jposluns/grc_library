@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Audit Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.17\
-**Date:** 2026-09-07\
+**Version:** 1.0.19\
+**Date:** 2026-09-11\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -20,7 +20,7 @@
 
 This procedure defines the process for conducting periodic audits of suppliers, vendors, and third-party service providers to verify adherence to contractual obligations, security standards, regulatory requirements, and ethical conduct principles.
 
-It is aligned with ISO/IEC 27036-4:2016, COBIT 2019 APO10.05, CSA CCM v4.1 STA-16, BASC International Standard v6 2022, and ENISA's ongoing AI cybersecurity work (feasibility studies and standardization gap analyses under the EU Cybersecurity Act framework; no dedicated AI cybersecurity certification scheme has been formally published as of 2026).
+It is aligned with ISO/IEC 27036-4:2016, COBIT 2019 APO10.05, CSA CCM v4.1 STA-16, BASC International Security Standard v6 (2022), and ENISA's ongoing AI cybersecurity work (feasibility studies and standardization gap analyses under the EU Cybersecurity Act framework; no dedicated AI cybersecurity certification scheme has been formally published as of 2026).
 
 ---
 
@@ -89,7 +89,7 @@ Prior to conducting the audit, the audit team must:
  - ISO/IEC 27036-4 cloud-services supplier security guidance (clause 6; Annex A is an informative cross-reference to other standards, not a control set).
  - COBIT 2019 APO10.05 management practices.
  - CSA CCM v4.1 STA-16 supply chain security assessment controls.
- - BASC International Standard v6 2022, Sections 1 to 7 (for trade and logistics suppliers).
+ - BASC International Security Standard v6 (2022) for trade and logistics suppliers; its companion Standards Implementation Guide structures the control areas as business partners, security of cargo units and cargo transport units, security in cargo handling processes and other processes defined in the scope of the CSMS, personnel security, access control and physical security, and information security (the guide does not number these sections).
  - EU AI Act high-risk-AI-system conformity assessment (Article 43) and the obligations of providers, deployers, and other parties (Articles 16 to 27), with ENISA AI cybersecurity guidance where applicable (for AI system suppliers).
 
 ### Step 3: Evaluation and scoring
@@ -174,7 +174,8 @@ Sector-programme compliance metrics must be reported to the sector-conditional r
 - COBIT 2019 APO10.05: Monitor vendor performance and compliance.
 - CSA Cloud Controls Matrix v4.1, STA-16: Supply Chain Data Security Assessment.
 - ENISA AI cybersecurity work (feasibility studies and standardization gap analyses under the EU Cybersecurity Act framework; no dedicated AI cybersecurity certification scheme has been formally published as of 2026).
-- BASC International Standard v6 2022: Business Alliance for Secure Commerce.
+- BASC International Security Standard v6 (2022): Business Alliance for Secure Commerce.
+- BASC International Standards Implementation Guide V6-2022 (Business Partners): Business Alliance for Secure Commerce. Advisory guidance on risk-based business-partner selection, criticality criteria, security agreements, and second-party audits; the guide states it does not constitute mandatory requirements evidenced for conformity.
 - WCO SAFE Framework of Standards 2025 edition: World Customs Organization.
 - ISO 28000:2022, Security and resilience, Security management systems for the supply chain.
 
