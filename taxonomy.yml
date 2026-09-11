@@ -544,7 +544,7 @@ documents:
   domain: "ai"
   type: "Standard"
   title: "AI and Agentic Development Security Standard"
-  version: "1.8.29"
+  version: "1.8.30"
   date: "2026-09-11"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"

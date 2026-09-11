@@ -2,7 +2,7 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.29\
+**Version:** 1.8.30\
 **Date:** 2026-09-11\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -461,7 +461,7 @@ External rule repositories (TikiTribe, Kariedo, addyosmani, Wiz) referenced in [
 **SUPPLY-SEC-07:** Serialized ML model files must be scanned for unsafe operators before being loaded by a production process or accepted into a model registry. Scope and pattern:
 
 1. **In-scope file formats**: pickle and pickle-derived (`.pkl`, `.pickle`, `cloudpickle`, `dill`, `joblib`), PyTorch (`.bin`, `.pt`, ZIP-based PyTorch archives), HDF5 (`.h5`), Keras V3, TensorFlow SavedModel (Protocol Buffer), NumPy object arrays (`.npy` with `allow_pickle=True`).
-2. **Out-of-scope (lower attack surface)**: ONNX, Safetensors, GGUF, TensorRT plan files. These restrict to ML computation without code execution at load time. Weight manipulation remains theoretically possible but is not addressed by file-content scanning.
+2. **Lower unsafe-deserialization surface (out of scope for operator scanning, with residual vectors)**: ONNX, Safetensors, and GGUF restrict to ML computation without code execution at load time, so they are out of scope for the unsafe-operator scanning above. Two residual vectors are not caught by that scanning and are handled by other controls: model-weight poisoning, a demonstrated technique (MITRE ATLAS AML.T0018.000, Poison AI Model), reviewed under model-provenance and integrity controls; and, for a format that bundles prompt-construction logic or templates with the model artifact (such as GGUF), tampering with that logic (MITRE ATLAS AML.T0018.003, Modify Prompt Construction Logic), which evades input filtering that inspects only external prompt content and is therefore reviewed under the model-provenance and integrity controls, not the prompt-injection I/O-handling controls alone. TensorRT plan and engine files, by contrast, are NOT in this lower-surface class: they are executable artifacts, and deserializing an untrusted engine is equivalent to executing untrusted native code on the host and GPU with no sandbox, so they are handled like any other binary (deserialize only self-built engines or engines received over a trusted, authenticated channel, with signing and plugin-source control).
 3. **Required detection categories** (Critical severity, deployment blocking unless excepted per item 8):
    - Python builtins enabling code execution: `eval`, `exec`, `compile`, `open`, `breakpoint`, `__import__`, `getattr`, `apply`.
    - OS / process / network modules: `os`, `nt`, `posix`, `sys`, `subprocess`, `socket`, `shutil`.
@@ -778,8 +778,8 @@ This section governs autonomous and semi-autonomous production action. It does n
 
 | Control Area | OWASP LLM Top 10 | MITRE ATLAS | CSA AICM v1.1.0 | NIST AI RMF | OWASP AI Exchange | SANS CAISG v1.4 | OWASP Top 10 for Agentic Applications (ASI) |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Prompt injection | LLM01:2026 | AML.T0051 | AIS-15, AIS-09 | GOVERN 1.1 | Prompt injection I/O handling | Model I/O handling | ASI01 |
-| Supply chain | LLM04:2026 | AML.T0010, AML.T0110, AML.T0115 | STA-10, STA-09 | MANAGE 2.2 | Supply chain manage | AI supply chain management | ASI04 |
+| Prompt injection | LLM01:2026 | AML.T0051, AML.T0018.003 | AIS-15, AIS-09 | GOVERN 1.1 | Prompt injection I/O handling | Model I/O handling | ASI01 |
+| Supply chain | LLM04:2026 | AML.T0010, AML.T0110, AML.T0115 | STA-10, STA-09 | GOVERN 6.1, MANAGE 3.1 | Supply chain manage | AI supply chain management | ASI04 |
 | Sensitive data disclosure | LLM02:2026 | N/A | DSP-17, IAM-16 | MAP 1.6 | Sensitive output handling | Data minimization and obfuscation | ASI02 (data exfiltration); ASI03 (privilege route) |
 | Tool misuse / overreach | LLM03:2026 | AML.T0053 | AIS-11, AIS-13, IAM-18 | GOVERN 2.2 | Least model privilege | Limit model behavior | ASI02 |
 | Unsafe code generation | LLM10:2026 | N/A | AIS-10, AIS-05 | MAP 1.1 | N/A | N/A | ASI05 |
