@@ -44,7 +44,7 @@ from lint_common import (
 )
 
 DIRECTIONAL_PROVIDER_MEMBERS: frozenset[str] = frozenset(
-    {"I&S-06", "CCC-05", "LOG-08", "STA-04", "DSP-18", "CEK-08", "IAM-11"}
+    {"I&S-06", "CCC-05", "LOG-08", "STA-04", "DSP-18", "CEK-08", "IAM-11", "IPY-02"}
 )
 
 RANGE_RE = re.compile(
