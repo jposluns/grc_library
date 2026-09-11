@@ -2,8 +2,8 @@
 
 **Document Title:** Reverse Framework Control Crosswalk Matrix\
 **Document Type:** Matrix\
-**Version:** 1.0.13\
-**Date:** 2026-09-01\
+**Version:** 1.0.14\
+**Date:** 2026-09-11\
 **Owner:** Control Framework Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../supply-chain/matrix-supply-chain-security-programme-alignment.md), [`NOTICE.md`](../NOTICE.md)\
@@ -235,7 +235,14 @@ This matrix does not reproduce restricted third-party framework text, does not e
 | LLM08:2026 Hidden context exposure (formerly system prompt leakage) | [`ai/guide-ai-adversarial-test-reference.md`](../ai/guide-ai-adversarial-test-reference.md), [`ai/guide-ai-security-technical-implementation.md`](../ai/guide-ai-security-technical-implementation.md) | Architectural recommendation |
 | LLM09:2026 Vector and embedding weaknesses | [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`ai/guide-ai-security-technical-implementation.md`](../ai/guide-ai-security-technical-implementation.md) | Architectural recommendation |
 | LLM10:2026 Improper output handling | [`ai/guide-ai-security-technical-implementation.md`](../ai/guide-ai-security-technical-implementation.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md) | Architectural recommendation |
-| MITRE ATLAS tactics (adversarial ML) | [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`ai/guide-ai-adversarial-test-reference.md`](../ai/guide-ai-adversarial-test-reference.md), [`ai/guideline-adversarial-evaluation-suite-development.md`](../ai/guideline-adversarial-evaluation-suite-development.md) | Architectural recommendation |
+| MITRE ATLAS AML.T0051 (LLM Prompt Injection) | [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md) | Architectural recommendation |
+| MITRE ATLAS AML.T0018.003 (Modify Prompt Construction Logic) | [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md) | Architectural recommendation |
+| MITRE ATLAS AML.T0010 (AI Supply Chain Compromise) | [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md) | Architectural recommendation |
+| MITRE ATLAS AML.T0110 (AI Agent Tool Poisoning) | [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md) | Architectural recommendation |
+| MITRE ATLAS AML.T0115 (Publish Poisoned AI Artifacts) | [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md) | Architectural recommendation |
+| MITRE ATLAS AML.T0053 (AI Agent Tool Invocation) | [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md) | Architectural recommendation |
+| MITRE ATLAS AML.T0029 (Denial of AI Service) | [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md) | Architectural recommendation |
+| MITRE ATLAS AML.T0034 (Cost Harvesting) | [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md) | Architectural recommendation |
 
 ---
 
