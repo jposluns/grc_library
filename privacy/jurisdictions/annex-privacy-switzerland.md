@@ -2,8 +2,8 @@
 
 **Document Title:** Switzerland Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.5\
-**Date:** 2026-08-12\
+**Version:** 1.0.6\
+**Date:** 2026-09-11\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/jurisdictions/annex-privacy-european-union.md`](../jurisdictions/annex-privacy-european-union.md), [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -35,7 +35,7 @@ This annex defines privacy regulatory requirements applicable to the processing 
 - Switzerland has not enacted standalone AI legislation as of 2025.
 - The FDPIC applies nFADP principles to AI processing of personal data, including purpose limitation, data minimization, and accountability.
 - **Automated decision-making:** Individuals may request human review of decisions made solely by automated means where those decisions significantly affect them. Organizations must inform data subjects when decisions are made on an automated basis.
-- **DPIA:** Required for high-risk processing activities, including large-scale automated processing of personal data.
+- **DPIA (Art. 22):** required beforehand where processing is likely to result in a high risk to the data subject's personality or fundamental rights. The existence of a high risk depends on the nature, extent, circumstances, and purpose of the processing (new technologies being a factor), and arises in particular for large-scale processing of sensitive personal data or systematic large-scale monitoring of public areas.
 
 ---
 
@@ -49,7 +49,7 @@ This annex defines privacy regulatory requirements applicable to the processing 
 
 ## Enforcement and fines
 
-- The nFADP's criminal sanctions apply to responsible natural persons (individuals), not to organizations directly.
+- The nFADP's criminal sanctions are directed primarily at the responsible natural persons; corporate criminal liability is governed by Articles 6-7 of the Administrative Criminal Law Act, and where a fine of up to CHF 50,000 is under consideration and identifying the individual would be disproportionate, the authority may instead order the business to pay the fine (Art. 64).
 - Fines up to CHF 250,000 for intentional violations by natural persons.
 - The FDPIC may require organizations to amend or cease non-compliant processing.
 
