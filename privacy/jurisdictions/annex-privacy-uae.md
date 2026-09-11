@@ -2,8 +2,8 @@
 
 **Document Title:** United Arab Emirates Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.4\
-**Date:** 2026-09-06\
+**Version:** 1.0.5\
+**Date:** 2026-09-11\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -36,7 +36,8 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 ## AI and privacy obligations
 
 - **Lawful basis:** The UAE PDPL requires a lawful basis for processing personal data in AI systems.
-- **Automated decision-making:** Automated processing producing legal or similarly significant effects requires either explicit consent or another specified lawful basis. Data subjects have the right to request human review.
+- **Automated decision-making (Art. 18):** the data subject has the right to object to any decision resulting from automated processing, including profiling, and particularly those that have a legal impact on or adversely affect them, except where the automated processing is agreed under a contract with the controller, is required under other applicable legislation, or the data subject gave prior consent; in those excepted cases the controller adopts measures to protect the data subject and does not prejudice their rights (Art. 18(3)), and the controller must include a human element in reviewing automated-processing decisions at the data subject's request.
+- **Breach notification (Art. 9):** on becoming aware of a breach that would prejudice the privacy, confidentiality, and security of personal data, the controller notifies the Bureau within the period and by the measures set in the Executive Regulations, with the prescribed breach details and a description of the measures taken; affected data subjects are notified where the breach would prejudice their privacy, confidentiality, and security.
 - **Sector-specific AI:** The UAE's approach is primarily innovation-enabling. Financial services, healthcare, and critical infrastructure sectors have sector-specific AI risk management requirements.
 - **DIFC and ADGM:** Both free zones apply GDPR-equivalent standards, including comprehensive automated decision-making rights and DPIA requirements.
 
@@ -44,14 +45,14 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Cross-border transfer mechanisms
 
-- Cross-border transfers permitted to countries offering adequate protection (as determined by the UAE Data Office) or with appropriate safeguards (standard contractual clauses, BCRs, or other approved mechanisms).
+- Cross-border transfer is permitted, subject to the Bureau's approval, to a State or Province that has personal-data-protection legislation and a judicial or regulatory enforcement authority, or where the UAE has joined a bilateral or multilateral data-protection agreement with the destination country (Art. 22). Absent an adequate protection level, transfer is permitted under the six independent Art. 23(1)(a)-(f) cases, all subject to the Executive-Regulation controls (Art. 23(2)). These include: a contract, for companies operating in countries with no data-protection laws, obligating the recipient to apply the Decree-Law's measures and comply with measures imposed by the destination's judicial or regulatory authority; the data subject's explicit consent not contradicting the State's public or security interest; a contract with, or in the interest of, the data subject; international judicial cooperation; the establishment or defence of rights before judicial entities; and the protection of the public interest.
 - DIFC and ADGM have their own transfer frameworks closely modelled on GDPR SCCs.
 
 ---
 
 ## Enforcement and fines
 
-- **UAE PDPL:** Administrative penalties are set by a Cabinet (Council of Ministers) decision under Article 26; the PDPL itself does not prescribe a fine ceiling, and that implementing decision has not yet been issued. Criminal penalties for unauthorized disclosure of sensitive personal data.
+- **UAE PDPL:** Administrative penalties are set by a Cabinet (Council of Ministers) decision under Article 26; the PDPL itself does not prescribe a fine ceiling, leaving the violations and their penalties to that Cabinet decision. The federal PDPL itself does not create a criminal offence for unauthorized disclosure of sensitive personal data; any criminal exposure would arise under a separate statute, not this Decree-Law.
 - **DIFC:** Fines up to USD 100,000 for significant violations.
 
 ---
