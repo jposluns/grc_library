@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Notice Template\
 **Document Type:** Template\
-**Version:** 1.0.9\
-**Date:** 2026-09-02\
+**Version:** 1.1.0\
+**Date:** 2026-09-11\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/framework-consent-management.md`](framework-consent-management.md)\
@@ -120,6 +120,21 @@ Where the notice is published on a website or mobile application using cookies o
 
 State the date of last update, the version, and how subjects are notified of material changes (in-product banner, email, formal communication, etc.).
 
+### 13. Notice at Collection (California CCPA / CPRA)
+
+Where the CCPA / CPRA applies, a Notice at Collection is provided at or before the point of collection (Cal. Civ. Code s. 1798.100(a); 11 CCR s. 7012). It assembles for that point the category-level disclosures the general blocks above already require (categories, purposes, retention), presented per category, together with the CCPA-specific additions below. The category, purpose, sold-or-shared, and retention fields are stated for each category collected; the two link fields are notice-level, not per category. Where the notice is delivered at the moment of collection, the just-in-time delivery format below may be used, but these s. 7012 fields remain mandatory and are not reduced below that minimum.
+
+| Field | Required content |
+| --- | --- |
+| Categories collected | A list of the categories of personal information, including each category of sensitive personal information, to be collected, each described so as to give consumers a meaningful understanding of the information collected (s. 7012(e)(1)) |
+| Purpose per category | The purpose(s) for which each category of personal information, including sensitive personal information, is collected and used (s. 7012(e)(2)) |
+| Sold or shared per category | Whether each category identified above is sold or shared (s. 7012(e)(3)) |
+| Retention per category | The length of time the business intends to retain each category, or the criteria used to determine that period; the business must not retain a category for longer than reasonably necessary for the disclosed purpose (s. 7012(e)(4); Cal. Civ. Code s. 1798.100(a)(3)) |
+| Opt-out link | Where the business sells or shares personal information, a link to the Notice of Right to Opt-out of Sale/Sharing (s. 7012(e)(5)) |
+| Privacy policy link | A link to the business's privacy policy, or where it can be found online for offline notices (s. 7012(e)(6)) |
+
+Where the business processes the collected information using ADMT to make a significant decision, the Notice at Collection may also carry the ADMT Pre-use Notice (11 CCR s. 7220); Section 9 addresses the related automated-decision disclosure, though the full s. 7220 pre-use content (including the opt-out and the plain-language logic/outcome explanation) is broader than Section 9's GDPR-oriented statement.
+
 ---
 
 ## Plain-language drafting requirements
@@ -157,7 +172,7 @@ For just-in-time notices delivered at the point of collection (form submission, 
 | LGPD | Articles 6(VI), 9, 18 | Transparency, information duty |
 | PIPEDA / CPPA | Principle 8 / Sec 62 to 65 (lapsed with Bill C-27) | Openness; transparency |
 | PIPL | Articles 17 to 21 | Notification to individuals |
-| CCPA / CPRA | Notice at Collection | Pre-collection disclosure |
+| CCPA / CPRA | Notice at Collection and Privacy Policy (Cal. Civ. Code s. 1798.100(a); 11 CCR ss. 7011-7012) | Category-specific pre-collection disclosure (see Section 13) plus the comprehensive privacy policy |
 | ISO/IEC 29184:2020 | Online notice and consent | Notice structure |
 | NIST Privacy Framework | CM.PO-P1, CM.AW-P1, CT.PO-P1 to P3 | Transparency and control |
 

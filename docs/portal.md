@@ -543,7 +543,7 @@ The Data Protection Officer needs the privacy programme charter, policy, procedu
 - [Employee Monitoring Notice Template](../privacy/template-employee-monitoring-notice.md) (maturity: Draft)
 - [Joint Controller Arrangement Template](../privacy/template-joint-controller-arrangement.md) (maturity: Baseline)
 - [Legitimate Interest Assessment (LIA) Template](../privacy/template-legitimate-interest-assessment.md) (maturity: Baseline)
-- [Privacy Notice Template](../privacy/template-privacy-notice.md) (maturity: Baseline)
+- [Privacy Notice Template](../privacy/template-privacy-notice.md) (maturity: Mature)
 - [Record of Processing Activities Template](../privacy/template-record-of-processing-activities.md) (maturity: Baseline)
 - [Transfer Impact Assessment (TIA) Template](../privacy/template-transfer-impact-assessment.md) (maturity: Baseline)
 
