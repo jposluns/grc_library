@@ -2,7 +2,7 @@
 
 **Document Title:** Thailand Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.0\
+**Version:** 1.1.1\
 **Date:** 2026-09-11\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -25,7 +25,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 ## Applicable laws and regulatory authorities
 
 - **Personal Data Protection Act B.E. 2562 (2019) (PDPA)**: In force for general compliance obligations since 2022-06-01. Closely modelled on GDPR.
-- Lawful bases: consent, vital interests, legitimate interests, public task, legal obligation, and contract performance.
+- Lawful basis for collection: consent under s. 19, or without consent under s. 24 for safeguarded public-interest archives, research, or statistics (s. 24(1)); preventing or suppressing a danger to a person's life, body, or health (s. 24(2)); performance of a contract with, or pre-contractual steps requested by, the data subject (s. 24(3)); a public-interest task or the exercise of official authority (s. 24(4)); legitimate interests not overridden by the data subject's fundamental rights (s. 24(5)); or compliance with a law binding the controller (s. 24(6)).
 - Mandatory breach notification within 72 hours where feasible.
 - Sensitive personal data categories: health, biometric, genetic, political opinion, religious or philosophical belief, sexual behaviour, criminal records, and disability data.
 - DPOs required (s. 41) where the controller or processor is a Committee-prescribed public authority, where its activities require regular monitoring of personal data by reason of a Committee-prescribed large data volume, or where its core activity is processing sensitive personal data under s. 26.
@@ -54,15 +54,15 @@ Cross-border transfers are governed by ss. 28-29 and are treated in the cross-bo
 ## AI and privacy obligations
 
 - PDPC guidance states that AI systems processing personal data must comply with PDPA principles.
-- Automated decision-making producing legal or significantly impactful effects requires human oversight and a mechanism for data subjects to contest decisions.
+- The PDPA B.E. 2562 contains no specific automated decision-making provision; an adopter applying the library's automated-decision controls does so as governance practice, not as a PDPA requirement.
 - Purpose limitation and data minimization apply to personal data used in AI training and inference.
 
 ---
 
 ## Cross-border transfer mechanisms
 
-- Transfers permitted with: consent; vital interests; legal claims; public interest; or adequacy as determined by the PDPC (adequacy list under development).
-- Contractual safeguards are the primary interim mechanism pending PDPC adequacy determinations.
+- Cross-border transfer requires the destination to have an adequate data protection standard under Committee rules (s. 16(5)), except where (s. 28): it is for legal compliance; the data subject consents after being informed of the inadequate standard; it is necessary to perform a contract with, or pre-contractual steps requested by, the data subject; it is under a contract for the data subject's interest; it is to prevent a danger to life, body, or health where the data subject cannot consent; or it is necessary for substantial public interest.
+- A controller or processor may instead transfer under an intra-group personal-data protection policy that has been reviewed and certified by the Office, which exempts the transfer from the section 28 adequacy requirement (s. 29).
 
 ---
 
@@ -70,7 +70,7 @@ Cross-border transfers are governed by ss. 28-29 and are treated in the cross-bo
 
 - Administrative fines: up to THB 5 million (~USD 140,000).
 - Criminal fines: up to THB 1 million.
-- The PDPC may issue compliance orders and cease-processing directions.
+- Where a dispute cannot be settled, the expert committee may order a controller or processor to perform or rectify within a set period, or prohibit an act causing damage to the data subject and require steps to cease the damage (s. 74); it may impose administrative fines, and may issue a rectification order or warning first (s. 90).
 
 ---
 
