@@ -2,8 +2,8 @@
 
 **Document Title:** MiCA Implementation Annex\
 **Document Type:** Annex\
-**Version:** 0.0.5\
-**Date:** 2026-09-05\
+**Version:** 0.1.0\
+**Date:** 2026-09-11\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/financial-services/annex-financial-services-sector-requirements.md`](annex-financial-services-sector-requirements.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`compliance/financial-services/annex-dora-implementation.md`](annex-dora-implementation.md)\
@@ -49,13 +49,37 @@ Misclassification propagates into the wrong reserve, redemption, and authorizati
 
 ## Title II: offers of crypto-assets other than ART or EMT (Arts 4-15)
 
-| MiCA element | Library artefact |
-| --- | --- |
-| Legal-person requirement, white-paper drafting/notification/publication (Arts 4-9) | *(no core artefact; the white paper is a MiCA-specific supervisory document the offeror drafts to Annex I)* |
-| Fair, clear, not-misleading disclosure (Art 6(2)) | `compliance/` disclosure-governance artefacts (adopter maps to the Annex I content schema) |
-| Marketing-communications consistency (Art 7) | library marketing/communications controls |
+Title II governs the crypto-asset white-paper lifecycle for offers to the public and admissions to trading of crypto-assets that are neither asset-referenced tokens (ART) nor e-money tokens (EMT). The white paper is a MiCA-specific supervisory document the offeror or person seeking admission drafts to the Annex I schema; the library holds the surrounding disclosure, marketing, conflict-of-interest, safeguarding, and regulator-interaction controls, but not the white paper or its notification, which are MiCA-specific. The obligations below rest on the MiCA Level 1 text (Regulation (EU) 2023/1114); the Art 6(11) or (12) technical standards are not held (see the technical-standards note).
 
-Gap: the Title II crypto-asset white paper (Annex I schema, Art 6) and its notification are MiCA-specific artefacts outside the library.
+### White-paper lifecycle and offer conditions (Arts 4-15)
+
+| MiCA obligation (held cite) | Library artefact / disposition |
+| --- | --- |
+| **Offer-to-public preconditions (Art 4(1))**: a person must not offer such a crypto-asset to the public unless it is a legal person and has drawn up (Art 6), notified (Art 8), and published (Art 9) a white paper and drafted any marketing communications to Art 7. | *(MiCA-specific gap: the white paper and its notification; the library holds the disclosure-governance and marketing controls the offeror applies)* |
+| **Partial exemptions and thresholds (Art 4(2))**: several Art 4(1) points are disapplied for an offer to fewer than 150 natural or legal persons per Member State acting on their own account, a total consideration not exceeding EUR 1 000 000 over 12 months, or an offer solely to qualified investors where the crypto-asset can only be held by such investors. | *(scoping gate; an adopter scopes applicability against these thresholds)* |
+| **Utility-token offer duration (Art 4(6))**: an offer of a utility token for a good or service not yet in operation runs no more than 12 months from white-paper publication. | *(MiCA-specific gap)* |
+| **Admission-to-trading preconditions (Art 5)**: a person seeking admission to trading meets the same legal-person, white-paper, and marketing preconditions; where the platform operator draws up the paper, Art 5 allocates the responsibility. | *(MiCA-specific gap)* |
+| **Result of offer and safeguarding (Art 10)**: publish the offer result (time-limited offers within 20 working days; open-ended offers, the units in circulation at least monthly), and safeguard the funds and crypto-assets raised, held in custody by a credit institution (where funds are raised) or a crypto-asset service provider (for crypto-assets), or both, for time-limited offers and, for open-ended offers, until the Art 13 withdrawal right expires. | library safeguarding and asset-segregation controls (adopter maps); MiCA-specific reporting is a gap |
+| **Passporting and no further information requirements (Art 11)**: after publication (and any Art 12 modification), the offeror may offer the crypto-asset throughout the Union, and is not subject to any further information requirements for that offer or admission. | *(the passporting relief is MiCA-specific; no artefact)* |
+| **White-paper content and quality (Art 6(1)-(2))**: the paper carries the Annex I information (below), fair, clear and not misleading, with no material omission, in a concise and comprehensible form. | `compliance/` disclosure-governance artefacts (adopter maps to the Annex I schema) |
+| **Mandatory white-paper statements (Art 6(3),(5),(6))**: the first-page "not approved by any competent authority" statement (Art 6(3)); the risk and value warnings (Art 6(5)); the management-body statement (Art 6(6)). | *(MiCA-specific gap)* |
+| **Form obligations (Art 6(4),(7),(8),(9),(10))**: no assertions of future value (Art 6(4)); a summary (Art 6(7)); a date and table of contents (Art 6(8)); an official or customary language (Art 6(9)); a machine-readable format (Art 6(10)). | *(MiCA-specific gap)* |
+| **Consensus-mechanism environmental disclosure (Art 6(1)(j))**: the principal adverse impacts on the climate and other environment-related adverse impacts of the consensus mechanism. | ESG and disclosure controls (adopter maps); MiCA-specific detail is a gap |
+| **Marketing communications (Art 7)**: identifiable as such; fair, clear and not misleading; consistent with the white paper; carrying the standard statement that they have not been reviewed by a competent authority. | library marketing and communications controls |
+| **Notification to the competent authority (Art 8)**: notify the home-Member-State authority of the white paper (and the marketing communications on request) before publication, with the Art 8 content. | [`compliance/template-regulator-interaction.md`](../template-regulator-interaction.md) (the adopter's regulator-notification channel) |
+| **Publication (Art 9)**: publish the white paper and any marketing communications on a publicly accessible website by the offer start and keep them available while the crypto-assets are held by the public. | *(MiCA-specific gap)* |
+| **Modification of a published white paper (Art 12)**: on a significant new factor, material mistake, or material inaccuracy capable of affecting the assessment of the crypto-assets, modify the white paper and notify the authority per the Art 12 procedure. | `compliance/` change and disclosure controls (adopter maps); the MiCA-specific procedure is a gap |
+| **Right of withdrawal (Art 13)**: retail holders have 14 calendar days to withdraw from a purchase agreement, free of charge and without reasons, for a public offer (not for admission to trading), running from the date of agreement. | *(MiCA-specific gap)* |
+| **Ongoing conduct obligations (Art 14)**: act honestly, fairly and professionally; communicate fairly and not misleadingly; identify, prevent, manage and disclose conflicts of interest; maintain systems and secure access protocols. | library governance, conflict-of-interest, and security controls |
+| **Civil liability for the white paper (Art 15)**: the offeror or person seeking admission, and the members of its management body, are liable where the white paper is not fair, clear and not misleading or omits key information. | *(MiCA-specific gap; the library's disclosure-accuracy controls reduce the exposure)* |
+
+### White-paper content schema (Annex I)
+
+The Art 6 white paper follows the Annex I schema, nine lettered parts: **Part A** the offeror or person seeking admission to trading; **Part B** the issuer, if different; **Part C** the operator of the trading platform, where it draws up the paper; **Part D** the crypto-asset project; **Part E** the offer to the public or the admission to trading; **Part F** the crypto-assets; **Part G** the rights and obligations attached to the crypto-assets; **Part H** the underlying technology; **Part I** the risks (of the offer, the issuer, the crypto-assets, project implementation, and the technology used). Responsibility for having the white paper drawn up rests with the offeror, the person seeking admission to trading, or the applicable trading-platform operator; Parts A and D to I always apply, while Part B applies only where the issuer differs from the offeror or person seeking admission, and Part C only where the platform operator draws up the paper. All nine parts are MiCA-specific content, and the library holds no white-paper template.
+
+### Technical standards (held status)
+
+Art 6(11) mandates ESMA implementing technical standards (standard forms, formats, and templates for the white paper) and Art 6(12) mandates regulatory technical standards. **`grc_library_ref` does not hold the Title II white-paper ITS or RTS** (the held MiCA delegated-act set covers other Titles (III to VII), not Title II); they are acquisition items (egress-gated), and the mapping above rests on the MiCA Level 1 text alone.
 
 ## Title III: asset-referenced tokens (Arts 16-47)
 
