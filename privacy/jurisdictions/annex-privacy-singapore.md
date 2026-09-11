@@ -2,7 +2,7 @@
 
 **Document Title:** Singapore Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.0\
+**Version:** 1.1.1\
 **Date:** 2026-09-11\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -42,23 +42,23 @@ The PDPA's data-protection obligations (Parts 3 to 6B) impose the following requ
 | **Accuracy (s. 23)**: the organization makes a reasonable effort to keep personal data accurate and complete where likely to be used to make a decision affecting the individual or disclosed to another organization. | library data-quality controls |
 | **Protection (s. 24)**: the organization makes reasonable security arrangements to protect personal data in its possession or control against unauthorized access, use, disclosure, or similar risks. | library information-security controls (`security/`) |
 | **Retention limitation (s. 25)**: the organization ceases to retain documents containing personal data, or anonymizes them, as soon as retention no longer serves the purpose and is no longer necessary for legal or business purposes. | library data-retention controls (`privacy/`/`governance/` retention schedule) |
-| **Transfer limitation (s. 26)**: personal data may be transferred outside Singapore only in accordance with the prescribed requirements ensuring a comparable standard of protection (see the cross-border mechanisms below). | library cross-border-transfer controls; the PDPC standard contractual clauses are Singapore-specific |
+| **Transfer limitation (s. 26)**: personal data may be transferred outside Singapore only in accordance with the prescribed requirements ensuring a comparable standard of protection (see the cross-border mechanisms below). | library cross-border-transfer controls; the PDPC model contractual clauses are Singapore-specific |
 | **Accountability (ss. 11-12)**: the organization is responsible for personal data in its possession or control, develops and implements policies and practices to meet its PDPA obligations, and designates at least one data protection officer (s. 11(3)). | library accountability and DPO-designation controls |
 | **Data portability (Part 6B, ss. 26F-26J)**: a data-porting obligation was enacted by the Personal Data Protection (Amendment) Act 2020 but is **not yet in force as of 2026**: its provisions await commencement (appointed by the Minister by notification in the Gazette), and the PDPC is still finalizing the implementing regulations, so organizations are not currently required to operationalize porting requests. | *(Singapore-specific; not yet operative, monitor for commencement)* |
 
 ## AI and privacy obligations
 
-- Organizations using AI to make or assist decisions about individuals must ensure that decisions based on personal data are made fairly and with appropriate human oversight.
+- The PDPA has no automated-decision or human-oversight provision; its general standard is that personal data be processed for purposes a reasonable person would consider appropriate in the circumstances (s. 18) and, where applicable, notified (s. 20). Human oversight of AI decisions is addressed by the PDPC's voluntary Model AI Governance Framework, not a PDPA duty.
 - The PDPC's Model Governance Framework for AI (2019, second edition 2020) provides a voluntary framework for responsible AI governance (broadly adopted in Singapore enterprise practice as of 2026), covering risk-proportionate governance, internal governance, operations management for AI models, and stakeholder interaction.
 - **Mandatory data breach notification:** Organizations must notify the PDPC of a notifiable data breach (one that is, or is likely to be, of significant scale, or that results in or is likely to result in significant harm to an individual) as soon as practicable and no later than 3 calendar days after assessment (s.26D(1)). For breaches that result in or are likely to result in significant harm, affected individuals must also be notified thereafter, in a manner reasonable in the circumstances and subject to the statutory conditions and exceptions in ss.26B and 26D; the statute sets no fixed deadline for individual notification.
-- **Consent exceptions for AI (2020 amendments):** Organizations may use personal data without consent for business improvement and research purposes, subject to conditions including anonymization requirements.
+- **Business-improvement and research exceptions (First and Second Schedules):** an organization may use personal data without consent for a business-improvement purpose, or for research, subject to the Schedule conditions: the purpose cannot reasonably be achieved without the data in an individually identifiable form, and a reasonable person would consider the use appropriate in the circumstances (research additionally requires a clear public benefit, and only the published results of research must be in a form that does not identify the individual).
 
 ---
 
 ## Cross-border transfer mechanisms
 
-- Transfers outside Singapore are permitted if the recipient jurisdiction provides a comparable standard of protection, or if the transferring organization takes reasonable steps to ensure that comparable protection is provided through PDPC-approved contractual data protection clauses or binding corporate rules.
-- PDPC has published standard contractual clauses.
+- An organization must not transfer personal data outside Singapore except in accordance with the requirements prescribed under the Act so that the transferred data receives a standard of protection comparable to the Act's (s. 26(1)); the Commission may, on application, exempt an organization from a prescribed requirement by written notice (s. 26(2)).
+- The PDPC has published model contractual clauses and other guidance that organizations may adopt to meet the prescribed transfer requirements; these are optional models, not a statutory approval mechanism.
 - Singapore participates in the APEC CBPR 2.0 (Global CBPR Framework) for cross-border transfers to other participating economies.
 
 ---
