@@ -2,8 +2,8 @@
 
 **Document Title:** Audit Planning Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.10\
-**Date:** 2026-09-03\
+**Version:** 1.0.11\
+**Date:** 2026-09-11\
 **Owner:** Chief Audit Executive\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md)\
@@ -116,6 +116,7 @@ The following external-assurance and regulatory requirements drive the minimum a
 | AEO-S (Authorized Economic Operator to Security) | Annual | AEO-S IT control scope |
 | ISO/IEC 27001 ISMS | Annual | ISMS scope |
 | SOC 2 Type II | Organization-set (commonly annual) | SOC 2 Trust Services Criteria scope |
+| CCPA cybersecurity audit (US California; 11 CCR ss. 7120 to 7124) | Annual | Businesses whose processing presents significant risk to consumers' security (s. 7120(b)) |
 
 Additional regulatory requirements applicable to the organization's jurisdictions of operation are identified in the Regulatory Applicability Register and must be reviewed during Annual Audit Plan development.
 
