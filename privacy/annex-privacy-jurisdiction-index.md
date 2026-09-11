@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Jurisdiction Index\
 **Document Type:** Annex\
-**Version:** 1.0.38\
-**Date:** 2026-09-06\
+**Version:** 1.0.39\
+**Date:** 2026-09-11\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -115,7 +115,7 @@ Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting 
 | Australia | Privacy Act 1988 | AI Ethics Framework (voluntary); APP principles; Privacy Act 2024 reforms | APP 8 contractual safeguards | AUD 50M or 30% adjusted turnover |
 | Japan | APPI | APPI purpose limitation for AI training; PPC AI guidance (not held, adopter-verify) | Adequacy (EU, UK); contractual | JPY 100M |
 | South Korea | PIPA 2023 | Right to explanation; automated decision review; PIPC guidance | Adequacy (EU); PIPC SCCs; consent | 3% annual revenue |
-| New Zealand | Privacy Act 2020 | IPP principles; OPC AI guidance; mandatory breach notification | IPP 12 safeguards; CBPR 2.0; adequacy (EU) | NZD 10,000 per offence |
+| New Zealand | Privacy Act 2020 | IPP principles; mandatory breach notification | IPP 12 disclosure conditions; prescribed binding schemes / prescribed countries (ss. 213-214) | NZD 10,000 per offence |
 | UAE | PDPL, DIFC DPL, ADGM DPR | Sector-specific AI guidance; automated decision rights | Adequacy determination, SCCs | Cabinet decision under Art 26 (PDPL); USD 100,000 (DIFC) |
 | Saudi Arabia | PDPL | SDAIA AI governance framework; automated decision transparency | Adequacy determination; consent; localization | SAR 5M (doubled for repeat) |
 | South Africa | POPIA | Automated decision rights (s. 71); Information Regulator PIA guidance | s. 72 adequacy or safeguards | ZAR 10M |
