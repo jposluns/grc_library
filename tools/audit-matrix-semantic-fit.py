@@ -380,26 +380,31 @@ def _doc_title(lines: list[str]) -> str | None:
     return None
 
 
-def scan_source_doc(path: Path) -> tuple[str, list[str], bool]:
-    """Extract one document's framework-alignment (subject, codes, had_table).
+def scan_source_doc(path: Path) -> tuple[str, list[str], bool, int]:
+    """Extract one document's framework-alignment (subject, codes, had_table, section_line).
 
     subject is the document's H1 title ("" when the document has no H1, which
     row_assessable then counts as unassessable rather than skipping a parsed
     table); had_table is True when the framework-alignment section yielded at
-    least one parseable control code. The assessable/unassessable
-    classification itself lives in scan_source_docs (P-1.83 M5)."""
+    least one parseable control code; section_line is the 1-based line of the
+    framework-alignment SECTION HEADING (0 if none found), so the worklist can
+    cite ``path:line`` uniformly with the matrix surface (P-1.83 N4). The
+    assessable/unassessable classification lives in scan_source_docs (P-1.83 M5)."""
     lines = path.read_text(encoding="utf-8").splitlines()
     subject = _doc_title(lines) or ""
     # Locate the framework-alignment section and collect codes from its table.
     in_section = False
+    section_line = 0
     codes: list[str] = []
-    for line in lines:
+    for lineno, line in enumerate(lines, start=1):
         if line.startswith("#"):
             in_section = bool(FRAMEWORK_HEADING_RE.match(line))
+            if in_section and section_line == 0:
+                section_line = lineno  # first framework-alignment heading
             continue
         if in_section and line.lstrip().startswith("|"):
             codes += CODE_RE.findall(line)
-    return subject, codes, bool(codes)
+    return subject, codes, bool(codes), section_line
 
 
 def scan_source_docs(docs=None) -> tuple[list[dict], dict]:
@@ -427,13 +432,13 @@ def scan_source_docs(docs=None) -> tuple[list[dict], dict]:
                 continue
             if docs is not None and md.relative_to(REPO_ROOT).as_posix() not in docs:
                 continue
-            subject, codes, had_table = scan_source_doc(md)
+            subject, codes, had_table, section_line = scan_source_doc(md)
             if not had_table:
                 continue
             try:
-                location = f"{md.relative_to(REPO_ROOT)}"
+                location = f"{md.relative_to(REPO_ROOT)}:{section_line}"
             except ValueError:  # a path outside the repo (e.g. a self-test temp file)
-                location = f"{md}"
+                location = f"{md}:{section_line}"
             if row_assessable(subject, codes):
                 n_assessed += 1
                 result = assess_row(subject, codes)
@@ -998,6 +1003,19 @@ def _self_test() -> int:
                                  "by the Path-less recognized table")
             finally:
                 os.unlink(path)
+
+
+        def test_source_doc_worklist_locations_carry_line_numbers(self):
+            # P-1.83 N4: source-doc worklist entries cite path:line (the framework-
+            # alignment section heading line), uniform with the matrix surface,
+            # instead of a bare path. Every source-doc worklist location must end
+            # in ":<digits>".
+            cands, _ = scan_source_docs()
+            for c in cands:
+                loc = c["location"]
+                self.assertIn(":", loc, loc)
+                self.assertTrue(loc.rsplit(":", 1)[1].isdigit(),
+                                f"source-doc location must end in :<line>, got {loc!r}")
 
 
     suite = unittest.TestLoader().loadTestsFromTestCase(SemanticFitTests)
