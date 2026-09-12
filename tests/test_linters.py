@@ -5492,6 +5492,40 @@ class LintCommonHelperTests(unittest.TestCase):
         self.assertFalse(h("```\n| ID | Item | Tags |\n```\n"), "fenced example is skipped")
         self.assertFalse(h("The row is `| ID | Item | Tags |`.\n"), "prose mention is not a header")
 
+    def test_adopter_extra_exempt_dirs_floor(self):
+        """3.183: adopter-config.json extra_exempt_dirs are additive to
+        DEFAULT_EXEMPT_DIRS, but the HARD FLOOR skips (fail-safe toward scanning) any
+        protected shipped-dir name, multi-segment/absolute path, empty, or non-string
+        entry, so a mis-scoped exemption can never blind a gate corpus-wide. Absent or
+        malformed config -> empty additions (never an error)."""
+        import io
+        import json as _json
+        import contextlib
+        import tempfile
+        import pathlib
+        lc = self._lint_common()
+        d = pathlib.Path(tempfile.mkdtemp())
+
+        self.assertEqual(set(lc._load_adopter_extra_exempt_dirs(d)), set())
+
+        (d / "adopter-config.json").write_text(_json.dumps({"extra_exempt_dirs": [
+            "my-overlay", "privacy", "tools", "../etc", "a/b", "", "/abs", 123,
+        ]}))
+        with contextlib.redirect_stderr(io.StringIO()):
+            got = lc._load_adopter_extra_exempt_dirs(d)
+        self.assertEqual(set(got), {"my-overlay"})
+
+        (d / "adopter-config.json").write_text("{not json")
+        with contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(set(lc._load_adopter_extra_exempt_dirs(d)), set())
+
+        (d / "adopter-config.json").write_text(_json.dumps({"extra_exempt_dirs": "x"}))
+        with contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(set(lc._load_adopter_extra_exempt_dirs(d)), set())
+
+        self.assertEqual(lc.EXEMPT_DIRS, lc.DEFAULT_EXEMPT_DIRS | lc.ADOPTER_EXTRA_EXEMPT_DIRS)
+        self.assertTrue(lc.DEFAULT_EXEMPT_DIRS <= lc.EXEMPT_DIRS)
+
     def _lint_common(self):
         import importlib.util
 

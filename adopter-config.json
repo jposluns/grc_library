@@ -1,0 +1,4 @@
+{
+  "_comment": "Adopter overlay-exemption config (see docs/adopter-guide.md). List your OWN private-overlay directory NAMES in extra_exempt_dirs to keep them out of the content gates (including the PII/secrets scanners) without editing tool source. Bare directory component names only (no slashes, no paths); a shipped corpus/tooling directory name is rejected and skipped with a warning so a gate can never be blinded corpus-wide. The shipped library carries an empty list.",
+  "extra_exempt_dirs": []
+}

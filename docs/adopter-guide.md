@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Guide\
 **Document Type:** Guide\
-**Version:** 1.3.22\
-**Date:** 2026-09-05\
+**Version:** 1.3.23\
+**Date:** 2026-09-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/worked-example.md`](worked-example.md), [`docs/worked-example-adoption.md`](worked-example-adoption.md), [`docs/adopter-guide-multi-entity.md`](adopter-guide-multi-entity.md), [`specification-master-project.md`](../specification-master-project.md)\
@@ -213,7 +213,7 @@ A customized fork hits three recurring cases the pull does not resolve on its ow
 
 ### Running the audit toolchain on your fork
 
-Some audit gates are calibrated for this library's organization-neutral public corpus and will raise false positives once you insert real values. In particular, [`tools/lint-pii-in-content.py`](../tools/lint-pii-in-content.py) and [`tools/lint-secrets-in-content.py`](../tools/lint-secrets-in-content.py) will flag the real role-holders, names, internal system names, or credentials a fork legitimately carries. Keep organization-specific values in a private overlay directory the linters do not scan (the toolchain reads its exempt directories from `DEFAULT_EXEMPT_DIRS` in [`tools/lint_common.py`](../tools/lint_common.py); add your overlay directory there), or keep those values out of the committed fork entirely. Relax or scope a gate only with a documented deviation, per the upstream-tracking guidance above.
+Some audit gates are calibrated for this library's organization-neutral public corpus and will raise false positives once you insert real values. In particular, [`tools/lint-pii-in-content.py`](../tools/lint-pii-in-content.py) and [`tools/lint-secrets-in-content.py`](../tools/lint-secrets-in-content.py) will flag the real role-holders, names, internal system names, or credentials a fork legitimately carries. Keep organization-specific values in a private overlay directory the linters do not scan (add your overlay directory's bare name to `extra_exempt_dirs` in the committed [`adopter-config.json`](../adopter-config.json) at the repository root, which the toolchain reads additively on top of its built-in exempt set, so you never edit tool source that conflicts on upstream pulls; a shipped corpus or tooling directory name is rejected there, so the config cannot blind a gate over library content), or keep those values out of the committed fork entirely. Relax or scope a gate only with a documented deviation, per the upstream-tracking guidance above.
 
 ### Extending the bundled framework-control registries
 
