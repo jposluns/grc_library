@@ -10561,7 +10561,7 @@ class WebGeneratorV2StagingTests(unittest.TestCase):
     def test_v3_narrative_domain_rail_matches_registry(self):
         """EVERY reading-room page's 'go deeper' rail links exactly the domains
         the registry tags that narrative with, in order (RC-3) - not a fixed
-        set. Guards the per-narrative-rail fix across all 19 pages, not one."""
+        set. Guards the per-narrative-rail fix across all 20 pages, not one."""
         import re
         figures = self.mod.compute_figures()
         with tempfile.TemporaryDirectory() as tmp:
@@ -10603,7 +10603,7 @@ class WebGeneratorV2StagingTests(unittest.TestCase):
 
     def test_v3_no_stale_executive_blob_links(self):
         """The executive-blob link surface is EXACT against the registry. Build
-        the allowed map from the narrative registry (each of the 19 pages links
+        the allowed map from the narrative registry (each of the 20 pages links
         exactly twice to its OWN .md source, the two "read the source" CTAs) and
         require the rendered /v3 tree to match it EXACTLY: no other /v3 page
         (including a non-registry page under decisions/) carries any executive/
@@ -13794,11 +13794,11 @@ class WebGeneratorNarrativeJoinTests(unittest.TestCase):
         # unquoted domain: tag) is caught here, not silently absorbed by the
         # self-referential success-path assertions above.
         figures = self.mod.compute_figures()
-        self.assertEqual(len(figures["narratives"]), 19)
+        self.assertEqual(len(figures["narratives"]), 20)
         by_domain = {
             dp["domain"]: len(dp["narratives"]) for dp in figures["domain_pages"]
         }
-        self.assertEqual(by_domain["risk"], 12)
+        self.assertEqual(by_domain["risk"], 13)
         self.assertEqual(by_domain["architecture"], 3)
 
 
@@ -13812,7 +13812,7 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
     symlink, duplicate, untracked, and missing-file rejections, driven as pure
     decision logic over constructed roots and tracked sets), the route mapping
     (registry executive/<subtype>/<slug> routes to on-site
-    decisions/<subtype>/<slug>/), the on-site route generation (PR-2b; extended to /v3 in PR #1638: ALL 19
+    decisions/<subtype>/<slug>/), the on-site route generation (PR-2b; extended to /v3 in PR #1638: ALL 20
     published narrative pages across the six narrative types render at the
     right paths with the inherited noindex + self-canonical treatment, the
     source-on-GitHub link, and the closing rail (v2's three lenses, v3's per-narrative domain chips); the discovery
@@ -14158,8 +14158,8 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
         self.assertEqual(len(rels), len(expected))
         self.assertFalse([r for r in rels if r.startswith("decisions/")])
 
-    def test_v2_renders_all_nineteen_narrative_routes(self):
-        """PR-2b: EVERY registry-listed narrative page (all 19, across the
+    def test_v2_renders_all_twenty_narrative_routes(self):
+        """PR-2b: EVERY registry-listed narrative page (all 20, across the
         six published narrative types) renders on-site under
         decisions/<subtype>/<slug>/; no page falls through the type filter."""
         figures = self.mod.compute_figures()
@@ -14167,7 +14167,7 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
         self.assertTrue(v2.narrative_routes)
         pages = dict(self.mod.render_variant(figures, v2))
         narratives = figures["narratives"]
-        self.assertEqual(len(narratives), 19)
+        self.assertEqual(len(narratives), 20)
         self.assertEqual(
             {p["narrative_type"] for p in narratives},
             set(self.mod.NARRATIVE_ROUTE_TYPES),
@@ -14275,7 +14275,7 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
         figures = self.mod.compute_figures()
         routes = {p["route"][len("executive/"):] for p in figures["narratives"]}
         self.assertEqual(hrefs, routes)
-        self.assertEqual(len(routes), 19)
+        self.assertEqual(len(routes), 20)
 
     # --- QA fix 1 regression: {{TOKEN}} in prose stays inert END-TO-END ---
 
