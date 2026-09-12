@@ -345,8 +345,15 @@ def current_cycle_state(records):
             continue
         runs += 1
         for s in rec.get("sampled", []):
-            judged.add(s["key"])
+            # Rotation counts the DRAW (the stratum was sampled) so successive runs
+            # still spread across strata; but a drawn row explicitly marked
+            # "judged": false (source-not-held / deferred / not adjudicated this run,
+            # P-1.83 N6) is NOT counted as covered, so it stays in the un-judged pool
+            # and is re-drawn. Absent or true == judged (backward-compatible with
+            # pre-N6 records, which carry no flag).
             strat[(s["family"], s["domain"])] += 1
+            if s.get("judged", True) is not False:
+                judged.add(s["key"])
     return cycle, judged, runs, dict(strat)
 
 
@@ -403,7 +410,7 @@ def run_sample(n, record_path, date=None, as_json=False, _census=None, _records=
                      "sampled": [{"key": r["key"], "path": r["path"],
                                   "source": r["source"], "family": r["family"],
                                   "domain": r["domain"], "anchor": r["anchor"],
-                                  "line_hint": r["line_hint"]} for r in drawn]}
+                                  "line_hint": r["line_hint"], "judged": True} for r in drawn]}
     reset_rec = None
     if remaining_after == 0:             # this run completes the cycle (or already done)
         reset_rec = {"kind": "cycle-reset", "cycle": cycle, "date": date,
@@ -439,6 +446,9 @@ def run_sample(n, record_path, date=None, as_json=False, _census=None, _records=
               f"starts cycle {cycle + 1} on the refreshed census.")
     print("\n  append the following line(s) to the sweep ledger AFTER judging "
           "(the without-replacement basis):")
+    print("  N6: each sampled row carries \"judged\": true; set it to false on any drawn "
+          "row you could NOT adjudicate this run (source-not-held / deferred), so it stays "
+          "un-judged and is re-drawn rather than silently counted as covered.")
     for r in (sweep_rec, reset_rec):
         if r:
             print("    " + _json.dumps(r))
@@ -744,6 +754,24 @@ def self_test():
             cyc2, judged2, runs2, _ = current_cycle_state(recs)
             self.assertEqual(cyc2, 2)          # cycle advanced
             self.assertEqual((judged2, runs2), (set(), 0))  # judged/rotation reset
+
+        def test_n6_judged_flag(self):
+            # P-1.83 N6: a drawn row explicitly "judged": false is NOT counted as
+            # covered (stays re-drawable); absent or true == judged (backward-compat).
+            recs = [{"kind": "coverage-sweep", "cycle": 1, "run": 1, "sampled": [
+                {"key": "kt", "family": "ISO", "domain": "ai", "judged": True},
+                {"key": "kf", "family": "ISO", "domain": "ai", "judged": False},
+                {"key": "ka", "family": "GDPR", "domain": "privacy"},  # absent -> judged
+            ]}]
+            _cyc, judged, _runs, strat = current_cycle_state(recs)
+            self.assertEqual(judged, {"kt", "ka"})            # kf excluded (unadjudicated)
+            self.assertNotIn("kf", judged)                    # re-drawable
+            self.assertEqual(strat[("ISO", "ai")], 2)         # rotation still counts the draw
+            # and the unjudged row is re-drawable against a census containing it
+            census = [self._mk("ISO", "ai", 0)]
+            census[0]["key"] = "kf"
+            drawn, unjudged = stratified_draw(census, judged, dict(strat), 5)
+            self.assertIn("kf", {r["key"] for r in drawn})
 
         def test_sample_determinism(self):
             census = [self._mk("ISO", "ai", i) for i in range(5)] + \
