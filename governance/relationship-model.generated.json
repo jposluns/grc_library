@@ -4,150 +4,160 @@
   "generated_by": "tools/build-relationship-model.py",
   "nodes": [
     {
-      "class": "control catalogue",
+      "class": "regulation or law",
       "corpus_path": null,
-      "display_name": "Example Control Catalogue 01",
-      "id": "EXAMPLE-CATALOGUE-01",
-      "source_identifier": null
+      "display_name": "EU Artificial Intelligence Act",
+      "id": "EU-AI-ACT",
+      "source_identifier": "Regulation (EU) 2024/1689 (as amended by Regulation (EU) 2026/1744)"
     },
     {
-      "class": "technical control",
-      "corpus_path": null,
-      "display_name": "Example Technical Control 01",
-      "id": "EXAMPLE-CONTROL-01",
+      "class": "framework",
+      "corpus_path": "ai/framework-ai-governance-and-risk.md",
+      "display_name": "AI Governance and Risk Framework",
+      "id": "GRC-FW-AI-GOVERNANCE",
       "source_identifier": null
     },
     {
       "class": "framework",
-      "corpus_path": null,
-      "display_name": "Example Framework 01",
-      "id": "EXAMPLE-FRAMEWORK-01",
-      "source_identifier": null
-    },
-    {
-      "class": "guideline",
-      "corpus_path": null,
-      "display_name": "Example Guideline 01",
-      "id": "EXAMPLE-GUIDELINE-01",
-      "source_identifier": null
-    },
-    {
-      "class": "control objective",
-      "corpus_path": null,
-      "display_name": "Example Control Objective 01",
-      "id": "EXAMPLE-OBJECTIVE-01",
-      "source_identifier": null
-    },
-    {
-      "class": "organization",
-      "corpus_path": null,
-      "display_name": "Example Organization 01",
-      "id": "EXAMPLE-ORGANIZATION-01",
+      "corpus_path": "resilience/framework-business-continuity-and-resilience.md",
+      "display_name": "Business Continuity and Resilience Framework",
+      "id": "GRC-FW-BCR",
       "source_identifier": null
     },
     {
       "class": "policy",
-      "corpus_path": null,
-      "display_name": "Example Policy 01",
-      "id": "EXAMPLE-POLICY-01",
+      "corpus_path": "ai/policy-ai-compliance.md",
+      "display_name": "AI Compliance Policy",
+      "id": "GRC-POL-AI-COMPLIANCE",
+      "source_identifier": null
+    },
+    {
+      "class": "policy",
+      "corpus_path": "security/policy-workforce-network-monitoring.md",
+      "display_name": "Workforce Network Monitoring Policy",
+      "id": "GRC-POL-WORKFORCE-NET-MON",
       "source_identifier": null
     },
     {
       "class": "procedure",
-      "corpus_path": null,
-      "display_name": "Example Procedure 01",
-      "id": "EXAMPLE-PROCEDURE-01",
-      "source_identifier": null
-    },
-    {
-      "class": "regulation or law",
-      "corpus_path": null,
-      "display_name": "Example Regulation 01",
-      "id": "EXAMPLE-REGULATION-01",
+      "corpus_path": "operations/procedure-media-handling-and-transport.md",
+      "display_name": "Media Handling and Transport Procedure",
+      "id": "GRC-PROC-MEDIA-HANDLING",
       "source_identifier": null
     },
     {
       "class": "organizational standard",
+      "corpus_path": "security/standard-data-classification-and-handling.md",
+      "display_name": "Data Classification and Handling Standard",
+      "id": "GRC-STD-DATA-CLASSIFICATION",
+      "source_identifier": null
+    },
+    {
+      "class": "organizational standard",
+      "corpus_path": "risk/standard-enterprise-risk-management.md",
+      "display_name": "Enterprise Risk Management Standard",
+      "id": "GRC-STD-ERM",
+      "source_identifier": null
+    },
+    {
+      "class": "organizational standard",
+      "corpus_path": "privacy/standard-network-telemetry-and-dpi-controls.md",
+      "display_name": "Network Telemetry and DPI Controls Standard",
+      "id": "GRC-STD-NET-TELEMETRY-DPI",
+      "source_identifier": null
+    },
+    {
+      "class": "organizational standard",
+      "corpus_path": "governance/standard-records-retention-and-destruction.md",
+      "display_name": "Records Retention and Destruction Standard",
+      "id": "GRC-STD-RECORDS-RETENTION",
+      "source_identifier": null
+    },
+    {
+      "class": "organizational standard",
+      "corpus_path": "security/standard-threat-modelling.md",
+      "display_name": "Threat Modelling Standard",
+      "id": "GRC-STD-THREAT-MODELLING",
+      "source_identifier": null
+    },
+    {
+      "class": "standard",
       "corpus_path": null,
-      "display_name": "Example Organizational Standard 01",
-      "id": "EXAMPLE-STANDARD-ORG-01",
+      "display_name": "ISO 22301 Business continuity management systems",
+      "id": "ISO-22301",
+      "source_identifier": "ISO 22301:2019"
+    },
+    {
+      "class": "standard",
+      "corpus_path": null,
+      "display_name": "ISO 31000 Risk management guidelines",
+      "id": "ISO-31000",
+      "source_identifier": "ISO 31000:2018"
+    },
+    {
+      "class": "standard",
+      "corpus_path": null,
+      "display_name": "ISO/IEC 42001 AI management systems",
+      "id": "ISO-IEC-42001",
+      "source_identifier": "ISO/IEC 42001:2023"
+    },
+    {
+      "class": "framework",
+      "corpus_path": null,
+      "display_name": "NIST AI Risk Management Framework",
+      "id": "NIST-AI-RMF",
+      "source_identifier": "NIST AI RMF 1.0"
+    },
+    {
+      "class": "framework",
+      "corpus_path": null,
+      "display_name": "STRIDE threat modelling methodology",
+      "id": "STRIDE",
       "source_identifier": null
     }
   ],
   "records": [
     {
-      "authority_level": "legal obligation",
+      "authority_level": "organizationally mandatory",
       "destination": {
-        "class": "control objective",
-        "id": "EXAMPLE-OBJECTIVE-01"
+        "class": "policy",
+        "id": "GRC-POL-WORKFORCE-NET-MON"
       },
-      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
       "evidence_refs": [],
-      "id": "rel-seed-0001",
+      "id": "rel-corpus-0001",
       "inverse": {
         "storage": "inferred",
-        "verb": "is required by"
+        "verb": "is implemented by"
       },
       "layout_role": "primary",
       "nature": [
         "structural"
       ],
       "provenance": null,
-      "relationship_class": "requirement",
+      "relationship_class": "implementation",
       "scope": null,
       "source": {
-        "class": "regulation or law",
-        "id": "EXAMPLE-REGULATION-01"
+        "class": "organizational standard",
+        "id": "GRC-STD-NET-TELEMETRY-DPI"
       },
       "status": "active",
       "validity": {
         "from": null,
         "to": null
       },
-      "verb": "requires",
-      "viewpoint": "authority"
-    },
-    {
-      "authority_level": "industry practice",
-      "destination": {
-        "class": "control catalogue",
-        "id": "EXAMPLE-CATALOGUE-01"
-      },
-      "direction_rule": "the source of applicability places above the scope it reaches",
-      "evidence_refs": [],
-      "id": "rel-seed-0002",
-      "inverse": {
-        "storage": "inferred",
-        "verb": "is contained in"
-      },
-      "layout_role": "primary",
-      "nature": [
-        "structural"
-      ],
-      "provenance": null,
-      "relationship_class": "containment",
-      "scope": null,
-      "source": {
-        "class": "framework",
-        "id": "EXAMPLE-FRAMEWORK-01"
-      },
-      "status": "active",
-      "validity": {
-        "from": null,
-        "to": null
-      },
-      "verb": "contains",
-      "viewpoint": "applicability"
+      "verb": "implements",
+      "viewpoint": "governance"
     },
     {
       "authority_level": "organizationally mandatory",
       "destination": {
         "class": "organizational standard",
-        "id": "EXAMPLE-STANDARD-ORG-01"
+        "id": "GRC-STD-DATA-CLASSIFICATION"
       },
       "direction_rule": "interpreted sources place above the internal instruments that respond to them",
       "evidence_refs": [],
-      "id": "rel-seed-0003",
+      "id": "rel-corpus-0002",
       "inverse": {
         "storage": "inferred",
         "verb": "is implemented by"
@@ -161,7 +171,7 @@
       "scope": null,
       "source": {
         "class": "procedure",
-        "id": "EXAMPLE-PROCEDURE-01"
+        "id": "GRC-PROC-MEDIA-HANDLING"
       },
       "status": "active",
       "validity": {
@@ -172,19 +182,51 @@
       "viewpoint": "governance"
     },
     {
-      "authority_level": "organizationally recommended",
+      "authority_level": "organizationally mandatory",
       "destination": {
-        "class": "procedure",
-        "id": "EXAMPLE-PROCEDURE-01"
+        "class": "organizational standard",
+        "id": "GRC-STD-RECORDS-RETENTION"
       },
-      "direction_rule": "direction-setting documents place above the documents that carry their direction out",
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
       "evidence_refs": [],
-      "id": "rel-seed-0004",
+      "id": "rel-corpus-0003",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is implemented by"
+      },
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "implementation",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-MEDIA-HANDLING"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "implements",
+      "viewpoint": "governance"
+    },
+    {
+      "authority_level": "architectural recommendation",
+      "destination": {
+        "class": "organizational standard",
+        "id": "GRC-STD-ERM"
+      },
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "evidence_refs": [],
+      "id": "rel-corpus-0004",
       "inverse": {
         "storage": "inferred",
         "verb": "is informed by"
       },
-      "layout_role": "associative",
+      "layout_role": "primary",
       "nature": [
         "structural"
       ],
@@ -192,8 +234,8 @@
       "relationship_class": "influence",
       "scope": null,
       "source": {
-        "class": "guideline",
-        "id": "EXAMPLE-GUIDELINE-01"
+        "class": "standard",
+        "id": "ISO-31000"
       },
       "status": "active",
       "validity": {
@@ -204,85 +246,112 @@
       "viewpoint": "governance"
     },
     {
-      "authority_level": "evidence category",
+      "authority_level": "industry practice",
       "destination": {
-        "class": "control objective",
-        "id": "EXAMPLE-OBJECTIVE-01"
+        "class": "policy",
+        "id": "GRC-POL-AI-COMPLIANCE"
       },
-      "direction_rule": "the asserting entity points to the requirement whose satisfaction is asserted",
-      "evidence_refs": [
-        "EXAMPLE-EVIDENCE-01"
-      ],
-      "id": "rel-seed-0005",
-      "inverse": {
-        "storage": "inferred",
-        "verb": "is satisfied by"
-      },
-      "layout_role": "associative",
-      "nature": [
-        "assessed",
-        "evidence-dependent",
-        "temporal"
-      ],
-      "provenance": "EXAMPLE-ASSESSMENT-01",
-      "relationship_class": "assessed outcome",
-      "scope": "EXAMPLE-SCOPE-01",
-      "source": {
-        "class": "technical control",
-        "id": "EXAMPLE-CONTROL-01"
-      },
-      "status": "active",
-      "validity": {
-        "from": "2026-01-01",
-        "to": null
-      },
-      "verb": "satisfies",
-      "viewpoint": "assurance"
-    },
-    {
-      "authority_level": "organizationally mandatory",
-      "destination": {
-        "class": "organization",
-        "id": "EXAMPLE-ORGANIZATION-01"
-      },
-      "direction_rule": "the source of applicability places above the scope it reaches",
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
       "evidence_refs": [],
-      "id": "rel-seed-0006",
+      "id": "rel-corpus-0005",
       "inverse": {
         "storage": "inferred",
-        "verb": "is subject to"
+        "verb": "is informed by"
       },
       "layout_role": "primary",
       "nature": [
         "structural"
       ],
       "provenance": null,
-      "relationship_class": "applicability",
+      "relationship_class": "influence",
       "scope": null,
       "source": {
-        "class": "policy",
-        "id": "EXAMPLE-POLICY-01"
+        "class": "framework",
+        "id": "NIST-AI-RMF"
       },
       "status": "active",
       "validity": {
         "from": null,
         "to": null
       },
-      "verb": "applies to",
-      "viewpoint": "applicability"
+      "verb": "informs",
+      "viewpoint": "governance"
     },
     {
       "authority_level": "industry practice",
       "destination": {
-        "class": "regulation or law",
-        "id": "EXAMPLE-REGULATION-01"
+        "class": "policy",
+        "id": "GRC-POL-AI-COMPLIANCE"
+      },
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "evidence_refs": [],
+      "id": "rel-corpus-0006",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is informed by"
+      },
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "influence",
+      "scope": null,
+      "source": {
+        "class": "standard",
+        "id": "ISO-IEC-42001"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "informs",
+      "viewpoint": "governance"
+    },
+    {
+      "authority_level": "organizationally mandatory",
+      "destination": {
+        "class": "framework",
+        "id": "STRIDE"
+      },
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "evidence_refs": [],
+      "id": "rel-corpus-0007",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is adopted by"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "commitment",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-THREAT-MODELLING"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "adopts",
+      "viewpoint": "governance"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "NIST-AI-RMF"
       },
       "direction_rule": "the entity that confers force places above the entity that receives it",
       "evidence_refs": [],
-      "id": "rel-seed-0007",
+      "id": "rel-corpus-0008",
       "inverse": {
-        "justification": "recurring reverse-lookup navigation need, mirroring the justified stored inverse worked example (the reverse framework-control crosswalk) in the governing framework",
-        "storage": "stored",
+        "storage": "inferred",
         "verb": "is mapped from"
       },
       "layout_role": "associative",
@@ -294,7 +363,103 @@
       "scope": null,
       "source": {
         "class": "framework",
-        "id": "EXAMPLE-FRAMEWORK-01"
+        "id": "GRC-FW-AI-GOVERNANCE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "regulation or law",
+        "id": "EU-AI-ACT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0009",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "framework",
+        "id": "GRC-FW-AI-GOVERNANCE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "ISO-22301"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0010",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "framework",
+        "id": "GRC-FW-BCR"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "architectural recommendation",
+      "destination": {
+        "class": "standard",
+        "id": "ISO-31000"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0017",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-ERM"
       },
       "status": "active",
       "validity": {
@@ -308,16 +473,13 @@
   "schema_version": 2,
   "source": "governance/relationship-model-source.json",
   "summary": {
-    "node_count": 10,
-    "record_count": 7,
+    "node_count": 16,
+    "record_count": 11,
     "records_by_relationship_class": {
-      "applicability": 1,
-      "assessed outcome": 1,
-      "containment": 1,
-      "correspondence": 1,
-      "implementation": 1,
-      "influence": 1,
-      "requirement": 1
+      "commitment": 1,
+      "correspondence": 4,
+      "implementation": 3,
+      "influence": 3
     }
   }
 }
