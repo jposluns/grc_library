@@ -42,7 +42,7 @@ not serve as a precision-first reporter). A row lands on the worklist when,
 across every cited control whose title this aid knows (CCM v4.1 via ``CCM_V41``;
 CSA AICM v1.1 via ``AICM_V11``, which supplies titles for the AI-specific
 AICM-only delta carried in the matrix's "CSA AICM v1.1" column; NIST CSF 2.0
-categories via ``CSF_CATEGORIES``; COBIT 2019 objectives via ``COBIT_OBJECTIVES``; ISO 31000:2018 clauses; and ISO/IEC 27001:2022 Annex A controls via ``ISO27001_2022_ANNEX_A``), NO control's title shares a
+categories via ``CSF_CATEGORIES``; COBIT 2019 objectives via ``COBIT_OBJECTIVES``; and ISO/IEC 27001:2022 Annex A controls via ``ISO27001_2022_ANNEX_A``), NO control's title shares a
 single significant word with the document subject. A single anchoring code (a
 sibling whose title overlaps the subject) keeps the row OFF the worklist, both
 because matrix rows legitimately carry a primary mapping plus looser supporting
@@ -53,8 +53,10 @@ A-note-1) is intentionally NOT on the worklist: an anchored row is deprioritized
 and that residual case is exactly what the semantic `/matrix-fit` skill catches.
 ISO/IEC 27001:2022 Annex A controls ARE assessed (via the 93-control
 iso27001_reference title map, the 2026-09-02 extension closing the pre-filter's
-ISO blind spot); ISO 31000 clause headings and COBIT 2019 objective titles are
-assessable via the 2026-07-02 cobit_iso31000_reference extension; rows whose
+ISO blind spot); COBIT 2019 objective titles are assessable via the
+cobit_iso31000_reference extension. ISO 31000 clause headings are deliberately
+NOT code-matched: a bare clause token carries no framework identity, so no
+CODE_RE branch reads them and they are left to the manual /matrix-fit audit. Rows whose
 only known-title codes are absent are skipped (not assessable, so not listed).
 
 WHAT IT SCANS:
@@ -80,7 +82,7 @@ import sys
 from pathlib import Path
 
 from ccm_aicm_reference import AICM_V11, CCM_V41
-from cobit_iso31000_reference import COBIT_OBJECTIVES, ISO31000_CLAUSES
+from cobit_iso31000_reference import COBIT_OBJECTIVES
 from nist_csf_reference import CSF_CATEGORIES
 from iso27001_reference import ISO27001_2022_ANNEX_A
 from matrix_code_parse import CODE_RE  # shared canonical parser (P-1.62 I10)
@@ -97,7 +99,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 MATRIX_PATH = REPO_ROOT / "compliance" / "matrix-grc-compliance-alignment.md"
 
 # Combined code -> title lookup the aid can assess against (CCM v4.1 + AICM v1.1
-# + CSF 2.0 categories + COBIT 2019 objectives + ISO 31000:2018 clauses + ISO/IEC
+# + CSF 2.0 categories + COBIT 2019 objectives + ISO/IEC
 # 27001:2022 Annex A controls). AICM v1.1 is the AI-focused extension of CCM v4.1;
 # as an implementation
 # detail its code-set carries the CCM base plus 40 AICM-only codes (identical
@@ -108,15 +110,13 @@ KNOWN_TITLES: dict[str, str] = {}
 KNOWN_TITLES.update(CCM_V41)
 KNOWN_TITLES.update(AICM_V11)
 KNOWN_TITLES.update(CSF_CATEGORIES)
-# COBIT 2019 objective titles and ISO 31000:2018 clause headings (the
-# 2026-07-02 extension; gate-blind fit judgment for the two families gates
-# 48/49/54/58 do not cover, per the PR #587 build). Practice-level COBIT
+# COBIT 2019 objective titles (the 2026-07-02 extension; gate-blind fit
+# judgment for a family gates 48/49/54/58 do not cover, per the PR #587
+# build). Practice-level COBIT
 # titles are deliberately absent from the reference module (extraction wraps
 # them), so practice codes are existence-checked by the companion gate and
 # fit-assessed here only at the objective level.
 KNOWN_TITLES.update(COBIT_OBJECTIVES)
-KNOWN_TITLES.update(
-    {f"ISO 31000 §{k}": v for k, v in ISO31000_CLAUSES.items()})
 # ISO/IEC 27001:2022 Annex A control titles (the 93-control closed set, keyed
 # "A.<theme>.<n>" as the corpus/matrix cite them). Added because the ISO family
 # was the pre-filter's blind spot: the P-1.63 stranded-code incident (A.8.10 ->
@@ -414,7 +414,7 @@ def run(matrix: bool, source_docs: bool, docs=None, as_json=False) -> int:
         report(cands, n, "Source-doc framework tables", n_unparsed)
     print(
         "\nThe /matrix-fit semantic audit judges each listed row against the source control "
-        "TITLE (CCM v4.1 / AICM v1.1 / CSF 2.0 / COBIT 2019 / ISO 31000:2018 / "
+        "TITLE (CCM v4.1 / AICM v1.1 / CSF 2.0 / COBIT 2019 / "
         "ISO/IEC 27001:2022). A "
         "worklisted row is a focus candidate, not a "
         "mismatch; a non-worklisted row may still carry a loose supporting code (the skill covers those too)."
@@ -467,6 +467,15 @@ def _self_test() -> int:
             self.assertEqual(KNOWN_TITLES["A.8.10"], "Information deletion")
             r = assess_row("Some Document", ["A.5.33", "A.8.10"])
             self.assertIsNotNone(r)
+
+        def test_no_dead_iso31000_titles_in_known_map(self):
+            # M4 (P-1.83): ISO 31000 clause headings are deliberately NOT
+            # code-matched (CODE_RE has no clause branch), so no "ISO 31000 §"
+            # key may sit dead in KNOWN_TITLES. Guards against re-adding the
+            # unreachable entries this fix removed.
+            self.assertEqual(
+                [k for k in KNOWN_TITLES if k.startswith("ISO 31000")], [],
+                "ISO 31000 titles are unreachable via CODE_RE; do not add them to KNOWN_TITLES")
 
         def test_iso27001_only_row_anchored_rescued(self):
             # An ISO-only row whose control title shares a token with the subject
