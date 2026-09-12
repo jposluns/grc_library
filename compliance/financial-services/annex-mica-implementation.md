@@ -2,7 +2,7 @@
 
 **Document Title:** MiCA Implementation Annex\
 **Document Type:** Annex\
-**Version:** 0.3.3\
+**Version:** 0.3.4\
 **Date:** 2026-09-12\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -185,7 +185,7 @@ MiCA is supervised two-tier: national competent authorities designated under Art
 1. **Crypto-asset white-paper ESMA templates** (Title II Annex I; ART Annex II; EMT Annex III) - the [Crypto-Asset White-Paper Content and Disclosure Standard](../../crypto/standard-crypto-asset-white-paper-disclosure.md) now carries the Level-1 content, mandatory-statement, notification/approval, publication, modification, withdrawal, and liability controls per category; the ESMA implementing technical standards forms, formats, and templates (Arts 6(11), 19(10), 51(10)) and the regulatory technical standards on sustainability indicators (Arts 6(12), 19(11), 51(15)) remain the residual, MiCA-specific and not held.
 2. **Client-asset segregation and insolvency-protection evidence** (Arts 70, 75).
 3. **Recovery and redemption plans** (Arts 46-47, 55) - the Crypto-Asset Reserve and Prudential Requirements Standard carries the Level-1 mandate; the EBA guidelines (Arts 46(6), 47(5)) remain the residual.
-4. **RTS/ITS-templated submissions**, complaints (2025/293, 2025/294), conflicts (2025/1141, 2025/1142), records (2025/1140), order-book (2025/416), remuneration (2025/418), market-abuse detection (2025/885), and the authorization and notification submissions, where the RTS specify the required information and their paired ITS provide the forms (2025/305, 2025/306, 2025/303, 2025/304, 2025/1125, 2025/1126).
+4. **RTS/ITS-templated submissions** - the [Crypto-Asset MiCA Regulatory Submission and Templated-Filing Standard](../../crypto/standard-crypto-asset-regulatory-submission.md) now carries the submission-governance controls for the authorization submissions (2025/305, 2025/306, 2025/1125, 2025/1126), the financial-entity notification (2025/303, 2025/304), and the ongoing obligations (records 2025/1140, order-book 2025/416, remuneration 2025/418, complaints 2025/293, 2025/294, conflicts 2025/1141, 2025/1142); the ESMA forms and templates themselves remain the residual and are not held; the market-abuse-detection RTS (2025/885, held) governs a separate market-abuse control class outside this submission standard's scope.
 
 ## Framework alignment
 

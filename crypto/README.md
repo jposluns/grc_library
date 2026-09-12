@@ -2,7 +2,7 @@
 
 **Document Title:** Crypto-Asset Governance Domain README\
 **Document Type:** Register\
-**Version:** 0.1.6\
+**Version:** 0.1.7\
 **Date:** 2026-09-12\
 **Owner:** Crypto-Asset Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
@@ -33,5 +33,6 @@ The domain complements the MiCA implementation annex in the compliance domain ([
 | Standard | Crypto-Asset Service Provider Vetting Standard | [`crypto/standard-crypto-asset-service-provider-vetting.md`](standard-crypto-asset-service-provider-vetting.md) |
 | Standard | Crypto-Asset Reserve and Prudential Requirements Standard | [`crypto/standard-crypto-asset-reserve-and-prudential-requirements.md`](standard-crypto-asset-reserve-and-prudential-requirements.md) |
 | Standard | Crypto-Asset White-Paper Content and Disclosure Standard | [`crypto/standard-crypto-asset-white-paper-disclosure.md`](standard-crypto-asset-white-paper-disclosure.md) |
+| Standard | Crypto-Asset MiCA Regulatory Submission and Templated-Filing Standard | [`crypto/standard-crypto-asset-regulatory-submission.md`](standard-crypto-asset-regulatory-submission.md) |
 | Register | Crypto-Asset Domain Inventory Register | [`crypto/register-crypto-asset-inventory.md`](register-crypto-asset-inventory.md) |
 | Standard | Smart-Contract and Oracle Risk Standard | [`crypto/standard-smart-contract-and-oracle-risk.md`](standard-smart-contract-and-oracle-risk.md) |
