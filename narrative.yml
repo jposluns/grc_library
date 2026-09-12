@@ -330,7 +330,7 @@ pages:
   title: "How leadership can know, with evidence, whether critical services could continue and recover after a disruption"
   narrative_type: "Outcome Map"
   narrative_status: "Explanatory"
-  version: "0.0.1"
+  version: "0.0.2"
   date: "2026-09-12"
   corpus_sources:
     - "resilience/framework-business-continuity-and-resilience.md"

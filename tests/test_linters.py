@@ -13812,7 +13812,7 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
     symlink, duplicate, untracked, and missing-file rejections, driven as pure
     decision logic over constructed roots and tracked sets), the route mapping
     (registry executive/<subtype>/<slug> routes to on-site
-    decisions/<subtype>/<slug>/), the on-site route generation (PR-2b; extended to /v3 in PR #1638: ALL 18
+    decisions/<subtype>/<slug>/), the on-site route generation (PR-2b; extended to /v3 in PR #1638: ALL 19
     published narrative pages across the six narrative types render at the
     right paths with the inherited noindex + self-canonical treatment, the
     source-on-GitHub link, and the closing rail (v2's three lenses, v3's per-narrative domain chips); the discovery
