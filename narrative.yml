@@ -419,7 +419,7 @@ pages:
   title: "How leadership can know, with evidence, whether the organization's legal and regulatory obligations are identified and met"
   narrative_type: "Outcome Map"
   narrative_status: "Explanatory"
-  version: "0.0.5"
+  version: "0.0.6"
   date: "2026-09-12"
   corpus_sources:
     - "compliance/register-global-regulatory-applicability.md"
