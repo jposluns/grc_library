@@ -203,12 +203,31 @@ def extract_claims(text):
             continue
         if in_fence:
             continue
-        m = (TIER_A_VALUE_FIRST.search(line)
-             or TIER_A_ATTRIB_FIRST.search(line)
-             or TIER_A_SOURCE_FIRST.search(line)
-             or TIER_A_VALUE_PAREN_SOURCE.search(line))
-        if m:
-            out.append(("A", i, line.strip(), m.group(0)))
+        # N7 (P-1.83): find ADDITIONAL non-overlapping Tier-A claims on the line, not
+        # just the first, so a second DISTINCT claim (a different value + source) is
+        # not missed where it lies OUTSIDE the first match's span (it previously rode
+        # the first's key). Scan left-to-right, at each position taking the
+        # EARLIEST-starting match across the four patterns, then advancing past its
+        # end so one claim is never split into two (no overlap). RESIDUAL (pre-existing,
+        # unchanged by this): the greedy CLAUSE ([^.|]{0,90}) can span a ';' and ABSORB
+        # an adjacent claim into one match, so a second claim within that span is still
+        # not separated; tightening CLAUSE is a distinct change with its own match-risk.
+        _pats = (TIER_A_VALUE_FIRST, TIER_A_ATTRIB_FIRST,
+                 TIER_A_SOURCE_FIRST, TIER_A_VALUE_PAREN_SOURCE)
+        _pos = 0
+        _found = False
+        while _pos < len(line):
+            _best = None
+            for _pat in _pats:
+                _mm = _pat.search(line, _pos)
+                if _mm and (_best is None or _mm.start() < _best.start()):
+                    _best = _mm
+            if _best is None:
+                break
+            out.append(("A", i, line.strip(), _best.group(0)))
+            _found = True
+            _pos = max(_best.end(), _pos + 1)
+        if _found:
             continue
         # Cross-cell table row: CLAUSE excludes '|', so a value cell and a source
         # cell in DIFFERENT cells of one row are invisible to the patterns above.
@@ -758,6 +777,21 @@ def self_test():
             got = extract_claims(mixed)
             self.assertEqual(len(got), 1, "only the post-fence claim is extracted")
             self.assertEqual(got[0][1], 4, "extracted claim is on line 4 (after the fence)")
+
+        def test_two_distinct_claims_on_one_line_both_extracted(self):
+            # P-1.83 N7 (part 1): a line attributing DIFFERENT values to DIFFERENT
+            # sources carries two distinct Tier-A claims; both must be extracted
+            # (previously only the first was, so the second rode the first's key).
+            # parenthetical-source form: two distinct claims cleanly bounded by ")"
+            line = "15 days (LGPD Art. 19) and 20 days (LFPDPPP Art. 31)"
+            got = [g for g in extract_claims(line) if g[0] == "A"]
+            self.assertEqual(len(got), 2, f"both claims must be extracted, got {got}")
+            srcs = " ".join(g[3] for g in got)
+            self.assertIn("LGPD", srcs)
+            self.assertIn("LFPDPPP", srcs)
+            # a single-claim line still yields exactly one (no spurious split)
+            one = [g for g in extract_claims("retained 7 years under ISO/IEC 42001") if g[0]=="A"]
+            self.assertEqual(len(one), 1, f"one claim must yield one row, got {one}")
 
     runner = unittest.TextTestRunner(verbosity=1)
     result = runner.run(
