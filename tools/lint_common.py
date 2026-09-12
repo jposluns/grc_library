@@ -566,10 +566,17 @@ def is_adopter_exempt(path: "str | Path", *, repo_root: "Path | None" = None) ->
     if not candidate.is_absolute():
         candidate = root / candidate
     try:
-        rel = candidate.resolve().relative_to(root)
+        resolved = candidate.resolve()
+        rel = resolved.relative_to(root)
     except (ValueError, OSError):
         return False
-    return len(rel.parts) >= 1 and rel.parts[0] in ADOPTER_EXTRA_EXEMPT_DIRS
+    if not (len(rel.parts) >= 1 and rel.parts[0] in ADOPTER_EXTRA_EXEMPT_DIRS):
+        return False
+    # The config semantic is an overlay DIRECTORY name, so the matched top-level component
+    # must be a directory: this stops a top-level FILE whose name collides with an entry
+    # (e.g. a shipped README.md) from being exempted, which would blind a gate over shipped
+    # content. A path IS exempt when its first component names an adopter overlay directory.
+    return (root / rel.parts[0]).is_dir()
 
 
 

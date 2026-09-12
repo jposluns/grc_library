@@ -2,7 +2,7 @@
 
 **Document Title:** Adopter Guide\
 **Document Type:** Guide\
-**Version:** 1.3.23\
+**Version:** 1.3.24\
 **Date:** 2026-09-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -213,7 +213,7 @@ A customized fork hits three recurring cases the pull does not resolve on its ow
 
 ### Running the audit toolchain on your fork
 
-Some audit gates are calibrated for this library's organization-neutral public corpus and will raise false positives once you insert real values. In particular, [`tools/lint-pii-in-content.py`](../tools/lint-pii-in-content.py) and [`tools/lint-secrets-in-content.py`](../tools/lint-secrets-in-content.py) will flag the real role-holders, names, internal system names, or credentials a fork legitimately carries. Keep organization-specific values in a private overlay directory the linters do not scan (add your top-level overlay directory's bare name to `extra_exempt_dirs` in the committed [`adopter-config.json`](../adopter-config.json) at the repository root, which the toolchain reads additively, so you never edit tool source that conflicts on upstream pulls; each entry is matched top-level-anchored (it exempts only that directory directly under the repository root, never a nested directory of the same name), and a shipped corpus or tooling directory name is rejected, so the config cannot blind a gate over library content), or keep those values out of the committed fork entirely. Relax or scope a gate only with a documented deviation, per the upstream-tracking guidance above.
+Some audit gates are calibrated for this library's organization-neutral public corpus and will raise false positives once you insert real values. In particular, [`tools/lint-pii-in-content.py`](../tools/lint-pii-in-content.py) and [`tools/lint-secrets-in-content.py`](../tools/lint-secrets-in-content.py) will flag the real role-holders, names, internal system names, or credentials a fork legitimately carries. Keep organization-specific values in a private overlay directory the linters do not scan (add your top-level overlay directory's bare name to `extra_exempt_dirs` in the committed [`adopter-config.json`](../adopter-config.json) at the repository root, which the value-flagging gates (`lint-pii-in-content.py`, `lint-secrets-in-content.py`, and the placeholder scanner) read additively, so you never edit tool source that conflicts on upstream pulls; each entry is matched top-level-anchored and directory-only (it exempts only a directory of that name directly under the repository root, never a nested directory and never a file), and a shipped corpus or tooling directory name is rejected, so the config can never blind a gate over shipped library content), or keep those values out of the committed fork entirely. Relax or scope a gate only with a documented deviation, per the upstream-tracking guidance above.
 
 ### Extending the bundled framework-control registries
 

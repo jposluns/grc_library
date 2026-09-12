@@ -5524,9 +5524,12 @@ class LintCommonHelperTests(unittest.TestCase):
         for shipped in ("privacy", "tools", ".project-governance", "vendor", "guardrails"):
             self.assertNotIn(shipped, got, f"{shipped} must be floor-rejected")
 
-        # top-level-anchored matching: patch the loaded module's accepted set and probe
+        # top-level-anchored matching: patch the loaded module's accepted set and probe.
+        # The overlay must exist as a real top-level directory (directory-only match).
         lc.ADOPTER_EXTRA_EXEMPT_DIRS = frozenset({"org-overlay"})
         root = d
+        (root / "org-overlay").mkdir(exist_ok=True)
+        (root / "ai" / "org-overlay").mkdir(parents=True, exist_ok=True)
         # a file directly under the overlay -> exempt
         self.assertTrue(lc.is_adopter_exempt(root / "org-overlay" / "note.md", repo_root=root))
         # a NESTED dir/file of the same name elsewhere -> NOT exempt
@@ -5534,6 +5537,16 @@ class LintCommonHelperTests(unittest.TestCase):
         self.assertFalse(lc.is_adopter_exempt(root / "privacy" / "org-overlay.md", repo_root=root))
         # a shipped path unrelated to the overlay -> not exempt
         self.assertFalse(lc.is_adopter_exempt(root / "privacy" / "annex.md", repo_root=root))
+        # a top-level FILE whose name collides with an accepted entry is NOT exempt
+        # (the config semantic is an overlay DIRECTORY name; directory-only match).
+        lc.ADOPTER_EXTRA_EXEMPT_DIRS = frozenset({"README.md", "real-overlay"})
+        (root / "README.md").write_text("shipped top-level file")
+        (root / "real-overlay").mkdir(exist_ok=True)
+        self.assertFalse(lc.is_adopter_exempt(root / "README.md", repo_root=root),
+                         "a top-level file colliding with an entry must NOT be exempt")
+        self.assertTrue(lc.is_adopter_exempt(root / "real-overlay" / "f.md", repo_root=root),
+                        "a genuine top-level overlay directory IS exempt")
+
         # empty accepted set -> never exempt (backward-compat: shipped empty config)
         lc.ADOPTER_EXTRA_EXEMPT_DIRS = frozenset()
         self.assertFalse(lc.is_adopter_exempt(root / "anything" / "x.md", repo_root=root))
