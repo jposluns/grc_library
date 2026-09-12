@@ -331,6 +331,7 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 
 ### Standard
 
+- [Crypto-Asset MiCA Regulatory Submission and Templated-Filing Standard](../crypto/standard-crypto-asset-regulatory-submission.md) (maturity: Draft)
 - [Crypto-Asset Reserve and Prudential Requirements Standard](../crypto/standard-crypto-asset-reserve-and-prudential-requirements.md) (maturity: Draft)
 - [Crypto-Asset Service Provider Vetting Standard](../crypto/standard-crypto-asset-service-provider-vetting.md) (maturity: Draft)
 - [Crypto-Asset White-Paper Content and Disclosure Standard](../crypto/standard-crypto-asset-white-paper-disclosure.md) (maturity: Draft)
@@ -436,6 +437,7 @@ Security architects need the dev-security standards, the AI security guides, the
 - [Authentication and Password Management Standard](../security/standard-authentication-and-password-management.md) (maturity: Mature)
 - [Azure Cloud Hardening Baseline Standard](../dev-security/standard-cloud-hardening-baseline-azure.md) (maturity: Draft)
 - [Container and Image Security Standard](../dev-security/standard-container-and-image-security.md) (maturity: Baseline)
+- [Crypto-Asset MiCA Regulatory Submission and Templated-Filing Standard](../crypto/standard-crypto-asset-regulatory-submission.md) (maturity: Draft)
 - [Crypto-Asset Reserve and Prudential Requirements Standard](../crypto/standard-crypto-asset-reserve-and-prudential-requirements.md) (maturity: Draft)
 - [Crypto-Asset Service Provider Vetting Standard](../crypto/standard-crypto-asset-service-provider-vetting.md) (maturity: Draft)
 - [Crypto-Asset White-Paper Content and Disclosure Standard](../crypto/standard-crypto-asset-white-paper-disclosure.md) (maturity: Draft)
@@ -623,6 +625,7 @@ The Chief Compliance Officer needs the compliance and audit policies, the regula
 
 ### Standard
 
+- [Crypto-Asset MiCA Regulatory Submission and Templated-Filing Standard](../crypto/standard-crypto-asset-regulatory-submission.md) (maturity: Draft)
 - [Crypto-Asset Reserve and Prudential Requirements Standard](../crypto/standard-crypto-asset-reserve-and-prudential-requirements.md) (maturity: Draft)
 - [Crypto-Asset Service Provider Vetting Standard](../crypto/standard-crypto-asset-service-provider-vetting.md) (maturity: Draft)
 - [Crypto-Asset White-Paper Content and Disclosure Standard](../crypto/standard-crypto-asset-white-paper-disclosure.md) (maturity: Draft)
