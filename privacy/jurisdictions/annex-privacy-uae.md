@@ -2,8 +2,8 @@
 
 **Document Title:** United Arab Emirates Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.5\
-**Date:** 2026-09-11\
+**Version:** 1.0.6\
+**Date:** 2026-09-12\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -27,7 +27,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 - **UAE Personal Data Protection Law (PDPL)**: Federal Decree-Law No. 45 of 2021, effective 2022-01-02 (Executive Regulations not yet issued as of 2026). The UAE's first comprehensive federal data protection law. Extraterritorial application where data of UAE residents is processed outside the UAE.
 - Key rights: access, correction, erasure, objection to processing, and withdrawal of consent.
 - Sensitive data categories (the PDPL's exhaustive definition of Sensitive Personal Data): data revealing family, ethnic origin, political or philosophical opinions, religious beliefs, criminal record, biometric data, and health (including physical, psychological, mental, genetic, or sexual condition). Financial data and a data subject's age are not designated sensitive categories under the PDPL.
-- **UAE AI Strategy 2031:** National AI strategy with published AI Ethics Principles (2019). Sector-specific AI guidance is being issued by the Securities and Commodities Authority, Central Bank of the UAE, and Health Authority.
+- **UAE AI Strategy 2031:** National AI strategy. The UAE national AI Ethics Principles and Guidelines were issued by the Minister of State for Artificial Intelligence (AI Office) in December 2022; the separate Smart Dubai AI ethics toolkit (2019) is an Emirate-of-Dubai city-level instrument. Sector-specific AI guidance is being issued by the Securities and Commodities Authority, Central Bank of the UAE, and Health Authority.
 - **Dubai International Financial Centre (DIFC) Data Protection Law (DIFC Law No. 5 of 2020):** Applies within the DIFC free zone; modelled closely on GDPR. Administered by the DIFC Commissioner of Data Protection.
 - **Abu Dhabi Global Market (ADGM) Data Protection Regulations 2021:** Applies within the ADGM free zone; modelled closely on GDPR.
 
