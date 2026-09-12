@@ -204,7 +204,7 @@ pages:
   title: "Choosing how much cloud and supplier concentration to accept and what exit readiness to maintain"
   narrative_type: "Decision Narrative"
   narrative_status: "Advisory"
-  version: "0.0.1"
+  version: "0.0.3"
   date: "2026-09-12"
   corpus_sources:
     - "supply-chain/register-concentration-risk.md"
