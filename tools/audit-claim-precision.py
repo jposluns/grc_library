@@ -191,7 +191,18 @@ def corpus_files(docs=None):
 def extract_claims(text):
     """Return (tier, line_no, line, source) tuples for one file's text."""
     out = []
+    in_fence = False
     for i, line in enumerate(text.splitlines(), 1):
+        # Fence-awareness (P-1.83 N7, corpus-scan-integrity convention): a line whose
+        # stripped form opens with three backticks or three tildes toggles fenced-code
+        # state; claims INSIDE a code fence are examples, not corpus attributions, so
+        # skip extraction there (both the Tier-A patterns and the cross-cell table row).
+        _fchk = line.lstrip()
+        if _fchk.startswith("```") or _fchk.startswith("~~~"):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
         m = (TIER_A_VALUE_FIRST.search(line)
              or TIER_A_ATTRIB_FIRST.search(line)
              or TIER_A_SOURCE_FIRST.search(line)
@@ -732,6 +743,21 @@ def self_test():
             self.assertTrue(out["cycle_complete"])
             kinds = {r["kind"] for r in out["append_records"]}
             self.assertEqual(kinds, {"coverage-sweep", "cycle-reset"})
+
+        def test_fence_aware_claims_inside_code_fence_skipped(self):
+            # P-1.83 N7: a Tier-A-shaped claim INSIDE a code fence is an
+            # example, not a corpus attribution, so it must not be extracted
+            # (corpus-scan-integrity convention); the same claim outside a
+            # fence IS extracted, and a claim after the fence closes resumes.
+            claim = ("logs are retained for a minimum of 7 years under "
+                     "ISO/IEC 42001 and EU AI Act Annex IV")
+            self.assertEqual(len(extract_claims(claim)), 1)  # bare: extracted
+            self.assertEqual(extract_claims("```\n" + claim + "\n```"), [],
+                             "a claim inside a backtick fence must be skipped")
+            mixed = "~~~\n" + claim + "\n~~~\n" + claim  # fenced, close, then bare
+            got = extract_claims(mixed)
+            self.assertEqual(len(got), 1, "only the post-fence claim is extracted")
+            self.assertEqual(got[0][1], 4, "extracted claim is on line 4 (after the fence)")
 
     runner = unittest.TextTestRunner(verbosity=1)
     result = runner.run(
