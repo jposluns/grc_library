@@ -2,7 +2,7 @@
 
 **Document Title:** What the governing body should ask about the organization's privacy, data protection, cross-border transfers, and breach response\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.1\
+**Version:** 0.0.2\
 **Date:** 2026-09-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -28,7 +28,7 @@
 
 ## Context for these questions
 
-Oversight works through questions paired with evidence expectations. A question with no stated evidence expectation invites a narrative answer; each question below therefore carries a note on what a strong answer contains, so the reader can tell evidence from reassurance. The [privacy management programme charter](../../privacy/charter-privacy-management-programme.md) establishes the organizational structure and accountabilities for personal data protection. This page routes to the corpus instruments governing data privacy, cross-border transfers, and breach response. Use this page when examining management's operating evidence in four areas: governance and independence, privacy by design and cross-border transfers, data subject rights, and breach response.
+Oversight works through questions paired with evidence expectations. A question with no stated evidence expectation leaves only a narrative answer; each question below therefore carries a note on what a strong answer contains, so the reader can tell evidence from reassurance. The [privacy management programme charter](../../privacy/charter-privacy-management-programme.md) establishes the organizational structure and accountabilities for personal data protection. This page routes to the corpus instruments governing data privacy, cross-border transfers, and breach response. Use this page when examining management's operating evidence in four areas: governance and independence, privacy by design and cross-border transfers, data subject rights, and breach response.
 
 For each area, the corpus defines the register, record, or procedure a strong answer draws on, and each note below points to where. The pairing of a question with an evidence expectation is a composite reading across the sources this page lists; the limitations say so.
 
@@ -53,10 +53,10 @@ The questions are entity-neutral. They presume nothing about whether the asking 
 
 **Theme: data subject rights. Can individuals control their data?**
 
-- *How do we confirm individuals can exercise their rights to access, correct, or delete their personal data?* A strong answer produces operational metrics demonstrating that requests are fulfilled within the statutory timeframe. The [privacy and data governance policy](../../privacy/policy-privacy-and-data-governance.md) sets the response requirements across jurisdictions (its section 4.8).
-- *For AI models trained on personal data, how do we govern the provenance and lawful basis of that training data?* A strong answer draws from the dataset provenance metadata and lawful-basis determinations. The [privacy and data governance policy](../../privacy/policy-privacy-and-data-governance.md) requires AI models to be trained only on compliant datasets and requires documentation of the legal basis for processing (its section 4.7).
+- *How do we confirm individuals can exercise their rights to access, correct, or delete their personal data?* A strong answer produces operational metrics as evidence that requests were fulfilled within the applicable statutory timeframe. The [privacy and data governance policy](../../privacy/policy-privacy-and-data-governance.md) sets the response requirements across jurisdictions (its section 4.8).
+- *For AI models trained on personal data, how do we govern the provenance and lawful basis of that training data?* A strong answer draws from the dataset provenance metadata and lawful-basis determinations. The [privacy and data governance policy](../../privacy/policy-privacy-and-data-governance.md) requires AI models to be trained only on compliant datasets with documented provenance metadata, and directs lawful-basis determinations to the guidance it names (its section 4.7).
 
-**A weak answer in this theme:** a manual, ad hoc process for fulfilling data subject requests that routinely misses regulatory deadlines or fails to verify requestor identity.
+**A weak answer in this theme:** a manual, ad hoc process for fulfilling data subject requests with no evidence that statutory deadlines or identity-verification requirements are met.
 
 **Theme: breach response. Would we meet our regulatory notification deadlines?**
 
@@ -64,7 +64,7 @@ The questions are entity-neutral. They presume nothing about whether the asking 
 - *Have our third-party suppliers contractually committed to notifying us of breaches in time for us to meet our own regulatory deadlines?* A strong answer points to the contractual notification window established with processors. The [data protection and privacy breach response procedure](../../privacy/procedure-data-protection-and-privacy-breach-response.md) operationalizes this requirement (its section 6.3).
 - *Following a material breach, how do we confirm the root cause is fixed?* A strong answer produces the post-incident review (PIR) report with tracked corrective actions. The [data protection and privacy breach response procedure](../../privacy/procedure-data-protection-and-privacy-breach-response.md) makes the PIR mandatory for the highest severity classes within a set timeframe from closure (its section 8).
 
-**A weak answer in this theme:** relying on a generic incident response plan that lacks specific jurisdictional privacy notification deadlines, risking regulatory fines for late reporting.
+**A weak answer in this theme:** relying on a generic incident response plan that lacks specific jurisdictional privacy notification deadlines.
 
 ## Evidence to request
 
@@ -73,7 +73,7 @@ Each item below is an evidence class the governing body can call for from manage
 - **The documented reporting line and any conflict-of-interest mitigation records**, as evidence for the structural independence of the privacy function, per the [privacy management programme charter](../../privacy/charter-privacy-management-programme.md).
 - **Written mandates for regional privacy representatives**, as evidence for jurisdictional accountability, per the [privacy management programme charter](../../privacy/charter-privacy-management-programme.md).
 - **Completed Privacy Impact Assessments (PIAs) and Transfer Impact Assessments (TIAs)**, as evidence for the privacy-by-design control and cross-border safeguard selection, per the [privacy impact and cross-border transfer procedure](../../privacy/procedure-privacy-impact-and-cross-border-transfer.md).
-- **Executive Committee residual-risk acceptance records and supervisory authority consultation packets**, as evidence for the high-risk processing escalation control, per the [privacy impact and cross-border transfer procedure](../../privacy/procedure-privacy-impact-and-cross-border-transfer.md).
+- **Internal residual-risk acceptance records and supervisory-authority consultation packets**, as evidence for the high-risk processing escalation control, per the [privacy impact and cross-border transfer procedure](../../privacy/procedure-privacy-impact-and-cross-border-transfer.md).
 - **Operational metrics on data subject request fulfillment**, as evidence for the rights-management control, per the [privacy and data governance policy](../../privacy/policy-privacy-and-data-governance.md).
 - **The current breach register and recent post-incident review (PIR) reports**, as evidence for the organization's adherence to regulatory notification deadlines and remediation practices, per the [data protection and privacy breach response procedure](../../privacy/procedure-data-protection-and-privacy-breach-response.md).
 - **Executed data processing agreements containing the supplier notification clause**, as evidence for third-party breach notification controls, per the [data protection and privacy breach response procedure](../../privacy/procedure-data-protection-and-privacy-breach-response.md).

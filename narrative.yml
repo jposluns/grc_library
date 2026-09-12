@@ -491,7 +491,7 @@ pages:
   title: "What the governing body should ask about the organization's privacy, data protection, cross-border transfers, and breach response"
   narrative_type: "Oversight Question Set"
   narrative_status: "Advisory"
-  version: "0.0.1"
+  version: "0.0.2"
   date: "2026-09-12"
   corpus_sources:
     - "privacy/policy-privacy-and-data-governance.md"
