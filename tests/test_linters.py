@@ -10561,7 +10561,7 @@ class WebGeneratorV2StagingTests(unittest.TestCase):
     def test_v3_narrative_domain_rail_matches_registry(self):
         """EVERY reading-room page's 'go deeper' rail links exactly the domains
         the registry tags that narrative with, in order (RC-3) - not a fixed
-        set. Guards the per-narrative-rail fix across all 18 pages, not one."""
+        set. Guards the per-narrative-rail fix across all 19 pages, not one."""
         import re
         figures = self.mod.compute_figures()
         with tempfile.TemporaryDirectory() as tmp:
@@ -10603,7 +10603,7 @@ class WebGeneratorV2StagingTests(unittest.TestCase):
 
     def test_v3_no_stale_executive_blob_links(self):
         """The executive-blob link surface is EXACT against the registry. Build
-        the allowed map from the narrative registry (each of the 18 pages links
+        the allowed map from the narrative registry (each of the 19 pages links
         exactly twice to its OWN .md source, the two "read the source" CTAs) and
         require the rendered /v3 tree to match it EXACTLY: no other /v3 page
         (including a non-registry page under decisions/) carries any executive/
