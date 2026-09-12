@@ -95,6 +95,8 @@ SOURCE = (
     r'|HIPAA(?:\sSecurity\sRule|\sPrivacy\sRule)?'
     r'|\b(?:DORA|NIS2|CPRA|CCPA|LGPD|PIPEDA|POPIA|APPI)\b'
     r'|\bPIPL\b(?:\sArticle\s[0-9]+)?'
+    r'|\b(?:PDPA|PDPL|LFPDPPP|n?FADP|DPDPA?|PDPO|PIPA|KVKK|NDPA)\b(?:\s(?:s\.?|Section|Article|Art\.?)\s?[0-9]+)?'
+    r'|\bUU\sPDP\b(?:\sNo\.?\s?[0-9]+)?'
     r'|\bFIPS\s?[0-9]{3}(?:-[0-9])?'
     r'|(?:NIST\s)?\bAI\sRMF\b'
     r'|\bSSAE\b\s?(?:No\.?\s?)?[0-9]+'
@@ -139,6 +141,9 @@ FAMILY_TOKENS = {
     "CCPA": "CCPA", "LGPD": "LGPD", "PIPEDA": "PIPEDA", "POPIA": "POPIA",
     "APPI": "APPI",
     "PIPL": "PIPL", "FIPS": "FIPS", "AI RMF": "AI RMF",
+    "PDPA": "PDPA", "PDPL": "PDPL", "LFPDPPP": "LFPDPPP", "FADP": "FADP",
+    "DPDP": "DPDP", "PDPO": "PDPO", "PIPA": "PIPA", "KVKK": "KVKK",
+    "NDPA": "NDPA", "UU PDP": "UU PDP",
     "SSAE": "SSAE", "CIS": "CIS", "FedRAMP": "FedRAMP",
 }
 
@@ -206,7 +211,9 @@ def family_of(match_text):
     up = match_text.upper()
     for fam in ("EU AI ACT", "AI RMF", "NIST", "CSA", "COBIT", "GDPR", "PCI",
                 "SOC", "HIPAA", "DORA", "NIS2", "CPRA", "CCPA", "LGPD", "PIPEDA",
-                "POPIA", "APPI", "PIPL", "FIPS", "SSAE", "FEDRAMP", "CIS", "ISO"):
+                "POPIA", "APPI", "PIPL", "LFPDPPP", "PDPL", "DPDP", "PDPA", "PDPO",
+                "FADP", "PIPA", "KVKK", "NDPA", "UU PDP", "FIPS", "SSAE",
+                "FEDRAMP", "CIS", "ISO"):
         if fam in up:
             if fam == "EU AI ACT":
                 return "EU AI Act"
@@ -520,6 +527,23 @@ def self_test():
             self.assertEqual(family_of("under ISO/IEC 42001"), "ISO")
             self.assertEqual(family_of("per GDPR Article 33(2)"), "GDPR")
             self.assertEqual(family_of("EU AI Act Annex IV"), "EU AI Act")
+            # jurisdiction statutes (P-1.62 review M1): family_of must map, not "other"
+            self.assertEqual(family_of("per LFPDPPP Article 26"), "LFPDPPP")
+            self.assertEqual(family_of("under the PDPL"), "PDPL")
+            self.assertEqual(family_of("Thailand PDPA s. 26"), "PDPA")
+            self.assertEqual(family_of("nFADP Art 22"), "FADP")
+            self.assertEqual(family_of("under the DPDPA"), "DPDP")
+            self.assertEqual(family_of("UU PDP No. 27"), "UU PDP")
+            self.assertEqual(family_of("KVKK Board guidance"), "KVKK")
+
+        def test_uu_pdp_source_boundaries(self):
+            # UU PDP alternative must be word-bounded (codex over-match catch): "UU PDPX"
+            # and "SUU PDP" must NOT be recognized as the UU PDP source.
+            import re as _re
+            src = _re.compile(SOURCE)
+            self.assertTrue(src.search("under UU PDP No. 27"))
+            self.assertIsNone(src.search("under UU PDPX"))
+            self.assertIsNone(src.search("under SUU PDP"))
 
         # --- I2 recall-widening (2026-09-02): each new shape + an over-match guard ---
         def test_tier_a_attrib_first_fr120(self):
