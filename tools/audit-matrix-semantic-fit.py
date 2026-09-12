@@ -275,6 +275,7 @@ def scan_matrix(path: Path, docs=None) -> tuple[list[dict], dict]:
     n_assessed = 0
     n_unassessable = 0
     unassessable: list[dict] = []
+    all_rows: list[dict] = []  # every ASSESSED row (P-1.83 N1 completion roster)
     unassessed_columns: set[str] = set()
     n_unparsed_tables = 0  # candidate mapping-table headers ("Document Title" + "Path") whose
     # "CSA CCM v4.1" column was renamed (a table silently skipped): counted DIRECTLY as
@@ -346,6 +347,8 @@ def scan_matrix(path: Path, docs=None) -> tuple[list[dict], dict]:
                 if result:
                     result["location"] = location
                     candidates.append(result)
+                all_rows.append({"location": location, "subject": subject,
+                                 "codes": codes, "on_worklist": bool(result)})
             else:
                 n_unassessable += 1
                 unassessable.append(
@@ -362,6 +365,7 @@ def scan_matrix(path: Path, docs=None) -> tuple[list[dict], dict]:
         "n_unparsed_tables": n_unparsed_tables,
         "unassessable": unassessable,
         "unassessed_columns": sorted(unassessed_columns),
+        "all_rows": all_rows,
     }
     return candidates, stats
 
@@ -423,6 +427,7 @@ def scan_source_docs(docs=None) -> tuple[list[dict], dict]:
     n_assessed = 0
     n_unassessable = 0
     unassessable: list[dict] = []
+    all_rows: list[dict] = []  # every ASSESSED row (P-1.83 N1 completion roster)
     for domain in AUDITED_DOMAIN_DIRS:
         d = REPO_ROOT / domain
         if not d.is_dir():
@@ -445,6 +450,8 @@ def scan_source_docs(docs=None) -> tuple[list[dict], dict]:
                 if result:
                     result["location"] = location
                     candidates.append(result)
+                all_rows.append({"location": location, "subject": subject,
+                                 "codes": codes, "on_worklist": bool(result)})
             else:
                 n_unassessable += 1
                 unassessable.append(
@@ -455,6 +462,7 @@ def scan_source_docs(docs=None) -> tuple[list[dict], dict]:
         "n_unparsed_tables": 0,  # source docs are per-doc: no multi-table partial case
         "unassessable": unassessable,
         "unassessed_columns": [],  # framework identity is per-row here, not a column
+        "all_rows": all_rows,
     }
     return candidates, stats
 
@@ -512,7 +520,7 @@ def report(candidates: list[dict], stats: dict, surface: str) -> None:
                   f"{', '.join(c['unknown_codes'])}")
 
 
-def run(matrix: bool, source_docs: bool, docs=None, as_json=False) -> int:
+def run(matrix: bool, source_docs: bool, docs=None, as_json=False, all_rows=False) -> int:
     docset = None if docs is None else {str(Path(d).as_posix()) for d in docs}
     if as_json:
         import json as _json
@@ -530,6 +538,8 @@ def run(matrix: bool, source_docs: bool, docs=None, as_json=False) -> int:
                              "unassessable": stats["unassessable"],
                              "unassessed_columns": stats["unassessed_columns"],
                              "worklist": _wl(cands)}
+            if all_rows:
+                out["matrix"]["all_rows"] = stats["all_rows"]
         if source_docs:
             cands, stats = scan_source_docs(docset)
             out["source_docs"] = {"assessed": stats["n_assessed"],
@@ -537,6 +547,8 @@ def run(matrix: bool, source_docs: bool, docs=None, as_json=False) -> int:
                                   "unassessable": stats["unassessable"],
                                   "unassessed_columns": stats["unassessed_columns"],
                                   "worklist": _wl(cands)}
+            if all_rows:
+                out["source_docs"]["all_rows"] = stats["all_rows"]
         print(_json.dumps(out, indent=2))
         return 0
     print("ADVISORY semantic-fit TRIAGE worklist for the /matrix-fit audit (NOT a gate; exit 0 always).")
@@ -1018,6 +1030,34 @@ def _self_test() -> int:
                                 f"source-doc location must end in :<line>, got {loc!r}")
 
 
+        def test_all_rows_roster_json(self):
+            # P-1.83 N1: --all-rows (all_rows=True) emits the FULL assessed-row
+            # roster per surface (the completion-cadence mechanical roster), and
+            # it is GATED: absent without the flag.
+            import io, contextlib, json as _json
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                run(matrix=True, source_docs=False, as_json=True, all_rows=True)
+            d = _json.loads(buf.getvalue())
+            self.assertIn("all_rows", d["matrix"])
+            roster = d["matrix"]["all_rows"]
+            self.assertEqual(len(roster), d["matrix"]["assessed"],
+                             "the roster must cover every assessed row")
+            for r in roster:
+                self.assertIn("on_worklist", r)
+                self.assertIn("location", r)
+            # on_worklist is a bool on every roster row (flag present + typed;
+            # no coupling to the live matrix's worklist-vs-anchored distribution)
+            self.assertTrue(all(isinstance(r["on_worklist"], bool) for r in roster))
+            # GATED: no --all-rows -> no roster
+            buf2 = io.StringIO()
+            with contextlib.redirect_stdout(buf2):
+                run(matrix=True, source_docs=False, as_json=True)
+            d2 = _json.loads(buf2.getvalue())
+            self.assertNotIn("all_rows", d2["matrix"],
+                             "all_rows must be gated behind --all-rows")
+
+
     suite = unittest.TestLoader().loadTestsFromTestCase(SemanticFitTests)
     result = unittest.TextTestRunner(verbosity=2).run(suite)
     return 0 if result.wasSuccessful() else 1
@@ -1030,6 +1070,8 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--self-test", action="store_true", help="run the inline unit tests and exit")
     parser.add_argument("--docs", nargs="+", metavar="PATH",
                         help="scope to matrix rows / source docs whose path is in this set (per-batch cadence)")
+    parser.add_argument("--all-rows", action="store_true", dest="all_rows",
+                        help="in --json mode, also emit the FULL assessed-row roster per surface (the completion-cadence mechanical roster, P-1.83 N1)")
     parser.add_argument("--json", action="store_true", dest="as_json",
                         help="emit the worklist as JSON (for a dispatch brief or a run-over-run diff)")
     args = parser.parse_args(argv[1:])
@@ -1037,7 +1079,7 @@ def main(argv: list[str]) -> int:
         return _self_test()
     matrix = not args.source_docs_only
     source_docs = not args.matrix_only
-    return run(matrix, source_docs, docs=args.docs, as_json=args.as_json)
+    return run(matrix, source_docs, docs=args.docs, as_json=args.as_json, all_rows=args.all_rows)
 
 
 if __name__ == "__main__":
