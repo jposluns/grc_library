@@ -13794,11 +13794,11 @@ class WebGeneratorNarrativeJoinTests(unittest.TestCase):
         # unquoted domain: tag) is caught here, not silently absorbed by the
         # self-referential success-path assertions above.
         figures = self.mod.compute_figures()
-        self.assertEqual(len(figures["narratives"]), 18)
+        self.assertEqual(len(figures["narratives"]), 19)
         by_domain = {
             dp["domain"]: len(dp["narratives"]) for dp in figures["domain_pages"]
         }
-        self.assertEqual(by_domain["risk"], 11)
+        self.assertEqual(by_domain["risk"], 12)
         self.assertEqual(by_domain["architecture"], 3)
 
 
@@ -14158,8 +14158,8 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
         self.assertEqual(len(rels), len(expected))
         self.assertFalse([r for r in rels if r.startswith("decisions/")])
 
-    def test_v2_renders_all_eighteen_narrative_routes(self):
-        """PR-2b: EVERY registry-listed narrative page (all 18, across the
+    def test_v2_renders_all_nineteen_narrative_routes(self):
+        """PR-2b: EVERY registry-listed narrative page (all 19, across the
         six published narrative types) renders on-site under
         decisions/<subtype>/<slug>/; no page falls through the type filter."""
         figures = self.mod.compute_figures()
@@ -14167,7 +14167,7 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
         self.assertTrue(v2.narrative_routes)
         pages = dict(self.mod.render_variant(figures, v2))
         narratives = figures["narratives"]
-        self.assertEqual(len(narratives), 18)
+        self.assertEqual(len(narratives), 19)
         self.assertEqual(
             {p["narrative_type"] for p in narratives},
             set(self.mod.NARRATIVE_ROUTE_TYPES),
@@ -14275,7 +14275,7 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
         figures = self.mod.compute_figures()
         routes = {p["route"][len("executive/"):] for p in figures["narratives"]}
         self.assertEqual(hrefs, routes)
-        self.assertEqual(len(routes), 18)
+        self.assertEqual(len(routes), 19)
 
     # --- QA fix 1 regression: {{TOKEN}} in prose stays inert END-TO-END ---
 
