@@ -56,8 +56,13 @@ iso27001_reference title map, the 2026-09-02 extension closing the pre-filter's
 ISO blind spot); COBIT 2019 objective titles are assessable via the
 cobit_iso31000_reference extension. ISO 31000 clause headings are deliberately
 NOT code-matched: a bare clause token carries no framework identity, so no
-CODE_RE branch reads them and they are left to the manual /matrix-fit audit. Rows whose
-only known-title codes are absent are skipped (not assessable, so not listed).
+CODE_RE branch reads them and they are left to the manual /matrix-fit audit. Rows with
+no known-title code (or whose subject carries no significant token) are counted
+UNASSESSABLE and LISTED as an advisory feeder for the /matrix-fit judge (the title is
+read from the reference-base extract, or the judge records `title-not-held` when it is
+absent there too); they are never silently folded into the assessed count (P-1.83 M5
+honest counts). Framework columns with no wired title map (the sector columns) are
+surfaced as an unassessed-columns advisory rather than silently skipped (P-1.83 M3).
 
 WHAT IT SCANS:
   * The compliance matrix (``compliance/matrix-grc-compliance-alignment.md``):
@@ -189,7 +194,11 @@ def assess_row(subject_text: str, codes: list[str]) -> dict | None:
     A row lands on the worklist iff at least one cited code has a known title AND
     no known-title code shares a single significant token with the subject. This
     is a recall-oriented narrowing for the semantic audit, NOT a precision-first
-    judgement that the row is wrong.
+    judgement that the row is wrong. A worklist dict also carries
+    ``unknown_codes``: the row's cited codes with NO held title in the validator
+    modules, printed as title-not-held candidates for the /matrix-fit judge
+    (P-1.83 M6), who reads each from the reference-base extract or records
+    `title-not-held` when it is absent there too.
     """
     subject = significant_tokens(subject_text)
     if not subject:
@@ -197,6 +206,10 @@ def assess_row(subject_text: str, codes: list[str]) -> dict | None:
     known = [(c, KNOWN_TITLES[c]) for c in codes if c in KNOWN_TITLES]
     if not known:
         return None  # no code carries a known title -> nothing to assess, do not flag
+    unknown_codes: list[str] = []
+    for c in codes:
+        if c not in KNOWN_TITLES and c not in unknown_codes:
+            unknown_codes.append(c)
     best = 0
     per_code = []
     for code, title in known:
@@ -204,30 +217,65 @@ def assess_row(subject_text: str, codes: list[str]) -> dict | None:
         per_code.append((code, title, score))
         best = max(best, score)
     if best == 0:
-        return {"subject": subject_text, "codes": per_code}
+        return {"subject": subject_text, "codes": per_code,
+                "unknown_codes": unknown_codes}
     return None
 
 
+def row_assessable(subject_text: str, codes: list[str]) -> bool:
+    """True iff the row is pre-filter-assessable: the subject carries at least
+    one significant token AND at least one cited code has a held title in
+    KNOWN_TITLES. Every other parsed row is counted unassessable and listed as
+    the semantic judge's feeder, never silently folded into the assessed count
+    (P-1.83 M5 honest counts)."""
+    return bool(significant_tokens(subject_text)) and any(
+        c in KNOWN_TITLES for c in codes)
+
+
 # --- Matrix parsing ---------------------------------------------------------
+
+# Mapping-table header labels: the framework columns this pre-filter ASSESSES (a
+# code -> title map is wired for each) and the non-framework label columns. Any
+# OTHER header cell in a recognized mapping table is a framework column the
+# pre-filter cannot assess (no held title map: the sector columns CTPAT / PIP /
+# BASC v6 / WCO SAFE / AEO/AEO-S), accumulated and surfaced as an
+# unassessed-columns ADVISORY (P-1.83 M3) so those citations visibly reach the
+# /matrix-fit judge instead of silently vanishing from the counts.
+ASSESSED_COLUMN_LABELS = {
+    "CSA CCM v4.1", "CSA AICM v1.1", "NIST CSF 2.0", "COBIT 2019",
+    "ISO/IEC 27001:2022",
+}
+NON_FRAMEWORK_COLUMN_LABELS = {"Domain", "Document Title", "Path"}
 
 def _split_row(line: str) -> list[str]:
     cells = [c.strip() for c in line.strip().strip("|").split("|")]
     return cells
 
 
-def scan_matrix(path: Path, docs=None) -> tuple[list[dict], int, int]:
+def scan_matrix(path: Path, docs=None) -> tuple[list[dict], dict]:
     """Scan the compliance matrix's per-domain mapping tables.
 
-    Returns (candidates, n_assessed, n_unparsed_tables). n_assessed is the number of data
-    rows actually read; n_unparsed_tables is the count of "Document Title"+"Path" header
-    rows whose "CSA CCM v4.1" column was renamed (a table silently skipped, a PARTIAL parse
-    failure). n_assessed == 0 means the header anchor was
-    never matched (a reworded/renamed column), i.e. a PARSE FAILURE, NOT a clean
-    surface: the caller must refuse to assert cleanliness in that case (guard-inputs
-    discipline; make ignorance a first-class return that refuses rather than permits).
+    Returns (candidates, stats). stats carries the HONEST counts (P-1.83 M5):
+    ``n_assessed`` counts ONLY truly-assessable rows (per row_assessable: a
+    significant subject AND at least one cited code with a held title);
+    ``n_unassessable`` counts parsed rows that are NOT assessable, each listed
+    in ``stats["unassessable"]`` as ``{location, subject, codes}`` so the
+    /matrix-fit judge has a feeder; ``n_unparsed_tables`` is the count of
+    "Document Title"+"Path" header rows whose "CSA CCM v4.1" column was renamed
+    (a table silently skipped, a PARTIAL parse failure);
+    ``unassessed_columns`` (P-1.83 M3) lists framework columns present in a
+    recognized header but carrying no wired title map. n_assessed == 0 AND
+    n_unassessable == 0 means the header anchor was never matched (a
+    reworded/renamed column), i.e. a PARSE FAILURE, NOT a clean surface: the
+    caller must refuse to assert cleanliness in that case (guard-inputs
+    discipline; make ignorance a first-class return that refuses rather than
+    permits).
     """
     candidates: list[dict] = []
     n_assessed = 0
+    n_unassessable = 0
+    unassessable: list[dict] = []
+    unassessed_columns: set[str] = set()
     n_candidate_headers = 0  # rows that look like a mapping-table header ("Document Title" present)
     n_recognized_headers = 0  # of those, the ones whose "CSA CCM v4.1" column was also found
     lines = path.read_text(encoding="utf-8").splitlines()
@@ -252,6 +300,10 @@ def scan_matrix(path: Path, docs=None) -> tuple[list[dict], int, int]:
                 iso_idx = (cells.index("ISO/IEC 27001:2022")
                            if "ISO/IEC 27001:2022" in cells else None)
                 path_idx = cells.index("Path") if "Path" in cells else None
+                unassessed_columns.update(
+                    c for c in cells
+                    if c and c not in ASSESSED_COLUMN_LABELS
+                    and c not in NON_FRAMEWORK_COLUMN_LABELS)
                 in_table = True
                 continue
             if not in_table or title_idx is None:
@@ -278,23 +330,35 @@ def scan_matrix(path: Path, docs=None) -> tuple[list[dict], int, int]:
                 codes += CODE_RE.findall(cells[cobit_idx])
             if iso_idx is not None and len(cells) > iso_idx:
                 codes += CODE_RE.findall(cells[iso_idx])
-            n_assessed += 1
-            result = assess_row(subject, codes)
-            if result:
-                try:
-                    rel = path.relative_to(REPO_ROOT)
-                except ValueError:  # a path outside the repo (e.g. a self-test temp file)
-                    rel = path
-                result["location"] = f"{rel}:{raw}"
-                candidates.append(result)
+            try:
+                rel = path.relative_to(REPO_ROOT)
+            except ValueError:  # a path outside the repo (e.g. a self-test temp file)
+                rel = path
+            location = f"{rel}:{raw}"
+            if row_assessable(subject, codes):
+                n_assessed += 1
+                result = assess_row(subject, codes)
+                if result:
+                    result["location"] = location
+                    candidates.append(result)
+            else:
+                n_unassessable += 1
+                unassessable.append(
+                    {"location": location, "subject": subject, "codes": codes})
         else:
             in_table = False
             title_idx = ccm_idx = aicm_idx = csf_idx = cobit_idx = iso_idx = path_idx = None
     # A "Document Title" header row whose "CSA CCM v4.1" column was renamed is a table
     # the scan silently skipped (a PARTIAL parse failure). Residue: a table whose
     # "Document Title" column itself was renamed is invisible to this candidate count.
-    n_unparsed_tables = n_candidate_headers - n_recognized_headers
-    return candidates, n_assessed, n_unparsed_tables
+    stats = {
+        "n_assessed": n_assessed,
+        "n_unassessable": n_unassessable,
+        "n_unparsed_tables": n_candidate_headers - n_recognized_headers,
+        "unassessable": unassessable,
+        "unassessed_columns": sorted(unassessed_columns),
+    }
+    return candidates, stats
 
 
 # --- Source-doc framework-table parsing -------------------------------------
@@ -311,12 +375,16 @@ def _doc_title(lines: list[str]) -> str | None:
     return None
 
 
-def scan_source_doc(path: Path) -> tuple[dict | None, bool]:
-    """Scan one corpus document's '## Framework alignment' table, if present."""
+def scan_source_doc(path: Path) -> tuple[str, list[str], bool]:
+    """Extract one document's framework-alignment (subject, codes, had_table).
+
+    subject is the document's H1 title ("" when the document has no H1, which
+    row_assessable then counts as unassessable rather than skipping a parsed
+    table); had_table is True when the framework-alignment section yielded at
+    least one parseable control code. The assessable/unassessable
+    classification itself lives in scan_source_docs (P-1.83 M5)."""
     lines = path.read_text(encoding="utf-8").splitlines()
-    subject = _doc_title(lines)
-    if not subject:
-        return None, False
+    subject = _doc_title(lines) or ""
     # Locate the framework-alignment section and collect codes from its table.
     in_section = False
     codes: list[str] = []
@@ -326,26 +394,25 @@ def scan_source_doc(path: Path) -> tuple[dict | None, bool]:
             continue
         if in_section and line.lstrip().startswith("|"):
             codes += CODE_RE.findall(line)
-    if not codes:
-        return None, False
-    result = assess_row(subject, codes)
-    if result:
-        try:
-            result["location"] = f"{path.relative_to(REPO_ROOT)}"
-        except ValueError:
-            result["location"] = f"{path}"
-    return result, True
+    return subject, codes, bool(codes)
 
 
-def scan_source_docs(docs=None) -> tuple[list[dict], int, int]:
+def scan_source_docs(docs=None) -> tuple[list[dict], dict]:
     """Scan every corpus document's framework-alignment table. Recurses into domain
     SUBDIRECTORIES (sector annexes under compliance/<sector>/, jurisdiction annexes
     under ai/jurisdictions/, ...) via rglob, matching the docstring's "each corpus
-    document" claim. Returns (candidates, n_assessed, n_unparsed) where n_assessed counts
-    docs that carried a framework-alignment table (0 assessed is a PARSE FAILURE, not a
-    clean result); n_unparsed is always 0 here (source docs are per-doc, no multi-table)."""
+    document" claim. Returns (candidates, stats) in scan_matrix's stats shape
+    (P-1.83 M5): n_assessed counts docs whose framework table is truly assessable
+    (per row_assessable); n_unassessable counts docs whose parsed table is NOT,
+    each listed in stats["unassessable"]; n_unparsed_tables is always 0 here
+    (source docs are per-doc, no multi-table partial case) and unassessed_columns
+    is always [] (framework identity is per-ROW in these tables, not a header
+    column). Both counts 0 means no framework table was parsed at all: a PARSE
+    FAILURE, not a clean result."""
     candidates: list[dict] = []
     n_assessed = 0
+    n_unassessable = 0
+    unassessable: list[dict] = []
     for domain in AUDITED_DOMAIN_DIRS:
         d = REPO_ROOT / domain
         if not d.is_dir():
@@ -355,18 +422,42 @@ def scan_source_docs(docs=None) -> tuple[list[dict], int, int]:
                 continue
             if docs is not None and md.relative_to(REPO_ROOT).as_posix() not in docs:
                 continue
-            res, had_table = scan_source_doc(md)
-            if had_table:
+            subject, codes, had_table = scan_source_doc(md)
+            if not had_table:
+                continue
+            try:
+                location = f"{md.relative_to(REPO_ROOT)}"
+            except ValueError:  # a path outside the repo (e.g. a self-test temp file)
+                location = f"{md}"
+            if row_assessable(subject, codes):
                 n_assessed += 1
-            if res:
-                candidates.append(res)
-    return candidates, n_assessed, 0  # source docs are per-doc: no multi-table partial case
+                result = assess_row(subject, codes)
+                if result:
+                    result["location"] = location
+                    candidates.append(result)
+            else:
+                n_unassessable += 1
+                unassessable.append(
+                    {"location": location, "subject": subject, "codes": codes})
+    stats = {
+        "n_assessed": n_assessed,
+        "n_unassessable": n_unassessable,
+        "n_unparsed_tables": 0,  # source docs are per-doc: no multi-table partial case
+        "unassessable": unassessable,
+        "unassessed_columns": [],  # framework identity is per-row here, not a column
+    }
+    return candidates, stats
 
 
 # --- Reporting --------------------------------------------------------------
 
-def report(candidates: list[dict], n_assessed: int, surface: str, n_unparsed: int = 0) -> None:
-    if n_assessed == 0:
+def report(candidates: list[dict], stats: dict, surface: str) -> None:
+    n_assessed = stats["n_assessed"]
+    n_unassessable = stats["n_unassessable"]
+    n_unparsed = stats["n_unparsed_tables"]
+    unassessable = stats.get("unassessable", [])
+    unassessed_columns = stats.get("unassessed_columns", [])
+    if n_assessed == 0 and n_unassessable == 0:
         print(f"  {surface}: PARSE-FAILURE - 0 rows assessed. The header/table anchor was "
               f"NOT found (a renamed or reworded column), so the scan could not read this "
               f"surface. This is NOT a clean result; do not trust the worklist as empty.")
@@ -375,15 +466,40 @@ def report(candidates: list[dict], n_assessed: int, surface: str, n_unparsed: in
         print(f"  {surface}: PARTIAL-PARSE WARNING - {n_unparsed} mapping table(s) had a "
               f"'Document Title' header but no recognized 'CSA CCM v4.1' column (a renamed "
               f"column), so those tables were SKIPPED. The worklist below is INCOMPLETE.")
+    if unassessed_columns:
+        print(f"  {surface}: ADVISORY - {len(unassessed_columns)} header column(s) in the "
+              f"mapping tables carry no held title map, so this pre-filter does not "
+              f"assess their codes: {', '.join(unassessed_columns)}. The /matrix-fit judge "
+              f"covers them from the reference-base extracts (`title-not-held` if absent "
+              f"there too).")
+    if n_unassessable > 0:
+        print(f"  {surface}: {n_unassessable} row(s) not pre-filter-assessable (no cited code "
+              f"carries a held title in the validator modules, or the subject has no "
+              f"significant tokens); judge from the reference-base extracts "
+              f"(`title-not-held` if absent there too):")
+        for u in unassessable:
+            print(f"    - {u['location']}  subject: {u['subject']!r}  codes: {u['codes']}")
     if not candidates:
-        print(f"  {surface}: assessed {n_assessed} row(s), 0 on the worklist "
-              f"(every assessed row has a lexical anchor).")
+        if n_assessed == 0:
+            print(f"  {surface}: 0 row(s) assessed; ALL {n_unassessable} parsed row(s) are "
+                  f"unassessable (listed above). NOT a clean result: this pre-filter could "
+                  f"not judge the surface; the /matrix-fit skill must.")
+        elif n_unassessable == 0:
+            print(f"  {surface}: assessed {n_assessed} row(s), 0 on the worklist "
+                  f"(every assessed row has a lexical anchor).")
+        else:
+            print(f"  {surface}: assessed {n_assessed} row(s), 0 on the worklist "
+                  f"(every assessed row has a lexical anchor; {n_unassessable} row(s) not "
+                  f"assessable, listed above).")
         return
     print(f"  {surface}: assessed {n_assessed} row(s), {len(candidates)} on the semantic-audit worklist:")
     for c in candidates:
         print(f"    - {c['location']}  subject: {c['subject']!r}")
         for code, title, score in c["codes"]:
             print(f"        {code} = {title!r} (overlap {score})")
+        if c.get("unknown_codes"):
+            print(f"        title-not-held candidates for the judge (no held title): "
+                  f"{', '.join(c['unknown_codes'])}")
 
 
 def run(matrix: bool, source_docs: bool, docs=None, as_json=False) -> int:
@@ -394,24 +510,34 @@ def run(matrix: bool, source_docs: bool, docs=None, as_json=False) -> int:
         def _wl(cands):
             return [{"location": c["location"], "subject": c["subject"],
                      "codes": [{"code": code, "title": title, "overlap": score}
-                               for code, title, score in c["codes"]]} for c in cands]
+                               for code, title, score in c["codes"]],
+                     "unknown_codes": c.get("unknown_codes", [])} for c in cands]
         if matrix:
-            cands, n, nu = scan_matrix(MATRIX_PATH, docset)
-            out["matrix"] = {"assessed": n, "n_unparsed_tables": nu, "worklist": _wl(cands)}
+            cands, stats = scan_matrix(MATRIX_PATH, docset)
+            out["matrix"] = {"assessed": stats["n_assessed"],
+                             "n_unassessable": stats["n_unassessable"],
+                             "n_unparsed_tables": stats["n_unparsed_tables"],
+                             "unassessable": stats["unassessable"],
+                             "unassessed_columns": stats["unassessed_columns"],
+                             "worklist": _wl(cands)}
         if source_docs:
-            cands, n, nu = scan_source_docs(docset)
-            out["source_docs"] = {"assessed": n, "worklist": _wl(cands)}
+            cands, stats = scan_source_docs(docset)
+            out["source_docs"] = {"assessed": stats["n_assessed"],
+                                  "n_unassessable": stats["n_unassessable"],
+                                  "unassessable": stats["unassessable"],
+                                  "unassessed_columns": stats["unassessed_columns"],
+                                  "worklist": _wl(cands)}
         print(_json.dumps(out, indent=2))
         return 0
     print("ADVISORY semantic-fit TRIAGE worklist for the /matrix-fit audit (NOT a gate; exit 0 always).")
     print("Listed rows lack a lexical anchor; they are the audit's worklist, NOT confirmed defects.")
     print("Non-listed rows are deprioritized, NOT certified; the /matrix-fit skill adjudicates fit.\n")
     if matrix:
-        cands, n, n_unparsed = scan_matrix(MATRIX_PATH, docset)
-        report(cands, n, "Compliance matrix", n_unparsed)
+        cands, stats = scan_matrix(MATRIX_PATH, docset)
+        report(cands, stats, "Compliance matrix")
     if source_docs:
-        cands, n, n_unparsed = scan_source_docs(docset)
-        report(cands, n, "Source-doc framework tables", n_unparsed)
+        cands, stats = scan_source_docs(docset)
+        report(cands, stats, "Source-doc framework tables")
     print(
         "\nThe /matrix-fit semantic audit judges each listed row against the source control "
         "TITLE (CCM v4.1 / AICM v1.1 / CSF 2.0 / COBIT 2019 / "
@@ -426,6 +552,14 @@ def run(matrix: bool, source_docs: bool, docs=None, as_json=False) -> int:
 
 def _self_test() -> int:
     import unittest
+
+    def _stats(n_assessed=0, n_unassessable=0, n_unparsed_tables=0,
+               unassessable=None, unassessed_columns=None):
+        """Build a full scanner-shape stats dict for report() tests."""
+        return {"n_assessed": n_assessed, "n_unassessable": n_unassessable,
+                "n_unparsed_tables": n_unparsed_tables,
+                "unassessable": unassessable or [],
+                "unassessed_columns": unassessed_columns or []}
 
     class SemanticFitTests(unittest.TestCase):
         def test_clear_mismatch_flagged(self):
@@ -501,10 +635,10 @@ def _self_test() -> int:
             with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False) as f:
                 f.write(m); path = Path(f.name)
             try:
-                cands, n_assessed, _ = scan_matrix(path)
+                cands, stats = scan_matrix(path)
                 # A.5.1 = "Policies for information security" shares no token with
                 # "Fire Suppression Plan" -> flagged, proving the ISO cell was read.
-                self.assertEqual(n_assessed, 1)
+                self.assertEqual(stats["n_assessed"], 1)
                 self.assertEqual(len(cands), 1)
                 got = [c for c, _t, _o in cands[0]["codes"]]
                 self.assertIn("A.5.1", got)
@@ -552,11 +686,17 @@ def _self_test() -> int:
                 with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False) as f:
                     f.write(body); paths.append(Path(f.name))
             try:
-                _, n_good, unparsed_good = scan_matrix(paths[0])
-                _, n_bad, _ = scan_matrix(paths[1])
-                self.assertEqual(n_good, 2, "a well-formed header must assess its data rows")
-                self.assertEqual(unparsed_good, 0, "a well-formed table has no unparsed tables")
-                self.assertEqual(n_bad, 0, "a fully-reworded header must assess 0 rows (parse failure)")
+                _, stats_good = scan_matrix(paths[0])
+                _, stats_bad = scan_matrix(paths[1])
+                self.assertEqual(stats_good["n_assessed"], 2,
+                                 "a well-formed header must assess its data rows")
+                self.assertEqual(stats_good["n_unparsed_tables"], 0,
+                                 "a well-formed table has no unparsed tables")
+                self.assertEqual(stats_bad["n_assessed"], 0,
+                                 "a fully-reworded header must assess 0 rows (parse failure)")
+                self.assertEqual(stats_bad["n_unassessable"], 0,
+                                 "an unrecognized table's rows are never parsed, so they are "
+                                 "not 'unassessable'; both zero is the PARSE-FAILURE signal")
             finally:
                 for pth in paths:
                     os.unlink(pth)
@@ -578,9 +718,11 @@ def _self_test() -> int:
             with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False) as f:
                 f.write(two_tables); path = Path(f.name)
             try:
-                _, n_assessed, n_unparsed = scan_matrix(path)
-                self.assertEqual(n_assessed, 1, "only the recognized table's row is assessed")
-                self.assertEqual(n_unparsed, 1, "the renamed-column table must be flagged unparsed")
+                _, stats = scan_matrix(path)
+                self.assertEqual(stats["n_assessed"], 1,
+                                 "only the recognized table's row is assessed")
+                self.assertEqual(stats["n_unparsed_tables"], 1,
+                                 "the renamed-column table must be flagged unparsed")
             finally:
                 os.unlink(path)
 
@@ -596,10 +738,10 @@ def _self_test() -> int:
             with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False) as f:
                 f.write(m); path = Path(f.name)
             try:
-                _, n_all, _ = scan_matrix(path)
-                _, n_scoped, _ = scan_matrix(path, {"risk/a.md"})
-                self.assertEqual(n_all, 2)
-                self.assertEqual(n_scoped, 1)
+                _, stats_all = scan_matrix(path)
+                _, stats_scoped = scan_matrix(path, {"risk/a.md"})
+                self.assertEqual(stats_all["n_assessed"], 2)
+                self.assertEqual(stats_scoped["n_assessed"], 1)
             finally:
                 os.unlink(path)
 
@@ -612,6 +754,10 @@ def _self_test() -> int:
             d = _json.loads(buf.getvalue())
             self.assertIn("matrix", d)
             self.assertIn("worklist", d["matrix"])
+            for key in ("n_unassessable", "unassessable", "unassessed_columns"):
+                self.assertIn(key, d["matrix"])
+            for entry in d["matrix"]["worklist"]:
+                self.assertIn("unknown_codes", entry)
 
         def test_data_cell_named_document_title_is_not_a_candidate_header(self):
             # Hardening (claude/codex iter-2 note): a DATA cell whose value is literally
@@ -626,9 +772,10 @@ def _self_test() -> int:
             with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False) as f:
                 f.write(body); path = Path(f.name)
             try:
-                _, n_assessed, n_unparsed = scan_matrix(path)
-                self.assertEqual(n_assessed, 1)
-                self.assertEqual(n_unparsed, 0, "a data cell must not masquerade as a candidate header")
+                _, stats = scan_matrix(path)
+                self.assertEqual(stats["n_assessed"], 1)
+                self.assertEqual(stats["n_unparsed_tables"], 0,
+                                 "a data cell must not masquerade as a candidate header")
             finally:
                 os.unlink(path)
 
@@ -636,7 +783,7 @@ def _self_test() -> int:
             import io, contextlib
             buf = io.StringIO()
             with contextlib.redirect_stdout(buf):
-                report([], 5, "Compliance matrix", n_unparsed=2)
+                report([], _stats(n_assessed=5, n_unparsed_tables=2), "Compliance matrix")
             out = buf.getvalue()
             self.assertIn("PARTIAL-PARSE WARNING", out)
             self.assertIn("2 mapping table(s)", out)
@@ -647,15 +794,157 @@ def _self_test() -> int:
             import io, contextlib
             buf = io.StringIO()
             with contextlib.redirect_stdout(buf):
-                report([], 0, "Compliance matrix")
+                report([], _stats(), "Compliance matrix")
             out = buf.getvalue()
             self.assertIn("PARSE-FAILURE", out)
             self.assertNotIn("has a lexical anchor", out)
             # and a genuine clean surface (rows assessed, none worklisted) still reads clean
             buf2 = io.StringIO()
             with contextlib.redirect_stdout(buf2):
-                report([], 42, "Compliance matrix")
+                report([], _stats(n_assessed=42), "Compliance matrix")
             self.assertIn("assessed 42 row(s), 0 on the worklist", buf2.getvalue())
+
+        def test_unknown_only_code_row_counted_unassessable(self):
+            # M5 (P-1.83): a row whose only extracted code carries no held title
+            # (a COBIT practice code; practice titles are deliberately absent
+            # from COBIT_OBJECTIVES) is counted UNASSESSABLE and listed as the
+            # judge's feeder, never folded into n_assessed (the prior shape
+            # counted it assessed, assess_row returned None, and the row
+            # silently backed the "every assessed row has a lexical anchor"
+            # clean-line claim).
+            self.assertNotIn("DSS05.03", KNOWN_TITLES)
+            m = (
+                "| Domain | Document Title | Path | CSA CCM v4.1 |\n"
+                "| --- | --- | --- | --- |\n"
+                "| Sec | Access Review Standard | `sec/x.md` | DSS05.03 |\n"
+            )
+            import tempfile, os
+            with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False) as f:
+                f.write(m); path = Path(f.name)
+            try:
+                cands, stats = scan_matrix(path)
+                self.assertEqual(cands, [])
+                self.assertEqual(stats["n_assessed"], 0)
+                self.assertEqual(stats["n_unassessable"], 1)
+                u = stats["unassessable"][0]
+                self.assertTrue(u["location"].endswith(":3"), u["location"])
+                self.assertEqual(u["subject"], "Access Review Standard")
+                self.assertEqual(u["codes"], ["DSS05.03"])
+            finally:
+                os.unlink(path)
+
+        def test_mixed_table_counts_and_qualified_clean_line(self):
+            # M5: one anchored (assessable) row + one unknown-only row -> 1/1,
+            # and the clean line is QUALIFIED (names the unassessable count)
+            # instead of the bare every-row claim.
+            m = (
+                "| Domain | Document Title | Path | CSA CCM v4.1 |\n"
+                "| --- | --- | --- | --- |\n"
+                "| Risk | Records Retention and Destruction | `x.md` | DSP-16 |\n"
+                "| Sec | Access Review Standard | `sec/x.md` | DSS05.03 |\n"
+            )
+            import tempfile, os, io, contextlib
+            with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False) as f:
+                f.write(m); path = Path(f.name)
+            try:
+                cands, stats = scan_matrix(path)
+                self.assertEqual(stats["n_assessed"], 1)
+                self.assertEqual(stats["n_unassessable"], 1)
+                self.assertEqual(cands, [])  # DSP-16 anchors "Retention" -> off the worklist
+                buf = io.StringIO()
+                with contextlib.redirect_stdout(buf):
+                    report(cands, stats, "Compliance matrix")
+                out = buf.getvalue()
+                self.assertIn("1 row(s) not assessable", out)
+                self.assertIn("not pre-filter-assessable", out)
+                self.assertIn("DSS05.03", out)
+            finally:
+                os.unlink(path)
+
+        def test_report_all_unassessable_is_not_parse_failure_and_not_clean(self):
+            # M5: parsed-but-all-unassessable is its OWN honest line: NOT a
+            # PARSE-FAILURE (the anchor matched, the rows were read) and NOT
+            # the clean-state sentence.
+            import io, contextlib
+            rows = [
+                dict(location="m.md:3", subject="Doc A", codes=["DSS05.03"]),
+                dict(location="m.md:4", subject="Doc B", codes=["APO12.01"]),
+            ]
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                report([], _stats(n_unassessable=2, unassessable=rows), "Compliance matrix")
+            out = buf.getvalue()
+            self.assertNotIn("PARSE-FAILURE", out)
+            self.assertNotIn("has a lexical anchor", out)
+            self.assertIn("not pre-filter-assessable", out)
+            self.assertIn("NOT a clean result", out)
+            self.assertIn("m.md:3", out)
+
+        def test_worklisted_row_carries_unknown_codes(self):
+            # M6 tool support: a worklisted row with a mixed known/unknown code
+            # set carries the unknown codes (title-not-held candidates for the
+            # judge), and report() prints them; an all-known worklisted row
+            # carries an empty list.
+            r = assess_row("Some Document", ["A.5.33", "DSS05.03"])
+            self.assertIsNotNone(r)
+            self.assertEqual(r["unknown_codes"], ["DSS05.03"])
+            r2 = assess_row("Some Document", ["A.5.33"])
+            self.assertIsNotNone(r2)
+            self.assertEqual(r2["unknown_codes"], [])
+            import io, contextlib
+            r["location"] = "m.md:3"
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                report([r], _stats(n_assessed=1), "Compliance matrix")
+            self.assertIn("title-not-held candidates", buf.getvalue())
+
+        def test_row_assessable_helper(self):
+            # M5: the assessability predicate itself.
+            self.assertTrue(row_assessable("Records Retention", ["DSP-16"]))
+            self.assertFalse(row_assessable("Records Retention", ["DSS05.03"]))
+            self.assertFalse(row_assessable("Records Retention", []))
+            self.assertFalse(row_assessable("", ["DSP-16"]))
+
+        def test_unassessed_columns_advisory(self):
+            # M3 (P-1.83): framework columns in a recognized header with no
+            # wired title map (the sector columns) accumulate into
+            # stats["unassessed_columns"] and print as an ADVISORY, instead of
+            # silently vanishing from the counts.
+            m = (
+                "| Domain | Document Title | Path | CSA CCM v4.1 | CTPAT | WCO SAFE |\n"
+                "| --- | --- | --- | --- | --- | --- |\n"
+                "| Risk | Records Retention and Destruction | `x.md` | DSP-16 | 5.1 | Pillar 2 |\n"
+            )
+            import tempfile, os, io, contextlib
+            with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False) as f:
+                f.write(m); path = Path(f.name)
+            try:
+                cands, stats = scan_matrix(path)
+                self.assertEqual(stats["unassessed_columns"], ["CTPAT", "WCO SAFE"])
+                buf = io.StringIO()
+                with contextlib.redirect_stdout(buf):
+                    report(cands, stats, "Compliance matrix")
+                out = buf.getvalue()
+                self.assertIn("ADVISORY", out)
+                self.assertIn("CTPAT, WCO SAFE", out)
+            finally:
+                os.unlink(path)
+
+        def test_scan_source_docs_stats_shape_on_live_corpus(self):
+            # codex PR-A coverage gap: exercise scan_source_docs's new stats shape
+            # (M5) on the real corpus - the same-shape refactor as scan_matrix, so
+            # a shape regression here (missing key, wrong type) is caught.
+            cands, stats = scan_source_docs()
+            for key in ("n_assessed", "n_unassessable", "n_unparsed_tables",
+                        "unassessable", "unassessed_columns"):
+                self.assertIn(key, stats)
+            self.assertEqual(stats["unassessed_columns"], [],
+                             "source-doc framework identity is per-row, not a header column")
+            self.assertEqual(stats["n_unparsed_tables"], 0,
+                             "source docs are per-doc: no multi-table partial case")
+            self.assertIsInstance(stats["unassessable"], list)
+            self.assertGreater(stats["n_assessed"], 0, "the live corpus has assessable source docs")
+
 
     suite = unittest.TestLoader().loadTestsFromTestCase(SemanticFitTests)
     result = unittest.TextTestRunner(verbosity=2).run(suite)
