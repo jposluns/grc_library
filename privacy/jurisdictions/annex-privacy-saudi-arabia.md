@@ -2,8 +2,8 @@
 
 **Document Title:** Saudi Arabia Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.4\
-**Date:** 2026-09-11\
+**Version:** 1.0.5\
+**Date:** 2026-09-12\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -27,7 +27,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 - **Saudi Personal Data Protection Law (PDPL)**: Royal Decree No. M/19, adopted 2021; implementing regulations published 2023, in force September 2023. Applies to processing of personal data of individuals in Saudi Arabia and to any processing occurring in Saudi Arabia.
 - Sensitive Data (Art. 1(11)): personal data revealing racial or ethnic origin, religious, intellectual, or political belief, data relating to security criminal convictions and offences, biometric or genetic data for the purpose of identifying the person, health data, and data indicating that one or both of an individual's parents are unknown. (Financial, credit, and children's data are not, in themselves, sensitive categories under the PDPL.)
 - **National Data Governance Interim Regulations:** Govern classification and management of data by entities operating in Saudi Arabia, including data localization requirements for certain categories of government and sensitive data.
-- **Saudi AI Ethics Principles (2019):** Published by SDAIA, aligned with global frameworks.
+- **SDAIA AI Ethics Principles (September 2023, v1.0):** Published by SDAIA (a later version has since been issued); a risk-based framework of ethical principles aligned with global practice.
 - **Regulatory authority:** Saudi Data and Artificial Intelligence Authority (SDAIA).
 
 ---
