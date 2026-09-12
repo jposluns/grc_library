@@ -2,8 +2,8 @@
 
 **Document Title:** Singapore Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.1\
-**Date:** 2026-09-11\
+**Version:** 1.1.2\
+**Date:** 2026-09-12\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -51,7 +51,7 @@ The PDPA's data-protection obligations (Parts 3 to 6B) impose the following requ
 - The PDPA has no automated-decision or human-oversight provision; its general standard is that personal data be processed for purposes a reasonable person would consider appropriate in the circumstances (s. 18) and, where applicable, notified (s. 20). Human oversight of AI decisions is addressed by the PDPC's voluntary Model AI Governance Framework, not a PDPA duty.
 - The PDPC's Model Governance Framework for AI (2019, second edition 2020) provides a voluntary framework for responsible AI governance (broadly adopted in Singapore enterprise practice as of 2026), covering risk-proportionate governance, internal governance, operations management for AI models, and stakeholder interaction.
 - **Mandatory data breach notification:** Organizations must notify the PDPC of a notifiable data breach (one that is, or is likely to be, of significant scale, or that results in or is likely to result in significant harm to an individual) as soon as practicable and no later than 3 calendar days after assessment (s.26D(1)). For breaches that result in or are likely to result in significant harm, affected individuals must also be notified thereafter, in a manner reasonable in the circumstances and subject to the statutory conditions and exceptions in ss.26B and 26D; the statute sets no fixed deadline for individual notification.
-- **Business-improvement and research exceptions (First and Second Schedules):** an organization may use personal data without consent for a business-improvement purpose, or for research, subject to the Schedule conditions: the purpose cannot reasonably be achieved without the data in an individually identifiable form, and a reasonable person would consider the use appropriate in the circumstances (research additionally requires a clear public benefit, and only the published results of research must be in a form that does not identify the individual).
+- **Business-improvement and research exceptions (First and Second Schedules):** an organization may use personal data without consent for a business-improvement purpose (subject to: the purpose cannot reasonably be achieved without the data in an individually identifiable form, and a reasonable person would consider the use appropriate in the circumstances), or for research (subject to the Division 3 conditions: the research cannot reasonably be accomplished without the data in an individually identifiable form; there is a clear public benefit; the results are not used to make any decision that affects the individual; and any published results are in a form that does not identify the individual).
 
 ---
 
