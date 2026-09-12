@@ -345,8 +345,15 @@ def current_cycle_state(records):
             continue
         runs += 1
         for s in rec.get("sampled", []):
-            judged.add(s["key"])
+            # Rotation counts the DRAW (the stratum was sampled) so successive runs
+            # still spread across strata; but a drawn row explicitly marked
+            # "judged": false (source-not-held / deferred / not adjudicated this run,
+            # P-1.83 N6) is NOT counted as covered, so it stays in the un-judged pool
+            # and is re-drawn. Absent or true == judged (backward-compatible with
+            # pre-N6 records, which carry no flag).
             strat[(s["family"], s["domain"])] += 1
+            if s.get("judged", True) is not False:
+                judged.add(s["key"])
     return cycle, judged, runs, dict(strat)
 
 
@@ -403,9 +410,13 @@ def run_sample(n, record_path, date=None, as_json=False, _census=None, _records=
                      "sampled": [{"key": r["key"], "path": r["path"],
                                   "source": r["source"], "family": r["family"],
                                   "domain": r["domain"], "anchor": r["anchor"],
-                                  "line_hint": r["line_hint"]} for r in drawn]}
+                                  "line_hint": r["line_hint"], "judged": True} for r in drawn]}
     reset_rec = None
-    if remaining_after == 0:             # this run completes the cycle (or already done)
+    # The cycle completes ONLY when the un-judged pool is genuinely empty at the START of a
+    # run (unjudged_total == 0), NOT optimistically on the exhausting draw: a terminal-run row
+    # the operator marks "judged": false stays un-judged, so it is re-drawn on the next run and
+    # the cycle stays open until every row is actually adjudicated (P-1.83 N6 terminal-run fix).
+    if unjudged_total == 0:              # nothing left to draw -> cycle genuinely complete
         reset_rec = {"kind": "cycle-reset", "cycle": cycle, "date": date,
                      "reason": ("census exhausted; sampling restarts on the refreshed "
                                 f"census as cycle {cycle + 1}")}
@@ -415,7 +426,7 @@ def run_sample(n, record_path, date=None, as_json=False, _census=None, _records=
             "mode": "coverage-sweep", "cycle": cycle, "run": run_no,
             "census_size": len(census), "unjudged_before": unjudged_total,
             "n_requested": n, "n_drawn": len(drawn),
-            "remaining_after": remaining_after, "cycle_complete": remaining_after == 0,
+            "remaining_after": remaining_after, "cycle_complete": unjudged_total == 0,
             "stale_judged_keys": sorted(stale),
             "record_path": (str(record_path) if record_path else None),
             "append_records": [r for r in (sweep_rec, reset_rec) if r],
@@ -434,11 +445,19 @@ def run_sample(n, record_path, date=None, as_json=False, _census=None, _records=
     for r in drawn:
         print(f"  [{r['family']} x {r['domain']}] {r['path']}:{r['line_hint']} "
               f"({r['anchor']})  {r['source']}")
-    if remaining_after == 0:
-        print(f"  CYCLE {cycle} COMPLETE -> append the cycle-reset record; next run "
-              f"starts cycle {cycle + 1} on the refreshed census.")
+    if unjudged_total == 0:
+        print(f"  CYCLE {cycle} COMPLETE (un-judged pool empty) -> append the cycle-reset "
+              f"record; next run starts cycle {cycle + 1} on the refreshed census.")
+    elif remaining_after == 0:
+        print(f"  this run drew the LAST un-judged rows of cycle {cycle}; after judging "
+              "(mark any you could not adjudicate \"judged\": false), re-run --sample. The "
+              "cycle completes and emits the reset only when the next draw is empty, so a "
+              "row left \"judged\": false is re-drawn first.")
     print("\n  append the following line(s) to the sweep ledger AFTER judging "
           "(the without-replacement basis):")
+    print("  N6: each sampled row carries \"judged\": true; set it to false on any drawn "
+          "row you could NOT adjudicate this run (source-not-held / deferred), so it stays "
+          "un-judged and is re-drawn rather than silently counted as covered.")
     for r in (sweep_rec, reset_rec):
         if r:
             print("    " + _json.dumps(r))
@@ -745,6 +764,24 @@ def self_test():
             self.assertEqual(cyc2, 2)          # cycle advanced
             self.assertEqual((judged2, runs2), (set(), 0))  # judged/rotation reset
 
+        def test_n6_judged_flag(self):
+            # P-1.83 N6: a drawn row explicitly "judged": false is NOT counted as
+            # covered (stays re-drawable); absent or true == judged (backward-compat).
+            recs = [{"kind": "coverage-sweep", "cycle": 1, "run": 1, "sampled": [
+                {"key": "kt", "family": "ISO", "domain": "ai", "judged": True},
+                {"key": "kf", "family": "ISO", "domain": "ai", "judged": False},
+                {"key": "ka", "family": "GDPR", "domain": "privacy"},  # absent -> judged
+            ]}]
+            _cyc, judged, _runs, strat = current_cycle_state(recs)
+            self.assertEqual(judged, {"kt", "ka"})            # kf excluded (unadjudicated)
+            self.assertNotIn("kf", judged)                    # re-drawable
+            self.assertEqual(strat[("ISO", "ai")], 2)         # rotation still counts the draw
+            # and the unjudged row is re-drawable against a census containing it
+            census = [self._mk("ISO", "ai", 0)]
+            census[0]["key"] = "kf"
+            drawn, unjudged = stratified_draw(census, judged, dict(strat), 5)
+            self.assertIn("kf", {r["key"] for r in drawn})
+
         def test_sample_determinism(self):
             census = [self._mk("ISO", "ai", i) for i in range(5)] + \
                      [self._mk("GDPR", "privacy", 100 + i) for i in range(5)]
@@ -753,15 +790,39 @@ def self_test():
             self.assertEqual([r["key"] for r in a], [r["key"] for r in b])
 
         def test_sample_emits_reset_record_when_exhausted(self):
+            # P-1.83 N6 terminal-run fix: the exhausting DRAW does NOT emit the reset
+            # (rows may yet be marked judged:false); the reset fires only on a later run
+            # whose draw is empty (the un-judged pool genuinely exhausted).
             import io, contextlib, json as _json
             census = [self._mk("ISO", "ai", i) for i in range(2)]
-            buf = io.StringIO()
-            with contextlib.redirect_stdout(buf):
-                run_sample(10, None, as_json=True, _census=census, _records=[])
-            out = _json.loads(buf.getvalue())
-            self.assertTrue(out["cycle_complete"])
-            kinds = {r["kind"] for r in out["append_records"]}
-            self.assertEqual(kinds, {"coverage-sweep", "cycle-reset"})
+
+            def _run(recs):
+                buf = io.StringIO()
+                with contextlib.redirect_stdout(buf):
+                    run_sample(10, None, as_json=True, _census=census, _records=recs)
+                return _json.loads(buf.getvalue())
+
+            # Run 1: draws both rows; NOT complete, no reset (they are not yet judged).
+            out1 = _run([])
+            self.assertFalse(out1["cycle_complete"])
+            self.assertEqual({r["kind"] for r in out1["append_records"]}, {"coverage-sweep"})
+            sweep1 = next(r for r in out1["append_records"] if r["kind"] == "coverage-sweep")
+
+            # Run 2, both judged (append run 1 as-is): draw empty -> complete, reset only.
+            out2 = _run([sweep1])
+            self.assertTrue(out2["cycle_complete"])
+            self.assertEqual({r["kind"] for r in out2["append_records"]}, {"cycle-reset"})
+
+            # Run 2b, one row left judged:false: it is re-drawn, cycle NOT complete, no reset.
+            import copy as _copy
+            sweep_false = _copy.deepcopy(sweep1)
+            sweep_false["sampled"][0]["judged"] = False
+            out2b = _run([sweep_false])
+            self.assertFalse(out2b["cycle_complete"])
+            self.assertNotIn("cycle-reset", {r["kind"] for r in out2b["append_records"]})
+            redrawn = next(r for r in out2b["append_records"] if r["kind"] == "coverage-sweep")
+            self.assertEqual([x["key"] for x in redrawn["sampled"]],
+                             [sweep_false["sampled"][0]["key"]])
 
         def test_fence_aware_claims_inside_code_fence_skipped(self):
             # P-1.83 N7: a Tier-A-shaped claim INSIDE a code fence is an
