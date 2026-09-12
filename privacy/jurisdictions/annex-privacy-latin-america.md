@@ -2,8 +2,8 @@
 
 **Document Title:** Latin America Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.12\
-**Date:** 2026-09-11\
+**Version:** 1.0.13\
+**Date:** 2026-09-12\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/jurisdictions/annex-privacy-brazil.md`](../jurisdictions/annex-privacy-brazil.md), [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -42,7 +42,7 @@ This annex provides an overview of privacy regulatory requirements in key Latin 
 ### Chile
 
 - **Law No. 19.628 on the Protection of Private Life (1999)**, in force during the transition until 2026-11-30. **Law No. 21.719 (published 2024-12-13, in force 2026-12-01)** modernizes the framework to align with GDPR and establishes the Agencia de Protección de Datos Personales as the supervisory authority. See the dedicated [`Chile privacy annex`](annex-privacy-chile.md) for the operational per-regime view under Ley 19.628; this Latin America overview defers to it for Chile.
-- **Regulatory authority:** Consejo para la Transparencia (public-sector oversight under Law 19.628); the Agencia de Protección de Datos Personales is established by Law 21.719, operative from 2026-12-01.
+- **Regulatory authority:** No dedicated data-protection authority exists under Law 19.628; data-subject rights are enforced through the ordinary civil courts (see the dedicated Chile annex). The Consejo para la Transparencia oversees public-sector transparency, not private-sector data protection. The Agencia de Protección de Datos Personales is established by Law 21.719, operative from 2026-12-01.
 
 ### Peru
 
@@ -93,7 +93,7 @@ Where the organization monitors the network and device activity of workers in th
 | Argentina | AAIP | Fines under Law 25.326; updated enforcement under anticipated new law |
 | Mexico | Secretaría Anticorrupción y Buen Gobierno | Fines up to 320,000 UMA, up to twofold for sensitive-data infringements |
 | Colombia | SIC | Fines up to 2,000 monthly minimum legal wages (approx. USD 600,000) |
-| Chile | Ministry of Justice / courts (Law 19.628); Agencia de Protección de Datos Personales (Law 21.719, from 2026-12-01) | Compensation under Law 19.628; administrative fines under Law 21.719 |
+| Chile | Civil courts (juez de letras en lo civil) (Law 19.628; no dedicated authority); Agencia de Protección de Datos Personales (Law 21.719, from 2026-12-01) | Court-imposed fines of 1-10, 10-50, or 2-50 UTM (Law 19.628, Art. 16; no administrative regime); administrative fines under Law 21.719 |
 | Peru | DGTAIPD (MINJUS) | Fines up to 100 UIT for very serious violations (serious to 50 UIT); UIT is set annually, so convert to the current sol value |
 
 ---
