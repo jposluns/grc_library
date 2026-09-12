@@ -2,8 +2,8 @@
 
 **Document Title:** Crypto-Asset Governance Domain README\
 **Document Type:** Register\
-**Version:** 0.1.4\
-**Date:** 2026-09-11\
+**Version:** 0.1.5\
+**Date:** 2026-09-12\
 **Owner:** Crypto-Asset Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`compliance/financial-services/annex-mica-implementation.md`](../compliance/financial-services/annex-mica-implementation.md)\
@@ -31,5 +31,6 @@ The domain complements the MiCA implementation annex in the compliance domain ([
 | Framework | Crypto-Asset Governance Framework | [`crypto/framework-crypto-asset-governance.md`](framework-crypto-asset-governance.md) |
 | Standard | Digital Asset Custody Standard | [`crypto/standard-digital-asset-custody.md`](standard-digital-asset-custody.md) |
 | Standard | Crypto-Asset Service Provider Vetting Standard | [`crypto/standard-crypto-asset-service-provider-vetting.md`](standard-crypto-asset-service-provider-vetting.md) |
+| Standard | Crypto-Asset Reserve and Prudential Requirements Standard | [`crypto/standard-crypto-asset-reserve-and-prudential-requirements.md`](standard-crypto-asset-reserve-and-prudential-requirements.md) |
 | Register | Crypto-Asset Domain Inventory Register | [`crypto/register-crypto-asset-inventory.md`](register-crypto-asset-inventory.md) |
 | Standard | Smart-Contract and Oracle Risk Standard | [`crypto/standard-smart-contract-and-oracle-risk.md`](standard-smart-contract-and-oracle-risk.md) |

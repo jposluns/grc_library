@@ -2,8 +2,8 @@
 
 **Document Title:** MiCA Implementation Annex\
 **Document Type:** Annex\
-**Version:** 0.3.0\
-**Date:** 2026-09-11\
+**Version:** 0.3.1\
+**Date:** 2026-09-12\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/financial-services/annex-financial-services-sector-requirements.md`](annex-financial-services-sector-requirements.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`compliance/financial-services/annex-dora-implementation.md`](annex-dora-implementation.md)\
@@ -183,11 +183,9 @@ MiCA is supervised two-tier: national competent authorities designated under Art
 ## Library gaps requiring additional documentation
 
 1. **Crypto-asset white papers** (Title II Annex I; ART Annex II; EMT Annex III), MiCA-specific, per category.
-2. **Reserve-of-assets construction, segregation, custody, and six-monthly independent audit** for ARTs (Arts 36-38).
-3. **Own-funds / prudential-safeguards calculation** (Arts 35, 67; Annex IV).
-4. **Client-asset segregation and insolvency-protection evidence** (Arts 70, 75).
-5. **Recovery and redemption plans** (Arts 46-47, 55).
-6. **RTS/ITS-templated submissions**, complaints (2025/293, 2025/294), conflicts (2025/1141, 2025/1142), records (2025/1140), order-book (2025/416), liquidity (2025/1264), remuneration (2025/418), market-abuse detection (2025/885), and the authorization and notification submissions, where the RTS specify the required information and their paired ITS provide the forms (2025/305, 2025/306, 2025/303, 2025/304, 2025/1125, 2025/1126).
+2. **Client-asset segregation and insolvency-protection evidence** (Arts 70, 75).
+3. **Recovery and redemption plans** (Arts 46-47, 55) - the Crypto-Asset Reserve and Prudential Requirements Standard carries the Level-1 mandate; the EBA guidelines (Arts 46(6), 47(5)) remain the residual.
+4. **RTS/ITS-templated submissions**, complaints (2025/293, 2025/294), conflicts (2025/1141, 2025/1142), records (2025/1140), order-book (2025/416), liquidity (2025/1264), remuneration (2025/418), market-abuse detection (2025/885), and the authorization and notification submissions, where the RTS specify the required information and their paired ITS provide the forms (2025/305, 2025/306, 2025/303, 2025/304, 2025/1125, 2025/1126).
 
 ## Framework alignment
 
