@@ -2,7 +2,7 @@
 
 **Document Title:** MiCA Implementation Annex\
 **Document Type:** Annex\
-**Version:** 0.3.2\
+**Version:** 0.3.3\
 **Date:** 2026-09-12\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -28,7 +28,7 @@ MiCA applies to persons engaged in the issuance, offer to the public, or admissi
 
 1. Offeror or person seeking admission to trading of a crypto-asset **other than an ART or EMT** (Title II).
 2. Issuer of an **asset-referenced token (ART)** (Title III).
-3. Issuer of an **e-money token (EMT)**, a credit institution or an electronic money institution, save for the Article 48(4) small-issuer exemption (Art 48(1)).
+3. Issuer of an **e-money token (EMT)**, a credit institution or an electronic money institution, save for the Article 48(4) small-issuer exemption and the Article 48(5) exempt-token case (Art 48(1)).
 4. **Crypto-asset service provider (CASP)** authorized under Art 63, or a financial entity providing crypto-asset services under Art 60.
 
 MiCA does not apply to crypto-assets that are unique and non-fungible (Art 2(3)) or that qualify as financial instruments, deposits, funds (other than EMTs), or the other instruments listed in Art 2(4). Partial exemptions exist but do not relieve all duties: Art 4(2) disapplies Art 4(1) points (b), (c), (d), and (f) for a Title II offer of a crypto-asset other than an ART or EMT that is made to fewer than 150 persons per Member State acting on their own account, or whose total consideration over twelve months does not exceed EUR 1 000 000, or that is addressed solely to qualified investors (and can only be held by them); the remaining Art 4(1) obligations still apply. Art 16(2) disapplies the Art 16(1) authorization requirement where the ART's average outstanding value over twelve months never exceeds EUR 5 000 000 and the issuer is not linked to a network of other exempt issuers, or the offer is addressed solely to qualified investors and the ART can only be held by them, but the issuer must still draw up an ART white paper and notify it to its competent authority. Consult the article and the relevant RTS for the exact conditions.
@@ -41,7 +41,7 @@ MiCA entered into force on 29 June 2023 (Art 149(1)). It applies in two phases: 
 
 The obligations that apply turn entirely on which category a token falls in, and the distinction is precise:
 
-- **E-money token (EMT):** purports to maintain a stable value by referencing **one official currency** (Art 3(7)); deemed electronic money (Art 48(2)); issuable only by a credit institution or EMI (Art 48(1)).
+- **E-money token (EMT):** purports to maintain a stable value by referencing **one official currency** (Art 3(7)); deemed electronic money (Art 48(2)); issuable only by a credit institution or EMI (Art 48(1)), save for the Article 48(4) and (5) exemptions.
 - **Asset-referenced token (ART):** any stable-value token that is **not** an EMT, referencing another value or right, a combination, or **one or more** official currencies (Art 3(6)); a multi-currency basket stablecoin is an ART, not an EMT.
 - **Crypto-asset other than ART or EMT:** the residual category (utility tokens and other non-stable crypto-assets), governed by Title II.
 
@@ -71,7 +71,7 @@ Title II governs the crypto-asset white-paper lifecycle for offers to the public
 | **Modification of a published white paper (Art 12)**: on a significant new factor, material mistake, or material inaccuracy capable of affecting the assessment of the crypto-assets, modify the white paper and notify the authority per the Art 12 procedure. | `compliance/` change and disclosure controls (adopter maps); the MiCA-specific procedure is a gap |
 | **Right of withdrawal (Art 13)**: retail holders have 14 calendar days to withdraw from a purchase agreement, free of charge and without reasons, for a public offer (not for admission to trading), running from the date of agreement. | *(MiCA-specific gap)* |
 | **Ongoing conduct obligations (Art 14)**: act honestly, fairly and professionally; communicate fairly and not misleadingly; identify, prevent, manage and disclose conflicts of interest; maintain systems and secure access protocols. | library governance, conflict-of-interest, and security controls |
-| **Civil liability for the white paper (Art 15)**: the offeror or person seeking admission, and the members of its management body, are liable where the white paper is not fair, clear and not misleading or omits key information. | *(MiCA-specific gap; the library's disclosure-accuracy controls reduce the exposure)* |
+| **Civil liability for the white paper (Art 15)**: the offeror, the person seeking admission to trading, or the operator of the trading platform, and the members of its administrative, management or supervisory body, are liable where the white paper is not complete, fair, or clear or is misleading. | [white-paper standard](../../crypto/standard-crypto-asset-white-paper-disclosure.md) section 3.10; the library's disclosure-accuracy controls reduce the exposure |
 
 ### White-paper content schema (Annex I)
 
@@ -182,7 +182,7 @@ MiCA is supervised two-tier: national competent authorities designated under Art
 
 ## Library gaps requiring additional documentation
 
-1. **Crypto-asset white papers** (Title II Annex I; ART Annex II; EMT Annex III), MiCA-specific, per category.
+1. **Crypto-asset white-paper ESMA templates** (Title II Annex I; ART Annex II; EMT Annex III) - the [Crypto-Asset White-Paper Content and Disclosure Standard](../../crypto/standard-crypto-asset-white-paper-disclosure.md) now carries the Level-1 content, mandatory-statement, notification/approval, publication, modification, withdrawal, and liability controls per category; the ESMA implementing technical standards forms, formats, and templates (Arts 6(11), 19(10), 51(10)) and the regulatory technical standards on sustainability indicators (Arts 6(12), 19(11), 51(15)) remain the residual, MiCA-specific and not held.
 2. **Client-asset segregation and insolvency-protection evidence** (Arts 70, 75).
 3. **Recovery and redemption plans** (Arts 46-47, 55) - the Crypto-Asset Reserve and Prudential Requirements Standard carries the Level-1 mandate; the EBA guidelines (Arts 46(6), 47(5)) remain the residual.
 4. **RTS/ITS-templated submissions**, complaints (2025/293, 2025/294), conflicts (2025/1141, 2025/1142), records (2025/1140), order-book (2025/416), remuneration (2025/418), market-abuse detection (2025/885), and the authorization and notification submissions, where the RTS specify the required information and their paired ITS provide the forms (2025/305, 2025/306, 2025/303, 2025/304, 2025/1125, 2025/1126).

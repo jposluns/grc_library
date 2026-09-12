@@ -37,7 +37,7 @@ The metadata block above carries a generator schema constant for `Version` and t
 
 ---
 
-_Summary as of last regeneration: Mature: 117, Baseline: 163, Draft: 69, Unknown: 0._
+_Summary as of last regeneration: Mature: 117, Baseline: 163, Draft: 70, Unknown: 0._
 
 ## Mature
 
@@ -83,7 +83,7 @@ _117 documents._
 | [governance/register-canonical-citations.md](../governance/register-canonical-citations.md) | Canonical Citations Register | Register | 1.5.73 | 2026-09-12 |
 | [governance/register-coverage-gaps.md](../governance/register-coverage-gaps.md) | Coverage Gap Analysis Register | Register | 1.1.41 | 2026-09-12 |
 | [governance/register-digital-trust-and-assurance-metrics.md](../governance/register-digital-trust-and-assurance-metrics.md) | Digital Trust and Assurance Metrics Register | Register | 1.1.3 | 2026-08-30 |
-| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.182 | 2026-09-12 |
+| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.183 | 2026-09-12 |
 | [governance/register-glossary.md](../governance/register-glossary.md) | Glossary and Acronym Index | Register | 1.4.18 | 2026-08-24 |
 | [governance/register-key-terms-and-definitions.md](../governance/register-key-terms-and-definitions.md) | Key Terms and Definitions Register | Register | 1.1.6 | 2026-08-31 |
 | [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.5.11 | 2026-09-05 |
@@ -339,7 +339,7 @@ _163 documents._
 
 ## Draft
 
-_69 documents._
+_70 documents._
 
 | Path | Title | Type | Version | Date |
 | --- | --- | --- | --- | --- |
@@ -373,7 +373,7 @@ _69 documents._
 | [architecture/standard-integration-architecture.md](../architecture/standard-integration-architecture.md) | Integration Architecture Standard | Standard | 0.0.4 | 2026-07-02 |
 | [compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md](../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md) | Energy and Utilities Sector Requirements Annex | Annex | 0.0.8 | 2026-09-04 |
 | [compliance/financial-services/annex-dora-implementation.md](../compliance/financial-services/annex-dora-implementation.md) | DORA Implementation Annex | Annex | 0.0.9 | 2026-09-05 |
-| [compliance/financial-services/annex-mica-implementation.md](../compliance/financial-services/annex-mica-implementation.md) | MiCA Implementation Annex | Annex | 0.3.2 | 2026-09-12 |
+| [compliance/financial-services/annex-mica-implementation.md](../compliance/financial-services/annex-mica-implementation.md) | MiCA Implementation Annex | Annex | 0.3.3 | 2026-09-12 |
 | [compliance/financial-services/annex-sox-itgc.md](../compliance/financial-services/annex-sox-itgc.md) | SOX IT General Controls Annex | Annex | 0.0.6 | 2026-09-04 |
 | [compliance/healthcare/annex-healthcare-united-states.md](../compliance/healthcare/annex-healthcare-united-states.md) | United States HIPAA Sector Requirements Annex | Annex | 0.0.1 | 2026-07-09 |
 | [compliance/healthcare/procedure-hipaa-operational-compliance.md](../compliance/healthcare/procedure-hipaa-operational-compliance.md) | HIPAA Operational Compliance Procedure | Procedure | 0.0.3 | 2026-08-28 |
@@ -386,6 +386,7 @@ _69 documents._
 | [crypto/register-crypto-asset-inventory.md](../crypto/register-crypto-asset-inventory.md) | Crypto-Asset Domain Inventory Register | Register | 0.0.1 | 2026-09-11 |
 | [crypto/standard-crypto-asset-reserve-and-prudential-requirements.md](../crypto/standard-crypto-asset-reserve-and-prudential-requirements.md) | Crypto-Asset Reserve and Prudential Requirements Standard | Standard | 0.0.2 | 2026-09-12 |
 | [crypto/standard-crypto-asset-service-provider-vetting.md](../crypto/standard-crypto-asset-service-provider-vetting.md) | Crypto-Asset Service Provider Vetting Standard | Standard | 0.0.1 | 2026-09-11 |
+| [crypto/standard-crypto-asset-white-paper-disclosure.md](../crypto/standard-crypto-asset-white-paper-disclosure.md) | Crypto-Asset White-Paper Content and Disclosure Standard | Standard | 0.0.1 | 2026-09-12 |
 | [crypto/standard-digital-asset-custody.md](../crypto/standard-digital-asset-custody.md) | Digital Asset Custody Standard | Standard | 0.0.6 | 2026-09-05 |
 | [crypto/standard-smart-contract-and-oracle-risk.md](../crypto/standard-smart-contract-and-oracle-risk.md) | Smart-Contract and Oracle Risk Standard | Standard | 0.0.1 | 2026-09-11 |
 | [dev-security/procedure-secure-code-review.md](../dev-security/procedure-secure-code-review.md) | Secure Code Review Procedure | Procedure | 0.0.6 | 2026-08-27 |
