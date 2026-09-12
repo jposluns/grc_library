@@ -117,7 +117,7 @@
       "id": "EU-AI-ACT",
       "display_name": "EU Artificial Intelligence Act",
       "class": "regulation or law",
-      "source_identifier": "Regulation (EU) 2024/1689 (as amended by Regulation (EU) 2026/1744)",
+      "source_identifier": "Regulation 2024/1689 as amended by Regulation (EU) 2026/1744 (Digital Omnibus)",
       "corpus_path": null
     },
     {
@@ -220,38 +220,6 @@
         "to": null
       },
       "authority_level": "organizationally mandatory",
-      "evidence_refs": [],
-      "provenance": null,
-      "scope": null,
-      "status": "active"
-    },
-    {
-      "id": "rel-corpus-0004",
-      "source": {
-        "id": "ISO-31000",
-        "class": "standard"
-      },
-      "verb": "informs",
-      "destination": {
-        "id": "GRC-STD-ERM",
-        "class": "organizational standard"
-      },
-      "relationship_class": "influence",
-      "layout_role": "primary",
-      "nature": [
-        "structural"
-      ],
-      "viewpoint": "governance",
-      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
-      "inverse": {
-        "verb": null,
-        "storage": "inferred"
-      },
-      "validity": {
-        "from": null,
-        "to": null
-      },
-      "authority_level": "architectural recommendation",
       "evidence_refs": [],
       "provenance": null,
       "scope": null,

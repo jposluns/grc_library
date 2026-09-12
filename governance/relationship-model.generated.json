@@ -8,7 +8,7 @@
       "corpus_path": null,
       "display_name": "EU Artificial Intelligence Act",
       "id": "EU-AI-ACT",
-      "source_identifier": "Regulation (EU) 2024/1689 (as amended by Regulation (EU) 2026/1744)"
+      "source_identifier": "Regulation 2024/1689 as amended by Regulation (EU) 2026/1744 (Digital Omnibus)"
     },
     {
       "class": "framework",
@@ -211,38 +211,6 @@
         "to": null
       },
       "verb": "implements",
-      "viewpoint": "governance"
-    },
-    {
-      "authority_level": "architectural recommendation",
-      "destination": {
-        "class": "organizational standard",
-        "id": "GRC-STD-ERM"
-      },
-      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
-      "evidence_refs": [],
-      "id": "rel-corpus-0004",
-      "inverse": {
-        "storage": "inferred",
-        "verb": "is informed by"
-      },
-      "layout_role": "primary",
-      "nature": [
-        "structural"
-      ],
-      "provenance": null,
-      "relationship_class": "influence",
-      "scope": null,
-      "source": {
-        "class": "standard",
-        "id": "ISO-31000"
-      },
-      "status": "active",
-      "validity": {
-        "from": null,
-        "to": null
-      },
-      "verb": "informs",
       "viewpoint": "governance"
     },
     {
@@ -474,12 +442,12 @@
   "source": "governance/relationship-model-source.json",
   "summary": {
     "node_count": 16,
-    "record_count": 11,
+    "record_count": 10,
     "records_by_relationship_class": {
       "commitment": 1,
       "correspondence": 4,
       "implementation": 3,
-      "influence": 3
+      "influence": 2
     }
   }
 }
