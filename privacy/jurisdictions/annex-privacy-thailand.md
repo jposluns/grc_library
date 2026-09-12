@@ -2,8 +2,8 @@
 
 **Document Title:** Thailand Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.1\
-**Date:** 2026-09-11\
+**Version:** 1.1.2\
+**Date:** 2026-09-12\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -27,7 +27,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 - **Personal Data Protection Act B.E. 2562 (2019) (PDPA)**: In force for general compliance obligations since 2022-06-01. Closely modelled on GDPR.
 - Lawful basis for collection: consent under s. 19, or without consent under s. 24 for safeguarded public-interest archives, research, or statistics (s. 24(1)); preventing or suppressing a danger to a person's life, body, or health (s. 24(2)); performance of a contract with, or pre-contractual steps requested by, the data subject (s. 24(3)); a public-interest task or the exercise of official authority (s. 24(4)); legitimate interests not overridden by the data subject's fundamental rights (s. 24(5)); or compliance with a law binding the controller (s. 24(6)).
 - Mandatory breach notification within 72 hours where feasible.
-- Sensitive personal data categories: health, biometric, genetic, political opinion, religious or philosophical belief, sexual behaviour, criminal records, and disability data.
+- Sensitive personal data categories: racial or ethnic origin, political opinion, cult, religious, or philosophical belief, sexual behaviour, criminal records, health, disability, trade union information, genetic, and biometric data.
 - DPOs required (s. 41) where the controller or processor is a Committee-prescribed public authority, where its activities require regular monitoring of personal data by reason of a Committee-prescribed large data volume, or where its core activity is processing sensitive personal data under s. 26.
 - **Regulatory authority:** Personal Data Protection Committee (PDPC), under the Ministry of Digital Economy and Society.
 
@@ -41,7 +41,7 @@ Thailand's Personal Data Protection Act (B.E. 2562/2019) imposes the following c
 | --- | --- |
 | **Consent and lawful basis (s. 19)**: a data controller must not collect, use, or disclose personal data without the data subject's consent, unless another PDPA basis applies; a consent request must be explicit, in a form clearly distinguishable from other matters, and in plain, accessible language. | library consent-management and lawful-basis controls |
 | **Purpose and collection (ss. 21-25)**: personal data is collected, used, or disclosed according to the purpose notified to the data subject (s. 21); collection is limited to the extent necessary for the lawful purpose (s. 22); the data subject is given the s. 23 notice at or before collection; collection without consent is confined to the s. 24 bases; and collection from a source other than the data subject is restricted by s. 25. | library purpose-limitation, data-minimization, and collection-notice controls |
-| **Sensitive personal data (s. 26)**: data revealing racial or ethnic origin, political opinions, religious or philosophical beliefs, sexual behaviour, criminal records, health, disability, trade-union membership, genetic, or biometric data must not be collected without explicit consent or an s. 26 exception. | library special-category-data controls |
+| **Sensitive personal data (s. 26)**: data revealing racial or ethnic origin, political opinions, cult, religious, or philosophical beliefs, sexual behaviour, criminal records, health, disability, trade union information, genetic, or biometric data must not be collected without explicit consent or an s. 26 exception. | library special-category-data controls |
 | **Use and disclosure (s. 27)**: the controller must not use or disclose personal data without the data subject's consent, unless the data was collected under an s. 24 or s. 26 exception; a recipient's further use or disclosure is bounded accordingly. | library purpose-limitation and third-party-sharing controls |
 | **Data-subject rights (ss. 30-36)**: subject to the grounds, exceptions, and refusal conditions in the cited sections, the data subject may request access and a copy (s. 30), data portability (s. 31), object to processing (s. 32), request erasure, destruction, or anonymization (s. 33), request restriction of use (s. 34), and request rectification to keep data accurate, current, and complete (s. 36). | library data-subject-rights controls (`privacy/procedure-data-subject-rights-management.md`, `privacy/template-dsar-workflow.md`) |
 | **Controller duties, security, and breach (s. 37)**: the controller provides appropriate security measures (s. 37(1)), acts to prevent a recipient from unauthorized or unlawful use or disclosure (s. 37(2)), maintains an examination system for erasure or destruction of personal data on expiry of the retention period or where a request or withdrawal of consent applies (s. 37(3)), and notifies the Office without delay and, where feasible, within 72 hours of awareness of a breach, unless the breach is unlikely to result in a risk to rights and freedoms, notifying the data subject and the remedial measures where the risk is high (s. 37(4)). | library information-security and breach-notification controls (`security/`) |
