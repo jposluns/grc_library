@@ -276,8 +276,11 @@ def scan_matrix(path: Path, docs=None) -> tuple[list[dict], dict]:
     n_unassessable = 0
     unassessable: list[dict] = []
     unassessed_columns: set[str] = set()
-    n_candidate_headers = 0  # rows that look like a mapping-table header ("Document Title" present)
-    n_recognized_headers = 0  # of those, the ones whose "CSA CCM v4.1" column was also found
+    n_unparsed_tables = 0  # candidate mapping-table headers ("Document Title" + "Path") whose
+    # "CSA CCM v4.1" column was renamed (a table silently skipped): counted DIRECTLY as
+    # |candidate \ recognized| in the loop below, so it is exact and never negative (P-1.85).
+    # A subtraction of the two aggregate counts was WRONG: a Path-less recognized table
+    # (recognized, not candidate) could cancel a genuine renamed-CCM table and mask it.
     lines = path.read_text(encoding="utf-8").splitlines()
     title_idx = ccm_idx = aicm_idx = csf_idx = cobit_idx = iso_idx = path_idx = None
     in_table = False
@@ -286,12 +289,14 @@ def scan_matrix(path: Path, docs=None) -> tuple[list[dict], dict]:
             cells = _split_row(line)
             # A candidate mapping-table header carries BOTH stable label columns
             # ("Document Title" and "Path"); requiring both stops a lone data cell whose
-            # value is literally "Document Title" from masquerading as a header.
-            if "Document Title" in cells and "Path" in cells:
-                n_candidate_headers += 1
+            # value is literally "Document Title" from masquerading as a header. A candidate
+            # whose "CSA CCM v4.1" column was renamed (absent) is an UNPARSED table: counted
+            # directly here so the count is exact per-table, never a cancelling subtraction.
+            if ("Document Title" in cells and "Path" in cells
+                    and "CSA CCM v4.1" not in cells):
+                n_unparsed_tables += 1
             # Header row of a mapping table?
             if "Document Title" in cells and "CSA CCM v4.1" in cells:
-                n_recognized_headers += 1
                 title_idx = cells.index("Document Title")
                 ccm_idx = cells.index("CSA CCM v4.1")
                 aicm_idx = cells.index("CSA AICM v1.1") if "CSA AICM v1.1" in cells else None
@@ -354,7 +359,7 @@ def scan_matrix(path: Path, docs=None) -> tuple[list[dict], dict]:
     stats = {
         "n_assessed": n_assessed,
         "n_unassessable": n_unassessable,
-        "n_unparsed_tables": n_candidate_headers - n_recognized_headers,
+        "n_unparsed_tables": n_unparsed_tables,
         "unassessable": unassessable,
         "unassessed_columns": sorted(unassessed_columns),
     }
@@ -944,6 +949,55 @@ def _self_test() -> int:
                              "source docs are per-doc: no multi-table partial case")
             self.assertIsInstance(stats["unassessable"], list)
             self.assertGreater(stats["n_assessed"], 0, "the live corpus has assessable source docs")
+
+
+        def test_recognized_header_without_path_never_negative_unparsed(self):
+            # P-1.85: a recognized mapping table lacking a "Path" column is
+            # recognized but not a candidate; the direct |candidate \\ recognized|
+            # count must simply not include it (0 here), and can never go negative.
+            m = (
+                "| Domain | Document Title | CSA CCM v4.1 |\n"   # recognized, NO Path column
+                "| --- | --- | --- |\n"
+                "| Risk | Records Retention and Destruction | DSP-16 |\n"
+            )
+            import tempfile, os
+            with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False) as f:
+                f.write(m); path = Path(f.name)
+            try:
+                _, stats = scan_matrix(path)
+                self.assertGreaterEqual(stats["n_unparsed_tables"], 0,
+                                        "a Path-less recognized header must not drive n_unparsed negative")
+                self.assertEqual(stats["n_unparsed_tables"], 0)
+            finally:
+                os.unlink(path)
+
+
+        def test_unparsed_count_not_cancelled_by_pathless_recognized_table(self):
+            # P-1.85 (panel r2): the count must be |candidate \ recognized|, NOT
+            # max(0, |candidate| - |recognized|). A file with BOTH a genuinely
+            # unparsed table (Document Title + Path, but a renamed CSA column) AND
+            # a Path-less recognized table (recognized, not candidate) would, under
+            # the aggregate-subtraction clamp, net to 0 and MASK the real unparsed
+            # table. The direct per-header count reports it correctly as 1.
+            m = (
+                "| Domain | Document Title | Path | CSA CCM (renamed) |\n"   # candidate, CCM renamed -> UNPARSED
+                "| --- | --- | --- | --- |\n"
+                "| Ops | Media Handling | `m.md` | DCS-05 |\n"
+                "\n"
+                "| Domain | Document Title | CSA CCM v4.1 |\n"               # recognized, NO Path
+                "| --- | --- | --- |\n"
+                "| Risk | Records Retention | DSP-16 |\n"
+            )
+            import tempfile, os
+            with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False) as f:
+                f.write(m); path = Path(f.name)
+            try:
+                _, stats = scan_matrix(path)
+                self.assertEqual(stats["n_unparsed_tables"], 1,
+                                 "the genuine renamed-CCM table must be counted, not cancelled "
+                                 "by the Path-less recognized table")
+            finally:
+                os.unlink(path)
 
 
     suite = unittest.TestLoader().loadTestsFromTestCase(SemanticFitTests)
