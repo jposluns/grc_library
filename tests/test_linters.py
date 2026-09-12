@@ -5493,11 +5493,12 @@ class LintCommonHelperTests(unittest.TestCase):
         self.assertFalse(h("The row is `| ID | Item | Tags |`.\n"), "prose mention is not a header")
 
     def test_adopter_extra_exempt_dirs_floor(self):
-        """3.183: adopter-config.json extra_exempt_dirs are additive to
-        DEFAULT_EXEMPT_DIRS, but the HARD FLOOR skips (fail-safe toward scanning) any
-        protected shipped-dir name, multi-segment/absolute path, empty, or non-string
-        entry, so a mis-scoped exemption can never blind a gate corpus-wide. Absent or
-        malformed config -> empty additions (never an error)."""
+        """3.183: adopter-config.json extra_exempt_dirs are matched TOP-LEVEL-ANCHORED
+        (is_adopter_exempt), NOT via the any-component exempt set, so a nested shipped
+        dir/file of the same name is never blinded. The HARD FLOOR rejects (skip+warn,
+        fail-safe toward scanning) any shipped top-level name (incl. .project-governance,
+        vendor), or malformed/absolute/multi-segment/empty/non-string entry. The floor is
+        derived mechanically and a completeness check guards against drift."""
         import io
         import json as _json
         import contextlib
@@ -5506,25 +5507,53 @@ class LintCommonHelperTests(unittest.TestCase):
         lc = self._lint_common()
         d = pathlib.Path(tempfile.mkdtemp())
 
+        # absent config -> empty
         self.assertEqual(set(lc._load_adopter_extra_exempt_dirs(d)), set())
 
+        # floor: only the adopter's own top-level name survives; shipped names rejected
         (d / "adopter-config.json").write_text(_json.dumps({"extra_exempt_dirs": [
-            "my-overlay", "privacy", "tools", "../etc", "a/b", "", "/abs", 123,
+            "my-overlay", "privacy", "tools", ".project-governance", "vendor",
+            "guardrails", "docs", "executive", "jurisdictions",  # jurisdictions: nested shipped name
+            "../etc", "a/b", "", "/abs", 123,
         ]}))
         with contextlib.redirect_stderr(io.StringIO()):
             got = lc._load_adopter_extra_exempt_dirs(d)
-        self.assertEqual(set(got), {"my-overlay"})
+        # "jurisdictions" is NOT a protected top-level name, so it is ACCEPTED by the loader,
+        # but is_adopter_exempt is top-level-anchored so it cannot blind ai/jurisdictions/.
+        self.assertEqual(set(got), {"my-overlay", "jurisdictions"})
+        for shipped in ("privacy", "tools", ".project-governance", "vendor", "guardrails"):
+            self.assertNotIn(shipped, got, f"{shipped} must be floor-rejected")
 
+        # top-level-anchored matching: patch the loaded module's accepted set and probe
+        lc.ADOPTER_EXTRA_EXEMPT_DIRS = frozenset({"org-overlay"})
+        root = d
+        # a file directly under the overlay -> exempt
+        self.assertTrue(lc.is_adopter_exempt(root / "org-overlay" / "note.md", repo_root=root))
+        # a NESTED dir/file of the same name elsewhere -> NOT exempt
+        self.assertFalse(lc.is_adopter_exempt(root / "ai" / "org-overlay" / "x.md", repo_root=root))
+        self.assertFalse(lc.is_adopter_exempt(root / "privacy" / "org-overlay.md", repo_root=root))
+        # a shipped path unrelated to the overlay -> not exempt
+        self.assertFalse(lc.is_adopter_exempt(root / "privacy" / "annex.md", repo_root=root))
+        # empty accepted set -> never exempt (backward-compat: shipped empty config)
+        lc.ADOPTER_EXTRA_EXEMPT_DIRS = frozenset()
+        self.assertFalse(lc.is_adopter_exempt(root / "anything" / "x.md", repo_root=root))
+
+        # malformed / non-list -> empty, no raise
         (d / "adopter-config.json").write_text("{not json")
         with contextlib.redirect_stderr(io.StringIO()):
             self.assertEqual(set(lc._load_adopter_extra_exempt_dirs(d)), set())
-
         (d / "adopter-config.json").write_text(_json.dumps({"extra_exempt_dirs": "x"}))
         with contextlib.redirect_stderr(io.StringIO()):
             self.assertEqual(set(lc._load_adopter_extra_exempt_dirs(d)), set())
 
-        self.assertEqual(lc.EXEMPT_DIRS, lc.DEFAULT_EXEMPT_DIRS | lc.ADOPTER_EXTRA_EXEMPT_DIRS)
-        self.assertTrue(lc.DEFAULT_EXEMPT_DIRS <= lc.EXEMPT_DIRS)
+        # FLOOR COMPLETENESS (drift guard): every LIVE top-level directory of the repo must
+        # be covered by PROTECTED_EXEMPT_NAMES, so the floor cannot silently fall behind the
+        # tree as new top-level dirs are added.
+        lc2 = self._lint_common()
+        live_top = {c.name for c in REPO_ROOT.iterdir() if c.is_dir()}
+        missing = live_top - set(lc2.PROTECTED_EXEMPT_NAMES)
+        self.assertEqual(missing, set(),
+                         f"top-level dirs not covered by PROTECTED_EXEMPT_NAMES (floor drift): {missing}")
 
     def _lint_common(self):
         import importlib.util

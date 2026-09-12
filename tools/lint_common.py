@@ -154,91 +154,6 @@ def is_narrative_root(path: "str | Path") -> bool:
     return len(rel.parts) >= 1 and rel.parts[0] == "executive"
 
 
-# --- Adopter overlay-exemption config (3.183, maintainer-decided 2026-09-12) ---
-# An adopter forks the corpus and keeps organization-specific values (real names,
-# internal system names, credentials) in a private-overlay directory the content gates
-# (INCLUDING the PII/secrets scanners) must not scan. Rather than edit
-# ``DEFAULT_EXEMPT_DIRS`` in this source file (a change that conflicts on every upstream
-# pull), the adopter names their overlay directory in the committed, non-source
-# ``adopter-config.json`` at the repository root:
-#     {"extra_exempt_dirs": ["my-org-overlay"]}
-# Entries are matched as bare path COMPONENTS, exactly like ``DEFAULT_EXEMPT_DIRS``, so a
-# directory of that name anywhere in the tree is skipped by the default-``exempt_dirs``
-# callers (which include the PII/secrets/link content gates via ``iter_targets``).
-#
-# HARD FLOOR: an entry may add only an adopter's OWN overlay directory. It may NOT name a
-# shipped top-level directory that carries gated content (a corpus domain, the tooling,
-# the generated trees), because exempting one would BLIND a gate over shipped content
-# corpus-wide; and it must be a bare single component (no "/", no "..", not absolute,
-# non-empty). A rejected entry is SKIPPED with a loud stderr warning (fail-SAFE toward
-# MORE scanning: the gate still scans it), never silently applied.
-ADOPTER_CONFIG_FILENAME = "adopter-config.json"
-PROTECTED_EXEMPT_NAMES: frozenset[str] = frozenset(
-    {
-        # Corpus domain directories (gated content). Keep in step with the corpus
-        # domains (CLAUDE.md ## Project / the taxonomy); a new domain dir is added here.
-        "ai", "architecture", "compliance", "crypto", "dev-security",
-        "governance", "operations", "privacy", "resilience", "risk",
-        "security", "supply-chain",
-        # Tooling / generated / infra trees (gated or load-bearing):
-        "tools", "guardrails", "docs", "tests", "executive",
-        ".github", ".web", ".corpus-management",
-        # Repository-root markers (an empty / dot / slash entry would over-match):
-        "", ".", "/",
-    }
-)
-
-
-def _load_adopter_extra_exempt_dirs(repo_root: "Path | None" = None) -> "frozenset[str]":
-    """Validated adopter-declared extra exempt directory NAMES from ``adopter-config.json``.
-
-    Absent or malformed config -> empty set (never an error: the shipped repo carries an
-    empty list, and an adopter's typo must not break linting). A protected or malformed
-    entry is SKIPPED with a stderr warning (fail-safe toward scanning), so a mis-scoped
-    exemption can never blind a gate over shipped corpus/tooling content.
-    """
-    root = REPO_ROOT if repo_root is None else Path(repo_root)
-    cfg = root / ADOPTER_CONFIG_FILENAME
-    if not cfg.exists():
-        return frozenset()
-    try:
-        data = json.loads(cfg.read_text(encoding="utf-8"))
-    except (ValueError, OSError) as exc:
-        print(f"WARNING ({ADOPTER_CONFIG_FILENAME}): unreadable/invalid JSON ({exc}); "
-              "no adopter exempt directories applied.", file=sys.stderr)
-        return frozenset()
-    entries = data.get("extra_exempt_dirs", []) if isinstance(data, dict) else []
-    if not isinstance(entries, list):
-        print(f"WARNING ({ADOPTER_CONFIG_FILENAME}): 'extra_exempt_dirs' is not a list; "
-              "no adopter exempt directories applied.", file=sys.stderr)
-        return frozenset()
-    accepted: set[str] = set()
-    for raw in entries:
-        if not isinstance(raw, str):
-            print(f"WARNING ({ADOPTER_CONFIG_FILENAME}): non-string exempt entry {raw!r} "
-                  "skipped.", file=sys.stderr)
-            continue
-        name = raw.strip()
-        if (not name or "/" in name or "\\" in name or ".." in name
-                or Path(name).is_absolute() or name in PROTECTED_EXEMPT_NAMES):
-            print(f"WARNING ({ADOPTER_CONFIG_FILENAME}): exempt entry {raw!r} is a "
-                  "protected or malformed name (a shipped corpus/tooling directory, an "
-                  "absolute or multi-segment path, or empty); SKIPPED, so gates still "
-                  "scan it. An adopter exempt entry must be your own overlay directory's "
-                  "bare name.", file=sys.stderr)
-            continue
-        accepted.add(name)
-    return frozenset(accepted)
-
-
-ADOPTER_EXTRA_EXEMPT_DIRS: frozenset[str] = _load_adopter_extra_exempt_dirs()
-# Effective exempt set = shipped base + validated adopter additions. The iter_* helpers
-# default to THIS, so every default-``exempt_dirs`` caller (including the PII/secrets/link
-# content gates) honors the adopter's overlay. ``DEFAULT_EXEMPT_DIRS`` remains the shipped
-# base for callers that reference it explicitly.
-EXEMPT_DIRS: frozenset[str] = DEFAULT_EXEMPT_DIRS | ADOPTER_EXTRA_EXEMPT_DIRS
-
-
 # --- Historical-surface classification (hoisted from residual-scan.py, #1250) ---
 # Shared by residual-scan.py and the D9 retired-section-orphan gate so the two
 # cannot drift on what counts as a LIVE surface (defence in depth). A hit is
@@ -557,11 +472,112 @@ AUDITED_DOMAIN_DIRS: tuple[str, ...] = (
 MARKDOWN_SUFFIXES: frozenset[str] = frozenset({".md"})
 
 
+# --- Adopter overlay-exemption config (3.183, maintainer-decided 2026-09-12) ---
+# An adopter forks the corpus and keeps organization-specific values (real names,
+# internal system names, credentials) in a private-overlay directory the content gates
+# (INCLUDING the PII/secrets/placeholder scanners) must not scan. Rather than source-edit
+# DEFAULT_EXEMPT_DIRS (a change that conflicts on every upstream pull), the adopter names
+# their overlay directory in the committed, non-source ``adopter-config.json`` at the repo
+# root:  {"extra_exempt_dirs": ["my-org-overlay"]}
+#
+# Matching is TOP-LEVEL-ANCHORED (via ``is_adopter_exempt``, mirroring
+# ``is_default_exempt_root``): an accepted name exempts ONLY ``<name>/`` directly under the
+# repository root, NEVER a nested directory or file of that name elsewhere. That is what
+# makes the HARD FLOOR sufficient: because a match can only be a top-level directory, the
+# floor need only reject the SHIPPED top-level directories (derived mechanically below from
+# the canonical constants, so it cannot silently drift as the tree grows). A rejected entry
+# is SKIPPED with a loud stderr warning (fail-SAFE toward MORE scanning: the gate still
+# scans it), never silently applied.
+ADOPTER_CONFIG_FILENAME = "adopter-config.json"
+# Shipped top-level directories an adopter exempt entry may NEVER name (exempting one would
+# blind a gate over shipped content). Derived from the canonical constants so a NEW shipped
+# top-level directory is covered automatically once it joins one of them; the completeness
+# test (test_adopter_extra_exempt_dirs_floor) fails if a live top-level dir escapes this set.
+PROTECTED_EXEMPT_NAMES: frozenset[str] = (
+    frozenset(AUDITED_DOMAIN_DIRS)          # the 12 domains + .project-governance
+    | DEFAULT_EXEMPT_DIRS                    # .git, node_modules, references, .ref, ...
+    | NARRATIVE_DIRS                         # executive/
+    | DEFAULT_EXEMPT_ROOTS                   # .corpus-management/
+    | frozenset({"tools", "guardrails", "docs", "tests", ".github", ".web", "vendor"})
+    | frozenset({"", ".", "/"})             # repo-root markers
+)
+
+
+def _load_adopter_extra_exempt_dirs(repo_root: "Path | None" = None) -> "frozenset[str]":
+    """Validated adopter-declared extra exempt directory NAMES from ``adopter-config.json``.
+
+    Absent or malformed config -> empty set (never an error: the shipped repo carries an
+    empty list, and an adopter's typo must not break linting). A protected or malformed
+    entry is SKIPPED with a stderr warning (fail-safe toward scanning). Names are matched
+    TOP-LEVEL-ANCHORED by ``is_adopter_exempt``, so a bare single component is required.
+    """
+    root = REPO_ROOT if repo_root is None else Path(repo_root)
+    cfg = root / ADOPTER_CONFIG_FILENAME
+    if not cfg.exists():
+        return frozenset()
+    try:
+        data = json.loads(cfg.read_text(encoding="utf-8"))
+    except (ValueError, OSError) as exc:
+        print(f"WARNING ({ADOPTER_CONFIG_FILENAME}): unreadable/invalid JSON ({exc}); "
+              "no adopter exempt directories applied.", file=sys.stderr)
+        return frozenset()
+    entries = data.get("extra_exempt_dirs", []) if isinstance(data, dict) else []
+    if not isinstance(entries, list):
+        print(f"WARNING ({ADOPTER_CONFIG_FILENAME}): 'extra_exempt_dirs' is not a list; "
+              "no adopter exempt directories applied.", file=sys.stderr)
+        return frozenset()
+    accepted: set[str] = set()
+    for raw in entries:
+        if not isinstance(raw, str):
+            print(f"WARNING ({ADOPTER_CONFIG_FILENAME}): non-string exempt entry {raw!r} "
+                  "skipped.", file=sys.stderr)
+            continue
+        name = raw.strip()
+        if (not name or "/" in name or "\\" in name or ".." in name
+                or Path(name).is_absolute() or name in PROTECTED_EXEMPT_NAMES):
+            print(f"WARNING ({ADOPTER_CONFIG_FILENAME}): exempt entry {raw!r} is a "
+                  "protected or malformed name (a shipped corpus/tooling directory, an "
+                  "absolute or multi-segment path, or empty); SKIPPED, so gates still "
+                  "scan it. An adopter exempt entry must be your own top-level overlay "
+                  "directory's bare name.", file=sys.stderr)
+            continue
+        accepted.add(name)
+    return frozenset(accepted)
+
+
+ADOPTER_EXTRA_EXEMPT_DIRS: frozenset[str] = _load_adopter_extra_exempt_dirs()
+
+
+def is_adopter_exempt(path: "str | Path", *, repo_root: "Path | None" = None) -> bool:
+    """True iff ``path`` lies directly under a repo-root adopter-exempt overlay directory.
+
+    TOP-LEVEL-ANCHORED (like ``is_default_exempt_root``): only ``<name>/...`` where ``name``
+    is a validated ``adopter-config.json`` entry AND ``name`` is the FIRST repo-relative
+    path component matches. A nested directory or file merely named the same elsewhere is
+    NOT matched, so an adopter entry can never blind a gate over shipped nested content.
+    Applies unconditionally (independent of ``exclude_default_roots``), so even the
+    safety gates (PII/secrets/placeholder) that retain the default exempt roots still skip
+    the adopter's overlay, which is the point.
+    """
+    if not ADOPTER_EXTRA_EXEMPT_DIRS:
+        return False
+    root = (REPO_ROOT if repo_root is None else Path(repo_root)).resolve()
+    candidate = Path(path)
+    if not candidate.is_absolute():
+        candidate = root / candidate
+    try:
+        rel = candidate.resolve().relative_to(root)
+    except (ValueError, OSError):
+        return False
+    return len(rel.parts) >= 1 and rel.parts[0] in ADOPTER_EXTRA_EXEMPT_DIRS
+
+
+
 def is_target(
     path: Path,
     *,
     suffixes: Iterable[str] = MARKDOWN_SUFFIXES,
-    exempt_dirs: Iterable[str] = EXEMPT_DIRS,
+    exempt_dirs: Iterable[str] = DEFAULT_EXEMPT_DIRS,
     exempt_files: Iterable[str] = (),
     repo_root: Path | None = None,
     exclude_default_roots: bool = True,
@@ -590,6 +606,10 @@ def is_target(
     exempt_files_set = exempt_files if isinstance(exempt_files, (set, frozenset)) else set(exempt_files)
     if path.suffix not in suffixes_set:
         return False
+    # Adopter overlay-exemption (3.183): TOP-LEVEL-ANCHORED, applies to EVERY is_target
+    # caller including the safety gates, and independent of exclude_default_roots.
+    if is_adopter_exempt(path, repo_root=repo_root):
+        return False
     if any(part in exempt_dirs_set for part in path.parts):
         return False
     if exclude_default_roots and is_default_exempt_root(path, repo_root=repo_root):
@@ -602,7 +622,7 @@ def is_target(
 def is_markdown_target(
     path: Path,
     *,
-    exempt_dirs: Iterable[str] = EXEMPT_DIRS,
+    exempt_dirs: Iterable[str] = DEFAULT_EXEMPT_DIRS,
     exempt_files: Iterable[str] = (),
     repo_root: Path | None = None,
     exclude_default_roots: bool = True,
@@ -626,7 +646,7 @@ def iter_targets(
     paths: Iterable[str | Path],
     *,
     suffixes: Iterable[str] = MARKDOWN_SUFFIXES,
-    exempt_dirs: Iterable[str] = EXEMPT_DIRS,
+    exempt_dirs: Iterable[str] = DEFAULT_EXEMPT_DIRS,
     exempt_files: Iterable[str] = (),
     repo_root: Path | None = None,
     exclude_default_roots: bool = True,
@@ -684,7 +704,7 @@ def iter_targets(
 def iter_markdown_targets(
     paths: Iterable[str | Path],
     *,
-    exempt_dirs: Iterable[str] = EXEMPT_DIRS,
+    exempt_dirs: Iterable[str] = DEFAULT_EXEMPT_DIRS,
     exempt_files: Iterable[str] = (),
     repo_root: Path | None = None,
     exclude_default_roots: bool = True,
