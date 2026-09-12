@@ -59,7 +59,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import iter_non_code_lines, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import is_default_exempt_root, DEFAULT_EXEMPT_DIRS, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+from lint_common import is_default_exempt_root, is_adopter_exempt, DEFAULT_EXEMPT_DIRS, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
 
 DEFAULT_PATHS = [str(REPO_ROOT)]
 
@@ -128,6 +128,10 @@ PATTERNS = [
 def is_exempt(path: Path) -> bool:
     """Return True if the file should be skipped."""
     if is_default_exempt_root(path, repo_root=REPO_ROOT):
+        return True
+    # Adopter overlay-exemption (3.183): honor the adopter's private-overlay dir here too,
+    # since this gate builds its own exempt set rather than routing through is_target.
+    if is_adopter_exempt(path, repo_root=REPO_ROOT):
         return True
     if path.name in EXEMPT_FILES:
         return True

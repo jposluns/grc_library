@@ -5492,6 +5492,88 @@ class LintCommonHelperTests(unittest.TestCase):
         self.assertFalse(h("```\n| ID | Item | Tags |\n```\n"), "fenced example is skipped")
         self.assertFalse(h("The row is `| ID | Item | Tags |`.\n"), "prose mention is not a header")
 
+    def test_adopter_extra_exempt_dirs_floor(self):
+        """3.183: adopter-config.json extra_exempt_dirs are matched TOP-LEVEL-ANCHORED
+        (is_adopter_exempt), NOT via the any-component exempt set, so a nested shipped
+        dir/file of the same name is never blinded. The HARD FLOOR rejects (skip+warn,
+        fail-safe toward scanning) any shipped top-level name (incl. .project-governance,
+        vendor), or malformed/absolute/multi-segment/empty/non-string entry. The floor is
+        derived mechanically and a completeness check guards against drift."""
+        import io
+        import json as _json
+        import contextlib
+        import tempfile
+        import pathlib
+        lc = self._lint_common()
+        d = pathlib.Path(tempfile.mkdtemp())
+
+        # absent config -> empty
+        self.assertEqual(set(lc._load_adopter_extra_exempt_dirs(d)), set())
+
+        # floor: only the adopter's own top-level name survives; shipped names rejected
+        (d / "adopter-config.json").write_text(_json.dumps({"extra_exempt_dirs": [
+            "my-overlay", "privacy", "tools", ".project-governance", "vendor",
+            "guardrails", "docs", "executive", "jurisdictions",  # jurisdictions: nested shipped name
+            "../etc", "a/b", "", "/abs", 123,
+        ]}))
+        with contextlib.redirect_stderr(io.StringIO()):
+            got = lc._load_adopter_extra_exempt_dirs(d)
+        # "jurisdictions" is NOT a protected top-level name, so it is ACCEPTED by the loader,
+        # but is_adopter_exempt is top-level-anchored so it cannot blind ai/jurisdictions/.
+        self.assertEqual(set(got), {"my-overlay", "jurisdictions"})
+        for shipped in ("privacy", "tools", ".project-governance", "vendor", "guardrails"):
+            self.assertNotIn(shipped, got, f"{shipped} must be floor-rejected")
+
+        # top-level-anchored matching: patch the loaded module's accepted set and probe.
+        # The overlay must exist as a real top-level directory (directory-only match).
+        lc.ADOPTER_EXTRA_EXEMPT_DIRS = frozenset({"org-overlay"})
+        root = d
+        (root / "org-overlay").mkdir(exist_ok=True)
+        (root / "ai" / "org-overlay").mkdir(parents=True, exist_ok=True)
+        # a file directly under the overlay -> exempt
+        self.assertTrue(lc.is_adopter_exempt(root / "org-overlay" / "note.md", repo_root=root))
+        # a NESTED dir/file of the same name elsewhere -> NOT exempt
+        self.assertFalse(lc.is_adopter_exempt(root / "ai" / "org-overlay" / "x.md", repo_root=root))
+        self.assertFalse(lc.is_adopter_exempt(root / "privacy" / "org-overlay.md", repo_root=root))
+        # a shipped path unrelated to the overlay -> not exempt
+        self.assertFalse(lc.is_adopter_exempt(root / "privacy" / "annex.md", repo_root=root))
+        # iter_scan_roots_markdown (the allow-list walker) also subtracts the overlay (3.183 r6)
+        (root / "org-overlay" / "d.md").write_text("x")
+        (root / "ai" / "e.md").write_text("x")
+        scanned = {p.name for p in lc.iter_scan_roots_markdown(["org-overlay", "ai"], repo_root=root)}
+        self.assertNotIn("d.md", scanned, "iter_scan_roots must skip the adopter overlay")
+        self.assertIn("e.md", scanned, "iter_scan_roots still scans shipped roots")
+        # a top-level FILE whose name collides with an accepted entry is NOT exempt
+        # (the config semantic is an overlay DIRECTORY name; directory-only match).
+        lc.ADOPTER_EXTRA_EXEMPT_DIRS = frozenset({"README.md", "real-overlay"})
+        (root / "README.md").write_text("shipped top-level file")
+        (root / "real-overlay").mkdir(exist_ok=True)
+        self.assertFalse(lc.is_adopter_exempt(root / "README.md", repo_root=root),
+                         "a top-level file colliding with an entry must NOT be exempt")
+        self.assertTrue(lc.is_adopter_exempt(root / "real-overlay" / "f.md", repo_root=root),
+                        "a genuine top-level overlay directory IS exempt")
+
+        # empty accepted set -> never exempt (backward-compat: shipped empty config)
+        lc.ADOPTER_EXTRA_EXEMPT_DIRS = frozenset()
+        self.assertFalse(lc.is_adopter_exempt(root / "anything" / "x.md", repo_root=root))
+
+        # malformed / non-list -> empty, no raise
+        (d / "adopter-config.json").write_text("{not json")
+        with contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(set(lc._load_adopter_extra_exempt_dirs(d)), set())
+        (d / "adopter-config.json").write_text(_json.dumps({"extra_exempt_dirs": "x"}))
+        with contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(set(lc._load_adopter_extra_exempt_dirs(d)), set())
+
+        # FLOOR COMPLETENESS (drift guard): every LIVE top-level directory of the repo must
+        # be covered by PROTECTED_EXEMPT_NAMES, so the floor cannot silently fall behind the
+        # tree as new top-level dirs are added.
+        lc2 = self._lint_common()
+        live_top = {c.name for c in REPO_ROOT.iterdir() if c.is_dir()}
+        missing = live_top - set(lc2.PROTECTED_EXEMPT_NAMES)
+        self.assertEqual(missing, set(),
+                         f"top-level dirs not covered by PROTECTED_EXEMPT_NAMES (floor drift): {missing}")
+
     def _lint_common(self):
         import importlib.util
 

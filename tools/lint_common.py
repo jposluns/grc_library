@@ -43,9 +43,11 @@ Scope notes:
 from __future__ import annotations
 
 import datetime
+import json
 import os
 import re
 import subprocess
+import sys
 from collections.abc import Iterable, Iterator
 from pathlib import Path
 
@@ -470,6 +472,114 @@ AUDITED_DOMAIN_DIRS: tuple[str, ...] = (
 MARKDOWN_SUFFIXES: frozenset[str] = frozenset({".md"})
 
 
+# --- Adopter overlay-exemption config (3.183, maintainer-decided 2026-09-12) ---
+# An adopter forks the corpus and keeps organization-specific values (real names,
+# internal system names, credentials) in a private-overlay directory the content gates
+# (INCLUDING the PII/secrets/placeholder scanners) must not scan. Rather than source-edit
+# DEFAULT_EXEMPT_DIRS (a change that conflicts on every upstream pull), the adopter names
+# their overlay directory in the committed, non-source ``adopter-config.json`` at the repo
+# root:  {"extra_exempt_dirs": ["my-org-overlay"]}
+#
+# Matching is TOP-LEVEL-ANCHORED (via ``is_adopter_exempt``, mirroring
+# ``is_default_exempt_root``): an accepted name exempts ONLY ``<name>/`` directly under the
+# repository root, NEVER a nested directory or file of that name elsewhere. That is what
+# makes the HARD FLOOR sufficient: because a match can only be a top-level directory, the
+# floor need only reject the SHIPPED top-level directories (derived mechanically below from
+# the canonical constants, so it cannot silently drift as the tree grows). A rejected entry
+# is SKIPPED with a loud stderr warning (fail-SAFE toward MORE scanning: the gate still
+# scans it), never silently applied.
+ADOPTER_CONFIG_FILENAME = "adopter-config.json"
+# Shipped top-level directories an adopter exempt entry may NEVER name (exempting one would
+# blind a gate over shipped content). Derived from the canonical constants so a NEW shipped
+# top-level directory is covered automatically once it joins one of them; the completeness
+# test (test_adopter_extra_exempt_dirs_floor) fails if a live top-level dir escapes this set.
+PROTECTED_EXEMPT_NAMES: frozenset[str] = (
+    frozenset(AUDITED_DOMAIN_DIRS)          # the 12 domains + .project-governance
+    | DEFAULT_EXEMPT_DIRS                    # .git, node_modules, references, .ref, ...
+    | NARRATIVE_DIRS                         # executive/
+    | DEFAULT_EXEMPT_ROOTS                   # .corpus-management/
+    | frozenset({"tools", "guardrails", "docs", "tests", ".github", ".web", "vendor"})
+    | frozenset({"", ".", "/"})             # repo-root markers
+)
+
+
+def _load_adopter_extra_exempt_dirs(repo_root: "Path | None" = None) -> "frozenset[str]":
+    """Validated adopter-declared extra exempt directory NAMES from ``adopter-config.json``.
+
+    Absent or malformed config -> empty set (never an error: the shipped repo carries an
+    empty list, and an adopter's typo must not break linting). A protected or malformed
+    entry is SKIPPED with a stderr warning (fail-safe toward scanning). Names are matched
+    TOP-LEVEL-ANCHORED by ``is_adopter_exempt``, so a bare single component is required.
+    """
+    root = REPO_ROOT if repo_root is None else Path(repo_root)
+    cfg = root / ADOPTER_CONFIG_FILENAME
+    if not cfg.exists():
+        return frozenset()
+    try:
+        data = json.loads(cfg.read_text(encoding="utf-8"))
+    except (ValueError, OSError) as exc:
+        print(f"WARNING ({ADOPTER_CONFIG_FILENAME}): unreadable/invalid JSON ({exc}); "
+              "no adopter exempt directories applied.", file=sys.stderr)
+        return frozenset()
+    entries = data.get("extra_exempt_dirs", []) if isinstance(data, dict) else []
+    if not isinstance(entries, list):
+        print(f"WARNING ({ADOPTER_CONFIG_FILENAME}): 'extra_exempt_dirs' is not a list; "
+              "no adopter exempt directories applied.", file=sys.stderr)
+        return frozenset()
+    accepted: set[str] = set()
+    for raw in entries:
+        if not isinstance(raw, str):
+            print(f"WARNING ({ADOPTER_CONFIG_FILENAME}): non-string exempt entry {raw!r} "
+                  "skipped.", file=sys.stderr)
+            continue
+        name = raw.strip()
+        if (not name or "/" in name or "\\" in name or ".." in name
+                or Path(name).is_absolute() or name in PROTECTED_EXEMPT_NAMES):
+            print(f"WARNING ({ADOPTER_CONFIG_FILENAME}): exempt entry {raw!r} is a "
+                  "protected or malformed name (a shipped corpus/tooling directory, an "
+                  "absolute or multi-segment path, or empty); SKIPPED, so gates still "
+                  "scan it. An adopter exempt entry must be your own top-level overlay "
+                  "directory's bare name.", file=sys.stderr)
+            continue
+        accepted.add(name)
+    return frozenset(accepted)
+
+
+ADOPTER_EXTRA_EXEMPT_DIRS: frozenset[str] = _load_adopter_extra_exempt_dirs()
+
+
+def is_adopter_exempt(path: "str | Path", *, repo_root: "Path | None" = None) -> bool:
+    """True iff ``path`` lies directly under a repo-root adopter-exempt overlay directory.
+
+    TOP-LEVEL-ANCHORED (like ``is_default_exempt_root``): only ``<name>/...`` where ``name``
+    is a validated ``adopter-config.json`` entry AND ``name`` is the FIRST repo-relative
+    path component matches. A nested directory or file merely named the same elsewhere is
+    NOT matched, so an adopter entry can never blind a gate over shipped nested content.
+    Applies unconditionally (independent of ``exclude_default_roots``), so even the
+    safety gates (PII/secrets/placeholder) that retain the default exempt roots still skip
+    the adopter's overlay, which is the point.
+    """
+    if not ADOPTER_EXTRA_EXEMPT_DIRS:
+        return False
+    root = (REPO_ROOT if repo_root is None else Path(repo_root)).resolve()
+    candidate = Path(path)
+    if not candidate.is_absolute():
+        candidate = root / candidate
+    try:
+        resolved = candidate.resolve()
+        rel = resolved.relative_to(root)
+    except (ValueError, OSError):
+        return False
+    if not (len(rel.parts) >= 1 and rel.parts[0] in ADOPTER_EXTRA_EXEMPT_DIRS):
+        return False
+    # The config semantic is an overlay DIRECTORY name, so the matched top-level component
+    # must be a directory: this stops a top-level FILE whose name collides with an entry
+    # (e.g. a shipped README.md) from being exempted, which would blind a gate over shipped
+    # content. A path IS exempt when its first component names an adopter overlay directory.
+    return (root / rel.parts[0]).is_dir()
+
+
+
 def is_target(
     path: Path,
     *,
@@ -502,6 +612,10 @@ def is_target(
     exempt_dirs_set = exempt_dirs if isinstance(exempt_dirs, (set, frozenset)) else set(exempt_dirs)
     exempt_files_set = exempt_files if isinstance(exempt_files, (set, frozenset)) else set(exempt_files)
     if path.suffix not in suffixes_set:
+        return False
+    # Adopter overlay-exemption (3.183): TOP-LEVEL-ANCHORED, applies to EVERY is_target
+    # caller including the safety gates, and independent of exclude_default_roots.
+    if is_adopter_exempt(path, repo_root=repo_root):
         return False
     if any(part in exempt_dirs_set for part in path.parts):
         return False
@@ -633,8 +747,9 @@ def iter_scan_roots_markdown(
 
     Each entry is taken relative to ``repo_root``: a ``.md`` FILE entry is
     included as-is; a DIRECTORY entry contributes every ``.md`` beneath it
-    recursively. Only the default root exemption is subtracted. No component
-    exemptions are applied, so explicitly listed operational roots remain in scope.
+    recursively. The default root exemption AND the adopter overlay-exemption (3.183) are
+    subtracted. No other component exemptions are applied, so explicitly listed
+    operational roots remain in scope.
     Otherwise, no exempt-directory subtraction happens here
     (an allow-list linter's scan roots ARE its scope) and paths are not
     resolved (matching the historical walkers, so reported paths and
@@ -650,7 +765,11 @@ def iter_scan_roots_markdown(
             files.add(path)
         elif path.is_dir():
             files.update(path.rglob("*.md"))
-    return sorted(f for f in files if not is_default_exempt_root(f, repo_root=root))
+    return sorted(
+        f for f in files
+        if not is_default_exempt_root(f, repo_root=root)
+        and not is_adopter_exempt(f, repo_root=root)  # 3.183: honor the adopter overlay here too
+    )
 
 
 def read_text_safe(path: Path) -> str | None:
