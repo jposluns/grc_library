@@ -131,6 +131,15 @@ TIER_A_SOURCE_FIRST = re.compile(
 # normative verb ("Under GDPR Article 33(1), notification ... within 72 hours").
 TIER_A_ATTRIB_FIRST = re.compile(
     ATTRIB + r'\s(?:the\s)?' + SOURCE + CLAUSE + VALUE, re.IGNORECASE)
+# M2 (P-1.62 review): a VALUE followed in the same clause by a PARENTHESIZED
+# source ("within 20 days (LFPDPPP Article 31)"), with no ATTRIB and no NORMVERB
+# between them. The open-paren anchor is the over-match guard (the SOURCE must sit
+# at the paren opening, modulo "the ") AND the interstitial [^.()|]{0,90} excludes
+# parentheses, so the pattern cannot skip an intervening complete parenthetical to a
+# later source (codex catch); the trailing [^)|]{0,40} absorbs pinpoint
+# tails (e.g. "Art. 73(2)") up to the first close-paren.
+TIER_A_VALUE_PAREN_SOURCE = re.compile(
+    VALUE + r'[^.()|]{0,90}' + r'\(\s?(?:the\s)?' + SOURCE + r'[^)|]{0,40}\)', re.IGNORECASE)
 TIER_B = re.compile(ATTRIB + r'\s(?:the\s)?' + SOURCE, re.IGNORECASE)
 
 # Held-state token per source family, searched in the grc_library_ref indexes.
@@ -185,7 +194,8 @@ def extract_claims(text):
     for i, line in enumerate(text.splitlines(), 1):
         m = (TIER_A_VALUE_FIRST.search(line)
              or TIER_A_ATTRIB_FIRST.search(line)
-             or TIER_A_SOURCE_FIRST.search(line))
+             or TIER_A_SOURCE_FIRST.search(line)
+             or TIER_A_VALUE_PAREN_SOURCE.search(line))
         if m:
             out.append(("A", i, line.strip(), m.group(0)))
             continue
@@ -544,6 +554,31 @@ def self_test():
             self.assertTrue(src.search("under UU PDP No. 27"))
             self.assertIsNone(src.search("under UU PDPX"))
             self.assertIsNone(src.search("under SUU PDP"))
+
+        # --- M2 parenthetical shape (P-1.62 review) ---
+        def test_tier_a_value_paren_source(self):
+            for line in (
+                "Regulatory notifications must be issued within 72 hours (GDPR standard).",
+                "The responsable must respond within 20 days (LFPDPPP Article 31).",
+                "Mandatory breach notification within 72 hours (PDPA s. 26 guidance).",
+                "In any event within 15 days of becoming aware (EU AI Act Art. 73(2)).",
+            ):
+                self.assertEqual(extract_claims(line)[0][0], "A", line)
+
+        def test_paren_without_source_at_opening_not_matched(self):
+            self.assertEqual(extract_claims(
+                "Sessions expire after 15 minutes (configurable by the administrator)."), [])
+            self.assertEqual(extract_claims(
+                "The assessment took 3 days (the team also reviewed NIS2 readiness)."), [])
+            # two-paren case (codex catch): must not skip an intervening complete
+            # parenthetical to attribute a value to a later source.
+            self.assertEqual(extract_claims(
+                "Review took 3 days (estimated); readiness was discussed (NIS2)."), [])
+
+        def test_bare_comma_adjacency_is_recorded_residue(self):
+            # Deferred bare-adjacency shape (0 net-new corpus rows, 2026-09-12).
+            self.assertEqual(extract_claims(
+                "Notification is due within 72 hours, GDPR Article 33(1), of awareness."), [])
 
         # --- I2 recall-widening (2026-09-02): each new shape + an over-match guard ---
         def test_tier_a_attrib_first_fr120(self):
