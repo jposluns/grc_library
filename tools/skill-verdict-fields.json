@@ -36,6 +36,13 @@
       "fields": [
         {
           "name": "held-source-title-citation",
+          "exception": {
+            "verdict": "title-not-held",
+            "requires_all": [
+              "index read"
+            ],
+            "mandatory_with_primary": true
+          },
           "requires_regex": [
             "(?i)(?:held[- ]source|reference-base)[^\\n]{0,60}path:line"
           ]
