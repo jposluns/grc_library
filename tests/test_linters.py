@@ -5537,6 +5537,12 @@ class LintCommonHelperTests(unittest.TestCase):
         self.assertFalse(lc.is_adopter_exempt(root / "privacy" / "org-overlay.md", repo_root=root))
         # a shipped path unrelated to the overlay -> not exempt
         self.assertFalse(lc.is_adopter_exempt(root / "privacy" / "annex.md", repo_root=root))
+        # iter_scan_roots_markdown (the allow-list walker) also subtracts the overlay (3.183 r6)
+        (root / "org-overlay" / "d.md").write_text("x")
+        (root / "ai" / "e.md").write_text("x")
+        scanned = {p.name for p in lc.iter_scan_roots_markdown(["org-overlay", "ai"], repo_root=root)}
+        self.assertNotIn("d.md", scanned, "iter_scan_roots must skip the adopter overlay")
+        self.assertIn("e.md", scanned, "iter_scan_roots still scans shipped roots")
         # a top-level FILE whose name collides with an accepted entry is NOT exempt
         # (the config semantic is an overlay DIRECTORY name; directory-only match).
         lc.ADOPTER_EXTRA_EXEMPT_DIRS = frozenset({"README.md", "real-overlay"})

@@ -747,8 +747,9 @@ def iter_scan_roots_markdown(
 
     Each entry is taken relative to ``repo_root``: a ``.md`` FILE entry is
     included as-is; a DIRECTORY entry contributes every ``.md`` beneath it
-    recursively. Only the default root exemption is subtracted. No component
-    exemptions are applied, so explicitly listed operational roots remain in scope.
+    recursively. The default root exemption AND the adopter overlay-exemption (3.183) are
+    subtracted. No other component exemptions are applied, so explicitly listed
+    operational roots remain in scope.
     Otherwise, no exempt-directory subtraction happens here
     (an allow-list linter's scan roots ARE its scope) and paths are not
     resolved (matching the historical walkers, so reported paths and
@@ -764,7 +765,11 @@ def iter_scan_roots_markdown(
             files.add(path)
         elif path.is_dir():
             files.update(path.rglob("*.md"))
-    return sorted(f for f in files if not is_default_exempt_root(f, repo_root=root))
+    return sorted(
+        f for f in files
+        if not is_default_exempt_root(f, repo_root=root)
+        and not is_adopter_exempt(f, repo_root=root)  # 3.183: honor the adopter overlay here too
+    )
 
 
 def read_text_safe(path: Path) -> str | None:
