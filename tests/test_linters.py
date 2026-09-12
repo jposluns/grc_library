@@ -17318,15 +17318,17 @@ class CorpusManagementCompilerTests(LinterTestCase):
         result = self._run(root, "--check")
         self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
 
-    def test_unreadable_target_in_check_is_not_a_traceback(self):
+    def test_unreadable_target_in_check_reports_drift_not_traceback(self):
         # A permission-denied on a committed target during --check must be a
-        # clean exit 2 (top-level boundary), never an uncaught traceback.
+        # clean fail-closed drift/findings exit (1) - the compiler appends an
+        # unreadable-target finding and returns 1, never exit 2 and never an
+        # uncaught traceback (P-1.80).
         if hasattr(os, "geteuid") and os.geteuid() == 0:
             # Root reads a chmod-0 file regardless, so the permission-denied-target
             # precondition cannot be established as uid 0 (D1, #2093). Skip with a
             # visible NOTE rather than emit a spurious red gate for a root sweep.
             print(
-                "NOTE: skipping test_unreadable_target_in_check_is_not_a_traceback under "
+                "NOTE: skipping test_unreadable_target_in_check_reports_drift_not_traceback under "
                 "root (chmod-0 is still readable as uid 0)",
                 file=sys.stderr,
             )
@@ -17336,7 +17338,7 @@ class CorpusManagementCompilerTests(LinterTestCase):
         os.chmod(handbook, 0)
         self.addCleanup(os.chmod, handbook, 0o644)
         result = self._run(root, "--check")
-        self.assertIn(result.returncode, (1, 2), result.stdout + result.stderr)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
         self.assertNotIn("Traceback", result.stderr)
 
     # --- Round-3 hardening regression (iter-3 HOLD, gemini+claude): a
