@@ -2,7 +2,7 @@
 
 **Document Title:** Information Security Policy\
 **Document Type:** Policy\
-**Version:** 1.3.30\
+**Version:** 1.3.31\
 **Date:** 2026-09-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -139,7 +139,7 @@ Where the organization participates in a sector-specific security programme (for
 | Network and Cloud Security | A.5.14, A.5.23, A.8.20 to A.8.24 | 5.14 (information transfer); 5.23 (cloud services); 8.20 to 8.24 (network security and cryptography) | PR.IR, DE.CM | DSS05.02, APO10.04 | I&S-01 to I&S-05, I&S-07 to I&S-09 |
 | Vulnerability and Patch | A.8.8, A.8.9 | 8.8 (technical vulnerabilities); 8.9 (configuration management) | ID.RA-01, PR.PS-02 | DSS05.07 | TVM-03, TVM-08 |
 | Incident Management | A.5.24 | 5.24 to 5.30; 6.8 (event reporting) | RS.MA, RS.AN, RS.CO, ID.IM | DSS02 | SEF-01, SEF-07 |
-| AI Model Security | A.8.3, A.8.9, A.8.15, A.8.29 | 8.3 (information access restriction); 8.9 (configuration management); 8.15 (logging); 8.29 (security testing in development and acceptance) | PR.AA-05, PR.DS-01, PR.PS-01, PR.PS-04, PR.PS-06, DE.CM-09 | DSS05.04, DSS05.07 | AIS-03, AIS-05, CCC-06, IAM-15, LOG-09 |
+| AI Model Security | A.8.3, A.8.9, A.8.15, A.8.29 | 8.3 (information access restriction); 8.9 (configuration management); 8.15 (logging); 8.29 (security testing in development and acceptance) | PR.AA-05, PR.DS-01, PR.PS-01, PR.PS-04, DE.CM-09, GV.OV-03 | DSS05.04, DSS05.07, BAI10 | AIS-03, AIS-05, CCC-06, IAM-15, LOG-09 |
 | Continuous Improvement | Clause 10 | 5.31 to 5.37 (compliance and review); ISMS continuous improvement is in 27001 Clause 10 | GV.OV, ID.IM | MEA01.03, MEA01.04, MEA01.05, APO01.11, MEA04.07 | N/A |
 
 Note: ISO/IEC 27002:2022 reorganized the previous 2013 edition's 14 control clauses (5-18) into four themes covering 93 controls (clause 5 Organizational, 6 People, 7 Physical, 8 Technological). Citations elsewhere in the corpus that use 2013-style chapter numbers (9 to 18) refer to the superseded edition.
