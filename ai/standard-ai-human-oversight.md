@@ -2,7 +2,7 @@
 
 **Document Title:** AI Human-Oversight Standard\
 **Document Type:** Standard\
-**Version:** 0.0.3\
+**Version:** 0.0.4\
 **Date:** 2026-09-13\
 **Owner:** AI Governance Lead\
 **Approving Authority:** Governance Library Maintainer\
@@ -107,9 +107,9 @@ The alignment below is analogical (each row aligns with or is informed by the ci
 | EU AI Act (Regulation (EU) 2024/1689) | Article 50 | Transparency to a person interacting directly with an AI system (section 4.7). |
 | EU AI Act (Regulation (EU) 2024/1689) | Article 26(11) | Deployer disclosure to a person subject to a decision by a deployed high-risk (Annex III) system (section 4.7). |
 | EU GDPR (Regulation 2016/679) | Article 22 | Right not to be subject to a solely-automated decision with legal or similarly significant effect; the Article 22(2) exceptions (contractual necessity, authorizing law, or explicit consent), noting that the Article 22(3) human-intervention safeguard applies to the contract and explicit-consent exceptions while the authorizing-law exception relies on that law's own suitable safeguards (sections 4.2, 4.6). |
-| ISO/IEC 42001:2023 | Clause 8 (Operation); Annex A controls for controlled AI operation | Human oversight embedded in the AI management system's operating controls (sections 4.1 to 4.4). |
+| ISO/IEC 42001:2023 | §8.1 (Operational planning and control); A.6.2.6 (AI system operation and monitoring) | Human oversight embedded in the AI management system's operating controls (sections 4.1 to 4.4). |
 | NIST AI RMF 1.0 (2023) | GOVERN, MAP, MEASURE, MANAGE functions | Differentiated human-AI configuration roles and defined, documented human-oversight processes across a range from autonomous to manual (sections 4.1, 4.2). |
-| ISO/IEC 23894:2023 | AI risk-management guidance | Stakeholder participation in identifying where human oversight is needed and in defining fairness and bias concerns (sections 4.1, 4.3). |
+| ISO/IEC 23894:2023 | Clause 4, Table 1 principle "Inclusive" (stakeholder involvement) | Stakeholder participation in identifying where human oversight is needed and in defining fairness and bias concerns (sections 4.1, 4.3). |
 | ETSI EN 304 223 V2.1.1 | Provision 5.1.4-3 (Principle 4) | Human oversight designed, verified, and maintained as a risk control |
 
 ---
