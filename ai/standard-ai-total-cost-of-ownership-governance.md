@@ -2,8 +2,8 @@
 
 **Document Title:** AI Total Cost of Ownership Governance Standard\
 **Document Type:** Standard\
-**Version:** 0.0.1\
-**Date:** 2026-09-04\
+**Version:** 0.0.2\
+**Date:** 2026-09-13\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-value-and-decision-governance.md`](framework-ai-value-and-decision-governance.md), [`ai/standard-ai-inference-cost-governance.md`](standard-ai-inference-cost-governance.md), [`operations/standard-it-financial-management.md`](../operations/standard-it-financial-management.md), [`ai/standard-ai-model-succession-and-identity.md`](standard-ai-model-succession-and-identity.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`ai/register-model-registry.md`](register-model-registry.md)\
@@ -138,8 +138,8 @@ The TCO figure is consumed at the decisions where lifecycle cost matters:
 | Framework | Reference point | Relationship |
 | --- | --- | --- |
 | NIST AI RMF 1.0 (NIST AI 100-1) | MAP 3 (expected benefits and costs identified) and MANAGE (resources to manage AI risks; mechanisms to sustain the value of deployed systems) | Lifecycle-cost recording is the cost half of MAP 3's benefit-and-cost identification and supports the resourcing the MANAGE function expects. |
-| ISO/IEC 42001:2023 | Clause 7 (support and resources); clauses 8 and 9 (operation, performance evaluation) | The TCO record is the resource-cost evidence for clause 7 and feeds performance evaluation; see-also for adopters who hold the standard. |
-| COBIT 2019 | APO06 Managed Budget and Costs | The per-capability TCO record is the AI-specific instance of budget-and-cost management for AI capabilities. |
+| ISO/IEC 42001:2023 | §7.1 (Resources), §8.1 (Operational planning and control), §9.1 (Monitoring, measurement, analysis and evaluation) | The TCO record is the resource-cost evidence for clause 7 and feeds performance evaluation; see-also for adopters who hold the standard. |
+| COBIT 2019 | APO06.01 (Manage finance and accounting), APO06.03 (Create and maintain budgets), APO06.04 (Model and allocate costs), APO06.05 (Manage costs) | The per-capability TCO record is the AI-specific instance of budget-and-cost management for AI capabilities. |
 | NIST AI 600-1 (Generative AI Profile) | Environmental impacts | The environmental-cost angle is carried by [`ai/standard-ai-inference-cost-governance.md`](standard-ai-inference-cost-governance.md); this standard references it rather than restating. |
 
 Corpus-internal: [`operations/standard-it-financial-management.md`](../operations/standard-it-financial-management.md) is the enterprise cost-taxonomy base this standard overlays; [`ai/framework-ai-value-and-decision-governance.md`](framework-ai-value-and-decision-governance.md) is the value-side companion.
