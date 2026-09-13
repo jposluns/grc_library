@@ -643,6 +643,11 @@ EXEMPT: dict[tuple[str, str], str] = {
         "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
         "security batch 9 corrected the data-classification standard alignment rows."
     ),
+    ("P-1.60", "P-1.60 security batch 10"): (
+        "PARTIAL CLOSE against a still-open umbrella (DONE #2202, 2026-09-13). P-1.60 "
+        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
+        "security batch 10 corrected the logging-and-monitoring and SaaS-posture CSF cells."
+    ),
     ("P-3.202", "P-3.202 synchronous-model cutover-leftover"): (
         "PARTIAL CLOSE (provisional; DONE:3186, #1361). P-3.202 is live at P-TODO "
         "and its detail says the comprehensive sweep is INCOMPLETE, so #1361 is "
