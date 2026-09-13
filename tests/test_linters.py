@@ -13794,7 +13794,7 @@ class WebGeneratorNarrativeJoinTests(unittest.TestCase):
         # unquoted domain: tag) is caught here, not silently absorbed by the
         # self-referential success-path assertions above.
         figures = self.mod.compute_figures()
-        self.assertEqual(len(figures["narratives"]), 28)
+        self.assertEqual(len(figures["narratives"]), 29)
         by_domain = {
             dp["domain"]: len(dp["narratives"]) for dp in figures["domain_pages"]
         }
@@ -14167,7 +14167,7 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
         self.assertTrue(v2.narrative_routes)
         pages = dict(self.mod.render_variant(figures, v2))
         narratives = figures["narratives"]
-        self.assertEqual(len(narratives), 28)
+        self.assertEqual(len(narratives), 29)
         self.assertEqual(
             {p["narrative_type"] for p in narratives},
             set(self.mod.NARRATIVE_ROUTE_TYPES),
@@ -14275,7 +14275,7 @@ class WebGeneratorReadingRoomTests(unittest.TestCase):
         figures = self.mod.compute_figures()
         routes = {p["route"][len("executive/"):] for p in figures["narratives"]}
         self.assertEqual(hrefs, routes)
-        self.assertEqual(len(routes), 28)
+        self.assertEqual(len(routes), 29)
 
     # --- QA fix 1 regression: {{TOKEN}} in prose stays inert END-TO-END ---
 
