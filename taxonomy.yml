@@ -652,7 +652,7 @@ documents:
   domain: "ai"
   type: "Standard"
   title: "AI Human-Oversight Standard"
-  version: "0.0.5"
+  version: "0.0.6"
   date: "2026-09-13"
   owner: "AI Governance Lead"
   approving_authority: "Governance Library Maintainer"
