@@ -2,8 +2,8 @@
 
 **Document Title:** Insider Risk Programme Framework\
 **Document Type:** Framework\
-**Version:** 1.0.6\
-**Date:** 2026-07-02\
+**Version:** 1.0.7\
+**Date:** 2026-09-14\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-personnel-security-screening.md`](standard-personnel-security-screening.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/procedure-security-disciplinary-process.md`](procedure-security-disciplinary-process.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`governance/framework-human-capital-and-ethical-conduct.md`](../governance/framework-human-capital-and-ethical-conduct.md), [`governance/procedure-whistleblower-and-incident-reporting.md`](../governance/procedure-whistleblower-and-incident-reporting.md)\
@@ -207,7 +207,7 @@ The framework deliberately does not include:
 | NIST SP 800-53 Rev. 5 | PS family; AT family | Personnel security and awareness |
 | CERT Insider Threat Center | Carnegie Mellon | Insider risk research |
 | NITTF | National Insider Threat Task Force | US federal model |
-| GDPR / UK GDPR | Articles 5, 6, 13, 14, 22, 88 | Lawful basis, transparency, ADM, employment context |
+| GDPR (EU) / UK GDPR | Arts 5, 6, 13, 14; EU Art 22 and Art 88 / UK Arts 22A-22D (no Art 88 equivalent) | Lawful basis, transparency, ADM, employment context |
 | ILO Conventions on the right to privacy in employment | International | Worker protections |
 | Local works council and trade union law | Per jurisdiction | Consultation and codetermination |
 
