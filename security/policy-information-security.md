@@ -2,7 +2,7 @@
 
 **Document Title:** Information Security Policy\
 **Document Type:** Policy\
-**Version:** 1.3.27\
+**Version:** 1.3.28\
 **Date:** 2026-09-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -140,7 +140,7 @@ Where the organization participates in a sector-specific security programme (for
 | Vulnerability and Patch | A.8.8, A.8.9 | 8.8 (technical vulnerabilities); 8.9 (configuration management) | ID.RA-01, PR.PS-02 | DSS05.07 | TVM-03, TVM-08 |
 | Incident Management | A.5.24 | 5.24 to 5.30; 6.8 (event reporting) | RS.MA, RS.AN, RS.CO, ID.IM | DSS02 | SEF-01, SEF-07 |
 | AI Model Security | A.8 (emerging) | N/A | Protect, Detect | DSS05.07 | N/A |
-| Continuous Improvement | Clause 10 | 5.31 to 5.37 (compliance and review); ISMS continuous improvement is in 27001 Clause 10 | GV.OV, ID.IM | MEA01.03, MEA01.04, MEA01.05, APO01.11, MEA04.02 | N/A |
+| Continuous Improvement | Clause 10 | 5.31 to 5.37 (compliance and review); ISMS continuous improvement is in 27001 Clause 10 | GV.OV, ID.IM | MEA01.03, MEA01.04, MEA01.05, APO01.11, MEA04.07 | N/A |
 
 Note: ISO/IEC 27002:2022 reorganized the previous 2013 edition's 14 control clauses (5-18) into four themes covering 93 controls (clause 5 Organizational, 6 People, 7 Physical, 8 Technological). Citations elsewhere in the corpus that use 2013-style chapter numbers (9 to 18) refer to the superseded edition.
 
