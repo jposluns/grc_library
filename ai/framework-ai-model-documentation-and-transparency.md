@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Documentation and Transparency Framework\
 **Document Type:** Framework\
-**Version:** 1.0.11\
-**Date:** 2026-08-30\
+**Version:** 1.0.12\
+**Date:** 2026-09-13\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md)\
@@ -161,13 +161,13 @@ A provider adds any Form field with no direct model-card counterpart (for exampl
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 42001:2023 | §7.5: Documented information | AI documentation requirements |
+| ISO/IEC 42001:2023 | A.6.2.7 (AI system technical documentation) | AI documentation requirements |
 | EU AI Act (2024) | Annex IV: Technical Documentation | High-risk AI documentation |
 | EU GPAI Code of Practice, Transparency Chapter (July 2025) | Measure 1.1 (Model Documentation Form); AI Act Article 53(1)(a)-(b) | GPAI-provider model documentation (Article 56 co-regulatory instrument, voluntary) |
-| NIST AI RMF (2023) | MAP and MANAGE functions | AI transparency and documentation |
+| NIST AI RMF (2023) | MEASURE 2.8, MEASURE 2.9 | AI transparency and documentation |
 | ISO/IEC 12792:2025 | §6.2 transparency objectives; §6.1 and §6.3 stakeholder pairs; §7 to §10 taxonomy levels | AI transparency taxonomy structuring Section 4 |
 | NIST IR 8312 | Four Principles of Explainable Artificial Intelligence | Explainability principles |
-| OECD AI Principles (2019, updated 2024) | Transparency and Explainability | AI transparency obligations |
+| OECD AI Principles (2019, updated 2024) | Principle 1.3 (Transparency and explainability) | AI transparency obligations |
 | GDPR (2018) | Article 22: Automated Decision-Making | Transparency and human review rights |
 
 ---
