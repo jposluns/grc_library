@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Succession and Identity Continuity Standard\
 **Document Type:** Standard\
-**Version:** 0.0.3\
-**Date:** 2026-08-31\
+**Version:** 0.0.4\
+**Date:** 2026-09-13\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/register-model-registry.md`](register-model-registry.md), [`governance/standard-delegation-of-authority.md`](../governance/standard-delegation-of-authority.md), [`governance/principle-capability-is-not-authority.md`](../governance/principle-capability-is-not-authority.md)\
@@ -91,8 +91,8 @@ The alignment below is analogical (each row aligns with or is informed by the ci
 | CSA AICM v1.1.0 | MDS-03 Model Documentation; MDS-05 Model Documentation Validation | Successor documentation, and validation of that documentation against the successor model, as standing evidence |
 | CSA AICM v1.1.0 | MDS-08 Model Integrity Checks | The successor artefact is the validated artefact |
 | CSA AICM v1.1.0 | MDS-10 Model Continuous Monitoring | Post-cutover monitoring for regressions the comparison did not surface |
-| ISO/IEC 42001:2023 | A.6.2 AI system life cycle; §8.1 operational planning and control | Life-cycle stage criteria for the transition, and control of the version transition as a planned change |
-| NIST AI RMF | MAP; MANAGE | Framing the transition risk and managing it across the successor's operation |
+| ISO/IEC 42001:2023 | A.6.2.4 (AI system verification and validation), A.6.2.5 (AI system deployment), §8.1 (Operational planning and control) | Life-cycle stage criteria for the transition, and control of the version transition as a planned change |
+| NIST AI RMF | MAP 1.1, MANAGE 4.1 | Framing the transition risk and managing it across the successor's operation |
 | CSA CCM v4.1.0 | CCC-01 Change Management Policy and Procedures | The version transition as a governed change |
 | CSA CCM v4.1.0 | IAM-05 Least Privilege | Access re-issued to the successor scoped to the minimum |
 | ISO/IEC 27001:2022 | A.5.18 Access rights | Re-issuance and revocation of access across the transition |
