@@ -892,6 +892,30 @@ pages:
     - "domain:risk"
     - "status:non-normative"
     - "type:scenario"
+- path: "executive/scenarios/scenario-unauthorized-production-change-outage.md"
+  title: "When an unauthorized production change takes a critical service down"
+  narrative_type: "Scenario"
+  narrative_status: "Non-normative"
+  version: "0.0.1"
+  date: "2026-09-13"
+  corpus_sources:
+    - "operations/standard-production-security-requirements.md"
+    - "operations/procedure-change-management-and-configuration-control.md"
+    - "operations/procedure-release-management.md"
+    - "operations/procedure-security-monitoring-and-alert-management.md"
+    - "operations/standard-service-level-management.md"
+    - "operations/register-it-operations-kpis.md"
+    - "operations/register-asset-inventory.md"
+  external_sources: []
+  claim_classes_present:
+    - "citation"
+    - "composite"
+  review_record: "NR-2026-032"
+  last_reviewed: "2026-09-13"
+  derived_tags:
+    - "domain:operations"
+    - "status:non-normative"
+    - "type:scenario"
 listing:
 - route: "executive/briefs/brief-ai-data-governance"
   path: "executive/briefs/brief-ai-data-governance.md"
@@ -983,3 +1007,6 @@ listing:
 - route: "executive/scenarios/scenario-risk-appetite-breach"
   path: "executive/scenarios/scenario-risk-appetite-breach.md"
   title: "What happens when a monitored risk breaches the appetite the governing body set"
+- route: "executive/scenarios/scenario-unauthorized-production-change-outage"
+  path: "executive/scenarios/scenario-unauthorized-production-change-outage.md"
+  title: "When an unauthorized production change takes a critical service down"
