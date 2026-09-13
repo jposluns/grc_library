@@ -2,8 +2,8 @@
 
 **Document Title:** Adversarial Evaluation Suite Development Guideline\
 **Document Type:** Guideline\
-**Version:** 1.0.2\
-**Date:** 2026-07-11\
+**Version:** 1.0.3\
+**Date:** 2026-09-13\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-model-risk-assessment.md`](procedure-ai-model-risk-assessment.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md)\
@@ -109,7 +109,7 @@ Maintain evaluation plan, test case inventory, execution summary, findings, reme
 | --- | --- |
 | NIST AI 100-2e2025 | Adversarial machine-learning attack taxonomy; the threat-scenario source (Section 3) |
 | NIST SP 800-218A | PW.3.3 (include adversarial samples in training and testing data; Sections 3 and 4); PW.8 (test executable code, among which red teaming and adversarial testing; Section 6) |
-| ETSI EN 304 223 V2.1.1 | Provision 5.1.3 (evaluate threats and manage risks; Sections 2 and 3); Provision 5.2.5 (appropriate testing and evaluation; Sections 6 and 7) |
+| ETSI EN 304 223 V2.1.1 | Provision 5.1.3-1 (Principle 3, evaluate threats and manage risks; Sections 2 and 3); Provisions 5.2.5-1, 5.2.5-2.1 (Principle 9, appropriate testing and evaluation; Sections 6 and 7) |
 
 ---
 
