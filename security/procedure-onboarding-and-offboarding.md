@@ -2,8 +2,8 @@
 
 **Document Title:** IT Onboarding and Offboarding Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.8\
-**Date:** 2026-09-07\
+**Version:** 1.0.11\
+**Date:** 2026-09-13\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -295,8 +295,8 @@ The following checklist must be completed for every departure. IT Operations is 
 | NIST SP 800-53 Rev. 5 | PS-5 Personnel Transfer | Access review and excess access removal on role change |
 | NIST SP 800-53 Rev. 5 | PS-6 Access Agreements | Acknowledgement of acceptable use prior to access provisioning |
 | NIST SP 800-53 Rev. 5 | AC-2 Account Management | Account lifecycle management from provisioning to deprovisioning |
-| CIS Controls v8.1 | Control 5 (Account Management) | Account provisioning, deprovisioning, and access review processes |
-| CIS Controls v8.1 | Control 6 (Access Control Management) | Least-privilege access, role-based profiles, privileged account management |
+| CIS Controls v8.1 | 6.1, 6.2, 6.8 | Account provisioning, deprovisioning, and access review processes |
+| CIS Controls v8.1 | 6.8, 5.4 | Least-privilege access, role-based profiles, privileged account management |
 
 ---
 
