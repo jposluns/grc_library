@@ -2,8 +2,8 @@
 
 **Document Title:** Agentic Response State Model Framework\
 **Document Type:** Framework\
-**Version:** 0.0.2\
-**Date:** 2026-08-31\
+**Version:** 0.0.3\
+**Date:** 2026-09-13\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/plan-ai-incident-response.md`](plan-ai-incident-response.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`operations/procedure-threat-intelligence-and-siem-operations.md`](../operations/procedure-threat-intelligence-and-siem-operations.md), [`governance/principle-capability-is-not-authority.md`](../governance/principle-capability-is-not-authority.md), [`governance/principle-fail-closed-automation.md`](../governance/principle-fail-closed-automation.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`governance/register-canonical-citations.md`](../governance/register-canonical-citations.md)\
@@ -72,7 +72,7 @@ The alignment below is analogical (each row aligns with or is informed by the ci
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | EU AI Act (Regulation (EU) 2024/1689 as amended by Regulation (EU) 2026/1744) | Article 14 | Human oversight of the containment decision at the authority boundary. |
-| ISO/IEC 42001:2023 | Clause 8 (Operation) | Controlled operation of the agentic response within the AI management system. |
+| ISO/IEC 42001:2023 | §8.1 (Operational planning and control) | Controlled operation of the agentic response within the AI management system. |
 | NIST AI RMF 1.0 (2023) | GOVERN 3.2; MANAGE 2.4, MANAGE 4.1 | Defined human-AI configuration and oversight roles (GOVERN 3.2); mechanisms to disengage or deactivate an AI system (MANAGE 2.4) and to override or appeal an automated response (MANAGE 4.1). |
 | NIST SP 800-61 Rev. 3 | Incident-response lifecycle | The human lifecycle this state model runs parallel to and feeds. |
 | MITRE ATLAS (2026.07) | Adversarial-ML tactics and techniques | Threat context for the conditions an agentic response detects and corroborates. |
