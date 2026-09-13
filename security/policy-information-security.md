@@ -2,7 +2,7 @@
 
 **Document Title:** Information Security Policy\
 **Document Type:** Policy\
-**Version:** 1.3.24\
+**Version:** 1.3.28\
 **Date:** 2026-09-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -136,11 +136,11 @@ Where the organization participates in a sector-specific security programme (for
 | Governance and ISMS | Clauses 4 to 10 | 5.1, 5.2 (policies and roles) | GV.PO, GV.RR, GV.OV | APO01.01, APO13.01 | GRC-01, GRC-05 |
 | Asset Management | A.5.9 to A.5.11 | 5.9 to 5.14 | ID.AM | BAI09.01, APO01.07 | DCS-06, DCS-07 |
 | Access Control | A.5.15 to A.5.18 | 5.15 to 5.18; 8.2 to 8.5 | PR.AA | DSS05.04 | IAM-01 to 09 |
-| Network and Cloud Security | A.5.14, A.5.23, A.8.20 to A.8.24 | 5.14 (information transfer); 5.23 (cloud services); 8.20 to 8.24 (network security and cryptography) | Protect, Detect | DSS01, DSS04 | I&S-01 to I&S-05, I&S-07 to I&S-09 |
-| Vulnerability and Patch | A.8.8, A.8.9 | 8.8 (technical vulnerabilities); 8.9 (configuration management) | Detect, Respond | DSS05 | TVM-03, TVM-08 |
-| Incident Management | A.5.24 | 5.24 to 5.30; 6.8 (event reporting) | Respond, Recover | DSS02 | SEF-01, SEF-07 |
+| Network and Cloud Security | A.5.14, A.5.23, A.8.20 to A.8.24 | 5.14 (information transfer); 5.23 (cloud services); 8.20 to 8.24 (network security and cryptography) | PR.IR, DE.CM | DSS05.02, APO10.04 | I&S-01 to I&S-05, I&S-07 to I&S-09 |
+| Vulnerability and Patch | A.8.8, A.8.9 | 8.8 (technical vulnerabilities); 8.9 (configuration management) | ID.RA-01, PR.PS-02 | DSS05.07 | TVM-03, TVM-08 |
+| Incident Management | A.5.24 | 5.24 to 5.30; 6.8 (event reporting) | RS.MA, RS.AN, RS.CO, ID.IM | DSS02 | SEF-01, SEF-07 |
 | AI Model Security | A.8 (emerging) | N/A | Protect, Detect | DSS05.07 | N/A |
-| Continuous Improvement | Clause 10 | 5.31 to 5.37 (compliance and review); ISMS continuous improvement is in 27001 Clause 10 | Recover | MEA01 | N/A |
+| Continuous Improvement | Clause 10 | 5.31 to 5.37 (compliance and review); ISMS continuous improvement is in 27001 Clause 10 | GV.OV, ID.IM | MEA01.03, MEA01.04, MEA01.05, APO01.11, MEA04.07 | N/A |
 
 Note: ISO/IEC 27002:2022 reorganized the previous 2013 edition's 14 control clauses (5-18) into four themes covering 93 controls (clause 5 Organizational, 6 People, 7 Physical, 8 Technological). Citations elsewhere in the corpus that use 2013-style chapter numbers (9 to 18) refer to the superseded edition.
 
