@@ -2,8 +2,8 @@
 
 **Document Title:** AI Red Team Report Template\
 **Document Type:** Template\
-**Version:** 1.0.4\
-**Date:** 2026-08-30\
+**Version:** 1.0.6\
+**Date:** 2026-09-13\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/guideline-adversarial-evaluation-suite-development.md`](guideline-adversarial-evaluation-suite-development.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/plan-ai-incident-response.md`](plan-ai-incident-response.md), [`security/standard-penetration-testing-and-red-team.md`](../security/standard-penetration-testing-and-red-team.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -221,6 +221,7 @@ A summary of findings (without exploit detail) feeds the AI risk register and th
 | ISO/IEC 27001:2022 | A.8.29 | Security testing |
 | PTES | Penetration Testing Execution Standard | Underlying engagement methodology |
 | OWASP GenAI Red Teaming Guide | Industry guidance | Methodology reference |
+| ETSI EN 304 223 V2.1.1 | Provisions 5.2.5-1, 5.2.5-2.1 (Principle 9) | Baseline security testing before release, with independent security testers for adversarial evaluation |
 
 ---
 
