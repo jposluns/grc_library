@@ -34,7 +34,7 @@ executive-shell routes declared in ``V2_EXTRA_PAGES`` (decisions, start, trust,
 coverage, library, how-its-built), v3 additionally carries the need-based path
 routes declared in ``V3_EXTRA_PAGES`` (decide, govern, comply, solutions,
 policies, plus the client-side search page), while v2 AND v3 both carry the executive reading room (one on-site page
-per registry-listed narrative page: ALL 33 published narrative pages across the
+per registry-listed narrative page: ALL 34 published narrative pages across the
 six narrative types render at ``decisions/<subtype>/<slug>/``, each from the
 page's Markdown source by the constrained stdlib renderer below; v2's discovery
 rows and hand-curated decisions page link to these on-site routes, and on v3 the
@@ -1842,7 +1842,7 @@ def render_narrative_domain_chips(page):
     """The domain-page chips for ONE narrative: exactly the domains the registry
     tags it with (``page['domains']``), each linking to its on-site domain page.
     Replaces the fixed rail so the "go deeper" links match THIS narrative and its
-    copy is accurate (PR #1638; RR-1). All 33 narratives carry domain tags."""
+    copy is accurate (PR #1638; RR-1). All 34 narratives carry domain tags."""
     return "\n".join(
         f'        <a href="{{{{BASE}}}}/{_esc(d)}/">{_esc(d)}</a>'
         for d in page.get("domains", [])
