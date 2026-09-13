@@ -2,7 +2,7 @@
 
 **Document Title:** IT Service Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.10\
+**Version:** 1.0.11\
 **Date:** 2026-09-13\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -95,7 +95,7 @@ ITIL 4 continual improvement cycles are adopted. Service improvement plans are d
 | COBIT 2019 | DSS02.02, DSS02.03, DSS02.04, DSS02.05, DSS02.06, DSS02.07 | Incident and request management |
 | COBIT 2019 | DSS03.01, DSS03.02, DSS03.03, DSS03.04, DSS03.05 | Problem management |
 | EU NIS 2 Directive | Incident Reporting and Business Continuity | Cybersecurity incident notification |
-| CSA CCM v4.1 | SEF-02, SEF-07, GRC-01, GRC-06 | Service and governance controls |
+| CSA CCM v4.1 | SEF-01, SEF-02, GRC-01, GRC-06 | Service and governance controls |
 | NIST SP 800-61r3 | Incident Response Recommendations and Considerations for Cybersecurity Risk Management (CSF 2.0 Community Profile) | Incident handling integration |
 
 ---
