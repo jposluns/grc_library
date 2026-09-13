@@ -2,7 +2,7 @@
 
 **Document Title:** What the governing body should ask about risk appetite, the register, acceptances, early-warning indicators, and board reporting\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.1\
+**Version:** 0.0.2\
 **Date:** 2026-09-13\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -64,6 +64,6 @@ Each question below is paired with the evidence a strong answer produces, and ro
 
 ## Limitations
 
-This page is a non-normative executive narrative; the linked corpus documents govern, and where this page and a corpus document differ, the corpus document prevails. It routes to the corpus rather than reproducing its values: the appetite tolerance boundaries, the scoring-matrix bands, the register field schema, the indicator thresholds and escalation levels, the acceptance approval authorities, and the board-report cadence live in the linked documents and are not restated here. This page carries composite claims: the division of oversight it describes across the risk appetite, register, indicators, acceptance, exception, reporting, and assurance controls requires validation by the adopting organization against its own arrangements.
+This page is a non-normative executive narrative that creates no compliance by itself; the linked corpus documents govern, and where this page and a corpus document differ, the corpus document prevails. It routes to the corpus rather than reproducing its values: the appetite tolerance boundaries, the scoring-matrix bands, the register field schema, the indicator thresholds and escalation levels, the acceptance approval authorities, and the board-report cadence live in the linked documents and are not restated here. This page carries composite claims: the division of oversight it describes across the risk appetite, register, indicators, acceptance, exception, reporting, and assurance controls requires validation by the adopting organization against its own arrangements.
 
 **End of Document**

@@ -2,8 +2,8 @@
 
 **Document Title:** What the governing body should require for crypto-asset and blockchain governance oversight\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.1\
-**Date:** 2026-09-12\
+**Version:** 0.0.2\
+**Date:** 2026-09-13\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`crypto/framework-crypto-asset-governance.md`](../../crypto/framework-crypto-asset-governance.md), [`crypto/register-crypto-asset-inventory.md`](../../crypto/register-crypto-asset-inventory.md), [`compliance/financial-services/annex-mica-implementation.md`](../../compliance/financial-services/annex-mica-implementation.md)\
@@ -59,6 +59,6 @@ Two further controls round out the domain: the [smart-contract and oracle risk s
 
 ## Limitations
 
-This page is a non-normative executive narrative; the linked corpus documents govern, and where this page and a corpus document differ, the corpus document prevails. It routes to the corpus rather than reproducing its values: the specific thresholds, coverage ratios, retention periods, audit and notification clocks, key-management assurance levels, and classification definitions live in the linked standards and are not restated here. Whether a given obligation attaches, and under which regime, is the organization's own fact-dependent determination.
+This page is a non-normative executive narrative that creates no compliance by itself; the linked corpus documents govern, and where this page and a corpus document differ, the corpus document prevails. It routes to the corpus rather than reproducing its values: the specific thresholds, coverage ratios, retention periods, audit and notification clocks, key-management assurance levels, and classification definitions live in the linked standards and are not restated here. Whether a given obligation attaches, and under which regime, is the organization's own fact-dependent determination.
 
 **End of Document**

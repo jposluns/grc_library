@@ -2,8 +2,8 @@
 
 **Document Title:** What the governing body should ask about the organization's crypto-asset classification, custody, reserves, disclosure, providers, and smart-contract risk\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.1\
-**Date:** 2026-09-12\
+**Version:** 0.0.2\
+**Date:** 2026-09-13\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`crypto/framework-crypto-asset-governance.md`](../../crypto/framework-crypto-asset-governance.md), [`crypto/register-crypto-asset-inventory.md`](../../crypto/register-crypto-asset-inventory.md), [`crypto/standard-digital-asset-custody.md`](../../crypto/standard-digital-asset-custody.md)\
@@ -68,6 +68,6 @@ Each question below is paired with the operating evidence a strong answer produc
 
 ## Limitations
 
-This page is a non-normative executive narrative; the linked corpus documents govern, and where this page and a corpus document differ, the corpus document prevails. It routes to the corpus rather than reproducing its values: the thresholds, coverage ratios, clocks, retention periods, key-management assurance levels, application timelines, and classification definitions live in the linked standards and are not restated here. Whether a given obligation attaches, and under which regime, is the organization's own fact-dependent determination.
+This page is a non-normative executive narrative that creates no compliance by itself; the linked corpus documents govern, and where this page and a corpus document differ, the corpus document prevails. It routes to the corpus rather than reproducing its values: the thresholds, coverage ratios, clocks, retention periods, key-management assurance levels, application timelines, and classification definitions live in the linked standards and are not restated here. Whether a given obligation attaches, and under which regime, is the organization's own fact-dependent determination.
 
 **End of Document**

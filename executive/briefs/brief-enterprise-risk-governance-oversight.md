@@ -2,7 +2,7 @@
 
 **Document Title:** What the governing body should require to know its enterprise risk is governed\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.1\
+**Version:** 0.0.2\
 **Date:** 2026-09-13\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -59,6 +59,6 @@ Enterprise risk is governed only if the governing body can see it operating, not
 
 ## Limitations
 
-This page is a non-normative executive narrative; the linked corpus documents govern, and where this page and a corpus document differ, the corpus document prevails. It routes to the corpus rather than reproducing its values: the appetite categories and tolerance boundaries, the scoring-matrix bands and rating thresholds, the register field schema, the acceptance durations and approval-authority levels, the assurance rating scale, and the board-report cadence live in the linked documents and are not restated here. This page carries composite claims: the division of labour it describes across the risk policy, standard, register, indicators, appetite, acceptance, reporting, and assurance controls requires validation by the adopting organization against its own arrangements.
+This page is a non-normative executive narrative that creates no compliance by itself; the linked corpus documents govern, and where this page and a corpus document differ, the corpus document prevails. It routes to the corpus rather than reproducing its values: the appetite categories and tolerance boundaries, the scoring-matrix bands and rating thresholds, the register field schema, the acceptance durations and approval-authority levels, the assurance rating scale, and the board-report cadence live in the linked documents and are not restated here. This page carries composite claims: the division of labour it describes across the risk policy, standard, register, indicators, appetite, acceptance, reporting, and assurance controls requires validation by the adopting organization against its own arrangements.
 
 **End of Document**

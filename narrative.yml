@@ -174,8 +174,8 @@ pages:
   title: "What the governing body should require for crypto-asset and blockchain governance oversight"
   narrative_type: "Executive Brief"
   narrative_status: "Explanatory"
-  version: "0.0.1"
-  date: "2026-09-12"
+  version: "0.0.2"
+  date: "2026-09-13"
   corpus_sources:
     - "crypto/framework-crypto-asset-governance.md"
     - "crypto/standard-digital-asset-custody.md"
@@ -201,7 +201,7 @@ pages:
   title: "What the governing body should require to know its enterprise risk is governed"
   narrative_type: "Executive Brief"
   narrative_status: "Explanatory"
-  version: "0.0.1"
+  version: "0.0.2"
   date: "2026-09-13"
   corpus_sources:
     - "risk/policy-enterprise-governance-and-risk-management.md"
@@ -627,8 +627,8 @@ pages:
   title: "What the governing body should ask about the organization's crypto-asset classification, custody, reserves, disclosure, providers, and smart-contract risk"
   narrative_type: "Oversight Question Set"
   narrative_status: "Advisory"
-  version: "0.0.1"
-  date: "2026-09-12"
+  version: "0.0.2"
+  date: "2026-09-13"
   corpus_sources:
     - "crypto/framework-crypto-asset-governance.md"
     - "crypto/register-crypto-asset-inventory.md"
@@ -652,7 +652,7 @@ pages:
   title: "What the governing body should ask about risk appetite, the register, acceptances, early-warning indicators, and board reporting"
   narrative_type: "Oversight Question Set"
   narrative_status: "Advisory"
-  version: "0.0.1"
+  version: "0.0.2"
   date: "2026-09-13"
   corpus_sources:
     - "risk/template-risk-appetite-statement.md"
@@ -841,8 +841,8 @@ pages:
   title: "When a crypto-asset custody key is compromised and client assets are moved on-chain"
   narrative_type: "Scenario"
   narrative_status: "Non-normative"
-  version: "0.0.1"
-  date: "2026-09-12"
+  version: "0.0.2"
+  date: "2026-09-13"
   corpus_sources:
     - "crypto/standard-digital-asset-custody.md"
     - "crypto/register-crypto-asset-inventory.md"

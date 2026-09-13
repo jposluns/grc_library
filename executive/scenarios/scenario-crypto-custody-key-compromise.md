@@ -2,8 +2,8 @@
 
 **Document Title:** When a crypto-asset custody key is compromised and client assets are moved on-chain\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.1\
-**Date:** 2026-09-12\
+**Version:** 0.0.2\
+**Date:** 2026-09-13\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`crypto/standard-digital-asset-custody.md`](../../crypto/standard-digital-asset-custody.md), [`crypto/register-crypto-asset-inventory.md`](../../crypto/register-crypto-asset-inventory.md), [`crypto/standard-crypto-asset-service-provider-vetting.md`](../../crypto/standard-crypto-asset-service-provider-vetting.md)\
@@ -57,6 +57,6 @@ The exposure was bounded to the warm-tier balance rather than the whole book. Th
 
 ## Limitations
 
-This page is a non-normative executive narrative; the linked corpus documents govern, and where this page and a corpus document differ, the corpus document prevails. It routes to the corpus rather than reproducing its values: the wallet-tier value bounds, the client-liability measure, the key-management assurance level, and the incident timelines live in the linked standards and the organization's own configuration, and are not restated here. The scenario is illustrative; a real event's facts determine which controls engage and how.
+This page is a non-normative executive narrative that creates no compliance by itself; the linked corpus documents govern, and where this page and a corpus document differ, the corpus document prevails. It routes to the corpus rather than reproducing its values: the wallet-tier value bounds, the client-liability measure, the key-management assurance level, and the incident timelines live in the linked standards and the organization's own configuration, and are not restated here. The scenario is illustrative; a real event's facts determine which controls engage and how.
 
 **End of Document**
