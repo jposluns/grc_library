@@ -2,7 +2,7 @@
 
 **Document Title:** AI Governance and Risk Framework\
 **Document Type:** Framework\
-**Version:** 1.1.5\
+**Version:** 1.1.6\
 **Date:** 2026-09-13\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
@@ -179,7 +179,7 @@ AI governance assurance should include:
 | ISO/IEC 23894:2023 | Annex A risk-management objectives (including A.5 Environmental impact and A.10 Safety); Annex B risk sources | Governance objectives, the safety and environmental dimensions, and risk classification |
 | ISO/IEC 5338:2023 | Clause 6 life-cycle processes (agreement, organizational project-enabling, technical management, and technical processes) | The AI lifecycle model |
 | ISO/IEC 8183:2023 | Clause 6 data life-cycle stages | Data as the primary risk surface |
-| NIST AI RMF (2023) | GOVERN 2.1 (Roles and responsibilities), MANAGE 1.1 (risk prioritization and management), MEASURE 2.6 (regular safety evaluation) | Governance structure and AI risk management |
+| NIST AI RMF (2023) | GOVERN 2.1 (Roles and responsibilities), MANAGE 1.1 (risk prioritization and management) | Governance structure and AI risk management |
 | EU AI Act (2024) | Article 6 (Classification rules for high-risk AI systems); Annex III (high-risk use cases) | Risk classification |
 
 ---
