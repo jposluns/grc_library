@@ -538,6 +538,11 @@ EXEMPT: dict[tuple[str, str], str] = {
         "the ai-slice batches remediate the ai/ domain framework-alignment tables (bare clause "
         "headings and function names to specific sub-clauses/controls) and continue the lane."
     ),
+    ("P-1.60", "P-1.60 ai-slice control-fit remediation batch 2"): (
+        "PARTIAL CLOSE against a still-open umbrella (DONE #2179, 2026-09-13). P-1.60 "
+        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
+        "ai-slice batch 2 corrected the audit-cert framework alignment table to specific units."
+    ),
     ("P-3.202", "P-3.202 synchronous-model cutover-leftover"): (
         "PARTIAL CLOSE (provisional; DONE:3186, #1361). P-3.202 is live at P-TODO "
         "and its detail says the comprehensive sweep is INCOMPLETE, so #1361 is "
