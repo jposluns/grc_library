@@ -221,7 +221,7 @@ A summary of findings (without exploit detail) feeds the AI risk register and th
 | ISO/IEC 27001:2022 | A.8.29 | Security testing |
 | PTES | Penetration Testing Execution Standard | Underlying engagement methodology |
 | OWASP GenAI Red Teaming Guide | Industry guidance | Methodology reference |
-| ETSI EN 304 223 V2.1.1 | Provision 5.2.5 (Principle 9) | Baseline security testing and evaluation of AI models and systems before release |
+| ETSI EN 304 223 V2.1.1 | Provisions 5.2.5-1, 5.2.5-2.1 (Principle 9) | Baseline security testing before release, with independent security testers for adversarial evaluation |
 
 ---
 

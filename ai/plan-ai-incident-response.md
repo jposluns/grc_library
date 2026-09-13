@@ -203,7 +203,7 @@ The AI Security Maintainer ensures that the following evidence is preserved for 
 | ISO/IEC 27035-3 | Information security incident response | Underlying IR practice |
 | SANS CAISG v1.4 | Incident Response and Forensics for AI Systems | AI-specific audit-trail capture across the stack and a model-integrity baseline for IR evidence and detection |
 | OWASP AI Exchange | Monitor use | AI-specific monitoring and log traceability supporting incident reconstruction and evidence preservation |
-| ETSI EN 304 223 V2.1.1 | Provision 5.2.2-5 (Principle 6) | Create, test, and maintain an AI system incident management and recovery plan |
+| ETSI EN 304 223 V2.1.1 | Provision 5.2.2-5 (Principle 6) | Incident management and recovery planning for AI systems (matrix-rated partial: no plan test/exercise requirement) |
 
 ---
 
