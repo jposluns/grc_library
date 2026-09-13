@@ -2,8 +2,8 @@
 
 **Document Title:** Acceptance Into Service Policy\
 **Document Type:** Policy\
-**Version:** 1.0.10\
-**Date:** 2026-09-07\
+**Version:** 1.0.11\
+**Date:** 2026-09-13\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/framework-document-architecture-and-interrelationship.md`](../governance/framework-document-architecture-and-interrelationship.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md)\
@@ -144,7 +144,7 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 | ISO/IEC 27001:2022 | Annex A.5.36 | Periodic compliance review of acceptance outcomes by Internal Audit |
 | NIST SP 800-37 Rev. 2 | RMF Authorize step (Tasks R-1 to R-5) | Risk-based production authorization |
 | COBIT 2019 | BAI07: Managed IT Change Acceptance and Transitioning | Controlled transition and handover |
-| COBIT 2019 | DSS01: Managed Operations | Operational readiness validation |
+| COBIT 2019 | BAI07.05 | Operational readiness validation |
 | CSA CCM v4.1 | CCC-01 Change Management Policy and Procedures; CCC-02 Quality Testing; CCC-04 Unauthorized Change Protection | Controlled change acceptance, readiness testing, and handover sign-off |
 | OECD AI Principles | Safety and Accountability | AI readiness and impact validation |
 | EU AI Act | Annex III and Annex IV | High-risk AI system acceptance criteria |
