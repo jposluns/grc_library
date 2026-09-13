@@ -268,7 +268,7 @@ CAPAs are tracked in the organization's CAPA management system and reviewed at e
 |---|---|---|
 | ISO/IEC 42001:2023 §9.2.1-9.2.2 | Internal audit programme; audit criteria, scope, frequency, and methods | 3, 5 |
 | ISO/IEC 42001:2023 §9.3.1-9.3.3 | Management review of the AIMS; inputs including audit results, incidents, performance data | 2.1, 8 |
-| ISO/IEC 42006:2025 §5.2, §7.1.2-7.1.3 | Requirements for bodies certifying an AIMS: impartiality and no consulting, auditor competence and qualification, audit time, two-stage certification audit | 6.1 |
+| ISO/IEC 42006:2025 §5.2, §7.1.2-7.1.3, §9.1.4, §9.3.2 | Requirements for bodies certifying an AIMS: impartiality and no consulting, auditor competence and qualification, audit time, two-stage certification audit | 6.1 |
 | EU AI Act Chapter IX | Post-market monitoring; serious incident reporting; market surveillance | 7, 8 |
 | NIST AI RMF: MEASURE 1.1, 2.9, 2.11 | Metrics and methods for assessing AI risk; bias and fairness evaluation; explainability | 4, 5.5 |
 | NIST AI RMF: MANAGE 1.2, 1.4, 4.1, 4.3 | Risk treatment; incident response; CAPA; residual risk documentation | 9 |
