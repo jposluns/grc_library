@@ -532,6 +532,12 @@ EXEMPT: dict[tuple[str, str], str] = {
         "docs and added the family-range mapping convention. NIST 800-53 / COBIT columns and other "
         "framework work remain. DONE heading says 'CCM-Hybrid batch-2'."
     ),
+    ("P-1.60", "P-1.60 ai-slice control-fit remediation batch 1"): (
+        "PARTIAL CLOSE against a still-open umbrella (DONE #2178, 2026-09-13). P-1.60 "
+        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
+        "the ai-slice batches remediate the ai/ domain framework-alignment tables (bare clause "
+        "headings and function names to specific sub-clauses/controls) and continue the lane."
+    ),
     ("P-3.202", "P-3.202 synchronous-model cutover-leftover"): (
         "PARTIAL CLOSE (provisional; DONE:3186, #1361). P-3.202 is live at P-TODO "
         "and its detail says the comprehensive sweep is INCOMPLETE, so #1361 is "
