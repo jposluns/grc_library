@@ -2,7 +2,7 @@
 
 **Document Title:** Data Classification and Handling Standard\
 **Document Type:** Standard\
-**Version:** 1.4.14\
+**Version:** 1.4.15\
 **Date:** 2026-09-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -141,9 +141,9 @@ Where the organization participates in a sector programme that imposes additiona
 | Control Area | ISO/IEC 27002 | COBIT 2019 | CSA CCM v4.1 | Legal / Regulatory |
 | --- | --- | --- | --- | --- |
 | Classification and labelling | §5.12, §5.13 | APO01.07 | DSP-04 | GDPR Art. 32, PIPEDA |
-| Encryption | §8.24 | DSS05.03 | CEK-01 to CEK-07, CEK-09 to CEK-21 | N/A |
+| Encryption | §8.24 | DSS05.03 | CEK-03, CEK-04, CEK-12 | N/A |
 | Retention and disposal | §8.10 | APO14.09 | DSP-02, DSP-16 | ISO/IEC 27701:2025 Annex A.1.4.8 to A.1.4.9, A.2.4.3 |
-| AI data handling | N/A | DSS05.06 | N/A | AIDA (lapsed), PIPEDA |
+| AI data handling | 5.34 (privacy and protection of PII); 8.11 (data masking) | APO14.08 | DSP-04, DSP-07, DSP-08 | AIDA (lapsed), PIPEDA |
 | Trade data (BASC) | N/A | N/A | N/A | BASC Security Standard 6.0.2/6.0.3, ISO 28000 |
 
 This standard also aligns with ISO/IEC 27040:2024 (Storage security) for the secure storage, retention, and sanitization of classified data at rest.
