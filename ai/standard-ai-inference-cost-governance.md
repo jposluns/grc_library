@@ -2,8 +2,8 @@
 
 **Document Title:** AI Inference Cost Governance Standard\
 **Document Type:** Standard\
-**Version:** 0.0.9\
-**Date:** 2026-09-04\
+**Version:** 0.0.10\
+**Date:** 2026-09-13\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md), [`operations/standard-service-level-management.md`](../operations/standard-service-level-management.md), [`governance/framework-sustainability-and-responsible-technology.md`](../governance/framework-sustainability-and-responsible-technology.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`ai/standard-ai-total-cost-of-ownership-governance.md`](standard-ai-total-cost-of-ownership-governance.md)\
@@ -203,9 +203,9 @@ For external providers:
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 42001:2023 | §8 operation; §9 performance evaluation | AI management system |
+| ISO/IEC 42001:2023 | §8.1 (Operational planning and control), §9.1 (Monitoring, measurement, analysis and evaluation), A.4 (Resources for AI systems) | AI management system |
 | ISO/IEC 5055 | Automated source code quality measures | Where applicable |
-| NIST AI RMF | MEASURE, MANAGE | Risk and operational management |
+| NIST AI RMF | MEASURE 1.1, MANAGE 2.1, MANAGE 4.1 | Risk and operational management |
 | NIST AI 600-1 (Generative AI Profile) | §2.5 Environmental Impacts | AI-specific basis for tracking inference and training energy and carbon footprint; supports the smaller-model preference |
 | OWASP Top 10 for LLM Applications 2026 | LLM06:2026 Unbounded Consumption (including Denial of Wallet) | Cost runaway as a security vulnerability; the rationale for ceilings, rate limits, and the kill switch |
 | FinOps Foundation Framework | Principles and capabilities | Industry practice for cloud cost governance |
