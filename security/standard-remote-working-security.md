@@ -2,8 +2,8 @@
 
 **Document Title:** Remote Working Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.21\
-**Date:** 2026-09-07\
+**Version:** 1.0.22\
+**Date:** 2026-09-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/policy-byod.md`](policy-byod.md)\
@@ -258,7 +258,7 @@ The VPN Required column states requirements by data classification; Section 5.1 
 | CSA CCM v4.1 | HRS-04 Remote and Home Working | Direct alignment: remote working security requirements |
 | CSA CCM v4.1 | UEM-01 Endpoint Devices | Managed device and MDM requirements |
 | CIS Controls v8.1 | Control 4 (Secure Configuration of Enterprise Assets and Software) | Device baseline configuration requirements |
-| CIS Controls v8.1 | Control 12 (Network Infrastructure Management) | VPN, split tunnelling, and network security guidance |
+| CIS Controls v8.1 | 12.2, 12.7 (secure network architecture; remote-device VPN) | VPN, split tunnelling, and network security guidance |
 
 ---
 
