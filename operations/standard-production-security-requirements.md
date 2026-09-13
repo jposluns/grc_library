@@ -2,8 +2,8 @@
 
 **Document Title:** Production Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.20\
-**Date:** 2026-09-09\
+**Version:** 1.1.21\
+**Date:** 2026-09-13\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](../dev-security/standard-security-quick-reference.md)\
@@ -106,7 +106,7 @@ Authenticated vulnerability scans must run at minimum weekly. Results must be re
 | --- | --- | --- |
 | Standard (pre-approved, low-risk) | Team lead | No |
 | Normal | Delegated authority | Yes |
-| Emergency | CIO or equivalent | Retrospective within 24 hours |
+| Emergency | CIO or equivalent | Retrospective within 5 business days |
 | High-risk (identity, PAM, PKI, production network) | CIO or CISO | Yes |
 
 All production changes must be executed through the approved IaC pipeline. Direct manual production changes are prohibited except in declared incidents and must be codified within 24 hours. Every CAB-reviewed change must include a tested rollback plan.
@@ -222,7 +222,7 @@ The EOL classification policy and remediation SLAs are defined in the Security B
 | Vulnerability management | A.8.8 | TVM-03 to 12 | RA-5, SI-2 | PO.5 |
 | Change management | A.8.32 | CCC-01 to CCC-04, CCC-06 to CCC-09 | CM-3, CM-5 | N/A |
 | Certificate management | A.8.24 | CEK-01 to CEK-07, CEK-09 to CEK-21 | SC-12, SC-17 | N/A |
-| Access control | A.5.15 to 5.18 | IAM-01 to 10, IAM-12 to 15 | AC-2, AC-6 | PW.6 |
+| Access control | A.5.15 to 5.18 | IAM-01 to 10, IAM-12 to 15 | AC-2, AC-6 | N/A |
 | EOL and lifecycle | A.8.8 | TVM-01 | SA-22 | PO.5 |
 
 
