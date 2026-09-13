@@ -2,8 +2,8 @@
 
 **Document Title:** AI Human-Oversight Standard\
 **Document Type:** Standard\
-**Version:** 0.0.2\
-**Date:** 2026-08-31\
+**Version:** 0.0.3\
+**Date:** 2026-09-13\
 **Owner:** AI Governance Lead\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`privacy/register-automated-decision-making.md`](../privacy/register-automated-decision-making.md), [`governance/principle-capability-is-not-authority.md`](../governance/principle-capability-is-not-authority.md)\
@@ -110,6 +110,7 @@ The alignment below is analogical (each row aligns with or is informed by the ci
 | ISO/IEC 42001:2023 | Clause 8 (Operation); Annex A controls for controlled AI operation | Human oversight embedded in the AI management system's operating controls (sections 4.1 to 4.4). |
 | NIST AI RMF 1.0 (2023) | GOVERN, MAP, MEASURE, MANAGE functions | Differentiated human-AI configuration roles and defined, documented human-oversight processes across a range from autonomous to manual (sections 4.1, 4.2). |
 | ISO/IEC 23894:2023 | AI risk-management guidance | Stakeholder participation in identifying where human oversight is needed and in defining fairness and bias concerns (sections 4.1, 4.3). |
+| ETSI EN 304 223 V2.1.1 | Provision 5.1.4-3 (Principle 4) | Human oversight designed, verified, and maintained as a risk control |
 
 ---
 
