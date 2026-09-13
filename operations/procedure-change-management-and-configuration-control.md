@@ -2,7 +2,7 @@
 
 **Document Title:** Change Management and Configuration Control Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.8\
+**Version:** 1.3.9\
 **Date:** 2026-09-13\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -208,11 +208,11 @@ The following metrics are reported to the CISO and CIO monthly:
 
 | Control Area | ISO/IEC 20000-1 | ISO/IEC 27001:2022 | COBIT 2019 | CSA CCM v4.1 | NIST |
 | --- | --- | --- | --- | --- | --- |
-| Change management | §8.5.1 | A.8.32 | BAI06.01, BAI06.03, BAI06.04 | CCC-01 to CCC-04 | SP 800-128 §3.3 |
-| Configuration management | §8.2.6 | A.8.9 | BAI10.01, BAI10.02, BAI10.03, BAI10.04, BAI10.05 | CCC-06 to CCC-09 | SP 800-128 §3 |
+| Change management | §8.5.1 | A.8.32 | BAI06.01, BAI06.03, BAI06.04 | CCC-01 to CCC-04, CCC-09 | SP 800-128 §3.3 |
+| Configuration management | §8.2.6 | A.8.9 | BAI10.01, BAI10.02, BAI10.03, BAI10.04, BAI10.05 | CCC-06 | SP 800-128 §3 |
 | Emergency change | §8.5.1 | A.8.32 | BAI06.02 | CCC-08 | SP 800-128 §3.3 |
-| CAB governance | §8.5.1 | A.8.32 | BAI06.01 | CCC-01 | N/A |
-| IaC and drift | §8.2.6 | A.8.9 | BAI10.02, BAI10.03, BAI10.05 | CCC-07 | SP 800-128 §3.2 |
+| CAB governance | §8.5.1 | A.8.32 | BAI06.01 | CCC-01 | SP 800-128 §2.3.3 |
+| IaC and drift | §8.2.6 | A.8.9 | BAI10.02, BAI10.03, BAI10.05 | CCC-07 | SP 800-128 §3.2, §3.4 |
 
 
 
