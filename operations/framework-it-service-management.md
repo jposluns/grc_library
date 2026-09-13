@@ -2,7 +2,7 @@
 
 **Document Title:** IT Service Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.11\
+**Version:** 1.0.12\
 **Date:** 2026-09-13\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -54,7 +54,7 @@ Problem records are created for recurring or significant incidents. Root cause a
 
 ### 3. Change management
 
-All changes are categorized as Standard, Normal, or Emergency. CAB approval is required for Normal and Emergency changes. Post-implementation reviews assess success criteria and rollback results. Emergency changes are reviewed by the CAB within 5 business days of implementation.
+All changes are categorized as Standard, Normal, or Emergency. CAB approval is required for Normal and Emergency changes. Post-implementation reviews assess success criteria and rollback results. Emergency changes are notified to the CAB promptly and reviewed within 5 business days of implementation.
 
 ### 4. Service level management
 

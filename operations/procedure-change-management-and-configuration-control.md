@@ -2,7 +2,7 @@
 
 **Document Title:** Change Management and Configuration Control Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.9\
+**Version:** 1.3.10\
 **Date:** 2026-09-13\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -55,7 +55,7 @@ All changes must be classified before submission to the change process.
 | --- | --- | --- | --- |
 | **Standard** | Pre-approved, low-risk, repeatable changes following a documented procedure (e.g., OS patch from approved list, password reset, user provisioning via standard role). | Team Lead | No |
 | **Normal** | Any change not pre-approved that does not meet Emergency or High-risk criteria. | Delegated authority (typically IT Operations Manager) | Yes |
-| **Emergency** | Unplanned change required to resolve or prevent a critical service outage or active security incident. | CIO or equivalent | Retrospective within 24 hours |
+| **Emergency** | Unplanned change required to resolve or prevent a critical service outage or active security incident. | CIO or equivalent | Retrospective within 5 business days |
 | **High-risk** | Changes to identity systems, PAM, PKI, production network topology, firewall rule bases, or security monitoring infrastructure. | CIO or CISO (joint approval) | Yes |
 
 ---
@@ -85,7 +85,7 @@ The Change Manager reviews the CR for completeness and correct classification. S
 | --- | --- |
 | Standard | Team Lead approves from the standard change catalogue; no CAB required. |
 | Normal | Change Manager confirms completeness; CAB votes at weekly CAB meeting. |
-| Emergency | CIO or equivalent approves verbally or by written authorization; retrospective CAB held within 24 hours. |
+| Emergency | CIO or equivalent approves verbally or by written authorization; retrospective CAB held within 5 business days. |
 | High-risk | CISO and CIO provide written approval; CAB reviews and confirms. |
 
 ### 2.4 Scheduling
@@ -140,7 +140,7 @@ Emergency changes follow an accelerated path:
 1. CIO or equivalent authorizes the change verbally or in writing.
 2. The change is implemented with all actions logged in real time.
 3. A retrospective CR is created in the ITSM platform within 4 hours of implementation.
-4. Retrospective CAB review is held within 24 hours.
+4. Retrospective CAB review is held within 5 business days.
 5. Any permanent configuration change resulting from an emergency change must be submitted as a Normal change within 5 business days.
 
 The CISO must be notified of all Emergency changes within 1 hour of initiation.
