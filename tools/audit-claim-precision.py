@@ -346,13 +346,15 @@ def current_cycle_state(records):
         runs += 1
         for s in rec.get("sampled", []):
             # Rotation counts the DRAW (the stratum was sampled) so successive runs
-            # still spread across strata; but a drawn row explicitly marked
-            # "judged": false (source-not-held / deferred / not adjudicated this run,
-            # P-1.83 N6) is NOT counted as covered, so it stays in the un-judged pool
-            # and is re-drawn. Absent or true == judged (backward-compatible with
-            # pre-N6 records, which carry no flag).
+            # still spread across strata; but a row counts as COVERED only when its
+            # verdict is RECORDED, i.e. "judged": true is explicitly set by the
+            # adjudicator (P-1.83 N6, maintainer-decided 2026-09-13: count only
+            # adjudicated rows). A freshly-drawn row is emitted "judged": false and
+            # stays in the un-judged pool until adjudicated; absent/false != covered.
+            # (Legacy pre-2026-09-13 records that carry "judged": true still count,
+            # so no already-adjudicated row is retroactively discounted.)
             strat[(s["family"], s["domain"])] += 1
-            if s.get("judged", True) is not False:
+            if s.get("judged") is True:
                 judged.add(s["key"])
     return cycle, judged, runs, dict(strat)
 
@@ -410,12 +412,14 @@ def run_sample(n, record_path, date=None, as_json=False, _census=None, _records=
                      "sampled": [{"key": r["key"], "path": r["path"],
                                   "source": r["source"], "family": r["family"],
                                   "domain": r["domain"], "anchor": r["anchor"],
-                                  "line_hint": r["line_hint"], "judged": True} for r in drawn]}
+                                  "line_hint": r["line_hint"], "judged": False} for r in drawn]}
     reset_rec = None
     # The cycle completes ONLY when the un-judged pool is genuinely empty at the START of a
-    # run (unjudged_total == 0), NOT optimistically on the exhausting draw: a terminal-run row
-    # the operator marks "judged": false stays un-judged, so it is re-drawn on the next run and
-    # the cycle stays open until every row is actually adjudicated (P-1.83 N6 terminal-run fix).
+    # run (unjudged_total == 0), NOT optimistically on the exhausting draw. Drawn rows are
+    # emitted "judged": false and count as covered only once the adjudicator sets "judged": true
+    # on recording the verdict (P-1.83 N6, maintainer-decided 2026-09-13: count only adjudicated
+    # rows); an un-adjudicated row stays un-judged, is re-drawn next run, and the cycle stays open
+    # until every row is actually adjudicated.
     if unjudged_total == 0:              # nothing left to draw -> cycle genuinely complete
         reset_rec = {"kind": "cycle-reset", "cycle": cycle, "date": date,
                      "reason": ("census exhausted; sampling restarts on the refreshed "
@@ -450,14 +454,15 @@ def run_sample(n, record_path, date=None, as_json=False, _census=None, _records=
               f"record; next run starts cycle {cycle + 1} on the refreshed census.")
     elif remaining_after == 0:
         print(f"  this run drew the LAST un-judged rows of cycle {cycle}; after judging "
-              "(mark any you could not adjudicate \"judged\": false), re-run --sample. The "
-              "cycle completes and emits the reset only when the next draw is empty, so a "
-              "row left \"judged\": false is re-drawn first.")
+              "(each row is emitted \"judged\": false; set \"judged\": true ONLY on rows you "
+              "adjudicated this run), re-run --sample. The cycle completes and emits the reset "
+              "only when the next draw is empty, so a row left \"judged\": false is re-drawn first.")
     print("\n  append the following line(s) to the sweep ledger AFTER judging "
           "(the without-replacement basis):")
-    print("  N6: each sampled row carries \"judged\": true; set it to false on any drawn "
-          "row you could NOT adjudicate this run (source-not-held / deferred), so it stays "
-          "un-judged and is re-drawn rather than silently counted as covered.")
+    print("  N6 (count only ADJUDICATED rows): each sampled row is emitted \"judged\": false; "
+          "set \"judged\": true ONLY on a row whose verdict you RECORDED this run. A row left "
+          "false (incl. source-not-held / deferred) stays un-judged and is re-drawn, never "
+          "silently counted as covered.")
     for r in (sweep_rec, reset_rec):
         if r:
             print("    " + _json.dumps(r))
@@ -755,26 +760,29 @@ def self_test():
 
         def test_cycle_state_and_reset(self):
             recs = [{"kind": "coverage-sweep", "cycle": 1, "run": 1,
-                     "sampled": [{"key": "k1", "family": "ISO", "domain": "ai"}]}]
+                     "sampled": [{"key": "k1", "family": "ISO", "domain": "ai",
+                                  "judged": True}]}]
             cyc, judged, runs, strat = current_cycle_state(recs)
             self.assertEqual((cyc, runs), (1, 1))
-            self.assertEqual(judged, {"k1"})
+            self.assertEqual(judged, {"k1"})   # explicit judged:true counts as covered
             recs.append({"kind": "cycle-reset", "cycle": 1})
             cyc2, judged2, runs2, _ = current_cycle_state(recs)
             self.assertEqual(cyc2, 2)          # cycle advanced
             self.assertEqual((judged2, runs2), (set(), 0))  # judged/rotation reset
 
         def test_n6_judged_flag(self):
-            # P-1.83 N6: a drawn row explicitly "judged": false is NOT counted as
-            # covered (stays re-drawable); absent or true == judged (backward-compat).
+            # P-1.83 N6 (maintainer-decided 2026-09-13: count only ADJUDICATED rows):
+            # a row counts as covered ONLY when "judged": true is explicitly recorded.
+            # Both explicit-false and absent are un-adjudicated -> NOT covered, re-drawable.
             recs = [{"kind": "coverage-sweep", "cycle": 1, "run": 1, "sampled": [
                 {"key": "kt", "family": "ISO", "domain": "ai", "judged": True},
                 {"key": "kf", "family": "ISO", "domain": "ai", "judged": False},
-                {"key": "ka", "family": "GDPR", "domain": "privacy"},  # absent -> judged
+                {"key": "ka", "family": "GDPR", "domain": "privacy"},  # absent -> NOT covered
             ]}]
             _cyc, judged, _runs, strat = current_cycle_state(recs)
-            self.assertEqual(judged, {"kt", "ka"})            # kf excluded (unadjudicated)
-            self.assertNotIn("kf", judged)                    # re-drawable
+            self.assertEqual(judged, {"kt"})                  # only explicit judged:true
+            self.assertNotIn("kf", judged)                    # explicit false: re-drawable
+            self.assertNotIn("ka", judged)                    # absent: re-drawable
             self.assertEqual(strat[("ISO", "ai")], 2)         # rotation still counts the draw
             # and the unjudged row is re-drawable against a census containing it
             census = [self._mk("ISO", "ai", 0)]
@@ -807,16 +815,26 @@ def self_test():
             self.assertFalse(out1["cycle_complete"])
             self.assertEqual({r["kind"] for r in out1["append_records"]}, {"coverage-sweep"})
             sweep1 = next(r for r in out1["append_records"] if r["kind"] == "coverage-sweep")
+            # N6: every freshly-drawn row is emitted "judged": false (un-adjudicated),
+            # so it is not counted as covered until the operator records a verdict.
+            self.assertTrue(all(x["judged"] is False for x in sweep1["sampled"]))
 
-            # Run 2, both judged (append run 1 as-is): draw empty -> complete, reset only.
-            out2 = _run([sweep1])
+            # Run 2, both judged: mark run-1's sampled judged:true (the new default is
+            # false), then append -> draw empty -> complete, reset only.
+            import copy as _copy0
+            sweep1_judged = _copy0.deepcopy(sweep1)
+            for _sx in sweep1_judged["sampled"]:
+                _sx["judged"] = True
+            out2 = _run([sweep1_judged])
             self.assertTrue(out2["cycle_complete"])
             self.assertEqual({r["kind"] for r in out2["append_records"]}, {"cycle-reset"})
 
-            # Run 2b, one row left judged:false: it is re-drawn, cycle NOT complete, no reset.
+            # Run 2b, one row adjudicated (judged:true) and one left un-adjudicated
+            # (judged:false): only the un-adjudicated row is re-drawn, cycle NOT complete.
             import copy as _copy
             sweep_false = _copy.deepcopy(sweep1)
-            sweep_false["sampled"][0]["judged"] = False
+            sweep_false["sampled"][0]["judged"] = False   # un-adjudicated -> re-drawn
+            sweep_false["sampled"][1]["judged"] = True    # adjudicated -> covered
             out2b = _run([sweep_false])
             self.assertFalse(out2b["cycle_complete"])
             self.assertNotIn("cycle-reset", {r["kind"] for r in out2b["append_records"]})
