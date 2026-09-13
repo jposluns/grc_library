@@ -47,10 +47,10 @@ _117 documents._
 | --- | --- | --- | --- | --- |
 | [ai/charter-ai-governance-council.md](../ai/charter-ai-governance-council.md) | AI Governance Council Charter | Charter | 1.2.9 | 2026-09-01 |
 | [ai/framework-ai-governance-and-risk.md](../ai/framework-ai-governance-and-risk.md) | AI Governance and Risk Framework | Framework | 1.1.4 | 2026-07-11 |
-| [ai/guide-ai-adversarial-test-reference.md](../ai/guide-ai-adversarial-test-reference.md) | AI Adversarial Test Reference | Guide | 1.3.5 | 2026-08-20 |
+| [ai/guide-ai-adversarial-test-reference.md](../ai/guide-ai-adversarial-test-reference.md) | AI Adversarial Test Reference | Guide | 1.3.6 | 2026-09-13 |
 | [ai/guide-ai-security-technical-implementation.md](../ai/guide-ai-security-technical-implementation.md) | AI Security Technical Implementation Guide | Guide | 1.3.6 | 2026-08-20 |
 | [ai/procedure-ai-audit.md](../ai/procedure-ai-audit.md) | AI Audit Procedure | Procedure | 1.1.6 | 2026-08-05 |
-| [ai/standard-ai-and-agentic-development-security.md](../ai/standard-ai-and-agentic-development-security.md) | AI and Agentic Development Security Standard | Standard | 1.8.30 | 2026-09-11 |
+| [ai/standard-ai-and-agentic-development-security.md](../ai/standard-ai-and-agentic-development-security.md) | AI and Agentic Development Security Standard | Standard | 1.8.31 | 2026-09-13 |
 | [ai/standard-ai-model-risk.md](../ai/standard-ai-model-risk.md) | AI Model Risk Standard | Standard | 1.1.5 | 2026-08-31 |
 | [ai/standard-ai-security-and-risk.md](../ai/standard-ai-security-and-risk.md) | AI Security and Risk Standard | Standard | 1.1.6 | 2026-08-31 |
 | [ai/template-ai-system-register.md](../ai/template-ai-system-register.md) | AI System Register Template | Template | 1.1.4 | 2026-08-31 |
@@ -177,7 +177,7 @@ _163 documents._
 | [ai/framework-ai-model-documentation-and-transparency.md](../ai/framework-ai-model-documentation-and-transparency.md) | AI Model Documentation and Transparency Framework | Framework | 1.0.11 | 2026-08-30 |
 | [ai/framework-ai-model-risk.md](../ai/framework-ai-model-risk.md) | AI Model Risk Framework | Framework | 1.0.3 | 2026-07-12 |
 | [ai/framework-ai-system-audit-certification.md](../ai/framework-ai-system-audit-certification.md) | AI System Audit and Certification Framework | Framework | 1.0.12 | 2026-08-31 |
-| [ai/guideline-adversarial-evaluation-suite-development.md](../ai/guideline-adversarial-evaluation-suite-development.md) | Adversarial Evaluation Suite Development Guideline | Guideline | 1.0.2 | 2026-07-11 |
+| [ai/guideline-adversarial-evaluation-suite-development.md](../ai/guideline-adversarial-evaluation-suite-development.md) | Adversarial Evaluation Suite Development Guideline | Guideline | 1.0.3 | 2026-09-13 |
 | [ai/guideline-ethical-ai-use.md](../ai/guideline-ethical-ai-use.md) | Ethical AI Use Guideline | Guideline | 1.0.6 | 2026-08-31 |
 | [ai/jurisdictions/annex-ai-canada.md](../ai/jurisdictions/annex-ai-canada.md) | Canada AI Regulatory Requirements | Annex | 1.0.6 | 2026-09-05 |
 | [ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md](../ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md) | AI Model Risk Control to Lifecycle Mapping Matrix | Matrix | 1.0.3 | 2026-08-31 |
@@ -191,7 +191,7 @@ _163 documents._
 | [ai/register-mcp-server.md](../ai/register-mcp-server.md) | Model Context Protocol Server Register | Register | 1.0.6 | 2026-08-30 |
 | [ai/standard-ai-testing-validation-and-documentation.md](../ai/standard-ai-testing-validation-and-documentation.md) | AI Testing, Validation and Documentation Standard | Standard | 1.0.5 | 2026-09-13 |
 | [ai/template-ai-red-team-report.md](../ai/template-ai-red-team-report.md) | AI Red Team Report Template | Template | 1.0.6 | 2026-09-13 |
-| [ai/template-ai-vendor-security-questionnaire.md](../ai/template-ai-vendor-security-questionnaire.md) | AI Vendor Security Questionnaire Template | Template | 1.0.5 | 2026-09-07 |
+| [ai/template-ai-vendor-security-questionnaire.md](../ai/template-ai-vendor-security-questionnaire.md) | AI Vendor Security Questionnaire Template | Template | 1.0.6 | 2026-09-13 |
 | [ai/template-dataset-datasheet.md](../ai/template-dataset-datasheet.md) | Dataset Datasheet Template | Template | 1.0.7 | 2026-07-12 |
 | [ai/template-model-card.md](../ai/template-model-card.md) | Model Card Template | Template | 1.0.2 | 2026-07-11 |
 | [architecture/framework-enterprise-architecture.md](../architecture/framework-enterprise-architecture.md) | Enterprise Architecture Framework | Framework | 1.0.3 | 2026-07-10 |
