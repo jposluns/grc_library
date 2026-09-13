@@ -2,8 +2,8 @@
 
 **Document Title:** AI Security and Risk Standard\
 **Document Type:** Standard\
-**Version:** 1.1.6\
-**Date:** 2026-08-31\
+**Version:** 1.1.7\
+**Date:** 2026-09-13\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`ai/register-ai-risk.md`](register-ai-risk.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md), [`security/procedure-identity-management.md`](../security/procedure-identity-management.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md)\
@@ -206,9 +206,9 @@ This standard does not establish legal compliance or certification. It defines a
 | ETSI EN 304 223 V2.1.1 (2025-12) | Provision 5.5.1-2 (Principle 13, Secure End of Life) | Secure decommissioning and data or model disposal (Section 4.11) |
 | ETSI TR 104 128 V1.1.1 (2025-05) | Informative implementation guidance (see-also, not a normative provision) | Implementation guide for the ETSI Securing-AI baseline the EN 304 223 rows above cite; corroborates those provisions with stakeholder guidance for meeting them (Sections 4.1, 4.5, 4.8, 4.9, 4.11 above), not an additional obligation |
 | NIST AI 100-2e2025 | Adversarial machine-learning taxonomy | Model and data attack resistance (Section 4.5) |
-| ISO/IEC 42001:2023 | Clause 8: Operation | AI security controls within the AI management system |
+| ISO/IEC 42001:2023 | §8.1 (Operational planning and control) | AI security controls within the AI management system |
 | ISO/IEC 27001:2022 | Annex A | Information-security controls underpinning AI security |
-| NIST AI RMF (2023) | MEASURE and MANAGE functions | AI risk measurement and treatment |
+| NIST AI RMF (2023) | MEASURE 2.7, MANAGE 1.3 | AI risk measurement and treatment |
 | OWASP LLM Top 10 | LLM-specific vulnerabilities | Prompt, retrieval, and tool security (Sections 4.4 and 4.5) |
 | OWASP AI Exchange | Threats and controls overview (four control categories, over 50 controls) | Umbrella AI-specific threat-and-control taxonomy overlaying the conventional baseline (Sections 4.5, 4.8, 4.9) |
 | SANS CAISG v1.4 | Data and Model Engineering and Limit Model Behavior; Human Oversight; AI Supply Chain Management | Scope-precise AI operational controls: adversarial resistance (Section 4.5), human oversight (Section 4.8), supply-chain controls (Section 4.9) |

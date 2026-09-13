@@ -2,8 +2,8 @@
 
 **Document Title:** AI Access and Agent Permissions Standard\
 **Document Type:** Standard\
-**Version:** 0.0.14\
-**Date:** 2026-09-07\
+**Version:** 0.0.15\
+**Date:** 2026-09-13\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/register-mcp-server.md`](register-mcp-server.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/plan-ai-incident-response.md`](plan-ai-incident-response.md), [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md)\
@@ -250,12 +250,12 @@ Retrieval-augmented generation and other context-injection patterns:
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 42001:2023 | §8 operation | AI operational controls |
+| ISO/IEC 42001:2023 | §8.1 (Operational planning and control) | AI operational controls |
 | EU AI Act | Articles 14, 15, 26 | Human oversight, accuracy and security, deployer obligations |
-| NIST AI RMF | MANAGE | Risk management of operational AI |
+| NIST AI RMF | MANAGE 2.4, MANAGE 4.1 | Risk management of operational AI |
 | OWASP LLM Top 10 | LLM10:2026 Improper Output Handling; LLM03:2026 Excessive Agency; LLM09:2026 Vector and Embedding Weaknesses | Agentic and retrieval risks |
 | MITRE ATLAS | Tactics relating to tool abuse and credential access | Adversarial ML threat catalogue |
-| NIST SP 800-53 Rev. 5 | AC family | Access control baseline |
+| NIST SP 800-53 Rev. 5 | AC-2 (Account Management), AC-3 (Access Enforcement), AC-6 (Least Privilege), AC-24 (Access Control Decisions) | Access control baseline |
 | ISO/IEC 27001:2022 | A.5.15 to A.5.18, A.8.2 | Access control and privileged access |
 | ETSI EN 304 223 V2.1.1 (2025-12) | Provision 5.1.2-6 (Principle 2); Provision 5.2.2-1 and 5.2.2-3 (Principle 6) | Least-privilege permissions on other systems; access-control-framework evaluation and least-privilege environment separation |
 | CSA AICM v1.1.0 | AIS-11 Agents Security Boundaries | Agent security-boundary enforcement |
