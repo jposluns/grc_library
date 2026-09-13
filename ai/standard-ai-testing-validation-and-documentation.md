@@ -2,7 +2,7 @@
 
 **Document Title:** AI Testing, Validation and Documentation Standard\
 **Document Type:** Standard\
-**Version:** 1.0.7\
+**Version:** 1.0.8\
 **Date:** 2026-09-13\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -145,7 +145,7 @@ AI models undergoing retraining or significant update must complete:
 | ISO/IEC 42005:2025 | AI system impact assessment | AI risk and bias assessment |
 | EU AI Act (2024) | Annex IV: Technical Documentation | High-risk AI documentation |
 | NIST AI RMF (2023) | MEASURE 1.1 (measurement approaches and metrics), MEASURE 2.1 (test sets, metrics, and tools) | AI testing and measurement |
-| OWASP LLM Top 10 | LLM-specific vulnerabilities | Generative AI security testing |
+| OWASP LLM Top 10 (2026) | LLM01:2026 to LLM10:2026 (all ten entries) | Generative AI security testing |
 | ISO/IEC TS 25058:2024 | §5 evaluation methodology; §6.2 functional test methods | AI quality-evaluation methods (Section 5.1) |
 | ISO/IEC 25059:2023 | §5.5 Robustness (SQuaRE AI quality model) | Robustness and quality characteristics (Section 5.1) |
 | NIST IR 8312 | §2.1 to §2.4 four principles of explainable AI | Explanation accuracy and knowledge limits (Section 5.3) |
