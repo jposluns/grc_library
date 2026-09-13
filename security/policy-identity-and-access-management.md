@@ -2,7 +2,7 @@
 
 **Document Title:** Identity and Access Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.25\
+**Version:** 1.3.26\
 **Date:** 2026-09-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -119,7 +119,7 @@ To ensure that all users, human, service, and machine, are uniquely identified, 
 | Authentication | A.8.5 | §8.5 | SP 800-63B | DSS05.04 | IAM-13 |
 | Privileged Access | A.8.2 | §8.2 | SP 800-53 AC-2, AC-6 | DSS05.04 | IAM-10, IAM-04 |
 | Access Review | A.5.18 | §5.18 | SP 800-53 AC-2 | DSS05.04 | IAM-08 |
-| AI/Automation Access | A.5.16, A.8.3, A.8.5 | 5.16 (identity management); 8.3 (information access restriction); 8.5 (secure authentication) | AI RMF | DSS05.04 | IAM-14 |
+| AI/Automation Access | A.5.16, A.8.3, A.8.5 | 5.16 (identity management); 8.3 (information access restriction); 8.5 (secure authentication) | SP 800-53 IA-4, IA-5, AC-3 | DSS05.04 | IAM-12, IAM-13, IAM-14, IAM-15 |
 
 This policy further aligns with ISO/IEC 24760 (A framework for identity management, Parts 1 to 3, 2025) and ISO/IEC 29146:2024 (A framework for access management), the ISO identity-management and access-management framework standards.
 
