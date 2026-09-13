@@ -2,8 +2,8 @@
 
 **Document Title:** FedRAMP Sector Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.11\
-**Date:** 2026-09-07\
+**Version:** 0.0.12\
+**Date:** 2026-09-13\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`operations/standard-cloud-security-configuration-baseline.md`](../../operations/standard-cloud-security-configuration-baseline.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
@@ -92,7 +92,7 @@ The library provides architectural baselines that align with FedRAMP control fam
 
 Library gaps requiring additional documentation for a FedRAMP authorization package:
 
-1. **Certification package documentation.** Under the 2026 Consolidated Rules the historically required System Security Plan and appendices are replaced, for both certification types, by the Certification Package Overview and the Security Decision Record (SDR); the security practices are expressed as measured Key Security Indicators under 20x and as Rev5 Controls under Rev5. The library provides architectural inputs; the certification-package documents are per-system artefacts built outside the library.
+1. **Certification package documentation.** Under the 2026 Consolidated Rules the historically required System Security Plan is superseded: for FedRAMP Rev5 the Certification Package Overview replaces the base System Security Plan (not including its appendices), and the Security Decision Record replaces the traditional System Security Plan as a persistently maintained, verified, and validated record of the provider's security decisions; the rules' crosswalk maps the former System Security Plan and its appendices onto the Certification Package Overview and Security Decision Record together. The security practices are expressed as measured Key Security Indicators under 20x and as Rev5 Controls under Rev5. The library provides architectural inputs; the certification-package documents are per-system artefacts built outside the library.
 2. **Continuous Monitoring (ConMon) plan and monthly reporting.** FedRAMP requires monthly POA&M, vulnerability scan submission, and inventory updates.
 3. **Plan of Action and Milestones (POA&M) register.** Tracked per FedRAMP cadence; library risk register is the conceptual basis but FedRAMP format is mandated.
 4. **Independent assessment.** The 2026 rules do not require a separate Security Assessment Plan or Security Assessment Report for either 20x or Rev5 certifications; the assessment information is captured in the Security Decision Record. Under the legacy Agency path an agency authorizing official may still request the traditional Security Assessment Plan and Report in addition to FedRAMP's materials.
