@@ -2,7 +2,7 @@
 
 **Document Title:** AI Data Quality and Readiness Validation Standard\
 **Document Type:** Standard\
-**Version:** 0.0.3\
+**Version:** 0.0.4\
 **Date:** 2026-09-13\
 **Owner:** AI Data Steward\
 **Approving Authority:** Governance Library Maintainer\
@@ -75,7 +75,7 @@ When a dataset is retired, decommission it per ISO/IEC 8183:2023 Clause 6.10 and
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 5259-2:2024 | §5.2 (Data quality model); §8.1 (Data quality reporting framework), §8.2 (Data quality measure information) | Data-quality model, measures, and reporting (Sections 3.1, 3.2) |
+| ISO/IEC 5259-2:2024 | §5.2 (Data quality model); Clause 6 (Data quality characteristics and quality measures); §8.1 (Data quality reporting framework) | Data-quality model, measures, and reporting (Sections 3.1, 3.2) |
 | ISO/IEC 5259-3:2024 | Clause 8.3 (verification and validation gates); Clause 9 (supply chain); Clause 12.6 (data-quality plan); Clause 12.9 (decommissioning) | Data-quality management, life-cycle gates, and supply chain (Sections 3.3, 3.4, 3.6, 3.8) |
 | ISO/IEC 5259-4:2024 | Clause 6 (process loop and data-use approval); Clause 8.4 (labelling quality control) | Process loop, readiness sign-off, and labelling QA (Sections 3.3, 3.5, 3.7) |
 | ISO/IEC 8183:2023 | Clause 5 (data life cycle stages); Clause 6.10 (data decommissioning) | Life-cycle alignment and decommissioning (Sections 3.4, 3.8) |

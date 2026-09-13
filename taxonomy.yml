@@ -615,7 +615,7 @@ documents:
   domain: "ai"
   type: "Standard"
   title: "AI Data Quality and Readiness Validation Standard"
-  version: "0.0.3"
+  version: "0.0.4"
   date: "2026-09-13"
   owner: "AI Data Steward"
   approving_authority: "Governance Library Maintainer"
