@@ -2,7 +2,7 @@
 
 **Document Title:** AI Red Team Report Template\
 **Document Type:** Template\
-**Version:** 1.0.5\
+**Version:** 1.0.6\
 **Date:** 2026-09-13\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\

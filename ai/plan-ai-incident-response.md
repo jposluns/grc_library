@@ -2,7 +2,7 @@
 
 **Document Title:** AI Incident Response Plan\
 **Document Type:** Plan\
-**Version:** 1.0.11\
+**Version:** 1.0.12\
 **Date:** 2026-09-13\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
