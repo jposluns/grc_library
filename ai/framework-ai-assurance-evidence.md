@@ -2,8 +2,8 @@
 
 **Document Title:** AI Assurance Evidence and Attestation Framework\
 **Document Type:** Framework\
-**Version:** 1.0.1\
-**Date:** 2026-09-05\
+**Version:** 1.0.2\
+**Date:** 2026-09-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md), [`ai/template-ai-red-team-report.md`](template-ai-red-team-report.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/matrix-etsi-sai-baseline-alignment.md`](matrix-etsi-sai-baseline-alignment.md)\
@@ -135,7 +135,7 @@ The framework adds only the small set of normative requirements below; every oth
 | NIST AI 100-1 (AI RMF 1.0) | MEASURE 1.1, 1.3 | Documentation of unmeasured risks (gap documentation) and independent assessors (attestation tiers) |
 | NIST AI 100-1 (AI RMF 1.0) | MEASURE 2.4, 3.1 | In-production monitoring evidence and risk-tracking documentation |
 | ETSI EN 304 223 V2.1.1 | Provisions 5.2.5-2.1, 5.2.5-3 | Independent security testers (attestation tier minimum) and developer-to-operator findings transfer (received third-party evidence class) |
-| ISO/IEC 42001:2023 | Clause 9 (performance evaluation) | The management-system performance-evaluation activity that consumes the marshalled evidence at certification; see-also, not a control mapping |
+| ISO/IEC 42001:2023 | §9.1 (Monitoring, measurement, analysis and evaluation) | The management-system performance-evaluation activity that consumes the marshalled evidence at certification; see-also, not a control mapping |
 
 ## 7. Limitations
 
