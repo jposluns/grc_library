@@ -2,7 +2,7 @@
 
 **Document Title:** AI Testing, Validation and Documentation Standard\
 **Document Type:** Standard\
-**Version:** 1.0.5\
+**Version:** 1.0.6\
 **Date:** 2026-09-13\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -141,7 +141,7 @@ AI models undergoing retraining or significant update must complete:
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 42001:2023 | §8: Operation | AI system operation and validation |
+| ISO/IEC 42001:2023 | §8.1 (Operational planning and control); A.6.2.4 (AI system verification and validation); A.6.2.6 (AI system operation and monitoring) | AI system operation and validation |
 | ISO/IEC 42005:2025 | AI system impact assessment | AI risk and bias assessment |
 | EU AI Act (2024) | Annex IV: Technical Documentation | High-risk AI documentation |
 | NIST AI RMF (2023) | MAP, MEASURE functions | AI testing and measurement |
