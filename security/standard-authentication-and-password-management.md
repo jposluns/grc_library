@@ -2,7 +2,7 @@
 
 **Document Title:** Authentication and Password Management Standard\
 **Document Type:** Standard\
-**Version:** 1.1.14\
+**Version:** 1.1.15\
 **Date:** 2026-09-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -96,10 +96,10 @@ Exceptions to any requirement in this standard are approved through the §4.2.2 
 
 | Control | NIST SP 800-63B | ISO/IEC 27001:2022 | CSA CCM v4.1 | CIS |
 | --- | --- | --- | --- | --- |
-| Password requirements | SP 800-63B §3.1.1 (except the organizational character-composition requirement, a deliberate divergence noted in Section 4) | A.8.5 | IAM-14 | Control 5 |
+| Password requirements | SP 800-63B §3.1.1 (except the organizational character-composition requirement, a deliberate divergence noted in Section 4) | A.8.5 | IAM-14 | 5.2 (Use Unique Passwords) |
 | MFA | SP 800-63B §2.2 (AAL2) | A.8.5 | IAM-13 | 6.3, 6.4, 6.5 (MFA safeguards) |
-| Session management | SP 800-63B §5 | A.8.5 | IAM-13 | Control 5 |
-| Service account auth | N/A | A.8.2 | IAM-13 | Control 5 |
+| Session management | SP 800-63B §5 | A.8.5 | IAM-13 | 4.3 (Automatic Session Locking) |
+| Service account auth | N/A | A.8.5 | IAM-13 | 5.5, 5.6 (service-account inventory + centralized management) |
 
 
 
