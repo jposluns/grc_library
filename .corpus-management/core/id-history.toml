@@ -165,3 +165,15 @@ id = "no-stub-documents"
 event = "created"
 date = 2026-09-14
 note = "compile PR-17: new pack-internal clause (a production document meets a word-count floor and carries no stub-indicator phrase; stub phrase flagged even in a long body; fenced lines not counted; threshold+phrase-list are check params, exempt files are wrapper scan config). Generated AI-facing rule (compile PR-17) like positional-backlog-token."
+
+[[events]]
+id = "lint-filename-title-alignment"
+event = "created"
+date = 2026-09-14
+note = "compile PR-18: gate-wave fourteenth gate transfer (grc gate 7 lint-filename-title-alignment; Model-2 wrapper, engine pack source of record, enforces the new filename-title-alignment clause). Most param-heavy transfer: engine takes synonyms + doctypes + min_overlap as params (STOPWORDS + TITLE_PATTERN are engine constants). CROSS-GATE coupling: DOCTYPES stays a wrapper MODULE ATTRIBUTE because gate 67 (doctype-parity) loads the wrapper and reads fta.DOCTYPES; verified gate 67 still passes. DOCTYPES + SYNONYMS byte-identical (in-place transform, structure-matched boundaries). No aiqt_corpus guard (this gate never used it)."
+
+[[events]]
+id = "filename-title-alignment"
+event = "created"
+date = 2026-09-14
+note = "compile PR-18: new pack-internal clause (the filename stem after the doctype prefix shares a significant content word with the Document Title; no-title/no-doctype-prefix/empty-tokens not applicable; doctype-set + synonym-map + min-overlap are wrapper config). Generated AI-facing rule (compile PR-18) like no-stub-documents."

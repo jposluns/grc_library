@@ -73,3 +73,8 @@ target = ".claude/rules/corpus-management/positional-backlog-token.md"
 rule = "no-stub-documents"
 kind = "file"
 target = ".claude/rules/corpus-management/no-stub-documents.md"
+
+[[owned_targets]]
+rule = "filename-title-alignment"
+kind = "file"
+target = ".claude/rules/corpus-management/filename-title-alignment.md"

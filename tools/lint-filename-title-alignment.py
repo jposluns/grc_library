@@ -1,57 +1,36 @@
 #!/usr/bin/env python3
-"""Lint that file names align with Document Title fields.
+"""Filename / Document-Title alignment audit (grc gate): project entry point.
 
-For every active markdown file with a metadata block, verify that the
-filename (after the doctype prefix) and the Document Title share a
-recognizable common stem.
+The gate ENGINE is pack-owned source of record at
+``.corpus-management/tools/gate_lint_filename_title_alignment.py`` (Corpus-Management pack, gate
+register ``core/gates.toml``, id ``lint-filename-title-alignment``, enforcing the pack's
+``filename-title-alignment`` clause); this thin wrapper keeps the house
+``python3 tools/lint-filename-title-alignment.py`` shape (gate 35 parses exactly that) and supplies
+the grc-local configuration the pack engine deliberately does not carry: the repo root, the markdown
+scope selector, the default scan roots, the grc document-type prefix set (``DOCTYPES``), the grc
+synonym map (``SYNONYMS``), and the target-selection exemptions. ``DOCTYPES`` MUST stay a module
+attribute here: the doctype-parity gate (gate 67) loads this module and reads ``DOCTYPES`` to
+cross-check it against the canonical type set. These wrapper bytes are HAND-MAINTAINED, not
+compiler-generated, so gate 99 does NOT own them; ``iter_active_files`` stays here so the scan-scope
+regression's ALLOW map observes it unmoved.
 
-Rules:
-
-1. The filename has the form ``<doctype>-<kebab-case-name>.md`` where
-   ``<doctype>`` is one of the canonical library doctypes.
-2. The Document Title is a human-readable string.
-3. The two should share the same content words after normalization
-   (lowercasing, removing the doctype, removing common short words,
-   converting kebab-case to space-separated, removing acronym hyphens).
-
-This linter is permissive: it flags only clear mismatches where the
-filename and the title have fewer than ``--min-overlap`` shared
-significant content words (default 1). It does not require a strict
-1:1 correspondence.
-
-A SYNONYMS table expands common acronyms to their full forms (and vice
-versa) before the overlap check, so a filename containing ``iga`` and a
-title containing ``identity governance and administration`` are
-correctly treated as aligned.
-
-The canonical use case is to catch typos and copy-paste mistakes such
-as "AEO-S IT and Cybersecurity Security Requirements" where the
-filename was ``annex-aeo-s-it-cybersecurity-requirements.md`` (the
-duplicate "Security" in the title was a manual editing mistake).
-
-The DOCTYPES set covers all 18 doctypes accepted by
-lint-metadata.py's ALLOWED_TYPES.
-
-Usage::
-
+Usage:
     python3 tools/lint-filename-title-alignment.py
-    python3 tools/lint-filename-title-alignment.py --paths governance ai
+    python3 tools/lint-filename-title-alignment.py path1 path2 ...
     python3 tools/lint-filename-title-alignment.py --min-overlap 2
 
-Exit codes:
-
-    0   no findings
-    1   one or more findings present
+Exit codes are the engine's: 0 clean; 1 finding(s).
 """
 
 from __future__ import annotations
 
 import argparse
-import re
 import sys
 from pathlib import Path
 
 from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT, iter_scan_roots_markdown
+
+PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
 
 EXEMPT_DIRECTORY_PREFIXES: tuple[str, ...] = (
@@ -84,11 +63,6 @@ DOCTYPES = {
     "sop", "specification", "standard", "template", "worklist",
 }
 
-# Common short words and connectors to strip when comparing.
-STOPWORDS = {
-    "the", "a", "an", "and", "or", "of", "for", "to", "in", "on",
-    "with", "by", "at", "as", "from", "into",
-}
 
 # Tokens that mean the same thing across filename and title variations.
 # Lowercase only. The right-hand side is the canonical expansion; the linter
@@ -116,10 +90,6 @@ SYNONYMS: dict[str, str] = {
     "ai": "artificial intelligence",
 }
 
-TITLE_PATTERN = re.compile(
-    r"^\*\*Document Title:\*\*\s+(.+?)\s*$",
-    re.MULTILINE,
-)
 
 
 def iter_active_files(paths: list[str]) -> list[Path]:
@@ -134,100 +104,26 @@ def iter_active_files(paths: list[str]) -> list[Path]:
             continue
         out.append(f)
     return out
-
-
-def parse_title(path: Path) -> str | None:
-    try:
-        text = path.read_text(encoding="utf-8")
-    except (UnicodeDecodeError, OSError):
-        return None
-    m = TITLE_PATTERN.search(text)
-    if not m:
-        return None
-    title = m.group(1).strip()
-    # Strip CommonMark hard-line-break backslash if present.
-    if title.endswith("\\"):
-        title = title[:-1].rstrip()
-    return title
-
-
-def normalise_tokens(text: str) -> set[str]:
-    """Tokenize text into a set of normalized content words.
-
-    Steps:
-        - lowercase
-        - replace hyphens with spaces
-        - strip non-alphanumeric
-        - split into words
-        - drop stopwords
-        - expand synonyms
-    """
-    s = text.lower()
-    s = re.sub(r"-", " ", s)
-    s = re.sub(r"[^a-z0-9\s]", " ", s)
-    tokens = s.split()
-    out: set[str] = set()
-    for t in tokens:
-        if t in STOPWORDS:
-            continue
-        if len(t) <= 1:
-            continue
-        expanded = SYNONYMS.get(t, t)
-        for piece in expanded.split():
-            out.add(piece)
-    return out
-
-
-def filename_stem_after_doctype(filename: str) -> str | None:
-    """Return the kebab-case stem of the filename after the doctype prefix.
-
-    Returns None if the filename does not start with a known doctype prefix.
-    """
-    if not filename.endswith(".md"):
-        return None
-    name = filename[:-3]
-    if "-" not in name:
-        return None
-    prefix, _, rest = name.partition("-")
-    if prefix not in DOCTYPES:
-        return None
-    return rest
-
-
-def check_file(path: Path) -> tuple[str, set[str], set[str]] | None:
-    """Return (title, filename-tokens, title-tokens) or None if not applicable."""
-    title = parse_title(path)
-    if title is None:
-        return None
-    stem = filename_stem_after_doctype(path.name)
-    if stem is None:
-        return None
-    fname_tokens = normalise_tokens(stem)
-    title_tokens = normalise_tokens(title)
-    if not fname_tokens or not title_tokens:
-        return None
-    return title, fname_tokens, title_tokens
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_filename_title_alignment  # the pack-owned engine (source of record)
+    return gate_lint_filename_title_alignment
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "paths",
-        nargs="*",
-        default=None,
+        "paths", nargs="*", default=None,
         help="Paths to scan (default: all active library directories)",
     )
     parser.add_argument(
-        "--paths",
-        dest="legacy_paths",
-        nargs="+",
-        default=None,
-        help=argparse.SUPPRESS,
+        "--paths", dest="legacy_paths", nargs="+", default=None, help=argparse.SUPPRESS,
     )
     parser.add_argument(
-        "--min-overlap",
-        type=int,
-        default=1,
+        "--min-overlap", type=int, default=1,
         help=(
             "Minimum number of shared significant tokens required. "
             "Default 1: flag only files with zero shared tokens."
@@ -241,34 +137,13 @@ def main() -> int:
         else args.legacy_paths if args.legacy_paths is not None
         else DEFAULT_PATHS
     )
-
-    files = iter_active_files(paths)
-    findings: list[tuple[str, str, set[str], set[str]]] = []
-
-    for f in files:
-        result = check_file(f)
-        if result is None:
-            continue
-        title, fname_tokens, title_tokens = result
-        overlap = fname_tokens & title_tokens
-        if len(overlap) < args.min_overlap:
-            rel = f.relative_to(REPO_ROOT).as_posix()
-            findings.append((rel, title, fname_tokens, title_tokens))
-
-    if not findings:
-        print(f"OK: no filename/title alignment findings (checked {len(files)} files).")
-        return 0
-
-    for rel, title, fname_tokens, title_tokens in sorted(findings):
-        print(f"=== {rel} ===")
-        print(f"  title: {title}")
-        print(f"  filename tokens: {sorted(fname_tokens)}")
-        print(f"  title tokens:    {sorted(title_tokens)}")
-        print(f"  shared:          {sorted(fname_tokens & title_tokens) or '(none)'}")
-
-    print()
-    print(f"FAIL: {len(findings)} filename/title alignment finding(s).")
-    return 1
+    return _engine().run(
+        iter_active_files(paths),
+        synonyms=SYNONYMS,
+        doctypes=DOCTYPES,
+        min_overlap=args.min_overlap,
+        repo_root=REPO_ROOT,
+    )
 
 
 if __name__ == "__main__":

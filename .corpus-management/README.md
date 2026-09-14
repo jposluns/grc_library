@@ -1,12 +1,12 @@
 # Corpus-Management pack (`.corpus-management/`)
 
-**Status: ACTIVE (umbrella 4.1, compile PR-17).** This directory is the structure of a standalone,
+**Status: ACTIVE (umbrella 4.1, compile PR-18).** This directory is the structure of a standalone,
 adoptable Corpus-Management pack. PR-2 shipped the compiler, the first generated slice (the CLAUDE.md
 generated-artefacts instruction block, transferred verbatim), and the mandatory drift gate (grc gate
 99); PR-3 transferred the first authoring rule (the corpus language convention) as a generated
 file-kind rule, the first live use of the rules-sync gate's compiler-owned recognition; PR-4
 transferred the second authoring rule (the corpus authoring conventions) as the second file-kind
-rule. The gate register carries thirteen gate transfers (lint-language, grc gate 2, compile PR-5; lint-unbalanced-fences, grc gate 66, compile PR-6; lint-nested-markdown-links, grc gate 68, compile PR-7; lint-ungated-dashes, grc gate 82, compile PR-8; lint-bare-normative-shall, grc gate 56, compile PR-9; lint-links, grc gate 3, compile PR-10; lint-required-sections, grc gate 19, compile PR-11; lint-citations, grc gate 5, compile PR-12; lint-section-placement, grc gate 38, compile PR-13; lint-shall-near-uncertainty, grc gate 9, compile PR-14; lint-todo-marked-done, grc gate 57, compile PR-15; lint-positional-backlog-tokens, grc gate 69, compile PR-16; lint-stub-documents, grc gate 16, compile PR-17); no hooks have been transferred yet.
+rule. The gate register carries fourteen gate transfers (lint-language, grc gate 2, compile PR-5; lint-unbalanced-fences, grc gate 66, compile PR-6; lint-nested-markdown-links, grc gate 68, compile PR-7; lint-ungated-dashes, grc gate 82, compile PR-8; lint-bare-normative-shall, grc gate 56, compile PR-9; lint-links, grc gate 3, compile PR-10; lint-required-sections, grc gate 19, compile PR-11; lint-citations, grc gate 5, compile PR-12; lint-section-placement, grc gate 38, compile PR-13; lint-shall-near-uncertainty, grc gate 9, compile PR-14; lint-todo-marked-done, grc gate 57, compile PR-15; lint-positional-backlog-tokens, grc gate 69, compile PR-16; lint-stub-documents, grc gate 16, compile PR-17; lint-filename-title-alignment, grc gate 7, compile PR-18); no hooks have been transferred yet.
 
 ## What this is
 A **thin, adoptable layer** for keeping a documentation corpus internally consistent (metadata shape,
@@ -64,7 +64,8 @@ disabled in the skeleton.
 - **PR-15:** the eleventh gate transfer (lint-todo-marked-done, grc gate 57), Model-2 pattern, enforcing the new todo-forward-only clause. Cleanest yet: fully-generic check (no config), only the scan target in the wrapper. SHIPPED.
 - **PR-16:** the twelfth gate transfer (lint-positional-backlog-tokens, grc gate 69), Model-2 pattern. FIRST direct-call-coupled transfer: the wrapper keeps a check_file SHIM (exempt-check + engine check) for a direct-call regression test, establishing the pattern for direct-call-coupled gates. SHIPPED.
 - **PR-17:** the thirteenth gate transfer (lint-stub-documents, grc gate 16), Model-2 pattern, enforcing the new no-stub-documents clause. Stub-phrase list + threshold in the engine; target selection in the wrapper. SHIPPED.
-- **PR-18 (next):** further corpus-bucket gate transfers (ALLOW-mapped clean or direct-call-coupled via the shim; lint-roles still deferred for the --root global-reassign) and/or the vocabulary/config split to `defaults/grc/` (Phase-4).
+- **PR-18:** the fourteenth gate transfer (lint-filename-title-alignment, grc gate 7), Model-2 pattern. Most param-heavy yet (synonyms + doctypes + min-overlap params); DOCTYPES stays a wrapper module attribute for the gate-67 cross-check. SHIPPED.
+- **PR-19 (next):** the remaining heavier ALLOW gates (lint-standards-currency, lint-directional-dependency, lint-gate-count-consistency 569L, lint-placeholder-leakage; lint-roles for the --root global-reassign) - each needs careful individual handling, best fresh-focus. And/or the vocabulary/config split to `defaults/grc/` (Phase-4).
 - **Phase-2b: SKIP.** **Gate-98 (vendored-core digest): CORPUS interim.** **Publication: deferred (P4).**
 
 See `core/manifest.toml` for the machine-readable pack descriptor.
