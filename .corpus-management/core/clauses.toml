@@ -86,3 +86,9 @@ id = "no-stub-documents"
 title = "No stub documents (production documents meet a word-count floor and carry no stub-indicator phrase)"
 source = "core/rules/no-stub-documents.md"
 origin = "grc_library tools/lint-stub-documents.py gate rationale (new clause in compile PR-17; generated AI-facing rule via gensrc, kind=file, like positional-backlog-token; the stub-phrase list + word-count threshold live in the pack engine as the generic check, the exempt-file/target-selection is wrapper config)"
+
+[[clauses]]
+id = "filename-title-alignment"
+title = "Filename and document-title alignment (the filename stem shares a content word with the title)"
+source = "core/rules/filename-title-alignment.md"
+origin = "grc_library tools/lint-filename-title-alignment.py gate rationale (new clause in compile PR-18; generated AI-facing rule via gensrc, kind=file, like no-stub-documents; the doctype-prefix set + synonym map + min-overlap threshold are wrapper config, not in the clause)"
