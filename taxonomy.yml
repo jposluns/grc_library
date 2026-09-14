@@ -10498,7 +10498,7 @@ documents:
   domain: "risk"
   type: "Standard"
   title: "Enterprise Risk Management Standard"
-  version: "1.8.10"
+  version: "1.8.11"
   date: "2026-09-14"
   owner: "Chief Risk Officer"
   approving_authority: "Governance Library Maintainer"

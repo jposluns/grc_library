@@ -2,7 +2,7 @@
 
 **Document Title:** Enterprise Risk Management Standard\
 **Document Type:** Standard\
-**Version:** 1.8.10\
+**Version:** 1.8.11\
 **Date:** 2026-09-14\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -253,7 +253,7 @@ The Risk Owner role's six accountability actions (defined in §3) map to specifi
 | NIST SP 800-39 | Chapters 2 and 3 (multitiered risk-management fundamentals; framing, assessing, responding, monitoring) |
 | NIST IR 8286 (Rev. 1; and 8286A/B/C/D) | Integrating Cybersecurity and Enterprise Risk Management |
 | NIST SP 800-221 / 800-221A | Enterprise Impact of ICT Risk; ICT Risk Outcomes |
-| NIST AI RMF | GOVERN 1.3, 1.5, 2.1; MAP 5.1; MEASURE 2.9, 2.11; MANAGE 1.2, 1.3, 1.4, 4.1 (risk-management process, roles, impact scoring, AI explainability and bias measurement, treatment prioritization, residual risk, ongoing monitoring) |
+| NIST AI RMF | GOVERN 1.3, 1.4, 1.5, 2.1; MAP 5.1; MEASURE 2.4, 2.9, 2.11; MANAGE 1.2, 1.3, 1.4, 4.1 (risk-management process establishment, roles, impact scoring, production and bias/drift monitoring, AI explainability, treatment prioritization, residual risk) |
 | OECD AI Principles | Transparency, robustness, accountability |
 | GDPR | As applicable to EU personal data |
 | PIPEDA (Canada Personal Information Protection and Electronic Documents Act) | As applicable to Canadian personal information |
