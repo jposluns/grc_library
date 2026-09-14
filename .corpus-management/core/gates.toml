@@ -118,3 +118,11 @@ source = "tools/gate_lint_filename_title_alignment.py"
 enforces = "filename-title-alignment"
 entry_point = "tools/lint-filename-title-alignment.py"
 origin = "grc_library tools/lint-filename-title-alignment.py, grc gate 7 (engine transferred in compile PR-18, check logic + output verbatim; thin Model-2 wrapper supplies the grc DOCTYPES + SYNONYMS + min-overlap + scan scope; the engine takes synonyms/doctypes/min_overlap as parameters. DOCTYPES stays a wrapper module attribute because the doctype-parity gate 67 loads the wrapper and reads fta.DOCTYPES - a cross-gate coupling)"
+
+[[gates]]
+id = "lint-standards-currency"
+title = "Standards-currency audit"
+source = "tools/gate_lint_standards_currency.py"
+enforces = "standards-currency"
+entry_point = "tools/lint-standards-currency.py"
+origin = "grc_library tools/lint-standards-currency.py, grc gate 6 (engine transferred in compile PR-19, compile/check/report logic + output verbatim; thin Model-2 wrapper supplies the grc canonical-citations register parse + the --root fixture-isolation override + scan scope; the engine takes the compiled patterns + entry count + repo_root as parameters, the register missing/empty error paths stay in the wrapper)"

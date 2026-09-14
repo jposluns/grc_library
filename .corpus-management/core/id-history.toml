@@ -177,3 +177,15 @@ id = "filename-title-alignment"
 event = "created"
 date = 2026-09-14
 note = "compile PR-18: new pack-internal clause (the filename stem after the doctype prefix shares a significant content word with the Document Title; no-title/no-doctype-prefix/empty-tokens not applicable; doctype-set + synonym-map + min-overlap are wrapper config). Generated AI-facing rule (compile PR-18) like no-stub-documents."
+
+[[events]]
+id = "lint-standards-currency"
+event = "created"
+date = 2026-09-14
+note = "compile PR-19: gate-wave fifteenth gate transfer (grc gate 6 lint-standards-currency; Model-2 wrapper, engine pack source of record, enforces the new standards-currency clause). MOST-involved transfer: the engine gets compile_entry_patterns + check_file + run (compiled patterns + num_entries + repo_root params); the wrapper keeps parse_canonical_register (reads the grc register-canonical-citations.md), the --root global-reassign (gate-36 fixture isolation), the register missing/empty error paths (exit 2/1), iter_files, EXEMPT. CLI-only test coupling; --root tests pass (global-reassign preserved). CANONICAL_REGISTER is a runtime corpus dependency kept in the wrapper."
+
+[[events]]
+id = "standards-currency"
+event = "created"
+date = 2026-09-14
+note = "compile PR-19: new pack-internal clause (external-standard citations use the current not a superseded version per the canonical register; colon/paren/space/v-prefix separators; version-continuation guard; fenced-block occurrences not flagged; register + repo root are wrapper config). Generated AI-facing rule (compile PR-19) like filename-title-alignment."

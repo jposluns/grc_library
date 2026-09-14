@@ -1,29 +1,24 @@
 #!/usr/bin/env python3
-"""Lint citations against the canonical citations register for staleness.
+"""Standards-currency audit (grc gate): project entry point.
 
-This linter parses ``governance/register-canonical-citations.md`` as its
-source of truth and flags citations using a version listed as
-``Superseded versions`` in the canonical register, where a current
-published version is recorded.
+The gate ENGINE is pack-owned source of record at
+``.corpus-management/tools/gate_lint_standards_currency.py`` (Corpus-Management pack, gate register
+``core/gates.toml``, id ``lint-standards-currency``, enforcing the pack's ``standards-currency``
+clause); this thin wrapper keeps the house ``python3 tools/lint-standards-currency.py`` shape (gate 35
+parses exactly that) and supplies the grc-local configuration the pack engine deliberately does not
+carry: the AIQT bootstrap, the repo root, the markdown scope selector, the default scan roots, the
+target-selection exemptions, and the grc canonical-citations REGISTER (it parses the grc register
+format via ``parse_canonical_register``, honours the ``--root`` fixture-isolation override the
+gate-36 regression uses, and passes the parsed entries -- compiled by the engine -- plus counts in).
+The register missing / parses-no-rows error paths (exit 2 / exit 1) are the wrapper's. These wrapper
+bytes are HAND-MAINTAINED, not compiler-generated, so gate 99 does NOT own them; ``iter_files`` stays
+here so the scan-scope regression's ALLOW map observes it unmoved.
 
-The canonical register is the single source of truth. To add a new
-standard to coverage, add it to the register; this linter will then
-detect stale references on the next run.
-
-Usage::
-
+Usage:
     python3 tools/lint-standards-currency.py
     python3 tools/lint-standards-currency.py --paths governance ai
 
-Exit codes:
-
-    0   no findings
-    1   one or more findings present
-
-This linter is permissive: it flags only patterns recorded in the
-canonical register. It does not assert that every standards citation
-is in the register. To detect non-cataloged citations, run the existing
-``lint-citations.py`` denylist tool, which is complementary.
+Exit codes are the engine's: 0 clean; 1 finding(s) (plus the wrapper's 2 = register missing).
 """
 
 from __future__ import annotations
@@ -34,10 +29,10 @@ import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import iter_non_code_lines, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
 from lint_common import AUDITED_DOMAIN_DIRS, iter_scan_roots_markdown  # noqa: E402  # grc-config/store, stays local
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
+PACK_TOOLS = REPO_ROOT / ".corpus-management" / "tools"
 CANONICAL_REGISTER = REPO_ROOT / "governance" / "register-canonical-citations.md"
 
 # Files exempt from the linter (typically CHANGELOG-style records and
@@ -144,90 +139,13 @@ def iter_files(paths: list[str]) -> list[Path]:
     return out
 
 
-def compile_entry_patterns(
-    entries: list[dict[str, object]],
-) -> list[tuple[str | None, re.Pattern[str], str]]:
-    """Compile one (prefilter, pattern, finding-message) triple per (entry, superseded version).
-
-    Compiled once per run rather than per scanned line: the patterns depend
-    only on the register entries, and rebuilding them inside the per-line
-    scan loop dominated this linter's runtime. The triple order preserves the
-    register's entry order and each entry's superseded-list order, so the
-    per-line finding order is unchanged.
-
-    ``prefilter`` is the lower-cased standard id when the id is pure ASCII,
-    else ``None``. Every pattern begins with the escaped standard id under
-    ``re.IGNORECASE``. The prefilter substring test is applied ONLY when the
-    LINE is ASCII (see ``check_file``): on an ASCII line ``str.lower`` and
-    ``re.IGNORECASE`` agree exactly, so an ASCII id absent from the
-    lower-cased line cannot match the pattern, making the skip a pure
-    fast-path. A non-ASCII line (where ``str.lower`` and regex case folding
-    can disagree, for example dotless ``ı`` U+0131 folding toward ``i``)
-    bypasses the prefilter and runs the full pattern, as does a non-ASCII id
-    (prefilter ``None``); both preserve exact equivalence with running every
-    pattern on every line.
-    """
-    compiled: list[tuple[str | None, re.Pattern[str], str]] = []
-    for entry in entries:
-        std_id = entry["id"]
-        current = entry["current"]
-        superseded_list = entry["superseded"]  # type: ignore[assignment]
-        if not isinstance(superseded_list, list):
-            continue
-
-        # Build the regex patterns to look for the standard ID followed by
-        # a version. We accept patterns like "ISO/IEC 27001:2013",
-        # "ISO 27001:2013", "ISO/IEC 27001 (2013)", "ISO/IEC 27001 2013",
-        # and the standard ID followed by "(draft)", "(draft 2024)", etc.
-        # Use escape on the id, allow optional ":" or " " or "(".
-        std_id_re = re.escape(str(std_id))
-        for superseded in superseded_list:
-            sup_re = re.escape(superseded)
-            # Two patterns: "<id>:<version>" and "<id> <version>" and
-            # "<id> (<version>)". We combine in a single regex.
-            # The negative lookahead (?![.\-][\d\w]) prevents the match
-            # from triggering inside a longer version string. For example,
-            # "PCI DSS 4.0" must NOT match within "PCI DSS 4.0.1" because
-            # 4.0 is followed by .1 (a version-continuation pattern).
-            # The optional "v?" admits a "v"-prefixed version label
-            # ("PCI DSS v4.0"), a citation style the bare separator group
-            # (":", "(", whitespace) otherwise missed; the continuation
-            # guard still protects the current "v4.0.1".
-            pattern = re.compile(
-                rf"\b{std_id_re}\b\s*(?::|\(|\s+)\s*v?{sup_re}\b(?![.\-][\d\w])",
-                flags=re.IGNORECASE,
-            )
-            id_text = str(std_id)
-            prefilter = id_text.lower() if id_text.isascii() else None
-            compiled.append(
-                (
-                    prefilter,
-                    pattern,
-                    f"stale citation '{std_id} {superseded}' "
-                    f"(current: {current})",
-                )
-            )
-    return compiled
-
-
-def check_file(
-    path: Path, compiled: list[tuple[str | None, re.Pattern[str], str]]
-) -> list[tuple[int, str]]:
-    """Return list of (line-number, message) findings for the file."""
-    findings: list[tuple[int, str]] = []
-    text = read_text_safe(path)
-    if text is None:
-        return findings
-    for ln, line in iter_non_code_lines(text):
-        line_lower = line.lower()
-        line_is_ascii = line.isascii()
-        for prefilter, pattern, message in compiled:
-            if prefilter is not None and line_is_ascii and prefilter not in line_lower:
-                continue
-            if pattern.search(line):
-                findings.append((ln, message))
-
-    return findings
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_standards_currency  # the pack-owned engine (source of record)
+    return gate_lint_standards_currency
 
 
 def main() -> int:
@@ -275,37 +193,9 @@ def main() -> int:
             file=sys.stderr,
         )
         return 1
-
-    compiled = compile_entry_patterns(entries)
-    files = iter_files(args.paths)
-    total_findings = 0
-    by_file: dict[str, list[tuple[int, str]]] = {}
-
-    for f in files:
-        rel = f.relative_to(REPO_ROOT).as_posix()
-        findings = check_file(f, compiled)
-        if findings:
-            by_file[rel] = findings
-            total_findings += len(findings)
-
-    if total_findings == 0:
-        print(
-            f"OK: no standards-currency findings (checked {len(entries)} standards "
-            f"across {len(files)} files)."
-        )
-        return 0
-
-    for rel, findings in sorted(by_file.items()):
-        print(f"=== {rel} ===")
-        for ln, msg in findings:
-            print(f"  L{ln}: {msg}")
-
-    print()
-    print(
-        f"FAIL: {total_findings} standards-currency finding(s) "
-        f"across {len(by_file)} file(s)."
-    )
-    return 1
+    engine = _engine()
+    compiled = engine.compile_entry_patterns(entries)
+    return engine.run(iter_files(args.paths), compiled, len(entries), repo_root=REPO_ROOT)
 
 
 if __name__ == "__main__":
