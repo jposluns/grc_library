@@ -2,8 +2,8 @@
 
 **Document Title:** Enterprise Governance and Risk Management Policy\
 **Document Type:** Policy\
-**Version:** 1.4.13\
-**Date:** 2026-08-27\
+**Version:** 1.4.14\
+**Date:** 2026-09-14\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -129,14 +129,14 @@ Consolidated enterprise risk reporting must be presented to executive leadership
 
 | Framework | Relevant Clauses or Functions |
 |---|---|
-| ISO 31000:2018 | Clause 5, Framework; Clause 6, Process |
-| ISO/IEC 23894:2023 | AI Risk Management |
-| ISO/IEC 42001:2023 | AI Management System |
-| COBIT 2019 | APO12 Managed Risk; APO10 Managed Vendors; MEA01; DSS04 |
-| CSA CCM v4.1 | GRC domain; BCR domain; AIS domain |
-| NIST SP 800-39 | Managing Information Security Risk |
-| NIST AI RMF | Govern, Map, Measure, Manage |
-| OECD AI Principles | Transparency, robustness, accountability |
+| ISO 31000:2018 | Clause 4 (principles), Clause 5 (framework), Clause 6 (process) |
+| ISO/IEC 23894:2023 | Clause 4 (AI risk principles), Clause 5 (framework), Clause 6 (AI risk process) |
+| ISO/IEC 42001:2023 | §5.2, §5.3, §6.1.2, §6.1.3, §6.1.4, §9.1 (AI policy, roles, risk assessment/treatment/impact, monitoring) |
+| COBIT 2019 | APO12.01, APO12.02, APO12.03, APO12.04, APO12.05, APO10.04, MEA01.02, MEA01.04, DSS04.02 |
+| CSA CCM v4.1 | GRC-02, GRC-04, GRC-06, BCR-02, AIS-06 |
+| NIST SP 800-39 | Chapters 2 and 3 (multitiered fundamentals; framing, assessing, responding, monitoring) |
+| NIST AI RMF | GOVERN 1.3, 1.5, 2.1; MAP 1.5; MEASURE 1.1; MANAGE 1.2, 1.3, 1.4 |
+| OECD AI Principles | Principles 1.3 (transparency and explainability), 1.4 (robustness, security and safety), 1.5 (accountability) |
 | GDPR | As applicable to EU personal data |
 | PIPEDA | As applicable to Canadian personal information |
 | PIPL | As applicable to personal information in China |
