@@ -86,7 +86,7 @@ note = "compile PR-10: new pack-internal clause (internal markdown link targets 
 id = "lint-required-sections"
 event = "created"
 date = 2026-09-14
-note = "compile PR-11: gate-wave seventh gate transfer (grc gate lint-required-sections; Model-2 wrapper, engine pack source of record, enforces the new required-sections clause). Engine takes the section MODEL (required_map) + repo_root as params (config-free); REQUIRED_SECTIONS + is_target + iter_targets + main stay in the wrapper. Coupling verified clean (RequiredSectionsTests use run_linter CLI; required.main() @16601; mod.scan() @12139 is a DIFFERENT gate)."
+note = "compile PR-11: gate-wave seventh gate transfer (grc gate 19 lint-required-sections; Model-2 wrapper, engine pack source of record, enforces the new required-sections clause). Engine takes the section MODEL (required_map) + repo_root as params (config-free); REQUIRED_SECTIONS + is_target + iter_targets + main stay in the wrapper. Coupling verified clean (RequiredSectionsTests use run_linter CLI; required.main() @16601; mod.scan() @12139 is a DIFFERENT gate)."
 
 [[events]]
 id = "required-sections"

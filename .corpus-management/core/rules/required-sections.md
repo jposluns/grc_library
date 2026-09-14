@@ -1,9 +1,9 @@
 # Required sections by document type
 
-Each document declares a document type and carries the sections required for that
-type by the project's section model. The section model maps a document type to a
-list of required sections; a document whose declared type is not in the model is
-unconstrained by this check. A required section may be satisfied by any one of its
+A document whose declared type appears in the project's section model carries the
+sections that model requires for the type. A document that declares no type, or whose
+declared type is not in the model, is unconstrained by this check. The section model
+maps a document type to a list of required sections. A required section may be satisfied by any one of its
 accepted heading aliases, so the model can admit more than one spelling of a
 section without weakening the requirement. Headings are read outside fenced code
 blocks. A document of a modelled type that is missing a required section (none of
