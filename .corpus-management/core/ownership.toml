@@ -88,3 +88,8 @@ target = ".claude/rules/corpus-management/standards-currency.md"
 rule = "directional-dependency"
 kind = "file"
 target = ".claude/rules/corpus-management/directional-dependency.md"
+
+[[owned_targets]]
+rule = "role-authority"
+kind = "file"
+target = ".claude/rules/corpus-management/role-authority.md"
