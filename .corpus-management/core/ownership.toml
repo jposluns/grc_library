@@ -48,3 +48,8 @@ target = ".claude/rules/corpus-management/required-sections.md"
 rule = "citation-denylist"
 kind = "file"
 target = ".claude/rules/corpus-management/citation-denylist.md"
+
+[[owned_targets]]
+rule = "section-placement"
+kind = "file"
+target = ".claude/rules/corpus-management/section-placement.md"

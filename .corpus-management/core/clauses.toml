@@ -56,3 +56,9 @@ id = "citation-denylist"
 title = "Citation denylist (documents do not cite known-wrong framework/standard identifiers)"
 source = "core/rules/citation-denylist.md"
 origin = "grc_library tools/lint-citations.py gate rationale (new clause in compile PR-12; generated AI-facing rule via gensrc, kind=file, like required-sections; the grc-specific DENYLIST + per-term PATH_EXEMPTIONS are wrapper config, not in the clause)"
+
+[[clauses]]
+id = "section-placement"
+title = "Section placement (named sections appear in their required top/bottom position)"
+source = "core/rules/section-placement.md"
+origin = "grc_library tools/lint-section-placement.py gate rationale (new clause in compile PR-13; generated AI-facing rule via gensrc, kind=file, like citation-denylist; the grc-specific PLACEMENT_RULES are wrapper config, not in the clause; distinct from required-sections which is section PRESENCE not ORDER)"
