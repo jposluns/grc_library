@@ -1,65 +1,41 @@
 #!/usr/bin/env python3
-"""Detect placeholder leakage in production library documents.
+"""Placeholder-leakage audit (grc gate 12): project entry point.
 
-A library document containing placeholder markers is either a stub
-leaked into production or a template artefact that escaped its template
-directory. Either case is a credibility problem for adopters.
+The gate ENGINE is pack-owned source of record at
+``.corpus-management/tools/gate_lint_placeholder_leakage.py`` (Corpus-Management pack, gate register
+``core/gates.toml``, id ``lint-placeholder-leakage``, enforcing the pack's ``placeholder-leakage``
+clause); this thin wrapper keeps the house ``python3 tools/lint-placeholder-leakage.py`` shape (gate
+35 parses exactly that) and supplies the grc-local scan configuration the pack engine deliberately
+does not carry: the AIQT bootstrap, the default scan root (whole repo), the markdown target selector
+(``iter_targets``, kept here so the scan-scope regression's ALLOW map observes it unmoved), and the
+grc exempt policy (``is_exempt`` with the exempt-file set, the exempt-dir set, and the ``template-`` /
+``worklist-`` filename-prefix carve-outs). The wrapper filters exempt files out before delegating, so
+the engine holds no project-file policy. These wrapper bytes are HAND-MAINTAINED, not
+compiler-generated, so gate 99 does NOT own them.
 
-Patterns currently detected (PATTERNS):
-
-  - Words: ``TODO``, ``TBD``, ``FIXME``, ``XXX``, ``Coming soon``,
-    ``(placeholder)``.
-  - Markers: ``[Unverified]``.
-  - Angle-bracket placeholders: ``<YYYY-MM-DD>``, ``<role>``,
-    ``<organisation>``, ``<organization>``, ``<name>``, ``<date>``,
-    ``<version>``.
-
-Boundary with the shall-near-uncertainty audit
-(``lint-shall-near-uncertainty.py``): the two linters share five identical
-marker tokens (TODO, TBD, FIXME, XXX, [Unverified]) plus a sixth in differing
-forms (this linter matches only the parenthesized ``(placeholder)``; that one
-matches bare ``placeholder``), and split by PRESENCE vs CONJUNCTION: this
-linter flags a marker's mere presence in a scanned document, while that one
-flags only a MANDATORY marker within the window of an uncertainty marker.
-Each maintains its own token list and exempt set, so a token added to one is
-not automatically checked by the other; extend both deliberately.
-
-Exemptions are layered:
-
-  - EXEMPT_FILES: by filename: CHANGELOG.md, TODO.md, TODO-REFERENCE.md, the master spec,
-    the ingestion spec, the citation-verification spec, the
-    audit-programme spec, the coverage-gaps register (uses ``TODO backlog:
-    <topic>`` planned-target references by design), and the decision tree.
-    Non-``.md`` files are out of scope by construction (the scan rglobs ``*.md``).
-  - EXEMPT_DIR_PARTS: the shared ``DEFAULT_EXEMPT_DIRS`` set from
-    ``lint_common`` (see its definition for current members) plus
-    ``guardrails`` (its rule files use angle-bracket placeholders as
-    documentation of command syntax).
-  - Filename-prefix exemptions: files beginning with ``template-`` or
-    ``worklist-`` are auto-exempt because their purpose is to carry
-    fill-in markers.
-  - Fenced code blocks are skipped so example syntax does not produce
-    false positives.
+Boundary with the shall-near-uncertainty audit (``lint-shall-near-uncertainty.py``): the two share
+five marker tokens (TODO, TBD, FIXME, XXX, [Unverified]) plus a sixth in differing forms (this gate
+matches the parenthesized ``(placeholder)``; that one matches bare ``placeholder``), and split by
+PRESENCE vs CONJUNCTION. Each maintains its own token list; extend both deliberately.
 
 Usage:
     python3 tools/lint-placeholder-leakage.py
     python3 tools/lint-placeholder-leakage.py path1 path2 ...
 
-Exit codes:
-    0   no findings
-    1   one or more findings present
+Exit codes are the engine's: 0 clean; 1 findings.
 """
 
 from __future__ import annotations
 
 import argparse
-import re
 import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import iter_non_code_lines, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
 from lint_common import is_default_exempt_root, is_adopter_exempt, DEFAULT_EXEMPT_DIRS, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+
+# Derive the pack tools/ from this file's location, independent of REPO_ROOT.
+PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
 DEFAULT_PATHS = [str(REPO_ROOT)]
 
@@ -80,49 +56,12 @@ EXEMPT_FILES = {
     # The decision tree references TODO.md and coverage gaps by name.
     "decision-tree.md",
 }
-# Note (Phase 23.59): three linter-script entries (lint-shall-near-
-# uncertainty.py, lint-placeholder-leakage.py, lint-language.py) and
-# the template-citation-verification-worklist.md entry were removed.
-# The .py entries were unreachable because is_exempt short-circuits
-# on `suffix != ".md"` (line 119) before the EXEMPT_FILES check.
-# The template- entry was redundant with the template- filename-prefix
-# carve-out below.
 
 # Directories whose content is exempt. The default set
 # (``.git``/``node_modules``/``__pycache__``) plus ``guardrails``,
 # where rule files use angle-bracket placeholders as documentation of
 # command syntax, not as template-fill markers.
 EXEMPT_DIR_PARTS = DEFAULT_EXEMPT_DIRS | {"guardrails"}
-
-# Patterns whose presence indicates a placeholder leak. Each pattern uses
-# word boundaries or angle-bracket-syntax to avoid false matches on prose.
-PATTERNS = [
-    (re.compile(r"\bTODO\b"), "TODO marker"),
-    (re.compile(r"\bTBD\b"), "TBD marker"),
-    (re.compile(r"\bFIXME\b"), "FIXME marker"),
-    (re.compile(r"\bXXX\b"), "XXX marker"),
-    (re.compile(r"<YYYY-MM-DD>"), "<YYYY-MM-DD> placeholder"),
-    (re.compile(r"<role>"), "<role> placeholder"),
-    (re.compile(r"<organisation>"), "<organisation> placeholder"),
-    (re.compile(r"<organization>"), "<organization> placeholder"),
-    (re.compile(r"<name>"), "<name> placeholder"),
-    (re.compile(r"<date>"), "<date> placeholder"),
-    (re.compile(r"<version>"), "<version> placeholder"),
-    (re.compile(r"\(placeholder\)", re.IGNORECASE), "(placeholder) marker"),
-    (re.compile(r"\[Unverified\]"), "[Unverified] marker"),
-    (re.compile(r"\bComing soon\b", re.IGNORECASE), "Coming soon marker"),
-    # Phase 23.63: template-placeholder organization domains. These
-    # strings are legitimate in template- / worklist- prefixed files
-    # (exempted via the filename-prefix carve-out below) but flag
-    # everywhere else as leaked template content. They are also kept
-    # in lint-pii-in-content.py EXAMPLE_DOMAINS so the PII linter
-    # does NOT flag them as suspected PII (a placeholder is not real
-    # personal data); the production-leak concern is enforced here
-    # instead.
-    (re.compile(r"\byourcompany\.com\b"), "yourcompany.com placeholder"),
-    (re.compile(r"\byour-org\.com\b"), "your-org.com placeholder"),
-    (re.compile(r"\byour-org\.example\.com\b"), "your-org.example.com placeholder"),
-]
 
 
 def is_exempt(path: Path) -> bool:
@@ -172,19 +111,13 @@ def iter_targets(paths: list[str]) -> list[Path]:
     return out
 
 
-def scan(path: Path) -> list[tuple[int, str, str]]:
-    """Return list of (line number, marker name, line excerpt) findings."""
-    findings: list[tuple[int, str, str]] = []
-    text = read_text_safe(path)
-    if text is None:
-        return findings
-    for lineno, line in iter_non_code_lines(text):
-        for pattern, label in PATTERNS:
-            if pattern.search(line):
-                excerpt = line.strip()[:140]
-                findings.append((lineno, label, excerpt))
-                break  # one finding per line is enough
-    return findings
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_placeholder_leakage  # the pack-owned engine (source of record)
+    return gate_lint_placeholder_leakage
 
 
 def main(argv: list[str]) -> int:
@@ -199,34 +132,7 @@ def main(argv: list[str]) -> int:
     )
     args = parser.parse_args(argv[1:])
     targets = iter_targets(args.paths)
-    grouped: dict[Path, list[tuple[int, str, str]]] = {}
-    for t in targets:
-        findings = scan(t)
-        if findings:
-            grouped[t] = findings
-    if not grouped:
-        print(f"OK: no placeholder leakage (scanned {len(targets)} files).")
-        return 0
-    total = 0
-    for path, findings in sorted(grouped.items()):
-        try:
-            rel = path.relative_to(REPO_ROOT)
-        except ValueError:
-            rel = path
-        print(f"=== {rel} ===")
-        for lineno, label, excerpt in findings:
-            print(f"  L{lineno} [{label}] {excerpt}")
-        total += len(findings)
-    print(
-        f"\nFAIL: {total} placeholder finding(s) across {len(grouped)} file(s)."
-    )
-    print(
-        "Placeholders such as TODO, TBD, FIXME, XXX, or "
-        "<YYYY-MM-DD>-style markers should not appear in production library "
-        "documents. Either complete the content or move the document to the "
-        "template directory (filename prefix `template-`)."
-    )
-    return 1
+    return _engine().run(targets, repo_root=REPO_ROOT)
 
 
 if __name__ == "__main__":

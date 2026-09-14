@@ -213,3 +213,15 @@ id = "role-authority"
 event = "created"
 date = 2026-09-14
 note = "compile PR-21: new pack-internal clause (Owner and Approving Authority metadata values resolve to a known role: register-defined or allow-listed; angle-bracket/[bracketed]/Role Name/Role Title placeholders not flagged; trailing hard-break backslash stripped; register path+format + allow-list + scan scope are wrapper config; no Owner/Approving line contributes no findings). Generated AI-facing rule (compile PR-21) like directional-dependency."
+
+[[events]]
+id = "lint-placeholder-leakage"
+event = "created"
+date = 2026-09-14
+note = "compile PR-22: gate-wave eighteenth gate transfer (grc gate 12 lint-placeholder-leakage; Model-2 wrapper, engine pack source of record, enforces the new placeholder-leakage clause). The PATTERNS marker set (TODO/TBD/FIXME/XXX/(placeholder)/[Unverified]/Coming soon + the angle-bracket <role>/<date>/<version> family + the template-placeholder org domains) + the fence-aware scan + the grouped/reporting run (repo_root param, try/except relative_to display fallback matching the old main) moved to the engine; the wrapper keeps EXEMPT_FILES + EXEMPT_DIR_PARTS + is_exempt + iter_targets + the default scan root. aiqt_corpus import guard (uses iter_non_code_lines + read_text_safe). No code-level cross-gate coupling (the lint-pii-in-content reference is a prose comment, not an import)."
+
+[[events]]
+id = "placeholder-leakage"
+event = "created"
+date = 2026-09-14
+note = "compile PR-22: new pack-internal clause (a production document contains no placeholder marker; presence-flagged, distinct from the mandatory-near-uncertainty conjunction check; the word/marker/angle-bracket/template-domain pattern set; fenced blocks skipped; template-/worklist- prefix + exempt-file/exempt-dir + non-markdown out of scope; exempt sets + carve-outs + scan scope are wrapper config). Generated AI-facing rule (compile PR-22) like role-authority."

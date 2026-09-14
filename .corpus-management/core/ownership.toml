@@ -93,3 +93,8 @@ target = ".claude/rules/corpus-management/directional-dependency.md"
 rule = "role-authority"
 kind = "file"
 target = ".claude/rules/corpus-management/role-authority.md"
+
+[[owned_targets]]
+rule = "placeholder-leakage"
+kind = "file"
+target = ".claude/rules/corpus-management/placeholder-leakage.md"

@@ -110,3 +110,9 @@ id = "role-authority"
 title = "Role authority (Owner and Approving Authority metadata values resolve to a known role)"
 source = "core/rules/role-authority.md"
 origin = "grc_library tools/lint-roles.py gate rationale (new clause in compile PR-21; generated AI-facing rule via gensrc, kind=file, like directional-dependency; the role-authority register path + table format, the EXTRA_KNOWN_ROLES allow-list, and the scan scope are wrapper config, the metadata-value extraction + placeholder skip + membership check is the engine)"
+
+[[clauses]]
+id = "placeholder-leakage"
+title = "Placeholder leakage (a production document contains no placeholder marker)"
+source = "core/rules/placeholder-leakage.md"
+origin = "grc_library tools/lint-placeholder-leakage.py gate rationale (new clause in compile PR-22; generated AI-facing rule via gensrc, kind=file, like role-authority; the exempt-file/exempt-dir sets + template-/worklist- prefix carve-outs + scan scope are wrapper config, the marker pattern set + fence-aware scan is the engine)"
