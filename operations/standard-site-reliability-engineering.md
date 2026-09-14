@@ -2,8 +2,8 @@
 
 **Document Title:** Site Reliability Engineering Standard\
 **Document Type:** Standard\
-**Version:** 1.0.3\
-**Date:** 2026-07-02\
+**Version:** 1.0.4\
+**Date:** 2026-09-14\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/standard-service-level-management.md`](standard-service-level-management.md), [`operations/standard-observability-and-telemetry.md`](standard-observability-and-telemetry.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](../resilience/policy-business-continuity-and-disaster-recovery.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -219,7 +219,7 @@ The error budget policy is owned by the service team in collaboration with SRE; 
 | ISO/IEC 27001:2022 | A.5.29 Information security during disruption | Resilience cross-walk |
 | ISO 22301 | Business continuity management | Continuity cross-walk |
 | DORA | Articles 5 to 16 (ICT risk management) | EU financial services |
-| NIST CSF 2.0 | Detect, Respond, Recover | Risk function alignment |
+| NIST CSF 2.0 | PR.IR-03, DE.CM-09, RS.MA-01, RC.RP-02, ID.IM-03 | Risk function alignment |
 | The Phoenix Project / The Unicorn Project | Practitioner references | Cultural baseline |
 
 ---
