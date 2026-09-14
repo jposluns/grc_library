@@ -2,8 +2,8 @@
 
 **Document Title:** Minimum Viable Governance Structure Guideline\
 **Document Type:** Guideline\
-**Version:** 1.0.4\
-**Date:** 2026-07-02\
+**Version:** 1.0.5\
+**Date:** 2026-09-14\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/register-role-authority.md`](register-role-authority.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`ai/charter-ai-governance-council.md`](../ai/charter-ai-governance-council.md)\
@@ -165,7 +165,7 @@ The mapping has succeeded when:
 | ISO 37000:2021 | Governance of organizations | Governance maturity guidance |
 | ISO/IEC 27001:2022 | A.5.2 Information security roles and responsibilities | Role and forum design |
 | ISO/IEC 42001:2023 | §5 Leadership | AI governance leadership |
-| COBIT 2019 | EDM (Evaluate, Direct, Monitor) processes | Governance forum design |
+| COBIT 2019 | EDM01 (ensured governance framework setting and maintenance) | Governance forum design |
 | OECD G20 Principles of Corporate Governance | Board structure | Governance structure |
 | IIA Three Lines Model 2020 | Lines of defence | Forum role separation |
 
