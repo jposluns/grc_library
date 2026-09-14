@@ -2,8 +2,8 @@
 
 **Document Title:** Reference Architecture Standard\
 **Document Type:** Standard\
-**Version:** 1.0.3\
-**Date:** 2026-07-02\
+**Version:** 1.0.4\
+**Date:** 2026-09-14\
 **Owner:** Chief Technology Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`architecture/framework-enterprise-architecture.md`](framework-enterprise-architecture.md), [`architecture/standard-architecture-decision-records.md`](standard-architecture-decision-records.md), [`architecture/standard-technology-radar.md`](standard-technology-radar.md), [`architecture/procedure-architecture-review.md`](procedure-architecture-review.md), [`architecture/standard-api-design.md`](standard-api-design.md), [`architecture/standard-data-architecture.md`](standard-data-architecture.md), [`architecture/standard-integration-architecture.md`](standard-integration-architecture.md)\
@@ -203,8 +203,8 @@ Mandatory reference architectures require formal exception handling per the secu
 | ISO/IEC/IEEE 42010:2022 | Architecture description | Architecture documentation |
 | C4 model | Architecture notation | Documentation notation |
 | Open Agile Architecture (O-AA) | Pattern library practice | Modern EA practice |
-| OWASP SAMM | Design | Software assurance maturity |
-| NIST CSF 2.0 | Govern function | Risk integration |
+| OWASP SAMM | Secure Architecture (SA) Stream A: Architecture Design (Level-3 activity: build reference architectures) | Software assurance maturity |
+| NIST CSF 2.0 | GV.PO-01, GV.PO-02 (cybersecurity policy establishment and review) | Risk integration |
 
 ---
 
