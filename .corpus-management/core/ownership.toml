@@ -63,3 +63,8 @@ target = ".claude/rules/corpus-management/shall-near-uncertainty.md"
 rule = "todo-forward-only"
 kind = "file"
 target = ".claude/rules/corpus-management/todo-forward-only.md"
+
+[[owned_targets]]
+rule = "positional-backlog-token"
+kind = "file"
+target = ".claude/rules/corpus-management/positional-backlog-token.md"

@@ -94,3 +94,11 @@ source = "tools/gate_lint_todo_marked_done.py"
 enforces = "todo-forward-only"
 entry_point = "tools/lint-todo-marked-done.py"
 origin = "grc_library tools/lint-todo-marked-done.py, grc gate 57 (engine transferred in compile PR-15, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the scan target; check_file is fully generic (no config), the engine is repo_root-free, run() has no try/except matching this gate's old main)"
+
+[[gates]]
+id = "lint-positional-backlog-tokens"
+title = "Positional backlog-token audit"
+source = "tools/gate_lint_positional_backlog_tokens.py"
+enforces = "positional-backlog-token"
+entry_point = "tools/lint-positional-backlog-tokens.py"
+origin = "grc_library tools/lint-positional-backlog-tokens.py, grc gate 69 (engine transferred in compile PR-16, check logic + output verbatim; thin Model-2 wrapper supplies the grc scan scope + exempt-file set; the engine check_file is generic, and the wrapper keeps a check_file SHIM (exempt-check + engine check) so a direct-call regression test observes the original signature - the first direct-call-coupled transfer)"

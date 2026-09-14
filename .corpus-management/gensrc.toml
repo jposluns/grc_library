@@ -91,3 +91,10 @@ kind = "file"
 sources = ["core/rules/todo-forward-only.md"]
 target = ".claude/rules/corpus-management/todo-forward-only.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "positional-backlog-token"
+kind = "file"
+sources = ["core/rules/positional-backlog-token.md"]
+target = ".claude/rules/corpus-management/positional-backlog-token.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]

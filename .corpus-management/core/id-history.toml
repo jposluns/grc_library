@@ -141,3 +141,15 @@ id = "todo-forward-only"
 event = "created"
 date = 2026-09-14
 note = "compile PR-15: new pack-internal clause (a backlog item is not marked done in place - no strikethrough / [done]/[completed] tag / Status: done; closed items are removed not annotated; code-span/fence exclusions; unmarked lines not flagged). Generated AI-facing rule (compile PR-15) like shall-near-uncertainty."
+
+[[events]]
+id = "lint-positional-backlog-tokens"
+event = "created"
+date = 2026-09-14
+note = "compile PR-16: gate-wave twelfth gate transfer (grc gate 69 lint-positional-backlog-tokens). FIRST direct-call-coupled transfer: a regression test calls mod.check_file(path) on the wrapper, so the wrapper keeps a thin check_file SHIM (exempt-check + engine generic check) preserving the original signature; POSITIONAL_REF lives in the engine. EXEMPT_FILES filter moved to the wrapper; run() output verbatim; no try/except (like gate 3). Establishes the shim pattern for direct-call-coupled gates."
+
+[[events]]
+id = "positional-backlog-token"
+event = "created"
+date = 2026-09-14
+note = "compile PR-16: new pack-internal clause (prose does not cite a backlog item by renumber-fragile position; bare-digit/unqualified/blockquote/code-span/fence not flagged; exempt files are wrapper scan config). Generated AI-facing rule (compile PR-16) like todo-forward-only."

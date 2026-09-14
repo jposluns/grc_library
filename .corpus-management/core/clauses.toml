@@ -74,3 +74,9 @@ id = "todo-forward-only"
 title = "Forward-looking backlog (no item marked done in place)"
 source = "core/rules/todo-forward-only.md"
 origin = "grc_library tools/lint-todo-marked-done.py gate rationale (new clause in compile PR-15; generated AI-facing rule via gensrc, kind=file, like shall-near-uncertainty; the done-marker patterns live in the pack engine as the generic check, the scan target is wrapper config)"
+
+[[clauses]]
+id = "positional-backlog-token"
+title = "Positional backlog-token references (no citing a backlog item by its renumber-fragile position)"
+source = "core/rules/positional-backlog-token.md"
+origin = "grc_library tools/lint-positional-backlog-tokens.py gate rationale (new clause in compile PR-16; generated AI-facing rule via gensrc, kind=file, like todo-forward-only; the POSITIONAL_REF pattern lives in the pack engine as the generic check, the exempt-file set is wrapper config)"
