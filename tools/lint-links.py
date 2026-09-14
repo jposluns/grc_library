@@ -1,93 +1,48 @@
 #!/usr/bin/env python3
-"""Repository-internal link checker for the GRC Documentation Library.
+"""Broken-internal-link audit (grc gate 3): project entry point.
 
-Validates that every relative markdown link target inside the repository
-resolves to a file that exists. External-scheme targets (``http://``,
-``https://``, ``mailto:``, ``tel:``, ``ftp:``) are treated as external
-and skipped. Anchors after ``#`` are not validated (gate 17,
-lint-section-anchors.py, validates anchor resolution, same- and
-cross-document).
-
-Fenced code blocks are skipped: link-like text inside ```` ``` ```` is
-documentation of link syntax, not a real link.
-
-A target that resolves outside the repository root is flagged so that
-escaped paths (e.g., ``../../../etc/passwd``) do not silently pass.
+The gate ENGINE is pack-owned source of record at
+``.corpus-management/tools/gate_lint_links.py`` (Corpus-Management pack, gate register
+``core/gates.toml``, id ``lint-links``, enforcing the pack's ``markdown-link-resolution``
+clause); this thin wrapper keeps the house ``python3 tools/lint-links.py`` shape (gate 35
+parses exactly that) and supplies the grc-local scan configuration the pack engine
+deliberately does not carry: the AIQT bootstrap, the repo root, the markdown scope selector
+(``iter_markdown_files``), and the default scan roots (``DEFAULT_SCAN_ROOTS``). These wrapper
+bytes are HAND-MAINTAINED, not compiler-generated, so gate 99 does NOT own them. Both
+``iter_markdown_files`` and ``DEFAULT_SCAN_ROOTS`` stay HERE (grc scan config) so the scan-scope
+regression's ALLOW map and the resolved-scan-root behavioural tests observe them unmoved.
 
 Usage:
-    python3 tools/lint-links.py [paths...]
+    python3 tools/lint-links.py
+    python3 tools/lint-links.py path1 path2 ...
 
-Exits non-zero if any link target is unresolved.
+Exit codes are the engine's: 0 clean; 1 broken link(s).
 """
 
 from __future__ import annotations
 
-import re
 import sys
-from collections import defaultdict
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import is_fence_line  # noqa: E402  # generic core (behaviour-identical to lint_common)
 from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT, iter_scan_roots_markdown  # noqa: E402  # grc-config/store, stays local
 
-
-# Match markdown links: [text](target) where target is not an external URL.
-LINK_RE = re.compile(r"\]\(([^)\s]+)\)")
-EXTERNAL = re.compile(r"^(https?:|mailto:|tel:|ftp:|#)")
+PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
 
 def iter_markdown_files(paths: list[str]) -> list[Path]:
     return iter_scan_roots_markdown(paths, repo_root=REPO_ROOT)
 
 
-def resolve_link(source: Path, target: str) -> Path:
-    """Resolve `target` relative to the directory containing `source`."""
-    # Strip fragment (#anchor) from the end of the target.
-    target_no_anchor = target.split("#", 1)[0]
-    if not target_no_anchor:
-        return source  # pure-anchor link
-    target_path = (source.parent / target_no_anchor).resolve()
-    return target_path
-
-
-def check_file(path: Path) -> list[tuple[int, str, str]]:
-    findings: list[tuple[int, str, str]] = []
-    in_code = False
-    with path.open("r", encoding="utf-8") as fh:
-        for lineno, raw in enumerate(fh, 1):
-            line = raw.rstrip("\n")
-            if is_fence_line(line):
-                in_code = not in_code
-                continue
-            if in_code:
-                continue
-            for m in LINK_RE.finditer(line):
-                target = m.group(1)
-                if EXTERNAL.match(target):
-                    continue
-                resolved = resolve_link(path, target)
-                # The resolved path must exist and be inside REPO_ROOT.
-                try:
-                    resolved.relative_to(REPO_ROOT)
-                except ValueError:
-                    findings.append((lineno, target, "resolves outside repo"))
-                    continue
-                if not resolved.exists():
-                    findings.append((lineno, target, "target does not exist"))
-    return findings
-
-
-# Default scan roots when no paths are given. Exposed as a module-level constant
-# so a regression test can assert membership BEHAVIOURALLY (against the list the
-# code actually scans), not by grepping source text. ``tools`` and ``docs`` are
-# per-linter extras beyond the audited domains; the domain run is splatted from
-# lint_common (the scan-scope parity gate forbids hardcoding it). ``.claude/rules``
-# (3.182 (closing PR #1347)) is a shipped rule surface, the pack mirror plus third-party
-# overlays, whose relative Markdown targets must resolve; it is in
-# DEFAULT_EXEMPT_DIRS so no other gate link-checks it, and scanning it here
-# catches dead links (never-vendored companions, mirror path rot) before they
-# ship in the guardrails pack.
+# Default scan roots when no paths are given. Exposed as a module-level constant so a
+# regression test can assert membership BEHAVIOURALLY (against the list the code actually
+# scans), not by grepping source text. ``tools`` and ``docs`` are per-linter extras beyond
+# the audited domains; the domain run is splatted from lint_common (the scan-scope parity
+# gate forbids hardcoding it). ``.claude/rules`` (3.182 (closing PR #1347)) is a shipped rule
+# surface, the pack mirror plus third-party overlays, whose relative Markdown targets must
+# resolve; it is in DEFAULT_EXEMPT_DIRS so no other gate link-checks it, and scanning it here
+# catches dead links (never-vendored companions, mirror path rot) before they ship in the
+# guardrails pack.
 DEFAULT_SCAN_ROOTS: list[str] = [
     "README.md",
     "NOTICE.md",
@@ -103,28 +58,18 @@ DEFAULT_SCAN_ROOTS: list[str] = [
 ]
 
 
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_links  # the pack-owned engine (source of record)
+    return gate_lint_links
+
+
 def main(argv: list[str]) -> int:
     paths = argv[1:] or DEFAULT_SCAN_ROOTS
-
-    files = iter_markdown_files(paths)
-    grouped: dict[str, list[tuple[int, str, str]]] = defaultdict(list)
-    total = 0
-    for f in files:
-        for finding in check_file(f):
-            grouped[f.relative_to(REPO_ROOT).as_posix()].append(finding)
-            total += 1
-
-    if not grouped:
-        print("OK: no broken links.")
-        return 0
-
-    for relpath in sorted(grouped):
-        print(f"=== {relpath} ===")
-        for lineno, target, reason in grouped[relpath]:
-            print(f"  L{lineno} -> {target}  ({reason})")
-
-    print(f"\nFAIL: {total} broken link(s) across {len(grouped)} file(s).")
-    return 1
+    return _engine().run(iter_markdown_files(paths), repo_root=REPO_ROOT)
 
 
 if __name__ == "__main__":

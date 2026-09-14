@@ -46,3 +46,11 @@ source = "tools/gate_lint_bare_normative_shall.py"
 enforces = "normative-wording"
 entry_point = "tools/lint-bare-normative-shall.py"
 origin = "grc_library tools/lint-bare-normative-shall.py, grc gate 56 (engine transferred in compile PR-9, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc scan walk and the grc-specific exempt-file set)"
+
+[[gates]]
+id = "lint-links"
+title = "Broken-internal-link audit"
+source = "tools/gate_lint_links.py"
+enforces = "markdown-link-resolution"
+entry_point = "tools/lint-links.py"
+origin = "grc_library tools/lint-links.py, grc gate 3 (engine transferred in compile PR-10, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc scan walk + default roots; engine is repo_root-free via a repo_root parameter)"

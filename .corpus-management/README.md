@@ -1,12 +1,12 @@
 # Corpus-Management pack (`.corpus-management/`)
 
-**Status: ACTIVE (umbrella 4.1, compile PR-9).** This directory is the structure of a standalone,
+**Status: ACTIVE (umbrella 4.1, compile PR-10).** This directory is the structure of a standalone,
 adoptable Corpus-Management pack. PR-2 shipped the compiler, the first generated slice (the CLAUDE.md
 generated-artefacts instruction block, transferred verbatim), and the mandatory drift gate (grc gate
 99); PR-3 transferred the first authoring rule (the corpus language convention) as a generated
 file-kind rule, the first live use of the rules-sync gate's compiler-owned recognition; PR-4
 transferred the second authoring rule (the corpus authoring conventions) as the second file-kind
-rule. The gate register carries five gate transfers (lint-language, grc gate 2, compile PR-5; lint-unbalanced-fences, grc gate 66, compile PR-6; lint-nested-markdown-links, grc gate 68, compile PR-7; lint-ungated-dashes, grc gate 82, compile PR-8; lint-bare-normative-shall, grc gate 56, compile PR-9); no hooks have been transferred yet.
+rule. The gate register carries six gate transfers (lint-language, grc gate 2, compile PR-5; lint-unbalanced-fences, grc gate 66, compile PR-6; lint-nested-markdown-links, grc gate 68, compile PR-7; lint-ungated-dashes, grc gate 82, compile PR-8; lint-bare-normative-shall, grc gate 56, compile PR-9; lint-links, grc gate 3, compile PR-10); no hooks have been transferred yet.
 
 ## What this is
 A **thin, adoptable layer** for keeping a documentation corpus internally consistent (metadata shape,
@@ -56,7 +56,8 @@ disabled in the skeleton.
 - **PR-7:** the third gate transfer (lint-nested-markdown-links, grc gate 68), same Model-2 wrapper shape as PR-5/6, enforcing the new markdown-link-integrity clause. First transfer sequenced by the gate-homes.toml classification. SHIPPED.
 - **PR-8:** the fourth gate transfer (lint-ungated-dashes, grc gate 82), Model-2 pattern, REUSING the existing language-convention clause (no new clause/rule, unlike PR-6/PR-7). SHIPPED.
 - **PR-9:** the fifth gate transfer (lint-bare-normative-shall, grc gate 56), Model-2 pattern, enforcing the new normative-wording clause (the FR-44 must-over-shall convention). The grc-specific EXEMPT_FILES filter moved to the wrapper so the engine is REPO_ROOT-free. SHIPPED.
-- **PR-10 (next):** further corpus-bucket gate transfers (per the gate-homes.toml roadmap) and/or the vocabulary/config split to `defaults/grc/` (Phase-4).
+- **PR-10:** the sixth gate transfer (lint-links, grc gate 3, broken-internal-link audit), Model-2 pattern, enforcing the new markdown-link-resolution clause. Engine made repo_root-free (the containment check took a repo_root parameter). SHIPPED.
+- **PR-11 (next):** further corpus-bucket gate transfers (per the gate-homes.toml roadmap; clean ALLOW-mapped candidates: lint-citations, lint-roles, lint-required-sections, lint-section-placement, ...) and/or the vocabulary/config split to `defaults/grc/` (Phase-4).
 - **Phase-2b: SKIP.** **Gate-98 (vendored-core digest): CORPUS interim.** **Publication: deferred (P4).**
 
 See `core/manifest.toml` for the machine-readable pack descriptor.

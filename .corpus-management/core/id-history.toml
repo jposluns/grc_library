@@ -69,3 +69,15 @@ id = "normative-wording"
 event = "created"
 date = 2026-09-14
 note = "compile PR-9: new pack-internal clause (new normative content uses must; shall reserved for standard-quotes and legacy; the FR-44 must-over-shall convention from specification-master-project.md); generated AI-facing rule (compile PR-9) like markdown-link-integrity"
+
+[[events]]
+id = "lint-links"
+event = "created"
+date = 2026-09-14
+note = "compile PR-10: gate-wave sixth gate transfer (grc gate 3; Model-2 wrapper, engine pack source of record, enforces the new markdown-link-resolution clause). ALLOW-mapped scope fn iter_markdown_files + DEFAULT_SCAN_ROOTS stay in the wrapper (scan-scope regression direct-calls the fn; 3 resolved-scan-root tests read the constant on the module). Engine repo_root-free via a repo_root parameter to check_file and run."
+
+[[events]]
+id = "markdown-link-resolution"
+event = "created"
+date = 2026-09-14
+note = "compile PR-10: new pack-internal clause (internal markdown link targets resolve to an existing in-repo path; fence-skipped, anchor-stripped, containment-checked); generated AI-facing rule (compile PR-10) like markdown-link-integrity. Distinct from markdown-link-integrity (nested-link malformation) and corpus-scan-integrity (fences)."

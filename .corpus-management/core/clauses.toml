@@ -38,3 +38,9 @@ id = "normative-wording"
 title = "Normative wording (new content uses must; shall reserved for standard-quotes and legacy)"
 source = "core/rules/normative-wording.md"
 origin = "grc_library tools/lint-bare-normative-shall.py gate rationale + specification-master-project.md FR-44 convention (new clause in compile PR-9; generated AI-facing rule via gensrc, kind=file, like markdown-link-integrity)"
+
+[[clauses]]
+id = "markdown-link-resolution"
+title = "Markdown link resolution (internal link targets resolve to an existing in-repo path)"
+source = "core/rules/markdown-link-resolution.md"
+origin = "grc_library tools/lint-links.py gate rationale (new clause in compile PR-10; generated AI-facing rule via gensrc, kind=file, like markdown-link-integrity; distinct from markdown-link-integrity which is only the nested-link malformation and corpus-scan-integrity which is fences)"

@@ -33,3 +33,8 @@ target = ".claude/rules/corpus-management/markdown-link-integrity.md"
 rule = "normative-wording"
 kind = "file"
 target = ".claude/rules/corpus-management/normative-wording.md"
+
+[[owned_targets]]
+rule = "markdown-link-resolution"
+kind = "file"
+target = ".claude/rules/corpus-management/markdown-link-resolution.md"
