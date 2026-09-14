@@ -25,6 +25,13 @@
       "source_identifier": null
     },
     {
+      "class": "framework",
+      "corpus_path": "supply-chain/framework-supplier-and-cloud-governance.md",
+      "display_name": "Supplier and Cloud Governance Framework",
+      "id": "GRC-FW-SUPPLIER-CLOUD-GOV",
+      "source_identifier": null
+    },
+    {
       "class": "policy",
       "corpus_path": "ai/policy-ai-compliance.md",
       "display_name": "AI Compliance Policy",
@@ -74,6 +81,13 @@
       "source_identifier": null
     },
     {
+      "class": "procedure",
+      "corpus_path": "supply-chain/procedure-supplier-onboarding-security-review.md",
+      "display_name": "Supplier Onboarding Security Review Procedure",
+      "id": "GRC-PROC-SUPPLIER-ONBOARDING",
+      "source_identifier": null
+    },
+    {
       "class": "organizational standard",
       "corpus_path": "security/standard-data-classification-and-handling.md",
       "display_name": "Data Classification and Handling Standard",
@@ -106,6 +120,13 @@
       "corpus_path": "governance/standard-records-retention-and-destruction.md",
       "display_name": "Records Retention and Destruction Standard",
       "id": "GRC-STD-RECORDS-RETENTION",
+      "source_identifier": null
+    },
+    {
+      "class": "organizational standard",
+      "corpus_path": "supply-chain/standard-supplier-security-and-privacy-assurance.md",
+      "display_name": "Supplier Security and Privacy Assurance Standard",
+      "id": "GRC-STD-SUPPLIER-SEC-PRIVACY",
       "source_identifier": null
     },
     {
@@ -599,18 +620,82 @@
       },
       "verb": "implements",
       "viewpoint": "governance"
+    },
+    {
+      "authority_level": "organizationally mandatory",
+      "destination": {
+        "class": "organizational standard",
+        "id": "GRC-STD-SUPPLIER-SEC-PRIVACY"
+      },
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "evidence_refs": [],
+      "id": "rel-corpus-0028",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is informed by"
+      },
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "influence",
+      "scope": null,
+      "source": {
+        "class": "framework",
+        "id": "GRC-FW-SUPPLIER-CLOUD-GOV"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "informs",
+      "viewpoint": "governance"
+    },
+    {
+      "authority_level": "organizationally mandatory",
+      "destination": {
+        "class": "organizational standard",
+        "id": "GRC-STD-SUPPLIER-SEC-PRIVACY"
+      },
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "evidence_refs": [],
+      "id": "rel-corpus-0029",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is implemented by"
+      },
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "implementation",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-SUPPLIER-ONBOARDING"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "implements",
+      "viewpoint": "governance"
     }
   ],
   "schema_version": 2,
   "source": "governance/relationship-model-source.json",
   "summary": {
-    "node_count": 21,
-    "record_count": 14,
+    "node_count": 24,
+    "record_count": 16,
     "records_by_relationship_class": {
       "commitment": 1,
       "correspondence": 4,
-      "implementation": 7,
-      "influence": 2
+      "implementation": 8,
+      "influence": 3
     }
   }
 }
