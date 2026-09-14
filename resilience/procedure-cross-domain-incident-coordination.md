@@ -2,8 +2,8 @@
 
 **Document Title:** Cross-Domain Incident Coordination Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.9\
-**Date:** 2026-09-02\
+**Version:** 1.1.10\
+**Date:** 2026-09-14\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](procedure-security-incident-reporting-and-escalation.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md), [`security/sop-security-ticket-reporting-scheme.md`](../security/sop-security-ticket-reporting-scheme.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -245,13 +245,13 @@ Maintain joint declaration record, coordination roster snapshot, joint decision 
 
 | Control area | Framework reference |
 | --- | --- |
-| Incident management programme | ISO/IEC 27035; ISO/IEC 27001:2022 Annex A.5.24 to A.5.28 |
+| Incident management programme | ISO/IEC 27035-1:2023, ISO/IEC 27035-2:2023; ISO/IEC 27001:2022 Annex A.5.24 to A.5.28 |
 | Business continuity coordination | ISO 22301:2019 §8.4 |
 | Cybersecurity incident handling | NIST SP 800-61 Rev. 3 |
-| Personal data breach coordination | GDPR Articles 33 to 34; UK GDPR Articles 33 to 34; PIPL Article 57; LGPD Articles 48 to 49 |
-| Operational resilience incident coordination | DORA Pillar 2; NIS 2 Article 23 |
-| Cloud incident management | CSA CCM v4.1 SEF domain |
-| AI security incident response | NIST AI RMF MANAGE; ISO/IEC 42001:2023 A.8.4 (Communication of incidents) |
+| Personal data breach coordination | GDPR Articles 33 to 34; UK GDPR Articles 33 to 34; PIPL Article 57; LGPD Article 48 |
+| Operational resilience incident coordination | DORA Articles 17 and 19; NIS 2 Article 23 |
+| Cloud incident management | CSA CCM v4.1 SEF-03, SEF-07, SEF-08, SEF-09 |
+| AI security incident response | NIST AI RMF MANAGE 4.3; ISO/IEC 42001:2023 A.8.4 (Communication of incidents) |
 
 ---
 
