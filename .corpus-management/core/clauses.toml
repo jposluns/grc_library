@@ -92,3 +92,9 @@ id = "filename-title-alignment"
 title = "Filename and document-title alignment (the filename stem shares a content word with the title)"
 source = "core/rules/filename-title-alignment.md"
 origin = "grc_library tools/lint-filename-title-alignment.py gate rationale (new clause in compile PR-18; generated AI-facing rule via gensrc, kind=file, like no-stub-documents; the doctype-prefix set + synonym map + min-overlap threshold are wrapper config, not in the clause)"
+
+[[clauses]]
+id = "standards-currency"
+title = "Standards currency (external-standard citations use the current, not a superseded, version)"
+source = "core/rules/standards-currency.md"
+origin = "grc_library tools/lint-standards-currency.py gate rationale (new clause in compile PR-19; generated AI-facing rule via gensrc, kind=file, like filename-title-alignment; the canonical-citations register + repo root are wrapper config, the pattern-compile+check is the engine)"

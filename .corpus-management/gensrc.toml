@@ -112,3 +112,10 @@ kind = "file"
 sources = ["core/rules/filename-title-alignment.md"]
 target = ".claude/rules/corpus-management/filename-title-alignment.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "standards-currency"
+kind = "file"
+sources = ["core/rules/standards-currency.md"]
+target = ".claude/rules/corpus-management/standards-currency.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]

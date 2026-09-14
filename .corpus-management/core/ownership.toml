@@ -78,3 +78,8 @@ target = ".claude/rules/corpus-management/no-stub-documents.md"
 rule = "filename-title-alignment"
 kind = "file"
 target = ".claude/rules/corpus-management/filename-title-alignment.md"
+
+[[owned_targets]]
+rule = "standards-currency"
+kind = "file"
+target = ".claude/rules/corpus-management/standards-currency.md"
