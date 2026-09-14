@@ -133,3 +133,10 @@ kind = "file"
 sources = ["core/rules/role-authority.md"]
 target = ".claude/rules/corpus-management/role-authority.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "placeholder-leakage"
+kind = "file"
+sources = ["core/rules/placeholder-leakage.md"]
+target = ".claude/rules/corpus-management/placeholder-leakage.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]

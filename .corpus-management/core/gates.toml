@@ -142,3 +142,11 @@ source = "tools/gate_lint_roles.py"
 enforces = "role-authority"
 entry_point = "tools/lint-roles.py"
 origin = "grc_library tools/lint-roles.py, grc gate 8 (engine transferred in compile PR-21, OWNER_PATTERN/APPROVER_PATTERN + is_placeholder + check_file + output verbatim; thin Model-2 wrapper supplies the grc role-authority register path + parse (load_known_roles) + EXTRA_KNOWN_ROLES allow-list + default scan roots + iter_markdown_files + the register-prerequisite exit 2 + the --root override; the engine takes the known-role set + repo_root as parameters. No aiqt_corpus (uses path.read_text). Bare relative_to like gate 56, matching the old main.)"
+
+[[gates]]
+id = "lint-placeholder-leakage"
+title = "Placeholder leakage audit"
+source = "tools/gate_lint_placeholder_leakage.py"
+enforces = "placeholder-leakage"
+entry_point = "tools/lint-placeholder-leakage.py"
+origin = "grc_library tools/lint-placeholder-leakage.py, grc gate 12 (engine transferred in compile PR-22, PATTERNS marker set + fence-aware scan + grouped/reporting run + output verbatim; thin Model-2 wrapper supplies the grc exempt-file/exempt-dir sets + template-/worklist- prefix carve-outs + iter_targets + is_exempt + default scan root; the engine takes repo_root as a parameter and keeps the try/except relative_to display fallback, matching the old main. aiqt_corpus import guard, like the bare-normative-shall engine.)"

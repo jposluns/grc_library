@@ -1,0 +1,14 @@
+# Placeholder leakage
+
+A production library document contains no placeholder marker. A marker's mere presence is
+flagged, which distinguishes this clause from the mandatory-requirement-near-uncertainty check
+(that one flags only a conjunction): the word markers ``TODO``, ``TBD``, ``FIXME``, ``XXX``,
+``Coming soon``, and the parenthesized ``(placeholder)``; the ``[Unverified]`` marker; the
+angle-bracket template placeholders ``<YYYY-MM-DD>``, ``<role>``, ``<organization>`` (and its
+British-spelling variant), ``<name>``, ``<date>``, ``<version>``; and the template-placeholder
+organization domains (``yourcompany.com`` and the ``your-org`` forms). A line inside a fenced code
+block is example syntax and is not scanned. A document whose filename carries a template or
+worklist prefix, a file on the exempt-file set, a file under an exempt directory, and a
+non-markdown file are all out of scope, since their placeholder content is intended. The exempt
+sets, the filename-prefix carve-outs, and the scan scope are project configuration, not part of
+this clause.
