@@ -2,8 +2,8 @@
 
 **Document Title:** Third-Party and Supply Chain Risk Standard\
 **Document Type:** Standard\
-**Version:** 1.1.9\
-**Date:** 2026-08-20\
+**Version:** 1.1.10\
+**Date:** 2026-09-14\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-due-diligence.md`](../supply-chain/procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](../supply-chain/procedure-supplier-ongoing-monitoring.md), [`supply-chain/procedure-supplier-exit-and-data-return.md`](../supply-chain/procedure-supplier-exit-and-data-return.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -226,16 +226,16 @@ The full offboarding workflow is described in [`supply-chain/procedure-supplier-
 | Framework | Relevant Section |
 |---|---|
 | ISO/IEC 27001:2022 | A.5.19 to A.5.22 Information security in supplier relationships |
-| ISO/IEC 27036-3:2023 | Cybersecurity - Supplier relationships - Guidelines for hardware, software, and services supply chain security |
+| ISO/IEC 27036-3:2023 | §6.1.1 (acquisition process), §6.3.4 (supply-chain risk management process) |
 | ISO 28000 | Supply chain security management; risk and threat assessment |
-| NIST SP 800-53 Rev. 5 | SA-9 External System Services; SR Supply Chain Risk Management |
-| NIST SP 800-161 Rev. 1 | Cybersecurity Supply Chain Risk Management Practices for Systems and Organizations |
-| NIST CSF 2.0 | GV.SC Supply Chain Risk Management |
-| COBIT 2019 | APO10 Managed Vendors |
+| NIST SP 800-53 Rev. 5 | SA-9; SR-2, SR-3, SR-5, SR-6, SR-8 |
+| NIST SP 800-161 Rev. 1 | SR-3(1) (diverse supply base), SR-3(3) (sub-tier flow down), SR-6 (supplier assessments and reviews) |
+| NIST CSF 2.0 | GV.SC-01, GV.SC-03, GV.SC-04, GV.SC-05, GV.SC-06, GV.SC-07, GV.SC-08, GV.SC-10 |
+| COBIT 2019 | APO10.01, APO10.02, APO10.03, APO10.04, APO10.05 |
 | CSA CCM v4.1 | STA-01 Supply Chain Risk Management Policies and Procedures |
-| WCO SAFE Framework | Pillar 2: Customs-to-Business partnerships; supply chain security standards |
+| WCO SAFE Framework | Pillar 2, §2.1 Standard 1 (Partnership) |
 | CTPAT | Business Partner Requirements; IT security requirements for partners |
-| AEO-S (UK) | Criterion 1(e): Practical standards of competence including partner management |
+| AEO-S (UK) | Business-partner security requirements (specific AEO-S criterion pending HMRC source acquisition) |
 
 ---
 
