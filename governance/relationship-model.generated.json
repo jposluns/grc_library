@@ -33,6 +33,13 @@
     },
     {
       "class": "policy",
+      "corpus_path": "risk/policy-enterprise-governance-and-risk-management.md",
+      "display_name": "Enterprise Governance and Risk Management Policy",
+      "id": "GRC-POL-ENTERPRISE-GRM",
+      "source_identifier": null
+    },
+    {
+      "class": "policy",
       "corpus_path": "security/policy-workforce-network-monitoring.md",
       "display_name": "Workforce Network Monitoring Policy",
       "id": "GRC-POL-WORKFORCE-NET-MON",
@@ -43,6 +50,13 @@
       "corpus_path": "operations/procedure-media-handling-and-transport.md",
       "display_name": "Media Handling and Transport Procedure",
       "id": "GRC-PROC-MEDIA-HANDLING",
+      "source_identifier": null
+    },
+    {
+      "class": "procedure",
+      "corpus_path": "risk/procedure-risk-register.md",
+      "display_name": "Risk Register Procedure",
+      "id": "GRC-PROC-RISK-REGISTER",
       "source_identifier": null
     },
     {
@@ -436,17 +450,81 @@
       },
       "verb": "maps to",
       "viewpoint": "authority"
+    },
+    {
+      "authority_level": "organizationally mandatory",
+      "destination": {
+        "class": "policy",
+        "id": "GRC-POL-ENTERPRISE-GRM"
+      },
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "evidence_refs": [],
+      "id": "rel-corpus-0018",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is implemented by"
+      },
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "implementation",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-ERM"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "implements",
+      "viewpoint": "governance"
+    },
+    {
+      "authority_level": "organizationally mandatory",
+      "destination": {
+        "class": "organizational standard",
+        "id": "GRC-STD-ERM"
+      },
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "evidence_refs": [],
+      "id": "rel-corpus-0019",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is implemented by"
+      },
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "implementation",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-RISK-REGISTER"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "implements",
+      "viewpoint": "governance"
     }
   ],
   "schema_version": 2,
   "source": "governance/relationship-model-source.json",
   "summary": {
-    "node_count": 16,
-    "record_count": 10,
+    "node_count": 18,
+    "record_count": 12,
     "records_by_relationship_class": {
       "commitment": 1,
       "correspondence": 4,
-      "implementation": 3,
+      "implementation": 5,
       "influence": 2
     }
   }
