@@ -2,7 +2,7 @@
 
 **Document Title:** Audit Planning Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.12\
+**Version:** 1.0.13\
 **Date:** 2026-09-14\
 **Owner:** Chief Audit Executive\
 **Approving Authority:** Governance Library Maintainer\
@@ -436,7 +436,7 @@ The CAE/GRC Programme Manager maintains a centralized audit register covering al
 | Lead Auditor | Name or role |
 | Fieldwork Dates | Actual start and end dates |
 | Report Date | Date of final report issuance |
-| Finding Count | Number by classification (Critical / High / Moderate / Low) |
+| Finding Count | Number by classification (Critical / High / Moderate / Low / Observation) |
 | CAPA IDs | References to generated CAPA records |
 | Remediation Status | Summary status of open findings |
 | Closure Date | Date all findings marked as closed |

@@ -2,7 +2,7 @@
 
 **Document Title:** Corrective and Preventive Action (CAPA) Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.14\
+**Version:** 1.0.15\
 **Date:** 2026-09-14\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -358,7 +358,7 @@ The GRC Programme Manager maintains a centralized CAPA register. Each record con
 | **Domain** | GRC domain |
 | **Finding Summary** | Concise description of the finding |
 | **Root Cause** | Root cause statement or reference to root cause analysis document |
-| **Risk Level** | Classification: Critical / High / Moderate / Low |
+| **Risk Level** | Classification: Critical / High / Moderate / Low / Observation |
 | **Corrective Action** | Summary of planned corrective actions; reference to full action plan if separate |
 | **Owner** | Individual or role responsible for implementation |
 | **Target Date** | Agreed closure target date |
@@ -426,7 +426,7 @@ Preventive action may be initiated from:
 
 Preventive action items are recorded in the same CAPA register as corrective actions, with the Source field designated as "Preventive Action" and the Description field explaining the potential nonconformity being prevented. The same classification, action planning, ownership, and verification process applies.
 
-Preventive action items are classified based on the potential severity of the nonconformity they are intended to prevent, using the same Critical / High / Moderate / Low scheme. Target dates reflect the urgency of implementing the preventive control before the potential nonconformity materializes.
+Preventive action items are classified based on the potential severity of the nonconformity they are intended to prevent, using the same Critical / High / Moderate / Low / Observation scheme. Target dates reflect the urgency of implementing the preventive control before the potential nonconformity materializes.
 
 ---
 
