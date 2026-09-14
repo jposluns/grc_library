@@ -195,10 +195,10 @@ _163 documents._
 | [ai/template-dataset-datasheet.md](../ai/template-dataset-datasheet.md) | Dataset Datasheet Template | Template | 1.0.7 | 2026-07-12 |
 | [ai/template-model-card.md](../ai/template-model-card.md) | Model Card Template | Template | 1.0.2 | 2026-07-11 |
 | [architecture/framework-enterprise-architecture.md](../architecture/framework-enterprise-architecture.md) | Enterprise Architecture Framework | Framework | 1.0.3 | 2026-07-10 |
-| [architecture/procedure-architecture-review.md](../architecture/procedure-architecture-review.md) | Architecture Review Procedure | Procedure | 1.0.3 | 2026-07-23 |
-| [architecture/standard-architecture-decision-records.md](../architecture/standard-architecture-decision-records.md) | Architecture Decision Records Standard | Standard | 1.0.3 | 2026-07-02 |
+| [architecture/procedure-architecture-review.md](../architecture/procedure-architecture-review.md) | Architecture Review Procedure | Procedure | 1.0.4 | 2026-09-14 |
+| [architecture/standard-architecture-decision-records.md](../architecture/standard-architecture-decision-records.md) | Architecture Decision Records Standard | Standard | 1.0.4 | 2026-09-14 |
 | [architecture/standard-data-architecture.md](../architecture/standard-data-architecture.md) | Data Architecture Standard | Standard | 1.0.3 | 2026-07-02 |
-| [architecture/standard-reference-architecture.md](../architecture/standard-reference-architecture.md) | Reference Architecture Standard | Standard | 1.0.3 | 2026-07-02 |
+| [architecture/standard-reference-architecture.md](../architecture/standard-reference-architecture.md) | Reference Architecture Standard | Standard | 1.0.4 | 2026-09-14 |
 | [architecture/standard-technology-radar.md](../architecture/standard-technology-radar.md) | Technology Radar Standard | Standard | 1.0.7 | 2026-09-07 |
 | [compliance/financial-services/annex-financial-services-sector-requirements.md](../compliance/financial-services/annex-financial-services-sector-requirements.md) | Financial Services Sector GRC Requirements Annex | Annex | 1.0.16 | 2026-09-14 |
 | [compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md) | UK AEO-S IT and Cybersecurity Requirements | Annex | 1.0.3 | 2026-07-02 |
@@ -370,7 +370,7 @@ _71 documents._
 | [ai/standard-ai-model-succession-and-identity.md](../ai/standard-ai-model-succession-and-identity.md) | AI Model Succession and Identity Continuity Standard | Standard | 0.0.4 | 2026-09-13 |
 | [ai/standard-ai-total-cost-of-ownership-governance.md](../ai/standard-ai-total-cost-of-ownership-governance.md) | AI Total Cost of Ownership Governance Standard | Standard | 0.0.2 | 2026-09-13 |
 | [architecture/standard-api-design.md](../architecture/standard-api-design.md) | API Design Standard | Standard | 0.0.4 | 2026-07-02 |
-| [architecture/standard-integration-architecture.md](../architecture/standard-integration-architecture.md) | Integration Architecture Standard | Standard | 0.0.4 | 2026-07-02 |
+| [architecture/standard-integration-architecture.md](../architecture/standard-integration-architecture.md) | Integration Architecture Standard | Standard | 0.0.5 | 2026-09-14 |
 | [compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md](../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md) | Energy and Utilities Sector Requirements Annex | Annex | 0.0.8 | 2026-09-04 |
 | [compliance/financial-services/annex-dora-implementation.md](../compliance/financial-services/annex-dora-implementation.md) | DORA Implementation Annex | Annex | 0.0.9 | 2026-09-05 |
 | [compliance/financial-services/annex-mica-implementation.md](../compliance/financial-services/annex-mica-implementation.md) | MiCA Implementation Annex | Annex | 0.3.4 | 2026-09-12 |

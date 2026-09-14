@@ -2,8 +2,8 @@
 
 **Document Title:** Integration Architecture Standard\
 **Document Type:** Standard\
-**Version:** 0.0.4\
-**Date:** 2026-07-02\
+**Version:** 0.0.5\
+**Date:** 2026-09-14\
 **Owner:** Chief Technology Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`architecture/framework-enterprise-architecture.md`](framework-enterprise-architecture.md), [`architecture/standard-architecture-decision-records.md`](standard-architecture-decision-records.md), [`architecture/standard-api-design.md`](standard-api-design.md), [`architecture/standard-data-architecture.md`](standard-data-architecture.md), [`dev-security/standard-api-security.md`](../dev-security/standard-api-security.md), [`operations/standard-observability-and-telemetry.md`](../operations/standard-observability-and-telemetry.md), [`operations/standard-site-reliability-engineering.md`](../operations/standard-site-reliability-engineering.md)\
@@ -273,7 +273,7 @@ The choice is recorded as an ADR for material integrations and informed by the i
 | Enterprise Service Bus and microservices reference architectures | Vendor-neutral references | Integration topology |
 | ISO/IEC 27001:2022 | A.5.14, A.8.20 to A.8.21 | Information transfer; network security cross-walk |
 | OWASP API Security Top 10 | API risk taxonomy | Cross-walk to the API security standard |
-| NIST CSF 2.0 | Govern, Identify, Protect | Risk integration |
+| NIST CSF 2.0 | GV.SC-05, GV.SC-06 (supply-chain requirements and due diligence), ID.AM-03 (authorized data flows), PR.AA-03, PR.AA-05 (authentication and authorization), PR.DS-01, PR.DS-02 (data at rest and in transit), PR.IR-03 (resilience mechanisms) | Risk integration across integration points |
 
 ---
 
