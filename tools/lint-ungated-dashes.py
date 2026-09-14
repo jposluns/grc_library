@@ -1,43 +1,51 @@
 #!/usr/bin/env python3
-"""Gate: no Unicode em/en dashes on the OPERATIONAL surfaces lint-language.py does not scan.
+"""Ungated-surface dash audit (grc gate 82): project entry point.
 
-`lint-language.py` enforces the no-em/en-dash house style on the CORPUS (`.md` domain docs) and
-on generator-source emitted prose, but it does NOT scan the project's operational surfaces:
-`tools/*.py` and `tools/*.sh` (tool comments and docstrings), `.claude/` (CLAUDE.md, commands, hooks, the loaded
-rule copies), and `references/` (the activity playbooks). PR #1314 swept those surfaces clean of
-59 dash code points across 48 lines; this gate prevents re-drift (decision-2, the widen-the-gate
-half; the sweep was the other half).
+The gate ENGINE is pack-owned source of record at
+``.corpus-management/tools/gate_lint_ungated_dashes.py`` (Corpus-Management pack, gate
+register ``core/gates.toml``, id ``lint-ungated-dashes``, enforcing the pack's
+``language-convention`` clause, the SAME clause the corpus language gate enforces); this thin
+wrapper keeps the house ``python3 tools/lint-ungated-dashes.py`` shape (gate 35 parses
+exactly that) and supplies the grc-local scan configuration the pack engine deliberately does
+not carry: the AIQT bootstrap, the repo root, and the OPERATIONAL scan scope (the surfaces
+``lint-language.py`` does NOT walk). These wrapper bytes are HAND-MAINTAINED, not
+compiler-generated, so gate 99 does NOT own them; the linter-regression suite and gate 99's
+entry-point existence check are the wrapper's mechanical coverage. ``_targets`` stays here
+(grc scan config) so the scan-scope regression's WALKERS map observes it unmoved.
 
-Scope: `tools/*.py` and `tools/*.sh`, everything under `.claude/`, everything under `references/`, and everything under `.corpus-management/` (the Corpus-Management pack source).
+Scope: ``tools/*.py`` and ``tools/*.sh`` (tool comments and docstrings), everything under
+``.claude/`` (CLAUDE.md, commands, hooks, the loaded rule copies), everything under
+``references/`` (the activity playbooks), and everything under ``.corpus-management/`` (the
+Corpus-Management pack source). ``lint-language.py`` enforces the same no-em/en-dash house
+style on the CORPUS (``.md`` domain docs) and generator-source prose, but does not scan these
+operational surfaces; PR #1314 swept them clean and this gate prevents re-drift.
 
 Exemptions (each principled, not a drive-by allow-list):
-  - `.claude/rules/external/` : the THIRD-PARTY overlay (addyosmani / kariedo / tikitribe, each
-    under its own MIT licence and PROVENANCE.md). It is refreshed FROM SOURCE, never hand-edited to
-    conform to this project's house style, so its em-dashes are legitimate external content.
-  - A glyph inside a markdown INLINE-CODE backtick span (`` `X` ``) or a fenced code block: the
-    DELIBERATE illustration / functional form. This is exactly how the compiler-generated language-convention
-    rule (`.claude/rules/corpus-management/language-convention.md`, source of record
-    `.corpus-management/core/rules/language-convention.md`) DEFINES the rule (it quotes the forbidden
-    glyphs in backticks), and how a
-    code example legitimately shows a dash. A dash used AS a dash in prose (outside code) is what
-    re-drift looks like, and that is what this gate catches.
-  - The standard exempt dirs (`.git`, `__pycache__`) and non-text artefacts.
+  - ``.claude/rules/external/`` : the THIRD-PARTY overlay (addyosmani / kariedo / tikitribe,
+    each under its own MIT licence and PROVENANCE.md). It is refreshed FROM SOURCE, never
+    hand-edited to conform to this project's house style, so its Unicode dashes are legitimate
+    external content.
+  - A glyph inside a markdown inline-code backtick span or a fenced code block: the deliberate
+    illustration / functional form (handled by the engine's PURE check).
+  - The standard exempt dirs (``.git``, ``__pycache__``, ``node_modules``) and non-text
+    artefacts.
 
-The FUNCTIONAL dash literals in the linters themselves (regex patterns, sentinels) were converted to
-Unicode escapes by #1314, so they are not literal glyphs and never match here.
+Usage:
+    python3 tools/lint-ungated-dashes.py
+    python3 tools/lint-ungated-dashes.py --self-test
+
+Exit codes are the engine's: 0 clean; 1 findings.
 """
-import re
+
+from __future__ import annotations
+
 import sys
 from pathlib import Path
 
-import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import CODE_SPAN_RE  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+REPO_ROOT = Path(__file__).resolve().parent.parent
+PACK_TOOLS = REPO_ROOT / ".corpus-management" / "tools"
 
-DASH = re.compile("[\u2014\u2013]")
-# Inline-code span: a run of N backticks, shortest content, closing run of N backticks.
-INLINE_CODE = CODE_SPAN_RE
-FENCE = re.compile(r"^\s*(`{3,}|~{3,})")
+import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 
 EXEMPT_DIR_PARTS = {".git", "__pycache__", "node_modules"}
 # The third-party overlay, exempt as external-licensed content (see docstring).
@@ -45,8 +53,17 @@ EXTERNAL_OVERLAY = REPO_ROOT / ".claude" / "rules" / "external"
 TEXT_SUFFIXES = {".py", ".md", ".sh", ".yml", ".yaml", ".json", ".txt", ".toml"}
 
 
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_ungated_dashes  # the pack-owned engine (source of record)
+    return gate_lint_ungated_dashes
+
+
 def _targets():
-    """The files in scope: tools/*.py, .claude/**, references/**, .corpus-management/** (the pack source)."""
+    """The files in scope: tools/*.py, tools/*.sh, .claude/**, references/**, .corpus-management/** (the pack source)."""
     out = []
     # tools/ operational SCRIPTS (.py and .sh) carry prose comments/docstrings; the tool config
     # data files (.json) are not prose and are not scanned here.
@@ -70,53 +87,15 @@ def _targets():
     return out
 
 
-def strip_code(line: str) -> str:
-    """Blank out inline-code backtick spans so a glyph INSIDE one is not flagged (the illustration
-    / code-example form)."""
-    return INLINE_CODE.sub(lambda m: "`" + " " * len(m.group(2)) + "`", line)
-
-
-def scan_text(text: str, is_md: bool):
-    """Yield (lineno, stripped_line) for each line carrying a dash outside code. PURE.
-
-    For markdown, inline-code backtick spans and fenced code blocks are exempt (a glyph there is an
-    illustration or a code example). For non-markdown (a `.py` comment or docstring), there are no
-    backtick code spans, so a literal glyph is prose and stays flagged; the functional dash literals
-    are Unicode-escaped (per #1314) and so are not literal glyphs."""
-    in_fence = False
-    for lineno, raw in enumerate(text.splitlines(), 1):
-        if is_md and FENCE.match(raw):
-            in_fence = not in_fence
-            continue
-        if in_fence:
-            continue
-        probe = strip_code(raw) if is_md else raw
-        if DASH.search(probe):
-            yield lineno, raw.strip()
-
-
-def scan_file(path: Path):
-    try:
-        text = path.read_text(encoding="utf-8")
-    except (UnicodeDecodeError, OSError):
-        return []
-    return list(scan_text(text, path.suffix.lower() == ".md"))
-
-
 def _self_test() -> int:
-    checks = []
+    engine = _engine()
+    checks = list(engine.pure_self_test_checks())
+
     def c(name, cond):
         checks.append((name, cond))
-    c("md-prose-dash-flagged", list(scan_text("a \u2014 b\n", True)) == [(1, "a \u2014 b")])
-    c("md-inline-code-exempt", list(scan_text("Em-dashes (`\u2014`) are forbidden.\n", True)) == [])
-    c("md-en-dash-flagged", list(scan_text("range 1\u20132\n", True)) == [(1, "range 1\u20132")])
-    c("md-fence-exempt", list(scan_text("```\nx \u2014 y\n```\n", True)) == [])
-    c("md-clean", list(scan_text("no dashes here, just commas.\n", True)) == [])
-    c("py-comment-dash-flagged", list(scan_text("# a \u2014 b\n", False)) == [(1, "# a \u2014 b")])
-    c("py-escaped-literal-clean", list(scan_text('P = "[\\\\u2014\\\\u2013]"\n', False)) == [])
-    c("py-inline-code-not-stripped", len(list(scan_text("x = `\u2014`\n", False))) == 1)
-    # _targets() scope (the logic that hid the tools/*.sh gap from unit tests; dual-family finding):
-    # tools/ scripts .py AND .sh are in scope; the third-party overlay is excluded.
+
+    # _targets() scope (the logic that hid the tools/*.sh gap from unit tests; dual-family
+    # finding): tools/ scripts .py AND .sh are in scope; the third-party overlay is excluded.
     tgt = _targets()
     c("targets-includes-sh", any(t.name == "pre-push-guard.sh" for t in tgt))
     c("targets-includes-py", any(t.name == "lint-ungated-dashes.py" for t in tgt))
@@ -133,22 +112,8 @@ def _self_test() -> int:
 def main(argv) -> int:
     if "--self-test" in argv:
         return _self_test()
-    findings = []
-    for path in _targets():
-        for lineno, line in scan_file(path):
-            findings.append((path.relative_to(REPO_ROOT), lineno, line))
-    if findings:
-        print(f"FAIL: {len(findings)} Unicode em/en dash(es) on operational surfaces "
-              f"(tools/*.py, tools/*.sh, .claude/, references/, .corpus-management/) that lint-language.py does not scan. Replace with "
-              f"a comma, colon, or parentheses; a glyph that must appear (an illustration, a code "
-              f"example) belongs inside a backtick code span; the third-party overlay under "
-              f".claude/rules/external/ is exempt.")
-        for rel, lineno, line in findings:
-            print(f"  {rel}:{lineno}: {line[:110]}")
-        return 1
-    print("OK: no Unicode em/en dashes on the operational surfaces (tools/*.py, tools/*.sh, .claude/, references/, .corpus-management/); "
-          "the third-party .claude/rules/external/ overlay and backtick-quoted glyphs are exempt.")
-    return 0
+    engine = _engine()
+    return engine.run(_targets(), repo_root=REPO_ROOT)
 
 
 if __name__ == "__main__":
