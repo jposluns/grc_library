@@ -119,3 +119,10 @@ kind = "file"
 sources = ["core/rules/standards-currency.md"]
 target = ".claude/rules/corpus-management/standards-currency.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "directional-dependency"
+kind = "file"
+sources = ["core/rules/directional-dependency.md"]
+target = ".claude/rules/corpus-management/directional-dependency.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]

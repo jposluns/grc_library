@@ -126,3 +126,11 @@ source = "tools/gate_lint_standards_currency.py"
 enforces = "standards-currency"
 entry_point = "tools/lint-standards-currency.py"
 origin = "grc_library tools/lint-standards-currency.py, grc gate 6 (engine transferred in compile PR-19, compile/check/report logic + output verbatim; thin Model-2 wrapper supplies the grc canonical-citations register parse + the --root fixture-isolation override + scan scope; the engine takes the compiled patterns + entry count + repo_root as parameters, the register missing/empty error paths stay in the wrapper)"
+
+[[gates]]
+id = "lint-directional-dependency"
+title = "Corpus-to-project directional-dependency audit"
+source = "tools/gate_lint_directional_dependency.py"
+enforces = "directional-dependency"
+entry_point = "tools/lint-directional-dependency.py"
+origin = "grc_library tools/lint-directional-dependency.py, grc gate 53 (engine transferred in compile PR-20, check + marker-aware fence + self-test + output verbatim; thin Model-2 wrapper supplies the grc PROJECT_GOV_DIR + derived scan roots + exempt prefixes; the engine takes project_gov_dir + repo_root as parameters, and --self-test delegates to the engine's _self_test)"
