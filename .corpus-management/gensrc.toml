@@ -84,3 +84,10 @@ kind = "file"
 sources = ["core/rules/shall-near-uncertainty.md"]
 target = ".claude/rules/corpus-management/shall-near-uncertainty.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "todo-forward-only"
+kind = "file"
+sources = ["core/rules/todo-forward-only.md"]
+target = ".claude/rules/corpus-management/todo-forward-only.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]

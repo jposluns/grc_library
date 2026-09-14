@@ -1,80 +1,34 @@
 #!/usr/bin/env python3
-"""Detect a TODO item that marks ITSELF done in place (gate 57).
+"""TODO-marked-done audit (grc gate): project entry point.
 
-The TODO/DONE rotation discipline (the change-tracking rule's
-PR-finalization protocol) requires that when a PR closes a backlog item,
-the item's index row is DELETED from ``TODO.md`` in this diff, and the per-item
-detail block plus the DONE ledger rotate in the private sibling (cross-repo,
-outside the public diff), not annotated done-in-place.
-``TODO.md`` is forward-looking; a self-marked-done item is rotation
-debris that the rule explicitly forbids ("Removal means deletion of the
-line ... not a strikethrough, not a '[done]' suffix, not a
-'Status: completed' annotation").
-
-This is the marked-done detector half of the TODO/DONE-rotation
-bookkeeping-parity gate family (maintainer-decided "Option B", the
-project's 4.10 (closing PR #469)). It is the static, content-side check: it flags a TODO
-item that self-marks done. Its companion, the CHANGELOG-asserts-closure
-PR-time check, catches the *wholesale-forgotten* rotation (where TODO is
-never edited at all, so there is nothing self-marked to detect here).
-
-Detected self-done markers (each a STRUCTURAL marker that never appears
-in legitimate open-item prose, so the gate is false-positive-free):
-
-  1. A Markdown strikethrough span ``~~...~~`` (an item struck through
-     instead of deleted).
-  2. A done tag ``[done]`` / ``[completed]`` (case-insensitive), the
-     ``[done]`` suffix the rule names.
-  3. A ``Status: completed`` / ``Status: done`` field on an item.
-
-Deliberately NOT detected: a bare ``SHIPPED`` word. ``SHIPPED`` appears
-legitimately in open-item prose describing shipped SUB-parts of a
-still-open multi-part item (e.g. FR-167's "the ... column SHIPPED in
-PR-B" while FR-167 itself was still open), which is exactly the multi-part
-false-positive class that rejected the id-cross-check design. The
-shipped-but-unrotated case is covered instead by the companion
-CHANGELOG-asserts-closure PR-time check, which keys on the closure
-assertion and the diff, not on a word in prose.
-
-Inline backtick spans are stripped and fenced code blocks are skipped
-before matching, so a backticked mention of these markers (as in this
-file's own design note in ``TODO.md``) does not register.
-
-Scope: ``TODO.md`` (the public index; the per-item detail moved to the private sibling in the 2026-08 migration and is governed there). ``.working/DONE.md`` is the done ledger and
-legitimately carries done items, so it is never scanned.
+The gate ENGINE is pack-owned source of record at
+``.corpus-management/tools/gate_lint_todo_marked_done.py`` (Corpus-Management pack, gate register
+``core/gates.toml``, id ``lint-todo-marked-done``, enforcing the pack's ``todo-forward-only``
+clause); this thin wrapper keeps the house ``python3 tools/lint-todo-marked-done.py`` shape (gate 35
+parses exactly that) and supplies the grc-local scan configuration the pack engine deliberately does
+not carry: the AIQT bootstrap, the repo root, the markdown scope selector, and the default scan
+target (``TODO.md``: the public index; the per-item detail moved to the private sibling in the
+2026-08 migration and is governed there). These wrapper bytes are HAND-MAINTAINED, not
+compiler-generated, so gate 99 does NOT own them; ``iter_markdown_files`` stays here so the
+scan-scope regression's ALLOW map observes it unmoved.
 
 Usage:
     python3 tools/lint-todo-marked-done.py
     python3 tools/lint-todo-marked-done.py path1 path2 ...
 
-Exit codes:
-    0   no findings
-    1   one or more findings present
+Exit codes are the engine's: 0 clean; 1 finding(s).
 """
+
 from __future__ import annotations
 
 import argparse
-import re
 import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import SIMPLE_CODE_SPAN_RE, iter_non_code_lines, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
 from lint_common import REPO_ROOT, iter_scan_roots_markdown  # noqa: E402  # grc-config/store, stays local
 
-# Markdown strikethrough span: an item struck through in place.
-STRIKETHROUGH = re.compile(r"~~[^~]+~~")
-
-# A bracketed done tag used as a status suffix.
-DONE_TAG = re.compile(r"\[(?:done|completed)\]", re.IGNORECASE)
-
-# A Status: completed / Status: done field on an item.
-STATUS_DONE = re.compile(r"\bStatus:\s*(?:completed|done)\b", re.IGNORECASE)
-
-# Inline backtick code spans: stripped before matching so a backticked
-# mention of a marker (e.g. this gate's own design note that names
-# ``~~`` and ``[done]``) does not register.
-INLINE_CODE_SPAN = SIMPLE_CODE_SPAN_RE
+PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
 DEFAULT_PATHS = ["TODO.md"]  # the public index; the per-item DETAIL moved to the private sibling (2026-08 migration), governed there
 
@@ -83,22 +37,13 @@ def iter_markdown_files(paths: list[str]) -> list[Path]:
     return iter_scan_roots_markdown(paths, repo_root=REPO_ROOT)
 
 
-def check_file(path: Path) -> list[tuple[int, str, str]]:
-    """Return list of (lineno, marker, line_snippet) findings."""
-    text = read_text_safe(path)
-    if text is None:
-        return []
-
-    findings: list[tuple[int, str, str]] = []
-    for lineno, line in iter_non_code_lines(text):
-        stripped = INLINE_CODE_SPAN.sub("", line)
-        if STRIKETHROUGH.search(stripped):
-            findings.append((lineno, "strikethrough ~~...~~", line.strip()[:150]))
-        elif DONE_TAG.search(stripped):
-            findings.append((lineno, "[done]/[completed] tag", line.strip()[:150]))
-        elif STATUS_DONE.search(stripped):
-            findings.append((lineno, "Status: completed/done", line.strip()[:150]))
-    return findings
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_todo_marked_done  # the pack-owned engine (source of record)
+    return gate_lint_todo_marked_done
 
 
 def main(argv: list[str]) -> int:
@@ -107,33 +52,8 @@ def main(argv: list[str]) -> int:
     )
     parser.add_argument("paths", nargs="*", default=None, help="Paths to scan.")
     args = parser.parse_args(argv[1:])
-
     paths = args.paths or DEFAULT_PATHS
-    files = iter_markdown_files(paths)
-
-    grouped: dict[str, list[tuple[int, str, str]]] = {}
-    total = 0
-    for f in files:
-        rel = f.relative_to(REPO_ROOT).as_posix()
-        findings = check_file(f)
-        if findings:
-            grouped[rel] = findings
-            total += len(findings)
-
-    if not grouped:
-        print("OK: no self-marked-done items in TODO.")
-        return 0
-
-    for rel, findings in sorted(grouped.items()):
-        print(f"=== {rel} ===")
-        for lineno, marker, snippet in findings:
-            print(f"  L{lineno} [{marker}] {snippet}")
-
-    print(f"\nFAIL: {total} self-marked-done item(s) across {len(grouped)} file(s).")
-    print("TODO is forward-looking: a closed item is DELETED from TODO in this PR;")
-    print("its DONE entry rotates cross-repo to the private sibling, not annotated")
-    print("done-in-place. Rotate the item.")
-    return 1
+    return _engine().run(iter_markdown_files(paths), repo_root=REPO_ROOT)
 
 
 if __name__ == "__main__":

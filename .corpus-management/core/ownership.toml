@@ -58,3 +58,8 @@ target = ".claude/rules/corpus-management/section-placement.md"
 rule = "shall-near-uncertainty"
 kind = "file"
 target = ".claude/rules/corpus-management/shall-near-uncertainty.md"
+
+[[owned_targets]]
+rule = "todo-forward-only"
+kind = "file"
+target = ".claude/rules/corpus-management/todo-forward-only.md"
