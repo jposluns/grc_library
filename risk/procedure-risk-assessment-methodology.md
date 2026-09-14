@@ -2,8 +2,8 @@
 
 **Document Title:** Risk Assessment Methodology Procedure\
 **Document Type:** Procedure\
-**Version:** 1.2.9\
-**Date:** 2026-09-07\
+**Version:** 1.2.10\
+**Date:** 2026-09-14\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`ai/register-ai-risk.md`](../ai/register-ai-risk.md)\
@@ -179,12 +179,12 @@ For a Critical risk, the risk owner together with the CISO (or the relevant doma
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO 31000:2018 | Risk Management: Guidelines | Enterprise risk assessment framework |
-| IEC 31010:2019 | Risk Assessment Techniques | Technique selection for risk identification and analysis |
-| ISO/IEC 27005:2022 | Information Security Risk Management | Information security risk methodology |
-| ISO/IEC 42001:2023 | §6: Planning (AI risk) | AI risk assessment integration |
-| NIST SP 800-30r1 | Guide for Conducting Risk Assessments | Risk assessment methodology |
-| COBIT 2019 | APO12: Managed Risk | Enterprise risk governance |
+| ISO 31000:2018 | §6.3.2, §6.3.3, §6.3.4, §6.4.2, §6.4.3, §6.4.4, §6.5.2, §6.5.3, §6.6, §6.7 | Enterprise risk assessment framework |
+| IEC 31010:2019 | Clause 7.2 (selecting techniques), Annex B.10.3 (consequence/likelihood matrix) | Technique selection for risk identification and analysis |
+| ISO/IEC 27005:2022 | §6.4.2, §6.4.3, §6.5, §7.2.1, §7.2.2, §7.3.2, §7.3.3, §7.3.4, §7.4.1, §7.4.2, §8.2, §8.6.1, §8.6.3 | Information security risk methodology |
+| ISO/IEC 42001:2023 | §6.1.2, §6.1.3, §6.1.4, §8.2, §8.3 | AI risk assessment integration |
+| NIST SP 800-30r1 | §3.1, §3.2, §3.3, §3.4 | Risk assessment methodology |
+| COBIT 2019 | APO12.01, APO12.02, APO12.03, APO12.04, APO12.05 | Enterprise risk governance |
 | CSA CCM v4.1 | GRC-02 | Cloud risk management |
 
 ---
