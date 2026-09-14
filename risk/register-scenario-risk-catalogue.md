@@ -2,8 +2,8 @@
 
 **Document Title:** Scenario Risk Catalogue\
 **Document Type:** Register\
-**Version:** 1.0.3\
-**Date:** 2026-08-05\
+**Version:** 1.0.4\
+**Date:** 2026-09-14\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-operational-risk-register.md`](template-operational-risk-register.md), [`risk/guideline-quantitative-risk-analysis.md`](guideline-quantitative-risk-analysis.md), [`resilience/template-tabletop-exercise.md`](../resilience/template-tabletop-exercise.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -258,14 +258,14 @@ For regulated organizations, the severe-but-plausible level aligns with operatio
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO 31000:2018 | Risk management principles | Risk management baseline |
+| ISO 31000:2018 | §6.3.4 (defining risk criteria), §6.4.2 (risk identification), §6.4.3 (risk analysis), §6.6 (monitoring and review), §6.7 (recording and reporting) | Severity criteria, identifying and analyzing scenarios, and catalogue maintenance and recording |
 | ISO 22301:2019 | Business continuity management | Continuity testing |
-| ISO/IEC 27005:2022 | Information security risk management | Information-risk integration |
+| ISO/IEC 27005:2022 | §7.2.1 (identifying risks), §7.3.2 (assessing consequences), §7.3.3 (assessing likelihood) | Information-security scenario subset and its assessment |
 | Basel Committee Operational Resilience Principles | Severe-but-plausible scenarios | Operational resilience |
-| Bank of England / PRA SS1/21 | Operational resilience for financial services | Severe-but-plausible expectations |
-| DORA | Articles 24 to 27 (digital operational resilience testing) | EU financial services |
+| Bank of England / PRA SS1/21 | Chapter 6 Scenario testing, paragraphs 6.1 (test within impact tolerance), 6.2 (identify severe-but-plausible scenarios), 6.3 (self-assessment documentation), 6.9 (varying scenario severity), 6.12 (testing scenarios that exceed impact tolerance) | Scenario catalogue feeding resilience tests and severity calibration |
+| DORA | Article 24(1) (resilience-testing programme), 24(3) (risk-based approach), 24(5) (remediate findings), 25(1) (scenario-based tests) | Scenario inputs supporting the resilience-testing programme; TLPT execution and tester requirements (Articles 26-27) out of scope |
 | TIBER-EU | Threat intelligence-based ethical red teaming | Cyber resilience testing |
-| NIST CSF 2.0 | Govern, Identify, Protect, Detect, Respond, Recover | Risk function alignment |
+| NIST CSF 2.0 | ID.RA-03 (threats), ID.RA-04 (impacts and likelihoods), ID.RA-05 (inherent risk and prioritization), ID.IM-02 (improvements from exercises) | Scenario development, assessment and exercise-derived improvement |
 | ENISA Guidelines | Cyber incident scenarios | EU baseline |
 
 ---

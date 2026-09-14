@@ -2,8 +2,8 @@
 
 **Document Title:** Board Risk Report Template\
 **Document Type:** Template\
-**Version:** 1.0.5\
-**Date:** 2026-09-10\
+**Version:** 1.0.6\
+**Date:** 2026-09-14\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-operational-risk-register.md`](template-operational-risk-register.md), [`risk/register-scenario-risk-catalogue.md`](register-scenario-risk-catalogue.md), [`risk/register-key-risk-indicators.md`](register-key-risk-indicators.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/register-assurance-map.md`](register-assurance-map.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md), [`governance/framework-metrics-monitoring-and-performance-reporting.md`](../governance/framework-metrics-monitoring-and-performance-reporting.md)\
@@ -244,12 +244,12 @@ For each of the top enterprise risks (typically five to ten):
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO 31000:2018 | Risk management principles | Risk management baseline |
+| ISO 31000:2018 | §5.2 (leadership and commitment), §6.7 (recording and reporting) | Oversight-body responsibility and reporting to decision-makers |
 | COSO ERM 2017 | Reporting | Enterprise risk integration |
-| COBIT 2019 | EDM and APO domains | Governance of enterprise IT |
+| COBIT 2019 | EDM03.03 (monitor risk management), EDM05.02 (stakeholder engagement, communication and reporting), APO12.04 (articulate risk) | Board risk monitoring and stakeholder reporting |
 | OECD G20 Principles of Corporate Governance | Board oversight of risk | Governance baseline |
 | FRC UK Corporate Governance Code | Section IV Audit, risk and internal control | UK governance |
-| NIST CSF 2.0 | Govern function | Risk integration |
+| NIST CSF 2.0 | GV.RM-02 (risk appetite and tolerance), GV.RM-03 (cybersecurity in ERM), GV.OV-01 (review outcomes to adjust strategy), GV.OV-03 (evaluate risk-management performance), GV.RR-01 (leadership accountability for cybersecurity risk culture), GV.SC-07 (monitor supplier and third-party risk) | Appetite reporting, ERM integration, board oversight, and the cybersecurity dimension of risk culture and supplier risk |
 | ISO/IEC 27001:2022 | §5.1 Leadership and commitment; §9.1 Monitoring, measurement, analysis and evaluation; §9.3 Management review | Information security management oversight and review |
 | Basel Committee Corporate Governance Principles | Board oversight | Financial-services governance |
 
