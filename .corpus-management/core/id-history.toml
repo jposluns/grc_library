@@ -80,4 +80,4 @@ note = "compile PR-10: gate-wave sixth gate transfer (grc gate 3; Model-2 wrappe
 id = "markdown-link-resolution"
 event = "created"
 date = 2026-09-14
-note = "compile PR-10: new pack-internal clause (internal markdown link targets resolve to an existing in-repo file; fence-skipped, anchor-stripped, containment-checked); generated AI-facing rule (compile PR-10) like markdown-link-integrity. Distinct from markdown-link-integrity (nested-link malformation) and corpus-scan-integrity (fences)."
+note = "compile PR-10: new pack-internal clause (internal markdown link targets resolve to an existing in-repo path; fence-skipped, anchor-stripped, containment-checked); generated AI-facing rule (compile PR-10) like markdown-link-integrity. Distinct from markdown-link-integrity (nested-link malformation) and corpus-scan-integrity (fences)."

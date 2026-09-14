@@ -41,6 +41,6 @@ origin = "grc_library tools/lint-bare-normative-shall.py gate rationale + specif
 
 [[clauses]]
 id = "markdown-link-resolution"
-title = "Markdown link resolution (internal link targets resolve to an existing in-repo file)"
+title = "Markdown link resolution (internal link targets resolve to an existing in-repo path)"
 source = "core/rules/markdown-link-resolution.md"
 origin = "grc_library tools/lint-links.py gate rationale (new clause in compile PR-10; generated AI-facing rule via gensrc, kind=file, like markdown-link-integrity; distinct from markdown-link-integrity which is only the nested-link malformation and corpus-scan-integrity which is fences)"
