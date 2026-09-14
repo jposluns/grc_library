@@ -1,0 +1,715 @@
+# Gate-home classification register (tooling/4.1 Corpus-Management extraction roadmap).
+# NOT a compiler-consumed register: this is the maintainer-confirmed (2026-09-14) classification
+# of every grc audit gate into its home, the authoritative source for which gates are
+# Corpus-Management extraction candidates. Source: codex-family classification worker
+# (2026-09-14), decision-relevant calls source-verified, confirmed as-is by the maintainer.
+# Homes: corpus-management | aiqt | harness-fleet | grc-only.
+schema_version = 1
+
+[summary]
+total = 100
+corpus_management = 80
+aiqt = 14
+harness_fleet = 3
+grc_only = 3
+
+[[gate]]
+grc_gate = 1
+name = 'Metadata'
+purpose = 'Validate fields'
+home = "corpus-management"
+justification = 'Doc-model'
+
+[[gate]]
+grc_gate = 2
+name = 'Language/style'
+purpose = 'Enforce style'
+home = "corpus-management"
+justification = 'Prose'
+
+[[gate]]
+grc_gate = 3
+name = 'Internal links'
+purpose = 'Resolve targets'
+home = "corpus-management"
+justification = 'Links'
+
+[[gate]]
+grc_gate = 4
+name = 'Structural indexes'
+purpose = 'Verify completeness'
+home = "corpus-management"
+justification = 'Doc-model'
+
+[[gate]]
+grc_gate = 5
+name = 'Citation hallucinations'
+purpose = 'Reject fabrications'
+home = "corpus-management"
+justification = 'Citations'
+
+[[gate]]
+grc_gate = 6
+name = 'Standards currency'
+purpose = 'Reject superseded editions'
+home = "corpus-management"
+justification = 'Currency'
+
+[[gate]]
+grc_gate = 7
+name = 'Filename/title'
+purpose = 'Check alignment'
+home = "corpus-management"
+justification = 'Doc-model'
+
+[[gate]]
+grc_gate = 8
+name = 'Authority roles'
+purpose = 'Resolve roles'
+home = "corpus-management"
+justification = 'Metadata'
+
+[[gate]]
+grc_gate = 9
+name = 'Uncertain requirements'
+purpose = 'Flag mandatory uncertainty'
+home = "corpus-management"
+justification = 'Prose'
+
+[[gate]]
+grc_gate = 10
+name = 'Review cadence'
+purpose = 'Detect overdue reviews'
+home = "corpus-management"
+justification = 'Currency'
+
+[[gate]]
+grc_gate = 11
+name = 'CHANGELOG links'
+purpose = 'Require linked paths'
+home = "corpus-management"
+justification = 'Change-tracking'
+
+[[gate]]
+grc_gate = 12
+name = 'Placeholder leakage'
+purpose = 'Reject unfinished markers'
+home = "corpus-management"
+justification = 'Prose'
+
+[[gate]]
+grc_gate = 13
+name = 'Version monotonicity'
+purpose = 'Prevent decreases'
+home = "corpus-management"
+justification = 'Change-tracking'
+
+[[gate]]
+grc_gate = 14
+name = 'Date format'
+purpose = 'Validate dates'
+home = "corpus-management"
+justification = 'Metadata'
+
+[[gate]]
+grc_gate = 15
+name = 'License consistency'
+purpose = 'Normalize declarations'
+home = "corpus-management"
+justification = 'Metadata'
+
+[[gate]]
+grc_gate = 16
+name = 'Stub documents'
+purpose = 'Detect empty bodies'
+home = "corpus-management"
+justification = 'Prose'
+
+[[gate]]
+grc_gate = 17
+name = 'Section anchors'
+purpose = 'Resolve anchors'
+home = "corpus-management"
+justification = 'Links'
+
+[[gate]]
+grc_gate = 18
+name = 'Internal sections'
+purpose = 'Resolve numbers'
+home = "corpus-management"
+justification = 'References'
+
+[[gate]]
+grc_gate = 19
+name = 'Required sections'
+purpose = 'Require orientation'
+home = "corpus-management"
+justification = 'Doc-model'
+
+[[gate]]
+grc_gate = 20
+name = 'Acronyms'
+purpose = 'Match glossary'
+home = "corpus-management"
+justification = 'Prose'
+
+[[gate]]
+grc_gate = 21
+name = 'Secrets'
+purpose = 'Detect credentials'
+home = "corpus-management"
+justification = 'Publication screening'
+
+[[gate]]
+grc_gate = 22
+name = 'PII'
+purpose = 'Detect identifying patterns'
+home = "corpus-management"
+justification = 'Publication screening'
+
+[[gate]]
+grc_gate = 23
+name = 'Deployment references'
+purpose = 'Detect internal identifiers'
+home = "corpus-management"
+justification = 'Publication screening'
+
+[[gate]]
+grc_gate = 24
+name = 'External domains'
+purpose = 'Validate publishers'
+home = "corpus-management"
+justification = 'Links'
+
+[[gate]]
+grc_gate = 25
+name = 'Numerical coherence'
+purpose = 'Compare thresholds'
+home = "corpus-management"
+justification = 'Doc-model'
+
+[[gate]]
+grc_gate = 26
+name = 'Orphans'
+purpose = 'Detect unreferenced documents'
+home = "corpus-management"
+justification = 'Links'
+
+[[gate]]
+grc_gate = 27
+name = 'Citation verification'
+purpose = 'Check freshness'
+home = "corpus-management"
+justification = 'Currency'
+
+[[gate]]
+grc_gate = 28
+name = 'Tooling provenance'
+purpose = 'Check assessments'
+home = "corpus-management"
+justification = 'Register currency'
+
+[[gate]]
+grc_gate = 29
+name = 'Version/date'
+purpose = 'Align releases'
+home = "corpus-management"
+justification = 'Change-tracking'
+
+[[gate]]
+grc_gate = 30
+name = 'Metadata breaks'
+purpose = 'Ensure rendering'
+home = "corpus-management"
+justification = 'Metadata'
+
+[[gate]]
+grc_gate = 31
+name = 'Document dates'
+purpose = 'Detect stale/future dates'
+home = "corpus-management"
+justification = 'Currency'
+
+[[gate]]
+grc_gate = 32
+name = 'Skill derivation'
+purpose = 'Resolve governing rules'
+home = "aiqt"
+justification = 'Rule/skill discipline'
+
+[[gate]]
+grc_gate = 33
+name = 'Taxonomy'
+purpose = 'Detect generated drift'
+home = "corpus-management"
+justification = 'Generator'
+
+[[gate]]
+grc_gate = 34
+name = 'Portal/scorecard'
+purpose = 'Detect generated drift'
+home = "corpus-management"
+justification = 'Generator'
+
+[[gate]]
+grc_gate = 35
+name = 'Gate parity'
+purpose = 'Align wiring surfaces'
+home = "aiqt"
+justification = 'Validation discipline'
+
+[[gate]]
+grc_gate = 36
+name = 'Regression suite'
+purpose = 'Exercise linter fixtures'
+home = "corpus-management"
+justification = 'Toolchain QA'
+
+[[gate]]
+grc_gate = 37
+name = 'Rule-copy sync'
+purpose = 'Detect adapter drift'
+home = "aiqt"
+justification = 'Pack parity'
+
+[[gate]]
+grc_gate = 38
+name = 'Section placement'
+purpose = 'Enforce ordering'
+home = "corpus-management"
+justification = 'Doc-model'
+
+[[gate]]
+grc_gate = 39
+name = 'Gate counts'
+purpose = 'Reconcile enumerations'
+home = "aiqt"
+justification = 'Validation discipline'
+
+[[gate]]
+grc_gate = 40
+name = 'Version recency'
+purpose = 'Detect unbumped edits'
+home = "corpus-management"
+justification = 'Change-tracking'
+
+[[gate]]
+grc_gate = 41
+name = 'Collections'
+purpose = 'Reconcile rules/skills/overlays'
+home = "aiqt"
+justification = 'Pack enumeration'
+
+[[gate]]
+grc_gate = 42
+name = 'Overlay licenses'
+purpose = 'Validate bundled licenses'
+home = "grc-only"
+justification = 'Local overlays'
+
+[[gate]]
+grc_gate = 43
+name = 'Follow-up ageing'
+purpose = 'Require retriage'
+home = "corpus-management"
+justification = 'QA ledger'
+
+[[gate]]
+grc_gate = 44
+name = 'Paired skills'
+purpose = 'Compare workflow steps'
+home = "aiqt"
+justification = 'Skill parity'
+
+[[gate]]
+grc_gate = 45
+name = 'TODO staleness'
+purpose = 'Detect backlog drift'
+home = "corpus-management"
+justification = 'Backlog'
+
+[[gate]]
+grc_gate = 46
+name = 'Overnight file'
+purpose = 'Enforce handoff processing'
+home = "harness-fleet"
+justification = 'Orchestration'
+
+[[gate]]
+grc_gate = 47
+name = 'Listing completeness'
+purpose = 'Check document coverage'
+home = "corpus-management"
+justification = 'Doc-model'
+
+[[gate]]
+grc_gate = 48
+name = 'CCM/AICM citations'
+purpose = 'Validate codes'
+home = "corpus-management"
+justification = 'Citations'
+
+[[gate]]
+grc_gate = 49
+name = 'Matrix codes'
+purpose = 'Validate identifiers'
+home = "corpus-management"
+justification = 'Citations'
+
+[[gate]]
+grc_gate = 50
+name = 'Bookkeeping parity'
+purpose = 'Require QA/rotation records'
+home = "corpus-management"
+justification = 'QA ledger'
+
+[[gate]]
+grc_gate = 51
+name = 'Working prose'
+purpose = 'Enforce dash style'
+home = "corpus-management"
+justification = 'Prose'
+
+[[gate]]
+grc_gate = 52
+name = 'Scan-scope parity'
+purpose = 'Prevent omitted domains'
+home = "corpus-management"
+justification = 'Toolchain QA'
+
+[[gate]]
+grc_gate = 53
+name = 'Directional dependency'
+purpose = 'Block project links'
+home = "grc-only"
+justification = 'Local separation'
+
+[[gate]]
+grc_gate = 54
+name = 'NIST CSF'
+purpose = 'Validate document codes'
+home = "corpus-management"
+justification = 'Citations'
+
+[[gate]]
+grc_gate = 55
+name = 'Retention consistency'
+purpose = 'Compare register periods'
+home = "corpus-management"
+justification = 'Doc-model'
+
+[[gate]]
+grc_gate = 56
+name = 'Bare shall'
+purpose = 'Enforce normative wording'
+home = "corpus-management"
+justification = 'Prose'
+
+[[gate]]
+grc_gate = 57
+name = 'Marked-done backlog'
+purpose = 'Detect unrotated closures'
+home = "corpus-management"
+justification = 'Backlog'
+
+[[gate]]
+grc_gate = 58
+name = 'ISO Annex A'
+purpose = 'Validate identifiers'
+home = "corpus-management"
+justification = 'Citations'
+
+[[gate]]
+grc_gate = 59
+name = 'CHANGELOG mirrors'
+purpose = 'Reconcile headers/versions'
+home = "corpus-management"
+justification = 'Change-tracking'
+
+[[gate]]
+grc_gate = 60
+name = 'Guardrail cadence'
+purpose = 'Trigger machinery review'
+home = "aiqt"
+justification = 'Governance discipline'
+
+[[gate]]
+grc_gate = 61
+name = 'COBIT/ISO31000'
+purpose = 'Validate references'
+home = "corpus-management"
+justification = 'Citations'
+
+[[gate]]
+grc_gate = 62
+name = 'Cross-file sections'
+purpose = 'Resolve numbers'
+home = "corpus-management"
+justification = 'References'
+
+[[gate]]
+grc_gate = 63
+name = 'Session lease'
+purpose = 'Validate session state'
+home = "harness-fleet"
+justification = 'Orchestration'
+
+[[gate]]
+grc_gate = 64
+name = 'Audit prose'
+purpose = 'Require gate descriptions'
+home = "aiqt"
+justification = 'Validation discipline'
+
+[[gate]]
+grc_gate = 65
+name = 'Section names'
+purpose = 'Verify cited titles'
+home = "corpus-management"
+justification = 'References'
+
+[[gate]]
+grc_gate = 66
+name = 'Fences'
+purpose = 'Detect unbalanced delimiters'
+home = "corpus-management"
+justification = 'Prose'
+
+[[gate]]
+grc_gate = 67
+name = 'Document types'
+purpose = 'Reconcile enumerations'
+home = "corpus-management"
+justification = 'Doc-model'
+
+[[gate]]
+grc_gate = 68
+name = 'Nested links'
+purpose = 'Reject malformed nesting'
+home = "corpus-management"
+justification = 'Links'
+
+[[gate]]
+grc_gate = 69
+name = 'Positional backlog tokens'
+purpose = 'Prevent fragile references'
+home = "corpus-management"
+justification = 'Backlog'
+
+[[gate]]
+grc_gate = 70
+name = 'Sibling stubs'
+purpose = 'Prevent placeholder payloads'
+home = "grc-only"
+justification = 'Local layout'
+
+[[gate]]
+grc_gate = 71
+name = 'Stdlib imports'
+purpose = 'Enforce dependency portability'
+home = "corpus-management"
+justification = 'Toolchain QA'
+
+[[gate]]
+grc_gate = 72
+name = 'Citation cadence'
+purpose = 'Enforce currency schedule'
+home = "corpus-management"
+justification = 'Currency'
+
+[[gate]]
+grc_gate = 73
+name = 'COBIT titles'
+purpose = 'Match objective names'
+home = "corpus-management"
+justification = 'Citations'
+
+[[gate]]
+grc_gate = 74
+name = 'Rule-scope table'
+purpose = 'Ensure rule coverage'
+home = "aiqt"
+justification = 'Pack enumeration'
+
+[[gate]]
+grc_gate = 75
+name = 'Web/corpus links'
+purpose = 'Resolve manifest targets'
+home = "corpus-management"
+justification = 'Links'
+
+[[gate]]
+grc_gate = 76
+name = 'Skill references'
+purpose = 'Prevent project contamination'
+home = "aiqt"
+justification = 'Pack portability'
+
+[[gate]]
+grc_gate = 77
+name = 'Gate citations'
+purpose = 'Match IDs/names'
+home = "aiqt"
+justification = 'Validation discipline'
+
+[[gate]]
+grc_gate = 78
+name = 'Backlog permanence'
+purpose = 'Prevent ID recycling'
+home = "corpus-management"
+justification = 'Backlog'
+
+[[gate]]
+grc_gate = 79
+name = 'SSDF identifiers'
+purpose = 'Validate codes'
+home = "corpus-management"
+justification = 'Citations'
+
+[[gate]]
+grc_gate = 80
+name = 'Playbook pointers'
+purpose = 'Preserve always-on clauses'
+home = "aiqt"
+justification = 'Governance discipline'
+
+[[gate]]
+grc_gate = 81
+name = 'Backlog tags'
+purpose = 'Validate list membership'
+home = "corpus-management"
+justification = 'Backlog'
+
+[[gate]]
+grc_gate = 82
+name = 'Operational dashes'
+purpose = 'Enforce prose style'
+home = "corpus-management"
+justification = 'Prose'
+
+[[gate]]
+grc_gate = 83
+name = 'Publication manifest'
+purpose = 'Classify pack files'
+home = "aiqt"
+justification = 'Pack publication'
+
+[[gate]]
+grc_gate = 84
+name = 'Narrative metadata'
+purpose = 'Validate page schema'
+home = "corpus-management"
+justification = 'Narrative'
+
+[[gate]]
+grc_gate = 85
+name = 'Narrative registry'
+purpose = 'Detect generated drift'
+home = "corpus-management"
+justification = 'Generator'
+
+[[gate]]
+grc_gate = 86
+name = 'Narrative boundary'
+purpose = 'Enforce placement'
+home = "corpus-management"
+justification = 'Narrative'
+
+[[gate]]
+grc_gate = 87
+name = 'Narrative authority'
+purpose = 'Prevent reverse dependencies'
+home = "corpus-management"
+justification = 'Narrative'
+
+[[gate]]
+grc_gate = 88
+name = 'Narrative vocabulary'
+purpose = 'Constrain wording'
+home = "corpus-management"
+justification = 'Narrative'
+
+[[gate]]
+grc_gate = 89
+name = 'Narrative disclaimer'
+purpose = 'Require positioned disclaimer'
+home = "corpus-management"
+justification = 'Narrative'
+
+[[gate]]
+grc_gate = 90
+name = 'Backlog index/detail'
+purpose = 'Verify bijection'
+home = "corpus-management"
+justification = 'Backlog'
+
+[[gate]]
+grc_gate = 91
+name = 'Number allocation'
+purpose = 'Generate counters'
+home = "corpus-management"
+justification = 'Generator'
+
+[[gate]]
+grc_gate = 92
+name = 'Index/header parity'
+purpose = 'Match owner/cadence'
+home = "corpus-management"
+justification = 'Metadata'
+
+[[gate]]
+grc_gate = 93
+name = 'Relationship model'
+purpose = 'Validate generated graph'
+home = "corpus-management"
+justification = 'Generator'
+
+[[gate]]
+grc_gate = 94
+name = 'Unused imports'
+purpose = 'Detect dead imports'
+home = "corpus-management"
+justification = 'Toolchain QA'
+
+[[gate]]
+grc_gate = 95
+name = 'Hook syntax'
+purpose = 'Verify compilability'
+home = "harness-fleet"
+justification = 'Harness reliability'
+
+[[gate]]
+grc_gate = 96
+name = 'Alignment citations'
+purpose = 'Reject fabricated identifiers'
+home = "corpus-management"
+justification = 'Citations'
+
+[[gate]]
+grc_gate = 97
+name = 'Verdict carriers'
+purpose = 'Enforce contract completeness'
+home = "aiqt"
+justification = 'Skill parity'
+
+[[gate]]
+grc_gate = 98
+name = 'AIQT vendor digest'
+purpose = 'Verify consumed pin'
+home = "corpus-management"
+justification = 'Dependency integrity'
+
+[[gate]]
+grc_gate = 99
+name = 'Corpus outputs'
+purpose = 'Detect compiler drift'
+home = "corpus-management"
+justification = 'Corpus build'
+
+[[gate]]
+grc_gate = 100
+name = 'CCM range direction'
+purpose = 'Detect provider-duty members'
+home = "corpus-management"
+justification = 'Citation QA'
+
