@@ -2,8 +2,8 @@
 
 **Document Title:** Financial Services Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.15\
-**Date:** 2026-09-05\
+**Version:** 1.0.16\
+**Date:** 2026-09-14\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`compliance/register-compliance-obligations-template.md`](../register-compliance-obligations-template.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md)\
@@ -152,7 +152,7 @@ OSFI B-13 applies to all federally regulated financial institutions in Canada. K
 | Requirement | Detail | GRC Library Mapping |
 |---|---|---|
 | **CISO appointment** | Qualified CISO; annual report to Board | Role definition in security domain |
-| **Penetration testing** | Annual penetration test; bi-annual vulnerability assessment | [`resilience/procedure-continuity-and-recovery-testing.md`](../../resilience/procedure-continuity-and-recovery-testing.md): supplement with pen test programme |
+| **Penetration testing** | Annual penetration test; vulnerability scans and manual reviews at a frequency determined by the risk assessment and promptly after any material system change (23 NYCRR 500.5(a)) | [`resilience/procedure-continuity-and-recovery-testing.md`](../../resilience/procedure-continuity-and-recovery-testing.md): supplement with pen test programme |
 | **Multi-factor authentication** | MFA required for any individual accessing any information system, regardless of location, user type, or type of electronic information, effective 1 November 2025 (500.12; limited-exemption carve-out under 500.19(a)) | [`security/procedure-identity-management.md`](../../security/procedure-identity-management.md) |
 | **Annual filings and reviews** | Annual Cybersecurity Compliance filing by April 15 (500.17(b)); written cybersecurity policy review and approval by April 29 (500.3) | [`security/policy-information-security.md`](../../security/policy-information-security.md): calendar the NYDFS annual filing and review deadlines |
 | **Encryption** | Encryption of non-public information in transit and at rest | [`security/framework-cryptographic-key-lifecycle.md`](../../security/framework-cryptographic-key-lifecycle.md) |
@@ -179,7 +179,7 @@ PCI DSS applies to any organization that stores, processes, or transmits payment
 **PCI DSS v4.0.1 new requirements (effective 2025):**
 - Targeted risk analysis for customized approach controls
 - Multi-factor authentication expanded to all CDE access
-- Phishing-resistant MFA for interactive logins
+- MFA for all non-console access into the cardholder data environment (Requirement 8.4.2), with MFA systems resistant to replay attacks (Requirement 8.5.1)
 - Ecommerce scripts (payment page scripts) monitored for changes
 
 ### AML / CFT requirements

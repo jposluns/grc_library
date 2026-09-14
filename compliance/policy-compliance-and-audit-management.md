@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance, Audit, and CAPA Management Policy\
 **Document Type:** Policy\
-**Version:** 1.0.25\
-**Date:** 2026-09-09\
+**Version:** 1.0.26\
+**Date:** 2026-09-14\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md)\
@@ -80,7 +80,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 4.3.2 Auditors must not audit activities where they hold operational responsibility.
 
 ### 4.4 Findings, nonconformities, and CAPA management
-4.4.1 All audit findings must be classified as critical, major, or minor nonconformities.
+4.4.1 All audit findings must be classified using the five-tier scheme defined in the Internal Audit Standard ([`compliance/standard-internal-audit.md`](standard-internal-audit.md)): Critical, High, Moderate, Low, and Observation. Critical, High, and Moderate findings are nonconformities; Low and Observation findings are improvement opportunities that do not constitute nonconformities against a defined requirement.
 4.4.2 CAPAs must include root cause analysis, defined actions, responsible parties, target dates, and verification evidence.
 4.4.3 CAPA effectiveness must be validated by Internal Audit or Compliance within 90 days of implementation.
 4.4.4 Findings involving trade-compliance frameworks must be verified by the applicable compliance officer and reported to the relevant program authority when required.
