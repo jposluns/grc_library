@@ -75,6 +75,13 @@
     },
     {
       "class": "procedure",
+      "corpus_path": "risk/procedure-risk-acceptance.md",
+      "display_name": "Risk Acceptance Procedure",
+      "id": "GRC-PROC-RISK-ACCEPTANCE",
+      "source_identifier": null
+    },
+    {
+      "class": "procedure",
       "corpus_path": "risk/procedure-risk-register.md",
       "display_name": "Risk Register Procedure",
       "id": "GRC-PROC-RISK-REGISTER",
@@ -684,17 +691,49 @@
       },
       "verb": "implements",
       "viewpoint": "governance"
+    },
+    {
+      "authority_level": "organizationally mandatory",
+      "destination": {
+        "class": "organizational standard",
+        "id": "GRC-STD-ERM"
+      },
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "evidence_refs": [],
+      "id": "rel-corpus-0030",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is implemented by"
+      },
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "implementation",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-RISK-ACCEPTANCE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "implements",
+      "viewpoint": "governance"
     }
   ],
   "schema_version": 2,
   "source": "governance/relationship-model-source.json",
   "summary": {
-    "node_count": 24,
-    "record_count": 16,
+    "node_count": 25,
+    "record_count": 17,
     "records_by_relationship_class": {
       "commitment": 1,
       "correspondence": 4,
-      "implementation": 8,
+      "implementation": 9,
       "influence": 3
     }
   }

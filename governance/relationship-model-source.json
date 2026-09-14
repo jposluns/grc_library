@@ -182,6 +182,13 @@
       "class": "procedure",
       "source_identifier": null,
       "corpus_path": "supply-chain/procedure-supplier-onboarding-security-review.md"
+    },
+    {
+      "id": "GRC-PROC-RISK-ACCEPTANCE",
+      "display_name": "Risk Acceptance Procedure",
+      "class": "procedure",
+      "source_identifier": null,
+      "corpus_path": "risk/procedure-risk-acceptance.md"
     }
   ],
   "records": [
@@ -674,6 +681,38 @@
       "verb": "implements",
       "destination": {
         "id": "GRC-STD-SUPPLIER-SEC-PRIVACY",
+        "class": "organizational standard"
+      },
+      "relationship_class": "implementation",
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "governance",
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "organizationally mandatory",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0030",
+      "source": {
+        "id": "GRC-PROC-RISK-ACCEPTANCE",
+        "class": "procedure"
+      },
+      "verb": "implements",
+      "destination": {
+        "id": "GRC-STD-ERM",
         "class": "organizational standard"
       },
       "relationship_class": "implementation",
