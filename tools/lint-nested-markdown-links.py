@@ -1,71 +1,55 @@
 #!/usr/bin/env python3
-"""Nested-markdown-link malformation audit (gate 68): no scanned markdown
-file may contain a nested markdown link of the form
-``[[text](url)](url)`` (a link whose visible text is itself a link),
-which renders in GitHub-flavoured Markdown as a broken literal ``[``
-followed by a dangling ``](url)``.
+"""Nested-markdown-link malformation audit (grc gate 68): project entry point.
 
-Why this gate exists: the class recurred in PR #802, where a global
-bare-code-span replacement (rewriting `` `tool.py` `` to
-``[`tool.py`](tool.py)`` to satisfy the CHANGELOG link-coverage gate)
-also re-wrapped the same code span WHERE IT ALREADY SAT INSIDE A LINK in
-unrelated historical entries, producing ``[[`tool.py`](tool.py)](tool.py)``.
-The pre-push skeptical verifier caught the in-scope corruption; two
-pre-existing instances in early-PR historical CHANGELOG entries survived
-until PR #807's cleanup. This malformation is GATE-BLIND to the existing
-link-coverage gate (a nested link still contains a well-formed inner
-link, so the path-shape / markdown-link checks pass) and to the
-broken-link gate (the inner link resolves). This gate closes that blind
-spot. The build-time corpus census found ZERO malformations after the
-#807 cleanup, so the gate is preventive.
+The gate ENGINE is pack-owned source of record at
+``.corpus-management/tools/gate_lint_nested_markdown_links.py`` (Corpus-Management pack,
+gate register ``core/gates.toml``, id ``lint-nested-markdown-links``, enforcing the pack's
+``markdown-link-integrity`` clause); this thin wrapper keeps the house
+``python3 tools/lint-nested-markdown-links.py`` shape (gate 35 parses exactly that) and
+supplies the grc-local scan configuration the pack engine deliberately does not carry:
+the AIQT bootstrap, the repo root, and lint_common's default markdown walk (the
+``DEFAULT_EXEMPT_DIRS`` / ``is_default_exempt_root`` exemption plus the explicit-path
+iterator). These wrapper bytes are HAND-MAINTAINED, not compiler-generated, so gate 99
+does NOT own them; the linter-regression suite and gate 99's entry-point existence check
+are the wrapper's mechanical coverage. ``iter_targets`` stays here (grc scan config) so the
+scan-scope regression's WALKERS map observes it unmoved.
 
-Detection: for each non-fenced line (via the shared fence-aware
-``iter_non_code_lines`` iterator), inline code spans are first neutralized
-to a single placeholder character. This is the load-bearing design
-constraint (the #807 ``/validate-pr`` Finding-1 lesson): a code-span
-DESCRIPTION of the pattern (e.g. a CHANGELOG entry that writes the literal
-`` `[[ ... ]( ... )]( ... )` `` inside backticks to document it) must NOT
-be flagged, while a REAL malformation, whose inner link TEXT may be a code
-span but whose ``[[``, ``](`` and ``)](`` brackets and URLs are live
-markdown, still exposes its ``[[X](url)](url)`` structure after the inner
-code span becomes the placeholder ``X``. The nested-link regex is then
-applied to the masked line.
-
-Scope: every ``*.md`` under the repository root except
-``DEFAULT_EXEMPT_DIRS`` (the population the markdown linters scan by
-default; this includes the root ``CHANGELOG.md``, the surface where the
-class recurred, and excludes ``.working`` and ``.claude``, so the
-``[[wikilink]]`` convention of the memory files is out of scope by
-construction). Explicit path arguments are accepted too.
+Scope (unchanged by the transfer): a default run walks every ``*.md`` under the repository
+root, minus both the ``DEFAULT_EXEMPT_DIRS`` path components and the ``is_default_exempt_root``
+default-root exemption (so the root ``CHANGELOG.md`` is in scope, while ``.working`` /
+``.claude`` and the ``.corpus-management`` pack root are out); explicit path arguments are
+scanned with only the default-root exemption applied.
 
 Usage:
     python3 tools/lint-nested-markdown-links.py
     python3 tools/lint-nested-markdown-links.py path1 path2 ...
 
-Exit codes:
-    0   no findings
-    1   one or more nested-markdown-link findings
+Exit codes are the engine's: 0 clean; 1 findings.
 """
 
 from __future__ import annotations
 
-import re
 import sys
 from pathlib import Path
 
+REPO_ROOT = Path(__file__).resolve().parent.parent
+PACK_TOOLS = REPO_ROOT / ".corpus-management" / "tools"
+
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import SIMPLE_CODE_SPAN_RE, iter_non_code_lines, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import is_default_exempt_root, DEFAULT_EXEMPT_DIRS, REPO_ROOT, iter_scan_roots_markdown  # noqa: E402  # grc-config/store, stays local
+from lint_common import (  # noqa: E402  # grc-config/store, stays local
+    is_default_exempt_root,
+    DEFAULT_EXEMPT_DIRS,
+    iter_scan_roots_markdown,
+)
 
-# An inline code span (backtick-delimited run). Neutralized to a single
-# placeholder so a description of the pattern inside backticks is not
-# flagged, while a real malformation's live brackets survive.
-CODE_SPAN_RE = SIMPLE_CODE_SPAN_RE
 
-# A markdown link whose visible text is itself a markdown link:
-#   [ [text](url) ] (url)
-# After code-span masking the inner text is at least the placeholder "X".
-NESTED_LINK_RE = re.compile(r"\[\[[^\]]+\]\([^)]+\)\]\([^)]+\)")
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_nested_markdown_links  # the pack-owned engine (source of record)
+    return gate_lint_nested_markdown_links
 
 
 def iter_targets(paths: list[str]) -> list[Path]:
@@ -82,54 +66,11 @@ def iter_targets(paths: list[str]) -> list[Path]:
     return sorted(set(files))
 
 
-def find_nested_links(text: str) -> list[int]:
-    """Return the 1-indexed line numbers carrying a nested-link malformation."""
-    hits: list[int] = []
-    for lineno, line in iter_non_code_lines(text):
-        masked = CODE_SPAN_RE.sub("X", line)
-        if NESTED_LINK_RE.search(masked):
-            hits.append(lineno)
-    return hits
-
-
-def main(argv: list[str]) -> int:
-    findings: list[str] = []
-    checked = 0
-    for path in iter_targets(argv):
-        text = read_text_safe(path)
-        if text is None:
-            continue
-        checked += 1
-        for lineno in find_nested_links(text):
-            try:
-                rel = path.relative_to(REPO_ROOT).as_posix()
-            except ValueError:  # explicit path outside REPO_ROOT
-                rel = path.as_posix()
-            findings.append(
-                f"{rel}:{lineno}: nested markdown link "
-                "([[text](url)](url), a link whose text is itself a link); "
-                "renders as a broken literal '[' plus a dangling '](url)'. "
-                "Collapse to the single well-formed link."
-            )
-
-    if findings:
-        print(f"FAIL: {len(findings)} nested-markdown-link finding(s):")
-        for f in findings:
-            print(f"  - {f}")
-        print(
-            "A nested markdown link is gate-blind to the link-coverage and "
-            "broken-link gates (the inner link is well-formed and resolves); "
-            "collapse [[text](url)](url) to [text](url). To DESCRIBE the "
-            "pattern in prose, wrap the whole token in a backtick code span."
-        )
-        return 1
-
-    print(
-        f"OK: {checked} markdown file(s) checked; no nested-markdown-link "
-        "malformation found."
-    )
-    return 0
+def main(argv: list[str] | None = None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    engine = _engine()
+    return engine.run(iter_targets(argv), repo_root=REPO_ROOT)
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv[1:]))
+    sys.exit(main())
