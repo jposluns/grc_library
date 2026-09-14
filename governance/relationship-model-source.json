@@ -161,6 +161,27 @@
       "class": "procedure",
       "source_identifier": null,
       "corpus_path": "compliance/procedure-audit-planning.md"
+    },
+    {
+      "id": "GRC-FW-SUPPLIER-CLOUD-GOV",
+      "display_name": "Supplier and Cloud Governance Framework",
+      "class": "framework",
+      "source_identifier": null,
+      "corpus_path": "supply-chain/framework-supplier-and-cloud-governance.md"
+    },
+    {
+      "id": "GRC-STD-SUPPLIER-SEC-PRIVACY",
+      "display_name": "Supplier Security and Privacy Assurance Standard",
+      "class": "organizational standard",
+      "source_identifier": null,
+      "corpus_path": "supply-chain/standard-supplier-security-and-privacy-assurance.md"
+    },
+    {
+      "id": "GRC-PROC-SUPPLIER-ONBOARDING",
+      "display_name": "Supplier Onboarding Security Review Procedure",
+      "class": "procedure",
+      "source_identifier": null,
+      "corpus_path": "supply-chain/procedure-supplier-onboarding-security-review.md"
     }
   ],
   "records": [
@@ -589,6 +610,70 @@
       "verb": "implements",
       "destination": {
         "id": "GRC-STD-INTERNAL-AUDIT",
+        "class": "organizational standard"
+      },
+      "relationship_class": "implementation",
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "governance",
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "organizationally mandatory",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0028",
+      "source": {
+        "id": "GRC-FW-SUPPLIER-CLOUD-GOV",
+        "class": "framework"
+      },
+      "verb": "informs",
+      "destination": {
+        "id": "GRC-STD-SUPPLIER-SEC-PRIVACY",
+        "class": "organizational standard"
+      },
+      "relationship_class": "influence",
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "governance",
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "organizationally mandatory",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0029",
+      "source": {
+        "id": "GRC-PROC-SUPPLIER-ONBOARDING",
+        "class": "procedure"
+      },
+      "verb": "implements",
+      "destination": {
+        "id": "GRC-STD-SUPPLIER-SEC-PRIVACY",
         "class": "organizational standard"
       },
       "relationship_class": "implementation",
