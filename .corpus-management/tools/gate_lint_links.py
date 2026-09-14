@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Broken-internal-link audit (grc gate 3): pack-owned engine (source of record).
 
-Detect an internal markdown link whose target does not resolve to an existing file
+Detect an internal markdown link whose target does not resolve to an existing path
 inside the repository. External targets (http/https/mailto/tel/ftp, or a pure
 ``#`` fragment) are not checked; a trailing ``#anchor`` is stripped before
 resolution; a link inside a fenced code block is illustrative content and is
@@ -80,11 +80,7 @@ def run(files: list[Path], *, repo_root: Path) -> int:
     total = 0
     for f in files:
         for finding in check_file(f, repo_root=repo_root):
-            try:
-                rel = f.relative_to(repo_root).as_posix()
-            except ValueError:  # explicit path outside repo_root
-                rel = f.as_posix()
-            grouped[rel].append(finding)
+            grouped[f.relative_to(repo_root).as_posix()].append(finding)
             total += 1
 
     if not grouped:

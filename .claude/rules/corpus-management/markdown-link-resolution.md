@@ -2,7 +2,7 @@
 
 # Markdown link resolution
 
-Every internal markdown link target resolves to an existing file inside the
+Every internal markdown link target resolves to an existing path inside the
 repository. A link whose target is external (an `http:`, `https:`, `mailto:`,
 `tel:`, or `ftp:` URL, or a pure `#`-fragment) is not checked. For an internal
 target, a trailing `#anchor` fragment is stripped, the remainder is resolved
