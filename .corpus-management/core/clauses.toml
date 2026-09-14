@@ -44,3 +44,9 @@ id = "markdown-link-resolution"
 title = "Markdown link resolution (internal link targets resolve to an existing in-repo path)"
 source = "core/rules/markdown-link-resolution.md"
 origin = "grc_library tools/lint-links.py gate rationale (new clause in compile PR-10; generated AI-facing rule via gensrc, kind=file, like markdown-link-integrity; distinct from markdown-link-integrity which is only the nested-link malformation and corpus-scan-integrity which is fences)"
+
+[[clauses]]
+id = "required-sections"
+title = "Required sections by document type (a modelled doctype carries its required sections)"
+source = "core/rules/required-sections.md"
+origin = "grc_library tools/lint-required-sections.py gate rationale (new clause in compile PR-11; generated AI-facing rule via gensrc, kind=file, like markdown-link-resolution; the grc-specific section MODEL stays in the wrapper as project config, not in the clause)"

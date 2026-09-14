@@ -54,3 +54,11 @@ source = "tools/gate_lint_links.py"
 enforces = "markdown-link-resolution"
 entry_point = "tools/lint-links.py"
 origin = "grc_library tools/lint-links.py, grc gate 3 (engine transferred in compile PR-10, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc scan walk + default roots; engine is repo_root-free via a repo_root parameter)"
+
+[[gates]]
+id = "lint-required-sections"
+title = "Required-sections-by-doctype audit"
+source = "tools/gate_lint_required_sections.py"
+enforces = "required-sections"
+entry_point = "tools/lint-required-sections.py"
+origin = "grc_library tools/lint-required-sections.py, grc gate 19 (engine transferred in compile PR-11, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc section model REQUIRED_SECTIONS + target selection; engine takes the required-map + repo_root as parameters)"

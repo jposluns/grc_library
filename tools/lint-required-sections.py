@@ -1,36 +1,25 @@
 #!/usr/bin/env python3
-"""Enforce required orientation section presence by document type.
+"""Required-sections-by-doctype audit (grc gate): project entry point.
 
-Library documents follow a canonical structure. This linter verifies
-that documents of certain doctypes contain at least one *orientation*
-section so a reader can quickly determine what the document is about.
-
-Acceptable orientation headings (case-insensitive substring match,
-ORIENTATION_OPTIONS): Purpose, Scope, Applicability, Purpose and Scope,
-Introduction, Overview, Executive Summary, Summary.
-
-Doctypes currently covered (REQUIRED_SECTIONS):
-
-  Charter, Framework, Policy, Standard, Procedure, Specification, Plan,
-  Annex, Register, Guide, Guideline.
-
-The linter is deliberately conservative: it requires only the single
-orientation requirement above. Framework alignment, role responsibility,
-metrics, and other section conventions are NOT enforced (Phase 23.20
-loosened the rule to avoid false positives where the convention exists
-in practice but the canonical heading name varies).
-
-Doctypes not in REQUIRED_SECTIONS (SOP, Roadmap, Matrix, Template,
-Checklist, Worklist, Principle) are not enforced by this linter. Each has a
-different shape that the orientation rule does not fit cleanly.
+The gate ENGINE is pack-owned source of record at
+``.corpus-management/tools/gate_lint_required_sections.py`` (Corpus-Management pack, gate
+register ``core/gates.toml``, id ``lint-required-sections``, enforcing the pack's
+``required-sections`` clause); this thin wrapper keeps the house
+``python3 tools/lint-required-sections.py`` shape (gate 35 parses exactly that) and supplies
+the grc-local configuration the pack engine deliberately does not carry: the AIQT bootstrap,
+the repo root, the grc SECTION MODEL (``REQUIRED_SECTIONS`` / ``ORIENTATION_OPTIONS``), the
+target selection (the exempt-file set, the ``Status: Superseded`` lifecycle skip, the
+narrative / default-exempt scope predicates via ``is_target`` + ``iter_targets``), and the
+default scan root. These wrapper bytes are HAND-MAINTAINED, not compiler-generated, so gate 99
+does NOT own them. ``REQUIRED_SECTIONS``, ``is_target``, ``iter_targets``, and ``main`` stay
+HERE (grc config) so the scan-scope regression's WALKER map and the CLI/``main`` regression
+tests observe them unmoved.
 
 Usage:
     python3 tools/lint-required-sections.py
     python3 tools/lint-required-sections.py path1 path2 ...
 
-Exit codes:
-    0   no findings
-    1   one or more documents missing a required orientation section
+Exit codes are the engine's: 0 clean; 1 finding(s).
 """
 
 from __future__ import annotations
@@ -41,13 +30,11 @@ import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import iter_non_code_lines, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
 from lint_common import is_default_exempt_root, DEFAULT_EXEMPT_DIRS, is_narrative_root, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
 
-DEFAULT_PATHS = [str(REPO_ROOT)]
+PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
-DOCTYPE_RE = re.compile(r"^\*\*Document Type:\*\*\s+(.+?)(?:\\)?\s*$", re.MULTILINE)
-HEADING_RE = re.compile(r"^(#{2,6})\s+(.+?)\s*$")
+DEFAULT_PATHS = [str(REPO_ROOT)]
 
 # Directory-walk exemption: shared default set from lint_common (plus the
 # root-anchored executive/ narrative-tree exclusion via is_narrative_root,
@@ -132,54 +119,6 @@ def is_target(path: Path) -> bool:
     return True
 
 
-def extract_doctype(text: str) -> str | None:
-    m = DOCTYPE_RE.search(text)
-    if not m:
-        return None
-    return m.group(1).strip().rstrip("\\").strip()
-
-
-def extract_headings(text: str) -> list[str]:
-    headings: list[str] = []
-    for _lineno, line in iter_non_code_lines(text):
-        m = HEADING_RE.match(line)
-        if m:
-            heading = m.group(2)
-            # Strip leading numbering and punctuation
-            cleaned = re.sub(r"^\d+(\.\d+)*[.\s:]*", "", heading)
-            cleaned = re.sub(r"^Section\s+\d+(\.\d+)*[.\s:]*", "", cleaned)
-            headings.append(cleaned.strip().lower())
-    return headings
-
-
-def scan(path: Path) -> list[str]:
-    findings: list[str] = []
-    text = read_text_safe(path)
-    if text is None:
-        return findings
-    doctype = extract_doctype(text)
-    if doctype is None:
-        return findings
-    required = REQUIRED_SECTIONS.get(doctype)
-    if not required:
-        return findings
-    headings = extract_headings(text)
-    for requirement in required:
-        # Each requirement is a list of acceptable heading names; at least
-        # one must appear in the document's headings.
-        matched = False
-        for option in requirement:
-            for h in headings:
-                if option in h:
-                    matched = True
-                    break
-            if matched:
-                break
-        if not matched:
-            findings.append(f"missing required section (any of: {requirement})")
-    return findings
-
-
 def iter_targets(paths: list[str]) -> list[Path]:
     targets: list[Path] = []
     seen: set[Path] = set()
@@ -197,38 +136,22 @@ def iter_targets(paths: list[str]) -> list[Path]:
     return targets
 
 
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_required_sections  # the pack-owned engine (source of record)
+    return gate_lint_required_sections
+
+
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
         description="Enforce required section presence by document type."
     )
     parser.add_argument("paths", nargs="*", default=DEFAULT_PATHS)
     args = parser.parse_args(argv[1:])
-    targets = iter_targets(args.paths)
-    grouped: dict[Path, list[str]] = {}
-    for t in targets:
-        findings = scan(t)
-        if findings:
-            grouped[t] = findings
-    if not grouped:
-        print(f"OK: all documents have required sections by doctype (scanned {len(targets)} files).")
-        return 0
-    total = 0
-    for path, findings in sorted(grouped.items()):
-        try:
-            rel = path.relative_to(REPO_ROOT)
-        except ValueError:
-            rel = path
-        print(f"=== {rel} ===")
-        for msg in findings:
-            print(f"  [required-section] {msg}")
-        total += len(findings)
-    print(f"\nFAIL: {total} required-section finding(s) across {len(grouped)} file(s).")
-    print(
-        "Documents missing canonically-expected sections by doctype. Either "
-        "add the section under one of the acceptable heading names, or change "
-        "the Document Type field to one that does not require this section."
-    )
-    return 1
+    return _engine().run(iter_targets(args.paths), REQUIRED_SECTIONS, repo_root=REPO_ROOT)
 
 
 if __name__ == "__main__":
