@@ -121,4 +121,4 @@ origin = "grc_library tools/lint-placeholder-leakage.py gate rationale (new clau
 id = "gate-count-consistency"
 title = "Gate-count consistency (a prose reference to a governed collection's size matches its canonical count)"
 source = "core/rules/gate-count-consistency.md"
-origin = "grc_library tools/lint-gate-count-consistency.py gate rationale (new clause in compile PR-23; generated AI-facing rule via gensrc, kind=file, like placeholder-leakage; the canonical-count sources (spec path + rule/skill dirs) + scanned suffixes + exempt sets are wrapper config, the count-idiom pattern set + word-number machinery + fence/version-history-aware scan is the engine)"
+origin = "grc_library tools/lint-gate-count-consistency.py gate rationale (new clause in compile PR-23; generated AI-facing rule via gensrc, kind=file, like placeholder-leakage; the canonical-count sources (spec path + rule/skill dirs) + scanned suffixes + exempt sets are wrapper config, the count-idiom pattern set + word-number machinery + version-history-aware scan is the engine)"
