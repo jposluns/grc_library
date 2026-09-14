@@ -2,8 +2,8 @@
 
 **Document Title:** Internal Audit Standard\
 **Document Type:** Standard\
-**Version:** 1.2.8\
-**Date:** 2026-09-11\
+**Version:** 1.2.9\
+**Date:** 2026-09-14\
 **Owner:** Chief Audit Executive\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/template-audit-evidence-package.md`](template-audit-evidence-package.md)\
@@ -441,7 +441,7 @@ Audit findings are not closed in the audit register until the corresponding CAPA
 | Framework / Standard | Relevant Clause or Control | Mapping |
 |----------------------|---------------------------|---------|
 | ISO/IEC 27001:2022 | §9.2 Internal Audit | This standard operationalizes the internal audit requirements of the ISMS |
-| ISO 19011:2026 | All clauses | Primary methodological reference for audit principles, programme management, and auditor competency |
+| ISO 19011:2026 | Clauses 4 to 7 | Primary methodological reference for audit principles, programme management, and auditor competency |
 | COBIT 2019 | MEA04 (Managed Assurance) | Audit programme management and assurance reporting align to MEA04 objectives |
 | CSA Cloud Controls Matrix | A&A-01 through A&A-06 (Audit and Assurance) | Audit planning, scope, independence, results, metrics, and remediation |
 | NIST Cybersecurity Framework 2.0 | GV.OV (Oversight), ID.IM (Improvement) | Oversight and improvement of the audit programme |
