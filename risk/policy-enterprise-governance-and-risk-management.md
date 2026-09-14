@@ -2,7 +2,7 @@
 
 **Document Title:** Enterprise Governance and Risk Management Policy\
 **Document Type:** Policy\
-**Version:** 1.4.14\
+**Version:** 1.4.15\
 **Date:** 2026-09-14\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -88,7 +88,7 @@ Controls governing AI systems must address, at minimum:
 - Secure deployment and supply-chain integrity.
 - Continuous monitoring for model drift, bias recurrence, and ethical deviations.
 
-These requirements are aligned with ISO/IEC 23894 and the NIST AI RMF (Govern, Map, Measure, Manage functions).
+These requirements are aligned with ISO/IEC 23894 and the NIST AI RMF (GOVERN 1.3, 1.5, 2.1; MAP 1.5; MEASURE 1.1; MANAGE 1.2, 1.3, 1.4).
 
 ### 4.7 Risk monitoring and key risk indicators
 

@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.187\
+**Version:** 1.27.188\
 **Date:** 2026-09-14\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -399,7 +399,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Architecture | Standard | Architecture Decision Records Standard | [`architecture/standard-architecture-decision-records.md`](../architecture/standard-architecture-decision-records.md) | Chief Technology Officer | Annual | Michael Nygard ADR practice, ISO/IEC/IEEE 42010:2022, TOGAF, C4 model, OWASP SAMM, NIST SP 800-218 SSDF | template |
 | Architecture | Standard | Reference Architecture Standard | [`architecture/standard-reference-architecture.md`](../architecture/standard-reference-architecture.md) | Chief Technology Officer | Annual | TOGAF Architecture Building Blocks and Reference Models, ISO/IEC/IEEE 42010:2022, C4 model, Open Agile Architecture, OWASP SAMM, NIST CSF 2.0 | template |
 | Architecture | Standard | Technology Radar Standard | [`architecture/standard-technology-radar.md`](../architecture/standard-technology-radar.md) | Chief Technology Officer | Quarterly | ThoughtWorks Technology Radar conventions, TOGAF Technology Reference Model, Open Agile Architecture, OWASP SAMM, NIST SSDF SP 800-218 PW.4, ISO/IEC 27001 Annex A.5.20 | template |
-| Architecture | Procedure | Architecture Review Procedure | [`architecture/procedure-architecture-review.md`](../architecture/procedure-architecture-review.md) | Chief Technology Officer | Annual | TOGAF Architecture Compliance and Governance, ISO/IEC/IEEE 42010:2022, OWASP SAMM, ISO/IEC 27001 Annex A.5.8, NIST CSF 2.0, COBIT 2019 APO03 | template |
+| Architecture | Procedure | Architecture Review Procedure | [`architecture/procedure-architecture-review.md`](../architecture/procedure-architecture-review.md) | Chief Technology Officer | Annual | TOGAF Architecture Compliance and Governance, ISO/IEC/IEEE 42010:2022, OWASP SAMM, ISO/IEC 27001 Annex A.5.8, NIST CSF 2.0 ID.RA-07/GV.RR-02, COBIT 2019 APO03 | template |
 | Architecture | Standard | API Design Standard | [`architecture/standard-api-design.md`](../architecture/standard-api-design.md) | Chief Technology Officer | Annual | OpenAPI, AsyncAPI, gRPC/Protobuf, GraphQL, RFC 7807, Google AIPs, Microsoft REST API Guidelines, ISO/IEC 27001 Annex A.8.26, OWASP API Security Top 10 | template |
 | Architecture | Standard | Data Architecture Standard | [`architecture/standard-data-architecture.md`](../architecture/standard-data-architecture.md) | Chief Technology Officer | Annual | DAMA-DMBOK 2, ISO/IEC 38505-1, ISO 8000, Data Mesh, TOGAF Data Architecture, ISO/IEC 27001 Annex A.5.12/A.5.13/A.5.34, GDPR Arts 5/25/32, ISO/IEC 42001:2023 | template |
 | Architecture | Standard | Integration Architecture Standard | [`architecture/standard-integration-architecture.md`](../architecture/standard-integration-architecture.md) | Chief Technology Officer | Annual | Enterprise Integration Patterns, AsyncAPI, CloudEvents, OpenAPI, ESB and microservices references, ISO/IEC 27001 Annex A.5.14/A.8.20-21, OWASP API Security Top 10, NIST CSF 2.0 | template |
