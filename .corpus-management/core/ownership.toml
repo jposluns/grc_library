@@ -28,3 +28,8 @@ target = ".claude/rules/corpus-management/corpus-scan-integrity.md"
 rule = "markdown-link-integrity"
 kind = "file"
 target = ".claude/rules/corpus-management/markdown-link-integrity.md"
+
+[[owned_targets]]
+rule = "normative-wording"
+kind = "file"
+target = ".claude/rules/corpus-management/normative-wording.md"

@@ -38,3 +38,11 @@ source = "tools/gate_lint_ungated_dashes.py"
 enforces = "language-convention"
 entry_point = "tools/lint-ungated-dashes.py"
 origin = "grc_library tools/lint-ungated-dashes.py, grc gate 82 (engine transferred in compile PR-8, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc operational scan scope). Reuses the existing language-convention clause (the same dash ban the corpus language gate enforces), so no new clause/rule was added."
+
+[[gates]]
+id = "lint-bare-normative-shall"
+title = "Bare normative-wording audit"
+source = "tools/gate_lint_bare_normative_shall.py"
+enforces = "normative-wording"
+entry_point = "tools/lint-bare-normative-shall.py"
+origin = "grc_library tools/lint-bare-normative-shall.py, grc gate 56 (engine transferred in compile PR-9, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc scan walk and the grc-specific exempt-file set)"

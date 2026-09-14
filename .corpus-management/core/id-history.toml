@@ -57,3 +57,15 @@ id = "lint-ungated-dashes"
 event = "created"
 date = 2026-09-14
 note = "compile PR-8: gate-wave fourth gate transfer (grc gate 82; Model-2 wrapper, engine pack source of record, enforces the existing language-convention clause; no new clause, unlike PR-6/PR-7)"
+
+[[events]]
+id = "lint-bare-normative-shall"
+event = "created"
+date = 2026-09-14
+note = "compile PR-9: gate-wave fifth gate transfer (grc gate 56; Model-2 wrapper, engine pack source of record, enforces the new normative-wording clause). ALLOW-mapped scope fn iter_markdown_files stays in the wrapper (scan-scope regression direct-calls it), and the grc-specific EXEMPT_FILES filter moved to the wrapper so the engine is REPO_ROOT-free."
+
+[[events]]
+id = "normative-wording"
+event = "created"
+date = 2026-09-14
+note = "compile PR-9: new pack-internal clause (new normative content uses must; shall reserved for standard-quotes and legacy; the FR-44 must-over-shall convention from specification-master-project.md); generated AI-facing rule (compile PR-9) like markdown-link-integrity"
