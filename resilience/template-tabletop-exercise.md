@@ -2,8 +2,8 @@
 
 **Document Title:** Tabletop Exercise Template\
 **Document Type:** Template\
-**Version:** 1.0.6\
-**Date:** 2026-07-02\
+**Version:** 1.0.7\
+**Date:** 2026-09-14\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`resilience/procedure-cross-domain-incident-coordination.md`](procedure-cross-domain-incident-coordination.md), [`resilience/register-resilience-metrics-and-testing-log.md`](register-resilience-metrics-and-testing-log.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md)\
@@ -167,8 +167,8 @@ Within 10 business days of the exercise:
 | --- | --- | --- |
 | ISO 22301:2019 | §8.5 Exercising and testing | Continuity programme exercising |
 | ISO/IEC 27001:2022 | A.5.30 ICT readiness | Resilience testing |
-| NIST SP 800-84 | Test, Training, and Exercise Programs | US federal exercise guidance |
-| DORA | Article 24 to 27 | Digital operational resilience testing |
+| NIST SP 800-84 | §4.2 to §4.5 (design, develop, conduct, evaluate the tabletop exercise) | US federal exercise guidance |
+| DORA | Article 24(1), 24(5), 25(1) | Digital operational resilience testing |
 | NIS 2 | Article 21(2)(f) | Effectiveness assessment |
 | TIBER-EU | ECB framework | Threat-led testing |
 

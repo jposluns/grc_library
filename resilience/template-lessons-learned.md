@@ -2,8 +2,8 @@
 
 **Document Title:** Lessons Learned Template\
 **Document Type:** Template\
-**Version:** 1.0.6\
-**Date:** 2026-08-05\
+**Version:** 1.0.7\
+**Date:** 2026-09-14\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/procedure-cross-domain-incident-coordination.md`](procedure-cross-domain-incident-coordination.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`governance/procedure-continuous-improvement-register.md`](../governance/procedure-continuous-improvement-register.md), [`resilience/template-tabletop-exercise.md`](template-tabletop-exercise.md)\
@@ -185,7 +185,7 @@ The Resilience Owner and Executive Sponsor sign the report. Where the event invo
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 27035-3 | Information security incident response | Incident learning |
+| ISO/IEC 27035-2:2023 | §12.2, §12.3 (identifying and making improvements) | Incident learning |
 | ISO 22301:2019 | §10 Improvement | Continuity improvement |
 | NIST SP 800-61 Rev. 3 | Post-incident review and improvement activities (Rev. 3 reorganizes around NIST CSF 2.0 functions; post-incident activities map to the Identify Function (Improvement Category)) | Lessons learned activity |
 | DORA | Article 13 Learning and evolving | Financial-sector learning |
