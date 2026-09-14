@@ -3,7 +3,7 @@
 A mandatory-requirement word (``shall``, ``must``, ``is required``, ``are required``,
 ``will be required``) does not appear within a small line window of an uncertainty
 marker (``TBD``, ``TODO``, ``FIXME``, ``XXX``, ``[Unverified]``, ``placeholder``, a
-``Draft`` followed by a year or a capitalised noun, a ``[Draft Reference]``). A
+``Draft`` followed by a year or a capitalized noun, a ``[Draft Reference]``). A
 prescriptive requirement sitting next to an unfinished-content marker is a drafting
 hazard: the requirement is stated as binding while the content it rests on is admittedly
 incomplete. Both the uncertainty marker and the mandatory word are read outside fenced
