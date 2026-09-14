@@ -126,6 +126,20 @@
       "class": "framework",
       "source_identifier": null,
       "corpus_path": null
+    },
+    {
+      "id": "GRC-POL-ENTERPRISE-GRM",
+      "display_name": "Enterprise Governance and Risk Management Policy",
+      "class": "policy",
+      "source_identifier": null,
+      "corpus_path": "risk/policy-enterprise-governance-and-risk-management.md"
+    },
+    {
+      "id": "GRC-PROC-RISK-REGISTER",
+      "display_name": "Risk Register Procedure",
+      "class": "procedure",
+      "source_identifier": null,
+      "corpus_path": "risk/procedure-risk-register.md"
     }
   ],
   "records": [
@@ -444,6 +458,70 @@
         "to": null
       },
       "authority_level": "architectural recommendation",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0018",
+      "source": {
+        "id": "GRC-STD-ERM",
+        "class": "organizational standard"
+      },
+      "verb": "implements",
+      "destination": {
+        "id": "GRC-POL-ENTERPRISE-GRM",
+        "class": "policy"
+      },
+      "relationship_class": "implementation",
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "governance",
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "organizationally mandatory",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0019",
+      "source": {
+        "id": "GRC-PROC-RISK-REGISTER",
+        "class": "procedure"
+      },
+      "verb": "implements",
+      "destination": {
+        "id": "GRC-STD-ERM",
+        "class": "organizational standard"
+      },
+      "relationship_class": "implementation",
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "governance",
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "organizationally mandatory",
       "evidence_refs": [],
       "provenance": null,
       "scope": null,
