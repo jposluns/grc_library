@@ -189,6 +189,20 @@
       "class": "procedure",
       "source_identifier": null,
       "corpus_path": "risk/procedure-risk-acceptance.md"
+    },
+    {
+      "id": "GRC-FW-AI-ASSURANCE-EVIDENCE",
+      "display_name": "AI Assurance Evidence Framework",
+      "class": "framework",
+      "source_identifier": null,
+      "corpus_path": "ai/framework-ai-assurance-evidence.md"
+    },
+    {
+      "id": "ETSI-EN-304-223",
+      "display_name": "ETSI EN 304 223 Baseline Cyber Security Requirements for AI",
+      "class": "standard",
+      "source_identifier": "ETSI EN 304 223 V2.1.1",
+      "corpus_path": null
     }
   ],
   "records": [
@@ -745,6 +759,70 @@
       "verb": "maps to",
       "destination": {
         "id": "ISO-IEC-42001",
+        "class": "standard"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0032",
+      "source": {
+        "id": "GRC-FW-AI-ASSURANCE-EVIDENCE",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "NIST-AI-RMF",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0033",
+      "source": {
+        "id": "GRC-FW-AI-ASSURANCE-EVIDENCE",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "ETSI-EN-304-223",
         "class": "standard"
       },
       "relationship_class": "correspondence",

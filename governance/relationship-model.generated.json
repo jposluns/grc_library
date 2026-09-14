@@ -4,11 +4,25 @@
   "generated_by": "tools/build-relationship-model.py",
   "nodes": [
     {
+      "class": "standard",
+      "corpus_path": null,
+      "display_name": "ETSI EN 304 223 Baseline Cyber Security Requirements for AI",
+      "id": "ETSI-EN-304-223",
+      "source_identifier": "ETSI EN 304 223 V2.1.1"
+    },
+    {
       "class": "regulation or law",
       "corpus_path": null,
       "display_name": "EU Artificial Intelligence Act",
       "id": "EU-AI-ACT",
       "source_identifier": "Regulation 2024/1689 as amended by Regulation (EU) 2026/1744 (Digital Omnibus)"
+    },
+    {
+      "class": "framework",
+      "corpus_path": "ai/framework-ai-assurance-evidence.md",
+      "display_name": "AI Assurance Evidence Framework",
+      "id": "GRC-FW-AI-ASSURANCE-EVIDENCE",
+      "source_identifier": null
     },
     {
       "class": "framework",
@@ -755,16 +769,80 @@
       },
       "verb": "maps to",
       "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "NIST-AI-RMF"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0032",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "framework",
+        "id": "GRC-FW-AI-ASSURANCE-EVIDENCE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "ETSI-EN-304-223"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0033",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "framework",
+        "id": "GRC-FW-AI-ASSURANCE-EVIDENCE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
     }
   ],
   "schema_version": 2,
   "source": "governance/relationship-model-source.json",
   "summary": {
-    "node_count": 25,
-    "record_count": 18,
+    "node_count": 27,
+    "record_count": 20,
     "records_by_relationship_class": {
       "commitment": 1,
-      "correspondence": 5,
+      "correspondence": 7,
       "implementation": 9,
       "influence": 3
     }
