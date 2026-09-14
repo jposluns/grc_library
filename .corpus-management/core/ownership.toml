@@ -68,3 +68,8 @@ target = ".claude/rules/corpus-management/todo-forward-only.md"
 rule = "positional-backlog-token"
 kind = "file"
 target = ".claude/rules/corpus-management/positional-backlog-token.md"
+
+[[owned_targets]]
+rule = "no-stub-documents"
+kind = "file"
+target = ".claude/rules/corpus-management/no-stub-documents.md"
