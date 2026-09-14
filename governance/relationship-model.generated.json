@@ -75,6 +75,13 @@
     },
     {
       "class": "procedure",
+      "corpus_path": "ai/procedure-ai-system-impact-assessment.md",
+      "display_name": "AI System Impact Assessment Procedure",
+      "id": "GRC-PROC-AI-SYSTEM-IMPACT-ASSESSMENT",
+      "source_identifier": null
+    },
+    {
+      "class": "procedure",
       "corpus_path": "compliance/procedure-audit-planning.md",
       "display_name": "Audit Planning Procedure",
       "id": "GRC-PROC-AUDIT-PLANNING",
@@ -177,6 +184,13 @@
       "display_name": "ISO/IEC 42001 AI management systems",
       "id": "ISO-IEC-42001",
       "source_identifier": "ISO/IEC 42001:2023"
+    },
+    {
+      "class": "standard",
+      "corpus_path": null,
+      "display_name": "ISO/IEC 42005 AI system impact assessment",
+      "id": "ISO-IEC-42005",
+      "source_identifier": "ISO/IEC 42005:2025"
     },
     {
       "class": "framework",
@@ -833,18 +847,50 @@
       },
       "verb": "maps to",
       "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "procedure",
+        "id": "GRC-PROC-AI-SYSTEM-IMPACT-ASSESSMENT"
+      },
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "evidence_refs": [],
+      "id": "rel-corpus-0034",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is informed by"
+      },
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "influence",
+      "scope": null,
+      "source": {
+        "class": "standard",
+        "id": "ISO-IEC-42005"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "informs",
+      "viewpoint": "governance"
     }
   ],
   "schema_version": 2,
   "source": "governance/relationship-model-source.json",
   "summary": {
-    "node_count": 27,
-    "record_count": 20,
+    "node_count": 29,
+    "record_count": 21,
     "records_by_relationship_class": {
       "commitment": 1,
       "correspondence": 7,
       "implementation": 9,
-      "influence": 3
+      "influence": 4
     }
   }
 }
