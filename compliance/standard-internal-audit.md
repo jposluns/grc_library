@@ -2,7 +2,7 @@
 
 **Document Title:** Internal Audit Standard\
 **Document Type:** Standard\
-**Version:** 1.2.9\
+**Version:** 1.2.10\
 **Date:** 2026-09-14\
 **Owner:** Chief Audit Executive\
 **Approving Authority:** Governance Library Maintainer\
@@ -324,14 +324,23 @@ Audit findings are classified using the following scheme, aligned to the CAPA Pr
 - Remediation completed within **90 days**;
 - CAPA record recommended but not mandatory unless the control area has recurring findings.
 
-### 7.4 Low / observation
+### 7.4 Low
 
-**Definition:** A minor improvement opportunity or best-practice observation that does not constitute a nonconformity against a defined requirement. The control is broadly effective but could be enhanced.
+**Definition:** A minor control deficiency that does not constitute a nonconformity against a defined requirement. The control is broadly effective and meets the requirement, but a small gap or weakness could be strengthened.
 
 **Response requirements:**
 - Acknowledged by the auditee in the management response;
 - Addressed within **180 days** at the discretion of the domain owner;
 - Tracked in the audit register.
+
+### 7.5 Observation
+
+**Definition:** A best-practice suggestion or advisory note where no control deficiency exists. The control fully meets the applicable requirement; the observation identifies an opportunity to enhance maturity or efficiency beyond what is required.
+
+**Response requirements:**
+- Acknowledged by the auditee in the management response;
+- Remediation is optional and at the discretion of the domain owner;
+- Recorded in the audit register for trend analysis.
 
 ---
 
@@ -428,7 +437,7 @@ Moderate findings may be elevated to a CAPA record at the discretion of the CAE/
 - The control area is material to a certification or regulatory requirement;
 - The domain owner requests formalized tracking.
 
-Low / Observation findings are tracked in the audit register and do not routinely generate CAPA records unless a pattern of recurrence is identified.
+Low and Observation findings are tracked in the audit register and do not routinely generate CAPA records unless a pattern of recurrence is identified.
 
 ### 10.4 CAPA closure verification
 
