@@ -2,8 +2,8 @@
 
 **Document Title:** Operational Risk Register Template\
 **Document Type:** Template\
-**Version:** 1.0.5\
-**Date:** 2026-08-05\
+**Version:** 1.0.6\
+**Date:** 2026-09-14\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/guideline-quantitative-risk-analysis.md`](guideline-quantitative-risk-analysis.md), [`risk/register-key-risk-indicators.md`](register-key-risk-indicators.md), [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`operations/framework-it-service-management.md`](../operations/framework-it-service-management.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md)\
@@ -242,14 +242,14 @@ The example below illustrates a single risk entry. Adopting organizations replac
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO 31000:2018 | Risk management: Guidelines | Risk management baseline |
-| ISO/IEC 27005:2022 | Information security risk management | Cross-walk to information risk |
+| ISO 31000:2018 | §6.4.2, §6.4.3, §6.4.4, §6.5.3, §6.6, §6.7 (identification, analysis, evaluation, treatment plans, monitoring, recording) | Risk management baseline |
+| ISO/IEC 27005:2022 | §7.2.1, §7.2.2, §7.3.4, §8.6.1, §8.6.3, §10.4.3 | Cross-walk to information risk |
 | COSO ERM 2017 | Enterprise risk management | Enterprise risk integration |
 | Basel Committee Operational Risk Principles | Operational risk taxonomy | Operational risk framework |
 | ORX Reference Taxonomy | Operational risk event types | Industry taxonomy |
 | FAIR | Factor analysis of information risk | Quantitative method |
-| COBIT 2019 | EDM03 risk optimization objective | Governance of enterprise IT |
-| NIST CSF 2.0 | Govern function | Risk integration |
+| COBIT 2019 | EDM03.01, EDM03.03, APO12.03 | Governance of enterprise IT |
+| NIST CSF 2.0 | GV.RM-03, GV.RM-06 | Risk integration |
 
 ---
 
