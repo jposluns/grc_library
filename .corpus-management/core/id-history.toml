@@ -105,3 +105,15 @@ id = "citation-denylist"
 event = "created"
 date = 2026-09-14
 note = "compile PR-12: new pack-internal clause (documents do not cite identifiers on the project's citation denylist; per-term path exemptions; fenced-code lines not scanned; denylist + exemptions are wrapper config). Generated AI-facing rule (compile PR-12) like required-sections."
+
+[[events]]
+id = "lint-section-placement"
+event = "created"
+date = 2026-09-14
+note = "compile PR-13: gate-wave ninth gate transfer (grc gate 38 lint-section-placement; Model-2 wrapper, engine pack source of record, enforces the new section-placement clause). Engine takes PLACEMENT_RULES + repo_root as params (config-free); PLACEMENT_RULES + is_target + iter_targets (sorted) + main stay in the wrapper. run() keeps the relative_to try/except (matches this gate's old main, like gate 19). Coupling clean (CLI-only tests)."
+
+[[events]]
+id = "section-placement"
+event = "created"
+date = 2026-09-14
+note = "compile PR-13: new pack-internal clause (named sections appear in their required top/bottom position per the placement model; scoped/unscoped rules; unmatched sections + no-sections + other-doctype + fenced headings unflagged; model is wrapper config). Generated AI-facing rule (compile PR-13) like citation-denylist. Distinct from required-sections (presence, not order)."

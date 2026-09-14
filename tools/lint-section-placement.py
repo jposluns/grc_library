@@ -1,85 +1,24 @@
 #!/usr/bin/env python3
-"""Section-placement audit for the GRC Documentation Library.
+"""Section-placement audit (grc gate): project entry point.
 
-The library's documents follow strong placement conventions for a small
-set of recognizable section types. This linter codifies those
-conventions so future drift is caught mechanically rather than relying
-on review to catch it. The conventions were surfaced by a corpus-wide
-section-ordering survey (recorded in the CHANGELOG entry for the PR
-that introduces this audit) which found that the placement rules below
-are universally observed across the existing corpus.
-
-Placement rules enforced:
-
-  SP-01  Orientation sections (Purpose, Scope, Purpose and Scope,
-         Overview, Applicability, Introduction, Executive Summary)
-         must appear in the top three ``##`` sections. Applies to
-         all in-scope documents.
-
-  SP-03  Version-history sections (Version history, Release history,
-         Changelog) must appear in the bottom three ``##`` sections.
-         Applies to all in-scope documents.
-
-  SP-04  Licence sections (Licence, License, Licence boundary,
-         License boundary, Licence and third-party reference boundary,
-         License and third-party reference boundary) must appear in
-         the bottom three ``##`` sections. Applies to all in-scope
-         documents.
-
-"Bottom three" and "top three" are based on the count of ``##``
-sections in the file; for files with three or fewer ``##`` sections,
-the constraints are trivially satisfied.
-
-Matching is case-insensitive and uses exact match against the
-normalized section heading (with leading numbering, "Section N", and
-common punctuation stripped first). Exact matching is used rather than
-prefix or substring matching to avoid false positives on sections that
-legitimately reuse a canonical orientation or closing word in a
-different sense (for example, "Applicability decision tree" is not an
-orientation section even though its heading begins with
-"Applicability"; "Licence compatibility rules" is not the document's
-own licence section even though it begins with "Licence"; a closing
-"Summary" at the end of a guide is a recap, not an orientation
-introduction).
-
-Notable rule the corpus-wide section-ordering survey identified but
-this audit does not enforce:
-
-- A "Framework alignment placement" rule (SP-02 in the survey draft)
-  is not enforced. The survey found that Policy/Standard/Framework/
-  Procedure documents universally place Framework alignment near the
-  bottom, but two of the project's policies legitimately follow
-  Framework alignment with administrative tail sections (Exceptions,
-  Enforcement, Compliance mapping table, Definitions). A reliable rule
-  would have to express "Framework alignment must be after the
-  substantive body sections" rather than a simple bottom-N position
-  constraint, which is more complex than the prefix/exact patterns
-  this audit uses. Deferred until the project decides whether to enforce
-  relative-order rules in addition to absolute-position rules.
-
-Scope:
-
-  Markdown files reachable from the default repository scan paths,
-  excluding the DEFAULT_EXEMPT_DIRS set from ``lint_common`` (the shared
-  exempt-directory set; see its definition for the current members).
-  Files marked ``Status: Superseded`` (the lifecycle marker, re-keyed
-  from the former ``Classification: Deprecated`` overload) are skipped. The
-  repo-root ``executive/`` narrative tree is excluded (root-anchored via
-  ``is_narrative_root``; a nested directory named ``executive`` is still
-  scanned), being outside the corpus document model (P-1.25 scan-root split).
-  Otherwise the placement rules use exact-match
-  section-name lookups so they do not produce false positives on
-  documents in other directories, and explicit fixture paths (used by
-  the gate-36 regression test suite) are scanned the same as any other
-  passed-in argument.
+The gate ENGINE is pack-owned source of record at
+``.corpus-management/tools/gate_lint_section_placement.py`` (Corpus-Management pack, gate
+register ``core/gates.toml``, id ``lint-section-placement``, enforcing the pack's
+``section-placement`` clause); this thin wrapper keeps the house
+``python3 tools/lint-section-placement.py`` shape (gate 35 parses exactly that) and supplies
+the grc-local configuration the pack engine deliberately does not carry: the AIQT bootstrap,
+the repo root, the grc PLACEMENT_RULES (the per-position, per-doctype section-order rules), the
+target selection (the exempt dirs, the ``Status: Superseded`` skip, the narrative / default-exempt
+scope predicates via ``is_target`` + ``iter_targets``), and the default scan root. These wrapper
+bytes are HAND-MAINTAINED, not compiler-generated, so gate 99 does NOT own them. PLACEMENT_RULES,
+is_target, iter_targets, and main stay HERE (grc config) so the scan-scope regression's WALKER map
+and the CLI regression tests observe them unmoved.
 
 Usage:
     python3 tools/lint-section-placement.py
     python3 tools/lint-section-placement.py path1 path2 ...
 
-Exit codes:
-    0   no findings
-    1   one or more placement findings
+Exit codes: 0 clean; 1 finding(s).
 """
 
 from __future__ import annotations
@@ -90,13 +29,12 @@ import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import iter_non_code_lines, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
 from lint_common import is_default_exempt_root, DEFAULT_EXEMPT_DIRS, is_narrative_root, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+
+PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
 DEFAULT_PATHS = [str(REPO_ROOT)]
 
-DOCTYPE_RE = re.compile(r"^\*\*Document Type:\*\*\s+(.+?)(?:\\)?\s*$", re.MULTILINE)
-HEADING_RE = re.compile(r"^##\s+(.+?)\s*$")
 
 EXEMPT_DIR_PARTS = DEFAULT_EXEMPT_DIRS  # narrative-root exclusion is root-anchored via is_narrative_root (P-1.25 scan-root split)
 
@@ -175,98 +113,6 @@ def is_target(path: Path) -> bool:
     return True
 
 
-def extract_doctype(text: str) -> str | None:
-    m = DOCTYPE_RE.search(text)
-    if not m:
-        return None
-    return m.group(1).strip().rstrip("\\").strip()
-
-
-def normalise_heading(heading: str) -> str:
-    """Return the heading lower-cased with leading numbering stripped.
-
-    Strips patterns like ``1. ``, ``1.2 ``, ``Section 4: ``, and common
-    trailing whitespace so exact matching works against the human-facing
-    section name, not the formatting markers.
-    """
-    cleaned = re.sub(r"^\d+(\.\d+)*[.\s:]*", "", heading)
-    cleaned = re.sub(r"^Section\s+\d+(\.\d+)*[.\s:]*", "", cleaned)
-    return cleaned.strip().lower()
-
-
-def extract_headings(text: str) -> list[tuple[int, str]]:
-    """Return the ``##`` section headings as (sequence_index, normalised_heading).
-
-    Code-fenced lines are skipped via ``iter_non_code_lines``. The
-    sequence_index starts at 0 for the first ``##`` heading.
-    """
-    headings: list[tuple[int, str]] = []
-    idx = 0
-    for _lineno, line in iter_non_code_lines(text):
-        m = HEADING_RE.match(line)
-        if m:
-            headings.append((idx, normalise_heading(m.group(1))))
-            idx += 1
-    return headings
-
-
-def check_placement(
-    headings: list[tuple[int, str]],
-    rule: tuple[str, str, frozenset[str], tuple[str, int], tuple[str, ...] | None],
-) -> list[str]:
-    """Apply one placement rule against a file's section list.
-
-    Returns a list of finding messages (empty if the rule is satisfied or
-    no matching section is present).
-    """
-    rule_id, description, names, position, _doctypes = rule
-    total = len(headings)
-    if total == 0:
-        return []
-    findings: list[str] = []
-    for seq, heading in headings:
-        if heading not in names:
-            continue
-        constraint_kind, n = position
-        if constraint_kind == "top":
-            # Allowed positions: 0..n-1 (zero-indexed).
-            allowed = seq < n
-            if not allowed:
-                findings.append(
-                    f"[{rule_id}] section #{seq + 1} of {total} "
-                    f"({heading!r}) should appear in the top {n} sections; "
-                    f"{description}"
-                )
-        elif constraint_kind == "bottom":
-            # Allowed positions: total-n..total-1 (zero-indexed).
-            allowed = seq >= max(0, total - n)
-            if not allowed:
-                findings.append(
-                    f"[{rule_id}] section #{seq + 1} of {total} "
-                    f"({heading!r}) should appear in the bottom {n} sections; "
-                    f"{description}"
-                )
-    return findings
-
-
-def scan(path: Path) -> list[str]:
-    findings: list[str] = []
-    text = read_text_safe(path)
-    if text is None:
-        return findings
-    doctype = extract_doctype(text)
-    headings = extract_headings(text)
-    if not headings:
-        return findings
-    for rule in PLACEMENT_RULES:
-        _rid, _desc, _pre, _pos, doctypes = rule
-        if doctypes is not None:
-            if doctype is None or doctype not in doctypes:
-                continue
-        findings.extend(check_placement(headings, rule))
-    return findings
-
-
 def iter_targets(paths: list[str]) -> list[Path]:
     targets: list[Path] = []
     seen: set[Path] = set()
@@ -284,39 +130,22 @@ def iter_targets(paths: list[str]) -> list[Path]:
     return sorted(targets)
 
 
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_section_placement  # the pack-owned engine (source of record)
+    return gate_lint_section_placement
+
+
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
         description="Enforce section-placement conventions across the markdown corpus."
     )
     parser.add_argument("paths", nargs="*", default=DEFAULT_PATHS)
     args = parser.parse_args(argv[1:])
-    targets = iter_targets(args.paths)
-    grouped: dict[Path, list[str]] = {}
-    for t in targets:
-        findings = scan(t)
-        if findings:
-            grouped[t] = findings
-    if not grouped:
-        print(
-            f"OK: all documents satisfy section-placement conventions "
-            f"(scanned {len(targets)} files)."
-        )
-        return 0
-    total = 0
-    for path, findings in sorted(grouped.items()):
-        try:
-            rel = path.relative_to(REPO_ROOT)
-        except ValueError:
-            rel = path
-        print(f"=== {rel} ===")
-        for msg in findings:
-            print(f"  {msg}")
-        total += len(findings)
-    print(
-        f"\nFAIL: {total} section-placement finding(s) across "
-        f"{len(grouped)} file(s)."
-    )
-    return 1
+    return _engine().run(iter_targets(args.paths), PLACEMENT_RULES, repo_root=REPO_ROOT)
 
 
 if __name__ == "__main__":
