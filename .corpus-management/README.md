@@ -1,12 +1,12 @@
 # Corpus-Management pack (`.corpus-management/`)
 
-**Status: ACTIVE (umbrella 4.1, compile PR-20).** This directory is the structure of a standalone,
+**Status: ACTIVE (umbrella 4.1, compile PR-21).** This directory is the structure of a standalone,
 adoptable Corpus-Management pack. PR-2 shipped the compiler, the first generated slice (the CLAUDE.md
 generated-artefacts instruction block, transferred verbatim), and the mandatory drift gate (grc gate
 99); PR-3 transferred the first authoring rule (the corpus language convention) as a generated
 file-kind rule, the first live use of the rules-sync gate's compiler-owned recognition; PR-4
 transferred the second authoring rule (the corpus authoring conventions) as the second file-kind
-rule. The gate register carries sixteen gate transfers (lint-language, grc gate 2, compile PR-5; lint-unbalanced-fences, grc gate 66, compile PR-6; lint-nested-markdown-links, grc gate 68, compile PR-7; lint-ungated-dashes, grc gate 82, compile PR-8; lint-bare-normative-shall, grc gate 56, compile PR-9; lint-links, grc gate 3, compile PR-10; lint-required-sections, grc gate 19, compile PR-11; lint-citations, grc gate 5, compile PR-12; lint-section-placement, grc gate 38, compile PR-13; lint-shall-near-uncertainty, grc gate 9, compile PR-14; lint-todo-marked-done, grc gate 57, compile PR-15; lint-positional-backlog-tokens, grc gate 69, compile PR-16; lint-stub-documents, grc gate 16, compile PR-17; lint-filename-title-alignment, grc gate 7, compile PR-18; lint-standards-currency, grc gate 6, compile PR-19; lint-directional-dependency, grc gate 53, compile PR-20); no hooks have been transferred yet.
+rule. The gate register carries seventeen gate transfers (lint-language, grc gate 2, compile PR-5; lint-unbalanced-fences, grc gate 66, compile PR-6; lint-nested-markdown-links, grc gate 68, compile PR-7; lint-ungated-dashes, grc gate 82, compile PR-8; lint-bare-normative-shall, grc gate 56, compile PR-9; lint-links, grc gate 3, compile PR-10; lint-required-sections, grc gate 19, compile PR-11; lint-citations, grc gate 5, compile PR-12; lint-section-placement, grc gate 38, compile PR-13; lint-shall-near-uncertainty, grc gate 9, compile PR-14; lint-todo-marked-done, grc gate 57, compile PR-15; lint-positional-backlog-tokens, grc gate 69, compile PR-16; lint-stub-documents, grc gate 16, compile PR-17; lint-filename-title-alignment, grc gate 7, compile PR-18; lint-standards-currency, grc gate 6, compile PR-19; lint-directional-dependency, grc gate 53, compile PR-20; lint-roles, grc gate 8, compile PR-21); no hooks have been transferred yet.
 
 ## What this is
 A **thin, adoptable layer** for keeping a documentation corpus internally consistent (metadata shape,
@@ -67,7 +67,8 @@ disabled in the skeleton.
 - **PR-18:** the fourteenth gate transfer (lint-filename-title-alignment, grc gate 7), Model-2 pattern. Most param-heavy yet (synonyms + doctypes + min-overlap params); DOCTYPES stays a wrapper module attribute for the gate-67 cross-check. SHIPPED.
 - **PR-19:** the fifteenth gate transfer (lint-standards-currency, grc gate 6), Model-2 pattern. Most-involved yet: engine gets compile+check+run (compiled patterns + counts + repo_root params); wrapper keeps the canonical-register parse + the --root fixture-isolation override + error paths. SHIPPED.
 - **PR-20:** the sixteenth gate transfer (lint-directional-dependency, grc gate 53), Model-2 pattern. Bespoke marker-aware fence handling + a 9-case self-test moved to the engine (project_gov_dir param); --self-test delegates. SHIPPED.
-- **PR-21 (next):** remaining heaviest ALLOW gates (lint-gate-count-consistency 569L + direct-call, lint-placeholder-leakage cross-gate, lint-roles --root+register) - each careful individual handling. And/or the vocabulary/config split to `defaults/grc/` (Phase-4).
+- **PR-21:** the seventeenth gate transfer (lint-roles, grc gate 8, Owner/Approving-Authority role audit), Model-2 pattern, enforcing the new role-authority clause. Engine holds the pure metadata-value check (patterns + is_placeholder + check_file + reporting run, known + repo_root params, bare relative_to like gate 56); the wrapper keeps the role-authority register parse (load_known_roles) + the EXTRA_KNOWN_ROLES allow-list + the register-prerequisite exit 2 + the --root override (proven by PR-19). SHIPPED.
+- **PR-22 (next):** the two remaining ALLOW gates (lint-placeholder-leakage cross-gate, lint-gate-count-consistency 569L + direct-call) - each careful individual handling. And/or the vocabulary/config split to `defaults/grc/` (Phase-4).
 - **Phase-2b: SKIP.** **Gate-98 (vendored-core digest): CORPUS interim.** **Publication: deferred (P4).**
 
 See `core/manifest.toml` for the machine-readable pack descriptor.
