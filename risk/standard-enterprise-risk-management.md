@@ -2,8 +2,8 @@
 
 **Document Title:** Enterprise Risk Management Standard\
 **Document Type:** Standard\
-**Version:** 1.8.8\
-**Date:** 2026-09-07\
+**Version:** 1.8.9\
+**Date:** 2026-09-14\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -245,12 +245,12 @@ The Risk Owner role's six accountability actions (defined in §3) map to specifi
 
 | Framework | Relevant Reference |
 |---|---|
-| ISO 31000:2018 | Risk Management: Guidelines (full framework) |
-| ISO/IEC 23894:2023 | AI Risk Management |
-| ISO/IEC 42001:2023 | AI Management System |
-| COBIT 2019 | APO12 Managed Risk; APO10 Managed Vendors; MEA01 |
+| ISO 31000:2018 | Clause 4 (principles), Clause 5 (framework), Clause 6 (risk-management process) |
+| ISO/IEC 23894:2023 | Clause 4 (AI risk principles), Clause 5 (framework), Clause 6 (AI risk process) |
+| ISO/IEC 42001:2023 | §6.1.2, §6.1.3, §6.1.4, §8.2, §8.3, §8.4, §9.1 (AI risk assessment, treatment, impact + evidence, monitoring) |
+| COBIT 2019 | APO12.01, APO12.02, APO12.03, APO12.04, APO12.05, APO10.04, MEA01.02, MEA01.04 |
 | CSA CCM v4.1 | GRC-02 Risk Management Program |
-| NIST SP 800-39 | Managing Information Security Risk |
+| NIST SP 800-39 | Chapters 2 and 3 (multitiered risk-management fundamentals; framing, assessing, responding, monitoring) |
 | NIST IR 8286 (Rev. 1; and 8286A/B/C/D) | Integrating Cybersecurity and Enterprise Risk Management |
 | NIST SP 800-221 / 800-221A | Enterprise Impact of ICT Risk; ICT Risk Outcomes |
 | NIST AI RMF | Govern, Map, Measure, Manage functions |
