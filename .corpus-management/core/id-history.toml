@@ -117,3 +117,15 @@ id = "section-placement"
 event = "created"
 date = 2026-09-14
 note = "compile PR-13: new pack-internal clause (named sections appear in their required top/bottom position per the placement model; scoped/unscoped rules; unmatched sections + no-sections + other-doctype + fenced headings unflagged; model is wrapper config). Generated AI-facing rule (compile PR-13) like citation-denylist. Distinct from required-sections (presence, not order)."
+
+[[events]]
+id = "lint-shall-near-uncertainty"
+event = "created"
+date = 2026-09-14
+note = "compile PR-14: gate-wave tenth gate transfer (grc gate 9 lint-shall-near-uncertainty; Model-2 wrapper, engine pack source of record, enforces the new shall-near-uncertainty clause). The uncertainty/mandatory patterns + window stay in the engine (generic check, like gate 3's LINK_RE); the grc EXEMPT_FILES filter moved to the wrapper (like gate 56) so the engine is repo_root-free; no try/except in run() (matches this gate's old main, like gate 3). Coupling clean (CLI-only tests)."
+
+[[events]]
+id = "shall-near-uncertainty"
+event = "created"
+date = 2026-09-14
+note = "compile PR-14: new pack-internal clause (no mandatory-requirement word within N lines of an uncertainty marker; both read outside fenced blocks; unmatched/in-fence not flagged; exempt files are wrapper scan config). Generated AI-facing rule (compile PR-14) like section-placement."

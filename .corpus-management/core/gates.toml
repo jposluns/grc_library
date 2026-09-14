@@ -78,3 +78,11 @@ source = "tools/gate_lint_section_placement.py"
 enforces = "section-placement"
 entry_point = "tools/lint-section-placement.py"
 origin = "grc_library tools/lint-section-placement.py, grc gate 38 (engine transferred in compile PR-13, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc PLACEMENT_RULES + target selection; engine takes the placement_rules + repo_root as parameters; run() keeps the relative_to try/except matching this gate's old main)"
+
+[[gates]]
+id = "lint-shall-near-uncertainty"
+title = "Mandatory-near-uncertainty audit"
+source = "tools/gate_lint_shall_near_uncertainty.py"
+enforces = "shall-near-uncertainty"
+entry_point = "tools/lint-shall-near-uncertainty.py"
+origin = "grc_library tools/lint-shall-near-uncertainty.py, grc gate 9 (engine transferred in compile PR-14, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc scan scope + exempt-file set; the marker/word patterns + window stay in the engine as the generic check, the grc EXEMPT_FILES filter moved to the wrapper so the engine is repo_root-free)"

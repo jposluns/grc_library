@@ -62,3 +62,9 @@ id = "section-placement"
 title = "Section placement (named sections appear in their required top/bottom position)"
 source = "core/rules/section-placement.md"
 origin = "grc_library tools/lint-section-placement.py gate rationale (new clause in compile PR-13; generated AI-facing rule via gensrc, kind=file, like citation-denylist; the grc-specific PLACEMENT_RULES are wrapper config, not in the clause; distinct from required-sections which is section PRESENCE not ORDER)"
+
+[[clauses]]
+id = "shall-near-uncertainty"
+title = "Mandatory requirements near uncertainty markers (no shall/must within N lines of a TBD/TODO/placeholder marker)"
+source = "core/rules/shall-near-uncertainty.md"
+origin = "grc_library tools/lint-shall-near-uncertainty.py gate rationale (new clause in compile PR-14; generated AI-facing rule via gensrc, kind=file, like section-placement; the marker/word patterns + window live in the pack engine (generic check definition), the grc-specific exempt-file set is wrapper config)"

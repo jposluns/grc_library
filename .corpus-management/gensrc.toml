@@ -77,3 +77,10 @@ kind = "file"
 sources = ["core/rules/section-placement.md"]
 target = ".claude/rules/corpus-management/section-placement.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "shall-near-uncertainty"
+kind = "file"
+sources = ["core/rules/shall-near-uncertainty.md"]
+target = ".claude/rules/corpus-management/shall-near-uncertainty.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]
