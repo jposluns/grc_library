@@ -56,3 +56,10 @@ kind = "file"
 sources = ["core/rules/markdown-link-resolution.md"]
 target = ".claude/rules/corpus-management/markdown-link-resolution.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "required-sections"
+kind = "file"
+sources = ["core/rules/required-sections.md"]
+target = ".claude/rules/corpus-management/required-sections.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]

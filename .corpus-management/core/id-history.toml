@@ -81,3 +81,15 @@ id = "markdown-link-resolution"
 event = "created"
 date = 2026-09-14
 note = "compile PR-10: new pack-internal clause (internal markdown link targets resolve to an existing in-repo path; fence-skipped, anchor-stripped, containment-checked); generated AI-facing rule (compile PR-10) like markdown-link-integrity. Distinct from markdown-link-integrity (nested-link malformation) and corpus-scan-integrity (fences)."
+
+[[events]]
+id = "lint-required-sections"
+event = "created"
+date = 2026-09-14
+note = "compile PR-11: gate-wave seventh gate transfer (grc gate lint-required-sections; Model-2 wrapper, engine pack source of record, enforces the new required-sections clause). Engine takes the section MODEL (required_map) + repo_root as params (config-free); REQUIRED_SECTIONS + is_target + iter_targets + main stay in the wrapper. Coupling verified clean (RequiredSectionsTests use run_linter CLI; required.main() @16601; mod.scan() @12139 is a DIFFERENT gate)."
+
+[[events]]
+id = "required-sections"
+event = "created"
+date = 2026-09-14
+note = "compile PR-11: new pack-internal clause (a modelled doctype carries its required sections; alias-satisfiable; unmodelled types unconstrained; the project's specific section model is wrapper config). Generated AI-facing rule (compile PR-11) like markdown-link-resolution."

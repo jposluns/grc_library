@@ -38,3 +38,8 @@ target = ".claude/rules/corpus-management/normative-wording.md"
 rule = "markdown-link-resolution"
 kind = "file"
 target = ".claude/rules/corpus-management/markdown-link-resolution.md"
+
+[[owned_targets]]
+rule = "required-sections"
+kind = "file"
+target = ".claude/rules/corpus-management/required-sections.md"
