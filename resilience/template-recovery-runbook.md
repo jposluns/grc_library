@@ -2,8 +2,8 @@
 
 **Document Title:** Recovery Runbook Template\
 **Document Type:** Template\
-**Version:** 1.0.7\
-**Date:** 2026-09-02\
+**Version:** 1.0.8\
+**Date:** 2026-09-14\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/plan-it-disaster-recovery.md`](plan-it-disaster-recovery.md), [`resilience/procedure-backup-and-recovery.md`](procedure-backup-and-recovery.md), [`resilience/procedure-business-impact-analysis.md`](procedure-business-impact-analysis.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -168,8 +168,8 @@ Each scheduled recovery test against this runbook is recorded with date, scope (
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ISO 22301:2019 | §8.4 Business continuity procedures | Operational recovery |
-| ISO/IEC 27031:2025 | ICT readiness for business continuity | IT recovery |
-| NIST SP 800-34 Rev. 1 | Contingency Planning Guide | US federal recovery planning |
+| ISO/IEC 27031:2025 | §10.3.5 Response and recovery procedures | IT recovery |
+| NIST SP 800-34 Rev. 1 | §4.3.1, §4.3.2, §4.4 (recovery sequence, procedures, reconstitution) | US federal recovery planning |
 | DORA | Article 12 backup, restoration, and recovery procedures | Financial sector recovery |
 | NIS 2 | Article 21(2)(c) Business continuity | EU essential entity recovery |
 | ITIL 4 | Service continuity management | Practice alignment |
