@@ -2,7 +2,7 @@
 
 **Document Title:** Corrective and Preventive Action (CAPA) Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.13\
+**Version:** 1.0.14\
 **Date:** 2026-09-14\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -353,10 +353,10 @@ The GRC Programme Manager maintains a centralized CAPA register. Each record con
 | Field | Description |
 |-------|-------------|
 | **CAPA ID** | Unique identifier (format: CAPA-[YYYY]-[NNN]) |
-| **Date Opened** | Date the nonconformity was entered into the register |
+| **Date Opened** | Date the finding was entered into the register |
 | **Source** | Mechanism of identification (audit, incident, regulatory notification, etc.) |
 | **Domain** | GRC domain |
-| **Finding Summary** | Concise description of the nonconformity |
+| **Finding Summary** | Concise description of the finding |
 | **Root Cause** | Root cause statement or reference to root cause analysis document |
 | **Risk Level** | Classification: Critical / High / Moderate / Low |
 | **Corrective Action** | Summary of planned corrective actions; reference to full action plan if separate |
