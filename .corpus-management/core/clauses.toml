@@ -26,3 +26,9 @@ id = "corpus-scan-integrity"
 title = "Corpus scan integrity (balanced fences; no file ends inside an open code block)"
 source = "core/rules/corpus-scan-integrity.md"
 origin = "grc_library tools/lint-unbalanced-fences.py gate rationale (new clause in compile PR-6; generated AI-facing rule via gensrc, kind=file, like language-convention, per the Option-A maintainer decision 2026-09-10)"
+
+[[clauses]]
+id = "markdown-link-integrity"
+title = "Markdown link integrity (no nested markdown links outside code spans)"
+source = "core/rules/markdown-link-integrity.md"
+origin = "grc_library tools/lint-nested-markdown-links.py gate rationale (new clause in compile PR-7; generated AI-facing rule via gensrc, kind=file, like corpus-scan-integrity)"

@@ -22,3 +22,11 @@ source = "tools/gate_lint_unbalanced_fences.py"
 enforces = "corpus-scan-integrity"
 entry_point = "tools/lint-unbalanced-fences.py"
 origin = "grc_library tools/lint-unbalanced-fences.py, grc gate 66 (engine transferred in compile PR-6, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc scan walk)"
+
+[[gates]]
+id = "lint-nested-markdown-links"
+title = "Nested-markdown-link audit"
+source = "tools/gate_lint_nested_markdown_links.py"
+enforces = "markdown-link-integrity"
+entry_point = "tools/lint-nested-markdown-links.py"
+origin = "grc_library tools/lint-nested-markdown-links.py, grc gate 68 (engine transferred in compile PR-7, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc scan walk)"

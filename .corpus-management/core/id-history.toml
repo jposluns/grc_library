@@ -39,3 +39,15 @@ id = "corpus-scan-integrity"
 event = "created"
 date = 2026-09-10
 note = "compile PR-6: new pack-internal clause (balanced fences precede any fence-aware gate's soundness); generated AI-facing rule (compile PR-6, Option A) like language-convention"
+
+[[events]]
+id = "lint-nested-markdown-links"
+event = "created"
+date = 2026-09-14
+note = "compile PR-7: gate-wave third gate transfer (grc gate 68; Model-2 wrapper, engine pack source of record, enforces the markdown-link-integrity clause)"
+
+[[events]]
+id = "markdown-link-integrity"
+event = "created"
+date = 2026-09-14
+note = "compile PR-7: new pack-internal clause (no nested markdown links outside code spans; gate-blind to link-coverage and broken-link gates); generated AI-facing rule (compile PR-7) like corpus-scan-integrity"
