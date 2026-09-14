@@ -153,3 +153,15 @@ id = "positional-backlog-token"
 event = "created"
 date = 2026-09-14
 note = "compile PR-16: new pack-internal clause (prose does not cite a backlog item by renumber-fragile position; bare-digit/unqualified/blockquote/code-span/fence not flagged; exempt files are wrapper scan config). Generated AI-facing rule (compile PR-16) like todo-forward-only."
+
+[[events]]
+id = "lint-stub-documents"
+event = "created"
+date = 2026-09-14
+note = "compile PR-17: gate-wave thirteenth gate transfer (grc gate 16 lint-stub-documents; Model-2 wrapper, engine pack source of record, enforces the new no-stub-documents clause). STUB_PHRASES + WORD_COUNT_THRESHOLD live in the engine (generic check, like gate 9); is_target + iter_targets + EXEMPT_FILES stay in the wrapper. run() keeps the is_relative_to conditional (matches old main). CLI-only coupling (no shim). extract_body/count_substantive_words/scan byte-identical."
+
+[[events]]
+id = "no-stub-documents"
+event = "created"
+date = 2026-09-14
+note = "compile PR-17: new pack-internal clause (a production document meets a word-count floor and carries no stub-indicator phrase; stub phrase flagged even in a long body; fenced lines not counted; threshold+phrase-list are check params, exempt files are wrapper scan config). Generated AI-facing rule (compile PR-17) like positional-backlog-token."

@@ -98,3 +98,10 @@ kind = "file"
 sources = ["core/rules/positional-backlog-token.md"]
 target = ".claude/rules/corpus-management/positional-backlog-token.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "no-stub-documents"
+kind = "file"
+sources = ["core/rules/no-stub-documents.md"]
+target = ".claude/rules/corpus-management/no-stub-documents.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]
