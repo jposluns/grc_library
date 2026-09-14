@@ -42,3 +42,10 @@ kind = "file"
 sources = ["core/rules/markdown-link-integrity.md"]
 target = ".claude/rules/corpus-management/markdown-link-integrity.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "normative-wording"
+kind = "file"
+sources = ["core/rules/normative-wording.md"]
+target = ".claude/rules/corpus-management/normative-wording.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]

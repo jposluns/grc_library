@@ -32,3 +32,9 @@ id = "markdown-link-integrity"
 title = "Markdown link integrity (no nested markdown links outside code spans)"
 source = "core/rules/markdown-link-integrity.md"
 origin = "grc_library tools/lint-nested-markdown-links.py gate rationale (new clause in compile PR-7; generated AI-facing rule via gensrc, kind=file, like corpus-scan-integrity)"
+
+[[clauses]]
+id = "normative-wording"
+title = "Normative wording (new content uses must; shall reserved for standard-quotes and legacy)"
+source = "core/rules/normative-wording.md"
+origin = "grc_library tools/lint-bare-normative-shall.py gate rationale + specification-master-project.md FR-44 convention (new clause in compile PR-9; generated AI-facing rule via gensrc, kind=file, like markdown-link-integrity)"
