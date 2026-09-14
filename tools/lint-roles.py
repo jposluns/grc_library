@@ -1,15 +1,22 @@
 #!/usr/bin/env python3
-"""Verify that every Owner/Approving Authority role used in metadata is defined.
+"""Owner and Approving Authority role audit (grc gate 8): project entry point.
 
-The role authority register (`governance/register-role-authority.md`)
-is the source of truth for organizational roles. Every Owner and
-Approving Authority value in document metadata blocks should resolve to
-a role defined there, or to a role on the EXTRA_KNOWN_ROLES allow-list
-(cross-functional bodies, named forums, external authorities that are
-not formal organizational roles).
+The gate ENGINE is pack-owned source of record at
+``.corpus-management/tools/gate_lint_roles.py`` (Corpus-Management pack, gate register
+``core/gates.toml``, id ``lint-roles``, enforcing the pack's ``role-authority`` clause); this thin
+wrapper keeps the house ``python3 tools/lint-roles.py`` shape (gate 35 parses exactly that) and
+supplies the grc-local configuration the pack engine deliberately does not carry: the markdown
+scope selector (``iter_markdown_files``, kept here so the scan-scope regression's ALLOW map
+observes it unmoved), the default scan roots, the role-authority register path and its parse
+(``load_known_roles``), the grc allow-list (``EXTRA_KNOWN_ROLES``), the register-prerequisite
+failure (exit 2), and the ``--root`` override the gate-36 regression suite uses for synthetic-fixture
+isolation. These wrapper bytes are HAND-MAINTAINED, not compiler-generated, so gate 99 does NOT own
+them.
 
-This linter detects undefined-role usage that would otherwise create
-governance ambiguity.
+The role authority register (``governance/register-role-authority.md``) is the source of truth for
+organizational roles; every Owner and Approving Authority value should resolve to a role defined
+there or to an ``EXTRA_KNOWN_ROLES`` entry (cross-functional bodies, named forums, external
+authorities that are not formal organizational roles).
 
 Usage:
     python3 tools/lint-roles.py
@@ -18,8 +25,8 @@ Usage:
 Exit codes:
     0   no findings.
     1   one or more undefined-role findings.
-    2   the role authority register itself could not be parsed (a
-        prerequisite failure; the linter cannot run without it).
+    2   the role authority register itself could not be parsed (a prerequisite failure; the linter
+        cannot run without it).
 """
 
 from __future__ import annotations
@@ -33,6 +40,9 @@ from lint_common import AUDITED_DOMAIN_DIRS, iter_scan_roots_markdown
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 ROLE_REGISTER = REPO_ROOT / "governance" / "register-role-authority.md"
+
+# Derive the pack tools/ from this file's location, independent of the (test-rebound) REPO_ROOT.
+PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
 # Roles that are intentionally not in the role authority register but are
 # acceptable Owner values for cross-functional bodies, named forums, or
@@ -73,9 +83,6 @@ DEFAULT_PATHS = [
     "guardrails",
 ]
 
-OWNER_PATTERN = re.compile(r"^\*\*Owner:\*\*\s+(.+?)\s*$", re.MULTILINE)
-APPROVER_PATTERN = re.compile(r"^\*\*Approving Authority:\*\*\s+(.+?)\s*$", re.MULTILINE)
-
 
 def load_known_roles() -> set[str]:
     """Parse the role authority register for the set of known roles."""
@@ -105,43 +112,13 @@ def iter_markdown_files(paths: list[str]) -> list[Path]:
     return iter_scan_roots_markdown(paths, repo_root=REPO_ROOT)
 
 
-def is_placeholder(value: str) -> bool:
-    """Detect obvious template placeholders that shouldn't be linted."""
-    if "<" in value or ">" in value:
-        return True
-    if value in ("Role Name", "Role Title", "<role title>", "<role name>"):
-        return True
-    if value.startswith("[") and value.endswith("]"):
-        return True
-    return False
-
-
-def check_file(path: Path, known: set[str]) -> list[tuple[str, str]]:
-    """Return list of (field, value) findings where the value is not a known role."""
-    text = path.read_text(encoding="utf-8")
-    findings: list[tuple[str, str]] = []
-
-    def normalise(value: str) -> str:
-        value = value.strip().rstrip()
-        value = value.rstrip(" ").rstrip()
-        # Strip CommonMark hard-line-break backslash if present.
-        if value.endswith("\\"):
-            value = value[:-1].rstrip()
-        return value
-
-    for m in OWNER_PATTERN.finditer(text):
-        value = normalise(m.group(1))
-        if is_placeholder(value):
-            continue
-        if value not in known:
-            findings.append(("Owner", value))
-    for m in APPROVER_PATTERN.finditer(text):
-        value = normalise(m.group(1))
-        if is_placeholder(value):
-            continue
-        if value not in known:
-            findings.append(("Approving Authority", value))
-    return findings
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_roles  # the pack-owned engine (source of record)
+    return gate_lint_roles
 
 
 def main(argv: list[str]) -> int:
@@ -169,35 +146,7 @@ def main(argv: list[str]) -> int:
 
     paths = args.paths or DEFAULT_PATHS
     files = iter_markdown_files(paths)
-
-    grouped: dict[str, list[tuple[str, str]]] = {}
-    undefined_values: dict[str, list[str]] = {}
-    total = 0
-    for f in files:
-        rel = f.relative_to(REPO_ROOT).as_posix()
-        findings = check_file(f, known)
-        if findings:
-            grouped[rel] = findings
-            for field, value in findings:
-                undefined_values.setdefault(value, []).append(rel)
-                total += 1
-
-    if not grouped:
-        print(f"OK: all roles in scanned files are defined (known: {len(known)}).")
-        return 0
-
-    for rel, findings in sorted(grouped.items()):
-        print(f"=== {rel} ===")
-        for field, value in findings:
-            print(f"  {field}: {value!r}")
-
-    print(f"\nUndefined role values found:")
-    for value, files_using in sorted(undefined_values.items()):
-        print(f"  {value!r} used by {len(files_using)} file(s)")
-
-    print(f"\nFAIL: {total} undefined-role usage(s) across {len(grouped)} file(s).")
-    print("Add the role to governance/register-role-authority.md or to EXTRA_KNOWN_ROLES in this linter.")
-    return 1
+    return _engine().run(files, known=known, repo_root=REPO_ROOT)
 
 
 if __name__ == "__main__":

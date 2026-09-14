@@ -201,3 +201,15 @@ id = "directional-dependency"
 event = "created"
 date = 2026-09-14
 note = "compile PR-20: new pack-internal clause (a deliverable document does not link into project-internal governance; inline/titled/angle/ref-def link forms; external/fragment/fenced not flagged; marker-aware fence; project-gov dir name + scan scope are wrapper config). Generated AI-facing rule (compile PR-20) like standards-currency."
+
+[[events]]
+id = "lint-roles"
+event = "created"
+date = 2026-09-14
+note = "compile PR-21: gate-wave seventeenth gate transfer (grc gate 8 lint-roles; Model-2 wrapper, engine pack source of record, enforces the new role-authority clause). OWNER_PATTERN/APPROVER_PATTERN + is_placeholder + check_file (with nested normalise) + the grouped/undefined-values reporting run moved to the engine (known + repo_root params, bare relative_to matching the old main); the wrapper keeps ROLE_REGISTER + load_known_roles + EXTRA_KNOWN_ROLES + DEFAULT_PATHS + iter_markdown_files + the register-prerequisite exit 2 + the --root override. No aiqt_corpus (uses path.read_text). --root proven by PR-19 (standards-currency)."
+
+[[events]]
+id = "role-authority"
+event = "created"
+date = 2026-09-14
+note = "compile PR-21: new pack-internal clause (Owner and Approving Authority metadata values resolve to a known role: register-defined or allow-listed; angle-bracket/[bracketed]/Role Name/Role Title placeholders not flagged; trailing hard-break backslash stripped; register path+format + allow-list + scan scope are wrapper config; no Owner/Approving line contributes no findings). Generated AI-facing rule (compile PR-21) like directional-dependency."

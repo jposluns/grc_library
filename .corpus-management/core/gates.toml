@@ -134,3 +134,11 @@ source = "tools/gate_lint_directional_dependency.py"
 enforces = "directional-dependency"
 entry_point = "tools/lint-directional-dependency.py"
 origin = "grc_library tools/lint-directional-dependency.py, grc gate 53 (engine transferred in compile PR-20, check + marker-aware fence + self-test + output verbatim; thin Model-2 wrapper supplies the grc PROJECT_GOV_DIR + derived scan roots + exempt prefixes; the engine takes project_gov_dir + repo_root as parameters, and --self-test delegates to the engine's _self_test)"
+
+[[gates]]
+id = "lint-roles"
+title = "Owner and Approving Authority role audit"
+source = "tools/gate_lint_roles.py"
+enforces = "role-authority"
+entry_point = "tools/lint-roles.py"
+origin = "grc_library tools/lint-roles.py, grc gate 8 (engine transferred in compile PR-21, OWNER_PATTERN/APPROVER_PATTERN + is_placeholder + check_file + output verbatim; thin Model-2 wrapper supplies the grc role-authority register path + parse (load_known_roles) + EXTRA_KNOWN_ROLES allow-list + default scan roots + iter_markdown_files + the register-prerequisite exit 2 + the --root override; the engine takes the known-role set + repo_root as parameters. No aiqt_corpus (uses path.read_text). Bare relative_to like gate 56, matching the old main.)"

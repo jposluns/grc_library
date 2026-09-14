@@ -126,3 +126,10 @@ kind = "file"
 sources = ["core/rules/directional-dependency.md"]
 target = ".claude/rules/corpus-management/directional-dependency.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "role-authority"
+kind = "file"
+sources = ["core/rules/role-authority.md"]
+target = ".claude/rules/corpus-management/role-authority.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]

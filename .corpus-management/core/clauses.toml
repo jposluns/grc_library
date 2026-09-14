@@ -104,3 +104,9 @@ id = "directional-dependency"
 title = "Directional dependency (a deliverable document does not link into project-internal governance)"
 source = "core/rules/directional-dependency.md"
 origin = "grc_library tools/lint-directional-dependency.py gate rationale (new clause in compile PR-20; generated AI-facing rule via gensrc, kind=file, like standards-currency; the project-governance directory name + scan scope are wrapper config, the marker-aware fence + link check is the engine)"
+
+[[clauses]]
+id = "role-authority"
+title = "Role authority (Owner and Approving Authority metadata values resolve to a known role)"
+source = "core/rules/role-authority.md"
+origin = "grc_library tools/lint-roles.py gate rationale (new clause in compile PR-21; generated AI-facing rule via gensrc, kind=file, like directional-dependency; the role-authority register path + table format, the EXTRA_KNOWN_ROLES allow-list, and the scan scope are wrapper config, the metadata-value extraction + placeholder skip + membership check is the engine)"
