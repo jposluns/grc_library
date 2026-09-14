@@ -53,3 +53,8 @@ target = ".claude/rules/corpus-management/citation-denylist.md"
 rule = "section-placement"
 kind = "file"
 target = ".claude/rules/corpus-management/section-placement.md"
+
+[[owned_targets]]
+rule = "shall-near-uncertainty"
+kind = "file"
+target = ".claude/rules/corpus-management/shall-near-uncertainty.md"
