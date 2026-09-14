@@ -2,8 +2,8 @@
 
 **Document Title:** Library Quality and Review Cadence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.25\
-**Date:** 2026-09-09\
+**Version:** 1.0.26\
+**Date:** 2026-09-14\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/template-document-review-record.md`](template-document-review-record.md), [`specification-master-project.md`](../specification-master-project.md), [`specification-ingestion.md`](../specification-ingestion.md)\
@@ -200,7 +200,7 @@ The Governance Library Maintainer is not the sole reviewer; the role coordinates
 | COBIT 2019 | APO11 Managed Quality | Enterprise quality management |
 | ITIL 4 | Continual improvement practice | Service management |
 | ISO/IEC 42001:2023 | §9 Performance evaluation; §10 Improvement | AI management system cross-walk |
-| NIST CSF 2.0 | Govern function | Risk integration |
+| NIST CSF 2.0 | GV.OV (oversight) | Reviewing library-maintenance outcomes and adjusting the review cadence |
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Governance Relationship and Flow Modelling Framework\
 **Document Type:** Framework\
-**Version:** 1.0.7\
-**Date:** 2026-09-05\
+**Version:** 1.0.8\
+**Date:** 2026-09-14\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/register-key-terms-and-definitions.md`](register-key-terms-and-definitions.md), [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md), [`architecture/framework-enterprise-architecture.md`](../architecture/framework-enterprise-architecture.md)\
@@ -471,8 +471,8 @@ Review of this framework follows the cadence in the metadata block: annual, and 
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO 31000:2018 | Risk management guidelines | The risk viewpoint's chain from risk through treatment to residual risk, and the separation of assessment from treatment |
-| COBIT 2019 | Governance and management objectives | The authority and governance viewpoints' separation of direction-setting from implementation |
+| ISO 31000:2018 | §6.4 (risk assessment), §6.5 (risk treatment) | The risk viewpoint's chain from risk through treatment to residual risk, and the separation of assessment from treatment |
+| COBIT 2019 | EDM domain (direction-setting) vs APO, BAI, DSS, MEA domains (implementation) | The authority and governance viewpoints' separation of direction-setting from implementation |
 
 ---
 
