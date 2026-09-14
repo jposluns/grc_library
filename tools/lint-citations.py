@@ -1,9 +1,17 @@
 #!/usr/bin/env python3
-"""Lint framework citations against a curated denylist of hallucinated or stale strings.
+"""Framework-citation denylist audit (grc gate): project entry point.
 
-This linter exists because the broader text linters cannot detect plausible-looking
-but incorrect framework version numbers. The denylist below is hand-curated based on
-verified primary sources (ISACA, CSA, NIST, etc.).
+The gate ENGINE is pack-owned source of record at
+``.corpus-management/tools/gate_lint_citations.py`` (Corpus-Management pack, gate register
+``core/gates.toml``, id ``lint-citations``, enforcing the pack's ``citation-denylist``
+clause); this thin wrapper keeps the house ``python3 tools/lint-citations.py`` shape (gate 35
+parses exactly that) and supplies the grc-local configuration the pack engine deliberately
+does not carry: the AIQT bootstrap, the repo root, the hand-curated DENYLIST (hallucinated or
+stale framework strings, verified against primary sources) and its per-term PATH_EXEMPTIONS,
+the markdown scope selector, and the default scan roots. These wrapper bytes are
+HAND-MAINTAINED, not compiler-generated, so gate 99 does NOT own them. DENYLIST /
+PATH_EXEMPTIONS / iter_markdown_files / main stay HERE (grc config) so the scan-scope
+regression's ALLOW map and the CitationsLinterTests CLI observe them unmoved.
 
 Usage:
     python3 tools/lint-citations.py
@@ -26,8 +34,9 @@ import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import iter_non_code_lines, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
 from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT, iter_scan_roots_markdown  # noqa: E402  # grc-config/store, stays local
+
+PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
 
 # Each entry: (string-to-find, why-it-is-wrong, suggested-replacement).
@@ -148,22 +157,13 @@ def iter_markdown_files(paths: list[str]) -> list[Path]:
     return iter_scan_roots_markdown(paths, repo_root=REPO_ROOT)
 
 
-def check_file(path: Path) -> list[tuple[str, int, str, str, str]]:
-    """Return list of (term, lineno, line, why, suggested_replacement) findings."""
-    relative = path.relative_to(REPO_ROOT).as_posix()
-    findings: list[tuple[str, int, str, str, str]] = []
-
-    text = read_text_safe(path)
-    if text is None:
-        return findings
-    for lineno, line in iter_non_code_lines(text):
-        for term, why, suggested in DENYLIST:
-            if relative in PATH_EXEMPTIONS.get(term, set()):
-                continue
-            if term in line:
-                findings.append((term, lineno, line.strip(), why, suggested))
-
-    return findings
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_citations  # the pack-owned engine (source of record)
+    return gate_lint_citations
 
 
 def main(argv: list[str]) -> int:
@@ -184,31 +184,9 @@ def main(argv: list[str]) -> int:
         else args.legacy_paths if args.legacy_paths is not None
         else DEFAULT_PATHS
     )
-
-    files = iter_markdown_files(paths)
-    grouped: dict[str, list[tuple[str, int, str, str, str]]] = {}
-    total = 0
-
-    for f in files:
-        rel = f.relative_to(REPO_ROOT).as_posix()
-        findings = check_file(f)
-        if findings:
-            grouped[rel] = findings
-            total += len(findings)
-
-    if not grouped:
-        print("OK: no citation findings.")
-        return 0
-
-    for rel, findings in sorted(grouped.items()):
-        print(f"=== {rel} ===")
-        for term, lineno, line, why, suggested in findings:
-            print(f"  L{lineno} [{term}] -> {suggested}")
-            print(f"     {why}")
-            print(f"     line: {line[:140]}")
-
-    print(f"\nFAIL: {total} citation finding(s) across {len(grouped)} file(s).")
-    return 1
+    return _engine().run(
+        iter_markdown_files(paths), DENYLIST, PATH_EXEMPTIONS, repo_root=REPO_ROOT
+    )
 
 
 if __name__ == "__main__":

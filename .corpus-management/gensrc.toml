@@ -63,3 +63,10 @@ kind = "file"
 sources = ["core/rules/required-sections.md"]
 target = ".claude/rules/corpus-management/required-sections.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "citation-denylist"
+kind = "file"
+sources = ["core/rules/citation-denylist.md"]
+target = ".claude/rules/corpus-management/citation-denylist.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]
