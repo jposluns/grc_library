@@ -43,3 +43,8 @@ target = ".claude/rules/corpus-management/markdown-link-resolution.md"
 rule = "required-sections"
 kind = "file"
 target = ".claude/rules/corpus-management/required-sections.md"
+
+[[owned_targets]]
+rule = "citation-denylist"
+kind = "file"
+target = ".claude/rules/corpus-management/citation-denylist.md"

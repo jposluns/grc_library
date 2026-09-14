@@ -62,3 +62,11 @@ source = "tools/gate_lint_required_sections.py"
 enforces = "required-sections"
 entry_point = "tools/lint-required-sections.py"
 origin = "grc_library tools/lint-required-sections.py, grc gate 19 (engine transferred in compile PR-11, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc section model REQUIRED_SECTIONS + target selection; engine takes the required-map + repo_root as parameters)"
+
+[[gates]]
+id = "lint-citations"
+title = "Framework-citation denylist audit"
+source = "tools/gate_lint_citations.py"
+enforces = "citation-denylist"
+entry_point = "tools/lint-citations.py"
+origin = "grc_library tools/lint-citations.py, grc gate 5 (engine transferred in compile PR-12, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc DENYLIST + per-term PATH_EXEMPTIONS + scan scope; engine takes the denylist + exemptions + repo_root as parameters)"

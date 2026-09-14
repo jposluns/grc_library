@@ -93,3 +93,15 @@ id = "required-sections"
 event = "created"
 date = 2026-09-14
 note = "compile PR-11: new pack-internal clause (a modelled doctype carries its required sections; alias-satisfiable; unmodelled types unconstrained; the project's specific section model is wrapper config). Generated AI-facing rule (compile PR-11) like markdown-link-resolution."
+
+[[events]]
+id = "lint-citations"
+event = "created"
+date = 2026-09-14
+note = "compile PR-12: gate-wave eighth gate transfer (grc gate 5 lint-citations; Model-2 wrapper, engine pack source of record, enforces the new citation-denylist clause). Engine takes the DENYLIST + PATH_EXEMPTIONS + repo_root as params (config-free); DENYLIST + PATH_EXEMPTIONS + iter_markdown_files + main (incl. the legacy --paths dual-flag) stay in the wrapper. Coupling clean (CitationsLinterTests use run_linter CLI; the mod.check_file(merged=/latest=) direct calls are a DIFFERENT gate)."
+
+[[events]]
+id = "citation-denylist"
+event = "created"
+date = 2026-09-14
+note = "compile PR-12: new pack-internal clause (documents do not cite identifiers on the project's citation denylist; per-term path exemptions; fenced-code lines not scanned; denylist + exemptions are wrapper config). Generated AI-facing rule (compile PR-12) like required-sections."

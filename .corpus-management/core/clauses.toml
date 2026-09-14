@@ -50,3 +50,9 @@ id = "required-sections"
 title = "Required sections by document type (a modelled doctype carries its required sections)"
 source = "core/rules/required-sections.md"
 origin = "grc_library tools/lint-required-sections.py gate rationale (new clause in compile PR-11; generated AI-facing rule via gensrc, kind=file, like markdown-link-resolution; the grc-specific section MODEL stays in the wrapper as project config, not in the clause)"
+
+[[clauses]]
+id = "citation-denylist"
+title = "Citation denylist (documents do not cite known-wrong framework/standard identifiers)"
+source = "core/rules/citation-denylist.md"
+origin = "grc_library tools/lint-citations.py gate rationale (new clause in compile PR-12; generated AI-facing rule via gensrc, kind=file, like required-sections; the grc-specific DENYLIST + per-term PATH_EXEMPTIONS are wrapper config, not in the clause)"
