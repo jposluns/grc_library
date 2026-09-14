@@ -140,6 +140,27 @@
       "class": "procedure",
       "source_identifier": null,
       "corpus_path": "risk/procedure-risk-register.md"
+    },
+    {
+      "id": "GRC-STD-INTERNAL-AUDIT",
+      "display_name": "Internal Audit Standard",
+      "class": "organizational standard",
+      "source_identifier": null,
+      "corpus_path": "compliance/standard-internal-audit.md"
+    },
+    {
+      "id": "GRC-POL-COMPLIANCE-AUDIT-MGMT",
+      "display_name": "Compliance and Audit Management Policy",
+      "class": "policy",
+      "source_identifier": null,
+      "corpus_path": "compliance/policy-compliance-and-audit-management.md"
+    },
+    {
+      "id": "GRC-PROC-AUDIT-PLANNING",
+      "display_name": "Audit Planning Procedure",
+      "class": "procedure",
+      "source_identifier": null,
+      "corpus_path": "compliance/procedure-audit-planning.md"
     }
   ],
   "records": [
@@ -504,6 +525,70 @@
       "verb": "implements",
       "destination": {
         "id": "GRC-STD-ERM",
+        "class": "organizational standard"
+      },
+      "relationship_class": "implementation",
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "governance",
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "organizationally mandatory",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0022",
+      "source": {
+        "id": "GRC-STD-INTERNAL-AUDIT",
+        "class": "organizational standard"
+      },
+      "verb": "implements",
+      "destination": {
+        "id": "GRC-POL-COMPLIANCE-AUDIT-MGMT",
+        "class": "policy"
+      },
+      "relationship_class": "implementation",
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "governance",
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "organizationally mandatory",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0023",
+      "source": {
+        "id": "GRC-PROC-AUDIT-PLANNING",
+        "class": "procedure"
+      },
+      "verb": "implements",
+      "destination": {
+        "id": "GRC-STD-INTERNAL-AUDIT",
         "class": "organizational standard"
       },
       "relationship_class": "implementation",

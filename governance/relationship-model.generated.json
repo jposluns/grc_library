@@ -33,6 +33,13 @@
     },
     {
       "class": "policy",
+      "corpus_path": "compliance/policy-compliance-and-audit-management.md",
+      "display_name": "Compliance and Audit Management Policy",
+      "id": "GRC-POL-COMPLIANCE-AUDIT-MGMT",
+      "source_identifier": null
+    },
+    {
+      "class": "policy",
       "corpus_path": "risk/policy-enterprise-governance-and-risk-management.md",
       "display_name": "Enterprise Governance and Risk Management Policy",
       "id": "GRC-POL-ENTERPRISE-GRM",
@@ -43,6 +50,13 @@
       "corpus_path": "security/policy-workforce-network-monitoring.md",
       "display_name": "Workforce Network Monitoring Policy",
       "id": "GRC-POL-WORKFORCE-NET-MON",
+      "source_identifier": null
+    },
+    {
+      "class": "procedure",
+      "corpus_path": "compliance/procedure-audit-planning.md",
+      "display_name": "Audit Planning Procedure",
+      "id": "GRC-PROC-AUDIT-PLANNING",
       "source_identifier": null
     },
     {
@@ -71,6 +85,13 @@
       "corpus_path": "risk/standard-enterprise-risk-management.md",
       "display_name": "Enterprise Risk Management Standard",
       "id": "GRC-STD-ERM",
+      "source_identifier": null
+    },
+    {
+      "class": "organizational standard",
+      "corpus_path": "compliance/standard-internal-audit.md",
+      "display_name": "Internal Audit Standard",
+      "id": "GRC-STD-INTERNAL-AUDIT",
       "source_identifier": null
     },
     {
@@ -514,17 +535,81 @@
       },
       "verb": "implements",
       "viewpoint": "governance"
+    },
+    {
+      "authority_level": "organizationally mandatory",
+      "destination": {
+        "class": "policy",
+        "id": "GRC-POL-COMPLIANCE-AUDIT-MGMT"
+      },
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "evidence_refs": [],
+      "id": "rel-corpus-0022",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is implemented by"
+      },
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "implementation",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-INTERNAL-AUDIT"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "implements",
+      "viewpoint": "governance"
+    },
+    {
+      "authority_level": "organizationally mandatory",
+      "destination": {
+        "class": "organizational standard",
+        "id": "GRC-STD-INTERNAL-AUDIT"
+      },
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "evidence_refs": [],
+      "id": "rel-corpus-0023",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is implemented by"
+      },
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "implementation",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-AUDIT-PLANNING"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "implements",
+      "viewpoint": "governance"
     }
   ],
   "schema_version": 2,
   "source": "governance/relationship-model-source.json",
   "summary": {
-    "node_count": 18,
-    "record_count": 12,
+    "node_count": 21,
+    "record_count": 14,
     "records_by_relationship_class": {
       "commitment": 1,
       "correspondence": 4,
-      "implementation": 5,
+      "implementation": 7,
       "influence": 2
     }
   }
