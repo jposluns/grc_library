@@ -189,3 +189,15 @@ id = "standards-currency"
 event = "created"
 date = 2026-09-14
 note = "compile PR-19: new pack-internal clause (external-standard citations use the current not a superseded version per the canonical register; colon/paren/space/v-prefix separators; version-continuation guard; fenced-block occurrences not flagged; register + repo root are wrapper config). Generated AI-facing rule (compile PR-19) like filename-title-alignment."
+
+[[events]]
+id = "lint-directional-dependency"
+event = "created"
+date = 2026-09-14
+note = "compile PR-20: gate-wave sixteenth gate transfer (grc gate 53 lint-directional-dependency; Model-2 wrapper, engine pack source of record, enforces the new directional-dependency clause). Bespoke marker-aware fence handling (_fence_marker/_closes, not the shared iter_non_code_lines) + LINK_RE/REF_DEF_RE/EXTERNAL + links_into_project_gov + check_file + a 9-case _self_test all moved to the engine (project_gov_dir param); the wrapper keeps PROJECT_GOV_DIR + derived scan roots + EXEMPT_PREFIXES + iter_markdown_files + --self-test delegation. No aiqt_corpus (uses path.open + own fence). --self-test passes through the engine."
+
+[[events]]
+id = "directional-dependency"
+event = "created"
+date = 2026-09-14
+note = "compile PR-20: new pack-internal clause (a deliverable document does not link into project-internal governance; inline/titled/angle/ref-def link forms; external/fragment/fenced not flagged; marker-aware fence; project-gov dir name + scan scope are wrapper config). Generated AI-facing rule (compile PR-20) like standards-currency."

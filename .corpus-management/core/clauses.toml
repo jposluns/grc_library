@@ -98,3 +98,9 @@ id = "standards-currency"
 title = "Standards currency (external-standard citations use the current, not a superseded, version)"
 source = "core/rules/standards-currency.md"
 origin = "grc_library tools/lint-standards-currency.py gate rationale (new clause in compile PR-19; generated AI-facing rule via gensrc, kind=file, like filename-title-alignment; the canonical-citations register + repo root are wrapper config, the pattern-compile+check is the engine)"
+
+[[clauses]]
+id = "directional-dependency"
+title = "Directional dependency (a deliverable document does not link into project-internal governance)"
+source = "core/rules/directional-dependency.md"
+origin = "grc_library tools/lint-directional-dependency.py gate rationale (new clause in compile PR-20; generated AI-facing rule via gensrc, kind=file, like standards-currency; the project-governance directory name + scan scope are wrapper config, the marker-aware fence + link check is the engine)"
