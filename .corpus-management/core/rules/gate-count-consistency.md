@@ -1,0 +1,16 @@
+# Gate-count consistency
+
+A prose reference to the size of a governed collection matches that collection's canonical count.
+Three collections are checked: the audit gates, the governance rules, and the skills. A reference
+whose asserted number does not equal the collection's current count is a stale-count finding. The
+patterns are deliberately anchored so that pervasive small-number prose (for example "two rules
+overlap" or "the two skills run as a suite") is never matched: only qualified digit shapes (such as
+an N-gate hyphenation, an "audit gates" or "automated audits" count, or an "all N gates" phrase) and
+qualified word-form shapes (a word-number before "audit gates", "governance rules", or in a
+"collection to N" growth narrative) are matched. A line inside a fenced code block is example syntax
+and is not scanned, and in a Markdown file a ``## Version history`` section is a frozen change log
+whose rows legitimately quote superseded counts and is skipped; in a non-Markdown file every line is
+scanned, since a leading hash is a code comment rather than a heading. The canonical-count sources
+(the specification section parsed for the gate count and the rule and skill collection directories),
+the scanned file suffixes, and the exempt-file and exempt-directory sets are project configuration,
+not part of this clause.

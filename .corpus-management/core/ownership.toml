@@ -98,3 +98,8 @@ target = ".claude/rules/corpus-management/role-authority.md"
 rule = "placeholder-leakage"
 kind = "file"
 target = ".claude/rules/corpus-management/placeholder-leakage.md"
+
+[[owned_targets]]
+rule = "gate-count-consistency"
+kind = "file"
+target = ".claude/rules/corpus-management/gate-count-consistency.md"
