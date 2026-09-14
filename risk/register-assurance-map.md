@@ -2,8 +2,8 @@
 
 **Document Title:** Assurance Map Register\
 **Document Type:** Register\
-**Version:** 1.1.4\
-**Date:** 2026-07-05\
+**Version:** 1.1.5\
+**Date:** 2026-09-14\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-operational-risk-register.md`](template-operational-risk-register.md), [`risk/template-board-risk-report.md`](template-board-risk-report.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md)\
@@ -221,11 +221,11 @@ The assurance plan is the prospective view; the map is the current state.
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | IIA Three Lines Model 2020 | Three lines model | Lines of defence |
-| ISO 31000:2018 | Risk management principles | Risk management baseline |
+| ISO 31000:2018 | §5.4.3 (roles, authorities, accountabilities), §6.6 (monitoring and review) | Risk management baseline |
 | COSO ERM 2017 | Enterprise risk management | Enterprise risk integration |
-| COBIT 2019 | MEA04 Managed assurance | Risk-based planning of assurance coverage |
+| COBIT 2019 | MEA04.02 (develop risk-based planning of assurance initiatives) | Risk-based planning of assurance coverage |
 | ISO/IEC 27001:2022 | A.5.35 Independent review of information security | Independent review |
-| ISO/IEC 42001:2023 | Management system assurance | AI management system |
+| ISO/IEC 42001:2023 | §9.2.2 (internal audit programme) | AI management system |
 | Basel Committee Operational Risk Principles | Three lines | Operational risk governance |
 | FRC UK Corporate Governance Code | Audit, risk and internal control | UK governance |
 | OECD G20 Principles of Corporate Governance | Board oversight | Governance baseline |
