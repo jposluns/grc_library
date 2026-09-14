@@ -2,8 +2,8 @@
 
 **Document Title:** Sanctions and Export-Control Screening Standard\
 **Document Type:** Standard\
-**Version:** 1.0.2\
-**Date:** 2026-08-05\
+**Version:** 1.0.3\
+**Date:** 2026-09-14\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/procedure-mergers-acquisitions-due-diligence.md`](procedure-mergers-acquisitions-due-diligence.md), [`supply-chain/procedure-supplier-due-diligence.md`](../supply-chain/procedure-supplier-due-diligence.md), [`supply-chain/procedure-fourth-party-and-nth-party-risk.md`](../supply-chain/procedure-fourth-party-and-nth-party-risk.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md)\
@@ -107,10 +107,10 @@ Screening evidence (what was screened, against which lists, when, the match resu
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO 37301:2021 | Compliance management systems | The compliance-management discipline within which sanctions and export-control obligations are identified, controlled, and assured. |
-| ISO 31000:2018 | Risk management: Guidelines | The risk basis for the screening cadence and the prioritization of exposure. |
+| ISO 37301:2021 | Clause 4.5 (compliance obligations), Clause 8.2 (establishing controls and procedures) | The compliance-management discipline within which sanctions and export-control obligations are identified, controlled, and assured. |
+| ISO 31000:2018 | Clause 6.4 (risk assessment) | The risk basis for the screening cadence and the prioritization of exposure. |
 | COBIT 2019 | APO12 (managed risk) | Governance of the compliance and sanctions risk this standard controls. |
-| NIST CSF 2.0 | GV (Govern) function | The governance and risk-management outcomes the screening programme supports. |
+| NIST CSF 2.0 | GV.OC-03 (legal and regulatory requirements regarding cybersecurity) | The cybersecurity-regulatory dimension the screening programme supports (e.g. export controls on cybersecurity technology). |
 | Sanctions and export-control regulatory regimes | OFAC, UN, EU, UK OFSI sanctions; US EAR and ITAR; EU dual-use (named structurally) | The external regulatory drivers; adopters confirm the current authoritative text and applicability for their jurisdictions, which this document does not reproduce. |
 
 ## 10. Limitations
