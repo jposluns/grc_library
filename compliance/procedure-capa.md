@@ -2,8 +2,8 @@
 
 **Document Title:** Corrective and Preventive Action (CAPA) Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.12\
-**Date:** 2026-09-01\
+**Version:** 1.0.14\
+**Date:** 2026-09-14\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md)\
@@ -170,7 +170,7 @@ The root cause analysis for Critical findings must be completed and submitted to
 
 ### 4.2 Moderate and low findings
 
-For Moderate and Low classified nonconformities, a **concise root cause statement** (1 to 3 sentences) is sufficient. The statement must still identify the primary cause and the condition that allowed it to persist. A formal methodology is not required, though teams may use one if it aids analysis.
+For Moderate and Low classified findings, a **concise root cause statement** (1 to 3 sentences) is sufficient. The statement must still identify the primary cause and the condition that allowed it to persist. A formal methodology is not required, though teams may use one if it aids analysis.
 
 ### 4.3 Root cause categories
 
@@ -353,10 +353,10 @@ The GRC Programme Manager maintains a centralized CAPA register. Each record con
 | Field | Description |
 |-------|-------------|
 | **CAPA ID** | Unique identifier (format: CAPA-[YYYY]-[NNN]) |
-| **Date Opened** | Date the nonconformity was entered into the register |
+| **Date Opened** | Date the finding was entered into the register |
 | **Source** | Mechanism of identification (audit, incident, regulatory notification, etc.) |
 | **Domain** | GRC domain |
-| **Finding Summary** | Concise description of the nonconformity |
+| **Finding Summary** | Concise description of the finding |
 | **Root Cause** | Root cause statement or reference to root cause analysis document |
 | **Risk Level** | Classification: Critical / High / Moderate / Low |
 | **Corrective Action** | Summary of planned corrective actions; reference to full action plan if separate |
