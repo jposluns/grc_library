@@ -2,8 +2,8 @@
 
 **Document Title:** Audit Planning Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.11\
-**Date:** 2026-09-11\
+**Version:** 1.0.12\
+**Date:** 2026-09-14\
 **Owner:** Chief Audit Executive\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md)\
@@ -120,9 +120,9 @@ The following external-assurance and regulatory requirements drive the minimum a
 
 Additional regulatory requirements applicable to the organization's jurisdictions of operation are identified in the Regulatory Applicability Register and must be reviewed during Annual Audit Plan development.
 
-### 3.3 ERC approval
+### 3.3 ERC review and Board Audit Committee approval
 
-The draft Annual Audit Plan is submitted to the **Enterprise Risk Committee (ERC) for approval no later than 31 January** of the year to which it applies.
+The draft Annual Audit Plan is submitted to the **Enterprise Risk Committee (ERC) for review**, and the ERC-reviewed plan is then submitted to the **Board Audit Committee for approval no later than 31 January** of the year to which it applies.
 
 The submission package includes:
 
@@ -132,7 +132,7 @@ The submission package includes:
 - Identification of any domains that will not receive full audit coverage in the current year with documented rationale;
 - Any proposed use of external auditors or technical specialists.
 
-The ERC may approve, modify, or direct additional coverage. Approved modifications are incorporated into the final Annual Audit Plan, which is distributed to the CISO, domain owners, and relevant senior leadership.
+The ERC may recommend modifications or direct additional coverage; the Board Audit Committee then approves the final Annual Audit Plan, consistent with [`compliance/standard-internal-audit.md`](standard-internal-audit.md) and section 4.2.1 of [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md). Board-approved modifications are incorporated into the final Annual Audit Plan, which is distributed to the CISO, domain owners, and relevant senior leadership.
 
 ### 3.4 Annual audit plan contents
 
