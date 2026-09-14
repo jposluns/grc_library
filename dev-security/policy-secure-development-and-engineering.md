@@ -2,8 +2,8 @@
 
 **Document Title:** Secure Development and Engineering Policy\
 **Document Type:** Policy\
-**Version:** 1.0.16\
-**Date:** 2026-08-16\
+**Version:** 1.0.17\
+**Date:** 2026-09-14\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md)\
@@ -157,9 +157,9 @@ It incorporates forward-looking controls for AI-generated code verification.
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ISO/IEC 27034 (all parts) | Information technology, Application security | Secure SDLC governance and assurance |
-| ISO/IEC 27002:2022 | Information security controls | Secure coding and testing controls |
+| ISO/IEC 27002:2022 | 8.25, 8.26, 8.27, 8.28, 8.29, 8.30, 8.31, 8.32 | Secure coding and testing controls |
 | NIST SSDF | Secure Software Development Framework | Secure development lifecycle |
-| OWASP ASVS v5 | Application Security Verification Standard | Secure coding requirements |
+| OWASP ASVS v5 | V1 (encoding and sanitization), V2 (validation and business logic), V11 (cryptography), V13 (configuration and secret management), V15 (secure coding and architecture), V16 (security logging and error handling) | Secure coding requirements |
 | COBIT 2019 | BAI03: Managed Solutions Identification and Build | Solution design and build |
 | COBIT 2019 | BAI07: Managed IT Change Acceptance and Transitioning | Release and deployment controls |
 | CSA CCM v4.1 | AIS-04: Secure Application Development Lifecycle | Software engineering and security controls |

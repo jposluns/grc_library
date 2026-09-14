@@ -2,8 +2,8 @@
 
 **Document Title:** API Security Standard\
 **Document Type:** Standard\
-**Version:** 0.0.12\
-**Date:** 2026-08-27\
+**Version:** 0.0.13\
+**Date:** 2026-09-14\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-software-composition-analysis.md`](standard-software-composition-analysis.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/standard-data-loss-prevention.md`](../security/standard-data-loss-prevention.md), [`security/framework-zero-trust-architecture.md`](../security/framework-zero-trust-architecture.md), [`ai/standard-ai-access-and-agent-permissions.md`](../ai/standard-ai-access-and-agent-permissions.md)\
@@ -223,10 +223,10 @@ Where an API is exposed to AI agents (organization-internal or third-party):
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | OWASP API Security Top 10 (2023) | API1 to API10 | Authoritative API threat taxonomy |
-| OWASP ASVS v5 | Multiple sections | Application security baseline |
-| NIST SP 800-204 series | Microservices security, service mesh, DevSecOps | US baseline |
+| OWASP ASVS v5 | V1, V2 (input validation), V4 (API and web service), V5 (file handling), V6 (authentication), V8 (authorization), V9 (self-contained tokens), V10 (OAuth and OIDC), V11 (cryptography), V12 (secure communication), V13 (configuration and secret management), V14 (data protection), V15 (secure coding and architecture), V16 (security logging) | Application security baseline |
+| NIST SP 800-204; NIST SP 800-204D | Microservices security strategies; DevSecOps software supply chain | US baseline |
 | ISO/IEC 27001:2022 | A.5.10, A.5.14, A.8.21, A.8.23 to A.8.28 | Information transfer, network security, secure development |
-| NIST SP 800-95 | Guide to Secure Web Services | Web services foundation |
+| NIST SP 800-95 | Section 3 (web service security functions and related technologies), Section 6.4 (security testing: tools and techniques) | Web services foundation |
 | RFC 6749, 7519, 8725, 9068 | OAuth 2.0, JWT, JWT BCP, OAuth 2.0 access tokens | Token standards |
 | OpenID Connect Core 1.0 | OIDF | Identity layer |
 | FAPI 2.0 | OIDF | Financial-grade API profile |

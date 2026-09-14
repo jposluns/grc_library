@@ -2,8 +2,8 @@
 
 **Document Title:** Software Evaluation, Acceptance and Lifecycle Management Standard\
 **Document Type:** Standard\
-**Version:** 1.0.9\
-**Date:** 2026-08-01\
+**Version:** 1.0.10\
+**Date:** 2026-09-14\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -135,8 +135,8 @@ Obsolete or unsupported software must be retired following the AIS lifecycle ter
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ISO/IEC/IEEE 12207:2026 | Software Lifecycle Processes | Software lifecycle governance |
-| ISO/IEC 27001:2022 | Information Security Management | Security controls for software |
-| ISO/IEC 27002:2022 | Operations and Vulnerability Management | Software security controls |
+| ISO/IEC 27001:2022 | A.5.9, A.8.8, A.8.9, A.8.19, A.8.29, A.8.31, A.8.32 | Security controls for software |
+| ISO/IEC 27002:2022 | 5.9, 8.8, 8.9, 8.19, 8.29, 8.31, 8.32 | Software security controls |
 | ISO/IEC 25010 | System and Software Quality Models | Quality evaluation criteria |
 | COBIT 2019 | BAI03: Managed Solutions Identification and Build | Software evaluation and approval |
 | COBIT 2019 | BAI07: Managed IT Change Acceptance and Transitioning | Deployment and acceptance |
