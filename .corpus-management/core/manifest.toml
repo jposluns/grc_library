@@ -23,6 +23,13 @@ ownership = "core/ownership.toml"
 gates = "core/gates.toml"
 hooks = "core/hooks.toml"
 
+[classification]
+# The maintainer-confirmed (2026-09-14) gate-home classification: which of the grc
+# audit gates are Corpus-Management extraction candidates vs AIQT / harness-fleet /
+# grc-only. Roadmap/reference register (NOT compiler-consumed); the authoritative
+# source for the gate-wave transfer sequence.
+gate_homes = "core/gate-homes.toml"
+
 [metadata]
 structure = "fixed"
 vocabulary = "configurable"
