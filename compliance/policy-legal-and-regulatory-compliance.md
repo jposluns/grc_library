@@ -2,8 +2,8 @@
 
 **Document Title:** Legal and Regulatory Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.19\
-**Date:** 2026-08-27\
+**Version:** 1.0.20\
+**Date:** 2026-09-14\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md)\
@@ -137,7 +137,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer for tr
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO 37301:2021 | Compliance Management Systems | CMS structure, obligations register, CAPA |
+| ISO 37301:2021 | Clauses 4 to 10 (compliance management system) | CMS structure, obligations register, CAPA |
 | COBIT 2019 | MEA03, Monitor Compliance; APO12, Managed Risk | Regulatory governance, compliance metrics |
 | CSA CCM v4.1 | GRC-01 to GRC-08: Compliance governance | Control mapping and compliance reporting |
 | ISO/IEC 27001:2022 | Annex A: Information security controls | Security compliance evidence |
@@ -148,8 +148,8 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer for tr
 | EU NIS 2 Directive (Directive (EU) 2022/2555) | Critical infrastructure resilience | Staged significant-incident reporting (Art 23(4): 24h early warning; 72h notification; 1-month final report, or a progress report then and the final report 1 month after handling where the incident is still ongoing) |
 | EU AI Act (2024) | Art 73 | AI serious incident reporting |
 | Canada PIPEDA; Treasury Board Directive on Automated Decision-Making / Voluntary Code of Conduct on Generative AI (AIDA lapsed) | Privacy and AI compliance | Canadian regulatory obligations |
-| NIST AI RMF 1.0 | Govern function | AI compliance governance |
-| ISO/IEC 42001:2023 | AI management system conformity | AI regulatory evidence management |
+| NIST AI RMF 1.0 | GOVERN 1.1 (legal and regulatory requirements involving AI) | AI compliance governance |
+| ISO/IEC 42001:2023 | Clause 7.5 (documented information) | AI regulatory evidence management |
 
 ---
 
