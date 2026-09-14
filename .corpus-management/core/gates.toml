@@ -30,3 +30,11 @@ source = "tools/gate_lint_nested_markdown_links.py"
 enforces = "markdown-link-integrity"
 entry_point = "tools/lint-nested-markdown-links.py"
 origin = "grc_library tools/lint-nested-markdown-links.py, grc gate 68 (engine transferred in compile PR-7, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc scan walk)"
+
+[[gates]]
+id = "lint-ungated-dashes"
+title = "Ungated-surface dash audit"
+source = "tools/gate_lint_ungated_dashes.py"
+enforces = "language-convention"
+entry_point = "tools/lint-ungated-dashes.py"
+origin = "grc_library tools/lint-ungated-dashes.py, grc gate 82 (engine transferred in compile PR-8, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc operational scan scope). Reuses the existing language-convention clause (the same dash ban the corpus language gate enforces), so no new clause/rule was added."

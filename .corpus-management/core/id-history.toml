@@ -51,3 +51,9 @@ id = "markdown-link-integrity"
 event = "created"
 date = 2026-09-14
 note = "compile PR-7: new pack-internal clause (no nested markdown links outside code spans; gate-blind to link-coverage and broken-link gates); generated AI-facing rule (compile PR-7) like corpus-scan-integrity"
+
+[[events]]
+id = "lint-ungated-dashes"
+event = "created"
+date = 2026-09-14
+note = "compile PR-8: gate-wave fourth gate transfer (grc gate 82; Model-2 wrapper, engine pack source of record, enforces the existing language-convention clause; no new clause, unlike PR-6/PR-7)"

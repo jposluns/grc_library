@@ -1,12 +1,12 @@
 # Corpus-Management pack (`.corpus-management/`)
 
-**Status: ACTIVE (umbrella 4.1, compile PR-7).** This directory is the structure of a standalone,
+**Status: ACTIVE (umbrella 4.1, compile PR-8).** This directory is the structure of a standalone,
 adoptable Corpus-Management pack. PR-2 shipped the compiler, the first generated slice (the CLAUDE.md
 generated-artefacts instruction block, transferred verbatim), and the mandatory drift gate (grc gate
 99); PR-3 transferred the first authoring rule (the corpus language convention) as a generated
 file-kind rule, the first live use of the rules-sync gate's compiler-owned recognition; PR-4
 transferred the second authoring rule (the corpus authoring conventions) as the second file-kind
-rule. The gate register carries three gate transfers (lint-language, grc gate 2, compile PR-5; lint-unbalanced-fences, grc gate 66, compile PR-6; lint-nested-markdown-links, grc gate 68, compile PR-7); no hooks have been transferred yet.
+rule. The gate register carries four gate transfers (lint-language, grc gate 2, compile PR-5; lint-unbalanced-fences, grc gate 66, compile PR-6; lint-nested-markdown-links, grc gate 68, compile PR-7; lint-ungated-dashes, grc gate 82, compile PR-8); no hooks have been transferred yet.
 
 ## What this is
 A **thin, adoptable layer** for keeping a documentation corpus internally consistent (metadata shape,
@@ -54,7 +54,8 @@ disabled in the skeleton.
 - **PR-5:** the gate-wave opened: the first gate transfer (lint-language, grc gate 2), the engine moved to the pack tools/ as source of record behind a thin Model-2 wrapper, the gate register populated with compiler validation, and the id-history charter widened to pack-ids. SHIPPED.
 - **PR-6:** the second gate transfer (lint-unbalanced-fences, grc gate 66), same Model-2 wrapper shape as PR-5. SHIPPED.
 - **PR-7:** the third gate transfer (lint-nested-markdown-links, grc gate 68), same Model-2 wrapper shape as PR-5/6, enforcing the new markdown-link-integrity clause. First transfer sequenced by the gate-homes.toml classification. SHIPPED.
-- **PR-8 (next):** further corpus-bucket gate transfers (per the gate-homes.toml roadmap) and/or the vocabulary/config split to `defaults/grc/` (Phase-4).
+- **PR-8:** the fourth gate transfer (lint-ungated-dashes, grc gate 82), Model-2 pattern, REUSING the existing language-convention clause (no new clause/rule, unlike PR-6/PR-7). SHIPPED.
+- **PR-9 (next):** further corpus-bucket gate transfers (per the gate-homes.toml roadmap) and/or the vocabulary/config split to `defaults/grc/` (Phase-4).
 - **Phase-2b: SKIP.** **Gate-98 (vendored-core digest): CORPUS interim.** **Publication: deferred (P4).**
 
 See `core/manifest.toml` for the machine-readable pack descriptor.
