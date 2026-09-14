@@ -86,3 +86,11 @@ source = "tools/gate_lint_shall_near_uncertainty.py"
 enforces = "shall-near-uncertainty"
 entry_point = "tools/lint-shall-near-uncertainty.py"
 origin = "grc_library tools/lint-shall-near-uncertainty.py, grc gate 9 (engine transferred in compile PR-14, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc scan scope + exempt-file set; the marker/word patterns + window stay in the engine as the generic check, the grc EXEMPT_FILES filter moved to the wrapper so the engine is repo_root-free)"
+
+[[gates]]
+id = "lint-todo-marked-done"
+title = "Backlog marked-done audit"
+source = "tools/gate_lint_todo_marked_done.py"
+enforces = "todo-forward-only"
+entry_point = "tools/lint-todo-marked-done.py"
+origin = "grc_library tools/lint-todo-marked-done.py, grc gate 57 (engine transferred in compile PR-15, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the scan target; check_file is fully generic (no config), the engine is repo_root-free, run() has no try/except matching this gate's old main)"

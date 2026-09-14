@@ -129,3 +129,15 @@ id = "shall-near-uncertainty"
 event = "created"
 date = 2026-09-14
 note = "compile PR-14: new pack-internal clause (no mandatory-requirement word within N lines of an uncertainty marker; both read outside fenced blocks; unmatched/in-fence not flagged; exempt files are wrapper scan config). Generated AI-facing rule (compile PR-14) like section-placement."
+
+[[events]]
+id = "lint-todo-marked-done"
+event = "created"
+date = 2026-09-14
+note = "compile PR-15: gate-wave eleventh gate transfer (grc gate 57 lint-todo-marked-done; Model-2 wrapper, engine pack source of record, enforces the new todo-forward-only clause). Cleanest transfer yet: check_file is FULLY generic (the 3 done-marker patterns + code-span strip, no config, no REPO_ROOT); the only grc config is the scan target (TODO.md) in the wrapper. run() has no try/except (matches old main, like gate 3). Coupling clean (CLI-only)."
+
+[[events]]
+id = "todo-forward-only"
+event = "created"
+date = 2026-09-14
+note = "compile PR-15: new pack-internal clause (a backlog item is not marked done in place - no strikethrough / [done]/[completed] tag / Status: done; closed items are removed not annotated; code-span/fence exclusions; unmarked lines not flagged). Generated AI-facing rule (compile PR-15) like shall-near-uncertainty."
