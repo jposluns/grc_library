@@ -225,3 +225,15 @@ id = "placeholder-leakage"
 event = "created"
 date = 2026-09-14
 note = "compile PR-22: new pack-internal clause (a production document contains no placeholder marker; presence-flagged, distinct from the mandatory-near-uncertainty conjunction check; the word/marker/angle-bracket/template-domain pattern set; fenced blocks skipped; template-/worklist- prefix + exempt-file/exempt-dir + non-markdown out of scope; exempt sets + carve-outs + scan scope are wrapper config). Generated AI-facing rule (compile PR-22) like role-authority."
+
+[[events]]
+id = "lint-gate-count-consistency"
+event = "created"
+date = 2026-09-14
+note = "compile PR-23: gate-wave nineteenth gate transfer (grc gate 39 lint-gate-count-consistency; Model-2 wrapper, engine pack source of record, enforces the new gate-count-consistency clause). The HEAVIEST transfer of the wave (569L): the PATTERNS count-idiom set (P1-P12 digit + word-form) + the word-number machinery (_UNITS/_TEENS/_TENS/_build_word_to_num/WORD_TO_NUM/_WORDNUM) + Finding + count_collection + resolve_match + scan_file (Markdown ## Version history frozen-section skip; patterns anchored, fences not separately skipped) all moved BYTE-VERBATIM to the engine (diff-verified each block vs source); a new run(targets, *, counts, repo_root, spec_rel) carries the scan loop + grouped report (output byte-identical, REPO_ROOT->repo_root + SPEC_PATH.relative_to->spec_rel params). The wrapper keeps SPEC_PATH/RULES_DIR/SKILLS_DIR + parse_canonical_count (the grc §6-inventory parse) + SCAN_SUFFIXES + EXEMPT_FILES/EXEMPT_DIRS + iter_targets (ALLOW-coupled) + a scan_file SHIM (the importlib direct-module-load test calls mod.scan_file(ghost, counts) on the wrapper - PR-16 shim pattern extended to scan_file). aiqt_corpus import guard (read_text_safe). 20 tests OK incl the importlib shim test; gate 39 standalone identical (gates 100, rules 15, skills 24 across 680 files)."
+
+[[events]]
+id = "gate-count-consistency"
+event = "created"
+date = 2026-09-14
+note = "compile PR-23: new pack-internal clause (a prose reference to a governed collection's size (gates/rules/skills) matches its canonical count; anchored digit + word-form idioms only, so pervasive small-number prose is not matched; Markdown ## Version history skipped (fences not separately skipped - the anchoring keeps code false-positive-safe); canonical-count sources + scanned suffixes + exempt sets are wrapper config). Generated AI-facing rule (compile PR-23) like placeholder-leakage."

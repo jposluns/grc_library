@@ -150,3 +150,11 @@ source = "tools/gate_lint_placeholder_leakage.py"
 enforces = "placeholder-leakage"
 entry_point = "tools/lint-placeholder-leakage.py"
 origin = "grc_library tools/lint-placeholder-leakage.py, grc gate 12 (engine transferred in compile PR-22, PATTERNS marker set + fence-aware scan + grouped/reporting run + output verbatim; thin Model-2 wrapper supplies the grc exempt-file/exempt-dir sets + template-/worklist- prefix carve-outs + iter_targets + is_exempt + default scan root; the engine takes repo_root as a parameter and keeps the try/except relative_to display fallback, matching the old main. aiqt_corpus import guard, like the bare-normative-shall engine.)"
+
+[[gates]]
+id = "lint-gate-count-consistency"
+title = "Cross-file gate-count consistency audit"
+source = "tools/gate_lint_gate_count_consistency.py"
+enforces = "gate-count-consistency"
+entry_point = "tools/lint-gate-count-consistency.py"
+origin = "grc_library tools/lint-gate-count-consistency.py, grc gate 39 (engine transferred in compile PR-23, the heaviest gate-wave transfer: PATTERNS count-idiom set + word-number machinery + Finding + count_collection + resolve_match + scan_file (Markdown version-history aware; patterns anchored, fences not separately skipped) + grouped/reporting run all byte-verbatim; thin Model-2 wrapper supplies the grc canonical-count sources (SPEC_PATH §6 parse + RULES_DIR/SKILLS_DIR) + SCAN_SUFFIXES + EXEMPT_FILES/EXEMPT_DIRS + iter_targets + a scan_file shim for the importlib direct-load test; the engine takes counts + repo_root + spec_rel as parameters. aiqt_corpus import guard (read_text_safe).)"
