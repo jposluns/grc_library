@@ -2,8 +2,8 @@
 
 **Document Title:** China Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.5\
-**Date:** 2026-09-04\
+**Version:** 1.1.7\
+**Date:** 2026-09-15\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -31,7 +31,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 - **Provisions on Promoting and Regulating the Cross-Border Flow of Data (CAC, effective 22 March 2024):** Implementing regulation under PIPL and DSL that revises personal-data export thresholds, introduces safe-harbor exemptions for low-volume and contract-performance transfers, and extends the validity of a CAC security assessment from two years to three years. See "Cross-border transfer mechanisms" below.
 - **Algorithm Recommendation Regulations (effective March 2022):** Regulates use of recommendation algorithms in online information services, requiring transparency, user control, and labelling of algorithm-driven content.
 - **Deep Synthesis Regulations (effective January 2023):** Regulates provision of deep synthesis technology services (deepfakes), requiring content labelling and prohibiting disinformation generation.
-- **Regulatory authority:** Cyberspace Administration of China (CAC) as primary regulator; concurrent jurisdiction with SAMR, MIIT, PBOC, and sectoral authorities.
+- **Regulatory authority:** Cyberspace Administration of China (CAC) as the coordinating regulator, with relevant State Council departments supervising within their respective scopes (PIPL Art. 60); in practice these include SAMR, MIIT, PBOC, and sectoral authorities (the named agencies reflect administrative practice, not an enumeration in the held statute).
 
 ---
 
@@ -99,7 +99,7 @@ The thresholds are evaluated on a cumulative calendar-year basis starting 1 Janu
 
 ### Generative AI regulations
 
-- Suspension of services, fines, and criminal referral for serious violations. As of 2026, the CAC has commenced enforcement actions against generative AI service providers.
+- Suspension of services, fines, and criminal referral for serious violations. Reports of CAC enforcement against generative-AI service providers are not corroborated by held sources, so an adopter confirms the current enforcement position directly.
 
 ---
 
