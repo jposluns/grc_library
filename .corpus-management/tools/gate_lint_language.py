@@ -3,11 +3,15 @@
 
 This is the pack-owned engine for grc gate 2; the project entry point is the
 thin Model-2 wrapper ``tools/lint-language.py`` (supplying the grc scan roots
-and their iteration). Pack register ``core/gates.toml`` id ``lint-language``,
+and their iteration, and the language vocabulary via the ``language`` profile
+since Phase-4 PR-F). Pack register ``core/gates.toml`` id ``lint-language``,
 enforcing the ``language-convention`` clause. No standalone ``main()`` here for
 compile PR-5 (a CLI needs the PR-6 vocabulary/config split); run via the wrapper.
-Everything below the imports is byte-preserved from the former
-``tools/lint-language.py`` for reviewability and the parity proof.
+The check ALGORITHM below is preserved from the former ``tools/lint-language.py``;
+the vocabulary DATA moved to the ``language`` reference-vocabulary profile
+(``defaults/grc/language.toml``, Phase-4 PR-F) and is passed in via run(), with the
+ise/yse patterns compiled from it (byte-identical to the former hardcoded
+ISE_PATTERN / YSE_PATTERN for the shipped plain-word vocabulary).
 
 Language and style audit for the GRC Documentation Library.
 
@@ -23,19 +27,20 @@ neither has an opinion, other dialects' usage is acceptable.
 
 The convention is project-specific. Adopters who fork the library and want
 a different convention (Commonwealth-first; American-first; etc.) can
-modify `ISE_PATTERN` below to match their own choice.
+override the `language` reference-vocabulary profile
+(`defaults/grc/language.toml`) to match their own choice.
 
 Checks for:
 
 - Em dashes and en dashes (not allowed; replace with hyphen, colon, or
   parentheses).
 - Commonwealth `-ise` verb endings used where Canadian `-ize` is preferred
-  (`ISE_PATTERN` enumerates the stem list, including prefixed derivatives;
+  (the `ise_stems` profile field enumerates the stems, including prefixed derivatives;
   the rule is the Canadian-orthography form, not a generic American mandate).
 - Commonwealth `-isation` noun / adjective forms (`ISATION_PATTERN`, a
-  generic suffix match with the `ISATION_ALLOWED_WORDS` exclusion for the
+  generic suffix match with the `isation_allowed_words` profile-field exclusion for the
   tiny legitimate-in-every-dialect vocabulary such as `improvisation`).
-- Commonwealth `-yse` verb forms and agent nouns (`YSE_PATTERN`: analyse /
+- Commonwealth `-yse` verb forms and agent nouns (the `yse_forms` profile field: analyse /
   analysed / analysing / analyser / analysers; the noun plural `analyses` is
   correct in every dialect and is not matched). Irregular-flip Commonwealth
   verbs whose Canadian form is not `-ize` (the practise-to-practice family)
@@ -43,18 +48,18 @@ Checks for:
   pattern.
 - Verbatim quotes of external instruments and official proper names that
   legitimately carry Commonwealth spellings are masked out of the three
-  spelling checks via `ALLOWED_COMMONWEALTH_SPANS` (the GDPR Article 25(1)
+  spelling checks via the `allowed_commonwealth_spans` profile field (the GDPR Article 25(1)
   quote, the OECD's official name, the WP216 opinion title, the EU / UK
   "Authorised Economic Operator" programme name).
 - Bare 'ensure' or 'ensures' without 'that'. Exempt files where the rule
   itself is described (the ingestion spec, the master spec, the AI
   ingestion instruction, and governance/template-document-review-record.md).
   Verbatim external titles that carry a bare imperative 'Ensure'
-  (VERBATIM_ENSURE_TITLES; currently the COBIT 2019 MEA01.05 practice
+  (the `verbatim_ensure_titles` profile field; currently the COBIT 2019 MEA01.05 practice
   title) are masked first, per the house-style verbatim-quote exemption.
 - Section headings (H2-H6) that start with a lowercase letter after
   stripping common numbering prefixes (A1., 1.1, Step 1:, Category 1:,
-  Phase, Annex). Project-name allowlist (LOWERCASE_PROJECT_NAMES:
+  Phase, Annex). Project-name allowlist (the `lowercase_project_names` profile field:
   promptfoo, garak, pip) is permitted at the start of a heading.
 
 Fenced code blocks are skipped for every check above.
@@ -86,6 +91,7 @@ import re
 import sys
 from collections import defaultdict
 from pathlib import Path
+from typing import NamedTuple
 
 try:
     from aiqt_corpus import iter_non_code_lines, read_text_safe
@@ -141,72 +147,96 @@ WORKED_EXAMPLE = "docs/worked-example.md"
 # found the derivational family escaping both the sweep and the gate). The
 # verb form "analyses" (vs the every-dialect noun plural of "analysis") is
 # grammar-ambiguous and deliberately NOT matched; it is caught editorially.
-_ISE_STEMS = (
-    "recognise", "organise", "prioritise", "categorise", "emphasise",
-    "harmonise", "standardise", "optimise", "centralise", "customise",
-    "finalise", "specialise", "utilise", "minimise", "maximise",
-    "criticise", "generalise", "operationalise",
-    # Stems added by the 2026-07-02 spelling-coverage extension:
-    "anonymise", "authorise", "capitalise", "characterise", "containerise",
-    "contextualise", "crystallise", "deprioritise", "deserialise",
-    "formalise", "internalise", "itemise", "localise", "materialise",
-    "mechanise", "memorise", "modernise", "monetise", "neutralise",
-    "normalise", "parameterise", "penalise", "personalise", "pseudonymise",
-    "quantise", "randomise", "realise", "reorganise", "sanitise",
-    "serialise", "stabilise", "summarise", "synchronise", "synthesise",
-    "tokenise", "unauthorise", "unrecognise", "unsanitise", "virtualise",
-    "weaponise",
-)
-ISE_PATTERN = re.compile(
-    r"\b(" + "|".join(
-        f"{stem}|{stem}s|{stem}d|{stem[:-1]}ing|{stem[:-1]}able|{stem}r|{stem}rs"
-        for stem in _ISE_STEMS
-    ) + r")\b",
-    re.IGNORECASE,
-)
+class LanguageVocabulary(NamedTuple):
+    """The adopter-overridable language vocabulary (Phase-4 PR-F).
+
+    The check ALGORITHM stays in this engine; only these vocabulary DATA sets
+    move to the ``language`` reference-vocabulary profile and are passed in.
+    """
+    ise_stems: tuple[str, ...]
+    isation_allowed_words: frozenset[str]
+    yse_forms: tuple[str, ...]
+    allowed_commonwealth_spans: tuple[str, ...]
+    verbatim_ensure_titles: tuple[str, ...]
+    lowercase_project_names: set[str]
+
+
+def language_vocabulary(
+    *, ise_stems, isation_allowed_words, yse_forms,
+    allowed_commonwealth_spans, verbatim_ensure_titles, lowercase_project_names,
+) -> "LanguageVocabulary":
+    """Compose raw profile arrays into the vocabulary; fail closed on bad data."""
+    values = (
+        ise_stems, isation_allowed_words, yse_forms,
+        allowed_commonwealth_spans, verbatim_ensure_titles, lowercase_project_names,
+    )
+    for key, value in zip(LanguageVocabulary._fields, values):
+        if not isinstance(value, list) or any(
+            not isinstance(word, str) or not word for word in value
+        ):
+            raise ValueError(f"language.{key}: expected an array of nonempty strings")
+    return LanguageVocabulary(
+        tuple(ise_stems), frozenset(isation_allowed_words), tuple(yse_forms),
+        tuple(allowed_commonwealth_spans), tuple(verbatim_ensure_titles),
+        set(lowercase_project_names),
+    )
+
+
+class LanguageChecks(NamedTuple):
+    vocab: LanguageVocabulary
+    ise_pattern: "re.Pattern[str]"
+    yse_pattern: "re.Pattern[str]"
+
+
+def compile_language(vocab: LanguageVocabulary) -> LanguageChecks:
+    """Compile the ise/yse spelling patterns FROM the supplied vocabulary.
+
+    Byte-identical to the former hardcoded ISE_PATTERN / YSE_PATTERN for the
+    shipped (plain-word) vocabulary: the stems carry no regex metacharacters,
+    so re.escape is a no-op and the enumerated seven ise inflections match the
+    former f-string construction exactly.
+    """
+    ise = "|".join(
+        "|".join(re.escape(word) for word in (
+            stem, stem + "s", stem + "d", stem[:-1] + "ing",
+            stem[:-1] + "able", stem + "r", stem + "rs",
+        ))
+        for stem in vocab.ise_stems
+    )
+    yse = "|".join(re.escape(word) for word in vocab.yse_forms)
+    return LanguageChecks(
+        vocab,
+        re.compile(r"\b(" + ise + r")\b" if ise else r"(?!)", re.IGNORECASE),
+        re.compile(r"\b(" + yse + r")\b" if yse else r"(?!)", re.IGNORECASE),
+    )
 
 # Commonwealth `-isation` noun / adjective forms (organisation, authorisation,
-# pseudonymisation, organisational, ...). Unlike ISE_PATTERN's enumerated verb
+# pseudonymisation, organisational, ...). Unlike the enumerated ise_stems verb
 # stems, the noun check is a generic suffix match with a small allowed-words
 # exclusion, because the legitimate-in-every-dialect `-isation` vocabulary is
 # tiny (improvisation) while the Commonwealth-noun vocabulary is open-ended.
 ISATION_PATTERN = re.compile(r"\b[A-Za-z][a-z]*isation(s|al|ally)?\b", re.IGNORECASE)
-ISATION_ALLOWED_WORDS = frozenset({
-    "improvisation", "improvisations", "improvisational", "improvisationally",
-})
 
 # Commonwealth `-yse` verb forms and agent nouns (Canadian is `analyze` /
 # `analyzer`). The noun plural `analyses` (of `analysis`) is deliberately NOT
 # matched: it is correct in every dialect and indistinguishable from the
 # verb's third-person form only by grammar, so the pattern lists the
 # unambiguous inflections.
-YSE_PATTERN = re.compile(r"\b(analyse|analysed|analysing|analyser|analysers)\b", re.IGNORECASE)
 
-# Verbatim spans that legitimately carry Commonwealth spellings and are masked
-# out of a line before the three spelling checks run (dash / ensure / heading
-# checks are unaffected). Four classes, each an exact substring: the GDPR
-# Article 25(1) official-text quote (the EU Official Journal English text
-# spells "organisational measures ... pseudonymisation ... minimisation"), the
-# OECD's official English name, the Article 29 Working Party opinion's
-# official title, and the EU / UK "Authorised Economic Operator" customs
-# programme name. Add a span here ONLY for a verbatim quote of an external
-# instrument or an official proper name, never for ordinary prose.
-ALLOWED_COMMONWEALTH_SPANS = (
-    "implement appropriate technical and organisational measures, such as "
-    "pseudonymisation, which are designed to implement data-protection "
-    "principles, such as data minimisation, in an effective manner",
-    "Organisation for Economic Co-operation and Development",
-    "Opinion 05/2014 on Anonymisation Techniques",
-    # The EU / UK customs programme's official English name (maintainer
-    # decision 2026-07-02: proper-noun fidelity where the programme is
-    # named; the generic WCO SAFE concept elsewhere uses the corpus -ize).
-    "Authorised Economic Operator",
-)
+# Verbatim Commonwealth-spelling spans are masked out of a line before the three
+# spelling checks run (dash / ensure / heading checks are unaffected). The spans
+# themselves live in the ``allowed_commonwealth_spans`` field of the ``language``
+# reference-vocabulary profile (``defaults/grc/language.toml``) since Phase-4 PR-F;
+# add one ONLY for a verbatim quote of an external instrument or an official proper
+# name, never for ordinary prose. The shipped four are the GDPR Article 25(1)
+# official-text quote, the OECD's official English name, the Article 29 Working
+# Party opinion's official title, and the EU / UK "Authorised Economic Operator"
+# customs programme name.
 
 
-def mask_allowed_spans(line: str) -> str:
-    """Blank out ALLOWED_COMMONWEALTH_SPANS so the spelling checks skip them."""
-    for span in ALLOWED_COMMONWEALTH_SPANS:
+def mask_allowed_spans(line: str, spans: tuple[str, ...]) -> str:
+    """Blank out the supplied verbatim Commonwealth spans before spelling checks."""
+    for span in spans:
         if span in line:
             line = line.replace(span, " " * len(span))
     return line
@@ -214,17 +244,11 @@ def mask_allowed_spans(line: str) -> str:
 EM_DASH_PATTERN = re.compile(r"[\u2014\u2013]")  # em dash or en dash
 ENSURE_PATTERN = re.compile(r"\b(ensure|ensures)\b(?!\s+that\b)", re.IGNORECASE)
 
-# Verbatim external titles carrying a bare imperative "Ensure": masked out of
-# the ensure-that check (the house-style verbatim-quote exemption; a canonical
-# source title must be reproduced exactly, not reworded to satisfy house style).
-VERBATIM_ENSURE_TITLES = (
-    "Ensure the implementation of corrective actions",  # COBIT 2019 MEA01.05
-)
 
 
-def mask_verbatim_ensure_titles(line: str) -> str:
-    """Blank out VERBATIM_ENSURE_TITLES so the ensure-that check skips them."""
-    for span in VERBATIM_ENSURE_TITLES:
+def mask_verbatim_ensure_titles(line: str, spans: tuple[str, ...]) -> str:
+    """Blank out the supplied verbatim ensure-titles before the ensure-that check."""
+    for span in spans:
         if span in line:
             line = line.replace(span, " " * len(span))
     return line
@@ -239,12 +263,6 @@ NUMBERING_PATTERNS = [
     re.compile(r"^Annex\s+[A-Z]\.?\s+"),
 ]
 
-# Canonical lowercase project names that may appear as the first word of a heading.
-LOWERCASE_PROJECT_NAMES = {
-    "promptfoo",
-    "garak",
-    "pip",  # the trusted-trader programme acronym is uppercase; lowercase 'pip' is the Python installer
-}
 
 
 def strip_numbering(text: str) -> str:
@@ -264,7 +282,8 @@ def filter_markdown_files(files: list[Path], repo_root: Path) -> list[Path]:
     return [f for f in files if f.relative_to(repo_root).as_posix() not in GENERATED_DOCS]
 
 
-def check_file(path: Path, repo_root: Path) -> list[tuple[str, int, str]]:
+def check_file(path: Path, repo_root: Path, *,
+               language: LanguageChecks) -> list[tuple[str, int, str]]:
     findings: list[tuple[str, int, str]] = []
     relative = path.relative_to(repo_root).as_posix()
     is_ingestion_spec = relative == INGESTION_SPEC
@@ -280,20 +299,21 @@ def check_file(path: Path, repo_root: Path) -> list[tuple[str, int, str]]:
         if EM_DASH_PATTERN.search(line):
             findings.append(("dash", lineno, line.strip()))
 
-        spelling_line = mask_allowed_spans(line)
-        for m in ISE_PATTERN.finditer(spelling_line):
+        spelling_line = mask_allowed_spans(line, language.vocab.allowed_commonwealth_spans)
+        for m in language.ise_pattern.finditer(spelling_line):
             findings.append(("ise", lineno, m.group(0)))
         for m in ISATION_PATTERN.finditer(spelling_line):
-            if m.group(0).lower() not in ISATION_ALLOWED_WORDS:
+            if m.group(0).lower() not in language.vocab.isation_allowed_words:
                 findings.append(("isation", lineno, m.group(0)))
-        for m in YSE_PATTERN.finditer(spelling_line):
+        for m in language.yse_pattern.finditer(spelling_line):
             findings.append(("yse", lineno, m.group(0)))
 
         # Skip the specs', the AI ingestion instruction's, and the document review
         # record template's own self-referential rule statements about "ensure that".
         if (not is_ingestion_spec and not is_master_spec and not is_instruction_file
                 and not is_review_record_template and not is_worked_example
-                and ENSURE_PATTERN.search(mask_verbatim_ensure_titles(line))):
+                and ENSURE_PATTERN.search(mask_verbatim_ensure_titles(
+                    line, language.vocab.verbatim_ensure_titles))):
             findings.append(("ensure", lineno, line.strip()))
 
         heading = HEADING_PATTERN.match(line)
@@ -303,7 +323,7 @@ def check_file(path: Path, repo_root: Path) -> list[tuple[str, int, str]]:
             if stem and stem[0].islower():
                 # Allow canonical lowercase project names as first word.
                 first_word = re.split(r"\s|[^A-Za-z0-9_-]", stem, maxsplit=1)[0].lower()
-                if first_word not in LOWERCASE_PROJECT_NAMES:
+                if first_word not in language.vocab.lowercase_project_names:
                     findings.append(("heading-case", lineno, line.strip()))
 
     return findings
@@ -328,7 +348,8 @@ def _docstring_constant_ids(tree: ast.AST) -> set[int]:
     return ids
 
 
-def check_generator_source(path: Path) -> list[tuple[str, int, str]]:
+def check_generator_source(path: Path, *,
+                           language: LanguageChecks) -> list[tuple[str, int, str]]:
     """Scan a build-*.py generator's non-docstring string literals.
 
     Runs the three prose house-style rules (dash, -ise, ensure that) over
@@ -357,20 +378,22 @@ def check_generator_source(path: Path) -> list[tuple[str, int, str]]:
         lineno = getattr(node, "lineno", 0)
         if EM_DASH_PATTERN.search(value):
             findings.append(("dash", lineno, value.strip()[:160]))
-        masked_value = mask_allowed_spans(value)
-        for m in ISE_PATTERN.finditer(masked_value):
+        masked_value = mask_allowed_spans(value, language.vocab.allowed_commonwealth_spans)
+        for m in language.ise_pattern.finditer(masked_value):
             findings.append(("ise", lineno, m.group(0)))
         for m in ISATION_PATTERN.finditer(masked_value):
-            if m.group(0).lower() not in ISATION_ALLOWED_WORDS:
+            if m.group(0).lower() not in language.vocab.isation_allowed_words:
                 findings.append(("isation", lineno, m.group(0)))
-        for m in YSE_PATTERN.finditer(masked_value):
+        for m in language.yse_pattern.finditer(masked_value):
             findings.append(("yse", lineno, m.group(0)))
-        if ENSURE_PATTERN.search(mask_verbatim_ensure_titles(value)):
+        if ENSURE_PATTERN.search(mask_verbatim_ensure_titles(value, language.vocab.verbatim_ensure_titles)):
             findings.append(("ensure", lineno, value.strip()[:160]))
     return findings
 
 
-def run(md_files: list[Path], gen_input: list[str], *, repo_root: Path) -> int:
+def run(md_files: list[Path], gen_input: list[str], *, repo_root: Path,
+        vocab: LanguageVocabulary) -> int:
+    language = compile_language(vocab)
     files = filter_markdown_files(md_files, repo_root)
     # Generator sources are scanned for the emitted-prose house-style rules;
     # routed by suffix so an explicit .py argument (a regression fixture) is
@@ -383,11 +406,11 @@ def run(md_files: list[Path], gen_input: list[str], *, repo_root: Path) -> int:
     grouped: dict[str, list[tuple[str, int, str]]] = defaultdict(list)
     total = 0
     for f in files:
-        for finding in check_file(f, repo_root):
+        for finding in check_file(f, repo_root, language=language):
             grouped[f.relative_to(repo_root).as_posix()].append(finding)
             total += 1
     for f in gen_files:
-        for finding in check_generator_source(f):
+        for finding in check_generator_source(f, language=language):
             grouped[f.relative_to(repo_root).as_posix()].append(finding)
             total += 1
 

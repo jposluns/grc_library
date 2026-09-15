@@ -7,7 +7,10 @@ register ``core/gates.toml``, id ``lint-language``, enforcing the pack's
 ``language-convention`` clause); this thin wrapper keeps the house
 ``python3 tools/lint-language.py`` shape (gate 35 parses exactly that) and
 supplies the grc-local scan configuration the pack engine deliberately does not
-carry: the AIQT bootstrap, the repo root, the default markdown scan roots (the
+carry: the AIQT bootstrap, the repo root, the language VOCABULARY (the pack
+profile defaults/grc/language.toml, loaded via profile_loader.load('language')
+and composed in _language_config(), Phase-4 PR-F; the engine compiles the ise/yse
+patterns from it), the default markdown scan roots (the
 AUDITED_DOMAIN_DIRS splat; the scan-scope parity gate forbids hardcoding the
 run), and lint_common's scan-root iterator (whose default-root exemption differs
 from the generic aiqt_corpus form). These wrapper bytes are HAND-MAINTAINED, not
@@ -38,6 +41,23 @@ def _engine():
         sys.path.insert(0, pack_tools)
     import gate_lint_language  # the pack-owned engine (source of record)
     return gate_lint_language
+
+
+def _language_config():
+    """Load the gate-2 language vocabulary from the pack profile (Phase-4 PR-F).
+
+    Returns the engine's ``LanguageVocabulary`` composed from the pack
+    reference-vocabulary profile ``.corpus-management/defaults/grc/language.toml``
+    (loaded via ``profile_loader.load('language')``, lazily). The engine
+    compiles the ise/yse patterns from this vocabulary at run() time. Fail-closed:
+    a malformed profile raises ProfileError / ValueError, never a silent default.
+    """
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import profile_loader  # the pack-owned reference-vocabulary loader (PR-A)
+
+    return _engine().language_vocabulary(**profile_loader.load("language"))
 
 
 def iter_markdown_files(paths: list[str]) -> list:
@@ -74,7 +94,8 @@ def main(argv: list[str] | None = None) -> int:
         gen_input = list(gate_lint_language.GENERATOR_SOURCES)
 
     md_files = iter_scan_roots_markdown(md_input, repo_root=REPO_ROOT)
-    return gate_lint_language.run(md_files, gen_input, repo_root=REPO_ROOT)
+    return gate_lint_language.run(
+        md_files, gen_input, repo_root=REPO_ROOT, vocab=_language_config())
 
 
 if __name__ == "__main__":

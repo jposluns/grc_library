@@ -1,0 +1,103 @@
+# Reference-vocabulary profile: language spelling vocabulary (grc defaults).
+#
+# Concern: language. The LIVE gate-2 configuration since Phase-4 PR-F:
+# tools/lint-language.py loads it via profile_loader.load("language") and
+# passes it to the engine's language_vocabulary(); the engine (parameterized
+# in PR-F) compiles the ise/yse patterns FROM ise_stems + yse_forms at run()
+# time (byte-identical to the former hardcoded ISE_PATTERN/YSE_PATTERN). Values
+# transcribed VERBATIM from the former gate_lint_language.py module constants
+# (_ISE_STEMS, ISATION_ALLOWED_WORDS, the YSE forms, ALLOWED_COMMONWEALTH_SPANS,
+# VERBATIM_ENSURE_TITLES, LOWERCASE_PROJECT_NAMES). ise_stems order is
+# preserved (the pattern enumerates them in order). The check ALGORITHM (regex
+# structure, dash/ensure/heading rules, scan targets) stays in the engine; this
+# profile carries only the adopter-overridable vocabulary DATA.
+schema_version = 1
+
+[language]
+ise_stems = [
+    "recognise",
+    "organise",
+    "prioritise",
+    "categorise",
+    "emphasise",
+    "harmonise",
+    "standardise",
+    "optimise",
+    "centralise",
+    "customise",
+    "finalise",
+    "specialise",
+    "utilise",
+    "minimise",
+    "maximise",
+    "criticise",
+    "generalise",
+    "operationalise",
+    "anonymise",
+    "authorise",
+    "capitalise",
+    "characterise",
+    "containerise",
+    "contextualise",
+    "crystallise",
+    "deprioritise",
+    "deserialise",
+    "formalise",
+    "internalise",
+    "itemise",
+    "localise",
+    "materialise",
+    "mechanise",
+    "memorise",
+    "modernise",
+    "monetise",
+    "neutralise",
+    "normalise",
+    "parameterise",
+    "penalise",
+    "personalise",
+    "pseudonymise",
+    "quantise",
+    "randomise",
+    "realise",
+    "reorganise",
+    "sanitise",
+    "serialise",
+    "stabilise",
+    "summarise",
+    "synchronise",
+    "synthesise",
+    "tokenise",
+    "unauthorise",
+    "unrecognise",
+    "unsanitise",
+    "virtualise",
+    "weaponise",
+]
+isation_allowed_words = [
+    "improvisation",
+    "improvisational",
+    "improvisationally",
+    "improvisations",
+]
+yse_forms = [
+    "analyse",
+    "analysed",
+    "analysing",
+    "analyser",
+    "analysers",
+]
+allowed_commonwealth_spans = [
+    "implement appropriate technical and organisational measures, such as pseudonymisation, which are designed to implement data-protection principles, such as data minimisation, in an effective manner",
+    "Organisation for Economic Co-operation and Development",
+    "Opinion 05/2014 on Anonymisation Techniques",
+    "Authorised Economic Operator",
+]
+verbatim_ensure_titles = [
+    "Ensure the implementation of corrective actions",
+]
+lowercase_project_names = [
+    "garak",
+    "pip",
+    "promptfoo",
+]

@@ -13,7 +13,7 @@ title = "Language and style audit (Canadian-first -ize orthography, dash ban, en
 source = "tools/gate_lint_language.py"
 enforces = "language-convention"
 entry_point = "tools/lint-language.py"
-origin = "grc_library tools/lint-language.py, grc gate 2 (engine transferred in compile PR-5, check logic and vocabulary verbatim; the project tool became a thin Model-2 wrapper supplying the grc scan roots)"
+origin = "grc_library tools/lint-language.py, grc gate 2 (engine transferred in compile PR-5, check logic and vocabulary verbatim; thin Model-2 wrapper supplies the grc scan roots. Phase-4 PR-F: the ise/isation/commonwealth/yse VOCAB moved to defaults/grc/language.toml; the engine was parameterized (run() takes a LanguageVocabulary, compiles ise/yse patterns from it) and the wrapper loads it via _language_config())"
 
 [[gates]]
 id = "lint-unbalanced-fences"

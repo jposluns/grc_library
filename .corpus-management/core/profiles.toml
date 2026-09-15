@@ -37,3 +37,10 @@ concern = "alignment"
 target = "defaults/grc/alignment.toml"
 title = "Filename/title alignment vocabulary (document-type prefix set + acronym/synonym map)"
 origin = "grc_library tools/lint-filename-title-alignment.py DOCTYPES + SYNONYMS, transcribed verbatim in Phase-4 PR-E; the live gate-7 config since PR-E (the wrapper loads this profile via profile_loader, the literals were removed, and gate 67 reads the composed doctypes via _alignment_config())"
+
+[[profiles]]
+id = "language"
+concern = "language"
+target = "defaults/grc/language.toml"
+title = "Language spelling vocabulary + verbatim/heading exemptions (ise stems, isation-allowed, yse forms, commonwealth spans, ensure titles, lowercase names)"
+origin = "grc_library .corpus-management/tools/gate_lint_language.py vocabulary constants, transcribed verbatim in Phase-4 PR-F; the engine was PARAMETERIZED (run() takes the vocab; compiles ise/yse patterns from it) and the wrapper loads this profile via _language_config()"

@@ -1,6 +1,6 @@
 # Corpus-Management pack (`.corpus-management/`)
 
-**Status: ACTIVE (umbrella 4.1, compile PR-28).** This directory is the structure of a standalone,
+**Status: ACTIVE (umbrella 4.1, compile PR-29).** This directory is the structure of a standalone,
 adoptable Corpus-Management pack. PR-2 shipped the compiler, the first generated slice (the CLAUDE.md
 generated-artefacts instruction block, transferred verbatim), and the mandatory drift gate (grc gate
 99); PR-3 transferred the first authoring rule (the corpus language convention) as a generated
@@ -75,7 +75,8 @@ disabled in the skeleton.
 - **PR-26 (Phase-4 PR-C):** gate 19 (lint-required-sections) migrated onto the loader (defaults/grc/sections.toml + `_sections_config()`; 11 doctypes x 8 orientation aliases; byte-identical). gate 67 Check 2 CO-EDITED (it read `REQUIRED_SECTIONS` with a `getattr(...,{})` default that would silently vacuous-pass). SHIPPED.
 - **PR-27 (Phase-4 PR-D):** gate 38 (lint-section-placement) migrated (defaults/grc/placement.toml + `_placement_config()`; the tuple/frozenset/None PLACEMENT_RULES shape rebuilt exactly, pickle-baseline verified; byte-identical). No cross-gate reader. SHIPPED.
 - **PR-28 (Phase-4 PR-E):** gate 7 (lint-filename-title-alignment) migrated (defaults/grc/alignment.toml + `_alignment_config()`; DOCTYPES set + SYNONYMS map). gate 67 Check 1 CO-EDITED to read the composed doctypes via `_alignment_config()` (DOCTYPES no longer a module attribute). Byte-identical. SHIPPED.
-- **PR-29 (next):** the ENGINE-signature tier of the wave (language gate 2, markers gates 12/16/9): their vocab lives in the pack ENGINES, not the wrappers, so migration threads config params through the engine signature - a distinct pattern from the wrapper-constant migrations (PR-B..PR-E). OR the SHARED/SAFETY-mapped gates (new pattern per gate-homes.toml).
+- **PR-29 (Phase-4 PR-F):** the FIRST engine-parameterization. Gate 2 (lint-language): the ise/isation/commonwealth/yse VOCAB moved from the engine into `defaults/grc/language.toml`; the engine's `run()` now takes a `LanguageVocabulary` and COMPILES the ise/yse patterns from it (byte-identical to the former hardcoded patterns, proven by `.pattern`+`.flags` equality); the wrapper loads it via `_language_config()`. gate 82 unaffected. SHIPPED.
+- **PR-30 (next):** Phase-4 PR-G, markers (gates 12/16/9) via the same engine-parameterization pattern across three engines. Then the SHARED/SAFETY-mapped gates (new transfer pattern per gate-homes.toml; maintainer-steered 2026-09-15).
 - **Phase-2b: SKIP.** **Gate-98 (vendored-core digest): CORPUS interim.** **Publication: deferred (P4).**
 
 See `core/manifest.toml` for the machine-readable pack descriptor.
