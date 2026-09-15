@@ -149,7 +149,7 @@ title = "Placeholder leakage audit"
 source = "tools/gate_lint_placeholder_leakage.py"
 enforces = "placeholder-leakage"
 entry_point = "tools/lint-placeholder-leakage.py"
-origin = "grc_library tools/lint-placeholder-leakage.py, grc gate 12 (engine transferred in compile PR-22, PATTERNS marker set + fence-aware scan + grouped/reporting run + output verbatim; thin Model-2 wrapper supplies the grc exempt-file/exempt-dir sets + template-/worklist- prefix carve-outs + iter_targets + is_exempt + default scan root; the engine takes repo_root as a parameter and keeps the try/except relative_to display fallback, matching the old main. aiqt_corpus import guard, like the bare-normative-shall engine.)"
+origin = "grc_library tools/lint-placeholder-leakage.py, grc gate 12 (engine transferred in compile PR-22, fence-aware scan + grouped/reporting run + output verbatim; the PATTERNS marker set moved to defaults/grc/placeholders.toml in Phase-4 PR-H (loader-compiled nested {regex,ignorecase}+label tables, order-preserved) and run() takes the composed (pattern,label) pairs; thin Model-2 wrapper supplies the grc exempt-file/exempt-dir sets + template-/worklist- prefix carve-outs + iter_targets + is_exempt + default scan root; the engine takes repo_root as a parameter and keeps the try/except relative_to display fallback, matching the old main. aiqt_corpus import guard, like the bare-normative-shall engine.)"
 
 [[gates]]
 id = "lint-gate-count-consistency"

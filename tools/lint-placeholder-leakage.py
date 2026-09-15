@@ -120,6 +120,22 @@ def _engine():
     return gate_lint_placeholder_leakage
 
 
+def _placeholders_config():
+    """Load the gate-12 placeholder patterns from the pack profile (Phase-4 PR-H).
+
+    Returns ordered (compiled-pattern, label) pairs composed from the
+    ``placeholders`` reference-vocabulary profile (``defaults/grc/placeholders.toml``,
+    loaded lazily via ``profile_loader.load('placeholders')``, patterns compiled by
+    the loader). Fail-closed on a malformed profile.
+    """
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import profile_loader  # the pack-owned reference-vocabulary loader (PR-A)
+
+    return _engine().placeholder_patterns(profile_loader.load("placeholders")["patterns"])
+
+
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
         description="Detect placeholder leakage in production library documents."
@@ -132,7 +148,7 @@ def main(argv: list[str]) -> int:
     )
     args = parser.parse_args(argv[1:])
     targets = iter_targets(args.paths)
-    return _engine().run(targets, repo_root=REPO_ROOT)
+    return _engine().run(targets, repo_root=REPO_ROOT, patterns=_placeholders_config())
 
 
 if __name__ == "__main__":

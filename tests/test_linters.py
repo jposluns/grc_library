@@ -18959,6 +18959,42 @@ class ProfileLoaderTests(unittest.TestCase):
         self.assertEqual(cfg.stub_phrases, ("sentinel stub",))
         self.assertEqual(cfg.word_count_threshold, 7)
 
+    def test_live_placeholders_profile_loads(self):
+        prof = self.mod.load("placeholders")
+        self.assertIn("patterns", prof)
+        self.assertTrue(prof["patterns"])
+        import re as _re
+        for item in prof["patterns"]:
+            self.assertEqual(set(item), {"label", "pattern"})
+            self.assertIsInstance(item["label"], str)
+            self.assertIsInstance(item["pattern"], _re.Pattern)
+
+    def test_placeholders_profile_drives_wrapper_config(self):
+        wrapper = load_linter_module("tools/lint-placeholder-leakage.py", "_ph_wiring")
+        self.assertFalse(hasattr(wrapper._engine(), "PATTERNS"))
+        prof = self.mod.load("placeholders")
+        pairs = wrapper._placeholders_config()
+        self.assertEqual(len(pairs), len(prof["patterns"]))
+        for (pat, label), item in zip(pairs, prof["patterns"]):
+            self.assertEqual(pat.pattern, item["pattern"].pattern)
+            self.assertEqual(pat.flags, item["pattern"].flags)
+            self.assertEqual(label, item["label"])
+
+    def test_placeholders_config_is_dynamically_profile_driven(self):
+        from unittest.mock import patch
+        import re as _re
+        wrapper = load_linter_module("tools/lint-placeholder-leakage.py", "_ph_dynamic")
+        pack_tools = str(REPO_ROOT / ".corpus-management" / "tools")
+        if pack_tools not in sys.path:
+            sys.path.insert(0, pack_tools)
+        import profile_loader as pl_real
+        synthetic = {"patterns": [
+            {"label": "SENTINEL", "pattern": _re.compile(r"\bSENTINEL\b")}]}
+        with patch.object(pl_real, "load", return_value=synthetic) as m:
+            pairs = wrapper._placeholders_config()
+        m.assert_called_once_with("placeholders")
+        self.assertEqual(pairs, ((synthetic["patterns"][0]["pattern"], "SENTINEL"),))
+
 
     def test_malformed_adopter_path_fails_closed(self):
         # F1: a directory (or broken symlink) at <adopter_dir>/<concern>.toml is a
@@ -19220,6 +19256,60 @@ class StubEngineProfileTests(unittest.TestCase):
             args.update(bad)
             with self.assertRaises(ValueError):
                 self.engine.stub_vocabulary(**args)
+
+
+class PlaceholderEngineProfileTests(unittest.TestCase):
+    """gate 12 engine behaviour after PR-H parameterization: label detection,
+    first-match-per-line order, fail-closed composition."""
+
+    def setUp(self):
+        self.wrapper = load_linter_module("tools/lint-placeholder-leakage.py", "_ph_engine")
+        self.engine = self.wrapper._engine()
+        self.patterns = self.wrapper._placeholders_config()
+
+    def scan_line(self, line, *, patterns=None):
+        from unittest.mock import patch
+        patterns = self.patterns if patterns is None else patterns
+        with patch.object(self.engine, "read_text_safe", return_value=line):
+            return self.engine.scan(REPO_ROOT / "tests/tmp/ph.md", patterns=patterns)
+
+    def test_known_markers_detected_with_labels(self):
+        cases = {
+            "a TODO here": "TODO marker",
+            "see (placeholder) note": "(placeholder) marker",
+            "COMING SOON everyone": "Coming soon marker",  # IGNORECASE
+            "role is <role> today": "<role> placeholder",
+            "visit yourcompany.com now": "yourcompany.com placeholder",
+        }
+        for line, label in cases.items():
+            with self.subTest(line=line):
+                found = self.scan_line(line)
+                self.assertEqual([f[1] for f in found], [label])
+
+    def test_first_match_wins_by_order(self):
+        # TODO (index 0) precedes (placeholder) (index 11): first-match label is TODO.
+        found = self.scan_line("TODO and (placeholder) both")
+        self.assertEqual([f[1] for f in found], ["TODO marker"])
+
+    def test_dynamic_patterns(self):
+        import re
+        syn = ((re.compile(r"\bALPHA\b"), "alpha"), (re.compile(r"\bBETA\b"), "beta"))
+        self.assertEqual([f[1] for f in self.scan_line("has BETA", patterns=syn)], ["beta"])
+        # order policy on the synthetic set: alpha precedes beta
+        self.assertEqual([f[1] for f in self.scan_line("ALPHA BETA", patterns=syn)], ["alpha"])
+
+    def test_fail_closed(self):
+        import re
+        bad_cases = [
+            "notalist",
+            [{"label": "x"}],                                  # missing pattern
+            [{"label": "x", "pattern": r"\bx\b"}],           # pattern not compiled
+            [{"label": "", "pattern": re.compile("x")}],       # empty label
+            [{"label": "x", "pattern": re.compile("x"), "extra": 1}],  # extra key
+        ]
+        for bad in bad_cases:
+            with self.assertRaises(ValueError):
+                self.engine.placeholder_patterns(bad)
 
 
 if __name__ == "__main__":
