@@ -42,82 +42,35 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
-import re
 import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import iter_non_code_lines, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
 from lint_common import REPO_ROOT, iter_markdown_targets  # noqa: E402  # grc-config/store, stays local
+
+PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
 DEFAULT_PATHS = [str(REPO_ROOT)]
 
-LINK_RE = re.compile(r"\[([^\]]+)\]\(([^)#]*)#([^)]+)\)")
-HEADING_RE = re.compile(r"^(#{1,6})\s+(.+?)\s*$")
 
-
-def slugify(heading: str) -> str:
-    """Slugify a markdown heading per GitHub's rules (best-effort)."""
-    # Remove trailing markdown formatting and code backticks
-    s = heading.strip().lower()
-    # Drop characters that aren't alphanumeric, space, hyphen, or underscore
-    s = re.sub(r"[^a-z0-9\s\-_]+", "", s)
-    # Spaces → hyphens
-    s = re.sub(r"\s+", "-", s)
-    # Collapse consecutive hyphens
-    s = re.sub(r"-+", "-", s)
-    return s.strip("-")
-
-
-def extract_anchors(text: str) -> set[str]:
-    """Return set of anchor slugs derivable from headings in `text`."""
-    anchors: set[str] = set()
-    for _lineno, line in iter_non_code_lines(text):
-        m = HEADING_RE.match(line)
-        if m:
-            heading = m.group(2)
-            # Strip markdown formatting from heading text
-            heading_clean = re.sub(r"[`*_]+", "", heading)
-            anchors.add(slugify(heading_clean))
-    return anchors
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_section_anchors  # the pack-owned engine (source of record)
+    return gate_lint_section_anchors
 
 
 def scan(path: Path) -> list[tuple[int, str, str, str]]:
-    """Return list of (line, target_rel, anchor, reason) findings."""
-    findings: list[tuple[int, str, str, str]] = []
-    text = read_text_safe(path)
-    if text is None:
-        return findings
-    base_dir = path.parent
-    for lineno, line in iter_non_code_lines(text):
-        for m in LINK_RE.finditer(line):
-            link_text, target_rel, anchor = m.group(1), m.group(2).strip(), m.group(3).strip()
-            # Strip inline-code backticks from link text
-            anchor = anchor.split(" ")[0]  # ignore link-title text
-            if not target_rel:
-                # Same-document anchor: target is the current file
-                target_path = path
-            else:
-                # Skip external links (http/https/etc.)
-                if target_rel.startswith(("http://", "https://", "mailto:")):
-                    continue
-                target_path = (base_dir / target_rel).resolve()
-            if not target_path.exists():
-                continue  # lint-links handles this
-            try:
-                target_text = target_path.read_text(encoding="utf-8")
-            except (OSError, UnicodeDecodeError):
-                continue
-            anchors_available = extract_anchors(target_text)
-            if anchor not in anchors_available:
-                try:
-                    target_rel_disp = target_path.relative_to(REPO_ROOT).as_posix()
-                except ValueError:
-                    target_rel_disp = str(target_path)
-                findings.append(
-                    (lineno, target_rel_disp, anchor, f"no heading slugifies to #{anchor}")
-                )
-    return findings
+    """Thin shim delegating to the pack engine's pure check.
+
+    Kept in the wrapper as a module-global because the scan-scope regression
+    test patches ``mod.scan`` and runs ``main``; the check (LINK_RE, HEADING_RE,
+    slugify, extract_anchors, scan) lives in the pack engine. The engine takes
+    ``repo_root`` as a keyword; the wrapper supplies the grc root here.
+    """
+    return _engine().scan(path, repo_root=REPO_ROOT)
 
 
 def main(argv: list[str]) -> int:

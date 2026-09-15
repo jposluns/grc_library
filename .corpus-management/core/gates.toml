@@ -174,3 +174,11 @@ source = "tools/gate_lint_license_consistency.py"
 enforces = "license-consistency"
 entry_point = "tools/lint-license-consistency.py"
 origin = "grc_library tools/lint-license-consistency.py, grc gate 15 (engine transferred in SHARED/SAFETY-lane PR-34 via Pattern A; CANONICAL_LICENSE + the raw-line scan moved verbatim to the pack engine; the wrapper keeps main + the grc scan scope (iter_markdown_targets) + the grc EXEMPT_FILES set (NOTICE.md, nuanced by design) + grouped reporting, reads CANONICAL_LICENSE from the engine, and keeps a module-global scan shim delegating to the engine so the scan-scope test (patches mod.scan + runs main) still intercepts; the dead LICENSE_LINE_RE + its sole-user import re were removed. aiqt_corpus import guard (read_text_safe).)"
+
+[[gates]]
+id = "lint-section-anchors"
+title = "Cross-document section-anchor audit"
+source = "tools/gate_lint_section_anchors.py"
+enforces = "section-anchor-resolution"
+entry_point = "tools/lint-section-anchors.py"
+origin = "grc_library tools/lint-section-anchors.py, grc gate 17 (engine transferred in SHARED/SAFETY-lane PR-35 via Pattern A; LINK_RE + HEADING_RE + slugify + extract_anchors + the anchor-resolution scan moved verbatim to the pack engine; the wrapper keeps main + the grc scan scope (iter_markdown_targets) + grouped reporting and a module-global scan shim delegating to the engine so the scan-scope test (patches mod.scan + runs main) still intercepts; the engine scan takes repo_root as a keyword (for the finding's display path) so it is repository-root-free, the wrapper shim supplies REPO_ROOT. aiqt_corpus import guard (iter_non_code_lines, read_text_safe).)"
