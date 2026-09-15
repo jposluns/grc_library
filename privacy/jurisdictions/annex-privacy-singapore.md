@@ -2,8 +2,8 @@
 
 **Document Title:** Singapore Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.2\
-**Date:** 2026-09-12\
+**Version:** 1.1.3\
+**Date:** 2026-09-15\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -25,7 +25,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 ## Applicable laws and regulatory authorities
 
 - **Personal Data Protection Act 2012 (PDPA)**: Administered by the Personal Data Protection Commission (PDPC). Governs collection, use, disclosure, and care of personal data by private organizations. Significantly amended in 2020 (effective 2021-02-01) to introduce mandatory data breach notification, enhanced consent exceptions, data portability, and expanded enforcement powers.
-- **PDPC Advisory Guidelines on AI Recommendations (2022):** Advisory guidelines on the use of personal data in AI recommendation systems and on responsible use of AI in decision-making.
+- **PDPC Advisory Guidelines on the Use of Personal Data in AI Recommendation and Decision Systems:** advisory guidelines on using personal data in AI recommendation and decision systems; the specific guidelines are not held in the reference base, so an adopter confirms the current edition and date directly.
 - **Regulatory authority:** Personal Data Protection Commission (PDPC).
 
 ---
@@ -49,7 +49,7 @@ The PDPA's data-protection obligations (Parts 3 to 6B) impose the following requ
 ## AI and privacy obligations
 
 - The PDPA has no automated-decision or human-oversight provision; its general standard is that personal data be processed for purposes a reasonable person would consider appropriate in the circumstances (s. 18) and, where applicable, notified (s. 20). Human oversight of AI decisions is addressed by the PDPC's voluntary Model AI Governance Framework, not a PDPA duty.
-- The PDPC's Model Governance Framework for AI (2019, second edition 2020) provides a voluntary framework for responsible AI governance (broadly adopted in Singapore enterprise practice as of 2026), covering risk-proportionate governance, internal governance, operations management for AI models, and stakeholder interaction.
+- The PDPC's Model AI Governance Framework (2019, second edition 2020) provides a voluntary framework for responsible AI governance, covering risk-proportionate governance, internal governance, operations management for AI models, and stakeholder interaction; the reference base holds its successor, the Model AI Governance Framework for Generative AI (IMDA / AI Verify Foundation, 2024).
 - **Mandatory data breach notification:** Organizations must notify the PDPC of a notifiable data breach (one that is, or is likely to be, of significant scale, or that results in or is likely to result in significant harm to an individual) as soon as practicable and no later than 3 calendar days after assessment (s.26D(1)). For breaches that result in or are likely to result in significant harm, affected individuals must also be notified thereafter, in a manner reasonable in the circumstances and subject to the statutory conditions and exceptions in ss.26B and 26D; the statute sets no fixed deadline for individual notification.
 - **Business-improvement and research exceptions (First and Second Schedules):** an organization may use personal data without consent for a business-improvement purpose (subject to: the purpose cannot reasonably be achieved without the data in an individually identifiable form, and a reasonable person would consider the use appropriate in the circumstances), or for research (subject to the Division 3 conditions: the research cannot reasonably be accomplished without the data in an individually identifiable form; there is a clear public benefit; the results are not used to make any decision that affects the individual; and any published results are in a form that does not identify the individual).
 
