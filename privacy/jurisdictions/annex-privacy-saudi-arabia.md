@@ -2,7 +2,7 @@
 
 **Document Title:** Saudi Arabia Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.6\
+**Version:** 1.0.7\
 **Date:** 2026-09-15\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -37,7 +37,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 - **Automated decisions:** the Implementing Regulation requires the controller to indicate, in its privacy notice, whether decisions will be made based solely on automated processing (Impl. Reg. Art. 4(5)(c)); the PDPL grants no separate right to object to profiling.
 - **Breach notification:** the controller notifies the Competent Authority within 72 hours of becoming aware of an incident that potentially harms the personal data or the data subject or conflicts with their rights or interests, and notifies affected data subjects without undue delay where the threshold is met (Impl. Reg. Art. 24).
 - **National AI governance:** SDAIA's AI-governance instruments beyond the PDPL are evolving; no SDAIA sector-specific AI obligations are held in the reference base, so an adopter confirms the current state with SDAIA directly.
-- **Data governance for AI:** The National Data Governance Interim Regulations require data governance frameworks including classification, quality, and security controls relevant to AI systems processing sensitive data.
+- **Data governance for AI:** The National Data Governance Interim Regulations are reported to require data governance frameworks (classification, quality, and security controls) relevant to AI systems processing sensitive data; that instrument is not held in the reference base, so an adopter confirms its current requirements directly.
 
 ---
 

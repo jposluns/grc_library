@@ -2,7 +2,7 @@
 
 **Document Title:** United Arab Emirates Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.7\
+**Version:** 1.0.8\
 **Date:** 2026-09-15\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -38,7 +38,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 - **Lawful basis:** The UAE PDPL requires a lawful basis for processing personal data in AI systems.
 - **Automated decision-making (Art. 18):** the data subject has the right to object to any decision resulting from automated processing, including profiling, and particularly those that have a legal impact on or adversely affect them, except where the automated processing is agreed under a contract with the controller, is required under other applicable legislation, or the data subject gave prior consent; in those excepted cases the controller adopts measures to protect the data subject and does not prejudice their rights (Art. 18(3)), and the controller must include a human element in reviewing automated-processing decisions at the data subject's request.
 - **Breach notification (Art. 9):** on becoming aware of a breach that would prejudice the privacy, confidentiality, and security of personal data, the controller notifies the Bureau within the period and by the measures set in the Executive Regulations, with the prescribed breach details and a description of the measures taken; affected data subjects are notified where the breach would prejudice their privacy, confidentiality, and security.
-- **Sector-specific AI:** The UAE's approach is primarily innovation-enabling. Financial services, healthcare, and critical infrastructure sectors have sector-specific AI risk management requirements.
+- **Sector-specific AI:** The UAE's approach is primarily innovation-enabling. Sector regulators are reported to apply sector-specific AI risk-management expectations (for example in financial services, healthcare, and critical infrastructure); those requirements are not held in the reference base, so an adopter confirms them with the relevant sector regulator directly.
 - **DIFC and ADGM:** Both free zones apply GDPR-equivalent standards, including comprehensive automated decision-making rights and DPIA requirements.
 
 ---

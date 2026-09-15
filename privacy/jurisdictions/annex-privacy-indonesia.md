@@ -2,7 +2,7 @@
 
 **Document Title:** Indonesia Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.4\
+**Version:** 1.0.5\
 **Date:** 2026-09-15\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -35,7 +35,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## AI and privacy obligations
 
-- The UU PDP requires transparency and human oversight for automated processing used for profiling or significantly impactful decision-making.
+- The UU PDP is reported to require transparency and human oversight for automated processing used for profiling or significantly impactful decision-making; as noted above the UU PDP text is not held in the reference base, so an adopter confirms these provisions directly.
 - Indonesia has no binding AI-specific regulation held in the reference base as of 2026; an adopter confirms the current state of national AI-governance instruments directly.
 - Purpose limitation and data minimization principles apply to AI systems processing personal data.
 
