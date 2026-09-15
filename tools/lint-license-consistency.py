@@ -26,21 +26,19 @@ Exit codes:
     1   one or more license-wording deviations present
 """
 
+
 from __future__ import annotations
 
 import argparse
-import re
 import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
 from lint_common import REPO_ROOT, iter_markdown_targets  # noqa: E402  # grc-config/store, stays local
 
-DEFAULT_PATHS = [str(REPO_ROOT)]
+PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
-CANONICAL_LICENSE = "CC BY-SA 4.0"
-LICENSE_LINE_RE = re.compile(r"^\*\*License:\*\*\s+(.+?)\s*$", re.MULTILINE)
+DEFAULT_PATHS = [str(REPO_ROOT)]
 
 # Files exempt from the canonical-license rule because they describe the
 # license rule itself or list alternative licenses.
@@ -50,28 +48,25 @@ EXEMPT_FILES = {
     # nuanced by design.
     "NOTICE.md",
 }
-# Note: CORPUS_LICENSES.json was previously exempted here, but the linter
-# only scans markdown files (via iter_markdown_targets), so the entry was
-# unreachable. Removed in Phase 23.58.
+
+
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_license_consistency  # the pack-owned engine (source of record)
+    return gate_lint_license_consistency
 
 
 def scan(path: Path) -> list[tuple[int, str]]:
-    findings: list[tuple[int, str]] = []
-    text = read_text_safe(path)
-    if text is None:
-        return findings
-    for lineno, line in enumerate(text.splitlines(), start=1):
-        if line.startswith("**License:**"):
-            value = line[len("**License:**"):].rstrip()
-            # Strip CommonMark hard-break backslash
-            if value.endswith("\\"):
-                value = value[:-1]
-            value = value.strip()
-            if value != CANONICAL_LICENSE:
-                findings.append(
-                    (lineno, f"license value {value!r} differs from canonical {CANONICAL_LICENSE!r}")
-                )
-    return findings
+    """Thin shim delegating to the pack engine's pure check.
+
+    Kept in the wrapper as a module-global because the scan-scope regression
+    test patches ``mod.scan`` and runs ``main``; the canonical string and the
+    check live in the pack engine (gate_lint_license_consistency.py).
+    """
+    return _engine().scan(path)
 
 
 def main(argv: list[str]) -> int:
@@ -80,6 +75,7 @@ def main(argv: list[str]) -> int:
     )
     parser.add_argument("paths", nargs="*", default=DEFAULT_PATHS)
     args = parser.parse_args(argv[1:])
+    canonical = _engine().CANONICAL_LICENSE
     targets = iter_markdown_targets(args.paths, exempt_files=EXEMPT_FILES)
     grouped: dict[Path, list[tuple[int, str]]] = {}
     for t in targets:
@@ -87,7 +83,7 @@ def main(argv: list[str]) -> int:
         if findings:
             grouped[t] = findings
     if not grouped:
-        print(f"OK: all License fields are exactly {CANONICAL_LICENSE!r} (scanned {len(targets)} files).")
+        print(f"OK: all License fields are exactly {canonical!r} (scanned {len(targets)} files).")
         return 0
     total = 0
     for path, findings in sorted(grouped.items()):
@@ -97,7 +93,7 @@ def main(argv: list[str]) -> int:
             print(f"  L{lineno} [license-consistency] {msg}")
         total += len(findings)
     print(f"\nFAIL: {total} license-consistency finding(s) across {len(grouped)} file(s).")
-    print(f"License field must be exactly {CANONICAL_LICENSE!r}. Library uses uniform CC BY-SA 4.0 licence.")
+    print(f"License field must be exactly {canonical!r}. Library uses uniform CC BY-SA 4.0 licence.")
     return 1
 
 
