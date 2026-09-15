@@ -166,7 +166,10 @@ def main() -> int:
     # rule). Types absent from its map are not-enforced BY DESIGN, so absence is
     # not a failure; an invalid key is.
     rs = _load_module(TOOLS / "lint-required-sections.py")
-    rs_keys = set(getattr(rs, "REQUIRED_SECTIONS", {}).keys())
+    # PR-C: the section model is profile-loaded; read the composed config, not
+    # a module constant (getattr-with-{} default would vacuous-pass on the
+    # removed literal). _sections_config() fails loud on a broken profile.
+    rs_keys = set(rs._sections_config().keys())
     rs_bad = rs_keys - names
     if rs_bad:
         failures.append(

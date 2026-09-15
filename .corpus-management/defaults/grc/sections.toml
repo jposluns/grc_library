@@ -1,0 +1,39 @@
+# Reference-vocabulary profile: required-sections-by-doctype model (grc defaults).
+#
+# Concern: sections. The LIVE gate-19 configuration since Phase-4 PR-C:
+# tools/lint-required-sections.py loads it via profile_loader.load("sections")
+# and composes the engine's required_map in _sections_config(); gate 67's
+# Check 2 reads the same composed map. Values transcribed VERBATIM from the
+# wrapper constants ORIENTATION_OPTIONS + REQUIRED_SECTIONS (the wrapper's own
+# factoring: one orientation-alias list referenced by every enforced doctype),
+# so this mirrors the wrapper source 1:1; the engine shape (doctype -> list of
+# requirement-alias-lists) is composed at the wrapper boundary exactly as the
+# wrapper's dict literal composed it. The requirement is "at least one
+# orientation section" (any alias), case-insensitive substring match against
+# normalized headings.
+schema_version = 1
+
+[sections]
+orientation_options = [
+    "purpose",
+    "scope",
+    "applicability",
+    "purpose and scope",
+    "introduction",
+    "overview",
+    "executive summary",
+    "summary",
+]
+orientation_doctypes = [
+    "Standard",
+    "Procedure",
+    "Policy",
+    "Specification",
+    "Plan",
+    "Framework",
+    "Charter",
+    "Annex",
+    "Register",
+    "Guide",
+    "Guideline",
+]

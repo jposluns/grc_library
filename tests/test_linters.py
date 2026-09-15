@@ -18746,6 +18746,48 @@ class ProfileLoaderTests(unittest.TestCase):
         self.assertEqual(denylist, [("SENTINEL", "r", "x")])
         self.assertEqual(path_exemptions, {"SENTINEL": {"CHANGELOG.md"}})
 
+    def test_live_sections_profile_loads(self):
+        prof = self.mod.load("sections")
+        self.assertEqual(set(prof), {"orientation_options", "orientation_doctypes"})
+        self.assertTrue(prof["orientation_options"])
+        self.assertTrue(prof["orientation_doctypes"])
+
+    def test_sections_profile_drives_wrapper_config(self):
+        # PR-C: the wrapper no longer carries REQUIRED_SECTIONS /
+        # ORIENTATION_OPTIONS literals; the engine input is DERIVED from the
+        # shipped profile via _sections_config(). Lock wiring + composition.
+        wrapper = load_linter_module(
+            "tools/lint-required-sections.py", "_sections_profile_wiring")
+        self.assertFalse(hasattr(wrapper, "REQUIRED_SECTIONS"))
+        self.assertFalse(hasattr(wrapper, "ORIENTATION_OPTIONS"))
+        prof = self.mod.load("sections")
+        cfg = wrapper._sections_config()
+        self.assertEqual(
+            cfg,
+            {dt: [list(prof["orientation_options"])]
+             for dt in prof["orientation_doctypes"]},
+        )
+        # Independent copies: mutating one doctype's aliases must not alias another's.
+        two = list(cfg)[:2]
+        cfg[two[0]][0].append("sentinel")
+        self.assertNotIn("sentinel", cfg[two[1]][0])
+
+    def test_sections_config_is_dynamically_profile_driven(self):
+        from unittest.mock import patch
+        wrapper = load_linter_module("tools/lint-required-sections.py", "_sections_dynamic")
+        pack_tools = str(REPO_ROOT / ".corpus-management" / "tools")
+        if pack_tools not in sys.path:
+            sys.path.insert(0, pack_tools)
+        import profile_loader as pl_real  # the SAME module the wrapper imports
+        synthetic = {
+            "orientation_options": ["sentinel-heading"],
+            "orientation_doctypes": ["SentinelType"],
+        }
+        with patch.object(pl_real, "load", return_value=synthetic) as m:
+            cfg = wrapper._sections_config()
+        m.assert_called_once_with("sections")
+        self.assertEqual(cfg, {"SentinelType": [["sentinel-heading"]]})
+
 
     def test_malformed_adopter_path_fails_closed(self):
         # F1: a directory (or broken symlink) at <adopter_dir>/<concern>.toml is a
