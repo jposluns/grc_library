@@ -103,3 +103,8 @@ target = ".claude/rules/corpus-management/placeholder-leakage.md"
 rule = "gate-count-consistency"
 kind = "file"
 target = ".claude/rules/corpus-management/gate-count-consistency.md"
+
+[[owned_targets]]
+rule = "date-format"
+kind = "file"
+target = ".claude/rules/corpus-management/date-format.md"

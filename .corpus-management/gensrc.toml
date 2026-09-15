@@ -147,3 +147,10 @@ kind = "file"
 sources = ["core/rules/gate-count-consistency.md"]
 target = ".claude/rules/corpus-management/gate-count-consistency.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "date-format"
+kind = "file"
+sources = ["core/rules/date-format.md"]
+target = ".claude/rules/corpus-management/date-format.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]
