@@ -2,8 +2,8 @@
 
 **Document Title:** Saudi Arabia Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.5\
-**Date:** 2026-09-12\
+**Version:** 1.0.6\
+**Date:** 2026-09-15\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -27,7 +27,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 - **Saudi Personal Data Protection Law (PDPL)**: Royal Decree No. M/19, adopted 2021; implementing regulations published 2023, in force September 2023. Applies to processing of personal data of individuals in Saudi Arabia and to any processing occurring in Saudi Arabia.
 - Sensitive Data (Art. 1(11)): personal data revealing racial or ethnic origin, religious, intellectual, or political belief, data relating to security criminal convictions and offences, biometric or genetic data for the purpose of identifying the person, health data, and data indicating that one or both of an individual's parents are unknown. (Financial, credit, and children's data are not, in themselves, sensitive categories under the PDPL.)
 - **National Data Governance Interim Regulations:** Govern classification and management of data by entities operating in Saudi Arabia, including data localization requirements for certain categories of government and sensitive data.
-- **SDAIA AI Ethics Principles (September 2023, v1.0):** Published by SDAIA (a later version has since been issued); a risk-based framework of ethical principles aligned with global practice.
+- **SDAIA AI Ethics Principles:** SDAIA publishes a risk-based framework of AI ethical principles aligned with global practice; the specific edition is not held in the reference base, so an adopter confirms its current version and date with SDAIA directly.
 - **Regulatory authority:** Saudi Data and Artificial Intelligence Authority (SDAIA).
 
 ---
@@ -36,7 +36,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 - **Automated decisions:** the Implementing Regulation requires the controller to indicate, in its privacy notice, whether decisions will be made based solely on automated processing (Impl. Reg. Art. 4(5)(c)); the PDPL grants no separate right to object to profiling.
 - **Breach notification:** the controller notifies the Competent Authority within 72 hours of becoming aware of an incident that potentially harms the personal data or the data subject or conflicts with their rights or interests, and notifies affected data subjects without undue delay where the threshold is met (Impl. Reg. Art. 24).
-- **National AI Governance Framework:** SDAIA is developing sector-specific AI obligations for financial services, healthcare, and government AI.
+- **National AI governance:** SDAIA's AI-governance instruments beyond the PDPL are evolving; no SDAIA sector-specific AI obligations are held in the reference base, so an adopter confirms the current state with SDAIA directly.
 - **Data governance for AI:** The National Data Governance Interim Regulations require data governance frameworks including classification, quality, and security controls relevant to AI systems processing sensitive data.
 
 ---
