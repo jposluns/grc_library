@@ -154,3 +154,10 @@ kind = "file"
 sources = ["core/rules/date-format.md"]
 target = ".claude/rules/corpus-management/date-format.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "license-consistency"
+kind = "file"
+sources = ["core/rules/license-consistency.md"]
+target = ".claude/rules/corpus-management/license-consistency.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]

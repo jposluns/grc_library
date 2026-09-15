@@ -19452,5 +19452,55 @@ class DateFormatEngineTransferTests(unittest.TestCase):
         self.assertEqual(found, [])
 
 
+
+class LicenseConsistencyEngineTransferTests(unittest.TestCase):
+    """gate 15 engine after the SHARED/SAFETY-lane PR-34 transfer (Pattern A):
+    CANONICAL_LICENSE + the raw-line scan live in the pack engine; the wrapper
+    keeps a module-global scan shim + EXEMPT_FILES + main."""
+
+    def setUp(self):
+        self.wrapper = load_linter_module("tools/lint-license-consistency.py", "_license_engine")
+        self.engine = self.wrapper._engine()
+
+    def test_check_moved_to_engine(self):
+        for name in ("CANONICAL_LICENSE", "scan"):
+            self.assertTrue(hasattr(self.engine, name), f"engine missing {name}")
+        # The canonical string moved out of the wrapper; the exempt set stays wrapper-side.
+        self.assertFalse(hasattr(self.wrapper, "CANONICAL_LICENSE"))
+        self.assertFalse(hasattr(self.wrapper, "LICENSE_LINE_RE"))  # dead code removed
+        self.assertTrue(hasattr(self.wrapper, "scan"))
+        self.assertTrue(hasattr(self.wrapper, "EXEMPT_FILES"))
+        self.assertEqual(self.engine.CANONICAL_LICENSE, "CC BY-SA 4.0")
+
+    def test_canonical_passes(self):
+        from unittest.mock import patch
+        doc = "# T\n\n**License:** CC BY-SA 4.0\n\nBody.\n"
+        with patch.object(self.engine, "read_text_safe", return_value=doc):
+            self.assertEqual(self.engine.scan(REPO_ROOT / "risk/d.md"), [])
+
+    def test_variant_flagged(self):
+        from unittest.mock import patch
+        doc = "# T\n\n**License:** CC-BY-SA-4.0\n\nBody.\n"
+        with patch.object(self.engine, "read_text_safe", return_value=doc):
+            found = self.engine.scan(REPO_ROOT / "risk/d.md")
+        self.assertEqual(len(found), 1)
+        self.assertIn("differs from canonical", found[0][1])
+
+    def test_hard_break_backslash_stripped(self):
+        from unittest.mock import patch
+        doc = "# T\n\n**License:** CC BY-SA 4.0\\\n\nBody.\n"
+        with patch.object(self.engine, "read_text_safe", return_value=doc):
+            self.assertEqual(self.engine.scan(REPO_ROOT / "risk/d.md"), [])
+
+    def test_not_fence_aware(self):
+        from unittest.mock import patch
+        # A License line inside a fence IS still checked (raw-line scan, byte-identical to pre-transfer).
+        doc = "# T\n\n```\n**License:** WRONG\n```\n\nBody.\n"
+        with patch.object(self.engine, "read_text_safe", return_value=doc):
+            found = self.engine.scan(REPO_ROOT / "risk/d.md")
+        self.assertEqual(len(found), 1)
+        self.assertIn("differs from canonical", found[0][1])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

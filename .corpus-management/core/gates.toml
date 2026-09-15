@@ -166,3 +166,11 @@ source = "tools/gate_lint_date_format.py"
 enforces = "date-format"
 entry_point = "tools/lint-date-format.py"
 origin = "grc_library tools/lint-date-format.py, grc gate 14 (engine transferred in SHARED/SAFETY-lane PR-33, the first SHARED-mapped scan-gate transfer via Pattern A; ISO_DATE_RE + validate_date + PLACEHOLDER_VALUES + fence-aware scan moved verbatim to the pack engine; the project tool became a thin wrapper supplying the grc scan scope (iter_markdown_targets) + grouped reporting in main, and keeps a module-global scan shim delegating to the engine so the scan-scope regression test (which patches mod.scan + runs main) still intercepts; the engine scan is repo_root-free and scope-free. aiqt_corpus import guard (iter_non_code_lines, read_text_safe).)"
+
+[[gates]]
+id = "lint-license-consistency"
+title = "Metadata license-consistency audit"
+source = "tools/gate_lint_license_consistency.py"
+enforces = "license-consistency"
+entry_point = "tools/lint-license-consistency.py"
+origin = "grc_library tools/lint-license-consistency.py, grc gate 15 (engine transferred in SHARED/SAFETY-lane PR-34 via Pattern A; CANONICAL_LICENSE + the raw-line scan moved verbatim to the pack engine; the wrapper keeps main + the grc scan scope (iter_markdown_targets) + the grc EXEMPT_FILES set (NOTICE.md, nuanced by design) + grouped reporting, reads CANONICAL_LICENSE from the engine, and keeps a module-global scan shim delegating to the engine so the scan-scope test (patches mod.scan + runs main) still intercepts; the dead LICENSE_LINE_RE + its sole-user import re were removed. aiqt_corpus import guard (read_text_safe).)"

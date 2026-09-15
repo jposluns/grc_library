@@ -1,0 +1,12 @@
+# License consistency
+
+A document's `**License:**` metadata field carries exactly the canonical license
+string. The value is read after the `**License:**` label on any physical line (the
+check is not fence-aware; it scans raw lines), with a trailing CommonMark
+hard-break backslash stripped and surrounding whitespace removed; a value that
+differs from the canonical string is a finding. The canonical license string is
+fixed in the check implementation (currently `CC BY-SA 4.0`); the set of exempt
+files, whose License value is nuanced by design (a governance notice that
+deliberately qualifies the licence scope to original content), is project
+configuration and not part of this clause. A file with no `**License:**` field
+contributes no findings.
