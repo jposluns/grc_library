@@ -175,3 +175,10 @@ kind = "file"
 sources = ["core/rules/intra-doc-section-refs.md"]
 target = ".claude/rules/corpus-management/intra-doc-section-refs.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "secret-content"
+kind = "file"
+sources = ["core/rules/secret-content.md"]
+target = ".claude/rules/corpus-management/secret-content.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]

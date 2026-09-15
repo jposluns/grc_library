@@ -19605,5 +19605,54 @@ class IntraDocRefsEngineTransferTests(unittest.TestCase):
         self.assertEqual(self._scan("# Plain\n\nSee §5.4 for details.\n"), [])
 
 
+
+class SecretsInContentEngineTransferTests(unittest.TestCase):
+    """gate 21 engine after the SHARED/SAFETY-lane PR-37 transfer (Pattern A):
+    SECRET_PATTERNS + scan live in the pack engine; the wrapper keeps a
+    module-global scan shim + the grc scan scope + EXEMPT_FILES (now including
+    the engine, defensively)."""
+
+    def setUp(self):
+        self.wrapper = load_linter_module("tools/lint-secrets-in-content.py", "_secrets_engine")
+        self.engine = self.wrapper._engine()
+
+    def test_check_moved_to_engine(self):
+        for name in ("SECRET_PATTERNS", "scan"):
+            self.assertTrue(hasattr(self.engine, name), f"engine missing {name}")
+        self.assertFalse(hasattr(self.wrapper, "SECRET_PATTERNS"),
+                         "wrapper should not redefine SECRET_PATTERNS (moved to engine)")
+        self.assertTrue(hasattr(self.wrapper, "scan"))          # the shim
+        self.assertTrue(hasattr(self.wrapper, "SCAN_SUFFIXES"))  # grc scope config stays wrapper-side
+        self.assertTrue(hasattr(self.wrapper, "EXEMPT_FILES"))
+        self.assertEqual(len(self.engine.SECRET_PATTERNS), 14)
+
+    def _scan(self, doc):
+        from unittest.mock import patch
+        with patch.object(self.engine, "read_text_safe", return_value=doc):
+            return self.engine.scan(REPO_ROOT / "risk/d.md")
+
+    def test_aws_key_detected_and_redacted(self):
+        # AWS documentation-format example key (AKIA + 16); this test file is
+        # itself gate-21-exempt, so embedding a pattern-shaped value is safe.
+        doc = "some config: AKIA" + "IOSFODNN7EXAMPLE" + " here\n"
+        found = self._scan(doc)
+        self.assertEqual(len(found), 1)
+        self.assertEqual(found[0][1], "AWS Access Key ID")
+        self.assertTrue(found[0][2].endswith("..."), "long match must be redacted")
+        self.assertLessEqual(len(found[0][2]), 15)  # 12 chars + "..."
+
+    def test_clean_content_no_finding(self):
+        self.assertEqual(self._scan("just some ordinary prose, no secrets here.\n"), [])
+
+    def test_fenced_secret_skipped(self):
+        doc = "```\nAKIA" + "IOSFODNN7EXAMPLE" + "\n```\n"
+        self.assertEqual(self._scan(doc), [])
+
+    def test_one_finding_per_line(self):
+        doc = "AKIA" + "IOSFODNN7EXAMPLE" + " ghp_" + ("a" * 36) + "\n"
+        found = self._scan(doc)
+        self.assertEqual(len(found), 1)  # break after first match per line
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

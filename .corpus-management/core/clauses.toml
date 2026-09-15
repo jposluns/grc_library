@@ -146,3 +146,9 @@ id = "intra-doc-section-refs"
 title = "Intra-document section references (a section-N reference matches a numbered heading in the same document)"
 source = "core/rules/intra-doc-section-refs.md"
 origin = "grc_library tools/lint-intra-doc-refs.py gate rationale (new clause in SHARED/SAFETY-lane PR-36; generated AI-facing rule via gensrc, kind=file, like section-anchor-resolution; the heading/reference regexes + the cross-doc heuristic (window scan + doctype-word + framework-name vocabularies) + the resolution scan is the engine, the grc scan scope + exempt-file set are wrapper config)"
+
+[[clauses]]
+id = "secret-content"
+title = "Secret content (content carries no high-confidence secret pattern)"
+source = "core/rules/secret-content.md"
+origin = "grc_library tools/lint-secrets-in-content.py gate rationale (new clause in SHARED/SAFETY-lane PR-37; first SAFETY-mapped transfer; generated AI-facing rule via gensrc, kind=file, like intra-doc-section-refs; the SECRET_PATTERNS vocabulary + the redacting fence-aware scan is the engine, the grc scanned-suffix set + exempt-file set are wrapper config; the engine is added to the exempt set defensively, mirroring the wrapper's own self-exemption, because it now documents the secret formats by design)"
