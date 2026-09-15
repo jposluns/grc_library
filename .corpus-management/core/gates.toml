@@ -214,3 +214,11 @@ source = "tools/gate_lint_internal_references.py"
 enforces = "internal-reference"
 entry_point = "tools/lint-internal-references.py"
 origin = "grc_library tools/lint-internal-references.py, grc gate 23 (engine transferred in SHARED/SAFETY-lane PR-39 via Pattern A, the third SAFETY-mapped transfer; the 5 detection regexes (INTERNAL_TLD_RE/AWS/AZURE/GCP_REGION_RE/CIDR_RE) + is_documentation_subnet + the fence-aware scan moved verbatim to the pack engine; the wrapper keeps main (verbatim) + the grc scan scope (iter_targets over SCAN_SUFFIXES) + EXEMPT_FILES + grouped reporting and a module-global scan shim delegating to the engine so the scan-scope test (patches mod.scan + runs main) still intercepts; the engine is scope-free and repository-root-free. EXEMPT_FILES gains gate_lint_internal_references.py defensively (documents the formats by design; the engine does not self-match, so findings and exit status are unchanged and the exemption keeps it out of the reported scan count). aiqt_corpus import guard.)"
+
+[[gates]]
+id = "lint-external-link-domains"
+title = "External-link-domain allow-list audit"
+source = "tools/gate_lint_external_link_domains.py"
+enforces = "external-link-domain"
+entry_point = "tools/lint-external-link-domains.py"
+origin = "grc_library tools/lint-external-link-domains.py, grc gate 24 (engine transferred in SHARED/SAFETY-lane PR-40 via Pattern A, the fourth SAFETY-mapped transfer, completing the SAFETY scan set (g21-24); URL_RE + is_allowed + the fence-aware scan moved to the pack engine; scan/is_allowed gained an allow_list keyword so the grc 142-entry publisher allow-list stays wrapper config; the wrapper keeps main (verbatim) + the grc scan scope (iter_targets over SCAN_SUFFIXES) + EXEMPT_FILES + ALLOW_LIST + a module-global scan shim delegating to the engine (supplying allow_list) so the scan-scope test (patches mod.scan + runs main) still intercepts; the engine is scope-free and repository-root-free. EXEMPT_FILES gains gate_lint_external_link_domains.py defensively (does not self-match; findings+exit unchanged; keeps it out of the reported count). aiqt_corpus import guard.)"

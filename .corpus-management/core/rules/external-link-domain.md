@@ -1,0 +1,11 @@
+# External-link domain
+
+Every external `http(s)` URL in content points to a host on the project's
+allow-list of trusted publisher domains. A host matches if it is on the allow-list
+or is a subdomain of an allow-listed parent domain; a URL whose host is neither is
+flagged, because an unexpected external domain in openly-published content is a
+supply-chain vector for adopters. Lines inside fenced code blocks are skipped. The
+URL-matching regex and the host-matching logic are fixed in the check
+implementation; the publisher allow-list, the scanned-suffix set, and the
+exempt-file set are project configuration. Content with no external URL, or only
+allow-listed URLs, contributes no findings.

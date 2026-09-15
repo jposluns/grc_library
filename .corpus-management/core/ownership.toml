@@ -138,3 +138,8 @@ target = ".claude/rules/corpus-management/pii-content.md"
 rule = "internal-reference"
 kind = "file"
 target = ".claude/rules/corpus-management/internal-reference.md"
+
+[[owned_targets]]
+rule = "external-link-domain"
+kind = "file"
+target = ".claude/rules/corpus-management/external-link-domain.md"
