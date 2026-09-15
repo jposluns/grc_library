@@ -21,6 +21,7 @@ clauses = "core/clauses.toml"
 id_history = "core/id-history.toml"
 ownership = "core/ownership.toml"
 gates = "core/gates.toml"
+profiles = "core/profiles.toml"
 hooks = "core/hooks.toml"
 
 [classification]

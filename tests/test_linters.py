@@ -16875,12 +16875,12 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
     def test_register_paths_resolve_and_shapes(self):
         import tomllib
         man = self._load("core/manifest.toml")
-        # Fail-CLOSED on INVENTORY: the manifest must declare EXACTLY these five registers (a
+        # Fail-CLOSED on INVENTORY: the manifest must declare EXACTLY these six registers (a
         # deleted register key must fail, not silently reduce the checked set).
         self.assertEqual(
             set(man["registers"]),
-            {"clauses", "id_history", "ownership", "gates", "hooks"},
-            "manifest [registers] must declare exactly the five expected registers",
+            {"clauses", "id_history", "ownership", "gates", "hooks", "profiles"},
+            "manifest [registers] must declare exactly the six expected registers",
         )
         # Fail-CLOSED on SHAPE, keyed by filename: each register carries its SPECIFIC list
         # collection. PR-2 populates the generation-side registers (ownership, clauses,
@@ -16891,6 +16891,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
             "ownership.toml": ("owned_targets", True),
             "gates.toml": ("gates", True),
             "hooks.toml": ("hooks", False),
+            "profiles.toml": ("profiles", True),
         }
         for key, rel in man["registers"].items():
             reg_path = self.PACK / rel
@@ -18558,6 +18559,318 @@ class AIQTVendorDigestTests(LinterTestCase):
         self.assertIsNotNone(tools, "shim must resolve the AIQT pack tools/ dir")
         # CI-safety: must find the IN-REPO vendored copy, not depend on a sibling pack
         self.assertEqual(Path(tools).resolve(), (REPO_ROOT / "vendor" / "aiqt" / "tools").resolve())
+
+class ProfileLoaderTests(unittest.TestCase):
+    """.corpus-management/tools/profile_loader.py (Phase-4 PR-A).
+
+    In-process tests against synthetic defaults/adopter directories (via the
+    load()'s defaults_dir seam): the fail-closed envelope (missing profile,
+    unknown keys, schema_version, regex compilation) and the key-level-replace
+    overlay semantics (replace-whole, fall-back, explicit-empty clear, unknown
+    adopter key), plus a parity check that the shipped citations profile equals
+    the live lint-citations.py wrapper constants byte-for-byte.
+    """
+
+    BASIC = (
+        "schema_version = 1\n\n[widgets]\n"
+        'names = ["alpha", "beta"]\nlabel = "default-label"\n'
+    )
+
+    def setUp(self):
+        self.mod = load_linter_module(
+            ".corpus-management/tools/profile_loader.py", "profile_loader_under_test"
+        )
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        root = Path(self._tmp.name)
+        self.defaults = root / "defaults"
+        self.adopter = root / "adopter"
+        self.defaults.mkdir()
+        self.adopter.mkdir()
+
+    def _write(self, dirpath, concern, body):
+        (dirpath / f"{concern}.toml").write_text(body, encoding="utf-8")
+
+    def _load(self, concern="widgets", *, adopter=False):
+        return self.mod.load(
+            concern,
+            adopter_dir=self.adopter if adopter else None,
+            defaults_dir=self.defaults,
+        )
+
+    def test_missing_default_profile_fails(self):
+        with self.assertRaises(self.mod.ProfileError) as ctx:
+            self._load("widgets")
+        self.assertIn("no default profile", str(ctx.exception))
+
+    def test_bad_concern_name_fails(self):
+        for bad in ("../widgets", "Widgets", "wid gets", ""):
+            with self.subTest(bad=bad):
+                with self.assertRaises(self.mod.ProfileError):
+                    self.mod.load(bad, defaults_dir=self.defaults)
+
+    def test_unknown_top_level_key_fails(self):
+        self._write(self.defaults, "widgets", self.BASIC + "\n[stray]\nvalue = 1\n")
+        with self.assertRaises(self.mod.ProfileError) as ctx:
+            self._load()
+        self.assertIn("unknown top-level key", str(ctx.exception))
+
+    def test_bad_schema_version_fails(self):
+        for sv in ("schema_version = 2", 'schema_version = "1"', "schema_version = true"):
+            with self.subTest(sv=sv):
+                self._write(self.defaults, "widgets", sv + '\n\n[widgets]\nlabel = "x"\n')
+                with self.assertRaises(self.mod.ProfileError) as ctx:
+                    self._load()
+                self.assertIn("schema_version", str(ctx.exception))
+
+    def test_missing_concern_table_fails(self):
+        self._write(self.defaults, "widgets", "schema_version = 1\n")
+        with self.assertRaises(self.mod.ProfileError):
+            self._load()
+
+    def test_uncompilable_regex_fails(self):
+        self._write(self.defaults, "widgets",
+                    "schema_version = 1\n\n[widgets]\n"
+                    'pattern = { regex = "([unclosed", ignorecase = false }\n')
+        with self.assertRaises(self.mod.ProfileError) as ctx:
+            self._load()
+        self.assertIn("uncompilable regex", str(ctx.exception))
+
+    def test_malformed_regex_table_fails(self):
+        self._write(self.defaults, "widgets",
+                    "schema_version = 1\n\n[widgets]\n"
+                    'pattern = { regex = "ok" }\n')
+        with self.assertRaises(self.mod.ProfileError) as ctx:
+            self._load()
+        self.assertIn("exactly the keys", str(ctx.exception))
+
+    def test_regex_compiled_with_case_flag(self):
+        self._write(self.defaults, "widgets",
+                    "schema_version = 1\n\n[widgets]\n"
+                    'pattern = { regex = "^ab$", ignorecase = true }\n')
+        prof = self._load()
+        self.assertIsNotNone(prof["pattern"].match("AB"))
+        self._write(self.defaults, "widgets",
+                    "schema_version = 1\n\n[widgets]\n"
+                    'pattern = { regex = "^ab$", ignorecase = false }\n')
+        prof = self._load()
+        self.assertIsNone(prof["pattern"].match("AB"))
+
+    def test_no_adopter_dir_returns_defaults(self):
+        self._write(self.defaults, "widgets", self.BASIC)
+        self.assertEqual(self._load(),
+                         {"names": ["alpha", "beta"], "label": "default-label"})
+
+    def test_adopter_dir_without_file_falls_back(self):
+        self._write(self.defaults, "widgets", self.BASIC)
+        self.assertEqual(self._load(adopter=True)["label"], "default-label")
+
+    def test_key_level_replace_and_fallback(self):
+        self._write(self.defaults, "widgets", self.BASIC)
+        self._write(self.adopter, "widgets",
+                    'schema_version = 1\n\n[widgets]\nnames = ["gamma"]\n')
+        prof = self._load(adopter=True)
+        self.assertEqual(prof["names"], ["gamma"])          # replaced whole
+        self.assertEqual(prof["label"], "default-label")    # fell back
+
+    def test_explicit_empty_clears(self):
+        self._write(self.defaults, "widgets", self.BASIC)
+        self._write(self.adopter, "widgets",
+                    'schema_version = 1\n\n[widgets]\nnames = []\nlabel = ""\n')
+        prof = self._load(adopter=True)
+        self.assertEqual(prof["names"], [])
+        self.assertEqual(prof["label"], "")
+
+    def test_unknown_adopter_key_fails(self):
+        self._write(self.defaults, "widgets", self.BASIC)
+        self._write(self.adopter, "widgets",
+                    "schema_version = 1\n\n[widgets]\nnmaes = []\n")
+        with self.assertRaises(self.mod.ProfileError) as ctx:
+            self._load(adopter=True)
+        self.assertIn("unknown override key", str(ctx.exception))
+
+    def test_bad_adopter_schema_version_fails(self):
+        self._write(self.defaults, "widgets", self.BASIC)
+        self._write(self.adopter, "widgets",
+                    'schema_version = 2\n\n[widgets]\nlabel = "x"\n')
+        with self.assertRaises(self.mod.ProfileError):
+            self._load(adopter=True)
+
+    def test_live_citations_profile_loads(self):
+        prof = self.mod.load("citations")
+        self.assertIn("denylist", prof)
+        self.assertTrue(prof["denylist"])
+        for entry in prof["denylist"]:
+            self.assertEqual(set(entry), {"term", "reason", "replacement"})
+
+    def test_shipped_citations_equals_wrapper_literals(self):
+        # Parity: the shipped exemplar must equal the LIVE wrapper constants,
+        # bounding the PR-A -> PR-B two-place duplication window.
+        import ast
+        tree = ast.parse((REPO_ROOT / "tools/lint-citations.py").read_text(encoding="utf-8"))
+        lits = {
+            n.target.id: ast.literal_eval(n.value)
+            for n in tree.body
+            if isinstance(n, ast.AnnAssign) and isinstance(n.target, ast.Name)
+            and n.target.id in {"DENYLIST", "PATH_EXEMPTIONS"}
+        }
+        prof = self.mod.load("citations")
+        self.assertEqual(
+            [(r["term"], r["reason"], r["replacement"]) for r in prof["denylist"]],
+            lits["DENYLIST"],
+        )
+        self.assertEqual(
+            {term: set(paths) for term, paths in prof["path_exemptions"].items()},
+            lits["PATH_EXEMPTIONS"],
+        )
+
+
+    def test_malformed_adopter_path_fails_closed(self):
+        # F1: a directory (or broken symlink) at <adopter_dir>/<concern>.toml is a
+        # misconfiguration, not an absent override; it must fail closed.
+        self._write(self.defaults, "widgets", self.BASIC)
+        (self.adopter / "widgets.toml").mkdir()
+        with self.assertRaises(self.mod.ProfileError) as ctx:
+            self._load(adopter=True)
+        self.assertIn("not a regular file", str(ctx.exception))
+
+    def test_concern_table_shaped_as_regex_is_plain_data(self):
+        # F2: a concern table whose keys are exactly {regex, ignorecase} must be
+        # returned as plain data, never misread as a regex table (which crashed).
+        self._write(self.defaults, "widgets",
+                    'schema_version = 1\n\n[widgets]\nregex = "abc"\nignorecase = true\n')
+        prof = self._load()
+        self.assertEqual(prof, {"regex": "abc", "ignorecase": True})
+
+    def test_regex_table_as_value_still_compiles(self):
+        # F2 positive: a regex table appearing as a VALUE still compiles.
+        self._write(self.defaults, "widgets",
+                    'schema_version = 1\n\n[widgets]\npat = {regex = "^ab$", ignorecase = true}\n')
+        prof = self._load()
+        self.assertIsNotNone(prof["pat"].match("AB"))
+
+    def test_nested_replacement_and_empty_dict_clear(self):
+        self._write(self.defaults, "widgets",
+                    'schema_version = 1\n\n[widgets]\n'
+                    'names = ["alpha"]\n[widgets.opts]\nk = 1\n')
+        self._write(self.adopter, "widgets",
+                    'schema_version = 1\n\n[widgets]\nopts = {}\n')
+        prof = self._load(adopter=True)
+        self.assertEqual(prof["opts"], {})           # nested table cleared whole
+        self.assertEqual(prof["names"], ["alpha"])   # untouched key falls back
+
+
+class CorpusManagementProfilesRegisterTests(unittest.TestCase):
+    """Compiler validation of core/profiles.toml + defaults/ profiles (gate 99).
+
+    Synthetic --root fixtures through the wrapper (the CorpusManagementCompilerTests
+    shape): a valid register passes; a dangling target, an orphan defaults profile,
+    an invalid profile file, and a duplicate id each fail-close (exit 2).
+    """
+
+    WIDGETS_PROFILE = 'schema_version = 1\n\n[widgets]\nnames = ["alpha"]\n'
+    ENTRY = (
+        "[[profiles]]\n"
+        'id = "widgets"\nconcern = "widgets"\n'
+        'target = "defaults/grc/widgets.toml"\n'
+    )
+    REGISTER = "schema_version = 1\n\n" + ENTRY
+
+    def _make_root(self, *, register, profiles=None, clauses=None):
+        root = FIXTURE_DIR / "synthetic-corpus-mgmt-profiles"
+        if root.exists():
+            shutil.rmtree(root)
+        self.addCleanup(shutil.rmtree, root, True)
+        pack = root / ".corpus-management"
+        (pack / "core").mkdir(parents=True)
+        (pack / "defaults" / "grc").mkdir(parents=True)
+        (pack / "core" / "manifest.toml").write_text(
+            "schema_version = 1\n\n[registers]\n"
+            'ownership = "core/ownership.toml"\n'
+            'clauses = "core/clauses.toml"\n'
+            'profiles = "core/profiles.toml"\n\n'
+            "[reference_registers]\n"
+            'defaults_root = "defaults/grc"\n\n'
+            "[generation]\nenabled = true\n"
+            'ruleset = "gensrc.toml"\nowned_targets = []\n',
+            encoding="utf-8",
+        )
+        (pack / "gensrc.toml").write_text("schema_version = 1\nrules = []\n", encoding="utf-8")
+        (pack / "core" / "ownership.toml").write_text(
+            "schema_version = 1\nowned_targets = []\n", encoding="utf-8")
+        (pack / "core" / "clauses.toml").write_text(
+            clauses if clauses is not None else "schema_version = 1\nclauses = []\n",
+            encoding="utf-8")
+        (pack / "core" / "profiles.toml").write_text(register, encoding="utf-8")
+        for rel, content in (profiles or {}).items():
+            (pack / "defaults" / "grc" / rel).write_text(content, encoding="utf-8")
+        return root
+
+    def _check(self, root):
+        return run_linter("tools/build-corpus-management.py", "--check", "--root", root)
+
+    def test_valid_profiles_register_passes(self):
+        root = self._make_root(register=self.REGISTER,
+                               profiles={"widgets.toml": self.WIDGETS_PROFILE})
+        r = self._check(root)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+
+    def test_dangling_profile_target_fails_closed(self):
+        root = self._make_root(register=self.REGISTER, profiles={})
+        r = self._check(root)
+        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+        self.assertIn("does not exist", r.stdout)
+
+    def test_orphan_defaults_profile_fails_closed(self):
+        root = self._make_root(
+            register=self.REGISTER,
+            profiles={"widgets.toml": self.WIDGETS_PROFILE,
+                      "orphan.toml": "schema_version = 1\n\n[orphan]\nx = 1\n"})
+        r = self._check(root)
+        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+        self.assertIn("no core/profiles.toml register entry", r.stdout)
+
+    def test_invalid_profile_file_fails_closed(self):
+        bad = 'schema_version = 1\n\n[widgets]\np = { regex = "([", ignorecase = false }\n'
+        root = self._make_root(register=self.REGISTER, profiles={"widgets.toml": bad})
+        r = self._check(root)
+        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+        self.assertIn("fails validation", r.stdout)
+
+    def test_duplicate_profile_id_fails_closed(self):
+        root = self._make_root(register=self.REGISTER + "\n" + self.ENTRY,
+                               profiles={"widgets.toml": self.WIDGETS_PROFILE})
+        r = self._check(root)
+        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+        self.assertIn("duplicate profile id", r.stdout)
+
+
+    def test_duplicate_concern_fails_closed(self):
+        # F4: two distinct ids registering the same concern (the loader's lookup
+        # identity) must fail closed.
+        two = ("schema_version = 1\n\n"
+               "[[profiles]]\nid = \"widgets\"\nconcern = \"widgets\"\n"
+               'target = "defaults/grc/widgets.toml"\n\n'
+               "[[profiles]]\nid = \"widgets2\"\nconcern = \"widgets\"\n"
+               'target = "defaults/grc/widgets.toml"\n')
+        root = self._make_root(register=two,
+                               profiles={"widgets.toml": self.WIDGETS_PROFILE})
+        r = self._check(root)
+        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+        self.assertIn("duplicate concern", r.stdout)
+
+    def test_profile_id_colliding_with_clause_fails_closed(self):
+        # F3: a profile id sharing the one clause/gate/rule/profile namespace with
+        # a clause id must fail closed.
+        clauses = ("schema_version = 1\n\n[[clauses]]\n"
+                   'id = "widgets"\nsource = "core/profiles.toml"\n')
+        root = self._make_root(register=self.REGISTER,
+                               profiles={"widgets.toml": self.WIDGETS_PROFILE},
+                               clauses=clauses)
+        r = self._check(root)
+        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+        self.assertIn("collides with a", r.stdout)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
