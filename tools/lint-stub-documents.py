@@ -8,8 +8,9 @@ clause); this thin wrapper keeps the house ``python3 tools/lint-stub-documents.p
 parses exactly that) and supplies the grc-local configuration the pack engine deliberately does not
 carry: the AIQT bootstrap, the repo root, the target selection (the exempt files, the ``template-``
 / ``worklist-`` / ``Status: Superseded`` skips, the narrative / default-exempt predicates via
-``is_target`` + ``iter_targets``), and the default scan root. The stub-phrase list and the
-word-count threshold live in the pack engine as the generic check. These wrapper bytes are
+``is_target`` + ``iter_targets``), and the default scan root. The stub-phrase list and word-count
+threshold are profile-loaded (``defaults/grc/stubs.toml`` via ``_stubs_config()``, Phase-4 PR-G)
+and passed to the engine's generic check. These wrapper bytes are
 HAND-MAINTAINED, not compiler-generated, so gate 99 does NOT own them; ``is_target`` / ``iter_targets``
 / ``main`` stay HERE (grc config) so the scan-scope regression's WALKER map and the CLI tests observe
 them unmoved.
@@ -106,13 +107,29 @@ def _engine():
     return gate_lint_stub_documents
 
 
+def _stubs_config():
+    """Load the gate-16 stub vocabulary from the pack profile (Phase-4 PR-G).
+
+    Returns the engine's ``StubVocabulary`` composed from the ``stubs``
+    reference-vocabulary profile (``defaults/grc/stubs.toml``, loaded lazily via
+    ``profile_loader.load('stubs')``). Fail-closed: a malformed profile raises
+    ProfileError / ValueError, never a silent default.
+    """
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import profile_loader  # the pack-owned reference-vocabulary loader (PR-A)
+
+    return _engine().stub_vocabulary(**profile_loader.load("stubs"))
+
+
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
         description="Detect stub documents in production library content."
     )
     parser.add_argument("paths", nargs="*", default=DEFAULT_PATHS)
     args = parser.parse_args(argv[1:])
-    return _engine().run(iter_targets(args.paths), repo_root=REPO_ROOT)
+    return _engine().run(iter_targets(args.paths), repo_root=REPO_ROOT, vocab=_stubs_config())
 
 
 if __name__ == "__main__":

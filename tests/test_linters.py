@@ -18928,6 +18928,37 @@ class ProfileLoaderTests(unittest.TestCase):
             ("sentinelise",), frozenset({"organisation"}), ("sentinelyse",),
             ("organised",), ("ensure x",), {"sentinel"}))
 
+    def test_live_stubs_profile_loads(self):
+        prof = self.mod.load("stubs")
+        self.assertEqual(set(prof), {"stub_phrases", "word_count_threshold"})
+        self.assertTrue(prof["stub_phrases"])
+        self.assertIsInstance(prof["word_count_threshold"], int)
+        self.assertNotIsInstance(prof["word_count_threshold"], bool)
+
+    def test_stubs_profile_drives_wrapper_config(self):
+        wrapper = load_linter_module("tools/lint-stub-documents.py", "_stubs_wiring")
+        self.assertFalse(hasattr(wrapper._engine(), "STUB_PHRASES"))
+        self.assertFalse(hasattr(wrapper._engine(), "WORD_COUNT_THRESHOLD"))
+        prof = self.mod.load("stubs")
+        cfg = wrapper._stubs_config()
+        self.assertEqual(list(cfg.stub_phrases), list(prof["stub_phrases"]))
+        self.assertEqual(cfg.word_count_threshold, prof["word_count_threshold"])
+        self.assertIsInstance(cfg.stub_phrases, tuple)
+
+    def test_stubs_config_is_dynamically_profile_driven(self):
+        from unittest.mock import patch
+        wrapper = load_linter_module("tools/lint-stub-documents.py", "_stubs_dynamic")
+        pack_tools = str(REPO_ROOT / ".corpus-management" / "tools")
+        if pack_tools not in sys.path:
+            sys.path.insert(0, pack_tools)
+        import profile_loader as pl_real
+        synthetic = {"stub_phrases": ["sentinel stub"], "word_count_threshold": 7}
+        with patch.object(pl_real, "load", return_value=synthetic) as m:
+            cfg = wrapper._stubs_config()
+        m.assert_called_once_with("stubs")
+        self.assertEqual(cfg.stub_phrases, ("sentinel stub",))
+        self.assertEqual(cfg.word_count_threshold, 7)
+
 
     def test_malformed_adopter_path_fails_closed(self):
         # F1: a directory (or broken symlink) at <adopter_dir>/<concern>.toml is a
@@ -19143,6 +19174,52 @@ class LanguageEngineProfileTests(unittest.TestCase):
         for bad in ("word", [1], [""]):
             with self.assertRaises(ValueError):
                 self.engine.language_vocabulary(**dict(raw, ise_stems=bad))
+
+
+class StubEngineProfileTests(unittest.TestCase):
+    """gate 16 engine behaviour after PR-G parameterization: threshold + phrase
+    detection via the passed vocab, dynamic vocab, fail-closed on bad data."""
+
+    def setUp(self):
+        self.wrapper = load_linter_module("tools/lint-stub-documents.py", "_stub_engine")
+        self.engine = self.wrapper._engine()
+        self.vocab = self.wrapper._stubs_config()
+
+    def scan_body(self, body, *, vocab=None):
+        from unittest.mock import patch
+        vocab = self.vocab if vocab is None else vocab
+        doc = "# T\n\n**Version:** 1.0\n\n---\n\n" + body
+        with patch.object(self.engine, "read_text_safe", return_value=doc):
+            return self.engine.scan(REPO_ROOT / "tests/tmp/stub.md", vocab=vocab)
+
+    def test_under_threshold_flagged(self):
+        findings = self.scan_body("only three words here")
+        self.assertTrue(any("below threshold" in f for f in findings))
+        self.assertIn(str(self.vocab.word_count_threshold),
+                      " ".join(findings))
+
+    def test_phrase_flagged_over_threshold(self):
+        long_body = ("word " * 400) + self.vocab.stub_phrases[0]
+        findings = self.scan_body(long_body)
+        self.assertFalse(any("below threshold" in f for f in findings))
+        self.assertTrue(any("stub-indicator phrase" in f for f in findings))
+        self.assertIn(repr(self.vocab.stub_phrases[0]), " ".join(findings))
+
+    def test_dynamic_vocab(self):
+        v = self.engine.stub_vocabulary(
+            stub_phrases=["sentinel stub"], word_count_threshold=0)
+        # threshold 0 -> never a word-count finding; live phrases NOT detected
+        self.assertEqual(self.scan_body("word " * 400 + "stub document", vocab=v), [])
+        found = self.scan_body("word " * 400 + "sentinel stub", vocab=v)
+        self.assertTrue(any("sentinel stub" in f for f in found))
+
+    def test_fail_closed(self):
+        for bad in dict(stub_phrases="x"), dict(stub_phrases=[1]), dict(stub_phrases=[""]), \
+                dict(word_count_threshold=True), dict(word_count_threshold=-1), dict(word_count_threshold="100"):
+            args = {"stub_phrases": ["x"], "word_count_threshold": 5}
+            args.update(bad)
+            with self.assertRaises(ValueError):
+                self.engine.stub_vocabulary(**args)
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 # Corpus-Management pack (`.corpus-management/`)
 
-**Status: ACTIVE (umbrella 4.1, compile PR-29).** This directory is the structure of a standalone,
+**Status: ACTIVE (umbrella 4.1, compile PR-30).** This directory is the structure of a standalone,
 adoptable Corpus-Management pack. PR-2 shipped the compiler, the first generated slice (the CLAUDE.md
 generated-artefacts instruction block, transferred verbatim), and the mandatory drift gate (grc gate
 99); PR-3 transferred the first authoring rule (the corpus language convention) as a generated
@@ -76,7 +76,8 @@ disabled in the skeleton.
 - **PR-27 (Phase-4 PR-D):** gate 38 (lint-section-placement) migrated (defaults/grc/placement.toml + `_placement_config()`; the tuple/frozenset/None PLACEMENT_RULES shape rebuilt exactly, pickle-baseline verified; byte-identical). No cross-gate reader. SHIPPED.
 - **PR-28 (Phase-4 PR-E):** gate 7 (lint-filename-title-alignment) migrated (defaults/grc/alignment.toml + `_alignment_config()`; DOCTYPES set + SYNONYMS map). gate 67 Check 1 CO-EDITED to read the composed doctypes via `_alignment_config()` (DOCTYPES no longer a module attribute). Byte-identical. SHIPPED.
 - **PR-29 (Phase-4 PR-F):** the FIRST engine-parameterization. Gate 2 (lint-language): the ise/isation/commonwealth/yse VOCAB moved from the engine into `defaults/grc/language.toml`; the engine's `run()` now takes a `LanguageVocabulary` and COMPILES the ise/yse patterns from it (byte-identical to the former hardcoded patterns, proven by `.pattern`+`.flags` equality); the wrapper loads it via `_language_config()`. gate 82 unaffected. SHIPPED.
-- **PR-30 (next):** Phase-4 PR-G, markers (gates 12/16/9) via the same engine-parameterization pattern across three engines. Then the SHARED/SAFETY-mapped gates (new transfer pattern per gate-homes.toml; maintainer-steered 2026-09-15).
+- **PR-30 (Phase-4 PR-G):** markers, gate 16 (lint-stub-documents) engine-parameterized. STUB_PHRASES (11) + WORD_COUNT_THRESHOLD (100) moved to `defaults/grc/stubs.toml`; the engine's `run()` takes a `StubVocabulary` (the profile's first INT value); the wrapper loads it via `_stubs_config()`. Plain data (no compiled-from-vocab pattern). Byte-identical. SHIPPED.
+- **PR-31 (next):** Phase-4 PR-H, markers gate 12 (lint-placeholder-leakage) - stored `{regex, ignorecase}`+label tables (loader-compiled, order-preserved), then PR-I gate 9 (lint-shall-near-uncertainty). Each to a SEPARATE profile (the deliberate cross-gate token-list boundary). Then the SHARED/SAFETY-mapped gates (new transfer pattern per gate-homes.toml; maintainer-steered 2026-09-15).
 - **Phase-2b: SKIP.** **Gate-98 (vendored-core digest): CORPUS interim.** **Publication: deferred (P4).**
 
 See `core/manifest.toml` for the machine-readable pack descriptor.

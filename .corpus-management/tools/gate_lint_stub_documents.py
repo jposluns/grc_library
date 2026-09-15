@@ -8,9 +8,11 @@ under threshold is flagged; a stub phrase is flagged even in a longer body, beca
 mixing finished content with a stub marker is itself a defect. Code-fenced lines are not
 counted toward the word count.
 
-Engine/wrapper split (compile PR-17): this engine carries the PURE check (the stub-phrase
-list, the word-count threshold, ``extract_body``, ``count_substantive_words``, ``scan``)
-and a ``run`` that groups + reports; the project wrapper (``tools/lint-stub-documents.py``)
+Engine/wrapper split (compile PR-17; vocab externalized in Phase-4 PR-G): this engine
+carries the PURE check ALGORITHM (``extract_body``, ``count_substantive_words``, ``scan``)
+and takes the stub-phrase list + word-count threshold as a ``StubVocabulary`` (moved to the
+``stubs`` reference-vocabulary profile, ``defaults/grc/stubs.toml``); a ``run`` groups +
+reports; the project wrapper (``tools/lint-stub-documents.py``)
 supplies the scan scope and the grc-specific target selection (the exempt files, the
 ``template-`` / ``worklist-`` / ``Status: Superseded`` skips, the narrative / default-exempt
 predicates via ``is_target`` + ``iter_targets``). This engine holds no scan-scope or
@@ -23,6 +25,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
+from typing import NamedTuple
 
 try:
     from aiqt_corpus import iter_non_code_lines, read_text_safe
@@ -33,24 +36,34 @@ except ImportError as exc:  # fail loud: broken setup, never silently worked aro
         "or put the AIQT pack's tools/ on sys.path (AIQT_PACK_ROOT)."
     ) from exc
 
-WORD_COUNT_THRESHOLD = 100  # words in document body, excluding metadata block
 
-# Stub indicator phrases. If a document has any of these AND is under threshold,
-# it's flagged. If it has any of these AND is over threshold, it's flagged
-# because mixing finished content with stub markers is itself a defect.
-STUB_PHRASES = [
-    "[content to be added]",
-    "[to be added]",
-    "[to be defined]",
-    "[to be completed]",
-    "[details forthcoming]",
-    "details forthcoming",
-    "content forthcoming",
-    "to be completed in a later phase",
-    "section to be added",
-    "stub document",
-    "placeholder document",
-]
+# Stub-indicator phrases + the word-count threshold are the adopter-overridable
+# vocabulary (the ``stubs`` profile, defaults/grc/stubs.toml, since Phase-4 PR-G).
+# A document is flagged if it is under threshold, OR if it carries any stub phrase
+# (even over threshold, because mixing finished content with stub markers is itself
+# a defect).
+class StubVocabulary(NamedTuple):
+    """The adopter-overridable stub-document vocabulary (Phase-4 PR-G).
+
+    The check ALGORITHM (body extraction, word counting, case-insensitive
+    substring match) stays in this engine; only these DATA move to the
+    ``stubs`` reference-vocabulary profile and are passed in.
+    """
+    stub_phrases: tuple[str, ...]
+    word_count_threshold: int
+
+
+def stub_vocabulary(*, stub_phrases, word_count_threshold) -> StubVocabulary:
+    """Compose profile data; preserve phrase order and fail closed."""
+    if not isinstance(stub_phrases, list) or any(
+        not isinstance(p, str) or not p for p in stub_phrases
+    ):
+        raise ValueError("stubs.stub_phrases: expected an array of nonempty strings")
+    if (not isinstance(word_count_threshold, int)
+            or isinstance(word_count_threshold, bool)
+            or word_count_threshold < 0):
+        raise ValueError("stubs.word_count_threshold: expected a nonnegative integer")
+    return StubVocabulary(tuple(stub_phrases), word_count_threshold)
 
 
 def extract_body(text: str) -> str:
@@ -90,7 +103,7 @@ def count_substantive_words(text: str) -> int:
     return count
 
 
-def scan(path: Path) -> list[str]:
+def scan(path: Path, *, vocab: StubVocabulary) -> list[str]:
     findings: list[str] = []
     text = read_text_safe(path)
     if text is None:
@@ -98,10 +111,10 @@ def scan(path: Path) -> list[str]:
     body = extract_body(text)
     word_count = count_substantive_words(body)
     body_lower = body.lower()
-    matched_phrases = [p for p in STUB_PHRASES if p.lower() in body_lower]
-    if word_count < WORD_COUNT_THRESHOLD:
+    matched_phrases = [p for p in vocab.stub_phrases if p.lower() in body_lower]
+    if word_count < vocab.word_count_threshold:
         findings.append(
-            f"body word count {word_count} below threshold {WORD_COUNT_THRESHOLD}"
+            f"body word count {word_count} below threshold {vocab.word_count_threshold}"
         )
     if matched_phrases:
         findings.append(
@@ -110,10 +123,10 @@ def scan(path: Path) -> list[str]:
     return findings
 
 
-def run(targets: list[Path], *, repo_root: Path) -> int:
+def run(targets: list[Path], *, repo_root: Path, vocab: StubVocabulary) -> int:
     grouped: dict[Path, list[str]] = {}
     for t in targets:
-        findings = scan(t)
+        findings = scan(t, vocab=vocab)
         if findings:
             grouped[t] = findings
     if not grouped:

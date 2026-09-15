@@ -1,0 +1,27 @@
+# Reference-vocabulary profile: stub-document markers (grc defaults).
+#
+# Concern: stubs. The LIVE gate-16 configuration since Phase-4 PR-G:
+# tools/lint-stub-documents.py loads it via profile_loader.load("stubs") and
+# passes it to the engine (parameterized in PR-G) as a StubVocabulary. Values
+# transcribed VERBATIM from the former gate_lint_stub_documents.py constants
+# (STUB_PHRASES order preserved: the finding message enumerates matched phrases
+# in list order; WORD_COUNT_THRESHOLD, the body-word-count floor). The check
+# ALGORITHM (body extraction, word counting, case-insensitive substring match)
+# stays in the engine; this profile carries only the adopter-overridable data.
+schema_version = 1
+
+[stubs]
+stub_phrases = [
+    "[content to be added]",
+    "[to be added]",
+    "[to be defined]",
+    "[to be completed]",
+    "[details forthcoming]",
+    "details forthcoming",
+    "content forthcoming",
+    "to be completed in a later phase",
+    "section to be added",
+    "stub document",
+    "placeholder document",
+]
+word_count_threshold = 100

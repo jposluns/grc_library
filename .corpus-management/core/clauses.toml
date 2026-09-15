@@ -85,7 +85,7 @@ origin = "grc_library tools/lint-positional-backlog-tokens.py gate rationale (ne
 id = "no-stub-documents"
 title = "No stub documents (production documents meet a word-count floor and carry no stub-indicator phrase)"
 source = "core/rules/no-stub-documents.md"
-origin = "grc_library tools/lint-stub-documents.py gate rationale (new clause in compile PR-17; generated AI-facing rule via gensrc, kind=file, like positional-backlog-token; the stub-phrase list + word-count threshold live in the pack engine as the generic check, the exempt-file/target-selection is wrapper config)"
+origin = "grc_library tools/lint-stub-documents.py gate rationale (new clause in compile PR-17; generated AI-facing rule via gensrc, kind=file, like positional-backlog-token; the stub-phrase list + word-count threshold are profile-loaded (defaults/grc/stubs.toml, Phase-4 PR-G) and passed to the engine's generic check, the exempt-file/target-selection is wrapper config)"
 
 [[clauses]]
 id = "filename-title-alignment"
