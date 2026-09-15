@@ -19654,5 +19654,59 @@ class SecretsInContentEngineTransferTests(unittest.TestCase):
         self.assertEqual(len(found), 1)  # break after first match per line
 
 
+
+class PiiInContentEngineTransferTests(unittest.TestCase):
+    """gate 22 engine after the SHARED/SAFETY-lane PR-38 transfer (Pattern A):
+    the detection regexes + IP filters + scan live in the pack engine; the wrapper
+    keeps a module-global scan shim + the grc scope config + the EXAMPLE_DOMAINS
+    allow-list (passed to the engine as a keyword)."""
+
+    def setUp(self):
+        self.wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_engine")
+        self.engine = self.wrapper._engine()
+
+    def test_check_moved_to_engine(self):
+        for name in ("EMAIL_RE", "US_SSN_RE", "US_PHONE_RE", "IPV4_RE", "STREET_RE",
+                     "is_documentation_ip", "is_version_ip", "scan"):
+            self.assertTrue(hasattr(self.engine, name), f"engine missing {name}")
+        for name in ("EMAIL_RE", "US_SSN_RE", "US_PHONE_RE", "IPV4_RE", "STREET_RE",
+                     "is_documentation_ip", "is_version_ip"):
+            self.assertFalse(hasattr(self.wrapper, name),
+                             f"wrapper should not redefine {name} (moved to engine)")
+        self.assertTrue(hasattr(self.wrapper, "scan"))             # the shim
+        self.assertTrue(hasattr(self.wrapper, "EXAMPLE_DOMAINS"))  # grc allow-list stays wrapper-side
+        self.assertTrue(hasattr(self.wrapper, "EXEMPT_FILES"))
+
+    def _scan(self, doc):
+        from unittest.mock import patch
+        with patch.object(self.engine, "read_text_safe", return_value=doc):
+            return self.engine.scan(REPO_ROOT / "risk/d.md", example_domains=self.wrapper.EXAMPLE_DOMAINS)
+
+    def test_real_email_flagged_example_domain_skipped(self):
+        found = self._scan("contact real.person@realcorp.io or nobody@example.com here.\n")
+        labels = [(f[1], f[2]) for f in found]
+        self.assertIn("email address", [l[0] for l in labels])
+        self.assertTrue(any("realcorp.io" in v for _, v in labels))
+        self.assertFalse(any("example.com" in v for _, v in labels), "example-domain email must be skipped")
+
+    def test_ssn_and_phone_flagged(self):
+        found = self._scan("SSN 123-45-6789 phone (415) 555-0142 here.\n")
+        labs = [f[1] for f in found]
+        self.assertIn("US SSN pattern", labs)
+        self.assertIn("US phone number", labs)
+
+    def test_documentation_ip_skipped_public_ip_flagged(self):
+        self.assertEqual(self._scan("doc ip 192.0.2.5 here.\n"), [])          # RFC 5737 doc range
+        found = self._scan("server at 8.8.8.8 responds.\n")
+        self.assertTrue(any(f[1] == "public IPv4 address" for f in found))
+
+    def test_version_number_not_ip(self):
+        self.assertEqual(self._scan("upgrade to version 4.0.1.2 today.\n"), [])
+
+    def test_street_fragment_flagged(self):
+        found = self._scan("mail to 1600 Pennsylvania Avenue here.\n")
+        self.assertTrue(any(f[1] == "postal address fragment" for f in found))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

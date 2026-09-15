@@ -182,3 +182,10 @@ kind = "file"
 sources = ["core/rules/secret-content.md"]
 target = ".claude/rules/corpus-management/secret-content.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "pii-content"
+kind = "file"
+sources = ["core/rules/pii-content.md"]
+target = ".claude/rules/corpus-management/pii-content.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]

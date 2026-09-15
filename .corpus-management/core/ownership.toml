@@ -128,3 +128,8 @@ target = ".claude/rules/corpus-management/intra-doc-section-refs.md"
 rule = "secret-content"
 kind = "file"
 target = ".claude/rules/corpus-management/secret-content.md"
+
+[[owned_targets]]
+rule = "pii-content"
+kind = "file"
+target = ".claude/rules/corpus-management/pii-content.md"

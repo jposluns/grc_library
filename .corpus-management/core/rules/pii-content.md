@@ -1,0 +1,13 @@
+# PII content
+
+Content does not carry suspected personally-identifying information. The check
+scans for email addresses (excluding a caller-supplied allow-list of
+documentation, example, and maintainer-contact domains), US Social Security
+number patterns, US phone numbers, public IPv4 addresses (documentation,
+private, reserved, and version-number-shaped matches are filtered out), and
+postal street-address fragments. Lines inside fenced code blocks are skipped. The
+detection regexes and the IP filters are fixed in the check implementation; the
+scanned-suffix set, the exempt-file set (files that carry maintainer contact or
+document PII formats by design, including the check's own source), and the
+example-domain allow-list are project configuration. Content matching no pattern
+contributes no findings.
