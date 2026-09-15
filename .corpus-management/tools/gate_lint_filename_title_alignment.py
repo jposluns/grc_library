@@ -13,8 +13,9 @@ Engine/wrapper split (compile PR-18): this engine carries the PURE check (the ti
 pattern, the stopword set, ``parse_title``, ``normalise_tokens``, ``filename_stem_after_doctype``,
 ``check_file``) and a ``run`` that computes the overlap + reports; the project wrapper
 (``tools/lint-filename-title-alignment.py``) supplies the scan scope, the grc document-type
-prefix set (``DOCTYPES`` -- which must ALSO stay a module attribute of the wrapper because the
-doctype-parity gate reads it there), the grc synonym map, and the minimum-overlap threshold,
+prefix set and the grc synonym map (profile-loaded from defaults/grc/alignment.toml and
+composed in the wrapper's _alignment_config() since Phase-4 PR-E; gate 67 cross-checks the
+doctypes via that function), and the minimum-overlap threshold,
 passing the synonyms, doctypes, and threshold in. This engine holds no scan-scope, doctype, or
 synonym policy.
 
