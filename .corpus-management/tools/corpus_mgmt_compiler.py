@@ -545,6 +545,10 @@ def load_and_validate(root: Path, pack_root: Path) -> tuple[list[Rule], list[str
             problems.append(f"{clause_rel}: clause {c['id']!r} source does not exist "
                             f"inside the pack: {c['source']}")
 
+    # Shared id namespace across clauses / gates / profiles: seed the gate-id
+    # set before the (optional) gates block so the profiles block can read it
+    # whether or not a gates register is declared.
+    seen_gate_ids: set[str] = set()
     # --- Gate-register well-formedness (validate-when-declared; compile PR-5). ---
     # The gates register is validated only when the manifest declares it, so the
     # minimal-adoption pack shape (ownership + clauses only) stays valid. When
@@ -572,7 +576,6 @@ def load_and_validate(root: Path, pack_root: Path) -> tuple[list[Rule], list[str
                     problems.append(f"{gates_rel}: 'gates' must be a list")
                     gentries = []
                 gate_keys = {"id", "title", "source", "enforces", "entry_point", "origin"}
-                seen_gate_ids: set[str] = set()
                 for i, g in enumerate(gentries):
                     where = f"{gates_rel}: gates[{i}]"
                     if not isinstance(g, dict):
@@ -621,6 +624,102 @@ def load_and_validate(root: Path, pack_root: Path) -> tuple[list[Rule], list[str
                         elif not ep.is_file():
                             problems.append(f"{where}: 'entry_point' wrapper does not exist: "
                                             f"{entry_point}")
+
+    # --- Profiles-register well-formedness (validate-when-declared; Phase-4 PR-A). ---
+    # Reference-vocabulary profiles (defaults/grc/<concern>.toml) are pack SOURCE:
+    # the compiler VALIDATES them (envelope + regex tables, via the pack loader) but
+    # never OWNS or generates them, so no profile is an owned_target and gate 99 never
+    # drift-compares its bytes. Validated only when [registers].profiles is declared,
+    # keeping the minimal-adoption pack shape valid. Profile ids share the one
+    # clause / gate / hook / rule namespace.
+    profiles_rel = registers.get("profiles")
+    if profiles_rel is not None and not isinstance(profiles_rel, str):
+        problems.append("core/manifest.toml: [registers].profiles must be a string path")
+    elif isinstance(profiles_rel, str):
+        ppath = _contained(pack_root, profiles_rel)
+        if ppath is None:
+            problems.append(f"core/manifest.toml: [registers].profiles escapes the pack "
+                            f"root: {profiles_rel}")
+        else:
+            preg = _load_toml(ppath, problems, profiles_rel)
+            if preg is not None:
+                _psv = preg.get("schema_version")
+                if not isinstance(_psv, int) or isinstance(_psv, bool) or _psv != 1:
+                    problems.append(f"{profiles_rel}: schema_version must be the integer 1")
+                pentries = preg.get("profiles")
+                if not isinstance(pentries, list):
+                    problems.append(f"{profiles_rel}: 'profiles' must be a list")
+                    pentries = []
+                try:
+                    import profile_loader
+                except ImportError:
+                    profile_loader = None
+                    problems.append(f"{profiles_rel}: the pack profile loader "
+                                    f"(tools/profile_loader.py) is unavailable; cannot "
+                                    f"validate the registered profiles")
+                profile_keys = {"id", "concern", "target", "title", "origin"}
+                seen_profile_ids: set[str] = set()
+                registered_targets: set[str] = set()
+                for i, pf in enumerate(pentries):
+                    where = f"{profiles_rel}: profiles[{i}]"
+                    if not isinstance(pf, dict):
+                        problems.append(f"{where}: must be a table")
+                        continue
+                    unknown = set(pf) - profile_keys
+                    if unknown:
+                        problems.append(f"{where}: unknown key(s): "
+                                        f"{', '.join(sorted(unknown))}")
+                    pid = pf.get("id")
+                    if not isinstance(pid, str) or not RULE_ID_RE.match(pid):
+                        problems.append(f"{where}: 'id' must be a string matching "
+                                        f"^[a-z0-9][a-z0-9-]*$")
+                        pid = None
+                    elif pid in seen_profile_ids:
+                        problems.append(f"{where}: duplicate profile id {pid!r}")
+                    elif pid in seen_clause_ids or pid in seen_gate_ids:
+                        problems.append(f"{where}: profile id {pid!r} collides with a "
+                                        f"clause or gate id (clause / gate / hook / rule / "
+                                        f"profile ids share one namespace)")
+                    if isinstance(pid, str):
+                        seen_profile_ids.add(pid)
+                    pconcern = pf.get("concern")
+                    if not isinstance(pconcern, str) or not RULE_ID_RE.match(pconcern):
+                        problems.append(f"{where}: 'concern' must be a string matching "
+                                        f"^[a-z0-9][a-z0-9-]*$")
+                        pconcern = None
+                    ptarget = pf.get("target")
+                    if not isinstance(ptarget, str):
+                        problems.append(f"{where}: 'target' must be a pack-relative path "
+                                        f"string")
+                        continue
+                    registered_targets.add(ptarget)
+                    tpath = _contained(pack_root, ptarget)
+                    if tpath is None or not tpath.is_file():
+                        problems.append(f"{where}: 'target' profile does not exist inside "
+                                        f"the pack: {ptarget}")
+                        continue
+                    if pconcern is not None:
+                        if PurePosixPath(ptarget).name != f"{pconcern}.toml":
+                            problems.append(f"{where}: target filename must be "
+                                            f"'{pconcern}.toml' (the loader resolves "
+                                            f"profiles by concern name)")
+                        elif profile_loader is not None:
+                            try:
+                                profile_loader.load(pconcern, defaults_dir=tpath.parent)
+                            except profile_loader.ProfileError as exc:
+                                problems.append(f"{where}: profile fails validation: {exc}")
+                # Orphan scan: every defaults-tree profile must be registered.
+                _ref = manifest.get("reference_registers")
+                defaults_root = "defaults/grc"
+                if isinstance(_ref, dict) and isinstance(_ref.get("defaults_root"), str):
+                    defaults_root = _ref["defaults_root"]
+                droot = _contained(pack_root, defaults_root)
+                if droot is not None and droot.is_dir():
+                    for f in sorted(droot.glob("*.toml")):
+                        rel = f.relative_to(pack_root).as_posix()
+                        if rel not in registered_targets:
+                            problems.append(f"{rel}: profile file has no {profiles_rel} "
+                                            f"register entry")
 
     # --- Source content load (strict UTF-8, LF-only, one trailing newline). ---
     for r in rules:

@@ -1,0 +1,18 @@
+# Profile register: reference-vocabulary profiles shipped under defaults/grc/.
+#
+# HAND-MAINTAINED SOURCE (like core/gates.toml): profiles are pack source the
+# compiler VALIDATES at config-load time, never compiler-generated output, so
+# no profile is an ownership.toml owned_target and gate 99 never owns its
+# bytes (an adopter override lives outside the repo entirely). The compiler
+# fail-closes (exit 2) on a malformed or duplicate entry, a dangling target, a
+# target whose filename does not match its concern, an invalid profile file,
+# or a defaults/grc/*.toml with no register row. Ids share the one
+# clause / gate / hook / rule / profile namespace.
+schema_version = 1
+
+[[profiles]]
+id = "citations"
+concern = "citations"
+target = "defaults/grc/citations.toml"
+title = "Framework-citation denylist vocabulary (terms, reasons, replacements, per-term path exemptions)"
+origin = "grc_library tools/lint-citations.py DENYLIST + PATH_EXEMPTIONS, transcribed verbatim in Phase-4 PR-A; the wrapper remains the live config until the PR-B gate migration"

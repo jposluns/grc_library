@@ -1,6 +1,6 @@
 # Corpus-Management pack (`.corpus-management/`)
 
-**Status: ACTIVE (umbrella 4.1, compile PR-23).** This directory is the structure of a standalone,
+**Status: ACTIVE (umbrella 4.1, compile PR-24).** This directory is the structure of a standalone,
 adoptable Corpus-Management pack. PR-2 shipped the compiler, the first generated slice (the CLAUDE.md
 generated-artefacts instruction block, transferred verbatim), and the mandatory drift gate (grc gate
 99); PR-3 transferred the first authoring rule (the corpus language convention) as a generated
@@ -70,7 +70,8 @@ disabled in the skeleton.
 - **PR-21:** the seventeenth gate transfer (lint-roles, grc gate 8, Owner/Approving-Authority role audit), Model-2 pattern, enforcing the new role-authority clause. Engine holds the pure metadata-value check (patterns + is_placeholder + check_file + reporting run, known + repo_root params, bare relative_to like gate 56); the wrapper keeps the role-authority register parse (load_known_roles) + the EXTRA_KNOWN_ROLES allow-list + the register-prerequisite exit 2 + the --root override (proven by PR-19). SHIPPED.
 - **PR-22:** the eighteenth gate transfer (lint-placeholder-leakage, grc gate 12, placeholder-leakage audit), Model-2 pattern, enforcing the new placeholder-leakage clause. PATTERNS marker set + fence-aware scan + reporting run (repo_root param, try/except display fallback) in the engine; the exempt policy + iter_targets in the wrapper. The lint-pii-in-content cross-reference proved to be prose-only (no code coupling). SHIPPED.
 - **PR-23:** the nineteenth gate transfer (lint-gate-count-consistency, grc gate 39), Model-2 pattern, enforcing the new gate-count-consistency clause. The HEAVIEST transfer (569L): PATTERNS + word-number machinery + scan_file (version-history aware; patterns anchored) moved byte-verbatim (diff-verified each block); the wrapper keeps the §6-spec parse + collection dirs + a scan_file shim for the importlib direct-load test. Completes the clean ALLOW-mapped tranche. SHIPPED.
-- **PR-24 (next):** Phase-4 genericize (the defaults/grc vocabulary + config split, XL) OR the heavier non-ALLOW corpus-bucket gates (the SHARED/SAFETY-mapped class, careful individual handling per gate-homes.toml).
+- **PR-24 (Phase-4 PR-A):** the reference-vocabulary profile ENABLER, opening the Phase-4 genericize wave. A concern-agnostic `tools/profile_loader.py` (versioned TOML profiles under `defaults/grc/<concern>.toml`, key-level-replace adopter overlay, fail-closed envelope + regex-table compilation), the first shipped profile (`defaults/grc/citations.toml`, the framework-citation denylist mirrored VERBATIM from gate 5), the `core/profiles.toml` register, gate-99 profile validation (validate-when-declared; profiles are validated SOURCE, never owned/generated), and loader + compiler tests. Behaviourally INERT: gate 5 keeps its wrapper config until PR-B migrates it; a parity test bounds the two-place window. SHIPPED.
+- **PR-25 (next):** Phase-4 PR-B, the first gate migration onto the profile loader (gate 5 citations: engine reads the profile, wrapper config removed, scan-scope ALLOW coupling handled deliberately) OR the heavier non-ALLOW corpus-bucket gates (the SHARED/SAFETY-mapped class, careful individual handling per gate-homes.toml).
 - **Phase-2b: SKIP.** **Gate-98 (vendored-core digest): CORPUS interim.** **Publication: deferred (P4).**
 
 See `core/manifest.toml` for the machine-readable pack descriptor.

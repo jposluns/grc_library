@@ -1,0 +1,95 @@
+# Reference-vocabulary profile: framework-citation denylist (grc defaults).
+#
+# Concern: citations. Values transcribed VERBATIM from the hand-curated grc
+# config in tools/lint-citations.py (its DENYLIST list-of-tuples and its
+# PATH_EXEMPTIONS dict). Until the PR-B gate migration wires gate 5 to this
+# profile, that wrapper remains the LIVE config and this file is the
+# distribution-ready mirror; the ProfileLoaderTests parity test asserts the
+# two stay byte-equal so the duplication window cannot drift silently.
+#
+# Shape mirrors the engine's two data structures 1:1 so PR-B is a faithful
+# migration, not a reshape: each [[citations.denylist]] entry is the engine
+# tuple (term = string-to-find, reason = why-it-is-wrong, replacement =
+# suggested-replacement); [citations.path_exemptions] is the engine's dict of
+# term -> exempt relative posix paths (CHANGELOG is the canonical exemption:
+# historical entries record what was committed at the time, defects included).
+schema_version = 1
+
+[[citations.denylist]]
+term = "COBIT 2025"
+reason = "Hallucinated framework version. ISACA's current COBIT version is COBIT 2019."
+replacement = "COBIT 2019"
+
+[[citations.denylist]]
+term = "CSA CCM v5"
+reason = "Hallucinated framework version. CSA's current Cloud Controls Matrix version is v4.1."
+replacement = "CSA CCM v4.1"
+
+[[citations.denylist]]
+term = "CCM v5"
+reason = "Hallucinated framework version. CSA's current Cloud Controls Matrix version is v4.1."
+replacement = "CCM v4.1"
+
+[[citations.denylist]]
+term = "Cloud Controls Matrix v5"
+reason = "Hallucinated framework version (spelled-out form). CSA's current Cloud Controls Matrix version is v4.1; the abbreviated 'CCM v5' denylist entry does not catch this form."
+replacement = "Cloud Controls Matrix v4.1"
+
+[[citations.denylist]]
+term = "NIST AI RMF 1.1"
+reason = "Hallucinated NIST AI RMF version. NIST AI RMF was published as version 1.0; the GenAI Profile is NIST AI 600-1."
+replacement = "NIST AI RMF 1.0 (with AI 600-1 Generative AI Profile)"
+
+[[citations.denylist]]
+term = "AI RMF 1.1"
+reason = "Hallucinated NIST AI RMF version (bare form). NIST AI RMF was published as version 1.0; the GenAI Profile is NIST AI 600-1."
+replacement = "NIST AI RMF 1.0 (with AI 600-1 Generative AI Profile)"
+
+[[citations.denylist]]
+term = "Draft 2026 ISO 37301"
+reason = "Unverified speculative reference. No such revision is published by ISO."
+replacement = "(remove the reference or replace with current ISO 37301:2021)"
+
+[[citations.denylist]]
+term = "IT Operations Documentation Framework"
+reason = "Phantom dependency. No such framework exists in the library; documents previously referencing it now point to operations/framework-it-service-management.md or governance/standard-records-retention-and-destruction.md."
+replacement = "operations/framework-it-service-management.md (or governance/standard-records-retention-and-destruction.md)"
+
+[[citations.denylist]]
+term = "CCM GRM"
+reason = "Stale v3 CCM domain code. v4.1 uses GRC (Governance, Risk, Compliance)."
+replacement = "CCM GRC"
+
+[[citations.denylist]]
+term = "CCM EKM"
+reason = "Stale v3 CCM domain code. v4.1 uses CEK (Cryptography, Encryption, Key Management)."
+replacement = "CCM CEK"
+
+[[citations.denylist]]
+term = "CCM END"
+reason = "Stale CCM domain code. v4.1 uses UEM (Universal Endpoint Management)."
+replacement = "CCM UEM"
+
+[[citations.denylist]]
+term = "CCM TIM"
+reason = "Non-existent CCM domain code. Threat intelligence is part of TVM (Threat and Vulnerability Management) in v4.1."
+replacement = "CCM TVM"
+
+[citations.path_exemptions]
+"COBIT 2025" = [
+    "CHANGELOG.md",
+    "governance/register-canonical-citations.md",
+    ".project-governance/worklist-citation-verification-batch-q4-canonical-citations.md",
+    "governance/specification-audit-programme.md",
+]
+"CSA CCM v5" = ["CHANGELOG.md"]
+"CCM v5" = ["CHANGELOG.md"]
+"Cloud Controls Matrix v5" = ["CHANGELOG.md"]
+"NIST AI RMF 1.1" = ["CHANGELOG.md"]
+"AI RMF 1.1" = ["CHANGELOG.md"]
+"Draft 2026 ISO 37301" = ["CHANGELOG.md"]
+"IT Operations Documentation Framework" = ["CHANGELOG.md"]
+"CCM GRM" = ["CHANGELOG.md"]
+"CCM EKM" = ["CHANGELOG.md"]
+"CCM END" = ["CHANGELOG.md"]
+"CCM TIM" = ["CHANGELOG.md"]
