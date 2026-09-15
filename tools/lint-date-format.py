@@ -47,7 +47,6 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
-import re
 import sys
 from pathlib import Path
 
@@ -57,8 +56,6 @@ from lint_common import REPO_ROOT, iter_markdown_targets  # noqa: E402  # grc-co
 PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
 DEFAULT_PATHS = [str(REPO_ROOT)]
-
-DATE_FIELD_RE = re.compile(r"^\*\*Date:\*\*\s+(.+?)(?:\\)?$", re.MULTILINE)
 
 
 def _engine():

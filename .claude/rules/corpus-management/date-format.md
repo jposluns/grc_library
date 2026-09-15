@@ -13,6 +13,6 @@ design), recognized by a filename prefix; the same placeholder value in any
 other file is a finding. A non-ISO format, a two-digit year, an impossible
 calendar date, missing zero padding, or a year outside the plausible range is
 flagged; inline dates in prose are not checked (only the metadata field). The
-plausible year range and the template/worklist filename prefixes are the check's
-parameters, project configuration and not part of this clause; a file with no
-`**Date:**` field contributes no findings.
+plausible year range (1900-2100) and the template/worklist filename prefixes
+(`template-`, `worklist-`) are fixed policy in the check implementation, not
+adopter configuration; a file with no `**Date:**` field contributes no findings.
