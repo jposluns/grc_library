@@ -2,7 +2,7 @@
 
 **Document Title:** United Kingdom Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.5\
+**Version:** 1.1.6\
 **Date:** 2026-09-15\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -39,7 +39,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 - **Automated decision-making:** Following DUAA 2025 commencement (5 February 2026), UK GDPR Article 22 is replaced by Articles 22A to 22D, which restructure the rules on significant decisions based solely on automated processing. The right to object and the right to human intervention remain available for decisions with legal or similarly significant effects, with sharper definitions of "significant" and clarified application to special-category data. Organizations whose ADM controls were modelled on the original Article 22 must review against the new 22A-22D framework.
 - **Subject Access Requests (SARs):** DUAA 2025 codifies the principle that searches in response to an SAR are limited to "reasonable and proportionate" searches, and codifies "stopping the clock" while the controller is waiting for the data subject to provide clarification that the controller can demonstrate is reasonably required.
 - **DPIA:** Mandatory under UK GDPR Article 35 for high-risk processing, consistent with EU GDPR requirements.
-- **AI literacy and accountability:** The UK government's AI Opportunities Action Plan and ICO guidance on responsible AI apply. The UK has not enacted legislation equivalent to the EU AI Act; DUAA 2025 did not create a horizontal AI regulatory framework. No UK statutory AI framework was enacted as of 2026; an adopter confirms the current legislative position directly.
+- **AI literacy and accountability:** The UK government's AI Opportunities Action Plan and the ICO's responsible-AI guidance inform this area; neither is held in the reference base, so an adopter confirms their current content directly. The UK has not enacted legislation equivalent to the EU AI Act; DUAA 2025 did not create a horizontal AI regulatory framework. No UK statutory AI framework was enacted as of 2026; an adopter confirms the current legislative position directly.
 
 ---
 
