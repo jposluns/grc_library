@@ -152,3 +152,9 @@ id = "secret-content"
 title = "Secret content (content carries no high-confidence secret pattern)"
 source = "core/rules/secret-content.md"
 origin = "grc_library tools/lint-secrets-in-content.py gate rationale (new clause in SHARED/SAFETY-lane PR-37; first SAFETY-mapped transfer; generated AI-facing rule via gensrc, kind=file, like intra-doc-section-refs; the SECRET_PATTERNS vocabulary + the redacting fence-aware scan is the engine, the grc scanned-suffix set + exempt-file set are wrapper config; the engine is added to the exempt set defensively, mirroring the wrapper's own self-exemption, because it now documents the secret formats by design)"
+
+[[clauses]]
+id = "pii-content"
+title = "PII content (content carries no suspected personally-identifying information)"
+source = "core/rules/pii-content.md"
+origin = "grc_library tools/lint-pii-in-content.py gate rationale (new clause in SHARED/SAFETY-lane PR-38; second SAFETY-mapped transfer; generated AI-facing rule via gensrc, kind=file, like secret-content; the detection regexes (email/SSN/phone/IPv4/street) + the IP filters + the redaction-free fence-aware scan is the engine, the grc scanned-suffix set + exempt-file set + example-domain allow-list are wrapper config; scan takes example_domains as a keyword so the engine carries no grc allow-list; the engine is added to the exempt set defensively, mirroring the wrapper's self-exemption)"

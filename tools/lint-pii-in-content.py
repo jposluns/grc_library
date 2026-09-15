@@ -55,14 +55,13 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
-import ipaddress
-import re
 import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import iter_non_code_lines, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
 from lint_common import REPO_ROOT, iter_targets  # noqa: E402  # grc-config/store, stays local
+
+PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
 DEFAULT_PATHS = [str(REPO_ROOT)]
 
@@ -89,6 +88,10 @@ EXEMPT_FILES = {
     # CHANGELOG describes linter patterns including test cases (e.g., CIDR
     # examples) that incidentally match PII patterns.
     "CHANGELOG.md",
+    # The pack-owned engine (gate_lint_pii_in_content.py) now holds the PII
+    # detection regexes, so it documents the PII formats by design exactly as
+    # this wrapper did before the PR-38 transfer; exempt it for the same reason.
+    "gate_lint_pii_in_content.py",
 }
 
 # Domains acceptable in documentation examples. An email on one of
@@ -118,93 +121,25 @@ EXAMPLE_DOMAINS = {
 # Phase 23.63 removed `noreply.github.com` (no corpus reference)
 # and `posluns.com` (only `.ca` is used in AUTHORS / CITATION).
 
-EMAIL_RE = re.compile(r"\b([a-zA-Z0-9._%+\-]+)@([a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})\b")
-US_SSN_RE = re.compile(r"\b\d{3}-\d{2}-\d{4}\b")
-# Strict US phone: optional +1, then 3-3-4 with separators.
-US_PHONE_RE = re.compile(r"\b(?:\+1[-. ]?)?\(?\d{3}\)?[-. ]\d{3}[-. ]\d{4}\b")
-# IPv4 must be exactly 4 dotted octets, not part of a longer dotted
-# sequence (which would be an OID like 1.3.6.1.5.5.7.3 or similar).
-IPV4_RE = re.compile(r"(?<![.\d])(?:\d{1,3}\.){3}\d{1,3}(?![.\d])")
-# Plausible US street-number-then-name. Conservative: require number + 2+ words + suffix.
-STREET_RE = re.compile(
-    r"\b\d{1,5}\s+[A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)*\s+"
-    r"(?:Street|St\.?|Avenue|Ave\.?|Road|Rd\.?|Boulevard|Blvd\.?|Lane|Ln\.?|Drive|Dr\.?|Court|Ct\.?|Way|Place|Pl\.?)"
-    r"\b"
-)
 
-
-def is_documentation_ip(addr: str) -> bool:
-    """Return True if the IP is in a documentation/private range."""
-    try:
-        ip = ipaddress.IPv4Address(addr)
-    except (ValueError, ipaddress.AddressValueError):
-        return True  # not a valid IP; treat as not-real
-    if ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_multicast:
-        return True
-    if ip.is_reserved or ip.is_unspecified:
-        return True
-    # IETF documentation ranges (RFC 5737)
-    doc_ranges = [
-        ipaddress.IPv4Network("192.0.2.0/24"),
-        ipaddress.IPv4Network("198.51.100.0/24"),
-        ipaddress.IPv4Network("203.0.113.0/24"),
-        # Common documentation example ranges
-        ipaddress.IPv4Network("0.0.0.0/8"),
-        ipaddress.IPv4Network("255.255.255.0/24"),
-        # CGNAT shared address space (RFC 6598). Python's
-        # IPv4Address.is_private returns True for this range only on
-        # Python 3.13+; this explicit network keeps recognition
-        # backward-compatible. Documentation citing the SSRF block-list
-        # (e.g., guardrails/core/owasp.md) must be able to
-        # quote the range without triggering this gate.
-        ipaddress.IPv4Network("100.64.0.0/10"),
-    ]
-    return any(ip in r for r in doc_ranges)
-
-
-def is_version_ip(line: str, start: int) -> bool:
-    """Heuristic: is the IP-shaped match actually a version number?
-
-    Version numbers like "4.0.1.2" can match the IPv4 regex. If the
-    surrounding context contains "version", "v" prefix, or "release",
-    treat as version not IP.
-    """
-    window = line[max(0, start - 30):start + 30].lower()
-    indicators = ("version", "release", "rev ", "v1.", "v2.", "v3.", "v4.", "v5.")
-    return any(ind in window for ind in indicators)
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_pii_in_content  # the pack-owned engine (source of record)
+    return gate_lint_pii_in_content
 
 
 def scan(path: Path) -> list[tuple[int, str, str]]:
-    findings: list[tuple[int, str, str]] = []
-    text = read_text_safe(path)
-    if text is None:
-        return findings
-    for lineno, line in iter_non_code_lines(text):
-        # Email addresses
-        for m in EMAIL_RE.finditer(line):
-            local, domain = m.group(1), m.group(2).lower()
-            if domain in EXAMPLE_DOMAINS:
-                continue
-            # Skip obvious GitHub username @ patterns ("@user" not "user@domain")
-            findings.append((lineno, "email address", m.group(0)))
-        # SSN
-        for m in US_SSN_RE.finditer(line):
-            findings.append((lineno, "US SSN pattern", m.group(0)))
-        # Phone
-        for m in US_PHONE_RE.finditer(line):
-            findings.append((lineno, "US phone number", m.group(0)))
-        # IPv4 (filter for non-documentation only)
-        for m in IPV4_RE.finditer(line):
-            addr = m.group(0)
-            if is_documentation_ip(addr):
-                continue
-            if is_version_ip(line, m.start()):
-                continue
-            findings.append((lineno, "public IPv4 address", addr))
-        # Street addresses
-        for m in STREET_RE.finditer(line):
-            findings.append((lineno, "postal address fragment", m.group(0)))
-    return findings
+    """Thin shim delegating to the pack engine's pure check.
+
+    Kept in the wrapper as a module-global because the scan-scope regression
+    test patches ``mod.scan`` and runs ``main``; the detection regexes and the
+    check live in the pack engine (gate_lint_pii_in_content.py). The engine takes
+    the grc example-domain allow-list as a keyword; the wrapper supplies it here.
+    """
+    return _engine().scan(path, example_domains=EXAMPLE_DOMAINS)
 
 
 def main(argv: list[str]) -> int:
