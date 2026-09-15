@@ -2,8 +2,8 @@
 
 **Document Title:** Nigeria Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.6\
-**Date:** 2026-09-05\
+**Version:** 1.0.8\
+**Date:** 2026-09-15\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -35,8 +35,8 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 ## AI and privacy obligations
 
 - A data subject has the right not to be subject to a decision based solely on automated processing, including profiling, that produces legal or similarly significant effects (s. 37(1)), subject to the exceptions and safeguards, including human intervention and the right to contest, in s. 37(2)-(3).
-- The NDPA requires accountability and transparency for automated processing that significantly affects data subjects.
-- As of 2026, the NDPC has been developing supplementary guidance on AI and data processing aligned with the NDPA accountability framework.
+- The NDPA is reported to require accountability and transparency for automated processing that significantly affects data subjects; the NDPA text is not held in the reference base, so an adopter confirms these provisions (including the automated-decision rights summarized above) directly.
+- NDPC guidance supplementing the NDPA (including on AI and automated processing) is not held in the reference base; an adopter confirms the current NDPC guidance directly.
 
 ---
 

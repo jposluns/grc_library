@@ -2,8 +2,8 @@
 
 **Document Title:** Indonesia Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.3\
-**Date:** 2026-07-02\
+**Version:** 1.0.5\
+**Date:** 2026-09-15\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -29,14 +29,14 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 - Rights: access, correction, portability, restriction, erasure, withdrawal of consent, and objection.
 - Mandatory breach notification within 14 calendar days of becoming aware.
 - Consent required from parent or guardian for children's personal data.
-- **Regulatory authority:** Personal Data Protection Agency (in formation; functions currently exercised by the Ministry of Communication and Digital Affairs).
+- **Regulatory authority:** the UU PDP provides for a data protection institution; as of 2026 it remains in formation, with functions exercised in practice by the Ministry of Communication and Digital Affairs. The UU PDP text is not held in the reference base, so an adopter confirms the current institutional arrangement directly.
 
 ---
 
 ## AI and privacy obligations
 
-- The UU PDP requires transparency and human oversight for automated processing used for profiling or significantly impactful decision-making.
-- A national AI governance framework is under development.
+- The UU PDP is reported to require transparency and human oversight for automated processing used for profiling or significantly impactful decision-making; as noted above the UU PDP text is not held in the reference base, so an adopter confirms these provisions directly.
+- Indonesia has no binding AI-specific regulation held in the reference base as of 2026; an adopter confirms the current state of national AI-governance instruments directly.
 - Purpose limitation and data minimization principles apply to AI systems processing personal data.
 
 ---
