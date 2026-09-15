@@ -115,7 +115,7 @@ origin = "grc_library tools/lint-roles.py gate rationale (new clause in compile 
 id = "placeholder-leakage"
 title = "Placeholder leakage (a production document contains no placeholder marker)"
 source = "core/rules/placeholder-leakage.md"
-origin = "grc_library tools/lint-placeholder-leakage.py gate rationale (new clause in compile PR-22; generated AI-facing rule via gensrc, kind=file, like role-authority; the exempt-file/exempt-dir sets + template-/worklist- prefix carve-outs + scan scope are wrapper config, the marker pattern set + fence-aware scan is the engine)"
+origin = "grc_library tools/lint-placeholder-leakage.py gate rationale (new clause in compile PR-22; generated AI-facing rule via gensrc, kind=file, like role-authority; the exempt-file/exempt-dir sets + template-/worklist- prefix carve-outs + scan scope are wrapper config, the fence-aware scan is the engine; the marker pattern set is the defaults/grc/placeholders.toml profile since Phase-4 PR-H)"
 
 [[clauses]]
 id = "gate-count-consistency"

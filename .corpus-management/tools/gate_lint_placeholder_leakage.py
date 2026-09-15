@@ -3,8 +3,8 @@
 
 A production library document containing a placeholder marker is either a stub leaked into
 production or a template artefact that escaped its template directory, and either is a credibility
-problem for adopters. This engine carries the PURE check: the placeholder-marker pattern set
-(``PATTERNS``: TODO / TBD / FIXME / XXX / (placeholder) / [Unverified] / Coming soon, the
+problem for adopters. This engine carries the PURE check ALGORITHM over a placeholder-marker pattern set
+(the ``placeholders`` reference-vocabulary profile since Phase-4 PR-H: TODO / TBD / FIXME / XXX / (placeholder) / [Unverified] / Coming soon, the
 angle-bracket ``<role>`` / ``<date>`` / ``<version>`` family, and the template-placeholder
 organization domains), a fence-aware ``scan`` (fenced code blocks are skipped so example syntax
 does not false-positive), and a ``run`` that groups + reports.
@@ -13,7 +13,9 @@ Engine/wrapper split: the project wrapper (``tools/lint-placeholder-leakage.py``
 scan scope (default roots, the markdown selector, the exempt-file / exempt-dir / template- and
 worklist- prefix policy via ``iter_targets`` + ``is_exempt``) and filters those files out before
 delegating, so this engine holds no project-file policy. The pattern set is a generic
-placeholder-marker inventory, like the stub-phrase list of the no-stub-documents engine.
+placeholder-marker inventory, supplied by the ``placeholders`` profile
+(``defaults/grc/placeholders.toml``, loaded via the wrapper's ``_placeholders_config()`` since
+Phase-4 PR-H) and passed to the check, like the stub-phrase list migrated in PR-G.
 
 Exit codes (the wrapper returns these): 0 clean; 1 one or more findings.
 """
@@ -34,38 +36,37 @@ except ImportError as exc:  # fail loud: broken setup, never silently worked aro
 
 # Patterns whose presence indicates a placeholder leak. Each pattern uses word boundaries or
 # angle-bracket-syntax to avoid false matches on prose.
-PATTERNS = [
-    (re.compile(r"\bTODO\b"), "TODO marker"),
-    (re.compile(r"\bTBD\b"), "TBD marker"),
-    (re.compile(r"\bFIXME\b"), "FIXME marker"),
-    (re.compile(r"\bXXX\b"), "XXX marker"),
-    (re.compile(r"<YYYY-MM-DD>"), "<YYYY-MM-DD> placeholder"),
-    (re.compile(r"<role>"), "<role> placeholder"),
-    (re.compile(r"<organisation>"), "<organisation> placeholder"),
-    (re.compile(r"<organization>"), "<organization> placeholder"),
-    (re.compile(r"<name>"), "<name> placeholder"),
-    (re.compile(r"<date>"), "<date> placeholder"),
-    (re.compile(r"<version>"), "<version> placeholder"),
-    (re.compile(r"\(placeholder\)", re.IGNORECASE), "(placeholder) marker"),
-    (re.compile(r"\[Unverified\]"), "[Unverified] marker"),
-    (re.compile(r"\bComing soon\b", re.IGNORECASE), "Coming soon marker"),
-    # Template-placeholder organization domains. These strings are legitimate in template- /
-    # worklist- prefixed files (exempted via the wrapper's filename-prefix carve-out) but flag
-    # everywhere else as leaked template content.
-    (re.compile(r"\byourcompany\.com\b"), "yourcompany.com placeholder"),
-    (re.compile(r"\byour-org\.com\b"), "your-org.com placeholder"),
-    (re.compile(r"\byour-org\.example\.com\b"), "your-org.example.com placeholder"),
-]
+def placeholder_patterns(patterns) -> tuple[tuple["re.Pattern[str]", str], ...]:
+    """Compose the loaded ``placeholders`` profile into ordered (compiled, label)
+    pairs (Phase-4 PR-H); fail closed.
+
+    ``patterns`` is the profile's ``patterns`` array: each item a table with a
+    ``label`` string and a ``pattern`` that profile_loader has already compiled
+    from its ``{regex, ignorecase}`` sub-table. ORDER IS PRESERVED (scan reports
+    the first matching entry per line, so order is policy).
+    """
+    if not isinstance(patterns, list):
+        raise ValueError("placeholders.patterns: expected an array of tables")
+    composed: list[tuple["re.Pattern[str]", str]] = []
+    for item in patterns:
+        if (not isinstance(item, dict) or set(item) != {"label", "pattern"}
+                or not isinstance(item.get("label"), str) or not item["label"]
+                or not isinstance(item.get("pattern"), re.Pattern)):
+            raise ValueError(
+                "placeholders.patterns[*]: each needs a nonempty 'label' string "
+                "and a compiled 'pattern' (a {regex, ignorecase} table)")
+        composed.append((item["pattern"], item["label"]))
+    return tuple(composed)
 
 
-def scan(path: Path) -> list[tuple[int, str, str]]:
+def scan(path: Path, *, patterns) -> list[tuple[int, str, str]]:
     """Return list of (line number, marker name, line excerpt) findings."""
     findings: list[tuple[int, str, str]] = []
     text = read_text_safe(path)
     if text is None:
         return findings
     for lineno, line in iter_non_code_lines(text):
-        for pattern, label in PATTERNS:
+        for pattern, label in patterns:
             if pattern.search(line):
                 excerpt = line.strip()[:140]
                 findings.append((lineno, label, excerpt))
@@ -73,10 +74,10 @@ def scan(path: Path) -> list[tuple[int, str, str]]:
     return findings
 
 
-def run(targets: list[Path], *, repo_root: Path) -> int:
+def run(targets: list[Path], *, repo_root: Path, patterns) -> int:
     grouped: dict[Path, list[tuple[int, str, str]]] = {}
     for t in targets:
-        findings = scan(t)
+        findings = scan(t, patterns=patterns)
         if findings:
             grouped[t] = findings
     if not grouped:

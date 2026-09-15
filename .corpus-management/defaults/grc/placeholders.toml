@@ -1,0 +1,80 @@
+# Reference-vocabulary profile: placeholder-leakage markers (grc defaults).
+#
+# Concern: placeholders. The LIVE gate-12 configuration since Phase-4 PR-H:
+# tools/lint-placeholder-leakage.py loads it via profile_loader.load("placeholders");
+# the loader compiles each nested pattern={regex,ignorecase} table, and the engine
+# (parameterized in PR-H) composes the (compiled-pattern, label) pairs. Values
+# transcribed VERBATIM from the former engine PATTERNS. ORDER IS POLICY: scan reports
+# the FIRST matching entry per line, so the array order determines the label. SEPARATE
+# from gate 9 (shall-near-uncertainty) - the two share some marker tokens but keep
+# distinct lists deliberately. The check ALGORITHM (scan, fence-skip) stays in the engine.
+schema_version = 1
+
+[[placeholders.patterns]]  # 0; flags=32
+label = "TODO marker"
+pattern = { regex = '\bTODO\b', ignorecase = false }
+
+[[placeholders.patterns]]  # 1; flags=32
+label = "TBD marker"
+pattern = { regex = '\bTBD\b', ignorecase = false }
+
+[[placeholders.patterns]]  # 2; flags=32
+label = "FIXME marker"
+pattern = { regex = '\bFIXME\b', ignorecase = false }
+
+[[placeholders.patterns]]  # 3; flags=32
+label = "XXX marker"
+pattern = { regex = '\bXXX\b', ignorecase = false }
+
+[[placeholders.patterns]]  # 4; flags=32
+label = "<YYYY-MM-DD> placeholder"
+pattern = { regex = '<YYYY-MM-DD>', ignorecase = false }
+
+[[placeholders.patterns]]  # 5; flags=32
+label = "<role> placeholder"
+pattern = { regex = '<role>', ignorecase = false }
+
+[[placeholders.patterns]]  # 6; flags=32
+label = "<organisation> placeholder"
+pattern = { regex = '<organisation>', ignorecase = false }
+
+[[placeholders.patterns]]  # 7; flags=32
+label = "<organization> placeholder"
+pattern = { regex = '<organization>', ignorecase = false }
+
+[[placeholders.patterns]]  # 8; flags=32
+label = "<name> placeholder"
+pattern = { regex = '<name>', ignorecase = false }
+
+[[placeholders.patterns]]  # 9; flags=32
+label = "<date> placeholder"
+pattern = { regex = '<date>', ignorecase = false }
+
+[[placeholders.patterns]]  # 10; flags=32
+label = "<version> placeholder"
+pattern = { regex = '<version>', ignorecase = false }
+
+[[placeholders.patterns]]  # 11; flags=34
+label = "(placeholder) marker"
+pattern = { regex = '\(placeholder\)', ignorecase = true }
+
+[[placeholders.patterns]]  # 12; flags=32
+label = "[Unverified] marker"
+pattern = { regex = '\[Unverified\]', ignorecase = false }
+
+[[placeholders.patterns]]  # 13; flags=34
+label = "Coming soon marker"
+pattern = { regex = '\bComing soon\b', ignorecase = true }
+
+[[placeholders.patterns]]  # 14; flags=32
+label = "yourcompany.com placeholder"
+pattern = { regex = '\byourcompany\.com\b', ignorecase = false }
+
+[[placeholders.patterns]]  # 15; flags=32
+label = "your-org.com placeholder"
+pattern = { regex = '\byour-org\.com\b', ignorecase = false }
+
+[[placeholders.patterns]]  # 16; flags=32
+label = "your-org.example.com placeholder"
+pattern = { regex = '\byour-org\.example\.com\b', ignorecase = false }
+

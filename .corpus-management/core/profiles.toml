@@ -51,3 +51,10 @@ concern = "stubs"
 target = "defaults/grc/stubs.toml"
 title = "Stub-document markers (stub-indicator phrases + body-word-count threshold)"
 origin = "grc_library .corpus-management/tools/gate_lint_stub_documents.py STUB_PHRASES + WORD_COUNT_THRESHOLD, transcribed verbatim in Phase-4 PR-G; the engine was parameterized (run() takes a StubVocabulary) and the wrapper loads this profile via _stubs_config()"
+
+[[profiles]]
+id = "placeholders"
+concern = "placeholders"
+target = "defaults/grc/placeholders.toml"
+title = "Placeholder-leakage markers (ordered regex+label patterns; TODO/TBD/angle-bracket/domains)"
+origin = "grc_library .corpus-management/tools/gate_lint_placeholder_leakage.py PATTERNS, transcribed verbatim in Phase-4 PR-H (nested {regex,ignorecase} tables + label, loader-compiled, order-preserved); the engine was parameterized (run() takes the composed (pattern,label) pairs via placeholder_patterns()) and the wrapper loads via _placeholders_config()"
