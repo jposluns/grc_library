@@ -7,10 +7,12 @@ register ``core/gates.toml``, id ``lint-section-placement``, enforcing the pack'
 ``section-placement`` clause); this thin wrapper keeps the house
 ``python3 tools/lint-section-placement.py`` shape (gate 35 parses exactly that) and supplies
 the grc-local configuration the pack engine deliberately does not carry: the AIQT bootstrap,
-the repo root, the grc PLACEMENT_RULES (the per-position, per-doctype section-order rules), the
+the repo root, the grc PLACEMENT RULES (the pack profile defaults/grc/placement.toml, loaded via
+profile_loader.load('placement') and composed to the engine's rule tuples in _placement_config(),
+Phase-4 PR-D), the
 target selection (the exempt dirs, the ``Status: Superseded`` skip, the narrative / default-exempt
 scope predicates via ``is_target`` + ``iter_targets``), and the default scan root. These wrapper
-bytes are HAND-MAINTAINED, not compiler-generated, so gate 99 does NOT own them. PLACEMENT_RULES,
+bytes are HAND-MAINTAINED, not compiler-generated, so gate 99 does NOT own them. _placement_config,
 is_target, iter_targets, and main stay HERE (grc config) so the scan-scope regression's WALKER map
 and the CLI regression tests observe them unmoved.
 
@@ -38,62 +40,36 @@ DEFAULT_PATHS = [str(REPO_ROOT)]
 
 EXEMPT_DIR_PARTS = DEFAULT_EXEMPT_DIRS  # narrative-root exclusion is root-anchored via is_narrative_root (P-1.25 scan-root split)
 
-# Each rule: (rule_id, description, canonical_heading_names, position, applicable_doctypes_or_none)
-# - canonical_heading_names: case-insensitive exact-match set; a section heading
-#   matches the rule if (after normalization) it equals any of these names.
-# - position: ("top", N) means the matched section must be in the first N
-#   ``##`` sections; ("bottom", N) means in the last N ``##`` sections.
-# - applicable_doctypes_or_none: None means apply to all in-scope files
-#   (regardless of doctype, including README and meta files); a tuple of
-#   doctype names means apply only when the file's Document Type matches one
-#   of those names.
-PLACEMENT_RULES: list[tuple[str, str, frozenset[str], tuple[str, int], tuple[str, ...] | None]] = [
-    (
-        "SP-01",
-        "orientation sections (Purpose, Scope, Purpose and Scope, Overview, "
-        "Applicability, Introduction, Executive Summary) must be in the top "
-        "three sections",
-        frozenset({
-            "purpose",
-            "scope",
-            "purpose and scope",
-            "overview",
-            "applicability",
-            "introduction",
-            "executive summary",
-        }),
-        ("top", 3),
-        None,
-    ),
-    (
-        "SP-03",
-        "version history sections (Version history, Release history, Changelog) "
-        "must be in the bottom three sections",
-        frozenset({
-            "version history",
-            "release history",
-            "changelog",
-        }),
-        ("bottom", 3),
-        None,
-    ),
-    (
-        "SP-04",
-        "licence sections (Licence, License, Licence boundary, License boundary, "
-        "Licence and third-party reference boundary, License and third-party "
-        "reference boundary) must be in the bottom three sections",
-        frozenset({
-            "licence",
-            "license",
-            "licence boundary",
-            "license boundary",
-            "licence and third-party reference boundary",
-            "license and third-party reference boundary",
-        }),
-        ("bottom", 3),
-        None,
-    ),
-]
+def _placement_config() -> list[tuple[str, str, frozenset[str], tuple[str, int], tuple[str, ...] | None]]:
+    """Load the gate-38 placement rules from the pack profile, composed to the
+    engine's exact rule shape (Phase-4 PR-D).
+
+    The model is the pack reference-vocabulary profile
+    ``.corpus-management/defaults/grc/placement.toml``, loaded via
+    ``profile_loader.load('placement')`` (fail-closed: the loader raises
+    ProfileError on an envelope defect; a missing field surfaces as a KeyError
+    below, never a silent pass). Each ``[[placement.rules]]`` table is rebuilt
+    into the engine's ``(rule_id, description, frozenset(aliases),
+    (position, count), doctypes_tuple_or_None)`` tuple; a rule with no
+    ``doctypes`` key applies to all in-scope files (the None convention), and
+    an explicit empty list is a deliberate applies-to-none disable.
+    """
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import profile_loader  # the pack-owned reference-vocabulary loader (PR-A)
+
+    prof = profile_loader.load("placement")
+    return [
+        (
+            str(r["id"]),
+            str(r["description"]),
+            frozenset(str(a) for a in r["section_aliases"]),
+            (str(r["position"]), int(r["count"])),
+            tuple(str(d) for d in r["doctypes"]) if "doctypes" in r else None,
+        )
+        for r in prof["rules"]
+    ]
 
 
 def is_target(path: Path) -> bool:
@@ -145,7 +121,7 @@ def main(argv: list[str]) -> int:
     )
     parser.add_argument("paths", nargs="*", default=DEFAULT_PATHS)
     args = parser.parse_args(argv[1:])
-    return _engine().run(iter_targets(args.paths), PLACEMENT_RULES, repo_root=REPO_ROOT)
+    return _engine().run(iter_targets(args.paths), _placement_config(), repo_root=REPO_ROOT)
 
 
 if __name__ == "__main__":
