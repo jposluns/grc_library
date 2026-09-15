@@ -47,8 +47,11 @@ def _citation_config():
 
     The framework-citation denylist is the pack reference-vocabulary profile
     ``.corpus-management/defaults/grc/citations.toml``, loaded via
-    ``profile_loader.load('citations')`` (fail-closed: a broken profile raises
-    ``ProfileError`` naming the file/field). The loader returns dicts/lists
+    ``profile_loader.load('citations')`` (fail-closed: the loader raises
+    ``ProfileError`` on an envelope or regex defect; a malformed denylist entry
+    would surface as a KeyError in the conversion below rather than pass
+    silently. gate 99 validates the shipped profile's envelope and the wiring
+    test locks its shape). The loader returns dicts/lists
     (TOML has no tuples/sets); this wrapper converts them to the engine's
     documented shapes, ``list[tuple[str, str, str]]`` and
     ``dict[str, set[str]]``, at this boundary. The engine is unchanged.

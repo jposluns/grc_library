@@ -18726,6 +18726,26 @@ class ProfileLoaderTests(unittest.TestCase):
         for term in path_exemptions:  # every exemption keys a real denylist term
             self.assertIn(term, [t for t, _, _ in denylist])
 
+    def test_citation_config_is_dynamically_profile_driven(self):
+        # Prove _citation_config() is DYNAMICALLY driven by profile_loader.load
+        # (a hardcoded-to-current-values return would pass the equality test
+        # above but fail this synthetic-profile check).
+        from unittest.mock import patch
+        wrapper = load_linter_module("tools/lint-citations.py", "_citations_dynamic")
+        pack_tools = str(REPO_ROOT / ".corpus-management" / "tools")
+        if pack_tools not in sys.path:
+            sys.path.insert(0, pack_tools)
+        import profile_loader as pl_real  # the SAME module the wrapper imports
+        synthetic = {
+            "denylist": [{"term": "SENTINEL", "reason": "r", "replacement": "x"}],
+            "path_exemptions": {"SENTINEL": ["CHANGELOG.md"]},
+        }
+        with patch.object(pl_real, "load", return_value=synthetic) as m:
+            denylist, path_exemptions = wrapper._citation_config()
+        m.assert_called_once_with("citations")
+        self.assertEqual(denylist, [("SENTINEL", "r", "x")])
+        self.assertEqual(path_exemptions, {"SENTINEL": {"CHANGELOG.md"}})
+
 
     def test_malformed_adopter_path_fails_closed(self):
         # F1: a directory (or broken symlink) at <adopter_dir>/<concern>.toml is a
