@@ -113,3 +113,8 @@ target = ".claude/rules/corpus-management/date-format.md"
 rule = "license-consistency"
 kind = "file"
 target = ".claude/rules/corpus-management/license-consistency.md"
+
+[[owned_targets]]
+rule = "section-anchor-resolution"
+kind = "file"
+target = ".claude/rules/corpus-management/section-anchor-resolution.md"

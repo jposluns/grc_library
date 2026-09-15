@@ -19502,5 +19502,57 @@ class LicenseConsistencyEngineTransferTests(unittest.TestCase):
         self.assertIn("differs from canonical", found[0][1])
 
 
+
+class SectionAnchorsEngineTransferTests(unittest.TestCase):
+    """gate 17 engine after the SHARED/SAFETY-lane PR-35 transfer (Pattern A):
+    slugify/extract_anchors/scan live in the pack engine; the wrapper keeps a
+    module-global scan shim supplying repo_root."""
+
+    def setUp(self):
+        self.wrapper = load_linter_module("tools/lint-section-anchors.py", "_anchors_engine")
+        self.engine = self.wrapper._engine()
+
+    def test_check_moved_to_engine(self):
+        for name in ("LINK_RE", "HEADING_RE", "slugify", "extract_anchors", "scan"):
+            self.assertTrue(hasattr(self.engine, name), f"engine missing {name}")
+        for name in ("LINK_RE", "HEADING_RE", "slugify", "extract_anchors"):
+            self.assertFalse(hasattr(self.wrapper, name),
+                             f"wrapper should not redefine {name} (moved to engine)")
+        self.assertTrue(hasattr(self.wrapper, "scan"))  # the shim
+
+    def test_slugify_github_rules(self):
+        s = self.engine.slugify
+        self.assertEqual(s("Section 1: Overview"), "section-1-overview")
+        self.assertEqual(s("Multi -- Hyphen"), "multi-hyphen")
+        self.assertEqual(s("Trailing-"), "trailing")
+        self.assertEqual(s("UPPER Case"), "upper-case")
+
+    def test_extract_anchors_skips_fences(self):
+        text = "# Real Heading\n\n```\n# Fenced Heading\n```\n"
+        anchors = self.engine.extract_anchors(text)
+        self.assertIn("real-heading", anchors)
+        self.assertNotIn("fenced-heading", anchors)
+
+    def _scan_realfile(self, doc):
+        # g17 resolves a same-doc anchor against target_path (= the file itself),
+        # which it checks with exists() and reads from disk, so a real file is needed.
+        import tempfile, os
+        with tempfile.TemporaryDirectory() as d:
+            fp = Path(d) / "anchortest.md"
+            fp.write_text(doc, encoding="utf-8")
+            return self.engine.scan(fp, repo_root=Path(d))
+
+    def test_scan_same_doc_unresolved_flagged(self):
+        found = self._scan_realfile("# Alpha\n\nSee [x](#beta) here.\n")
+        self.assertEqual(len(found), 1)
+        self.assertIn("no heading slugifies to #beta", found[0][3])
+
+    def test_scan_same_doc_resolved_clean(self):
+        self.assertEqual(self._scan_realfile("# Alpha\n\nSee [x](#alpha) here.\n"), [])
+
+    def test_scan_external_scheme_skipped(self):
+        self.assertEqual(self._scan_realfile("# Alpha\n\nSee [x](https://example.com/p#frag) here.\n"), [])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

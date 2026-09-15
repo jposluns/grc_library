@@ -134,3 +134,9 @@ id = "license-consistency"
 title = "License consistency (the **License:** field is exactly the canonical license string)"
 source = "core/rules/license-consistency.md"
 origin = "grc_library tools/lint-license-consistency.py gate rationale (new clause in SHARED/SAFETY-lane PR-34; generated AI-facing rule via gensrc, kind=file, like date-format; the canonical license string is fixed in the engine, the raw-line (non-fence-aware) scan is the engine, the grc scan scope + exempt-file set are wrapper config)"
+
+[[clauses]]
+id = "section-anchor-resolution"
+title = "Section-anchor resolution (a [text](path#anchor) link's #anchor resolves to a real heading slug in the target)"
+source = "core/rules/section-anchor-resolution.md"
+origin = "grc_library tools/lint-section-anchors.py gate rationale (new clause in SHARED/SAFETY-lane PR-35; generated AI-facing rule via gensrc, kind=file, like license-consistency; the GitHub-flavour slugify + heading extraction + anchor-resolution scan is the engine, the grc scan scope is wrapper config; the engine scan takes repo_root as a keyword so it is repository-root-free)"
