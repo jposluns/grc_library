@@ -2,8 +2,8 @@
 
 **Document Title:** Turkey Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.3\
-**Date:** 2026-07-02\
+**Version:** 1.0.4\
+**Date:** 2026-09-15\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -32,7 +32,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## AI and privacy obligations
 
-- The KVKK Board has issued guidance on automated decision-making, requiring transparency about automated processing that significantly affects individuals.
+- The KVKK has published recommendations on personal-data protection addressing transparency in automated processing that significantly affects individuals; the recommendations are not held in the reference base and are guidance rather than binding law, so an adopter confirms the current KVKK position directly.
 - Data subjects have the right to object to decisions made solely through automated means.
 - Turkey does not have standalone AI legislation as of 2025; KVKK principles and guidance apply to AI processing of personal data.
 
