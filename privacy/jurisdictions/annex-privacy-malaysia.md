@@ -2,7 +2,7 @@
 
 **Document Title:** Malaysia Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.2.2\
+**Version:** 1.2.3\
 **Date:** 2026-09-15\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -33,7 +33,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
   - **Direct accountability of data processors:** a data processor processing on a controller's behalf complies directly with the Security Principle (s. 5(1a)) and the s. 9 practical-step security duties, and appoints its own DPO (s. 12A).
   - **Deceased individuals** are excluded from the data-subject definition (A1727 s. 3).
   - **Increased penalties** (see Enforcement and fines below).
-- **Regulatory authority:** Personal Data Protection Commissioner under the Ministry of Digital. The Personal Data Protection Department (JPDP) administers the Act and issues guidelines.
+- **Regulatory authority:** the Personal Data Protection Commissioner, appointed by the Minister (Act 709 s. 47). In current administrative practice the portfolio sits with the Ministry of Digital and the Personal Data Protection Department (JPDP) administers the Act and issues guidelines; that administrative arrangement is not stated in the held Act.
 
 ---
 
@@ -59,7 +59,7 @@ Malaysia's Personal Data Protection Act 2010 (Act 709), as amended by Act A1727,
 ## AI and privacy obligations
 
 - The seven data protection principles apply to AI systems processing personal data, including transparency (Notice and Choice), purpose limitation (Disclosure), and security requirements.
-- A national AI Ethics Principle framework (2021) provides voluntary guidance for AI deployments.
+- The National Guidelines on AI Governance and Ethics (AIGE) (MOSTI, September 2024) provide voluntary guidance for AI deployments.
 - Specific Personal Data Protection Commissioner guidance confirming how Act 709 applies to AI systems is not held in the reference base, so an adopter confirms the current position directly.
 
 ---
