@@ -144,7 +144,7 @@ def scan(path: Path) -> list[tuple[int, str, str]]:
 
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
-        description="Detect accidentally-committed PII in library content."
+        description="Detect PII patterns in library content."
     )
     parser.add_argument("paths", nargs="*", default=DEFAULT_PATHS)
     args = parser.parse_args(argv[1:])
@@ -169,16 +169,15 @@ def main(argv: list[str]) -> int:
         except ValueError:
             rel = path
         print(f"=== {rel} ===")
-        for lineno, label, excerpt in findings:
-            print(f"  L{lineno} [pii-pattern] {label}: {excerpt}")
+        for lineno, label, value in findings:
+            print(f"  L{lineno} [pii-pattern] {label}: {value}")
         total += len(findings)
     print(f"\nFAIL: {total} suspected PII finding(s) across {len(grouped)} file(s).")
     print(
-        "Possible accidentally-committed PII detected. Investigate each finding: "
-        "if real PII was committed, remove it and purge from git history. If the "
-        "match is a documentation example, use RFC-reserved / "
+        "Personal data patterns detected in library content. Library is "
+        "openly published under CC BY-SA 4.0 and meant to be individual-neutral; replace any real PII with "
         "documentation-example placeholders or move maintainer contact to "
-        "AUTHORS / CITATION."
+        "AUTHORS.md / CITATION.cff."
     )
     return 1
 
