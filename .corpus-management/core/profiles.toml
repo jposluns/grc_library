@@ -16,3 +16,10 @@ concern = "citations"
 target = "defaults/grc/citations.toml"
 title = "Framework-citation denylist vocabulary (terms, reasons, replacements, per-term path exemptions)"
 origin = "grc_library tools/lint-citations.py DENYLIST + PATH_EXEMPTIONS, transcribed verbatim in Phase-4 PR-A; the live gate-5 config since Phase-4 PR-B (the wrapper loads this profile via profile_loader and the literals were removed)"
+
+[[profiles]]
+id = "sections"
+concern = "sections"
+target = "defaults/grc/sections.toml"
+title = "Required-sections-by-doctype vocabulary (orientation heading aliases, enforced doctypes)"
+origin = "grc_library tools/lint-required-sections.py ORIENTATION_OPTIONS + REQUIRED_SECTIONS, transcribed verbatim in Phase-4 PR-C; the live gate-19 config since PR-C (the wrapper loads this profile via profile_loader and the literals were removed)"

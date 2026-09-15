@@ -7,11 +7,13 @@ register ``core/gates.toml``, id ``lint-required-sections``, enforcing the pack'
 ``required-sections`` clause); this thin wrapper keeps the house
 ``python3 tools/lint-required-sections.py`` shape (gate 35 parses exactly that) and supplies
 the grc-local configuration the pack engine deliberately does not carry: the AIQT bootstrap,
-the repo root, the grc SECTION MODEL (``REQUIRED_SECTIONS`` / ``ORIENTATION_OPTIONS``), the
+the repo root, the grc SECTION MODEL (the pack profile defaults/grc/sections.toml, loaded via
+profile_loader.load('sections') and composed to the engine's required_map in _sections_config(),
+Phase-4 PR-C), the
 target selection (the exempt-file set, the ``Status: Superseded`` lifecycle skip, the
 narrative / default-exempt scope predicates via ``is_target`` + ``iter_targets``), and the
 default scan root. These wrapper bytes are HAND-MAINTAINED, not compiler-generated, so gate 99
-does NOT own them. ``REQUIRED_SECTIONS``, ``is_target``, ``iter_targets``, and ``main`` stay
+does NOT own them. ``_sections_config``, ``is_target``, ``iter_targets``, and ``main`` stay
 HERE (grc config) so the scan-scope regression's WALKER map and the CLI/``main`` regression
 tests observe them unmoved.
 
@@ -45,38 +47,32 @@ DEFAULT_PATHS = [str(REPO_ROOT)]
 # cannot use the shared iter_markdown_targets helper as-is.
 EXEMPT_DIR_PARTS = DEFAULT_EXEMPT_DIRS  # narrative-root exclusion is root-anchored via is_narrative_root (P-1.25 scan-root split)
 
-# Per-doctype required sections. Each requirement is a list of acceptable
-# heading names (case-insensitive substring match against the heading
-# text, after stripping leading numbers and punctuation).
-#
-# Library practice: most artefacts have Purpose and Scope as separate
-# sections, but some combine them, and some skip directly to numbered
-# domain sections. The requirement is therefore "at least one orientation
-# section" rather than "Purpose AND Scope both present."
-ORIENTATION_OPTIONS = [
-    "purpose",
-    "scope",
-    "applicability",
-    "purpose and scope",
-    "introduction",
-    "overview",
-    "executive summary",
-    "summary",
-]
+def _sections_config() -> dict[str, list[list[str]]]:
+    """Load the gate-19 section model from the pack profile, composed to the
+    engine's required_map shape (Phase-4 PR-C).
 
-REQUIRED_SECTIONS: dict[str, list[list[str]]] = {
-    "Standard": [ORIENTATION_OPTIONS],
-    "Procedure": [ORIENTATION_OPTIONS],
-    "Policy": [ORIENTATION_OPTIONS],
-    "Specification": [ORIENTATION_OPTIONS],
-    "Plan": [ORIENTATION_OPTIONS],
-    "Framework": [ORIENTATION_OPTIONS],
-    "Charter": [ORIENTATION_OPTIONS],
-    "Annex": [ORIENTATION_OPTIONS],
-    "Register": [ORIENTATION_OPTIONS],
-    "Guide": [ORIENTATION_OPTIONS],
-    "Guideline": [ORIENTATION_OPTIONS],
-}
+    The model is the pack reference-vocabulary profile
+    ``.corpus-management/defaults/grc/sections.toml``, loaded via
+    ``profile_loader.load('sections')`` (fail-closed: the loader raises
+    ProfileError on an envelope/regex defect; a missing key surfaces as a
+    KeyError below, never a silent pass). The profile mirrors the former
+    wrapper constants 1:1 (one orientation-alias list plus the doctypes that
+    reference it); this boundary performs the same composition the deleted
+    dict literal performed: each enforced doctype maps to
+    ``[orientation_options]``. Per-doctype lists are independent copies so a
+    consumer mutating one cannot alias the others. Gate 67 (lint-doctype-parity)
+    Check 2 reads this function, not a module constant, so removing the literal
+    cannot leave that check vacuous.
+    """
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import profile_loader  # the pack-owned reference-vocabulary loader (PR-A)
+
+    prof = profile_loader.load("sections")
+    options = [str(o) for o in prof["orientation_options"]]
+    return {str(dt): [list(options)] for dt in prof["orientation_doctypes"]}
+
 
 EXEMPT_FILES: set[str] = {
     # README files use a simpler shape than canonical artefacts.
@@ -151,7 +147,7 @@ def main(argv: list[str]) -> int:
     )
     parser.add_argument("paths", nargs="*", default=DEFAULT_PATHS)
     args = parser.parse_args(argv[1:])
-    return _engine().run(iter_targets(args.paths), REQUIRED_SECTIONS, repo_root=REPO_ROOT)
+    return _engine().run(iter_targets(args.paths), _sections_config(), repo_root=REPO_ROOT)
 
 
 if __name__ == "__main__":
