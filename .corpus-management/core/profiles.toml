@@ -44,3 +44,10 @@ concern = "language"
 target = "defaults/grc/language.toml"
 title = "Language spelling vocabulary + verbatim/heading exemptions (ise stems, isation-allowed, yse forms, commonwealth spans, ensure titles, lowercase names)"
 origin = "grc_library .corpus-management/tools/gate_lint_language.py vocabulary constants, transcribed verbatim in Phase-4 PR-F; the engine was PARAMETERIZED (run() takes the vocab; compiles ise/yse patterns from it) and the wrapper loads this profile via _language_config()"
+
+[[profiles]]
+id = "stubs"
+concern = "stubs"
+target = "defaults/grc/stubs.toml"
+title = "Stub-document markers (stub-indicator phrases + body-word-count threshold)"
+origin = "grc_library .corpus-management/tools/gate_lint_stub_documents.py STUB_PHRASES + WORD_COUNT_THRESHOLD, transcribed verbatim in Phase-4 PR-G; the engine was parameterized (run() takes a StubVocabulary) and the wrapper loads this profile via _stubs_config()"

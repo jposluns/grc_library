@@ -109,7 +109,7 @@ title = "Stub document audit"
 source = "tools/gate_lint_stub_documents.py"
 enforces = "no-stub-documents"
 entry_point = "tools/lint-stub-documents.py"
-origin = "grc_library tools/lint-stub-documents.py, grc gate 16 (engine transferred in compile PR-17, check logic + output verbatim; thin Model-2 wrapper supplies the grc target selection; the stub-phrase list + word-count threshold live in the engine, is_target/iter_targets stay in the wrapper; run() keeps the is_relative_to conditional matching this gate's old main)"
+origin = "grc_library tools/lint-stub-documents.py, grc gate 16 (engine transferred in compile PR-17, check logic + output verbatim; thin Model-2 wrapper supplies the grc target selection; the stub-phrase list + word-count threshold are profile-loaded (defaults/grc/stubs.toml, Phase-4 PR-G) and passed to run() as a StubVocabulary, is_target/iter_targets stay in the wrapper; run() keeps the is_relative_to conditional matching this gate's old main)"
 
 [[gates]]
 id = "lint-filename-title-alignment"

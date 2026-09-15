@@ -106,13 +106,29 @@ def _engine():
     return gate_lint_stub_documents
 
 
+def _stubs_config():
+    """Load the gate-16 stub vocabulary from the pack profile (Phase-4 PR-G).
+
+    Returns the engine's ``StubVocabulary`` composed from the ``stubs``
+    reference-vocabulary profile (``defaults/grc/stubs.toml``, loaded lazily via
+    ``profile_loader.load('stubs')``). Fail-closed: a malformed profile raises
+    ProfileError / ValueError, never a silent default.
+    """
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import profile_loader  # the pack-owned reference-vocabulary loader (PR-A)
+
+    return _engine().stub_vocabulary(**profile_loader.load("stubs"))
+
+
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
         description="Detect stub documents in production library content."
     )
     parser.add_argument("paths", nargs="*", default=DEFAULT_PATHS)
     args = parser.parse_args(argv[1:])
-    return _engine().run(iter_targets(args.paths), repo_root=REPO_ROOT)
+    return _engine().run(iter_targets(args.paths), repo_root=REPO_ROOT, vocab=_stubs_config())
 
 
 if __name__ == "__main__":
