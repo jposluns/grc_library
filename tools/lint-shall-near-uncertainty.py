@@ -65,6 +65,20 @@ def _engine():
     return gate_lint_shall_near_uncertainty
 
 
+def _uncertainty_config():
+    """Load the gate-9 mandatory-near-uncertainty vocabulary from the pack profile
+    (Phase-4 PR-I). Returns the engine's ``UncertaintyVocabulary`` composed from the
+    ``uncertainty`` profile (``defaults/grc/uncertainty.toml``, loaded lazily via
+    ``profile_loader.load('uncertainty')``, patterns compiled by the loader).
+    Fail-closed on a malformed profile."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import profile_loader  # the pack-owned reference-vocabulary loader (PR-A)
+
+    return _engine().uncertainty_vocabulary(**profile_loader.load("uncertainty"))
+
+
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description="Detect mandatory requirements near uncertainty markers.")
     parser.add_argument("paths", nargs="*", default=None, help="Paths to scan.")
@@ -75,7 +89,7 @@ def main(argv: list[str]) -> int:
         f for f in iter_markdown_files(paths)
         if f.relative_to(REPO_ROOT).as_posix() not in EXEMPT_FILES
     ]
-    return _engine().run(files, repo_root=REPO_ROOT)
+    return _engine().run(files, repo_root=REPO_ROOT, vocab=_uncertainty_config())
 
 
 if __name__ == "__main__":

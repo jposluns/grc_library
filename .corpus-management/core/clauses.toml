@@ -67,7 +67,7 @@ origin = "grc_library tools/lint-section-placement.py gate rationale (new clause
 id = "shall-near-uncertainty"
 title = "Mandatory requirements near uncertainty markers (no shall/must within N lines of a TBD/TODO/placeholder marker)"
 source = "core/rules/shall-near-uncertainty.md"
-origin = "grc_library tools/lint-shall-near-uncertainty.py gate rationale (new clause in compile PR-14; generated AI-facing rule via gensrc, kind=file, like section-placement; the marker/word patterns + window live in the pack engine (generic check definition), the grc-specific exempt-file set is wrapper config)"
+origin = "grc_library tools/lint-shall-near-uncertainty.py gate rationale (new clause in compile PR-14; generated AI-facing rule via gensrc, kind=file, like section-placement; the marker/word patterns + window are the defaults/grc/uncertainty.toml profile since Phase-4 PR-I (the check ALGORITHM is the engine), the grc-specific exempt-file set is wrapper config)"
 
 [[clauses]]
 id = "todo-forward-only"

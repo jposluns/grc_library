@@ -18995,6 +18995,43 @@ class ProfileLoaderTests(unittest.TestCase):
         m.assert_called_once_with("placeholders")
         self.assertEqual(pairs, ((synthetic["patterns"][0]["pattern"], "SENTINEL"),))
 
+    def test_live_uncertainty_profile_loads(self):
+        prof = self.mod.load("uncertainty")
+        self.assertEqual(set(prof), {"patterns", "mandatory", "window_lines"})
+        import re as _re
+        self.assertTrue(prof["patterns"])
+        self.assertTrue(all(isinstance(p, _re.Pattern) for p in prof["patterns"]))
+        self.assertIsInstance(prof["mandatory"], _re.Pattern)
+        self.assertIsInstance(prof["window_lines"], int)
+
+    def test_uncertainty_profile_drives_wrapper_config(self):
+        wrapper = load_linter_module("tools/lint-shall-near-uncertainty.py", "_unc_wiring")
+        eng = wrapper._engine()
+        for name in ("UNCERTAINTY_PATTERNS", "MANDATORY_PATTERN", "WINDOW_LINES"):
+            self.assertFalse(hasattr(eng, name))
+        prof = self.mod.load("uncertainty")
+        v = wrapper._uncertainty_config()
+        self.assertEqual([p.pattern for p in v.patterns], [p.pattern for p in prof["patterns"]])
+        self.assertEqual(v.mandatory.pattern, prof["mandatory"].pattern)
+        self.assertEqual(v.window_lines, prof["window_lines"])
+        self.assertIsInstance(v.patterns, tuple)
+
+    def test_uncertainty_config_is_dynamically_profile_driven(self):
+        from unittest.mock import patch
+        import re as _re
+        wrapper = load_linter_module("tools/lint-shall-near-uncertainty.py", "_unc_dynamic")
+        pack_tools = str(REPO_ROOT / ".corpus-management" / "tools")
+        if pack_tools not in sys.path:
+            sys.path.insert(0, pack_tools)
+        import profile_loader as pl_real
+        synthetic = {"patterns": [_re.compile(r"\bSENT\b")],
+                     "mandatory": _re.compile(r"\bmust\b"), "window_lines": 1}
+        with patch.object(pl_real, "load", return_value=synthetic) as m:
+            v = wrapper._uncertainty_config()
+        m.assert_called_once_with("uncertainty")
+        self.assertEqual([p.pattern for p in v.patterns], [r"\bSENT\b"])
+        self.assertEqual(v.window_lines, 1)
+
 
     def test_malformed_adopter_path_fails_closed(self):
         # F1: a directory (or broken symlink) at <adopter_dir>/<concern>.toml is a
@@ -19310,6 +19347,52 @@ class PlaceholderEngineProfileTests(unittest.TestCase):
         for bad in bad_cases:
             with self.assertRaises(ValueError):
                 self.engine.placeholder_patterns(bad)
+
+
+class UncertaintyEngineProfileTests(unittest.TestCase):
+    """gate 9 engine behaviour after PR-I parameterization: mandatory-near-uncertainty
+    within the window, fence exclusion, dynamic vocab, fail-closed."""
+
+    def setUp(self):
+        self.wrapper = load_linter_module("tools/lint-shall-near-uncertainty.py", "_unc_engine")
+        self.engine = self.wrapper._engine()
+        self.vocab = self.wrapper._uncertainty_config()
+
+    def scan_doc(self, doc, *, vocab=None):
+        from unittest.mock import patch
+        vocab = self.vocab if vocab is None else vocab
+        with patch.object(self.engine, "read_text_safe", return_value=doc):
+            return self.engine.check_file(REPO_ROOT / "tests/tmp/unc.md", vocab=vocab)
+
+    def test_mandatory_within_window_flagged(self):
+        found = self.scan_doc("TODO finish this\nit must be done\n")
+        self.assertEqual(len(found), 1)
+        self.assertEqual(found[0][1], "TODO")
+
+    def test_outside_window_not_flagged(self):
+        doc = "TODO here\nx\ny\nz\nit must be done\n"
+        self.assertEqual(self.scan_doc(doc), [])
+
+    def test_fence_excluded(self):
+        doc = "```\nTODO fix\nit must be done\n```\n"
+        self.assertEqual(self.scan_doc(doc), [])
+
+    def test_dynamic_vocab(self):
+        import re
+        v = self.engine.uncertainty_vocabulary(
+            patterns=[re.compile(r"\bSENT\b")], mandatory=re.compile(r"\bMUSTX\b"),
+            window_lines=1)
+        self.assertEqual(len(self.scan_doc("SENT here\nMUSTX now\n", vocab=v)), 1)
+        self.assertEqual(self.scan_doc("SENT here\nx\nMUSTX now\n", vocab=v), [])
+
+    def test_fail_closed(self):
+        import re
+        ok = dict(patterns=[re.compile("x")], mandatory=re.compile("y"), window_lines=2)
+        for bad in (dict(patterns="x"), dict(patterns=["notcompiled"]),
+                    dict(mandatory="notcompiled"), dict(window_lines=True),
+                    dict(window_lines=-1), dict(window_lines="2")):
+            with self.assertRaises(ValueError):
+                self.engine.uncertainty_vocabulary(**dict(ok, **bad))
 
 
 if __name__ == "__main__":

@@ -1,0 +1,51 @@
+# Reference-vocabulary profile: mandatory-near-uncertainty markers (grc defaults).
+#
+# Concern: uncertainty. The LIVE gate-9 configuration since Phase-4 PR-I (the FINAL
+# Phase-4 gate). tools/lint-shall-near-uncertainty.py loads it via
+# profile_loader.load("uncertainty"); the loader compiles the uncertainty patterns
+# and the mandatory alternation, and the engine (parameterized in PR-I) takes them +
+# the window. Values transcribed VERBATIM from the former UNCERTAINTY_PATTERNS (8,
+# ORDER PRESERVED: check_file reports the first matching pattern per line) +
+# MANDATORY_PATTERN (stored as a regex table so its embedded SPACES survive - a
+# word-list + re.escape would escape them and change the pattern) + WINDOW_LINES.
+# SEPARATE from gate 12 (placeholder-leakage) - the two share some marker tokens but
+# keep distinct lists deliberately. The check ALGORITHM (two-pass window scan,
+# fence exclusion) stays in the engine.
+schema_version = 1
+
+[uncertainty]
+window_lines = 2
+mandatory = { regex = '\b(shall|must|will be required|is required|are required)\b', ignorecase = true }
+
+[[uncertainty.patterns]]
+regex = '\[Unverified\]'
+ignorecase = false
+
+[[uncertainty.patterns]]
+regex = '\bTBD\b'
+ignorecase = false
+
+[[uncertainty.patterns]]
+regex = '\bTODO\b(?!(?:-REFERENCE)?\.md\b)'
+ignorecase = false
+
+[[uncertainty.patterns]]
+regex = '\bFIXME\b'
+ignorecase = false
+
+[[uncertainty.patterns]]
+regex = '\bXXX\b'
+ignorecase = false
+
+[[uncertainty.patterns]]
+regex = '\bDraft\s+(20\d{2}|[A-Z][a-z]+)'
+ignorecase = false
+
+[[uncertainty.patterns]]
+regex = '\bplaceholder\b'
+ignorecase = true
+
+[[uncertainty.patterns]]
+regex = '\[Draft\s*\d*\s*Reference\]'
+ignorecase = false
+
