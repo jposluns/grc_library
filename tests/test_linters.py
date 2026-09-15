@@ -19554,5 +19554,56 @@ class SectionAnchorsEngineTransferTests(unittest.TestCase):
         self.assertEqual(self._scan_realfile("# Alpha\n\nSee [x](https://example.com/p#frag) here.\n"), [])
 
 
+
+class IntraDocRefsEngineTransferTests(unittest.TestCase):
+    """gate 18 engine after the SHARED/SAFETY-lane PR-36 transfer (Pattern A):
+    HEADING_RE/REF_PATTERNS/extract_sections/is_cross_doc_context/scan live in the
+    pack engine; the wrapper keeps a module-global scan shim + EXEMPT_FILES."""
+
+    def setUp(self):
+        self.wrapper = load_linter_module("tools/lint-intra-doc-refs.py", "_intradoc_engine")
+        self.engine = self.wrapper._engine()
+
+    def test_check_moved_to_engine(self):
+        for name in ("HEADING_RE", "REF_PATTERNS", "extract_sections", "is_cross_doc_context", "scan"):
+            self.assertTrue(hasattr(self.engine, name), f"engine missing {name}")
+        for name in ("HEADING_RE", "REF_PATTERNS", "extract_sections", "is_cross_doc_context"):
+            self.assertFalse(hasattr(self.wrapper, name),
+                             f"wrapper should not redefine {name} (moved to engine)")
+        self.assertTrue(hasattr(self.wrapper, "scan"))      # the shim
+        self.assertTrue(hasattr(self.wrapper, "EXEMPT_FILES"))  # grc config stays wrapper-side
+
+    def test_extract_sections(self):
+        text = "## 1. Intro\n\n### 1.2 Detail\n\n## Section 3: Wide\n"
+        secs = self.engine.extract_sections(text)
+        self.assertIn("1", secs)
+        self.assertIn("1.2", secs)
+        self.assertIn("3", secs)
+
+    def _scan(self, doc):
+        from unittest.mock import patch
+        with patch.object(self.engine, "read_text_safe", return_value=doc):
+            return self.engine.scan(REPO_ROOT / "risk/d.md")
+
+    def test_unresolved_intra_ref_flagged(self):
+        found = self._scan("## 1. Intro\n\nSee §5.4 for details.\n")
+        self.assertEqual(len(found), 1)
+        self.assertEqual(found[0][1], "5.4")
+
+    def test_resolved_intra_ref_clean(self):
+        self.assertEqual(self._scan("## 1. Intro\n\n### 5.4 Deep\n\nSee §5.4 for details.\n"), [])
+
+    def test_cross_doc_link_skipped(self):
+        # a nearby markdown link marks the ref as cross-doc (heuristic)
+        self.assertEqual(self._scan("## 1. Intro\n\nSee [the standard](x.md) §5.4 here.\n"), [])
+
+    def test_cross_doc_framework_name_skipped(self):
+        # an external-framework name on the line marks the ref as cross-doc
+        self.assertEqual(self._scan("## 1. Intro\n\nNIST SP 800-53 §5.4 applies.\n"), [])
+
+    def test_no_numbered_headings_no_findings(self):
+        self.assertEqual(self._scan("# Plain\n\nSee §5.4 for details.\n"), [])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

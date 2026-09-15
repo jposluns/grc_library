@@ -140,3 +140,9 @@ id = "section-anchor-resolution"
 title = "Section-anchor resolution (a link whose target carries a #anchor fragment resolves to a real heading slug in the target)"
 source = "core/rules/section-anchor-resolution.md"
 origin = "grc_library tools/lint-section-anchors.py gate rationale (new clause in SHARED/SAFETY-lane PR-35; generated AI-facing rule via gensrc, kind=file, like license-consistency; the GitHub-flavour slugify + heading extraction + anchor-resolution scan is the engine, the grc scan scope is wrapper config; the engine scan takes repo_root as a keyword so it is repository-root-free)"
+
+[[clauses]]
+id = "intra-doc-section-refs"
+title = "Intra-document section references (a section-N reference matches a numbered heading in the same document)"
+source = "core/rules/intra-doc-section-refs.md"
+origin = "grc_library tools/lint-intra-doc-refs.py gate rationale (new clause in SHARED/SAFETY-lane PR-36; generated AI-facing rule via gensrc, kind=file, like section-anchor-resolution; the heading/reference regexes + the cross-doc heuristic (window scan + doctype-word + framework-name vocabularies) + the resolution scan is the engine, the grc scan scope + exempt-file set are wrapper config)"
