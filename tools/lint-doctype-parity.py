@@ -6,7 +6,8 @@ The allowed Document-Type set is defined canonically in
 and `TYPE_TO_PREFIX` (the filename prefixes). That same set is RE-ENUMERATED
 across many other surfaces, and nothing checked that the enumerations agree:
 
-  - a second linter's set (`tools/lint-filename-title-alignment.py` `DOCTYPES`);
+  - a second linter's doctype set (`tools/lint-filename-title-alignment.py`, profile-loaded
+    and read via `_alignment_config()` since Phase-4 PR-E);
   - the master-spec section 4.3 Type-to-prefix table;
   - the ingestion spec's allowed-type list;
   - the AI-ingestion instruction's type list + prefixes;
@@ -143,8 +144,9 @@ def main() -> int:
     names, prefixes = canonical_sets()
     failures: list[str] = []
 
-    # Check 1: the second linter's DOCTYPES set must equal the canonical names,
-    # compared case-insensitively (DOCTYPES is lowercase; ALLOWED_TYPES is CamelCase).
+    # Check 1: the second linter's doctype set (profile-loaded, read via
+    # _alignment_config()) must equal the canonical names, compared
+    # case-insensitively (the doctype set is lowercase; ALLOWED_TYPES is CamelCase).
     fta = _load_module(TOOLS / "lint-filename-title-alignment.py")
     canon_lower = {n.lower() for n in names}
     # PR-E: the doctype set is profile-loaded; read the composed config via the
