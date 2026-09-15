@@ -190,3 +190,11 @@ source = "tools/gate_lint_intra_doc_refs.py"
 enforces = "intra-doc-section-refs"
 entry_point = "tools/lint-intra-doc-refs.py"
 origin = "grc_library tools/lint-intra-doc-refs.py, grc gate 18 (engine transferred in SHARED/SAFETY-lane PR-36 via Pattern A; HEADING_RE + REF_PATTERNS + extract_sections + is_cross_doc_context (window scan + cross_doc_words + external_frameworks vocabularies, verbatim) + the resolution scan moved to the pack engine; the wrapper keeps main + the grc scan scope (iter_markdown_targets) + the grc EXEMPT_FILES set (CHANGELOG.md, specification-citation-verification.md) + grouped reporting and a module-global scan shim delegating to the engine so the scan-scope test (patches mod.scan + runs main) still intercepts; the engine scan is scope-free and repository-root-free. aiqt_corpus import guard (iter_non_code_lines, read_text_safe).)"
+
+[[gates]]
+id = "lint-secrets-in-content"
+title = "Secret-content detection audit"
+source = "tools/gate_lint_secrets_in_content.py"
+enforces = "secret-content"
+entry_point = "tools/lint-secrets-in-content.py"
+origin = "grc_library tools/lint-secrets-in-content.py, grc gate 21 (engine transferred in SHARED/SAFETY-lane PR-37 via Pattern A, the first SAFETY-mapped transfer; the 14 SECRET_PATTERNS (label + compiled regex, verbatim) + the redacting fence-aware scan moved to the pack engine; the wrapper keeps main + the grc scan scope (iter_targets over SCAN_SUFFIXES) + EXEMPT_FILES + grouped reporting and a module-global scan shim delegating to the engine so the scan-scope test (patches mod.scan + runs main) still intercepts; the engine is scope-free and repository-root-free. EXEMPT_FILES gains gate_lint_secrets_in_content.py defensively (same 'documents secret formats by design' rationale as the wrapper's self-exemption; the engine does not currently self-match, so behaviour is byte-identical, the exemption prevents a future false positive). aiqt_corpus import guard.)"

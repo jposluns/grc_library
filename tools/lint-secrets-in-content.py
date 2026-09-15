@@ -41,13 +41,13 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
-import re
 import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import iter_non_code_lines, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
 from lint_common import REPO_ROOT, iter_targets  # noqa: E402  # grc-config/store, stays local
+
+PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
 DEFAULT_PATHS = [str(REPO_ROOT)]
 
@@ -71,102 +71,30 @@ EXEMPT_FILES = {
     # rationale as test_linters.py: the fixture is the canonical place
     # those patterns appear as probe inputs.
     "gate-mutation-variants.json",
+    # The pack-owned engine (gate_lint_secrets_in_content.py) now holds the
+    # SECRET_PATTERNS, so it documents the secret formats by design exactly as
+    # this wrapper did before the PR-37 transfer; exempt it for the same reason.
+    "gate_lint_secrets_in_content.py",
 }
 
-# High-confidence secret patterns. Each regex requires enough structural
-# detail to avoid catching documentation prose. Patterns are
-# case-sensitive unless noted.
-SECRET_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
-    (
-        "AWS Access Key ID",
-        # Real AWS keys are exactly 20 chars: prefix + 16 base32.
-        # The prefix is one of: AKIA, AGPA, AIDA, AROA, AIPA, ANPA, ANVA, ASIA, A3T (followed by another letter).
-        # We require the FULL 20-char structure to avoid catching the word "AIDA" alone.
-        re.compile(r"\b(?:AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}\b"),
-    ),
-    (
-        "GitHub personal access token",
-        # ghp_ followed by 36+ alphanumeric chars.
-        re.compile(r"\bghp_[A-Za-z0-9]{36,}\b"),
-    ),
-    (
-        "GitHub OAuth token",
-        re.compile(r"\bgho_[A-Za-z0-9]{36,}\b"),
-    ),
-    (
-        "GitHub user-to-server token",
-        re.compile(r"\bghu_[A-Za-z0-9]{36,}\b"),
-    ),
-    (
-        "GitHub server-to-server token",
-        re.compile(r"\bghs_[A-Za-z0-9]{36,}\b"),
-    ),
-    (
-        "GitHub refresh token",
-        re.compile(r"\bghr_[A-Za-z0-9]{36,}\b"),
-    ),
-    (
-        "GitLab personal access token",
-        re.compile(r"\bglpat-[A-Za-z0-9_\-]{20,}\b"),
-    ),
-    (
-        "Slack token",
-        re.compile(r"\bxox[baprs]-[A-Za-z0-9\-]{10,}-[A-Za-z0-9\-]{10,}-[A-Za-z0-9\-]{20,}\b"),
-    ),
-    (
-        "Stripe live secret key",
-        re.compile(r"\bsk_live_[A-Za-z0-9]{24,}\b"),
-    ),
-    (
-        "Stripe restricted live key",
-        re.compile(r"\brk_live_[A-Za-z0-9]{24,}\b"),
-    ),
-    (
-        "SendGrid API key",
-        re.compile(r"\bSG\.[A-Za-z0-9_\-]{22}\.[A-Za-z0-9_\-]{43}\b"),
-    ),
-    (
-        "Google API key",
-        re.compile(r"\bAIza[A-Za-z0-9_\-]{35}\b"),
-    ),
-    (
-        # Matches any PEM private-key header regardless of algorithm:
-        # the algorithm prefix (RSA / DSA / EC / OPENSSH / ENCRYPTED /
-        # PGP / future types) varies, but the invariant "PRIVATE KEY"
-        # token is what makes the block a secret. Anchoring on that
-        # token (with an open-ended uppercase prefix and the optional
-        # PGP " BLOCK" suffix) future-proofs against new key types
-        # without matching the non-secret PEM blocks that share the
-        # same envelope (CERTIFICATE, PUBLIC KEY, DH PARAMETERS).
-        # Per RFC 7468, PEM labels are uppercase.
-        "Private key block (PEM, any algorithm)",
-        re.compile(r"-----BEGIN (?:[A-Z0-9]+ )*PRIVATE KEY(?: BLOCK)?-----"),
-    ),
-    (
-        "JWT (3-part Base64URL with realistic payload)",
-        # Header.Payload.Signature: each Base64URL segment at least 16 chars,
-        # payload at least 60 chars to filter prose mentions of "JWT".
-        re.compile(r"\beyJ[A-Za-z0-9_\-]{16,}\.eyJ[A-Za-z0-9_\-]{60,}\.[A-Za-z0-9_\-]{16,}\b"),
-    ),
-]
+
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_secrets_in_content  # the pack-owned engine (source of record)
+    return gate_lint_secrets_in_content
 
 
 def scan(path: Path) -> list[tuple[int, str, str]]:
-    findings: list[tuple[int, str, str]] = []
-    text = read_text_safe(path)
-    if text is None:
-        return findings
-    for lineno, line in iter_non_code_lines(text):
-        for label, pattern in SECRET_PATTERNS:
-            m = pattern.search(line)
-            if m:
-                # Show only first 12 characters of the matched secret to
-                # avoid echoing the full value in linter output.
-                excerpt = m.group(0)
-                redacted = excerpt[:12] + "..." if len(excerpt) > 12 else excerpt
-                findings.append((lineno, label, redacted))
-                break  # one finding per line
-    return findings
+    """Thin shim delegating to the pack engine's pure check.
+
+    Kept in the wrapper as a module-global because the scan-scope regression
+    test patches ``mod.scan`` and runs ``main``; the SECRET_PATTERNS and the
+    check live in the pack engine (gate_lint_secrets_in_content.py).
+    """
+    return _engine().scan(path)
 
 
 def main(argv: list[str]) -> int:
