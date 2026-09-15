@@ -2,7 +2,7 @@
 
 **Document Title:** China Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.6\
+**Version:** 1.1.7\
 **Date:** 2026-09-15\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -99,7 +99,7 @@ The thresholds are evaluated on a cumulative calendar-year basis starting 1 Janu
 
 ### Generative AI regulations
 
-- Suspension of services, fines, and criminal referral for serious violations. As of 2026, the CAC has commenced enforcement actions against generative AI service providers.
+- Suspension of services, fines, and criminal referral for serious violations. Reports of CAC enforcement against generative-AI service providers are not corroborated by held sources, so an adopter confirms the current enforcement position directly.
 
 ---
 

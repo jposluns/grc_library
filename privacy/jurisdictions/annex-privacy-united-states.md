@@ -2,7 +2,7 @@
 
 **Document Title:** United States Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.2.10\
+**Version:** 1.2.11\
 **Date:** 2026-09-15\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -37,7 +37,7 @@ The United States does not have a single comprehensive federal privacy law. Obli
 
 ### Federal AI initiatives
 
-- **NIST AI Risk Management Framework (AI RMF 1.0, January 2023):** A voluntary framework for managing AI risks across four functions: Govern, Map, Measure, Manage. Widely adopted by industry and referenced by regulators.
+- **NIST AI Risk Management Framework (AI RMF 1.0, January 2023):** A voluntary framework for managing AI risks across four functions: Govern, Map, Measure, Manage.
 - **NIST Generative AI Profile (NIST AI 600-1, July 2024):** Addresses risks specific to generative AI including hallucination, harmful content, data privacy, and intellectual property.
 
 ### State laws
@@ -79,7 +79,7 @@ Recurring themes in FTC AI-related enforcement actions and business guidance (a 
 
 ### Sectoral AI considerations
 
-- **Financial services:** SR 11-7 model risk management guidance applies to AI in credit, fraud, and compliance decisions. Fair lending laws apply to AI-driven credit decisions.
+- **Financial services:** the Federal Reserve's SR 11-7 model-risk-management guidance is commonly applied to AI in credit, fraud, and compliance decisions; that guidance is not held in the reference base, so an adopter confirms its current scope directly. Fair lending laws apply to AI-driven credit decisions.
 - **Healthcare:** AI clinical decision support may qualify as a medical device subject to FDA regulation. HIPAA applies to AI processing protected health information.
 - **Employment:** EEOC guidance (cited illustratively; adopters confirm the current EEOC position) that AI hiring tools may violate Title VII if they produce disparate impact.
 
