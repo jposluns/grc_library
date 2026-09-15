@@ -38,25 +38,15 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
-import re
 import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import iter_non_code_lines, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
 from lint_common import REPO_ROOT, iter_markdown_targets  # noqa: E402  # grc-config/store, stays local
 
+PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
+
 DEFAULT_PATHS = [str(REPO_ROOT)]
-
-# Headings of form "## 5. Title", "### 5.1 Title", "#### 5.1.2 Title",
-# or "## Section 5: title", "## Section 5.1 title".
-HEADING_RE = re.compile(r"^(#{2,6})\s+(?:Section\s+)?(\d+(?:\.\d+){0,3})[.\s:]")
-
-# In-document section reference patterns: §N, §N.N, §N.N.N, Section N(.N)*
-REF_PATTERNS = [
-    re.compile(r"§(\d+(?:\.\d+){0,3})"),
-    re.compile(r"\bSection\s+(\d+(?:\.\d+){0,3})\b"),
-]
 
 # Files exempt because they legitimately discuss intra-document
 # section references (the patterns this linter checks).
@@ -68,100 +58,24 @@ EXEMPT_FILES = {
 # linter scans `.md` only, so the .py entry was unreachable.
 
 
-def extract_sections(text: str) -> set[str]:
-    sections: set[str] = set()
-    for _lineno, line in iter_non_code_lines(text):
-        m = HEADING_RE.match(line)
-        if m:
-            sections.add(m.group(2))
-    return sections
-
-
-def is_cross_doc_context(line: str, ref_start: int) -> bool:
-    """Heuristic: is the reference in a cross-doc context?
-
-    Detection strategy:
-    - Preceding-60-char window: closing bracket/paren (markdown link) or
-      a `.md` filename, plus a TRAILING-60-char window for the same two
-      signals (mirroring gate 62's bidirectional adjacency, so a
-      "see section 5.4 in [foo](foo.md)" line, link AFTER the reference,
-      is claimed by the cross-doc side here as gate 62 claims it (the
-      r3 O-F1 seam). The mirror is approximate, not exact: gate 62's
-      adjacency window is 40 chars and pipe-bounded while this filter
-      accepts a bare ".md" or "](" within 60 chars of the reference
-      start, so a link 41-60 chars after a reference is disclaimed
-      here yet unclaimed by gates 62 and 65 (an accepted heuristic band, the
-      same shape as the pre-existing preceding-side window).
-    - Doctype words and external-framework names: whole-line scans (ISO,
-      NIST, OWASP, CSA, MITRE, COBIT, GDPR, CPPA, BASC, etc).
-      Framework-mapping tables typically reference external framework
-      section numbers in their cells; this scan catches that pattern.
-    """
-    window = line[max(0, ref_start - 60):ref_start]
-    if ".md" in window:
-        return True
-    if "](" in window:
-        return True
-    trailing = line[ref_start:ref_start + 60]
-    if ".md" in trailing:
-        return True
-    if "](" in trailing:
-        return True
-    # Doctype words anywhere on the line: when the library writes about
-    # another document's section, the document is typically named on the
-    # same line (often once, then multiple section refs follow).
-    cross_doc_words = (
-        "Standard", "Procedure", "Policy", "Specification", "Plan",
-        "Framework", "Register", "Annex", "Guide", "Guideline", "Charter",
-        "Matrix", "Worklist", "Template",
-        # Plain-language doc references (lowercase)
-        "guideline", "standard", "specification", "procedure", "policy",
-        "register", "library",
-        # NIST CSF function names indicate cross-doc framework mapping
-        "Detect:", "Identify:", "Protect:", "Respond:", "Recover:", "Govern:",
-    )
-    for w in cross_doc_words:
-        if w in line:
-            return True
-    # Whole-line scan for external framework names. Common in
-    # framework-alignment tables.
-    external_frameworks = (
-        "ISO/IEC", "ISO ", "NIST", "OWASP", "CSA ", "MITRE", "COBIT",
-        "GDPR", "CPPA", "PIPEDA", "HIPAA", "PCI DSS", "SOC 2",
-        "BASC", "CTPAT", "AEO", "WCO", "IMO", "ICAO", "NERC", "IEC 62443",
-        "IEC 61511", "IEC 61508", "NFPA", "EN 54", "ASHRAE",
-        "EU AI Act", "EU NIS", "EU DORA", "FedRAMP", "FIPS",
-        "Clause", "Article", "DSS", "ISM-", "CCC-", "CEK-", "I&S-",
-        "Rev ", "SP 800",
-    )
-    for w in external_frameworks:
-        if w in line:
-            return True
-    return False
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_intra_doc_refs  # the pack-owned engine (source of record)
+    return gate_lint_intra_doc_refs
 
 
 def scan(path: Path) -> list[tuple[int, str, str]]:
-    findings: list[tuple[int, str, str]] = []
-    text = read_text_safe(path)
-    if text is None:
-        return findings
-    sections = extract_sections(text)
-    if not sections:
-        # Documents without numbered headings have no intra-doc section refs to check.
-        return findings
-    for lineno, line in iter_non_code_lines(text):
-        # Skip table rows that show section references in coverage / index documents
-        # (they describe other documents' sections, not this one's).
-        for pattern in REF_PATTERNS:
-            for m in pattern.finditer(line):
-                ref = m.group(1)
-                if ref in sections:
-                    continue
-                # Skip references that look cross-doc
-                if is_cross_doc_context(line, m.start()):
-                    continue
-                findings.append((lineno, ref, line.strip()[:140]))
-    return findings
+    """Thin shim delegating to the pack engine's pure check.
+
+    Kept in the wrapper as a module-global because the scan-scope regression
+    test patches ``mod.scan`` and runs ``main``; the check (HEADING_RE,
+    REF_PATTERNS, extract_sections, is_cross_doc_context, scan) lives in the
+    pack engine (gate_lint_intra_doc_refs.py).
+    """
+    return _engine().scan(path)
 
 
 def main(argv: list[str]) -> int:
@@ -187,11 +101,11 @@ def main(argv: list[str]) -> int:
             rel = path
         print(f"=== {rel} ===")
         for lineno, ref, excerpt in findings:
-            print(f"  L{lineno} [intra-doc-ref] §{ref} not a heading in this document: {excerpt}")
+            print(f"  L{lineno} [intra-doc-ref] \u00a7{ref} not a heading in this document: {excerpt}")
         total += len(findings)
     print(f"\nFAIL: {total} unresolved intra-document reference(s) across {len(grouped)} file(s).")
     print(
-        "References to §N or Section N inside a document must match a heading "
+        "References to \u00a7N or Section N inside a document must match a heading "
         "in the same document. If the reference is to another document, include "
         "a markdown link or name the document explicitly."
     )

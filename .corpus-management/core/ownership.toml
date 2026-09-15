@@ -118,3 +118,8 @@ target = ".claude/rules/corpus-management/license-consistency.md"
 rule = "section-anchor-resolution"
 kind = "file"
 target = ".claude/rules/corpus-management/section-anchor-resolution.md"
+
+[[owned_targets]]
+rule = "intra-doc-section-refs"
+kind = "file"
+target = ".claude/rules/corpus-management/intra-doc-section-refs.md"
