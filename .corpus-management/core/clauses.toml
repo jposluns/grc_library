@@ -137,6 +137,6 @@ origin = "grc_library tools/lint-license-consistency.py gate rationale (new clau
 
 [[clauses]]
 id = "section-anchor-resolution"
-title = "Section-anchor resolution (a [text](path#anchor) link's #anchor resolves to a real heading slug in the target)"
+title = "Section-anchor resolution (a link whose target carries a #anchor fragment resolves to a real heading slug in the target)"
 source = "core/rules/section-anchor-resolution.md"
 origin = "grc_library tools/lint-section-anchors.py gate rationale (new clause in SHARED/SAFETY-lane PR-35; generated AI-facing rule via gensrc, kind=file, like license-consistency; the GitHub-flavour slugify + heading extraction + anchor-resolution scan is the engine, the grc scan scope is wrapper config; the engine scan takes repo_root as a keyword so it is repository-root-free)"

@@ -2,8 +2,9 @@
 
 # Section-anchor resolution
 
-A markdown link of the form `[text](path#anchor)` (or a same-document
-`[text](#anchor)`) resolves its `#anchor` to a real heading in the target file.
+A markdown link whose target carries a `#anchor` fragment (a cross-document
+`path#anchor`, or a same-document `#anchor` with no path) resolves that anchor to a
+real heading in the target file.
 Headings are read outside fenced code blocks and slugified per the GitHub flavour
 rules (lowercase; drop characters that are not alphanumeric, space, hyphen, or
 underscore; spaces to hyphens; consecutive hyphens collapsed); an anchor matching
