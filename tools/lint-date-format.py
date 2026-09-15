@@ -43,83 +43,42 @@ Exit codes:
     1   one or more findings present
 """
 
+
 from __future__ import annotations
 
 import argparse
 import re
 import sys
-from datetime import date
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import iter_non_code_lines, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
 from lint_common import REPO_ROOT, iter_markdown_targets  # noqa: E402  # grc-config/store, stays local
+
+PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
 DEFAULT_PATHS = [str(REPO_ROOT)]
 
 DATE_FIELD_RE = re.compile(r"^\*\*Date:\*\*\s+(.+?)(?:\\)?$", re.MULTILINE)
-ISO_DATE_RE = re.compile(r"^(\d{4})-(\d{2})-(\d{2})$")
 
 
-def validate_date(value: str) -> str | None:
-    """Return None if value is valid ISO 8601 date, else an error message."""
-    value = value.strip()
-    m = ISO_DATE_RE.match(value)
-    if not m:
-        return f"not ISO 8601 YYYY-MM-DD: {value!r}"
-    y, mth, d = int(m.group(1)), int(m.group(2)), int(m.group(3))
-    if y < 1900 or y > 2100:
-        return f"year {y} outside plausible range 1900-2100"
-    try:
-        date(y, mth, d)
-    except ValueError as exc:
-        return f"invalid calendar date: {exc}"
-    # Check zero padding by exact length
-    if len(m.group(2)) != 2 or len(m.group(3)) != 2:
-        return f"missing zero padding: {value!r}"
-    return None
-
-
-# Literal placeholder values that appear in template/worklist metadata
-# blocks (which carry fill-in markers by design). Production artefacts
-# (anything not prefixed `template-` or `worklist-`) may not use these.
-PLACEHOLDER_VALUES = {"YYYY-MM-DD", "<YYYY-MM-DD>"}
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_date_format  # the pack-owned engine (source of record)
+    return gate_lint_date_format
 
 
 def scan(path: Path) -> list[tuple[int, str]]:
-    findings: list[tuple[int, str]] = []
-    text = read_text_safe(path)
-    if text is None:
-        return findings
-    # Placeholder Date values are only legitimate in templates and
-    # worklists (which carry fill-in markers as their own metadata).
-    is_placeholder_eligible = (
-        path.name.startswith("template-")
-        or path.name.startswith("worklist-")
-    )
-    # Iterate only outside fenced code blocks. A `**Date:**` line
-    # inside a code block is documentation showing the metadata-block
-    # format, not the file's own metadata, and is not validated.
-    for lineno, line in iter_non_code_lines(text):
-        if line.startswith("**Date:**"):
-            # Strip trailing backslash (CommonMark hard-break syntax)
-            value = line[len("**Date:**"):].rstrip()
-            if value.endswith("\\"):
-                value = value[:-1].rstrip()
-            value = value.strip()
-            if not value:
-                findings.append((lineno, "empty Date field"))
-                continue
-            if value in PLACEHOLDER_VALUES:
-                if is_placeholder_eligible:
-                    # Template/worklist's own metadata is a fill-in marker.
-                    continue
-                findings.append((lineno, f"placeholder Date {value!r} in non-template file"))
-                continue
-            err = validate_date(value)
-            if err:
-                findings.append((lineno, err))
-    return findings
+    """Thin shim delegating to the pack engine's pure check.
+
+    Kept in the wrapper as a module-global because the scan-scope regression
+    test patches ``mod.scan`` and runs ``main``; the check logic (ISO_DATE_RE,
+    validate_date, PLACEHOLDER_VALUES, scan) lives in the pack engine
+    (gate_lint_date_format.py, source of record).
+    """
+    return _engine().scan(path)
 
 
 def main(argv: list[str]) -> int:

@@ -19395,5 +19395,62 @@ class UncertaintyEngineProfileTests(unittest.TestCase):
                 self.engine.uncertainty_vocabulary(**dict(ok, **bad))
 
 
+
+class DateFormatEngineTransferTests(unittest.TestCase):
+    """gate 14 engine after the SHARED/SAFETY-lane PR-33 transfer (Pattern A):
+    the pure check (ISO_DATE_RE, validate_date, PLACEHOLDER_VALUES, scan) lives in
+    the pack engine; the wrapper keeps a module-global scan shim delegating to it."""
+
+    def setUp(self):
+        self.wrapper = load_linter_module("tools/lint-date-format.py", "_dateformat_engine")
+        self.engine = self.wrapper._engine()
+
+    def test_check_moved_to_engine(self):
+        # The moved surface is now the engine's; the wrapper no longer defines it.
+        for name in ("ISO_DATE_RE", "validate_date", "PLACEHOLDER_VALUES", "scan"):
+            self.assertTrue(hasattr(self.engine, name), f"engine missing {name}")
+        for name in ("ISO_DATE_RE", "validate_date", "PLACEHOLDER_VALUES"):
+            self.assertFalse(hasattr(self.wrapper, name),
+                             f"wrapper should not redefine {name} (moved to engine)")
+        # The scan shim stays a wrapper module-global (the scope test patches it).
+        self.assertTrue(hasattr(self.wrapper, "scan"))
+
+    def test_validate_date_verdicts(self):
+        vd = self.engine.validate_date
+        self.assertIsNone(vd("2026-01-01"))
+        self.assertIsNone(vd("2100-12-31"))
+        self.assertIn("not ISO 8601", vd("2026/01/01"))
+        self.assertIn("outside plausible range", vd("2101-01-01"))
+        self.assertIn("invalid calendar date", vd("2026-02-30"))
+        self.assertIn("not ISO 8601", vd("2026-1-01"))  # single-digit fails the ^\d{2}$ shape
+
+    def test_scan_findings_via_engine(self):
+        from unittest.mock import patch
+        doc = "# T\n\n**Version:** 1.0\n**Date:** 2026-13-01\n\nBody.\n"
+        with patch.object(self.engine, "read_text_safe", return_value=doc):
+            found = self.engine.scan(REPO_ROOT / "tests/tmp/df.md")
+        self.assertEqual(len(found), 1)
+        self.assertIn("invalid calendar date", found[0][1])
+
+    def test_placeholder_only_in_template(self):
+        from unittest.mock import patch
+        doc = "# T\n\n**Date:** YYYY-MM-DD\n\nBody.\n"
+        # non-template file: placeholder is a finding
+        with patch.object(self.engine, "read_text_safe", return_value=doc):
+            found = self.engine.scan(REPO_ROOT / "risk/some-doc.md")
+        self.assertTrue(any("placeholder Date" in f[1] for f in found))
+        # template file: placeholder is legitimate (no finding)
+        with patch.object(self.engine, "read_text_safe", return_value=doc):
+            found2 = self.engine.scan(REPO_ROOT / "risk/template-doc.md")
+        self.assertEqual(found2, [])
+
+    def test_fenced_date_line_not_validated(self):
+        from unittest.mock import patch
+        doc = "# T\n\n```\n**Date:** 2026-13-01\n```\n\nBody.\n"
+        with patch.object(self.engine, "read_text_safe", return_value=doc):
+            found = self.engine.scan(REPO_ROOT / "risk/doc.md")
+        self.assertEqual(found, [])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

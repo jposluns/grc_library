@@ -158,3 +158,11 @@ source = "tools/gate_lint_gate_count_consistency.py"
 enforces = "gate-count-consistency"
 entry_point = "tools/lint-gate-count-consistency.py"
 origin = "grc_library tools/lint-gate-count-consistency.py, grc gate 39 (engine transferred in compile PR-23, the heaviest gate-wave transfer: PATTERNS count-idiom set + word-number machinery + Finding + count_collection + resolve_match + scan_file (Markdown version-history aware; patterns anchored, fences not separately skipped) + grouped/reporting run all byte-verbatim; thin Model-2 wrapper supplies the grc canonical-count sources (SPEC_PATH §6 parse + RULES_DIR/SKILLS_DIR) + SCAN_SUFFIXES + EXEMPT_FILES/EXEMPT_DIRS + iter_targets + a scan_file shim for the importlib direct-load test; the engine takes counts + repo_root + spec_rel as parameters. aiqt_corpus import guard (read_text_safe).)"
+
+[[gates]]
+id = "lint-date-format"
+title = "Metadata date-format audit"
+source = "tools/gate_lint_date_format.py"
+enforces = "date-format"
+entry_point = "tools/lint-date-format.py"
+origin = "grc_library tools/lint-date-format.py, grc gate 14 (engine transferred in SHARED/SAFETY-lane PR-33, the first SHARED-mapped scan-gate transfer via Pattern A; ISO_DATE_RE + validate_date + PLACEHOLDER_VALUES + fence-aware scan moved verbatim to the pack engine; the project tool became a thin wrapper supplying the grc scan scope (iter_markdown_targets) + grouped reporting in main, and keeps a module-global scan shim delegating to the engine so the scan-scope regression test (which patches mod.scan + runs main) still intercepts; the engine scan is repo_root-free and scope-free. aiqt_corpus import guard (iter_non_code_lines, read_text_safe).)"
