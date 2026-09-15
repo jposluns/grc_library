@@ -1,0 +1,53 @@
+# Reference-vocabulary profile: filename/title alignment vocabulary (grc defaults).
+#
+# Concern: alignment. The LIVE gate-7 configuration since Phase-4 PR-E:
+# tools/lint-filename-title-alignment.py loads it via
+# profile_loader.load("alignment") and rebuilds the engine's inputs in
+# _alignment_config(): a synonyms dict[str,str] and a doctypes set[str].
+# gate 67 (lint-doctype-parity) Check 1 reads the composed doctypes via the
+# wrapper's _alignment_config() (not a module constant). Values transcribed
+# VERBATIM from the wrapper's DOCTYPES set + SYNONYMS dict, so this mirrors the
+# wrapper source 1:1 (order-insensitive: the engine uses membership + get()).
+schema_version = 1
+
+[alignment]
+doctypes = [
+    "annex",
+    "charter",
+    "checklist",
+    "framework",
+    "guide",
+    "guideline",
+    "matrix",
+    "plan",
+    "policy",
+    "principle",
+    "procedure",
+    "register",
+    "roadmap",
+    "sop",
+    "specification",
+    "standard",
+    "template",
+    "worklist",
+]
+
+[alignment.synonyms]
+kpis = "kpi"
+kpi = "kpi"
+uk = "united kingdom"
+us = "united states"
+eu = "european union"
+sbom = "software bill of materials"
+capa = "corrective and preventive action"
+sox = "sarbanes oxley"
+fedramp = "federal risk and authorization management program"
+itgc = "it general controls"
+aeo = "authorized economic operator"
+ctpat = "customs trade partnership against terrorism"
+pip = "partners in protection"
+basc = "business alliance for secure commerce"
+dora = "digital operational resilience act"
+nis = "network and information systems"
+dsar = "data subject access request"
+ai = "artificial intelligence"

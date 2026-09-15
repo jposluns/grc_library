@@ -30,3 +30,10 @@ concern = "placement"
 target = "defaults/grc/placement.toml"
 title = "Section-placement rules (per-position, per-doctype section-order constraints)"
 origin = "grc_library tools/lint-section-placement.py PLACEMENT_RULES, transcribed verbatim in Phase-4 PR-D; the live gate-38 config since PR-D (the wrapper loads this profile via profile_loader and the literal was removed)"
+
+[[profiles]]
+id = "alignment"
+concern = "alignment"
+target = "defaults/grc/alignment.toml"
+title = "Filename/title alignment vocabulary (document-type prefix set + acronym/synonym map)"
+origin = "grc_library tools/lint-filename-title-alignment.py DOCTYPES + SYNONYMS, transcribed verbatim in Phase-4 PR-E; the live gate-7 config since PR-E (the wrapper loads this profile via profile_loader, the literals were removed, and gate 67 reads the composed doctypes via _alignment_config())"

@@ -117,7 +117,7 @@ title = "Filename and Document Title alignment audit"
 source = "tools/gate_lint_filename_title_alignment.py"
 enforces = "filename-title-alignment"
 entry_point = "tools/lint-filename-title-alignment.py"
-origin = "grc_library tools/lint-filename-title-alignment.py, grc gate 7 (engine transferred in compile PR-18, check logic + output verbatim; thin Model-2 wrapper supplies the grc DOCTYPES + SYNONYMS + min-overlap + scan scope; the engine takes synonyms/doctypes/min_overlap as parameters. DOCTYPES stays a wrapper module attribute because the doctype-parity gate 67 loads the wrapper and reads fta.DOCTYPES - a cross-gate coupling)"
+origin = "grc_library tools/lint-filename-title-alignment.py, grc gate 7 (engine transferred in compile PR-18, check logic + output verbatim; thin Model-2 wrapper supplies the min-overlap + scan scope; the doctype set + synonym map are profile-loaded (defaults/grc/alignment.toml, Phase-4 PR-E) and composed in _alignment_config(); the engine takes synonyms/doctypes/min_overlap as parameters. gate 67 reads the composed doctypes via the wrapper's _alignment_config() - a cross-gate coupling)"
 
 [[gates]]
 id = "lint-standards-currency"

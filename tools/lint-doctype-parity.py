@@ -147,17 +147,22 @@ def main() -> int:
     # compared case-insensitively (DOCTYPES is lowercase; ALLOWED_TYPES is CamelCase).
     fta = _load_module(TOOLS / "lint-filename-title-alignment.py")
     canon_lower = {n.lower() for n in names}
-    doctypes = set(fta.DOCTYPES)
+    # PR-E: the doctype set is profile-loaded; read the composed config via the
+    # wrapper's _alignment_config() (returns (synonyms, doctypes)), not a module
+    # constant. Fails loud on a broken profile.
+    doctypes = set(fta._alignment_config()[1])
     missing = canon_lower - doctypes
     extra = doctypes - canon_lower
     if missing:
         failures.append(
-            "tools/lint-filename-title-alignment.py DOCTYPES is missing "
+            "tools/lint-filename-title-alignment.py alignment doctypes (from "
+            "defaults/grc/alignment.toml) is missing "
             f"canonical type(s): {sorted(missing)}"
         )
     if extra:
         failures.append(
-            "tools/lint-filename-title-alignment.py DOCTYPES has type(s) not in "
+            "tools/lint-filename-title-alignment.py alignment doctypes (from "
+            "defaults/grc/alignment.toml) has type(s) not in "
             f"lint-metadata.py ALLOWED_TYPES: {sorted(extra)}"
         )
 

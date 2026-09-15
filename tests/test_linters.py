@@ -18839,6 +18839,41 @@ class ProfileLoaderTests(unittest.TestCase):
             ("SP-98", "e", frozenset({"s3"}), ("bottom", 1), None),
         ])
 
+    def test_live_alignment_profile_loads(self):
+        prof = self.mod.load("alignment")
+        self.assertEqual(set(prof), {"doctypes", "synonyms"})
+        self.assertTrue(prof["doctypes"])
+        self.assertTrue(prof["synonyms"])
+
+    def test_alignment_profile_drives_wrapper_config(self):
+        # PR-E: the wrapper no longer carries DOCTYPES / SYNONYMS literals; the
+        # engine input (and gate 67's cross-check) is DERIVED from the profile
+        # via _alignment_config(). Lock wiring + types.
+        wrapper = load_linter_module(
+            "tools/lint-filename-title-alignment.py", "_alignment_profile_wiring")
+        self.assertFalse(hasattr(wrapper, "DOCTYPES"))
+        self.assertFalse(hasattr(wrapper, "SYNONYMS"))
+        prof = self.mod.load("alignment")
+        synonyms, doctypes = wrapper._alignment_config()
+        self.assertEqual(synonyms, {str(k): str(v) for k, v in prof["synonyms"].items()})
+        self.assertEqual(doctypes, {str(d) for d in prof["doctypes"]})
+        self.assertIsInstance(synonyms, dict)
+        self.assertIsInstance(doctypes, set)
+
+    def test_alignment_config_is_dynamically_profile_driven(self):
+        from unittest.mock import patch
+        wrapper = load_linter_module("tools/lint-filename-title-alignment.py", "_alignment_dynamic")
+        pack_tools = str(REPO_ROOT / ".corpus-management" / "tools")
+        if pack_tools not in sys.path:
+            sys.path.insert(0, pack_tools)
+        import profile_loader as pl_real
+        synthetic = {"doctypes": ["sentineltype"], "synonyms": {"st": "sentinel type"}}
+        with patch.object(pl_real, "load", return_value=synthetic) as m:
+            synonyms, doctypes = wrapper._alignment_config()
+        m.assert_called_once_with("alignment")
+        self.assertEqual(synonyms, {"st": "sentinel type"})
+        self.assertEqual(doctypes, {"sentineltype"})
+
 
     def test_malformed_adopter_path_fails_closed(self):
         # F1: a directory (or broken symlink) at <adopter_dir>/<concern>.toml is a
