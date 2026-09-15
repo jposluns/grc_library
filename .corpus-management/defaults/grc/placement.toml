@@ -1,0 +1,55 @@
+# Reference-vocabulary profile: section-placement rules (grc defaults).
+#
+# Concern: placement. The LIVE gate-38 configuration since Phase-4 PR-D:
+# tools/lint-section-placement.py loads it via profile_loader.load("placement")
+# and rebuilds the engine's exact rule shape in _placement_config():
+# (rule_id, description, frozenset(section_aliases), (position, count),
+# tuple(doctypes) or None). Values transcribed VERBATIM from the wrapper's
+# PLACEMENT_RULES constant (each implicit string concatenation resolved to its
+# single runtime string), so this mirrors the wrapper source 1:1. Field
+# conventions: `position` is "top" or "bottom"; `count` is the N of top-N /
+# bottom-N; `doctypes` OMITTED means the rule applies to every in-scope file
+# (the engine's None convention); an explicit `doctypes = []` is a deliberate
+# applies-to-none disable, never a fallback. Alias matching is against
+# normalised (lower-cased, numbering-stripped) `##` headings.
+schema_version = 1
+
+[[placement.rules]]
+id = "SP-01"
+description = "orientation sections (Purpose, Scope, Purpose and Scope, Overview, Applicability, Introduction, Executive Summary) must be in the top three sections"
+section_aliases = [
+    "purpose",
+    "scope",
+    "purpose and scope",
+    "overview",
+    "applicability",
+    "introduction",
+    "executive summary",
+]
+position = "top"
+count = 3
+
+[[placement.rules]]
+id = "SP-03"
+description = "version history sections (Version history, Release history, Changelog) must be in the bottom three sections"
+section_aliases = [
+    "version history",
+    "release history",
+    "changelog",
+]
+position = "bottom"
+count = 3
+
+[[placement.rules]]
+id = "SP-04"
+description = "licence sections (Licence, License, Licence boundary, License boundary, Licence and third-party reference boundary, License and third-party reference boundary) must be in the bottom three sections"
+section_aliases = [
+    "licence",
+    "license",
+    "licence boundary",
+    "license boundary",
+    "licence and third-party reference boundary",
+    "license and third-party reference boundary",
+]
+position = "bottom"
+count = 3

@@ -18788,6 +18788,57 @@ class ProfileLoaderTests(unittest.TestCase):
         m.assert_called_once_with("sections")
         self.assertEqual(cfg, {"SentinelType": [["sentinel-heading"]]})
 
+    def test_live_placement_profile_loads(self):
+        prof = self.mod.load("placement")
+        self.assertIn("rules", prof)
+        self.assertTrue(prof["rules"])
+        for r in prof["rules"]:
+            self.assertLessEqual({"id", "description", "section_aliases", "position", "count"}, set(r))
+
+    def test_placement_profile_drives_wrapper_config(self):
+        # PR-D: the wrapper no longer carries the PLACEMENT_RULES literal; the
+        # engine input is DERIVED from the profile via _placement_config(), and
+        # rebuilt into the exact tuple/frozenset/None shape.
+        wrapper = load_linter_module(
+            "tools/lint-section-placement.py", "_placement_profile_wiring")
+        self.assertFalse(hasattr(wrapper, "PLACEMENT_RULES"))
+        prof = self.mod.load("placement")
+        cfg = wrapper._placement_config()
+        self.assertEqual(
+            cfg,
+            [
+                (r["id"], r["description"], frozenset(r["section_aliases"]),
+                 (r["position"], r["count"]),
+                 tuple(r["doctypes"]) if "doctypes" in r else None)
+                for r in prof["rules"]
+            ],
+        )
+        for rule in cfg:  # container-class fidelity
+            self.assertIsInstance(rule[2], frozenset)
+            self.assertIsInstance(rule[3], tuple)
+            self.assertTrue(rule[4] is None or isinstance(rule[4], tuple))
+
+    def test_placement_config_is_dynamically_profile_driven(self):
+        from unittest.mock import patch
+        wrapper = load_linter_module("tools/lint-section-placement.py", "_placement_dynamic")
+        pack_tools = str(REPO_ROOT / ".corpus-management" / "tools")
+        if pack_tools not in sys.path:
+            sys.path.insert(0, pack_tools)
+        import profile_loader as pl_real
+        synthetic = {"rules": [
+            {"id": "SP-99", "description": "d", "section_aliases": ["s1", "s2"],
+             "position": "top", "count": 2, "doctypes": ["Standard"]},
+            {"id": "SP-98", "description": "e", "section_aliases": ["s3"],
+             "position": "bottom", "count": 1},
+        ]}
+        with patch.object(pl_real, "load", return_value=synthetic) as m:
+            cfg = wrapper._placement_config()
+        m.assert_called_once_with("placement")
+        self.assertEqual(cfg, [
+            ("SP-99", "d", frozenset({"s1", "s2"}), ("top", 2), ("Standard",)),
+            ("SP-98", "e", frozenset({"s3"}), ("bottom", 1), None),
+        ])
+
 
     def test_malformed_adopter_path_fails_closed(self):
         # F1: a directory (or broken symlink) at <adopter_dir>/<concern>.toml is a

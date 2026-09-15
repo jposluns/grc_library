@@ -23,3 +23,10 @@ concern = "sections"
 target = "defaults/grc/sections.toml"
 title = "Required-sections-by-doctype vocabulary (orientation heading aliases, enforced doctypes)"
 origin = "grc_library tools/lint-required-sections.py ORIENTATION_OPTIONS + REQUIRED_SECTIONS, transcribed verbatim in Phase-4 PR-C; the live gate-19 config since PR-C (the wrapper loads this profile via profile_loader and the literals were removed)"
+
+[[profiles]]
+id = "placement"
+concern = "placement"
+target = "defaults/grc/placement.toml"
+title = "Section-placement rules (per-position, per-doctype section-order constraints)"
+origin = "grc_library tools/lint-section-placement.py PLACEMENT_RULES, transcribed verbatim in Phase-4 PR-D; the live gate-38 config since PR-D (the wrapper loads this profile via profile_loader and the literal was removed)"
