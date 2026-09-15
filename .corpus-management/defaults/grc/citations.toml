@@ -1,11 +1,10 @@
 # Reference-vocabulary profile: framework-citation denylist (grc defaults).
 #
-# Concern: citations. Values transcribed VERBATIM from the hand-curated grc
-# config in tools/lint-citations.py (its DENYLIST list-of-tuples and its
-# PATH_EXEMPTIONS dict). Until the PR-B gate migration wires gate 5 to this
-# profile, that wrapper remains the LIVE config and this file is the
-# distribution-ready mirror; the ProfileLoaderTests parity test asserts the
-# two stay byte-equal so the duplication window cannot drift silently.
+# Concern: citations. This is the LIVE gate-5 configuration since Phase-4 PR-B:
+# tools/lint-citations.py loads it via profile_loader.load("citations") and
+# converts it to the engine shapes in _citation_config(). Values were
+# transcribed verbatim from the wrapper literals in Phase-4 PR-A; PR-B removed
+# those literals, so this profile is now the single source (no duplication).
 #
 # Shape mirrors the engine's two data structures 1:1 so PR-B is a faithful
 # migration, not a reshape: each [[citations.denylist]] entry is the engine

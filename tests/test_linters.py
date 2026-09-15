@@ -18567,8 +18567,9 @@ class ProfileLoaderTests(unittest.TestCase):
     load()'s defaults_dir seam): the fail-closed envelope (missing profile,
     unknown keys, schema_version, regex compilation) and the key-level-replace
     overlay semantics (replace-whole, fall-back, explicit-empty clear, unknown
-    adopter key), plus a parity check that the shipped citations profile equals
-    the live lint-citations.py wrapper constants byte-for-byte.
+    adopter key), plus a wiring check that gate 5's _citation_config() derives its
+    engine input from the shipped citations profile (the PR-A byte-parity test was
+    reworked to this when PR-B removed the wrapper literals).
     """
 
     BASIC = (
@@ -18703,26 +18704,27 @@ class ProfileLoaderTests(unittest.TestCase):
         for entry in prof["denylist"]:
             self.assertEqual(set(entry), {"term", "reason", "replacement"})
 
-    def test_shipped_citations_equals_wrapper_literals(self):
-        # Parity: the shipped exemplar must equal the LIVE wrapper constants,
-        # bounding the PR-A -> PR-B two-place duplication window.
-        import ast
-        tree = ast.parse((REPO_ROOT / "tools/lint-citations.py").read_text(encoding="utf-8"))
-        lits = {
-            n.target.id: ast.literal_eval(n.value)
-            for n in tree.body
-            if isinstance(n, ast.AnnAssign) and isinstance(n.target, ast.Name)
-            and n.target.id in {"DENYLIST", "PATH_EXEMPTIONS"}
-        }
+    def test_citations_profile_drives_wrapper_config(self):
+        # PR-B closed the PR-A duplication window: the wrapper no longer carries
+        # literal DENYLIST/PATH_EXEMPTIONS; its engine input is DERIVED from the
+        # shipped profile via _citation_config(). Lock the wiring + the
+        # tuple/set conversion, and that the literals are gone.
+        wrapper = load_linter_module(
+            "tools/lint-citations.py", "_citations_profile_wiring")
+        self.assertFalse(hasattr(wrapper, "DENYLIST"))
+        self.assertFalse(hasattr(wrapper, "PATH_EXEMPTIONS"))
         prof = self.mod.load("citations")
+        denylist, path_exemptions = wrapper._citation_config()
         self.assertEqual(
+            denylist,
             [(r["term"], r["reason"], r["replacement"]) for r in prof["denylist"]],
-            lits["DENYLIST"],
         )
         self.assertEqual(
+            path_exemptions,
             {term: set(paths) for term, paths in prof["path_exemptions"].items()},
-            lits["PATH_EXEMPTIONS"],
         )
+        for term in path_exemptions:  # every exemption keys a real denylist term
+            self.assertIn(term, [t for t, _, _ in denylist])
 
 
     def test_malformed_adopter_path_fails_closed(self):

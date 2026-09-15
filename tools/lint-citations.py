@@ -6,12 +6,13 @@ The gate ENGINE is pack-owned source of record at
 ``core/gates.toml``, id ``lint-citations``, enforcing the pack's ``citation-denylist``
 clause); this thin wrapper keeps the house ``python3 tools/lint-citations.py`` shape (gate 35
 parses exactly that) and supplies the grc-local configuration the pack engine deliberately
-does not carry: the AIQT bootstrap, the repo root, the hand-curated DENYLIST (hallucinated or
-stale framework strings, verified against primary sources) and its per-term PATH_EXEMPTIONS,
-the markdown scope selector, and the default scan roots. These wrapper bytes are
-HAND-MAINTAINED, not compiler-generated, so gate 99 does NOT own them. DENYLIST /
-PATH_EXEMPTIONS / iter_markdown_files / main stay HERE (grc config) so the scan-scope
-regression's ALLOW map and the CitationsLinterTests CLI observe them unmoved.
+does not carry: the AIQT bootstrap, the repo root, the framework-citation denylist config
+(the pack reference-vocabulary profile .corpus-management/defaults/grc/citations.toml, loaded
+via profile_loader.load('citations') and converted to the engine shapes in _citation_config(),
+Phase-4 PR-B), the markdown scope selector, and the default scan roots. These wrapper bytes are
+HAND-MAINTAINED, not compiler-generated, so gate 99 does NOT own them. _citation_config /
+iter_markdown_files / main stay HERE (grc config) so the scan-scope regression's ALLOW map and
+the CitationsLinterTests CLI observe them unmoved.
 
 Usage:
     python3 tools/lint-citations.py
@@ -22,9 +23,10 @@ Exit codes:
     1   one or more findings present
 
 Maintenance:
-    Add new patterns to DENYLIST when a hallucinated or stale framework string is
-    discovered. Add files to PATH_EXEMPTIONS where the literal string must appear
-    (e.g. CHANGELOG entries documenting the historical defect).
+    Add new denylist patterns and per-term exemption paths in the pack profile
+    .corpus-management/defaults/grc/citations.toml ([[citations.denylist]] entries;
+    [citations.path_exemptions] for paths where the literal string must legitimately
+    appear, e.g. CHANGELOG entries documenting the historical defect).
 """
 
 from __future__ import annotations
@@ -39,106 +41,32 @@ from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT, iter_scan_roots_markdown
 PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
 
-# Each entry: (string-to-find, why-it-is-wrong, suggested-replacement).
-# Use plain string matching; if regex is needed, switch to a different field.
-DENYLIST: list[tuple[str, str, str]] = [
-    (
-        "COBIT 2025",
-        "Hallucinated framework version. ISACA's current COBIT version is COBIT 2019.",
-        "COBIT 2019",
-    ),
-    (
-        "CSA CCM v5",
-        "Hallucinated framework version. CSA's current Cloud Controls Matrix version is v4.1.",
-        "CSA CCM v4.1",
-    ),
-    (
-        "CCM v5",
-        "Hallucinated framework version. CSA's current Cloud Controls Matrix version is v4.1.",
-        "CCM v4.1",
-    ),
-    (
-        "Cloud Controls Matrix v5",
-        "Hallucinated framework version (spelled-out form). CSA's current Cloud Controls Matrix version is v4.1; the abbreviated 'CCM v5' denylist entry does not catch this form.",
-        "Cloud Controls Matrix v4.1",
-    ),
-    (
-        "NIST AI RMF 1.1",
-        "Hallucinated NIST AI RMF version. NIST AI RMF was published as version 1.0; the GenAI Profile is NIST AI 600-1.",
-        "NIST AI RMF 1.0 (with AI 600-1 Generative AI Profile)",
-    ),
-    (
-        "AI RMF 1.1",
-        "Hallucinated NIST AI RMF version (bare form). NIST AI RMF was published as version 1.0; the GenAI Profile is NIST AI 600-1.",
-        "NIST AI RMF 1.0 (with AI 600-1 Generative AI Profile)",
-    ),
-    (
-        "Draft 2026 ISO 37301",
-        "Unverified speculative reference. No such revision is published by ISO.",
-        "(remove the reference or replace with current ISO 37301:2021)",
-    ),
-    (
-        "IT Operations Documentation Framework",
-        "Phantom dependency. No such framework exists in the library; documents previously referencing it now point to operations/framework-it-service-management.md or governance/standard-records-retention-and-destruction.md.",
-        "operations/framework-it-service-management.md (or governance/standard-records-retention-and-destruction.md)",
-    ),
-    (
-        "CCM GRM",
-        "Stale v3 CCM domain code. v4.1 uses GRC (Governance, Risk, Compliance).",
-        "CCM GRC",
-    ),
-    (
-        "CCM EKM",
-        "Stale v3 CCM domain code. v4.1 uses CEK (Cryptography, Encryption, Key Management).",
-        "CCM CEK",
-    ),
-    (
-        "CCM END",
-        "Stale CCM domain code. v4.1 uses UEM (Universal Endpoint Management).",
-        "CCM UEM",
-    ),
-    (
-        "CCM TIM",
-        "Non-existent CCM domain code. Threat intelligence is part of TVM (Threat and Vulnerability Management) in v4.1.",
-        "CCM TVM",
-    ),
-]
+def _citation_config():
+    """Load the gate-5 denylist config from the pack profile, adapted to the
+    engine's parameter shapes (Phase-4 PR-B).
 
-# Paths exempted from each pattern. CHANGELOG is the canonical exemption: historical
-# entries record what was committed at the time, including the defects that were later
-# corrected. Add as a relative posix path.
-#
-# Phase 23.62 removed `tools/lint-citations.py` from every term's
-# exemption set: the linter's DEFAULT_PATHS does not include `tools/`
-# and the linter scans `.md` only, so the self-reference was
-# unreachable.
-#
-# Phase 23.63 removed `governance/register-canonical-citations.md` from
-# the exemption set for every term except COBIT 2025, after verifying that
-# only COBIT 2025 actually appears in that file. The defensive
-# exemption on the other 10 terms was dead weight.
-PATH_EXEMPTIONS: dict[str, set[str]] = {
-    # COBIT 2025 is exempt in documents that legitimately discuss the
-    # hallucination warning: CHANGELOG (phase history), the canonical-
-    # citations register (the warning's source of truth), Q4 worklist
-    # (verification campaign), and the Audit Programme Specification
-    # (which uses the exemption as a worked example under §8's numbered list).
-    "COBIT 2025": {"CHANGELOG.md", "governance/register-canonical-citations.md", ".project-governance/worklist-citation-verification-batch-q4-canonical-citations.md", "governance/specification-audit-programme.md"},
-    # All other denylist terms appear nowhere in the canonical-citations
-    # register; their only legitimate occurrence is in CHANGELOG (phase
-    # history of past fixes).
-    "CSA CCM v5": {"CHANGELOG.md"},
-    "CCM v5": {"CHANGELOG.md"},
-    "Cloud Controls Matrix v5": {"CHANGELOG.md"},
-    "NIST AI RMF 1.1": {"CHANGELOG.md"},
-    "AI RMF 1.1": {"CHANGELOG.md"},
-    "Draft 2026 ISO 37301": {"CHANGELOG.md"},
-    "IT Operations Documentation Framework": {"CHANGELOG.md"},
-    "CCM GRM": {"CHANGELOG.md"},
-    "CCM EKM": {"CHANGELOG.md"},
-    "CCM END": {"CHANGELOG.md"},
-    "CCM TIM": {"CHANGELOG.md"},
-}
+    The framework-citation denylist is the pack reference-vocabulary profile
+    ``.corpus-management/defaults/grc/citations.toml``, loaded via
+    ``profile_loader.load('citations')`` (fail-closed: a broken profile raises
+    ``ProfileError`` naming the file/field). The loader returns dicts/lists
+    (TOML has no tuples/sets); this wrapper converts them to the engine's
+    documented shapes, ``list[tuple[str, str, str]]`` and
+    ``dict[str, set[str]]``, at this boundary. The engine is unchanged.
+    """
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import profile_loader  # the pack-owned reference-vocabulary loader (PR-A)
+
+    prof = profile_loader.load("citations")
+    denylist = [
+        (e["term"], e["reason"], e["replacement"]) for e in prof["denylist"]
+    ]
+    path_exemptions = {
+        term: set(paths) for term, paths in prof["path_exemptions"].items()
+    }
+    return denylist, path_exemptions
+
 
 DEFAULT_PATHS = [
     "README.md",
@@ -184,8 +112,9 @@ def main(argv: list[str]) -> int:
         else args.legacy_paths if args.legacy_paths is not None
         else DEFAULT_PATHS
     )
+    denylist, path_exemptions = _citation_config()
     return _engine().run(
-        iter_markdown_files(paths), DENYLIST, PATH_EXEMPTIONS, repo_root=REPO_ROOT
+        iter_markdown_files(paths), denylist, path_exemptions, repo_root=REPO_ROOT
     )
 
 
