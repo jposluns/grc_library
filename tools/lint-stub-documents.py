@@ -8,8 +8,9 @@ clause); this thin wrapper keeps the house ``python3 tools/lint-stub-documents.p
 parses exactly that) and supplies the grc-local configuration the pack engine deliberately does not
 carry: the AIQT bootstrap, the repo root, the target selection (the exempt files, the ``template-``
 / ``worklist-`` / ``Status: Superseded`` skips, the narrative / default-exempt predicates via
-``is_target`` + ``iter_targets``), and the default scan root. The stub-phrase list and the
-word-count threshold live in the pack engine as the generic check. These wrapper bytes are
+``is_target`` + ``iter_targets``), and the default scan root. The stub-phrase list and word-count
+threshold are profile-loaded (``defaults/grc/stubs.toml`` via ``_stubs_config()``, Phase-4 PR-G)
+and passed to the engine's generic check. These wrapper bytes are
 HAND-MAINTAINED, not compiler-generated, so gate 99 does NOT own them; ``is_target`` / ``iter_targets``
 / ``main`` stay HERE (grc config) so the scan-scope regression's WALKER map and the CLI tests observe
 them unmoved.
