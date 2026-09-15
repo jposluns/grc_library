@@ -2,8 +2,8 @@
 
 **Document Title:** Philippines Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.3\
-**Date:** 2026-07-02\
+**Version:** 1.0.4\
+**Date:** 2026-09-15\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -35,7 +35,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## AI and privacy obligations
 
-- NPC guidance requires that AI systems processing sensitive personal information implement heightened security and strict purpose limitation.
+- AI systems processing sensitive personal information are expected to apply heightened security and strict purpose limitation; specific NPC guidance on AI is not held in the reference base, so an adopter confirms the current position directly.
 - Organizations conducting large-scale AI profiling are encouraged to conduct privacy impact assessments.
 - Data subjects have rights to object to automated processing producing significantly impactful effects.
 

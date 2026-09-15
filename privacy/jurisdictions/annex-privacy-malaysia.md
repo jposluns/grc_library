@@ -2,8 +2,8 @@
 
 **Document Title:** Malaysia Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.2.1\
-**Date:** 2026-09-12\
+**Version:** 1.2.2\
+**Date:** 2026-09-15\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -60,7 +60,7 @@ Malaysia's Personal Data Protection Act 2010 (Act 709), as amended by Act A1727,
 
 - The seven data protection principles apply to AI systems processing personal data, including transparency (Notice and Choice), purpose limitation (Disclosure), and security requirements.
 - A national AI Ethics Principle framework (2021) provides voluntary guidance for AI deployments.
-- The Personal Data Protection Commissioner has confirmed that AI systems processing personal data must comply with Act 709 principles.
+- Specific Personal Data Protection Commissioner guidance confirming how Act 709 applies to AI systems is not held in the reference base, so an adopter confirms the current position directly.
 
 ---
 
