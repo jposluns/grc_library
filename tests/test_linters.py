@@ -18725,6 +18725,41 @@ class ProfileLoaderTests(unittest.TestCase):
         )
 
 
+    def test_malformed_adopter_path_fails_closed(self):
+        # F1: a directory (or broken symlink) at <adopter_dir>/<concern>.toml is a
+        # misconfiguration, not an absent override; it must fail closed.
+        self._write(self.defaults, "widgets", self.BASIC)
+        (self.adopter / "widgets.toml").mkdir()
+        with self.assertRaises(self.mod.ProfileError) as ctx:
+            self._load(adopter=True)
+        self.assertIn("not a regular file", str(ctx.exception))
+
+    def test_concern_table_shaped_as_regex_is_plain_data(self):
+        # F2: a concern table whose keys are exactly {regex, ignorecase} must be
+        # returned as plain data, never misread as a regex table (which crashed).
+        self._write(self.defaults, "widgets",
+                    'schema_version = 1\n\n[widgets]\nregex = "abc"\nignorecase = true\n')
+        prof = self._load()
+        self.assertEqual(prof, {"regex": "abc", "ignorecase": True})
+
+    def test_regex_table_as_value_still_compiles(self):
+        # F2 positive: a regex table appearing as a VALUE still compiles.
+        self._write(self.defaults, "widgets",
+                    'schema_version = 1\n\n[widgets]\npat = {regex = "^ab$", ignorecase = true}\n')
+        prof = self._load()
+        self.assertIsNotNone(prof["pat"].match("AB"))
+
+    def test_nested_replacement_and_empty_dict_clear(self):
+        self._write(self.defaults, "widgets",
+                    'schema_version = 1\n\n[widgets]\n'
+                    'names = ["alpha"]\n[widgets.opts]\nk = 1\n')
+        self._write(self.adopter, "widgets",
+                    'schema_version = 1\n\n[widgets]\nopts = {}\n')
+        prof = self._load(adopter=True)
+        self.assertEqual(prof["opts"], {})           # nested table cleared whole
+        self.assertEqual(prof["names"], ["alpha"])   # untouched key falls back
+
+
 class CorpusManagementProfilesRegisterTests(unittest.TestCase):
     """Compiler validation of core/profiles.toml + defaults/ profiles (gate 99).
 
@@ -18741,7 +18776,7 @@ class CorpusManagementProfilesRegisterTests(unittest.TestCase):
     )
     REGISTER = "schema_version = 1\n\n" + ENTRY
 
-    def _make_root(self, *, register, profiles=None):
+    def _make_root(self, *, register, profiles=None, clauses=None):
         root = FIXTURE_DIR / "synthetic-corpus-mgmt-profiles"
         if root.exists():
             shutil.rmtree(root)
@@ -18764,7 +18799,8 @@ class CorpusManagementProfilesRegisterTests(unittest.TestCase):
         (pack / "core" / "ownership.toml").write_text(
             "schema_version = 1\nowned_targets = []\n", encoding="utf-8")
         (pack / "core" / "clauses.toml").write_text(
-            "schema_version = 1\nclauses = []\n", encoding="utf-8")
+            clauses if clauses is not None else "schema_version = 1\nclauses = []\n",
+            encoding="utf-8")
         (pack / "core" / "profiles.toml").write_text(register, encoding="utf-8")
         for rel, content in (profiles or {}).items():
             (pack / "defaults" / "grc" / rel).write_text(content, encoding="utf-8")
@@ -18807,6 +18843,33 @@ class CorpusManagementProfilesRegisterTests(unittest.TestCase):
         r = self._check(root)
         self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
         self.assertIn("duplicate profile id", r.stdout)
+
+
+    def test_duplicate_concern_fails_closed(self):
+        # F4: two distinct ids registering the same concern (the loader's lookup
+        # identity) must fail closed.
+        two = ("schema_version = 1\n\n"
+               "[[profiles]]\nid = \"widgets\"\nconcern = \"widgets\"\n"
+               'target = "defaults/grc/widgets.toml"\n\n'
+               "[[profiles]]\nid = \"widgets2\"\nconcern = \"widgets\"\n"
+               'target = "defaults/grc/widgets.toml"\n')
+        root = self._make_root(register=two,
+                               profiles={"widgets.toml": self.WIDGETS_PROFILE})
+        r = self._check(root)
+        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+        self.assertIn("duplicate concern", r.stdout)
+
+    def test_profile_id_colliding_with_clause_fails_closed(self):
+        # F3: a profile id sharing the one clause/gate/rule/profile namespace with
+        # a clause id must fail closed.
+        clauses = ("schema_version = 1\n\n[[clauses]]\n"
+                   'id = "widgets"\nsource = "core/profiles.toml"\n')
+        root = self._make_root(register=self.REGISTER,
+                               profiles={"widgets.toml": self.WIDGETS_PROFILE},
+                               clauses=clauses)
+        r = self._check(root)
+        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+        self.assertIn("collides with a", r.stdout)
 
 
 if __name__ == "__main__":

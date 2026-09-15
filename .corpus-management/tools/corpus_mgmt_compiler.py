@@ -659,6 +659,7 @@ def load_and_validate(root: Path, pack_root: Path) -> tuple[list[Rule], list[str
                                     f"validate the registered profiles")
                 profile_keys = {"id", "concern", "target", "title", "origin"}
                 seen_profile_ids: set[str] = set()
+                seen_concerns: set[str] = set()
                 registered_targets: set[str] = set()
                 for i, pf in enumerate(pentries):
                     where = f"{profiles_rel}: profiles[{i}]"
@@ -676,10 +677,12 @@ def load_and_validate(root: Path, pack_root: Path) -> tuple[list[Rule], list[str
                         pid = None
                     elif pid in seen_profile_ids:
                         problems.append(f"{where}: duplicate profile id {pid!r}")
-                    elif pid in seen_clause_ids or pid in seen_gate_ids:
+                    elif pid in seen_clause_ids or pid in seen_gate_ids or pid in seen_ids:
                         problems.append(f"{where}: profile id {pid!r} collides with a "
-                                        f"clause or gate id (clause / gate / hook / rule / "
-                                        f"profile ids share one namespace)")
+                                        f"clause, gate, or generation-rule id (clause / "
+                                        f"gate / rule / profile ids share one namespace; "
+                                        f"hook ids join it once the hook register is "
+                                        f"populated)")
                     if isinstance(pid, str):
                         seen_profile_ids.add(pid)
                     pconcern = pf.get("concern")
@@ -687,6 +690,12 @@ def load_and_validate(root: Path, pack_root: Path) -> tuple[list[Rule], list[str
                         problems.append(f"{where}: 'concern' must be a string matching "
                                         f"^[a-z0-9][a-z0-9-]*$")
                         pconcern = None
+                    elif pconcern in seen_concerns:
+                        problems.append(f"{where}: duplicate concern {pconcern!r} (the "
+                                        f"concern is the loader's lookup identity and must "
+                                        f"be unique across profiles)")
+                    else:
+                        seen_concerns.add(pconcern)
                     ptarget = pf.get("target")
                     if not isinstance(ptarget, str):
                         problems.append(f"{where}: 'target' must be a pack-relative path "

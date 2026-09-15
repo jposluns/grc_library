@@ -118,9 +118,10 @@ def _compile_regexes(value: object, path: Path, where: str) -> object:
                 raise ProfileError(f"{path}: {where}: 'ignorecase' must be a boolean")
             try:
                 return re.compile(pattern, re.IGNORECASE if ignorecase else 0)
-            except re.error as exc:
+            except (re.error, RecursionError, OverflowError) as exc:
                 raise ProfileError(
-                    f"{path}: {where}: uncompilable regex {pattern!r}: {exc}"
+                    f"{path}: {where}: uncompilable regex {pattern!r}: "
+                    f"{type(exc).__name__}: {exc}"
                 ) from exc
         return {
             k: _compile_regexes(v, path, f"{where}.{k}") for k, v in value.items()
@@ -130,6 +131,20 @@ def _compile_regexes(value: object, path: Path, where: str) -> object:
             _compile_regexes(v, path, f"{where}[{i}]") for i, v in enumerate(value)
         ]
     return value
+
+
+def _compile_table(table: dict, path: Path, concern: str) -> dict:
+    """Compile the regex tables among a concern table's VALUES.
+
+    The concern table itself is never passed to ``_compile_regexes``: a
+    concern table whose keys happened to be exactly ``regex`` and
+    ``ignorecase`` would otherwise be misread as a regex table (and crash on
+    the subsequent ``dict()``). A regex table is only ever recognized as a
+    VALUE, never as the concern table.
+    """
+    return {
+        k: _compile_regexes(v, path, f"[{concern}].{k}") for k, v in table.items()
+    }
 
 
 def load(
@@ -157,17 +172,25 @@ def load(
             f"default profile is a broken setup to fix, never to silently "
             f"work around)"
         )
-    default_table = _compile_regexes(
-        _read_profile(dpath, concern), dpath, f"[{concern}]"
+    default_table = _compile_table(
+        _read_profile(dpath, concern), dpath, concern
     )
 
     if adopter_dir is None:
         return dict(default_table)
     apath = Path(adopter_dir) / f"{concern}.toml"
+    try:
+        apath.lstat()  # does NOT follow symlinks: sees a broken symlink as present
+    except FileNotFoundError:
+        return dict(default_table)  # genuinely absent: fall back to the default
     if not apath.is_file():
-        return dict(default_table)
-    adopter_table = _compile_regexes(
-        _read_profile(apath, concern), apath, f"[{concern}]"
+        raise ProfileError(
+            f"{apath}: adopter override exists but is not a regular file (a "
+            f"directory or broken symlink is a misconfiguration to fix, never a "
+            f"silent fallback to defaults)"
+        )
+    adopter_table = _compile_table(
+        _read_profile(apath, concern), apath, concern
     )
     unknown = set(adopter_table) - set(default_table)
     if unknown:
