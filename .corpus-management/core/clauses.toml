@@ -158,3 +158,9 @@ id = "pii-content"
 title = "PII content (content carries no suspected personally-identifying information)"
 source = "core/rules/pii-content.md"
 origin = "grc_library tools/lint-pii-in-content.py gate rationale (new clause in SHARED/SAFETY-lane PR-38; second SAFETY-mapped transfer; generated AI-facing rule via gensrc, kind=file, like secret-content; the detection regexes (email/SSN/phone/IPv4/street) + the IP filters + the redaction-free fence-aware scan is the engine, the grc scanned-suffix set + exempt-file set + example-domain allow-list are wrapper config; scan takes example_domains as a keyword so the engine carries no grc allow-list; the engine is added to the exempt set defensively, mirroring the wrapper's self-exemption)"
+
+[[clauses]]
+id = "internal-reference"
+title = "Internal reference (content exposes no internal-deployment hostname, cloud region, or non-documentation subnet)"
+source = "core/rules/internal-reference.md"
+origin = "grc_library tools/lint-internal-references.py gate rationale (new clause in SHARED/SAFETY-lane PR-39; third SAFETY-mapped transfer; generated AI-facing rule via gensrc, kind=file, like pii-content; the 5 detection regexes + the documentation-subnet filter + the fence-aware scan is the engine, the grc scanned-suffix set + exempt-file set are wrapper config; the engine is added to the exempt set defensively, mirroring the wrapper's self-exemption)"

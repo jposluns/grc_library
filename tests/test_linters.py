@@ -19708,5 +19708,51 @@ class PiiInContentEngineTransferTests(unittest.TestCase):
         self.assertTrue(any(f[1] == "postal address fragment" for f in found))
 
 
+
+class InternalReferencesEngineTransferTests(unittest.TestCase):
+    """gate 23 engine after the SHARED/SAFETY-lane PR-39 transfer (Pattern A):
+    the detection regexes + subnet filter + scan live in the pack engine; the
+    wrapper keeps a module-global scan shim + the grc scope config."""
+
+    def setUp(self):
+        self.wrapper = load_linter_module("tools/lint-internal-references.py", "_intref_engine")
+        self.engine = self.wrapper._engine()
+
+    def test_check_moved_to_engine(self):
+        for name in ("INTERNAL_TLD_RE", "AWS_REGION_RE", "AZURE_REGION_RE",
+                     "GCP_REGION_RE", "CIDR_RE", "is_documentation_subnet", "scan"):
+            self.assertTrue(hasattr(self.engine, name), f"engine missing {name}")
+        for name in ("INTERNAL_TLD_RE", "AWS_REGION_RE", "CIDR_RE", "is_documentation_subnet"):
+            self.assertFalse(hasattr(self.wrapper, name),
+                             f"wrapper should not redefine {name} (moved to engine)")
+        self.assertTrue(hasattr(self.wrapper, "scan"))
+        self.assertTrue(hasattr(self.wrapper, "SCAN_SUFFIXES"))
+        self.assertTrue(hasattr(self.wrapper, "EXEMPT_FILES"))
+
+    def _scan(self, doc):
+        from unittest.mock import patch
+        with patch.object(self.engine, "read_text_safe", return_value=doc):
+            return self.engine.scan(REPO_ROOT / "risk/d.md")
+
+    def test_internal_hostname_flagged(self):
+        found = self._scan("connect to db01.corp for the service.\n")
+        self.assertTrue(any(f[1] == "internal hostname" for f in found))
+
+    def test_hostname_filename_not_flagged(self):
+        # a .local before a file extension is a filename, not a hostname
+        self.assertEqual(self._scan("edit the settings.local.json file.\n"), [])
+
+    def test_cloud_region_flagged(self):
+        found = self._scan("deploy to us-east-1 and westeurope regions.\n")
+        labs = [f[1] for f in found]
+        self.assertIn("AWS region identifier", labs)
+        self.assertIn("Azure region identifier", labs)
+
+    def test_documentation_cidr_skipped_public_flagged(self):
+        self.assertEqual(self._scan("doc net 192.0.2.0/24 here.\n"), [])   # RFC 5737 doc
+        found = self._scan("prod subnet 8.8.8.0/24 here.\n")
+        self.assertTrue(any(f[1] == "non-documentation CIDR subnet" for f in found))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
