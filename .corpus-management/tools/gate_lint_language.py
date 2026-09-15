@@ -223,15 +223,15 @@ ISATION_PATTERN = re.compile(r"\b[A-Za-z][a-z]*isation(s|al|ally)?\b", re.IGNORE
 # verb's third-person form only by grammar, so the pattern lists the
 # unambiguous inflections.
 
-# Verbatim spans that legitimately carry Commonwealth spellings and are masked
-# out of a line before the three spelling checks run (dash / ensure / heading
-# checks are unaffected). Four classes, each an exact substring: the GDPR
-# Article 25(1) official-text quote (the EU Official Journal English text
-# spells "organisational measures ... pseudonymisation ... minimisation"), the
-# OECD's official English name, the Article 29 Working Party opinion's
-# official title, and the EU / UK "Authorised Economic Operator" customs
-# programme name. Add a span here ONLY for a verbatim quote of an external
-# instrument or an official proper name, never for ordinary prose.
+# Verbatim Commonwealth-spelling spans are masked out of a line before the three
+# spelling checks run (dash / ensure / heading checks are unaffected). The spans
+# themselves live in the ``allowed_commonwealth_spans`` field of the ``language``
+# reference-vocabulary profile (``defaults/grc/language.toml``) since Phase-4 PR-F;
+# add one ONLY for a verbatim quote of an external instrument or an official proper
+# name, never for ordinary prose. The shipped four are the GDPR Article 25(1)
+# official-text quote, the OECD's official English name, the Article 29 Working
+# Party opinion's official title, and the EU / UK "Authorised Economic Operator"
+# customs programme name.
 
 
 def mask_allowed_spans(line: str, spans: tuple[str, ...]) -> str:
