@@ -58,3 +58,10 @@ concern = "placeholders"
 target = "defaults/grc/placeholders.toml"
 title = "Placeholder-leakage markers (ordered regex+label patterns; TODO/TBD/angle-bracket/domains)"
 origin = "grc_library .corpus-management/tools/gate_lint_placeholder_leakage.py PATTERNS, transcribed verbatim in Phase-4 PR-H (nested {regex,ignorecase} tables + label, loader-compiled, order-preserved); the engine was parameterized (run() takes the composed (pattern,label) pairs via placeholder_patterns()) and the wrapper loads via _placeholders_config()"
+
+[[profiles]]
+id = "uncertainty"
+concern = "uncertainty"
+target = "defaults/grc/uncertainty.toml"
+title = "Mandatory-near-uncertainty markers (uncertainty patterns + mandatory alternation + proximity window)"
+origin = "grc_library .corpus-management/tools/gate_lint_shall_near_uncertainty.py UNCERTAINTY_PATTERNS + MANDATORY_PATTERN + WINDOW_LINES, transcribed verbatim in Phase-4 PR-I (patterns as loader-compiled {regex,ignorecase} tables, mandatory stored verbatim to keep its embedded spaces, window as an int); the engine was parameterized (run() takes an UncertaintyVocabulary) and the wrapper loads via _uncertainty_config()"
