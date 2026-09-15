@@ -196,3 +196,10 @@ kind = "file"
 sources = ["core/rules/internal-reference.md"]
 target = ".claude/rules/corpus-management/internal-reference.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "external-link-domain"
+kind = "file"
+sources = ["core/rules/external-link-domain.md"]
+target = ".claude/rules/corpus-management/external-link-domain.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]

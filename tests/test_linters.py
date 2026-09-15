@@ -19754,5 +19754,47 @@ class InternalReferencesEngineTransferTests(unittest.TestCase):
         self.assertTrue(any(f[1] == "non-documentation CIDR subnet" for f in found))
 
 
+
+class ExternalLinkDomainsEngineTransferTests(unittest.TestCase):
+    """gate 24 engine after the SHARED/SAFETY-lane PR-40 transfer (Pattern A):
+    URL_RE + is_allowed + scan live in the pack engine; the wrapper keeps a
+    module-global scan shim + the grc scope config + the ALLOW_LIST (passed to
+    the engine as a keyword)."""
+
+    def setUp(self):
+        self.wrapper = load_linter_module("tools/lint-external-link-domains.py", "_extlink_engine")
+        self.engine = self.wrapper._engine()
+
+    def test_check_moved_to_engine(self):
+        for name in ("URL_RE", "is_allowed", "scan"):
+            self.assertTrue(hasattr(self.engine, name), f"engine missing {name}")
+        self.assertFalse(hasattr(self.wrapper, "URL_RE"), "wrapper should not redefine URL_RE (moved)")
+        self.assertFalse(hasattr(self.wrapper, "is_allowed"), "wrapper should not redefine is_allowed (moved)")
+        self.assertTrue(hasattr(self.wrapper, "scan"))          # the shim
+        self.assertTrue(hasattr(self.wrapper, "ALLOW_LIST"))    # grc allow-list stays wrapper-side
+        self.assertTrue(hasattr(self.wrapper, "EXEMPT_FILES"))
+
+    def _scan(self, doc):
+        from unittest.mock import patch
+        with patch.object(self.engine, "read_text_safe", return_value=doc):
+            return self.engine.scan(REPO_ROOT / "risk/d.md", allow_list=self.wrapper.ALLOW_LIST)
+
+    def test_allowlisted_url_clean(self):
+        # github.com is on the grc allow-list
+        self.assertEqual(self._scan("see https://github.com/x/y for details.\n"), [])
+
+    def test_subdomain_of_allowlisted_clean(self):
+        self.assertEqual(self._scan("docs at https://docs.github.com/en here.\n"), [])
+
+    def test_nonallowlisted_url_flagged(self):
+        found = self._scan("visit https://evil-" + "unknown-" + "domain.example/x here.\n")
+        self.assertEqual(len(found), 1)
+        self.assertIn("domain.example", found[0][1])
+
+    def test_is_allowed_takes_allow_list_keyword(self):
+        self.assertTrue(self.engine.is_allowed("github.com", allow_list=self.wrapper.ALLOW_LIST))
+        self.assertFalse(self.engine.is_allowed("nope-" + "unknown.example", allow_list=self.wrapper.ALLOW_LIST))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -164,3 +164,9 @@ id = "internal-reference"
 title = "Internal reference (content exposes no internal-deployment hostname, cloud region, or non-documentation subnet)"
 source = "core/rules/internal-reference.md"
 origin = "grc_library tools/lint-internal-references.py gate rationale (new clause in SHARED/SAFETY-lane PR-39; third SAFETY-mapped transfer; generated AI-facing rule via gensrc, kind=file, like pii-content; the 5 detection regexes + the documentation-subnet filter + the fence-aware scan is the engine, the grc scanned-suffix set + exempt-file set are wrapper config; the engine is added to the exempt set defensively, mirroring the wrapper's self-exemption)"
+
+[[clauses]]
+id = "external-link-domain"
+title = "External-link domain (every external http(s) URL's host is on the project publisher allow-list)"
+source = "core/rules/external-link-domain.md"
+origin = "grc_library tools/lint-external-link-domains.py gate rationale (new clause in SHARED/SAFETY-lane PR-40; fourth SAFETY-mapped transfer; generated AI-facing rule via gensrc, kind=file, like internal-reference; the URL regex + host-matching is_allowed + the fence-aware scan is the engine, the grc publisher allow-list + scanned-suffix set + exempt-file set are wrapper config; scan/is_allowed take allow_list as a keyword so the engine carries no grc allow-list; the engine is added to the exempt set defensively)"

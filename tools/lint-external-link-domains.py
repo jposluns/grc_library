@@ -22,13 +22,13 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
-import re
 import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import iter_non_code_lines, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
 from lint_common import REPO_ROOT, iter_targets  # noqa: E402  # grc-config/store, stays local
+
+PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
 DEFAULT_PATHS = [str(REPO_ROOT)]
 
@@ -43,9 +43,10 @@ EXEMPT_FILES = {
     # are the diverse issuer domains of the reference base, not corpus prose links,
     # so the allow-list does not apply (1.19.7 (closing PR #1007)).
     "reference-acquisition-manifest.md",
+    # The pack-owned engine (gate_lint_external_link_domains.py) holds URL_RE +
+    # is_allowed + scan; exempt it so its own regex source is not scanned.
+    "gate_lint_external_link_domains.py",
 }
-
-URL_RE = re.compile(r"https?://([a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})(?::\d+)?(?:/[^\s)\]]*)?")
 
 # Allow-listed domains and parent-domain suffixes. A URL matches if its
 # host is in this set or is a subdomain of any entry.
@@ -165,31 +166,24 @@ ALLOW_LIST = {
 }
 
 
-def is_allowed(host: str) -> bool:
-    h = host.lower().rstrip(".")
-    if h in ALLOW_LIST:
-        return True
-    # Subdomain match: any parent suffix in the allow-list.
-    parts = h.split(".")
-    for i in range(len(parts)):
-        suffix = ".".join(parts[i:])
-        if suffix in ALLOW_LIST:
-            return True
-    return False
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_external_link_domains  # the pack-owned engine (source of record)
+    return gate_lint_external_link_domains
 
 
 def scan(path: Path) -> list[tuple[int, str]]:
-    findings: list[tuple[int, str]] = []
-    text = read_text_safe(path)
-    if text is None:
-        return findings
-    for lineno, line in iter_non_code_lines(text):
-        for m in URL_RE.finditer(line):
-            host = m.group(1)
-            if is_allowed(host):
-                continue
-            findings.append((lineno, host))
-    return findings
+    """Thin shim delegating to the pack engine's pure check.
+
+    Kept in the wrapper as a module-global because the scan-scope regression
+    test patches ``mod.scan`` and runs ``main``; URL_RE + is_allowed + the check
+    live in the pack engine. The engine takes the grc publisher allow-list as a
+    keyword; the wrapper supplies it here.
+    """
+    return _engine().scan(path, allow_list=ALLOW_LIST)
 
 
 def main(argv: list[str]) -> int:
