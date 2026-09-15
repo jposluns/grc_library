@@ -235,7 +235,7 @@ class LanguageLinterTests(LinterTestCase):
     def test_ise_third_person_inflection_flagged(self) -> None:
         # Regression for the #480 /validate-pr finding: the third-person
         # singular `-ises` inflection (e.g. "recognises") must be flagged.
-        # Before the ISE_PATTERN widening it listed only -ise / -ised / -ising
+        # Before the ise_stems (formerly ISE_PATTERN) widening it listed only -ise / -ised / -ising
         # and let the -ises form through.
         fixture = self.make_fixture(
             "standard-ises.md",
@@ -256,7 +256,7 @@ class LanguageLinterTests(LinterTestCase):
         self.assertLinterFails(result, "isation")
 
     def test_isation_allowed_word_passes(self) -> None:
-        # Words that are -isation in every dialect (ISATION_ALLOWED_WORDS)
+        # Words that are -isation in every dialect (the isation_allowed_words profile field)
         # are not flagged.
         fixture = self.make_fixture(
             "standard-improvisation.md",
@@ -304,7 +304,7 @@ class LanguageLinterTests(LinterTestCase):
         self.assertLinterFails(result, "ise")
 
     def test_allowed_commonwealth_span_masked(self) -> None:
-        # A verbatim external-instrument quote in ALLOWED_COMMONWEALTH_SPANS
+        # A verbatim external-instrument quote in the allowed_commonwealth_spans profile field
         # is masked out of the spelling checks (the GDPR Article 25(1)
         # official English text spells 'organisational').
         fixture = self.make_fixture(
@@ -329,7 +329,7 @@ class LanguageLinterTests(LinterTestCase):
     def test_verbatim_ensure_title_exempt(self) -> None:
         # The 2026-07-02 verbatim-external-title exemption: the canonical
         # COBIT 2019 MEA01.05 practice title carries a bare imperative
-        # "Ensure" and is masked (VERBATIM_ENSURE_TITLES), while a bare
+        # "Ensure" and is masked (the verbatim_ensure_titles profile field), while a bare
         # "ensure" elsewhere on the same line still fails.
         fixture = self.make_fixture(
             "standard-verbatim-ensure.md",
@@ -18874,6 +18874,60 @@ class ProfileLoaderTests(unittest.TestCase):
         self.assertEqual(synonyms, {"st": "sentinel type"})
         self.assertEqual(doctypes, {"sentineltype"})
 
+    def test_live_language_profile_loads(self):
+        prof = self.mod.load("language")
+        self.assertEqual(set(prof), {
+            "ise_stems", "isation_allowed_words", "yse_forms",
+            "allowed_commonwealth_spans", "verbatim_ensure_titles",
+            "lowercase_project_names",
+        })
+        for value in prof.values():
+            self.assertIsInstance(value, list)
+            self.assertTrue(value)
+            self.assertTrue(all(isinstance(v, str) for v in value))
+
+    def test_language_profile_drives_wrapper_config(self):
+        wrapper = load_linter_module("tools/lint-language.py", "_language_wiring")
+        prof = self.mod.load("language")
+        cfg = wrapper._language_config()
+        self.assertEqual(tuple(cfg), (
+            tuple(prof["ise_stems"]),
+            frozenset(prof["isation_allowed_words"]),
+            tuple(prof["yse_forms"]),
+            tuple(prof["allowed_commonwealth_spans"]),
+            tuple(prof["verbatim_ensure_titles"]),
+            set(prof["lowercase_project_names"]),
+        ))
+        self.assertEqual(
+            tuple(type(v) for v in cfg),
+            (tuple, frozenset, tuple, tuple, tuple, set))
+        for name in ("_ISE_STEMS", "ISE_PATTERN", "ISATION_ALLOWED_WORDS",
+                     "YSE_PATTERN", "ALLOWED_COMMONWEALTH_SPANS",
+                     "VERBATIM_ENSURE_TITLES", "LOWERCASE_PROJECT_NAMES"):
+            self.assertFalse(hasattr(wrapper._engine(), name))
+
+    def test_language_config_is_dynamic_and_lazy(self):
+        from unittest.mock import patch
+        synthetic = {
+            "ise_stems": ["sentinelise"], "isation_allowed_words": ["organisation"],
+            "yse_forms": ["sentinelyse"], "allowed_commonwealth_spans": ["organised"],
+            "verbatim_ensure_titles": ["ensure x"], "lowercase_project_names": ["sentinel"],
+        }
+        pack_tools = str(REPO_ROOT / ".corpus-management" / "tools")
+        if pack_tools not in sys.path:
+            sys.path.insert(0, pack_tools)
+        import profile_loader as pl_real
+        with patch.object(pl_real, "load", return_value=synthetic) as loaded:
+            wrapper = load_linter_module("tools/lint-language.py", "_language_dynamic")
+            loaded.assert_not_called()  # lazy: not loaded at import
+            with patch.object(wrapper._engine(), "run", return_value=17) as run:
+                self.assertEqual(wrapper.main([]), 17)
+            loaded.assert_called_once_with("language")
+        cfg = run.call_args.kwargs["vocab"]
+        self.assertEqual(tuple(cfg), (
+            ("sentinelise",), frozenset({"organisation"}), ("sentinelyse",),
+            ("organised",), ("ensure x",), {"sentinel"}))
+
 
     def test_malformed_adopter_path_fails_closed(self):
         # F1: a directory (or broken symlink) at <adopter_dir>/<concern>.toml is a
@@ -19020,6 +19074,75 @@ class CorpusManagementProfilesRegisterTests(unittest.TestCase):
         r = self._check(root)
         self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
         self.assertIn("collides with a", r.stdout)
+
+
+class LanguageEngineProfileTests(unittest.TestCase):
+    """gate 2 engine behaviour after PR-F parameterization: every spelling form
+    detected, exclusions scoped, empty/dynamic vocab, fail-closed on bad data."""
+
+    def setUp(self):
+        self.wrapper = load_linter_module("tools/lint-language.py", "_language_engine")
+        self.engine = self.wrapper._engine()
+        self.vocab = self.wrapper._language_config()
+        self.language = self.engine.compile_language(self.vocab)
+
+    def scan(self, text, *, generator=False, language=None):
+        from unittest.mock import patch
+        language = self.language if language is None else language
+        source = "value = " + repr(text) if generator else text
+        with patch.object(self.engine, "read_text_safe", return_value=source):
+            if generator:
+                return self.engine.check_generator_source(
+                    REPO_ROOT / "tools/build-fixture.py", language=language)
+            return self.engine.check_file(
+                REPO_ROOT / "tests/tmp/language.md", REPO_ROOT, language=language)
+
+    def test_every_spelling_form_and_both_dashes(self):
+        cases = []
+        for stem in self.vocab.ise_stems:
+            cases.extend(("ise", w) for w in (
+                stem, stem + "s", stem + "d", stem[:-1] + "ing",
+                stem[:-1] + "able", stem + "r", stem + "rs"))
+        cases.extend(("yse", w) for w in self.vocab.yse_forms)
+        cases.extend(("isation", w) for w in (
+            "organisation", "organisations", "organisational", "organisationally"))
+        cases.extend(("dash", w) for w in ("\u2014", "\u2013"))
+        for kind, word in cases:
+            for value in (word, word.upper()):
+                for generator in (False, True):
+                    with self.subTest(value=value, generator=generator):
+                        self.assertEqual(self.scan(value, generator=generator),
+                                         [(kind, 1, value)])
+
+    def test_exclusions_are_scoped(self):
+        for generator in (False, True):
+            for value in ("analyses", "analysis", "practise", "organization",
+                          *self.vocab.isation_allowed_words,
+                          *self.vocab.allowed_commonwealth_spans,
+                          *self.vocab.verbatim_ensure_titles):
+                self.assertEqual(self.scan(value, generator=generator), [])
+
+    def test_empty_and_dynamic_vocabulary(self):
+        raw = {k: [] for k in self.vocab._fields}
+        empty = self.engine.compile_language(self.engine.language_vocabulary(**raw))
+        self.assertEqual(self.scan("organised analysed", language=empty), [])
+        self.assertEqual(
+            [r[0] for r in self.scan("organisation \u2014 ensure x", language=empty)],
+            ["dash", "isation", "ensure"])
+        raw.update(ise_stems=["sentinelise"], yse_forms=["sentinelyse"],
+                   isation_allowed_words=["organisation"],
+                   allowed_commonwealth_spans=["organised"],
+                   verbatim_ensure_titles=["ensure x"], lowercase_project_names=["sentinel"])
+        dyn = self.engine.compile_language(self.engine.language_vocabulary(**raw))
+        self.assertEqual(self.scan("sentinelised sentinelyse", language=dyn),
+                         [("ise", 1, "sentinelised"), ("yse", 1, "sentinelyse")])
+        self.assertEqual(self.scan("## sentinel title", language=dyn), [])
+
+    def test_bad_arrays_fail_closed(self):
+        raw = {k: [] for k in self.vocab._fields}
+        for bad in ("word", [1], [""]):
+            with self.assertRaises(ValueError):
+                self.engine.language_vocabulary(**dict(raw, ise_stems=bad))
 
 
 if __name__ == "__main__":
