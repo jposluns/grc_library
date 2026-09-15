@@ -133,3 +133,8 @@ target = ".claude/rules/corpus-management/secret-content.md"
 rule = "pii-content"
 kind = "file"
 target = ".claude/rules/corpus-management/pii-content.md"
+
+[[owned_targets]]
+rule = "internal-reference"
+kind = "file"
+target = ".claude/rules/corpus-management/internal-reference.md"
