@@ -11,7 +11,8 @@ Engine/wrapper split (compile PR-11): this engine carries the PURE check
 (``DOCTYPE_RE``, ``HEADING_RE``, ``extract_doctype``, ``extract_headings``, ``scan``)
 and a ``run`` that groups + reports; the project wrapper
 (``tools/lint-required-sections.py``) supplies the grc-specific section model
-(``REQUIRED_SECTIONS``), the target selection (the exempt-file set, the narrative /
+(composed in ``_sections_config()`` from the ``sections`` reference-vocabulary
+profile since Phase-4 PR-C), the target selection (the exempt-file set, the narrative /
 default-exempt scope predicates), and the repository root, passing the model and root
 in. This engine holds no project section-model or scan-scope policy.
 

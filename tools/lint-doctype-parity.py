@@ -173,7 +173,8 @@ def main() -> int:
     rs_bad = rs_keys - names
     if rs_bad:
         failures.append(
-            "tools/lint-required-sections.py REQUIRED_SECTIONS has key(s) not in "
+            "tools/lint-required-sections.py section model (_sections_config, from "
+            "defaults/grc/sections.toml) has doctype key(s) not in "
             f"lint-metadata.py ALLOWED_TYPES: {sorted(rs_bad)}"
         )
 
