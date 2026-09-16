@@ -52,39 +52,17 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
-import re
 import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import iter_non_code_lines, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
 from lint_common import DEFAULT_EXEMPT_DIRS, is_narrative_root, REPO_ROOT, iter_markdown_targets  # noqa: E402  # grc-config/store, stays local
+
+PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
 DEFAULT_PATHS = [str(REPO_ROOT)]
 
 GLOSSARY = REPO_ROOT / "governance" / "register-glossary.md"
-
-# Glossary entry: | **ACRONYM** | Expansion. ... |
-# The acronym-capture group is digit-initial-tolerant ([A-Z0-9] first
-# char) so numeronym rows such as **3PL** / **2FA** are parsed rather
-# than silently skipped.
-GLOSSARY_ROW_RE = re.compile(r"^\|\s*\*\*([A-Z0-9][A-Z0-9\-./]{1,8})\*\*\s*\|\s*(.+?)\s*\|", re.MULTILINE)
-
-# Inline acronym definition: "Some Words Or Phrase (ACRONYM)"
-# The acronym is 2-6 letters / digits / hyphens and may start with a
-# digit ([A-Z0-9] first char) so numeronyms such as ``3PL`` / ``2FA``
-# are recognized. The expansion phrase must be Title-Case (each word
-# capitalized): that requirement is the false-positive control
-# documented in the module docstring, not an oversight.
-INLINE_DEF_RE = re.compile(
-    r"\b((?:[A-Z][A-Za-z0-9'\-]+\s+){1,8}[A-Z][A-Za-z0-9'\-]+)\s+\(([A-Z0-9][A-Z0-9\-]{1,5})\)"
-)
-
-# Stopwords to ignore when comparing expansions
-STOPWORDS = {
-    "a", "an", "and", "or", "of", "for", "the", "in", "on", "to",
-    "by", "with", "at", "from", "into", "via", "per", "as",
-}
 
 EXEMPT_FILES = {
     # The glossary itself defines acronym ↔ expansion pairs.
@@ -95,63 +73,36 @@ EXEMPT_FILES = {
     # verbatim source titles/issuers, not authored prose (1.19.7 (closing PR #1007)).
     "reference-acquisition-manifest.md",
 }
-# Phase 23.62 removed `lint-acronym-consistency.py` from this set: the
-# linter uses `iter_markdown_targets` and only scans `.md`, so the
-# .py entry was unreachable.
+
+
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_acronym_consistency  # the pack-owned engine (source of record)
+    return gate_lint_acronym_consistency
 
 
 def parse_glossary() -> dict[str, set[str]]:
-    """Return acronym -> set of significant words in its glossary expansion."""
-    out: dict[str, set[str]] = {}
-    if not GLOSSARY.exists():
-        return out
-    text = GLOSSARY.read_text(encoding="utf-8")
-    for m in GLOSSARY_ROW_RE.finditer(text):
-        acr = m.group(1)
-        # Use the whole expansion cell (including parenthetical alternate
-        # expansions) so the linter accepts overloaded acronyms.
-        expansion = m.group(2)
-        # Strip markdown formatting
-        expansion = re.sub(r"\*+", "", expansion)
-        tokens = re.findall(r"[A-Za-z][A-Za-z0-9'\-]*", expansion.lower())
-        sig = {t for t in tokens if t not in STOPWORDS and len(t) > 1}
-        if acr in out:
-            out[acr] |= sig
-        else:
-            out[acr] = sig
-    return out
+    """Thin shim delegating to the pack engine, supplying the grc glossary path.
+
+    Kept in the wrapper as a module-global because the scan-scope regression test
+    patches ``mod.parse_glossary``; the parsing logic lives in the pack engine. The
+    grc glossary-register PATH (``GLOSSARY``, rebindable via ``main --root``) is the
+    wrapper's to supply.
+    """
+    return _engine().parse_glossary(GLOSSARY)
 
 
 def scan(path: Path, glossary: dict[str, set[str]]) -> list[tuple[int, str, str, str]]:
-    findings: list[tuple[int, str, str, str]] = []
-    text = read_text_safe(path)
-    if text is None:
-        return findings
-    for lineno, line in iter_non_code_lines(text):
-        for m in INLINE_DEF_RE.finditer(line):
-            expansion_phrase = m.group(1)
-            acr = m.group(2)
-            if acr not in glossary:
-                continue
-            inline_sig = {
-                t for t in re.findall(r"[A-Za-z][A-Za-z0-9'\-]*", expansion_phrase.lower())
-                if t not in STOPWORDS and len(t) > 1
-            }
-            glossary_sig = glossary[acr]
-            if not inline_sig or not glossary_sig:
-                continue
-            # If at least one significant word overlaps, accept.
-            if inline_sig & glossary_sig:
-                continue
-            findings.append(
-                (
-                    lineno,
-                    acr,
-                    expansion_phrase,
-                    f"inline expansion words {sorted(inline_sig)} do not overlap glossary words {sorted(glossary_sig)}",
-                )
-            )
-    return findings
+    """Thin shim delegating to the pack engine's pure check.
+
+    Kept in the wrapper as a module-global because the scan-scope regression test
+    patches ``mod.scan`` and runs ``main``; the check (INLINE_DEF_RE, STOPWORDS,
+    the overlap logic) lives in the pack engine.
+    """
+    return _engine().scan(path, glossary)
 
 
 def main(argv: list[str]) -> int:

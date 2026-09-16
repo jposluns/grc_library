@@ -143,3 +143,8 @@ target = ".claude/rules/corpus-management/internal-reference.md"
 rule = "external-link-domain"
 kind = "file"
 target = ".claude/rules/corpus-management/external-link-domain.md"
+
+[[owned_targets]]
+rule = "acronym-consistency"
+kind = "file"
+target = ".claude/rules/corpus-management/acronym-consistency.md"

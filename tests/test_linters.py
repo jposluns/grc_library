@@ -19796,5 +19796,57 @@ class ExternalLinkDomainsEngineTransferTests(unittest.TestCase):
         self.assertFalse(self.engine.is_allowed("nope-" + "unknown.example", allow_list=self.wrapper.ALLOW_LIST))
 
 
+
+class AcronymConsistencyEngineTransferTests(unittest.TestCase):
+    """gate 20 engine after the SHARED/SAFETY-lane PR-41 transfer (Pattern A + 2nd
+    seam): the regexes/stopwords + parse_glossary (path-parameterized) + scan live
+    in the pack engine; the wrapper keeps TWO module-global shims (parse_glossary,
+    scan) because the scan-scope test patches both."""
+
+    def setUp(self):
+        self.wrapper = load_linter_module("tools/lint-acronym-consistency.py", "_acronym_engine")
+        self.engine = self.wrapper._engine()
+
+    def test_check_moved_to_engine(self):
+        for name in ("GLOSSARY_ROW_RE", "INLINE_DEF_RE", "STOPWORDS", "parse_glossary", "scan"):
+            self.assertTrue(hasattr(self.engine, name), f"engine missing {name}")
+        for name in ("GLOSSARY_ROW_RE", "INLINE_DEF_RE", "STOPWORDS"):
+            self.assertFalse(hasattr(self.wrapper, name),
+                             f"wrapper should not redefine {name} (moved to engine)")
+        # BOTH shims stay wrapper module-globals (the scope test patches both).
+        self.assertTrue(hasattr(self.wrapper, "parse_glossary"))
+        self.assertTrue(hasattr(self.wrapper, "scan"))
+        self.assertTrue(hasattr(self.wrapper, "GLOSSARY"))  # grc glossary path stays wrapper-side
+
+    def test_parse_glossary_path_parameterized(self):
+        import tempfile, os
+        with tempfile.TemporaryDirectory() as d:
+            gp = os.path.join(d, "g.md")
+            open(gp, "w").write("| **API** | Application Programming Interface |\n| **3PL** | Third Party Logistics |\n")
+            g = self.engine.parse_glossary(Path(gp))
+        self.assertIn("API", g)
+        self.assertIn("application", g["API"])
+        self.assertIn("3PL", g)  # numeronym parsed
+        # missing file -> empty
+        self.assertEqual(self.engine.parse_glossary(Path("/no/such/glossary.md")), {})
+
+    def test_scan_overlap_accepted_mismatch_flagged(self):
+        from unittest.mock import patch
+        glossary = {"API": {"application", "programming", "interface"}}
+        # overlapping inline expansion -> accepted
+        with patch.object(self.engine, "read_text_safe", return_value="The Application Programming Interface (API) here.\n"):
+            self.assertEqual(self.engine.scan(Path("d.md"), glossary), [])
+        # non-overlapping inline expansion -> flagged
+        with patch.object(self.engine, "read_text_safe", return_value="A Completely Different Meaning (API) here.\n"):
+            found = self.engine.scan(Path("d.md"), glossary)
+        self.assertEqual(len(found), 1)
+        self.assertEqual(found[0][1], "API")
+
+    def test_scan_acronym_not_in_glossary_skipped(self):
+        from unittest.mock import patch
+        with patch.object(self.engine, "read_text_safe", return_value="Some Made Up Thing (XYZ) here.\n"):
+            self.assertEqual(self.engine.scan(Path("d.md"), {"API": {"application"}}), [])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

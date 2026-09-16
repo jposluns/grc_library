@@ -170,3 +170,9 @@ id = "external-link-domain"
 title = "External-link domain (every external http(s) URL's host is on the project publisher allow-list)"
 source = "core/rules/external-link-domain.md"
 origin = "grc_library tools/lint-external-link-domains.py gate rationale (new clause in SHARED/SAFETY-lane PR-40; fourth SAFETY-mapped transfer; generated AI-facing rule via gensrc, kind=file, like internal-reference; the URL regex + host-matching is_allowed + the fence-aware scan is the engine, the grc publisher allow-list + scanned-suffix set + exempt-file set are wrapper config; scan/is_allowed take allow_list as a keyword so the engine carries no grc allow-list; the engine is added to the exempt set defensively)"
+
+[[clauses]]
+id = "acronym-consistency"
+title = "Acronym consistency (an inline acronym definition overlaps the glossary expansion by at least one significant word)"
+source = "core/rules/acronym-consistency.md"
+origin = "grc_library tools/lint-acronym-consistency.py gate rationale (new clause in SHARED/SAFETY-lane PR-41, the first 2nd-seam SHARED transfer; generated AI-facing rule via gensrc, kind=file, like external-link-domain; the GLOSSARY_ROW_RE + INLINE_DEF_RE + STOPWORDS + parse_glossary + the overlap scan is the engine, the grc glossary-register path + scan scope + exempt-file set are wrapper config; parse_glossary takes the glossary path as a parameter and both parse_glossary and scan stay wrapper module-global shims because the scan-scope test patches BOTH)"

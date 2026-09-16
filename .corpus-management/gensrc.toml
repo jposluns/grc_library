@@ -203,3 +203,10 @@ kind = "file"
 sources = ["core/rules/external-link-domain.md"]
 target = ".claude/rules/corpus-management/external-link-domain.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "acronym-consistency"
+kind = "file"
+sources = ["core/rules/acronym-consistency.md"]
+target = ".claude/rules/corpus-management/acronym-consistency.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]
