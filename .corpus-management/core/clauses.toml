@@ -194,3 +194,9 @@ id = "metadata-line-breaks"
 title = "Metadata-block line breaks (each non-last line of a >=2-line **Field:** run carries a Markdown hard-break marker)"
 source = "core/rules/metadata-line-breaks.md"
 origin = "grc_library tools/lint-metadata-line-breaks.py gate rationale (new clause in the Group-A content-generic transfer lane; generated AI-facing rule via gensrc, kind=file; META_LINE + has_hard_break + scan_file is the engine, the grc scan scope + exempt-file set are wrapper config; the engine .py is out of the .md-only scan scope, so no engine self-exemption is needed)"
+
+[[clauses]]
+id = "orphan-documents"
+title = "Orphan documents (every artefact carries at least one inbound markdown reference)"
+source = "core/rules/orphan-documents.md"
+origin = "grc_library tools/lint-orphan-documents.py gate rationale (new clause in the Group-A content-generic transfer lane; LINK_RE + normalise_link + build_reverse_graph parameterized by repo_root is the engine, the grc artefact policy + scan scope + orphan aggregation are wrapper config)"

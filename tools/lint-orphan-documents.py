@@ -1,44 +1,35 @@
 #!/usr/bin/env python3
-"""Detect orphan documents: artefacts with zero inbound references.
+"""Orphan-document audit (grc wrapper over the pack-owned engine).
 
-A document that exists in the repo but is never referenced by any
-other document is either dead weight or unintentionally hidden from
-adopters. This linter builds the reverse-reference graph and flags
-artefacts with no inbound links.
+Detect artefact documents with zero inbound references: an orphan artefact is
+unreachable from the library's reference graph. Either link to it from a relevant
+register/README/related document, or remove it if no longer needed. Entry-point
+documents reached by filename convention (root READMEs, CHANGELOG, TODO, RESUME,
+the reference manifest, domain READMEs, worklists) and pack files are exempt.
 
-Entry-point documents (the main README, NOTICE, AUTHORS, CHANGELOG,
-TODO, TODO-REFERENCE, CONTRIBUTING, SECURITY, RESUME) are exempt because they are
-reached by filename convention rather than by inbound link; the generated
-reference-acquisition-manifest.md is separately exempt as a derived artefact. LICENSE and
-CITATION.cff were previously listed but removed in Phase 23.62
-since the scanner skips non-.md files and they are auto-exempt.
-
-The root-anchored executive/ narrative tree is excluded via is_narrative_root
-(P-1.25 scan-root split); a nested dir named executive is still scanned.
-Domain READMEs are exempt because they are reached by directory
-navigation. Worklists are exempt because they are working artefacts.
-The ``guardrails`` pack directory is also exempt: rule files there are
-loaded by tooling, not referenced by markdown documents.
-
-Usage:
-    python3 tools/lint-orphan-documents.py
+Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE graph
+machinery (``LINK_RE``, ``normalise_link``, ``build_reverse_graph``, parameterized
+by ``repo_root``) lives in the pack-owned engine
+(``.corpus-management/tools/gate_lint_orphan_documents.py``, source of record). This
+wrapper supplies the grc scan scope + artefact policy (``is_artefact`` /
+``find_artefacts`` / ``find_all_markdown`` / ``ALWAYS_EXEMPT`` / ``EXEMPT_DIR_PARTS``)
+and the orphan aggregation + reporting in ``main``.
 
 Exit codes:
-    0   no orphans (every artefact has at least one inbound reference)
-    1   one or more orphan documents detected
+    0   every artefact has at least one inbound reference.
+    1   one or more orphan artefacts with zero inbound references.
 """
 
 from __future__ import annotations
 
 import argparse
-import re
 import sys
-from collections import defaultdict
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import iter_non_code_lines, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
 from lint_common import is_default_exempt_root, DEFAULT_EXEMPT_DIRS, is_narrative_root, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+
+PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
 DEFAULT_PATHS = [str(REPO_ROOT)]
 
@@ -64,9 +55,14 @@ ALWAYS_EXEMPT = {
     "reference-acquisition-manifest.md",
 }
 
-# Reference patterns: markdown links to local files.
-# `[text](path)` or `[text](path#anchor)`. We extract the path.
-LINK_RE = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
+
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_orphan_documents  # the pack-owned engine (source of record)
+    return gate_lint_orphan_documents
 
 
 def is_artefact(path: Path) -> bool:
@@ -107,43 +103,9 @@ def find_all_markdown() -> list[Path]:
     ]
 
 
-def normalise_link(referrer: Path, target_text: str) -> Path | None:
-    """Resolve a markdown link target to a repo-relative Path, or None."""
-    # Strip anchor
-    if "#" in target_text:
-        target_text = target_text.split("#", 1)[0]
-    target_text = target_text.strip()
-    if not target_text:
-        return None
-    # Skip external
-    if target_text.startswith(("http://", "https://", "mailto:", "ftp://")):
-        return None
-    base = referrer.parent
-    try:
-        resolved = (base / target_text).resolve()
-    except (OSError, ValueError):
-        return None
-    try:
-        rel = resolved.relative_to(REPO_ROOT)
-    except ValueError:
-        return None
-    return REPO_ROOT / rel
-
-
 def build_reverse_graph(all_md: list[Path]) -> dict[Path, set[Path]]:
-    """Return {referenced_path -> {set of referrers}}."""
-    rev: dict[Path, set[Path]] = defaultdict(set)
-    for f in all_md:
-        text = read_text_safe(f)
-        if text is None:
-            continue
-        for _lineno, line in iter_non_code_lines(text):
-            for m in LINK_RE.finditer(line):
-                target = normalise_link(f, m.group(1))
-                if target is None:
-                    continue
-                rev[target].add(f)
-    return rev
+    """Thin shim delegating to the pack engine (supplying the grc REPO_ROOT)."""
+    return _engine().build_reverse_graph(all_md, REPO_ROOT)
 
 
 def main(argv: list[str]) -> int:

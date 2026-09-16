@@ -254,3 +254,11 @@ source = "tools/gate_lint_metadata_line_breaks.py"
 enforces = "metadata-line-breaks"
 entry_point = "tools/lint-metadata-line-breaks.py"
 origin = "grc_library tools/lint-metadata-line-breaks.py, grc gate 30 (engine transferred in the Group-A content-generic lane via Pattern A; META_LINE + has_hard_break + scan_file moved verbatim to the pack engine; the wrapper keeps main (verbatim) + the grc scan scope (DEFAULT_TARGETS incl the splatted AUDITED_DOMAIN_DIRS + iter_target_files) + a module-global scan_file shim delegating to the engine so the scan-scope test (patches mod.scan_file + runs main) still intercepts; the engine is scope-free and repository-root-free. aiqt_corpus import guard.)"
+
+[[gates]]
+id = "lint-orphan-documents"
+title = "Orphan-document audit"
+source = "tools/gate_lint_orphan_documents.py"
+enforces = "orphan-documents"
+entry_point = "tools/lint-orphan-documents.py"
+origin = "grc_library tools/lint-orphan-documents.py, grc gate 26 (engine transferred in the Group-A content-generic lane via Pattern A; LINK_RE + normalise_link + build_reverse_graph moved to the pack engine, parameterized by repo_root so the engine is repository-root-free; the wrapper keeps the grc artefact policy (is_artefact/find_artefacts/find_all_markdown/ALWAYS_EXEMPT/EXEMPT_DIR_PARTS) + the orphan aggregation + reporting in main + a build_reverse_graph shim supplying REPO_ROOT. aiqt_corpus import guard.)"
