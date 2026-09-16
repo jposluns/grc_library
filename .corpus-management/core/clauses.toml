@@ -188,3 +188,9 @@ id = "cobit-iso31000-citations"
 title = "COBIT and ISO 31000 citation existence (a cited framework code resolves to a real catalogue entry)"
 source = "core/rules/cobit-iso31000-citations.md"
 origin = "grc_library tools/lint-cobit-iso31000-citations.py gate rationale (new clause in SHARED/SAFETY-lane PR-43)"
+
+[[clauses]]
+id = "metadata-line-breaks"
+title = "Metadata-block line breaks (each non-last line of a >=2-line **Field:** run carries a Markdown hard-break marker)"
+source = "core/rules/metadata-line-breaks.md"
+origin = "grc_library tools/lint-metadata-line-breaks.py gate rationale (new clause in the Group-A content-generic transfer lane; generated AI-facing rule via gensrc, kind=file; META_LINE + has_hard_break + scan_file is the engine, the grc scan scope + exempt-file set are wrapper config; the engine .py is out of the .md-only scan scope, so no engine self-exemption is needed)"

@@ -158,3 +158,8 @@ target = ".claude/rules/corpus-management/cross-doc-numbers.md"
 rule = "cobit-iso31000-citations"
 kind = "file"
 target = ".claude/rules/corpus-management/cobit-iso31000-citations.md"
+
+[[owned_targets]]
+rule = "metadata-line-breaks"
+kind = "file"
+target = ".claude/rules/corpus-management/metadata-line-breaks.md"

@@ -246,3 +246,11 @@ source = "tools/gate_lint_cobit_iso31000_citations.py"
 enforces = "cobit-iso31000-citations"
 entry_point = "tools/lint-cobit-iso31000-citations.py"
 origin = "grc_library tools/lint-cobit-iso31000-citations.py, grc gate 61 (engine transferred in SHARED/SAFETY-lane PR-43)"
+
+[[gates]]
+id = "lint-metadata-line-breaks"
+title = "Metadata-block line-break audit"
+source = "tools/gate_lint_metadata_line_breaks.py"
+enforces = "metadata-line-breaks"
+entry_point = "tools/lint-metadata-line-breaks.py"
+origin = "grc_library tools/lint-metadata-line-breaks.py, grc gate 30 (engine transferred in the Group-A content-generic lane via Pattern A; META_LINE + has_hard_break + scan_file moved verbatim to the pack engine; the wrapper keeps main (verbatim) + the grc scan scope (DEFAULT_TARGETS incl the splatted AUDITED_DOMAIN_DIRS + iter_target_files) + a module-global scan_file shim delegating to the engine so the scan-scope test (patches mod.scan_file + runs main) still intercepts; the engine is scope-free and repository-root-free. aiqt_corpus import guard.)"
