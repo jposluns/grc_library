@@ -1,58 +1,45 @@
 #!/usr/bin/env python3
-"""Metadata-block line-break audit.
+"""Metadata-block line-break audit (grc wrapper over the pack-owned engine).
 
-Detect runs of consecutive ``**Field:**`` lines that lack a Markdown
-hard-break marker on the non-last lines of the run. Without a hard-break,
-GitHub renders the metadata block as a single soft-wrapped paragraph
-rather than as a vertical list of labelled facts.
+Detect runs of consecutive ``**Field:**`` lines that lack a Markdown hard-break
+marker on the non-last lines of the run. Without a hard-break, GitHub renders the
+metadata block as a single soft-wrapped paragraph rather than as a vertical list
+of labelled facts. Two hard-break markers are accepted: a trailing backslash or
+two-or-more trailing spaces. Fenced code blocks are skipped, so a metadata-format
+example inside a fence is not a false positive; the last line of a run is exempt.
 
-Markdown supports two hard-break markers, both of which this linter
-treats as valid:
-
-  1. A trailing backslash at end of line (``\\``).
-  2. Two or more trailing spaces.
-
-The library convention is the backslash form (see [`README.md`](README.md)
-metadata block and every governed document); both are accepted to avoid
-flagging documents authored in environments that strip trailing
-backslashes or insert hard breaks via trailing whitespace.
-
-Fenced code blocks are skipped via ``aiqt_corpus.iter_non_code_lines``
-(the vendored generic core), so templates that demonstrate metadata format
-inside ``` ``` ``` regions (e.g. [`CONTRIBUTING.md`](../CONTRIBUTING.md),
-[`docs/worked-example.md`](../docs/worked-example.md)) are not
-false-positives. The last line in a run is exempt from the requirement
-because the convention is that the next line is a blank line or a
-``---`` separator, which already creates a paragraph break.
+Engine/wrapper split (SHARED/SAFETY lane, Pattern A): the PURE check (``META_LINE``,
+``has_hard_break``, ``scan_file``) lives in the pack-owned engine
+(``.corpus-management/tools/gate_lint_metadata_line_breaks.py``, source of record).
+This wrapper supplies the grc scan scope (``DEFAULT_TARGETS`` / ``iter_target_files``)
+and the grouped reporting, and keeps a thin module-global ``scan_file`` shim
+delegating to the engine so the scan-scope regression test (which patches
+``mod.scan_file`` and runs ``main``) observes the original signature and behaviour.
 
 Usage:
 
     python3 tools/lint-metadata-line-breaks.py
     python3 tools/lint-metadata-line-breaks.py path/to/specific/file.md
 
-The optional positional path argument restricts the scan to one file,
-used by the gate-36 regression test suite for synthetic-fixture
-isolation.
+The optional positional path argument restricts the scan to one file, used by the
+gate-36 regression test suite for synthetic-fixture isolation.
 
 Exit codes:
     0   no findings.
-    1   one or more files have at least one metadata block with a
-        non-last line missing the hard-break marker.
+    1   one or more files have at least one metadata block with a non-last line
+        missing the hard-break marker.
 """
 
 from __future__ import annotations
 
 import argparse
-import re
 import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import iter_non_code_lines, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
 from lint_common import is_default_exempt_root, AUDITED_DOMAIN_DIRS, DEFAULT_EXEMPT_DIRS, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
 
-
-META_LINE = re.compile(r"^\*\*[A-Za-z][A-Za-z0-9 ]*:\*\*")
+PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
 DEFAULT_TARGETS = [
     "README.md",
@@ -72,39 +59,23 @@ DEFAULT_TARGETS = [
 ]
 
 
-def has_hard_break(line: str) -> bool:
-    """A line has a Markdown hard-break marker if it ends with ``\\`` or two-plus spaces."""
-    if line.endswith("\\"):
-        return True
-    if len(line) >= 2 and line.endswith("  "):
-        return True
-    return False
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_metadata_line_breaks  # the pack-owned engine (source of record)
+    return gate_lint_metadata_line_breaks
 
 
 def scan_file(path: Path) -> list[tuple[int, int]]:
-    """Return ``[(block_start_line, missing_count), ...]`` for every offending block."""
-    text = read_text_safe(path)
-    if text is None:
-        return []
-    findings: list[tuple[int, int]] = []
-    block: list[tuple[int, str]] = []
+    """Thin shim delegating to the pack engine's pure check.
 
-    def flush() -> None:
-        nonlocal block
-        if len(block) >= 2:
-            non_last = block[:-1]
-            missing = sum(1 for _, ln in non_last if not has_hard_break(ln))
-            if missing:
-                findings.append((block[0][0], missing))
-        block = []
-
-    for lineno, line in iter_non_code_lines(text):
-        if META_LINE.match(line):
-            block.append((lineno, line))
-        else:
-            flush()
-    flush()
-    return findings
+    Kept in the wrapper as a module-global because the scan-scope regression test
+    patches ``mod.scan_file`` and runs ``main``; the check logic (META_LINE,
+    has_hard_break, scan_file) lives in the pack engine (source of record).
+    """
+    return _engine().scan_file(path)
 
 
 def iter_target_files(targets: list[str]) -> list[Path]:
