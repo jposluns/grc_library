@@ -2,8 +2,8 @@
 
 **Document Title:** DevOps Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.0.15\
-**Date:** 2026-09-08\
+**Version:** 1.0.16\
+**Date:** 2026-09-16\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`operations/README.md`](../operations/README.md)\
@@ -36,7 +36,7 @@ The following gates are mandatory in every pipeline deploying to Test or Product
 | --- | --- |
 | Secret scanning | Any secret pattern detected: fail immediately |
 | SAST | Critical or High: fail. Medium: warn and log. |
-| SCA: dependency scan | Critical CVE: fail. High CVE: fail unless tracked issue exists with 14-day grace. |
+| SCA: dependency scan | Critical CVE: fail. High CVE: fail; a tracked remediation issue carries a 14-day fix target, but production release still requires formal risk acceptance per the [Software Composition Analysis Standard](standard-software-composition-analysis.md). |
 | Container image scanning | Critical CVE in base image or layer: fail. |
 | IaC scanning | Critical misconfiguration: fail. |
 | Licence compliance | GPL/AGPL without Legal approval: fail. |
@@ -113,7 +113,7 @@ Test consolidates all pre-production testing (integration, QA, UAT). Multiple se
 
 **Base images:** Sourced from approved trusted registries. Minimal (distroless, Alpine) preferred. Must be scanned before use and on a scheduled cadence. Must not run as root. Privileged mode prohibited in production.
 
-**Image versioning:** No `:latest` tag in Test or Production. Digest-pinned or specific version tags only. All images deployed to Production must be signed.
+**Image versioning:** No `:latest` tag in Test or Production. Production deployments pin by digest (tags are mutable references; digests are immutable), per the [Container and Image Security Standard](standard-container-and-image-security.md); specific version tags are acceptable only in non-production. All images deployed to Production must be signed.
 
 **Runtime security:** EDR tooling mandatory on all servers. Resource limits (CPU, memory) set. Network policies restrict container-to-container communication to required flows. Secrets must not be passed as plain-text environment variables: use platform secrets management integration.
 
