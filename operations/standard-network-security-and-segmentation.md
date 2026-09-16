@@ -2,8 +2,8 @@
 
 **Document Title:** Network Security and Segmentation Standard\
 **Document Type:** Standard\
-**Version:** 1.4.10\
-**Date:** 2026-09-07\
+**Version:** 1.4.11\
+**Date:** 2026-09-16\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`operations/standard-cloud-security-configuration-baseline.md`](standard-cloud-security-configuration-baseline.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md)\
@@ -106,7 +106,7 @@ Where the organization participates in a sector programme that requires specific
 ### 7.1 General IDS/IPS requirements
 
 - IDS and IPS systems must monitor all network traffic and integrate with the central SIEM.
-- The SOC must investigate alerts within 15 minutes for high-severity events and within 1 hour for medium-severity events.
+- The SOC must investigate alerts on the severity-tiered service levels defined in the [Security Monitoring and Alert Management Procedure](procedure-security-monitoring-and-alert-management.md): critical within 15 minutes, high within 1 hour, and medium by the same business day.
 
 ### 7.2 Sector-specific intrusion detection overlays
 

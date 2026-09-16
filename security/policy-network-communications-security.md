@@ -2,8 +2,8 @@
 
 **Document Title:** Network Communications Security Policy\
 **Document Type:** Policy\
-**Version:** 1.1.13\
-**Date:** 2026-09-13\
+**Version:** 1.1.14\
+**Date:** 2026-09-16\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md), [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md)\
@@ -84,7 +84,7 @@ Sector-conditional roles (for example, a sector-conditional compliance role that
 
 6.1 IDS and IPS systems must monitor all network traffic and integrate with the central SIEM.
 
-6.2 SOC must investigate alerts within 15 minutes for high-severity and 1 hour for medium-severity events.
+6.2 SOC must triage and investigate alerts on the severity-tiered service levels defined in the [Security Monitoring and Alert Management Procedure](../operations/procedure-security-monitoring-and-alert-management.md): critical within 15 minutes, high within 1 hour, and medium by the same business day.
 
 6.3 Sector-programme networks (for example, BASC logistics and customs networks where the organization participates in BASC) must have the additional intrusion-detection sensors and retention periods stated by the relevant sector annex; see [`compliance/`](../compliance/).
 

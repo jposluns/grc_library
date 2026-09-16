@@ -2,8 +2,8 @@
 
 **Document Title:** Security Quick Reference\
 **Document Type:** Standard\
-**Version:** 1.1.18\
-**Date:** 2026-09-13\
+**Version:** 1.1.19\
+**Date:** 2026-09-16\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md)\
@@ -41,7 +41,7 @@ Prohibited by default. Most carry no exception path at all; where a row is excep
 | 9 | Send personal or Confidential data to an external AI service without a data processing agreement and CIO approval | Violates privacy law and organizational policy. |
 | 10 | Bypass a pipeline security gate | Gates exist for a reason. Disable nothing without approval per the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) §4.2.2 pathway (CISO co-approval). |
 | 11 | Reimage or modify a system you suspect is compromised | Preserve evidence. Alert the security team first. |
-| 12 | Use `:latest` as a container image tag in Test or Production | Digest-pinned or explicit version tags only. |
+| 12 | Use `:latest` as a container image tag in Test or Production | Production pins by digest; specific version tags only in non-production. |
 | 13 | Create a shadow IT system or unapproved cloud resource | All resources must be under organizational governance and in approved cloud environments. |
 | 14 | Store IaC state locally or in version control | Remote state backend with versioning and access logging only. |
 | 15 | Leave a self-signed certificate in production | CA-issued certificate required. Internal PKI for internal services; an approved external CA for external-facing services. |
@@ -133,7 +133,7 @@ Every pipeline touching Test or Production must include these checks in order. P
 
 1. Secret scanning: fail on any secret detected
 2. SAST: fail on Critical/High
-3. SCA (dependency scan): fail on Critical CVE; High requires tracked issue
+3. SCA (dependency scan): fail on Critical CVE; High CVE fails (14-day tracked-remediation target), production release requires formal risk acceptance
 4. Container image scan (if containers used): fail on Critical CVE in image
 5. IaC scan (if IaC present): fail on Critical misconfiguration
 6. Licence check: fail on unapproved copyleft licence
