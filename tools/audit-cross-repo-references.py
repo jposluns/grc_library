@@ -250,6 +250,11 @@ def audit_tree(
         else:
             rel = path.relative_to(rel_base).as_posix()
             rel_parts = path.relative_to(rel_base).parts
+        # Display value (finding field[0], display-only): the PHYSICAL location. For a
+        # logical_prefix (store) scan the physical file is `path` itself (the store has no
+        # working/ subdir); for an in-repo scan `rel` already IS the real in-repo path. `rel`
+        # stays the classify/link-resolution key (rel_parts, link_base / rel).
+        disp = str(path) if logical_prefix else rel
         is_md = path.suffix == ".md"
         in_code = False
         for lineno, raw in enumerate(text.splitlines(), start=1):
@@ -267,7 +272,7 @@ def audit_tree(
                 sub_flag, detail = classify_cross_repo(
                     m, rel_parts, sibling_resolver=sibling_resolver
                 )
-                findings.append((rel, lineno, "cross-repo", sub_flag, detail))
+                findings.append((disp, lineno, "cross-repo", sub_flag, detail))
                 counts["cross-repo"] += 1
                 counts[sub_flag] += 1
 
@@ -281,7 +286,7 @@ def audit_tree(
                         continue  # already counted as a cross-repo pointer
                     bucket, detail = classify_link(
                         target, link_base / rel, link_base, physical_source=path)
-                    findings.append((rel, lineno, bucket, "", detail))
+                    findings.append((disp, lineno, bucket, "", detail))
                     counts[bucket] += 1
     return findings, counts
 
@@ -299,6 +304,7 @@ def _print_report(findings, counts, root: Path) -> None:
                   or (f[2] == "cross-repo" and f[3] == "review-over-exposure")]
     if actionable:
         print("\nActionable items (dangling, ambiguous, or over-exposure review):")
+        # finding[0] already carries the PHYSICAL display location (set in audit_tree).
         for rel, lineno, bucket, sub, detail in actionable:
             tag = f"{bucket}/{sub}" if sub else bucket
             print(f"  {rel}:{lineno}  [{tag}]  {detail}")

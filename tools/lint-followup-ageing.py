@@ -246,9 +246,9 @@ def main() -> int:
         for start_line, block in find_blocks(text):
             bad_format, msg = check_block(block, today)
             if bad_format:
-                invalid.append(f"{rel}:L{start_line}: {msg}")
+                invalid.append(f"{path}:L{start_line}: {msg}")
             elif msg is not None:
-                expired.append(f"{rel}:L{start_line}: {msg}")
+                expired.append(f"{path}:L{start_line}: {msg}")
 
     if invalid:
         for line in invalid:

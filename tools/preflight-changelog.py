@@ -432,7 +432,7 @@ def main(argv: list[str]) -> int:
     for lineno, tgt, evidence in unresolved_links_in_mirror():
         findings.append(
             (
-                DETAILED_MIRROR_REL,
+                DETAILED_MIRROR_REL[len(".working/"):],
                 f"dangling markdown-link target `{tgt}` (full-mirror scan, line {lineno})",
                 evidence,
             )

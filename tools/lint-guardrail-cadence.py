@@ -186,13 +186,13 @@ def main(argv: list[str]) -> int:
 
     history_text = read_text_safe(history_path) if history_path.is_file() else None
     if history_text is None:
-        print(f"FAIL: cannot read the guardrail-review history at {HISTORY}.")
+        print(f"FAIL: cannot read the guardrail-review history at {history_path}.")
         return 1
 
     recorded = recorded_inventory(history_text)
     if recorded is None:
         print(
-            f"FAIL: the newest guardrail-review history row in {HISTORY} carries no "
+            f"FAIL: the newest guardrail-review history row in {history_path} carries no "
             f"parseable 'inventory N gates / N rules / N skills [/ N commands]' token "
             f"(or the table has no data row). Record the review's as-of inventory in "
             f"its Summary cell; the cadence gate keys on it."

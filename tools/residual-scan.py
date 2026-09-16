@@ -153,19 +153,22 @@ def main() -> int:
     counts = {"LIVE": 0, "LEDGER": 0, "FROZEN-RECORD": 0}
 
     for path in iter_files():
-        rel = _rel_for(path)
+        rel = _rel_for(path)  # logical key for classify()
+        # Display the PHYSICAL location, not the synthetic .working/ classify-key
+        # (the store has no working/ subdir; the prefix is a classification device).
+        disp = str(path) if rel.startswith(".working/") else rel
         label = classify(rel)
         try:
             lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
         except OSError as exc:
-            print(f"WARN unreadable {rel}: {exc}", file=sys.stderr)
+            print(f"WARN unreadable {disp}: {exc}", file=sys.stderr)
             continue
         for lineno, line in enumerate(lines, 1):
             if any(p.search(line) for p in patterns):
                 counts[label] += 1
                 if label == "FROZEN-RECORD" and not args.all:
                     continue
-                print(f"[{label}] {rel}:{lineno}: {line}")
+                print(f"[{label}] {disp}:{lineno}: {line}")
 
     suppressed = counts["FROZEN-RECORD"] if not args.all else 0
     print(

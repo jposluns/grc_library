@@ -104,7 +104,7 @@ def main() -> int:
             f"morning processing PR must route the file's content into "
             f"the appropriate working-state ledgers "
             f"(the design-decisions record for design decisions, "
-            f".working/DONE.md for closed work, TODO.md for queued "
+            f"DONE.md for closed work, TODO.md for queued "
             f"follow-ups) and reset this file to the stub form. See "
             f"guardrails/governance/change-tracking.md "
             f"PR finalization protocol section for the routing detail.",

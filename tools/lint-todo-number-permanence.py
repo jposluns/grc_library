@@ -977,7 +977,7 @@ def main(argv: list[str]) -> int:
             # is the CI-enforceable recycle backstop; only the exact-live-id-vs-retired
             # comparison of check A remains maintainer-local).
             print(
-                f"OK: {DONE_REL} not present (maintainer-only working state; "
+                f"OK: DONE.md not present (maintainer-only working state; "
                 f"skipping the recycled-number check in public CI / adopter "
                 f"clone). The TODO.md counter check still ran against the live "
                 f"item ids."
@@ -1039,7 +1039,7 @@ def main(argv: list[str]) -> int:
                 srcs.append("TODO.md:" + ",".join(str(n) for n in todo_live[item_id]))
             if item_id in ptodo_live:
                 srcs.append("P-TODO.md:" + ",".join(str(n) for n in ptodo_live[item_id]))
-            dl = ", ".join(f".working/DONE.md:{n}" for n in done_lines)
+            dl = ", ".join(f"{done_path}:{n}" for n in done_lines)
             print(f"  {'' if item_id.startswith('P-') else '§'}{item_id}: live at {'; '.join(srcs)}; recorded retired at {dl}")
 
     if cross:

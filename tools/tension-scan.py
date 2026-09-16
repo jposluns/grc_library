@@ -96,7 +96,11 @@ def git_diffable_targets() -> tuple[list[str], list[str]]:
                 files.append(str(resolved.relative_to(REPO_ROOT)))
                 continue
             except ValueError:
-                pass
+                # Resolved OUTSIDE the public repo (operational store or private sibling):
+                # the public git diff cannot reach it. Report the PHYSICAL resolved location,
+                # not the logical .working/ key (the store has no working/ subdir).
+                skipped.append(str(resolved))
+                continue
         skipped.append(rel)
     return files, skipped
 
@@ -155,7 +159,7 @@ def main(argv: list[str]) -> int:
     scanned, skipped = git_diffable_targets()
     if skipped:
         print("tension-scan: NOTE: skipping surfaces not visible to the public "
-              "git diff (resolved into the private sibling): "
+              "git diff (resolved into the operational store or private sibling): "
               + ", ".join(skipped), file=sys.stderr)
     try:
         merge_base = git("merge-base", base, head).strip()
