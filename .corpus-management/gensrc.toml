@@ -231,3 +231,10 @@ kind = "file"
 sources = ["core/rules/metadata-line-breaks.md"]
 target = ".claude/rules/corpus-management/metadata-line-breaks.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "orphan-documents"
+kind = "file"
+sources = ["core/rules/orphan-documents.md"]
+target = ".claude/rules/corpus-management/orphan-documents.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]
