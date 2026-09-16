@@ -72,7 +72,7 @@ New category name in 2025: it expands the former A06 Vulnerable and Outdated Com
 **What goes wrong**: Compromised or malicious dependencies, build systems, update mechanisms, or AI-hallucinated package names introduce malicious code into the supply chain.
 
 **Required pattern**:
-- SCA (Software Composition Analysis) scan on every build; fail the build on Critical CVEs; High CVEs require tracked remediation within 14 days
+- SCA (Software Composition Analysis) scan on every build; fail the build on Critical CVEs; High CVEs require tracked remediation within 14 days, and a production release with an unresolved High requires formal risk acceptance where policy demands it
 - Verify dependency names exist in approved registries before installing: AI-suggested packages can be hallucinated
 - Pin exact versions in lockfiles committed to source control
 - SBOM generated for every production release
