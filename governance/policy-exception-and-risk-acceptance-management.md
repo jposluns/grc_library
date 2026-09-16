@@ -2,8 +2,8 @@
 
 **Document Title:** Exception and Risk Acceptance Management Policy\
 **Document Type:** Policy\
-**Version:** 1.5.5\
-**Date:** 2026-09-14\
+**Version:** 1.5.6\
+**Date:** 2026-09-16\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md)\
@@ -145,7 +145,7 @@ The renewal number and each reviewing or approving authority must be recorded on
 | Risk assessment and approval | Clause 6 and ISO 31000 Clauses 6.4 and 6.5 | APO12.02 | CCM GRC-02 | SP 800-30, SP 800-37 Assess and Authorize steps | PIPEDA, AIDA (lapsed) | WCO SAFE equivalence |
 | Time-bound authorization | Annex A.5.36 | APO12.06 | CCM GRC-04 | SP 800-37 Authorize step | Contractual risk governance | WCO SAFE equivalence |
 | Exception tracking and reporting | Annex A.5.36 | MEA01 | CCM GRC-04 | SP 800-53 RA-7 | Audit transparency | WCO SAFE equivalence |
-| Closure and validation | Annex A.5.36 | DSS04 | CCM GRC-04 | SP 800-37 Assess step | Regulatory evidence requirements | WCO SAFE equivalence |
+| Closure and validation | Annex A.5.36 | MEA02 | CCM GRC-04 | SP 800-37 Assess step | Regulatory evidence requirements | WCO SAFE equivalence |
 | Machine-readable registry (recommended) | Annex A.5.36 (extension) | APO12.06 | CCM GRC-04 | N/A (library extension) | Future automation compliance | WCO SAFE equivalence |
 
 
