@@ -55,7 +55,7 @@ Every pipeline deploying to Test or Production must run these gates in this orde
 
 - Scan all dependencies including transitive dependencies
 - Critical CVE in any dependency: fail immediately
-- High CVE: fail unless a tracked issue exists with remediation within 14 days
+- High CVE: fail; a tracked remediation issue (14-day fix target) sets the remediation timeline but does not by itself authorize a production release where a stricter release-acceptance policy requires formal risk acceptance
 - Verify dependency names resolve in approved registries (detect typosquatting and dependency confusion)
 - Generate and retain SBOM on every production build (CycloneDX or SPDX format)
 
