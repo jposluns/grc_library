@@ -19848,5 +19848,48 @@ class AcronymConsistencyEngineTransferTests(unittest.TestCase):
             self.assertEqual(self.engine.scan(Path("d.md"), {"API": {"application"}}), [])
 
 
+
+class CrossDocNumbersEngineTransferTests(unittest.TestCase):
+    """gate 25 engine after the SHARED/SAFETY-lane PR-42 transfer (Pattern A): the
+    tracked-term regexes + normalise + the dict-returning scan live in the pack
+    engine; the wrapper keeps a module-global scan shim + the grc scope config +
+    the cross-document aggregation in main."""
+
+    def setUp(self):
+        self.wrapper = load_linter_module("tools/lint-cross-doc-numbers.py", "_crossdoc_engine")
+        self.engine = self.wrapper._engine()
+
+    def test_check_moved_to_engine(self):
+        for name in ("TERM_PATTERNS", "TERMS_SCANNED_IN_CODE_FENCES", "UNIT_TO_MINUTES", "normalise", "scan"):
+            self.assertTrue(hasattr(self.engine, name), f"engine missing {name}")
+        for name in ("TERM_PATTERNS", "UNIT_TO_MINUTES", "normalise"):
+            self.assertFalse(hasattr(self.wrapper, name),
+                             f"wrapper should not redefine {name} (moved to engine)")
+        self.assertTrue(hasattr(self.wrapper, "scan"))          # the shim
+        self.assertTrue(hasattr(self.wrapper, "EXEMPT_FILES"))
+        self.assertEqual(len(self.engine.TERM_PATTERNS), 2)
+
+    def test_normalise_to_minutes(self):
+        self.assertEqual(self.engine.normalise(2, "hour"), 120)
+        self.assertEqual(self.engine.normalise(3, "hours"), 180)
+        self.assertEqual(self.engine.normalise(5, "minute"), 5)
+
+    def test_scan_returns_dict_of_values(self):
+        from unittest.mock import patch
+        # a GDPR breach-notification line carrying an hour value (test file is .py, out of gate-25 .md scope)
+        doc = "Under GDPR the breach notification deadline is 72 hours from awareness.\n"
+        with patch.object(self.engine, "read_text_safe", return_value=doc):
+            out = self.engine.scan(Path("d.md"))
+        self.assertIsInstance(out, dict)
+        self.assertIn("GDPR-breach-notification-hours", out)
+        norms = {n for n, raw in out["GDPR-breach-notification-hours"]}
+        self.assertIn(72 * 60, norms)  # 72 hours -> minutes
+
+    def test_scan_clean_doc_empty(self):
+        from unittest.mock import patch
+        with patch.object(self.engine, "read_text_safe", return_value="ordinary prose with no tracked terms.\n"):
+            self.assertEqual(dict(self.engine.scan(Path("d.md"))), {})
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
