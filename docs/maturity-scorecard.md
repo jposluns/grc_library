@@ -111,7 +111,7 @@ _117 documents._
 | [privacy/jurisdictions/annex-privacy-japan.md](../privacy/jurisdictions/annex-privacy-japan.md) | Japan Privacy Regulatory Requirements | Annex | 1.1.1 | 2026-09-04 |
 | [privacy/jurisdictions/annex-privacy-kenya.md](../privacy/jurisdictions/annex-privacy-kenya.md) | Kenya Privacy Regulatory Requirements | Annex | 1.1.0 | 2026-09-11 |
 | [privacy/jurisdictions/annex-privacy-malaysia.md](../privacy/jurisdictions/annex-privacy-malaysia.md) | Malaysia Privacy Regulatory Requirements | Annex | 1.2.3 | 2026-09-15 |
-| [privacy/jurisdictions/annex-privacy-new-zealand.md](../privacy/jurisdictions/annex-privacy-new-zealand.md) | New Zealand Privacy Regulatory Requirements | Annex | 1.1.2 | 2026-09-15 |
+| [privacy/jurisdictions/annex-privacy-new-zealand.md](../privacy/jurisdictions/annex-privacy-new-zealand.md) | New Zealand Privacy Regulatory Requirements | Annex | 1.1.3 | 2026-09-16 |
 | [privacy/jurisdictions/annex-privacy-singapore.md](../privacy/jurisdictions/annex-privacy-singapore.md) | Singapore Privacy Regulatory Requirements | Annex | 1.1.3 | 2026-09-15 |
 | [privacy/jurisdictions/annex-privacy-south-africa.md](../privacy/jurisdictions/annex-privacy-south-africa.md) | South Africa Privacy Regulatory Requirements | Annex | 1.1.1 | 2026-09-11 |
 | [privacy/jurisdictions/annex-privacy-south-korea.md](../privacy/jurisdictions/annex-privacy-south-korea.md) | South Korea Privacy Regulatory Requirements | Annex | 1.1.1 | 2026-09-15 |
@@ -372,7 +372,7 @@ _71 documents._
 | [architecture/standard-api-design.md](../architecture/standard-api-design.md) | API Design Standard | Standard | 0.0.4 | 2026-07-02 |
 | [architecture/standard-integration-architecture.md](../architecture/standard-integration-architecture.md) | Integration Architecture Standard | Standard | 0.0.5 | 2026-09-14 |
 | [compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md](../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md) | Energy and Utilities Sector Requirements Annex | Annex | 0.0.8 | 2026-09-04 |
-| [compliance/financial-services/annex-dora-implementation.md](../compliance/financial-services/annex-dora-implementation.md) | DORA Implementation Annex | Annex | 0.0.9 | 2026-09-05 |
+| [compliance/financial-services/annex-dora-implementation.md](../compliance/financial-services/annex-dora-implementation.md) | DORA Implementation Annex | Annex | 0.0.10 | 2026-09-16 |
 | [compliance/financial-services/annex-mica-implementation.md](../compliance/financial-services/annex-mica-implementation.md) | MiCA Implementation Annex | Annex | 0.3.4 | 2026-09-12 |
 | [compliance/financial-services/annex-sox-itgc.md](../compliance/financial-services/annex-sox-itgc.md) | SOX IT General Controls Annex | Annex | 0.0.6 | 2026-09-04 |
 | [compliance/healthcare/annex-healthcare-united-states.md](../compliance/healthcare/annex-healthcare-united-states.md) | United States HIPAA Sector Requirements Annex | Annex | 0.0.1 | 2026-07-09 |

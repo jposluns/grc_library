@@ -2,8 +2,8 @@
 
 **Document Title:** DORA Implementation Annex\
 **Document Type:** Annex\
-**Version:** 0.0.9\
-**Date:** 2026-09-05\
+**Version:** 0.0.10\
+**Date:** 2026-09-16\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/financial-services/annex-financial-services-sector-requirements.md`](annex-financial-services-sector-requirements.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
@@ -147,7 +147,7 @@ Voluntary; DORA encourages financial entities to share cyber threat information 
 | DORA RTS and ITS | Multiple, adopted by the Commission on ESA drafts; the incident-reporting set is Delegated Reg (EU) 2024/1772 (classification and materiality thresholds), Delegated Reg (EU) 2025/301 (report content and time limits), and Implementing Reg (EU) 2025/302 (report forms and templates) | Implementing detail |
 | TIBER-EU | ECB framework | Threat-led penetration testing |
 | EBA Guidelines on outsourcing arrangements | EBA/GL/2019/02 | Predecessor framework, partially superseded by DORA but retained where in force |
-| EIOPA Guidelines on ICT security and governance | EIOPA-BoS-20-600 | Insurance sector |
+| EIOPA Guidelines on ICT security and governance (revoked 17 January 2025, superseded by DORA; historical) | EIOPA-BoS-20-600 | Insurance sector |
 | ISO/IEC 27001:2022 | Annex A | Underlying control catalogue |
 | NIST CSF 2.0 | All functions | Cross-walk |
 
