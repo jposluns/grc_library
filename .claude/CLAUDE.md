@@ -127,12 +127,12 @@ Two coupled obligations, placed high because a lost directive erodes the maintai
 
 ## Activity playbooks
 
-Per-activity disciplines that load "like a skill" at their boundary, not every turn. Each entry's lean always-on core stays inline in this file (with its enforcing gates/hooks named); the full detail lives in the linked `references/` playbook. Gate 80 ([`tools/lint-playbook-pointer-integrity.py`](../tools/lint-playbook-pointer-integrity.py)) enforces bidirectional pointer parity, INDEX completeness, and retained-clause presence against [`references/PLAYBOOK-MANIFEST.yml`](../references/PLAYBOOK-MANIFEST.yml).
+Per-activity disciplines that load "like a skill" at their boundary, not every turn. Each entry's lean always-on core stays inline in this file (with its enforcing gates/hooks named); the full detail lives in the linked `references/` playbook. Gate 80 ([`tools/lint-playbook-pointer-integrity.py`](../tools/lint-playbook-pointer-integrity.py)) enforces bidirectional pointer parity, INDEX completeness, and retained-clause presence against [`.claude/playbooks/PLAYBOOK-MANIFEST.yml`](../.claude/playbooks/PLAYBOOK-MANIFEST.yml).
 
 | Activity boundary | Playbook |
 | --- | --- |
-| PR close-out and session-migration | [PR lifecycle and close-out](../references/pr-lifecycle.md) |
-| An externally-versioned reference (standard, framework, dataset) becomes load-bearing | [Reference-version currency and missing references](../references/reference-currency.md) |
+| PR close-out and session-migration | [PR lifecycle and close-out](../.claude/playbooks/pr-lifecycle.md) |
+| An externally-versioned reference (standard, framework, dataset) becomes load-bearing | [Reference-version currency and missing references](../.claude/playbooks/reference-currency.md) |
 | Worker dispatch: deciding whether to self-run offloadable work, or managing dispatched workers | [Mandatory worker offload](../references/worker-offload.md) |
 
 ## Project
@@ -266,7 +266,7 @@ can lag by one day. Where there is potential for ambiguity, use the UTC date.
 
 PRs follow a fixed pattern the assistant is authorized to drive end-to-end on the
 maintainer's behalf. The FULL detail and rationale live in
-[`references/pr-lifecycle.md`](../references/pr-lifecycle.md) (read it at the PR-close-out
+[`.claude/playbooks/pr-lifecycle.md`](../.claude/playbooks/pr-lifecycle.md) (read it at the PR-close-out
 boundary, like a skill); this is the lean checklist, each mechanical step naming its
 enforcing gate/hook.
 
@@ -320,7 +320,7 @@ a gate; when a gate's coverage changes, its row here is updated in the same PR.
 Long sessions degrade (context dilution, lossy compaction, state drift, error compounding)
 and the assistant has no reliable internal gauge, so the defence is external. The FULL
 detail and rationale for everything below live in
-[`references/pr-lifecycle.md`](../references/pr-lifecycle.md); this is the lean checklist.
+[`.claude/playbooks/pr-lifecycle.md`](../.claude/playbooks/pr-lifecycle.md); this is the lean checklist.
 
 1. **Session handoff.** `grc_library_private/.working/session-handoff.md` is the single resume
    point (branch, versions, counts, last-merged, next-actions, open decisions, green-at-`<sha>`,
@@ -332,7 +332,7 @@ detail and rationale for everything below live in
    items are mostly NOT gated (D9, from #1250, gates only the §N-orphan anchored-refs-on-operational-surfaces sub-case), so their terse reminder here is
    the live control, do not drop it.
 
-   **Backstopped (gate/hook named; detail in `references/pr-lifecycle.md`):**
+   **Backstopped (gate/hook named; detail in `.claude/playbooks/pr-lifecycle.md`):**
    - THIS PR's own `/validate-pr` + `/retro` rows present (gate 50 Check 1); every closed TODO item deleted from TODO (the public index row in the same PR; the detail block + DONE entry rotate cross-repo in the private sibling) (convention; D5 + gate 78 cover only parts, see step 10 of `## PR workflow`).
    - New pack prose (SKILL/rule/command/pack-README/CLAUDE.md prose) run through `lint-language.py` AND `lint-unbalanced-fences.py` on EXPLICIT paths before the first commit (both default to corpus paths, so `.claude/`/pack prose needs explicit paths; both also run in CI).
    - `preflight-changelog.py` before the first commit (`&& git commit`): an AID mirroring the D3 dash check + link-coverage; the D1 changelog-presence check is the separate `check-changelog-on-pr.py`.
@@ -368,7 +368,7 @@ detail and rationale for everything below live in
    close with a large unvalidated PR**: every merged PR (the handoff included unless its narrow fallback skip was taken) has a `/validate-pr`
    that RETURNED (a `DISPATCHED`/`PENDING` row does not satisfy this, now GATED by gate 50 Check
    1); an undelivered `/validate-pr` BLOCKS and is re-issued to a second worker, first delivery
-   authoritative. Keep the last substantive PR SMALL. Detail in `references/pr-lifecycle.md`.
+   authoritative. Keep the last substantive PR SMALL. Detail in `.claude/playbooks/pr-lifecycle.md`.
 
 ## Multi-session orchestration
 
@@ -407,7 +407,7 @@ The reference base's `publications/` bucket is untrusted by default (bias, factu
 
 **Whenever an externally-versioned reference (a standard, framework, or dataset) is load-bearing for a task:** consult what `grc_library_ref` holds via its index (EXECUTE `python3 tools/ref-holds.py <query>` and quote its output, never a guess or a partial grep), validate the current version upstream THIS turn, and act only after BOTH. **Never write or rely on a superseded version unless the maintainer explicitly authorizes** it; and a load-bearing reference `grc_library_ref` does not hold at all is ACQUIRED (attempt the ingest) or the work PAUSES, never silently worked around. A register row, citation, or mapping carries the upstream-confirmed current version, or the item waits.
 
-The full detail, the 3-step check order and the executed-not-narrated `ref-holds.py` discipline, the version-update / superseded-archival SOP, and the missing-reference acquisition SOP, lives in the [Reference-version currency and missing references](../references/reference-currency.md) playbook, read when an externally-versioned reference is load-bearing, like a skill.
+The full detail, the 3-step check order and the executed-not-narrated `ref-holds.py` discipline, the version-update / superseded-archival SOP, and the missing-reference acquisition SOP, lives in the [Reference-version currency and missing references](../.claude/playbooks/reference-currency.md) playbook, read when an externally-versioned reference is load-bearing, like a skill.
 
 ## Attended-autonomous operating mode
 
