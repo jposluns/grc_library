@@ -2,8 +2,8 @@
 
 **Document Title:** Developer Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.23\
-**Date:** 2026-09-08\
+**Version:** 1.1.24\
+**Date:** 2026-09-16\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -40,7 +40,7 @@ Before production promotion, the following must be demonstrated:
 
 1. All threat model findings addressed or formally accepted with documented rationale.
 2. SAST results reviewed: no unmitigated Critical or High findings.
-3. SCA results reviewed: no unmitigated Critical CVEs in dependencies.
+3. SCA results reviewed: no unmitigated Critical CVEs, and no unresolved High CVEs without formal risk acceptance, in dependencies.
 4. Security test evidence present in pipeline.
 5. Data classification confirmed and enforced in code.
 6. Secrets confirmed absent from code, config files, and build artefacts.
@@ -172,7 +172,7 @@ Wildcard CORS origins (`origins: "*"`) are prohibited in all production APIs and
 | Test Type | When | Pipeline Gate |
 | --- | --- | --- |
 | SAST | Every commit to protected branch | Fail on Critical or High |
-| SCA (dependency scan) | Every build | Fail on Critical CVE; remediate High and below per the [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md) section 2 remediation SLAs |
+| SCA (dependency scan) | Every build | Fail on Critical CVE; an unresolved High CVE fails the build and blocks a production release unless formally accepted (remediation on the [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md) section 2 SLAs) |
 | Container image scan | Every image build | Fail on Critical CVE in image or layer |
 | DAST | Before production promotion; quarterly in production | OWASP Top 10 minimum |
 | Penetration test | Before first production deployment; annually thereafter | Third-party qualified tester |

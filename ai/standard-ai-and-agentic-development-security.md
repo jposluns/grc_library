@@ -2,8 +2,8 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.31\
-**Date:** 2026-09-13\
+**Version:** 1.8.32\
+**Date:** 2026-09-16\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-system-card.md`](template-system-card.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md)\
@@ -448,7 +448,7 @@ External rule repositories (TikiTribe, Kariedo, addyosmani, Wiz) referenced in [
 
 **SUPPLY-SEC-01:** All AI Python packages must be pinned to specific versions with hash verification. Unpinned AI dependencies are a Critical CI finding.
 
-**SUPPLY-SEC-02:** AI dependencies must be scanned for known CVEs on every build. Critical CVEs block deployment; High CVEs require a tracked exception.
+**SUPPLY-SEC-02:** AI dependencies must be scanned for known CVEs on every build. Critical CVEs block deployment; High CVEs require a tracked exception, and a production release with an unresolved High requires formal risk acceptance.
 
 **SUPPLY-SEC-03:** An SBOM must be generated for every production AI workload and stored with the build artifact in SPDX or CycloneDX format.
 
@@ -489,7 +489,7 @@ Every CI/CD pipeline for AI-enabled systems must include the following gates in 
 | --- | --- | --- |
 | Secret scanning (AI API key patterns) | gitleaks + custom AI patterns | Any secret detected → fail |
 | SAST with AI-specific rules | Semgrep with AI-security rule packs (community LLM-pattern rules; Semgrep Pro AI rules where licensed). Note: Semgrep takes YAML or registry rule configs, not Markdown; the Claude Code context-rules pack (e.g., TikiTribe's `rules/_core/` markdown files) is a different artefact type and does not function as a Semgrep config. | Critical or High → fail |
-| Dependency audit | pip-audit or npm audit | Critical CVE → fail; High CVE → fail within 14-day tracked exception |
+| Dependency audit | pip-audit or npm audit | Critical CVE → fail; High CVE → fail (14-day tracked-exception remediation target; production release requires formal risk acceptance) |
 | SBOM generation | syft or cdxgen | Must generate and archive every build |
 | Prompt linting | Custom rules or promptfoo | Format violations, missing delimiters, hardcoded secrets → fail |
 | Prompt regression testing | promptfoo | Functional or security regression → fail |
