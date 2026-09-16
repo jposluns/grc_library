@@ -2,8 +2,8 @@
 
 **Document Title:** Logging and Monitoring Standard\
 **Document Type:** Standard\
-**Version:** 1.4.23\
-**Date:** 2026-09-13\
+**Version:** 1.4.24\
+**Date:** 2026-09-16\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`governance/register-digital-trust-and-assurance-metrics.md`](../governance/register-digital-trust-and-assurance-metrics.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`security/standard-monitoring-integrity-and-coverage.md`](standard-monitoring-integrity-and-coverage.md)\
@@ -97,7 +97,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who ov
 ### 4.5 Monitoring and alerting
 
 4.5.1 The SOC must define correlation rules for detecting anomalies, intrusion attempts, and unauthorized activities aligned with MITRE ATT&CK and NIST CSF Detect Function, including alerts for cargo data tampering, unauthorized customs-system access, and the trade-security controls of the applicable BASC International Security Standard (section 5.2).
-4.5.2 Alerts must be triaged within 15 minutes for high severity and one hour for medium severity events.
+4.5.2 Alerts must be triaged on the severity-tiered service levels defined in the [Security Monitoring and Alert Management Procedure](../operations/procedure-security-monitoring-and-alert-management.md): critical severity within 15 minutes, high severity within 1 hour, medium severity by the same business day, and low severity by the next scheduled review cycle.
 4.5.3 Automated incident tickets must be generated for all critical alerts.
 4.5.4 Dashboards must display real-time metrics on system health, event volume, and incident trends.
 
