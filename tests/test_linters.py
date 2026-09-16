@@ -8149,6 +8149,10 @@ class BookkeepingParityTests(LinterTestCase):
         self.assertTrue(findings, "an unlogged in-window merge should flag")
         self.assertIn("bypass-log", findings[0])
         self.assertIn("#1171", findings[0])
+        # P-1.69-adjacent (resolve_working display fix): the message names the resolve_working
+        # relpath, never the retired public .working/ prefix (the store has no working/ subdir).
+        self.assertIn("merge-bypass-log.md", findings[0])
+        self.assertNotIn(".working/merge-bypass", findings[0])
 
     def test_bypass_log_highest_pr_exempt(self) -> None:
         # Check 6: the highest-numbered PR is in flight; its own row is written after its

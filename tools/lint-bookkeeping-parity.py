@@ -173,10 +173,13 @@ from lint_common import is_default_exempt_root, DEFAULT_EXEMPT_DIRS, REPO_ROOT, 
 
 
 CHANGELOG_PATH = "CHANGELOG.md"
-VALIDATE_PR_HISTORY = ".working/validate-pr/history.md"
-IMPROVEMENT_LOG = ".working/improvement-log.md"
+# Display relpaths for error messages: resolve_working keys (working-root-relative; the
+# operational store has no working/ subdir, so no leading dot-working prefix). Reads route
+# through resolve_working() with these same keys; see the resolved reads in main().
+VALIDATE_PR_HISTORY = "validate-pr/history.md"
+IMPROVEMENT_LOG = "improvement-log.md"
 TODO_PATH = "TODO.md"
-DEEP_ASSESSMENT_REGISTER = ".working/deep-assessment/register.md"
+DEEP_ASSESSMENT_REGISTER = "deep-assessment/register.md"
 
 # The PR number from which the QA-cadence parity check applies. Set to a
 # recent known-clean frontier rather than the earliest row, because the
@@ -511,7 +514,7 @@ def parse_retro_prs(text: str) -> set[int]:
 
 
 BYPASS_ROW_PR = re.compile(r"^\|[^|]*\|\s*#(\d+)\s*\|")
-BYPASS_LOG_REL = ".working/merge-bypass-log.md"
+BYPASS_LOG_REL = "merge-bypass-log.md"
 
 
 def parse_bypass_prs(text: str) -> set[int]:

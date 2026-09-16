@@ -68,7 +68,7 @@ def search(keys: list[str]) -> tuple[int, list[str]]:
         else:
             p = (base / rel).resolve()  # a sibling path (the private design-decision record)
         try:
-            stores.append((rel, p.read_text(encoding="utf-8", errors="replace")))
+            stores.append((str(p), p.read_text(encoding="utf-8", errors="replace")))
         except OSError:
             continue
     lines_out: list[str] = []

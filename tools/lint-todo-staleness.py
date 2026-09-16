@@ -52,10 +52,10 @@ from pathlib import Path
 
 from lint_common import REPO_ROOT, resolve_working, resolve_todo_reference
 
-SWEEP_HISTORY_PATH = ".working/validate-sweeps/history.md"
+SWEEP_HISTORY_PATH = "validate-sweeps/history.md"
 # The sweep cursor lives in the session-handoff file (the canonical resume
 # point), not in TODO.md: TODO.md is purely forward-looking work items.
-SWEEP_CURSOR_FILE = ".working/session-handoff.md"
+SWEEP_CURSOR_FILE = "session-handoff.md"
 
 # Queued-PR patterns. Match `Next` / `queued` / `pending` immediately
 # adjacent to `PR #<n>`, where "immediately adjacent" means only
