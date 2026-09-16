@@ -82,6 +82,13 @@ def _force_rmtree(path) -> None:
     (e.g. test_unreadable's chmod-0 secrets.md left by a crashed run).
     Version-agnostic: restore perms top-down, then rmtree ignoring residue
     (avoids the shutil.rmtree onerror/onexc signature change across 3.11-3.14)."""
+    # Restore the root's own mode FIRST: os.walk cannot list a mode-0 directory
+    # (it silently yields nothing with onerror=None), so a chmod-0 ROOT would
+    # otherwise survive rmtree(ignore_errors=True) (codex/gemini vpr-2292 HOLD).
+    try:
+        os.chmod(path, 0o700)
+    except OSError:
+        pass
     for parent, dirs, files in os.walk(path, topdown=True):
         for name in dirs + files:
             try:
@@ -104,13 +111,13 @@ def setUpModule() -> None:
             f.unlink()
         except OSError:
             pass
-    # Also remove leftover fixture SUBDIRECTORIES from a crashed prior run:
-    # setUpModule previously swept only top-level *.md, so a chmod-0
-    # synthetic-claude-rules-sync/.claude/rules/secrets.md could survive and
-    # poison a later --root read (gate-37 fix 1c).
-    for sub in FIXTURE_DIR.iterdir():
-        if sub.is_dir():
-            _force_rmtree(sub)
+    # One-time cleanup of the RETIRED fixed fixture path only: pre-#2292 runs
+    # shared a "synthetic-claude-rules-sync" dir whose chmod-0 secrets.md could
+    # survive a crash. Removing exactly that retired name is parallel-safe
+    # (post-#2292 runs use unique mkdtemp dirs, so nothing live is named this);
+    # a blanket iterdir sweep would race concurrent runs' unique dirs and
+    # reintroduce the very collision FIX 1a removes (codex/gemini vpr-2292 HOLD).
+    _force_rmtree(FIXTURE_DIR / "synthetic-claude-rules-sync")
 
 
 def tearDownModule() -> None:
@@ -124,9 +131,6 @@ def tearDownModule() -> None:
             f.unlink()
         except OSError:
             pass
-    for sub in FIXTURE_DIR.iterdir():
-        if sub.is_dir():
-            _force_rmtree(sub)
 
 
 def run_linter(script: str, *paths: str | Path) -> subprocess.CompletedProcess:
@@ -5991,8 +5995,7 @@ class ClaudeRulesSyncTests(LinterTestCase):
         spec.loader.exec_module(mod)
         return mod
 
-    @staticmethod
-    def _make_synthetic(local_body: str, source_body: str, extra_local: str | None = None):
+    def _make_synthetic(self, local_body: str, source_body: str, extra_local: str | None = None):
         """Create a synthetic root with one mapped pair; return (root, map).
 
         The pair is keyed on the same relative paths the real MIRROR_MAP
@@ -6005,6 +6008,10 @@ class ClaudeRulesSyncTests(LinterTestCase):
         # test_unreadable's chmod-0 secrets.md raced (or was left over from an
         # interrupted run) against another --root test's read (gate-37 fix 1a).
         root = Path(tempfile.mkdtemp(prefix="synthetic-claude-rules-sync-", dir=FIXTURE_DIR))
+        # Self-cleaning: each unique dir registers its own teardown, so no
+        # blanket FIXTURE_DIR sweep is needed (a blanket sweep would race
+        # concurrent runs' unique dirs). Runs even on test failure.
+        self.addCleanup(_force_rmtree, root)
         local_rel = ".claude/rules/secrets.md"
         source_rel = "guardrails/core/secrets.md"
         (root / ".claude" / "rules").mkdir(parents=True)
@@ -6054,27 +6061,33 @@ class ClaudeRulesSyncTests(LinterTestCase):
         # gate-37 fix 1a: two synthetic roots must never share a path, or a
         # chmod-0 fixture from one test poisons another's --root read.
         r1, _ = self._make_synthetic(local_body="# T\n\nB.\n", source_body="# T\n\nB.\n")
-        self.addCleanup(_force_rmtree, r1)
         r2, _ = self._make_synthetic(local_body="# T\n\nB.\n", source_body="# T\n\nB.\n")
-        self.addCleanup(_force_rmtree, r2)
         self.assertNotEqual(r1, r2, "each _make_synthetic call must get a unique fixture dir")
 
-    def test_setupmodule_sweeps_chmod0_leftover_subdir(self) -> None:
-        # gate-37 fix 1c: a crash-interrupted run can leave a chmod-0
-        # secrets.md under a fixture subdir; setUpModule's subdir sweep must
-        # remove it so it cannot poison a later --root read.
-        top = FIXTURE_DIR / "synthetic-claude-rules-sync-leftovertest"
-        leftover = top / ".claude" / "rules"
-        leftover.mkdir(parents=True, exist_ok=True)
-        secrets = leftover / "secrets.md"
-        secrets.write_text("# secret\n", encoding="utf-8")
-        os.chmod(secrets, 0)
-        self.addCleanup(_force_rmtree, top)
-        setUpModule()
-        self.assertFalse(
-            top.exists(),
-            "setUpModule must sweep leftover chmod-0 fixture subdirectories",
-        )
+    def test_force_rmtree_removes_chmod0_file_and_dir(self) -> None:
+        # gate-37 fix 1c: _force_rmtree must remove a tree containing a chmod-0
+        # FILE, and one whose ROOT dir is itself chmod-0 (os.walk yields nothing
+        # on a mode-0 root, so the helper must restore the root's mode first).
+        # Uses a test-local mkdtemp base, never a mid-suite setUpModule() call,
+        # so it cannot race concurrent runs (codex/gemini vpr-2292 HOLD).
+        base = Path(tempfile.mkdtemp(prefix="force-rmtree-test-", dir=FIXTURE_DIR))
+        self.addCleanup(_force_rmtree, base)
+        # (a) chmod-0 file inside a normal directory tree
+        top1 = base / "with-chmod0-file"
+        d1 = top1 / ".claude" / "rules"
+        d1.mkdir(parents=True)
+        f = d1 / "secrets.md"
+        f.write_text("# secret\n", encoding="utf-8")
+        os.chmod(f, 0)
+        _force_rmtree(top1)
+        self.assertFalse(top1.exists(), "_force_rmtree must remove a tree with a chmod-0 file")
+        # (b) chmod-0 ROOT directory (Defect A: the root's own mode must be restored)
+        top2 = base / "chmod0-root"
+        top2.mkdir()
+        (top2 / "inner.md").write_text("x\n", encoding="utf-8")
+        os.chmod(top2, 0)
+        _force_rmtree(top2)
+        self.assertFalse(top2.exists(), "_force_rmtree must remove a chmod-0 root directory")
 
     def test_current_state_passes(self) -> None:
         # The live repository state must be in sync (this is what every
