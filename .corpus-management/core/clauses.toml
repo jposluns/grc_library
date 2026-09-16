@@ -200,3 +200,9 @@ id = "orphan-documents"
 title = "Orphan documents (every artefact carries at least one inbound markdown reference)"
 source = "core/rules/orphan-documents.md"
 origin = "grc_library tools/lint-orphan-documents.py gate rationale (new clause in the Group-A content-generic transfer lane; LINK_RE + normalise_link + build_reverse_graph parameterized by repo_root is the engine, the grc artefact policy + scan scope + orphan aggregation are wrapper config)"
+
+[[clauses]]
+id = "cross-file-section-refs"
+title = "Cross-file section references (a numbered cross-document section citation resolves to a real heading or inline clause in the target)"
+source = "core/rules/cross-file-section-refs.md"
+origin = "grc_library tools/lint-cross-file-section-refs.py gate rationale (new clause in the Group-A content-generic transfer lane; extract_sections + resolve_target + binding_target + adjacent_link + check_file with the tool-specific HEADING_RE/CLAUSE_RE is the engine, parameterized by repo_root + the shared CROSS_* reference-extraction config; the grc CROSS_* config (shared with the names-phase sibling) + scan scope + exempt-file set are wrapper config; the engine .py is out of the .md-only scan scope, so no engine self-exemption is needed)"

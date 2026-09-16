@@ -262,3 +262,11 @@ source = "tools/gate_lint_orphan_documents.py"
 enforces = "orphan-documents"
 entry_point = "tools/lint-orphan-documents.py"
 origin = "grc_library tools/lint-orphan-documents.py, grc gate 26 (engine transferred in the Group-A content-generic lane via Pattern A; LINK_RE + normalise_link + build_reverse_graph moved to the pack engine, parameterized by repo_root so the engine is repository-root-free; the wrapper keeps the grc artefact policy (is_artefact/find_artefacts/find_all_markdown/ALWAYS_EXEMPT/EXEMPT_DIR_PARTS) + the orphan aggregation + reporting in main + a build_reverse_graph shim supplying REPO_ROOT. aiqt_corpus import guard.)"
+
+[[gates]]
+id = "lint-cross-file-section-refs"
+title = "Cross-file section-reference audit"
+source = "tools/gate_lint_cross_file_section_refs.py"
+enforces = "cross-file-section-refs"
+entry_point = "tools/lint-cross-file-section-refs.py"
+origin = "grc_library tools/lint-cross-file-section-refs.py, grc gate 62 (engine transferred in the Group-A content-generic lane via Pattern A; extract_sections + resolve_target + binding_target + adjacent_link + check_file moved to the pack engine with the tool-specific HEADING_RE/CLAUSE_RE, parameterized by repo_root + the shared CROSS_* reference-extraction config so the engine is repository-root-free and scan-scope-free; the wrapper keeps main + the grc scan scope (iter_markdown_targets + EXEMPT_FILES) + the CROSS_* config from lint_common (shared with the names-phase sibling gate 65) + a module-global check_file shim delegating to the engine so the scan-scope test (patches mod.check_file + runs main) still intercepts. aiqt_corpus import guard.)"

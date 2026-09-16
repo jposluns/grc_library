@@ -238,3 +238,10 @@ kind = "file"
 sources = ["core/rules/orphan-documents.md"]
 target = ".claude/rules/corpus-management/orphan-documents.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "cross-file-section-refs"
+kind = "file"
+sources = ["core/rules/cross-file-section-refs.md"]
+target = ".claude/rules/corpus-management/cross-file-section-refs.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]

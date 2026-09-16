@@ -1,0 +1,24 @@
+# Cross-file section references
+
+A document that cites a numbered section of ANOTHER corpus document cites a
+section that exists in the resolved target. The check fires on two
+high-confidence resolvable-target classes: an adjacent-link reference (a `§N` /
+`Section N` reference with a markdown `.md` link within an adjacency window on the
+same line, no intervening table pipe), where the link names the target; and a
+binding-declaration reference (a line carrying the binding sentinel together with
+a `.md` link binds every subsequent bare reference in the file to that target,
+the last link ending before the sentinel). The cited number must be a numbered
+heading (`## N. Title`, `### N.N Title`, `## Section N: Title`, and deeper) or a
+line-initial inline clause (`N.N ...`, at least two levels) in the target;
+headings and clauses are read outside fenced code blocks. Deliberate exclusions
+(recall costs, not gaps): table rows (any line with a pipe); external-standard
+context lines (a reference citing an ISO / NIST / OWASP / GDPR clause, and kin);
+a target with zero numbered headings and zero inline clauses (a numbered
+reference to an unnumbered document is not a stale-heading case); a bare
+reference with no adjacent link and no active binding (the intra-document gate
+owns those); and name-based references and range second endpoints (no number to
+resolve). The shared cross-file reference-extraction config (the reference
+patterns, the markdown-link pattern, the binding sentinel, the external-context
+vocabulary, and the adjacency window) and the exempt-file set are project
+configuration and are not part of this clause; a reference that resolves cleanly,
+and a document that cites none, contribute no findings.
