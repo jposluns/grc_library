@@ -238,3 +238,11 @@ source = "tools/gate_lint_cross_doc_numbers.py"
 enforces = "cross-doc-numbers"
 entry_point = "tools/lint-cross-doc-numbers.py"
 origin = "grc_library tools/lint-cross-doc-numbers.py, grc gate 25 (engine transferred in SHARED/SAFETY-lane PR-42 via Pattern A; the scan-scope test patches only mod.scan but its dict return makes the capture return {} not [] (the '2nd-seam' aspect); TERM_PATTERNS + TERMS_SCANNED_IN_CODE_FENCES + UNIT_TO_MINUTES + normalise + the per-file scan moved verbatim to the pack engine; the wrapper keeps main (verbatim, incl the cross-document aggregation + divergence report) + the grc scan scope (iter_markdown_targets) + EXEMPT_FILES + a module-global scan shim delegating to the engine so the scan-scope test still intercepts; the engine is scope-free and repository-root-free. NO engine self-exemption is needed: gate 25 scans .md only, so the engine .py is out of scope by suffix (as the old .py wrapper was). aiqt_corpus import guard.)"
+
+[[gates]]
+id = "lint-cobit-iso31000-citations"
+title = "COBIT/ISO 31000 citation-existence audit"
+source = "tools/gate_lint_cobit_iso31000_citations.py"
+enforces = "cobit-iso31000-citations"
+entry_point = "tools/lint-cobit-iso31000-citations.py"
+origin = "grc_library tools/lint-cobit-iso31000-citations.py, grc gate 61 (engine transferred in SHARED/SAFETY-lane PR-43)"

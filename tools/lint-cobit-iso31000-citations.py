@@ -40,16 +40,14 @@ builds the COBIT-aware worklist).
 Exit codes: 0 all citations valid; 1 findings; 2 environment error
 (reference module missing).
 """
+
 from __future__ import annotations
 
-import re
 import sys
-from dataclasses import dataclass
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import is_fence_line  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import DEFAULT_EXEMPT_DIRS, REPO_ROOT, iter_markdown_targets  # noqa: E402  # grc-config/store, stays local
+from lint_common import DEFAULT_EXEMPT_DIRS, REPO_ROOT, iter_markdown_targets  # noqa: E402  # grc-config/scope
 
 try:
     from cobit_iso31000_reference import (
@@ -61,6 +59,8 @@ except ImportError as exc:  # pragma: no cover - import guard
     print(f"ERROR: cannot load cobit_iso31000_reference: {exc}",
           file=sys.stderr)
     sys.exit(2)
+
+PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
 # Meta-documents that describe this gate's rule set (or narrate the
 # fabrication catches historically) inevitably contain the codes the
@@ -76,114 +76,31 @@ EXEMPT_FILES = frozenset({
     "TODO-REFERENCE.md",
 })
 
-# A COBIT code token: objective (APO12) with optional practice (.06),
-# not preceded by a letter/digit/hyphen (so identifiers embedding the
-# prefixes do not match) and not followed by a further digit.
-COBIT_CODE_RE = re.compile(
-    r"(?<![A-Za-z0-9-])(EDM|APO|BAI|DSS|MEA)(\d{2})(\.\d{2})?(?![0-9])")
 
-# ISO 31000 clause attribution is deliberately narrow (precision-first):
-# a clause token is checked only where its attribution to ISO 31000 is
-# unambiguous. Four shapes are recognized: (S1/S2) the standard name
-# immediately followed by the clause token ("ISO 31000:2018 §6.7",
-# "ISO 31000, Clause 6"); (S3) a table cell naming only ISO 31000 whose
-# next cell opens with clause tokens ("| ISO 31000:2018 | §6.7 ... |");
-# (S4) a cell whose clause tokens are followed by "(ISO 31000" in the
-# same cell. Clause tokens on multi-standard prose lines or in cells
-# attributable to other standards are not checked (they belong to ISO
-# 27001/37301 and friends); a matrix column whose header names ISO
-# 31000 but whose cells never mention it is likewise out of scope, per
-# the audit-programme spec's conservative-scope principle.
-ADJACENT_CLAUSE_RE = re.compile(
-    r"ISO\s*31000(?::2018)?\s*[,;]?\s*(?:§\s*|[Cc]lause\s+)"
-    r"(\d(?:\.\d+){0,2})\b")
-CLAUSE_TOKEN_RE = re.compile(r"(?:§\s*|[Cc]lause\s+)(\d(?:\.\d+){0,2})\b")
-ISO31000_NAME_RE = re.compile(r"ISO(?:/IEC)?\s*31000(?::2018)?")
-OTHER_ISO_RE = re.compile(r"ISO(?:/IEC)?\s*(?!31000)\d{4,5}")
-CELL_TRAILING_PAREN_RE = re.compile(r"\(ISO\s*31000")
-WRONG_DESIGNATION_RE = re.compile(r"ISO/IEC\s*31000")
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_cobit_iso31000_citations  # the pack-owned engine (source of record)
+    return gate_lint_cobit_iso31000_citations
 
 
-def _iso31000_clauses_on_line(line: str) -> list[str]:
-    """Clause tokens unambiguously attributable to ISO 31000."""
-    clauses = [m.group(1) for m in ADJACENT_CLAUSE_RE.finditer(line)]  # S1/S2
-    cells = line.split("|")
-    for idx, cell in enumerate(cells):
-        # S4: clause tokens in a cell that closes with "(ISO 31000...".
-        if CELL_TRAILING_PAREN_RE.search(cell) and not OTHER_ISO_RE.search(cell):
-            clauses.extend(
-                m.group(1) for m in CLAUSE_TOKEN_RE.finditer(cell))
-        # S3: a cell naming only ISO 31000, next cell opening with clauses.
-        if (ISO31000_NAME_RE.search(cell)
-                and not OTHER_ISO_RE.search(cell)
-                and not CLAUSE_TOKEN_RE.search(cell)
-                and idx + 1 < len(cells)):
-            nxt = cells[idx + 1]
-            if not OTHER_ISO_RE.search(nxt):
-                clauses.extend(
-                    m.group(1) for m in CLAUSE_TOKEN_RE.finditer(nxt))
-    return clauses
+def scan_file(path: Path) -> list:
+    """Thin shim delegating to the pack engine's pure per-file check.
 
-
-@dataclass
-class Finding:
-    path: Path
-    line: int
-    rule: str
-    message: str
-    text: str
-
-
-def scan_file(path: Path) -> list[Finding]:
-    text = path.read_text(encoding="utf-8")
-    findings: list[Finding] = []
-    in_fence = False
-    for i, line in enumerate(text.splitlines(), start=1):
-        if is_fence_line(line):
-            in_fence = not in_fence
-            continue
-        if in_fence:
-            continue
-
-        # Check 1: COBIT code existence.
-        for m in COBIT_CODE_RE.finditer(line):
-            obj = m.group(1) + m.group(2)
-            prac = m.group(3)
-            if obj not in COBIT_OBJECTIVES:
-                findings.append(Finding(
-                    path, i, "cobit-objective-unknown",
-                    f"'{m.group(0)}' cites '{obj}', not one of the 40 "
-                    f"COBIT {'2019'} objectives",
-                    line.strip()[:140]))
-                continue
-            if prac is not None:
-                num = int(prac[1:])
-                limit = COBIT_PRACTICE_COUNTS[obj]
-                if not 1 <= num <= limit:
-                    findings.append(Finding(
-                        path, i, "cobit-practice-out-of-range",
-                        f"'{m.group(0)}' exceeds {obj}'s practice range "
-                        f"({obj}.01..{obj}.{limit:02d}; "
-                        f"{obj} is '{COBIT_OBJECTIVES[obj]}')",
-                        line.strip()[:140]))
-
-        # Check 2: ISO 31000 designation.
-        if WRONG_DESIGNATION_RE.search(line):
-            findings.append(Finding(
-                path, i, "iso31000-wrong-designation",
-                "'ISO/IEC 31000' is not the standard's designation; "
-                "ISO 31000 is an ISO (TC 262) standard",
-                line.strip()[:140]))
-
-        # Check 3: ISO 31000 clause existence (unambiguous shapes only).
-        for clause in _iso31000_clauses_on_line(line):
-            if clause not in ISO31000_CLAUSES:
-                findings.append(Finding(
-                    path, i, "iso31000-clause-unknown",
-                    f"clause '{clause}' is not in the ISO 31000:2018 "
-                    f"clause tree (clauses 1-6; deepest level x.y.z)",
-                    line.strip()[:140]))
-    return findings
+    Kept in the wrapper as a module-global because the scan-scope regression
+    test patches ``mod.scan_file`` and runs ``main``; the citation regexes and
+    the ``Finding`` dataclass live in the engine, and the COBIT/ISO reference
+    data is threaded in from the wrapper's own import of
+    ``cobit_iso31000_reference``.
+    """
+    return _engine().scan_file(
+        path,
+        cobit_objectives=COBIT_OBJECTIVES,
+        cobit_practice_counts=COBIT_PRACTICE_COUNTS,
+        iso31000_clauses=ISO31000_CLAUSES,
+    )
 
 
 def _display_path(path: Path) -> str:

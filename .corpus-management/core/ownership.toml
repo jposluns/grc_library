@@ -153,3 +153,8 @@ target = ".claude/rules/corpus-management/acronym-consistency.md"
 rule = "cross-doc-numbers"
 kind = "file"
 target = ".claude/rules/corpus-management/cross-doc-numbers.md"
+
+[[owned_targets]]
+rule = "cobit-iso31000-citations"
+kind = "file"
+target = ".claude/rules/corpus-management/cobit-iso31000-citations.md"
