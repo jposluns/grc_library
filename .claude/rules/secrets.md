@@ -98,4 +98,4 @@ Secret scanning tools must be configured to scan all historical commits, not jus
 | --- | --- | --- | --- | --- |
 | No hardcoded secrets | V13.3.1 | A07 | PW.8.2 | CEK-10 to 21 |
 | Secret rotation without deployment | V13.3.4 | A07 | N/A | CEK-17 |
-| Secret scanning in CI/CD | V13.3 | A07 | PW.8 | AIS-05 |
+| Secret scanning in CI/CD | V13.3 | A07 | PW.7.2 | AIS-05 |
