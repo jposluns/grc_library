@@ -60,9 +60,6 @@ from pathlib import Path
 # CONFIG (project-tunable constants; safe defaults)
 # ============================================================================
 
-# Cap the enumerated items in the block message (the rest are summarized as a count). Preserve this cap;
-# an unbounded enumeration can flood the model's context.
-_MAX_LISTED = 20
 
 # The minimal file-based adapter reads the operating mode from a single-line file at this repo-relative
 # path (one word: `unattended` or `attended`). A project wiring its own mode tool ignores this.
@@ -288,18 +285,20 @@ def decide(mode, stop_hook_active, actionable):
         return False, ""  # documented loop-guard: already blocked this chain -> allow (no infinite loop)
     if not isinstance(actionable, list) or not actionable:
         return False, ""  # None (indeterminate) or empty (exhausted) -> allow
-    listed = actionable[:_MAX_LISTED]
-    body = "\n".join("  - %s: %s" % (iid, title) for iid, title in listed)
-    more = "" if len(actionable) <= _MAX_LISTED else "\n  ... and %d more" % (len(actionable) - _MAX_LISTED)
+    # Terse block message: emit the COUNT only, never the item enumeration. The full
+    # actionable list floods the operator's console and scrolls real content off-screen
+    # (maintainer-directed 2026-09-16: keep the detail off-screen). The list is available
+    # on demand by running ACTIONABLE_PRODUCER directly.
     reason = (
-        "STOP BLOCKED (unattended): the backlog tool reports %d actionable open backlog item(s), so this "
-        "is not whole-set exhaustion:\n%s%s\n\n"
-        "Per 10-TRUST-no-manufactured-winddown, continue on the highest-priority actionable item. Session "
-        "depth, run length, and work shape are NOT stop reasons, and a self-reported \"high-priority is "
-        "exhausted\" is not exhaustion. If EVERY remaining item is genuinely granted-blocked or deferred to "
-        "a RECORDED maintainer decision, record that first (a granted-blocked marker on the item, or a "
-        "decision-register entry), which removes it from the actionable set, and then a stop is permitted. "
-        "For a genuine operator stop, %s." % (len(actionable), body, more, MODE_SET_HINT)
+        "STOP BLOCKED (unattended): the backlog tool reports %d actionable open backlog "
+        "item(s), so this is not whole-set exhaustion. Per 10-TRUST-no-manufactured-winddown, "
+        "continue on the highest-priority actionable item; session depth, run length, and work "
+        "shape are NOT stop reasons, and a self-reported \"high-priority exhausted\" is not "
+        "exhaustion. (Full actionable list on demand: run %s.) If EVERY remaining item is "
+        "genuinely granted-blocked or deferred to a RECORDED maintainer decision, record that "
+        "first (which removes it from the actionable set), and then a stop is permitted. For a "
+        "genuine operator stop, %s."
+        % (len(actionable), ACTIONABLE_PRODUCER, MODE_SET_HINT)
     )
     return True, reason
 
@@ -381,7 +380,8 @@ def _self_test():
             block, reason = decide("unattended", False, [("1", "a"), ("3", "c")])
             self.assertTrue(block)
             self.assertIn("actionable", reason)
-            self.assertIn("1: a", reason)
+            self.assertIn("2", reason)          # the COUNT (2 items), not the enumeration
+            self.assertNotIn("1: a", reason)    # items are no longer enumerated (terse-console change)
 
         def test_decide_allow_stop_hook_active(self):
             self.assertFalse(decide("unattended", True, [("1", "a")])[0])
@@ -395,10 +395,15 @@ def _self_test():
         def test_decide_allow_attended(self):
             self.assertFalse(decide("attended", False, [("1", "a")])[0])
 
-        def test_decide_cap(self):
-            many = [("%d" % i, "t%d" % i) for i in range(_MAX_LISTED + 5)]
+        def test_decide_message_bounded(self):
+            # Terse-console change (maintainer-directed 2026-09-16): the block message
+            # emits the COUNT only, never the item enumeration, so its length does not
+            # grow with the backlog size and item titles never reach the console.
+            many = [("%d" % i, "title%d" % i) for i in range(500)]
             _b, reason = decide("unattended", False, many)
-            self.assertIn("... and 5 more", reason)
+            self.assertNotIn("title", reason)
+            self.assertIn("500", reason)
+            self.assertLess(len(reason), 1200)
 
         # ---- default file-based mode adapter ----
         def test_mode_missing_is_none(self):
