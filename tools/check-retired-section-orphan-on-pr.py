@@ -331,7 +331,7 @@ def _self_test() -> int:
 
         def test_in_scope_includes_operational(self):
             self.assertTrue(in_scope(".claude/CLAUDE.md"))
-            self.assertTrue(in_scope("references/pr-lifecycle.md"))
+            self.assertTrue(in_scope(".claude/playbooks/pr-lifecycle.md"))
             self.assertTrue(in_scope("tools/check-x.py"))
             self.assertTrue(in_scope("tools/run.sh"))
             self.assertTrue(in_scope("run.sh"))

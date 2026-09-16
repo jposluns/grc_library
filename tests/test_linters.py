@@ -16004,7 +16004,7 @@ class PlaybookPointerIntegrityTests(LinterTestCase):
     SCRIPT = "tools/lint-playbook-pointer-integrity.py"
 
     MANIFEST = (
-        '- playbook: "references/pr-lifecycle.md"\n'
+        '- playbook: ".claude/playbooks/pr-lifecycle.md"\n'
         '  activity: "PR close-out"\n'
         '  retained_anchors:\n'
         '    - "Feature branch only, never"\n'
@@ -16013,7 +16013,7 @@ class PlaybookPointerIntegrityTests(LinterTestCase):
     )
     CLAUDE_CLEAN = (
         "# CLAUDE.md\n\n## PR workflow\n"
-        "See [`references/pr-lifecycle.md`](../references/pr-lifecycle.md).\n"
+        "See [`.claude/playbooks/pr-lifecycle.md`](../.claude/playbooks/pr-lifecycle.md).\n"
         "Feature branch only, never `main`.\n"
     )
     PLAYBOOK = "# pr-lifecycle\n\nA DISPATCHED ORDER IS WORK ORDERED.\n"
@@ -16021,13 +16021,13 @@ class PlaybookPointerIntegrityTests(LinterTestCase):
     def _tree(self, root: Path, claude: str, manifest: str,
               playbook: str | None = "keep") -> None:
         (root / ".claude").mkdir(parents=True, exist_ok=True)
-        (root / "references").mkdir(parents=True, exist_ok=True)
+        (root / ".claude" / "playbooks").mkdir(parents=True, exist_ok=True)
         (root / ".claude" / "CLAUDE.md").write_text(claude, encoding="utf-8")
-        (root / "references" / "PLAYBOOK-MANIFEST.yml").write_text(
+        (root / ".claude" / "playbooks" / "PLAYBOOK-MANIFEST.yml").write_text(
             manifest, encoding="utf-8")
         if playbook is not None:
             body = self.PLAYBOOK if playbook == "keep" else playbook
-            (root / "references" / "pr-lifecycle.md").write_text(
+            (root / ".claude" / "playbooks" / "pr-lifecycle.md").write_text(
                 body, encoding="utf-8")
 
     def test_clean_tree_passes(self) -> None:
@@ -16135,8 +16135,8 @@ class PlaybookPointerIntegrityTests(LinterTestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             claude = (self.CLAUDE_CLEAN + "\n## Activity playbooks\n\n"
-                      "- [PR lifecycle](../references/pr-lifecycle.md)\n"
-                      "- [dup](../references/pr-lifecycle.md)\n")
+                      "- [PR lifecycle](../.claude/playbooks/pr-lifecycle.md)\n"
+                      "- [dup](../.claude/playbooks/pr-lifecycle.md)\n")
             self._tree(root, claude, self.MANIFEST)
             result = run_linter(self.SCRIPT, "--root", str(root))
         self.assertEqual(result.returncode, 1, result.stdout)

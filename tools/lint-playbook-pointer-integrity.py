@@ -9,7 +9,7 @@ stop a catastrophic mistake: a section titled for one activity can carry a
 BURIED always-on clause (a directive that must stay in force OUTSIDE that
 activity), and moving the section moves the clause out of the core with it.
 
-This gate is that invariant's enforcer. It reads ``references/PLAYBOOK-MANIFEST.yml``
+This gate is that invariant's enforcer. It reads ``.claude/playbooks/PLAYBOOK-MANIFEST.yml``
 (one entry per relocated section: its ``references/<playbook>.md`` target, the
 triggering activity boundary, the RETAINED always-on clause anchors kept inline,
 and the RELOCATED anchors) and asserts, against ``.claude/CLAUDE.md``:
@@ -80,12 +80,14 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from lint_common import REPO_ROOT  # noqa: E402
 
 CLAUDE_REL = ".claude/CLAUDE.md"
-MANIFEST_REL = "references/PLAYBOOK-MANIFEST.yml"
+MANIFEST_REL = ".claude/playbooks/PLAYBOOK-MANIFEST.yml"
 INDEX_HEADING = "## Activity playbooks"
 
-# An inline pointer to a playbook: `references/<name>.md`. Requires the `.md`
-# tail so the bare directory token `references/` is never a pointer.
-POINTER_RE = re.compile(r"references/([A-Za-z0-9._-]+\.md)")
+# An inline pointer to a playbook: `.claude/playbooks/<name>.md` (the public
+# playbooks) or `references/<name>.md` (a legacy location retained for any
+# playbook not yet relocated). Requires the `.md` tail so a bare directory
+# token is never a pointer.
+POINTER_RE = re.compile(r"(?:\.claude/playbooks|references)/([A-Za-z0-9._-]+\.md)")
 
 
 class ManifestError(Exception):
@@ -303,15 +305,15 @@ def run_checks(root: Path) -> tuple[list[str], list[str]]:
 # --- Self-test (synthetic trees; provable standalone) ---
 
 def _write_tree(root: Path, claude: str, manifest: str, playbook: str = "detail\n") -> None:
-    (root / ".claude").mkdir(parents=True, exist_ok=True)
-    (root / "references").mkdir(parents=True, exist_ok=True)
+    (root / ".claude" / "playbooks").mkdir(parents=True, exist_ok=True)
     (root / CLAUDE_REL).write_text(claude, encoding="utf-8")
     (root / MANIFEST_REL).write_text(manifest, encoding="utf-8")
-    (root / "references" / "pr-lifecycle.md").write_text(playbook, encoding="utf-8")
+    (root / ".claude" / "playbooks" / "pr-lifecycle.md").write_text(
+        playbook, encoding="utf-8")
 
 
 _MANIFEST = (
-    '- playbook: "references/pr-lifecycle.md"\n'
+    '- playbook: ".claude/playbooks/pr-lifecycle.md"\n'
     '  activity: "PR close-out"\n'
     '  retained_anchors:\n'
     '    - "Feature branch only, never"\n'
@@ -320,7 +322,7 @@ _MANIFEST = (
 )
 _CLEAN_CLAUDE = (
     "# CLAUDE.md\n\n## PR workflow\n"
-    "See [`references/pr-lifecycle.md`](../references/pr-lifecycle.md).\n"
+    "See [`.claude/playbooks/pr-lifecycle.md`](../.claude/playbooks/pr-lifecycle.md).\n"
     "Feature branch only, never `main`.\n"
 )
 _PLAYBOOK = "# pr-lifecycle\n\nA DISPATCHED ORDER IS WORK ORDERED.\n"
@@ -348,7 +350,7 @@ def self_test() -> int:
             failures += 1
             print(f"SELF-TEST FAIL (removed retained anchor should flag): {f}")
         # POSITIVE: dangling pointer (manifest target file absent) -> a finding.
-        (root / "references" / "pr-lifecycle.md").unlink()
+        (root / ".claude" / "playbooks" / "pr-lifecycle.md").unlink()
         f, _ = run_checks(root)
         if not any("DANGLING" in x or "ORPHAN" in x for x in f):
             failures += 1

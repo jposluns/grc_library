@@ -3,7 +3,7 @@
 
 `.claude/CLAUDE.md` is loaded EVERY turn, so its length is a per-turn token +
 performance tax. Phase 1 (3.139.1) cut it from 1971 to 1506 lines by relocating
-the PR-lifecycle prose to `references/pr-lifecycle.md`. This gate LOCKS IN that
+the PR-lifecycle prose to `.claude/playbooks/pr-lifecycle.md`. This gate LOCKS IN that
 gain and prevents regrowth: it FAILS when CLAUDE.md exceeds a hand-maintained
 ceiling constant.
 
