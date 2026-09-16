@@ -2,8 +2,8 @@
 
 **Document Title:** New Zealand Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.2\
-**Date:** 2026-09-15\
+**Version:** 1.1.3\
+**Date:** 2026-09-16\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -25,16 +25,16 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 ## Applicable laws and regulatory authorities
 
 - **Privacy Act 2020**: In force 2020-12-01, replacing the Privacy Act 1993. Administered by the Office of the Privacy Commissioner (OPC).
-- 13 Information Privacy Principles (IPPs) govern collection, use, disclosure, storage, and security of personal information.
+- 13 Information Privacy Principles (IPPs), plus IPP 3A (indirect-collection notice, effective 1 May 2026 under the 2025 Amendment Act), govern collection, use, disclosure, storage, and security of personal information.
 - **Mandatory breach notification:** Agencies must notify the OPC and affected individuals of privacy breaches likely to cause serious harm as soon as practicable after becoming aware.
 - **Extraterritorial reach:** Applies to any agency carrying on business in New Zealand, regardless of where they are based.
 - **EU adequacy:** the EU has recognized New Zealand as providing an adequate level of protection, facilitating data flows from the EU into New Zealand (an inbound recognition under EU law, not a provision of the Privacy Act).
 
 ---
 
-## Thirteen information privacy principles (IPPs)
+## Thirteen information privacy principles (plus IPP 3A)
 
-New Zealand's Privacy Act 2020 (s. 22) sets thirteen information privacy principles governing an agency's handling of personal information. Each is mapped to the library control that carries it, or flagged as a New Zealand-specific gap.
+New Zealand's Privacy Act 2020 (s. 22) sets thirteen information privacy principles, and from 1 May 2026 IPP 3A (notice for indirectly-collected information) under the 2025 Amendment Act, governing an agency's handling of personal information. Each is mapped to the library control that carries it, or flagged as a New Zealand-specific gap.
 
 | IPP (Privacy Act 2020, s. 22) | Library disposition |
 | --- | --- |
