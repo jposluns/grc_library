@@ -2,8 +2,8 @@
 
 **Document Title:** Certificate Authority Management Standard\
 **Document Type:** Standard\
-**Version:** 1.3.11\
-**Date:** 2026-08-31\
+**Version:** 1.3.12\
+**Date:** 2026-09-16\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`operations/standard-cloud-security-configuration-baseline.md`](standard-cloud-security-configuration-baseline.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md)\
@@ -87,7 +87,7 @@ The S/MIME Issuing CA issues email protection certificates to end users via SCEP
 
 Issues certificates for signing internal scripts, PowerShell modules, automation workflows, and software packages used internally. Certificates are trusted only by systems with the internal Root CA installed.
 
-**Hard boundary: publicly distributed software:** Code signing certificates from the internal CA are not trusted by external systems or software distribution platforms. Any software distributed outside the organization must be signed using a publicly trusted commercial CA certificate. As of December 2025, publicly trusted code signing certificates are limited to 1-year validity per CA/Browser Forum requirements. This boundary is absolute.
+**Hard boundary: publicly distributed software:** Code signing certificates from the internal CA are not trusted by external systems or software distribution platforms. Any software distributed outside the organization must be signed using a publicly trusted commercial CA certificate. Publicly trusted code signing certificates are limited to a 460-day maximum validity for certificates issued on or after 1 March 2026 (CA/Browser Forum Code Signing Baseline Requirements section 6.3.2); the library's 1-year internal renewal is stricter than that ceiling. This boundary is absolute.
 
 ### 6.4 Client authentication
 
@@ -186,7 +186,7 @@ Access to cloud-based PKI configuration is restricted to designated administrato
 | ISO/IEC 27001:2022 | A.8.24: Use of Cryptography |
 | NIST SP 800-57 | Recommendation for Key Management |
 | RFC 5280 | Internet X.509 PKI Certificate and CRL Profile |
-| CA/Browser Forum Baseline Requirements | Code Signing Certificate Validity (1-year maximum as of December 2025) |
+| CA/Browser Forum Baseline Requirements | Code Signing Certificate Validity (460-day maximum for certificates issued on or after 1 March 2026, per Code Signing Baseline Requirements section 6.3.2; the library's 1-year renewal is a stricter internal choice) |
 | S/MIME Baseline Requirements | Updated June 2025 |
 | CSA CCM v4.1 | CEK-01: Encryption and Key Management Policy and Procedures; CEK-04: Encryption Algorithm; IAM-10: Management of Privileged Access Roles |
 | COBIT 2019 | DSS05: Managed Security Services |
