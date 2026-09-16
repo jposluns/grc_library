@@ -3,55 +3,11 @@
 All notable changes to this repository are recorded in this file in two forms: while a week is current, one compact entry per change (a `date | version | PR` header followed by a short, plain-language summary a general reader can follow); once a week completes, its entries are rolled up into a single weekly summary carrying the week's contiguous PR range, so the root file preserves complete PR coverage while staying scannable as the entry count grows. The full maintainer-grade detail for each change (the Added / Changed / Removed / Fixed / Security / Verification sections) is kept in the private sibling working-state store and in git history; that mirror is how this project's maintainer tracks the full audit trail. The convention is project-specific; forks may keep their own working-state store and adopt their own approach to detailed change tracking. The mechanics are documented in the [`change-tracking` governance rule](guardrails/governance/change-tracking.md). Significant project milestones are recorded inline as dated `MILESTONE:` entries (`**YYYY-MM-DD | MILESTONE:** ...`) that float to the top of the entry stream, above that day's per-PR entries; those are never condensed by the daily or weekly roll-ups, and the roll-up tooling skips them by their `MILESTONE:` marker.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+**2026-09-16 | 2026.09.993 | PR #2289** - changelog maintenance: rolled up the 2026-09-15 per-PR entries (24 PRs, #2264-#2287) into a single daily summary and swept the detail to the archive.
+
 **2026-09-16 | 2026.09.992 | PR #2288** - internal tooling: the cross-document number-consistency check engine (flags a canonical term carrying different numeric values in different documents) moved into the reusable Corpus-Management pack; behaviour unchanged (no findings).
 
-**2026-09-15 | 2026.09.991 | PR #2287** - internal tooling: the acronym-consistency check engine (verifies inline acronym definitions against the glossary) moved into the reusable Corpus-Management pack, the first check whose scope test patches two functions; behaviour unchanged (no findings).
-
-**2026-09-15 | 2026.09.990 | PR #2286** - internal tooling: the external-link-domain check engine (validates external URLs against the publisher allow-list) moved into the reusable Corpus-Management pack, completing the safety-check family; behaviour unchanged (allow-list and URL regex identical, no findings).
-
-**2026-09-15 | 2026.09.989 | PR #2285** - internal tooling: the internal-reference check engine (internal hostnames, cloud regions, non-documentation subnets) moved into the reusable Corpus-Management pack (third safety-check transfer); behaviour unchanged (detection regexes identical, no findings).
-
-**2026-09-15 | 2026.09.988 | PR #2284** - changelog maintenance: rolled up the 2026-09-13 and 2026-09-14 daily summaries into single plain-language entries, bringing the daily roll-up current (2026-09-13 was a root-only repair of a pre-existing mirror split-brain).
-
-**2026-09-15 | 2026.09.987 | PR #2283** - internal tooling: the PII-detection check engine moved into the reusable Corpus-Management pack (second safety-check transfer); behaviour unchanged (detection regexes identical, no findings).
-
-**2026-09-15 | 2026.09.986 | PR #2282** - internal tooling: the secret-detection check engine moved into the reusable Corpus-Management pack (first of the safety-check-family transfers); behaviour unchanged (secret patterns identical, no findings).
-
-**2026-09-15 | 2026.09.985 | PR #2281** - internal tooling: the intra-document section-reference check engine moved into the reusable Corpus-Management pack (fourth shared/safety transfer); behaviour unchanged (509 files, 0 findings).
-
-**2026-09-15 | 2026.09.984 | PR #2280** - internal tooling: the section-anchor check engine moved into the reusable Corpus-Management pack (third shared/safety transfer); behaviour unchanged (511 files, 0 findings).
-
-**2026-09-15 | 2026.09.983 | PR #2279** - internal tooling: the license-consistency check engine moved into the reusable Corpus-Management pack (second shared/safety transfer), keeping the project tool as a thin wrapper and dropping a dead regex; behaviour unchanged (510 files, 0 findings).
-
-**2026-09-15 | 2026.09.982 | PR #2278** - internal tooling: the date-format check engine moved into the reusable Corpus-Management pack (first of the shared/safety check-family transfers), keeping the project tool as a thin wrapper; behaviour unchanged (511 files, 0 findings).
-
-**2026-09-15 | 2026.09.981 | PR #2277** - internal tooling: the shall-near-uncertainty check's marker patterns and proximity window moved from the check engine into the shared config file, the eighth and final check onto the shared loader, completing the vocabulary/config split; behaviour unchanged.
-
-**2026-09-15 | 2026.09.980 | PR #2276** - internal tooling: the placeholder-leakage check's marker patterns moved from the check engine into the shared config file (order preserved), the seventh check onto the shared loader; behaviour unchanged.
-
-**2026-09-15 | 2026.09.979 | PR #2275** - internal tooling: the stub-document check's marker phrases and word-count threshold moved from the check engine into the shared config file, the sixth check onto the shared loader; behaviour unchanged.
-
-**2026-09-15 | 2026.09.978 | PR #2274** - internal tooling: the language/spelling check's vocabulary (ise/isation/yse spelling lists + verbatim exemptions) moved from the check engine into the shared config file, the fifth check onto the shared loader and the first to parameterize the engine itself; behaviour unchanged.
-
-**2026-09-15 | 2026.09.977 | PR #2273** - internal tooling: the filename/title alignment check now reads its document-type and acronym vocabulary from the shared config file instead of a hardcoded copy, the fourth check moved onto the shared loader; behaviour unchanged.
-
-**2026-09-15 | 2026.09.976 | PR #2272** - internal tooling: the section-placement check now reads its ordering rules from the shared config file instead of a hardcoded copy, the third check moved onto the shared loader; behaviour unchanged.
-
-**2026-09-15 | 2026.09.975 | PR #2271** - internal tooling: the required-sections check now reads its by-document-type section model from the shared config file instead of a hardcoded copy, the second check moved onto the shared loader; behaviour unchanged.
-
-**2026-09-15 | 2026.09.974 | PR #2270** - internal tooling: the framework-citation check now reads its denylist from the shared config file added in the previous change instead of a hardcoded copy, removing the duplication; the check's behaviour is unchanged.
-
-**2026-09-15 | 2026.09.973 | PR #2269** - internal tooling: added a reference-vocabulary profile loader so an adopter can override the corpus-management pack's built-in vocabulary lists through versioned config files, shipping the framework-citation denylist as the first such list; no check changes behaviour yet.
-
-**2026-09-15 | 2026.09.972 | PR #2268** - privacy accuracy: six Americas / East-Asia-Pacific jurisdiction annexes (Canada, New Zealand, US, China, Brazil, South Korea) source-qualified specific regulator AI guidance not held in the reference base, dropped unsupported market-adoption claims, and anchored China's regulator description to the held statute (PIPL Art. 60). Completes the P-1.84 non-statutory AI-attribution sweep across the jurisdiction annexes.
-
-**2026-09-15 | 2026.09.971 | PR #2267** - privacy accuracy: four MEA / South-Asia jurisdiction annexes (Saudi Arabia, UAE, Nigeria, Indonesia) asserted specific AI-framework editions and forward-looking regulator activity not backed by held sources. Each drops the uncorroborated specifics and applies the library's adopter-confirm hedge, keeping only what the held sources support.
-
-**2026-09-15 | 2026.09.970 | PR #2266** - privacy accuracy: three European jurisdiction annexes (UK, Switzerland, Turkey) asserted specific regulator AI guidance, an AI-body designation, a treaty-ratification status, and forward-looking legislative claims not backed by held sources. Each keeps the well-established substance but qualifies the specific claim to the library's adopter-confirm hedge, and softens Turkey's KVKK claim to non-binding guidance.
-
-**2026-09-15 | 2026.09.969 | PR #2265** - privacy accuracy corrections: three jurisdiction annexes (Malaysia, Australia, Singapore) carried stale or uncorroborated AI-framework dates and authority claims. Malaysia's AI ethics framework is corrected from a wrong '2021' to the held MOSTI National Guidelines on AI Governance and Ethics (September 2024), its regulator claim anchored to the Act; Australia's AI Ethics Principles date is corrected to the held 2019/2025; and unsupported market-adoption clauses are dropped.
-
-**2026-09-15 | 2026.09.968 | PR #2264** - privacy accuracy fix: three jurisdiction annexes (Malaysia, Thailand, Philippines) asserted as fact that a data-protection regulator had confirmed AI-specific compliance obligations, with no source in the reference base backing the attribution. Each is rephrased to the library's standard form: the statute's principles apply to AI processing, and the specific regulator AI guidance is not held, so an adopter confirms the current position directly.
+**2026-09-15 | 2026.09.991 | PRs #2264-#2287 (24 PRs)** - Corrected privacy jurisdiction annexes across the Americas, Europe, the Middle East and Africa, South Asia, and East Asia and the Pacific for factual accuracy, and advanced the internal audit-tooling refactor: a large batch of corpus quality-check engines were migrated into the standalone reusable pack (with a reference-vocabulary profile loader added to support it), alongside routine changelog maintenance.
 
 **2026-09-14 | 2026.09.967 | PRs #2211-#2263 (53 PRs)** - A day dominated by citation-precision work across the corpus: framework-alignment references in dozens of risk, resilience, operations, architecture, governance, compliance, development-security, and supply-chain documents were narrowed from whole-function and whole-standard claims down to the specific clauses, subcategories, and controls each document actually engages, closing the risk domain and the held-source resilience work along the way while leaving genuinely-spanning citations broad where that breadth is correct. The governance relationship model gained its first substantial slices of real corpus relationships, adding the risk, compliance-audit, and supplier-governance instrument hierarchies together with several external-standard crosswalks for the AI-governance and AI-assurance frameworks. A run of consistency corrections surfaced by the resume validation reconciled the compliance finding-tier scheme to a single five-tier model across the internal-audit, corrective-action, and audit-planning documents, aligned the automated-decision references to reflect the United Kingdom's replacement of its former data-protection provision, and fixed several cross-document drifts in standard versions, regulatory article ranges, and alignment descriptions. The remainder was internal tooling and orchestration upkeep, chiefly a wave that moved the corpus audit engines into the portable governance pack behind thin project wrappers.
 
