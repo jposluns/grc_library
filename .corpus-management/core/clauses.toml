@@ -176,3 +176,9 @@ id = "acronym-consistency"
 title = "Acronym consistency (an inline acronym definition overlaps the glossary expansion by at least one significant word)"
 source = "core/rules/acronym-consistency.md"
 origin = "grc_library tools/lint-acronym-consistency.py gate rationale (new clause in SHARED/SAFETY-lane PR-41, the first 2nd-seam SHARED transfer; generated AI-facing rule via gensrc, kind=file, like external-link-domain; the GLOSSARY_ROW_RE + INLINE_DEF_RE + STOPWORDS + parse_glossary + the overlap scan is the engine, the grc glossary-register path + scan scope + exempt-file set are wrapper config; parse_glossary takes the glossary path as a parameter and both parse_glossary and scan stay wrapper module-global shims because the scan-scope test patches BOTH)"
+
+[[clauses]]
+id = "cross-doc-numbers"
+title = "Cross-document number consistency (a tracked canonical term carries one consistent numeric value across documents)"
+source = "core/rules/cross-doc-numbers.md"
+origin = "grc_library tools/lint-cross-doc-numbers.py gate rationale (new clause in SHARED/SAFETY-lane PR-42, the second 2nd-seam SHARED transfer, though it only patches scan (whose dict return makes the scope-test capture return {}); generated AI-facing rule via gensrc, kind=file, like acronym-consistency; the TERM_PATTERNS + TERMS_SCANNED_IN_CODE_FENCES + UNIT_TO_MINUTES + normalise + the per-file scan is the engine, the grc scan scope + exempt-file set are wrapper config; the cross-document aggregation stays in the wrapper's main. The engine .py is out of the .md-only scan scope, so no engine self-exemption is needed (unlike the SAFETY .py-scanning gates))"

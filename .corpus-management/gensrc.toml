@@ -210,3 +210,10 @@ kind = "file"
 sources = ["core/rules/acronym-consistency.md"]
 target = ".claude/rules/corpus-management/acronym-consistency.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "cross-doc-numbers"
+kind = "file"
+sources = ["core/rules/cross-doc-numbers.md"]
+target = ".claude/rules/corpus-management/cross-doc-numbers.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]

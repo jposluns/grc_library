@@ -66,14 +66,14 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
-import re
 import sys
 from collections import defaultdict
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import iter_non_code_lines, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
 from lint_common import REPO_ROOT, iter_markdown_targets  # noqa: E402  # grc-config/store, stays local
+
+PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
 DEFAULT_PATHS = [str(REPO_ROOT)]
 
@@ -84,77 +84,25 @@ EXEMPT_FILES = {
     # narrative.
     "CHANGELOG.md",
 }
-# Phase 23.62 removed `lint-cross-doc-numbers.py` from this set: the
-# linter scans `.md` only, so the .py entry was unreachable. Phase
-# 23.64 added the inline justification above for the remaining
-# CHANGELOG entry (previously undocumented).
-
-# Each pattern extracts (term, value_text). The match must be a substring
-# of a single line to avoid spurious cross-line matches.
-#
-# Patterns capture both the time/duration value AND a unit, normalizing
-# minute/hour/day equivalences during comparison.
-TERM_PATTERNS: dict[str, re.Pattern[str]] = {
-    # Privileged-role activation maximum. PAM Section 4.2 is authoritative;
-    # the alternative value-before-term form binds the portable authentication
-    # guardrail. The lookahead may not cross a semicolon, so the guardrail row
-    # "8 hours absolute; 1 hour for elevated privilege sessions" captures the
-    # elevated-privilege value rather than the standard-session timeout.
-    "privileged-role-activation-maximum": re.compile(
-        r"(?:\bprivileged-role activation\b[^.;\n]{0,160}?"
-        r"|(?=[^.;\n]{0,80}\bfor elevated privilege sessions\b))"
-        r"(\d+)[\s\-]*(minute|hour)s?\b",
-        re.IGNORECASE,
-    ),
-    # GDPR (and UK GDPR) breach notification: Article 33 sets a 72-hour
-    # deadline. Captures the first N-hour fragment after "GDPR" on the
-    # same line, requiring "breach", "notif", "report", or "notify" to
-    # appear within the same window to narrow the FP surface. Statutory:
-    # any value other than 72 indicates a defect.
-    "GDPR-breach-notification-hours": re.compile(
-        r"\b(?:UK\s+)?GDPR\b[^.\n]{0,250}?(?:breach|notif|notify|report)[^.\n]{0,150}?(\d+)[\s\-]*(hour)s?\b",
-        re.IGNORECASE,
-    ),
-}
-
-# Most tracked terms inspect prose only. This term also has a normative
-# carrier inside the portable guardrail's fenced timeout block.
-TERMS_SCANNED_IN_CODE_FENCES: frozenset[str] = frozenset(
-    {"privileged-role-activation-maximum"}
-)
-
-UNIT_TO_MINUTES = {
-    "minute": 1,
-    "hour": 60,
-    "day": 60 * 24,
-    "business day": 60 * 8,  # 8-hour business day
-}
 
 
-def normalise(value: int, unit: str) -> int:
-    """Return value in minutes."""
-    unit_clean = unit.lower().rstrip("s")
-    return value * UNIT_TO_MINUTES.get(unit_clean, 0)
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_cross_doc_numbers  # the pack-owned engine (source of record)
+    return gate_lint_cross_doc_numbers
 
 
 def scan(path: Path) -> dict[str, set[tuple[int, str]]]:
-    """Return {term: {(normalised_minutes, raw_text), ...}} for the file."""
-    out: dict[str, set[tuple[int, str]]] = defaultdict(set)
-    text = read_text_safe(path)
-    if text is None:
-        return out
-    non_code_lines = tuple(iter_non_code_lines(text))
-    all_lines = tuple(enumerate(text.splitlines(), start=1))
-    for term, pattern in TERM_PATTERNS.items():
-        lines = all_lines if term in TERMS_SCANNED_IN_CODE_FENCES else non_code_lines
-        for _lineno, line in lines:
-            for m in pattern.finditer(line):
-                value = int(m.group(1))
-                unit = m.group(2)
-                norm = normalise(value, unit)
-                raw = f"{value} {unit}"
-                out[term].add((norm, raw))
-    return out
+    """Thin shim delegating to the pack engine's pure per-file check.
+
+    Kept in the wrapper as a module-global because the scan-scope regression
+    test patches ``mod.scan`` and runs ``main``; the tracked-term regexes and the
+    normalization logic live in the engine.
+    """
+    return _engine().scan(path)
 
 
 def main(argv: list[str]) -> int:
