@@ -19891,5 +19891,62 @@ class CrossDocNumbersEngineTransferTests(unittest.TestCase):
             self.assertEqual(dict(self.engine.scan(Path("d.md"))), {})
 
 
+class CobitIso31000CitationsEngineTransferTests(unittest.TestCase):
+    """gate 62 engine after the SHARED/SAFETY-lane PR-43 transfer (Pattern A + keyword-parameter
+    variant): the citation regexes + _iso31000_clauses_on_line + Finding + scan_file live in the
+    pack engine; the wrapper keeps a module-global scan_file shim + the grc scope config, and the
+    COBIT/ISO reference data (COBIT_OBJECTIVES / COBIT_PRACTICE_COUNTS / ISO31000_CLAUSES) stays
+    wrapper-side, threaded to the engine as keyword parameters."""
+
+    def setUp(self):
+        self.wrapper = load_linter_module(
+            "tools/lint-cobit-iso31000-citations.py", "_cobit_engine_xfer")
+        self.engine = self.wrapper._engine()
+
+    def _scan(self, tmp):
+        return self.engine.scan_file(
+            Path(tmp),
+            cobit_objectives=self.wrapper.COBIT_OBJECTIVES,
+            cobit_practice_counts=self.wrapper.COBIT_PRACTICE_COUNTS,
+            iso31000_clauses=self.wrapper.ISO31000_CLAUSES,
+        )
+
+    def test_check_moved_to_engine(self):
+        for name in ("scan_file", "COBIT_CODE_RE", "Finding", "_iso31000_clauses_on_line"):
+            self.assertTrue(hasattr(self.engine, name), f"engine missing {name}")
+        for name in ("COBIT_CODE_RE", "Finding", "_iso31000_clauses_on_line"):
+            self.assertFalse(hasattr(self.wrapper, name),
+                             f"wrapper should not redefine {name} (moved to engine)")
+        self.assertTrue(hasattr(self.wrapper, "scan_file"))          # the shim
+        self.assertTrue(hasattr(self.wrapper, "EXEMPT_FILES"))
+        for name in ("COBIT_OBJECTIVES", "COBIT_PRACTICE_COUNTS", "ISO31000_CLAUSES"):
+            self.assertTrue(hasattr(self.wrapper, name),
+                            f"wrapper missing wrapper-side reference data {name}")
+
+    def test_scan_file_flags_fabricated_objective(self):
+        import tempfile
+        import os
+        with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False) as fh:
+            fh.write("The mapping references COBIT APO99 for oversight.\n")
+            tmp = fh.name
+        try:
+            findings = self._scan(tmp)
+        finally:
+            os.unlink(tmp)
+        self.assertTrue(any("APO99" in f.message for f in findings))
+
+    def test_scan_file_clean_doc_empty(self):
+        import tempfile
+        import os
+        with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False) as fh:
+            fh.write("Ordinary prose with no framework citations at all.\n")
+            tmp = fh.name
+        try:
+            findings = self._scan(tmp)
+        finally:
+            os.unlink(tmp)
+        self.assertEqual(findings, [])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

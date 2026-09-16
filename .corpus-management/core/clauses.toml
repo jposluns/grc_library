@@ -182,3 +182,9 @@ id = "cross-doc-numbers"
 title = "Cross-document number consistency (a tracked canonical term carries one consistent numeric value across documents)"
 source = "core/rules/cross-doc-numbers.md"
 origin = "grc_library tools/lint-cross-doc-numbers.py gate rationale (new clause in SHARED/SAFETY-lane PR-42, the second 2nd-seam SHARED transfer, though it only patches scan (whose dict return makes the scope-test capture return {}); generated AI-facing rule via gensrc, kind=file, like acronym-consistency; the TERM_PATTERNS + TERMS_SCANNED_IN_CODE_FENCES + UNIT_TO_MINUTES + normalise + the per-file scan is the engine, the grc scan scope + exempt-file set are wrapper config; the cross-document aggregation stays in the wrapper's main. The engine .py is out of the .md-only scan scope, so no engine self-exemption is needed (unlike the SAFETY .py-scanning gates))"
+
+[[clauses]]
+id = "cobit-iso31000-citations"
+title = "COBIT and ISO 31000 citation existence (a cited framework code resolves to a real catalogue entry)"
+source = "core/rules/cobit-iso31000-citations.md"
+origin = "grc_library tools/lint-cobit-iso31000-citations.py gate rationale (new clause in SHARED/SAFETY-lane PR-43)"

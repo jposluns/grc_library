@@ -217,3 +217,10 @@ kind = "file"
 sources = ["core/rules/cross-doc-numbers.md"]
 target = ".claude/rules/corpus-management/cross-doc-numbers.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "cobit-iso31000-citations"
+kind = "file"
+sources = ["core/rules/cobit-iso31000-citations.md"]
+target = ".claude/rules/corpus-management/cobit-iso31000-citations.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]
