@@ -716,6 +716,11 @@ def discover_version_history_files() -> list[tuple[str, str]]:
         if is_default_exempt_root(path, repo_root=REPO_ROOT):
             continue
         rel = path.relative_to(REPO_ROOT)
+        # Test scratch (tests/tmp) holds transient fixtures, not corpus; a
+        # chmod-0 fixture .md there (e.g. the claude-rules-sync synthetic tree)
+        # would crash the raw rglob read (gate-37 defence-in-depth fix 2).
+        if rel.parts[:2] == ("tests", "tmp"):
+            continue
         if any(part in DEFAULT_EXEMPT_DIRS for part in rel.parts):
             continue
         text = read_text_safe(path)

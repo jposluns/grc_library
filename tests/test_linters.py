@@ -77,6 +77,20 @@ Test fixture content for the linter regression suite.
 """
 
 
+def _force_rmtree(path) -> None:
+    """Remove a fixture tree even if an entry's permissions were stripped
+    (e.g. test_unreadable's chmod-0 secrets.md left by a crashed run).
+    Version-agnostic: restore perms top-down, then rmtree ignoring residue
+    (avoids the shutil.rmtree onerror/onexc signature change across 3.11-3.14)."""
+    for parent, dirs, files in os.walk(path, topdown=True):
+        for name in dirs + files:
+            try:
+                os.chmod(os.path.join(parent, name), 0o700)
+            except OSError:
+                pass
+    shutil.rmtree(path, ignore_errors=True)
+
+
 def setUpModule() -> None:
     """Ensure the per-test fixture directory exists and is empty.
 
@@ -90,6 +104,13 @@ def setUpModule() -> None:
             f.unlink()
         except OSError:
             pass
+    # Also remove leftover fixture SUBDIRECTORIES from a crashed prior run:
+    # setUpModule previously swept only top-level *.md, so a chmod-0
+    # synthetic-claude-rules-sync/.claude/rules/secrets.md could survive and
+    # poison a later --root read (gate-37 fix 1c).
+    for sub in FIXTURE_DIR.iterdir():
+        if sub.is_dir():
+            _force_rmtree(sub)
 
 
 def tearDownModule() -> None:
@@ -103,6 +124,9 @@ def tearDownModule() -> None:
             f.unlink()
         except OSError:
             pass
+    for sub in FIXTURE_DIR.iterdir():
+        if sub.is_dir():
+            _force_rmtree(sub)
 
 
 def run_linter(script: str, *paths: str | Path) -> subprocess.CompletedProcess:
@@ -5975,11 +5999,12 @@ class ClaudeRulesSyncTests(LinterTestCase):
         uses for secrets.md, so the synthetic local copy may carry a
         provenance comment while the source does not.
         """
-        import shutil
-
-        root = FIXTURE_DIR / "synthetic-claude-rules-sync"
-        if root.exists():
-            shutil.rmtree(root)
+        # Unique per-call scratch dir: two ClaudeRulesSync tests can then never
+        # collide on one shared path, which is what produced the spurious rc-2
+        # "claude-rules-sync internal error: PermissionError" when
+        # test_unreadable's chmod-0 secrets.md raced (or was left over from an
+        # interrupted run) against another --root test's read (gate-37 fix 1a).
+        root = Path(tempfile.mkdtemp(prefix="synthetic-claude-rules-sync-", dir=FIXTURE_DIR))
         local_rel = ".claude/rules/secrets.md"
         source_rel = "guardrails/core/secrets.md"
         (root / ".claude" / "rules").mkdir(parents=True)
@@ -6013,7 +6038,9 @@ class ClaudeRulesSyncTests(LinterTestCase):
         )
         target = root / ".claude" / "rules" / "secrets.md"
         os.chmod(target, 0)
-        self.addCleanup(shutil.rmtree, root, True)
+        # LIFO cleanup: restore perms first, then a chmod-aware rmtree so a
+        # stripped mode can never leave a leftover behind (gate-37 fix 1b).
+        self.addCleanup(_force_rmtree, root)
         self.addCleanup(os.chmod, target, 0o644)
         saved = mod.MIRROR_MAP
         try:
@@ -6022,6 +6049,32 @@ class ClaudeRulesSyncTests(LinterTestCase):
         finally:
             mod.MIRROR_MAP = saved
         self.assertEqual(rc, 2, "unreadable mapped file must be a clean exit 2")
+
+    def test_make_synthetic_uses_unique_dirs(self) -> None:
+        # gate-37 fix 1a: two synthetic roots must never share a path, or a
+        # chmod-0 fixture from one test poisons another's --root read.
+        r1, _ = self._make_synthetic(local_body="# T\n\nB.\n", source_body="# T\n\nB.\n")
+        self.addCleanup(_force_rmtree, r1)
+        r2, _ = self._make_synthetic(local_body="# T\n\nB.\n", source_body="# T\n\nB.\n")
+        self.addCleanup(_force_rmtree, r2)
+        self.assertNotEqual(r1, r2, "each _make_synthetic call must get a unique fixture dir")
+
+    def test_setupmodule_sweeps_chmod0_leftover_subdir(self) -> None:
+        # gate-37 fix 1c: a crash-interrupted run can leave a chmod-0
+        # secrets.md under a fixture subdir; setUpModule's subdir sweep must
+        # remove it so it cannot poison a later --root read.
+        top = FIXTURE_DIR / "synthetic-claude-rules-sync-leftovertest"
+        leftover = top / ".claude" / "rules"
+        leftover.mkdir(parents=True, exist_ok=True)
+        secrets = leftover / "secrets.md"
+        secrets.write_text("# secret\n", encoding="utf-8")
+        os.chmod(secrets, 0)
+        self.addCleanup(_force_rmtree, top)
+        setUpModule()
+        self.assertFalse(
+            top.exists(),
+            "setUpModule must sweep leftover chmod-0 fixture subdirectories",
+        )
 
     def test_current_state_passes(self) -> None:
         # The live repository state must be in sync (this is what every
