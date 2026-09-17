@@ -63,21 +63,15 @@ import re
 import sys
 from pathlib import Path
 
-import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import METADATA_FIELD_RE, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
+import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path (engine imports aiqt_corpus)
 from lint_common import REPO_ROOT  # noqa: E402  # grc-config/store, stays local
 
-# The boundary gate scans the WHOLE repository (both sides), minus only the
-# vendored / non-content directories (NOT the shared corpus exempt-dir set):
-# the spec's "outside executive/, anywhere in the repository" is repository-wide,
-# so the pack and reference trees are scanned too. The line-anchored, fence-aware
-# match flags only a real narrative metadata-field line, never a prose mention or
-# a fenced example, so operational prose that discusses the fields never
-# false-positives.
+PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
+
 BOUNDARY_SKIP_DIRS = frozenset({".git", "node_modules", "__pycache__"})
 
 NARRATIVE_DOCUMENT_TYPE = "Executive Narrative"
-ENTRY_POINT = "executive/README.md"  # the single named, PATH-scoped exemption
+ENTRY_POINT = "executive/README.md"
 
 # The 8 narrative-extension fields (spec, "Canonical metadata and narrative
 # extension"). Presence of ANY of these outside executive/ is a defect;
@@ -93,12 +87,9 @@ EXTENSION_FIELDS: tuple[str, ...] = (
     "Last Reviewed",
 )
 
-# The allowed corpus document types. Mirrors lint-metadata.py ALLOWED_TYPES;
-# keeping the two in step is an integration-phase parity obligation (either a
-# regression fixture or a hoist to lint_common). `Executive Narrative` must
-# NEVER be added to the corpus set (spec: "No one may ever resolve the failure
-# by adding the type"); this constant is the other half of that symmetry: no
-# corpus type may appear inside executive/.
+# The allowed corpus document types (mirrors lint-metadata.py ALLOWED_TYPES).
+# `Executive Narrative` must NEVER be added to the corpus set; kept
+# wrapper-accessible for the in-process drift test.
 CORPUS_DOCUMENT_TYPES: frozenset[str] = frozenset(
     {
         "Charter",
@@ -132,128 +123,32 @@ EXTENSION_FIELD_LINE_RE = re.compile(
 )
 
 
-# Marker-aware fence parser (CommonMark): a fenced block closes only on a line
-# using the SAME marker char and a run length >= the opener, with no info string.
-# The shared ``is_fence_line`` predicate is a bare toggle (by design, for its many
-# consumers), so a ``` line inside a ~~~ fence would wrongly close it; gate 86 needs
-# marker-type tracking so a fenced example's metadata line is not a false leak.
-_FENCE_RE = re.compile(r"^\s*(`{3,}|~{3,})(.*)$")
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_narrative_boundary  # the pack-owned engine (source of record)
+    return gate_lint_narrative_boundary
 
 
-def _fence_marker(line: str) -> tuple[str, int, str] | None:
-    """(char, run-length, info-string) for a fence delimiter line, else None."""
-    m = _FENCE_RE.match(line)
-    if not m:
-        return None
-    run = m.group(1)
-    return run[0], len(run), m.group(2).strip()
-
-
-def _closes(marker: "tuple[str, int, str] | None", opener: "tuple[str, int]") -> bool:
-    """True iff ``marker`` closes a block opened by ``opener`` (same char, length
-    >= opener, no info string)."""
-    return (marker is not None and marker[0] == opener[0]
-            and marker[1] >= opener[1] and not marker[2])
-
-
-def parse_metadata_run(text: str) -> dict[str, str]:
-    """First-occurrence field values of the leading metadata run (the block
-    ending at the first ``---`` or blank line after at least one field)."""
-    fields: dict[str, str] = {}
-    seen = False
-    open_fence: "tuple[str, int] | None" = None
-    for line in text.splitlines():
-        # Fence-aware (marker-type-tracking): a fenced example block is not the
-        # metadata run. A block closes only on the same marker char and length; a
-        # mismatched fence inside it (``` inside a ~~~ block) is content.
-        marker = _fence_marker(line)
-        if open_fence is not None:
-            if _closes(marker, open_fence):
-                open_fence = None
-            continue
-        if marker is not None:
-            open_fence = (marker[0], marker[1])
-            continue
-        stripped = line.strip()
-        if seen and (stripped.startswith("---") or not stripped):
-            break
-        m = METADATA_FIELD_RE.match(line)
-        if m:
-            name, value = m.group(1).strip(), m.group(2).strip()
-            if value.endswith("\\"):
-                value = value[:-1].rstrip()
-            fields.setdefault(name, value)
-            seen = True
-    return fields
+# Configure the engine ONCE with the grc narrative markers + type/field sets.
+import types  # noqa: E402
+_engine().configure(types.SimpleNamespace(
+    narrative_document_type=NARRATIVE_DOCUMENT_TYPE, entry_point=ENTRY_POINT,
+    extension_fields=EXTENSION_FIELDS, corpus_document_types=CORPUS_DOCUMENT_TYPES,
+    narrative_type_line_re=NARRATIVE_TYPE_LINE_RE,
+    extension_field_line_re=EXTENSION_FIELD_LINE_RE))
 
 
 def scan_outside_file(path: Path, rel: str) -> list[str]:
-    """The OUTSIDE side: reject narrative type / extension fields anywhere.
-
-    Fence-aware and line-anchored (see module docstring). Applied to every
-    ``.md`` outside the root ``executive/`` tree, README paths included."""
-    text = read_text_safe(path)
-    if text is None:
-        return [f"{rel}: not readable / not utf-8 (a file outside executive/ that cannot be "
-                f"read cannot be cleared of narrative markers; fail loud, not open)"]
-    findings: list[str] = []
-    open_fence: "tuple[str, int] | None" = None
-    for lineno, line in enumerate(text.splitlines(), 1):
-        marker = _fence_marker(line)
-        if open_fence is not None:
-            # inside a fenced block: closes only on the same marker char and a
-            # length >= the opener with no info string; a mismatched fence
-            # (``` inside a ~~~ block) is content, not a close.
-            if _closes(marker, open_fence):
-                open_fence = None
-            continue
-        if marker is not None:
-            open_fence = (marker[0], marker[1])
-            continue
-        if NARRATIVE_TYPE_LINE_RE.match(line):
-            findings.append(
-                f"{rel}:L{lineno}: narrative document type {NARRATIVE_DOCUMENT_TYPE!r} "
-                f"outside executive/ (a narrative page outside executive/ is a defect; "
-                f"move the page, never retype it)"
-            )
-        m = EXTENSION_FIELD_LINE_RE.match(line)
-        if m:
-            findings.append(
-                f"{rel}:L{lineno}: narrative-extension field {m.group(1)!r} outside "
-                f"executive/ (extension fields are narrative-only; this closes the "
-                f"retyped-leak escape of the corpus metadata gate)"
-            )
-    return findings
+    """Shim -> engine (engine already configured); kept module-global for the self-test + run."""
+    return _engine().scan_outside_file(path, rel)
 
 
 def check_inside_page(path: Path, rel: str) -> list[str]:
-    """The INSIDE side: require the narrative type and the full extension
-    block; reject corpus document types. Applied to every ``.md`` under the
-    root ``executive/`` tree except the path-scoped ``executive/README.md``."""
-    text = read_text_safe(path)
-    if text is None:
-        return [f"{rel}: not readable / not utf-8"]
-    findings: list[str] = []
-    meta = parse_metadata_run(text)
-    dtype = meta.get("Document Type")
-    if dtype in CORPUS_DOCUMENT_TYPES:
-        findings.append(
-            f"{rel}: corpus document type {dtype!r} inside executive/ (executive/ is "
-            f"not a corpus domain; a corpus document may never live here)"
-        )
-    elif dtype != NARRATIVE_DOCUMENT_TYPE:
-        findings.append(
-            f"{rel}: every page under executive/ must carry Document Type "
-            f"{NARRATIVE_DOCUMENT_TYPE!r}, got {dtype!r} (only the entry point "
-            f"{ENTRY_POINT} is exempt, path-scoped)"
-        )
-    for fld in EXTENSION_FIELDS:
-        if fld not in meta:
-            findings.append(
-                f"{rel}: missing narrative-extension field {fld!r} (every narrative "
-                f"page carries the full 8-field extension block)"
-            )
-    return findings
+    """Shim -> engine (engine already configured); kept module-global for the self-test + run."""
+    return _engine().check_inside_page(path, rel)
 
 
 def discover(root: Path) -> tuple[list[tuple[Path, str]], list[tuple[Path, str]]]:

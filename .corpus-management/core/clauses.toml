@@ -308,3 +308,10 @@ id = "narrative-authority-boundary"
 title = "One-way narrative authority-boundary (no corpus document or taxonomy row may reference the narrative-root tree)"
 source = "core/rules/narrative-authority-boundary.md"
 origin = "grc_library tools/lint-narrative-authority-boundary.py gate rationale (new clause in the Group-A content-generic transfer lane, narrative-family; the link/fence regexes + helpers + _resolves_into_narrative + check_file + check_taxonomy are the engine, moved verbatim; the narrative root + its mention regexes + the corpus scan scope are supplied via configure(ref) / the wrapper; the grc scope (iter_markdown_files) + self-test + main are wrapper config)"
+
+
+[[clauses]]
+id = "narrative-boundary"
+title = "Symmetric narrative-boundary (outside the narrative tree no file carries narrative markers; inside it every page carries the full narrative form and no corpus type)"
+source = "core/rules/narrative-boundary.md"
+origin = "grc_library tools/lint-narrative-boundary.py gate rationale (new clause in the Group-A content-generic transfer lane, narrative-family; the fence helpers + parse_metadata_run + scan_outside_file + check_inside_page are the engine, moved verbatim; the narrative type/entry-point/extension-field/corpus-type sets + the two marker regexes + the repository scan scope are supplied via configure(ref) / the wrapper; discover + self-test + main are wrapper config)"
