@@ -371,3 +371,10 @@ kind = "file"
 sources = ["core/rules/narrative-boundary.md"]
 target = ".claude/rules/corpus-management/narrative-boundary.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "narrative-metadata"
+kind = "file"
+sources = ["core/rules/narrative-metadata.md"]
+target = ".claude/rules/corpus-management/narrative-metadata.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]

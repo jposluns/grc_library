@@ -263,3 +263,8 @@ target = ".claude/rules/corpus-management/narrative-authority-boundary.md"
 rule = "narrative-boundary"
 kind = "file"
 target = ".claude/rules/corpus-management/narrative-boundary.md"
+
+[[owned_targets]]
+rule = "narrative-metadata"
+kind = "file"
+target = ".claude/rules/corpus-management/narrative-metadata.md"
