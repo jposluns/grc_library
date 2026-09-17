@@ -308,3 +308,10 @@ kind = "file"
 sources = ["core/rules/matrix-control-codes.md"]
 target = ".claude/rules/corpus-management/matrix-control-codes.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "ccm-provider-member-range"
+kind = "file"
+sources = ["core/rules/ccm-provider-member-range.md"]
+target = ".claude/rules/corpus-management/ccm-provider-member-range.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]

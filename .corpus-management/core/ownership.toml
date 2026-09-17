@@ -218,3 +218,8 @@ target = ".claude/rules/corpus-management/ccm-aicm-citations.md"
 rule = "matrix-control-codes"
 kind = "file"
 target = ".claude/rules/corpus-management/matrix-control-codes.md"
+
+[[owned_targets]]
+rule = "ccm-provider-member-range"
+kind = "file"
+target = ".claude/rules/corpus-management/ccm-provider-member-range.md"

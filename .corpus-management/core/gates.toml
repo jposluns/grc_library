@@ -342,3 +342,11 @@ source = "tools/gate_lint_matrix_control_codes.py"
 enforces = "matrix-control-codes"
 entry_point = "tools/lint-matrix-control-codes.py"
 origin = "grc_library tools/lint-matrix-control-codes.py, grc gate 49 (engine transferred in the Group-A content-generic lane via Pattern A, completing the content-generic lane). Finding + the header/regex constants + the row helpers (split_row, is_separator_row, tokenize_cell) + the per-framework checks (check_nist_token, check_ccm_token, check_aicm_token) + scan_matrix moved verbatim to the pack engine (byte-identical; checks+scan_matrix diff empty; 17 regression tests pass). The five framework-reference predicates (is_valid_category, relocation_note, is_ccm_v41, is_aicm_only, check_iso_token) are supplied via configure(ref), so the engine is catalogue-free. The wrapper imports the shared reference modules (ccm_aicm_reference, iso_27001_reference (gate 58), nist_csf_reference (gate 54)), configures the engine once, and keeps the matrix scan scope (MATRIX_PATH) + a module-global scan_matrix(path) shim + lint_target + main + exit codes. aiqt_corpus import guard."
+
+[[gates]]
+id = "lint-ccm-provider-member-in-range"
+title = "CCM family-range provider-to-tenant member direction audit"
+source = "tools/gate_lint_ccm_provider_member_in_range.py"
+enforces = "ccm-provider-member-range"
+entry_point = "tools/lint-ccm-provider-member-in-range.py"
+origin = "grc_library tools/lint-ccm-provider-member-in-range.py, grc gate 100 (engine transferred in the Group-A content-generic lane via Pattern A). RANGE_RE + swept_members + the fence/inline-code regexes + scan_text moved verbatim to the pack engine (byte-identical; scan_text diff empty; 4 regression tests pass; corpus output identical). The directional provider-to-tenant member set is supplied via configure(directional_members), so the engine carries no project catalogue. The wrapper supplies DIRECTIONAL_PROVIDER_MEMBERS, configures the engine once, and keeps the scan scope (scan_targets, exposed for the scan-scope regression) + a module-global scan_text shim + main + exit codes."
