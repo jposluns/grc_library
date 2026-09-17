@@ -329,3 +329,10 @@ kind = "file"
 sources = ["core/rules/cobit-title-text.md"]
 target = ".claude/rules/corpus-management/cobit-title-text.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "ssdf-control-ids"
+kind = "file"
+sources = ["core/rules/ssdf-control-ids.md"]
+target = ".claude/rules/corpus-management/ssdf-control-ids.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]

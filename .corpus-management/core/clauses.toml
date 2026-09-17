@@ -278,3 +278,9 @@ id = "cobit-title-text"
 title = "COBIT objective-title canonicality (a COBIT objective code cited with a paired title must carry that objective's canonical catalogue title)"
 source = "core/rules/cobit-title-text.md"
 origin = "grc_library tools/lint-cobit-title-text.py gate rationale (new clause in the Group-A content-generic transfer lane; the objective-code/title regexes + _norm + extract_title + scan_text + scan_file are the engine, moved verbatim; the COBIT objective catalogue is supplied via configure(objectives); the grc cobit_iso31000_reference catalogue + EXEMPT_FILES + main are wrapper config)"
+
+[[clauses]]
+id = "ssdf-control-ids"
+title = "NIST SSDF control-identifier validity (an SSDF control id cited in a document must be a valid practice/task, and an SSDF column must hold only SSDF-family codes)"
+source = "core/rules/ssdf-control-ids.md"
+origin = "grc_library tools/lint-ssdf-control-ids.py gate rationale (new clause in the Group-A content-generic transfer lane; the SSDF regexes + _split_cells + _is_sep + _validate_ssdf_id + check_file are the engine, moved verbatim; the SSDF catalogue is supplied via configure(ref) (valid practices, valid tasks, family tuple); the grc catalogue + EXEMPT_SUFFIXES + main are wrapper config)"
