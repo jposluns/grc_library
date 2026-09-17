@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Worklist: Batch Q4 (Remaining Canonical Citations)\
 **Document Type:** Worklist\
-**Version:** 1.0.18\
-**Date:** 2026-09-06\
+**Version:** 1.0.19\
+**Date:** 2026-09-17\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](../governance/specification-citation-verification.md), [`governance/template-citation-verification-worklist.md`](../governance/template-citation-verification-worklist.md), [`.project-governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](../governance/register-canonical-citations.md), [`.project-governance/register-citation-verification-bundle.md`](register-citation-verification-bundle.md)\
@@ -74,7 +74,7 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 
 | Standard ID | Expected primary URL | Field(s) | Expected value | Captured text | Wayback URL | Result | Captured by | Confidence | Date |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| EU AI Act | https://eur-lex.europa.eu/eli/reg/2024/1689 | all | Regulation 2024/1689, 2024-07, AI regulation |  |  |  |  |  |  |
+| EU AI Act | https://eur-lex.europa.eu/eli/reg/2024/1689 | all | Regulation 2024/1689 as amended by Regulation (EU) 2026/1744 (Digital Omnibus), 2024-07, AI regulation |  |  |  |  |  |  |
 | EU NIS 2 Directive | https://eur-lex.europa.eu/eli/dir/2022/2555 | all | Directive 2022/2555, 2022-12; supersedes NIS Directive 2016/1148 |  |  |  |  |  |  |
 | EU DORA | https://eur-lex.europa.eu/eli/reg/2022/2554 | all | Regulation 2022/2554, 2022-12, Digital Operational Resilience Act |  |  |  |  |  |  |
 | EU GDPR | https://eur-lex.europa.eu/eli/reg/2016/679 | all | Regulation 2016/679, 2016-04, General Data Protection Regulation; supersedes Directive 95/46/EC |  |  |  |  |  |  |
