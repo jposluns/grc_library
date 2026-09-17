@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.73\
-**Date:** 2026-09-11\
+**Version:** 1.11.74\
+**Date:** 2026-09-17\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/logistics/register-basc-it-responsibilities.md`](logistics/register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](logistics/annex-aeo-united-kingdom-cybersecurity.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md)\
@@ -81,9 +81,9 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 | ISO/IEC 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Risk | Policy: Enterprise Governance and Risk Management | [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) | GRC-01, GRC-02, GRC-03 | MDS-10, GRC-11, GRC-15 | §5.1, §5.3, §6.1, §6.2 | ID.RA | N/A | Programme governance | Norm §5; Norm §6.1 | N/A | Management commitment; Risk management |
-| Risk | Standard: Enterprise Risk Management | [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md) | GRC-01, GRC-02 | GRC-10, GRC-13, MDS-10 | §6.1.1, §6.1.2, §6.1.3, §8.2, §8.3 | ID.RA | N/A | Risk assessment | Norm §6.1 | N/A | IT security risk management; Risk management |
+| Risk | Standard: Enterprise Risk Management | [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md) | GRC-02 | GRC-10, GRC-13, MDS-10 | §6.1.1, §6.1.2, §6.1.3, §8.2, §8.3 | ID.RA | N/A | Risk assessment | Norm §6.1 | N/A | IT security risk management; Risk management |
 | Risk | Standard: Third-Party and Supply Chain Risk | [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md) | STA-01 | MDS-04 | A.5.19, A.5.20, A.5.21, A.5.22 | GV.SC | Business partner requirements | Third-party security | Norm §6.1; Sec Std §1.1 | Pillar II (Customs-to-Business; Standard 6) | Business partners; IT security risk management |
-| Risk | Procedure: Risk Assessment Methodology | [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md) | GRC-01, GRC-02 | N/A | §6.1.1, §6.1.2, §6.1.3, §8.2, §8.3 | ID.RA | N/A | Risk assessment | Norm §6.1 | N/A | IT security risk management |
+| Risk | Procedure: Risk Assessment Methodology | [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md) | GRC-02 | N/A | §6.1.1, §6.1.2, §6.1.3, §8.2, §8.3 | ID.RA | N/A | Risk assessment | Norm §6.1 | N/A | IT security risk management |
 | Risk | Procedure: Risk Register | [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md) | GRC-02 | N/A | §6.1.2, §6.1.3, §8.2, §8.3, §9.1 | ID.RA | N/A | Risk assessment | Norm §6.1; Norm §8.1 | N/A | IT security risk management |
 | Risk | Procedure: Risk Acceptance | [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md) | GRC-02, GRC-04 | N/A | §6.1.3, §8.3 | ID.RA | N/A | N/A | Norm §6.1; Norm §9.2 to §9.3 | N/A | Risk management |
 | Risk | Register: Assurance Map | [`risk/register-assurance-map.md`](../risk/register-assurance-map.md) | A&A-02, A&A-03, GRC-02 | N/A | §9.1, §9.2, A.5.35 | ID.IM | N/A | N/A | Norm §8.1; Norm §8.2 | N/A | IT controls review and testing |
