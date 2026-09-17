@@ -1,54 +1,28 @@
 #!/usr/bin/env python3
-"""NIST SSDF control-identifier validity audit.
+"""NIST SSDF control-identifier validity audit - grc wrapper over the pack engine.
 
-Catches fabricated, mistyped, or retired NIST SSDF (SP 800-218 v1.1) control
-identifiers cited in the corpus and pack. A wrong control *mapping* (whether a
-document semantically belongs under a given SSDF practice) is a judgement call
-and stays the author's apply-time responsibility; a wrong control *code* IS
-mechanically checkable, and this gate checks it, the same philosophy as the
-matrix control-code validity gate.
+Flag a NIST SSDF (SP 800-218 / 800-218A) control identifier that is not a valid
+practice/task id, or a non-SSDF code sitting in an SSDF-labelled column.
 
-The gate exists because the external-audit remediation (1.27 (closing PR #1286)) found
-fabricated SSDF families (``VE.1``, ``DS.2`` -- there is no VE or DS group)
-and the dual-family verifies kept catching parallel occurrences the register
-had not named. A mechanical gate closes that class.
-
-Scope (deliberately bounded, low false-positive):
-
-  * **Mode A (global valid-family id check).** The four SSDF practice groups
-    ``PO`` / ``PS`` / ``PW`` / ``RV`` are unique to SSDF (no other framework
-    the corpus cites uses a ``PO|PS|PW|RV.<n>`` code shape; ISO is ``A.x``,
-    NIST CSF is ``FUNCTION.CATEGORY`` with letter categories, NIST 800-53 is
-    ``XX-n``, CSA is ``XXX-n``). So any ``PO|PS|PW|RV.<n>[.<m>[.<k>]]`` token
-    anywhere in a scanned file is an SSDF citation, and is validated against
-    the closed set of valid practice and task ids below (the union of SP 800-218 v1.1
-    and the SP 800-218A Generative AI profile, since the corpus cites both).
-    This catches non-existent ids (a family or number in neither document).
-
-  * **Mode B (SSDF-column invalid-family check).** In a markdown table that
-    has a header cell naming the NIST SSDF column, every code-shaped token
-    (``XX.<n>...``) in that column must have a valid SSDF family
-    (``PO|PS|PW|RV``); a token with any other two-letter family (``VE``,
-    ``DS``, ...) is a fabricated SSDF id and is flagged. ``N/A`` and free
-    text are ignored.
-
-The valid id sets are structural facts of SP 800-218 v1.1 and SP 800-218A,
-extracted from the NIST-published OSCAL catalogue and the 800-218A publication and hard-coded here so the gate is
-stdlib-only and does not depend on a reference checkout at run time (the same
-approach as the ISO Annex A counts in the matrix control-code gate).
+Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan (the
+SSDF regexes, _split_cells, _is_sep, _validate_ssdf_id, check_file) is the source of
+record in the pack engine (.corpus-management/tools/gate_lint_ssdf_control_ids.py);
+it is catalogue-free and takes the SSDF catalogue via configure(ref). This wrapper
+supplies the catalogue (valid practices/tasks + family tuple), configures the engine,
+and keeps EXEMPT_SUFFIXES, a module-global check_file shim, main, and the exit codes.
 """
 
 from __future__ import annotations
 
-import re
+import argparse
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import read_text_safe, iter_non_code_lines  # noqa: E402  # generic core (behaviour-identical to lint_common)
+sys.path.insert(0, str(Path(__file__).resolve().parent))  # own dir on sys.path (matches original; programmatic-load safe)
+import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path (engine imports aiqt_corpus)
 from lint_common import REPO_ROOT, iter_markdown_targets  # noqa: E402  # grc-config/store, stays local
-import argparse
+
+PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
 # --- Valid SSDF ids (SP 800-218 v1.1, from the NIST OSCAL catalogue) ---
 VALID_PRACTICES = {
@@ -72,14 +46,6 @@ VALID_TASKS = {
     "RV.1.1", "RV.1.2", "RV.1.3", "RV.2.1", "RV.2.2",
     "RV.3.1", "RV.3.2", "RV.3.3", "RV.3.4",
 }
-SSDF_FAMILIES = ("PO", "PS", "PW", "RV")
-
-# Mode A: any PO/PS/PW/RV.<n> token (SSDF-unique families).
-_SSDF_ID = re.compile(r"\b(PO|PS|PW|RV)\.(\d+)(?:\.(\d+))?(?:\.(\d+))?\b")
-# Mode B: any XX.<n> code-shaped token (to spot a non-SSDF family in the SSDF column).
-_CODE_SHAPE = re.compile(r"\b([A-Z]{2})\.(\d+(?:\.\d+){0,2})\b")
-# A header cell that names the NIST SSDF column.
-_SSDF_HEADER = re.compile(r"\bNIST SSDF\b|\bSSDF\b|\bSP\s*800-218\b", re.IGNORECASE)
 
 # Files where SSDF-shaped strings are historical description, not live citations.
 EXEMPT_SUFFIXES = (
@@ -88,84 +54,25 @@ EXEMPT_SUFFIXES = (
 )
 
 
-def _split_cells(line: str) -> list[str]:
-    parts = line.split("|")
-    if parts and parts[0].strip() == "":
-        parts = parts[1:]
-    if parts and parts[-1].strip() == "":
-        parts = parts[:-1]
-    return [c.strip() for c in parts]
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_ssdf_control_ids  # the pack-owned engine (source of record)
+    return gate_lint_ssdf_control_ids
 
 
-def _is_sep(cells: list[str]) -> bool:
-    return bool(cells) and set("".join(cells)) <= set("-: ")
-
-
-def _validate_ssdf_id(fam: str, rest_groups: tuple) -> str | None:
-    """Return an error message if the PO/PS/PW/RV id is not valid, else None."""
-    nums = [g for g in rest_groups if g is not None]
-    parts = [fam] + nums
-    ident = ".".join(parts)
-    if len(nums) == 1:
-        if ident not in VALID_PRACTICES:
-            return f"'{ident}' is not a valid SSDF {fam} practice (SP 800-218 v1.1)"
-    else:
-        if ident not in VALID_TASKS:
-            # a task whose practice is valid but the task id is retired/nonexistent
-            practice = f"{fam}.{nums[0]}"
-            hint = "" if practice in VALID_PRACTICES else f" (and {practice} is not a valid practice)"
-            return f"'{ident}' is not a valid SSDF task id (SP 800-218 v1.1){hint}"
-    return None
+# Configure the engine ONCE with the grc SSDF catalogue.
+import types  # noqa: E402
+_engine().configure(types.SimpleNamespace(
+    valid_practices=VALID_PRACTICES, valid_tasks=VALID_TASKS))
 
 
 def check_file(path: Path, rel: str) -> list[str]:
-    text = read_text_safe(path)
-    if text is None:
-        return []
-    findings: list[str] = []
-    lines = text.splitlines()
-
-    # Precompute SSDF-column index per table (Mode B).
-    # Walk tables: a header row followed by a separator row.
-    ssdf_col_for_line: dict[int, int] = {}
-    i = 0
-    n = len(lines)
-    while i < n - 1:
-        cells = _split_cells(lines[i]) if "|" in lines[i] else []
-        nxt = _split_cells(lines[i + 1]) if "|" in lines[i + 1] else []
-        if cells and nxt and _is_sep(nxt) and not _is_sep(cells):
-            # header row at i; find an SSDF column
-            col = next((c for c, h in enumerate(cells) if _SSDF_HEADER.search(h)), None)
-            if col is not None:
-                j = i + 2
-                while j < n and "|" in lines[j] and not _is_sep(_split_cells(lines[j])):
-                    ssdf_col_for_line[j] = col
-                    j += 1
-                i = j
-                continue
-        i += 1
-
-    for lineno, raw in iter_non_code_lines(text):
-        idx = lineno - 1
-        # Mode A: validate every PO/PS/PW/RV id on the line.
-        for m in _SSDF_ID.finditer(raw):
-            msg = _validate_ssdf_id(m.group(1), (m.group(2), m.group(3), m.group(4)))
-            if msg:
-                findings.append(f"{rel}:{lineno}: {msg}")
-        # Mode B: in an SSDF column, flag a code-shaped token with a non-SSDF family.
-        if idx in ssdf_col_for_line:
-            cells = _split_cells(raw)
-            col = ssdf_col_for_line[idx]
-            if col < len(cells):
-                for cm in _CODE_SHAPE.finditer(cells[col]):
-                    fam = cm.group(1)
-                    if fam not in SSDF_FAMILIES:
-                        findings.append(
-                            f"{rel}:{lineno}: '{cm.group(0)}' in the NIST SSDF column is "
-                            f"not a valid SSDF id ({fam} is not an SSDF practice group; "
-                            f"SSDF groups are PO/PS/PW/RV)"
-                        )
-    return findings
+    """Thin shim delegating to the pack engine's pure scan (engine already configured);
+    kept module-global so the scan-scope regression meta-test can call it."""
+    return _engine().check_file(path, rel)
 
 
 def main(argv: list[str]) -> int:
