@@ -3705,7 +3705,7 @@ documents:
   domain: "compliance"
   type: "Annex"
   title: "FedRAMP Sector Requirements Annex"
-  version: "0.0.13"
+  version: "0.0.14"
   date: "2026-09-17"
   owner: "Chief Compliance Officer"
   approving_authority: "Governance Library Maintainer"
