@@ -1,77 +1,33 @@
 #!/usr/bin/env python3
-"""COBIT 2019 objective TITLE-TEXT validation audit (1.16 (closing PR #1074)).
+"""COBIT objective-title canonicality audit - grc wrapper over the pack engine.
 
-Gate 61 (``lint-cobit-iso31000-citations.py``) validates COBIT code
-EXISTENCE (a code is one of the 40 objectives / inside its practice range)
-and the ISO 31000 designation, but deliberately does NOT check citation
-TITLES. This gate closes the OBJECTIVE-title half of that gap (the 40
-objective titles extract cleanly from the held source, unlike the
-line-wrapped practice titles, which stay unchecked): where the corpus
-pairs an objective code with a title, the title must be the canonical
-COBIT 2019 objective title.
+Flag a COBIT objective code whose paired title in the corpus is not the canonical
+COBIT 2019 objective title (a wrong-title citation the existence gate cannot see).
 
-The motivating defect class (validate-pr-987 note N1): the corpus writes
-the IMPERATIVE verb form ``DSS05 Manage Security Services`` where the
-canonical COBIT 2019 title is the PAST PARTICIPLE ``Managed Security
-Services`` (and the EDM domain uses ``Ensured``). A truncated title
-(``DSS02 Manage Service Requests`` for the canonical ``Managed Service
-Requests and Incidents``) is the same finding.
-
-Scope and precision (precision-first, per the audit-programme spec):
-
-  * Corpus-wide over the same target set as gate 61: ``iter_markdown_targets``
-    with ``DEFAULT_EXEMPT_DIRS`` (so ``.working``/``.claude`` are out and
-    ``.project-governance`` is in) and the shared ``EXEMPT_FILES``.
-  * A code is checked for a title ONLY when a canonical-title-SHAPED phrase
-    immediately follows it: after the code and an optional separator
-    (``:`` ``-`` ``|`` ``"`` ``'`` ``(`` ``,``), the next word is a COBIT
-    title verb form (``Managed`` / ``Manage`` / ``Ensured`` / ``Ensure``,
-    case-insensitive). A code with NO following title (cited alone, or next
-    to a crosswalk cell such as a CCM control code) is ALLOWED, never
-    flagged (matching the many no-title carriers).
-  * The candidate title runs from that verb word to the field boundary
-    (a ``|`` table-cell edge, a quote/paren close, a sentence period,
-    comma, semicolon, colon, tab, two-or-more spaces, or end of line),
-    capped at 8 words (the longest canonical title is 6). It is compared
-    case-insensitively (after whitespace normalization) to the canonical
-    title; any difference is a finding, with the code, the found title,
-    and the canonical title reported.
-
-Recall cost (precision-first, the same documented-recall-cost discipline gate
-62 carries): a code is checked only when a COBIT title verb form opens the
-phrase after it, so a title paraphrase that drops the verb entirely (a bare
-noun phrase such as ``DSS05 (security services)``) is read as "no title" and
-passes unchecked. This is a deliberate false-positive-free boundary; the
-imperative-vs-participle defect class the gate targets is fully covered
-because every one of the 40 canonical objective titles is participle-led. A
-future widening to noun-phrase paraphrases would need a corpus census first
-(the discipline gate 61 followed).
-
-Exit codes: 0 all objective titles canonical (or no titled carriers);
-1 findings; 2 environment error (reference module missing).
-
-Stdlib-only (gate 71). Python 3.11.
-
-Usage:
-    python3 tools/lint-cobit-title-text.py [paths...]
+Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan (the
+objective-code/title regexes, _norm, extract_title, scan_text, scan_file) is the
+source of record in the pack engine
+(.corpus-management/tools/gate_lint_cobit_title_text.py); it is catalogue-free and
+takes the COBIT objective catalogue via configure(). This wrapper imports the
+cobit_iso31000_reference catalogue (shared with gate 61), configures the engine, and
+keeps EXEMPT_FILES, a module-global scan_file shim, main, and the exit codes.
 """
 
 from __future__ import annotations
 
-import re
 import sys
 from pathlib import Path
 
-import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import is_fence_line  # noqa: E402  # generic core (behaviour-identical to lint_common)
+import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path (engine imports aiqt_corpus)
 from lint_common import DEFAULT_EXEMPT_DIRS, REPO_ROOT, iter_markdown_targets  # noqa: E402  # grc-config/store, stays local
 
 try:
-    from cobit_iso31000_reference import COBIT_OBJECTIVES
+    from cobit_iso31000_reference import COBIT_OBJECTIVES  # noqa: E402  # grc reference catalogue (shared with gate 61)
 except ImportError as exc:  # pragma: no cover - environment guard
-    print(f"ERROR: cannot import the COBIT reference module: {exc}",
-          file=sys.stderr)
+    print(f"ERROR: cannot import the COBIT reference module: {exc}", file=sys.stderr)
     raise SystemExit(2)
+
+PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
 # Files whose COBIT code tokens are illustrative or meta, not corpus
 # citations. Same set gate 61 exempts (the audit-programme spec, the
@@ -85,83 +41,24 @@ EXEMPT_FILES = frozenset({
     "TODO-REFERENCE.md",
 })
 
-# A COBIT objective code token. Reused verbatim from gate 61 EXCEPT this
-# gate cares only about OBJECTIVE codes (no practice suffix): an objective
-# title attaches to APO12, never to APO12.06. A trailing ``.dd`` practice
-# suffix is tolerated in the match and simply means "not an objective-title
-# carrier" (a practice code is not followed by an objective title).
-OBJECTIVE_CODE_RE = re.compile(
-    r"(?<![A-Za-z0-9-])(EDM|APO|BAI|DSS|MEA)(\d{2})(?![0-9])")
 
-# The separator that may sit between a code and its title.
-_SEP_RE = re.compile(r"\s*[:\-|\"'(,]?\s*")
-
-# A COBIT title verb form opening the candidate title (case-insensitive).
-_TITLE_STEM_RE = re.compile(r"(?i)(?:Managed|Manage|Ensured|Ensure)\b")
-
-# Field boundary that ends a candidate title.
-_BOUNDARY_RE = re.compile(r"\s{2,}|[|\")]|[.,;:\t]|\s*$")
-
-_TITLE_MAX_WORDS = 8
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_cobit_title_text  # the pack-owned engine (source of record)
+    return gate_lint_cobit_title_text
 
 
-def _norm(s: str) -> str:
-    """Collapse whitespace and strip, for case-insensitive comparison."""
-    return re.sub(r"\s+", " ", s).strip()
-
-
-def extract_title(rest: str) -> str | None:
-    """Given the line text immediately AFTER an objective code, return the
-    candidate title if a canonical-title-shaped phrase follows, else None.
-
-    ``rest`` starts right after the code token. A separator run is consumed
-    first; then the next word must be a COBIT title verb form for a title to
-    be considered present. The title is captured to the field boundary and
-    capped at ``_TITLE_MAX_WORDS`` words.
-    """
-    sep = _SEP_RE.match(rest)
-    body = rest[sep.end():] if sep else rest
-    if not _TITLE_STEM_RE.match(body):
-        return None
-    boundary = _BOUNDARY_RE.search(body)
-    raw = body[:boundary.start()] if boundary and boundary.start() > 0 else body
-    words = _norm(raw).split()
-    if not words:
-        return None
-    return " ".join(words[:_TITLE_MAX_WORDS])
-
-
-def scan_text(text: str) -> list[tuple[int, str, str, str]]:
-    """Return (lineno, code, found_title, canonical_title) for each carrier
-    whose paired objective title is not the canonical COBIT 2019 title."""
-    findings: list[tuple[int, str, str, str]] = []
-    in_code = False
-    for lineno, line in enumerate(text.splitlines(), start=1):
-        if is_fence_line(line):
-            in_code = not in_code
-            continue
-        if in_code:
-            continue
-        for m in OBJECTIVE_CODE_RE.finditer(line):
-            # A practice code (APO12.06) is not an objective-title carrier.
-            if line[m.end():m.end() + 1] == ".":
-                continue
-            code = f"{m.group(1)}{m.group(2)}"
-            if code not in COBIT_OBJECTIVES:
-                continue  # a non-objective token (existence is gate 61's job)
-            found = extract_title(line[m.end():])
-            if found is None:
-                continue  # no title paired with this code: allowed
-            canonical = COBIT_OBJECTIVES[code]
-            if _norm(found).lower() != _norm(canonical).lower():
-                findings.append((lineno, code, found, canonical))
-    return findings
+# Configure the engine ONCE with the grc COBIT objective catalogue.
+_engine().configure(COBIT_OBJECTIVES)
 
 
 def scan_file(path: Path) -> list[tuple[Path, int, str, str, str]]:
-    text = path.read_text(encoding="utf-8")
-    return [(path, ln, code, found, canon)
-            for ln, code, found, canon in scan_text(text)]
+    """Thin shim delegating to the pack engine's pure scan (engine already configured);
+    kept module-global so the scan-scope regression meta-test can call it."""
+    return _engine().scan_file(path)
 
 
 def main(argv: list[str]) -> int:

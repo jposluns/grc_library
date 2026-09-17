@@ -1,0 +1,16 @@
+# COBIT objective-title canonicality
+
+A COBIT objective code cited in a document with a paired title carries that objective's
+canonical title, not a paraphrase or a wrong title. A citation can name a real
+objective code (its existence is a separate check) yet attach a non-canonical title;
+this check catches that title mismatch. Reading each document's lines outside fenced
+code blocks, it finds each objective code (a domain-prefixed objective number, not a
+practice code), and where a canonical-title-shaped phrase immediately follows (a
+separator run then a COBIT title verb form, captured to the field boundary and capped
+at a fixed word count), compares that phrase case-insensitively and whitespace-normalized
+against the objective's catalogue title, flagging any that differ. A code with no paired
+title is allowed (title presence is optional), and a practice code (an objective number
+with a practice suffix) is not a title carrier. The objective code and title-phrase
+patterns are fixed by the check; the objective catalogue (each code's canonical title)
+is supplied by the adopter (the reference) and is not part of this clause. A document
+whose paired objective titles are all canonical contributes no findings.
