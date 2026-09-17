@@ -218,3 +218,9 @@ id = "document-date-staleness"
 title = "Document Date staleness (the metadata Date is well-formed, lags the most-recent commit by no more than the tolerance, and is not future-dated)"
 source = "core/rules/document-date-staleness.md"
 origin = "grc_library tools/lint-document-date-staleness.py gate rationale (new clause in the Group-A content-generic transfer lane; get_metadata_date + future_lead_days + commit_lag_days is the PURE engine, parameterized by the caller-supplied commit date + today + thresholds; the git commit-date lookup, the concurrency pool, the today (UTC) clock, the grc scan scope + exempt-file set, and the lag/future/baseline thresholds are wrapper config and environment observation, kept project-side per the guard-input observer/decision split)"
+
+[[clauses]]
+id = "structural-index-integrity"
+title = "Structural index integrity (every active domain document is in the central index register and its domain README, and every referenced path exists)"
+source = "core/rules/structural-index-integrity.md"
+origin = "grc_library tools/lint-structure.py gate rationale (new clause in the Group-A content-generic transfer lane; parse_referenced_paths + iter_domain_files + collect_findings is the engine, fully parameterized by repo_root + the corpus structure config (domain list, index-register relpath, exempt-from-index set, exempt directory prefixes); the grc domain list + index-register path + exempt sets + --root handling + grouped reporting are wrapper config)"

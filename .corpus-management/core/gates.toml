@@ -286,3 +286,11 @@ source = "tools/gate_lint_document_date_staleness.py"
 enforces = "document-date-staleness"
 entry_point = "tools/lint-document-date-staleness.py"
 origin = "grc_library tools/lint-document-date-staleness.py, grc gate 31 (engine transferred in the Group-A content-generic lane via Pattern A; the PURE check get_metadata_date + future_lead_days + commit_lag_days moved to the pack engine, which never touches the filesystem, git, or the clock; the wrapper keeps the OBSERVER + policy git+concurrency+today+scan-scope+thresholds+reporting and the module-global read_text_safe its scan-scope test patches, reads each file and passes TEXT to the engine, and preserves the deliberate two-loop order (future check before the git lookup, lag check after). aiqt_corpus import guard.)"
+
+[[gates]]
+id = "lint-structure"
+title = "Structural index-integrity audit"
+source = "tools/gate_lint_structure.py"
+enforces = "structural-index-integrity"
+entry_point = "tools/lint-structure.py"
+origin = "grc_library tools/lint-structure.py, grc gate 4 (engine transferred in the Group-A content-generic lane via Pattern A; parse_referenced_paths + iter_domain_files + collect_findings moved to the pack engine, fully parameterized by repo_root + the corpus structure config so the engine is repository-root-free and corpus-policy-free; the wrapper keeps the grc DOMAINS + INDEX_REL_PATH + EXEMPT_FROM_INDEX + EXEMPT_DIRECTORY_PREFIXES + the --root handling and grouped reporting in main. No aiqt_corpus dependency: the engine uses only re + pathlib.)"
