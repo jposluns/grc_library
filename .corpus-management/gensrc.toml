@@ -301,3 +301,10 @@ kind = "file"
 sources = ["core/rules/ccm-aicm-citations.md"]
 target = ".claude/rules/corpus-management/ccm-aicm-citations.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "matrix-control-codes"
+kind = "file"
+sources = ["core/rules/matrix-control-codes.md"]
+target = ".claude/rules/corpus-management/matrix-control-codes.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]
