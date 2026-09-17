@@ -390,3 +390,11 @@ source = "tools/gate_lint_narrative_disclaimer.py"
 enforces = "narrative-disclaimer"
 entry_point = "tools/lint-narrative-disclaimer.py"
 origin = "grc_library tools/lint-narrative-disclaimer.py, grc gate 89 (engine transferred in the Group-A content-generic lane via Pattern A; first of the narrative-family cluster). disclaimer_finding + check_file moved verbatim to the pack engine (byte-identical; diff empty; --self-test 13 cases pass; corpus output identical). The required verbatim disclaimer text is supplied via configure(disclaimer), so the engine is content-free; it imports aiqt_corpus (METADATA_FIELD_RE, read_text_safe) behind a fail-loud guard. The wrapper supplies the grc disclaimer + ENTRY_POINT + the narrative scan scope (discover over executive/), configures the engine once, and keeps the _self_test + main + module-global shims (disclaimer_finding for the self-test, check_file) + exit codes. Original had no own-dir sys.path.insert; matched."
+
+[[gates]]
+id = "lint-narrative-vocabulary"
+title = "Executive-narrative vocabulary audit"
+source = "tools/gate_lint_narrative_vocabulary.py"
+enforces = "narrative-vocabulary"
+entry_point = "tools/lint-narrative-vocabulary.py"
+origin = "grc_library tools/lint-narrative-vocabulary.py, grc gate 88 (engine transferred in the Group-A content-generic lane via Pattern A; narrative-family). The shall/dash/quote/link regexes + matching logic + _has_citation + _strip_link_targets + _noncode_lines + _shall_is_qualified + scan_page_text + check_file moved verbatim to the pack engine (byte-identical; _has_citation..check_file diff empty; --self-test passes; corpus output identical). The absolutes denylist (ABSOLUTES_SINGLE/MULTI) + the external-standard citation vocabulary (CROSS_EXTERNAL_CONTEXT_RE) are supplied via configure(ref), so the engine is vocabulary-free; it imports aiqt_corpus (CODE_SPAN_RE, read_text_safe) behind a fail-loud guard + Path for check_file's annotation. The wrapper supplies the grc vocabulary, configures the engine once, and keeps discover (executive/ scope) + _self_test + main + module-global shims (scan_page_text for the self-test, check_file for self-test + main). Original had no own-dir sys.path.insert; matched."

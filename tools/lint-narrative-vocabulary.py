@@ -1,70 +1,30 @@
 #!/usr/bin/env python3
-"""Narrative vocabulary gate (P-1.25 Phase 1.3; spec Gates item 6).
+"""Executive-narrative vocabulary audit - grc wrapper over the pack engine.
 
-String-level vocabulary enforcement for the narrative layer, scoped to the
-root ``executive/`` tree, per ``specification-executive-narrative.md``
-("Causal vocabulary", "The qualified-shall rule", "Language and neutrality
-requirements", Gates item 6). The existing bare-shall, language, and dash
-gates do NOT cover ``executive/`` (and must not: an ``AUDITED_DOMAIN_DIRS``
-edit would wrongly pull the narrative tree into every content gate), so this
-gate is the narrative layer's own wiring.
+Flag narrative-vocabulary defects on executive pages: absolutes ("guarantee",
+"eliminates", "makes impossible", "removes all risk" and inflections), an unqualified
+"shall", and em/en dashes.
 
-Three checks, each a string-level property (the semantic halves, e.g. which
-sentences are causal statements or whether a quotation is faithful, are
-review outcomes the spec explicitly leaves to review):
-
-  1. ABSOLUTES DENYLIST (page-wide, no causal-statement classification):
-     ``guarantee``, ``eliminates``, ``makes impossible``, ``removes all
-     risk`` must not appear in narrative prose at all. Inflections are
-     matched (guarantees / guaranteed / eliminating / removing all risk):
-     a fail-closed reading of the denylist, since an inflected absolute is
-     the same absolute. No quotation exemption: the spec grants none for
-     absolutes (unlike ``shall``), so a blockquote hit still fails.
-  2. QUALIFIED-SHALL RULE: no unqualified ``shall``. The sole exception is
-     the spec's qualified-shall definition, a verbatim attributed source
-     quotation with VISIBLE SOURCE ADJACENCY, mechanised as:
-       - an inline double-quoted span (straight or curly quotes) containing
-         the ``shall``, with a citation (a markdown link or a named external
-         standard) within ``ADJACENCY_WINDOW`` characters immediately before
-         the opening or after the closing quote on the same line; or
-       - a markdown blockquote line containing the ``shall``, with a
-         citation on the blockquote line itself or on the immediately
-         adjacent non-blank line (the attribution line).
-     Hyphenated identifiers (``lint-shall-near-uncertainty.py``) and
-     backticked word-references never match (same boundaries as gate 56).
-     This proves the string-level property only; quotation faithfulness is
-     a review concern (spec, "The qualified-shall rule").
-  3. DASH BAN: no em (U+2014) or en (U+2013) dashes in narrative prose.
-     Inline code spans and fenced blocks are exempt (a dash there is a code
-     example or functional form, matching the gate-82 (lint-ungated-dashes.py) treatment).
-
-Scope: EVERY ``.md`` under the root ``executive/`` tree, INCLUDING the
-entry-point ``executive/README.md``. The entry-point exemption is scoped to
-gates that require narrative-PAGE form (the spec's consistent-exemption list
-names the boundary, metadata, disclaimer, registry, and listing gates); the
-vocabulary rules are page-wide string properties of narrative-layer prose,
-and the README is narrative-layer prose. An empty page set (executive/
-absent, or holding only a clean README) exits 0.
-
-Usage:
-    python3 tools/lint-narrative-vocabulary.py [paths...]
-    python3 tools/lint-narrative-vocabulary.py --self-test
-
-Exit 0 on no findings; exit 1 otherwise.
+Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan (the
+shall/dash/quote/link regexes + matching logic + the scan functions) is the source of
+record in the pack engine (.corpus-management/tools/gate_lint_narrative_vocabulary.py);
+it is vocabulary-free and takes the absolutes denylist + external-standard vocabulary via
+configure(ref). This wrapper supplies the grc vocabulary, configures the engine, and keeps
+the narrative scan scope (discover), the self-test, main, module-global shims
+(scan_page_text / check_file), and the exit codes.
 """
+
 from __future__ import annotations
 
-import re
 import sys
 from pathlib import Path
 
-import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import CODE_SPAN_RE, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
+import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path (engine imports aiqt_corpus)
 from lint_common import CROSS_EXTERNAL_CONTEXT_RE, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
 
-# Bare ``shall``: free-standing, not part of a hyphenated identifier and not
-# a substring (``Marshall``). Same boundaries as gate 56.
-BARE_SHALL = re.compile(r"(?<![A-Za-z0-9_-])shall(?![A-Za-z0-9_-])", re.IGNORECASE)
+import re  # noqa: E402  # for the grc absolutes denylist patterns below
+
+PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
 # The absolutes denylist (spec, "Causal vocabulary"): the listed words plus
 # their inflections. Lookbehind blocks hyphenated-identifier matches.
@@ -80,171 +40,31 @@ ABSOLUTES_MULTI: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("removes all risk", re.compile(r"(?<![\w-])remov\w*\s+all\s+risk", re.IGNORECASE)),
 )
 
-# Em / en dash (functional escapes, not literal glyphs, per the tools/ dash ban).
-DASH_RE = re.compile("[\u2014\u2013]")
 
-# Inline quotation spans: straight or curly double quotes.
-QUOTE_SPAN_RES: tuple[re.Pattern[str], ...] = (
-    re.compile(r'"[^"]+"'),
-    re.compile("\u201c[^\u201d]+\u201d"),
-)
-
-# A visible source citation: a markdown link, or a named external standard
-# (the shared external-standard vocabulary from lint_common, e.g. ISO, NIST,
-# GDPR). Residue: an unlinked source name outside that vocabulary does not
-# qualify; authors cite qualified quotes with a link or a named standard.
-MD_LINK_RE = re.compile(r"\[[^\]]*\]\([^)]+\)")
-
-# How close (characters, same line) a citation must sit to the quotation to
-# count as "visibly adjacent (inline, immediately before or after)".
-ADJACENCY_WINDOW = 120
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_narrative_vocabulary  # the pack-owned engine (source of record)
+    return gate_lint_narrative_vocabulary
 
 
-def _has_citation(segment: str) -> bool:
-    return bool(MD_LINK_RE.search(segment) or CROSS_EXTERNAL_CONTEXT_RE.search(segment))
+# Configure the engine ONCE with the grc narrative vocabulary.
+import types  # noqa: E402
+_engine().configure(types.SimpleNamespace(
+    absolutes_single=ABSOLUTES_SINGLE, absolutes_multi=ABSOLUTES_MULTI,
+    cross_external_context_re=CROSS_EXTERNAL_CONTEXT_RE))
 
 
-def _strip_link_targets(line: str) -> str:
-    """Blank markdown link DESTINATIONS/labels, keeping visible link TEXT, so the
-    absolutes denylist scans only VISIBLE prose. A forbidden word inside a URL
-    (``[source](.../guarantee)``) is not visible prose and must not be flagged,
-    while the link TEXT is preserved and still scanned. Handles inline
-    ``[text](dest)`` / ``[text](dest "title")`` / ``[text](<dest>)``, the reference
-    USE ``[text][label]``, and a whole reference-DEFINITION line ``[label]: dest``
-    (its destination is not visible prose)."""
-    # A WELL-FORMED reference DEFINITION is entirely link metadata (label + a single
-    # dest token + an optional quoted/paren title, and NOTHING else), none of it
-    # visible prose, so blank the whole line. A line that merely RESEMBLES a ref-def
-    # but carries trailing bare prose (``[note]: The guarantee applies.``) is NOT a
-    # ref-def and is scanned as prose (only its inline links stripped below). This
-    # covers a title-carried absolute (``[n]: url "guarantee"``) and a label-carried
-    # one (``[guarantee]: url``), both metadata, without hiding real prose.
-    if re.match(r'^\s*\[[^\]]+\]:\s*(?:<[^>]*>|\S+)\s*("[^"]*"|\'[^\']*\'|\([^)]*\))?\s*$', line):
-        return ""
-    line = re.sub(r"\]\([^)]*\)", "]", line)   # ](dest) / ](dest "title") / ](<dest>) -> ]
-    line = re.sub(r"\]\[[^\]]*\]", "]", line)  # ][label] -> ]
-    return line
-
-
-def _noncode_lines(text: str) -> list[tuple[int, str | None]]:
-    """Non-code (lineno, raw) lines, fence-MARKER-aware: a fenced block opened by
-    ``` closes only on ```, and one opened by ~~~ only on ~~~, so a mismatched
-    marker inside a block (``` inside a ~~~ fence) is content, not a toggle.
-
-    Each elided fenced block is represented by a single sentinel ``(lineno, None)``
-    at its opening line, so an adjacency walk STOPS at the fence boundary instead
-    of treating the non-code lines flanking an elided block as adjacent (the
-    across-the-fence false-qualification of a blockquoted ``shall``)."""
-    out: list[tuple[int, str | None]] = []
-    fence: str | None = None  # the 3-char marker (``` or ~~~) that opened the block
-    for lineno, raw in enumerate(text.splitlines(), 1):
-        stripped = raw.lstrip()
-        marker = stripped[:3] if (stripped.startswith("```") or stripped.startswith("~~~")) else None
-        if fence is None:
-            if marker is not None:
-                fence = marker
-                out.append((lineno, None))  # fence-boundary sentinel
-                continue
-            out.append((lineno, raw))
-        else:
-            if marker == fence:
-                fence = None
-            # any line while inside a fence (matching-close included) is code: skip
-    return out
-
-
-def _shall_is_qualified(line: str, match: re.Match[str], idx: int,
-                        noncode: list[tuple[int, str | None]]) -> bool:
-    """The qualified-shall test (see module docstring). ``line`` is the
-    code-span-stripped line; ``idx`` indexes ``noncode`` for blockquote
-    adjacency."""
-    if line.lstrip().startswith(">"):
-        # Blockquote quotation: citation on the line or an adjacent non-blank line.
-        if _has_citation(line):
-            return True
-        for step in (-1, 1):
-            j = idx + step
-            # Skip blank lines, but STOP at a fence boundary (None sentinel): an
-            # elided fenced block between the shall and a citation means they are
-            # NOT visibly adjacent, so the citation does not qualify the shall.
-            while 0 <= j < len(noncode) and noncode[j][1] is not None and not noncode[j][1].strip():
-                j += step
-            if 0 <= j < len(noncode) and noncode[j][1] is not None and _has_citation(noncode[j][1]):
-                return True
-        return False
-    for qre in QUOTE_SPAN_RES:
-        for qm in qre.finditer(line):
-            if qm.start() < match.start() and match.end() <= qm.end():
-                before = line[max(0, qm.start() - ADJACENCY_WINDOW):qm.start()]
-                after = line[qm.end():qm.end() + ADJACENCY_WINDOW]
-                if _has_citation(before) or _has_citation(after):
-                    return True
-    return False
-
-
-def scan_page_text(text: str) -> list[tuple[int, str, str]]:
-    """(lineno, class, message) findings for one page. PURE.
-
-    Classes: ``absolute``, ``shall``, ``dash``."""
-    findings: list[tuple[int, str, str]] = []
-    noncode = _noncode_lines(text)
-    for idx, (lineno, raw) in enumerate(noncode):
-        if raw is None:  # fence-boundary sentinel: a boundary, not a scannable line
-            continue
-        stripped = CODE_SPAN_RE.sub("", raw)  # backticked word-references never match
-        prose = _strip_link_targets(stripped)  # absolutes scan VISIBLE prose only (F3)
-        if DASH_RE.search(stripped):
-            findings.append((lineno, "dash",
-                             "em/en dash in narrative prose (the dash ban applies to the "
-                             "narrative layer; rewrite with commas, colons, or parentheses)"))
-        for name, pat in ABSOLUTES_SINGLE:
-            if pat.search(prose):
-                findings.append((lineno, "absolute",
-                                 f"absolute {name!r} in narrative prose (page-wide denylist; a "
-                                 f"narrative page states contribution, dependency, prevention, "
-                                 f"or evidence, never an absolute)"))
-        for m in BARE_SHALL.finditer(stripped):
-            if _shall_is_qualified(stripped, m, idx, noncode):
-                continue
-            findings.append((lineno, "shall",
-                             "unqualified 'shall' (narrative prose harmonizes on 'must'; a "
-                             "'shall' is permitted only inside a verbatim quotation with a "
-                             "visibly adjacent source citation)"))
-    # Multi-word absolutes: scan each PARAGRAPH (consecutive non-code, non-blank
-    # lines) joined with a space, so a phrase wrapped across a soft line break
-    # cannot escape; report at the paragraph's first line. Paragraph-bounded (not
-    # whole-page) so two unrelated sentences are not falsely joined into a match.
-    para: list[tuple[int, str]] = []
-    def _flush_para() -> None:
-        if not para:
-            return
-        joined = " ".join(t for _, t in para)
-        for name, pat in ABSOLUTES_MULTI:
-            if pat.search(joined):
-                findings.append((para[0][0], "absolute",
-                                 f"absolute {name!r} in narrative prose (page-wide denylist; a "
-                                 f"narrative page states contribution, dependency, prevention, "
-                                 f"or evidence, never an absolute)"))
-    for lineno, raw in noncode:
-        if raw is None:  # F2: a fence boundary never joins two paragraphs across it
-            _flush_para(); para = []
-            continue
-        stripped = CODE_SPAN_RE.sub("", raw)
-        if stripped.strip():
-            para.append((lineno, _strip_link_targets(stripped)))  # F3: multi-word absolutes ignore URLs
-        else:
-            _flush_para(); para = []
-    _flush_para()
-    return findings
+def scan_page_text(text: str) -> list:
+    """Shim -> engine (engine already configured); kept module-global for the self-test."""
+    return _engine().scan_page_text(text)
 
 
 def check_file(path: Path, rel: str) -> list[str]:
-    text = read_text_safe(path)
-    if text is None:
-        # Fail LOUD, not open: an executive/ page that cannot be read cannot be
-        # cleared of the vocabulary rules (the 1.3a fail-loud lesson).
-        return [f"{rel}: not readable / not utf-8 (cannot be checked for the narrative vocabulary rules; fail loud)"]
-    return [f"{rel}:L{lineno}: {msg}" for lineno, _cls, msg in scan_page_text(text)]
+    """Shim -> engine (engine already configured); kept module-global for the self-test + main."""
+    return _engine().check_file(path, rel)
 
 
 def discover(root: Path = REPO_ROOT) -> list[Path]:

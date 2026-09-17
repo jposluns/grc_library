@@ -296,3 +296,9 @@ id = "narrative-disclaimer"
 title = "Executive-narrative authority-disclaimer presence (every narrative page must carry the verbatim authority disclaimer as the first body content after its metadata block)"
 source = "core/rules/narrative-disclaimer.md"
 origin = "grc_library tools/lint-narrative-disclaimer.py gate rationale (new clause in the Group-A content-generic transfer lane, first narrative-family gate; disclaimer_finding + check_file are the engine, moved verbatim; the required disclaimer text is supplied via configure(disclaimer); the grc disclaimer + entry-point + narrative scope (discover) + self-test + main are wrapper config)"
+
+[[clauses]]
+id = "narrative-vocabulary"
+title = "Executive-narrative vocabulary (a narrative page must carry no absolute, no unqualified requirement word, and no em/en dash)"
+source = "core/rules/narrative-vocabulary.md"
+origin = "grc_library tools/lint-narrative-vocabulary.py gate rationale (new clause in the Group-A content-generic transfer lane, narrative-family; the shall/dash/quote/link regexes + matching logic + the scan functions are the engine, moved verbatim; the absolutes denylist + external-standard vocabulary are supplied via configure(ref); the grc vocabulary + discover + self-test + main are wrapper config)"
