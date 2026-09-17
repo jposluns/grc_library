@@ -208,3 +208,8 @@ target = ".claude/rules/corpus-management/document-control-codes.md"
 rule = "document-iso-annex-a"
 kind = "file"
 target = ".claude/rules/corpus-management/document-iso-annex-a.md"
+
+[[owned_targets]]
+rule = "ccm-aicm-citations"
+kind = "file"
+target = ".claude/rules/corpus-management/ccm-aicm-citations.md"
