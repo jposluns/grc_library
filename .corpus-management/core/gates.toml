@@ -294,3 +294,11 @@ source = "tools/gate_lint_structure.py"
 enforces = "structural-index-integrity"
 entry_point = "tools/lint-structure.py"
 origin = "grc_library tools/lint-structure.py, grc gate 4 (engine transferred in the Group-A content-generic lane via Pattern A; parse_referenced_paths + iter_domain_files + collect_findings moved to the pack engine, fully parameterized by repo_root + the corpus structure config so the engine is repository-root-free and corpus-policy-free; the wrapper keeps the grc DOMAINS + INDEX_REL_PATH + EXEMPT_FROM_INDEX + EXEMPT_DIRECTORY_PREFIXES + the --root handling and grouped reporting in main. No aiqt_corpus dependency: the engine uses only re + pathlib.)"
+
+[[gates]]
+id = "lint-metadata"
+title = "Document metadata audit"
+source = "tools/gate_lint_metadata.py"
+enforces = "document-metadata"
+entry_point = "tools/lint-metadata.py"
+origin = "grc_library tools/lint-metadata.py, grc gate 1 (engine transferred in the Group-A content-generic lane via Pattern A; the PURE check extract_metadata + check_line_break_markers + looks_role_based + normalize_link_value + check_file plus the generic field/link/semver/date regexes moved to the pack engine, parameterized by repo_root + the metadata model as keyword args; the wrapper keeps the grc metadata model (ALLOWED_TYPES + TYPE_TO_PREFIX + REQUIRED_FIELDS + EXEMPT + EXEMPT_PREFIXES + PREFIX_EXEMPT_BASENAMES + ROLE_SUFFIXES + ROLE_STEMS + LICENSE_VALUE) wrapper-side (it is the project schema and gate 67 reads ALLOWED_TYPES/TYPE_TO_PREFIX from it) + the scan scope + a module-global check_file/iter_markdown_files shim the scan-scope test calls. is_default_exempt_root passed in as a callable.)"

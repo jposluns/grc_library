@@ -224,3 +224,9 @@ id = "structural-index-integrity"
 title = "Structural index integrity (every active domain document is in the central index register and its domain README, and every referenced path exists)"
 source = "core/rules/structural-index-integrity.md"
 origin = "grc_library tools/lint-structure.py gate rationale (new clause in the Group-A content-generic transfer lane; parse_referenced_paths + iter_domain_files + collect_findings is the engine, fully parameterized by repo_root + the corpus structure config (domain list, index-register relpath, exempt-from-index set, exempt directory prefixes); the grc domain list + index-register path + exempt sets + --root handling + grouped reporting are wrapper config)"
+
+[[clauses]]
+id = "document-metadata"
+title = "Document metadata block (required fields, allowed type, semver version, ISO date, role-based owners, canonical license, self-referential repository path, type-matching filename prefix, hard-break markers)"
+source = "core/rules/document-metadata.md"
+origin = "grc_library tools/lint-metadata.py gate rationale (new clause in the Group-A content-generic transfer lane; extract_metadata + check_line_break_markers + looks_role_based + normalize_link_value + check_file plus the generic metadata-parsing regexes are the engine; the grc METADATA MODEL (allowed types, type-to-prefix map, required-field list, exempt sets, role vocabularies, canonical license) stays wrapper-side because it IS the project schema and because the cross-surface doctype-parity gate reads the allowed types from the wrapper)"

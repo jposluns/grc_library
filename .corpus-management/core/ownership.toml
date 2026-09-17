@@ -188,3 +188,8 @@ target = ".claude/rules/corpus-management/document-date-staleness.md"
 rule = "structural-index-integrity"
 kind = "file"
 target = ".claude/rules/corpus-management/structural-index-integrity.md"
+
+[[owned_targets]]
+rule = "document-metadata"
+kind = "file"
+target = ".claude/rules/corpus-management/document-metadata.md"
