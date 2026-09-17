@@ -287,3 +287,10 @@ kind = "file"
 sources = ["core/rules/document-control-codes.md"]
 target = ".claude/rules/corpus-management/document-control-codes.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "document-iso-annex-a"
+kind = "file"
+sources = ["core/rules/document-iso-annex-a.md"]
+target = ".claude/rules/corpus-management/document-iso-annex-a.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]
