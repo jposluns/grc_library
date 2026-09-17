@@ -210,4 +210,4 @@ eslint --plugin security --rule "security/detect-..." .
 Supplements `core/` rules. TypeScript/JavaScript controls implement:
 - OWASP ASVS V2 (Input), V11 (Crypto), V7 (Session), V13 (Config)
 - OWASP Top 10 A05 (Injection), A04 (Crypto), A07 (Auth)
-- NIST SSDF PW.6, PW.8
+- NIST SSDF PW.7, PW.8
