@@ -280,3 +280,10 @@ kind = "file"
 sources = ["core/rules/retention-consistency.md"]
 target = ".claude/rules/corpus-management/retention-consistency.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "document-control-codes"
+kind = "file"
+sources = ["core/rules/document-control-codes.md"]
+target = ".claude/rules/corpus-management/document-control-codes.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]

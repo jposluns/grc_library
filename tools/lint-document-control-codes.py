@@ -1,188 +1,44 @@
 #!/usr/bin/env python3
-"""Per-document NIST CSF 2.0 control-code validity audit (corpus-wide).
+"""Per-document NIST CSF 2.0 control-code validity audit - grc wrapper over the pack engine.
 
-This is the corpus-wide sibling of ``lint-matrix-control-codes.py`` (gate
-49). Gate 49 validates the NIST CSF 2.0 column of the *central* compliance
-matrix (``compliance/matrix-grc-compliance-alignment.md``); this audit
-validates NIST CSF 2.0 codes wherever they appear in *any* corpus
-document's framework-reference or crosswalk tables. The defect class it
-catches is the same one gate 49 catches in the matrix, but corpus-wide: a
-NIST CSF table cell that cites a CSF-1.1-era category code (``PR.IP``,
-``ID.SC``, ``RS.RP``, ``DE.DP``, ``RC.IM``, etc.) that was removed or
-relocated in CSF 2.0. The authoritative 22-Category CSF 2.0 set and the
-CSF-1.1 relocation map both live in ``nist_csf_reference.py`` (transcribed
-from NIST CSWP 29 Table 1), shared with gate 49.
+Validate NIST CSF 2.0 codes wherever they appear in per-document framework tables
+(the central compliance matrix is gate 49's target and is excluded here). The
+authoritative 22-Category CSF 2.0 set and the CSF-1.1 relocation map live in
+``nist_csf_reference.py`` (transcribed from NIST CSWP 29 Table 1), shared with gate 49.
 
-Scope (deliberately bounded, precision-first):
-
-  * **NIST CSF 2.0 only.** ISO/IEC 27001:2022 Annex A codes that appear in
-    per-document tables are NOT validated here (the matrix's ISO column is
-    covered by gate 49; per-document ISO codes appear as clause refs and
-    ranges that are far more false-positive-prone, and are now covered
-    by the sibling gate 58, ``lint-document-iso-annex-a.py``). This audit validates exactly the framework whose stale
-    codes are the documented DD-12 defect class.
-
-  * **NIST-labelled table cells only.** A code is validated only when it
-    sits in a cell governed by a NIST CSF column header or NIST CSF
-    framework-row label. Two table shapes are recognized:
-
-      - *Framework-as-column*: a header row (the row immediately before a
-        ``|---|`` separator) has a cell matching the NIST CSF label; the
-        codes are taken from that column in each body row.
-      - *Framework-as-row*: a body row whose first cell matches the NIST
-        CSF label; the codes are taken from the *code cell* immediately
-        after the label (cell index 1), NOT from any trailing notes cell.
-
-    Restricting framework-as-row extraction to the code cell is the
-    precision rule that avoids flagging a CSF-1.1 code that legitimately
-    appears in a *notes* cell as part of a rename note (e.g. "PR.AC was the
-    CSF 1.1 subcategory; CSF 2.0 renamed it to PR.AA"). The trade-off: a
-    code embedded only in a notes cell is not validated. That is an
-    accepted precision boundary (the documented mapping convention puts
-    codes in the code cell).
-
-  * The NIST CSF label regex matches ``NIST CSF`` and ``NIST Cybersecurity
-    Framework`` (with or without a ``2.0`` suffix). It deliberately does
-    NOT match ``NIST SP 800-...`` rows, whose control families (``SA-9``,
-    ``AC-2``, ``SR``) are a different, non-CSF code set.
-
-Codes are validated at the **category** level. A subcategory suffix
-(``DE.CM-7``, ``RS.RP-1``) is stripped to its ``FUNCTION.CATEGORY`` and the
-category is validated; the reference module carries the 22 Categories, not
-the Subcategory text. A token is flagged when its ``FUNCTION.CATEGORY`` is
-not a CSF 2.0 Category: with a CSF-1.1 relocation note when the code is a
-known 1.1-era category, or as an unknown category otherwise. Well-formed
-codes with a non-CSF function prefix cannot occur (the token regex requires
-one of the six CSF Functions).
-
-Excludes the central matrix (gate 49's exact target) to avoid duplicate
-coverage. The ``guardrails/`` pack subtree remains in scope so invalid
-framework codes in the library's own rules and skills cannot escape the gate.
-
-Scans the audited corpus directories and ``guardrails/`` by default; a path
-argument (used by the regression harness) overrides the target to a single
-file.
-
-Exit codes: 0 = clean, 1 = findings, 2 = target unreadable.
+Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan
+(check_code, codes_in, scan_file) plus the NIST-CSF parsing patterns live in the
+pack-owned engine (.corpus-management/tools/gate_lint_document_control_codes.py,
+source of record); the engine takes the catalogue as two predicates
+(is_valid_category, relocation_note) and repo_root as params. This wrapper imports
+the shared reference, supplies those predicates, and keeps the grc scan scope
+(collect_targets, with the matrix exclusion) and the grouped reporting + exit codes.
 """
 
 from __future__ import annotations
 
-import re
 import argparse
 import sys
-from collections import namedtuple
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import is_fence_line, is_separator_row, read_text_safe, split_row  # noqa: E402  # generic core (behaviour-identical to lint_common)
 from lint_common import is_default_exempt_root, AUDITED_DOMAIN_DIRS, REPO_ROOT, iter_markdown_targets  # noqa: E402  # grc-config/store, stays local
-from nist_csf_reference import is_valid_category, relocation_note
+from nist_csf_reference import is_valid_category, relocation_note  # noqa: E402  # grc reference catalogue, shared with gate 49
+
+PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
 # The central matrix is gate 49's exact target; exclude it here to avoid
 # duplicate coverage. Path is relative to REPO_ROOT, posix form.
 MATRIX_REL = "compliance/matrix-grc-compliance-alignment.md"
 
-# NIST CSF label: matches "NIST CSF" / "NIST Cybersecurity Framework"
-# (optionally "2.0"), but NOT "NIST SP 800-...".
-NIST_CSF_LABEL_RE = re.compile(r"\bNIST\s+(?:CSF|Cybersecurity\s+Framework)\b", re.IGNORECASE)
 
-# A NIST CSF code token: FUNCTION.CATEGORY with FUNCTION one of the six
-# CSF Functions, optionally a -N subcategory suffix. The function set is
-# embedded in the alternation so the regex never matches an ISO "A.5.19"
-# (single leading letter) or a NIST SP "SA-9" (no dot) token.
-NIST_CODE_RE = re.compile(r"\b((?:GV|ID|PR|DE|RS|RC)\.[A-Z]{2})(?:-\d+)?\b")
-
-Finding = namedtuple("Finding", "path line rule message")
-
-
-def check_code(tok: str) -> tuple[str, str] | None:
-    """Return ``(rule, message)`` if ``tok`` (FUNCTION.CATEGORY) is not a CSF 2.0
-    Category, else ``None``."""
-    if is_valid_category(tok):
-        return None
-    note = relocation_note(tok)
-    if note:
-        return (
-            "nist-csf1-carrier",
-            f"'{tok}' is a CSF-1.1-era code, not a CSF 2.0 Category ({note})",
-        )
-    return (
-        "nist-unknown-category",
-        f"'{tok}' is not a CSF 2.0 Category (no such FUNCTION.CATEGORY in the CSF 2.0 Core)",
-    )
-
-
-def codes_in(cell: str) -> list[str]:
-    """Return the distinct CSF FUNCTION.CATEGORY codes in ``cell`` (suffix stripped),
-    in first-appearance order."""
-    found: list[str] = []
-    for m in NIST_CODE_RE.finditer(cell):
-        code = m.group(1)
-        if code not in found:
-            found.append(code)
-    return found
-
-
-def scan_file(path: Path) -> list[Finding]:
-    """Validate NIST CSF 2.0 codes in the NIST-labelled tables of ``path``."""
-    text = read_text_safe(path)
-    if text is None:
-        return []
-    findings: list[Finding] = []
-    rel = path.relative_to(REPO_ROOT).as_posix() if path.is_relative_to(REPO_ROOT) else str(path)
-
-    lines = text.splitlines()
-    in_fence = False
-    prev_cells: list[str] | None = None  # the previous table row, for header lookahead
-    nist_col: int | None = None  # set when the current table is framework-as-column
-
-    for lineno, line in enumerate(lines, start=1):
-        stripped = line.strip()
-        if is_fence_line(line):
-            in_fence = not in_fence
-            prev_cells = None
-            nist_col = None
-            continue
-        if in_fence:
-            continue
-        if not stripped.startswith("|"):
-            # Left a table block; reset table state.
-            prev_cells = None
-            nist_col = None
-            continue
-
-        cells = split_row(line)
-
-        if is_separator_row(cells):
-            # The row before a separator is the header. If it names a NIST
-            # CSF column, switch this table into framework-as-column mode.
-            if prev_cells is not None and nist_col is None:
-                for idx, c in enumerate(prev_cells):
-                    if NIST_CSF_LABEL_RE.search(c):
-                        nist_col = idx
-                        break
-            continue
-
-        # A non-separator table row.
-        if nist_col is not None:
-            # Framework-as-column: validate the NIST column cell only.
-            if len(cells) > nist_col and not NIST_CSF_LABEL_RE.search(cells[nist_col]):
-                for code in codes_in(cells[nist_col]):
-                    result = check_code(code)
-                    if result:
-                        findings.append(Finding(rel, lineno, result[0], result[1]))
-        elif cells and NIST_CSF_LABEL_RE.search(cells[0]) and len(cells) > 1:
-            # Framework-as-row: validate the code cell (cell 1) only, never
-            # the trailing notes cell(s).
-            for code in codes_in(cells[1]):
-                result = check_code(code)
-                if result:
-                    findings.append(Finding(rel, lineno, result[0], result[1]))
-
-        prev_cells = cells
-
-    return findings
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_document_control_codes  # the pack-owned engine (source of record)
+    return gate_lint_document_control_codes
 
 
 def collect_targets(paths: list[str] | None) -> list[Path]:
@@ -203,6 +59,16 @@ def collect_targets(paths: list[str] | None) -> list[Path]:
     return out
 
 
+def scan_file(path: Path) -> list:
+    """Thin shim delegating to the pack engine's pure scan.
+
+    Kept as a module-global because the regression tests call ``mod.scan_file(path)``
+    directly (and mutate ``mod.REPO_ROOT``); the shim reads ``REPO_ROOT`` at call time
+    so a test override is honoured, and supplies the shared CSF reference predicates.
+    """
+    return _engine().scan_file(path, REPO_ROOT, is_valid_category, relocation_note)
+
+
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
         description="Audit NIST CSF 2.0 codes in per-document framework tables."
@@ -220,7 +86,7 @@ def main(argv: list[str]) -> int:
             print(f"ERROR: target not found: {missing[0]}", file=sys.stderr)
             return 2
 
-    findings: list[Finding] = []
+    findings = []
     for path in targets:
         findings.extend(scan_file(path))
 
@@ -235,7 +101,7 @@ def main(argv: list[str]) -> int:
         )
         return 0
 
-    by_file: dict[str, list[Finding]] = {}
+    by_file: dict[str, list] = {}
     for f in findings:
         by_file.setdefault(f.path, []).append(f)
     for rel in sorted(by_file):
