@@ -284,3 +284,9 @@ id = "ssdf-control-ids"
 title = "NIST SSDF control-identifier validity (an SSDF control id cited in a document must be a valid practice/task, and an SSDF column must hold only SSDF-family codes)"
 source = "core/rules/ssdf-control-ids.md"
 origin = "grc_library tools/lint-ssdf-control-ids.py gate rationale (new clause in the Group-A content-generic transfer lane; the SSDF regexes + _split_cells + _is_sep + _validate_ssdf_id + check_file are the engine, moved verbatim; the SSDF catalogue is supplied via configure(ref) (valid practices, valid tasks, family tuple); the grc catalogue + EXEMPT_SUFFIXES + main are wrapper config)"
+
+[[clauses]]
+id = "listing-surface-completeness"
+title = "Listing-surface completeness (the index register and each domain README must enumerate every active document in scope)"
+source = "core/rules/listing-surface-completeness.md"
+origin = "grc_library tools/lint-listing-surface-completeness.py gate rationale (new clause in the Group-A content-generic transfer lane; the regexes + Finding + active_documents + paths_in_section + paths_in_file + is_register_required + domain_of + check_register + check_domain_readmes are the engine, moved verbatim; the corpus layout is supplied via configure(ref) (repo_root, taxonomy, register, register section); the grc layout + shims + main are wrapper config)"

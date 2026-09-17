@@ -1,64 +1,28 @@
 #!/usr/bin/env python3
-"""Listing-surface completeness audit.
+"""Listing-surface completeness audit - grc wrapper over the pack engine.
 
-A "listing surface" is a file that enumerates corpus documents, such
-that adding a new document of the relevant kind obliges updating that
-surface. This gate enforces completeness for the MECHANICAL listing
-surfaces -- those with a deterministic inclusion rule -- against the
-canonical active-document set recorded in ``taxonomy.yml`` (itself kept
-in sync with document metadata by the taxonomy-sync gate).
+Every MECHANICAL listing surface (the central document-index register, each domain
+README) must enumerate every active document in its scope.
 
-MECHANICAL surfaces gated here:
-
-  1. ``governance/register-document-index-and-classification.md`` -- the
-     authoritative active-document index. Rule: every domain-prefixed
-     active document must appear in the index table. Root-level
-     meta-specifications (``specification-*.md`` at the repository root)
-     are exempt: the register is organized by domain and has never
-     indexed root-level meta-specs, which describe the library's own
-     infrastructure rather than its GRC content. The exemption is
-     explicit and documented here rather than a silent skip.
-
-  2. Each domain README (``ai/README.md`` ... ``supply-chain/README.md``).
-     Rule: every active document whose path begins with that domain
-     directory must be referenced (as a repository-path link) somewhere
-     in the domain README. The whole README is scanned rather than a
-     single fixed section because the domain READMEs do not share one
-     listing-section name: most use "## Active documents", but the
-     compliance README lists across "## Core compliance documents
-     (root)" and "## Sector sub-directories" (it has sector
-     sub-directories). Cross-domain links a README may carry
-     (references to documents in other domains) are not flagged; only
-     missing own-domain documents are a finding.
-
-SEMANTIC surfaces -- the framework matrices and crosswalks, the
-glossary and key-terms registers, and per-document ``Related Documents``
-fields -- are deliberately NOT gated here. Their inclusion rule is
-relevance- or materiality-based, so a hard completeness gate would be
-noisy and would erode gate-discipline (a gate that cries wolf gets
-ignored or weakened). The companion authoring tool
-``tools/suggest-listing-surfaces.py`` emits high-recall candidate
-surfaces for a new document, including the semantic ones, for a human
-to ratify.
-
-The canonical source of truth is ``taxonomy.yml`` rather than a
-filesystem walk so that the active-document set this gate enforces is
-exactly the set the taxonomy-sync gate already validates against the
-document metadata; the two gates therefore cannot disagree about what
-"active" means.
-
-Exit codes: 0 pass, 1 findings (incompleteness detected), 2 internal error.
+Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan (the
+regexes, Finding, active_documents, paths_in_section, paths_in_file, is_register_required,
+domain_of, check_register, check_domain_readmes) is the source of record in the pack
+engine (.corpus-management/tools/gate_lint_listing_surface_completeness.py); it is
+layout-free and takes the corpus layout via configure(ref). This wrapper supplies the
+grc layout (taxonomy, register, section), configures the engine, and keeps module-global
+shims (active_documents / check_register / check_domain_readmes, called by the in-process
+regression), Finding, main, and the exit codes.
 """
 
 from __future__ import annotations
 
-import re
 import sys
-from dataclasses import dataclass
+from pathlib import Path
 
-import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
+import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path (engine imports aiqt_corpus)
 from lint_common import REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+
+PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
 TAXONOMY = "taxonomy.yml"
 REGISTER = "governance/register-document-index-and-classification.md"
@@ -67,126 +31,44 @@ REGISTER = "governance/register-document-index-and-classification.md"
 # domain READMEs vary in section structure, so they are scanned whole.
 REGISTER_SECTION = "Active document index"
 
-# Matches a corpus document path inside a markdown code span, e.g.
-# `ai/framework-ai-governance-and-risk.md`. Requires a domain-dir
-# prefix (a "/" before the basename) so bare-filename mentions in prose
-# are not mistaken for index entries.
-PATH_IN_CODESPAN = re.compile(r"`([a-z][a-z0-9-]*(?:/[a-z0-9._-]+)+\.md)`")
 
-# Matches a taxonomy active-document path entry.
-TAXONOMY_PATH = re.compile(r'^- path: "([^"]+)"', re.M)
-
-
-@dataclass(frozen=True)
-class Finding:
-    surface: str
-    missing: tuple[str, ...]
-    extra: tuple[str, ...]
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_listing_surface_completeness  # the pack-owned engine (source of record)
+    return gate_lint_listing_surface_completeness
 
 
-def active_documents() -> set[str]:
-    """Return the canonical active-document path set from taxonomy.yml."""
-    text = read_text_safe(REPO_ROOT / TAXONOMY)
-    if text is None:
-        raise RuntimeError(f"taxonomy not readable: {TAXONOMY}")
-    paths = set(TAXONOMY_PATH.findall(text))
-    if not paths:
-        raise RuntimeError("no active-document paths parsed from taxonomy.yml")
-    return paths
+# Configure the engine ONCE with the grc corpus layout.
+import types  # noqa: E402
+_engine().configure(types.SimpleNamespace(
+    repo_root=REPO_ROOT, taxonomy=TAXONOMY, register=REGISTER, register_section=REGISTER_SECTION))
+
+# Finding is defined in the engine; expose it so main's annotation resolves and the
+# in-process regression sees the same dataclass the shims return.
+Finding = _engine().Finding
 
 
-def paths_in_section(file_rel: str, section_header: str) -> set[str]:
-    """Extract domain-prefixed document paths listed under a named H2 section.
-
-    The section runs from the line ``## <section_header>`` to the next
-    ``## `` heading (or end of file). Only paths inside markdown code
-    spans are collected.
-    """
-    text = read_text_safe(REPO_ROOT / file_rel)
-    if text is None:
-        raise RuntimeError(f"listing surface not readable: {file_rel}")
-    lines = text.splitlines()
-    header_re = re.compile(r"^##\s+" + re.escape(section_header) + r"\s*$")
-    start = None
-    for i, line in enumerate(lines):
-        if header_re.match(line):
-            start = i + 1
-            break
-    if start is None:
-        raise RuntimeError(
-            f"section '## {section_header}' not found in {file_rel}"
-        )
-    collected: set[str] = set()
-    for line in lines[start:]:
-        if line.startswith("## "):
-            break
-        for m in PATH_IN_CODESPAN.finditer(line):
-            collected.add(m.group(1))
-    return collected
+def active_documents():
+    """Shim -> engine (engine already configured); kept module-global for the in-process regression."""
+    return _engine().active_documents()
 
 
-def paths_in_file(file_rel: str) -> set[str]:
-    """Extract all domain-prefixed document paths referenced anywhere in a file."""
-    text = read_text_safe(REPO_ROOT / file_rel)
-    if text is None:
-        raise RuntimeError(f"listing surface not readable: {file_rel}")
-    return set(PATH_IN_CODESPAN.findall(text))
+def check_register(active):
+    """Shim -> engine (engine already configured); kept module-global for the in-process regression."""
+    return _engine().check_register(active)
 
 
-def is_register_required(path: str) -> bool:
-    """Whether an active document must appear in the index register.
-
-    Domain-prefixed documents (those with a "/" in the path) are
-    required. Root-level documents (no "/") are exempt: the register is
-    domain-organized and root-level meta-specifications are
-    library-infrastructure, not indexed GRC content.
-    """
-    return "/" in path
+def check_domain_readmes(active):
+    """Shim -> engine (engine already configured); kept module-global for the in-process regression."""
+    return _engine().check_domain_readmes(active)
 
 
-def domain_of(path: str) -> str | None:
-    """Return the top-level domain directory of a path, or None for root-level."""
-    return path.split("/", 1)[0] if "/" in path else None
-
-
-def check_register(active: set[str]) -> Finding | None:
-    required = {p for p in active if is_register_required(p)}
-    listed = paths_in_section(REGISTER, REGISTER_SECTION)
-    missing = tuple(sorted(required - listed))
-    # An "extra" is a path listed in the register that is not an active
-    # document at all -- a stale or mistyped entry.
-    extra = tuple(sorted(p for p in listed if p not in active))
-    if missing or extra:
-        return Finding(surface=REGISTER, missing=missing, extra=extra)
-    return None
-
-
-def check_domain_readmes(active: set[str]) -> list[Finding]:
-    findings: list[Finding] = []
-    domains = sorted({d for p in active if (d := domain_of(p)) is not None})
-    for domain in domains:
-        readme = f"{domain}/README.md"
-        if not (REPO_ROOT / readme).is_file():
-            # A domain with active documents but no README is itself a
-            # completeness defect.
-            findings.append(
-                Finding(
-                    surface=readme,
-                    missing=tuple(
-                        sorted(p for p in active if domain_of(p) == domain)
-                    ),
-                    extra=(),
-                )
-            )
-            continue
-        required = {p for p in active if domain_of(p) == domain}
-        listed = paths_in_file(readme)
-        missing = tuple(sorted(required - listed))
-        # Do NOT flag README "extra" entries: a domain README may
-        # legitimately link to documents in other domains.
-        if missing:
-            findings.append(Finding(surface=readme, missing=missing, extra=()))
-    return findings
+def domain_of(path):
+    """Shim -> engine (used by main's OK-message domain count)."""
+    return _engine().domain_of(path)
 
 
 def main(argv: list[str]) -> int:
