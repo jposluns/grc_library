@@ -374,3 +374,11 @@ source = "tools/gate_lint_ssdf_control_ids.py"
 enforces = "ssdf-control-ids"
 entry_point = "tools/lint-ssdf-control-ids.py"
 origin = "grc_library tools/lint-ssdf-control-ids.py, grc gate 79 (engine transferred in the Group-A content-generic lane via Pattern A). The SSDF id/code-shape/header regexes + _split_cells + _is_sep + _validate_ssdf_id + check_file moved verbatim to the pack engine (byte-identical; _split_cells..check_file diff empty; 8 regression tests pass; corpus output identical). The SSDF catalogue (valid practices, valid tasks, family tuple) is supplied via configure(ref), so the engine is catalogue-free; it imports aiqt_corpus (read_text_safe, iter_non_code_lines) behind a fail-loud guard + Path for check_file's annotation. The wrapper supplies the catalogue, configures the engine once, and keeps EXEMPT_SUFFIXES + a module-global check_file shim (scan-scope meta-test) + main + exit codes. Import-path note: the original's own-dir sys.path.insert is preserved (this gate has one, unlike gate 73), plus the standard _engine() pack-tools insert."
+
+[[gates]]
+id = "lint-listing-surface-completeness"
+title = "Listing-surface completeness audit"
+source = "tools/gate_lint_listing_surface_completeness.py"
+enforces = "listing-surface-completeness"
+entry_point = "tools/lint-listing-surface-completeness.py"
+origin = "grc_library tools/lint-listing-surface-completeness.py, grc gate 47 (engine transferred in the Group-A content-generic lane via Pattern A). The path/taxonomy regexes + Finding + active_documents + paths_in_section + paths_in_file + is_register_required + domain_of + check_register + check_domain_readmes moved verbatim to the pack engine (byte-identical; active_documents..check_domain_readmes diff empty; 4 regression tests pass incl 3 in-process; corpus output identical). The corpus layout (repo_root, taxonomy path, register path, register section) is supplied via configure(ref), so the engine is layout-free; it imports aiqt_corpus (read_text_safe) behind a fail-loud guard. The wrapper supplies the grc layout, configures the engine once, and keeps module-global shims (active_documents/check_register/check_domain_readmes/domain_of, called by the in-process regression + main) + Finding (re-exported so main's annotation resolves) + main + exit codes."

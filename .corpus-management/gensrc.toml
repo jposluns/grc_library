@@ -336,3 +336,10 @@ kind = "file"
 sources = ["core/rules/ssdf-control-ids.md"]
 target = ".claude/rules/corpus-management/ssdf-control-ids.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "listing-surface-completeness"
+kind = "file"
+sources = ["core/rules/listing-surface-completeness.md"]
+target = ".claude/rules/corpus-management/listing-surface-completeness.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]
