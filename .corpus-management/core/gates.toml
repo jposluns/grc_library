@@ -302,3 +302,11 @@ source = "tools/gate_lint_metadata.py"
 enforces = "document-metadata"
 entry_point = "tools/lint-metadata.py"
 origin = "grc_library tools/lint-metadata.py, grc gate 1 (engine transferred in the Group-A content-generic lane via Pattern A; the PURE check extract_metadata + check_line_break_markers + looks_role_based + normalize_link_value + check_file plus the generic field/link/semver/date regexes moved to the pack engine, parameterized by repo_root + the metadata model as keyword args; the wrapper keeps the grc metadata model (ALLOWED_TYPES + TYPE_TO_PREFIX + REQUIRED_FIELDS + EXEMPT + EXEMPT_PREFIXES + PREFIX_EXEMPT_BASENAMES + ROLE_SUFFIXES + ROLE_STEMS + LICENSE_VALUE) wrapper-side (it is the project schema and gate 67 reads ALLOWED_TYPES/TYPE_TO_PREFIX from it) + the scan scope + a module-global check_file/iter_markdown_files shim the scan-scope test calls. is_default_exempt_root passed in as a callable.)"
+
+[[gates]]
+id = "lint-retention-consistency"
+title = "Cross-document retention-consistency audit"
+source = "tools/gate_lint_retention_consistency.py"
+enforces = "retention-consistency"
+entry_point = "tools/lint-retention-consistency.py"
+origin = "grc_library tools/lint-retention-consistency.py, grc gate 55 (engine transferred in the Group-A content-generic lane via Pattern A; normalise + register_value + procedure_value + collect_findings plus the generic period regex + unit-to-days table moved to the pack engine; the wrapper keeps the grc REGISTER path + RETENTION_CHECKS pair list + PROCEDURE_ANCHOR_RE + the --root handling + register-missing terminal + OK/FAIL reporting in main. --root-driven (no module-fn patch); aiqt_corpus import guard.)"

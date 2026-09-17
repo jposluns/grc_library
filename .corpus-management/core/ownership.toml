@@ -193,3 +193,8 @@ target = ".claude/rules/corpus-management/structural-index-integrity.md"
 rule = "document-metadata"
 kind = "file"
 target = ".claude/rules/corpus-management/document-metadata.md"
+
+[[owned_targets]]
+rule = "retention-consistency"
+kind = "file"
+target = ".claude/rules/corpus-management/retention-consistency.md"
