@@ -294,3 +294,10 @@ kind = "file"
 sources = ["core/rules/document-iso-annex-a.md"]
 target = ".claude/rules/corpus-management/document-iso-annex-a.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "ccm-aicm-citations"
+kind = "file"
+sources = ["core/rules/ccm-aicm-citations.md"]
+target = ".claude/rules/corpus-management/ccm-aicm-citations.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]
