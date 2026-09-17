@@ -20018,5 +20018,41 @@ class CobitIso31000CitationsEngineTransferTests(unittest.TestCase):
         self.assertEqual(findings, [])
 
 
+class CitationWorklistSyncTests(unittest.TestCase):
+    """P-1.65 sync-citation-worklist-baseline: never-fabricate / strict-append safety."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = load_linter_module(
+            "tools/sync-citation-worklist-baseline.py", "sync_citation_worklist_baseline")
+
+    def test_in_tool_self_test_passes(self):
+        self.assertEqual(self.mod.self_test(), 0)
+
+    def test_strict_append_version_syncs(self):
+        reg = {"version": "Regulation 2024/1689 as amended by Reg (EU) 2026/1744",
+               "pubdate": "2024-07", "superseded": "-"}
+        status, new, _ = self.mod.decide("Regulation 2024/1689, 2024-07, AI regulation", reg)
+        self.assertEqual(status, "SYNC")
+        self.assertIn("as amended by Reg (EU) 2026/1744", new)
+        self.assertIn("AI regulation", new)
+
+    def test_superseded_shortening_refused(self):
+        # version MATCHES (so the superseded branch is reached, not short-circuited by the version
+        # branch); the register superseded value is SHORTER than the cell, so syncing would DELETE
+        # the human annotation. Must refuse from the SUPERSEDED guard (CITATION-SYNC-002).
+        reg = {"version": "COBIT 2019", "pubdate": "2019", "superseded": "COBIT 5, COBIT 4.1"}
+        cell = 'COBIT 2019, 2019, governance; supersedes COBIT 5, COBIT 4.1; "COBIT 2025" is hallucinated'
+        status, new, detail = self.mod.decide(cell, reg)
+        self.assertEqual(status, "NON-APPEND")
+        self.assertIsNone(new)
+        self.assertIn("superseded", detail.lower())
+
+    def test_unmatched_id_refused(self):
+        status, new, _ = self.mod.decide("anything", None)
+        self.assertEqual(status, "UNMATCHED")
+        self.assertIsNone(new)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
