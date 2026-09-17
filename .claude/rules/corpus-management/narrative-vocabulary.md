@@ -8,8 +8,8 @@ no unqualified requirement word, and no em or en dash. Reading each page's non-c
 (code spans and fenced blocks are skipped), the check flags each denylisted absolute
 (single-word absolutes per line, multi-word absolutes across the joined paragraph so a
 soft line break does not hide them; the adopter's denylist patterns supply the inflection
-matching and a left-boundary guard, so an absolute at the start of a hyphenated
-identifier is exempt but one following a hyphen is not); each requirement word unless it
+matching and a left-boundary guard, so an absolute following a hyphen is exempt but one at the
+start of a hyphenated identifier is not); each requirement word unless it
 is qualified as a quotation carrying a visibly adjacent source citation (a markdown link
 or a named external standard on the same line within a small window, or on the nearest
 non-blank neighbouring line, not crossing a fenced-block boundary); and each em or en
