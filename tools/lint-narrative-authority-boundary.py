@@ -1,51 +1,20 @@
 #!/usr/bin/env python3
-"""One-way narrative authority-boundary gate (P-1.25 Phase 1.3; spec Gates item 7).
+"""One-way narrative authority-boundary audit - grc wrapper over the pack engine.
 
-Enforces the source-level direction rule of
-``specification-executive-narrative.md`` ("Related Documents on a narrative
-page"): the authority boundary is ONE-WAY. A corpus document must never
-reference the root ``executive/`` tree in any field, including Related
-Documents; any corpus-explained-by-narrative view is derived at render time
-from the narrative registry, never written into corpus source or into
-``taxonomy.yml``. The reverse direction (a narrative page linking corpus
-documents) is not merely allowed but mandatory, and is out of scope here.
+The corpus is the sole normative surface and never references the narrative layer: no
+corpus document metadata field or link, and no taxonomy.yml row, may reference the
+executive/ narrative tree (the one-way authority boundary).
 
-Modelled on the corpus-to-project directional-dependency gate (gate 53,
-``lint-directional-dependency.py``): a derived deliverable-corpus scan set,
-fence-aware link detection, resolution relative to the source file, and a
-root-anchored membership test on the resolved target.
-
-Three checks per the spec's wording:
-
-  1. LINK check (whole document, fence-aware): no markdown link in a
-     deliverable-corpus document may resolve into the root ``executive/``
-     tree. Root-anchored: a link into a NESTED directory merely named
-     ``executive`` (e.g. ``governance/executive/``) is not a finding.
-  2. FIELD check (metadata head window): no metadata field value may
-     reference ``executive/`` even as plain text or inline code ("in any
-     field" is broader than "as a link"). Body PROSE that discusses
-     ``executive/`` in backticks stays legal (the authoring specification
-     itself does this throughout); only field values and links are policed.
-  3. TAXONOMY check (defence-in-depth): no ``taxonomy.yml`` row may carry an
-     ``executive/`` path or relationship target. Making the taxonomy GENERATOR
-     itself reject ``executive/`` targets at emission time (spec Gates item 7)
-     is a separate, not-yet-built obligation; this state-level scan is the
-     current enforcement point and backstop, failing loudly if an
-     ``executive/`` target ever reaches ``taxonomy.yml``.
-
-Scope: the deliverable corpus, DERIVED from ``lint_common.AUDITED_DOMAIN_DIRS``
-minus ``.project-governance`` (project governance is not corpus; the
-one-way rule subordinates the NARRATIVE layer to the CORPUS), plus the root
-deliverable documents including the narrative authoring specification itself
-(which passes: its executive-path examples are fenced or inline-code prose,
-never links or field values).
-
-Usage:
-    python3 tools/lint-narrative-authority-boundary.py [paths...]
-    python3 tools/lint-narrative-authority-boundary.py --self-test
-
-Exit 0 when no corpus document references executive/; exit 1 otherwise.
+Engine/wrapper split (Group-A content-generic lane, Pattern A; narrative-family): the
+PURE scan (the link/fence regexes + helpers + _resolves_into_narrative + check_file +
+check_taxonomy) is the source of record in the pack engine
+(.corpus-management/tools/gate_lint_narrative_authority_boundary.py); it is
+narrative-root-agnostic and takes the narrative root + its mention regexes via
+configure(ref). This wrapper supplies the grc narrative root + corpus scan scope
+(iter_markdown_files over the audited domains), configures the engine, and keeps the
+self-test, main, module-global shims (check_file / check_taxonomy), and the exit codes.
 """
+
 from __future__ import annotations
 
 import re
@@ -53,53 +22,14 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import parse_metadata_block, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
+import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path (engine imports aiqt_corpus)
 from lint_common import is_default_exempt_root, AUDITED_DOMAIN_DIRS, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+
+PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
 # The narrative directory: the target the direction rule forbids corpus
 # documents from referencing.
 NARRATIVE_ROOT = "executive"
-
-# Match markdown links ``[text](target)``; external schemes skipped.
-# Same patterns as gates 3 and 53.
-# Link destination in ``](dest)``, ``](dest "title")``, or ``](<dest>)`` form:
-# capture the destination token (up to whitespace, ")", or ">") without
-# requiring the closing ")", so a titled or angle-bracket link cannot fail open.
-LINK_RE = re.compile(r"\]\(\s*<?([^\s)>]+)")
-EXTERNAL = re.compile(r"^(https?:|mailto:|tel:|ftp:|#)")
-
-# Reference-style link DEFINITION: ``[label]: dest`` at line start (optionally
-# ``<dest>``). A corpus doc that references executive/ via a ref-def (``[brief][n]``
-# in the body, ``[n]: ../executive/brief-x.md`` below) renders as a corpus-to-narrative
-# link but is NOT an inline ``](dest)`` match, so LINK_RE alone fails open. The
-# line-start ``[label]:`` shape cannot collide with an inline ``[text](url)`` (``](``
-# not ``]:``) or a body reference ``[text][label]``, so there is no double-count.
-# 0-3 leading spaces only (4+ is an indented code block, not a link def), an
-# optional blockquote prefix (a blockquoted ref-def still renders a link), then
-# the label. Marker-aware fence tracking (below) excludes fenced ref-defs.
-REF_DEF_RE = re.compile(r"^ {0,3}(?:>[ \t]?)*\[[^\]]+\]:\s*<?([^\s>]+)")
-
-# Marker-aware fence parser (CommonMark): a fenced block closes only on the same
-# marker char and a run length >= the opener, no info string; the shared
-# ``is_fence_line`` toggle is marker-blind, so a ``` inside a ~~~ example would
-# wrongly flip the scan and mis-read fenced content (a ref-def inside a fenced
-# block is not a rendered link). Local to gate 87, mirroring gate 86.
-_FENCE_RE = re.compile(r"^\s*(`{3,}|~{3,})(.*)$")
-
-
-def _fence_marker(line: str):
-    m = _FENCE_RE.match(line)
-    if not m:
-        return None
-    run = m.group(1)
-    return run[0], len(run), m.group(2).strip()
-
-
-def _closes(marker, opener) -> bool:
-    return (marker is not None and marker[0] == opener[0]
-            and marker[1] >= opener[1] and not marker[2])
-
 
 # A plain-text / inline-code reference to the narrative tree inside a
 # metadata FIELD value: ``executive/`` not preceded by a word character,
@@ -135,95 +65,30 @@ DEFAULT_CORPUS_ROOTS: list[str] = [
 ]
 
 
-def _resolves_into_narrative(source: Path, target: str, root: Path) -> bool:
-    """True iff ``target`` (a link in ``source``) resolves into the ROOT
-    ``executive/`` tree of ``root``. Root-anchored: a nested ``executive``
-    directory elsewhere does not count."""
-    target_no_anchor = target.split("#", 1)[0]
-    if not target_no_anchor:
-        return False  # pure-anchor link
-    resolved = (source.parent / target_no_anchor).resolve()
-    try:
-        rel = resolved.relative_to(root.resolve())
-    except ValueError:
-        return False  # outside the repo: not the narrative tree
-    return len(rel.parts) >= 1 and rel.parts[0] == NARRATIVE_ROOT
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_narrative_authority_boundary  # the pack-owned engine (source of record)
+    return gate_lint_narrative_authority_boundary
+
+
+# Configure the engine ONCE with the grc narrative root + its derived mention regexes.
+import types  # noqa: E402
+_engine().configure(types.SimpleNamespace(
+    narrative_root=NARRATIVE_ROOT, field_mention_re=FIELD_MENTION_RE,
+    taxonomy_mention_re=TAXONOMY_MENTION_RE))
 
 
 def check_file(path: Path, root: Path = REPO_ROOT) -> list[tuple[int, str]]:
-    """(lineno, message) findings for one corpus document."""
-    text = read_text_safe(path)
-    if text is None:
-        # Fail LOUD, not open: an unreadable corpus file cannot be cleared of
-        # executive/ references (the 1.3a fail-loud lesson).
-        return [(0, "not readable / not utf-8 (cannot be cleared of executive/ references; fail loud)")]
-    findings: list[tuple[int, str]] = []
-
-    # FIELD check: any metadata field value referencing executive/.
-    block = parse_metadata_block(text)
-    for field, value in block.fields.items():
-        if FIELD_MENTION_RE.search(value):
-            lineno = block.raw_lines[field][0]
-            findings.append(
-                (lineno,
-                 f"metadata field {field!r} references executive/ (the authority "
-                 f"boundary is one-way: no corpus field may reference the "
-                 f"narrative tree, Related Documents included)")
-            )
-
-    # LINK check: any markdown link resolving into the root executive/ tree.
-    open_fence = None  # marker-aware: (char, run-length); ``` inside ~~~ is content
-    for lineno, raw in enumerate(text.splitlines(), 1):
-        marker = _fence_marker(raw)
-        if open_fence is not None:
-            if _closes(marker, open_fence):
-                open_fence = None
-            continue
-        if marker is not None:
-            open_fence = (marker[0], marker[1])
-            continue
-        for m in LINK_RE.finditer(raw):
-            target = m.group(1)
-            if EXTERNAL.match(target):
-                continue
-            if _resolves_into_narrative(path, target, root):
-                findings.append(
-                    (lineno,
-                     f"corpus-to-narrative link {target!r} (derive any "
-                     f"corpus-explained-by-narrative view at render time from the "
-                     f"narrative registry; never write it into corpus source)")
-                )
-        rd = REF_DEF_RE.match(raw)
-        if rd:
-            target = rd.group(1)
-            if not EXTERNAL.match(target) and _resolves_into_narrative(path, target, root):
-                findings.append(
-                    (lineno,
-                     f"corpus-to-narrative link {target!r} via reference definition "
-                     f"(derive any corpus-explained-by-narrative view at render time "
-                     f"from the narrative registry; never write it into corpus source)")
-                )
-    return findings
+    """Shim -> engine (engine already configured); kept module-global for the self-test + main."""
+    return _engine().check_file(path, root)
 
 
 def check_taxonomy(root: Path = REPO_ROOT) -> list[tuple[int, str]]:
-    """Defence-in-depth: no executive/ path may appear in taxonomy.yml."""
-    tax = root / "taxonomy.yml"
-    if not tax.is_file():
-        return []
-    text = read_text_safe(tax)
-    if text is None:
-        return [(0, "taxonomy.yml not readable / not utf-8 (cannot be checked for executive/ targets; fail loud)")]
-    findings: list[tuple[int, str]] = []
-    for lineno, line in enumerate(text.splitlines(), 1):
-        if TAXONOMY_MENTION_RE.search(line):
-            findings.append(
-                (lineno,
-                 "taxonomy.yml carries an executive/ target (taxonomy.yml is "
-                 "corpus-only by construction; the generator must reject "
-                 "executive/ targets and no narrative row is ever added)")
-            )
-    return findings
+    """Shim -> engine (engine already configured); kept module-global for the self-test + main."""
+    return _engine().check_taxonomy(root)
 
 
 def iter_markdown_files(paths: list[str], root: Path = REPO_ROOT) -> list[Path]:

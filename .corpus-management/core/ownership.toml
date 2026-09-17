@@ -253,3 +253,8 @@ target = ".claude/rules/corpus-management/narrative-disclaimer.md"
 rule = "narrative-vocabulary"
 kind = "file"
 target = ".claude/rules/corpus-management/narrative-vocabulary.md"
+
+[[owned_targets]]
+rule = "narrative-authority-boundary"
+kind = "file"
+target = ".claude/rules/corpus-management/narrative-authority-boundary.md"
