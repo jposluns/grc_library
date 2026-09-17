@@ -1,50 +1,32 @@
 #!/usr/bin/env python3
-"""Fabricated alignment-citation existence audit (registry-driven).
+"""Fabricated alignment-citation existence audit - grc wrapper over the pack engine.
 
-Catches control/section identifiers cited in the corpus that do NOT exist in any held
-edition of their framework's catalogue -- the "fabricated code" class the framework
-existence gates 48/49/54/58/61 do not cover for these frameworks (a wrong control
-*mapping* stays an authorial judgement; a nonexistent *code* is mechanically
-checkable). Same philosophy and shape as `lint-ssdf-control-ids.py`.
+Flag a citation to a NIST Privacy Framework identifier that exists in no held edition
+of the framework's catalogue (a fabricated code). Report-only by default; --strict
+makes it a blocking gate.
 
-It consumes ONLY the committed factual registry `alignment_citation_reference.py`
-(never the held `grc_library_ref` at run time), so it works in a sibling-free clone
-(portability). A framework-family code is validated against the UNION of the held editions
-of that framework; only a code absent from ALL of them is a fabricated-code error, so a
-legitimate draft-edition-only code is not false-flagged.
-
-Coverage in this initial cut: the held NIST Privacy Framework editions, validated as a
-union -- the 1.0 core (18 categories, 100 subcategories, complete) and the 1.1 IPD draft
-(24 categories, 138 subcategories), so a legitimate 1.1-only code is not false-flagged. The PF `XX.YY-P`
-family is unique in the corpus (no other cited framework uses the `-P` suffix on a
-letter.letter code), so any such token is a Privacy-Framework citation (the same
-family-uniqueness argument `lint-ssdf-control-ids.py` mode A uses).
-
-RANGE-AWARE: a range cite such as `CT.PO-P1 to P5` is expanded and its endpoints
-validated -- the bare-token/RANGE shape whose fabricated codes the per-PR, existence-blind
-D13 stranded-code delta gate cannot catch (it expands ranges on changed lines but never
-validates a token against a catalogue) (resume /validate 2026-09-02, template-privacy-notice.md:162).
-
-Modes:
-  * default (report-only): print any fabricated code, exit 0. Use during the
-    report-first rollout to inventory + clear the baseline.
-  * --strict: exit 1 on any fabricated code (blocking-gate mode, wired once the
-    baseline is clean).
+Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan (the PF
+identifier/range regexes, _check_pf, check_file) is the source of record in the pack
+engine (.corpus-management/tools/gate_lint_alignment_citation_existence.py); it is
+catalogue-free and takes the framework catalogue via configure(ref). This wrapper
+imports the alignment_citation_reference registry, derives the valid-identifier union
+and the framework name, configures the engine, and keeps EXEMPT_SUFFIXES, a
+module-global check_file shim, main, and the exit codes.
 """
+
 from __future__ import annotations
 
 import argparse
-import re
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import read_text_safe, iter_non_code_lines  # noqa: E402  # generic core (behaviour-identical to lint_common)
+sys.path.insert(0, str(Path(__file__).resolve().parent))  # own dir on sys.path (programmatic-load safe)
+import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path (engine imports aiqt_corpus)
 from lint_common import REPO_ROOT, iter_markdown_targets  # noqa: E402  # grc-config/store, stays local
-from alignment_citation_reference import REGISTRY, PF_ALL_EDITIONS_VALID  # noqa: E402
+from alignment_citation_reference import REGISTRY, PF_ALL_EDITIONS_VALID  # noqa: E402  # grc factual registry
 
-# Files where a code-shaped string is historical description / an example, not a live cite.
+PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
+
 # Markdown files where a code-shaped string is historical description / an example, not
 # a live citation. (The walker is iter_markdown_targets, so only .md files reach here;
 # the registry and this lint are .py and are never scanned.)
@@ -54,6 +36,7 @@ EXEMPT_SUFFIXES = (
     "governance/specification-citation-verification.md",  # ditto
 )
 
+
 # The PF 1.0 edition entry supplies the framework name and counts; validation uses the union below.
 _PF = REGISTRY["nist-privacy-framework-1.0"]
 # Validate against the UNION of every held Privacy Framework edition (1.0 + 1.1 IPD), so a
@@ -61,54 +44,26 @@ _PF = REGISTRY["nist-privacy-framework-1.0"]
 _PF_ALL = PF_ALL_EDITIONS_VALID
 _PF_NAME = _PF["name"]  # edition-agnostic; validated vs the union of held editions
 
-# A single PF identifier: XX.YY-P optionally with a subcategory number.
-_PF_SINGLE = re.compile(r"\b([A-Z]{2}\.[A-Z]{2}-P)(\d+)?\b")
-# A PF range: "CT.PO-P1 to P5" / "CT.PO-P1 to CT.PO-P5" / hyphen or en-dash separated.
-_ENDASH = "\u2013"  # en-dash, kept out of the source as a literal glyph (ungated-dash gate)
-_PF_RANGE = re.compile(
-    r"\b([A-Z]{2}\.[A-Z]{2}-P)(\d+)\s*(?:to|through|[-" + _ENDASH + r"])\s*"
-    r"([A-Z]{2}\.[A-Z]{2}-P)?P?(\d+)\b"
-)
+
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_alignment_citation_existence  # the pack-owned engine (source of record)
+    return gate_lint_alignment_citation_existence
 
 
-def _check_pf(code: str) -> bool:
-    """True if `code` (a category `XX.YY-P` or subcategory `XX.YY-Pn`) exists in PF."""
-    return code in _PF_ALL
+# Configure the engine ONCE with the grc framework catalogue (validated vs the union
+# of every held Privacy Framework edition).
+import types  # noqa: E402
+_engine().configure(types.SimpleNamespace(pf_all=_PF_ALL, pf_name=_PF_NAME))
 
 
 def check_file(path: Path, rel: str) -> list[str]:
-    text = read_text_safe(path)
-    if text is None:
-        return []
-    findings: list[str] = []
-    for lineno, raw in iter_non_code_lines(text):
-        # Ranges first (so their endpoints are not double-reported as singles).
-        range_spans: list[tuple[int, int]] = []
-        for m in _PF_RANGE.finditer(raw):
-            base1, start = m.group(1), int(m.group(2))
-            base2, end = m.group(3), int(m.group(4))
-            range_spans.append(m.span())
-            # Each endpoint is validated against ITS OWN category prefix: a
-            # cross-category range (CT.PO-P1 to CM.AW-P5) validates CM.AW-P5, not a
-            # reconstructed CT.PO-P5.
-            for code in (f"{base1}{start}", f"{base2 or base1}{end}"):
-                if not _check_pf(code):
-                    findings.append(
-                        f"{rel}:{lineno}: '{code}' (from range '{m.group(0)}') is not a valid "
-                        f"{_PF_NAME} identifier"
-                    )
-        for m in _PF_SINGLE.finditer(raw):
-            # skip tokens already covered by a range match
-            if any(s <= m.start() < e for s, e in range_spans):
-                continue
-            base, num = m.group(1), m.group(2)
-            code = f"{base}{num}" if num else base
-            if not _check_pf(code):
-                findings.append(
-                    f"{rel}:{lineno}: '{code}' is not a valid {_PF_NAME} identifier "
-                    f"(the {base} category's subcategories do not include this number)"
-                )
-    return findings
+    """Thin shim delegating to the pack engine's pure scan (engine already configured);
+    kept module-global so the scan-scope regression meta-test can call it."""
+    return _engine().check_file(path, rel)
 
 
 def main(argv: list[str]) -> int:

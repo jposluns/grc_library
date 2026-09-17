@@ -350,3 +350,11 @@ source = "tools/gate_lint_ccm_provider_member_in_range.py"
 enforces = "ccm-provider-member-range"
 entry_point = "tools/lint-ccm-provider-member-in-range.py"
 origin = "grc_library tools/lint-ccm-provider-member-in-range.py, grc gate 100 (engine transferred in the Group-A content-generic lane via Pattern A). RANGE_RE + swept_members + the fence/inline-code regexes + scan_text moved verbatim to the pack engine (byte-identical; scan_text diff empty; 4 regression tests pass; corpus output identical). The directional provider-to-tenant member set is supplied via configure(directional_members), so the engine carries no project catalogue. The wrapper supplies DIRECTIONAL_PROVIDER_MEMBERS, configures the engine once, and keeps the scan scope (scan_targets, exposed for the scan-scope regression) + a module-global scan_text shim + main + exit codes."
+
+[[gates]]
+id = "lint-alignment-citation-existence"
+title = "Fabricated alignment-citation existence audit"
+source = "tools/gate_lint_alignment_citation_existence.py"
+enforces = "alignment-citation-existence"
+entry_point = "tools/lint-alignment-citation-existence.py"
+origin = "grc_library tools/lint-alignment-citation-existence.py, grc gate 96 (engine transferred in the Group-A content-generic lane via Pattern A). The PF identifier/range regexes + _check_pf + check_file moved verbatim to the pack engine (byte-identical; check_file diff empty; 5 regression tests pass; corpus output identical). The framework catalogue (the valid-identifier union + the framework name) is supplied via configure(ref), so the engine is catalogue-free; the engine imports aiqt_corpus (read_text_safe, iter_non_code_lines) behind a fail-loud guard. The wrapper imports the alignment_citation_reference registry, derives the PF-all union + name, configures the engine once, and keeps EXEMPT_SUFFIXES + a module-global check_file shim (the scan-scope meta-test calls it) + main + the --strict/report-only exit contract."
