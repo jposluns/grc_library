@@ -168,3 +168,8 @@ target = ".claude/rules/corpus-management/metadata-line-breaks.md"
 rule = "orphan-documents"
 kind = "file"
 target = ".claude/rules/corpus-management/orphan-documents.md"
+
+[[owned_targets]]
+rule = "cross-file-section-refs"
+kind = "file"
+target = ".claude/rules/corpus-management/cross-file-section-refs.md"
