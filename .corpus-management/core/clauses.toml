@@ -242,3 +242,9 @@ id = "document-control-codes"
 title = "Per-document framework control-code validity (a NIST CSF code cited in a per-document framework table is a current CSF 2.0 Category)"
 source = "core/rules/document-control-codes.md"
 origin = "grc_library tools/lint-document-control-codes.py gate rationale (new clause in the Group-A content-generic transfer lane; check_code + codes_in + scan_file plus the NIST-CSF label/token regexes are the engine, with the CSF catalogue supplied as two predicates (is_valid_category, relocation_note) + repo_root passed in; the grc reference module nist_csf_reference.py (shared with gate 49) + the scan scope collect_targets + the matrix exclusion + reporting are wrapper config)"
+
+[[clauses]]
+id = "document-iso-annex-a"
+title = "Per-document ISO 27001 Annex A validity (an ISO/IEC 27001:2022 Annex A code cited in a per-document framework table is a real 2022 Annex A reference)"
+source = "core/rules/document-iso-annex-a.md"
+origin = "grc_library tools/lint-document-iso-annex-a.py gate rationale (new clause in the Group-A content-generic transfer lane; _check_theme + _check_range + findings_in + scan_file plus the ISO label/range/code/theme/clause regexes are the engine, with the Annex A reference supplied as check_iso_token + the theme set ISO_ANNEX_A_RANGES + repo_root passed in; the grc reference module iso_27001_reference.py (shared with gate 49) + the scan scope collect_targets + the matrix exclusion + reporting are wrapper config)"

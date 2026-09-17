@@ -318,3 +318,11 @@ source = "tools/gate_lint_document_control_codes.py"
 enforces = "document-control-codes"
 entry_point = "tools/lint-document-control-codes.py"
 origin = "grc_library tools/lint-document-control-codes.py, grc gate 54 (engine transferred in the Group-A content-generic lane via Pattern A; check_code + codes_in + scan_file plus the NIST-CSF label/token regexes moved to the pack engine; the CSF catalogue is supplied to the engine as two predicates (is_valid_category, relocation_note) + repo_root, so the engine is repository-root-free and catalogue-free; the wrapper imports the shared nist_csf_reference.py (also used by gate 49) + keeps collect_targets (grc scan scope + matrix exclusion) + the module-global collect_targets the scan-scope test calls + reporting + exit codes. aiqt_corpus import guard.)"
+
+[[gates]]
+id = "lint-document-iso-annex-a"
+title = "Per-document ISO/IEC 27001:2022 Annex A validity audit"
+source = "tools/gate_lint_document_iso_annex_a.py"
+enforces = "document-iso-annex-a"
+entry_point = "tools/lint-document-iso-annex-a.py"
+origin = "grc_library tools/lint-document-iso-annex-a.py, grc gate 58 (engine transferred in the Group-A content-generic lane via Pattern A, parallel to gate 54; _check_theme + _check_range + findings_in + scan_file plus the ISO regexes moved to the pack engine; the reference is supplied as check_iso_token + ISO_ANNEX_A_RANGES + repo_root, so the engine is catalogue-free and repository-root-free; the wrapper imports the shared iso_27001_reference.py (also used by gate 49) + keeps collect_targets (grc scan scope + matrix exclusion) + a module-global scan_file(path) shim (call-time REPO_ROOT) the regression tests call directly + reporting + exit codes. aiqt_corpus import guard.)"

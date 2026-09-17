@@ -203,3 +203,8 @@ target = ".claude/rules/corpus-management/retention-consistency.md"
 rule = "document-control-codes"
 kind = "file"
 target = ".claude/rules/corpus-management/document-control-codes.md"
+
+[[owned_targets]]
+rule = "document-iso-annex-a"
+kind = "file"
+target = ".claude/rules/corpus-management/document-iso-annex-a.md"
