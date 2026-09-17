@@ -1,97 +1,54 @@
 #!/usr/bin/env python3
-"""GRC compliance-matrix / alignment-table CCM range-direction audit.
+"""CCM family-range provider-to-tenant member direction - grc wrapper over the pack engine.
 
-A framework-alignment "family range" citation (for example ``CCC-01 to 09``,
-``LOG-01 through LOG-14``, ``I&S-01 through I&S-09``) expresses broad CONTROL-FAMILY
-coverage; the family-range convention (compliance-matrix preamble) says a range does
-NOT assert every member individually applies. But a range silently SWEEPS IN each of
-its members, and a member whose held CSA CCM v4.1.0 specification imposes a cloud
-PROVIDER's duty toward its service customers / tenants (a "provider-to-tenant" control)
-does NOT fit an INTERNAL-scope organizational document, where the organization is the
-cloud CUSTOMER. Every corpus document is internal-scope (none is a CSP offering).
+Flag a CCM family-range citation (e.g. "CCC-01 to 09") that sweeps in a
+provider-to-tenant ("directional") control member on an internal-scope document.
 
-This is the guard-input-soundness class (AIQT ``guard-input-soundness`` /
-``completeness-claim-enumerates-its-set``, adopted via the guardrails pack): a
-literal-token grep over a citation is structurally BLIND to a member expressed only as
-a range ENDPOINT ("CCC-01 to CCC-09" contains no "CCC-05" token), so "is a
-provider-to-tenant member cited here?" must be a range-MEMBERSHIP scan
-(start <= member <= end), never a token count. This gate mechanizes that scan.
-
-Provenance: the CSA-CCM-domain-specific instance guardrails-orch directed grc to build
-grc-LOCAL (intake seeds/grc-range-membership-20260908), resting on the generic AIQT
-principle as the WHY. Origin incident: PRs #2081/#2082 (P-1.60 CCM-Hybrid), where a
-literal-token "residual = 0" check missed CCC-05/LOG-08/I&S-06 hiding inside ranges.
-
-Scope: DISCRETE cells (a provider-to-tenant control cited on its own, e.g. the genuine
-multi-tenant container row's I&S-06) are OUT of scope here (the existence gates + the
-matrix-fit cadence own that judgement); this gate checks RANGE citations only.
-
-Exit: 0 = no swept provider-to-tenant member in any range (or all exempt); 1 = at least
-one flagged; 2 = an unexpected internal error. An individually-undecodable file is
-skipped (it carries no citation to check), not treated as an error.
+Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan
+(RANGE_RE, swept_members, the fence/inline-code regexes, scan_text) is the source
+of record in the pack engine
+(.corpus-management/tools/gate_lint_ccm_provider_member_in_range.py); it carries no
+project catalogue and takes the directional-member set via configure(). This wrapper
+supplies DIRECTIONAL_PROVIDER_MEMBERS, configures the engine, and keeps the scan
+scope (scan_targets), a module-global scan_text shim, main, and the exit codes.
 """
+
 from __future__ import annotations
 
-import re
 import sys
 from pathlib import Path
 
-from lint_common import (
+from lint_common import (  # noqa: E402  # grc-config/store, stays local
     DEFAULT_EXEMPT_DIRS,
     REPO_ROOT,
     iter_markdown_targets,
     read_text_safe,
 )
 
+PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
+
+
 DIRECTIONAL_PROVIDER_MEMBERS: frozenset[str] = frozenset(
     {"I&S-06", "CCC-05", "LOG-08", "STA-04", "DSP-18", "CEK-08", "IAM-11", "IPY-02"}
 )
 
-RANGE_RE = re.compile(
-    r"\b([A-Z][A-Z&]*)-(\d{1,2})\s+(?:to|through)\s+(?:([A-Z][A-Z&]*)-)?(\d{1,2})\b"
-)
+
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_ccm_provider_member_in_range  # the pack-owned engine (source of record)
+    return gate_lint_ccm_provider_member_in_range
 
 
-def swept_members(fam: str, start: int, end: int) -> list[str]:
-    if end < start or (end - start) > 40:
-        return []
-    return [f"{fam}-{n:02d}" for n in range(start, end + 1)]
+# Configure the engine ONCE with the grc directional-member set.
+_engine().configure(DIRECTIONAL_PROVIDER_MEMBERS)
 
 
-FENCE_RE = re.compile(r"^\s*(?:```|~~~)")
-INLINE_CODE_RE = re.compile(r"`[^`]*`")
-
-
-def scan_text(rel: str, text: str) -> list[str]:
-    findings: list[str] = []
-    in_fence = False
-    for i, line in enumerate(text.splitlines(), 1):
-        if FENCE_RE.match(line):
-            in_fence = not in_fence
-            continue
-        if in_fence:
-            continue
-        # A blockquote line is an example / quotation, not an active citation.
-        if line.lstrip().startswith(">"):
-            continue
-        # Strip inline-code spans so a range shown as `CCC-01 to 09` is not flagged.
-        scanned = INLINE_CODE_RE.sub("", line)
-        for m in RANGE_RE.finditer(scanned):
-            fam, start_s, fam2, end_s = m.group(1), m.group(2), m.group(3), m.group(4)
-            # A mixed-family range (e.g. "CCC-01 to LOG-09") is malformed, not a
-            # single-family citation; do not infer the first family across it.
-            if fam2 is not None and fam2 != fam:
-                continue
-            members = swept_members(fam, int(start_s), int(end_s))
-            hit = [c for c in members if c in DIRECTIONAL_PROVIDER_MEMBERS]
-            if hit:
-                findings.append(
-                    f"{rel}:{i}: family range `{m.group(0)}` sweeps in "
-                    f"provider-to-tenant member(s) {', '.join(hit)} on an "
-                    f"internal-scope document; split the range to exclude them "
-                    f"(see the family-range convention)."
-                )
-    return findings
+def scan_text(rel: str, text: str) -> list:
+    """Thin shim delegating to the pack engine's pure scan (engine already configured)."""
+    return _engine().scan_text(rel, text)
 
 
 def scan_targets(roots: list[Path] | None = None) -> list[Path]:
