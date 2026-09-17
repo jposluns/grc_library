@@ -2,8 +2,8 @@
 
 **Document Title:** FedRAMP Sector Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.12\
-**Date:** 2026-09-13\
+**Version:** 0.0.13\
+**Date:** 2026-09-17\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`operations/standard-cloud-security-configuration-baseline.md`](../../operations/standard-cloud-security-configuration-baseline.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
@@ -51,18 +51,20 @@ The transition timeline in the held July 2026 rules places optional adoption fro
 
 ---
 
-> **Pre-2026 sections below.** The baseline-selection, library-coverage-and-gaps, operating-expectations, and framework-alignment sections that follow still reflect the pre-2026 FedRAMP structure (impact-level baselines, monthly continuous monitoring and POA&Ms, FedRAMP templates, and 3PAO terminology). The 2026 Consolidated Rules supersede much of this (Certification Classes A to D, Ongoing Certification, Accepted Weaknesses, no FedRAMP-provided templates, independent assessors); a fuller refresh is tracked separately (P-1.79).
+> **Some pre-2026 residue remains below.** The Certification class selection and Framework alignment tables and the certification-package documentation now reflect the 2026 structure. The library-coverage gaps list and the Operating expectations section still describe the pre-2026 continuous-monitoring and POA&M model, FedRAMP-provided templates, and 3PAO terminology; the 2026 Consolidated Rules supersede these (Ongoing Certification, Accepted Weaknesses, no FedRAMP-provided templates, independent assessors), and their refresh is tracked separately.
 
-## Baseline selection
+## Certification class selection
 
-FedRAMP baselines map to FIPS 199 system categorization. Adopting organizations confirm the categorization with their agency sponsor before selecting a baseline.
+Under the 2026 Consolidated Rules a cloud service offering is described by a certification profile (type, path, and class; see Authorization route selection above). The certification class describes the depth and assurance of the certification data a provider supplies, chosen against the assurance an agency customer needs. Certification classes are not a one-for-one replacement for FIPS 199 impact levels: an agency categorizes its own information system under FIPS 199 and FIPS 200, then reviews a service's certification package to judge whether the protections suit the intended use.
 
-| Baseline | Use case | Rev. 5 baseline entries (controls and control enhancements) |
-| --- | --- | --- |
-| FedRAMP Low | Public-facing services with no confidentiality, integrity, or availability impact above Low | 156 |
-| FedRAMP Moderate | Most federal use cases involving controlled unclassified information (CUI) | 323 |
-| FedRAMP High | Mission-critical federal use cases including law enforcement, emergency services, financial systems | 410 |
-| FedRAMP Tailored Low (LI-SaaS) | SaaS only, limited data scope | 156 tailored entries (all Low-baseline controls, assigned tailoring actions) |
+| Certification class | Assurance and use-case guidance | 20x availability (held July 2026 snapshot) | Rev5 availability and applicable baseline |
+| --- | --- | --- | --- |
+| Class A (minimal assurance) | Pilots, configuration and testing, or extremely low or negligible-risk use cases such as processing public information or getting started with very few users | Program required; Agency unavailable | Unavailable under both paths |
+| Class B | Most Low-impact agency systems, and some Moderate or High-impact systems with appropriate compensating controls | Program required; Agency unavailable | Agency generally required, Program limited (Ready Conversion or Lost Sponsor, with FedRAMP confirming eligibility); the applicable NIST SP 800-53 Rev. 5 controls are recorded in the Security Decision Record |
+| Class C | Most Low or Moderate-impact agency systems, and some High-impact systems with appropriate compensating controls | Program required; Agency unavailable | Agency generally required, Program limited; the applicable Rev5 controls are recorded in the Security Decision Record |
+| Class D (significant assurance) | Most agency systems regardless of impact level with appropriate compensating controls; excludes systems that process classified information | Program coming in 2027; Agency unavailable | Agency required; Program unavailable; the applicable Rev5 controls are recorded in the Security Decision Record |
+
+The pre-2026 impact-level baselines (Low, Moderate, High) are superseded as the selection model by the certification classes above; the FedRAMP Tailored LI-SaaS baseline is not separately enumerated in the 2026 certification-profile model. Both persist in the historical Rev5 baseline records.
 
 ---
 
@@ -116,18 +118,21 @@ Library gaps requiring additional documentation for a FedRAMP authorization pack
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| FedRAMP Rev5 Baselines (Low, Moderate, High) | NIST SP 800-53 Rev. 5 + FedRAMP parameters | Legacy controls-based certification type |
+| FedRAMP Rev5 | NIST SP 800-53 Rev. 5 controls (class-specific, per FedRAMP Rev5 Controls Guidance) | Legacy documented-plans certification type; applicable controls recorded in the Security Decision Record |
 | FedRAMP 20x | 2026 Consolidated Rules + Key Security Indicators (KSIs) | Modern measured-outcomes certification type; certification Classes A to D |
-| FedRAMP Rev5 Tailored | LI-SaaS Authorization Process | Legacy tailored route |
-| NIST SP 800-53 Rev. 5 | Security and Privacy Controls | Underlying control catalogue |
+| FedRAMP Tailored (LI-SaaS) | Legacy LI-SaaS authorization process | Legacy route; not separately enumerated in the 2026 certification-profile model (persists in historical Rev5 baseline records) |
+| Certification Package Overview (CPO) | 2026 Consolidated Rules certification package | For Rev5, replaces the historically required System Security Plan (not including appendices); supplied in human-readable and JSON formats |
+| Security Decision Record (SDR) | 2026 Consolidated Rules certification package | Persistently maintained record of a provider's security decisions; replaces the traditional System Security Plan for both types |
+| Key Security Indicators (KSIs) | Finalized 2026 KSI content, folded into the Consolidated Rules | 20x measured-outcome evidence (supersedes the RFC-0006 draft) |
+| NIST SP 800-53 Rev. 5 | Security and Privacy Controls | Underlying Rev5 control catalogue |
 | NIST SP 800-37 Rev. 2 | Risk Management Framework | Authorization lifecycle |
 | NIST SP 800-171 / 800-172 | Protecting CUI | Where applicable |
 | OMB M-22-09 | Federal Zero Trust Strategy | Architectural direction |
 | FIPS 199 | Standards for Security Categorization | Categorization prerequisite |
 | FIPS 200 | Minimum Security Requirements | Baseline prerequisite |
-| FIPS 140-3 / 140-2 | Cryptographic Module Validation | FIPS-validated cryptography |
+| FIPS 140-3 / 140-2 | Cryptographic module validation | Cryptographic module use documented per the 2026 rules; the validation expectation is class-dependent (B may, C should, D must) |
 
-The 2026 Consolidated Rules distinguish applicability by certification type (Rev5 or 20x) and by certification class (A to D). Their held timeline places the rules in optional adoption from 4 July 2026, schedules mandatory adoption for 1 January 2027, and ends new Rev5 certifications on 11 June 2027; these dates are from the held July 2026 snapshot, so verify the live FedRAMP rules before relying on the transition timeline. RFC-0006 is a superseded historical draft; the finalized Key Security Indicators are the current 20x specification. The Authorization route selection section above and the certification-package documentation items now reflect the 2026 certification-profile structure (type, path, and class) and the Certification Package Overview / Security Decision Record documentation model. JAB Provisional ATO is retired and FedRAMP Ready went legacy in July 2026 (no new submissions; existing Ready status persists through the transition). Several other sections of this annex still reflect the pre-2026 FedRAMP structure and are NOT yet updated: the baseline-selection table (Low/Moderate/High and Tailored, superseded by Certification Classes A to D), the continuous-monitoring and POA&M model (the 2026 rules replace continuous monitoring with Ongoing Certification and POA&Ms with a list of Accepted Weaknesses), the documentation templates (FedRAMP no longer provides templates), the assessor terminology (3PAO, now independent assessor), and the framework-alignment table. A fuller refresh of those sections to the 2026 model is tracked separately (P-1.79).
+The 2026 Consolidated Rules distinguish applicability by certification type (Rev5 or 20x) and by certification class (A to D). Their held timeline places the rules in optional adoption from 4 July 2026, schedules mandatory adoption for 1 January 2027, and ends new Rev5 certifications on 11 June 2027; these dates are from the held July 2026 snapshot, so verify the live FedRAMP rules before relying on the transition timeline. RFC-0006 is a superseded historical draft; the finalized Key Security Indicators are the current 20x specification. The Authorization route selection and Certification class selection sections, the certification-package documentation, and the Framework alignment table now reflect the 2026 certification-profile structure (type, path, and class), the Certification Classes A to D, and the Certification Package Overview / Security Decision Record documentation model. JAB Provisional ATO is retired and FedRAMP Ready went legacy in July 2026 (no new submissions; existing Ready status persists through the transition). A few sections still reflect the pre-2026 structure and are NOT yet updated: the continuous-monitoring and POA&M model (the 2026 rules replace continuous monitoring with Ongoing Certification and POA&Ms with a list of Accepted Weaknesses), the documentation templates (FedRAMP no longer provides templates), and the assessor terminology (3PAO, now independent assessor); a refresh of those sections is tracked separately.
 
 ---
 
