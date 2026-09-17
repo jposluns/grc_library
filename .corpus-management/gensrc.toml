@@ -350,3 +350,10 @@ kind = "file"
 sources = ["core/rules/narrative-disclaimer.md"]
 target = ".claude/rules/corpus-management/narrative-disclaimer.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "narrative-vocabulary"
+kind = "file"
+sources = ["core/rules/narrative-vocabulary.md"]
+target = ".claude/rules/corpus-management/narrative-vocabulary.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]

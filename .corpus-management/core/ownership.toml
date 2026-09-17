@@ -248,3 +248,8 @@ target = ".claude/rules/corpus-management/listing-surface-completeness.md"
 rule = "narrative-disclaimer"
 kind = "file"
 target = ".claude/rules/corpus-management/narrative-disclaimer.md"
+
+[[owned_targets]]
+rule = "narrative-vocabulary"
+kind = "file"
+target = ".claude/rules/corpus-management/narrative-vocabulary.md"
