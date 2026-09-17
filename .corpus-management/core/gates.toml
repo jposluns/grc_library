@@ -358,3 +358,11 @@ source = "tools/gate_lint_alignment_citation_existence.py"
 enforces = "alignment-citation-existence"
 entry_point = "tools/lint-alignment-citation-existence.py"
 origin = "grc_library tools/lint-alignment-citation-existence.py, grc gate 96 (engine transferred in the Group-A content-generic lane via Pattern A). The PF identifier/range regexes + _check_pf + check_file moved verbatim to the pack engine (byte-identical; check_file diff empty; 5 regression tests pass; corpus output identical). The framework catalogue (the valid-identifier union + the framework name) is supplied via configure(ref), so the engine is catalogue-free; the engine imports aiqt_corpus (read_text_safe, iter_non_code_lines) behind a fail-loud guard. The wrapper imports the alignment_citation_reference registry, derives the PF-all union + name, configures the engine once, and keeps EXEMPT_SUFFIXES + a module-global check_file shim (the scan-scope meta-test calls it) + main + the --strict/report-only exit contract."
+
+[[gates]]
+id = "lint-cobit-title-text"
+title = "COBIT objective-title canonicality audit"
+source = "tools/gate_lint_cobit_title_text.py"
+enforces = "cobit-title-text"
+entry_point = "tools/lint-cobit-title-text.py"
+origin = "grc_library tools/lint-cobit-title-text.py, grc gate 73 (engine transferred in the Group-A content-generic lane via Pattern A). The objective-code/title regexes + _norm + extract_title + scan_text + scan_file moved verbatim to the pack engine (byte-identical; _norm..scan_file diff empty; 2 regression tests pass; corpus output identical). The COBIT objective catalogue (code -> canonical title) is supplied via configure(objectives), so the engine is catalogue-free; it imports aiqt_corpus (is_fence_line) behind a fail-loud guard, imports Path for scan_file's annotation. The wrapper imports the cobit_iso31000_reference catalogue (shared with gate 61), configures the engine once, and keeps EXEMPT_FILES + a module-global scan_file shim (the scan-scope meta-test calls it) + main + exit codes. Import-path note: the wrapper uses the standard Pattern-A _engine() sys.path.insert of the pack tools dir to import the engine (as every transferred wrapper does); the original had NO own-dir sys.path.insert and none was added (contrast gate 96, whose original own-dir insert had to be restored for programmatic loads)."

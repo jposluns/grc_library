@@ -228,3 +228,8 @@ target = ".claude/rules/corpus-management/ccm-provider-member-range.md"
 rule = "alignment-citation-existence"
 kind = "file"
 target = ".claude/rules/corpus-management/alignment-citation-existence.md"
+
+[[owned_targets]]
+rule = "cobit-title-text"
+kind = "file"
+target = ".claude/rules/corpus-management/cobit-title-text.md"

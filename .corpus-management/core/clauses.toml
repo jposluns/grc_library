@@ -272,3 +272,9 @@ id = "alignment-citation-existence"
 title = "Fabricated alignment-citation existence (a framework-control identifier cited in a document must exist in a held edition of its framework's catalogue)"
 source = "core/rules/alignment-citation-existence.md"
 origin = "grc_library tools/lint-alignment-citation-existence.py gate rationale (new clause in the Group-A content-generic transfer lane; the PF identifier/range regexes + _check_pf + check_file are the engine, moved verbatim; the framework catalogue is supplied via configure(ref) (the valid-identifier union + the framework name); the grc alignment_citation_reference registry + EXEMPT_SUFFIXES + main + the --strict contract are wrapper config)"
+
+[[clauses]]
+id = "cobit-title-text"
+title = "COBIT objective-title canonicality (a COBIT objective code cited with a paired title must carry that objective's canonical catalogue title)"
+source = "core/rules/cobit-title-text.md"
+origin = "grc_library tools/lint-cobit-title-text.py gate rationale (new clause in the Group-A content-generic transfer lane; the objective-code/title regexes + _norm + extract_title + scan_text + scan_file are the engine, moved verbatim; the COBIT objective catalogue is supplied via configure(objectives); the grc cobit_iso31000_reference catalogue + EXEMPT_FILES + main are wrapper config)"
