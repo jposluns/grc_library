@@ -1,0 +1,19 @@
+# One-way narrative authority-boundary
+
+The corpus does not carry an authoritative reference into the narrative layer: no corpus
+document metadata field, no corpus document link, and no taxonomy row targets the
+narrative-root tree. The authority boundary is one-way, so such a reference is a defect
+(a corpus-explained-by-narrative view is derived at render time from the narrative
+registry, never written into corpus source); a body-prose or inline-code mention of a
+narrative path is legal and not flagged. For each corpus document (which must be readable
+and valid UTF-8, an unreadable or non-UTF-8 file being itself a fail-loud finding), the
+check flags a metadata field value that mentions the narrative root (Related Documents
+included), and a markdown link, inline or via a reference definition, that resolves into
+the root narrative tree (external-scheme links are skipped, fenced blocks are excluded by
+a marker-aware fence scan, and a nested narrative directory elsewhere does not count). As
+defence in depth it also flags any quoted narrative-root path in the generated taxonomy
+(an unreadable or non-UTF-8 taxonomy is likewise a fail-loud finding). The narrative root,
+its two derived mention patterns, and the corpus scan scope are supplied by the adopter
+and are not part of this clause; the link, fence, and path-resolution logic is fixed by
+the check. A corpus whose documents and taxonomy are readable and valid UTF-8 and carry no
+metadata mention, link, or taxonomy target into the narrative tree contributes no findings.

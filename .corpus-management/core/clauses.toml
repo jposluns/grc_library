@@ -302,3 +302,9 @@ id = "narrative-vocabulary"
 title = "Executive-narrative vocabulary (a narrative page must carry no absolute, no unqualified requirement word, and no em/en dash)"
 source = "core/rules/narrative-vocabulary.md"
 origin = "grc_library tools/lint-narrative-vocabulary.py gate rationale (new clause in the Group-A content-generic transfer lane, narrative-family; the shall/dash/quote/link regexes + matching logic + the scan functions are the engine, moved verbatim; the absolutes denylist + external-standard vocabulary are supplied via configure(ref); the grc vocabulary + discover + self-test + main are wrapper config)"
+
+[[clauses]]
+id = "narrative-authority-boundary"
+title = "One-way narrative authority-boundary (no corpus document or taxonomy row may reference the narrative-root tree)"
+source = "core/rules/narrative-authority-boundary.md"
+origin = "grc_library tools/lint-narrative-authority-boundary.py gate rationale (new clause in the Group-A content-generic transfer lane, narrative-family; the link/fence regexes + helpers + _resolves_into_narrative + check_file + check_taxonomy are the engine, moved verbatim; the narrative root + its mention regexes + the corpus scan scope are supplied via configure(ref) / the wrapper; the grc scope (iter_markdown_files) + self-test + main are wrapper config)"
