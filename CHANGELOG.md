@@ -3,42 +3,11 @@
 All notable changes to this repository are recorded in this file in two forms: while a week is current, one compact entry per change (a `date | version | PR` header followed by a short, plain-language summary a general reader can follow); once a week completes, its entries are rolled up into a single weekly summary carrying the week's contiguous PR range, so the root file preserves complete PR coverage while staying scannable as the entry count grows. The full maintainer-grade detail for each change (the Added / Changed / Removed / Fixed / Security / Verification sections) is kept in the private sibling working-state store and in git history; that mirror is how this project's maintainer tracks the full audit trail. The convention is project-specific; forks may keep their own working-state store and adopt their own approach to detailed change tracking. The mechanics are documented in the [`change-tracking` governance rule](guardrails/governance/change-tracking.md). Significant project milestones are recorded inline as dated `MILESTONE:` entries (`**YYYY-MM-DD | MILESTONE:** ...`) that float to the top of the entry stream, above that day's per-PR entries; those are never condensed by the daily or weekly roll-ups, and the roll-up tooling skips them by their `MILESTONE:` marker.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+**2026-09-17 | 2026.09.1010 | PR #2306** - changelog maintenance: rolled up the 2026-09-16 per-PR entries (17 PRs, #2288-#2304) into a single daily summary and swept the detail to the archive.
+
 **2026-09-17 | 2026.09.1009 | PR #2305** - corpus-management pack: the cross-file section-name check (flagging a citation that pairs a section number with a heading title belonging to a different or absent section) moves into the shareable pack as a generated rule plus a pack-owned engine, the pair sibling of the section-reference check; the project keeps a thin wrapper and behaviour is unchanged.
 
-**2026-09-16 | 2026.09.1008 | PR #2304** - corpus-management pack: the cross-file section-reference check (flagging a numbered citation of another document's section that no longer resolves) moves into the shareable pack as a generated rule plus a pack-owned engine, with the project keeping a thin wrapper; behaviour is unchanged.
-
-**2026-09-16 | 2026.09.1007 | PR #2303** - guardrails pack accuracy: the CI/CD secret-scanning control now maps to the SSDF static-analysis practice (PW.7.2) across all four pack surfaces, matching the corpus correction made in #2298.
-
-**2026-09-16 | 2026.09.1006 | PR #2302** - corpus-management pack: the orphan-document check (flagging library documents nothing links to) moves into the shareable pack as a generated rule plus a pack-owned engine, with the project keeping a thin wrapper; behaviour is unchanged.
-
-**2026-09-16 | 2026.09.1005 | PR #2301** - corpus-management pack: the metadata-block line-break check moves into the shareable pack as a generated rule plus a pack-owned engine, with the project keeping a thin wrapper; behaviour is unchanged.
-
-**2026-09-16 | 2026.09.1004 | PR #2300** - audit-tooling accuracy: across the audit tooling, error and finding messages that named a bookkeeping or working-state record now show its actual resolved location instead of a retired repository path, so the pointer a maintainer follows is correct.
-
-**2026-09-16 | 2026.09.1003 | PR #2299** - certificate-authority standard accuracy: the code-signing validity limit is now correctly attributed to the CA/Browser Forum's 460-day maximum (effective 1 March 2026), with the library's 1-year renewal noted as a stricter internal choice.
-
-**2026-09-16 | 2026.09.1002 | PR #2298** - control-fit corrections: three mis-fit control-code citations replaced with source-grounded ones (container-security and pipeline-secret-scanning SSDF practices and the exception-closure COBIT objective); a fourth candidate (EOL-management) was verified correct as-is and left unchanged.
-
-**2026-09-16 | 2026.09.1001 | PR #2297** - external-reference accuracy: the New Zealand privacy annex now notes IPP 3A (indirect-collection notice, effective 1 May 2026), and the DORA implementation annex marks the EIOPA ICT guidelines as revoked (17 January 2025, superseded by DORA).
-
-**2026-09-16 | 2026.09.1000 | PR #2296** - SCA gate consistency (corpus): the AI-security and developer-security standards now require formal risk acceptance for an unresolved High CVE before a production release, closing the remaining corpus occurrences of the drift a narrow #2294 grep missed.
-
-**2026-09-16 | 2026.09.999 | PR #2295** - guardrails pack consistency: the CI/CD SCA gate guidance (cicd-gates and owasp pack rules) no longer implies a tracked issue alone authorizes a production release, aligning the portable guidance with the formal-risk-acceptance principle.
-
-**2026-09-16 | 2026.09.998 | PR #2294** - security consistency: aligned three internal drift classes across five documents to their dedicated authorities (alert-triage service levels to the monitoring procedure's tiered SLA, the SCA release gate to formal risk acceptance, and production image pinning to digests).
-
-**2026-09-16 | 2026.09.997 | PR #2293** - repo hygiene: relocated the operational activity playbooks (PR-lifecycle and reference-currency) from the root `references/` directory into `.claude/playbooks/`, where the AI-assistant operational prose belongs.
-
-**2026-09-16 | 2026.09.996 | PR #2292** - test tooling: fixed a local-only race in the linter regression suite where a shared fixture path could make an unrelated test fail. Each fixture now uses its own directory, so the full suite runs clean locally as it already did in CI.
-
-**2026-09-16 | 2026.09.995 | PR #2291** - .claude/ tooling: the unattended stop-guard hook now emits a terse backlog count instead of enumerating items, so its block message no longer scrolls the operator's console.
-
-
-**2026-09-16 | 2026.09.994 | PR #2290** - internal tooling: the COBIT 2019 / ISO 31000 citation-existence check engine moved into the standalone corpus-management pack, with the COBIT/ISO reference catalogue threaded in from the project wrapper.
-
-**2026-09-16 | 2026.09.993 | PR #2289** - changelog maintenance: rolled up the 2026-09-15 per-PR entries (24 PRs, #2264-#2287) into a single daily summary and swept the detail to the archive.
-
-**2026-09-16 | 2026.09.992 | PR #2288** - internal tooling: the cross-document number-consistency check engine (flags a canonical term carrying different numeric values in different documents) moved into the reusable Corpus-Management pack; behaviour unchanged (no findings).
+**2026-09-16 | 2026.09.1008 | PRs #2288-#2304 (17 PRs)** - A day centred on building out the standalone, reusable Corpus-Management pack and on accuracy corrections across the corpus. Several corpus quality-check engines moved into the shareable pack behind thin project wrappers with behaviour unchanged: cross-document number consistency, the COBIT and ISO 31000 citation-existence check, metadata-block line breaks, orphan-document detection, and the cross-file section-reference check. Alongside, a run of accuracy corrections landed: mis-fit control-code citations were replaced with source-grounded ones (including propagating a secret-scanning practice correction into the portable pack), the code-signing validity limit was re-attributed to the current CA/Browser Forum maximum, privacy and financial-services references were refreshed for New Zealand and the revoked EIOPA ICT guidelines, and the software-composition-analysis release gate was reconciled to require formal risk acceptance consistently across the corpus and the pack. The remainder was tooling and repository hygiene: audit messages now point at the resolved record location, the unattended stop-guard hook was quieted, a linter test-fixture race was fixed, and the operational activity playbooks were relocated to where the AI-assistant prose belongs.
 
 **2026-09-15 | 2026.09.991 | PRs #2264-#2287 (24 PRs)** - Corrected privacy jurisdiction annexes across the Americas, Europe, the Middle East and Africa, South Asia, and East Asia and the Pacific for factual accuracy, and advanced the internal audit-tooling refactor: a large batch of corpus quality-check engines were migrated into the standalone reusable pack (with a reference-vocabulary profile loader added to support it), alongside routine changelog maintenance.
 
