@@ -315,3 +315,9 @@ id = "narrative-boundary"
 title = "Symmetric narrative-boundary (outside the narrative tree no file carries narrative markers; inside it every page carries the full narrative form and no corpus type)"
 source = "core/rules/narrative-boundary.md"
 origin = "grc_library tools/lint-narrative-boundary.py gate rationale (new clause in the Group-A content-generic transfer lane, narrative-family; the fence helpers + parse_metadata_run + scan_outside_file + check_inside_page are the engine, moved verbatim; the narrative type/entry-point/extension-field/corpus-type sets + the two marker regexes + the repository scan scope are supplied via configure(ref) / the wrapper; discover + self-test + main are wrapper config)"
+
+[[clauses]]
+id = "narrative-metadata"
+title = "Executive-narrative metadata contract (every narrative page carries the full metadata blocks in order, closed vocabularies, subtype placement, pinned corpus links, and a valid review date)"
+source = "core/rules/narrative-metadata.md"
+origin = "grc_library tools/lint-narrative-metadata.py gate rationale (new clause in the Group-A content-generic transfer lane, narrative-family, the last narrative gate; the metadata-contract scan functions are the engine, moved verbatim; the 10 project-content sets + the repo root are supplied via configure(ref); the markdown pin/body-link regexes are engine-fixed; discover_pages + self-test + main are wrapper config)"
