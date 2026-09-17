@@ -266,3 +266,10 @@ kind = "file"
 sources = ["core/rules/structural-index-integrity.md"]
 target = ".claude/rules/corpus-management/structural-index-integrity.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "document-metadata"
+kind = "file"
+sources = ["core/rules/document-metadata.md"]
+target = ".claude/rules/corpus-management/document-metadata.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]
