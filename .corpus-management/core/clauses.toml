@@ -266,3 +266,9 @@ id = "ccm-provider-member-range"
 title = "CCM family-range provider-to-tenant member direction (a CCM family range on an internal-scope document must not sweep in a provider-to-tenant control member)"
 source = "core/rules/ccm-provider-member-range.md"
 origin = "grc_library tools/lint-ccm-provider-member-in-range.py gate rationale (new clause in the Group-A content-generic transfer lane; RANGE_RE + swept_members + the fence/inline-code regexes + scan_text are the engine, moved verbatim; the directional-member set is supplied via configure(directional_members); the grc DIRECTIONAL_PROVIDER_MEMBERS + the scan scope + main are wrapper config)"
+
+[[clauses]]
+id = "alignment-citation-existence"
+title = "Fabricated alignment-citation existence (a framework-control identifier cited in a document must exist in a held edition of its framework's catalogue)"
+source = "core/rules/alignment-citation-existence.md"
+origin = "grc_library tools/lint-alignment-citation-existence.py gate rationale (new clause in the Group-A content-generic transfer lane; the PF identifier/range regexes + _check_pf + check_file are the engine, moved verbatim; the framework catalogue is supplied via configure(ref) (the valid-identifier union + the framework name); the grc alignment_citation_reference registry + EXEMPT_SUFFIXES + main + the --strict contract are wrapper config)"
