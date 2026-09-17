@@ -278,3 +278,11 @@ source = "tools/gate_lint_cross_file_section_names.py"
 enforces = "cross-file-section-names"
 entry_point = "tools/lint-cross-file-section-names.py"
 origin = "grc_library tools/lint-cross-file-section-names.py, grc gate 65 (engine transferred in the Group-A content-generic lane via Pattern A; normalize_title + extract_titles + resolve_target + binding_target + adjacent_link + title_candidate + check_file moved to the pack engine with the tool-specific TITLE_HEADING_RE/PAREN_TITLE_RE/QUOTE_TITLE_RE, parameterized by repo_root + the shared CROSS_* reference-extraction config so the engine is repository-root-free and scan-scope-free; the wrapper keeps main + the grc scan scope (iter_markdown_targets + EXEMPT_FILES) + the CROSS_* config from lint_common (shared with the numbers-phase sibling gate 62) + a module-global check_file shim delegating to the engine so the scan-scope test (patches mod.check_file + runs main) still intercepts; the vestigial unused HEADING_RE copy is dropped. aiqt_corpus import guard.)"
+
+[[gates]]
+id = "lint-document-date-staleness"
+title = "Document Date-staleness audit"
+source = "tools/gate_lint_document_date_staleness.py"
+enforces = "document-date-staleness"
+entry_point = "tools/lint-document-date-staleness.py"
+origin = "grc_library tools/lint-document-date-staleness.py, grc gate 31 (engine transferred in the Group-A content-generic lane via Pattern A; the PURE check get_metadata_date + future_lead_days + commit_lag_days moved to the pack engine, which never touches the filesystem, git, or the clock; the wrapper keeps the OBSERVER + policy git+concurrency+today+scan-scope+thresholds+reporting and the module-global read_text_safe its scan-scope test patches, reads each file and passes TEXT to the engine, and preserves the deliberate two-loop order (future check before the git lookup, lag check after). aiqt_corpus import guard.)"

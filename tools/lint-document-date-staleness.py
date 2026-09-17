@@ -111,8 +111,27 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import parse_iso_date, parse_metadata_block, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
+from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
 from lint_common import AUDITED_DOMAIN_DIRS, DEFAULT_EXEMPT_DIRS, REPO_ROOT, iter_markdown_targets  # noqa: E402  # grc-config/store, stays local
+
+PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
+
+
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable.
+
+    The engine (source of record) carries the PURE check (get_metadata_date +
+    the two date-diff helpers). This wrapper keeps the git observer, the
+    concurrency pool, the today (UTC) clock, the scan scope, the thresholds, and
+    the reporting, and passes file TEXT to the engine so it never touches the
+    filesystem, git, or the clock.
+    """
+    import sys as _sys
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in _sys.path:
+        _sys.path.insert(0, pack_tools)
+    import gate_lint_document_date_staleness  # the pack-owned engine (source of record)
+    return gate_lint_document_date_staleness
 
 
 # Thread-pool width for the per-file `git log --follow` queries. The
@@ -232,27 +251,6 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def get_metadata_date(text: str) -> tuple[datetime.date | None, str | None]:
-    """Return ``(date, malformed_value)`` for a file's metadata Date field.
-
-    Three outcomes:
-
-      - ``(date, None)``: a well-formed ``**Date:** YYYY-MM-DD`` field.
-      - ``(None, None)``: no Date field in the metadata head window;
-        the caller skips the file (legitimately date-free).
-      - ``(None, raw_value)``: a Date field is PRESENT but its value is
-        not exactly an ISO date (trailing annotation, malformed value).
-        The caller reports a finding; silently skipping here was the
-        fail-open the GR-3 migration closed.
-    """
-    block = parse_metadata_block(text)
-    if "Date" not in block.fields:
-        return None, None
-    value = block.fields["Date"]
-    parsed = parse_iso_date(value)
-    if parsed is None:
-        return None, value
-    return parsed, None
 
 
 def get_file_commit_date(
@@ -318,6 +316,7 @@ def main(argv: list[str] | None = None) -> int:
     # (never to the commit date), so a working-tree Date freshly bumped to
     # today is not flagged even when the file's last commit is older.
     today_utc: datetime.date = datetime.datetime.now(datetime.timezone.utc).date()
+    eng = _engine()
 
     # Resolve scan paths against --root.
     scan_paths = [root / p for p in args.paths]
@@ -354,7 +353,7 @@ def main(argv: list[str] | None = None) -> int:
         text = read_text_safe(f)
         if text is None:
             continue
-        metadata_date, malformed_value = get_metadata_date(text)
+        metadata_date, malformed_value = eng.get_metadata_date(text)
         if malformed_value is not None:
             # Present-but-malformed Date: a finding, never a skip
             # (fail-loud per GR-3; a silent skip here exempted the
@@ -368,7 +367,7 @@ def main(argv: list[str] | None = None) -> int:
         # for a "last updated" field. Compared to today, not the commit date,
         # and evaluated before the baseline grandfather skip so a future Date on
         # an old-commit file is still caught.
-        future_lead = (metadata_date - today_utc).days
+        future_lead = eng.future_lead_days(metadata_date, today_utc)
         if future_lead > max_future_days:
             future_findings.append((rel, metadata_date, future_lead))
         dated.append((rel, f, metadata_date))
@@ -390,7 +389,7 @@ def main(argv: list[str] | None = None) -> int:
             # historical drift outside this audit's scope.
             continue
         scanned += 1
-        lag = (commit_date - metadata_date).days
+        lag = eng.commit_lag_days(commit_date, metadata_date)
         if lag > max_lag_days:
             findings.append((rel, metadata_date, commit_date, lag))
 

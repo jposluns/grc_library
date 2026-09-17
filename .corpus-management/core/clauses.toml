@@ -212,3 +212,9 @@ id = "cross-file-section-names"
 title = "Cross-file section names (a number+title cross-document citation cites the title's actual number in the target)"
 source = "core/rules/cross-file-section-names.md"
 origin = "grc_library tools/lint-cross-file-section-names.py gate rationale (new clause in the Group-A content-generic transfer lane; normalize_title + extract_titles + resolve_target + binding_target + adjacent_link + title_candidate + check_file with the tool-specific TITLE_HEADING_RE/PAREN_TITLE_RE/QUOTE_TITLE_RE is the engine, parameterized by repo_root + the shared CROSS_* reference-extraction config; the grc CROSS_* config (shared with the numbers-phase sibling gate 62) + scan scope + exempt-file set are wrapper config; the vestigial unused HEADING_RE copy is dropped, TITLE_HEADING_RE is what the names phase uses)"
+
+[[clauses]]
+id = "document-date-staleness"
+title = "Document Date staleness (the metadata Date is well-formed, lags the most-recent commit by no more than the tolerance, and is not future-dated)"
+source = "core/rules/document-date-staleness.md"
+origin = "grc_library tools/lint-document-date-staleness.py gate rationale (new clause in the Group-A content-generic transfer lane; get_metadata_date + future_lead_days + commit_lag_days is the PURE engine, parameterized by the caller-supplied commit date + today + thresholds; the git commit-date lookup, the concurrency pool, the today (UTC) clock, the grc scan scope + exempt-file set, and the lag/future/baseline thresholds are wrapper config and environment observation, kept project-side per the guard-input observer/decision split)"
