@@ -310,3 +310,11 @@ source = "tools/gate_lint_retention_consistency.py"
 enforces = "retention-consistency"
 entry_point = "tools/lint-retention-consistency.py"
 origin = "grc_library tools/lint-retention-consistency.py, grc gate 55 (engine transferred in the Group-A content-generic lane via Pattern A; normalise + register_value + procedure_value + collect_findings plus the generic period regex + unit-to-days table moved to the pack engine; the wrapper keeps the grc REGISTER path + RETENTION_CHECKS pair list + PROCEDURE_ANCHOR_RE + the --root handling + register-missing terminal + OK/FAIL reporting in main. --root-driven (no module-fn patch); aiqt_corpus import guard.)"
+
+[[gates]]
+id = "lint-document-control-codes"
+title = "Per-document NIST CSF 2.0 control-code validity audit"
+source = "tools/gate_lint_document_control_codes.py"
+enforces = "document-control-codes"
+entry_point = "tools/lint-document-control-codes.py"
+origin = "grc_library tools/lint-document-control-codes.py, grc gate 54 (engine transferred in the Group-A content-generic lane via Pattern A; check_code + codes_in + scan_file plus the NIST-CSF label/token regexes moved to the pack engine; the CSF catalogue is supplied to the engine as two predicates (is_valid_category, relocation_note) + repo_root, so the engine is repository-root-free and catalogue-free; the wrapper imports the shared nist_csf_reference.py (also used by gate 49) + keeps collect_targets (grc scan scope + matrix exclusion) + the module-global collect_targets the scan-scope test calls + reporting + exit codes. aiqt_corpus import guard.)"
