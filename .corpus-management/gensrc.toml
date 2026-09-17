@@ -252,3 +252,10 @@ kind = "file"
 sources = ["core/rules/cross-file-section-names.md"]
 target = ".claude/rules/corpus-management/cross-file-section-names.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "document-date-staleness"
+kind = "file"
+sources = ["core/rules/document-date-staleness.md"]
+target = ".claude/rules/corpus-management/document-date-staleness.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]
