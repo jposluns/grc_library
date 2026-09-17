@@ -254,3 +254,9 @@ id = "ccm-aicm-citations"
 title = "Per-document cloud-controls-matrix citation validity (a CSA CCM v4.1.0 / AICM v1.1.0 control code cited in a document resolves to a real catalogue entry with a fitting title)"
 source = "core/rules/ccm-aicm-citations.md"
 origin = "grc_library tools/lint-ccm-aicm-citations.py gate rationale (new clause in the Group-A content-generic transfer lane; Finding + the token/heading/context regexes + the content-word/section/divergent helpers + scan_file are the engine, moved verbatim; the CCM/AICM catalogue is supplied via configure(ref) which populates the six reference symbols and every derived structure (CCM_FAMILY, the bare-code/bare-domain regexes, DIVERGENT_CONTROLS); the grc reference module ccm_aicm_reference.py + EXEMPT_FILES + the scan scope + reporting are wrapper config)"
+
+[[clauses]]
+id = "matrix-control-codes"
+title = "Central compliance-matrix framework-control-code validity (every framework-control code in the central matrix resolves to a real, correctly-placed catalogue entry)"
+source = "core/rules/matrix-control-codes.md"
+origin = "grc_library tools/lint-matrix-control-codes.py gate rationale (new clause completing the Group-A content-generic transfer lane; Finding + the constants/regexes + the row helpers + check_nist_token/check_ccm_token/check_aicm_token + scan_matrix are the engine, moved verbatim; the five framework-reference predicates (is_valid_category, relocation_note, is_ccm_v41, is_aicm_only, check_iso_token) are supplied via configure(ref); the grc reference modules + the matrix scan scope + lint_target/main/reporting are wrapper config)"
