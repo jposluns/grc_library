@@ -1,36 +1,27 @@
 #!/usr/bin/env python3
-"""Structural index integrity checker for the GRC Documentation Library.
+"""Structural index-integrity checker - grc wrapper over the pack-owned engine.
 
-Asserts that:
+Verify that every active domain document is referenced by the central document-index
+register AND by its own domain README, and that every path those two surfaces
+reference exists on disk.
 
-1. Every active markdown file in each domain folder appears in that
-   domain's README.md Active Documents table.
-2. Every active markdown file (excluding READMEs, exempt files, draggable
-   AI-context rule files, tooling, and the privacy superseded annex)
-   appears in `governance/register-document-index-and-classification.md`.
-3. Every entry in those tables points to a file that exists.
-
-Usage:
-    python3 tools/lint-structure.py
-    python3 tools/lint-structure.py --root /path/to/alt-repo
-
-The ``--root`` flag overrides the repository root the linter scans (used
-by the gate-36 regression test suite to point at a synthetic minimal
-repository fixture). Default: the actual repo root, derived from this
-file's location.
-
-Exits non-zero on any finding.
+Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE check
+(parse_referenced_paths, iter_domain_files, collect_findings) lives in the
+pack-owned engine (.corpus-management/tools/gate_lint_structure.py, source of
+record), fully parameterized by repo_root + the corpus structure config. This
+wrapper supplies the grc domain list, the grc index-register relative path, the grc
+exempt sets, and the --root handling and grouped reporting.
 """
 
 from __future__ import annotations
 
 import argparse
-import re
 import sys
 from collections import defaultdict
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
+PACK_TOOLS = REPO_ROOT / ".corpus-management" / "tools"
 
 DOMAINS = [
     "ai",
@@ -47,6 +38,9 @@ DOMAINS = [
     "supply-chain",
 ]
 
+# The central document-index register, relative to the repository root.
+INDEX_REL_PATH = "governance/register-document-index-and-classification.md"
+
 # Files explicitly exempt from the structural-membership requirement.
 EXEMPT_FROM_INDEX = {
     # Superseded artefacts: present for history, not active.
@@ -54,41 +48,18 @@ EXEMPT_FROM_INDEX = {
 }
 
 # Directories whose contents are exempt from the structural-membership rule.
-# Phase 23.62 removed `tools/` and `docs/` because the per-domain walk
-# (`iter_domain_files`) is restricted to the DOMAINS list and never
-# reaches those directories.
 EXEMPT_DIRECTORY_PREFIXES = (
     "guardrails/",
 )
 
-LINK_TARGET_RE = re.compile(r"\[`([^`]+)`\]\(([^)]+)\)")
 
-
-def iter_domain_files(domain: str) -> list[Path]:
-    base = REPO_ROOT / domain
-    if not base.is_dir():
-        return []
-    files = []
-    for f in base.rglob("*.md"):
-        rel = f.relative_to(REPO_ROOT).as_posix()
-        if f.name == "README.md":
-            continue
-        if rel in EXEMPT_FROM_INDEX:
-            continue
-        if any(rel.startswith(p) for p in EXEMPT_DIRECTORY_PREFIXES):
-            continue
-        files.append(f)
-    return sorted(files)
-
-
-def parse_referenced_paths(text: str) -> set[str]:
-    """Return the set of repository-relative paths referenced by markdown links."""
-    refs = set()
-    for m in LINK_TARGET_RE.finditer(text):
-        display = m.group(1)
-        if display.endswith(".md"):
-            refs.add(display)
-    return refs
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_structure  # the pack-owned engine (source of record)
+    return gate_lint_structure
 
 
 def main(argv: list[str]) -> int:
@@ -106,51 +77,21 @@ def main(argv: list[str]) -> int:
     if args.root is not None:
         REPO_ROOT = args.root.resolve()
 
-    findings: list[str] = []
+    eng = _engine()
 
-    # Load the canonical index register text once.
-    index_path = REPO_ROOT / "governance" / "register-document-index-and-classification.md"
+    # Terminal case: the central index register is missing.
+    index_path = REPO_ROOT / INDEX_REL_PATH
     if not index_path.exists():
         print(f"FAIL: {index_path} not found.")
         return 1
-    index_text = index_path.read_text(encoding="utf-8")
-    indexed = parse_referenced_paths(index_text)
 
-    # Check that every active document is in the index register.
-    for domain in DOMAINS:
-        for f in iter_domain_files(domain):
-            rel = f.relative_to(REPO_ROOT).as_posix()
-            if rel not in indexed:
-                findings.append(f"index miss: {rel} not referenced by governance/register-document-index-and-classification.md")
-
-    # Check that every active document is in its domain README.
-    for domain in DOMAINS:
-        readme = REPO_ROOT / domain / "README.md"
-        if not readme.exists():
-            findings.append(f"missing README: {domain}/README.md")
-            continue
-        readme_refs = parse_referenced_paths(readme.read_text(encoding="utf-8"))
-        for f in iter_domain_files(domain):
-            rel = f.relative_to(REPO_ROOT).as_posix()
-            if rel not in readme_refs:
-                findings.append(f"domain README miss: {rel} not referenced by {domain}/README.md")
-
-    # Verify referenced paths in the index actually exist on disk.
-    for ref in indexed:
-        target = REPO_ROOT / ref
-        if not target.exists():
-            findings.append(f"index broken: governance/register-document-index-and-classification.md "
-                            f"references non-existent {ref}")
-
-    # Verify referenced paths in each domain README actually exist on disk.
-    for domain in DOMAINS:
-        readme = REPO_ROOT / domain / "README.md"
-        if not readme.exists():
-            continue
-        for ref in parse_referenced_paths(readme.read_text(encoding="utf-8")):
-            target = REPO_ROOT / ref
-            if not target.exists():
-                findings.append(f"README broken: {domain}/README.md references non-existent {ref}")
+    findings = eng.collect_findings(
+        REPO_ROOT,
+        DOMAINS,
+        INDEX_REL_PATH,
+        EXEMPT_FROM_INDEX,
+        EXEMPT_DIRECTORY_PREFIXES,
+    )
 
     if not findings:
         print("OK: no structural findings.")

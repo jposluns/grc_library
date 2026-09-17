@@ -183,3 +183,8 @@ target = ".claude/rules/corpus-management/cross-file-section-names.md"
 rule = "document-date-staleness"
 kind = "file"
 target = ".claude/rules/corpus-management/document-date-staleness.md"
+
+[[owned_targets]]
+rule = "structural-index-integrity"
+kind = "file"
+target = ".claude/rules/corpus-management/structural-index-integrity.md"
