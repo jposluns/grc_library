@@ -290,3 +290,9 @@ id = "listing-surface-completeness"
 title = "Listing-surface completeness (the index register and each domain README must enumerate every active document in scope)"
 source = "core/rules/listing-surface-completeness.md"
 origin = "grc_library tools/lint-listing-surface-completeness.py gate rationale (new clause in the Group-A content-generic transfer lane; the regexes + Finding + active_documents + paths_in_section + paths_in_file + is_register_required + domain_of + check_register + check_domain_readmes are the engine, moved verbatim; the corpus layout is supplied via configure(ref) (repo_root, taxonomy, register, register section); the grc layout + shims + main are wrapper config)"
+
+[[clauses]]
+id = "narrative-disclaimer"
+title = "Executive-narrative authority-disclaimer presence (every narrative page must carry the verbatim authority disclaimer as the first body content after its metadata block)"
+source = "core/rules/narrative-disclaimer.md"
+origin = "grc_library tools/lint-narrative-disclaimer.py gate rationale (new clause in the Group-A content-generic transfer lane, first narrative-family gate; disclaimer_finding + check_file are the engine, moved verbatim; the required disclaimer text is supplied via configure(disclaimer); the grc disclaimer + entry-point + narrative scope (discover) + self-test + main are wrapper config)"
