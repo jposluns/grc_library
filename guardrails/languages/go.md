@@ -286,10 +286,10 @@ result, _ := doSomethingImportant()  // silent failure risk
 | Control Area | OWASP ASVS | NIST SSDF | ISO 27001 |
 | --- | --- | --- | --- |
 | Secrets management | V13.3 | PW.8.2 | A.8.24 |
-| SQL injection prevention | V1.2.4 | PW.6 | A.8.28 |
-| Template injection / XSS | V1.3.7, V1.2.1 | PW.6 | A.8.28 |
-| Command injection | V1.2.5 | PW.6 | A.8.28 |
-| Path traversal | V5.3.2 | PW.6 | A.8.28 |
+| SQL injection prevention | V1.2.4 | PW.5.1 | A.8.28 |
+| Template injection / XSS | V1.3.7, V1.2.1 | PW.5.1 | A.8.28 |
+| Command injection | V1.2.5 | PW.5.1 | A.8.28 |
+| Path traversal | V5.3.2 | PW.5.1 | A.8.28 |
 | Cryptography | V11 | PW.7 | A.8.24 |
 | TLS configuration | V12 | N/A | A.8.24 |
 | Error handling | V16 | RV.1 | A.8.15 |
