@@ -4,8 +4,8 @@
 Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan
 (the SSDF id/code-shape/header regexes, _split_cells, _is_sep, _validate_ssdf_id,
 check_file) is the source of record here in the pack, moved verbatim from the grc
-gate. The SSDF catalogue (valid practices, valid tasks, and the SSDF family tuple)
-is supplied by the adopter via configure(ref), so the engine carries no project
+gate. The SSDF valid-practice and valid-task catalogue
+is supplied by the adopter via configure(ref) (the SSDF family tuple is engine-fixed), so the engine carries no project
 catalogue; the grc wrapper (tools/lint-ssdf-control-ids.py) supplies the catalogue,
 configures the engine, and keeps EXEMPT_SUFFIXES, a module-global check_file shim,
 main, and the exit codes.

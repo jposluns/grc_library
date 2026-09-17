@@ -8,7 +8,7 @@ Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan (t
 SSDF regexes, _split_cells, _is_sep, _validate_ssdf_id, check_file) is the source of
 record in the pack engine (.corpus-management/tools/gate_lint_ssdf_control_ids.py);
 it is catalogue-free and takes the SSDF catalogue via configure(ref). This wrapper
-supplies the catalogue (valid practices/tasks + family tuple), configures the engine,
+supplies the catalogue (valid practices/tasks; the family tuple is engine-fixed), configures the engine,
 and keeps EXEMPT_SUFFIXES, a module-global check_file shim, main, and the exit codes.
 """
 
