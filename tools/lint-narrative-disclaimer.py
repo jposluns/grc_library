@@ -1,41 +1,16 @@
 #!/usr/bin/env python3
-"""Narrative disclaimer-presence gate (gate 89): the universal authority disclaimer,
-verbatim and in the required position, on every executive-narrative page.
+"""Executive-narrative authority-disclaimer audit - grc wrapper over the pack engine.
 
-Every narrative page under the root ``executive/`` tree (except the single named,
-path-scoped entry point ``executive/README.md``) must carry the universal
-authority disclaimer VERBATIM as the first body content after the metadata
-block's closing ``---`` separator and before the first section heading
-(``specification-executive-narrative.md``, "Narrative status and the authority
-disclaimer", and Gates item 5). The disclaimer is universal and identical on
-every page; subtype-specific cautions belong in the page's limitations section,
-never in a modified disclaimer.
+Verify every executive-narrative page carries the verbatim authority disclaimer as the
+first body content after the metadata block.
 
-This gate proves a STRING-LEVEL property only: that the exact disclaimer text is
-present in the required position. It does not certify the absence of authority
-confusion in the reader, which is a review outcome backed by the per-claim
-matrices, not a mechanical guarantee (spec, the separation-invariant paragraph).
-
-Position rule: after the leading metadata run's closing ``---`` separator, the
-FIRST non-blank body line must be the verbatim disclaimer blockquote at column 0.
-Anything else first (a section heading, prose, a fenced block, an indented copy,
-a different blockquote) is a defect: the disclaimer is missing or misplaced. A
-fenced or indented copy is body content that is not the rendered disclaimer, so
-it does not satisfy the requirement.
-
-Fail-loud: a page that cannot be read as UTF-8 is a finding, never silently
-skipped (a page whose disclaimer cannot be read cannot be cleared of the
-requirement).
-
-Usage:
-    python3 tools/lint-narrative-disclaimer.py
-    python3 tools/lint-narrative-disclaimer.py --self-test
-
-Exit codes:
-    0 : every narrative page carries the verbatim disclaimer in position (or the
-        executive/ tree holds no narrative pages).
-    1 : at least one page is missing the disclaimer, has it non-verbatim, or has
-        it out of position; or a page is not readable.
+Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan
+(disclaimer_finding, check_file) is the source of record in the pack engine
+(.corpus-management/tools/gate_lint_narrative_disclaimer.py); it is content-free and
+takes the required disclaimer via configure(). This wrapper supplies the grc disclaimer
++ entry-point exemption + the narrative scan scope (discover), configures the engine,
+and keeps the self-test, main, module-global shims (check_file / disclaimer_finding),
+and the exit codes.
 """
 
 from __future__ import annotations
@@ -44,9 +19,10 @@ import argparse
 import sys
 from pathlib import Path
 
-import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import METADATA_FIELD_RE, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
+import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path (engine imports aiqt_corpus)
 from lint_common import REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+
+PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
 # The single named, PATH-scoped entry-point exemption, applied consistently
 # across every narrative gate (spec Gates item 4 / listing-surface note).
@@ -68,86 +44,27 @@ DISCLAIMER = (
 )
 
 
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_narrative_disclaimer  # the pack-owned engine (source of record)
+    return gate_lint_narrative_disclaimer
+
+
+# Configure the engine ONCE with the grc required disclaimer text.
+_engine().configure(DISCLAIMER)
+
 
 def disclaimer_finding(text: str, rel: str) -> str | None:
-    """Return a finding string if the page lacks the verbatim disclaimer in the
-    required position, else None. PURE (operates on the page text)."""
-    lines = text.splitlines()
-
-    # Locate the leading metadata block's closing `---` separator. The metadata
-    # block is the CONTIGUOUS leading run of metadata-field lines (matching
-    # METADATA_FIELD_RE, so a `**bold body**` paragraph is NOT a field: it lacks
-    # the `Name:**` label), optionally preceded by a `# Title` and blank lines,
-    # ending at the first `---` after that run. Body text therefore cannot FORGE
-    # the anchor: a `**bold**` paragraph plus a later `---` is not a metadata block.
-    seen_field = False
-    close_idx: int | None = None
-    for i, line in enumerate(lines):
-        stripped = line.strip()
-        if METADATA_FIELD_RE.match(line):
-            seen_field = True
-            continue
-        if not seen_field:
-            # Before any field: tolerate a leading `# Title` and blank lines; any
-            # other non-field content means there is no leading metadata block.
-            if not stripped or stripped.startswith("#"):
-                continue
-            break
-        # After the field run: tolerate blank lines up to the closing `---`.
-        if not stripped:
-            continue
-        if stripped == "---":
-            close_idx = i
-            break
-        # A non-field, non-blank, non-`---` line ends the run without a separator.
-        break
-
-    if close_idx is None:
-        return (
-            f"{rel}: could not locate the metadata block's closing '---' separator, "
-            f"so the authority disclaimer's required position cannot be confirmed "
-            f"(the disclaimer must be the first body content after that separator)"
-        )
-
-    # The FIRST non-blank line after the closing `---` must be the verbatim
-    # disclaimer. Fences are NOT skipped: a fenced block is body content, so a
-    # fence appearing before the disclaimer means the disclaimer is not the first
-    # body content. The comparison uses rstrip only (never lstrip), so a leading-
-    # indented line (a Markdown indented CODE block, not a rendered blockquote) is
-    # not accepted as the disclaimer.
-    for line in lines[close_idx + 1:]:
-        if not line.strip():
-            continue
-        if line.rstrip() == DISCLAIMER:
-            return None
-        if line.lstrip().startswith("#"):
-            return (
-                f"{rel}: the first body content after the metadata block is a section "
-                f"heading, not the authority disclaimer; the verbatim disclaimer must "
-                f"appear before the first section heading"
-            )
-        return (
-            f"{rel}: the first body content after the metadata block is not the "
-            f"verbatim authority disclaimer (found: {line.strip()[:60]!r}...); the "
-            f"disclaimer text is fixed by the specification and must appear verbatim "
-            f"at column 0, as the first body content"
-        )
-
-    return (
-        f"{rel}: no body content after the metadata block; the verbatim authority "
-        f"disclaimer is required as the first body content"
-    )
+    """Shim -> engine (engine already configured); kept module-global for the self-test."""
+    return _engine().disclaimer_finding(text, rel)
 
 
 def check_file(path: Path, rel: str) -> list[str]:
-    text = read_text_safe(path)
-    if text is None:
-        return [
-            f"{rel}: not readable / not utf-8 (a page whose disclaimer cannot be read "
-            f"cannot be cleared of the requirement; fail loud, not open)"
-        ]
-    finding = disclaimer_finding(text, rel)
-    return [finding] if finding else []
+    """Shim -> engine (engine already configured); kept module-global for parity/reuse."""
+    return _engine().check_file(path, rel)
 
 
 def discover(root: Path = REPO_ROOT) -> list[tuple[Path, str]]:

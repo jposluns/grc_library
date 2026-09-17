@@ -343,3 +343,10 @@ kind = "file"
 sources = ["core/rules/listing-surface-completeness.md"]
 target = ".claude/rules/corpus-management/listing-surface-completeness.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "narrative-disclaimer"
+kind = "file"
+sources = ["core/rules/narrative-disclaimer.md"]
+target = ".claude/rules/corpus-management/narrative-disclaimer.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]

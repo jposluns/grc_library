@@ -382,3 +382,11 @@ source = "tools/gate_lint_listing_surface_completeness.py"
 enforces = "listing-surface-completeness"
 entry_point = "tools/lint-listing-surface-completeness.py"
 origin = "grc_library tools/lint-listing-surface-completeness.py, grc gate 47 (engine transferred in the Group-A content-generic lane via Pattern A). The path/taxonomy regexes + Finding + active_documents + paths_in_section + paths_in_file + is_register_required + domain_of + check_register + check_domain_readmes moved verbatim to the pack engine (byte-identical; active_documents..check_domain_readmes diff empty; 4 regression tests pass incl 3 in-process; corpus output identical). The corpus layout (repo_root, taxonomy path, register path, register section) is supplied via configure(ref), so the engine is layout-free; it imports aiqt_corpus (read_text_safe) behind a fail-loud guard. The wrapper supplies the grc layout, configures the engine once, and keeps module-global shims (active_documents/check_register/check_domain_readmes/domain_of, called by the in-process regression + main) + Finding (re-exported so main's annotation resolves) + main + exit codes."
+
+[[gates]]
+id = "lint-narrative-disclaimer"
+title = "Executive-narrative authority-disclaimer presence audit"
+source = "tools/gate_lint_narrative_disclaimer.py"
+enforces = "narrative-disclaimer"
+entry_point = "tools/lint-narrative-disclaimer.py"
+origin = "grc_library tools/lint-narrative-disclaimer.py, grc gate 89 (engine transferred in the Group-A content-generic lane via Pattern A; first of the narrative-family cluster). disclaimer_finding + check_file moved verbatim to the pack engine (byte-identical; diff empty; --self-test 13 cases pass; corpus output identical). The required verbatim disclaimer text is supplied via configure(disclaimer), so the engine is content-free; it imports aiqt_corpus (METADATA_FIELD_RE, read_text_safe) behind a fail-loud guard. The wrapper supplies the grc disclaimer + ENTRY_POINT + the narrative scan scope (discover over executive/), configures the engine once, and keeps the _self_test + main + module-global shims (disclaimer_finding for the self-test, check_file) + exit codes. Original had no own-dir sys.path.insert; matched."

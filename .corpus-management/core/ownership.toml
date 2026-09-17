@@ -243,3 +243,8 @@ target = ".claude/rules/corpus-management/ssdf-control-ids.md"
 rule = "listing-surface-completeness"
 kind = "file"
 target = ".claude/rules/corpus-management/listing-surface-completeness.md"
+
+[[owned_targets]]
+rule = "narrative-disclaimer"
+kind = "file"
+target = ".claude/rules/corpus-management/narrative-disclaimer.md"
