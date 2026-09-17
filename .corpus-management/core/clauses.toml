@@ -230,3 +230,9 @@ id = "document-metadata"
 title = "Document metadata block (required fields, allowed type, semver version, ISO date, role-based owners, canonical license, self-referential repository path, type-matching filename prefix, hard-break markers)"
 source = "core/rules/document-metadata.md"
 origin = "grc_library tools/lint-metadata.py gate rationale (new clause in the Group-A content-generic transfer lane; extract_metadata + check_line_break_markers + looks_role_based + normalize_link_value + check_file plus the generic metadata-parsing regexes are the engine; the grc METADATA MODEL (allowed types, type-to-prefix map, required-field list, exempt sets, role vocabularies, canonical license) stays wrapper-side because it IS the project schema and because the cross-surface doctype-parity gate reads the allowed types from the wrapper)"
+
+[[clauses]]
+id = "retention-consistency"
+title = "Cross-document retention consistency (each procedure's evidence-retention period matches its canonical row in the retention register)"
+source = "core/rules/retention-consistency.md"
+origin = "grc_library tools/lint-retention-consistency.py gate rationale (new clause in the Group-A content-generic transfer lane; normalise + register_value + procedure_value + collect_findings plus the generic period regex + unit-to-days table are the engine; the grc register path + the register-category-to-procedure check list + the anchor phrase + --root handling + reporting are wrapper config)"

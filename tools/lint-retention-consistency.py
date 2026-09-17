@@ -1,50 +1,16 @@
 #!/usr/bin/env python3
-"""Verify cross-document retention-period consistency.
+"""Cross-document retention-consistency audit - grc wrapper over the pack-owned engine.
 
-Several procedures cite an evidence-retention period that must agree with the
-canonical value recorded in the Data Retention Schedule register
-(`governance/register-data-retention-schedule.md`). When a procedure's stated
-retention drifts from the register row it implements (or vice versa), adopters
-get contradictory guidance on how long to keep the same records, and the
-register's role as the single source of truth is silently broken.
+Verify that each procedure document's evidence-retention period matches the canonical
+period for the same category in the central data-retention-schedule register.
 
-This linter is deliberately narrow and explicit: it checks a curated set of
-(register category, procedure) pairs rather than attempting to parse every
-retention mention in the corpus. Each pair names a register row (matched by its
-first table cell) and a procedure document; the linter extracts the register
-row's canonical period and the procedure's "retained for a minimum of ..."
-statement, normalizes both to days, and fails if they disagree or if either
-citation cannot be found (a missing citation means a document was restructured
-in a way that broke the link the register's cross-reference notes rely on).
-
-Tracked pairs (see RETENTION_CHECKS for the live set):
-
-  - CAPA records  <->  compliance/procedure-capa.md
-  - Internal audit reports  <->  compliance/standard-internal-audit.md
-  - Control testing evidence  <->  compliance/procedure-control-testing.md
-  - Privacy impact assessments  <->  privacy/procedure-privacy-impact-and-cross-border-transfer.md
-  - Privacy breach notifications  <->  privacy/procedure-data-protection-and-privacy-breach-response.md
-  - AI Impact Assessments  <->  privacy/procedure-privacy-impact-and-cross-border-transfer.md
-  - AI audit reports  <->  ai/procedure-ai-audit.md
-  - Supplier audit reports  <->  supply-chain/procedure-supplier-audit.md
-
-All eight pairs currently agree at a 7-year floor. Three register rows (PIA,
-AI-IA, AI-audit) carry a composed value ("7 years, or 5 years after the
-associated system's decommission, whichever is longer"); the comparison uses
-the FIRST period figure on each side (the leading 7-year floor), the
-deliberate first-match semantics of PERIOD_RE and PROCEDURE_ANCHOR_RE, so a
-composed row agrees with its procedure on the shared floor. The PIA and AI-IA
-rows deliberately share one procedure: the Step 6 record-keeping statement in
-the privacy-impact procedure covers both report types. The register rows carry
-explicit "matches ..." cross-reference notes naming the procedure, and this
-gate is the mechanical enforcement of those notes.
-
-Usage:
-    python3 tools/lint-retention-consistency.py
-
-Exit codes:
-    0   every tracked pair agrees (register canonical == procedure statement)
-    1   a mismatch or a missing citation was detected
+Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE check
+(normalise, register_value, procedure_value, collect_findings) plus the generic
+period-parsing config live in the pack-owned engine
+(.corpus-management/tools/gate_lint_retention_consistency.py, source of record).
+This wrapper supplies the grc config: the register path, the register-category-to-
+procedure check list, the procedure anchor phrase, and the --root handling and
+reporting.
 """
 
 from __future__ import annotations
@@ -58,12 +24,13 @@ import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys
 from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
 from lint_common import REPO_ROOT  # noqa: E402  # grc-config/store, stays local
 
+PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
+
 REGISTER = "governance/register-data-retention-schedule.md"
 
 # Each check names a register row (matched on its first table cell, case-
 # insensitive, exact after trimming) and the procedure document that must cite
-# the same retention period. The procedure value is the period stated after the
-# "retained for a minimum of" anchor phrase.
+# the same retention period.
 RETENTION_CHECKS: list[dict[str, str]] = [
     {
         "label": "CAPA records evidence-retention",
@@ -107,51 +74,21 @@ RETENTION_CHECKS: list[dict[str, str]] = [
     },
 ]
 
-UNIT_TO_DAYS = {"year": 365, "month": 30, "day": 1}
-
-# Captures a "<number> <unit>" period; tolerates a hyphen ("7-year") and the
-# markdown bold markers around the value ("**7 years**").
-PERIOD_RE = re.compile(r"(\d+)[\s-]*(year|month|day)s?", re.IGNORECASE)
-
 # The procedure's retention statement is anchored on this phrase so the linter
-# pins the evidence-retention figure and not an unrelated period (a 12-month
-# recurrence window, a 30-day remediation target) elsewhere in the document.
+# pins the evidence-retention figure and not an unrelated period elsewhere.
 PROCEDURE_ANCHOR_RE = re.compile(
     r"retained for a minimum of[^.\n]*?(\d+)[\s-]*(year|month|day)s?",
     re.IGNORECASE,
 )
 
 
-def normalise(value: int, unit: str) -> int:
-    """Return the period in days."""
-    return value * UNIT_TO_DAYS.get(unit.lower().rstrip("s"), 0)
-
-
-def register_value(text: str, category: str) -> tuple[int, str] | None:
-    """Return (days, raw) for the register row whose first cell is `category`."""
-    cat_lower = category.lower()
-    for line in text.splitlines():
-        if not line.lstrip().startswith("|"):
-            continue
-        cells = [c.strip() for c in line.strip().strip("|").split("|")]
-        if not cells:
-            continue
-        if cells[0].lower() == cat_lower:
-            # Search the period cell (and the rest of the row) for the first
-            # period figure; the canonical value is the first one stated.
-            row_rest = " | ".join(cells[1:])
-            m = PERIOD_RE.search(row_rest)
-            if m:
-                return normalise(int(m.group(1)), m.group(2)), f"{m.group(1)} {m.group(2)}"
-    return None
-
-
-def procedure_value(text: str) -> tuple[int, str] | None:
-    """Return (days, raw) for the procedure's retained-for-a-minimum-of figure."""
-    m = PROCEDURE_ANCHOR_RE.search(text)
-    if m:
-        return normalise(int(m.group(1)), m.group(2)), f"{m.group(1)} {m.group(2)}"
-    return None
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_retention_consistency  # the pack-owned engine (source of record)
+    return gate_lint_retention_consistency
 
 
 def main(argv: list[str]) -> int:
@@ -168,46 +105,14 @@ def main(argv: list[str]) -> int:
     root = Path(args.root)
 
     register_path = root / REGISTER
-    # read_text_safe catches only UnicodeDecodeError; guard the missing-file case
-    # explicitly so a renamed / moved register yields the intended finding rather
-    # than an uncaught FileNotFoundError (the linter's whole point is catching a
-    # broken cross-reference link).
     register_text = read_text_safe(register_path) if register_path.is_file() else None
-    findings: list[str] = []
     if register_text is None:
         print(f"FAIL: cannot read the retention register at {REGISTER}.")
         return 1
 
-    for check in RETENTION_CHECKS:
-        label = check["label"]
-        category = check["register_category"]
-        proc_rel = check["procedure"]
-        reg = register_value(register_text, category)
-        if reg is None:
-            findings.append(
-                f"{label}: register row '{category}' not found in {REGISTER} "
-                f"(or its period could not be parsed)."
-            )
-            continue
-        proc_path = root / proc_rel
-        proc_text = read_text_safe(proc_path) if proc_path.is_file() else None
-        if proc_text is None:
-            findings.append(f"{label}: cannot read procedure {proc_rel}.")
-            continue
-        proc = procedure_value(proc_text)
-        if proc is None:
-            findings.append(
-                f"{label}: no 'retained for a minimum of ...' statement found in "
-                f"{proc_rel} (the retention citation may have been removed or reworded)."
-            )
-            continue
-        reg_days, reg_raw = reg
-        proc_days, proc_raw = proc
-        if reg_days != proc_days:
-            findings.append(
-                f"{label}: MISMATCH. Register '{category}' says {reg_raw}; "
-                f"{proc_rel} says {proc_raw}. Reconcile to a single canonical period."
-            )
+    findings = _engine().collect_findings(
+        register_text, root, RETENTION_CHECKS, PROCEDURE_ANCHOR_RE, REGISTER
+    )
 
     if findings:
         for f in findings:
