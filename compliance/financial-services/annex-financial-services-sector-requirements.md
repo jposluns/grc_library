@@ -2,7 +2,7 @@
 
 **Document Title:** Financial Services Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.17\
+**Version:** 1.0.18\
 **Date:** 2026-09-18\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -156,7 +156,7 @@ OSFI B-13 applies to all federally regulated financial institutions in Canada. K
 | **Multi-factor authentication** | MFA required for any individual accessing any information system, regardless of location, user type, or type of electronic information, effective 1 November 2025 (500.12; limited-exemption carve-out under 500.19(a)) | [`security/procedure-identity-management.md`](../../security/procedure-identity-management.md) |
 | **Annual filings and reviews** | Annual Cybersecurity Compliance filing by April 15 (500.17(b)); written cybersecurity policy review and approval by April 29 (500.3) | [`security/policy-information-security.md`](../../security/policy-information-security.md): calendar the NYDFS annual filing and review deadlines |
 | **Encryption** | Encryption of non-public information in transit and at rest | [`security/framework-cryptographic-key-lifecycle.md`](../../security/framework-cryptographic-key-lifecycle.md) |
-| **Incident notification** | Notice to NYDFS within 72 hours of determining a Cybersecurity Event occurred | [`security/sop-incident-escalation-matrix.md`](../../security/sop-incident-escalation-matrix.md): supplement with NYDFS notification runbook |
+| **Incident notification** | Notice to NYDFS as promptly as possible and no later than 72 hours after determining that a Cybersecurity Incident occurred (a reportable trigger under 23 NYCRR Part 500, narrower than a Cybersecurity Event) | [`security/sop-incident-escalation-matrix.md`](../../security/sop-incident-escalation-matrix.md): supplement with NYDFS notification runbook |
 | **Cybersecurity policy** | Documented policy covering all 15 required areas | [`security/policy-information-security.md`](../../security/policy-information-security.md): verify coverage of all 15 areas |
 | **Access controls** | Privileged access management; periodic review | [`security/procedure-access-control.md`](../../security/procedure-access-control.md); [`security/procedure-identity-management.md`](../../security/procedure-identity-management.md) |
 | **Third-party service provider policy** | Written policy governing third-party security | [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md) |
@@ -184,7 +184,7 @@ PCI DSS applies to any organization that stores, processes, or transmits payment
 
 ### AML / CFT requirements
 
-For organizations subject to AML obligations (banks, money service businesses, certain freight/customs operators under FATF Recommendation 22):
+For organizations subject to AML obligations (banks, money service businesses, and designated non-financial businesses and professions (DNFBPs) under FATF Recommendation 22):
 
 | Obligation | Requirement | GRC Library Supplement Needed |
 |---|---|---|
