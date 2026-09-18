@@ -2,8 +2,8 @@
 
 **Document Title:** Cryptographic Key Lifecycle Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.14\
-**Date:** 2026-09-07\
+**Version:** 1.0.15\
+**Date:** 2026-09-18\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md)\
@@ -128,6 +128,9 @@ ML-KEM (key encapsulation; formerly CRYSTALS-Kyber) and ML-DSA (digital signatur
 | COBIT 2019 | DSS05: Managed Security Services | Security service controls |
 | CSA CCM v4.1 | CEK-01: Encryption and Key Management | Cloud key management controls |
 | CSA CCM v4.1 | CEK-04: Encryption Algorithm | Approved encryption algorithm standards |
+| CSA CCM v4.1 | CEK-10: Key Generation | Key generation controls (HSM, approved algorithms, entropy) |
+| CSA CCM v4.1 | CEK-12: Key Rotation | Cryptoperiod-based key rotation |
+| CSA CCM v4.1 | CEK-14: Key Destruction | Secure key destruction (zeroization) |
 | WCO SAFE Framework (2025 edition) | Annex IV F: Information Exchange, Access and Confidentiality | Documented information-security policy and protection of entrusted information against unauthorized alteration (general information security, not a key-lifecycle mandate) |
 
 ---

@@ -2,8 +2,8 @@
 
 **Document Title:** Data Classification and Handling Standard\
 **Document Type:** Standard\
-**Version:** 1.4.16\
-**Date:** 2026-09-13\
+**Version:** 1.4.17\
+**Date:** 2026-09-18\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -140,7 +140,7 @@ Where the organization participates in a sector programme that imposes additiona
 
 | Control Area | ISO/IEC 27002 | COBIT 2019 | CSA CCM v4.1 | Legal / Regulatory |
 | --- | --- | --- | --- | --- |
-| Classification and labelling | §5.12, §5.13 | APO01.07 | DSP-04 | GDPR Art. 32, PIPEDA |
+| Classification and labelling | §5.12, §5.13 | APO01.07 | DSP-01, DSP-04 | GDPR Art. 32, PIPEDA |
 | Encryption | §8.24 | DSS05.02, DSS05.03 | CEK-03, CEK-04, CEK-12 | N/A |
 | Retention and disposal | §8.10 | APO14.09 | DSP-02, DSP-16 | ISO/IEC 27701:2025 Annex A.1.4.8 to A.1.4.9, A.2.4.3 |
 | AI data handling | 5.34 (privacy and protection of PII); 8.11 (data masking) | APO14.08 | DSP-04, DSP-16, DSP-17, LOG-10 | AIDA (lapsed), PIPEDA |

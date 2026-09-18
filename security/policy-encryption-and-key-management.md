@@ -2,8 +2,8 @@
 
 **Document Title:** Encryption and Key Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.22\
-**Date:** 2026-09-01\
+**Version:** 1.3.23\
+**Date:** 2026-09-18\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -209,6 +209,9 @@ Lessons learned from incidents or audits feed into the continual improvement cyc
 | ISO/IEC 27002:2022 | §8.24: Use of cryptography |
 | COBIT 2019 | DSS05.03: Manage endpoint security |
 | CSA CCM v4.1 | CEK-01: Encryption and Key Management |
+| CSA CCM v4.1 | CEK-02: CEK Roles and Responsibilities |
+| CSA CCM v4.1 | CEK-03: Data Protection |
+| CSA CCM v4.1 | CEK-04: Encryption Algorithm |
 | NIST SP 800-57 | Key Management Guidelines |
 | NIST SP 800-208 | Recommendation for Stateful Hash-Based Signature Schemes |
 | PCI DSS v4.0.1 | Requirement 3: Protect Stored Account Data |
