@@ -2,8 +2,8 @@
 
 **Document Title:** Philippines Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.4\
-**Date:** 2026-09-15\
+**Version:** 1.0.5\
+**Date:** 2026-09-18\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -27,7 +27,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 - **Republic Act No. 10173 (Data Privacy Act 2012)**: With implementing rules updated through 2023. The Philippines' primary data protection law.
 - Rights: access, objection, erasure/blocking, rectification, portability, and damages.
 - DPOs required for all personal information controllers.
-- Mandatory breach notification within 72 hours for breaches involving sensitive personal information.
+- Mandatory breach notification to the NPC and affected data subjects within 72 hours of knowledge of, or reasonable belief of, a notifiable breach, where sensitive personal information (or other information that may be used to enable identity fraud) is reasonably believed to have been acquired by an unauthorized person and the controller or the NPC believes the acquisition is likely to give rise to a real risk of serious harm to any affected data subject (NPC Implementing Rules and Regulations of the Data Privacy Act, Section 38).
 - Sensitive personal information includes: race, ethnic origin, marital status, age, colour, religious and political affiliations, health, education, criminal records, social security numbers, and biometric data.
 - **Regulatory authority:** National Privacy Commission (NPC).
 
