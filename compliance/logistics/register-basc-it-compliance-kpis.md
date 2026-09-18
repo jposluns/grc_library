@@ -2,8 +2,8 @@
 
 **Document Title:** BASC IT Compliance Monitoring and KPIs\
 **Document Type:** Register\
-**Version:** 1.2.6\
-**Date:** 2026-09-01\
+**Version:** 1.2.7\
+**Date:** 2026-09-18\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-basc-programme-overview.md`](annex-basc-programme-overview.md), [`compliance/logistics/policy-basc-information-security.md`](policy-basc-information-security.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md), [`operations/procedure-security-monitoring-and-alert-management.md`](../../operations/procedure-security-monitoring-and-alert-management.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`security/standard-authentication-and-password-management.md`](../../security/standard-authentication-and-password-management.md), [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md)\
@@ -28,7 +28,7 @@ This register defines the key performance indicators (KPIs) used to monitor IT a
 | --- | --- | --- | --- | --- | --- | --- |
 | Security awareness training completion | Percentage of personnel completing mandatory annual training | 95% by required deadline | Monthly | Chief Information Security Officer (CISO) | Enterprise Risk Committee | Enterprise Risk Committee |
 | Phishing simulation failure rate | Percentage of employees who click simulated phishing links | < 5% quarterly trend | Quarterly | IT Security | Chief Information Security Officer | Chief Information Security Officer |
-| Critical patch deployment | Percentage of Critical patches deployed within 7 days of release | 100% | Monthly | IT Operations | Chief Information Security Officer | Chief Information Security Officer |
+| Critical patch deployment | Percentage of Critical patches deployed within the applicable risk-based SLA window defined in [`procedure-patch-management.md`](../../operations/procedure-patch-management.md) Section 1 (24 hours for actively-exploited vulnerabilities; 72 hours for publicly-disclosed Criticals with a proof-of-concept; 7 days for Criticals with no known exploitation or proof-of-concept) | 100% | Monthly | IT Operations | Chief Information Security Officer | Chief Information Security Officer |
 | MFA coverage | Percentage of active user accounts with MFA enrolled | 100% | Monthly | IAM Team | Chief Information Security Officer | Chief Information Security Officer |
 | Access review completion | Percentage of privileged account access reviews completed on schedule | 100% quarterly | Quarterly | IAM Team | Chief Information Security Officer | Chief Information Security Officer |
 | Offboarding completeness | Percentage of offboarding actions completed within required timelines | 100% | Monthly | IT Operations | Chief Information Security Officer | Chief Information Security Officer |
@@ -66,6 +66,8 @@ The CISO consolidates IT and cybersecurity KPI results monthly. Quarterly result
 | 1.1.0 | 2026-05-28 | Minor revision (per frontmatter; detail not previously logged in this table) |
 | 1.1.1 | 2026-05-28 | Patch revision (per frontmatter; detail not previously logged in this table) |
 | 1.2.0 | 2026-06-21 | Sweep 13 close-out: added Escalation Owner and Remediation Sign-off columns to align with FR-92 design principle established in [`operations/register-it-operations-kpis.md`](../../operations/register-it-operations-kpis.md) (PR #153); backfilled history-table rows for 1.1.0 and 1.1.1. |
+| 1.2.1 - 1.2.6 | 2026-06 to 2026-09 | Incremental revisions recorded in the frontmatter and the root CHANGELOG; not individually logged in this table. |
+| 1.2.7 | 2026-09-18 | Aligned the Critical patch deployment KPI to the governing tiered risk-based SLA (24 hours actively-exploited; 72 hours with a proof-of-concept; 7 days otherwise) in [`procedure-patch-management.md`](../../operations/procedure-patch-management.md) Section 1, replacing a flat 7-day ceiling (PR #2336). |
 
 
 
