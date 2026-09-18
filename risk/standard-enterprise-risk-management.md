@@ -2,7 +2,7 @@
 
 **Document Title:** Enterprise Risk Management Standard\
 **Document Type:** Standard\
-**Version:** 1.8.12\
+**Version:** 1.8.13\
 **Date:** 2026-09-18\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -250,6 +250,7 @@ The Risk Owner role's six accountability actions (defined in §3) map to specifi
 | ISO/IEC 42001:2023 | §6.1.2, §6.1.3, §6.1.4, §8.2, §8.3, §8.4, §9.1 (AI risk assessment, treatment, impact + evidence, monitoring) |
 | COBIT 2019 | APO12.01, APO12.02, APO12.03, APO12.04, APO12.05, APO10.04, MEA01.02, MEA01.04 |
 | CSA CCM v4.1 | GRC-02 Risk Management Program |
+| CSA AICM v1.1 | GRC-10 AI Impact Assessment |
 | NIST SP 800-39 | Chapters 2 and 3 (multitiered risk-management fundamentals; framing, assessing, responding, monitoring) |
 | NIST IR 8286 (Rev. 1; and 8286A/B/C/D) | Integrating Cybersecurity and Enterprise Risk Management |
 | NIST SP 800-221 / 800-221A | Enterprise Impact of ICT Risk; ICT Risk Outcomes |
