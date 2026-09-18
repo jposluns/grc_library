@@ -55,7 +55,10 @@ CLAUDE_MD = REPO_ROOT / ".claude" / "CLAUDE.md"
 # #1775 raises 962 -> 1023 for the maintainer-authorized (AskUser, 2026-08-28) adoption of the
 # no-manufactured-winddown interim rule (lab_infra fleet share); an intentional canonical
 # behavioural addition, reconciles when the guardrails/AIQT pack ships.
-CEILING = 1021
+# #2365 relocates the block-on-open-findings mechanics to references/hook-open-findings-guard.md
+# (batch-3 CLAUDE.md-D10 decision) and adds the guard's mis-filed second condition; net ratchet
+# 1023 -> 1022. Downward-ratchet convention resumes.
+CEILING = 1022
 
 
 def line_count(path: Path) -> int:

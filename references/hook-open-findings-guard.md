@@ -34,9 +34,11 @@ A row leaves the ledger only via `FIXED`, `ROUTED`, `REFUTED`, or `ACCEPTED`.
 
 ## Fail-open by design
 
-If the ledger is missing or unparseable this hook ALLOWS the action, because a guard that blocks all
-work on its own malfunction would be removed within a day, and a removed guard protects nothing. That
-is a deliberate trade: the ledger plus the convention are the primary control and this hook is defence
+If the ledger is missing or unreadable this hook ALLOWS the action, because a guard that blocks all
+work on its own malfunction would be removed within a day, and a removed guard protects nothing. A
+single MALFORMED row within an otherwise-readable ledger is the exception: the parser forces it toward
+BLOCK (not open), so a stray unescaped pipe cannot silently disable the guard. The fail-open trade is
+deliberate: the ledger plus the convention are the primary control and this hook is defence
 in depth. Conventions alone failed repeatedly on this axis in quick succession, which is why there is
 a hook at all.
 
@@ -45,6 +47,6 @@ a hook at all.
 A `Finding` cell that LEADS with a bracketed class token names a CLASS of defect, so its `FIXED`
 disposition must attest the fix was checked at the width of the class: a `[class: "<token>" @ <count>]`
 clause (emitted by `tools/check-class-completeness.py --attest`) or a `[class-exempt: <reason>]` from a
-closed set. A `FIXED` class row missing the attestation is SURFACED AS A WARNING here, never a block
+closed set. A `FIXED` class row under `## Open` missing the attestation is SURFACED AS A WARNING here, never a block
 (preserving the fail-open posture); the fail-closed half is the pre-push D14 check
 (`tools/check-class-attestation-on-pr.py`), which also reproduces the probe.

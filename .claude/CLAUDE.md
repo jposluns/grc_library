@@ -660,8 +660,9 @@ rule below (that one governs QA deliveries specifically; this governs anything w
 source). Every confirmed defect gets a row in `grc_library_private/.working/open-findings.md` the
 moment it is confirmed, with a severity, and leaves only via `FIXED` / `ROUTED` / `REFUTED` /
 `ACCEPTED`; the [`block-on-open-findings.py`](hooks/block-on-open-findings.py) PreToolUse hook
-refuses `gh pr create` and `gh pr merge` while an `error`-severity row has no disposition. The
-hook can only see a row once it is written, so this section is wider than the hook.
+refuses `gh pr create` and `gh pr merge` on an undispositioned `error` row or a mis-filed one
+([full mechanics](../references/hook-open-findings-guard.md)). The hook can only see a row once it
+is written, so this section is wider than the hook.
 
 ## Guardrail-seed pipeline: for every issue, propose a mechanized fix and let an expensive worker theorycraft it
 
@@ -691,8 +692,8 @@ table is the most persuasive way to walk past a defect.
 `grc_library_private/.working/open-findings.md` the moment it is confirmed, leaving only via
 `FIXED` / `ROUTED` / `REFUTED` / `ACCEPTED`. The [`block-on-open-findings.py`](hooks/block-on-open-findings.py)
 PreToolUse hook refuses `gh pr create` and `gh pr merge` on an undispositioned `error` row OR a
-MIS-FILED row spliced outside the scanned sections; a `warning` is surfaced, not blocked; it fails OPEN
-by design. Full mechanics: [`references/hook-open-findings-guard.md`](../references/hook-open-findings-guard.md).
+MIS-FILED row that would escape the disposition scan; a `warning` is surfaced, not blocked; a missing or
+unreadable ledger fails OPEN by design. Full mechanics: [`references/hook-open-findings-guard.md`](../references/hook-open-findings-guard.md).
 
 **The rule.** The moment a QA delivery lands (`/validate`, `/validate-pr`, `verify`, a
 high-assurance lens, `/matrix-fit`, `/claim-fit`, `/reference-audit`, `/screen-publications`,
