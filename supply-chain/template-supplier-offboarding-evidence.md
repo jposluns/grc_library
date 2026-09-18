@@ -2,7 +2,7 @@
 
 **Document Title:** Supplier Offboarding Evidence Template\
 **Document Type:** Template\
-**Version:** 1.0.10\
+**Version:** 1.0.11\
 **Date:** 2026-09-18\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -65,6 +65,7 @@ It does not cover offboarding of individual personnel from a continuing supplier
 | Email and collaboration | Distribution-list removal; mailbox handoff or deactivation | | |
 | Code repository | Repository access revoked; outstanding tokens revoked | | |
 | Customer-facing access | Removal from customer-data viewing surfaces if the supplier had any |  | |
+| Post-exit full access audit (Tier 1 exits only) | Full access audit report from 30 days after the exit date confirming no residual supplier access remains | | |
 
 Access revocation timing follows the governing supplier-exit procedure (step 5): logical and physical access on the exit date, shared secrets and API keys within 24 hours of exit, and network access controls within 2 business days; the exit type accelerates these, immediate on decision for a risk-driven or insolvency exit and immediate on notice for a regulatory-mandated exit. Exceptions documented with rationale, time-limit, and remediation plan.
 
@@ -125,7 +126,7 @@ The certificate of destruction states: the items destroyed, the method (e.g. the
 
 ### Section 7: Post-exit review
 
-A short review within 30 days of completion records:
+For all Tier 1 exits and all exits triggered by supplier failure, a short review within 30 days of exit completion records:
 
 1. What worked well in the offboarding process.
 2. Gaps identified (access not revoked timely; data return delays; documentation gaps).
