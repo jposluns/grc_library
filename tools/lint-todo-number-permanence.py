@@ -760,6 +760,13 @@ EXEMPT: dict[tuple[str, str], str] = {
         "slices (A37 restore, A1/A3 erosion backstops) remain live in P-TODO.md. Dated "
         "2026-09-18, after the 2026-07-15 rule."
     ),
+    ("P-1.63", "matrix batch-5c"): (
+        "PARTIAL CLOSE. PR #2375 removed 17 mis-fit control codes from the master matrix (adjacent-but-not-core, per the DIRECT source-verified-fit threshold): LOG-15/16 @153, DSP-03 @155/@279, DSP-21 @179/@280, GRC-13 @84/@279, DSP-20 @55, AIS-04/05/07/TVM-06 @352, AIS-04/05/09 @384, AIS-04 @400. "
+        "14 unanimous tri-family + 3 source-verified splits (@384 self-declares non-policy + no table; "
+        "@55 retains lineage docs, does not create provenance). Stranded 21->4. The 4 remaining are all "
+        "maintainer-decisions (DSP-20 @279 structural, A&A-02/05 @382 label, IAM-09 @399 fit-split) - "
+        "the adjudicable stranded campaign is complete. Dated 2026-09-18, after the 2026-07-15 rule."
+    ),
     ("P-1.63", "matrix batch-5b"): (
         "PARTIAL CLOSE. PR #2374 added AIS-08 (API Security, CCM) to standard-ai-access and removed 2 "
         "matrix mis-fits (CCC-01 @364 - QA/testing doc has CCC-02 not the change-mgmt policy; GRC-03 @83 "
