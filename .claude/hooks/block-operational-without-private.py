@@ -92,15 +92,16 @@ def decide(project_dir: str) -> tuple[bool, str]:
     if not _origin_is_maintainer(project_dir):
         return False, ""  # adopter / indeterminate: allow (fail-open)
     return True, (
-        "Edit/Write BLOCKED: this is the maintainer orchestrator (origin is "
-        f"{MAINTAINER_ORIGIN}) but grc_library_private is NOT accessible. _private holds "
-        "the operational state the CLAUDE.md delegation directive points to; it is a "
-        "REQUIRED dependency, not optional. Do NOT proceed with operational edits and do "
-        "NOT reconstruct _private content from memory. FIX FIRST: clone it "
+        "BLOCKED (operational-without-private): an Edit/Write on the maintainer clone (origin "
+        f"{MAINTAINER_ORIGIN}) while grc_library_private is NOT accessible.\n"
+        "WHY: _private holds the operational state the CLAUDE.md delegation directive points to; "
+        "it is a REQUIRED dependency, and reconstructing its content from memory is the failure "
+        "this guard prevents.\n"
+        "CONSIDER-INSTEAD: clone it "
         "(git clone https://github.com/jposluns/grc_library_private.git ../grc_library_private) "
-        "or grant sibling access (--add-dir ../grc_library_private), then continue. Read and "
-        "Bash are still available so you can do exactly that. (If you are genuinely an adopter, "
-        "this hook would not have fired; if origin was misdetected, resolve it and retry.)"
+        "or grant sibling access (--add-dir ../grc_library_private), then continue (Read and Bash "
+        "stay available so you can do exactly that). (If you are genuinely an adopter this hook "
+        "would not have fired; if origin was misdetected, resolve it and retry.)"
     )
 
 

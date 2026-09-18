@@ -113,9 +113,11 @@ def main() -> int:
     except Exception:
         return 0
     print(
-        "TURN-END BLOCKED (maintainer standing rule 2026-08-21): your final message must BEGIN with "
-        f"the current UTC timestamp and END with the session duration. Re-send it starting with "
-        f"`{stamp}` and ending with `{dur}`.",
+        "BLOCKED (unstamped-turn-end): your final message lacks the required leading UTC timestamp "
+        "or trailing session duration (maintainer standing rule 2026-08-21).\n"
+        "WHY: every authored message must carry both so the maintainer can place it in time; the "
+        "turn-end is where the final message is checked.\n"
+        f"CONSIDER-INSTEAD: re-send the same message starting with `{stamp}` and ending with `{dur}`.",
         file=sys.stderr,
     )
     return 2

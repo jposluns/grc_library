@@ -166,11 +166,12 @@ def main() -> int:
         for tokens in segments(command):
             problem = violation(tokens)
             if problem:
-                print("BLOCKED (bulk-stage guard): " + problem + "\n\n"
-                      "  Why: entry 43 in ORCHESTRATOR-MISTAKES.md. A tree-sweep stage makes the\n"
-                      "  commit message the only record of scope, and the message is the half that\n"
-                      "  is never verified. Enumerate, or lead the command with "
-                      + ESCAPE + "=1.", file=sys.stderr)
+                print("BLOCKED (bulk-git-add): " + problem + "\n"
+                      "WHY: a tree-sweep stage makes the commit message the only record of\n"
+                      "scope, and that message is the half that is never verified "
+                      "(ORCHESTRATOR-MISTAKES.md entry 43).\n"
+                      "CONSIDER-INSTEAD: apply the fix the clause above names; for a genuinely\n"
+                      "intended tree sweep, lead the command with " + ESCAPE + "=1.", file=sys.stderr)
                 return 2
     except Exception:
         return 0

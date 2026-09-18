@@ -254,17 +254,17 @@ def _dispatch_summary(text: str) -> str:
 
 def _block_message(dispatch_text: str) -> str:
     return (
-        "BLOCKED (orchestrator dispatch guardrail): in an orchestrator session every in-session "
+        "BLOCKED (orchestrator-self-qa): an in-session "
         "Task/Agent/Workflow/SendMessage dispatch is prohibited. Dispatch fields: "
         + repr(_dispatch_summary(dispatch_text))
         + ".\n"
         "\n"
-        "An in-session subagent is not an offload. It bills the orchestrator's "
+        "WHY: an in-session subagent is not an offload; it bills the orchestrator's "
         "account, which is the scarce resource. The guard blocks the entire "
         "in-session agent-spawning tool class (Task, Agent, Workflow, SendMessage) because prompt "
         "classification is inherently leaky.\n"
         "\n"
-        "  Dispatch a worker with orch-verify instead:\n"
+        "CONSIDER-INSTEAD: dispatch a worker with orch-verify:\n"
         "    orch-verify {claude|codex|gemini} <prompt-file> [<workdir>] "
         "[--expensive] [--model <model>] [--effort <low|medium|high|xhigh|max>]\n"
         "  (for a skeptical verifier, add --skip <account-label> so the verifier "

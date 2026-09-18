@@ -254,21 +254,21 @@ def main() -> int:
         return 0
 
     lines = [
-        "BLOCKED (version-bump guard): these staged file(s) have a changed BODY and an unchanged "
-        "`**Version:**` line and could NOT be auto-bumped (other unstaged changes are present, or "
-        "the Version is not a clean semver such as README's CalVer):",
+        "BLOCKED (unbumped-version-commit): these staged file(s) have a changed BODY and an "
+        "unchanged `**Version:**` line and could not be auto-bumped (other unstaged changes "
+        "present, or the Version is not clean semver such as README's CalVer):",
         "",
     ]
     lines += [f"  - {p}" for p in remaining]
     lines += [
         "",
-        "Bump `**Version:**` AND `**Date:**` in the SAME edit, then re-stage. Both halves together: "
-        "delta gate D2 fails on a body change without a Version, D4 fails on a Version without a "
-        "matching Date, and a later commit that moves only the Date is itself a body change "
-        "post-dating the bump, which then trips gate 40. That chain is why this fires at commit "
-        "time rather than at the pre-push guard six minutes later.",
+        "WHY: a body change without a Version+Date bump trips the delta gates (D2 on a body change "
+        "without a Version, D4 on a Version without a matching Date) and gate 40 (a later Date-only "
+        "commit is itself a body change post-dating the bump); this fires at commit time rather than "
+        "at the pre-push guard six minutes later.",
         "",
-        "If this body edit genuinely does not warrant a bump, say so in the commit message with "
+        "CONSIDER-INSTEAD: bump `**Version:**` AND `**Date:**` in the SAME edit, then re-stage. If "
+        "this body edit genuinely does not warrant a bump, say so in the commit message with "
         "`VersionBump: none <reason>` and it will proceed.",
     ]
     print("\n".join(lines), file=sys.stderr)

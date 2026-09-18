@@ -78,11 +78,12 @@ def decide(subject: str):
     }.get(blocking_hook, "change its STRUCTURE (not just its wording or description) so it no "
                          "longer trips the same block")
     lines = [
-        f"REPEAT-BLOCK (self-guard loop-breaker): you resubmitted a command that "
-        f"`{blocking_hook}` just blocked, UNCHANGED. READ your literal command string: it "
-        f"does not reflect the fix the block asked for (a common cause is editing the command "
-        f"DESCRIPTION, not the command STRING). To fix it: {steer}. Do not "
-        f"resubmit the same shape; that is the intent-vs-artefact loop this guard breaks."
+        f"BLOCKED (repeated-tool-failure): you resubmitted, UNCHANGED, a command that "
+        f"`{blocking_hook}` just blocked.\n"
+        f"WHY: the literal command string does not reflect the fix the block asked for (a common "
+        f"cause is editing the command DESCRIPTION, not the command STRING); resubmitting the "
+        f"same shape is the intent-vs-artefact loop this guard breaks.\n"
+        f"CONSIDER-INSTEAD: {steer}."
     ]
 
     # GUARD 2: diagnosis circuit-breaker on a run of consecutive same-class blocks.
@@ -161,7 +162,7 @@ def _self_test() -> int:
             _hook_state.record_block(cmd, "wrong-repo")  # a sibling blocked it last turn
             block, reason = decide(cmd)
             self.assertTrue(block)
-            self.assertIn("REPEAT-BLOCK", reason)
+            self.assertIn("repeated-tool-failure", reason)
             self.assertIn("wrong-repo", reason)
 
         def test_structural_change_allows(self):

@@ -253,24 +253,27 @@ def decide(tool_name: str, tool_input: dict, project_dir: str) -> str | None:
         fp = tool_input.get("file_path") or tool_input.get("notebook_path") or ""
         if fp and _path_under_public_working(project_dir, fp):
             return (
-                f"BLOCKED (public-.working writer-contract guard): {fp} would RE-CREATE a path under "
-                f"the public grc_library/.working/ tree, which was DELETED in PR #1235 (PR2b-3). The "
-                f"canonical working-state store is the operational store that "
-                f"resolve_working_for_write resolves to (the local operational store, or the "
-                f"transitional private sibling); the public tree must not be re-created. Write there "
-                f"via resolve_working_for_write instead."
+                f"BLOCKED (public-working-write): {fp} would RE-CREATE a path under the public "
+                f"grc_library/.working/ tree.\n"
+                f"WHY: that tree was DELETED in PR #1235 (PR2b-3); the canonical working-state store "
+                f"is the operational store resolve_working_for_write resolves to, and re-creating the "
+                f"public tree splits the store.\n"
+                f"CONSIDER-INSTEAD: write via resolve_working_for_write (the local operational store, "
+                f"or the transitional private sibling) instead of the public path."
             )
         return None
     if tool_name == "Bash":
         cmd = tool_input.get("command", "") or ""
         if _bash_writes_public_working(cmd, project_dir):
             return (
-                "BLOCKED (public-.working writer-contract guard): this command writes/creates under "
-                "the public grc_library/.working/ tree, which was DELETED in PR #1235 (PR2b-3); this "
-                "guard now prevents its RE-CREATION. The canonical store is the operational store "
-                "that resolve_working_for_write resolves to; target that instead. (Removals such as `rm`/`git rm` are "
-                "allowed; add `WorkingWrite: intentional` to the command only for a genuinely "
-                "authorized public-.working write.)"
+                "BLOCKED (public-working-write): this command writes or creates under the public "
+                "grc_library/.working/ tree.\n"
+                "WHY: that tree was DELETED in PR #1235 (PR2b-3); the canonical store is the "
+                "operational store resolve_working_for_write resolves to, and re-creating the public "
+                "tree splits the store.\n"
+                "CONSIDER-INSTEAD: target the store via resolve_working_for_write instead. (Removals "
+                "such as `rm`/`git rm` already pass; for a genuinely authorized public-.working "
+                "write, add `WorkingWrite: intentional` to the command.)"
             )
         return None
     return None

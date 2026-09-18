@@ -91,13 +91,15 @@ def main() -> int:
     except Exception:
         pass
     sys.stderr.write(
-        "BLOCKED (RM-10 guardrail): this command pipes a verification "
-        "command into a truncating filter, which masks its exit code (the "
-        "pipeline reports the filter's exit, not the gate's). Run it "
-        "standalone, use a file-redirect capture (cmd > log; CODE=$?), or "
-        "use the sanctioned wrapper: tools/tail-safe.sh [-n LINES] -- "
-        "<command> (prints the last N lines plus EXIT=<code> and exits "
-        "with the real code).\n")
+        "BLOCKED (verification-pipes, RM-10): this command pipes a "
+        "verification command into a truncating filter "
+        "(tail/head/grep/sed/awk/tee/wc).\n"
+        "WHY: the pipeline reports the filter's exit code, not the gate's, "
+        "so a real failure is masked and reads as a pass.\n"
+        "CONSIDER-INSTEAD: run it standalone, use a file-redirect capture "
+        "(cmd > log; CODE=$?), or use the sanctioned wrapper "
+        "tools/tail-safe.sh [-n LINES] -- <command> (prints the last N "
+        "lines plus EXIT=<code> and exits with the real code).\n")
     return 2
 
 

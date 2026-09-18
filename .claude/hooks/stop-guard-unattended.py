@@ -290,14 +290,15 @@ def decide(mode, stop_hook_active, actionable):
     # (maintainer-directed 2026-09-16: keep the detail off-screen). The list is available
     # on demand by running ACTIONABLE_PRODUCER directly.
     reason = (
-        "STOP BLOCKED (unattended): the backlog tool reports %d actionable open backlog "
-        "item(s), so this is not whole-set exhaustion. Per 10-TRUST-no-manufactured-winddown, "
-        "continue on the highest-priority actionable item; session depth, run length, and work "
-        "shape are NOT stop reasons, and a self-reported \"high-priority exhausted\" is not "
-        "exhaustion. (Full actionable list on demand: run %s.) If EVERY remaining item is "
-        "genuinely granted-blocked or deferred to a RECORDED maintainer decision, record that "
-        "first (which removes it from the actionable set), and then a stop is permitted. For a "
-        "genuine operator stop, %s."
+        "BLOCKED (stop-guard-unattended): a turn-end yield in unattended mode while the backlog "
+        "tool reports %d actionable open backlog item(s).\n"
+        "WHY: actionable work remaining is not whole-set exhaustion; per "
+        "10-TRUST-no-manufactured-winddown, session depth, run length, and work shape are NOT stop "
+        "reasons, and a self-reported \"high-priority exhausted\" is not exhaustion.\n"
+        "CONSIDER-INSTEAD: continue on the highest-priority actionable item (full list on demand: "
+        "run %s). If EVERY remaining item is genuinely granted-blocked or deferred to a RECORDED "
+        "maintainer decision, record that first (which removes it from the actionable set) and a "
+        "stop is then permitted; for a genuine operator stop, %s."
         % (len(actionable), ACTIONABLE_PRODUCER, MODE_SET_HINT)
     )
     return True, reason

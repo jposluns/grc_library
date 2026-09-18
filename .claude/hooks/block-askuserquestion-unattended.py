@@ -69,14 +69,15 @@ def decide(mode: str | None) -> tuple[bool, str]:
     """Return (block, reason). Block only when the mode is unattended."""
     if mode and "unattended" in mode:
         return True, (
-            f"AskUserQuestion BLOCKED: session Operating-mode is `{mode}` (unattended). "
-            f"In unattended mode a maintainer decision is RECORDED as pending "
-            f"(.working/pending-decisions.md or the relevant register) and the run CONTINUES "
-            f"(no-idle-stop); a blocking prompt idles the run until the maintainer returns. "
-            f"Record the decision, then proceed with the next authorized independent item using "
-            f"graceful degradation (stricter-safe on a reversible action, defer-and-skip on an "
-            f"authorial one). If the maintainer is in fact attended, update the Operating-mode "
-            f"field in .working/session-state.md first, then re-issue the question."
+            f"BLOCKED (askuserquestion-unattended): an AskUserQuestion while Operating-mode is "
+            f"`{mode}` (unattended).\n"
+            f"WHY: a blocking prompt idles the run until the maintainer returns; unattended mode "
+            f"records a maintainer decision as pending and CONTINUES (no-idle-stop).\n"
+            f"CONSIDER-INSTEAD: record the decision (.working/pending-decisions.md or the relevant "
+            f"register) and proceed on the next authorized independent item via graceful "
+            f"degradation (stricter-safe on a reversible action, defer-and-skip on an authorial "
+            f"one); or, if the maintainer is in fact attended, update the Operating-mode field in "
+            f".working/session-state.md first, then re-issue the question."
         )
     return False, ""
 
