@@ -2,7 +2,7 @@
 
 **Document Title:** Supplier Offboarding Evidence Template\
 **Document Type:** Template\
-**Version:** 1.0.11\
+**Version:** 1.0.12\
 **Date:** 2026-09-18\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -26,7 +26,7 @@ A populated offboarding record identifies real suppliers and is sensitive operat
 
 ## Scope
 
-This template covers offboarding for all in-scope third-party relationships ending in any of the following ways: contract expiry, contract termination by either party, supplier insolvency, change of ownership requiring re-onboarding, organizational decision to exit, and forced exit due to non-remediable breach.
+This template covers offboarding for all in-scope third-party relationships ending in any of the following ways: contract expiry, contract termination by either party, supplier insolvency, change of ownership requiring re-onboarding, organizational decision to exit, forced exit due to non-remediable breach, and a regulatory or sanctions-driven exit.
 
 It does not cover offboarding of individual personnel from a continuing supplier relationship (that is governed by the supplier ongoing-monitoring procedure).
 
@@ -46,7 +46,7 @@ It does not cover offboarding of individual personnel from a continuing supplier
 | Personal data processed | Yes or no; data categories if yes |
 | Relationship start date | |
 | Relationship end date | |
-| Reason for offboarding | Expiry, organization-initiated termination, supplier-initiated termination, insolvency, change of ownership, breach, mutual termination |
+| Reason for offboarding | Expiry, organization-initiated termination, supplier-initiated termination, insolvency, change of ownership, breach, mutual termination, regulatory or sanctions-driven exit |
 | Notice period followed | Yes or no; if not, the contractual basis for waiving notice |
 | Offboarding initiated by | Role |
 | Offboarding owner | Supplier Relationship Owner (SRO) |
@@ -73,7 +73,7 @@ Access revocation timing follows the governing supplier-exit procedure (step 5):
 
 | Data category | Action | Evidence | Confirmation timestamp |
 | --- | --- | --- | --- |
-| Personal data | Return to organization OR destruction | Return: secure transfer log; destruction: certificate of destruction signed by the supplier | |
+| Personal data | Return to organization OR destruction | Return: secure transfer log and the certificate of destruction for the supplier's retained copies; destruction: certificate of destruction signed by the supplier | |
 | Customer data | Return OR destruction | As above | |
 | Confidential business data | Return OR destruction | As above | |
 | Trade or regulated data (e.g. BASC, customs) | Return OR destruction per the applicable retention requirement for BASC-certified data | As above | |
@@ -83,6 +83,18 @@ Access revocation timing follows the governing supplier-exit procedure (step 5):
 | Documentation and configuration | Return or destruction | As above | |
 
 The certificate of destruction states: the items destroyed, the method (e.g. the IEEE 2883 Clear / Purge / Destruct categories that NIST SP 800-88 Rev. 2 directs technique detail to), the date, and the signing authority on the supplier side. For personal data, the certificate cites the GDPR Article 28(3)(g) obligation (or jurisdictional equivalent).
+
+Returning data to the organization does not discharge the supplier's deletion obligation: where data is returned, the supplier must still securely delete all copies it retains (including personal, test, and backup data). The organization issues the formal deletion instruction upon completion of the return or at contract end (procedure step 4.1), and the deletion certificate for those retained copies is captured here regardless of the return. The "return or destruction" action above describes disposition of the primary data set, not a waiver of copy deletion.
+
+Data-return and deletion-certificate deadlines are tiered by exit type per the governing procedure's exit-timeline summary: a planned Tier 1 exit targets data return per the contractual provision (typically within 30 days of the end date) and a deletion certificate within 60 days of the end date; a planned Tier 2 or Tier 3 exit follows the contractual provision with a deletion certificate within 90 days of the end date; a risk-driven exit is expedited (data return within 10 business days, deletion certificate within 30 days); a regulatory-mandated exit follows the regulatory instruction. Each confirmation timestamp is assessed against the deadline for this exit's type.
+
+The written deletion certificate is requested within 30 days of the deletion instruction (procedure step 4.2). Where it is not received within that window, the gap and its risk are documented and escalated to Legal and the Contract Owner (procedure step 4.4); the instruction, the receipt, and any escalation are recorded here:
+
+| Deletion-certificate tracking | Evidence |
+| --- | --- |
+| Deletion instruction issued | Date issued |
+| Certificate received within 30 days | Yes or no; date received |
+| Non-receipt escalation (past 30 days) | Escalation to Legal and the Contract Owner; documented gap and risk; reference |
 
 ### Section 4: Service-continuity handover
 
