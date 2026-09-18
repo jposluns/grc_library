@@ -378,3 +378,10 @@ kind = "file"
 sources = ["core/rules/narrative-metadata.md"]
 target = ".claude/rules/corpus-management/narrative-metadata.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "index-header-parity"
+kind = "file"
+sources = ["core/rules/index-header-parity.md"]
+target = ".claude/rules/corpus-management/index-header-parity.md"
+regenerate = ["python3", "tools/build-corpus-management.py"]
