@@ -229,11 +229,13 @@ def decide(added: str, todo_count: "int | None" = None):
     classifications = _CLASSIFICATION_RE.findall(added)
     if not classifications:
         return True, (
-            "DECISION-GUARD: a write to the autonomous-decisions log must carry a "
-            "`**Classification:**` line naming exactly one of ACT / ASK / BLOCKED: "
-            "<blocker-type>. No classification found in the added entry. Classify the "
-            "decision (default ACT; ASK a specific question if it is the maintainer's; "
-            "BLOCKED only for a named observable blocker), then re-write."
+            "BLOCKED (unjustified-decision): a write to the autonomous-decisions log with no "
+            "`**Classification:**` line.\n"
+            "WHY: the write-before-enact rubric requires every decision classified at decision "
+            "time so avoidance cannot be dressed as prudence.\n"
+            "CONSIDER-INSTEAD: add a `**Classification:**` line naming exactly one of "
+            "ACT / ASK / BLOCKED: <blocker-type> (default ACT; ASK a specific question if it is "
+            "the maintainer's; BLOCKED only for a named observable blocker), then re-write."
         )
     problems = []
     for c in classifications:
@@ -297,12 +299,14 @@ def decide(added: str, todo_count: "int | None" = None):
             )
     if problems:
         return True, (
-            "DECISION-GUARD (write-before-enact log): this decision entry is not well-formed. "
+            "BLOCKED (unjustified-decision): this decisions-log entry is not well-formed. "
             + " ".join(problems)
-            + " Fix: default to ACT; if the decision is the maintainer's and they are reachable "
-            "ASK the specific question (do not defer); record BLOCKED only with a named "
-            "observable blocker from the closed set. Deferral-with-no-question and "
-            "internal-state justifications are the failure this guard prevents."
+            + "\nWHY: deferral-with-no-question and un-instrumented internal-state "
+            "justifications are the failure this guard prevents; a hold must name a real "
+            "observable blocker.\n"
+            "CONSIDER-INSTEAD: default to ACT; if the decision is the maintainer's and they are "
+            "reachable, ASK the specific question (do not defer); record BLOCKED only with a "
+            "named observable blocker from the closed set."
         )
     return False, ""
 
