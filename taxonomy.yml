@@ -3126,7 +3126,7 @@ documents:
   domain: "compliance"
   type: "Matrix"
   title: "GRC Library Compliance Alignment Matrix"
-  version: "1.11.80"
+  version: "1.11.81"
   date: "2026-09-18"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"
