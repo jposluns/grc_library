@@ -2,7 +2,7 @@
 
 **Document Title:** FedRAMP Sector Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.15\
+**Version:** 0.0.16\
 **Date:** 2026-09-18\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -93,7 +93,7 @@ The library provides architectural baselines that align with FedRAMP control fam
 Library gaps requiring additional documentation for a FedRAMP authorization package:
 
 1. **Certification package documentation.** Under the 2026 Consolidated Rules the historically required System Security Plan is superseded: for FedRAMP Rev5 the Certification Package Overview replaces the base System Security Plan (not including its appendices), and the Security Decision Record replaces the traditional System Security Plan as a persistently maintained, verified, and validated record of the provider's security decisions; the rules' crosswalk maps the former System Security Plan and its appendices onto the Certification Package Overview and Security Decision Record together. The security practices are expressed as measured Key Security Indicators under 20x and as Rev5 Controls under Rev5. The library provides architectural inputs; the certification-package documents are per-system artefacts built outside the library.
-2. **Ongoing Certification reporting.** The 2026 Consolidated Rules replace continuous monitoring with Ongoing Certification: providers supply an Ongoing Certification Report every three months in a human-readable format, and, for Classes B to D, report vulnerability detection and response activity in a human-readable format at least monthly. For Rev5 certifications, the system component inventory is reviewed and updated at an organization-defined frequency.
+2. **Ongoing Certification reporting.** The 2026 Consolidated Rules replace continuous monitoring with Ongoing Certification: providers supply an Ongoing Certification Report every three months in a human-readable format, and make historical vulnerability detection and response activity available in JSON for automated retrieval, updated at least monthly (Class A may, Class B should), at least every 14 days (Class C should), and at least every 7 days (Class D should). For Rev5 certifications, the system component inventory is reviewed and updated at an organization-defined frequency.
 3. **Accepted Weaknesses list.** The 2026 Consolidated Rules eliminate provider Plans of Action and Milestones and replace them with a list of Accepted Weaknesses; the library risk register remains the conceptual basis for tracking and accepting weaknesses. Agencies may still maintain their own Plans of Action and Milestones from the provider's reported vulnerability information.
 4. **Independent assessment.** The 2026 rules do not require a separate Security Assessment Plan or Security Assessment Report for either 20x or Rev5 certifications; the assessment information is captured in the Security Decision Record. Under the legacy Agency path an agency authorizing official may still request the traditional Security Assessment Plan and Report in addition to FedRAMP's materials.
 5. **Incident Response Reporting per FedRAMP's Incident Evaluation and Communication rules.** Library incident procedures cover the lifecycle; the 2026 Consolidated Rules layer FedRAMP-specific reporting on top. A FedRAMP Reportable Incident (one affecting, or likely to affect, the confidentiality or integrity of federal customer data) is filed on class-graded Initial Incident Report clocks keyed to a Potential Agency Impact N-rating (PAIN): for example Class B within 6 hours for PAIN-5 to PAIN-3 and 1 business day for PAIN-2 to PAIN-1, with class-specific clocks for Classes C and D, plus ongoing and final reports and any agency-specific procedures.
@@ -106,7 +106,7 @@ Library gaps requiring additional documentation for a FedRAMP authorization pack
 ## Operating expectations
 
 1. Each security decision recorded in the certification package's Security Decision Record (which carries the applicable Rev5-control information for Rev5 and the Key Security Indicator information for 20x) references the relevant library artefact and any organization-specific extension.
-2. Ongoing Certification reporting follows the cadence the 2026 Consolidated Rules set (the three-monthly Ongoing Certification Report, and at-least-monthly vulnerability reporting for Classes B to D); the library's metrics and audit registers feed but do not replace that reporting.
+2. Ongoing Certification reporting follows the cadence the 2026 Consolidated Rules set (the three-monthly Ongoing Certification Report, and JSON vulnerability-activity reporting for automated retrieval, updated at least monthly (Class A may, Class B should), at least every 14 days (Class C should), and at least every 7 days (Class D should)); the library's metrics and audit registers feed but do not replace that reporting.
 3. Significant change requests follow the FedRAMP significant change process; the library's change management procedure is the operational input.
 4. For Classes B to D an independent verification and validation assessment of all applicable FedRAMP rules by a FedRAMP Recognized independent assessment service (or FedRAMP) is completed at least annually; a Class A certification may complete one and follows its underlying alternative security framework's assessment expectations. The assessment-evidence repository is organized around the FedRAMP assessment, not library structure.
 
@@ -123,7 +123,7 @@ Library gaps requiring additional documentation for a FedRAMP authorization pack
 | Key Security Indicators (KSIs) | Finalized 2026 KSI content, folded into the Consolidated Rules | 20x measured-outcome evidence (supersedes the RFC-0006 draft) |
 | NIST SP 800-53 Rev. 5 | Security and Privacy Controls | Underlying Rev5 control catalogue |
 | NIST SP 800-37 Rev. 2 | Risk Management Framework | Authorization lifecycle |
-| NIST SP 800-171 / 800-172 | Protecting CUI | Where applicable |
+| NIST SP 800-171 / 800-172 | Protecting CUI | External CUI-protection standards, where applicable; not imposed by the 2026 FedRAMP rules |
 | OMB M-22-09 | Federal Zero Trust Strategy | External federal architectural direction; not imposed by the 2026 FedRAMP rules |
 | FIPS 199 | Standards for Security Categorization | Categorization prerequisite |
 | FIPS 200 | Minimum Security Requirements | Baseline prerequisite |
