@@ -760,6 +760,13 @@ EXEMPT: dict[tuple[str, str], str] = {
         "slices (A37 restore, A1/A3 erosion backstops) remain live in P-TODO.md. Dated "
         "2026-09-18, after the 2026-07-15 rule."
     ),
+    ("P-1.63", "matrix campaign batch-1a"): (
+        "PARTIAL CLOSE. PR #2367 added 11 source-verified CCM codes to 5 security docs' framework "
+        "tables (matrix batch-1a of the SCAN-FIRST stranded-code umbrella, approach A add-if-fits), "
+        "resolving 11 of the 71 matrix-vs-doc stranded candidates; ~60 candidates + batch-1b "
+        "(AICM-column add, DSP-03 remove) remain live in P-TODO.md. Dated 2026-09-18, after the "
+        "2026-07-15 rule."
+    ),
     ("P-1.63", "stranded matrix CCM code fix (GRC-01 dropped)"): (
         "PARTIAL CLOSE. PR #2331 corrected the 2 GRC-01 stranded CCM codes "
         "(master-matrix rows 84/86 -> GRC-02) as the first verified increment of the "
