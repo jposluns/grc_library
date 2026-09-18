@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy and Data Governance Policy\
 **Document Type:** Policy\
-**Version:** 1.4.24\
+**Version:** 1.4.25\
 **Date:** 2026-09-18\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -144,7 +144,7 @@ This policy defines principles, governance structure, and control framework for 
 |---|---|---|---|---|
 | Governance and accountability | Clauses 5 to 7 | APO13.01 | GRC-06 | GDPR Art 5, PIPEDA Sch 1 Principle 1 (Accountability) |
 | Lawful processing and consent | Annex A.1.2.3 to A.1.2.5, A.2.2.2 to A.2.2.5 | DSS05 | DSP-12 | GDPR, PIPL, LGPD |
-| Data classification and handling | Annex A.3.5, A.3.7, A.3.20, A.3.26 | DSS01 | DSP-01 | ISO 8000-8, SOX, SOC 2 |
+| Data classification and handling | Annex A.3.5, A.3.7, A.3.20, A.3.26 | DSS01 | DSP-01, DSP-04 | ISO 8000-8, SOX, SOC 2 |
 | Cross-border data transfers | Annex A.1.5.2 to A.1.5.4, A.2.5.2 to A.2.5.3 | APO10 | DSP-10 | GDPR Ch V, APEC CBPR |
 | AI training data governance | N/A | APO14 | DSP-12 | ISO 8000-8, EU AI Act Art 53(1)(d) (Regulation (EU) 2024/1689) |
 | Data subject rights | Annex A.1.3.2 to A.1.3.11, A.2.3.2 | MEA01 | DSP-11 | GDPR Arts 15 to 22, PIPEDA Sch 1 Principle 9 (Individual Access) |

@@ -2,8 +2,8 @@
 
 **Document Title:** Data Subject Rights Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.6.19\
-**Date:** 2026-09-11\
+**Version:** 1.6.20\
+**Date:** 2026-09-18\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
@@ -374,7 +374,7 @@ The following metrics are tracked and reported to the CIO at the quarterly Priva
 
 | Control Area | Framework Reference |
 | --- | --- |
-| Data subject rights management | ISO/IEC 27701:2025 (PII principals' rights); CSA CCM v4.1 DSP-11 |
+| Data subject rights management | ISO/IEC 27701:2025 (PII principals' rights); CSA CCM v4.1 DSP-11, DSP-01 |
 | Access and transparency | GDPR Art. 15; UK GDPR Art. 15; PIPEDA Sch 1 Principle 9 (Individual Access); PIPL Art. 45; EDPB Guidelines 01/2022 on the right of access (v2.1) |
 | Correction and rectification | GDPR Art. 16; UK GDPR Art. 16; PIPEDA Sch 1 Principle 9 (amendment); PIPL Art. 46 |
 | Deletion and erasure | GDPR Art. 17; UK GDPR Art. 17 |
