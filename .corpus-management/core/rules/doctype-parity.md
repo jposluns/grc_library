@@ -1,0 +1,24 @@
+# Document-Type enumeration parity
+
+A corpus's allowed document-type vocabulary is defined canonically in one source of
+truth as two token categories, the type NAMES and their filename PREFIXES, and that
+same vocabulary is re-enumerated across many other surfaces. This check locks those
+enumerations to the canonical source: a surface that diverges is the failure, and the
+fix is to update the surface, never the check. It reconciles four categories. Two
+companion linter configurations are compared as sets: one doctype set must equal the
+canonical names exactly (both a missing and an extra token are findings), and the
+required-sections model's enforced keys must all be valid canonical types (a key not
+in the canonical set is a finding, while a type absent from the model is unconstrained
+by design). Every canonical name token must appear, within the surface's anchored
+enumeration region, as a bounded markdown table cell or a plain list item, a
+presence test robust against a coincidental prose mention of a common name word.
+Every canonical prefix token must appear as a substring within its surface's anchored
+region, prefixes being distinctive. Each name and prefix check is region-scoped to the
+specific table or list block that carries the vocabulary, so a token appearing in an
+unrelated table or link elsewhere on the surface cannot satisfy the presence test; an
+anchor that cannot be located on its surface is itself a hard parity failure, because
+the enumeration the check keys on is gone. The canonical source and its two token
+categories, the companion-config sets and their comparison modes, and the per-surface
+region anchors, labels, and finding-message templates are project configuration and
+are not part of this clause; a corpus whose surfaces each enumerate the full canonical
+vocabulary contributes no findings.

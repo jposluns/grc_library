@@ -273,3 +273,8 @@ target = ".claude/rules/corpus-management/narrative-metadata.md"
 rule = "index-header-parity"
 kind = "file"
 target = ".claude/rules/corpus-management/index-header-parity.md"
+
+[[owned_targets]]
+rule = "doctype-parity"
+kind = "file"
+target = ".claude/rules/corpus-management/doctype-parity.md"
