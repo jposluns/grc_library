@@ -36,9 +36,10 @@ A row leaves the ledger only via `FIXED`, `ROUTED`, `REFUTED`, or `ACCEPTED`.
 
 If the ledger is missing or unreadable this hook ALLOWS the action, because a guard that blocks all
 work on its own malfunction would be removed within a day, and a removed guard protects nothing. A
-single MALFORMED row within an otherwise-readable ledger is the exception: the parser forces it toward
-BLOCK (not open), so a stray unescaped pipe cannot silently disable the guard. The fail-open trade is
-deliberate: the ledger plus the convention are the primary control and this hook is defence
+single MALFORMED row (wrong column count, e.g. a stray unescaped pipe) UNDER `## Open` is the
+exception: the parser forces it toward BLOCK (not open), so it cannot silently disable the guard. (A
+malformed row under `## Closed today` or the dated archive is out of the Open-scoped scan, so it
+neither blocks nor fails open.) The fail-open trade is deliberate: the ledger plus the convention are the primary control and this hook is defence
 in depth. Conventions alone failed repeatedly on this axis in quick succession, which is why there is
 a hook at all.
 
