@@ -2,7 +2,7 @@
 
 **Document Title:** Financial Services Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.18\
+**Version:** 1.0.19\
 **Date:** 2026-09-18\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -135,7 +135,7 @@ DORA applies to the 20 categories of EU financial entities defined in DORA Artic
 | **Important Business Services identification** | Map all services important to customers and financial stability | [`operations/framework-it-service-management.md`](../../operations/framework-it-service-management.md): supplement with Important Business Services register |
 | **Impact tolerances** | Set maximum tolerable disruption for each Important Business Service (time and quality thresholds) | [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md); [`resilience/procedure-business-impact-analysis.md`](../../resilience/procedure-business-impact-analysis.md) |
 | **Mapping and testing** | Map people, processes, technology, facilities, and information supporting each service; stress test against disruption scenarios | [`resilience/procedure-continuity-and-recovery-testing.md`](../../resilience/procedure-continuity-and-recovery-testing.md); [`resilience/procedure-business-impact-analysis.md`](../../resilience/procedure-business-impact-analysis.md) |
-| **Self-assessment** | Annual self-assessment of operational resilience capability against impact tolerances | [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](../logistics/procedure-aeo-united-kingdom-self-assessment.md): adapt template |
+| **Self-assessment** | Annual self-assessment of operational resilience capability against impact tolerances | [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md): self-assess resilience capability against the framework |
 
 ### OSFI B-13 (Canada: FRFIs)
 

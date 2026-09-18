@@ -3749,7 +3749,7 @@ documents:
   domain: "compliance"
   type: "Annex"
   title: "Financial Services Sector GRC Requirements Annex"
-  version: "1.0.18"
+  version: "1.0.19"
   date: "2026-09-18"
   owner: "Chief Compliance Officer"
   approving_authority: "Governance Library Maintainer"
