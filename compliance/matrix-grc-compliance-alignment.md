@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.76\
+**Version:** 1.11.77\
 **Date:** 2026-09-18\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -277,7 +277,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 | ISO/IEC 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Privacy | Policy: Privacy and Data Governance | [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md) | DSP-01, DSP-02, DSP-03, DSP-04 | DSP-20, GRC-13 | A.5.34, A.8.11, A.8.12 | PR.DS | N/A | N/A | N/A | N/A | N/A |
-| Privacy | Procedure: Privacy Impact and Cross-Border Transfer | [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) | DSP-04, DSP-09, DSP-10 | GRC-10, DSP-21 | A.5.34 | PR.DS, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Procedure: Privacy Impact and Cross-Border Transfer | [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) | DSP-09, DSP-10 | GRC-10, DSP-21 | A.5.34 | PR.DS, ID.RA | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Privacy Management Programme Charter | [`privacy/charter-privacy-management-programme.md`](../privacy/charter-privacy-management-programme.md) | GRC-01, DSP-01, GRC-06 | N/A | A.5.34, A.5.31, §5.3 | N/A | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Children's Data Framework | [`privacy/framework-childrens-data.md`](../privacy/framework-childrens-data.md) | DSP-17, DSP-07, DSP-04 | GRC-10, GRC-15 | A.5.34, A.8.12 | PR.DS | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Consent Management Framework | [`privacy/framework-consent-management.md`](../privacy/framework-consent-management.md) | DSP-12, DSP-01, GRC-01 | N/A | A.5.34 | N/A | N/A | N/A | N/A | N/A | N/A |
@@ -290,7 +290,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Privacy | Privacy Jurisdiction Index | [`privacy/annex-privacy-jurisdiction-index.md`](../privacy/annex-privacy-jurisdiction-index.md) | GRC-01, GRC-07 | N/A | A.5.31, A.5.34 | N/A | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Data Protection and Privacy Breach Response Procedure | [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) | SEF-08, SEF-03, SEF-06 | N/A | A.5.34, A.5.26, A.6.8 | RS.MA, RS.CO, RC.RP | N/A | N/A | Trade-data breach response | N/A | N/A |
 | Privacy | Breach Notification Regulator Register Template | [`privacy/template-breach-notification-regulator-register.md`](../privacy/template-breach-notification-regulator-register.md) | SEF-08, GRC-07 | N/A | A.5.34, A.6.8 | RS.CO | N/A | N/A | N/A | N/A | N/A |
-| Privacy | Data Subject Rights Management Procedure | [`privacy/procedure-data-subject-rights-management.md`](../privacy/procedure-data-subject-rights-management.md) | DSP-11, DSP-01, DSP-06 | N/A | A.5.34, A.5.33 | PR.DS, ID.AM | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Data Subject Rights Management Procedure | [`privacy/procedure-data-subject-rights-management.md`](../privacy/procedure-data-subject-rights-management.md) | DSP-11, DSP-01 | N/A | A.5.34, A.5.33 | PR.DS, ID.AM | N/A | N/A | N/A | N/A | N/A |
 | Privacy | DPIA (Data Protection Impact Assessment) Template | [`privacy/template-dpia.md`](../privacy/template-dpia.md) | DSP-07, DSP-08, DSP-01 | GRC-10, GRC-11 | A.5.34, §6.1 | ID.RA, PR.DS | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Legitimate Interest Assessment (LIA) Template | [`privacy/template-legitimate-interest-assessment.md`](../privacy/template-legitimate-interest-assessment.md) | DSP-12, DSP-01, GRC-02 | N/A | A.5.34, §6.1 | ID.RA, PR.DS | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Data Subject Access Request Workflow Template | [`privacy/template-dsar-workflow.md`](../privacy/template-dsar-workflow.md) | DSP-11, DSP-01, DSP-06 | N/A | A.5.34, A.5.33 | PR.DS, ID.AM | N/A | N/A | N/A | N/A | N/A |
