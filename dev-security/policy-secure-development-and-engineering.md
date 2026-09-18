@@ -2,8 +2,8 @@
 
 **Document Title:** Secure Development and Engineering Policy\
 **Document Type:** Policy\
-**Version:** 1.0.17\
-**Date:** 2026-09-14\
+**Version:** 1.0.18\
+**Date:** 2026-09-18\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md)\
@@ -162,7 +162,8 @@ It incorporates forward-looking controls for AI-generated code verification.
 | OWASP ASVS v5 | V1 (encoding and sanitization), V2 (validation and business logic), V11 (cryptography), V13 (configuration and secret management), V15 (secure coding and architecture), V16 (security logging and error handling) | Secure coding requirements |
 | COBIT 2019 | BAI03: Managed Solutions Identification and Build | Solution design and build |
 | COBIT 2019 | BAI07: Managed IT Change Acceptance and Transitioning | Release and deployment controls |
-| CSA CCM v4.1 | AIS-04: Secure Application Development Lifecycle | Software engineering and security controls |
+| CSA CCM v4.1 | AIS-04: Secure Application Development Lifecycle; AIS-05: Application Security Testing; AIS-06: Secure Application Deployment | Software engineering and security controls |
+| CSA AICM v1.1 | AIS-12: Source Code Management | Version control and code review |
 | EU AI Act | Art 11 / Annex IV | Technical documentation for a high-risk AI system |
 
 ---

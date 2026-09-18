@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.78\
+**Version:** 1.11.79\
 **Date:** 2026-09-18\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -396,7 +396,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 | AI | AI Risk Register | [`ai/register-ai-risk.md`](../ai/register-ai-risk.md) | GRC-02, A&A-02, GRC-01 | GRC-10 | §6.1.2, §6.1.3, §8.2 | ID.RA | N/A | N/A | N/A | N/A | N/A |
 | AI | Model Context Protocol Server Register | [`ai/register-mcp-server.md`](../ai/register-mcp-server.md) | STA-08, AIS-08, IAM-15 | AIS-11, IAM-18 | A.5.19, A.8.9, A.8.15 | GV.SC, ID.AM, PR.AA | N/A | N/A | N/A | N/A | N/A |
 | AI | Model Registry | [`ai/register-model-registry.md`](../ai/register-model-registry.md) | DSP-03, GRC-02, STA-08 | MDS-03, MDS-09 | §8.1, A.5.9, A.8.32 | ID.AM, ID.RA | N/A | N/A | N/A | N/A | N/A |
-| AI | AI Access and Agent Permissions Standard | [`ai/standard-ai-access-and-agent-permissions.md`](../ai/standard-ai-access-and-agent-permissions.md) | IAM-01, IAM-09, IAM-15, AIS-08 | IAM-16, IAM-17, IAM-18, AIS-11 | A.5.15, A.5.16, A.5.17, A.5.18, A.8.2 | PR.AA, GV.RR, DE.CM | N/A | N/A | N/A | N/A | N/A |
+| AI | AI Access and Agent Permissions Standard | [`ai/standard-ai-access-and-agent-permissions.md`](../ai/standard-ai-access-and-agent-permissions.md) | IAM-01, IAM-09, IAM-15, AIS-08 | IAM-16, IAM-18, AIS-11 | A.5.15, A.5.16, A.5.17, A.5.18, A.8.2 | PR.AA, GV.RR, DE.CM | N/A | N/A | N/A | N/A | N/A |
 | AI | AI and Agentic Development Security Standard | [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md) | AIS-04, AIS-05, TVM-04, STA-09 | N/A | A.8.25, A.8.28, A.8.29, A.8.16 | PR.PS, ID.RA, DE.AE | N/A | N/A | N/A | N/A | N/A |
 | AI | AI Inference Cost Governance Standard | [`ai/standard-ai-inference-cost-governance.md`](../ai/standard-ai-inference-cost-governance.md) | GRC-02, LOG-03, STA-11, I&S-02 | N/A | A.5.30, A.8.6, A.5.20 | ID.AM, DE.AE | N/A | N/A | N/A | N/A | N/A |
 | AI | AI Model Risk Standard | [`ai/standard-ai-model-risk.md`](../ai/standard-ai-model-risk.md) | GRC-02, TVM-04, A&A-02, DSP-03 | MDS-06, MDS-10, MDS-12, DSP-20 | A.5.9, A.8.16, A.5.7, A.5.36 | ID.RA, DE.AE | N/A | N/A | N/A | N/A | N/A |
