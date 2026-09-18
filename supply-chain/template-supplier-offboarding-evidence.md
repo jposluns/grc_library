@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Offboarding Evidence Template\
 **Document Type:** Template\
-**Version:** 1.0.9\
-**Date:** 2026-09-01\
+**Version:** 1.0.10\
+**Date:** 2026-09-18\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/procedure-supplier-exit-and-data-return.md`](procedure-supplier-exit-and-data-return.md), [`supply-chain/standard-cloud-exit-and-data-portability.md`](standard-cloud-exit-and-data-portability.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md)\
@@ -66,7 +66,7 @@ It does not cover offboarding of individual personnel from a continuing supplier
 | Code repository | Repository access revoked; outstanding tokens revoked | | |
 | Customer-facing access | Removal from customer-data viewing surfaces if the supplier had any |  | |
 
-Access revocation target: within 24 hours of the formal offboarding declaration. Exceptions documented with rationale, time-limit, and remediation plan.
+Access revocation timing follows the governing supplier-exit procedure (step 5): logical and physical access on the exit date, shared secrets and API keys within 24 hours of exit, and network access controls within 2 business days; the exit type accelerates these, immediate on decision for a risk-driven or insolvency exit and immediate on notice for a regulatory-mandated exit. Exceptions documented with rationale, time-limit, and remediation plan.
 
 ### Section 3: Data return and destruction evidence
 
@@ -125,7 +125,7 @@ The certificate of destruction states: the items destroyed, the method (e.g. the
 
 ### Section 7: Post-exit review
 
-A short review within 30 business days of completion records:
+A short review within 30 days of completion records:
 
 1. What worked well in the offboarding process.
 2. Gaps identified (access not revoked timely; data return delays; documentation gaps).
