@@ -2,8 +2,8 @@
 
 **Document Title:** Security Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.30\
-**Date:** 2026-09-13\
+**Version:** 1.3.31\
+**Date:** 2026-09-18\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md), [`governance/standard-emergency-authority.md`](../governance/standard-emergency-authority.md), [`security/standard-monitoring-integrity-and-coverage.md`](standard-monitoring-integrity-and-coverage.md)\
@@ -188,7 +188,7 @@ Sector-programme notification obligations (for example, BASC requirements for tr
 
 ### 6.3 Sector-programme anomalies
 
-Where the organization participates in a sector programme that defines elevated-trigger anomaly categories (for example, BASC for cargo, customs, or trade systems with a 2-hour initial response SLA for unauthorized access to shipment data, tampering with customs records, or suspected cargo integrity compromise), the corresponding sector annex states the triage timeframe, the sector-conditional role notified, and the supplementary documentation maintained. See [`compliance/`](../compliance/).
+Where the organization participates in a sector programme that defines elevated-trigger anomaly categories (for example, BASC for cargo, customs, or trade systems with an organization-set 2-hour initial-response SLA for unauthorized access to shipment data, tampering with customs records, or suspected cargo integrity compromise), the corresponding sector annex states the triage timeframe, the sector-conditional role notified, and the supplementary documentation maintained. See [`compliance/`](../compliance/).
 
 ### 6.4 Notification confidentiality
 
