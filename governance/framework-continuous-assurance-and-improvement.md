@@ -2,8 +2,8 @@
 
 **Document Title:** Continuous Assurance and Improvement Framework\
 **Document Type:** Framework\
-**Version:** 1.1.4\
-**Date:** 2026-08-30\
+**Version:** 1.1.5\
+**Date:** 2026-09-18\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](../compliance/procedure-audit-planning.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md)\
@@ -183,7 +183,7 @@ Performance data from all assurance activities feed into the Governance Performa
 | ISO/IEC 27001:2022 | §10: Continual Improvement | Security assurance integration |
 | COBIT 2019 | MEA01: Managed Performance and Conformance Monitoring | Performance governance, digital trust |
 | ISACA DTEF (2024) | Digital-trust indicators (organization-defined) | Governance maturity metrics |
-| CSA CCM v4.1 | A&A-01, A&A-05: Audit and Assurance Policy and Procedures; Audit Management Process | Cloud control assurance |
+| CSA CCM v4.1 | A&A-01, A&A-05, A&A-02: Audit and Assurance Policy and Procedures; Audit Management Process; Independent Assessments | Cloud control assurance |
 | BASC v6 (2022) | Trade and Customs Assurance Governance | Regional trade compliance integration |
 
 ---
