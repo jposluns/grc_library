@@ -2,8 +2,8 @@
 
 **Document Title:** Human Capital and Ethical Conduct Framework\
 **Document Type:** Framework\
-**Version:** 1.0.11\
-**Date:** 2026-09-01\
+**Version:** 1.0.12\
+**Date:** 2026-09-18\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/standard-personnel-security-screening.md`](../security/standard-personnel-security-screening.md), [`security/procedure-onboarding-and-offboarding.md`](../security/procedure-onboarding-and-offboarding.md), [`governance/procedure-whistleblower-and-incident-reporting.md`](procedure-whistleblower-and-incident-reporting.md), [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md), [`ai/standard-ai-human-oversight.md`](../ai/standard-ai-human-oversight.md)\
@@ -115,6 +115,7 @@ Training completion is tracked and reported annually to the ERC and relevant com
 | OECD AI Principles (2019, updated 2024) | Human-centric, fair, accountable AI | Responsible AI training |
 | COBIT 2019 | APO07: Managed Human Resources | HR governance and competency |
 | CSA CCM v4.1 | HRS-09 Personnel Roles and Responsibilities; HRS-11 Security Awareness Training; HRS-13 Compliance User Responsibility | Workforce conduct, awareness, and compliance responsibility |
+| CSA AICM v1.1 | HRS-14 AI Competency Training | AI training programme for relevant personnel |
 | ISO/IEC 42001:2023 | Clause 7.2 Competence | AI human-oversight competency and training |
 
 ---
