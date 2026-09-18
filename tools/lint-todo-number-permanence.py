@@ -753,6 +753,13 @@ EXEMPT: dict[tuple[str, str], str] = {
         "(A37 restore, A1/A3 erosion backstops) remain live in P-TODO.md. Dated "
         "2026-09-17, after the 2026-07-15 rule."
     ),
+    ("P-1.36", "CONSIDER-INSTEAD hook-message form"): (
+        "PARTIAL CLOSE. PR #2366 reworded the 17 live blocking-hook messages to the "
+        "BLOCKED / WHY / CONSIDER-INSTEAD form (slice-2, the message-form reframe the "
+        "slice-1 entry above anticipated), against the still-open P-1.36 umbrella; later "
+        "slices (A37 restore, A1/A3 erosion backstops) remain live in P-TODO.md. Dated "
+        "2026-09-18, after the 2026-07-15 rule."
+    ),
     ("P-1.63", "stranded matrix CCM code fix (GRC-01 dropped)"): (
         "PARTIAL CLOSE. PR #2331 corrected the 2 GRC-01 stranded CCM codes "
         "(master-matrix rows 84/86 -> GRC-02) as the first verified increment of the "
