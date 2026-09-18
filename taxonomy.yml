@@ -7860,7 +7860,7 @@ documents:
   domain: "privacy"
   type: "Policy"
   title: "Privacy and Data Governance Policy"
-  version: "1.4.22"
+  version: "1.4.23"
   date: "2026-09-18"
   owner: "Data Protection Officer"
   approving_authority: "Governance Library Maintainer"
