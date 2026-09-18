@@ -498,11 +498,13 @@ def decide_exit(rows, ledger_text) -> int:
         misfiled = misfiled_finding_rows(ledger_text)
         if misfiled:
             lines = [
-                f"BLOCKED (mis-filed finding-row, P-1.70 part-2b): {len(misfiled)} finding-row(s) in "
-                f"{LEDGER_REL} sit OUTSIDE '## Open' / '## Closed today', so they are invisible to this "
-                "hook's disposition scan and would escape it. This PR must not open or merge until each "
-                "is moved into a scanned section (or, if a deliberate archive, its heading is a scanned "
-                "one / it does not carry the finding-row shape):",
+                f"BLOCKED (open-findings-misfiled, P-1.70 part-2b): {len(misfiled)} finding-row(s) in "
+                f"{LEDGER_REL} sit OUTSIDE '## Open' / '## Closed today'.\n"
+                "WHY: a row outside a scanned section is invisible to this hook's disposition scan, so "
+                "an undispositioned defect would escape the guard entirely.\n"
+                "CONSIDER-INSTEAD: move each row below into a scanned section ('## Open' or "
+                "'## Closed today'); if a row is a deliberate archive, give it a scanned heading or "
+                "remove the finding-row shape:",
             ]
             for _ln, _sec, _line in misfiled[:5]:
                 lines.append(f"  - line {_ln} (under {_sec or 'no scanned heading'}): {_line[:100]}")
@@ -514,16 +516,17 @@ def decide_exit(rows, ledger_text) -> int:
             return 2
         return 0
 
-    lines = [f"BLOCKED (open-findings guard): {len(errs)} error-severity finding(s) in {LEDGER_REL} "
+    lines = [f"BLOCKED (open-findings): {len(errs)} error-severity finding(s) in {LEDGER_REL} "
              "have no disposition, so this PR must not open or merge.", ""]
     for _s, finding, _d in errs[:5]:
         lines.append(f"  - {finding[:150]}")
     lines += ["",
-              "A finding that has been READ but not acted on is the most expensive state a defect can "
-              "be in, because the record shows it was found and the surface therefore reads as "
-              "examined. Give each row a disposition (FIXED / ROUTED / REFUTED / ACCEPTED) and move it "
-              "to '## Closed today'. Do NOT write a count or a summary about these first: turning live "
-              "defects into a statistic is the specific failure this guard exists to stop."]
+              "WHY: a finding READ but not acted on is the most expensive state a defect can be in, "
+              "because the record shows it was found and the surface therefore reads as examined "
+              "while the defect is still live.",
+              "CONSIDER-INSTEAD: give each row above a disposition (FIXED / ROUTED / REFUTED / "
+              "ACCEPTED) and move it to '## Closed today'; do NOT write a count or summary about them "
+              "first (turning live defects into a statistic is the specific failure this guard stops)."]
     print("\n".join(lines), file=sys.stderr)
     return 2
 
