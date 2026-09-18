@@ -760,6 +760,15 @@ EXEMPT: dict[tuple[str, str], str] = {
         "slices (A37 restore, A1/A3 erosion backstops) remain live in P-TODO.md. Dated "
         "2026-09-18, after the 2026-07-15 rule."
     ),
+    ("P-1.63", "matrix batch-5a"): (
+        "PARTIAL CLOSE. PR #2373 (dev-security/ai cluster) added 7 source-verified codes: AIS-12 to the "
+        "ai-coding-guideline code-review AICM cell; AIS-05/AIS-06 (CCM) + AIS-12 (new AICM row) to "
+        "policy-secure-development; IAM-16 (AICM) + IAM-01/IAM-15 (CCM) as 3 new rows to standard-ai-access. "
+        "Removed 1 matrix mis-fit (IAM-17 @399). Stranded 32->24. Deferred to residue: the column-style "
+        "structural rows (@352 AIS-04/05/07/TVM-06, @400 AIS-04), companion-guide routes (@384), moderate "
+        "adds (@399 AIS-08/IAM-09), and the CCM-vs-AICM-relabel maintainer questions. ~24 remain live in "
+        "P-TODO.md. Dated 2026-09-18, after the 2026-07-15 rule."
+    ),
     ("P-1.63", "matrix batch-4b"): (
         "PARTIAL CLOSE. PR #2372 added 4 AICM codes as 3 new AICM framework-table rows (HRS-14 human-"
         "capital, GRC-11/GRC-15 risk-policy, GRC-10 risk-standard); all AICM-only, non-structural (list-"
