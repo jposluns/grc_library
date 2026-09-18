@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.81\
+**Version:** 1.11.82\
 **Date:** 2026-09-18\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -60,7 +60,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Governance | Framework: Continuous Assurance and Improvement | [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md) | A&A-01, A&A-05, A&A-02 | GRC-14, GRC-12 | §9.1, §9.2, §10.1 | ID.IM, DE.CM | N/A | N/A | Trade and customs assurance governance | Pillar II (Customs-to-Business) | IT controls review and testing |
 | Governance | Framework: Document Architecture and Interrelationship | [`governance/framework-document-architecture-and-interrelationship.md`](../governance/framework-document-architecture-and-interrelationship.md) | GRC-01, GRC-03 | N/A | §7.5, A.5.1 | N/A | N/A | N/A | N/A | N/A | N/A |
 | Governance | Framework: Governance Performance and Improvement | [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md) | GRC-06, A&A-03, GRC-03 | GRC-14, GRC-11 | §9.1, §9.3, §10.1 | ID.IM | N/A | N/A | N/A | N/A | N/A |
-| Governance | Framework: Human Capital and Ethical Conduct | [`governance/framework-human-capital-and-ethical-conduct.md`](../governance/framework-human-capital-and-ethical-conduct.md) | HRS-09, HRS-11, HRS-13 | HRS-14, GRC-11 | A.6.3, A.5.4 | PR.AT | N/A | N/A | N/A | N/A | N/A |
+| Governance | Framework: Human Capital and Ethical Conduct | [`governance/framework-human-capital-and-ethical-conduct.md`](../governance/framework-human-capital-and-ethical-conduct.md) | HRS-09, HRS-11, HRS-13 | HRS-14 | A.6.3, A.5.4 | PR.AT | N/A | N/A | N/A | N/A | N/A |
 | Governance | Framework: Metrics, Monitoring and Performance Reporting | [`governance/framework-metrics-monitoring-and-performance-reporting.md`](../governance/framework-metrics-monitoring-and-performance-reporting.md) | GRC-02, LOG-03 | MDS-10, GRC-11, GRC-14 | §9.1, A.5.35 | ID.IM, DE.CM | N/A | N/A | Trade-security performance measurement | Pillar II (Customs-to-Business) | IT controls review and testing |
 | Governance | Framework: Sustainability and Responsible Technology | [`governance/framework-sustainability-and-responsible-technology.md`](../governance/framework-sustainability-and-responsible-technology.md) | STA-01 | GRC-10, GRC-11, GRC-12 | N/A | N/A | N/A | N/A | N/A | N/A | N/A |
 | Governance | Guideline: ESG and AI Ethics Disclosure | [`governance/guideline-esg-and-ai-ethics-disclosure.md`](../governance/guideline-esg-and-ai-ethics-disclosure.md) | N/A | GRC-14 | §7.4 | N/A | N/A | N/A | N/A | N/A | N/A |
@@ -111,7 +111,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Compliance | Standard: Internal Audit | [`compliance/standard-internal-audit.md`](standard-internal-audit.md) | A&A-01, A&A-02, A&A-03 | N/A | §9.2 | ID.IM | N/A | N/A | Norm §8.2 | N/A | N/A |
 | Compliance | Procedure: Audit Planning | [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md) | A&A-01, A&A-02 | N/A | §9.2 | ID.IM | N/A | N/A | Norm §8.2 | N/A | IT controls review and testing |
 | Compliance | Procedure: Corrective and Preventive Action (CAPA) | [`compliance/procedure-capa.md`](procedure-capa.md) | A&A-06 | N/A | §10.1, §10.2 | ID.IM | N/A | N/A | Norm §9.2 to §9.4 | N/A | N/A |
-| Compliance | Procedure: Control Testing | [`compliance/procedure-control-testing.md`](procedure-control-testing.md) | A&A-02, A&A-05 | N/A | §9.1 | DE.CM, ID.IM | N/A | N/A | N/A | N/A | N/A |
+| Compliance | Procedure: Control Testing | [`compliance/procedure-control-testing.md`](procedure-control-testing.md) | A&A-02, A&A-05 | N/A | §9.1 | ID.IM | N/A | N/A | N/A | N/A | N/A |
 | Compliance | Procedure: Mergers and Acquisitions Due Diligence | [`compliance/procedure-mergers-acquisitions-due-diligence.md`](procedure-mergers-acquisitions-due-diligence.md) | GRC-02, GRC-07, A&A-03 | N/A | §6.1, A.5.31 | ID.RA | N/A | N/A | N/A | N/A | N/A |
 | Compliance | Standard: Sanctions and Export-Control Screening | [`compliance/standard-sanctions-and-export-control-screening.md`](standard-sanctions-and-export-control-screening.md) | GRC-07, STA-13, IAM-04 | N/A | §4.1, A.5.31, A.5.33 | ID.RA | N/A | N/A | N/A | N/A | N/A |
 | Compliance | Register: Compliance Obligations Template | [`compliance/register-compliance-obligations-template.md`](register-compliance-obligations-template.md) | GRC-01, GRC-06, GRC-07 | N/A | §4.1, §4.2, A.5.31 | N/A | N/A | N/A | N/A | N/A | N/A |
