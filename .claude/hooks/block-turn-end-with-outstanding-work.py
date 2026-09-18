@@ -175,7 +175,9 @@ def decide(stop_hook_active: bool, escape: bool, branches: list) -> str | None:
         return None
     if not branches:
         return None
-    lines = ["BLOCKED (turn-end guard): work is outstanding, so this is not a place to yield.", ""]
+    lines = ["BLOCKED (turn-end-outstanding-work): a turn-end yield while unmerged work is outstanding.",
+             "WHY: an unmerged branch ahead of main is real outstanding work; yielding here strands it "
+             "for the next session to untangle.", ""]
     if branches:
         lines.append("  Branches ahead of main and not recorded as held (%d):" % len(branches))
         lines += ["    - %s (+%s)" % (n, a) for n, a in branches[:8]]
@@ -186,7 +188,8 @@ def decide(stop_hook_active: bool, escape: bool, branches: list) -> str | None:
                                    else "the held-branches file (resolved via lint_common.resolve_working)"))
     lines += [
         "",
-        "  If this is a genuine block (CI, a maintainer decision, an external wait), say so and:",
+        "  CONSIDER-INSTEAD: merge the branch(es) above, or record the hold with its reason in the "
+        "held-branches file. For a genuine block (CI, a maintainer decision, an external wait), say so and:",
         f"      touch {ESCAPE_FILE}     # honoured once, then deleted",
     ]
     return "\n".join(lines)

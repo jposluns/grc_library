@@ -178,11 +178,13 @@ def write_alert(model: str) -> None:
 
 def _message(model: str) -> str:
     return (
-        f"MAINTAINER ALERT (block-opus5): the orchestrator is running on `{model}` (Opus 5). "
-        f"Per maintainer directive 2026-08-21, HALT IMMEDIATELY: do not run this tool or any further "
-        f"orchestrator work. Tell the maintainer to swap the session to a better working model "
-        f"(e.g. Opus 4.8 / claude-opus-4-8), then re-resume. An OPEN alert was written to "
-        f"grc_library_scratch/MAINTAINER_ALERT.md if that sibling is present."
+        f"BLOCKED (opus5-orchestrator-model): the orchestrator is running on `{model}` (Opus 5), "
+        f"and this tool call is halted (maintainer directive 2026-08-21).\n"
+        f"WHY: Opus 5 is a banned working model for the orchestrator; running orchestrator work on "
+        f"it is prohibited.\n"
+        f"CONSIDER-INSTEAD: tell the maintainer to swap the session to a supported model "
+        f"(e.g. Opus 4.8 / claude-opus-4-8), then re-resume. MAINTAINER ALERT: an OPEN alert was "
+        f"written to grc_library_scratch/MAINTAINER_ALERT.md if that sibling is present."
     )
 
 
