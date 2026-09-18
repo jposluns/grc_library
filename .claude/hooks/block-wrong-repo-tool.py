@@ -174,10 +174,11 @@ def decide(command: str, project_dir: str) -> tuple[bool, str]:
                  f"(absolute), not a cd-prefixed cwd-relative invocation."
                  for t, repo in flagged]
         reason = (
-            "BLOCKED (absolute-path guardrail, P-1.19): the standing directive is "
-            "ABSOLUTE PATHS BY DEFAULT (grc_library_private/INDEX.md); a cd-prefixed "
-            "cwd-relative repo tool runs via the ambient cwd instead of an absolute path. "
-            "Use the absolute form:\n" + "\n".join(lines)
+            "BLOCKED (wrong-repo-tool-abspath, P-1.19): a cd-prefixed cwd-relative repo tool.\n"
+            "WHY: the standing directive is ABSOLUTE PATHS BY DEFAULT "
+            "(grc_library_private/INDEX.md); a cd-prefixed cwd-relative tool runs via the "
+            "ambient cwd, which drifts, instead of an absolute path.\n"
+            "CONSIDER-INSTEAD: use the absolute form:\n" + "\n".join(lines)
             + "\n(cd is reserved for a genuine cwd-guard tool: "
             + ", ".join(sorted(CWD_GUARD_ALLOWLIST)) + ".)")
         return True, reason
@@ -209,10 +210,12 @@ def decide(command: str, project_dir: str) -> tuple[bool, str]:
                 for tool, where in hits
             ]
             reason = (
-                "BLOCKED (wrong-repo guardrail): a cwd-relative `tools/<x>` that is NOT in "
-                f"`{project_name}` but lives in a sibling repo would fail file-not-found from "
-                "this cwd (the credit-offload-queue-from-the-wrong-repo slip). Use an absolute "
-                "path (or an explicit `cd <repo> &&`):\n" + "\n".join(lines))
+                "BLOCKED (wrong-repo-tool-sibling): a cwd-relative `tools/<x>` that is NOT in "
+                f"`{project_name}` but lives in a sibling repo.\n"
+                "WHY: it would fail file-not-found from this cwd "
+                "(the credit-offload-queue-from-the-wrong-repo slip).\n"
+                "CONSIDER-INSTEAD: run it cwd-independently with an absolute path (or an "
+                "explicit `cd <repo> &&`):\n" + "\n".join(lines))
             return True, reason
 
     # (2) A repo-MUTATING bare `git` (no `-C <path>`, no `cd`): it stages/commits/pushes
@@ -222,10 +225,12 @@ def decide(command: str, project_dir: str) -> tuple[bool, str]:
     # not in the mutating set, and `git -C <path>` is exempt via the regex lookahead.
     if _GIT_MUTATE.search(command):
         reason = (
-            "BLOCKED (repo-target guardrail): a repo-mutating `git` command without `-C <path>` "
-            "acts on whatever repo the ambient cwd is, risking a stage/commit/push against the "
-            "WRONG repo (the 2026-07-24 `git add -A`-in-scratch near-miss). Use "
-            "`git -C <absolute-repo-path> <subcommand> ...`, or an explicit `cd <repo-root> &&`.")
+            "BLOCKED (wrong-repo-git): a repo-mutating `git` command with no `-C <path>`.\n"
+            "WHY: it acts on whatever repo the ambient cwd is, risking a stage/commit/push "
+            "against the WRONG repo (the 2026-07-24 `git add -A`-in-scratch near-miss), and a "
+            "wrong-repo commit is SILENT.\n"
+            "CONSIDER-INSTEAD: use `git -C <absolute-repo-path> <subcommand> ...`, or an explicit "
+            "`cd <repo-root> &&`.")
         return True, reason
     return False, ""
 
@@ -309,7 +314,7 @@ def _self_test() -> int:
             block, reason = decide(
                 "cd ../grc_library && bash tools/run_all_audits.sh", self.pd)
             self.assertTrue(block)
-            self.assertIn("absolute-path guardrail", reason)
+            self.assertIn("wrong-repo-tool-abspath", reason)
 
         def test_cd_allowlist_tool_allowed(self):
             # P-1.19: cd + a cwd-guard allow-list tool stays allowed.

@@ -83,11 +83,13 @@ def decide(file_path: str, project_dir: str) -> tuple[bool, str]:
     if branch in _MAIN_BRANCHES:
         rel = target.relative_to(proj)
         reason = (
-            "BLOCKED (branch-to-main edit guard): this edit targets a `grc_library` file "
-            f"(`{rel}`) while the repo is on `{branch}`, but `main` is PR-only, edits belong on a "
-            "feature branch. Run `git -C {proj} checkout -b claude/<name>` first, then re-apply "
-            "the edit. (If you genuinely intend to edit a SIBLING repo, use its absolute path so "
-            "the target resolves outside `grc_library`.)"
+            "BLOCKED (branch-to-main-edit): an edit to a `grc_library` file "
+            f"(`{rel}`) while the repo is on `{branch}`.\n"
+            "WHY: `main` is PR-only; edits belong on a feature branch, and an edit on `main` "
+            "is essentially never intended.\n"
+            "CONSIDER-INSTEAD: run `git -C {proj} checkout -b claude/<name>` first, then "
+            "re-apply the edit. (If you genuinely intend to edit a SIBLING repo, use its "
+            "absolute path so the target resolves outside `grc_library`.)"
         ).replace("{proj}", str(proj))
         return True, reason
     return False, ""
