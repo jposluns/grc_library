@@ -68,7 +68,7 @@ Fill significant gaps: deepen thin-but-present content to operational sufficienc
 | 2.15 | Landing-page standards list: link each item to its authoritative source, MOVED to 2.25.2 (M, S-M) | `[public]` |
 | 2.21 | Further AI-jurisdiction annexes (M, L; partly source-gated) | `[public]` |
 | 2.25 | Governance traceability and coverage expansion (umbrella; H, XL) | `[content+machinery]` `[public]` |
-| 2.25.3 | Canadian public-sector authority coverage (consolidated with 2.22; CANADA-PRIORITY, H, L) | `[content]` `[public]` |
+| 2.25.3 | Canadian public-sector authority coverage (CANADA-PRIORITY, H, L) | `[content]` `[public]` |
 | 2.25.4 | AI assurance and evaluation content (H, L) | `[content]` `[public]` |
 | 2.35 | Populate the governance relationship-model source with real corpus relationships (M, M) | `[content]` `[public]` |
 | 2.26.1 | OSCAL adoption decision and model-scope lock (H, S) | `[machinery]` `[public]` |
@@ -78,9 +78,9 @@ Fill significant gaps: deepen thin-but-present content to operational sufficienc
 | 2.26.5 | OSCAL profiles and crosswalks for framework alignments (M, L) | `[machinery]` `[public]` |
 | 2.28 | AI jurisdiction annex + ref ingest: Singapore Model AI Governance Framework for Agentic AI (M, M) | `[content]` `[public]` |
 | 2.29 | Latin-American privacy jurisdiction annexes + corpus alignment for the newly-held primaries (M, M) | `[content]` `[public]` |
-| 2.25.2 | Control-to-policy-instrument coverage: international AI-governance authorities (consolidated with 2.15; M, M) | `[content]` `[public]` |
+| 2.25.2 | Control-to-policy-instrument coverage: international AI-governance authorities (M, M) | `[content]` `[public]` |
 | 2.26 | OSCAL machine-readable representation (umbrella; H, XL) | `[machinery]` `[public]` |
-| 2.33 | Canada-specific executive/jurisdiction document series (maintainer-directed 2026-08-17; content) | `[public]` |
+| 2.33 | Canada-specific executive/jurisdiction document series (content) | `[public]` |
 | 2.34 | Workforce monitoring and network-telemetry compliance suite (umbrella; H, L) | `[content]` `[public]` |
 | 2.34.9 | Citations import for 2.34 (NIST Privacy Framework registered #1972; WP249, ICO Monitoring-workers, ILO + Council of Europe workplace-monitoring recommendations remain egress-blocked and in the maintainer-egress queue, pending console-upload before source-verification and registration) | `[content]` `[public]` |
 | 3.14 | ETSI Securing-AI alignment map (L, M) | `[public]` |
