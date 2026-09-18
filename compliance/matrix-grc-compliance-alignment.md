@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.79\
+**Version:** 1.11.80\
 **Date:** 2026-09-18\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -80,7 +80,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 
 | Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 | ISO/IEC 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Risk | Policy: Enterprise Governance and Risk Management | [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) | GRC-01, GRC-02, GRC-03 | MDS-10, GRC-11, GRC-15 | §5.1, §5.3, §6.1, §6.2 | ID.RA | N/A | Programme governance | Norm §5; Norm §6.1 | N/A | Management commitment; Risk management |
+| Risk | Policy: Enterprise Governance and Risk Management | [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) | GRC-01, GRC-02 | MDS-10, GRC-11, GRC-15 | §5.1, §5.3, §6.1, §6.2 | ID.RA | N/A | Programme governance | Norm §5; Norm §6.1 | N/A | Management commitment; Risk management |
 | Risk | Standard: Enterprise Risk Management | [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md) | GRC-02 | GRC-10, GRC-13, MDS-10 | §6.1.1, §6.1.2, §6.1.3, §8.2, §8.3 | ID.RA | N/A | Risk assessment | Norm §6.1 | N/A | IT security risk management; Risk management |
 | Risk | Standard: Third-Party and Supply Chain Risk | [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md) | STA-01 | MDS-04 | A.5.19, A.5.20, A.5.21, A.5.22 | GV.SC | Business partner requirements | Third-party security | Norm §6.1; Sec Std §1.1 | Pillar II (Customs-to-Business; Standard 6) | Business partners; IT security risk management |
 | Risk | Procedure: Risk Assessment Methodology | [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md) | GRC-02 | N/A | §6.1.1, §6.1.2, §6.1.3, §8.2, §8.3 | ID.RA | N/A | Risk assessment | Norm §6.1 | N/A | IT security risk management |
@@ -361,7 +361,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Dev-security | Developer Security Requirements | [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md) | AIS-02, AIS-05, CEK-01, IAM-13, TVM-04 | N/A | A.8.28, A.8.25, A.5.17, A.8.24, A.8.8 | PR.PS, PR.AA, ID.RA | N/A | N/A | N/A | N/A | N/A |
 | Dev-security | DevOps Security Requirements | [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md) | CCC-01, CCC-04, I&S-05, I&S-04 | N/A | A.8.25, A.8.27, A.8.31, A.8.32 | PR.PS, PR.AA, ID.RA | N/A | N/A | N/A | N/A | N/A |
 | Dev-security | Mobile Application Security Standard | [`dev-security/standard-mobile-application-security.md`](../dev-security/standard-mobile-application-security.md) | UEM-01, AIS-05, CEK-03, IAM-13, AIS-04 | N/A | A.8.26, A.8.25, A.8.28, A.8.24 | PR.DS, PR.AA, PR.PS | N/A | N/A | N/A | N/A | N/A |
-| Dev-security | Quality Assurance and Testing Standard | [`dev-security/standard-quality-assurance-and-testing.md`](../dev-security/standard-quality-assurance-and-testing.md) | CCC-02, AIS-05, CCC-01, TVM-07, AIS-07 | N/A | A.8.29, A.8.31, A.8.32 | PR.PS, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Dev-security | Quality Assurance and Testing Standard | [`dev-security/standard-quality-assurance-and-testing.md`](../dev-security/standard-quality-assurance-and-testing.md) | CCC-02, AIS-05, TVM-07, AIS-07 | N/A | A.8.29, A.8.31, A.8.32 | PR.PS, ID.RA | N/A | N/A | N/A | N/A | N/A |
 | Dev-security | Security Baseline and Standards Reference | [`dev-security/standard-security-baseline-and-standards-reference.md`](../dev-security/standard-security-baseline-and-standards-reference.md) | GRC-01, GRC-05, IAM-01, DSP-01, CEK-01, LOG-01 | N/A | A.5.1, A.5.12, A.5.15, A.8.15, A.8.24 | GV.OC, PR.AA, DE.CM, PR.DS | N/A | N/A | N/A | N/A | N/A |
 | Dev-security | Security Quick Reference | [`dev-security/standard-security-quick-reference.md`](../dev-security/standard-security-quick-reference.md) | IAM-01, CEK-03, DSP-01, TVM-01, CCC-01, AIS-05 | N/A | A.5.15, A.5.12, A.8.24, A.8.8, A.8.32 | PR.AA, PR.DS, PR.PS | N/A | N/A | N/A | N/A | N/A |
 | Dev-security | Software Composition Analysis Standard | [`dev-security/standard-software-composition-analysis.md`](../dev-security/standard-software-composition-analysis.md) | STA-09, TVM-06, TVM-08, TVM-03 | N/A | A.8.8, A.5.21 | ID.AM, GV.SC, ID.RA | N/A | N/A | N/A | N/A | N/A |
