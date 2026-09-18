@@ -745,6 +745,21 @@ EXEMPT: dict[tuple[str, str], str] = {
         "reword and the warn-to-block posture decision remain. Dated 2026-09-05, after the "
         "2026-07-15 rule."
     ),
+    ("P-1.36", "grc-machinery guardrail inventory-and-classify"): (
+        "PARTIAL CLOSE. The 2026-09-17 audit-deliverable slice-1 (bounded "
+        "inventory-and-classify: mechanical-vs-prose backstop coverage + the 17 "
+        "blocking-hook message-form conformance pass) closed against the still-open "
+        "P-1.36 umbrella; slice-2 (blocking-hook message-form reframe) and later slices "
+        "(A37 restore, A1/A3 erosion backstops) remain live in P-TODO.md. Dated "
+        "2026-09-17, after the 2026-07-15 rule."
+    ),
+    ("P-1.63", "stranded matrix CCM code fix (GRC-01 dropped)"): (
+        "PARTIAL CLOSE. PR #2331 corrected the 2 GRC-01 stranded CCM codes "
+        "(master-matrix rows 84/86 -> GRC-02) as the first verified increment of the "
+        "still-open P-1.63 SCAN-FIRST stranded/fabricated-code umbrella; the 73 remaining "
+        "stranded candidates (audit-stranded-matrix-code.py) plus part (d) gate-flip "
+        "remain live in P-TODO.md. Dated 2026-09-17, after the 2026-07-15 rule."
+    ),
 }
 
 
