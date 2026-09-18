@@ -327,3 +327,9 @@ id = "index-header-parity"
 title = "Index-header parity (the document-index register mirrors each active document's Owner and Review Frequency from that document's own header)"
 source = "core/rules/index-header-parity.md"
 origin = "grc_library tools/lint-index-header-parity.py gate rationale (new clause in the Group-A content-generic transfer lane; cadence_tokens + find_index_table + check_row + collect_findings plus the generic review-cadence recognizer + the code-span-link regex are the engine; the grc index register schema (index rel path, 8-column header, column indices, Owner/Review Frequency metadata field names) + the per-document base-cadence allow-list + --root/--strict-owner handling + the environmental exits + reporting are wrapper config)"
+
+[[clauses]]
+id = "doctype-parity"
+title = "Document-Type enumeration parity (the allowed document-type vocabulary defined in one source of truth is faithfully re-enumerated across every surface that restates it)"
+source = "core/rules/doctype-parity.md"
+origin = "grc_library tools/lint-doctype-parity.py gate rationale (new clause in the Group-A content-generic transfer lane; name_is_cell + doctype_region + the four-category reconciliation collect_findings plus the cell/item regex are the engine; the canonical source + its two token categories, the two companion-config sets + comparison modes, the per-surface region anchors + labels + message templates, and the FAIL/summary/OK reporting are wrapper config)"

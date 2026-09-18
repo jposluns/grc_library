@@ -1,56 +1,51 @@
 #!/usr/bin/env python3
-"""Gate 67: Document-Type enumeration parity audit.
+"""Document-Type enumeration parity audit - grc wrapper over the pack-owned engine.
 
 The allowed Document-Type set is defined canonically in
 [`tools/lint-metadata.py`](lint-metadata.py) as `ALLOWED_TYPES` (the type names)
 and `TYPE_TO_PREFIX` (the filename prefixes). That same set is RE-ENUMERATED
-across many other surfaces, and nothing checked that the enumerations agree:
+across many other surfaces, and this gate checks that the enumerations agree:
 
   - a second linter's doctype set (`tools/lint-filename-title-alignment.py`, profile-loaded
-    and read via `_alignment_config()` since Phase-4 PR-E);
-  - the master-spec section 4.3 Type-to-prefix table;
-  - the ingestion spec's allowed-type list;
-  - the AI-ingestion instruction's type list + prefixes;
-  - the two governance `Document hierarchy` tables (the charter and the
-    document-architecture framework);
-  - the README `## Document types` table;
-  - the CONTRIBUTING filename-prefix list.
-
-When a new type was added (the #711 "Principle" case), it was registered in
-`lint-metadata.py` but silently omitted from those surfaces, and 66/66 stayed
-green because no gate cross-checked them; #711 shipped the gap and #712 fixed it.
-This gate closes that gate-blind class: every canonical type name (as a table
-cell / list item) and every canonical prefix must be present on the surface that
-enumerates it, and the second linter's set must equal the canonical set exactly.
+    and read via `_alignment_config()`);
+  - the required-sections linter's enforced keys (must all be valid canonical types);
+  - the README `## Document types` table, the ingestion spec allowed-type list, the two
+    governance `Document hierarchy` tables (name surfaces);
+  - the master-spec section 4.3 Type-to-prefix table, the AI-ingestion instruction, the
+    CONTRIBUTING filename-prefix list (prefix surfaces).
 
 The gate treats `lint-metadata.py` as the single source of truth; a surface that
 diverges is the failure, and the fix is to update the surface, never the gate.
 
-Region-scoping (added in #729): the name-cell and prefix checks are scoped to
-each surface's specific doctype table/list block, not the whole file, via
-`doctype_region` and the per-surface `NAME_REGION_ANCHOR` / `PREFIX_REGION_ANCHOR`
-maps. Each anchor is a heading (the block runs to the next same-or-shallower
-heading) or, for the heading-less AI-ingestion numbered list, the distinctive
-prefix-list line. This closes the former latent false-pass vector (a canonical type
-word appearing as a cell in an UNRELATED table on a name-surface, or a prefix
-appearing in a document-link filename elsewhere on a prefix-surface, satisfying the
-presence check even if the actual doctype table omitted it). An anchor that cannot
-be located on its surface is itself a hard parity failure (the enumeration the gate
-keys on is gone).
+Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE check
+(`name_is_cell`, `doctype_region`, the four-category reconciliation `collect_findings`)
+plus the generic cell/item regex live in the pack-owned engine
+(.corpus-management/tools/gate_lint_doctype_parity.py, source of record). This wrapper
+supplies ALL grc schema and vocabulary: the canonical source (`canonical_sets` loads
+`lint-metadata.py`), the two cross-gate config reads (`_alignment_config()` /
+`_sections_config()`), the 7 surface reads, the per-surface region anchors and labels,
+and every finding-message TEMPLATE (so the engine hard-codes no grc word). The wrapper
+re-exports `name_is_cell` / `doctype_region` and keeps `canonical_sets` +
+`NAME_REGION_ANCHOR` / `PREFIX_REGION_ANCHOR` as module attributes so the importlib
+direct-load regression (tests/test_linters.py DoctypeParityTests, which monkeypatches
+`canonical_sets` and calls the helpers) keeps working; `main()` stays no-arg.
 
-Exit 0 clean, exit 1 on any parity break; prints every break with its surface and
-the missing token(s).
+Region-scoping (#729): each name/prefix check is scoped to the surface's specific
+doctype table/list block via the anchor maps below, closing the former out-of-region
+false-pass vector. An absent anchor is itself a hard parity failure.
+
+Exit 0 clean, exit 1 on any parity break.
 """
 
 from __future__ import annotations
 
 import importlib.util
-import re
 import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TOOLS = REPO_ROOT / "tools"
+PACK_TOOLS = REPO_ROOT / ".corpus-management" / "tools"
 
 
 def _load_module(path: Path):
@@ -62,8 +57,24 @@ def _load_module(path: Path):
     return mod
 
 
+def _engine():
+    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_doctype_parity  # the pack-owned engine (source of record)
+    return gate_lint_doctype_parity
+
+
+# Re-export the pure helpers as module attributes so the importlib direct-load
+# regression can call mod.name_is_cell / mod.doctype_region.
+name_is_cell = _engine().name_is_cell
+doctype_region = _engine().doctype_region
+
+
 def canonical_sets():
-    """Return (names, prefixes) from lint-metadata.py, the source of truth."""
+    """Return (names, prefixes) from lint-metadata.py, the source of truth.
+    Kept a module-global (monkeypatched by the synthetic-missing-type test)."""
     meta = _load_module(TOOLS / "lint-metadata.py")
     names = set(meta.ALLOWED_TYPES)
     prefixes = set()
@@ -76,24 +87,10 @@ def read(rel: str) -> str:
     return (REPO_ROOT / rel).read_text(encoding="utf-8")
 
 
-def name_is_cell(text: str, name: str) -> bool:
-    """True if `name` appears as a bounded markdown table cell `| name |` or a
-    plain list item `- name`. Both forms are robust against a coincidental
-    prose mention of a common type word (Guide, Standard, Plan, ...)."""
-    if re.search(r"\|\s*" + re.escape(name) + r"\s*\|", text):
-        return True
-    if re.search(r"^-\s+" + re.escape(name) + r"\s*$", text, re.M):
-        return True
-    return False
-
-
-# Per-surface doctype-region anchors (#729). Each enumeration check is scoped
-# to the specific table/list block that carries the doctype vocabulary, not the
-# whole file, so a coincidental type word in an UNRELATED table (name-surfaces) or
-# a prefix inside a document-link filename elsewhere on the surface (prefix-
-# surfaces) cannot satisfy the presence check. An anchor is a heading (the block
-# runs to the next same-or-shallower heading) or, for the heading-less AI-ingestion
-# numbered list, the distinctive prefix-list line.
+# Per-surface doctype-region anchors (#729). Module-level so the anchor-resolution
+# regression can iterate them. Each anchor is a heading (block runs to the next
+# same-or-shallower heading) or, for the heading-less AI-ingestion numbered list,
+# the distinctive prefix-list line.
 NAME_REGION_ANCHOR = {
     "README.md": ("heading", "## Document types"),
     "specification-ingestion.md": ("heading", "## Document types"),
@@ -109,129 +106,99 @@ PREFIX_REGION_ANCHOR = {
 }
 
 
-def doctype_region(text: str, anchor: tuple) -> str | None:
-    """Extract a surface's doctype-enumeration region. Returns None if the anchor
-    is absent (a hard parity failure: the region the gate keys on is gone). For a
-    `heading` anchor, the block runs from the heading line to the next heading of
-    the same or shallower level. For a `phrase` anchor (the heading-less
-    AI-ingestion numbered list), the single line containing the phrase (its prefix
-    list is one list item)."""
-    kind, value = anchor
-    if kind == "heading":
-        level = len(value) - len(value.lstrip("#"))
-        out: list[str] = []
-        capturing = False
-        for ln in text.splitlines():
-            if ln.strip() == value:
-                capturing = True
-                continue
-            if capturing:
-                stripped = ln.lstrip("#")
-                depth = len(ln) - len(stripped)
-                if ln.startswith("#") and 1 <= depth <= level and ln[depth:depth + 1] == " ":
-                    break
-                out.append(ln)
-        return "\n".join(out) if capturing else None
-    if kind == "phrase":
-        for ln in text.splitlines():
-            if value in ln:
-                return ln
-        return None
-    return None
-
-
 def main() -> int:
     names, prefixes = canonical_sets()
-    failures: list[str] = []
 
-    # Check 1: the second linter's doctype set (profile-loaded, read via
-    # _alignment_config()) must equal the canonical names, compared
-    # case-insensitively (the doctype set is lowercase; ALLOWED_TYPES is CamelCase).
+    # Check 1: the second linter's doctype set (profile-loaded via _alignment_config())
+    # must equal the canonical names, compared case-insensitively (the doctype set is
+    # lowercase; ALLOWED_TYPES is CamelCase).
     fta = _load_module(TOOLS / "lint-filename-title-alignment.py")
     canon_lower = {n.lower() for n in names}
-    # PR-E: the doctype set is profile-loaded; read the composed config via the
-    # wrapper's _alignment_config() (returns (synonyms, doctypes)), not a module
-    # constant. Fails loud on a broken profile.
     doctypes = set(fta._alignment_config()[1])
-    missing = canon_lower - doctypes
-    extra = doctypes - canon_lower
-    if missing:
-        failures.append(
-            "tools/lint-filename-title-alignment.py alignment doctypes (from "
-            "defaults/grc/alignment.toml) is missing "
-            f"canonical type(s): {sorted(missing)}"
-        )
-    if extra:
-        failures.append(
-            "tools/lint-filename-title-alignment.py alignment doctypes (from "
-            "defaults/grc/alignment.toml) has type(s) not in "
-            f"lint-metadata.py ALLOWED_TYPES: {sorted(extra)}"
-        )
 
-    # Check 2: the required-sections linter's enforced keys must all be valid
-    # canonical types (a stale/bogus key would silence or misapply the section
-    # rule). Types absent from its map are not-enforced BY DESIGN, so absence is
-    # not a failure; an invalid key is.
+    # Check 2: the required-sections linter's enforced keys must all be valid canonical
+    # types (types absent from its map are not-enforced BY DESIGN; an invalid key fails).
     rs = _load_module(TOOLS / "lint-required-sections.py")
-    # PR-C: the section model is profile-loaded; read the composed config, not
-    # a module constant (getattr-with-{} default would vacuous-pass on the
-    # removed literal). _sections_config() fails loud on a broken profile.
     rs_keys = set(rs._sections_config().keys())
-    rs_bad = rs_keys - names
-    if rs_bad:
-        failures.append(
-            "tools/lint-required-sections.py section model (_sections_config, from "
-            "defaults/grc/sections.toml) has doctype key(s) not in "
-            f"lint-metadata.py ALLOWED_TYPES: {sorted(rs_bad)}"
-        )
 
-    # Check 3: name-cell surfaces. Every canonical type name must appear as a
-    # table cell or list item in the surface's DOCTYPE REGION (region-scoped per
-    # #729 to its enumeration block, so a type word in an unrelated table
-    # elsewhere on the surface cannot false-pass the presence check).
-    name_surfaces = {
+    set_checks = [
+        {
+            "actual": doctypes,
+            "canonical": canon_lower,
+            "mode": "equal",
+            "missing_template": (
+                "tools/lint-filename-title-alignment.py alignment doctypes (from "
+                "defaults/grc/alignment.toml) is missing canonical type(s): {tokens}"
+            ),
+            "extra_template": (
+                "tools/lint-filename-title-alignment.py alignment doctypes (from "
+                "defaults/grc/alignment.toml) has type(s) not in "
+                "lint-metadata.py ALLOWED_TYPES: {tokens}"
+            ),
+        },
+        {
+            "actual": rs_keys,
+            "canonical": names,
+            "mode": "extra_only",
+            "extra_template": (
+                "tools/lint-required-sections.py section model (_sections_config, from "
+                "defaults/grc/sections.toml) has doctype key(s) not in "
+                "lint-metadata.py ALLOWED_TYPES: {tokens}"
+            ),
+        },
+    ]
+
+    name_labels = {
         "README.md": "README `## Document types` table",
         "specification-ingestion.md": "the ingestion spec allowed-type list",
         "governance/charter-governance-library.md": "the charter `Document hierarchy` table",
         "governance/framework-document-architecture-and-interrelationship.md":
             "the document-architecture `Document hierarchy` table",
     }
-    for rel, label in name_surfaces.items():
-        region = doctype_region(read(rel), NAME_REGION_ANCHOR[rel])
-        if region is None:
-            failures.append(
+    name_surfaces = []
+    for rel, label in name_labels.items():
+        anchor = NAME_REGION_ANCHOR[rel]
+        name_surfaces.append({
+            "text": read(rel),
+            "anchor": anchor,
+            "anchor_absent_msg": (
                 f"{rel} ({label}): the doctype-region anchor "
-                f"{NAME_REGION_ANCHOR[rel][1]!r} is absent (cannot locate the enumeration)"
-            )
-            continue
-        absent = sorted(n for n in names if not name_is_cell(region, n))
-        if absent:
-            failures.append(
-                f"{rel} ({label}) omits type name(s) as a cell/item in its doctype region: {absent}"
-            )
+                f"{anchor[1]!r} is absent (cannot locate the enumeration)"
+            ),
+            "omit_template": (
+                f"{rel} ({label}) omits type name(s) as a cell/item in its "
+                f"doctype region: {{tokens}}"
+            ),
+        })
 
-    # Check 4: prefix-presence surfaces. Every canonical prefix must appear in the
-    # surface's DOCTYPE REGION (region-scoped per #729, so a prefix inside a
-    # document-link filename elsewhere on the surface cannot false-pass; prefixes
-    # are distinctive, so substring presence within the region is robust).
-    prefix_surfaces = {
+    prefix_labels = {
         "specification-master-project.md": "the master-spec section 4.3 Type-to-prefix table",
         "instruction-ai-document-ingestion.md": "the AI-ingestion instruction",
         "CONTRIBUTING.md": "the CONTRIBUTING filename-prefix list",
     }
-    for rel, label in prefix_surfaces.items():
-        region = doctype_region(read(rel), PREFIX_REGION_ANCHOR[rel])
-        if region is None:
-            failures.append(
+    prefix_surfaces = []
+    for rel, label in prefix_labels.items():
+        anchor = PREFIX_REGION_ANCHOR[rel]
+        prefix_surfaces.append({
+            "text": read(rel),
+            "anchor": anchor,
+            "anchor_absent_msg": (
                 f"{rel} ({label}): the doctype-region anchor "
-                f"{PREFIX_REGION_ANCHOR[rel][1]!r} is absent (cannot locate the enumeration)"
-            )
-            continue
-        absent = sorted(p for p in prefixes if p not in region)
-        if absent:
-            failures.append(
-                f"{rel} ({label}) omits filename prefix(es) in its doctype region: {absent}"
-            )
+                f"{anchor[1]!r} is absent (cannot locate the enumeration)"
+            ),
+            "omit_template": (
+                f"{rel} ({label}) omits filename prefix(es) in its "
+                f"doctype region: {{tokens}}"
+            ),
+        })
+
+    failures = _engine().collect_findings(
+        canonical_names=names,
+        canonical_prefixes=prefixes,
+        set_checks=set_checks,
+        name_surfaces=name_surfaces,
+        prefix_surfaces=prefix_surfaces,
+    )
 
     if failures:
         print("FAIL: Document-Type enumeration parity break(s):")
