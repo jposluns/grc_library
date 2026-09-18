@@ -760,6 +760,12 @@ EXEMPT: dict[tuple[str, str], str] = {
         "slices (A37 restore, A1/A3 erosion backstops) remain live in P-TODO.md. Dated "
         "2026-09-18, after the 2026-07-15 rule."
     ),
+    ("P-1.63", "matrix batch-4a"): (
+        "PARTIAL CLOSE. PR #2371 (governance/risk cluster) added 2 CCM codes (A&A-02 continuous-assurance, "
+        "GRC-01 risk-policy) and removed 2 matrix mis-fits (GRC-05 @54, GRC-02 @65); stranded 40->36. "
+        "Deferred: 6 AICM new-row adds (DSP-20/HRS-14/GRC-11/GRC-15/GRC-10/GRC-13 = batch-4b) + GRC-03 @83 "
+        "medium-confidence remove. ~36 remain live in P-TODO.md. Dated 2026-09-18, after the 2026-07-15 rule."
+    ),
     ("P-1.63", "matrix batch-3a"): (
         "PARTIAL CLOSE. PR #2370 (privacy cluster) added 4 source-verified CCM codes to 4 privacy docs "
         "(DSP-04 governance, DSP-10 cross-border, SEF-03 breach-response, DSP-01 DSR) and removed 2 "

@@ -2,7 +2,7 @@
 
 **Document Title:** Enterprise Governance and Risk Management Policy\
 **Document Type:** Policy\
-**Version:** 1.4.16\
+**Version:** 1.4.17\
 **Date:** 2026-09-18\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -133,7 +133,7 @@ Consolidated enterprise risk reporting must be presented to executive leadership
 | ISO/IEC 23894:2023 | Clause 4 (AI risk principles), Clause 5 (framework), Clause 6 (AI risk process) |
 | ISO/IEC 42001:2023 | §5.2, §5.3, §6.1.2, §6.1.3, §6.1.4, §9.1 (AI policy, roles, risk assessment/treatment/impact, monitoring) |
 | COBIT 2019 | APO12.01, APO12.02, APO12.03, APO12.04, APO12.05, APO10.04, MEA01.02, MEA01.04, DSS04.02 |
-| CSA CCM v4.1 | GRC-02, GRC-04, GRC-06, BCR-02, AIS-06 |
+| CSA CCM v4.1 | GRC-01, GRC-02, GRC-04, GRC-06, BCR-02, AIS-06 |
 | NIST SP 800-39 | Chapters 2 and 3 (multitiered fundamentals; framing, assessing, responding, monitoring) |
 | NIST AI RMF | GOVERN 1.3, 1.5, 2.1; MAP 1.5; MEASURE 1.1; MANAGE 1.2, 1.3, 1.4 |
 | OECD AI Principles | Principles 1.3 (transparency and explainability), 1.4 (robustness, security and safety), 1.5 (accountability) |
