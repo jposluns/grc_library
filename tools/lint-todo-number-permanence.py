@@ -760,6 +760,14 @@ EXEMPT: dict[tuple[str, str], str] = {
         "slices (A37 restore, A1/A3 erosion backstops) remain live in P-TODO.md. Dated "
         "2026-09-18, after the 2026-07-15 rule."
     ),
+    ("P-1.63", "matrix batch-5b"): (
+        "PARTIAL CLOSE. PR #2374 added AIS-08 (API Security, CCM) to standard-ai-access and removed 2 "
+        "matrix mis-fits (CCC-01 @364 - QA/testing doc has CCC-02 not the change-mgmt policy; GRC-03 @83 "
+        "- risk-policy governs risk not org-wide policy reviews); both removes unanimous tri-family. "
+        "Stranded 24->21. Deferred to maintainer: IAM-09 @399 (fit split) and A&A-02/05 @382 "
+        "(CCM-vs-AICM label; doc already covers via AICM range A&A-01-A&A-06). ~21 remain live in "
+        "P-TODO.md. Dated 2026-09-18, after the 2026-07-15 rule."
+    ),
     ("P-1.63", "matrix batch-5a"): (
         "PARTIAL CLOSE. PR #2373 (dev-security/ai cluster) added 7 source-verified codes: AIS-12 to the "
         "ai-coding-guideline code-review AICM cell; AIS-05/AIS-06 (CCM) + AIS-12 (new AICM row) to "

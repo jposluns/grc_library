@@ -2,7 +2,7 @@
 
 **Document Title:** AI Access and Agent Permissions Standard\
 **Document Type:** Standard\
-**Version:** 0.0.16\
+**Version:** 0.0.17\
 **Date:** 2026-09-18\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -263,6 +263,7 @@ Retrieval-augmented generation and other context-injection patterns:
 | CSA AICM v1.1.0 | IAM-16 Knowledge Access Control - Need to Know | Need-to-know retrieval and embedding-store access control |
 | CSA CCM v4.1 | IAM-01 Identity and Access Management Policy and Procedures | AI-specific IAM overlay |
 | CSA CCM v4.1 | IAM-15 Authorization Mechanisms | Authorization of AI/agent access to tools, data, and functions |
+| CSA CCM v4.1 | AIS-08 API Security | API security for agent and tool invocation boundaries |
 | Canada TBS Guide on the Use of Agentic AI (comparator) | Bounded autonomy (labelled activity-permission levels such as read-only or draft-only; tight, explicit tool, data, and scope limits; designated accountable agent owners) and recoverability (agents pausable and returnable to a safe state; all agent actions logged where the agent cannot alter them) | Canadian public-sector agentic-AI guidance; advisory, not binding on an external adopter |
 | OWASP AI Exchange | Least model privilege | Least-privilege scoping of the actions and data an agent can reach; task-based minimization; sandboxing to bound blast radius |
 | SANS CAISG v1.4 | Secure Agentic Systems and AI Autonomy Controls (focused functionality) | Defined function scope, execution isolation, and allowlist-gated function calls for agent tool access |
