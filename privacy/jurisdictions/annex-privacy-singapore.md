@@ -2,8 +2,8 @@
 
 **Document Title:** Singapore Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.3\
-**Date:** 2026-09-15\
+**Version:** 1.1.4\
+**Date:** 2026-09-18\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -59,7 +59,7 @@ The PDPA's data-protection obligations (Parts 3 to 6B) impose the following requ
 
 - An organization must not transfer personal data outside Singapore except in accordance with the requirements prescribed under the Act so that the transferred data receives a standard of protection comparable to the Act's (s. 26(1)); the Commission may, on application, exempt an organization from a prescribed requirement by written notice (s. 26(2)).
 - The PDPC has published model contractual clauses and other guidance that organizations may adopt to meet the prescribed transfer requirements; these are optional models, not a statutory approval mechanism.
-- Singapore participates in the APEC CBPR 2.0 (Global CBPR Framework) for cross-border transfers to other participating economies.
+- Singapore participates in the APEC CBPR System and the Global CBPR System for cross-border transfers to other participating economies.
 
 ---
 

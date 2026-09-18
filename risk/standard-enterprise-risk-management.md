@@ -2,8 +2,8 @@
 
 **Document Title:** Enterprise Risk Management Standard\
 **Document Type:** Standard\
-**Version:** 1.8.11\
-**Date:** 2026-09-14\
+**Version:** 1.8.12\
+**Date:** 2026-09-18\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -259,7 +259,7 @@ The Risk Owner role's six accountability actions (defined in §3) map to specifi
 | PIPEDA (Canada Personal Information Protection and Electronic Documents Act) | As applicable to Canadian personal information |
 | PIPL | As applicable to personal information in China |
 | LGPD | As applicable to Brazilian personal data |
-| CBPR 2.0 | Cross-Border Privacy Rules as applicable |
+| APEC CBPR | Cross-Border Privacy Rules as applicable |
 
 ---
 

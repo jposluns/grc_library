@@ -83,7 +83,7 @@ _117 documents._
 | [governance/register-canonical-citations.md](../governance/register-canonical-citations.md) | Canonical Citations Register | Register | 1.5.73 | 2026-09-12 |
 | [governance/register-coverage-gaps.md](../governance/register-coverage-gaps.md) | Coverage Gap Analysis Register | Register | 1.1.41 | 2026-09-12 |
 | [governance/register-digital-trust-and-assurance-metrics.md](../governance/register-digital-trust-and-assurance-metrics.md) | Digital Trust and Assurance Metrics Register | Register | 1.1.3 | 2026-08-30 |
-| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.188 | 2026-09-14 |
+| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.189 | 2026-09-18 |
 | [governance/register-glossary.md](../governance/register-glossary.md) | Glossary and Acronym Index | Register | 1.4.18 | 2026-08-24 |
 | [governance/register-key-terms-and-definitions.md](../governance/register-key-terms-and-definitions.md) | Key Terms and Definitions Register | Register | 1.1.6 | 2026-08-31 |
 | [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.5.11 | 2026-09-05 |
@@ -108,21 +108,21 @@ _117 documents._
 | [privacy/jurisdictions/annex-privacy-china.md](../privacy/jurisdictions/annex-privacy-china.md) | China Privacy Regulatory Requirements | Annex | 1.1.7 | 2026-09-15 |
 | [privacy/jurisdictions/annex-privacy-european-union.md](../privacy/jurisdictions/annex-privacy-european-union.md) | European Union Privacy Regulatory Requirements | Annex | 1.1.20 | 2026-09-11 |
 | [privacy/jurisdictions/annex-privacy-india.md](../privacy/jurisdictions/annex-privacy-india.md) | India Privacy Regulatory Requirements | Annex | 1.1.8 | 2026-08-16 |
-| [privacy/jurisdictions/annex-privacy-japan.md](../privacy/jurisdictions/annex-privacy-japan.md) | Japan Privacy Regulatory Requirements | Annex | 1.1.1 | 2026-09-04 |
+| [privacy/jurisdictions/annex-privacy-japan.md](../privacy/jurisdictions/annex-privacy-japan.md) | Japan Privacy Regulatory Requirements | Annex | 1.1.2 | 2026-09-18 |
 | [privacy/jurisdictions/annex-privacy-kenya.md](../privacy/jurisdictions/annex-privacy-kenya.md) | Kenya Privacy Regulatory Requirements | Annex | 1.1.0 | 2026-09-11 |
 | [privacy/jurisdictions/annex-privacy-malaysia.md](../privacy/jurisdictions/annex-privacy-malaysia.md) | Malaysia Privacy Regulatory Requirements | Annex | 1.2.3 | 2026-09-15 |
 | [privacy/jurisdictions/annex-privacy-new-zealand.md](../privacy/jurisdictions/annex-privacy-new-zealand.md) | New Zealand Privacy Regulatory Requirements | Annex | 1.1.3 | 2026-09-16 |
-| [privacy/jurisdictions/annex-privacy-singapore.md](../privacy/jurisdictions/annex-privacy-singapore.md) | Singapore Privacy Regulatory Requirements | Annex | 1.1.3 | 2026-09-15 |
+| [privacy/jurisdictions/annex-privacy-singapore.md](../privacy/jurisdictions/annex-privacy-singapore.md) | Singapore Privacy Regulatory Requirements | Annex | 1.1.4 | 2026-09-18 |
 | [privacy/jurisdictions/annex-privacy-south-africa.md](../privacy/jurisdictions/annex-privacy-south-africa.md) | South Africa Privacy Regulatory Requirements | Annex | 1.1.1 | 2026-09-11 |
 | [privacy/jurisdictions/annex-privacy-south-korea.md](../privacy/jurisdictions/annex-privacy-south-korea.md) | South Korea Privacy Regulatory Requirements | Annex | 1.1.1 | 2026-09-15 |
 | [privacy/jurisdictions/annex-privacy-thailand.md](../privacy/jurisdictions/annex-privacy-thailand.md) | Thailand Privacy Regulatory Requirements | Annex | 1.1.3 | 2026-09-15 |
 | [privacy/jurisdictions/annex-privacy-united-kingdom.md](../privacy/jurisdictions/annex-privacy-united-kingdom.md) | United Kingdom Privacy Regulatory Requirements | Annex | 1.1.6 | 2026-09-15 |
 | [privacy/jurisdictions/annex-privacy-united-states.md](../privacy/jurisdictions/annex-privacy-united-states.md) | United States Privacy Regulatory Requirements | Annex | 1.2.11 | 2026-09-15 |
 | [privacy/jurisdictions/annex-privacy-vietnam.md](../privacy/jurisdictions/annex-privacy-vietnam.md) | Vietnam Privacy Regulatory Requirements | Annex | 1.2.1 | 2026-08-04 |
-| [privacy/policy-privacy-and-data-governance.md](../privacy/policy-privacy-and-data-governance.md) | Privacy and Data Governance Policy | Policy | 1.4.23 | 2026-09-18 |
+| [privacy/policy-privacy-and-data-governance.md](../privacy/policy-privacy-and-data-governance.md) | Privacy and Data Governance Policy | Policy | 1.4.24 | 2026-09-18 |
 | [privacy/procedure-data-protection-and-privacy-breach-response.md](../privacy/procedure-data-protection-and-privacy-breach-response.md) | Data Protection and Privacy Breach Response Procedure | Procedure | 1.4.34 | 2026-09-04 |
 | [privacy/procedure-data-subject-rights-management.md](../privacy/procedure-data-subject-rights-management.md) | Data Subject Rights Management Procedure | Procedure | 1.6.19 | 2026-09-11 |
-| [privacy/procedure-privacy-impact-and-cross-border-transfer.md](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) | Privacy Impact and Cross-Border Transfer Procedure | Procedure | 1.6.6 | 2026-09-05 |
+| [privacy/procedure-privacy-impact-and-cross-border-transfer.md](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) | Privacy Impact and Cross-Border Transfer Procedure | Procedure | 1.6.7 | 2026-09-18 |
 | [privacy/template-dsar-workflow.md](../privacy/template-dsar-workflow.md) | Data Subject Access Request Workflow Template | Template | 1.1.11 | 2026-09-11 |
 | [privacy/template-privacy-notice.md](../privacy/template-privacy-notice.md) | Privacy Notice Template | Template | 1.1.1 | 2026-09-14 |
 | [resilience/plan-business-continuity-and-crisis-management.md](../resilience/plan-business-continuity-and-crisis-management.md) | Business Continuity and Crisis Management Plan | Plan | 1.1.2 | 2026-07-03 |
@@ -132,13 +132,13 @@ _117 documents._
 | [resilience/register-eoc-contact-directory.md](../resilience/register-eoc-contact-directory.md) | Emergency Operations Contact Directory Register | Register | 1.1.1 | 2026-07-02 |
 | [resilience/register-resilience-metrics-and-testing-log.md](../resilience/register-resilience-metrics-and-testing-log.md) | Resilience Metrics and Testing Log Register | Register | 1.1.3 | 2026-08-26 |
 | [resilience/template-departmental-continuity-plan.md](../resilience/template-departmental-continuity-plan.md) | Departmental Continuity Plan Template | Template | 1.1.2 | 2026-07-09 |
-| [risk/policy-enterprise-governance-and-risk-management.md](../risk/policy-enterprise-governance-and-risk-management.md) | Enterprise Governance and Risk Management Policy | Policy | 1.4.15 | 2026-09-14 |
+| [risk/policy-enterprise-governance-and-risk-management.md](../risk/policy-enterprise-governance-and-risk-management.md) | Enterprise Governance and Risk Management Policy | Policy | 1.4.16 | 2026-09-18 |
 | [risk/procedure-risk-acceptance.md](../risk/procedure-risk-acceptance.md) | Risk Acceptance Procedure | Procedure | 1.1.4 | 2026-08-24 |
 | [risk/procedure-risk-assessment-methodology.md](../risk/procedure-risk-assessment-methodology.md) | Risk Assessment Methodology Procedure | Procedure | 1.2.10 | 2026-09-14 |
 | [risk/procedure-risk-register.md](../risk/procedure-risk-register.md) | Risk Register Procedure | Procedure | 1.3.1 | 2026-07-02 |
 | [risk/register-assurance-map.md](../risk/register-assurance-map.md) | Assurance Map Register | Register | 1.1.5 | 2026-09-14 |
 | [risk/register-key-risk-indicators.md](../risk/register-key-risk-indicators.md) | Key Risk Indicator Catalogue | Register | 1.1.4 | 2026-08-31 |
-| [risk/standard-enterprise-risk-management.md](../risk/standard-enterprise-risk-management.md) | Enterprise Risk Management Standard | Standard | 1.8.11 | 2026-09-14 |
+| [risk/standard-enterprise-risk-management.md](../risk/standard-enterprise-risk-management.md) | Enterprise Risk Management Standard | Standard | 1.8.12 | 2026-09-18 |
 | [risk/standard-third-party-and-supply-chain-risk.md](../risk/standard-third-party-and-supply-chain-risk.md) | Third-Party and Supply Chain Risk Standard | Standard | 1.1.10 | 2026-09-14 |
 | [risk/template-enterprise-risk-register.md](../risk/template-enterprise-risk-register.md) | Enterprise Risk Register Template | Template | 1.1.7 | 2026-07-02 |
 | [security/policy-acceptable-use.md](../security/policy-acceptable-use.md) | Acceptable Use Policy | Policy | 1.3.4 | 2026-08-15 |
@@ -255,11 +255,11 @@ _163 documents._
 | [operations/standard-it-financial-management.md](../operations/standard-it-financial-management.md) | IT Financial Management Standard | Standard | 1.0.7 | 2026-09-07 |
 | [operations/standard-service-level-management.md](../operations/standard-service-level-management.md) | Service Level Management Standard | Standard | 1.0.7 | 2026-09-14 |
 | [operations/standard-site-reliability-engineering.md](../operations/standard-site-reliability-engineering.md) | Site Reliability Engineering Standard | Standard | 1.0.4 | 2026-09-14 |
-| [privacy/annex-privacy-jurisdiction-index.md](../privacy/annex-privacy-jurisdiction-index.md) | Privacy Jurisdiction Index | Annex | 1.0.46 | 2026-09-12 |
+| [privacy/annex-privacy-jurisdiction-index.md](../privacy/annex-privacy-jurisdiction-index.md) | Privacy Jurisdiction Index | Annex | 1.0.47 | 2026-09-18 |
 | [privacy/framework-childrens-data.md](../privacy/framework-childrens-data.md) | Children's Data Framework | Framework | 1.0.12 | 2026-09-04 |
 | [privacy/framework-consent-management.md](../privacy/framework-consent-management.md) | Consent Management Framework | Framework | 1.0.14 | 2026-09-03 |
 | [privacy/framework-privacy-by-design.md](../privacy/framework-privacy-by-design.md) | Privacy by Design Framework | Framework | 1.0.4 | 2026-08-04 |
-| [privacy/jurisdictions/annex-privacy-australia.md](../privacy/jurisdictions/annex-privacy-australia.md) | Australia Privacy Regulatory Requirements | Annex | 1.0.5 | 2026-09-15 |
+| [privacy/jurisdictions/annex-privacy-australia.md](../privacy/jurisdictions/annex-privacy-australia.md) | Australia Privacy Regulatory Requirements | Annex | 1.0.6 | 2026-09-18 |
 | [privacy/jurisdictions/annex-privacy-indonesia.md](../privacy/jurisdictions/annex-privacy-indonesia.md) | Indonesia Privacy Regulatory Requirements | Annex | 1.0.5 | 2026-09-15 |
 | [privacy/jurisdictions/annex-privacy-latin-america.md](../privacy/jurisdictions/annex-privacy-latin-america.md) | Latin America Privacy Regulatory Requirements | Annex | 1.0.13 | 2026-09-12 |
 | [privacy/jurisdictions/annex-privacy-nigeria.md](../privacy/jurisdictions/annex-privacy-nigeria.md) | Nigeria Privacy Regulatory Requirements | Annex | 1.0.8 | 2026-09-15 |
