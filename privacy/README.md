@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Domain README\
 **Document Type:** Register\
-**Version:** 1.2.17\
-**Date:** 2026-09-04\
+**Version:** 1.2.18\
+**Date:** 2026-09-18\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](../security/policy-information-security.md)\
@@ -105,7 +105,7 @@ The privacy domain covers:
 - **Privacy impact assessment**: PIA/AI-IA process, cross-border transfer assessment, children's data safeguards.
 - **Data subject rights**: access, correction, deletion, portability, objection, and restriction request handling.
 - **Breach response**: privacy breach response triggers, regulatory notification timelines, coordination with security incident response.
-- **AI training data**: provenance, consent, reidentification risk, EU Data Act (Regulation (EU) 2023/2854) compliance.
+- **AI training data**: provenance, consent, reidentification risk, and the EU AI Act (Regulation (EU) 2024/1689, Article 53(1)(d)) training-content-summary transparency for general-purpose AI model providers; the EU Data Act (Regulation (EU) 2023/2854) governs product and related-service data.
 
 ---
 
