@@ -99,7 +99,6 @@ Adopter experience and future work: capability and guidance for organizations ad
 
 | ID | Item | Tags |
 | --- | --- | --- |
-| 3.183 | Adopter overlay-exemption config: replace the `DEFAULT_EXEMPT_DIRS` source-edit instruction with a non-source config surface (L, S) | `[public]` |
 | 4.1 | Corpus-management discipline as a shareable skill (M, XL) | `[public]` |
 | 4.5 | Adopter reference-base specification: build-your-own-ref guide, source lists, and the corpus-to-sources relevance map (L, L) | `[public]` |
 | 4.6 | Fork update-assessment tooling (upstream-change applicability report) (S-f, maintainer-requested 2026-07-04, M-L) | `[public]` |
