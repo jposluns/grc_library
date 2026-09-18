@@ -2,7 +2,7 @@
 
 **Document Title:** Network Security and Segmentation Standard\
 **Document Type:** Standard\
-**Version:** 1.4.12\
+**Version:** 1.4.13\
 **Date:** 2026-09-18\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -175,7 +175,7 @@ Sector-specific testing or inspection cadences (for example, sector-mandated tra
 | NIST SP 800-41 Rev. 1 | Guidelines on Firewalls and Firewall Policy |
 | NIST SP 800-94 | Guide to Intrusion Detection and Prevention Systems (IDPS) |
 | COBIT 2019 | DSS05: Managed Security Services |
-| CSA CCM v4.1 | I&S-03, I&S-08: Network Security and Architecture |
+| CSA CCM v4.1 | I&S-03, I&S-08, I&S-09: Network Security, Architecture, and Defense |
 | CIS Controls v8.1 | Control 12: Network Infrastructure Management |
 | EU NIS 2 Directive (Directive (EU) 2022/2555) | Network and Information Systems Security |
 
