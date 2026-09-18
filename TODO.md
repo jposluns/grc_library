@@ -63,27 +63,27 @@ Fill significant gaps: deepen thin-but-present content to operational sufficienc
 
 | ID | Item | Tags |
 | --- | --- | --- |
-| 2.1 | Privacy jurisdiction annex operational deepening (FR-59, H, L) | `[public]` |
-| 2.3 | Crypto-asset / blockchain governance domain (FR-70, H[critical], XL) | `[public]` |
-| 2.15 | Landing-page standards list: link each item to its authoritative source, MOVED to 2.25.2 (Series A) (maintainer-confirmed 2026-07-15, M, S-M) | `[public]` |
+| 2.1 | Privacy jurisdiction annex operational deepening (H, L) | `[public]` |
+| 2.3 | Crypto-asset / blockchain governance domain (H[critical], XL) | `[public]` |
+| 2.15 | Landing-page standards list: link each item to its authoritative source, MOVED to 2.25.2 (M, S-M) | `[public]` |
 | 2.21 | Further AI-jurisdiction annexes (M, L; partly source-gated) | `[public]` |
-| 2.25 | Governance traceability and coverage expansion (umbrella; maintainer-directed 2026-07-23, H, XL) | `[content+machinery]` `[public]` |
+| 2.25 | Governance traceability and coverage expansion (umbrella; H, XL) | `[content+machinery]` `[public]` |
 | 2.25.3 | Canadian public-sector authority coverage (consolidated with 2.22; CANADA-PRIORITY, H, L) | `[content]` `[public]` |
 | 2.25.4 | AI assurance and evaluation content (H, L) | `[content]` `[public]` |
 | 2.35 | Populate the governance relationship-model source with real corpus relationships (M, M) | `[content]` `[public]` |
-| 2.26.1 | OSCAL adoption decision and model-scope lock (maintainer-directed 2026-07-23; H, S) | `[machinery]` `[public]` |
+| 2.26.1 | OSCAL adoption decision and model-scope lock (H, S) | `[machinery]` `[public]` |
 | 2.26.2 | OSCAL stable-identifier layer (S, M) | `[machinery]` `[public]` |
 | 2.26.3 | OSCAL metadata-field alignment (S, M) | `[machinery]` `[public]` |
-| 2.26.4 | OSCAL catalog pilot: one domain, generated, gated (maintainer-directed 2026-07-23; M, XL) | `[machinery]` `[public]` |
+| 2.26.4 | OSCAL catalog pilot: one domain, generated, gated (M, XL) | `[machinery]` `[public]` |
 | 2.26.5 | OSCAL profiles and crosswalks for framework alignments (M, L) | `[machinery]` `[public]` |
 | 2.28 | AI jurisdiction annex + ref ingest: Singapore Model AI Governance Framework for Agentic AI (M, M) | `[content]` `[public]` |
 | 2.29 | Latin-American privacy jurisdiction annexes + corpus alignment for the newly-held primaries (M, M) | `[content]` `[public]` |
 | 2.25.2 | Control-to-policy-instrument coverage: international AI-governance authorities (consolidated with 2.15; M, M) | `[content]` `[public]` |
-| 2.26 | OSCAL machine-readable representation (umbrella; maintainer-directed 2026-07-23, H, XL) | `[machinery]` `[public]` |
+| 2.26 | OSCAL machine-readable representation (umbrella; H, XL) | `[machinery]` `[public]` |
 | 2.33 | Canada-specific executive/jurisdiction document series (maintainer-directed 2026-08-17; content) | `[public]` |
-| 2.34 | Workforce monitoring and network-telemetry compliance suite (umbrella; requested by the UniFi presence/traffic project 2026-09-02, maintainer-directed, target ~2026-09-09; H, L) | `[content]` `[public]` |
+| 2.34 | Workforce monitoring and network-telemetry compliance suite (umbrella; H, L) | `[content]` `[public]` |
 | 2.34.9 | Citations import for 2.34 (NIST Privacy Framework registered #1972; WP249, ICO Monitoring-workers, ILO + Council of Europe workplace-monitoring recommendations remain egress-blocked and in the maintainer-egress queue, pending console-upload before source-verification and registration) | `[content]` `[public]` |
-| 3.14 | ETSI Securing-AI alignment map (L, M) (was 3.16) | `[public]` |
+| 3.14 | ETSI Securing-AI alignment map (L, M) | `[public]` |
 
 ## Priority 3 — Clean up and tooling
 
@@ -99,25 +99,25 @@ Adopter experience and future work: capability and guidance for organizations ad
 
 | ID | Item | Tags |
 | --- | --- | --- |
-| 3.183 | Adopter overlay-exemption config: replace the `DEFAULT_EXEMPT_DIRS` source-edit instruction with a non-source config surface (2026-07-28 deep-assessment c6, claude, L, S; re-scoped 2026-08-29 to sub-part 2) | `[public]` |
+| 3.183 | Adopter overlay-exemption config: replace the `DEFAULT_EXEMPT_DIRS` source-edit instruction with a non-source config surface (L, S) | `[public]` |
 | 4.1 | Corpus-management discipline as a shareable skill (M, XL) | `[public]` |
 | 4.5 | Adopter reference-base specification: build-your-own-ref guide, source lists, and the corpus-to-sources relevance map (L, L) | `[public]` |
 | 4.6 | Fork update-assessment tooling (upstream-change applicability report) (S-f, maintainer-requested 2026-07-04, M-L) | `[public]` |
-| 4.29 | `/adopt` adjustment + non-destructive tooling-update mode (maintainer-directed 2026-07-19, L) | `[machinery]` `[public]` |
-| 4.30 | Full adopter-experience assessment + `.adopt/` adoption kit (maintainer-directed 2026-07-19, P4 umbrella, M-L, multi-phase) | `[public]` |
-| 5.2 | Logistics country / programme expansion (was 5.1) | `[public]` |
-| 5.3 | Financial-services country regulator overlays (was 5.2) | `[public]` |
-| 5.4 | Healthcare country regulator overlays (was 5.3) | `[public]` |
-| 5.5 | Energy and utilities country regulator overlays (was 5.4) | `[public]` |
-| 5.6 | Telecommunications country regulator overlays (was 5.5) | `[public]` |
-| 5.7 | Public-sector country / regulator overlays (was 5.6) | `[public]` |
-| 5.8 | Privacy jurisdiction gaps (was 5.7) | `[public]` |
-| 5.9 | AI jurisdiction overlays (was 5.8) | `[public]` |
-| 6.1 | Identity-specific content depth (L) (was 6.2) | `[public]` |
-| 6.2 | Quantum cryptography readiness deepening (L) (was 6.3) | `[public]` |
-| 6.3 | Cross-framework matrix expansion (L) (was 6.4) | `[public]` |
-| 6.4 | CMMI capability levels alongside maturity levels (L) (was 6.5) | `[public]` |
-| 6.5 | Multi-cloud governance overlay (XL) (was 6.1) | `[public]` |
+| 4.29 | `/adopt` adjustment + non-destructive tooling-update mode (L) | `[machinery]` `[public]` |
+| 4.30 | Full adopter-experience assessment + `.adopt/` adoption kit (P4 umbrella, M-L, multi-phase) | `[public]` |
+| 5.2 | Logistics country / programme expansion | `[public]` |
+| 5.3 | Financial-services country regulator overlays | `[public]` |
+| 5.4 | Healthcare country regulator overlays | `[public]` |
+| 5.5 | Energy and utilities country regulator overlays | `[public]` |
+| 5.6 | Telecommunications country regulator overlays | `[public]` |
+| 5.7 | Public-sector country / regulator overlays | `[public]` |
+| 5.8 | Privacy jurisdiction gaps | `[public]` |
+| 5.9 | AI jurisdiction overlays | `[public]` |
+| 6.1 | Identity-specific content depth (L) | `[public]` |
+| 6.2 | Quantum cryptography readiness deepening (L) | `[public]` |
+| 6.3 | Cross-framework matrix expansion (L) | `[public]` |
+| 6.4 | CMMI capability levels alongside maturity levels (L) | `[public]` |
+| 6.5 | Multi-cloud governance overlay (XL) | `[public]` |
 | 6.6 | Java EE / Jakarta EE security standard (L) | `[public]` |
 
 ---
