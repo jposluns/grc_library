@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy and Data Governance Policy\
 **Document Type:** Policy\
-**Version:** 1.4.23\
+**Version:** 1.4.24\
 **Date:** 2026-09-18\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -24,7 +24,7 @@
 
 This policy defines principles, governance structure, and control framework for managing personal data and organizational information assets across all jurisdictions. It consolidates Privacy Policy, Data Governance Policy, Data Quality Policy, and Records Management Policy into a unified global standard. It supports the organization's compliance with applicable data protection laws, upholds data accuracy and integrity, and governs ethical use of information including AI training datasets.
 
-**Applicable Frameworks:** ISO/IEC 27701:2025 PIMS (standalone), ISO/IEC 29100:2024 Privacy Framework, ISO/IEC 29151:2026 Controls, Requirements, and Guidance for PII Protection, ISO 8000-8 Data Quality Principles, EU GDPR, EU AI Act (Regulation (EU) 2024/1689), EU Data Act (Regulation (EU) 2023/2854; applicable from 12 September 2025), Canada CPPA (Bill C-27 lapsed January 2025), APEC CBPR 2.0, China PIPL, CSA CCM v4.1 domain DSP.
+**Applicable Frameworks:** ISO/IEC 27701:2025 PIMS (standalone), ISO/IEC 29100:2024 Privacy Framework, ISO/IEC 29151:2026 Controls, Requirements, and Guidance for PII Protection, ISO 8000-8 Data Quality Principles, EU GDPR, EU AI Act (Regulation (EU) 2024/1689), EU Data Act (Regulation (EU) 2023/2854; applicable from 12 September 2025), Canada CPPA (Bill C-27 lapsed January 2025), APEC CBPR, China PIPL, CSA CCM v4.1 domain DSP.
 
 ---
 
@@ -100,7 +100,7 @@ This policy defines principles, governance structure, and control framework for 
 
 ### 4.6 Cross-border data transfers
 
-- All data transfers between jurisdictions must comply with applicable legal mechanisms, such as EU SCCs, APEC CBPR 2.0 certifications, or recognized adequacy decisions.
+- All data transfers between jurisdictions must comply with applicable legal mechanisms, such as EU SCCs, APEC CBPR certifications, or recognized adequacy decisions.
 - The organization must maintain a register of all cross-border data flows, reviewed quarterly.
 - Transfers to jurisdictions lacking adequate protection must include additional safeguards and executive approval.
 
@@ -145,7 +145,7 @@ This policy defines principles, governance structure, and control framework for 
 | Governance and accountability | Clauses 5 to 7 | APO13.01 | GRC-06 | GDPR Art 5, PIPEDA Sch 1 Principle 1 (Accountability) |
 | Lawful processing and consent | Annex A.1.2.3 to A.1.2.5, A.2.2.2 to A.2.2.5 | DSS05 | DSP-12 | GDPR, PIPL, LGPD |
 | Data classification and handling | Annex A.3.5, A.3.7, A.3.20, A.3.26 | DSS01 | DSP-01 | ISO 8000-8, SOX, SOC 2 |
-| Cross-border data transfers | Annex A.1.5.2 to A.1.5.4, A.2.5.2 to A.2.5.3 | APO10 | DSP-10 | GDPR Ch V, CBPR 2.0 |
+| Cross-border data transfers | Annex A.1.5.2 to A.1.5.4, A.2.5.2 to A.2.5.3 | APO10 | DSP-10 | GDPR Ch V, APEC CBPR |
 | AI training data governance | N/A | APO14 | DSP-12 | ISO 8000-8, EU AI Act Art 53(1)(d) (Regulation (EU) 2024/1689) |
 | Data subject rights | Annex A.1.3.2 to A.1.3.11, A.2.3.2 | MEA01 | DSP-11 | GDPR Arts 15 to 22, PIPEDA Sch 1 Principle 9 (Individual Access) |
 | Records management | Annex A.1.4.8 to A.1.4.9, A.2.4.3, A.3.14 | DSS01 | DSP-16, DSP-02 | ISO 8000-8, Retention laws |

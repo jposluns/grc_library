@@ -2,8 +2,8 @@
 
 **Document Title:** Australia Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.5\
-**Date:** 2026-09-15\
+**Version:** 1.0.6\
+**Date:** 2026-09-18\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -46,7 +46,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 ## Cross-border transfer mechanisms
 
 - **APP 8:** Governs cross-border disclosure of personal information. Organizations may disclose personal information overseas if the recipient is subject to a law substantially similar to the Privacy Act, or the individual consents, or the organization takes reasonable steps to ensure that the overseas recipient complies with the APPs.
-- Australia participates in the APEC CBPR 2.0 framework.
+- Australia participates in the APEC CBPR framework.
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Japan Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.1\
-**Date:** 2026-09-04\
+**Version:** 1.1.2\
+**Date:** 2026-09-18\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -53,7 +53,7 @@ Article numbers follow the current consolidated APPI (confirmed against the offi
 ## Cross-border transfer mechanisms
 
 - Cross-border third-party provision requires either consent of the data subject, or the recipient is in a country designated by the PPC as having equivalent protection, or the recipient has established a personal information protection system conforming to PPC rules [APPI Article 24].
-- Japan participates in the APEC CBPR 2.0 framework.
+- Japan participates in the APEC CBPR framework.
 
 ---
 

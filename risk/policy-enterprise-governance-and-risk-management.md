@@ -2,8 +2,8 @@
 
 **Document Title:** Enterprise Governance and Risk Management Policy\
 **Document Type:** Policy\
-**Version:** 1.4.15\
-**Date:** 2026-09-14\
+**Version:** 1.4.16\
+**Date:** 2026-09-18\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -141,7 +141,7 @@ Consolidated enterprise risk reporting must be presented to executive leadership
 | PIPEDA | As applicable to Canadian personal information |
 | PIPL | As applicable to personal information in China |
 | LGPD | As applicable to Brazilian personal data |
-| CBPR 2.0 | Cross-Border Privacy Rules as applicable |
+| APEC CBPR | Cross-Border Privacy Rules as applicable |
 
 ---
 

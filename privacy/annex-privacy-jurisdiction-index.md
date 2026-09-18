@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Jurisdiction Index\
 **Document Type:** Annex\
-**Version:** 1.0.46\
-**Date:** 2026-09-12\
+**Version:** 1.0.47\
+**Date:** 2026-09-18\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -142,7 +142,7 @@ The following material regulatory developments occurred or were anticipated betw
 - **Canada Bill C-27 (CPPA/AIDA):** Lapsed at the 2025-01-06 prorogation (died on the order paper); not in force. A privacy successor, **Bill C-36 (Protecting Privacy and Consumer Data Act)**, was introduced 2026-06-15 and is at second reading (proposed, not in force); no AI-specific successor to AIDA has been introduced. PIPEDA remains the in-force federal private-sector privacy law.
 - **Brazil LGPD:** ANPD continued to develop sector-specific AI guidance; administrative enforcement matured with increasing fine activity.
 - **Australia Privacy Act:** Privacy and Other Legislation Amendment Act 2024 reforms took effect; statutory tort for serious invasions of privacy became actionable.
-- **APEC CBPR 2.0:** Additional economies joined the Global CBPR Forum; interoperability with GDPR SCCs was under active negotiation.
+- **Global CBPR:** Additional economies joined the Global CBPR Forum; interoperability with GDPR SCCs was under active negotiation.
 - **India DPDPA:** the Act was brought into force by notification G.S.R. 843(E) of 13 November 2025 on a three-tranche schedule under s. 1(2): the definitions and the establishment of the Data Protection Board took effect on that date, the consent-manager registration duty commences around November 2026, and the core substantive regime and the Board's principal inquiry-and-penalty functions commence around 13 May 2027. The Digital Personal Data Protection Rules 2025 (G.S.R. 846(E)), notified the same day, commence on their own matching rule 1(2) to (4) schedule.
 - **Southeast Asia expansion:** Indonesia published implementing regulations under UU PDP; Malaysia's 2024 PDPA amendments entered into force; Vietnam enacted the PDPL (Law 91/2025) and Decree 356/2025 (in force 2026-01-01), repealing Decree 13/2023.
 - **South Korea PIPA:** 2023 amendments operationalized, including automated decision explanation rights and enhanced penalty framework.
