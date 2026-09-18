@@ -2,8 +2,8 @@
 
 **Document Title:** AI Coding Assistant Security Guideline\
 **Document Type:** Guideline\
-**Version:** 1.3.14\
-**Date:** 2026-09-03\
+**Version:** 1.3.15\
+**Date:** 2026-09-18\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`guardrails/README.md`](../guardrails/README.md), [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -302,9 +302,9 @@ The following publicly available resources provide additional guidance for AI co
 | AI tool authorization | A.5.36 | PO.1, PO.3 | GRC-09 | Clause 6 (planning) | EU AI Act Art. 9 |
 | Data handling for AI inputs | A.5.12, A.8.10 | PS.1 | DSP-07 | Clause 8 (operation) | GDPR, PIPEDA |
 | Code review of AI output | A.8.27, A.8.29 | PW.7 | AIS-10 | Clause 9 (performance evaluation) | N/A |
-| Prompt injection awareness | A.6.3 | N/A | AIS-15 | Annex A.6 (AI risk treatment) | N/A |
+| Prompt injection awareness | A.6.3 | N/A | AIS-15 | Annex A.6 (AI system life cycle) | N/A |
 | Agentic use controls | A.5.18, A.8.2 | PW.1 | AIS-11 | Clause 8 (operation) | EU AI Act Art. 14 |
-| Deterministic enforcement | A.8.16, A.8.34 | PW.1 | TVM-13 | Annex A.6 (AI risk treatment) | EU AI Act Art. 14 |
+| Deterministic enforcement | A.8.16, A.8.34 | PW.1 | TVM-13 | Annex A.6 (AI system life cycle) | EU AI Act Art. 14 |
 | Incident reporting | A.6.8 | RV.1 | SEF-08 | Clause 10 (improvement) | PIPEDA, GDPR |
 
 ---
