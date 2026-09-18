@@ -170,9 +170,8 @@ def main() -> int:
                       "WHY: a tree-sweep stage makes the commit message the only record of\n"
                       "scope, and that message is the half that is never verified "
                       "(ORCHESTRATOR-MISTAKES.md entry 43).\n"
-                      "CONSIDER-INSTEAD: enumerate the files (or bound the sweep with `-- <dir>/`)\n"
-                      "as the clause above states; for a genuinely intended tree sweep, lead the\n"
-                      "command with " + ESCAPE + "=1.", file=sys.stderr)
+                      "CONSIDER-INSTEAD: apply the fix the clause above names; for a genuinely\n"
+                      "intended tree sweep, lead the command with " + ESCAPE + "=1.", file=sys.stderr)
                 return 2
     except Exception:
         return 0
