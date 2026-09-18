@@ -2,8 +2,8 @@
 
 **Document Title:** Security Monitoring and Alert Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.16\
-**Date:** 2026-09-14\
+**Version:** 1.3.17\
+**Date:** 2026-09-18\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/standard-monitoring-integrity-and-coverage.md`](../security/standard-monitoring-integrity-and-coverage.md)\
@@ -327,7 +327,7 @@ The following metrics are tracked by the SOC, reported to the CISO monthly, and 
 
 | Control Area | ISO/IEC 27002:2022 | NIST CSF | COBIT 2019 | CSA CCM v4.1 |
 | --- | --- | --- | --- | --- |
-| Log ingestion and integrity | §8.15 | Protect: PR.PS-04; Detect: DE.CM-09 | DSS01.03 | LOG-01, LOG-07, LOG-09, LOG-10 |
+| Log ingestion and integrity | §8.15 | Protect: PR.PS-04; Detect: DE.CM-09 | DSS01.03 | LOG-01, LOG-02, LOG-07, LOG-09, LOG-10 |
 | Time synchronization | §8.17 | Detect: DE.CM | DSS01.03 | LOG-06 |
 | Alert rules and coverage | §8.16 | Detect: DE.CM-09, DE.AE-02 | DSS05.07 | LOG-03 |
 | Alert triage and response | §8.16 | Respond: RS.MA-02 | DSS02.02, DSS02.04 | SEF-06, SEF-07 |
