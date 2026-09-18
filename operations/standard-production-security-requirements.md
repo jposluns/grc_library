@@ -2,7 +2,7 @@
 
 **Document Title:** Production Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.22\
+**Version:** 1.1.23\
 **Date:** 2026-09-18\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -206,7 +206,7 @@ The EOL classification policy and remediation SLAs are defined in the Security B
 
 - The infrastructure lead maintains the runtime EOL tracking register for all on-premises and production systems, reviewed at each quarterly security review.
 - SIEM analytics rules must fire at 180 days, 90 days, and 30 days before any runtime reaches EOL.
-- For on-premises systems (database servers, OS, middleware): upgrade plans must be initiated by Class 3 (180 days before EOL). Systems at Class 1 must be on emergency remediation with monthly status reported to the CIO.
+- For on-premises systems (database servers, OS, middleware): upgrade plans must be initiated at the 180-day pre-EOL milestone. Runtimes graded Class 1 (Critical) under the baseline EOL risk-severity classification (more than 12 months past EOL with a CVSS 7.0-or-above CVE since EOL) must be on emergency remediation with monthly status reported to the CIO.
 - No EOL OS, middleware, or database versions are permitted in production without a documented exception approved through the formal exception process in [`policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md) (the Section 4.2.2 risk-tier approver, with CISO co-approval for security-related exceptions) and compensating controls.
 - An exception permitting an EOL operating system, middleware, or database in production is rated at least High risk (running unsupported software is a high-severity exposure), so the Section 4.2.2 risk-tier pathway routes its approval to the Executive Committee or Board Risk Committee. This matches the EOL risk-rating floor in the governing Security Baseline Standard (its section 11.2), and is a risk-rating floor for EOL-in-production, not a per-document approver override.
 
