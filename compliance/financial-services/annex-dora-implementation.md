@@ -2,8 +2,8 @@
 
 **Document Title:** DORA Implementation Annex\
 **Document Type:** Annex\
-**Version:** 0.0.10\
-**Date:** 2026-09-16\
+**Version:** 0.0.11\
+**Date:** 2026-09-18\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/financial-services/annex-financial-services-sector-requirements.md`](annex-financial-services-sector-requirements.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
@@ -65,17 +65,17 @@ Gap: DORA-specific RTS templates for the simplified ICT risk management framewor
 
 ## Pillar 2: ICT-related incident reporting (Articles 17 to 23)
 
-DORA requires classification, management, and reporting of major ICT-related incidents and significant cyber threats.
+DORA requires classification, management, and reporting of major ICT-related incidents, and provides for voluntary notification of significant cyber threats (Article 19(2)).
 
 | DORA element | Library artefact |
 | --- | --- |
 | Incident management process | [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md) |
 | Incident classification (Article 18 criteria) | The library provides severity criteria; entities must extend to DORA classification thresholds (clients affected, services affected, data losses, reputational impact, duration, geographical spread, economic impact) |
 | Reporting to competent authority | Library does not provide the regulator-specific reporting template; entities use the ITS-defined forms (initial, intermediate, final notification) within DORA-defined windows |
-| Major cyber threat voluntary reporting | Supported by [`operations/procedure-threat-intelligence-and-siem-operations.md`](../../operations/procedure-threat-intelligence-and-siem-operations.md) |
+| Significant cyber threat voluntary reporting | Supported by [`operations/procedure-threat-intelligence-and-siem-operations.md`](../../operations/procedure-threat-intelligence-and-siem-operations.md) |
 | Information about clients and counterparts | [`resilience/plan-crisis-communication.md`](../../resilience/plan-crisis-communication.md) |
 
-DORA-mandated reporting windows (the reporting obligation is Article 19; the content and time limits are set by the RTS in Commission Delegated Regulation (EU) 2025/301 and the standard forms by the ITS in Commission Implementing Regulation (EU) 2025/302, both adopted under Article 20): the initial notification is due as early as possible and in any case within 4 hours of the incident's classification as major AND no later than 24 hours from the moment the entity became aware of the incident; the intermediate report at the latest within 72 hours of the initial notification; and the final report no later than one month after the intermediate report. Classification as a major incident applies the criteria and materiality thresholds in the RTS in Commission Delegated Regulation (EU) 2024/1772 (under Article 18). Adopting entities encode these in their per-incident severity playbooks.
+DORA-mandated reporting windows (the reporting obligation is Article 19; the content and time limits are set by the RTS in Commission Delegated Regulation (EU) 2025/301 and the standard forms by the ITS in Commission Implementing Regulation (EU) 2025/302, both adopted under Article 20): the initial notification is due as early as possible and in any case within 4 hours of the incident's classification as major AND no later than 24 hours from the moment the entity became aware of the incident (or, where the incident is classified as major only after that 24-hour window, within 4 hours of that later classification); the intermediate report at the latest within 72 hours of the initial notification; and the final report no later than one month after the intermediate report, or the latest updated intermediate report where applicable. Classification as a major incident applies the criteria and materiality thresholds in the RTS in Commission Delegated Regulation (EU) 2024/1772 (under Article 18). Adopting entities encode these in their per-incident severity playbooks.
 
 ---
 
