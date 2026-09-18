@@ -688,13 +688,11 @@ FELT like progress while the defects stayed open. Summarizing is not disposition
 table is the most persuasive way to walk past a defect.
 
 **The ledger and its mechanical backstop.** Every confirmed defect gets a row in
-`grc_library_private/.working/open-findings.md` the moment it is confirmed, with a severity,
-and leaves only via `FIXED` / `ROUTED` / `REFUTED` / `ACCEPTED`. The
-[`block-on-open-findings.py`](hooks/block-on-open-findings.py) PreToolUse hook refuses `gh pr create`
-and `gh pr merge` while an `error`-severity row has no disposition, and surfaces undispositioned
-warnings without blocking an in-flight PR. It fails OPEN on a missing or unparseable ledger, deliberately:
-a guard that blocks all work on its own malfunction gets removed, and a removed guard protects nothing.
-Conventions alone failed repeatedly on this axis in quick succession, which is why there is a hook.
+`grc_library_private/.working/open-findings.md` the moment it is confirmed, leaving only via
+`FIXED` / `ROUTED` / `REFUTED` / `ACCEPTED`. The [`block-on-open-findings.py`](hooks/block-on-open-findings.py)
+PreToolUse hook refuses `gh pr create` and `gh pr merge` on an undispositioned `error` row OR a
+MIS-FILED row spliced outside the scanned sections; a `warning` is surfaced, not blocked; it fails OPEN
+by design. Full mechanics: [`references/hook-open-findings-guard.md`](../references/hook-open-findings-guard.md).
 
 **The rule.** The moment a QA delivery lands (`/validate`, `/validate-pr`, `verify`, a
 high-assurance lens, `/matrix-fit`, `/claim-fit`, `/reference-audit`, `/screen-publications`,

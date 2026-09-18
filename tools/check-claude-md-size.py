@@ -55,7 +55,7 @@ CLAUDE_MD = REPO_ROOT / ".claude" / "CLAUDE.md"
 # #1775 raises 962 -> 1023 for the maintainer-authorized (AskUser, 2026-08-28) adoption of the
 # no-manufactured-winddown interim rule (lab_infra fleet share); an intentional canonical
 # behavioural addition, reconciles when the guardrails/AIQT pack ships.
-CEILING = 1023
+CEILING = 1021
 
 
 def line_count(path: Path) -> int:
