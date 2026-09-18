@@ -11815,7 +11815,7 @@ documents:
   domain: "security"
   type: "Standard"
   title: "Penetration Testing and Red Team Standard"
-  version: "1.0.11"
+  version: "1.0.12"
   date: "2026-09-18"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"
