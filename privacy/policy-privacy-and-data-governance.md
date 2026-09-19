@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy and Data Governance Policy\
 **Document Type:** Policy\
-**Version:** 1.4.25\
-**Date:** 2026-09-18\
+**Version:** 1.4.26\
+**Date:** 2026-09-19\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -24,7 +24,7 @@
 
 This policy defines principles, governance structure, and control framework for managing personal data and organizational information assets across all jurisdictions. It consolidates Privacy Policy, Data Governance Policy, Data Quality Policy, and Records Management Policy into a unified global standard. It supports the organization's compliance with applicable data protection laws, upholds data accuracy and integrity, and governs ethical use of information including AI training datasets.
 
-**Applicable Frameworks:** ISO/IEC 27701:2025 PIMS (standalone), ISO/IEC 29100:2024 Privacy Framework, ISO/IEC 29151:2026 Controls, Requirements, and Guidance for PII Protection, ISO 8000-8 Data Quality Principles, EU GDPR, EU AI Act (Regulation (EU) 2024/1689), EU Data Act (Regulation (EU) 2023/2854; applicable from 12 September 2025), Canada CPPA (Bill C-27 lapsed January 2025), APEC CBPR, China PIPL, CSA CCM v4.1 domain DSP.
+**Applicable Frameworks:** ISO/IEC 27701:2025 PIMS (standalone), ISO/IEC 29100:2024 Privacy Framework, ISO/IEC 29151:2026 Controls, Requirements, and Guidance for PII Protection, ISO 8000-8 Data Quality Principles, EU GDPR, EU AI Act (Regulation (EU) 2024/1689), EU Data Act (Regulation (EU) 2023/2854; applicable from 12 September 2025), Canada CPPA (Bill C-27 lapsed January 2025), APEC CBPR, China PIPL, CSA CCM v4.1 domain DSP, CSA AICM v1.1.0 domain DSP.
 
 ---
 
@@ -140,16 +140,16 @@ This policy defines principles, governance structure, and control framework for 
 
 ## 5. Framework alignment
 
-| Policy Area | ISO/IEC 27701 | COBIT 2019 | CSA CCM v4.1 | Regulatory References |
-|---|---|---|---|---|
-| Governance and accountability | Clauses 5 to 7 | APO13.01 | GRC-06 | GDPR Art 5, PIPEDA Sch 1 Principle 1 (Accountability) |
-| Lawful processing and consent | Annex A.1.2.3 to A.1.2.5, A.2.2.2 to A.2.2.5 | DSS05 | DSP-12 | GDPR, PIPL, LGPD |
-| Data classification and handling | Annex A.3.5, A.3.7, A.3.20, A.3.26 | DSS01 | DSP-01, DSP-04 | ISO 8000-8, SOX, SOC 2 |
-| Cross-border data transfers | Annex A.1.5.2 to A.1.5.4, A.2.5.2 to A.2.5.3 | APO10 | DSP-10 | GDPR Ch V, APEC CBPR |
-| AI training data governance | N/A | APO14 | DSP-12 | ISO 8000-8, EU AI Act Art 53(1)(d) (Regulation (EU) 2024/1689) |
-| Data subject rights | Annex A.1.3.2 to A.1.3.11, A.2.3.2 | MEA01 | DSP-11 | GDPR Arts 15 to 22, PIPEDA Sch 1 Principle 9 (Individual Access) |
-| Records management | Annex A.1.4.8 to A.1.4.9, A.2.4.3, A.3.14 | DSS01 | DSP-16, DSP-02 | ISO 8000-8, Retention laws |
-| Breach management | Annex A.3.11 to A.3.12 | DSS02 | SEF-08 | GDPR Art 33, PIPL Art 57 |
+| Policy Area | ISO/IEC 27701 | COBIT 2019 | CSA CCM v4.1 | CSA AICM v1.1.0 | Regulatory References |
+|---|---|---|---|---|---|
+| Governance and accountability | Clauses 5 to 7 | APO13.01 | GRC-06 | N/A | GDPR Art 5, PIPEDA Sch 1 Principle 1 (Accountability) |
+| Lawful processing and consent | Annex A.1.2.3 to A.1.2.5, A.2.2.2 to A.2.2.5 | DSS05 | DSP-12 | N/A | GDPR, PIPL, LGPD |
+| Data classification and handling | Annex A.3.5, A.3.7, A.3.20, A.3.26 | DSS01 | DSP-01, DSP-04 | N/A | ISO 8000-8, SOX, SOC 2 |
+| Cross-border data transfers | Annex A.1.5.2 to A.1.5.4, A.2.5.2 to A.2.5.3 | APO10 | DSP-10 | N/A | GDPR Ch V, APEC CBPR |
+| AI training data governance | N/A | APO14 | DSP-12 | DSP-20 | ISO 8000-8, EU AI Act Art 53(1)(d) (Regulation (EU) 2024/1689) |
+| Data subject rights | Annex A.1.3.2 to A.1.3.11, A.2.3.2 | MEA01 | DSP-11 | N/A | GDPR Arts 15 to 22, PIPEDA Sch 1 Principle 9 (Individual Access) |
+| Records management | Annex A.1.4.8 to A.1.4.9, A.2.4.3, A.3.14 | DSS01 | DSP-16, DSP-02 | N/A | ISO 8000-8, Retention laws |
+| Breach management | Annex A.3.11 to A.3.12 | DSS02 | SEF-08 | N/A | GDPR Art 33, PIPL Art 57 |
 
 ---
 
