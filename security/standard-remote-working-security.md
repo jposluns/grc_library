@@ -2,8 +2,8 @@
 
 **Document Title:** Remote Working Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.22\
-**Date:** 2026-09-13\
+**Version:** 1.0.23\
+**Date:** 2026-09-19\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/policy-byod.md`](policy-byod.md)\
@@ -253,6 +253,7 @@ The VPN Required column states requirements by data classification; Section 5.1 
 | ISO/IEC 27002:2022 | §6.7 Remote working | Detailed implementation guidance for teleworking controls |
 | NIST SP 800-46 Rev. 2 | §3 Security for Telework and Remote Access Solutions | Network, device, and data handling requirements |
 | NIST SP 800-46 Rev. 2 | §4 Securing Telework Client Devices | Endpoint compliance baseline |
+| NIST SP 800-111 | §3.1.1 Full Disk Encryption; §4.5 Manage the Solution (monitoring and periodic verification) | Storage-encryption baseline: authentication-gated full-disk encryption, and monitoring and periodic testing that encryption remains active and functioning |
 | NIST Cybersecurity Framework 2.0 | PR.AA (Identity Management, Authentication, and Access Control) | Conditional access and device compliance enforcement. Note: PR.AC was the CSF 1.1 category; CSF 2.0 renamed it to PR.AA and added Authentication explicitly. |
 | NIST Cybersecurity Framework 2.0 | PR.DS (Data Security) | Remote data handling and classification requirements |
 | CSA CCM v4.1 | HRS-04 Remote and Home Working | Direct alignment: remote working security requirements |
