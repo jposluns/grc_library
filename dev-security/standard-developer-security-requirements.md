@@ -2,8 +2,8 @@
 
 **Document Title:** Developer Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.24\
-**Date:** 2026-09-16\
+**Version:** 1.1.25\
+**Date:** 2026-09-19\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -352,7 +352,7 @@ All of the following must be validated before any application onboards to a prod
 | Cryptography | A.8.24 | CEK-01 to CEK-07, CEK-09 to CEK-21 | N/A | V11 | A04 |
 | Error handling and logging | A.8.15, A.8.16 | LOG-09 | N/A | V16 | A09 |
 | Security testing | A.8.29 | AIS-05, TVM-07 | PW.7, PW.8 | All levels | All |
-| Dependency management | A.8.8 | TVM-06, AIS-04 | PO.5 | V15 | A03 |
+| Dependency management | A.8.8 | TVM-06, AIS-04 | PW.4 | V15 | A03 |
 | API security | A.8.26 | AIS-08 | N/A | V4 | A01, A04 |
 | AI/ML security | N/A | AICM TVM-13, AIS-09, AIS-10 | N/A | N/A | OWASP LLM Top 10 |
 
