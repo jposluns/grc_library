@@ -2490,7 +2490,7 @@ class PrePushGuardTests(unittest.TestCase):
             path.chmod(path.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
         return tmp, shutil
 
-    def _run_guard(self, tmp: Path, allow_pipe: bool = True):
+    def _run_guard(self, tmp: Path, allow_pipe: bool = True, allow_dirty: bool = True):
         import os
         import subprocess as sp
 
@@ -2504,6 +2504,14 @@ class PrePushGuardTests(unittest.TestCase):
             env["PRE_PUSH_GUARD_ALLOW_PIPE"] = "1"
         else:
             env.pop("PRE_PUSH_GUARD_ALLOW_PIPE", None)
+        # The fixture dir is not a git repo (or is deliberately dirty), which the
+        # dirty-tracked-tree attestation check refuses; the runner-chaining tests
+        # are orthogonal to that check, so they bypass it via the documented
+        # override. The dirty / fail-closed behaviour has its own tests below.
+        if allow_dirty:
+            env["PRE_PUSH_GUARD_ALLOW_DIRTY"] = "1"
+        else:
+            env.pop("PRE_PUSH_GUARD_ALLOW_DIRTY", None)
         return sp.run(
             ["bash", str(tmp / "tools" / "pre-push-guard.sh")],
             capture_output=True, text=True, cwd=str(tmp), env=env,
@@ -2593,6 +2601,63 @@ class PrePushGuardTests(unittest.TestCase):
                 (tmp / "second-ran.marker").exists(),
                 "no runner may run on the refusal path",
             )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_unattestable_tree_fails_closed(self) -> None:
+        """Attestation-soundness (git-add-drop 2b): when `git status` errors
+        (the fixture dir is not a git repo), the guard must FAIL CLOSED (exit 5),
+        not read an empty status as a clean tree. Pins codex's fail-open finding."""
+        tmp, shutil = self._build_guard_dir(first_rc=0, second_rc=0)
+        try:
+            result = self._run_guard(tmp, allow_dirty=False)
+            self.assertEqual(
+                result.returncode, 5,
+                f"guard must fail closed (exit 5) when git status errors; got "
+                f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+            self.assertFalse(
+                (tmp / "second-ran.marker").exists(),
+                "no runner may run on the refusal path",
+            )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_dirty_tracked_tree_refused(self) -> None:
+        """A modified tracked file makes the working tree differ from HEAD, so
+        the guard must refuse (exit 5) before running the gates."""
+        import subprocess as sp
+        tmp, shutil = self._build_guard_dir(first_rc=0, second_rc=0)
+        try:
+            for args in (["init", "-q"], ["config", "user.email", "t@t"],
+                         ["config", "user.name", "t"], ["add", "-A"],
+                         ["commit", "-q", "-m", "init"]):
+                sp.run(["git", "-C", str(tmp), *args], check=True,
+                       capture_output=True, text=True)
+            # dirty a tracked file
+            (tmp / "tools" / "run_all_audits.sh").write_text(
+                "#!/bin/bash\nexit 0\n# dirtied\n", encoding="utf-8")
+            result = self._run_guard(tmp, allow_dirty=False)
+            self.assertEqual(
+                result.returncode, 5,
+                f"guard must refuse (exit 5) a dirty tracked tree; got "
+                f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_allow_dirty_override_proceeds(self) -> None:
+        """PRE_PUSH_GUARD_ALLOW_DIRTY=1 bypasses the dirty/unattestable-tree
+        check (with a visible console notice) and the guard proceeds."""
+        tmp, shutil = self._build_guard_dir(first_rc=0, second_rc=0)
+        try:
+            result = self._run_guard(tmp, allow_dirty=True)
+            self.assertEqual(
+                result.returncode, 0,
+                f"guard should proceed (exit 0) with the ALLOW_DIRTY override; got "
+                f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+            self.assertIn("PRE_PUSH_GUARD_ALLOW_DIRTY", result.stderr)
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 
