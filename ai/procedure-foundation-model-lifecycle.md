@@ -2,8 +2,8 @@
 
 **Document Title:** Foundation Model Lifecycle Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.9\
-**Date:** 2026-09-01\
+**Version:** 0.0.10\
+**Date:** 2026-09-19\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/template-ai-vendor-security-questionnaire.md`](template-ai-vendor-security-questionnaire.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md), [`supply-chain/standard-cloud-exit-and-data-portability.md`](../supply-chain/standard-cloud-exit-and-data-portability.md), [`ai/standard-ai-model-succession-and-identity.md`](standard-ai-model-succession-and-identity.md), [`governance/standard-semantic-continuity-in-migration-and-retirement.md`](../governance/standard-semantic-continuity-in-migration-and-retirement.md)\
@@ -146,7 +146,7 @@ If the version transition is involuntary (provider deprecates the prior version 
 
 ## Provider systemic-risk expectations (GPAI models with systemic risk)
 
-Where a candidate foundation model is a general-purpose AI model with systemic risk under EU AI Act Article 51 (the classification article), the EU GPAI Code of Practice (Safety and Security Chapter, July 2025), the Article 56 co-regulatory instrument for demonstrating Article 55 compliance, sets the authoritative expectations an adopter can require of and interrogate in the provider. The Code binds the provider, not the adopting deployer; the adopter uses it as a due-diligence lens:
+Where a candidate foundation model is a general-purpose AI model with systemic risk under EU AI Act Article 51 (the classification article), the EU GPAI Code of Practice (Safety and Security Chapter, July 2025), the Article 56 co-regulatory instrument for demonstrating Article 55 compliance, sets the authoritative expectations an adopter can require of and interrogate in the provider. The Code applies to the provider, not the adopting deployer, and adherence is voluntary (though it is the primary co-regulatory route to demonstrate Article 55 compliance, and a non-adhering provider must show alternative adequate means); the adopter uses it as a due-diligence lens:
 
 - **Pre-engagement (Step 2):** obtain the provider's published summarized Safety and Security Framework and Model Report (Code Measure 10.2, Commitment 7) and its independent-external-evaluation results, to supplement the organization's own safety and adversarial evaluations.
 - **Contract (Step 3):** require that a systemic-risk provider maintains its Framework and Model Report (Commitments 1 and 7) and its serious-incident reporting to the AI Office (Commitment 9), tied to the incident-notification clause.
