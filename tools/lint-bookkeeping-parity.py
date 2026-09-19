@@ -41,9 +41,10 @@ the improvement log, with these exemptions:
   runs before the PR is finalized and its rows land in the SAME PR, so the
   window is inclusive of ``max_pr``. (The former highest-PR-in-flight exemption
   went with the retired recursion-avoidance batching.)
-- A session-closing handoff PR is exempt from BOTH the validate-pr and the
-  retro requirement (the loop-break: a handoff PR skips its own trailing
-  QA). Handoff PRs are detected by their explicit validate-pr exemption row
+- A session-closing handoff PR normally runs its own validate-pr and retro
+  like any PR; ONLY when its own QA cannot be made self-contained at the
+  session boundary may it take the documented loop-termination fallback and
+  skip both (the loop-break). A fallback-taking handoff PR is detected by its explicit validate-pr exemption row
   (the Findings cell contains ``SKIPPED`` together with ``handoff``, or the
   phrase ``handoff-PR exception``).
 - A subsumption / maintainer-exception row (Findings cell carries a deliberate
