@@ -40,8 +40,10 @@
 #
 # Exit codes: 0 only if both runners and the web check (when .web/build.py is present) pass; 3 if the guard REFUSES to run
 # because stdout is piped (the RM-10 self-defence below, before any runner
-# starts); otherwise the first failing check's non-zero rc (that check's
-# own diagnostics are printed above).
+# starts); 4 if grc_library_private is required but absent (the _private check
+# below); 5 if the tracked working tree is dirty or its state cannot be read
+# (the attestation-soundness check below); otherwise the first failing check's
+# non-zero rc (that check's own diagnostics are printed above).
 
 set -u
 
@@ -76,7 +78,7 @@ cd "${REPO_ROOT}"
 # dependency. Fail LOUD at push time if it is absent, so a push authored without it (the
 # Bash-write path the PreToolUse Edit/Write hook does not gate) is caught here too. This is
 # identity-conditional: an adopter clone (any other origin) and CI are exempt (they legitimately
-# have no _private). Exit 4 is the _private-refuse code (3 is the pipe-refuse above).
+# have no _private). Exit 4 is the _private-refuse code (3 the pipe-refuse above, 5 the dirty-tree refuse below).
 _origin="$(git remote get-url origin 2>/dev/null || true)"
 # Boundary-anchored (a "/" or ":" before the owner) so a fork owner ending in "jposluns"
 # is not misread as the maintainer.
@@ -88,6 +90,34 @@ case "${_origin}" in
     fi
     ;;
 esac
+
+# Working-tree-vs-committed-tree attestation soundness (git-add-drop backstop,
+# 2026-09-19). The runners below read the WORKING TREE, but `git push` ships the
+# COMMITTED tree (HEAD). When a tracked file is modified or staged the two differ,
+# so a green run here can still flip CI red: the #2378 signature (a
+# regenerated-but-unstaged generated artefact, an unstaged stale-count fix, any
+# unstaged edit to a gate-read file all present local-green / CI-red). Refuse on a
+# dirty tracked tree so the working-tree attestation equals HEAD for tracked
+# content and the "from HEAD" runs below are sound. Untracked new files (??) are
+# out of scope here (a first-generation output never `git add`ed); a queued
+# commit-time hook (2a) will backstop that case. FAIL CLOSED: if `git status`
+# itself errors, the tree state cannot be attested, so refuse rather than treat an
+# empty result as clean (ignorance must refuse, not permit; the guard-input
+# soundness discipline). Exit 5 is the dirty-tree / unattestable-tree refuse code.
+# Deliberate override, rare and announced on the console like the pipe override:
+# PRE_PUSH_GUARD_ALLOW_DIRTY=1.
+if [ -z "${PRE_PUSH_GUARD_ALLOW_DIRTY:-}" ]; then
+  if ! _dirty="$(git status --porcelain --untracked-files=no)"; then
+    echo "pre-push-guard: REFUSING to run: 'git status' failed, so the working-tree state cannot be attested against HEAD (the committed tree that ships). Fix the repository state, then retry. Deliberate override: PRE_PUSH_GUARD_ALLOW_DIRTY=1." >&2
+    exit 5
+  fi
+  if [ -n "${_dirty}" ]; then
+    echo "pre-push-guard: REFUSING to run: tracked files are modified or staged, so the working-tree gate run would not attest what HEAD (the committed tree that ships) contains. Commit or stash the changes, then retry. Deliberate override: PRE_PUSH_GUARD_ALLOW_DIRTY=1." >&2
+    exit 5
+  fi
+else
+  echo "pre-push-guard: NOTE: PRE_PUSH_GUARD_ALLOW_DIRTY is set; skipping the dirty-tracked-tree attestation check (deliberate override)." >&2
+fi
 
 # Best-effort refresh of the merge base so the delta gates in
 # run-pr-time-checks.sh compare against the true base ref (origin/main by
