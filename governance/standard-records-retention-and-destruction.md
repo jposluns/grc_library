@@ -2,8 +2,8 @@
 
 **Document Title:** Records Retention and Destruction Standard\
 **Document Type:** Standard\
-**Version:** 1.4.22\
-**Date:** 2026-09-04\
+**Version:** 1.4.23\
+**Date:** 2026-09-19\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -48,13 +48,15 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer where 
 
 ## 4. Records classification
 
-| Classification | Examples | Minimum Retention |
+| Classification | Examples | Default Retention |
 |---|---|---|
 | **Public** | Marketing materials, published financials | 1 year |
 | **Controlled** | Non-sensitive client communications, reference documentation | 3 years |
 | **Internal** | Internal reports, operational procedures, user manuals | 5 years |
 | **Confidential** | Contracts, HR files, financial data, personal data | 7 years or as required by applicable law |
 | **Restricted** | Trade secrets, encryption keys, M&A files, AI model source code | 10 years or indefinite with periodic review |
+
+> **Precedence of the record-specific schedule.** The Default Retention periods above are classification-level defaults. Where the authoritative Records Retention Schedule (RRS) register ([`register-data-retention-schedule.md`](register-data-retention-schedule.md), see section 5) specifies a record-specific retention period for a record type, that record-specific period governs, whether it is longer or shorter than the classification default, because it reflects the legal, regulatory, and compliance-driven period set for that specific record type (for example, penetration test reports are classified Confidential but retain for the 5 years the RRS register specifies as compliance evidence, not the 7-year Confidential default). The classification defaults apply only where the RRS register does not specify a period for the record; being schedule-defined periods, they are approved through this standard's own change control and do not trigger the section-5 per-instance Legal Counsel approval, which applies only to ad-hoc retention beyond the schedule.
 
 ---
 
