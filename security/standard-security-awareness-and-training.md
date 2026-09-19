@@ -2,8 +2,8 @@
 
 **Document Title:** Security Awareness and Training Standard\
 **Document Type:** Standard\
-**Version:** 1.0.6\
-**Date:** 2026-09-01\
+**Version:** 1.0.7\
+**Date:** 2026-09-19\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`ai/standard-ai-human-oversight.md`](../ai/standard-ai-human-oversight.md)\
@@ -101,5 +101,7 @@ The CISO reviews programme effectiveness annually using: training completion rat
 | Training governance | Clause 7.2 | AT-1 | N/A | N/A |
 
 This standard also aligns with NIST SP 800-181 Rev. 1 (Workforce Framework for Cybersecurity, the NICE Framework) for role-based training design and work-role competency mapping.
+
+This standard also aligns with NIST SP 800-50 Rev. 1 (Building a Cybersecurity and Privacy Learning Program) for its audience-tiered learning (§2.5: all users, privileged-access account holders, and staff with significant cybersecurity and privacy responsibilities) and its programme metrics and effectiveness measurement (§5.2), reflected in Sections 4, 7, and 8 of this standard.
 
 **End of Document**
