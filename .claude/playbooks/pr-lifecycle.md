@@ -261,8 +261,8 @@ is external. Two mechanisms:
      are recurring cross-FILE carriers, and each live (non-frozen-`.working`) citer is
      reworded (or has its `§` dropped) in the same PR. The intra-doc-ref gate catches a
      surviving `§N` only INSIDE the same `.md` file; a tool docstring's "queued §N" or a
-     CLAUDE.md "queued PN gate" is gate-blind and surfaces only at the next PR's
-     `/validate-pr`. (#469's close left the `tools/lint-bookkeeping-parity.py`
+     CLAUDE.md "queued PN gate" is gate-blind and must be caught by THIS PR's
+     pre-merge `/validate-pr` (not deferred to a later PR). (#469's close left the `tools/lint-bookkeeping-parity.py`
      docstring stale; #471's close left it and a CLAUDE.md line stale; #472 fixed
      both. The intra-TODO-only cleanup of #469 is the evidence the grep must span files.)
      This explicitly includes gate-exempt files carrying a FORWARD `§N` / `PN.M` pointer
