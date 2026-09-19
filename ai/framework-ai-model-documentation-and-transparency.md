@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Documentation and Transparency Framework\
 **Document Type:** Framework\
-**Version:** 1.0.12\
-**Date:** 2026-09-13\
+**Version:** 1.0.13\
+**Date:** 2026-09-19\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md)\
@@ -169,6 +169,7 @@ A provider adds any Form field with no direct model-card counterpart (for exampl
 | NIST IR 8312 | Four Principles of Explainable Artificial Intelligence | Explainability principles |
 | OECD AI Principles (2019, updated 2024) | Principle 1.3 (Transparency and explainability) | AI transparency obligations |
 | GDPR (2018) | Article 22: Automated Decision-Making | Transparency and human review rights |
+| CSA AI Model Risk Management Framework (2024) | Core Components: Model Cards (from p. 18) and Data Sheets (from p. 22) | Voluntary trusted-framework guidance: Model Cards inform model-card content and maintenance (Sections 1 and 5) and training-data details; the Data Sheets training-data pillar informs the training-data record (Section 3) |
 
 ---
 
