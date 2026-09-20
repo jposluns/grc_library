@@ -2,7 +2,7 @@
 
 **Document Title:** Remote Working Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.25\
+**Version:** 1.0.26\
 **Date:** 2026-09-20\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -51,7 +51,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 ### 4.1 Managed device requirement
 
-4.1.1 Remote work must be conducted on a company-managed device enrolled in the endpoint management platform as the default. Personal (bring-your-own) devices are permitted only as provided in Section 8, and any use beyond what Section 8 allows requires an exception under Section 10, except that access to Restricted data from a personal device is prohibited outright and is not available through the Section 10 exception process. The endpoint management platform enforces configuration baselines; conditional access policy enforcement blocks non-compliant managed devices (Section 4.2) and limits unmanaged personal devices to the access permitted under Section 8.
+4.1.1 Remote work must be conducted on a company-managed device enrolled in the endpoint management platform as the default. Personal (bring-your-own) devices are permitted only as provided in Section 8, and any use beyond what Section 8 allows requires an exception under Section 10, except that access to Restricted data from a personal device is permitted only through the managed-work-profile route referenced in Section 8.2 (a standing approved path per the BYOD policy Section 7); outside that route it is prohibited outright and is not available through the Section 10 exception process. The endpoint management platform enforces configuration baselines; conditional access policy enforcement blocks non-compliant managed devices (Section 4.2) and limits unmanaged personal devices to the access permitted under Section 8.
 
 4.1.2 Devices must maintain compliance with the endpoint configuration baseline at all times. The baseline requires, at minimum:
 
@@ -151,8 +151,8 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 | **Public** | Yes, on any compliant managed device | Company-managed storage | No |
 | **Controlled** | Yes, on any compliant managed device | Company-managed storage | No |
 | **Internal** | Yes, on any compliant managed device | Company-managed storage | No (cloud); Yes (on-premises) |
-| **Confidential** | Yes, on compliant managed device; personal devices require an approved exception per the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) | Company-managed encrypted storage; personal cloud storage prohibited | Yes, always (VPN required for all Confidential-data access regardless of network type, per Section 5.2.2) |
-| **Restricted** | Managed device only; CISO approval required for remote access | Company-managed encrypted storage; no personal storage of any kind | Yes, always |
+| **Confidential** | Yes, on compliant managed device, or personal device via the managed-work-profile route (Section 8.2, a standing approved path requiring no per-device exception); other personal-device access requires an approved exception per the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) | Company-managed encrypted storage; personal cloud storage prohibited | Yes, always (VPN required for all Confidential-data access regardless of network type, per Section 5.2.2) |
+| **Restricted** | Managed device, or personal device only via the managed-work-profile route (Section 8.2, a standing approved path requiring no per-device exception); CISO approval required for remote access | Company-managed encrypted storage; no personal storage of any kind | Yes, always |
 
 The VPN Required column states requirements by data classification; Section 5.1 additionally requires VPN on untrusted networks (for example public Wi-Fi and most client-site networks) regardless of the data classification. The Remote Access Permitted column describes managed-device access; personal (BYOD) devices may also access Public, Controlled, and Internal data through browser interfaces under the conditional-access path set out in Section 8 (which also governs the personal-device conditions for Confidential and Restricted data).
 
@@ -214,7 +214,7 @@ The VPN Required column states requirements by data classification; Section 5.1 
 
 ## 10. Exceptions
 
-10.1 Exceptions to any requirement in this standard must be approved through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md), with CISO co-approval (exceptions to this standard are security-related) in addition to, not in place of, the risk-tier approver, before the exception is applied. The prohibition on accessing Restricted-classified data from a personal device (Section 8) is absolute and is not subject to this exception process; Restricted access requires a company-managed device.
+10.1 Exceptions to any requirement in this standard must be approved through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md), with CISO co-approval (exceptions to this standard are security-related) in addition to, not in place of, the risk-tier approver, before the exception is applied. The prohibition on accessing Restricted-classified data from a personal device outside the managed-work-profile route (Section 8.2) is absolute and is not subject to this exception process; outside that route, Restricted access requires a company-managed device. The managed-work-profile route is a standing approved path (Section 8.2, per the BYOD policy Section 7) and does not itself require a Section 10 exception.
 
 10.2 Exception requests must include:
 
