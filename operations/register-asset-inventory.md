@@ -2,8 +2,8 @@
 
 **Document Title:** Asset Inventory Register\
 **Document Type:** Register\
-**Version:** 1.0.9\
-**Date:** 2026-08-30\
+**Version:** 1.0.10\
+**Date:** 2026-09-20\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/procedure-patch-management.md`](procedure-patch-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md)\
@@ -123,6 +123,7 @@ Each asset record must contain the following fields:
 | NIST SP 800-53 Rev. 5 | CM-8: System Component Inventory | Asset inventory controls |
 | COBIT 2019 | BAI09: Managed Assets | IT asset lifecycle management |
 | CSA CCM v4.1 | DCS-06 / DCS-07 | Cloud asset inventory and management |
+| NIST IR 8011 Vol. 2 (Hardware Asset Management) | §2.1 HWAM Capability Description | Automated hardware-inventory capability: reconciles identified devices against the desired-state (authorized) inventory to surface unmanaged or unauthorized devices, and provides visibility into per-device management responsibility |
 
 ---
 
