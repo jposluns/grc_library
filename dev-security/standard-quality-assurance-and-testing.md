@@ -2,8 +2,8 @@
 
 **Document Title:** Quality Assurance and Testing Standard\
 **Document Type:** Standard\
-**Version:** 1.0.5\
-**Date:** 2026-07-23\
+**Version:** 1.0.6\
+**Date:** 2026-09-20\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -127,6 +127,7 @@ AI model testing is governed by the AI Testing, Validation and Documentation Sta
 | COBIT 2019 | BAI03: Managed Solutions Identification and Build | Solution quality assurance |
 | CSA CCM v4.1 | CCC-02: Quality Testing | Cloud software testing controls |
 | NIST SP 800-53 | SA: System and Services Acquisition Family | Software assurance controls |
+| OWASP WSTG v4.2 (Web Security Testing Guide) | SDLC testing workflow and web application security test cases | Web application security-testing methodology; QA and testers expand the applied test-case set with WSTG security test cases across the SDLC |
 
 ---
 
