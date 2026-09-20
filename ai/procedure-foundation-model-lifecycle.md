@@ -2,8 +2,8 @@
 
 **Document Title:** Foundation Model Lifecycle Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.10\
-**Date:** 2026-09-19\
+**Version:** 0.0.11\
+**Date:** 2026-09-20\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/template-ai-vendor-security-questionnaire.md`](template-ai-vendor-security-questionnaire.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md), [`supply-chain/standard-cloud-exit-and-data-portability.md`](../supply-chain/standard-cloud-exit-and-data-portability.md), [`ai/standard-ai-model-succession-and-identity.md`](standard-ai-model-succession-and-identity.md), [`governance/standard-semantic-continuity-in-migration-and-retirement.md`](../governance/standard-semantic-continuity-in-migration-and-retirement.md)\
@@ -213,6 +213,7 @@ Beyond the supplier-facing risks above, a foundation model carries the generativ
 | OECD AI Principles | All five values | Foundational principles |
 | Hiroshima Process on Generative AI | Voluntary code of conduct for advanced AI | Provider expectations |
 | DORA | Articles 28 to 44 (third-party ICT risk including critical providers) | EU financial services |
+| CSA AI Model Risk Management Framework (2024) | Model Deployment and Use, and Model Risk Assessment (pp. 10-11); Core Components maintained model cards (pp. 18-21) | Voluntary guidance for third-party model assessment, lifecycle controls, and maintained model documentation; does not establish contractual notice periods, indemnities, or provider incident deadlines |
 
 ---
 
