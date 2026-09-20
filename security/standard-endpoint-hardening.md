@@ -2,8 +2,8 @@
 
 **Document Title:** Endpoint Hardening Standard\
 **Document Type:** Standard\
-**Version:** 1.0.6\
-**Date:** 2026-09-19\
+**Version:** 1.0.7\
+**Date:** 2026-09-20\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-byod.md`](policy-byod.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-remote-working-security.md`](standard-remote-working-security.md), [`security/procedure-vulnerability-management.md`](procedure-vulnerability-management.md), [`security/framework-zero-trust-architecture.md`](framework-zero-trust-architecture.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md), [`operations/procedure-media-handling-and-transport.md`](../operations/procedure-media-handling-and-transport.md)\
@@ -222,6 +222,7 @@ Devices used to administer production environments meet a stricter baseline.
 | NIST SP 800-46 Rev. 2 | Guide to Enterprise Telework, Remote Access, and Bring Your Own Device | Remote and BYOD context |
 | NIST SP 800-124 Rev. 2 | Guidelines for Managing the Security of Mobile Devices in the Enterprise, §4.3 Recommended Mitigations and Countermeasures | Mobile baseline |
 | NIST SP 800-83 Rev. 1 | Guide to Malware Incident Prevention and Handling for Desktops and Laptops, §3.3, §3.4.3, §3.4.5 | Enduring malware-prevention endpoint hardening: least privilege, application hardening and allowlisting, host-based firewalls |
+| NIST SP 800-128 | Guide for Security-Focused Configuration Management of Information Systems (2011, updated 2019) | Security-focused configuration management for hardening baselines and change control |
 | ISO/IEC 27001:2022 | A.8.1 (user endpoints), A.8.3, A.8.7 | Endpoint controls |
 | CSA Cloud Controls Matrix | UEM domain | Cross-walk |
 | Microsoft Security Compliance Toolkit | Vendor baseline | Where applicable |
