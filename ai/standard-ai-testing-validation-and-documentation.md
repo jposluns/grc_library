@@ -2,8 +2,8 @@
 
 **Document Title:** AI Testing, Validation and Documentation Standard\
 **Document Type:** Standard\
-**Version:** 1.0.8\
-**Date:** 2026-09-13\
+**Version:** 1.0.9\
+**Date:** 2026-09-20\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md)\
@@ -153,6 +153,7 @@ AI models undergoing retraining or significant update must complete:
 | NIST AI 100-2e2025 | Adversarial machine-learning taxonomy | Adversarial attack taxonomy for security testing (Section 5.4) |
 | ISO/IEC 27001:2022 | Annex A | Security controls for AI systems |
 | ETSI EN 304 223 V2.1.1 | Provisions 5.2.5-1, 5.2.5-2 (Principle 9) | Security-assessment testing before release, and System Operator testing before deployment |
+| Singapore IMDA Model AI Governance Framework for Agentic AI (v1.5, 2026) | §2.3.2 - agentic-system testing: complete workflows, policy compliance, tool-call correctness, agents individually and together, realistic environments, repeated stochastic runs | Voluntary governance alignment for agentic-system test coverage (scoped to agentic AI) |
 
 ---
 
