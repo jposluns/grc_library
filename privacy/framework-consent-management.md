@@ -2,8 +2,8 @@
 
 **Document Title:** Consent Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.14\
-**Date:** 2026-09-03\
+**Version:** 1.0.15\
+**Date:** 2026-09-20\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/register-cookie-and-tracker.md`](register-cookie-and-tracker.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/framework-childrens-data.md`](framework-childrens-data.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md)\
@@ -167,6 +167,7 @@ For cookies and similar tracking technologies, consent is governed by the cookie
 | LGPD | Articles 7(I), 8 | Consent as lawful basis |
 | PIPL | Articles 13, 14 | Consent definition and conditions |
 | COPPA | 16 CFR 312 | Verifiable parental consent |
+| Canada PIPEDA (OPC Fair Information Principles) | Fair Information Principle 3 (Consent) | Meaningful consent: valid only where the individual can reasonably understand the nature, purpose and consequences; form of consent scaled to information sensitivity (express consent where information is sensitive, falls outside the individual's reasonable expectations, or creates a meaningful residual risk of significant harm); renewed consent for significant practice changes; withdrawal at any time, subject to legal or contractual restrictions and reasonable notice |
 | CPPA | Section 15(5)-(6) (lapsed with Bill C-27) | Express versus implied consent |
 | CCPA / CPRA | Cal. Civ. Code ss. 1798.120-1798.121; CCPA Regs 11 CCR s. 7004 | Opt-out of sale/sharing (1798.120) and right to limit use and disclosure of sensitive personal information (1798.121); consent-method requirements (symmetry in choice, no dark patterns) |
 | ISO/IEC 29184:2020 | Online notice and consent | Consent capture structure |
