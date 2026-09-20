@@ -9846,8 +9846,8 @@ documents:
   domain: "resilience"
   type: "Procedure"
   title: "Business Impact Analysis Procedure"
-  version: "1.0.2"
-  date: "2026-07-02"
+  version: "1.0.3"
+  date: "2026-09-20"
   owner: "Resilience Owner"
   approving_authority: "Governance Library Maintainer"
   classification: "Public"
@@ -9872,7 +9872,9 @@ documents:
     - "Minimum BIA fields"
     - "AI and data considerations"
     - "Evidence requirements"
-  frameworks: []
+    - "Framework alignment"
+  frameworks:
+    - "NIST IR 8286D-upd1 (Using Business Impact Analysis to Inform Risk Prioritization and Response)"
 - path: "resilience/procedure-continuity-and-recovery-testing.md"
   domain: "resilience"
   type: "Procedure"

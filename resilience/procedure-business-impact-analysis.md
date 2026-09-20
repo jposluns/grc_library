@@ -2,8 +2,8 @@
 
 **Document Title:** Business Impact Analysis Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.2\
-**Date:** 2026-07-02\
+**Version:** 1.0.3\
+**Date:** 2026-09-20\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](policy-business-continuity-and-disaster-recovery.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`resilience/plan-it-disaster-recovery.md`](plan-it-disaster-recovery.md), [`resilience/register-resilience-metrics-and-testing-log.md`](register-resilience-metrics-and-testing-log.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
@@ -94,6 +94,14 @@ Where the assessed process depends on AI systems, the BIA must consider model se
 ## Evidence requirements
 
 Maintain the completed assessment, dependency map, recovery objective decision, owner approval, exception record, continuity requirement, and related corrective action records.
+
+---
+
+## Framework alignment
+
+| Framework | Reference | Relevance |
+| --- | --- | --- |
+| NIST IR 8286D-upd1 (Using Business Impact Analysis to Inform Risk Prioritization and Response) | Section 2 (Cataloging and Categorizing Assets Based on Enterprise Value) | Extends BIA beyond availability to the potential impact of any loss type on the enterprise mission; develops asset categorization, impact values, and protection requirements for critical or sensitive assets as the foundation for enterprise risk prioritization and response |
 
 ---
 
