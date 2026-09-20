@@ -2,8 +2,8 @@
 
 **Document Title:** AI Access and Agent Permissions Standard\
 **Document Type:** Standard\
-**Version:** 0.0.17\
-**Date:** 2026-09-18\
+**Version:** 0.0.18\
+**Date:** 2026-09-20\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/register-mcp-server.md`](register-mcp-server.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/plan-ai-incident-response.md`](plan-ai-incident-response.md), [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md)\
@@ -258,6 +258,7 @@ Retrieval-augmented generation and other context-injection patterns:
 | NIST SP 800-53 Rev. 5 | AC-2 (Account Management), AC-3 (Access Enforcement), AC-6 (Least Privilege), AC-24 (Access Control Decisions) | Access control baseline |
 | ISO/IEC 27001:2022 | A.5.15 to A.5.18, A.8.2 | Access control and privileged access |
 | ETSI EN 304 223 V2.1.1 (2025-12) | Provision 5.1.2-6 (Principle 2); Provision 5.2.2-1 and 5.2.2-3 (Principle 6) | Least-privilege permissions on other systems; access-control-framework evaluation and least-privilege environment separation |
+| Singapore IMDA Model AI Governance Framework for Agentic AI (v1.5, 2026) | Agent identity: unique identities, scoped authorizations, and delegation bounded by human permissions | Voluntary governance alignment for scoped agent authorization and bounded delegation |
 | CSA AICM v1.1.0 | AIS-11 Agents Security Boundaries | Agent security-boundary enforcement |
 | CSA AICM v1.1.0 | IAM-18 Agent Access Restriction | Per-agent tool and plugin restriction on need-to-know and least privilege |
 | CSA AICM v1.1.0 | IAM-16 Knowledge Access Control - Need to Know | Need-to-know retrieval and embedding-store access control |
