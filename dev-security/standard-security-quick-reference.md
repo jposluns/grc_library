@@ -2,8 +2,8 @@
 
 **Document Title:** Security Quick Reference\
 **Document Type:** Standard\
-**Version:** 1.1.19\
-**Date:** 2026-09-16\
+**Version:** 1.1.20\
+**Date:** 2026-09-20\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md)\
@@ -150,7 +150,7 @@ Every pipeline touching Test or Production must include these checks in order. P
 | Standard (pre-approved, low-risk) | Team lead | No |
 | Normal | CIO delegate | Yes |
 | Emergency | CIO | Retrospective within 5 business days |
-| High-risk (identity, PAM, PKI, production network) | CIO or CISO | Yes |
+| High-risk (identity, PAM, PKI, production network) | CISO and CIO (joint approval) | Yes |
 
 Every CAB-reviewed change must include a tested rollback plan. Emergency changes must be codified in IaC within 24 hours.
 

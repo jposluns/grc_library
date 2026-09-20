@@ -2,8 +2,8 @@
 
 **Document Title:** Architecture Decision Records Standard\
 **Document Type:** Standard\
-**Version:** 1.0.4\
-**Date:** 2026-09-14\
+**Version:** 1.0.5\
+**Date:** 2026-09-20\
 **Owner:** Chief Technology Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`architecture/framework-enterprise-architecture.md`](framework-enterprise-architecture.md), [`architecture/procedure-architecture-review.md`](procedure-architecture-review.md), [`dev-security/procedure-secure-code-review.md`](../dev-security/procedure-secure-code-review.md), [`governance/framework-document-architecture-and-interrelationship.md`](../governance/framework-document-architecture-and-interrelationship.md)\
@@ -210,7 +210,7 @@ Approval is recorded in the ADR; the approver's role (not name only) is included
 | Open Group TOGAF Standard | Architecture deliverables | Enterprise architecture |
 | C4 model | Documentation conventions | Compatibility |
 | OWASP SAMM | Secure Architecture (SA) Stream A: Architecture Design | Software assurance maturity |
-| NIST SP 800-218 | SSDF PO Plan | Secure software development |
+| NIST SP 800-218 | SSDF PO (Prepare the Organization) | Secure software development |
 
 ---
 

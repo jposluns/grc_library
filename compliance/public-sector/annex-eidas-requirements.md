@@ -2,8 +2,8 @@
 
 **Document Title:** eIDAS Sector Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.1\
-**Date:** 2026-07-09\
+**Version:** 0.0.2\
+**Date:** 2026-09-20\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/public-sector/README.md`](README.md), [`compliance/public-sector/annex-public-sector-requirements.md`](annex-public-sector-requirements.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md), [`security/standard-authentication-and-password-management.md`](../../security/standard-authentication-and-password-management.md), [`security/procedure-identity-management.md`](../../security/procedure-identity-management.md), [`compliance/annex-nis-2-implementation.md`](../annex-nis-2-implementation.md)\
@@ -69,7 +69,7 @@ A phased acceptance obligation applies to certain private-sector relying parties
 
 - The framework distinguishes **qualified** from **non-qualified** trust services, with a supervision split and the EU trust mark reserved to qualified services. Non-qualified providers meet the Article 19a requirements; qualified providers meet the qualified-service requirements and are supervised accordingly.
 - Qualified electronic attestation of attributes is verified against authentic sources.
-- **NIS2 overlap:** a trust-service provider is typically also a NIS2 essential entity ("trust service providers" are named in the NIS2 essential-entity list). eIDAS supervision cooperates with the NIS2 competent authorities, and the penalties provision applies "without prejudice to Article 31 of Directive (EU) 2022/2555" (Article 16(1)); Article 19a aligns non-qualified-provider security measures with the NIS2 regime. See the [NIS2 implementation annex](../annex-nis-2-implementation.md).
+- **NIS2 overlap:** a qualified trust-service provider is a NIS2 essential entity regardless of size (qualified trust service providers are named in NIS2 Article 3(1)(b)); a non-qualified provider may instead fall in scope as a NIS2 important entity. eIDAS supervision cooperates with the NIS2 competent authorities, and the penalties provision applies "without prejudice to Article 31 of Directive (EU) 2022/2555" (Article 16(1)); Article 19a aligns non-qualified-provider security measures with the NIS2 regime. See the [NIS2 implementation annex](../annex-nis-2-implementation.md).
 
 ### Public-sector body (Article 5f(1))
 

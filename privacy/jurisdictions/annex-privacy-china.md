@@ -2,8 +2,8 @@
 
 **Document Title:** China Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.7\
-**Date:** 2026-09-15\
+**Version:** 1.1.8\
+**Date:** 2026-09-20\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -68,9 +68,9 @@ The thresholds are evaluated on a cumulative calendar-year basis starting 1 Janu
 
 1. **Safe-harbor exemptions (no mechanism required):** A non-Critical Information Infrastructure Operator (CIIO) transferring fewer than 100,000 individuals' non-sensitive personal data in the calendar year is exempt. Specific exemptions are also available for transfers necessary for HR administration under a labour contract or employment policy, transfers necessary for the performance of a contract with the data subject (such as cross-border commerce, money remittance, account opening, travel booking, and visa services), and transfers necessary in cross-border emergencies for the protection of life, health, or property.
 
-2. **PIPL Standard Contract plus filing:** Required for non-CIIO transfers of non-sensitive personal data of 100,000 to 1,000,000 individuals in the calendar year, or any transfer of sensitive personal data of fewer than 10,000 individuals. The controller must conduct a PIA, sign the CAC-published Standard Contract with the recipient, and file the signed contract together with the PIA with the provincial-level CAC.
+2. **PIPL Standard Contract plus filing:** Required for non-CIIO transfers of non-sensitive personal data of 100,000 to fewer than 1,000,000 individuals in the calendar year, or any transfer of sensitive personal data of fewer than 10,000 individuals. The controller must conduct a PIA, sign the CAC-published Standard Contract with the recipient, and file the signed contract together with the PIA with the provincial-level CAC.
 
-3. **CAC Security Assessment (mandatory):** Required for any transfer by a CIIO; any transfer of "important data" (under the DSL); any non-CIIO transfer of non-sensitive personal data of more than 1,000,000 individuals in the calendar year; or any transfer of sensitive personal data of 10,000 or more individuals in the calendar year. The 2024 Provisions extend the validity of a passed security assessment from two years to three years.
+3. **CAC Security Assessment (mandatory):** Required for any transfer by a CIIO; any transfer of "important data" (under the DSL); any non-CIIO transfer of non-sensitive personal data of 1,000,000 or more individuals in the calendar year; or any transfer of sensitive personal data of 10,000 or more individuals in the calendar year. The 2024 Provisions extend the validity of a passed security assessment from two years to three years.
 
 4. **Third-party certification:** From a recognized professional institution as specified by the CAC; primarily applicable to intra-group transfers.
 

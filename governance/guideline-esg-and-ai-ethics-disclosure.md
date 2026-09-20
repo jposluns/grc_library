@@ -2,8 +2,8 @@
 
 **Document Title:** ESG and AI Ethics Disclosure Guideline\
 **Document Type:** Guideline\
-**Version:** 1.1.4\
-**Date:** 2026-07-24\
+**Version:** 1.1.5\
+**Date:** 2026-09-20\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md)\
@@ -93,7 +93,7 @@ Disclosures use standardized frameworks (GRI, TCFD, SASB) to enable stakeholder 
 | Disclosure Item | Framework | Frequency |
 | --- | --- | --- |
 | Governance maturity assessment results | COBIT 2019 | Annual |
-| Board and ERC oversight of AI and ESG | GRI 405; ISO/IEC 42001 §5 | Annual |
+| Board and ERC oversight of AI and ESG | GRI 2 (governance disclosures 2-9 to 2-21); ISO/IEC 42001 §5 | Annual |
 | Anti-bribery commitment and compliance | ISO 37001:2025; GRI 205 | Annual |
 | Data protection compliance summary | GDPR; PIPEDA | Annual |
 
