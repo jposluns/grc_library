@@ -2,8 +2,8 @@
 
 **Document Title:** Risk Assessment Methodology Procedure\
 **Document Type:** Procedure\
-**Version:** 1.2.10\
-**Date:** 2026-09-14\
+**Version:** 1.2.11\
+**Date:** 2026-09-20\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`ai/register-ai-risk.md`](../ai/register-ai-risk.md)\
@@ -184,6 +184,7 @@ For a Critical risk, the risk owner together with the CISO (or the relevant doma
 | ISO/IEC 27005:2022 | §6.4.2, §6.4.3, §6.5, §7.2.1, §7.2.2, §7.3.2, §7.3.3, §7.3.4, §7.4.1, §7.4.2, §8.2, §8.6.1, §8.6.3 | Information security risk methodology |
 | ISO/IEC 42001:2023 | §6.1.2, §6.1.3, §6.1.4, §8.2, §8.3 | AI risk assessment integration |
 | NIST SP 800-30r1 | §3.1, §3.2, §3.3, §3.4 | Risk assessment methodology |
+| NIST IR 8286A Rev. 1 | Identifying and Estimating Cybersecurity Risk for ERM (§2.2, §§ 2.2.1-2.2.4) | Cybersecurity risk-scenario structure connecting the affected asset, threat, vulnerability or predisposing condition, and consequence |
 | COBIT 2019 | APO12.01, APO12.02, APO12.03, APO12.04, APO12.05 | Enterprise risk governance |
 | CSA CCM v4.1 | GRC-02 | Cloud risk management |
 
