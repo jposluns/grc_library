@@ -2,8 +2,8 @@
 
 **Document Title:** IT Disaster Recovery Plan\
 **Document Type:** Plan\
-**Version:** 1.4.2\
-**Date:** 2026-09-14\
+**Version:** 1.4.3\
+**Date:** 2026-09-20\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -143,6 +143,7 @@ In an illustrative ransomware scenario, recovery could span roughly a 30-day win
 | COBIT 2019 | DSS04.03, DSS04.04, DSS04.05, DSS04.07 | IT continuity management |
 | NIST SP 800-34r1 | §4.1, §4.2.1, §4.3.1, §4.3.2, §4.4 | DR plan structure |
 | CSA CCM v4.1 | BCR-08, BCR-09, BCR-11: backups, disaster response plan, and redundant business-critical equipment | Cloud resilience controls |
+| NIST SP 800-184 (Guide for Cybersecurity Event Recovery) | Sections 2-3 (Planning for Cyber Event Recovery; Continuous Improvement) | Tactical and strategic guidance for developing the recovery plan and its playbooks, defining recovery initiation and termination criteria, and validating and continuously improving recovery capabilities following a cybersecurity event |
 
 ---
 
