@@ -2,8 +2,8 @@
 
 **Document Title:** AI Human-Oversight Standard\
 **Document Type:** Standard\
-**Version:** 0.0.6\
-**Date:** 2026-09-13\
+**Version:** 0.0.7\
+**Date:** 2026-09-20\
 **Owner:** AI Governance Lead\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`privacy/register-automated-decision-making.md`](../privacy/register-automated-decision-making.md), [`governance/principle-capability-is-not-authority.md`](../governance/principle-capability-is-not-authority.md)\
@@ -111,6 +111,8 @@ The alignment below is analogical (each row aligns with or is informed by the ci
 | NIST AI RMF 1.0 (2023) | GOVERN, MAP, MEASURE, MANAGE functions | Differentiated human-AI configuration roles and defined, documented human-oversight processes across a range from autonomous to manual (sections 4.1, 4.2). |
 | ISO/IEC 23894:2023 | Clause 4, Table 1 principle "Inclusive" (stakeholder involvement) | Stakeholder participation in identifying where human oversight is needed and in defining fairness and bias concerns (sections 4.1, 4.3). |
 | ETSI EN 304 223 V2.1.1 | Provision 5.1.4-3 (Principle 4) | Human oversight designed, verified, and maintained as a risk control |
+| Singapore IMDA Model AI Governance Framework for Agentic AI (v1.5, 2026) | §2.2.2 - Human oversight of agentic AI: significant-approval boundaries, overseer competence, automation-bias controls, override-rate and response-time monitoring, and default-deny when approval is unavailable | Voluntary governance alignment for the standard's oversight-mode and oversight-effectiveness controls |
+| Canada TBS Guide on the Use of Agentic Artificial Intelligence | §5(c), (f), (h), (j) - Operational oversight: resourced checkpoints, an accountable owner or delegate, offboarding transfer of oversight, automation-drift monitoring, and an external stop mechanism | Voluntary comparator for the standard's operational-oversight and stopping-authority controls |
 
 ---
 
