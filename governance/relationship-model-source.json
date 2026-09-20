@@ -294,6 +294,48 @@
       "class": "standard",
       "source_identifier": "ISO/IEC 27001:2022",
       "corpus_path": null
+    },
+    {
+      "id": "GRC-STD-AI-MODEL-RISK",
+      "display_name": "AI Model Risk Standard",
+      "class": "organizational standard",
+      "source_identifier": null,
+      "corpus_path": "ai/standard-ai-model-risk.md"
+    },
+    {
+      "id": "GRC-FW-AI-MODEL-RISK",
+      "display_name": "AI Model Risk Framework",
+      "class": "framework",
+      "source_identifier": null,
+      "corpus_path": "ai/framework-ai-model-risk.md"
+    },
+    {
+      "id": "GRC-FW-PRIVACY-BY-DESIGN",
+      "display_name": "Privacy by Design Framework",
+      "class": "framework",
+      "source_identifier": null,
+      "corpus_path": "privacy/framework-privacy-by-design.md"
+    },
+    {
+      "id": "GDPR-ART-25",
+      "display_name": "GDPR Article 25 (Data protection by design and by default)",
+      "class": "regulation or law",
+      "source_identifier": "Regulation (EU) 2016/679 Article 25",
+      "corpus_path": null
+    },
+    {
+      "id": "ISO-19011",
+      "display_name": "ISO 19011 Guidelines for auditing management systems",
+      "class": "standard",
+      "source_identifier": "ISO 19011:2026",
+      "corpus_path": null
+    },
+    {
+      "id": "GRC-PROC-VULN-MGMT",
+      "display_name": "Vulnerability Management Procedure",
+      "class": "procedure",
+      "source_identifier": null,
+      "corpus_path": "security/procedure-vulnerability-management.md"
     }
   ],
   "records": [
@@ -1188,6 +1230,198 @@
         "to": null
       },
       "authority_level": "architectural recommendation",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0049",
+      "source": {
+        "id": "GRC-STD-AI-MODEL-RISK",
+        "class": "organizational standard"
+      },
+      "verb": "implements",
+      "destination": {
+        "id": "GRC-FW-AI-MODEL-RISK",
+        "class": "framework"
+      },
+      "relationship_class": "implementation",
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "governance",
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "organizationally mandatory",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0050",
+      "source": {
+        "id": "GRC-FW-PRIVACY-BY-DESIGN",
+        "class": "framework"
+      },
+      "verb": "implements",
+      "destination": {
+        "id": "GRC-POL-PRIVACY-DATA-GOV",
+        "class": "policy"
+      },
+      "relationship_class": "implementation",
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "governance",
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "organizationally mandatory",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0051",
+      "source": {
+        "id": "GRC-FW-PRIVACY-BY-DESIGN",
+        "class": "framework"
+      },
+      "verb": "implements",
+      "destination": {
+        "id": "GDPR-ART-25",
+        "class": "regulation or law"
+      },
+      "relationship_class": "implementation",
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "legal obligation",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0052",
+      "source": {
+        "id": "ISO-19011",
+        "class": "standard"
+      },
+      "verb": "informs",
+      "destination": {
+        "id": "GRC-POL-COMPLIANCE-AUDIT-MGMT",
+        "class": "policy"
+      },
+      "relationship_class": "influence",
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "governance",
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0053",
+      "source": {
+        "id": "GRC-PROC-PATCH-MGMT",
+        "class": "procedure"
+      },
+      "verb": "references",
+      "destination": {
+        "id": "GRC-PROC-VULN-MGMT",
+        "class": "procedure"
+      },
+      "relationship_class": "citation",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "governance",
+      "direction_rule": "the citing instrument is placed beside the instrument it references (associative, no vertical precedence)",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "architectural recommendation",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0054",
+      "source": {
+        "id": "GRC-STD-INTERNAL-AUDIT",
+        "class": "organizational standard"
+      },
+      "verb": "implements",
+      "destination": {
+        "id": "ISO-IEC-27001",
+        "class": "standard"
+      },
+      "relationship_class": "implementation",
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "governance",
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "organizationally mandatory",
       "evidence_refs": [],
       "provenance": null,
       "scope": null,
