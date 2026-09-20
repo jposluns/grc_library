@@ -2,8 +2,8 @@
 
 **Document Title:** Bring Your Own Device (BYOD) Policy\
 **Document Type:** Policy\
-**Version:** 1.1.6\
-**Date:** 2026-08-31\
+**Version:** 1.1.7\
+**Date:** 2026-09-20\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-remote-working-security.md`](standard-remote-working-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md)\
@@ -88,7 +88,7 @@ These boundaries are properties of the MAM model. Under the MDM model the organi
 
 ## 7. Data classification restriction
 
-Personal devices may only be used to access Internal and lower data classifications (Public, Controlled, and Internal per the [Data Classification and Handling Standard](standard-data-classification-and-handling.md)). The managed-work-profile route defined in the [Endpoint Management and Device Compliance Procedure](../operations/procedure-endpoint-management-and-device-compliance.md) section 8.2 is a standing approved path for access to Confidential or Restricted data from a personal device and does not require a per-device exception under Section 12. Outside that managed-work-profile route, access to data classified as Confidential or Restricted from a personal device is not permitted. Personnel with regular access requirements for Confidential data outside that managed-work-profile route must use a company-managed device. Where a specific business need requires Confidential access from a personal device outside that managed-work-profile route, an exception approved through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (with CISO co-approval as a security-related exception) is required and a compensating control plan must be documented.
+By default, personal devices may be used to access Internal and lower data classifications (Public, Controlled, and Internal per the [Data Classification and Handling Standard](standard-data-classification-and-handling.md)); access to Confidential or Restricted data from a personal device is governed by the managed-work-profile route and the conditions described below. The managed-work-profile route defined in the [Endpoint Management and Device Compliance Procedure](../operations/procedure-endpoint-management-and-device-compliance.md) section 8.2 is a standing approved path for access to Confidential or Restricted data from a personal device and does not require a per-device exception under Section 12. Outside that managed-work-profile route, access to data classified as Confidential or Restricted from a personal device is not permitted. Personnel with regular access requirements for Confidential data outside that managed-work-profile route must use a company-managed device. Where a specific business need requires Confidential access from a personal device outside that managed-work-profile route, an exception approved through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (with CISO co-approval as a security-related exception) is required and a compensating control plan must be documented.
 
 ---
 
