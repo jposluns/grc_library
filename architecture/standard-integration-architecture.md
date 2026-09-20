@@ -2,8 +2,8 @@
 
 **Document Title:** Integration Architecture Standard\
 **Document Type:** Standard\
-**Version:** 0.0.5\
-**Date:** 2026-09-14\
+**Version:** 0.0.6\
+**Date:** 2026-09-20\
 **Owner:** Chief Technology Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`architecture/framework-enterprise-architecture.md`](framework-enterprise-architecture.md), [`architecture/standard-architecture-decision-records.md`](standard-architecture-decision-records.md), [`architecture/standard-api-design.md`](standard-api-design.md), [`architecture/standard-data-architecture.md`](standard-data-architecture.md), [`dev-security/standard-api-security.md`](../dev-security/standard-api-security.md), [`operations/standard-observability-and-telemetry.md`](../operations/standard-observability-and-telemetry.md), [`operations/standard-site-reliability-engineering.md`](../operations/standard-site-reliability-engineering.md)\
@@ -274,6 +274,7 @@ The choice is recorded as an ADR for material integrations and informed by the i
 | ISO/IEC 27001:2022 | A.5.14, A.8.20 to A.8.21 | Information transfer; network security cross-walk |
 | OWASP API Security Top 10 | API risk taxonomy | Cross-walk to the API security standard |
 | NIST CSF 2.0 | GV.SC-05, GV.SC-06 (supply-chain requirements and due diligence), ID.AM-03 (authorized data flows), PR.AA-03, PR.AA-05 (authentication and authorization), PR.DS-01, PR.DS-02 (data at rest and in transit), PR.IR-03 (resilience mechanisms) | Risk integration across integration points |
+| NIST SP 800-47 Rev. 1 (Managing the Security of Information Exchanges) | Guidance on planning, establishing, maintaining, and terminating information exchanges | Security of system-to-system information exchanges: identifying exchanges, protection requirements for exchanged data, and the exchange agreements (ISA, MOU, SLA) that govern them |
 
 ---
 
