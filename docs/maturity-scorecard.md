@@ -146,7 +146,7 @@ _117 documents._
 | [security/policy-encryption-and-key-management.md](../security/policy-encryption-and-key-management.md) | Encryption and Key Management Policy | Policy | 1.3.26 | 2026-09-20 |
 | [security/policy-identity-and-access-management.md](../security/policy-identity-and-access-management.md) | Identity and Access Management Policy | Policy | 1.3.26 | 2026-09-13 |
 | [security/policy-information-security.md](../security/policy-information-security.md) | Information Security Policy | Policy | 1.3.31 | 2026-09-13 |
-| [security/policy-network-communications-security.md](../security/policy-network-communications-security.md) | Network Communications Security Policy | Policy | 1.1.16 | 2026-09-20 |
+| [security/policy-network-communications-security.md](../security/policy-network-communications-security.md) | Network Communications Security Policy | Policy | 1.1.17 | 2026-09-20 |
 | [security/procedure-access-control.md](../security/procedure-access-control.md) | Access Control Procedure | Procedure | 1.2.13 | 2026-09-13 |
 | [security/procedure-security-incident-response.md](../security/procedure-security-incident-response.md) | Security Incident Response Procedure | Procedure | 1.3.32 | 2026-09-18 |
 | [security/procedure-vulnerability-management.md](../security/procedure-vulnerability-management.md) | Vulnerability Management Procedure | Procedure | 1.3.18 | 2026-09-18 |
@@ -154,7 +154,7 @@ _117 documents._
 | [security/sop-incident-escalation-matrix.md](../security/sop-incident-escalation-matrix.md) | Incident Escalation Matrix | SOP | 1.2.10 | 2026-09-18 |
 | [security/sop-security-ticket-reporting-scheme.md](../security/sop-security-ticket-reporting-scheme.md) | Security Ticket Reporting Scheme | SOP | 1.1.4 | 2026-08-05 |
 | [security/standard-authentication-and-password-management.md](../security/standard-authentication-and-password-management.md) | Authentication and Password Management Standard | Standard | 1.1.17 | 2026-09-18 |
-| [security/standard-data-classification-and-handling.md](../security/standard-data-classification-and-handling.md) | Data Classification and Handling Standard | Standard | 1.4.17 | 2026-09-18 |
+| [security/standard-data-classification-and-handling.md](../security/standard-data-classification-and-handling.md) | Data Classification and Handling Standard | Standard | 1.4.18 | 2026-09-20 |
 | [security/standard-data-loss-prevention.md](../security/standard-data-loss-prevention.md) | Data Loss Prevention Standard | Standard | 1.3.7 | 2026-08-26 |
 | [security/standard-logging-and-monitoring.md](../security/standard-logging-and-monitoring.md) | Logging and Monitoring Standard | Standard | 1.4.24 | 2026-09-16 |
 | [specification-ingestion.md](../specification-ingestion.md) | GRC Library Ingestion and Transformation Specification | Specification | 1.7.14 | 2026-09-05 |
@@ -320,7 +320,7 @@ _163 documents._
 | [security/standard-threat-modelling.md](../security/standard-threat-modelling.md) | Threat Modelling Standard | Standard | 1.0.14 | 2026-09-14 |
 | [supply-chain/annex-trade-and-supply-chain-continuity-controls.md](../supply-chain/annex-trade-and-supply-chain-continuity-controls.md) | Trade and Supply-Chain Continuity Controls Annex | Annex | 1.0.1 | 2026-07-02 |
 | [supply-chain/framework-supplier-and-cloud-governance.md](../supply-chain/framework-supplier-and-cloud-governance.md) | Supplier and Cloud Governance Framework | Framework | 1.0.1 | 2026-07-02 |
-| [supply-chain/matrix-supply-chain-security-programme-alignment.md](../supply-chain/matrix-supply-chain-security-programme-alignment.md) | Supply Chain Security Programme Alignment Matrix | Matrix | 1.0.8 | 2026-08-14 |
+| [supply-chain/matrix-supply-chain-security-programme-alignment.md](../supply-chain/matrix-supply-chain-security-programme-alignment.md) | Supply Chain Security Programme Alignment Matrix | Matrix | 1.0.9 | 2026-09-20 |
 | [supply-chain/procedure-fourth-party-and-nth-party-risk.md](../supply-chain/procedure-fourth-party-and-nth-party-risk.md) | Fourth-Party and Nth-Party Risk Procedure | Procedure | 1.0.8 | 2026-09-20 |
 | [supply-chain/procedure-supplier-audit.md](../supply-chain/procedure-supplier-audit.md) | Supplier Audit Procedure | Procedure | 1.0.19 | 2026-09-11 |
 | [supply-chain/procedure-supplier-exit-and-data-return.md](../supply-chain/procedure-supplier-exit-and-data-return.md) | Supplier Exit and Data Return Procedure | Procedure | 1.0.5 | 2026-07-02 |

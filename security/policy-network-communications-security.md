@@ -2,7 +2,7 @@
 
 **Document Title:** Network Communications Security Policy\
 **Document Type:** Policy\
-**Version:** 1.1.16\
+**Version:** 1.1.17\
 **Date:** 2026-09-20\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -153,7 +153,7 @@ Where the organization participates in a sector programme that imposes additiona
 | CSA CCM v4.1 | I&S-03: Network Security; I&S-09: Network Defense | Monitoring, encryption, and restriction of communications between environments |
 | EU NIS 2 Directive (Directive (EU) 2022/2555) | Critical Network Security Requirements | Critical infrastructure network obligations |
 
-Sector-specific framework alignments (for example, the applicable BASC International Security Standard (6.0.2 or 6.0.3, section 5), WCO SAFE Framework (2025 edition), and ISO 28000:2022 for trade and customs network security) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
+Sector-specific framework alignments (for example, the applicable BASC International Security Standard (6.0.2 or 6.0.3, section 5), WCO SAFE Framework (2025 edition), and ISO 28000:2022 supply-chain security management for trade and customs contexts) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
 
 ---
 
