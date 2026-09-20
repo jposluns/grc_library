@@ -2,8 +2,8 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.33\
-**Date:** 2026-09-19\
+**Version:** 1.8.34\
+**Date:** 2026-09-20\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-system-card.md`](template-system-card.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md)\
@@ -788,6 +788,13 @@ This section governs autonomous and semi-autonomous production action. It does n
 | Model resource exhaustion / DoS | LLM06:2026 Unbounded Consumption | AML.T0029, AML.T0034 | I&S-02, I&S-09 | N/A | DoS input validation, limit resources | Model I/O handling (rate limit) | no direct ASI (ASI08 availability consequence) |
 | Hallucination/output validation | LLM07:2026 Misinformation | N/A | AIS-10, LOG-16 | MAP 3.5 | Oversight, continuous validation | Model I/O handling (output validation, RAG grounding) | ASI08 (cascading fault); ASI09 (over-trust) partial |
 
+### 36.1 Voluntary agentic-governance alignment
 
+The following voluntary agentic-AI governance frameworks align with this standard at the programme level. They are advisory guidance, not binding obligations, and do not prescribe the standard's specific thresholds, named tools, or testing frequencies.
+
+| Framework | Reference | Relevance |
+| --- | --- | --- |
+| Singapore IMDA Model AI Governance Framework for Agentic AI (v1.5, 2026) | Agent technical controls and lifecycle assurance: structural tool controls, MCP allowlisting, sandboxing, structured inter-agent exchange, workflow testing, monitoring, and change review | Voluntary alignment for the standard's tool-control, sandbox, testing, and change-review requirements |
+| Canada TBS Guide on the Use of Agentic Artificial Intelligence | Bounded production authority and recoverability: limited permissions, checkpoints, reversibility, adversarial testing, human ownership, action logs, and an external stop mechanism | Voluntary comparator for the standard's agent production-authority and recoverability controls |
 
 **End of Document**
