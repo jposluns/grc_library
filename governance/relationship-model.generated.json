@@ -18,6 +18,13 @@
       "source_identifier": "Regulation 2024/1689 as amended by Regulation (EU) 2026/1744 (Digital Omnibus)"
     },
     {
+      "class": "regulation or law",
+      "corpus_path": null,
+      "display_name": "GDPR Article 25 (Data protection by design and by default)",
+      "id": "GDPR-ART-25",
+      "source_identifier": "Regulation (EU) 2016/679 Article 25"
+    },
+    {
       "class": "framework",
       "corpus_path": "ai/framework-ai-assurance-evidence.md",
       "display_name": "AI Assurance Evidence Framework",
@@ -33,6 +40,13 @@
     },
     {
       "class": "framework",
+      "corpus_path": "ai/framework-ai-model-risk.md",
+      "display_name": "AI Model Risk Framework",
+      "id": "GRC-FW-AI-MODEL-RISK",
+      "source_identifier": null
+    },
+    {
+      "class": "framework",
       "corpus_path": "resilience/framework-business-continuity-and-resilience.md",
       "display_name": "Business Continuity and Resilience Framework",
       "id": "GRC-FW-BCR",
@@ -43,6 +57,13 @@
       "corpus_path": "security/framework-cryptographic-key-lifecycle.md",
       "display_name": "Cryptographic Key Lifecycle Management Framework",
       "id": "GRC-FW-CRYPTO-KEY-LIFECYCLE",
+      "source_identifier": null
+    },
+    {
+      "class": "framework",
+      "corpus_path": "privacy/framework-privacy-by-design.md",
+      "display_name": "Privacy by Design Framework",
+      "id": "GRC-FW-PRIVACY-BY-DESIGN",
       "source_identifier": null
     },
     {
@@ -144,6 +165,20 @@
       "source_identifier": null
     },
     {
+      "class": "procedure",
+      "corpus_path": "security/procedure-vulnerability-management.md",
+      "display_name": "Vulnerability Management Procedure",
+      "id": "GRC-PROC-VULN-MGMT",
+      "source_identifier": null
+    },
+    {
+      "class": "organizational standard",
+      "corpus_path": "ai/standard-ai-model-risk.md",
+      "display_name": "AI Model Risk Standard",
+      "id": "GRC-STD-AI-MODEL-RISK",
+      "source_identifier": null
+    },
+    {
       "class": "organizational standard",
       "corpus_path": "security/standard-data-classification-and-handling.md",
       "display_name": "Data Classification and Handling Standard",
@@ -212,6 +247,13 @@
       "display_name": "Threat Modelling Standard",
       "id": "GRC-STD-THREAT-MODELLING",
       "source_identifier": null
+    },
+    {
+      "class": "standard",
+      "corpus_path": null,
+      "display_name": "ISO 19011 Guidelines for auditing management systems",
+      "id": "ISO-19011",
+      "source_identifier": "ISO 19011:2026"
     },
     {
       "class": "standard",
@@ -1180,18 +1222,211 @@
       },
       "verb": "maps to",
       "viewpoint": "authority"
+    },
+    {
+      "authority_level": "organizationally mandatory",
+      "destination": {
+        "class": "framework",
+        "id": "GRC-FW-AI-MODEL-RISK"
+      },
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "evidence_refs": [],
+      "id": "rel-corpus-0049",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is implemented by"
+      },
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "implementation",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-AI-MODEL-RISK"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "implements",
+      "viewpoint": "governance"
+    },
+    {
+      "authority_level": "organizationally mandatory",
+      "destination": {
+        "class": "policy",
+        "id": "GRC-POL-PRIVACY-DATA-GOV"
+      },
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "evidence_refs": [],
+      "id": "rel-corpus-0050",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is implemented by"
+      },
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "implementation",
+      "scope": null,
+      "source": {
+        "class": "framework",
+        "id": "GRC-FW-PRIVACY-BY-DESIGN"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "implements",
+      "viewpoint": "governance"
+    },
+    {
+      "authority_level": "legal obligation",
+      "destination": {
+        "class": "regulation or law",
+        "id": "GDPR-ART-25"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0051",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is implemented by"
+      },
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "implementation",
+      "scope": null,
+      "source": {
+        "class": "framework",
+        "id": "GRC-FW-PRIVACY-BY-DESIGN"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "implements",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "policy",
+        "id": "GRC-POL-COMPLIANCE-AUDIT-MGMT"
+      },
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "evidence_refs": [],
+      "id": "rel-corpus-0052",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is informed by"
+      },
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "influence",
+      "scope": null,
+      "source": {
+        "class": "standard",
+        "id": "ISO-19011"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "informs",
+      "viewpoint": "governance"
+    },
+    {
+      "authority_level": "architectural recommendation",
+      "destination": {
+        "class": "procedure",
+        "id": "GRC-PROC-VULN-MGMT"
+      },
+      "direction_rule": "the citing instrument is placed beside the instrument it references (associative, no vertical precedence)",
+      "evidence_refs": [],
+      "id": "rel-corpus-0053",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is referenced by"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "citation",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-PATCH-MGMT"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "references",
+      "viewpoint": "governance"
+    },
+    {
+      "authority_level": "organizationally mandatory",
+      "destination": {
+        "class": "standard",
+        "id": "ISO-IEC-27001"
+      },
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "evidence_refs": [],
+      "id": "rel-corpus-0054",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is implemented by"
+      },
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "implementation",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-INTERNAL-AUDIT"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "implements",
+      "viewpoint": "governance"
     }
   ],
   "schema_version": 2,
   "source": "governance/relationship-model-source.json",
   "summary": {
-    "node_count": 40,
-    "record_count": 28,
+    "node_count": 46,
+    "record_count": 34,
     "records_by_relationship_class": {
+      "citation": 1,
       "commitment": 1,
       "correspondence": 10,
-      "implementation": 12,
-      "influence": 5
+      "implementation": 16,
+      "influence": 6
     }
   }
 }
