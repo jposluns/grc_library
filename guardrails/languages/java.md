@@ -98,10 +98,9 @@ Object obj = ois.readObject(); // deserialization gadget risk: RCE possible
 
 // CORRECT: use JSON (Jackson) for external data exchange
 ObjectMapper mapper = new ObjectMapper();
-mapper.activateDefaultTyping(
-    mapper.getPolymorphicTypeValidator(),
-    ObjectMapper.DefaultTyping.NONE  // disable polymorphic typing for untrusted input
-);
+// Polymorphic (default) typing is DISABLED by default in Jackson; do not enable it for untrusted input.
+// If it was enabled elsewhere, turn it off explicitly (there is no DefaultTyping.NONE):
+mapper.deactivateDefaultTyping();
 MyClass obj = mapper.readValue(jsonString, MyClass.class);
 
 // CORRECT: if Java serialization is required, use a deserialization filter
@@ -145,10 +144,14 @@ Path path = Paths.get("/uploads/" + filename);   // path traversal risk
 // CORRECT: resolve and validate against base directory
 Path baseDir = Paths.get("/uploads").toRealPath();
 Path target = baseDir.resolve(filename).normalize();
-if (!target.startsWith(baseDir)) {
+// normalize() is lexical only and does NOT resolve symlinks; toRealPath() does, so a symlink
+// under baseDir cannot escape it. (For a not-yet-created file, canonicalize the parent and re-check.)
+if (!target.toRealPath().startsWith(baseDir)) {
     throw new SecurityException("Path traversal attempt detected");
 }
-// Now safe to use target
+// target is confined to baseDir (symlinks resolved). NOTE: this validate-then-use pattern is
+// still racy if the directory tree is attacker-mutable (a symlink or ancestor swapped after the
+// check); for that threat model open via SecureDirectoryStream / a directory-handle-relative API.
 ```
 
 ---
@@ -292,7 +295,7 @@ implementation 'org.springframework.boot:spring-boot-starter-security:3.2.5'
 | SQL injection prevention | V1.2.4 | PW.5.1 | A.8.28 |
 | XML/XXE prevention | V1.5.1 | PW.5.1 | A.8.28 |
 | Deserialization | V1.5 | PW.5.1 | A.8.28 |
-| Cryptography | V11 | PW.7 | A.8.24 |
+| Cryptography | V11 | PW.5.1 | A.8.24 |
 | Authentication (Spring Security) | V6, V7 | N/A | A.5.17 |
 | Logging | V16 | RV.1 | A.8.15 to 8.16 |
 | Dependency management | V15.2 | PO.5, PW.4 | A.8.8 |

@@ -267,14 +267,17 @@ if case .success(let verification) = result {
 
 // CORRECT: send the JWS-signed transaction representation to the backend
 // for validation against the StoreKit Server API; backend grants entitlement
-if case .success(.verified(let transaction)) = result {
-    let jwsRepresentation = transaction.jwsRepresentation
-    await backend.validateAndGrant(jws: jwsRepresentation)
-    await transaction.finish()
+if case .success(let verificationResult) = result {
+    // jwsRepresentation is a property of VerificationResult, not the unwrapped Transaction.
+    let jwsRepresentation = verificationResult.jwsRepresentation
+    if case .verified(let transaction) = verificationResult {
+        await backend.validateAndGrant(jws: jwsRepresentation)
+        await transaction.finish()
+    }
 }
 ```
 
-`transaction.jwsRepresentation` is what the backend verifies against Apple. Subscription state is polled or webhooked via App Store Server Notifications per Section 16.
+`VerificationResult.jwsRepresentation` is what the backend verifies against Apple. Subscription state is polled or webhooked via App Store Server Notifications per Section 16.
 
 ---
 

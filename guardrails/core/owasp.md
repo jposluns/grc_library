@@ -34,7 +34,7 @@ GET /api/documents/{id}   # Returns document for any authenticated user, regardl
 
 **Server-Side Request Forgery (SSRF)** is rolled into Broken Access Control in the 2025 edition (it was a standalone A10 in 2021): an attacker who controls a URL the server fetches can reach internal services the request was never authorized to reach.
 - Validate all URL inputs against an allowlist of permitted domains or IP ranges before making outbound requests
-- Block requests to internal and reserved IP ranges. **IPv4**: `10.0.0.0/8` (RFC 1918 private), `172.16.0.0/12` (RFC 1918 private; spans `172.16.0.0` through `172.31.255.255`), `192.168.0.0/16` (RFC 1918 private), `169.254.0.0/16` (link-local; RFC 3927; also covers AWS/GCP/Azure cloud-instance-metadata at `169.254.169.254`), `127.0.0.0/8` (loopback; RFC 1122), `100.64.0.0/10` (CGNAT; RFC 6598). **IPv6**: `::1/128` (loopback; RFC 4291), `fc00::/7` (unique local addresses / ULA; RFC 4193), `fe80::/10` (link-local; RFC 4291; also covers IPv6 cloud-instance-metadata variants such as `fd00:ec2::254` on AWS).
+- Block requests to internal and reserved IP ranges. **IPv4**: `10.0.0.0/8` (RFC 1918 private), `172.16.0.0/12` (RFC 1918 private; spans `172.16.0.0` through `172.31.255.255`), `192.168.0.0/16` (RFC 1918 private), `169.254.0.0/16` (link-local; RFC 3927; also covers AWS/GCP/Azure cloud-instance-metadata at `169.254.169.254`), `127.0.0.0/8` (loopback; RFC 1122), `100.64.0.0/10` (CGNAT; RFC 6598). **IPv6**: `::1/128` (loopback; RFC 4291), `fc00::/7` (unique local addresses / ULA; RFC 4193; covers the `fd00:ec2::254` IPv6 instance-metadata address on AWS), `fe80::/10` (link-local; RFC 4291). This enumerated list is illustrative, not exhaustive: normalize IPv4-mapped IPv6 addresses (for example `::ffff:169.254.169.254`) and apply the IPv4 policy to them, block the unspecified address, and prefer a maintained destination-policy library over a hand-kept CIDR list.
 - Do not follow redirects automatically when the redirect destination is user-controlled
 - Use a separate egress network policy to block outbound requests to internal services from web-facing applications
 ```python
@@ -214,14 +214,14 @@ Security risks for systems using the Model Context Protocol (MCP). Full detail i
 
 | ASVS Area | Level 1 (Minimum) | Level 2 (Standard) | Level 3 (Advanced) |
 | --- | --- | --- | --- |
-| V6 Authentication | MFA, basic session management | Phishing-resistant MFA, credential management | Full authn assurance, hardware key |
+| V6 Authentication | Single- or multi-factor authentication, basic session management | Multi-factor authentication (V6.3.3), credential-lifecycle controls | Phishing-resistant hardware factor (V6.3.3 for L3), full authn assurance |
 | V7 Session | Basic invalidation | Absolute timeout, rotation | Full session assurance |
 | V2 Validation | Input type checking | Schema validation, reject invalid | Full allowlist validation |
 | V11 Cryptography | Approved algorithms | Key management | HSM, formal key lifecycle |
-| V12 Communication | TLS required | TLS 1.2+, cert validation | TLS 1.3, cert pinning |
+| V12 Communication | TLS 1.2/1.3 only, latest preferred (V12.1.1) | Recommended cipher suites (V12.1.2), cert validation | Forward-secrecy cipher suites only (V12.1.2 for L3); cert pinning is a pack addition, not an ASVS V12 requirement |
 | V4 API | Auth on all endpoints | Full schema validation | Rate limit, API versioning |
 
-Default target: ASVS Level 2 for all applications handling data classified as sensitive under the adopting project's scheme (Confidential or Restricted in the parent GRC library). The V12 level cells restate the ASVS progression verbatim; the pack's own transport-security floor is TLS 1.3 at every level, per [`core/cryptography.md`](cryptography.md).
+Default target: ASVS Level 2 for all applications handling data classified as sensitive under the adopting project's scheme (Confidential or Restricted in the parent GRC library). The cells above are an indicative per-area progression; ASVS 5.0 assigns levels per individual requirement (for example MFA is V6.3.3 at L2, and TLS 1.2/1.3 is V12.1.1 at L1), so consult the standard for the authoritative per-requirement level. The pack's own transport-security floor is stricter than the ASVS baseline: TLS 1.3 at every level, per [`core/cryptography.md`](cryptography.md).
 
 ASVS v5.0.0 reference: `https://owasp.org/www-project-application-security-verification-standard/`
 

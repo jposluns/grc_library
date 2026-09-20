@@ -100,13 +100,22 @@ os.Open(path)  // risk
 
 // CORRECT: clean and validate against base directory
 baseDir, _ := filepath.Abs("/uploads")
-requestedPath := filepath.Join(baseDir, filepath.Clean("/"+userFilename))
-if !strings.HasPrefix(requestedPath, baseDir+string(os.PathSeparator)) &&
-    requestedPath != baseDir {
+// filepath.Join+Clean is lexical only and does NOT resolve symlinks under baseDir.
+// os.Root (Go 1.24+) confines filesystem access to baseDir, rejecting both path traversal and
+// symlink escapes. Keep Go on a current patched release (os.Root symlink-handling has had CVE fixes).
+root, err := os.OpenRoot(baseDir)
+if err != nil {
     http.Error(w, "Forbidden", http.StatusForbidden)
     return
 }
-// Now safe to use requestedPath
+defer root.Close()
+f, err := root.Open(userFilename)
+if err != nil {
+    http.Error(w, "Forbidden", http.StatusForbidden)
+    return
+}
+defer f.Close()
+io.Copy(w, f) // f is confined to baseDir
 ```
 
 ---
@@ -290,7 +299,7 @@ result, _ := doSomethingImportant()  // silent failure risk
 | Template injection / XSS | V1.3.7, V1.2.1 | PW.5.1 | A.8.28 |
 | Command injection | V1.2.5 | PW.5.1 | A.8.28 |
 | Path traversal | V5.3.2 | PW.5.1 | A.8.28 |
-| Cryptography | V11 | PW.7 | A.8.24 |
+| Cryptography | V11 | PW.5.1 | A.8.24 |
 | TLS configuration | V12 | N/A | A.8.24 |
 | Error handling | V16 | RV.1 | A.8.15 |
 | Dependency management | V15.2 | PO.5, PW.4 | A.8.8 |

@@ -180,7 +180,11 @@ private static readonly HashSet<string> AllowedHosts = new() { "api.example.com"
 var uri = new Uri(userSuppliedUrl);
 if (!AllowedHosts.Contains(uri.Host))
     throw new ArgumentException("URL not in allowlist");
-var response = await httpClient.GetAsync(uri);
+// HttpClient follows redirects by default (AllowAutoRedirect = true); an allowed host can redirect
+// to an internal one. Use a handler with redirects disabled for user-influenced URLs:
+using var handler = new HttpClientHandler { AllowAutoRedirect = false };
+using var safeClient = new HttpClient(handler);
+var response = await safeClient.GetAsync(uri);
 ```
 
 ---

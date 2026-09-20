@@ -185,7 +185,7 @@ integrityManager.requestIntegrityToken(request)
     .addOnFailureListener { /* report degraded-trust state */ }
 ```
 
-Never trust Play Integrity verdicts purely client-side. The backend is the verifier. Use Standard requests (cached) for low-frequency checks; Classic / Recurring requests for high-frequency operations.
+Never trust Play Integrity verdicts purely client-side. The backend is the verifier. Use Standard (integrity-token) requests for high-frequency or on-demand checks; reserve Classic requests for low-frequency, high-value actions (Google advises against Classic requests for high-frequency or low-value operations).
 
 ---
 
