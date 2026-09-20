@@ -2,8 +2,8 @@
 
 **Document Title:** Records Retention and Destruction Standard\
 **Document Type:** Standard\
-**Version:** 1.4.23\
-**Date:** 2026-09-19\
+**Version:** 1.4.24\
+**Date:** 2026-09-20\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -70,6 +70,8 @@ The Records Retention Schedule (RRS) defines minimum retention periods based on:
 - Data protection laws including GDPR, PIPEDA, and LGPD.
 
 ### 5.1 Domain-specific minimum retention periods
+
+The periods below are domain-level minimum floors; the authoritative record-specific periods live in the Records Retention Schedule register ([`register-data-retention-schedule.md`](register-data-retention-schedule.md)), which per the section-4 precedence note governs over the section-4 classification Default Retention, whether longer or shorter.
 
 | Domain | Minimum Retention |
 |---|---|
