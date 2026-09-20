@@ -12741,8 +12741,8 @@ documents:
   domain: "supply-chain"
   type: "Procedure"
   title: "Fourth-Party and Nth-Party Risk Procedure"
-  version: "1.0.7"
-  date: "2026-09-14"
+  version: "1.0.8"
+  date: "2026-09-20"
   owner: "Supplier Risk Maintainer"
   approving_authority: "Governance Library Maintainer"
   classification: "Public"
@@ -12774,6 +12774,7 @@ documents:
     - "Limitations"
   frameworks:
     - "DORA"
+    - "DORA RTS (EU) 2025/532"
     - "GDPR / UK GDPR"
     - "NIS 2"
     - "NIST CSF 2.0"
