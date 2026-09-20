@@ -291,11 +291,11 @@ implementation 'org.springframework.boot:spring-boot-starter-security:3.2.5'
 
 | Control Area | OWASP ASVS | NIST SSDF | ISO 27001 |
 | --- | --- | --- | --- |
-| Secrets management | V13.3 | PW.8.2 | A.8.24 |
+| Secrets management | V13.3 | PW.5.1 | A.8.24 |
 | SQL injection prevention | V1.2.4 | PW.5.1 | A.8.28 |
 | XML/XXE prevention | V1.5.1 | PW.5.1 | A.8.28 |
 | Deserialization | V1.5 | PW.5.1 | A.8.28 |
 | Cryptography | V11 | PW.5.1 | A.8.24 |
 | Authentication (Spring Security) | V6, V7 | N/A | A.5.17 |
-| Logging | V16 | RV.1 | A.8.15 to 8.16 |
+| Logging | V16 | PW.5.1 | A.8.15 to 8.16 |
 | Dependency management | V15.2 | PO.5, PW.4 | A.8.8 |
