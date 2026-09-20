@@ -2,8 +2,8 @@
 
 **Document Title:** Agentic Response State Model Framework\
 **Document Type:** Framework\
-**Version:** 0.0.3\
-**Date:** 2026-09-13\
+**Version:** 0.0.4\
+**Date:** 2026-09-20\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/plan-ai-incident-response.md`](plan-ai-incident-response.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`operations/procedure-threat-intelligence-and-siem-operations.md`](../operations/procedure-threat-intelligence-and-siem-operations.md), [`governance/principle-capability-is-not-authority.md`](../governance/principle-capability-is-not-authority.md), [`governance/principle-fail-closed-automation.md`](../governance/principle-fail-closed-automation.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`governance/register-canonical-citations.md`](../governance/register-canonical-citations.md)\
@@ -67,7 +67,7 @@ The state model runs parallel to, and feeds, the seven-phase human incident life
 
 ## Framework alignment
 
-The alignment below is analogical (each row aligns with or is informed by the cited reference), not a prescriptive crosswalk; the references govern incident response, AI oversight, and AI-threat context, whereas this framework governs the agent's response states and the authority to transition them. References are verified against the canonical-citations register.
+The alignment below is analogical (each row aligns with or is informed by the cited reference), not a prescriptive crosswalk; the references govern incident response, AI oversight, and AI-threat context, whereas this framework governs the agent's response states and the authority to transition them. The formal references are verified against the canonical-citations register; the voluntary agentic-governance comparator (the Canada TBS agentic-AI guide) is advisory and is not a registered canonical citation.
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
@@ -76,6 +76,7 @@ The alignment below is analogical (each row aligns with or is informed by the ci
 | NIST AI RMF 1.0 (2023) | GOVERN 3.2; MANAGE 2.4, MANAGE 4.1 | Defined human-AI configuration and oversight roles (GOVERN 3.2); mechanisms to disengage or deactivate an AI system (MANAGE 2.4) and to override or appeal an automated response (MANAGE 4.1). |
 | NIST SP 800-61 Rev. 3 | Incident-response lifecycle | The human lifecycle this state model runs parallel to and feeds. |
 | MITRE ATLAS (2026.07) | Adversarial-ML tactics and techniques | Threat context for the conditions an agentic response detects and corroborates. |
+| Canada TBS Guide on the Use of Agentic Artificial Intelligence | §4 recoverability; §5(c)-(d), (g), (j) - human checkpoints before consequential state changes, reversible actions, auditable execution, external stop and recovery | Voluntary comparator for the model's bounded action authority and recoverability (does not define the six states or their transitions) |
 
 ## Limitations
 
