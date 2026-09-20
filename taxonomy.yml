@@ -11242,7 +11242,7 @@ documents:
   domain: "security"
   type: "Policy"
   title: "Encryption and Key Management Policy"
-  version: "1.3.25"
+  version: "1.3.26"
   date: "2026-09-20"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"
