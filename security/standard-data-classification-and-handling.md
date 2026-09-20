@@ -2,8 +2,8 @@
 
 **Document Title:** Data Classification and Handling Standard\
 **Document Type:** Standard\
-**Version:** 1.4.17\
-**Date:** 2026-09-18\
+**Version:** 1.4.18\
+**Date:** 2026-09-20\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -91,7 +91,7 @@ Sector-conditional roles (for example, a sector-conditional compliance role that
 7.3 AI model weights, training scripts, and inference APIs classified as Restricted must reside in secure, access-controlled repositories.
 7.4 Model outputs with potential regulatory or ethical implications (e.g., automated decision logs) must be preserved per the Records Retention Standard.
 7.5 For AI systems supporting BASC or customs automation:
-- Training and operational data must comply with BASC confidentiality controls and ISO 28000 trade data requirements.
+- Training and operational data must comply with BASC confidentiality controls and the organization's trade-data protection requirements, consistent with its ISO 28000 supply-chain security management system.
 - AI model audit logs must be tamper-proof and available for customs review.
 
 ---

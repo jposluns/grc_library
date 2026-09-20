@@ -2,8 +2,8 @@
 
 **Document Title:** Supply Chain Security Programme Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.0.8\
-**Date:** 2026-08-14\
+**Version:** 1.0.9\
+**Date:** 2026-09-20\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](../compliance/logistics/register-ctpat-united-states-msc-controls.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](../compliance/logistics/register-ctpat-united-states-it-controls.md), [`compliance/logistics/register-pip-canada-controls.md`](../compliance/logistics/register-pip-canada-controls.md), [`compliance/logistics/register-basc-it-responsibilities.md`](../compliance/logistics/register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md), [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](../compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md), [`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md), [`compliance/logistics/template-trade-compliance-gap-assessment.md`](../compliance/logistics/template-trade-compliance-gap-assessment.md)\
@@ -138,7 +138,7 @@ The following evidence types can be collected once and reused across multiple pr
 | 2 | AEO-S (UK) | UK market access; uses the CTPAT evidence set; HMRC supplements required |
 | 3 | AEO (EU) | EU market access; parallel to AEO-S; uses the same evidence set |
 | 4 | PIP (Canada) | Canadian market access; CTPAT mutual recognition supports application |
-| 5 | BASC | Latin American market access; builds on CTPAT and ISO 28000 controls |
+| 5 | BASC | Latin American market access; builds on CTPAT controls and ISO 28000 management-system requirements |
 | 6 | NEEC | Mexican market access; CTPAT mutual recognition provides foundation |
 | 7 | OEA | Brazilian market access; AEO/AEO-S mutual recognition provides foundation |
 | 8 | ISO 28000 | System-level certification; strengthens all programme applications |
