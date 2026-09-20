@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Risk Framework\
 **Document Type:** Framework\
-**Version:** 1.0.3\
-**Date:** 2026-07-12\
+**Version:** 1.0.4\
+**Date:** 2026-09-20\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-model-risk-assessment.md`](procedure-ai-model-risk-assessment.md), [`ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md`](matrix-ai-model-risk-control-to-lifecycle-mapping.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)\
@@ -104,6 +104,16 @@ Each model or model-enabled system should have:
 - Incident response linkage.
 - Exception and residual risk record where applicable.
 - Retirement and deletion requirements.
+
+---
+
+## Framework alignment
+
+The alignment below is analogical (each row aligns with or is informed by the cited reference), not a prescriptive crosswalk. The cited framework is voluntary trusted-framework guidance, not a mandatory standard, and maps existing records rather than mandating a separate artefact.
+
+| Framework | Reference | Relevance |
+| --- | --- | --- |
+| CSA AI Model Risk Management Framework (2024) | Four Pillars (pp. 12-14); risk-card structure (pp. 24-27); combining-techniques feedback process (pp. 41-43) | Voluntary guidance mapping this framework's model risk records, model and data documentation, and scenario evaluation; does not mandate a separate Risk Card artefact |
 
 ---
 

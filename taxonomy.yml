@@ -381,8 +381,8 @@ documents:
   domain: "ai"
   type: "Framework"
   title: "AI Model Risk Framework"
-  version: "1.0.3"
-  date: "2026-07-12"
+  version: "1.0.4"
+  date: "2026-09-20"
   owner: "AI Governance Approver"
   approving_authority: "Governance Library Maintainer"
   classification: "Public"
@@ -408,8 +408,10 @@ documents:
     - "Lifecycle control model"
     - "Evaluation requirements"
     - "Governance requirements"
+    - "Framework alignment"
     - "Limitations"
-  frameworks: []
+  frameworks:
+    - "CSA AI Model Risk Management Framework (2024)"
 - path: "ai/framework-ai-system-audit-certification.md"
   domain: "ai"
   type: "Framework"
