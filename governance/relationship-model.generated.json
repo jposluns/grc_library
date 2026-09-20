@@ -40,6 +40,13 @@
     },
     {
       "class": "framework",
+      "corpus_path": "security/framework-cryptographic-key-lifecycle.md",
+      "display_name": "Cryptographic Key Lifecycle Management Framework",
+      "id": "GRC-FW-CRYPTO-KEY-LIFECYCLE",
+      "source_identifier": null
+    },
+    {
+      "class": "framework",
       "corpus_path": "supply-chain/framework-supplier-and-cloud-governance.md",
       "display_name": "Supplier and Cloud Governance Framework",
       "id": "GRC-FW-SUPPLIER-CLOUD-GOV",
@@ -64,6 +71,13 @@
       "corpus_path": "risk/policy-enterprise-governance-and-risk-management.md",
       "display_name": "Enterprise Governance and Risk Management Policy",
       "id": "GRC-POL-ENTERPRISE-GRM",
+      "source_identifier": null
+    },
+    {
+      "class": "policy",
+      "corpus_path": "privacy/policy-privacy-and-data-governance.md",
+      "display_name": "Privacy and Data Governance Policy",
+      "id": "GRC-POL-PRIVACY-DATA-GOV",
       "source_identifier": null
     },
     {
@@ -96,6 +110,13 @@
     },
     {
       "class": "procedure",
+      "corpus_path": "operations/procedure-patch-management.md",
+      "display_name": "Patch Management Procedure",
+      "id": "GRC-PROC-PATCH-MGMT",
+      "source_identifier": null
+    },
+    {
+      "class": "procedure",
       "corpus_path": "risk/procedure-risk-acceptance.md",
       "display_name": "Risk Acceptance Procedure",
       "id": "GRC-PROC-RISK-ACCEPTANCE",
@@ -106,6 +127,13 @@
       "corpus_path": "risk/procedure-risk-register.md",
       "display_name": "Risk Register Procedure",
       "id": "GRC-PROC-RISK-REGISTER",
+      "source_identifier": null
+    },
+    {
+      "class": "procedure",
+      "corpus_path": "operations/procedure-security-monitoring-and-alert-management.md",
+      "display_name": "Security Monitoring and Alert Management Procedure",
+      "id": "GRC-PROC-SEC-MONITORING",
       "source_identifier": null
     },
     {
@@ -138,9 +166,30 @@
     },
     {
       "class": "organizational standard",
+      "corpus_path": "security/standard-logging-and-monitoring.md",
+      "display_name": "Logging and Monitoring Standard",
+      "id": "GRC-STD-LOGGING-MONITORING",
+      "source_identifier": null
+    },
+    {
+      "class": "organizational standard",
       "corpus_path": "privacy/standard-network-telemetry-and-dpi-controls.md",
       "display_name": "Network Telemetry and DPI Controls Standard",
       "id": "GRC-STD-NET-TELEMETRY-DPI",
+      "source_identifier": null
+    },
+    {
+      "class": "organizational standard",
+      "corpus_path": "privacy/standard-presence-inference-limitations.md",
+      "display_name": "Presence Inference Limitations Standard",
+      "id": "GRC-STD-PRESENCE-INFERENCE",
+      "source_identifier": null
+    },
+    {
+      "class": "organizational standard",
+      "corpus_path": "operations/standard-production-security-requirements.md",
+      "display_name": "Production Security Requirements",
+      "id": "GRC-STD-PRODUCTION-SECURITY",
       "source_identifier": null
     },
     {
@@ -181,6 +230,27 @@
     {
       "class": "standard",
       "corpus_path": null,
+      "display_name": "ISO/IEC 27001 Information security management systems",
+      "id": "ISO-IEC-27001",
+      "source_identifier": "ISO/IEC 27001:2022"
+    },
+    {
+      "class": "standard",
+      "corpus_path": null,
+      "display_name": "ISO/IEC 27002 Information security controls",
+      "id": "ISO-IEC-27002",
+      "source_identifier": "ISO/IEC 27002:2022"
+    },
+    {
+      "class": "standard",
+      "corpus_path": null,
+      "display_name": "ISO/IEC 27701 Privacy information management systems",
+      "id": "ISO-IEC-27701",
+      "source_identifier": "ISO/IEC 27701:2025"
+    },
+    {
+      "class": "standard",
+      "corpus_path": null,
       "display_name": "ISO/IEC 42001 AI management systems",
       "id": "ISO-IEC-42001",
       "source_identifier": "ISO/IEC 42001:2023"
@@ -198,6 +268,13 @@
       "display_name": "NIST AI Risk Management Framework",
       "id": "NIST-AI-RMF",
       "source_identifier": "NIST AI RMF 1.0"
+    },
+    {
+      "class": "standard",
+      "corpus_path": null,
+      "display_name": "NIST SP 800-57 Key Management Guidelines",
+      "id": "NIST-SP-800-57",
+      "source_identifier": "NIST SP 800-57 Parts 1 to 3"
     },
     {
       "class": "framework",
@@ -879,18 +956,242 @@
       },
       "verb": "informs",
       "viewpoint": "governance"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "NIST-SP-800-57"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0036",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "framework",
+        "id": "GRC-FW-CRYPTO-KEY-LIFECYCLE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "organizationally mandatory",
+      "destination": {
+        "class": "organizational standard",
+        "id": "GRC-STD-PRODUCTION-SECURITY"
+      },
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "evidence_refs": [],
+      "id": "rel-corpus-0037",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is implemented by"
+      },
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "implementation",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-PATCH-MGMT"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "implements",
+      "viewpoint": "governance"
+    },
+    {
+      "authority_level": "organizationally mandatory",
+      "destination": {
+        "class": "organizational standard",
+        "id": "GRC-STD-LOGGING-MONITORING"
+      },
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "evidence_refs": [],
+      "id": "rel-corpus-0039",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is implemented by"
+      },
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "implementation",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-SEC-MONITORING"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "implements",
+      "viewpoint": "governance"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "policy",
+        "id": "GRC-POL-PRIVACY-DATA-GOV"
+      },
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "evidence_refs": [],
+      "id": "rel-corpus-0043",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is informed by"
+      },
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "influence",
+      "scope": null,
+      "source": {
+        "class": "standard",
+        "id": "ISO-IEC-27701"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "informs",
+      "viewpoint": "governance"
+    },
+    {
+      "authority_level": "organizationally mandatory",
+      "destination": {
+        "class": "policy",
+        "id": "GRC-POL-WORKFORCE-NET-MON"
+      },
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "evidence_refs": [],
+      "id": "rel-corpus-0046",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is implemented by"
+      },
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "implementation",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-PRESENCE-INFERENCE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "implements",
+      "viewpoint": "governance"
+    },
+    {
+      "authority_level": "architectural recommendation",
+      "destination": {
+        "class": "standard",
+        "id": "ISO-IEC-27001"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0047",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-INTERNAL-AUDIT"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "architectural recommendation",
+      "destination": {
+        "class": "standard",
+        "id": "ISO-IEC-27002"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0048",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-DATA-CLASSIFICATION"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
     }
   ],
   "schema_version": 2,
   "source": "governance/relationship-model-source.json",
   "summary": {
-    "node_count": 29,
-    "record_count": 21,
+    "node_count": 40,
+    "record_count": 28,
     "records_by_relationship_class": {
       "commitment": 1,
-      "correspondence": 7,
-      "implementation": 9,
-      "influence": 4
+      "correspondence": 10,
+      "implementation": 12,
+      "influence": 5
     }
   }
 }
