@@ -2,8 +2,8 @@
 
 **Document Title:** Network Communications Security Policy\
 **Document Type:** Policy\
-**Version:** 1.1.15\
-**Date:** 2026-09-18\
+**Version:** 1.1.16\
+**Date:** 2026-09-20\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md), [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md)\
@@ -146,8 +146,10 @@ Where the organization participates in a sector programme that imposes additiona
 | --- | --- | --- |
 | ISO/IEC 27033-1:2015 | Overview and concepts | Network architecture, segmentation, secure connectivity |
 | ISO/IEC 27001:2022 | A.8.20 to 22: Networks security, security of network services, segregation of networks | Network security policy obligations |
+| ISO/IEC 27032:2023 | Cybersecurity - Guidelines for Internet security | Internet and network security guidance |
 | COBIT 2019 | APO13.01, DSS05.02 | Network security governance and service management |
 | NIST SP 800-207 | Zero Trust Architecture | ZTNA principles, continuous validation |
+| NIST SP 800-215 | Guide to a Secure Enterprise Network Landscape (§4.4, §§5.1-5.2) | Device-aware access, microsegmentation, and software-defined perimeter |
 | CSA CCM v4.1 | I&S-03: Network Security; I&S-09: Network Defense | Monitoring, encryption, and restriction of communications between environments |
 | EU NIS 2 Directive (Directive (EU) 2022/2555) | Critical Network Security Requirements | Critical infrastructure network obligations |
 
