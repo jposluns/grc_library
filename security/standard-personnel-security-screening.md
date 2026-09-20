@@ -2,8 +2,8 @@
 
 **Document Title:** Personnel Security Screening Standard\
 **Document Type:** Standard\
-**Version:** 1.0.10\
-**Date:** 2026-09-09\
+**Version:** 1.0.11\
+**Date:** 2026-09-20\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md)\
@@ -96,7 +96,7 @@ Background check scope varies by jurisdiction. Criminal record checks and certai
 
 ## 9. Records retention
 
-Screening records, adverse finding decisions, and conditional access approvals are retained in accordance with the Records Retention and Destruction Standard. Minimum retention is five years from the date of the screening outcome.
+Screening records, adverse finding decisions, and conditional access approvals are retained in accordance with the Records Retention and Destruction Standard. Minimum retention is seven years after employment, contract, or engagement ends, or five years from the date of the screening outcome, whichever is longer (aligned with the Records Retention and Destruction Standard).
 
 ---
 

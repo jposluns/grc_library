@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Impact and Cross-Border Transfer Procedure\
 **Document Type:** Procedure\
-**Version:** 1.6.8\
-**Date:** 2026-09-18\
+**Version:** 1.6.9\
+**Date:** 2026-09-20\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-dpia.md`](template-dpia.md), [`privacy/template-transfer-impact-assessment.md`](template-transfer-impact-assessment.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
@@ -120,8 +120,8 @@ CIIO designation OR "important data" presence forces the CAC Security Assessment
 |---|---|
 | Safe-harbor (CAC 2024 Provisions): below 100,000 non-sensitive in calendar year, no sensitive, non-CIIO, no important data | No formal mechanism required; document the safe-harbor analysis and the controller's PIA |
 | Safe-harbor: cross-border contract-performance transfers (employment, e-commerce, education, etc.) per 2024 Provisions | No formal mechanism required; document the contract-performance basis |
-| 100,000 to 1,000,000 non-sensitive in calendar year (non-CIIO), OR sensitive personal information of fewer than 10,000 individuals | **PIPL Standard Contract** signed with recipient + filing of signed contract and PIA with provincial-level CAC |
-| Over 1,000,000 non-sensitive in calendar year (non-CIIO), OR sensitive personal information of 10,000 or more individuals, OR any transfer by a CIIO, OR any transfer of "important data" | **CAC Security Assessment** (mandatory); 3-year validity per 2024 Provisions |
+| 100,000 to fewer than 1,000,000 non-sensitive in calendar year (non-CIIO), OR sensitive personal information of fewer than 10,000 individuals | **PIPL Standard Contract** signed with recipient + filing of signed contract and PIA with provincial-level CAC |
+| 1,000,000 or more non-sensitive in calendar year (non-CIIO), OR sensitive personal information of 10,000 or more individuals, OR any transfer by a CIIO, OR any transfer of "important data" | **CAC Security Assessment** (mandatory); 3-year validity per 2024 Provisions |
 | Intra-group transfers under recognized professional certification | **Third-party certification** (alternative to Standard Contract) |
 
 **Step C: PIPL Article 39 separate consent.** Independent of the mechanism in Step B, the controller must obtain **separate, informed consent** from each data subject before the cross-border transfer. The consent record must include:

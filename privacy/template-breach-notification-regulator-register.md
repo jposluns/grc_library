@@ -2,8 +2,8 @@
 
 **Document Title:** Breach Notification Regulator Register Template\
 **Document Type:** Template\
-**Version:** 1.0.2\
-**Date:** 2026-08-21\
+**Version:** 1.0.3\
+**Date:** 2026-09-20\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/procedure-data-protection-and-privacy-breach-response.md`](procedure-data-protection-and-privacy-breach-response.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md)\
@@ -54,7 +54,7 @@ Replace the illustrative rows below with the organization's own. The illustrativ
 | *[adopter row]* | | | | | | |
 | *[adopter row]* | | | | | | |
 
-> **Note on the "becoming aware" clock.** Where a regime starts its clock from the point the organization becomes aware of the breach (as the GDPR does), record in the breach record the moment awareness was established, because that moment, not the moment the breach occurred, starts the regulatory and internal clocks. A processor's delay in notifying the organization consumes part of the organization's own budget; the controlling supplier-notification timeline is governed by the [breach-response procedure](procedure-data-protection-and-privacy-breach-response.md).
+> **Note on the "becoming aware" clock.** Where a regime starts its clock from the point the organization becomes aware of the breach (as the GDPR does), record in the breach record the moment awareness was established, because that moment, not the moment the breach occurred, starts the regulatory and internal clocks. A processor's delay in notifying the organization does not consume the organization's own notification budget, which starts only once the organization becomes aware (per the EDPB guidance, when the processor informs it); the controlling supplier-notification timeline is governed by the [breach-response procedure](procedure-data-protection-and-privacy-breach-response.md).
 
 ## Internal target and the strictest-applicable-requirement rule
 

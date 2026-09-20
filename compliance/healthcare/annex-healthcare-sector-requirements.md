@@ -2,8 +2,8 @@
 
 **Document Title:** Healthcare Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.1.13\
-**Date:** 2026-09-04\
+**Version:** 1.1.15\
+**Date:** 2026-09-20\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/healthcare/procedure-hipaa-operational-compliance.md`](procedure-hipaa-operational-compliance.md), [`compliance/README.md`](../README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`compliance/register-compliance-obligations-template.md`](../register-compliance-obligations-template.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`privacy/annex-privacy-jurisdiction-index.md`](../../privacy/annex-privacy-jurisdiction-index.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md)\
@@ -213,15 +213,16 @@ Processing health data as special category data under GDPR requires additional s
 
 ### Caldicott principles (UK NHS)
 
-In addition to UK GDPR, NHS and social care organizations must apply the 7 Caldicott Principles:
+In addition to UK GDPR, NHS and social care organizations must apply the 8 Caldicott Principles:
 
-1. Justify the purpose for using confidential information
-2. Use only the minimum necessary identifiable information
-3. Use the minimum necessary identifiable information
-4. Access must be on a strict need-to-know basis
-5. Everyone with access must understand their responsibilities
+1. Justify the purpose(s) for using confidential information
+2. Use confidential information only when it is necessary
+3. Use the minimum necessary confidential information
+4. Access to confidential information should be on a strict need-to-know basis
+5. Everyone with access to confidential information should be aware of their responsibilities
 6. Comply with the law
-7. The duty to share information can be as important as the duty to protect it
+7. The duty to share information for individual care is as important as the duty to protect patient confidentiality
+8. Inform patients and service users about how their confidential information is used
 
 Governance processes should document how each Caldicott Principle is applied to health data processing activities.
 

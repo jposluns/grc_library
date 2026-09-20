@@ -2,8 +2,8 @@
 
 **Document Title:** Production Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.23\
-**Date:** 2026-09-18\
+**Version:** 1.1.24\
+**Date:** 2026-09-20\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](../dev-security/standard-security-quick-reference.md)\
@@ -107,7 +107,7 @@ Authenticated vulnerability scans must run at minimum weekly. Results must be re
 | Standard (pre-approved, low-risk) | Team lead | No |
 | Normal | Delegated authority | Yes |
 | Emergency | CIO or equivalent | Retrospective within 5 business days |
-| High-risk (identity, PAM, PKI, production network) | CIO or CISO | Yes |
+| High-risk (identity, PAM, PKI, production network) | CISO and CIO (joint approval) | Yes |
 
 All production changes must be executed through the approved IaC pipeline. Direct manual production changes are prohibited except in declared incidents and must be codified within 24 hours. Every CAB-reviewed change must include a tested rollback plan.
 

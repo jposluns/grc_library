@@ -2,8 +2,8 @@
 
 **Document Title:** Key Risk Indicator Catalogue\
 **Document Type:** Register\
-**Version:** 1.1.4\
-**Date:** 2026-08-31\
+**Version:** 1.1.5\
+**Date:** 2026-09-20\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -54,7 +54,7 @@ Each KRI is defined by the following fields.
 | KRI-CYB-002 | Mean Time to Detect (MTTD) | Average time from incident start to detection | Hours | <4 | 4 to 24 | >24 | CISO | Monthly |
 | KRI-CYB-003 | Mean Time to Contain (MTTC) | Average time from incident declaration to confirmed containment | Hours | <8 | 8 to 48 | >48 | CISO | Monthly |
 | KRI-CYB-004 | Phishing Click Rate | Percentage of staff clicking simulated phishing emails | % | <5% | 5 to 15% | >15% | CISO | Quarterly |
-| KRI-CYB-005 | Privileged Account MFA Coverage | Percentage of privileged accounts with MFA enforced | % | 100% | 95 to 99% | <95% | CISO | Monthly |
+| KRI-CYB-005 | Privileged Account MFA Coverage | Percentage of privileged accounts with MFA enforced | % | 100% | 95% to <100% | <95% | CISO | Monthly |
 | KRI-CYB-006 | Security Training Completion | Percentage of staff completing annual security awareness training | % | >95% | 85 to 95% | <85% | CISO / HR | Quarterly |
 | KRI-CYB-007 | Endpoint Protection Coverage | Percentage of managed endpoints with active protection | % | >99% | 95 to 99% | <95% | IT Operations | Weekly |
 | KRI-CYB-008 | Security Incidents (P1+P2) | Count of P1 and P2 security incidents in the period | Count | 0 | 1 to 2 | >2 | CISO | Monthly |
@@ -91,9 +91,9 @@ Each KRI is defined by the following fields.
 | KRI ID | KRI Name | Indicator | Unit | Green | Amber | Red | Owner | Frequency |
 |---|---|---|---|---|---|---|---|---|
 | KRI-RES-001 | Business Continuity Plan Test Results | Pass rate in most recent BCP test | % | >90% | 70 to 90% | <70% | Resilience Manager | Semi-annually |
-| KRI-RES-002 | Recovery Target Achievement | Percentage of Tier 1 systems meeting their recovery target in DR test (per-system RTO for an isolated-failure test; recovery-phase target for a catastrophic-recovery test) | % | 100% | 80 to 99% | <80% | IT Operations | Semi-annually |
+| KRI-RES-002 | Recovery Target Achievement | Percentage of Tier 1 systems meeting their recovery target in DR test (per-system RTO for an isolated-failure test; recovery-phase target for a catastrophic-recovery test) | % | 100% | 80% to <100% | <80% | IT Operations | Semi-annually |
 | KRI-RES-003 | Backup Validation Success Rate | Percentage of backup restorations successfully validated | % | >99% | 95 to 99% | <95% | IT Operations | Monthly |
-| KRI-RES-004 | Crisis Response Training Currency | Percentage of crisis team members with training current (within 12 months) | % | 100% | 80 to 99% | <80% | Resilience Manager | Quarterly |
+| KRI-RES-004 | Crisis Response Training Currency | Percentage of crisis team members with training current (within 12 months) | % | 100% | 80% to <100% | <80% | Resilience Manager | Quarterly |
 
 ---
 
