@@ -2,8 +2,8 @@
 
 **Document Title:** Continuous Assurance and Improvement Framework\
 **Document Type:** Framework\
-**Version:** 1.1.5\
-**Date:** 2026-09-18\
+**Version:** 1.1.6\
+**Date:** 2026-09-20\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](../compliance/procedure-audit-planning.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md)\
@@ -185,6 +185,7 @@ Performance data from all assurance activities feed into the Governance Performa
 | ISACA DTEF (2024) | Digital-trust indicators (organization-defined) | Governance maturity metrics |
 | CSA CCM v4.1 | A&A-01, A&A-05, A&A-02: Audit and Assurance Policy and Procedures; Audit Management Process; Independent Assessments | Cloud control assurance |
 | BASC v6 (2022) | Trade and Customs Assurance Governance | Regional trade compliance integration |
+| NIST SP 800-137A | Assessing ISCM Programs (§ 3.2.3) | Monitoring-programme assessment: document findings, prioritize improvements against risk tolerance, assign owners and completion dates, and reassess completed actions |
 
 ---
 
