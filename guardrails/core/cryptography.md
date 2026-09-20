@@ -65,7 +65,7 @@ Key lifecycle requirements:
 - IVs must be randomly generated for each encryption operation using a CSPRNG
 - IVs must never be hardcoded or predictable
 - IVs must never be reused with the same key (reuse breaks GCM security)
-- For GCM: 96-bit (12-byte) IV is recommended; never exceed 2^32 operations per key/IV combination
+- For GCM: 96-bit (12-byte) IV is recommended; never exceed 2^32 invocations of the authenticated-encryption function under a single key (the random-96-bit-IV limit, NIST SP 800-38D section 8.3)
 
 ---
 

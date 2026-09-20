@@ -153,7 +153,8 @@ const url = new URL(req.query.callbackUrl);
 if (!ALLOWED_HOSTS.includes(url.hostname)) {
   throw new Error('URL not in allowlist');
 }
-const response = await fetch(url.toString());
+// fetch follows redirects by default; an allowed host can redirect to an internal one.
+const response = await fetch(url.toString(), { redirect: 'error' });
 ```
 
 ---
