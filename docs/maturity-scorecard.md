@@ -285,7 +285,7 @@ _163 documents._
 | [resilience/plan-pandemic-continuity.md](../resilience/plan-pandemic-continuity.md) | Pandemic Continuity Plan | Plan | 1.0.7 | 2026-07-14 |
 | [resilience/plan-physical-site-continuity.md](../resilience/plan-physical-site-continuity.md) | Physical Site Continuity Plan | Plan | 1.0.5 | 2026-08-05 |
 | [resilience/policy-business-continuity-and-disaster-recovery.md](../resilience/policy-business-continuity-and-disaster-recovery.md) | Business Continuity and Disaster Recovery Policy | Policy | 1.0.2 | 2026-07-02 |
-| [resilience/procedure-business-impact-analysis.md](../resilience/procedure-business-impact-analysis.md) | Business Impact Analysis Procedure | Procedure | 1.0.2 | 2026-07-02 |
+| [resilience/procedure-business-impact-analysis.md](../resilience/procedure-business-impact-analysis.md) | Business Impact Analysis Procedure | Procedure | 1.0.3 | 2026-09-20 |
 | [resilience/procedure-continuity-and-recovery-testing.md](../resilience/procedure-continuity-and-recovery-testing.md) | Continuity and Recovery Testing Procedure | Procedure | 1.0.2 | 2026-07-02 |
 | [resilience/procedure-crisis-management-eoc-activation.md](../resilience/procedure-crisis-management-eoc-activation.md) | Crisis Management and Emergency Operations Activation Procedure | Procedure | 1.0.3 | 2026-07-02 |
 | [resilience/procedure-security-incident-reporting-and-escalation.md](../resilience/procedure-security-incident-reporting-and-escalation.md) | Security Incident Reporting and Escalation Procedure | Procedure | 1.0.3 | 2026-07-02 |
