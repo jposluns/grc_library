@@ -2,8 +2,8 @@
 
 **Document Title:** Cross-Domain Incident Coordination Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.10\
-**Date:** 2026-09-14\
+**Version:** 1.1.11\
+**Date:** 2026-09-20\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](procedure-security-incident-reporting-and-escalation.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md), [`security/sop-security-ticket-reporting-scheme.md`](../security/sop-security-ticket-reporting-scheme.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -246,6 +246,7 @@ Maintain joint declaration record, coordination roster snapshot, joint decision 
 | Control area | Framework reference |
 | --- | --- |
 | Incident management programme | ISO/IEC 27035-1:2023, ISO/IEC 27035-2:2023; ISO/IEC 27001:2022 Annex A.5.24 to A.5.28 |
+| Cross-organization incident coordination (supplier and affected-party engagement) | ISO/IEC 27035-4:2024 (Part 4: Coordination) |
 | Business continuity coordination | ISO 22301:2019 §8.4 |
 | Cybersecurity incident handling | NIST SP 800-61 Rev. 3 |
 | Personal data breach coordination | GDPR Articles 33 to 34; UK GDPR Articles 33 to 34; PIPL Article 57; LGPD Article 48 |
