@@ -2,7 +2,7 @@
 
 **Document Title:** Remote Working Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.26\
+**Version:** 1.0.27\
 **Date:** 2026-09-20\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -170,7 +170,7 @@ The VPN Required column states requirements by data classification; Section 5.1 
 
 8.1 The formal BYOD policy ([`policy-byod.md`](policy-byod.md)) supplements this standard. The following requirements apply to any use of personal devices to access organizational systems:
 
-8.2 Personal devices may be used to access Public, Controlled, and Internal data only, as set out in Section 8.4. Access to Confidential data from a personal device is permitted through the managed-work-profile route (a standing approved path per the BYOD policy Section 7, requiring no per-device exception); outside that route it is not permitted by default, and where a specific business need requires it, an exception approved through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (with CISO co-approval as a security-related exception) and a documented compensating control are required. Access to Restricted data from a personal device is not permitted except through the managed-work-profile route defined in the [Endpoint Management and Device Compliance Procedure](../operations/procedure-endpoint-management-and-device-compliance.md) (a standing approved path per the BYOD policy Section 7); outside that route, Restricted data requires a company-managed device. This aligns with the data-classification restriction in the BYOD policy ([`policy-byod.md`](policy-byod.md), Section 7).
+8.2 Personal devices may be used to access Public, Controlled, and Internal data through the conditional-access path set out in Section 8.4. Access to Confidential data from a personal device is permitted through the managed-work-profile route (a standing approved path per the BYOD policy Section 7, requiring no per-device exception); outside that route it is not permitted by default, and where a specific business need requires it, an exception approved through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (with CISO co-approval as a security-related exception) and a documented compensating control are required. Access to Restricted data from a personal device is not permitted except through the managed-work-profile route defined in the [Endpoint Management and Device Compliance Procedure](../operations/procedure-endpoint-management-and-device-compliance.md) (a standing approved path per the BYOD policy Section 7); outside that route, Restricted data requires a company-managed device. This aligns with the data-classification restriction in the BYOD policy ([`policy-byod.md`](policy-byod.md), Section 7).
 
 8.3 Where an exception permitting personal device access to Confidential data is approved through the Section 10 exception process, the minimum compensating controls are:
 
