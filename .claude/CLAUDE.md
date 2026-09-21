@@ -137,7 +137,7 @@ Per-activity disciplines that load "like a skill" at their boundary, not every t
 
 ## Project
 The GRC Library: a CC BY-SA 4.0 corpus of governance, risk, and compliance
-documentation in Markdown, plus a stdlib-only Python audit toolchain that keeps the
+documentation in Markdown, plus a stdlib-only Python audit toolchain (one sanctioned dependency, `idna`, for exact UTS-46 in the PII gate; see `requirements.txt`) that keeps the
 corpus internally consistent. There is no application runtime: the deliverable is the
 documents and the linters that govern them.
 - Documents live in domain dirs: `ai/` `architecture/` `compliance/` `crypto/` `dev-security/`

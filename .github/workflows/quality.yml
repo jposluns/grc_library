@@ -26,6 +26,9 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Install pinned dependencies
+        run: python3 -m pip install -r requirements.txt
+
       - name: Metadata audit
         run: python3 tools/lint-metadata.py
 

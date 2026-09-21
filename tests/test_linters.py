@@ -5413,6 +5413,70 @@ class PIIContentTests(LinterTestCase):
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 
+    def test_reserved_email_disallowed_boundary_exempt(self) -> None:
+        # Exact UTS-46 (gate 22 / PRs #2430-#2431): a reserved/example email butted
+        # directly against a UTS-46-DISALLOWED non-word character (a curly quote, an
+        # em-dash, a CJK bracket) is a complete reserved address, not a truncated prefix
+        # of a longer IDN domain, so it stays EXEMPT. Before idna it was over-flagged.
+        fixture = self.make_fixture(
+            "standard-reserved-email-disallowed.md",
+            VALID_METADATA
+            + "\n\nSee x@a.b.test\u201d and y@c.d.test\u2014ok and z@e.f.test\u300d done.\n",
+        )
+        result = run_linter("tools/lint-pii-in-content.py", fixture)
+        self.assertEqual(
+            result.returncode,
+            0,
+            "a reserved email against a UTS-46-disallowed char must stay exempt.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_reserved_email_idn_context_char_flagged(self) -> None:
+        # FN-safe: a reserved-prefix email followed by a zero-width / context character
+        # (a possible IDN label continuation) is NOT proven complete, so it is RETAINED
+        # (flagged): exempting it could hide a real longer IDN domain. idna raises a
+        # non-InvalidCodepoint IDNAError for such context codepoints, which the helper
+        # maps to retain.
+        fixture = self.make_fixture(
+            "standard-reserved-email-context.md",
+            VALID_METADATA + "\n\nSee x@a.b.test\u200bmore.example here.\n",
+        )
+        result = run_linter("tools/lint-pii-in-content.py", fixture)
+        self.assertEqual(
+            result.returncode,
+            1,
+            "a reserved email against a zero-width IDN-context char must stay flagged "
+            "(false-negative-safe).\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_pii_idna_helper_and_stdlib_fallback(self) -> None:
+        # Load the pack engine in-process to check the exact-UTS-46 helper and the
+        # false-negative-safe stdlib fallback used when idna is absent (a bare clone).
+        import importlib.util
+
+        for p in ("vendor/aiqt/tools", ".corpus-management/tools"):
+            sys.path.insert(0, str(REPO_ROOT / p))
+        spec = importlib.util.spec_from_file_location(
+            "_pii_engine",
+            REPO_ROOT / ".corpus-management/tools/gate_lint_pii_in_content.py",
+        )
+        eng = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(eng)
+        # Exact helper: disallowed -> boundary (False); IDN letter and RTL -> retain (True).
+        self.assertFalse(eng._idna_label_continues("\u201d"))  # curly quote: disallowed
+        self.assertFalse(eng._idna_label_continues("\u2014"))  # em-dash: disallowed
+        self.assertTrue(eng._idna_label_continues("\u4e2d"))   # CJK letter: valid label
+        self.assertTrue(eng._idna_label_continues("\u0628"))   # Arabic (RTL bidi): FN-safe retain
+        # Fallback: with idna unavailable, _label_starts retains EVERY non-ASCII char
+        # (the proven FN-safe approximation), so a disallowed char no longer exempts.
+        saved = eng._HAVE_IDNA
+        try:
+            eng._HAVE_IDNA = False
+            self.assertTrue(eng._label_starts("\u201d"))  # fallback: non-ASCII always retains
+        finally:
+            eng._HAVE_IDNA = saved
+
     def test_public_ipv4_flagged(self) -> None:
         # Use a public IP outside RFC 1918, RFC 5737, and loopback ranges.
         # The IPv4 regex has a negative lookahead for trailing dots (to
