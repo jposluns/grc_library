@@ -178,8 +178,14 @@ class LinterTestCase(unittest.TestCase):
     fixture_paths: list[Path] = []
 
     def make_fixture(self, name: str, content: str) -> Path:
-        """Write ``content`` to ``tests/tmp/<name>`` and remember to clean up."""
-        path = FIXTURE_DIR / name
+        """Write a fixture in this test instance's unique directory under ``tests/tmp/``."""
+        if "_fixture_dir" not in self.__dict__:
+            self._fixture_dir = Path(
+                tempfile.mkdtemp(prefix="fixture-", dir=FIXTURE_DIR)
+            )
+            self.fixture_paths = []
+            self.addCleanup(shutil.rmtree, self._fixture_dir)
+        path = self._fixture_dir / name
         path.write_text(content, encoding="utf-8")
         self.fixture_paths.append(path)
         return path
