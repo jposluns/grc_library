@@ -1,0 +1,11 @@
+#!/bin/sh
+# git-native pre-push hook: dirty-tracked-tree backstop (Layer B).
+#
+# A persistent shim installed by tools/install-git-hooks.sh in the shared hooks
+# dir resolves the active checkout and execs THIS tracked file at push time.
+# Delegates to
+# the tested Python implementation, forwarding argv (remote name + url) and stdin
+# (the refs being pushed) so it can scope the check to HEAD-bearing pushes.
+# See tools/check-dirty-tree-push.py. NOT a pre-commit-framework hook (the
+# framework stashes unstaged edits, which would defeat this check).
+exec python3 "$(git rev-parse --show-toplevel)/tools/check-dirty-tree-push.py" --pre-push "$@"

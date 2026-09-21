@@ -58,6 +58,8 @@ pip install pre-commit
 pre-commit install
 ```
 
+A separate git-native pre-push hook (`tools/git-hooks/pre-push`) is installed by `tools/install-git-hooks.sh` (run it once per clone, alongside `pre-commit install`). It refuses a `git push` when the tracked working tree is modified or staged AND the push includes the current HEAD, mirroring [`pre-push-guard.sh`](pre-push-guard.sh)'s dirty-tree attestation (override `PRE_PUSH_GUARD_ALLOW_DIRTY=1`), so a raw `git push` that skips the wrapper still gets the check. It is a raw git hook, not a pre-commit-framework hook, because the framework stashes unstaged edits before running hooks (which would defeat the check).
+
 Subsequent commits run the full audit programme before the commit is finalized. Run on demand against the entire corpus:
 
 ```
