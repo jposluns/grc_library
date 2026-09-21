@@ -2,8 +2,8 @@
 
 **Document Title:** Automated Decision-Making and Profiling Register\
 **Document Type:** Register\
-**Version:** 1.0.15\
-**Date:** 2026-09-03\
+**Version:** 1.0.18\
+**Date:** 2026-09-21\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`ai/template-ai-system-register.md`](../ai/template-ai-system-register.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md), [`ai/procedure-integrated-ai-and-privacy-assessment.md`](../ai/procedure-integrated-ai-and-privacy-assessment.md), [`ai/standard-ai-human-oversight.md`](../ai/standard-ai-human-oversight.md)\
@@ -22,7 +22,7 @@
 
 ## Purpose
 
-This register inventories automated decision-making and profiling activities subject to GDPR Article 22, UK GDPR Articles 22A-22D (per the UK annex; DUAA 2025 replaced Article 22, in force 2026-02-05), EU AI Act Articles 6 and 14, LGPD Article 20, PIPL Article 24, CPPA Section 63(3) (lapsed with Bill C-27), CCPA / CPRA automated decision-making rules, and equivalent provisions. It supports the transparency, human-review, and explanation rights data subjects can exercise.
+This register inventories automated decision-making and profiling activities subject to EU GDPR Article 22, UK GDPR Articles 22A-22D (per the UK annex; DUAA 2025 replaced Article 22, in force 2026-02-05), EU AI Act Articles 6 and 14, LGPD Article 20, PIPL Article 24, CPPA Section 63(3) (lapsed with Bill C-27), CCPA / CPRA automated decision-making rules, and equivalent provisions. It supports the transparency, human-review, and explanation rights data subjects can exercise.
 
 A populated ADM register identifies real systems and is sensitive operational data. This template is the structural baseline; populate, classify, and store internally.
 
@@ -30,7 +30,7 @@ A populated ADM register identifies real systems and is sensitive operational da
 
 ## Scope
 
-This register applies to every system or workflow that takes decisions based on automated processing of personal data, including profiling, where the decision has legal or similarly significant effect on the data subject. It also applies to systems where Article 22 thresholds are not yet met but the AI Governance Council or Data Protection Officer has elected to register the system to maintain visibility.
+This register applies to every system or workflow that takes decisions based on automated processing of personal data, including profiling, where the decision has legal or similarly significant effect on the data subject. It also applies to systems where the applicable EU Article 22 or UK Article 22A thresholds are not yet met but the AI Governance Council or Data Protection Officer has elected to register the system to maintain visibility.
 
 In-scope examples:
 
@@ -68,7 +68,7 @@ Each registered ADM activity is one row. Mandatory fields:
 | Model or rule basis | Statistical model, rule set, hybrid, large language model, etc. |
 | Logic involved (meaningful summary) | The high-level logic in language suitable for inclusion in a privacy notice and a subject's Article 15 response |
 | Significance and envisaged consequences | What the decision means for the subject |
-| Lawful basis | GDPR Article 6 basis; Article 22 condition (contract necessity, consent, EU or member-state law); equivalents in other jurisdictions |
+| Lawful basis | Applicable Article 6 basis; EU Article 22(2)-(4) assessment or UK Article 22B restrictions and Article 22C safeguards, as applicable; requirements in other jurisdictions |
 | Human review pathway | The named role and channel by which a subject can request human review |
 | Human review SLA | Maximum time from request to human-review outcome |
 | Explanation mechanism | How the subject is provided a meaningful explanation if requested |
@@ -84,7 +84,7 @@ Each registered ADM activity is one row. Mandatory fields:
 
 A system is registered when any of the following is true:
 
-1. The system meets or approaches the Article 22 threshold, which is a decision based SOLELY on automated processing with legal or similarly significant effect; this register deliberately also captures substantially-automated decisions with such effect as a broader internal trigger, even though the statutory bar is solely-automated.
+1. The system meets or approaches the EU Article 22 or UK Article 22A threshold, which is a decision based SOLELY on automated processing with legal or similarly significant effect; this register deliberately also captures substantially-automated decisions with such effect as a broader internal trigger, although those statutory thresholds require solely automated processing.
 2. The system falls in a category that supervisory authorities have repeatedly identified as high-risk regardless of automation degree (lending, employment, insurance, essential services access).
 3. The EU AI Act classifies the system in a high-risk category under Annex III.
 4. The Data Protection Officer determines that the system warrants registration due to scale, sensitivity, or public expectation.
@@ -127,7 +127,7 @@ Where an ADM system is also an AI system (most modern cases), the AI System Regi
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | GDPR | Articles 13(2)(f), 14(2)(g), 15(1)(h), 22, Recital 71 | Information duty, access, ADM rights |
-| UK GDPR | Articles 22A-22D | Replaced Article 22 (DUAA 2025, in force 2026-02-05; see the UK jurisdiction annex) |
+| UK GDPR | Articles 22A-22D | Replaced Article 22 for automated decision-making (DUAA 2025 s.80, commenced 2026-02-05; earlier Article 22(3) decisions saved; see the UK jurisdiction annex) |
 | EU AI Act | Articles 6, 14, 26, Annex III | High-risk AI, human oversight, transparency |
 | EU AI Act | Article 27 | Fundamental rights impact assessment (FRIA); may cross-reference the DPIA per Article 27(4) as amended by Regulation (EU) 2026/1744; deployer obligation applicable from 2 December 2027 (Annex III and Article 6(2) high-risk systems, per the amended Article 113) |
 | LGPD | Article 20 | Right to review of automated decisions |
@@ -140,7 +140,7 @@ Where an ADM system is also an AI system (most modern cases), the AI System Regi
 
 ## Limitations
 
-This register is a CC BY-SA 4.0 structural baseline. Adopting organizations must populate the schema with real systems, validate Article 22 threshold determinations with legal counsel, and integrate the register with the AI System Register and the DPIA workflow. The register is not legal advice.
+This register is a CC BY-SA 4.0 structural baseline. Adopting organizations must populate the schema with real systems, validate EU Article 22 and UK Articles 22A-22D assessments, as applicable, with legal counsel, and integrate the register with the AI System Register and the DPIA workflow. The register is not legal advice.
 
 ---
 
