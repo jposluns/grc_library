@@ -16182,7 +16182,7 @@ class TodoNumberPermanenceTests(LinterTestCase):
         root, so each test wraps this in try/finally per the module's
         synthetic-root idiom.
         """
-        root = FIXTURE_DIR / name
+        root = Path(tempfile.mkdtemp(prefix=name + "-", dir=FIXTURE_DIR))  # unique per-run: no cross-run delete-race (P-1.86)
         (root / ".working").mkdir(parents=True, exist_ok=True)
         # TODO.md is index-format now (PR-1 rework): render each abstract
         # ``### <id> <title>`` fixture line as an index row so the gate (which
@@ -16669,7 +16669,7 @@ class TodoIndexReferenceParityTests(LinterTestCase):
            "### 1.2 beta (M)\n\nbody\n")
 
     def _run(self, name, idx, ref):
-        root = FIXTURE_DIR / name
+        root = Path(tempfile.mkdtemp(prefix=name + "-", dir=FIXTURE_DIR))  # unique per-run: no cross-run delete-race (P-1.86)
         root.mkdir(parents=True, exist_ok=True)
         (root / "TODO.md").write_text(idx, encoding="utf-8")
         (root / "TODO-REFERENCE.md").write_text(ref, encoding="utf-8")
@@ -16789,7 +16789,7 @@ class TodoIndexReferenceParityTests(LinterTestCase):
             import shutil; shutil.rmtree(root, ignore_errors=True)
 
     def test_reference_absent_is_noop(self):
-        root = FIXTURE_DIR / "bij-noref"
+        root = Path(tempfile.mkdtemp(prefix="bij-noref-", dir=FIXTURE_DIR))  # unique per-run: no cross-run delete-race (P-1.86)
         root.mkdir(parents=True, exist_ok=True)
         (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
         r = run_linter("tools/lint-todo-index-reference-parity.py",
@@ -16808,8 +16808,8 @@ class TodoIndexReferenceParityTests(LinterTestCase):
     def _run_pair(self, name, idx, ref, pidx, pref, ref_in_private=True):
         """New-layout run: TODO.md in root; references (and P-TODO pair) under a
         private-root dir, addressed via --private-root."""
-        root = FIXTURE_DIR / name
-        priv = FIXTURE_DIR / (name + "-priv")
+        root = Path(tempfile.mkdtemp(prefix=name + "-", dir=FIXTURE_DIR))  # unique per-run: no cross-run delete-race (P-1.86)
+        priv = Path(tempfile.mkdtemp(prefix=name + "-priv-", dir=FIXTURE_DIR))  # unique per-run (P-1.86)
         root.mkdir(parents=True, exist_ok=True)
         priv.mkdir(parents=True, exist_ok=True)
         (root / "TODO.md").write_text(idx, encoding="utf-8")
@@ -16849,8 +16849,8 @@ class TodoIndexReferenceParityTests(LinterTestCase):
 
     def test_reference_in_private_root_resolved(self):
         """Post-move: TODO-REFERENCE.md lives under the private root, not root."""
-        root = FIXTURE_DIR / "bij-privref"
-        priv = FIXTURE_DIR / "bij-privref-priv"
+        root = Path(tempfile.mkdtemp(prefix="bij-privref-", dir=FIXTURE_DIR))  # unique per-run: no cross-run delete-race (P-1.86)
+        priv = Path(tempfile.mkdtemp(prefix="bij-privref-priv-", dir=FIXTURE_DIR))  # unique per-run: no cross-run delete-race (P-1.86)
         root.mkdir(parents=True, exist_ok=True); priv.mkdir(parents=True, exist_ok=True)
         (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
         (priv / "TODO-REFERENCE.md").write_text(self.REF, encoding="utf-8")
@@ -16865,8 +16865,8 @@ class TodoIndexReferenceParityTests(LinterTestCase):
     def test_legacy_ptodo_block_format_skipped(self):
         """Pre-restructure P-TODO (### blocks, no P-TODO-REFERENCE.md) is a no-op
         for the P-TODO pair (no index-detail-leak false-positive on it)."""
-        root = FIXTURE_DIR / "bij-legacy-ptodo"
-        priv = FIXTURE_DIR / "bij-legacy-ptodo-priv"
+        root = Path(tempfile.mkdtemp(prefix="bij-legacy-ptodo-", dir=FIXTURE_DIR))  # unique per-run: no cross-run delete-race (P-1.86)
+        priv = Path(tempfile.mkdtemp(prefix="bij-legacy-ptodo-priv-", dir=FIXTURE_DIR))  # unique per-run: no cross-run delete-race (P-1.86)
         root.mkdir(parents=True, exist_ok=True); priv.mkdir(parents=True, exist_ok=True)
         (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
         (priv / "TODO-REFERENCE.md").write_text(self.REF, encoding="utf-8")
@@ -16884,8 +16884,8 @@ class TodoIndexReferenceParityTests(LinterTestCase):
         """F1793-2: a P-TODO.md already in INDEX form but with no P-TODO-REFERENCE.md
         is a half-converted botch -> fail loud (rc 2), unlike a legacy ###-block
         P-TODO which is correctly skipped."""
-        root = FIXTURE_DIR / "bij-halfconv"
-        priv = FIXTURE_DIR / "bij-halfconv-priv"
+        root = Path(tempfile.mkdtemp(prefix="bij-halfconv-", dir=FIXTURE_DIR))  # unique per-run: no cross-run delete-race (P-1.86)
+        priv = Path(tempfile.mkdtemp(prefix="bij-halfconv-priv-", dir=FIXTURE_DIR))  # unique per-run: no cross-run delete-race (P-1.86)
         root.mkdir(parents=True, exist_ok=True); priv.mkdir(parents=True, exist_ok=True)
         (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
         (priv / "TODO-REFERENCE.md").write_text(self.REF, encoding="utf-8")
@@ -16901,8 +16901,8 @@ class TodoIndexReferenceParityTests(LinterTestCase):
 
     def test_ptodo_reference_without_index_flagged(self):
         """A present P-TODO-REFERENCE.md with a missing P-TODO.md is a broken pair."""
-        root = FIXTURE_DIR / "bij-brokenpair"
-        priv = FIXTURE_DIR / "bij-brokenpair-priv"
+        root = Path(tempfile.mkdtemp(prefix="bij-brokenpair-", dir=FIXTURE_DIR))  # unique per-run: no cross-run delete-race (P-1.86)
+        priv = Path(tempfile.mkdtemp(prefix="bij-brokenpair-priv-", dir=FIXTURE_DIR))  # unique per-run: no cross-run delete-race (P-1.86)
         root.mkdir(parents=True, exist_ok=True); priv.mkdir(parents=True, exist_ok=True)
         (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
         (priv / "TODO-REFERENCE.md").write_text(self.REF, encoding="utf-8")
@@ -16920,8 +16920,8 @@ class TodoIndexReferenceParityTests(LinterTestCase):
         """F1793-7: a legacy ###-block P-TODO whose item BODY holds a markdown table
         with a backlog-id-shaped first cell must NOT be misread as index-form and
         flagged half-converted (the header, not any parseable row, is the signal)."""
-        root = FIXTURE_DIR / "bij-legacy-bodytable"
-        priv = FIXTURE_DIR / "bij-legacy-bodytable-priv"
+        root = Path(tempfile.mkdtemp(prefix="bij-legacy-bodytable-", dir=FIXTURE_DIR))  # unique per-run: no cross-run delete-race (P-1.86)
+        priv = Path(tempfile.mkdtemp(prefix="bij-legacy-bodytable-priv-", dir=FIXTURE_DIR))  # unique per-run: no cross-run delete-race (P-1.86)
         root.mkdir(parents=True, exist_ok=True); priv.mkdir(parents=True, exist_ok=True)
         (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
         (priv / "TODO-REFERENCE.md").write_text(self.REF, encoding="utf-8")
@@ -16940,8 +16940,8 @@ class TodoIndexReferenceParityTests(LinterTestCase):
     def test_header_only_index_ptodo_flagged(self):
         """F1793-7: a P-TODO with the | ID | Item | Tags | header (index form) but no
         P-TODO-REFERENCE.md is half-converted even if it has no data rows yet."""
-        root = FIXTURE_DIR / "bij-headeronly"
-        priv = FIXTURE_DIR / "bij-headeronly-priv"
+        root = Path(tempfile.mkdtemp(prefix="bij-headeronly-", dir=FIXTURE_DIR))  # unique per-run: no cross-run delete-race (P-1.86)
+        priv = Path(tempfile.mkdtemp(prefix="bij-headeronly-priv-", dir=FIXTURE_DIR))  # unique per-run: no cross-run delete-race (P-1.86)
         root.mkdir(parents=True, exist_ok=True); priv.mkdir(parents=True, exist_ok=True)
         (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
         (priv / "TODO-REFERENCE.md").write_text(self.REF, encoding="utf-8")
@@ -16960,8 +16960,8 @@ class TodoIndexReferenceParityTests(LinterTestCase):
         """F1793-10: an index-form P-TODO whose header is missing its terminal pipe
         must NOT be misclassified as legacy and silently skipped (a silent-green
         escape hiding its items); it is recognized as index form -> half-converted."""
-        root = FIXTURE_DIR / "bij-malformedhdr"
-        priv = FIXTURE_DIR / "bij-malformedhdr-priv"
+        root = Path(tempfile.mkdtemp(prefix="bij-malformedhdr-", dir=FIXTURE_DIR))  # unique per-run: no cross-run delete-race (P-1.86)
+        priv = Path(tempfile.mkdtemp(prefix="bij-malformedhdr-priv-", dir=FIXTURE_DIR))  # unique per-run: no cross-run delete-race (P-1.86)
         root.mkdir(parents=True, exist_ok=True); priv.mkdir(parents=True, exist_ok=True)
         (root / "TODO.md").write_text(self.IDX, encoding="utf-8")
         (priv / "TODO-REFERENCE.md").write_text(self.REF, encoding="utf-8")
@@ -16985,7 +16985,7 @@ class TagGateTests(LinterTestCase):
     id-capture prefix cannot mask an untagged sibling."""
 
     def _run(self, name, todo, ptodo=None):
-        root = FIXTURE_DIR / name
+        root = Path(tempfile.mkdtemp(prefix=name + "-", dir=FIXTURE_DIR))  # unique per-run: no cross-run delete-race (P-1.86)
         root.mkdir(parents=True, exist_ok=True)
         # TODO.md is index-format now (PR-1 rework): render each abstract
         # ``### <id> <title> [tags]`` fixture line as an index row (tags -> cell 3).
