@@ -37,7 +37,7 @@ The metadata block above carries a generator schema constant for `Version` and t
 
 ---
 
-_Summary as of last regeneration: Mature: 117, Baseline: 163, Draft: 71, Unknown: 0._
+_Summary as of last regeneration: Mature: 117, Baseline: 163, Draft: 72, Unknown: 0._
 
 ## Mature
 
@@ -83,7 +83,7 @@ _117 documents._
 | [governance/register-canonical-citations.md](../governance/register-canonical-citations.md) | Canonical Citations Register | Register | 1.5.73 | 2026-09-12 |
 | [governance/register-coverage-gaps.md](../governance/register-coverage-gaps.md) | Coverage Gap Analysis Register | Register | 1.1.41 | 2026-09-12 |
 | [governance/register-digital-trust-and-assurance-metrics.md](../governance/register-digital-trust-and-assurance-metrics.md) | Digital Trust and Assurance Metrics Register | Register | 1.1.3 | 2026-08-30 |
-| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.189 | 2026-09-18 |
+| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.190 | 2026-09-21 |
 | [governance/register-glossary.md](../governance/register-glossary.md) | Glossary and Acronym Index | Register | 1.4.18 | 2026-08-24 |
 | [governance/register-key-terms-and-definitions.md](../governance/register-key-terms-and-definitions.md) | Key Terms and Definitions Register | Register | 1.1.6 | 2026-08-31 |
 | [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.5.11 | 2026-09-05 |
@@ -339,7 +339,7 @@ _163 documents._
 
 ## Draft
 
-_71 documents._
+_72 documents._
 
 | Path | Title | Type | Version | Date |
 | --- | --- | --- | --- | --- |
@@ -351,6 +351,7 @@ _71 documents._
 | [ai/guideline-ai-synthetic-content-provenance.md](../ai/guideline-ai-synthetic-content-provenance.md) | AI Synthetic-Content Provenance Guideline | Guideline | 0.0.4 | 2026-08-04 |
 | [ai/jurisdictions/annex-ai-australia.md](../ai/jurisdictions/annex-ai-australia.md) | Australia AI Regulatory Requirements | Annex | 0.0.2 | 2026-07-12 |
 | [ai/jurisdictions/annex-ai-european-union.md](../ai/jurisdictions/annex-ai-european-union.md) | European Union AI Regulatory Requirements | Annex | 0.0.14 | 2026-08-30 |
+| [ai/jurisdictions/annex-ai-singapore-agentic-ai.md](../ai/jurisdictions/annex-ai-singapore-agentic-ai.md) | Singapore IMDA Model AI Governance Framework for Agentic AI | Annex | 0.0.1 | 2026-09-21 |
 | [ai/jurisdictions/annex-ai-singapore.md](../ai/jurisdictions/annex-ai-singapore.md) | Singapore Model AI Governance Framework for Generative AI | Annex | 0.0.1 | 2026-07-24 |
 | [ai/jurisdictions/annex-ai-south-korea.md](../ai/jurisdictions/annex-ai-south-korea.md) | South Korea AI Regulatory Requirements | Annex | 0.0.1 | 2026-09-05 |
 | [ai/jurisdictions/annex-ai-us-california.md](../ai/jurisdictions/annex-ai-us-california.md) | California CCPA Automated Decision-Making Technology (ADMT) Regulatory Requirements | Annex | 0.0.4 | 2026-09-03 |

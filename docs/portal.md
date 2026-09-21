@@ -580,6 +580,7 @@ The Chief Compliance Officer needs the compliance and audit policies, the regula
 - [New York City Automated Employment Decision Tool Regulatory Requirements](../ai/jurisdictions/annex-ai-us-new-york-city.md) (maturity: Draft)
 - [Public Sector GRC Requirements Annex](../compliance/public-sector/annex-public-sector-requirements.md) (maturity: Draft)
 - [SOX IT General Controls Annex](../compliance/financial-services/annex-sox-itgc.md) (maturity: Draft)
+- [Singapore IMDA Model AI Governance Framework for Agentic AI](../ai/jurisdictions/annex-ai-singapore-agentic-ai.md) (maturity: Draft)
 - [Singapore Model AI Governance Framework for Generative AI](../ai/jurisdictions/annex-ai-singapore.md) (maturity: Draft)
 - [South Korea AI Regulatory Requirements](../ai/jurisdictions/annex-ai-south-korea.md) (maturity: Draft)
 - [Telecommunications Sector Requirements Annex](../compliance/telecommunications/annex-telecommunications-sector-requirements.md) (maturity: Draft)
