@@ -2,7 +2,7 @@
 
 **Document Title:** Endpoint Management and Device Compliance Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.15\
+**Version:** 1.3.16\
 **Date:** 2026-09-21\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -50,12 +50,16 @@ To ensure that all organizational endpoints, including workstations, laptops, se
 
 ### 3.1 Mandatory registration before use
 
-No endpoint or server may connect to the corporate network or access corporate resources before it is registered in the asset register and enrolled in the endpoint management platform. This requirement applies to:
+No endpoint or server may connect to the corporate network or access corporate resources before it is registered in the asset register. Enrolment in the endpoint management platform is also required before access, except for personally-owned devices using the approved MAM access path in §6.1. That path permits access only to the cloud productivity platform (email, collaboration, file storage) under the application-protection and identity-layer controls in the [BYOD Policy](../security/policy-byod.md) §5, without device enrolment. Asset registration does not constitute device enrolment or authorize device-level management under MAM.
+
+The registration and enrolment requirements apply to:
 
 - New organization-issued workstations and laptops before first use.
 - New or replacement servers before promotion to any environment.
-- BYOD devices before accessing corporate systems (see §8).
+- BYOD devices using an enrolled or managed access path before accessing corporate systems (see §8).
 - Temporary or loaner devices issued by IT Operations.
+
+BYOD devices using the approved MAM access path remain subject to asset registration and the access restrictions in §6.1.
 
 ### 3.2 Asset register
 
@@ -163,12 +167,16 @@ No end-of-life operating system version is permitted in production. OS versions 
 
 ### 6.1 Compliance as an access condition
 
-Device compliance status is evaluated by the enterprise identity provider at every authentication event for corporate resources. Devices that are not enrolled in the endpoint management platform or that are marked as non-compliant are blocked from accessing:
+Device compliance status is evaluated by the enterprise identity provider at every authentication event for corporate resources. Except for the narrowly scoped MAM access path defined below, devices that are not enrolled in the endpoint management platform or that are marked as non-compliant are blocked from accessing:
 
 - Corporate email and collaboration platforms.
 - Internal applications and portals.
 - VPN and remote access infrastructure.
 - Cloud platform resources.
+
+Personally-owned devices using the approved mobile application management (MAM) model defined in the [BYOD Policy](../security/policy-byod.md) §2 may access only the cloud productivity platform (email, collaboration, file storage), without device enrolment or endpoint-management device compliance, provided all application-protection and identity-layer controls in that policy's §5 are enforced. Access must be denied if those controls are not satisfied. This permission applies only to the cloud productivity platform subset of the resources listed above. MAM-model devices remain blocked from internal applications and portals, VPN and remote access infrastructure, and all other cloud or internal resources.
+
+The MAM access path does not itself authorize access to Confidential or Restricted data; the classification restrictions and exception conditions in the BYOD Policy §§7 and 12 continue to apply. It must not be used to bypass a non-compliance block on an enrolled device. The enrolment grace period in §6.3 applies only to newly enrolled devices and does not provide a grace period for MAM application-protection or identity-layer controls.
 
 The enterprise identity provider is the authoritative enforcement point for policy-based access controls. Application and infrastructure teams must not implement workarounds or exceptions to policy-based access controls without an exception approved through the formal exception process in [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (the Section 4.2.2 risk-tier approver, with CISO co-approval for security-related exceptions).
 
@@ -218,7 +226,9 @@ Organization-issued mobile devices are enrolled in the endpoint management platf
 
 ### 8.2 BYOD device requirements
 
-Personally-owned devices that access corporate systems must meet minimum security requirements before access is permitted. The enterprise identity provider evaluates device compliance at authentication via the endpoint management platform. Minimum BYOD requirements are:
+Personally-owned devices using the approved MAM access path in §6.1 are governed by the application-protection and identity-layer controls in the [BYOD Policy](../security/policy-byod.md) §5, including minimum OS version and jailbreak or root detection. They are not enrolled in the endpoint management platform and are not subject to the device-level minimum requirements in the table below. Under MAM, the organization does not configure device-level password, encryption, or screen-lock settings, as specified in that policy's §6. MAM access remains limited to the cloud productivity platform (email, collaboration, file storage), subject to that policy's §§7 and 12 classification restrictions.
+
+Personally-owned devices using an enrolled or managed access path must meet the following minimum device security requirements before access is permitted, subject to the newly enrolled device grace period in §6.3. The enterprise identity provider evaluates their device compliance at authentication via the endpoint management platform. The following table applies only to the enrolled or managed access path:
 
 | Requirement | Minimum Standard |
 | --- | --- |
