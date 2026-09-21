@@ -39,6 +39,15 @@ when a document is bumped twice on the same UTC day, its Date is already
 today and the bump commit is dated today, so they match and the gate
 stays silent.
 
+Blob reads use ``git cat-file blob`` (a local ``blob_at``), not ``git show``: cat-file
+returns the raw stored bytes and errors on a non-blob (a gitlink) rather than rendering the
+referenced commit or running textconv (diff) drivers, so this gate reads exactly the bytes
+the pre-commit predictor aid (``preflight-version-date.py``) reads and writes no objects,
+notes, or refs. In a partial clone (a promisor remote) an unavailable base blob would be
+misread as an added file and silently clear a stale bump, so this gate detects the promisor
+remote (shared with the aid via ``promisor_remote_reason``) and declines (exit 2), exactly as
+the aid scope-errors; CI runs in a full clone, where no promisor remote exists.
+
 This is a PR-time delta gate (D4), not part of the corpus audit programme in
 governance/specification-audit-programme.md section 6; it is documented
 there in section 6.1 (per-PR delta gates) alongside the other D-numbered delta gates and is
@@ -67,7 +76,8 @@ Exit codes:
         or no versioned document bumped.
     1 : One or more documents bumped Version without co-bumping Date.
     2 : Invocation or environment error (cannot determine base/head,
-        git failure).
+        git failure, or a partial clone whose base/head blobs may be
+        unavailable - declined to avoid a silent false-OK).
 """
 
 from __future__ import annotations
@@ -79,7 +89,7 @@ import subprocess
 import sys
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import git, git_show, head_version, parse_iso_date, parse_metadata_block  # noqa: E402  # generic core (behaviour-identical to lint_common)
+from aiqt_corpus import git, head_version, parse_iso_date, parse_metadata_block  # noqa: E402  # generic core (behaviour-identical to lint_common)
 from lint_common import PrRangeError, resolve_pr_range  # noqa: E402  # grc-config/store, stays local
 
 # B2: neutralise inherited pathspec-mode env vars so the :(top,literal) history pathspec below is
@@ -87,6 +97,14 @@ from lint_common import PrRangeError, resolve_pr_range  # noqa: E402  # grc-conf
 # filename text (finding no commit and silently skipping the date comparison).
 for _pk in ("GIT_LITERAL_PATHSPECS", "GIT_NOGLOB_PATHSPECS", "GIT_GLOB_PATHSPECS"):
     os.environ.pop(_pk, None)
+
+# Partial-clone safety, matching preflight-version-date.py. GIT_NO_LAZY_FETCH=1 means a
+# blob read on a promisor-unavailable object fails cleanly instead of fetching (writing pack
+# files); popping GIT_CONFIG keeps the promisor-config query reading the repo's own config
+# hierarchy, so an inherited GIT_CONFIG=<file> cannot hide remote.*.promisor. Both are
+# defence in depth: main() declines on any promisor remote before reading a blob.
+os.environ["GIT_NO_LAZY_FETCH"] = "1"
+os.environ.pop("GIT_CONFIG", None)
 
 
 # Files exempt from the co-bump requirement. NOT identical to D2's set:
@@ -132,6 +150,62 @@ EXEMPT_PREFIXES: tuple[str, ...] = (
 # Date on a diff-listed file no range commit touched (a merge artefact)
 # previously hit that silent skip first and passed; it now fails loud
 # on the Date before the skip is reached (the #613 sweep's L-1).
+
+
+def promisor_remote_reason(_git=git):
+    """A short reason string if this repository is a partial clone (a ``remote.*.promisor``
+    remote is configured true), else None. In a partial clone a base/head blob may be absent
+    locally; reading it would either lazy-fetch (writing pack files) or fail and be misread as
+    an absent (added/deleted) file, silently clearing a real stale Version bump. Both this gate
+    and preflight-version-date.py decline on it (this gate exits 2, the aid scope-errors), so
+    the two agree on every partial-clone input. Takes the git callable so the aid can pass its
+    read-only-hardened wrapper; defaults to this module's git."""
+    # extensions.partialClone (naming the promisor remote) is git's canonical partial-clone
+    # marker, set at clone time; a repo can carry it while remote.*.promisor is unset, so check
+    # it first (else that config escapes detection and the harmful false-OK survives).
+    try:
+        ext = _git("config", "--get", "extensions.partialClone")
+    except subprocess.CalledProcessError:
+        ext = ""  # not set -> fall through to the remote.*.promisor check
+    except UnicodeDecodeError:
+        return "extensions.partialClone is non-UTF-8; cannot read partial-clone config reliably"
+    if ext.strip():
+        return "this is a partial clone (extensions.partialClone set); base objects may be unavailable without a fetch"
+    try:
+        promisors = _git("config", "--get-regexp", r"^remote\..*\.promisor$")
+    except subprocess.CalledProcessError:
+        return None  # no promisor remote -> not a partial clone
+    except UnicodeDecodeError:
+        return "a remote name is non-UTF-8; cannot read partial-clone config reliably"
+    for line in promisors.splitlines():
+        key = line.split(None, 1)[0] if line.strip() else ""
+        if not key:
+            continue
+        try:
+            norm = _git("config", "--type=bool", "--get", key)
+        except (subprocess.CalledProcessError, UnicodeDecodeError):
+            return "cannot normalise a partial-clone config value; declining"
+        if norm.strip() == "true":
+            return "this is a partial clone; base objects may be unavailable without a fetch"
+    return None
+
+
+def blob_at(ref: str, path: str) -> str | None:
+    """Content of the blob at ``ref:path`` via ``git cat-file blob`` rather than ``git show``.
+    cat-file returns the raw stored bytes and ERRORS on a non-blob (a gitlink) instead of
+    rendering the referenced commit and running textconv (diff) drivers, so it writes no
+    objects, notes, or refs and reads exactly the bytes preflight-version-date.py reads
+    (read-path parity). Returns None if the path is absent at ``ref`` or is a non-blob; an
+    undecodable blob raises UnicodeDecodeError, which the caller turns into exit 2."""
+    try:
+        return subprocess.check_output(
+            ["git", "cat-file", "blob", f"{ref}:{path}"],
+            text=True,
+            encoding="utf-8",
+            stderr=subprocess.DEVNULL,
+        )
+    except subprocess.CalledProcessError:
+        return None
 
 
 def bump_commit_date_utc(merge_base: str, head: str, path: str) -> datetime.date | None:
@@ -206,6 +280,16 @@ def main(argv: list[str]) -> int:
         print(str(exc), file=sys.stderr)
         return 2
 
+    reason = promisor_remote_reason()
+    if reason is not None:
+        print(
+            f"ERROR: {reason}; D4 cannot reliably read base/head blobs in a partial clone "
+            f"(a missing base blob would be misread as an added file and silently clear a "
+            f"stale bump). Run in a full clone; the preflight aid declines the same way.",
+            file=sys.stderr,
+        )
+        return 2
+
     try:
         # -z: NUL-delimited, raw (unquoted) pathnames, so a filename containing a quote,
         # backslash, control char, or non-ASCII byte is enumerated correctly regardless of
@@ -238,8 +322,8 @@ def main(argv: list[str]) -> int:
             skipped_exempt += 1
             continue
         try:
-            base_content = git_show(merge_base, path)
-            head_content = git_show(head, path)
+            base_content = blob_at(merge_base, path)
+            head_content = blob_at(head, path)
         except UnicodeDecodeError as exc:
             print(f"ERROR: a tracked blob is not valid UTF-8; cannot inspect ({exc})", file=sys.stderr)
             return 2
