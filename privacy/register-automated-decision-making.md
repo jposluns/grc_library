@@ -2,7 +2,7 @@
 
 **Document Title:** Automated Decision-Making and Profiling Register\
 **Document Type:** Register\
-**Version:** 1.0.17\
+**Version:** 1.0.18\
 **Date:** 2026-09-21\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -22,7 +22,7 @@
 
 ## Purpose
 
-This register inventories automated decision-making and profiling activities subject to GDPR Article 22, UK GDPR Articles 22A-22D (per the UK annex; DUAA 2025 replaced Article 22, in force 2026-02-05), EU AI Act Articles 6 and 14, LGPD Article 20, PIPL Article 24, CPPA Section 63(3) (lapsed with Bill C-27), CCPA / CPRA automated decision-making rules, and equivalent provisions. It supports the transparency, human-review, and explanation rights data subjects can exercise.
+This register inventories automated decision-making and profiling activities subject to EU GDPR Article 22, UK GDPR Articles 22A-22D (per the UK annex; DUAA 2025 replaced Article 22, in force 2026-02-05), EU AI Act Articles 6 and 14, LGPD Article 20, PIPL Article 24, CPPA Section 63(3) (lapsed with Bill C-27), CCPA / CPRA automated decision-making rules, and equivalent provisions. It supports the transparency, human-review, and explanation rights data subjects can exercise.
 
 A populated ADM register identifies real systems and is sensitive operational data. This template is the structural baseline; populate, classify, and store internally.
 
