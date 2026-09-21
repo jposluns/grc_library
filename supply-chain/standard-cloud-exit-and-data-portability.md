@@ -2,8 +2,8 @@
 
 **Document Title:** Cloud Exit and Data Portability Standard\
 **Document Type:** Standard\
-**Version:** 1.1.6\
-**Date:** 2026-09-11\
+**Version:** 1.1.7\
+**Date:** 2026-09-21\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`operations/register-asset-inventory.md`](../operations/register-asset-inventory.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -45,9 +45,9 @@ This standard defines the requirements for planning, managing, and executing the
 
 All new cloud and SaaS contracts must include the following provisions before signature. Procurement must confirm their presence; contracts without these provisions require an exception approved under Section 8 before execution.
 
-1. **Data export right:** The provider must allow the organization to export all data in a documented, machine-readable, non-proprietary format at any time during the contract term and for a minimum of 90 days following contract termination.
+1. **Data export right:** The provider must allow the organization to export all data in a documented, machine-readable, non-proprietary format at any time during the contract term and for an agreed export window of at least 90 calendar days following contract termination. The provider must preserve the data and access needed to exercise this right throughout that window. The organization must verify the completeness, integrity, readability, and receipt of the export in organization-controlled storage before deletion. The organization may expressly authorize an earlier end to the export window in writing after that verification, identifying the data covered; completion of an export alone does not waive the remaining window. If verification is incomplete when the agreed window ends, the provider must preserve the affected data and export access until verification is completed, and the organization must escalate the delay to Legal and the Contract Owner.
 
-2. **Data deletion confirmation:** Upon contract termination, the provider must confirm in writing that all organizational data has been deleted from their systems within a defined period, including backups.
+2. **Data deletion confirmation:** For each identified data scope, the deletion period begins only after both the agreed export window has ended and the organization has recorded successful export verification, or after the organization has expressly authorized an earlier end to that window following verification under item 1. The contract must define the period for securely deleting all provider-held and subprocessor-held copies, including backups, and the deadline for written deletion confirmation. For AI suppliers, deletion must be completed within 30 calendar days of this trigger and written certified confirmation must be provided within 5 business days of completion, as required by [`supply-chain/procedure-third-party-ai-due-diligence.md`](procedure-third-party-ai-due-diligence.md), Section 6.4. Only specifically identified records subject to a mandatory legal or corpus retention requirement may remain; the confirmation must identify those records, the retention basis, and the applicable retention period. Such records must be segregated, access-restricted, used only for the required retention purpose, and deleted when that requirement expires. This sequence governs termination-triggered deletion instructions and generic exit timeline summaries for cloud and SaaS services; termination alone must not trigger deletion that defeats item 1.
 
 3. **Exit assistance:** For Tier 1 and Tier 2 services (per the Asset Inventory Register), the contract must include a minimum 90-day exit assistance period during which the provider supports migration activities.
 

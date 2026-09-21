@@ -2,8 +2,8 @@
 
 **Document Title:** Third-Party AI Due Diligence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.15\
-**Date:** 2026-09-20\
+**Version:** 1.0.16\
+**Date:** 2026-09-21\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -93,7 +93,7 @@ All required checklist items must be assessed before any AI supplier contract is
 | 8 | **Privacy Controls** | Data minimization, pseudonymization, retention limits, and support for data subject rights (deletion, portability). | All tiers. |
 | 9 | **Regulatory Compliance Classification** | Supplier's own assessment of EU AI Act classification, supported by documentation. | All tiers. |
 | 10 | **Incident Notification Capability** | Confirmation of the supplier's ability and commitment to notify within 24 hours of a security or AI system incident. The 24-hour clock is uniform and governs regardless of supplier criticality tier (see Section 6.3). | All tiers. |
-| 11 | **Data Deletion on Contract Termination** | Written confirmation that all organizational data and derived model artefacts will be deleted upon termination. | All tiers. |
+| 11 | **Data Return and Deletion on Contract Termination** | Written commitment to the data-return, export-verification, deletion, and certification requirements in Section 6.4, including preservation of the applicable cloud export window and identification of any records subject to mandatory retention. | All tiers. |
 | 12 | **Subprocessor and Supply Chain Transparency** | Disclosure of subprocessors, data sub-labellers, infrastructure providers, and upstream model dependencies. | High-Risk and GPAI. |
 | 13 | **ISO/IEC 42001 Alignment** | Evidence of AI management system practices aligned to ISO/IEC 42001 Annex A.10 and B.10.3 (Third-party and customer relationships, Suppliers). | High-Risk and GPAI. |
 | 14 | **CSA AICM Alignment** | Self-assessment or independent attestation against applicable CSA AI Controls Matrix v1.1 control families. | High-Risk and GPAI. |
@@ -122,10 +122,12 @@ All contracts with AI suppliers must include the following provisions in additio
 - Notification must include: nature of the incident, affected data or model components, steps taken to contain the issue, and an estimated resolution timeline.
 - This 24-hour clock is uniform across every AI supplier and governs regardless of the supplier's criticality tier; it applies to every AI supplier even where the general tier matrix in [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md) would scope down broader AI due diligence for a lower tier. Where it overlaps the tiered notification windows in that standard and in [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), the stricter 24-hour AI clock applies and the tiered 72-hour window does not extend it; because this clock runs from discovery (above), it is also the stricter obligation where a tiered window is nominally 24 hours but runs only from a confirmed incident. For non-AI supplier relationships, those tiered windows continue to govern as written in the supplier standards.
 
-### 6.4 Data deletion on contract termination
+### 6.4 Data return and deletion on contract termination
 
-- Certified deletion of all organizational data, derived embeddings, fine-tuning artefacts, and retrieval stores within 30 days of contract termination.
-- Written confirmation of deletion provided to the organization within 5 business days of completion.
+- For AI suppliers within the scope of [`supply-chain/standard-cloud-exit-and-data-portability.md`](standard-cloud-exit-and-data-portability.md), contracts must preserve the organization's data-export right for an agreed window of at least 90 calendar days following contract termination. Before deletion, the organization must verify the completeness, integrity, readability, and receipt of the export in organization-controlled storage. Export and return must cover organizational data and derived embeddings, fine-tuning artefacts, and retrieval stores to which the organization has return rights.
+- For those suppliers, certified deletion of all organizational data, derived embeddings, fine-tuning artefacts, and retrieval stores, including provider-held and subprocessor-held copies and backups, must be completed within 30 calendar days after both the agreed export window has ended and successful export verification has been recorded. The organization may expressly authorize an earlier end to the window in writing after verification, identifying the data covered; in that case the 30-calendar-day deletion period begins on that authorization. Completion of an export alone does not waive the remaining window. If verification is incomplete at the end of the window, the supplier must preserve the affected data and export access until verification is completed, and the organization must escalate the delay to Legal and the Contract Owner.
+- For AI suppliers outside the cloud-exit standard's scope, certified deletion remains due within 30 calendar days of contract termination; any required data return and verification must be completed before deletion.
+- Written certified deletion confirmation must be provided to the organization within 5 business days of completion. Only specifically identified records subject to a mandatory legal or corpus retention requirement, including the AI system audit logs required by Section 6.5 and deletion records required by Section 8.2, may remain. The confirmation must identify retained records, their retention basis, and the applicable retention period rather than certify that those records have been deleted. Retained records must be segregated, access-restricted, used only for the required retention purpose, and deleted when that requirement expires.
 
 ### 6.5 Right to audit AI system logs
 
@@ -186,10 +188,10 @@ Exit planning for AI suppliers must be initiated at the contract review stage an
 
 ### 8.2 Data and model deletion
 
-Upon contract termination, the AI supplier must:
+Upon contract termination, the AI supplier must follow the coordinated data-return and deletion sequence in Section 6.4:
 
-1. Permanently delete all organizational data, training fine-tuning artefacts, embeddings, and retrieval stores.
-2. Provide written certified deletion confirmation within 5 business days of completion.
+1. Preserve the applicable export window and access, support required data return and organizational verification, and then permanently delete all organizational data, training fine-tuning artefacts, embeddings, and retrieval stores, including copies and backups, within the applicable Section 6.4 deadline and subject only to its mandatory-records-retention qualification.
+2. Provide written certified deletion confirmation within 5 business days of completion, identifying any records retained under Section 6.4 and their retention basis and period.
 3. Retain deletion records for 7 years per the organization's canonical AI-records retention floor (ISO/IEC 42001 requires records retention without prescribing the period; the figure is the organization's contractual requirement).
 
 ### 8.3 Documentation retention
