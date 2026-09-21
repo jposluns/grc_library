@@ -2,8 +2,8 @@
 
 **Document Title:** Foundation Model Lifecycle Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.11\
-**Date:** 2026-09-20\
+**Version:** 0.0.12\
+**Date:** 2026-09-21\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/template-ai-vendor-security-questionnaire.md`](template-ai-vendor-security-questionnaire.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md), [`supply-chain/standard-cloud-exit-and-data-portability.md`](../supply-chain/standard-cloud-exit-and-data-portability.md), [`ai/standard-ai-model-succession-and-identity.md`](standard-ai-model-succession-and-identity.md), [`governance/standard-semantic-continuity-in-migration-and-retirement.md`](../governance/standard-semantic-continuity-in-migration-and-retirement.md)\
@@ -153,7 +153,7 @@ Where a candidate foundation model is a general-purpose AI model with systemic r
 - **Monitoring (Step 5):** treat the provider's post-market monitoring (Measure 3.5) and serious-incident reporting (Commitment 9) as the provider-side analogue of the organization's supplier-incident monitoring, and cross-reference them.
 - **Version transition (Steps 6 to 7):** track the provider's Model Report update cadence (Measure 7.6, at least every six months for the most capable models) and its Framework-assessment triggers (Measure 1.3) as authoritative signals for the organization's version-transition impact analysis.
 
-If the organization's own fine-tune qualifies as a general-purpose AI model with systemic risk (per the Scope above), Commitments 1 to 10 bind the organization directly as a provider.
+If the organization places its own fine-tune on the market as a general-purpose AI model with systemic risk (per the Scope above), it acts as the provider of that model and is subject to the corresponding obligations; Commitments 1 to 10 of the Code of Practice are then the voluntary route by which it can demonstrate that compliance.
 
 ## Specific risk vectors and mitigations
 
