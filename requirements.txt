@@ -1,0 +1,9 @@
+# grc_library audit-toolchain dependencies.
+#
+# The toolchain is stdlib-only BY DEFAULT. Each entry below is a sanctioned exception,
+# recorded with a rationale in tools/lint-stdlib-only-imports.py (ALLOWED_THIRD_PARTY)
+# and documented in governance/specification-audit-programme.md. Every gate that imports
+# one of these does so with a soft (try/except ImportError) guard and an FN-safe stdlib
+# fallback, so a bare clone with no installed dependency still runs (with the fallback).
+# CI installs this file so the gates and regression tests exercise the exact path.
+idna>=3.10,<4   # exact UTS-46 domain-label validity for the gate-22 PII email/domain check (PRs #2430/#2431)

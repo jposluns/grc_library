@@ -42,6 +42,13 @@
 # without siblings (likely a sibling reach); 2 = the check could not run (clone failed,
 # or the temp dir was not sibling-free).
 
+# PACKAGE NOTE (idna, PRs #2430-#2431): the one sanctioned third-party dependency
+# `idna` (requirements.txt) is a PACKAGE, not a sibling repo, so this sibling-absence
+# check does not exercise its absence. The PII gate that uses it imports it soft-optional
+# with a false-negative-safe stdlib fallback, so a bare clone with no `idna` still runs
+# every gate green (via the fallback); the exact-UTS-46 path additionally needs
+# `pip install -r requirements.txt`, which CI performs.
+#
 set -uo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

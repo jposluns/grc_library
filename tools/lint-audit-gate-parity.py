@@ -83,7 +83,7 @@ PRTIME_PATH = "tools/run-pr-time-checks.sh"
 
 # Workflow steps that are setup, not audit gates. These names are
 # excluded from the workflow's audit-gate list before comparison.
-WORKFLOW_SETUP_STEPS = {"Checkout", "Set up Python"}
+WORKFLOW_SETUP_STEPS = {"Checkout", "Set up Python", "Install pinned dependencies"}
 
 # Workflow steps that are per-PR delta gates documented in
 # governance/specification-audit-programme.md §6.1. These are not part

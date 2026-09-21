@@ -32,6 +32,12 @@ import unicodedata
 from pathlib import Path
 
 try:
+    import idna  # exact UTS-46 domain-label validity for the email/domain boundary test
+    _HAVE_IDNA = True
+except ImportError:  # bare adopter clone without idna: degrade to the FN-safe approximation below
+    _HAVE_IDNA = False
+
+try:
     from aiqt_corpus import iter_non_code_lines, read_text_safe
 except ImportError as exc:  # fail loud: broken setup, never silently worked around
     raise SystemExit(
@@ -111,13 +117,44 @@ def is_version_ip(line: str, start: int) -> bool:
 _DOMAIN_DOTS = (".", "。", "．", "｡")
 
 
+def _idna_label_continues(c: str) -> bool:
+    """Exact UTS-46: True iff codepoint ``c`` could be part of a valid domain LABEL in
+    some context (retain -> keep scanning; the email is NOT a complete reserved/example
+    domain). False ONLY when ``c`` cannot begin or continue any valid label (a boundary).
+
+    FALSE-NEGATIVE-SAFE. A single codepoint cannot be settled by encoding it in isolation,
+    because some valid label characters are valid only in COMPOSITION: a conjoining Hangul
+    jamo (U+1100) or a combining mark is rejected by ``idna.encode`` on its own yet forms a
+    valid label when composed with its neighbours (``a.test.\uac01.com`` is a real IDN
+    domain). So every LETTER, MARK, or NUMBER (Unicode general category L*/M*/N*) is
+    retained outright, covering the compositional cases without a false boundary. Only a
+    punctuation, symbol, separator, or format character (P*/S*/Z*/C*) is probed with
+    ``idna.encode``: a context error (a valid-in-context codepoint such as a joiner)
+    retains, and only ``InvalidCodepoint`` (disallowed anywhere) is a boundary. Verified
+    against idna 3.11; ``InvalidCodepointContext`` / ``IDNABidiError`` are siblings of
+    ``InvalidCodepoint`` (not subclasses), so a context error is never mis-read as a
+    boundary."""
+    if unicodedata.category(c)[:1] in ("L", "M", "N"):
+        return True                       # letter/mark/number: a possible (compositional) label char
+    try:
+        idna.encode("a" + c, uts46=True, std3_rules=True)
+        return True                       # encodes as a label char
+    except idna.InvalidCodepointContext:
+        return True                       # valid in context (joiner/bidi): FN-safe retain
+    except idna.InvalidCodepoint:
+        return False                      # disallowed anywhere -> a real label boundary
+    except idna.IDNAError:
+        return True                       # any other IDNA constraint: FN-safe retain
+
+
 def _label_starts(ch: str) -> bool:
     """Whether ``ch`` could begin or continue a (possibly IDN) domain LABEL, so that an
     email match ending just before it may be a truncated prefix of a longer real domain.
 
-    FALSE-NEGATIVE-SAFE by construction. Exact UTS-46 / IDNA validity is not computable
-    from the Python standard library (the ``idna`` package is out of scope under the
-    stdlib-only rule), and the D-220 QA panel proved that NO Unicode-general-category
+    Uses EXACT UTS-46 domain-label validity via the ``idna`` package when installed (the
+    primary path, ``_idna_label_continues``); when ``idna`` is absent (a bare adopter clone),
+    it falls back to the FALSE-NEGATIVE-SAFE approximation described here. The D-220 QA panel
+    proved this fallback is the safe MINIMAL boundary because NO Unicode-general-category
     boundary set is safe: IDNA-valid characters hide in ``Po`` (the Tibetan tsheg,
     katakana middle dot), ``Cf`` (ZWJ), ``Sk`` (U+0375) and ``So`` (U+06FD/U+06FE). So
     the boundary test is deliberately MINIMAL: after NFKC normalisation, a character is
@@ -146,7 +183,7 @@ def _label_starts(ch: str) -> bool:
         return True
     if c.isascii():
         return c.isalnum()                        # ASCII: alnum continues, punctuation is a boundary
-    return True                                   # any other non-ASCII: a possible IDN label char
+    return _idna_label_continues(c) if _HAVE_IDNA else True   # non-ASCII: exact UTS-46 (FN-safe fallback)
 
 
 def _email_domain_complete(line: str, end: int) -> bool:

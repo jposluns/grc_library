@@ -15,7 +15,7 @@ file (``tools/``, ``tests/``, ``.web/``, the Corpus-Management pack's ``.corpus-
   - a first-party in-repo module (the stem of a ``.py`` file in the scanned set, e.g.
     ``lint_common`` or the reference modules), OR
   - an explicitly-allow-listed sanctioned dependency (``ALLOWED_THIRD_PARTY`` below,
-    currently empty; the corpus is pure stdlib).
+    currently: ``idna`` for exact UTS-46 in the PII gate; otherwise pure stdlib).
 
 Why static AST, not grep: a grep over import lines throws false positives on prose
 ("from NIST ...") and misses nothing only by luck. ``ast`` sees the real import graph,
@@ -48,7 +48,12 @@ SCAN_DIRS = ("tools", "tests", ".web", ".corpus-management/tools", "vendor/aiqt/
 # Sanctioned third-party dependencies (root module name -> rationale). EMPTY: the
 # toolchain is pure standard library. A future entry needs a rationale here and a
 # documented project dependency (the gate-discipline exception pattern).
-ALLOWED_THIRD_PARTY: dict[str, str] = {}
+ALLOWED_THIRD_PARTY: dict[str, str] = {
+    "idna": "exact UTS-46 domain-label validity for the gate-22 PII email/domain "
+            "boundary test (correctness-critical IDNA boundary, PRs #2430/#2431); "
+            "imported soft-optional with an FN-safe stdlib fallback, pinned in "
+            "requirements.txt and installed in CI",
+}
 
 # Vendored FIRST-PARTY modules: code CONSUMED from AIQT and vendored in-repo under vendor/
 # (exempt from the general scan, so their stems are not picked up by _first_party_names). They

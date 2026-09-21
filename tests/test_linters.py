@@ -42,6 +42,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
+try:
+    import idna as _idna_probe  # noqa: F401 (availability probe for idna-dependent gate-22 tests)
+    _HAS_IDNA = True
+except ImportError:
+    _HAS_IDNA = False
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 FIXTURE_DIR = REPO_ROOT / "tests" / "tmp"
 
@@ -5412,6 +5418,78 @@ class PIIContentTests(LinterTestCase):
             f"reserved-TLD emails must not be flagged.\n"
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
+
+    @unittest.skipUnless(_HAS_IDNA, "exact UTS-46 requires the idna package")
+    def test_reserved_email_disallowed_boundary_exempt(self) -> None:
+        # Exact UTS-46 (gate 22 / PRs #2430-#2431): a reserved/example email butted
+        # directly against a UTS-46-DISALLOWED non-word character (a curly quote, an
+        # em-dash, a CJK bracket, an emoji) is a complete reserved address, not a
+        # truncated prefix of a longer IDN domain, so it stays EXEMPT. Before idna it was
+        # over-flagged.
+        fixture = self.make_fixture(
+            "standard-reserved-email-disallowed.md",
+            VALID_METADATA
+            + "\n\nSee x@a.b.test\u201d and y@c.d.test\u2014ok and z@e.f.test\u300d done.\n",
+        )
+        result = run_linter("tools/lint-pii-in-content.py", fixture)
+        self.assertEqual(
+            result.returncode,
+            0,
+            "a reserved email against a UTS-46-disallowed char must stay exempt.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    @unittest.skipUnless(_HAS_IDNA, "exact UTS-46 requires the idna package")
+    def test_reserved_email_idn_prefix_still_flagged(self) -> None:
+        # False-negative guard (the compositional case a single-codepoint idna.encode
+        # probe misses): a reserved-looking ASCII prefix of a REAL IDN domain must stay
+        # FLAGGED. `a.test.<Hangul>.com` is a valid IDN domain (the conjoining jamo is
+        # valid only when composed), so `x@a.test` is a truncated prefix, never a
+        # complete reserved address.
+        for body in (
+            "See x@a.test.\uac01.com here.\n",        # composed Hangul syllable
+            "See x@a.test.\u1100\u1161.com here.\n",  # decomposed conjoining jamo
+        ):
+            fixture = self.make_fixture("standard-reserved-email-idn-prefix.md", VALID_METADATA + "\n\n" + body)
+            result = run_linter("tools/lint-pii-in-content.py", fixture)
+            self.assertEqual(
+                result.returncode,
+                1,
+                "a reserved-looking prefix of a real IDN domain must stay flagged "
+                f"(false-negative-safe): {body!r}\nstdout:\n{result.stdout}",
+            )
+
+    @unittest.skipUnless(_HAS_IDNA, "exact UTS-46 requires the idna package")
+    def test_pii_idna_helper_and_stdlib_fallback(self) -> None:
+        # Load the pack engine in-process to check the exact-UTS-46 helper and the
+        # false-negative-safe stdlib fallback used when idna is absent (a bare clone).
+        import importlib.util
+
+        for p in ("vendor/aiqt/tools", ".corpus-management/tools"):
+            sys.path.insert(0, str(REPO_ROOT / p))
+        spec = importlib.util.spec_from_file_location(
+            "_pii_engine_helper",
+            REPO_ROOT / ".corpus-management/tools/gate_lint_pii_in_content.py",
+        )
+        eng = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(eng)
+        # Exact helper: disallowed punctuation/symbol -> boundary (False); letters,
+        # marks, conjoining jamo, and RTL letters -> retain (True).
+        self.assertFalse(eng._idna_label_continues("\u201d"))  # curly quote: disallowed
+        self.assertFalse(eng._idna_label_continues("\u2014"))  # em-dash: disallowed
+        self.assertFalse(eng._idna_label_continues("\U0001f600"))  # emoji: disallowed
+        self.assertTrue(eng._idna_label_continues("\u4e2d"))   # CJK letter
+        self.assertTrue(eng._idna_label_continues("\u1100"))   # conjoining jamo (compositional)
+        self.assertTrue(eng._idna_label_continues("\u0301"))   # combining mark
+        self.assertTrue(eng._idna_label_continues("\u0628"))   # Arabic (RTL bidi): FN-safe retain
+        # Fallback: with idna unavailable, _label_starts retains EVERY non-ASCII char
+        # (the proven FN-safe approximation), so a disallowed char no longer exempts.
+        saved = eng._HAVE_IDNA
+        try:
+            eng._HAVE_IDNA = False
+            self.assertTrue(eng._label_starts("\u201d"))  # fallback: non-ASCII always retains
+        finally:
+            eng._HAVE_IDNA = saved
 
     def test_public_ipv4_flagged(self) -> None:
         # Use a public IP outside RFC 1918, RFC 5737, and loopback ranges.
@@ -20990,39 +21068,35 @@ class PiiInContentEngineTransferTests(unittest.TestCase):
                 [f for f in self._scan(doc) if f[1] == "email address"], [],
                 f"ellipsis / markdown underscore after an exempt email must stay exempt: {doc!r}")
 
+    @unittest.skipUnless(_HAS_IDNA, "exact UTS-46 requires the idna package")
     def test_idn_punctuation_and_fnsafe_residue(self):
-        # UTS-46 exactness is not stdlib-computable, so the guard is false-negative-
-        # safe: IDNA-valid "other punctuation" (Tibetan tsheg, katakana middle dot) and
-        # compatibility single-dot separators are treated as domain continuation and
-        # FLAGGED (codex / gemini VERIFY-3), never wrongly exempted.
-        for doc in ("x@a.test་x.com here.\n",    # Tibetan tsheg (IDNA PVALID, cat Po)
-                    "x@a.test・x.com here.\n",    # katakana middle dot (cat Po)
-                    "x@www.test․com here.\n",    # one-dot leader -> '.'
-                    "x@www.test﹒com here.\n"):    # small full stop -> '.'
+        # Exact UTS-46 (idna): a letter, mark, number, IDNA-valid punctuation (Tibetan
+        # tsheg, katakana middot), a conjoining Hangul jamo (valid only when composed),
+        # and a compatibility single-dot separator are RETAINED as a possible domain
+        # continuation and FLAGGED, so a reserved-looking prefix of a REAL (IDN) domain
+        # is never wrongly exempted (false-negative-safe).
+        for doc in ("x@a.test\u0f0bx.com here.\n",     # Tibetan tsheg (IDNA-valid, Po)
+                    "x@a.test\u30fbx.com here.\n",     # katakana middle dot (Po)
+                    "x@a.test.\uac01.com here.\n",     # composed Hangul syllable (real IDN)
+                    "x@a.test.\u1100\u1161.com here.\n",  # decomposed conjoining jamo
+                    "x@a.test\u0375x.com here.\n",     # Greek lower numeral sign (retained)
+                    "x@www.test\u2024com here.\n",     # one-dot leader -> '.'
+                    "x@www.test\ufe52com here.\n"):     # small full stop -> '.'
             self.assertTrue(
                 [f for f in self._scan(doc) if f[1] == "email address"],
-                f"IDNA-valid punctuation / compat dot must be flagged (FN-safe): {doc!r}")
-        # symbols, quotes, brackets and multi-char NFKC expansions that begin with a
-        # boundary are boundaries, so a genuine exempt email before them stays exempt
+                f"IDNA-valid / compositional continuation must be flagged (FN-safe): {doc!r}")
+        # A UTS-46-DISALLOWED punctuation, symbol, quote, bracket or emoji butted against
+        # a reserved/example email is a real boundary, so the address is a complete
+        # reserved domain and stays EXEMPT (the false positive that exact UTS-46 fixes;
+        # under the stdlib fallback these are the documented over-flag residue instead).
         for doc in ("(x@example.invalid)\n", "[x@a.b.test]\n",
-                    "x@example.com⒜ rest.\n",     # parenthesised 'a' -> "(a)"
-                    "x@example.com‗ rest.\n"):     # double low line -> space + mark
+                    "x@example.invalid\U0001f44d\n",     # emoji
+                    "x@example.invalid\u201dx here.\n",  # curly quote
+                    "x@example.invalid\u3008x here.\n",  # CJK bracket
+                    "x@a.b.test\u2014ok here.\n"):        # em-dash
             self.assertEqual(
                 [f for f in self._scan(doc) if f[1] == "email address"], [],
-                f"symbol / bracket / boundary-leading expansion must stay exempt: {doc!r}")
-
-        # IDNA-valid symbols (categories Sk/So have PVALID/CONTEXTO members) and any
-        # other exotic non-ASCII adjacent with no space are RETAINED (FN-safe): a real
-        # domain is never exempted, and the over-flag of a reserved email jammed against
-        # a symbol / curly quote / CJK bracket is the documented residue (codex VERIFY-4).
-        for doc in ("x@a.test͵x.com here.\n",       # Greek numeral sign (Sk, CONTEXTO)
-                    "x@a.test۽x.com here.\n",       # Arabic sign (So, PVALID)
-                    "x@example.invalid👍\n",      # emoji residue
-                    "x@example.invalid”x here.\n",   # curly quote residue
-                    "x@example.invalid〈x here.\n"):   # CJK bracket residue
-            self.assertTrue(
-                [f for f in self._scan(doc) if f[1] == "email address"],
-                f"IDNA-valid symbol / exotic non-ASCII must be retained (FN-safe): {doc!r}")
+                f"reserved email against a UTS-46-disallowed boundary must stay exempt: {doc!r}")
 
     def test_ssn_and_phone_flagged(self):
         found = self._scan("SSN 123-45-6789 phone (415) 555-0142 here.\n")
