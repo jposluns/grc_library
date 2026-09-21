@@ -1327,6 +1327,61 @@ class DateCobumpOnPrTests(LinterTestCase):
         finally:
             _sh.rmtree(src, ignore_errors=True); _sh.rmtree(parent, ignore_errors=True)
 
+    def test_partial_clone_via_extensions_config_declines(self) -> None:
+        # Regression guard for the extensions.partialClone detection (the B1 fix): git's canonical
+        # partial-clone marker is ``extensions.partialClone=<remote>``, which a repo can carry with
+        # ``remote.*.promisor`` UNSET. That config must still make D4 decline (exit 2) without
+        # lazy-fetching, or the harmful false-OK survives for it.
+        import subprocess as sp, tempfile, glob, shutil as _sh
+
+        def _doc(v, d):
+            return f"# Doc\n\n**Version:** {v}\\\n**Date:** {d}\\\n\n## Body\n\nx.\n"
+
+        src = Path(tempfile.mkdtemp(prefix="cobump-extsrc-"))
+        parent = Path(tempfile.mkdtemp(prefix="cobump-extclone-"))
+        clone = parent / "pc"
+        try:
+            sp.run(["git", "init", "-q", "-b", "main", str(src)], check=True)
+            sp.run(["git", "-C", str(src), "config", "user.email", "t@test"], check=True)
+            sp.run(["git", "-C", str(src), "config", "user.name", "T"], check=True)
+            sp.run(["git", "-C", str(src), "config", "uploadpack.allowFilter", "true"], check=True)
+            d = src / "governance"; d.mkdir()
+            (d / "x.md").write_text(_doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            sp.run(["git", "-C", str(src), "add", "-A"], check=True)
+            sp.run(["git", "-C", str(src), "commit", "-q", "-m", "c1"], check=True)
+            (d / "x.md").write_text(_doc("1.1.0", "2026-06-25"), encoding="utf-8")
+            sp.run(["git", "-C", str(src), "add", "-A"], check=True)
+            sp.run(["git", "-C", str(src), "commit", "-q", "-m", "c2"], check=True)
+            first = sp.run(["git", "-C", str(src), "rev-parse", "HEAD~1"],
+                           capture_output=True, text=True, check=True).stdout.strip()
+            cl = sp.run(["git", "clone", "-q", "--filter=blob:none", "--no-local",
+                         "file://" + str(src), str(clone)], capture_output=True, text=True)
+            if cl.returncode != 0:
+                self.skipTest("partial clone unsupported in this environment")
+            # drive detection through extensions.partialClone ONLY (remote.*.promisor unset)
+            sp.run(["git", "-C", str(clone), "config", "--unset-all", "remote.origin.promisor"],
+                   capture_output=True)
+            sp.run(["git", "-C", str(clone), "config", "core.repositoryformatversion", "1"], check=True)
+            sp.run(["git", "-C", str(clone), "config", "extensions.partialClone", "origin"], check=True)
+            sp.run(["git", "-C", str(clone), "config", "user.email", "t@test"], check=True)
+            sp.run(["git", "-C", str(clone), "config", "user.name", "T"], check=True)
+            (clone / "governance" / "x.md").write_text(_doc("2.0.0", "2026-06-25"), encoding="utf-8")
+            sp.run(["git", "-C", str(clone), "add", "-A"], check=True)
+            sp.run(["git", "-C", str(clone), "commit", "-q", "-m", "c3"], check=True)
+            probe = sp.run(["git", "-C", str(clone), "cat-file", "-e", f"{first}:governance/x.md"],
+                           capture_output=True, env=dict(os.environ, GIT_NO_LAZY_FETCH="1"))
+            if probe.returncode == 0:
+                self.skipTest("environment did not produce a blob-filtered partial clone")
+            before = set(glob.glob(str(clone / ".git" / "objects" / "pack" / "*")))
+            r = self._run(clone, first)
+            after = set(glob.glob(str(clone / ".git" / "objects" / "pack" / "*")))
+            self.assertEqual(r.returncode, 2,
+                             f"D4 must decline (exit 2) for an extensions.partialClone repo.\n{r.stdout}\n{r.stderr}")
+            self.assertIn("extensions.partialClone", r.stderr)
+            self.assertEqual(after - before, set(), "D4 must not lazy-fetch (write pack files)")
+        finally:
+            _sh.rmtree(src, ignore_errors=True); _sh.rmtree(parent, ignore_errors=True)
+
     def test_version_and_date_cobumped_not_flagged(self) -> None:
         # Version bumps and Date co-bumps to the 2026-06-26 commit date:
         # the gate must pass.
