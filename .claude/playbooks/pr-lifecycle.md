@@ -239,6 +239,14 @@ is external. Two mechanisms:
      path-shaped references in the *added* CHANGELOG lines, exiting non-zero so the `&&`
      chain blocks on a defect. It is an aid, not a new gate; the authoritative gates run
      in CI.
+   - `tools/preflight-version-date.py` was run **after `git add`, before `git commit`** (prepend it
+     to the `&& git commit` chain) to PREDICT the D4 Version/Date co-bump for the commit you are about
+     to make. D4 (`run-pr-time-checks.sh`) fires only AFTER a commit exists, so a `Date` set to today
+     can go stale if UTC rolls past midnight before the commit lands; the aid inspects the STAGED
+     (index) content and block-and-prints any staged doc whose `Version` bumped but whose `Date` is not
+     today's UTC date, with the exact replacement line. It is an aid, never a push gate (a
+     correctly-dated earlier commit stays valid tomorrow); D4 stays authoritative after committing.
+     Full behaviour + the seven documented scope boundaries: the aid's module docstring.
    - **Paired-surface completeness** (the update-one-of-a-pair guard): when a change
      updates one field of a paired structure, the sibling field was updated in the same
      commit. Two recurring instances: (a) if the PR bumps the pack README metadata

@@ -74,12 +74,19 @@ from __future__ import annotations
 
 import argparse
 import datetime
+import os
 import subprocess
 import sys
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import git, git_show, head_version, parse_iso_date, parse_metadata_block  # noqa: E402  # generic core (behaviour-identical to lint_common)
 from lint_common import PrRangeError, resolve_pr_range  # noqa: E402  # grc-config/store, stays local
+
+# B2: neutralise inherited pathspec-mode env vars so the :(top,literal) history pathspec below is
+# always honoured. GIT_LITERAL_PATHSPECS=1 would otherwise make :(top,literal) match literal
+# filename text (finding no commit and silently skipping the date comparison).
+for _pk in ("GIT_LITERAL_PATHSPECS", "GIT_NOGLOB_PATHSPECS", "GIT_GLOB_PATHSPECS"):
+    os.environ.pop(_pk, None)
 
 
 # Files exempt from the co-bump requirement. NOT identical to D2's set:
@@ -136,10 +143,18 @@ def bump_commit_date_utc(merge_base: str, head: str, path: str) -> datetime.date
         stamp = git(
             "log",
             "-1",
+            # --no-show-signature: an inherited log.showSignature=true would prepend signature
+            # verification text before %cI and break the date parse (silently skipping the check).
+            "--no-show-signature",
+            # --encoding=UTF-8: force UTF-8 %cI output regardless of an inherited
+            # i18n.logOutputEncoding (e.g. UTF-16LE would embed NULs and break the date parse).
+            "--encoding=UTF-8",
             "--format=%cI",
             f"{merge_base}..{head}",
             "--",
-            path,
+            # :(top,literal) forces the filename to be a literal repository-root path, so a name
+            # beginning with pathspec magic (e.g. ":(literal)x.md") is not reinterpreted as a pathspec.
+            f":(top,literal){path}",
         )
     except subprocess.CalledProcessError:
         return None
@@ -192,12 +207,23 @@ def main(argv: list[str]) -> int:
         return 2
 
     try:
-        changed_raw = git("diff", "--name-only", merge_base, head)
+        # -z: NUL-delimited, raw (unquoted) pathnames, so a filename containing a quote,
+        # backslash, control char, or non-ASCII byte is enumerated correctly regardless of
+        # core.quotePath (the default quoted form ends in ``"`` and would be wrongly treated as
+        # non-.md by is_exempt, silently skipping the file).
+        # --no-relative: repository-root-relative paths regardless of an inherited diff.relative
+        # config or the invocation directory, so enumeration matches the aid's --no-relative form.
+        # --no-renames: match the aid; rename detection would otherwise expose only a renamed
+        # destination and hide an undecodable (non-UTF-8) source name from the scope-error guard.
+        changed_raw = git("diff", "--name-only", "-z", "--no-relative", "--no-renames", merge_base, head)
     except subprocess.CalledProcessError as exc:
         print(f"ERROR: git diff failed: {exc}", file=sys.stderr)
         return 2
+    except UnicodeDecodeError as exc:
+        print(f"ERROR: a tracked filename is not valid UTF-8; cannot inspect ({exc})", file=sys.stderr)
+        return 2
 
-    changed = [line for line in changed_raw.splitlines() if line]
+    changed = [p for p in changed_raw.split("\0") if p]
 
     if not changed:
         print(f"OK: no files changed between {merge_base[:8]} and {head}.")
@@ -211,8 +237,12 @@ def main(argv: list[str]) -> int:
         if is_exempt(path):
             skipped_exempt += 1
             continue
-        base_content = git_show(merge_base, path)
-        head_content = git_show(head, path)
+        try:
+            base_content = git_show(merge_base, path)
+            head_content = git_show(head, path)
+        except UnicodeDecodeError as exc:
+            print(f"ERROR: a tracked blob is not valid UTF-8; cannot inspect ({exc})", file=sys.stderr)
+            return 2
         # File added (no base) or deleted (no head) in the PR: not a bump event.
         if base_content is None or head_content is None:
             continue

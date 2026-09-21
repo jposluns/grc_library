@@ -1301,6 +1301,1048 @@ class DateCobumpOnPrTests(LinterTestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
 
+class PreflightVersionDateTests(LinterTestCase):
+    """tools/preflight-version-date.py (pre-commit D4 Version/Date co-bump predictor aid).
+
+    The aid predicts `git commit` by inspecting the STAGED (index) content against a base ref,
+    so fixtures stage their changes and inject "today" via the PREFLIGHT_VD_TODAY env seam.
+    """
+
+    TODAY = "2026-06-26"
+
+    def _repo(self):
+        import subprocess as sp
+        import tempfile
+        import shutil
+        tmp = Path(tempfile.mkdtemp(prefix="preflight-vd-test-"))
+        sp.run(["git", "init", "-q", "-b", "main", str(tmp)], check=True)
+        sp.run(["git", "-C", str(tmp), "config", "user.email", "t@test"], check=True)
+        sp.run(["git", "-C", str(tmp), "config", "user.name", "T"], check=True)
+        return tmp, sp, shutil
+
+    @staticmethod
+    def _doc(ver: str, date: str | None = None) -> str:
+        dline = f"**Date:** {date}\\\n" if date is not None else ""
+        return f"# Doc\n\n**Version:** {ver}\\\n{dline}\n## Body\n\nwords words words.\n"
+
+    def _commit(self, sp, tmp, msg: str) -> str:
+        sp.run(["git", "-C", str(tmp), "add", "-A"], check=True)
+        sp.run(["git", "-C", str(tmp), "commit", "-q", "-m", msg], check=True)
+        return sp.run(
+            ["git", "-C", str(tmp), "rev-parse", "HEAD"],
+            capture_output=True, text=True, check=True,
+        ).stdout.strip()
+
+    def _stage(self, sp, tmp):
+        sp.run(["git", "-C", str(tmp), "add", "-A"], check=True)
+
+    def _run_at(self, cwd, base: str, *extra: str):
+        import subprocess as sp
+        env = dict(os.environ)
+        env["PREFLIGHT_VD_TODAY"] = self.TODAY
+        return sp.run(
+            [sys.executable, str(REPO_ROOT / "tools/preflight-version-date.py"), "--base", base, *extra],
+            capture_output=True, text=True, cwd=str(cwd), env=env,
+        )
+
+    def _run(self, tmp, base: str, *extra: str):
+        return self._run_at(tmp, base, *extra)
+
+    def _doc_path(self, tmp):
+        d = tmp / "governance"
+        d.mkdir(exist_ok=True)
+        return d / "standard-x.md"
+
+    def _d4(self, tmp, base_sha: str, head_sha: str, env=None):
+        """Run the real D4 gate (check-date-cobump-on-pr.py) over base..head; return its rc.
+        The aid's contract is to PREDICT this exactly, so parity tests compare the two rcs."""
+        import subprocess as sp
+        return sp.run(
+            [sys.executable, str(REPO_ROOT / "tools/check-date-cobump-on-pr.py"), base_sha, head_sha],
+            capture_output=True, text=True, cwd=str(tmp), env=env,
+        ).returncode
+
+    def test_staged_version_bump_stale_date_flagged(self) -> None:
+        tmp, sp, shutil = self._repo()
+        try:
+            doc = self._doc_path(tmp)
+            doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            doc.write_text(self._doc("1.0.1", "2026-06-25"), encoding="utf-8")  # stale
+            self._stage(sp, tmp)
+            r = self._run(tmp, base)
+            self.assertEqual(r.returncode, 1, f"{r.stdout}\n{r.stderr}")
+            self.assertIn("standard-x.md", r.stdout)
+            self.assertIn(self.TODAY, r.stdout)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_staged_version_bump_today_date_clear(self) -> None:
+        tmp, sp, shutil = self._repo()
+        try:
+            doc = self._doc_path(tmp)
+            doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            doc.write_text(self._doc("1.0.1", self.TODAY), encoding="utf-8")
+            self._stage(sp, tmp)
+            self.assertEqual(self._run(tmp, base).returncode, 0)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_no_version_change_clear(self) -> None:
+        tmp, sp, shutil = self._repo()
+        try:
+            doc = self._doc_path(tmp)
+            doc.write_text(self._doc("1.0.0", "2026-01-01"), encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            doc.write_text(self._doc("1.0.0", "2026-01-01").replace("words words words.", "edited."), encoding="utf-8")
+            self._stage(sp, tmp)  # body-only change, Version unchanged, stale Date -> out of scope
+            self.assertEqual(self._run(tmp, base).returncode, 0)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_staged_missing_date_flagged(self) -> None:
+        tmp, sp, shutil = self._repo()
+        try:
+            doc = self._doc_path(tmp)
+            doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            doc.write_text(self._doc("1.0.1", None), encoding="utf-8")  # Version bumped, Date gone
+            self._stage(sp, tmp)
+            r = self._run(tmp, base)
+            self.assertEqual(r.returncode, 1, f"{r.stdout}\n{r.stderr}")
+            self.assertIn("missing", r.stdout)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_uses_index_not_working_tree(self) -> None:
+        # The aid predicts `git commit` (the index): a staged stale bump whose Date fix was NOT
+        # re-staged must STILL flag (reading the working tree would falsely pass). (gemini R4.)
+        tmp, sp, shutil = self._repo()
+        try:
+            doc = self._doc_path(tmp)
+            doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            doc.write_text(self._doc("1.0.1", "2026-06-25"), encoding="utf-8")  # stale
+            self._stage(sp, tmp)  # stage the stale bump
+            doc.write_text(self._doc("1.0.1", self.TODAY), encoding="utf-8")  # fix Date in working tree ONLY
+            r = self._run(tmp, base)
+            self.assertEqual(r.returncode, 1, f"index still stale -> must flag.\n{r.stdout}\n{r.stderr}")
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_exempt_changelog_ignored(self) -> None:
+        tmp, sp, shutil = self._repo()
+        try:
+            (tmp / "CHANGELOG.md").write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            (tmp / "CHANGELOG.md").write_text(self._doc("1.0.1", "2026-06-25"), encoding="utf-8")
+            self._stage(sp, tmp)  # CHANGELOG.md is D4-exempt -> no finding
+            self.assertEqual(self._run(tmp, base).returncode, 0)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_unresolvable_base_scope_error(self) -> None:
+        tmp, sp, shutil = self._repo()
+        try:
+            self._doc_path(tmp).write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            self._commit(sp, tmp, "base")
+            r = self._run(tmp, "no-such-ref-xyz")
+            self.assertEqual(r.returncode, 2, f"{r.stdout}\n{r.stderr}")
+            self.assertIn("SCOPE ERROR", r.stderr)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_divergent_upstream_base_still_flagged(self) -> None:
+        # merge-base(base, HEAD) is used, so an independently-advanced upstream base cannot hide
+        # the co-bump against the ancestor (matches D4's range).
+        tmp, sp, shutil = self._repo()
+        try:
+            doc = self._doc_path(tmp)
+            doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            anc = self._commit(sp, tmp, "ancestor")
+            doc.write_text(self._doc("1.1.0", "2026-06-24"), encoding="utf-8")
+            up = self._commit(sp, tmp, "upstream advances")
+            sp.run(["git", "-C", str(tmp), "checkout", "-q", "-b", "feat", anc], check=True)
+            doc.write_text(self._doc("1.1.0", "2026-06-25"), encoding="utf-8")  # stale bump
+            self._stage(sp, tmp)
+            r = self._run(tmp, up)  # base=upstream(1.1.0); merge-base=ancestor(1.0.0) -> must flag
+            self.assertEqual(r.returncode, 1, f"{r.stdout}\n{r.stderr}")
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_added_and_deleted_files_skipped(self) -> None:
+        # added / deleted files are out of D4's co-bump scope (a new file's Date is gate-31's remit).
+        tmp, sp, shutil = self._repo()
+        try:
+            doc = self._doc_path(tmp)
+            doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            (tmp / "governance" / "new.md").write_text(self._doc("1.0.0", "2026-06-25"), encoding="utf-8")
+            self._stage(sp, tmp)  # staged addition of a new, stale-dated doc
+            self.assertEqual(self._run(tmp, base).returncode, 0)
+            sp.run(["git", "-C", str(tmp), "rm", "-q", str(doc)], check=True)  # staged deletion
+            self.assertEqual(self._run(tmp, base).returncode, 0)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_rm_cached_edited_file_skipped(self) -> None:
+        # `git rm --cached` untracks a file but leaves an edited copy on disk; the prospective
+        # commit DELETES it, so the aid (reading the index) must skip it, not flag (codex R4 FP).
+        tmp, sp, shutil = self._repo()
+        try:
+            doc = self._doc_path(tmp)
+            doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            doc.write_text(self._doc("1.1.0", "2026-06-25"), encoding="utf-8")  # edit on disk
+            sp.run(["git", "-C", str(tmp), "rm", "--cached", "-q", str(doc)], check=True)  # untrack
+            self.assertEqual(self._run(tmp, base).returncode, 0)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_pending_merge_scope_error(self) -> None:
+        tmp, sp, shutil = self._repo()
+        try:
+            self._doc_path(tmp).write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            sp.run(["git", "-C", str(tmp), "checkout", "-q", "-b", "a"], check=True)
+            (tmp / "governance" / "a.md").write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            self._commit(sp, tmp, "a")
+            sp.run(["git", "-C", str(tmp), "checkout", "-q", "main"], check=True)
+            (tmp / "governance" / "b.md").write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            self._commit(sp, tmp, "b")
+            sp.run(["git", "-C", str(tmp), "checkout", "-q", "a"], check=True)
+            sp.run(["git", "-C", str(tmp), "merge", "--no-commit", "--no-ff", "main"], capture_output=True)
+            r = self._run(tmp, base)
+            self.assertEqual(r.returncode, 2, f"{r.stdout}\n{r.stderr}")
+            self.assertIn("merge", r.stderr.lower())
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_unmerged_conflict_scope_error(self) -> None:
+        tmp, sp, shutil = self._repo()
+        try:
+            c = tmp / "governance" / "c.md"
+            c.parent.mkdir(exist_ok=True)
+            c.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            sp.run(["git", "-C", str(tmp), "checkout", "-q", "-b", "a"], check=True)
+            c.write_text(self._doc("1.1.0", "2026-06-24"), encoding="utf-8"); self._commit(sp, tmp, "a")
+            sp.run(["git", "-C", str(tmp), "checkout", "-q", "main"], check=True)
+            c.write_text(self._doc("1.2.0", "2026-06-24"), encoding="utf-8"); self._commit(sp, tmp, "b")
+            sp.run(["git", "-C", str(tmp), "checkout", "-q", "a"], check=True)
+            sp.run(["git", "-C", str(tmp), "merge", "main"], capture_output=True)  # unmerged
+            self.assertEqual(self._run(tmp, base).returncode, 2)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_non_utf8_filename_scope_error(self) -> None:
+        tmp, sp, shutil = self._repo()
+        try:
+            (tmp / "governance").mkdir(exist_ok=True)
+            bad = os.path.join(str(tmp).encode(), b"governance/bad\xff.md")
+            with open(bad, "wb") as fh:
+                fh.write(self._doc("1.0.0", "2026-06-24").encode())
+            base = self._commit(sp, tmp, "base")
+            with open(bad, "wb") as fh:
+                fh.write(self._doc("2.0.0", "2026-06-25").encode())
+            self._stage(sp, tmp)
+            r = self._run(tmp, base)
+            self.assertEqual(r.returncode, 2, f"{r.stdout}\n{r.stderr}")
+            self.assertNotIn("Traceback", r.stderr)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_version_field_gained_and_lost_flagged(self) -> None:
+        tmp, sp, shutil = self._repo()
+        try:
+            gained = tmp / "governance" / "gain.md"
+            lost = tmp / "governance" / "lose.md"
+            gained.parent.mkdir(exist_ok=True)
+            gained.write_text("# D\n\n**Date:** 2026-06-24\\\n\n## B\nx.\n", encoding="utf-8")
+            lost.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            gained.write_text(self._doc("1.0.0", "2026-06-25"), encoding="utf-8")  # GAINS Version
+            lost.write_text("# D\n\n**Date:** 2026-06-25\\\n\n## B\ny.\n", encoding="utf-8")  # LOSES Version
+            self._stage(sp, tmp)
+            r = self._run(tmp, base)
+            self.assertEqual(r.returncode, 1, f"{r.stdout}\n{r.stderr}")
+            self.assertIn("gain.md", r.stdout)
+            self.assertIn("lose.md", r.stdout)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_strict_today_override_rejected(self) -> None:
+        tmp, sp, shutil = self._repo()
+        try:
+            import subprocess as sp2
+            doc = self._doc_path(tmp)
+            doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            doc.write_text(self._doc("1.0.1", "2026-06-25"), encoding="utf-8")
+            self._stage(sp, tmp)
+            env = dict(os.environ)
+            env["PREFLIGHT_VD_TODAY"] = "20260625"  # basic ISO form -> rejected -> real UTC
+            r = sp2.run(
+                [sys.executable, str(REPO_ROOT / "tools/preflight-version-date.py"), "--base", base],
+                capture_output=True, text=True, cwd=str(tmp), env=env,
+            )
+            self.assertEqual(r.returncode, 1, f"override should be rejected -> real UTC.\n{r.stdout}\n{r.stderr}")
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_read_only_no_index_rewrite(self) -> None:
+        # -c diff.autoRefreshIndex=false keeps `git diff` from rewriting the .git/index stat cache.
+        tmp, sp, shutil = self._repo()
+        try:
+            doc = self._doc_path(tmp)
+            doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            doc.write_text(self._doc("1.0.1", "2026-06-25"), encoding="utf-8")
+            self._stage(sp, tmp)
+            os.utime(doc)  # bump mtime so a refresh would rewrite the stat cache
+            index = tmp / ".git" / "index"
+            before = index.read_bytes()
+            self._run(tmp, base)
+            self.assertEqual(index.read_bytes(), before, "the aid must not rewrite .git/index")
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_nested_subdir_with_diff_relative(self) -> None:
+        # --no-relative must defeat diff.relative=true from a nested subdir with the affected file
+        # OUTSIDE the invocation directory.
+        tmp, sp, shutil = self._repo()
+        try:
+            sp.run(["git", "-C", str(tmp), "config", "diff.relative", "true"], check=True)
+            doc = self._doc_path(tmp)
+            other = tmp / "operations"
+            other.mkdir()
+            (other / "here.md").write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            doc.write_text(self._doc("1.0.1", "2026-06-25"), encoding="utf-8")  # stale bump in governance/
+            self._stage(sp, tmp)
+            r = self._run_at(other, base)  # run from operations/, affected file in governance/
+            self.assertEqual(r.returncode, 1, f"{r.stdout}\n{r.stderr}")
+            self.assertIn("standard-x.md", r.stdout)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+
+    def test_multi_commit_untouched_file_not_flagged(self) -> None:
+        # gemini/codex R5: a document bumped+dated in an EARLIER branch commit and NOT staged for
+        # the current commit must NOT be flagged (the aid enumerates staged-vs-HEAD, not vs base).
+        tmp, sp, shutil = self._repo()
+        try:
+            doc = self._doc_path(tmp)
+            doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            doc.write_text(self._doc("1.1.0", "2026-06-25"), encoding="utf-8")  # earlier bump, dated then
+            self._commit(sp, tmp, "earlier bump")
+            (tmp / "governance" / "unrelated.md").write_text(self._doc("1.0.0", self.TODAY), encoding="utf-8")
+            self._stage(sp, tmp)  # stage only the unrelated file
+            self.assertEqual(self._run(tmp, base).returncode, 0)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_body_edit_of_earlier_bump_flagged(self) -> None:
+        # the flip side: a file bumped in an earlier commit, then body-edited + staged in THIS
+        # commit, whose Date is still the earlier day -> D4 flags it (this commit touched it and its
+        # Version differs from base), so the aid must too (uses merge-base for the Version event).
+        tmp, sp, shutil = self._repo()
+        try:
+            doc = self._doc_path(tmp)
+            doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            doc.write_text(self._doc("1.1.0", "2026-06-25"), encoding="utf-8")
+            self._commit(sp, tmp, "earlier bump")
+            doc.write_text(self._doc("1.1.0", "2026-06-25") + "an edit.\n", encoding="utf-8")  # body edit, Date stale
+            self._stage(sp, tmp)
+            self.assertEqual(self._run(tmp, base).returncode, 1)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_standalone_unmerged_scope_error(self) -> None:
+        # codex R5 mutation gap: unmerged index entries WITHOUT MERGE_HEAD (e.g. a conflicted
+        # cherry-pick/rebase, or synthetic stages) must still scope-error via the ls-files guard.
+        tmp, sp, shutil = self._repo()
+        try:
+            doc = self._doc_path(tmp)
+            doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            blob = sp.run(["git", "-C", str(tmp), "rev-parse", "HEAD:governance/standard-x.md"],
+                          capture_output=True, text=True, check=True).stdout.strip()
+            info = "".join(f"100644 {blob} {stage}\tgovernance/standard-x.md\n" for stage in (1, 2, 3))
+            sp.run(["git", "-C", str(tmp), "update-index", "--index-info"], input=info, text=True, check=True)
+            self.assertFalse((tmp / ".git" / "MERGE_HEAD").exists())  # no MERGE_HEAD, only unmerged stages
+            self.assertEqual(self._run(tmp, base).returncode, 2)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_undecodable_index_content_scope_error(self) -> None:
+        # codex R5 P2: a staged blob that is not valid UTF-8 is an inspection failure -> scope error,
+        # never a silent clear of a real staged stale bump.
+        tmp, sp, shutil = self._repo()
+        try:
+            doc = self._doc_path(tmp)
+            doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            with open(doc, "wb") as fh:
+                fh.write(self._doc("1.1.0", "2026-06-25").encode() + b"caf\xe9\n")  # trailing Latin-1
+            self._stage(sp, tmp)
+            r = self._run(tmp, base)
+            self.assertEqual(r.returncode, 2, f"{r.stdout}\n{r.stderr}")
+            self.assertNotIn("Traceback", r.stderr)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_fsmonitor_hook_not_executed(self) -> None:
+        # codex R5 P2: a configured core.fsmonitor hook can write files; the aid disables fsmonitor
+        # for every git subprocess (GIT_CONFIG_*), so the hook must not run.
+        tmp, sp, shutil = self._repo()
+        try:
+            hook = tmp / "fsm.sh"
+            hook.write_text("#!/bin/sh\ntouch fsmonitor-ran\n", encoding="utf-8")
+            os.chmod(hook, 0o755)
+            sp.run(["git", "-C", str(tmp), "config", "core.fsmonitor", str(hook)], check=True)
+            doc = self._doc_path(tmp)
+            doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            doc.write_text(self._doc("1.1.0", "2026-06-25"), encoding="utf-8")
+            self._stage(sp, tmp)
+            marker = tmp / "fsmonitor-ran"
+            if marker.exists():
+                marker.unlink()
+            self._run(tmp, base)
+            self.assertFalse(marker.exists(), "the aid must not trigger a repo-configured fsmonitor hook")
+            # also defeat an inherited GIT_CONFIG_PARAMETERS fsmonitor (higher precedence than a
+            # GIT_CONFIG_* env override; only a command-line -c outranks it). And GIT_CONFIG_COUNT=""
+            # must not crash the aid. (codex R6.)
+            import subprocess as sp2
+            for extra in ({"GIT_CONFIG_PARAMETERS": f"'core.fsmonitor={hook}'"}, {"GIT_CONFIG_COUNT": ""}):
+                if marker.exists():
+                    marker.unlink()
+                env = dict(os.environ); env["PREFLIGHT_VD_TODAY"] = self.TODAY; env.update(extra)
+                r = sp2.run(
+                    [sys.executable, str(REPO_ROOT / "tools/preflight-version-date.py"), "--base", base],
+                    capture_output=True, text=True, cwd=str(tmp), env=env,
+                )
+                self.assertFalse(marker.exists(), f"fsmonitor hook ran under {extra}")
+                self.assertNotIn("Traceback", r.stderr, f"crash under {extra}")
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+
+    def test_partial_clone_scope_error(self) -> None:
+        # codex R7: in a partial clone (a promisor remote) a base blob may be absent; the aid must
+        # NOT lazy-fetch it (that writes pack files) and must scope-error (2) instead.
+        import subprocess as sp, tempfile, glob
+        src = Path(tempfile.mkdtemp(prefix="preflight-vd-pcsrc-"))
+        parent = Path(tempfile.mkdtemp(prefix="preflight-vd-pcclone-"))
+        clone = parent / "pc"
+        try:
+            sp.run(["git", "init", "-q", "-b", "main", str(src)], check=True)
+            sp.run(["git", "-C", str(src), "config", "user.email", "t@test"], check=True)
+            sp.run(["git", "-C", str(src), "config", "user.name", "T"], check=True)
+            d = src / "governance"; d.mkdir()
+            (d / "x.md").write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            sp.run(["git", "-C", str(src), "add", "-A"], check=True)
+            sp.run(["git", "-C", str(src), "commit", "-q", "-m", "c1"], check=True)
+            (d / "x.md").write_text(self._doc("1.1.0", "2026-06-25"), encoding="utf-8")
+            sp.run(["git", "-C", str(src), "add", "-A"], check=True)
+            sp.run(["git", "-C", str(src), "commit", "-q", "-m", "c2"], check=True)
+            first = sp.run(["git", "-C", str(src), "rev-parse", "HEAD~1"],
+                           capture_output=True, text=True, check=True).stdout.strip()
+            cl = sp.run(["git", "clone", "-q", "--filter=blob:none", "--no-local",
+                         "file://" + str(src), str(clone)], capture_output=True, text=True)
+            if cl.returncode != 0:
+                self.skipTest("partial clone unsupported in this environment")
+            sp.run(["git", "-C", str(clone), "config", "user.email", "t@test"], check=True)
+            sp.run(["git", "-C", str(clone), "config", "user.name", "T"], check=True)
+            (clone / "governance" / "x.md").write_text(self._doc("2.0.0", "2026-06-25"), encoding="utf-8")
+            sp.run(["git", "-C", str(clone), "add", "-A"], check=True)
+            before = set(glob.glob(str(clone / ".git" / "objects" / "pack" / "*")))
+            r = self._run_at(clone, first)
+            after = set(glob.glob(str(clone / ".git" / "objects" / "pack" / "*")))
+            self.assertEqual(r.returncode, 2, f"{r.stdout}\n{r.stderr}")
+            self.assertEqual(after - before, set(), "the aid must not lazy-fetch (write pack files)")
+        finally:
+            import shutil as _sh
+            _sh.rmtree(src, ignore_errors=True); _sh.rmtree(parent, ignore_errors=True)
+
+    def _assert_filename_parity(self, name: str) -> None:
+        # round-8 codex/gemini: the aid must predict D4 EXACTLY for any filename. Both enumerate
+        # with -z (never quoted), so a stale-dated bump of `name` must FLAG in both (aid rc 1, D4
+        # rc 1), regardless of core.quotePath. The pre-fix isascii()/quoted-path handling diverged.
+        tmp, sp, shutil = self._repo()
+        try:
+            doc = tmp / "governance" / name
+            doc.parent.mkdir(exist_ok=True)
+            doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            doc.write_text(self._doc("1.1.0", "2026-06-25"), encoding="utf-8")  # stale bump
+            self._stage(sp, tmp)
+            aid_rc = self._run(tmp, base).returncode
+            head = self._commit(sp, tmp, "head")
+            d4_rc = self._d4(tmp, base, head)
+            self.assertEqual(aid_rc, 1, f"aid must flag stale bump of {name!r}")
+            self.assertEqual(d4_rc, 1, f"D4 must flag stale bump of {name!r}")
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_non_ascii_filename_flagged_matches_d4(self) -> None:
+        # round-8: an accented .md name; under core.quotePath=false the old isascii() skip was a
+        # FALSE NEGATIVE (aid cleared while D4 flagged). Now both flag.
+        self._assert_filename_parity("politique-securité.md")
+
+    def test_quote_char_filename_flagged_matches_d4(self) -> None:
+        # round-8: an ASCII name containing a double-quote. Git quotes it by default so D4's old
+        # endswith(".md") wrongly exempted it (FALSE POSITIVE for the aid); -z fixes both.
+        self._assert_filename_parity('a"b.md')
+
+    def test_git_trace2_event_writes_nothing(self) -> None:
+        # round-8 codex: an inherited GIT_TRACE2_EVENT=<path> made the aid's git subprocesses WRITE
+        # a trace file, breaking the read-only contract. The module-init scrub of GIT_TRACE* must
+        # stop that write.
+        import subprocess as sp2, tempfile, os as _os
+        tmp, sp, shutil = self._repo()
+        trace = Path(tempfile.mkdtemp(prefix="preflight-vd-trace-")) / "trace.json"
+        try:
+            doc = self._doc_path(tmp)
+            doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            doc.write_text(self._doc("1.0.1", "2026-06-25"), encoding="utf-8")
+            self._stage(sp, tmp)
+            env = dict(_os.environ)
+            env["PREFLIGHT_VD_TODAY"] = self.TODAY
+            env["GIT_TRACE2_EVENT"] = str(trace)
+            env["GIT_TRACE"] = str(trace.parent / "trace-legacy.txt")
+            sp2.run([sys.executable, str(REPO_ROOT / "tools/preflight-version-date.py"),
+                     "--base", base], capture_output=True, text=True, cwd=str(tmp), env=env)
+            self.assertFalse(trace.exists(), "GIT_TRACE2_EVENT file must not be written by the aid")
+            self.assertFalse((trace.parent / "trace-legacy.txt").exists(),
+                             "GIT_TRACE file must not be written by the aid")
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+            shutil.rmtree(trace.parent, ignore_errors=True)
+
+    def test_promisor_boolean_true_variants_scope_error(self) -> None:
+        # round-8 codex: `remote.*.promisor` accepts git-boolean spellings (1/yes/on/True), not just
+        # the literal "true". Each must be recognized as a partial clone -> scope error (rc 2).
+        for value in ("1", "yes", "on", "True"):
+            tmp, sp, shutil = self._repo()
+            try:
+                doc = self._doc_path(tmp)
+                doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+                base = self._commit(sp, tmp, "base")
+                sp.run(["git", "-C", str(tmp), "config", "remote.origin.promisor", value], check=True)
+                doc.write_text(self._doc("1.1.0", "2026-06-25"), encoding="utf-8")
+                self._stage(sp, tmp)
+                self.assertEqual(self._run(tmp, base).returncode, 2,
+                                 f"promisor={value!r} must be read as a partial clone (scope error)")
+            finally:
+                shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_promisor_false_variants_not_scope_error(self) -> None:
+        # a `promisor=false/0/no` remote is NOT a promisor: the aid must proceed normally (rc 1 on a
+        # stale bump), never a spurious scope error.
+        for value in ("false", "0", "no"):
+            tmp, sp, shutil = self._repo()
+            try:
+                doc = self._doc_path(tmp)
+                doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+                base = self._commit(sp, tmp, "base")
+                sp.run(["git", "-C", str(tmp), "config", "remote.origin.promisor", value], check=True)
+                doc.write_text(self._doc("1.1.0", "2026-06-25"), encoding="utf-8")
+                self._stage(sp, tmp)
+                self.assertEqual(self._run(tmp, base).returncode, 1,
+                                 f"promisor={value!r} is not a partial clone; stale bump must flag")
+            finally:
+                shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_no_pyc_written(self) -> None:
+        # codex R7 mutation gap: sys.dont_write_bytecode must suppress .pyc creation. Redirect the
+        # bytecode cache to a temp dir and assert nothing lands there.
+        import subprocess as sp, tempfile, shutil
+        pyc_dir = Path(tempfile.mkdtemp(prefix="preflight-vd-pyc-"))
+        tmp, sp2, shutil2 = self._repo()
+        try:
+            doc = self._doc_path(tmp)
+            doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            base = self._commit(sp2, tmp, "base")
+            doc.write_text(self._doc("1.0.1", "2026-06-25"), encoding="utf-8")
+            self._stage(sp2, tmp)
+            env = dict(os.environ)
+            env["PREFLIGHT_VD_TODAY"] = self.TODAY
+            env["PYTHONPYCACHEPREFIX"] = str(pyc_dir)
+
+            def _pyc_set() -> set:
+                return {os.path.join(r, f) for r, _d, fs in os.walk(pyc_dir)
+                        for f in fs if f.endswith(".pyc")}
+
+            # Baseline: interpreter startup plus the one unavoidable pre-flag import
+            # (`from __future__ import annotations`, which must be the module's first statement)
+            # write site/startup caches into the same prefix, so only .pyc ADDED by the aid itself
+            # (i.e. from removing sys.dont_write_bytecode) count. Removing the guard floods the
+            # prefix with datetime/re/subprocess/aiqt_corpus caches, which this delta catches.
+            sp.run([sys.executable, "-c", "from __future__ import annotations"],
+                   capture_output=True, text=True, cwd=str(tmp), env=env)
+            baseline = _pyc_set()
+            sp.run([sys.executable, str(REPO_ROOT / "tools/preflight-version-date.py"), "--base", base],
+                   capture_output=True, text=True, cwd=str(tmp), env=env)
+            added = _pyc_set() - baseline
+            self.assertEqual(added, set(), f"the aid must not write .pyc: {sorted(added)}")
+        finally:
+            shutil.rmtree(pyc_dir, ignore_errors=True)
+            shutil2.rmtree(tmp, ignore_errors=True)
+
+    def test_global_trace2_config_writes_nothing(self) -> None:
+        # round-9 codex B1: a GLOBAL config trace2.eventTarget still writes a trace file (a late `-c`
+        # override cannot prevent it); the aid must disable it via GIT_TRACE2*=0 in the env.
+        import subprocess as sp2, tempfile, os as _os
+        tmp, sp, shutil = self._repo()
+        cfgdir = Path(tempfile.mkdtemp(prefix="preflight-vd-gcfg-"))
+        trace = cfgdir / "trace.json"
+        (cfgdir / "gitconfig").write_text(f"[trace2]\n\teventTarget = {trace}\n", encoding="utf-8")
+        try:
+            doc = self._doc_path(tmp)
+            doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            doc.write_text(self._doc("1.0.1", "2026-06-25"), encoding="utf-8")
+            self._stage(sp, tmp)
+            env = dict(_os.environ)
+            env["PREFLIGHT_VD_TODAY"] = self.TODAY
+            env["GIT_CONFIG_GLOBAL"] = str(cfgdir / "gitconfig")
+            sp2.run([sys.executable, str(REPO_ROOT / "tools/preflight-version-date.py"),
+                     "--base", base], capture_output=True, text=True, cwd=str(tmp), env=env)
+            self.assertFalse(trace.exists(), "global trace2.eventTarget must not write when the aid runs")
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+            shutil.rmtree(cfgdir, ignore_errors=True)
+
+    def test_non_utf8_filename_scope_error_matches_d4(self) -> None:
+        # round-9 codex B2 / gemini: a non-UTF-8 filename -> both the aid and D4 must scope-error (2),
+        # never traceback (D4 previously crashed with exit 1 while the aid cleanly exited 2).
+        import os as _os
+        tmp, sp, shutil = self._repo()
+        try:
+            gov = tmp / "governance"
+            gov.mkdir()
+            badname = _os.path.join(str(gov).encode(), b"bad\xff.md")
+            with open(badname, "wb") as fh:
+                fh.write(self._doc("1.0.0", "2026-06-24").encode())
+            base = self._commit(sp, tmp, "base")
+            with open(badname, "wb") as fh:
+                fh.write(self._doc("1.1.0", "2026-06-25").encode())
+            self._stage(sp, tmp)
+            self.assertEqual(self._run(tmp, base).returncode, 2, "aid must scope-error on non-UTF-8 name")
+            head = self._commit(sp, tmp, "head")
+            self.assertEqual(self._d4(tmp, base, head), 2, "D4 must scope-error too (parity), not crash")
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_pathspec_magic_root_filename_flagged_matches_d4(self) -> None:
+        # round-9 codex B3: a root filename beginning with pathspec magic (":(literal)...") was read
+        # by D4's history lookup as a pathspec -> no commit found -> cleared 0, diverging from the aid
+        # (1). The :(top,literal) pathspec fix makes D4 flag it too.
+        tmp, sp, shutil = self._repo()
+        try:
+            doc = tmp / ":(literal)standard-x.md"
+            doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            doc.write_text(self._doc("1.1.0", "2026-06-25"), encoding="utf-8")
+            self._stage(sp, tmp)
+            aid_rc = self._run(tmp, base).returncode
+            head = self._commit(sp, tmp, "head")
+            d4_rc = self._d4(tmp, base, head)
+            self.assertEqual(aid_rc, 1, "aid must flag the pathspec-magic-named stale bump")
+            self.assertEqual(d4_rc, 1, "D4 must flag it too (literal pathspec), not silently clear")
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_ascii_output_encoding_no_crash(self) -> None:
+        # round-9 codex B4: printing a finding for a non-ASCII path under PYTHONIOENCODING=ascii raised
+        # UnicodeEncodeError (traceback exit 1). backslashreplace on stdout/stderr must prevent that:
+        # the aid still flags (rc 1) and prints no traceback.
+        import subprocess as sp2, os as _os
+        tmp, sp, shutil = self._repo()
+        try:
+            acc = tmp / "governance" / "politique-securit\u00e9.md"
+            acc.parent.mkdir(exist_ok=True)
+            acc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            acc.write_text(self._doc("1.1.0", "2026-06-25"), encoding="utf-8")
+            self._stage(sp, tmp)
+            env = dict(_os.environ)
+            env["PREFLIGHT_VD_TODAY"] = self.TODAY
+            env["PYTHONIOENCODING"] = "ascii"
+            r = sp2.run([sys.executable, str(REPO_ROOT / "tools/preflight-version-date.py"),
+                         "--base", base], capture_output=True, text=True, cwd=str(tmp), env=env)
+            self.assertEqual(r.returncode, 1, f"must flag (not crash) under ascii stdout: {r.stderr}")
+            self.assertNotIn("UnicodeEncodeError", r.stderr)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_diff_relative_from_subdir_parity(self) -> None:
+        # round-9 codex B5: with diff.relative=true and invocation from an unrelated subdir, D4's diff
+        # returned subdir-relative/empty -> "no files changed" (0) while the aid (--no-relative) flagged
+        # 1. D4's --no-relative makes both root-relative and in parity.
+        tmp, sp, shutil = self._repo()
+        try:
+            doc = self._doc_path(tmp)  # governance/standard-x.md
+            doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            other = tmp / "other"
+            other.mkdir()
+            (other / ".keep").write_text("", encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            doc.write_text(self._doc("1.1.0", "2026-06-25"), encoding="utf-8")
+            self._stage(sp, tmp)
+            sp.run(["git", "-C", str(tmp), "config", "diff.relative", "true"], check=True)
+            aid_rc = self._run_at(other, base).returncode
+            head = self._commit(sp, tmp, "head")
+            d4_rc = self._d4(other, base, head)
+            self.assertEqual(aid_rc, 1, "aid must flag from a subdir despite diff.relative")
+            self.assertEqual(d4_rc, 1, "D4 must flag too (--no-relative), not report no-files")
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_d4_literal_pathspecs_env_neutralized(self) -> None:
+        # round-10 codex B2: GIT_LITERAL_PATHSPECS=1 made D4's :(top,literal) history pathspec match
+        # literal text -> no commit -> cleared 0. D4 now unsets the pathspec-mode env vars, so it flags.
+        import os as _os
+        tmp, sp, shutil = self._repo()
+        try:
+            doc = self._doc_path(tmp)
+            doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            doc.write_text(self._doc("1.1.0", "2026-06-25"), encoding="utf-8")
+            self._stage(sp, tmp)
+            head = self._commit(sp, tmp, "head")
+            env = dict(_os.environ)
+            env["GIT_LITERAL_PATHSPECS"] = "1"
+            self.assertEqual(self._d4(tmp, base, head, env=env), 1,
+                             "D4 must neutralize GIT_LITERAL_PATHSPECS and still flag the stale bump")
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_rename_non_utf8_to_utf8_scope_error_matches_d4(self) -> None:
+        # round-10 codex B3: renaming a non-UTF-8 name to UTF-8; with --no-renames on both, the enum
+        # exposes the undecodable source and BOTH scope-error (2). Without --no-renames D4 saw only the
+        # valid destination and cleared 0.
+        import os as _os
+        tmp, sp, shutil = self._repo()
+        try:
+            gov = tmp / "governance"
+            gov.mkdir()
+            bad = _os.path.join(str(gov).encode(), b"bad\xff.md")
+            with open(bad, "wb") as fh:
+                fh.write(self._doc("1.0.0", "2026-06-24").encode())
+            base = self._commit(sp, tmp, "base")
+            _os.rename(bad, str(gov / "standard-x.md"))
+            (gov / "standard-x.md").write_text(self._doc("1.1.0", "2026-06-25"), encoding="utf-8")
+            self._stage(sp, tmp)
+            self.assertEqual(self._run(tmp, base).returncode, 2, "aid scope-errors on the undecodable source")
+            head = self._commit(sp, tmp, "head")
+            self.assertEqual(self._d4(tmp, base, head), 2, "D4 scope-errors too (--no-renames parity)")
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_no_common_ancestor_scope_error_matches_d4(self) -> None:
+        # round-10 codex B4: an unrelated base (no common ancestor) -> the aid used to compare against
+        # the ref directly (1) while D4 rejects the range (2). The aid now scope-errors too.
+        tmp, sp, shutil = self._repo()
+        try:
+            doc = self._doc_path(tmp)
+            doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            self._commit(sp, tmp, "on main")
+            sp.run(["git", "-C", str(tmp), "checkout", "-q", "--orphan", "unrelated"],
+                   check=True, capture_output=True)
+            (tmp / "README.md").write_text("unrelated history\n", encoding="utf-8")
+            orphan = self._commit(sp, tmp, "orphan")
+            sp.run(["git", "-C", str(tmp), "checkout", "-q", "main"], check=True, capture_output=True)
+            doc.write_text(self._doc("1.1.0", "2026-06-25"), encoding="utf-8")
+            self._stage(sp, tmp)
+            aid_rc = self._run(tmp, orphan).returncode
+            head = self._commit(sp, tmp, "head")
+            d4_rc = self._d4(tmp, orphan, head)
+            self.assertEqual(aid_rc, 2, "aid must scope-error on no common ancestor")
+            self.assertEqual(d4_rc, 2, "D4 rejects the range too (parity)")
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_git_absent_from_path_scope_error(self) -> None:
+        # round-10 codex B6: git not on PATH raised an uncaught FileNotFoundError (traceback exit 1);
+        # the git() wrapper now translates the launch OSError into a clean scope error (exit 2).
+        import subprocess as sp2, os as _os
+        tmp, sp, shutil = self._repo()
+        try:
+            doc = self._doc_path(tmp)
+            doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            doc.write_text(self._doc("1.0.1", "2026-06-25"), encoding="utf-8")
+            self._stage(sp, tmp)
+            env = dict(_os.environ)
+            env["PREFLIGHT_VD_TODAY"] = self.TODAY
+            env["PATH"] = "/nonexistent-dir-for-git-absence-test"
+            r = sp2.run([sys.executable, str(REPO_ROOT / "tools/preflight-version-date.py"),
+                         "--base", base], capture_output=True, text=True, cwd=str(tmp), env=env)
+            self.assertEqual(r.returncode, 2, f"missing git must be a clean scope error: {r.stderr}")
+            self.assertNotIn("Traceback", r.stderr)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_index_stage_prefix_filenames_flagged(self) -> None:
+        # round-11 codex B1: a root filename beginning with an index-stage prefix (0:/1:/2:/3:) was
+        # misparsed by the ":<path>" index read as ":<stage>:<path>" and silently skipped. The explicit
+        # ":0:<path>" form fixes it, so the aid reads the blob and flags in parity with D4.
+        for prefix in ("0", "1", "2", "3"):
+            tmp, sp, shutil = self._repo()
+            try:
+                doc = tmp / f"{prefix}:review.md"
+                doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+                base = self._commit(sp, tmp, "base")
+                doc.write_text(self._doc("1.1.0", "2026-06-25"), encoding="utf-8")
+                self._stage(sp, tmp)
+                aid_rc = self._run(tmp, base).returncode
+                head = self._commit(sp, tmp, "head")
+                d4_rc = self._d4(tmp, base, head)
+                self.assertEqual(aid_rc, 1, f"aid must flag the stale bump of {prefix}:review.md")
+                self.assertEqual(d4_rc, 1, f"D4 must flag {prefix}:review.md too")
+            finally:
+                shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_d4_log_show_signature_neutralized(self) -> None:
+        # round-11 codex B2: log.showSignature=true prepends signature text before %cI, breaking D4's
+        # date parse (silently skipping the check). --no-show-signature fixes it.
+        tmp, sp, shutil = self._repo()
+        try:
+            doc = self._doc_path(tmp)
+            doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            doc.write_text(self._doc("1.1.0", "2026-06-25"), encoding="utf-8")
+            self._stage(sp, tmp)
+            head = self._commit(sp, tmp, "head")
+            sp.run(["git", "-C", str(tmp), "config", "log.showSignature", "true"], check=True)
+            self.assertEqual(self._d4(tmp, base, head), 1,
+                             "D4 must flag despite log.showSignature (--no-show-signature)")
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_bad_pack_root_scope_error(self) -> None:
+        # round-11 codex B3: an unresolvable AIQT_PACK_ROOT made the module-level bootstrap import
+        # traceback (exit 1); it must now be a clean scope error (exit 2).
+        import subprocess as sp2, os as _os
+        tmp, sp, shutil = self._repo()
+        try:
+            doc = self._doc_path(tmp)
+            doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            doc.write_text(self._doc("1.0.1", "2026-06-25"), encoding="utf-8")
+            self._stage(sp, tmp)
+            env = dict(_os.environ)
+            env["PREFLIGHT_VD_TODAY"] = self.TODAY
+            env["AIQT_PACK_ROOT"] = "~nonexistent_r11_user/pack"
+            r = sp2.run([sys.executable, str(REPO_ROOT / "tools/preflight-version-date.py"),
+                         "--base", base], capture_output=True, text=True, cwd=str(tmp), env=env)
+            self.assertEqual(r.returncode, 2, f"bad pack root must be a clean scope error: {r.stderr}")
+            self.assertNotIn("Traceback", r.stderr)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_d4_log_output_encoding_neutralized(self) -> None:
+        # round-12 codex B1: i18n.logOutputEncoding=UTF-16LE made D4's %cI output non-UTF-8 (embedded
+        # NULs) -> date parse failed -> D4 skipped. --encoding=UTF-8 forces UTF-8 output.
+        tmp, sp, shutil = self._repo()
+        try:
+            doc = self._doc_path(tmp)
+            doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            doc.write_text(self._doc("1.1.0", "2026-06-25"), encoding="utf-8")
+            self._stage(sp, tmp)
+            head = self._commit(sp, tmp, "head")
+            sp.run(["git", "-C", str(tmp), "config", "i18n.logOutputEncoding", "UTF-16LE"], check=True)
+            self.assertEqual(self._d4(tmp, base, head), 1,
+                             "D4 must flag despite i18n.logOutputEncoding (--encoding=UTF-8)")
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_missing_d4_module_scope_error(self) -> None:
+        # round-12 codex B2: the D4 importlib load runs outside the bootstrap guard; a missing D4 (or
+        # lint_common) previously tracebacked (exit 1). The guarded load now scope-errors (exit 2).
+        import subprocess as sp2, tempfile, shutil as sh, os as _os
+        tmp, sp, shutilx = self._repo()
+        toolcopy = Path(tempfile.mkdtemp(prefix="preflight-vd-tools-"))
+        try:
+            sh.copytree(REPO_ROOT / "tools", toolcopy / "tools")
+            _os.symlink(REPO_ROOT / "vendor", toolcopy / "vendor")
+            (toolcopy / "tools" / "check-date-cobump-on-pr.py").unlink()  # remove D4
+            doc = self._doc_path(tmp)
+            doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            doc.write_text(self._doc("1.0.1", "2026-06-25"), encoding="utf-8")
+            self._stage(sp, tmp)
+            env = dict(_os.environ)
+            env["PREFLIGHT_VD_TODAY"] = self.TODAY
+            r = sp2.run([sys.executable, str(toolcopy / "tools" / "preflight-version-date.py"),
+                         "--base", base], capture_output=True, text=True, cwd=str(tmp), env=env)
+            self.assertEqual(r.returncode, 2, f"missing D4 must be a clean scope error: {r.stderr}")
+            self.assertNotIn("Traceback", r.stderr)
+        finally:
+            shutilx.rmtree(tmp, ignore_errors=True)
+            sh.rmtree(toolcopy, ignore_errors=True)
+
+    def test_gitlink_md_entry_no_object_or_ref_writes(self) -> None:
+        # round-13 codex B1: `git show :0:<gitlink.md>` renders the commit and runs textconv drivers,
+        # WRITING objects + refs/notes/textconv/*. Reading via `git cat-file blob` (errors on a
+        # non-blob gitlink -> skip) must write nothing.
+        import glob
+        tmp, sp, shutil = self._repo()
+        try:
+            doc = self._doc_path(tmp)
+            doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            sp.run(["git", "-C", str(tmp), "update-index", "--add", "--cacheinfo",
+                    f"160000,{base},sub.md"], check=True)
+            sp.run(["git", "-C", str(tmp), "config", "diff.cat.textconv", "cat"], check=True)
+            sp.run(["git", "-C", str(tmp), "config", "diff.cat.cachetextconv", "true"], check=True)
+            (tmp / ".gitattributes").write_text("*.md diff=cat\n", encoding="utf-8")
+            doc.write_text(self._doc("1.1.0", "2026-06-25"), encoding="utf-8")
+            sp.run(["git", "-C", str(tmp), "add", "governance/standard-x.md", ".gitattributes"], check=True)
+
+            def _objs():
+                return set(glob.glob(str(tmp / ".git" / "objects" / "**" / "*"), recursive=True))
+
+            before = _objs()
+            self._run(tmp, base)
+            self.assertFalse((tmp / ".git" / "refs" / "notes" / "textconv" / "verify").exists(),
+                             "aid must not write textconv notes (cat-file blob, no render)")
+            self.assertEqual(_objs() - before, set(), "aid must not create objects (no textconv render)")
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_syntax_error_in_dependency_scope_error(self) -> None:
+        # round-13 codex B2: a SyntaxError (unresolved merge) in a loaded dependency escaped the import
+        # guards -> traceback. The guards now include SyntaxError -> clean exit 2.
+        import subprocess as sp2, tempfile, shutil as sh, os as _os
+        tmp, sp, shutilx = self._repo()
+        toolcopy = Path(tempfile.mkdtemp(prefix="preflight-vd-syn-"))
+        try:
+            sh.copytree(REPO_ROOT / "tools", toolcopy / "tools")
+            _os.symlink(REPO_ROOT / "vendor", toolcopy / "vendor")
+            lc = toolcopy / "tools" / "lint_common.py"
+            lc.write_text(lc.read_text(encoding="utf-8") + "\n<<<<<<< HEAD\n_x =\n=======\n",
+                          encoding="utf-8")
+            doc = self._doc_path(tmp)
+            doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            doc.write_text(self._doc("1.0.1", "2026-06-25"), encoding="utf-8")
+            self._stage(sp, tmp)
+            env = dict(_os.environ)
+            env["PREFLIGHT_VD_TODAY"] = self.TODAY
+            r = sp2.run([sys.executable, str(toolcopy / "tools" / "preflight-version-date.py"),
+                         "--base", base], capture_output=True, text=True, cwd=str(tmp), env=env)
+            self.assertEqual(r.returncode, 2, f"dep SyntaxError must be a clean scope error: {r.stderr}")
+            self.assertNotIn("Traceback", r.stderr)
+        finally:
+            shutilx.rmtree(tmp, ignore_errors=True)
+            sh.rmtree(toolcopy, ignore_errors=True)
+    def test_corrupt_dependency_bytecode_scope_error(self) -> None:
+        # round-14 codex B2: a corrupt .pyc raises EOFError (truncated payload) or ValueError (bad
+        # marshal) at import, escaping the guards -> traceback. Both guards now catch these -> exit 2.
+        # Proxy: inject a raise at import into a dependency (the guard catches the exception type
+        # regardless of whether it came from a .pyc or the .py).
+        import subprocess as sp2, tempfile, shutil as sh, os as _os
+        for exc_name in ("EOFError", "ValueError"):
+            tmp, sp, shutilx = self._repo()
+            toolcopy = Path(tempfile.mkdtemp(prefix="preflight-vd-pyc-"))
+            try:
+                sh.copytree(REPO_ROOT / "tools", toolcopy / "tools")
+                _os.symlink(REPO_ROOT / "vendor", toolcopy / "vendor")
+                lc = toolcopy / "tools" / "lint_common.py"
+                lc.write_text(lc.read_text(encoding="utf-8") + f"\nraise {exc_name}('corrupt cache')\n",
+                              encoding="utf-8")
+                doc = self._doc_path(tmp)
+                doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+                base = self._commit(sp, tmp, "base")
+                doc.write_text(self._doc("1.0.1", "2026-06-25"), encoding="utf-8")
+                self._stage(sp, tmp)
+                env = dict(_os.environ)
+                env["PREFLIGHT_VD_TODAY"] = self.TODAY
+                r = sp2.run([sys.executable, str(toolcopy / "tools" / "preflight-version-date.py"),
+                             "--base", base], capture_output=True, text=True, cwd=str(tmp), env=env)
+                self.assertEqual(r.returncode, 2, f"{exc_name} in a dep must be a clean scope error: {r.stderr}")
+                self.assertNotIn("Traceback", r.stderr)
+            finally:
+                shutilx.rmtree(tmp, ignore_errors=True)
+                sh.rmtree(toolcopy, ignore_errors=True)
+
+    def test_git_config_redirect_still_detects_partial_clone(self) -> None:
+        # round-15 codex: GIT_CONFIG=/dev/null redirects the `git config` promisor query, hiding the
+        # partial clone -> the aid treated an unavailable base blob as absent (aid=0) while D4 flagged.
+        # Scrubbing GIT_CONFIG makes the config query see the repo's promisor -> scope-error (2).
+        import subprocess as sp, tempfile, glob, os as _os, shutil as _sh
+        src = Path(tempfile.mkdtemp(prefix="preflight-vd-gcsrc-"))
+        parent = Path(tempfile.mkdtemp(prefix="preflight-vd-gcclone-"))
+        clone = parent / "pc"
+        try:
+            sp.run(["git", "init", "-q", "-b", "main", str(src)], check=True)
+            sp.run(["git", "-C", str(src), "config", "user.email", "t@test"], check=True)
+            sp.run(["git", "-C", str(src), "config", "user.name", "T"], check=True)
+            d = src / "governance"; d.mkdir()
+            (d / "x.md").write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            sp.run(["git", "-C", str(src), "add", "-A"], check=True)
+            sp.run(["git", "-C", str(src), "commit", "-q", "-m", "c1"], check=True)
+            (d / "x.md").write_text(self._doc("1.1.0", "2026-06-25"), encoding="utf-8")
+            sp.run(["git", "-C", str(src), "add", "-A"], check=True)
+            sp.run(["git", "-C", str(src), "commit", "-q", "-m", "c2"], check=True)
+            first = sp.run(["git", "-C", str(src), "rev-parse", "HEAD~1"],
+                           capture_output=True, text=True, check=True).stdout.strip()
+            cl = sp.run(["git", "clone", "-q", "--filter=blob:none", "--no-local",
+                         "file://" + str(src), str(clone)], capture_output=True, text=True)
+            if cl.returncode != 0:
+                self.skipTest("partial clone unsupported in this environment")
+            sp.run(["git", "-C", str(clone), "config", "user.email", "t@test"], check=True)
+            sp.run(["git", "-C", str(clone), "config", "user.name", "T"], check=True)
+            (clone / "governance" / "x.md").write_text(self._doc("2.0.0", "2026-06-25"), encoding="utf-8")
+            sp.run(["git", "-C", str(clone), "add", "-A"], check=True)
+            env = dict(_os.environ)
+            env["PREFLIGHT_VD_TODAY"] = self.TODAY
+            env["GIT_CONFIG"] = "/dev/null"
+            before = set(glob.glob(str(clone / ".git" / "objects" / "pack" / "*")))
+            r = sp.run([sys.executable, str(REPO_ROOT / "tools/preflight-version-date.py"),
+                        "--base", first], capture_output=True, text=True, cwd=str(clone), env=env)
+            after = set(glob.glob(str(clone / ".git" / "objects" / "pack" / "*")))
+            self.assertEqual(r.returncode, 2,
+                             f"GIT_CONFIG must not hide the promisor:\n{r.stdout}\n{r.stderr}")
+            self.assertEqual(after - before, set(), "the aid must not lazy-fetch (write pack files)")
+        finally:
+            _sh.rmtree(src, ignore_errors=True)
+            _sh.rmtree(parent, ignore_errors=True)
+
+    def test_git_committer_date_override_scope_error(self) -> None:
+        # round-16 codex B2: an inherited GIT_COMMITTER_DATE overrides the committer date D4 compares
+        # against, so the aid's wall-clock "today" would mispredict (aid=0 while D4=1). Without a
+        # PREFLIGHT_VD_TODAY override the aid cannot know the prospective committer date, so it
+        # scope-errors (2) and defers to D4.
+        import subprocess as sp2, os as _os
+        tmp, sp, shutil = self._repo()
+        try:
+            doc = self._doc_path(tmp)
+            doc.write_text(self._doc("1.0.0", "2026-06-24"), encoding="utf-8")
+            base = self._commit(sp, tmp, "base")
+            doc.write_text(self._doc("1.0.1", "2026-06-25"), encoding="utf-8")
+            self._stage(sp, tmp)
+            env = dict(_os.environ)
+            env.pop("PREFLIGHT_VD_TODAY", None)  # the guard only fires without the test override
+            env["GIT_COMMITTER_DATE"] = "2026-06-25T12:00:00Z"
+            r = sp2.run([sys.executable, str(REPO_ROOT / "tools/preflight-version-date.py"),
+                         "--base", base], capture_output=True, text=True, cwd=str(tmp), env=env)
+            self.assertEqual(r.returncode, 2,
+                             f"GIT_COMMITTER_DATE override must scope-error (defer to D4): {r.stderr}")
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+
 class DeltaGateRepoTestCase(unittest.TestCase):
     """Shared two-commit temp-repo harness for the PR-time delta gates.
 
