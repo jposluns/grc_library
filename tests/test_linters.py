@@ -18100,10 +18100,17 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
                 with ExitStack() as stack:
                     stack.enter_context(self.patch.object(m, "resolve_pr_range", return_value=("base", "head")))
                     stack.enter_context(self.patch.object(m, "git", return_value=changed))
-                    stack.enter_context(self.patch.object(m, "git_show", show))
                     if name == "check-date-cobump-on-pr.py":
+                        # D4 now reads via blob_at (git cat-file blob), not git_show, and runs a
+                        # promisor_remote_reason check before the diff; the patched `git` would make
+                        # that misread `changed` as a partial-clone config, so stub it to None (a full
+                        # clone, the case this positive-enforcement probe models).
+                        stack.enter_context(self.patch.object(m, "blob_at", show))
+                        stack.enter_context(self.patch.object(m, "promisor_remote_reason", return_value=None))
                         stack.enter_context(self.patch.object(
                             m, "bump_commit_date_utc", return_value=datetime.date(2026, 1, 2)))
+                    else:
+                        stack.enter_context(self.patch.object(m, "git_show", show))
                     stack.enter_context(redirect_stdout(io.StringIO()))
                     stack.enter_context(redirect_stderr(io.StringIO()))
                     self.assertEqual(m.main(["probe", "base", "head"]), expected)
