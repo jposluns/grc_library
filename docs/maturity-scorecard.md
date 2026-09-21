@@ -160,7 +160,7 @@ _117 documents._
 | [specification-ingestion.md](../specification-ingestion.md) | GRC Library Ingestion and Transformation Specification | Specification | 1.7.14 | 2026-09-05 |
 | [specification-master-project.md](../specification-master-project.md) | Master Project Specification | Specification | 1.6.24 | 2026-09-06 |
 | [supply-chain/procedure-supplier-due-diligence.md](../supply-chain/procedure-supplier-due-diligence.md) | Supplier Due Diligence Procedure | Procedure | 1.1.12 | 2026-08-31 |
-| [supply-chain/standard-cloud-exit-and-data-portability.md](../supply-chain/standard-cloud-exit-and-data-portability.md) | Cloud Exit and Data Portability Standard | Standard | 1.1.6 | 2026-09-11 |
+| [supply-chain/standard-cloud-exit-and-data-portability.md](../supply-chain/standard-cloud-exit-and-data-portability.md) | Cloud Exit and Data Portability Standard | Standard | 1.1.7 | 2026-09-21 |
 | [supply-chain/standard-supplier-security-and-privacy-assurance.md](../supply-chain/standard-supplier-security-and-privacy-assurance.md) | Supplier Security and Privacy Assurance Standard | Standard | 1.1.13 | 2026-09-01 |
 
 ---
@@ -326,7 +326,7 @@ _163 documents._
 | [supply-chain/procedure-supplier-exit-and-data-return.md](../supply-chain/procedure-supplier-exit-and-data-return.md) | Supplier Exit and Data Return Procedure | Procedure | 1.0.5 | 2026-07-02 |
 | [supply-chain/procedure-supplier-onboarding-security-review.md](../supply-chain/procedure-supplier-onboarding-security-review.md) | Supplier Onboarding Security Review Procedure | Procedure | 1.0.9 | 2026-08-31 |
 | [supply-chain/procedure-supplier-ongoing-monitoring.md](../supply-chain/procedure-supplier-ongoing-monitoring.md) | Supplier Ongoing Monitoring Procedure | Procedure | 1.0.5 | 2026-08-31 |
-| [supply-chain/procedure-third-party-ai-due-diligence.md](../supply-chain/procedure-third-party-ai-due-diligence.md) | Third-Party AI Due Diligence Procedure | Procedure | 1.0.15 | 2026-09-20 |
+| [supply-chain/procedure-third-party-ai-due-diligence.md](../supply-chain/procedure-third-party-ai-due-diligence.md) | Third-Party AI Due Diligence Procedure | Procedure | 1.0.16 | 2026-09-21 |
 | [supply-chain/register-concentration-risk.md](../supply-chain/register-concentration-risk.md) | Concentration Risk Register | Register | 1.0.7 | 2026-09-14 |
 | [supply-chain/register-sbom.md](../supply-chain/register-sbom.md) | Software Bill of Materials Register | Register | 1.0.5 | 2026-09-14 |
 | [supply-chain/register-subprocessor-template.md](../supply-chain/register-subprocessor-template.md) | Subprocessor Register Template | Register | 1.0.3 | 2026-07-05 |
@@ -358,7 +358,7 @@ _71 documents._
 | [ai/jurisdictions/annex-ai-us-illinois.md](../ai/jurisdictions/annex-ai-us-illinois.md) | Illinois AI in Employment (HB 3773) Regulatory Requirements | Annex | 0.0.1 | 2026-09-05 |
 | [ai/jurisdictions/annex-ai-us-new-york-city.md](../ai/jurisdictions/annex-ai-us-new-york-city.md) | New York City Automated Employment Decision Tool Regulatory Requirements | Annex | 0.0.2 | 2026-07-12 |
 | [ai/jurisdictions/annex-ai-us-texas.md](../ai/jurisdictions/annex-ai-us-texas.md) | Texas Responsible Artificial Intelligence Governance Act (TRAIGA) Regulatory Requirements | Annex | 0.0.3 | 2026-09-05 |
-| [ai/matrix-etsi-sai-baseline-alignment.md](../ai/matrix-etsi-sai-baseline-alignment.md) | ETSI Securing-AI Baseline Alignment Matrix | Matrix | 0.0.2 | 2026-09-04 |
+| [ai/matrix-etsi-sai-baseline-alignment.md](../ai/matrix-etsi-sai-baseline-alignment.md) | ETSI Securing-AI Baseline Alignment Matrix | Matrix | 0.0.4 | 2026-09-21 |
 | [ai/procedure-foundation-model-lifecycle.md](../ai/procedure-foundation-model-lifecycle.md) | Foundation Model Lifecycle Procedure | Procedure | 0.0.12 | 2026-09-21 |
 | [ai/procedure-integrated-ai-and-privacy-assessment.md](../ai/procedure-integrated-ai-and-privacy-assessment.md) | Integrated AI and Privacy Assessment Procedure | Procedure | 0.1.6 | 2026-09-05 |
 | [ai/procedure-training-data-governance.md](../ai/procedure-training-data-governance.md) | Training Data Governance Procedure | Procedure | 0.0.14 | 2026-09-14 |
