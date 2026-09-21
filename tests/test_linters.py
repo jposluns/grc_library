@@ -7642,10 +7642,12 @@ class ClaudeRulesSyncCompilerOwnershipTests(LinterTestCase):
     EMPTY_REGISTER = "schema_version = 1\nowned_targets = []\n"
 
     def _make_root(self, ownership_toml, owned_local):
-        root = FIXTURE_DIR / "synthetic-claude-rules-ownership"
-        if root.exists():
-            shutil.rmtree(root)
-        self.addCleanup(shutil.rmtree, root, True)
+        # Unique per-call scratch dir + self-registered cleanup so two concurrent
+        # suite runs cannot delete or overwrite each other's tree (P-1.86;
+        # the fixed-dir + `if exists: rmtree` pattern raced on this fleet-concurrent
+        # machine; mirrors the #2292 _make_synthetic fix + _force_rmtree).
+        root = Path(tempfile.mkdtemp(prefix="synthetic-claude-rules-ownership-", dir=FIXTURE_DIR))
+        self.addCleanup(_force_rmtree, root)
         (root / ".claude" / "rules").mkdir(parents=True)
         (root / "guardrails" / "core").mkdir(parents=True)
         (root / ".claude" / "rules" / "secrets.md").write_text(
@@ -18396,10 +18398,12 @@ class CorpusManagementCompilerTests(LinterTestCase):
     def _make_root(self, *, gensrc, ownership, owned_targets,
                    clauses=None, sources=None, files=None,
                    gates_toml=None, gates_register_line=None):
-        root = FIXTURE_DIR / "synthetic-corpus-mgmt"
-        if root.exists():
-            shutil.rmtree(root)
-        self.addCleanup(shutil.rmtree, root, True)
+        # Unique per-call scratch dir + self-registered cleanup so two concurrent
+        # suite runs cannot delete or overwrite each other's tree (P-1.86;
+        # the fixed-dir + `if exists: rmtree` pattern raced on this fleet-concurrent
+        # machine; mirrors the #2292 _make_synthetic fix + _force_rmtree).
+        root = Path(tempfile.mkdtemp(prefix="synthetic-corpus-mgmt-", dir=FIXTURE_DIR))
+        self.addCleanup(_force_rmtree, root)
         pack = root / ".corpus-management"
         (pack / "core").mkdir(parents=True)
         _gline = gates_register_line if gates_register_line is not None else (
@@ -20490,10 +20494,12 @@ class CorpusManagementProfilesRegisterTests(unittest.TestCase):
     REGISTER = "schema_version = 1\n\n" + ENTRY
 
     def _make_root(self, *, register, profiles=None, clauses=None):
-        root = FIXTURE_DIR / "synthetic-corpus-mgmt-profiles"
-        if root.exists():
-            shutil.rmtree(root)
-        self.addCleanup(shutil.rmtree, root, True)
+        # Unique per-call scratch dir + self-registered cleanup so two concurrent
+        # suite runs cannot delete or overwrite each other's tree (P-1.86;
+        # the fixed-dir + `if exists: rmtree` pattern raced on this fleet-concurrent
+        # machine; mirrors the #2292 _make_synthetic fix + _force_rmtree).
+        root = Path(tempfile.mkdtemp(prefix="synthetic-corpus-mgmt-profiles-", dir=FIXTURE_DIR))
+        self.addCleanup(_force_rmtree, root)
         pack = root / ".corpus-management"
         (pack / "core").mkdir(parents=True)
         (pack / "defaults" / "grc").mkdir(parents=True)
