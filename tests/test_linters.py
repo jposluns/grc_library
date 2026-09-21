@@ -5835,10 +5835,8 @@ class AuditGateParityTests(LinterTestCase):
     def test_synthetic_name_drift_flagged(self) -> None:
         # Build a tiny four-surface fixture where everything aligns
         # except one gate name in the pre-commit hook (mismatch vs spec).
-        synthetic_root = FIXTURE_DIR / "synthetic-parity-drift"
+        synthetic_root = Path(tempfile.mkdtemp(prefix="synthetic-parity-drift-", dir=FIXTURE_DIR))  # unique per-run: no cross-run delete-race (P-1.86; #2439 follow-up)
         import shutil
-        if synthetic_root.exists():
-            shutil.rmtree(synthetic_root)
         (synthetic_root / "governance").mkdir(parents=True)
         (synthetic_root / ".github" / "workflows").mkdir(parents=True)
         (synthetic_root / "tools").mkdir(parents=True)
@@ -5894,10 +5892,8 @@ class AuditGateParityTests(LinterTestCase):
         # Four surfaces align on name + script, but the execution surfaces
         # invoke the gate with DIFFERENT flags (runner --strict, workflow and
         # pre-commit none): 3-way argv-parity flags it.
-        synthetic_root = FIXTURE_DIR / "synthetic-parity-argv-drift"
+        synthetic_root = Path(tempfile.mkdtemp(prefix="synthetic-parity-argv-drift-", dir=FIXTURE_DIR))  # unique per-run: no cross-run delete-race (P-1.86; #2439 follow-up)
         import shutil
-        if synthetic_root.exists():
-            shutil.rmtree(synthetic_root)
         (synthetic_root / "governance").mkdir(parents=True)
         (synthetic_root / ".github" / "workflows").mkdir(parents=True)
         (synthetic_root / "tools").mkdir(parents=True)
@@ -5960,10 +5956,8 @@ class AuditGateParityTests(LinterTestCase):
         # Same-name, same-script gate invoked with DIFFERENT flag VALUES across
         # the execution surfaces (runner --strict vs workflow --enforce; pre-commit
         # --strict), not merely a missing flag: argv-parity must flag this shape too.
-        synthetic_root = FIXTURE_DIR / "synthetic-parity-argv-value-drift"
+        synthetic_root = Path(tempfile.mkdtemp(prefix="synthetic-parity-argv-value-drift-", dir=FIXTURE_DIR))  # unique per-run: no cross-run delete-race (P-1.86; #2439 follow-up)
         import shutil
-        if synthetic_root.exists():
-            shutil.rmtree(synthetic_root)
         (synthetic_root / "governance").mkdir(parents=True)
         (synthetic_root / ".github" / "workflows").mkdir(parents=True)
         (synthetic_root / "tools").mkdir(parents=True)
@@ -6027,10 +6021,8 @@ class AuditGateParityTests(LinterTestCase):
         # carries a DIFFERENT flag. All three are full pass_filenames:false
         # execution surfaces, so argv-parity is 3-way: the pre-commit
         # divergence MUST be flagged.
-        synthetic_root = FIXTURE_DIR / "synthetic-parity-argv-precommit-drift"
+        synthetic_root = Path(tempfile.mkdtemp(prefix="synthetic-parity-argv-precommit-drift-", dir=FIXTURE_DIR))  # unique per-run: no cross-run delete-race (P-1.86; #2439 follow-up)
         import shutil
-        if synthetic_root.exists():
-            shutil.rmtree(synthetic_root)
         (synthetic_root / "governance").mkdir(parents=True)
         (synthetic_root / ".github" / "workflows").mkdir(parents=True)
         (synthetic_root / "tools").mkdir(parents=True)
@@ -6094,10 +6086,8 @@ class AuditGateParityTests(LinterTestCase):
         # quoted value, workflow a SINGLE-space one. A naive whitespace split
         # would collapse both to the same tokens (a false PASS); shlex keeps
         # the quoted argument as one token, so the drift is correctly flagged.
-        synthetic_root = FIXTURE_DIR / "synthetic-parity-argv-quoted"
+        synthetic_root = Path(tempfile.mkdtemp(prefix="synthetic-parity-argv-quoted-", dir=FIXTURE_DIR))  # unique per-run: no cross-run delete-race (P-1.86; #2439 follow-up)
         import shutil
-        if synthetic_root.exists():
-            shutil.rmtree(synthetic_root)
         (synthetic_root / "governance").mkdir(parents=True)
         (synthetic_root / ".github" / "workflows").mkdir(parents=True)
         (synthetic_root / "tools").mkdir(parents=True)
@@ -6694,11 +6684,8 @@ class StructureLinterTests(LinterTestCase):
 
     def test_broken_index_reference_flagged(self) -> None:
         # Build the synthetic repo inside the per-test fixture dir.
-        synthetic_root = FIXTURE_DIR / "synthetic-repo"
-        if synthetic_root.exists():
-            import shutil
-            shutil.rmtree(synthetic_root)
-        synthetic_root.mkdir(parents=True)
+        synthetic_root = Path(tempfile.mkdtemp(prefix="synthetic-repo-", dir=FIXTURE_DIR))  # unique per-run: no cross-run delete-race (P-1.86; #2439 follow-up)
+        import shutil
         self._build_synthetic_repo(synthetic_root, "governance/does-not-exist.md")
         try:
             result = run_linter(
@@ -6755,9 +6742,7 @@ class SkillDerivesFromTests(LinterTestCase):
     def _build_synthetic_root(self, skill_frontmatter: str, target_exists: bool) -> Path:
         import shutil
 
-        synthetic_root = FIXTURE_DIR / "synthetic-skill-derives"
-        if synthetic_root.exists():
-            shutil.rmtree(synthetic_root)
+        synthetic_root = Path(tempfile.mkdtemp(prefix="synthetic-skill-derives-", dir=FIXTURE_DIR))  # unique per-run: no cross-run delete-race (P-1.86; #2439 follow-up)
         skill_dir = synthetic_root / "guardrails" / "skills" / "test-skill"
         skill_dir.mkdir(parents=True)
         rules_dir = synthetic_root / "guardrails" / "governance"
@@ -7078,9 +7063,7 @@ class DocumentDateStalenessTests(LinterTestCase):
     ) -> Path:
         import shutil
 
-        synthetic_root = FIXTURE_DIR / "synthetic-date-staleness"
-        if synthetic_root.exists():
-            shutil.rmtree(synthetic_root)
+        synthetic_root = Path(tempfile.mkdtemp(prefix="synthetic-date-staleness-", dir=FIXTURE_DIR))  # unique per-run: no cross-run delete-race (P-1.86; #2439 follow-up)
         scan_dir = synthetic_root / scan_subdir
         scan_dir.mkdir(parents=True)
         # Minimal metadata block: only the Date field needs to be
