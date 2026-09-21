@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Advisory report of UNPROCESSED maintainer-and-worker drops in the file-drop inbox.
 
-WHY THIS EXISTS. A drop is work handed to the orchestrator OUTSIDE the order queue: the
+WHY THIS EXISTS. A drop is work handed to the orchestrator OUTSIDE the request flow: the
 maintainer places a document, or a worker delivers something the orchestrator never ordered
-(a brief, a diagnosis, design input) and which therefore has no order id and no outbox. A sizeable external deep assessment once sat unread in that directory for an entire
+(a brief, a diagnosis, design input), so it is not a requested ``orch-verify`` result and nothing
+points at it. A sizeable external deep assessment once sat unread in that directory for an entire
 overnight run, and NOTHING could have surfaced it: the drop root is outside every repository
-so no audit gate walks it, and the orchestrator's own task list is built from the order queue, which a
+so no audit gate walks it, and the orchestrator's own task list is built from what it dispatched, which a
 drop is never part of. Some of that assessment's findings concerned the orchestrator's own
 conduct, so the cost of not reading it was real. This tool is the missing instrument.
 
