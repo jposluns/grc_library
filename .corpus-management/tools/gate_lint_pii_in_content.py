@@ -122,11 +122,17 @@ def _label_starts(ch: str) -> bool:
     katakana middle dot), ``Cf`` (ZWJ), ``Sk`` (U+0375) and ``So`` (U+06FD/U+06FE). So
     the boundary test is deliberately MINIMAL: after NFKC normalisation, a character is
     a boundary only when its first normalised codepoint is whitespace, a dot separator
-    (handled by the caller), or an ASCII punctuation character. EVERY other character,
-    which is every non-ASCII character that does not compatibility-map to ASCII (no
-    IDNA-valid character does), conservatively continues the label and RETAINS the
-    address for scanning. A real (possibly IDN) domain whose ASCII prefix looks reserved
-    can therefore never be wrongly exempted. Residual cost: a harmless over-flag of a
+    (handled by the caller), or an ASCII PUNCTUATION character. Every other character
+    RETAINS the address for scanning: an ASCII alphanumeric or ``-`` (a normal label
+    char) and every non-ASCII character (a possible IDN label char). The safety property
+    is set INCLUSION, not the stronger and false claim that no IDNA character maps to
+    ASCII (a fullwidth letter such as U+FF41 does NFKC-map to ASCII, but to an
+    alphanumeric, which the ASCII branch retains): the only characters granted a boundary
+    are whitespace, dot separators, and codepoints whose NFKC form begins with ASCII
+    punctuation, and that boundary set was verified EMPIRICALLY (over every
+    boundary-classified code-point, against ``idna.encode(uts46=True, std3_rules=True)``)
+    to contain no character IDNA accepts as a domain-label continuation. A real (possibly
+    IDN) domain whose ASCII prefix looks reserved therefore can never be wrongly exempted. Residual cost: a harmless over-flag of a
     reserved/example email placed immediately (no separating space) against an exotic
     non-ASCII symbol, curly quote, CJK bracket or zero-width character, which plain-ASCII
     fixtures never produce (ASCII spaces, quotes, brackets and punctuation stay exempt)."""
