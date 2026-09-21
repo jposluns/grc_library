@@ -1864,6 +1864,22 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
         self.assertIn("self-test: OK", result.stdout)
 
+    def test_check_dirty_tree_push_hook_self_test(self) -> None:
+        """The git-native pre-push dirty-tree backstop's --self-test, wired at introduction.
+
+        Replaces the abandoned PreToolUse block-dirty-tree-push.py
+        (OF-2026-09-20-dirty-tree-push-hook-defects): a PreToolUse shell-parser could not
+        avoid false positives; this git-native pre-push hook runs at push time on the real
+        tree, so it is FP-safe by construction. --self-test exercises decide().
+        """
+        result = self._run_selftest(
+            [sys.executable, str(REPO_ROOT / "tools" / "check-dirty-tree-push.py"),
+             "--self-test"]
+        )
+        self.assertEqual(result.returncode, 0,
+                         f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        self.assertIn("self-test: ", result.stdout)
+
     def test_block_unstamped_turn_end_hook_self_test(self) -> None:
         """The block-unstamped-turn-end.py self-test, wired at introduction (PR: timestamp/duration console rule)."""
         result = self._run_selftest(

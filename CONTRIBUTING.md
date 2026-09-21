@@ -2,8 +2,8 @@
 
 **Document Title:** Contributing to the GRC Documentation Library\
 **Document Type:** Guideline\
-**Version:** 1.2.5\
-**Date:** 2026-08-03\
+**Version:** 1.2.6\
+**Date:** 2026-09-21\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](README.md), [`specification-master-project.md`](specification-master-project.md), [`specification-ingestion.md`](specification-ingestion.md), [`SECURITY.md`](SECURITY.md), [`NOTICE.md`](NOTICE.md), [`AUTHORS.md`](AUTHORS.md), [`CHANGELOG.md`](CHANGELOG.md)\
@@ -67,6 +67,8 @@ The most common net-new artefact is an overlay for a sector or jurisdiction the 
    pip install pre-commit
    pre-commit install
    ```
+
+   Also run `tools/install-git-hooks.sh` once to install the git-native pre-push backstop: it refuses a `git push` with a dirty tracked tree when you are pushing your current HEAD (override `PRE_PUSH_GUARD_ALLOW_DIRTY=1`).
 
 4. **Update the index and domain README.** Every new active document must appear in [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) and in its domain's [`README.md`](README.md) Active Documents table.
 5. **Bump versions appropriately.** Patch (`x.y.z` increments the patch segment) for minor corrections; minor (`x.y.0`) for substantive content additions or structural changes; major (`x.0.0`) for breaking structural or material policy revisions. See [`specification-ingestion.md`](specification-ingestion.md) Version numbering.
